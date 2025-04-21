@@ -103,6 +103,30 @@ public class DatabaseExporter
                 Invulnerable = character.Invulnerable,
             };
 
+            // Check if the prefab has a Stats component and include stats data if available
+            Stats stats = prefab.GetComponent<Stats>();
+            if (stats != null)
+            {
+                record.HasStats = true;
+                record.CharacterName = stats.MyName;
+                record.Level = stats.Level;
+                record.BaseHP = stats.BaseHP;
+                record.BaseAC = stats.BaseAC;
+                record.BaseMana = stats.BaseMana;
+                record.BaseStr = stats.BaseStr;
+                record.BaseEnd = stats.BaseEnd;
+                record.BaseDex = stats.BaseDex;
+                record.BaseAgi = stats.BaseAgi;
+                record.BaseInt = stats.BaseInt;
+                record.BaseWis = stats.BaseWis;
+                record.BaseCha = stats.BaseCha;
+                record.BaseRes = stats.BaseRes;
+                record.BaseMR = stats.BaseMR;
+                record.BaseER = stats.BaseER;
+                record.BasePR = stats.BasePR;
+                record.BaseVR = stats.BaseVR;
+            }
+
             db.InsertOrReplace(record);
             exportedCount++;
         }
