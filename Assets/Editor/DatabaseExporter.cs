@@ -15,15 +15,17 @@ public class DatabaseExporter
         string dbPath = Path.Combine(Application.dataPath, DB_PATH);
         var db = new SQLiteConnection(dbPath);
 
-        // Create tables for both types
+        // Create tables for all types
         db.CreateTable<CharacterDBRecord>();
         db.CreateTable<ItemDBRecord>();
+        db.CreateTable<LootDropDBRecord>();
 
         // Clear existing records
         db.DeleteAll<CharacterDBRecord>();
         db.DeleteAll<ItemDBRecord>();
+        db.DeleteAll<LootDropDBRecord>();
 
-        // Export both types
+        // Export all types
         int characterCount = ExportCharacters(db);
         int itemCount = ExportItems(db);
 
@@ -36,11 +38,13 @@ public class DatabaseExporter
         string dbPath = Path.Combine(Application.dataPath, DB_PATH);
         var db = new SQLiteConnection(dbPath);
 
-        // Create table for characters
+        // Create tables for characters and loot drops
         db.CreateTable<CharacterDBRecord>();
+        db.CreateTable<LootDropDBRecord>();
 
-        // Clear existing character records
+        // Clear existing character and loot drop records
         db.DeleteAll<CharacterDBRecord>();
+        db.DeleteAll<LootDropDBRecord>();
 
         // Export characters
         int characterCount = ExportCharacters(db);
@@ -76,6 +80,7 @@ public class DatabaseExporter
         }
 
         int exportedCount = 0;
+        int lootDropsCount = 0;
 
         foreach (string guid in guids)
         {
@@ -132,8 +137,119 @@ public class DatabaseExporter
 
             db.InsertOrReplace(record);
             exportedCount++;
+
+            // Check if the prefab has a LootTable component and export loot drop data
+            LootTable lootTable = prefab.GetComponent<LootTable>();
+            if (lootTable != null)
+            {
+                // Export guaranteed drops
+                if (lootTable.GuaranteeOneDrop != null)
+                {
+                    for (int i = 0; i < lootTable.GuaranteeOneDrop.Count; i++)
+                    {
+                        Item item = lootTable.GuaranteeOneDrop[i];
+                        if (item != null)
+                        {
+                            var lootRecord = new LootDropDBRecord
+                            {
+                                CharacterPrefabGuid = guid,
+                                ItemId = item.Id,
+                                DropType = "Guaranteed",
+                                DropIndex = i
+                            };
+                            db.Insert(lootRecord);
+                            lootDropsCount++;
+                        }
+                    }
+                }
+
+                // Export common drops
+                if (lootTable.CommonDrop != null)
+                {
+                    for (int i = 0; i < lootTable.CommonDrop.Count; i++)
+                    {
+                        Item item = lootTable.CommonDrop[i];
+                        if (item != null)
+                        {
+                            var lootRecord = new LootDropDBRecord
+                            {
+                                CharacterPrefabGuid = guid,
+                                ItemId = item.Id,
+                                DropType = "Common",
+                                DropIndex = i
+                            };
+                            db.Insert(lootRecord);
+                            lootDropsCount++;
+                        }
+                    }
+                }
+
+                // Export uncommon drops
+                if (lootTable.UncommonDrop != null)
+                {
+                    for (int i = 0; i < lootTable.UncommonDrop.Count; i++)
+                    {
+                        Item item = lootTable.UncommonDrop[i];
+                        if (item != null)
+                        {
+                            var lootRecord = new LootDropDBRecord
+                            {
+                                CharacterPrefabGuid = guid,
+                                ItemId = item.Id,
+                                DropType = "Uncommon",
+                                DropIndex = i
+                            };
+                            db.Insert(lootRecord);
+                            lootDropsCount++;
+                        }
+                    }
+                }
+
+                // Export rare drops
+                if (lootTable.RareDrop != null)
+                {
+                    for (int i = 0; i < lootTable.RareDrop.Count; i++)
+                    {
+                        Item item = lootTable.RareDrop[i];
+                        if (item != null)
+                        {
+                            var lootRecord = new LootDropDBRecord
+                            {
+                                CharacterPrefabGuid = guid,
+                                ItemId = item.Id,
+                                DropType = "Rare",
+                                DropIndex = i
+                            };
+                            db.Insert(lootRecord);
+                            lootDropsCount++;
+                        }
+                    }
+                }
+
+                // Export legendary drops
+                if (lootTable.LegendaryDrop != null)
+                {
+                    for (int i = 0; i < lootTable.LegendaryDrop.Count; i++)
+                    {
+                        Item item = lootTable.LegendaryDrop[i];
+                        if (item != null)
+                        {
+                            var lootRecord = new LootDropDBRecord
+                            {
+                                CharacterPrefabGuid = guid,
+                                ItemId = item.Id,
+                                DropType = "Legendary",
+                                DropIndex = i
+                            };
+                            db.Insert(lootRecord);
+                            lootDropsCount++;
+                        }
+                    }
+                }
+            }
         }
 
+        Debug.Log($"Exported {lootDropsCount} loot drops for characters");
         return exportedCount;
     }
 
