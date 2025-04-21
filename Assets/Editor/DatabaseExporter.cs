@@ -17,6 +17,9 @@ public class DatabaseExporter
     // Flag to cancel ongoing operations
     private static bool _cancelRequested = false;
 
+    // Store the update delegate to properly unsubscribe
+    private static EditorApplication.CallbackFunction _currentUpdateDelegate = null;
+
     // Method to request cancellation of ongoing operations
     public static void CancelExport()
     {
@@ -43,8 +46,18 @@ public class DatabaseExporter
         // Store the progress callback in the state
         initialState["progressCallback"] = progressCallback;
 
+        // Unsubscribe any existing delegate to prevent multiple subscriptions
+        if (_currentUpdateDelegate != null)
+        {
+            EditorApplication.update -= _currentUpdateDelegate;
+            _currentUpdateDelegate = null;
+        }
+
+        // Create and store the update delegate - convert to CallbackFunction
+        _currentUpdateDelegate = () => updateMethod(initialState, progressCallback);
+
         // Start the asynchronous operation
-        EditorApplication.update += () => updateMethod(initialState, progressCallback);
+        EditorApplication.update += _currentUpdateDelegate;
     }
 
     // Generic async update method
@@ -58,7 +71,11 @@ public class DatabaseExporter
         if (_cancelRequested)
         {
             progressCallback?.Invoke(1.0f, "Export cancelled");
-            EditorApplication.update -= () => GenericExportAsyncUpdate(state, progressCallback, stageOperations, completionMessage);
+            if (_currentUpdateDelegate != null)
+            {
+                EditorApplication.update -= _currentUpdateDelegate;
+                _currentUpdateDelegate = null;
+            }
             ResetCancelFlag();
             return;
         }
@@ -67,12 +84,22 @@ public class DatabaseExporter
         if ((bool)state["completed"])
         {
             string dbPath = (string)state["dbPath"];
-            string message = string.Format(completionMessage, state);
+
+            // Replace format placeholders with actual values from the dictionary
+            string message = completionMessage;
+            foreach (var key in state.Keys)
+            {
+                message = message.Replace($"{{0[{key}]}}", state[key]?.ToString() ?? "0");
+            }
 
             progressCallback?.Invoke(1.0f, message);
             Debug.Log($"{message} to SQLite database at {dbPath}");
 
-            EditorApplication.update -= () => GenericExportAsyncUpdate(state, progressCallback, stageOperations, completionMessage);
+            if (_currentUpdateDelegate != null)
+            {
+                EditorApplication.update -= _currentUpdateDelegate;
+                _currentUpdateDelegate = null;
+            }
             return;
         }
 
@@ -304,8 +331,6 @@ public class DatabaseExporter
         }
     }
 
-
-
     // Asynchronous version of ExportLootDropsToDB
     public static void ExportLootDropsToDBAsync(ProgressCallback progressCallback = null)
     {
@@ -481,8 +506,6 @@ public class DatabaseExporter
         callback?.Invoke(0.2f, $"Found {guids.Length} character prefabs");
     }
 
-
-
     // Asynchronous version of ExportItemsToDB
     public static void ExportItemsToDBAsync(ProgressCallback progressCallback = null)
     {
@@ -601,8 +624,6 @@ public class DatabaseExporter
             state["completed"] = true;
         }
     }
-
-
 
     // Helper method to export a character to the database
     private static CharacterDBRecord ExportCharacter(GameObject prefab, string guid)
@@ -740,5 +761,4 @@ public class DatabaseExporter
 
         return lootDrops;
     }
-
 }
