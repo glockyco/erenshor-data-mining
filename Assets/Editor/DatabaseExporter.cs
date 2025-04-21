@@ -29,12 +29,79 @@ public class DatabaseExporter
         _cancelRequested = false;
     }
 
+    // Delegate for export operations
+    private delegate void ExportOperation(SQLiteConnection db, Dictionary<string, object> state);
+
+    // Generic async export method
+    private static void ExportAsync(
+        Dictionary<string, object> initialState,
+        Action<Dictionary<string, object>, ProgressCallback> updateMethod,
+        ProgressCallback progressCallback = null
+    ) {
+        ResetCancelFlag();
+
+        // Store the progress callback in the state
+        initialState["progressCallback"] = progressCallback;
+
+        // Start the asynchronous operation
+        EditorApplication.update += () => updateMethod(initialState, progressCallback);
+    }
+
+    // Generic async update method
+    private static void GenericExportAsyncUpdate(
+        Dictionary<string, object> state,
+        ProgressCallback progressCallback,
+        Dictionary<string, ExportOperation> stageOperations,
+        string completionMessage
+    ) {
+        // Check if the operation has been cancelled
+        if (_cancelRequested)
+        {
+            progressCallback?.Invoke(1.0f, "Export cancelled");
+            EditorApplication.update -= () => GenericExportAsyncUpdate(state, progressCallback, stageOperations, completionMessage);
+            ResetCancelFlag();
+            return;
+        }
+
+        // Check if the operation has completed
+        if ((bool)state["completed"])
+        {
+            string dbPath = (string)state["dbPath"];
+            string message = string.Format(completionMessage, state);
+
+            progressCallback?.Invoke(1.0f, message);
+            Debug.Log($"{message} to SQLite database at {dbPath}");
+
+            EditorApplication.update -= () => GenericExportAsyncUpdate(state, progressCallback, stageOperations, completionMessage);
+            return;
+        }
+
+        // Get the current stage and execute the corresponding operation
+        string stage = (string)state["stage"];
+        if (stageOperations.TryGetValue(stage, out ExportOperation operation))
+        {
+            SQLiteConnection db = state["db"] as SQLiteConnection;
+            if (db == null && stage == "init")
+            {
+                // Initialize the database
+                string dbPath = (string)state["dbPath"];
+                db = new SQLiteConnection(dbPath);
+                state["db"] = db;
+            }
+
+            // Execute the operation for the current stage
+            operation(db, state);
+        }
+        else
+        {
+            Debug.LogError($"Unknown stage: {stage}");
+            state["completed"] = true;
+        }
+    }
 
     // Asynchronous version of ExportAllToDB
     public static void ExportAllToDBAsync(ProgressCallback progressCallback = null)
     {
-        ResetCancelFlag();
-
         // Create a state object to track progress
         var state = new Dictionary<string, object>
         {
@@ -53,362 +120,94 @@ public class DatabaseExporter
             { "completed", false }
         };
 
+        // Define the operations for each stage
+        var stageOperations = new Dictionary<string, ExportOperation>
+        {
+            { "init", InitializeAllDB },
+            { "prepare_characters", PrepareCharacters },
+            { "export_characters", ExportCharactersAndLootDropsBatch },
+            { "prepare_items", PrepareItems },
+            { "export_items", ExportItemsBatch }
+        };
+
         // Start the asynchronous operation
-        EditorApplication.update += () => ExportAllToDBAsyncUpdate(state, progressCallback);
+        ExportAsync(state, 
+            (s, callback) => GenericExportAsyncUpdate(s, callback, stageOperations, 
+                "Exported {0[characterCount]} characters and {0[itemCount]} items"), 
+            progressCallback);
     }
 
-    private static void ExportAllToDBAsyncUpdate(Dictionary<string, object> state, ProgressCallback progressCallback)
+    // Initialize the database for all exports
+    private static void InitializeAllDB(SQLiteConnection db, Dictionary<string, object> state)
     {
-        // Check if the operation has been cancelled
-        if (_cancelRequested)
+        // Create tables for all types
+        db.CreateTable<CharacterDBRecord>();
+        db.CreateTable<ItemDBRecord>();
+        db.CreateTable<LootDropDBRecord>();
+
+        // Clear existing records
+        db.DeleteAll<CharacterDBRecord>();
+        db.DeleteAll<ItemDBRecord>();
+        db.DeleteAll<LootDropDBRecord>();
+
+        state["stage"] = "prepare_characters";
+        ProgressCallback callback = state["progressCallback"] as ProgressCallback;
+        callback?.Invoke(0.05f, "Database initialized");
+    }
+
+    // Export a batch of characters and their loot drops
+    private static void ExportCharactersAndLootDropsBatch(SQLiteConnection db, Dictionary<string, object> state)
+    {
+        string[] characterGuids = (string[])state["characterGuids"];
+        int characterIndex = (int)state["characterIndex"];
+        int characterCount = (int)state["characterCount"];
+        int lootDropsCount = (int)state["lootDropsCount"];
+        int totalCharacters = (int)state["totalCharacters"];
+
+        // Process a batch of characters (adjust batch size as needed)
+        int batchSize = 5;
+        int endIndex = Math.Min(characterIndex + batchSize, characterGuids.Length);
+
+        for (int i = characterIndex; i < endIndex; i++)
         {
-            progressCallback?.Invoke(1.0f, "Export cancelled");
-            EditorApplication.update -= () => ExportAllToDBAsyncUpdate(state, progressCallback);
-            ResetCancelFlag();
-            return;
-        }
+            string guid = characterGuids[i];
+            string assetPath = AssetDatabase.GUIDToAssetPath(guid);
+            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
 
-        // Check if the operation has completed
-        if ((bool)state["completed"])
-        {
-            int characterCount = (int)state["characterCount"];
-            int itemCount = (int)state["itemCount"];
-            string dbPath = (string)state["dbPath"];
-
-            progressCallback?.Invoke(1.0f, $"Exported {characterCount} characters and {itemCount} items");
-            Debug.Log($"Exported {characterCount} characters and {itemCount} items to SQLite database at {dbPath}");
-
-            EditorApplication.update -= () => ExportAllToDBAsyncUpdate(state, progressCallback);
-            return;
-        }
-
-        // Declare db variable at the method level
-        SQLiteConnection db;
-        string stage = (string)state["stage"];
-
-        switch (stage)
-        {
-            case "init":
-                // Initialize the database
-                string dbPath = (string)state["dbPath"];
-                db = new SQLiteConnection(dbPath);
-                state["db"] = db;
-
-                // Create tables for all types
-                db.CreateTable<CharacterDBRecord>();
-                db.CreateTable<ItemDBRecord>();
-                db.CreateTable<LootDropDBRecord>();
-
-                // Clear existing records
-                db.DeleteAll<CharacterDBRecord>();
-                db.DeleteAll<ItemDBRecord>();
-                db.DeleteAll<LootDropDBRecord>();
-
-                progressCallback?.Invoke(0.05f, "Database initialized");
-
-                // Move to the next stage
-                state["stage"] = "prepare_characters";
-                break;
-
-            case "prepare_characters":
-                // Find all character prefabs
-                string[] guids = AssetDatabase.FindAssets("t:Prefab", new[] { CHARACTERS_PATH });
-                state["characterGuids"] = guids;
-                state["totalCharacters"] = guids.Length;
-
-                progressCallback?.Invoke(0.1f, $"Found {guids.Length} character prefabs");
-
-                // Move to the next stage
-                state["stage"] = "export_characters";
-                break;
-
-            case "export_characters":
-                db = (SQLiteConnection)state["db"];
-                string[] characterGuids = (string[])state["characterGuids"];
-                int characterIndex = (int)state["characterIndex"];
-                int characterCount = (int)state["characterCount"];
-                int lootDropsCount = (int)state["lootDropsCount"];
-                int totalCharacters = (int)state["totalCharacters"];
-
-                // Process a batch of characters (adjust batch size as needed)
-                int batchSize = 5;
-                int endIndex = Math.Min(characterIndex + batchSize, characterGuids.Length);
-
-                for (int i = characterIndex; i < endIndex; i++)
+            if (prefab != null)
+            {
+                // Export character
+                CharacterDBRecord record = ExportCharacter(prefab, guid);
+                if (record != null)
                 {
-                    string guid = characterGuids[i];
-                    string assetPath = AssetDatabase.GUIDToAssetPath(guid);
-                    GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+                    db.InsertOrReplace(record);
+                    characterCount++;
 
-                    if (prefab != null)
+                    // Export loot drops
+                    LootTable lootTable = prefab.GetComponent<LootTable>();
+                    if (lootTable != null)
                     {
-                        Character character = prefab.GetComponent<Character>();
-                        if (character != null)
-                        {
-                            NPC npc = prefab.GetComponent<NPC>();
-
-                            var record = new CharacterDBRecord
-                            {
-                                PrefabGuid = guid,
-                                PrefabName = prefab.name,
-                                NPCName = npc != null ? npc.NPCName : string.Empty,
-                                MyFaction = (int)character.MyFaction,
-                                BaseFaction = (int)character.BaseFaction,
-                                TempFaction = (int)character.TempFaction,
-                                AggroRange = character.AggroRange,
-                                Alive = character.Alive,
-                                isNPC = character.isNPC,
-                                isVendor = character.isVendor,
-                                AttackRange = character.AttackRange,
-                                Invulnerable = character.Invulnerable,
-                            };
-
-                            // Check if the prefab has a Stats component
-                            Stats stats = prefab.GetComponent<Stats>();
-                            if (stats != null)
-                            {
-                                record.HasStats = true;
-                                record.CharacterName = stats.MyName;
-                                record.Level = stats.Level;
-                                record.BaseHP = stats.BaseHP;
-                                record.BaseAC = stats.BaseAC;
-                                record.BaseMana = stats.BaseMana;
-                                record.BaseStr = stats.BaseStr;
-                                record.BaseEnd = stats.BaseEnd;
-                                record.BaseDex = stats.BaseDex;
-                                record.BaseAgi = stats.BaseAgi;
-                                record.BaseInt = stats.BaseInt;
-                                record.BaseWis = stats.BaseWis;
-                                record.BaseCha = stats.BaseCha;
-                                record.BaseRes = stats.BaseRes;
-                                record.BaseMR = stats.BaseMR;
-                                record.BaseER = stats.BaseER;
-                                record.BasePR = stats.BasePR;
-                                record.BaseVR = stats.BaseVR;
-                            }
-
-                            db.InsertOrReplace(record);
-                            characterCount++;
-
-                            // Export loot drops
-                            LootTable lootTable = prefab.GetComponent<LootTable>();
-                            if (lootTable != null)
-                            {
-                                // Export guaranteed drops
-                                if (lootTable.GuaranteeOneDrop != null)
-                                {
-                                    for (int j = 0; j < lootTable.GuaranteeOneDrop.Count; j++)
-                                    {
-                                        Item item = lootTable.GuaranteeOneDrop[j];
-                                        if (item != null)
-                                        {
-                                            var lootRecord = new LootDropDBRecord
-                                            {
-                                                CharacterPrefabGuid = guid,
-                                                ItemId = item.Id,
-                                                DropType = "Guaranteed",
-                                                DropIndex = j
-                                            };
-                                            db.Insert(lootRecord);
-                                            lootDropsCount++;
-                                        }
-                                    }
-                                }
-
-                                // Export common drops
-                                if (lootTable.CommonDrop != null)
-                                {
-                                    for (int j = 0; j < lootTable.CommonDrop.Count; j++)
-                                    {
-                                        Item item = lootTable.CommonDrop[j];
-                                        if (item != null)
-                                        {
-                                            var lootRecord = new LootDropDBRecord
-                                            {
-                                                CharacterPrefabGuid = guid,
-                                                ItemId = item.Id,
-                                                DropType = "Common",
-                                                DropIndex = j
-                                            };
-                                            db.Insert(lootRecord);
-                                            lootDropsCount++;
-                                        }
-                                    }
-                                }
-
-                                // Export uncommon drops
-                                if (lootTable.UncommonDrop != null)
-                                {
-                                    for (int j = 0; j < lootTable.UncommonDrop.Count; j++)
-                                    {
-                                        Item item = lootTable.UncommonDrop[j];
-                                        if (item != null)
-                                        {
-                                            var lootRecord = new LootDropDBRecord
-                                            {
-                                                CharacterPrefabGuid = guid,
-                                                ItemId = item.Id,
-                                                DropType = "Uncommon",
-                                                DropIndex = j
-                                            };
-                                            db.Insert(lootRecord);
-                                            lootDropsCount++;
-                                        }
-                                    }
-                                }
-
-                                // Export rare drops
-                                if (lootTable.RareDrop != null)
-                                {
-                                    for (int j = 0; j < lootTable.RareDrop.Count; j++)
-                                    {
-                                        Item item = lootTable.RareDrop[j];
-                                        if (item != null)
-                                        {
-                                            var lootRecord = new LootDropDBRecord
-                                            {
-                                                CharacterPrefabGuid = guid,
-                                                ItemId = item.Id,
-                                                DropType = "Rare",
-                                                DropIndex = j
-                                            };
-                                            db.Insert(lootRecord);
-                                            lootDropsCount++;
-                                        }
-                                    }
-                                }
-
-                                // Export legendary drops
-                                if (lootTable.LegendaryDrop != null)
-                                {
-                                    for (int j = 0; j < lootTable.LegendaryDrop.Count; j++)
-                                    {
-                                        Item item = lootTable.LegendaryDrop[j];
-                                        if (item != null)
-                                        {
-                                            var lootRecord = new LootDropDBRecord
-                                            {
-                                                CharacterPrefabGuid = guid,
-                                                ItemId = item.Id,
-                                                DropType = "Legendary",
-                                                DropIndex = j
-                                            };
-                                            db.Insert(lootRecord);
-                                            lootDropsCount++;
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                        lootDropsCount += ExportLootDropsForCharacter(db, guid, lootTable);
                     }
                 }
+            }
+        }
 
-                // Update state
-                state["characterIndex"] = endIndex;
-                state["characterCount"] = characterCount;
-                state["lootDropsCount"] = lootDropsCount;
+        // Update state
+        state["characterIndex"] = endIndex;
+        state["characterCount"] = characterCount;
+        state["lootDropsCount"] = lootDropsCount;
 
-                // Calculate progress (characters are 50% of the total progress)
-                float progress = 0.1f + (0.4f * endIndex / totalCharacters);
-                progressCallback?.Invoke(progress, $"Exported {characterCount} characters ({endIndex}/{totalCharacters})");
+        // Calculate progress (characters are 50% of the total progress)
+        float progress = 0.1f + (0.4f * endIndex / totalCharacters);
+        ProgressCallback callback = state["progressCallback"] as ProgressCallback;
+        callback?.Invoke(progress, $"Exported {characterCount} characters ({endIndex}/{totalCharacters})");
 
-                // Check if all characters have been processed
-                if (endIndex >= characterGuids.Length)
-                {
-                    // Move to the next stage
-                    state["stage"] = "prepare_items";
-                }
-                break;
-
-            case "prepare_items":
-                // Load all Item assets
-                Item[] items = Resources.LoadAll<Item>(ITEMS_PATH);
-                state["items"] = items;
-                state["totalItems"] = items.Length;
-
-                progressCallback?.Invoke(0.5f, $"Found {items.Length} items");
-
-                // Move to the next stage
-                state["stage"] = "export_items";
-                break;
-
-            case "export_items":
-                db = (SQLiteConnection)state["db"];
-                Item[] allItems = (Item[])state["items"];
-                int itemIndex = (int)state["itemIndex"];
-                int itemCount = (int)state["itemCount"];
-                int totalItems = (int)state["totalItems"];
-
-                // Process a batch of items (adjust batch size as needed)
-                batchSize = 10;
-                endIndex = Math.Min(itemIndex + batchSize, allItems.Length);
-
-                for (int i = itemIndex; i < endIndex; i++)
-                {
-                    Item item = allItems[i];
-
-                    var record = new ItemDBRecord
-                    {
-                        Id = item.Id,
-                        ItemName = item.ItemName,
-                        ItemLevel = item.ItemLevel,
-                        HP = item.HP,
-                        AC = item.AC,
-                        Mana = item.Mana,
-                        WeaponDmg = item.WeaponDmg,
-                        WeaponDly = item.WeaponDly,
-                        Str = item.Str,
-                        End = item.End,
-                        Dex = item.Dex,
-                        Agi = item.Agi,
-                        Int = item.Int,
-                        Wis = item.Wis,
-                        Cha = item.Cha,
-                        Res = item.Res,
-                        MR = item.MR,
-                        ER = item.ER,
-                        PR = item.PR,
-                        VR = item.VR,
-                        RequiredSlot = (int)item.RequiredSlot,
-                        ThisWeaponType = (int)item.ThisWeaponType,
-                        ItemValue = item.ItemValue,
-                        Lore = item.Lore,
-                        Shield = item.Shield,
-                        WeaponProcChance = item.WeaponProcChance,
-                        SpellCastTime = item.SpellCastTime,
-                        HideHairWhenEquipped = item.HideHairWhenEquipped,
-                        HideHeadWhenEquipped = item.HideHeadWhenEquipped,
-                        Stackable = item.Stackable,
-                        Disposable = item.Disposable,
-                        Unique = item.Unique,
-                        Mining = item.Mining,
-                        FuelSource = item.FuelSource,
-                        Template = item.Template,
-                        SimPlayersCantGet = item.SimPlayersCantGet,
-                        FuelLevel = (int)item.FuelLevel,
-                        Relic = item.Relic,
-                        BookTitle = item.BookTitle
-                    };
-
-                    db.Insert(record);
-                    itemCount++;
-                }
-
-                // Update state
-                state["itemIndex"] = endIndex;
-                state["itemCount"] = itemCount;
-
-                // Calculate progress (items are the remaining 50% of the total progress)
-                progress = 0.5f + (0.5f * endIndex / totalItems);
-                progressCallback?.Invoke(progress, $"Exported {itemCount} items ({endIndex}/{totalItems})");
-
-                // Check if all items have been processed
-                if (endIndex >= allItems.Length)
-                {
-                    // Mark the operation as completed
-                    state["completed"] = true;
-                }
-                break;
+        // Check if all characters have been processed
+        if (endIndex >= characterGuids.Length)
+        {
+            // Move to the next stage
+            state["stage"] = "prepare_items";
         }
     }
 
@@ -417,8 +216,6 @@ public class DatabaseExporter
     // Asynchronous version of ExportLootDropsToDB
     public static void ExportLootDropsToDBAsync(ProgressCallback progressCallback = null)
     {
-        ResetCancelFlag();
-
         // Create a state object to track progress
         var state = new Dictionary<string, object>
         {
@@ -432,121 +229,83 @@ public class DatabaseExporter
             { "completed", false }
         };
 
+        // Define the operations for each stage
+        var stageOperations = new Dictionary<string, ExportOperation>
+        {
+            { "init", InitializeLootDropsDB },
+            { "prepare_characters", PrepareCharacters },
+            { "export_loot_drops", ExportLootDropsBatch }
+        };
+
         // Start the asynchronous operation
-        EditorApplication.update += () => ExportLootDropsToDBAsyncUpdate(state, progressCallback);
+        ExportAsync(state, 
+            (s, callback) => GenericExportAsyncUpdate(s, callback, stageOperations, "Exported {0[lootDropsCount]} loot drops"), 
+            progressCallback);
     }
 
-    private static void ExportLootDropsToDBAsyncUpdate(Dictionary<string, object> state, ProgressCallback progressCallback)
+    // Initialize the database for loot drops export
+    private static void InitializeLootDropsDB(SQLiteConnection db, Dictionary<string, object> state)
     {
-        // Check if the operation has been cancelled
-        if (_cancelRequested)
+        // Create tables for loot drops
+        db.CreateTable<LootDropDBRecord>();
+
+        // Clear existing loot drop records
+        db.DeleteAll<LootDropDBRecord>();
+
+        state["stage"] = "prepare_characters";
+        ProgressCallback callback = state["progressCallback"] as ProgressCallback;
+        callback?.Invoke(0.1f, "Database initialized");
+    }
+
+    // Export a batch of loot drops
+    private static void ExportLootDropsBatch(SQLiteConnection db, Dictionary<string, object> state)
+    {
+        string[] characterGuids = (string[])state["characterGuids"];
+        int characterIndex = (int)state["characterIndex"];
+        int lootDropsCount = (int)state["lootDropsCount"];
+        int totalCharacters = (int)state["totalCharacters"];
+
+        // Process a batch of characters (adjust batch size as needed)
+        int batchSize = 5;
+        int endIndex = Math.Min(characterIndex + batchSize, characterGuids.Length);
+
+        for (int i = characterIndex; i < endIndex; i++)
         {
-            progressCallback?.Invoke(1.0f, "Export cancelled");
-            EditorApplication.update -= () => ExportLootDropsToDBAsyncUpdate(state, progressCallback);
-            ResetCancelFlag();
-            return;
+            string guid = characterGuids[i];
+            string assetPath = AssetDatabase.GUIDToAssetPath(guid);
+            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+
+            if (prefab != null)
+            {
+                // Check if the prefab has a LootTable component and export loot drop data
+                LootTable lootTable = prefab.GetComponent<LootTable>();
+                if (lootTable != null)
+                {
+                    lootDropsCount += ExportLootDropsForCharacter(db, guid, lootTable);
+                }
+            }
         }
 
-        // Check if the operation has completed
-        if ((bool)state["completed"])
+        // Update state
+        state["characterIndex"] = endIndex;
+        state["lootDropsCount"] = lootDropsCount;
+
+        // Calculate progress
+        float progress = 0.2f + (0.8f * endIndex / totalCharacters);
+        ProgressCallback callback = state["progressCallback"] as ProgressCallback;
+        callback?.Invoke(progress, $"Exported {lootDropsCount} loot drops ({endIndex}/{totalCharacters} characters processed)");
+
+        // Check if all characters have been processed
+        if (endIndex >= characterGuids.Length)
         {
-            int lootDropsCount = (int)state["lootDropsCount"];
-            string dbPath = (string)state["dbPath"];
-
-            progressCallback?.Invoke(1.0f, $"Exported {lootDropsCount} loot drops");
-            Debug.Log($"Exported {lootDropsCount} loot drops to SQLite database at {dbPath}");
-
-            EditorApplication.update -= () => ExportLootDropsToDBAsyncUpdate(state, progressCallback);
-            return;
-        }
-
-        // Declare db variable at the method level
-        SQLiteConnection db;
-        string stage = (string)state["stage"];
-
-        switch (stage)
-        {
-            case "init":
-                // Initialize the database
-                string dbPath = (string)state["dbPath"];
-                db = new SQLiteConnection(dbPath);
-                state["db"] = db;
-
-                // Create tables for loot drops
-                db.CreateTable<LootDropDBRecord>();
-
-                // Clear existing loot drop records
-                db.DeleteAll<LootDropDBRecord>();
-
-                progressCallback?.Invoke(0.1f, "Database initialized");
-
-                // Move to the next stage
-                state["stage"] = "prepare_characters";
-                break;
-
-            case "prepare_characters":
-                // Find all character prefabs
-                string[] guids = AssetDatabase.FindAssets("t:Prefab", new[] { CHARACTERS_PATH });
-                state["characterGuids"] = guids;
-                state["totalCharacters"] = guids.Length;
-
-                progressCallback?.Invoke(0.2f, $"Found {guids.Length} character prefabs");
-
-                // Move to the next stage
-                state["stage"] = "export_loot_drops";
-                break;
-
-            case "export_loot_drops":
-                db = (SQLiteConnection)state["db"];
-                string[] characterGuids = (string[])state["characterGuids"];
-                int characterIndex = (int)state["characterIndex"];
-                int lootDropsCount = (int)state["lootDropsCount"];
-                int totalCharacters = (int)state["totalCharacters"];
-
-                // Process a batch of characters (adjust batch size as needed)
-                int batchSize = 5;
-                int endIndex = Math.Min(characterIndex + batchSize, characterGuids.Length);
-
-                for (int i = characterIndex; i < endIndex; i++)
-                {
-                    string guid = characterGuids[i];
-                    string assetPath = AssetDatabase.GUIDToAssetPath(guid);
-                    GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
-
-                    if (prefab != null)
-                    {
-                        // Check if the prefab has a LootTable component and export loot drop data
-                        LootTable lootTable = prefab.GetComponent<LootTable>();
-                        if (lootTable != null)
-                        {
-                            lootDropsCount += ExportLootDropsForCharacter(db, guid, lootTable);
-                        }
-                    }
-                }
-
-                // Update state
-                state["characterIndex"] = endIndex;
-                state["lootDropsCount"] = lootDropsCount;
-
-                // Calculate progress
-                float progress = 0.2f + (0.8f * endIndex / totalCharacters);
-                progressCallback?.Invoke(progress, $"Exported {lootDropsCount} loot drops ({endIndex}/{totalCharacters} characters processed)");
-
-                // Check if all characters have been processed
-                if (endIndex >= characterGuids.Length)
-                {
-                    // Mark the operation as completed
-                    state["completed"] = true;
-                }
-                break;
+            // Mark the operation as completed
+            state["completed"] = true;
         }
     }
 
     // Asynchronous version of ExportCharactersToDB
     public static void ExportCharactersToDBAsync(ProgressCallback progressCallback = null)
     {
-        ResetCancelFlag();
-
         // Create a state object to track progress
         var state = new Dictionary<string, object>
         {
@@ -560,155 +319,90 @@ public class DatabaseExporter
             { "completed", false }
         };
 
+        // Define the operations for each stage
+        var stageOperations = new Dictionary<string, ExportOperation>
+        {
+            { "init", InitializeCharactersDB },
+            { "prepare_characters", PrepareCharacters },
+            { "export_characters", ExportCharactersBatch }
+        };
+
         // Start the asynchronous operation
-        EditorApplication.update += () => ExportCharactersToDBAsyncUpdate(state, progressCallback);
+        ExportAsync(state, 
+            (s, callback) => GenericExportAsyncUpdate(s, callback, stageOperations, "Exported {0[characterCount]} characters"), 
+            progressCallback);
     }
 
-    private static void ExportCharactersToDBAsyncUpdate(Dictionary<string, object> state, ProgressCallback progressCallback)
+    // Initialize the database for characters export
+    private static void InitializeCharactersDB(SQLiteConnection db, Dictionary<string, object> state)
     {
-        // Check if the operation has been cancelled
-        if (_cancelRequested)
+        // Create tables for characters only
+        db.CreateTable<CharacterDBRecord>();
+
+        // Clear existing character records
+        db.DeleteAll<CharacterDBRecord>();
+
+        state["stage"] = "prepare_characters";
+        ProgressCallback callback = state["progressCallback"] as ProgressCallback;
+        callback?.Invoke(0.1f, "Database initialized");
+    }
+
+    // Prepare character data for export
+    private static void PrepareCharacters(SQLiteConnection db, Dictionary<string, object> state)
+    {
+        // Find all character prefabs
+        string[] guids = AssetDatabase.FindAssets("t:Prefab", new[] { CHARACTERS_PATH });
+        state["characterGuids"] = guids;
+        state["totalCharacters"] = guids.Length;
+
+        state["stage"] = "export_characters";
+        ProgressCallback callback = state["progressCallback"] as ProgressCallback;
+        callback?.Invoke(0.2f, $"Found {guids.Length} character prefabs");
+    }
+
+    // Export a batch of characters
+    private static void ExportCharactersBatch(SQLiteConnection db, Dictionary<string, object> state)
+    {
+        string[] characterGuids = (string[])state["characterGuids"];
+        int characterIndex = (int)state["characterIndex"];
+        int characterCount = (int)state["characterCount"];
+        int totalCharacters = (int)state["totalCharacters"];
+
+        // Process a batch of characters (adjust batch size as needed)
+        int batchSize = 5;
+        int endIndex = Math.Min(characterIndex + batchSize, characterGuids.Length);
+
+        for (int i = characterIndex; i < endIndex; i++)
         {
-            progressCallback?.Invoke(1.0f, "Export cancelled");
-            EditorApplication.update -= () => ExportCharactersToDBAsyncUpdate(state, progressCallback);
-            ResetCancelFlag();
-            return;
+            string guid = characterGuids[i];
+            string assetPath = AssetDatabase.GUIDToAssetPath(guid);
+            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+
+            if (prefab != null)
+            {
+                CharacterDBRecord record = ExportCharacter(prefab, guid);
+                if (record != null)
+                {
+                    db.InsertOrReplace(record);
+                    characterCount++;
+                }
+            }
         }
 
-        // Check if the operation has completed
-        if ((bool)state["completed"])
+        // Update state
+        state["characterIndex"] = endIndex;
+        state["characterCount"] = characterCount;
+
+        // Calculate progress
+        float progress = 0.2f + (0.8f * endIndex / totalCharacters);
+        ProgressCallback callback = state["progressCallback"] as ProgressCallback;
+        callback?.Invoke(progress, $"Exported {characterCount} characters ({endIndex}/{totalCharacters})");
+
+        // Check if all characters have been processed
+        if (endIndex >= characterGuids.Length)
         {
-            int characterCount = (int)state["characterCount"];
-            string dbPath = (string)state["dbPath"];
-
-            progressCallback?.Invoke(1.0f, $"Exported {characterCount} characters");
-            Debug.Log($"Exported {characterCount} characters to SQLite database at {dbPath}");
-
-            EditorApplication.update -= () => ExportCharactersToDBAsyncUpdate(state, progressCallback);
-            return;
-        }
-
-        // Declare db variable at the method level
-        SQLiteConnection db;
-        string stage = (string)state["stage"];
-
-        switch (stage)
-        {
-            case "init":
-                // Initialize the database
-                string dbPath = (string)state["dbPath"];
-                db = new SQLiteConnection(dbPath);
-                state["db"] = db;
-
-                // Create tables for characters only
-                db.CreateTable<CharacterDBRecord>();
-
-                // Clear existing character records
-                db.DeleteAll<CharacterDBRecord>();
-
-                progressCallback?.Invoke(0.1f, "Database initialized");
-
-                // Move to the next stage
-                state["stage"] = "prepare_characters";
-                break;
-
-            case "prepare_characters":
-                // Find all character prefabs
-                string[] guids = AssetDatabase.FindAssets("t:Prefab", new[] { CHARACTERS_PATH });
-                state["characterGuids"] = guids;
-                state["totalCharacters"] = guids.Length;
-
-                progressCallback?.Invoke(0.2f, $"Found {guids.Length} character prefabs");
-
-                // Move to the next stage
-                state["stage"] = "export_characters";
-                break;
-
-            case "export_characters":
-                db = (SQLiteConnection)state["db"];
-                string[] characterGuids = (string[])state["characterGuids"];
-                int characterIndex = (int)state["characterIndex"];
-                int characterCount = (int)state["characterCount"];
-                int totalCharacters = (int)state["totalCharacters"];
-
-                // Process a batch of characters (adjust batch size as needed)
-                int batchSize = 5;
-                int endIndex = Math.Min(characterIndex + batchSize, characterGuids.Length);
-
-                for (int i = characterIndex; i < endIndex; i++)
-                {
-                    string guid = characterGuids[i];
-                    string assetPath = AssetDatabase.GUIDToAssetPath(guid);
-                    GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
-
-                    if (prefab != null)
-                    {
-                        Character character = prefab.GetComponent<Character>();
-                        if (character != null)
-                        {
-                            NPC npc = prefab.GetComponent<NPC>();
-
-                            var record = new CharacterDBRecord
-                            {
-                                PrefabGuid = guid,
-                                PrefabName = prefab.name,
-                                NPCName = npc != null ? npc.NPCName : string.Empty,
-                                MyFaction = (int)character.MyFaction,
-                                BaseFaction = (int)character.BaseFaction,
-                                TempFaction = (int)character.TempFaction,
-                                AggroRange = character.AggroRange,
-                                Alive = character.Alive,
-                                isNPC = character.isNPC,
-                                isVendor = character.isVendor,
-                                AttackRange = character.AttackRange,
-                                Invulnerable = character.Invulnerable,
-                            };
-
-                            // Check if the prefab has a Stats component
-                            Stats stats = prefab.GetComponent<Stats>();
-                            if (stats != null)
-                            {
-                                record.HasStats = true;
-                                record.CharacterName = stats.MyName;
-                                record.Level = stats.Level;
-                                record.BaseHP = stats.BaseHP;
-                                record.BaseAC = stats.BaseAC;
-                                record.BaseMana = stats.BaseMana;
-                                record.BaseStr = stats.BaseStr;
-                                record.BaseEnd = stats.BaseEnd;
-                                record.BaseDex = stats.BaseDex;
-                                record.BaseAgi = stats.BaseAgi;
-                                record.BaseInt = stats.BaseInt;
-                                record.BaseWis = stats.BaseWis;
-                                record.BaseCha = stats.BaseCha;
-                                record.BaseRes = stats.BaseRes;
-                                record.BaseMR = stats.BaseMR;
-                                record.BaseER = stats.BaseER;
-                                record.BasePR = stats.BasePR;
-                                record.BaseVR = stats.BaseVR;
-                            }
-
-                            db.InsertOrReplace(record);
-                            characterCount++;
-                        }
-                    }
-                }
-
-                // Update state
-                state["characterIndex"] = endIndex;
-                state["characterCount"] = characterCount;
-
-                // Calculate progress
-                float progress = 0.2f + (0.8f * endIndex / totalCharacters);
-                progressCallback?.Invoke(progress, $"Exported {characterCount} characters ({endIndex}/{totalCharacters})");
-
-                // Check if all characters have been processed
-                if (endIndex >= characterGuids.Length)
-                {
-                    // Mark the operation as completed
-                    state["completed"] = true;
-                }
-                break;
+            // Mark the operation as completed
+            state["completed"] = true;
         }
     }
 
@@ -716,8 +410,6 @@ public class DatabaseExporter
     // Asynchronous version of ExportItemsToDB
     public static void ExportItemsToDBAsync(ProgressCallback progressCallback = null)
     {
-        ResetCancelFlag();
-
         // Create a state object to track progress
         var state = new Dictionary<string, object>
         {
@@ -731,262 +423,222 @@ public class DatabaseExporter
             { "completed", false }
         };
 
+        // Define the operations for each stage
+        var stageOperations = new Dictionary<string, ExportOperation>
+        {
+            { "init", InitializeItemsDB },
+            { "prepare_items", PrepareItems },
+            { "export_items", ExportItemsBatch }
+        };
+
         // Start the asynchronous operation
-        EditorApplication.update += () => ExportItemsToDBAsyncUpdate(state, progressCallback);
+        ExportAsync(state, 
+            (s, callback) => GenericExportAsyncUpdate(s, callback, stageOperations, "Exported {0[itemCount]} items"), 
+            progressCallback);
     }
 
-    private static void ExportItemsToDBAsyncUpdate(Dictionary<string, object> state, ProgressCallback progressCallback)
+    // Initialize the database for items export
+    private static void InitializeItemsDB(SQLiteConnection db, Dictionary<string, object> state)
     {
-        // Check if the operation has been cancelled
-        if (_cancelRequested)
+        // Create table for items
+        db.CreateTable<ItemDBRecord>();
+
+        // Clear existing item records
+        db.DeleteAll<ItemDBRecord>();
+
+        state["stage"] = "prepare_items";
+        ProgressCallback callback = state["progressCallback"] as ProgressCallback;
+        callback?.Invoke(0.1f, "Database initialized");
+    }
+
+    // Prepare items data for export
+    private static void PrepareItems(SQLiteConnection db, Dictionary<string, object> state)
+    {
+        // Load all Item assets
+        Item[] items = Resources.LoadAll<Item>(ITEMS_PATH);
+        state["items"] = items;
+        state["totalItems"] = items.Length;
+
+        state["stage"] = "export_items";
+        ProgressCallback callback = state["progressCallback"] as ProgressCallback;
+        callback?.Invoke(0.2f, $"Found {items.Length} items");
+    }
+
+    // Export a batch of items
+    private static void ExportItemsBatch(SQLiteConnection db, Dictionary<string, object> state)
+    {
+        Item[] allItems = (Item[])state["items"];
+        int itemIndex = (int)state["itemIndex"];
+        int itemCount = (int)state["itemCount"];
+        int totalItems = (int)state["totalItems"];
+
+        // Process a batch of items (adjust batch size as needed)
+        int batchSize = 10;
+        int endIndex = Math.Min(itemIndex + batchSize, allItems.Length);
+
+        for (int i = itemIndex; i < endIndex; i++)
         {
-            progressCallback?.Invoke(1.0f, "Export cancelled");
-            EditorApplication.update -= () => ExportItemsToDBAsyncUpdate(state, progressCallback);
-            ResetCancelFlag();
-            return;
+            Item item = allItems[i];
+            ItemDBRecord record = ExportItem(item);
+            db.Insert(record);
+            itemCount++;
         }
 
-        // Check if the operation has completed
-        if ((bool)state["completed"])
+        // Update state
+        state["itemIndex"] = endIndex;
+        state["itemCount"] = itemCount;
+
+        // Calculate progress
+        float progress = 0.2f + (0.8f * endIndex / totalItems);
+        ProgressCallback callback = state["progressCallback"] as ProgressCallback;
+        callback?.Invoke(progress, $"Exported {itemCount} items ({endIndex}/{totalItems})");
+
+        // Check if all items have been processed
+        if (endIndex >= allItems.Length)
         {
-            int itemCount = (int)state["itemCount"];
-            string dbPath = (string)state["dbPath"];
-
-            progressCallback?.Invoke(1.0f, $"Exported {itemCount} items");
-            Debug.Log($"Exported {itemCount} items to SQLite database at {dbPath}");
-
-            EditorApplication.update -= () => ExportItemsToDBAsyncUpdate(state, progressCallback);
-            return;
-        }
-
-        // Declare db variable at the method level
-        SQLiteConnection db;
-        string stage = (string)state["stage"];
-
-        switch (stage)
-        {
-            case "init":
-                // Initialize the database
-                string dbPath = (string)state["dbPath"];
-                db = new SQLiteConnection(dbPath);
-                state["db"] = db;
-
-                // Create table for items
-                db.CreateTable<ItemDBRecord>();
-
-                // Clear existing item records
-                db.DeleteAll<ItemDBRecord>();
-
-                progressCallback?.Invoke(0.1f, "Database initialized");
-
-                // Move to the next stage
-                state["stage"] = "prepare_items";
-                break;
-
-            case "prepare_items":
-                // Load all Item assets
-                Item[] items = Resources.LoadAll<Item>(ITEMS_PATH);
-                state["items"] = items;
-                state["totalItems"] = items.Length;
-
-                progressCallback?.Invoke(0.2f, $"Found {items.Length} items");
-
-                // Move to the next stage
-                state["stage"] = "export_items";
-                break;
-
-            case "export_items":
-                db = (SQLiteConnection)state["db"];
-                Item[] allItems = (Item[])state["items"];
-                int itemIndex = (int)state["itemIndex"];
-                int itemCount = (int)state["itemCount"];
-                int totalItems = (int)state["totalItems"];
-
-                // Process a batch of items (adjust batch size as needed)
-                int batchSize = 10;
-                int endIndex = Math.Min(itemIndex + batchSize, allItems.Length);
-
-                for (int i = itemIndex; i < endIndex; i++)
-                {
-                    Item item = allItems[i];
-
-                    var record = new ItemDBRecord
-                    {
-                        Id = item.Id,
-                        ItemName = item.ItemName,
-                        ItemLevel = item.ItemLevel,
-                        HP = item.HP,
-                        AC = item.AC,
-                        Mana = item.Mana,
-                        WeaponDmg = item.WeaponDmg,
-                        WeaponDly = item.WeaponDly,
-                        Str = item.Str,
-                        End = item.End,
-                        Dex = item.Dex,
-                        Agi = item.Agi,
-                        Int = item.Int,
-                        Wis = item.Wis,
-                        Cha = item.Cha,
-                        Res = item.Res,
-                        MR = item.MR,
-                        ER = item.ER,
-                        PR = item.PR,
-                        VR = item.VR,
-                        RequiredSlot = (int)item.RequiredSlot,
-                        ThisWeaponType = (int)item.ThisWeaponType,
-                        ItemValue = item.ItemValue,
-                        Lore = item.Lore,
-                        Shield = item.Shield,
-                        WeaponProcChance = item.WeaponProcChance,
-                        SpellCastTime = item.SpellCastTime,
-                        HideHairWhenEquipped = item.HideHairWhenEquipped,
-                        HideHeadWhenEquipped = item.HideHeadWhenEquipped,
-                        Stackable = item.Stackable,
-                        Disposable = item.Disposable,
-                        Unique = item.Unique,
-                        Mining = item.Mining,
-                        FuelSource = item.FuelSource,
-                        Template = item.Template,
-                        SimPlayersCantGet = item.SimPlayersCantGet,
-                        FuelLevel = (int)item.FuelLevel,
-                        Relic = item.Relic,
-                        BookTitle = item.BookTitle
-                    };
-
-                    db.Insert(record);
-                    itemCount++;
-                }
-
-                // Update state
-                state["itemIndex"] = endIndex;
-                state["itemCount"] = itemCount;
-
-                // Calculate progress
-                float progress = 0.2f + (0.8f * endIndex / totalItems);
-                progressCallback?.Invoke(progress, $"Exported {itemCount} items ({endIndex}/{totalItems})");
-
-                // Check if all items have been processed
-                if (endIndex >= allItems.Length)
-                {
-                    // Mark the operation as completed
-                    state["completed"] = true;
-                }
-                break;
+            // Mark the operation as completed
+            state["completed"] = true;
         }
     }
 
 
+
+    // Helper method to export a character to the database
+    private static CharacterDBRecord ExportCharacter(GameObject prefab, string guid)
+    {
+        Character character = prefab.GetComponent<Character>();
+        if (character == null)
+            return null;
+
+        NPC npc = prefab.GetComponent<NPC>();
+
+        var record = new CharacterDBRecord
+        {
+            PrefabGuid = guid,
+            PrefabName = prefab.name,
+            NPCName = npc != null ? npc.NPCName : string.Empty,
+            MyFaction = (int)character.MyFaction,
+            BaseFaction = (int)character.BaseFaction,
+            TempFaction = (int)character.TempFaction,
+            AggroRange = character.AggroRange,
+            Alive = character.Alive,
+            isNPC = character.isNPC,
+            isVendor = character.isVendor,
+            AttackRange = character.AttackRange,
+            Invulnerable = character.Invulnerable,
+        };
+
+        // Check if the prefab has a Stats component
+        Stats stats = prefab.GetComponent<Stats>();
+        if (stats != null)
+        {
+            record.HasStats = true;
+            record.CharacterName = stats.MyName;
+            record.Level = stats.Level;
+            record.BaseHP = stats.BaseHP;
+            record.BaseAC = stats.BaseAC;
+            record.BaseMana = stats.BaseMana;
+            record.BaseStr = stats.BaseStr;
+            record.BaseEnd = stats.BaseEnd;
+            record.BaseDex = stats.BaseDex;
+            record.BaseAgi = stats.BaseAgi;
+            record.BaseInt = stats.BaseInt;
+            record.BaseWis = stats.BaseWis;
+            record.BaseCha = stats.BaseCha;
+            record.BaseRes = stats.BaseRes;
+            record.BaseMR = stats.BaseMR;
+            record.BaseER = stats.BaseER;
+            record.BasePR = stats.BasePR;
+            record.BaseVR = stats.BaseVR;
+        }
+
+        return record;
+    }
+
+    // Helper method to export an item to the database
+    private static ItemDBRecord ExportItem(Item item)
+    {
+        return new ItemDBRecord
+        {
+            Id = item.Id,
+            ItemName = item.ItemName,
+            ItemLevel = item.ItemLevel,
+            HP = item.HP,
+            AC = item.AC,
+            Mana = item.Mana,
+            WeaponDmg = item.WeaponDmg,
+            WeaponDly = item.WeaponDly,
+            Str = item.Str,
+            End = item.End,
+            Dex = item.Dex,
+            Agi = item.Agi,
+            Int = item.Int,
+            Wis = item.Wis,
+            Cha = item.Cha,
+            Res = item.Res,
+            MR = item.MR,
+            ER = item.ER,
+            PR = item.PR,
+            VR = item.VR,
+            RequiredSlot = (int)item.RequiredSlot,
+            ThisWeaponType = (int)item.ThisWeaponType,
+            ItemValue = item.ItemValue,
+            Lore = item.Lore,
+            Shield = item.Shield,
+            WeaponProcChance = item.WeaponProcChance,
+            SpellCastTime = item.SpellCastTime,
+            HideHairWhenEquipped = item.HideHairWhenEquipped,
+            HideHeadWhenEquipped = item.HideHeadWhenEquipped,
+            Stackable = item.Stackable,
+            Disposable = item.Disposable,
+            Unique = item.Unique,
+            Mining = item.Mining,
+            FuelSource = item.FuelSource,
+            Template = item.Template,
+            SimPlayersCantGet = item.SimPlayersCantGet,
+            FuelLevel = (int)item.FuelLevel,
+            Relic = item.Relic,
+            BookTitle = item.BookTitle
+        };
+    }
 
     private static int ExportLootDropsForCharacter(SQLiteConnection db, string guid, LootTable lootTable)
     {
         int lootDropsCount = 0;
 
-        // Export guaranteed drops
-        if (lootTable.GuaranteeOneDrop != null)
+        // Helper method to export a specific type of loot drops
+        int ExportLootDrops(List<Item> items, string dropType)
         {
-            for (int i = 0; i < lootTable.GuaranteeOneDrop.Count; i++)
+            int count = 0;
+            if (items != null)
             {
-                Item item = lootTable.GuaranteeOneDrop[i];
-                if (item != null)
+                for (int i = 0; i < items.Count; i++)
                 {
-                    var lootRecord = new LootDropDBRecord
+                    Item item = items[i];
+                    if (item != null)
                     {
-                        CharacterPrefabGuid = guid,
-                        ItemId = item.Id,
-                        DropType = "Guaranteed",
-                        DropIndex = i
-                    };
-                    db.Insert(lootRecord);
-                    lootDropsCount++;
+                        var lootRecord = new LootDropDBRecord
+                        {
+                            CharacterPrefabGuid = guid,
+                            ItemId = item.Id,
+                            DropType = dropType,
+                            DropIndex = i
+                        };
+                        db.Insert(lootRecord);
+                        count++;
+                    }
                 }
             }
+            return count;
         }
 
-        // Export common drops
-        if (lootTable.CommonDrop != null)
-        {
-            for (int i = 0; i < lootTable.CommonDrop.Count; i++)
-            {
-                Item item = lootTable.CommonDrop[i];
-                if (item != null)
-                {
-                    var lootRecord = new LootDropDBRecord
-                    {
-                        CharacterPrefabGuid = guid,
-                        ItemId = item.Id,
-                        DropType = "Common",
-                        DropIndex = i
-                    };
-                    db.Insert(lootRecord);
-                    lootDropsCount++;
-                }
-            }
-        }
-
-        // Export uncommon drops
-        if (lootTable.UncommonDrop != null)
-        {
-            for (int i = 0; i < lootTable.UncommonDrop.Count; i++)
-            {
-                Item item = lootTable.UncommonDrop[i];
-                if (item != null)
-                {
-                    var lootRecord = new LootDropDBRecord
-                    {
-                        CharacterPrefabGuid = guid,
-                        ItemId = item.Id,
-                        DropType = "Uncommon",
-                        DropIndex = i
-                    };
-                    db.Insert(lootRecord);
-                    lootDropsCount++;
-                }
-            }
-        }
-
-        // Export rare drops
-        if (lootTable.RareDrop != null)
-        {
-            for (int i = 0; i < lootTable.RareDrop.Count; i++)
-            {
-                Item item = lootTable.RareDrop[i];
-                if (item != null)
-                {
-                    var lootRecord = new LootDropDBRecord
-                    {
-                        CharacterPrefabGuid = guid,
-                        ItemId = item.Id,
-                        DropType = "Rare",
-                        DropIndex = i
-                    };
-                    db.Insert(lootRecord);
-                    lootDropsCount++;
-                }
-            }
-        }
-
-        // Export legendary drops
-        if (lootTable.LegendaryDrop != null)
-        {
-            for (int i = 0; i < lootTable.LegendaryDrop.Count; i++)
-            {
-                Item item = lootTable.LegendaryDrop[i];
-                if (item != null)
-                {
-                    var lootRecord = new LootDropDBRecord
-                    {
-                        CharacterPrefabGuid = guid,
-                        ItemId = item.Id,
-                        DropType = "Legendary",
-                        DropIndex = i
-                    };
-                    db.Insert(lootRecord);
-                    lootDropsCount++;
-                }
-            }
-        }
+        // Export all types of drops
+        lootDropsCount += ExportLootDrops(lootTable.GuaranteeOneDrop, "Guaranteed");
+        lootDropsCount += ExportLootDrops(lootTable.CommonDrop, "Common");
+        lootDropsCount += ExportLootDrops(lootTable.UncommonDrop, "Uncommon");
+        lootDropsCount += ExportLootDrops(lootTable.RareDrop, "Rare");
+        lootDropsCount += ExportLootDrops(lootTable.LegendaryDrop, "Legendary");
 
         return lootDropsCount;
     }
-
 }
