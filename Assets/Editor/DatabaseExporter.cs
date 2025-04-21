@@ -88,10 +88,13 @@ public class DatabaseExporter
             if (character == null)
                 continue;
 
+            NPC npc = prefab.GetComponent<NPC>();
+
             var record = new CharacterDBRecord
             {
                 PrefabGuid = guid,
                 PrefabName = prefab.name,
+                NPCName = npc != null ? npc.NPCName : string.Empty,
                 MyFaction = (int)character.MyFaction,
                 BaseFaction = (int)character.BaseFaction,
                 TempFaction = (int)character.TempFaction,

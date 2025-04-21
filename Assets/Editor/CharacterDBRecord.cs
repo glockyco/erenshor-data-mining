@@ -5,6 +5,7 @@ public class CharacterDBRecord
     [PrimaryKey]
     public string PrefabGuid { get; set; }
     public string PrefabName { get; set; }
+    public string NPCName { get; set; }
     public int MyFaction { get; set; }
     public int BaseFaction { get; set; }
     public int TempFaction { get; set; }
