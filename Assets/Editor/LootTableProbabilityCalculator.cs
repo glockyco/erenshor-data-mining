@@ -236,7 +236,10 @@ public class LootTableProbabilityCalculator : Editor
         var resultDict = new Dictionary<string, double>();
         for (int i = 0; i < allItems.Count; ++i)
             resultDict[allItems[i].name] = finalResult[i];
-        resultDict[WorldDropKey] = finalResult[worldDropIdx];
+
+        // Only add world drop if there are any common drops
+        if (lootTable.CommonDrop != null && lootTable.CommonDrop.Count > 0)
+            resultDict[WorldDropKey] = finalResult[worldDropIdx];
 
         // GuaranteeOneDrop: add its probability (always one is chosen)
         if (lootTable.GuaranteeOneDrop != null && lootTable.GuaranteeOneDrop.Count > 0)
