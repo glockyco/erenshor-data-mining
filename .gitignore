@@ -169,3 +169,5 @@ sysinfo.txt
 /Assets/*
 !/Assets/Editor/
 /Assets/Editor/*
+
+!/Assets/Editor/StatsObjectFinder.cs
