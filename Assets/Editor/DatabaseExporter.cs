@@ -5,11 +5,10 @@ using UnityEngine;
 
 public class DatabaseExporter
 {
-    private const string DB_PATH = "../Erenshor.sqlite";
+    public const string DB_PATH = "../Erenshor.sqlite";
     private const string ITEMS_PATH = "items";
     private const string CHARACTERS_PATH = "Assets/GameObject";
 
-    [MenuItem("Tools/Export/All to SQLite DB")]
     public static void ExportAllToDB()
     {
         string dbPath = Path.Combine(Application.dataPath, DB_PATH);
@@ -32,7 +31,6 @@ public class DatabaseExporter
         Debug.Log($"Exported {characterCount} characters and {itemCount} items to SQLite database at {dbPath}");
     }
 
-    [MenuItem("Tools/Export/Characters to SQLite DB")]
     public static void ExportCharactersToDB()
     {
         string dbPath = Path.Combine(Application.dataPath, DB_PATH);
@@ -52,7 +50,6 @@ public class DatabaseExporter
         Debug.Log($"Exported {characterCount} characters to SQLite database at {dbPath}");
     }
 
-    [MenuItem("Tools/Export/Items to SQLite DB")]
     public static void ExportItemsToDB()
     {
         string dbPath = Path.Combine(Application.dataPath, DB_PATH);
