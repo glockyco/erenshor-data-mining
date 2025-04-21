@@ -45,7 +45,7 @@ public class DatabaseExporter
         db.DeleteAll<LootDropDBRecord>();
 
         // Export all types
-        int characterCount = ExportCharacters(db);
+        int characterCount = ExportCharacters(db, true);
         int itemCount = ExportItems(db);
 
         Debug.Log($"Exported {characterCount} characters and {itemCount} items to SQLite database at {dbPath}");
@@ -438,18 +438,161 @@ public class DatabaseExporter
         string dbPath = Path.Combine(Application.dataPath, DB_PATH);
         var db = new SQLiteConnection(dbPath);
 
-        // Create tables for characters and loot drops
+        // Create tables for characters
         db.CreateTable<CharacterDBRecord>();
-        db.CreateTable<LootDropDBRecord>();
 
-        // Clear existing character and loot drop records
+        // Clear existing character records
         db.DeleteAll<CharacterDBRecord>();
-        db.DeleteAll<LootDropDBRecord>();
 
         // Export characters
-        int characterCount = ExportCharacters(db);
+        int characterCount = ExportCharacters(db, false);
 
         Debug.Log($"Exported {characterCount} characters to SQLite database at {dbPath}");
+    }
+
+    public static void ExportLootDropsToDB()
+    {
+        string dbPath = Path.Combine(Application.dataPath, DB_PATH);
+        var db = new SQLiteConnection(dbPath);
+
+        // Create tables for loot drops
+        db.CreateTable<LootDropDBRecord>();
+
+        // Clear existing loot drop records
+        db.DeleteAll<LootDropDBRecord>();
+
+        // Export loot drops
+        int lootDropsCount = ExportLootDrops(db);
+
+        Debug.Log($"Exported {lootDropsCount} loot drops to SQLite database at {dbPath}");
+    }
+
+    // Asynchronous version of ExportLootDropsToDB
+    public static void ExportLootDropsToDBAsync(ProgressCallback progressCallback = null)
+    {
+        ResetCancelFlag();
+
+        // Create a state object to track progress
+        var state = new Dictionary<string, object>
+        {
+            { "stage", "init" },
+            { "dbPath", Path.Combine(Application.dataPath, DB_PATH) },
+            { "db", null },
+            { "characterGuids", null },
+            { "characterIndex", 0 },
+            { "lootDropsCount", 0 },
+            { "totalCharacters", 0 },
+            { "completed", false }
+        };
+
+        // Start the asynchronous operation
+        EditorApplication.update += () => ExportLootDropsToDBAsyncUpdate(state, progressCallback);
+    }
+
+    private static void ExportLootDropsToDBAsyncUpdate(Dictionary<string, object> state, ProgressCallback progressCallback)
+    {
+        // Check if the operation has been cancelled
+        if (_cancelRequested)
+        {
+            progressCallback?.Invoke(1.0f, "Export cancelled");
+            EditorApplication.update -= () => ExportLootDropsToDBAsyncUpdate(state, progressCallback);
+            ResetCancelFlag();
+            return;
+        }
+
+        // Check if the operation has completed
+        if ((bool)state["completed"])
+        {
+            int lootDropsCount = (int)state["lootDropsCount"];
+            string dbPath = (string)state["dbPath"];
+
+            progressCallback?.Invoke(1.0f, $"Exported {lootDropsCount} loot drops");
+            Debug.Log($"Exported {lootDropsCount} loot drops to SQLite database at {dbPath}");
+
+            EditorApplication.update -= () => ExportLootDropsToDBAsyncUpdate(state, progressCallback);
+            return;
+        }
+
+        // Declare db variable at the method level
+        SQLiteConnection db;
+        string stage = (string)state["stage"];
+
+        switch (stage)
+        {
+            case "init":
+                // Initialize the database
+                string dbPath = (string)state["dbPath"];
+                db = new SQLiteConnection(dbPath);
+                state["db"] = db;
+
+                // Create tables for loot drops
+                db.CreateTable<LootDropDBRecord>();
+
+                // Clear existing loot drop records
+                db.DeleteAll<LootDropDBRecord>();
+
+                progressCallback?.Invoke(0.1f, "Database initialized");
+
+                // Move to the next stage
+                state["stage"] = "prepare_characters";
+                break;
+
+            case "prepare_characters":
+                // Find all character prefabs
+                string[] guids = AssetDatabase.FindAssets("t:Prefab", new[] { CHARACTERS_PATH });
+                state["characterGuids"] = guids;
+                state["totalCharacters"] = guids.Length;
+
+                progressCallback?.Invoke(0.2f, $"Found {guids.Length} character prefabs");
+
+                // Move to the next stage
+                state["stage"] = "export_loot_drops";
+                break;
+
+            case "export_loot_drops":
+                db = (SQLiteConnection)state["db"];
+                string[] characterGuids = (string[])state["characterGuids"];
+                int characterIndex = (int)state["characterIndex"];
+                int lootDropsCount = (int)state["lootDropsCount"];
+                int totalCharacters = (int)state["totalCharacters"];
+
+                // Process a batch of characters (adjust batch size as needed)
+                int batchSize = 5;
+                int endIndex = Math.Min(characterIndex + batchSize, characterGuids.Length);
+
+                for (int i = characterIndex; i < endIndex; i++)
+                {
+                    string guid = characterGuids[i];
+                    string assetPath = AssetDatabase.GUIDToAssetPath(guid);
+                    GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+
+                    if (prefab != null)
+                    {
+                        // Check if the prefab has a LootTable component and export loot drop data
+                        LootTable lootTable = prefab.GetComponent<LootTable>();
+                        if (lootTable != null)
+                        {
+                            lootDropsCount += ExportLootDropsForCharacter(db, guid, lootTable);
+                        }
+                    }
+                }
+
+                // Update state
+                state["characterIndex"] = endIndex;
+                state["lootDropsCount"] = lootDropsCount;
+
+                // Calculate progress
+                float progress = 0.2f + (0.8f * endIndex / totalCharacters);
+                progressCallback?.Invoke(progress, $"Exported {lootDropsCount} loot drops ({endIndex}/{totalCharacters} characters processed)");
+
+                // Check if all characters have been processed
+                if (endIndex >= characterGuids.Length)
+                {
+                    // Mark the operation as completed
+                    state["completed"] = true;
+                }
+                break;
+        }
     }
 
     // Asynchronous version of ExportCharactersToDB
@@ -511,13 +654,11 @@ public class DatabaseExporter
                 db = new SQLiteConnection(dbPath);
                 state["db"] = db;
 
-                // Create tables for characters and loot drops
+                // Create tables for characters only
                 db.CreateTable<CharacterDBRecord>();
-                db.CreateTable<LootDropDBRecord>();
 
-                // Clear existing character and loot drop records
+                // Clear existing character records
                 db.DeleteAll<CharacterDBRecord>();
-                db.DeleteAll<LootDropDBRecord>();
 
                 progressCallback?.Invoke(0.1f, "Database initialized");
 
@@ -542,7 +683,6 @@ public class DatabaseExporter
                 string[] characterGuids = (string[])state["characterGuids"];
                 int characterIndex = (int)state["characterIndex"];
                 int characterCount = (int)state["characterCount"];
-                int lootDropsCount = (int)state["lootDropsCount"];
                 int totalCharacters = (int)state["totalCharacters"];
 
                 // Process a batch of characters (adjust batch size as needed)
@@ -604,116 +744,6 @@ public class DatabaseExporter
 
                             db.InsertOrReplace(record);
                             characterCount++;
-
-                            // Export loot drops
-                            LootTable lootTable = prefab.GetComponent<LootTable>();
-                            if (lootTable != null)
-                            {
-                                // Export guaranteed drops
-                                if (lootTable.GuaranteeOneDrop != null)
-                                {
-                                    for (int j = 0; j < lootTable.GuaranteeOneDrop.Count; j++)
-                                    {
-                                        Item item = lootTable.GuaranteeOneDrop[j];
-                                        if (item != null)
-                                        {
-                                            var lootRecord = new LootDropDBRecord
-                                            {
-                                                CharacterPrefabGuid = guid,
-                                                ItemId = item.Id,
-                                                DropType = "Guaranteed",
-                                                DropIndex = j
-                                            };
-                                            db.Insert(lootRecord);
-                                            lootDropsCount++;
-                                        }
-                                    }
-                                }
-
-                                // Export common drops
-                                if (lootTable.CommonDrop != null)
-                                {
-                                    for (int j = 0; j < lootTable.CommonDrop.Count; j++)
-                                    {
-                                        Item item = lootTable.CommonDrop[j];
-                                        if (item != null)
-                                        {
-                                            var lootRecord = new LootDropDBRecord
-                                            {
-                                                CharacterPrefabGuid = guid,
-                                                ItemId = item.Id,
-                                                DropType = "Common",
-                                                DropIndex = j
-                                            };
-                                            db.Insert(lootRecord);
-                                            lootDropsCount++;
-                                        }
-                                    }
-                                }
-
-                                // Export uncommon drops
-                                if (lootTable.UncommonDrop != null)
-                                {
-                                    for (int j = 0; j < lootTable.UncommonDrop.Count; j++)
-                                    {
-                                        Item item = lootTable.UncommonDrop[j];
-                                        if (item != null)
-                                        {
-                                            var lootRecord = new LootDropDBRecord
-                                            {
-                                                CharacterPrefabGuid = guid,
-                                                ItemId = item.Id,
-                                                DropType = "Uncommon",
-                                                DropIndex = j
-                                            };
-                                            db.Insert(lootRecord);
-                                            lootDropsCount++;
-                                        }
-                                    }
-                                }
-
-                                // Export rare drops
-                                if (lootTable.RareDrop != null)
-                                {
-                                    for (int j = 0; j < lootTable.RareDrop.Count; j++)
-                                    {
-                                        Item item = lootTable.RareDrop[j];
-                                        if (item != null)
-                                        {
-                                            var lootRecord = new LootDropDBRecord
-                                            {
-                                                CharacterPrefabGuid = guid,
-                                                ItemId = item.Id,
-                                                DropType = "Rare",
-                                                DropIndex = j
-                                            };
-                                            db.Insert(lootRecord);
-                                            lootDropsCount++;
-                                        }
-                                    }
-                                }
-
-                                // Export legendary drops
-                                if (lootTable.LegendaryDrop != null)
-                                {
-                                    for (int j = 0; j < lootTable.LegendaryDrop.Count; j++)
-                                    {
-                                        Item item = lootTable.LegendaryDrop[j];
-                                        if (item != null)
-                                        {
-                                            var lootRecord = new LootDropDBRecord
-                                            {
-                                                CharacterPrefabGuid = guid,
-                                                ItemId = item.Id,
-                                                DropType = "Legendary",
-                                                DropIndex = j
-                                            };
-                                            db.Insert(lootRecord);
-                                            lootDropsCount++;
-                                        }
-                                    }
-                                }
-                            }
                         }
                     }
                 }
@@ -721,7 +751,6 @@ public class DatabaseExporter
                 // Update state
                 state["characterIndex"] = endIndex;
                 state["characterCount"] = characterCount;
-                state["lootDropsCount"] = lootDropsCount;
 
                 // Calculate progress
                 float progress = 0.2f + (0.8f * endIndex / totalCharacters);
@@ -916,7 +945,7 @@ public class DatabaseExporter
         }
     }
 
-    private static int ExportCharacters(SQLiteConnection db)
+    private static int ExportCharacters(SQLiteConnection db, bool includeLootDrops = true)
     {
         string[] guids = AssetDatabase.FindAssets("t:Prefab", new[] { CHARACTERS_PATH });
         if (guids == null || guids.Length == 0)
@@ -984,119 +1013,163 @@ public class DatabaseExporter
             db.InsertOrReplace(record);
             exportedCount++;
 
-            // Check if the prefab has a LootTable component and export loot drop data
-            LootTable lootTable = prefab.GetComponent<LootTable>();
-            if (lootTable != null)
+            // Check if the prefab has a LootTable component and export loot drop data if includeLootDrops is true
+            if (includeLootDrops)
             {
-                // Export guaranteed drops
-                if (lootTable.GuaranteeOneDrop != null)
+                LootTable lootTable = prefab.GetComponent<LootTable>();
+                if (lootTable != null)
                 {
-                    for (int i = 0; i < lootTable.GuaranteeOneDrop.Count; i++)
-                    {
-                        Item item = lootTable.GuaranteeOneDrop[i];
-                        if (item != null)
-                        {
-                            var lootRecord = new LootDropDBRecord
-                            {
-                                CharacterPrefabGuid = guid,
-                                ItemId = item.Id,
-                                DropType = "Guaranteed",
-                                DropIndex = i
-                            };
-                            db.Insert(lootRecord);
-                            lootDropsCount++;
-                        }
-                    }
-                }
-
-                // Export common drops
-                if (lootTable.CommonDrop != null)
-                {
-                    for (int i = 0; i < lootTable.CommonDrop.Count; i++)
-                    {
-                        Item item = lootTable.CommonDrop[i];
-                        if (item != null)
-                        {
-                            var lootRecord = new LootDropDBRecord
-                            {
-                                CharacterPrefabGuid = guid,
-                                ItemId = item.Id,
-                                DropType = "Common",
-                                DropIndex = i
-                            };
-                            db.Insert(lootRecord);
-                            lootDropsCount++;
-                        }
-                    }
-                }
-
-                // Export uncommon drops
-                if (lootTable.UncommonDrop != null)
-                {
-                    for (int i = 0; i < lootTable.UncommonDrop.Count; i++)
-                    {
-                        Item item = lootTable.UncommonDrop[i];
-                        if (item != null)
-                        {
-                            var lootRecord = new LootDropDBRecord
-                            {
-                                CharacterPrefabGuid = guid,
-                                ItemId = item.Id,
-                                DropType = "Uncommon",
-                                DropIndex = i
-                            };
-                            db.Insert(lootRecord);
-                            lootDropsCount++;
-                        }
-                    }
-                }
-
-                // Export rare drops
-                if (lootTable.RareDrop != null)
-                {
-                    for (int i = 0; i < lootTable.RareDrop.Count; i++)
-                    {
-                        Item item = lootTable.RareDrop[i];
-                        if (item != null)
-                        {
-                            var lootRecord = new LootDropDBRecord
-                            {
-                                CharacterPrefabGuid = guid,
-                                ItemId = item.Id,
-                                DropType = "Rare",
-                                DropIndex = i
-                            };
-                            db.Insert(lootRecord);
-                            lootDropsCount++;
-                        }
-                    }
-                }
-
-                // Export legendary drops
-                if (lootTable.LegendaryDrop != null)
-                {
-                    for (int i = 0; i < lootTable.LegendaryDrop.Count; i++)
-                    {
-                        Item item = lootTable.LegendaryDrop[i];
-                        if (item != null)
-                        {
-                            var lootRecord = new LootDropDBRecord
-                            {
-                                CharacterPrefabGuid = guid,
-                                ItemId = item.Id,
-                                DropType = "Legendary",
-                                DropIndex = i
-                            };
-                            db.Insert(lootRecord);
-                            lootDropsCount++;
-                        }
-                    }
+                    lootDropsCount += ExportLootDropsForCharacter(db, guid, lootTable);
                 }
             }
         }
 
-        Debug.Log($"Exported {lootDropsCount} loot drops for characters");
+        if (includeLootDrops)
+        {
+            Debug.Log($"Exported {lootDropsCount} loot drops for characters");
+        }
         return exportedCount;
+    }
+
+    private static int ExportLootDrops(SQLiteConnection db)
+    {
+        string[] guids = AssetDatabase.FindAssets("t:Prefab", new[] { CHARACTERS_PATH });
+        if (guids == null || guids.Length == 0)
+        {
+            Debug.LogWarning($"No prefabs found in {CHARACTERS_PATH}!");
+            return 0;
+        }
+
+        int lootDropsCount = 0;
+
+        foreach (string guid in guids)
+        {
+            string assetPath = AssetDatabase.GUIDToAssetPath(guid);
+            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+            if (prefab == null)
+                continue;
+
+            // Check if the prefab has a LootTable component and export loot drop data
+            LootTable lootTable = prefab.GetComponent<LootTable>();
+            if (lootTable != null)
+            {
+                lootDropsCount += ExportLootDropsForCharacter(db, guid, lootTable);
+            }
+        }
+
+        return lootDropsCount;
+    }
+
+    private static int ExportLootDropsForCharacter(SQLiteConnection db, string guid, LootTable lootTable)
+    {
+        int lootDropsCount = 0;
+
+        // Export guaranteed drops
+        if (lootTable.GuaranteeOneDrop != null)
+        {
+            for (int i = 0; i < lootTable.GuaranteeOneDrop.Count; i++)
+            {
+                Item item = lootTable.GuaranteeOneDrop[i];
+                if (item != null)
+                {
+                    var lootRecord = new LootDropDBRecord
+                    {
+                        CharacterPrefabGuid = guid,
+                        ItemId = item.Id,
+                        DropType = "Guaranteed",
+                        DropIndex = i
+                    };
+                    db.Insert(lootRecord);
+                    lootDropsCount++;
+                }
+            }
+        }
+
+        // Export common drops
+        if (lootTable.CommonDrop != null)
+        {
+            for (int i = 0; i < lootTable.CommonDrop.Count; i++)
+            {
+                Item item = lootTable.CommonDrop[i];
+                if (item != null)
+                {
+                    var lootRecord = new LootDropDBRecord
+                    {
+                        CharacterPrefabGuid = guid,
+                        ItemId = item.Id,
+                        DropType = "Common",
+                        DropIndex = i
+                    };
+                    db.Insert(lootRecord);
+                    lootDropsCount++;
+                }
+            }
+        }
+
+        // Export uncommon drops
+        if (lootTable.UncommonDrop != null)
+        {
+            for (int i = 0; i < lootTable.UncommonDrop.Count; i++)
+            {
+                Item item = lootTable.UncommonDrop[i];
+                if (item != null)
+                {
+                    var lootRecord = new LootDropDBRecord
+                    {
+                        CharacterPrefabGuid = guid,
+                        ItemId = item.Id,
+                        DropType = "Uncommon",
+                        DropIndex = i
+                    };
+                    db.Insert(lootRecord);
+                    lootDropsCount++;
+                }
+            }
+        }
+
+        // Export rare drops
+        if (lootTable.RareDrop != null)
+        {
+            for (int i = 0; i < lootTable.RareDrop.Count; i++)
+            {
+                Item item = lootTable.RareDrop[i];
+                if (item != null)
+                {
+                    var lootRecord = new LootDropDBRecord
+                    {
+                        CharacterPrefabGuid = guid,
+                        ItemId = item.Id,
+                        DropType = "Rare",
+                        DropIndex = i
+                    };
+                    db.Insert(lootRecord);
+                    lootDropsCount++;
+                }
+            }
+        }
+
+        // Export legendary drops
+        if (lootTable.LegendaryDrop != null)
+        {
+            for (int i = 0; i < lootTable.LegendaryDrop.Count; i++)
+            {
+                Item item = lootTable.LegendaryDrop[i];
+                if (item != null)
+                {
+                    var lootRecord = new LootDropDBRecord
+                    {
+                        CharacterPrefabGuid = guid,
+                        ItemId = item.Id,
+                        DropType = "Legendary",
+                        DropIndex = i
+                    };
+                    db.Insert(lootRecord);
+                    lootDropsCount++;
+                }
+            }
+        }
+
+        return lootDropsCount;
     }
 
     private static int ExportItems(SQLiteConnection db)

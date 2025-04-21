@@ -97,6 +97,15 @@ public class DatabaseExporterWindow : EditorWindow
             }
             EditorGUILayout.EndHorizontal();
 
+            EditorGUILayout.Space();
+
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("Export Loot Drops Only", GUILayout.Height(30)))
+            {
+                ExportLootDrops();
+            }
+            EditorGUILayout.EndHorizontal();
+
             EditorGUI.EndDisabledGroup();
 
             EditorGUI.indentLevel--;
@@ -209,6 +218,28 @@ public class DatabaseExporterWindow : EditorWindow
         try
         {
             DatabaseExporter.ExportItemsToDBAsync(UpdateProgress);
+        }
+        catch (Exception ex)
+        {
+            isExporting = false;
+            showProgressBar = false;
+            statusMessage = $"Error starting export: {ex.Message}";
+            Debug.LogError($"Error starting export: {ex}");
+        }
+    }
+
+    private void ExportLootDrops()
+    {
+        statusMessage = "Starting export of loot drops...";
+        isExporting = true;
+        showProgressBar = true;
+        exportProgress = 0f;
+        exportStatus = "Initializing...";
+        Repaint();
+
+        try
+        {
+            DatabaseExporter.ExportLootDropsToDBAsync(UpdateProgress);
         }
         catch (Exception ex)
         {
