@@ -9,10 +9,12 @@ public class LootDropExporter
 {
     public const string CHARACTERS_PATH = "Assets/GameObject";
     private readonly DatabaseManager _dbManager;
+    private readonly LootTableProbabilityCalculator _probabilityCalculator;
 
     public LootDropExporter()
     {
         _dbManager = new DatabaseManager();
+        _probabilityCalculator = new LootTableProbabilityCalculator();
     }
 
     // Asynchronous version of ExportLootDropsToDB
@@ -104,7 +106,7 @@ public class LootDropExporter
                     LootTable lootTable = prefab.GetComponent<LootTable>();
                     if (lootTable != null)
                     {
-                        // Collect loot drops instead of inserting them one by one
+                        // Collect loot drops with probabilities
                         var lootDrops = CollectLootDropsForCharacter(guid, lootTable);
                         allLootDrops.AddRange(lootDrops);
                     }
@@ -146,10 +148,13 @@ public class LootDropExporter
         }
     }
 
-    // Collect loot drops for a character without inserting them directly
+    // Collect loot drops for a character with probabilities
     public List<LootDropDBRecord> CollectLootDropsForCharacter(string guid, LootTable lootTable)
     {
         var lootDrops = new List<LootDropDBRecord>();
+
+        // Calculate drop probabilities using the probability calculator
+        Dictionary<string, double> dropProbabilities = _probabilityCalculator.CalculateDropProbabilities(lootTable);
 
         // Helper method to collect a specific type of loot drops
         void CollectLootDrops(List<Item> items, string dropType)
@@ -161,12 +166,20 @@ public class LootDropExporter
                     Item item = items[i];
                     if (item != null)
                     {
+                        // Get the probability for this item
+                        double probability = 0.0;
+                        if (dropProbabilities.TryGetValue(item.name, out double prob))
+                        {
+                            probability = prob;
+                        }
+
                         var lootRecord = new LootDropDBRecord
                         {
                             CharacterPrefabGuid = guid,
                             ItemId = item.Id,
                             DropType = dropType,
-                            DropIndex = i
+                            DropIndex = i,
+                            Probability = probability
                         };
                         lootDrops.Add(lootRecord);
                     }

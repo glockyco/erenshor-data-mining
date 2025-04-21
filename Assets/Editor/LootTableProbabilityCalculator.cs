@@ -1,38 +1,13 @@
-﻿using UnityEngine;
-using UnityEditor;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
-[CustomEditor(typeof(LootTable))]
-public class LootTableProbabilityCalculator : Editor
+// Utility class for calculating loot drop probabilities
+public class LootTableProbabilityCalculator
 {
-    private Dictionary<string, double> dropChances = new Dictionary<string, double>();
-    private bool calculated = false;
     private static readonly string WorldDropKey = "Any Common World Drop";
 
-    public override void OnInspectorGUI()
-    {
-        DrawDefaultInspector();
-
-        LootTable lootTable = (LootTable)target;
-
-        if (GUILayout.Button("Calculate Drop Probabilities"))
-        {
-            dropChances = CalculateDropProbabilities(lootTable);
-            calculated = true;
-        }
-
-        if (calculated)
-        {
-            EditorGUILayout.LabelField("Per-Kill Drop Probabilities:");
-            foreach (var kvp in dropChances.OrderByDescending(kvp => kvp.Value))
-            {
-                EditorGUILayout.LabelField($"{kvp.Key}: {kvp.Value * 100:F4}%");
-            }
-        }
-    }
-
-    private Dictionary<string, double> CalculateDropProbabilities(LootTable lootTable)
+    // Calculate drop probabilities for a given loot table
+    public Dictionary<string, double> CalculateDropProbabilities(LootTable lootTable)
     {
         // Gather all unique items (excluding world)
         List<Item>[] dropLists = new List<Item>[4];

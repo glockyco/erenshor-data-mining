@@ -14,4 +14,5 @@ public class LootDropDBRecord
 
     public string DropType { get; set; }
     public int DropIndex { get; set; }
+    public double Probability { get; set; }
 }
