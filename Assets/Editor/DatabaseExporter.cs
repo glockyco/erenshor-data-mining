@@ -29,27 +29,6 @@ public class DatabaseExporter
         _cancelRequested = false;
     }
 
-    public static void ExportAllToDB()
-    {
-        string dbPath = Path.Combine(Application.dataPath, DB_PATH);
-        var db = new SQLiteConnection(dbPath);
-
-        // Create tables for all types
-        db.CreateTable<CharacterDBRecord>();
-        db.CreateTable<ItemDBRecord>();
-        db.CreateTable<LootDropDBRecord>();
-
-        // Clear existing records
-        db.DeleteAll<CharacterDBRecord>();
-        db.DeleteAll<ItemDBRecord>();
-        db.DeleteAll<LootDropDBRecord>();
-
-        // Export all types
-        int characterCount = ExportCharacters(db, true);
-        int itemCount = ExportItems(db);
-
-        Debug.Log($"Exported {characterCount} characters and {itemCount} items to SQLite database at {dbPath}");
-    }
 
     // Asynchronous version of ExportAllToDB
     public static void ExportAllToDBAsync(ProgressCallback progressCallback = null)
@@ -433,39 +412,7 @@ public class DatabaseExporter
         }
     }
 
-    public static void ExportCharactersToDB()
-    {
-        string dbPath = Path.Combine(Application.dataPath, DB_PATH);
-        var db = new SQLiteConnection(dbPath);
 
-        // Create tables for characters
-        db.CreateTable<CharacterDBRecord>();
-
-        // Clear existing character records
-        db.DeleteAll<CharacterDBRecord>();
-
-        // Export characters
-        int characterCount = ExportCharacters(db, false);
-
-        Debug.Log($"Exported {characterCount} characters to SQLite database at {dbPath}");
-    }
-
-    public static void ExportLootDropsToDB()
-    {
-        string dbPath = Path.Combine(Application.dataPath, DB_PATH);
-        var db = new SQLiteConnection(dbPath);
-
-        // Create tables for loot drops
-        db.CreateTable<LootDropDBRecord>();
-
-        // Clear existing loot drop records
-        db.DeleteAll<LootDropDBRecord>();
-
-        // Export loot drops
-        int lootDropsCount = ExportLootDrops(db);
-
-        Debug.Log($"Exported {lootDropsCount} loot drops to SQLite database at {dbPath}");
-    }
 
     // Asynchronous version of ExportLootDropsToDB
     public static void ExportLootDropsToDBAsync(ProgressCallback progressCallback = null)
@@ -609,7 +556,6 @@ public class DatabaseExporter
             { "characterGuids", null },
             { "characterIndex", 0 },
             { "characterCount", 0 },
-            { "lootDropsCount", 0 },
             { "totalCharacters", 0 },
             { "completed", false }
         };
@@ -766,22 +712,6 @@ public class DatabaseExporter
         }
     }
 
-    public static void ExportItemsToDB()
-    {
-        string dbPath = Path.Combine(Application.dataPath, DB_PATH);
-        var db = new SQLiteConnection(dbPath);
-
-        // Create table for items
-        db.CreateTable<ItemDBRecord>();
-
-        // Clear existing item records
-        db.DeleteAll<ItemDBRecord>();
-
-        // Export items
-        int itemCount = ExportItems(db);
-
-        Debug.Log($"Exported {itemCount} items to SQLite database at {dbPath}");
-    }
 
     // Asynchronous version of ExportItemsToDB
     public static void ExportItemsToDBAsync(ProgressCallback progressCallback = null)
@@ -945,120 +875,7 @@ public class DatabaseExporter
         }
     }
 
-    private static int ExportCharacters(SQLiteConnection db, bool includeLootDrops = true)
-    {
-        string[] guids = AssetDatabase.FindAssets("t:Prefab", new[] { CHARACTERS_PATH });
-        if (guids == null || guids.Length == 0)
-        {
-            Debug.LogWarning($"No prefabs found in {CHARACTERS_PATH}!");
-            return 0;
-        }
 
-        int exportedCount = 0;
-        int lootDropsCount = 0;
-
-        foreach (string guid in guids)
-        {
-            string assetPath = AssetDatabase.GUIDToAssetPath(guid);
-            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
-            if (prefab == null)
-                continue;
-
-            Character character = prefab.GetComponent<Character>();
-            if (character == null)
-                continue;
-
-            NPC npc = prefab.GetComponent<NPC>();
-
-            var record = new CharacterDBRecord
-            {
-                PrefabGuid = guid,
-                PrefabName = prefab.name,
-                NPCName = npc != null ? npc.NPCName : string.Empty,
-                MyFaction = (int)character.MyFaction,
-                BaseFaction = (int)character.BaseFaction,
-                TempFaction = (int)character.TempFaction,
-                AggroRange = character.AggroRange,
-                Alive = character.Alive,
-                isNPC = character.isNPC,
-                isVendor = character.isVendor,
-                AttackRange = character.AttackRange,
-                Invulnerable = character.Invulnerable,
-            };
-
-            // Check if the prefab has a Stats component and include stats data if available
-            Stats stats = prefab.GetComponent<Stats>();
-            if (stats != null)
-            {
-                record.HasStats = true;
-                record.CharacterName = stats.MyName;
-                record.Level = stats.Level;
-                record.BaseHP = stats.BaseHP;
-                record.BaseAC = stats.BaseAC;
-                record.BaseMana = stats.BaseMana;
-                record.BaseStr = stats.BaseStr;
-                record.BaseEnd = stats.BaseEnd;
-                record.BaseDex = stats.BaseDex;
-                record.BaseAgi = stats.BaseAgi;
-                record.BaseInt = stats.BaseInt;
-                record.BaseWis = stats.BaseWis;
-                record.BaseCha = stats.BaseCha;
-                record.BaseRes = stats.BaseRes;
-                record.BaseMR = stats.BaseMR;
-                record.BaseER = stats.BaseER;
-                record.BasePR = stats.BasePR;
-                record.BaseVR = stats.BaseVR;
-            }
-
-            db.InsertOrReplace(record);
-            exportedCount++;
-
-            // Check if the prefab has a LootTable component and export loot drop data if includeLootDrops is true
-            if (includeLootDrops)
-            {
-                LootTable lootTable = prefab.GetComponent<LootTable>();
-                if (lootTable != null)
-                {
-                    lootDropsCount += ExportLootDropsForCharacter(db, guid, lootTable);
-                }
-            }
-        }
-
-        if (includeLootDrops)
-        {
-            Debug.Log($"Exported {lootDropsCount} loot drops for characters");
-        }
-        return exportedCount;
-    }
-
-    private static int ExportLootDrops(SQLiteConnection db)
-    {
-        string[] guids = AssetDatabase.FindAssets("t:Prefab", new[] { CHARACTERS_PATH });
-        if (guids == null || guids.Length == 0)
-        {
-            Debug.LogWarning($"No prefabs found in {CHARACTERS_PATH}!");
-            return 0;
-        }
-
-        int lootDropsCount = 0;
-
-        foreach (string guid in guids)
-        {
-            string assetPath = AssetDatabase.GUIDToAssetPath(guid);
-            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
-            if (prefab == null)
-                continue;
-
-            // Check if the prefab has a LootTable component and export loot drop data
-            LootTable lootTable = prefab.GetComponent<LootTable>();
-            if (lootTable != null)
-            {
-                lootDropsCount += ExportLootDropsForCharacter(db, guid, lootTable);
-            }
-        }
-
-        return lootDropsCount;
-    }
 
     private static int ExportLootDropsForCharacter(SQLiteConnection db, string guid, LootTable lootTable)
     {
@@ -1172,67 +989,4 @@ public class DatabaseExporter
         return lootDropsCount;
     }
 
-    private static int ExportItems(SQLiteConnection db)
-    {
-        // Load all Item assets from Resources/items
-        Item[] items = Resources.LoadAll<Item>(ITEMS_PATH);
-        if (items == null || items.Length == 0)
-        {
-            Debug.LogWarning($"No items found in Resources/{ITEMS_PATH}!");
-            return 0;
-        }
-
-        int exportedCount = 0;
-
-        foreach (var item in items)
-        {
-            var record = new ItemDBRecord
-            {
-                Id = item.Id,
-                ItemName = item.ItemName,
-                ItemLevel = item.ItemLevel,
-                HP = item.HP,
-                AC = item.AC,
-                Mana = item.Mana,
-                WeaponDmg = item.WeaponDmg,
-                WeaponDly = item.WeaponDly,
-                Str = item.Str,
-                End = item.End,
-                Dex = item.Dex,
-                Agi = item.Agi,
-                Int = item.Int,
-                Wis = item.Wis,
-                Cha = item.Cha,
-                Res = item.Res,
-                MR = item.MR,
-                ER = item.ER,
-                PR = item.PR,
-                VR = item.VR,
-                RequiredSlot = (int)item.RequiredSlot,
-                ThisWeaponType = (int)item.ThisWeaponType,
-                ItemValue = item.ItemValue,
-                Lore = item.Lore,
-                Shield = item.Shield,
-                WeaponProcChance = item.WeaponProcChance,
-                SpellCastTime = item.SpellCastTime,
-                HideHairWhenEquipped = item.HideHairWhenEquipped,
-                HideHeadWhenEquipped = item.HideHeadWhenEquipped,
-                Stackable = item.Stackable,
-                Disposable = item.Disposable,
-                Unique = item.Unique,
-                Mining = item.Mining,
-                FuelSource = item.FuelSource,
-                Template = item.Template,
-                SimPlayersCantGet = item.SimPlayersCantGet,
-                FuelLevel = (int)item.FuelLevel,
-                Relic = item.Relic,
-                BookTitle = item.BookTitle
-            };
-
-            db.Insert(record);
-            exportedCount++;
-        }
-
-        return exportedCount;
-    }
 }
