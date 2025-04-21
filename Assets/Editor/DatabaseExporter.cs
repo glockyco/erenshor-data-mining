@@ -125,7 +125,8 @@ public class DatabaseExporter
         {
             { "init", InitializeAllDB },
             { "prepare_characters", PrepareCharacters },
-            { "export_characters", ExportCharactersAndLootDropsBatch },
+            { "export_characters", ExportCharactersBatchForAll },
+            { "export_loot_drops", ExportLootDropsBatchForAll },
             { "prepare_items", PrepareItems },
             { "export_items", ExportItemsBatch }
         };
@@ -133,14 +134,14 @@ public class DatabaseExporter
         // Start the asynchronous operation
         ExportAsync(state, 
             (s, callback) => GenericExportAsyncUpdate(s, callback, stageOperations, 
-                "Exported {0[characterCount]} characters and {0[itemCount]} items"), 
+                "Exported {0[characterCount]} characters, {0[lootDropsCount]} loot drops, and {0[itemCount]} items"), 
             progressCallback);
     }
 
     // Initialize the database for all exports
     private static void InitializeAllDB(SQLiteConnection db, Dictionary<string, object> state)
     {
-        // Create tables for all types
+        // Create tables for characters, items, and loot drops
         db.CreateTable<CharacterDBRecord>();
         db.CreateTable<ItemDBRecord>();
         db.CreateTable<LootDropDBRecord>();
@@ -155,13 +156,12 @@ public class DatabaseExporter
         callback?.Invoke(0.05f, "Database initialized");
     }
 
-    // Export a batch of characters and their loot drops
-    private static void ExportCharactersAndLootDropsBatch(SQLiteConnection db, Dictionary<string, object> state)
+    // Export a batch of characters for full export
+    private static void ExportCharactersBatchForAll(SQLiteConnection db, Dictionary<string, object> state)
     {
         string[] characterGuids = (string[])state["characterGuids"];
         int characterIndex = (int)state["characterIndex"];
         int characterCount = (int)state["characterCount"];
-        int lootDropsCount = (int)state["lootDropsCount"];
         int totalCharacters = (int)state["totalCharacters"];
 
         // Process a batch of characters (adjust batch size as needed)
@@ -182,13 +182,6 @@ public class DatabaseExporter
                 {
                     db.InsertOrReplace(record);
                     characterCount++;
-
-                    // Export loot drops
-                    LootTable lootTable = prefab.GetComponent<LootTable>();
-                    if (lootTable != null)
-                    {
-                        lootDropsCount += ExportLootDropsForCharacter(db, guid, lootTable);
-                    }
                 }
             }
         }
@@ -196,12 +189,59 @@ public class DatabaseExporter
         // Update state
         state["characterIndex"] = endIndex;
         state["characterCount"] = characterCount;
-        state["lootDropsCount"] = lootDropsCount;
 
-        // Calculate progress (characters are 50% of the total progress)
-        float progress = 0.1f + (0.4f * endIndex / totalCharacters);
+        // Calculate progress (characters are 30% of the total progress)
+        float progress = 0.1f + (0.2f * endIndex / totalCharacters);
         ProgressCallback callback = state["progressCallback"] as ProgressCallback;
         callback?.Invoke(progress, $"Exported {characterCount} characters ({endIndex}/{totalCharacters})");
+
+        // Check if all characters have been processed
+        if (endIndex >= characterGuids.Length)
+        {
+            // Reset character index for loot drops export
+            state["characterIndex"] = 0;
+            // Move to the next stage
+            state["stage"] = "export_loot_drops";
+        }
+    }
+
+    // Export a batch of loot drops for all characters
+    private static void ExportLootDropsBatchForAll(SQLiteConnection db, Dictionary<string, object> state)
+    {
+        string[] characterGuids = (string[])state["characterGuids"];
+        int characterIndex = (int)state["characterIndex"];
+        int lootDropsCount = (int)state["lootDropsCount"];
+        int totalCharacters = (int)state["totalCharacters"];
+
+        // Process a batch of characters (adjust batch size as needed)
+        int batchSize = 5;
+        int endIndex = Math.Min(characterIndex + batchSize, characterGuids.Length);
+
+        for (int i = characterIndex; i < endIndex; i++)
+        {
+            string guid = characterGuids[i];
+            string assetPath = AssetDatabase.GUIDToAssetPath(guid);
+            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+
+            if (prefab != null)
+            {
+                // Check if the prefab has a LootTable component and export loot drop data
+                LootTable lootTable = prefab.GetComponent<LootTable>();
+                if (lootTable != null)
+                {
+                    lootDropsCount += ExportLootDropsForCharacter(db, guid, lootTable);
+                }
+            }
+        }
+
+        // Update state
+        state["characterIndex"] = endIndex;
+        state["lootDropsCount"] = lootDropsCount;
+
+        // Calculate progress (loot drops are 20% of the total progress)
+        float progress = 0.3f + (0.2f * endIndex / totalCharacters);
+        ProgressCallback callback = state["progressCallback"] as ProgressCallback;
+        callback?.Invoke(progress, $"Exported {lootDropsCount} loot drops ({endIndex}/{totalCharacters} characters processed)");
 
         // Check if all characters have been processed
         if (endIndex >= characterGuids.Length)
