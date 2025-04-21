@@ -1,5 +1,6 @@
 ﻿using SQLite;
 
+[Table("Items")]
 public class ItemDBRecord
 {
     [PrimaryKey]
@@ -42,5 +43,4 @@ public class ItemDBRecord
     public int FuelLevel { get; set; }
     public bool Relic { get; set; }
     public string BookTitle { get; set; }
-    // Add more fields as needed
 }

@@ -1,5 +1,6 @@
 ﻿using SQLite;
 
+[Table("Characters")]
 public class CharacterDBRecord
 {
     [PrimaryKey]
@@ -16,7 +17,7 @@ public class CharacterDBRecord
     public float AttackRange { get; set; }
     public bool Invulnerable { get; set; }
 
-    // Stats fields
+    // Stats properties
     public bool HasStats { get; set; }
     public string CharacterName { get; set; }
     public int Level { get; set; }
@@ -35,5 +36,4 @@ public class CharacterDBRecord
     public int BaseER { get; set; }
     public int BasePR { get; set; }
     public int BaseVR { get; set; }
-    // Add more fields as needed, skipping UnityEngine.Object references
 }

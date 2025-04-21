@@ -1,17 +1,17 @@
 using SQLite;
 
+[Table("LootDrops")]
 public class LootDropDBRecord
 {
     [PrimaryKey, AutoIncrement]
     public int Id { get; set; }
-    
+
     [Indexed]
-    public string CharacterPrefabGuid { get; set; }  // Foreign key to CharacterDBRecord.PrefabGuid
-    
+    public string CharacterPrefabGuid { get; set; }
+
     [Indexed]
-    public string ItemId { get; set; }  // Foreign key to ItemDBRecord.Id
-    
-    public string DropType { get; set; }  // "Guaranteed", "Common", "Uncommon", "Rare", "Legendary"
-    
-    public int DropIndex { get; set; }  // Index in the original list
+    public string ItemId { get; set; }
+
+    public string DropType { get; set; }
+    public int DropIndex { get; set; }
 }

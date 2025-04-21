@@ -1,252 +1,155 @@
-using UnityEngine;
-using UnityEditor;
 using System.IO;
-using System;
+using UnityEditor;
+using UnityEngine;
 
 public class DatabaseExporterWindow : EditorWindow
 {
-    private Vector2 scrollPosition;
-    private string statusMessage = "";
-    private bool showExportOptions = true;
-    private bool showExportPath = true;
-    private string dbPath;
+    private bool _isExporting = false;
+    private float _progress = 0f;
+    private string _status = "Ready";
+    private bool _showAdvancedOptions = false;
 
-    // Progress tracking
-    private bool isExporting = false;
-    private float exportProgress = 0f;
-    private string exportStatus = "";
-    private bool showProgressBar = false;
+    // Create instances of exporters
+    private readonly DatabaseExporter _databaseExporter;
+    private readonly CharacterExporter _characterExporter;
+    private readonly ItemExporter _itemExporter;
+    private readonly LootDropExporter _lootDropExporter;
 
-    [MenuItem("Tools/Database Exporter")]
-    public static void ShowWindow()
+    public DatabaseExporterWindow()
     {
-        GetWindow<DatabaseExporterWindow>("Database Exporter");
+        _databaseExporter = new DatabaseExporter();
+        _characterExporter = new CharacterExporter();
+        _itemExporter = new ItemExporter();
+        _lootDropExporter = new LootDropExporter();
     }
 
-    private void OnEnable()
+    [MenuItem("Tools/Database/Export Database")]
+    public static void ShowWindow()
     {
-        // Initialize the database path
-        dbPath = Path.Combine(Application.dataPath, DatabaseExporter.DB_PATH);
+        var window = GetWindow<DatabaseExporterWindow>("Database Exporter");
+        window.minSize = new Vector2(400, 250);
+        window.Show();
     }
 
     private void OnGUI()
     {
-        scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
-
         GUILayout.Label("Database Exporter", EditorStyles.boldLabel);
         EditorGUILayout.Space();
 
-        // Database path section
-        showExportPath = EditorGUILayout.Foldout(showExportPath, "Database Path");
-        if (showExportPath)
-        {
-            EditorGUI.indentLevel++;
-            EditorGUILayout.LabelField("Current Path:", dbPath);
-            EditorGUI.indentLevel--;
-        }
-
+        EditorGUILayout.LabelField("Status:", _status);
         EditorGUILayout.Space();
 
         // Progress bar
-        if (showProgressBar)
+        if (_isExporting)
         {
-            EditorGUILayout.LabelField("Export Progress:");
-            EditorGUI.ProgressBar(EditorGUILayout.GetControlRect(false, 20), exportProgress, exportStatus);
+            EditorGUI.ProgressBar(EditorGUILayout.GetControlRect(false, 20f), _progress, $"{_progress * 100:F0}%");
             EditorGUILayout.Space();
+        }
 
-            if (isExporting)
+        // Export buttons
+        EditorGUI.BeginDisabledGroup(_isExporting);
+
+        if (GUILayout.Button("Export All Data"))
+        {
+            StartExportAll();
+        }
+
+        _showAdvancedOptions = EditorGUILayout.Foldout(_showAdvancedOptions, "Advanced Options");
+
+        if (_showAdvancedOptions)
+        {
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+
+            if (GUILayout.Button("Export Characters Only"))
             {
-                if (GUILayout.Button("Cancel Export", GUILayout.Height(25)))
-                {
-                    CancelExport();
-                }
-                EditorGUILayout.Space();
+                StartExportCharacters();
+            }
+
+            if (GUILayout.Button("Export Items Only"))
+            {
+                StartExportItems();
+            }
+
+            if (GUILayout.Button("Export Loot Drops Only"))
+            {
+                StartExportLootDrops();
+            }
+
+            EditorGUILayout.EndVertical();
+        }
+
+        EditorGUI.EndDisabledGroup();
+
+        // Cancel button
+        if (_isExporting)
+        {
+            EditorGUILayout.Space();
+            if (GUILayout.Button("Cancel Export"))
+            {
+                CancelExport();
             }
         }
 
-        // Export options section
-        showExportOptions = EditorGUILayout.Foldout(showExportOptions, "Export Options");
-        if (showExportOptions)
-        {
-            EditorGUI.indentLevel++;
-
-            EditorGUI.BeginDisabledGroup(isExporting);
-
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Export All Data", GUILayout.Height(30)))
-            {
-                ExportAll();
-            }
-            EditorGUILayout.EndHorizontal();
-
-            EditorGUILayout.Space();
-
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Export Characters Only", GUILayout.Height(30)))
-            {
-                ExportCharacters();
-            }
-            EditorGUILayout.EndHorizontal();
-
-            EditorGUILayout.Space();
-
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Export Items Only", GUILayout.Height(30)))
-            {
-                ExportItems();
-            }
-            EditorGUILayout.EndHorizontal();
-
-            EditorGUILayout.Space();
-
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Export Loot Drops Only", GUILayout.Height(30)))
-            {
-                ExportLootDrops();
-            }
-            EditorGUILayout.EndHorizontal();
-
-            EditorGUI.EndDisabledGroup();
-
-            EditorGUI.indentLevel--;
-        }
-
+        // Database path info
         EditorGUILayout.Space();
-
-        // Status message
-        if (!string.IsNullOrEmpty(statusMessage))
-        {
-            EditorGUILayout.HelpBox(statusMessage, MessageType.Info);
-        }
-
-        EditorGUILayout.EndScrollView();
+        EditorGUILayout.LabelField("Database Path:", Path.Combine(Application.dataPath, DatabaseExporter.DB_PATH));
     }
 
-    private void Update()
+    private void StartExportAll()
     {
-        // Repaint the window to update the progress bar
-        if (isExporting)
-        {
-            Repaint();
-        }
+        _isExporting = true;
+        _progress = 0f;
+        _status = "Initializing...";
+
+        _databaseExporter.ExportAllToDBAsync(UpdateProgress);
+    }
+
+    private void StartExportCharacters()
+    {
+        _isExporting = true;
+        _progress = 0f;
+        _status = "Initializing...";
+
+        _characterExporter.ExportCharactersToDBAsync(UpdateProgress);
+    }
+
+    private void StartExportItems()
+    {
+        _isExporting = true;
+        _progress = 0f;
+        _status = "Initializing...";
+
+        _itemExporter.ExportItemsToDBAsync(UpdateProgress);
+    }
+
+    private void StartExportLootDrops()
+    {
+        _isExporting = true;
+        _progress = 0f;
+        _status = "Initializing...";
+
+        _lootDropExporter.ExportLootDropsToDBAsync(UpdateProgress);
     }
 
     private void CancelExport()
     {
-        if (isExporting)
-        {
-            DatabaseExporter.CancelExport();
-            statusMessage = "Export operation cancelled.";
-            isExporting = false;
-            showProgressBar = false;
-        }
+        DatabaseExporter.CancelExport();
+        _status = "Cancelling...";
     }
 
     private void UpdateProgress(float progress, string status)
     {
-        exportProgress = progress;
-        exportStatus = status;
+        // Update UI from the main thread
+        _progress = progress;
+        _status = status;
 
-        // If the progress is 1.0, the operation is complete
-        if (Math.Abs(progress - 1.0f) < 0.001f)
+        // If progress is 1.0, the operation is complete
+        if (progress >= 1.0f)
         {
-            isExporting = false;
-            statusMessage = status;
-
-            // Hide the progress bar after a delay
-            EditorApplication.delayCall += () => 
-            {
-                showProgressBar = false;
-                Repaint();
-            };
+            _isExporting = false;
         }
-    }
 
-    private void ExportAll()
-    {
-        statusMessage = "Starting export of all data...";
-        isExporting = true;
-        showProgressBar = true;
-        exportProgress = 0f;
-        exportStatus = "Initializing...";
+        // Force UI update
         Repaint();
-
-        try
-        {
-            DatabaseExporter.ExportAllToDBAsync(UpdateProgress);
-        }
-        catch (Exception ex)
-        {
-            isExporting = false;
-            showProgressBar = false;
-            statusMessage = $"Error starting export: {ex.Message}";
-            Debug.LogError($"Error starting export: {ex}");
-        }
-    }
-
-    private void ExportCharacters()
-    {
-        statusMessage = "Starting export of characters...";
-        isExporting = true;
-        showProgressBar = true;
-        exportProgress = 0f;
-        exportStatus = "Initializing...";
-        Repaint();
-
-        try
-        {
-            DatabaseExporter.ExportCharactersToDBAsync(UpdateProgress);
-        }
-        catch (Exception ex)
-        {
-            isExporting = false;
-            showProgressBar = false;
-            statusMessage = $"Error starting export: {ex.Message}";
-            Debug.LogError($"Error starting export: {ex}");
-        }
-    }
-
-    private void ExportItems()
-    {
-        statusMessage = "Starting export of items...";
-        isExporting = true;
-        showProgressBar = true;
-        exportProgress = 0f;
-        exportStatus = "Initializing...";
-        Repaint();
-
-        try
-        {
-            DatabaseExporter.ExportItemsToDBAsync(UpdateProgress);
-        }
-        catch (Exception ex)
-        {
-            isExporting = false;
-            showProgressBar = false;
-            statusMessage = $"Error starting export: {ex.Message}";
-            Debug.LogError($"Error starting export: {ex}");
-        }
-    }
-
-    private void ExportLootDrops()
-    {
-        statusMessage = "Starting export of loot drops...";
-        isExporting = true;
-        showProgressBar = true;
-        exportProgress = 0f;
-        exportStatus = "Initializing...";
-        Repaint();
-
-        try
-        {
-            DatabaseExporter.ExportLootDropsToDBAsync(UpdateProgress);
-        }
-        catch (Exception ex)
-        {
-            isExporting = false;
-            showProgressBar = false;
-            statusMessage = $"Error starting export: {ex.Message}";
-            Debug.LogError($"Error starting export: {ex}");
-        }
     }
 }
