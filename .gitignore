@@ -170,8 +170,3 @@ sysinfo.txt
 !/Assets/Packages/
 
 !/Assets/Editor/
-/Assets/Editor/*
-
-!/Assets/Editor/LootTableProbabilityCalculator.cs
-!/Assets/Editor/SceneScriptSearchWindow.cs
-!/Assets/Editor/StatsObjectFinder.cs
