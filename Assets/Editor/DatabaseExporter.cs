@@ -164,26 +164,51 @@ public class DatabaseExporter
         int characterCount = (int)state["characterCount"];
         int totalCharacters = (int)state["totalCharacters"];
 
-        // Process a batch of characters (adjust batch size as needed)
-        int batchSize = 5;
+        // Process a larger batch of characters for better performance
+        int batchSize = 25; // Increased from 5 to 25
         int endIndex = Math.Min(characterIndex + batchSize, characterGuids.Length);
 
-        for (int i = characterIndex; i < endIndex; i++)
-        {
-            string guid = characterGuids[i];
-            string assetPath = AssetDatabase.GUIDToAssetPath(guid);
-            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+        // Use a transaction for better performance
+        db.BeginTransaction();
 
-            if (prefab != null)
+        try
+        {
+            // Create a list to hold records for bulk insert
+            var records = new List<CharacterDBRecord>();
+
+            for (int i = characterIndex; i < endIndex; i++)
             {
-                // Export character
-                CharacterDBRecord record = ExportCharacter(prefab, guid);
-                if (record != null)
+                string guid = characterGuids[i];
+                string assetPath = AssetDatabase.GUIDToAssetPath(guid);
+                GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+
+                if (prefab != null)
                 {
-                    db.InsertOrReplace(record);
-                    characterCount++;
+                    // Export character
+                    CharacterDBRecord record = ExportCharacter(prefab, guid);
+                    if (record != null)
+                    {
+                        records.Add(record);
+                    }
                 }
             }
+
+            // Bulk insert all records at once
+            foreach (var record in records)
+            {
+                db.InsertOrReplace(record);
+            }
+
+            characterCount += records.Count;
+
+            // Commit the transaction
+            db.Commit();
+        }
+        catch (Exception ex)
+        {
+            // Rollback on error
+            db.Rollback();
+            Debug.LogError($"Error exporting characters: {ex.Message}");
         }
 
         // Update state
@@ -213,25 +238,53 @@ public class DatabaseExporter
         int lootDropsCount = (int)state["lootDropsCount"];
         int totalCharacters = (int)state["totalCharacters"];
 
-        // Process a batch of characters (adjust batch size as needed)
-        int batchSize = 5;
+        // Process a larger batch of characters for better performance
+        int batchSize = 25; // Increased from 5 to 25
         int endIndex = Math.Min(characterIndex + batchSize, characterGuids.Length);
 
-        for (int i = characterIndex; i < endIndex; i++)
-        {
-            string guid = characterGuids[i];
-            string assetPath = AssetDatabase.GUIDToAssetPath(guid);
-            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+        // Use a transaction for better performance
+        db.BeginTransaction();
 
-            if (prefab != null)
+        try
+        {
+            // Create a list to hold all loot drop records for bulk insert
+            var allLootDrops = new List<LootDropDBRecord>();
+
+            for (int i = characterIndex; i < endIndex; i++)
             {
-                // Check if the prefab has a LootTable component and export loot drop data
-                LootTable lootTable = prefab.GetComponent<LootTable>();
-                if (lootTable != null)
+                string guid = characterGuids[i];
+                string assetPath = AssetDatabase.GUIDToAssetPath(guid);
+                GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+
+                if (prefab != null)
                 {
-                    lootDropsCount += ExportLootDropsForCharacter(db, guid, lootTable);
+                    // Check if the prefab has a LootTable component and export loot drop data
+                    LootTable lootTable = prefab.GetComponent<LootTable>();
+                    if (lootTable != null)
+                    {
+                        // Collect loot drops instead of inserting them one by one
+                        var lootDrops = CollectLootDropsForCharacter(guid, lootTable);
+                        allLootDrops.AddRange(lootDrops);
+                    }
                 }
             }
+
+            // Bulk insert all loot drops at once
+            foreach (var lootDrop in allLootDrops)
+            {
+                db.Insert(lootDrop);
+            }
+
+            lootDropsCount += allLootDrops.Count;
+
+            // Commit the transaction
+            db.Commit();
+        }
+        catch (Exception ex)
+        {
+            // Rollback on error
+            db.Rollback();
+            Debug.LogError($"Error exporting loot drops: {ex.Message}");
         }
 
         // Update state
@@ -305,25 +358,53 @@ public class DatabaseExporter
         int lootDropsCount = (int)state["lootDropsCount"];
         int totalCharacters = (int)state["totalCharacters"];
 
-        // Process a batch of characters (adjust batch size as needed)
-        int batchSize = 5;
+        // Process a larger batch of characters for better performance
+        int batchSize = 25; // Increased from 5 to 25
         int endIndex = Math.Min(characterIndex + batchSize, characterGuids.Length);
 
-        for (int i = characterIndex; i < endIndex; i++)
-        {
-            string guid = characterGuids[i];
-            string assetPath = AssetDatabase.GUIDToAssetPath(guid);
-            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+        // Use a transaction for better performance
+        db.BeginTransaction();
 
-            if (prefab != null)
+        try
+        {
+            // Create a list to hold all loot drop records for bulk insert
+            var allLootDrops = new List<LootDropDBRecord>();
+
+            for (int i = characterIndex; i < endIndex; i++)
             {
-                // Check if the prefab has a LootTable component and export loot drop data
-                LootTable lootTable = prefab.GetComponent<LootTable>();
-                if (lootTable != null)
+                string guid = characterGuids[i];
+                string assetPath = AssetDatabase.GUIDToAssetPath(guid);
+                GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+
+                if (prefab != null)
                 {
-                    lootDropsCount += ExportLootDropsForCharacter(db, guid, lootTable);
+                    // Check if the prefab has a LootTable component and export loot drop data
+                    LootTable lootTable = prefab.GetComponent<LootTable>();
+                    if (lootTable != null)
+                    {
+                        // Collect loot drops instead of inserting them one by one
+                        var lootDrops = CollectLootDropsForCharacter(guid, lootTable);
+                        allLootDrops.AddRange(lootDrops);
+                    }
                 }
             }
+
+            // Bulk insert all loot drops at once
+            foreach (var lootDrop in allLootDrops)
+            {
+                db.Insert(lootDrop);
+            }
+
+            lootDropsCount += allLootDrops.Count;
+
+            // Commit the transaction
+            db.Commit();
+        }
+        catch (Exception ex)
+        {
+            // Rollback on error
+            db.Rollback();
+            Debug.LogError($"Error exporting loot drops: {ex.Message}");
         }
 
         // Update state
@@ -364,7 +445,7 @@ public class DatabaseExporter
         {
             { "init", InitializeCharactersDB },
             { "prepare_characters", PrepareCharacters },
-            { "export_characters", ExportCharactersBatch }
+            { "export_characters", ExportCharactersBatchForAll }
         };
 
         // Start the asynchronous operation
@@ -400,51 +481,6 @@ public class DatabaseExporter
         callback?.Invoke(0.2f, $"Found {guids.Length} character prefabs");
     }
 
-    // Export a batch of characters
-    private static void ExportCharactersBatch(SQLiteConnection db, Dictionary<string, object> state)
-    {
-        string[] characterGuids = (string[])state["characterGuids"];
-        int characterIndex = (int)state["characterIndex"];
-        int characterCount = (int)state["characterCount"];
-        int totalCharacters = (int)state["totalCharacters"];
-
-        // Process a batch of characters (adjust batch size as needed)
-        int batchSize = 5;
-        int endIndex = Math.Min(characterIndex + batchSize, characterGuids.Length);
-
-        for (int i = characterIndex; i < endIndex; i++)
-        {
-            string guid = characterGuids[i];
-            string assetPath = AssetDatabase.GUIDToAssetPath(guid);
-            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
-
-            if (prefab != null)
-            {
-                CharacterDBRecord record = ExportCharacter(prefab, guid);
-                if (record != null)
-                {
-                    db.InsertOrReplace(record);
-                    characterCount++;
-                }
-            }
-        }
-
-        // Update state
-        state["characterIndex"] = endIndex;
-        state["characterCount"] = characterCount;
-
-        // Calculate progress
-        float progress = 0.2f + (0.8f * endIndex / totalCharacters);
-        ProgressCallback callback = state["progressCallback"] as ProgressCallback;
-        callback?.Invoke(progress, $"Exported {characterCount} characters ({endIndex}/{totalCharacters})");
-
-        // Check if all characters have been processed
-        if (endIndex >= characterGuids.Length)
-        {
-            // Mark the operation as completed
-            state["completed"] = true;
-        }
-    }
 
 
     // Asynchronous version of ExportItemsToDB
@@ -512,16 +548,41 @@ public class DatabaseExporter
         int itemCount = (int)state["itemCount"];
         int totalItems = (int)state["totalItems"];
 
-        // Process a batch of items (adjust batch size as needed)
-        int batchSize = 10;
+        // Process a larger batch of items for better performance
+        int batchSize = 50; // Increased from 10 to 50 since item exports are less problematic
         int endIndex = Math.Min(itemIndex + batchSize, allItems.Length);
 
-        for (int i = itemIndex; i < endIndex; i++)
+        // Use a transaction for better performance
+        db.BeginTransaction();
+
+        try
         {
-            Item item = allItems[i];
-            ItemDBRecord record = ExportItem(item);
-            db.Insert(record);
-            itemCount++;
+            // Create a list to hold records for bulk insert
+            var records = new List<ItemDBRecord>();
+
+            for (int i = itemIndex; i < endIndex; i++)
+            {
+                Item item = allItems[i];
+                ItemDBRecord record = ExportItem(item);
+                records.Add(record);
+            }
+
+            // Bulk insert all records at once
+            foreach (var record in records)
+            {
+                db.Insert(record);
+            }
+
+            itemCount += records.Count;
+
+            // Commit the transaction
+            db.Commit();
+        }
+        catch (Exception ex)
+        {
+            // Rollback on error
+            db.Rollback();
+            Debug.LogError($"Error exporting items: {ex.Message}");
         }
 
         // Update state
@@ -642,14 +703,14 @@ public class DatabaseExporter
         };
     }
 
-    private static int ExportLootDropsForCharacter(SQLiteConnection db, string guid, LootTable lootTable)
+    // Collect loot drops for a character without inserting them directly
+    private static List<LootDropDBRecord> CollectLootDropsForCharacter(string guid, LootTable lootTable)
     {
-        int lootDropsCount = 0;
+        var lootDrops = new List<LootDropDBRecord>();
 
-        // Helper method to export a specific type of loot drops
-        int ExportLootDrops(List<Item> items, string dropType)
+        // Helper method to collect a specific type of loot drops
+        void CollectLootDrops(List<Item> items, string dropType)
         {
-            int count = 0;
             if (items != null)
             {
                 for (int i = 0; i < items.Count; i++)
@@ -664,21 +725,20 @@ public class DatabaseExporter
                             DropType = dropType,
                             DropIndex = i
                         };
-                        db.Insert(lootRecord);
-                        count++;
+                        lootDrops.Add(lootRecord);
                     }
                 }
             }
-            return count;
         }
 
-        // Export all types of drops
-        lootDropsCount += ExportLootDrops(lootTable.GuaranteeOneDrop, "Guaranteed");
-        lootDropsCount += ExportLootDrops(lootTable.CommonDrop, "Common");
-        lootDropsCount += ExportLootDrops(lootTable.UncommonDrop, "Uncommon");
-        lootDropsCount += ExportLootDrops(lootTable.RareDrop, "Rare");
-        lootDropsCount += ExportLootDrops(lootTable.LegendaryDrop, "Legendary");
+        // Collect all types of drops
+        CollectLootDrops(lootTable.GuaranteeOneDrop, "Guaranteed");
+        CollectLootDrops(lootTable.CommonDrop, "Common");
+        CollectLootDrops(lootTable.UncommonDrop, "Uncommon");
+        CollectLootDrops(lootTable.RareDrop, "Rare");
+        CollectLootDrops(lootTable.LegendaryDrop, "Legendary");
 
-        return lootDropsCount;
+        return lootDrops;
     }
+
 }
