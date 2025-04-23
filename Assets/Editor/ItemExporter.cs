@@ -139,6 +139,7 @@ public class ItemExporter
         return new ItemDBRecord
         {
             Id = item.Id,
+            ResourceName = item.name,
             ItemName = item.ItemName,
             ItemLevel = item.ItemLevel,
             HP = item.HP,

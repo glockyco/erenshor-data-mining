@@ -5,6 +5,7 @@ public class ItemDBRecord
 {
     [PrimaryKey]
     public string Id { get; set; }
+    public string ResourceName { get; set; }
     public string ItemName { get; set; }
     public int ItemLevel { get; set; }
     public int HP { get; set; }
