@@ -36,10 +36,11 @@ public class DatabaseExporter
             { "lootDropsCount", 0 },
             { "items", null },
             { "itemIndex", 0 },
-            { "itemCount", 0 },
+            { "recordCount", 0 }, // Renamed from itemCount
             { "totalCharacters", 0 },
-            { "totalItems", 0 },
-            { "completed", false }
+            { "totalBaseItems", 0 }, // Renamed from totalItems
+            { "completed", false },
+            { "progressCallback", progressCallback } // Store the callback
         };
 
         // Define the operations for each stage
@@ -56,7 +57,7 @@ public class DatabaseExporter
         // Start the asynchronous operation
         _dbManager.ExportAsync(state,
             (s, callback) => _dbManager.GenericExportAsyncUpdate(s, callback, stageOperations,
-                "Exported {0[characterCount]} characters, {0[lootDropsCount]} loot drops, and {0[itemCount]} items"),
+                "Exported {0[characterCount]} characters, {0[lootDropsCount]} loot drops, and {0[recordCount]} item records"), // Updated message
             progressCallback);
     }
 
@@ -245,23 +246,24 @@ public class DatabaseExporter
         // Load all Item assets
         Item[] items = Resources.LoadAll<Item>(ItemExporter.ITEMS_PATH);
         state["items"] = items;
-        state["totalItems"] = items.Length;
+        state["totalBaseItems"] = items.Length; // Store base item count
 
         state["stage"] = "export_items";
         DatabaseOperation.ProgressCallback callback = state["progressCallback"] as DatabaseOperation.ProgressCallback;
-        callback?.Invoke(0.5f, $"Found {items.Length} items");
+        callback?.Invoke(0.5f, $"Found {items.Length} base items");
     }
 
     // Export a batch of items
+    // Export a batch of items, including quality variants
     private void ExportItemsBatch(SQLiteConnection db, Dictionary<string, object> state)
     {
         Item[] allItems = (Item[])state["items"];
         int itemIndex = (int)state["itemIndex"];
-        int itemCount = (int)state["itemCount"];
-        int totalItems = (int)state["totalItems"];
+        int recordCount = (int)state["recordCount"]; // Renamed from itemCount
+        int totalBaseItems = (int)state["totalBaseItems"]; // Renamed from totalItems
 
-        // Process a larger batch of items for better performance
-        int batchSize = 50;
+        // Process a batch of base items
+        int batchSize = 20; // Match ItemExporter batch size
         int endIndex = Math.Min(itemIndex + batchSize, allItems.Length);
 
         // Use a transaction for better performance
@@ -275,17 +277,38 @@ public class DatabaseExporter
             for (int i = itemIndex; i < endIndex; i++)
             {
                 Item item = allItems[i];
-                ItemDBRecord record = _itemExporter.ExportItem(item);
-                records.Add(record);
+
+                // Determine if this item type should have quality variants
+                bool hasQualityVariants = item.RequiredSlot != Item.SlotType.General &&
+                                          item.Aura == null &&
+                                          item.TeachSpell == null &&
+                                          item.TeachSkill == null &&
+                                          !item.Template;
+
+                int maxQuality = hasQualityVariants ? 3 : 1;
+
+                for (int quality = 1; quality <= maxQuality; quality++)
+                {
+                    // Skip invalid base items (missing ID)
+                    if (string.IsNullOrEmpty(item.Id))
+                    {
+                        // Warning already logged by ItemExporter, just skip here
+                        continue;
+                    }
+                    // Use the ItemExporter's helper method which now handles quality
+                    ItemDBRecord record = _itemExporter.ExportItem(item, quality);
+                    records.Add(record);
+                }
             }
 
-            // Bulk insert all records at once
+            // Bulk insert all records generated in this batch
             foreach (var record in records)
             {
-                db.Insert(record);
+                // Use InsertOrReplace in case an item ID somehow gets duplicated (though it shouldn't with quality suffix)
+                db.InsertOrReplace(record);
             }
 
-            itemCount += records.Count;
+            recordCount += records.Count; // Update record count
 
             // Commit the transaction
             db.Commit();
@@ -298,16 +321,17 @@ public class DatabaseExporter
         }
 
         // Update state
-        state["itemIndex"] = endIndex;
-        state["itemCount"] = itemCount;
+        state["itemIndex"] = endIndex; // Progress based on base items processed
+        state["recordCount"] = recordCount; // Update total records inserted
 
-        // Calculate progress (items are 30% of the total progress)
-        float progress = 0.7f + (0.3f * endIndex / totalItems);
+        // Calculate progress based on base items processed (items are 50% of the total progress: 0.5 to 1.0)
+        float progress = 0.5f + (0.5f * (float)endIndex / totalBaseItems);
         DatabaseOperation.ProgressCallback callback = state["progressCallback"] as DatabaseOperation.ProgressCallback;
-        callback?.Invoke(progress, $"Exported {itemCount} items ({endIndex}/{totalItems})");
+        // Update progress message to show base items processed and total records
+        callback?.Invoke(progress, $"Processed {endIndex}/{totalBaseItems} base items ({recordCount} item records exported)");
 
-        // Check if all items have been processed
-        if (endIndex >= allItems.Length)
+        // Check if all base items have been processed
+        if (endIndex >= totalBaseItems)
         {
             // Mark the operation as completed
             state["completed"] = true;
