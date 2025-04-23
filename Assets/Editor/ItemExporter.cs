@@ -25,9 +25,10 @@ public class ItemExporter
             { "db", null },
             { "items", null },
             { "itemIndex", 0 },
-            { "itemCount", 0 },
-            { "totalItems", 0 },
-            { "completed", false }
+            { "recordCount", 0 }, // Renamed from itemCount to reflect records generated
+            { "totalBaseItems", 0 }, // Renamed from totalItems
+            { "completed", false },
+            { "progressCallback", progressCallback } // Store the callback
         };
 
         // Define the operations for each stage
@@ -40,7 +41,7 @@ public class ItemExporter
 
         // Start the asynchronous operation
         _dbManager.ExportAsync(state,
-            (s, callback) => _dbManager.GenericExportAsyncUpdate(s, callback, stageOperations, "Exported {0[itemCount]} items"),
+            (s, callback) => _dbManager.GenericExportAsyncUpdate(s, callback, stageOperations, "Exported {0[recordCount]} item records"), // Updated message
             progressCallback);
     }
 
@@ -64,23 +65,23 @@ public class ItemExporter
         // Load all Item assets
         Item[] items = Resources.LoadAll<Item>(ITEMS_PATH);
         state["items"] = items;
-        state["totalItems"] = items.Length;
+        state["totalBaseItems"] = items.Length; // Store base item count
 
         state["stage"] = "export_items";
         DatabaseOperation.ProgressCallback callback = state["progressCallback"] as DatabaseOperation.ProgressCallback;
-        callback?.Invoke(0.2f, $"Found {items.Length} items");
+        callback?.Invoke(0.2f, $"Found {items.Length} base items");
     }
 
-    // Export a batch of items
+    // Export a batch of items, including quality variants
     private void ExportItemsBatch(SQLiteConnection db, Dictionary<string, object> state)
     {
         Item[] allItems = (Item[])state["items"];
         int itemIndex = (int)state["itemIndex"];
-        int itemCount = (int)state["itemCount"];
-        int totalItems = (int)state["totalItems"];
+        int recordCount = (int)state["recordCount"];
+        int totalBaseItems = (int)state["totalBaseItems"];
 
-        // Process a larger batch of items for better performance
-        int batchSize = 50;
+        // Process a batch of base items
+        int batchSize = 20; // Reduced batch size slightly as we generate more records per item
         int endIndex = Math.Min(itemIndex + batchSize, allItems.Length);
 
         // Use a transaction for better performance
@@ -94,17 +95,37 @@ public class ItemExporter
             for (int i = itemIndex; i < endIndex; i++)
             {
                 Item item = allItems[i];
-                ItemDBRecord record = ExportItem(item);
-                records.Add(record);
+
+                // Determine if this item type should have quality variants
+                // Based on ItemInfoWindow logic: not general slot, not aura, not book, not template
+                bool hasQualityVariants = item.RequiredSlot != Item.SlotType.General &&
+                                          item.Aura == null &&
+                                          item.TeachSpell == null &&
+                                          item.TeachSkill == null &&
+                                          !item.Template;
+
+                int maxQuality = hasQualityVariants ? 3 : 1;
+
+                for (int quality = 1; quality <= maxQuality; quality++)
+                {
+                    // Skip invalid base items (missing ID)
+                    if (string.IsNullOrEmpty(item.Id))
+                    {
+                        Debug.LogWarning($"Skipping item '{item.name}' with missing ID.");
+                        continue; // Skip this specific item entirely
+                    }
+                    ItemDBRecord record = ExportItem(item, quality);
+                    records.Add(record);
+                }
             }
 
-            // Bulk insert all records at once
+            // Bulk insert all records generated in this batch
             foreach (var record in records)
             {
                 db.Insert(record);
             }
 
-            itemCount += records.Count;
+            recordCount += records.Count;
 
             // Commit the transaction
             db.Commit();
@@ -113,19 +134,23 @@ public class ItemExporter
         {
             // Rollback on error
             db.Rollback();
-            Debug.LogError($"Error exporting items: {ex.Message}");
+            Debug.LogError($"Error exporting items batch (Base items {itemIndex}-{endIndex-1}): {ex.Message}\n{ex.StackTrace}");
+            // Optionally re-throw or handle more gracefully
+            // For now, we'll let the operation potentially continue with the next batch,
+            // but the error is logged.
         }
 
         // Update state
-        state["itemIndex"] = endIndex;
-        state["itemCount"] = itemCount;
+        state["itemIndex"] = endIndex; // Progress based on base items processed
+        state["recordCount"] = recordCount; // Update total records inserted
 
-        // Calculate progress
-        float progress = 0.2f + (0.8f * endIndex / totalItems);
+        // Calculate progress based on base items processed
+        float progress = 0.2f + (0.8f * (float)endIndex / totalBaseItems);
         DatabaseOperation.ProgressCallback callback = state["progressCallback"] as DatabaseOperation.ProgressCallback;
-        callback?.Invoke(progress, $"Exported {itemCount} items ({endIndex}/{totalItems})");
+        // Update progress message to show base items processed
+        callback?.Invoke(progress, $"Processed {endIndex}/{totalBaseItems} base items ({recordCount} records exported)");
 
-        // Check if all items have been processed
+        // Check if all base items have been processed
         if (endIndex >= allItems.Length)
         {
             // Mark the operation as completed
@@ -133,51 +158,57 @@ public class ItemExporter
         }
     }
 
-    // Helper method to export an item to the database
-    public ItemDBRecord ExportItem(Item item)
+    // Helper method to export an item to the database for a specific quality
+    public ItemDBRecord ExportItem(Item item, int quality)
     {
+        // Use Item's calculation methods for quality scaling
         return new ItemDBRecord
         {
-            Id = item.Id,
-            ResourceName = item.name,
+            Id = $"{item.Id}_q{quality}", // Unique ID per quality variant
+            BaseItemId = item.Id,
+            Quality = quality,
+            ResourceName = item.name, // Keep original resource name
+            // ItemName might need adjustment if you want "(Blessed)" etc. in DB
+            // For now, keeping base name. Can be adjusted in UI later based on Quality.
             ItemName = item.ItemName,
-            ItemLevel = item.ItemLevel,
-            HP = item.HP,
-            AC = item.AC,
-            Mana = item.Mana,
-            WeaponDmg = item.WeaponDmg,
-            WeaponDly = item.WeaponDly,
-            Str = item.Str,
-            End = item.End,
-            Dex = item.Dex,
-            Agi = item.Agi,
-            Int = item.Int,
-            Wis = item.Wis,
-            Cha = item.Cha,
-            Res = item.Res,
-            MR = item.MR,
-            ER = item.ER,
-            PR = item.PR,
-            VR = item.VR,
+            ItemLevel = item.ItemLevel, // Assuming ItemLevel doesn't scale with quality
+            HP = item.CalcACHPMC(item.HP, quality),
+            AC = item.CalcACHPMC(item.AC, quality),
+            Mana = item.CalcACHPMC(item.Mana, quality),
+            WeaponDmg = item.CalcDmg(item.WeaponDmg, quality),
+            WeaponDly = item.WeaponDly, // Assuming Delay doesn't scale
+            Str = item.CalcStat(item.Str, quality),
+            End = item.CalcStat(item.End, quality),
+            Dex = item.CalcStat(item.Dex, quality),
+            Agi = item.CalcStat(item.Agi, quality),
+            Int = item.CalcStat(item.Int, quality),
+            Wis = item.CalcStat(item.Wis, quality),
+            Cha = item.CalcStat(item.Cha, quality),
+            Res = item.CalcRes(item.Res, quality), // Use CalcRes for resistances
+            MR = item.CalcStat(item.MR, quality), // Assuming MR/ER/PR/VR use CalcStat scaling
+            ER = item.CalcStat(item.ER, quality),
+            PR = item.CalcStat(item.PR, quality),
+            VR = item.CalcStat(item.VR, quality),
             RequiredSlot = (int)item.RequiredSlot,
             ThisWeaponType = (int)item.ThisWeaponType,
+            // ItemValue might scale - needs clarification. Assuming base value for now.
             ItemValue = item.ItemValue,
-            Lore = item.Lore,
+            Lore = item.Lore, // Lore likely doesn't change
             Shield = item.Shield,
-            WeaponProcChance = item.WeaponProcChance,
-            SpellCastTime = item.SpellCastTime,
+            WeaponProcChance = item.WeaponProcChance, // Proc chance likely doesn't scale
+            SpellCastTime = item.SpellCastTime, // Cast time likely doesn't scale
             HideHairWhenEquipped = item.HideHairWhenEquipped,
             HideHeadWhenEquipped = item.HideHeadWhenEquipped,
-            Stackable = item.Stackable,
-            Disposable = item.Disposable,
-            Unique = item.Unique,
-            Mining = item.Mining,
+            Stackable = item.Stackable, // Stackability likely doesn't change
+            Disposable = item.Disposable, // Disposability likely doesn't change
+            Unique = item.Unique, // Uniqueness likely doesn't change
+            Mining = item.Mining, // Mining bonus likely doesn't scale
             FuelSource = item.FuelSource,
             Template = item.Template,
             SimPlayersCantGet = item.SimPlayersCantGet,
-            FuelLevel = (int)item.FuelLevel,
-            Relic = item.Relic,
-            BookTitle = item.BookTitle
+            FuelLevel = (int)item.FuelLevel, // Fuel level likely doesn't scale
+            Relic = item.Relic, // Relic status likely doesn't change
+            BookTitle = item.BookTitle // Book title doesn't change
         };
     }
 }
