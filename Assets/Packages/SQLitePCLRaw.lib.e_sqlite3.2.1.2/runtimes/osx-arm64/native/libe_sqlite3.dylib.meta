@@ -22,13 +22,13 @@ PluginImporter:
         Exclude Android: 1
         Exclude Bratwurst: 1
         Exclude CloudRendering: 1
-        Exclude Editor: 1
+        Exclude Editor: 0
         Exclude EmbeddedLinux: 1
         Exclude GameCoreScarlett: 1
         Exclude GameCoreXboxOne: 1
         Exclude Linux64: 1
         Exclude Lumin: 1
-        Exclude OSXUniversal: 1
+        Exclude OSXUniversal: 0
         Exclude PS4: 1
         Exclude PS5: 1
         Exclude QNX: 1
@@ -49,9 +49,11 @@ PluginImporter:
   - first:
       Editor: Editor
     second:
-      enabled: 0
+      enabled: 1
       settings:
+        CPU: ARM64
         DefaultValueInitialized: true
+        OS: OSX
   - first:
       Standalone: Linux64
     second:
