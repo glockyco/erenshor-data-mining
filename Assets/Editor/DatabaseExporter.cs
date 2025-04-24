@@ -4,6 +4,7 @@ using System.IO;
 using SQLite;
 using UnityEditor;
 using UnityEngine;
+using UnityEditor.SceneManagement; // Needed for original scene path
 
 public class DatabaseExporter
 {
@@ -12,6 +13,7 @@ public class DatabaseExporter
     private readonly CharacterExporter _characterExporter;
     private readonly LootDropExporter _lootDropExporter;
     private readonly ItemExporter _itemExporter;
+    private readonly SpawnPointExporter _spawnPointExporter; // <-- Add SpawnPointExporter instance
 
     public DatabaseExporter()
     {
@@ -19,6 +21,7 @@ public class DatabaseExporter
         _characterExporter = new CharacterExporter();
         _lootDropExporter = new LootDropExporter();
         _itemExporter = new ItemExporter();
+        _spawnPointExporter = new SpawnPointExporter(); // <-- Instantiate it
     }
 
     // Asynchronous version of ExportAllToDB
@@ -30,15 +33,26 @@ public class DatabaseExporter
             { "stage", "init" },
             { "dbPath", Path.Combine(Application.dataPath, DB_PATH) },
             { "db", null },
+            // Character state
             { "characterGuids", null },
             { "characterIndex", 0 },
             { "characterCount", 0 },
+            { "totalCharacters", 0 },
+            // Loot drop state (uses characterGuids/Index/totalCharacters)
             { "lootDropsCount", 0 },
+            // Spawn point state
+            { "scenePaths", null },
+            { "sceneIndex", 0 },
+            { "spawnPointCount", 0 },
+            { "spawnLinkCount", 0 },
+            { "totalScenes", 0 },
+            { "originalScenePath", EditorSceneManager.GetActiveScene().path }, // Store original scene path
+            // Item state
             { "items", null },
             { "itemIndex", 0 },
-            { "recordCount", 0 }, // Renamed from itemCount
-            { "totalCharacters", 0 },
-            { "totalBaseItems", 0 }, // Renamed from totalItems
+            { "recordCount", 0 }, // Item records (including quality variants)
+            { "totalBaseItems", 0 },
+            // General state
             { "completed", false },
             { "progressCallback", progressCallback } // Store the callback
         };
@@ -50,6 +64,8 @@ public class DatabaseExporter
             { "prepare_characters", PrepareCharacters },
             { "export_characters", ExportCharactersBatch },
             { "export_loot_drops", ExportLootDropsBatch },
+            { "prepare_scenes", PrepareScenes },           // <-- Add scene preparation stage
+            { "export_spawn_points", ExportSpawnPointsBatch }, // <-- Add spawn point export stage
             { "prepare_items", PrepareItems },
             { "export_items", ExportItemsBatch }
         };
@@ -57,7 +73,7 @@ public class DatabaseExporter
         // Start the asynchronous operation
         _dbManager.ExportAsync(state,
             (s, callback) => _dbManager.GenericExportAsyncUpdate(s, callback, stageOperations,
-                "Exported {0[characterCount]} characters, {0[lootDropsCount]} loot drops, and {0[recordCount]} item records"), // Updated message
+                "Exported {0[characterCount]} chars, {0[lootDropsCount]} loot drops, {0[spawnPointCount]} spawn points, {0[spawnLinkCount]} spawn links, {0[recordCount]} item records"), // <-- Updated message
             progressCallback);
     }
 
@@ -65,18 +81,24 @@ public class DatabaseExporter
     private void InitializeAllDB(SQLiteConnection db, Dictionary<string, object> state)
     {
         // Create tables for characters, items, and loot drops
+        // Create tables for characters, items, and loot drops
         db.CreateTable<CharacterDBRecord>();
         db.CreateTable<ItemDBRecord>();
         db.CreateTable<LootDropDBRecord>();
+        db.CreateTable<SpawnPointDBRecord>();      // <-- Create SpawnPoints table
+        db.CreateTable<SpawnPointCharacterDBRecord>(); // <-- Create SpawnPointCharacters table
 
         // Clear existing records
         db.DeleteAll<CharacterDBRecord>();
         db.DeleteAll<ItemDBRecord>();
         db.DeleteAll<LootDropDBRecord>();
+        db.DeleteAll<SpawnPointDBRecord>();      // <-- Clear SpawnPoints table
+        db.DeleteAll<SpawnPointCharacterDBRecord>(); // <-- Clear SpawnPointCharacters table
 
         state["stage"] = "prepare_characters";
         DatabaseOperation.ProgressCallback callback = state["progressCallback"] as DatabaseOperation.ProgressCallback;
-        callback?.Invoke(0.05f, "Database initialized");
+        // Adjust progress slightly for the added steps
+        callback?.Invoke(0.02f, "Database initialized");
     }
 
     // Prepare character data for export
@@ -89,7 +111,8 @@ public class DatabaseExporter
 
         state["stage"] = "export_characters";
         DatabaseOperation.ProgressCallback callback = state["progressCallback"] as DatabaseOperation.ProgressCallback;
-        callback?.Invoke(0.1f, $"Found {guids.Length} character prefabs");
+        // Progress: 0.02 (init) + 0.03 = 0.05
+        callback?.Invoke(0.05f, $"Found {guids.Length} character prefabs");
     }
 
     // Export a batch of characters
@@ -151,17 +174,14 @@ public class DatabaseExporter
         state["characterIndex"] = endIndex;
         state["characterCount"] = characterCount;
 
-        // Calculate progress (characters are 30% of the total progress)
-        float progress = 0.1f + (0.2f * endIndex / totalCharacters);
+        // Progress: 0.05 (prev) + 0.20 (chars) = 0.25
+        float progress = 0.05f + (0.20f * (totalCharacters > 0 ? (float)endIndex / totalCharacters : 1.0f));
         DatabaseOperation.ProgressCallback callback = state["progressCallback"] as DatabaseOperation.ProgressCallback;
         callback?.Invoke(progress, $"Exported {characterCount} characters ({endIndex}/{totalCharacters})");
 
-        // Check if all characters have been processed
-        if (endIndex >= characterGuids.Length)
+        if (endIndex >= totalCharacters)
         {
-            // Reset character index for loot drops export
-            state["characterIndex"] = 0;
-            // Move to the next stage
+            state["characterIndex"] = 0; // Reset for loot drops
             state["stage"] = "export_loot_drops";
         }
     }
@@ -227,18 +247,61 @@ public class DatabaseExporter
         state["characterIndex"] = endIndex;
         state["lootDropsCount"] = lootDropsCount;
 
-        // Calculate progress (loot drops are 20% of the total progress)
-        float progress = 0.3f + (0.2f * endIndex / totalCharacters);
+        // Progress: 0.25 (prev) + 0.15 (loot) = 0.40
+        float progress = 0.25f + (0.15f * (totalCharacters > 0 ? (float)endIndex / totalCharacters : 1.0f));
         DatabaseOperation.ProgressCallback callback = state["progressCallback"] as DatabaseOperation.ProgressCallback;
         callback?.Invoke(progress, $"Exported {lootDropsCount} loot drops ({endIndex}/{totalCharacters} characters processed)");
 
-        // Check if all characters have been processed
-        if (endIndex >= characterGuids.Length)
+        if (endIndex >= totalCharacters)
         {
-            // Move to the next stage
-            state["stage"] = "prepare_items";
+            state["stage"] = "prepare_scenes"; // <-- Move to prepare scenes next
         }
     }
+
+    // Prepare scenes data for export (using SpawnPointExporter's logic)
+    private void PrepareScenes(SQLiteConnection db, Dictionary<string, object> state)
+    {
+        // Delegate to the SpawnPointExporter's preparation method
+        // Note: This doesn't use the 'db' connection, just modifies state
+        _spawnPointExporter.PrepareScenes(null, state); // Pass null for db as it's not needed here
+
+        // Progress: 0.40 (prev) + 0.03 (prep scenes) = 0.43
+        DatabaseOperation.ProgressCallback callback = state["progressCallback"] as DatabaseOperation.ProgressCallback;
+        callback?.Invoke(0.43f, $"Found {(int)state["totalScenes"]} scenes");
+
+        // State stage is already set to "export_spawn_points" by PrepareScenes
+    }
+
+    // Export a batch of spawn points (using SpawnPointExporter's logic)
+    private void ExportSpawnPointsBatch(SQLiteConnection db, Dictionary<string, object> state)
+    {
+        // Delegate the core logic to SpawnPointExporter's batch method
+        // It will handle scene loading/unloading and transaction within the scene
+        _spawnPointExporter.ExportSpawnPointsBatch(db, state);
+
+        // Progress calculation is handled within _spawnPointExporter.ExportSpawnPointsBatch
+        // We just need to update the overall progress range.
+        // Spawn points take up 27% of progress (0.43 to 0.70)
+        int sceneIndex = (int)state["sceneIndex"];
+        int totalScenes = (int)state["totalScenes"];
+        float spawnProgress = (totalScenes > 0 ? (float)sceneIndex / totalScenes : 1.0f);
+        float overallProgress = 0.43f + (0.27f * spawnProgress);
+
+        DatabaseOperation.ProgressCallback callback = state["progressCallback"] as DatabaseOperation.ProgressCallback;
+        callback?.Invoke(overallProgress, $"Processed {sceneIndex}/{totalScenes} scenes ({state["spawnPointCount"]} points, {state["spawnLinkCount"]} links)");
+
+
+        // Check if the delegated method marked completion
+        if ((bool)state["completed"])
+        {
+            state["completed"] = false; // Reset completion flag for the next stage
+            state["stage"] = "prepare_items"; // Move to the next stage
+             // Ensure final spawn point progress is reported at 0.70
+            callback?.Invoke(0.70f, $"Finished exporting spawn points");
+        }
+        // If not completed, the GenericExportAsyncUpdate loop will call this method again
+    }
+
 
     // Prepare items data for export
     private void PrepareItems(SQLiteConnection db, Dictionary<string, object> state)
@@ -250,7 +313,8 @@ public class DatabaseExporter
 
         state["stage"] = "export_items";
         DatabaseOperation.ProgressCallback callback = state["progressCallback"] as DatabaseOperation.ProgressCallback;
-        callback?.Invoke(0.5f, $"Found {items.Length} base items");
+        // Progress: 0.70 (prev) + 0.05 (prep items) = 0.75
+        callback?.Invoke(0.75f, $"Found {items.Length} base items");
     }
 
     // Export a batch of items
@@ -324,17 +388,20 @@ public class DatabaseExporter
         state["itemIndex"] = endIndex; // Progress based on base items processed
         state["recordCount"] = recordCount; // Update total records inserted
 
-        // Calculate progress based on base items processed (items are 50% of the total progress: 0.5 to 1.0)
-        float progress = 0.5f + (0.5f * (float)endIndex / totalBaseItems);
+        // Progress: 0.75 (prev) + 0.25 (items) = 1.00
+        float progress = 0.75f + (0.25f * (totalBaseItems > 0 ? (float)endIndex / totalBaseItems : 1.0f));
         DatabaseOperation.ProgressCallback callback = state["progressCallback"] as DatabaseOperation.ProgressCallback;
-        // Update progress message to show base items processed and total records
         callback?.Invoke(progress, $"Processed {endIndex}/{totalBaseItems} base items ({recordCount} item records exported)");
 
-        // Check if all base items have been processed
         if (endIndex >= totalBaseItems)
         {
-            // Mark the operation as completed
-            state["completed"] = true;
+            state["completed"] = true; // Mark the overall operation as completed
+            // Restore original scene just in case something went wrong during spawn export cleanup
+             string originalScenePath = state["originalScenePath"] as string;
+             if (!string.IsNullOrEmpty(originalScenePath) && EditorSceneManager.GetActiveScene().path != originalScenePath)
+             {
+                 EditorSceneManager.OpenScene(originalScenePath);
+             }
         }
     }
 
