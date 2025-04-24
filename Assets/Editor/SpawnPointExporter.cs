@@ -123,19 +123,20 @@ public class SpawnPointExporter
 
             // --- Data Extraction ---
             SpawnPoint[] spawnPointsInScene = GameObject.FindObjectsOfType<SpawnPoint>();
+            Debug.Log($"Found {spawnPointsInScene.Length} SpawnPoint components in scene '{currentScene.name}'."); // Diagnostic Log
 
             foreach (SpawnPoint sp in spawnPointsInScene)
             {
-                if (string.IsNullOrEmpty(sp.ID))
-                {
-                    // The SpawnPoint Start() method should assign an ID. If it's missing, log a warning.
-                    Debug.LogWarning($"SpawnPoint at {sp.transform.position} in scene {currentScene.name} has no ID. Skipping.", sp.gameObject);
-                    continue;
-                }
+                // Calculate the ID directly here instead of relying on sp.ID from Start()
+                string calculatedId = currentScene.name + sp.transform.position.ToString();
+                // Optional: Log the calculated ID for verification
+                // Debug.Log($"Processing SpawnPoint: {sp.gameObject.name}, Calculated ID: {calculatedId}");
+
+                // Removed the check for string.IsNullOrEmpty(sp.ID)
 
                 var spRecord = new SpawnPointDBRecord
                 {
-                    Id = sp.ID,
+                    Id = calculatedId, // Use the calculated ID
                     SceneName = currentScene.name, // Store scene name explicitly
                     SpawnDelay = sp.SpawnDelay,
                     RareNPCChance = sp.RareNPCChance,
@@ -156,8 +157,9 @@ public class SpawnPointExporter
                 spawnPointRecords.Add(spRecord);
 
                 // --- Export Character Links ---
-                ProcessSpawnList(sp.CommonSpawns, sp.ID, "Common", spawnLinkRecords);
-                ProcessSpawnList(sp.RareSpawns, sp.ID, "Rare", spawnLinkRecords);
+                // Use the calculated ID for linking
+                ProcessSpawnList(sp.CommonSpawns, calculatedId, "Common", spawnLinkRecords);
+                ProcessSpawnList(sp.RareSpawns, calculatedId, "Rare", spawnLinkRecords);
             }
 
             // --- Database Insertion (Transaction) ---
