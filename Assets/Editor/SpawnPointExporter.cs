@@ -170,10 +170,14 @@ public class SpawnPointExporter
                 spRecord.SetPosition(sp.transform.position); // Use helper to set position
                 spawnPointRecords.Add(spRecord);
 
+                // Get counts needed for probability calculation
+                int commonCount = sp.CommonSpawns?.Count ?? 0;
+                int rareCount = sp.RareSpawns?.Count ?? 0;
+
                 // --- Export Character Links ---
                 // Use the final, unique ID for linking
-                ProcessSpawnList(sp.CommonSpawns, finalId, "Common", spawnLinkRecords);
-                ProcessSpawnList(sp.RareSpawns, finalId, "Rare", spawnLinkRecords);
+                ProcessSpawnList(sp.CommonSpawns, finalId, "Common", spawnLinkRecords, sp.RareNPCChance, commonCount, rareCount);
+                ProcessSpawnList(sp.RareSpawns, finalId, "Rare", spawnLinkRecords, sp.RareNPCChance, commonCount, rareCount);
             }
 
             // --- Database Insertion (Transaction) ---
@@ -248,7 +252,14 @@ public class SpawnPointExporter
     }
 
     // Helper to process CommonSpawns or RareSpawns lists
-    private void ProcessSpawnList(List<GameObject> spawnList, string spawnPointId, string spawnType, List<SpawnPointCharacterDBRecord> linkRecords)
+    private void ProcessSpawnList(
+        List<GameObject> spawnList,
+        string spawnPointId,
+        string spawnType, // "Common" or "Rare"
+        List<SpawnPointCharacterDBRecord> linkRecords,
+        int rareNpcChance, // The SpawnPoint's RareNPCChance (0-100)
+        int totalCommonCount, // Total number of common prefabs in the SpawnPoint's list
+        int totalRareCount)   // Total number of rare prefabs in the SpawnPoint's list
     {
         if (spawnList == null) return;
 
@@ -256,6 +267,52 @@ public class SpawnPointExporter
         {
             GameObject prefab = spawnList[i];
             if (prefab == null) continue;
+
+            // --- Calculate Spawn Chance based on exact SpawnPoint.SpawnNPC logic ---
+            float chance = 0.0f;
+            float rareRollChance = rareNpcChance / 100.0f;
+            float commonRollChance = 1.0f - rareRollChance;
+
+            if (totalRareCount > 0) // Corresponds to the first `if (RareSpawns.Count > 0)` in SpawnNPC
+            {
+                if (spawnType == "Rare")
+                {
+                    // This rare prefab can only be chosen if the rare roll succeeds.
+                    // Probability = (Chance to roll rare) / (Number of rare options)
+                    chance = rareRollChance / totalRareCount;
+                }
+                else // spawnType == "Common"
+                {
+                    // This common prefab can only be chosen if the rare roll *fails*.
+                    // The original code attempts this even if totalCommonCount is 0.
+                    // Probability = (Chance to fail rare roll) / (Number of common options)
+                    // If there are no common options (totalCommonCount == 0), the effective
+                    // chance of *successfully* spawning this specific common prefab is 0,
+                    // even though the code path is entered.
+                    if (totalCommonCount > 0)
+                    {
+                        chance = commonRollChance / totalCommonCount;
+                    }
+                    else
+                    {
+                        // Although the code path exists, it would fail at runtime.
+                        // So, the actual chance of this prefab spawning is 0.
+                        chance = 0.0f;
+                    }
+                }
+            }
+            else if (totalCommonCount > 0) // Corresponds to `else if (CommonSpawns.Count > 0)` in SpawnNPC
+            {
+                // This path is only taken if totalRareCount is 0.
+                if (spawnType == "Common")
+                {
+                    // If only commons exist, one is always chosen.
+                    // Probability = 1.0 / (Number of common options)
+                    chance = 1.0f / totalCommonCount;
+                }
+                // If spawnType is "Rare", chance remains 0.0f because this path isn't taken for rares.
+            }
+            // If both counts are 0, chance remains 0.0f
 
             // Get the prefab's GUID
             if (AssetDatabase.TryGetGUIDAndLocalFileIdentifier(prefab, out string guid, out long localId))
@@ -265,7 +322,8 @@ public class SpawnPointExporter
                     SpawnPointId = spawnPointId,
                     CharacterPrefabGuid = guid,
                     SpawnType = spawnType,
-                    SpawnListIndex = i
+                    SpawnListIndex = i,
+                    SpawnChance = chance // Store the calculated chance
                 };
                 linkRecords.Add(linkRecord);
             }

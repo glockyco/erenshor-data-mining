@@ -14,4 +14,7 @@ public class SpawnPointCharacterDBRecord
 
     public string SpawnType { get; set; } // e.g., "Common", "Rare"
     public int SpawnListIndex { get; set; } // Index within the SpawnPoint's list
+
+    // Calculated probability of this specific character spawning (0.0 to 1.0)
+    public float SpawnChance { get; set; }
 }
