@@ -125,18 +125,31 @@ public class SpawnPointExporter
             SpawnPoint[] spawnPointsInScene = GameObject.FindObjectsOfType<SpawnPoint>();
             Debug.Log($"Found {spawnPointsInScene.Length} SpawnPoint components in scene '{currentScene.name}'."); // Diagnostic Log
 
+            var seenIdsInScene = new HashSet<string>(); // Track IDs used *within this scene*
+
             foreach (SpawnPoint sp in spawnPointsInScene)
             {
-                // Calculate the ID directly here instead of relying on sp.ID from Start()
-                string calculatedId = currentScene.name + sp.transform.position.ToString();
-                // Optional: Log the calculated ID for verification
-                // Debug.Log($"Processing SpawnPoint: {sp.gameObject.name}, Calculated ID: {calculatedId}");
+                // Calculate the base ID
+                string baseId = currentScene.name + sp.transform.position.ToString();
+                string finalId = baseId;
+                int suffixCounter = 2;
 
-                // Removed the check for string.IsNullOrEmpty(sp.ID)
+                // Ensure the ID is unique within this scene's batch
+                while (!seenIdsInScene.Add(finalId))
+                {
+                    // If Add returns false, the ID exists. Generate a new one with a suffix.
+                    finalId = $"{baseId}_{suffixCounter++}";
+                }
+
+                // Log a warning if the ID had to be modified
+                if (finalId != baseId)
+                {
+                    Debug.LogWarning($"Duplicate position detected for SpawnPoint '{sp.gameObject.name}' in scene '{currentScene.name}' at {sp.transform.position}. Assigning modified ID: '{finalId}'");
+                }
 
                 var spRecord = new SpawnPointDBRecord
                 {
-                    Id = calculatedId, // Use the calculated ID
+                    Id = finalId, // Use the final, unique ID
                     SceneName = currentScene.name, // Store scene name explicitly
                     SpawnDelay = sp.SpawnDelay,
                     RareNPCChance = sp.RareNPCChance,
@@ -158,12 +171,13 @@ public class SpawnPointExporter
                 spawnPointRecords.Add(spRecord);
 
                 // --- Export Character Links ---
-                // Use the calculated ID for linking
-                ProcessSpawnList(sp.CommonSpawns, calculatedId, "Common", spawnLinkRecords);
-                ProcessSpawnList(sp.RareSpawns, calculatedId, "Rare", spawnLinkRecords);
+                // Use the final, unique ID for linking
+                ProcessSpawnList(sp.CommonSpawns, finalId, "Common", spawnLinkRecords);
+                ProcessSpawnList(sp.RareSpawns, finalId, "Rare", spawnLinkRecords);
             }
 
             // --- Database Insertion (Transaction) ---
+            // No filtering needed now, as all records have unique IDs for this scene
             if (spawnPointRecords.Count > 0 || spawnLinkRecords.Count > 0)
             {
                 db.BeginTransaction();
@@ -214,11 +228,13 @@ public class SpawnPointExporter
         }
 
         // --- Update State ---
+        // Counts are based on all processed records, as none are skipped
         state["sceneIndex"] = sceneIndex + 1;
         state["spawnPointCount"] = spawnPointCount + spawnPointRecords.Count;
         state["spawnLinkCount"] = spawnLinkCount + spawnLinkRecords.Count;
 
         // --- Progress Update ---
+        // Progress reflects all processed records
         UpdateSpawnPointProgress(state, 0.1f, 0.8f); // Base progress 10%, spawn points take 80%
 
         // --- Completion Check ---
@@ -260,16 +276,18 @@ public class SpawnPointExporter
         }
     }
 
-     // Helper to calculate and invoke progress callback
+    // Helper to calculate and invoke progress callback
     private void UpdateSpawnPointProgress(Dictionary<string, object> state, float baseProgress, float stageWeight)
     {
         int sceneIndex = (int)state["sceneIndex"];
         int totalScenes = (int)state["totalScenes"];
-        int spawnPointCount = (int)state["spawnPointCount"];
-        int spawnLinkCount = (int)state["spawnLinkCount"];
+        // Use the potentially updated counts from the state dictionary
+        int currentSpawnPointCount = (int)state["spawnPointCount"];
+        int currentSpawnLinkCount = (int)state["spawnLinkCount"];
 
         float progress = baseProgress + (stageWeight * (totalScenes > 0 ? (float)sceneIndex / totalScenes : 1.0f));
         DatabaseOperation.ProgressCallback callback = state["progressCallback"] as DatabaseOperation.ProgressCallback;
-        callback?.Invoke(progress, $"Processed {sceneIndex}/{totalScenes} scenes ({spawnPointCount} points, {spawnLinkCount} links)");
+        // Report progress using the counts of processed records so far
+        callback?.Invoke(progress, $"Processed {sceneIndex}/{totalScenes} scenes ({currentSpawnPointCount} points, {currentSpawnLinkCount} links)");
     }
 }
