@@ -148,7 +148,8 @@ public class SpawnPointExporter
                     StopIfQuestCompleteQuestDBNames = sp.StopIfQuestComplete?.Count > 0
                         ? string.Join(",", sp.StopIfQuestComplete.Select(q => q.DBName))
                         : null,
-                    ProtectorName = sp.Protector?.name,
+                    // Explicit null check for Protector before accessing its name
+                    ProtectorName = (sp.Protector != null) ? sp.Protector.name : null,
                     Staggerable = sp.staggerable,
                     StaggerMod = sp.staggerMod,
                     RotationY = sp.transform.eulerAngles.y // Store Y rotation
