@@ -14,6 +14,7 @@ public class DatabaseExporterWindow : EditorWindow
     private readonly CharacterExporter _characterExporter;
     private readonly ItemExporter _itemExporter;
     private readonly LootDropExporter _lootDropExporter;
+    private readonly SpawnPointExporter _spawnPointExporter; // <-- Add SpawnPointExporter instance
 
     public DatabaseExporterWindow()
     {
@@ -21,6 +22,7 @@ public class DatabaseExporterWindow : EditorWindow
         _characterExporter = new CharacterExporter();
         _itemExporter = new ItemExporter();
         _lootDropExporter = new LootDropExporter();
+        _spawnPointExporter = new SpawnPointExporter(); // <-- Instantiate it
     }
 
     [MenuItem("Tools/Database/Export Database")]
@@ -73,6 +75,11 @@ public class DatabaseExporterWindow : EditorWindow
             if (GUILayout.Button("Export Loot Drops Only"))
             {
                 StartExportLootDrops();
+            }
+
+            if (GUILayout.Button("Export Spawn Points Only")) // <-- Add Spawn Point button
+            {
+                StartExportSpawnPoints();
             }
 
             EditorGUILayout.EndVertical();
@@ -129,6 +136,15 @@ public class DatabaseExporterWindow : EditorWindow
         _status = "Initializing...";
 
         _lootDropExporter.ExportLootDropsToDBAsync(UpdateProgress);
+    }
+
+    private void StartExportSpawnPoints() // <-- Add handler method
+    {
+        _isExporting = true;
+        _progress = 0f;
+        _status = "Initializing...";
+
+        _spawnPointExporter.ExportSpawnPointsToDBAsync(UpdateProgress);
     }
 
     private void CancelExport()
