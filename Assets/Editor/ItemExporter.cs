@@ -178,7 +178,9 @@ public class ItemExporter
             Id = $"{item.Id}_q{quality}",
             BaseItemId = item.Id,
             ItemName = item.ItemName,
-            ItemLevel = item.ItemLevel,
+            RequiredSlot = item.RequiredSlot.ToString(),
+            ThisWeaponType = item.ThisWeaponType.ToString(),
+            Classes = classesString,
             Quality = quality switch
             {
                 1 => "Normal",
@@ -186,7 +188,7 @@ public class ItemExporter
                 3 => "Godly",
                 _ => quality.ToString()
             },
-            Classes = classesString,
+            ItemLevel = item.ItemLevel,
             HP = item.CalcACHPMC(item.HP, quality),
             AC = item.CalcACHPMC(item.AC, quality),
             Mana = item.CalcACHPMC(item.Mana, quality),
@@ -204,8 +206,6 @@ public class ItemExporter
             ER = item.CalcStat(item.ER, quality),
             PR = item.CalcStat(item.PR, quality),
             VR = item.CalcStat(item.VR, quality),
-            RequiredSlot = item.RequiredSlot.ToString(),
-            ThisWeaponType = item.ThisWeaponType.ToString(),
             ItemValue = item.ItemValue,
             Lore = item.Lore,
             Shield = item.Shield,

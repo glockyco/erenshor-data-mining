@@ -8,9 +8,11 @@ public class ItemDBRecord
     public string Id { get; set; } // Will be like "BaseID_q1", "BaseID_q2", etc.
     public string BaseItemId { get; set; } // Stores the original Item.Id
     public string ItemName { get; set; }
-    public int ItemLevel { get; set; }
-    public string Quality { get; set; }
+    public string RequiredSlot { get; set; }
+    public string ThisWeaponType { get; set; }
     public string Classes { get; set; }
+    public string Quality { get; set; }
+    public int ItemLevel { get; set; }
     public int HP { get; set; }
     public int AC { get; set; }
     public int Mana { get; set; }
@@ -28,8 +30,6 @@ public class ItemDBRecord
     public int ER { get; set; }
     public int PR { get; set; }
     public int VR { get; set; }
-    public string RequiredSlot { get; set; }
-    public string ThisWeaponType { get; set; }
     public int ItemValue { get; set; }
     public string Lore { get; set; }
     public bool Shield { get; set; }
