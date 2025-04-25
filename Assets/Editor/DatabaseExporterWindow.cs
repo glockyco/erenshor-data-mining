@@ -109,6 +109,10 @@ public class DatabaseExporterWindow : EditorWindow
             {
                 StartExport(new List<IExportStep> { new SpellExportStep() });
             }
+            if (GUILayout.Button("Export Skills Only"))
+            {
+                StartExport(new List<IExportStep> { new SkillExportStep() });
+            }
 
             EditorGUILayout.EndVertical();
         }
@@ -159,6 +163,7 @@ public class DatabaseExporterWindow : EditorWindow
             new LootDropExportStep(_probabilityCalculator), // Ensure dependencies are passed
             new SpawnPointExportStep(),
             new SpellExportStep(),
+            new SkillExportStep(),
             // Add any other steps here in order
         };
     }
