@@ -4,6 +4,7 @@ using SQLite;
 public class SpellDBRecord
 {
     // --- Core Identification ---
+    public int SpellDBIndex { get; set; } // Index in the Resources.LoadAll array
     [PrimaryKey]
     public string Id { get; set; } // From BaseScriptableObject.Id
     public string SpellName { get; set; } // From Spell.SpellName

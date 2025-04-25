@@ -93,7 +93,7 @@ public class SpellExporter
             {
                 Spell spell = allSpells[i];
                 // ID/null check already done in PrepareSpells
-                SpellDBRecord record = ExportSpell(spell);
+                SpellDBRecord record = ExportSpell(spell, i); // Pass index 'i'
                 if (record != null) // ExportSpell might return null if essential data is missing
                 {
                     records.Add(record);
@@ -129,7 +129,7 @@ public class SpellExporter
     }
 
     // Helper method to convert a Spell ScriptableObject to a SpellDBRecord
-    public SpellDBRecord ExportSpell(Spell spell)
+    public SpellDBRecord ExportSpell(Spell spell, int spellDbIndex)
     {
         // Basic null check already done, but double-check ID
         if (spell == null || string.IsNullOrEmpty(spell.Id))
@@ -151,6 +151,7 @@ public class SpellExporter
         return new SpellDBRecord
         {
             // --- Core Identification ---
+            SpellDBIndex = spellDbIndex,
             Id = spell.Id,
             SpellName = spell.SpellName,
 
