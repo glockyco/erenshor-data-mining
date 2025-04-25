@@ -150,29 +150,47 @@ public class SpellExporter
 
         return new SpellDBRecord
         {
+            // --- Core Identification ---
             Id = spell.Id,
             SpellName = spell.SpellName,
-            Classes = classesString,
-            Type = spell.Type.ToString(),
-            Line = spell.Line.ToString(),
+
+            // --- Requirements & Cost ---
             RequiredLevel = spell.RequiredLevel,
-            SpellChargeFXIndex = spell.SpellChargeFXIndex,
-            SpellResolveFXIndex = spell.SpellResolveFXIndex,
+            ManaCost = spell.ManaCost,
+            Classes = classesString,
+
+            // --- Simulation ---
+            SimUsable = spell.SimUsable,
+            
+            // --- Aggro ---
+            Aggro = spell.Aggro,
+
+            // --- Timing ---
             SpellChargeTime = spell.SpellChargeTime,
-            SpellIconName = spell.SpellIcon != null ? spell.SpellIcon.name : null,
+            Cooldown = spell.Cooldown,
             SpellDurationInTicks = spell.SpellDurationInTicks,
             UnstableDuration = spell.UnstableDuration,
-            StatusEffectMessageOnPlayer = spell.StatusEffectMessageOnPlayer,
-            StatusEffectMessageOnNPC = spell.StatusEffectMessageOnNPC,
-            SpellDesc = spell.SpellDesc,
             InstantEffect = spell.InstantEffect,
-            ManaCost = spell.ManaCost,
-            Aggro = spell.Aggro,
+
+            // --- Targeting & Type ---
+            Type = spell.Type.ToString(),
+            Line = spell.Line.ToString(),
+            SpellRange = spell.SpellRange,
+            SelfOnly = spell.SelfOnly,
+            MaxLevelTarget = spell.MaxLevelTarget,
+            GroupEffect = spell.GroupEffect,
+            CanHitPlayers = spell.CanHitPlayers,
+
+            // --- Core Effects (Damage/Heal/Shield) ---
             TargetDamage = spell.TargetDamage,
             TargetHealing = spell.TargetHealing,
             CasterHealing = spell.CasterHealing,
-            Cooldown = spell.Cooldown,
             ShieldingAmt = spell.ShieldingAmt,
+            Lifetap = spell.Lifetap,
+            DamageType = spell.MyDamageType.ToString(),
+            ResistModifier = spell.ResistModifier,
+
+            // --- Stat Buffs/Debuffs ---
             HP = spell.HP,
             AC = spell.AC,
             Mana = spell.Mana,
@@ -192,35 +210,42 @@ public class SpellExporter
             Haste = spell.Haste,
             PercentLifesteal = spell.percentLifesteal,
             AtkRollModifier = spell.AtkRollModifier,
+
+            // --- Control Effects ---
             RootTarget = spell.RootTarget,
             StunTarget = spell.StunTarget,
             CharmTarget = spell.CharmTarget,
-            Lifetap = spell.Lifetap,
-            GroupEffect = spell.GroupEffect,
-            DamageType = spell.MyDamageType.ToString(),
-            ResistModifier = spell.ResistModifier,
-            SpellRange = spell.SpellRange,
-            SelfOnly = spell.SelfOnly,
-            MaxLevelTarget = spell.MaxLevelTarget,
+            CrowdControlSpell = spell.CrowdControlSpell,
+            BreakOnDamage = spell.BreakOnDamage,
+            TauntSpell = spell.TauntSpell,
+
+            // --- Special Mechanics ---
             PetToSummonResourceName = spell.PetToSummon != null ? spell.PetToSummon.name : null,
             StatusEffectToApplyId = spell.StatusEffectToApply != null ? spell.StatusEffectToApply.Id : null,
             ApplyToCaster = spell.ApplyToCaster,
+            ReapAndRenew = spell.ReapAndRenew,
+            ResonateChance = spell.ResonateChance,
+            XPBonus = spell.XPBonus,
+            AutomateAttack = spell.AutomateAttack,
+
+            // --- Visual/Audio ---
+            SpellChargeFXIndex = spell.SpellChargeFXIndex,
+            SpellResolveFXIndex = spell.SpellResolveFXIndex,
+            SpellIconName = spell.SpellIcon != null ? spell.SpellIcon.name : null,
             ShakeDur = spell.ShakeDur,
             ShakeAmp = spell.ShakeAmp,
             ColorR = spell.color.r,
             ColorG = spell.color.g,
             ColorB = spell.color.b,
             ColorA = spell.color.a,
-            SimUsable = spell.SimUsable,
-            CanHitPlayers = spell.CanHitPlayers,
-            BreakOnDamage = spell.BreakOnDamage,
-            CrowdControlSpell = spell.CrowdControlSpell,
-            TauntSpell = spell.TauntSpell,
-            ReapAndRenew = spell.ReapAndRenew,
-            ResonateChance = spell.ResonateChance,
-            XPBonus = spell.XPBonus,
-            AutomateAttack = spell.AutomateAttack,
-            ResourceName = spell.name
+
+            // --- Text/Metadata ---
+            StatusEffectMessageOnPlayer = spell.StatusEffectMessageOnPlayer,
+            StatusEffectMessageOnNPC = spell.StatusEffectMessageOnNPC,
+            SpellDesc = spell.SpellDesc,
+            
+            // --- Internals ---
+            ResourceName = spell.name,
         };
     }
 }
