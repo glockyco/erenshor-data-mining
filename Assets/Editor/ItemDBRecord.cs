@@ -9,7 +9,7 @@ public class ItemDBRecord
     public string BaseItemId { get; set; } // Stores the original Item.Id
     public string ItemName { get; set; }
     public int ItemLevel { get; set; }
-    public int Quality { get; set; } // Stores the quality level (1, 2, or 3)
+    public string Quality { get; set; }
     public string Classes { get; set; }
     public int HP { get; set; }
     public int AC { get; set; }

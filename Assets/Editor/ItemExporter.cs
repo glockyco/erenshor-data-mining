@@ -179,7 +179,13 @@ public class ItemExporter
             BaseItemId = item.Id,
             ItemName = item.ItemName,
             ItemLevel = item.ItemLevel,
-            Quality = quality,
+            Quality = quality switch
+            {
+                1 => "Normal",
+                2 => "Blessed",
+                3 => "Godly",
+                _ => quality.ToString()
+            },
             Classes = classesString,
             HP = item.CalcACHPMC(item.HP, quality),
             AC = item.CalcACHPMC(item.AC, quality),
