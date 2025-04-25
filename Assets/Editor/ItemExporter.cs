@@ -1,6 +1,8 @@
 ﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using SQLite;
 using UnityEngine;
 
@@ -160,21 +162,27 @@ public class ItemExporter
     }
 
     // Helper method to export an item to the database for a specific quality
-    // MODIFIED: Added itemDbIndex parameter
     public ItemDBRecord ExportItem(Item item, int quality, int itemDbIndex)
     {
-        // Use Item's calculation methods for quality scaling
+        string classesString = "";
+        if (item.Classes != null && item.Classes.Count > 0)
+        {
+            var classNames = item.Classes
+                .Where(c => c != null)
+                .Select(c => c.name);
+            classesString = string.Join(", ", classNames);
+        }
+
         return new ItemDBRecord
         {
-            Id = $"{item.Id}_q{quality}", // Unique ID per quality variant
+            Id = $"{item.Id}_q{quality}",
             BaseItemId = item.Id,
             Quality = quality,
-            ItemDBIndex = itemDbIndex, // <-- ADDED: Assign the passed index
-            ResourceName = item.name, // Keep original resource name
-            // ItemName might need adjustment if you want "(Blessed)" etc. in DB
-            // For now, keeping base name. Can be adjusted in UI later based on Quality.
+            ItemDBIndex = itemDbIndex,
+            ResourceName = item.name,
             ItemName = item.ItemName,
-            ItemLevel = item.ItemLevel, // Assuming ItemLevel doesn't scale with quality
+            ItemLevel = item.ItemLevel,
+            Classes = classesString,
             HP = item.CalcACHPMC(item.HP, quality),
             AC = item.CalcACHPMC(item.AC, quality),
             Mana = item.CalcACHPMC(item.Mana, quality),

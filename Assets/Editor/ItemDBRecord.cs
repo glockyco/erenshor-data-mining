@@ -11,6 +11,7 @@ public class ItemDBRecord
     public string ResourceName { get; set; }
     public string ItemName { get; set; }
     public int ItemLevel { get; set; }
+    public string Classes { get; set; }
     public int HP { get; set; }
     public int AC { get; set; }
     public int Mana { get; set; }
