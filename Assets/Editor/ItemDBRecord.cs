@@ -28,8 +28,8 @@ public class ItemDBRecord
     public int ER { get; set; }
     public int PR { get; set; }
     public int VR { get; set; }
-    public int RequiredSlot { get; set; }
-    public int ThisWeaponType { get; set; }
+    public string RequiredSlot { get; set; }
+    public string ThisWeaponType { get; set; }
     public int ItemValue { get; set; }
     public string Lore { get; set; }
     public bool Shield { get; set; }

@@ -192,8 +192,8 @@ public class ItemExporter
             ER = item.CalcStat(item.ER, quality),
             PR = item.CalcStat(item.PR, quality),
             VR = item.CalcStat(item.VR, quality),
-            RequiredSlot = (int)item.RequiredSlot,
-            ThisWeaponType = (int)item.ThisWeaponType,
+            RequiredSlot = item.RequiredSlot.ToString(),
+            ThisWeaponType = item.ThisWeaponType.ToString(),
             // ItemValue might scale - needs clarification. Assuming base value for now.
             ItemValue = item.ItemValue,
             Lore = item.Lore, // Lore likely doesn't change
