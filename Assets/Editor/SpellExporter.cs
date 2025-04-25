@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using SQLite;
-using UnityEditor;
 using UnityEngine;
 
 public class SpellExporter
@@ -56,7 +55,7 @@ public class SpellExporter
     }
 
     // Prepare spell data for export
-    private void PrepareSpells(SQLiteConnection db, Dictionary<string, object> state)
+    public void PrepareSpells(SQLiteConnection db, Dictionary<string, object> state)
     {
         Spell[] spells = Resources.LoadAll<Spell>(SPELLS_PATH);
         // Filter out spells without an ID, as it's the primary key
@@ -76,7 +75,7 @@ public class SpellExporter
     }
 
     // Export a batch of spells
-    private void ExportSpellsBatch(SQLiteConnection db, Dictionary<string, object> state)
+    public void ExportSpellsBatch(SQLiteConnection db, Dictionary<string, object> state)
     {
         Spell[] allSpells = (Spell[])state["spells"];
         int spellIndex = (int)state["spellIndex"];
@@ -153,6 +152,7 @@ public class SpellExporter
         {
             Id = spell.Id,
             SpellName = spell.SpellName,
+            Classes = classesString,
             Type = spell.Type.ToString(),
             Line = spell.Line.ToString(),
             RequiredLevel = spell.RequiredLevel,
@@ -190,7 +190,7 @@ public class SpellExporter
             VR = spell.VR,
             DamageShield = spell.DamageShield,
             Haste = spell.Haste,
-            PercentLifesteal = spell.percentLifesteal, // Note the lowercase 'p'
+            PercentLifesteal = spell.percentLifesteal,
             AtkRollModifier = spell.AtkRollModifier,
             RootTarget = spell.RootTarget,
             StunTarget = spell.StunTarget,
@@ -220,8 +220,7 @@ public class SpellExporter
             ResonateChance = spell.ResonateChance,
             XPBonus = spell.XPBonus,
             AutomateAttack = spell.AutomateAttack,
-            Classes = classesString,
-            ResourceName = spell.name // Store the ScriptableObject's asset name
+            ResourceName = spell.name
         };
     }
 }

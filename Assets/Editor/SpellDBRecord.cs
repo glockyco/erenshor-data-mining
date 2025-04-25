@@ -1,5 +1,4 @@
 using SQLite;
-using UnityEngine; // Needed for Color
 
 [Table("Spells")]
 public class SpellDBRecord
@@ -7,6 +6,7 @@ public class SpellDBRecord
     [PrimaryKey]
     public string Id { get; set; } // From BaseScriptableObject.Id
     public string SpellName { get; set; } // From Spell.SpellName
+    public string Classes { get; set; } // Comma-separated list from Spell.UsedBy
     public string Type { get; set; } // From Spell.Type enum
     public string Line { get; set; } // From Spell.Line enum
     public int RequiredLevel { get; set; } // From Spell.RequiredLevel
@@ -74,6 +74,5 @@ public class SpellDBRecord
     public int ResonateChance { get; set; } // From Spell.ResonateChance
     public float XPBonus { get; set; } // From Spell.XPBonus
     public bool AutomateAttack { get; set; } // From Spell.AutomateAttack
-    public string Classes { get; set; } // Comma-separated list from Spell.UsedBy
     public string ResourceName { get; set; } // From Spell.name (ScriptableObject name)
 }
