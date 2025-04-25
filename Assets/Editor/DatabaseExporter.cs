@@ -13,7 +13,8 @@ public class DatabaseExporter
     private readonly CharacterExporter _characterExporter;
     private readonly LootDropExporter _lootDropExporter;
     private readonly ItemExporter _itemExporter;
-    private readonly SpawnPointExporter _spawnPointExporter; // <-- Add SpawnPointExporter instance
+    private readonly SpawnPointExporter _spawnPointExporter;
+    private readonly SpellExporter _spellExporter;
 
     public DatabaseExporter()
     {
@@ -21,40 +22,41 @@ public class DatabaseExporter
         _characterExporter = new CharacterExporter();
         _lootDropExporter = new LootDropExporter();
         _itemExporter = new ItemExporter();
-        _spawnPointExporter = new SpawnPointExporter(); // <-- Instantiate it
+        _spawnPointExporter = new SpawnPointExporter();
+        _spellExporter = new SpellExporter();
     }
 
     // Asynchronous version of ExportAllToDB
     public void ExportAllToDBAsync(DatabaseOperation.ProgressCallback progressCallback = null)
     {
-        // Create a state object to track progress
+        // Recalculate progress allocation:
+        // Init: 0.02 (2%)
+        // Chars: 0.18 (18%) -> Prep 0.02, Export 0.16
+        // Loot: 0.10 (10%) -> Export 0.10 (uses char prep)
+        // Spawns: 0.25 (25%) -> Prep 0.02, Export 0.23
+        // Items: 0.20 (20%) -> Prep 0.02, Export 0.18
+        // Spells: 0.25 (25%) -> Prep 0.02, Export 0.23
+        // Total: 1.00 (100%)
+
         var state = new Dictionary<string, object>
         {
             { "stage", "init" },
             { "dbPath", Path.Combine(Application.dataPath, DB_PATH) },
             { "db", null },
             // Character state
-            { "characterGuids", null },
-            { "characterIndex", 0 },
-            { "characterCount", 0 },
-            { "totalCharacters", 0 },
-            // Loot drop state (uses characterGuids/Index/totalCharacters)
+            { "characterGuids", null }, { "characterIndex", 0 }, { "characterCount", 0 }, { "totalCharacters", 0 },
+            // Loot drop state
             { "lootDropsCount", 0 },
             // Spawn point state
-            { "scenePaths", null },
-            { "sceneIndex", 0 },
-            { "spawnPointCount", 0 },
-            { "spawnLinkCount", 0 },
-            { "totalScenes", 0 },
-            { "originalScenePath", EditorSceneManager.GetActiveScene().path }, // Store original scene path
+            { "scenePaths", null }, { "sceneIndex", 0 }, { "spawnPointCount", 0 }, { "spawnLinkCount", 0 }, { "totalScenes", 0 },
+            { "originalScenePath", EditorSceneManager.GetActiveScene().path },
             // Item state
-            { "items", null },
-            { "itemIndex", 0 },
-            { "recordCount", 0 }, // Item records (including quality variants)
-            { "totalBaseItems", 0 },
+            { "items", null }, { "itemIndex", 0 }, { "recordCount", 0 }, { "totalBaseItems", 0 },
+            // Spell state
+            { "spells", null }, { "spellIndex", 0 }, { "spellCount", 0 }, { "totalSpells", 0 },
             // General state
             { "completed", false },
-            { "progressCallback", progressCallback } // Store the callback
+            { "progressCallback", progressCallback }
         };
 
         // Define the operations for each stage
@@ -64,16 +66,17 @@ public class DatabaseExporter
             { "prepare_characters", PrepareCharacters },
             { "export_characters", ExportCharactersBatch },
             { "export_loot_drops", ExportLootDropsBatch },
-            { "prepare_scenes", PrepareScenes },           // <-- Add scene preparation stage
-            { "export_spawn_points", ExportSpawnPointsBatch }, // <-- Add spawn point export stage
+            { "prepare_scenes", PrepareScenes },
+            { "export_spawn_points", ExportSpawnPointsBatch },
             { "prepare_items", PrepareItems },
-            { "export_items", ExportItemsBatch }
+            { "export_items", ExportItemsBatch },
+            { "prepare_spells", PrepareSpells },
+            { "export_spells", ExportSpellsBatch }
         };
 
-        // Start the asynchronous operation
         _dbManager.ExportAsync(state,
             (s, callback) => _dbManager.GenericExportAsyncUpdate(s, callback, stageOperations,
-                "Exported {0[characterCount]} chars, {0[lootDropsCount]} loot drops, {0[spawnPointCount]} spawn points, {0[spawnLinkCount]} spawn links, {0[recordCount]} item records"), // <-- Updated message
+                "Exported {0[characterCount]} chars, {0[lootDropsCount]} loot drops, {0[spawnPointCount]} spawns, {0[spawnLinkCount]} links, {0[recordCount]} items, {0[spellCount]} spells"),
             progressCallback);
     }
 
@@ -85,20 +88,21 @@ public class DatabaseExporter
         db.CreateTable<CharacterDBRecord>();
         db.CreateTable<ItemDBRecord>();
         db.CreateTable<LootDropDBRecord>();
-        db.CreateTable<SpawnPointDBRecord>();      // <-- Create SpawnPoints table
-        db.CreateTable<SpawnPointCharacterDBRecord>(); // <-- Create SpawnPointCharacters table
+        db.CreateTable<SpawnPointDBRecord>();
+        db.CreateTable<SpawnPointCharacterDBRecord>();
+        db.CreateTable<SpellDBRecord>();
 
         // Clear existing records
         db.DeleteAll<CharacterDBRecord>();
         db.DeleteAll<ItemDBRecord>();
         db.DeleteAll<LootDropDBRecord>();
-        db.DeleteAll<SpawnPointDBRecord>();      // <-- Clear SpawnPoints table
-        db.DeleteAll<SpawnPointCharacterDBRecord>(); // <-- Clear SpawnPointCharacters table
+        db.DeleteAll<SpawnPointDBRecord>();
+        db.DeleteAll<SpawnPointCharacterDBRecord>();
+        db.DeleteAll<SpellDBRecord>();
 
         state["stage"] = "prepare_characters";
         DatabaseOperation.ProgressCallback callback = state["progressCallback"] as DatabaseOperation.ProgressCallback;
-        // Adjust progress slightly for the added steps
-        callback?.Invoke(0.02f, "Database initialized");
+        callback?.Invoke(0.02f, "Database initialized"); // Progress: 0.02
     }
 
     // Prepare character data for export
@@ -111,8 +115,8 @@ public class DatabaseExporter
 
         state["stage"] = "export_characters";
         DatabaseOperation.ProgressCallback callback = state["progressCallback"] as DatabaseOperation.ProgressCallback;
-        // Progress: 0.02 (init) + 0.03 = 0.05
-        callback?.Invoke(0.05f, $"Found {guids.Length} character prefabs");
+        // Progress: 0.02 (init) + 0.02 (prep chars) = 0.04
+        callback?.Invoke(0.04f, $"Found {guids.Length} character prefabs");
     }
 
     // Export a batch of characters
@@ -174,8 +178,8 @@ public class DatabaseExporter
         state["characterIndex"] = endIndex;
         state["characterCount"] = characterCount;
 
-        // Progress: 0.05 (prev) + 0.20 (chars) = 0.25
-        float progress = 0.05f + (0.20f * (totalCharacters > 0 ? (float)endIndex / totalCharacters : 1.0f));
+        // Progress: 0.04 (prev) + 0.16 (chars export) = 0.20
+        float progress = 0.04f + (0.16f * (totalCharacters > 0 ? (float)endIndex / totalCharacters : 1.0f));
         DatabaseOperation.ProgressCallback callback = state["progressCallback"] as DatabaseOperation.ProgressCallback;
         callback?.Invoke(progress, $"Exported {characterCount} characters ({endIndex}/{totalCharacters})");
 
@@ -183,10 +187,12 @@ public class DatabaseExporter
         {
             state["characterIndex"] = 0; // Reset for loot drops
             state["stage"] = "export_loot_drops";
+             // Ensure final char progress is reported at 0.20
+            callback?.Invoke(0.20f, $"Finished exporting characters");
         }
     }
-    
-        // Export a batch of loot drops
+
+    // Export a batch of loot drops
     private void ExportLootDropsBatch(SQLiteConnection db, Dictionary<string, object> state)
     {
         string[] characterGuids = (string[])state["characterGuids"];
@@ -247,32 +253,33 @@ public class DatabaseExporter
         state["characterIndex"] = endIndex;
         state["lootDropsCount"] = lootDropsCount;
 
-        // Progress: 0.25 (prev) + 0.15 (loot) = 0.40
-        float progress = 0.25f + (0.15f * (totalCharacters > 0 ? (float)endIndex / totalCharacters : 1.0f));
+        // Progress: 0.20 (prev) + 0.10 (loot) = 0.30
+        float progress = 0.20f + (0.10f * (totalCharacters > 0 ? (float)endIndex / totalCharacters : 1.0f));
         DatabaseOperation.ProgressCallback callback = state["progressCallback"] as DatabaseOperation.ProgressCallback;
         callback?.Invoke(progress, $"Exported {lootDropsCount} loot drops ({endIndex}/{totalCharacters} characters processed)");
 
         if (endIndex >= totalCharacters)
         {
-            state["stage"] = "prepare_scenes"; // <-- Move to prepare scenes next
+            state["stage"] = "prepare_scenes";
+             // Ensure final loot progress is reported at 0.30
+            callback?.Invoke(0.30f, $"Finished exporting loot drops");
         }
     }
 
-    // Prepare scenes data for export (using SpawnPointExporter's logic)
+    // Prepare scenes data for export
     private void PrepareScenes(SQLiteConnection db, Dictionary<string, object> state)
     {
         // Delegate to the SpawnPointExporter's preparation method
         // Note: This doesn't use the 'db' connection, just modifies state
-        _spawnPointExporter.PrepareScenes(null, state); // Pass null for db as it's not needed here
+        _spawnPointExporter.PrepareScenes(null, state);
 
-        // Progress: 0.40 (prev) + 0.03 (prep scenes) = 0.43
+        // Progress: 0.30 (prev) + 0.02 (prep scenes) = 0.32
         DatabaseOperation.ProgressCallback callback = state["progressCallback"] as DatabaseOperation.ProgressCallback;
-        callback?.Invoke(0.43f, $"Found {(int)state["totalScenes"]} scenes");
-
-        // State stage is already set to "export_spawn_points" by PrepareScenes
+        callback?.Invoke(0.32f, $"Found {(int)state["totalScenes"]} scenes");
+        // Stage is set by PrepareScenes
     }
 
-    // Export a batch of spawn points (using SpawnPointExporter's logic)
+    // Export a batch of spawn points
     private void ExportSpawnPointsBatch(SQLiteConnection db, Dictionary<string, object> state)
     {
         // Delegate the core logic to SpawnPointExporter's batch method
@@ -281,27 +288,22 @@ public class DatabaseExporter
 
         // Progress calculation is handled within _spawnPointExporter.ExportSpawnPointsBatch
         // We just need to update the overall progress range.
-        // Spawn points take up 27% of progress (0.43 to 0.70)
+        // Progress: 0.32 (prev) + 0.23 (spawns export) = 0.55
         int sceneIndex = (int)state["sceneIndex"];
         int totalScenes = (int)state["totalScenes"];
         float spawnProgress = (totalScenes > 0 ? (float)sceneIndex / totalScenes : 1.0f);
-        float overallProgress = 0.43f + (0.27f * spawnProgress);
+        float overallProgress = 0.32f + (0.23f * spawnProgress);
 
         DatabaseOperation.ProgressCallback callback = state["progressCallback"] as DatabaseOperation.ProgressCallback;
         callback?.Invoke(overallProgress, $"Processed {sceneIndex}/{totalScenes} scenes ({state["spawnPointCount"]} points, {state["spawnLinkCount"]} links)");
-
-
-        // Check if the delegated method marked completion
         if ((bool)state["completed"])
         {
-            state["completed"] = false; // Reset completion flag for the next stage
-            state["stage"] = "prepare_items"; // Move to the next stage
-             // Ensure final spawn point progress is reported at 0.70
-            callback?.Invoke(0.70f, $"Finished exporting spawn points");
+            state["completed"] = false;
+            state["stage"] = "prepare_items";
+             // Ensure final spawn progress is reported at 0.55
+            callback?.Invoke(0.55f, $"Finished exporting spawn points");
         }
-        // If not completed, the GenericExportAsyncUpdate loop will call this method again
     }
-
 
     // Prepare items data for export
     private void PrepareItems(SQLiteConnection db, Dictionary<string, object> state)
@@ -313,12 +315,11 @@ public class DatabaseExporter
 
         state["stage"] = "export_items";
         DatabaseOperation.ProgressCallback callback = state["progressCallback"] as DatabaseOperation.ProgressCallback;
-        // Progress: 0.70 (prev) + 0.05 (prep items) = 0.75
-        callback?.Invoke(0.75f, $"Found {items.Length} base items");
+        // Progress: 0.55 (prev) + 0.02 (prep items) = 0.57
+        callback?.Invoke(0.57f, $"Found {items.Length} base items");
     }
 
     // Export a batch of items
-    // Export a batch of items, including quality variants
     private void ExportItemsBatch(SQLiteConnection db, Dictionary<string, object> state)
     {
         Item[] allItems = (Item[])state["items"];
@@ -385,18 +386,22 @@ public class DatabaseExporter
         }
 
         // Update state
-        state["itemIndex"] = endIndex; // Progress based on base items processed
-        state["recordCount"] = recordCount; // Update total records inserted
+        state["itemIndex"] = endIndex;
+        state["recordCount"] = recordCount;
 
-        // Progress: 0.75 (prev) + 0.25 (items) = 1.00
-        float progress = 0.75f + (0.25f * (totalBaseItems > 0 ? (float)endIndex / totalBaseItems : 1.0f));
+        // Progress: 0.57 (prev) + 0.18 (items export) = 0.75
+        float progress = 0.57f + (0.18f * (totalBaseItems > 0 ? (float)endIndex / totalBaseItems : 1.0f));
         DatabaseOperation.ProgressCallback callback = state["progressCallback"] as DatabaseOperation.ProgressCallback;
         callback?.Invoke(progress, $"Processed {endIndex}/{totalBaseItems} base items ({recordCount} item records exported)");
 
         if (endIndex >= totalBaseItems)
         {
-            state["completed"] = true; // Mark the overall operation as completed
-            // Restore original scene just in case something went wrong during spawn export cleanup
+            // Don't mark completed yet, move to spells
+            state["stage"] = "prepare_spells";
+             // Ensure final item progress is reported at 0.75
+            callback?.Invoke(0.75f, $"Finished exporting items");
+
+            // Restore original scene if needed (moved here from the end of item export)
              string originalScenePath = state["originalScenePath"] as string;
              if (!string.IsNullOrEmpty(originalScenePath) && EditorSceneManager.GetActiveScene().path != originalScenePath)
              {
@@ -404,6 +409,44 @@ public class DatabaseExporter
              }
         }
     }
+
+    // Prepare spells data for export
+    private void PrepareSpells(SQLiteConnection db, Dictionary<string, object> state)
+    {
+        // Delegate to SpellExporter's preparation method
+        _spellExporter.PrepareSpells(db, state); // db isn't used by PrepareSpells, but pass for consistency
+
+        // Progress: 0.75 (prev) + 0.02 (prep spells) = 0.77
+        DatabaseOperation.ProgressCallback callback = state["progressCallback"] as DatabaseOperation.ProgressCallback;
+        callback?.Invoke(0.77f, $"Found {(int)state["totalSpells"]} valid spells");
+        // Stage is set by PrepareSpells
+    }
+
+    // Export a batch of spells
+    private void ExportSpellsBatch(SQLiteConnection db, Dictionary<string, object> state)
+    {
+        // Delegate to SpellExporter's batch method
+        _spellExporter.ExportSpellsBatch(db, state);
+
+        // Progress: 0.77 (prev) + 0.23 (spells export) = 1.00
+        int spellIndex = (int)state["spellIndex"];
+        int totalSpells = (int)state["totalSpells"];
+        float spellProgress = (totalSpells > 0 ? (float)spellIndex / totalSpells : 1.0f);
+        float overallProgress = 0.77f + (0.23f * spellProgress);
+
+        DatabaseOperation.ProgressCallback callback = state["progressCallback"] as DatabaseOperation.ProgressCallback;
+        callback?.Invoke(overallProgress, $"Exported {state["spellCount"]}/{totalSpells} spells");
+
+        // Check if the delegated method marked completion
+        if ((bool)state["completed"])
+        {
+            // This is now the final stage, so let GenericExportAsyncUpdate handle completion
+             // Ensure final spell progress is reported at 1.00
+            callback?.Invoke(1.00f, $"Finished exporting spells");
+        }
+        // If not completed, GenericExportAsyncUpdate loop will call this method again
+    }
+
 
     // Convenience method to cancel any export operation
     public static void CancelExport()

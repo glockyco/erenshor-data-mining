@@ -14,7 +14,8 @@ public class DatabaseExporterWindow : EditorWindow
     private readonly CharacterExporter _characterExporter;
     private readonly ItemExporter _itemExporter;
     private readonly LootDropExporter _lootDropExporter;
-    private readonly SpawnPointExporter _spawnPointExporter; // <-- Add SpawnPointExporter instance
+    private readonly SpawnPointExporter _spawnPointExporter;
+    private readonly SpellExporter _spellExporter;
 
     public DatabaseExporterWindow()
     {
@@ -22,14 +23,16 @@ public class DatabaseExporterWindow : EditorWindow
         _characterExporter = new CharacterExporter();
         _itemExporter = new ItemExporter();
         _lootDropExporter = new LootDropExporter();
-        _spawnPointExporter = new SpawnPointExporter(); // <-- Instantiate it
+        _spawnPointExporter = new SpawnPointExporter();
+        _spellExporter = new SpellExporter();
     }
 
     [MenuItem("Tools/Database/Export Database")]
     public static void ShowWindow()
     {
         var window = GetWindow<DatabaseExporterWindow>("Database Exporter");
-        window.minSize = new Vector2(400, 250);
+        // Increased min height slightly for the new button
+        window.minSize = new Vector2(400, 270);
         window.Show();
     }
 
@@ -80,6 +83,11 @@ public class DatabaseExporterWindow : EditorWindow
             if (GUILayout.Button("Export Spawn Points Only")) // <-- Add Spawn Point button
             {
                 StartExportSpawnPoints();
+            }
+
+            if (GUILayout.Button("Export Spells Only"))
+            {
+                StartExportSpells();
             }
 
             EditorGUILayout.EndVertical();
@@ -147,25 +155,52 @@ public class DatabaseExporterWindow : EditorWindow
         _spawnPointExporter.ExportSpawnPointsToDBAsync(UpdateProgress);
     }
 
+    private void StartExportSpells()
+    {
+        _isExporting = true;
+        _progress = 0f;
+        _status = "Initializing...";
+        DatabaseOperation.ResetCancelFlag();
+        _spellExporter.ExportSpellsToDBAsync(UpdateProgress);
+    }
+
+
     private void CancelExport()
     {
-        DatabaseExporter.CancelExport();
+        DatabaseExporter.CancelExport(); // Uses the static method in DatabaseOperation
         _status = "Cancelling...";
     }
 
     private void UpdateProgress(float progress, string status)
     {
-        // Update UI from the main thread
+        // Ensure updates happen on the main thread (already handled by EditorApplication.update)
         _progress = progress;
         _status = status;
 
-        // If progress is 1.0, the operation is complete
-        if (progress >= 1.0f)
+        // If progress is 1.0 or more, or status indicates completion/cancellation
+        if (progress >= 1.0f || status.Contains("Cancelled") || status.Contains("Exported")) // Check for final status messages
         {
-            _isExporting = false;
+             // Small delay before resetting the flag to ensure the final status is displayed
+            EditorApplication.delayCall += () => {
+                _isExporting = false;
+                // Ensure progress shows 100% on completion if it wasn't exactly 1.0
+                if (progress >= 1.0f && !status.Contains("Cancelled")) {
+                    _progress = 1.0f;
+                }
+                Repaint(); // Final repaint after state change
+            };
+        } else if (status.Contains("Cancelling")) {
+             // Don't immediately set _isExporting to false, wait for "Cancelled" status
         }
+
 
         // Force UI update
         Repaint();
+    }
+
+    // Ensure cleanup delegate is removed when the window is closed
+    private void OnDestroy()
+    {
+        DatabaseOperation.CleanupDelegate();
     }
 }
