@@ -1,5 +1,4 @@
 ﻿using System;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -175,13 +174,12 @@ public class ItemExporter
 
         return new ItemDBRecord
         {
+            ItemDBIndex = itemDbIndex,
             Id = $"{item.Id}_q{quality}",
             BaseItemId = item.Id,
-            Quality = quality,
-            ItemDBIndex = itemDbIndex,
-            ResourceName = item.name,
             ItemName = item.ItemName,
             ItemLevel = item.ItemLevel,
+            Quality = quality,
             Classes = classesString,
             HP = item.CalcACHPMC(item.HP, quality),
             AC = item.CalcACHPMC(item.AC, quality),
@@ -218,7 +216,8 @@ public class ItemExporter
             SimPlayersCantGet = item.SimPlayersCantGet,
             FuelLevel = (int)item.FuelLevel,
             Relic = item.Relic,
-            BookTitle = item.BookTitle
+            BookTitle = item.BookTitle,
+            ResourceName = item.name
         };
     }
 }

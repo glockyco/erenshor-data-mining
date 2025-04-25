@@ -3,14 +3,13 @@
 [Table("Items")]
 public class ItemDBRecord
 {
+    public int ItemDBIndex { get; set; } // Index in the ItemDatabase.ItemDB array
     [PrimaryKey]
     public string Id { get; set; } // Will be like "BaseID_q1", "BaseID_q2", etc.
     public string BaseItemId { get; set; } // Stores the original Item.Id
-    public int Quality { get; set; } // Stores the quality level (1, 2, or 3)
-    public int ItemDBIndex { get; set; } // Index in the ItemDatabase.ItemDB array
-    public string ResourceName { get; set; }
     public string ItemName { get; set; }
     public int ItemLevel { get; set; }
+    public int Quality { get; set; } // Stores the quality level (1, 2, or 3)
     public string Classes { get; set; }
     public int HP { get; set; }
     public int AC { get; set; }
@@ -48,4 +47,5 @@ public class ItemDBRecord
     public int FuelLevel { get; set; }
     public bool Relic { get; set; }
     public string BookTitle { get; set; }
+    public string ResourceName { get; set; }
 }
