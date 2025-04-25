@@ -1,62 +1,31 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using SQLite;
 using UnityEngine;
 
-public class SpellExporter
+public class SpellExportStep : IExportStep
 {
     public const string SPELLS_PATH = "Spells"; // Path within Resources folder
-    private readonly DatabaseManager _dbManager;
 
-    public SpellExporter()
+    // --- Metadata ---
+    public string StepName => "Spells";
+    public float ProgressWeight => 1.5f;
+
+    // --- Pre-Execution ---
+    public IEnumerable<Type> GetRequiredRecordTypes()
     {
-        _dbManager = new DatabaseManager();
+        yield return typeof(SpellDBRecord);
     }
 
-    // Asynchronous export for spells only
-    public void ExportSpellsToDBAsync(DatabaseOperation.ProgressCallback progressCallback = null)
+    // --- Execution ---
+    public async Task ExecuteAsync(SQLiteConnection db, IProgressReporter reporter, CancellationToken cancellationToken)
     {
-        var state = new Dictionary<string, object>
-        {
-            { "stage", "init" },
-            { "dbPath", Path.Combine(Application.dataPath, DatabaseOperation.DB_PATH) },
-            { "db", null },
-            { "spells", null },
-            { "spellIndex", 0 },
-            { "spellCount", 0 },
-            { "totalSpells", 0 },
-            { "completed", false },
-            { "progressCallback", progressCallback }
-        };
+        reporter.Report(0f, "Loading spell assets...");
 
-        var stageOperations = new Dictionary<string, DatabaseManager.ExportOperation>
-        {
-            { "init", InitializeSpellsDB },
-            { "prepare_spells", PrepareSpells },
-            { "export_spells", ExportSpellsBatch }
-        };
-
-        _dbManager.ExportAsync(state,
-            (s, callback) => _dbManager.GenericExportAsyncUpdate(s, callback, stageOperations, "Exported {0[spellCount]} spells"),
-            progressCallback);
-    }
-
-    // Initialize the database for spells export
-    private void InitializeSpellsDB(SQLiteConnection db, Dictionary<string, object> state)
-    {
-        db.CreateTable<SpellDBRecord>();
-        db.DeleteAll<SpellDBRecord>();
-
-        state["stage"] = "prepare_spells";
-        DatabaseOperation.ProgressCallback callback = state["progressCallback"] as DatabaseOperation.ProgressCallback;
-        callback?.Invoke(0.1f, "Spell database initialized");
-    }
-
-    // Prepare spell data for export
-    public void PrepareSpells(SQLiteConnection db, Dictionary<string, object> state)
-    {
+        // --- Data Fetching (Unity API - Resources.LoadAll) ---
         Spell[] spells = Resources.LoadAll<Spell>(SPELLS_PATH);
         // Filter out spells without an ID, as it's the primary key
         var validSpells = spells.Where(s => s != null && !string.IsNullOrEmpty(s.Id)).ToArray();
@@ -66,77 +35,79 @@ public class SpellExporter
             Debug.LogWarning($"Skipped {skippedCount} spell(s) that were null or had missing IDs.");
         }
 
-        state["spells"] = validSpells;
-        state["totalSpells"] = validSpells.Length;
+        int totalSpells = validSpells.Length;
 
-        state["stage"] = "export_spells";
-        DatabaseOperation.ProgressCallback callback = state["progressCallback"] as DatabaseOperation.ProgressCallback;
-        callback?.Invoke(0.2f, $"Found {validSpells.Length} valid spells");
-    }
-
-    // Export a batch of spells
-    public void ExportSpellsBatch(SQLiteConnection db, Dictionary<string, object> state)
-    {
-        Spell[] allSpells = (Spell[])state["spells"];
-        int spellIndex = (int)state["spellIndex"];
-        int spellCount = (int)state["spellCount"];
-        int totalSpells = (int)state["totalSpells"];
-
-        int batchSize = 50; // Adjust batch size as needed
-        int endIndex = Math.Min(spellIndex + batchSize, totalSpells);
-
-        db.BeginTransaction();
-        try
+        if (totalSpells == 0)
         {
-            var records = new List<SpellDBRecord>();
-            for (int i = spellIndex; i < endIndex; i++)
+            reporter.Report(1f, "No valid spell assets found.");
+            return;
+        }
+
+        reporter.Report(0.05f, $"Found {totalSpells} valid spells. Exporting...");
+        await Task.Yield();
+
+        // --- Processing & DB Interaction ---
+        int batchSize = 50;
+        var batchRecords = new List<SpellDBRecord>();
+        int processedCount = 0;
+        int recordCount = 0;
+
+        for (int i = 0; i < totalSpells; i++)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            Spell spell = validSpells[i];
+            // ID/null check already done in filtering step
+
+            // --- Extraction Logic (Using helper) ---
+            SpellDBRecord record = ExportSpell(spell, i); // Pass index 'i'
+            if (record != null) // Should generally not be null after filtering
             {
-                Spell spell = allSpells[i];
-                // ID/null check already done in PrepareSpells
-                SpellDBRecord record = ExportSpell(spell, i); // Pass index 'i'
-                if (record != null) // ExportSpell might return null if essential data is missing
+                batchRecords.Add(record);
+            }
+
+            processedCount++;
+
+            // --- Batch Insertion ---
+            if (batchRecords.Count >= batchSize || (processedCount == totalSpells && batchRecords.Count > 0))
+            {
+                try
                 {
-                    records.Add(record);
+                    db.RunInTransaction(() =>
+                    {
+                        // Call InsertOrReplace for each record individually within the transaction
+                        foreach (var record in batchRecords)
+                        {
+                            db.InsertOrReplace(record); // Use InsertOrReplace based on SpellDBRecord PK (Id)
+                        }
+                    });
+                    recordCount += batchRecords.Count;
+                    batchRecords.Clear();
                 }
-            }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"Error inserting spell batch (around index {i}): {ex.Message}");
+                    reporter.Report((float)processedCount / totalSpells, $"Error inserting batch: {ex.Message}");
+                    throw;
+                }
 
-            // Use InsertOrReplace in case of duplicates (though ID should be unique)
-            foreach (var record in records)
+                // --- Progress Reporting ---
+                float progress = (float)processedCount / totalSpells;
+                reporter.Report(progress, $"Exported {recordCount} spells ({processedCount}/{totalSpells})...");
+                await Task.Yield();
+            }
+            else if (processedCount == totalSpells)
             {
-                db.InsertOrReplace(record);
+                reporter.Report(1.0f, $"Exported {recordCount} spells ({processedCount}/{totalSpells})...");
             }
-            spellCount += records.Count;
-
-            db.Commit();
-        }
-        catch (Exception ex)
-        {
-            db.Rollback();
-            Debug.LogError($"Error exporting spells batch ({spellIndex}-{endIndex - 1}): {ex.Message}\n{ex.StackTrace}");
-        }
-
-        state["spellIndex"] = endIndex;
-        state["spellCount"] = spellCount;
-
-        float progress = 0.2f + (0.8f * (totalSpells > 0 ? (float)endIndex / totalSpells : 1.0f));
-        DatabaseOperation.ProgressCallback callback = state["progressCallback"] as DatabaseOperation.ProgressCallback;
-        callback?.Invoke(progress, $"Exported {spellCount}/{totalSpells} spells");
-
-        if (endIndex >= totalSpells)
-        {
-            state["completed"] = true;
         }
     }
 
-    // Helper method to convert a Spell ScriptableObject to a SpellDBRecord
-    public SpellDBRecord ExportSpell(Spell spell, int spellDbIndex)
+    // Helper method to convert a Spell ScriptableObject to a SpellDBRecord (Adapted from SpellExporter)
+    private SpellDBRecord ExportSpell(Spell spell, int spellDbIndex)
     {
-        // Basic null check already done, but double-check ID
-        if (spell == null || string.IsNullOrEmpty(spell.Id))
-        {
-            // Warning already logged in PrepareSpells if ID was missing
-            return null;
-        }
+        // Basic null/ID check already done, but included for safety if used elsewhere
+        if (spell == null || string.IsNullOrEmpty(spell.Id)) return null;
 
         // Process the UsedBy list
         string classesString = "";
@@ -145,7 +116,7 @@ public class SpellExporter
             var classNames = spell.UsedBy
                 .Where(c => c != null && !string.IsNullOrEmpty(c.ClassName)) // Ensure class and name are valid
                 .Select(c => c.ClassName);
-            classesString = string.Join(",", classNames); // Use comma as separator
+            classesString = string.Join(", ", classNames); // Use comma as separator
         }
 
         return new SpellDBRecord
@@ -164,7 +135,7 @@ public class SpellExporter
 
             // --- Simulation ---
             SimUsable = spell.SimUsable,
-            
+
             // --- Aggro ---
             Aggro = spell.Aggro,
 
@@ -244,9 +215,9 @@ public class SpellExporter
             StatusEffectMessageOnPlayer = spell.StatusEffectMessageOnPlayer,
             StatusEffectMessageOnNPC = spell.StatusEffectMessageOnNPC,
             SpellDesc = spell.SpellDesc,
-            
+
             // --- Internals ---
-            ResourceName = spell.name,
+            ResourceName = spell.name, // Store the ScriptableObject's name
         };
     }
 }

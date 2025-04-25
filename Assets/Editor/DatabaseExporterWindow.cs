@@ -1,93 +1,113 @@
+using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
 
 public class DatabaseExporterWindow : EditorWindow
 {
-    private bool _isExporting = false;
+    private MasterExporter _exporter;
     private float _progress = 0f;
     private string _status = "Ready";
     private bool _showAdvancedOptions = false;
 
-    // Create instances of exporters
-    private readonly DatabaseExporter _databaseExporter;
-    private readonly CharacterExporter _characterExporter;
-    private readonly ItemExporter _itemExporter;
-    private readonly LootDropExporter _lootDropExporter;
-    private readonly SpawnPointExporter _spawnPointExporter;
-    private readonly SpellExporter _spellExporter;
+    // Dependencies needed by steps (can be initialized here or elsewhere)
+    private readonly LootTableProbabilityCalculator _probabilityCalculator = new LootTableProbabilityCalculator();
 
-    public DatabaseExporterWindow()
-    {
-        _databaseExporter = new DatabaseExporter();
-        _characterExporter = new CharacterExporter();
-        _itemExporter = new ItemExporter();
-        _lootDropExporter = new LootDropExporter();
-        _spawnPointExporter = new SpawnPointExporter();
-        _spellExporter = new SpellExporter();
-    }
-
-    [MenuItem("Tools/Database/Export Database")]
+    [MenuItem("Tools/Database/Export Database")] // Keep the same menu item path
     public static void ShowWindow()
     {
         var window = GetWindow<DatabaseExporterWindow>("Database Exporter");
-        // Increased min height slightly for the new button
-        window.minSize = new Vector2(400, 270);
+        window.minSize = new Vector2(400, 270); // Keep size or adjust as needed
         window.Show();
     }
 
+    // Initialize MasterExporter when the window is enabled
+    private void OnEnable()
+    {
+        // Ensure only one instance if window is re-enabled
+        if (_exporter == null)
+        {
+            _exporter = new MasterExporter();
+        }
+    }
+
+    // Request cancellation if the window is disabled (e.g., closed) during export
+    private void OnDisable()
+    {
+        // Check IsRunning before cancelling to avoid issues if it wasn't running
+        if (_exporter != null && _exporter.IsRunning)
+        {
+             _exporter.CancelExport();
+        }
+    }
+
+     // Final check on destruction
+    private void OnDestroy()
+    {
+        if (_exporter != null && _exporter.IsRunning)
+        {
+             _exporter.CancelExport();
+        }
+        // Optional: Nullify exporter to release resources if needed, though GC should handle it.
+        // _exporter = null;
+    }
+
+    // Draw the window UI
     private void OnGUI()
     {
-        GUILayout.Label("Database Exporter", EditorStyles.boldLabel);
+        // Safety check in case OnEnable wasn't called properly
+        if (_exporter == null) _exporter = new MasterExporter();
+
+        GUILayout.Label("Database Exporter", EditorStyles.boldLabel); // Keep title simple
         EditorGUILayout.Space();
 
+        // Display status from the UpdateProgress callback
         EditorGUILayout.LabelField("Status:", _status);
         EditorGUILayout.Space();
 
-        // Progress bar
-        if (_isExporting)
+        // Progress bar - show only when running
+        if (_exporter.IsRunning)
         {
-            EditorGUI.ProgressBar(EditorGUILayout.GetControlRect(false, 20f), _progress, $"{_progress * 100:F0}%");
+            // Display progress and the latest status message in the bar
+            EditorGUI.ProgressBar(EditorGUILayout.GetControlRect(false, 20f), _progress, $"{_status} ({_progress * 100:F0}%)");
             EditorGUILayout.Space();
         }
 
-        // Export buttons
-        EditorGUI.BeginDisabledGroup(_isExporting);
+        // --- Buttons ---
+        // Disable buttons while the exporter is running
+        EditorGUI.BeginDisabledGroup(_exporter.IsRunning);
 
         if (GUILayout.Button("Export All Data"))
         {
-            StartExportAll();
+            StartExport(GetAllExportSteps());
         }
 
         _showAdvancedOptions = EditorGUILayout.Foldout(_showAdvancedOptions, "Advanced Options");
-
         if (_showAdvancedOptions)
         {
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
+            // Buttons for individual steps
             if (GUILayout.Button("Export Characters Only"))
             {
-                StartExportCharacters();
+                StartExport(new List<IExportStep> { new CharacterExportStep() });
             }
-
             if (GUILayout.Button("Export Items Only"))
             {
-                StartExportItems();
+                StartExport(new List<IExportStep> { new ItemExportStep() });
             }
-
             if (GUILayout.Button("Export Loot Drops Only"))
             {
-                StartExportLootDrops();
+                // Pass dependencies needed by the step's constructor
+                StartExport(new List<IExportStep> { new LootDropExportStep(_probabilityCalculator) });
             }
-
-            if (GUILayout.Button("Export Spawn Points Only")) // <-- Add Spawn Point button
+            if (GUILayout.Button("Export Spawn Points Only"))
             {
-                StartExportSpawnPoints();
+                StartExport(new List<IExportStep> { new SpawnPointExportStep() });
             }
-
             if (GUILayout.Button("Export Spells Only"))
             {
-                StartExportSpells();
+                StartExport(new List<IExportStep> { new SpellExportStep() });
             }
 
             EditorGUILayout.EndVertical();
@@ -95,112 +115,59 @@ public class DatabaseExporterWindow : EditorWindow
 
         EditorGUI.EndDisabledGroup();
 
-        // Cancel button
-        if (_isExporting)
+        // --- Cancel Button ---
+        // Show only when running
+        if (_exporter.IsRunning)
         {
             EditorGUILayout.Space();
             if (GUILayout.Button("Cancel Export"))
             {
-                CancelExport();
+                _exporter.CancelExport(); // Call the MasterExporter's cancel method
             }
         }
 
-        // Database path info
+        // --- DB Path Info ---
         EditorGUILayout.Space();
-        EditorGUILayout.LabelField("Database Path:", Path.Combine(Application.dataPath, DatabaseExporter.DB_PATH));
+        // Get path from MasterExporter constant
+        EditorGUILayout.LabelField("Database Path:", Path.GetFullPath(Path.Combine(Application.dataPath, MasterExporter.DB_PATH)));
     }
 
-    private void StartExportAll()
+    // Starts the export process with the selected list of steps
+    private void StartExport(List<IExportStep> steps)
     {
-        _isExporting = true;
-        _progress = 0f;
-        _status = "Initializing...";
-
-        _databaseExporter.ExportAllToDBAsync(UpdateProgress);
-    }
-
-    private void StartExportCharacters()
-    {
-        _isExporting = true;
-        _progress = 0f;
-        _status = "Initializing...";
-
-        _characterExporter.ExportCharactersToDBAsync(UpdateProgress);
-    }
-
-    private void StartExportItems()
-    {
-        _isExporting = true;
-        _progress = 0f;
-        _status = "Initializing...";
-
-        _itemExporter.ExportItemsToDBAsync(UpdateProgress);
-    }
-
-    private void StartExportLootDrops()
-    {
-        _isExporting = true;
-        _progress = 0f;
-        _status = "Initializing...";
-
-        _lootDropExporter.ExportLootDropsToDBAsync(UpdateProgress);
-    }
-
-    private void StartExportSpawnPoints() // <-- Add handler method
-    {
-        _isExporting = true;
-        _progress = 0f;
-        _status = "Initializing...";
-
-        _spawnPointExporter.ExportSpawnPointsToDBAsync(UpdateProgress);
-    }
-
-    private void StartExportSpells()
-    {
-        _isExporting = true;
-        _progress = 0f;
-        _status = "Initializing...";
-        DatabaseOperation.ResetCancelFlag();
-        _spellExporter.ExportSpellsToDBAsync(UpdateProgress);
-    }
-
-
-    private void CancelExport()
-    {
-        DatabaseExporter.CancelExport(); // Uses the static method in DatabaseOperation
-        _status = "Cancelling...";
-    }
-
-    private void UpdateProgress(float progress, string status)
-    {
-        // Ensure updates happen on the main thread (already handled by EditorApplication.update)
-        _progress = progress;
-        _status = status;
-
-        // If progress is 1.0 or more, or status indicates completion/cancellation
-        if (progress >= 1.0f || status.Contains("Cancelled") || status.Contains("Exported")) // Check for final status messages
+        // Double-check if already running before starting
+        if (_exporter.IsRunning)
         {
-             // Small delay before resetting the flag to ensure the final status is displayed
-            EditorApplication.delayCall += () => {
-                _isExporting = false;
-                // Ensure progress shows 100% on completion if it wasn't exactly 1.0
-                if (progress >= 1.0f && !status.Contains("Cancelled")) {
-                    _progress = 1.0f;
-                }
-                Repaint(); // Final repaint after state change
-            };
-        } else if (status.Contains("Cancelling")) {
-             // Don't immediately set _isExporting to false, wait for "Cancelled" status
+            Debug.LogWarning("Exporter is already running. Please wait or cancel.");
+            return;
         }
 
-
-        // Force UI update
-        Repaint();
+        _progress = 0f;
+        _status = "Initializing...";
+        Repaint(); // Update UI immediately to show "Initializing..."
+        _exporter.StartExportAsync(steps, UpdateProgress); // Pass the steps and the UI update callback
     }
 
-    // Ensure cleanup delegate is removed when the window is closed
-    private void OnDestroy()
+    // Defines the sequence of steps for the "Export All" button
+    private List<IExportStep> GetAllExportSteps()
     {
-        DatabaseOperation.CleanupDelegate();
+        // Create instances of all steps in the desired execution order
+        return new List<IExportStep>
+        {
+            new CharacterExportStep(),
+            new ItemExportStep(),
+            new LootDropExportStep(_probabilityCalculator), // Ensure dependencies are passed
+            new SpawnPointExportStep(),
+            new SpellExportStep(),
+            // Add any other steps here in order
+        };
+    }
+
+    // Callback method passed to MasterExporter to receive progress updates
+    private void UpdateProgress(float overallProgress, string status)
+    {
+        _progress = overallProgress;
+        _status = status;
+        Repaint(); // Redraw the window to show the latest progress and status
     }
 }
