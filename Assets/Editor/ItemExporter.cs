@@ -187,7 +187,7 @@ public class ItemExporter
             AC = item.CalcACHPMC(item.AC, quality),
             Mana = item.CalcACHPMC(item.Mana, quality),
             WeaponDmg = item.CalcDmg(item.WeaponDmg, quality),
-            WeaponDly = item.WeaponDly, // Assuming Delay doesn't scale
+            WeaponDly = item.WeaponDly,
             Str = item.CalcStat(item.Str, quality),
             End = item.CalcStat(item.End, quality),
             Dex = item.CalcStat(item.Dex, quality),
@@ -195,31 +195,30 @@ public class ItemExporter
             Int = item.CalcStat(item.Int, quality),
             Wis = item.CalcStat(item.Wis, quality),
             Cha = item.CalcStat(item.Cha, quality),
-            Res = item.CalcRes(item.Res, quality), // Use CalcRes for resistances
-            MR = item.CalcStat(item.MR, quality), // Assuming MR/ER/PR/VR use CalcStat scaling
+            Res = item.CalcRes(item.Res, quality),
+            MR = item.CalcStat(item.MR, quality),
             ER = item.CalcStat(item.ER, quality),
             PR = item.CalcStat(item.PR, quality),
             VR = item.CalcStat(item.VR, quality),
             RequiredSlot = item.RequiredSlot.ToString(),
             ThisWeaponType = item.ThisWeaponType.ToString(),
-            // ItemValue might scale - needs clarification. Assuming base value for now.
             ItemValue = item.ItemValue,
-            Lore = item.Lore, // Lore likely doesn't change
+            Lore = item.Lore,
             Shield = item.Shield,
-            WeaponProcChance = item.WeaponProcChance, // Proc chance likely doesn't scale
-            SpellCastTime = item.SpellCastTime, // Cast time likely doesn't scale
+            WeaponProcChance = item.WeaponProcChance,
+            SpellCastTime = item.SpellCastTime,
             HideHairWhenEquipped = item.HideHairWhenEquipped,
             HideHeadWhenEquipped = item.HideHeadWhenEquipped,
-            Stackable = item.Stackable, // Stackability likely doesn't change
-            Disposable = item.Disposable, // Disposability likely doesn't change
-            Unique = item.Unique, // Uniqueness likely doesn't change
-            Mining = item.Mining, // Mining bonus likely doesn't scale
+            Stackable = item.Stackable,
+            Disposable = item.Disposable,
+            Unique = item.Unique,
+            Mining = item.Mining,
             FuelSource = item.FuelSource,
             Template = item.Template,
             SimPlayersCantGet = item.SimPlayersCantGet,
-            FuelLevel = (int)item.FuelLevel, // Fuel level likely doesn't scale
-            Relic = item.Relic, // Relic status likely doesn't change
-            BookTitle = item.BookTitle // Book title doesn't change
+            FuelLevel = (int)item.FuelLevel,
+            Relic = item.Relic,
+            BookTitle = item.BookTitle
         };
     }
 }

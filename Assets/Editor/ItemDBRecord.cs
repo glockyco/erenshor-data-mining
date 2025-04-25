@@ -7,7 +7,7 @@ public class ItemDBRecord
     public string Id { get; set; } // Will be like "BaseID_q1", "BaseID_q2", etc.
     public string BaseItemId { get; set; } // Stores the original Item.Id
     public int Quality { get; set; } // Stores the quality level (1, 2, or 3)
-    public int ItemDBIndex { get; set; } // <-- ADDED: Index in the ItemDatabase.ItemDB array
+    public int ItemDBIndex { get; set; } // Index in the ItemDatabase.ItemDB array
     public string ResourceName { get; set; }
     public string ItemName { get; set; }
     public int ItemLevel { get; set; }
