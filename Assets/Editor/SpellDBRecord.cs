@@ -8,11 +8,13 @@ public class SpellDBRecord
     [PrimaryKey]
     public string Id { get; set; } // From BaseScriptableObject.Id
     public string SpellName { get; set; } // From Spell.SpellName
+    public string Type { get; set; } // From Spell.Type enum
+    public string Line { get; set; } // From Spell.Line enum
 
     // --- Requirements & Cost ---
+    public string Classes { get; set; } // Comma-separated list from Spell.UsedBy
     public int RequiredLevel { get; set; } // From Spell.RequiredLevel
     public int ManaCost { get; set; } // From Spell.ManaCost
-    public string Classes { get; set; } // Comma-separated list from Spell.UsedBy
 
     // --- Simulation ---
     public bool SimUsable { get; set; } // From Spell.SimUsable
@@ -27,14 +29,13 @@ public class SpellDBRecord
     public bool UnstableDuration { get; set; } // From Spell.UnstableDuration
     public bool InstantEffect { get; set; } // From Spell.InstantEffect
 
-    // --- Targeting & Type ---
-    public string Type { get; set; } // From Spell.Type enum
-    public string Line { get; set; } // From Spell.Line enum
+    // --- Targeting ---
     public float SpellRange { get; set; } // From Spell.SpellRange
     public bool SelfOnly { get; set; } // From Spell.SelfOnly
     public int MaxLevelTarget { get; set; } // From Spell.MaxLevelTarget
     public bool GroupEffect { get; set; } // From Spell.GroupEffect
     public bool CanHitPlayers { get; set; } // From Spell.CanHitPlayers
+    public bool ApplyToCaster { get; set; } // From Spell.ApplyToCaster
 
     // --- Core Effects (Damage/Heal/Shield) ---
     public int TargetDamage { get; set; } // From Spell.TargetDamage
@@ -77,7 +78,6 @@ public class SpellDBRecord
     // --- Special Mechanics ---
     public string PetToSummonResourceName { get; set; } // From Spell.PetToSummon.name
     public string StatusEffectToApplyId { get; set; } // From Spell.StatusEffectToApply.Id
-    public bool ApplyToCaster { get; set; } // From Spell.ApplyToCaster
     public bool ReapAndRenew { get; set; } // From Spell.ReapAndRenew
     public int ResonateChance { get; set; } // From Spell.ResonateChance
     public float XPBonus { get; set; } // From Spell.XPBonus

@@ -154,11 +154,13 @@ public class SpellExporter
             SpellDBIndex = spellDbIndex,
             Id = spell.Id,
             SpellName = spell.SpellName,
+            Type = spell.Type.ToString(),
+            Line = spell.Line.ToString(),
 
             // --- Requirements & Cost ---
+            Classes = classesString,
             RequiredLevel = spell.RequiredLevel,
             ManaCost = spell.ManaCost,
-            Classes = classesString,
 
             // --- Simulation ---
             SimUsable = spell.SimUsable,
@@ -174,13 +176,12 @@ public class SpellExporter
             InstantEffect = spell.InstantEffect,
 
             // --- Targeting & Type ---
-            Type = spell.Type.ToString(),
-            Line = spell.Line.ToString(),
             SpellRange = spell.SpellRange,
             SelfOnly = spell.SelfOnly,
             MaxLevelTarget = spell.MaxLevelTarget,
             GroupEffect = spell.GroupEffect,
             CanHitPlayers = spell.CanHitPlayers,
+            ApplyToCaster = spell.ApplyToCaster,
 
             // --- Core Effects (Damage/Heal/Shield) ---
             TargetDamage = spell.TargetDamage,
@@ -223,7 +224,6 @@ public class SpellExporter
             // --- Special Mechanics ---
             PetToSummonResourceName = spell.PetToSummon != null ? spell.PetToSummon.name : null,
             StatusEffectToApplyId = spell.StatusEffectToApply != null ? spell.StatusEffectToApply.Id : null,
-            ApplyToCaster = spell.ApplyToCaster,
             ReapAndRenew = spell.ReapAndRenew,
             ResonateChance = spell.ResonateChance,
             XPBonus = spell.XPBonus,
