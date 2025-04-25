@@ -114,7 +114,8 @@ public class ItemExporter
                         Debug.LogWarning($"Skipping item '{item.name}' with missing ID.");
                         continue; // Skip this specific item entirely
                     }
-                    ItemDBRecord record = ExportItem(item, quality);
+                    // Pass the index 'i' to ExportItem
+                    ItemDBRecord record = ExportItem(item, quality, i); // <-- Pass index 'i'
                     records.Add(record);
                 }
             }
@@ -159,7 +160,8 @@ public class ItemExporter
     }
 
     // Helper method to export an item to the database for a specific quality
-    public ItemDBRecord ExportItem(Item item, int quality)
+    // MODIFIED: Added itemDbIndex parameter
+    public ItemDBRecord ExportItem(Item item, int quality, int itemDbIndex)
     {
         // Use Item's calculation methods for quality scaling
         return new ItemDBRecord
@@ -167,6 +169,7 @@ public class ItemExporter
             Id = $"{item.Id}_q{quality}", // Unique ID per quality variant
             BaseItemId = item.Id,
             Quality = quality,
+            ItemDBIndex = itemDbIndex, // <-- ADDED: Assign the passed index
             ResourceName = item.name, // Keep original resource name
             // ItemName might need adjustment if you want "(Blessed)" etc. in DB
             // For now, keeping base name. Can be adjusted in UI later based on Quality.

@@ -360,7 +360,7 @@ public class DatabaseExporter
                         continue;
                     }
                     // Use the ItemExporter's helper method which now handles quality
-                    ItemDBRecord record = _itemExporter.ExportItem(item, quality);
+                    ItemDBRecord record = _itemExporter.ExportItem(item, quality, i);
                     records.Add(record);
                 }
             }
