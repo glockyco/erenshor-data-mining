@@ -118,7 +118,9 @@ public class AscensionExportStep : IExportStep
                 CriticalDotChance = ascension.CriticalDotChance,
                 CriticalHealingChance = ascension.CriticalHealingChance,
                 VengefulHealingPercentage = ascension.VengefulHealingPercentage,
-                SummonedBeastEnhancement = ascension.SummonedBeastEnhancement
+                SummonedBeastEnhancement = ascension.SummonedBeastEnhancement,
+                    
+                ResourceName = ascension.name
             };
 
             batchRecords.Add(record);

@@ -70,7 +70,8 @@ public class FactionExportStep : IExportStep
                 FactionDBIndex = factionDbIndex,
                 FactionName = faction.FactionName,
                 FactionDesc = faction.FactionDesc,
-                DefaultValue = faction.DEFAULTVAL
+                DefaultValue = faction.DEFAULTVAL,
+                ResourceName = faction.name,
             };
 
             batchRecords.Add(record);

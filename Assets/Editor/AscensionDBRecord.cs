@@ -50,4 +50,7 @@ public class AscensionDBRecord
     public float CriticalHealingChance { get; set; }
     public float VengefulHealingPercentage { get; set; }
     public float SummonedBeastEnhancement { get; set; }
+
+    // Internals / Metadata
+    public string ResourceName { get; set; }
 }
