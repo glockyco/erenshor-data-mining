@@ -26,8 +26,6 @@ public class ItemExportStep : IExportStep
         reporter.Report(0f, "Loading item assets...");
 
         // --- Data Fetching (Unity API - Resources.LoadAll) ---
-        // This needs to run on the main thread implicitly or explicitly if needed.
-        // In Editor scripts, Resources.LoadAll is generally safe outside play mode.
         Item[] allItems = Resources.LoadAll<Item>(ITEMS_PATH);
         int totalBaseItems = allItems.Length;
 
@@ -76,8 +74,10 @@ public class ItemExportStep : IExportStep
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogError($"Error inserting item batch (around base item index {i}): {ex.Message}");
+                    Debug.LogError($"Error inserting item batch (around base item index {i}, ID: {item?.Id ?? "N/A"}): {ex.Message}\n{ex.StackTrace}");
                     reporter.Report((float)processedBaseItems / totalBaseItems, $"Error inserting batch: {ex.Message}");
+                    // Decide whether to re-throw or continue processing other items
+                    // For now, re-throwing to halt the export on error.
                     throw;
                 }
 
@@ -86,24 +86,34 @@ public class ItemExportStep : IExportStep
                 reporter.Report(progress, $"Exported {totalRecordCount} item records ({processedBaseItems}/{totalBaseItems} base items)...");
                 await Task.Yield();
             }
-            else if (processedBaseItems == totalBaseItems)
+            else if (processedBaseItems == totalBaseItems) // Ensure final report if last item didn't fill a batch
             {
                  reporter.Report(1.0f, $"Exported {totalRecordCount} item records ({processedBaseItems}/{totalBaseItems} base items)...");
             }
         }
+         // Final report in case the loop finishes exactly on a batch boundary
+        if (processedBaseItems == totalBaseItems && totalRecordCount > 0) {
+             reporter.Report(1.0f, $"Exported {totalRecordCount} item records ({processedBaseItems}/{totalBaseItems} base items)...");
+        }
     }
 
-    // Helper method to generate records for an item and its quality variants (Adapted from ItemExporter)
+    // Helper method to generate records for an item and its quality variants
     private List<ItemDBRecord> ExportItemVariants(Item item, int itemDbIndex)
     {
         var records = new List<ItemDBRecord>();
 
-        // Skip invalid base items (missing ID)
+        // Skip invalid base items (missing ID or name)
         if (string.IsNullOrEmpty(item.Id))
         {
             Debug.LogWarning($"Skipping item '{item.name}' with missing ID.");
             return records; // Return empty list
         }
+         if (string.IsNullOrEmpty(item.name))
+        {
+            Debug.LogWarning($"Skipping item with ID '{item.Id}' because it has no ScriptableObject name (ResourceName).");
+            return records; // Return empty list
+        }
+
 
         // Determine if this item type should have quality variants
         bool hasQualityVariants = item.RequiredSlot != Item.SlotType.General &&
@@ -114,23 +124,46 @@ public class ItemExportStep : IExportStep
 
         int maxQuality = hasQualityVariants ? 3 : 1;
 
+        // Prepare common data that doesn't change with quality
+        string classesString = "";
+        if (item.Classes != null && item.Classes.Count > 0)
+        {
+            var classNames = item.Classes
+                .Where(c => c != null && !string.IsNullOrEmpty(c.name)) // Ensure class and its name exist
+                .Select(c => c.name);
+            classesString = string.Join(", ", classNames);
+        }
+
+        string templateIngredientIds = "";
+        if (item.TemplateIngredients != null && item.TemplateIngredients.Count > 0)
+        {
+            var ingredientIds = item.TemplateIngredients
+                .Where(ing => ing != null && !string.IsNullOrEmpty(ing.Id)) // Ensure ingredient and its ID exist
+                .Select(ing => ing.Id);
+            templateIngredientIds = string.Join(", ", ingredientIds);
+        }
+
+        string templateRewardIds = "";
+        if (item.TemplateRewards != null && item.TemplateRewards.Count > 0)
+        {
+            var rewardIds = item.TemplateRewards
+                .Where(rew => rew != null && !string.IsNullOrEmpty(rew.Id)) // Ensure reward and its ID exist
+                .Select(rew => rew.Id);
+            templateRewardIds = string.Join(", ", rewardIds);
+        }
+
         for (int quality = 1; quality <= maxQuality; quality++)
         {
-            string classesString = "";
-            if (item.Classes != null && item.Classes.Count > 0)
-            {
-                var classNames = item.Classes
-                    .Where(c => c != null)
-                    .Select(c => c.name);
-                classesString = string.Join(", ", classNames);
-            }
-
             var record = new ItemDBRecord
             {
+                // --- Core Identification ---
                 ItemDBIndex = itemDbIndex,
                 Id = $"{item.Id}_q{quality}", // Composite ID including quality
                 BaseItemId = item.Id,
                 ItemName = item.ItemName,
+                Lore = item.Lore,
+
+                // --- Classification & Requirements ---
                 RequiredSlot = item.RequiredSlot.ToString(),
                 ThisWeaponType = item.ThisWeaponType.ToString(),
                 Classes = classesString,
@@ -139,14 +172,14 @@ public class ItemExportStep : IExportStep
                     1 => "Normal",
                     2 => "Blessed",
                     3 => "Godly",
-                    _ => quality.ToString() // Should not happen with maxQuality=3
+                    _ => quality.ToString() // Fallback, should not happen with maxQuality=3
                 },
                 ItemLevel = item.ItemLevel,
+
+                // --- Core Stats (Affected by Quality) ---
                 HP = item.CalcACHPMC(item.HP, quality),
                 AC = item.CalcACHPMC(item.AC, quality),
                 Mana = item.CalcACHPMC(item.Mana, quality),
-                WeaponDmg = item.CalcDmg(item.WeaponDmg, quality),
-                WeaponDly = item.WeaponDly,
                 Str = item.CalcStat(item.Str, quality),
                 End = item.CalcStat(item.End, quality),
                 Dex = item.CalcStat(item.Dex, quality),
@@ -154,28 +187,94 @@ public class ItemExportStep : IExportStep
                 Int = item.CalcStat(item.Int, quality),
                 Wis = item.CalcStat(item.Wis, quality),
                 Cha = item.CalcStat(item.Cha, quality),
-                Res = item.CalcRes(item.Res, quality),
-                MR = item.CalcStat(item.MR, quality),
-                ER = item.CalcStat(item.ER, quality),
-                PR = item.CalcStat(item.PR, quality),
-                VR = item.CalcStat(item.VR, quality),
-                ItemValue = item.ItemValue,
-                Lore = item.Lore,
+                Res = item.CalcRes(item.Res, quality), // Resonance
+                MR = item.CalcStat(item.MR, quality), // Magic Resist
+                ER = item.CalcStat(item.ER, quality), // Elemental Resist
+                PR = item.CalcStat(item.PR, quality), // Poison Resist
+                VR = item.CalcStat(item.VR, quality), // Void Resist
+
+                // --- Weapon/Combat Properties ---
+                WeaponDmg = item.CalcDmg(item.WeaponDmg, quality),
+                WeaponDly = item.WeaponDly,
                 Shield = item.Shield,
                 WeaponProcChance = item.WeaponProcChance,
+                WeaponProcOnHitId = item.WeaponProcOnHit?.Id, // Store Id if Spell exists
+
+                // --- Effects & Interactions ---
+                ItemEffectOnClickId = item.ItemEffectOnClick?.Id,
+                ItemSkillUseId = item.ItemSkillUse?.Id,
+                TeachSpellId = item.TeachSpell?.Id,
+                TeachSkillId = item.TeachSkill?.Id,
+                AuraId = item.Aura?.Id,
+                WornEffectId = item.WornEffect?.Id,
                 SpellCastTime = item.SpellCastTime,
-                HideHairWhenEquipped = item.HideHairWhenEquipped,
-                HideHeadWhenEquipped = item.HideHeadWhenEquipped,
+
+                // --- Quest Interaction ---
+                AssignQuestOnRead = item.AssignQuestOnRead?.DBName,
+                CompleteOnRead = item.CompleteOnRead?.DBName,
+
+                // --- Crafting & Templates ---
+                Template = item.Template,
+                TemplateIngredientIds = templateIngredientIds, // Use pre-calculated string
+                TemplateRewardIds = templateRewardIds, // Use pre-calculated string
+
+                // --- Economy & Inventory ---
+                ItemValue = item.ItemValue,
                 Stackable = item.Stackable,
                 Disposable = item.Disposable,
                 Unique = item.Unique,
+                Relic = item.Relic,
+
+                // --- Miscellaneous ---
+                BookTitle = item.BookTitle,
                 Mining = item.Mining,
                 FuelSource = item.FuelSource,
-                Template = item.Template,
-                SimPlayersCantGet = item.SimPlayersCantGet,
                 FuelLevel = (int)item.FuelLevel,
-                Relic = item.Relic,
-                BookTitle = item.BookTitle,
+                SimPlayersCantGet = item.SimPlayersCantGet,
+
+                // --- Visuals & Sound ---
+                AttackSoundName = item.AttackSound != null ? item.AttackSound.name : null,
+                ItemIconName = item.ItemIcon != null ? item.ItemIcon.name : null,
+                EquipmentToActivate = item.EquipmentToActivate,
+                //ShoulderTrimL = item.ShoulderTrimL,
+                //ShoulderTrimR = item.ShoulderTrimR,
+                //ElbowTrimL = item.ElbowTrimL,
+                //ElbowTrimR = item.ElbowTrimR,
+                //KneeTrimL = item.KneeTrimL,
+                //KneeTrimR = item.KneeTrimR,
+                HideHairWhenEquipped = item.HideHairWhenEquipped,
+                HideHeadWhenEquipped = item.HideHeadWhenEquipped,
+                // Colors
+                //ItemPrimaryColorR = item.ItemPrimaryColor.r,
+                //ItemPrimaryColorG = item.ItemPrimaryColor.g,
+                //ItemPrimaryColorB = item.ItemPrimaryColor.b,
+                //ItemPrimaryColorA = item.ItemPrimaryColor.a,
+                //ItemSecondaryColorR = item.ItemSecondaryColor.r,
+                //ItemSecondaryColorG = item.ItemSecondaryColor.g,
+                //ItemSecondaryColorB = item.ItemSecondaryColor.b,
+                //ItemSecondaryColorA = item.ItemSecondaryColor.a,
+                //ItemMetalPrimaryR = item.ItemMetalPrimary.r,
+                //ItemMetalPrimaryG = item.ItemMetalPrimary.g,
+                //ItemMetalPrimaryB = item.ItemMetalPrimary.b,
+                //ItemMetalPrimaryA = item.ItemMetalPrimary.a,
+                //ItemLeatherPrimaryR = item.ItemLeatherPrimary.r,
+                //ItemLeatherPrimaryG = item.ItemLeatherPrimary.g,
+                //ItemLeatherPrimaryB = item.ItemLeatherPrimary.b,
+                //ItemLeatherPrimaryA = item.ItemLeatherPrimary.a,
+                //ItemMetalDarkR = item.ItemMetalDark.r,
+                //ItemMetalDarkG = item.ItemMetalDark.g,
+                //ItemMetalDarkB = item.ItemMetalDark.b,
+                //ItemMetalDarkA = item.ItemMetalDark.a,
+                //ItemMetalSecondaryR = item.ItemMetalSecondary.r,
+                //ItemMetalSecondaryG = item.ItemMetalSecondary.g,
+                //ItemMetalSecondaryB = item.ItemMetalSecondary.b,
+                //ItemMetalSecondaryA = item.ItemMetalSecondary.a,
+                //ItemLeatherSecondaryR = item.ItemLeatherSecondary.r,
+                //ItemLeatherSecondaryG = item.ItemLeatherSecondary.g,
+                //ItemLeatherSecondaryB = item.ItemLeatherSecondary.b,
+                //ItemLeatherSecondaryA = item.ItemLeatherSecondary.a,
+
+                // --- Internal ---
                 ResourceName = item.name // Store the ScriptableObject's name
             };
             records.Add(record);
