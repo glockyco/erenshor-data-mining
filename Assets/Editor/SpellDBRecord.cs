@@ -8,6 +8,7 @@ public class SpellDBRecord
     [PrimaryKey]
     public string Id { get; set; } // From BaseScriptableObject.Id
     public string SpellName { get; set; } // From Spell.SpellName
+    public string SpellDesc { get; set; } // From Spell.SpellDesc
     public string Type { get; set; } // From Spell.Type enum
     public string Line { get; set; } // From Spell.Line enum
 
@@ -97,7 +98,6 @@ public class SpellDBRecord
     // --- Text/Metadata ---
     public string StatusEffectMessageOnPlayer { get; set; } // From Spell.StatusEffectMessageOnPlayer
     public string StatusEffectMessageOnNPC { get; set; } // From Spell.StatusEffectMessageOnNPC
-    public string SpellDesc { get; set; } // From Spell.SpellDesc
     
     // --- Internals ---
     public string ResourceName { get; set; } // From Spell.name (ScriptableObject name)

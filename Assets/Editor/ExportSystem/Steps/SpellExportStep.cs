@@ -125,6 +125,7 @@ public class SpellExportStep : IExportStep
             SpellDBIndex = spellDbIndex,
             Id = spell.Id,
             SpellName = spell.SpellName,
+            SpellDesc = spell.SpellDesc,
             Type = spell.Type.ToString(),
             Line = spell.Line.ToString(),
 
@@ -214,7 +215,6 @@ public class SpellExportStep : IExportStep
             // --- Text/Metadata ---
             StatusEffectMessageOnPlayer = spell.StatusEffectMessageOnPlayer,
             StatusEffectMessageOnNPC = spell.StatusEffectMessageOnNPC,
-            SpellDesc = spell.SpellDesc,
 
             // --- Internals ---
             ResourceName = spell.name, // Store the ScriptableObject's name
