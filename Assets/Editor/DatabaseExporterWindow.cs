@@ -17,7 +17,7 @@ public class DatabaseExporterWindow : EditorWindow
     public static void ShowWindow()
     {
         var window = GetWindow<DatabaseExporterWindow>("Database Exporter");
-        window.minSize = new Vector2(400, 300); // Increased height slightly for new button
+        window.minSize = new Vector2(400, 320); // Increased height slightly for new button
         window.Show();
     }
 
@@ -117,6 +117,10 @@ public class DatabaseExporterWindow : EditorWindow
             {
                 StartExport(new List<IExportStep> { new QuestExportStep() });
             }
+            if (GUILayout.Button("Export Factions Only"))
+            {
+                StartExport(new List<IExportStep> { new FactionExportStep() });
+            }
 
             EditorGUILayout.EndVertical();
         }
@@ -169,6 +173,7 @@ public class DatabaseExporterWindow : EditorWindow
             new SpellExportStep(),
             new SkillExportStep(),
             new QuestExportStep(),
+            new FactionExportStep(),
         };
     }
 
