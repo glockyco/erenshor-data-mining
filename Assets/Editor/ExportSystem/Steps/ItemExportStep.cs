@@ -8,11 +8,10 @@ using UnityEngine;
 
 public class ItemExportStep : IExportStep
 {
-    public const string ITEMS_PATH = "items"; // Path within Resources folder
+    public const string ITEMS_PATH = "items";
 
     // --- Metadata ---
     public string StepName => "Items";
-    public float ProgressWeight => 2.0f; // Items can generate multiple records
 
     // --- Pre-Execution ---
     public IEnumerable<Type> GetRequiredRecordTypes()
@@ -21,25 +20,26 @@ public class ItemExportStep : IExportStep
     }
 
     // --- Execution ---
-    public async Task ExecuteAsync(SQLiteConnection db, IProgressReporter reporter, CancellationToken cancellationToken)
+    public async Task ExecuteAsync(SQLiteConnection db, Action<int, int> reportProgress, CancellationToken cancellationToken)
     {
-        reporter.Report(0f, "Loading item assets...");
+        reportProgress(0, 0);
 
-        // --- Data Fetching (Unity API - Resources.LoadAll) ---
+        // --- Data Fetching ---
         Item[] allItems = Resources.LoadAll<Item>(ITEMS_PATH);
         int totalBaseItems = allItems.Length;
 
         if (totalBaseItems == 0)
         {
-            reporter.Report(1f, "No item assets found.");
+            Debug.LogWarning("No item assets found in Resources/items.");
+            reportProgress(0, 0);
             return;
         }
 
-        reporter.Report(0.05f, $"Found {totalBaseItems} base items. Exporting variants...");
-        await Task.Yield(); // Allow UI update
+        reportProgress(0, totalBaseItems);
+        await Task.Yield();
 
         // --- Processing & DB Interaction ---
-        int batchSize = 50; // Records per batch (adjust as needed)
+        int batchSize = 50;
         var batchRecords = new List<ItemDBRecord>();
         int processedBaseItems = 0;
         int totalRecordCount = 0;
@@ -49,24 +49,25 @@ public class ItemExportStep : IExportStep
             cancellationToken.ThrowIfCancellationRequested();
 
             Item item = allItems[i];
-            if (item == null) continue; // Skip null items in the array
+            if (item == null)
+            {
+                processedBaseItems++;
+                continue;
+            }
 
-            // --- Extraction Logic (Specific to this step, including variants) ---
-            List<ItemDBRecord> itemRecords = ExportItemVariants(item, i); // Use helper, pass index 'i'
+            // --- Extraction Logic ---
+            List<ItemDBRecord> itemRecords = ExportItemVariants(item, i);
             batchRecords.AddRange(itemRecords);
 
             processedBaseItems++;
 
             // --- Batch Insertion ---
-            // Insert when batch is full OR it's the last base item and there are records pending
             if (batchRecords.Count >= batchSize || (processedBaseItems == totalBaseItems && batchRecords.Count > 0))
             {
                 try
                 {
                     db.RunInTransaction(() =>
                     {
-                        // Use Insert, assuming ItemDBRecord's PK (Id + Quality) is unique per batch
-                        // If duplicates are possible across batches (unlikely with quality suffix), use InsertOrReplaceAll
                         db.InsertAll(batchRecords);
                     });
                     totalRecordCount += batchRecords.Count;
@@ -75,52 +76,42 @@ public class ItemExportStep : IExportStep
                 catch (Exception ex)
                 {
                     Debug.LogError($"Error inserting item batch (around base item index {i}, ID: {item?.Id ?? "N/A"}): {ex.Message}\n{ex.StackTrace}");
-                    reporter.Report((float)processedBaseItems / totalBaseItems, $"Error inserting batch: {ex.Message}");
-                    // Decide whether to re-throw or continue processing other items
-                    // For now, re-throwing to halt the export on error.
+                    reportProgress(processedBaseItems, totalBaseItems);
                     throw;
                 }
 
-                // --- Progress Reporting (Based on base items processed) ---
-                float progress = (float)processedBaseItems / totalBaseItems;
-                reporter.Report(progress, $"Exported {totalRecordCount} item records ({processedBaseItems}/{totalBaseItems} base items)...");
+                // --- Progress Reporting ---
+                reportProgress(processedBaseItems, totalBaseItems);
                 await Task.Yield();
             }
-            else if (processedBaseItems == totalBaseItems) // Ensure final report if last item didn't fill a batch
-            {
-                 reporter.Report(1.0f, $"Exported {totalRecordCount} item records ({processedBaseItems}/{totalBaseItems} base items)...");
-            }
         }
-         // Final report in case the loop finishes exactly on a batch boundary
-        if (processedBaseItems == totalBaseItems && totalRecordCount > 0) {
-             reporter.Report(1.0f, $"Exported {totalRecordCount} item records ({processedBaseItems}/{totalBaseItems} base items)...");
-        }
+        
+        reportProgress(processedBaseItems, totalBaseItems);
+        Debug.Log($"Finished exporting {totalRecordCount} item records from {processedBaseItems} base items.");
     }
 
-    // Helper method to generate records for an item and its quality variants
     private List<ItemDBRecord> ExportItemVariants(Item item, int itemDbIndex)
     {
         var records = new List<ItemDBRecord>();
 
-        // Skip invalid base items (missing ID or name)
         if (string.IsNullOrEmpty(item.Id))
         {
             Debug.LogWarning($"Skipping item '{item.name}' with missing ID.");
-            return records; // Return empty list
+            return records;
         }
-         if (string.IsNullOrEmpty(item.name))
+        if (string.IsNullOrEmpty(item.name))
         {
             Debug.LogWarning($"Skipping item with ID '{item.Id}' because it has no ScriptableObject name (ResourceName).");
-            return records; // Return empty list
+            return records;
         }
 
-
         // Determine if this item type should have quality variants
-        bool hasQualityVariants = item.RequiredSlot != Item.SlotType.General &&
-                                  item.Aura == null &&
-                                  item.TeachSpell == null &&
-                                  item.TeachSkill == null &&
-                                  !item.Template;
+        bool hasQualityVariants =
+            item.RequiredSlot != Item.SlotType.General &&
+            item.Aura == null &&
+            item.TeachSpell == null &&
+            item.TeachSkill == null &&
+            !item.Template;
 
         int maxQuality = hasQualityVariants ? 3 : 1;
 
@@ -129,7 +120,7 @@ public class ItemExportStep : IExportStep
         if (item.Classes != null && item.Classes.Count > 0)
         {
             var classNames = item.Classes
-                .Where(c => c != null && !string.IsNullOrEmpty(c.name)) // Ensure class and its name exist
+                .Where(c => c != null && !string.IsNullOrEmpty(c.name))
                 .Select(c => c.name);
             classesString = string.Join(", ", classNames);
         }
@@ -138,7 +129,7 @@ public class ItemExportStep : IExportStep
         if (item.TemplateIngredients != null && item.TemplateIngredients.Count > 0)
         {
             var ingredientIds = item.TemplateIngredients
-                .Where(ing => ing != null && !string.IsNullOrEmpty(ing.Id)) // Ensure ingredient and its ID exist
+                .Where(ing => ing != null && !string.IsNullOrEmpty(ing.Id))
                 .Select(ing => ing.Id);
             templateIngredientIds = string.Join(", ", ingredientIds);
         }
@@ -147,7 +138,7 @@ public class ItemExportStep : IExportStep
         if (item.TemplateRewards != null && item.TemplateRewards.Count > 0)
         {
             var rewardIds = item.TemplateRewards
-                .Where(rew => rew != null && !string.IsNullOrEmpty(rew.Id)) // Ensure reward and its ID exist
+                .Where(rew => rew != null && !string.IsNullOrEmpty(rew.Id))
                 .Select(rew => rew.Id);
             templateRewardIds = string.Join(", ", rewardIds);
         }
@@ -198,7 +189,7 @@ public class ItemExportStep : IExportStep
                 WeaponDly = item.WeaponDly,
                 Shield = item.Shield,
                 WeaponProcChance = item.WeaponProcChance,
-                WeaponProcOnHitId = item.WeaponProcOnHit?.Id, // Store Id if Spell exists
+                WeaponProcOnHitId = item.WeaponProcOnHit?.Id,
 
                 // --- Effects & Interactions ---
                 ItemEffectOnClickId = item.ItemEffectOnClick?.Id,
@@ -215,8 +206,8 @@ public class ItemExportStep : IExportStep
 
                 // --- Crafting & Templates ---
                 Template = item.Template,
-                TemplateIngredientIds = templateIngredientIds, // Use pre-calculated string
-                TemplateRewardIds = templateRewardIds, // Use pre-calculated string
+                TemplateIngredientIds = templateIngredientIds,
+                TemplateRewardIds = templateRewardIds,
 
                 // --- Economy & Inventory ---
                 ItemValue = item.ItemValue,
@@ -275,7 +266,7 @@ public class ItemExportStep : IExportStep
                 //ItemLeatherSecondaryA = item.ItemLeatherSecondary.a,
 
                 // --- Internal ---
-                ResourceName = item.name // Store the ScriptableObject's name
+                ResourceName = item.name
             };
             records.Add(record);
         }

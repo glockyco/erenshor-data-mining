@@ -9,21 +9,17 @@ using UnityEngine;
 
 public class LootDropExportStep : IExportStep
 {
-    // Dependency - passed in constructor
     private readonly LootTableProbabilityCalculator _probabilityCalculator;
 
-    // Constants
     public const string CHARACTERS_PATH = "Assets/GameObject"; // Path relative to Assets
 
-    // Constructor to receive dependencies
+    // --- Metadata ---
+    public string StepName => "Loot Drops";
+    
     public LootDropExportStep(LootTableProbabilityCalculator probabilityCalculator)
     {
         _probabilityCalculator = probabilityCalculator ?? throw new ArgumentNullException(nameof(probabilityCalculator));
     }
-
-    // --- Metadata ---
-    public string StepName => "Loot Drops";
-    public float ProgressWeight => 1.0f;
 
     // --- Pre-Execution ---
     public IEnumerable<Type> GetRequiredRecordTypes()
@@ -32,13 +28,12 @@ public class LootDropExportStep : IExportStep
     }
 
     // --- Execution ---
-    public async Task ExecuteAsync(SQLiteConnection db, IProgressReporter reporter, CancellationToken cancellationToken)
+    public async Task ExecuteAsync(SQLiteConnection db, Action<int, int> reportProgress, CancellationToken cancellationToken)
     {
-        reporter.Report(0f, "Finding character prefabs for loot tables...");
+        reportProgress(0, 0);
 
-        // --- Data Fetching (Character Prefabs) ---
+        // --- Data Fetching ---
         string[] guids = AssetDatabase.FindAssets("t:Prefab", new[] { CHARACTERS_PATH });
-        // Filter immediately for those with LootTable components
         var characterPrefabs = guids
             .Select(guid =>
             {
@@ -47,21 +42,22 @@ public class LootDropExportStep : IExportStep
                 return (prefab, guid);
             })
             .Where(item => item.prefab != null && item.prefab.GetComponent<LootTable>() != null)
-            .ToList(); // ToList to get a count
+            .ToList();
 
         int totalCharacters = characterPrefabs.Count;
 
         if (totalCharacters == 0)
         {
-            reporter.Report(1f, "No character prefabs with LootTable found.");
+            reportProgress(0, 0);
+            Debug.LogWarning("No character prefabs with LootTable found.");
             return;
         }
 
-        reporter.Report(0.05f, $"Found {totalCharacters} characters with loot tables. Exporting drops...");
+        reportProgress(0, totalCharacters);
         await Task.Yield();
 
         // --- Processing & DB Interaction ---
-        int batchSize = 50; // Records per batch
+        int batchSize = 50;
         var batchRecords = new List<LootDropDBRecord>();
         int processedCount = 0;
         int totalRecordCount = 0;
@@ -70,10 +66,10 @@ public class LootDropExportStep : IExportStep
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            LootTable lootTable = prefab.GetComponent<LootTable>(); // Already checked, but get it again
-            if (lootTable != null) // Should always be true here
+            LootTable lootTable = prefab.GetComponent<LootTable>();
+            if (lootTable != null)
             {
-                // --- Extraction Logic (Using helper) ---
+                // --- Extraction Logic ---
                 List<LootDropDBRecord> drops = CollectLootDropsForCharacter(guid, lootTable);
                 batchRecords.AddRange(drops);
             }
@@ -87,7 +83,6 @@ public class LootDropExportStep : IExportStep
                 {
                     db.RunInTransaction(() =>
                     {
-                        // Use Insert, assuming LootDropDBRecord has appropriate PK or no conflicts expected per batch
                         db.InsertAll(batchRecords);
                     });
                     totalRecordCount += batchRecords.Count;
@@ -96,31 +91,26 @@ public class LootDropExportStep : IExportStep
                 catch (Exception ex)
                 {
                     Debug.LogError($"Error inserting loot drop batch (around character index {processedCount - 1}): {ex.Message}");
-                    reporter.Report((float)processedCount / totalCharacters, $"Error inserting batch: {ex.Message}");
+                    reportProgress(processedCount, totalCharacters);
                     throw;
                 }
 
                 // --- Progress Reporting ---
-                float progress = (float)processedCount / totalCharacters;
-                reporter.Report(progress, $"Exported {totalRecordCount} loot drops ({processedCount}/{totalCharacters} characters)...");
+                reportProgress(processedCount, totalCharacters);
                 await Task.Yield();
             }
-             else if (processedCount == totalCharacters)
-            {
-                 reporter.Report(1.0f, $"Exported {totalRecordCount} loot drops ({processedCount}/{totalCharacters} characters)...");
-            }
         }
+        
+        reportProgress(processedCount, totalCharacters);
+        Debug.Log($"Finished exporting {totalRecordCount} loot drops from {processedCount} characters.");
     }
 
-    // Helper method to collect loot drops (Adapted from LootDropExporter)
     private List<LootDropDBRecord> CollectLootDropsForCharacter(string guid, LootTable lootTable)
     {
         var lootDrops = new List<LootDropDBRecord>();
 
-        // Calculate drop probabilities using the injected calculator
         Dictionary<string, double> dropProbabilities = _probabilityCalculator.CalculateDropProbabilities(lootTable);
 
-        // Helper method to collect a specific type of loot drops
         void CollectLootDrops(List<Item> items, string dropType)
         {
             if (items != null)
@@ -128,15 +118,14 @@ public class LootDropExportStep : IExportStep
                 for (int i = 0; i < items.Count; i++)
                 {
                     Item item = items[i];
-                    if (item != null && !string.IsNullOrEmpty(item.Id)) // Ensure item and its ID are valid
+                    if (item != null && !string.IsNullOrEmpty(item.Id))
                     {
-                        // Get the probability for this item
-                        dropProbabilities.TryGetValue(item.name, out double probability); // Default 0.0 if not found
+                        dropProbabilities.TryGetValue(item.name, out double probability);
 
                         var lootRecord = new LootDropDBRecord
                         {
                             CharacterPrefabGuid = guid,
-                            ItemId = item.Id, // Use Item's unique ID
+                            ItemId = item.Id,
                             DropType = dropType,
                             DropIndex = i,
                             Probability = probability
@@ -151,7 +140,6 @@ public class LootDropExportStep : IExportStep
             }
         }
 
-        // Collect all types of drops
         CollectLootDrops(lootTable.GuaranteeOneDrop, "Guaranteed");
         CollectLootDrops(lootTable.CommonDrop, "Common");
         CollectLootDrops(lootTable.UncommonDrop, "Uncommon");

@@ -10,7 +10,7 @@ public class FactionExportStep : IExportStep
 {
     // --- Metadata ---
     public string StepName => "Factions";
-    public float ProgressWeight => 0.5f; // Adjust weight relative to other steps
+    // ProgressWeight removed
 
     // --- Pre-Execution ---
     public IEnumerable<Type> GetRequiredRecordTypes()
@@ -19,17 +19,17 @@ public class FactionExportStep : IExportStep
     }
 
     // --- Execution ---
-    public async Task ExecuteAsync(SQLiteConnection db, IProgressReporter reporter, CancellationToken cancellationToken)
+    public async Task ExecuteAsync(SQLiteConnection db, Action<int, int> reportProgress, CancellationToken cancellationToken)
     {
-        reporter.Report(0f, "Loading faction assets...");
+        reportProgress(0, 0);
 
-        // --- Data Fetching (Using GlobalFactionManager) ---
+        // --- Data Fetching ---
         GlobalFactionManager.LoadFactions();
         WorldFaction[] factions = GlobalFactionManager.FactionDB;
 
-        // Filter out factions without a REFNAME, as it's the primary key
+        // Filter out factions without a REFNAME, as it's the primary key.
         var validFactions = factions
-            .Select((faction, index) => new { Faction = faction, Index = index }) // Keep track of original index
+            .Select((faction, index) => new { Faction = faction, Index = index })
             .Where(item => item.Faction != null && !string.IsNullOrEmpty(item.Faction.REFNAME))
             .ToArray();
 
@@ -43,15 +43,16 @@ public class FactionExportStep : IExportStep
 
         if (totalFactions == 0)
         {
-            reporter.Report(1f, "No valid faction assets found.");
+            reportProgress(0, 0);
+            Debug.LogWarning("No valid faction assets found.");
             return;
         }
 
-        reporter.Report(0.05f, $"Found {totalFactions} valid factions. Exporting...");
-        await Task.Yield(); // Allow UI update
+        reportProgress(0, totalFactions);
+        await Task.Yield();
 
         // --- Processing & DB Interaction ---
-        int batchSize = 20; // Factions are likely few, smaller batch is fine
+        int batchSize = 20;
         var batchRecords = new List<FactionDBRecord>();
         int processedCount = 0;
         int recordCount = 0;
@@ -61,7 +62,7 @@ public class FactionExportStep : IExportStep
             cancellationToken.ThrowIfCancellationRequested();
 
             WorldFaction faction = item.Faction;
-            int factionDbIndex = item.Index; // Use the original index
+            int factionDbIndex = item.Index;
 
             // --- Extraction Logic ---
             FactionDBRecord record = new FactionDBRecord
@@ -82,7 +83,6 @@ public class FactionExportStep : IExportStep
             {
                 try
                 {
-                    // Use InsertOrReplace based on REFNAME primary key
                     db.RunInTransaction(() =>
                     {
                         foreach (var rec in batchRecords)
@@ -96,20 +96,17 @@ public class FactionExportStep : IExportStep
                 catch (Exception ex)
                 {
                     Debug.LogError($"Error inserting faction batch (around index {item.Index}): {ex.Message}");
-                    reporter.Report((float)processedCount / totalFactions, $"Error inserting batch: {ex.Message}");
-                    throw; // Stop export on error
+                    reportProgress(processedCount, totalFactions);
+                    throw;
                 }
 
                 // --- Progress Reporting ---
-                float progress = (float)processedCount / totalFactions;
-                reporter.Report(progress, $"Exported {recordCount} factions ({processedCount}/{totalFactions})...");
-                await Task.Yield(); // Allow UI updates
+                reportProgress(processedCount, totalFactions);
+                await Task.Yield();
             }
         }
-         // Ensure final report if the loop finished without a full batch report
-        if (processedCount == totalFactions)
-        {
-             reporter.Report(1.0f, $"Exported {recordCount} factions ({processedCount}/{totalFactions}).");
-        }
+        
+        reportProgress(processedCount, totalFactions);
+        Debug.Log($"Finished exporting {recordCount} factions from {processedCount} valid assets.");
     }
 }

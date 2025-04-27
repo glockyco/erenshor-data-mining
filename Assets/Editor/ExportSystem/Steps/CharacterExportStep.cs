@@ -8,11 +8,10 @@ using UnityEngine;
 
 public class CharacterExportStep : IExportStep
 {
-    public const string CHARACTERS_PATH = "Assets/GameObject"; // Path relative to Assets
+    public const string CHARACTERS_PATH = "Assets/GameObject";
 
     // --- Metadata ---
     public string StepName => "Characters";
-    public float ProgressWeight => 1.8f; // Adjusted weight
 
     // --- Pre-Execution ---
     public IEnumerable<Type> GetRequiredRecordTypes()
@@ -21,22 +20,23 @@ public class CharacterExportStep : IExportStep
     }
 
     // --- Execution ---
-    public async Task ExecuteAsync(SQLiteConnection db, IProgressReporter reporter, CancellationToken cancellationToken)
+    public async Task ExecuteAsync(SQLiteConnection db, Action<int, int> reportProgress, CancellationToken cancellationToken)
     {
-        reporter.Report(0f, "Finding character prefabs...");
+        reportProgress(0, 0);
 
-        // --- Data Fetching (Unity API) ---
+        // --- Data Fetching ---
         string[] guids = AssetDatabase.FindAssets("t:Prefab", new[] { CHARACTERS_PATH });
         int totalAssets = guids.Length;
 
         if (totalAssets == 0)
         {
-            reporter.Report(1f, "No character prefabs found.");
+            reportProgress(0, 0);
+            Debug.LogWarning("No character prefabs found.");
             return;
         }
 
-        reporter.Report(0.05f, $"Found {totalAssets} prefabs. Exporting...");
-        await Task.Yield(); // Allow UI update
+        reportProgress(0, totalAssets);
+        await Task.Yield();
 
         // --- Processing & DB Interaction ---
         int batchSize = 25;
@@ -70,10 +70,9 @@ public class CharacterExportStep : IExportStep
                 {
                     db.RunInTransaction(() =>
                     {
-                        // Call InsertOrReplace for each record individually within the transaction
-                        foreach (var record in batchRecords)
+                        foreach (var rec in batchRecords)
                         {
-                            db.InsertOrReplace(record); // Use InsertOrReplace based on CharacterDBRecord PK
+                            db.InsertOrReplace(rec);
                         }
                     });
                     recordCount += batchRecords.Count;
@@ -82,23 +81,20 @@ public class CharacterExportStep : IExportStep
                 catch (Exception ex)
                 {
                     Debug.LogError($"Error inserting character batch (around index {i}): {ex.Message}");
-                    reporter.Report((float)processedCount / totalAssets, $"Error inserting batch: {ex.Message}");
+                    reportProgress(processedCount, totalAssets); // Report progress before throwing
                     throw;
                 }
 
-                // --- Progress Reporting (After batch) ---
-                float progress = (float)processedCount / totalAssets;
-                reporter.Report(progress, $"Exported {recordCount} characters ({processedCount}/{totalAssets} prefabs)...");
+                // --- Progress Reporting ---
+                reportProgress(processedCount, totalAssets);
                 await Task.Yield();
             }
-            else if (processedCount == totalAssets)
-            {
-                 reporter.Report(1.0f, $"Exported {recordCount} characters ({processedCount}/{totalAssets} prefabs)...");
-            }
         }
+        
+        reportProgress(processedCount, totalAssets);
+        Debug.Log($"Finished exporting {recordCount} characters from {processedCount} prefabs.");
     }
 
-    // Helper method to export a character (Adapted from CharacterExporter)
     private CharacterDBRecord ExportCharacter(GameObject prefab, string guid)
     {
         Character character = prefab.GetComponent<Character>();
@@ -123,7 +119,6 @@ public class CharacterExportStep : IExportStep
             Invulnerable = character.Invulnerable,
         };
 
-        // Check if the prefab has a Stats component
         Stats stats = prefab.GetComponent<Stats>();
         if (stats != null)
         {

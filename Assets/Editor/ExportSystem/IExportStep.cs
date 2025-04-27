@@ -9,7 +9,7 @@ public interface IExportStep
 {
     // --- Metadata ---
     string StepName { get; }
-    float ProgressWeight { get; } // Relative weight for overall progress calculation
+    // ProgressWeight removed
 
     // --- Pre-Execution ---
     // Informs the runner which DB record types this step *might* write to.
@@ -21,7 +21,7 @@ public interface IExportStep
     // - Finds/Generates data (from any source).
     // - Processes data.
     // - Interacts with the database (Insert, Update, Delete).
-    // - Reports progress (0.0 to 1.0) via the reporter.
+    // - Reports progress (current count, total count) via the reportProgress action.
     // - Respects the cancellation token.
-    Task ExecuteAsync(SQLiteConnection db, IProgressReporter reporter, CancellationToken cancellationToken);
+    Task ExecuteAsync(SQLiteConnection db, Action<int, int> reportProgress, CancellationToken cancellationToken);
 }

@@ -11,7 +11,6 @@ public class ClassExportStep : IExportStep
 {
     // --- Metadata ---
     public string StepName => "Classes";
-    public float ProgressWeight => 0.4f;
 
     // --- Pre-Execution ---
     public IEnumerable<Type> GetRequiredRecordTypes()
@@ -20,30 +19,31 @@ public class ClassExportStep : IExportStep
     }
 
     // --- Execution ---
-    public async Task ExecuteAsync(SQLiteConnection db, IProgressReporter reporter, CancellationToken cancellationToken)
+    public async Task ExecuteAsync(SQLiteConnection db, Action<int, int> reportProgress, CancellationToken cancellationToken)
     {
-        reporter.Report(0f, "Finding class assets...");
+        reportProgress(0, 0);
 
         // --- Data Fetching ---
         string[] guids = AssetDatabase.FindAssets("t:Class");
+        int totalAssetsToLoad = guids.Length;
 
-        if (guids == null || guids.Length == 0)
+        if (totalAssetsToLoad == 0)
         {
-            reporter.Report(1f, "No class assets found.");
+            reportProgress(0, 0);
             Debug.LogWarning("No Class assets found. Skipping export step.");
             return;
         }
 
         List<Class> validClasses = new List<Class>();
         List<string> assetPaths = new List<string>();
+        int assetsLoaded = 0;
 
-        // Load assets based on GUIDs
-        for (int i = 0; i < guids.Length; i++)
+        for (int i = 0; i < totalAssetsToLoad; i++)
         {
             cancellationToken.ThrowIfCancellationRequested();
             string path = AssetDatabase.GUIDToAssetPath(guids[i]);
             Class classAsset = AssetDatabase.LoadAssetAtPath<Class>(path);
-            if (classAsset != null && !string.IsNullOrEmpty(classAsset.ClassName)) // Check for null and valid ClassName (PK)
+            if (classAsset != null && !string.IsNullOrEmpty(classAsset.ClassName))
             {
                 validClasses.Add(classAsset);
                 assetPaths.Add(path);
@@ -52,10 +52,10 @@ public class ClassExportStep : IExportStep
             {
                  Debug.LogWarning($"Skipped class asset at path '{path}' because it was null or had an empty ClassName.");
             }
-             // Report progress during asset loading phase
-            if (i % 10 == 0) // Report every 10 assets processed
+            assetsLoaded++;
+            if (i % 10 == 0 || i == totalAssetsToLoad - 1)
             {
-                reporter.Report((float)i / guids.Length * 0.1f, $"Loading class assets ({i}/{guids.Length})...");
+                reportProgress(assetsLoaded, totalAssetsToLoad);
                 await Task.Yield();
             }
         }
@@ -64,15 +64,16 @@ public class ClassExportStep : IExportStep
         int totalClasses = validClasses.Count;
         if (totalClasses == 0)
         {
-            reporter.Report(1f, "No valid class assets found (null or missing ClassName).");
+            reportProgress(totalAssetsToLoad, totalAssetsToLoad);
+            Debug.LogWarning("No valid class assets found (null or missing ClassName).");
             return;
         }
 
-        reporter.Report(0.1f, $"Found {totalClasses} valid classes. Exporting...");
-        await Task.Yield(); // Allow UI update
+        reportProgress(0, totalClasses);
+        await Task.Yield();
 
         // --- Processing & DB Interaction ---
-        int batchSize = 10; // Classes are few, very small batch is fine
+        int batchSize = 10;
         var batchRecords = new List<ClassDBRecord>();
         int processedCount = 0;
         int recordCount = 0;
@@ -97,7 +98,7 @@ public class ClassExportStep : IExportStep
                 WisBenefit = classAsset.WisBenefit,
                 ChaBenefit = classAsset.ChaBenefit,
                 AggroMod = classAsset.AggroMod,
-                ResourceName = Path.GetFileNameWithoutExtension(assetPath), // Get filename from path
+                ResourceName = Path.GetFileNameWithoutExtension(assetPath),
             };
 
             batchRecords.Add(record);
@@ -108,7 +109,6 @@ public class ClassExportStep : IExportStep
             {
                 try
                 {
-                    // Use InsertOrReplace based on ClassName primary key
                     db.RunInTransaction(() =>
                     {
                         foreach (var rec in batchRecords)
@@ -122,18 +122,17 @@ public class ClassExportStep : IExportStep
                 catch (Exception ex)
                 {
                     Debug.LogError($"Error inserting class batch (around {classAsset.ClassName}): {ex.Message}");
-                    reporter.Report(0.1f + (float)processedCount / totalClasses * 0.9f, $"Error inserting batch: {ex.Message}");
-                    throw; // Stop export on error
+                    reportProgress(processedCount, totalClasses);
+                    throw;
                 }
 
                 // --- Progress Reporting ---
-                float progress = 0.1f + (float)processedCount / totalClasses * 0.9f; // Scale progress from 10% to 100%
-                reporter.Report(progress, $"Exported {recordCount} classes ({processedCount}/{totalClasses})...");
-                await Task.Yield(); // Allow UI updates
+                reportProgress(processedCount, totalClasses);
+                await Task.Yield();
             }
         }
 
-        // Ensure final report
-        reporter.Report(1.0f, $"Exported {recordCount} classes ({processedCount}/{totalClasses}).");
+        reportProgress(processedCount, totalClasses);
+        Debug.Log($"Finished exporting {recordCount} classes from {processedCount} valid assets.");
     }
 }

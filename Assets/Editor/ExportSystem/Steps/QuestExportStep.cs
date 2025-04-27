@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SQLite;
-using UnityEngine; // Required for Resources.LoadAll
+using UnityEngine;
 
 public class QuestExportStep : IExportStep
 {
@@ -12,7 +12,6 @@ public class QuestExportStep : IExportStep
 
     // --- Metadata ---
     public string StepName => "Quests";
-    public float ProgressWeight => 1.0f; // Adjust weight as needed
 
     // --- Pre-Execution ---
     public IEnumerable<Type> GetRequiredRecordTypes()
@@ -21,12 +20,13 @@ public class QuestExportStep : IExportStep
     }
 
     // --- Execution ---
-    public async Task ExecuteAsync(SQLiteConnection db, IProgressReporter reporter, CancellationToken cancellationToken)
+    public async Task ExecuteAsync(SQLiteConnection db, Action<int, int> reportProgress, CancellationToken cancellationToken)
     {
-        reporter.Report(0f, "Loading quest assets...");
+        reportProgress(0, 0);
 
-        // --- Data Fetching (Unity API - Resources.LoadAll) ---
+        // --- Data Fetching ---
         Quest[] quests = Resources.LoadAll<Quest>(QUESTS_PATH);
+        
         // Filter out quests without a DBName, as it's the primary key
         var validQuests = quests.Where(q => q != null && !string.IsNullOrEmpty(q.DBName)).ToArray();
         int skippedCount = quests.Length - validQuests.Length;
@@ -39,15 +39,16 @@ public class QuestExportStep : IExportStep
 
         if (totalQuests == 0)
         {
-            reporter.Report(1f, "No valid quest assets found.");
+            reportProgress(0, 0);
+            Debug.LogWarning("No valid quest assets found.");
             return;
         }
 
-        reporter.Report(0.05f, $"Found {totalQuests} valid quests. Exporting...");
+        reportProgress(0, totalQuests);
         await Task.Yield();
 
         // --- Processing & DB Interaction ---
-        int batchSize = 50; // Adjust batch size as needed
+        int batchSize = 50;
         var batchRecords = new List<QuestDBRecord>();
         int processedCount = 0;
         int recordCount = 0;
@@ -58,9 +59,9 @@ public class QuestExportStep : IExportStep
 
             Quest quest = validQuests[i];
 
-            // --- Extraction Logic (Using helper) ---
+            // --- Extraction Logic ---
             QuestDBRecord record = ExportQuest(quest, i);
-            if (record != null) // Should generally not be null after filtering
+            if (record != null)
             {
                 batchRecords.Add(record);
             }
@@ -72,7 +73,6 @@ public class QuestExportStep : IExportStep
             {
                 try
                 {
-                    // Use InsertOrReplace to handle potential re-runs with existing data
                     db.RunInTransaction(() =>
                     {
                         foreach (var rec in batchRecords)
@@ -86,40 +86,34 @@ public class QuestExportStep : IExportStep
                 catch (Exception ex)
                 {
                     Debug.LogError($"Error inserting quest batch (around index {i}): {ex.Message}");
-                    reporter.Report((float)processedCount / totalQuests, $"Error inserting batch: {ex.Message}");
-                    throw; // Re-throw to stop the export on error
+                    reportProgress(processedCount, totalQuests);
+                    throw;
                 }
 
                 // --- Progress Reporting ---
-                float progress = (float)processedCount / totalQuests;
-                reporter.Report(progress, $"Exported {recordCount} quests ({processedCount}/{totalQuests})...");
-                await Task.Yield(); // Allow UI updates
-            }
-            else if (processedCount == totalQuests) // Ensure final report if last item didn't fill a batch
-            {
-                 reporter.Report(1.0f, $"Exported {recordCount} quests ({processedCount}/{totalQuests})...");
+                reportProgress(processedCount, totalQuests);
+                await Task.Yield();
             }
         }
+        
+        reportProgress(processedCount, totalQuests);
+        Debug.Log($"Finished exporting {recordCount} quests from {processedCount} valid assets.");
     }
 
-    // Helper method to convert a Quest ScriptableObject to a QuestDBRecord
     private QuestDBRecord ExportQuest(Quest quest, int questDbIndex)
     {
-        // Assuming BaseScriptableObject provides a unique string Id property
         if (quest == null || string.IsNullOrEmpty(quest.DBName)) return null;
 
-        // Use Item.Id (assuming it exists via BaseScriptableObject)
         string requiredItems = quest.RequiredItems != null
-            ? string.Join(", ", quest.RequiredItems.Where(item => item != null && !string.IsNullOrEmpty(item.Id)).Select(item => item.Id)) // Use Id and filter null/empty IDs
+            ? string.Join(", ", quest.RequiredItems.Where(item => item != null && !string.IsNullOrEmpty(item.Id)).Select(item => item.Id))
             : "";
 
-        // Use WorldFaction.REFNAME
         string affectedFactions = quest.AffectFactions != null
             ? string.Join(", ", quest.AffectFactions.Where(f => f != null && !string.IsNullOrEmpty(f.REFNAME)).Select(f => f.REFNAME))
             : "";
 
         string affectedFactionAmounts = quest.AffectFactionAmts != null
-            ? string.Join(", ", quest.AffectFactionAmts) // Convert floats to string implicitly
+            ? string.Join(", ", quest.AffectFactionAmts)
             : "";
 
         string completeQuests = quest.CompleteOtherQuests != null
@@ -138,9 +132,9 @@ public class QuestExportStep : IExportStep
 
             // --- Rewards & Completion ---
             XPonComplete = quest.XPonComplete,
-            ItemOnCompleteId = quest.ItemOnComplete?.Id, // Use ?. for safety
+            ItemOnCompleteId = quest.ItemOnComplete?.Id,
             GoldOnComplete = quest.GoldOnComplete,
-            AssignNewQuestOnCompleteDBName = quest.AssignNewQuestOnComplete?.DBName, // Use ?. for safety
+            AssignNewQuestOnCompleteDBName = quest.AssignNewQuestOnComplete?.DBName,
             CompleteOtherQuestDBNames = completeQuests,
 
             // --- Dialog & Text ---
@@ -167,7 +161,7 @@ public class QuestExportStep : IExportStep
 
             // --- Internals / Metadata ---
             DBName = quest.DBName,
-            ResourceName = quest.name // Store the asset name
+            ResourceName = quest.name,
         };
     }
 }

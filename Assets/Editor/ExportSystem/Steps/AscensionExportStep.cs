@@ -4,13 +4,12 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SQLite;
-using UnityEngine; // Required for Resources.LoadAll and Debug
+using UnityEngine;
 
 public class AscensionExportStep : IExportStep
 {
     // --- Metadata ---
     public string StepName => "Ascensions";
-    public float ProgressWeight => 0.8f; // Slightly higher weight than Factions, maybe more data
 
     // --- Pre-Execution ---
     public IEnumerable<Type> GetRequiredRecordTypes()
@@ -19,22 +18,21 @@ public class AscensionExportStep : IExportStep
     }
 
     // --- Execution ---
-    public async Task ExecuteAsync(SQLiteConnection db, IProgressReporter reporter, CancellationToken cancellationToken)
+    public async Task ExecuteAsync(SQLiteConnection db, Action<int, int> reportProgress, CancellationToken cancellationToken)
     {
-        reporter.Report(0f, "Loading ascension assets...");
+        reportProgress(0, 0);
 
         // --- Data Fetching ---
-        // Load all Ascension ScriptableObjects from the Resources/Ascensions folder
         Ascension[] ascensions = Resources.LoadAll<Ascension>("Ascensions");
 
         if (ascensions == null || ascensions.Length == 0)
         {
-            reporter.Report(1f, "No ascension assets found in Resources/Ascensions.");
+            reportProgress(0, 0);
             Debug.LogWarning("No Ascension assets found in 'Resources/Ascensions'. Skipping export step.");
             return;
         }
 
-        // Filter out ascensions without an Id, as it's the primary key, but keep track of original index
+        // Filter out ascensions without an Id, as it's the primary key.
         var validAscensionsWithIndex = ascensions
             .Select((ascension, index) => new { Ascension = ascension, Index = index })
             .Where(item => item.Ascension != null && !string.IsNullOrEmpty(item.Ascension.Id))
@@ -50,15 +48,16 @@ public class AscensionExportStep : IExportStep
 
         if (totalAscensions == 0)
         {
-            reporter.Report(1f, "No valid ascension assets found (missing Id).");
+            reportProgress(0, 0);
+            Debug.LogWarning("No valid ascension assets found (missing Id).");
             return;
         }
 
-        reporter.Report(0.05f, $"Found {totalAscensions} valid ascensions. Exporting...");
-        await Task.Yield(); // Allow UI update
+        reportProgress(0, totalAscensions);
+        await Task.Yield();
 
         // --- Processing & DB Interaction ---
-        int batchSize = 50; // Adjust batch size as needed
+        int batchSize = 50;
         var batchRecords = new List<AscensionDBRecord>();
         int processedCount = 0;
         int recordCount = 0;
@@ -68,15 +67,15 @@ public class AscensionExportStep : IExportStep
             cancellationToken.ThrowIfCancellationRequested();
 
             Ascension ascension = item.Ascension;
-            int dbIndex = item.Index; // Get the original index
+            int dbIndex = item.Index;
 
             // --- Extraction Logic ---
             AscensionDBRecord record = new AscensionDBRecord
             {
-                AscensionDBIndex = dbIndex, // Store the original index
+                AscensionDBIndex = dbIndex,
                 Id = ascension.Id,
-                
-                UsedBy = ascension.UsedBy.ToString(), // Store enum as string
+
+                UsedBy = ascension.UsedBy.ToString(),
                 SkillName = ascension.SkillName,
                 SkillDesc = ascension.SkillDesc,
                 MaxRank = ascension.MaxRank,
@@ -119,7 +118,7 @@ public class AscensionExportStep : IExportStep
                 CriticalHealingChance = ascension.CriticalHealingChance,
                 VengefulHealingPercentage = ascension.VengefulHealingPercentage,
                 SummonedBeastEnhancement = ascension.SummonedBeastEnhancement,
-                    
+
                 ResourceName = ascension.name
             };
 
@@ -131,7 +130,6 @@ public class AscensionExportStep : IExportStep
             {
                 try
                 {
-                    // Use InsertOrReplace based on Id primary key
                     db.RunInTransaction(() =>
                     {
                         foreach (var rec in batchRecords)
@@ -145,18 +143,17 @@ public class AscensionExportStep : IExportStep
                 catch (Exception ex)
                 {
                     Debug.LogError($"Error inserting ascension batch (around {ascension.Id}): {ex.Message}");
-                    reporter.Report((float)processedCount / totalAscensions, $"Error inserting batch: {ex.Message}");
-                    throw; // Stop export on error
+                    reportProgress(processedCount, totalAscensions);
+                    throw;
                 }
 
                 // --- Progress Reporting ---
-                float progress = (float)processedCount / totalAscensions;
-                reporter.Report(progress, $"Exported {recordCount} ascensions ({processedCount}/{totalAscensions})...");
-                await Task.Yield(); // Allow UI updates
+                reportProgress(processedCount, totalAscensions);
+                await Task.Yield();
             }
         }
 
-        // Ensure final report
-        reporter.Report(1.0f, $"Exported {recordCount} ascensions ({processedCount}/{totalAscensions}).");
+        reportProgress(processedCount, totalAscensions);
+        Debug.Log($"Finished exporting {recordCount} ascensions from {processedCount} valid assets.");
     }
 }

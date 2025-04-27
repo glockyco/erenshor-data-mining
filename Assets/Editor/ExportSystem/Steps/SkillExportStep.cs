@@ -12,7 +12,6 @@ public class SkillExportStep : IExportStep
 
     // --- Metadata ---
     public string StepName => "Skills";
-    public float ProgressWeight => 1.0f; // Adjust weight as needed
 
     // --- Pre-Execution ---
     public IEnumerable<Type> GetRequiredRecordTypes()
@@ -21,13 +20,13 @@ public class SkillExportStep : IExportStep
     }
 
     // --- Execution ---
-    public async Task ExecuteAsync(SQLiteConnection db, IProgressReporter reporter, CancellationToken cancellationToken)
+    public async Task ExecuteAsync(SQLiteConnection db, Action<int, int> reportProgress, CancellationToken cancellationToken)
     {
-        reporter.Report(0f, "Loading skill assets...");
+        reportProgress(0, 0);
 
-        // --- Data Fetching (Unity API - Resources.LoadAll) ---
-        // Use the path identified in SkillDB.cs
+        // --- Data Fetching ---
         Skill[] skills = Resources.LoadAll<Skill>(SKILLS_PATH);
+        
         // Filter out skills without an ID, as it's the primary key
         var validSkills = skills.Where(s => s != null && !string.IsNullOrEmpty(s.Id)).ToArray();
         int skippedCount = skills.Length - validSkills.Length;
@@ -40,15 +39,16 @@ public class SkillExportStep : IExportStep
 
         if (totalSkills == 0)
         {
-            reporter.Report(1f, "No valid skill assets found.");
+            reportProgress(0, 0);
+            Debug.LogWarning("No valid skill assets found.");
             return;
         }
 
-        reporter.Report(0.05f, $"Found {totalSkills} valid skills. Exporting...");
+        reportProgress(0, totalSkills);
         await Task.Yield();
 
         // --- Processing & DB Interaction ---
-        int batchSize = 50; // Same batch size as spells, adjust if needed
+        int batchSize = 50;
         var batchRecords = new List<SkillDBRecord>();
         int processedCount = 0;
         int recordCount = 0;
@@ -58,11 +58,10 @@ public class SkillExportStep : IExportStep
             cancellationToken.ThrowIfCancellationRequested();
 
             Skill skill = validSkills[i];
-            // ID/null check already done in filtering step
 
-            // --- Extraction Logic (Using helper) ---
+            // --- Extraction Logic) ---
             SkillDBRecord record = ExportSkill(skill, i);
-            if (record != null) // Should generally not be null after filtering
+            if (record != null)
             {
                 batchRecords.Add(record);
             }
@@ -76,10 +75,9 @@ public class SkillExportStep : IExportStep
                 {
                     db.RunInTransaction(() =>
                     {
-                        // Call InsertOrReplace for each record individually within the transaction
-                        foreach (var rec in batchRecords) // Renamed variable to avoid conflict
+                        foreach (var rec in batchRecords)
                         {
-                            db.InsertOrReplace(rec); // Use InsertOrReplace based on SkillDBRecord PK (Id)
+                            db.InsertOrReplace(rec);
                         }
                     });
                     recordCount += batchRecords.Count;
@@ -88,31 +86,22 @@ public class SkillExportStep : IExportStep
                 catch (Exception ex)
                 {
                     Debug.LogError($"Error inserting skill batch (around index {i}): {ex.Message}");
-                    reporter.Report((float)processedCount / totalSkills, $"Error inserting batch: {ex.Message}");
-                    throw; // Re-throw to halt the export on error
+                    reportProgress(processedCount, totalSkills);
+                    throw;
                 }
 
                 // --- Progress Reporting ---
-                float progress = (float)processedCount / totalSkills;
-                reporter.Report(progress, $"Exported {recordCount} skills ({processedCount}/{totalSkills})...");
-                await Task.Yield(); // Allow UI updates and cancellation checks
-            }
-            else if (processedCount == totalSkills) // Catch the case where the last batch is smaller than batchSize
-            {
-                 reporter.Report(1.0f, $"Exported {recordCount} skills ({processedCount}/{totalSkills})...");
+                reportProgress(processedCount, totalSkills);
+                await Task.Yield();
             }
         }
-         // Final report if loop finishes without hitting the batch condition exactly on the last item
-        if (processedCount == totalSkills && recordCount < totalSkills) // Should ideally not happen with current logic, but safe check
-        {
-             reporter.Report(1.0f, $"Finished exporting {recordCount} skills.");
-        }
+        
+        reportProgress(processedCount, totalSkills);
+        Debug.Log($"Finished exporting {recordCount} skills from {processedCount} valid assets.");
     }
 
-    // Helper method to convert a Skill ScriptableObject to a SkillDBRecord
     private SkillDBRecord ExportSkill(Skill skill, int skillDbIndex)
     {
-        // Basic null/ID check already done, but included for safety if used elsewhere
         if (skill == null || string.IsNullOrEmpty(skill.Id)) return null;
 
         return new SkillDBRecord
@@ -136,7 +125,7 @@ public class SkillExportStep : IExportStep
 
             // --- Simulation ---
             SimPlayersAutolearn = skill.SimPlayersAutolearn,
-            
+
             // --- Timing & Cost ---
             Cooldown = skill.Cooldown,
 

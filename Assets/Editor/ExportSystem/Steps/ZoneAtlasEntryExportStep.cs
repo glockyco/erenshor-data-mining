@@ -10,7 +10,6 @@ public class ZoneAtlasEntryExportStep : IExportStep
 {
     // --- Metadata ---
     public string StepName => "Zone Atlas Entries";
-    public float ProgressWeight => 0.6f; // Adjust weight as needed
 
     // --- Pre-Execution ---
     public IEnumerable<Type> GetRequiredRecordTypes()
@@ -19,21 +18,21 @@ public class ZoneAtlasEntryExportStep : IExportStep
     }
 
     // --- Execution ---
-    public async Task ExecuteAsync(SQLiteConnection db, IProgressReporter reporter, CancellationToken cancellationToken)
+    public async Task ExecuteAsync(SQLiteConnection db, Action<int, int> reportProgress, CancellationToken cancellationToken)
     {
-        reporter.Report(0f, "Loading zone atlas assets...");
+        reportProgress(0, 0);
 
         // --- Data Fetching ---
         ZoneAtlasEntry[] atlasEntries = Resources.LoadAll<ZoneAtlasEntry>("atlases");
 
         if (atlasEntries == null || atlasEntries.Length == 0)
         {
-            reporter.Report(1f, "No zone atlas assets found in Resources/atlases.");
+            reportProgress(0, 0);
             Debug.LogWarning("No ZoneAtlasEntry assets found in 'Resources/atlases'. Skipping export step.");
             return;
         }
 
-        // Filter out entries without an Id, as it's the primary key, but keep track of original index
+        // Filter out entries without an Id, as it's the primary key.
         var validEntriesWithIndex = atlasEntries
             .Select((entry, index) => new { Entry = entry, Index = index })
             .Where(item => item.Entry != null && !string.IsNullOrEmpty(item.Entry.Id))
@@ -49,15 +48,16 @@ public class ZoneAtlasEntryExportStep : IExportStep
 
         if (totalEntries == 0)
         {
-            reporter.Report(1f, "No valid zone atlas entries found (missing Id).");
+            reportProgress(0, 0);
+            Debug.LogWarning("No valid zone atlas entries found (missing Id).");
             return;
         }
 
-        reporter.Report(0.05f, $"Found {totalEntries} valid zone atlas entries. Exporting...");
-        await Task.Yield(); // Allow UI update
+        reportProgress(0, totalEntries);
+        await Task.Yield();
 
         // --- Processing & DB Interaction ---
-        int batchSize = 30; // Adjust batch size as needed
+        int batchSize = 30;
         var batchRecords = new List<ZoneAtlasEntryDBRecord>();
         int processedCount = 0;
         int recordCount = 0;
@@ -67,7 +67,7 @@ public class ZoneAtlasEntryExportStep : IExportStep
             cancellationToken.ThrowIfCancellationRequested();
 
             ZoneAtlasEntry entry = item.Entry;
-            int dbIndex = item.Index; // Get the original index
+            int dbIndex = item.Index;
 
             // --- Extraction Logic ---
             string neighboringZones = string.Join(", ", entry.NeighboringZones ?? new List<string>());
@@ -92,7 +92,6 @@ public class ZoneAtlasEntryExportStep : IExportStep
             {
                 try
                 {
-                    // Use InsertOrReplace based on Id primary key
                     db.RunInTransaction(() =>
                     {
                         foreach (var rec in batchRecords)
@@ -106,18 +105,17 @@ public class ZoneAtlasEntryExportStep : IExportStep
                 catch (Exception ex)
                 {
                     Debug.LogError($"Error inserting zone atlas entry batch (around {entry.Id}): {ex.Message}");
-                    reporter.Report((float)processedCount / totalEntries, $"Error inserting batch: {ex.Message}");
-                    throw; // Stop export on error
+                    reportProgress(processedCount, totalEntries);
+                    throw;
                 }
 
                 // --- Progress Reporting ---
-                float progress = (float)processedCount / totalEntries;
-                reporter.Report(progress, $"Exported {recordCount} zone atlas entries ({processedCount}/{totalEntries})...");
-                await Task.Yield(); // Allow UI updates
+                reportProgress(processedCount, totalEntries);
+                await Task.Yield();
             }
         }
 
-        // Ensure final report
-        reporter.Report(1.0f, $"Exported {recordCount} zone atlas entries ({processedCount}/{totalEntries}).");
+        reportProgress(processedCount, totalEntries);
+        Debug.Log($"Finished exporting {recordCount} zone atlas entries from {processedCount} valid assets.");
     }
 }

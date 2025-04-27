@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO; // Required for Path
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,7 +13,6 @@ public class SpawnPointExportStep : IExportStep
 {
     // --- Metadata ---
     public string StepName => "Spawn Points";
-    public float ProgressWeight => 2.5f; // Scene loading can be slow
 
     // --- Pre-Execution ---
     public IEnumerable<Type> GetRequiredRecordTypes()
@@ -24,28 +22,29 @@ public class SpawnPointExportStep : IExportStep
     }
 
     // --- Execution ---
-    public async Task ExecuteAsync(SQLiteConnection db, IProgressReporter reporter, CancellationToken cancellationToken)
+    public async Task ExecuteAsync(SQLiteConnection db, Action<int, int> reportProgress, CancellationToken cancellationToken)
     {
-        reporter.Report(0f, "Finding scenes in build settings...");
+        reportProgress(0, 0);
 
-        // --- Data Fetching (Scene Paths) ---
+        // --- Data Fetching ---
         string[] scenePaths = EditorBuildSettings.scenes
-                                .Where(s => s.enabled)
-                                .Select(s => s.path)
-                                .ToArray();
+            .Where(s => s.enabled)
+            .Select(s => s.path)
+            .ToArray();
         int totalScenes = scenePaths.Length;
-        string originalScenePath = EditorSceneManager.GetActiveScene().path; // Store current scene
+        string originalScenePath = EditorSceneManager.GetActiveScene().path;
 
         if (totalScenes == 0)
         {
-            reporter.Report(1f, "No enabled scenes found in build settings.");
+            Debug.LogWarning("No enabled scenes found in build settings.");
+            reportProgress(0, 0);
             return;
         }
 
-        reporter.Report(0.02f, $"Found {totalScenes} scenes. Processing...");
+        reportProgress(0, totalScenes);
         await Task.Yield();
 
-        // --- Processing & DB Interaction (Scene by Scene) ---
+        // --- Processing & DB Interaction ---
         int scenesProcessed = 0;
         int totalSpawnPointCount = 0;
         int totalSpawnLinkCount = 0;
@@ -64,28 +63,28 @@ public class SpawnPointExportStep : IExportStep
 
                 try // Inner try for individual scene processing
                 {
-                    // --- Scene Loading (Unity API - Must be on main thread implicitly) ---
-                    // Save changes if needed before switching? Optional.
-                    // EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo();
-                    reporter.Report((float)scenesProcessed / totalScenes, $"Loading scene: {Path.GetFileNameWithoutExtension(currentScenePath)}...");
-                    await Task.Yield(); // Allow UI update before scene load
+                    // --- Scene Loading ---
+                    reportProgress(scenesProcessed, totalScenes);
+                    await Task.Yield();
 
                     currentScene = EditorSceneManager.OpenScene(currentScenePath, OpenSceneMode.Single);
                     if (!currentScene.IsValid() || !currentScene.isLoaded)
                     {
                         Debug.LogWarning($"Could not load scene: {currentScenePath}. Skipping.");
-                        scenesProcessed++; // Increment processed count even if skipped
-                        continue; // Skip to next scene
+                        scenesProcessed++;
+                        continue;
                     }
 
-                    // --- Data Extraction (Unity API - FindObjectsOfType) ---
+                    // --- Data Extraction ---
                     SpawnPoint[] spawnPointsInScene = GameObject.FindObjectsOfType<SpawnPoint>();
-                    var seenIdsInScene = new HashSet<string>(); // Track IDs *within this scene*
+                    var seenIdsInScene = new HashSet<string>();
 
                     foreach (SpawnPoint sp in spawnPointsInScene)
                     {
+                        cancellationToken.ThrowIfCancellationRequested();
+
                         // Calculate the base ID
-                        string baseId = currentScene.name + sp.transform.position.ToString(); // Simple ID based on scene and position
+                        string baseId = currentScene.name + sp.transform.position;
                         string finalId = baseId;
                         int suffixCounter = 2;
 
@@ -99,7 +98,7 @@ public class SpawnPointExportStep : IExportStep
 
                         var spRecord = new SpawnPointDBRecord
                         {
-                            Id = finalId, // Use the final, unique ID
+                            Id = finalId,
                             SceneName = currentScene.name,
                             SpawnDelay = sp.SpawnDelay,
                             RareNPCChance = sp.RareNPCChance,
@@ -109,73 +108,64 @@ public class SpawnPointExportStep : IExportStep
                             NightSpawn = sp.NightSpawn,
                             SpawnUponQuestCompleteQuestDBName = sp.SpawnUponQuestComplete?.DBName,
                             StopIfQuestCompleteQuestDBNames = sp.StopIfQuestComplete?.Count > 0
-                                ? string.Join(",", sp.StopIfQuestComplete.Where(q => q != null).Select(q => q.DBName)) // Added null check for quests
+                                ? string.Join(",", sp.StopIfQuestComplete.Where(q => q != null && !string.IsNullOrEmpty(q.DBName)).Select(q => q.DBName))
                                 : null,
                             ProtectorName = (sp.Protector != null) ? sp.Protector.name : null,
                             Staggerable = sp.staggerable,
                             StaggerMod = sp.staggerMod,
                             RotationY = sp.transform.eulerAngles.y
                         };
-                        spRecord.SetPosition(sp.transform.position); // Use helper
+                        spRecord.SetPosition(sp.transform.position);
                         spawnPointRecords.Add(spRecord);
 
-                        // --- Export Character Links (Using helper) ---
+                        // --- Export Character Links) ---
                         int commonCount = sp.CommonSpawns?.Count ?? 0;
                         int rareCount = sp.RareSpawns?.Count ?? 0;
                         ProcessSpawnList(sp.CommonSpawns, finalId, "Common", spawnLinkRecords, sp.RareNPCChance, commonCount, rareCount);
                         ProcessSpawnList(sp.RareSpawns, finalId, "Rare", spawnLinkRecords, sp.RareNPCChance, commonCount, rareCount);
                     }
 
-                    // --- Database Insertion (Transaction per scene) ---
+                    // --- Database Insertion ---
                     if (spawnPointRecords.Count > 0 || spawnLinkRecords.Count > 0)
                     {
                         db.RunInTransaction(() =>
                         {
-                            if (spawnPointRecords.Count > 0) db.InsertAll(spawnPointRecords); // Assuming Id is PK
-                            if (spawnLinkRecords.Count > 0) db.InsertAll(spawnLinkRecords); // Assuming composite PK or no conflicts
+                            if (spawnPointRecords.Count > 0) db.InsertAll(spawnPointRecords);
+                            if (spawnLinkRecords.Count > 0) db.InsertAll(spawnLinkRecords);
                         });
                         totalSpawnPointCount += spawnPointRecords.Count;
                         totalSpawnLinkCount += spawnLinkRecords.Count;
                     }
                 }
+                catch (OperationCanceledException) { throw; }
                 catch (Exception ex)
                 {
                     Debug.LogError($"Error processing scene {currentScenePath}: {ex.Message}\n{ex.StackTrace}");
-                    // Optionally continue to the next scene or rethrow to stop the export
-                    // throw; // Uncomment to stop export on scene error
                 }
                 finally
                 {
-                    scenesProcessed++; // Increment processed count here after try/catch/finally
+                    scenesProcessed++;
                     // --- Progress Reporting (After each scene) ---
-                    float progress = (float)scenesProcessed / totalScenes;
-                    reporter.Report(progress, $"Processed {scenesProcessed}/{totalScenes} scenes ({totalSpawnPointCount} points, {totalSpawnLinkCount} links)...");
-                    await Task.Yield(); // Allow UI update between scenes
+                    reportProgress(scenesProcessed, totalScenes);
+                    await Task.Yield();
                 }
-            } // End scene loop
+            }
         }
         finally // --- Scene Restoration ---
         {
             // Always try to restore the original scene
             if (!string.IsNullOrEmpty(originalScenePath) && EditorSceneManager.GetActiveScene().path != originalScenePath)
             {
-                reporter.Report(1.0f, $"Restoring original scene: {Path.GetFileNameWithoutExtension(originalScenePath)}...");
-                await Task.Yield(); // Allow UI update before scene load
+                reportProgress(scenesProcessed, totalScenes);
+                await Task.Yield();
                 EditorSceneManager.OpenScene(originalScenePath);
             }
-            else if (string.IsNullOrEmpty(originalScenePath) && !string.IsNullOrEmpty(EditorSceneManager.GetActiveScene().path))
-            {
-                // If original was untitled, maybe open a new empty scene?
-                // reporter.Report(1.0f, "Opening new empty scene...");
-                // await Task.Yield();
-                // EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects);
-            }
-             // Final status update after potential scene restoration
-             reporter.Report(1.0f, $"Finished exporting {totalSpawnPointCount} points, {totalSpawnLinkCount} links from {scenesProcessed} scenes.");
+            
+            reportProgress(scenesProcessed, totalScenes); // Ensure final progress is reported
+            Debug.Log($"Finished exporting {totalSpawnPointCount} points, {totalSpawnLinkCount} links from {scenesProcessed} scenes.");
         }
     }
 
-    // Helper to process CommonSpawns or RareSpawns lists (Adapted from SpawnPointExporter)
     private void ProcessSpawnList(
         List<GameObject> spawnList,
         string spawnPointId,
@@ -201,8 +191,7 @@ public class SpawnPointExportStep : IExportStep
             {
                 if (spawnType == "Rare")
                 {
-                    // Avoid division by zero if RareSpawns list exists but is empty (shouldn't happen with count check)
-                    chance = totalRareCount > 0 ? rareRollChance / totalRareCount : 0.0f;
+                    chance = rareRollChance / totalRareCount;
                 }
                 else // spawnType == "Common"
                 {
@@ -217,7 +206,6 @@ public class SpawnPointExportStep : IExportStep
             }
             // If both counts are 0, chance remains 0.0f
 
-            // Get the prefab's GUID
             if (AssetDatabase.TryGetGUIDAndLocalFileIdentifier(prefab, out string guid, out long localId))
             {
                 var linkRecord = new SpawnPointCharacterDBRecord
@@ -226,7 +214,7 @@ public class SpawnPointExportStep : IExportStep
                     CharacterPrefabGuid = guid,
                     SpawnType = spawnType,
                     SpawnListIndex = i,
-                    SpawnChance = chance // Store the calculated chance
+                    SpawnChance = chance,
                 };
                 linkRecords.Add(linkRecord);
             }
