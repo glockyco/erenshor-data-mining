@@ -30,19 +30,25 @@ public class DatabaseExporterWindow : EditorWindow
             ? $"Running ({CurrentProgress}/{TotalProgress})"
             : StatusText;
 
-        public string Icon
+        public GUIContent IconContent
         {
             get
             {
                 switch (StatusText)
                 {
-                    case "Running": return "⏳"; // Alternative: ▶️
-                    case "Done": return "✔️";
-                    case "Failed": return "❌";
-                    case "Cancelled": return "⏹️"; // Alternative: 🚫
-                    case "Skipped": return "⏭️";
+                    case "Running":
+                        return EditorGUIUtility.IconContent("d_PlayButton");
+                    case "Done":
+                        return EditorGUIUtility.IconContent("d_FilterSelectedOnly");
+                    case "Failed":
+                        return EditorGUIUtility.IconContent("d_console.erroricon.sml");
+                    case "Cancelled":
+                        return EditorGUIUtility.IconContent("d_PauseButton");
+                    case "Skipped":
+                        return EditorGUIUtility.IconContent("d_StepButton");
                     case "Pending":
-                    default: return "▫️"; // Alternative: …
+                    default:
+                        return GUIContent.none;
                 }
             }
         }
@@ -206,7 +212,7 @@ public class DatabaseExporterWindow : EditorWindow
             EditorGUI.EndDisabledGroup();
 
             // Icon and Name with Tooltip
-            GUILayout.Label($"{stepStatus.Icon}", GUILayout.Width(20));
+            GUILayout.Label(stepStatus.IconContent, GUILayout.Width(20)); // Use IconContent here
             EditorGUILayout.LabelField(stepStatus.LabelContent, GUILayout.Width(180)); // Fixed width for name
 
             // Status text
