@@ -18,7 +18,7 @@ public class DatabaseExporterWindow : EditorWindow
     {
         var window = GetWindow<DatabaseExporterWindow>("Database Exporter");
         // Increased height slightly more for another button
-        window.minSize = new Vector2(400, 380); // Adjusted height
+        window.minSize = new Vector2(400, 405); // Adjusted height further
         window.Show();
     }
 
@@ -134,6 +134,10 @@ public class DatabaseExporterWindow : EditorWindow
             {
                 StartExport(new List<IExportStep> { new FactionExportStep() });
             }
+            if (GUILayout.Button("Export NPCDialogs Only")) // New Button
+            {
+                StartExport(new List<IExportStep> { new NPCDialogExportStep() });
+            }
 
             EditorGUILayout.EndVertical();
         }
@@ -190,6 +194,7 @@ public class DatabaseExporterWindow : EditorWindow
             new ClassExportStep(), // Add the new Class step here
             new QuestExportStep(),
             new FactionExportStep(),
+            new NPCDialogExportStep(), // Add the new NPCDialog step here
         };
     }
 
