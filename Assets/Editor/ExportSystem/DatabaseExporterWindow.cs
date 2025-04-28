@@ -438,6 +438,7 @@ public class DatabaseExporterWindow : EditorWindow
             new QuestExportStep(),
             new FactionExportStep(),
             new NPCDialogExportStep(),
+            new MiningNodeExportStep(),
             // Add new steps here
         };
     }
