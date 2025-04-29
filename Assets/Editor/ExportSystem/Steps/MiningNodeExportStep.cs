@@ -133,10 +133,10 @@ public class MiningNodeExportStep : IExportStep
     {
         // Calculate drop chances based on the logic in MiningNode.Mine()
         // Legend = 96-99, Rare = 75-95, Common = 20-75, Guarantee = 0-19
-        float guaranteeChance = 0.20f; // 20 - 0 = 20
-        float commonChance = 0.55f; // 75 - 20 = 55
-        float rareChance = 0.21f; // 96 - 75 = 21
-        float legendChance = 0.04f; // 100 - 96 = 4
+        float guaranteeChance = 20.00f; // 20 - 0 = 20
+        float commonChance = 55.00f; // 75 - 20 = 55
+        float rareChance = 21.00f; // 96 - 75 = 21
+        float legendChance = 4.00f; // 100 - 96 = 4
 
         // Create a dictionary to store the drop chances for each item
         Dictionary<string, float> itemDropChances = new Dictionary<string, float>();
@@ -210,7 +210,7 @@ public class MiningNodeExportStep : IExportStep
                 ItemName = node.guarantee.name,
                 Rarity = "Guarantee",
                 DropChance = guaranteeChance,
-                TotalDropChance = itemDropChances[node.guarantee.name]
+                TotalDropChance = itemDropChances[node.guarantee.name],
             };
             itemRecords.Add(guaranteeRecord);
         }
@@ -222,7 +222,7 @@ public class MiningNodeExportStep : IExportStep
                 ItemName = GameData.GM.GuaranteeMine.name,
                 Rarity = "Guarantee",
                 DropChance = guaranteeChance,
-                TotalDropChance = itemDropChances[GameData.GM.GuaranteeMine.name]
+                TotalDropChance = itemDropChances[GameData.GM.GuaranteeMine.name],
             };
             itemRecords.Add(guaranteeRecord);
         }
@@ -239,7 +239,7 @@ public class MiningNodeExportStep : IExportStep
                     ItemName = item.name,
                     Rarity = "Common",
                     DropChance = dropChance,
-                    TotalDropChance = itemDropChances[item.name]
+                    TotalDropChance = itemDropChances[item.name],
                 };
                 itemRecords.Add(itemRecord);
             }
@@ -257,7 +257,7 @@ public class MiningNodeExportStep : IExportStep
                     ItemName = item.name,
                     Rarity = "Rare",
                     DropChance = dropChance,
-                    TotalDropChance = itemDropChances[item.name]
+                    TotalDropChance = itemDropChances[item.name],
                 };
                 itemRecords.Add(itemRecord);
             }
@@ -275,7 +275,7 @@ public class MiningNodeExportStep : IExportStep
                     ItemName = item.name,
                     Rarity = "Legend",
                     DropChance = dropChance,
-                    TotalDropChance = itemDropChances[item.name]
+                    TotalDropChance = itemDropChances[item.name],
                 };
                 itemRecords.Add(itemRecord);
             }
