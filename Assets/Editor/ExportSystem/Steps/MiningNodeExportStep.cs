@@ -132,10 +132,11 @@ public class MiningNodeExportStep : IExportStep
     private void ProcessMiningNodeItems(MiningNode node, string miningNodeId, List<MiningNodeItemDBRecord> itemRecords)
     {
         // Calculate drop chances based on the logic in MiningNode.Mine()
-        float commonChance = 0.20f;
-        float guaranteeChance = 0.20f;
-        float rareChance = 0.2125f; // (100-75)/100 * (100/100) = 0.25
-        float legendChance = 0.04f; // (100-96)/100 * (100/100) = 0.04
+        // Legend = 96-99, Rare = 75-95, Common = 20-75, Guarantee = 0-19
+        float guaranteeChance = 0.20f; // 20 - 0 = 20
+        float commonChance = 0.55f; // 75 - 20 = 55
+        float rareChance = 0.21f; // 96 - 75 = 21
+        float legendChance = 0.04f; // 100 - 96 = 4
 
         // Process guarantee item
         if (node.guarantee != null)
