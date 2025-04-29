@@ -207,7 +207,7 @@ public class MiningNodeExportStep : IExportStep
             var guaranteeRecord = new MiningNodeItemDBRecord
             {
                 MiningNodeId = miningNodeId,
-                ItemName = node.guarantee.name,
+                ItemName = node.guarantee.ItemName,
                 Rarity = "Guarantee",
                 DropChance = guaranteeChance,
                 TotalDropChance = itemDropChances[node.guarantee.name],
@@ -219,7 +219,7 @@ public class MiningNodeExportStep : IExportStep
             var guaranteeRecord = new MiningNodeItemDBRecord
             {
                 MiningNodeId = miningNodeId,
-                ItemName = GameData.GM.GuaranteeMine.name,
+                ItemName = GameData.GM.GuaranteeMine.ItemName,
                 Rarity = "Guarantee",
                 DropChance = guaranteeChance,
                 TotalDropChance = itemDropChances[GameData.GM.GuaranteeMine.name],
@@ -236,7 +236,7 @@ public class MiningNodeExportStep : IExportStep
                 var itemRecord = new MiningNodeItemDBRecord
                 {
                     MiningNodeId = miningNodeId,
-                    ItemName = item.name,
+                    ItemName = item.ItemName,
                     Rarity = "Common",
                     DropChance = dropChance,
                     TotalDropChance = itemDropChances[item.name],
@@ -254,7 +254,7 @@ public class MiningNodeExportStep : IExportStep
                 var itemRecord = new MiningNodeItemDBRecord
                 {
                     MiningNodeId = miningNodeId,
-                    ItemName = item.name,
+                    ItemName = item.ItemName,
                     Rarity = "Rare",
                     DropChance = dropChance,
                     TotalDropChance = itemDropChances[item.name],
@@ -272,7 +272,7 @@ public class MiningNodeExportStep : IExportStep
                 var itemRecord = new MiningNodeItemDBRecord
                 {
                     MiningNodeId = miningNodeId,
-                    ItemName = item.name,
+                    ItemName = item.ItemName,
                     Rarity = "Legend",
                     DropChance = dropChance,
                     TotalDropChance = itemDropChances[item.name],
