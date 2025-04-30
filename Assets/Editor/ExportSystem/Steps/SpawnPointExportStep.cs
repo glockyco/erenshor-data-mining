@@ -100,21 +100,18 @@ public class SpawnPointExportStep : IExportStep
                         {
                             Id = finalId,
                             SceneName = currentScene.name,
-                            SpawnDelay = sp.SpawnDelay,
                             RareNPCChance = sp.RareNPCChance,
                             LevelMod = sp.levelMod,
-                            RandomWanderRange = sp.RandomWanderRange,
-                            LoopPatrol = sp.LoopPatrol,
-                            NightSpawn = sp.NightSpawn,
-                            SpawnUponQuestCompleteQuestDBName = sp.SpawnUponQuestComplete?.DBName,
-                            StopIfQuestCompleteQuestDBNames = sp.StopIfQuestComplete?.Count > 0
-                                ? string.Join(",", sp.StopIfQuestComplete.Where(q => q != null && !string.IsNullOrEmpty(q.DBName)).Select(q => q.DBName))
-                                : null,
-                            ProtectorName = (sp.Protector != null) ? sp.Protector.name : null,
+                            SpawnDelay = sp.SpawnDelay,
                             Staggerable = sp.staggerable,
                             StaggerMod = sp.staggerMod,
-                            RotationY = sp.transform.eulerAngles.y,
-                            PatrolPoints = sp.PatrolPoints != null ? string.Join(",", sp.PatrolPoints.Select(t => t.position.ToString())) : null
+                            NightSpawn = sp.NightSpawn,
+                            PatrolPoints = sp.PatrolPoints != null ? string.Join(", ", sp.PatrolPoints.Select(t => t.position.ToString())) : null,
+                            LoopPatrol = sp.LoopPatrol,
+                            RandomWanderRange = sp.RandomWanderRange,
+                            SpawnUponQuestCompleteDBName = sp.SpawnUponQuestComplete?.DBName,
+                            StopIfQuestCompleteDBNames = sp.StopIfQuestComplete?.Count > 0 ? string.Join(", ", sp.StopIfQuestComplete.Where(q => q != null && !string.IsNullOrEmpty(q.DBName)).Select(q => q.DBName)) : null,
+                            ProtectorName = (sp.Protector != null) ? sp.Protector.name : null,
                         };
                         spRecord.SetPosition(sp.transform.position);
                         spawnPointRecords.Add(spRecord);
