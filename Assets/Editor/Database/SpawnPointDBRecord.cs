@@ -24,6 +24,8 @@ public class SpawnPointDBRecord
     public bool Staggerable { get; set; } // Stored as 0 or 1
     public float StaggerMod { get; set; }
 
+    public string PatrolPoints { get; set; } // Comma-separated list of Transform.ToString() coordinates
+
     // Helper to set position easily
     public void SetPosition(Vector3 position)
     {

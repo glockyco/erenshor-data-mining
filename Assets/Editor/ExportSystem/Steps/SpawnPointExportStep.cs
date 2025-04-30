@@ -113,7 +113,8 @@ public class SpawnPointExportStep : IExportStep
                             ProtectorName = (sp.Protector != null) ? sp.Protector.name : null,
                             Staggerable = sp.staggerable,
                             StaggerMod = sp.staggerMod,
-                            RotationY = sp.transform.eulerAngles.y
+                            RotationY = sp.transform.eulerAngles.y,
+                            PatrolPoints = sp.PatrolPoints != null ? string.Join(",", sp.PatrolPoints.Select(t => t.position.ToString())) : null
                         };
                         spRecord.SetPosition(sp.transform.position);
                         spawnPointRecords.Add(spRecord);
