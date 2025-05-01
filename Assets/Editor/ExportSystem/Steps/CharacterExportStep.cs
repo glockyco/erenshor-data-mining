@@ -214,6 +214,7 @@ public class CharacterExportStep : IExportStep
         MiningNode miningNode = character.GetComponent<MiningNode>();
         SimPlayer simPlayer = character.GetComponent<SimPlayer>();
         Stats stats = character.GetComponent<Stats>();
+        ModifyFaction[] modifyFactions = character.GetComponents<ModifyFaction>();
         
         CharacterDBRecord record = new CharacterDBRecord
         {
@@ -230,6 +231,7 @@ public class CharacterExportStep : IExportStep
             IsVendor = vendorInventory != null,
             IsMiningNode = miningNode != null,
             HasStats = stats != null,
+            HasModifyFaction = modifyFactions.Length > 0,
             Invulnerable = character.Invulnerable,
             ShoutOnDeath = character.ShoutOnDeath != null ? string.Join(", ", character.ShoutOnDeath) : null,
             QuestCompleteOnDeath = character.QuestCompleteOnDeath != null ? character.QuestCompleteOnDeath.DBName : null,
@@ -264,6 +266,16 @@ public class CharacterExportStep : IExportStep
             record.BaseMHAtkDelay = stats.BaseMHAtkDelay;
             record.BaseOHAtkDelay = stats.BaseOHAtkDelay;
         }
+
+        List<string> factionStrings = new List<string>();
+        foreach (ModifyFaction modifyFaction in modifyFactions)
+        {
+            if (modifyFaction != null && modifyFaction.Factions != null)
+            {
+                factionStrings.AddRange(modifyFaction.Factions.Select(f => $"{f.FactionName} ({modifyFaction.Modifier})"));
+            }
+        }
+        record.ModifyFactions = string.Join(", ", factionStrings);
 
         if (vendorInventory != null)
         {

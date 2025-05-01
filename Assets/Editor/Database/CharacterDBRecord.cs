@@ -18,6 +18,7 @@ public class CharacterDBRecord
     public bool IsVendor { get; set; }
     public bool IsMiningNode { get; set; }
     public bool HasStats { get; set; }
+    public bool HasModifyFaction { get; set; }
     public bool Invulnerable { get; set; }
     public string ShoutOnDeath { get; set; }
     public string QuestCompleteOnDeath { get; set; }
@@ -45,6 +46,9 @@ public class CharacterDBRecord
     public float BaseLifeSteal { get; set; }
     public float BaseMHAtkDelay { get; set; }
     public float BaseOHAtkDelay { get; set; }
+    
+    // ModifyFaction properties
+    public string ModifyFactions { get; set; }
     
     // VendorInventory properties
     public string VendorDesc { get; set; }
