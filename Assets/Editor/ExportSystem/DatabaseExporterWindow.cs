@@ -426,20 +426,20 @@ public class DatabaseExporterWindow : EditorWindow
         // Create instances of all steps in the desired display order
         return new List<IExportStep>
         {
-            new CharacterExportStep(),
-            new ItemExportStep(),
             new LootDropExportStep(_probabilityCalculator),
-            new SpawnPointExportStep(),
+            new ItemExportStep(),
+            new CharacterExportStep(),
+            new ClassExportStep(),
             new SpellExportStep(),
             new SkillExportStep(),
             new AscensionExportStep(),
-            new ZoneAtlasEntryExportStep(),
-            new ClassExportStep(),
-            new QuestExportStep(),
-            new FactionExportStep(),
             new NPCDialogExportStep(),
+            new QuestExportStep(),
+            new BookExportStep(),
+            new FactionExportStep(),
+            new ZoneAtlasEntryExportStep(),
             new MiningNodeExportStep(),
-            // Add new steps here
+            new SpawnPointExportStep(),
         };
     }
 
