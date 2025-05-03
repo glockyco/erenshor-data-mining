@@ -12,8 +12,12 @@ using UnityEngine;
 // Central orchestrator for the export process
 public class Exporter
 {
-    // DB_PATH is no longer a constant here, it's passed in.
+    // --- Public Status Constants ---
+    public const string STATUS_SUCCESS = "Export Completed Successfully.";
+    public const string STATUS_CANCELLED = "Export Cancelled.";
+    public const string STATUS_FAILED_PREFIX = "Export Failed on step: "; // Used for constructing failure messages
 
+    // --- Internal State ---
     private SQLiteConnection _db;
     private CancellationTokenSource _cancellationTokenSource;
     private Task _exportExecutionTask;
@@ -45,7 +49,7 @@ public class Exporter
         if (string.IsNullOrEmpty(outputPath))
         {
              Debug.LogError("Output path cannot be empty.");
-             onExportFinish?.Invoke("Export Failed: Output path not set."); // Report failure immediately
+             onExportFinish?.Invoke($"{STATUS_FAILED_PREFIX}Initialization (Output path not set)"); // Report failure immediately using prefix
              return;
         }
 
@@ -68,7 +72,7 @@ public class Exporter
     // Main async method controlling the export lifecycle
     private async Task RunExportLifecycleAsync(string outputPath, List<IExportStep> stepsToRun, CancellationToken cancellationToken)
     {
-        string finalStatus = "Unknown";
+        string finalStatus = "Unknown"; // Default status
         string currentStepName = "Initialization";
 
         try
@@ -107,18 +111,18 @@ public class Exporter
             }
 
             // 3. Final Completion State
-            finalStatus = "Export Completed Successfully.";
+            finalStatus = STATUS_SUCCESS; // Use constant
         }
         catch (OperationCanceledException)
         {
-            finalStatus = "Export Cancelled.";
+            finalStatus = STATUS_CANCELLED; // Use constant
             // Optionally report the current step as cancelled/failed if needed by UI logic
             // _onStepFail(currentStepName, new OperationCanceledException());
         }
         catch (Exception ex)
         {
             Debug.LogError($"Export failed during step '{currentStepName}': {ex.Message}\n{ex.StackTrace}");
-            finalStatus = $"Export Failed on step: {currentStepName}";
+            finalStatus = $"{STATUS_FAILED_PREFIX}{currentStepName}"; // Use constant prefix
             _onStepFail(currentStepName, ex); // Report the specific failure
         }
         finally
@@ -128,7 +132,7 @@ public class Exporter
             _db?.Dispose();
             _db = null;
 
-            // Report final overall status
+            // Report final overall status using the determined finalStatus string
             _onExportFinish(finalStatus);
 
             // Task is complete, no need to manage CancellationTokenSource disposal here,
