@@ -133,7 +133,7 @@ public class DatabaseExporterWindow : EditorWindow
         // Display path relative to project if possible for better readability
         string displayPath = _outputPath;
         string projectPath = Path.GetFullPath(Application.dataPath + "/../");
-        if (_outputPath.StartsWith(projectPath))
+        if (!string.IsNullOrEmpty(_outputPath) && _outputPath.StartsWith(projectPath))
         {
             displayPath = Path.GetRelativePath(projectPath, _outputPath);
         }
@@ -143,18 +143,29 @@ public class DatabaseExporterWindow : EditorWindow
         if (newPath != displayPath)
         {
              try {
-                 // Assume manual edit might be relative to project root
-                 string potentialFullPath = Path.GetFullPath(Path.Combine(projectPath, newPath));
-                 if (File.Exists(potentialFullPath) || Directory.Exists(Path.GetDirectoryName(potentialFullPath)))
-                 {
-                     _outputPath = potentialFullPath;
+                 string potentialFullPath;
+                 // Check if the new path is already absolute
+                 if (Path.IsPathRooted(newPath)) {
+                     potentialFullPath = Path.GetFullPath(newPath);
                  } else {
-                     // If it doesn't seem valid relative to project, treat as absolute
-                     _outputPath = Path.GetFullPath(newPath);
+                     // Assume manual edit might be relative to project root
+                     potentialFullPath = Path.GetFullPath(Path.Combine(projectPath, newPath));
                  }
-                 SaveOutputPath(); // Save changes
+
+                 // Ensure the directory exists or can be created before assigning
+                 string directory = Path.GetDirectoryName(potentialFullPath);
+                 if (!string.IsNullOrEmpty(directory)) // Avoid issues if only filename is entered
+                 {
+                     // No need to check File.Exists, SaveFilePanel handles overwriting confirmation
+                     // Just ensure the directory part seems valid or could exist
+                     _outputPath = potentialFullPath;
+                     SaveOutputPath(); // Save changes
+                 } else {
+                     Debug.LogWarning($"Could not resolve directory for manually entered path '{newPath}'. Keeping previous path.");
+                 }
+
              } catch (Exception ex) {
-                 Debug.LogWarning($"Could not resolve manually entered path '{newPath}': {ex.Message}");
+                 Debug.LogWarning($"Could not resolve manually entered path '{newPath}': {ex.Message}. Keeping previous path.");
                  // Keep old path on error
              }
         }
@@ -164,6 +175,11 @@ public class DatabaseExporterWindow : EditorWindow
         {
             string directory = string.IsNullOrEmpty(_outputPath) ? Application.dataPath + "/.." : Path.GetDirectoryName(_outputPath);
             string filename = string.IsNullOrEmpty(_outputPath) ? DEFAULT_DB_FILENAME : Path.GetFileName(_outputPath);
+            // Ensure directory exists before showing panel
+            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+            {
+                directory = Application.dataPath + "/.."; // Fallback if saved directory doesn't exist
+            }
             string chosenPath = EditorUtility.SaveFilePanel("Select Database Output Path", directory, filename, "sqlite");
             if (!string.IsNullOrEmpty(chosenPath))
             {
@@ -305,6 +321,24 @@ public class DatabaseExporterWindow : EditorWindow
              Repaint();
              return;
         }
+        // Validate output path directory
+        try
+        {
+            string directory = Path.GetDirectoryName(_outputPath);
+            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+                Debug.Log($"Created output directory: {directory}");
+            }
+        }
+        catch (Exception ex)
+        {
+             EditorUtility.DisplayDialog("Export Error", $"Failed to create output directory for path '{_outputPath}'.\nError: {ex.Message}", "OK");
+             _overallStatus = "Error: Invalid output directory.";
+             Repaint();
+             return;
+        }
+
 
         // Get selected steps
         var stepsToRun = _stepStatuses
@@ -345,72 +379,88 @@ public class DatabaseExporterWindow : EditorWindow
 
         // --- Define Callbacks ---
         Action<string> handleStepStart = (stepName) => {
-            var status = _stepStatuses.FirstOrDefault(s => s.Name == stepName);
-            if (status != null)
-            {
-                status.StatusText = "Running";
-                status.CurrentProgress = 0;
-                status.TotalProgress = 0;
-                status.ErrorMessage = null;
-                _overallStatus = $"Running: {stepName}";
-                Repaint();
-            }
+            // Ensure this runs on the main thread
+            EditorApplication.delayCall += () => {
+                var status = _stepStatuses.FirstOrDefault(s => s.Name == stepName);
+                if (status != null)
+                {
+                    status.StatusText = "Running";
+                    status.CurrentProgress = 0;
+                    status.TotalProgress = 0;
+                    status.ErrorMessage = null;
+                    _overallStatus = $"Running: {stepName}";
+                    Repaint();
+                }
+            };
         };
 
         Action<string, int, int> handleStepProgress = (stepName, current, total) => {
-             var status = _stepStatuses.FirstOrDefault(s => s.Name == stepName);
-             if (status != null && status.IsRunning)
-             {
-                 status.CurrentProgress = current;
-                 status.TotalProgress = total;
-                 Repaint();
-             }
+             // Ensure this runs on the main thread
+             EditorApplication.delayCall += () => {
+                 var status = _stepStatuses.FirstOrDefault(s => s.Name == stepName);
+                 // Only update if the step is still considered running by the UI
+                 if (status != null && status.IsRunning)
+                 {
+                     status.CurrentProgress = current;
+                     status.TotalProgress = total;
+                     Repaint(); // Repaint is safe here inside delayCall
+                 }
+             };
         };
 
         Action<string> handleStepComplete = (stepName) => {
-            var status = _stepStatuses.FirstOrDefault(s => s.Name == stepName);
-            if (status != null)
-            {
-                status.StatusText = "Done";
-                Repaint();
-            }
+            // Ensure this runs on the main thread
+            EditorApplication.delayCall += () => {
+                var status = _stepStatuses.FirstOrDefault(s => s.Name == stepName);
+                if (status != null)
+                {
+                    status.StatusText = "Done";
+                    Repaint();
+                }
+            };
         };
 
         Action<string, Exception> handleStepFail = (stepName, ex) => {
-            var status = _stepStatuses.FirstOrDefault(s => s.Name == stepName);
-            if (status != null)
-            {
-                status.StatusText = "Failed!";
-                status.ErrorMessage = ex.Message; // Store error message
-                _overallStatus = $"Failed on step: {stepName}";
-                // Log full error to console
-                Debug.LogError($"Export step '{stepName}' failed: {ex.Message}\n{ex.StackTrace}");
-                Repaint();
-            }
+            // Ensure this runs on the main thread
+            EditorApplication.delayCall += () => {
+                var status = _stepStatuses.FirstOrDefault(s => s.Name == stepName);
+                if (status != null)
+                {
+                    status.StatusText = "Failed!";
+                    status.ErrorMessage = ex.Message; // Store error message
+                    _overallStatus = $"Failed on step: {stepName}";
+                    // Log full error to console (already happens in Exporter, but good to have context here too)
+                    Debug.LogError($"Export step '{stepName}' failed (reported to UI): {ex.Message}\n{ex.StackTrace}");
+                    Repaint();
+                }
+            };
         };
 
         Action<string> handleExportFinish = (finalStatus) => {
-            _overallStatus = finalStatus;
-            _isExportRunning = false; // Re-enable UI
+            // Ensure this runs on the main thread
+            EditorApplication.delayCall += () => {
+                _overallStatus = finalStatus;
+                _isExportRunning = false; // Re-enable UI
 
-            // Mark any steps still "Running" as "Cancelled" or "Skipped" based on final status
-            bool wasCancelled = finalStatus == "Export Cancelled.";
-            bool wasFailed = finalStatus.StartsWith("Export Failed");
+                // Mark any steps still "Running" as "Cancelled" or "Skipped" based on final status
+                bool wasCancelled = finalStatus == Exporter.STATUS_CANCELLED;
+                bool wasFailed = finalStatus.StartsWith(Exporter.STATUS_FAILED_PREFIX);
 
-            foreach(var status in _stepStatuses)
-            {
-                if (status.IsRunning) // A step was interrupted mid-run
+                foreach(var status in _stepStatuses)
                 {
-                    status.StatusText = wasCancelled ? "Cancelled" : "Failed!"; // Mark as cancelled or failed
-                    if (wasFailed && string.IsNullOrEmpty(status.ErrorMessage)) status.ErrorMessage = "Export aborted due to failure in another step.";
+                    if (status.IsRunning) // A step was interrupted mid-run
+                    {
+                        status.StatusText = wasCancelled ? "Cancelled" : "Failed!"; // Mark as cancelled or failed
+                        if (wasFailed && string.IsNullOrEmpty(status.ErrorMessage)) status.ErrorMessage = "Export aborted due to failure in another step.";
+                    }
+                    else if (status.StatusText == "Pending" && (wasCancelled || wasFailed)) // A step never started
+                    {
+                         status.StatusText = "Skipped";
+                    }
                 }
-                else if (status.StatusText == "Pending" && (wasCancelled || wasFailed)) // A step never started
-                {
-                     status.StatusText = "Skipped";
-                }
-            }
 
-            Repaint();
+                Repaint();
+            };
         };
 
         // Ensure exporter instance exists
@@ -450,7 +500,7 @@ public class DatabaseExporterWindow : EditorWindow
         {
             _cancellationTokenSource.Cancel();
             _overallStatus = "Cancellation requested...";
-            Repaint();
+            Repaint(); // Safe to call Repaint here as it's triggered by UI interaction (button press)
         }
     }
 
