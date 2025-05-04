@@ -46,6 +46,7 @@ public class WikiComparator
                 Debug.LogError(errorMsg);
                 if (response.StatusCode == HttpStatusCode.NotFound)
                 {
+                    // Explicitly return the specific error message for 404
                     return (null,
                         $"Page not found on wiki ({response.StatusCode}). Does '{wikiEditUrl.Replace("?action=edit", "")}' exist?");
                 }
@@ -321,18 +322,10 @@ public class WikiComparator
 
         if (fetchError != null)
         {
-            // Distinguish between 'Not Found' and other fetch errors for status reporting
+            // Pass the specific fetch error message back
             string displayLocal = string.IsNullOrWhiteSpace(localWikiStringRaw) ? "<Local WikiString is empty>" : localWikiStringRaw;
-            if (fetchError.Contains("not found on wiki"))
-            {
-                // Page itself not found - this is a 'Missing' case
-                return (false, "<Page Not Found>", displayLocal, fetchError);
-            }
-            else
-            {
-                // Other fetch errors are still 'Error'
-                return (false, "<Fetch Failed>", displayLocal, fetchError);
-            }
+            // The caller (window) will determine status based on the error message content (e.g., "Page not found")
+            return (false, "<Fetch Failed>", displayLocal, fetchError);
         }
 
         if (onlineWikiTextRaw == null)
@@ -471,9 +464,10 @@ public class WikiComparator
             }
             else
             {
-                // Tier exists locally but is missing online - this is a 'Missing' case
+                // Tier exists locally but is missing online - mark as Mismatch with specific message
                 overallMatch = false;
-                errorMessage = $"Tier {localTier}: Exists locally, missing online";
+                // Change error message to indicate Mismatch due to missing tier
+                errorMessage = $"Mismatch (Tier {localTier} not found online)";
                 // Show the full online text for context when the specific tier is missing
                 displayOnlineText =
                     $"<Template for Tier {localTier} not found online>\n\nFull Online Text:\n{onlineWikiTextRaw}";

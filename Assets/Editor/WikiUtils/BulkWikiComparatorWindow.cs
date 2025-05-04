@@ -531,7 +531,9 @@ public class BulkWikiComparatorWindow : EditorWindow
 
                             resultItem.DisplayOnlineText = result.DisplayOnlineText;
                             resultItem.DisplayLocalText = result.DisplayLocalText;
+                            // Set details based on ErrorMessage first, then fallback to Match/Mismatch status
                             resultItem.Details = result.ErrorMessage ?? (result.AreEqual ? "Match" : "Mismatch");
+
 
                             if (token.IsCancellationRequested) return;
 
@@ -544,7 +546,7 @@ public class BulkWikiComparatorWindow : EditorWindow
                                     resultItem.Status = ComparisonStatus.LocalEmpty;
                                     Interlocked.Increment(ref runLocalEmptyCount);
                                 }
-                                else // Includes the Tier 0 special case handled in comparator
+                                else // Includes the Tier 0 special case handled in comparator (where AreEqual is true)
                                 {
                                     resultItem.Status = ComparisonStatus.Match;
                                     Interlocked.Increment(ref runMatchCount);
@@ -552,15 +554,13 @@ public class BulkWikiComparatorWindow : EditorWindow
                             }
                             else // Not Equal
                             {
-                                // Check for specific error messages indicating missing online content
-                                if (result.ErrorMessage != null &&
-                                    (result.ErrorMessage.Contains("missing online") ||
-                                     result.ErrorMessage.Contains("not found on wiki")))
+                                // Check for specific error messages
+                                if (result.ErrorMessage != null && result.ErrorMessage.Contains("Page not found on wiki"))
                                 {
-                                    resultItem.Status = ComparisonStatus.Missing; // Use new Missing status
+                                    // Page itself is missing
+                                    resultItem.Status = ComparisonStatus.Missing;
                                     Interlocked.Increment(ref runMissingCount);
                                 }
-                                // Check for fetch/parse errors
                                 else if (result.ErrorMessage != null &&
                                          (result.ErrorMessage.Contains("Fetch Failed") ||
                                           result.ErrorMessage.Contains("Internal error") ||
@@ -569,13 +569,15 @@ public class BulkWikiComparatorWindow : EditorWindow
                                           result.ErrorMessage.Contains("timed out") ||
                                           result.ErrorMessage.Contains("Could not parse")))
                                 {
+                                     // Network, parsing, or other fetch errors
                                     resultItem.Status = ComparisonStatus.Error;
                                     Interlocked.Increment(ref runErrorCount);
                                 }
-                                else // All other non-equal cases are Mismatches
+                                else // All other non-equal cases are Mismatches (content diff, tier missing online, etc.)
                                 {
                                     resultItem.Status = ComparisonStatus.Mismatch;
                                     Interlocked.Increment(ref runMismatchCount);
+                                    // The Details field already contains the specific mismatch reason from ErrorMessage
                                 }
                             }
                         }
@@ -730,9 +732,9 @@ public enum ComparisonStatus
     Pending,
     Match,
     Mismatch,
-    Missing, // Added: Item/Tier exists locally but not online
+    Missing, // Item/Page exists locally but page not found online (404)
     LocalEmpty, // Special case: Local WikiString was empty or had no template
-    Error // Fetch error, parse error, item not found etc.
+    Error // Fetch error, parse error, other non-404 network errors etc.
 }
 
 // Represents a single row in the TreeView
@@ -859,6 +861,8 @@ public class BulkComparisonTreeView : TreeView
                 case ComparisonStatus.LocalEmpty:
                      GUI.color = new Color(0.8f, 0.9f, 1f); // Light blue
                      break;
+                 // Add other cases if needed, e.g., Match, Pending
+                 // case ComparisonStatus.Match: GUI.color = Color.green; break;
             }
 
 
