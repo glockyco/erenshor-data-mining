@@ -14,7 +14,7 @@ public class BulkWikiComparatorWindow : EditorWindow
     // --- Configuration ---
     private const string EXPORTER_PREFS_KEY_DB_PATH = "Erenshor_DatabaseExporter_OutputPath";
     private const string DEFAULT_DB_FILENAME = "Erenshor.sqlite";
-    // --- End Configuration ---
+    private const int MAX_CONCURRENT_TASKS = 10; // Made constant for easier configuration
 
     // TreeView state
     [SerializeField] private TreeViewState? _treeViewState;
@@ -25,14 +25,16 @@ public class BulkWikiComparatorWindow : EditorWindow
     // Window state
     private string _fullDbPathDisplay = "";
     private bool _isComparing = false;
+    private bool _isListLoading = false;
     private float _progress = 0f;
     private string _progressMessage = "";
-    private string _summaryMessage = "Ready. Click 'Compare All' to start.";
+    private string _summaryMessage = "Initializing...";
     private CancellationTokenSource? _cancellationTokenSource;
     private List<ComparisonResultItem> _comparisonResults = new List<ComparisonResultItem>();
+    private List<int> _currentSelectionIds = new List<int>(); // Store current selection IDs
 
-    // Detail view state (optional, for showing selected item details)
-    private ComparisonResultItem? _selectedItem = null;
+    // Detail view state
+    private ComparisonResultItem? _selectedItem = null; // Still useful for single-item detail view
     private Vector2 _scrollPosLocal;
     private Vector2 _scrollPosOnline;
 
@@ -50,11 +52,11 @@ public class BulkWikiComparatorWindow : EditorWindow
         UpdateResolvedPath();
         InitializeTreeView();
         InitializeSearchField();
+        LoadInitialItemListAsync();
     }
 
     void OnDisable()
     {
-        // Cancel any ongoing comparison when the window is closed or disabled
         _cancellationTokenSource?.Cancel();
         _cancellationTokenSource?.Dispose();
         _cancellationTokenSource = null;
@@ -73,26 +75,21 @@ public class BulkWikiComparatorWindow : EditorWindow
 
     void InitializeTreeView()
     {
-        // Ensure states are created if null
         _treeViewState ??= new TreeViewState();
-
         var headerState = BulkComparisonTreeView.CreateMultiColumnHeaderState();
         if (MultiColumnHeaderState.CanOverwriteSerializedFields(_multiColumnHeaderState, headerState))
         {
             MultiColumnHeaderState.OverwriteSerializedFields(_multiColumnHeaderState, headerState);
         }
-
         _multiColumnHeaderState = headerState;
 
         var multiColumnHeader = new MultiColumnHeader(headerState);
-        multiColumnHeader.sortingChanged += OnSortingChanged; // Hook up sorting
+        multiColumnHeader.sortingChanged += OnSortingChanged;
 
         _treeView = new BulkComparisonTreeView(_treeViewState, multiColumnHeader, _comparisonResults);
-        _treeView.OnSelectionChangedCallback += OnTreeViewSelectionChanged;
+        _treeView.OnSelectionChangedCallback += OnTreeViewSelectionChanged; // Use the callback to update selection state
 
-        // Initial sort
         multiColumnHeader.SetSorting(1, true);
-        OnSortingChanged(multiColumnHeader); // Apply initial sort
     }
 
     void InitializeSearchField()
@@ -106,54 +103,67 @@ public class BulkWikiComparatorWindow : EditorWindow
     {
         DrawTopControls();
         DrawTreeView();
-        DrawDetailView(); // Optional: Draw details for selected item
+        DrawDetailView();
     }
 
     private void DrawTopControls()
     {
-        EditorGUILayout.LabelField("Bulk Compare Local Item WikiStrings with Online Wiki Pages",
-            EditorStyles.boldLabel);
+        EditorGUILayout.LabelField("Bulk Compare Local Item WikiStrings with Online Wiki Pages", EditorStyles.boldLabel);
         EditorGUILayout.Space();
 
-        // Database Path
         GUILayout.Label("Database Path (Shared with Exporter):", EditorStyles.boldLabel);
         EditorGUILayout.HelpBox(_fullDbPathDisplay, MessageType.None);
 
         bool dbExists = File.Exists(_fullDbPathDisplay);
         if (!dbExists)
         {
-            EditorGUILayout.HelpBox(
-                $"Database file not found! Please ensure the export has run ('Tools > Database > Export Database') and the path is correct.",
-                MessageType.Error);
+            EditorGUILayout.HelpBox($"Database file not found! Ensure export has run.", MessageType.Error);
         }
 
         EditorGUILayout.Space();
 
-        // Action Button & Progress
+        // Action Buttons
         using (new EditorGUILayout.HorizontalScope())
         {
-            EditorGUI.BeginDisabledGroup(_isComparing || !dbExists);
-            if (GUILayout.Button(_isComparing ? "Comparing..." : "Compare All Items with WikiStrings",
-                    GUILayout.Height(30)))
+            // --- Compare All Button ---
+            bool canCompareAll = dbExists && !_isComparing && !_isListLoading && _comparisonResults.Any();
+            EditorGUI.BeginDisabledGroup(!canCompareAll);
+            string compareAllText = _isComparing ? "Comparing..." : "Compare All";
+             if (_isListLoading) compareAllText = "Loading List...";
+            if (GUILayout.Button(compareAllText, GUILayout.Height(30)))
             {
-                // Start comparison
-                CompareAllItemsAsync();
+                CompareItemsAsync(_comparisonResults); // Compare all items
             }
-
             EditorGUI.EndDisabledGroup();
 
-            if (_isComparing)
+            // --- Compare Selected Button ---
+            bool canCompareSelected = canCompareAll && _currentSelectionIds.Any(); // Enable only if items are selected and not busy
+            EditorGUI.BeginDisabledGroup(!canCompareSelected);
+            if (GUILayout.Button($"Compare Selected ({_currentSelectionIds.Count})", GUILayout.Height(30)))
+            {
+                // Get the actual ComparisonResultItem objects for the selected IDs
+                List<ComparisonResultItem> selectedItems = _comparisonResults
+                    .Where(item => _currentSelectionIds.Contains(item.id))
+                    .ToList();
+                CompareItemsAsync(selectedItems); // Compare only selected items
+            }
+            EditorGUI.EndDisabledGroup();
+
+            // Flexible space to push Cancel button to the right
+            GUILayout.FlexibleSpace();
+
+            // --- Cancel Button ---
+            if (_isComparing) // Show cancel only during actual comparison
             {
                 if (GUILayout.Button("Cancel", GUILayout.Width(80), GUILayout.Height(30)))
                 {
                     _cancellationTokenSource?.Cancel();
-                    // State will be reset in the async method's finally block
                 }
             }
         }
 
         // Progress Bar and Message
-        if (_isComparing || _progress > 0) // Show progress bar if comparing or if comparison finished
+        if (_isComparing || _progress > 0)
         {
             EditorGUILayout.Space();
             Rect r = EditorGUILayout.GetControlRect(false, EditorGUIUtility.singleLineHeight);
@@ -169,7 +179,11 @@ public class BulkWikiComparatorWindow : EditorWindow
         // Search Field
         if (_searchField != null && _treeView != null)
         {
-            _treeView.searchString = _searchField.OnGUI(_treeView.searchString);
+            string currentSearch = _searchField.OnGUI(_treeView.searchString);
+            if (currentSearch != _treeView.searchString)
+            {
+                _treeView.searchString = currentSearch;
+            }
         }
 
         EditorGUILayout.Space();
@@ -177,193 +191,257 @@ public class BulkWikiComparatorWindow : EditorWindow
 
     private void DrawTreeView()
     {
-        // Calculate rect for the TreeView
-        // Reserve space for bottom detail view if needed, otherwise use remaining space
         float detailViewHeight = _selectedItem != null ? Mathf.Max(200, position.height * 0.3f) : 0;
-        Rect treeViewRect = GUILayoutUtility.GetRect(GUIContent.none, GUIStyle.none, GUILayout.ExpandWidth(true),
-            GUILayout.ExpandHeight(true));
+        Rect treeViewRect = GUILayoutUtility.GetRect(GUIContent.none, GUIStyle.none, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
         if (detailViewHeight > 0)
         {
-            treeViewRect.height -=
-                (detailViewHeight +
-                 EditorGUIUtility.standardVerticalSpacing * 2); // Adjust height for detail view and spacing
+            treeViewRect.height -= (detailViewHeight + EditorGUIUtility.standardVerticalSpacing * 2);
         }
-
         _treeView?.OnGUI(treeViewRect);
     }
 
     private void DrawDetailView()
     {
         if (_selectedItem == null) return;
-
-        EditorGUILayout.Space(); // Space before the detail section
-        EditorGUILayout.LabelField($"Details for: {_selectedItem.ItemName} ({_selectedItem.ItemId})",
-            EditorStyles.boldLabel);
-
-        // Use a flexible space that takes up the reserved height
-        using (EditorGUILayout.HorizontalScope scope =
-               new EditorGUILayout.HorizontalScope(GUILayout.ExpandHeight(true)))
+        // Detail view logic remains the same...
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField($"Details for: {_selectedItem.ItemName} ({_selectedItem.ItemId})", EditorStyles.boldLabel);
+        using (EditorGUILayout.HorizontalScope scope = new EditorGUILayout.HorizontalScope(GUILayout.ExpandHeight(true)))
         {
-            // --- Local Text ---
             EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true));
             EditorGUILayout.LabelField("Local WikiString (Relevant Template)", EditorStyles.miniBoldLabel);
-            _scrollPosLocal = EditorGUILayout.BeginScrollView(_scrollPosLocal, EditorStyles.helpBox,
-                GUILayout.ExpandHeight(true));
-            EditorGUILayout.TextArea(_selectedItem.DisplayLocalText ?? "N/A", EditorStyles.textArea,
-                GUILayout.ExpandHeight(true));
+            _scrollPosLocal = EditorGUILayout.BeginScrollView(_scrollPosLocal, EditorStyles.helpBox, GUILayout.ExpandHeight(true));
+            EditorGUILayout.TextArea(_selectedItem.DisplayLocalText ?? "N/A", EditorStyles.textArea, GUILayout.ExpandHeight(true));
             EditorGUILayout.EndScrollView();
             EditorGUILayout.EndVertical();
 
-            // --- Online Text ---
             EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true));
             EditorGUILayout.LabelField("Online Wiki Text (Relevant Template)", EditorStyles.miniBoldLabel);
-            _scrollPosOnline = EditorGUILayout.BeginScrollView(_scrollPosOnline, EditorStyles.helpBox,
-                GUILayout.ExpandHeight(true));
-            EditorGUILayout.TextArea(_selectedItem.DisplayOnlineText ?? "N/A", EditorStyles.textArea,
-                GUILayout.ExpandHeight(true));
+            _scrollPosOnline = EditorGUILayout.BeginScrollView(_scrollPosOnline, EditorStyles.helpBox, GUILayout.ExpandHeight(true));
+            EditorGUILayout.TextArea(_selectedItem.DisplayOnlineText ?? "N/A", EditorStyles.textArea, GUILayout.ExpandHeight(true));
             EditorGUILayout.EndScrollView();
             EditorGUILayout.EndVertical();
         }
     }
 
 
-    // --- Comparison Logic ---
-
-    private async void CompareAllItemsAsync()
+    // --- Initial List Loading ---
+    // LoadInitialItemListAsync remains the same as before...
+    private async void LoadInitialItemListAsync()
     {
-        if (_isComparing) return;
+        if (_isListLoading || _isComparing) return;
+
         if (!File.Exists(_fullDbPathDisplay))
         {
-            _summaryMessage = "Database file not found. Cannot start comparison.";
+            _summaryMessage = "Database file not found. Cannot load item list.";
+            _comparisonResults.Clear();
+            _treeView?.SetResults(_comparisonResults);
+            _treeView?.Reload();
             Repaint();
             return;
         }
 
-        _isComparing = true;
-        _progress = 0f;
-        _progressMessage = "Querying database...";
-        _summaryMessage = "Starting comparison...";
-        _selectedItem = null; // Clear selection when starting new bulk compare
-        _comparisonResults.Clear(); // Clear previous results
-        _treeView?.SetResults(_comparisonResults); // Update treeview immediately
+        _isListLoading = true;
+        _summaryMessage = "Loading item list from database...";
+        _comparisonResults.Clear();
+        _treeView?.SetResults(_comparisonResults);
+        _treeView?.Reload();
+        _selectedItem = null;
+        _currentSelectionIds.Clear(); // Clear selection when reloading list
         Repaint();
 
         _cancellationTokenSource?.Dispose();
         _cancellationTokenSource = new CancellationTokenSource();
         var token = _cancellationTokenSource.Token;
 
-        List<ItemDBRecord> itemsToCompare = new List<ItemDBRecord>();
-        WikiComparator comparator = new WikiComparator();
+        List<ItemDBRecord>? initialItems = null;
+        string? dbError = null;
 
         try
         {
-            // --- Step 1: Query Database (on background thread) ---
             await Task.Run(() =>
             {
                 SQLiteConnection? db = null;
                 try
                 {
                     db = new SQLiteConnection(_fullDbPathDisplay, SQLiteOpenFlags.ReadOnly);
-                    itemsToCompare = db.Table<ItemDBRecord>().Where(item => !string.IsNullOrEmpty(item.WikiString))
-                        .ToList();
+                    initialItems = db.Table<ItemDBRecord>()
+                                     .Where(item => !string.IsNullOrEmpty(item.WikiString))
+                                     .Select(item => new ItemDBRecord { Id = item.Id, ItemName = item.ItemName, WikiString = item.WikiString })
+                                     .ToList();
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogError($"[BulkWikiComparator] Error querying database: {ex}");
-                    // Update UI on main thread
-                    EditorApplication.delayCall += () =>
-                    {
-                        _summaryMessage = $"Database Query Error: {ex.Message}";
-                        _isComparing = false; // Stop the process
-                        Repaint();
-                    };
-                    itemsToCompare.Clear(); // Ensure list is empty if query failed
+                    Debug.LogError($"[BulkWikiComparator] Error querying database for initial list: {ex}");
+                    dbError = $"Database Query Error: {ex.Message}";
+                    initialItems = null;
                 }
                 finally
                 {
                     db?.Close();
                     db?.Dispose();
                 }
-            }, token); // Pass token to Task.Run
+            }, token);
 
-            if (token.IsCancellationRequested || !itemsToCompare.Any())
+            EditorApplication.delayCall += () =>
             {
-                if (!itemsToCompare.Any() && !token.IsCancellationRequested)
+                if (token.IsCancellationRequested)
                 {
-                    _summaryMessage = "No items with WikiStrings found in the database.";
+                    _summaryMessage = "Item list loading cancelled.";
+                }
+                else if (dbError != null)
+                {
+                    _summaryMessage = dbError;
+                }
+                else if (initialItems != null)
+                {
+                    InitializeResultsList(initialItems);
+                    _treeView?.SetResults(_comparisonResults);
+                    OnSortingChanged(_treeView.multiColumnHeader);
+                    _treeView?.Reload();
+                    _summaryMessage = initialItems.Any()
+                        ? $"Ready. Found {initialItems.Count} items with WikiStrings to compare."
+                        : "Ready. No items with WikiStrings found in the database.";
+                }
+                else
+                {
+                    _summaryMessage = "Failed to load items. Unknown error.";
                 }
 
-                // Reset state in finally block
-                return;
-            }
+                _isListLoading = false;
+                Repaint();
+            };
+        }
+        catch (OperationCanceledException)
+        {
+            EditorApplication.delayCall += () => { _summaryMessage = "Item list loading cancelled."; _isListLoading = false; Repaint(); };
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"[BulkWikiComparator] Unexpected error during initial list loading setup: {ex}");
+            EditorApplication.delayCall += () => { _summaryMessage = $"Error loading list: {ex.Message}"; _isListLoading = false; Repaint(); };
+        }
+        finally
+        {
+             if (_isListLoading) { EditorApplication.delayCall += () => { if(_isListLoading) { _isListLoading = false; Repaint(); } }; }
+        }
+    }
 
-            // Initialize results list with pending items on main thread
-            InitializeResultsList(itemsToCompare);
-            _treeView?.SetResults(_comparisonResults); // Update treeview with pending items
-            _treeView?.Reload();
+
+    // --- Comparison Logic ---
+
+    /// <summary>
+    /// Starts the comparison process for a given list of items.
+    /// </summary>
+    /// <param name="itemsToCompare">The specific items to compare.</param>
+    private async void CompareItemsAsync(IList<ComparisonResultItem> itemsToCompare)
+    {
+        if (_isListLoading || _isComparing || itemsToCompare == null || !itemsToCompare.Any())
+        {
+            _summaryMessage = "Cannot start comparison: List loading, already comparing, or no items selected/provided.";
             Repaint();
+            return;
+        }
 
+        _isComparing = true;
+        _progress = 0f;
+        _progressMessage = "Preparing comparison...";
+        _summaryMessage = $"Starting comparison for {itemsToCompare.Count} item(s)...";
+        // Don't clear _selectedItem here, user might want to keep detail view open
+        Repaint();
 
-            // --- Step 2: Compare Each Item (asynchronously) ---
-            int totalItems = itemsToCompare.Count;
-            int processedCount = 0;
-            int matchCount = 0;
-            int mismatchCount = 0;
-            int errorCount = 0;
-            int localEmptyCount = 0;
+        // Reset status ONLY for the items being compared
+        foreach (var item in itemsToCompare)
+        {
+            item.Status = ComparisonStatus.Pending;
+            item.Details = "Pending comparison...";
+            item.DisplayOnlineText = "<Pending>";
+            item.DisplayLocalText = item.LocalWikiString; // Reset to original local string
+             if (string.IsNullOrWhiteSpace(item.DisplayLocalText)) item.DisplayLocalText = "<Local WikiString is empty>";
+             else if (!item.DisplayLocalText.Contains("{{Fancy-armor") && !item.DisplayLocalText.Contains("{{Fancy-weapon")) item.DisplayLocalText = "<No Fancy-armor/weapon template found in local WikiString>";
+        }
+        _treeView?.Reload(); // Show reset state for selected items
 
-            // Use a semaphore to limit concurrency (optional, but good practice for external calls)
-            int maxConcurrentTasks = 10; // Adjust as needed
-            using (var semaphore = new SemaphoreSlim(maxConcurrentTasks))
+        _cancellationTokenSource?.Dispose();
+        _cancellationTokenSource = new CancellationTokenSource();
+        var token = _cancellationTokenSource.Token;
+
+        // Run the core comparison logic
+        await RunComparisonLogicAsync(itemsToCompare, token);
+
+        // Final state reset is handled within RunComparisonLogicAsync's finally block
+    }
+
+    /// <summary>
+    /// Contains the core asynchronous loop for comparing items against the wiki.
+    /// </summary>
+    /// <param name="itemsToRun">The list of items to process.</param>
+    /// <param name="token">Cancellation token.</param>
+    private async Task RunComparisonLogicAsync(IList<ComparisonResultItem> itemsToRun, CancellationToken token)
+    {
+        WikiComparator comparator = new WikiComparator();
+        int totalItemsToCompare = itemsToRun.Count;
+        int processedCount = 0;
+        // Use local counters for this run, don't rely on window-level counters if multiple partial runs are possible
+        int runMatchCount = 0;
+        int runMismatchCount = 0;
+        int runErrorCount = 0;
+        int runLocalEmptyCount = 0;
+
+        try
+        {
+            using (var semaphore = new SemaphoreSlim(MAX_CONCURRENT_TASKS))
             {
                 List<Task> comparisonTasks = new List<Task>();
 
-                for (int i = 0; i < totalItems; i++)
+                foreach (var resultItem in itemsToRun) // Iterate only through the provided list
                 {
                     if (token.IsCancellationRequested) break;
 
-                    await semaphore.WaitAsync(token); // Wait if max concurrency is reached
+                    await semaphore.WaitAsync(token);
 
-                    int index = i; // Capture loop variable for closure
-                    ComparisonResultItem resultItem = _comparisonResults[index]; // Get the placeholder item
+                    // Skip items that don't have a local WikiString (safety check)
+                    if (string.IsNullOrEmpty(resultItem.LocalWikiString))
+                    {
+                        resultItem.Status = ComparisonStatus.Error;
+                        resultItem.Details = "Internal Error: Local WikiString was unexpectedly empty.";
+                        Interlocked.Increment(ref runErrorCount);
+                        semaphore.Release();
+                        Interlocked.Increment(ref processedCount);
+                        continue;
+                    }
 
-                    comparisonTasks.Add(Task.Run<Task>(async () =>
+                    comparisonTasks.Add(Task.Run(async () => // No need for <Task> here
                     {
                         try
                         {
                             if (token.IsCancellationRequested) return;
 
-                            string wikiPageName = resultItem.ItemName.Replace(" ", "_"); // Basic space replacement
+                            string wikiPageName = resultItem.ItemName.Replace(" ", "_");
                             string baseUrl = $"https://erenshor.wiki.gg/wiki/{Uri.EscapeDataString(wikiPageName)}";
+                            var result = await comparator.CompareWikiStringAsync(baseUrl, resultItem.LocalWikiString);
 
-                            var result =
-                                await comparator.CompareWikiStringAsync(baseUrl, resultItem.LocalWikiString);
-
-                            // Update the result item directly
                             resultItem.DisplayOnlineText = result.DisplayOnlineText;
-                            resultItem.DisplayLocalText = result.DisplayLocalText; // Update local display text too
+                            resultItem.DisplayLocalText = result.DisplayLocalText;
                             resultItem.Details = result.ErrorMessage ?? (result.AreEqual ? "Match" : "Mismatch");
 
                             if (token.IsCancellationRequested) return;
 
-                            // Determine status based on result
                             if (result.AreEqual)
                             {
-                                // Check if it was a match because local was empty/no template
                                 if (result.DisplayLocalText != null && result.DisplayLocalText.StartsWith("<"))
                                 {
                                     resultItem.Status = ComparisonStatus.LocalEmpty;
-                                    Interlocked.Increment(ref localEmptyCount);
+                                    Interlocked.Increment(ref runLocalEmptyCount);
                                 }
                                 else
                                 {
                                     resultItem.Status = ComparisonStatus.Match;
-                                    Interlocked.Increment(ref matchCount);
+                                    Interlocked.Increment(ref runMatchCount);
                                 }
                             }
                             else
                             {
-                                // Distinguish between content mismatch and fetch/parse errors
                                 if (result.ErrorMessage != null &&
                                     (result.ErrorMessage.Contains("missing online") ||
                                      result.ErrorMessage.Contains("Fetch Failed") ||
@@ -371,12 +449,12 @@ public class BulkWikiComparatorWindow : EditorWindow
                                      result.ErrorMessage.Contains("not found on wiki")))
                                 {
                                     resultItem.Status = ComparisonStatus.Error;
-                                    Interlocked.Increment(ref errorCount);
+                                    Interlocked.Increment(ref runErrorCount);
                                 }
-                                else // Likely a content mismatch
+                                else
                                 {
                                     resultItem.Status = ComparisonStatus.Mismatch;
-                                    Interlocked.Increment(ref mismatchCount);
+                                    Interlocked.Increment(ref runMismatchCount);
                                 }
                             }
                         }
@@ -385,131 +463,123 @@ public class BulkWikiComparatorWindow : EditorWindow
                             Debug.LogError($"[BulkWikiComparator] Error comparing item {resultItem.ItemId}: {ex}");
                             resultItem.Status = ComparisonStatus.Error;
                             resultItem.Details = $"Unexpected Error: {ex.Message}";
-                            Interlocked.Increment(ref errorCount);
+                            Interlocked.Increment(ref runErrorCount);
                         }
                         finally
                         {
                             semaphore.Release();
                             int currentProcessed = Interlocked.Increment(ref processedCount);
 
-                            // Update progress on the main thread periodically
-                            if (currentProcessed % 5 == 0 ||
-                                currentProcessed == totalItems) // Update every 5 items or on the last one
+                            if (currentProcessed % 5 == 0 || currentProcessed == totalItemsToCompare)
                             {
                                 EditorApplication.delayCall += () =>
                                 {
-                                    if (!_isComparing) return; // Check if cancelled
-                                    _progress = (float)currentProcessed / totalItems;
-                                    _progressMessage = $"Compared {currentProcessed} of {totalItems} items...";
-                                    _treeView?.Reload(); // Reload to show updated status icons/text
+                                    if (!_isComparing) return;
+                                    _progress = (float)currentProcessed / totalItemsToCompare;
+                                    _progressMessage = $"Compared {currentProcessed} of {totalItemsToCompare} items in current run...";
+                                    _treeView?.Reload();
                                     Repaint();
                                 };
                             }
                         }
-                    }, token)); // Pass token to Task.Run
-                }
+                    }, token));
+                } // End foreach
 
-                await Task.WhenAll(comparisonTasks); // Wait for all comparison tasks
+                await Task.WhenAll(comparisonTasks);
             } // End using semaphore
 
             // Final summary update on main thread
             EditorApplication.delayCall += () =>
             {
+                string completionScope = (totalItemsToCompare == _comparisonResults.Count) ? "all" : "selected";
                 if (token.IsCancellationRequested)
                 {
-                    _summaryMessage = $"Comparison cancelled after processing {processedCount} items.";
+                    _summaryMessage = $"Comparison of {completionScope} items cancelled after processing {processedCount} item(s).";
                 }
                 else
                 {
-                    _summaryMessage =
-                        $"Comparison complete. Total: {totalItems} | Matches: {matchCount} | Mismatches: {mismatchCount} | Local Empty/No Template: {localEmptyCount} | Errors: {errorCount}";
+                    _summaryMessage = $"Comparison of {totalItemsToCompare} {completionScope} item(s) complete. Results -> Matches: {runMatchCount} | Mismatches: {runMismatchCount} | Local Empty: {runLocalEmptyCount} | Errors: {runErrorCount}";
                     _progress = 1.0f;
                     _progressMessage = "Comparison Finished.";
                 }
-
-                _treeView?.Reload(); // Final reload to ensure all data is displayed
+                _treeView?.Reload();
                 Repaint();
             };
         }
         catch (OperationCanceledException)
         {
-            // Expected when cancellation is requested
-            EditorApplication.delayCall += () =>
-            {
-                _summaryMessage = "Comparison cancelled.";
-                Repaint();
-            };
+            EditorApplication.delayCall += () => { _summaryMessage = "Comparison cancelled."; Repaint(); };
         }
         catch (Exception ex)
         {
-            Debug.LogError($"[BulkWikiComparator] Unexpected error during bulk comparison: {ex}");
-            EditorApplication.delayCall += () =>
-            {
-                _summaryMessage = $"An unexpected error occurred: {ex.Message}";
-                Repaint();
-            };
+            Debug.LogError($"[BulkWikiComparator] Unexpected error during comparison run: {ex}");
+            EditorApplication.delayCall += () => { _summaryMessage = $"An unexpected error occurred: {ex.Message}"; Repaint(); };
         }
         finally
         {
             // Ensure state is reset regardless of how the process ended
             EditorApplication.delayCall += () =>
             {
-                _isComparing = false;
+                _isComparing = false; // Crucial: Reset the main comparison flag
                 _cancellationTokenSource?.Dispose();
                 _cancellationTokenSource = null;
-                Repaint(); // Repaint to re-enable button etc.
+                Repaint(); // Re-enable buttons etc.
             };
         }
     }
 
+
+    // InitializeResultsList remains the same...
     private void InitializeResultsList(List<ItemDBRecord> items)
     {
         _comparisonResults = items.Select((item, index) =>
-            new ComparisonResultItem(index) // Use index for unique TreeView ID
-            {
-                ItemId = item.Id,
-                ItemName = item.ItemName,
-                Status = ComparisonStatus.Pending,
-                Details = "Pending comparison...",
-                LocalWikiString = item.WikiString, // Store original local string
-                // Display texts will be populated after comparison
-                DisplayLocalText = item.WikiString, // Initially show raw local string
-                DisplayOnlineText = "<Pending>"
-            }).ToList();
+        {
+             string initialLocalDisplayText;
+             if (string.IsNullOrWhiteSpace(item.WikiString)) { initialLocalDisplayText = "<Local WikiString is empty>"; }
+             else if (!item.WikiString.Contains("{{Fancy-armor") && !item.WikiString.Contains("{{Fancy-weapon")) { initialLocalDisplayText = "<No Fancy-armor/weapon template found in local WikiString>"; }
+             else { initialLocalDisplayText = item.WikiString; }
+
+             return new ComparisonResultItem(index)
+             {
+                 ItemId = item.Id, ItemName = item.ItemName, Status = ComparisonStatus.Pending,
+                 Details = "Pending comparison...", LocalWikiString = item.WikiString,
+                 DisplayLocalText = initialLocalDisplayText, DisplayOnlineText = "<Pending>"
+             };
+        }).ToList();
     }
 
     // --- TreeView Event Handlers ---
 
     private void OnSortingChanged(MultiColumnHeader multiColumnHeader)
     {
-        if (_treeView == null) return;
-
+        if (_treeView == null || !_comparisonResults.Any()) return;
         var sortedColumns = multiColumnHeader.state.sortedColumns;
         if (sortedColumns.Length == 0) return;
-
         var sortedColumnIndex = sortedColumns[0];
         var ascending = multiColumnHeader.IsSortedAscending(sortedColumnIndex);
-
         _treeView.SortItems(sortedColumnIndex, ascending);
         _treeView.Reload();
     }
 
     private void OnTreeViewSelectionChanged(IList<int> selectedIds)
     {
-        if (_treeView == null || selectedIds.Count == 0)
+        // Update the stored selection list
+        _currentSelectionIds = selectedIds.ToList();
+
+        // Update the single selected item for the detail view
+        if (_treeView == null || selectedIds.Count != 1) // Show detail only for single selection
         {
             _selectedItem = null;
         }
         else
         {
-            // Find the corresponding ComparisonResultItem based on the TreeViewItem's ID
-            _selectedItem = _treeView.GetItemById(selectedIds[0]); // Assuming single selection
+            _selectedItem = _treeView.GetItemById(selectedIds[0]);
         }
 
         // Clear scroll positions when selection changes
         _scrollPosLocal = Vector2.zero;
         _scrollPosOnline = Vector2.zero;
-        Repaint(); // Redraw to show/hide detail view
+        Repaint(); // Redraw to update button states and detail view
     }
 }
 
