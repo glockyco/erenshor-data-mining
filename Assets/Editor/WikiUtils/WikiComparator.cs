@@ -1,7 +1,9 @@
 using System;
+using System.Net; // Added for HttpStatusCode
 using System.Net.Http;
 using System.Threading.Tasks;
 using HtmlAgilityPack; // Make sure you have added the NuGet package HtmlAgilityPack to your project
+using UnityEngine; // Added for Debug.Log/Warning/Error
 
 // Assuming ItemDBRecord is accessible from Assets/Editor/ExportSystem/Database/ItemDBRecord.cs
 // If not, you might need to adjust using statements or include the definition here.
@@ -15,35 +17,50 @@ public class WikiComparator
     /// Fetches the content of the wiki edit page's main textarea.
     /// </summary>
     /// <param name="wikiEditUrl">The full URL to the wiki page with ?action=edit.</param>
-    /// <returns>The text content of the textarea, or null if an error occurs or the textarea isn't found.</returns>
-    private async Task<string> GetWikiEditTextAsync(string wikiEditUrl)
+    /// <returns>A tuple containing the text content and an error message (null if successful).</returns>
+    private async Task<(string? Content, string? ErrorMessage)> GetWikiEditTextAsync(string wikiEditUrl)
     {
+        HttpResponseMessage response = null;
         try
         {
             // Set a User-Agent header, as some sites might block requests without one
-            // Using a generic bot-like agent. Consider customizing if needed.
             if (httpClient.DefaultRequestHeaders.UserAgent.Count == 0)
             {
-                 httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (compatible; WikiBot/1.0; +https://yourdomain.com/botinfo)"); // Replace with your info if desired
+                 httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (compatible; ErenshorWikiTool/1.0; UnityEditor)"); // More specific UA
             }
 
-            string htmlContent = await httpClient.GetStringAsync(wikiEditUrl);
+            Debug.Log($"[WikiComparator] Fetching edit content from: {wikiEditUrl}");
+            response = await httpClient.GetAsync(wikiEditUrl);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                string errorMsg = $"[WikiComparator] Error fetching URL {wikiEditUrl}: Status Code {response.StatusCode} ({response.ReasonPhrase})";
+                Debug.LogError(errorMsg);
+                if (response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    return (null, $"Page not found on wiki ({response.StatusCode}). Does '{wikiEditUrl.Replace("?action=edit", "")}' exist?");
+                }
+                return (null, $"HTTP Error: {response.StatusCode}. Check wiki accessibility.");
+            }
+
+            string htmlContent = await response.Content.ReadAsStringAsync();
 
             HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(htmlContent);
 
             // --- Locate the textarea ---
-            // Based on the provided HTML, the textarea seems to be within a div with class 'wikiEditor-ui-text'.
-            // We'll use XPath to find it. You might need to adjust this if the structure varies.
-            // XPath: //div[contains(@class, 'wikiEditor-ui-text')]//textarea
-            // A potentially more robust selector if the direct parent isn't always 'wikiEditor-ui-text':
-            // //div[contains(@class, 'wikiEditor-ui')]//textarea
-            HtmlNode textAreaNode = doc.DocumentNode.SelectSingleNode("//div[contains(@class, 'wikiEditor-ui-text')]//textarea");
+            // Try the most specific selector first
+            HtmlNode textAreaNode = doc.DocumentNode.SelectSingleNode("//textarea[@id='wpTextbox1']"); // MediaWiki default ID
 
-            // Fallback selector if the first one fails
+            // Fallback selectors if the ID isn't present
             if (textAreaNode == null)
             {
-                 Console.WriteLine($"Warning: Textarea not found within '.wikiEditor-ui-text' at {wikiEditUrl}. Trying broader search...");
+                 Debug.LogWarning($"[WikiComparator] Textarea with id='wpTextbox1' not found at {wikiEditUrl}. Trying class-based selectors...");
+                 textAreaNode = doc.DocumentNode.SelectSingleNode("//div[contains(@class, 'wikiEditor-ui-text')]//textarea");
+            }
+            if (textAreaNode == null)
+            {
+                 Debug.LogWarning($"[WikiComparator] Textarea not found within '.wikiEditor-ui-text'. Trying broader '.wikiEditor-ui' search...");
                  textAreaNode = doc.DocumentNode.SelectSingleNode("//div[contains(@class, 'wikiEditor-ui')]//textarea");
             }
 
@@ -51,25 +68,41 @@ public class WikiComparator
             {
                 // The content is the inner text of the textarea node.
                 // Use DeEntitize to convert HTML entities (like &amp;) back to characters.
-                return HtmlEntity.DeEntitize(textAreaNode.InnerText);
+                Debug.Log($"[WikiComparator] Successfully found textarea and extracted content.");
+                return (HtmlEntity.DeEntitize(textAreaNode.InnerText), null); // Success
             }
             else
             {
-                Console.WriteLine($"Error: Textarea not found within '.wikiEditor-ui' structure at {wikiEditUrl}");
-                // Optionally log the HTML structure here for debugging if the textarea isn't found
-                // Console.WriteLine($"HTML Structure: {doc.DocumentNode.OuterHtml.Substring(0, Math.Min(doc.DocumentNode.OuterHtml.Length, 1000))}"); // Log first 1000 chars
-                return null;
+                string errorMsg = $"[WikiComparator] Error: Could not find the wiki edit textarea in the HTML structure at {wikiEditUrl}. The wiki page structure might have changed.";
+                Debug.LogError(errorMsg);
+                // Log first part of HTML for debugging
+                // Debug.Log($"HTML Structure (start): {htmlContent.Substring(0, Math.Min(htmlContent.Length, 1000))}");
+                return (null, "Could not parse wiki page structure (textarea not found).");
             }
         }
         catch (HttpRequestException e)
         {
-            Console.WriteLine($"Error fetching URL {wikiEditUrl}: {e.Message}");
-            return null;
+            // Network errors, DNS errors, etc.
+            string errorMsg = $"[WikiComparator] Network Error fetching URL {wikiEditUrl}: {e.Message}";
+            Debug.LogError($"{errorMsg}\n{e.StackTrace}");
+            return (null, $"Network error: {e.Message}. Check connection and URL.");
         }
-        catch (Exception ex) // Catch other potential parsing errors
+        catch (TaskCanceledException e) // Handle timeouts
         {
-             Console.WriteLine($"Error processing HTML from {wikiEditUrl}: {ex.Message}");
-             return null;
+             string errorMsg = $"[WikiComparator] Request timed out for URL {wikiEditUrl}: {e.Message}";
+             Debug.LogError($"{errorMsg}\n{e.StackTrace}");
+             return (null, $"Request timed out. The wiki might be slow or unreachable.");
+        }
+        catch (Exception ex) // Catch other potential parsing or unexpected errors
+        {
+             string errorMsg = $"[WikiComparator] Error processing HTML or during request for {wikiEditUrl}: {ex.Message}";
+             Debug.LogError($"{errorMsg}\n{ex.StackTrace}");
+             return (null, $"An unexpected error occurred: {ex.Message}");
+        }
+        finally
+        {
+            // Dispose response content if it exists, response itself is disposed implicitly by using
+             response?.Dispose();
         }
     }
 
@@ -79,20 +112,27 @@ public class WikiComparator
     /// </summary>
     /// <param name="itemWikiUrl">The full URL to the wiki page (e.g., https://erenshor.wiki.gg/wiki/Item_Name).</param>
     /// <param name="localWikiString">The WikiString value from your ItemDBRecord.</param>
-    /// <returns>A tuple containing: bool AreEqual, string OnlineText, string LocalText.</returns>
-    public async Task<(bool AreEqual, string OnlineText, string LocalText)> CompareWikiStringAsync(string itemWikiUrl, string localWikiString)
+    /// <returns>A tuple containing: bool AreEqual, string? OnlineText, string? LocalText, string? ErrorMessage.</returns>
+    public async Task<(bool AreEqual, string? OnlineText, string? LocalText, string? ErrorMessage)> CompareWikiStringAsync(string itemWikiUrl, string? localWikiString)
     {
         // Construct the edit URL
         string editUrl = itemWikiUrl.Contains("?")
             ? itemWikiUrl + "&action=edit"
             : itemWikiUrl + "?action=edit";
 
-        string onlineWikiTextRaw = await GetWikiEditTextAsync(editUrl);
+        (string? onlineWikiTextRaw, string? fetchError) = await GetWikiEditTextAsync(editUrl);
 
+        if (fetchError != null)
+        {
+            // Indicate failure to retrieve or parse online text, passing the error message
+            return (false, null, localWikiString, fetchError);
+        }
+
+        // If fetch succeeded, onlineWikiTextRaw should not be null, but check defensively
         if (onlineWikiTextRaw == null)
         {
-            // Indicate failure to retrieve or parse online text
-            return (false, null, localWikiString);
+             Debug.LogError("[WikiComparator] GetWikiEditTextAsync succeeded but returned null content. This should not happen.");
+             return (false, null, localWikiString, "Internal error: Fetch succeeded but content was null.");
         }
 
         // --- Comparison ---
@@ -103,8 +143,8 @@ public class WikiComparator
         bool areEqual = string.Equals(normalizedOnline, normalizedLocal, StringComparison.Ordinal);
 
         // Return the *original* raw online text and local text for inspection if needed,
-        // even though the comparison was done on the normalized versions.
-        return (areEqual, onlineWikiTextRaw, localWikiString);
+        // even though the comparison was done on the normalized versions. No error message means success.
+        return (areEqual, onlineWikiTextRaw, localWikiString, null);
     }
 
     // --- Example Usage (Can be placed in a separate test class or utility) ---
@@ -160,16 +200,16 @@ public class WikiComparator
 
         // Construct the base URL (adjust if your naming convention differs)
         // Ensure page names are correctly URL-encoded
-        string wikiPageName = itemRecord.Id; // Assuming Id matches the wiki page title
+        string wikiPageName = itemRecord.ItemName.Replace(" ", "_");
         string baseUrl = $"https://erenshor.wiki.gg/wiki/{Uri.EscapeDataString(wikiPageName)}";
 
         WikiComparator comparator = new WikiComparator();
         var result = await comparator.CompareWikiStringAsync(baseUrl, itemRecord.WikiString);
 
         Console.WriteLine($"--- Comparing: {itemRecord.ItemName} ---");
-        if (result.OnlineText == null)
+        if (result.ErrorMessage != null)
         {
-            Console.WriteLine("  Result: FAILED to retrieve or parse online wiki text.");
+            Console.WriteLine($"  Result: FAILED. Error: {result.ErrorMessage}");
         }
         else if (result.AreEqual)
         {
@@ -179,7 +219,7 @@ public class WikiComparator
         {
             Console.WriteLine("  Result: DIFFERENCE DETECTED (after normalizing line endings)!");
             Console.WriteLine("\n  --- Online Text (Raw) ---");
-            Console.WriteLine(result.OnlineText);
+            Console.WriteLine(result.OnlineText ?? "<NULL>"); // Should not be null if ErrorMessage is null
             Console.WriteLine("  -------------------------");
             Console.WriteLine("\n  --- Local WikiString (Raw) ---");
             Console.WriteLine(result.LocalText ?? "<NULL>"); // Handle potential null local string

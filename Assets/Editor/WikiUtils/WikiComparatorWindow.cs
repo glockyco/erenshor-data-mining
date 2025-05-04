@@ -1,12 +1,10 @@
 #nullable enable
 
 using System;
-using System.IO; // Added for Path operations
-using System.Threading.Tasks;
+using System.IO;
 using UnityEditor;
 using UnityEngine;
-using Database; // Assuming ItemDBRecord is in this namespace
-using SQLite; // Added for SQLite connection
+using SQLite;
 
 public class WikiComparatorWindow : EditorWindow
 {
@@ -17,6 +15,7 @@ public class WikiComparatorWindow : EditorWindow
 
     private string _itemIdToCompare = ""; // Default is now empty, will be set from DB
     private string _statusMessage = "Enter an Item ID (Wiki Page Name) and click Compare."; // Updated default message
+    private MessageType _statusMessageType = MessageType.Info; // Added for status styling
     private string? _onlineWikiText;
     private string? _localWikiText;
     private Vector2 _scrollPosOnline;
@@ -62,6 +61,7 @@ public class WikiComparatorWindow : EditorWindow
         {
             Debug.LogWarning($"Wiki Comparator: Database not found at {_fullDbPathDisplay}. Cannot set default Item ID.");
             _statusMessage = "Database not found. Cannot set default Item ID."; // Update status
+            _statusMessageType = MessageType.Warning;
             return;
         }
 
@@ -76,17 +76,20 @@ public class WikiComparatorWindow : EditorWindow
                 // Set the default value to the Id (Primary Key)
                 _itemIdToCompare = firstItemWithWiki.Id;
                 _statusMessage = $"Defaulting to first found Item ID '{_itemIdToCompare}'. Enter the exact Wiki Page Name (Item ID) to compare.";
+                _statusMessageType = MessageType.Info;
                 Debug.Log($"Wiki Comparator: Set default Item ID input to '{firstItemWithWiki.Id}'.");
             }
             else
             {
                 _statusMessage = "No items with WikiStrings found in DB. Please enter an Item ID manually.";
+                _statusMessageType = MessageType.Warning;
                 Debug.LogWarning("Wiki Comparator: No items with non-empty WikiString found in the database.");
             }
         }
         catch (Exception ex)
         {
             _statusMessage = "Error reading database to find default item.";
+            _statusMessageType = MessageType.Error;
             Debug.LogError($"Wiki Comparator: Error reading database to find default item: {ex.Message}");
         }
         finally
@@ -128,7 +131,7 @@ public class WikiComparatorWindow : EditorWindow
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("Status:", EditorStyles.boldLabel); // Added bold label for status
         // Use HelpBox for status for better visibility and potential icons
-        EditorGUILayout.HelpBox(_statusMessage, _isComparing ? MessageType.Info : (_localWikiText != null && _onlineWikiText != null ? MessageType.Info : MessageType.None) );
+        EditorGUILayout.HelpBox(_statusMessage, _statusMessageType); // Use dynamic message type
         EditorGUILayout.Space();
 
         if (!string.IsNullOrEmpty(_onlineWikiText) || !string.IsNullOrEmpty(_localWikiText))
@@ -165,6 +168,7 @@ public class WikiComparatorWindow : EditorWindow
         if (string.IsNullOrWhiteSpace(itemIdToLookup))
         {
             _statusMessage = "Please enter an Item ID (Wiki Page Name).";
+            _statusMessageType = MessageType.Warning;
             _onlineWikiText = null;
             _localWikiText = null;
             Repaint();
@@ -175,6 +179,7 @@ public class WikiComparatorWindow : EditorWindow
         if (!File.Exists(_fullDbPathDisplay))
         {
              _statusMessage = "Database file not found. Cannot perform comparison.";
+             _statusMessageType = MessageType.Error;
              _onlineWikiText = null;
              _localWikiText = null;
              Repaint();
@@ -186,6 +191,7 @@ public class WikiComparatorWindow : EditorWindow
 
         _isComparing = true;
         _statusMessage = $"Finding local item data in database for ID: {itemIdToLookup}...";
+        _statusMessageType = MessageType.Info;
         _onlineWikiText = null;
         _localWikiText = null;
         Repaint(); // Update UI to show "Comparing..." and clear results
@@ -198,6 +204,7 @@ public class WikiComparatorWindow : EditorWindow
             if (itemRecord == null)
             {
                 _statusMessage = $"Error: Item with ID '{itemIdToLookup}' not found in the database '{Path.GetFileName(_fullDbPathDisplay)}'.";
+                _statusMessageType = MessageType.Error;
                 _isComparing = false;
                 Repaint();
                 return;
@@ -205,41 +212,52 @@ public class WikiComparatorWindow : EditorWindow
 
             _localWikiText = itemRecord.WikiString; // Store local text for display
             _statusMessage = "Fetching and comparing with online wiki...";
+            _statusMessageType = MessageType.Info;
             Repaint();
 
             // --- Step 2: Perform the comparison ---
             // Use the Item ID (which should match the wiki page name) for the URL
-            string wikiPageName = itemRecord.Id;
+            string wikiPageName = itemRecord.ItemName.Replace(" ", "_");
             string baseUrl = $"https://erenshor.wiki.gg/wiki/{Uri.EscapeDataString(wikiPageName)}";
 
             WikiComparator comparator = new WikiComparator();
-            (bool areEqual, string? onlineText, string? localText) result = await comparator.CompareWikiStringAsync(baseUrl, itemRecord.WikiString);
+            // Updated call to handle the new return type with ErrorMessage
+            (bool areEqual, string? onlineText, string? localText, string? errorMessage) result =
+                await comparator.CompareWikiStringAsync(baseUrl, itemRecord.WikiString);
 
             // --- Step 3: Display results ---
-            _onlineWikiText = result.onlineText;
+            _onlineWikiText = result.onlineText; // Store online text even if comparison failed, if available
             // _localWikiText is already set from itemRecord
 
-            if (result.onlineText == null)
+            if (result.errorMessage != null)
             {
-                _statusMessage = "Comparison failed: Could not retrieve or parse online wiki text.";
+                // Use the specific error message from the comparator
+                _statusMessage = $"Comparison failed: {result.errorMessage}";
+                _statusMessageType = MessageType.Error;
+                // Optionally clear online text if fetch failed completely
+                if (result.onlineText == null) _onlineWikiText = "<Fetch Failed>";
             }
             else if (result.areEqual)
             {
                 _statusMessage = $"Match: Local WikiString for '{itemRecord.Id}' matches the online version (normalized).";
+                _statusMessageType = MessageType.Info;
             }
             else
             {
                 _statusMessage = $"Difference detected for '{itemRecord.Id}' (after normalizing line endings).";
+                _statusMessageType = MessageType.Warning; // Use Warning for differences
             }
         }
         catch (SQLiteException sqlEx) // Catch specific SQLite errors
         {
              _statusMessage = $"Database Error: {sqlEx.Message}. Ensure the DB exists and is not locked.";
+             _statusMessageType = MessageType.Error;
              Debug.LogError($"SQLite Error during Wiki Comparison: {sqlEx}");
         }
         catch (Exception ex)
         {
-            _statusMessage = $"An error occurred: {ex.Message}";
+            _statusMessage = $"An unexpected error occurred: {ex.Message}";
+            _statusMessageType = MessageType.Error;
             Debug.LogError($"Wiki Comparison Error: {ex}");
         }
         finally
@@ -276,12 +294,14 @@ public class WikiComparatorWindow : EditorWindow
         {
             Debug.LogError($"SQLite error querying for item ID '{itemId}': {ex.Message}\n{ex.StackTrace}");
             _statusMessage = $"Database Query Error: {ex.Message}"; // Update status for user
+            _statusMessageType = MessageType.Error; // Set error type
             return null;
         }
         catch (Exception ex)
         {
              Debug.LogError($"General error querying for item ID '{itemId}': {ex.Message}\n{ex.StackTrace}");
              _statusMessage = $"Error: {ex.Message}"; // Update status for user
+             _statusMessageType = MessageType.Error; // Set error type
              return null;
         }
         finally
