@@ -14,16 +14,14 @@ namespace Erenshor.Editor.WikiUtils
     {
         private static readonly HttpClient httpClient = new HttpClient();
 
-        // Regex to find Fancy-armor or Fancy-weapon templates and capture their content.
-        // Handles potentially nested braces using balancing groups.
-        private static readonly Regex FancyTemplateRegex = new Regex(
-            @"\{\{\s*(Fancy-armor|Fancy-weapon)\s*(\|(?<content>(?>\{\{ (?<DEPTH>) | \}\} (?<-DEPTH>) | [^\{\}] | \{ (?!\{) | \} (?!\}) )+? (?(DEPTH)(?!)) ))? \}\}",
-            RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled);
-
-        // Regex to find the tier value within a template's content.
+        // Keep TierRegex as it's used on the extracted template content
         private static readonly Regex TierRegex = new Regex(
             @"\|\s*tier\s*=\s*(\d+)\s*",
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+        // Template start markers
+        private const string FancyArmorStart = "{{Fancy-armor";
+        private const string FancyWeaponStart = "{{Fancy-weapon";
 
 
         /// <summary>
@@ -98,7 +96,7 @@ namespace Erenshor.Editor.WikiUtils
         }
 
         /// <summary>
-        /// Parses wiki text to find Fancy-armor/weapon templates and extracts their tier.
+        /// Parses wiki text to find Fancy-armor/weapon templates using start markers and brace counting.
         /// </summary>
         /// <param name="wikiText">The raw wiki text to parse.</param>
         /// <returns>A dictionary where the key is the tier (int, 0 default) and the value is the full template text (string).</returns>
@@ -110,16 +108,69 @@ namespace Erenshor.Editor.WikiUtils
                 return templatesByTier;
             }
 
-            MatchCollection matches = FancyTemplateRegex.Matches(wikiText);
-            foreach (Match match in matches)
+            int currentIndex = 0;
+            while (currentIndex < wikiText.Length)
             {
-                if (match.Success)
-                {
-                    string fullTemplateText = match.Value;
-                    string content = match.Groups["content"].Value; // Get content inside the template for tier parsing
-                    int tier = 0; // Default tier
+                // Find the next occurrence of either template start marker
+                int armorIndex = wikiText.IndexOf(FancyArmorStart, currentIndex, StringComparison.OrdinalIgnoreCase);
+                int weaponIndex = wikiText.IndexOf(FancyWeaponStart, currentIndex, StringComparison.OrdinalIgnoreCase);
 
-                    Match tierMatch = TierRegex.Match(content);
+                int startIndex = -1;
+
+                // Determine which marker comes first, or if none are found
+                if (armorIndex != -1 && weaponIndex != -1)
+                {
+                    startIndex = Math.Min(armorIndex, weaponIndex);
+                }
+                else if (armorIndex != -1)
+                {
+                    startIndex = armorIndex;
+                }
+                else if (weaponIndex != -1)
+                {
+                    startIndex = weaponIndex;
+                }
+                else
+                {
+                    // No more template starts found
+                    break;
+                }
+
+                // Find the end of the template using brace counting
+                int braceLevel = 0;
+                int endIndex = -1;
+                int searchIndex = startIndex;
+
+                while (searchIndex < wikiText.Length - 1)
+                {
+                    if (wikiText.Substring(searchIndex, 2) == "{{")
+                    {
+                        braceLevel++;
+                        searchIndex += 2; // Skip the characters we just checked
+                    }
+                    else if (wikiText.Substring(searchIndex, 2) == "}}")
+                    {
+                        braceLevel--;
+                        if (braceLevel == 0) // Found the matching closing brace for the initial opening brace
+                        {
+                            endIndex = searchIndex + 2; // Include the closing braces
+                            break;
+                        }
+                        searchIndex += 2; // Skip the characters we just checked
+                    }
+                    else
+                    {
+                        searchIndex++; // Move to the next character
+                    }
+                }
+
+                if (endIndex != -1) // Successfully found a complete template
+                {
+                    string fullTemplateText = wikiText.Substring(startIndex, endIndex - startIndex);
+
+                    // Extract tier (defaulting to 0)
+                    int tier = 0;
+                    Match tierMatch = TierRegex.Match(fullTemplateText); // Search within the extracted template
                     if (tierMatch.Success && int.TryParse(tierMatch.Groups[1].Value, out int parsedTier))
                     {
                         tier = parsedTier;
@@ -127,21 +178,33 @@ namespace Erenshor.Editor.WikiUtils
 
                     if (templatesByTier.ContainsKey(tier))
                     {
-                        // Handle duplicate tiers if necessary - currently overwrites with the last one found
-                        Debug.LogWarning($"[WikiComparator] Duplicate template found for tier {tier}. Using the last one encountered.");
+                        Debug.LogWarning($"[WikiComparator] Duplicate template found for tier {tier}. Using the last one encountered at index {startIndex}.");
                     }
-                    // Store the *full* matched template text, including {{...}}
                     templatesByTier[tier] = fullTemplateText;
+
+                    // Continue searching after the end of the found template
+                    currentIndex = endIndex;
+                }
+                else
+                {
+                    // Found a start but no valid end? Log error or break?
+                    // For now, just advance past the start index to avoid infinite loops on malformed text.
+                    Debug.LogWarning($"[WikiComparator] Found template start at index {startIndex} but could not find matching closing braces '}}'. Skipping.");
+                    currentIndex = startIndex + 2; // Move past the '{{'
                 }
             }
+
             return templatesByTier;
         }
+
 
         /// <summary>
         /// Normalizes wiki template text for comparison by trimming whitespace and standardizing line endings.
         /// </summary>
         private string NormalizeTemplateText(string templateText)
         {
+            // Also remove leading/trailing whitespace from each line within the template for robustness?
+            // For now, keep it simple: normalize line endings and trim start/end.
             return templateText.Replace("\r\n", "\n").Trim();
         }
 
@@ -168,7 +231,7 @@ namespace Erenshor.Editor.WikiUtils
                 return (false, null, localWikiString, "Internal error: Fetch succeeded but content was null.");
             }
 
-            // Parse templates from both sources
+            // Parse templates from both sources using the new brace-counting method
             Dictionary<int, string> onlineTemplates = ParseWikiTemplates(onlineWikiTextRaw);
             Dictionary<int, string> localTemplates = ParseWikiTemplates(localWikiString);
 
@@ -180,22 +243,16 @@ namespace Erenshor.Editor.WikiUtils
 
             if (!allTiers.Any() && (!string.IsNullOrWhiteSpace(onlineWikiTextRaw) || !string.IsNullOrWhiteSpace(localWikiString)))
             {
-                // If there's text but no templates were found in either, consider it a potential difference
-                // unless both are truly empty/whitespace.
                  if (string.IsNullOrWhiteSpace(onlineWikiTextRaw) && string.IsNullOrWhiteSpace(localWikiString))
                  {
-                     // Both effectively empty, consider it a match
                      overallMatch = true;
                  }
                  else if (string.IsNullOrWhiteSpace(onlineWikiTextRaw?.Trim()) && string.IsNullOrWhiteSpace(localWikiString?.Trim()))
                  {
-                     // Both contain only whitespace after trimming, consider it a match
                      overallMatch = true;
                  }
                  else
                  {
-                    // One or both have content, but no templates found. This is treated as a difference if the raw text differs.
-                    // Fallback to simple string comparison if no templates are involved.
                     string normalizedOnline = (onlineWikiTextRaw ?? "").Replace("\r\n", "\n").Trim();
                     string normalizedLocal = (localWikiString ?? "").Replace("\r\n", "\n").Trim();
                     overallMatch = string.Equals(normalizedOnline, normalizedLocal, StringComparison.Ordinal);
@@ -211,7 +268,6 @@ namespace Erenshor.Editor.WikiUtils
             }
             else if (!allTiers.Any())
             {
-                // Both sources are empty or contain no templates, consider it a match.
                 overallMatch = true;
                 comparisonDetails.Add("No Fancy-armor/weapon templates found in either source.");
             }
@@ -235,8 +291,7 @@ namespace Erenshor.Editor.WikiUtils
                         }
                         else
                         {
-                            // Optionally add info about matches
-                            // comparisonDetails.Add($"Tier {tier}: Match");
+                            // comparisonDetails.Add($"Tier {tier}: Match"); // Optional: Add match details
                         }
                     }
                     else if (onlineHasTier)
@@ -255,11 +310,13 @@ namespace Erenshor.Editor.WikiUtils
             string? finalErrorMessage = null;
             if (!overallMatch)
             {
+                // Combine details if mismatch occurred
                 finalErrorMessage = "Differences found: " + string.Join("; ", comparisonDetails);
             }
-            else if (comparisonDetails.Any()) // Add details even on match if needed (e.g., "No templates found...")
+            else if (comparisonDetails.Any())
             {
-                 finalErrorMessage = comparisonDetails.First(); // Show the first detail message (e.g., about no templates)
+                 // If match is true, but there are details (like "No templates found..."), show the first one.
+                 finalErrorMessage = comparisonDetails.First();
             }
 
 
