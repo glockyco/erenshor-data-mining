@@ -20,8 +20,9 @@ namespace Erenshor.Editor.WikiUtils // Enclose window class in the namespace
         private string _itemIdToCompare = ""; // Default is empty, set from DB in OnEnable
         private string _statusMessage = "Enter an Item ID (Wiki Page Name) and click Compare.";
         private MessageType _statusMessageType = MessageType.Info;
-        private string? _onlineWikiText;
-        private string? _localWikiText;
+        // These will now hold the specific templates being compared or status messages
+        private string? _displayOnlineText;
+        private string? _displayLocalText;
         private Vector2 _scrollPosOnline;
         private Vector2 _scrollPosLocal;
         private bool _isComparing = false;
@@ -139,26 +140,26 @@ namespace Erenshor.Editor.WikiUtils // Enclose window class in the namespace
             EditorGUILayout.HelpBox(_statusMessage, _statusMessageType);
             EditorGUILayout.Space();
 
-            // Display text areas only if there's text to show
-            if (!string.IsNullOrEmpty(_onlineWikiText) || !string.IsNullOrEmpty(_localWikiText))
+            // Display text areas only if there's text to show from the comparison result
+            if (!string.IsNullOrEmpty(_displayOnlineText) || !string.IsNullOrEmpty(_displayLocalText))
             {
                 EditorGUILayout.BeginHorizontal();
 
-                // --- Online Text ---
+                // --- Online Text (Specific Template or Message) ---
                 EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true));
-                EditorGUILayout.LabelField("Online Wiki Text (Raw)", EditorStyles.boldLabel);
+                EditorGUILayout.LabelField("Online Wiki Text (Relevant Template)", EditorStyles.boldLabel);
                 _scrollPosOnline = EditorGUILayout.BeginScrollView(_scrollPosOnline, EditorStyles.helpBox, GUILayout.ExpandHeight(true));
                 // Use read-only TextArea for multiline display
-                EditorGUILayout.TextArea(_onlineWikiText ?? "N/A", EditorStyles.textArea, GUILayout.ExpandHeight(true));
+                EditorGUILayout.TextArea(_displayOnlineText ?? "N/A", EditorStyles.textArea, GUILayout.ExpandHeight(true));
                 EditorGUILayout.EndScrollView();
                 EditorGUILayout.EndVertical();
 
-                // --- Local Text ---
+                // --- Local Text (Specific Template or Message) ---
                 EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true));
-                EditorGUILayout.LabelField("Local WikiString (Raw)", EditorStyles.boldLabel);
+                EditorGUILayout.LabelField("Local WikiString (Relevant Template)", EditorStyles.boldLabel);
                 _scrollPosLocal = EditorGUILayout.BeginScrollView(_scrollPosLocal, EditorStyles.helpBox, GUILayout.ExpandHeight(true));
                 // Use read-only TextArea for multiline display
-                EditorGUILayout.TextArea(_localWikiText ?? "N/A", EditorStyles.textArea, GUILayout.ExpandHeight(true));
+                EditorGUILayout.TextArea(_displayLocalText ?? "N/A", EditorStyles.textArea, GUILayout.ExpandHeight(true));
                 EditorGUILayout.EndScrollView();
                 EditorGUILayout.EndVertical();
 
@@ -175,8 +176,8 @@ namespace Erenshor.Editor.WikiUtils // Enclose window class in the namespace
             {
                 _statusMessage = "Please enter an Item ID (Wiki Page Name).";
                 _statusMessageType = MessageType.Warning;
-                _onlineWikiText = null;
-                _localWikiText = null;
+                _displayOnlineText = null;
+                _displayLocalText = null;
                 Repaint();
                 return;
             }
@@ -186,8 +187,8 @@ namespace Erenshor.Editor.WikiUtils // Enclose window class in the namespace
             {
                 _statusMessage = "Database file not found. Cannot perform comparison.";
                 _statusMessageType = MessageType.Error;
-                _onlineWikiText = null;
-                _localWikiText = null;
+                _displayOnlineText = null;
+                _displayLocalText = null;
                 Repaint();
                 return;
             }
@@ -197,69 +198,91 @@ namespace Erenshor.Editor.WikiUtils // Enclose window class in the namespace
             _isComparing = true;
             _statusMessage = $"Finding local item data in database for ID: {itemIdToLookup}...";
             _statusMessageType = MessageType.Info;
-            _onlineWikiText = null; // Clear previous results
-            _localWikiText = null;  // Clear previous results
+            _displayOnlineText = null; // Clear previous results
+            _displayLocalText = null;  // Clear previous results
             Repaint(); // Update UI to show "Comparing..."
+
+            ItemDBRecord? itemRecord = null; // Define here to use in finally block if needed
 
             try
             {
                 // --- Step 1: Find the local ItemDBRecord from the database ---
-                ItemDBRecord? itemRecord = FindItemRecord(itemIdToLookup);
+                itemRecord = FindItemRecord(itemIdToLookup);
 
                 if (itemRecord == null)
                 {
                     // FindItemRecord already updated the status message and logged an error
-                    _isComparing = false;
+                    _isComparing = false; // Ensure flag is reset
                     Repaint();
-                    return;
+                    return; // Exit early
                 }
 
-                _localWikiText = itemRecord.WikiString; // Store local text for display immediately
+                // Store raw local string temporarily, but display text will be updated later
+                string? rawLocalWikiString = itemRecord.WikiString;
+                _displayLocalText = "<Pending Comparison>"; // Placeholder while fetching
+
                 _statusMessage = "Fetching and comparing with online wiki...";
                 _statusMessageType = MessageType.Info;
                 Repaint();
 
                 // --- Step 2: Perform the comparison ---
                 // Use the Item Name for the URL, assuming it matches the wiki page name convention
-                // Ensure proper URL encoding for spaces or special characters in ItemName
                 string wikiPageName = itemRecord.ItemName.Replace(" ", "_"); // Basic space replacement
                 string baseUrl = $"https://erenshor.wiki.gg/wiki/{Uri.EscapeDataString(wikiPageName)}";
 
                 WikiComparator comparator = new WikiComparator();
-                var result = await comparator.CompareWikiStringAsync(baseUrl, itemRecord.WikiString);
+                // Pass the raw local string to the comparator
+                var result = await comparator.CompareWikiStringAsync(baseUrl, rawLocalWikiString);
 
                 // --- Step 3: Display results ---
-                _onlineWikiText = result.OnlineText; // Store online text even if comparison failed, if available
+                // Update display text fields with the specific templates or messages from the result
+                _displayOnlineText = result.DisplayOnlineText;
+                _displayLocalText = result.DisplayLocalText;
 
-                if (result.ErrorMessage != null)
+                // Determine final status message and type based on result
+                if (result.AreEqual)
                 {
-                    // Use the specific error message from the comparator
-                    _statusMessage = $"Comparison failed: {result.ErrorMessage}";
-                    _statusMessageType = MessageType.Error;
-                    // Optionally indicate fetch failure more clearly in the text area
-                    if (result.OnlineText == null) _onlineWikiText = "<Fetch Failed>";
+                    // Check if ErrorMessage provides context (e.g., local string was empty)
+                    if (!string.IsNullOrEmpty(result.ErrorMessage))
+                    {
+                         _statusMessage = $"Match: {result.ErrorMessage}"; // e.g., Match: Local WikiString is empty
+                         _statusMessageType = MessageType.Info;
+                    }
+                    else
+                    {
+                        _statusMessage = $"Match: Local template for '{itemRecord.Id}' matches the corresponding online tier.";
+                        _statusMessageType = MessageType.Info;
+                    }
                 }
-                else if (result.AreEqual)
+                else // Not equal
                 {
-                    _statusMessage = $"Match: Local WikiString for '{itemRecord.Id}' matches the online version (normalized).";
-                    _statusMessageType = MessageType.Info;
-                }
-                else
-                {
-                    _statusMessage = $"Difference detected for '{itemRecord.Id}' (after normalizing line endings).";
-                    _statusMessageType = MessageType.Warning; // Use Warning for differences
+                    // Use the specific error message from the comparator result
+                    _statusMessage = $"Comparison Failed for '{itemRecord.Id}': {result.ErrorMessage ?? "Unknown reason"}";
+                    // Use Error type for fetch failures or missing tiers, Warning for content mismatch
+                    if (result.ErrorMessage != null && (result.ErrorMessage.Contains("missing online") || result.ErrorMessage.Contains("Fetch Failed") || result.ErrorMessage.Contains("Internal error")))
+                    {
+                         _statusMessageType = MessageType.Error;
+                    }
+                    else
+                    {
+                        _statusMessageType = MessageType.Warning; // Likely a content mismatch
+                    }
                 }
             }
             catch (SQLiteException sqlEx) // Catch specific SQLite errors during FindItemRecord or elsewhere
             {
                 _statusMessage = $"Database Error: {sqlEx.Message}. Ensure the DB exists and is not locked.";
                 _statusMessageType = MessageType.Error;
+                _displayOnlineText = null; // Clear display on error
+                _displayLocalText = null;
                 Debug.LogError($"[WikiComparatorWindow] SQLite Error during Wiki Comparison: {sqlEx}");
             }
             catch (Exception ex) // Catch unexpected errors during the process
             {
                 _statusMessage = $"An unexpected error occurred: {ex.Message}";
                 _statusMessageType = MessageType.Error;
+                _displayOnlineText = null; // Clear display on error
+                _displayLocalText = null;
                 Debug.LogError($"[WikiComparatorWindow] Wiki Comparison Error: {ex}");
             }
             finally
@@ -290,6 +313,7 @@ namespace Erenshor.Editor.WikiUtils // Enclose window class in the namespace
 
                 if (record == null)
                 {
+                    // Update status directly here since we return null
                     _statusMessage = $"Error: Item with ID '{itemId}' not found in the database '{Path.GetFileName(_fullDbPathDisplay)}'.";
                     _statusMessageType = MessageType.Error;
                     Debug.LogError($"[WikiComparatorWindow] { _statusMessage }");
@@ -299,6 +323,7 @@ namespace Erenshor.Editor.WikiUtils // Enclose window class in the namespace
             }
             catch (SQLiteException ex)
             {
+                 // Update status directly here since we return null
                 _statusMessage = $"Database Query Error: {ex.Message}";
                 _statusMessageType = MessageType.Error;
                 Debug.LogError($"[WikiComparatorWindow] SQLite error querying for item ID '{itemId}': {ex.Message}\n{ex.StackTrace}");
@@ -306,6 +331,7 @@ namespace Erenshor.Editor.WikiUtils // Enclose window class in the namespace
             }
             catch (Exception ex)
             {
+                 // Update status directly here since we return null
                 _statusMessage = $"Error querying database: {ex.Message}";
                 _statusMessageType = MessageType.Error;
                 Debug.LogError($"[WikiComparatorWindow] General error querying for item ID '{itemId}': {ex.Message}\n{ex.StackTrace}");
