@@ -827,16 +827,8 @@ public class BulkComparisonTreeView : TreeView
             switch ((ColumnID)column)
             {
                 case ColumnID.Status:
-                    Texture2D statusIcon = GetStatusIcon(item.Status);
-                    if (statusIcon != null)
-                    {
-                        float iconSize = EditorGUIUtility.singleLineHeight;
-                        // Center icon vertically within the cellRect
-                        Rect iconRect = new Rect(cellRect.x + 2, cellRect.y + (cellRect.height - iconSize) / 2f,
-                            iconSize, iconSize);
-                        GUI.DrawTexture(iconRect, statusIcon, ScaleMode.ScaleToFit);
-                    }
-
+                    // Draw status text instead of icon
+                    EditorGUI.LabelField(cellRect, item.Status.ToString());
                     break;
 
                 case ColumnID.ItemID:
@@ -856,28 +848,8 @@ public class BulkComparisonTreeView : TreeView
         }
     }
 
-    private Texture2D GetStatusIcon(ComparisonStatus status)
-    {
-        // Using built-in icons
-        switch (status)
-        {
-            case ComparisonStatus.Match:
-                return EditorGUIUtility.IconContent("TestPassed").image as Texture2D;
-            case ComparisonStatus.Mismatch:
-                return EditorGUIUtility.IconContent("TestFailed").image as Texture2D;
-            case ComparisonStatus.Error:
-                // Using "TestIgnored" as a distinct error icon, could use "Error" too
-                return EditorGUIUtility.IconContent("TestIgnored").image as Texture2D;
-            case ComparisonStatus.LocalEmpty:
-                return EditorGUIUtility.IconContent("Warning").image as Texture2D;
-            case ComparisonStatus.Pending:
-                // Using a static icon for pending, as animated icons can be distracting/resource intensive
-                // return EditorGUIUtility.IconContent("WaitSpin00").image as Texture2D;
-                return EditorGUIUtility.IconContent("d_PauseButton").image as Texture2D; // Or "d_Refresh" / "d_More"
-            default:
-                return null;
-        }
-    }
+    // Method no longer needed
+    // private Texture2D GetStatusIcon(ComparisonStatus status) { ... }
 
     protected override void SelectionChanged(IList<int> selectedIds)
     {
@@ -898,11 +870,12 @@ public class BulkComparisonTreeView : TreeView
         {
             new MultiColumnHeaderState.Column
             {
-                headerContent = new GUIContent(EditorGUIUtility.IconContent("TestPassed").image, "Status"),
-                contextMenuText = "Status", headerTextAlignment = TextAlignment.Center,
-                width = 40, minWidth = 40, maxWidth = 60, autoResize = false, allowToggleVisibility = false,
+                // Use text header instead of icon
+                headerContent = new GUIContent("Status"),
+                contextMenuText = "Status", headerTextAlignment = TextAlignment.Left, // Align left like other text
+                // Adjust width for text
+                width = 70, minWidth = 60, maxWidth = 100, autoResize = false, allowToggleVisibility = false,
                 canSort = true,
-                // Default sorting state (optional, can be set later)
                 sortedAscending = true
             },
             new MultiColumnHeaderState.Column
