@@ -118,4 +118,7 @@ public class ItemDBRecord
 
     // --- Internal ---
     public string ResourceName { get; set; } // Original Item.name (ScriptableObject filename)
+
+    // --- Wiki ---
+    public string WikiString { get; set; } // Generated wiki string for this item
 }
