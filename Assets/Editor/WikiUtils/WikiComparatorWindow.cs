@@ -54,7 +54,7 @@ public class WikiComparatorWindow : EditorWindow
 
     /// <summary>
     /// Attempts to find the first item with a WikiString in the DB
-    /// and sets its BaseItemId as the default value for the input field.
+    /// and sets its Id (Primary Key) as the default value for the input field.
     /// </summary>
     private void SetDefaultItemIdFromDb()
     {
@@ -73,10 +73,10 @@ public class WikiComparatorWindow : EditorWindow
 
             if (firstItemWithWiki != null)
             {
-                // Set the default value to the BaseItemId
-                _itemIdToCompare = firstItemWithWiki.BaseItemId;
-                _statusMessage = $"Defaulting to BaseItemId '{_itemIdToCompare}'. Enter the exact Wiki Page Name (Item ID) to compare.";
-                Debug.Log($"Wiki Comparator: Set default Item ID input to BaseItemId '{firstItemWithWiki.BaseItemId}' from item '{firstItemWithWiki.Id}'.");
+                // Set the default value to the Id (Primary Key)
+                _itemIdToCompare = firstItemWithWiki.Id;
+                _statusMessage = $"Defaulting to first found Item ID '{_itemIdToCompare}'. Enter the exact Wiki Page Name (Item ID) to compare.";
+                Debug.Log($"Wiki Comparator: Set default Item ID input to '{firstItemWithWiki.Id}'.");
             }
             else
             {
