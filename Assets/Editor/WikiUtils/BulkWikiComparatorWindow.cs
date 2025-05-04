@@ -38,6 +38,7 @@ public class BulkWikiComparatorWindow : EditorWindow
     private Vector2 _scrollPosLocal;
     private Vector2 _scrollPosOnline;
     private const float DETAIL_VIEW_MIN_HEIGHT = 150f; // Minimum height for the detail view area
+    private const float DETAIL_VIEW_MAX_HEIGHT_RATIO = 0.5f; // Max height ratio of window for detail view
 
     [MenuItem("Tools/Wiki/Bulk Wiki Comparator")]
     public static void ShowWindow()
@@ -96,6 +97,7 @@ public class BulkWikiComparatorWindow : EditorWindow
         if (_multiColumnHeaderState != null && _multiColumnHeaderState.sortedColumns.Length > 0)
         {
             int sortedColumnIndex = _multiColumnHeaderState.sortedColumns[0];
+            // Correctly get ascending state from the column itself in the state
             bool ascending = _multiColumnHeaderState.columns[sortedColumnIndex].sortedAscending;
             multiColumnHeader.SetSorting(sortedColumnIndex, ascending);
         }
@@ -114,14 +116,19 @@ public class BulkWikiComparatorWindow : EditorWindow
 
     private void OnGUI()
     {
+        // Wrap everything in a vertical layout
+        EditorGUILayout.BeginVertical();
+
         // Draw controls first
-        DrawTopControls();
+        DrawTopControls(); // Uses GUILayout internally
 
         // Then draw the TreeView, allocating space for it
-        DrawTreeView();
+        DrawTreeView(); // Uses GUILayoutUtility.GetRect
 
         // Finally, draw the DetailView below the TreeView if an item is selected
-        DrawDetailView();
+        DrawDetailView(); // Uses GUILayout internally
+
+        EditorGUILayout.EndVertical();
     }
 
     private void DrawTopControls()
@@ -214,21 +221,19 @@ public class BulkWikiComparatorWindow : EditorWindow
 
     private void DrawTreeView()
     {
-        // Calculate the rectangle for the TreeView
-        // It should expand vertically but leave space for the detail view if it's visible.
-        float detailViewHeight = _selectedItem != null ? DETAIL_VIEW_MIN_HEIGHT : 0;
+        // Determine GUILayout options based on whether the detail view is visible
+        GUILayoutOption heightOption = (_selectedItem != null)
+            ? GUILayout.MinHeight(position.height * (1f - DETAIL_VIEW_MAX_HEIGHT_RATIO) - 200) // Leave space for controls and detail view
+            : GUILayout.ExpandHeight(true); // Expand fully if detail view is hidden
+
+
         // Use GUILayoutUtility.GetRect for flexible height allocation
-        // Request remaining vertical space, minus potential detail view height and some spacing
         Rect treeViewRect = GUILayoutUtility.GetRect(
             GUIContent.none,
             GUIStyle.none, // Use GUILayout's default style behavior
             GUILayout.ExpandWidth(true),
-            GUILayout.ExpandHeight(true) // Expand to fill available vertical space initially
+            heightOption // Use the calculated height option
         );
-
-        // If the detail view will be shown, reduce the TreeView's height allocation slightly
-        // This is tricky with GUILayout, often better to let GUILayout handle it or use fixed heights.
-        // Let's try letting GUILayout handle the vertical distribution.
 
         // Draw the TreeView within the allocated rectangle
         _treeView?.OnGUI(treeViewRect);
@@ -239,9 +244,7 @@ public class BulkWikiComparatorWindow : EditorWindow
         // Only draw this section if a single item is selected
         if (_selectedItem == null)
         {
-            // Optionally draw a placeholder when nothing is selected
-            // GUILayout.Box("Select a single item to view details", GUILayout.ExpandWidth(true));
-            return;
+            return; // Don't draw anything if no item is selected
         }
 
         // Use GUILayout for the detail section below the TreeView
@@ -249,20 +252,28 @@ public class BulkWikiComparatorWindow : EditorWindow
         EditorGUILayout.LabelField($"Details for: {_selectedItem.ItemName} ({_selectedItem.ItemId})",
             EditorStyles.boldLabel);
 
+        // Calculate max height for detail view based on window size
+        float maxDetailHeight = position.height * DETAIL_VIEW_MAX_HEIGHT_RATIO;
+
         // Use a horizontal scope for side-by-side text areas
-        // Request a minimum height for this section
-        using (EditorGUILayout.HorizontalScope scope =
-               new EditorGUILayout.HorizontalScope(GUILayout.MinHeight(DETAIL_VIEW_MIN_HEIGHT),
-                   GUILayout.ExpandHeight(true)))
+        // Request a minimum height and allow expansion up to the max height
+        using (EditorGUILayout.HorizontalScope scope = new EditorGUILayout.HorizontalScope(
+                   GUILayout.MinHeight(DETAIL_VIEW_MIN_HEIGHT),
+                   GUILayout.MaxHeight(maxDetailHeight), // Add MaxHeight constraint
+                   GUILayout.ExpandHeight(true))) // Allow vertical expansion within constraints
         {
             // --- Local Text ---
             EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true));
             EditorGUILayout.LabelField("Local WikiString (Relevant Template)", EditorStyles.miniBoldLabel);
             _scrollPosLocal =
                 EditorGUILayout.BeginScrollView(_scrollPosLocal, EditorStyles.helpBox, GUILayout.ExpandHeight(true));
-            // Use GUILayout version of TextArea
-            EditorGUILayout.SelectableLabel(_selectedItem.DisplayLocalText ?? "N/A", EditorStyles.textArea,
-                GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
+
+            // Use ReadOnly TextArea for better scroll handling within GUILayout
+            string localText = _selectedItem.DisplayLocalText ?? "N/A";
+            EditorGUI.BeginDisabledGroup(true); // Make TextArea read-only
+            EditorGUILayout.TextArea(localText, EditorStyles.textArea, GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
+            EditorGUI.EndDisabledGroup();
+
             EditorGUILayout.EndScrollView();
             EditorGUILayout.EndVertical();
 
@@ -271,9 +282,13 @@ public class BulkWikiComparatorWindow : EditorWindow
             EditorGUILayout.LabelField("Online Wiki Text (Relevant Template)", EditorStyles.miniBoldLabel);
             _scrollPosOnline =
                 EditorGUILayout.BeginScrollView(_scrollPosOnline, EditorStyles.helpBox, GUILayout.ExpandHeight(true));
-            // Use GUILayout version of TextArea
-            EditorGUILayout.SelectableLabel(_selectedItem.DisplayOnlineText ?? "N/A", EditorStyles.textArea,
-                GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
+
+            // Use ReadOnly TextArea
+            string onlineText = _selectedItem.DisplayOnlineText ?? "N/A";
+            EditorGUI.BeginDisabledGroup(true); // Make TextArea read-only
+            EditorGUILayout.TextArea(onlineText, EditorStyles.textArea, GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
+            EditorGUI.EndDisabledGroup();
+
             EditorGUILayout.EndScrollView();
             EditorGUILayout.EndVertical();
         }
@@ -670,7 +685,6 @@ public class BulkWikiComparatorWindow : EditorWindow
         var ascending = multiColumnHeader.IsSortedAscending(sortedColumnIndex);
         _treeView.SortItems(sortedColumnIndex, ascending);
         // Reload is called within SortItems
-        // _treeView.Reload(); // No longer needed here
     }
 
     private void OnTreeViewSelectionChanged(IList<int> selectedIds)
@@ -687,8 +701,6 @@ public class BulkWikiComparatorWindow : EditorWindow
         }
 
         // No need to clear scroll positions here, keep them for better UX
-        // _scrollPosLocal = Vector2.zero;
-        // _scrollPosOnline = Vector2.zero;
         Repaint(); // Redraw to update detail view and button states
     }
 }
@@ -746,8 +758,6 @@ public class BulkComparisonTreeView : TreeView
         _resultsData = resultsData;
         showAlternatingRowBackgrounds = true;
         showBorder = true;
-        // Remove the lambda for sortingChanged, as it's handled by the window's OnSortingChanged
-        // multiColumnHeader.sortingChanged += (header) => { /* Handled by window */ };
         Reload();
     }
 
