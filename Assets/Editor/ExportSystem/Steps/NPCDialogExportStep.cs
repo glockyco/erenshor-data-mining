@@ -31,6 +31,7 @@ public class NPCDialogExportStep : IExportStep
 
         // --- Initialization ---
         var batchRecords = new List<NPCDialogDBRecord>();
+        var npcDialogCounters = new Dictionary<string, int>(); // Tracks the next index for each NPC
         int totalRecords = 0;
         int totalItemsToProcess = 0; // Combined count of prefabs + scenes
         int itemsProcessed = 0; // Combined processed count
@@ -78,7 +79,7 @@ public class NPCDialogExportStep : IExportStep
                     if (dialog == null) continue;
 
                     NPC npcComponent = dialog.gameObject.GetComponent<NPC>();
-                    NPCDialogDBRecord record = CreateRecordFromComponent(dialog, npcComponent);
+                    NPCDialogDBRecord record = CreateRecordFromComponent(dialog, npcComponent, npcDialogCounters);
                     batchRecords.Add(record);
 
                     if (batchRecords.Count >= BATCH_SIZE)
@@ -86,7 +87,7 @@ public class NPCDialogExportStep : IExportStep
                         totalRecords = await InsertBatchAsync(db, batchRecords, totalRecords, assetPath, cancellationToken);
                     }
                 }
-                
+
                 totalRecords = await InsertBatchAsync(db, batchRecords, totalRecords, assetPath, cancellationToken);
 
                 itemsProcessed++;
@@ -138,7 +139,7 @@ public class NPCDialogExportStep : IExportStep
                     if (dialog == null) continue;
 
                     NPC npcComponent = dialog.gameObject.GetComponent<NPC>();
-                    NPCDialogDBRecord record = CreateRecordFromComponent(dialog, npcComponent);
+                    NPCDialogDBRecord record = CreateRecordFromComponent(dialog, npcComponent, npcDialogCounters);
                     batchRecords.Add(record);
 
                     if (batchRecords.Count >= BATCH_SIZE)
@@ -146,7 +147,7 @@ public class NPCDialogExportStep : IExportStep
                         totalRecords = await InsertBatchAsync(db, batchRecords, totalRecords, scenePath, cancellationToken);
                     }
                 }
-                
+
                 totalRecords = await InsertBatchAsync(db, batchRecords, totalRecords, scenePath, cancellationToken);
 
                 itemsProcessed++;
@@ -201,17 +202,25 @@ public class NPCDialogExportStep : IExportStep
         catch (Exception ex)
         {
             Debug.LogError($"Error inserting NPCDialog batch from '{sourceContext}': {ex.Message}");
+            // Consider how to handle duplicate primary keys if they occur despite the indexing logic
+            // For now, re-throw to halt the process.
             throw;
         }
     }
 
-    private NPCDialogDBRecord CreateRecordFromComponent(NPCDialog component, NPC npcComponent)
+    private NPCDialogDBRecord CreateRecordFromComponent(NPCDialog component, NPC npcComponent, Dictionary<string, int> npcDialogCounters)
     {
         var keywords = component.KeywordToActivate ?? new List<string>();
+        string npcName = npcComponent != null && !string.IsNullOrEmpty(npcComponent.NPCName) ? npcComponent.NPCName : component.gameObject.name;
+
+        // Get the next index for this NPC, defaulting to 0 if not seen before
+        int dialogIndex = npcDialogCounters.TryGetValue(npcName, out int currentIndex) ? currentIndex : 0;
+        npcDialogCounters[npcName] = dialogIndex + 1; // Increment for the next dialog of this NPC
 
         return new NPCDialogDBRecord
         {
-            NPCName = npcComponent != null && !string.IsNullOrEmpty(npcComponent.NPCName) ? npcComponent.NPCName : component.gameObject.name,
+            NPCName = npcName,
+            DialogIndex = dialogIndex, // Assign the calculated index
             DialogText = component.Dialog,
             Keywords = string.Join(", ", keywords),
             GiveItemName = component.GiveItem?.ItemName,
