@@ -37,12 +37,13 @@ public class BulkWikiComparatorWindow : EditorWindow
     private ComparisonResultItem? _selectedItem = null; // Still useful for single-item detail view
     private Vector2 _scrollPosLocal;
     private Vector2 _scrollPosOnline;
+    private const float DETAIL_VIEW_MIN_HEIGHT = 150f; // Minimum height for the detail view area
 
     [MenuItem("Tools/Wiki/Bulk Wiki Comparator")]
     public static void ShowWindow()
     {
         BulkWikiComparatorWindow window = GetWindow<BulkWikiComparatorWindow>("Bulk Wiki Comparator");
-        window.minSize = new Vector2(800, 500);
+        window.minSize = new Vector2(800, 500); // Increased min height slightly
     }
 
     // --- Initialization and Path Handling ---
@@ -89,7 +90,15 @@ public class BulkWikiComparatorWindow : EditorWindow
         _treeView = new BulkComparisonTreeView(_treeViewState, multiColumnHeader, _comparisonResults);
         _treeView.OnSelectionChangedCallback += OnTreeViewSelectionChanged; // Use the callback to update selection state
 
-        multiColumnHeader.SetSorting(1, true);
+        // Set initial sort, but apply it after data load
+         if (_multiColumnHeaderState != null && _multiColumnHeaderState.sortedColumns.Length > 0)
+         {
+             multiColumnHeader.SetSorting(_multiColumnHeaderState.sortedColumns[0], _multiColumnHeaderState.sortedColumnsAscending[0]);
+         }
+         else
+         {
+             multiColumnHeader.SetSorting(1, true); // Default sort: ItemID Ascending
+         }
     }
 
     void InitializeSearchField()
@@ -101,13 +110,19 @@ public class BulkWikiComparatorWindow : EditorWindow
 
     private void OnGUI()
     {
+        // Draw controls first
         DrawTopControls();
+
+        // Then draw the TreeView, allocating space for it
         DrawTreeView();
+
+        // Finally, draw the DetailView below the TreeView if an item is selected
         DrawDetailView();
     }
 
     private void DrawTopControls()
     {
+        // This part remains largely the same, using GUILayout for vertical stacking
         EditorGUILayout.LabelField("Bulk Compare Local Item WikiStrings with Online Wiki Pages", EditorStyles.boldLabel);
         EditorGUILayout.Space();
 
@@ -141,7 +156,6 @@ public class BulkWikiComparatorWindow : EditorWindow
             EditorGUI.BeginDisabledGroup(!canCompareSelected);
             if (GUILayout.Button($"Compare Selected ({_currentSelectionIds.Count})", GUILayout.Height(30)))
             {
-                // Get the actual ComparisonResultItem objects for the selected IDs
                 List<ComparisonResultItem> selectedItems = _comparisonResults
                     .Where(item => _currentSelectionIds.Contains(item.id))
                     .ToList();
@@ -149,11 +163,10 @@ public class BulkWikiComparatorWindow : EditorWindow
             }
             EditorGUI.EndDisabledGroup();
 
-            // Flexible space to push Cancel button to the right
             GUILayout.FlexibleSpace();
 
             // --- Cancel Button ---
-            if (_isComparing) // Show cancel only during actual comparison
+            if (_isComparing)
             {
                 if (GUILayout.Button("Cancel", GUILayout.Width(80), GUILayout.Height(30)))
                 {
@@ -179,46 +192,73 @@ public class BulkWikiComparatorWindow : EditorWindow
         // Search Field
         if (_searchField != null && _treeView != null)
         {
-            string currentSearch = _searchField.OnGUI(_treeView.searchString);
-            if (currentSearch != _treeView.searchString)
-            {
-                _treeView.searchString = currentSearch;
-            }
+            // Use GUILayout version of SearchField
+            string currentSearch = _searchField.OnToolbarGUI(_treeView.searchString);
+             if (currentSearch != _treeView.searchString)
+             {
+                 _treeView.searchString = currentSearch;
+                 // TreeView's BuildRows handles filtering, no explicit reload needed here for search
+             }
         }
 
-        EditorGUILayout.Space();
+        EditorGUILayout.Space(); // Space before TreeView
     }
 
     private void DrawTreeView()
     {
-        float detailViewHeight = _selectedItem != null ? Mathf.Max(200, position.height * 0.3f) : 0;
-        Rect treeViewRect = GUILayoutUtility.GetRect(GUIContent.none, GUIStyle.none, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
-        if (detailViewHeight > 0)
-        {
-            treeViewRect.height -= (detailViewHeight + EditorGUIUtility.standardVerticalSpacing * 2);
-        }
+        // Calculate the rectangle for the TreeView
+        // It should expand vertically but leave space for the detail view if it's visible.
+        float detailViewHeight = _selectedItem != null ? DETAIL_VIEW_MIN_HEIGHT : 0;
+        // Use GUILayoutUtility.GetRect for flexible height allocation
+        // Request remaining vertical space, minus potential detail view height and some spacing
+        Rect treeViewRect = GUILayoutUtility.GetRect(
+            GUIContent.none,
+            GUIStyle.none, // Use GUILayout's default style behavior
+            GUILayout.ExpandWidth(true),
+            GUILayout.ExpandHeight(true) // Expand to fill available vertical space initially
+        );
+
+        // If the detail view will be shown, reduce the TreeView's height allocation slightly
+        // This is tricky with GUILayout, often better to let GUILayout handle it or use fixed heights.
+        // Let's try letting GUILayout handle the vertical distribution.
+
+        // Draw the TreeView within the allocated rectangle
         _treeView?.OnGUI(treeViewRect);
     }
 
     private void DrawDetailView()
     {
-        if (_selectedItem == null) return;
-        // Detail view logic remains the same...
-        EditorGUILayout.Space();
-        EditorGUILayout.LabelField($"Details for: {_selectedItem.ItemName} ({_selectedItem.ItemId})", EditorStyles.boldLabel);
-        using (EditorGUILayout.HorizontalScope scope = new EditorGUILayout.HorizontalScope(GUILayout.ExpandHeight(true)))
+        // Only draw this section if a single item is selected
+        if (_selectedItem == null)
         {
+             // Optionally draw a placeholder when nothing is selected
+             // GUILayout.Box("Select a single item to view details", GUILayout.ExpandWidth(true));
+             return;
+        }
+
+        // Use GUILayout for the detail section below the TreeView
+        EditorGUILayout.Space(); // Space between TreeView and DetailView
+        EditorGUILayout.LabelField($"Details for: {_selectedItem.ItemName} ({_selectedItem.ItemId})", EditorStyles.boldLabel);
+
+        // Use a horizontal scope for side-by-side text areas
+        // Request a minimum height for this section
+        using (EditorGUILayout.HorizontalScope scope = new EditorGUILayout.HorizontalScope(GUILayout.MinHeight(DETAIL_VIEW_MIN_HEIGHT), GUILayout.ExpandHeight(true)))
+        {
+            // --- Local Text ---
             EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true));
             EditorGUILayout.LabelField("Local WikiString (Relevant Template)", EditorStyles.miniBoldLabel);
             _scrollPosLocal = EditorGUILayout.BeginScrollView(_scrollPosLocal, EditorStyles.helpBox, GUILayout.ExpandHeight(true));
-            EditorGUILayout.TextArea(_selectedItem.DisplayLocalText ?? "N/A", EditorStyles.textArea, GUILayout.ExpandHeight(true));
+            // Use GUILayout version of TextArea
+            EditorGUILayout.SelectableLabel(_selectedItem.DisplayLocalText ?? "N/A", EditorStyles.textArea, GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
             EditorGUILayout.EndScrollView();
             EditorGUILayout.EndVertical();
 
+            // --- Online Text ---
             EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true));
             EditorGUILayout.LabelField("Online Wiki Text (Relevant Template)", EditorStyles.miniBoldLabel);
             _scrollPosOnline = EditorGUILayout.BeginScrollView(_scrollPosOnline, EditorStyles.helpBox, GUILayout.ExpandHeight(true));
-            EditorGUILayout.TextArea(_selectedItem.DisplayOnlineText ?? "N/A", EditorStyles.textArea, GUILayout.ExpandHeight(true));
+            // Use GUILayout version of TextArea
+            EditorGUILayout.SelectableLabel(_selectedItem.DisplayOnlineText ?? "N/A", EditorStyles.textArea, GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
             EditorGUILayout.EndScrollView();
             EditorGUILayout.EndVertical();
         }
@@ -226,7 +266,6 @@ public class BulkWikiComparatorWindow : EditorWindow
 
 
     // --- Initial List Loading ---
-    // LoadInitialItemListAsync remains the same as before...
     private async void LoadInitialItemListAsync()
     {
         if (_isListLoading || _isComparing) return;
@@ -247,7 +286,7 @@ public class BulkWikiComparatorWindow : EditorWindow
         _treeView?.SetResults(_comparisonResults);
         _treeView?.Reload();
         _selectedItem = null;
-        _currentSelectionIds.Clear(); // Clear selection when reloading list
+        _currentSelectionIds.Clear();
         Repaint();
 
         _cancellationTokenSource?.Dispose();
@@ -297,8 +336,12 @@ public class BulkWikiComparatorWindow : EditorWindow
                 {
                     InitializeResultsList(initialItems);
                     _treeView?.SetResults(_comparisonResults);
-                    OnSortingChanged(_treeView.multiColumnHeader);
-                    _treeView?.Reload();
+                    // Apply sorting *after* data is loaded and set
+                    if (_treeView?.multiColumnHeader != null)
+                    {
+                         OnSortingChanged(_treeView.multiColumnHeader);
+                    }
+                    _treeView?.Reload(); // Reload after sorting potentially changed the order
                     _summaryMessage = initialItems.Any()
                         ? $"Ready. Found {initialItems.Count} items with WikiStrings to compare."
                         : "Ready. No items with WikiStrings found in the database.";
@@ -323,6 +366,7 @@ public class BulkWikiComparatorWindow : EditorWindow
         }
         finally
         {
+             // Ensure flag is reset if an exception occurred before delayCall setup
              if (_isListLoading) { EditorApplication.delayCall += () => { if(_isListLoading) { _isListLoading = false; Repaint(); } }; }
         }
     }
@@ -347,7 +391,6 @@ public class BulkWikiComparatorWindow : EditorWindow
         _progress = 0f;
         _progressMessage = "Preparing comparison...";
         _summaryMessage = $"Starting comparison for {itemsToCompare.Count} item(s)...";
-        // Don't clear _selectedItem here, user might want to keep detail view open
         Repaint();
 
         // Reset status ONLY for the items being compared
@@ -356,9 +399,12 @@ public class BulkWikiComparatorWindow : EditorWindow
             item.Status = ComparisonStatus.Pending;
             item.Details = "Pending comparison...";
             item.DisplayOnlineText = "<Pending>";
-            item.DisplayLocalText = item.LocalWikiString; // Reset to original local string
-             if (string.IsNullOrWhiteSpace(item.DisplayLocalText)) item.DisplayLocalText = "<Local WikiString is empty>";
-             else if (!item.DisplayLocalText.Contains("{{Fancy-armor") && !item.DisplayLocalText.Contains("{{Fancy-weapon")) item.DisplayLocalText = "<No Fancy-armor/weapon template found in local WikiString>";
+            // Reset local display text based on original content
+            string initialLocalDisplayText;
+             if (string.IsNullOrWhiteSpace(item.LocalWikiString)) { initialLocalDisplayText = "<Local WikiString is empty>"; }
+             else if (!item.LocalWikiString.Contains("{{Fancy-armor") && !item.LocalWikiString.Contains("{{Fancy-weapon")) { initialLocalDisplayText = "<No Fancy-armor/weapon template found in local WikiString>"; }
+             else { initialLocalDisplayText = item.LocalWikiString; }
+            item.DisplayLocalText = initialLocalDisplayText;
         }
         _treeView?.Reload(); // Show reset state for selected items
 
@@ -366,10 +412,7 @@ public class BulkWikiComparatorWindow : EditorWindow
         _cancellationTokenSource = new CancellationTokenSource();
         var token = _cancellationTokenSource.Token;
 
-        // Run the core comparison logic
         await RunComparisonLogicAsync(itemsToCompare, token);
-
-        // Final state reset is handled within RunComparisonLogicAsync's finally block
     }
 
     /// <summary>
@@ -382,7 +425,6 @@ public class BulkWikiComparatorWindow : EditorWindow
         WikiComparator comparator = new WikiComparator();
         int totalItemsToCompare = itemsToRun.Count;
         int processedCount = 0;
-        // Use local counters for this run, don't rely on window-level counters if multiple partial runs are possible
         int runMatchCount = 0;
         int runMismatchCount = 0;
         int runErrorCount = 0;
@@ -394,13 +436,12 @@ public class BulkWikiComparatorWindow : EditorWindow
             {
                 List<Task> comparisonTasks = new List<Task>();
 
-                foreach (var resultItem in itemsToRun) // Iterate only through the provided list
+                foreach (var resultItem in itemsToRun)
                 {
                     if (token.IsCancellationRequested) break;
 
                     await semaphore.WaitAsync(token);
 
-                    // Skip items that don't have a local WikiString (safety check)
                     if (string.IsNullOrEmpty(resultItem.LocalWikiString))
                     {
                         resultItem.Status = ComparisonStatus.Error;
@@ -411,7 +452,7 @@ public class BulkWikiComparatorWindow : EditorWindow
                         continue;
                     }
 
-                    comparisonTasks.Add(Task.Run(async () => // No need for <Task> here
+                    comparisonTasks.Add(Task.Run(async () =>
                     {
                         try
                         {
@@ -470,25 +511,25 @@ public class BulkWikiComparatorWindow : EditorWindow
                             semaphore.Release();
                             int currentProcessed = Interlocked.Increment(ref processedCount);
 
-                            if (currentProcessed % 5 == 0 || currentProcessed == totalItemsToCompare)
+                            // Update progress less frequently to avoid excessive Repaint calls
+                            if (currentProcessed % 10 == 0 || currentProcessed == totalItemsToCompare)
                             {
                                 EditorApplication.delayCall += () =>
                                 {
-                                    if (!_isComparing) return;
+                                    if (!_isComparing || token.IsCancellationRequested) return; // Check flags again in delayCall
                                     _progress = (float)currentProcessed / totalItemsToCompare;
                                     _progressMessage = $"Compared {currentProcessed} of {totalItemsToCompare} items in current run...";
-                                    _treeView?.Reload();
+                                    _treeView?.Reload(); // Reload needed to show status updates
                                     Repaint();
                                 };
                             }
                         }
                     }, token));
-                } // End foreach
+                }
 
                 await Task.WhenAll(comparisonTasks);
-            } // End using semaphore
+            }
 
-            // Final summary update on main thread
             EditorApplication.delayCall += () =>
             {
                 string completionScope = (totalItemsToCompare == _comparisonResults.Count) ? "all" : "selected";
@@ -502,7 +543,7 @@ public class BulkWikiComparatorWindow : EditorWindow
                     _progress = 1.0f;
                     _progressMessage = "Comparison Finished.";
                 }
-                _treeView?.Reload();
+                _treeView?.Reload(); // Final reload to ensure all statuses are shown
                 Repaint();
             };
         }
@@ -517,19 +558,17 @@ public class BulkWikiComparatorWindow : EditorWindow
         }
         finally
         {
-            // Ensure state is reset regardless of how the process ended
             EditorApplication.delayCall += () =>
             {
-                _isComparing = false; // Crucial: Reset the main comparison flag
+                _isComparing = false;
                 _cancellationTokenSource?.Dispose();
                 _cancellationTokenSource = null;
-                Repaint(); // Re-enable buttons etc.
+                Repaint();
             };
         }
     }
 
 
-    // InitializeResultsList remains the same...
     private void InitializeResultsList(List<ItemDBRecord> items)
     {
         _comparisonResults = items.Select((item, index) =>
@@ -558,16 +597,15 @@ public class BulkWikiComparatorWindow : EditorWindow
         var sortedColumnIndex = sortedColumns[0];
         var ascending = multiColumnHeader.IsSortedAscending(sortedColumnIndex);
         _treeView.SortItems(sortedColumnIndex, ascending);
-        _treeView.Reload();
+        // Reload is called within SortItems
+        // _treeView.Reload(); // No longer needed here
     }
 
     private void OnTreeViewSelectionChanged(IList<int> selectedIds)
     {
-        // Update the stored selection list
         _currentSelectionIds = selectedIds.ToList();
 
-        // Update the single selected item for the detail view
-        if (_treeView == null || selectedIds.Count != 1) // Show detail only for single selection
+        if (_treeView == null || selectedIds.Count != 1)
         {
             _selectedItem = null;
         }
@@ -576,10 +614,10 @@ public class BulkWikiComparatorWindow : EditorWindow
             _selectedItem = _treeView.GetItemById(selectedIds[0]);
         }
 
-        // Clear scroll positions when selection changes
-        _scrollPosLocal = Vector2.zero;
-        _scrollPosOnline = Vector2.zero;
-        Repaint(); // Redraw to update button states and detail view
+        // No need to clear scroll positions here, keep them for better UX
+        // _scrollPosLocal = Vector2.zero;
+        // _scrollPosOnline = Vector2.zero;
+        Repaint(); // Redraw to update detail view and button states
     }
 }
 
@@ -636,22 +674,19 @@ public class BulkComparisonTreeView : TreeView
         _resultsData = resultsData;
         showAlternatingRowBackgrounds = true;
         showBorder = true;
-        multiColumnHeader.sortingChanged += (header) =>
-        {
-            /* Handled by window */
-        }; // Sorting logic is in the window
+        // Remove the lambda for sortingChanged, as it's handled by the window's OnSortingChanged
+        // multiColumnHeader.sortingChanged += (header) => { /* Handled by window */ };
         Reload();
     }
 
     public void SetResults(List<ComparisonResultItem> resultsData)
     {
         _resultsData = resultsData;
-        // Don't Reload() here, let the caller decide when to reload (e.g., after populating or after sorting)
+        // Reload should be called by the window after setting results and potentially sorting
     }
 
     public ComparisonResultItem? GetItemById(int id)
     {
-        // Find the item in our data source that corresponds to the TreeViewItem id
         return _resultsData.FirstOrDefault(item => item.id == id);
     }
 
@@ -659,46 +694,36 @@ public class BulkComparisonTreeView : TreeView
     protected override TreeViewItem BuildRoot()
     {
         var root = new TreeViewItem { id = -1, depth = -1, displayName = "Root" };
-        var allItems = new List<TreeViewItem>();
-
-        if (_resultsData != null)
-        {
-            foreach (var resultItem in _resultsData)
-            {
-                // The ComparisonResultItem itself inherits from TreeViewItem
-                allItems.Add(resultItem);
-            }
-        }
-
+        // Use the current _resultsData directly if it's not null
+        var allItems = _resultsData?.Cast<TreeViewItem>().ToList() ?? new List<TreeViewItem>();
         SetupParentsAndChildrenFromDepths(root, allItems);
         return root;
     }
 
     protected override IList<TreeViewItem> BuildRows(TreeViewItem root)
     {
-        // If search string is active, filter the data
-        if (!string.IsNullOrEmpty(searchString))
-        {
-            var filteredData = _resultsData
-                .Where(item => DoesItemMatchSearch(item, searchString))
-                .Cast<TreeViewItem>() // Cast back to base type for BuildRows
-                .ToList();
+        // Get the base rows (either all items or sorted items)
+        var rows = base.BuildRows(root);
 
-            // Need to rebuild the parent/child relationship for the filtered list
-            // Since it's a flat list, just return the filtered items.
-            // If there was hierarchy, SetupParentsAndChildrenFromDepths would be needed here.
-            return filteredData;
-        }
-        else
+        // Apply search filtering if necessary
+        if (!string.IsNullOrEmpty(searchString) && rows != null)
         {
-            // No search, return all items from the root
-            return base.BuildRows(root); // Use default BuildRows if no search
+            // Filter the already potentially sorted rows
+            var filteredRows = rows
+                .Where(item => item is ComparisonResultItem resultItem && DoesItemMatchSearch(resultItem, searchString))
+                .ToList();
+            return filteredRows;
         }
+
+        return rows ?? new List<TreeViewItem>(); // Return base rows or empty list
     }
+
 
     private bool DoesItemMatchSearch(ComparisonResultItem item, string search)
     {
+        if (string.IsNullOrEmpty(search)) return true; // No search term means match all
         search = search.ToLowerInvariant();
+        // Check against relevant fields
         return item.ItemId.ToLowerInvariant().Contains(search) ||
                item.ItemName.ToLowerInvariant().Contains(search) ||
                item.Status.ToString().ToLowerInvariant().Contains(search) ||
@@ -713,7 +738,7 @@ public class BulkComparisonTreeView : TreeView
         for (int i = 0; i < args.GetNumVisibleColumns(); ++i)
         {
             Rect cellRect = args.GetCellRect(i);
-            CenterRectUsingSingleLineHeight(ref cellRect); // Adjust rect vertically for text
+            // No need to CenterRectUsingSingleLineHeight for standard LabelFields
 
             int column = args.GetColumn(i);
 
@@ -723,18 +748,15 @@ public class BulkComparisonTreeView : TreeView
                     Texture2D statusIcon = GetStatusIcon(item.Status);
                     if (statusIcon != null)
                     {
-                        // Center the icon vertically, keep it small
                         float iconSize = EditorGUIUtility.singleLineHeight;
-                        Rect iconRect = new Rect(cellRect.x + 2, cellRect.y + (cellRect.height - iconSize) / 2,
-                            iconSize, iconSize);
+                        // Center icon vertically within the cellRect
+                        Rect iconRect = new Rect(cellRect.x + 2, cellRect.y + (cellRect.height - iconSize) / 2f, iconSize, iconSize);
                         GUI.DrawTexture(iconRect, statusIcon, ScaleMode.ScaleToFit);
                     }
-
-                    // Optionally draw status text next to icon if space allows
-                    // EditorGUI.LabelField(new Rect(cellRect.x + iconSize + 4, cellRect.y, cellRect.width - iconSize - 4, cellRect.height), item.Status.ToString());
                     break;
 
                 case ColumnID.ItemID:
+                     // Use default LabelField which handles vertical centering
                     EditorGUI.LabelField(cellRect, item.ItemId);
                     break;
 
@@ -743,7 +765,7 @@ public class BulkComparisonTreeView : TreeView
                     break;
 
                 case ColumnID.Details:
-                    // Use a style that handles clipping better for potentially long text
+                    // Use miniLabel for potentially long text, it handles clipping
                     EditorGUI.LabelField(cellRect, item.Details, EditorStyles.miniLabel);
                     break;
             }
@@ -752,6 +774,7 @@ public class BulkComparisonTreeView : TreeView
 
     private Texture2D GetStatusIcon(ComparisonStatus status)
     {
+        // Using built-in icons
         switch (status)
         {
             case ComparisonStatus.Match:
@@ -759,121 +782,85 @@ public class BulkComparisonTreeView : TreeView
             case ComparisonStatus.Mismatch:
                 return EditorGUIUtility.IconContent("TestFailed").image as Texture2D;
             case ComparisonStatus.Error:
-                return EditorGUIUtility.IconContent("TestIgnored").image as Texture2D; // Or "Error" icon
+                 // Using "TestIgnored" as a distinct error icon, could use "Error" too
+                return EditorGUIUtility.IconContent("TestIgnored").image as Texture2D;
             case ComparisonStatus.LocalEmpty:
-                return EditorGUIUtility.IconContent("Warning").image as Texture2D; // Indicate non-standard match
+                return EditorGUIUtility.IconContent("Warning").image as Texture2D;
             case ComparisonStatus.Pending:
-                return EditorGUIUtility.IconContent("WaitSpin00").image as Texture2D; // Animated pending icon
+                 // Using a static icon for pending, as animated icons can be distracting/resource intensive
+                 // return EditorGUIUtility.IconContent("WaitSpin00").image as Texture2D;
+                 return EditorGUIUtility.IconContent("d_PauseButton").image as Texture2D; // Or "d_Refresh" / "d_More"
             default:
                 return null;
         }
     }
 
-    // Handle selection changes and notify the window
     protected override void SelectionChanged(IList<int> selectedIds)
     {
         base.SelectionChanged(selectedIds);
         OnSelectionChangedCallback?.Invoke(selectedIds);
     }
 
-    // Allow focusing the TreeView via keyboard (e.g., from search field)
     protected override void KeyEvent()
     {
-        if (Event.current.keyCode == KeyCode.Return && HasSelection())
-        {
-            // Optional: Define action on Enter key (e.g., open item details?)
-        }
-        else
-        {
-            base.KeyEvent();
-        }
+        // Basic key events like up/down arrow for selection are handled by base
+        base.KeyEvent();
     }
 
 
-    // Define columns
     public static MultiColumnHeaderState CreateMultiColumnHeaderState()
     {
         var columns = new[]
         {
             new MultiColumnHeaderState.Column
             {
-                headerContent =
-                    new GUIContent(EditorGUIUtility.IconContent("TestPassed").image,
-                        "Status"), // Use icon for header too
-                contextMenuText = "Status",
-                headerTextAlignment = TextAlignment.Center,
-                sortedAscending = true,
-                sortingArrowAlignment = TextAlignment.Right,
-                width = 40, minWidth = 40, maxWidth = 60,
-                autoResize = false, allowToggleVisibility = false, canSort = true
+                headerContent = new GUIContent(EditorGUIUtility.IconContent("TestPassed").image, "Status"),
+                contextMenuText = "Status", headerTextAlignment = TextAlignment.Center,
+                width = 40, minWidth = 40, maxWidth = 60, autoResize = false, allowToggleVisibility = false, canSort = true,
+                // Default sorting state (optional, can be set later)
+                sortedAscending = true
             },
             new MultiColumnHeaderState.Column
             {
-                headerContent = new GUIContent("Item ID"),
-                headerTextAlignment = TextAlignment.Left,
-                sortedAscending = true,
-                sortingArrowAlignment = TextAlignment.Center,
-                width = 150, minWidth = 100,
-                autoResize = true, allowToggleVisibility = true, canSort = true
+                headerContent = new GUIContent("Item ID"), headerTextAlignment = TextAlignment.Left,
+                width = 150, minWidth = 100, autoResize = true, allowToggleVisibility = true, canSort = true,
+                sortedAscending = true // Default sort for this column
             },
             new MultiColumnHeaderState.Column
             {
-                headerContent = new GUIContent("Item Name"),
-                headerTextAlignment = TextAlignment.Left,
-                sortedAscending = true,
-                sortingArrowAlignment = TextAlignment.Center,
-                width = 200, minWidth = 100,
-                autoResize = true, allowToggleVisibility = true, canSort = true
+                headerContent = new GUIContent("Item Name"), headerTextAlignment = TextAlignment.Left,
+                width = 200, minWidth = 100, autoResize = true, allowToggleVisibility = true, canSort = true,
+                sortedAscending = true
             },
             new MultiColumnHeaderState.Column
             {
-                headerContent = new GUIContent("Details / Error"),
-                headerTextAlignment = TextAlignment.Left,
-                sortedAscending = true,
-                sortingArrowAlignment = TextAlignment.Left,
-                width = 350, minWidth = 150,
-                autoResize = true, allowToggleVisibility = true, canSort = true
+                headerContent = new GUIContent("Details / Error"), headerTextAlignment = TextAlignment.Left,
+                width = 350, minWidth = 150, autoResize = true, allowToggleVisibility = true, canSort = true,
+                sortedAscending = true
             }
         };
 
-        // Ensure column names match enum for safety, though indices are used here
-        System.Diagnostics.Debug.Assert(columns.Length == Enum.GetValues(typeof(ColumnID)).Length,
-            "Number of columns defined must match ColumnID enum.");
+        System.Diagnostics.Debug.Assert(columns.Length == Enum.GetValues(typeof(ColumnID)).Length, "Column count mismatch");
 
         var state = new MultiColumnHeaderState(columns);
         return state;
     }
 
-    // Sorting Logic
     public void SortItems(int columnIndex, bool ascending)
     {
         if (_resultsData == null || !_resultsData.Any()) return;
 
         Comparison<ComparisonResultItem> comparer;
-
         switch ((ColumnID)columnIndex)
         {
-            case ColumnID.Status:
-                comparer = (a, b) => a.Status.CompareTo(b.Status);
-                break;
-            case ColumnID.ItemID:
-                comparer = (a, b) =>
-                    EditorUtility.NaturalCompare(a.ItemId,
-                        b.ItemId); // Natural compare for IDs like "Item1", "Item10"
-                break;
-            case ColumnID.ItemName:
-                comparer = (a, b) => string.Compare(a.ItemName, b.ItemName, StringComparison.OrdinalIgnoreCase);
-                break;
-            case ColumnID.Details:
-                comparer = (a, b) => string.Compare(a.Details, b.Details, StringComparison.OrdinalIgnoreCase);
-                break;
-            default:
-                return; // Unknown column
+            case ColumnID.Status:   comparer = (a, b) => a.Status.CompareTo(b.Status); break;
+            case ColumnID.ItemID:   comparer = (a, b) => EditorUtility.NaturalCompare(a.ItemId, b.ItemId); break;
+            case ColumnID.ItemName: comparer = (a, b) => string.Compare(a.ItemName, b.ItemName, StringComparison.OrdinalIgnoreCase); break;
+            case ColumnID.Details:  comparer = (a, b) => string.Compare(a.Details, b.Details, StringComparison.OrdinalIgnoreCase); break;
+            default: return;
         }
 
         _resultsData.Sort((a, b) => ascending ? comparer(a, b) : comparer(b, a));
-
-        // Important: After sorting the data source, you need to tell the TreeView to rebuild its internal representation.
-        Reload();
+        Reload(); // Reload the TreeView to reflect the sorted data
     }
 }
