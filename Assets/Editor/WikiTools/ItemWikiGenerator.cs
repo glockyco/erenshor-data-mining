@@ -8,10 +8,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-public class WeaponWikiGenerator : EditorWindow
+public class ItemWikiGenerator : EditorWindow
 {
     // --- CONFIGURATION ---
-    // Key to read the database path saved by DatabaseExporterWindow
     private const string EXPORTER_PREFS_KEY_DB_PATH = "Erenshor_DatabaseExporter_OutputPath";
     private const string DEFAULT_DB_FILENAME = "Erenshor.sqlite"; // Default filename if preference not set
 
@@ -21,20 +20,27 @@ public class WeaponWikiGenerator : EditorWindow
     {
         "Arcanist", "Duelist", "Druid", "Paladin"
     };
+
+    // Define which slots are considered armor
+    private static readonly HashSet<string> ArmorSlots = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "Charm", "Head", "Neck", "Ring", "Hand", "Chest", "Arm", "Bracer", "Leg", "Waist", "Foot", "Back"
+    };
     // --- END CONFIGURATION ---
 
     // --- UI State ---
-    private string _statusMessage = "Ready. Click button to update weapon wiki templates in the database.";
+    private string _statusMessage = "Ready. Click button to update item wiki templates in the database."; // Updated message
     private MessageType _statusMessageType = MessageType.Info;
     private string _fullDbPathDisplay = ""; // For displaying the resolved path
     private bool _isRunning = false; // Prevent concurrent runs
 
-    [MenuItem("Tools/Wiki/Update Weapon Wiki Templates")] // Changed menu item name slightly
+    [MenuItem("Tools/Wiki/Update Item Wiki Templates")] // Updated menu item name
     public static void ShowWindow()
     {
-        WeaponWikiGenerator window = GetWindow<WeaponWikiGenerator>("Weapon Wiki Updater"); // Changed window title
+        // Use the updated class name here
+        ItemWikiGenerator window = GetWindow<ItemWikiGenerator>("Item Wiki Updater"); // Updated window title
         window.UpdateResolvedPath(); // Calculate path when window opens
-        window.minSize = new Vector2(450, 250); // Reduced height as text area is removed
+        window.minSize = new Vector2(450, 250);
     }
 
     void OnEnable()
@@ -57,7 +63,7 @@ public class WeaponWikiGenerator : EditorWindow
 
     void OnGUI()
     {
-        GUILayout.Label("Update Weapon Wiki Templates in Database", EditorStyles.boldLabel);
+        GUILayout.Label("Update Item Wiki Templates in Database", EditorStyles.boldLabel); // Updated label
         EditorGUILayout.Space();
 
         // Display the resolved database path and check existence
@@ -79,9 +85,9 @@ public class WeaponWikiGenerator : EditorWindow
 
         // --- Action Button ---
         EditorGUI.BeginDisabledGroup(_isRunning || !dbExists); // Disable if running or DB doesn't exist
-        if (GUILayout.Button("Update Weapon Wiki Templates in DB", GUILayout.Height(30)))
+        // Updated button text
+        if (GUILayout.Button("Update Item Wiki Templates in DB", GUILayout.Height(30)))
         {
-            // Use ExecuteUpdate instead of GenerateWikiText
             ExecuteUpdate(_fullDbPathDisplay);
         }
         EditorGUI.EndDisabledGroup();
@@ -95,7 +101,6 @@ public class WeaponWikiGenerator : EditorWindow
         EditorGUI.EndDisabledGroup();
     }
 
-    // Renamed from GenerateWikiText to reflect new purpose
     private void ExecuteUpdate(string dbPath)
     {
         if (_isRunning) return; // Prevent concurrent execution
@@ -106,9 +111,9 @@ public class WeaponWikiGenerator : EditorWindow
         Repaint(); // Update UI
 
         List<ItemDBRecord> allItems;
-        Dictionary<string, SpellDBRecord> spellData = new Dictionary<string, SpellDBRecord>();
+        Dictionary<string, SpellDBRecord> spellData;
         int updatedCount = 0;
-        int weaponCount = 0;
+        int processedItemCount = 0; // Count both weapons and armor
 
         try
         {
@@ -133,32 +138,48 @@ public class WeaponWikiGenerator : EditorWindow
             spellData = db.Table<SpellDBRecord>().ToDictionary(s => s.Id, s => s);
             Debug.Log($"Loaded {spellData.Count} spell records for lookup.");
 
-            // --- Filter & Process Weapons ---
-            _statusMessage = "Identifying weapons..."; Repaint();
-            List<ItemDBRecord> weapons = allItems.Where(IsWeaponRecord).ToList();
-            weaponCount = weapons.Count;
-            Debug.Log($"Found {weaponCount} weapon items based on IsWeaponRecord criteria.");
+            // --- Filter & Process Items (Weapons and Armor) ---
+            _statusMessage = "Identifying weapons and armor..."; Repaint();
+            // Filter items that are either weapons or armor
+            List<ItemDBRecord> processableItems = allItems.Where(item => IsWeaponRecord(item) || IsArmorRecord(item)).ToList();
+            processedItemCount = processableItems.Count;
+            Debug.Log($"Found {processedItemCount} weapon or armor items based on slot criteria.");
 
-            if (weaponCount == 0)
+            if (processedItemCount == 0)
             {
-                _statusMessage = "No weapon items found in the database to update.";
+                _statusMessage = "No weapon or armor items found in the database to update.";
                 _statusMessageType = MessageType.Warning;
                 _isRunning = false;
                 Repaint();
                 return;
             }
 
-            _statusMessage = $"Generating templates and updating {weaponCount} weapons..."; Repaint();
+            _statusMessage = $"Generating templates and updating {processedItemCount} items..."; Repaint();
             var itemsToUpdate = new List<ItemDBRecord>();
 
-            foreach (var weapon in weapons)
+            foreach (var item in processableItems)
             {
-                string wikiTemplate = GenerateSingleWeaponTemplate(weapon, spellData);
-                // Only update if the template changed or was null before
-                if (weapon.WikiString != wikiTemplate)
+                string wikiTemplate = "";
+                // Determine which template to generate
+                if (IsWeaponRecord(item))
                 {
-                    weapon.WikiString = wikiTemplate; // Update the object directly
-                    itemsToUpdate.Add(weapon);
+                    wikiTemplate = GenerateSingleWeaponTemplate(item, spellData);
+                }
+                else if (IsArmorRecord(item))
+                {
+                    wikiTemplate = GenerateSingleArmorTemplate(item, spellData);
+                }
+                else
+                {
+                    // Should not happen due to prior filtering, but good practice
+                    continue;
+                }
+
+                // Only update if the template changed or was null before
+                if (item.WikiString != wikiTemplate)
+                {
+                    item.WikiString = wikiTemplate; // Update the object directly
+                    itemsToUpdate.Add(item);
                 }
             }
 
@@ -180,14 +201,15 @@ public class WeaponWikiGenerator : EditorWindow
             }
             else
             {
-                Debug.Log("No weapon WikiTemplates needed updating.");
+                Debug.Log("No item WikiTemplates needed updating.");
             }
 
-            _statusMessage = $"Update complete. {updatedCount} out of {weaponCount} weapons had their WikiTemplate updated in the database.";
+            // Updated status message
+            _statusMessage = $"Update complete. {updatedCount} out of {processedItemCount} items had their WikiTemplate updated in the database.";
             _statusMessageType = MessageType.Info;
 
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
             Debug.LogError($"Error during wiki template update: {ex.Message}\n{ex.StackTrace}");
             _statusMessage = $"ERROR: Update failed.\nReason: {ex.Message}\nCheck console for details.";
@@ -200,13 +222,15 @@ public class WeaponWikiGenerator : EditorWindow
         }
     }
 
+    // --- Item Type Identification ---
+
     private bool IsWeaponRecord(ItemDBRecord record)
     {
-        if (record == null)
+        if (record == null || string.IsNullOrEmpty(record.RequiredSlot))
         {
             return false;
         }
-        
+
         return record.RequiredSlot switch
         {
             "PrimaryOrSecondary" => true,
@@ -216,6 +240,17 @@ public class WeaponWikiGenerator : EditorWindow
         };
     }
 
+    private bool IsArmorRecord(ItemDBRecord record)
+    {
+        if (record == null || string.IsNullOrEmpty(record.RequiredSlot))
+        {
+            return false;
+        }
+        return ArmorSlots.Contains(record.RequiredSlot);
+    }
+
+    // --- Tier and Type Helpers ---
+
     private int GetWikiTier(string quality)
     {
         return quality switch
@@ -223,7 +258,8 @@ public class WeaponWikiGenerator : EditorWindow
             "Normal" => 0,
             "Blessed" => 1,
             "Godly" => 2,
-            _ => throw new ArgumentOutOfRangeException(nameof(quality), quality, null)
+            // Default to 0 or throw if quality is unexpected/missing
+            _ => 0 // Or: throw new ArgumentOutOfRangeException(nameof(quality), quality, "Unknown quality value for tier calculation.")
         };
     }
 
@@ -234,6 +270,7 @@ public class WeaponWikiGenerator : EditorWindow
             throw new ArgumentNullException(nameof(record));
         }
 
+        // Handle 2-Handed specifically based on ThisWeaponType and RequiredSlot
         if (record.ThisWeaponType is "TwoHandMelee" or "TwoHandStaff")
         {
             if (record.RequiredSlot == "Primary")
@@ -243,26 +280,27 @@ public class WeaponWikiGenerator : EditorWindow
             throw new ArgumentException($"Unexpected RequiredSlot '{record.RequiredSlot}' for 2-handed weapon type '{record.ThisWeaponType}'.");
         }
 
+        // Handle other weapon slots
         return record.RequiredSlot switch
         {
             "PrimaryOrSecondary" => "Primary or Secondary",
             "Primary" => "Primary",
             "Secondary" => "Secondary",
-            _ => throw new ArgumentException($"Unknown RequiredSlot: '{record.RequiredSlot}'.")
+            _ => throw new ArgumentException($"Unknown RequiredSlot for weapon: '{record.RequiredSlot}'.")
         };
     }
+
+    // --- Template Generation ---
 
     private string GenerateSingleWeaponTemplate(ItemDBRecord record, Dictionary<string, SpellDBRecord> spellData)
     {
         var sb = new StringBuilder();
-        // Use the exact template name from the description
         sb.AppendLine("{{Fancy-weapon");
 
         // --- image ---
         sb.AppendLine($"| image = [[File:{{{{PAGENAME}}}}.png|80px]]");
 
         // --- name ---
-        // Uses ItemName directly. Template uses {{PAGENAME}} by default, this overrides it.
         sb.AppendLine($"| name = {{{{PAGENAME}}}}");
 
         // --- type ---
@@ -272,6 +310,137 @@ public class WeaponWikiGenerator : EditorWindow
         sb.AppendLine($"| relic = {(record.Relic ? "True" : "")}");
 
         // --- Stats (str, end, dex, agi, int, wis, cha, res) ---
+        AppendStatParameters(sb, record);
+
+        // --- Combat Stats (damage, delay, health, mana, armor) ---
+        sb.AppendLine($"| damage = {(record.WeaponDmg != 0 ? record.WeaponDmg.ToString() : "")}");
+        sb.AppendLine($"| delay = {(record.WeaponDly != 0 ? record.WeaponDly.ToString("0.##", CultureInfo.InvariantCulture) : "")}");
+        sb.AppendLine($"| health = {record.HP}");
+        sb.AppendLine($"| mana = {record.Mana}");
+        sb.AppendLine($"| armor = {record.AC}");
+
+        // --- Resists (magic, poison, elemental, void) ---
+        AppendResistParameters(sb, record);
+
+        // --- description ---
+        if (!string.IsNullOrEmpty(record.Lore))
+        {
+            sb.AppendLine($"| description = {EscapeWikiText(record.Lore.Trim())}");
+        }
+
+        // --- base_dps --- OMITTED (Template calculates)
+
+        // --- classes ---
+        AppendClassParameters(sb, record);
+
+        // --- Proc Handling ---
+        string procOnHitId = record.WeaponProcOnHitId;
+        string wornEffectId = record.WornEffectId;
+        string procStyle = "";
+        SpellDBRecord procSpell = null;
+
+        if (!string.IsNullOrEmpty(procOnHitId) && spellData.TryGetValue(procOnHitId, out procSpell))
+        {
+            procStyle = record.Shield ? "Bash" : "Attack";
+        }
+        else if (!string.IsNullOrEmpty(wornEffectId) && spellData.TryGetValue(wornEffectId, out procSpell))
+        {
+            procStyle = "Worn";
+        }
+
+        // Output proc parameters only if a valid proc spell was found
+        sb.AppendLine($"| proc_name = {(procSpell != null ? "[[" + EscapeWikiText(procSpell.SpellName) + "]]" : "")}");
+        var procDesc = procSpell?.SpellDesc ?? "";
+        sb.AppendLine($"| proc_desc = {(string.IsNullOrEmpty(procDesc) ? "" : EscapeWikiText(procDesc))}");
+        string procChance = record.WeaponProcChance > 0 ? record.WeaponProcChance.ToString(CultureInfo.InvariantCulture) : "";
+        sb.AppendLine($"| proc_chance = {procChance}");
+        sb.AppendLine($"| proc_style = {procStyle ?? ""}");
+
+        // --- tier ---
+        sb.AppendLine($"| tier = {GetWikiTier(record.Quality)}");
+
+        // --- Final Closing Braces ---
+        sb.Append("}}");
+        return sb.ToString();
+    }
+
+    private string GenerateSingleArmorTemplate(ItemDBRecord record, Dictionary<string, SpellDBRecord> spellData)
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine("{{Fancy-armor");
+
+        // --- image ---
+        sb.AppendLine($"| image = [[File:{{{{PAGENAME}}}}.png|80px]]");
+
+        // --- name ---
+        sb.AppendLine($"| name = {{{{PAGENAME}}}}");
+
+        // --- slot ---
+        sb.AppendLine($"| slot = {record.RequiredSlot}");
+
+        // --- relic ---
+        sb.AppendLine($"| relic = {(record.Relic ? "True" : "")}");
+
+        // --- Stats (str, end, dex, agi, int, wis, cha, res) ---
+        AppendStatParameters(sb, record);
+
+        // --- Combat Stats (health, mana, armor) ---
+        sb.AppendLine($"| health = {record.HP}");
+        sb.AppendLine($"| mana = {record.Mana}");
+        sb.AppendLine($"| armor = {record.AC}");
+
+        // --- Resists (magic, poison, elemental, void) ---
+        AppendResistParameters(sb, record);
+
+        // --- description ---
+        if (!string.IsNullOrEmpty(record.Lore))
+        {
+            sb.AppendLine($"| description = {EscapeWikiText(record.Lore.Trim())}");
+        }
+
+        // --- classes ---
+        AppendClassParameters(sb, record);
+
+        // --- Proc Handling ---
+        string procOnHitId = record.WeaponProcOnHitId;
+        string wornEffectId = record.WornEffectId;
+        string onClickEffectId = record.ItemEffectOnClickId;
+        string procStyle = "";
+        SpellDBRecord procSpell = null;
+
+        if (!string.IsNullOrEmpty(onClickEffectId) && spellData.TryGetValue(onClickEffectId, out procSpell))
+        {
+            procStyle = "Activatable";
+        }
+        else if (!string.IsNullOrEmpty(wornEffectId) && spellData.TryGetValue(wornEffectId, out procSpell))
+        {
+            procStyle = "Worn";
+        }
+        else if (!string.IsNullOrEmpty(procOnHitId) && spellData.TryGetValue(procOnHitId, out procSpell))
+        {
+            procStyle = "Cast";
+        }
+
+        // Output proc parameters only if a valid proc spell was found
+        sb.AppendLine($"| proc_name = {(procSpell != null ? "[[" + EscapeWikiText(procSpell.SpellName) + "]]" : "")}");
+        var procDesc = procSpell?.SpellDesc ?? "";
+        sb.AppendLine($"| proc_desc = {(string.IsNullOrEmpty(procDesc) ? "" : EscapeWikiText(procDesc))}");
+        string procChance = record.WeaponProcChance > 0 ? record.WeaponProcChance.ToString(CultureInfo.InvariantCulture) : "";
+        sb.AppendLine($"| proc_chance = {procChance}");
+        sb.AppendLine($"| proc_style = {procStyle ?? ""}");
+
+        // --- tier ---
+        sb.AppendLine($"| tier = {GetWikiTier(record.Quality)}");
+
+        // --- Final Closing Braces ---
+        sb.Append("}}");
+        return sb.ToString();
+    }
+
+    // --- Helper Methods for Template Generation ---
+
+    private void AppendStatParameters(StringBuilder sb, ItemDBRecord record)
+    {
         sb.AppendLine($"| str = {record.Str}");
         sb.AppendLine($"| end = {record.End}");
         sb.AppendLine($"| dex = {record.Dex}");
@@ -279,83 +448,28 @@ public class WeaponWikiGenerator : EditorWindow
         sb.AppendLine($"| int = {record.Int}");
         sb.AppendLine($"| wis = {record.Wis}");
         sb.AppendLine($"| cha = {record.Cha}");
-        sb.AppendLine($"| res = {record.Res}"); // Resonance
+        sb.AppendLine($"| res = {record.Res}");
+    }
 
-        // --- Combat Stats (damage, delay, health, mana, armor) ---
-        sb.AppendLine($"| damage = {(record.WeaponDmg != 0 ? record.WeaponDmg.ToString() : "")}");
-        sb.AppendLine($"| delay = {(record.WeaponDly != 0 ? record.WeaponDly.ToString("0.##") : "")}");
-        sb.AppendLine($"| health = {record.HP}");
-        sb.AppendLine($"| mana = {record.Mana}");
-        sb.AppendLine($"| armor = {record.AC}"); // AC mapped to armor
-
-        // --- Resists (magic, poison, elemental, void) ---
+    private void AppendResistParameters(StringBuilder sb, ItemDBRecord record)
+    {
         sb.AppendLine($"| magic = {record.MR}");
         sb.AppendLine($"| poison = {record.PR}");
         sb.AppendLine($"| elemental = {record.ER}");
         sb.AppendLine($"| void = {record.VR}");
+    }
 
-        // --- description ---
-        // Use Lore field, escape wiki markup. Template default handles empty.
-        if (!string.IsNullOrEmpty(record.Lore))
-        {
-            sb.AppendLine($"| description = {EscapeWikiText(record.Lore)}");
-        }
-
-        // --- base_dps ---
-        // OMIT - Template calculates this automatically.
-
-        // --- classes ---
+    private void AppendClassParameters(StringBuilder sb, ItemDBRecord record)
+    {
         var allowedClasses = new HashSet<string>(
             (record.Classes ?? "").Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries),
             StringComparer.OrdinalIgnoreCase // Case-insensitive matching
         );
         foreach (string className in KnownClassNames)
         {
-            sb.AppendLine($"| {className.ToLower()} = {(allowedClasses.Contains(className) ? "True" : "")}");
+            // Ensure parameter name is lowercase as per templates
+            sb.AppendLine($"| {className.ToLowerInvariant()} = {(allowedClasses.Contains(className) ? "True" : "")}");
         }
-
-        // --- Proc Handling ---
-        string procOnHitId = record.WeaponProcOnHitId;
-        string wornEffectId = record.WornEffectId;
-
-        string procStyle = "";
-        SpellDBRecord procSpell = null;
-
-        // Determine the proc source and style
-        // Prioritize On Hit proc over Worn effect if both somehow exist
-        
-        if (!string.IsNullOrEmpty(procOnHitId))
-        {
-            procStyle = record.Shield ? "Bash" : "Attack";
-            procSpell = spellData[procOnHitId];
-        }
-        else if (!string.IsNullOrEmpty(wornEffectId))
-        {
-            procStyle = "Worn";
-            procSpell = spellData[wornEffectId];
-        }
-        
-        // Output proc parameters only if a valid proc spell was found
-        // proc_name
-        sb.AppendLine($"| proc_name = {(procSpell != null ? "[[" + EscapeWikiText(procSpell.SpellName) + "]]" : "")}");
-
-        // proc_desc
-        var procDesc = !string.IsNullOrEmpty(procSpell?.SpellDesc) ? EscapeWikiText(procSpell.SpellDesc) : "";
-        sb.AppendLine($"| proc_desc = {procDesc}");
-
-        // proc_style
-        sb.AppendLine($"| proc_style = {procStyle ?? ""}");
-
-        // proc_chance - Output always, empty if not Attack or <= 0
-        string procChance = record.WeaponProcChance > 0 ? record.WeaponProcChance.ToString(CultureInfo.InvariantCulture) : "";
-        sb.AppendLine($"| proc_chance = {procChance}");
-        
-        // --- tier ---
-        sb.AppendLine($"| tier = {GetWikiTier(record.Quality)}");
-
-        // --- Final Closing Braces ---
-        sb.Append("}}");
-        return sb.ToString();
     }
 
     private string EscapeWikiText(string text)
