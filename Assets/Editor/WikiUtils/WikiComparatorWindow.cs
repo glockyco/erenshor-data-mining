@@ -15,8 +15,8 @@ public class WikiComparatorWindow : EditorWindow
     private const string DEFAULT_DB_FILENAME = "Erenshor.sqlite";
     // --- End Configuration ---
 
-    private string _itemIdToCompare = "Charm_of_The_Shield"; // Default example
-    private string _statusMessage = "Enter an Item ID and click Compare.";
+    private string _itemIdToCompare = ""; // Default is now empty, will be set from DB
+    private string _statusMessage = "Enter an Item ID (Wiki Page Name) and click Compare."; // Updated default message
     private string? _onlineWikiText;
     private string? _localWikiText;
     private Vector2 _scrollPosOnline;
@@ -28,13 +28,14 @@ public class WikiComparatorWindow : EditorWindow
     public static void ShowWindow()
     {
         WikiComparatorWindow window = GetWindow<WikiComparatorWindow>("Wiki Comparator");
-        window.UpdateResolvedPath(); // Calculate path when window opens
+        // UpdateResolvedPath is called in OnEnable
         window.minSize = new Vector2(600, 400); // Increased min size for better layout
     }
 
     void OnEnable()
     {
-        UpdateResolvedPath(); // Also update path when script reloads
+        UpdateResolvedPath(); // Calculate path when script reloads/window enabled
+        SetDefaultItemIdFromDb(); // Attempt to set default ID from DB
     }
 
     // Gets the default path (relative to project root)
@@ -49,6 +50,51 @@ public class WikiComparatorWindow : EditorWindow
         // Read the path from EditorPrefs, using the default path as a fallback
         string savedPath = EditorPrefs.GetString(EXPORTER_PREFS_KEY_DB_PATH, GetDefaultDatabasePath());
         _fullDbPathDisplay = Path.GetFullPath(savedPath); // Ensure it's a full path for display/use
+    }
+
+    /// <summary>
+    /// Attempts to find the first item with a WikiString in the DB
+    /// and sets its BaseItemId as the default value for the input field.
+    /// </summary>
+    private void SetDefaultItemIdFromDb()
+    {
+        if (!File.Exists(_fullDbPathDisplay))
+        {
+            Debug.LogWarning($"Wiki Comparator: Database not found at {_fullDbPathDisplay}. Cannot set default Item ID.");
+            _statusMessage = "Database not found. Cannot set default Item ID."; // Update status
+            return;
+        }
+
+        SQLiteConnection? db = null;
+        try
+        {
+            db = new SQLiteConnection(_fullDbPathDisplay, SQLiteOpenFlags.ReadOnly);
+            var firstItemWithWiki = db.Table<ItemDBRecord>().FirstOrDefault(item => !string.IsNullOrEmpty(item.WikiString));
+
+            if (firstItemWithWiki != null)
+            {
+                // Set the default value to the BaseItemId
+                _itemIdToCompare = firstItemWithWiki.BaseItemId;
+                _statusMessage = $"Defaulting to BaseItemId '{_itemIdToCompare}'. Enter the exact Wiki Page Name (Item ID) to compare.";
+                Debug.Log($"Wiki Comparator: Set default Item ID input to BaseItemId '{firstItemWithWiki.BaseItemId}' from item '{firstItemWithWiki.Id}'.");
+            }
+            else
+            {
+                _statusMessage = "No items with WikiStrings found in DB. Please enter an Item ID manually.";
+                Debug.LogWarning("Wiki Comparator: No items with non-empty WikiString found in the database.");
+            }
+        }
+        catch (Exception ex)
+        {
+            _statusMessage = "Error reading database to find default item.";
+            Debug.LogError($"Wiki Comparator: Error reading database to find default item: {ex.Message}");
+        }
+        finally
+        {
+            db?.Close();
+            db?.Dispose();
+        }
+        Repaint(); // Update the UI with the new default value or status message
     }
 
 
@@ -68,7 +114,7 @@ public class WikiComparatorWindow : EditorWindow
         }
         EditorGUILayout.Space();
 
-
+        // Input field label clarifies that the Wiki Page Name (usually Item.Id) is needed
         _itemIdToCompare = EditorGUILayout.TextField("Item ID (Wiki Page Name)", _itemIdToCompare);
 
         EditorGUI.BeginDisabledGroup(_isComparing || !dbExists); // Also disable if DB doesn't exist
@@ -113,9 +159,12 @@ public class WikiComparatorWindow : EditorWindow
 
     private async void CompareItemAsync()
     {
-        if (string.IsNullOrWhiteSpace(_itemIdToCompare))
+        // Use the value currently in the text field (_itemIdToCompare) as the Item ID (PK) for lookup
+        string itemIdToLookup = _itemIdToCompare;
+
+        if (string.IsNullOrWhiteSpace(itemIdToLookup))
         {
-            _statusMessage = "Please enter an Item ID.";
+            _statusMessage = "Please enter an Item ID (Wiki Page Name).";
             _onlineWikiText = null;
             _localWikiText = null;
             Repaint();
@@ -136,19 +185,19 @@ public class WikiComparatorWindow : EditorWindow
         if (_isComparing) return; // Prevent concurrent comparisons
 
         _isComparing = true;
-        _statusMessage = "Finding local item data in database...";
+        _statusMessage = $"Finding local item data in database for ID: {itemIdToLookup}...";
         _onlineWikiText = null;
         _localWikiText = null;
         Repaint(); // Update UI to show "Comparing..." and clear results
 
         try
         {
-            // --- Step 1: Find the local ItemDBRecord from the database ---
-            ItemDBRecord? itemRecord = FindItemRecord(_itemIdToCompare); // Now uses DB lookup
+            // --- Step 1: Find the local ItemDBRecord from the database using the entered ID ---
+            ItemDBRecord? itemRecord = FindItemRecord(itemIdToLookup); // Uses the ID from the text field
 
             if (itemRecord == null)
             {
-                _statusMessage = $"Error: Item with ID '{_itemIdToCompare}' not found in the database '{Path.GetFileName(_fullDbPathDisplay)}'.";
+                _statusMessage = $"Error: Item with ID '{itemIdToLookup}' not found in the database '{Path.GetFileName(_fullDbPathDisplay)}'.";
                 _isComparing = false;
                 Repaint();
                 return;
@@ -159,7 +208,8 @@ public class WikiComparatorWindow : EditorWindow
             Repaint();
 
             // --- Step 2: Perform the comparison ---
-            string wikiPageName = itemRecord.Id; // Use the ID from the record
+            // Use the Item ID (which should match the wiki page name) for the URL
+            string wikiPageName = itemRecord.Id;
             string baseUrl = $"https://erenshor.wiki.gg/wiki/{Uri.EscapeDataString(wikiPageName)}";
 
             WikiComparator comparator = new WikiComparator();
@@ -175,11 +225,11 @@ public class WikiComparatorWindow : EditorWindow
             }
             else if (result.areEqual)
             {
-                _statusMessage = "Match: Local WikiString matches the online version (normalized).";
+                _statusMessage = $"Match: Local WikiString for '{itemRecord.Id}' matches the online version (normalized).";
             }
             else
             {
-                _statusMessage = "Difference detected (after normalizing line endings).";
+                _statusMessage = $"Difference detected for '{itemRecord.Id}' (after normalizing line endings).";
             }
         }
         catch (SQLiteException sqlEx) // Catch specific SQLite errors
@@ -200,12 +250,13 @@ public class WikiComparatorWindow : EditorWindow
     }
 
     /// <summary>
-    /// Finds an ItemDBRecord by its ID by querying the SQLite database.
+    /// Finds an ItemDBRecord by its ID (Primary Key) by querying the SQLite database.
     /// </summary>
-    /// <param name="itemId">The ID of the item to find.</param>
+    /// <param name="itemId">The ID (Primary Key, expected to be the Wiki Page Name) of the item to find.</param>
     /// <returns>The ItemDBRecord if found, otherwise null.</returns>
     private ItemDBRecord? FindItemRecord(string itemId)
     {
+        // This method remains unchanged - it searches by the primary key 'Id'
         if (!File.Exists(_fullDbPathDisplay))
         {
             Debug.LogError($"Database file not found at path: {_fullDbPathDisplay}");
@@ -218,10 +269,7 @@ public class WikiComparatorWindow : EditorWindow
             // Connect in ReadOnly mode
             db = new SQLiteConnection(_fullDbPathDisplay, SQLiteOpenFlags.ReadOnly);
 
-            // Query the Items table for the specific item ID
-            // Using FindWithQuery for potentially better performance with Primary Key
-            // Or use FirstOrDefault if FindWithQuery isn't suitable or available
-            // return db.FindWithQuery<ItemDBRecord>("SELECT * FROM Items WHERE Id = ?", itemId);
+            // Query the Items table for the specific item ID (Primary Key)
             return db.Table<ItemDBRecord>().FirstOrDefault(item => item.Id == itemId);
         }
         catch (SQLiteException ex)
