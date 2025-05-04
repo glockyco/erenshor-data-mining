@@ -555,25 +555,27 @@ public class BulkWikiComparatorWindow : EditorWindow
                             else // Not Equal
                             {
                                 // Check for specific error messages
-                                if (result.ErrorMessage != null && result.ErrorMessage.Contains("Page not found on wiki"))
+                                // Prioritize Errors first (Page not found, Fetch/Network/Parse errors)
+                                if (result.ErrorMessage != null &&
+                                    (result.ErrorMessage.Contains("Page not found on wiki") ||
+                                     result.ErrorMessage.Contains("Fetch Failed") ||
+                                     result.ErrorMessage.Contains("Internal error") ||
+                                     result.ErrorMessage.Contains("HTTP Error") ||
+                                     result.ErrorMessage.Contains("Network error") ||
+                                     result.ErrorMessage.Contains("timed out") ||
+                                     result.ErrorMessage.Contains("Could not parse")))
                                 {
-                                    // Page itself is missing
-                                    resultItem.Status = ComparisonStatus.Missing;
-                                    Interlocked.Increment(ref runMissingCount);
-                                }
-                                else if (result.ErrorMessage != null &&
-                                         (result.ErrorMessage.Contains("Fetch Failed") ||
-                                          result.ErrorMessage.Contains("Internal error") ||
-                                          result.ErrorMessage.Contains("HTTP Error") ||
-                                          result.ErrorMessage.Contains("Network error") ||
-                                          result.ErrorMessage.Contains("timed out") ||
-                                          result.ErrorMessage.Contains("Could not parse")))
-                                {
-                                     // Network, parsing, or other fetch errors
                                     resultItem.Status = ComparisonStatus.Error;
                                     Interlocked.Increment(ref runErrorCount);
                                 }
-                                else // All other non-equal cases are Mismatches (content diff, tier missing online, etc.)
+                                // Check specifically for missing tier message from comparator
+                                else if (result.ErrorMessage != null && result.ErrorMessage.Contains("not found online")) // Catches "Mismatch (Tier X not found online)"
+                                {
+                                    resultItem.Status = ComparisonStatus.Missing; // This specific tier is missing
+                                    Interlocked.Increment(ref runMissingCount);
+                                }
+                                // Otherwise, it's a content mismatch
+                                else
                                 {
                                     resultItem.Status = ComparisonStatus.Mismatch;
                                     Interlocked.Increment(ref runMismatchCount);
@@ -730,11 +732,11 @@ public class BulkWikiComparatorWindow : EditorWindow
 public enum ComparisonStatus
 {
     Pending,
-    Match,
-    Mismatch,
-    Missing, // Item/Page exists locally but page not found online (404)
-    LocalEmpty, // Special case: Local WikiString was empty or had no template
-    Error // Fetch error, parse error, other non-404 network errors etc.
+    Match,      // Local and online tier content match (or Tier 0 ignored)
+    Mismatch,   // Tier exists online but content differs
+    Missing,    // Tier exists locally (not Tier 0) but is not found on the online page (page itself was accessible)
+    LocalEmpty, // Local WikiString was empty or had no relevant template
+    Error       // Page fetch failed (404, network, timeout), parsing error, internal tool error
 }
 
 // Represents a single row in the TreeView
