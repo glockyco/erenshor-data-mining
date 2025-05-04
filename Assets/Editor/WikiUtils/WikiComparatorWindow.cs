@@ -145,21 +145,21 @@ namespace Erenshor.Editor.WikiUtils // Enclose window class in the namespace
             {
                 EditorGUILayout.BeginHorizontal();
 
-                // --- Online Text (Specific Template or Message) ---
-                EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true));
-                EditorGUILayout.LabelField("Online Wiki Text (Relevant Template)", EditorStyles.boldLabel);
-                _scrollPosOnline = EditorGUILayout.BeginScrollView(_scrollPosOnline, EditorStyles.helpBox, GUILayout.ExpandHeight(true));
-                // Use read-only TextArea for multiline display
-                EditorGUILayout.TextArea(_displayOnlineText ?? "N/A", EditorStyles.textArea, GUILayout.ExpandHeight(true));
-                EditorGUILayout.EndScrollView();
-                EditorGUILayout.EndVertical();
-
-                // --- Local Text (Specific Template or Message) ---
+                // --- Local Text (Specific Template or Message) --- LEFT SIDE ---
                 EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true));
                 EditorGUILayout.LabelField("Local WikiString (Relevant Template)", EditorStyles.boldLabel);
                 _scrollPosLocal = EditorGUILayout.BeginScrollView(_scrollPosLocal, EditorStyles.helpBox, GUILayout.ExpandHeight(true));
                 // Use read-only TextArea for multiline display
                 EditorGUILayout.TextArea(_displayLocalText ?? "N/A", EditorStyles.textArea, GUILayout.ExpandHeight(true));
+                EditorGUILayout.EndScrollView();
+                EditorGUILayout.EndVertical();
+
+                // --- Online Text (Specific Template or Message) --- RIGHT SIDE ---
+                EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true));
+                EditorGUILayout.LabelField("Online Wiki Text (Relevant Template)", EditorStyles.boldLabel);
+                _scrollPosOnline = EditorGUILayout.BeginScrollView(_scrollPosOnline, EditorStyles.helpBox, GUILayout.ExpandHeight(true));
+                // Use read-only TextArea for multiline display
+                EditorGUILayout.TextArea(_displayOnlineText ?? "N/A", EditorStyles.textArea, GUILayout.ExpandHeight(true));
                 EditorGUILayout.EndScrollView();
                 EditorGUILayout.EndVertical();
 
@@ -243,9 +243,10 @@ namespace Erenshor.Editor.WikiUtils // Enclose window class in the namespace
                 if (result.AreEqual)
                 {
                     // Check if ErrorMessage provides context (e.g., local string was empty)
-                    if (!string.IsNullOrEmpty(result.ErrorMessage))
+                    // Note: ErrorMessage is null on a successful match now.
+                    if (_displayLocalText != null && _displayLocalText.StartsWith("<")) // Check if local text is a status message
                     {
-                         _statusMessage = $"Match: {result.ErrorMessage}"; // e.g., Match: Local WikiString is empty
+                         _statusMessage = $"Match: {_displayLocalText}"; // e.g., Match: <Local WikiString is empty>
                          _statusMessageType = MessageType.Info;
                     }
                     else
@@ -256,7 +257,7 @@ namespace Erenshor.Editor.WikiUtils // Enclose window class in the namespace
                 }
                 else // Not equal
                 {
-                    // Use the specific error message from the comparator result
+                    // Use the specific error message from the comparator result, which now includes parameter diffs
                     _statusMessage = $"Comparison Failed for '{itemRecord.Id}': {result.ErrorMessage ?? "Unknown reason"}";
                     // Use Error type for fetch failures or missing tiers, Warning for content mismatch
                     if (result.ErrorMessage != null && (result.ErrorMessage.Contains("missing online") || result.ErrorMessage.Contains("Fetch Failed") || result.ErrorMessage.Contains("Internal error")))
@@ -265,7 +266,7 @@ namespace Erenshor.Editor.WikiUtils // Enclose window class in the namespace
                     }
                     else
                     {
-                        _statusMessageType = MessageType.Warning; // Likely a content mismatch
+                        _statusMessageType = MessageType.Warning; // Likely a content mismatch with details
                     }
                 }
             }

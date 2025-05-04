@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text; // Added for StringBuilder
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
@@ -117,19 +118,18 @@ namespace Erenshor.Editor.WikiUtils
                 int weaponIndex = wikiText.IndexOf(FancyWeaponStart, currentIndex, StringComparison.OrdinalIgnoreCase);
 
                 int startIndex = -1;
+                string templateStartMarker = "";
 
                 // Determine which marker comes first, or if none are found
-                if (armorIndex != -1 && weaponIndex != -1)
-                {
-                    startIndex = Math.Min(armorIndex, weaponIndex);
-                }
-                else if (armorIndex != -1)
+                if (armorIndex != -1 && (weaponIndex == -1 || armorIndex < weaponIndex))
                 {
                     startIndex = armorIndex;
+                    templateStartMarker = FancyArmorStart;
                 }
                 else if (weaponIndex != -1)
                 {
                     startIndex = weaponIndex;
+                    templateStartMarker = FancyWeaponStart;
                 }
                 else
                 {
@@ -226,8 +226,69 @@ namespace Erenshor.Editor.WikiUtils
         }
 
         /// <summary>
+        /// Parses the content of a wiki template (text between the first | and final }}) into key-value pairs.
+        /// </summary>
+        /// <param name="templateContent">The raw text content inside the template.</param>
+        /// <returns>A dictionary of parameter names (lowercase, trimmed) to their values (trimmed).</returns>
+        private Dictionary<string, string> ParseTemplateParameters(string templateText)
+        {
+            var parameters = new Dictionary<string, string>();
+            // Find the first pipe '|' which usually separates the template name from parameters
+            int firstPipe = templateText.IndexOf('|');
+            if (firstPipe == -1) // No parameters
+            {
+                return parameters;
+            }
+
+            // Get the content part (after the first pipe, before the final '}}')
+            string content = templateText.Substring(firstPipe + 1);
+            // Remove the closing braces, handling potential whitespace before them
+            if (content.EndsWith("}}"))
+            {
+                content = content.Substring(0, content.Length - 2).TrimEnd();
+            }
+
+            // Split by pipe, respecting potential pipes within values (though less common in this format)
+            // A more robust parser might be needed for complex cases, but this handles typical key=value pairs.
+            string[] pairs = content.Split('|');
+
+            foreach (string pair in pairs)
+            {
+                if (string.IsNullOrWhiteSpace(pair)) continue;
+
+                string trimmedPair = pair.Trim();
+                int equalsIndex = trimmedPair.IndexOf('=');
+
+                if (equalsIndex > 0) // Ensure '=' is present and not the first character
+                {
+                    string key = trimmedPair.Substring(0, equalsIndex).Trim().ToLowerInvariant(); // Normalize key
+                    string value = trimmedPair.Substring(equalsIndex + 1).Trim(); // Trim value whitespace
+
+                    if (!string.IsNullOrEmpty(key)) // Ensure key is not empty
+                    {
+                        if (parameters.ContainsKey(key))
+                        {
+                             Debug.LogWarning($"[WikiComparator] Duplicate parameter key '{key}' found in template. Using last value encountered: '{value}'");
+                        }
+                        parameters[key] = value;
+                    }
+                }
+                else
+                {
+                    // Handle unnamed parameters if necessary, or log a warning
+                    // For Fancy-armor/weapon, usually all parameters are named.
+                     Debug.LogWarning($"[WikiComparator] Parameter without '=' found: '{trimmedPair}'. Skipping.");
+                }
+            }
+
+            return parameters;
+        }
+
+
+        /// <summary>
         /// Compares local and online wiki text assuming the local text contains at most one Fancy-armor/weapon template.
         /// It finds the local template (if any), determines its tier, and compares it to the online template of the same tier.
+        /// If a mismatch occurs, it details the differing parameters.
         /// </summary>
         /// <param name="itemWikiUrl">The full URL to the wiki page.</param>
         /// <param name="localWikiStringRaw">The raw WikiString value from the local database.</param>
@@ -235,7 +296,7 @@ namespace Erenshor.Editor.WikiUtils
         ///     bool AreEqual (true if local template matches corresponding online tier, or if local has no template),
         ///     string? DisplayOnlineText (the specific online template matching the local tier, or a status message),
         ///     string? DisplayLocalText (the specific local template found, or a status message),
-        ///     string? ErrorMessage (fetch/parse errors or specific comparison failure details).
+        ///     string? ErrorMessage (fetch/parse errors or specific comparison failure details including parameter differences).
         /// </returns>
         public async Task<(bool AreEqual, string? DisplayOnlineText, string? DisplayLocalText, string? ErrorMessage)> CompareWikiStringAsync(string itemWikiUrl, string? localWikiStringRaw)
         {
@@ -267,11 +328,11 @@ namespace Erenshor.Editor.WikiUtils
 
             if (!localTemplates.Any())
             {
-                // No template found locally. This is considered a success state according to requirements.
+                // No template found locally. This is considered a success state.
                 string noLocalTemplateMsg = string.IsNullOrWhiteSpace(localWikiStringRaw)
                     ? "<Local WikiString is empty>"
                     : "<No Fancy-armor/weapon template found in local WikiString>";
-                // Return the full online text for context if local is empty/no template
+                // Show full online text for context when local is empty/no template.
                 return (true, onlineWikiTextRaw, noLocalTemplateMsg, null);
             }
             else
@@ -294,20 +355,73 @@ namespace Erenshor.Editor.WikiUtils
             if (onlineTemplates.TryGetValue(localTier, out string? onlineTemplateForTier))
             {
                 // Found the corresponding tier online, now compare content
+                displayOnlineText = onlineTemplateForTier; // Set display text regardless of match outcome
                 string normalizedLocal = NormalizeTemplateText(localTemplateToCompare);
                 string normalizedOnline = NormalizeTemplateText(onlineTemplateForTier);
 
                 if (string.Equals(normalizedOnline, normalizedLocal, StringComparison.Ordinal))
                 {
+                    // Quick check passed - templates are identical after normalization
                     overallMatch = true;
                     errorMessage = null; // Success
-                    displayOnlineText = onlineTemplateForTier; // Show the matching online template
                 }
                 else
                 {
+                    // Normalization shows a difference, perform detailed parameter comparison
                     overallMatch = false;
-                    errorMessage = $"Tier {localTier}: Mismatch";
-                    displayOnlineText = onlineTemplateForTier; // Show the non-matching online template
+                    var localParams = ParseTemplateParameters(localTemplateToCompare);
+                    var onlineParams = ParseTemplateParameters(onlineTemplateForTier);
+                    var differences = new List<string>();
+
+                    var allKeys = localParams.Keys.Union(onlineParams.Keys).OrderBy(k => k);
+
+                    foreach (var key in allKeys)
+                    {
+                        localParams.TryGetValue(key, out string? localValue);
+                        onlineParams.TryGetValue(key, out string? onlineValue);
+
+                        // Trim values again just before comparison to ignore only whitespace diffs
+                        string trimmedLocalValue = (localValue ?? "").Trim();
+                        string trimmedOnlineValue = (onlineValue ?? "").Trim();
+
+                        if (localValue != null && onlineValue != null)
+                        {
+                            // Key exists in both, compare trimmed values
+                            if (trimmedLocalValue != trimmedOnlineValue)
+                            {
+                                differences.Add($"'{key}': local='{localValue}' | online='{onlineValue}'");
+                            }
+                        }
+                        else if (localValue != null) // Only in local
+                        {
+                             // Only report missing online if local value is not empty/whitespace
+                             if (!string.IsNullOrWhiteSpace(trimmedLocalValue))
+                             {
+                                differences.Add($"'{key}': local='{localValue}' | missing online");
+                             }
+                        }
+                        else // Only in online
+                        {
+                             // Only report missing locally if online value is not empty/whitespace
+                             if (!string.IsNullOrWhiteSpace(trimmedOnlineValue))
+                             {
+                                differences.Add($"'{key}': online='{onlineValue}' | missing locally");
+                             }
+                        }
+                    }
+
+                    if (differences.Any())
+                    {
+                        errorMessage = $"Tier {localTier}: Mismatch. Differences -> " + string.Join("; ", differences);
+                    }
+                    else
+                    {
+                        // This case might happen if the only difference was whitespace within the template structure
+                        // itself, but all parameter key/value pairs match after trimming. Consider it a match.
+                        overallMatch = true;
+                        errorMessage = null; // Success (differences were whitespace only)
+                         Debug.Log($"[WikiComparator] Tier {localTier}: Normalized text differed, but parameter values matched after trimming. Considering it a match.");
+                    }
                 }
             }
             else
