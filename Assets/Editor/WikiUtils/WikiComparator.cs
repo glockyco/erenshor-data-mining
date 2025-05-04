@@ -301,11 +301,12 @@ public class WikiComparator
     /// Compares local and online wiki text assuming the local text contains at most one Fancy-armor/weapon template.
     /// It finds the local template (if any), determines its tier, and compares it to the online template of the same tier.
     /// If a mismatch occurs, it details the differing parameters.
+    /// Handles special cases for Tier 0 and ignores missing local 'base_dps'.
     /// </summary>
     /// <param name="itemWikiUrl">The full URL to the wiki page.</param>
     /// <param name="localWikiStringRaw">The raw WikiString value from the local database.</param>
     /// <returns>A tuple containing:
-    ///     bool AreEqual (true if local template matches corresponding online tier, or if local has no template),
+    ///     bool AreEqual (true if local template matches corresponding online tier, or if local has no template, or if Tier 0 is missing online),
     ///     string? DisplayOnlineText (the specific online template matching the local tier, or a status message),
     ///     string? DisplayLocalText (the specific local template found, or a status message),
     ///     string? ErrorMessage (fetch/parse errors or specific comparison failure details including parameter differences).
@@ -320,8 +321,18 @@ public class WikiComparator
 
         if (fetchError != null)
         {
-            // Return fetch error, comparison cannot proceed
-            return (false, "<Fetch Failed>", localWikiStringRaw, fetchError);
+            // Distinguish between 'Not Found' and other fetch errors for status reporting
+            string displayLocal = string.IsNullOrWhiteSpace(localWikiStringRaw) ? "<Local WikiString is empty>" : localWikiStringRaw;
+            if (fetchError.Contains("not found on wiki"))
+            {
+                // Page itself not found - this is a 'Missing' case
+                return (false, "<Page Not Found>", displayLocal, fetchError);
+            }
+            else
+            {
+                // Other fetch errors are still 'Error'
+                return (false, "<Fetch Failed>", displayLocal, fetchError);
+            }
         }
 
         if (onlineWikiTextRaw == null)
@@ -342,7 +353,7 @@ public class WikiComparator
 
         if (!localTemplates.Any())
         {
-            // No template found locally. This is considered a success state.
+            // No template found locally. This is considered a success state (LocalEmpty).
             string noLocalTemplateMsg = string.IsNullOrWhiteSpace(localWikiStringRaw)
                 ? "<Local WikiString is empty>"
                 : "<No Fancy-armor/weapon template found in local WikiString>";
@@ -416,8 +427,15 @@ public class WikiComparator
                             differences.Add($"'{key}': local='{localValue}' | missing online");
                         }
                     }
-                    else // Only in online
+                    else // Only in online (onlineValue must be non-null here)
                     {
+                        // Ignore if the key is 'base_dps' and it's only present online
+                        if (key == "base_dps")
+                        {
+                            Debug.Log($"[WikiComparator] Ignoring missing local 'base_dps' parameter (present online).");
+                            continue; // Skip adding this difference
+                        }
+
                         // Only report missing locally if online value is not empty/whitespace
                         if (!string.IsNullOrWhiteSpace(trimmedOnlineValue))
                         {
@@ -433,22 +451,33 @@ public class WikiComparator
                 else
                 {
                     // This case might happen if the only difference was whitespace within the template structure
-                    // itself, but all parameter key/value pairs match after trimming. Consider it a match.
+                    // itself, or ignored parameters like base_dps. Consider it a match.
                     overallMatch = true;
-                    errorMessage = null; // Success (differences were whitespace only)
+                    errorMessage = null; // Success (differences were whitespace or ignored parameters)
                     Debug.Log(
-                        $"[WikiComparator] Tier {localTier}: Normalized text differed, but parameter values matched after trimming. Considering it a match.");
+                        $"[WikiComparator] Tier {localTier}: Normalized text differed, but parameter values matched after trimming/ignoring. Considering it a match.");
                 }
             }
         }
-        else
+        else // Corresponding Tier NOT found online
         {
-            // Tier exists locally but is missing online - this is an error
-            overallMatch = false;
-            errorMessage = $"Tier {localTier}: Exists locally, missing online";
-            // Show the full online text for context when the specific tier is missing
-            displayOnlineText =
-                $"<Template for Tier {localTier} not found online>\n\nFull Online Text:\n{onlineWikiTextRaw}";
+            // Special case: If local tier is 0 and it's missing online, treat as Match (ignore)
+            if (localTier == 0)
+            {
+                overallMatch = true;
+                errorMessage = null; // No error, just ignoring missing tier 0 online
+                displayOnlineText = $"<Tier 0 template missing online (Ignored)>";
+                Debug.Log($"[WikiComparator] Local Tier 0 template found, but no Tier 0 template online. Treating as Match (Ignored).");
+            }
+            else
+            {
+                // Tier exists locally but is missing online - this is a 'Missing' case
+                overallMatch = false;
+                errorMessage = $"Tier {localTier}: Exists locally, missing online";
+                // Show the full online text for context when the specific tier is missing
+                displayOnlineText =
+                    $"<Template for Tier {localTier} not found online>\n\nFull Online Text:\n{onlineWikiTextRaw}";
+            }
         }
 
         // Return comparison result, the specific local template, the specific online template (or message), and error details

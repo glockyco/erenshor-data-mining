@@ -490,10 +490,12 @@ public class BulkWikiComparatorWindow : EditorWindow
         WikiComparator comparator = new WikiComparator();
         int totalItemsToCompare = itemsToRun.Count;
         int processedCount = 0;
+        // Use local counters for this run
         int runMatchCount = 0;
         int runMismatchCount = 0;
         int runErrorCount = 0;
         int runLocalEmptyCount = 0;
+        int runMissingCount = 0; // Counter for the new 'Missing' status
 
         try
         {
@@ -533,31 +535,44 @@ public class BulkWikiComparatorWindow : EditorWindow
 
                             if (token.IsCancellationRequested) return;
 
+                            // Determine status based on result
                             if (result.AreEqual)
                             {
+                                // Check if it was a match because local was empty/no template
                                 if (result.DisplayLocalText != null && result.DisplayLocalText.StartsWith("<"))
                                 {
                                     resultItem.Status = ComparisonStatus.LocalEmpty;
                                     Interlocked.Increment(ref runLocalEmptyCount);
                                 }
-                                else
+                                else // Includes the Tier 0 special case handled in comparator
                                 {
                                     resultItem.Status = ComparisonStatus.Match;
                                     Interlocked.Increment(ref runMatchCount);
                                 }
                             }
-                            else
+                            else // Not Equal
                             {
+                                // Check for specific error messages indicating missing online content
                                 if (result.ErrorMessage != null &&
                                     (result.ErrorMessage.Contains("missing online") ||
-                                     result.ErrorMessage.Contains("Fetch Failed") ||
-                                     result.ErrorMessage.Contains("Internal error") ||
                                      result.ErrorMessage.Contains("not found on wiki")))
+                                {
+                                    resultItem.Status = ComparisonStatus.Missing; // Use new Missing status
+                                    Interlocked.Increment(ref runMissingCount);
+                                }
+                                // Check for fetch/parse errors
+                                else if (result.ErrorMessage != null &&
+                                         (result.ErrorMessage.Contains("Fetch Failed") ||
+                                          result.ErrorMessage.Contains("Internal error") ||
+                                          result.ErrorMessage.Contains("HTTP Error") ||
+                                          result.ErrorMessage.Contains("Network error") ||
+                                          result.ErrorMessage.Contains("timed out") ||
+                                          result.ErrorMessage.Contains("Could not parse")))
                                 {
                                     resultItem.Status = ComparisonStatus.Error;
                                     Interlocked.Increment(ref runErrorCount);
                                 }
-                                else
+                                else // All other non-equal cases are Mismatches
                                 {
                                     resultItem.Status = ComparisonStatus.Mismatch;
                                     Interlocked.Increment(ref runMismatchCount);
@@ -607,8 +622,11 @@ public class BulkWikiComparatorWindow : EditorWindow
                 }
                 else
                 {
+                    // Update summary message to include 'Missing' count
                     _summaryMessage =
-                        $"Comparison of {totalItemsToCompare} {completionScope} item(s) complete. Results -> Matches: {runMatchCount} | Mismatches: {runMismatchCount} | Local Empty: {runLocalEmptyCount} | Errors: {runErrorCount}";
+                        $"Comparison of {totalItemsToCompare} {completionScope} item(s) complete. Results -> " +
+                        $"Matches: {runMatchCount} | Mismatches: {runMismatchCount} | Missing: {runMissingCount} | " +
+                        $"Local Empty: {runLocalEmptyCount} | Errors: {runErrorCount}";
                     _progress = 1.0f;
                     _progressMessage = "Comparison Finished.";
                 }
@@ -712,6 +730,7 @@ public enum ComparisonStatus
     Pending,
     Match,
     Mismatch,
+    Missing, // Added: Item/Tier exists locally but not online
     LocalEmpty, // Special case: Local WikiString was empty or had no template
     Error // Fetch error, parse error, item not found etc.
 }
@@ -824,6 +843,25 @@ public class BulkComparisonTreeView : TreeView
 
             int column = args.GetColumn(i);
 
+            // Apply color coding for specific statuses
+            Color originalColor = GUI.color;
+            switch(item.Status)
+            {
+                case ComparisonStatus.Mismatch:
+                    GUI.color = new Color(1f, 0.8f, 0.8f); // Light red
+                    break;
+                case ComparisonStatus.Missing:
+                    GUI.color = new Color(1f, 1f, 0.8f); // Light yellow
+                    break;
+                case ComparisonStatus.Error:
+                    GUI.color = new Color(0.9f, 0.9f, 0.9f); // Light gray
+                    break;
+                case ComparisonStatus.LocalEmpty:
+                     GUI.color = new Color(0.8f, 0.9f, 1f); // Light blue
+                     break;
+            }
+
+
             switch ((ColumnID)column)
             {
                 case ColumnID.Status:
@@ -845,6 +883,7 @@ public class BulkComparisonTreeView : TreeView
                     EditorGUI.LabelField(cellRect, item.Details, EditorStyles.miniLabel);
                     break;
             }
+             GUI.color = originalColor; // Restore original color
         }
     }
 
