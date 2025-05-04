@@ -140,18 +140,28 @@ namespace Erenshor.Editor.WikiUtils
                 int braceLevel = 0;
                 int endIndex = -1;
                 int searchIndex = startIndex;
+                bool firstBraceFound = false; // Ensure we find the initial {{
 
                 while (searchIndex < wikiText.Length - 1)
                 {
                     if (wikiText.Substring(searchIndex, 2) == "{{")
                     {
-                        braceLevel++;
+                        // Only increment brace level *after* the initial one at startIndex
+                        if (searchIndex > startIndex || firstBraceFound)
+                        {
+                            braceLevel++;
+                        }
+                        else if (searchIndex == startIndex)
+                        {
+                             braceLevel = 1; // Start counting from the first {{
+                             firstBraceFound = true;
+                        }
                         searchIndex += 2; // Skip the characters we just checked
                     }
                     else if (wikiText.Substring(searchIndex, 2) == "}}")
                     {
                         braceLevel--;
-                        if (braceLevel == 0) // Found the matching closing brace for the initial opening brace
+                        if (braceLevel == 0 && firstBraceFound) // Found the matching closing brace for the initial opening brace
                         {
                             endIndex = searchIndex + 2; // Include the closing braces
                             break;
@@ -163,6 +173,7 @@ namespace Erenshor.Editor.WikiUtils
                         searchIndex++; // Move to the next character
                     }
                 }
+
 
                 if (endIndex != -1) // Successfully found a complete template
                 {
@@ -203,17 +214,17 @@ namespace Erenshor.Editor.WikiUtils
         /// </summary>
         private string NormalizeTemplateText(string templateText)
         {
-            // Also remove leading/trailing whitespace from each line within the template for robustness?
-            // For now, keep it simple: normalize line endings and trim start/end.
+            // Normalize line endings and trim start/end.
             return templateText.Replace("\r\n", "\n").Trim();
         }
 
         /// <summary>
-        /// Compares local and online wiki text by parsing Fancy-armor/weapon templates and comparing them tier by tier.
+        /// Compares local and online wiki text by parsing Fancy-armor/weapon templates.
+        /// It checks if every tier defined locally exists online and matches. Online-only tiers are ignored.
         /// </summary>
         /// <param name="itemWikiUrl">The full URL to the wiki page.</param>
         /// <param name="localWikiString">The WikiString value from the local database.</param>
-        /// <returns>A tuple containing: bool AreEqual (true if all corresponding tiers match), string? OnlineText (full raw text), string? LocalText (full raw text), string? ErrorMessage (fetch/parse errors or comparison details).</returns>
+        /// <returns>A tuple containing: bool AreEqual (true if all local tiers exist online and match), string? OnlineText (full raw text), string? LocalText (full raw text), string? ErrorMessage (fetch/parse errors or comparison details).</returns>
         public async Task<(bool AreEqual, string? OnlineText, string? LocalText, string? ErrorMessage)> CompareWikiStringAsync(string itemWikiUrl, string? localWikiString)
         {
             string editUrl = itemWikiUrl.Contains("?") ? itemWikiUrl + "&action=edit" : itemWikiUrl + "?action=edit";
@@ -222,90 +233,75 @@ namespace Erenshor.Editor.WikiUtils
 
             if (fetchError != null)
             {
+                // Return fetch error, comparison cannot proceed
                 return (false, null, localWikiString, fetchError);
             }
 
             if (onlineWikiTextRaw == null)
             {
+                // Should not happen if fetchError is null, but handle defensively
                 Debug.LogError("[WikiComparator] GetWikiEditTextAsync succeeded but returned null content.");
                 return (false, null, localWikiString, "Internal error: Fetch succeeded but content was null.");
             }
 
-            // Parse templates from both sources using the new brace-counting method
+            // Parse templates from both sources
             Dictionary<int, string> onlineTemplates = ParseWikiTemplates(onlineWikiTextRaw);
             Dictionary<int, string> localTemplates = ParseWikiTemplates(localWikiString);
 
-            // Get all unique tiers found in either source
-            var allTiers = onlineTemplates.Keys.Union(localTemplates.Keys).OrderBy(t => t).ToList();
+            // If there are no local templates, consider it a match by default, as there's nothing local to enforce.
+            if (!localTemplates.Any())
+            {
+                // Check if the raw local string was actually empty/whitespace vs just having no templates
+                if (string.IsNullOrWhiteSpace(localWikiString))
+                {
+                     return (true, onlineWikiTextRaw, localWikiString, "Local WikiString is empty or whitespace.");
+                }
+                else
+                {
+                    // Local string has content, but no valid templates were parsed.
+                    // Compare raw text as a fallback? Or report 'no templates found'?
+                    // Let's report 'no templates found' for clarity.
+                     return (true, onlineWikiTextRaw, localWikiString, "No Fancy-armor/weapon templates found in local WikiString.");
+                }
+            }
 
+            // --- Start comparison based on local tiers ---
             bool overallMatch = true;
             List<string> comparisonDetails = new List<string>();
 
-            if (!allTiers.Any() && (!string.IsNullOrWhiteSpace(onlineWikiTextRaw) || !string.IsNullOrWhiteSpace(localWikiString)))
+            // Iterate through tiers found locally
+            foreach (var kvp in localTemplates.OrderBy(pair => pair.Key))
             {
-                 if (string.IsNullOrWhiteSpace(onlineWikiTextRaw) && string.IsNullOrWhiteSpace(localWikiString))
-                 {
-                     overallMatch = true;
-                 }
-                 else if (string.IsNullOrWhiteSpace(onlineWikiTextRaw?.Trim()) && string.IsNullOrWhiteSpace(localWikiString?.Trim()))
-                 {
-                     overallMatch = true;
-                 }
-                 else
-                 {
-                    string normalizedOnline = (onlineWikiTextRaw ?? "").Replace("\r\n", "\n").Trim();
-                    string normalizedLocal = (localWikiString ?? "").Replace("\r\n", "\n").Trim();
-                    overallMatch = string.Equals(normalizedOnline, normalizedLocal, StringComparison.Ordinal);
-                    if (!overallMatch)
+                int localTier = kvp.Key;
+                string localTemplate = kvp.Value;
+
+                // Check if this local tier exists online
+                if (onlineTemplates.TryGetValue(localTier, out string? onlineTemplate))
+                {
+                    // Tier exists in both, compare normalized content
+                    string normalizedLocal = NormalizeTemplateText(localTemplate);
+                    string normalizedOnline = NormalizeTemplateText(onlineTemplate);
+
+                    if (!string.Equals(normalizedOnline, normalizedLocal, StringComparison.Ordinal))
                     {
-                         comparisonDetails.Add("No Fancy-armor/weapon templates found, and raw text differs.");
+                        overallMatch = false;
+                        comparisonDetails.Add($"Tier {localTier}: Mismatch");
                     }
                     else
                     {
-                        comparisonDetails.Add("No Fancy-armor/weapon templates found, raw text matches.");
-                    }
-                 }
-            }
-            else if (!allTiers.Any())
-            {
-                overallMatch = true;
-                comparisonDetails.Add("No Fancy-armor/weapon templates found in either source.");
-            }
-            else
-            {
-                // Compare tier by tier
-                foreach (int tier in allTiers)
-                {
-                    bool onlineHasTier = onlineTemplates.TryGetValue(tier, out string? onlineTemplate);
-                    bool localHasTier = localTemplates.TryGetValue(tier, out string? localTemplate);
-
-                    if (onlineHasTier && localHasTier)
-                    {
-                        // Tier exists in both, compare normalized content
-                        string normalizedOnline = NormalizeTemplateText(onlineTemplate!);
-                        string normalizedLocal = NormalizeTemplateText(localTemplate!);
-                        if (!string.Equals(normalizedOnline, normalizedLocal, StringComparison.Ordinal))
-                        {
-                            overallMatch = false;
-                            comparisonDetails.Add($"Tier {tier}: Mismatch");
-                        }
-                        else
-                        {
-                            // comparisonDetails.Add($"Tier {tier}: Match"); // Optional: Add match details
-                        }
-                    }
-                    else if (onlineHasTier)
-                    {
-                        overallMatch = false;
-                        comparisonDetails.Add($"Tier {tier}: Exists online, missing locally");
-                    }
-                    else // Must be localHasTier only
-                    {
-                        overallMatch = false;
-                        comparisonDetails.Add($"Tier {tier}: Exists locally, missing online");
+                        // Optional: Add match details if needed for verbose logging
+                        // comparisonDetails.Add($"Tier {localTier}: Match");
                     }
                 }
+                else
+                {
+                    // Tier exists locally but is missing online - this is an error according to the requirements
+                    overallMatch = false;
+                    comparisonDetails.Add($"Tier {localTier}: Exists locally, missing online");
+                }
             }
+            // --- End comparison ---
+
 
             string? finalErrorMessage = null;
             if (!overallMatch)
@@ -313,11 +309,7 @@ namespace Erenshor.Editor.WikiUtils
                 // Combine details if mismatch occurred
                 finalErrorMessage = "Differences found: " + string.Join("; ", comparisonDetails);
             }
-            else if (comparisonDetails.Any())
-            {
-                 // If match is true, but there are details (like "No templates found..."), show the first one.
-                 finalErrorMessage = comparisonDetails.First();
-            }
+            // No need for an 'else if' here, as if overallMatch is true, we want ErrorMessage to be null (success)
 
 
             // Return overall match status, raw texts, and potential comparison details/errors
