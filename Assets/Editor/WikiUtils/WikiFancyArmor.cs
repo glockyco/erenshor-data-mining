@@ -42,7 +42,7 @@ public class WikiFancyArmor
     public override string ToString()
     {
         var sb = new StringBuilder();
-        sb.AppendLine("{{Fancy-weapon");
+        sb.AppendLine("{{Fancy-armor");
 
         sb.AppendLine($"| image = {Image}");
         sb.AppendLine($"| name = {Name}");
