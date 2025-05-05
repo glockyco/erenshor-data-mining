@@ -9,6 +9,54 @@ public class WikiFancyWeaponFactory
     private static readonly string DBPath =
         Path.GetFullPath(Path.Combine(Application.dataPath, "..", "Erenshor.sqlite"));
 
+    public WikiFancyWeapon Create(string wikiString)
+    {
+        var weapon = new WikiFancyWeapon();
+        var parameters = WikiTemplateParser.ParseParameters(wikiString, "Fancy-weapon");
+
+        weapon.Image = WikiTemplateParser.GetString(parameters, "image", "[[File:{{PAGENAME}}.png|80px]]");
+        weapon.Name = WikiTemplateParser.GetString(parameters, "name", "{{PAGENAME}}");
+        weapon.Type = WikiTemplateParser.GetString(parameters, "type");
+        weapon.Relic = WikiTemplateParser.GetBool(parameters, "relic");
+
+        weapon.Str = WikiTemplateParser.GetInt(parameters, "str");
+        weapon.End = WikiTemplateParser.GetInt(parameters, "end");
+        weapon.Dex = WikiTemplateParser.GetInt(parameters, "dex");
+        weapon.Agi = WikiTemplateParser.GetInt(parameters, "agi");
+        weapon.Int = WikiTemplateParser.GetInt(parameters, "int");
+        weapon.Wis = WikiTemplateParser.GetInt(parameters, "wis");
+        weapon.Cha = WikiTemplateParser.GetInt(parameters, "cha");
+        weapon.Res = WikiTemplateParser.GetInt(parameters, "res");
+
+        weapon.Damage = WikiTemplateParser.GetNullableInt(parameters, "damage");
+        weapon.Delay = WikiTemplateParser.GetNullableFloat(parameters, "delay");
+
+        weapon.Health = WikiTemplateParser.GetInt(parameters, "health");
+        weapon.Mana = WikiTemplateParser.GetInt(parameters, "mana");
+        weapon.Armor = WikiTemplateParser.GetInt(parameters, "armor");
+
+        weapon.Magic = WikiTemplateParser.GetInt(parameters, "magic");
+        weapon.Poison = WikiTemplateParser.GetInt(parameters, "poison");
+        weapon.Elemental = WikiTemplateParser.GetInt(parameters, "elemental");
+        weapon.Void = WikiTemplateParser.GetInt(parameters, "void");
+
+        weapon.Description = WikiTemplateParser.GetString(parameters, "description");
+
+        weapon.Arcanist = WikiTemplateParser.GetBool(parameters, "arcanist");
+        weapon.Duelist = WikiTemplateParser.GetBool(parameters, "duelist");
+        weapon.Druid = WikiTemplateParser.GetBool(parameters, "druid");
+        weapon.Paladin = WikiTemplateParser.GetBool(parameters, "paladin");
+
+        weapon.ProcName = WikiTemplateParser.GetString(parameters, "proc_name");
+        weapon.ProcDesc = WikiTemplateParser.GetString(parameters, "proc_desc");
+        weapon.ProcChance = WikiTemplateParser.GetNullableFloat(parameters, "proc_chance");
+        weapon.ProcStyle = WikiTemplateParser.GetString(parameters, "proc_style");
+
+        weapon.Tier = WikiTemplateParser.GetInt(parameters, "tier");
+
+        return weapon;
+    }
+
     public WikiFancyWeapon Create(ItemDBRecord item)
     {
         using var db = new SQLiteConnection(DBPath, SQLiteOpenFlags.ReadOnly);

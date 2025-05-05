@@ -9,6 +9,51 @@ public class WikiFancyArmorFactory
     private static readonly string DBPath =
         Path.GetFullPath(Path.Combine(Application.dataPath, "..", "Erenshor.sqlite"));
 
+    public WikiFancyArmor Create(string wikiString)
+    {
+        var armor = new WikiFancyArmor();
+        var parameters = WikiTemplateParser.ParseParameters(wikiString, "Fancy-armor");
+
+        armor.Image = WikiTemplateParser.GetString(parameters, "image", "[[File:{{PAGENAME}}.png|80px]]");
+        armor.Name = WikiTemplateParser.GetString(parameters, "name", "{{PAGENAME}}");
+        armor.Slot = WikiTemplateParser.GetString(parameters, "slot");
+        armor.Relic = WikiTemplateParser.GetBool(parameters, "relic");
+
+        armor.Str = WikiTemplateParser.GetInt(parameters, "str");
+        armor.End = WikiTemplateParser.GetInt(parameters, "end");
+        armor.Dex = WikiTemplateParser.GetInt(parameters, "dex");
+        armor.Agi = WikiTemplateParser.GetInt(parameters, "agi");
+        armor.Int = WikiTemplateParser.GetInt(parameters, "int");
+        armor.Wis = WikiTemplateParser.GetInt(parameters, "wis");
+        armor.Cha = WikiTemplateParser.GetInt(parameters, "cha");
+        armor.Res = WikiTemplateParser.GetInt(parameters, "res");
+
+        armor.Health = WikiTemplateParser.GetInt(parameters, "health");
+        armor.Mana = WikiTemplateParser.GetInt(parameters, "mana");
+        armor.Armor = WikiTemplateParser.GetInt(parameters, "armor");
+
+        armor.Magic = WikiTemplateParser.GetInt(parameters, "magic");
+        armor.Poison = WikiTemplateParser.GetInt(parameters, "poison");
+        armor.Elemental = WikiTemplateParser.GetInt(parameters, "elemental");
+        armor.Void = WikiTemplateParser.GetInt(parameters, "void");
+
+        armor.Description = WikiTemplateParser.GetString(parameters, "description");
+
+        armor.Arcanist = WikiTemplateParser.GetBool(parameters, "arcanist");
+        armor.Duelist = WikiTemplateParser.GetBool(parameters, "duelist");
+        armor.Druid = WikiTemplateParser.GetBool(parameters, "druid");
+        armor.Paladin = WikiTemplateParser.GetBool(parameters, "paladin");
+
+        armor.ProcName = WikiTemplateParser.GetString(parameters, "proc_name");
+        armor.ProcDesc = WikiTemplateParser.GetString(parameters, "proc_desc");
+        armor.ProcChance = WikiTemplateParser.GetNullableFloat(parameters, "proc_chance");
+        armor.ProcStyle = WikiTemplateParser.GetString(parameters, "proc_style");
+
+        armor.Tier = WikiTemplateParser.GetInt(parameters, "tier");
+
+        return armor;
+    }
+
     public WikiFancyArmor Create(ItemDBRecord item)
     {
         using var db = new SQLiteConnection(DBPath, SQLiteOpenFlags.ReadOnly);
