@@ -1,10 +1,10 @@
-﻿using UnityEngine;
-using UnityEditor;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
+using UnityEngine;
 
 [CustomEditor(typeof(LootTable))]
-public class LootTableProbabilityEditor : Editor
+public class LootTableProbabilityEditor : UnityEditor.Editor
 {
     private Dictionary<string, double> dropChances = new Dictionary<string, double>();
     private bool calculated = false;
