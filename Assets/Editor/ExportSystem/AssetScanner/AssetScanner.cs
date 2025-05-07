@@ -8,22 +8,22 @@ using UnityEngine;
 using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
 
-public static class AssetScanner
+public class AssetScanner
 {
-    private static readonly Dictionary<Type, HashSet<object>> ComponentListeners = new();
-    private static readonly Dictionary<Type, HashSet<object>> ScriptableObjectListeners = new();
+    private readonly Dictionary<Type, HashSet<object>> _componentListeners = new();
+    private readonly Dictionary<Type, HashSet<object>> _scriptableObjectListeners = new();
 
-    public static void RegisterComponentListener<T>(IAssetScanListener<T> listener) where T : Component
+    public void RegisterComponentListener<T>(IAssetScanListener<T> listener) where T : Component
     {
-        RegisterListener(ComponentListeners, listener);
+        RegisterListener(_componentListeners, listener);
     }
 
-    public static void RegisterScriptableObjectListener<T>(IAssetScanListener<T> listener) where T : ScriptableObject
+    public void RegisterScriptableObjectListener<T>(IAssetScanListener<T> listener) where T : ScriptableObject
     {
-        RegisterListener(ScriptableObjectListeners, listener);
+        RegisterListener(_scriptableObjectListeners, listener);
     }
 
-    private static void RegisterListener<T>(Dictionary<Type, HashSet<object>> map, IAssetScanListener<T> listener)
+    private void RegisterListener<T>(Dictionary<Type, HashSet<object>> map, IAssetScanListener<T> listener)
         where T : Object
     {
         var type = typeof(T);
@@ -32,11 +32,10 @@ public static class AssetScanner
             set = new HashSet<object>();
             map[type] = set;
         }
-
         set.Add(listener);
     }
 
-    public static IEnumerator ScanAllAssetsCoroutine(
+    public IEnumerator ScanAllAssetsCoroutine(
         Func<bool> cancelRequested = null,
         Action<AssetScanProgress> progressCallback = null)
     {
@@ -44,7 +43,7 @@ public static class AssetScanner
         Stopwatch stopwatch = new Stopwatch();
 
         // --- ScriptableObjects ---
-        if (ScriptableObjectListeners.Count > 0)
+        if (_scriptableObjectListeners.Count > 0)
         {
             var scriptableGuids = AssetDatabase.FindAssets("t:ScriptableObject");
             int total = scriptableGuids.Length;
@@ -56,7 +55,6 @@ public static class AssetScanner
                 {
                     yield break;
                 }
-
                 current++;
                 var path = AssetDatabase.GUIDToAssetPath(guid);
                 var asset = AssetDatabase.LoadAssetAtPath<ScriptableObject>(path);
@@ -66,23 +64,20 @@ public static class AssetScanner
                     Current = current,
                     Total = total,
                 });
-
                 if (asset == null) continue;
                 var assetType = asset.GetType();
-                foreach (var kvp in ScriptableObjectListeners)
+                foreach (var kvp in _scriptableObjectListeners)
                 {
                     if (cancelRequested != null && cancelRequested())
                     {
                         yield break;
                     }
-
                     if (kvp.Key.IsAssignableFrom(assetType))
                     {
                         foreach (var listenerObj in kvp.Value)
                         {
                             try
                             {
-                                // Use reflection to call the correct generic method
                                 var listenerType = listenerObj.GetType();
                                 var method = listenerType.GetMethod("OnAssetFound");
                                 if (method != null)
@@ -96,25 +91,18 @@ public static class AssetScanner
                             }
                         }
                     }
-
                     if (stopwatch.ElapsedMilliseconds >= maxFrameTimeMs)
                     {
                         stopwatch.Restart();
                         yield return null;
                     }
                 }
-
-                if (stopwatch.ElapsedMilliseconds >= maxFrameTimeMs)
-                {
-                    stopwatch.Restart();
-                    yield return null;
-                }
             }
         }
 
-        if (ComponentListeners.Count > 0)
+        // --- Prefabs ---
+        if (_componentListeners.Count > 0)
         {
-            // --- Prefabs ---
             var prefabGuids = AssetDatabase.FindAssets("t:Prefab");
             int prefabTotal = prefabGuids.Length;
             int prefabCurrent = 0;
@@ -122,10 +110,7 @@ public static class AssetScanner
             foreach (var guid in prefabGuids)
             {
                 if (cancelRequested != null && cancelRequested())
-                {
                     yield break;
-                }
-
                 prefabCurrent++;
                 var path = AssetDatabase.GUIDToAssetPath(guid);
                 var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
@@ -135,70 +120,51 @@ public static class AssetScanner
                     Current = prefabCurrent,
                     Total = prefabTotal,
                 });
-
                 if (prefab != null)
                 {
                     foreach (var _ in ScanComponentsInHierarchy(
-                                 prefab, stopwatch, maxFrameTimeMs, cancelRequested, progressCallback,
-                                 "Prefabs", prefabCurrent, prefabTotal))
+                        prefab, stopwatch, maxFrameTimeMs, cancelRequested, progressCallback,
+                        "Prefabs", prefabCurrent, prefabTotal))
                     {
                         yield return null;
                     }
-                }
-
-                if (stopwatch.ElapsedMilliseconds >= maxFrameTimeMs)
-                {
-                    stopwatch.Restart();
-                    yield return null;
                 }
             }
+        }
 
-            // --- Scenes ---
-            var sceneGuids = AssetDatabase.FindAssets("t:Scene");
-            int sceneTotal = sceneGuids.Length;
-            int sceneCurrent = 0;
-            foreach (var guid in sceneGuids)
+        // --- Scenes ---
+        if (_componentListeners.Count > 0)
+        {
+            var scenePaths = EditorBuildSettings.scenes;
+            int total = scenePaths.Length;
+            int current = 0;
+            foreach (var scene in scenePaths)
             {
                 if (cancelRequested != null && cancelRequested())
-                {
                     yield break;
-                }
-
-                sceneCurrent++;
-                var path = AssetDatabase.GUIDToAssetPath(guid);
-                var scene = EditorSceneManager.OpenScene(path, OpenSceneMode.Additive);
-
-                var rootObjects = scene.GetRootGameObjects();
-
-                foreach (var rootObj in rootObjects)
+                current++;
+                progressCallback?.Invoke(new AssetScanProgress
                 {
-                    progressCallback?.Invoke(new AssetScanProgress
-                    {
-                        Phase = "Scenes",
-                        Current = sceneCurrent,
-                        Total = sceneTotal,
-                    });
-
+                    Phase = "Scenes",
+                    Current = current,
+                    Total = total,
+                });
+                var sceneObj = EditorSceneManager.OpenScene(scene.path, OpenSceneMode.Single);
+                var rootObjects = sceneObj.GetRootGameObjects();
+                foreach (var root in rootObjects)
+                {
                     foreach (var _ in ScanComponentsInHierarchy(
-                                 rootObj, stopwatch, maxFrameTimeMs, cancelRequested, progressCallback,
-                                 "Scenes", sceneCurrent, sceneTotal))
+                        root, stopwatch, maxFrameTimeMs, cancelRequested, progressCallback,
+                        "Scenes", current, total))
                     {
                         yield return null;
                     }
-                }
-
-                EditorSceneManager.CloseScene(scene, true);
-
-                if (stopwatch.ElapsedMilliseconds >= maxFrameTimeMs)
-                {
-                    stopwatch.Restart();
-                    yield return null;
                 }
             }
         }
     }
 
-    private static IEnumerable<object> ScanComponentsInHierarchy(
+    private IEnumerable<object> ScanComponentsInHierarchy(
         GameObject root,
         Stopwatch stopwatch,
         float maxFrameTimeMs,
@@ -235,7 +201,7 @@ public static class AssetScanner
             }
 
             var compType = comp.GetType();
-            foreach (var kvp in ComponentListeners)
+            foreach (var kvp in _componentListeners)
             {
                 if (cancelRequested != null && cancelRequested())
                 {
