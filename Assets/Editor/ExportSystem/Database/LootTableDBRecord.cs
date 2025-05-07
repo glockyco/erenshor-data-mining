@@ -1,7 +1,7 @@
 using SQLite;
 
 [Table("LootDrops")]
-public class LootDropDBRecord
+public class LootTableDBRecord
 {
     [PrimaryKey]
     public string CharacterPrefabGuid { get; set; }

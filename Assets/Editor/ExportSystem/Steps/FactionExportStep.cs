@@ -15,7 +15,7 @@ public class FactionExportStep : IExportStep
     // --- Pre-Execution ---
     public IEnumerable<Type> GetRequiredRecordTypes()
     {
-        yield return typeof(FactionDBRecord);
+        yield return typeof(WorldFactionDBRecord);
     }
 
     // --- Execution ---
@@ -53,7 +53,7 @@ public class FactionExportStep : IExportStep
 
         // --- Processing & DB Interaction ---
         int batchSize = 20;
-        var batchRecords = new List<FactionDBRecord>();
+        var batchRecords = new List<WorldFactionDBRecord>();
         int processedCount = 0;
         int recordCount = 0;
 
@@ -65,7 +65,7 @@ public class FactionExportStep : IExportStep
             int factionDbIndex = item.Index;
 
             // --- Extraction Logic ---
-            FactionDBRecord record = new FactionDBRecord
+            WorldFactionDBRecord record = new WorldFactionDBRecord
             {
                 REFNAME = faction.REFNAME,
                 FactionDBIndex = factionDbIndex,

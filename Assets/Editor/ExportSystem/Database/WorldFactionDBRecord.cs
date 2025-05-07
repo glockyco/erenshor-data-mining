@@ -1,7 +1,7 @@
 using SQLite;
 
 [Table("Factions")]
-public class FactionDBRecord
+public class WorldFactionDBRecord
 {
     public int FactionDBIndex { get; set; } // Index from GlobalFactionManager.FactionDB array
     public string FactionName { get; set; } // From WorldFaction.FactionName (Display Name)

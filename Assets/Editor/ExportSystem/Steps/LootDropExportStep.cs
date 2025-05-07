@@ -24,7 +24,7 @@ public class LootDropExportStep : IExportStep
     // --- Pre-Execution ---
     public IEnumerable<Type> GetRequiredRecordTypes()
     {
-        yield return typeof(LootDropDBRecord);
+        yield return typeof(LootTableDBRecord);
     }
 
     // --- Execution ---
@@ -58,7 +58,7 @@ public class LootDropExportStep : IExportStep
 
         // --- Processing & DB Interaction ---
         int batchSize = 50;
-        var batchRecords = new List<LootDropDBRecord>();
+        var batchRecords = new List<LootTableDBRecord>();
         int processedCount = 0;
         int totalRecordCount = 0;
 
@@ -70,7 +70,7 @@ public class LootDropExportStep : IExportStep
             if (lootTable != null)
             {
                 // --- Extraction Logic ---
-                List<LootDropDBRecord> drops = CollectLootDropsForCharacter(guid, lootTable);
+                List<LootTableDBRecord> drops = CollectLootDropsForCharacter(guid, lootTable);
                 batchRecords.AddRange(drops);
             }
 
@@ -105,9 +105,9 @@ public class LootDropExportStep : IExportStep
         Debug.Log($"Finished exporting {totalRecordCount} loot drops from {processedCount} characters.");
     }
 
-    private List<LootDropDBRecord> CollectLootDropsForCharacter(string guid, LootTable lootTable)
+    private List<LootTableDBRecord> CollectLootDropsForCharacter(string guid, LootTable lootTable)
     {
-        var lootDrops = new List<LootDropDBRecord>();
+        var lootDrops = new List<LootTableDBRecord>();
 
         Dictionary<string, double> dropProbabilities = _probabilityCalculator.CalculateDropProbabilities(lootTable);
 
@@ -122,7 +122,7 @@ public class LootDropExportStep : IExportStep
                     {
                         dropProbabilities.TryGetValue(item.name, out double probability);
 
-                        var lootRecord = new LootDropDBRecord
+                        var lootRecord = new LootTableDBRecord
                         {
                             CharacterPrefabGuid = guid,
                             ItemId = item.Id,
