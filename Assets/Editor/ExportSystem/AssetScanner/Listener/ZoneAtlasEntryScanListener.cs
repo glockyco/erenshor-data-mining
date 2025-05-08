@@ -8,11 +8,21 @@ public class ZoneAtlasEntryScanListener : IAssetScanListener<ZoneAtlasEntry>
     public void OnAssetFound(ZoneAtlasEntry asset)
     {
         Debug.Log($"[ZoneAtlasEntryScanListener] Found: {asset?.name} ({asset?.GetType().Name})");
-        if (asset == null) return;
-        var record = new ZoneAtlasEntryDBRecord
+
+        string neighboringZones = string.Join(", ", asset!.NeighboringZones ?? new List<string>());
+
+        ZoneAtlasEntryDBRecord record = new ZoneAtlasEntryDBRecord
         {
-            // @TODO: Fill fields (see ZoneAtlasExportStep).
+            AtlasIndex = Records.Count,
+            Id = asset.Id,
+            ZoneName = asset.ZoneName,
+            LevelRangeLow = asset.LevelRangeLow,
+            LevelRangeHigh = asset.LevelRangeHigh,
+            Dungeon = asset.Dungeon,
+            NeighboringZones = neighboringZones,
+            ResourceName = asset.name,
         };
+
         Records.Add(record);
     }
 
