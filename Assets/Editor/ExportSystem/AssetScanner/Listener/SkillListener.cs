@@ -1,3 +1,5 @@
+#nullable enable
+
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,12 +9,13 @@ public class SkillListener : IAssetScanListener<Skill>
 
     public void OnAssetFound(Skill asset)
     {
-        Debug.Log($"[{GetType().Name}] Found: {asset?.name} ({asset?.GetType().Name})");
-        if (asset == null) return;
+        Debug.Log($"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
+
         var record = new SkillDBRecord
         {
             // @TODO: Fill fields (see SkillExportStep).
         };
+
         Records.Add(record);
     }
 

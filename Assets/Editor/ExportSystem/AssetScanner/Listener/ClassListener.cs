@@ -1,3 +1,5 @@
+#nullable enable
+
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,8 +9,8 @@ public class ClassListener : IAssetScanListener<Class>
 
     public void OnAssetFound(Class asset)
     {
-        Debug.Log($"[{GetType().Name}] Found: {asset?.name} ({asset?.GetType().Name})");
-        if (asset == null || string.IsNullOrEmpty(asset.ClassName)) return;
+        Debug.Log($"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
+
         var record = new ClassDBRecord
         {
             ClassName = asset.ClassName,
@@ -23,6 +25,7 @@ public class ClassListener : IAssetScanListener<Class>
             AggroMod = asset.AggroMod,
             ResourceName = asset.name,
         };
+
         Records.Add(record);
     }
 

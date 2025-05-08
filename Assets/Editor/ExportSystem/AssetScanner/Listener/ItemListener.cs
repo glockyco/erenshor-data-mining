@@ -1,3 +1,5 @@
+#nullable enable
+
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,12 +9,13 @@ public class ItemListener : IAssetScanListener<Item>
 
     public void OnAssetFound(Item asset)
     {
-        Debug.Log($"[{GetType().Name}] Found: {asset?.name} ({asset?.GetType().Name})");
-        if (asset == null || string.IsNullOrEmpty(asset.Id)) return;
+        Debug.Log($"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
+        
         var record = new ItemDBRecord
         {
             // @TODO: Fill fields (see ItemExportStep).
         };
+        
         Records.Add(record);
     }
 

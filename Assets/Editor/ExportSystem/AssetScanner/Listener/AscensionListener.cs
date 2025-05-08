@@ -1,3 +1,5 @@
+#nullable enable
+
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,8 +9,8 @@ public class AscensionListener : IAssetScanListener<Ascension>
 
     public void OnAssetFound(Ascension asset)
     {
-        Debug.Log($"[{GetType().Name}] Found: {asset?.name} ({asset?.GetType().Name})");
-        if (asset == null) return;
+        Debug.Log($"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
+
         var record = new AscensionDBRecord
         {
             AscensionDBIndex = Records.Count,
@@ -60,6 +62,7 @@ public class AscensionListener : IAssetScanListener<Ascension>
 
             ResourceName = asset.name
         };
+
         Records.Add(record);
     }
 
