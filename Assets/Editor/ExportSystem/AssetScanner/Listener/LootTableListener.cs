@@ -1,23 +1,75 @@
 #nullable enable
 
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class LootTableListener : IAssetScanListener<LootTable>
 {
     public readonly List<LootTableDBRecord> Records = new();
+    private readonly LootTableProbabilityCalculator _probabilityCalculator = new();
 
     public void OnAssetFound(LootTable asset)
     {
         Debug.Log($"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
 
-        var record = new LootTableDBRecord
-        {
-            // @TODO: Fill fields (see LootDropExportStep).
-        };
+        var character = asset.GetComponent<Character>();
+        var records = CollectLootDropsForCharacter(character, asset);
 
-        Records.Add(record);
+        Records.AddRange(records);
     }
 
     public void Reset() => Records.Clear();
+
+    private List<LootTableDBRecord> CollectLootDropsForCharacter(Character character, LootTable lootTable)
+    {
+        Dictionary<string, double> dropProbabilities = _probabilityCalculator.CalculateDropProbabilities(lootTable);
+
+        string guid;
+        var prefabType = PrefabUtility.GetPrefabAssetType(character.gameObject);
+        if (prefabType != PrefabAssetType.NotAPrefab)
+        {
+            var prefabPath = AssetDatabase.GetAssetPath(character.gameObject);
+            guid = AssetDatabase.AssetPathToGUID(prefabPath);
+        }
+        else
+        {
+            var sceneName = character.gameObject.scene.name;
+            guid = $"scene:{sceneName}:{character.gameObject.GetInstanceID()}";
+        }
+
+        var records = new List<LootTableDBRecord>();
+        records.AddRange(CollectLootDrops(lootTable.GuaranteeOneDrop, "Guaranteed", guid, dropProbabilities));
+        records.AddRange(CollectLootDrops(lootTable.CommonDrop, "Common", guid, dropProbabilities));
+        records.AddRange(CollectLootDrops(lootTable.UncommonDrop, "Uncommon", guid, dropProbabilities));
+        records.AddRange(CollectLootDrops(lootTable.RareDrop, "Rare", guid, dropProbabilities));
+        records.AddRange(CollectLootDrops(lootTable.LegendaryDrop, "Legendary", guid, dropProbabilities));
+        return records;
+    }
+
+    private static List<LootTableDBRecord> CollectLootDrops(
+        List<Item> items,
+        string dropType,
+        string guid,
+        Dictionary<string, double> dropProbabilities)
+    {
+        var lootRecords = new List<LootTableDBRecord>();
+
+        for (var i = 0; i < items.Count; i++)
+        {
+            var item = items[i];
+            dropProbabilities.TryGetValue(item.name, out var probability);
+
+            lootRecords.Add(new LootTableDBRecord
+            {
+                CharacterPrefabGuid = guid,
+                ItemId = item.Id,
+                DropType = dropType,
+                DropIndex = i,
+                Probability = probability
+            });
+        }
+
+        return lootRecords;
+    }
 }
