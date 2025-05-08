@@ -23,20 +23,20 @@ public class AssetScannerExporterWindow : EditorWindow
     private AssetScanProgress _progress = new AssetScanProgress();
     private AssetScanner _activeScanner;
 
-    private AscensionScanListener _ascensionListener;
-    private BookExportCollector _bookCollector;
-    private CharacterScanListener _characterListener;
-    private ClassScanListener _classListener;
-    private ItemScanListener _itemListener;
-    private LootTableScanListener _lootTableListener;
-    private MiningNodeScanListener _miningNodeListener;
-    private NPCDialogScanListener _npcDialogListener;
-    private QuestScanListener _questListener;
-    private SkillScanListener _skillListener;
-    private SpellScanListener _spellListener;
-    private SpawnPointScanListener _spawnPointListener;
-    private WorldFactionScanListener _worldFactionListener;
-    private ZoneAtlasEntryScanListener _zoneAtlasEntryListener;
+    private AscensionListener _ascensionListener;
+    private BookCollector _bookCollector;
+    private CharacterListener _characterListener;
+    private ClassListener _classListener;
+    private ItemListener _itemListener;
+    private LootTableListener _lootTableListener;
+    private MiningNodeListener _miningNodeListener;
+    private NPCDialogListener _npcDialogListener;
+    private QuestListener _questListener;
+    private SkillListener _skillListener;
+    private SpellListener _spellListener;
+    private SpawnPointListener _spawnPointListener;
+    private WorldFactionListener _worldFactionListener;
+    private ZoneAtlasEntryListener _zoneAtlasEntryListener;
 
     private bool _selectAllSteps = true;
     private bool _exportAscensions = true;
@@ -65,20 +65,20 @@ public class AssetScannerExporterWindow : EditorWindow
     private void OnEnable()
     {
         _outputPath = EditorPrefs.GetString(EDITOR_PREFS_KEY_PATH, Path.Combine(Application.dataPath, DEFAULT_FILENAME));
-        _ascensionListener = new AscensionScanListener();
-        _bookCollector = new BookExportCollector();
-        _characterListener = new CharacterScanListener();
-        _classListener = new ClassScanListener();
-        _itemListener = new ItemScanListener();
-        _lootTableListener = new LootTableScanListener();
-        _miningNodeListener = new MiningNodeScanListener();
-        _npcDialogListener = new NPCDialogScanListener();
-        _questListener = new QuestScanListener();
-        _skillListener = new SkillScanListener();
-        _spellListener = new SpellScanListener();
-        _spawnPointListener = new SpawnPointScanListener();
-        _worldFactionListener = new WorldFactionScanListener();
-        _zoneAtlasEntryListener = new ZoneAtlasEntryScanListener();
+        _ascensionListener = new AscensionListener();
+        _bookCollector = new BookCollector();
+        _characterListener = new CharacterListener();
+        _classListener = new ClassListener();
+        _itemListener = new ItemListener();
+        _lootTableListener = new LootTableListener();
+        _miningNodeListener = new MiningNodeListener();
+        _npcDialogListener = new NPCDialogListener();
+        _questListener = new QuestListener();
+        _skillListener = new SkillListener();
+        _spellListener = new SpellListener();
+        _spawnPointListener = new SpawnPointListener();
+        _worldFactionListener = new WorldFactionListener();
+        _zoneAtlasEntryListener = new ZoneAtlasEntryListener();
     }
 
     private void OnDisable()

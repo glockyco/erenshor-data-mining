@@ -1,13 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ZoneAtlasEntryScanListener : IAssetScanListener<ZoneAtlasEntry>
+public class ZoneAtlasEntryListener : IAssetScanListener<ZoneAtlasEntry>
 {
     public readonly List<ZoneAtlasEntryDBRecord> Records = new();
 
     public void OnAssetFound(ZoneAtlasEntry asset)
     {
-        Debug.Log($"[ZoneAtlasEntryScanListener] Found: {asset?.name} ({asset?.GetType().Name})");
+        Debug.Log($"[{GetType().Name}] Found: {asset?.name} ({asset?.GetType().Name})");
 
         string neighboringZones = string.Join(", ", asset!.NeighboringZones ?? new List<string>());
 

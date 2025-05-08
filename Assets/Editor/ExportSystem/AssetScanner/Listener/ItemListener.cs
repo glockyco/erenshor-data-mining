@@ -1,13 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ItemScanListener : IAssetScanListener<Item>
+public class ItemListener : IAssetScanListener<Item>
 {
     public readonly List<ItemDBRecord> Records = new();
 
     public void OnAssetFound(Item asset)
     {
-        Debug.Log($"[ItemScanListener] Found: {asset?.name} ({asset?.GetType().Name})");
+        Debug.Log($"[{GetType().Name}] Found: {asset?.name} ({asset?.GetType().Name})");
         if (asset == null || string.IsNullOrEmpty(asset.Id)) return;
         var record = new ItemDBRecord
         {

@@ -1,13 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class NPCDialogScanListener : IAssetScanListener<NPCDialog>
+public class NPCDialogListener : IAssetScanListener<NPCDialog>
 {
     public readonly List<NPCDialogDBRecord> Records = new();
 
     public void OnAssetFound(NPCDialog asset)
     {
-        Debug.Log($"[NPCDialogScanListener] Found: {asset?.name} ({asset?.GetType().Name})");
+        Debug.Log($"[{GetType().Name}] Found: {asset?.name} ({asset?.GetType().Name})");
         if (asset == null) return;
         var record = new NPCDialogDBRecord
         {

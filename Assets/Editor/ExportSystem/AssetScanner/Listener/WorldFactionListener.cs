@@ -1,13 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class WorldFactionScanListener : IAssetScanListener<WorldFaction>
+public class WorldFactionListener : IAssetScanListener<WorldFaction>
 {
     public readonly List<WorldFactionDBRecord> Records = new();
 
     public void OnAssetFound(WorldFaction asset)
     {
-        Debug.Log($"[FactionScanListener] Found: {asset?.name} ({asset?.GetType().Name})");
+        Debug.Log($"[{GetType().Name}] Found: {asset?.name} ({asset?.GetType().Name})");
         if (asset == null) return;
         var record = new WorldFactionDBRecord
         {

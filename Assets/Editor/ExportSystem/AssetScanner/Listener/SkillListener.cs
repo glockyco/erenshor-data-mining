@@ -1,13 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SkillScanListener : IAssetScanListener<Skill>
+public class SkillListener : IAssetScanListener<Skill>
 {
     public readonly List<SkillDBRecord> Records = new();
 
     public void OnAssetFound(Skill asset)
     {
-        Debug.Log($"[SkillScanListener] Found: {asset?.name} ({asset?.GetType().Name})");
+        Debug.Log($"[{GetType().Name}] Found: {asset?.name} ({asset?.GetType().Name})");
         if (asset == null) return;
         var record = new SkillDBRecord
         {

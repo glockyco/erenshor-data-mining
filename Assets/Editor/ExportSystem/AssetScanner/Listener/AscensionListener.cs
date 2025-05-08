@@ -1,13 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AscensionScanListener : IAssetScanListener<Ascension>
+public class AscensionListener : IAssetScanListener<Ascension>
 {
     public readonly List<AscensionDBRecord> Records = new();
 
     public void OnAssetFound(Ascension asset)
     {
-        Debug.Log($"[AscensionScanListener] Found: {asset?.name} ({asset?.GetType().Name})");
+        Debug.Log($"[{GetType().Name}] Found: {asset?.name} ({asset?.GetType().Name})");
         if (asset == null) return;
         var record = new AscensionDBRecord
         {

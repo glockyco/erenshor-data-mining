@@ -2,13 +2,13 @@ using System.Collections.Generic;
 using Database;
 using UnityEngine;
 
-public class BookExportCollector
+public class BookCollector
 {
     public readonly List<BookDBRecord> Records = new();
 
     public void Collect()
     {
-        Debug.Log($"[BookExportCollector] Collecting...");
+        Debug.Log($"[{GetType().Name}] Collecting...");
         Records.Clear();
         var books = AllBooks.Books;
         foreach (var bookEntry in books)
