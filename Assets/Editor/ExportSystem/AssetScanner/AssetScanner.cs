@@ -45,19 +45,17 @@ public class AssetScanner
         // --- ScriptableObjects ---
         if (_scriptableObjectListeners.Count > 0)
         {
-            var scriptableGuids = AssetDatabase.FindAssets("t:ScriptableObject");
-            int total = scriptableGuids.Length;
+            var assets = Resources.LoadAll<ScriptableObject>("");
+            int total = assets.Length;
             int current = 0;
             stopwatch.Restart();
-            foreach (var guid in scriptableGuids)
+            foreach (var asset in assets)
             {
                 if (cancelRequested != null && cancelRequested())
                 {
                     yield break;
                 }
                 current++;
-                var path = AssetDatabase.GUIDToAssetPath(guid);
-                var asset = AssetDatabase.LoadAssetAtPath<ScriptableObject>(path);
                 progressCallback?.Invoke(new AssetScanProgress
                 {
                     Phase = "ScriptableObjects",
