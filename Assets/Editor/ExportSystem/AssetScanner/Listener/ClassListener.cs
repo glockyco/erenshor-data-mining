@@ -11,7 +11,17 @@ public class ClassListener : IAssetScanListener<Class>
         if (asset == null || string.IsNullOrEmpty(asset.ClassName)) return;
         var record = new ClassDBRecord
         {
-            // @TODO: Fill fields (see ClassExportStep).
+            ClassName = asset.ClassName,
+            MitigationBonus = asset.MitigationBonus,
+            StrBenefit = asset.StrBenefit,
+            EndBenefit = asset.EndBenefit,
+            DexBenefit = asset.DexBenefit,
+            AgiBenefit = asset.AgiBenefit,
+            IntBenefit = asset.IntBenefit,
+            WisBenefit = asset.WisBenefit,
+            ChaBenefit = asset.ChaBenefit,
+            AggroMod = asset.AggroMod,
+            ResourceName = asset.name,
         };
         Records.Add(record);
     }
