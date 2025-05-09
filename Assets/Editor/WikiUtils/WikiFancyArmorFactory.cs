@@ -116,7 +116,7 @@ public class WikiFancyArmorFactory
             Duelist = item.Classes.Split(", ").Contains("Duelist"),
             Druid = item.Classes.Split(", ").Contains("Druid"),
             Paladin = item.Classes.Split(", ").Contains("Paladin"),
-            ProcName = spell == null ? "" : $"[[{spell.SpellName}]]",
+            ProcName = spell == null ? "" : $"{{{{AbilityLink|{spell.SpellName}}}}}",
             ProcDesc = spell?.SpellDesc,
             ProcChance = item.WeaponProcChance,
             ProcStyle = procStyle,
