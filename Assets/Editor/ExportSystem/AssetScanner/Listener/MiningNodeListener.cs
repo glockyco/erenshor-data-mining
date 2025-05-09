@@ -49,10 +49,10 @@ public class MiningNodeListener : IAssetScanListener<MiningNode>
 
         _nodeRecords.Add(record);
 
-        _nodeItemRecords.AddRange(ProcessMiningNodeItems(asset, id));
+        _nodeItemRecords.AddRange(CreateMiningNodeItemRecords(asset, id));
     }
 
-    private static List<MiningNodeItemDBRecord> ProcessMiningNodeItems(MiningNode node, string miningNodeId)
+    private static List<MiningNodeItemDBRecord> CreateMiningNodeItemRecords(MiningNode node, string miningNodeId)
     {
         // Calculate drop chances based on the logic in MiningNode.Mine()
         // Legend = 96-99, Rare = 75-95, Common = 20-75, Guarantee = 0-19

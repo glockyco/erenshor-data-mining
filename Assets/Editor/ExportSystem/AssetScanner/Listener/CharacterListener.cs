@@ -31,10 +31,10 @@ public class CharacterListener : IAssetScanListener<Character>
     {
         Debug.Log($"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
 
-        _records.Add(CreateCharacterDBRecord(asset));
+        _records.Add(CreateRecord(asset));
     }
     
-    private CharacterDBRecord CreateCharacterDBRecord(Character character)
+    private CharacterDBRecord CreateRecord(Character character)
     {
         NPC npc = character.GetComponent<NPC>();
         VendorInventory vendorInventory = character.GetComponent<VendorInventory>();

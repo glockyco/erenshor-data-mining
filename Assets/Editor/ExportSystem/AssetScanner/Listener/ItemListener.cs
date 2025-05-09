@@ -32,10 +32,10 @@ public class ItemListener : IAssetScanListener<Item>
 
         int itemDbIndex = _records.Select(r => r.ItemDBIndex).Distinct().Count();
 
-        _records.AddRange(CreateItemDbRecords(asset, itemDbIndex));
+        _records.AddRange(CreateRecords(asset, itemDbIndex));
     }
 
-    private List<ItemDBRecord> CreateItemDbRecords(Item item, int itemDbIndex)
+    private List<ItemDBRecord> CreateRecords(Item item, int itemDbIndex)
     {
         var records = new List<ItemDBRecord>();
 
