@@ -14,68 +14,80 @@ public static class WikiTemplateParser
     /// <returns>A dictionary of parameter keys (lowercase) and their corresponding values.</returns>
     public static Dictionary<string, string> ParseParameters(string wikiText, string expectedTemplateName = null)
     {
-        // Use case-insensitive keys internally for easier lookup, but preserve original casing if needed?
-        // Let's stick to lowercase keys for simplicity, matching common wiki practice.
         var parameters = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         if (string.IsNullOrWhiteSpace(wikiText))
-        {
             return parameters;
-        }
 
-        // 1. Find the content inside the main braces {{ ... }}
         int startBrace = wikiText.IndexOf("{{", StringComparison.Ordinal);
         int endBrace = wikiText.LastIndexOf("}}", StringComparison.Ordinal);
         if (startBrace == -1 || endBrace == -1 || endBrace <= startBrace)
-        {
-            // Not a valid template structure or empty
-            // Consider logging a warning or throwing an exception if strict format is required
             return parameters;
-        }
+
         string content = wikiText.Substring(startBrace + 2, endBrace - startBrace - 2).Trim();
 
-        // 2. Split the content by the parameter separator '|'
-        //    Note: This simple split doesn't handle nested templates or pipes within parameter values correctly.
-        //    For complex cases, a more sophisticated parser (e.g., regex or state machine) would be needed.
-        var parts = content.Split('|');
-
-        // 3. Identify and optionally validate the template name (first part if it doesn't contain '=')
-        int parameterStartIndex = 0;
-        if (parts.Length > 0 && !string.IsNullOrWhiteSpace(parts[0]) && parts[0].IndexOf('=') == -1)
+        // Split on top-level pipes only
+        var parts = new List<string>();
+        int braceLevel = 0, bracketLevel = 0;
+        int lastSplit = 0;
+        for (int i = 0; i < content.Length; i++)
         {
-            string templateName = parts[0].Trim();
-            parameterStartIndex = 1; // Parameters start from the second part
-
-            // Optional validation
-            if (expectedTemplateName != null && !expectedTemplateName.Equals(templateName, StringComparison.OrdinalIgnoreCase))
+            // Track nesting
+            if (content[i] == '{' && i + 1 < content.Length && content[i + 1] == '{')
             {
-                // Template name mismatch - return empty or throw? Let's return empty for now.
-                // Consider logging: $"Warning: Expected template '{expectedTemplateName}' but found '{templateName}'."
-                return parameters;
+                braceLevel++;
+                i++;
+            }
+            else if (content[i] == '}' && i + 1 < content.Length && content[i + 1] == '}')
+            {
+                braceLevel = Math.Max(0, braceLevel - 1);
+                i++;
+            }
+            else if (content[i] == '[' && i + 1 < content.Length && content[i + 1] == '[')
+            {
+                bracketLevel++;
+                i++;
+            }
+            else if (content[i] == ']' && i + 1 < content.Length && content[i + 1] == ']')
+            {
+                bracketLevel = Math.Max(0, bracketLevel - 1);
+                i++;
+            }
+            else if (content[i] == '|' && braceLevel == 0 && bracketLevel == 0)
+            {
+                // Top-level pipe: split here
+                parts.Add(content.Substring(lastSplit, i - lastSplit));
+                lastSplit = i + 1;
             }
         }
 
-        // 4. Process each parameter part (key=value pairs)
-        for (int i = parameterStartIndex; i < parts.Length; i++)
+        // Add last part
+        if (lastSplit < content.Length)
+            parts.Add(content.Substring(lastSplit));
+
+        // Template name
+        int parameterStartIndex = 0;
+        if (parts.Count > 0 && !string.IsNullOrWhiteSpace(parts[0]) && parts[0].IndexOf('=') == -1)
+        {
+            string templateName = parts[0].Trim();
+            parameterStartIndex = 1;
+            if (expectedTemplateName != null &&
+                !expectedTemplateName.Equals(templateName, StringComparison.OrdinalIgnoreCase))
+                return parameters;
+        }
+
+        // Parse parameters
+        for (int i = parameterStartIndex; i < parts.Count; i++)
         {
             string part = parts[i];
             if (string.IsNullOrWhiteSpace(part)) continue;
-
-            // Find the *first* equals sign to separate key and value
             int equalsIndex = part.IndexOf('=');
-            if (equalsIndex > 0) // Ensure '=' is present and not the first character
+            if (equalsIndex > 0)
             {
                 string key = part.Substring(0, equalsIndex).Trim();
-                // The rest is the value, trim it.
                 string value = part.Substring(equalsIndex + 1).Trim();
-
                 if (!string.IsNullOrEmpty(key))
-                {
-                    // Store with a consistent key format (e.g., lowercase)
                     parameters[key.ToLowerInvariant()] = value;
-                }
             }
-            // Optional: Handle parameters without '=' (flags) if needed.
-            // else if (!string.IsNullOrEmpty(part.Trim())) { parameters[part.Trim().ToLowerInvariant()] = "true"; }
         }
 
         return parameters;
