@@ -3,13 +3,13 @@ using SQLite;
 [Table("MiningNodeItems")]
 public class MiningNodeItemDBRecord
 {
-    [PrimaryKey]
+    [Indexed(Name = "MiningNodeItems_Primary_IDX", Order = 1, Unique = true)]
     public string MiningNodeId { get; set; } // Foreign key to MiningNodes.Id
 
-    [PrimaryKey]
+    [Indexed(Name = "MiningNodeItems_Primary_IDX", Order = 2, Unique = true)]
     public string Rarity { get; set; } // "Common", "Rare", "Legend", "Guarantee"
 
-    [PrimaryKey]
+    [Indexed(Name = "MiningNodeItems_Primary_IDX", Order = 3, Unique = true)]
     public int RarityIndex { get; set; } // Running index for items within this Rarity category for this MiningNodeId
 
     public string ItemName { get; set; }

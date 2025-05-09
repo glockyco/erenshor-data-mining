@@ -5,9 +5,9 @@ namespace Database
     [Table("Books")]
     public class BookDBRecord
     {
-        [PrimaryKey]
+        [Indexed(Name = "Books_Primary_IDX", Order = 1, Unique = true)]
         public string BookTitle { get; set; }
-        [PrimaryKey]
+        [Indexed(Name = "Books_Primary_IDX", Order = 2, Unique = true)]
         public int PageNumber { get; set; }
         public string PageContent { get; set; }
     }

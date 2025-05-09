@@ -3,10 +3,10 @@ using SQLite;
 [Table("NPCDialogs")]
 public class NPCDialogDBRecord
 {
-    [PrimaryKey, Indexed]
+    [Indexed(Name = "NPCDialogs_Primary_IDX", Order = 1, Unique = true)]
     public string NPCName { get; set; } // Name from the NPC component on the GameObject
 
-    [PrimaryKey]
+    [Indexed(Name = "NPCDialogs_Primary_IDX", Order = 2, Unique = true)]
     public int DialogIndex { get; set; } // Running index for dialogs associated with this NPC
 
     public string DialogText { get; set; } // NPCDialog.Dialog
