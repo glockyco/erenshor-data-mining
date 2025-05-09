@@ -31,27 +31,26 @@ public class LootTableListener : IAssetScanListener<LootTable>
     {
         Debug.Log($"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
 
-        var character = asset.GetComponent<Character>();
-        var records = CollectLootDropsForCharacter(character, asset);
+        var records = CreateRecord(asset);
 
         _records.AddRange(records);
     }
 
-    private List<LootTableDBRecord> CollectLootDropsForCharacter(Character character, LootTable lootTable)
+    private List<LootTableDBRecord> CreateRecord(LootTable lootTable)
     {
         Dictionary<string, double> dropProbabilities = _probabilityCalculator.CalculateDropProbabilities(lootTable);
 
         string guid;
-        var prefabType = PrefabUtility.GetPrefabAssetType(character.gameObject);
+        var prefabType = PrefabUtility.GetPrefabAssetType(lootTable.gameObject);
         if (prefabType != PrefabAssetType.NotAPrefab)
         {
-            var prefabPath = AssetDatabase.GetAssetPath(character.gameObject);
+            var prefabPath = AssetDatabase.GetAssetPath(lootTable.gameObject);
             guid = AssetDatabase.AssetPathToGUID(prefabPath);
         }
         else
         {
-            var sceneName = character.gameObject.scene.name;
-            guid = $"scene:{sceneName}:{character.gameObject.GetInstanceID()}";
+            var sceneName = lootTable.gameObject.scene.name;
+            guid = $"scene:{sceneName}:{lootTable.gameObject.GetInstanceID()}";
         }
 
         var records = new List<LootTableDBRecord>();
