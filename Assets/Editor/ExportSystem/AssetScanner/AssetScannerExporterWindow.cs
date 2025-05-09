@@ -205,20 +205,24 @@ public class AssetScannerExporterWindow : EditorWindow
         _progress = new AssetScanProgress();
         
         _activeScanner = new AssetScanner();
+        
         if (_exportAscensions) _activeScanner.RegisterScriptableObjectListener(_ascensionListener);
         if (_exportBooks) _activeScanner.RegisterScriptableObjectListener(_bookListener);
-        if (_exportCharacters) _activeScanner.RegisterComponentListener(_characterListener);
         if (_exportClasses) _activeScanner.RegisterScriptableObjectListener(_classListener);
-        if (_exportItems) _activeScanner.RegisterScriptableObjectListener(_itemListener);
-        if (_exportLootTables) _activeScanner.RegisterComponentListener(_lootTableListener);
-        if (_exportMiningNodes) _activeScanner.RegisterComponentListener(_miningNodeListener);
-        if (_exportNpcDialogs) _activeScanner.RegisterComponentListener(_npcDialogListener);
         if (_exportQuests) _activeScanner.RegisterScriptableObjectListener(_questListener);
         if (_exportSkills) _activeScanner.RegisterScriptableObjectListener(_skillListener);
         if (_exportSpells) _activeScanner.RegisterScriptableObjectListener(_spellListener);
-        if (_exportSpawnPoints) _activeScanner.RegisterComponentListener(_spawnPointListener);
         if (_exportWorldFactions) _activeScanner.RegisterScriptableObjectListener(_worldFactionListener);
         if (_exportZoneAtlasEntries) _activeScanner.RegisterScriptableObjectListener(_zoneAtlasEntryListener);
+        
+        // Item wikiStrings depend on spells for proc data, so we need to register items later.
+        if (_exportItems) _activeScanner.RegisterScriptableObjectListener(_itemListener);
+        
+        if (_exportCharacters) _activeScanner.RegisterComponentListener(_characterListener);
+        if (_exportLootTables) _activeScanner.RegisterComponentListener(_lootTableListener);
+        if (_exportMiningNodes) _activeScanner.RegisterComponentListener(_miningNodeListener);
+        if (_exportNpcDialogs) _activeScanner.RegisterComponentListener(_npcDialogListener);
+        if (_exportSpawnPoints) _activeScanner.RegisterComponentListener(_spawnPointListener);
         
         _stopwatch = Stopwatch.StartNew();
         EditorCoroutineRunner.StartCoroutine(ScanAndExportCoroutine());

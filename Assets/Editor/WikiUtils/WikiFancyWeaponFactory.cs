@@ -1,12 +1,15 @@
 using System;
-using System.IO;
 using System.Linq;
 using SQLite;
-using UnityEngine;
 
 public class WikiFancyWeaponFactory
 {
-    private static readonly string DBPath = Path.GetFullPath(Path.Combine(Application.dataPath, "Erenshor.sqlite"));
+    private readonly SQLiteConnection _db;
+
+    public WikiFancyWeaponFactory(SQLiteConnection db)
+    {
+        _db = db;
+    }
 
     public WikiFancyWeapon Create(string wikiString)
     {
@@ -58,8 +61,6 @@ public class WikiFancyWeaponFactory
 
     public WikiFancyWeapon Create(ItemDBRecord item)
     {
-        using var db = new SQLiteConnection(DBPath, SQLiteOpenFlags.ReadOnly);
-
         // --- proc ---
         string spellId = null;
         string procStyle = "";
@@ -77,7 +78,7 @@ public class WikiFancyWeaponFactory
         SpellDBRecord spell = null;
         if (!string.IsNullOrEmpty(spellId))
         {
-            spell = db.Table<SpellDBRecord>().FirstOrDefault(s => s.Id == spellId);
+            spell = _db.Table<SpellDBRecord>().FirstOrDefault(s => s.Id == spellId);
         }
 
         // --- type ---

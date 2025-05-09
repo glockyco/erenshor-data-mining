@@ -1,5 +1,6 @@
 #nullable enable
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using SQLite;
@@ -10,13 +11,44 @@ public class ItemListener : IAssetScanListener<Item>
     private readonly SQLiteConnection _db;
     private readonly List<ItemDBRecord> _records = new();
 
+    private readonly WikiFancyWeaponFactory _weaponFactory;
+    private readonly WikiFancyArmorFactory _armorFactory;
+
+    private static readonly HashSet<string> WeaponSlots = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "PrimaryOrSecondary", "Primary", "Secondary"
+    };
+    
+    private static readonly HashSet<string> ArmorSlots = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "Charm", "Head", "Neck", "Ring", "Hand", "Chest", "Arm", "Bracer", "Leg", "Waist", "Foot", "Back"
+    };
+    
     public ItemListener(SQLiteConnection db)
     {
         _db = db;
+        _weaponFactory = new WikiFancyWeaponFactory(db);
+        _armorFactory = new WikiFancyArmorFactory(db);
     }
 
     public void OnScanFinished()
     {
+        foreach (var record in _records)
+        {
+            if (WeaponSlots.Contains(record.RequiredSlot))
+            {
+                record.WikiString = _weaponFactory.Create(record).ToString();
+            }
+            else if (ArmorSlots.Contains(record.RequiredSlot))
+            {
+                record.WikiString = _armorFactory.Create(record).ToString();
+            }
+            else
+            {
+                record.WikiString = "";
+            }
+        }
+        
         _db.CreateTable<ItemDBRecord>();
         _db.RunInTransaction(() =>
         {
