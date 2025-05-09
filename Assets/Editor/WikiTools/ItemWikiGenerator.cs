@@ -9,8 +9,8 @@ using UnityEngine;
 public class ItemWikiGenerator : EditorWindow
 {
     // --- CONFIGURATION ---
-    private const string EXPORTER_PREFS_KEY_DB_PATH = "Erenshor_DatabaseExporter_OutputPath";
-    private const string DEFAULT_DB_FILENAME = "Erenshor.sqlite"; // Default filename if preference not set
+    private const string EditorPrefsKeyPath = "Erenshor_AssetScannerExporter_OutputPath";
+    private const string DefaultFilename = "Erenshor.sqlite";
 
     private static readonly HashSet<string> ArmorSlots = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -37,15 +37,9 @@ public class ItemWikiGenerator : EditorWindow
         UpdateResolvedPath();
     }
 
-    private string GetDefaultDatabasePath()
-    {
-        return Path.GetFullPath(Path.Combine(Application.dataPath, "..", DEFAULT_DB_FILENAME));
-    }
-
     void UpdateResolvedPath()
     {
-        string savedPath = EditorPrefs.GetString(EXPORTER_PREFS_KEY_DB_PATH, GetDefaultDatabasePath());
-        _fullDbPathDisplay = Path.GetFullPath(savedPath);
+        _fullDbPathDisplay = EditorPrefs.GetString(EditorPrefsKeyPath, Path.Combine(Application.dataPath, DefaultFilename));
     }
 
     void OnGUI()

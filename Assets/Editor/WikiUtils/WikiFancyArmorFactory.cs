@@ -6,8 +6,7 @@ using UnityEngine;
 
 public class WikiFancyArmorFactory
 {
-    private static readonly string DBPath =
-        Path.GetFullPath(Path.Combine(Application.dataPath, "..", "Erenshor.sqlite"));
+    private static readonly string DBPath = Path.GetFullPath(Path.Combine(Application.dataPath, "Erenshor.sqlite"));
 
     public WikiFancyArmor Create(string wikiString)
     {
