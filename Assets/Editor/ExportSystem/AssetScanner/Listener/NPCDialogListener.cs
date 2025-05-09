@@ -1,11 +1,29 @@
 #nullable enable
 
 using System.Collections.Generic;
+using SQLite;
 using UnityEngine;
 
 public class NPCDialogListener : IAssetScanListener<NPCDialog>
 {
-    public readonly List<NPCDialogDBRecord> Records = new();
+    private readonly SQLiteConnection _db;
+    private readonly List<NPCDialogDBRecord> _records = new();
+
+    public NPCDialogListener(SQLiteConnection db)
+    {
+        _db = db;
+    }
+
+    public void OnScanFinished()
+    {
+        _db.CreateTable<NPCDialogDBRecord>();
+        _db.RunInTransaction(() =>
+        {
+            _db.DeleteAll<NPCDialogDBRecord>();
+            _db.InsertAll(_records);
+        });
+        _records.Clear();
+    }
 
     public void OnAssetFound(NPCDialog asset)
     {
@@ -16,8 +34,6 @@ public class NPCDialogListener : IAssetScanListener<NPCDialog>
             // @TODO: Fill fields (see NPCDialogExportStep).
         };
 
-        Records.Add(record);
+        _records.Add(record);
     }
-
-    public void Reset() => Records.Clear();
 }

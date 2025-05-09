@@ -1,11 +1,29 @@
 #nullable enable
 
 using System.Collections.Generic;
+using SQLite;
 using UnityEngine;
 
 public class ClassListener : IAssetScanListener<Class>
 {
-    public readonly List<ClassDBRecord> Records = new();
+    private readonly SQLiteConnection _db;
+    private readonly List<ClassDBRecord> _records = new();
+
+    public ClassListener(SQLiteConnection db)
+    {
+        _db = db;
+    }
+
+    public void OnScanFinished()
+    {
+        _db.CreateTable<ClassDBRecord>();
+        _db.RunInTransaction(() =>
+        {
+            _db.DeleteAll<ClassDBRecord>();
+            _db.InsertAll(_records);
+        });
+        _records.Clear();
+    }
 
     public void OnAssetFound(Class asset)
     {
@@ -26,8 +44,6 @@ public class ClassListener : IAssetScanListener<Class>
             ResourceName = asset.name,
         };
 
-        Records.Add(record);
+        _records.Add(record);
     }
-
-    public void Reset() => Records.Clear();
 }

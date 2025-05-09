@@ -1,11 +1,29 @@
 #nullable enable
 
 using System.Collections.Generic;
+using SQLite;
 using UnityEngine;
 
 public class SpawnPointListener : IAssetScanListener<SpawnPoint>
 {
-    public readonly List<SpawnPointDBRecord> Records = new();
+    private readonly SQLiteConnection _db;
+    private readonly List<SpawnPointDBRecord> _records = new();
+
+    public SpawnPointListener(SQLiteConnection db)
+    {
+        _db = db;
+    }
+
+    public void OnScanFinished()
+    {
+        _db.CreateTable<SpawnPointDBRecord>();
+        _db.RunInTransaction(() =>
+        {
+            _db.DeleteAll<SpawnPointDBRecord>();
+            _db.InsertAll(_records);
+        });
+        _records.Clear();
+    }
 
     public void OnAssetFound(SpawnPoint asset)
     {
@@ -16,8 +34,6 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
             // @TODO: Fill fields (see SpawnPointExportStep).
         };
 
-        Records.Add(record);
+        _records.Add(record);
     }
-
-    public void Reset() => Records.Clear();
 }

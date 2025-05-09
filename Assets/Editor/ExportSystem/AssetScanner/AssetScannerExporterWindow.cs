@@ -2,28 +2,28 @@ using System;
 using System.Collections;
 using System.Diagnostics;
 using System.IO;
-using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 using SQLite;
-using Debug = UnityEngine.Debug;
 
 public class AssetScannerExporterWindow : EditorWindow
 {
-    private const string EDITOR_PREFS_KEY_PATH = "Erenshor_AssetScannerExporter_OutputPath";
-    private const string DEFAULT_FILENAME = "Erenshor.sqlite";
+    private const string EditorPrefsKeyPath = "Erenshor_AssetScannerExporter_OutputPath";
+    private const string DefaultFilename = "Erenshor.sqlite";
 
     private string _outputPath;
+    private SQLiteConnection _db;
+    
     private bool _isScanning;
     private bool _cancelRequested;
     private string _status = "Idle";
     private double _elapsedSeconds;
     private Stopwatch _stopwatch;
-    private AssetScanProgress _progress = new AssetScanProgress();
+    private AssetScanProgress _progress = new();
     private AssetScanner _activeScanner;
 
     private AscensionListener _ascensionListener;
-    private BookCollector _bookCollector;
+    private BookListener _bookListener;
     private CharacterListener _characterListener;
     private ClassListener _classListener;
     private ItemListener _itemListener;
@@ -45,7 +45,7 @@ public class AssetScannerExporterWindow : EditorWindow
     private bool _exportItems = true;
     private bool _exportLootTables = true;
     private bool _exportMiningNodes = true;
-    private bool _exportNPCDialogs = true;
+    private bool _exportNpcDialogs = true;
     private bool _exportQuests = true;
     private bool _exportSkills = true;
     private bool _exportSpells = true;
@@ -63,21 +63,23 @@ public class AssetScannerExporterWindow : EditorWindow
 
     private void OnEnable()
     {
-        _outputPath = EditorPrefs.GetString(EDITOR_PREFS_KEY_PATH, Path.Combine(Application.dataPath, DEFAULT_FILENAME));
-        _ascensionListener = new AscensionListener();
-        _bookCollector = new BookCollector();
-        _characterListener = new CharacterListener();
-        _classListener = new ClassListener();
-        _itemListener = new ItemListener();
-        _lootTableListener = new LootTableListener();
-        _miningNodeListener = new MiningNodeListener();
-        _npcDialogListener = new NPCDialogListener();
-        _questListener = new QuestListener();
-        _skillListener = new SkillListener();
-        _spellListener = new SpellListener();
-        _spawnPointListener = new SpawnPointListener();
-        _worldFactionListener = new WorldFactionListener();
-        _zoneAtlasEntryListener = new ZoneAtlasEntryListener();
+        _outputPath = EditorPrefs.GetString(EditorPrefsKeyPath, Path.Combine(Application.dataPath, DefaultFilename));
+        _db = new SQLiteConnection(_outputPath);
+        
+        _ascensionListener = new AscensionListener(_db);
+        _bookListener = new BookListener(_db);
+        _characterListener = new CharacterListener(_db);
+        _classListener = new ClassListener(_db);
+        _itemListener = new ItemListener(_db);
+        _lootTableListener = new LootTableListener(_db);
+        _miningNodeListener = new MiningNodeListener(_db);
+        _npcDialogListener = new NPCDialogListener(_db);
+        _questListener = new QuestListener(_db);
+        _skillListener = new SkillListener(_db);
+        _spellListener = new SpellListener(_db);
+        _spawnPointListener = new SpawnPointListener(_db);
+        _worldFactionListener = new WorldFactionListener(_db);
+        _zoneAtlasEntryListener = new ZoneAtlasEntryListener(_db);
     }
 
     private void OnDisable()
@@ -116,21 +118,21 @@ public class AssetScannerExporterWindow : EditorWindow
                 if (!string.IsNullOrEmpty(directory))
                 {
                     _outputPath = potentialFullPath;
-                    EditorPrefs.SetString(EDITOR_PREFS_KEY_PATH, _outputPath);
+                    EditorPrefs.SetString(EditorPrefsKeyPath, _outputPath);
                 }
             } catch { /* Ignore errors, keep old path */ }
         }
         if (GUILayout.Button("Browse...", GUILayout.Width(80)))
         {
             string directory = string.IsNullOrEmpty(_outputPath) ? Application.dataPath + "/.." : Path.GetDirectoryName(_outputPath);
-            string filename = string.IsNullOrEmpty(_outputPath) ? DEFAULT_FILENAME : Path.GetFileName(_outputPath);
+            string filename = string.IsNullOrEmpty(_outputPath) ? DefaultFilename : Path.GetFileName(_outputPath);
             if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
                 directory = Application.dataPath + "/..";
             string chosenPath = EditorUtility.SaveFilePanel("Select Database Output Path", directory, filename, "sqlite");
             if (!string.IsNullOrEmpty(chosenPath))
             {
                 _outputPath = chosenPath;
-                EditorPrefs.SetString(EDITOR_PREFS_KEY_PATH, _outputPath);
+                EditorPrefs.SetString(EditorPrefsKeyPath, _outputPath);
             }
         }
         EditorGUILayout.EndHorizontal();
@@ -166,7 +168,7 @@ public class AssetScannerExporterWindow : EditorWindow
         _exportItems = EditorGUILayout.ToggleLeft("Items", _exportItems);
         _exportLootTables = EditorGUILayout.ToggleLeft("Loot Drops", _exportLootTables);
         _exportMiningNodes = EditorGUILayout.ToggleLeft("Mining Nodes", _exportMiningNodes);
-        _exportNPCDialogs = EditorGUILayout.ToggleLeft("NPC Dialogs", _exportNPCDialogs);
+        _exportNpcDialogs = EditorGUILayout.ToggleLeft("NPC Dialogs", _exportNpcDialogs);
         _exportQuests = EditorGUILayout.ToggleLeft("Quests", _exportQuests);
         _exportSkills = EditorGUILayout.ToggleLeft("Skills", _exportSkills);
         _exportSpells = EditorGUILayout.ToggleLeft("Spells", _exportSpells);
@@ -185,7 +187,7 @@ public class AssetScannerExporterWindow : EditorWindow
         _exportItems = value;
         _exportLootTables = value;
         _exportMiningNodes = value;
-        _exportNPCDialogs = value;
+        _exportNpcDialogs = value;
         _exportQuests = value;
         _exportSkills = value;
         _exportSpells = value;
@@ -201,43 +203,29 @@ public class AssetScannerExporterWindow : EditorWindow
         _isScanning = true;
         _cancelRequested = false;
         _progress = new AssetScanProgress();
-        // Reset only selected listeners
-        if (_exportAscensions) _ascensionListener.Reset();
-        if (_exportBooks) _bookCollector.Reset();
-        if (_exportCharacters) _characterListener.Reset();
-        if (_exportClasses) _classListener.Reset();
-        if (_exportItems) _itemListener.Reset();
-        if (_exportLootTables) _lootTableListener.Reset();
-        if (_exportMiningNodes) _miningNodeListener.Reset();
-        if (_exportNPCDialogs) _npcDialogListener.Reset();
-        if (_exportQuests) _questListener.Reset();
-        if (_exportSkills) _skillListener.Reset();
-        if (_exportSpells) _spellListener.Reset();
-        if (_exportSpawnPoints) _spawnPointListener.Reset();
-        if (_exportWorldFactions) _worldFactionListener.Reset();
-        if (_exportZoneAtlasEntries) _zoneAtlasEntryListener.Reset();
-        // Create scanner and register only selected listeners
+        
         _activeScanner = new AssetScanner();
         if (_exportAscensions) _activeScanner.RegisterScriptableObjectListener(_ascensionListener);
+        if (_exportBooks) _activeScanner.RegisterScriptableObjectListener(_bookListener);
         if (_exportCharacters) _activeScanner.RegisterComponentListener(_characterListener);
         if (_exportClasses) _activeScanner.RegisterScriptableObjectListener(_classListener);
         if (_exportItems) _activeScanner.RegisterScriptableObjectListener(_itemListener);
         if (_exportLootTables) _activeScanner.RegisterComponentListener(_lootTableListener);
         if (_exportMiningNodes) _activeScanner.RegisterComponentListener(_miningNodeListener);
-        if (_exportNPCDialogs) _activeScanner.RegisterComponentListener(_npcDialogListener);
+        if (_exportNpcDialogs) _activeScanner.RegisterComponentListener(_npcDialogListener);
         if (_exportQuests) _activeScanner.RegisterScriptableObjectListener(_questListener);
         if (_exportSkills) _activeScanner.RegisterScriptableObjectListener(_skillListener);
         if (_exportSpells) _activeScanner.RegisterScriptableObjectListener(_spellListener);
         if (_exportSpawnPoints) _activeScanner.RegisterComponentListener(_spawnPointListener);
         if (_exportWorldFactions) _activeScanner.RegisterScriptableObjectListener(_worldFactionListener);
         if (_exportZoneAtlasEntries) _activeScanner.RegisterScriptableObjectListener(_zoneAtlasEntryListener);
+        
         _stopwatch = Stopwatch.StartNew();
         EditorCoroutineRunner.StartCoroutine(ScanAndExportCoroutine());
     }
 
     private IEnumerator ScanAndExportCoroutine()
     {
-        if (_exportBooks) _bookCollector.Collect();
         var scanCoroutine = _activeScanner.ScanAllAssetsCoroutine(
             () => _cancelRequested,
             progress => { _progress = progress; Repaint(); });
@@ -249,64 +237,8 @@ public class AssetScannerExporterWindow : EditorWindow
         }
         _elapsedSeconds = _stopwatch.Elapsed.TotalSeconds;
         _isScanning = false;
-        _status = _cancelRequested ? "Cancelled" : "Exporting...";
+        _status = _cancelRequested ? "Cancelled" : "Done";
         Repaint();
-        if (!_cancelRequested)
-        {
-            var exportTask = Task.Run(() => ExportToDatabase(_outputPath));
-            while (!exportTask.IsCompleted)
-                yield return null;
-            if (exportTask.Exception != null)
-            {
-                Debug.LogError($"Failed to export: {exportTask.Exception}");
-                _status = "Failed: " + exportTask.Exception.Message;
-            }
-            else
-            {
-                _status = "Done";
-            }
-        }
-        else
-        {
-            _status = "Cancelled";
-        }
-        Repaint();
-    }
-
-    private void ExportToDatabase(string dbPath)
-    {
-        using var db = new SQLiteConnection(dbPath);
-        if (_exportAscensions) db.CreateTable<AscensionDBRecord>();
-        if (_exportBooks) db.CreateTable<BookDBRecord>();
-        if (_exportCharacters) db.CreateTable<CharacterDBRecord>();
-        if (_exportClasses) db.CreateTable<ClassDBRecord>();
-        if (_exportItems) db.CreateTable<ItemDBRecord>();
-        if (_exportLootTables) db.CreateTable<LootTableDBRecord>();
-        if (_exportMiningNodes) db.CreateTable<MiningNodeDBRecord>();
-        if (_exportNPCDialogs) db.CreateTable<NPCDialogDBRecord>();
-        if (_exportQuests) db.CreateTable<QuestDBRecord>();
-        if (_exportSkills) db.CreateTable<SkillDBRecord>();
-        if (_exportSpells) db.CreateTable<SpellDBRecord>();
-        if (_exportSpawnPoints) db.CreateTable<SpawnPointDBRecord>();
-        if (_exportWorldFactions) db.CreateTable<WorldFactionDBRecord>();
-        if (_exportZoneAtlasEntries) db.CreateTable<ZoneAtlasEntryDBRecord>();
-        db.RunInTransaction(() =>
-        {
-            if (_exportAscensions) { db.DeleteAll<AscensionDBRecord>(); db.InsertAll(_ascensionListener.Records); }
-            if (_exportBooks) { db.DeleteAll<BookDBRecord>(); db.InsertAll(_bookCollector.Records); }
-            if (_exportCharacters) { db.DeleteAll<CharacterDBRecord>(); db.InsertAll(_characterListener.Records); }
-            if (_exportClasses) { db.DeleteAll<ClassDBRecord>(); db.InsertAll(_classListener.Records); }
-            if (_exportItems) { db.DeleteAll<ItemDBRecord>(); db.InsertAll(_itemListener.Records); }
-            if (_exportLootTables) { db.DeleteAll<LootTableDBRecord>(); db.InsertAll(_lootTableListener.Records); }
-            if (_exportMiningNodes) { db.DeleteAll<MiningNodeDBRecord>(); db.InsertAll(_miningNodeListener.Records); }
-            if (_exportNPCDialogs) { db.DeleteAll<NPCDialogDBRecord>(); db.InsertAll(_npcDialogListener.Records); }
-            if (_exportQuests) { db.DeleteAll<QuestDBRecord>(); db.InsertAll(_questListener.Records); }
-            if (_exportSkills) { db.DeleteAll<SkillDBRecord>(); db.InsertAll(_skillListener.Records); }
-            if (_exportSpells) { db.DeleteAll<SpellDBRecord>(); db.InsertAll(_spellListener.Records); }
-            if (_exportSpawnPoints) { db.DeleteAll<SpawnPointDBRecord>(); db.InsertAll(_spawnPointListener.Records); }
-            if (_exportWorldFactions) { db.DeleteAll<WorldFactionDBRecord>(); db.InsertAll(_worldFactionListener.Records); }
-            if (_exportZoneAtlasEntries) { db.DeleteAll<ZoneAtlasEntryDBRecord>(); db.InsertAll(_zoneAtlasEntryListener.Records); }
-        });
     }
 
     private void DrawStatusAndActionsSection()
@@ -315,7 +247,7 @@ public class AssetScannerExporterWindow : EditorWindow
         EditorGUILayout.LabelField(_status);
         EditorGUILayout.Space();
         EditorGUILayout.BeginHorizontal();
-        bool anyStepSelected = _exportAscensions || _exportBooks || _exportCharacters || _exportClasses || _exportWorldFactions || _exportItems || _exportLootTables || _exportMiningNodes || _exportNPCDialogs || _exportQuests || _exportSkills || _exportSpells || _exportSpawnPoints || _exportZoneAtlasEntries;
+        bool anyStepSelected = _exportAscensions || _exportBooks || _exportCharacters || _exportClasses || _exportWorldFactions || _exportItems || _exportLootTables || _exportMiningNodes || _exportNpcDialogs || _exportQuests || _exportSkills || _exportSpells || _exportSpawnPoints || _exportZoneAtlasEntries;
         EditorGUI.BeginDisabledGroup(_isScanning || !anyStepSelected || string.IsNullOrEmpty(_outputPath));
         if (GUILayout.Button("Export Selected Steps", GUILayout.Height(30)))
         {
@@ -330,7 +262,7 @@ public class AssetScannerExporterWindow : EditorWindow
         EditorGUI.EndDisabledGroup();
         EditorGUILayout.EndHorizontal();
         EditorGUILayout.Space();
-        bool fileExists = !_isScanning && !string.IsNullOrEmpty(_outputPath) && System.IO.File.Exists(_outputPath);
+        bool fileExists = !_isScanning && !string.IsNullOrEmpty(_outputPath) && File.Exists(_outputPath);
         EditorGUI.BeginDisabledGroup(!fileExists);
         if (GUILayout.Button("Open Output Folder"))
         {

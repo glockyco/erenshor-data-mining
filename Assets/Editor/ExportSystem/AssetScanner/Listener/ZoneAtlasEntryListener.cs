@@ -1,11 +1,29 @@
 #nullable enable
 
 using System.Collections.Generic;
+using SQLite;
 using UnityEngine;
 
 public class ZoneAtlasEntryListener : IAssetScanListener<ZoneAtlasEntry>
 {
-    public readonly List<ZoneAtlasEntryDBRecord> Records = new();
+    private readonly SQLiteConnection _db;
+    private readonly List<ZoneAtlasEntryDBRecord> _records = new();
+
+    public ZoneAtlasEntryListener(SQLiteConnection db)
+    {
+        _db = db;
+    }
+
+    public void OnScanFinished()
+    {
+        _db.CreateTable<ZoneAtlasEntryDBRecord>();
+        _db.RunInTransaction(() =>
+        {
+            _db.DeleteAll<ZoneAtlasEntryDBRecord>();
+            _db.InsertAll(_records);
+        });
+        _records.Clear();
+    }
 
     public void OnAssetFound(ZoneAtlasEntry asset)
     {
@@ -15,7 +33,7 @@ public class ZoneAtlasEntryListener : IAssetScanListener<ZoneAtlasEntry>
 
         ZoneAtlasEntryDBRecord record = new ZoneAtlasEntryDBRecord
         {
-            AtlasIndex = Records.Count,
+            AtlasIndex = _records.Count,
             Id = asset.Id,
             ZoneName = asset.ZoneName,
             LevelRangeLow = asset.LevelRangeLow,
@@ -25,8 +43,6 @@ public class ZoneAtlasEntryListener : IAssetScanListener<ZoneAtlasEntry>
             ResourceName = asset.name,
         };
 
-        Records.Add(record);
+        _records.Add(record);
     }
-
-    public void Reset() => Records.Clear();
 }

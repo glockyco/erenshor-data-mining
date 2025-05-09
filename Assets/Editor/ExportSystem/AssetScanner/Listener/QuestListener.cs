@@ -1,11 +1,29 @@
 #nullable enable
 
 using System.Collections.Generic;
+using SQLite;
 using UnityEngine;
 
 public class QuestListener : IAssetScanListener<Quest>
 {
-    public readonly List<QuestDBRecord> Records = new();
+    private readonly SQLiteConnection _db;
+    private readonly List<QuestDBRecord> _records = new();
+
+    public QuestListener(SQLiteConnection db)
+    {
+        _db = db;
+    }
+
+    public void OnScanFinished()
+    {
+        _db.CreateTable<QuestDBRecord>();
+        _db.RunInTransaction(() =>
+        {
+            _db.DeleteAll<QuestDBRecord>();
+            _db.InsertAll(_records);
+        });
+        _records.Clear();
+    }
 
     public void OnAssetFound(Quest asset)
     {
@@ -16,8 +34,6 @@ public class QuestListener : IAssetScanListener<Quest>
             // @TODO: Fill fields (see QuestExportStep).
         };
 
-        Records.Add(record);
+        _records.Add(record);
     }
-
-    public void Reset() => Records.Clear();
 }

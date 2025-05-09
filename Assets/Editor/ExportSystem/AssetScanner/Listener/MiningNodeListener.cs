@@ -2,12 +2,34 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using SQLite;
 using UnityEngine;
 
 public class MiningNodeListener : IAssetScanListener<MiningNode>
 {
-    public readonly List<MiningNodeDBRecord> Records = new();
-    public readonly List<MiningNodeItemDBRecord> ItemRecords = new();
+    private readonly SQLiteConnection _db;
+    private readonly List<MiningNodeDBRecord> _nodeRecords = new();
+    private readonly List<MiningNodeItemDBRecord> _nodeItemRecords = new();
+
+    public MiningNodeListener(SQLiteConnection db)
+    {
+        _db = db;
+    }
+
+    public void OnScanFinished()
+    {
+        _db.CreateTable<MiningNodeDBRecord>();
+        _db.CreateTable<MiningNodeItemDBRecord>();
+        _db.RunInTransaction(() =>
+        {
+            _db.DeleteAll<MiningNodeDBRecord>();
+            _db.DeleteAll<MiningNodeItemDBRecord>();
+            _db.InsertAll(_nodeRecords);
+            _db.InsertAll(_nodeItemRecords);
+        });
+        _nodeRecords.Clear();
+        _nodeItemRecords.Clear();
+    }
 
     public void OnAssetFound(MiningNode asset)
     {
@@ -25,12 +47,10 @@ public class MiningNodeListener : IAssetScanListener<MiningNode>
             RespawnTime = asset.RespawnTime
         };
 
-        Records.Add(record);
+        _nodeRecords.Add(record);
 
-        ItemRecords.AddRange(ProcessMiningNodeItems(asset, id));
+        _nodeItemRecords.AddRange(ProcessMiningNodeItems(asset, id));
     }
-
-    public void Reset() => Records.Clear();
 
     private static List<MiningNodeItemDBRecord> ProcessMiningNodeItems(MiningNode node, string miningNodeId)
     {

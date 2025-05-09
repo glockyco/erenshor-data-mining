@@ -1,11 +1,29 @@
 #nullable enable
 
 using System.Collections.Generic;
+using SQLite;
 using UnityEngine;
 
 public class AscensionListener : IAssetScanListener<Ascension>
 {
-    public readonly List<AscensionDBRecord> Records = new();
+    private readonly SQLiteConnection _db;
+    private readonly List<AscensionDBRecord> _records = new();
+
+    public AscensionListener(SQLiteConnection db)
+    {
+        _db = db;
+    }
+
+    public void OnScanFinished()
+    {
+        _db.CreateTable<AscensionDBRecord>();
+        _db.RunInTransaction(() =>
+        {
+            _db.DeleteAll<AscensionDBRecord>();
+            _db.InsertAll(_records);
+        });
+        _records.Clear();
+    }
 
     public void OnAssetFound(Ascension asset)
     {
@@ -13,7 +31,7 @@ public class AscensionListener : IAssetScanListener<Ascension>
 
         var record = new AscensionDBRecord
         {
-            AscensionDBIndex = Records.Count,
+            AscensionDBIndex = _records.Count,
             Id = asset.Id,
 
             UsedBy = asset.UsedBy.ToString(),
@@ -63,8 +81,6 @@ public class AscensionListener : IAssetScanListener<Ascension>
             ResourceName = asset.name
         };
 
-        Records.Add(record);
+        _records.Add(record);
     }
-
-    public void Reset() => Records.Clear();
 }

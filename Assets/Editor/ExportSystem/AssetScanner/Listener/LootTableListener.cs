@@ -1,13 +1,31 @@
 #nullable enable
 
 using System.Collections.Generic;
+using SQLite;
 using UnityEditor;
 using UnityEngine;
 
 public class LootTableListener : IAssetScanListener<LootTable>
 {
-    public readonly List<LootTableDBRecord> Records = new();
+    private readonly SQLiteConnection _db;
+    private readonly List<LootTableDBRecord> _records = new();
     private readonly LootTableProbabilityCalculator _probabilityCalculator = new();
+
+    public LootTableListener(SQLiteConnection db)
+    {
+        _db = db;
+    }
+
+    public void OnScanFinished()
+    {
+        _db.CreateTable<LootTableDBRecord>();
+        _db.RunInTransaction(() =>
+        {
+            _db.DeleteAll<LootTableDBRecord>();
+            _db.InsertAll(_records);
+        });
+        _records.Clear();
+    }
 
     public void OnAssetFound(LootTable asset)
     {
@@ -16,10 +34,8 @@ public class LootTableListener : IAssetScanListener<LootTable>
         var character = asset.GetComponent<Character>();
         var records = CollectLootDropsForCharacter(character, asset);
 
-        Records.AddRange(records);
+        _records.AddRange(records);
     }
-
-    public void Reset() => Records.Clear();
 
     private List<LootTableDBRecord> CollectLootDropsForCharacter(Character character, LootTable lootTable)
     {

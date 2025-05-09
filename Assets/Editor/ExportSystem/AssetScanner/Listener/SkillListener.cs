@@ -1,11 +1,29 @@
 #nullable enable
 
 using System.Collections.Generic;
+using SQLite;
 using UnityEngine;
 
 public class SkillListener : IAssetScanListener<Skill>
 {
-    public readonly List<SkillDBRecord> Records = new();
+    private readonly SQLiteConnection _db;
+    private readonly List<SkillDBRecord> _records = new();
+
+    public SkillListener(SQLiteConnection db)
+    {
+        _db = db;
+    }
+
+    public void OnScanFinished()
+    {
+        _db.CreateTable<SkillDBRecord>();
+        _db.RunInTransaction(() =>
+        {
+            _db.DeleteAll<SkillDBRecord>();
+            _db.InsertAll(_records);
+        });
+        _records.Clear();
+    }
 
     public void OnAssetFound(Skill asset)
     {
@@ -16,8 +34,6 @@ public class SkillListener : IAssetScanListener<Skill>
             // @TODO: Fill fields (see SkillExportStep).
         };
 
-        Records.Add(record);
+        _records.Add(record);
     }
-
-    public void Reset() => Records.Clear();
 }

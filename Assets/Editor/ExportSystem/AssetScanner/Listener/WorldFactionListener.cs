@@ -1,11 +1,29 @@
 #nullable enable
 
 using System.Collections.Generic;
+using SQLite;
 using UnityEngine;
 
 public class WorldFactionListener : IAssetScanListener<WorldFaction>
 {
-    public readonly List<WorldFactionDBRecord> Records = new();
+    private readonly SQLiteConnection _db;
+    private readonly List<WorldFactionDBRecord> _records = new();
+
+    public WorldFactionListener(SQLiteConnection db)
+    {
+        _db = db;
+    }
+
+    public void OnScanFinished()
+    {
+        _db.CreateTable<WorldFactionDBRecord>();
+        _db.RunInTransaction(() =>
+        {
+            _db.DeleteAll<WorldFactionDBRecord>();
+            _db.InsertAll(_records);
+        });
+        _records.Clear();
+    }
 
     public void OnAssetFound(WorldFaction asset)
     {
@@ -16,8 +34,6 @@ public class WorldFactionListener : IAssetScanListener<WorldFaction>
             // @TODO: Fill fields (see FactionExportStep).
         };
 
-        Records.Add(record);
+        _records.Add(record);
     }
-
-    public void Reset() => Records.Clear();
 }
