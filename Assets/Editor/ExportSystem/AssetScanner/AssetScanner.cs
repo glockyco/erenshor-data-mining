@@ -60,8 +60,20 @@ public class AssetScanner
         // --- ScriptableObjects ---
         if (_scriptableObjectListeners.Count > 0)
         {
-            var assets = Resources.LoadAll<ScriptableObject>("");
-            int total = assets.Length;
+            var assets = new List<ScriptableObject>(Resources.LoadAll<ScriptableObject>(""));
+            
+            var guids = AssetDatabase.FindAssets("t:Class");
+            foreach (var guid in guids)
+            {
+                var path = AssetDatabase.GUIDToAssetPath(guid);
+                var asset = AssetDatabase.LoadAssetAtPath<Class>(path);
+                if (asset != null)
+                {
+                    assets.Add(asset);
+                }
+            }
+            
+            int total = assets.Count;
             int current = 0;
             stopwatch.Restart();
             foreach (var asset in assets)
