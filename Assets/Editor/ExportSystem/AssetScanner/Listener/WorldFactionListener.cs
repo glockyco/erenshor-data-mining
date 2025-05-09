@@ -31,7 +31,12 @@ public class WorldFactionListener : IAssetScanListener<WorldFaction>
 
         var record = new WorldFactionDBRecord
         {
-            // @TODO: Fill fields (see FactionExportStep).
+            REFNAME = asset.REFNAME,
+            FactionDBIndex = _records.Count,
+            FactionName = asset.FactionName,
+            FactionDesc = asset.FactionDesc,
+            DefaultValue = asset.DEFAULTVAL,
+            ResourceName = asset.name,
         };
 
         _records.Add(record);
