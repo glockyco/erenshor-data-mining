@@ -29,7 +29,7 @@ public class AssetScannerExporterWindow : EditorWindow
     private ItemListener _itemListener;
     private LootTableListener _lootTableListener;
     private MiningNodeListener _miningNodeListener;
-    private NPCDialogListener _npcDialogListener;
+    private NpcDialogListener _npcDialogListener;
     private QuestListener _questListener;
     private SkillListener _skillListener;
     private SpellListener _spellListener;
@@ -73,7 +73,7 @@ public class AssetScannerExporterWindow : EditorWindow
         _itemListener = new ItemListener(_db);
         _lootTableListener = new LootTableListener(_db);
         _miningNodeListener = new MiningNodeListener(_db);
-        _npcDialogListener = new NPCDialogListener(_db);
+        _npcDialogListener = new NpcDialogListener(_db);
         _questListener = new QuestListener(_db);
         _skillListener = new SkillListener(_db);
         _spellListener = new SpellListener(_db);
