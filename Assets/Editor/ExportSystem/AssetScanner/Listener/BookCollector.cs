@@ -1,7 +1,6 @@
 #nullable enable
 
 using System.Collections.Generic;
-using Database;
 using UnityEngine;
 
 public class BookCollector
