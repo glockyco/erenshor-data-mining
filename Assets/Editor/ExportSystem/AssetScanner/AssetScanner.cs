@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -35,12 +36,26 @@ public class AssetScanner
         set.Add(listener);
     }
 
+    private void InvokeListenerMethod(object listenerObj, string methodName)
+    {
+        listenerObj.GetType().GetMethod(methodName)?.Invoke(listenerObj, null);
+    }
+
     public IEnumerator ScanAllAssetsCoroutine(
         Func<bool> cancelRequested = null,
         Action<AssetScanProgress> progressCallback = null)
     {
         const float maxFrameTimeMs = 10f;
         Stopwatch stopwatch = new Stopwatch();
+
+        // --- Notify Scan Started ---
+        foreach (var listenerMap in new[] { _scriptableObjectListeners, _componentListeners })
+        {
+            foreach (var listenerObj in listenerMap.SelectMany(kvp => kvp.Value))
+            {
+                InvokeListenerMethod(listenerObj, "OnScanStarted");
+            }
+        }
 
         // --- ScriptableObjects ---
         if (_scriptableObjectListeners.Count > 0)
@@ -158,6 +173,15 @@ public class AssetScanner
                         yield return null;
                     }
                 }
+            }
+        }
+
+        // --- Notify Scan Finished ---
+        foreach (var listenerMap in new[] { _scriptableObjectListeners, _componentListeners })
+        {
+            foreach (var listenerObj in listenerMap.SelectMany(kvp => kvp.Value))
+            {
+                InvokeListenerMethod(listenerObj, "OnScanFinished");
             }
         }
     }
