@@ -5,7 +5,6 @@ public class QuestDBRecord
 {
     // --- Core Identification ---
     public int QuestDBIndex { get; set; } // Index in the Resources.LoadAll array
-    [PrimaryKey]
     public string QuestName { get; set; } // From Quest.QuestName (Display Name)
     public string QuestDesc { get; set; } // From Quest.QuestDesc (Description Text)
 
@@ -43,5 +42,6 @@ public class QuestDBRecord
 
     // --- Internals / Metadata ---
     public string DBName { get; set; } // From Quest.DBName (Unique Identifier)
+    [PrimaryKey]
     public string ResourceName { get; set; } // From Quest.name (ScriptableObject asset name)
 }
