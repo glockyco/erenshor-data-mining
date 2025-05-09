@@ -53,7 +53,7 @@ public class AssetScannerExporterWindow : EditorWindow
     private bool _exportWorldFactions = true;
     private bool _exportZoneAtlasEntries = true;
 
-    [MenuItem("Tools/Asset Scanner/Export Assets")] 
+    [MenuItem("Tools/Export Game Data")] 
     public static void ShowWindow()
     {
         var window = GetWindow<AssetScannerExporterWindow>("Asset Scanner Exporter");
