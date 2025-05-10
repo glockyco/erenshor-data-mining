@@ -6,11 +6,6 @@ using SQLite;
 
 public class WikiComparatorWindow : EditorWindow
 {
-    // --- Configuration (copied from ItemWikiGenerator for consistency) ---
-    private const string EXPORTER_PREFS_KEY_DB_PATH = "Erenshor_DatabaseExporter_OutputPath";
-    private const string DEFAULT_DB_FILENAME = "Erenshor.sqlite";
-    // --- End Configuration ---
-
     private string _itemIdToCompare = ""; // Default is empty, set from DB in OnEnable
     private string _statusMessage = "Enter an Item ID (Wiki Page Name) and click Compare.";
 
@@ -38,18 +33,9 @@ public class WikiComparatorWindow : EditorWindow
         SetDefaultItemIdFromDb(); // Attempt to set default ID from DB
     }
 
-    // Gets the default path (relative to project root)
-    private string GetDefaultDatabasePath()
-    {
-        // Assumes the DB is in the project root
-        return Path.GetFullPath(Path.Combine(Application.dataPath, "..", DEFAULT_DB_FILENAME));
-    }
-
     void UpdateResolvedPath()
     {
-        // Read the path from EditorPrefs, using the default path as a fallback
-        string savedPath = EditorPrefs.GetString(EXPORTER_PREFS_KEY_DB_PATH, GetDefaultDatabasePath());
-        _fullDbPathDisplay = Path.GetFullPath(savedPath); // Ensure it's a full path
+        _fullDbPathDisplay = Repository.GetDefaultDatabasePath();
     }
 
     /// <summary>
@@ -70,7 +56,7 @@ public class WikiComparatorWindow : EditorWindow
         SQLiteConnection? db = null;
         try
         {
-            db = new SQLiteConnection(_fullDbPathDisplay, SQLiteOpenFlags.ReadOnly);
+            db = Repository.CreateConnection(_fullDbPathDisplay);
             // Find the first item that has a WikiString value.
             var firstItemWithWiki =
                 db.Table<ItemDBRecord>().FirstOrDefault(item => !string.IsNullOrEmpty(item.WikiString));
@@ -318,7 +304,7 @@ public class WikiComparatorWindow : EditorWindow
         try
         {
             // Connect in ReadOnly mode
-            db = new SQLiteConnection(_fullDbPathDisplay, SQLiteOpenFlags.ReadOnly);
+            db = Repository.CreateConnection(_fullDbPathDisplay);
 
             // Query the Items table for the specific item ID (Primary Key)
             var record = db.Table<ItemDBRecord>().FirstOrDefault(item => item.Id == itemId);

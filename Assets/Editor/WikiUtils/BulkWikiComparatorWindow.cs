@@ -12,8 +12,6 @@ using SQLite;
 public class BulkWikiComparatorWindow : EditorWindow
 {
     // --- Configuration ---
-    private const string EXPORTER_PREFS_KEY_DB_PATH = "Erenshor_DatabaseExporter_OutputPath";
-    private const string DEFAULT_DB_FILENAME = "Erenshor.sqlite";
     private const int MAX_CONCURRENT_TASKS = 10; // Made constant for easier configuration
 
     // TreeView state
@@ -64,15 +62,9 @@ public class BulkWikiComparatorWindow : EditorWindow
         _cancellationTokenSource = null;
     }
 
-    private string GetDefaultDatabasePath()
-    {
-        return Path.GetFullPath(Path.Combine(Application.dataPath, "..", DEFAULT_DB_FILENAME));
-    }
-
     void UpdateResolvedPath()
     {
-        string savedPath = EditorPrefs.GetString(EXPORTER_PREFS_KEY_DB_PATH, GetDefaultDatabasePath());
-        _fullDbPathDisplay = Path.GetFullPath(savedPath);
+        _fullDbPathDisplay = Repository.GetDefaultDatabasePath();
     }
 
     void InitializeTreeView()
@@ -333,7 +325,7 @@ public class BulkWikiComparatorWindow : EditorWindow
                 SQLiteConnection? db = null;
                 try
                 {
-                    db = new SQLiteConnection(_fullDbPathDisplay, SQLiteOpenFlags.ReadOnly);
+                    db = Repository.CreateConnection(_fullDbPathDisplay);
                     initialItems = db.Table<ItemDBRecord>()
                         .Where(item => !string.IsNullOrEmpty(item.WikiString))
                         .Select(item => new ItemDBRecord
