@@ -177,6 +177,7 @@ public class ItemListener : IAssetScanListener<Item>
 
                 // --- Economy & Inventory ---
                 ItemValue = item.ItemValue,
+                SellValue = Mathf.RoundToInt(item.ItemValue * 0.65f),
                 Stackable = item.Stackable,
                 Disposable = item.Disposable,
                 Unique = item.Unique,

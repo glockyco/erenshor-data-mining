@@ -62,6 +62,7 @@ public class ItemDBRecord
 
     // --- Economy & Inventory ---
     public int ItemValue { get; set; } // Gold value
+    public int SellValue { get; set; } // Gold value when sold to a vendor
     public bool Stackable { get; set; }
     public bool Disposable { get; set; }
     public bool Unique { get; set; }
