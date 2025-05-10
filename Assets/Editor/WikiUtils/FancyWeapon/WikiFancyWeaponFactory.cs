@@ -30,8 +30,8 @@ public class WikiFancyWeaponFactory
         weapon.Cha = WikiTemplateParser.GetInt(parameters, "cha");
         weapon.Res = WikiTemplateParser.GetInt(parameters, "res");
 
-        weapon.Damage = WikiTemplateParser.GetNullableInt(parameters, "damage");
-        weapon.Delay = WikiTemplateParser.GetNullableFloat(parameters, "delay");
+        weapon.Damage = WikiTemplateParser.GetInt(parameters, "damage");
+        weapon.Delay = WikiTemplateParser.GetFloat(parameters, "delay");
 
         weapon.Health = WikiTemplateParser.GetInt(parameters, "health");
         weapon.Mana = WikiTemplateParser.GetInt(parameters, "mana");
@@ -51,7 +51,7 @@ public class WikiFancyWeaponFactory
 
         weapon.ProcName = WikiTemplateParser.GetString(parameters, "proc_name");
         weapon.ProcDesc = WikiTemplateParser.GetString(parameters, "proc_desc");
-        weapon.ProcChance = WikiTemplateParser.GetNullableFloat(parameters, "proc_chance");
+        weapon.ProcChance = WikiTemplateParser.GetFloat(parameters, "proc_chance");
         weapon.ProcStyle = WikiTemplateParser.GetString(parameters, "proc_style");
 
         weapon.Tier = WikiTemplateParser.GetInt(parameters, "tier");
@@ -141,7 +141,7 @@ public class WikiFancyWeaponFactory
             Druid = item.Classes.Split(", ").Contains("Druid"),
             Paladin = item.Classes.Split(", ").Contains("Paladin"),
             ProcName = spell == null ? "" : $"{{{{AbilityLink|{spell.SpellName}}}}}",
-            ProcDesc = spell?.SpellDesc,
+            ProcDesc = spell == null ? "" : spell.SpellDesc,
             ProcChance = item.WeaponProcChance,
             ProcStyle = procStyle,
             Tier = tier,

@@ -109,18 +109,17 @@ public static class WikiTemplateParser
             : defaultValue;
 
     /// <summary>
-    /// Safely parses a nullable integer value from the parameters dictionary.
-    /// Returns null if the key is not found, parsing fails, or the value is 0.
+    /// Safely parses a float value from the parameters dictionary.
     /// Uses CultureInfo.InvariantCulture.
     /// </summary>
     /// <param name="parameters">The dictionary returned by ParseParameters.</param>
     /// <param name="key">The case-insensitive key to look up.</param>
-    /// <returns>The parsed integer or null.</returns>
-    public static int? GetNullableInt(Dictionary<string, string> parameters, string key) =>
-        parameters.TryGetValue(key.ToLowerInvariant(), out var val) && int.TryParse(val, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result) && result != 0
+    /// <param name="defaultValue">The value to return if the key is not found or parsing fails.</param>
+    /// <returns>The parsed integer or the default value.</returns>
+    public static float GetFloat(Dictionary<string, string> parameters, string key, float defaultValue = 0) =>
+        parameters.TryGetValue(key.ToLowerInvariant(), out var val) && float.TryParse(val, NumberStyles.Any, CultureInfo.InvariantCulture, out var result)
             ? result
-            : null;
-
+            : defaultValue;
 
     /// <summary>
     /// Safely parses a boolean value from the parameters dictionary.
@@ -131,19 +130,6 @@ public static class WikiTemplateParser
     /// <returns>True if the value is "True" (case-insensitive), otherwise false.</returns>
     public static bool GetBool(Dictionary<string, string> parameters, string key) =>
         parameters.TryGetValue(key.ToLowerInvariant(), out var val) && "True".Equals(val, StringComparison.OrdinalIgnoreCase);
-
-    /// <summary>
-    /// Safely parses a nullable float value from the parameters dictionary.
-    /// Returns null if the key is not found, parsing fails, or the value is 0.
-    /// Uses CultureInfo.InvariantCulture.
-    /// </summary>
-    /// <param name="parameters">The dictionary returned by ParseParameters.</param>
-    /// <param name="key">The case-insensitive key to look up.</param>
-    /// <returns>The parsed float or null.</returns>
-    public static float? GetNullableFloat(Dictionary<string, string> parameters, string key) =>
-        parameters.TryGetValue(key.ToLowerInvariant(), out var val) && float.TryParse(val, NumberStyles.Any, CultureInfo.InvariantCulture, out var result) && result != 0
-            ? result
-            : null;
 
     /// <summary>
     /// Safely retrieves a string value from the parameters dictionary.

@@ -48,7 +48,7 @@ public class WikiFancyArmorFactory
 
         armor.ProcName = WikiTemplateParser.GetString(parameters, "proc_name");
         armor.ProcDesc = WikiTemplateParser.GetString(parameters, "proc_desc");
-        armor.ProcChance = WikiTemplateParser.GetNullableFloat(parameters, "proc_chance");
+        armor.ProcChance = WikiTemplateParser.GetFloat(parameters, "proc_chance");
         armor.ProcStyle = WikiTemplateParser.GetString(parameters, "proc_style");
 
         armor.Tier = WikiTemplateParser.GetInt(parameters, "tier");
@@ -117,7 +117,7 @@ public class WikiFancyArmorFactory
             Druid = item.Classes.Split(", ").Contains("Druid"),
             Paladin = item.Classes.Split(", ").Contains("Paladin"),
             ProcName = spell == null ? "" : $"{{{{AbilityLink|{spell.SpellName}}}}}",
-            ProcDesc = spell?.SpellDesc,
+            ProcDesc = spell == null ? "" : spell.SpellDesc,
             ProcChance = item.WeaponProcChance,
             ProcStyle = procStyle,
             Tier = tier,
