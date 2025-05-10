@@ -13,6 +13,11 @@ public class WikiFancyWeaponFactory
 
     public WikiFancyWeapon Create(string wikiString)
     {
+        if (wikiString is null || !wikiString.Contains("Fancy-weapon"))
+        {
+            return null;
+        }
+        
         var weapon = new WikiFancyWeapon();
         var parameters = WikiTemplateParser.ParseParameters(wikiString, "Fancy-weapon");
 
@@ -61,6 +66,11 @@ public class WikiFancyWeaponFactory
 
     public WikiFancyWeapon Create(ItemDBRecord item)
     {
+        if (item is null)
+        {
+            return null;
+        }
+        
         // --- proc ---
         string spellId = null;
         string procStyle = "";
