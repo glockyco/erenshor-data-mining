@@ -9,9 +9,7 @@ public class WikiItemComparisonTests
     public void Compare_SameArmorAndWikiString_AreEqual()
     {
         using var db = Repository.CreateConnection();
-        
         var item = db.Table<ItemDBRecord>().ToList().FirstOrDefault(i => i.WikiString.Contains("Fancy-armor"));
-        
         if (item == null) return;
         
         var factory = new WikiFancyArmorFactory(db);
@@ -27,9 +25,7 @@ public class WikiItemComparisonTests
     public void Compare_SameWeaponAndWikiString_AreEqual()
     {
         using var db = Repository.CreateConnection();
-        
         var item = db.Table<ItemDBRecord>().ToList().FirstOrDefault(i => i.WikiString.Contains("Fancy-weapon"));
-        
         if (item == null) return;
         
         var factory = new WikiFancyWeaponFactory(db);
