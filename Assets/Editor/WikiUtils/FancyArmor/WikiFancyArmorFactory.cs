@@ -58,6 +58,8 @@ public class WikiFancyArmorFactory
 
         armor.Tier = WikiTemplateParser.GetInt(parameters, "tier");
 
+        armor.OriginalWikiString = wikiString;
+
         return armor;
     }
 

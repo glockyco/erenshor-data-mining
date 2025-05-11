@@ -2,45 +2,78 @@ using System.Text;
 
 public class WikiFancyWeapon
 {
+    [UseForComparison]
     public string Image { get; set; } = "[[File:{{PAGENAME}}.png|80px]]";
+    [UseForComparison]
     public string Name { get; set; } = "{{PAGENAME}}";
+    [UseForComparison]
     public string Type { get; set; } // Primary, Secondary, Primary or Secondary, Primary - 2-Handed
+    [UseForComparison]
     public bool Relic { get; set; }
 
+    [UseForComparison]
     public int Str { get; set; }
+    [UseForComparison]
     public int End { get; set; }
+    [UseForComparison]
     public int Dex { get; set; }
+    [UseForComparison]
     public int Agi { get; set; }
+    [UseForComparison]
     public int Int { get; set; }
+    [UseForComparison]
     public int Wis { get; set; }
+    [UseForComparison]
     public int Cha { get; set; }
+    [UseForComparison]
     public int Res { get; set; }
     
+    [UseForComparison]
     public int? Damage { get; set; }
+    [UseForComparison]
     public float? Delay { get; set; }
 
+    [UseForComparison]
     public int Health { get; set; }
+    [UseForComparison]
     public int Mana { get; set; }
+    [UseForComparison]
     public int Armor { get; set; }
 
+    [UseForComparison]
     public int Magic { get; set; }
+    [UseForComparison]
     public int Poison { get; set; }
+    [UseForComparison]
     public int Elemental { get; set; }
+    [UseForComparison]
     public int Void { get; set; }
 
+    [UseForComparison]
     public string Description { get; set; }
 
+    [UseForComparison]
     public bool Arcanist { get; set; }
+    [UseForComparison]
     public bool Duelist { get; set; }
+    [UseForComparison]
     public bool Druid { get; set; }
+    [UseForComparison]
     public bool Paladin { get; set; }
 
+    [UseForComparison]
     public string ProcName { get; set; }
+    [UseForComparison]
     public string ProcDesc { get; set; }
+    [UseForComparison]
     public float? ProcChance { get; set; }
+    [UseForComparison]
     public string ProcStyle { get; set; } // Bash, Attack, Cast, Kick, Worn
 
+    [UseForComparison]
     public int Tier { get; set; } // 0, 1, 2
+    
+    public string OriginalWikiString { get; set; }
     
     public override string ToString()
     {

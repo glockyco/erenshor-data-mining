@@ -24,7 +24,10 @@ public static class ObjectComparer
         var differences = new List<ObjectFieldDifference>();
         var type = typeof(T);
 
-        foreach (var prop in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+        var props = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+        props = Array.FindAll(props, p => Attribute.IsDefined(p, typeof(UseForComparison)));
+        
+        foreach (var prop in props)
         {
             var valueA = prop.GetValue(a);
             var valueB = prop.GetValue(b);

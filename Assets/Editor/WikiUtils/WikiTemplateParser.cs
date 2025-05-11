@@ -123,13 +123,13 @@ public static class WikiTemplateParser
 
     /// <summary>
     /// Safely parses a boolean value from the parameters dictionary.
-    /// Considers "True" (case-insensitive) as true, otherwise false.
+    /// Considers any non-empty string as true, otherwise false.
     /// </summary>
     /// <param name="parameters">The dictionary returned by ParseParameters.</param>
     /// <param name="key">The case-insensitive key to look up.</param>
-    /// <returns>True if the value is "True" (case-insensitive), otherwise false.</returns>
+    /// <returns>True if the value is non-empty, otherwise false.</returns>
     public static bool GetBool(Dictionary<string, string> parameters, string key) =>
-        parameters.TryGetValue(key.ToLowerInvariant(), out var val) && "True".Equals(val, StringComparison.OrdinalIgnoreCase);
+        parameters.TryGetValue(key.ToLowerInvariant(), out var val) && !string.IsNullOrEmpty(val);
 
     /// <summary>
     /// Safely retrieves a string value from the parameters dictionary.
@@ -139,5 +139,5 @@ public static class WikiTemplateParser
     /// <param name="defaultValue">The value to return if the key is not found.</param>
     /// <returns>The string value or the default value.</returns>
     public static string GetString(Dictionary<string, string> parameters, string key, string defaultValue = "") =>
-        parameters.TryGetValue(key.ToLowerInvariant(), out var val) ? val : defaultValue;
+        parameters.GetValueOrDefault(key.ToLowerInvariant(), defaultValue);
 }

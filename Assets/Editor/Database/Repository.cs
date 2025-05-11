@@ -1,5 +1,6 @@
 #nullable enable
 
+using System.Collections.Generic;
 using System.IO;
 using SQLite;
 using UnityEditor;
@@ -9,6 +10,8 @@ public static class Repository
 {
     public const string EditorPrefsKey = "Erenshor_Repository_FilePath";
     public const string DefaultFilename = "Erenshor.sqlite";
+
+    private static readonly Dictionary<string, SQLiteConnection> Connections = new();
     
     public static SQLiteConnection CreateConnection()
     {
@@ -17,7 +20,11 @@ public static class Repository
 
     public static SQLiteConnection CreateConnection(string databasePath)
     {
-        return new SQLiteConnection(databasePath);
+        if (!Connections.ContainsKey(databasePath))
+        {
+            Connections[databasePath] = new SQLiteConnection(databasePath);
+        }
+        return Connections[databasePath];
     }
 
     public static string GetDefaultDatabasePath()

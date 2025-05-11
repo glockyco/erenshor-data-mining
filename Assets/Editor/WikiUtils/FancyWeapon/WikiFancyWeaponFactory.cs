@@ -60,6 +60,8 @@ public class WikiFancyWeaponFactory
         weapon.ProcStyle = WikiTemplateParser.GetString(parameters, "proc_style");
 
         weapon.Tier = WikiTemplateParser.GetInt(parameters, "tier");
+        
+        weapon.OriginalWikiString = wikiString;
 
         return weapon;
     }
