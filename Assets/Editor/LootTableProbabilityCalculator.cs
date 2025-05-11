@@ -217,17 +217,26 @@ public class LootTableProbabilityCalculator
             resultDict[WorldDropKey] = finalResult[worldDropIdx];
 
         // GuaranteeOneDrop: add its probability (always one is chosen)
-        if (lootTable.GuaranteeOneDrop != null && lootTable.GuaranteeOneDrop.Count > 0)
+        if (lootTable.GuaranteeOneDrop is { Count: > 0 })
         {
-            double p = 1.0 / lootTable.GuaranteeOneDrop.Count;
+            var total = lootTable.GuaranteeOneDrop.Count;
+            var guaranteeCounts = new Dictionary<string, int>();
             foreach (var item in lootTable.GuaranteeOneDrop)
-                if (item != null)
-                {
-                    if (resultDict.ContainsKey(item.name))
-                        resultDict[item.name] = 1 - (1 - resultDict[item.name]) * (1 - p);
-                    else
-                        resultDict[item.name] = p;
-                }
+            {
+                if (item == null) continue;
+                if (!guaranteeCounts.ContainsKey(item.name))
+                    guaranteeCounts[item.name] = 1;
+                else
+                    guaranteeCounts[item.name]++;
+            }
+            foreach (var kvp in guaranteeCounts)
+            {
+                double p = (double)kvp.Value / total;
+                if (resultDict.ContainsKey(kvp.Key))
+                    resultDict[kvp.Key] = 1 - (1 - resultDict[kvp.Key]) * (1 - p);
+                else
+                    resultDict[kvp.Key] = p;
+            }
         }
 
         return resultDict;
