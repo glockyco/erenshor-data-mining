@@ -32,6 +32,7 @@ public class AssetScannerExporterWindow : EditorWindow
     private bool _exportSkills = true;
     private bool _exportSpells = true;
     private bool _exportSpawnPoints = true;
+    private bool _exportWaters = true;
     private bool _exportWorldFactions = true;
     private bool _exportZoneAtlasEntries = true;
 
@@ -139,6 +140,7 @@ public class AssetScannerExporterWindow : EditorWindow
         _exportSkills = EditorGUILayout.ToggleLeft("Skills", _exportSkills);
         _exportSpells = EditorGUILayout.ToggleLeft("Spells", _exportSpells);
         _exportSpawnPoints = EditorGUILayout.ToggleLeft("Spawn Points", _exportSpawnPoints);
+        _exportWaters = EditorGUILayout.ToggleLeft("Waters", _exportWaters);
         _exportWorldFactions = EditorGUILayout.ToggleLeft("World Factions", _exportWorldFactions);
         _exportZoneAtlasEntries = EditorGUILayout.ToggleLeft("Zone Atlas Entries", _exportZoneAtlasEntries);
         EditorGUI.EndDisabledGroup();
@@ -158,6 +160,7 @@ public class AssetScannerExporterWindow : EditorWindow
         _exportSkills = value;
         _exportSpells = value;
         _exportSpawnPoints = value;
+        _exportWaters = value;
         _exportWorldFactions = value;
         _exportZoneAtlasEntries = value;
     }
@@ -191,6 +194,7 @@ public class AssetScannerExporterWindow : EditorWindow
         if (_exportMiningNodes) _activeScanner.RegisterComponentListener(new MiningNodeListener(_db));
         if (_exportNpcDialogs) _activeScanner.RegisterComponentListener(new NpcDialogListener(_db));
         if (_exportSpawnPoints) _activeScanner.RegisterComponentListener(new SpawnPointListener(_db));
+        if (_exportWaters) _activeScanner.RegisterComponentListener(new WaterListener(_db));
         
         _stopwatch = Stopwatch.StartNew();
         EditorCoroutineRunner.StartCoroutine(ScanAndExportCoroutine());
@@ -219,7 +223,7 @@ public class AssetScannerExporterWindow : EditorWindow
         EditorGUILayout.LabelField(_status);
         EditorGUILayout.Space();
         EditorGUILayout.BeginHorizontal();
-        bool anyStepSelected = _exportAscensions || _exportBooks || _exportCharacters || _exportClasses || _exportWorldFactions || _exportItems || _exportLootTables || _exportMiningNodes || _exportNpcDialogs || _exportQuests || _exportSkills || _exportSpells || _exportSpawnPoints || _exportZoneAtlasEntries;
+        bool anyStepSelected = _exportAscensions || _exportBooks || _exportCharacters || _exportClasses || _exportWorldFactions || _exportItems || _exportLootTables || _exportMiningNodes || _exportNpcDialogs || _exportQuests || _exportSkills || _exportSpells || _exportSpawnPoints || _exportWaters || _exportZoneAtlasEntries;
         EditorGUI.BeginDisabledGroup(_isScanning || !anyStepSelected || string.IsNullOrEmpty(_outputPath));
         if (GUILayout.Button("Export Selected Steps", GUILayout.Height(30)))
         {
