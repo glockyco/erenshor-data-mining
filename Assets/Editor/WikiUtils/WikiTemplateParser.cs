@@ -139,5 +139,5 @@ public static class WikiTemplateParser
     /// <param name="defaultValue">The value to return if the key is not found.</param>
     /// <returns>The string value or the default value.</returns>
     public static string GetString(Dictionary<string, string> parameters, string key, string defaultValue = "") =>
-        parameters.GetValueOrDefault(key.ToLowerInvariant(), defaultValue);
+        parameters.GetValueOrDefault(key.ToLowerInvariant(), defaultValue).Trim();
 }

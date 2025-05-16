@@ -129,7 +129,7 @@ public class WikiFancyArmorFactory
             Druid = item.Classes.Split(", ").Contains("Druid"),
             Paladin = item.Classes.Split(", ").Contains("Paladin"),
             ProcName = spell == null ? "" : $"{{{{AbilityLink|{spell.SpellName}}}}}",
-            ProcDesc = spell == null ? "" : spell.SpellDesc,
+            ProcDesc = spell == null ? "" : spell.SpellDesc.Trim(),
             ProcChance = item.WeaponProcChance,
             ProcStyle = procStyle,
             Tier = tier,
