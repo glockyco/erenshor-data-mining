@@ -28,6 +28,7 @@ public class SkillDBRecord
     public bool SimPlayersAutolearn { get; set; } // From Skill.SimPlayersAutolearn
 
     // --- Effects & Mechanics ---
+    public bool AESkill { get; set; } // From Skill.AESkill
     public bool Interrupt { get; set; } // From Skill.Interrupt
     public string SpawnOnUseResourceName { get; set; } // From Skill.SpawnOnUse.name
     public string EffectToApplyId { get; set; } // From Skill.EffectToApply.Id (Spell ID)

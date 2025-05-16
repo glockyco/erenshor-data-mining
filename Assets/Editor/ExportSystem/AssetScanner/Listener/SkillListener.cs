@@ -60,6 +60,7 @@ public class SkillListener : IAssetScanListener<Skill>
             Cooldown = skill.Cooldown,
 
             // --- Effects & Mechanics ---
+            AESkill = skill.AESkill,
             Interrupt = skill.Interrupt,
             SpawnOnUseResourceName = skill.SpawnOnUse != null ? skill.SpawnOnUse.name : null,
             EffectToApplyId = skill.EffectToApply != null ? skill.EffectToApply.Id : null,
