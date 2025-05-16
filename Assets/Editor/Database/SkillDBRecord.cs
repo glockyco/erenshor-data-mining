@@ -39,6 +39,7 @@ public class SkillDBRecord
     public float PercentDmg { get; set; } // From Skill.PercentDmg
     public string DamageType { get; set; } // From Skill.DmgType enum as string
     public bool ScaleOffWeapon { get; set; } // From Skill.ScaleOffWeapon
+    public bool ProcWeap { get; set; } // From Skill.ProcWeap
     public bool ProcShield { get; set; } // From Skill.ProcShield
     public bool GuaranteeProc { get; set; } // From Skill.GuaranteeProc
     public bool AutomateAttack { get; set; } // From Skill.AutomateAttack

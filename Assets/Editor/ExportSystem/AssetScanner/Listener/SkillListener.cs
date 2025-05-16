@@ -71,6 +71,7 @@ public class SkillListener : IAssetScanListener<Skill>
             PercentDmg = skill.PercentDmg,
             DamageType = skill.DmgType.ToString(),
             ScaleOffWeapon = skill.ScaleOffWeapon,
+            ProcWeap = skill.ProcWeap,
             ProcShield = skill.ProcShield,
             GuaranteeProc = skill.GuaranteeProc,
             AutomateAttack = skill.AutomateAttack,
