@@ -1,6 +1,7 @@
 #nullable enable
 
 using System.Collections.Generic;
+using System.Linq;
 using SQLite;
 using UnityEditor;
 using UnityEngine;
@@ -54,17 +55,18 @@ public class LootTableListener : IAssetScanListener<LootTable>
         }
 
         var records = new List<LootTableDBRecord>();
-        records.AddRange(CollectLootDrops(lootTable.GuaranteeOneDrop, "Guaranteed", guid, dropProbabilities));
-        records.AddRange(CollectLootDrops(lootTable.CommonDrop, "Common", guid, dropProbabilities));
-        records.AddRange(CollectLootDrops(lootTable.UncommonDrop, "Uncommon", guid, dropProbabilities));
-        records.AddRange(CollectLootDrops(lootTable.RareDrop, "Rare", guid, dropProbabilities));
-        records.AddRange(CollectLootDrops(lootTable.LegendaryDrop, "Legendary", guid, dropProbabilities));
-        records.AddRange(CollectLootDrops(lootTable.ActualDrops, "Always", guid, dropProbabilities));
+        records.AddRange(CollectLootDrops(lootTable.GuaranteeOneDrop, lootTable.VisiblePieces, "Guaranteed", guid, dropProbabilities));
+        records.AddRange(CollectLootDrops(lootTable.CommonDrop, lootTable.VisiblePieces, "Common", guid, dropProbabilities));
+        records.AddRange(CollectLootDrops(lootTable.UncommonDrop, lootTable.VisiblePieces, "Uncommon", guid, dropProbabilities));
+        records.AddRange(CollectLootDrops(lootTable.RareDrop, lootTable.VisiblePieces, "Rare", guid, dropProbabilities));
+        records.AddRange(CollectLootDrops(lootTable.LegendaryDrop, lootTable.VisiblePieces, "Legendary", guid, dropProbabilities));
+        records.AddRange(CollectLootDrops(lootTable.ActualDrops, lootTable.VisiblePieces, "Always", guid, dropProbabilities));
         return records;
     }
 
     private static List<LootTableDBRecord> CollectLootDrops(
         List<Item> items,
+        List<Transform> visiblePieces,
         string dropType,
         string guid,
         Dictionary<string, double> dropProbabilities)
@@ -82,7 +84,8 @@ public class LootTableListener : IAssetScanListener<LootTable>
                 ItemId = item.Id,
                 DropType = dropType,
                 DropIndex = i,
-                Probability = probability
+                Probability = probability,
+                IsVisible = visiblePieces.Select(t => t.name).Contains(item.EquipmentToActivate)
             });
         }
 

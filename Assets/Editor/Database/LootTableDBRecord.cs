@@ -14,4 +14,5 @@ public class LootTableDBRecord
     [Indexed(Name = "LootDrops_Primary_IDX", Order = 3, Unique = true)]
     public int DropIndex { get; set; }
     public double Probability { get; set; }
+    public bool IsVisible { get; set; }
 }
