@@ -239,6 +239,14 @@ public class LootTableProbabilityCalculator
             }
         }
 
+        if (lootTable.ActualDrops is { Count: > 0 })
+        {
+            foreach (var item in lootTable.ActualDrops)
+            {
+                resultDict[item.name] = 1;
+            }
+        }
+
         return resultDict;
     }
 }

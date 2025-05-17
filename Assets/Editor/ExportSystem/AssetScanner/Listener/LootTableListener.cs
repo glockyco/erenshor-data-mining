@@ -59,6 +59,7 @@ public class LootTableListener : IAssetScanListener<LootTable>
         records.AddRange(CollectLootDrops(lootTable.UncommonDrop, "Uncommon", guid, dropProbabilities));
         records.AddRange(CollectLootDrops(lootTable.RareDrop, "Rare", guid, dropProbabilities));
         records.AddRange(CollectLootDrops(lootTable.LegendaryDrop, "Legendary", guid, dropProbabilities));
+        records.AddRange(CollectLootDrops(lootTable.ActualDrops, "Always", guid, dropProbabilities));
         return records;
     }
 
