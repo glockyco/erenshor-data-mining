@@ -85,6 +85,7 @@ public class LootTableListener : IAssetScanListener<LootTable>
                 DropType = dropType,
                 DropIndex = i,
                 Probability = probability,
+                IsUnique = item.Unique,
                 IsVisible = visiblePieces.Select(t => t.name).Contains(item.EquipmentToActivate)
             });
         }
