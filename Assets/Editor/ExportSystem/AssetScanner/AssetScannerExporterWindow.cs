@@ -20,6 +20,7 @@ public class AssetScannerExporterWindow : EditorWindow
     private AssetScanner _activeScanner;
 
     private bool _selectAllSteps = true;
+    private bool _exportAchievementTriggers = true;
     private bool _exportAscensions = true;
     private bool _exportBooks = true;
     private bool _exportCharacters = true;
@@ -129,6 +130,7 @@ public class AssetScannerExporterWindow : EditorWindow
             SetAllStepToggles(_selectAllSteps);
         }
         EditorGUI.BeginDisabledGroup(_selectAllSteps);
+        _exportAchievementTriggers = EditorGUILayout.ToggleLeft("Achievement Triggers", _exportAchievementTriggers);
         _exportAscensions = EditorGUILayout.ToggleLeft("Ascensions", _exportAscensions);
         _exportBooks = EditorGUILayout.ToggleLeft("Books", _exportBooks);
         _exportCharacters = EditorGUILayout.ToggleLeft("Characters", _exportCharacters);
@@ -150,6 +152,7 @@ public class AssetScannerExporterWindow : EditorWindow
 
     private void SetAllStepToggles(bool value)
     {
+        _exportAchievementTriggers = value;
         _exportAscensions = value;
         _exportBooks = value;
         _exportCharacters = value;
@@ -192,6 +195,7 @@ public class AssetScannerExporterWindow : EditorWindow
         // Item wikiStrings depend on spells for proc data, so we need to register items later.
         if (_exportItems) _activeScanner.RegisterScriptableObjectListener(new ItemListener(_db));
         
+        if (_exportAchievementTriggers) _activeScanner.RegisterComponentListener(new AchievementTriggerListener(_db));
         if (_exportCharacters) _activeScanner.RegisterComponentListener(new CharacterListener(_db));
         if (_exportLootTables) _activeScanner.RegisterComponentListener(new LootTableListener(_db));
         if (_exportMiningNodes) _activeScanner.RegisterComponentListener(new MiningNodeListener(_db));
@@ -227,7 +231,24 @@ public class AssetScannerExporterWindow : EditorWindow
         EditorGUILayout.LabelField(_status);
         EditorGUILayout.Space();
         EditorGUILayout.BeginHorizontal();
-        bool anyStepSelected = _exportAscensions || _exportBooks || _exportCharacters || _exportClasses || _exportWorldFactions || _exportItems || _exportLootTables || _exportMiningNodes || _exportNpcDialogs || _exportQuests || _exportSkills || _exportSpells || _exportSpawnPoints || _exportWaters || _exportZoneAnnounces || _exportZoneAtlasEntries;
+        bool anyStepSelected =
+            _exportAchievementTriggers ||
+            _exportAscensions ||
+            _exportBooks ||
+            _exportCharacters ||
+            _exportClasses ||
+            _exportWorldFactions ||
+            _exportItems ||
+            _exportLootTables ||
+            _exportMiningNodes ||
+            _exportNpcDialogs ||
+            _exportQuests ||
+            _exportSkills ||
+            _exportSpells ||
+            _exportSpawnPoints ||
+            _exportWaters ||
+            _exportZoneAnnounces ||
+            _exportZoneAtlasEntries;
         EditorGUI.BeginDisabledGroup(_isScanning || !anyStepSelected || string.IsNullOrEmpty(_outputPath));
         if (GUILayout.Button("Export Selected Steps", GUILayout.Height(30)))
         {
