@@ -52,61 +52,54 @@ public class WaterListener : IAssetScanListener<Water>
     {
         var waterFishableRecords = new List<WaterFishableDBRecord>();
 
-        // DayFishables
-        if (water.DayFishables is { Count: > 0 })
+        void AddFishableRecords(List<Item> fishables, string type)
         {
-            var dropChancePerItem = 100f / water.DayFishables.Count;
+            if (fishables is not { Count: > 0 })
+            {
+                return;
+            }
+
+            var mapFragmentChance = 5f;
+            var fishableChance = 95f / fishables.Count;
+
             var itemTotalDropChances = new Dictionary<string, float>();
-            foreach (var item in water.DayFishables.Where(i => i != null))
+            foreach (var item in fishables.Where(i => i != null))
             {
                 itemTotalDropChances.TryAdd(item.ItemName, 0f);
-                itemTotalDropChances[item.ItemName] += dropChancePerItem;
+                itemTotalDropChances[item.ItemName] += fishableChance;
             }
 
             var index = 0;
-            foreach (var item in water.DayFishables.Where(i => i != null))
+            foreach (var item in fishables.Where(i => i != null))
             {
                 var itemRecord = new WaterFishableDBRecord
                 {
                     WaterId = waterId,
-                    Type = "DayFishable",
+                    Type = type,
                     Index = index++,
                     ItemId = item.Id,
                     ItemName = item.ItemName,
-                    DropChance = 100f / water.DayFishables.Count,
+                    DropChance = fishableChance,
                     TotalDropChance = itemTotalDropChances[item.ItemName],
                 };
                 waterFishableRecords.Add(itemRecord);
             }
+
+            // Add the map fragment record
+            waterFishableRecords.Add(new WaterFishableDBRecord
+            {
+                WaterId = waterId,
+                Type = type,
+                Index = -1, // Use -1 or a special value for the map fragment
+                ItemId = null,
+                ItemName = "A random Torn Treasure Map fragment.",
+                DropChance = mapFragmentChance,
+                TotalDropChance = mapFragmentChance,
+            });
         }
 
-        // NightFishables
-        if (water.NightFishables is { Count: > 0 })
-        {
-            var dropChancePerItem = 100f / water.NightFishables.Count;
-            var itemTotalDropChances = new Dictionary<string, float>();
-            foreach (var item in water.NightFishables.Where(i => i != null))
-            {
-                itemTotalDropChances.TryAdd(item.ItemName, 0f);
-                itemTotalDropChances[item.ItemName] += dropChancePerItem;
-            }
-
-            var index = 0;
-            foreach (var item in water.NightFishables.Where(i => i != null))
-            {
-                var itemRecord = new WaterFishableDBRecord
-                {
-                    WaterId = waterId,
-                    Type = "NightFishable",
-                    Index = index++,
-                    ItemId = item.Id,
-                    ItemName = item.ItemName,
-                    DropChance = 100f / water.NightFishables.Count,
-                    TotalDropChance = itemTotalDropChances[item.ItemName],
-                };
-                waterFishableRecords.Add(itemRecord);
-            }
-        }
+        AddFishableRecords(water.DayFishables, "DayFishable");
+        AddFishableRecords(water.NightFishables, "NightFishable");
 
         return waterFishableRecords;
     }
