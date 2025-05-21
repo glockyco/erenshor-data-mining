@@ -107,7 +107,9 @@ SELECT
     spc.SpawnType AS 'Spawn Type',
     c.NPCName AS 'NPC Name',
     c.ObjectName AS 'NPC Prefab Name',
-    ROUND(spc.SpawnChance, 2) AS 'NPC Spawn Chance (%)',
+    ROUND(spc.SpawnChance, 2) AS 'Spawn Chance (%)',
+    ROUND(spc.TotalSpawnChance, 2) AS 'Total Spawn Chance (%)',
+    
     sp.LevelMod,
     sp.SpawnDelay,
     sp.Staggerable,
