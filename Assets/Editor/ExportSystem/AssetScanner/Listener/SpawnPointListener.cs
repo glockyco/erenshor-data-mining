@@ -73,21 +73,37 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
             ProtectorName = (spawnPoint.Protector != null) ? spawnPoint.Protector.name : null,
         };
     }
-    
+
     private List<SpawnPointCharacterDBRecord> CreateSpawnPointCharacterRecords(SpawnPoint spawnPoint, string spawnPointId)
     {
         var records = new List<SpawnPointCharacterDBRecord>();
+        var spawnChancesByGuid = new Dictionary<string, float>();
 
         float rareNpcChance = spawnPoint.RareNPCChance;
         float commonNpcChance = 100.0f - rareNpcChance;
 
+        // First pass: Calculate individual spawn chances and accumulate totals by GUID
         if (spawnPoint.RareSpawns is { Count: > 0 })
         {
             var rareSpawnChance = rareNpcChance / spawnPoint.RareSpawns.Count;
             for (var i = 0; i < spawnPoint.RareSpawns.Count; i++)
             {
                 var rareSpawn = spawnPoint.RareSpawns[i];
-                records.Add(CreateSpawnPointCharacterRecord(spawnPointId, rareSpawn, "Rare", i, rareSpawnChance));
+                var path = AssetDatabase.GetAssetPath(rareSpawn);
+                var guid = AssetDatabase.AssetPathToGUID(path);
+
+                spawnChancesByGuid.TryAdd(guid, 0f);
+                spawnChancesByGuid[guid] += rareSpawnChance;
+
+                records.Add(new SpawnPointCharacterDBRecord
+                {
+                    SpawnPointId = spawnPointId,
+                    CharacterPrefabGuid = guid,
+                    SpawnType = "Rare",
+                    SpawnListIndex = i,
+                    SpawnChance = rareSpawnChance,
+                    // TotalSpawnChance will be set in the second pass
+                });
             }
         }
 
@@ -97,30 +113,30 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
             for (var i = 0; i < spawnPoint.CommonSpawns.Count; i++)
             {
                 var commonSpawn = spawnPoint.CommonSpawns[i];
-                records.Add(CreateSpawnPointCharacterRecord(spawnPointId, commonSpawn, "Common", i, commonSpawnChance));
+                var path = AssetDatabase.GetAssetPath(commonSpawn);
+                var guid = AssetDatabase.AssetPathToGUID(path);
+
+                spawnChancesByGuid.TryAdd(guid, 0f);
+                spawnChancesByGuid[guid] += commonSpawnChance;
+
+                records.Add(new SpawnPointCharacterDBRecord
+                {
+                    SpawnPointId = spawnPointId,
+                    CharacterPrefabGuid = guid,
+                    SpawnType = "Common",
+                    SpawnListIndex = i,
+                    SpawnChance = commonSpawnChance,
+                    // TotalSpawnChance will be set in the second pass
+                });
             }
         }
 
-        return records;
-    }
-
-    private SpawnPointCharacterDBRecord CreateSpawnPointCharacterRecord(
-        string spawnPointId,
-        GameObject prefab,
-        string spawnType,
-        int spawnListIndex,
-        float spawnChance)
-    {
-        var path = AssetDatabase.GetAssetPath(prefab);
-        var guid = AssetDatabase.AssetPathToGUID(path);
-
-        return new SpawnPointCharacterDBRecord
+        // Second pass: Set TotalSpawnChance for each record
+        foreach (var record in records)
         {
-            SpawnPointId = spawnPointId,
-            CharacterPrefabGuid = guid,
-            SpawnType = spawnType,
-            SpawnListIndex = spawnListIndex,
-            SpawnChance = spawnChance,
-        };
+            record.TotalSpawnChance = spawnChancesByGuid[record.CharacterPrefabGuid];
+        }
+
+        return records;
     }
 }
