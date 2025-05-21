@@ -127,6 +127,16 @@ ORDER BY
     spc.SpawnType,
     spc.SpawnListIndex;
 
+-- achievement-triggers
+SELECT
+    --Id,
+    SceneName,
+    ROUND(PositionX, 2) AS PositionX,
+    ROUND(PositionY, 2) AS PositionY,
+    ROUND(PositionZ, 2) AS PositionZ,
+    AchievementName
+FROM AchievementTriggers;
+
 -- wiki-comparison
 SELECT
     WikiUrl,
