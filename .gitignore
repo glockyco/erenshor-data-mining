@@ -642,8 +642,16 @@ FodyWeavers.xsd
 
 !/Assets/Editor/
 !/Assets/Editor/**/*.meta
+
 !/Assets/Packages/
 !/Assets/Packages/**
+
+/Assets/Scripts/**
+!/Assets/Scripts/
+!/Assets/Scripts/**/
+!/Assets/Scripts/**/Gizmos/
+!/Assets/Scripts/**/Gizmos/**
+!/Assets/Scripts/**/Gizmos.meta
 
 .aider*
 .env
