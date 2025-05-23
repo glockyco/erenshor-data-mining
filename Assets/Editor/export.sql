@@ -78,6 +78,12 @@ LEFT JOIN ZoneAnnounces za ON
     OR (za.SceneName = 'PrielPlateau' AND zae.ZoneName = 'PrielianPlateau')
     OR (za.SceneName LIKE 'Undercity' AND zae.ResourceName = 'Undercity');
 
+-- treasure-locations
+SELECT th.*, tl.Id AS Location
+FROM TreasureHunting th
+JOIN TreasureLocs tl ON th.ZoneName = tl.SceneName
+ORDER BY th.IsPickableAlways DESC, th.IsPickableGreater20 DESC, th.IsPickableGreater30;
+
 -- fishing
 SELECT
     w.SceneName,
