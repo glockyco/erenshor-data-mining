@@ -1,4 +1,5 @@
-﻿using SQLite;
+﻿using System.Collections.Generic;
+using SQLite;
 
 [Table("Characters")]
 public class CharacterDBRecord
@@ -51,6 +52,16 @@ public class CharacterDBRecord
     public float BaseLifeSteal { get; set; }
     public float BaseMHAtkDelay { get; set; }
     public float BaseOHAtkDelay { get; set; }
+    
+    // NPC properties
+    public string AttackSkills { get; set; }
+    public string AttackSpells { get; set; }
+    public string BuffSpells { get; set; }
+    public string HealSpells { get; set; }
+    public string GroupHealSpells { get; set; }
+    public string CCSpells { get; set; }
+    public string TauntSpells { get; set; }
+    public string PetSpell { get; set; }
     
     // ModifyFaction properties
     public string ModifyFactions { get; set; }
