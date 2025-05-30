@@ -1,7 +1,9 @@
 #nullable enable
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 using SQLite;
 using UnityEditor;
 using UnityEngine;
@@ -32,15 +34,22 @@ public class LootTableListener : IAssetScanListener<LootTable>
     {
         Debug.Log($"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
 
-        var records = CreateRecord(asset);
+        var records = CreateRecords(asset);
 
         _records.AddRange(records);
     }
 
-    private List<LootTableDBRecord> CreateRecord(LootTable lootTable)
+    private List<LootTableDBRecord> CreateRecords(LootTable lootTable)
     {
-        Dictionary<string, double> dropProbabilities = _probabilityCalculator.CalculateDropProbabilities(lootTable);
+        var perItemDistributions = _probabilityCalculator.CalculatePerItemDropCountDistributions(lootTable);
+        var expectedDrops = _probabilityCalculator.ComputeExpectedDrops(perItemDistributions);
 
+        var guaranteedIds = new HashSet<string>(
+            lootTable.GuaranteeOneDrop != null
+                ? lootTable.GuaranteeOneDrop.Where(i => i is not null).Select(i => i.Id)
+                : Enumerable.Empty<string>()
+        );
+        
         string guid;
         var prefabType = PrefabUtility.GetPrefabAssetType(lootTable.gameObject);
         if (prefabType != PrefabAssetType.NotAPrefab)
@@ -55,41 +64,104 @@ public class LootTableListener : IAssetScanListener<LootTable>
         }
 
         var records = new List<LootTableDBRecord>();
-        records.AddRange(CollectLootDrops(lootTable.GuaranteeOneDrop, lootTable.VisiblePieces, "Guaranteed", guid, dropProbabilities));
-        records.AddRange(CollectLootDrops(lootTable.CommonDrop, lootTable.VisiblePieces, "Common", guid, dropProbabilities));
-        records.AddRange(CollectLootDrops(lootTable.UncommonDrop, lootTable.VisiblePieces, "Uncommon", guid, dropProbabilities));
-        records.AddRange(CollectLootDrops(lootTable.RareDrop, lootTable.VisiblePieces, "Rare", guid, dropProbabilities));
-        records.AddRange(CollectLootDrops(lootTable.LegendaryDrop, lootTable.VisiblePieces, "Legendary", guid, dropProbabilities));
-        records.AddRange(CollectLootDrops(lootTable.ActualDrops, lootTable.VisiblePieces, "Always", guid, dropProbabilities));
-        return records;
-    }
 
-    private static List<LootTableDBRecord> CollectLootDrops(
-        List<Item> items,
-        List<Transform> visiblePieces,
-        string dropType,
-        string guid,
-        Dictionary<string, double> dropProbabilities)
-    {
-        var lootRecords = new List<LootTableDBRecord>();
-
-        for (var i = 0; i < items.Count; i++)
+        foreach (var item in EnumerateAllUniqueItems(lootTable))
         {
-            var item = items[i];
-            dropProbabilities.TryGetValue(item.name, out var probability);
+            var itemName = item.name;
+            var itemId = item.Id;
 
-            lootRecords.Add(new LootTableDBRecord
+            perItemDistributions.TryGetValue(itemName, out var dist);
+
+            var dropProbability = dist is { Length: > 0 } ? 1.0 - dist[0] : 0.0;
+            dropProbability = Math.Round(dropProbability * 100.0, 2); // as percentage
+
+            var dropCountList = new List<DropCountProbability>();
+            if (dist != null)
+            {
+                for (var n = 0; n < dist.Length; ++n)
+                {
+                    var pct = Math.Round(dist[n] * 100.0, 2);
+                    if (pct > 0)
+                    {
+                        dropCountList.Add(new DropCountProbability { Count = n, Chance = $"{pct}%" });
+                    }
+                }
+            }
+
+            var record = new LootTableDBRecord
             {
                 CharacterPrefabGuid = guid,
-                ItemId = item.Id,
-                DropType = dropType,
-                DropIndex = i,
-                Probability = probability,
+                ItemId = itemId,
+                DropProbability = dropProbability,
+                ExpectedPerKill = Math.Round(expectedDrops.GetValueOrDefault(itemName, 0.0), 4),
+                DropCountDistribution = JsonConvert.SerializeObject(dropCountList),
+                IsGuaranteed = guaranteedIds.Contains(itemId),
                 IsUnique = item.Unique,
-                IsVisible = visiblePieces.Select(t => t.name).Contains(item.EquipmentToActivate)
+                IsVisible = lootTable.VisiblePieces.Select(t => t.name).Contains(item.EquipmentToActivate)
+            };
+            records.Add(record);
+        }
+
+        if (perItemDistributions.TryGetValue(LootTableProbabilityCalculator.WorldDropKey, out var worldDist))
+        {
+            var worldProb = worldDist is { Length: > 0 } ? 1.0 - worldDist[0] : 0.0;
+            worldProb = Math.Round(worldProb * 100.0, 2);
+
+            var worldDropCountList = new List<DropCountProbability>();
+            if (worldDist != null)
+            {
+                for (var n = 0; n < worldDist.Length; ++n)
+                {
+                    var pct = Math.Round(worldDist[n] * 100.0, 2);
+                    if (pct > 0)
+                    {
+                        worldDropCountList.Add(new DropCountProbability { Count = n, Chance = $"{pct}%" });
+                    }
+                }
+            }
+
+            records.Add(new LootTableDBRecord
+            {
+                CharacterPrefabGuid = guid,
+                ItemId = LootTableProbabilityCalculator.WorldDropKey,
+                DropProbability = worldProb,
+                ExpectedPerKill = Math.Round(expectedDrops.GetValueOrDefault(LootTableProbabilityCalculator.WorldDropKey, 0.0), 4),
+                DropCountDistribution = JsonConvert.SerializeObject(worldDropCountList),
+                IsGuaranteed = false,
+                IsUnique = false,
+                IsVisible = false
             });
         }
 
-        return lootRecords;
+        return records;
+    }
+
+    private static IEnumerable<Item> EnumerateAllUniqueItems(LootTable lootTable)
+    {
+        var seen = new HashSet<string>();
+        foreach (var list in new[]
+                 {
+                     lootTable.LegendaryDrop,
+                     lootTable.RareDrop,
+                     lootTable.UncommonDrop,
+                     lootTable.CommonDrop,
+                     lootTable.GuaranteeOneDrop,
+                     lootTable.ActualDrops
+                 })
+        {
+            if (list == null) continue;
+            foreach (var item in list)
+            {
+                if (item is null) continue;
+                if (seen.Add(item.Id))
+                    yield return item;
+            }
+        }
+    }
+    
+    private class DropCountProbability
+    {
+        public int Count { get; set; }
+        public string Chance { get; set; }
     }
 }
