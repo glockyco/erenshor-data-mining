@@ -62,6 +62,8 @@ public class CharacterDBRecord
     public string CCSpells { get; set; }
     public string TauntSpells { get; set; }
     public string PetSpell { get; set; }
+    public string ProcOnHit { get; set; }
+    public float ProcOnHitChance { get; set; }
     
     // ModifyFaction properties
     public string ModifyFactions { get; set; }
