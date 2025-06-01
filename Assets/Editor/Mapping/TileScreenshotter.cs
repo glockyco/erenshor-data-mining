@@ -42,6 +42,45 @@ public class TileScreenshotter
                     BaseTilesX = 6,
                     BaseTilesY = 6,
                 }
+            },
+            {
+                "Loomingwood", new TileShotterSettings
+                {
+                    ZoomLevels = 3,
+                    BaseTilesX = 4,
+                    BaseTilesY = 4,
+                    PreProcess = (zoomLevel) =>
+                    {
+                        if (zoomLevel == 0)
+                        {
+                            string[] treeNames =
+                            {
+                                "SM_Env_Tree_Giant_01_LOD2 (35)",
+                                "SM_Env_Tree_Giant_01_LOD2 (36)",
+                                "SM_Env_Tree_Giant_01_LOD2 (37)",
+                                "SM_Env_Tree_Giant_01_LOD2 (38)",
+                                "SM_Env_Tree_Giant_01_LOD2 (39)"
+                            };
+                            foreach (var treeName in treeNames)
+                            {
+                                var obj = GameObject.Find(treeName);
+                                obj?.SetActive(false);
+                            }
+                        }
+                        else if (zoomLevel == 1)
+                        {
+                            var allGameObjects = UnityEngine.Object.FindObjectsOfType<GameObject>();
+                            foreach (var go in allGameObjects)
+                            {
+                                var name = go.name.ToLower();
+                                if (name.Contains("tree_giant"))
+                                {
+                                    go.SetActive(false);
+                                }
+                            }
+                        }
+                    }
+                }
             }
         };
 
