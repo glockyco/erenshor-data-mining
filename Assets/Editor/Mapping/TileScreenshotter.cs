@@ -16,7 +16,7 @@ public class TileScreenshotter
 
     public static void Run()
     {
-        UnityEngine.Time.timeScale = 0f;
+        Time.timeScale = 0f;
         
         Camera cam = Camera.main;
         Scene scene = SceneManager.GetActiveScene();
@@ -82,13 +82,13 @@ public class TileScreenshotter
                 }
             }
 
-            UnityEngine.Debug.Log("Dry run: drew tile outlines and set camera to view the full area, with tile indices.");
+            Debug.Log("Dry run: drew tile outlines and set camera to view the full area, with tile indices.");
         }
         else
         {
             if (OutputRoot == null)
             {
-                UnityEngine.Debug.LogError("OutputRoot is null, cannot run screenshotter.");
+                Debug.LogError("OutputRoot is null, cannot run screenshotter.");
                 return;
             }
             
@@ -124,7 +124,7 @@ public class TileScreenshotter
 
                         if (File.Exists(path))
                         {
-                            UnityEngine.Debug.Log($"Tile already exists, skipping: {path}");
+                            Debug.Log($"Tile already exists, skipping: {path}");
                             continue;
                         }
 
@@ -137,7 +137,7 @@ public class TileScreenshotter
                         var bytes = tex.EncodeToJPG(85);
                         File.WriteAllBytes(path, bytes);
                         RenderTexture.active = null;
-                        UnityEngine.Debug.Log($"Saved tile: {path}");
+                        Debug.Log($"Saved tile: {path}");
                     }
                 }
 
@@ -145,10 +145,10 @@ public class TileScreenshotter
                 UnityEngine.Object.DestroyImmediate(rt);
                 UnityEngine.Object.DestroyImmediate(tex);
 
-                UnityEngine.Debug.Log($"Zoom level {z} complete.");
+                Debug.Log($"Zoom level {z} complete.");
             }
 
-            UnityEngine.Debug.Log("Screenshot run complete.");
+            Debug.Log("Screenshot run complete.");
         }
     }
 }
