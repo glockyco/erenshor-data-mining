@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class TileScreenshotter
 {
@@ -18,6 +19,7 @@ public class TileScreenshotter
         UnityEngine.Time.timeScale = 0f;
         
         Camera cam = Camera.main;
+        Scene scene = SceneManager.GetActiveScene();
 
         if (DryRun)
         {
@@ -116,7 +118,7 @@ public class TileScreenshotter
                         var leafletX = x;
                         var leafletY = -(y + 1);
 
-                        var dir = $"{OutputRoot}/{z}/{leafletX}";
+                        var dir = $"{scene.name}/{OutputRoot}/{z}/{leafletX}";
                         Directory.CreateDirectory(dir);
                         var path = $"{dir}/{leafletY}.jpg";
 
