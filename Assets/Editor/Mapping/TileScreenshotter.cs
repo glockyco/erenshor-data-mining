@@ -99,6 +99,23 @@ public class TileScreenshotter
                 }
             },
             {
+                "SaltedStrand", new TileShotterSettings {
+                    ZoomLevels = 3,
+                    OriginX = -64,
+                    OriginY = 0,
+                    BaseTilesX = 4,
+                    BaseTilesY = 3,
+                    PreProcess = (zoomLevel) =>
+                    {
+                        if (zoomLevel == 1)
+                        {
+                            var obj = GameObject.Find("TFF_Rock_Large_05A (3)");
+                            obj?.SetActive(false);
+                        }
+                    }
+                }
+            },
+            {
                 "Stowaway", new TileShotterSettings
                 {
                     ZoomLevels = 4,
