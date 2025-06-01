@@ -34,6 +34,14 @@ public class TileScreenshotter
                     BaseTilesX = 2,
                     BaseTilesY = 2,
                 }
+            },
+            {
+                "FernallaField", new TileShotterSettings
+                {
+                    ZoomLevels = 3,
+                    BaseTilesX = 6,
+                    BaseTilesY = 6,
+                }
             }
         };
 
