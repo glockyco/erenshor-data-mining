@@ -53,6 +53,16 @@ public class TileScreenshotter
                 }
             },
             {
+                "Hidden", new TileShotterSettings
+                {
+                    ZoomLevels = 4,
+                    OriginX = -200,
+                    OriginY = -300,
+                    BaseTilesX = 2,
+                    BaseTilesY = 2,
+                }
+            },
+            {
                 "Loomingwood", new TileShotterSettings
                 {
                     ZoomLevels = 3,
