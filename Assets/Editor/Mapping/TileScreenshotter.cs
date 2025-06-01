@@ -99,6 +99,42 @@ public class TileScreenshotter
                 }
             },
             {
+                "Stowaway", new TileShotterSettings
+                {
+                    ZoomLevels = 4,
+                    OriginX = 135,
+                    OriginY = 225,
+                    BaseTilesX = 3,
+                    BaseTilesY = 2,
+                    PreProcess = (zoomLevel) =>
+                    {
+                        if (zoomLevel == 1)
+                        {
+                            string[] treeNames =
+                            {
+                                "TFF_Rock_Large_03A",
+                                "TFF_Rock_Large_03A (1)",
+                                "TFF_Rock_Large_05A (15)",
+                                "TFF_Rock_Large_05A (16)",
+                                "TFF_Rock_Large_05A (18)",
+                                "TFF_Rock_Large_06A (8)",
+                                "TFF_Rock_Large_06A (9)",
+                                "TFF_Rock_Large_06A (11)",
+                                "TFF_Rock_Large_06A (10)",
+                                "TFF_Oak_Tree_01C_LOD_1 (4)",
+                                "TFF_Oak_Tree_01C_LOD_1 (5)",
+                                "TFF_Pine_Tree_02A (13)"
+                            };
+                            foreach (var treeName in treeNames)
+                            {
+                                var obj = GameObject.Find(treeName);
+                                obj?.SetActive(false);
+                            }
+                        }
+                    }
+                }
+            },
+            {
                 "Vitheo", new TileShotterSettings {
                     ZoomLevels = 4,
                     BaseTilesX = 2,
