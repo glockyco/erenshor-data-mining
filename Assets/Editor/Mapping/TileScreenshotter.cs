@@ -100,6 +100,22 @@ public class TileScreenshotter
                         }
                     }
                 }
+            },
+            {
+                "Vitheo", new TileShotterSettings {
+                    DryRun = false,
+                    ZoomLevels = 4,
+                    BaseTilesX = 2,
+                    BaseTilesY = 2,
+                    PreProcess = (zoomLevel) =>
+                    {
+                        if (zoomLevel == 1)
+                        {
+                            var obj = GameObject.Find("TFF_Oak_Tree_01A (1)");
+                            obj?.SetActive(false);
+                        }
+                    }
+                }
             }
         };
 
