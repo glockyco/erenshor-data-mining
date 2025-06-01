@@ -3,15 +3,15 @@ using UnityEngine;
 
 public class TileScreenshotter
 {
-    private const bool DryRun = false;
+    public static bool DryRun = true;
     
-    private const string OutputRoot = null;
+    public static string OutputRoot = null;
     
-    private const float CameraHeight = 1000f;
-    private const float AreaWorldSize = 512f;
-    private const int TilePixelSize = 256;
-    private const int BaseTilesPerAxis = 2;
-    private const int ZoomLevels = 3;
+    public static float CameraHeight = 1000f;
+    public static float AreaWorldSize = 512f;
+    public static int TilePixelSize = 256;
+    public static int BaseTilesPerAxis = 2;
+    public static int ZoomLevels = 3;
 
     public static void Run()
     {
