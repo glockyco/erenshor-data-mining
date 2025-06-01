@@ -8,8 +8,6 @@ public class TileScreenshotter
 {
     public class TileShotterSettings
     {
-        public bool DryRun { get; set; } = true;
-
         public string OutputRoot { get; set; } = null;
 
         public float CameraHeight { get; set; } = 1000f;
@@ -30,7 +28,6 @@ public class TileScreenshotter
             {
                 "Blight", new TileShotterSettings
                 {
-                    DryRun = false,
                     ZoomLevels = 3,
                     BaseTilesX = 4,
                     BaseTilesY = 4,
@@ -103,7 +100,6 @@ public class TileScreenshotter
             },
             {
                 "Vitheo", new TileShotterSettings {
-                    DryRun = false,
                     ZoomLevels = 4,
                     BaseTilesX = 2,
                     BaseTilesY = 2,
@@ -119,7 +115,7 @@ public class TileScreenshotter
             }
         };
 
-    public static void Run()
+    public static void Run(bool dryRun = true)
     {
         var sceneName = SceneManager.GetActiveScene().name;
         if (SceneConfigs.TryGetValue(sceneName, out var settings))
@@ -132,17 +128,17 @@ public class TileScreenshotter
             Debug.Log($"No scene config found for {sceneName}, using default settings.");
         }
 
-        Run(settings);
+        Run(settings, dryRun);
     }
 
-    public static void Run(TileShotterSettings settings)
+    public static void Run(TileShotterSettings settings, bool dryRun = true)
     {
         Time.timeScale = 0f;
 
         Camera cam = Camera.main;
         Scene scene = SceneManager.GetActiveScene();
 
-        if (settings.DryRun)
+        if (dryRun)
         {
             var z = settings.ZoomLevels - 1;
             var tilesX = settings.BaseTilesX << z;
