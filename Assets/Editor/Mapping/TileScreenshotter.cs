@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -18,13 +20,29 @@ public class TileScreenshotter
         public int BaseTilesY { get; set; } = 2;
         public int TilePixelSize { get; set; } = 256;
         public float TileWorldSize { get; set; } = 256f;
+        public Action<int> PreProcess { get; set; }
+        public Action<int> PostProcess { get; set; }
     }
+
+    private static readonly Dictionary<string, TileScreenshotter.TileShotterSettings> SceneConfigs =
+        new Dictionary<string, TileScreenshotter.TileShotterSettings>();
 
     public static void Run()
     {
-        TileScreenshotter.Run(new TileShotterSettings {});
+        var sceneName = SceneManager.GetActiveScene().name;
+        if (SceneConfigs.TryGetValue(sceneName, out var settings))
+        {
+            Debug.Log($"Using scene config for {sceneName}: {settings}");
+        }
+        else
+        {
+            settings = new TileShotterSettings();
+            Debug.Log($"No scene config found for {sceneName}, using default settings.");
+        }
+
+        Run(settings);
     }
-    
+
     public static void Run(TileShotterSettings settings)
     {
         Time.timeScale = 0f;
@@ -110,6 +128,8 @@ public class TileScreenshotter
 
             for (var z = 0; z < settings.ZoomLevels; z++)
             {
+                settings.PreProcess?.Invoke(z);
+
                 var tilesX = settings.BaseTilesX << z;
                 var tilesY = settings.BaseTilesY << z;
                 var unitsPerTile = settings.TileWorldSize / (1 << z);
@@ -161,6 +181,8 @@ public class TileScreenshotter
                 cam.targetTexture = null;
                 UnityEngine.Object.DestroyImmediate(rt);
                 UnityEngine.Object.DestroyImmediate(tex);
+
+                settings.PostProcess?.Invoke(z);
 
                 Debug.Log($"Zoom level {z} complete.");
             }
