@@ -135,7 +135,7 @@ public class TileScreenshotter
                         var leafletX = x;
                         var leafletY = -(y + 1);
 
-                        var dir = $"{scene.name}/{settings.OutputRoot}/{z}/{leafletX}";
+                        var dir = $"{settings.OutputRoot}/{scene.name}/{z}/{leafletX}";
                         Directory.CreateDirectory(dir);
                         var path = $"{dir}/{leafletY}.jpg";
 
