@@ -28,6 +28,15 @@ public class TileScreenshotter
         new Dictionary<string, TileScreenshotter.TileShotterSettings>
         {
             {
+                "Blight", new TileShotterSettings
+                {
+                    DryRun = false,
+                    ZoomLevels = 3,
+                    BaseTilesX = 4,
+                    BaseTilesY = 4,
+                }
+            },
+            {
                 "Brake", new TileShotterSettings
                 {
                     ZoomLevels = 3,
