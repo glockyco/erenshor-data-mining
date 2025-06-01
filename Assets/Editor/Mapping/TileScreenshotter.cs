@@ -25,7 +25,17 @@ public class TileScreenshotter
     }
 
     private static readonly Dictionary<string, TileScreenshotter.TileShotterSettings> SceneConfigs =
-        new Dictionary<string, TileScreenshotter.TileShotterSettings>();
+        new Dictionary<string, TileScreenshotter.TileShotterSettings>
+        {
+            {
+                "Brake", new TileShotterSettings
+                {
+                    ZoomLevels = 3,
+                    BaseTilesX = 2,
+                    BaseTilesY = 2,
+                }
+            }
+        };
 
     public static void Run()
     {
