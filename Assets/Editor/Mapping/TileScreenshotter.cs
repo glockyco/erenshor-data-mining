@@ -69,6 +69,32 @@ public class TileScreenshotter
                 }
             },
             {
+                "Braxonian", new TileShotterSettings
+                {
+                    ZoomLevels = 3,
+                    OriginX = -128,
+                    OriginY = 0,
+                    BaseTilesX = 5,
+                    BaseTilesY = 6,
+                    PreProcess = (zoomLevel) =>
+                    {
+                        if (zoomLevel == 1)
+                        {
+                            string[] treeNames =
+                            {
+                                "SM_Env_Rock_Cliff_03 (51)",
+                                "SM_Env_Rock_Cliff_03 (65)",
+                            };
+                            foreach (var treeName in treeNames)
+                            {
+                                var obj = GameObject.Find(treeName);
+                                obj?.SetActive(false);
+                            }
+                        }
+                    }
+                }
+            },
+            {
                 "FernallaField", new TileShotterSettings
                 {
                     ZoomLevels = 3,
