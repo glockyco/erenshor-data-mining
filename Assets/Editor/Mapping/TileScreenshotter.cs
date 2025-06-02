@@ -126,6 +126,47 @@ public class TileScreenshotter
                 }
             },
             {
+                "Rottenfoot", new TileShotterSettings
+                {
+                    ZoomLevels = 3,
+                    OriginX = 0,
+                    OriginY = 0,
+                    BaseTilesX = 4,
+                    BaseTilesY = 4,
+                    PreProcess = (zoomLevel) =>
+                    {
+                        if (zoomLevel == 0)
+                        {
+                            string[] treeNames =
+                            {
+                                "SM_Env_Tree_Swamp_02_LOD2 (1)",
+                                "SM_Env_Tree_Swamp_03_LOD1",
+                                "SM_Env_Tree_Swamp_03_LOD1 (5)",
+                            };
+                            foreach (var treeName in treeNames)
+                            {
+                                var obj = GameObject.Find(treeName);
+                                obj?.SetActive(false);
+                            }
+                        }
+                        else if (zoomLevel == 1)
+                        {
+                            string[] treeNames =
+                            {
+                                "SM_Env_Tree_Swamp_02 (13)",
+                                "SM_Env_Tree_Swamp_02_LOD2",
+                                "SM_Env_Tree_Swamp_03 (17)",
+                            };
+                            foreach (var treeName in treeNames)
+                            {
+                                var obj = GameObject.Find(treeName);
+                                obj?.SetActive(false);
+                            }
+                        }
+                    }
+                }
+            },
+            {
                 "SaltedStrand", new TileShotterSettings {
                     ZoomLevels = 3,
                     OriginX = -64,
