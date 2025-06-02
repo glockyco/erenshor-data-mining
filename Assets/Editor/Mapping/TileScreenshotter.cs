@@ -210,6 +210,24 @@ public class TileScreenshotter
                 }
             },
             {
+                "Silkengrass", new TileShotterSettings
+                {
+                    ZoomLevels = 3,
+                    OriginX = -32,
+                    OriginY = 0,
+                    BaseTilesX = 5,
+                    BaseTilesY = 6,
+                    PreProcess = (zoomLevel) =>
+                    {
+                        if (zoomLevel == 1)
+                        {
+                            var obj = GameObject.Find("SM_Env_Tree_Giant_02_LOD2");
+                            obj?.SetActive(false);
+                        }
+                    }
+                }
+            },
+            {
                 "Stowaway", new TileShotterSettings
                 {
                     ZoomLevels = 4,
