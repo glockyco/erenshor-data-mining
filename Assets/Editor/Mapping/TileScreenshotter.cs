@@ -295,7 +295,17 @@ public class TileScreenshotter
                         }
                     }
                 }
-            }
+            },
+            {
+                "Windwashed", new TileShotterSettings
+                {
+                    ZoomLevels = 3,
+                    OriginX = 190,
+                    OriginY = -128,
+                    BaseTilesX = 4,
+                    BaseTilesY = 4,
+                }
+            },
         };
 
     public static void Run(bool dryRun = true)
