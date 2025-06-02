@@ -26,6 +26,33 @@ public class TileScreenshotter
         new Dictionary<string, TileScreenshotter.TileShotterSettings>
         {
             {
+                "Azure", new TileShotterSettings
+                {
+                    ZoomLevels = 4,
+                    OriginX = -32,
+                    OriginY = 0,
+                    BaseTilesX = 2,
+                    BaseTilesY = 3,
+                    PreProcess = (zoomLevel) =>
+                    {
+                        if (zoomLevel == 1)
+                        {
+                            string[] treeNames =
+                            {
+                                "SM_Tree_Pine_Small_01 (3)",
+                                "SM_Tree_Pine_Small_01 (4)",
+                                "SM_Tree_Pine_Small_01 (5)",
+                            };
+                            foreach (var treeName in treeNames)
+                            {
+                                var obj = GameObject.Find(treeName);
+                                obj?.SetActive(false);
+                            }
+                        }
+                    }
+                }
+            },
+            {
                 "Blight", new TileShotterSettings
                 {
                     ZoomLevels = 3,
