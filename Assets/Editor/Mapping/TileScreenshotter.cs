@@ -95,6 +95,24 @@ public class TileScreenshotter
                 }
             },
             {
+                "Duskenlight", new TileShotterSettings
+                {
+                    ZoomLevels = 3,
+                    OriginX = 0,
+                    OriginY = 0,
+                    BaseTilesX = 7,
+                    BaseTilesY = 4,
+                    PreProcess = (zoomLevel) =>
+                    {
+                        if (zoomLevel == 1)
+                        {
+                            var obj = GameObject.Find("SM_Env_Rock_Cliff_03 (58)");
+                            obj?.SetActive(false);
+                        }
+                    }
+                }
+            },
+            {
                 "FernallaField", new TileShotterSettings
                 {
                     ZoomLevels = 3,
