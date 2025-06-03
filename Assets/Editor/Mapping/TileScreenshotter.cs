@@ -53,6 +53,45 @@ public class TileScreenshotter
                 }
             },
             {
+                "Azynthi", new TileShotterSettings
+                {
+                    ZoomLevels = 4,
+                    OriginX = 145,
+                    OriginY = 130,
+                    BaseTilesX = 3,
+                    BaseTilesY = 3,
+                    PreProcess = (zoomLevel) =>
+                    {
+                        if (zoomLevel == 0)
+                        {
+                            var obj = GameObject.Find("SM_Tree_Generic_Giant_01_LOD_01 (1)");
+                            obj?.SetActive(false);
+                        }
+                        else if (zoomLevel == 1)
+                        {
+                            foreach (GameObject obj in SceneManager.GetActiveScene().GetRootGameObjects())
+                            {
+                                if (obj.transform.position.x > 650f || obj.transform.position.y < 115f) continue;
+                                if (!obj.name.StartsWith("SM_") && !obj.name.ToLower().Contains("torch") && !obj.name.ToLower().Contains("fire")) continue;
+                                if (obj.name.StartsWith("SM_Bld_Base_Floor_Combined")) continue;
+                                
+                                obj.SetActive(false);
+                            }
+                        }
+                        else if (zoomLevel == 3)
+                        {
+                            foreach (GameObject obj in SceneManager.GetActiveScene().GetRootGameObjects())
+                            {
+                                if (obj.transform.position.x > 650f || obj.transform.position.y < 105f) continue;
+                                if (!obj.name.StartsWith("SM_") && !obj.name.ToLower().Contains("torch") && !obj.name.ToLower().Contains("fire")) continue;
+                                
+                                obj.SetActive(false);
+                            }
+                        }
+                    }
+                }
+            },
+            {
                 "Blight", new TileShotterSettings
                 {
                     ZoomLevels = 3,
