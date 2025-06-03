@@ -104,7 +104,7 @@ public class TileScreenshotter
                     BaseTilesY = 4,
                     PreProcess = (zoomLevel) =>
                     {
-                        if (zoomLevel == 1)
+                        if (zoomLevel == 0)
                         {
                             var obj = GameObject.Find("SM_Env_Rock_Cliff_03 (58)");
                             obj?.SetActive(false);
