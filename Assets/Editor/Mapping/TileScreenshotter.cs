@@ -202,6 +202,55 @@ public class TileScreenshotter
                 }
             },
             {
+                "Ripper", new TileShotterSettings
+                {
+                    ZoomLevels = 3,
+                    OriginX = 0,
+                    OriginY = 0,
+                    BaseTilesX = 4,
+                    BaseTilesY = 3,
+                    PreProcess = (zoomLevel) =>
+                    {
+                        if (zoomLevel == 1)
+                        {
+                            foreach (GameObject obj in SceneManager.GetActiveScene().GetRootGameObjects())
+                            {
+                                if ((obj.name.StartsWith("SM_") || obj.name.ToLower().Contains("torch")) && obj.transform.position.y > 145f)
+                                {
+                                    obj.SetActive(false);
+                                }
+                                string[] objNames =
+                                {
+                                    "SM_Env_Tree_Large_02_LOD2",
+                                    "SM_Env_Tree_Large_02_LOD2 (2)",
+                                    "SM_Env_Tree_Giant_02_LOD1 (1)",
+                                    "SM_Env_Tree_Giant_02_LOD1",
+                                    "SM_Env_Tree_Large_02_LOD2 (1)",
+                                };
+                                if (objNames.Contains(obj.name))
+                                {
+                                    obj.SetActive(false);
+                                }
+                            }
+                        }
+                        else if (zoomLevel == 2)
+                        {
+                            foreach (GameObject obj in SceneManager.GetActiveScene().GetRootGameObjects())
+                            {
+                                if ((obj.name.StartsWith("SM_") || obj.name.ToLower().Contains("torch")) && obj.transform.position.y > 135f)
+                                {
+                                    obj.SetActive(false);
+                                }
+                                if (obj.name.StartsWith("SM_Prop_Beam_03"))
+                                {
+                                    obj.SetActive(false);
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            {
                 "Rottenfoot", new TileShotterSettings
                 {
                     ZoomLevels = 3,
