@@ -171,6 +171,37 @@ public class TileScreenshotter
                 }
             },
             {
+                "Malaroth", new TileShotterSettings
+                {
+                    ZoomLevels = 3,
+                    OriginX = 0,
+                    OriginY = 0,
+                    BaseTilesX = 5,
+                    BaseTilesY = 4,
+                    PreProcess = (zoomLevel) =>
+                    {
+                        if (zoomLevel == 0)
+                        {
+                            string[] objectNames =
+                            {
+                                "SM_Env_Dirt_Cliff_06 (31)",
+                                "SM_Env_Dirt_Cliff_06 (25)",
+                                "SM_Env_Dirt_Cliff_06 (28)",
+                                "SM_Env_Dirt_Cliff_06 (26)",
+                                "SM_Env_Dirt_Cliff_06 (27)",
+                                "SM_Env_Rock_Cliff_01 (23)",
+                                "SM_Env_Dirt_Cliff_06 (30)",
+                            };
+                            foreach (var objectName in objectNames)
+                            {
+                                var obj = GameObject.Find(objectName);
+                                obj?.SetActive(false);
+                            }
+                        }
+                    }
+                }
+            },
+            {
                 "Rottenfoot", new TileShotterSettings
                 {
                     ZoomLevels = 3,
