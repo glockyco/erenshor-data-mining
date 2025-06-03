@@ -245,6 +245,66 @@ public class TileScreenshotter
                 }
             },
             {
+                "Krakengard", new TileScreenshotter.TileShotterSettings
+                {
+                    ZoomLevels = 5,
+                    OriginX = 250,
+                    OriginY = 100,
+                    BaseTilesX = 1,
+                    BaseTilesY = 1,
+                    PreProcess = (zoomLevel) =>
+                    {
+                        if (zoomLevel == 0)
+                        {
+                            string[] objNames =
+                            {
+                                "SM_Bld_Castle_Floor_Stone_01 (66)",
+                                "SM_Bld_Castle_Floor_Stone_01 (67)",
+                                "SM_Bld_Castle_Floor_Stone_01 (27)",
+                                "SM_Bld_Castle_Floor_Stone_01 (26)",
+                                "SM_Bld_Castle_Floor_Stone_01 (28)",
+                                "SM_Bld_Castle_Floor_Stone_01 (22)",
+                                "SM_Bld_Castle_Floor_Stone_01 (21)",
+                                "SM_Bld_Castle_Floor_Stone_01 (24)",
+                                "SM_Bld_Castle_Floor_Stone_01 (23)",
+                                "SM_Bld_Castle_Floor_Stone_01 (20)",
+                                "SM_Bld_Castle_Floor_Stone_01 (25)",
+                            };
+                            foreach (GameObject obj in SceneManager.GetActiveScene().GetRootGameObjects())
+                            {
+                                if (objNames.Contains(obj.name))
+                                {
+                                    obj.SetActive(false);
+                                }
+                                if (obj.name.StartsWith("SM_Env_Basement_Ceiling_01"))
+                                {
+                                    obj.SetActive(false);
+                                }
+                            }
+                        }
+                        if (zoomLevel == 3)
+                        {
+                            string[] objNames =
+                            {
+                                "SM_Bld_Castle_Wall_Cut_01 (273)",
+                                "SM_Bld_Castle_Wall_Cut_01 (276)",
+                            };
+                            foreach (GameObject obj in SceneManager.GetActiveScene().GetRootGameObjects())
+                            {
+                                if (objNames.Contains(obj.name))
+                                {
+                                    obj.SetActive(false);
+                                }
+                                if (obj.name.StartsWith("SM_") && obj.transform.position.x < 400f && obj.transform.position.y > 54f)
+                                {
+                                    obj.SetActive(false);
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            {
                 "Loomingwood", new TileShotterSettings
                 {
                     ZoomLevels = 3,
