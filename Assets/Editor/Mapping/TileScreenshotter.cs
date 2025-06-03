@@ -278,6 +278,16 @@ public class TileScreenshotter
                 }
             },
             {
+                "Soluna", new TileShotterSettings
+                {
+                    ZoomLevels = 3,
+                    OriginX = 0,
+                    OriginY = 0,
+                    BaseTilesX = 4,
+                    BaseTilesY = 4,
+                }
+            },
+            {
                 "Stowaway", new TileShotterSettings
                 {
                     ZoomLevels = 4,
