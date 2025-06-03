@@ -383,6 +383,7 @@ public class TileScreenshotter
             cam.orthographic = true;
             cam.nearClipPlane = 0.1f;
             cam.farClipPlane = 2000f;
+            cam.useOcclusionCulling = false;
 
             // Center camera over the tiling area
             var areaWidth = tilesX * unitsPerTile;
@@ -460,6 +461,7 @@ public class TileScreenshotter
                 cam.orthographic = true;
                 cam.nearClipPlane = 0.1f;
                 cam.farClipPlane = 2000f;
+                cam.useOcclusionCulling = false;
 
                 var rt = new RenderTexture(settings.TilePixelSize, settings.TilePixelSize, 24);
                 var tex = new Texture2D(settings.TilePixelSize, settings.TilePixelSize, TextureFormat.RGB24, false);
