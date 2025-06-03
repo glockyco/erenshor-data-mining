@@ -139,6 +139,42 @@ public class TileScreenshotter
                 }
             },
             {
+                "Bonepits", new TileShotterSettings
+                {
+                    ZoomLevels = 4,
+                    OriginX = -128,
+                    OriginY = 64,
+                    BaseTilesX = 2,
+                    BaseTilesY = 2,
+                    PreProcess = (zoomLevel) =>
+                    {
+                        if (zoomLevel == 0)
+                        {
+                            foreach (GameObject obj in SceneManager.GetActiveScene().GetRootGameObjects())
+                            {
+                                string[] objNames =
+                                {
+                                    "rock3 (6)", "rock3", "rock2 (1)", "rock2", "rock3 (1)", "rock2 (2)", "rock2 (21)",
+                                    "rock2 (20)", "SM_Env_Cave_01 (20)", "SM_Env_Cave_01 (18)", "SM_Env_Cave_01 (19)",
+                                    "rock2 (3)", "SM_Env_Cave_Large_01 (5)", "rock3 (4)", "rock2 (4)", "rock2 (6)",
+                                    "rock2 (7)", "rock2 (8)", "rock2 (22)", "rock2 (19)", "rock2 (33)", "rock2 (35)",
+                                    "rock2 (5)", "rock2 (34)", "rock2 (15)", "SM_Env_Cave_Large_01_DoubleSided (12)",
+                                    "SM_Env_Cave_Large_01_DoubleSided (4)", "rock2 (9)", "rock2 (13)", "rock2 (14)",
+                                    "rock2 (27)", "rock2 (28)", "rock2 (29)", "rock2 (30)", "rock2 (31)", "rock4 (20)",
+                                    "rock2 (12)", "SM_Env_Cave_Background_01_DoubleSided (18)", "rock4 (10)",
+                                    "SM_Env_Cave_Large_01 (12)", "rock2 (26)", "rock4 (11)", "rock2 (25)",
+                                    "rock2 (32)", "SM_Env_Cave_Background_01_DoubleSided (4)",
+                                };
+                                if (objNames.Contains(obj.name))
+                                {
+                                    obj.SetActive(false);
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            {
                 "Brake", new TileShotterSettings
                 {
                     ZoomLevels = 3,
