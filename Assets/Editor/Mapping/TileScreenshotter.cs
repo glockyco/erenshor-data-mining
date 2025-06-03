@@ -146,7 +146,8 @@ public class TileScreenshotter
                                 "SM_Env_Tree_Giant_01_LOD2 (36)",
                                 "SM_Env_Tree_Giant_01_LOD2 (37)",
                                 "SM_Env_Tree_Giant_01_LOD2 (38)",
-                                "SM_Env_Tree_Giant_01_LOD2 (39)"
+                                "SM_Env_Tree_Giant_01_LOD2 (39)",
+                                "SM_Env_Rock_Cliff_03 (75)",
                             };
                             foreach (var treeName in treeNames)
                             {
