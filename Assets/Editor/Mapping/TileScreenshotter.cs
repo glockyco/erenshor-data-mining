@@ -596,6 +596,45 @@ public class TileScreenshotter
                 }
             },
             {
+                "Undercity", new TileScreenshotter.TileShotterSettings
+                {
+                    ZoomLevels = 4,
+                    OriginX = 0,
+                    OriginY = 0,
+                    BaseTilesX = 2,
+                    BaseTilesY = 2,
+                    PreProcess = (zoomLevel) =>
+                    {
+                        if (zoomLevel == 0)
+                        {
+                            foreach (GameObject obj in SceneManager.GetActiveScene().GetRootGameObjects())
+                            {
+                                string[] objNames =
+                                {
+                                    "TFF_Rock_Large_06A_LOD_1 (28)", "TFF_Rock_Large_06A_LOD_1 (11)", "TFF_Rock_Large_06A_LOD_1 (10)",
+                                    "TFF_Rock_Large_06A_LOD_1 (27)", "TFF_Rock_Large_06A_LOD_1 (68)", "TFF_Rock_Large_06A_LOD_1 (71)",
+                                    "TFF_Rock_Large_06A_LOD_1 (70)", "TFF_Rock_Large_06A_LOD_1 (69)", "TFF_Rock_Large_06A_LOD_1 (67)",
+                                    "TFF_Rock_Large_06A_LOD_1 (66)", "TFF_Rock_Large_06A_LOD_1 (72)", "TFF_Rock_Large_06A_LOD_1 (61)",
+                                    "TFF_Rock_Large_06A_LOD_1 (62)", "TFF_Rock_Large_06A_LOD_1 (73)", "TFF_Rock_Large_06A_LOD_1 (63)",
+                                    "TFF_Rock_Large_06A_LOD_1 (64)", "TFF_Rock_Large_06A_LOD_1 (65)", "TFF_Rock_Large_06A_LOD_1 (9)",
+                                    "TFF_Rock_Large_06A_LOD_1 (42)", "TFF_Rock_Large_06A_LOD_1 (43)", "TFF_Rock_Large_06A_LOD_1 (45)",
+                                    "TFF_Rock_Large_06A_LOD_1 (44)", "TFF_Rock_Large_06A_LOD_1 (46)", "TFF_Rock_Large_06A_LOD_1 (47)",
+                                    "SM_Env_Stalagmite_06 (3)", "TFF_Rock_Large_06A_LOD_1 (74)", "SM_Rock_CaveEntrance_02 (2)",
+                                    "SM_Rock_CaveEntrance_02", "SM_Env_Stalagmite_06 (1)", "SM_Env_Stalagmite_06 (2)",
+                                    "SM_Env_Stalagmite_01 (4)", "SM_Env_Stalagmite_01 (3)", "SM_Env_Stalagmite_06",
+                                    "SM_Env_Rock_Cliff_03 (1)", "SM_Env_Rock_Cliff_03", "SM_Env_Stalagmite_05",
+                                    "TFF_Rock_Large", "SM_Rock_CaveEntrance_02 (1)", "SM_Rock_CaveEntrance_02 (3)",
+                                };
+                                if (objNames.Contains(obj.name))
+                                {
+                                    obj.SetActive(false);
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            {
                 "Underspine", new TileScreenshotter.TileShotterSettings
                 {
                     ZoomLevels = 3,
