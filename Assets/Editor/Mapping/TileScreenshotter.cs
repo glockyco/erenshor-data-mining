@@ -228,6 +228,45 @@ public class TileScreenshotter
                 }
             },
             {
+                "Elderstone", new TileScreenshotter.TileShotterSettings
+                {
+                    ZoomLevels = 3,
+                    OriginX = -1100,
+                    OriginY = -1150,
+                    BaseTilesX = 7,
+                    BaseTilesY = 10,
+                    PreProcess = (zoomLevel) =>
+                    {
+                        if (zoomLevel == 0)
+                        {
+                            foreach (GameObject obj in SceneManager.GetActiveScene().GetRootGameObjects())
+                            {
+                                string[] objNames =
+                                {
+                                    "TFF_Rock_Large_03A (9)", "TFF_Rock_Large_03A (5)", "TFF_Rock_Large_03A (3)",
+                                    "TFF_Rock_Large_01A (1)", "TFF_Rock_Large_03A (4)", "TFF_Rock_Large_06A (79)",
+                                    "TFF_Rock_Large_03A (6)", "TFF_Rock_Large_03A (8)", "TFF_Rock_Large_03A (7)",
+                                    "TFF_Rock_Large_03A (10)", "SM_Env_Stalagmite_03 (13)", "Rock_Large_03A (12)",
+                                    "SM_Env_Stalagmite_05 (4)", "SM_Env_Stalagmite_05 (2)", "SM_Env_Stalagmite_05 (7)",
+                                    "SM_Env_Stalagmite_05", "SM_Env_Stalagmite_05 (5)", "SM_Env_Stalagmite_05 (1)",
+                                    "SM_Env_Stalagmite_05 (3)", "SM_Tree_Swamp_Stump_01 (2)", "SM_Tree_Swamp_Stump_01",
+                                    "SM_Tree_Swamp_Stump_01 (1)", "SM_Tree_Swamp_Stump_01 (3)", "SM_Env_Stalagmite_05 (6)",
+                                    "TFF_Rock_Large_03A (13)", "TFF_Rock_Large_01A", "TFF_Rock_Large_06A (80)",
+                                    "TFF_Rock_Large_06A (83)", "TFF_Rock_Large_01A (4)", "TFF_Rock_Large_01A (3)",
+                                    "TFF_Rock_Large_06A (23)", "TFF_Rock_Large_01A (2)", "TFF_Rock_Large_06A (98)",
+                                    "TFF_Rock_Large_06A (70)", "TFF_Rock_Large_03A (12)", "TFF_Rock_Large_03A (15)",
+                                    "TFF_Rock_Large_06A (88)"
+                                };
+                                if (objNames.Contains(obj.name))
+                                {
+                                    obj.SetActive(false);
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            {
                 "FernallaField", new TileScreenshotter.TileShotterSettings
                 {
                     ZoomLevels = 3,
