@@ -27,6 +27,40 @@ public class TileScreenshotter
         new Dictionary<string, TileScreenshotter.TileShotterSettings>
         {
             {
+                "Abyssal", new TileScreenshotter.TileShotterSettings
+                {
+                    ZoomLevels = 4,
+                    OriginX = -40,
+                    OriginY = -120,
+                    BaseTilesX = 3,
+                    BaseTilesY = 3,
+                    PreProcess = (zoomLevel) =>
+                    {
+                        if (zoomLevel == 0)
+                        {
+                            foreach (GameObject obj in SceneManager.GetActiveScene().GetRootGameObjects())
+                            {
+                                string[] objNames =
+                                {
+                                    "SM_Rock_Tile_03 (10)", "SM_Rock_Tile_03 (11)", "SM_Rock_Tile_03 (18)",
+                                    "SM_Rock_Tile_03 (14)", "SM_Rock_Tile_03 (9)", "SM_Rock_Tile_03 (17)",
+                                    "SM_Rock_Pile_04 (3)", "SM_Env_Cliff_Basalt_01 (129)", "SM_Rock_Tile_03 (13)",
+                                    "SM_Rock_Tile_03 (12)", "SM_Rock_Tile_03 (16)", "SM_Rock_Tile_03 (15)",
+                                    "SM_Rock_Pile_04 (2)", "SM_Rock_Pile_04", "SM_Rock_Pile_04 (1)",
+                                    "SM_Rock_Tile_03 (6)", "SM_Rock_Tile_03 (5)", "SM_Rock_Tile_03 (4)",
+                                    "SM_Rock_Tile_03 (3)", "SM_Rock_Tile_03", "SM_Rock_Tile_03 (1)",
+                                    "SM_Rock_Tile_03 (2)", "SM_Env_Rock_Cave_01"
+                                };
+                                if (objNames.Contains(obj.name))
+                                {
+                                    obj.SetActive(false);
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            {
                 "Azure", new TileScreenshotter.TileShotterSettings
                 {
                     ZoomLevels = 4,
