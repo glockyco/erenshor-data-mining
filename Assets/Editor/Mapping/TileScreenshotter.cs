@@ -677,7 +677,7 @@ public class TileScreenshotter
 
     public static void Run(TileShotterSettings settings, bool dryRun = true)
     {
-        Time.timeScale = 0f;
+        UnityEngine.Time.timeScale = 0f;
 
         Camera cam = Camera.main;
         Scene scene = SceneManager.GetActiveScene();
