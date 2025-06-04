@@ -595,6 +595,44 @@ public class TileScreenshotter
                 }
             },
             {
+                "Underspine", new TileScreenshotter.TileShotterSettings
+                {
+                    ZoomLevels = 3,
+                    OriginX = 0,
+                    OriginY = 0,
+                    BaseTilesX = 3,
+                    BaseTilesY = 3,
+                    PreProcess = (zoomLevel) =>
+                    {
+                        if (zoomLevel == 0)
+                        {
+                            foreach (GameObject obj in SceneManager.GetActiveScene().GetRootGameObjects())
+                            {
+                                if (obj.name.StartsWith("SM_Rock_Cluster_Large_02"))
+                                {
+                                    obj.SetActive(false);
+                                }
+                            }
+                        }
+                        else if (zoomLevel == 2)
+                        {
+                            string[] objNames =
+                            {
+                                "SM_Env_Rock_Cliff_03 (83)",
+                                "SM_Env_Rock_Cliff_03 (89)",
+                            };
+                            foreach (GameObject obj in SceneManager.GetActiveScene().GetRootGameObjects())
+                            {
+                                if (objNames.Contains(obj.name))
+                                {
+                                    obj.SetActive(false);
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            {
                 "Vitheo", new TileShotterSettings {
                     ZoomLevels = 4,
                     BaseTilesX = 2,
