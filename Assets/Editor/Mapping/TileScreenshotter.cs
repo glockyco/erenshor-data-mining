@@ -725,6 +725,10 @@ public class TileScreenshotter
                                 {
                                     obj.SetActive(false);
                                 }
+                                if (obj.name.Equals("SM_Env_Rock_Pile_03"))
+                                {
+                                    obj.SetActive(false);
+                                }
                             }
                         }
                         else if (zoomLevel == 2)
