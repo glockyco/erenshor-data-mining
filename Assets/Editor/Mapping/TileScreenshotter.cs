@@ -38,15 +38,15 @@ public class TileScreenshotter
                     {
                         if (zoomLevel == 1)
                         {
-                            string[] treeNames =
+                            string[] objNames =
                             {
                                 "SM_Tree_Pine_Small_01 (3)",
                                 "SM_Tree_Pine_Small_01 (4)",
                                 "SM_Tree_Pine_Small_01 (5)",
                             };
-                            foreach (var treeName in treeNames)
+                            foreach (var objName in objNames)
                             {
-                                var obj = GameObject.Find(treeName);
+                                var obj = GameObject.Find(objName);
                                 obj?.SetActive(false);
                             }
                         }
@@ -195,14 +195,14 @@ public class TileScreenshotter
                     {
                         if (zoomLevel == 1)
                         {
-                            string[] treeNames =
+                            string[] objNames =
                             {
                                 "SM_Env_Rock_Cliff_03 (51)",
                                 "SM_Env_Rock_Cliff_03 (65)",
                             };
-                            foreach (var treeName in treeNames)
+                            foreach (var objName in objNames)
                             {
-                                var obj = GameObject.Find(treeName);
+                                var obj = GameObject.Find(objName);
                                 obj?.SetActive(false);
                             }
                         }
@@ -315,7 +315,7 @@ public class TileScreenshotter
                     {
                         if (zoomLevel == 0)
                         {
-                            string[] treeNames =
+                            string[] objNames =
                             {
                                 "SM_Env_Tree_Giant_01_LOD2 (35)",
                                 "SM_Env_Tree_Giant_01_LOD2 (36)",
@@ -324,9 +324,9 @@ public class TileScreenshotter
                                 "SM_Env_Tree_Giant_01_LOD2 (39)",
                                 "SM_Env_Rock_Cliff_03 (75)",
                             };
-                            foreach (var treeName in treeNames)
+                            foreach (var objName in objNames)
                             {
-                                var obj = GameObject.Find(treeName);
+                                var obj = GameObject.Find(objName);
                                 obj?.SetActive(false);
                             }
                         }
@@ -357,7 +357,7 @@ public class TileScreenshotter
                     {
                         if (zoomLevel == 0)
                         {
-                            string[] objectNames =
+                            string[] objNames =
                             {
                                 "SM_Env_Dirt_Cliff_06 (31)",
                                 "SM_Env_Dirt_Cliff_06 (25)",
@@ -367,9 +367,9 @@ public class TileScreenshotter
                                 "SM_Env_Rock_Cliff_01 (23)",
                                 "SM_Env_Dirt_Cliff_06 (30)",
                             };
-                            foreach (var objectName in objectNames)
+                            foreach (var objName in objNames)
                             {
-                                var obj = GameObject.Find(objectName);
+                                var obj = GameObject.Find(objName);
                                 obj?.SetActive(false);
                             }
                         }
@@ -437,29 +437,29 @@ public class TileScreenshotter
                     {
                         if (zoomLevel == 0)
                         {
-                            string[] treeNames =
+                            string[] objNames =
                             {
                                 "SM_Env_Tree_Swamp_02_LOD2 (1)",
                                 "SM_Env_Tree_Swamp_03_LOD1",
                                 "SM_Env_Tree_Swamp_03_LOD1 (5)",
                             };
-                            foreach (var treeName in treeNames)
+                            foreach (var objName in objNames)
                             {
-                                var obj = GameObject.Find(treeName);
+                                var obj = GameObject.Find(objName);
                                 obj?.SetActive(false);
                             }
                         }
                         else if (zoomLevel == 1)
                         {
-                            string[] treeNames =
+                            string[] objNames =
                             {
                                 "SM_Env_Tree_Swamp_02 (13)",
                                 "SM_Env_Tree_Swamp_02_LOD2",
                                 "SM_Env_Tree_Swamp_03 (17)",
                             };
-                            foreach (var treeName in treeNames)
+                            foreach (var objName in objNames)
                             {
-                                var obj = GameObject.Find(treeName);
+                                var obj = GameObject.Find(objName);
                                 obj?.SetActive(false);
                             }
                         }
@@ -523,7 +523,7 @@ public class TileScreenshotter
                     {
                         if (zoomLevel == 1)
                         {
-                            string[] treeNames =
+                            string[] objNames =
                             {
                                 "TFF_Rock_Large_03A",
                                 "TFF_Rock_Large_03A (1)",
@@ -538,9 +538,9 @@ public class TileScreenshotter
                                 "TFF_Oak_Tree_01C_LOD_1 (5)",
                                 "TFF_Pine_Tree_02A (13)"
                             };
-                            foreach (var treeName in treeNames)
+                            foreach (var objName in objNames)
                             {
-                                var obj = GameObject.Find(treeName);
+                                var obj = GameObject.Find(objName);
                                 obj?.SetActive(false);
                             }
                         }
