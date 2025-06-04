@@ -81,7 +81,7 @@ public class CharacterListener : IAssetScanListener<Character>
         if (npc != null)
         {
             record.NPCName = npc.NPCName;
-            record.AttackSkills = npc.MyAttackSkills == null ? string.Empty : string.Join(",, ", npc.MyAttackSkills.Select(skill => $"{skill.SkillName} ({skill.Id})"));;
+            record.AttackSkills = npc.MyAttackSkills == null ? string.Empty : string.Join(", ", npc.MyAttackSkills.Select(skill => $"{skill.SkillName} ({skill.Id})"));;
             record.AttackSpells = npc.MyAttackSpells == null ? string.Empty : string.Join(", ", npc.MyAttackSpells.Select(spell => $"{spell.SpellName} ({spell.Id})"));
             record.BuffSpells = npc.MyBuffSpells == null ? string.Empty : string.Join(", ", npc.MyBuffSpells.Select(spell => $"{spell.SpellName} ({spell.Id})"));
             record.HealSpells = npc.MyHealSpells == null ? string.Empty : string.Join(", ", npc.MyHealSpells.Select(spell => $"{spell.SpellName} ({spell.Id})"));
