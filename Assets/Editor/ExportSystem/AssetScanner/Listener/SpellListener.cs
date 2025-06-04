@@ -90,6 +90,8 @@ public class SpellListener : IAssetScanListener<Spell>
             Lifetap = spell.Lifetap,
             DamageType = spell.MyDamageType.ToString(),
             ResistModifier = spell.ResistModifier,
+            AddProc = spell.AddProc is not null ? $"{spell.AddProc.SpellName} ({spell.AddProc.Id})" : "",
+            AddProcChance = spell.AddProcChance,
 
             // --- Stat Buffs/Debuffs ---
             HP = spell.HP,

@@ -46,6 +46,8 @@ public class SpellDBRecord
     public bool Lifetap { get; set; } // From Spell.Lifetap
     public string DamageType { get; set; } // From Spell.MyDamageType enum
     public float ResistModifier { get; set; } // From Spell.ResistModifier
+    public string AddProc { get; set; } // From Spell.AddProc
+    public int AddProcChance { get; set; } // From Spell.AddProcChance
 
     // --- Stat Buffs/Debuffs ---
     public int HP { get; set; } // Stat buff from Spell.HP
