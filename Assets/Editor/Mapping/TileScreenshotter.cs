@@ -27,7 +27,7 @@ public class TileScreenshotter
         new Dictionary<string, TileScreenshotter.TileShotterSettings>
         {
             {
-                "Azure", new TileShotterSettings
+                "Azure", new TileScreenshotter.TileShotterSettings
                 {
                     ZoomLevels = 4,
                     OriginX = -32,
@@ -54,7 +54,7 @@ public class TileScreenshotter
                 }
             },
             {
-                "Azynthi", new TileShotterSettings
+                "Azynthi", new TileScreenshotter.TileShotterSettings
                 {
                     ZoomLevels = 4,
                     OriginX = 145,
@@ -93,7 +93,7 @@ public class TileScreenshotter
                 }
             },
             {
-                "AzynthiClear", new TileShotterSettings
+                "AzynthiClear", new TileScreenshotter.TileShotterSettings
                 {
                     ZoomLevels = 4,
                     OriginX = 145,
@@ -132,7 +132,7 @@ public class TileScreenshotter
                 }
             },
             {
-                "Blight", new TileShotterSettings
+                "Blight", new TileScreenshotter.TileShotterSettings
                 {
                     ZoomLevels = 3,
                     BaseTilesX = 4,
@@ -140,7 +140,7 @@ public class TileScreenshotter
                 }
             },
             {
-                "Bonepits", new TileShotterSettings
+                "Bonepits", new TileScreenshotter.TileShotterSettings
                 {
                     ZoomLevels = 4,
                     OriginX = -128,
@@ -176,7 +176,7 @@ public class TileScreenshotter
                 }
             },
             {
-                "Brake", new TileShotterSettings
+                "Brake", new TileScreenshotter.TileShotterSettings
                 {
                     ZoomLevels = 3,
                     BaseTilesX = 2,
@@ -184,7 +184,7 @@ public class TileScreenshotter
                 }
             },
             {
-                "Braxonian", new TileShotterSettings
+                "Braxonian", new TileScreenshotter.TileShotterSettings
                 {
                     ZoomLevels = 3,
                     OriginX = -128,
@@ -210,7 +210,7 @@ public class TileScreenshotter
                 }
             },
             {
-                "Duskenlight", new TileShotterSettings
+                "Duskenlight", new TileScreenshotter.TileShotterSettings
                 {
                     ZoomLevels = 3,
                     OriginX = 0,
@@ -228,7 +228,7 @@ public class TileScreenshotter
                 }
             },
             {
-                "FernallaField", new TileShotterSettings
+                "FernallaField", new TileScreenshotter.TileShotterSettings
                 {
                     ZoomLevels = 3,
                     BaseTilesX = 6,
@@ -236,7 +236,7 @@ public class TileScreenshotter
                 }
             },
             {
-                "Hidden", new TileShotterSettings
+                "Hidden", new TileScreenshotter.TileShotterSettings
                 {
                     ZoomLevels = 4,
                     OriginX = -200,
@@ -306,7 +306,7 @@ public class TileScreenshotter
                 }
             },
             {
-                "Loomingwood", new TileShotterSettings
+                "Loomingwood", new TileScreenshotter.TileShotterSettings
                 {
                     ZoomLevels = 3,
                     BaseTilesX = 4,
@@ -346,7 +346,7 @@ public class TileScreenshotter
                 }
             },
             {
-                "Malaroth", new TileShotterSettings
+                "Malaroth", new TileScreenshotter.TileShotterSettings
                 {
                     ZoomLevels = 3,
                     OriginX = 0,
@@ -377,7 +377,7 @@ public class TileScreenshotter
                 }
             },
             {
-                "Ripper", new TileShotterSettings
+                "Ripper", new TileScreenshotter.TileShotterSettings
                 {
                     ZoomLevels = 3,
                     OriginX = 0,
@@ -426,7 +426,7 @@ public class TileScreenshotter
                 }
             },
             {
-                "Rottenfoot", new TileShotterSettings
+                "Rottenfoot", new TileScreenshotter.TileShotterSettings
                 {
                     ZoomLevels = 3,
                     OriginX = 0,
@@ -467,7 +467,7 @@ public class TileScreenshotter
                 }
             },
             {
-                "SaltedStrand", new TileShotterSettings {
+                "SaltedStrand", new TileScreenshotter.TileShotterSettings {
                     ZoomLevels = 3,
                     OriginX = -64,
                     OriginY = 0,
@@ -484,7 +484,7 @@ public class TileScreenshotter
                 }
             },
             {
-                "Silkengrass", new TileShotterSettings
+                "Silkengrass", new TileScreenshotter.TileShotterSettings
                 {
                     ZoomLevels = 3,
                     OriginX = -32,
@@ -502,7 +502,7 @@ public class TileScreenshotter
                 }
             },
             {
-                "Soluna", new TileShotterSettings
+                "Soluna", new TileScreenshotter.TileShotterSettings
                 {
                     ZoomLevels = 3,
                     OriginX = 0,
@@ -512,7 +512,7 @@ public class TileScreenshotter
                 }
             },
             {
-                "Stowaway", new TileShotterSettings
+                "Stowaway", new TileScreenshotter.TileShotterSettings
                 {
                     ZoomLevels = 4,
                     OriginX = 135,
@@ -548,7 +548,7 @@ public class TileScreenshotter
                 }
             },
             {
-                "Tutorial", new TileShotterSettings
+                "Tutorial", new TileScreenshotter.TileShotterSettings
                 {
                     ZoomLevels = 4,
                     OriginX = -192,
@@ -634,7 +634,7 @@ public class TileScreenshotter
                 }
             },
             {
-                "Vitheo", new TileShotterSettings {
+                "Vitheo", new TileScreenshotter.TileShotterSettings {
                     ZoomLevels = 4,
                     BaseTilesX = 2,
                     BaseTilesY = 2,
@@ -649,7 +649,7 @@ public class TileScreenshotter
                 }
             },
             {
-                "Windwashed", new TileShotterSettings
+                "Windwashed", new TileScreenshotter.TileShotterSettings
                 {
                     ZoomLevels = 3,
                     OriginX = 190,
