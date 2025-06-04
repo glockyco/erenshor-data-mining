@@ -151,7 +151,7 @@ public class ItemListener : IAssetScanListener<Item>
                 VR = item.CalcStat(item.VR, quality), // Void Resist
 
                 // --- Weapon/Combat Properties ---
-                WeaponDmg = item.CalcDmg(item.WeaponDmg, quality),
+                WeaponDmg = item.WeaponDmg == 0 ? 0 : item.CalcDmg(item.WeaponDmg, quality),
                 WeaponDly = item.WeaponDly,
                 Shield = item.Shield,
                 WeaponProcChance = item.WeaponProcChance,
