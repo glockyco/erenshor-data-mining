@@ -112,6 +112,7 @@ FROM MiningNodes m JOIN MiningNodeItems mi ON m.Id = mi.MiningNodeId;
 -- spawn-points
 SELECT
     sp.Id AS 'Spawn Point',
+    sp.IsEnabled,
     sp.RareNPCChance AS 'Rare Spawn Chance (%)',
     spc.SpawnType AS 'Spawn Type',
     c.NPCName AS 'NPC Name',

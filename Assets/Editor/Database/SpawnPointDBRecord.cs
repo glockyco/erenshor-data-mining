@@ -7,6 +7,7 @@ public class SpawnPointDBRecord
     [PrimaryKey]
     public string Id { get; set; } // Using SpawnPoint.ID (SceneName + Position)
 
+    public bool IsEnabled { get; set; }
     public string SceneName { get; set; }
     public float PositionX { get; set; }
     public float PositionY { get; set; }

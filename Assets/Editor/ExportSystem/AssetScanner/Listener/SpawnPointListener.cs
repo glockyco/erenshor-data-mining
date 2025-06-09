@@ -55,6 +55,8 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
         return new SpawnPointDBRecord
         {
             Id = finalId,
+            
+            IsEnabled = spawnPoint.isActiveAndEnabled,
             SceneName = spawnPoint.gameObject.scene.name,
             PositionX = spawnPoint.transform.position.x,
             PositionY = spawnPoint.transform.position.y,
