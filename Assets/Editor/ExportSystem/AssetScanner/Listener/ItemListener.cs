@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using SQLite;
+using UnityEditor;
 using UnityEngine;
 
 public class ItemListener : IAssetScanListener<Item>
@@ -109,6 +110,20 @@ public class ItemListener : IAssetScanListener<Item>
             templateRewardIds = string.Join(", ", rewardIds);
         }
 
+        string? attackSound = null;
+        if (item.AttackSound != null)
+        {
+            var path = AssetDatabase.GetAssetPath(item.AttackSound);
+            attackSound = System.IO.Path.GetFileNameWithoutExtension(path);
+        }
+            
+        string? itemIconName = null;
+        if (item.ItemIcon != null)
+        {
+            var path = AssetDatabase.GetAssetPath(item.ItemIcon);
+            itemIconName = System.IO.Path.GetFileNameWithoutExtension(path);
+        }
+
         for (int quality = 1; quality <= maxQuality; quality++)
         {
             var record = new ItemDBRecord
@@ -191,8 +206,8 @@ public class ItemListener : IAssetScanListener<Item>
                 SimPlayersCantGet = item.SimPlayersCantGet,
 
                 // --- Visuals & Sound ---
-                AttackSoundName = item.AttackSound != null ? item.AttackSound.name : null,
-                ItemIconName = item.ItemIcon != null ? item.ItemIcon.name : null,
+                AttackSoundName = attackSound,
+                ItemIconName = itemIconName,
                 EquipmentToActivate = item.EquipmentToActivate,
                 //ShoulderTrimL = item.ShoulderTrimL,
                 //ShoulderTrimR = item.ShoulderTrimR,
