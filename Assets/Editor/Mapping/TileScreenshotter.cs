@@ -319,6 +319,68 @@ public class TileScreenshotter
                 }
             },
             {
+                "Jaws", new TileScreenshotter.TileShotterSettings
+                {
+                    ZoomLevels = 4,
+                    OriginX = 1050,
+                    OriginY = -150,
+                    BaseTilesX = 3,
+                    BaseTilesY = 2,
+                    PreProcess = (zoomLevel) =>
+                    {
+                        if (zoomLevel == 0)
+                        {
+                            string[] objNames =
+                            {
+                                "SM_Env_Tiles_Ornate_01 (545)", "SM_Env_Tiles_Ornate_01 (550)", "SM_Env_Tiles_Ornate_01 (551)",
+                                "SM_Env_Tiles_Ornate_01 (556)", "SM_Env_Tiles_Ornate_01 (558)", "SM_Env_Tiles_Ornate_01 (559)",
+                                "SM_Env_Tiles_Ornate_01 (557)", "SM_Env_Tiles_Ornate_01 (560)", "SM_Env_Tiles_Ornate_01 (564)",
+                                "SM_Env_Tiles_Ornate_01 (565)", "SM_Env_Tiles_Ornate_01 (573)", "SM_Env_Tiles_Ornate_01 (568)",
+                                "SM_Env_Tiles_Ornate_01 (569)", "SM_Env_Tiles_Ornate_01 (570)", "SM_Env_Tiles_Ornate_01 (571)",
+                                "SM_Env_Tiles_Ornate_01 (567)", "SM_Env_Tiles_Ornate_01 (566)", "SM_Env_Tiles_Ornate_01 (562)",
+                                "SM_Env_Tiles_Ornate_01 (561)", "SM_Env_Tiles_Ornate_01 (563)", "SM_Env_Tiles_Ornate_01 (546)",
+                                "SM_Env_Tiles_Ornate_01 (542)", "SM_Env_Tiles_Ornate_01 (548)", "SM_Env_Tiles_Ornate_01 (547)",
+                                "SM_Env_Tiles_Ornate_01 (543)", "SM_Env_Tiles_Ornate_01 (544)", "SM_Env_Tiles_Ornate_01 (578)",
+                                "SM_Env_Tiles_Ornate_01 (552)", "SM_Env_Tiles_Ornate_01 (553)", "SM_Env_Tiles_Ornate_01 (555)",
+                                "SM_Env_Tiles_Ornate_01 (554)", "SM_Bld_Castle_Wall_01 (542)", "SM_Env_Tiles_Ornate_01 (579)",
+                                "SM_Env_Tiles_Ornate_01 (580)", "SM_Env_Tiles_Ornate_01 (581)", "SM_Env_Tiles_Ornate_01 (582)",
+                                "SM_Env_Tiles_Ornate_01 (583)", "SM_Env_Tiles_Ornate_01 (585)", "SM_Env_Tiles_Ornate_01 (584)",
+                                "SM_Env_Tiles_Ornate_01 (587)", "SM_Env_Tiles_Ornate_01 (588)", "SM_Env_Tiles_Ornate_01 (594)",
+                                "SM_Env_Tiles_Ornate_01 (595)", "SM_Env_Tiles_Ornate_01 (596)", "SM_Env_Tiles_Ornate_01 (597)",
+                                "SM_Env_Tiles_Ornate_01 (465)", "SM_Env_Tiles_Ornate_01 (466)", "SM_Env_Tiles_Ornate_01 (461)",
+                                "SM_Env_Tiles_Ornate_01 (470)", "SM_Env_Tiles_Ornate_01 (471)", "SM_Env_Tiles_Ornate_01 (474)",
+                                "SM_Env_Tiles_Ornate_01 (572)", "SM_Env_Tiles_Ornate_01 (304)", "SM_Env_Tiles_Ornate_01 (303)",
+                                "SM_Env_Tiles_Ornate_01 (352)", "SM_Env_Tiles_Ornate_01 (351)", "SM_Env_Tiles_Ornate_01 (363)",
+                                "SM_Env_Tiles_Ornate_01 (364)", "SM_Env_Tiles_Ornate_01 (349)", "SM_Env_Tiles_Ornate_01 (350)",
+                                "SM_Env_Tiles_Ornate_01 (361)", "SM_Env_Tiles_Ornate_01 (362)", "SM_Env_Tiles_Ornate_01 (394)",
+                                "SM_Env_Tiles_Ornate_01 (395)", "SM_Env_Tiles_Ornate_01 (396)", "SM_Env_Tiles_Ornate_01 (398)",
+                                "SM_Env_Tiles_Ornate_01 (397)", "SM_Env_Tiles_Ornate_01 (399)", "SM_Env_Tiles_Ornate_01 (400)",
+                                "SM_Env_Tiles_Ornate_01 (131)", "SM_Env_Tiles_Ornate_01 (138)", "SM_Bld_Castle_Wall_01 (469)",
+                                "SM_Bld_Castle_Wall_01 (470)", "SM_Bld_Castle_Wall_01 (471)", "SM_Bld_Castle_Wall_01 (472)",
+                                "SM_Bld_Castle_Wall_01 (473)",
+                            };
+                            foreach (GameObject obj in SceneManager.GetActiveScene().GetRootGameObjects())
+                            {
+                                if (obj.name.Contains("SM_Env_Tiles_05") || obj.name.Contains("SM_Env_Tiles_07") || obj.name.Contains("SM_Bld_Wall_Beam_01"))
+                                {
+                                    obj.SetActive(false);
+                                    continue;
+                                }
+                                if (obj.transform.position.y > -10 && obj.transform.position.x > 1235)
+                                {
+                                    obj.SetActive(false);
+                                    continue;
+                                }
+                                if (objNames.Contains(obj.name))
+                                {
+                                    obj.SetActive(false);
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            {
                 "Krakengard", new TileScreenshotter.TileShotterSettings
                 {
                     ZoomLevels = 5,
