@@ -450,6 +450,62 @@ public class TileScreenshotter
                 }
             },
             {
+                "PrielPlateau", new TileScreenshotter.TileShotterSettings
+                {
+                    ZoomLevels = 4,
+                    OriginX = 0,
+                    OriginY = 0,
+                    BaseTilesX = 3,
+                    BaseTilesY = 3,
+                    PreProcess = (zoomLevel) =>
+                    {
+                        if (zoomLevel == 0)
+                        {
+                            foreach (GameObject obj in SceneManager.GetActiveScene().GetRootGameObjects())
+                            {
+                                string[] objNames =
+                                {
+                                    "TFF_Rock_Large_06A_LOD_1 (29)",
+                                    "TFF_Rock_Large_06A_LOD_1 (30)",
+                                    "TFF_Rock_Large_06A_LOD_1 (60)",
+                                    "TFF_Rock_Large_06A_LOD_1 (59)",
+                                    "TFF_Rock_Large_06A_LOD_1 (39)",
+                                };
+                                if (objNames.Contains(obj.name))
+                                {
+                                    obj.SetActive(false);
+                                }
+                            }
+                        }
+                        else if (zoomLevel == 2)
+                        {
+                            foreach (GameObject obj in SceneManager.GetActiveScene().GetRootGameObjects())
+                            {
+                                string[] objNames =
+                                {
+                                    "TFF_Pine_Tree_02C_LOD_1",
+                                    "TFF_Pine_Tree_02C_LOD_1 (1)",
+                                    "TFF_Rock_Large_06A_LOD_1 (8)",
+                                    "TFF_Rock_Large_06A_LOD_1 (9)",
+                                    "TFF_Rock_Large_06A_LOD_1 (16)",
+                                    "TFF_Rock_Large_06A_LOD_1 (14)",
+                                    "TFF_Rock_Large_06A_LOD_1 (17)",
+                                    "TFF_Rock_Large_06A_LOD_1 (18)",
+                                    "TFF_Rock_Large_06A_LOD_1 (58)",
+                                    "TFF_Rock_Large_06A_LOD_1 (31)",
+                                    "TFF_Rock_Large_06A_LOD_1 (37)",
+                                    "TFF_Rock_Large_06A_LOD_1 (38)",
+                                };
+                                if (objNames.Contains(obj.name))
+                                {
+                                    obj.SetActive(false);
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            {
                 "Ripper", new TileScreenshotter.TileShotterSettings
                 {
                     ZoomLevels = 3,
