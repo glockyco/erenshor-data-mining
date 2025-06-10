@@ -858,6 +858,75 @@ public class TileScreenshotter
                 }
             },
             {
+                "VitheosEnd", new TileScreenshotter.TileShotterSettings
+                {
+                    ZoomLevels = 4,
+                    OriginX = 64,
+                    OriginY = 64,
+                    BaseTilesX = 2,
+                    BaseTilesY = 2,
+                    PreProcess = (zoomLevel) =>
+                    {
+                        if (zoomLevel == 0)
+                        {
+                            foreach (GameObject obj in SceneManager.GetActiveScene().GetRootGameObjects())
+                            {
+                                string[] objNames =
+                                {
+                                    "SM_Bld_Castle_Wall_01 (184)",
+                                    "SM_Bld_Castle_Wall_01 (183)",
+                                    "SM_Bld_Castle_Wall_01 (182)",
+                                    "SM_Bld_Castle_Wall_01 (188)",
+                                    "SM_Bld_Castle_Wall_01 (187)",
+                                    "SM_Bld_Castle_Wall_01 (186)",
+                                    "SM_Bld_Castle_Wall_01 (185)",
+                                    "SM_Bld_Castle_Wall_01 (181)",
+                                    "SM_Bld_Beam_01",
+                                    "SM_Bld_Wall_Beam_01 (28)",
+                                    "SM_Bld_Wall_Beam_01 (27)",
+                                    "SM_Bld_Wall_Beam_01 (26)",
+                                    "SM_Bld_Wall_Beam_01 (25)",
+                                    "SM_Bld_Castle_Wall_01 (8)",
+                                    "SM_Bld_Castle_Wall_01 (9)",
+                                    "SM_Bld_Castle_Wall_01 (11)",
+                                    "SM_Bld_Castle_Wall_01 (10)",
+                                    "SM_Bld_Castle_Wall_01 (174)",
+                                    "SM_Bld_Castle_Wall_01 (175)",
+                                    "SM_Bld_Castle_Wall_01 (176)",
+                                    "SM_Bld_Castle_Wall_01 (177)",
+                                    "SM_Bld_Castle_Wall_01 (173)",
+                                    "SM_Bld_Castle_Wall_01 (178)",
+                                    "SM_Bld_Castle_Wall_01 (179)",
+                                    "SM_Bld_Castle_Wall_01 (180)",
+                                };
+                                if (objNames.Contains(obj.name))
+                                {
+                                    obj.SetActive(false);
+                                }
+                                if (obj.name.Contains("House_StoneArch") && obj.transform.position.z < 125)
+                                {
+                                    obj.SetActive(false);
+                                }
+                                if (obj.transform.position.y > 19 && obj.transform.position.x < 210)
+                                {
+                                    obj.SetActive(false);
+                                }
+                            }
+                        }
+                        else if (zoomLevel == 3)
+                        {
+                            foreach (GameObject obj in SceneManager.GetActiveScene().GetRootGameObjects())
+                            {
+                                if (obj.transform.position.y > -29)
+                                {
+                                    obj.SetActive(false);
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            {
                 "Windwashed", new TileScreenshotter.TileShotterSettings
                 {
                     ZoomLevels = 3,
