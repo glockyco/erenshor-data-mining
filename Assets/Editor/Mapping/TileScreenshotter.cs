@@ -499,6 +499,43 @@ public class TileScreenshotter
                 }
             },
             {
+                "Rockshade", new TileScreenshotter.TileShotterSettings
+                {
+                    ZoomLevels = 3,
+                    OriginX = 0,
+                    OriginY = 0,
+                    BaseTilesX = 4,
+                    BaseTilesY = 4,
+                    PreProcess = (zoomLevel) =>
+                    {
+                        if (zoomLevel == 1)
+                        {
+                            foreach (GameObject obj in SceneManager.GetActiveScene().GetRootGameObjects())
+                            {
+                                if (obj.name.Contains("Roof"))
+                                {
+                                    obj.SetActive(false);
+                                }
+                                if (obj.name.Contains("Floor_Wood") && obj.transform.position.y > 115f)
+                                {
+                                    obj.SetActive(false);
+                                }
+                            }
+                        }
+                        else if (zoomLevel == 2)
+                        {
+                            foreach (GameObject obj in SceneManager.GetActiveScene().GetRootGameObjects())
+                            {
+                                if (obj.name.Contains("Floor_Wood"))
+                                {
+                                    obj.SetActive(false);
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            {
                 "Rottenfoot", new TileScreenshotter.TileShotterSettings
                 {
                     ZoomLevels = 3,
