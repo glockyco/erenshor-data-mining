@@ -218,6 +218,109 @@ public class TileScreenshotter
                 }
             },
             {
+                "Braxonia", new TileScreenshotter.TileShotterSettings
+                {
+                    ZoomLevels = 4,
+                    OriginX = 40,
+                    OriginY = 80,
+                    BaseTilesX = 3,
+                    BaseTilesY = 3,
+                    PreProcess = (zoomLevel) =>
+                    {
+                        if (zoomLevel == 0)
+                        {
+                            string[] objNames =
+                            {
+                                "SM_Bld_Castle_Wall_Cut_02 (370)", "SM_Bld_Castle_Wall_Cut_02 (753)", "SM_Bld_Castle_Wall_Cut_02 (371)",
+                                "SM_Bld_Castle_Wall_Cut_02 (68)", "SM_Prop_Light_Chandelier_02", "SM_Bld_Castle_Wall_Cut_02 (248)",
+                                "SM_Bld_Castle_Wall_Cut_02 (250)", "SM_Bld_Castle_Wall_Cut_02 (249)", "SM_Bld_House_Railing_Beam_01 (17)",
+                                "SM_Bld_Castle_Wall_Cut_02 (242)", "SM_Bld_Castle_Wall_Cut_02 (247)", "SM_Bld_Castle_Wall_Cut_02 (237)",
+                                "SM_Bld_House_Railing_Beam_01 (16)", "SM_Bld_Castle_Wall_Cut_02 (462)", "SM_Bld_Castle_Wall_Cut_02 (463)",
+                                "SM_Bld_Castle_Wall_Cut_02 (464)", "SM_Bld_Wall_Beam_01 (3)", "SM_Bld_Wall_Beam_01 (4)",
+                                "SM_Bld_Castle_Wall_Cut_02 (245)", "SM_Bld_House_Railing_Beam_01 (14)", "SM_Bld_Castle_Wall_Cut_02 (246)",
+                                "SM_Bld_House_Railing_Beam_01 (15)", "SM_Bld_Castle_Wall_Cut_02 (679)", "SM_Bld_House_Railing_Beam_01 (36)",
+                                "SM_Bld_Castle_Wall_Cut_02 (680)", "SM_Bld_House_Railing_Beam_01 (35)", "SM_Bld_House_Railing_Beam_01 (34)",
+                                "SM_Bld_House_Railing_Beam_01 (33)", "SM_Bld_Castle_Wall_Cut_02 (752)", "SM_Bld_Castle_Wall_Cut_02 (751)",
+                                "SM_Bld_Castle_Wall_Cut_02 (287)", "SM_Bld_Castle_Wall_Cut_02 (309)", "SM_Bld_Castle_Wall_Cut_02 (286)",
+                                "SM_Bld_House_Railing_Beam_01 (21)", "SM_Bld_Castle_Wall_Cut_02 (285)", "SM_Bld_Castle_Wall_Cut_02 (278)",
+                                "SM_Bld_Castle_Wall_Cut_02 (307)", "SM_Bld_House_Railing_Beam_01 (20)", "SM_Bld_House_Railing_Beam_01 (18)",
+                                "SM_Bld_House_Railing_Beam_01 (19)", "SM_Bld_Castle_Wall_Cut_02 (284)", "SM_Bld_Castle_Wall_Cut_02 (308)",
+                                "SM_Prop_Light_Chandelier_02 (1)", "SM_Bld_Castle_Wall_Cut_02 (487)", "SM_Bld_Castle_Wall_Cut_02 (488)",
+                                "SM_Bld_Castle_Wall_Cut_02 (489)", "SM_Bld_Castle_Wall_Cut_02 (490)", "SM_Bld_Castle_Wall_Cut_02 (491)",
+                                "SM_Bld_Wall_Beam_01 (2)", "SM_Bld_Wall_Beam_01 (1)", "SM_Bld_Wall_Beam_01",
+                                "SM_Prop_Light_Chandelier_02 (4)", "SM_Prop_Light_Chandelier_02 (3)", "SM_Prop_Light_Chandelier_02 (2)",
+                                "SM_Bld_Castle_Wall_Cut_03 (319)", "SM_Bld_Castle_Wall_Cut_03 (320)", "SM_Bld_Castle_Wall_Cut_03 (321)",
+                                "SM_Bld_Castle_Wall_Cut_03 (322)", "SM_Bld_Castle_Wall_Cut_03 (323)", "SM_Bld_Castle_Wall_Cut_03 (324)",
+                                "SM_Bld_Castle_Wall_Cut_03 (325)", "SM_Bld_Castle_Wall_Cut_03 (326)", "SM_Bld_Castle_Wall_Cut_03 (327)",
+                                "SM_Bld_Castle_Wall_Cut_03 (328)", "SM_Bld_Castle_Wall_Cut_03 (329)", "SM_Bld_Castle_Wall_Cut_03 (330)",
+                                "SM_Bld_Castle_Wall_Cut_02 (205)", "SM_Bld_Castle_Wall_Cut_02 (206)", "SM_Bld_Castle_Wall_Cut_02 (204)",
+                                "SM_Bld_Castle_Wall_Cut_02 (207)", "SM_Bld_Castle_Wall_Cut_02 (203)", "SM_Bld_Castle_Wall_Cut_02 (202)",
+                                "SM_Bld_Castle_Wall_Cut_02 (201)", "SM_Bld_Castle_Wall_Cut_02 (208)", "SM_Bld_Castle_Wall_Cut_02 (597)",
+                                "SM_Bld_Castle_Wall_Cut_02 (598)", "SM_Bld_Castle_Wall_Cut_02 (599)", "SM_Bld_Castle_Wall_Cut_02 (594)",
+                                "SM_Bld_Castle_Wall_Cut_02 (595)", "SM_Bld_Castle_Wall_Cut_02 (596)", "SM_Bld_Castle_Wall_Cut_02 (591)",
+                                "SM_Bld_Castle_Wall_Cut_02 (592)", "SM_Bld_Castle_Wall_Cut_02 (593)", "SM_Bld_Castle_Wall_Cut_02 (609)",
+                                "SM_Bld_Castle_Wall_Cut_02 (602)", "SM_Bld_Castle_Wall_Cut_02 (601)", "SM_Bld_Castle_Wall_Cut_02 (600)",
+                                "SM_Bld_Castle_Wall_Cut_02 (605)", "SM_Bld_Castle_Wall_Cut_02 (604)", "SM_Bld_Castle_Wall_Cut_02 (603)",
+                                "SM_Bld_Castle_Wall_Cut_02 (606)", "SM_Bld_Castle_Wall_Cut_02 (607)", "SM_Bld_Castle_Wall_Cut_02 (608)",
+                                "SM_Bld_Castle_Wall_Cut_02 (610)", "SM_Bld_Wall_Beam_01 (42)", "SM_Bld_Wall_Beam_01 (40)",
+                                "SM_Bld_Wall_Beam_01 (38)", "SM_Bld_Wall_Beam_01 (39)", "SM_Bld_Wall_Beam_01 (37)",
+                                "SM_Bld_Wall_Beam_01 (36)", "SM_Bld_Wall_Beam_01 (41)", "SM_Bld_Wall_Beam_01 (7)",
+                                "SM_Bld_Wall_Beam_01 (35)", "SM_Bld_Wall_Beam_01 (34)", "SM_Bld_Wall_Beam_01 (33)",
+                                "SM_Bld_Wall_Beam_01 (32)", "SM_Bld_Castle_Wall_Cut_02 (426)", "SM_Bld_Castle_Wall_Cut_02 (427)",
+                                "SM_Bld_Castle_Wall_Cut_02 (428)", "SM_Bld_Wall_Beam_01 (5)", "SM_Bld_Wall_Beam_01 (6)",
+                                "SM_Env_Tiles_07 (91)", "SM_Bld_Castle_Wall_Cut_02 (293)", "SM_Bld_Castle_Wall_Cut_02 (311)",
+                                "SM_Bld_Castle_Wall_Cut_02 (310)", "SM_Bld_Castle_Wall_Cut_02 (292)",
+                                "SM_Env_Tiles_07 (246)", "SM_Env_Tiles_07 (202)", "SM_Env_Tiles_07 (245)",
+                                "SM_Env_Tiles_07 (196)", "SM_Bld_Castle_Wall_Cut_02 (545)", "SM_Bld_Castle_Wall_Cut_02 (544)",
+                                "SM_Bld_Castle_Wall_Cut_02 (562)", "SM_Bld_Castle_Wall_Cut_02 (563)", "SM_Env_Tiles_07 (198)",
+                                "SM_Env_Tiles_07 (244)", "SM_Env_Tiles_07 (247)", "SM_Env_Tiles_07 (195)",
+                            };
+                            foreach (GameObject obj in SceneManager.GetActiveScene().GetRootGameObjects())
+                            {
+                                if (obj.name.Contains("SM_Env_Tiles_09") || obj.name.Contains("SM_Env_Wall_Curved_Roof_01"))
+                                {
+                                    obj.SetActive(false);
+                                }
+                                else if (objNames.Contains(obj.name))
+                                {
+                                    obj.SetActive(false);
+                                }
+                            }
+                        }
+                        else if (zoomLevel == 2)
+                        {
+                            string[] objNames =
+                            {
+                                "SM_Bld_Castle_Wall_Cut_02 (589)", "SM_Bld_Castle_Wall_Cut_02 (590)", "SM_Bld_Castle_Wall_Cut_02 (586)",
+                                "SM_Bld_Castle_Wall_Cut_02 (587)", "SM_Bld_Castle_Wall_Cut_02 (585)", "SM_Bld_Castle_Wall_Cut_02 (584)",
+                                "SM_Bld_Castle_Wall_Cut_02 (583)", "SM_Bld_Castle_Wall_Cut_02 (582)", "SM_Bld_Castle_Wall_Cut_02 (588)",
+                                "SM_Env_Rock_Flat_03 (8)", "SM_Env_Rock_Pile_01 (2)", "SM_Env_Rock_Pile_01 (1)",
+                                "SM_Env_Rock_Pile_01", "SM_Env_Rock_Cliff_03 (31)", "SM_Bld_Castle_Pillar_Stone_04 (38)",
+                                "SM_Bld_Castle_Roof_M_Curved_End_Beam_01 (2)", "SM_Bld_Castle_Roof_M_Curved_End_Beam_01",
+                                "SM_Bld_Castle_Pillar_Stone_04 (39)", "SM_Bld_Castle_Roof_M_Curved_End_Beam_01 (3)",
+                                "SM_Bld_Castle_Roof_M_Curved_End_Beam_01 (1)", "SM_Bld_Beam_01 (22)", "SM_Bld_Beam_01 (23)",
+                                "SM_Bld_Beam_01 (10)", "SM_Bld_Beam_01 (9)", "SM_Bld_Beam_01 (8)",
+                            };
+                            foreach (GameObject obj in SceneManager.GetActiveScene().GetRootGameObjects())
+                            {
+                                if (obj.transform.position.y > 57f)
+                                {
+                                    obj.SetActive(false);
+                                }
+                                else if (obj.transform.position.y > 44f && obj.transform.position.z < 510f)
+                                {
+                                    obj.SetActive(false);
+                                }
+                                else if (objNames.Contains(obj.name))
+                                {
+                                    obj.SetActive(false);
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            {
                 "Braxonian", new TileScreenshotter.TileShotterSettings
                 {
                     ZoomLevels = 3,
