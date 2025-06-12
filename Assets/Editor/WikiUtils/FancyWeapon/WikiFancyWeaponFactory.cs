@@ -58,6 +58,8 @@ public class WikiFancyWeaponFactory
         weapon.ProcDesc = WikiTemplateParser.GetString(parameters, "proc_desc");
         weapon.ProcChance = WikiTemplateParser.GetFloat(parameters, "proc_chance");
         weapon.ProcStyle = WikiTemplateParser.GetString(parameters, "proc_style");
+        
+        weapon.Range = WikiTemplateParser.GetInt(parameters, "range");
 
         weapon.Tier = WikiTemplateParser.GetInt(parameters, "tier");
         
@@ -154,8 +156,9 @@ public class WikiFancyWeaponFactory
             Paladin = item.Classes.Split(", ").Contains("Paladin"),
             ProcName = spell == null ? "" : $"{{{{AbilityLink|{spell.SpellName}}}}}",
             ProcDesc = spell == null ? "" : spell.SpellDesc.Trim(),
-            ProcChance = item.WeaponProcChance,
+            ProcChance = item.IsWand ? item.WandProcChance : item.WeaponProcChance,
             ProcStyle = procStyle,
+            Range = item.WandRange,
             Tier = tier,
         };
     }

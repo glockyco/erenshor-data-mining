@@ -171,6 +171,12 @@ public class ItemListener : IAssetScanListener<Item>
                 Shield = item.Shield,
                 WeaponProcChance = item.WeaponProcChance,
                 WeaponProcOnHitId = item.WeaponProcOnHit?.Id,
+                
+                // --- Wand Properties ---
+                IsWand = item.IsWand,
+                WandRange = item.IsWand ? item.WandRange : item.WeaponDmg > 0 ? 1 : 0,
+                WandProcChance = item.WandProcChance,
+                WandEffect = item.WandEffect is null ? string.Empty : $"{item.WandEffect.SpellName} ({item.WandEffect.Id})",
 
                 // --- Effects & Interactions ---
                 ItemEffectOnClickId = item.ItemEffectOnClick?.Id,

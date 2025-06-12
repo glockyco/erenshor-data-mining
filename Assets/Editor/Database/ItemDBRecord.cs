@@ -41,6 +41,12 @@ public class ItemDBRecord
     public bool Shield { get; set; } // Is it a shield?
     public float WeaponProcChance { get; set; }
     public string WeaponProcOnHitId { get; set; } // Id of the Spell to proc
+    
+    // --- Wand Properties ---
+    public bool IsWand { get; set; }
+    public int WandRange { get; set; }
+    public float WandProcChance { get; set; }
+    public string WandEffect { get; set; }
 
     // --- Effects & Interactions ---
     public string ItemEffectOnClickId { get; set; } // Id of the Spell to cast on click

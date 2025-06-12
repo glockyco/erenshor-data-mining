@@ -71,6 +71,9 @@ public class WikiFancyWeapon
     public string ProcStyle { get; set; } // Bash, Attack, Cast, Kick, Worn
 
     [UseForComparison]
+    public int Range { get; set; }
+    
+    [UseForComparison]
     public int Tier { get; set; } // 0, 1, 2
     
     public string OriginalWikiString { get; set; }
@@ -117,6 +120,8 @@ public class WikiFancyWeapon
         sb.AppendLine($"| proc_desc = {ProcDesc ?? ""}");
         sb.AppendLine($"| proc_chance = {(ProcChance is null or 0 ? "" : ProcChance)}");
         sb.AppendLine($"| proc_style = {ProcStyle ?? ""}");
+
+        sb.AppendLine($"| range = {(Range == 0 ? "" : Range)}");
 
         sb.AppendLine($"| tier = {Tier}");
 
