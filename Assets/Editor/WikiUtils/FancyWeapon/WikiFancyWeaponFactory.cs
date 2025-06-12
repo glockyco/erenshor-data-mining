@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 using SQLite;
 
 public class WikiFancyWeaponFactory
@@ -76,17 +77,29 @@ public class WikiFancyWeaponFactory
         }
         
         // --- proc ---
-        string spellId = null;
+        string spellString = "";
         string procStyle = "";
-        if (!string.IsNullOrEmpty(item.WeaponProcOnHitId))
+        if (!string.IsNullOrEmpty(item.WeaponProcOnHit))
         {
-            spellId = item.WeaponProcOnHitId;
+            spellString = item.WeaponProcOnHit;
             procStyle = item.Shield ? "Bash" : "Attack";
         }
-        else if (!string.IsNullOrEmpty(item.WornEffectId))
+        else if (!string.IsNullOrEmpty(item.WandEffect))
         {
-            spellId = item.WornEffectId;
+            spellString = item.WandEffect;
+            procStyle = "Attack";
+        }
+        else if (!string.IsNullOrEmpty(item.WornEffect))
+        {
+            spellString = item.WornEffect;
             procStyle = "Worn";
+        }
+        
+        string spellId = null;
+        var match = Regex.Match(spellString, @"\(([^)]+)\)");
+        if (match.Success)
+        {
+            spellId = match.Groups[1].Value;
         }
 
         SpellDBRecord spell = null;

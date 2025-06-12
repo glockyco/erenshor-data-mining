@@ -40,7 +40,7 @@ public class ItemDBRecord
     public float WeaponDly { get; set; }
     public bool Shield { get; set; } // Is it a shield?
     public float WeaponProcChance { get; set; }
-    public string WeaponProcOnHitId { get; set; } // Id of the Spell to proc
+    public string WeaponProcOnHit { get; set; } // Id of the Spell to proc
     
     // --- Wand Properties ---
     public bool IsWand { get; set; }
@@ -49,12 +49,12 @@ public class ItemDBRecord
     public string WandEffect { get; set; }
 
     // --- Effects & Interactions ---
-    public string ItemEffectOnClickId { get; set; } // Id of the Spell to cast on click
-    public string ItemSkillUseId { get; set; } // Id of the Skill to use on click
-    public string TeachSpellId { get; set; } // Id of the Spell taught by this item
-    public string TeachSkillId { get; set; } // Id of the Skill taught by this item
-    public string AuraId { get; set; } // Id of the Spell providing a passive aura
-    public string WornEffectId { get; set; } // Id of the Spell providing a passive worn effect
+    public string ItemEffectOnClick { get; set; } // Id of the Spell to cast on click
+    public string ItemSkillUse { get; set; } // Id of the Skill to use on click
+    public string TeachSpell { get; set; } // Id of the Spell taught by this item
+    public string TeachSkill { get; set; } // Id of the Skill taught by this item
+    public string Aura { get; set; } // Id of the Spell providing a passive aura
+    public string WornEffect { get; set; } // Id of the Spell providing a passive worn effect
     public float SpellCastTime { get; set; } // Cast time modifier or specific cast time? (Check Item.cs usage)
 
     // --- Quest Interaction ---
