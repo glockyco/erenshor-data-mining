@@ -79,7 +79,12 @@ public class WikiFancyWeaponFactory
         // --- proc ---
         string spellString = "";
         string procStyle = "";
-        if (!string.IsNullOrEmpty(item.WeaponProcOnHit))
+        if (!string.IsNullOrEmpty(item.ItemEffectOnClick))
+        {
+            spellString = item.ItemEffectOnClick;
+            procStyle = "Activatable";
+        }
+        else if (!string.IsNullOrEmpty(item.WeaponProcOnHit))
         {
             spellString = item.WeaponProcOnHit;
             procStyle = item.Shield ? "Bash" : "Attack";
