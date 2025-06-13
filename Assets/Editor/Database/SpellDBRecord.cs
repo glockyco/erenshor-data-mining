@@ -80,7 +80,7 @@ public class SpellDBRecord
 
     // --- Special Mechanics ---
     public string PetToSummonResourceName { get; set; } // From Spell.PetToSummon.name
-    public string StatusEffectToApplyId { get; set; } // From Spell.StatusEffectToApply.Id
+    public string StatusEffectToApply { get; set; } // From Spell.StatusEffectToApply
     public bool ReapAndRenew { get; set; } // From Spell.ReapAndRenew
     public int ResonateChance { get; set; } // From Spell.ResonateChance
     public float XPBonus { get; set; } // From Spell.XPBonus

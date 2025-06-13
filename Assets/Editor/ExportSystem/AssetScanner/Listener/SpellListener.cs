@@ -124,7 +124,7 @@ public class SpellListener : IAssetScanListener<Spell>
 
             // --- Special Mechanics ---
             PetToSummonResourceName = spell.PetToSummon != null ? spell.PetToSummon.name : null,
-            StatusEffectToApplyId = spell.StatusEffectToApply != null ? spell.StatusEffectToApply.Id : null,
+            StatusEffectToApply = spell.StatusEffectToApply is not null ? $"{spell.StatusEffectToApply.SpellName} ({spell.StatusEffectToApply.Id})" : "",
             ReapAndRenew = spell.ReapAndRenew,
             ResonateChance = spell.ResonateChance,
             XPBonus = spell.XPBonus,
