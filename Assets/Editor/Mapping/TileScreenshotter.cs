@@ -469,11 +469,11 @@ public class TileScreenshotter
                                     obj.SetActive(false);
                                     continue;
                                 }
-                                if (obj.transform.position.y > -10 && obj.transform.position.x > 1235)
-                                {
-                                    obj.SetActive(false);
-                                    continue;
-                                }
+                                // if (obj.transform.position.y > -10 && obj.transform.position.x > 1235)
+                                // {
+                                //     obj.SetActive(false);
+                                //     continue;
+                                // }
                                 if (objNames.Contains(obj.name))
                                 {
                                     obj.SetActive(false);
