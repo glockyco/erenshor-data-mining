@@ -5,6 +5,7 @@ using System.Linq;
 using SQLite;
 using UnityEditor;
 using UnityEngine;
+using static CoordinateDBRecord;
 
 public class CharacterListener : IAssetScanListener<Character>
 {
@@ -16,14 +17,35 @@ public class CharacterListener : IAssetScanListener<Character>
         _db = db;
     }
 
+    public void OnScanStarted()
+    {
+        _db.CreateTable<CoordinateDBRecord>();
+        _db.CreateTable<CharacterDBRecord>();
+
+        _db.Execute("DELETE FROM Coordinates WHERE Category = ?", nameof(CoordinateCategory.Character));
+        _db.DeleteAll<CharacterDBRecord>();
+
+        _records.Clear();
+    }
+
     public void OnScanFinished()
     {
-        _db.CreateTable<CharacterDBRecord>();
-        _db.RunInTransaction(() =>
-        {
-            _db.DeleteAll<CharacterDBRecord>();
-            _db.InsertAll(_records);
-        });
+        _db.InsertAll(_records);
+        
+        _db.Execute(@"
+            UPDATE Coordinates
+            SET CharacterId = (
+                SELECT Id
+                FROM Characters
+                WHERE Characters.CoordinateId = Coordinates.Id
+            )
+            WHERE EXISTS (
+                SELECT 1
+                FROM Characters
+                WHERE Characters.CoordinateId = Coordinates.Id
+            );
+        ");
+        
         _records.Clear();
     }
 
@@ -36,6 +58,23 @@ public class CharacterListener : IAssetScanListener<Character>
     
     private CharacterDBRecord CreateRecord(Character character)
     {
+        int? coordinateId = null;
+        if (character.gameObject.scene.name != null)
+        {
+            var coordinate = new CoordinateDBRecord
+            {
+                Scene = character.gameObject.scene.name,
+                X = character.transform.position.x,
+                Y = character.transform.position.y,
+                Z = character.transform.position.z,
+                Category = nameof(CoordinateCategory.Character)
+            };
+
+            _db.Insert(coordinate);
+            
+            coordinateId = coordinate.Id;
+        }
+        
         NPC npc = character.GetComponent<NPC>();
         VendorInventory vendorInventory = character.GetComponent<VendorInventory>();
         MiningNode miningNode = character.GetComponent<MiningNode>();
@@ -58,6 +97,7 @@ public class CharacterListener : IAssetScanListener<Character>
         
         CharacterDBRecord record = new CharacterDBRecord
         {
+            CoordinateId = coordinateId,
             Guid = guid,
             ObjectName = character.gameObject != null ? character.gameObject.name : null,
             MyWorldFaction = character.MyWorldFaction != null ? character.MyWorldFaction.FactionName : null,

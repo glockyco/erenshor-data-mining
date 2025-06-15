@@ -1,10 +1,13 @@
-﻿using System.Collections.Generic;
-using SQLite;
+﻿using SQLite;
 
 [Table("Characters")]
 public class CharacterDBRecord
 {
-    [PrimaryKey]
+    [PrimaryKey, AutoIncrement]
+    public int Id { get; set; }
+    [Indexed]
+    public int? CoordinateId { get; set; }
+    
     public string Guid { get; set; }
     public string ObjectName { get; set; }
     public string NPCName { get; set; }
