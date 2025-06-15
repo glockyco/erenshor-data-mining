@@ -39,6 +39,7 @@ public class AssetScannerExporterWindow : EditorWindow
     private bool _exportWorldFactions = true;
     private bool _exportZoneAnnounces = true;
     private bool _exportZoneAtlasEntries = true;
+    private bool _exportZoneLines = true;
 
     [MenuItem("Tools/Export Game Data")] 
     public static void ShowWindow()
@@ -151,6 +152,7 @@ public class AssetScannerExporterWindow : EditorWindow
         _exportWorldFactions = EditorGUILayout.ToggleLeft("World Factions", _exportWorldFactions);
         _exportZoneAnnounces = EditorGUILayout.ToggleLeft("Zone Announces", _exportZoneAnnounces);
         _exportZoneAtlasEntries = EditorGUILayout.ToggleLeft("Zone Atlas Entries", _exportZoneAtlasEntries);
+        _exportZoneLines = EditorGUILayout.ToggleLeft("Zone Lines", _exportZoneLines);
         EditorGUI.EndDisabledGroup();
     }
 
@@ -175,6 +177,7 @@ public class AssetScannerExporterWindow : EditorWindow
         _exportWorldFactions = value;
         _exportZoneAnnounces = value;
         _exportZoneAtlasEntries = value;
+        _exportZoneLines = value;
     }
 
     private void StartScanAndExport()
@@ -211,6 +214,7 @@ public class AssetScannerExporterWindow : EditorWindow
         if (_exportTreasureLocs) _activeScanner.RegisterComponentListener(new TreasureLocListener(_db));
         if (_exportWaters) _activeScanner.RegisterComponentListener(new WaterListener(_db));
         if (_exportZoneAnnounces) _activeScanner.RegisterComponentListener(new ZoneAnnounceListener(_db));
+        if (_exportZoneLines) _activeScanner.RegisterComponentListener(new ZoneLineListener(_db));
         
         _stopwatch = Stopwatch.StartNew();
         EditorCoroutineRunner.StartCoroutine(ScanAndExportCoroutine());
@@ -258,7 +262,8 @@ public class AssetScannerExporterWindow : EditorWindow
             _exportTreasureLocs ||
             _exportWaters ||
             _exportZoneAnnounces ||
-            _exportZoneAtlasEntries;
+            _exportZoneAtlasEntries ||
+            _exportZoneLines;
         EditorGUI.BeginDisabledGroup(_isScanning || !anyStepSelected || string.IsNullOrEmpty(_outputPath));
         if (GUILayout.Button("Export Selected Steps", GUILayout.Height(30)))
         {
