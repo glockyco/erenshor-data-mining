@@ -141,12 +141,15 @@ ORDER BY
 -- achievement-triggers
 SELECT
     --Id,
-    SceneName,
-    ROUND(PositionX, 2) AS PositionX,
-    ROUND(PositionY, 2) AS PositionY,
-    ROUND(PositionZ, 2) AS PositionZ,
+    za.ZoneName,
+    ROUND(c.X, 2) AS PositionX,
+    ROUND(c.Y, 2) AS PositionY,
+    ROUND(c.Z, 2) AS PositionZ,
     AchievementName
-FROM AchievementTriggers;
+FROM AchievementTriggers at
+JOIN Coordinates c ON c.AchievementTriggerId = at.Id
+JOIN ZoneAnnounces za ON za.SceneName = c.Scene
+ORDER BY za.ZoneName;
 
 -- wiki-comparison
 SELECT
