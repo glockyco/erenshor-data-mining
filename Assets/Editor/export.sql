@@ -101,13 +101,19 @@ FROM Waters w LEFT JOIN WaterFishables wf ON w.Id = wf.WaterId;
 
 -- mining-nodes
 SELECT
-    m.Id AS MiningNode,
-    RespawnTime,
-    ItemName,
-    Rarity,
-    DropChance AS 'DropChance (%)',
-    TotalDropChance AS 'TotalDropChance (%)'
-FROM MiningNodes m JOIN MiningNodeItems mi ON m.Id = mi.MiningNodeId;
+    m.Id,
+    c.Scene,
+    ROUND(c.X, 2) AS PositionX,
+    ROUND(c.Y, 2) AS PositionY,
+    ROUND(c.Z, 2) AS PositionZ,
+    m.RespawnTime,
+    mi.ItemName,
+    mi.Rarity,
+    mi.DropChance AS 'DropChance (%)',
+    mi.TotalDropChance AS 'TotalDropChance (%)'
+FROM MiningNodes m
+JOIN MiningNodeItems mi ON m.Id = mi.MiningNodeId
+JOIN Coordinates c ON c.MiningNodeId = m.Id;
 
 -- spawn-points
 SELECT

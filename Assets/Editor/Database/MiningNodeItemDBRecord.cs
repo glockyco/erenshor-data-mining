@@ -4,7 +4,7 @@ using SQLite;
 public class MiningNodeItemDBRecord
 {
     [Indexed(Name = "MiningNodeItems_Primary_IDX", Order = 1, Unique = true)]
-    public string MiningNodeId { get; set; } // Foreign key to MiningNodes.Id
+    public int MiningNodeId { get; set; } // Foreign key to MiningNodes.Id
 
     [Indexed(Name = "MiningNodeItems_Primary_IDX", Order = 2, Unique = true)]
     public string Rarity { get; set; } // "Common", "Rare", "Legend", "Guarantee"

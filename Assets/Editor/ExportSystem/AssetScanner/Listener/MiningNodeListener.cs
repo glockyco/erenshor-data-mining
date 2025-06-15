@@ -4,55 +4,71 @@ using System.Collections.Generic;
 using System.Linq;
 using SQLite;
 using UnityEngine;
+using static CoordinateDBRecord;
 
 public class MiningNodeListener : IAssetScanListener<MiningNode>
 {
     private readonly SQLiteConnection _db;
-    private readonly List<MiningNodeDBRecord> _nodeRecords = new();
-    private readonly List<MiningNodeItemDBRecord> _nodeItemRecords = new();
 
     public MiningNodeListener(SQLiteConnection db)
     {
         _db = db;
     }
 
-    public void OnScanFinished()
+    public void OnScanStarted()
     {
+        _db.CreateTable<CoordinateDBRecord>();
         _db.CreateTable<MiningNodeDBRecord>();
         _db.CreateTable<MiningNodeItemDBRecord>();
-        _db.RunInTransaction(() =>
-        {
-            _db.DeleteAll<MiningNodeDBRecord>();
-            _db.DeleteAll<MiningNodeItemDBRecord>();
-            _db.InsertAll(_nodeRecords);
-            _db.InsertAll(_nodeItemRecords);
-        });
-        _nodeRecords.Clear();
-        _nodeItemRecords.Clear();
+
+        _db.Execute("DELETE FROM Coordinates WHERE Category = ?", nameof(CoordinateCategory.MiningNode));
+        _db.DeleteAll<MiningNodeDBRecord>();
+        _db.DeleteAll<MiningNodeItemDBRecord>();
+    }
+
+    public void OnScanFinished()
+    {
+        _db.Execute(@"
+            UPDATE Coordinates
+            SET MiningNodeId = (
+                SELECT Id
+                FROM MiningNodes
+                WHERE MiningNodes.CoordinateId = Coordinates.Id
+            )
+            WHERE EXISTS (
+                SELECT 1
+                FROM MiningNodes
+                WHERE MiningNodes.CoordinateId = Coordinates.Id
+            );
+        ");
     }
 
     public void OnAssetFound(MiningNode asset)
     {
         Debug.Log($"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
 
-        var id = asset.gameObject.scene.name + asset.transform.position;
-
-        var record = new MiningNodeDBRecord
+        var coordinate = new CoordinateDBRecord
         {
-            Id = id,
-            SceneName = asset.gameObject.scene.name,
-            PositionX = asset.transform.position.x,
-            PositionY = asset.transform.position.y,
-            PositionZ = asset.transform.position.z,
+            Scene = asset.gameObject.scene.name,
+            X = asset.transform.position.x,
+            Y = asset.transform.position.y,
+            Z = asset.transform.position.z,
+            Category = nameof(CoordinateCategory.MiningNode)
+        };
+
+        _db.Insert(coordinate);
+
+        var miningNode = new MiningNodeDBRecord
+        {
+            CoordinateId = coordinate.Id,
             RespawnTime = asset.RespawnTime
         };
 
-        _nodeRecords.Add(record);
-
-        _nodeItemRecords.AddRange(CreateMiningNodeItemRecords(asset, id));
+        _db.Insert(miningNode);
+        _db.InsertAll(CreateMiningNodeItemRecords(asset, miningNode.Id));
     }
 
-    private static List<MiningNodeItemDBRecord> CreateMiningNodeItemRecords(MiningNode node, string miningNodeId)
+    private static List<MiningNodeItemDBRecord> CreateMiningNodeItemRecords(MiningNode node, int miningNodeId)
     {
         // Calculate drop chances based on the logic in MiningNode.Mine()
         // Legend = 96-99, Rare = 75-95, Common = 20-75, Guarantee = 0-19
