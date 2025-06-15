@@ -13,13 +13,20 @@ public class CoordinateDBRecord
     
     public string Category { get; set; }
     
-    public int AchievementTriggerId { get; set; }
-    public int CharacterId { get; set; }
-    public int MiningNodeId { get; set; }
-    public int SpawnPointId { get; set; }
-    public int TreasureLocId { get; set; }
-    public int WaterId { get; set; }
-    public int ZoneLineId { get; set; }
+    [Indexed]
+    public int? AchievementTriggerId { get; set; }
+    [Indexed]
+    public int? CharacterId { get; set; }
+    [Indexed]
+    public int? MiningNodeId { get; set; }
+    [Indexed]
+    public int? SpawnPointId { get; set; }
+    [Indexed]
+    public int? TreasureLocId { get; set; }
+    [Indexed]
+    public int? WaterId { get; set; }
+    [Indexed]
+    public int? ZoneLineId { get; set; }
     
     public enum CoordinateCategory
     {
