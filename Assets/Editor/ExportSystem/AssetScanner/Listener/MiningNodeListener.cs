@@ -78,9 +78,6 @@ public class MiningNodeListener : IAssetScanListener<MiningNode>
         const float legendChance = 4.00f; // 100 - 96 = 4
 
         var itemTotalDropChances = new Dictionary<string, float>();
-        var itemRecords = new List<MiningNodeItemDBRecord>();
-
-        // --- Calculate Total Drop Chances First ---
 
         // Guarantee
         var guaranteeItem = node.guarantee ?? GameData.GM?.GuaranteeMine;
@@ -123,83 +120,13 @@ public class MiningNodeListener : IAssetScanListener<MiningNode>
             }
         }
 
-        // --- Create Records with Rarity Indices ---
-        int guaranteeIndex = 0;
-        int commonIndex = 0;
-        int rareIndex = 0;
-        int legendIndex = 0;
-
-        // Process guarantee item
-        if (guaranteeItem != null)
+        // Create one record per item
+        var itemRecords = itemTotalDropChances.Select(kvp => new MiningNodeItemDBRecord
         {
-            var guaranteeRecord = new MiningNodeItemDBRecord
-            {
-                MiningNodeId = miningNodeId,
-                Rarity = "Guarantee",
-                RarityIndex = guaranteeIndex++,
-                ItemName = guaranteeItem.ItemName,
-                DropChance = guaranteeChance,
-                TotalDropChance = itemTotalDropChances.GetValueOrDefault(guaranteeItem.ItemName, 0f),
-            };
-            itemRecords.Add(guaranteeRecord);
-        }
-
-        // Process common items
-        if (node.Common is { Count: > 0 })
-        {
-            var dropChancePerItem = commonChance / node.Common.Count;
-            foreach (var item in node.Common.Where(i => i != null))
-            {
-                var itemRecord = new MiningNodeItemDBRecord
-                {
-                    MiningNodeId = miningNodeId,
-                    Rarity = "Common",
-                    RarityIndex = commonIndex++,
-                    ItemName = item.ItemName,
-                    DropChance = dropChancePerItem,
-                    TotalDropChance = itemTotalDropChances.GetValueOrDefault(item.ItemName, 0f),
-                };
-                itemRecords.Add(itemRecord);
-            }
-        }
-
-        // Process rare items
-        if (node.Rare is { Count: > 0 })
-        {
-            var dropChancePerItem = rareChance / node.Rare.Count;
-            foreach (var item in node.Rare.Where(i => i != null))
-            {
-                var itemRecord = new MiningNodeItemDBRecord
-                {
-                    MiningNodeId = miningNodeId,
-                    Rarity = "Rare",
-                    RarityIndex = rareIndex++,
-                    ItemName = item.ItemName,
-                    DropChance = dropChancePerItem,
-                    TotalDropChance = itemTotalDropChances.GetValueOrDefault(item.ItemName, 0f),
-                };
-                itemRecords.Add(itemRecord);
-            }
-        }
-
-        // Process legend items
-        if (node.Legend is { Count: > 0 })
-        {
-            var dropChancePerItem = legendChance / node.Legend.Count;
-            foreach (var item in node.Legend.Where(i => i != null))
-            {
-                var itemRecord = new MiningNodeItemDBRecord
-                {
-                    MiningNodeId = miningNodeId,
-                    Rarity = "Legend",
-                    RarityIndex = legendIndex++,
-                    ItemName = item.ItemName,
-                    DropChance = dropChancePerItem,
-                    TotalDropChance = itemTotalDropChances.GetValueOrDefault(item.ItemName, 0f),
-                };
-                itemRecords.Add(itemRecord);
-            }
-        }
+            MiningNodeId = miningNodeId,
+            ItemName = kvp.Key,
+            DropChance = kvp.Value
+        }).ToList();
 
         return itemRecords;
     }
