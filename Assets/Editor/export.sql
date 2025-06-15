@@ -82,9 +82,17 @@ LEFT JOIN ZoneAnnounces za ON
     OR (za.SceneName LIKE 'Undercity' AND zae.ResourceName = 'Undercity');
 
 -- treasure-locations
-SELECT th.*, tl.Id AS Location
+SELECT
+    za.ZoneName,
+    ROUND(co.X, 2) AS PositionX,
+    ROUND(co.Y, 2) AS PositionY,
+    ROUND(co.Z, 2) AS PositionZ,
+    th.IsPickableAlways,
+    th.IsPickableGreater20,
+    th.IsPickableGreater30
 FROM TreasureHunting th
-JOIN TreasureLocs tl ON th.ZoneName = tl.SceneName
+JOIN Coordinates co ON co.Scene = th.ZoneName AND co.Category = 'TreasureLoc'
+JOIN ZoneAnnounces za ON za.SceneName = th.ZoneName
 ORDER BY th.IsPickableAlways DESC, th.IsPickableGreater20 DESC, th.IsPickableGreater30;
 
 -- fishing

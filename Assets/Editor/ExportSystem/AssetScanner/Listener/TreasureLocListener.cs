@@ -1,28 +1,30 @@
 using System.Collections.Generic;
 using SQLite;
 using UnityEngine;
+using static CoordinateDBRecord;
 
 public class TreasureLocListener : IAssetScanListener<TreasureLoc>
 {
     private readonly SQLiteConnection _db;
-    private readonly List<TreasureLocDBRecord> _records = new();
-    private readonly Dictionary<string, int> _recordCounts = new();
+    private readonly List<CoordinateDBRecord> _records = new();
 
     public TreasureLocListener(SQLiteConnection db)
     {
         _db = db;
     }
 
+    public void OnScanStarted()
+    {
+        _db.CreateTable<CoordinateDBRecord>();
+        
+        _db.Execute("DELETE FROM Coordinates WHERE Category = ?", nameof(CoordinateCategory.TreasureLoc));
+    }
+
     public void OnScanFinished()
     {
-        _db.CreateTable<TreasureLocDBRecord>();
-        _db.RunInTransaction(() =>
-        {
-            _db.DeleteAll<TreasureLocDBRecord>();
-            _db.InsertAll(_records);
-        });
+        _db.InsertAll(_records);
+        
         _records.Clear();
-        _recordCounts.Clear();
     }
 
     public void OnAssetFound(TreasureLoc asset)
@@ -32,20 +34,15 @@ public class TreasureLocListener : IAssetScanListener<TreasureLoc>
         _records.Add(CreateRecord(asset));
     }
 
-    private TreasureLocDBRecord CreateRecord(TreasureLoc treasureLoc)
+    private CoordinateDBRecord CreateRecord(TreasureLoc treasureLoc)
     {
-        var baseId = treasureLoc.gameObject.scene.name + treasureLoc.transform.position;
-        var spawnPointIndex = _recordCounts.GetValueOrDefault(baseId, 0);
-        _recordCounts[baseId] = spawnPointIndex + 1;
-        var finalId = baseId + (spawnPointIndex > 0 ? $"_{spawnPointIndex + 1}" : "");
-        
-        return new TreasureLocDBRecord
+        return new CoordinateDBRecord
         {
-            Id = finalId,
-            SceneName = treasureLoc.gameObject.scene.name,
-            PositionX = treasureLoc.transform.position.x,
-            PositionY = treasureLoc.transform.position.y,
-            PositionZ = treasureLoc.transform.position.z,
+            Scene = treasureLoc.gameObject.scene.name,
+            X = treasureLoc.transform.position.x,
+            Y = treasureLoc.transform.position.y,
+            Z = treasureLoc.transform.position.z,
+            Category = nameof(CoordinateCategory.TreasureLoc)
         };
     }
 }
