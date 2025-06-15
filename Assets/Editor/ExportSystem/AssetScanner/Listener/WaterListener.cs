@@ -4,53 +4,80 @@ using System.Collections.Generic;
 using System.Linq;
 using SQLite;
 using UnityEngine;
+using static CoordinateDBRecord;
 
 public class WaterListener : IAssetScanListener<Water>
 {
     private readonly SQLiteConnection _db;
-    private readonly List<WaterDBRecord> _waterRecords = new();
-    private readonly List<WaterFishableDBRecord> _waterFishableRecords = new();
 
     public WaterListener(SQLiteConnection db)
     {
         _db = db;
     }
 
-    public void OnScanFinished()
+    public void OnScanStarted()
     {
+        _db.CreateTable<CoordinateDBRecord>();
         _db.CreateTable<WaterDBRecord>();
         _db.CreateTable<WaterFishableDBRecord>();
-        _db.RunInTransaction(() =>
-        {
-            _db.DeleteAll<WaterDBRecord>();
-            _db.DeleteAll<WaterFishableDBRecord>();
-            _db.InsertAll(_waterRecords);
-            _db.InsertAll(_waterFishableRecords);
-        });
-        _waterRecords.Clear();
-        _waterFishableRecords.Clear();
+        
+        _db.Execute("DELETE FROM Coordinates WHERE Category = ?", nameof(CoordinateCategory.Water));
+        _db.DeleteAll<WaterDBRecord>();
+        _db.DeleteAll<WaterFishableDBRecord>();
+    }
+    
+    public void OnScanFinished()
+    {
+        _db.Execute(@"
+            UPDATE Coordinates
+            SET WaterId = (
+                SELECT Id
+                FROM Waters
+                WHERE Waters.CoordinateId = Coordinates.Id
+            )
+            WHERE EXISTS (
+                SELECT 1
+                FROM Waters
+                WHERE Waters.CoordinateId = Coordinates.Id
+            );
+        ");
     }
 
     public void OnAssetFound(Water asset)
     {
         Debug.Log($"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
-
-        var waterIndex = _waterRecords.Count;
-        var record = new WaterDBRecord
+        
+        var coordinate = new CoordinateDBRecord
         {
-            Id = $"{asset.gameObject.scene.name}({waterIndex})",
-            SceneName = asset.gameObject.scene.name,
-            Index = waterIndex,
+            Scene = asset.gameObject.scene.name,
+            X = asset.transform.position.x,
+            Y = asset.transform.position.y,
+            Z = asset.transform.position.z,
+            Category = nameof(CoordinateCategory.Water)
         };
 
-        _waterRecords.Add(record);
+        _db.Insert(coordinate);
 
-        _waterFishableRecords.AddRange(CreateWaterFishableRecords(asset, record.Id));
+        var water = new WaterDBRecord
+        {
+            CoordinateId = coordinate.Id,
+        };
+
+        _db.Insert(water);
+        _db.InsertAll(CreateWaterFishableRecords(asset, water.Id));
     }
 
-    private static List<WaterFishableDBRecord> CreateWaterFishableRecords(Water water, string waterId)
+    private static List<WaterFishableDBRecord> CreateWaterFishableRecords(Water water, int waterId)
     {
         var waterFishableRecords = new List<WaterFishableDBRecord>();
+
+        var treasureMapPieces = new List<string>
+        {
+            "Torn Treasure Map (Top Right)",
+            "Torn Treasure Map (Top Left)",
+            "Torn Treasure Map (Bottom Right)",
+            "Torn Treasure Map (Bottom Left)"
+        };
 
         void AddFishableRecords(List<Item> fishables, string type)
         {
@@ -68,34 +95,22 @@ public class WaterListener : IAssetScanListener<Water>
                 itemTotalDropChances.TryAdd(item.ItemName, 0f);
                 itemTotalDropChances[item.ItemName] += fishableChance;
             }
-
-            var index = 0;
-            foreach (var item in fishables.Where(i => i != null))
+            foreach (var itemName in treasureMapPieces)
             {
-                var itemRecord = new WaterFishableDBRecord
+                itemTotalDropChances.TryAdd(itemName, 0f);
+                itemTotalDropChances[itemName] += mapFragmentChance / treasureMapPieces.Count;
+            }
+
+            foreach (var kvp in itemTotalDropChances)
+            {
+                waterFishableRecords.Add(new WaterFishableDBRecord
                 {
                     WaterId = waterId,
                     Type = type,
-                    Index = index++,
-                    ItemId = item.Id,
-                    ItemName = item.ItemName,
-                    DropChance = fishableChance,
-                    TotalDropChance = itemTotalDropChances[item.ItemName],
-                };
-                waterFishableRecords.Add(itemRecord);
+                    ItemName = kvp.Key,
+                    DropChance = kvp.Value
+                });
             }
-
-            // Add the map fragment record
-            waterFishableRecords.Add(new WaterFishableDBRecord
-            {
-                WaterId = waterId,
-                Type = type,
-                Index = -1, // Use -1 or a special value for the map fragment
-                ItemId = null,
-                ItemName = "A random Torn Treasure Map fragment.",
-                DropChance = mapFragmentChance,
-                TotalDropChance = mapFragmentChance,
-            });
         }
 
         AddFishableRecords(water.DayFishables, "DayFishable");

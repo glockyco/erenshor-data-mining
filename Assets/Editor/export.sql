@@ -96,16 +96,24 @@ JOIN ZoneAnnounces za ON za.SceneName = th.ZoneName
 ORDER BY th.IsPickableAlways DESC, th.IsPickableGreater20 DESC, th.IsPickableGreater30;
 
 -- fishing
-SELECT
-    w.SceneName,
-    w."Index" AS WaterIndex,
-    wf.Type,
-    wf."Index" AS FishableIndex,
-    wf.ItemId,
-    wf.ItemName,
-    ROUND(wf.DropChance, 2) AS 'DropChance (%)',
-    ROUND(wf.TotalDropChance, 2) AS 'TotalDropChance (%)'
-FROM Waters w LEFT JOIN WaterFishables wf ON w.Id = wf.WaterId;
+SELECT * FROM
+(
+    SELECT
+        w.Id AS WaterId,
+        za.ZoneName,
+        ROUND(c.X, 2) AS PositionX,
+        ROUND(c.Y, 2) AS PositionY,
+        ROUND(c.Z, 2) AS PositionZ,
+        wf.ItemName,
+        MAX(CASE WHEN wf.Type = 'DayFishable' THEN ROUND(wf.DropChance, 2) END) AS 'DayFishableChance (%)',
+        MAX(CASE WHEN wf.Type = 'NightFishable' THEN ROUND(wf.DropChance, 2) END) AS 'NightFishableChance (%)'
+    FROM Waters w
+    LEFT JOIN WaterFishables wf ON w.Id = wf.WaterId
+    JOIN Coordinates c ON c.WaterId = w.Id
+    JOIN ZoneAnnounces za ON za.SceneName = c.Scene
+    GROUP BY w.Id, za.ZoneName, c.X, c.Y, c.Z, wf.ItemName
+)
+ORDER BY WaterId, ZoneName, "DayFishableChance (%)" DESC, "NightFishableChance (%)" DESC, ItemName;
 
 -- mining-nodes
 SELECT
