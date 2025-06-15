@@ -5,6 +5,7 @@ using System.Linq;
 using SQLite;
 using UnityEditor;
 using UnityEngine;
+using static CoordinateDBRecord;
 
 public class SpawnPointListener : IAssetScanListener<SpawnPoint>
 {
@@ -18,34 +19,61 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
         _db = db;
     }
 
-    public void OnScanFinished()
+    public void OnScanStarted()
     {
+        _db.CreateTable<CoordinateDBRecord>();
         _db.CreateTable<SpawnPointDBRecord>();
         _db.CreateTable<SpawnPointCharacterDBRecord>();
-        _db.RunInTransaction(() =>
-        {
-            _db.DeleteAll<SpawnPointDBRecord>();
-            _db.DeleteAll<SpawnPointCharacterDBRecord>();
-            _db.InsertAll(_spawnPointRecords);
-            _db.InsertAll(_spawnPointCharacterRecords);
-        });
-        _spawnPointRecords.Clear();
-        _spawnPointCharacterRecords.Clear();
-        _spawnPointCounts.Clear();
+        
+        _db.Execute("DELETE FROM Coordinates WHERE Category = ?", nameof(CoordinateCategory.SpawnPoint));
+        _db.DeleteAll<SpawnPointDBRecord>();
+        _db.DeleteAll<SpawnPointCharacterDBRecord>();
+    }
+    
+    public void OnScanFinished()
+    {
+        _db.Execute(@"
+            UPDATE Coordinates
+            SET SpawnPointId = (
+                SELECT Id
+                FROM SpawnPoints
+                WHERE SpawnPoints.CoordinateId = Coordinates.Id
+            )
+            WHERE EXISTS (
+                SELECT 1
+                FROM SpawnPoints
+                WHERE SpawnPoints.CoordinateId = Coordinates.Id
+            );
+        ");
     }
 
     public void OnAssetFound(SpawnPoint asset)
     {
         Debug.Log($"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
 
-        var spawnPointRecord = CreateSpawnPointRecord(asset);
+        var coordinateRecord = CreateCoordinateRecord(asset);
+        _db.Insert(coordinateRecord);
+        
+        var spawnPointRecord = CreateSpawnPointRecord(asset, coordinateRecord.Id);
+        _db.Insert(spawnPointRecord);
+        
         var spawnPointCharacterRecords = CreateSpawnPointCharacterRecords(asset, spawnPointRecord.Id);
-
-        _spawnPointRecords.Add(spawnPointRecord);
-        _spawnPointCharacterRecords.AddRange(spawnPointCharacterRecords);
+        _db.InsertAll(spawnPointCharacterRecords);
     }
 
-    private SpawnPointDBRecord CreateSpawnPointRecord(SpawnPoint spawnPoint)
+    private CoordinateDBRecord CreateCoordinateRecord(SpawnPoint spawnPoint)
+    {
+        return new CoordinateDBRecord
+        {
+            Scene = spawnPoint.gameObject.scene.name,
+            X = spawnPoint.transform.position.x,
+            Y = spawnPoint.transform.position.y,
+            Z = spawnPoint.transform.position.z,
+            Category = nameof(CoordinateCategory.SpawnPoint)
+        };
+    }
+
+    private SpawnPointDBRecord CreateSpawnPointRecord(SpawnPoint spawnPoint, int coordinateId)
     {
         var baseId = spawnPoint.gameObject.scene.name + spawnPoint.transform.position;
         var spawnPointIndex = _spawnPointCounts.GetValueOrDefault(baseId, 0);
@@ -54,13 +82,8 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
         
         return new SpawnPointDBRecord
         {
-            Id = finalId,
-            
+            CoordinateId = coordinateId,
             IsEnabled = spawnPoint.isActiveAndEnabled,
-            SceneName = spawnPoint.gameObject.scene.name,
-            PositionX = spawnPoint.transform.position.x,
-            PositionY = spawnPoint.transform.position.y,
-            PositionZ = spawnPoint.transform.position.z,
             RareNPCChance = spawnPoint.RareNPCChance,
             LevelMod = spawnPoint.levelMod,
             SpawnDelay = spawnPoint.SpawnDelay,
@@ -76,7 +99,7 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
         };
     }
 
-    private List<SpawnPointCharacterDBRecord> CreateSpawnPointCharacterRecords(SpawnPoint spawnPoint, string spawnPointId)
+    private List<SpawnPointCharacterDBRecord> CreateSpawnPointCharacterRecords(SpawnPoint spawnPoint, int spawnPointId)
     {
         var records = new List<SpawnPointCharacterDBRecord>();
         var spawnChancesByGuid = new Dictionary<string, float>();

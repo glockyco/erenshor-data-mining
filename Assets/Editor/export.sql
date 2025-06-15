@@ -117,11 +117,15 @@ JOIN Coordinates c ON c.MiningNodeId = m.Id;
 
 -- spawn-points
 SELECT
-    sp.Id AS 'Spawn Point',
+    sp.Id,
+    co.Scene,
+    ROUND(co.X, 2) AS PositionX,
+    ROUND(co.Y, 2) AS PositionY,
+    ROUND(co.Z, 2) AS PositionZ,
     sp.IsEnabled,
-    spc.SpawnType AS 'Spawn Type',
-    c.NPCName AS 'NPC Name',
-    c.ObjectName AS 'NPC Prefab Name',
+    spc.SpawnType,
+    c.NPCName,
+    c.ObjectName,
     ROUND(spc.SpawnChance, 2) AS 'Spawn Chance (%)',
     ROUND(spc.TotalSpawnChance, 2) AS 'Total Spawn Chance (%)',
     
@@ -137,8 +141,9 @@ SELECT
     sp.StopIfQuestCompleteDBNames
 FROM
     main.SpawnPoints sp
-    JOIN main.SpawnPointCharacters spc ON sp.Id = spc.SpawnPointId
-    JOIN main.Characters c ON spc.CharacterPrefabGuid = c.Guid
+    JOIN SpawnPointCharacters spc ON sp.Id = spc.SpawnPointId
+    JOIN Characters c ON spc.CharacterPrefabGuid = c.Guid
+    JOIN Coordinates co ON co.SpawnPointId = sp.Id
 ORDER BY
     sp.Id,
     spc.SpawnType,

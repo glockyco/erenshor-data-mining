@@ -4,7 +4,7 @@ using SQLite;
 public class SpawnPointCharacterDBRecord
 {
     [Indexed(Name = "SpawnPointCharacters_Primary_IDX", Order = 1, Unique = true)]
-    public string SpawnPointId { get; set; }
+    public int SpawnPointId { get; set; }
 
     [Indexed]
     public string CharacterPrefabGuid { get; set; }
