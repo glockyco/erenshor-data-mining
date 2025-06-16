@@ -5,15 +5,10 @@ public class SpawnPointCharacterDBRecord
 {
     [Indexed(Name = "SpawnPointCharacters_Primary_IDX", Order = 1, Unique = true)]
     public int SpawnPointId { get; set; }
-
-    [Indexed]
-    public string CharacterPrefabGuid { get; set; }
-
     [Indexed(Name = "SpawnPointCharacters_Primary_IDX", Order = 2, Unique = true)]
-    public string SpawnType { get; set; }
-    [Indexed(Name = "SpawnPointCharacters_Primary_IDX", Order = 3, Unique = true)]
-    public int SpawnListIndex { get; set; }
-
+    public string CharacterPrefabGuid { get; set; }
     public float SpawnChance { get; set; }
-    public float TotalSpawnChance { get; set; }
+    public bool IsCommon { get; set; }
+    public bool IsRare { get; set; }
+    public bool IsUnique { get; set; }
 }

@@ -139,11 +139,12 @@ SELECT
     ROUND(co.Y, 2) AS PositionY,
     ROUND(co.Z, 2) AS PositionZ,
     sp.IsEnabled,
-    spc.SpawnType,
     c.NPCName,
     c.ObjectName,
     ROUND(spc.SpawnChance, 2) AS 'Spawn Chance (%)',
-    ROUND(spc.TotalSpawnChance, 2) AS 'Total Spawn Chance (%)',
+    spc.IsCommon,
+    spc.IsRare,
+    spc.IsUnique,
     
     sp.LevelMod,
     sp.SpawnDelay,
@@ -162,8 +163,8 @@ FROM
     JOIN Coordinates co ON co.SpawnPointId = sp.Id
 ORDER BY
     sp.Id,
-    spc.SpawnType,
-    spc.SpawnListIndex;
+    spc.SpawnChance DESC,
+    c.NPCName;
 
 -- achievement-triggers
 SELECT

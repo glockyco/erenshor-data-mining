@@ -10,9 +10,6 @@ using static CoordinateDBRecord;
 public class SpawnPointListener : IAssetScanListener<SpawnPoint>
 {
     private readonly SQLiteConnection _db;
-    private readonly List<SpawnPointDBRecord> _spawnPointRecords = new();
-    private readonly List<SpawnPointCharacterDBRecord> _spawnPointCharacterRecords = new();
-    private readonly Dictionary<string, int> _spawnPointCounts = new();
 
     public SpawnPointListener(SQLiteConnection db)
     {
@@ -32,6 +29,17 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
     
     public void OnScanFinished()
     {
+        _db.Execute(@"
+            UPDATE SpawnPointCharacters
+            SET IsUnique = 1
+            WHERE CharacterPrefabGuid IN (
+                SELECT CharacterPrefabGuid
+                FROM SpawnPointCharacters
+                GROUP BY CharacterPrefabGuid
+                HAVING COUNT(DISTINCT SpawnPointId) = 1
+            );
+        ");
+        
         _db.Execute(@"
             UPDATE Coordinates
             SET SpawnPointId = (
@@ -75,11 +83,6 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
 
     private SpawnPointDBRecord CreateSpawnPointRecord(SpawnPoint spawnPoint, int coordinateId)
     {
-        var baseId = spawnPoint.gameObject.scene.name + spawnPoint.transform.position;
-        var spawnPointIndex = _spawnPointCounts.GetValueOrDefault(baseId, 0);
-        _spawnPointCounts[baseId] = spawnPointIndex + 1;
-        var finalId = baseId + (spawnPointIndex > 0 ? $"_{spawnPointIndex + 1}" : "");
-        
         return new SpawnPointDBRecord
         {
             CoordinateId = coordinateId,
@@ -101,65 +104,67 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
 
     private List<SpawnPointCharacterDBRecord> CreateSpawnPointCharacterRecords(SpawnPoint spawnPoint, int spawnPointId)
     {
-        var records = new List<SpawnPointCharacterDBRecord>();
-        var spawnChancesByGuid = new Dictionary<string, float>();
+        // Use GUID as the key for grouping
+        var characterData = new Dictionary<string, (float spawnChance, bool isCommon, bool isRare)>();
 
         float rareNpcChance = spawnPoint.RareNPCChance;
         float commonNpcChance = 100.0f - rareNpcChance;
 
-        // First pass: Calculate individual spawn chances and accumulate totals by GUID
+        // Rare spawns
         if (spawnPoint.RareSpawns is { Count: > 0 })
         {
             var rareSpawnChance = rareNpcChance / spawnPoint.RareSpawns.Count;
-            for (var i = 0; i < spawnPoint.RareSpawns.Count; i++)
+            foreach (var rareSpawn in spawnPoint.RareSpawns)
             {
-                var rareSpawn = spawnPoint.RareSpawns[i];
                 var path = AssetDatabase.GetAssetPath(rareSpawn);
                 var guid = AssetDatabase.AssetPathToGUID(path);
 
-                spawnChancesByGuid.TryAdd(guid, 0f);
-                spawnChancesByGuid[guid] += rareSpawnChance;
-
-                records.Add(new SpawnPointCharacterDBRecord
+                if (!characterData.ContainsKey(guid))
                 {
-                    SpawnPointId = spawnPointId,
-                    CharacterPrefabGuid = guid,
-                    SpawnType = "Rare",
-                    SpawnListIndex = i,
-                    SpawnChance = rareSpawnChance,
-                    // TotalSpawnChance will be set in the second pass
-                });
+                    characterData[guid] = (0f, false, false);
+                }
+
+                var entry = characterData[guid];
+                entry.spawnChance += rareSpawnChance;
+                entry.isRare = true;
+                characterData[guid] = entry;
             }
         }
 
+        // Common spawns
         if (spawnPoint.CommonSpawns is { Count: > 0 })
         {
             var commonSpawnChance = commonNpcChance / spawnPoint.CommonSpawns.Count;
-            for (var i = 0; i < spawnPoint.CommonSpawns.Count; i++)
+            foreach (var commonSpawn in spawnPoint.CommonSpawns)
             {
-                var commonSpawn = spawnPoint.CommonSpawns[i];
                 var path = AssetDatabase.GetAssetPath(commonSpawn);
                 var guid = AssetDatabase.AssetPathToGUID(path);
 
-                spawnChancesByGuid.TryAdd(guid, 0f);
-                spawnChancesByGuid[guid] += commonSpawnChance;
-
-                records.Add(new SpawnPointCharacterDBRecord
+                if (!characterData.ContainsKey(guid))
                 {
-                    SpawnPointId = spawnPointId,
-                    CharacterPrefabGuid = guid,
-                    SpawnType = "Common",
-                    SpawnListIndex = i,
-                    SpawnChance = commonSpawnChance,
-                    // TotalSpawnChance will be set in the second pass
-                });
+                    characterData[guid] = (0f, false, false);
+                }
+
+                var entry = characterData[guid];
+                entry.spawnChance += commonSpawnChance;
+                entry.isCommon = true;
+                characterData[guid] = entry;
             }
         }
 
-        // Second pass: Set TotalSpawnChance for each record
-        foreach (var record in records)
+        // Create records
+        var records = new List<SpawnPointCharacterDBRecord>();
+        foreach (var kvp in characterData)
         {
-            record.TotalSpawnChance = spawnChancesByGuid[record.CharacterPrefabGuid];
+            records.Add(new SpawnPointCharacterDBRecord
+            {
+                SpawnPointId = spawnPointId,
+                CharacterPrefabGuid = kvp.Key,
+                SpawnChance = kvp.Value.spawnChance,
+                IsCommon = kvp.Value.isCommon,
+                IsRare = kvp.Value.isRare,
+                IsUnique = false,
+            });
         }
 
         return records;
