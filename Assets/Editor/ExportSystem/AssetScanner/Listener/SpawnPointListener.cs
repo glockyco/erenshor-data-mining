@@ -37,6 +37,7 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
                     SELECT c.NPCName
                     FROM SpawnPointCharacters spc
                     JOIN Characters c ON c.Guid = spc.CharacterPrefabGuid
+                    WHERE spc.SpawnChance > 0
                     GROUP BY c.NPCName
                     HAVING COUNT(DISTINCT spc.SpawnPointId) = 1
                 )
