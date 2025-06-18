@@ -33,10 +33,17 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
             UPDATE SpawnPointCharacters
             SET IsUnique = 1
             WHERE CharacterPrefabGuid IN (
-                SELECT CharacterPrefabGuid
-                FROM SpawnPointCharacters
-                GROUP BY CharacterPrefabGuid
-                HAVING COUNT(DISTINCT SpawnPointId) = 1
+                WITH UniqueNPCs AS (
+                    SELECT c.NPCName
+                    FROM SpawnPointCharacters spc
+                    JOIN Characters c ON c.Guid = spc.CharacterPrefabGuid
+                    GROUP BY c.NPCName
+                    HAVING COUNT(DISTINCT spc.SpawnPointId) = 1
+                )
+                SELECT c.Guid
+                FROM SpawnPointCharacters spc
+                JOIN Characters c ON c.Guid = spc.CharacterPrefabGuid
+                WHERE c.NPCName IN (SELECT NPCName FROM UniqueNPCs)
             );
         ");
         
