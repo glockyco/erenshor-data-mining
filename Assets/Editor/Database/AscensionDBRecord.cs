@@ -1,3 +1,5 @@
+#nullable enable
+
 using SQLite;
 
 [Table("Ascensions")]
@@ -5,11 +7,11 @@ public class AscensionDBRecord
 {
     public int AscensionDBIndex { get; set; } // Index from the loaded Resources array
     [PrimaryKey]
-    public string Id { get; set; } // From BaseScriptableObject.Id
+    public string Id { get; set; } = string.Empty; // From BaseScriptableObject.Id
 
-    public string UsedBy { get; set; } // Store Ascension.Class enum as string
-    public string SkillName { get; set; }
-    public string SkillDesc { get; set; }
+    public string UsedBy { get; set; } = string.Empty; // Store Ascension.Class enum as string
+    public string SkillName { get; set; } = string.Empty;
+    public string SkillDesc { get; set; } = string.Empty;
     public int MaxRank { get; set; }
     public int SimPlayerWeight { get; set; }
 
@@ -52,5 +54,5 @@ public class AscensionDBRecord
     public float SummonedBeastEnhancement { get; set; }
 
     // Internals / Metadata
-    public string ResourceName { get; set; }
+    public string ResourceName { get; set; } = string.Empty;
 }
