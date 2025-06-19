@@ -1,4 +1,6 @@
-﻿using SQLite;
+﻿#nullable enable
+
+using SQLite;
 
 [Table("Coordinates")]
 public class CoordinateDBRecord
@@ -6,12 +8,12 @@ public class CoordinateDBRecord
     [PrimaryKey, AutoIncrement]
     public int Id { get; set; }
     
-    public string Scene { get; set; }
+    public string Scene { get; set; } = string.Empty;
     public float X { get; set; }
     public float Y { get; set; }
     public float Z { get; set; }
-    
-    public string Category { get; set; }
+
+    public string Category { get; set; } = string.Empty;
     
     [Indexed]
     public int? AchievementTriggerId { get; set; }
