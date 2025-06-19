@@ -1,3 +1,5 @@
+#nullable enable
+
 using SQLite;
 
 [Table("Items")]
@@ -6,16 +8,16 @@ public class ItemDBRecord
     // --- Core Identification ---
     public int ItemDBIndex { get; set; } // Index in the Resources.LoadAll<Item> array
     [PrimaryKey]
-    public string Id { get; set; } // Composite ID like "BaseID_q1", "BaseID_q2", etc.
-    public string BaseItemId { get; set; } // Original Item.Id
-    public string ItemName { get; set; }
-    public string Lore { get; set; }
+    public string Id { get; set; } = string.Empty; // Composite ID like "BaseID_q1", "BaseID_q2", etc.
+    public string BaseItemId { get; set; } = string.Empty; // Original Item.Id
+    public string ItemName { get; set; } = string.Empty;
+    public string Lore { get; set; } = string.Empty;
 
     // --- Classification & Requirements ---
-    public string RequiredSlot { get; set; } // From Item.SlotType enum
-    public string ThisWeaponType { get; set; } // From Item.WeaponType enum
-    public string Classes { get; set; } // Comma-separated list from Item.Classes
-    public string Quality { get; set; } // "Normal", "Blessed", "Godly"
+    public string RequiredSlot { get; set; } = string.Empty; // From Item.SlotType enum
+    public string ThisWeaponType { get; set; } = string.Empty; // From Item.WeaponType enum
+    public string Classes { get; set; } = string.Empty; // Comma-separated list from Item.Classes
+    public string Quality { get; set; } = string.Empty; // "Normal", "Blessed", "Godly"
     public int ItemLevel { get; set; }
 
     // --- Core Stats (Affected by Quality) ---
@@ -40,31 +42,31 @@ public class ItemDBRecord
     public float WeaponDly { get; set; }
     public bool Shield { get; set; } // Is it a shield?
     public float WeaponProcChance { get; set; }
-    public string WeaponProcOnHit { get; set; } // Id of the Spell to proc
+    public string WeaponProcOnHit { get; set; } = string.Empty; // Id of the Spell to proc
     
     // --- Wand Properties ---
     public bool IsWand { get; set; }
     public int WandRange { get; set; }
     public float WandProcChance { get; set; }
-    public string WandEffect { get; set; }
+    public string WandEffect { get; set; } = string.Empty;
 
     // --- Effects & Interactions ---
-    public string ItemEffectOnClick { get; set; } // Id of the Spell to cast on click
-    public string ItemSkillUse { get; set; } // Id of the Skill to use on click
-    public string TeachSpell { get; set; } // Id of the Spell taught by this item
-    public string TeachSkill { get; set; } // Id of the Skill taught by this item
-    public string Aura { get; set; } // Id of the Spell providing a passive aura
-    public string WornEffect { get; set; } // Id of the Spell providing a passive worn effect
+    public string ItemEffectOnClick { get; set; } = string.Empty; // Id of the Spell to cast on click
+    public string ItemSkillUse { get; set; } = string.Empty; // Id of the Skill to use on click
+    public string TeachSpell { get; set; } = string.Empty; // Id of the Spell taught by this item
+    public string TeachSkill { get; set; } = string.Empty; // Id of the Skill taught by this item
+    public string Aura { get; set; } = string.Empty; // Id of the Spell providing a passive aura
+    public string WornEffect { get; set; } = string.Empty; // Id of the Spell providing a passive worn effect
     public float SpellCastTime { get; set; } // Cast time modifier or specific cast time? (Check Item.cs usage)
 
     // --- Quest Interaction ---
-    public string AssignQuestOnRead { get; set; } // Quest assigned on read
-    public string CompleteOnRead { get; set; } // Quest completed on read
+    public string AssignQuestOnRead { get; set; } = string.Empty; // Quest assigned on read
+    public string CompleteOnRead { get; set; } = string.Empty; // Quest completed on read
 
     // --- Crafting & Templates ---
     public bool Template { get; set; }
-    public string TemplateIngredientIds { get; set; } // Comma-separated list of Item Ids
-    public string TemplateRewardIds { get; set; } // Comma-separated list of Item Ids
+    public string TemplateIngredientIds { get; set; } = string.Empty; // Comma-separated list of Item Ids
+    public string TemplateRewardIds { get; set; } = string.Empty; // Comma-separated list of Item Ids
 
     // --- Economy & Inventory ---
     public int ItemValue { get; set; } // Gold value
@@ -75,16 +77,16 @@ public class ItemDBRecord
     public bool Relic { get; set; }
 
     // --- Miscellaneous ---
-    public string BookTitle { get; set; } // If the item is a book
+    public string BookTitle { get; set; } = string.Empty; // If the item is a book
     public int Mining { get; set; } // Mining skill required/provided? (Check Item.cs usage)
     public bool FuelSource { get; set; }
     public int FuelLevel { get; set; } // From Item.FuelTier enum
     public bool SimPlayersCantGet { get; set; } // Flag for simulation behavior
     
     // --- Visuals & Sound ---
-    public string AttackSoundName { get; set; } // Name of the AudioClip
-    public string ItemIconName { get; set; } // Name of the Sprite for the icon
-    public string EquipmentToActivate { get; set; } // String identifier for visual equipment
+    public string AttackSoundName { get; set; } = string.Empty; // Name of the AudioClip
+    public string ItemIconName { get; set; } = string.Empty; // Name of the Sprite for the icon
+    public string EquipmentToActivate { get; set; } = string.Empty; // String identifier for visual equipment
     //public string ShoulderTrimL { get; set; }
     //public string ShoulderTrimR { get; set; }
     //public string ElbowTrimL { get; set; }
@@ -124,8 +126,8 @@ public class ItemDBRecord
     //public float ItemLeatherSecondaryA { get; set; }
 
     // --- Internal ---
-    public string ResourceName { get; set; } // Original Item.name (ScriptableObject filename)
+    public string ResourceName { get; set; } = string.Empty; // Original Item.name (ScriptableObject filename)
 
     // --- Wiki ---
-    public string WikiString { get; set; } // Generated wiki string for this item
+    public string WikiString { get; set; } = string.Empty; // Generated wiki string for this item
 }
