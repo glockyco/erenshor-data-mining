@@ -1,3 +1,5 @@
+#nullable enable
+
 using SQLite;
 
 [Table("MiningNodeItems")]
@@ -7,6 +9,6 @@ public class MiningNodeItemDBRecord
     public int MiningNodeId { get; set; }
 
     [Indexed(Name = "MiningNodeItems_Primary_IDX", Order = 2, Unique = true)]
-    public string ItemName { get; set; }
+    public string ItemName { get; set; } = string.Empty;
     public float DropChance { get; set; }
 }
