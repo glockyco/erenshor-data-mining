@@ -1,10 +1,12 @@
+#nullable enable
+
 using SQLite;
 
 [Table("Classes")]
 public class ClassDBRecord
 {
     [PrimaryKey]
-    public string ClassName { get; set; }
+    public string ClassName { get; set; } = string.Empty;
 
     public float MitigationBonus { get; set; }
     public int StrBenefit { get; set; }
@@ -15,6 +17,6 @@ public class ClassDBRecord
     public int WisBenefit { get; set; }
     public int ChaBenefit { get; set; }
     public float AggroMod { get; set; }
-    
-    public string ResourceName { get; set; } // The filename of the ScriptableObject asset
+
+    public string ResourceName { get; set; } = string.Empty; // The filename of the ScriptableObject asset
 }
