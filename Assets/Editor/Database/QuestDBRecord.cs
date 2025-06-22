@@ -1,3 +1,5 @@
+#nullable enable
+
 using SQLite;
 
 [Table("Quests")]
@@ -5,27 +7,27 @@ public class QuestDBRecord
 {
     // --- Core Identification ---
     public int QuestDBIndex { get; set; } // Index in the Resources.LoadAll array
-    public string QuestName { get; set; } // From Quest.QuestName (Display Name)
-    public string QuestDesc { get; set; } // From Quest.QuestDesc (Description Text)
+    public string QuestName { get; set; } = string.Empty; // From Quest.QuestName (Display Name)
+    public string QuestDesc { get; set; } = string.Empty; // From Quest.QuestDesc (Description Text)
 
     // --- Requirements ---
-    public string RequiredItemIds { get; set; } // Comma-separated IDs from Quest.RequiredItems
+    public string RequiredItemIds { get; set; } = string.Empty; // Comma-separated IDs from Quest.RequiredItems
 
     // --- Rewards & Completion ---
     public int XPonComplete { get; set; } // From Quest.XPonComplete
-    public string ItemOnCompleteId { get; set; } // ID from Quest.ItemOnComplete
+    public string ItemOnCompleteId { get; set; } = string.Empty; // ID from Quest.ItemOnComplete
     public int GoldOnComplete { get; set; } // From Quest.GoldOnComplete
-    public string AssignNewQuestOnCompleteDBName { get; set; } // DBName from Quest.AssignNewQuestOnComplete
-    public string CompleteOtherQuestDBNames { get; set; } // Comma-separated DBNames from Quest.CompleteOtherQuests
+    public string AssignNewQuestOnCompleteDBName { get; set; } = string.Empty; // DBName from Quest.AssignNewQuestOnComplete
+    public string CompleteOtherQuestDBNames { get; set; } = string.Empty; // Comma-separated DBNames from Quest.CompleteOtherQuests
 
     // --- Dialog & Text ---
-    public string DialogOnSuccess { get; set; } // From Quest.DialogOnSuccess
-    public string DialogOnPartialSuccess { get; set; } // From Quest.DialogOnPartialSuccess
-    public string DisableText { get; set; } // From Quest.DisableText
+    public string DialogOnSuccess { get; set; } = string.Empty; // From Quest.DialogOnSuccess
+    public string DialogOnPartialSuccess { get; set; } = string.Empty; // From Quest.DialogOnPartialSuccess
+    public string DisableText { get; set; } = string.Empty; // From Quest.DisableText
 
     // --- Faction Adjustments ---
-    public string AffectedFactions { get; set; } // Comma-separated REFNAMEs from Quest.AffectFactions
-    public string AffectedFactionAmounts { get; set; } // Comma-separated amounts from Quest.AffectFactionAmts
+    public string AffectedFactions { get; set; } = string.Empty; // Comma-separated REFNAMEs from Quest.AffectFactions
+    public string AffectedFactionAmounts { get; set; } = string.Empty; // Comma-separated amounts from Quest.AffectFactionAmts
 
     // --- Flags & Behavior ---
     public bool AssignThisQuestOnPartialComplete { get; set; } // From Quest.AssignThisQuestOnPartialComplete
@@ -37,11 +39,11 @@ public class QuestDBRecord
     public bool OncePerSpawnInstance { get; set; } // From Quest.OncePerSpawnInstance
 
     // --- Achievements ---
-    public string SetAchievementOnGet { get; set; } // From Quest.SetAchievementOnGet
-    public string SetAchievementOnFinish { get; set; } // From Quest.SetAchievementOnFinish
+    public string SetAchievementOnGet { get; set; } = string.Empty; // From Quest.SetAchievementOnGet
+    public string SetAchievementOnFinish { get; set; } = string.Empty; // From Quest.SetAchievementOnFinish
 
     // --- Internals / Metadata ---
-    public string DBName { get; set; } // From Quest.DBName (Unique Identifier)
+    public string DBName { get; set; } = string.Empty; // From Quest.DBName (Unique Identifier)
     [PrimaryKey]
-    public string ResourceName { get; set; } // From Quest.name (ScriptableObject asset name)
+    public string ResourceName { get; set; } = string.Empty; // From Quest.name (ScriptableObject asset name)
 }
