@@ -1,3 +1,5 @@
+#nullable enable
+
 using SQLite;
 
 [Table("Spells")]
@@ -6,14 +8,14 @@ public class SpellDBRecord
     // --- Core Identification ---
     public int SpellDBIndex { get; set; } // Index in the Resources.LoadAll array
     [PrimaryKey]
-    public string Id { get; set; } // From BaseScriptableObject.Id
-    public string SpellName { get; set; } // From Spell.SpellName
-    public string SpellDesc { get; set; } // From Spell.SpellDesc
-    public string Type { get; set; } // From Spell.Type enum
-    public string Line { get; set; } // From Spell.Line enum
+    public string Id { get; set; } = string.Empty; // From BaseScriptableObject.Id
+    public string SpellName { get; set; } = string.Empty; // From Spell.SpellName
+    public string SpellDesc { get; set; } = string.Empty; // From Spell.SpellDesc
+    public string Type { get; set; } = string.Empty; // From Spell.Type enum
+    public string Line { get; set; } = string.Empty; // From Spell.Line enum
 
     // --- Requirements & Cost ---
-    public string Classes { get; set; } // Comma-separated list from Spell.UsedBy
+    public string Classes { get; set; } = string.Empty; // Comma-separated list from Spell.UsedBy
     public int RequiredLevel { get; set; } // From Spell.RequiredLevel
     public int ManaCost { get; set; } // From Spell.ManaCost
 
@@ -79,8 +81,8 @@ public class SpellDBRecord
     public bool TauntSpell { get; set; } // From Spell.TauntSpell
 
     // --- Special Mechanics ---
-    public string PetToSummonResourceName { get; set; } // From Spell.PetToSummon.name
-    public string StatusEffectToApply { get; set; } // From Spell.StatusEffectToApply
+    public string PetToSummonResourceName { get; set; } = string.Empty; // From Spell.PetToSummon.name
+    public string StatusEffectToApply { get; set; } = string.Empty; // From Spell.StatusEffectToApply
     public bool ReapAndRenew { get; set; } // From Spell.ReapAndRenew
     public int ResonateChance { get; set; } // From Spell.ResonateChance
     public float XPBonus { get; set; } // From Spell.XPBonus
@@ -89,7 +91,7 @@ public class SpellDBRecord
     // --- Visual/Audio ---
     public int SpellChargeFXIndex { get; set; } // From Spell.SpellChargeFXIndex
     public int SpellResolveFXIndex { get; set; } // From Spell.SpellResolveFXIndex
-    public string SpellIconName { get; set; } // From Spell.SpellIcon.name
+    public string SpellIconName { get; set; } = string.Empty; // From Spell.SpellIcon.name
     public float ShakeDur { get; set; } // From Spell.ShakeDur
     public float ShakeAmp { get; set; } // From Spell.ShakeAmp
     public float ColorR { get; set; } // From Spell.color.r
@@ -98,9 +100,9 @@ public class SpellDBRecord
     public float ColorA { get; set; } // From Spell.color.a
 
     // --- Text/Metadata ---
-    public string StatusEffectMessageOnPlayer { get; set; } // From Spell.StatusEffectMessageOnPlayer
-    public string StatusEffectMessageOnNPC { get; set; } // From Spell.StatusEffectMessageOnNPC
+    public string StatusEffectMessageOnPlayer { get; set; } = string.Empty; // From Spell.StatusEffectMessageOnPlayer
+    public string StatusEffectMessageOnNPC { get; set; } = string.Empty; // From Spell.StatusEffectMessageOnNPC
     
     // --- Internals ---
-    public string ResourceName { get; set; } // From Spell.name (ScriptableObject name)
+    public string ResourceName { get; set; } = string.Empty; // From Spell.name (ScriptableObject name)
 }
