@@ -61,6 +61,7 @@ public class MiningNodeListener : IAssetScanListener<MiningNode>
         var miningNode = new MiningNodeDBRecord
         {
             CoordinateId = coordinate.Id,
+            NPCName = asset.GetComponent<NPC>().NPCName,
             RespawnTime = asset.RespawnTime
         };
 

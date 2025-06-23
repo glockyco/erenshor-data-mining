@@ -117,7 +117,7 @@ ORDER BY WaterId, ZoneName, "DayFishableChance (%)" DESC, "NightFishableChance (
 
 -- mining-nodes
 SELECT
-    m.Id MiningNodeId,
+    m.Id AS MiningNodeId,
     za.ZoneName,
     ROUND(c.X, 2) AS PositionX,
     ROUND(c.Y, 2) AS PositionY,
