@@ -53,6 +53,11 @@ public class CharacterListener : IAssetScanListener<Character>
     {
         Debug.Log($"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
 
+        if (asset.GetComponent<MiningNode>() != null)
+        {
+            return;
+        }
+
         _records.Add(CreateRecord(asset));
     }
     
@@ -77,7 +82,6 @@ public class CharacterListener : IAssetScanListener<Character>
         
         NPC npc = character.GetComponent<NPC>();
         VendorInventory vendorInventory = character.GetComponent<VendorInventory>();
-        MiningNode miningNode = character.GetComponent<MiningNode>();
         SimPlayer simPlayer = character.GetComponent<SimPlayer>();
         Stats stats = character.GetComponent<Stats>();
         ModifyFaction[] modifyFactions = character.GetComponents<ModifyFaction>();
@@ -109,7 +113,6 @@ public class CharacterListener : IAssetScanListener<Character>
             IsNPC = npc != null,
             IsSimPlayer = simPlayer != null,
             IsVendor = vendorInventory != null,
-            IsMiningNode = miningNode != null,
             HasStats = stats != null,
             HasModifyFaction = modifyFactions.Length > 0,
             Invulnerable = character.Invulnerable,
