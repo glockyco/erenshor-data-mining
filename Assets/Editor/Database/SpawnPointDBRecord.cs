@@ -12,7 +12,10 @@ public class SpawnPointDBRecord
     public bool IsEnabled { get; set; }
     public int RareNPCChance { get; set; }
     public int LevelMod { get; set; }
-    public float SpawnDelay { get; set; }
+    public float SpawnDelay1 { get; set; }
+    public float SpawnDelay2 { get; set; }
+    public float SpawnDelay3 { get; set; }
+    public float SpawnDelay4 { get; set; }
     public bool Staggerable { get; set; }
     public float StaggerMod { get; set; }
     public bool NightSpawn { get; set; }

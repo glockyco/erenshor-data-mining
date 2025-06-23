@@ -97,7 +97,10 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
             IsEnabled = spawnPoint.isActiveAndEnabled,
             RareNPCChance = spawnPoint.RareNPCChance,
             LevelMod = spawnPoint.levelMod,
-            SpawnDelay = spawnPoint.SpawnDelay,
+            SpawnDelay1 = spawnPoint.SpawnDelay,
+            SpawnDelay2 = spawnPoint.SpawnDelay / 1.1f, // See: GameManager.SpawnTimeMod
+            SpawnDelay3 = spawnPoint.SpawnDelay / 1.8f, // See: GameManager.SpawnTimeMod
+            SpawnDelay4 = spawnPoint.SpawnDelay / 1.8f, // See: GameManager.SpawnTimeMod
             Staggerable = spawnPoint.staggerable,
             StaggerMod = spawnPoint.staggerMod,
             NightSpawn = spawnPoint.NightSpawn,
