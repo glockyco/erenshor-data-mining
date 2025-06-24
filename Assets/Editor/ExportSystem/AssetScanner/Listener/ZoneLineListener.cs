@@ -54,14 +54,12 @@ public class ZoneLineListener : IAssetScanListener<Zoneline>
 
     private ZoneLineDBRecord CreateRecord(Zoneline zoneLine)
     {
-        var cubeSize = zoneLine.transform.localScale;
-
         var coordinate = new CoordinateDBRecord
         {
             Scene = zoneLine.gameObject.scene.name,
-            X = zoneLine.transform.position.x + cubeSize.x / 2,
-            Y = zoneLine.transform.position.y + cubeSize.y / 2,
-            Z = zoneLine.transform.position.z + cubeSize.z / 2,
+            X = zoneLine.transform.position.x,
+            Y = zoneLine.transform.position.y,
+            Z = zoneLine.transform.position.z,
             Category = nameof(CoordinateCategory.ZoneLine)
         };
 
