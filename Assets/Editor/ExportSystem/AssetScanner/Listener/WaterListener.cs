@@ -61,6 +61,9 @@ public class WaterListener : IAssetScanListener<Water>
         var water = new WaterDBRecord
         {
             CoordinateId = coordinate.Id,
+            Width = asset.transform.localScale.x,
+            Height = asset.transform.localScale.y,
+            Depth = asset.transform.localScale.z
         };
 
         _db.Insert(water);

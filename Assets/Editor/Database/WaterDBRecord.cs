@@ -9,4 +9,7 @@ public class WaterDBRecord
     public int Id { get; set; }
     [Indexed]
     public int CoordinateId { get; set; }
+    public float Width { get; set; }
+    public float Height { get; set; }
+    public float Depth { get; set; }
 }
