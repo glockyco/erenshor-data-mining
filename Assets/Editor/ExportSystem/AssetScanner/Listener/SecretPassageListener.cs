@@ -55,6 +55,11 @@ public class SecretPassageListener : IAssetScanListener<Component>
             return;
         }
 
+        if (component.gameObject.scene.name is "Menu" or "LoadScene")
+        {
+            return;
+        }
+
         string[] keywords =
         {
             "ASCHIEVEMENT", "AUDIO", "AggroArea", "BLOCKER", "BonePile", "Bush", "Candle", "Chandelier", "Chess",
