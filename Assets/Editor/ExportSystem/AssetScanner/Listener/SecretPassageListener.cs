@@ -98,7 +98,7 @@ public class SecretPassageListener : IAssetScanListener<Component>
             X = component.transform.position.x,
             Y = component.transform.position.y,
             Z = component.transform.position.z,
-            Category = nameof(CoordinateCategory.AchievementTrigger)
+            Category = nameof(CoordinateCategory.SecretPassage)
         };
 
         _db.Insert(coordinate);
