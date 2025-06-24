@@ -54,12 +54,15 @@ public class DoorListener : IAssetScanListener<Door>
 
     private DoorDBRecord CreateRecord(Door door)
     {
+        var renderer = door.GetComponent<Renderer>();
+        var position = renderer != null ? renderer.bounds.center : door.transform.position;
+        
         var coordinate = new CoordinateDBRecord
         {
             Scene = door.gameObject.scene.name,
-            X = door.transform.position.x,
-            Y = door.transform.position.y,
-            Z = door.transform.position.z,
+            X = position.x,
+            Y = position.y,
+            Z = position.z,
             Category = nameof(CoordinateCategory.Door)
         };
 
