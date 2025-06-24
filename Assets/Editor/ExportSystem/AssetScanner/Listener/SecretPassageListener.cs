@@ -78,31 +78,38 @@ public class SecretPassageListener : IAssetScanListener<Component>
             return;
         }
 
-        var allColliders = component.gameObject.GetComponents<Collider>();
-        var hasEnabledCollider = allColliders.Any(c => c.enabled);
+        var colliders = component.gameObject.GetComponents<Collider>();
+        var enabledCollider = colliders.FirstOrDefault(c => c.enabled);
         
-        var allRenderers = component.gameObject.GetComponents<Renderer>();
-        var hasEnabledRenderer = allRenderers.Any(r => r.enabled);
-        
-        if (allColliders.Length == 0 || allRenderers.Length == 0 || (hasEnabledCollider && hasEnabledRenderer) || (!hasEnabledCollider && !hasEnabledRenderer))
+        var renderers = component.gameObject.GetComponents<Renderer>();
+        var enabledRenderer = renderers.FirstOrDefault(r => r.enabled);
+
+        if (
+            colliders.Length == 0 ||
+            renderers.Length == 0 ||
+            (enabledCollider != null && enabledRenderer != null) ||
+            (enabledCollider == null && enabledRenderer == null)
+        )
         {
             return;
         }
 
         Debug.Log($"[{GetType().Name}] Found: {component.name} ({component.GetType().Name})");
 
-        _records.Add(CreateRecord(component));
+        _records.Add(CreateRecord(component, enabledCollider, enabledRenderer));
         _processedGameObjects.Add(component.gameObject);
     }
 
-    private SecretPassageDBRecord CreateRecord(Component component)
+    private SecretPassageDBRecord CreateRecord(Component component, Collider collider, Renderer renderer)
     {
+        var position = collider != null ? collider.bounds.center : renderer.bounds.center;
+
         var coordinate = new CoordinateDBRecord
         {
             Scene = component.gameObject.scene.name,
-            X = component.transform.position.x,
-            Y = component.transform.position.y,
-            Z = component.transform.position.z,
+            X = position.x,
+            Y = position.y,
+            Z = position.z,
             Category = nameof(CoordinateCategory.SecretPassage)
         };
 
