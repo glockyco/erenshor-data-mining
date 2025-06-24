@@ -20,7 +20,12 @@ public class LootTableDBRecord
     // JSON-serialized array of per-kill DropCountProbabilities, e.g. [0.7,0.25,0.05]
     public string DropCountDistribution { get; set; } = string.Empty;
 
+    public bool IsActual { get; set; }
     public bool IsGuaranteed { get; set; }
+    public bool IsCommon { get; set; }
+    public bool IsUncommon { get; set; }
+    public bool IsRare { get; set; }
+    public bool IsLegendary { get; set; }
     public bool IsUnique { get; set; }
     public bool IsVisible { get; set; }
 }

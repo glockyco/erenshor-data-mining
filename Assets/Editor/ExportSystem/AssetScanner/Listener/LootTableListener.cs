@@ -44,12 +44,6 @@ public class LootTableListener : IAssetScanListener<LootTable>
         var perItemDistributions = _probabilityCalculator.CalculatePerItemDropCountDistributions(lootTable);
         var expectedDrops = _probabilityCalculator.ComputeExpectedDrops(perItemDistributions);
 
-        var guaranteedIds = new HashSet<string>(
-            lootTable.GuaranteeOneDrop != null
-                ? lootTable.GuaranteeOneDrop.Where(i => i is not null).Select(i => i.Id)
-                : Enumerable.Empty<string>()
-        );
-        
         string guid;
         var prefabType = PrefabUtility.GetPrefabAssetType(lootTable.gameObject);
         if (prefabType != PrefabAssetType.NotAPrefab)
@@ -95,7 +89,12 @@ public class LootTableListener : IAssetScanListener<LootTable>
                 DropProbability = dropProbability,
                 ExpectedPerKill = Math.Round(expectedDrops.GetValueOrDefault(itemName, 0.0), 4),
                 DropCountDistribution = JsonConvert.SerializeObject(dropCountList),
-                IsGuaranteed = guaranteedIds.Contains(itemId),
+                IsActual = lootTable.ActualDrops != null && lootTable.ActualDrops.Contains(item),
+                IsGuaranteed = lootTable.GuaranteeOneDrop != null && lootTable.GuaranteeOneDrop.Contains(item),
+                IsCommon = lootTable.CommonDrop != null && lootTable.CommonDrop.Contains(item),
+                IsUncommon = lootTable.UncommonDrop != null && lootTable.UncommonDrop.Contains(item),
+                IsRare = lootTable.RareDrop != null && lootTable.RareDrop.Contains(item),
+                IsLegendary = lootTable.LegendaryDrop != null && lootTable.LegendaryDrop.Contains(item),
                 IsUnique = item.Unique,
                 IsVisible = lootTable.VisiblePieces.Select(t => t.name).Contains(item.EquipmentToActivate)
             };
