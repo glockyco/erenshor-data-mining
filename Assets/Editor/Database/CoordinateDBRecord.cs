@@ -22,6 +22,8 @@ public class CoordinateDBRecord
     [Indexed]
     public int? MiningNodeId { get; set; }
     [Indexed]
+    public int? SecretPassageId { get; set; }
+    [Indexed]
     public int? SpawnPointId { get; set; }
     [Indexed]
     public int? TreasureLocId { get; set; }
@@ -35,6 +37,7 @@ public class CoordinateDBRecord
         AchievementTrigger,
         Character,
         MiningNode,
+        SecretPassage,
         SpawnPoint,
         TreasureLoc,
         Water,

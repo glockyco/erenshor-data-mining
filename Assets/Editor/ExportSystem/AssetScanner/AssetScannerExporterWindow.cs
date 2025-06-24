@@ -30,6 +30,7 @@ public class AssetScannerExporterWindow : EditorWindow
     private bool _exportMiningNodes = true;
     private bool _exportNpcDialogs = true;
     private bool _exportQuests = true;
+    private bool _exportSecretPassages = true;
     private bool _exportSkills = true;
     private bool _exportSpells = true;
     private bool _exportSpawnPoints = true;
@@ -143,6 +144,7 @@ public class AssetScannerExporterWindow : EditorWindow
         _exportMiningNodes = EditorGUILayout.ToggleLeft("Mining Nodes", _exportMiningNodes);
         _exportNpcDialogs = EditorGUILayout.ToggleLeft("NPC Dialogs", _exportNpcDialogs);
         _exportQuests = EditorGUILayout.ToggleLeft("Quests", _exportQuests);
+        _exportSecretPassages = EditorGUILayout.ToggleLeft("Secret Passages", _exportSecretPassages);
         _exportSkills = EditorGUILayout.ToggleLeft("Skills", _exportSkills);
         _exportSpells = EditorGUILayout.ToggleLeft("Spells", _exportSpells);
         _exportSpawnPoints = EditorGUILayout.ToggleLeft("Spawn Points", _exportSpawnPoints);
@@ -168,6 +170,7 @@ public class AssetScannerExporterWindow : EditorWindow
         _exportMiningNodes = value;
         _exportNpcDialogs = value;
         _exportQuests = value;
+        _exportSecretPassages = value;
         _exportSkills = value;
         _exportSpells = value;
         _exportSpawnPoints = value;
@@ -209,6 +212,7 @@ public class AssetScannerExporterWindow : EditorWindow
         if (_exportLootTables) _activeScanner.RegisterComponentListener(new LootTableListener(_db));
         if (_exportMiningNodes) _activeScanner.RegisterComponentListener(new MiningNodeListener(_db));
         if (_exportNpcDialogs) _activeScanner.RegisterComponentListener(new NpcDialogListener(_db));
+        if (_exportSecretPassages) _activeScanner.RegisterComponentListener(new SecretPassageListener(_db));
         if (_exportSpawnPoints) _activeScanner.RegisterComponentListener(new SpawnPointListener(_db));
         if (_exportTreasureHunting) _activeScanner.RegisterComponentListener(new TreasureHuntingListener(_db));
         if (_exportTreasureLocs) _activeScanner.RegisterComponentListener(new TreasureLocListener(_db));
@@ -255,6 +259,7 @@ public class AssetScannerExporterWindow : EditorWindow
             _exportMiningNodes ||
             _exportNpcDialogs ||
             _exportQuests ||
+            _exportSecretPassages ||
             _exportSkills ||
             _exportSpells ||
             _exportSpawnPoints ||

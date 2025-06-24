@@ -166,6 +166,19 @@ ORDER BY
     spc.SpawnChance DESC,
     c.NPCName;
 
+-- secret-passages
+SELECT
+    --Id,
+    za.ZoneName,
+    ROUND(c.X, 2) AS PositionX,
+    ROUND(c.Y, 2) AS PositionY,
+    ROUND(c.Z, 2) AS PositionZ,
+    ObjectName
+FROM SecretPassages at
+JOIN Coordinates c ON c.SecretPassageId = at.Id
+JOIN ZoneAnnounces za ON za.SceneName = c.Scene
+ORDER BY za.ZoneName;
+
 -- achievement-triggers
 SELECT
     --Id,
