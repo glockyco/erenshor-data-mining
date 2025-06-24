@@ -98,7 +98,9 @@ SELECT * FROM skills;
 SELECT * FROM ascensions;
 
 -- npc-dialogs
-SELECT * FROM NPCDialogs;
+SELECT *
+FROM NPCDialogs
+ORDER BY NPCName, DialogIndex;
 
 -- quests
 SELECT * FROM quests;
