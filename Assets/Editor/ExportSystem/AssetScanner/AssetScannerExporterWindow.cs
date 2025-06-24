@@ -25,6 +25,7 @@ public class AssetScannerExporterWindow : EditorWindow
     private bool _exportBooks = true;
     private bool _exportCharacters = true;
     private bool _exportClasses = true;
+    private bool _exportDoors = true;
     private bool _exportItems = true;
     private bool _exportLootTables = true;
     private bool _exportMiningNodes = true;
@@ -139,6 +140,7 @@ public class AssetScannerExporterWindow : EditorWindow
         _exportBooks = EditorGUILayout.ToggleLeft("Books", _exportBooks);
         _exportCharacters = EditorGUILayout.ToggleLeft("Characters", _exportCharacters);
         _exportClasses = EditorGUILayout.ToggleLeft("Classes", _exportClasses);
+        _exportDoors = EditorGUILayout.ToggleLeft("Doors", _exportDoors);
         _exportItems = EditorGUILayout.ToggleLeft("Items", _exportItems);
         _exportLootTables = EditorGUILayout.ToggleLeft("Loot Drops", _exportLootTables);
         _exportMiningNodes = EditorGUILayout.ToggleLeft("Mining Nodes", _exportMiningNodes);
@@ -165,6 +167,7 @@ public class AssetScannerExporterWindow : EditorWindow
         _exportBooks = value;
         _exportCharacters = value;
         _exportClasses = value;
+        _exportDoors = value;
         _exportItems = value;
         _exportLootTables = value;
         _exportMiningNodes = value;
@@ -209,6 +212,7 @@ public class AssetScannerExporterWindow : EditorWindow
         
         if (_exportAchievementTriggers) _activeScanner.RegisterComponentListener(new AchievementTriggerListener(_db));
         if (_exportCharacters) _activeScanner.RegisterComponentListener(new CharacterListener(_db));
+        if (_exportDoors) _activeScanner.RegisterComponentListener(new DoorListener(_db));
         if (_exportLootTables) _activeScanner.RegisterComponentListener(new LootTableListener(_db));
         if (_exportMiningNodes) _activeScanner.RegisterComponentListener(new MiningNodeListener(_db));
         if (_exportNpcDialogs) _activeScanner.RegisterComponentListener(new NpcDialogListener(_db));
@@ -253,6 +257,7 @@ public class AssetScannerExporterWindow : EditorWindow
             _exportBooks ||
             _exportCharacters ||
             _exportClasses ||
+            _exportDoors ||
             _exportWorldFactions ||
             _exportItems ||
             _exportLootTables ||

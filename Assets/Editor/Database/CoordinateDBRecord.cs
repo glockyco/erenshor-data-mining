@@ -20,6 +20,8 @@ public class CoordinateDBRecord
     [Indexed]
     public int? CharacterId { get; set; }
     [Indexed]
+    public int? DoorId { get; set; }
+    [Indexed]
     public int? MiningNodeId { get; set; }
     [Indexed]
     public int? SecretPassageId { get; set; }
@@ -36,6 +38,7 @@ public class CoordinateDBRecord
     {
         AchievementTrigger,
         Character,
+        Door,
         MiningNode,
         SecretPassage,
         SpawnPoint,
