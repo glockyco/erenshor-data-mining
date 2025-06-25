@@ -10,7 +10,6 @@ using static CoordinateDBRecord;
 public class CharacterListener : IAssetScanListener<Character>
 {
     private readonly SQLiteConnection _db;
-    private readonly List<CharacterDBRecord> _records = new();
 
     public CharacterListener(SQLiteConnection db)
     {
@@ -21,17 +20,15 @@ public class CharacterListener : IAssetScanListener<Character>
     {
         _db.CreateTable<CoordinateDBRecord>();
         _db.CreateTable<CharacterDBRecord>();
+        _db.CreateTable<CharacterDialogRecord>();
 
         _db.Execute("DELETE FROM Coordinates WHERE Category = ?", nameof(CoordinateCategory.Character));
         _db.DeleteAll<CharacterDBRecord>();
-
-        _records.Clear();
+        _db.DeleteAll<CharacterDialogRecord>();
     }
 
     public void OnScanFinished()
     {
-        _db.InsertAll(_records);
-        
         _db.Execute(@"
             UPDATE Coordinates
             SET CharacterId = (
@@ -45,8 +42,6 @@ public class CharacterListener : IAssetScanListener<Character>
                 WHERE Characters.CoordinateId = Coordinates.Id
             );
         ");
-        
-        _records.Clear();
     }
 
     public void OnAssetFound(Character asset)
@@ -58,10 +53,22 @@ public class CharacterListener : IAssetScanListener<Character>
             return;
         }
 
-        _records.Add(CreateRecord(asset));
+        var characterRecord = CreateCharacterRecord(asset);
+        _db.Insert(characterRecord);
+
+        var dialogs = asset.GetComponents<NPCDialog>();
+        if (dialogs.Length > 0)
+        {
+            var dialogRecords = new List<CharacterDialogRecord>();
+            for (var i = 0; i < dialogs.Length; i++)
+            {
+                dialogRecords.Add(CreateDialogRecord(characterRecord.Id, i, dialogs[i]));
+            }
+            _db.InsertAll(dialogRecords);
+        }
     }
     
-    private CharacterDBRecord CreateRecord(Character character)
+    private CharacterDBRecord CreateCharacterRecord(Character character)
     {
         int? coordinateId = null;
         if (character.gameObject.scene.name != null)
@@ -181,5 +188,26 @@ public class CharacterListener : IAssetScanListener<Character>
         }
 
         return record;
+    }
+    
+    private CharacterDialogRecord CreateDialogRecord(int characterId, int dialogIndex, NPCDialog dialog)
+    {
+        var keywords = dialog.KeywordToActivate == null || dialog.KeywordToActivate.Count == 0 ? null : string.Join(", ", dialog.KeywordToActivate);
+        var repeatingQuestDialog = dialog.RepeatingQuestDialog == "" ? null : dialog.RepeatingQuestDialog.Trim();
+
+        return new CharacterDialogRecord
+        {
+            CharacterId = characterId,
+            DialogIndex = dialogIndex,
+            DialogText = dialog.Dialog.Trim(),
+            Keywords = keywords,
+            GiveItemName = dialog.GiveItem?.ItemName,
+            AssignQuestDBName = dialog.QuestToAssign?.DBName,
+            CompleteQuestDBName = dialog.QuestToComplete?.DBName,
+            RepeatingQuestDialog = repeatingQuestDialog,
+            KillSelfOnSay = dialog.KillMeOnSay,
+            RequiredQuestDBName = dialog.RequireQuestComplete?.DBName,
+            SpawnName = dialog.Spawn != null ? dialog.Spawn.name : null,
+        };
     }
 }

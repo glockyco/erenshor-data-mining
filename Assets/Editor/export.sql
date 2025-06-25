@@ -86,6 +86,24 @@ SELECT
    ItemsForSale
 FROM Characters;
 
+-- character-dialogs
+SELECT 
+    CharacterId,
+    NPCName,
+    DialogIndex,
+    DialogText,
+    Keywords,
+    GiveItemName,
+    AssignQuestDBName,
+    CompleteQuestDBName,
+    RepeatingQuestDialog,
+    KillSelfOnSay,
+    RequiredQuestDBName,
+    SpawnName
+FROM CharacterDialogs cd
+JOIN Characters c ON c.Id = cd.CharacterId
+ORDER BY NPCName, CharacterId, DialogIndex;
+
 -- classes
 SELECT * FROM classes;
 
@@ -97,11 +115,6 @@ SELECT * FROM skills;
 
 -- ascensions
 SELECT * FROM ascensions;
-
--- npc-dialogs
-SELECT *
-FROM NPCDialogs
-ORDER BY NPCName, DialogIndex;
 
 -- quests
 SELECT * FROM quests;
