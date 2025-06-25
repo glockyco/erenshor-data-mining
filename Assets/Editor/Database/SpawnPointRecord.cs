@@ -3,7 +3,7 @@
 using SQLite;
 
 [Table("SpawnPoints")]
-public class SpawnPointDBRecord
+public class SpawnPointRecord
 {
     [PrimaryKey, AutoIncrement]
     public int Id { get; set; }

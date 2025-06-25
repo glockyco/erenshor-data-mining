@@ -19,35 +19,16 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
     public void OnScanStarted()
     {
         _db.CreateTable<CoordinateDBRecord>();
-        _db.CreateTable<SpawnPointDBRecord>();
-        _db.CreateTable<SpawnPointCharacterDBRecord>();
+        _db.CreateTable<SpawnPointRecord>();
+        _db.CreateTable<SpawnPointCharacterRecord>();
         
         _db.Execute("DELETE FROM Coordinates WHERE Category = ?", nameof(CoordinateCategory.SpawnPoint));
-        _db.DeleteAll<SpawnPointDBRecord>();
-        _db.DeleteAll<SpawnPointCharacterDBRecord>();
+        _db.DeleteAll<SpawnPointRecord>();
+        _db.DeleteAll<SpawnPointCharacterRecord>();
     }
     
     public void OnScanFinished()
     {
-        _db.Execute(@"
-            UPDATE SpawnPointCharacters
-            SET IsUnique = 1
-            WHERE CharacterPrefabGuid IN (
-                WITH UniqueNPCs AS (
-                    SELECT c.NPCName
-                    FROM SpawnPointCharacters spc
-                    JOIN Characters c ON c.Guid = spc.CharacterPrefabGuid
-                    WHERE spc.SpawnChance > 0
-                    GROUP BY c.NPCName
-                    HAVING COUNT(DISTINCT spc.SpawnPointId) = 1
-                )
-                SELECT c.Guid
-                FROM SpawnPointCharacters spc
-                JOIN Characters c ON c.Guid = spc.CharacterPrefabGuid
-                WHERE c.NPCName IN (SELECT NPCName FROM UniqueNPCs)
-            );
-        ");
-        
         _db.Execute(@"
             UPDATE Coordinates
             SET SpawnPointId = (
@@ -89,9 +70,9 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
         };
     }
 
-    private SpawnPointDBRecord CreateSpawnPointRecord(SpawnPoint spawnPoint, int coordinateId)
+    private SpawnPointRecord CreateSpawnPointRecord(SpawnPoint spawnPoint, int coordinateId)
     {
-        return new SpawnPointDBRecord
+        return new SpawnPointRecord
         {
             CoordinateId = coordinateId,
             IsEnabled = spawnPoint.isActiveAndEnabled,
@@ -113,7 +94,7 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
         };
     }
 
-    private List<SpawnPointCharacterDBRecord> CreateSpawnPointCharacterRecords(SpawnPoint spawnPoint, int spawnPointId)
+    private List<SpawnPointCharacterRecord> CreateSpawnPointCharacterRecords(SpawnPoint spawnPoint, int spawnPointId)
     {
         // Use GUID as the key for grouping
         var characterData = new Dictionary<string, (float spawnChance, bool isCommon, bool isRare)>();
@@ -164,17 +145,16 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
         }
 
         // Create records
-        var records = new List<SpawnPointCharacterDBRecord>();
+        var records = new List<SpawnPointCharacterRecord>();
         foreach (var kvp in characterData)
         {
-            records.Add(new SpawnPointCharacterDBRecord
+            records.Add(new SpawnPointCharacterRecord
             {
                 SpawnPointId = spawnPointId,
-                CharacterPrefabGuid = kvp.Key,
+                CharacterGuid = kvp.Key,
                 SpawnChance = kvp.Value.spawnChance,
                 IsCommon = kvp.Value.isCommon,
                 IsRare = kvp.Value.isRare,
-                IsUnique = false,
             });
         }
 

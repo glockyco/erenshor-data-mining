@@ -213,7 +213,6 @@ public class AssetScannerExporterWindow : EditorWindow
         if (_exportItems) _activeScanner.RegisterScriptableObjectListener(new ItemListener(_db));
         
         if (_exportAchievementTriggers) _activeScanner.RegisterComponentListener(new AchievementTriggerListener(_db));
-        if (_exportCharacters) _activeScanner.RegisterComponentListener(new CharacterListener(_db));
         if (_exportDoors) _activeScanner.RegisterComponentListener(new DoorListener(_db));
         if (_exportLootTables) _activeScanner.RegisterComponentListener(new LootTableListener(_db));
         if (_exportMiningNodes) _activeScanner.RegisterComponentListener(new MiningNodeListener(_db));
@@ -224,6 +223,9 @@ public class AssetScannerExporterWindow : EditorWindow
         if (_exportWaters) _activeScanner.RegisterComponentListener(new WaterListener(_db));
         if (_exportZoneAnnounces) _activeScanner.RegisterComponentListener(new ZoneAnnounceListener(_db));
         if (_exportZoneLines) _activeScanner.RegisterComponentListener(new ZoneLineListener(_db));
+        
+        // Characters.IsUnique depends on spawn point data, so we need to register characters later.
+        if (_exportCharacters) _activeScanner.RegisterComponentListener(new CharacterListener(_db));
         
         _stopwatch = Stopwatch.StartNew();
         EditorCoroutineRunner.StartCoroutine(ScanAndExportCoroutine());

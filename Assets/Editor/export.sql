@@ -297,7 +297,7 @@ SELECT
     ROUND(spc.SpawnChance, 2) AS 'Spawn Chance (%)',
     spc.IsCommon,
     spc.IsRare,
-    spc.IsUnique,
+    c.IsUnique,
     
     sp.LevelMod,
     sp.SpawnDelay1,
@@ -312,7 +312,7 @@ SELECT
 FROM
     main.SpawnPoints sp
     JOIN SpawnPointCharacters spc ON sp.Id = spc.SpawnPointId
-    JOIN Characters c ON spc.CharacterPrefabGuid = c.Guid
+    JOIN Characters c ON spc.CharacterGuid = c.Guid
     JOIN Coordinates co ON co.SpawnPointId = sp.Id
 ORDER BY
     sp.Id,

@@ -3,7 +3,7 @@
 using SQLite;
 
 [Table("Characters")]
-public class CharacterDBRecord
+public class CharacterRecord
 {
     [PrimaryKey, AutoIncrement]
     public int Id { get; set; }
@@ -21,6 +21,9 @@ public class CharacterDBRecord
     public string AggressiveTowards { get; set; } = string.Empty;
     public string Allies { get; set; } = string.Empty;
     
+    public bool IsPrefab { get; set; }
+    public bool IsUnique { get; set; }
+    public bool IsFriendly { get; set; }
     public bool IsNPC { get; set; }
     public bool IsSimPlayer { get; set; }
     public bool IsVendor { get; set; }

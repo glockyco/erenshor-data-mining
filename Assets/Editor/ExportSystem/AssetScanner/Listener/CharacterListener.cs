@@ -18,17 +18,35 @@ public class CharacterListener : IAssetScanListener<Character>
 
     public void OnScanStarted()
     {
+        _db.DropTable<CharacterRecord>();
+        _db.DropTable<CharacterDialogRecord>();
+        
         _db.CreateTable<CoordinateDBRecord>();
-        _db.CreateTable<CharacterDBRecord>();
+        _db.CreateTable<CharacterRecord>();
         _db.CreateTable<CharacterDialogRecord>();
 
         _db.Execute("DELETE FROM Coordinates WHERE Category = ?", nameof(CoordinateCategory.Character));
-        _db.DeleteAll<CharacterDBRecord>();
-        _db.DeleteAll<CharacterDialogRecord>();
     }
 
     public void OnScanFinished()
     {
+        _db.Execute(@"
+            UPDATE Characters
+            SET IsUnique = 1
+            WHERE NPCName IN
+            (
+                SELECT NPCName
+                FROM
+                (
+                    SELECT count(DISTINCT spc.SpawnPointId) AS spawnPointCount, count(DISTINCT c.Guid) AS instanceCount, *
+                    FROM Characters c
+                    LEFT JOIN SpawnPointCharacters spc ON spc.CharacterGuid = c.Guid
+                    GROUP BY c.NPCName
+                )
+                WHERE ((IsPrefab AND spawnPointCount = 1) OR (NOT IsPrefab AND instanceCount = 1))
+            );
+        ");
+        
         _db.Execute(@"
             UPDATE Coordinates
             SET CharacterId = (
@@ -70,7 +88,7 @@ public class CharacterListener : IAssetScanListener<Character>
         }
     }
     
-    private CharacterDBRecord CreateCharacterRecord(Character character)
+    private CharacterRecord CreateCharacterRecord(Character character)
     {
         int? coordinateId = null;
         if (character.gameObject.scene.name != null)
@@ -109,7 +127,7 @@ public class CharacterListener : IAssetScanListener<Character>
             guid = $"scene:{sceneName}:{character.gameObject.GetInstanceID()}";
         }
         
-        CharacterDBRecord record = new CharacterDBRecord
+        CharacterRecord record = new CharacterRecord
         {
             CoordinateId = coordinateId,
             Guid = guid,
@@ -120,6 +138,9 @@ public class CharacterListener : IAssetScanListener<Character>
             AttackRange = character.AttackRange,
             AggressiveTowards = character.AggressiveTowards != null ? string.Join(", ", character.AggressiveTowards) : null,
             Allies = character.Allies != null ? string.Join(", ", character.Allies) : null,
+            IsPrefab = prefabType != PrefabAssetType.NotAPrefab,
+            IsUnique = false, // `IsUnique` is set in `OnScanFinished`.
+            IsFriendly = new List<string> { "DEBUG", "GoodGuard", "GoodHuman", "OtherGood", "PC", "Player", "Villager"  }.Contains(character.MyFaction.ToString()),
             IsNPC = npc != null,
             IsSimPlayer = simPlayer != null,
             IsVendor = vendorInventory != null,
