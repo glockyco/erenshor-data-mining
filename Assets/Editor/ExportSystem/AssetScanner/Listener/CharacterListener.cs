@@ -32,6 +32,30 @@ public class CharacterListener : IAssetScanListener<Character>
     {
         _db.Execute(@"
             UPDATE Characters
+            SET IsCommon = 1
+            WHERE Guid IN
+            (
+                SELECT DISTINCT c.Guid
+                FROM Characters c
+                LEFT JOIN SpawnPointCharacters spc ON spc.CharacterGuid = c.Guid
+                WHERE NOT c.IsPrefab OR (spc.IsCommon AND spc.SpawnChance > 0)
+            );
+        ");
+
+        _db.Execute(@"
+            UPDATE Characters
+            SET IsRare = 1
+            WHERE Guid IN
+            (
+                SELECT DISTINCT c.Guid
+                FROM Characters c
+                JOIN SpawnPointCharacters spc ON spc.CharacterGuid = c.Guid
+                WHERE spc.IsRare AND spc.SpawnChance > 0
+            );
+        ");
+
+        _db.Execute(@"
+            UPDATE Characters
             SET IsUnique = 1
             WHERE NPCName IN
             (
