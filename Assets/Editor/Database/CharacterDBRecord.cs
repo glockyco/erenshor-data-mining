@@ -26,6 +26,7 @@ public class CharacterDBRecord
     public bool IsVendor { get; set; }
     public bool IsMiningNode { get; set; }
     public bool HasStats { get; set; }
+    public bool HasDialog { get; set; }
     public bool HasModifyFaction { get; set; }
     
     public bool IsEnabled { get; set; }

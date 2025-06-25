@@ -91,6 +91,7 @@ public class CharacterListener : IAssetScanListener<Character>
         VendorInventory vendorInventory = character.GetComponent<VendorInventory>();
         SimPlayer simPlayer = character.GetComponent<SimPlayer>();
         Stats stats = character.GetComponent<Stats>();
+        NPCDialog dialog = character.GetComponent<NPCDialog>();
         ModifyFaction[] modifyFactions = character.GetComponents<ModifyFaction>();
         
         string guid;
@@ -121,6 +122,7 @@ public class CharacterListener : IAssetScanListener<Character>
             IsSimPlayer = simPlayer != null,
             IsVendor = vendorInventory != null,
             HasStats = stats != null,
+            HasDialog = dialog != null,
             HasModifyFaction = modifyFactions.Length > 0,
             IsEnabled = character.isActiveAndEnabled,
             Invulnerable = character.Invulnerable,

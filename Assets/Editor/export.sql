@@ -105,6 +105,7 @@ SELECT
    IsSimPlayer,
    IsVendor,
    IsMiningNode,
+   HasDialog,
    HasStats,
    HasModifyFaction,
    IsEnabled,
