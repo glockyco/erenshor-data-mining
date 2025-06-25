@@ -35,6 +35,7 @@ public class AssetScannerExporterWindow : EditorWindow
     private bool _exportSkills = true;
     private bool _exportSpells = true;
     private bool _exportSpawnPoints = true;
+    private bool _exportTeleportLocs = true;
     private bool _exportTreasureHunting = true;
     private bool _exportTreasureLocs = true;
     private bool _exportWaters = true;
@@ -150,6 +151,7 @@ public class AssetScannerExporterWindow : EditorWindow
         _exportSkills = EditorGUILayout.ToggleLeft("Skills", _exportSkills);
         _exportSpells = EditorGUILayout.ToggleLeft("Spells", _exportSpells);
         _exportSpawnPoints = EditorGUILayout.ToggleLeft("Spawn Points", _exportSpawnPoints);
+        _exportTeleportLocs = EditorGUILayout.ToggleLeft("Teleport Locations", _exportTeleportLocs);
         _exportTreasureHunting = EditorGUILayout.ToggleLeft("Treasure Hunting", _exportTreasureHunting);
         _exportTreasureLocs = EditorGUILayout.ToggleLeft("Treasure Locations", _exportTreasureLocs);
         _exportWaters = EditorGUILayout.ToggleLeft("Waters", _exportWaters);
@@ -177,6 +179,7 @@ public class AssetScannerExporterWindow : EditorWindow
         _exportSkills = value;
         _exportSpells = value;
         _exportSpawnPoints = value;
+        _exportTeleportLocs = value;
         _exportTreasureHunting = value;
         _exportTreasureLocs = value;
         _exportWaters = value;
@@ -197,6 +200,8 @@ public class AssetScannerExporterWindow : EditorWindow
         _activeScanner = new AssetScanner();
         
         _db = new SQLiteConnection(_outputPath);
+        
+        if (_exportTeleportLocs) _activeScanner.RegisterNullListener(new TeleportLocListener(_db));
         
         if (_exportAscensions) _activeScanner.RegisterScriptableObjectListener(new AscensionListener(_db));
         if (_exportBooks) _activeScanner.RegisterScriptableObjectListener(new BookListener(_db));
@@ -268,6 +273,7 @@ public class AssetScannerExporterWindow : EditorWindow
             _exportSkills ||
             _exportSpells ||
             _exportSpawnPoints ||
+            _exportTeleportLocs ||
             _exportTreasureHunting ||
             _exportTreasureLocs ||
             _exportWaters ||

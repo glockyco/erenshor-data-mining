@@ -28,6 +28,8 @@ public class CoordinateDBRecord
     [Indexed]
     public int? SpawnPointId { get; set; }
     [Indexed]
+    public int? TeleportId { get; set; }
+    [Indexed]
     public int? TreasureLocId { get; set; }
     [Indexed]
     public int? WaterId { get; set; }
@@ -42,6 +44,7 @@ public class CoordinateDBRecord
         MiningNode,
         SecretPassage,
         SpawnPoint,
+        Teleport,
         TreasureLoc,
         Water,
         ZoneLine,

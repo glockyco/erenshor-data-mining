@@ -11,9 +11,15 @@ using Object = UnityEngine.Object;
 
 public class AssetScanner
 {
+    private readonly Dictionary<Type, HashSet<object>> _nullListeners = new();
     private readonly Dictionary<Type, HashSet<object>> _componentListeners = new();
     private readonly Dictionary<Type, HashSet<object>> _scriptableObjectListeners = new();
 
+    public void RegisterNullListener(IAssetScanListener<Object> listener)
+    {
+        RegisterListener(_nullListeners, listener);
+    }
+    
     public void RegisterComponentListener<T>(IAssetScanListener<T> listener) where T : Component
     {
         RegisterListener(_componentListeners, listener);
@@ -49,7 +55,7 @@ public class AssetScanner
         Stopwatch stopwatch = new Stopwatch();
 
         // --- Notify Scan Started ---
-        foreach (var listenerMap in new[] { _scriptableObjectListeners, _componentListeners })
+        foreach (var listenerMap in new[] { _nullListeners, _scriptableObjectListeners, _componentListeners })
         {
             foreach (var listenerObj in listenerMap.SelectMany(kvp => kvp.Value))
             {
@@ -189,7 +195,7 @@ public class AssetScanner
         }
 
         // --- Notify Scan Finished ---
-        foreach (var listenerMap in new[] { _scriptableObjectListeners, _componentListeners })
+        foreach (var listenerMap in new[] { _nullListeners, _scriptableObjectListeners, _componentListeners })
         {
             foreach (var listenerObj in listenerMap.SelectMany(kvp => kvp.Value))
             {

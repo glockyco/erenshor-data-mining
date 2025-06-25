@@ -141,6 +141,20 @@ LEFT JOIN ZoneAnnounces za ON
     OR (za.SceneName = 'PrielPlateau' AND zae.ZoneName = 'PrielianPlateau')
     OR (za.SceneName LIKE 'Undercity' AND zae.ResourceName = 'Undercity');
 
+-- teleports
+SELECT
+    i.BaseItemId AS TeleportItemId,
+    i.ItemName AS TeleportItemName,
+    za.ZoneName,
+    ROUND(co.X, 2) AS PositionX,
+    ROUND(co.Y, 2) AS PositionY,
+    ROUND(co.Z, 2) AS PositionZ
+FROM Teleports t
+JOIN Coordinates co ON co.TeleportId = t.Id
+JOIN ZoneAnnounces za ON za.SceneName = co.Scene
+JOIN Items i ON i.BaseItemId = t.TeleportItemId
+ORDER BY i.ItemName;
+
 -- treasure-locations
 SELECT
     za.ZoneName,
