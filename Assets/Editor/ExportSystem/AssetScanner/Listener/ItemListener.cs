@@ -10,7 +10,8 @@ using UnityEngine;
 public class ItemListener : IAssetScanListener<Item>
 {
     private readonly SQLiteConnection _db;
-    private readonly List<ItemDBRecord> _records = new();
+    private readonly List<ItemRecord> _itemRecords = new();
+    private readonly List<ItemStatsRecord> _itemStatsRecords = new();
 
     private readonly WikiFancyWeaponFactory _weaponFactory;
     private readonly WikiFancyArmorFactory _armorFactory;
@@ -34,54 +35,52 @@ public class ItemListener : IAssetScanListener<Item>
 
     public void OnScanFinished()
     {
-        foreach (var record in _records)
+        foreach (var itemRecord in _itemRecords)
         {
-            if (WeaponSlots.Contains(record.RequiredSlot))
+            foreach (var itemStatsRecord in _itemStatsRecords.Where(itemStatsRecord => itemStatsRecord.ItemId == itemRecord.Id))
             {
-                record.WikiString = _weaponFactory.Create(record).ToString();
-            }
-            else if (ArmorSlots.Contains(record.RequiredSlot))
-            {
-                record.WikiString = _armorFactory.Create(record).ToString();
-            }
-            else
-            {
-                record.WikiString = "";
+                if (WeaponSlots.Contains(itemRecord.RequiredSlot))
+                {
+                    itemStatsRecord.WikiString = _weaponFactory.Create(itemRecord, itemStatsRecord).ToString();
+                }
+                else if (ArmorSlots.Contains(itemRecord.RequiredSlot))
+                {
+                    itemStatsRecord.WikiString = _armorFactory.Create(itemRecord, itemStatsRecord).ToString();
+                }
+                else
+                {
+                    itemStatsRecord.WikiString = "";
+                }
             }
         }
         
-        _db.CreateTable<ItemDBRecord>();
         _db.RunInTransaction(() =>
         {
-            _db.DeleteAll<ItemDBRecord>();
-            _db.InsertAll(_records);
+            _db.DropTable<ItemRecord>();
+            _db.DropTable<ItemStatsRecord>();
+            
+            _db.CreateTable<ItemRecord>();
+            _db.CreateTable<ItemStatsRecord>();
+            
+            _db.InsertAll(_itemRecords);
+            _db.InsertAll(_itemStatsRecords);
         });
-        _records.Clear();
+        _itemRecords.Clear();
+        _itemStatsRecords.Clear();
     }
 
     public void OnAssetFound(Item asset)
     {
         Debug.Log($"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
 
-        int itemDbIndex = _records.Select(r => r.ItemDBIndex).Distinct().Count();
+        int itemDbIndex = _itemRecords.Select(r => r.ItemDBIndex).Distinct().Count();
 
-        _records.AddRange(CreateRecords(asset, itemDbIndex));
+        _itemRecords.Add(CreateItemRecord(asset, itemDbIndex));
+        _itemStatsRecords.AddRange(CreateItemStatsRecords(asset));
     }
 
-    private List<ItemDBRecord> CreateRecords(Item item, int itemDbIndex)
+    private ItemRecord CreateItemRecord(Item item, int itemDbIndex)
     {
-        var records = new List<ItemDBRecord>();
-
-        // Determine if this item type should have quality variants
-        bool hasQualityVariants =
-            item.RequiredSlot != Item.SlotType.General &&
-            item.Aura == null &&
-            item.TeachSpell == null &&
-            item.TeachSkill == null &&
-            !item.Template;
-
-        int maxQuality = hasQualityVariants ? 3 : 1;
-
         // Prepare common data that doesn't change with quality
         string classesString = "";
         if (item.Classes != null && item.Classes.Count > 0)
@@ -124,21 +123,131 @@ public class ItemListener : IAssetScanListener<Item>
             itemIconName = System.IO.Path.GetFileNameWithoutExtension(path);
         }
 
-        for (int quality = 1; quality <= maxQuality; quality++)
+        var itemRecord = new ItemRecord
         {
-            var record = new ItemDBRecord
-            {
-                // --- Core Identification ---
-                ItemDBIndex = itemDbIndex,
-                Id = $"{item.Id}_q{quality}", // Composite ID including quality
-                BaseItemId = item.Id,
-                ItemName = item.ItemName,
-                Lore = item.Lore,
+            // --- Core Identification ---
+            ItemDBIndex = itemDbIndex,
+            Id = item.Id,
+            ItemName = item.ItemName,
+            Lore = item.Lore,
 
-                // --- Classification & Requirements ---
-                RequiredSlot = item.RequiredSlot.ToString(),
-                ThisWeaponType = item.ThisWeaponType.ToString(),
-                Classes = classesString,
+            // --- Classification & Requirements ---
+            RequiredSlot = item.RequiredSlot.ToString(),
+            ThisWeaponType = item.ThisWeaponType.ToString(),
+            Classes = classesString,
+            ItemLevel = item.ItemLevel,
+
+            // --- Weapon/Combat Properties ---
+            WeaponDly = item.WeaponDly,
+            Shield = item.Shield,
+            WeaponProcChance = item.WeaponProcChance,
+            WeaponProcOnHit = item.WeaponProcOnHit is null ? string.Empty : $"{item.WeaponProcOnHit.SpellName} ({item.WeaponProcOnHit.Id})",
+            
+            // --- Wand Properties ---
+            IsWand = item.IsWand,
+            WandRange = item.IsWand ? item.WandRange : item.WeaponDmg > 0 ? 1 : 0,
+            WandProcChance = item.WandProcChance,
+            WandEffect = item.WandEffect is null ? string.Empty : $"{item.WandEffect.SpellName} ({item.WandEffect.Id})",
+
+            // --- Effects & Interactions ---
+            ItemEffectOnClick = item.ItemEffectOnClick is null ? string.Empty : $"{item.ItemEffectOnClick.SpellName} ({item.ItemEffectOnClick.Id})",
+            ItemSkillUse = item.ItemSkillUse is null ? string.Empty : $"{item.ItemSkillUse.SkillName} ({item.ItemSkillUse.Id})",
+            TeachSpell = item.TeachSpell is null ? string.Empty : $"{item.TeachSpell.SpellName} ({item.TeachSpell.Id})",
+            TeachSkill = item.TeachSkill is null ? string.Empty : $"{item.TeachSkill.SkillName} ({item.TeachSkill.Id})",
+            Aura = item.Aura is null ? string.Empty : $"{item.Aura.SpellName} ({item.Aura.Id})",
+            WornEffect = item.WornEffect is null ? string.Empty : $"{item.WornEffect.SpellName} ({item.WornEffect.Id})",
+            SpellCastTime = item.SpellCastTime,
+
+            // --- Quest Interaction ---
+            AssignQuestOnRead = item.AssignQuestOnRead?.DBName,
+            CompleteOnRead = item.CompleteOnRead?.DBName,
+
+            // --- Crafting & Templates ---
+            Template = item.Template,
+            TemplateIngredientIds = templateIngredientIds,
+            TemplateRewardIds = templateRewardIds,
+
+            // --- Economy & Inventory ---
+            ItemValue = item.ItemValue,
+            SellValue = Mathf.RoundToInt(item.ItemValue * 0.65f),
+            Stackable = item.Stackable,
+            Disposable = item.Disposable,
+            Unique = item.Unique,
+            Relic = item.Relic,
+
+            // --- Miscellaneous ---
+            BookTitle = item.BookTitle,
+            Mining = item.Mining,
+            FuelSource = item.FuelSource,
+            FuelLevel = (int)item.FuelLevel,
+            SimPlayersCantGet = item.SimPlayersCantGet,
+
+            // --- Visuals & Sound ---
+            AttackSoundName = attackSound,
+            ItemIconName = itemIconName,
+            EquipmentToActivate = item.EquipmentToActivate,
+            //ShoulderTrimL = item.ShoulderTrimL,
+            //ShoulderTrimR = item.ShoulderTrimR,
+            //ElbowTrimL = item.ElbowTrimL,
+            //ElbowTrimR = item.ElbowTrimR,
+            //KneeTrimL = item.KneeTrimL,
+            //KneeTrimR = item.KneeTrimR,
+            HideHairWhenEquipped = item.HideHairWhenEquipped,
+            HideHeadWhenEquipped = item.HideHeadWhenEquipped,
+            // Colors
+            //ItemPrimaryColorR = item.ItemPrimaryColor.r,
+            //ItemPrimaryColorG = item.ItemPrimaryColor.g,
+            //ItemPrimaryColorB = item.ItemPrimaryColor.b,
+            //ItemPrimaryColorA = item.ItemPrimaryColor.a,
+            //ItemSecondaryColorR = item.ItemSecondaryColor.r,
+            //ItemSecondaryColorG = item.ItemSecondaryColor.g,
+            //ItemSecondaryColorB = item.ItemSecondaryColor.b,
+            //ItemSecondaryColorA = item.ItemSecondaryColor.a,
+            //ItemMetalPrimaryR = item.ItemMetalPrimary.r,
+            //ItemMetalPrimaryG = item.ItemMetalPrimary.g,
+            //ItemMetalPrimaryB = item.ItemMetalPrimary.b,
+            //ItemMetalPrimaryA = item.ItemMetalPrimary.a,
+            //ItemLeatherPrimaryR = item.ItemLeatherPrimary.r,
+            //ItemLeatherPrimaryG = item.ItemLeatherPrimary.g,
+            //ItemLeatherPrimaryB = item.ItemLeatherPrimary.b,
+            //ItemLeatherPrimaryA = item.ItemLeatherPrimary.a,
+            //ItemMetalDarkR = item.ItemMetalDark.r,
+            //ItemMetalDarkG = item.ItemMetalDark.g,
+            //ItemMetalDarkB = item.ItemMetalDark.b,
+            //ItemMetalDarkA = item.ItemMetalDark.a,
+            //ItemMetalSecondaryR = item.ItemMetalSecondary.r,
+            //ItemMetalSecondaryG = item.ItemMetalSecondary.g,
+            //ItemMetalSecondaryB = item.ItemMetalSecondary.b,
+            //ItemMetalSecondaryA = item.ItemMetalSecondary.a,
+            //ItemLeatherSecondaryR = item.ItemLeatherSecondary.r,
+            //ItemLeatherSecondaryG = item.ItemLeatherSecondary.g,
+            //ItemLeatherSecondaryB = item.ItemLeatherSecondary.b,
+            //ItemLeatherSecondaryA = item.ItemLeatherSecondary.a,
+
+            // --- Internal ---
+            ResourceName = item.name
+        };
+
+        return itemRecord;
+    }
+
+    private List<ItemStatsRecord> CreateItemStatsRecords(Item item)
+    {
+        var hasQualityVariants =
+            item.RequiredSlot != Item.SlotType.General &&
+            item.Aura == null &&
+            item.TeachSpell == null &&
+            item.TeachSkill == null &&
+            !item.Template;
+
+        var maxQuality = hasQualityVariants ? 3 : 1;
+
+        var itemStatsRecords = new List<ItemStatsRecord>();
+        for (var quality = 1; quality <= maxQuality; quality++)
+        {
+            var itemStatsRecord = new ItemStatsRecord
+            {
+                ItemId = item.Id,
                 Quality = quality switch
                 {
                     1 => "Normal",
@@ -146,9 +255,9 @@ public class ItemListener : IAssetScanListener<Item>
                     3 => "Godly",
                     _ => quality.ToString() // Fallback, should not happen with maxQuality=3
                 },
-                ItemLevel = item.ItemLevel,
 
-                // --- Core Stats (Affected by Quality) ---
+                WeaponDmg = item.WeaponDmg == 0 ? 0 : item.CalcDmg(item.WeaponDmg, quality),
+
                 HP = item.CalcACHPMC(item.HP, quality),
                 AC = item.CalcACHPMC(item.AC, quality),
                 Mana = item.CalcACHPMC(item.Mana, quality),
@@ -164,101 +273,11 @@ public class ItemListener : IAssetScanListener<Item>
                 ER = item.CalcStat(item.ER, quality), // Elemental Resist
                 PR = item.CalcStat(item.PR, quality), // Poison Resist
                 VR = item.CalcStat(item.VR, quality), // Void Resist
-
-                // --- Weapon/Combat Properties ---
-                WeaponDmg = item.WeaponDmg == 0 ? 0 : item.CalcDmg(item.WeaponDmg, quality),
-                WeaponDly = item.WeaponDly,
-                Shield = item.Shield,
-                WeaponProcChance = item.WeaponProcChance,
-                WeaponProcOnHit = item.WeaponProcOnHit is null ? string.Empty : $"{item.WeaponProcOnHit.SpellName} ({item.WeaponProcOnHit.Id})",
-                
-                // --- Wand Properties ---
-                IsWand = item.IsWand,
-                WandRange = item.IsWand ? item.WandRange : item.WeaponDmg > 0 ? 1 : 0,
-                WandProcChance = item.WandProcChance,
-                WandEffect = item.WandEffect is null ? string.Empty : $"{item.WandEffect.SpellName} ({item.WandEffect.Id})",
-
-                // --- Effects & Interactions ---
-                ItemEffectOnClick = item.ItemEffectOnClick is null ? string.Empty : $"{item.ItemEffectOnClick.SpellName} ({item.ItemEffectOnClick.Id})",
-                ItemSkillUse = item.ItemSkillUse is null ? string.Empty : $"{item.ItemSkillUse.SkillName} ({item.ItemSkillUse.Id})",
-                TeachSpell = item.TeachSpell is null ? string.Empty : $"{item.TeachSpell.SpellName} ({item.TeachSpell.Id})",
-                TeachSkill = item.TeachSkill is null ? string.Empty : $"{item.TeachSkill.SkillName} ({item.TeachSkill.Id})",
-                Aura = item.Aura is null ? string.Empty : $"{item.Aura.SpellName} ({item.Aura.Id})",
-                WornEffect = item.WornEffect is null ? string.Empty : $"{item.WornEffect.SpellName} ({item.WornEffect.Id})",
-                SpellCastTime = item.SpellCastTime,
-
-                // --- Quest Interaction ---
-                AssignQuestOnRead = item.AssignQuestOnRead?.DBName,
-                CompleteOnRead = item.CompleteOnRead?.DBName,
-
-                // --- Crafting & Templates ---
-                Template = item.Template,
-                TemplateIngredientIds = templateIngredientIds,
-                TemplateRewardIds = templateRewardIds,
-
-                // --- Economy & Inventory ---
-                ItemValue = item.ItemValue,
-                SellValue = Mathf.RoundToInt(item.ItemValue * 0.65f),
-                Stackable = item.Stackable,
-                Disposable = item.Disposable,
-                Unique = item.Unique,
-                Relic = item.Relic,
-
-                // --- Miscellaneous ---
-                BookTitle = item.BookTitle,
-                Mining = item.Mining,
-                FuelSource = item.FuelSource,
-                FuelLevel = (int)item.FuelLevel,
-                SimPlayersCantGet = item.SimPlayersCantGet,
-
-                // --- Visuals & Sound ---
-                AttackSoundName = attackSound,
-                ItemIconName = itemIconName,
-                EquipmentToActivate = item.EquipmentToActivate,
-                //ShoulderTrimL = item.ShoulderTrimL,
-                //ShoulderTrimR = item.ShoulderTrimR,
-                //ElbowTrimL = item.ElbowTrimL,
-                //ElbowTrimR = item.ElbowTrimR,
-                //KneeTrimL = item.KneeTrimL,
-                //KneeTrimR = item.KneeTrimR,
-                HideHairWhenEquipped = item.HideHairWhenEquipped,
-                HideHeadWhenEquipped = item.HideHeadWhenEquipped,
-                // Colors
-                //ItemPrimaryColorR = item.ItemPrimaryColor.r,
-                //ItemPrimaryColorG = item.ItemPrimaryColor.g,
-                //ItemPrimaryColorB = item.ItemPrimaryColor.b,
-                //ItemPrimaryColorA = item.ItemPrimaryColor.a,
-                //ItemSecondaryColorR = item.ItemSecondaryColor.r,
-                //ItemSecondaryColorG = item.ItemSecondaryColor.g,
-                //ItemSecondaryColorB = item.ItemSecondaryColor.b,
-                //ItemSecondaryColorA = item.ItemSecondaryColor.a,
-                //ItemMetalPrimaryR = item.ItemMetalPrimary.r,
-                //ItemMetalPrimaryG = item.ItemMetalPrimary.g,
-                //ItemMetalPrimaryB = item.ItemMetalPrimary.b,
-                //ItemMetalPrimaryA = item.ItemMetalPrimary.a,
-                //ItemLeatherPrimaryR = item.ItemLeatherPrimary.r,
-                //ItemLeatherPrimaryG = item.ItemLeatherPrimary.g,
-                //ItemLeatherPrimaryB = item.ItemLeatherPrimary.b,
-                //ItemLeatherPrimaryA = item.ItemLeatherPrimary.a,
-                //ItemMetalDarkR = item.ItemMetalDark.r,
-                //ItemMetalDarkG = item.ItemMetalDark.g,
-                //ItemMetalDarkB = item.ItemMetalDark.b,
-                //ItemMetalDarkA = item.ItemMetalDark.a,
-                //ItemMetalSecondaryR = item.ItemMetalSecondary.r,
-                //ItemMetalSecondaryG = item.ItemMetalSecondary.g,
-                //ItemMetalSecondaryB = item.ItemMetalSecondary.b,
-                //ItemMetalSecondaryA = item.ItemMetalSecondary.a,
-                //ItemLeatherSecondaryR = item.ItemLeatherSecondary.r,
-                //ItemLeatherSecondaryG = item.ItemLeatherSecondary.g,
-                //ItemLeatherSecondaryB = item.ItemLeatherSecondary.b,
-                //ItemLeatherSecondaryA = item.ItemLeatherSecondary.a,
-
-                // --- Internal ---
-                ResourceName = item.name
             };
-            records.Add(record);
+            
+            itemStatsRecords.Add(itemStatsRecord);
         }
 
-        return records;
+        return itemStatsRecords;
     }
 }

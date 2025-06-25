@@ -64,9 +64,9 @@ public class WikiFancyArmorFactory
         return armor;
     }
 
-    public WikiFancyArmor Create(ItemDBRecord item)
+    public WikiFancyArmor Create(ItemRecord item, ItemStatsRecord stats)
     {
-        if (item is null)
+        if (item is null || stats is null)
         {
             return null;
         }
@@ -104,7 +104,7 @@ public class WikiFancyArmorFactory
         }
 
         // --- tier ---
-        int tier = item.Quality switch
+        int tier = stats.Quality switch
         {
             "Normal" => 0,
             "Blessed" => 1,
@@ -116,21 +116,21 @@ public class WikiFancyArmorFactory
         {
             Slot = item.RequiredSlot,
             Relic = item.Relic,
-            Str = item.Str,
-            End = item.End,
-            Dex = item.Dex,
-            Agi = item.Agi,
-            Int = item.Int,
-            Wis = item.Wis,
-            Cha = item.Cha,
-            Res = item.Res,
-            Health = item.HP,
-            Mana = item.Mana,
-            Armor = item.AC,
-            Magic = item.MR,
-            Poison = item.PR,
-            Elemental = item.ER,
-            Void = item.VR,
+            Str = stats.Str,
+            End = stats.End,
+            Dex = stats.Dex,
+            Agi = stats.Agi,
+            Int = stats.Int,
+            Wis = stats.Wis,
+            Cha = stats.Cha,
+            Res = stats.Res,
+            Health = stats.HP,
+            Mana = stats.Mana,
+            Armor = stats.AC,
+            Magic = stats.MR,
+            Poison = stats.PR,
+            Elemental = stats.ER,
+            Void = stats.VR,
             Description = item.Lore.Trim().Replace("|", "&#124;").Replace("=", "&#61;").Replace("\n", "<br>"),
             Arcanist = item.Classes.Split(", ").Contains("Arcanist"),
             Duelist = item.Classes.Split(", ").Contains("Duelist"),

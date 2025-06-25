@@ -16,14 +16,14 @@ public class WikiItemFactoryTests
     [Test]
     public void CreateArmor_FromNullItem_ReturnsNull()
     {
-        var armor = _armorFactory.Create((ItemDBRecord) null);
+        var armor = _armorFactory.Create(null, null);
         Assert.IsNull(armor);
     }
     
     [Test]
     public void CreateArmor_FromNullString_ReturnsNull()
     {
-        var armor = _armorFactory.Create((string) null);
+        var armor = _armorFactory.Create(null);
         Assert.IsNull(armor);
     }
 
@@ -44,14 +44,14 @@ public class WikiItemFactoryTests
     [Test]
     public void CreateWeapon_FromNullItem_ReturnsNull()
     {
-        var weapon = _weaponFactory.Create((string) null);
+        var weapon = _weaponFactory.Create(null, null);
         Assert.IsNull(weapon);
     }
     
     [Test]
     public void CreateWeapon_FromNullString_ReturnsNull()
     {
-        var weapon = _weaponFactory.Create((string) null);
+        var weapon = _weaponFactory.Create(null);
         Assert.IsNull(weapon);
     }
 

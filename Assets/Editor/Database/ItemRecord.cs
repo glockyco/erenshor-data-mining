@@ -3,13 +3,12 @@
 using SQLite;
 
 [Table("Items")]
-public class ItemDBRecord
+public class ItemRecord
 {
     // --- Core Identification ---
     public int ItemDBIndex { get; set; } // Index in the Resources.LoadAll<Item> array
     [PrimaryKey]
-    public string Id { get; set; } = string.Empty; // Composite ID like "BaseID_q1", "BaseID_q2", etc.
-    public string BaseItemId { get; set; } = string.Empty; // Original Item.Id
+    public string Id { get; set; } = string.Empty;
     public string ItemName { get; set; } = string.Empty;
     public string Lore { get; set; } = string.Empty;
 
@@ -17,28 +16,9 @@ public class ItemDBRecord
     public string RequiredSlot { get; set; } = string.Empty; // From Item.SlotType enum
     public string ThisWeaponType { get; set; } = string.Empty; // From Item.WeaponType enum
     public string Classes { get; set; } = string.Empty; // Comma-separated list from Item.Classes
-    public string Quality { get; set; } = string.Empty; // "Normal", "Blessed", "Godly"
     public int ItemLevel { get; set; }
 
-    // --- Core Stats (Affected by Quality) ---
-    public int HP { get; set; }
-    public int AC { get; set; }
-    public int Mana { get; set; }
-    public int Str { get; set; }
-    public int End { get; set; }
-    public int Dex { get; set; }
-    public int Agi { get; set; }
-    public int Int { get; set; }
-    public int Wis { get; set; }
-    public int Cha { get; set; }
-    public int Res { get; set; } // Resonance
-    public int MR { get; set; } // Magic Resist
-    public int ER { get; set; } // Elemental Resist
-    public int PR { get; set; } // Poison Resist
-    public int VR { get; set; } // Void Resist
-
     // --- Weapon/Combat Properties ---
-    public int WeaponDmg { get; set; }
     public float WeaponDly { get; set; }
     public bool Shield { get; set; } // Is it a shield?
     public float WeaponProcChance { get; set; }
@@ -60,8 +40,8 @@ public class ItemDBRecord
     public float SpellCastTime { get; set; } // Cast time modifier or specific cast time? (Check Item.cs usage)
 
     // --- Quest Interaction ---
-    public string AssignQuestOnRead { get; set; } = string.Empty; // Quest assigned on read
-    public string CompleteOnRead { get; set; } = string.Empty; // Quest completed on read
+    public string? AssignQuestOnRead { get; set; } = string.Empty; // Quest assigned on read
+    public string? CompleteOnRead { get; set; } = string.Empty; // Quest completed on read
 
     // --- Crafting & Templates ---
     public bool Template { get; set; }
@@ -84,8 +64,8 @@ public class ItemDBRecord
     public bool SimPlayersCantGet { get; set; } // Flag for simulation behavior
     
     // --- Visuals & Sound ---
-    public string AttackSoundName { get; set; } = string.Empty; // Name of the AudioClip
-    public string ItemIconName { get; set; } = string.Empty; // Name of the Sprite for the icon
+    public string? AttackSoundName { get; set; } = string.Empty; // Name of the AudioClip
+    public string? ItemIconName { get; set; } = string.Empty; // Name of the Sprite for the icon
     public string EquipmentToActivate { get; set; } = string.Empty; // String identifier for visual equipment
     //public string ShoulderTrimL { get; set; }
     //public string ShoulderTrimR { get; set; }
@@ -127,7 +107,4 @@ public class ItemDBRecord
 
     // --- Internal ---
     public string ResourceName { get; set; } = string.Empty; // Original Item.name (ScriptableObject filename)
-
-    // --- Wiki ---
-    public string WikiString { get; set; } = string.Empty; // Generated wiki string for this item
 }

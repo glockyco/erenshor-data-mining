@@ -20,35 +20,35 @@ public class WikiItemComparer
         _weaponFactory = new WikiFancyWeaponFactory(_db);
     }
 
-    public void CompareAndPersist(List<ItemDBRecord> items)
+    public void CompareAndPersist(ItemRecord item, List<ItemStatsRecord> itemStats)
     {
-        var comparisonRecords = Compare(items);
+        var comparisonRecords = Compare(item, itemStats);
         foreach (var comparisonRecord in comparisonRecords)
         {
             _db.Insert(comparisonRecord);
         }
     }
 
-    private List<WikiComparisonDBRecord> Compare(List<ItemDBRecord> items)
+    private List<WikiComparisonDBRecord> Compare(ItemRecord item, List<ItemStatsRecord> itemStats)
     {
         var comparisonRecords = new List<WikiComparisonDBRecord>();
         
-        if (!items.Any())
+        if (itemStats.Any())
         {
             return comparisonRecords;
         }
 
-        var wikiPageName = items.First().ItemName.Replace(" ", "_");
+        var wikiPageName = item.ItemName.Replace(" ", "_");
         var wikiUrl = $"https://erenshor.wiki.gg/wiki/{Uri.EscapeDataString(wikiPageName)}?action=edit";
         var wikiContent = FetchWikiContent(wikiUrl);
 
-        var itemName = items.First().ItemName;
+        var itemName = item.ItemName;
         
-        if (items.First().WikiString.Contains("Fancy-armor"))
+        if (itemStats.First().WikiString.Contains("Fancy-armor"))
         {
             var currentWikiStrings = WikiTemplateExtractor.ExtractTemplates(wikiContent, "Fancy-armor");
             var currentFancyArmors = currentWikiStrings.Select(_armorFactory.Create).ToDictionary(w => w.Tier);
-            var suggestedFancyArmors = items.Select(_armorFactory.Create).ToDictionary(w => w.Tier);
+            var suggestedFancyArmors = itemStats.Select(stats => _armorFactory.Create(item, stats)).ToDictionary(w => w.Tier);
 
             foreach (var suggestedFancyArmor in suggestedFancyArmors.Values)
             {
@@ -68,11 +68,11 @@ public class WikiItemComparer
                 });
             }
         }
-        else if (items.First().WikiString.Contains("Fancy-weapon"))
+        else if (itemStats.First().WikiString.Contains("Fancy-weapon"))
         {
             var currentWikiStrings = WikiTemplateExtractor.ExtractTemplates(wikiContent, "Fancy-weapon");
             var currentFancyWeapons = currentWikiStrings.Select(_weaponFactory.Create).ToDictionary(w => w.Tier);
-            var suggestedFancyWeapons = items.Select(_weaponFactory.Create).ToDictionary(w => w.Tier);
+            var suggestedFancyWeapons = itemStats.Select(stats => _weaponFactory.Create(item, stats)).ToDictionary(w => w.Tier);
 
             foreach (var suggestedFancyWeapon in suggestedFancyWeapons.Values)
             {

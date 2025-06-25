@@ -14,15 +14,79 @@ WITH
             i.ResourceName AS 'Item Resource Name'
         FROM Characters c
         LEFT JOIN LootDrops ld ON c.Guid = ld.CharacterPrefabGuid
-        INNER JOIN Items i ON ld.ItemId = i.BaseItemId
-        WHERE i.Quality = 'Normal'
+        INNER JOIN Items i ON ld.ItemId = i.Id
         ORDER BY c.NPCName, c.Guid
     )
 SELECT * FROM drops
 ORDER BY "NPC Name", "NPC Prefab Name", "Drop Chance Per Kill (%)" DESC;
 
 -- items
-SELECT * FROM items;
+SELECT
+    ItemDBIndex,
+    Id,
+    ItemName,
+    Lore,
+    RequiredSlot,
+    ThisWeaponType,
+    Classes,
+    Quality,
+    ItemLevel,
+    HP,
+    AC,
+    Mana,
+    Str,
+    End,
+    Dex,
+    Agi,
+    Int,
+    Wis,
+    Cha,
+    Res,
+    MR,
+    ER,
+    PR,
+    VR,
+    WeaponDmg,
+    WeaponDly,
+    Shield,
+    WeaponProcChance,
+    WeaponProcOnHit,
+    IsWand,
+    WandRange,
+    WandProcChance,
+    WandEffect,
+    ItemEffectOnClick,
+    ItemSkillUse,
+    TeachSpell,
+    TeachSkill,
+    Aura,
+    WornEffect,
+    SpellCastTime,
+    AssignQuestOnRead,
+    CompleteOnRead,
+    Template,
+    TemplateIngredientIds,
+    TemplateRewardIds,
+    ItemValue,
+    SellValue,
+    Stackable,
+    Disposable,
+    "Unique",
+    Relic,
+    BookTitle,
+    Mining,
+    FuelSource,
+    FuelLevel,
+    SimPlayersCantGet,
+    AttackSoundName,
+    ItemIconName,
+    EquipmentToActivate,
+    HideHairWhenEquipped,
+    HideHeadWhenEquipped,
+    ResourceName,
+    WikiString
+FROM items i
+JOIN ItemStats s ON s.ItemId = i.Id;
 
 -- characters
 SELECT
@@ -157,7 +221,7 @@ LEFT JOIN ZoneAnnounces za ON
 
 -- teleports
 SELECT
-    i.BaseItemId AS TeleportItemId,
+    i.Id AS TeleportItemId,
     i.ItemName AS TeleportItemName,
     za.ZoneName,
     ROUND(co.X, 2) AS PositionX,
@@ -166,7 +230,7 @@ SELECT
 FROM Teleports t
 JOIN Coordinates co ON co.TeleportId = t.Id
 JOIN ZoneAnnounces za ON za.SceneName = co.Scene
-JOIN Items i ON i.BaseItemId = t.TeleportItemId
+JOIN Items i ON i.Id = t.TeleportItemId
 ORDER BY i.ItemName;
 
 -- treasure-locations
@@ -235,7 +299,7 @@ SELECT
     spc.IsUnique,
     
     sp.LevelMod,
-    sp.SpawnDelay,
+    sp.SpawnDelay1,
     sp.Staggerable,
     sp.StaggerMod,
     sp.NightSpawn AS 'IsNightSpawn',

@@ -69,7 +69,7 @@ public class WikiFancyWeaponFactory
         return weapon;
     }
 
-    public WikiFancyWeapon Create(ItemDBRecord item)
+    public WikiFancyWeapon Create(ItemRecord item, ItemStatsRecord stats)
     {
         if (item is null)
         {
@@ -138,7 +138,7 @@ public class WikiFancyWeaponFactory
         }
 
         // --- tier ---
-        int tier = item.Quality switch
+        int tier = stats.Quality switch
         {
             "Normal" => 0,
             "Blessed" => 1,
@@ -150,23 +150,23 @@ public class WikiFancyWeaponFactory
         {
             Type = type,
             Relic = item.Relic,
-            Str = item.Str,
-            End = item.End,
-            Dex = item.Dex,
-            Agi = item.Agi,
-            Int = item.Int,
-            Wis = item.Wis,
-            Cha = item.Cha,
-            Res = item.Res,
-            Damage = item.WeaponDmg,
+            Str = stats.Str,
+            End = stats.End,
+            Dex = stats.Dex,
+            Agi = stats.Agi,
+            Int = stats.Int,
+            Wis = stats.Wis,
+            Cha = stats.Cha,
+            Res = stats.Res,
+            Damage = stats.WeaponDmg,
             Delay = item.WeaponDly,
-            Health = item.HP,
-            Mana = item.Mana,
-            Armor = item.AC,
-            Magic = item.MR,
-            Poison = item.PR,
-            Elemental = item.ER,
-            Void = item.VR,
+            Health = stats.HP,
+            Mana = stats.Mana,
+            Armor = stats.AC,
+            Magic = stats.MR,
+            Poison = stats.PR,
+            Elemental = stats.ER,
+            Void = stats.VR,
             Description = item.Lore.Trim().Replace("|", "&#124;").Replace("=", "&#61;").Replace("\n", "<br>"),
             Arcanist = item.Classes.Split(", ").Contains("Arcanist"),
             Duelist = item.Classes.Split(", ").Contains("Duelist"),

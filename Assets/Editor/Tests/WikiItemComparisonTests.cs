@@ -14,12 +14,14 @@ public class WikiItemComparisonTests
     public void Compare_SameArmorAndWikiString_AreEqual()
     {
         using var db = Repository.CreateConnection();
-        var item = db.Table<ItemDBRecord>().ToList().FirstOrDefault(i => i.WikiString.Contains("Fancy-armor"));
+        var itemStats = db.Table<ItemStatsRecord>().ToList().FirstOrDefault(s => s.WikiString.Contains("Fancy-armor"));
+        if (itemStats == null) return;
+        var item = db.Table<ItemRecord>().FirstOrDefault(i => i.Id == itemStats.ItemId);
         if (item == null) return;
         
         var factory = new WikiFancyArmorFactory(db);
-        WikiFancyArmor fancyArmor1 = factory.Create(item);
-        WikiFancyArmor fancyArmor2 = factory.Create(item.WikiString);
+        WikiFancyArmor fancyArmor1 = factory.Create(item, itemStats);
+        WikiFancyArmor fancyArmor2 = factory.Create(itemStats.WikiString);
         
         ObjectComparisonResult result = ObjectComparer.Compare(fancyArmor1, fancyArmor2);
         Assert.IsTrue(result.AreEqual, result.ToString());
@@ -30,12 +32,14 @@ public class WikiItemComparisonTests
     public void Compare_SameWeaponAndWikiString_AreEqual()
     {
         using var db = Repository.CreateConnection();
-        var item = db.Table<ItemDBRecord>().ToList().FirstOrDefault(i => i.WikiString.Contains("Fancy-weapon"));
+        var itemStats = db.Table<ItemStatsRecord>().ToList().FirstOrDefault(s => s.WikiString.Contains("Fancy-weapon"));
+        if (itemStats == null) return;
+        var item = db.Table<ItemRecord>().FirstOrDefault(i => i.Id == itemStats.ItemId);
         if (item == null) return;
         
         var factory = new WikiFancyWeaponFactory(db);
-        WikiFancyWeapon fancyWeapon1 = factory.Create(item);
-        WikiFancyWeapon fancyWeapon2 = factory.Create(item.WikiString);
+        WikiFancyWeapon fancyWeapon1 = factory.Create(item, itemStats);
+        WikiFancyWeapon fancyWeapon2 = factory.Create(itemStats.WikiString);
         
         ObjectComparisonResult result = ObjectComparer.Compare(fancyWeapon1, fancyWeapon2);
         Assert.IsTrue(result.AreEqual, result.ToString());
@@ -48,11 +52,6 @@ public class WikiItemComparisonTests
         var db = Repository.CreateConnection();
         var comparer = new WikiItemComparer(db);
 
-        var itemsByBaseItemId = db.Table<ItemDBRecord>().ToList()
-            .Where(i => !string.IsNullOrEmpty(i.WikiString))
-            .GroupBy(i => i.BaseItemId)
-            .ToDictionary(g => g.Key, g => g.ToList());
-
         db.DropTable<WikiComparisonDBRecord>();
         db.CreateTable<WikiComparisonDBRecord>();
 
@@ -60,14 +59,15 @@ public class WikiItemComparisonTests
         const int delayMs = 500;
         var semaphore = new SemaphoreSlim(maxConcurrency);
 
-        var itemGroups = itemsByBaseItemId.Values.ToList();
         var tasks = new List<Task>();
         var exceptions = new ConcurrentBag<Exception>();
 
-        for (var i = 0; i < itemGroups.Count; i++)
+        var items = db.Table<ItemRecord>().ToList();
+        for (var i = 0; i < items.Count; i++)
         {
-            var items = itemGroups[i];
-            TestContext.Progress.WriteLine($"Processing item group {i} of {itemGroups.Count} ({items.First().ItemName})...");
+            var item = items[i];
+            var itemStats = db.Table<ItemStatsRecord>().Where(stats => stats.ItemId == item.Id).ToList();
+            TestContext.Progress.WriteLine($"Processing item group {i} of {items.Count} ({item.ItemName})...");
 
             semaphore.Wait();
 
@@ -75,7 +75,7 @@ public class WikiItemComparisonTests
             {
                 try
                 {
-                    comparer.CompareAndPersist(items);
+                    comparer.CompareAndPersist(item, itemStats);
                     Thread.Sleep(delayMs);
                 }
                 catch (Exception ex)
