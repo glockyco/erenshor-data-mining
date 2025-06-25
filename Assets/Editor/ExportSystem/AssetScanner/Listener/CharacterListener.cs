@@ -65,6 +65,7 @@ public class CharacterListener : IAssetScanListener<Character>
                     SELECT count(DISTINCT spc.SpawnPointId) AS spawnPointCount, count(DISTINCT c.Guid) AS instanceCount, *
                     FROM Characters c
                     LEFT JOIN SpawnPointCharacters spc ON spc.CharacterGuid = c.Guid
+                    WHERE NOT c.IsPrefab OR (spc.SpawnChance > 0)
                     GROUP BY c.NPCName
                 )
                 WHERE ((IsPrefab AND spawnPointCount = 1) OR (NOT IsPrefab AND instanceCount = 1))
