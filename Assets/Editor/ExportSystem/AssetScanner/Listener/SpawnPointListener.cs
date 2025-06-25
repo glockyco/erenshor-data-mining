@@ -99,7 +99,7 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
         // Use GUID as the key for grouping
         var characterData = new Dictionary<string, (float spawnChance, bool isCommon, bool isRare)>();
 
-        float rareNpcChance = spawnPoint.RareNPCChance;
+        float rareNpcChance = spawnPoint.RareSpawns.Count == 0 ? 0 : spawnPoint.RareNPCChance;
         float commonNpcChance = 100.0f - rareNpcChance;
 
         // Rare spawns
