@@ -56,13 +56,15 @@ public class CharacterListener : IAssetScanListener<Character>
         var characterRecord = CreateCharacterRecord(asset);
         _db.Insert(characterRecord);
 
-        var dialogs = asset.GetComponents<NPCDialog>();
-        if (dialogs.Length > 0)
+        var dialogs = asset.GetComponents<NPCDialog>().Where(d => !string.IsNullOrWhiteSpace(d.Dialog)).ToList();
+        if (dialogs.Count > 0)
         {
+            var i = 0;
             var dialogRecords = new List<CharacterDialogRecord>();
-            for (var i = 0; i < dialogs.Length; i++)
+            foreach (var dialog in dialogs)
             {
-                dialogRecords.Add(CreateDialogRecord(characterRecord.Id, i, dialogs[i]));
+                dialogRecords.Add(CreateDialogRecord(characterRecord.Id, i, dialog));
+                i++;
             }
             _db.InsertAll(dialogRecords);
         }
@@ -91,7 +93,7 @@ public class CharacterListener : IAssetScanListener<Character>
         VendorInventory vendorInventory = character.GetComponent<VendorInventory>();
         SimPlayer simPlayer = character.GetComponent<SimPlayer>();
         Stats stats = character.GetComponent<Stats>();
-        NPCDialog dialog = character.GetComponent<NPCDialog>();
+        bool hasDialog = character.GetComponents<NPCDialog>().Any(d => !string.IsNullOrWhiteSpace(d.Dialog));
         ModifyFaction[] modifyFactions = character.GetComponents<ModifyFaction>();
         
         string guid;
@@ -122,7 +124,7 @@ public class CharacterListener : IAssetScanListener<Character>
             IsSimPlayer = simPlayer != null,
             IsVendor = vendorInventory != null,
             HasStats = stats != null,
-            HasDialog = dialog != null,
+            HasDialog = hasDialog,
             HasModifyFaction = modifyFactions.Length > 0,
             IsEnabled = character.isActiveAndEnabled,
             Invulnerable = character.Invulnerable,
