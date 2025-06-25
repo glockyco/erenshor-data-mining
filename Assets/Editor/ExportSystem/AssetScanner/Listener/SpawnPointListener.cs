@@ -72,16 +72,19 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
 
     private SpawnPointRecord CreateSpawnPointRecord(SpawnPoint spawnPoint, int coordinateId)
     {
+        // Default value 600f is taken from `SpawnPoint.Start`.
+        var spawnDelay = spawnPoint.SpawnDelay == 0f ? 600f : spawnPoint.SpawnDelay;
+        
         return new SpawnPointRecord
         {
             CoordinateId = coordinateId,
             IsEnabled = spawnPoint.isActiveAndEnabled,
             RareNPCChance = spawnPoint.RareNPCChance,
             LevelMod = spawnPoint.levelMod,
-            SpawnDelay1 = spawnPoint.SpawnDelay,
-            SpawnDelay2 = spawnPoint.SpawnDelay / 1.1f, // See: GameManager.SpawnTimeMod
-            SpawnDelay3 = spawnPoint.SpawnDelay / 1.8f, // See: GameManager.SpawnTimeMod
-            SpawnDelay4 = spawnPoint.SpawnDelay / 1.8f, // See: GameManager.SpawnTimeMod
+            SpawnDelay1 = spawnDelay,
+            SpawnDelay2 = spawnDelay / 1.1f, // See: GameManager.SpawnTimeMod
+            SpawnDelay3 = spawnDelay / 1.8f, // See: GameManager.SpawnTimeMod
+            SpawnDelay4 = spawnDelay / 1.8f, // See: GameManager.SpawnTimeMod
             Staggerable = spawnPoint.staggerable,
             StaggerMod = spawnPoint.staggerMod,
             NightSpawn = spawnPoint.NightSpawn,
