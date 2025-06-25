@@ -28,6 +28,7 @@ public class CharacterDBRecord
     public bool HasStats { get; set; }
     public bool HasModifyFaction { get; set; }
     
+    public bool IsEnabled { get; set; }
     public bool Invulnerable { get; set; }
     public string ShoutOnDeath { get; set; } = string.Empty;
     public string QuestCompleteOnDeath { get; set; } = string.Empty;

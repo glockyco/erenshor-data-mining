@@ -115,6 +115,7 @@ public class CharacterListener : IAssetScanListener<Character>
             IsVendor = vendorInventory != null,
             HasStats = stats != null,
             HasModifyFaction = modifyFactions.Length > 0,
+            IsEnabled = character.isActiveAndEnabled,
             Invulnerable = character.Invulnerable,
             ShoutOnDeath = character.ShoutOnDeath != null ? string.Join(", ", character.ShoutOnDeath) : null,
             QuestCompleteOnDeath = character.QuestCompleteOnDeath != null ? character.QuestCompleteOnDeath.DBName : null,

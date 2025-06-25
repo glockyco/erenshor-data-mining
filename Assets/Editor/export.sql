@@ -43,6 +43,7 @@ SELECT
    IsMiningNode,
    HasStats,
    HasModifyFaction,
+   IsEnabled,
    Invulnerable,
    ShoutOnDeath,
    QuestCompleteOnDeath,
