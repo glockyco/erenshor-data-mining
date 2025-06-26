@@ -79,8 +79,9 @@ public class SecretPassageListener : IAssetScanListener<Component>
         }
 
         var colliders = component.gameObject.GetComponents<Collider>();
-        var enabledCollider = colliders.FirstOrDefault(c => c.enabled);
-        
+        var noCollisionLayer = LayerMask.NameToLayer("NoCollision");
+        var enabledCollider = colliders.FirstOrDefault(c => c.enabled && component.gameObject.layer != noCollisionLayer);
+
         var renderers = component.gameObject.GetComponents<Renderer>();
         var enabledRenderer = renderers.FirstOrDefault(r => r.enabled);
 
