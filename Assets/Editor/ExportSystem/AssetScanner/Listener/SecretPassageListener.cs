@@ -66,7 +66,7 @@ public class SecretPassageListener : IAssetScanListener<Component>
             "Cube", "Curtain", "Event", "Flowers", "Furnace", "Halberd", "LOD", "Leaves", "MemorySphere", "Mushroom",
             "Navmesh", "Pickaxe", "Plane", "PlanterBox", "PointOfInterest", "Pole", "Rubble", "SAFESPOT",
             "Shiver Intro", "Spear", "Sphere", "Statue", "Sword", "Torch", "Tree", "Trigger", "Tut", "Tutorial",
-            "WATER", "Water", "ZoneLine", "Zoneline", "water", "Bounds", "FishingRod"
+            "WATER", "Water", "ZoneLine", "Zoneline", "water", "Bounds", "FishingRod", "Wall_Frame_Curved",
         };
         if (keywords.Any(keyword => component.gameObject.name.Contains(keyword)))
         {
