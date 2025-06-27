@@ -428,6 +428,14 @@ public class TileScreenshotter
                     OriginY = -300,
                     BaseTilesX = 2,
                     BaseTilesY = 2,
+                    PreProcess = (zoomLevel) =>
+                    {
+                        if (zoomLevel == 0)
+                        {
+                            var obj = GameObject.Find("rock4 (25)");
+                            obj?.SetActive(false);
+                        }
+                    }
                 }
             },
             {
