@@ -1125,6 +1125,9 @@ public class TileScreenshotter
 
         Camera cam = Camera.main;
         Scene scene = SceneManager.GetActiveScene();
+        
+        WorldFogController fogController = UnityEngine.Object.FindObjectOfType<WorldFogController>();
+        fogController.gameObject.SetActive(false);
 
         if (dryRun)
         {
