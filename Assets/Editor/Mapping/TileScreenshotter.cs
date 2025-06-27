@@ -578,6 +578,7 @@ public class TileScreenshotter
                                 "SM_Env_Rock_Cliff_03 (70)", "SM_Env_Rock_Cliff_03 (68)",
                                 "SM_Env_Rock_Cliff_03 (71)", "SM_Env_Rock_Cliff_03 (72)",
                                 "SM_Env_Rock_Cliff_03 (69)", "SM_Env_Rock_Cliff_03 (79)",
+                                "SM_Env_Rock_Cliff_03 (81)",
                             };
                             foreach (var objName in objNames)
                             {
