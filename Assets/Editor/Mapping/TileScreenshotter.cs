@@ -274,6 +274,15 @@ public class TileScreenshotter
                                 "SM_Env_Tiles_07 (196)", "SM_Bld_Castle_Wall_Cut_02 (545)", "SM_Bld_Castle_Wall_Cut_02 (544)",
                                 "SM_Bld_Castle_Wall_Cut_02 (562)", "SM_Bld_Castle_Wall_Cut_02 (563)", "SM_Env_Tiles_07 (198)",
                                 "SM_Env_Tiles_07 (244)", "SM_Env_Tiles_07 (247)", "SM_Env_Tiles_07 (195)",
+                                // Lower layer ceilings:
+                                "SM_Env_Rock_Flat_03 (6)", "SM_Env_Rock_Flat_03 (11)", "SM_Env_Rock_Flat_03 (5)",
+                                "SM_Env_Rock_Flat_03 (4)", "SM_Env_Rock_Flat_02 (6)", "SM_Env_Rock_Flat_02 (4)",
+                                "SM_Env_Rock_Flat_02 (3)", "SM_Env_Rock_Flat_02 (1)", "SM_Env_Rock_Flat_02 (5)",
+                                "SM_Env_Rock_Flat_03 (7)", "SM_Env_Rock_Flat_02 (2)", "SM_Env_Rock_Flat_03 (8)",
+                                "SM_Env_Rock_Flat_03 (2)", "SM_Env_Rock_Flat_02", "SM_Env_Rock_Flat_03 (9)",
+                                "SM_Env_Rock_Flat_03 (1)", "SM_Env_Rock_Flat_03", "SM_Env_Rock_Flat_03 (3)",
+                                "SM_Env_Rock_Flat_03 (10)", "SM_Env_Rock_Pile_01", "SM_Env_Rock_Pile_01 (1)",
+                                "SM_Env_Rock_Pile_01 (2)", "SM_Env_Rock_Cliff_03 (31)",
                             };
                             foreach (GameObject obj in SceneManager.GetActiveScene().GetRootGameObjects())
                             {
@@ -287,36 +296,36 @@ public class TileScreenshotter
                                 }
                             }
                         }
-                        else if (zoomLevel == 2)
-                        {
-                            string[] objNames =
-                            {
-                                "SM_Bld_Castle_Wall_Cut_02 (589)", "SM_Bld_Castle_Wall_Cut_02 (590)", "SM_Bld_Castle_Wall_Cut_02 (586)",
-                                "SM_Bld_Castle_Wall_Cut_02 (587)", "SM_Bld_Castle_Wall_Cut_02 (585)", "SM_Bld_Castle_Wall_Cut_02 (584)",
-                                "SM_Bld_Castle_Wall_Cut_02 (583)", "SM_Bld_Castle_Wall_Cut_02 (582)", "SM_Bld_Castle_Wall_Cut_02 (588)",
-                                "SM_Env_Rock_Flat_03 (8)", "SM_Env_Rock_Pile_01 (2)", "SM_Env_Rock_Pile_01 (1)",
-                                "SM_Env_Rock_Pile_01", "SM_Env_Rock_Cliff_03 (31)", "SM_Bld_Castle_Pillar_Stone_04 (38)",
-                                "SM_Bld_Castle_Roof_M_Curved_End_Beam_01 (2)", "SM_Bld_Castle_Roof_M_Curved_End_Beam_01",
-                                "SM_Bld_Castle_Pillar_Stone_04 (39)", "SM_Bld_Castle_Roof_M_Curved_End_Beam_01 (3)",
-                                "SM_Bld_Castle_Roof_M_Curved_End_Beam_01 (1)", "SM_Bld_Beam_01 (22)", "SM_Bld_Beam_01 (23)",
-                                "SM_Bld_Beam_01 (10)", "SM_Bld_Beam_01 (9)", "SM_Bld_Beam_01 (8)",
-                            };
-                            foreach (GameObject obj in SceneManager.GetActiveScene().GetRootGameObjects())
-                            {
-                                if (obj.transform.position.y > 57f)
-                                {
-                                    obj.SetActive(false);
-                                }
-                                else if (obj.transform.position.y > 44f && obj.transform.position.z < 510f)
-                                {
-                                    obj.SetActive(false);
-                                }
-                                else if (objNames.Contains(obj.name))
-                                {
-                                    obj.SetActive(false);
-                                }
-                            }
-                        }
+                        // else if (zoomLevel == 2)
+                        // {
+                        //     string[] objNames =
+                        //     {
+                        //         "SM_Bld_Castle_Wall_Cut_02 (589)", "SM_Bld_Castle_Wall_Cut_02 (590)", "SM_Bld_Castle_Wall_Cut_02 (586)",
+                        //         "SM_Bld_Castle_Wall_Cut_02 (587)", "SM_Bld_Castle_Wall_Cut_02 (585)", "SM_Bld_Castle_Wall_Cut_02 (584)",
+                        //         "SM_Bld_Castle_Wall_Cut_02 (583)", "SM_Bld_Castle_Wall_Cut_02 (582)", "SM_Bld_Castle_Wall_Cut_02 (588)",
+                        //         "SM_Env_Rock_Flat_03 (8)", "SM_Env_Rock_Pile_01 (2)", "SM_Env_Rock_Pile_01 (1)",
+                        //         "SM_Env_Rock_Pile_01", "SM_Env_Rock_Cliff_03 (31)", "SM_Bld_Castle_Pillar_Stone_04 (38)",
+                        //         "SM_Bld_Castle_Roof_M_Curved_End_Beam_01 (2)", "SM_Bld_Castle_Roof_M_Curved_End_Beam_01",
+                        //         "SM_Bld_Castle_Pillar_Stone_04 (39)", "SM_Bld_Castle_Roof_M_Curved_End_Beam_01 (3)",
+                        //         "SM_Bld_Castle_Roof_M_Curved_End_Beam_01 (1)", "SM_Bld_Beam_01 (22)", "SM_Bld_Beam_01 (23)",
+                        //         "SM_Bld_Beam_01 (10)", "SM_Bld_Beam_01 (9)", "SM_Bld_Beam_01 (8)",
+                        //     };
+                        //     foreach (GameObject obj in SceneManager.GetActiveScene().GetRootGameObjects())
+                        //     {
+                        //         if (obj.transform.position.y > 57f)
+                        //         {
+                        //             obj.SetActive(false);
+                        //         }
+                        //         else if (obj.transform.position.y > 44f && obj.transform.position.z < 510f)
+                        //         {
+                        //             obj.SetActive(false);
+                        //         }
+                        //         else if (objNames.Contains(obj.name))
+                        //         {
+                        //             obj.SetActive(false);
+                        //         }
+                        //     }
+                        // }
                     }
                 }
             },
