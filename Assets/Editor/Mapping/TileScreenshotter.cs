@@ -564,12 +564,12 @@ public class TileScreenshotter
                         {
                             string[] objNames =
                             {
-                                "SM_Env_Tree_Giant_01_LOD2 (35)",
-                                "SM_Env_Tree_Giant_01_LOD2 (36)",
-                                "SM_Env_Tree_Giant_01_LOD2 (37)",
-                                "SM_Env_Tree_Giant_01_LOD2 (38)",
-                                "SM_Env_Tree_Giant_01_LOD2 (39)",
-                                "SM_Env_Rock_Cliff_03 (75)",
+                                "SM_Env_Tree_Giant_01_LOD2 (35)", "SM_Env_Tree_Giant_01_LOD2 (36)",
+                                "SM_Env_Tree_Giant_01_LOD2 (37)", "SM_Env_Tree_Giant_01_LOD2 (38)",
+                                "SM_Env_Tree_Giant_01_LOD2 (39)", "SM_Env_Rock_Cliff_03 (75)",
+                                "SM_Env_Rock_Cliff_03 (70)", "SM_Env_Rock_Cliff_03 (68)",
+                                "SM_Env_Rock_Cliff_03 (71)", "SM_Env_Rock_Cliff_03 (72)",
+                                "SM_Env_Rock_Cliff_03 (69)", "SM_Env_Rock_Cliff_03 (79)",
                             };
                             foreach (var objName in objNames)
                             {
