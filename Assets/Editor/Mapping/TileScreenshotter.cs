@@ -538,25 +538,25 @@ public class TileScreenshotter
                                 }
                             }
                         }
-                        if (zoomLevel == 3)
-                        {
-                            string[] objNames =
-                            {
-                                "SM_Bld_Castle_Wall_Cut_01 (273)",
-                                "SM_Bld_Castle_Wall_Cut_01 (276)",
-                            };
-                            foreach (GameObject obj in SceneManager.GetActiveScene().GetRootGameObjects())
-                            {
-                                if (objNames.Contains(obj.name))
-                                {
-                                    obj.SetActive(false);
-                                }
-                                if (obj.name.StartsWith("SM_") && obj.transform.position.x < 400f && obj.transform.position.y > 54f)
-                                {
-                                    obj.SetActive(false);
-                                }
-                            }
-                        }
+                        // if (zoomLevel == 3)
+                        // {
+                        //     string[] objNames =
+                        //     {
+                        //         "SM_Bld_Castle_Wall_Cut_01 (273)",
+                        //         "SM_Bld_Castle_Wall_Cut_01 (276)",
+                        //     };
+                        //     foreach (GameObject obj in SceneManager.GetActiveScene().GetRootGameObjects())
+                        //     {
+                        //         if (objNames.Contains(obj.name))
+                        //         {
+                        //             obj.SetActive(false);
+                        //         }
+                        //         if (obj.name.StartsWith("SM_") && obj.transform.position.x < 400f && obj.transform.position.y > 54f)
+                        //         {
+                        //             obj.SetActive(false);
+                        //         }
+                        //     }
+                        // }
                     }
                 }
             },
