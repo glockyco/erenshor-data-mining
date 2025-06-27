@@ -1116,6 +1116,23 @@ public class TileScreenshotter
                     OriginY = -128,
                     BaseTilesX = 4,
                     BaseTilesY = 4,
+                    PreProcess = (zoomLevel) =>
+                    {
+                        if (zoomLevel == 0)
+                        {
+                            string[] objNames =
+                            {
+                                "SM_Env_Rock_Cliff_03 (68)",
+                                "SM_Env_Rock_Cliff_03 (70)",
+                                "SM_Env_Rock_Cliff_03 (69)",
+                            };
+                            foreach (var objName in objNames)
+                            {
+                                var obj = GameObject.Find(objName);
+                                obj?.SetActive(false);
+                            }
+                        }
+                    }
                 }
             },
         };
