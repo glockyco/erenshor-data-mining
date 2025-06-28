@@ -431,6 +431,38 @@ public class TileScreenshotter
                 }
             },
             {
+                "FernallaPortal", new TileScreenshotter.TileShotterSettings
+                {
+                    ZoomLevels = 4,
+                    OriginX = 0,
+                    OriginY = 0,
+                    BaseTilesX = 2,
+                    BaseTilesY = 3,
+                    PreProcess = (zoomLevel) =>
+                    {
+                        if (zoomLevel == 0)
+                        {
+                            string[] objNames =
+                            {
+                                "SM_Env_Tree_Dead_04 (2)",
+                                "SM_Env_Tree_Dead_03 (3)",
+                                "SM_Env_Tree_Dead_04 (3)",
+                                "SM_Env_Tree_Dead_04 (1)",
+                                "SM_Env_Tree_Dead_04",
+                                "SM_Env_Tree_Dead_03 (1)",
+                                "SM_Env_Tree_Dead_03",
+                                "SM_Env_Tree_Dead_03 (2)",
+                            };
+                            foreach (var objName in objNames)
+                            {
+                                var obj = GameObject.Find(objName);
+                                obj?.SetActive(false);
+                            }
+                        }
+                    }
+                }
+            },
+            {
                 "Hidden", new TileScreenshotter.TileShotterSettings
                 {
                     ZoomLevels = 4,
