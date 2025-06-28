@@ -3,8 +3,10 @@
 using SQLite;
 
 [Table("LootDrops")]
-public class LootTableDBRecord
+public class LootTableRecord
 {
+    public const string TableName = "LootDrops";
+    
     [Indexed(Name = "LootDrops_Primary_IDX", Order = 1, Unique = true)]
     public string CharacterPrefabGuid { get; set; } = string.Empty;
 

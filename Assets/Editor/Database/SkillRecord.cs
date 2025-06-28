@@ -3,8 +3,10 @@
 using SQLite;
 
 [Table("Skills")]
-public class SkillDBRecord
+public class SkillRecord
 {
+    public const string TableName = "Skills";
+    
     // --- Core Identification ---
     public int SkillDBIndex { get; set; } // Index in the Resources.LoadAll array
     [PrimaryKey]

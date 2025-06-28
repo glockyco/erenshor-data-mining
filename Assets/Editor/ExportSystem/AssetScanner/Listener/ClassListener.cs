@@ -7,7 +7,7 @@ using UnityEngine;
 public class ClassListener : IAssetScanListener<Class>
 {
     private readonly SQLiteConnection _db;
-    private readonly List<ClassDBRecord> _records = new();
+    private readonly List<ClassRecord> _records = new();
 
     public ClassListener(SQLiteConnection db)
     {
@@ -16,10 +16,10 @@ public class ClassListener : IAssetScanListener<Class>
 
     public void OnScanFinished()
     {
-        _db.CreateTable<ClassDBRecord>();
+        _db.CreateTable<ClassRecord>();
         _db.RunInTransaction(() =>
         {
-            _db.DeleteAll<ClassDBRecord>();
+            _db.DeleteAll<ClassRecord>();
             _db.InsertAll(_records);
         });
         _records.Clear();
@@ -29,7 +29,7 @@ public class ClassListener : IAssetScanListener<Class>
     {
         Debug.Log($"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
 
-        var record = new ClassDBRecord
+        var record = new ClassRecord
         {
             ClassName = asset.ClassName,
             MitigationBonus = asset.MitigationBonus,

@@ -5,43 +5,40 @@ using System.Linq;
 using SQLite;
 using UnityEditor;
 using UnityEngine;
-using static CoordinateDBRecord;
+using static CoordinateRecord;
 
 public class SpawnPointListener : IAssetScanListener<SpawnPoint>
 {
     private readonly SQLiteConnection _db;
+    private readonly List<CoordinateRecord> _coordinateRecords = new();
+    private readonly List<SpawnPointRecord> _spawnPointRecords = new();
+    private readonly List<SpawnPointCharacterRecord> _spawnPointCharacterRecords = new();
 
     public SpawnPointListener(SQLiteConnection db)
     {
         _db = db;
     }
 
-    public void OnScanStarted()
+    public void OnScanFinished()
     {
-        _db.CreateTable<CoordinateDBRecord>();
+        _db.CreateTable<CoordinateRecord>();
         _db.CreateTable<SpawnPointRecord>();
         _db.CreateTable<SpawnPointCharacterRecord>();
         
-        _db.Execute("DELETE FROM Coordinates WHERE Category = ?", nameof(CoordinateCategory.SpawnPoint));
-        _db.DeleteAll<SpawnPointRecord>();
-        _db.DeleteAll<SpawnPointCharacterRecord>();
-    }
-    
-    public void OnScanFinished()
-    {
-        _db.Execute(@"
-            UPDATE Coordinates
-            SET SpawnPointId = (
-                SELECT Id
-                FROM SpawnPoints
-                WHERE SpawnPoints.CoordinateId = Coordinates.Id
-            )
-            WHERE EXISTS (
-                SELECT 1
-                FROM SpawnPoints
-                WHERE SpawnPoints.CoordinateId = Coordinates.Id
-            );
-        ");
+        _db.RunInTransaction(() =>
+        {
+            _db.Execute("DELETE FROM Coordinates WHERE Category = ?", nameof(CoordinateCategory.SpawnPoint));
+            _db.DeleteAll<SpawnPointRecord>();
+            _db.DeleteAll<SpawnPointCharacterRecord>();
+            
+            _db.InsertAll(_coordinateRecords);
+            _db.InsertAll(_spawnPointRecords);
+            _db.InsertAll(_spawnPointCharacterRecords);
+        });
+        
+        _coordinateRecords.Clear();
+        _spawnPointRecords.Clear();
+        _spawnPointCharacterRecords.Clear();
     }
 
     public void OnAssetFound(SpawnPoint asset)
@@ -49,19 +46,21 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
         Debug.Log($"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
 
         var coordinateRecord = CreateCoordinateRecord(asset);
-        _db.Insert(coordinateRecord);
-        
         var spawnPointRecord = CreateSpawnPointRecord(asset, coordinateRecord.Id);
-        _db.Insert(spawnPointRecord);
+        coordinateRecord.SpawnPointId = spawnPointRecord.Id;
+        
+        _coordinateRecords.Add(coordinateRecord);
+        _spawnPointRecords.Add(spawnPointRecord);
         
         var spawnPointCharacterRecords = CreateSpawnPointCharacterRecords(asset, spawnPointRecord.Id);
-        _db.InsertAll(spawnPointCharacterRecords);
+        _spawnPointCharacterRecords.AddRange(spawnPointCharacterRecords);
     }
 
-    private CoordinateDBRecord CreateCoordinateRecord(SpawnPoint spawnPoint)
+    private CoordinateRecord CreateCoordinateRecord(SpawnPoint spawnPoint)
     {
-        return new CoordinateDBRecord
+        return new CoordinateRecord
         {
+            Id = TableIdGenerator.NextId(CoordinateRecord.TableName),
             Scene = spawnPoint.gameObject.scene.name,
             X = spawnPoint.transform.position.x,
             Y = spawnPoint.transform.position.y,
@@ -77,6 +76,7 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
         
         return new SpawnPointRecord
         {
+            Id = TableIdGenerator.NextId(SpawnPointRecord.TableName),
             CoordinateId = coordinateId,
             IsEnabled = spawnPoint.isActiveAndEnabled,
             RareNPCChance = spawnPoint.RareNPCChance,

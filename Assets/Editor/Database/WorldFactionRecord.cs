@@ -3,8 +3,10 @@
 using SQLite;
 
 [Table("Factions")]
-public class WorldFactionDBRecord
+public class WorldFactionRecord
 {
+    public const string TableName = "Factions";
+    
     public int FactionDBIndex { get; set; } // Index from GlobalFactionManager.FactionDB array
     public string FactionName { get; set; } = string.Empty; // From WorldFaction.FactionName (Display Name)
     public string FactionDesc { get; set; } = string.Empty; // From WorldFaction.FactionDesc

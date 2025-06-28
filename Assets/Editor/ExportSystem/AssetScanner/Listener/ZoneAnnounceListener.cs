@@ -7,7 +7,7 @@ using UnityEngine;
 public class ZoneAnnounceListener : IAssetScanListener<ZoneAnnounce>
 {
     private readonly SQLiteConnection _db;
-    private readonly List<ZoneAnnounceDBRecord> _records = new();
+    private readonly List<ZoneAnnounceRecord> _records = new();
 
     public ZoneAnnounceListener(SQLiteConnection db)
     {
@@ -16,10 +16,10 @@ public class ZoneAnnounceListener : IAssetScanListener<ZoneAnnounce>
 
     public void OnScanFinished()
     {
-        _db.CreateTable<ZoneAnnounceDBRecord>();
+        _db.CreateTable<ZoneAnnounceRecord>();
         _db.RunInTransaction(() =>
         {
-            _db.DeleteAll<ZoneAnnounceDBRecord>();
+            _db.DeleteAll<ZoneAnnounceRecord>();
             _db.InsertAll(_records);
         });
         _records.Clear();
@@ -29,7 +29,7 @@ public class ZoneAnnounceListener : IAssetScanListener<ZoneAnnounce>
     {
         Debug.Log($"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
 
-        ZoneAnnounceDBRecord record = new ZoneAnnounceDBRecord
+        ZoneAnnounceRecord record = new ZoneAnnounceRecord
         {
             SceneName = asset.gameObject.scene.name,
             ZoneName = asset.ZoneName,

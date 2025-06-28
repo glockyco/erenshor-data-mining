@@ -5,21 +5,23 @@ using SQLite;
 [Table("Characters")]
 public class CharacterRecord
 {
-    [PrimaryKey, AutoIncrement]
+    public const string TableName = "Characters";
+    
+    [PrimaryKey]
     public int Id { get; set; }
     [Indexed]
     public int? CoordinateId { get; set; }
 
     public string Guid { get; set; } = string.Empty;
-    public string ObjectName { get; set; } = string.Empty;
+    public string? ObjectName { get; set; } = string.Empty;
     public string NPCName { get; set; } = string.Empty;
 
-    public string MyWorldFaction { get; set; } = string.Empty;
+    public string? MyWorldFaction { get; set; } = string.Empty;
     public string MyFaction { get; set; } = string.Empty;
     public float AggroRange { get; set; }
     public float AttackRange { get; set; }
-    public string AggressiveTowards { get; set; } = string.Empty;
-    public string Allies { get; set; } = string.Empty;
+    public string? AggressiveTowards { get; set; } = string.Empty;
+    public string? Allies { get; set; } = string.Empty;
     
     public bool IsPrefab { get; set; }
     public bool IsCommon { get; set; }
@@ -36,8 +38,8 @@ public class CharacterRecord
     
     public bool IsEnabled { get; set; }
     public bool Invulnerable { get; set; }
-    public string ShoutOnDeath { get; set; } = string.Empty;
-    public string QuestCompleteOnDeath { get; set; } = string.Empty;
+    public string? ShoutOnDeath { get; set; } = string.Empty;
+    public string? QuestCompleteOnDeath { get; set; } = string.Empty;
     public bool DestroyOnDeath { get; set; }
 
     // Stats properties
@@ -82,5 +84,5 @@ public class CharacterRecord
     
     // VendorInventory properties
     public string VendorDesc { get; set; } = string.Empty;
-    public string ItemsForSale { get; set; } = string.Empty;
+    public string? ItemsForSale { get; set; } = string.Empty;
 }

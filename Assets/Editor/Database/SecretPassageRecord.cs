@@ -3,8 +3,10 @@
 using SQLite;
 
 [Table("SecretPassages")]
-public class SecretPassageDBRecord
+public class SecretPassageRecord
 {
+    public const string TableName = "SecretPassages";
+    
     [PrimaryKey, AutoIncrement]
     public int Id { get; set; }
     [Indexed]

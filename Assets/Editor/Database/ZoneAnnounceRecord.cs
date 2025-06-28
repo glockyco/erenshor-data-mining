@@ -1,8 +1,10 @@
 using SQLite;
 
 [Table("ZoneAnnounces")]
-public class ZoneAnnounceDBRecord
+public class ZoneAnnounceRecord
 {
+    public const string TableName = "ZoneAnnounces";
+    
     [PrimaryKey]
     public string SceneName { get; set; }
     public string ZoneName { get; set; }

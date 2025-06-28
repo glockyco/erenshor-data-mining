@@ -3,8 +3,10 @@
 using SQLite;
 
 [Table("Teleports")]
-public class TeleportDBRecord
+public class TeleportRecord
 {
+    public const string TableName = "Teleports";
+    
     [PrimaryKey, AutoIncrement]
     public int Id { get; set; }
     [Indexed]

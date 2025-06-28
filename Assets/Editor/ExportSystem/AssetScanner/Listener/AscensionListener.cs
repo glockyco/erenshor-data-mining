@@ -7,7 +7,7 @@ using UnityEngine;
 public class AscensionListener : IAssetScanListener<Ascension>
 {
     private readonly SQLiteConnection _db;
-    private readonly List<AscensionDBRecord> _records = new();
+    private readonly List<AscensionRecord> _records = new();
 
     public AscensionListener(SQLiteConnection db)
     {
@@ -16,10 +16,10 @@ public class AscensionListener : IAssetScanListener<Ascension>
 
     public void OnScanFinished()
     {
-        _db.CreateTable<AscensionDBRecord>();
+        _db.CreateTable<AscensionRecord>();
         _db.RunInTransaction(() =>
         {
-            _db.DeleteAll<AscensionDBRecord>();
+            _db.DeleteAll<AscensionRecord>();
             _db.InsertAll(_records);
         });
         _records.Clear();
@@ -29,7 +29,7 @@ public class AscensionListener : IAssetScanListener<Ascension>
     {
         Debug.Log($"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
 
-        var record = new AscensionDBRecord
+        var record = new AscensionRecord
         {
             AscensionDBIndex = _records.Count,
             Id = asset.Id,

@@ -8,7 +8,7 @@ using UnityEngine;
 public class SpellListener : IAssetScanListener<Spell>
 {
     private readonly SQLiteConnection _db;
-    private readonly List<SpellDBRecord> _records = new();
+    private readonly List<SpellRecord> _records = new();
 
     public SpellListener(SQLiteConnection db)
     {
@@ -17,10 +17,10 @@ public class SpellListener : IAssetScanListener<Spell>
 
     public void OnScanFinished()
     {
-        _db.CreateTable<SpellDBRecord>();
+        _db.CreateTable<SpellRecord>();
         _db.RunInTransaction(() =>
         {
-            _db.DeleteAll<SpellDBRecord>();
+            _db.DeleteAll<SpellRecord>();
             _db.InsertAll(_records);
         });
         _records.Clear();
@@ -33,7 +33,7 @@ public class SpellListener : IAssetScanListener<Spell>
         _records.Add(CreateRecord(asset, _records.Count));;
     }
 
-    private SpellDBRecord CreateRecord(Spell spell, int spellDbIndex)
+    private SpellRecord CreateRecord(Spell spell, int spellDbIndex)
     {
         if (spell == null || string.IsNullOrEmpty(spell.Id)) return null;
 
@@ -46,7 +46,7 @@ public class SpellListener : IAssetScanListener<Spell>
             classesString = string.Join(", ", classNames);
         }
 
-        return new SpellDBRecord
+        return new SpellRecord
         {
             // --- Core Identification ---
             SpellDBIndex = spellDbIndex,

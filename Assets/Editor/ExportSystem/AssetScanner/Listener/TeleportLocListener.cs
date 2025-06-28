@@ -1,6 +1,6 @@
 using SQLite;
 using UnityEngine;
-using static CoordinateDBRecord;
+using static CoordinateRecord;
 
 public class TeleportLocListener : IAssetScanListener<Object>
 {
@@ -13,11 +13,11 @@ public class TeleportLocListener : IAssetScanListener<Object>
 
     public void OnScanStarted()
     {
-        _db.CreateTable<CoordinateDBRecord>();
-        _db.CreateTable<TeleportDBRecord>();
+        _db.CreateTable<CoordinateRecord>();
+        _db.CreateTable<TeleportRecord>();
         
         _db.Execute("DELETE FROM Coordinates WHERE Category = ?", nameof(CoordinateCategory.Teleport));
-        _db.DeleteAll<TeleportDBRecord>();
+        _db.DeleteAll<TeleportRecord>();
 
         InsertTeleport("Azure", 10.8f, 29.4f, 335.2f, "5016816");
         InsertTeleport("Silkengrass", 188.5f, 63.52f, 712.92f, "71979710");
@@ -52,7 +52,7 @@ public class TeleportLocListener : IAssetScanListener<Object>
     
     private void InsertTeleport(string scene, float x, float y, float z, string itemId)
     {
-        var coordinate = new CoordinateDBRecord
+        var coordinate = new CoordinateRecord
         {
             Scene = scene,
             X = x,
@@ -63,7 +63,7 @@ public class TeleportLocListener : IAssetScanListener<Object>
         
         _db.Insert(coordinate);
 
-        var teleport = new TeleportDBRecord
+        var teleport = new TeleportRecord
         {
             CoordinateId = coordinate.Id,
             TeleportItemId = itemId,

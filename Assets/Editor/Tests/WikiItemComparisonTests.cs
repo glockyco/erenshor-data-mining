@@ -52,8 +52,8 @@ public class WikiItemComparisonTests
         var db = Repository.CreateConnection();
         var comparer = new WikiItemComparer(db);
 
-        db.DropTable<WikiComparisonDBRecord>();
-        db.CreateTable<WikiComparisonDBRecord>();
+        db.DropTable<WikiComparisonRecord>();
+        db.CreateTable<WikiComparisonRecord>();
 
         const int maxConcurrency = 10;
         const int delayMs = 500;

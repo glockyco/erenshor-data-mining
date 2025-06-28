@@ -1,8 +1,10 @@
 using SQLite;
 
 [Table("ZoneAtlasEntries")]
-public class ZoneAtlasEntryDBRecord
+public class ZoneAtlasEntryRecord
 {
+    public const string TableName = "ZoneAtlasEntries";
+    
     public int AtlasIndex { get; set; } // Index from the loaded Resources array
 
     [PrimaryKey]

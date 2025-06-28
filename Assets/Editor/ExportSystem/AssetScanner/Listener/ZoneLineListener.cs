@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using SQLite;
 using UnityEngine;
-using static CoordinateDBRecord;
+using static CoordinateRecord;
 
 public class ZoneLineListener : IAssetScanListener<Zoneline>
 {
     private readonly SQLiteConnection _db;
-    private readonly List<ZoneLineDBRecord> _records = new();
+    private readonly List<ZoneLineRecord> _records = new();
 
     public ZoneLineListener(SQLiteConnection db)
     {
@@ -15,11 +15,11 @@ public class ZoneLineListener : IAssetScanListener<Zoneline>
 
     public void OnScanStarted()
     {
-        _db.CreateTable<CoordinateDBRecord>();
-        _db.CreateTable<ZoneLineDBRecord>();
+        _db.CreateTable<CoordinateRecord>();
+        _db.CreateTable<ZoneLineRecord>();
 
         _db.Execute("DELETE FROM Coordinates WHERE Category = ?", nameof(CoordinateCategory.ZoneLine));
-        _db.DeleteAll<ZoneLineDBRecord>();
+        _db.DeleteAll<ZoneLineRecord>();
 
         _records.Clear();
     }
@@ -52,9 +52,9 @@ public class ZoneLineListener : IAssetScanListener<Zoneline>
         _records.Add(CreateRecord(asset));
     }
 
-    private ZoneLineDBRecord CreateRecord(Zoneline zoneLine)
+    private ZoneLineRecord CreateRecord(Zoneline zoneLine)
     {
-        var coordinate = new CoordinateDBRecord
+        var coordinate = new CoordinateRecord
         {
             Scene = zoneLine.gameObject.scene.name,
             X = zoneLine.transform.position.x,
@@ -65,7 +65,7 @@ public class ZoneLineListener : IAssetScanListener<Zoneline>
 
         _db.Insert(coordinate);
 
-        return new ZoneLineDBRecord
+        return new ZoneLineRecord
         {
             CoordinateId = coordinate.Id,
             IsEnabled = zoneLine.isActiveAndEnabled,

@@ -3,8 +3,10 @@
 using SQLite;
 
 [Table("Spells")]
-public class SpellDBRecord
+public class SpellRecord
 {
+    public const string TableName = "Spells";
+    
     // --- Core Identification ---
     public int SpellDBIndex { get; set; } // Index in the Resources.LoadAll array
     [PrimaryKey]

@@ -8,7 +8,7 @@ using UnityEngine;
 public class QuestListener : IAssetScanListener<Quest>
 {
     private readonly SQLiteConnection _db;
-    private readonly List<QuestDBRecord> _records = new();
+    private readonly List<QuestRecord> _records = new();
 
     public QuestListener(SQLiteConnection db)
     {
@@ -17,10 +17,10 @@ public class QuestListener : IAssetScanListener<Quest>
 
     public void OnScanFinished()
     {
-        _db.CreateTable<QuestDBRecord>();
+        _db.CreateTable<QuestRecord>();
         _db.RunInTransaction(() =>
         {
-            _db.DeleteAll<QuestDBRecord>();
+            _db.DeleteAll<QuestRecord>();
             _db.InsertAll(_records);
         });
         _records.Clear();
@@ -33,7 +33,7 @@ public class QuestListener : IAssetScanListener<Quest>
         _records.Add(CreateRecord(asset, _records.Count));
     }
 
-    private QuestDBRecord CreateRecord(Quest quest, int questDbIndex)
+    private QuestRecord CreateRecord(Quest quest, int questDbIndex)
     {
         string requiredItems = quest.RequiredItems != null
             ? string.Join(", ", quest.RequiredItems.Where(item => item != null && !string.IsNullOrEmpty(item.Id)).Select(item => item.Id))
@@ -51,7 +51,7 @@ public class QuestListener : IAssetScanListener<Quest>
             ? string.Join(", ", quest.CompleteOtherQuests.Where(q => q != null && !string.IsNullOrEmpty(q.DBName)).Select(q => q.DBName))
             : "";
 
-        return new QuestDBRecord
+        return new QuestRecord
         {
             // --- Core Identification ---
             QuestDBIndex = questDbIndex,

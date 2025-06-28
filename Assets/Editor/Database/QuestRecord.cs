@@ -3,8 +3,10 @@
 using SQLite;
 
 [Table("Quests")]
-public class QuestDBRecord
+public class QuestRecord
 {
+    public const string TableName = "Quests";
+    
     // --- Core Identification ---
     public int QuestDBIndex { get; set; } // Index in the Resources.LoadAll array
     public string QuestName { get; set; } = string.Empty; // From Quest.QuestName (Display Name)

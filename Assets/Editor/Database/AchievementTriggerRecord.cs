@@ -3,8 +3,10 @@
 using SQLite;
 
 [Table("AchievementTriggers")]
-public class AchievementTriggerDBRecord
+public class AchievementTriggerRecord
 {
+    public const string TableName = "AchievementTriggers";
+    
     [PrimaryKey, AutoIncrement]
     public int Id { get; set; }
     [Indexed]

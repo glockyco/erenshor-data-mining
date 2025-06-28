@@ -3,8 +3,10 @@
 using SQLite;
 
 [Table("Waters")]
-public class WaterDBRecord
+public class WaterRecord
 {
+    public const string TableName = "Waters";
+    
     [PrimaryKey, AutoIncrement]
     public int Id { get; set; }
     [Indexed]

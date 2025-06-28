@@ -2,12 +2,12 @@ using System.Collections.Generic;
 using System.Linq;
 using SQLite;
 using UnityEngine;
-using static CoordinateDBRecord;
+using static CoordinateRecord;
 
 public class SecretPassageListener : IAssetScanListener<Component>
 {
     private readonly SQLiteConnection _db;
-    private readonly List<SecretPassageDBRecord> _records = new();
+    private readonly List<SecretPassageRecord> _records = new();
     private readonly HashSet<GameObject> _processedGameObjects = new();
 
     public SecretPassageListener(SQLiteConnection db)
@@ -17,11 +17,11 @@ public class SecretPassageListener : IAssetScanListener<Component>
 
     public void OnScanStarted()
     {
-        _db.CreateTable<CoordinateDBRecord>();
-        _db.CreateTable<SecretPassageDBRecord>();
+        _db.CreateTable<CoordinateRecord>();
+        _db.CreateTable<SecretPassageRecord>();
 
         _db.Execute("DELETE FROM Coordinates WHERE Category = ?", nameof(CoordinateCategory.SecretPassage));
-        _db.DeleteAll<SecretPassageDBRecord>();
+        _db.DeleteAll<SecretPassageRecord>();
 
         _records.Clear();
         _processedGameObjects.Clear();
@@ -101,11 +101,11 @@ public class SecretPassageListener : IAssetScanListener<Component>
         _processedGameObjects.Add(component.gameObject);
     }
 
-    private SecretPassageDBRecord CreateRecord(Component component, Collider collider, Renderer renderer)
+    private SecretPassageRecord CreateRecord(Component component, Collider collider, Renderer renderer)
     {
         var position = collider != null ? collider.bounds.center : renderer.bounds.center;
 
-        var coordinate = new CoordinateDBRecord
+        var coordinate = new CoordinateRecord
         {
             Scene = component.gameObject.scene.name,
             X = position.x,
@@ -116,7 +116,7 @@ public class SecretPassageListener : IAssetScanListener<Component>
 
         _db.Insert(coordinate);
 
-        return new SecretPassageDBRecord
+        return new SecretPassageRecord
         {
             CoordinateId = coordinate.Id,
             ObjectName = component.gameObject.name

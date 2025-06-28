@@ -5,6 +5,8 @@ using SQLite;
 [Table("Items")]
 public class ItemRecord
 {
+    public const string TableName = "Items";
+    
     // --- Core Identification ---
     public int ItemDBIndex { get; set; } // Index in the Resources.LoadAll<Item> array
     [PrimaryKey]

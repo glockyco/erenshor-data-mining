@@ -107,10 +107,10 @@ public class WikiFancyWeaponFactory
             spellId = match.Groups[1].Value;
         }
 
-        SpellDBRecord spell = null;
+        SpellRecord spell = null;
         if (!string.IsNullOrEmpty(spellId))
         {
-            spell = _db.Table<SpellDBRecord>().FirstOrDefault(s => s.Id == spellId);
+            spell = _db.Table<SpellRecord>().FirstOrDefault(s => s.Id == spellId);
         }
 
         // --- type ---

@@ -1,8 +1,10 @@
 using SQLite;
 
 [Table("ZoneLines")]
-public class ZoneLineDBRecord
+public class ZoneLineRecord
 {
+    public const string TableName = "ZoneLines";
+    
     [PrimaryKey, AutoIncrement]
     public int Id { get; set; }
     [Indexed]

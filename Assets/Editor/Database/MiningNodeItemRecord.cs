@@ -3,8 +3,10 @@
 using SQLite;
 
 [Table("MiningNodeItems")]
-public class MiningNodeItemDBRecord
+public class MiningNodeItemRecord
 {
+    public const string TableName = "MiningNodeItems";
+    
     [Indexed(Name = "MiningNodeItems_Primary_IDX", Order = 1, Unique = true)]
     public int MiningNodeId { get; set; }
 

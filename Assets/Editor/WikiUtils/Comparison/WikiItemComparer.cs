@@ -29,9 +29,9 @@ public class WikiItemComparer
         }
     }
 
-    private List<WikiComparisonDBRecord> Compare(ItemRecord item, List<ItemStatsRecord> itemStats)
+    private List<WikiComparisonRecord> Compare(ItemRecord item, List<ItemStatsRecord> itemStats)
     {
-        var comparisonRecords = new List<WikiComparisonDBRecord>();
+        var comparisonRecords = new List<WikiComparisonRecord>();
         
         if (itemStats.Any())
         {
@@ -55,7 +55,7 @@ public class WikiItemComparer
                 currentFancyArmors.TryGetValue(suggestedFancyArmor.Tier, out var currentFancyArmor);
                 var comparisonResult = ObjectComparer.Compare(currentFancyArmor, suggestedFancyArmor);
 
-                comparisonRecords.Add(new WikiComparisonDBRecord
+                comparisonRecords.Add(new WikiComparisonRecord
                 {
                     WikiUrl = wikiUrl,
                     Type = "Fancy-armor",
@@ -79,7 +79,7 @@ public class WikiItemComparer
                 currentFancyWeapons.TryGetValue(suggestedFancyWeapon.Tier, out var currentFancyWeapon);
                 var comparisonResult = ObjectComparer.Compare(currentFancyWeapon, suggestedFancyWeapon);
 
-                comparisonRecords.Add(new WikiComparisonDBRecord
+                comparisonRecords.Add(new WikiComparisonRecord
                 {
                     WikiUrl = wikiUrl,
                     Type = "Fancy-weapon",

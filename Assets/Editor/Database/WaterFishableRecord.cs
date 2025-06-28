@@ -3,8 +3,10 @@
 using SQLite;
 
 [Table("WaterFishables")]
-public class WaterFishableDBRecord
+public class WaterFishableRecord
 {
+    public const string TableName = "WaterFishables";
+    
     [Indexed(Name = "WaterFishable_Primary_IDX", Order = 1, Unique = true)]
     public int WaterId { get; set; }
     [Indexed(Name = "WaterFishable_Primary_IDX", Order = 2, Unique = true)]

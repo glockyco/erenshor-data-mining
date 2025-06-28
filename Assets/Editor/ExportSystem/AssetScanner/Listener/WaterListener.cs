@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using SQLite;
 using UnityEngine;
-using static CoordinateDBRecord;
+using static CoordinateRecord;
 
 public class WaterListener : IAssetScanListener<Water>
 {
@@ -17,13 +17,13 @@ public class WaterListener : IAssetScanListener<Water>
 
     public void OnScanStarted()
     {
-        _db.CreateTable<CoordinateDBRecord>();
-        _db.CreateTable<WaterDBRecord>();
-        _db.CreateTable<WaterFishableDBRecord>();
+        _db.CreateTable<CoordinateRecord>();
+        _db.CreateTable<WaterRecord>();
+        _db.CreateTable<WaterFishableRecord>();
         
         _db.Execute("DELETE FROM Coordinates WHERE Category = ?", nameof(CoordinateCategory.Water));
-        _db.DeleteAll<WaterDBRecord>();
-        _db.DeleteAll<WaterFishableDBRecord>();
+        _db.DeleteAll<WaterRecord>();
+        _db.DeleteAll<WaterFishableRecord>();
     }
     
     public void OnScanFinished()
@@ -47,7 +47,7 @@ public class WaterListener : IAssetScanListener<Water>
     {
         Debug.Log($"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
         
-        var coordinate = new CoordinateDBRecord
+        var coordinate = new CoordinateRecord
         {
             Scene = asset.gameObject.scene.name,
             X = asset.transform.position.x,
@@ -58,7 +58,7 @@ public class WaterListener : IAssetScanListener<Water>
 
         _db.Insert(coordinate);
 
-        var water = new WaterDBRecord
+        var water = new WaterRecord
         {
             CoordinateId = coordinate.Id,
             Width = asset.transform.localScale.x,
@@ -70,9 +70,9 @@ public class WaterListener : IAssetScanListener<Water>
         _db.InsertAll(CreateWaterFishableRecords(asset, water.Id));
     }
 
-    private static List<WaterFishableDBRecord> CreateWaterFishableRecords(Water water, int waterId)
+    private static List<WaterFishableRecord> CreateWaterFishableRecords(Water water, int waterId)
     {
-        var waterFishableRecords = new List<WaterFishableDBRecord>();
+        var waterFishableRecords = new List<WaterFishableRecord>();
 
         var treasureMapPieces = new List<string>
         {
@@ -106,7 +106,7 @@ public class WaterListener : IAssetScanListener<Water>
 
             foreach (var kvp in itemTotalDropChances)
             {
-                waterFishableRecords.Add(new WaterFishableDBRecord
+                waterFishableRecords.Add(new WaterFishableRecord
                 {
                     WaterId = waterId,
                     Type = type,

@@ -5,7 +5,9 @@ using SQLite;
 [Table("SpawnPoints")]
 public class SpawnPointRecord
 {
-    [PrimaryKey, AutoIncrement]
+    public const string TableName = "SpawnPoints";
+    
+    [PrimaryKey]
     public int Id { get; set; }
     [Indexed]
     public int CoordinateId { get; set; }

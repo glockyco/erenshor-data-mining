@@ -7,7 +7,7 @@ using UnityEngine;
 public class SkillListener : IAssetScanListener<Skill>
 {
     private readonly SQLiteConnection _db;
-    private readonly List<SkillDBRecord> _records = new();
+    private readonly List<SkillRecord> _records = new();
 
     public SkillListener(SQLiteConnection db)
     {
@@ -16,10 +16,10 @@ public class SkillListener : IAssetScanListener<Skill>
 
     public void OnScanFinished()
     {
-        _db.CreateTable<SkillDBRecord>();
+        _db.CreateTable<SkillRecord>();
         _db.RunInTransaction(() =>
         {
-            _db.DeleteAll<SkillDBRecord>();
+            _db.DeleteAll<SkillRecord>();
             _db.InsertAll(_records);
         });
         _records.Clear();
@@ -32,9 +32,9 @@ public class SkillListener : IAssetScanListener<Skill>
         _records.Add(CreateRecord(asset, _records.Count));
     }
     
-    private SkillDBRecord CreateRecord(Skill skill, int skillDbIndex)
+    private SkillRecord CreateRecord(Skill skill, int skillDbIndex)
     {
-        return new SkillDBRecord
+        return new SkillRecord
         {
             // --- Core Identification ---
             SkillDBIndex = skillDbIndex,

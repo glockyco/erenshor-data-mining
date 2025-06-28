@@ -5,6 +5,8 @@ using SQLite;
 [Table("CharacterDialogs")]
 public class CharacterDialogRecord
 {
+    public const string TableName = "CharacterDialogs";
+    
     [Indexed(Name = "CharacterDialogs_Primary_IDX", Order = 1, Unique = true)]
     public int CharacterId { get; set; } // Id from the Characters table
 

@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using SQLite;
 using UnityEngine;
-using static CoordinateDBRecord;
+using static CoordinateRecord;
 
 public class ForgeListener : IAssetScanListener<ForgeEffect>
 {
     private readonly SQLiteConnection _db;
-    private readonly List<CoordinateDBRecord> _records = new();
+    private readonly List<CoordinateRecord> _records = new();
 
     public ForgeListener(SQLiteConnection db)
     {
@@ -15,7 +15,7 @@ public class ForgeListener : IAssetScanListener<ForgeEffect>
 
     public void OnScanStarted()
     {
-        _db.CreateTable<CoordinateDBRecord>();
+        _db.CreateTable<CoordinateRecord>();
         _db.Execute("DELETE FROM Coordinates WHERE Category = ?", nameof(CoordinateCategory.Forge));
         _records.Clear();
     }
@@ -30,7 +30,7 @@ public class ForgeListener : IAssetScanListener<ForgeEffect>
     {
         Debug.Log($"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
 
-        _records.Add(new CoordinateDBRecord
+        _records.Add(new CoordinateRecord
         {
             Scene = asset.gameObject.scene.name,
             X = asset.transform.position.x,

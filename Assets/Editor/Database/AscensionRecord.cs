@@ -3,8 +3,10 @@
 using SQLite;
 
 [Table("Ascensions")]
-public class AscensionDBRecord
+public class AscensionRecord
 {
+    public const string TableName = "Ascensions";
+    
     public int AscensionDBIndex { get; set; } // Index from the loaded Resources array
     [PrimaryKey]
     public string Id { get; set; } = string.Empty; // From BaseScriptableObject.Id

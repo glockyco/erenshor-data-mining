@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using SQLite;
 using UnityEngine;
-using static CoordinateDBRecord;
+using static CoordinateRecord;
 
 public class AchievementTriggerListener : IAssetScanListener<AchievementTrigger>
 {
     private readonly SQLiteConnection _db;
-    private readonly List<AchievementTriggerDBRecord> _records = new();
+    private readonly List<AchievementTriggerRecord> _records = new();
 
     public AchievementTriggerListener(SQLiteConnection db)
     {
@@ -15,11 +15,11 @@ public class AchievementTriggerListener : IAssetScanListener<AchievementTrigger>
 
     public void OnScanStarted()
     {
-        _db.CreateTable<CoordinateDBRecord>();
-        _db.CreateTable<AchievementTriggerDBRecord>();
+        _db.CreateTable<CoordinateRecord>();
+        _db.CreateTable<AchievementTriggerRecord>();
 
         _db.Execute("DELETE FROM Coordinates WHERE Category = ?", nameof(CoordinateCategory.AchievementTrigger));
-        _db.DeleteAll<AchievementTriggerDBRecord>();
+        _db.DeleteAll<AchievementTriggerRecord>();
 
         _records.Clear();
     }
@@ -52,9 +52,9 @@ public class AchievementTriggerListener : IAssetScanListener<AchievementTrigger>
         _records.Add(CreateRecord(asset));
     }
 
-    private AchievementTriggerDBRecord CreateRecord(AchievementTrigger achievementTrigger)
+    private AchievementTriggerRecord CreateRecord(AchievementTrigger achievementTrigger)
     {
-        var coordinate = new CoordinateDBRecord
+        var coordinate = new CoordinateRecord
         {
             Scene = achievementTrigger.gameObject.scene.name,
             X = achievementTrigger.transform.position.x,
@@ -65,7 +65,7 @@ public class AchievementTriggerListener : IAssetScanListener<AchievementTrigger>
 
         _db.Insert(coordinate);
 
-        return new AchievementTriggerDBRecord
+        return new AchievementTriggerRecord
         {
             CoordinateId = coordinate.Id,
             AchievementName = achievementTrigger.AchievementName

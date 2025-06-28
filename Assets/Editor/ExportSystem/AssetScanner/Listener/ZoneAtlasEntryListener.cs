@@ -7,7 +7,7 @@ using UnityEngine;
 public class ZoneAtlasEntryListener : IAssetScanListener<ZoneAtlasEntry>
 {
     private readonly SQLiteConnection _db;
-    private readonly List<ZoneAtlasEntryDBRecord> _records = new();
+    private readonly List<ZoneAtlasEntryRecord> _records = new();
 
     public ZoneAtlasEntryListener(SQLiteConnection db)
     {
@@ -16,10 +16,10 @@ public class ZoneAtlasEntryListener : IAssetScanListener<ZoneAtlasEntry>
 
     public void OnScanFinished()
     {
-        _db.CreateTable<ZoneAtlasEntryDBRecord>();
+        _db.CreateTable<ZoneAtlasEntryRecord>();
         _db.RunInTransaction(() =>
         {
-            _db.DeleteAll<ZoneAtlasEntryDBRecord>();
+            _db.DeleteAll<ZoneAtlasEntryRecord>();
             _db.InsertAll(_records);
         });
         _records.Clear();
@@ -31,7 +31,7 @@ public class ZoneAtlasEntryListener : IAssetScanListener<ZoneAtlasEntry>
 
         string neighboringZones = string.Join(", ", asset!.NeighboringZones ?? new List<string>());
 
-        ZoneAtlasEntryDBRecord record = new ZoneAtlasEntryDBRecord
+        ZoneAtlasEntryRecord record = new ZoneAtlasEntryRecord
         {
             AtlasIndex = _records.Count,
             Id = asset.Id,

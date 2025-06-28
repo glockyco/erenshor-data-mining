@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using SQLite;
 using UnityEngine;
-using static CoordinateDBRecord;
+using static CoordinateRecord;
 
 public class DoorListener : IAssetScanListener<Door>
 {
     private readonly SQLiteConnection _db;
-    private readonly List<DoorDBRecord> _records = new();
+    private readonly List<DoorRecord> _records = new();
 
     public DoorListener(SQLiteConnection db)
     {
@@ -15,11 +15,11 @@ public class DoorListener : IAssetScanListener<Door>
 
     public void OnScanStarted()
     {
-        _db.CreateTable<CoordinateDBRecord>();
-        _db.CreateTable<DoorDBRecord>();
+        _db.CreateTable<CoordinateRecord>();
+        _db.CreateTable<DoorRecord>();
 
         _db.Execute("DELETE FROM Coordinates WHERE Category = ?", nameof(CoordinateCategory.Door));
-        _db.DeleteAll<DoorDBRecord>();
+        _db.DeleteAll<DoorRecord>();
 
         _records.Clear();
     }
@@ -52,12 +52,12 @@ public class DoorListener : IAssetScanListener<Door>
         _records.Add(CreateRecord(asset));
     }
 
-    private DoorDBRecord CreateRecord(Door door)
+    private DoorRecord CreateRecord(Door door)
     {
         var renderer = door.GetComponent<Renderer>();
         var position = renderer != null ? renderer.bounds.center : door.transform.position;
         
-        var coordinate = new CoordinateDBRecord
+        var coordinate = new CoordinateRecord
         {
             Scene = door.gameObject.scene.name,
             X = position.x,
@@ -68,7 +68,7 @@ public class DoorListener : IAssetScanListener<Door>
 
         _db.Insert(coordinate);
 
-        return new DoorDBRecord
+        return new DoorRecord
         {
             CoordinateId = coordinate.Id,
             KeyItemId = door.RequiredKey?.Id

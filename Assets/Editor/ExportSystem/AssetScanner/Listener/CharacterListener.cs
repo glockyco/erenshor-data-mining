@@ -5,31 +5,41 @@ using System.Linq;
 using SQLite;
 using UnityEditor;
 using UnityEngine;
-using static CoordinateDBRecord;
+using static CoordinateRecord;
 
 public class CharacterListener : IAssetScanListener<Character>
 {
     private readonly SQLiteConnection _db;
+    private readonly List<CoordinateRecord> _coordinateRecords = new();
+    private readonly List<CharacterRecord> _characterRecords = new();
+    private readonly List<CharacterDialogRecord> _characterDialogRecords = new();
 
     public CharacterListener(SQLiteConnection db)
     {
         _db = db;
     }
 
-    public void OnScanStarted()
+    public void OnScanFinished()
     {
-        _db.DropTable<CharacterRecord>();
-        _db.DropTable<CharacterDialogRecord>();
-        
-        _db.CreateTable<CoordinateDBRecord>();
+        _db.CreateTable<CoordinateRecord>();
         _db.CreateTable<CharacterRecord>();
         _db.CreateTable<CharacterDialogRecord>();
 
-        _db.Execute("DELETE FROM Coordinates WHERE Category = ?", nameof(CoordinateCategory.Character));
-    }
+        _db.RunInTransaction(() =>
+        {
+            _db.Execute("DELETE FROM Coordinates WHERE Category = ?", nameof(CoordinateCategory.Character));
+            _db.DeleteAll<CharacterRecord>();
+            _db.DeleteAll<CharacterDialogRecord>();
 
-    public void OnScanFinished()
-    {
+            _db.InsertAll(_coordinateRecords);
+            _db.InsertAll(_characterRecords);
+            _db.InsertAll(_characterDialogRecords);
+        });
+        
+        _coordinateRecords.Clear();
+        _characterRecords.Clear();
+        _characterDialogRecords.Clear();
+        
         _db.Execute(@"
             UPDATE Characters
             SET IsCommon = 1
@@ -71,33 +81,26 @@ public class CharacterListener : IAssetScanListener<Character>
                 WHERE ((IsPrefab AND spawnPointCount = 1) OR (NOT IsPrefab AND instanceCount = 1))
             );
         ");
-        
-        _db.Execute(@"
-            UPDATE Coordinates
-            SET CharacterId = (
-                SELECT Id
-                FROM Characters
-                WHERE Characters.CoordinateId = Coordinates.Id
-            )
-            WHERE EXISTS (
-                SELECT 1
-                FROM Characters
-                WHERE Characters.CoordinateId = Coordinates.Id
-            );
-        ");
     }
 
     public void OnAssetFound(Character asset)
     {
-        Debug.Log($"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
-
         if (asset.GetComponent<MiningNode>() != null)
         {
             return;
         }
 
-        var characterRecord = CreateCharacterRecord(asset);
-        _db.Insert(characterRecord);
+        Debug.Log($"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
+
+        var coordinateRecord = CreateCoordinateRecord(asset);
+        var characterRecord = CreateCharacterRecord(asset, coordinateRecord?.Id);
+        _characterRecords.Add(characterRecord);
+
+        if (coordinateRecord != null)
+        {
+            coordinateRecord.CharacterId = characterRecord.Id;
+            _coordinateRecords.Add(coordinateRecord);
+        }
 
         var dialogs = asset.GetComponents<NPCDialog>().Where(d => !string.IsNullOrWhiteSpace(d.Dialog)).ToList();
         if (dialogs.Count > 0)
@@ -109,35 +112,36 @@ public class CharacterListener : IAssetScanListener<Character>
                 dialogRecords.Add(CreateDialogRecord(characterRecord.Id, i, dialog));
                 i++;
             }
-            _db.InsertAll(dialogRecords);
+            _characterDialogRecords.AddRange(dialogRecords);
         }
     }
-    
-    private CharacterRecord CreateCharacterRecord(Character character)
-    {
-        int? coordinateId = null;
-        if (character.gameObject.scene.name != null)
-        {
-            var coordinate = new CoordinateDBRecord
-            {
-                Scene = character.gameObject.scene.name,
-                X = character.transform.position.x,
-                Y = character.transform.position.y,
-                Z = character.transform.position.z,
-                Category = nameof(CoordinateCategory.Character)
-            };
 
-            _db.Insert(coordinate);
-            
-            coordinateId = coordinate.Id;
+    private CoordinateRecord? CreateCoordinateRecord(Character character)
+    {
+        if (character.gameObject.scene.name == null)
+        {
+            return null;
         }
         
-        NPC npc = character.GetComponent<NPC>();
-        VendorInventory vendorInventory = character.GetComponent<VendorInventory>();
-        SimPlayer simPlayer = character.GetComponent<SimPlayer>();
-        Stats stats = character.GetComponent<Stats>();
-        bool hasDialog = character.GetComponents<NPCDialog>().Any(d => !string.IsNullOrWhiteSpace(d.Dialog));
-        ModifyFaction[] modifyFactions = character.GetComponents<ModifyFaction>();
+        return new CoordinateRecord
+        {
+            Id = TableIdGenerator.NextId(CoordinateRecord.TableName),
+            Scene = character.gameObject.scene.name,
+            X = character.transform.position.x,
+            Y = character.transform.position.y,
+            Z = character.transform.position.z,
+            Category = nameof(CoordinateCategory.Character)
+        };
+    }
+    
+    private CharacterRecord CreateCharacterRecord(Character character, int? coordinateId)
+    {
+        var npc = character.GetComponent<NPC>();
+        var vendorInventory = character.GetComponent<VendorInventory>();
+        var simPlayer = character.GetComponent<SimPlayer>();
+        var stats = character.GetComponent<Stats>();
+        var hasDialog = character.GetComponents<NPCDialog>().Any(d => !string.IsNullOrWhiteSpace(d.Dialog));
+        var modifyFactions = character.GetComponents<ModifyFaction>();
         
         string guid;
         var prefabType = PrefabUtility.GetPrefabAssetType(character.gameObject);
@@ -152,8 +156,9 @@ public class CharacterListener : IAssetScanListener<Character>
             guid = $"scene:{sceneName}:{character.gameObject.GetInstanceID()}";
         }
         
-        CharacterRecord record = new CharacterRecord
+        var record = new CharacterRecord
         {
+            Id = TableIdGenerator.NextId(CharacterRecord.TableName),
             CoordinateId = coordinateId,
             Guid = guid,
             ObjectName = character.gameObject != null ? character.gameObject.name : null,
@@ -182,7 +187,7 @@ public class CharacterListener : IAssetScanListener<Character>
         if (npc != null)
         {
             record.NPCName = npc.NPCName;
-            record.AttackSkills = npc.MyAttackSkills == null ? string.Empty : string.Join(", ", npc.MyAttackSkills.Select(skill => $"{skill.SkillName} ({skill.Id})"));;
+            record.AttackSkills = npc.MyAttackSkills == null ? string.Empty : string.Join(", ", npc.MyAttackSkills.Select(skill => $"{skill.SkillName} ({skill.Id})"));
             record.AttackSpells = npc.MyAttackSpells == null ? string.Empty : string.Join(", ", npc.MyAttackSpells.Select(spell => $"{spell.SpellName} ({spell.Id})"));
             record.BuffSpells = npc.MyBuffSpells == null ? string.Empty : string.Join(", ", npc.MyBuffSpells.Select(spell => $"{spell.SpellName} ({spell.Id})"));
             record.HealSpells = npc.MyHealSpells == null ? string.Empty : string.Join(", ", npc.MyHealSpells.Select(spell => $"{spell.SpellName} ({spell.Id})"));
@@ -221,7 +226,7 @@ public class CharacterListener : IAssetScanListener<Character>
             record.BossXpMultiplier = character.BossXp;
         }
 
-        List<string> factionStrings = new List<string>();
+        var factionStrings = new List<string>();
         foreach (ModifyFaction modifyFaction in modifyFactions)
         {
             if (modifyFaction != null && modifyFaction.Factions != null)

@@ -3,8 +3,10 @@
 using SQLite;
 
 [Table("Classes")]
-public class ClassDBRecord
+public class ClassRecord
 {
+    public const string TableName = "Classes";
+    
     [PrimaryKey]
     public string ClassName { get; set; } = string.Empty;
 

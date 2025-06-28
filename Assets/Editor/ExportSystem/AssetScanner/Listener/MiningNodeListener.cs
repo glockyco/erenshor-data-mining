@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using SQLite;
 using UnityEngine;
-using static CoordinateDBRecord;
+using static CoordinateRecord;
 
 public class MiningNodeListener : IAssetScanListener<MiningNode>
 {
@@ -17,13 +17,13 @@ public class MiningNodeListener : IAssetScanListener<MiningNode>
 
     public void OnScanStarted()
     {
-        _db.CreateTable<CoordinateDBRecord>();
-        _db.CreateTable<MiningNodeDBRecord>();
-        _db.CreateTable<MiningNodeItemDBRecord>();
+        _db.CreateTable<CoordinateRecord>();
+        _db.CreateTable<MiningNodeRecord>();
+        _db.CreateTable<MiningNodeItemRecord>();
 
         _db.Execute("DELETE FROM Coordinates WHERE Category = ?", nameof(CoordinateCategory.MiningNode));
-        _db.DeleteAll<MiningNodeDBRecord>();
-        _db.DeleteAll<MiningNodeItemDBRecord>();
+        _db.DeleteAll<MiningNodeRecord>();
+        _db.DeleteAll<MiningNodeItemRecord>();
     }
 
     public void OnScanFinished()
@@ -47,7 +47,7 @@ public class MiningNodeListener : IAssetScanListener<MiningNode>
     {
         Debug.Log($"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
 
-        var coordinate = new CoordinateDBRecord
+        var coordinate = new CoordinateRecord
         {
             Scene = asset.gameObject.scene.name,
             X = asset.transform.position.x,
@@ -58,7 +58,7 @@ public class MiningNodeListener : IAssetScanListener<MiningNode>
 
         _db.Insert(coordinate);
 
-        var miningNode = new MiningNodeDBRecord
+        var miningNode = new MiningNodeRecord
         {
             CoordinateId = coordinate.Id,
             NPCName = asset.GetComponent<NPC>().NPCName,
@@ -69,7 +69,7 @@ public class MiningNodeListener : IAssetScanListener<MiningNode>
         _db.InsertAll(CreateMiningNodeItemRecords(asset, miningNode.Id));
     }
 
-    private static List<MiningNodeItemDBRecord> CreateMiningNodeItemRecords(MiningNode node, int miningNodeId)
+    private static List<MiningNodeItemRecord> CreateMiningNodeItemRecords(MiningNode node, int miningNodeId)
     {
         // Calculate drop chances based on the logic in MiningNode.Mine()
         // Legend = 96-99, Rare = 75-95, Common = 20-75, Guarantee = 0-19
@@ -122,7 +122,7 @@ public class MiningNodeListener : IAssetScanListener<MiningNode>
         }
 
         // Create one record per item
-        var itemRecords = itemTotalDropChances.Select(kvp => new MiningNodeItemDBRecord
+        var itemRecords = itemTotalDropChances.Select(kvp => new MiningNodeItemRecord
         {
             MiningNodeId = miningNodeId,
             ItemName = kvp.Key,

@@ -3,8 +3,10 @@
 using SQLite;
 
 [Table("WikiComparison")]
-public class WikiComparisonDBRecord
+public class WikiComparisonRecord
 {
+    public const string TableName = "WikiComparison";
+    
     public string WikiUrl { get; set; } = string.Empty;
     public string Type { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;

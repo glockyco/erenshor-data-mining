@@ -5,6 +5,8 @@ using SQLite;
 [Table("SpawnPointCharacters")]
 public class SpawnPointCharacterRecord
 {
+    public const string TableName = "SpawnPointCharacters";
+    
     [Indexed(Name = "SpawnPointCharacters_Primary_IDX", Order = 1, Unique = true)]
     public int SpawnPointId { get; set; }
     [Indexed(Name = "SpawnPointCharacters_Primary_IDX", Order = 2, Unique = true)]

@@ -3,8 +3,10 @@
 using SQLite;
 
 [Table("Coordinates")]
-public class CoordinateDBRecord
+public class CoordinateRecord
 {
+    public const string TableName = "Coordinates";
+    
     [PrimaryKey, AutoIncrement]
     public int Id { get; set; }
     

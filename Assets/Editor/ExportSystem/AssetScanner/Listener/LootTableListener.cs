@@ -11,7 +11,7 @@ using UnityEngine;
 public class LootTableListener : IAssetScanListener<LootTable>
 {
     private readonly SQLiteConnection _db;
-    private readonly List<LootTableDBRecord> _records = new();
+    private readonly List<LootTableRecord> _records = new();
     private readonly LootTableProbabilityCalculator _probabilityCalculator = new();
 
     public LootTableListener(SQLiteConnection db)
@@ -21,10 +21,10 @@ public class LootTableListener : IAssetScanListener<LootTable>
 
     public void OnScanFinished()
     {
-        _db.CreateTable<LootTableDBRecord>();
+        _db.CreateTable<LootTableRecord>();
         _db.RunInTransaction(() =>
         {
-            _db.DeleteAll<LootTableDBRecord>();
+            _db.DeleteAll<LootTableRecord>();
             _db.InsertAll(_records);
         });
         _records.Clear();
@@ -39,7 +39,7 @@ public class LootTableListener : IAssetScanListener<LootTable>
         _records.AddRange(records);
     }
 
-    private List<LootTableDBRecord> CreateRecords(LootTable lootTable)
+    private List<LootTableRecord> CreateRecords(LootTable lootTable)
     {
         var perItemDistributions = _probabilityCalculator.CalculatePerItemDropCountDistributions(lootTable);
         var expectedDrops = _probabilityCalculator.ComputeExpectedDrops(perItemDistributions);
@@ -57,7 +57,7 @@ public class LootTableListener : IAssetScanListener<LootTable>
             guid = $"scene:{sceneName}:{lootTable.gameObject.GetInstanceID()}";
         }
 
-        var records = new List<LootTableDBRecord>();
+        var records = new List<LootTableRecord>();
 
         foreach (var item in EnumerateAllUniqueItems(lootTable))
         {
@@ -82,7 +82,7 @@ public class LootTableListener : IAssetScanListener<LootTable>
                 }
             }
 
-            var record = new LootTableDBRecord
+            var record = new LootTableRecord
             {
                 CharacterPrefabGuid = guid,
                 ItemId = itemId,
@@ -119,7 +119,7 @@ public class LootTableListener : IAssetScanListener<LootTable>
                 }
             }
 
-            records.Add(new LootTableDBRecord
+            records.Add(new LootTableRecord
             {
                 CharacterPrefabGuid = guid,
                 ItemId = LootTableProbabilityCalculator.WorldDropKey,

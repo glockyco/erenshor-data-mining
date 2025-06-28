@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using SQLite;
 using UnityEngine;
-using static CoordinateDBRecord;
+using static CoordinateRecord;
 
 public class TreasureLocListener : IAssetScanListener<TreasureLoc>
 {
     private readonly SQLiteConnection _db;
-    private readonly List<CoordinateDBRecord> _records = new();
+    private readonly List<CoordinateRecord> _records = new();
 
     public TreasureLocListener(SQLiteConnection db)
     {
@@ -15,7 +15,7 @@ public class TreasureLocListener : IAssetScanListener<TreasureLoc>
 
     public void OnScanStarted()
     {
-        _db.CreateTable<CoordinateDBRecord>();
+        _db.CreateTable<CoordinateRecord>();
         
         _db.Execute("DELETE FROM Coordinates WHERE Category = ?", nameof(CoordinateCategory.TreasureLoc));
     }
@@ -34,9 +34,9 @@ public class TreasureLocListener : IAssetScanListener<TreasureLoc>
         _records.Add(CreateRecord(asset));
     }
 
-    private CoordinateDBRecord CreateRecord(TreasureLoc treasureLoc)
+    private CoordinateRecord CreateRecord(TreasureLoc treasureLoc)
     {
-        return new CoordinateDBRecord
+        return new CoordinateRecord
         {
             Scene = treasureLoc.gameObject.scene.name,
             X = treasureLoc.transform.position.x,
