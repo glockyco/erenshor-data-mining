@@ -780,6 +780,41 @@ public class TileScreenshotter
                 }
             },
             {
+                "RipperPortal", new TileScreenshotter.TileShotterSettings
+                {
+                    ZoomLevels = 3,
+                    OriginX = 0,
+                    OriginY = 0,
+                    BaseTilesX = 4,
+                    BaseTilesY = 4,
+                    PreProcess = (zoomLevel) =>
+                    {
+                        if (zoomLevel == 0)
+                        {
+                            foreach (GameObject obj in UnityEngine.Object.FindObjectsOfType<GameObject>())
+                            {
+                                if (obj.name.ToLower().Contains("roof"))
+                                {
+                                    obj.SetActive(false);
+                                    continue;
+                                }
+                                string[] objNames =
+                                {
+                                    "SM_Bld_Castle_Wall_Cut_02 (120)",
+                                    "SM_Bld_Castle_Wall_Cut_02 (119)",
+                                    "SM_Bld_Castle_Wall_Cut_02 (118)",
+                                    "SM_Bld_Castle_Wall_Cut_02 (117)",
+                                };
+                                if (objNames.Contains(obj.name))
+                                {
+                                    obj.SetActive(false);
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            {
                 "Rockshade", new TileScreenshotter.TileShotterSettings
                 {
                     ZoomLevels = 3,
