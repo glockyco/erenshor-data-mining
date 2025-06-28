@@ -41,6 +41,7 @@ public class CoordinateDBRecord
         AchievementTrigger,
         Character,
         Door,
+        Forge,
         MiningNode,
         SecretPassage,
         SpawnPoint,
