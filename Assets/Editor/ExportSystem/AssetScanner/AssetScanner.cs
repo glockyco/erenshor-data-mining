@@ -12,12 +12,18 @@ using Object = UnityEngine.Object;
 public class AssetScanner
 {
     private readonly Dictionary<Type, HashSet<object>> _nullListeners = new();
+    private readonly Dictionary<Type, HashSet<object>> _gameObjectListeners = new();
     private readonly Dictionary<Type, HashSet<object>> _componentListeners = new();
     private readonly Dictionary<Type, HashSet<object>> _scriptableObjectListeners = new();
 
     public void RegisterNullListener(IAssetScanListener<Object> listener)
     {
         RegisterListener(_nullListeners, listener);
+    }
+
+    public void RegisterGameObjectListener(IAssetScanListener<GameObject> listener)
+    {
+        RegisterListener(_gameObjectListeners, listener);;
     }
     
     public void RegisterComponentListener<T>(IAssetScanListener<T> listener) where T : Component
@@ -153,9 +159,9 @@ public class AssetScanner
                 });
                 if (prefab != null)
                 {
-                    foreach (var _ in ScanComponentsInHierarchy(
-                        prefab, stopwatch, maxFrameTimeMs, cancelRequested, progressCallback,
-                        "Prefabs", prefabCurrent, prefabTotal))
+                    foreach (var _ in ScanGameObjectsAndComponentsInHierarchy(
+                        prefab, stopwatch, maxFrameTimeMs, cancelRequested, progressCallback, 
+                        "Prefabs", prefabCurrent, prefabTotal, false))
                     {
                         yield return null;
                     }
@@ -164,7 +170,7 @@ public class AssetScanner
         }
 
         // --- Scenes ---
-        if (_componentListeners.Count > 0)
+        if (_gameObjectListeners.Count > 0 || _componentListeners.Count > 0)
         {
             var scenePaths = EditorBuildSettings.scenes;
             int total = scenePaths.Length;
@@ -184,9 +190,9 @@ public class AssetScanner
                 var rootObjects = sceneObj.GetRootGameObjects();
                 foreach (var root in rootObjects)
                 {
-                    foreach (var _ in ScanComponentsInHierarchy(
+                    foreach (var _ in ScanGameObjectsAndComponentsInHierarchy(
                         root, stopwatch, maxFrameTimeMs, cancelRequested, progressCallback,
-                        "Scenes", current, total))
+                        "Scenes", current, total, true))
                     {
                         yield return null;
                     }
@@ -195,7 +201,7 @@ public class AssetScanner
         }
 
         // --- Notify Scan Finished ---
-        foreach (var listenerMap in new[] { _nullListeners, _scriptableObjectListeners, _componentListeners })
+        foreach (var listenerMap in new[] { _nullListeners, _gameObjectListeners, _scriptableObjectListeners, _componentListeners })
         {
             foreach (var listenerObj in listenerMap.SelectMany(kvp => kvp.Value))
             {
@@ -204,7 +210,7 @@ public class AssetScanner
         }
     }
 
-    private IEnumerable<object> ScanComponentsInHierarchy(
+    private IEnumerable<object> ScanGameObjectsAndComponentsInHierarchy(
         GameObject root,
         Stopwatch stopwatch,
         float maxFrameTimeMs,
@@ -212,20 +218,94 @@ public class AssetScanner
         Action<AssetScanProgress> progressCallback,
         string parentPhase,
         int parentCurrent,
-        int parentTotal)
+        int parentTotal,
+        bool notifyGameObjectListeners)
     {
         if (root == null)
         {
             yield break;
         }
 
-        var allComponents = root.GetComponentsInChildren<Component>(true);
+        Stack<GameObject> stack = new Stack<GameObject>();
+        stack.Push(root);
 
-        foreach (var comp in allComponents)
+        while (stack.Count > 0)
         {
             if (cancelRequested != null && cancelRequested())
             {
                 yield break;
+            }
+
+            var go = stack.Pop();
+
+            // Notify GameObject listeners
+            if (notifyGameObjectListeners)
+            {
+                var goType = go.GetType();
+                foreach (var kvp in _gameObjectListeners)
+                {
+                    if (kvp.Key.IsAssignableFrom(goType))
+                    {
+                        foreach (var listenerObj in kvp.Value)
+                        {
+                            if (listenerObj == null)
+                            {
+                                continue;
+                            }
+                            try
+                            {
+                                var listenerType = listenerObj.GetType();
+                                var method = listenerType.GetMethod("OnAssetFound");
+                                if (method != null)
+                                {
+                                    method.Invoke(listenerObj, new object[] { go });
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.LogError($"GameObject listener error: {ex}");
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Notify Component listeners
+            var components = go.GetComponents<Component>();
+            foreach (var comp in components)
+            {
+                if (comp == null)
+                {
+                    continue;
+                }
+
+                var compType = comp.GetType();
+                foreach (var kvp in _componentListeners)
+                {
+                    if (kvp.Key.IsAssignableFrom(compType))
+                    {
+                        foreach (var listenerObj in kvp.Value)
+                        {
+                            if (listenerObj == null)
+                            {
+                                continue;
+                            }
+                            try
+                            {
+                                var listenerType = listenerObj.GetType();
+                                var method = listenerType.GetMethod("OnAssetFound");
+                                if (method != null)
+                                {
+                                    method.Invoke(listenerObj, new object[] { comp });
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.LogError($"Component listener error: {ex}");
+                            }
+                        }
+                    }
+                }
             }
 
             progressCallback?.Invoke(new AssetScanProgress
@@ -235,55 +315,18 @@ public class AssetScanner
                 Total = parentTotal,
             });
 
-            if (comp == null)
-            {
-                continue;
-            }
-
-            var compType = comp.GetType();
-            foreach (var kvp in _componentListeners)
-            {
-                if (cancelRequested != null && cancelRequested())
-                {
-                    yield break;
-                }
-
-                if (kvp.Key.IsAssignableFrom(compType))
-                {
-                    foreach (var listenerObj in kvp.Value)
-                    {
-                        if (listenerObj == null)
-                        {
-                            continue;
-                        }
-
-                        try
-                        {
-                            var listenerType = listenerObj.GetType();
-                            var method = listenerType.GetMethod("OnAssetFound");
-                            if (method != null)
-                            {
-                                method.Invoke(listenerObj, new object[] { comp });
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Debug.LogError($"Component listener error: {ex}");
-                        }
-                    }
-                }
-
-                if (stopwatch.ElapsedMilliseconds >= maxFrameTimeMs)
-                {
-                    stopwatch.Restart();
-                    yield return null;
-                }
-            }
-
             if (stopwatch.ElapsedMilliseconds >= maxFrameTimeMs)
             {
                 stopwatch.Restart();
                 yield return null;
+            }
+
+            foreach (Transform child in go.transform)
+            {
+                if (child != null && child.gameObject != null)
+                {
+                    stack.Push(child.gameObject);
+                }
             }
         }
     }
