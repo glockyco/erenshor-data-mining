@@ -38,6 +38,7 @@ public class AssetScannerExporterWindow : EditorWindow
     private bool _exportTreasureHunting = true;
     private bool _exportTreasureLocs = true;
     private bool _exportWaters = true;
+    private bool _exportWishingWells = true;
     private bool _exportWorldFactions = true;
     private bool _exportZoneAnnounces = true;
     private bool _exportZoneAtlasEntries = true;
@@ -153,6 +154,7 @@ public class AssetScannerExporterWindow : EditorWindow
         _exportTreasureHunting = EditorGUILayout.ToggleLeft("Treasure Hunting", _exportTreasureHunting);
         _exportTreasureLocs = EditorGUILayout.ToggleLeft("Treasure Locations", _exportTreasureLocs);
         _exportWaters = EditorGUILayout.ToggleLeft("Waters", _exportWaters);
+        _exportWishingWells = EditorGUILayout.ToggleLeft("Wishing Wells", _exportWishingWells);
         _exportWorldFactions = EditorGUILayout.ToggleLeft("World Factions", _exportWorldFactions);
         _exportZoneAnnounces = EditorGUILayout.ToggleLeft("Zone Announces", _exportZoneAnnounces);
         _exportZoneAtlasEntries = EditorGUILayout.ToggleLeft("Zone Atlas Entries", _exportZoneAtlasEntries);
@@ -180,6 +182,7 @@ public class AssetScannerExporterWindow : EditorWindow
         _exportTreasureHunting = value;
         _exportTreasureLocs = value;
         _exportWaters = value;
+        _exportWishingWells = value;
         _exportWorldFactions = value;
         _exportZoneAnnounces = value;
         _exportZoneAtlasEntries = value;
@@ -199,6 +202,8 @@ public class AssetScannerExporterWindow : EditorWindow
         _db = new SQLiteConnection(_outputPath);
         
         if (_exportTeleportLocs) _activeScanner.RegisterNullListener(new TeleportLocListener(_db));
+        
+        if (_exportWishingWells) _activeScanner.RegisterGameObjectListener(new WishingWellListener(_db));
         
         if (_exportAscensions) _activeScanner.RegisterScriptableObjectListener(new AscensionListener(_db));
         if (_exportBooks) _activeScanner.RegisterScriptableObjectListener(new BookListener(_db));
@@ -274,6 +279,7 @@ public class AssetScannerExporterWindow : EditorWindow
             _exportTreasureHunting ||
             _exportTreasureLocs ||
             _exportWaters ||
+            _exportWishingWells ||
             _exportZoneAnnounces ||
             _exportZoneAtlasEntries ||
             _exportZoneLines;

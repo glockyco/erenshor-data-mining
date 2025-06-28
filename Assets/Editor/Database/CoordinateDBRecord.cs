@@ -47,6 +47,7 @@ public class CoordinateDBRecord
         Teleport,
         TreasureLoc,
         Water,
+        WishingWell,
         ZoneLine,
     }
 }
