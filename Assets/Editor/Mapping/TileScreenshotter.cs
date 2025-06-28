@@ -374,6 +374,16 @@ public class TileScreenshotter
                 }
             },
             {
+                "DuskenPortal", new TileScreenshotter.TileShotterSettings
+                {
+                    ZoomLevels = 4,
+                    OriginX = -135,
+                    OriginY = -55,
+                    BaseTilesX = 3,
+                    BaseTilesY = 2,
+                }
+            },
+            {
                 "Elderstone", new TileScreenshotter.TileShotterSettings
                 {
                     ZoomLevels = 3,
