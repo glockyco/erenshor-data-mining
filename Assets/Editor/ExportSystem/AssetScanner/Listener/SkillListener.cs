@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using SQLite;
+using UnityEditor;
 using UnityEngine;
 
 public class SkillListener : IAssetScanListener<Skill>
@@ -34,6 +35,13 @@ public class SkillListener : IAssetScanListener<Skill>
     
     private SkillRecord CreateRecord(Skill skill, int skillDbIndex)
     {
+        string? skillIconName = null;
+        if (skill.SkillIcon != null)
+        {
+            var path = AssetDatabase.GetAssetPath(skill.SkillIcon);
+            skillIconName = System.IO.Path.GetFileNameWithoutExtension(path);
+        }
+        
         return new SkillRecord
         {
             // --- Core Identification ---
@@ -78,7 +86,7 @@ public class SkillListener : IAssetScanListener<Skill>
 
             // --- Visual/Audio ---
             SkillAnimName = skill.SkillAnimName,
-            SkillIconName = skill.SkillIcon != null ? skill.SkillIcon.name : null,
+            SkillIconName = skillIconName,
 
             // --- Text ---
             PlayerUses = skill.PlayerUses,

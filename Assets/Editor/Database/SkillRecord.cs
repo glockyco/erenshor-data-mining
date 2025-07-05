@@ -50,7 +50,7 @@ public class SkillRecord
 
     // --- Visual/Audio ---
     public string SkillAnimName { get; set; } = string.Empty; // From Skill.SkillAnimName
-    public string SkillIconName { get; set; } = string.Empty; // From Skill.SkillIcon.name
+    public string? SkillIconName { get; set; } = string.Empty; // From Skill.SkillIcon.name
     
     // --- Text ---
     public string PlayerUses { get; set; } = string.Empty; // From Skill.PlayerUses
