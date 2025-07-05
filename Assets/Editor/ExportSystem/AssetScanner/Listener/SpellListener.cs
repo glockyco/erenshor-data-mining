@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using SQLite;
+using UnityEditor;
 using UnityEngine;
 
 public class SpellListener : IAssetScanListener<Spell>
@@ -44,6 +45,13 @@ public class SpellListener : IAssetScanListener<Spell>
                 .Where(c => c != null && !string.IsNullOrEmpty(c.ClassName))
                 .Select(c => c.ClassName);
             classesString = string.Join(", ", classNames);
+        }
+        
+        string? spellIconName = null;
+        if (spell.SpellIcon != null)
+        {
+            var path = AssetDatabase.GetAssetPath(spell.SpellIcon);
+            spellIconName = System.IO.Path.GetFileNameWithoutExtension(path);
         }
 
         return new SpellRecord
@@ -133,7 +141,7 @@ public class SpellListener : IAssetScanListener<Spell>
             // --- Visual/Audio ---
             SpellChargeFXIndex = spell.SpellChargeFXIndex,
             SpellResolveFXIndex = spell.SpellResolveFXIndex,
-            SpellIconName = spell.SpellIcon != null ? spell.SpellIcon.name : null,
+            SpellIconName = spellIconName,
             ShakeDur = spell.ShakeDur,
             ShakeAmp = spell.ShakeAmp,
             ColorR = spell.color.r,

@@ -93,7 +93,7 @@ public class SpellRecord
     // --- Visual/Audio ---
     public int SpellChargeFXIndex { get; set; } // From Spell.SpellChargeFXIndex
     public int SpellResolveFXIndex { get; set; } // From Spell.SpellResolveFXIndex
-    public string SpellIconName { get; set; } = string.Empty; // From Spell.SpellIcon.name
+    public string? SpellIconName { get; set; } = string.Empty; // From Spell.SpellIcon.name
     public float ShakeDur { get; set; } // From Spell.ShakeDur
     public float ShakeAmp { get; set; } // From Spell.ShakeAmp
     public float ColorR { get; set; } // From Spell.color.r
