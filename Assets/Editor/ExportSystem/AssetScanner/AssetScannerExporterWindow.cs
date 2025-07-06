@@ -206,6 +206,7 @@ public class AssetScannerExporterWindow : EditorWindow
         
         if (_exportTeleportLocs) _activeScanner.RegisterNullListener(new TeleportLocListener(_db));
         
+        if (_exportSecretPassages) _activeScanner.RegisterGameObjectListener(new SecretPassageListener(_db));
         if (_exportWishingWells) _activeScanner.RegisterGameObjectListener(new WishingWellListener(_db));
         
         if (_exportAscensions) _activeScanner.RegisterScriptableObjectListener(new AscensionListener(_db));
@@ -225,7 +226,6 @@ public class AssetScannerExporterWindow : EditorWindow
         if (_exportForges) _activeScanner.RegisterComponentListener(new ForgeListener(_db));
         if (_exportLootTables) _activeScanner.RegisterComponentListener(new LootTableListener(_db));
         if (_exportMiningNodes) _activeScanner.RegisterComponentListener(new MiningNodeListener(_db));
-        if (_exportSecretPassages) _activeScanner.RegisterComponentListener(new SecretPassageListener(_db));
         if (_exportSpawnPoints) _activeScanner.RegisterComponentListener(new SpawnPointListener(_db));
         if (_exportTreasureHunting) _activeScanner.RegisterComponentListener(new TreasureHuntingListener(_db));
         if (_exportTreasureLocs) _activeScanner.RegisterComponentListener(new TreasureLocListener(_db));

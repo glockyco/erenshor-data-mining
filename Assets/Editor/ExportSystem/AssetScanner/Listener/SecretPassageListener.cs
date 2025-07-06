@@ -4,11 +4,10 @@ using SQLite;
 using UnityEngine;
 using static CoordinateRecord;
 
-public class SecretPassageListener : IAssetScanListener<Component>
+public class SecretPassageListener : IAssetScanListener<GameObject>
 {
     private readonly SQLiteConnection _db;
     private readonly List<SecretPassageRecord> _records = new();
-    private readonly HashSet<GameObject> _processedGameObjects = new();
 
     public SecretPassageListener(SQLiteConnection db)
     {
@@ -24,7 +23,6 @@ public class SecretPassageListener : IAssetScanListener<Component>
         _db.DeleteAll<SecretPassageRecord>();
 
         _records.Clear();
-        _processedGameObjects.Clear();
     }
 
     public void OnScanFinished()
@@ -48,14 +46,14 @@ public class SecretPassageListener : IAssetScanListener<Component>
         _records.Clear();
     }
 
-    public void OnAssetFound(Component component)
+    public void OnAssetFound(GameObject asset)
     {
-        if (component.gameObject.scene.name == null || !component.gameObject.activeInHierarchy || _processedGameObjects.Contains(component.gameObject))
+        if (asset.scene.name == null || !asset.activeInHierarchy)
         {
             return;
         }
 
-        if (component.gameObject.scene.name is "Menu" or "LoadScene")
+        if (asset.scene.name is "Menu" or "LoadScene")
         {
             return;
         }
@@ -68,21 +66,21 @@ public class SecretPassageListener : IAssetScanListener<Component>
             "Shiver Intro", "Spear", "Sphere", "Statue", "Sword", "Torch", "Tree", "Trigger", "Tut", "Tutorial",
             "WATER", "Water", "ZoneLine", "Zoneline", "water", "Bounds", "FishingRod", "Wall_Frame_Curved",
         };
-        if (keywords.Any(keyword => component.gameObject.name.Contains(keyword)))
+        if (keywords.Any(keyword => asset.name.Contains(keyword)))
         {
             return;
         }
 
-        if (component.gameObject.scene.name == "Rockshade" && component.gameObject.name == "SM_Bld_Castle_Wall_01 (66)")
+        if (asset.scene.name == "Rockshade" && asset.name == "SM_Bld_Castle_Wall_01 (66)")
         {
             return;
         }
 
-        var colliders = component.gameObject.GetComponents<Collider>();
+        var colliders = asset.GetComponents<Collider>();
         var noCollisionLayer = LayerMask.NameToLayer("NoCollision");
-        var enabledCollider = colliders.FirstOrDefault(c => c.enabled && component.gameObject.layer != noCollisionLayer);
+        var enabledCollider = colliders.FirstOrDefault(c => c.enabled && asset.layer != noCollisionLayer);
 
-        var renderers = component.gameObject.GetComponents<Renderer>();
+        var renderers = asset.GetComponents<Renderer>();
         var enabledRenderer = renderers.FirstOrDefault(r => r.enabled);
 
         if (
@@ -95,19 +93,18 @@ public class SecretPassageListener : IAssetScanListener<Component>
             return;
         }
 
-        Debug.Log($"[{GetType().Name}] Found: {component.name} ({component.GetType().Name})");
+        Debug.Log($"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
 
-        _records.Add(CreateRecord(component, enabledCollider, enabledRenderer));
-        _processedGameObjects.Add(component.gameObject);
+        _records.Add(CreateRecord(asset, enabledCollider, enabledRenderer));
     }
 
-    private SecretPassageRecord CreateRecord(Component component, Collider collider, Renderer renderer)
+    private SecretPassageRecord CreateRecord(GameObject asset, Collider collider, Renderer renderer)
     {
         var position = collider != null ? collider.bounds.center : renderer.bounds.center;
 
         var coordinate = new CoordinateRecord
         {
-            Scene = component.gameObject.scene.name,
+            Scene = asset.scene.name,
             X = position.x,
             Y = position.y,
             Z = position.z,
@@ -119,7 +116,7 @@ public class SecretPassageListener : IAssetScanListener<Component>
         return new SecretPassageRecord
         {
             CoordinateId = coordinate.Id,
-            ObjectName = component.gameObject.name
+            ObjectName = asset.name
         };
     }
 }
