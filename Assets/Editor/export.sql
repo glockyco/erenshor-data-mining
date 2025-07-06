@@ -329,7 +329,10 @@ SELECT
     c.IsUnique,
     
     sp.LevelMod,
-    sp.SpawnDelay1,
+    sp.SpawnDelay1 AS SpawnDelay1InGrp,
+    ROUND(sp.SpawnDelay2, 2) AS SpawnDelay2InGrp,
+    ROUND(sp.SpawnDelay3, 2) AS SpawnDelay3InGrp,
+    ROUND(sp.SpawnDelay4, 2) AS SpawnDelay4InGrp,
     sp.Staggerable,
     sp.StaggerMod,
     sp.NightSpawn AS 'IsNightSpawn',
