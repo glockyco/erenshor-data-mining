@@ -314,7 +314,8 @@ ORDER BY za.ZoneName, m.Id, mi.DropChance DESC;
 -- spawn-points
 SELECT
     sp.Id,
-    co.Scene,
+    za.SceneName,
+    za.ZoneName,
     ROUND(co.X, 2) AS PositionX,
     ROUND(co.Y, 2) AS PositionY,
     ROUND(co.Z, 2) AS PositionZ,
@@ -335,12 +336,14 @@ SELECT
     sp.LoopPatrol,
     sp.RandomWanderRange,
     sp.SpawnUponQuestCompleteDBName,
-    sp.StopIfQuestCompleteDBNames
+    sp.StopIfQuestCompleteDBNames,
+    'https://erenshor-maps.wowmuch1.workers.dev/' || za.SceneName || '?coordinateId=' || co.Id AS MapLink
 FROM
     main.SpawnPoints sp
     JOIN SpawnPointCharacters spc ON sp.Id = spc.SpawnPointId
     JOIN Characters c ON spc.CharacterGuid = c.Guid
     JOIN Coordinates co ON co.SpawnPointId = sp.Id
+    JOIN ZoneAnnounces za ON za.SceneName = co.Scene
 ORDER BY
     sp.Id,
     spc.SpawnChance DESC,
