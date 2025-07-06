@@ -125,7 +125,6 @@ public class CharacterListener : IAssetScanListener<Character>
         
         return new CoordinateRecord
         {
-            Id = TableIdGenerator.NextId(CoordinateRecord.TableName),
             Scene = character.gameObject.scene.name,
             X = character.transform.position.x,
             Y = character.transform.position.y,

@@ -60,7 +60,6 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
     {
         return new CoordinateRecord
         {
-            Id = TableIdGenerator.NextId(CoordinateRecord.TableName),
             Scene = spawnPoint.gameObject.scene.name,
             X = spawnPoint.transform.position.x,
             Y = spawnPoint.transform.position.y,

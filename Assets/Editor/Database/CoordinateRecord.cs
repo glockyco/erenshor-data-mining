@@ -7,7 +7,7 @@ public class CoordinateRecord
 {
     public const string TableName = "Coordinates";
     
-    [PrimaryKey, AutoIncrement]
+    [PrimaryKey]
     public int Id { get; set; }
     
     public string Scene { get; set; } = string.Empty;
@@ -52,5 +52,10 @@ public class CoordinateRecord
         Water,
         WishingWell,
         ZoneLine,
+    }
+
+    public CoordinateRecord()
+    {
+        Id = TableIdGenerator.NextId(SecretPassageRecord.TableName);
     }
 }
