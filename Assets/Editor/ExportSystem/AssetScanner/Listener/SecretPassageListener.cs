@@ -3,47 +3,35 @@ using System.Linq;
 using SQLite;
 using UnityEngine;
 using static CoordinateRecord;
+using static SecretPassageRecord;
 
 public class SecretPassageListener : IAssetScanListener<GameObject>
 {
     private readonly SQLiteConnection _db;
-    private readonly List<SecretPassageRecord> _records = new();
+    private readonly List<CoordinateRecord> _coordinateRecords = new();
+    private readonly List<SecretPassageRecord> _secretPassageRecords = new();
 
     public SecretPassageListener(SQLiteConnection db)
     {
         _db = db;
     }
 
-    public void OnScanStarted()
+    public void OnScanFinished()
     {
         _db.CreateTable<CoordinateRecord>();
         _db.CreateTable<SecretPassageRecord>();
 
-        _db.Execute("DELETE FROM Coordinates WHERE Category = ?", nameof(CoordinateCategory.SecretPassage));
-        _db.DeleteAll<SecretPassageRecord>();
+        _db.RunInTransaction(() =>
+        {
+            _db.Execute("DELETE FROM Coordinates WHERE Category = ?", nameof(CoordinateCategory.SecretPassage));
+            _db.DeleteAll<SecretPassageRecord>();
+            
+            _db.InsertAll(_coordinateRecords);
+            _db.InsertAll(_secretPassageRecords);
+        });
 
-        _records.Clear();
-    }
-
-    public void OnScanFinished()
-    {
-        _db.InsertAll(_records);
-
-        _db.Execute(@"
-            UPDATE Coordinates
-            SET SecretPassageId = (
-                SELECT Id
-                FROM SecretPassages
-                WHERE SecretPassages.CoordinateId = Coordinates.Id
-            )
-            WHERE EXISTS (
-                SELECT 1
-                FROM SecretPassages
-                WHERE SecretPassages.CoordinateId = Coordinates.Id
-            );
-        ");
-
-        _records.Clear();
+        _coordinateRecords.Clear();
+        _secretPassageRecords.Clear();
     }
 
     public void OnAssetFound(GameObject asset)
@@ -83,24 +71,36 @@ public class SecretPassageListener : IAssetScanListener<GameObject>
         var renderers = asset.GetComponents<Renderer>();
         var enabledRenderer = renderers.FirstOrDefault(r => r.enabled);
 
-        if (
-            colliders.Length == 0 ||
-            renderers.Length == 0 ||
-            (enabledCollider != null && enabledRenderer != null) ||
-            (enabledCollider == null && enabledRenderer == null)
-        )
+        if (colliders.Length == 0 || renderers.Length == 0 || (!enabledCollider && !enabledRenderer))
+        {
+            return;
+        }
+        
+        var isHiddenDoor = asset.GetComponent<Door>() && !asset.name.ToLower().Contains("door") && !asset.name.ToLower().Contains("gate");
+        var isIllusoryWall = !enabledCollider && enabledRenderer;
+        var isInvisibleFloor = enabledCollider && !enabledRenderer;
+
+        SecretPassageType type;
+        if (isHiddenDoor)
+        {
+            type = SecretPassageType.HiddenDoor;
+        }
+        else if (isIllusoryWall)
+        {
+            type = SecretPassageType.IllusoryWall;
+        }
+        else if (isInvisibleFloor)
+        {
+            type = SecretPassageType.InvisibleFloor;
+        }
+        else
         {
             return;
         }
 
         Debug.Log($"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
 
-        _records.Add(CreateRecord(asset, enabledCollider, enabledRenderer));
-    }
-
-    private SecretPassageRecord CreateRecord(GameObject asset, Collider collider, Renderer renderer)
-    {
-        var position = collider != null ? collider.bounds.center : renderer.bounds.center;
+        var position = enabledRenderer ? enabledRenderer.bounds.center : enabledCollider.bounds.center;
 
         var coordinate = new CoordinateRecord
         {
@@ -108,15 +108,20 @@ public class SecretPassageListener : IAssetScanListener<GameObject>
             X = position.x,
             Y = position.y,
             Z = position.z,
-            Category = nameof(CoordinateCategory.SecretPassage)
+            Category = nameof(CoordinateCategory.SecretPassage),
         };
 
-        _db.Insert(coordinate);
-
-        return new SecretPassageRecord
+        var secretPassage = new SecretPassageRecord
         {
+            Id = TableIdGenerator.NextId(SecretPassageRecord.TableName),
             CoordinateId = coordinate.Id,
-            ObjectName = asset.name
+            ObjectName = asset.name,
+            Type = type.ToString(),
         };
+
+        coordinate.SecretPassageId = secretPassage.Id;
+        
+        _coordinateRecords.Add(coordinate);
+        _secretPassageRecords.Add(secretPassage);
     }
 }
