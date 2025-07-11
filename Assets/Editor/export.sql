@@ -86,7 +86,7 @@ SELECT
     ResourceName,
     WikiString
 FROM items i
-JOIN ItemStats s ON s.ItemId = i.Id;
+LEFT JOIN ItemStats s ON s.ItemId = i.Id;
 
 -- characters
 SELECT
