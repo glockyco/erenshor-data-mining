@@ -298,10 +298,10 @@ public class ItemListener : IAssetScanListener<Item>
                 Wis = item.CalcStat(item.Wis, quality),
                 Cha = item.CalcStat(item.Cha, quality),
                 Res = item.CalcRes(item.Res, quality), // Resonance
-                MR = item.CalcRes(item.MR, quality), // Magic Resist
-                ER = item.CalcRes(item.ER, quality), // Elemental Resist
-                PR = item.CalcRes(item.PR, quality), // Poison Resist
-                VR = item.CalcRes(item.VR, quality), // Void Resist
+                MR = item.CalcStat(item.MR, quality), // Magic Resist
+                ER = item.CalcStat(item.ER, quality), // Elemental Resist
+                PR = item.CalcStat(item.PR, quality), // Poison Resist
+                VR = item.CalcStat(item.VR, quality), // Void Resist
                 
                 // --- Stat Scaling Properties ---
                 StrScaling = item.StrScaling,
