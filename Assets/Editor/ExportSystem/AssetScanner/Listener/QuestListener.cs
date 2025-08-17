@@ -36,7 +36,7 @@ public class QuestListener : IAssetScanListener<Quest>
     private QuestRecord CreateRecord(Quest quest, int questDbIndex)
     {
         string requiredItems = quest.RequiredItems != null
-            ? string.Join(", ", quest.RequiredItems.Where(item => item != null && !string.IsNullOrEmpty(item.Id)).Select(item => item.Id))
+            ? string.Join(", ", quest.RequiredItems.Where(item => item != null && !string.IsNullOrEmpty(item.Id)).Select(item => $"{item.ItemName} ({item.Id})"))
             : "";
 
         string affectedFactions = quest.AffectFactions != null
@@ -48,7 +48,7 @@ public class QuestListener : IAssetScanListener<Quest>
             : "";
 
         string completeQuests = quest.CompleteOtherQuests != null
-            ? string.Join(", ", quest.CompleteOtherQuests.Where(q => q != null && !string.IsNullOrEmpty(q.DBName)).Select(q => q.DBName))
+            ? string.Join(", ", quest.CompleteOtherQuests.Where(q => q != null && !string.IsNullOrEmpty(q.DBName)).Select(q => $"{q.QuestName} ({q.DBName})"))
             : "";
 
         return new QuestRecord
@@ -63,9 +63,9 @@ public class QuestListener : IAssetScanListener<Quest>
 
             // --- Rewards & Completion ---
             XPonComplete = quest.XPonComplete,
-            ItemOnCompleteId = quest.ItemOnComplete?.Id,
+            ItemOnCompleteId = quest.ItemOnComplete != null ? $"{quest.ItemOnComplete.ItemName} ({quest.ItemOnComplete.Id})" : "",
             GoldOnComplete = quest.GoldOnComplete,
-            AssignNewQuestOnCompleteDBName = quest.AssignNewQuestOnComplete?.DBName,
+            AssignNewQuestOnCompleteDBName = quest.AssignNewQuestOnComplete != null ? $"{quest.AssignNewQuestOnComplete.QuestName} ({quest.AssignNewQuestOnComplete.DBName})" : "",
             CompleteOtherQuestDBNames = completeQuests,
 
             // --- Dialog & Text ---
