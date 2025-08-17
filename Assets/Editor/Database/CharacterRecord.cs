@@ -67,6 +67,20 @@ public class CharacterRecord
     public float BaseMHAtkDelay { get; set; }
     public float BaseOHAtkDelay { get; set; }
     
+    // Calculated/Effective Stats for NPCs
+    public int EffectiveHP { get; set; }
+    public int EffectiveAC { get; set; }
+    public int EffectiveBaseAtkDmg { get; set; }
+    public float EffectiveAttackAbility { get; set; }
+    public int EffectiveMinMR { get; set; }
+    public int EffectiveMaxMR { get; set; }
+    public int EffectiveMinER { get; set; }
+    public int EffectiveMaxER { get; set; }
+    public int EffectiveMinPR { get; set; }
+    public int EffectiveMaxPR { get; set; }
+    public int EffectiveMinVR { get; set; }
+    public int EffectiveMaxVR { get; set; }
+    
     // NPC properties
     public string AttackSkills { get; set; } = string.Empty;
     public string AttackSpells { get; set; } = string.Empty;
@@ -78,6 +92,42 @@ public class CharacterRecord
     public string PetSpell { get; set; } = string.Empty;
     public string ProcOnHit { get; set; } = string.Empty;
     public float ProcOnHitChance { get; set; }
+    
+    // NPC Combat Mechanics
+    public bool HandSetResistances { get; set; }
+    public int HardSetAC { get; set; }
+    public int BaseAtkDmg { get; set; }
+    public int OHAtkDmg { get; set; }
+    public int MinAtkDmg { get; set; }
+    public float DamageRangeMin { get; set; }
+    public float DamageRangeMax { get; set; }
+    public float DamageMult { get; set; }
+    public float ArmorPenMult { get; set; }
+    
+    // Special Abilities
+    public int PowerAttackBaseDmg { get; set; }
+    public float PowerAttackFreq { get; set; }
+    public float HealTolerance { get; set; }
+    
+    // AI Behavior
+    public float LeashRange { get; set; }
+    public bool AggroRegardlessOfLevel { get; set; }
+    public bool Mobile { get; set; }
+    public bool GroupEncounter { get; set; }
+    
+    // Loot/Corpse
+    public bool TreasureChest { get; set; }
+    public bool DoNotLeaveCorpse { get; set; }
+    
+    // Achievements
+    public string SetAchievementOnDefeat { get; set; } = string.Empty;
+    public string SetAchievementOnSpawn { get; set; } = string.Empty;
+    
+    // Flavor Text
+    public string AggroMsg { get; set; } = string.Empty;
+    public string AggroEmote { get; set; } = string.Empty;
+    public string SpawnEmote { get; set; } = string.Empty;
+    public string GuildName { get; set; } = string.Empty;
     
     // ModifyFaction properties
     public string ModifyFactions { get; set; } = string.Empty;

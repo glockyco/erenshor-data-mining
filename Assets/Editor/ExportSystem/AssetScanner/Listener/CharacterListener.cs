@@ -196,6 +196,42 @@ public class CharacterListener : IAssetScanListener<Character>
             record.PetSpell = npc.MyPetSpell is null ? string.Empty : $"{npc.MyPetSpell.SpellName} ({npc.MyPetSpell.Id})";
             record.ProcOnHit = npc.NPCProcOnHit is null ? string.Empty : $"{npc.NPCProcOnHit.SpellName} ({npc.NPCProcOnHit.Id})";
             record.ProcOnHitChance = npc.NPCProcOnHitChance;
+            
+            // NPC Combat Mechanics
+            record.HandSetResistances = npc.HandSetResistances;
+            record.HardSetAC = npc.HardSetAC;
+            record.BaseAtkDmg = npc.BaseAtkDmg;
+            record.OHAtkDmg = npc.OHAtkDmg;
+            record.MinAtkDmg = npc.MinAtkDmg;
+            record.DamageRangeMin = npc.DamageRange.x;
+            record.DamageRangeMax = npc.DamageRange.y;
+            record.DamageMult = npc.DamageMult;
+            record.ArmorPenMult = npc.ArmorPenMult;
+            
+            // Special Abilities
+            record.PowerAttackBaseDmg = npc.PowerAttackBaseDmg;
+            record.PowerAttackFreq = npc.PowerAttackFreq;
+            record.HealTolerance = npc.HealTolerance;
+            
+            // AI Behavior
+            record.LeashRange = npc.LeashRange;
+            record.AggroRegardlessOfLevel = npc.AggroRegardlessOfLevel;
+            record.Mobile = npc.Mobile;
+            record.GroupEncounter = npc.GroupEncounter;
+            
+            // Loot/Corpse
+            record.TreasureChest = npc.TreasureChest;
+            record.DoNotLeaveCorpse = npc.DoNotLeaveCorpse;
+            
+            // Achievements
+            record.SetAchievementOnDefeat = npc.SetAchievementOnDefeat ?? string.Empty;
+            record.SetAchievementOnSpawn = npc.SetAchievementOnSpawn ?? string.Empty;
+            
+            // Flavor Text
+            record.AggroMsg = npc.AggroMsg ?? string.Empty;
+            record.AggroEmote = npc.AggroEmote ?? string.Empty;
+            record.SpawnEmote = npc.SpawnEmote ?? string.Empty;
+            record.GuildName = npc.GuildName ?? string.Empty;
         }
         
         if (stats != null)
@@ -223,6 +259,72 @@ public class CharacterListener : IAssetScanListener<Character>
             record.BaseXpMin = stats.Level * 4;
             record.BaseXpMax = record.BaseXpMin + stats.Level * 5;
             record.BossXpMultiplier = character.BossXp;
+            
+            // Calculate effective stats based on game logic
+            if (character.isNPC && npc != null)
+            {
+                if (!npc.HandSetResistances)
+                {
+                    // NPCs without HandSetResistances use calculated resistance ranges
+                    record.EffectiveMinMR = Mathf.RoundToInt(stats.Level * 0.5f);
+                    record.EffectiveMaxMR = Mathf.RoundToInt(stats.Level * 1.2f);
+                    record.EffectiveMinER = Mathf.RoundToInt(stats.Level * 0.5f);
+                    record.EffectiveMaxER = Mathf.RoundToInt(stats.Level * 1.2f);
+                    record.EffectiveMinPR = Mathf.RoundToInt(stats.Level * 0.5f);
+                    record.EffectiveMaxPR = Mathf.RoundToInt(stats.Level * 1.2f);
+                    record.EffectiveMinVR = Mathf.RoundToInt(stats.Level * 0.5f);
+                    record.EffectiveMaxVR = Mathf.RoundToInt(stats.Level * 1.2f);
+                }
+                else
+                {
+                    // NPCs with HandSetResistances use fixed prefab values
+                    record.EffectiveMinMR = record.EffectiveMaxMR = stats.BaseMR;
+                    record.EffectiveMinER = record.EffectiveMaxER = stats.BaseER;
+                    record.EffectiveMinPR = record.EffectiveMaxPR = stats.BasePR;
+                    record.EffectiveMinVR = record.EffectiveMaxVR = stats.BaseVR;
+                }
+                
+                // BaseAtkDmg is set to at least Level for NPCs
+                record.EffectiveBaseAtkDmg = Mathf.Max(npc.BaseAtkDmg, stats.Level);
+                
+                // Calculate effective AC for NPCs
+                int baseAC = npc.HardSetAC > 0 ? npc.HardSetAC : stats.Level * 15;
+                
+                // Apply CharacterClass MitigationBonus if set, otherwise use DefaultNPC (1.0)
+                float mitigationBonus = 1.0f; // Default for NPCs
+                if (stats.CharacterClass != null)
+                {
+                    mitigationBonus = stats.CharacterClass.MitigationBonus;
+                }
+                
+                record.EffectiveAC = Mathf.RoundToInt(baseAC * mitigationBonus);
+                
+                // Calculate effective HP for NPCs (OverrideHPforNPC = true)
+                record.EffectiveHP = stats.BaseHP;
+                
+                // Calculate effective attack ability for NPCs
+                float baseAttackAbility = 100 + (stats.Level - 1) * 40;
+                if (stats.Level >= 20)
+                {
+                    float levelProgress = Mathf.Clamp01((stats.Level - 20f) / 20f);
+                    float smoothBonus = 3f * levelProgress * levelProgress - 2f * levelProgress * levelProgress * levelProgress;
+                    float bonusMultiplier = 0.33f * smoothBonus;
+                    baseAttackAbility += baseAttackAbility * bonusMultiplier;
+                }
+                record.EffectiveAttackAbility = baseAttackAbility * npc.ArmorPenMult;
+            }
+            else
+            {
+                // Non-NPCs use their base resistance values
+                record.EffectiveMinMR = record.EffectiveMaxMR = stats.BaseMR;
+                record.EffectiveMinER = record.EffectiveMaxER = stats.BaseER;
+                record.EffectiveMinPR = record.EffectiveMaxPR = stats.BasePR;
+                record.EffectiveMinVR = record.EffectiveMaxVR = stats.BaseVR;
+                record.EffectiveBaseAtkDmg = npc?.BaseAtkDmg ?? 0;
+                record.EffectiveAC = 0;
+                record.EffectiveHP = 0;
+                record.EffectiveAttackAbility = 0;
+            }
         }
 
         var factionStrings = new List<string>();
