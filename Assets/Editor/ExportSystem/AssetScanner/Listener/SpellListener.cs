@@ -30,13 +30,17 @@ public class SpellListener : IAssetScanListener<Spell>
     public void OnAssetFound(Spell asset)
     {
         Debug.Log($"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
-
-        _records.Add(CreateRecord(asset, _records.Count));;
+        
+        var record = CreateRecord(asset, _records.Count);
+        if (record != null)
+        {
+            _records.Add(record);
+        }
     }
 
     private SpellRecord CreateRecord(Spell spell, int spellDbIndex)
     {
-        if (spell == null || string.IsNullOrEmpty(spell.Id)) return null;
+        if (spell == null) return null;
 
         string classesString = "";
         if (spell.UsedBy is { Count: > 0 })

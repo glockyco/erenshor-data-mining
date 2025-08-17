@@ -8,8 +8,8 @@ public class SpellRecord
     public const string TableName = "Spells";
     
     // --- Core Identification ---
-    public int SpellDBIndex { get; set; } // Index in the Resources.LoadAll array
     [PrimaryKey]
+    public int SpellDBIndex { get; set; } // Index in the Resources.LoadAll array
     public string Id { get; set; } = string.Empty; // From BaseScriptableObject.Id
     public string SpellName { get; set; } = string.Empty; // From Spell.SpellName
     public string SpellDesc { get; set; } = string.Empty; // From Spell.SpellDesc
