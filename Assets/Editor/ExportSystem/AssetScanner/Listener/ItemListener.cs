@@ -23,7 +23,7 @@ public class ItemListener : IAssetScanListener<Item>
     
     private static readonly HashSet<string> ArmorSlots = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Charm", "Head", "Neck", "Ring", "Hand", "Chest", "Arm", "Bracer", "Leg", "Waist", "Foot", "Back"
+        "Charm", "Head", "Neck", "Ring", "Hand", "Chest", "Shoulder", "Arm", "Bracer", "Leg", "Waist", "Foot", "Back"
     };
     
     public ItemListener(SQLiteConnection db)
@@ -115,6 +115,20 @@ public class ItemListener : IAssetScanListener<Item>
             var path = AssetDatabase.GetAssetPath(item.AttackSound);
             attackSound = System.IO.Path.GetFileNameWithoutExtension(path);
         }
+        
+        string? wandAttackSound = null;
+        if (item.WandAttackSound != null)
+        {
+            var path = AssetDatabase.GetAssetPath(item.WandAttackSound);
+            wandAttackSound = System.IO.Path.GetFileNameWithoutExtension(path);
+        }
+        
+        string? bowAttackSound = null;
+        if (item.BowAttackSound != null)
+        {
+            var path = AssetDatabase.GetAssetPath(item.BowAttackSound);
+            bowAttackSound = System.IO.Path.GetFileNameWithoutExtension(path);
+        }
             
         string? itemIconName = null;
         if (item.ItemIcon != null)
@@ -148,6 +162,20 @@ public class ItemListener : IAssetScanListener<Item>
             WandRange = item.IsWand ? item.WandRange : item.WeaponDmg > 0 ? 1 : 0,
             WandProcChance = item.WandProcChance,
             WandEffect = item.WandEffect is null ? string.Empty : $"{item.WandEffect.SpellName} ({item.WandEffect.Id})",
+            WandBoltColorR = item.WandBoltColor.r,
+            WandBoltColorG = item.WandBoltColor.g,
+            WandBoltColorB = item.WandBoltColor.b,
+            WandBoltColorA = item.WandBoltColor.a,
+            WandBoltSpeed = item.WandBoltSpeed,
+            WandAttackSoundName = wandAttackSound,
+            
+            // --- Bow Properties ---
+            IsBow = item.IsBow,
+            BowEffect = item.BowEffect is null ? string.Empty : $"{item.BowEffect.SpellName} ({item.BowEffect.Id})",
+            BowProcChance = item.BowProcChance,
+            BowRange = item.BowRange,
+            BowArrowSpeed = item.BowArrowSpeed,
+            BowAttackSoundName = bowAttackSound,
 
             // --- Effects & Interactions ---
             ItemEffectOnClick = item.ItemEffectOnClick is null ? string.Empty : $"{item.ItemEffectOnClick.SpellName} ({item.ItemEffectOnClick.Id})",
@@ -174,6 +202,7 @@ public class ItemListener : IAssetScanListener<Item>
             Disposable = item.Disposable,
             Unique = item.Unique,
             Relic = item.Relic,
+            NoTradeNoDestroy = item.NoTradeNoDestroy,
 
             // --- Miscellaneous ---
             BookTitle = item.BookTitle,
@@ -269,10 +298,21 @@ public class ItemListener : IAssetScanListener<Item>
                 Wis = item.CalcStat(item.Wis, quality),
                 Cha = item.CalcStat(item.Cha, quality),
                 Res = item.CalcRes(item.Res, quality), // Resonance
-                MR = item.CalcStat(item.MR, quality), // Magic Resist
-                ER = item.CalcStat(item.ER, quality), // Elemental Resist
-                PR = item.CalcStat(item.PR, quality), // Poison Resist
-                VR = item.CalcStat(item.VR, quality), // Void Resist
+                MR = item.CalcRes(item.MR, quality), // Magic Resist
+                ER = item.CalcRes(item.ER, quality), // Elemental Resist
+                PR = item.CalcRes(item.PR, quality), // Poison Resist
+                VR = item.CalcRes(item.VR, quality), // Void Resist
+                
+                // --- Stat Scaling Properties ---
+                StrScaling = item.StrScaling,
+                EndScaling = item.EndScaling,
+                DexScaling = item.DexScaling,
+                AgiScaling = item.AgiScaling,
+                IntScaling = item.IntScaling,
+                WisScaling = item.WisScaling,
+                ChaScaling = item.ChaScaling,
+                ResistScaling = item.ResistScaling,
+                MitigationScaling = item.MitigationScaling,
             };
             
             itemStatsRecords.Add(itemStatsRecord);

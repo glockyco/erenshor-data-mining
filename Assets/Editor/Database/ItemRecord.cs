@@ -31,6 +31,20 @@ public class ItemRecord
     public int WandRange { get; set; }
     public float WandProcChance { get; set; }
     public string WandEffect { get; set; } = string.Empty;
+    public float WandBoltColorR { get; set; }
+    public float WandBoltColorG { get; set; }
+    public float WandBoltColorB { get; set; }
+    public float WandBoltColorA { get; set; }
+    public float WandBoltSpeed { get; set; }
+    public string? WandAttackSoundName { get; set; } = string.Empty;
+    
+    // --- Bow Properties ---
+    public bool IsBow { get; set; }
+    public string BowEffect { get; set; } = string.Empty;
+    public float BowProcChance { get; set; }
+    public int BowRange { get; set; }
+    public float BowArrowSpeed { get; set; }
+    public string? BowAttackSoundName { get; set; } = string.Empty;
 
     // --- Effects & Interactions ---
     public string ItemEffectOnClick { get; set; } = string.Empty; // Id of the Spell to cast on click
@@ -57,6 +71,7 @@ public class ItemRecord
     public bool Disposable { get; set; }
     public bool Unique { get; set; }
     public bool Relic { get; set; }
+    public bool NoTradeNoDestroy { get; set; }
 
     // --- Miscellaneous ---
     public string BookTitle { get; set; } = string.Empty; // If the item is a book

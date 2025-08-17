@@ -29,6 +29,17 @@ public class ItemStatsRecord
     public int ER { get; set; } // Elemental Resist
     public int PR { get; set; } // Poison Resist
     public int VR { get; set; } // Void Resist
+    
+    // --- Stat Scaling Properties ---
+    public float StrScaling { get; set; }
+    public float EndScaling { get; set; }
+    public float DexScaling { get; set; }
+    public float AgiScaling { get; set; }
+    public float IntScaling { get; set; }
+    public float WisScaling { get; set; }
+    public float ChaScaling { get; set; }
+    public float ResistScaling { get; set; }
+    public float MitigationScaling { get; set; }
 
     public string WikiString { get; set; } = string.Empty;
 }
