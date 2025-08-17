@@ -13,6 +13,7 @@ public class SpellRecord
     public string Id { get; set; } = string.Empty; // From BaseScriptableObject.Id
     public string SpellName { get; set; } = string.Empty; // From Spell.SpellName
     public string SpellDesc { get; set; } = string.Empty; // From Spell.SpellDesc
+    public string SpecialDescriptor { get; set; } = string.Empty; // From Spell.SpecialDescriptor
     public string Type { get; set; } = string.Empty; // From Spell.Type enum
     public string Line { get; set; } = string.Empty; // From Spell.Line enum
 
@@ -57,6 +58,7 @@ public class SpellRecord
     public int HP { get; set; } // Stat buff from Spell.HP
     public int AC { get; set; } // Stat buff from Spell.AC
     public int Mana { get; set; } // Stat buff from Spell.Mana
+    public int PercentManaRestoration { get; set; } // From Spell.PercentManaRestoration
     public float MovementSpeed { get; set; } // Stat buff from Spell.MovementSpeed
     public int Str { get; set; } // Stat buff from Spell.Str
     public int Dex { get; set; } // Stat buff from Spell.Dex
@@ -73,6 +75,7 @@ public class SpellRecord
     public float Haste { get; set; } // Stat buff from Spell.Haste
     public float PercentLifesteal { get; set; } // Stat buff from Spell.percentLifesteal
     public int AtkRollModifier { get; set; } // From Spell.AtkRollModifier
+    public int BleedDamagePercent { get; set; } // From Spell.BleedDamagePercent
 
     // --- Control Effects ---
     public bool RootTarget { get; set; } // From Spell.RootTarget
@@ -80,6 +83,7 @@ public class SpellRecord
     public bool CharmTarget { get; set; } // From Spell.CharmTarget
     public bool CrowdControlSpell { get; set; } // From Spell.CrowdControlSpell
     public bool BreakOnDamage { get; set; } // From Spell.BreakOnDamage
+    public bool BreakOnAnyAction { get; set; } // From Spell.BreakOnAnyAction
     public bool TauntSpell { get; set; } // From Spell.TauntSpell
 
     // --- Special Mechanics ---
@@ -89,6 +93,7 @@ public class SpellRecord
     public int ResonateChance { get; set; } // From Spell.ResonateChance
     public float XPBonus { get; set; } // From Spell.XPBonus
     public bool AutomateAttack { get; set; } // From Spell.AutomateAttack
+    public bool WornEffect { get; set; } // From Spell.WornEffect
 
     // --- Visual/Audio ---
     public int SpellChargeFXIndex { get; set; } // From Spell.SpellChargeFXIndex

@@ -61,6 +61,7 @@ public class SpellListener : IAssetScanListener<Spell>
             Id = spell.Id,
             SpellName = spell.SpellName,
             SpellDesc = spell.SpellDesc,
+            SpecialDescriptor = spell.SpecialDescriptor,
             Type = spell.Type.ToString(),
             Line = spell.Line.ToString(),
 
@@ -105,6 +106,7 @@ public class SpellListener : IAssetScanListener<Spell>
             HP = spell.HP,
             AC = spell.AC,
             Mana = spell.Mana,
+            PercentManaRestoration = spell.PercentManaRestoration,
             MovementSpeed = spell.MovementSpeed,
             Str = spell.Str,
             Dex = spell.Dex,
@@ -121,6 +123,7 @@ public class SpellListener : IAssetScanListener<Spell>
             Haste = spell.Haste,
             PercentLifesteal = spell.percentLifesteal,
             AtkRollModifier = spell.AtkRollModifier,
+            BleedDamagePercent = spell.BleedDamagePercent,
 
             // --- Control Effects ---
             RootTarget = spell.RootTarget,
@@ -128,6 +131,7 @@ public class SpellListener : IAssetScanListener<Spell>
             CharmTarget = spell.CharmTarget,
             CrowdControlSpell = spell.CrowdControlSpell,
             BreakOnDamage = spell.BreakOnDamage,
+            BreakOnAnyAction = spell.BreakOnAnyAction,
             TauntSpell = spell.TauntSpell,
 
             // --- Special Mechanics ---
@@ -137,6 +141,7 @@ public class SpellListener : IAssetScanListener<Spell>
             ResonateChance = spell.ResonateChance,
             XPBonus = spell.XPBonus,
             AutomateAttack = spell.AutomateAttack,
+            WornEffect = spell.WornEffect,
 
             // --- Visual/Audio ---
             SpellChargeFXIndex = spell.SpellChargeFXIndex,
