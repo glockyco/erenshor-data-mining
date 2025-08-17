@@ -108,7 +108,14 @@ SELECT
     ResourceName,
     WikiString
 FROM items i
-LEFT JOIN ItemStats s ON s.ItemId = i.Id;
+LEFT JOIN ItemStats s ON s.ItemId = i.Id
+ORDER BY i.ItemDBIndex, 
+    CASE s.Quality 
+        WHEN 'Normal' THEN 1 
+        WHEN 'Blessed' THEN 2 
+        WHEN 'Godly' THEN 3 
+        ELSE 4 
+    END;
 
 -- characters
 SELECT
