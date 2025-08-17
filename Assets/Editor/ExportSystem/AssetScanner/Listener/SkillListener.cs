@@ -56,9 +56,11 @@ public class SkillListener : IAssetScanListener<Skill>
             PaladinRequiredLevel = skill.PaladinRequiredLevel,
             ArcanistRequiredLevel = skill.ArcanistRequiredLevel,
             DruidRequiredLevel = skill.DruidRequiredLevel,
+            StormcallerRequiredLevel = skill.StormcallerRequiredLevel,
             RequireBehind = skill.RequireBehind,
             Require2H = skill.Require2H,
             RequireDW = skill.RequireDW,
+            RequireBow = skill.RequireBow,
             RequireShield = skill.RequireShield,
 
             // --- Simulation ---
@@ -83,6 +85,7 @@ public class SkillListener : IAssetScanListener<Skill>
             ProcShield = skill.ProcShield,
             GuaranteeProc = skill.GuaranteeProc,
             AutomateAttack = skill.AutomateAttack,
+            CastOnTargetId = skill.CastOnTarget is not null ? $"{skill.CastOnTarget.SpellName} ({skill.CastOnTarget.Id})" : "",
 
             // --- Visual/Audio ---
             SkillAnimName = skill.SkillAnimName,

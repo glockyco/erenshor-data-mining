@@ -23,9 +23,11 @@ public class SkillRecord
     public int PaladinRequiredLevel { get; set; } // From Skill.PaladinRequiredLevel
     public int ArcanistRequiredLevel { get; set; } // From Skill.ArcanistRequiredLevel
     public int DruidRequiredLevel { get; set; } // From Skill.DruidRequiredLevel
+    public int StormcallerRequiredLevel { get; set; } // From Skill.StormcallerRequiredLevel
     public bool RequireBehind { get; set; } // From Skill.RequireBehind
     public bool Require2H { get; set; } // From Skill.Require2H
     public bool RequireDW { get; set; } // From Skill.RequireDW
+    public bool RequireBow { get; set; } // From Skill.RequireBow
     public bool RequireShield { get; set; } // From Skill.RequireShield
 
     // --- Simulation ---
@@ -47,6 +49,7 @@ public class SkillRecord
     public bool ProcShield { get; set; } // From Skill.ProcShield
     public bool GuaranteeProc { get; set; } // From Skill.GuaranteeProc
     public bool AutomateAttack { get; set; } // From Skill.AutomateAttack
+    public string CastOnTargetId { get; set; } = string.Empty; // From Skill.CastOnTarget (Spell name and ID)
 
     // --- Visual/Audio ---
     public string SkillAnimName { get; set; } = string.Empty; // From Skill.SkillAnimName
