@@ -1037,25 +1037,12 @@ public class TileScreenshotter
                     {
                         if (zoomLevel == 1)
                         {
-                            string[] objNames =
+                            foreach (GameObject obj in SceneManager.GetActiveScene().GetRootGameObjects())
                             {
-                                "TFF_Rock_Large_03A",
-                                "TFF_Rock_Large_03A (1)",
-                                "TFF_Rock_Large_05A (15)",
-                                "TFF_Rock_Large_05A (16)",
-                                "TFF_Rock_Large_05A (18)",
-                                "TFF_Rock_Large_06A (8)",
-                                "TFF_Rock_Large_06A (9)",
-                                "TFF_Rock_Large_06A (11)",
-                                "TFF_Rock_Large_06A (10)",
-                                "TFF_Oak_Tree_01C_LOD_1 (4)",
-                                "TFF_Oak_Tree_01C_LOD_1 (5)",
-                                "TFF_Pine_Tree_02A (13)"
-                            };
-                            foreach (var objName in objNames)
-                            {
-                                var obj = GameObject.Find(objName);
-                                obj?.SetActive(false);
+                                if (obj.layer == LayerMask.NameToLayer("Roof"))
+                                {
+                                    obj.SetActive(false);
+                                }
                             }
                         }
                     }
