@@ -1062,6 +1062,29 @@ public class TileScreenshotter
                 }
             },
             {
+                "SummerEvent", new TileScreenshotter.TileShotterSettings
+                {
+                    ZoomLevels = 4,
+                    OriginX = 0,
+                    OriginY = -110,
+                    BaseTilesX = 1,
+                    BaseTilesY = 2,
+                    PreProcess = (zoomLevel) =>
+                    {
+                        if (zoomLevel == 1)
+                        {
+                            foreach (GameObject obj in SceneManager.GetActiveScene().GetRootGameObjects())
+                            {
+                                if (obj.layer == LayerMask.NameToLayer("Roof"))
+                                {
+                                    obj.SetActive(false);
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            {
                 "Tutorial", new TileScreenshotter.TileShotterSettings
                 {
                     ZoomLevels = 4,
