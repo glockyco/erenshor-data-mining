@@ -1187,6 +1187,27 @@ public class TileScreenshotter
                 }
             },
             {
+                "Willowwatch", new TileScreenshotter.TileShotterSettings
+                {
+                    ZoomLevels = 3,
+                    BaseTilesX = 4,
+                    BaseTilesY = 4,
+                    PreProcess = (zoomLevel) =>
+                    {
+                        if (zoomLevel == 0)
+                        {
+                            foreach (GameObject rootObj in SceneManager.GetActiveScene().GetRootGameObjects())
+                            {
+                                if (rootObj.layer == LayerMask.NameToLayer("Roof"))
+                                {
+                                    rootObj.SetActive(false);
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            {
                 "Windwashed", new TileScreenshotter.TileShotterSettings
                 {
                     ZoomLevels = 3,
