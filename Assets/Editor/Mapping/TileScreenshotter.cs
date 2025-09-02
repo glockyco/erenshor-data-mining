@@ -1034,8 +1034,8 @@ public class TileScreenshotter
                 "Tutorial", new TileScreenshotter.TileShotterSettings
                 {
                     ZoomLevels = 4,
-                    OriginX = -192,
-                    OriginY = -192,
+                    OriginX = -280,
+                    OriginY = -200,
                     BaseTilesX = 2,
                     BaseTilesY = 2,
                     PreProcess = (zoomLevel) =>
@@ -1044,38 +1044,9 @@ public class TileScreenshotter
                         {
                             foreach (GameObject obj in SceneManager.GetActiveScene().GetRootGameObjects())
                             {
-                                if (obj.name.StartsWith("SM_Env_Ceiling_Stone_Flat_06"))
-                                {
-                                    obj.SetActive(false);
-                                }
-                                if (obj.name.StartsWith("SM_Env_Cave_Roof_01_DoubleSided"))
-                                {
-                                    obj.SetActive(false);
-                                }
-                                if (obj.name.StartsWith("SM_Env_Cave_Large_01 ("))
-                                {
-                                    obj.SetActive(false);
-                                }
                                 if (obj.layer == LayerMask.NameToLayer("Roof"))
                                 {
                                     obj.SetActive(false);
-                                }
-                            }
-                        }
-                        else if (zoomLevel == 3)
-                        {
-                            foreach (GameObject obj in SceneManager.GetActiveScene().GetRootGameObjects())
-                            {
-                                if (obj.name.Contains("Occuphage"))
-                                {
-                                    obj.SetActive(false);
-                                }
-                                if (obj.transform.position.x > 75f && obj.transform.position.y > 0f && obj.transform.position.z > 100f)
-                                {
-                                    if (obj.name.StartsWith("SM_"))
-                                    {
-                                        obj.SetActive(false);
-                                    }
                                 }
                             }
                         }
