@@ -20,8 +20,9 @@ public class TeleportLocListener : IAssetScanListener<Object>
         _db.DeleteAll<TeleportRecord>();
 
         InsertTeleport("Azure", 10.8f, 29.4f, 335.2f, "5016816");
-        InsertTeleport("Silkengrass", 188.5f, 63.52f, 712.92f, "71979710");
         InsertTeleport("Braxonian", 382.6f, 49.3f, 878f, "2096280");
+        InsertTeleport("Hidden", 9.34f, 1f, -114.33f, "36740470");
+        InsertTeleport("Silkengrass", 188.5f, 63.52f, 712.92f, "71979710");
         InsertTeleport("Soluna", 225f, 77f, 249f, "5388624");
         InsertTeleport("Ripper", 572f, 54.4f, 293f, "2810120");
         
