@@ -1111,7 +1111,7 @@ public class TileScreenshotter
                 {
                     ZoomLevels = 3,
                     OriginX = 0,
-                    OriginY = 0,
+                    OriginY = -30,
                     BaseTilesX = 3,
                     BaseTilesY = 3,
                     PreProcess = (zoomLevel) =>
