@@ -74,7 +74,17 @@ public class TileScreenshotter
                     BaseTilesY = 3,
                     PreProcess = (zoomLevel) =>
                     {
-                        if (zoomLevel == 1)
+                        if (zoomLevel == 0)
+                        {
+                            foreach (GameObject obj in SceneManager.GetActiveScene().GetRootGameObjects())
+                            {
+                                if (obj.layer == LayerMask.NameToLayer("Roof"))
+                                {
+                                    obj.SetActive(false);
+                                }
+                            }
+                        }
+                        else if (zoomLevel == 1)
                         {
                             string[] objNames =
                             {
