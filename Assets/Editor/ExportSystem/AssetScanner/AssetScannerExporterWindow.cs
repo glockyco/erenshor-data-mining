@@ -27,6 +27,7 @@ public class AssetScannerExporterWindow : EditorWindow
     private bool _exportClasses = true;
     private bool _exportDoors = true;
     private bool _exportForges = true;
+    private bool _exportItemBags = true;
     private bool _exportItems = true;
     private bool _exportLootTables = true;
     private bool _exportMiningNodes = true;
@@ -144,6 +145,7 @@ public class AssetScannerExporterWindow : EditorWindow
         _exportClasses = EditorGUILayout.ToggleLeft("Classes", _exportClasses);
         _exportDoors = EditorGUILayout.ToggleLeft("Doors", _exportDoors);
         _exportForges = EditorGUILayout.ToggleLeft("Forges", _exportForges);
+        _exportItemBags = EditorGUILayout.ToggleLeft("Item Bags", _exportItemBags);
         _exportItems = EditorGUILayout.ToggleLeft("Items", _exportItems);
         _exportLootTables = EditorGUILayout.ToggleLeft("Loot Drops", _exportLootTables);
         _exportMiningNodes = EditorGUILayout.ToggleLeft("Mining Nodes", _exportMiningNodes);
@@ -173,6 +175,7 @@ public class AssetScannerExporterWindow : EditorWindow
         _exportClasses = value;
         _exportDoors = value;
         _exportForges = value;
+        _exportItemBags = value;
         _exportItems = value;
         _exportLootTables = value;
         _exportMiningNodes = value;
@@ -224,6 +227,7 @@ public class AssetScannerExporterWindow : EditorWindow
         if (_exportAchievementTriggers) _activeScanner.RegisterComponentListener(new AchievementTriggerListener(_db));
         if (_exportDoors) _activeScanner.RegisterComponentListener(new DoorListener(_db));
         if (_exportForges) _activeScanner.RegisterComponentListener(new ForgeListener(_db));
+        if (_exportItemBags) _activeScanner.RegisterComponentListener(new ItemBagListener(_db));
         if (_exportLootTables) _activeScanner.RegisterComponentListener(new LootTableListener(_db));
         if (_exportMiningNodes) _activeScanner.RegisterComponentListener(new MiningNodeListener(_db));
         if (_exportSpawnPoints) _activeScanner.RegisterComponentListener(new SpawnPointListener(_db));
@@ -272,6 +276,7 @@ public class AssetScannerExporterWindow : EditorWindow
             _exportDoors ||
             _exportForges ||
             _exportWorldFactions ||
+            _exportItemBags ||
             _exportItems ||
             _exportLootTables ||
             _exportMiningNodes ||

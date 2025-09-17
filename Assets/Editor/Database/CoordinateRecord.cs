@@ -37,13 +37,16 @@ public class CoordinateRecord
     public int? WaterId { get; set; }
     [Indexed]
     public int? ZoneLineId { get; set; }
-    
+    [Indexed]
+    public int? ItemBagId { get; set; }
+
     public enum CoordinateCategory
     {
         AchievementTrigger,
         Character,
         Door,
         Forge,
+        ItemBag,
         MiningNode,
         SecretPassage,
         SpawnPoint,
