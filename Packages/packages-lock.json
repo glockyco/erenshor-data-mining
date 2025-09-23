@@ -5,7 +5,7 @@
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "fe31ad0904abee296b5ea72c6073157accba59e8"
+      "hash": "9d51dfcc84cad2ccc5ea1833b5f33e073ce2ac56"
     },
     "com.unity.ext.nunit": {
       "version": "1.0.6",
@@ -15,7 +15,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.ide.rider": {
-      "version": "3.0.36",
+      "version": "3.0.37",
       "depth": 0,
       "source": "registry",
       "dependencies": {
