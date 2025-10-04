@@ -59,6 +59,6 @@ public class CoordinateRecord
 
     public CoordinateRecord()
     {
-        Id = TableIdGenerator.NextId(SecretPassageRecord.TableName);
+        Id = TableIdGenerator.NextId(TableName);
     }
 }

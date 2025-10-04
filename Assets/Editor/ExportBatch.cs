@@ -103,6 +103,13 @@ public static class ExportBatch
             Debug.LogError($"[EXPORT_ERROR] Export failed after {totalStopwatch.Elapsed.TotalSeconds:F2}s: {ex.Message}");
             Debug.LogError($"[EXPORT_STACKTRACE] {ex.StackTrace}");
 
+            // Log inner exception if present
+            if (ex.InnerException != null)
+            {
+                Debug.LogError($"[EXPORT_INNER_ERROR] {ex.InnerException.Message}");
+                Debug.LogError($"[EXPORT_INNER_STACKTRACE] {ex.InnerException.StackTrace}");
+            }
+
             // Exit with error code
             EditorApplication.Exit(1);
         }
@@ -143,10 +150,15 @@ public static class ExportBatch
                     break;
 
                 case "-entities":
-                    string[] entities = args[i + 1].Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                    foreach (string entity in entities)
+                    string entitiesArg = args[i + 1].Trim().ToLowerInvariant();
+                    // Special case: "all" means export all entity types (leave set empty)
+                    if (entitiesArg != "all")
                     {
-                        result.entityTypes.Add(entity.Trim().ToLowerInvariant());
+                        string[] entities = entitiesArg.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        foreach (string entity in entities)
+                        {
+                            result.entityTypes.Add(entity.Trim());
+                        }
                     }
                     i++;
                     break;

@@ -13,6 +13,18 @@ public class CharacterListener : IAssetScanListener<Character>
     private readonly List<CoordinateRecord> _coordinateRecords = new();
     private readonly List<CharacterRecord> _characterRecords = new();
     private readonly List<CharacterDialogRecord> _characterDialogRecords = new();
+    private readonly List<CharacterAttackSkillRecord> _characterAttackSkillRecords = new();
+    private readonly List<CharacterAttackSpellRecord> _characterAttackSpellRecords = new();
+    private readonly List<CharacterBuffSpellRecord> _characterBuffSpellRecords = new();
+    private readonly List<CharacterHealSpellRecord> _characterHealSpellRecords = new();
+    private readonly List<CharacterGroupHealSpellRecord> _characterGroupHealSpellRecords = new();
+    private readonly List<CharacterCCSpellRecord> _characterCCSpellRecords = new();
+    private readonly List<CharacterTauntSpellRecord> _characterTauntSpellRecords = new();
+
+    // Store ability IDs (not NPC references) for deferred junction record creation
+    private readonly List<(int characterId, List<string> attackSkillIds, List<string> attackSpellIds, List<string> buffSpellIds, List<string> healSpellIds, List<string> groupHealSpellIds, List<string> ccSpellIds, List<string> tauntSpellIds)> _npcAbilityData = new();
+    private Dictionary<string, int>? _spellIdToDbIndexCache = null;
+    private Dictionary<string, int>? _skillIdToDbIndexCache = null;
 
     public CharacterListener(SQLiteConnection db)
     {
@@ -35,11 +47,67 @@ public class CharacterListener : IAssetScanListener<Character>
             _db.InsertAll(_characterRecords);
             _db.InsertAll(_characterDialogRecords);
         });
-        
+
         _coordinateRecords.Clear();
         _characterRecords.Clear();
         _characterDialogRecords.Clear();
-        
+
+        // Populate FK lookup caches (SpellRecord/SkillRecord tables are now populated if their entities were exported)
+        _spellIdToDbIndexCache = TableExists<SpellRecord>()
+            ? _db.Table<SpellRecord>().ToDictionary(s => s.Id, s => s.SpellDBIndex)
+            : new Dictionary<string, int>();
+        _skillIdToDbIndexCache = TableExists<SkillRecord>()
+            ? _db.Table<SkillRecord>().ToDictionary(s => s.Id, s => s.SkillDBIndex)
+            : new Dictionary<string, int>();
+
+        // Process saved ability data to create junction records
+        foreach (var (characterId, attackSkillIds, attackSpellIds, buffSpellIds, healSpellIds, groupHealSpellIds, ccSpellIds, tauntSpellIds) in _npcAbilityData)
+        {
+            _characterAttackSkillRecords.AddRange(CreateCharacterAttackSkillRecords(characterId, attackSkillIds));
+            _characterAttackSpellRecords.AddRange(CreateCharacterAttackSpellRecords(characterId, attackSpellIds));
+            _characterBuffSpellRecords.AddRange(CreateCharacterBuffSpellRecords(characterId, buffSpellIds));
+            _characterHealSpellRecords.AddRange(CreateCharacterHealSpellRecords(characterId, healSpellIds));
+            _characterGroupHealSpellRecords.AddRange(CreateCharacterGroupHealSpellRecords(characterId, groupHealSpellIds));
+            _characterCCSpellRecords.AddRange(CreateCharacterCCSpellRecords(characterId, ccSpellIds));
+            _characterTauntSpellRecords.AddRange(CreateCharacterTauntSpellRecords(characterId, tauntSpellIds));
+        }
+
+        _db.CreateTable<CharacterAttackSkillRecord>();
+        _db.CreateTable<CharacterAttackSpellRecord>();
+        _db.CreateTable<CharacterBuffSpellRecord>();
+        _db.CreateTable<CharacterHealSpellRecord>();
+        _db.CreateTable<CharacterGroupHealSpellRecord>();
+        _db.CreateTable<CharacterCCSpellRecord>();
+        _db.CreateTable<CharacterTauntSpellRecord>();
+
+        _db.RunInTransaction(() =>
+        {
+            _db.DeleteAll<CharacterAttackSkillRecord>();
+            _db.DeleteAll<CharacterAttackSpellRecord>();
+            _db.DeleteAll<CharacterBuffSpellRecord>();
+            _db.DeleteAll<CharacterHealSpellRecord>();
+            _db.DeleteAll<CharacterGroupHealSpellRecord>();
+            _db.DeleteAll<CharacterCCSpellRecord>();
+            _db.DeleteAll<CharacterTauntSpellRecord>();
+
+            _db.InsertAll(_characterAttackSkillRecords);
+            _db.InsertAll(_characterAttackSpellRecords);
+            _db.InsertAll(_characterBuffSpellRecords);
+            _db.InsertAll(_characterHealSpellRecords);
+            _db.InsertAll(_characterGroupHealSpellRecords);
+            _db.InsertAll(_characterCCSpellRecords);
+            _db.InsertAll(_characterTauntSpellRecords);
+        });
+
+        _characterAttackSkillRecords.Clear();
+        _characterAttackSpellRecords.Clear();
+        _characterBuffSpellRecords.Clear();
+        _characterHealSpellRecords.Clear();
+        _characterGroupHealSpellRecords.Clear();
+        _characterCCSpellRecords.Clear();
+        _characterTauntSpellRecords.Clear();
+        _npcAbilityData.Clear();
+
         _db.Execute(@"
             UPDATE Characters
             SET IsCommon = 1
@@ -90,8 +158,6 @@ public class CharacterListener : IAssetScanListener<Character>
             return;
         }
 
-        Debug.Log($"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
-
         var coordinateRecord = CreateCoordinateRecord(asset);
         var characterRecord = CreateCharacterRecord(asset, coordinateRecord?.Id);
         _characterRecords.Add(characterRecord);
@@ -113,6 +179,22 @@ public class CharacterListener : IAssetScanListener<Character>
                 i++;
             }
             _characterDialogRecords.AddRange(dialogRecords);
+        }
+
+        var npc = asset.GetComponent<NPC>();
+        if (npc != null)
+        {
+            // Extract ability IDs NOW (while assets are loaded) for deferred junction record creation
+            // (FK resolution must happen in OnScanFinished after Spell/Skill tables are populated)
+            var attackSkillIds = npc.MyAttackSkills?.Where(s => s != null && !string.IsNullOrEmpty(s.Id)).Select(s => s.Id).ToList() ?? new List<string>();
+            var attackSpellIds = npc.MyAttackSpells?.Where(s => s != null && !string.IsNullOrEmpty(s.Id)).Select(s => s.Id).ToList() ?? new List<string>();
+            var buffSpellIds = npc.MyBuffSpells?.Where(s => s != null && !string.IsNullOrEmpty(s.Id)).Select(s => s.Id).ToList() ?? new List<string>();
+            var healSpellIds = npc.MyHealSpells?.Where(s => s != null && !string.IsNullOrEmpty(s.Id)).Select(s => s.Id).ToList() ?? new List<string>();
+            var groupHealSpellIds = npc.GroupHeals?.Where(s => s != null && !string.IsNullOrEmpty(s.Id)).Select(s => s.Id).ToList() ?? new List<string>();
+            var ccSpellIds = npc.MyCCSpells?.Where(s => s != null && !string.IsNullOrEmpty(s.Id)).Select(s => s.Id).ToList() ?? new List<string>();
+            var tauntSpellIds = npc.MyTauntSpell?.Where(s => s != null && !string.IsNullOrEmpty(s.Id)).Select(s => s.Id).ToList() ?? new List<string>();
+
+            _npcAbilityData.Add((characterRecord.Id, attackSkillIds, attackSpellIds, buffSpellIds, healSpellIds, groupHealSpellIds, ccSpellIds, tauntSpellIds));
         }
     }
 
@@ -365,5 +447,140 @@ public class CharacterListener : IAssetScanListener<Character>
             RequiredQuestDBName = dialog.RequireQuestComplete?.DBName,
             SpawnName = dialog.Spawn != null ? dialog.Spawn.name : null,
         };
+    }
+
+    private List<CharacterAttackSkillRecord> CreateCharacterAttackSkillRecords(int characterId, List<string> skillIds)
+    {
+        return CreateJunctionRecords(
+            skillIds,
+            LookupSkillDbIndex,
+            (cId, sId) => new CharacterAttackSkillRecord { CharacterId = cId, SkillId = sId },
+            characterId
+        );
+    }
+
+    private List<CharacterAttackSpellRecord> CreateCharacterAttackSpellRecords(int characterId, List<string> spellIds)
+    {
+        return CreateJunctionRecords(
+            spellIds,
+            LookupSpellDbIndex,
+            (cId, sId) => new CharacterAttackSpellRecord { CharacterId = cId, SpellId = sId },
+            characterId
+        );
+    }
+
+    private List<CharacterBuffSpellRecord> CreateCharacterBuffSpellRecords(int characterId, List<string> spellIds)
+    {
+        return CreateJunctionRecords(
+            spellIds,
+            LookupSpellDbIndex,
+            (cId, sId) => new CharacterBuffSpellRecord { CharacterId = cId, SpellId = sId },
+            characterId
+        );
+    }
+
+    private List<CharacterHealSpellRecord> CreateCharacterHealSpellRecords(int characterId, List<string> spellIds)
+    {
+        return CreateJunctionRecords(
+            spellIds,
+            LookupSpellDbIndex,
+            (cId, sId) => new CharacterHealSpellRecord { CharacterId = cId, SpellId = sId },
+            characterId
+        );
+    }
+
+    private List<CharacterGroupHealSpellRecord> CreateCharacterGroupHealSpellRecords(int characterId, List<string> spellIds)
+    {
+        return CreateJunctionRecords(
+            spellIds,
+            LookupSpellDbIndex,
+            (cId, sId) => new CharacterGroupHealSpellRecord { CharacterId = cId, SpellId = sId },
+            characterId
+        );
+    }
+
+    private List<CharacterCCSpellRecord> CreateCharacterCCSpellRecords(int characterId, List<string> spellIds)
+    {
+        return CreateJunctionRecords(
+            spellIds,
+            LookupSpellDbIndex,
+            (cId, sId) => new CharacterCCSpellRecord { CharacterId = cId, SpellId = sId },
+            characterId
+        );
+    }
+
+    private List<CharacterTauntSpellRecord> CreateCharacterTauntSpellRecords(int characterId, List<string> spellIds)
+    {
+        return CreateJunctionRecords(
+            spellIds,
+            LookupSpellDbIndex,
+            (cId, sId) => new CharacterTauntSpellRecord { CharacterId = cId, SpellId = sId },
+            characterId
+        );
+    }
+
+    /// <summary>
+    /// Generic helper method to create junction table records with deduplication.
+    /// Converts ability IDs to database indexes, deduplicates by database index, and creates records.
+    /// </summary>
+    /// <param name="abilityIds">List of ability IDs (spell or skill IDs from Unity assets)</param>
+    /// <param name="lookupFunc">Function to convert ability ID to database index</param>
+    /// <param name="recordFactory">Function to create a junction record given characterId and abilityDbIndex</param>
+    /// <param name="characterId">The character's database ID</param>
+    /// <returns>List of junction records with duplicate ability references removed</returns>
+    private List<T> CreateJunctionRecords<T>(
+        List<string> abilityIds,
+        System.Func<string, int> lookupFunc,
+        System.Func<int, int, T> recordFactory,
+        int characterId)
+    {
+        var records = new List<T>();
+        var seenDbIndexes = new HashSet<int>();
+
+        foreach (var abilityId in abilityIds)
+        {
+            var dbIndex = lookupFunc(abilityId);
+            if (seenDbIndexes.Add(dbIndex))
+            {
+                records.Add(recordFactory(characterId, dbIndex));
+            }
+        }
+
+        return records;
+    }
+
+    /// <summary>
+    /// Checks if a database table exists for the given record type.
+    /// Converts record class name to table name (e.g., "SpellRecord" -> "Spells").
+    /// </summary>
+    private bool TableExists<T>() where T : new()
+    {
+        var tableName = typeof(T).Name.Replace("Record", "s");
+        var result = _db.ExecuteScalar<int>("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=?", tableName);
+        return result > 0;
+    }
+
+    private int LookupSpellDbIndex(string spellId)
+    {
+        // Cache is populated in OnScanFinished before this method is called
+        if (_spellIdToDbIndexCache!.TryGetValue(spellId, out int dbIndex))
+        {
+            return dbIndex;
+        }
+
+        Debug.LogWarning($"[CharacterListener] Spell ID '{spellId}' not found in SpellRecord table");
+        return -1; // Invalid FK - will be visible in data
+    }
+
+    private int LookupSkillDbIndex(string skillId)
+    {
+        // Cache is populated in OnScanFinished before this method is called
+        if (_skillIdToDbIndexCache!.TryGetValue(skillId, out int dbIndex))
+        {
+            return dbIndex;
+        }
+
+        Debug.LogWarning($"[CharacterListener] Skill ID '{skillId}' not found in SkillRecord table");
+        return -1; // Invalid FK - will be visible in data
     }
 }

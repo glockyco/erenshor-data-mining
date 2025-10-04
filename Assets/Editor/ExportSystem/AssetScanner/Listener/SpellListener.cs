@@ -10,6 +10,7 @@ public class SpellListener : IAssetScanListener<Spell>
 {
     private readonly SQLiteConnection _db;
     private readonly List<SpellRecord> _records = new();
+    private readonly List<SpellClassRecord> _spellClassRecords = new();
 
     public SpellListener(SQLiteConnection db)
     {
@@ -19,22 +20,27 @@ public class SpellListener : IAssetScanListener<Spell>
     public void OnScanFinished()
     {
         _db.CreateTable<SpellRecord>();
+        _db.CreateTable<SpellClassRecord>();
+
         _db.RunInTransaction(() =>
         {
             _db.DeleteAll<SpellRecord>();
+            _db.DeleteAll<SpellClassRecord>();
+
             _db.InsertAll(_records);
+            _db.InsertAll(_spellClassRecords);
         });
         _records.Clear();
+        _spellClassRecords.Clear();
     }
 
     public void OnAssetFound(Spell asset)
     {
-        Debug.Log($"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
-        
         var record = CreateRecord(asset, _records.Count);
         if (record != null)
         {
             _records.Add(record);
+            _spellClassRecords.AddRange(CreateSpellClassRecords(asset, _records.Count - 1));
         }
     }
 
@@ -165,5 +171,27 @@ public class SpellListener : IAssetScanListener<Spell>
             // --- Internals ---
             ResourceName = spell.name,
         };
+    }
+
+    private List<SpellClassRecord> CreateSpellClassRecords(Spell spell, int spellDbIndex)
+    {
+        var records = new List<SpellClassRecord>();
+
+        if (spell.UsedBy is { Count: > 0 })
+        {
+            foreach (var characterClass in spell.UsedBy)
+            {
+                if (characterClass != null && !string.IsNullOrEmpty(characterClass.ClassName))
+                {
+                    records.Add(new SpellClassRecord
+                    {
+                        SpellId = spellDbIndex,
+                        ClassName = characterClass.ClassName
+                    });
+                }
+            }
+        }
+
+        return records;
     }
 }

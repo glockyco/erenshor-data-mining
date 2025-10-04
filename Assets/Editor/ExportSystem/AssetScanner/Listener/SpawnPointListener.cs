@@ -43,8 +43,6 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
 
     public void OnAssetFound(SpawnPoint asset)
     {
-        Debug.Log($"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
-
         var coordinateRecord = CreateCoordinateRecord(asset);
         var spawnPointRecord = CreateSpawnPointRecord(asset, coordinateRecord.Id);
         coordinateRecord.SpawnPointId = spawnPointRecord.Id;

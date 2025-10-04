@@ -12,6 +12,7 @@ public class ItemListener : IAssetScanListener<Item>
     private readonly SQLiteConnection _db;
     private readonly List<ItemRecord> _itemRecords = new();
     private readonly List<ItemStatsRecord> _itemStatsRecords = new();
+    private readonly List<ItemClassRecord> _itemClassRecords = new();
 
     private readonly WikiFancyWeaponFactory _weaponFactory;
     private readonly WikiFancyArmorFactory _armorFactory;
@@ -58,25 +59,28 @@ public class ItemListener : IAssetScanListener<Item>
         {
             _db.DropTable<ItemRecord>();
             _db.DropTable<ItemStatsRecord>();
-            
+            _db.DropTable<ItemClassRecord>();
+
             _db.CreateTable<ItemRecord>();
             _db.CreateTable<ItemStatsRecord>();
-            
+            _db.CreateTable<ItemClassRecord>();
+
             _db.InsertAll(_itemRecords);
             _db.InsertAll(_itemStatsRecords);
+            _db.InsertAll(_itemClassRecords);
         });
         _itemRecords.Clear();
         _itemStatsRecords.Clear();
+        _itemClassRecords.Clear();
     }
 
     public void OnAssetFound(Item asset)
     {
-        Debug.Log($"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
-
         int itemDbIndex = _itemRecords.Select(r => r.ItemDBIndex).Distinct().Count();
 
         _itemRecords.Add(CreateItemRecord(asset, itemDbIndex));
         _itemStatsRecords.AddRange(CreateItemStatsRecords(asset));
+        _itemClassRecords.AddRange(CreateItemClassRecords(asset));
     }
 
     private ItemRecord CreateItemRecord(Item item, int itemDbIndex)
@@ -319,5 +323,27 @@ public class ItemListener : IAssetScanListener<Item>
         }
 
         return itemStatsRecords;
+    }
+
+    private List<ItemClassRecord> CreateItemClassRecords(Item item)
+    {
+        var records = new List<ItemClassRecord>();
+
+        if (item.Classes != null && item.Classes.Count > 0)
+        {
+            foreach (var characterClass in item.Classes)
+            {
+                if (characterClass != null && !string.IsNullOrEmpty(characterClass.name))
+                {
+                    records.Add(new ItemClassRecord
+                    {
+                        ItemId = item.Id,
+                        ClassName = characterClass.name
+                    });
+                }
+            }
+        }
+
+        return records;
     }
 }
