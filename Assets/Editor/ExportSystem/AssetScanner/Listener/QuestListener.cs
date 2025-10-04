@@ -11,6 +11,7 @@ public class QuestListener : IAssetScanListener<Quest>
     private readonly List<QuestRecord> _records = new();
     private readonly List<QuestRequiredItemRecord> _questRequiredItemRecords = new();
     private readonly List<QuestFactionAffectRecord> _questFactionAffectRecords = new();
+    private readonly List<QuestRewardRecord> _questRewardRecords = new();
 
     public QuestListener(SQLiteConnection db)
     {
@@ -30,25 +31,28 @@ public class QuestListener : IAssetScanListener<Quest>
         // Create and insert junction table records after parent records are inserted
         _db.CreateTable<QuestRequiredItemRecord>();
         _db.CreateTable<QuestFactionAffectRecord>();
+        _db.CreateTable<QuestRewardRecord>();
         _db.RunInTransaction(() =>
         {
             _db.DeleteAll<QuestRequiredItemRecord>();
             _db.DeleteAll<QuestFactionAffectRecord>();
+            _db.DeleteAll<QuestRewardRecord>();
             _db.InsertAll(_questRequiredItemRecords);
             _db.InsertAll(_questFactionAffectRecords);
+            _db.InsertAll(_questRewardRecords);
         });
         _questRequiredItemRecords.Clear();
         _questFactionAffectRecords.Clear();
+        _questRewardRecords.Clear();
     }
 
     public void OnAssetFound(Quest asset)
     {
-        Debug.Log($"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
-
         var questRecord = CreateRecord(asset, _records.Count);
         _records.Add(questRecord);
         _questRequiredItemRecords.AddRange(CreateQuestRequiredItemRecords(questRecord.QuestDBIndex, asset));
         _questFactionAffectRecords.AddRange(CreateQuestFactionAffectRecords(questRecord.QuestDBIndex, asset));
+        _questRewardRecords.AddRange(CreateQuestRewardRecords(questRecord.QuestDBIndex, asset));
     }
 
     private QuestRecord CreateRecord(Quest quest, int questDbIndex)
@@ -165,6 +169,62 @@ public class QuestListener : IAssetScanListener<Quest>
                         ModifierValue = (int)amount
                     });
                 }
+            }
+        }
+
+        return records;
+    }
+
+    private List<QuestRewardRecord> CreateQuestRewardRecords(int questDbIndex, Quest quest)
+    {
+        var records = new List<QuestRewardRecord>();
+        var seenRewards = new HashSet<(string RewardType, string RewardValue)>();
+
+        // XP Reward
+        if (quest.XPonComplete > 0)
+        {
+            var reward = ("XP", quest.XPonComplete.ToString());
+            if (seenRewards.Add(reward))
+            {
+                records.Add(new QuestRewardRecord
+                {
+                    QuestId = questDbIndex,
+                    RewardType = "XP",
+                    RewardValue = quest.XPonComplete.ToString(),
+                    Quantity = quest.XPonComplete
+                });
+            }
+        }
+
+        // Gold Reward
+        if (quest.GoldOnComplete > 0)
+        {
+            var reward = ("Gold", quest.GoldOnComplete.ToString());
+            if (seenRewards.Add(reward))
+            {
+                records.Add(new QuestRewardRecord
+                {
+                    QuestId = questDbIndex,
+                    RewardType = "Gold",
+                    RewardValue = quest.GoldOnComplete.ToString(),
+                    Quantity = quest.GoldOnComplete
+                });
+            }
+        }
+
+        // Item Reward
+        if (quest.ItemOnComplete != null && !string.IsNullOrEmpty(quest.ItemOnComplete.Id))
+        {
+            var reward = ("Item", quest.ItemOnComplete.Id);
+            if (seenRewards.Add(reward))
+            {
+                records.Add(new QuestRewardRecord
+                {
+                    QuestId = questDbIndex,
+                    RewardType = "Item",
+                    RewardValue = quest.ItemOnComplete.Id,
+                    Quantity = 1
+                });
             }
         }
 
