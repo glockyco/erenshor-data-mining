@@ -12,6 +12,7 @@ public class QuestListener : IAssetScanListener<Quest>
     private readonly List<QuestRequiredItemRecord> _questRequiredItemRecords = new();
     private readonly List<QuestFactionAffectRecord> _questFactionAffectRecords = new();
     private readonly List<QuestRewardRecord> _questRewardRecords = new();
+    private readonly List<QuestCompleteOtherQuestRecord> _questCompleteOtherQuestRecords = new();
 
     public QuestListener(SQLiteConnection db)
     {
@@ -32,18 +33,22 @@ public class QuestListener : IAssetScanListener<Quest>
         _db.CreateTable<QuestRequiredItemRecord>();
         _db.CreateTable<QuestFactionAffectRecord>();
         _db.CreateTable<QuestRewardRecord>();
+        _db.CreateTable<QuestCompleteOtherQuestRecord>();
         _db.RunInTransaction(() =>
         {
             _db.DeleteAll<QuestRequiredItemRecord>();
             _db.DeleteAll<QuestFactionAffectRecord>();
             _db.DeleteAll<QuestRewardRecord>();
+            _db.DeleteAll<QuestCompleteOtherQuestRecord>();
             _db.InsertAll(_questRequiredItemRecords);
             _db.InsertAll(_questFactionAffectRecords);
             _db.InsertAll(_questRewardRecords);
+            _db.InsertAll(_questCompleteOtherQuestRecords);
         });
         _questRequiredItemRecords.Clear();
         _questFactionAffectRecords.Clear();
         _questRewardRecords.Clear();
+        _questCompleteOtherQuestRecords.Clear();
     }
 
     public void OnAssetFound(Quest asset)
@@ -53,6 +58,7 @@ public class QuestListener : IAssetScanListener<Quest>
         _questRequiredItemRecords.AddRange(CreateQuestRequiredItemRecords(questRecord.QuestDBIndex, asset));
         _questFactionAffectRecords.AddRange(CreateQuestFactionAffectRecords(questRecord.QuestDBIndex, asset));
         _questRewardRecords.AddRange(CreateQuestRewardRecords(questRecord.QuestDBIndex, asset));
+        _questCompleteOtherQuestRecords.AddRange(CreateQuestCompleteOtherQuestRecords(questRecord.QuestDBIndex, asset));
     }
 
     private QuestRecord CreateRecord(Quest quest, int questDbIndex)
@@ -225,6 +231,29 @@ public class QuestListener : IAssetScanListener<Quest>
                     RewardValue = quest.ItemOnComplete.Id,
                     Quantity = 1
                 });
+            }
+        }
+
+        return records;
+    }
+
+    private List<QuestCompleteOtherQuestRecord> CreateQuestCompleteOtherQuestRecords(int questDbIndex, Quest quest)
+    {
+        var records = new List<QuestCompleteOtherQuestRecord>();
+        var seenDBNames = new HashSet<string>();
+
+        if (quest.CompleteOtherQuests != null && quest.CompleteOtherQuests.Count > 0)
+        {
+            foreach (var otherQuest in quest.CompleteOtherQuests)
+            {
+                if (otherQuest != null && !string.IsNullOrEmpty(otherQuest.DBName) && seenDBNames.Add(otherQuest.DBName))
+                {
+                    records.Add(new QuestCompleteOtherQuestRecord
+                    {
+                        QuestId = questDbIndex,
+                        CompletedQuestDBName = otherQuest.DBName
+                    });
+                }
             }
         }
 
