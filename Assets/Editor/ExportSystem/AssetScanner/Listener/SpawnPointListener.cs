@@ -13,6 +13,8 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
     private readonly List<CoordinateRecord> _coordinateRecords = new();
     private readonly List<SpawnPointRecord> _spawnPointRecords = new();
     private readonly List<SpawnPointCharacterRecord> _spawnPointCharacterRecords = new();
+    private readonly List<SpawnPointStopQuestRecord> _spawnPointStopQuestRecords = new();
+    private readonly List<SpawnPointPatrolPointRecord> _spawnPointPatrolPointRecords = new();
 
     public SpawnPointListener(SQLiteConnection db)
     {
@@ -24,21 +26,34 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
         _db.CreateTable<CoordinateRecord>();
         _db.CreateTable<SpawnPointRecord>();
         _db.CreateTable<SpawnPointCharacterRecord>();
-        
+
         _db.RunInTransaction(() =>
         {
             _db.Execute("DELETE FROM Coordinates WHERE Category = ?", nameof(CoordinateCategory.SpawnPoint));
             _db.DeleteAll<SpawnPointRecord>();
             _db.DeleteAll<SpawnPointCharacterRecord>();
-            
+
             _db.InsertAll(_coordinateRecords);
             _db.InsertAll(_spawnPointRecords);
             _db.InsertAll(_spawnPointCharacterRecords);
         });
-        
+
         _coordinateRecords.Clear();
         _spawnPointRecords.Clear();
         _spawnPointCharacterRecords.Clear();
+
+        // Create and insert junction table records after parent records are inserted
+        _db.CreateTable<SpawnPointStopQuestRecord>();
+        _db.CreateTable<SpawnPointPatrolPointRecord>();
+        _db.RunInTransaction(() =>
+        {
+            _db.DeleteAll<SpawnPointStopQuestRecord>();
+            _db.DeleteAll<SpawnPointPatrolPointRecord>();
+            _db.InsertAll(_spawnPointStopQuestRecords);
+            _db.InsertAll(_spawnPointPatrolPointRecords);
+        });
+        _spawnPointStopQuestRecords.Clear();
+        _spawnPointPatrolPointRecords.Clear();
     }
 
     public void OnAssetFound(SpawnPoint asset)
@@ -46,12 +61,15 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
         var coordinateRecord = CreateCoordinateRecord(asset);
         var spawnPointRecord = CreateSpawnPointRecord(asset, coordinateRecord.Id);
         coordinateRecord.SpawnPointId = spawnPointRecord.Id;
-        
+
         _coordinateRecords.Add(coordinateRecord);
         _spawnPointRecords.Add(spawnPointRecord);
-        
+
         var spawnPointCharacterRecords = CreateSpawnPointCharacterRecords(asset, spawnPointRecord.Id);
         _spawnPointCharacterRecords.AddRange(spawnPointCharacterRecords);
+
+        _spawnPointStopQuestRecords.AddRange(CreateSpawnPointStopQuestRecords(asset, spawnPointRecord.Id));
+        _spawnPointPatrolPointRecords.AddRange(CreateSpawnPointPatrolPointRecords(asset, spawnPointRecord.Id));
     }
 
     private CoordinateRecord CreateCoordinateRecord(SpawnPoint spawnPoint)
@@ -89,7 +107,7 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
             LoopPatrol = spawnPoint.LoopPatrol,
             RandomWanderRange = spawnPoint.RandomWanderRange,
             SpawnUponQuestCompleteDBName = spawnPoint.SpawnUponQuestComplete?.DBName,
-            StopIfQuestCompleteDBNames = spawnPoint.StopIfQuestComplete?.Count > 0 ? string.Join(", ", spawnPoint.StopIfQuestComplete.Where(q => q != null && !string.IsNullOrEmpty(q.DBName)) .Select(q => q.DBName)) : null,
+            StopIfQuestCompleteDBNames = spawnPoint.StopIfQuestComplete?.Count > 0 ? string.Join(", ", spawnPoint.StopIfQuestComplete.Where(q => q != null && !string.IsNullOrEmpty(q.DBName)).Select(q => q.DBName)) : null,
             ProtectorName = (spawnPoint.Protector != null) ? spawnPoint.Protector.name : null,
         };
     }
@@ -156,6 +174,55 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
                 IsCommon = kvp.Value.isCommon,
                 IsRare = kvp.Value.isRare,
             });
+        }
+
+        return records;
+    }
+
+    private List<SpawnPointStopQuestRecord> CreateSpawnPointStopQuestRecords(SpawnPoint spawnPoint, int spawnPointId)
+    {
+        var records = new List<SpawnPointStopQuestRecord>();
+        var seenDBNames = new HashSet<string>();
+
+        if (spawnPoint.StopIfQuestComplete != null && spawnPoint.StopIfQuestComplete.Count > 0)
+        {
+            foreach (var quest in spawnPoint.StopIfQuestComplete)
+            {
+                if (quest != null && !string.IsNullOrEmpty(quest.DBName) && seenDBNames.Add(quest.DBName))
+                {
+                    records.Add(new SpawnPointStopQuestRecord
+                    {
+                        SpawnPointId = spawnPointId,
+                        QuestDBName = quest.DBName
+                    });
+                }
+            }
+        }
+
+        return records;
+    }
+
+    private List<SpawnPointPatrolPointRecord> CreateSpawnPointPatrolPointRecords(SpawnPoint spawnPoint, int spawnPointId)
+    {
+        var records = new List<SpawnPointPatrolPointRecord>();
+
+        if (spawnPoint.PatrolPoints != null && spawnPoint.PatrolPoints.Count > 0)
+        {
+            for (int i = 0; i < spawnPoint.PatrolPoints.Count; i++)
+            {
+                var patrolPoint = spawnPoint.PatrolPoints[i];
+                if (patrolPoint != null)
+                {
+                    records.Add(new SpawnPointPatrolPointRecord
+                    {
+                        SpawnPointId = spawnPointId,
+                        SequenceIndex = i,
+                        X = patrolPoint.position.x,
+                        Y = patrolPoint.position.y,
+                        Z = patrolPoint.position.z
+                    });
+                }
+            }
         }
 
         return records;

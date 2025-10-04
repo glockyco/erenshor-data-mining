@@ -13,6 +13,8 @@ public class ItemListener : IAssetScanListener<Item>
     private readonly List<ItemRecord> _itemRecords = new();
     private readonly List<ItemStatsRecord> _itemStatsRecords = new();
     private readonly List<ItemClassRecord> _itemClassRecords = new();
+    private readonly List<ItemTemplateIngredientRecord> _itemTemplateIngredientRecords = new();
+    private readonly List<ItemTemplateRewardRecord> _itemTemplateRewardRecords = new();
 
     private readonly WikiFancyWeaponFactory _weaponFactory;
     private readonly WikiFancyArmorFactory _armorFactory;
@@ -72,6 +74,21 @@ public class ItemListener : IAssetScanListener<Item>
         _itemRecords.Clear();
         _itemStatsRecords.Clear();
         _itemClassRecords.Clear();
+
+        // Create and insert junction table records after parent records are inserted
+        _db.CreateTable<ItemTemplateIngredientRecord>();
+        _db.CreateTable<ItemTemplateRewardRecord>();
+
+        _db.RunInTransaction(() =>
+        {
+            _db.DeleteAll<ItemTemplateIngredientRecord>();
+            _db.DeleteAll<ItemTemplateRewardRecord>();
+
+            _db.InsertAll(_itemTemplateIngredientRecords);
+            _db.InsertAll(_itemTemplateRewardRecords);
+        });
+        _itemTemplateIngredientRecords.Clear();
+        _itemTemplateRewardRecords.Clear();
     }
 
     public void OnAssetFound(Item asset)
@@ -81,6 +98,8 @@ public class ItemListener : IAssetScanListener<Item>
         _itemRecords.Add(CreateItemRecord(asset, itemDbIndex));
         _itemStatsRecords.AddRange(CreateItemStatsRecords(asset));
         _itemClassRecords.AddRange(CreateItemClassRecords(asset));
+        _itemTemplateIngredientRecords.AddRange(CreateItemTemplateIngredientRecords(asset));
+        _itemTemplateRewardRecords.AddRange(CreateItemTemplateRewardRecords(asset));
     }
 
     private ItemRecord CreateItemRecord(Item item, int itemDbIndex)
@@ -339,6 +358,52 @@ public class ItemListener : IAssetScanListener<Item>
                     {
                         ItemId = item.Id,
                         ClassName = characterClass.name
+                    });
+                }
+            }
+        }
+
+        return records;
+    }
+
+    private List<ItemTemplateIngredientRecord> CreateItemTemplateIngredientRecords(Item item)
+    {
+        var records = new List<ItemTemplateIngredientRecord>();
+        var seenIds = new HashSet<string>();
+
+        if (item.TemplateIngredients != null && item.TemplateIngredients.Count > 0)
+        {
+            foreach (var ingredient in item.TemplateIngredients)
+            {
+                if (ingredient != null && !string.IsNullOrEmpty(ingredient.Id) && seenIds.Add(ingredient.Id))
+                {
+                    records.Add(new ItemTemplateIngredientRecord
+                    {
+                        ItemId = item.Id,
+                        IngredientItemId = ingredient.Id
+                    });
+                }
+            }
+        }
+
+        return records;
+    }
+
+    private List<ItemTemplateRewardRecord> CreateItemTemplateRewardRecords(Item item)
+    {
+        var records = new List<ItemTemplateRewardRecord>();
+        var seenIds = new HashSet<string>();
+
+        if (item.TemplateRewards != null && item.TemplateRewards.Count > 0)
+        {
+            foreach (var reward in item.TemplateRewards)
+            {
+                if (reward != null && !string.IsNullOrEmpty(reward.Id) && seenIds.Add(reward.Id))
+                {
+                    records.Add(new ItemTemplateRewardRecord
+                    {
+                        ItemId = item.Id,
+                        RewardItemId = reward.Id
                     });
                 }
             }

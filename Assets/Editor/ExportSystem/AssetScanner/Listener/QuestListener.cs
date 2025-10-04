@@ -9,6 +9,8 @@ public class QuestListener : IAssetScanListener<Quest>
 {
     private readonly SQLiteConnection _db;
     private readonly List<QuestRecord> _records = new();
+    private readonly List<QuestRequiredItemRecord> _questRequiredItemRecords = new();
+    private readonly List<QuestFactionAffectRecord> _questFactionAffectRecords = new();
 
     public QuestListener(SQLiteConnection db)
     {
@@ -24,13 +26,29 @@ public class QuestListener : IAssetScanListener<Quest>
             _db.InsertAll(_records);
         });
         _records.Clear();
+
+        // Create and insert junction table records after parent records are inserted
+        _db.CreateTable<QuestRequiredItemRecord>();
+        _db.CreateTable<QuestFactionAffectRecord>();
+        _db.RunInTransaction(() =>
+        {
+            _db.DeleteAll<QuestRequiredItemRecord>();
+            _db.DeleteAll<QuestFactionAffectRecord>();
+            _db.InsertAll(_questRequiredItemRecords);
+            _db.InsertAll(_questFactionAffectRecords);
+        });
+        _questRequiredItemRecords.Clear();
+        _questFactionAffectRecords.Clear();
     }
 
     public void OnAssetFound(Quest asset)
     {
         Debug.Log($"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
 
-        _records.Add(CreateRecord(asset, _records.Count));
+        var questRecord = CreateRecord(asset, _records.Count);
+        _records.Add(questRecord);
+        _questRequiredItemRecords.AddRange(CreateQuestRequiredItemRecords(questRecord.QuestDBIndex, asset));
+        _questFactionAffectRecords.AddRange(CreateQuestFactionAffectRecords(questRecord.QuestDBIndex, asset));
     }
 
     private QuestRecord CreateRecord(Quest quest, int questDbIndex)
@@ -94,5 +112,62 @@ public class QuestListener : IAssetScanListener<Quest>
             DBName = quest.DBName,
             ResourceName = quest.name,
         };
+    }
+
+    private List<QuestRequiredItemRecord> CreateQuestRequiredItemRecords(int questDbIndex, Quest quest)
+    {
+        var records = new List<QuestRequiredItemRecord>();
+        var seenIds = new HashSet<string>();
+
+        if (quest.RequiredItems != null && quest.RequiredItems.Count > 0)
+        {
+            foreach (var item in quest.RequiredItems)
+            {
+                if (item != null && !string.IsNullOrEmpty(item.Id) && seenIds.Add(item.Id))
+                {
+                    records.Add(new QuestRequiredItemRecord
+                    {
+                        QuestId = questDbIndex,
+                        ItemId = item.Id
+                    });
+                }
+            }
+        }
+
+        return records;
+    }
+
+    private List<QuestFactionAffectRecord> CreateQuestFactionAffectRecords(int questDbIndex, Quest quest)
+    {
+        var records = new List<QuestFactionAffectRecord>();
+        var seenRefNames = new HashSet<string>();
+
+        // Zip AffectFactions and AffectFactionAmts together
+        if (quest.AffectFactions != null && quest.AffectFactionAmts != null)
+        {
+            var factions = quest.AffectFactions.Where(f => f != null && !string.IsNullOrEmpty(f.REFNAME)).ToList();
+            var amounts = quest.AffectFactionAmts;
+
+            // Only process up to the minimum count to avoid index errors
+            int count = Mathf.Min(factions.Count, amounts.Count);
+
+            for (int i = 0; i < count; i++)
+            {
+                var faction = factions[i];
+                var amount = amounts[i];
+
+                if (!string.IsNullOrEmpty(faction.REFNAME) && seenRefNames.Add(faction.REFNAME))
+                {
+                    records.Add(new QuestFactionAffectRecord
+                    {
+                        QuestId = questDbIndex,
+                        FactionREFNAME = faction.REFNAME,
+                        ModifierValue = (int)amount
+                    });
+                }
+            }
+        }
+
+        return records;
     }
 }

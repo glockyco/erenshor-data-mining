@@ -20,11 +20,17 @@ public class CharacterListener : IAssetScanListener<Character>
     private readonly List<CharacterGroupHealSpellRecord> _characterGroupHealSpellRecords = new();
     private readonly List<CharacterCCSpellRecord> _characterCCSpellRecords = new();
     private readonly List<CharacterTauntSpellRecord> _characterTauntSpellRecords = new();
+    private readonly List<CharacterVendorItemRecord> _characterVendorItemRecords = new();
+    private readonly List<CharacterAggressiveFactionRecord> _characterAggressiveFactionRecords = new();
+    private readonly List<CharacterAlliedFactionRecord> _characterAlliedFactionRecords = new();
+    private readonly List<CharacterFactionModifierRecord> _characterFactionModifierRecords = new();
+    private readonly List<CharacterDeathShoutRecord> _characterDeathShoutRecords = new();
 
     // Store ability IDs (not NPC references) for deferred junction record creation
     private readonly List<(int characterId, List<string> attackSkillIds, List<string> attackSpellIds, List<string> buffSpellIds, List<string> healSpellIds, List<string> groupHealSpellIds, List<string> ccSpellIds, List<string> tauntSpellIds)> _npcAbilityData = new();
     private Dictionary<string, int>? _spellIdToDbIndexCache = null;
     private Dictionary<string, int>? _skillIdToDbIndexCache = null;
+    private Dictionary<string, string>? _factionNameToRefNameCache = null;
 
     public CharacterListener(SQLiteConnection db)
     {
@@ -52,13 +58,16 @@ public class CharacterListener : IAssetScanListener<Character>
         _characterRecords.Clear();
         _characterDialogRecords.Clear();
 
-        // Populate FK lookup caches (SpellRecord/SkillRecord tables are now populated if their entities were exported)
+        // Populate FK lookup caches (SpellRecord/SkillRecord/WorldFactionRecord tables are now populated if their entities were exported)
         _spellIdToDbIndexCache = TableExists<SpellRecord>()
             ? _db.Table<SpellRecord>().ToDictionary(s => s.Id, s => s.SpellDBIndex)
             : new Dictionary<string, int>();
         _skillIdToDbIndexCache = TableExists<SkillRecord>()
             ? _db.Table<SkillRecord>().ToDictionary(s => s.Id, s => s.SkillDBIndex)
             : new Dictionary<string, int>();
+        _factionNameToRefNameCache = TableExists<WorldFactionRecord>()
+            ? _db.Table<WorldFactionRecord>().ToDictionary(f => f.FactionName, f => f.REFNAME)
+            : new Dictionary<string, string>();
 
         // Process saved ability data to create junction records
         foreach (var (characterId, attackSkillIds, attackSpellIds, buffSpellIds, healSpellIds, groupHealSpellIds, ccSpellIds, tauntSpellIds) in _npcAbilityData)
@@ -79,6 +88,11 @@ public class CharacterListener : IAssetScanListener<Character>
         _db.CreateTable<CharacterGroupHealSpellRecord>();
         _db.CreateTable<CharacterCCSpellRecord>();
         _db.CreateTable<CharacterTauntSpellRecord>();
+        _db.CreateTable<CharacterVendorItemRecord>();
+        _db.CreateTable<CharacterAggressiveFactionRecord>();
+        _db.CreateTable<CharacterAlliedFactionRecord>();
+        _db.CreateTable<CharacterFactionModifierRecord>();
+        _db.CreateTable<CharacterDeathShoutRecord>();
 
         _db.RunInTransaction(() =>
         {
@@ -89,6 +103,11 @@ public class CharacterListener : IAssetScanListener<Character>
             _db.DeleteAll<CharacterGroupHealSpellRecord>();
             _db.DeleteAll<CharacterCCSpellRecord>();
             _db.DeleteAll<CharacterTauntSpellRecord>();
+            _db.DeleteAll<CharacterVendorItemRecord>();
+            _db.DeleteAll<CharacterAggressiveFactionRecord>();
+            _db.DeleteAll<CharacterAlliedFactionRecord>();
+            _db.DeleteAll<CharacterFactionModifierRecord>();
+            _db.DeleteAll<CharacterDeathShoutRecord>();
 
             _db.InsertAll(_characterAttackSkillRecords);
             _db.InsertAll(_characterAttackSpellRecords);
@@ -97,6 +116,11 @@ public class CharacterListener : IAssetScanListener<Character>
             _db.InsertAll(_characterGroupHealSpellRecords);
             _db.InsertAll(_characterCCSpellRecords);
             _db.InsertAll(_characterTauntSpellRecords);
+            _db.InsertAll(_characterVendorItemRecords);
+            _db.InsertAll(_characterAggressiveFactionRecords);
+            _db.InsertAll(_characterAlliedFactionRecords);
+            _db.InsertAll(_characterFactionModifierRecords);
+            _db.InsertAll(_characterDeathShoutRecords);
         });
 
         _characterAttackSkillRecords.Clear();
@@ -106,6 +130,11 @@ public class CharacterListener : IAssetScanListener<Character>
         _characterGroupHealSpellRecords.Clear();
         _characterCCSpellRecords.Clear();
         _characterTauntSpellRecords.Clear();
+        _characterVendorItemRecords.Clear();
+        _characterAggressiveFactionRecords.Clear();
+        _characterAlliedFactionRecords.Clear();
+        _characterFactionModifierRecords.Clear();
+        _characterDeathShoutRecords.Clear();
         _npcAbilityData.Clear();
 
         _db.Execute(@"
@@ -196,6 +225,24 @@ public class CharacterListener : IAssetScanListener<Character>
 
             _npcAbilityData.Add((characterRecord.Id, attackSkillIds, attackSpellIds, buffSpellIds, healSpellIds, groupHealSpellIds, ccSpellIds, tauntSpellIds));
         }
+
+        var vendorInventory = asset.GetComponent<VendorInventory>();
+        if (vendorInventory != null)
+        {
+            _characterVendorItemRecords.AddRange(CreateCharacterVendorItemRecords(characterRecord.Id, vendorInventory));
+        }
+
+        // Phase 2C: Faction and Death Shout junction tables
+        _characterAggressiveFactionRecords.AddRange(CreateCharacterAggressiveFactionRecords(characterRecord.Id, asset));
+        _characterAlliedFactionRecords.AddRange(CreateCharacterAlliedFactionRecords(characterRecord.Id, asset));
+
+        var modifyFactions = asset.GetComponents<ModifyFaction>();
+        foreach (var modifyFaction in modifyFactions)
+        {
+            _characterFactionModifierRecords.AddRange(CreateCharacterFactionModifierRecords(characterRecord.Id, modifyFaction));
+        }
+
+        _characterDeathShoutRecords.AddRange(CreateCharacterDeathShoutRecords(characterRecord.Id, asset));
     }
 
     private CoordinateRecord? CreateCoordinateRecord(Character character)
@@ -582,5 +629,124 @@ public class CharacterListener : IAssetScanListener<Character>
 
         Debug.LogWarning($"[CharacterListener] Skill ID '{skillId}' not found in SkillRecord table");
         return -1; // Invalid FK - will be visible in data
+    }
+
+    private List<CharacterVendorItemRecord> CreateCharacterVendorItemRecords(int characterId, VendorInventory vendorInventory)
+    {
+        var records = new List<CharacterVendorItemRecord>();
+        var seenItemNames = new HashSet<string>();
+
+        if (vendorInventory.ItemsForSale != null && vendorInventory.ItemsForSale.Count > 0)
+        {
+            foreach (var item in vendorInventory.ItemsForSale)
+            {
+                if (item != null && !string.IsNullOrEmpty(item.ItemName) && seenItemNames.Add(item.ItemName))
+                {
+                    records.Add(new CharacterVendorItemRecord
+                    {
+                        CharacterId = characterId,
+                        ItemName = item.ItemName
+                    });
+                }
+            }
+        }
+
+        return records;
+    }
+
+    private List<CharacterAggressiveFactionRecord> CreateCharacterAggressiveFactionRecords(int characterId, Character character)
+    {
+        var records = new List<CharacterAggressiveFactionRecord>();
+        var seenFactions = new HashSet<string>();
+
+        if (character.AggressiveTowards != null && character.AggressiveTowards.Count > 0)
+        {
+            foreach (var faction in character.AggressiveTowards)
+            {
+                var factionName = faction.ToString();
+                if (!string.IsNullOrEmpty(factionName) && seenFactions.Add(factionName))
+                {
+                    records.Add(new CharacterAggressiveFactionRecord
+                    {
+                        CharacterId = characterId,
+                        FactionName = factionName
+                    });
+                }
+            }
+        }
+
+        return records;
+    }
+
+    private List<CharacterAlliedFactionRecord> CreateCharacterAlliedFactionRecords(int characterId, Character character)
+    {
+        var records = new List<CharacterAlliedFactionRecord>();
+        var seenFactions = new HashSet<string>();
+
+        if (character.Allies != null && character.Allies.Count > 0)
+        {
+            foreach (var faction in character.Allies)
+            {
+                var factionName = faction.ToString();
+                if (!string.IsNullOrEmpty(factionName) && seenFactions.Add(factionName))
+                {
+                    records.Add(new CharacterAlliedFactionRecord
+                    {
+                        CharacterId = characterId,
+                        FactionName = factionName
+                    });
+                }
+            }
+        }
+
+        return records;
+    }
+
+    private List<CharacterFactionModifierRecord> CreateCharacterFactionModifierRecords(int characterId, ModifyFaction modifyFaction)
+    {
+        var records = new List<CharacterFactionModifierRecord>();
+        var seenRefNames = new HashSet<string>();
+
+        if (modifyFaction != null && modifyFaction.Factions != null && modifyFaction.Factions.Count > 0)
+        {
+            foreach (var faction in modifyFaction.Factions)
+            {
+                if (faction != null && !string.IsNullOrEmpty(faction.REFNAME) && seenRefNames.Add(faction.REFNAME))
+                {
+                    records.Add(new CharacterFactionModifierRecord
+                    {
+                        CharacterId = characterId,
+                        FactionREFNAME = faction.REFNAME,
+                        ModifierValue = (int)modifyFaction.Modifier
+                    });
+                }
+            }
+        }
+
+        return records;
+    }
+
+    private List<CharacterDeathShoutRecord> CreateCharacterDeathShoutRecords(int characterId, Character character)
+    {
+        var records = new List<CharacterDeathShoutRecord>();
+
+        if (character.ShoutOnDeath != null && character.ShoutOnDeath.Count > 0)
+        {
+            for (int i = 0; i < character.ShoutOnDeath.Count; i++)
+            {
+                var shout = character.ShoutOnDeath[i];
+                if (!string.IsNullOrEmpty(shout))
+                {
+                    records.Add(new CharacterDeathShoutRecord
+                    {
+                        CharacterId = characterId,
+                        SequenceIndex = i,
+                        ShoutText = shout
+                    });
+                }
+            }
+        }
+
+        return records;
     }
 }
