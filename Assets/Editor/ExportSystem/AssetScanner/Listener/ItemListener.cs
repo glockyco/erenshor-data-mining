@@ -13,8 +13,8 @@ public class ItemListener : IAssetScanListener<Item>
     private readonly List<ItemRecord> _itemRecords = new();
     private readonly List<ItemStatsRecord> _itemStatsRecords = new();
     private readonly List<ItemClassRecord> _itemClassRecords = new();
-    private readonly List<ItemTemplateIngredientRecord> _itemTemplateIngredientRecords = new();
-    private readonly List<ItemTemplateRewardRecord> _itemTemplateRewardRecords = new();
+    private readonly List<CraftingRecipeRecord> _craftingRecipeRecords = new();
+    private readonly List<CraftingRewardRecord> _craftingRewardRecords = new();
 
     private readonly WikiFancyWeaponFactory _weaponFactory;
     private readonly WikiFancyArmorFactory _armorFactory;
@@ -75,20 +75,20 @@ public class ItemListener : IAssetScanListener<Item>
         _itemStatsRecords.Clear();
         _itemClassRecords.Clear();
 
-        // Create and insert junction table records after parent records are inserted
-        _db.CreateTable<ItemTemplateIngredientRecord>();
-        _db.CreateTable<ItemTemplateRewardRecord>();
+        // Create and insert crafting tables after parent records are inserted
+        _db.CreateTable<CraftingRecipeRecord>();
+        _db.CreateTable<CraftingRewardRecord>();
 
         _db.RunInTransaction(() =>
         {
-            _db.DeleteAll<ItemTemplateIngredientRecord>();
-            _db.DeleteAll<ItemTemplateRewardRecord>();
+            _db.DeleteAll<CraftingRecipeRecord>();
+            _db.DeleteAll<CraftingRewardRecord>();
 
-            _db.InsertAll(_itemTemplateIngredientRecords);
-            _db.InsertAll(_itemTemplateRewardRecords);
+            _db.InsertAll(_craftingRecipeRecords);
+            _db.InsertAll(_craftingRewardRecords);
         });
-        _itemTemplateIngredientRecords.Clear();
-        _itemTemplateRewardRecords.Clear();
+        _craftingRecipeRecords.Clear();
+        _craftingRewardRecords.Clear();
     }
 
     public void OnAssetFound(Item asset)
@@ -98,8 +98,8 @@ public class ItemListener : IAssetScanListener<Item>
         _itemRecords.Add(CreateItemRecord(asset, itemDbIndex));
         _itemStatsRecords.AddRange(CreateItemStatsRecords(asset));
         _itemClassRecords.AddRange(CreateItemClassRecords(asset));
-        _itemTemplateIngredientRecords.AddRange(CreateItemTemplateIngredientRecords(asset));
-        _itemTemplateRewardRecords.AddRange(CreateItemTemplateRewardRecords(asset));
+        _craftingRecipeRecords.AddRange(CreateCraftingRecipeRecords(asset));
+        _craftingRewardRecords.AddRange(CreateCraftingRewardRecords(asset));
     }
 
     private ItemRecord CreateItemRecord(Item item, int itemDbIndex)
@@ -366,47 +366,81 @@ public class ItemListener : IAssetScanListener<Item>
         return records;
     }
 
-    private List<ItemTemplateIngredientRecord> CreateItemTemplateIngredientRecords(Item item)
+    /// <summary>
+    /// Creates CraftingRecipeRecords from an item's template ingredients.
+    /// Counts duplicate ingredients to determine quantities.
+    /// </summary>
+    private List<CraftingRecipeRecord> CreateCraftingRecipeRecords(Item item)
     {
-        var records = new List<ItemTemplateIngredientRecord>();
-        var seenIds = new HashSet<string>();
+        var records = new List<CraftingRecipeRecord>();
 
-        if (item.TemplateIngredients != null && item.TemplateIngredients.Count > 0)
+        if (item.TemplateIngredients == null || item.TemplateIngredients.Count == 0)
+            return records;
+
+        // Count occurrences to determine quantities
+        var ingredientCounts = new Dictionary<string, int>();
+        foreach (var ingredient in item.TemplateIngredients)
         {
-            foreach (var ingredient in item.TemplateIngredients)
+            if (ingredient != null && !string.IsNullOrEmpty(ingredient.Id))
             {
-                if (ingredient != null && !string.IsNullOrEmpty(ingredient.Id) && seenIds.Add(ingredient.Id))
-                {
-                    records.Add(new ItemTemplateIngredientRecord
-                    {
-                        ItemId = item.Id,
-                        IngredientItemId = ingredient.Id
-                    });
-                }
+                if (!ingredientCounts.ContainsKey(ingredient.Id))
+                    ingredientCounts[ingredient.Id] = 0;
+                ingredientCounts[ingredient.Id]++;
             }
+        }
+
+        // Create records with slot numbers
+        int slot = 1;
+        foreach (var kvp in ingredientCounts)
+        {
+            records.Add(new CraftingRecipeRecord
+            {
+                RecipeItemId = item.Id,
+                MaterialSlot = slot,
+                MaterialItemId = kvp.Key,
+                MaterialQuantity = kvp.Value
+            });
+            slot++;
         }
 
         return records;
     }
 
-    private List<ItemTemplateRewardRecord> CreateItemTemplateRewardRecords(Item item)
+    /// <summary>
+    /// Creates CraftingRewardRecords from an item's template rewards.
+    /// Counts duplicate rewards to determine quantities.
+    /// </summary>
+    private List<CraftingRewardRecord> CreateCraftingRewardRecords(Item item)
     {
-        var records = new List<ItemTemplateRewardRecord>();
-        var seenIds = new HashSet<string>();
+        var records = new List<CraftingRewardRecord>();
 
-        if (item.TemplateRewards != null && item.TemplateRewards.Count > 0)
+        if (item.TemplateRewards == null || item.TemplateRewards.Count == 0)
+            return records;
+
+        // Count occurrences to determine quantities
+        var rewardCounts = new Dictionary<string, int>();
+        foreach (var reward in item.TemplateRewards)
         {
-            foreach (var reward in item.TemplateRewards)
+            if (reward != null && !string.IsNullOrEmpty(reward.Id))
             {
-                if (reward != null && !string.IsNullOrEmpty(reward.Id) && seenIds.Add(reward.Id))
-                {
-                    records.Add(new ItemTemplateRewardRecord
-                    {
-                        ItemId = item.Id,
-                        RewardItemId = reward.Id
-                    });
-                }
+                if (!rewardCounts.ContainsKey(reward.Id))
+                    rewardCounts[reward.Id] = 0;
+                rewardCounts[reward.Id]++;
             }
+        }
+
+        // Create records with slot numbers
+        int slot = 1;
+        foreach (var kvp in rewardCounts)
+        {
+            records.Add(new CraftingRewardRecord
+            {
+                RecipeItemId = item.Id,
+                RewardSlot = slot,
+                RewardItemId = kvp.Key,
+                RewardQuantity = kvp.Value
+            });
+            slot++;
         }
 
         return records;
