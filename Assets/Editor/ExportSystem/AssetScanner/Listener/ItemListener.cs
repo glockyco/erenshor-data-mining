@@ -350,15 +350,22 @@ public class ItemListener : IAssetScanListener<Item>
 
         if (item.Classes != null && item.Classes.Count > 0)
         {
+            // Use HashSet to prevent duplicate ItemId+ClassName combinations
+            var uniqueClasses = new HashSet<string>();
+
             foreach (var characterClass in item.Classes)
             {
                 if (characterClass != null && !string.IsNullOrEmpty(characterClass.name))
                 {
-                    records.Add(new ItemClassRecord
+                    // Only add if we haven't seen this class name for this item before
+                    if (uniqueClasses.Add(characterClass.name))
                     {
-                        ItemId = item.Id,
-                        ClassName = characterClass.name
-                    });
+                        records.Add(new ItemClassRecord
+                        {
+                            ItemId = item.Id,
+                            ClassName = characterClass.name
+                        });
+                    }
                 }
             }
         }
