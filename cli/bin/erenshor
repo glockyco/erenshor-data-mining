@@ -1,0 +1,145 @@
+#!/usr/bin/env bash
+# bin/erenshor - Main CLI entry point for Erenshor Data Mining Pipeline
+
+set -euo pipefail
+
+# Determine script directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CLI_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+LIB_DIR="$CLI_ROOT/lib"
+COMMANDS_DIR="$CLI_ROOT/commands"
+
+# Source core libraries
+source "$LIB_DIR/core/utils.sh"
+source "$LIB_DIR/ui/colors.sh"
+source "$LIB_DIR/core/logger.sh"
+source "$LIB_DIR/core/errors.sh"
+source "$LIB_DIR/core/config.sh"
+source "$LIB_DIR/core/state.sh"
+source "$LIB_DIR/core/symlinks.sh"
+source "$LIB_DIR/core/variants.sh"
+
+# Source UI components
+source "$LIB_DIR/ui/progress.sh"
+source "$LIB_DIR/ui/prompts.sh"
+
+# Source pipeline modules
+source "$LIB_DIR/modules/steamcmd.sh"
+source "$LIB_DIR/modules/assetripper.sh"
+source "$LIB_DIR/modules/unity.sh"
+source "$LIB_DIR/modules/database.sh"
+
+# Version
+VERSION=$(cat "$CLI_ROOT/VERSION")
+
+# Show version
+show_version() {
+    echo "erenshor version $VERSION"
+    echo ""
+    echo "Erenshor Data Mining Pipeline"
+    echo "Automated game data extraction and export"
+}
+
+# Show help
+show_help() {
+    cat << EOF
+$(bold "erenshor") - Erenshor Data Mining Pipeline
+
+$(bold "USAGE:")
+    erenshor <command> [options]
+
+$(bold "MAIN COMMANDS:")
+    $(bold "update")      Update everything (download, extract, export, deploy)
+    $(bold "check")       Check for game updates
+    $(bold "download")    Download game files via SteamCMD
+    $(bold "extract")     Extract assets with AssetRipper
+    $(bold "export")      Export data to SQLite via Unity
+    $(bold "deploy")      Deploy database to wiki project
+
+$(bold "UTILITY COMMANDS:")
+    $(bold "status")      Show system status
+    $(bold "doctor")      Diagnose system issues
+    $(bold "config")      Manage configuration
+    $(bold "symlink")     Manage variant symlinks
+    $(bold "logs")        View logs
+    $(bold "clean")       Clean up old files
+
+$(bold "META COMMANDS:")
+    $(bold "version")     Show version information
+    $(bold "help")        Show this help message
+
+$(bold "EXAMPLES:")
+    # Full update pipeline
+    erenshor update
+
+    # Update specific entities only
+    erenshor update --entities items,spells,characters
+
+    # Check system status
+    erenshor status
+
+    # Diagnose issues
+    erenshor doctor
+
+    # View recent logs
+    erenshor logs --tail
+
+$(bold "GETTING STARTED:")
+    1. Run 'erenshor doctor' to check system requirements
+    2. Edit config: ~/.erenshor/config.toml
+    3. Run 'erenshor update' to start full pipeline
+
+$(bold "DOCUMENTATION:")
+    Config:   ~/.erenshor/config.toml
+    Logs:     ~/.erenshor/logs/
+    State:    ~/.erenshor/state.json
+
+For more information on a specific command:
+    erenshor <command> --help
+
+Project: https://github.com/joaichberger/Projects/Erenshor
+EOF
+}
+
+# Main entry point
+main() {
+    local command="${1:-help}"
+
+    # Global options
+    case "$command" in
+        -v|--version|version)
+            show_version
+            exit 0
+            ;;
+        -h|--help|help)
+            show_help
+            exit 0
+            ;;
+    esac
+
+    # Initialize logging
+    log_init
+
+    # Initialize state
+    state_init
+
+    # Load configuration
+    config_load
+
+    # Route to command
+    local command_script="$COMMANDS_DIR/${command}.sh"
+
+    if [[ -f "$command_script" ]]; then
+        shift  # Remove command from args
+        source "$command_script"
+        command_main "$@"
+    else
+        error "Unknown command: $command"
+        echo ""
+        echo "Run '$(bold "erenshor help")' for usage information."
+        exit 1
+    fi
+}
+
+# Run main
+main "$@"

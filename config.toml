@@ -1,0 +1,214 @@
+# Erenshor Data Mining Pipeline Configuration
+# Version 2.0 - Clean Multi-Variant Design
+#
+# This is a FRESH implementation with no legacy support
+# Supports multiple game variants with separate databases
+
+version = "2.0"
+
+# Default variant when --variant flag is not specified
+default_variant = "main"
+
+# ============================================================================
+# GLOBAL SETTINGS
+# Apply to all variants unless overridden in variant sections
+# ============================================================================
+
+[global.paths]
+# Project-wide paths
+state = "$REPO_ROOT/.erenshor/state.json"
+config_local = "$REPO_ROOT/.erenshor/config.local.toml"
+logs = "$REPO_ROOT/.erenshor/logs"
+wiki_project = "$REPO_ROOT/../erenshor-wiki"  # Wiki project for deployment
+
+[global.steam]
+# Steam username (set in config.local.toml for privacy)
+username = ""
+platform = "windows"                       # Force Windows version for macOS users
+
+[global.unity]
+# Unity configuration
+version = "2021.3.45f1"
+path = "/Applications/Unity/Hub/Editor/2021.3.45f1/Unity.app/Contents/MacOS/Unity"
+timeout = 1800                             # 30 minutes
+
+[global.assetripper]
+# AssetRipper configuration
+path = "$HOME/Projects/AssetRipper/AssetRipper.GUI.Free"
+port = 8080
+timeout = 3600                             # 60 minutes
+
+[global.database]
+# Database settings
+backup_enabled = true
+backup_count = 10                          # Keep last N backups per variant
+validate = true
+
+[global.behavior]
+# Behavioral settings
+auto_backup = true
+confirm_destructive = true
+parallel_downloads = true
+max_retries = 3
+retry_delay = 30
+
+[global.logging]
+# Logging configuration
+level = "info"                             # debug, info, warn, error
+file_enabled = true
+console_enabled = true
+
+# ============================================================================
+# VARIANT: MAIN (Public Release)
+# ============================================================================
+
+[variants.main]
+enabled = true
+name = "Main Game"
+description = "Production release version"
+
+# Steam App ID
+app_id = "2382520"
+
+# Paths (use $REPO_ROOT for portability)
+unity_project = "$REPO_ROOT/variants/main/unity"
+editor_scripts = "$REPO_ROOT/src/Assets/Editor"
+game_files = "$REPO_ROOT/variants/main/game"
+output = "$REPO_ROOT/variants/main/output"
+database = "$REPO_ROOT/variants/main/erenshor-main.sqlite"
+
+# Logs and backups
+logs = "$REPO_ROOT/variants/main/logs"
+backups = "$REPO_ROOT/variants/main/backups"
+
+# ============================================================================
+# VARIANT: PLAYTEST (Private Beta/Alpha)
+# ============================================================================
+
+[variants.playtest]
+enabled = false                            # Disable by default, enable in config.local.toml
+name = "Playtest (Beta/Alpha)"
+description = "Private beta testing version (requires Steam beta access)"
+
+# Steam App ID for playtest
+app_id = "3090030"
+
+# Paths
+unity_project = "$REPO_ROOT/variants/playtest/unity"
+editor_scripts = "$REPO_ROOT/src/Assets/Editor"
+game_files = "$REPO_ROOT/variants/playtest/game"
+output = "$REPO_ROOT/variants/playtest/output"
+database = "$REPO_ROOT/variants/playtest/erenshor-playtest.sqlite"
+
+# Logs and backups
+logs = "$REPO_ROOT/variants/playtest/logs"
+backups = "$REPO_ROOT/variants/playtest/backups"
+
+# Variant-specific overrides (optional)
+# [variants.playtest.steam]
+# username = "beta-tester"                 # Different account with beta access
+
+# ============================================================================
+# VARIANT: DEMO (Public Demo)
+# ============================================================================
+
+[variants.demo]
+enabled = false                            # Disable by default
+name = "Demo"
+description = "Public demo version (limited content)"
+
+# Steam App ID for demo
+app_id = "2522260"
+
+# Paths
+unity_project = "$REPO_ROOT/variants/demo/unity"
+editor_scripts = "$REPO_ROOT/src/Assets/Editor"
+game_files = "$REPO_ROOT/variants/demo/game"
+output = "$REPO_ROOT/variants/demo/output"
+database = "$REPO_ROOT/variants/demo/erenshor-demo.sqlite"
+
+# Logs and backups
+logs = "$REPO_ROOT/variants/demo/logs"
+backups = "$REPO_ROOT/variants/demo/backups"
+
+# ============================================================================
+# CUSTOM VARIANTS (Example)
+# ============================================================================
+# Add your own variants as needed:
+#
+# [variants.custom]
+# enabled = false
+# name = "Custom Build"
+# app_id = "1234567"
+# unity_project = "$REPO_ROOT/variants/custom/unity"
+# editor_scripts = "$REPO_ROOT/src/Assets/Editor"
+# database = "$REPO_ROOT/variants/custom/erenshor-custom.sqlite"
+
+# ============================================================================
+# NOTES
+# ============================================================================
+#
+# Directory Structure:
+#   ~/Projects/erenshor/
+#   ├── .erenshor/              # Project-local state (NOT tracked)
+#   │   ├── state.json          # Pipeline state
+#   │   ├── config.local.toml   # Local overrides
+#   │   └── logs/               # Global logs
+#   ├── cli/                    # CLI scripts (tracked)
+#   ├── src/Assets/Editor/      # Unity export scripts (tracked, source of truth)
+#   ├── variants/               # All variant data (NOT tracked)
+#   │   ├── main/
+#   │   │   ├── game/           # Game files (~9GB)
+#   │   │   ├── unity/          # Unity project
+#   │   │   │   └── Assets/Editor -> ../../../../src/Assets/Editor/  # Symlink
+#   │   │   ├── logs/           # Variant-specific logs
+#   │   │   ├── backups/        # Database backups
+#   │   │   └── erenshor-main.sqlite
+#   │   ├── playtest/
+#   │   └── demo/
+#   └── config.toml             # This file (tracked)
+#
+# Symlinks:
+#   - Source: ~/Projects/erenshor/src/Assets/Editor/
+#   - Target: variants/{variant}/unity/Assets/Editor
+#   - Created automatically by `erenshor extract`
+#   - Managed by `erenshor symlink` commands
+#
+# Local Configuration:
+#   Create config.local.toml for machine-specific settings:
+#
+#   [global.steam]
+#   username = "yourusername"
+#
+#   [variants.playtest]
+#   enabled = true
+#
+#   This file is NOT tracked in Git and overrides config.toml
+#
+# Path Expansion:
+#   - $REPO_ROOT = Repository root (auto-detected from Git)
+#   - $HOME = User's home directory
+#   - ~ = User's home directory
+#
+# Usage:
+#   # Default variant (main)
+#   erenshor download
+#   erenshor export
+#
+#   # Specific variant
+#   erenshor download --variant playtest
+#   erenshor export --variant demo
+#
+#   # All enabled variants
+#   erenshor status --all-variants
+#   erenshor update --all-variants
+#
+# Symlink Management:
+#   erenshor symlink check          # Verify all symlinks
+#   erenshor symlink create         # Create missing symlinks
+#   erenshor symlink repair         # Fix broken symlinks
+#   erenshor symlink status         # Show symlink details
+#
+# For more information:
+#   - Architecture: docs/MULTI_VARIANT_V2_CLEAN.md
+#   - Quick Start: docs/VARIANT_SYSTEM_SUMMARY.md

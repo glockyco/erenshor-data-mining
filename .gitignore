@@ -636,22 +636,22 @@ FodyWeavers.xsd
 
 # End of https://www.toptal.com/developers/gitignore/api/unity,intellij+all,macos,windows,linux,visualstudiocode,visualstudio
 
-/ProjectSettings
-
-/Assets/*
-
-!/Assets/Editor/
-!/Assets/Editor/**/*.meta
-
-!/Assets/Packages/
-!/Assets/Packages/**
-
-/Assets/Scripts/**
-!/Assets/Scripts/
-!/Assets/Scripts/**/
-!/Assets/Scripts/**/Gizmos/
-!/Assets/Scripts/**/Gizmos/**
-!/Assets/Scripts/**/Gizmos.meta
-
-.aider*
 .env
+
+# Variant data
+/variants/
+
+# State file
+state.json
+
+# Local config overrides
+config.local.toml
+
+# Export artifacts
+*.sqlite
+export.sh
+export_*.log
+unity_*.log
+
+# CLI scripts should be tracked
+!/cli/bin/
