@@ -19,6 +19,8 @@ ERENSHOR_CONFIG="${ERENSHOR_CONFIG:-$USER_CONFIG}"
 # NOTE: Variant-specific paths (game, unity, database) should NOT be here.
 # They are dynamically resolved via variant_get_path() in variants.sh
 declare -gA CONFIG=(
+    [default_variant]="main"
+
     [steam.app_id]="2382520"
     [steam.username]=""
     [steam.platform]="windows"
