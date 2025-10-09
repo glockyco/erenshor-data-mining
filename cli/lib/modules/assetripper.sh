@@ -277,6 +277,19 @@ assetripper_extract() {
         return $ERROR_NOT_FOUND
     fi
 
+    # Clean Unity project directory before extraction to prevent version mixing
+    # Validate path matches pattern before deletion for safety
+    if [[ -n "$unity_project" && "$unity_project" =~ ^.*/variants/.*/unity$ ]]; then
+        if [[ -d "$unity_project" ]] && [ "$(ls -A "$unity_project" 2>/dev/null)" ]; then
+            log_info "Cleaning Unity project directory to prevent version mixing..."
+            rm -rf "$unity_project"/*
+            log_debug "Unity project directory cleaned: $unity_project"
+        fi
+    else
+        log_error "Refusing to clean invalid Unity project path: $unity_project"
+        return $ERROR_VALIDATION
+    fi
+
     # AssetRipper extracts to a subdirectory structure
     # We extract to unity_project root, which creates:
     #   unity_project/ExportedProject/Assets/
