@@ -378,7 +378,7 @@ assetripper_extract() {
 
     # Step 6: Copy NuGet packages and config files from source
     # These are not extracted by AssetRipper but are required for Unity compilation
-    local repo_root="$(cd "$unity_project/../.." && pwd)"
+    local repo_root="$(cd "$unity_project/../../.." && pwd)"
     local src_assets="$repo_root/src/Assets"
 
     if [[ -d "$src_assets/Packages" ]]; then

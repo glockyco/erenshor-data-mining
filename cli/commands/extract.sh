@@ -78,7 +78,6 @@ command_main() {
     fi
 
     # Ensure symlink is created
-    source "$ERENSHOR_CLI_ROOT/lib/core/symlinks.sh"
     if ! symlink_check "$variant" >/dev/null 2>&1; then
         symlink_create "$variant"
     fi
@@ -89,7 +88,6 @@ command_main() {
     fi
 
     # Setup export script
-    source "$ERENSHOR_CLI_ROOT/lib/modules/unity.sh"
     if ! unity_setup_export_script "$unity_path"; then
         warn "Failed to setup export script - export command may not work"
     fi
