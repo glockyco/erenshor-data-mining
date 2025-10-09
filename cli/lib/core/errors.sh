@@ -8,6 +8,7 @@ readonly ERRORS_LOADED=1
 # Error codes
 readonly ERROR_SUCCESS=0
 readonly ERROR_GENERAL=1
+readonly ERROR_ARGS=2
 readonly ERROR_CONFIG=10
 readonly ERROR_DEPENDENCY=11
 readonly ERROR_NETWORK=12
@@ -17,12 +18,14 @@ readonly ERROR_PROCESS=15
 readonly ERROR_VALIDATION=16
 readonly ERROR_USER_CANCEL=17
 readonly ERROR_NOT_FOUND=18
+readonly ERROR_TIMEOUT=19
 readonly ERROR_UNKNOWN=99
 
 # Error messages
 declare -A ERROR_MESSAGES=(
     [$ERROR_SUCCESS]="Success"
     [$ERROR_GENERAL]="General error"
+    [$ERROR_ARGS]="Invalid arguments"
     [$ERROR_CONFIG]="Configuration error"
     [$ERROR_DEPENDENCY]="Missing dependency"
     [$ERROR_NETWORK]="Network error"
@@ -32,6 +35,7 @@ declare -A ERROR_MESSAGES=(
     [$ERROR_VALIDATION]="Validation failed"
     [$ERROR_USER_CANCEL]="Operation cancelled by user"
     [$ERROR_NOT_FOUND]="File or resource not found"
+    [$ERROR_TIMEOUT]="Operation timed out"
     [$ERROR_UNKNOWN]="Unknown error"
 )
 
