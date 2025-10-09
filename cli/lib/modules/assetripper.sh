@@ -333,23 +333,20 @@ assetripper_extract() {
     #   unity_project/ExportedProject/ProjectSettings/
     #   unity_project/AuxiliaryFiles/
     if [[ -d "$unity_project/ExportedProject" ]]; then
-        # Move Assets (preserving existing Editor symlink)
+        # Move Assets
         if [[ -d "$unity_project/ExportedProject/Assets" ]]; then
             log_info "Moving extracted Assets..."
-            # Use rsync to merge, excluding Editor folder
-            rsync -av --exclude='Editor' --exclude='Editor/' \
-                "$unity_project/ExportedProject/Assets/" \
-                "$unity_project/Assets/" || log_warn "Some files failed to copy"
+            mv "$unity_project/ExportedProject/Assets" "$unity_project/" || log_warn "Failed to move Assets"
         fi
 
         # Move ProjectSettings if needed
-        if [[ -d "$unity_project/ExportedProject/ProjectSettings" && ! -d "$unity_project/ProjectSettings" ]]; then
+        if [[ -d "$unity_project/ExportedProject/ProjectSettings" ]]; then
             log_info "Moving ProjectSettings..."
             mv "$unity_project/ExportedProject/ProjectSettings" "$unity_project/" || true
         fi
 
         # Move Packages if needed
-        if [[ -d "$unity_project/ExportedProject/Packages" && ! -d "$unity_project/Packages" ]]; then
+        if [[ -d "$unity_project/ExportedProject/Packages" ]]; then
             log_info "Moving Packages..."
             mv "$unity_project/ExportedProject/Packages" "$unity_project/" || true
         fi
