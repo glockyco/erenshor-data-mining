@@ -1,0 +1,165 @@
+# ============================================================================
+# Default Behavior
+# ============================================================================
+# By default, let Git normalize line endings on checkin and convert to native on checkout
+* text=auto
+
+# ============================================================================
+# Shell Scripts - CRITICAL: Must use LF
+# ============================================================================
+# Unix shell scripts MUST have LF endings or they will fail to execute
+*.sh text eol=lf
+cli/bin/erenshor text eol=lf
+
+# ============================================================================
+# Source Code - Text Files
+# ============================================================================
+# C# files
+*.cs text diff=csharp
+*.csx text diff=csharp
+*.csproj text
+
+# Python files
+*.py text diff=python
+*.pyw text diff=python
+*.pyi text diff=python
+*.pyx text diff=python
+
+# Configuration files
+*.toml text
+*.json text
+*.yaml text
+*.yml text
+*.xml text
+*.ini text
+*.cfg text
+*.conf text
+
+# Documentation
+*.md text diff=markdown
+*.txt text
+*.rst text
+*.adoc text
+*.tex text
+
+# Web files
+*.html text diff=html
+*.css text diff=css
+*.js text
+*.ts text
+*.jsx text
+*.tsx text
+
+# Unity-specific text files
+*.meta text
+*.prefab text
+*.unity text
+*.mat text
+*.asset text
+*.asmdef text
+*.asmref text
+*.controller text
+*.overrideController text
+*.mask text
+*.physicMaterial text
+*.physicsMaterial2D text
+
+# ============================================================================
+# Binary Files - Explicitly Mark as Binary
+# ============================================================================
+# Images
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg binary
+*.psd binary
+*.ai binary
+*.tga binary
+*.exr binary
+*.hdr binary
+
+# Audio
+*.mp3 binary
+*.wav binary
+*.ogg binary
+*.aiff binary
+*.aif binary
+*.mod binary
+*.it binary
+*.s3m binary
+*.xm binary
+
+# Video
+*.mov binary
+*.avi binary
+*.mp4 binary
+*.mpg binary
+*.mpeg binary
+
+# 3D Models
+*.fbx binary
+*.obj binary
+*.max binary
+*.blend binary
+*.dae binary
+*.mb binary
+*.ma binary
+
+# Unity-specific binaries
+*.unity3d binary
+*.asset binary
+*.cubemap binary
+*.flare binary
+*.shadervariants binary
+
+# Fonts
+*.ttf binary
+*.otf binary
+*.woff binary
+*.woff2 binary
+*.eot binary
+
+# Executables and Libraries
+*.exe binary
+*.dll binary
+*.so binary
+*.dylib binary
+*.a binary
+*.lib binary
+*.pdb binary
+*.mdb binary
+
+# Databases
+*.db binary
+*.sqlite binary
+*.sqlite3 binary
+
+# Archives
+*.zip binary
+*.tar binary
+*.gz binary
+*.bz2 binary
+*.7z binary
+*.rar binary
+
+# Other Unity binaries
+*.unitypackage binary
+
+# ============================================================================
+# Special Cases
+# ============================================================================
+# Windows batch files should use CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Makefiles should use LF
+Makefile text eol=lf
+*.mk text eol=lf
+
+# Git configuration files
+.gitignore text
+.gitattributes text
+.gitmodules text
+.gitkeep text
