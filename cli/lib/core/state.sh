@@ -15,31 +15,79 @@ _state_get_repo_root() {
 REPO_ROOT="${REPO_ROOT:-$(_state_get_repo_root)}"
 ERENSHOR_STATE="${ERENSHOR_STATE:-$REPO_ROOT/.erenshor/state.json}"
 
-# Initialize state file
+# Initialize state file with v2.0 structure
+# Only creates file if it doesn't exist - no migration from older versions
 state_init() {
     local state_file="${1:-$ERENSHOR_STATE}"
     local state_dir=$(dirname "$state_file")
 
     mkdir -p "$state_dir"
 
+    # Create v2.0 state file if doesn't exist
     if [[ ! -f "$state_file" ]]; then
         cat > "$state_file" << 'EOF'
 {
-  "version": "1.0",
+  "version": "2.0",
   "last_update": null,
   "current_operation": "idle",
-  "game": {
-    "build_id": null,
-    "last_checked": null,
-    "last_downloaded": null,
-    "files_path": null,
-    "size_bytes": 0
-  },
-  "database": {
-    "path": null,
-    "last_export": null,
-    "size_bytes": 0,
-    "entity_counts": {}
+  "variants": {
+    "main": {
+      "game": {
+        "build_id": null,
+        "last_checked": null,
+        "last_downloaded": null,
+        "files_path": null,
+        "size_bytes": 0
+      },
+      "database": {
+        "path": null,
+        "last_export": null,
+        "size_bytes": 0,
+        "entity_counts": {}
+      },
+      "unity": {
+        "last_extraction": null,
+        "project_path": null
+      }
+    },
+    "playtest": {
+      "game": {
+        "build_id": null,
+        "last_checked": null,
+        "last_downloaded": null,
+        "files_path": null,
+        "size_bytes": 0
+      },
+      "database": {
+        "path": null,
+        "last_export": null,
+        "size_bytes": 0,
+        "entity_counts": {}
+      },
+      "unity": {
+        "last_extraction": null,
+        "project_path": null
+      }
+    },
+    "demo": {
+      "game": {
+        "build_id": null,
+        "last_checked": null,
+        "last_downloaded": null,
+        "files_path": null,
+        "size_bytes": 0
+      },
+      "database": {
+        "path": null,
+        "last_export": null,
+        "size_bytes": 0,
+        "entity_counts": {}
+      },
+      "unity": {
+        "last_extraction": null,
+        "project_path": null
+      }
+    }
   },
   "pipeline": {
     "last_run": null,

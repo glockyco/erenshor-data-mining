@@ -124,6 +124,11 @@ main() {
     # Load configuration
     config_load
 
+    # Initialize all variant states
+    for variant in $(variant_list); do
+        state_init_variant "$variant"
+    done
+
     # Route to command
     local command_script="$COMMANDS_DIR/${command}.sh"
 

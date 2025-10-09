@@ -94,6 +94,10 @@ command_main() {
         warn "Failed to setup export script - export command may not work"
     fi
 
+    # Record state
+    state_set_variant "$variant" "unity.last_extraction" "$(timestamp_iso)"
+    state_set_variant "$variant" "unity.project_path" "$unity_path"
+
     # Calculate duration
     local end_time=$(date +%s)
 

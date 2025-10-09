@@ -4,6 +4,7 @@
 # Command entry point
 command_main() {
     local force=false
+    local validate=false
     local variant="$(config_get default_variant)"
 
     # Parse arguments
@@ -11,6 +12,10 @@ command_main() {
         case $1 in
             -f|--force)
                 force=true
+                shift
+                ;;
+            --validate)
+                validate=true
                 shift
                 ;;
             --variant)
@@ -63,15 +68,23 @@ command_main() {
         exit 0
     fi
 
+    # Show validation mode info
+    if [[ "$validate" == true ]]; then
+        echo ""
+        info "Running with $(bold "--validate") flag: Full file validation will be performed"
+        info "This may take longer but ensures file integrity"
+        echo ""
+    fi
+
     # Download
-    if ! steamcmd_download "$app_id" "$game_path" "$variant"; then
+    if ! steamcmd_download "$app_id" "$game_path" "$variant" "$validate"; then
         die $ERROR_PROCESS "Game download failed"
     fi
 
     # Record state
     local build_id=$(steamcmd_get_current_build "$game_path")
     local game_size=$(steamcmd_get_game_size "$game_path")
-    state_record_game "$build_id" "$game_path" "$game_size"
+    state_record_variant_game "$variant" "$build_id" "$game_path" "$game_size"
 
     # Calculate duration
     local end_time=$(date +%s)
@@ -99,8 +112,12 @@ DESCRIPTION:
     Downloads Erenshor game files using SteamCMD. This is the first step
     in the data mining pipeline.
 
+    By default, SteamCMD performs incremental updates (only changed files).
+    Use --validate for full file verification if you suspect corruption.
+
 OPTIONS:
     -f, --force          Re-download even if already downloaded
+    --validate           Perform full file validation (slower, but ensures integrity)
     --variant VARIANT    Download specific variant (main, playtest, demo)
     -h, --help           Show this help message
 
@@ -111,8 +128,16 @@ EXAMPLES:
     # Force re-download
     erenshor download --force
 
-    # Download specific variant
-    erenshor download --variant playtest
+    # Download with full file validation
+    erenshor download --validate
+
+    # Download specific variant with validation
+    erenshor download --variant playtest --validate
+
+NOTES:
+    --validate flag causes SteamCMD to verify all game files against Steam's
+    servers. This is slower but recommended if you suspect file corruption or
+    want to ensure a clean install.
 
 SEE ALSO:
     erenshor update     Run full update pipeline

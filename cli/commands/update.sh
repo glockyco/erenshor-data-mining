@@ -145,7 +145,7 @@ command_main() {
             # Record state
             local build_id=$(steamcmd_get_current_build "$game_path")
             local game_size=$(steamcmd_get_game_size "$game_path")
-            state_record_game "$build_id" "$game_path" "$game_size"
+            state_record_variant_game "$variant" "$build_id" "$game_path" "$game_size"
         else
             info "Would download game via SteamCMD"
         fi
@@ -200,7 +200,7 @@ command_main() {
         # Record state
         local db_size=$(stat -f%z "$database_path" 2>/dev/null || echo 0)
         local entity_counts=$(database_stats_json "$database_path")
-        state_record_export "$database_path" "$db_size" "$entity_counts"
+        state_record_variant_export "$variant" "$database_path" "$db_size" "$entity_counts"
     else
         info "Would deploy database to wiki project"
     fi

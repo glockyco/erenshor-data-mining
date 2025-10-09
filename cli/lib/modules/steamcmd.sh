@@ -107,16 +107,23 @@ steamcmd_check_update() {
 }
 
 # Download game via SteamCMD
-# Usage: steamcmd_download [app_id] [install_dir] [variant]
+# Usage: steamcmd_download [app_id] [install_dir] [variant] [validate]
+# Parameters:
+#   app_id      - Steam App ID to download
+#   install_dir - Installation directory path
+#   variant     - Game variant (main, playtest, demo)
+#   validate    - Optional: "true" to enable full file validation (default: "false")
 steamcmd_download() {
     local app_id="${1:-$(config_get steam.app_id)}"
     local install_dir="${2:-$(config_get paths.game_files)}"
     local variant="${3:-main}"
+    local validate="${4:-false}"
 
     log_info "Starting game download..."
     log_debug "App ID: $app_id"
     log_debug "Install dir: $install_dir"
     log_debug "Variant: $variant"
+    log_debug "Validate: $validate"
 
     # Get platform and username from global config (applies to all variants)
     local platform=$(config_get global.steam.platform "windows")
@@ -131,15 +138,24 @@ steamcmd_download() {
         username=$(prompt "Steam username" "anonymous")
     fi
 
-    # Build SteamCMD command
+    # Build SteamCMD command conditionally based on validate flag
     local cmd=(
         steamcmd
         "+@sSteamCmdForcePlatformType" "$platform"
         "+force_install_dir" "$install_dir"
         "+login" "$username"
-        "+app_update" "$app_id" "validate"
-        "+quit"
     )
+
+    # Add app_update with or without validate flag
+    if [[ "$validate" == "true" ]]; then
+        log_info "Running with full file validation (all files will be verified)"
+        cmd+=("+app_update" "$app_id" "validate")
+    else
+        log_info "Running incremental update (only changed files will be downloaded)"
+        cmd+=("+app_update" "$app_id")
+    fi
+
+    cmd+=("+quit")
 
     log_debug "Executing SteamCMD: ${cmd[*]}"
 
