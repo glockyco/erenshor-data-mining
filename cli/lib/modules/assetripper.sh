@@ -45,13 +45,28 @@ _assetripper_check_server() {
 
 # Start AssetRipper server
 _assetripper_start_server() {
+    local variant="$1"
     local assetripper_path=$(config_get assetripper.path)
     local port=$(config_get assetripper.port)
 
     log_info "Starting AssetRipper server on port ${port}..."
 
     # Create log file
-    ASSETRIPPER_LOG=$(config_get paths.logs)"/assetripper_$(date +%Y%m%d_%H%M%S).log"
+    # Use variant-specific logs if variant is specified, otherwise use global logs
+    local logs_dir
+    if [[ -n "$variant" ]]; then
+        logs_dir=$(config_get "variants.$variant.logs")
+    fi
+    # Fallback to global logs if variant logs not found
+    if [[ -z "$logs_dir" ]]; then
+        logs_dir=$(config_get "global.paths.logs")
+    fi
+    # Final fallback to default location
+    if [[ -z "$logs_dir" ]]; then
+        logs_dir="$REPO_ROOT/.erenshor/logs"
+    fi
+
+    ASSETRIPPER_LOG="$logs_dir/assetripper_$(date +%Y%m%d_%H%M%S).log"
     mkdir -p "$(dirname "$ASSETRIPPER_LOG")"
 
     # Start server in background
@@ -229,14 +244,16 @@ _assetripper_reset() {
 }
 
 # Extract game assets (main function)
-# Usage: assetripper_extract [game_dir] [unity_project]
+# Usage: assetripper_extract [game_dir] [unity_project] [variant]
 assetripper_extract() {
     local game_dir="${1:-$(config_get paths.game_files)}"
     local unity_project="${2:-$(config_get paths.unity_project)}"
+    local variant="${3:-}"
 
     log_info "Starting asset extraction..."
     log_debug "Game directory: $game_dir"
     log_debug "Unity project: $unity_project"
+    log_debug "Variant: ${variant:-default}"
 
     # Check if AssetRipper is installed
     if ! assetripper_check_installed; then
@@ -272,7 +289,7 @@ assetripper_extract() {
     trap '_assetripper_stop_server' EXIT INT TERM
 
     # Step 1: Start server
-    if ! _assetripper_start_server; then
+    if ! _assetripper_start_server "$variant"; then
         return $ERROR_PROCESS
     fi
 

@@ -133,7 +133,7 @@ command_main() {
     step_progress 4 5 "Exporting data to SQLite"
 
     if [[ "$dry_run" != true ]]; then
-        if ! unity_export "$unity_path" "$database_path" "$entities"; then
+        if ! unity_export "$unity_path" "$database_path" "$entities" "$variant"; then
             die $ERROR_PROCESS "Unity export failed"
         fi
         success "Export complete"

@@ -73,7 +73,7 @@ command_main() {
     echo ""
 
     # Extract
-    if ! assetripper_extract "$game_path" "$unity_path"; then
+    if ! assetripper_extract "$game_path" "$unity_path" "$variant"; then
         die $ERROR_PROCESS "Asset extraction failed"
     fi
 

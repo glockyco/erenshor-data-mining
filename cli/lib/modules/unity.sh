@@ -58,16 +58,18 @@ unity_setup_export_script() {
 }
 
 # Export game data using Unity batch mode
-# Usage: unity_export [unity_project] [output_db] [entities]
+# Usage: unity_export [unity_project] [output_db] [entities] [variant]
 unity_export() {
     local unity_project="${1:-$(config_get paths.unity_project)}"
     local output_db="${2:-$(config_get paths.output)/erenshor.sqlite}"
     local entities="${3:-all}"
+    local variant="${4:-}"
 
     log_info "Starting Unity export..."
     log_debug "Unity project: $unity_project"
     log_debug "Output database: $output_db"
     log_debug "Entities: $entities"
+    log_debug "Variant: ${variant:-default}"
 
     # Check Unity installation
     if ! unity_check_installed; then
@@ -89,7 +91,23 @@ unity_export() {
     # Create output directory
     mkdir -p "$(dirname "$output_db")"
 
-    local log_file=$(config_get paths.logs)"/unity_export_$(timestamp_file).log"
+    # Determine log directory
+    # Use variant-specific logs if variant is specified, otherwise use global logs
+    local logs_dir
+    if [[ -n "$variant" ]]; then
+        logs_dir=$(config_get "variants.$variant.logs")
+    fi
+    # Fallback to global logs if variant logs not found
+    if [[ -z "$logs_dir" ]]; then
+        logs_dir=$(config_get "global.paths.logs")
+    fi
+    # Final fallback to default location
+    if [[ -z "$logs_dir" ]]; then
+        logs_dir="$REPO_ROOT/.erenshor/logs"
+    fi
+
+    local log_file="$logs_dir/unity_export_$(timestamp_file).log"
+    mkdir -p "$(dirname "$log_file")"
 
     # Use export.sh script
     local export_script="$unity_project/export.sh"
