@@ -30,12 +30,9 @@ source "$LIB_DIR/modules/unity.sh"
 source "$LIB_DIR/modules/database.sh"
 source "$LIB_DIR/modules/python.sh"
 
-# Version
-VERSION=$(cat "$CLI_ROOT/VERSION")
-
 # Show version
 show_version() {
-    echo "erenshor version $VERSION"
+    echo "erenshor version 1.0.0"
     echo ""
     echo "Erenshor Data Mining Pipeline"
     echo "Automated game data extraction and export"
