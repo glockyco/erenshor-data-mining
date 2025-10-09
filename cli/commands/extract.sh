@@ -84,12 +84,12 @@ command_main() {
 
     # Sync NuGet packages (in case extraction didn't copy them)
     if ! assetripper_sync_packages "$unity_path"; then
-        warn "Failed to sync NuGet packages - Unity compilation may fail"
+        warning "Failed to sync NuGet packages - Unity compilation may fail"
     fi
 
     # Setup export script
     if ! unity_setup_export_script "$unity_path"; then
-        warn "Failed to setup export script - export command may not work"
+        warning "Failed to setup export script - export command may not work"
     fi
 
     # Record state
