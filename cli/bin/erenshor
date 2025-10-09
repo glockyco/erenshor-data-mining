@@ -28,6 +28,7 @@ source "$LIB_DIR/modules/steamcmd.sh"
 source "$LIB_DIR/modules/assetripper.sh"
 source "$LIB_DIR/modules/unity.sh"
 source "$LIB_DIR/modules/database.sh"
+source "$LIB_DIR/modules/python.sh"
 
 # Version
 VERSION=$(cat "$CLI_ROOT/VERSION")

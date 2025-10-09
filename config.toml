@@ -1,28 +1,31 @@
 # Erenshor Data Mining Pipeline Configuration
-# Version 2.0 - Clean Multi-Variant Design
 #
-# This is a FRESH implementation with no legacy support
+# This configuration file is used by both Bash CLI and Python services
 # Supports multiple game variants with separate databases
 
-version = "2.0"
+version = "0.3"
 
 # Default variant when --variant flag is not specified
 default_variant = "main"
 
 # ============================================================================
-# GLOBAL SETTINGS
-# Apply to all variants unless overridden in variant sections
+# GLOBAL PATHS (used by both Bash and Python)
 # ============================================================================
-
 [global.paths]
 # Project-wide paths
 state = "$REPO_ROOT/.erenshor/state.json"
 config_local = "$REPO_ROOT/.erenshor/config.local.toml"
 logs = "$REPO_ROOT/.erenshor/logs"
-wiki_project = "$REPO_ROOT/../erenshor-wiki"  # Wiki project for deployment
+wiki_output = "$REPO_ROOT/out/wiki"        # Wiki pages output (Python)
+json_export = "$REPO_ROOT/out/json"        # JSON export output (Python)
+csv_export = "$REPO_ROOT/out/csv"          # CSV export output (Python)
+reports = "$REPO_ROOT/out/reports"         # Operation reports (Python)
 
+# ============================================================================
+# BASH CLI CONFIGURATION
+# ============================================================================
 [global.steam]
-# Steam username (set in config.local.toml for privacy)
+# Steam username (set in config.local.toml or .env for privacy)
 username = ""
 platform = "windows"                       # Force Windows version for macOS users
 
@@ -30,7 +33,7 @@ platform = "windows"                       # Force Windows version for macOS use
 # Unity configuration
 version = "2021.3.45f1"
 path = "/Applications/Unity/Hub/Editor/2021.3.45f1/Unity.app/Contents/MacOS/Unity"
-timeout = 1800                             # 30 minutes
+timeout = 3600                             # 60 minutes
 
 [global.assetripper]
 # AssetRipper configuration
@@ -38,12 +41,41 @@ path = "$HOME/Projects/AssetRipper/AssetRipper.GUI.Free"
 port = 8080
 timeout = 3600                             # 60 minutes
 
+# ============================================================================
+# PYTHON CONFIGURATION
+# ============================================================================
 [global.database]
-# Database settings
+# Database settings (used by both Bash and Python)
 backup_enabled = true
 backup_count = 10                          # Keep last N backups per variant
 validate = true
 
+[global.mediawiki]
+# MediaWiki API configuration (Python)
+api_url = "https://erenshor.wiki.gg/api.php"
+api_batch_size = 25                        # Number of pages to fetch per API request (1-50)
+api_delay = 1.0                            # Delay in seconds between API requests
+upload_batch_size = 10                     # Maximum pages to upload in one batch
+upload_delay = 1.0                         # Delay in seconds between uploads
+upload_edit_summary = "Automated wiki update"
+upload_minor_edit = true
+
+# Bot credentials (loaded from .env or config.local.toml)
+bot_username = ""                          # MediaWiki bot username (from Special:BotPasswords)
+bot_password = ""                          # MediaWiki bot password (from Special:BotPasswords)
+
+[global.google_sheets]
+# Google Sheets API configuration (Python)
+credentials_file = "$HOME/.config/erenshor/google-credentials.json"
+
+# Behavior
+batch_size = 1000                          # Rows to upload per batch
+max_retries = 3                            # Retry failed operations
+retry_delay = 5                            # Seconds between retries
+
+# ============================================================================
+# SHARED BEHAVIOR SETTINGS
+# ============================================================================
 [global.behavior]
 # Behavioral settings
 auto_backup = true
@@ -81,6 +113,10 @@ database = "$REPO_ROOT/variants/main/erenshor-main.sqlite"
 logs = "$REPO_ROOT/variants/main/logs"
 backups = "$REPO_ROOT/variants/main/backups"
 
+# Google Sheets configuration (Python)
+[variants.main.google_sheets]
+spreadsheet_id = "1eOYfjaudAhvE6HGBtWyRGgQDsmWDLENaoEwRvgBO_0E"
+
 # ============================================================================
 # VARIANT: PLAYTEST (Private Beta/Alpha)
 # ============================================================================
@@ -104,9 +140,9 @@ database = "$REPO_ROOT/variants/playtest/erenshor-playtest.sqlite"
 logs = "$REPO_ROOT/variants/playtest/logs"
 backups = "$REPO_ROOT/variants/playtest/backups"
 
-# Variant-specific overrides (optional)
-# [variants.playtest.steam]
-# username = "beta-tester"                 # Different account with beta access
+# Google Sheets configuration (Python)
+[variants.playtest.google_sheets]
+spreadsheet_id = "1gRgoCSXVRcbAbLNa7_FD5CMN9Z0PQA-mInSLeW1cRGE"
 
 # ============================================================================
 # VARIANT: DEMO (Public Demo)
@@ -154,8 +190,15 @@ backups = "$REPO_ROOT/variants/demo/backups"
 #   │   ├── state.json          # Pipeline state
 #   │   ├── config.local.toml   # Local overrides
 #   │   └── logs/               # Global logs
-#   ├── cli/                    # CLI scripts (tracked)
-#   ├── src/Assets/Editor/      # Unity export scripts (tracked, source of truth)
+#   ├── cli/                    # Bash CLI scripts (tracked)
+#   ├── src/
+#   │   ├── Assets/Editor/      # Unity export scripts (tracked, source of truth)
+#   │   └── erenshor/           # Python package (tracked)
+#   ├── out/                    # Python outputs (NOT tracked)
+#   │   ├── wiki/               # Generated wiki pages
+#   │   ├── json/               # JSON exports
+#   │   ├── csv/                # CSV exports
+#   │   └── reports/            # Operation reports
 #   ├── variants/               # All variant data (NOT tracked)
 #   │   ├── main/
 #   │   │   ├── game/           # Game files (~9GB)
@@ -166,31 +209,44 @@ backups = "$REPO_ROOT/variants/demo/backups"
 #   │   │   └── erenshor-main.sqlite
 #   │   ├── playtest/
 #   │   └── demo/
-#   └── config.toml             # This file (tracked)
+#   ├── config.toml             # This file (tracked)
+#   ├── .env                    # Environment variables (NOT tracked)
+#   └── .env.example            # Example environment variables (tracked)
 #
-# Symlinks:
-#   - Source: ~/Projects/erenshor/src/Assets/Editor/
-#   - Target: variants/{variant}/unity/Assets/Editor
-#   - Created automatically by `erenshor extract`
-#   - Managed by `erenshor symlink` commands
+# Configuration Loading (Priority Order):
+#   1. Environment variables (ERENSHOR_* prefix)
+#   2. .env file (gitignored, for local secrets)
+#   3. config.local.toml (gitignored, for local overrides)
+#   4. config.toml (tracked, project defaults)
 #
 # Local Configuration:
-#   Create config.local.toml for machine-specific settings:
+#   Option 1: Create config.local.toml for TOML-based overrides:
 #
 #   [global.steam]
 #   username = "yourusername"
 #
+#   [global.mediawiki]
+#   bot_username = "YourBot@WikiJob"
+#   bot_password = "your_bot_password"
+#
 #   [variants.playtest]
 #   enabled = true
 #
-#   This file is NOT tracked in Git and overrides config.toml
+#   Option 2: Create .env file for environment variable overrides:
+#
+#   ERENSHOR_STEAM_USERNAME=yourusername
+#   ERENSHOR_BOT_USERNAME=YourBot@WikiJob
+#   ERENSHOR_BOT_PASSWORD=your_bot_password
+#   ERENSHOR_VARIANTS_PLAYTEST_ENABLED=true
+#
+#   Both files are NOT tracked in Git and override config.toml
 #
 # Path Expansion:
 #   - $REPO_ROOT = Repository root (auto-detected from Git)
 #   - $HOME = User's home directory
 #   - ~ = User's home directory
 #
-# Usage:
+# Bash CLI Usage:
 #   # Default variant (main)
 #   erenshor download
 #   erenshor export
@@ -203,12 +259,18 @@ backups = "$REPO_ROOT/variants/demo/backups"
 #   erenshor status --all-variants
 #   erenshor update --all-variants
 #
+# Python CLI Usage:
+#   # Generate wiki pages
+#   erenshor-wiki generate items --variant main
+#
+#   # Deploy to MediaWiki
+#   erenshor-wiki deploy wiki --variant main
+#
+#   # Deploy to Google Sheets
+#   erenshor-wiki deploy sheets --variant main
+#
 # Symlink Management:
 #   erenshor symlink check          # Verify all symlinks
 #   erenshor symlink create         # Create missing symlinks
 #   erenshor symlink repair         # Fix broken symlinks
 #   erenshor symlink status         # Show symlink details
-#
-# For more information:
-#   - Architecture: docs/MULTI_VARIANT_V2_CLEAN.md
-#   - Quick Start: docs/VARIANT_SYSTEM_SUMMARY.md

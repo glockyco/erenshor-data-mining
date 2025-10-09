@@ -1,0 +1,12 @@
+{| class="wikitable" style="text-align: center"
+! Name
+! Day Catch Rate
+! Night Catch Rate
+{% for row in ctx.rows %}
+|-
+| {{ row.name }}
+| {{ row.day_rate }}
+| {{ row.night_rate }}
+{% endfor %}
+|}
+ 

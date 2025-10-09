@@ -7,6 +7,9 @@ command_main() {
     local source=""
     local variant="$(config_get default_variant)"
     local all_variants=false
+    local target="sqlite"
+    local dry_run=false
+    local sheets=()
     local original_args=("$@")
 
     # Parse arguments
@@ -27,6 +30,18 @@ command_main() {
             --all-variants)
                 all_variants=true
                 shift
+                ;;
+            -t|--target)
+                target="$2"
+                shift 2
+                ;;
+            --dry-run)
+                dry_run=true
+                shift
+                ;;
+            --sheet)
+                sheets+=("$2")
+                shift 2
                 ;;
             -h|--help)
                 show_deploy_help
@@ -83,8 +98,20 @@ command_main() {
 
     # Validate variant
     if ! variant_validate "$variant"; then
-        die $ERROR_ARGS "Invalid variant: $variant"
+        die $ERROR_GENERAL "Invalid variant: $variant"
     fi
+
+    # Validate target
+    case "$target" in
+        sqlite|sheets)
+            # Valid targets
+            ;;
+        *)
+            error "Invalid target: $target"
+            echo "Valid targets: sqlite, sheets"
+            exit 1
+            ;;
+    esac
 
     # Set module name for logging
     export LOG_MODULE="deploy"
@@ -92,9 +119,27 @@ command_main() {
     # Start timer
     local start_time=$(date +%s)
 
+    # Route to appropriate deployment function
+    case "$target" in
+        sqlite)
+            deploy_sqlite "$variant" "$source" "$skip_backup" "$start_time"
+            ;;
+        sheets)
+            deploy_sheets "$variant" "$dry_run" "${sheets[@]}"
+            ;;
+    esac
+}
+
+# Deploy to SQLite (existing behavior)
+deploy_sqlite() {
+    local variant="$1"
+    local source="$2"
+    local skip_backup="$3"
+    local start_time="$4"
+
     # Show header
     echo ""
-    celebrate "Deploying Database ($(variant_get_display_name "$variant"))"
+    celebrate "Deploying Database to SQLite ($(variant_get_display_name "$variant"))"
     echo ""
 
     # Get variant-specific paths
@@ -149,40 +194,97 @@ command_main() {
     echo ""
 }
 
+# Deploy to Google Sheets
+deploy_sheets() {
+    local variant="$1"
+    local dry_run="$2"
+    shift 2
+    local sheets=("$@")
+
+    # Show header
+    echo ""
+    celebrate "Deploying to Google Sheets ($(variant_get_display_name "$variant"))"
+    echo ""
+
+    # Source Python integration
+    source "$(dirname "${BASH_SOURCE[0]}")/../lib/modules/python.sh"
+
+    # Build Python CLI arguments
+    local python_args=(sheets deploy --variant "$variant")
+
+    # Add dry-run flag if specified
+    if [[ "$dry_run" == true ]]; then
+        python_args+=(--dry-run)
+    fi
+
+    # Add specific sheets if specified
+    for sheet in "${sheets[@]}"; do
+        if [[ -n "$sheet" ]]; then
+            python_args+=(--sheet "$sheet")
+        fi
+    done
+
+    # Execute Python CLI
+    info "Running: python -m erenshor.cli.main ${python_args[*]}"
+    echo ""
+
+    if ! python_exec "${python_args[@]}"; then
+        error "Google Sheets deployment failed"
+        exit $ERROR_PROCESS
+    fi
+
+    echo ""
+    success "Google Sheets deployment complete"
+    echo ""
+}
+
 # Show help
 show_deploy_help() {
     cat << 'EOF'
-erenshor deploy - Deploy database to wiki project
+erenshor deploy - Deploy data to various targets
 
 USAGE:
     erenshor deploy [OPTIONS]
 
 DESCRIPTION:
-    Copies the exported SQLite database to the wiki project directory.
-    Creates a backup of the existing database before overwriting.
+    Deploy exported game data to various targets including SQLite database,
+    Google Sheets, or other destinations. Default target is SQLite.
 
 OPTIONS:
-    -s, --source PATH     Source database path (default: from config)
+    -t, --target TARGET   Deployment target (sqlite, sheets) [default: sqlite]
     --variant VARIANT     Deploy specific variant (main, playtest, demo)
     --all-variants        Deploy all enabled variants sequentially
-    --no-backup           Skip database backup
+    --dry-run             Preview without uploading (sheets only)
+    --sheet NAME          Specific sheet to deploy (sheets only, can be repeated)
+    -s, --source PATH     Source database path (sqlite only)
+    --no-backup           Skip database backup (sqlite only)
     -h, --help            Show this help message
 
+TARGETS:
+    sqlite                Copy SQLite database to wiki project
+    sheets                Deploy to Google Sheets
+
 EXAMPLES:
-    # Deploy latest export (default variant: main)
+    # Deploy latest export to SQLite (default)
     erenshor deploy
 
-    # Deploy from custom location
-    erenshor deploy --source /tmp/test.sqlite
+    # Deploy to Google Sheets (all sheets)
+    erenshor deploy --target sheets
 
-    # Deploy without backup
-    erenshor deploy --no-backup
+    # Deploy specific sheets with dry-run
+    erenshor deploy --target sheets --sheet items --sheet characters --dry-run
 
-    # Deploy specific variant
-    erenshor deploy --variant playtest
+    # Deploy playtest variant to sheets
+    erenshor deploy --target sheets --variant playtest
 
-    # Deploy all enabled variants
-    erenshor deploy --all-variants
+    # Deploy from custom SQLite location
+    erenshor deploy --target sqlite --source /tmp/test.sqlite
+
+    # Deploy SQLite without backup
+    erenshor deploy --target sqlite --no-backup
+
+    # Deploy all variants to sheets
+    erenshor deploy --target sheets --all-variants
 
 SEE ALSO:
     erenshor update     Run full update pipeline

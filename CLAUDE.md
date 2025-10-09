@@ -4,313 +4,472 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a data mining project for Erenshor, a single-player simulated MMORPG. The project uses AssetRipper to extract Unity projects from game files, then exports game data to SQLite databases via custom Unity Editor scripts.
+This is a data mining project for Erenshor, a single-player simulated MMORPG. The project extracts Unity projects from game files using AssetRipper, exports game data to SQLite databases via custom Unity Editor scripts, and deploys data to MediaWiki and Google Sheets.
 
-**CRITICAL**: Only code in `src/Assets/Editor/` should be modified. All other code, assets, and files from the original project MUST NOT be changed under any circumstances.
+**CRITICAL**: Only code in `src/Assets/Editor/` and `src/erenshor/` should be modified. All other code, assets, and files from the original game MUST NOT be changed under any circumstances.
 
-## Project Context & Requirements
+## Project Context
 
 - **Solo Developer**: Hobby project maintained by a single developer
-- **Zero Cost**: Everything must be free (SteamCMD, AssetRipper, Unity Personal)
-- **Automated Pipeline**: Full automation from Steam download to database deployment
+- **Zero Cost**: Everything must be free (SteamCMD, AssetRipper, Unity Personal, Google Sheets API)
+- **Automated Pipeline**: Full automation from Steam download to Google Sheets deployment
 - **Multi-Variant Support**: Handles main game, playtest, and demo versions separately
 - **Unity Constraints**: Non-Editor code cannot be included in git (belongs to game developer)
-- **Output**: SQLite databases deployed to `erenshor-wiki` project for wiki generation
+- **Output**: SQLite databases and formatted data for wiki generation and spreadsheets
 
-## Architecture Overview
+## Architecture
+
+### Two-Layer CLI System
+
+The project uses a **hybrid Bash + Python CLI architecture**:
+
+```
+┌────────────────────────────────────────────┐
+│         Bash CLI (Orchestration)           │
+│  • Pipeline automation                     │
+│  • System operations                       │
+│  • Unity/SteamCMD/AssetRipper integration  │
+└────────────┬───────────────────────────────┘
+             │ python_exec()
+             ↓
+┌────────────────────────────────────────────┐
+│       Python CLI (Business Logic)          │
+│  • Database operations                     │
+│  • Wiki operations                         │
+│  • Google Sheets deployment                │
+│  • Data formatting and transformation      │
+└────────────────────────────────────────────┘
+```
+
+**Key Principle**: Bash orchestrates the pipeline and system operations, Python handles business logic and data processing.
 
 ### Directory Structure
 
 ```
 erenshor/
-├── .erenshor/              # Project-local state (NOT tracked in git)
-│   ├── state.json          # Pipeline state tracking
-│   └── config.local.toml   # User config overrides (machine-specific)
-├── cli/                    # CLI automation scripts (tracked)
-│   ├── bin/erenshor        # Main CLI entry point
-│   ├── commands/           # Command implementations
-│   │   ├── download.sh     # SteamCMD game download
-│   │   ├── extract.sh      # AssetRipper extraction
-│   │   ├── export.sh       # Unity batch mode export
-│   │   ├── deploy.sh       # Deploy database to wiki
-│   │   └── update.sh       # Full pipeline
-│   ├── lib/
-│   │   ├── core/           # Core utilities
-│   │   │   ├── config.sh   # Configuration management
-│   │   │   ├── logging.sh  # Logging utilities
-│   │   │   └── state.sh    # State management
-│   │   └── modules/        # Feature modules
-│   │       ├── steamcmd.sh      # SteamCMD integration
-│   │       ├── assetripper.sh   # AssetRipper integration
-│   │       ├── unity.sh         # Unity Editor automation
-│   │       └── database.sh      # Database operations
-├── src/                    # Source code (tracked)
+├── .erenshor/                  # Project state (NOT in git)
+│   ├── state.json              # Pipeline state tracking
+│   └── config.local.toml       # User config overrides
+├── cli/                        # Bash CLI (tracked)
+│   ├── bin/erenshor            # Main CLI entry point
+│   ├── commands/               # Bash command implementations
+│   │   ├── download.sh         # SteamCMD game download
+│   │   ├── extract.sh          # AssetRipper extraction
+│   │   ├── export.sh           # Unity batch mode export
+│   │   └── deploy.sh           # Deploy to wiki/sheets
+│   └── lib/
+│       ├── core/               # Core utilities
+│       │   ├── config.sh       # Configuration management
+│       │   ├── logging.sh      # Logging utilities
+│       │   └── state.sh        # State management
+│       └── modules/            # Feature modules
+│           ├── python.sh       # Python CLI integration
+│           ├── steamcmd.sh     # SteamCMD integration
+│           ├── assetripper.sh  # AssetRipper integration
+│           ├── unity.sh        # Unity Editor automation
+│           └── database.sh     # Database operations
+├── src/                        # Source code (tracked)
+│   ├── erenshor/               # Python package
+│   │   ├── application/        # Application services
+│   │   │   ├── formatters/     # Data formatters
+│   │   │   │   └── sheets/     # Google Sheets formatters
+│   │   │   │       └── queries/  # SQL query files (23 sheets)
+│   │   │   └── services/       # Business services
+│   │   ├── cli/                # Python CLI implementation
+│   │   │   └── commands/       # Python command implementations
+│   │   ├── domain/             # Domain models
+│   │   ├── infrastructure/     # Infrastructure layer
+│   │   │   └── publishers/     # Google Sheets, MediaWiki
+│   │   └── registry/           # Entity registries
 │   └── Assets/
-│       ├── Editor/         # Unity export scripts (symlinked into Unity projects)
-│       │   ├── ExportBatch.cs  # Batch mode export entry point
-│       │   ├── Database/       # Record classes for SQLite tables
-│       │   ├── ExportSystem/
+│       ├── Editor/             # Unity export scripts (symlinked to Unity)
+│       │   ├── ExportBatch.cs  # Batch mode export entry
+│       │   ├── Database/       # SQLite table records
+│       │   ├── ExportSystem/   # Asset scanning system
 │       │   │   ├── AssetScanner.cs
-│       │   │   └── AssetScanner/
-│       │   │       └── Listener/  # Listeners for each entity type
+│       │   │   └── AssetScanner/Listener/  # Entity listeners
 │       │   └── WikiUtils/      # Wiki comparison tools
-│       └── Packages/       # NuGet packages (copied to Unity projects)
-├── variants/               # Working directories (NOT tracked)
-│   ├── main/               # Main game variant (App ID 2382520)
-│   │   ├── game/           # Downloaded game files from Steam
-│   │   ├── unity/          # Unity project extracted by AssetRipper
-│   │   │   └── Assets/Editor -> ../../../../src/Assets/Editor/  # Symlink
-│   │   ├── logs/           # Variant-specific logs
+│       └── Packages/           # NuGet packages (copied to Unity)
+├── variants/                   # Working directories (NOT in git)
+│   ├── main/                   # Main game (App ID 2382520)
+│   │   ├── game/               # Downloaded from Steam
+│   │   ├── unity/              # Unity project from AssetRipper
+│   │   │   └── Assets/Editor -> ../../../../src/Assets/Editor/
+│   │   ├── logs/               # Variant-specific logs
 │   │   └── erenshor-main.sqlite
-│   ├── playtest/           # Playtest variant (App ID 3090030)
-│   └── demo/               # Demo variant (App ID 2522260)
-├── config.toml             # Main configuration (tracked)
-├── CLAUDE.md               # This file (tracked)
-└── erenshor.sqlite         # Reference database copy (NOT tracked)
+│   ├── playtest/               # Playtest (App ID 3090030)
+│   └── demo/                   # Demo (App ID 2522260)
+├── docs/                       # Documentation
+├── tests/                      # Python tests (192 tests, 99.5% pass)
+├── config.toml                 # Main config (tracked)
+├── pyproject.toml              # Python dependencies
+└── erenshor.sqlite             # Reference DB copy (NOT in git)
 ```
 
 ### Multi-Variant System
 
-The project supports three game variants:
+Three game variants with separate pipelines:
 - **main** (App ID 2382520): Production game
 - **playtest** (App ID 3090030): Public test branch
 - **demo** (App ID 2522260): Free demo version
 
-Each variant has separate:
-- Game downloads (`variants/{variant}/game/`)
-- Unity projects (`variants/{variant}/unity/`)
-- SQLite databases (`erenshor-{variant}.sqlite`)
-- Logs (`variants/{variant}/logs/`)
+Each variant has:
+- Separate game downloads (`variants/{variant}/game/`)
+- Separate Unity projects (`variants/{variant}/unity/`)
+- Separate databases (`erenshor-{variant}.sqlite`)
+- Separate logs (`variants/{variant}/logs/`)
 
-### Hybrid Symlink Approach
+## CLI Commands
 
-- **Symlink**: `src/Assets/Editor/` → `variants/{variant}/unity/Assets/Editor/`
-  - Source code files (.cs) work fine through symlinks
-  - Allows editing in one place, used by all variants
-- **Copy**: `src/Assets/Packages/` → `variants/{variant}/unity/Assets/Packages/`
-  - NuGet DLLs must be copied (Unity can't load assemblies through symlinks)
-  - Managed by `erenshor symlink create` command
-
-## CLI Automation Pipeline
-
-The CLI provides a complete automation pipeline for data mining:
+### Bash CLI Commands
 
 ```bash
-# Full pipeline: download → extract → export → deploy
+# Full pipeline (download → extract → export → deploy)
 erenshor update [--variant <variant>]
 
-# Individual steps
-erenshor download [--variant <variant>]  # Download game from Steam via SteamCMD
+# Individual pipeline steps
+erenshor download [--variant <variant>]  # Download from Steam via SteamCMD
 erenshor extract [--variant <variant>]   # Extract Unity project via AssetRipper
-erenshor export [--variant <variant>]    # Export data to SQLite via Unity batch mode
-erenshor deploy [--variant <variant>]    # Deploy database to wiki project
+erenshor export [--variant <variant>]    # Export to SQLite via Unity batch mode
+erenshor deploy [--variant <variant>]    # Deploy to wiki/sheets
 
 # Utilities
 erenshor status [--all-variants]         # Show system status
-erenshor config get <key>                # Get configuration value
+erenshor config get [<key>]              # View configuration
 erenshor symlink check|create|status     # Manage symlinks
+erenshor doctor                          # System health check
+erenshor test-python                     # Test Python integration
 ```
 
-### Pipeline Steps
+### Python CLI Commands
 
-1. **download**: Uses SteamCMD to download game files from Steam
-   - Requires Steam credentials (stored in `~/.steam/`)
-   - Downloads to `variants/{variant}/game/`
-   - Validates App ID and manifest
+```bash
+# Direct invocation (for development/testing)
+uv run python -m erenshor.cli.main <command>
 
-2. **extract**: Uses AssetRipper to extract Unity project from game files
-   - Extracts to `variants/{variant}/unity/`
-   - Creates symlinks to `src/Assets/Editor/`
-   - Copies NuGet packages to `Assets/Packages/`
+# Database operations
+python_exec db stats                     # Database statistics
+python_exec db validate                  # Validate schema
 
-3. **export**: Runs Unity in batch mode to export game data
-   - Invokes `ExportBatch.Run()` method
-   - Generates `erenshor-{variant}.sqlite` in variant directory
-   - Logs to `variants/{variant}/logs/export_*.log`
+# Wiki operations
+python_exec wiki fetch                   # Fetch wiki templates
+python_exec wiki update                  # Update wiki pages
 
-4. **deploy**: Copies database to wiki project
-   - Preserves variant-specific filename (`erenshor-{variant}.sqlite`)
-   - Destination: `erenshor-wiki/`
-   - Reference copy kept at project root (`erenshor.sqlite`)
+# Google Sheets deployment
+python_exec sheets list                  # List available sheets
+python_exec sheets validate              # Validate credentials
+python_exec sheets deploy --all-sheets   # Deploy all sheets
 
-### Configuration
+# Utilities
+python_exec check-paths                  # Show path configuration
+```
 
-Configuration is loaded from multiple sources (in order of precedence):
+### Python Integration
 
-1. Environment variables (e.g., `ERENSHOR_UNITY_PATH`)
-2. `.erenshor/config.local.toml` (user overrides, NOT tracked)
-3. `config.toml` (project defaults, tracked)
+The Bash CLI calls Python CLI commands via `python_exec()`:
 
-**Important config values**:
-- `unity.path`: Path to Unity 2021.3.45f2 executable
-- `unity.version`: Unity version (must be 2021.3.45f2)
-- `steamcmd.path`: Path to SteamCMD executable
-- `assetripper.path`: Path to AssetRipper.ConsoleApp executable
-- `variants.*.app_id`: Steam App ID for each variant
-- `paths.*`: Various paths using `$REPO_ROOT` and `$HOME` for portability
+```bash
+# In Bash command scripts
+python_exec wiki update "$@"                    # Simple delegation
+python_exec_variant "$variant" sheets deploy    # With variant context
+python_exec_with_config db.path "/custom/path" db stats  # With config override
+```
+
+See `docs/PYTHON_INTEGRATION.md` for detailed integration guide.
+
+## Common Workflows
+
+### Running Full Pipeline
+
+```bash
+# Update all data for main variant
+erenshor update
+
+# Update specific variant
+erenshor update --variant playtest
+
+# Deploy to Google Sheets after export
+erenshor export && python_exec sheets deploy --all-sheets
+```
+
+### Adding New Export Type
+
+1. Create record class: `src/Assets/Editor/Database/MyRecord.cs`
+2. Create listener: `src/Assets/Editor/ExportSystem/AssetScanner/Listener/MyListener.cs`
+3. Register in `ExportBatch.cs` (CLI) or `AssetScannerExporterWindow.cs` (GUI)
+4. Test: `erenshor export`
+
+### Adding New Google Sheets Query
+
+1. Create SQL file: `src/erenshor/application/formatters/sheets/queries/my-sheet.sql`
+2. Write SQL query (returns header + data rows)
+3. Deploy: `python_exec sheets deploy --sheets my-sheet`
+
+### Creating Bash Command that Calls Python
+
+Pattern 1 - Simple delegation:
+```bash
+#!/usr/bin/env bash
+command_main() {
+    python_exec my-command "$@"
+}
+```
+
+Pattern 2 - Hybrid (Bash + Python):
+```bash
+#!/usr/bin/env bash
+command_main() {
+    local variant="${1:-main}"
+
+    # Bash operations
+    validate_database "$variant" || return 1
+
+    # Python business logic
+    python_exec_variant "$variant" process-data
+}
+```
+
+Pattern 3 - Orchestration:
+```bash
+#!/usr/bin/env bash
+command_main() {
+    python_exec wiki fetch || return 1
+    unity_export "$variant" || return 1
+    python_exec wiki update || return 1
+}
+```
 
 ## Data Mining Architecture
 
-### Export System (`src/Assets/Editor/ExportSystem/`)
+### Unity Export System
+
+**Location**: `src/Assets/Editor/ExportSystem/`
 
 **Core Components:**
 - `ExportBatch.cs` - Entry point for batch mode exports
 - `AssetScanner.cs` - Scans Unity project for game assets
 - `Repository.cs` - Database operations and table management
 
-**Listeners** (`src/Assets/Editor/ExportSystem/AssetScanner/Listener/`):
-Each listener extracts specific game data:
+**Listeners**: Each listener extracts specific game data:
 - `ItemListener.cs` - Items and equipment
 - `CharacterListener.cs` - NPCs and creatures
 - `SpawnPointListener.cs` - Enemy spawn locations
 - `QuestListener.cs` - Quest data
 - `LootTableListener.cs` - Drop tables
-- `SpellListener.cs` / `SkillListener.cs` - Abilities
-- And many more...
+- And 20+ more...
 
-**Junction Tables**
+### Database Schema
 
-The database schema uses junction tables for many-to-many relationships:
-
-- **29 Junction Tables**: Characters (13), quests (6), items/spells (3), spawn points (3), crafting (2), gathering systems (2)
-- **20,600+ Normalized Rows**: All relationships properly normalized
-- **CSV Fields**: Comma-separated fields retained for backward compatibility
-- **Deferred Foreign Key Resolution**: Junction records created after primary entities to handle Unity asset lifecycle
-- **Database Location**: `erenshor-wiki/erenshor-{variant}.sqlite`
-
-**Key Junction Tables:**
-- Character abilities: `CharacterAttackSpells`, `CharacterBuffSpells`, `CharacterAggressiveFactions`, `CharacterVendorItems`
-- Quest relationships: `QuestRequiredItems`, `QuestFactionAffects`, `QuestRewards`
+**Junction Tables**: 29 junction tables for many-to-many relationships:
+- Character abilities: `CharacterAttackSpells`, `CharacterBuffSpells`
+- Quest relationships: `QuestRequiredItems`, `QuestRewards`
 - Class restrictions: `ItemClasses`, `SpellClasses`
 - Spawn mechanics: `SpawnPointCharacters`, `SpawnPointPatrolPoints`
-- Crafting: `CraftingRecipes`, `CraftingRewards`
 
-Junction tables enable proper relational queries, referential integrity, and eliminate CSV field duplication.
+**Total**: 20,600+ normalized rows across all junction tables.
 
-### Database Schema (`src/Assets/Editor/Database/`)
+### Google Sheets Deployment
 
-Record classes map to SQLite tables:
-- `ItemRecord.cs` / `ItemStatsRecord.cs` - Item data
-- `CharacterRecord.cs` - NPC/creature data
-- `SpawnPointRecord.cs` - Spawn locations
-- `QuestRecord.cs` - Quest information
-- `LootTableRecord.cs` - Loot drops
-- Additional records for all game systems
+**Architecture**: SQL queries → Formatter → Publisher → Google Sheets
 
-### Wiki Integration (`src/Assets/Editor/WikiUtils/`)
+**Components**:
+1. **SQL Query Files** (23 files): `src/erenshor/application/formatters/sheets/queries/*.sql`
+2. **SheetsFormatter**: Executes SQL, formats results as spreadsheet rows
+3. **GoogleSheetsPublisher**: Publishes via Google Sheets API v4
+4. **SheetsDeployService**: Orchestrates deployment workflow
 
-Tools for comparing game data with wiki:
-- `WikiTemplateExtractor.cs` - Extract wiki templates
-- `WikiTemplateParser.cs` - Parse wiki markup
-- `WikiItemComparer.cs` - Compare items
-- Specialized comparers for armor, weapons, abilities
+**Available Sheets**: 23 sheets including items, characters, spells, quests, drop-chances, spawn-points, and more.
 
-### Utility Tools
+See `docs/GOOGLE_SHEETS_DEPLOYMENT.md` for complete guide.
 
-- `LootTableProbabilityCalculator.cs` - Calculate drop rates
-- `StatsObjectFinder.cs` - Find objects with specific stats
-- `SceneScriptSearchWindow.cs` - Search scenes for scripts
-- `TileScreenshotter.cs` - Generate map tiles
+## Configuration
+
+Configuration loads from multiple sources (in order):
+1. Environment variables (e.g., `ERENSHOR_UNITY_PATH`)
+2. `.erenshor/config.local.toml` (user overrides, NOT tracked)
+3. `config.toml` (project defaults, tracked)
+
+**Key config values**:
+```toml
+[unity]
+path = "/Applications/Unity/Hub/Editor/2021.3.45f2/Unity.app/Contents/MacOS/Unity"
+version = "2021.3.45f2"
+
+[google_sheets]
+credentials_file = "$HOME/.config/erenshor/google-credentials.json"
+batch_size = 1000
+
+[variants.main]
+app_id = 2382520
+database = "$REPO_ROOT/variants/main/erenshor-main.sqlite"
+
+[variants.main.google_sheets]
+spreadsheet_id = "1eOYfjaudAhvE6HGBtWyRGgQDsmWDLENaoEwRvgBO_0E"
+```
 
 ## Development Guidelines
 
-1. **Only modify files in `src/Assets/Editor/`** - Never change original game files
-2. **Use CLI for pipeline operations** - Automates download, extract, export, deploy
-3. **Test data exports** - Verify exported data matches game
-4. **Maintain compatibility** - Ensure tools work with Unity 2021.3.45f2
-5. **Validate against wiki** - Use comparison tools to check accuracy
-6. **Work with variants** - Test changes across main, playtest, and demo variants
+1. **Only modify `src/Assets/Editor/` and `src/erenshor/`** - Never change game files
+2. **Use Bash for orchestration** - Pipeline steps, system operations, Unity/Steam integration
+3. **Use Python for business logic** - Data processing, formatting, API interactions
+4. **Test exports** - Verify exported data matches game
+5. **Maintain Unity 2021.3.45f2 compatibility** - Game's exact version
+6. **Work with variants** - Test changes across main, playtest, and demo
+7. **Follow Python best practices** - Type hints, tests, domain-driven design
 
-## Common Tasks
+## Testing
 
-### Running Full Data Export Pipeline
-
+### Python Tests
 ```bash
-# Update all data for main variant (download, extract, export, deploy)
-erenshor update
+# Run all tests (192 tests, 99.5% pass rate)
+uv run pytest
 
-# Update specific variant
-erenshor update --variant playtest
+# With coverage
+uv run pytest --cov
 
-# Run individual steps
-erenshor download             # Download game from Steam
-erenshor extract              # Extract Unity project
-erenshor export               # Export to SQLite
-erenshor deploy               # Deploy to wiki project
+# Integration tests only
+uv run pytest -m integration
+
+# Watch mode (run on file changes)
+uv run pytest-watch
 ```
 
-### Manual Unity Export (Alternative)
-
-If you need to run exports manually through Unity Editor:
-1. Open the Unity project in Unity 2021.3.45f2
-   - Project location: `variants/{variant}/unity/`
-2. Use **Tools > Export Game Data** menu
-3. Monitor progress in the AssetScannerExporterWindow
-4. Database output: `variants/{variant}/erenshor-{variant}.sqlite`
-
-### Adding a New Export Type
-
-1. Create a new Record class in `src/Assets/Editor/Database/`
-2. Create a corresponding Listener in `src/Assets/Editor/ExportSystem/AssetScanner/Listener/`
-3. Register the listener in `ExportBatch.cs` (for CLI) or `AssetScannerExporterWindow.cs` (for GUI)
-4. Test with: `erenshor export`
-
-### Working with Multiple Variants
-
+### Bash Integration Tests
 ```bash
-# Check status of all variants
-erenshor status --all-variants
+# Test Python integration
+erenshor test-python
 
-# Export specific variant
-erenshor export --variant playtest
+# Test environment
+erenshor test-python env
 
-# Compare databases between variants
-sqlite3 variants/main/erenshor-main.sqlite "SELECT COUNT(*) FROM Items"
-sqlite3 variants/playtest/erenshor-playtest.sqlite "SELECT COUNT(*) FROM Items"
+# Test CLI commands
+erenshor test-python cli
 ```
 
-### Managing Symlinks
+## Python Environment
 
+**Preferred**: Use `uv` for automatic dependency management
 ```bash
-# Check symlink status
-erenshor symlink status
-
-# Create missing symlinks
-erenshor symlink create
-
-# Verify symlinks
-erenshor symlink check
+uv sync --dev              # Install dependencies
+uv run pytest              # Run tests
+uv run python -m erenshor.cli.main  # Run CLI
 ```
 
-### Debugging Export Issues
+**Fallback**: System Python with pip
+```bash
+pip install -e src/        # Install package
+python3 -m erenshor.cli.main  # Run CLI
+```
 
-1. Check logs in `variants/{variant}/logs/export_*.log`
-2. Check global logs in `.erenshor/logs/`
+**Environment Detection**: The Bash CLI automatically detects uv vs system Python.
+
+## Debugging
+
+### Export Issues
+1. Check logs: `variants/{variant}/logs/export_*.log`
+2. Check global logs: `.erenshor/logs/`
 3. Verify Unity version: `erenshor config get unity.version`
 4. Check ScriptableObject references are valid
-5. Use external SQLite viewer to inspect database
-6. Run Unity in GUI mode to see console errors
+5. Use SQLite viewer to inspect database
+6. Run Unity in GUI mode for console errors
 
-### Configuration Management
+### Python CLI Issues
+```bash
+# Check environment
+python_check_env
+
+# Show environment info
+python_show_env
+
+# Validate integration
+python_validate
+
+# Enable debug logging
+export LOG_LEVEL=DEBUG
+python_exec <command>
+```
+
+### Google Sheets Issues
+- **Authentication**: Check `~/.config/erenshor/google-credentials.json` exists
+- **Permissions**: Service account needs **Editor** access (not just Viewer)
+- **Validation**: Run `python_exec sheets validate` to test credentials
+- **Dry-run**: Test without writing: `python_exec sheets deploy --dry-run`
+
+## Important Constraints
+
+1. **Unity Version**: MUST use Unity 2021.3.45f2 (game's exact version)
+2. **Steam Credentials**: Requires valid Steam account with game ownership
+3. **Git Ignore**: All variant directories, databases, `.erenshor/` not tracked
+4. **Symlinks**: C# files symlinked, DLLs copied (Unity assembly loading limitation)
+5. **Batch Mode**: Unity exports run headless via CLI (no GUI)
+6. **Service Account**: Google Sheets requires Editor access for deployment
+
+## Key Files
+
+**Bash CLI**:
+- `cli/bin/erenshor` - Main CLI entry point
+- `cli/lib/modules/python.sh` - Python integration module
+- `cli/commands/*.sh` - Bash command implementations
+
+**Python CLI**:
+- `src/erenshor/cli/main.py` - Python CLI entry point
+- `src/erenshor/cli/commands/*.py` - Python command implementations
+- `src/erenshor/application/services/` - Business services
+
+**Unity Export**:
+- `src/Assets/Editor/ExportBatch.cs` - Batch export entry point
+- `src/Assets/Editor/ExportSystem/AssetScanner.cs` - Asset scanner
+- `src/Assets/Editor/Database/*.cs` - SQLite table records
+
+**Configuration**:
+- `config.toml` - Main configuration
+- `.erenshor/config.local.toml` - User overrides
+- `pyproject.toml` - Python dependencies
+
+**Documentation**:
+- `docs/PYTHON_INTEGRATION.md` - Python integration guide
+- `docs/GOOGLE_SHEETS_DEPLOYMENT.md` - Google Sheets guide
+- `docs/PHASE3_COMPLETION_REPORT.md` - Phase 3 completion
+- `docs/ARCHITECTURE_MERGE.md` - Architecture documentation
+
+## Quick Reference
 
 ```bash
-# View all configuration
+# Full update pipeline
+erenshor update
+
+# Export Unity data
+erenshor export
+
+# Deploy to Google Sheets
+python_exec sheets deploy --all-sheets
+
+# Check system health
+erenshor doctor
+
+# View configuration
 erenshor config get
 
-# Get specific value
-erenshor config get unity.path
+# Test Python integration
+erenshor test-python
 
-# Edit user overrides
-vim .erenshor/config.local.toml
+# Run Python tests
+uv run pytest
 
-# Edit project defaults (use with caution)
-vim config.toml
+# Check logs
+erenshor logs
+
+# View status
+erenshor status --all-variants
 ```
 
 ## Notes
 
-- **Unity Version**: Must use Unity 2021.3.45f2 (game's version)
-- **SteamCMD**: Requires valid Steam account with game ownership
-- **AssetRipper**: Extracts game assets to Unity project format
-- **Batch Mode**: Exports run in Unity batch mode (no GUI) via CLI
-- **Git Ignore**: All variant directories, databases, and `.erenshor/` are not tracked
+This project successfully completed Phase 3 (Python Integration) and Phase 4 (Google Sheets Deployment). The two-layer CLI architecture enables:
+- Bash orchestration of complex pipelines
+- Python business logic and data processing
+- Seamless integration between layers
+- Comprehensive testing (192 Python tests)
+- Production-ready Google Sheets deployment
+
+For AI assistance: Focus on the separation of concerns - Bash handles orchestration and system operations, Python handles data processing and API integrations. Always respect the "only modify src/" constraint.

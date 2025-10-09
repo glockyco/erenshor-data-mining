@@ -1,0 +1,37 @@
+{|
+{% for col in ctx.columns %}
+!{{ "{{" }}Fancy-armor
+| image = {{ col.image }}
+| name = {{ col.name }}
+| type = {{ col.type }}
+| slot = {{ col.slot }}
+| relic = {{ col.relic }}
+| str = {{ col.str }}
+| end = {{ col.end }}
+| dex = {{ col.dex }}
+| agi = {{ col.agi }}
+| int = {{ col.int }}
+| wis = {{ col.wis }}
+| cha = {{ col.cha }}
+| res = {{ col.res }}
+| health = {{ col.health }}
+| mana = {{ col.mana }}
+| armor = {{ col.armor }}
+| magic = {{ col.magic }}
+| poison = {{ col.poison }}
+| elemental = {{ col.elemental }}
+| void = {{ col.void }}
+| description = {{ col.description }}
+| arcanist = {{ col.arcanist }}
+| duelist = {{ col.duelist }}
+| druid = {{ col.druid }}
+| paladin = {{ col.paladin }}
+| stormcaller = {{ col.stormcaller }}
+| proc_name = {{ col.proc_name }}
+| proc_desc = {{ col.proc_desc }}
+| proc_chance = {{ col.proc_chance }}
+| proc_style = {{ col.proc_style }}
+| tier = {{ col.tier }}
+}}
+{%- endfor %}
+|}
