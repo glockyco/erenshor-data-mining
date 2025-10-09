@@ -5,12 +5,6 @@
 [[ -n "${VARIANTS_MODULE_LOADED:-}" ]] && return 0
 readonly VARIANTS_MODULE_LOADED=1
 
-# Module initialization
-VARIANTS_MODULE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$VARIANTS_MODULE_DIR/logger.sh"
-source "$VARIANTS_MODULE_DIR/errors.sh"
-source "$VARIANTS_MODULE_DIR/config.sh"
-
 # Single source of truth for variant list
 readonly ERENSHOR_VARIANTS=("main" "playtest" "demo")
 

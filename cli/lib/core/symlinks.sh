@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
 # lib/core/symlinks.sh - Symlink management for variant Unity projects
 
-# Module initialization
-SYMLINKS_MODULE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SYMLINKS_MODULE_DIR/logger.sh"
-source "$SYMLINKS_MODULE_DIR/errors.sh"
-source "$SYMLINKS_MODULE_DIR/variants.sh"
+# Guard against multiple sourcing
+[[ -n "${SYMLINKS_MODULE_LOADED:-}" ]] && return 0
+readonly SYMLINKS_MODULE_LOADED=1
 
 # Check symlink for a specific variant
 # Returns: 0 if valid, 1 if broken/missing, 2 if wrong target
