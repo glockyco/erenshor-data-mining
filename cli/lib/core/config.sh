@@ -5,14 +5,8 @@
 [[ -n "${CONFIG_LOADED:-}" ]] && return 0
 readonly CONFIG_LOADED=1
 
-# Get repo root for config expansion
-_get_repo_root() {
-    local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    echo "$(cd "$script_dir/../../.." && pwd)"
-}
-
 # Export REPO_ROOT for config expansions
-export REPO_ROOT="$(_get_repo_root)"
+export REPO_ROOT="$(get_repo_root)"
 
 # Configuration file locations
 PROJECT_CONFIG="$REPO_ROOT/config.toml"

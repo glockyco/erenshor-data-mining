@@ -5,14 +5,8 @@
 [[ -n "${STATE_LOADED:-}" ]] && return 0
 readonly STATE_LOADED=1
 
-# Get repo root for state file location
-_state_get_repo_root() {
-    local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    echo "$(cd "$script_dir/../../.." && pwd)"
-}
-
 # State file location - now in project directory
-REPO_ROOT="${REPO_ROOT:-$(_state_get_repo_root)}"
+REPO_ROOT="${REPO_ROOT:-$(get_repo_root)}"
 ERENSHOR_STATE="${ERENSHOR_STATE:-$REPO_ROOT/.erenshor/state.json}"
 
 # Initialize state file with v2.0 structure

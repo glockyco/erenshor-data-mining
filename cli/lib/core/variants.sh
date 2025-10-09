@@ -14,11 +14,6 @@ source "$VARIANTS_MODULE_DIR/config.sh"
 # Single source of truth for variant list
 readonly ERENSHOR_VARIANTS=("main" "playtest" "demo")
 
-# Get repo root (assumes we're in cli/lib/core/)
-get_repo_root() {
-    echo "$(cd "$VARIANTS_MODULE_DIR/../../.." && pwd)"
-}
-
 # List all available variants
 variant_list() {
     printf '%s\n' "${ERENSHOR_VARIANTS[@]}"

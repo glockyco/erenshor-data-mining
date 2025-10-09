@@ -7,11 +7,6 @@ source "$SYMLINKS_MODULE_DIR/logger.sh"
 source "$SYMLINKS_MODULE_DIR/errors.sh"
 source "$SYMLINKS_MODULE_DIR/variants.sh"
 
-# Get repo root (assumes we're in cli/lib/core/)
-get_repo_root() {
-    echo "$(cd "$SYMLINKS_MODULE_DIR/../../.." && pwd)"
-}
-
 # Check symlink for a specific variant
 # Returns: 0 if valid, 1 if broken/missing, 2 if wrong target
 symlink_check() {
