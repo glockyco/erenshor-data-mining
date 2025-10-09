@@ -93,7 +93,7 @@ command_main() {
         success "Unity project: $unity_project"
 
         # Check for Editor scripts in src/
-        local repo_root="$(cd "$unity_project/../../.." && pwd)"
+        local repo_root="$(get_repo_root)"
         if [[ -d "$repo_root/src/Assets/Editor" ]]; then
             success "Editor scripts found"
         else
@@ -169,7 +169,7 @@ command_main() {
     echo "$(bold "Symlinks:")"
 
     local symlink_errors=0
-    local repo_root="$(cd "$ERENSHOR_CLI_ROOT/.." && pwd)"
+    local repo_root="$(get_repo_root)"
 
     for variant in "${ERENSHOR_VARIANTS[@]}"; do
         local variant_dir="$repo_root/variants/$variant/unity"

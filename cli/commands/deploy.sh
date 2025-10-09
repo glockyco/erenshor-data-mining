@@ -170,9 +170,6 @@ deploy_sheets() {
     celebrate "Deploying to Google Sheets ($(variant_get_display_name "$variant"))"
     echo ""
 
-    # Source Python integration
-    source "$(dirname "${BASH_SOURCE[0]}")/../lib/modules/python.sh"
-
     # Build Python CLI arguments
     local python_args=(sheets deploy --variant "$variant")
 

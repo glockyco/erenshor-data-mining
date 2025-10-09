@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
 # commands/symlink.sh - Manage symlinks for variant Unity projects
 
-# Source symlink module
-SYMLINK_CMD_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SYMLINK_CMD_DIR/../lib/core/symlinks.sh"
-
 # Command entry point
 command_main() {
     local subcommand="${1:-status}"
