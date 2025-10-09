@@ -180,34 +180,29 @@ verify_database() {
 }
 
 # Get repository root directory
-# Works from any location within the CLI directory structure
+# Walks up the directory tree looking for repository marker files
 get_repo_root() {
+    # Use cached value if available
     if [[ -n "${REPO_ROOT:-}" ]]; then
         echo "$REPO_ROOT"
         return 0
     fi
 
-    local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    local dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-    # Determine depth based on location
-    if [[ "$script_dir" =~ cli/lib/(core|modules|ui) ]]; then
-        # We're in cli/lib/*/  - go up 3 levels
-        echo "$(cd "$script_dir/../../.." && pwd)"
-    elif [[ "$script_dir" =~ cli/(commands|scripts|bin) ]]; then
-        # We're in cli/*/  - go up 2 levels
-        echo "$(cd "$script_dir/../.." && pwd)"
-    else
-        # Fallback: try to find .git directory
-        local dir="$script_dir"
-        while [[ "$dir" != "/" ]]; do
-            if [[ -d "$dir/.git" ]]; then
-                echo "$dir"
-                return 0
-            fi
-            dir="$(dirname "$dir")"
-        done
+    # Walk up the directory tree looking for repository markers
+    while [[ "$dir" != "/" ]]; do
+        # Check for repository marker files
+        if [[ -f "$dir/pyproject.toml" ]] || \
+           [[ -f "$dir/config.toml" ]] || \
+           [[ -d "$dir/.git" ]]; then
+            echo "$dir"
+            return 0
+        fi
+        dir="$(dirname "$dir")"
+    done
 
-        # Last resort: assume cli/lib/*
-        echo "$(cd "$script_dir/../../.." && pwd)"
-    fi
+    # Not found
+    echo "ERROR: Repository root not found" >&2
+    return 1
 }
