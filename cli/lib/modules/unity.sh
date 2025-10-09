@@ -27,7 +27,7 @@ unity_check_installed() {
 # Usage: unity_setup_export_script [unity_project]
 unity_setup_export_script() {
     local unity_project="${1:-$(config_get paths.unity_project)}"
-    local repo_root="$(cd "$UNITY_MODULE_DIR/../../.." && pwd)"
+    local repo_root="${REPO_ROOT:-$(get_repo_root)}"
     local source_script="$repo_root/export.sh"
     local target_script="$unity_project/export.sh"
 

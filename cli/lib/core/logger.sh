@@ -26,8 +26,7 @@ LOG_TO_FILE=${LOG_TO_FILE:-true}
 # Initialize logging
 log_init() {
     # Get repo root for default log directory
-    local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    local repo_root="$(cd "$script_dir/../../.." && pwd)"
+    local repo_root="${REPO_ROOT:-$(get_repo_root)}"
 
     # Default to project-local logs
     local log_dir="${1:-$repo_root/.erenshor/logs}"
