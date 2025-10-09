@@ -11,6 +11,7 @@ source "$PYTHON_MODULE_DIR/../core/logger.sh"
 source "$PYTHON_MODULE_DIR/../core/errors.sh"
 source "$PYTHON_MODULE_DIR/../core/config.sh"
 source "$PYTHON_MODULE_DIR/../core/utils.sh"
+source "$PYTHON_MODULE_DIR/../core/variants.sh"
 
 # Python environment detection
 readonly PYTHON_PACKAGE="erenshor"
@@ -135,6 +136,12 @@ python_exec_with_config() {
 python_exec_variant() {
     local variant="$1"
     shift
+
+    # Validate variant before passing to Python
+    if ! variant_validate "$variant"; then
+        log_error "Invalid variant: $variant"
+        return $ERROR_ARGS
+    fi
 
     log_debug "Executing Python CLI for variant: $variant"
 

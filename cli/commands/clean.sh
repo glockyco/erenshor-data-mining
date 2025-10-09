@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 # commands/clean.sh - Clean up old files
 
+# Cleanup configuration constants
+readonly CLEAN_LOG_RETENTION_DAYS=30
+
 command_main() {
     local all=false
     local dry_run=false
@@ -40,43 +43,7 @@ command_main() {
 
     # Handle --all-variants
     if [[ "$all_variants" == true ]]; then
-        echo ""
-        celebrate "Cleaning All Variants"
-        echo ""
-
-        local cleaned=0
-        local failed=0
-
-        for v in $(variant_list); do
-            if variant_is_enabled "$v"; then
-                info "Cleaning variant: $(variant_get_display_name "$v")"
-                echo ""
-
-                # Remove --all-variants flag and add specific variant
-                local variant_args=()
-                for arg in "${original_args[@]}"; do
-                    if [[ "$arg" != "--all-variants" ]]; then
-                        variant_args+=("$arg")
-                    fi
-                done
-
-                if VARIANT="$v" "$0" "${variant_args[@]}" --variant "$v"; then
-                    ((cleaned++))
-                else
-                    ((failed++))
-                fi
-                echo ""
-            fi
-        done
-
-        echo ""
-        if [[ $failed -eq 0 ]]; then
-            celebrate "Successfully cleaned $cleaned variant(s)"
-        else
-            warning "Cleaned $cleaned variant(s), $failed failed"
-        fi
-        echo ""
-        exit 0
+        variant_for_each_enabled "cleaned" "$0" "${original_args[@]}"
     fi
 
     # Validate variant
@@ -98,11 +65,11 @@ command_main() {
     # Get variant-specific paths
     local unity_path=$(variant_get_path "$variant" "unity")
 
-    # Clean old logs (keep last 30 days)
+    # Clean old logs (keep last N days)
     local logs_dir=$(config_get paths.logs)
     if [[ -d "$logs_dir" ]]; then
-        info "Cleaning old logs (>30 days)..."
-        local old_logs=$(find "$logs_dir" -type f -name "*.log" -mtime +30 2>/dev/null)
+        info "Cleaning old logs (>$CLEAN_LOG_RETENTION_DAYS days)..."
+        local old_logs=$(find "$logs_dir" -type f -name "*.log" -mtime +$CLEAN_LOG_RETENTION_DAYS 2>/dev/null)
 
         if [[ -n "$old_logs" ]]; then
             local count=$(echo "$old_logs" | wc -l)
@@ -201,7 +168,7 @@ OPTIONS:
     -h, --help            Show this help message
 
 WHAT GETS CLEANED:
-    - Log files older than 30 days
+    - Log files older than $CLEAN_LOG_RETENTION_DAYS days
     - Old backups (keeps last N from config)
     - AssetRipper extraction artifacts (with --all)
     - Old database exports (with --all)

@@ -1,11 +1,18 @@
 #!/usr/bin/env bash
 # lib/core/variants.sh - Variant management for multi-version support
 
+# Guard against multiple sourcing
+[[ -n "${VARIANTS_MODULE_LOADED:-}" ]] && return 0
+readonly VARIANTS_MODULE_LOADED=1
+
 # Module initialization
 VARIANTS_MODULE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$VARIANTS_MODULE_DIR/logger.sh"
 source "$VARIANTS_MODULE_DIR/errors.sh"
 source "$VARIANTS_MODULE_DIR/config.sh"
+
+# Single source of truth for variant list
+readonly ERENSHOR_VARIANTS=("main" "playtest" "demo")
 
 # Get repo root (assumes we're in cli/lib/core/)
 get_repo_root() {
@@ -14,15 +21,14 @@ get_repo_root() {
 
 # List all available variants
 variant_list() {
-    local variants=("main" "playtest" "demo")
-    printf '%s\n' "${variants[@]}"
+    printf '%s\n' "${ERENSHOR_VARIANTS[@]}"
 }
 
 # List only enabled variants from config
 variant_list_enabled() {
     local enabled_variants=()
 
-    for variant in main playtest demo; do
+    for variant in "${ERENSHOR_VARIANTS[@]}"; do
         if variant_is_enabled "$variant"; then
             enabled_variants+=("$variant")
         fi
@@ -97,21 +103,8 @@ variant_get_config() {
 variant_get_app_id() {
     local variant="$1"
 
-    case "$variant" in
-        main)
-            echo "2382520"  # Main game
-            ;;
-        playtest)
-            echo "2924650"  # Playtest branch
-            ;;
-        demo)
-            echo "2382520"  # Demo uses main app_id
-            ;;
-        *)
-            log_error "Unknown variant: $variant"
-            return 1
-            ;;
-    esac
+    # Read app_id from config.toml (variants.{variant}.app_id)
+    variant_get_config "$variant" "app_id"
 }
 
 # Get variant Steam branch
@@ -138,16 +131,15 @@ variant_get_branch() {
 # Validate variant name
 variant_validate() {
     local variant="$1"
-    local valid_variants=("main" "playtest" "demo")
 
-    for v in "${valid_variants[@]}"; do
+    for v in "${ERENSHOR_VARIANTS[@]}"; do
         if [[ "$v" == "$variant" ]]; then
             return 0
         fi
     done
 
     log_error "Invalid variant: $variant"
-    log_error "Valid variants: ${valid_variants[*]}"
+    log_error "Valid variants: ${ERENSHOR_VARIANTS[*]}"
     return 1
 }
 
@@ -170,6 +162,9 @@ variant_init() {
     # Create directories
     mkdir -p "$variant_root/game"
     mkdir -p "$variant_root/unity/Assets"
+    mkdir -p "$variant_root/logs"
+    mkdir -p "$variant_root/backups"
+    mkdir -p "$variant_root/output"
 
     # Create symlink
     source "$VARIANTS_MODULE_DIR/symlinks.sh"
@@ -234,7 +229,7 @@ variant_status_all() {
     echo "=== Variant Status ==="
     echo ""
 
-    for variant in main playtest demo; do
+    for variant in "${ERENSHOR_VARIANTS[@]}"; do
         variant_status "$variant"
     done
 }
@@ -257,4 +252,61 @@ variant_get_display_name() {
             echo "$variant"
             ;;
     esac
+}
+
+# Execute a callback function for each enabled variant
+# Usage: variant_for_each_enabled <action_verb> <script_path> <original_args_array>
+# Example: variant_for_each_enabled "deployed" "$0" "${original_args[@]}"
+#
+# This function:
+# 1. Prints header with action verb
+# 2. Loops through enabled variants
+# 3. Calls script with --variant flag (removing --all-variants)
+# 4. Counts successes/failures
+# 5. Prints summary
+variant_for_each_enabled() {
+    local action_verb="$1"        # e.g., "deployed", "updated", "cleaned"
+    local script_path="$2"         # e.g., "$0"
+    shift 2
+    local original_args=("$@")
+
+    echo ""
+    celebrate "${action_verb^} All Variants"  # Capitalize first letter
+    echo ""
+
+    local processed=0
+    local failed=0
+
+    for variant in "${ERENSHOR_VARIANTS[@]}"; do
+        if variant_is_enabled "$variant"; then
+            info "${action_verb^} variant: $(variant_get_display_name "$variant")"
+            echo ""
+
+            # Remove --all-variants flag and add specific variant
+            local variant_args=()
+            for arg in "${original_args[@]}"; do
+                if [[ "$arg" != "--all-variants" ]]; then
+                    variant_args+=("$arg")
+                fi
+            done
+
+            if VARIANT="$variant" "$script_path" "${variant_args[@]}" --variant "$variant"; then
+                ((processed++))
+            else
+                ((failed++))
+            fi
+            echo ""
+        fi
+    done
+
+    echo ""
+    if [[ $failed -eq 0 ]]; then
+        celebrate "Successfully ${action_verb} $processed variant(s)"
+    else
+        warning "${action_verb^} $processed variant(s), $failed failed"
+    fi
+    echo ""
+
+    # Exit with appropriate code
+    [[ $failed -eq 0 ]] && exit 0 || exit 1
 }

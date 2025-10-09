@@ -57,43 +57,7 @@ command_main() {
 
     # Handle --all-variants
     if [[ "$all_variants" == true ]]; then
-        echo ""
-        celebrate "Deploying All Variants"
-        echo ""
-
-        local deployed=0
-        local failed=0
-
-        for v in $(variant_list); do
-            if variant_is_enabled "$v"; then
-                info "Deploying variant: $(variant_get_display_name "$v")"
-                echo ""
-
-                # Remove --all-variants flag and add specific variant
-                local variant_args=()
-                for arg in "${original_args[@]}"; do
-                    if [[ "$arg" != "--all-variants" ]]; then
-                        variant_args+=("$arg")
-                    fi
-                done
-
-                if VARIANT="$v" "$0" "${variant_args[@]}" --variant "$v"; then
-                    ((deployed++))
-                else
-                    ((failed++))
-                fi
-                echo ""
-            fi
-        done
-
-        echo ""
-        if [[ $failed -eq 0 ]]; then
-            celebrate "Successfully deployed $deployed variant(s)"
-        else
-            warning "Deployed $deployed variant(s), $failed failed"
-        fi
-        echo ""
-        exit 0
+        variant_for_each_enabled "deployed" "$0" "${original_args[@]}"
     fi
 
     # Validate variant

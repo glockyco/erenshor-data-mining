@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 # lib/modules/steamcmd.sh - SteamCMD operations
 
+# Guard against multiple sourcing
+[[ -n "${STEAMCMD_MODULE_LOADED:-}" ]] && return 0
+readonly STEAMCMD_MODULE_LOADED=1
+
 # Module initialization
 STEAMCMD_MODULE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$STEAMCMD_MODULE_DIR/../core/logger.sh"

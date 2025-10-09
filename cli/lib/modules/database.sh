@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 # lib/modules/database.sh - Database operations
 
+# Guard against multiple sourcing
+[[ -n "${DATABASE_MODULE_LOADED:-}" ]] && return 0
+readonly DATABASE_MODULE_LOADED=1
+
 # Module initialization
 DATABASE_MODULE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$DATABASE_MODULE_DIR/../core/logger.sh"

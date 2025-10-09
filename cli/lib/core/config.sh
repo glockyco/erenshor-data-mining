@@ -22,17 +22,14 @@ USER_CONFIG="${ERENSHOR_CONFIG:-$REPO_ROOT/.erenshor/config.local.toml}"
 ERENSHOR_CONFIG="${ERENSHOR_CONFIG:-$USER_CONFIG}"
 
 # Default configuration values
+# NOTE: Variant-specific paths (game, unity, database) should NOT be here.
+# They are dynamically resolved via variant_get_path() in variants.sh
 declare -gA CONFIG=(
     [steam.app_id]="2382520"
     [steam.username]=""
     [steam.platform]="windows"
 
-    [paths.unity_project]="$REPO_ROOT/variants/main/unity"
     [paths.wiki_project]="/Users/joaichberger/Projects/erenshor-wiki"
-    [paths.game_files]="$REPO_ROOT/variants/main/game"
-    [paths.output]="$REPO_ROOT/variants/main/output"
-    [paths.logs]="$REPO_ROOT/variants/main/logs"
-    [paths.backups]="$REPO_ROOT/variants/main/backups"
 
     [unity.version]="2021.3.45f1"
     [unity.path]="/Applications/Unity/Hub/Editor/2021.3.45f1/Unity.app/Contents/MacOS/Unity"
@@ -107,10 +104,12 @@ _config_load_file() {
             value="${value#\'}"
             value="${value%\'}"
 
-            # Expand environment variables in value (but protect from eval issues)
-            # Only expand if it contains $ or ~
+            # Expand environment variables safely (without eval)
+            # Only expand $REPO_ROOT, $HOME, and tilde
             if [[ "$value" == *'$'* ]] || [[ "$value" == '~'* ]]; then
-                value=$(eval echo "\"$value\"" 2>/dev/null || echo "$value")
+                value="${value//\$REPO_ROOT/$REPO_ROOT}"
+                value="${value//\$HOME/$HOME}"
+                value="${value/#\~/$HOME}"
             fi
 
             # Store with section prefix
@@ -148,8 +147,10 @@ config_get() {
     local default="${2:-}"
 
     local value="${CONFIG[$key]:-$default}"
-    # Expand tilde and environment variables (including $REPO_ROOT)
-    value=$(eval echo "$value")
+    # Safe expansion - only expand $REPO_ROOT and $HOME
+    value="${value//\$REPO_ROOT/$REPO_ROOT}"
+    value="${value//\$HOME/$HOME}"
+    value="${value/#\~/$HOME}"
     echo "$value"
 }
 
@@ -162,7 +163,10 @@ config_get_variant() {
     # Try variant-specific first: variants.main.unity_project
     local variant_value="${CONFIG["variants.$variant.$key"]:-}"
     if [[ -n "$variant_value" ]]; then
-        variant_value=$(eval echo "$variant_value")
+        # Safe expansion - only expand $REPO_ROOT and $HOME
+        variant_value="${variant_value//\$REPO_ROOT/$REPO_ROOT}"
+        variant_value="${variant_value//\$HOME/$HOME}"
+        variant_value="${variant_value/#\~/$HOME}"
         echo "$variant_value"
         return 0
     fi
@@ -170,14 +174,20 @@ config_get_variant() {
     # Try global: global.unity.path
     local global_value="${CONFIG["global.$key"]:-}"
     if [[ -n "$global_value" ]]; then
-        global_value=$(eval echo "$global_value")
+        # Safe expansion - only expand $REPO_ROOT and $HOME
+        global_value="${global_value//\$REPO_ROOT/$REPO_ROOT}"
+        global_value="${global_value//\$HOME/$HOME}"
+        global_value="${global_value/#\~/$HOME}"
         echo "$global_value"
         return 0
     fi
 
     # Fall back to non-prefixed key
     local plain_value="${CONFIG[$key]:-$default}"
-    plain_value=$(eval echo "$plain_value")
+    # Safe expansion - only expand $REPO_ROOT and $HOME
+    plain_value="${plain_value//\$REPO_ROOT/$REPO_ROOT}"
+    plain_value="${plain_value//\$HOME/$HOME}"
+    plain_value="${plain_value/#\~/$HOME}"
     echo "$plain_value"
 }
 
@@ -233,13 +243,8 @@ username = $(_config_quote_value "$(_config_get_with_default steam.username "")"
 platform = $(_config_quote_value "$(_config_get_with_default steam.platform "windows")")    # Force Windows version download
 
 [paths]
-# Project paths
-unity_project = $(_config_quote_value "$(_config_get_with_default paths.unity_project "/Users/joaichberger/Projects/Erenshor")")
-wiki_project = $(_config_quote_value "$(_config_get_with_default paths.wiki_project "/Users/joaichberger/Projects/erenshor-wiki")")
-game_files = $(_config_quote_value "$(_config_get_with_default paths.game_files "\$REPO_ROOT/variants/main/game")")      # Downloaded game files
-output = $(_config_quote_value "$(_config_get_with_default paths.output "\$REPO_ROOT/variants/main/output")")        # Temporary output
-logs = $(_config_quote_value "$(_config_get_with_default paths.logs "\$REPO_ROOT/variants/main/logs")")            # Log files
-backups = $(_config_quote_value "$(_config_get_with_default paths.backups "\$REPO_ROOT/variants/main/backups")")      # Database backups
+# Project paths (variant-specific paths should use variants.{variant}.* config instead)
+wiki_project = $(_config_quote_value "$(_config_get_with_default paths.wiki_project "\$REPO_ROOT/../erenshor-wiki")")
 
 [unity]
 # Unity configuration

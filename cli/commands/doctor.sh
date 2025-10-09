@@ -171,7 +171,7 @@ command_main() {
     local symlink_errors=0
     local repo_root="$(cd "$ERENSHOR_CLI_ROOT/.." && pwd)"
 
-    for variant in main playtest demo; do
+    for variant in "${ERENSHOR_VARIANTS[@]}"; do
         local variant_dir="$repo_root/variants/$variant/unity"
 
         # Skip check if variant directory doesn't exist yet

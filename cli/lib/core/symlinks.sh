@@ -5,6 +5,7 @@
 SYMLINKS_MODULE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SYMLINKS_MODULE_DIR/logger.sh"
 source "$SYMLINKS_MODULE_DIR/errors.sh"
+source "$SYMLINKS_MODULE_DIR/variants.sh"
 
 # Get repo root (assumes we're in cli/lib/core/)
 get_repo_root() {
@@ -15,6 +16,12 @@ get_repo_root() {
 # Returns: 0 if valid, 1 if broken/missing, 2 if wrong target
 symlink_check() {
     local variant="$1"
+
+    # Validate variant
+    if ! variant_validate "$variant"; then
+        return 1
+    fi
+
     local repo_root="$(get_repo_root)"
     local editor_link="$repo_root/variants/$variant/unity/Assets/Editor"
     local expected_target="../../../../src/Assets/Editor"
@@ -51,7 +58,6 @@ symlink_check() {
 # Check symlinks for all enabled variants
 symlink_check_all() {
     local repo_root="$(get_repo_root)"
-    local variants=("main" "playtest" "demo")
     local all_valid=true
     local status_summary=""
 
@@ -59,7 +65,7 @@ symlink_check_all() {
     echo "Checking symlinks for all variants..."
     echo ""
 
-    for variant in "${variants[@]}"; do
+    for variant in "${ERENSHOR_VARIANTS[@]}"; do
         local editor_link="$repo_root/variants/$variant/unity/Assets/Editor"
 
         if symlink_check "$variant" >/dev/null 2>&1; then
@@ -82,6 +88,12 @@ symlink_check_all() {
 # Create symlink for a specific variant
 symlink_create() {
     local variant="$1"
+
+    # Validate variant
+    if ! variant_validate "$variant"; then
+        return 1
+    fi
+
     local repo_root="$(get_repo_root)"
     local unity_project="$repo_root/variants/$variant/unity"
     local editor_link="$unity_project/Assets/Editor"
@@ -95,7 +107,13 @@ symlink_create() {
     # Remove existing symlink or directory if it exists
     if [[ -e "$editor_link" || -L "$editor_link" ]]; then
         log_warn "Removing existing path: $editor_link"
-        rm -rf "$editor_link"
+        # Validate path before removing
+        if [[ -n "$editor_link" && "$editor_link" =~ ^.*/variants/.*/unity/Assets/Editor$ ]]; then
+            rm -rf "$editor_link"
+        else
+            log_error "Refusing to delete invalid path: $editor_link"
+            return $ERROR_VALIDATION
+        fi
     fi
 
     # Create symlink
@@ -110,14 +128,13 @@ symlink_create() {
 
 # Create symlinks for all variants
 symlink_create_all() {
-    local variants=("main" "playtest" "demo")
     local failed=false
 
     echo ""
     echo "Creating symlinks for all variants..."
     echo ""
 
-    for variant in "${variants[@]}"; do
+    for variant in "${ERENSHOR_VARIANTS[@]}"; do
         if ! symlink_create "$variant"; then
             failed=true
         fi
@@ -135,6 +152,12 @@ symlink_create_all() {
 # Remove symlink for a specific variant
 symlink_remove() {
     local variant="$1"
+
+    # Validate variant
+    if ! variant_validate "$variant"; then
+        return 1
+    fi
+
     local repo_root="$(get_repo_root)"
     local editor_link="$repo_root/variants/$variant/unity/Assets/Editor"
 
@@ -154,13 +177,11 @@ symlink_remove() {
 
 # Remove symlinks for all variants
 symlink_remove_all() {
-    local variants=("main" "playtest" "demo")
-
     echo ""
     echo "Removing symlinks for all variants..."
     echo ""
 
-    for variant in "${variants[@]}"; do
+    for variant in "${ERENSHOR_VARIANTS[@]}"; do
         symlink_remove "$variant"
     done
 
@@ -172,6 +193,12 @@ symlink_remove_all() {
 # Repair symlink for a specific variant
 symlink_repair() {
     local variant="$1"
+
+    # Validate variant
+    if ! variant_validate "$variant"; then
+        return 1
+    fi
+
     local repo_root="$(get_repo_root)"
     local editor_link="$repo_root/variants/$variant/unity/Assets/Editor"
 
@@ -180,7 +207,13 @@ symlink_repair() {
     # Remove if exists (symlink or directory)
     if [[ -e "$editor_link" || -L "$editor_link" ]]; then
         log_info "Removing existing path: $editor_link"
-        rm -rf "$editor_link"
+        # Validate path before removing
+        if [[ -n "$editor_link" && "$editor_link" =~ ^.*/variants/.*/unity/Assets/Editor$ ]]; then
+            rm -rf "$editor_link"
+        else
+            log_error "Refusing to delete invalid path: $editor_link"
+            return $ERROR_VALIDATION
+        fi
     fi
 
     # Recreate
@@ -189,14 +222,13 @@ symlink_repair() {
 
 # Repair symlinks for all variants
 symlink_repair_all() {
-    local variants=("main" "playtest" "demo")
     local failed=false
 
     echo ""
     echo "Repairing symlinks for all variants..."
     echo ""
 
-    for variant in "${variants[@]}"; do
+    for variant in "${ERENSHOR_VARIANTS[@]}"; do
         if ! symlink_repair "$variant"; then
             failed=true
         fi
@@ -214,13 +246,12 @@ symlink_repair_all() {
 # Show detailed symlink status for all variants
 symlink_status() {
     local repo_root="$(get_repo_root)"
-    local variants=("main" "playtest" "demo")
 
     echo ""
     echo "=== Symlink Status ==="
     echo ""
 
-    for variant in "${variants[@]}"; do
+    for variant in "${ERENSHOR_VARIANTS[@]}"; do
         local editor_link="$repo_root/variants/$variant/unity/Assets/Editor"
         local expected_target="../../../../src/Assets/Editor"
 
@@ -263,6 +294,12 @@ symlink_status() {
 # Validate symlink exists and points to correct location
 symlink_validate() {
     local variant="$1"
+
+    # Validate variant name first
+    if ! variant_validate "$variant"; then
+        return 1
+    fi
+
     local repo_root="$(get_repo_root)"
     local editor_link="$repo_root/variants/$variant/unity/Assets/Editor"
     local expected_target="../../../../src/Assets/Editor"

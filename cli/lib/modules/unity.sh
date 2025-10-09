@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 # lib/modules/unity.sh - Unity export operations
 
+# Guard against multiple sourcing
+[[ -n "${UNITY_MODULE_LOADED:-}" ]] && return 0
+readonly UNITY_MODULE_LOADED=1
+
 # Module initialization
 UNITY_MODULE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$UNITY_MODULE_DIR/../core/logger.sh"

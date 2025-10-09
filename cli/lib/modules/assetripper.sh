@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 # lib/modules/assetripper.sh - AssetRipper operations with web API
 
+# Guard against multiple sourcing
+[[ -n "${ASSETRIPPER_MODULE_LOADED:-}" ]] && return 0
+readonly ASSETRIPPER_MODULE_LOADED=1
+
 # Module initialization
 ASSETRIPPER_MODULE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$ASSETRIPPER_MODULE_DIR/../core/logger.sh"
@@ -10,6 +14,9 @@ source "$ASSETRIPPER_MODULE_DIR/../core/config.sh"
 # AssetRipper server management
 ASSETRIPPER_PID=""
 ASSETRIPPER_LOG=""
+
+# Timeout constants (in seconds)
+readonly ASSETRIPPER_SERVER_STARTUP_TIMEOUT=30
 
 # Get AssetRipper base URL
 _assetripper_get_url() {
@@ -54,8 +61,8 @@ _assetripper_start_server() {
     # Wait for server to start
     local wait_time=0
     while ! _assetripper_check_server; do
-        if [ $wait_time -ge 30 ]; then
-            log_error "Server failed to start within 30 seconds"
+        if [ $wait_time -ge $ASSETRIPPER_SERVER_STARTUP_TIMEOUT ]; then
+            log_error "Server failed to start within ${ASSETRIPPER_SERVER_STARTUP_TIMEOUT} seconds"
             log_error "Check log: $ASSETRIPPER_LOG"
             return $ERROR_PROCESS
         fi
@@ -319,8 +326,19 @@ assetripper_extract() {
 
         # Clean up temporary directories
         log_info "Cleaning up temporary files..."
-        rm -rf "$unity_project/ExportedProject"
-        rm -rf "$unity_project/AuxiliaryFiles"
+        # Validate paths before removing
+        if [[ -n "$unity_project" && "$unity_project" =~ ^.*/variants/.*/unity$ ]]; then
+            if [[ -d "$unity_project/ExportedProject" ]]; then
+                rm -rf "$unity_project/ExportedProject"
+            fi
+            if [[ -d "$unity_project/AuxiliaryFiles" ]]; then
+                rm -rf "$unity_project/AuxiliaryFiles"
+            fi
+        else
+            log_error "Refusing to delete from invalid path: $unity_project"
+            _assetripper_stop_server
+            return $ERROR_VALIDATION
+        fi
     else
         log_error "Expected ExportedProject directory not found at: $unity_project/ExportedProject"
         log_error "AssetRipper may have failed or extracted to a different location"
@@ -463,7 +481,13 @@ assetripper_clean() {
 
     if [[ -d "$extract_dir" ]]; then
         log_info "Cleaning extraction artifacts..."
-        rm -rf "$extract_dir"
+        # Validate path before removing
+        if [[ -n "$extract_dir" && "$extract_dir" =~ ^.*/variants/.*/unity/ExtractedAssets$ ]]; then
+            rm -rf "$extract_dir"
+        else
+            log_error "Refusing to delete invalid path: $extract_dir"
+            return $ERROR_VALIDATION
+        fi
     fi
 }
 

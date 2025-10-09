@@ -57,43 +57,7 @@ command_main() {
 
     # Handle --all-variants
     if [[ "$all_variants" == true ]]; then
-        echo ""
-        celebrate "Updating All Variants"
-        echo ""
-
-        local updated=0
-        local failed=0
-
-        for v in $(variant_list); do
-            if variant_is_enabled "$v"; then
-                info "Updating variant: $(variant_get_display_name "$v")"
-                echo ""
-
-                # Remove --all-variants flag and add specific variant
-                local variant_args=()
-                for arg in "${original_args[@]}"; do
-                    if [[ "$arg" != "--all-variants" ]]; then
-                        variant_args+=("$arg")
-                    fi
-                done
-
-                if VARIANT="$v" "$0" "${variant_args[@]}" --variant "$v"; then
-                    ((updated++))
-                else
-                    ((failed++))
-                fi
-                echo ""
-            fi
-        done
-
-        echo ""
-        if [[ $failed -eq 0 ]]; then
-            celebrate "Successfully updated $updated variant(s)"
-        else
-            warning "Updated $updated variant(s), $failed failed"
-        fi
-        echo ""
-        exit 0
+        variant_for_each_enabled "updated" "$0" "${original_args[@]}"
     fi
 
     # Validate variant
@@ -186,13 +150,16 @@ command_main() {
     step_progress 5 5 "Deploying to wiki project"
 
     if [[ "$dry_run" != true ]]; then
+        # Use variant-specific filename (e.g., erenshor-main.sqlite, erenshor-playtest.sqlite)
+        local source_filename=$(basename "$database_path")
+        local wiki_db="$(config_get paths.wiki_project)/$source_filename"
+
         # Backup if enabled
         if [[ "$skip_backup" != true ]]; then
-            local wiki_db="$(config_get paths.wiki_project)/erenshor.sqlite"
             database_backup "$wiki_db"
         fi
 
-        if ! database_deploy "$database_path" "$(config_get paths.wiki_project)/erenshor.sqlite"; then
+        if ! database_deploy "$database_path" "$wiki_db"; then
             die $ERROR_PROCESS "Database deployment failed"
         fi
         success "Deployment complete"
@@ -218,7 +185,9 @@ command_main() {
     echo ""
 
     if [[ "$dry_run" != true ]]; then
-        local wiki_db="$(config_get paths.wiki_project)/erenshor.sqlite"
+        # Use the same wiki_db path as above
+        local source_filename=$(basename "$database_path")
+        local wiki_db="$(config_get paths.wiki_project)/$source_filename"
         info "Database: $wiki_db"
         info "Size: $(file_size "$wiki_db")"
         echo ""
