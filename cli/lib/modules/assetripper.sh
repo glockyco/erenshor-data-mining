@@ -423,7 +423,7 @@ assetripper_extract() {
 # Usage: assetripper_sync_packages [unity_project]
 assetripper_sync_packages() {
     local unity_project="${1:-$(config_get paths.unity_project)}"
-    local repo_root="$(cd "$(dirname "$unity_project")" && cd .. && pwd)"
+    local repo_root="$(cd "$unity_project/../../.." && pwd)"
     local src_assets="$repo_root/src/Assets"
 
     log_info "Syncing NuGet packages to Unity project..."
