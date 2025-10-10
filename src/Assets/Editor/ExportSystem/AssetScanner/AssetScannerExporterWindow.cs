@@ -97,7 +97,10 @@ public class AssetScannerExporterWindow : EditorWindow
                     _outputPath = potentialFullPath;
                     EditorPrefs.SetString(Repository.EditorPrefsKey, _outputPath);
                 }
-            } catch { /* Ignore errors, keep old path */ }
+            } catch (System.Exception ex) {
+                Debug.LogError($"[AssetScannerExporterWindow] Invalid output path: {newPath}. Error: {ex.Message}");
+                EditorUtility.DisplayDialog("Invalid Path", $"The specified output path is invalid:\n\n{newPath}\n\nError: {ex.Message}", "OK");
+            }
         }
         if (GUILayout.Button("Browse...", GUILayout.Width(80)))
         {
