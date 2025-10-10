@@ -47,6 +47,7 @@ ZONE_NAME_MAP: Dict[str, str] = {
     "Underspine": "Underspine Hollow",
     "Vitheo": "Vitheo's Watch",
     "VitheosEnd": "Vitheo's Rest",
+    "Willowwatch": "Willowwatch Ridge",
     "Windwashed": "Windwashed Pass",
 }
 
