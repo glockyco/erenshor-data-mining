@@ -997,190 +997,23 @@ Use [conventional commits](https://www.conventionalcommits.org/):
 
 ## Troubleshooting
 
-### Unity Export Fails
+For detailed troubleshooting guides, see **[docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)**.
 
-**Problem**: Unity batch mode export crashes or hangs
-
-**Solutions**:
+**Quick Diagnostics**:
 ```bash
-# 1. Check Unity version matches exactly
-cli/bin/erenshor config get unity.version
-# Should output: 2021.3.45f2
-
-# 2. Verify Unity installation path
-ls -la "$(cli/bin/erenshor config get unity.path)"
-
-# 3. Check export logs
-cat variants/main/logs/export_*.log
-
-# 4. Check symlinks are valid
-cli/bin/erenshor symlink check
-
-# 5. Increase timeout if needed
-# Edit .erenshor/config.local.toml:
-# [global.unity]
-# timeout = 3600  # 1 hour
+erenshor doctor              # System health check
+erenshor status              # Pipeline status
 ```
 
-### Wiki Upload Issues
+**Common Issues**:
+- Unity export failures → Check Unity version, symlinks, logs
+- Wiki upload errors → Verify credentials, test API access
+- Google Sheets permissions → Ensure service account has Editor access
+- Database missing → Re-run export, check backups
+- SteamCMD auth fails → Verify Steam credentials and game ownership
+- Python import errors → Check environment, reinstall dependencies
 
-**Problem**: Wiki uploads fail or credentials rejected
-
-**Solutions**:
-```bash
-# 1. Verify credentials are set
-cat .env | grep ERENSHOR_BOT
-
-# 2. Test credentials
-uv run python -m erenshor.cli.main wiki fetch "Main Page"
-
-# 3. Validate content before upload
-uv run python -m erenshor.cli.main wiki validate-items
-
-# 4. Use dry-run to preview
-uv run python -m erenshor.cli.main wiki push --all --dry-run
-
-# 5. Check MediaWiki API is accessible
-curl https://erenshor.wiki.gg/api.php?action=query&meta=siteinfo
-```
-
-### Google Sheets Permission Denied
-
-**Problem**: Google Sheets API returns 403 Forbidden
-
-**Solutions**:
-```bash
-# 1. Validate credentials file exists
-ls -la ~/.config/erenshor/google-credentials.json
-
-# 2. Test credentials
-uv run python -m erenshor.cli.main sheets validate
-
-# 3. Verify service account has Editor access
-# Open spreadsheet → Share → Add service account email with "Editor" role
-
-# 4. Check spreadsheet ID in config
-cli/bin/erenshor config get variants.main.google_sheets.spreadsheet_id
-
-# 5. Enable Google Sheets API in Google Cloud Console
-# https://console.cloud.google.com/apis/library/sheets.googleapis.com
-```
-
-### Database Not Found
-
-**Problem**: SQLite database missing or corrupt
-
-**Solutions**:
-```bash
-# 1. Check database location
-ls -la variants/main/erenshor-main.sqlite
-
-# 2. Re-export if missing
-cli/bin/erenshor export --variant main
-
-# 3. Check for backups
-ls -la variants/main/backups/
-
-# 4. Verify variant configuration
-cli/bin/erenshor config get variants.main.database
-
-# 5. Check Unity export completed successfully
-cli/bin/erenshor status
-```
-
-### SteamCMD Authentication Fails
-
-**Problem**: SteamCMD can't download game
-
-**Solutions**:
-```bash
-# 1. Verify Steam username is set
-cli/bin/erenshor config get global.steam.username
-
-# 2. Check Steam credentials
-# SteamCMD stores credentials in ~/.steam/
-
-# 3. Verify game ownership
-# Log in to Steam and check library
-
-# 4. Try manual SteamCMD login
-steamcmd +login your_username +quit
-
-# 5. Check SteamCMD installation
-which steamcmd
-steamcmd +version
-```
-
-### Python Import Errors
-
-**Problem**: Python modules not found
-
-**Solutions**:
-```bash
-# 1. Verify Python environment
-uv run python --version
-# Should be 3.13+
-
-# 2. Reinstall dependencies
-uv sync --dev
-
-# 3. Check package is installed
-uv run pip list | grep erenshor-wiki
-
-# 4. Verify PYTHONPATH (for development)
-echo $PYTHONPATH
-
-# 5. Install in editable mode
-uv pip install -e ".[dev]"
-```
-
-### Common Error Messages
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `Unity version mismatch` | Wrong Unity version installed | Install Unity 2021.3.45f2 exactly |
-| `Database schema mismatch` | Old database format | Re-run `erenshor export` |
-| `Symlink broken` | Editor scripts not linked | Run `erenshor symlink create` |
-| `SteamCMD authentication failed` | Invalid Steam credentials | Check Steam username and password |
-| `AssetRipper timeout` | Extraction taking too long | Increase timeout in config |
-| `Wiki page validation failed` | Malformed wiki markup | Check generated content in `wiki_updated/` |
-| `Service account permission denied` | Sheets not shared with service account | Share spreadsheet with service account email |
-
-### Getting Help
-
-If you're still stuck:
-
-1. **Check Logs**:
-   ```bash
-   # Global logs
-   ls -la .erenshor/logs/
-
-   # Variant-specific logs
-   ls -la variants/main/logs/
-   ```
-
-2. **Run Doctor**:
-   ```bash
-   cli/bin/erenshor doctor
-   ```
-
-3. **Check Status**:
-   ```bash
-   cli/bin/erenshor status --all-variants
-   ```
-
-4. **Enable Debug Logging**:
-   ```bash
-   export LOG_LEVEL=DEBUG
-   cli/bin/erenshor export
-   ```
-
-5. **File an Issue**:
-   - Include error messages and logs
-   - Specify your OS and versions (Unity, Python, etc.)
-   - Describe steps to reproduce
-   - Check existing issues first
-
+See the [full troubleshooting guide](docs/TROUBLESHOOTING.md) for detailed solutions and error reference table.
 ---
 
 ## Contributing
