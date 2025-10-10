@@ -123,4 +123,10 @@ def format_drops(
                 output.append(entry_text)
         return WIKITEXT_LINE_SEPARATOR.join(output)
 
-    return _join_entries(guaranteed_entries_no_pct), _join_entries(all_entries_with_pct)
+    # Only show guaranteeddrops if there are 2+ guaranteed items
+    # (single guaranteed drop is obvious from 100% in droprates)
+    guaranteed_str = ""
+    if len(guaranteed_entries_no_pct) >= 2:
+        guaranteed_str = _join_entries(guaranteed_entries_no_pct)
+
+    return guaranteed_str, _join_entries(all_entries_with_pct)
