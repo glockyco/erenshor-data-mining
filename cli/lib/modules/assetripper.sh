@@ -349,13 +349,21 @@ assetripper_extract() {
         # Move ProjectSettings if needed
         if [[ -d "$unity_project/ExportedProject/ProjectSettings" ]]; then
             log_info "Moving ProjectSettings..."
-            mv "$unity_project/ExportedProject/ProjectSettings" "$unity_project/" || true
+            if ! mv "$unity_project/ExportedProject/ProjectSettings" "$unity_project/"; then
+                log_error "Failed to move ProjectSettings"
+                _assetripper_stop_server
+                return $ERROR_PROCESS
+            fi
         fi
 
         # Move Packages if needed
         if [[ -d "$unity_project/ExportedProject/Packages" ]]; then
             log_info "Moving Packages..."
-            mv "$unity_project/ExportedProject/Packages" "$unity_project/" || true
+            if ! mv "$unity_project/ExportedProject/Packages" "$unity_project/"; then
+                log_error "Failed to move Packages"
+                _assetripper_stop_server
+                return $ERROR_PROCESS
+            fi
         fi
 
         # Clean up temporary directories

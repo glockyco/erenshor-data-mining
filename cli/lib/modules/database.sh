@@ -126,8 +126,8 @@ backup_game_scripts() {
     # Copy all .cs files with directory structure preserved
     # Strip the AssemblyCSharp prefix from paths
     if ! rsync -a --include='*/' --include='*.cs' --exclude='*' "$scripts_source/" "$scripts_target/"; then
-        log_warn "Failed to backup game scripts, but continuing anyway"
-        return 0
+        log_error "Failed to backup game scripts"
+        return 1
     fi
 
     # Count how many files were backed up
