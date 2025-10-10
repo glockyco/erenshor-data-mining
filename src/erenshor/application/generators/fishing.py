@@ -18,7 +18,7 @@ from erenshor.infrastructure.database.repositories import (
     get_water_fishables,
     get_waters,
 )
-from erenshor.infrastructure.templates.engine import Renderer
+from erenshor.infrastructure.templates.engine import render_template
 from erenshor.registry.core import WikiRegistry
 from erenshor.registry.links import RegistryLinkResolver
 from erenshor.shared.text import normalize_wikitext
@@ -41,14 +41,6 @@ class FishingGenerator:
     5. Resolving the "Fishing" page title via registry
     6. Yielding GeneratedContent with the complete fishing page body
     """
-
-    def __init__(self, renderer: Renderer) -> None:
-        """Initialize fishing generator.
-
-        Args:
-            renderer: Jinja2 renderer for template rendering
-        """
-        self._renderer = renderer
 
     def generate(
         self,
@@ -119,7 +111,7 @@ class FishingGenerator:
         }
 
         rendered = normalize_wikitext(
-            self._renderer.render("fishing/canonical.j2", ctx=model)
+            render_template("fishing/canonical.j2", model)
         )
 
         # Register Fishing as an overview page

@@ -14,7 +14,7 @@ from erenshor.application.models import RenderedBlock
 from erenshor.domain.entities import DbItem
 from erenshor.domain.entities.spell import DbSkill, DbSpell
 from erenshor.infrastructure.templates.contexts import AbilityBookInfoboxContext
-from erenshor.infrastructure.templates.engine import Renderer
+from erenshor.infrastructure.templates.engine import render_template
 from erenshor.registry.links import RegistryLinkResolver
 from erenshor.shared.game_constants import WIKITEXT_LINE_SEPARATOR
 from erenshor.shared.text import normalize_wikitext, parse_name_and_id
@@ -28,13 +28,9 @@ logger = logging.getLogger(__name__)
 class AbilityBookGenerator(ItemGeneratorBase):
     """Generator for ability book items."""
 
-    def __init__(self, renderer: Renderer) -> None:
-        """Initialize ability book generator.
-
-        Args:
-            renderer: Renderer instance
-        """
-        super().__init__(renderer)
+    def __init__(self) -> None:
+        """Initialize ability book generator."""
+        super().__init__()
         self._spell_cache: dict[str, DbSpell] = {}
         self._skill_cache: dict[str, DbSkill] = {}
 
@@ -191,7 +187,7 @@ class AbilityBookGenerator(ItemGeneratorBase):
         )
 
         book_rendered = normalize_wikitext(
-            self._renderer.render("items/ability_book.j2", ctx=book_ctx)
+            render_template("items/ability_book.j2", book_ctx)
         )
         return RenderedBlock(
             page_title=page_title,

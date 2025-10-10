@@ -36,7 +36,6 @@ from erenshor.infrastructure.database.repositories import (
     get_items,
     get_mining_item_names,
 )
-from erenshor.infrastructure.templates.engine import Renderer
 from erenshor.registry.core import WikiRegistry
 from erenshor.registry.links import RegistryLinkResolver
 
@@ -59,19 +58,15 @@ class ItemGenerator(BaseGenerator):
     - GeneralItemGenerator: General items (fallback)
     """
 
-    def __init__(self, renderer: Renderer) -> None:
-        """Initialize item generator facade.
-
-        Args:
-            renderer: Renderer instance for template rendering
-        """
-        super().__init__(renderer)
-        self._weapon_armor_gen = WeaponArmorGenerator(renderer)
-        self._aura_gen = AuraGenerator(renderer)
-        self._ability_book_gen = AbilityBookGenerator(renderer)
-        self._consumable_gen = ConsumableGenerator(renderer)
-        self._mold_gen = MoldGenerator(renderer)
-        self._general_gen = GeneralItemGenerator(renderer)
+    def __init__(self) -> None:
+        """Initialize item generator facade."""
+        super().__init__()
+        self._weapon_armor_gen = WeaponArmorGenerator()
+        self._aura_gen = AuraGenerator()
+        self._ability_book_gen = AbilityBookGenerator()
+        self._consumable_gen = ConsumableGenerator()
+        self._mold_gen = MoldGenerator()
+        self._general_gen = GeneralItemGenerator()
         self._source_enricher: SourceEnricher | None = None
 
     def generate(

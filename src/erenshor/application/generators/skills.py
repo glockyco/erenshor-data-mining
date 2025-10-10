@@ -28,6 +28,7 @@ from erenshor.infrastructure.database.repositories import (
 from erenshor.infrastructure.templates.contexts.abilities import (
     SkillInfoboxContext,
 )
+from erenshor.infrastructure.templates.engine import render_template
 from erenshor.registry.core import WikiRegistry
 from erenshor.registry.links import RegistryLinkResolver
 from erenshor.shared.game_constants import WIKITEXT_LINE_SEPARATOR
@@ -218,7 +219,7 @@ class SkillGenerator(BaseGenerator):
 
             # Render skill infobox
             rendered = normalize_wikitext(
-                self._renderer.render("abilities/ability.j2", ctx=context)
+                render_template("abilities/ability.j2", context)
             )
             blocks = [
                 RenderedBlock(

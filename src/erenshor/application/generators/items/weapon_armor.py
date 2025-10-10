@@ -27,7 +27,7 @@ from erenshor.infrastructure.templates.contexts import (
     FancyWeaponTemplateContext,
     ItemInfoboxContext,
 )
-from erenshor.infrastructure.templates.engine import Renderer
+from erenshor.infrastructure.templates.engine import render_template
 from erenshor.registry.links import RegistryLinkResolver
 from erenshor.shared.game_constants import (
     INFOBOX_IMAGE_SIZE,
@@ -57,13 +57,9 @@ class WeaponArmorGenerator(ItemGeneratorBase):
     3. Individual tier templates
     """
 
-    def __init__(self, renderer: Renderer) -> None:
-        """Initialize weapon/armor generator.
-
-        Args:
-            renderer: Renderer instance
-        """
-        super().__init__(renderer)
+    def __init__(self) -> None:
+        """Initialize weapon/armor generator."""
+        super().__init__()
         self._proc_extractor = ProcExtractor()
 
     def generate_weapon_blocks(
@@ -148,7 +144,7 @@ class WeaponArmorGenerator(ItemGeneratorBase):
         )
 
         inf_rendered = normalize_wikitext(
-            self._renderer.render("items/item.j2", ctx=inf_ctx)
+            render_template("items/item.j2", inf_ctx)
         )
         blocks.append(
             RenderedBlock(
@@ -282,7 +278,7 @@ class WeaponArmorGenerator(ItemGeneratorBase):
             )
 
             fancy_rendered = normalize_wikitext(
-                self._renderer.render("items/fancy_weapon_template.j2", ctx=fancy_ctx)
+                render_template("items/fancy_weapon_template.j2", fancy_ctx)
             )
             blocks.append(
                 RenderedBlock(
@@ -295,7 +291,7 @@ class WeaponArmorGenerator(ItemGeneratorBase):
 
         table_ctx = FancyWeaponTableContext(block_id=item.ResourceName, columns=cols)
         table_rendered = normalize_wikitext(
-            self._renderer.render("items/fancy_weapon_table.j2", ctx=table_ctx)
+            render_template("items/fancy_weapon_table.j2", table_ctx)
         )
         blocks.append(
             RenderedBlock(
@@ -390,7 +386,7 @@ class WeaponArmorGenerator(ItemGeneratorBase):
         )
 
         inf_rendered = normalize_wikitext(
-            self._renderer.render("items/item.j2", ctx=inf_ctx)
+            render_template("items/item.j2", inf_ctx)
         )
         blocks.append(
             RenderedBlock(
@@ -506,7 +502,7 @@ class WeaponArmorGenerator(ItemGeneratorBase):
             )
 
             fancy_rendered = normalize_wikitext(
-                self._renderer.render("items/fancy_armor_template.j2", ctx=fancy_ctx)
+                render_template("items/fancy_armor_template.j2", fancy_ctx)
             )
             blocks.append(
                 RenderedBlock(
@@ -519,7 +515,7 @@ class WeaponArmorGenerator(ItemGeneratorBase):
 
         table_ctx = FancyArmorTableContext(block_id=item.ResourceName, columns=cols)
         table_rendered = normalize_wikitext(
-            self._renderer.render("items/fancy_armor_table.j2", ctx=table_ctx)
+            render_template("items/fancy_armor_table.j2", table_ctx)
         )
         blocks.append(
             RenderedBlock(

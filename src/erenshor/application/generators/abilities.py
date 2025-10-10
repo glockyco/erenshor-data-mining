@@ -13,7 +13,6 @@ from sqlalchemy.engine import Engine
 from erenshor.application.generators.base import BaseGenerator, GeneratedContent
 from erenshor.application.generators.skills import SkillGenerator
 from erenshor.application.generators.spells import SpellGenerator
-from erenshor.infrastructure.templates.engine import Renderer
 from erenshor.registry.core import WikiRegistry
 
 __all__ = ["AbilityGenerator"]
@@ -29,15 +28,11 @@ class AbilityGenerator(BaseGenerator):
     providing proper separation between spells and skills internally.
     """
 
-    def __init__(self, renderer: Renderer) -> None:
-        """Initialize ability generator facade.
-
-        Args:
-            renderer: Renderer instance for template rendering
-        """
-        super().__init__(renderer)
-        self._spell_gen = SpellGenerator(renderer)
-        self._skill_gen = SkillGenerator(renderer)
+    def __init__(self) -> None:
+        """Initialize ability generator facade."""
+        super().__init__()
+        self._spell_gen = SpellGenerator()
+        self._skill_gen = SkillGenerator()
 
     def generate(
         self,

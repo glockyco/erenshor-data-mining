@@ -9,7 +9,6 @@ from __future__ import annotations
 import logging
 
 from erenshor.domain.entities import DbItem
-from erenshor.infrastructure.templates.engine import Renderer
 
 __all__ = ["ItemGeneratorBase", "build_item_types", "classify_item_kind"]
 
@@ -132,14 +131,6 @@ class ItemGeneratorBase:
     and shared formatting logic. This is NOT a BaseGenerator subclass
     because specialized generators don't need the abstract generate() method.
     """
-
-    def __init__(self, renderer: Renderer) -> None:
-        """Initialize base generator.
-
-        Args:
-            renderer: Renderer instance for template rendering
-        """
-        self._renderer = renderer
 
     def _dedup(self, items: list[str]) -> list[str]:
         """Deduplicate list while preserving order.

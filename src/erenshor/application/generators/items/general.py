@@ -11,6 +11,7 @@ from erenshor.application.generators.items.base import ItemGeneratorBase
 from erenshor.application.models import RenderedBlock
 from erenshor.domain.entities import DbItem
 from erenshor.infrastructure.templates.contexts import ItemInfoboxContext
+from erenshor.infrastructure.templates.engine import render_template
 from erenshor.registry.links import RegistryLinkResolver
 from erenshor.shared.game_constants import WIKITEXT_LINE_SEPARATOR
 from erenshor.shared.text import normalize_wikitext, parse_name_and_id
@@ -118,7 +119,7 @@ class GeneralItemGenerator(ItemGeneratorBase):
         )
 
         general_rendered = normalize_wikitext(
-            self._renderer.render("items/item.j2", ctx=general_ctx)
+            render_template("items/item.j2", general_ctx)
         )
         return RenderedBlock(
             page_title=page_title,

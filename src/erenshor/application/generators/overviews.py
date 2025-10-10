@@ -20,7 +20,7 @@ from erenshor.infrastructure.database.repositories import (
     get_items,
     get_spell_by_id,
 )
-from erenshor.infrastructure.templates.engine import Renderer
+from erenshor.infrastructure.templates.engine import render_template
 from erenshor.registry.core import WikiRegistry
 from erenshor.registry.links import RegistryLinkResolver
 from erenshor.shared.game_constants import WIKITEXT_LINE_SEPARATOR
@@ -75,13 +75,9 @@ class OverviewGenerator:
     6. Yielding GeneratedContent for each overview page
     """
 
-    def __init__(self, renderer: Renderer) -> None:
-        """Initialize overview generator.
-
-        Args:
-            renderer: Jinja2 renderer for template rendering
-        """
-        self._renderer = renderer
+    def __init__(self) -> None:
+        """Initialize overview generator."""
+        pass
 
     def generate(
         self,

@@ -22,6 +22,7 @@ from erenshor.infrastructure.database.repositories import (
     get_spawnpoints_for_character,
 )
 from erenshor.infrastructure.templates.contexts import EnemyInfoboxContext
+from erenshor.infrastructure.templates.engine import render_template
 from erenshor.registry.core import WikiRegistry
 from erenshor.registry.links import RegistryLinkResolver
 from erenshor.shared.game_constants import WIKITEXT_LINE_SEPARATOR
@@ -374,7 +375,7 @@ class CharacterGenerator(BaseGenerator):
 
             # Render enemy template
             rendered = normalize_wikitext(
-                self._renderer.render("characters/enemy.j2", ctx=context)
+                render_template("characters/enemy.j2", context)
             )
             blocks = [
                 RenderedBlock(
