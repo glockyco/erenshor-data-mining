@@ -180,9 +180,10 @@ public static class ExportBatch
         // Validate required arguments
         if (string.IsNullOrEmpty(result.dbPath))
         {
-            // Fall back to default database path
-            result.dbPath = Repository.GetDefaultDatabasePath();
-            Debug.LogWarning($"[EXPORT_WARNING] No -dbPath provided, using default: {result.dbPath}");
+            throw new System.ArgumentException(
+                "[EXPORT_ERROR] Missing required argument: -dbPath\n" +
+                "Usage: Unity -batchmode -projectPath <path> -executeMethod ExportBatch.ExportToDatabase -dbPath <path>"
+            );
         }
 
         return result;
