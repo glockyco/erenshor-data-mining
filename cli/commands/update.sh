@@ -156,7 +156,10 @@ command_main() {
 
         # Backup if enabled
         if [[ "$skip_backup" != true ]]; then
-            database_backup "$wiki_db" "$variant"
+            local backup_dir=$(database_backup "$wiki_db" "$variant")
+            if [[ -n "$backup_dir" ]]; then
+                log_info "Backup created: $backup_dir"
+            fi
         fi
 
         if ! database_deploy "$database_path" "$wiki_db"; then
