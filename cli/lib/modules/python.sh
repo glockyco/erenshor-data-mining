@@ -67,9 +67,7 @@ python_check_env() {
         return 0
     fi
 
-    log_error "Python environment not ready:"
-    log_error "  - Install 'uv' for automatic environment management, OR"
-    log_error "  - Install the package: cd \$REPO_ROOT && pip install -e src/"
+    log_error "Python environment not ready. Install 'uv' or run: pip install -e src/"
     return $ERROR_DEPENDENCY
 }
 
