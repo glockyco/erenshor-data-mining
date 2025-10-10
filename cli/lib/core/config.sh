@@ -10,7 +10,7 @@ export REPO_ROOT="$(get_repo_root)"
 
 # Configuration file locations
 PROJECT_CONFIG="$REPO_ROOT/config.toml"
-USER_CONFIG="${ERENSHOR_CONFIG:-$REPO_ROOT/.erenshor/config.local.toml}"
+USER_CONFIG="$REPO_ROOT/.erenshor/config.local.toml"
 
 # Default configuration values
 # NOTE: Variant-specific paths (game, unity, database) should NOT be here.
@@ -211,7 +211,7 @@ _config_get_with_default() {
 
 # Save configuration to file
 config_save() {
-    local config_file="${1:-$ERENSHOR_CONFIG}"
+    local config_file="${1:-$USER_CONFIG}"
     local config_dir=$(dirname "$config_file")
 
     mkdir -p "$config_dir"

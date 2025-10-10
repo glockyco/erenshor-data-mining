@@ -64,7 +64,7 @@ command_main() {
 
     # Configuration
     bold "Configuration:"
-    info "Config: $ERENSHOR_CONFIG"
+    info "Config: $USER_CONFIG"
     info "Default Variant: $(variant_get_display_name "$(config_get default_variant)")"
     info "Logs: $(config_get paths.logs)"
     info "Backups: $(config_get paths.backups)"

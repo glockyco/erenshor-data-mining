@@ -68,8 +68,8 @@ command_main() {
     # Check configuration
     echo "$(bold "Configuration:")"
 
-    if [[ -f "$ERENSHOR_CONFIG" ]]; then
-        success "Config file exists: $ERENSHOR_CONFIG"
+    if [[ -f "$USER_CONFIG" ]]; then
+        success "Config file exists: $USER_CONFIG"
 
         # Validate config
         if config_validate 2>/dev/null; then

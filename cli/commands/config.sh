@@ -31,14 +31,14 @@ config_show() {
     bold "=== Erenshor Configuration ==="
     echo ""
 
-    if [[ ! -f "$ERENSHOR_CONFIG" ]]; then
-        warning "Config file not found: $ERENSHOR_CONFIG"
+    if [[ ! -f "$USER_CONFIG" ]]; then
+        warning "Config file not found: $USER_CONFIG"
         echo ""
         echo "Create with: erenshor config create"
         return
     fi
 
-    success "Config file: $ERENSHOR_CONFIG"
+    success "Config file: $USER_CONFIG"
     echo ""
 
     # Show key sections
@@ -98,7 +98,7 @@ config_set_value() {
 }
 
 config_create() {
-    if [[ -f "$ERENSHOR_CONFIG" ]]; then
+    if [[ -f "$USER_CONFIG" ]]; then
         if ! confirm "Config file already exists. Overwrite?"; then
             info "Cancelled"
             exit 0
@@ -106,11 +106,11 @@ config_create() {
     fi
 
     config_save
-    success "Created config file: $ERENSHOR_CONFIG"
+    success "Created config file: $USER_CONFIG"
 }
 
 config_edit() {
-    if [[ ! -f "$ERENSHOR_CONFIG" ]]; then
+    if [[ ! -f "$USER_CONFIG" ]]; then
         if confirm "Config file doesn't exist. Create it?"; then
             config_save
         else
@@ -119,7 +119,7 @@ config_edit() {
     fi
 
     local editor="${EDITOR:-nano}"
-    "$editor" "$ERENSHOR_CONFIG"
+    "$editor" "$USER_CONFIG"
 }
 
 show_config_help() {
