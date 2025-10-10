@@ -48,6 +48,7 @@ class UploadService:
         page_titles: list[str],
         summary: str,
         minor: bool = True,
+        bot: bool = True,
         force: bool = False,
         batch_size: int | None = None,
     ) -> Iterator[UploadEvent]:
@@ -67,6 +68,7 @@ class UploadService:
             page_titles: List of page titles to upload
             summary: Edit summary for uploads
             minor: Mark uploads as minor edits
+            bot: Mark uploads as bot edits (requires bot permissions)
             force: Force upload even if content is identical
             batch_size: Maximum number of actual uploads + failures (None = unlimited)
 
@@ -136,7 +138,7 @@ class UploadService:
         # Upload pages (streaming with progress callbacks)
         registry_modified = False
         for result in self.uploader.upload_pages(
-            pages_with_content, summary, minor, force=force
+            pages_with_content, summary, minor, bot, force=force
         ):
             # Check batch limit before processing result
             if batch_size is not None and processed_count >= batch_size:

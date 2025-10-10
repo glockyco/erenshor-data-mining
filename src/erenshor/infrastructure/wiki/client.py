@@ -252,6 +252,7 @@ class WikiAPIClient:
         content: str,
         summary: str,
         minor: bool = True,
+        bot: bool = True,
     ) -> dict[str, Any]:
         """Upload (edit) a page on the wiki.
 
@@ -262,6 +263,7 @@ class WikiAPIClient:
             content: Page content (wikitext)
             summary: Edit summary
             minor: Mark as minor edit
+            bot: Mark as bot edit (requires bot permissions)
 
         Returns:
             API response dict (contains newrevid, etc.)
@@ -292,6 +294,9 @@ class WikiAPIClient:
 
         if minor:
             edit_params["minor"] = "1"
+
+        if bot:
+            edit_params["bot"] = "1"
 
         response = self._post_request(edit_params)
         edit_result: dict[str, Any] = response.get("edit", {})

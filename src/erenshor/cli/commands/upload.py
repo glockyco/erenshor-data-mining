@@ -221,7 +221,7 @@ def push(
             refresh_per_second=4,
         ) as live:
             for event in service.upload_pages(
-                titles, summary, minor, force, batch_size
+                titles, summary, minor, bot=True, force=force, batch_size=batch_size
             ):
                 if isinstance(event, UploadComplete):
                     duration_seconds = event.duration_seconds

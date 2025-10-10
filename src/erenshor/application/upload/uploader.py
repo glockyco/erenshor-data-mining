@@ -47,6 +47,7 @@ class PageUploader:
         pages_with_content: list[tuple[str, str]],  # (title, content)
         summary: str,
         minor: bool = True,
+        bot: bool = True,
         delay: float = 1.0,
         force: bool = False,
     ) -> Iterator[UploadResult]:
@@ -62,6 +63,7 @@ class PageUploader:
             pages_with_content: List of (title, content) tuples to upload
             summary: Edit summary for uploads
             minor: Mark as minor edit
+            bot: Mark as bot edit (requires bot permissions)
             delay: Delay in seconds between uploads (rate limiting)
             force: Force upload even if content is identical
 
@@ -107,7 +109,7 @@ class PageUploader:
 
             # Upload the page
             try:
-                response = self.client.upload_page(title, new_content, summary, minor)
+                response = self.client.upload_page(title, new_content, summary, minor, bot)
                 result = UploadResult(
                     title=title,
                     success=True,
