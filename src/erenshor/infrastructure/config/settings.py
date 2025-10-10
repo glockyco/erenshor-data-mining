@@ -141,6 +141,8 @@ class WikiSettings(BaseSettings):
 def load_settings() -> WikiSettings:
     """Load configuration from all sources with proper precedence.
 
+    Wiki commands always use the main variant.
+
     Priority order (highest to lowest):
     1. CLI flags (passed directly to commands)
     2. Environment variables (ERENSHOR_*)
@@ -148,8 +150,8 @@ def load_settings() -> WikiSettings:
     4. config.toml (unified Bash + Python configuration)
     5. Defaults defined in WikiSettings
     """
-    # Use PathResolver to find .env file
-    resolver = get_path_resolver()
+    # Use PathResolver to find .env file (always use main variant for wiki)
+    resolver = get_path_resolver(variant="main")
     env_file = resolver.env_file
 
     # Load TOML configuration
