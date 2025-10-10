@@ -56,6 +56,7 @@ steamcmd_get_current_build() {
 
     # Fallback to config if not found
     if [[ -z "$app_id" ]]; then
+        log_warn "Could not detect app_id from manifest, using config value"
         app_id=$(config_get steam.app_id)
     fi
 
@@ -63,10 +64,10 @@ steamcmd_get_current_build() {
     local manifest_file="$install_dir/steamapps/appmanifest_${app_id}.acf"
 
     if [[ ! -f "$manifest_file" ]]; then
-        log_debug "Manifest not found: $manifest_file"
-        # Game exists but no manifest - likely manual download
+        log_error "Manifest not found: $manifest_file"
+        log_error "Cannot determine build ID - game may be manually installed or corrupted"
         echo "manual"
-        return
+        return 1
     fi
 
     # Extract build ID from manifest
@@ -77,14 +78,14 @@ steamcmd_get_current_build() {
     if [[ "$build_id" == "0" ]]; then
         local target_build_id=$(grep '"TargetBuildID"' "$manifest_file" | head -1 | grep -o '[0-9]\+' || echo "0")
         if [[ "$target_build_id" != "0" ]]; then
-            log_debug "Using TargetBuildID from incomplete download: $target_build_id"
+            log_warn "Using TargetBuildID from incomplete download: $target_build_id"
             echo "$target_build_id"
             return
         fi
-        log_debug "Failed to extract build ID from manifest"
-        # Game exists but build ID is 0 - likely incomplete/manual download
+        log_error "Failed to extract build ID from manifest"
+        log_error "Build ID is 0 - download may be incomplete or corrupted"
         echo "manual"
-        return
+        return 1
     fi
 
     echo "$build_id"
