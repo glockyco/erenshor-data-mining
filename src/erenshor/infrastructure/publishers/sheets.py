@@ -487,11 +487,12 @@ class GoogleSheetsPublisher:
 
         # New data dimensions
         new_row_count = len(rows)
+        new_column_count = max(len(row) for row in rows) if rows else 0
 
         logger.debug(
             f"Table current size: {current_row_count} rows "
             f"({current_start_row} to {current_end_row}), "
-            f"new data: {new_row_count} rows"
+            f"new data: {new_row_count} rows x {new_column_count} cols"
         )
 
         # Step 1: Update overlapping rows
@@ -520,6 +521,7 @@ class GoogleSheetsPublisher:
                 rows=rows,
                 current_row_count=current_row_count,
                 new_row_count=new_row_count,
+                new_column_count=new_column_count,
                 is_data_source_table=is_data_source_table,
             )
 
@@ -533,6 +535,7 @@ class GoogleSheetsPublisher:
                 table_range=table_range,
                 current_row_count=current_row_count,
                 new_row_count=new_row_count,
+                new_column_count=new_column_count,
                 is_data_source_table=is_data_source_table,
             )
 
@@ -545,6 +548,7 @@ class GoogleSheetsPublisher:
                 table_id=table_id,
                 table_range=table_range,
                 new_row_count=new_row_count,
+                new_column_count=new_column_count,
                 is_data_source_table=is_data_source_table,
             )
 
@@ -558,6 +562,7 @@ class GoogleSheetsPublisher:
         rows: List[List[Any]],
         current_row_count: int,
         new_row_count: int,
+        new_column_count: int,
         is_data_source_table: bool = False,
     ) -> None:
         """Grow table by inserting rows, updating data, and resizing table.
@@ -571,6 +576,7 @@ class GoogleSheetsPublisher:
             rows: New data rows
             current_row_count: Current number of rows in table
             new_row_count: New number of rows needed
+            new_column_count: New number of columns needed
             is_data_source_table: If True, this is a data source table
 
         Raises:
@@ -604,13 +610,14 @@ class GoogleSheetsPublisher:
             body={"values": new_rows_data},
         ).execute()
 
-        # Step 3: Resize table to include new rows
+        # Step 3: Resize table to include new rows and columns
         self._update_table_range(
             spreadsheet_id=spreadsheet_id,
             sheet_id=sheet_id,
             table_id=table_id,
             table_range=table_range,
             new_row_count=new_row_count,
+            new_column_count=new_column_count,
             is_data_source_table=is_data_source_table,
         )
 
@@ -623,6 +630,7 @@ class GoogleSheetsPublisher:
         table_range: Dict[str, Any],
         current_row_count: int,
         new_row_count: int,
+        new_column_count: int,
         is_data_source_table: bool = False,
     ) -> None:
         """Shrink table by clearing excess rows, deleting them, and resizing table.
@@ -635,6 +643,7 @@ class GoogleSheetsPublisher:
             table_range: Current table GridRange
             current_row_count: Current number of rows in table
             new_row_count: New number of rows needed
+            new_column_count: New number of columns needed
             is_data_source_table: If True, this is a data source table
 
         Raises:
@@ -676,6 +685,7 @@ class GoogleSheetsPublisher:
             table_id=table_id,
             table_range=table_range,
             new_row_count=new_row_count,
+            new_column_count=new_column_count,
             is_data_source_table=is_data_source_table,
         )
 
@@ -838,6 +848,7 @@ class GoogleSheetsPublisher:
         table_id: str,
         table_range: Dict[str, Any],
         new_row_count: int,
+        new_column_count: Optional[int] = None,
         is_data_source_table: bool = False,
     ) -> None:
         """Update table range to new size.
@@ -850,6 +861,7 @@ class GoogleSheetsPublisher:
             table_id: Table ID
             table_range: Current table GridRange
             new_row_count: New number of rows for table
+            new_column_count: New number of columns for table (if None, use current width)
             is_data_source_table: If True, use updateDataSourceTable; else use updateTable
 
         Raises:
@@ -861,7 +873,15 @@ class GoogleSheetsPublisher:
         start_row = table_range.get("startRowIndex", 0)
         end_row = start_row + new_row_count
         start_col = table_range.get("startColumnIndex", 0)
-        end_col = table_range.get("endColumnIndex", 26)  # Default to column Z
+
+        # Determine column count: expand if needed, never shrink
+        current_end_col = table_range.get("endColumnIndex", 26)
+        if new_column_count is not None:
+            # Expand table width if new data has more columns
+            end_col = max(current_end_col, start_col + new_column_count)
+        else:
+            # No new column count provided, preserve existing width
+            end_col = current_end_col
 
         new_range = {
             "sheetId": sheet_id,
