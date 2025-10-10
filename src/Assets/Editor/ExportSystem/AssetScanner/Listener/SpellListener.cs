@@ -46,7 +46,10 @@ public class SpellListener : IAssetScanListener<Spell>
 
     private SpellRecord CreateRecord(Spell spell, int spellDbIndex)
     {
-        if (spell == null) return null;
+        if (spell == null)
+        {
+            throw new System.ArgumentNullException(nameof(spell), "[SpellListener] Cannot create record from null spell");
+        }
 
         string classesString = "";
         if (spell.UsedBy is { Count: > 0 })

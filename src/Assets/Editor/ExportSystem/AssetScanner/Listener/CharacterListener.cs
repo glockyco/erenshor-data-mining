@@ -31,6 +31,7 @@ public class CharacterListener : IAssetScanListener<Character>
     private Dictionary<string, int>? _spellIdToDbIndexCache = null;
     private Dictionary<string, int>? _skillIdToDbIndexCache = null;
     private Dictionary<string, string>? _factionNameToRefNameCache = null;
+    private readonly List<string> _lookupErrors = new();
 
     public CharacterListener(SQLiteConnection db)
     {
@@ -79,6 +80,15 @@ public class CharacterListener : IAssetScanListener<Character>
             _characterGroupHealSpellRecords.AddRange(CreateCharacterGroupHealSpellRecords(characterId, groupHealSpellIds));
             _characterCCSpellRecords.AddRange(CreateCharacterCCSpellRecords(characterId, ccSpellIds));
             _characterTauntSpellRecords.AddRange(CreateCharacterTauntSpellRecords(characterId, tauntSpellIds));
+        }
+
+        // Fail if any lookup errors occurred during junction record creation
+        if (_lookupErrors.Count > 0)
+        {
+            string errorSummary = $"[CharacterListener] Failed to lookup {_lookupErrors.Count} spell/skill references:\n" +
+                                  string.Join("\n", _lookupErrors);
+            Debug.LogError(errorSummary);
+            throw new System.Exception(errorSummary);
         }
 
         _db.CreateTable<CharacterAttackSkillRecord>();
@@ -615,8 +625,9 @@ public class CharacterListener : IAssetScanListener<Character>
             return dbIndex;
         }
 
-        Debug.LogWarning($"[CharacterListener] Spell ID '{spellId}' not found in SpellRecord table");
-        return -1; // Invalid FK - will be visible in data
+        string errorMsg = $"Spell ID '{spellId}' not found in SpellRecord table";
+        _lookupErrors.Add(errorMsg);
+        return -1; // Placeholder - will fail at end of OnScanFinished
     }
 
     private int LookupSkillDbIndex(string skillId)
@@ -627,8 +638,9 @@ public class CharacterListener : IAssetScanListener<Character>
             return dbIndex;
         }
 
-        Debug.LogWarning($"[CharacterListener] Skill ID '{skillId}' not found in SkillRecord table");
-        return -1; // Invalid FK - will be visible in data
+        string errorMsg = $"Skill ID '{skillId}' not found in SkillRecord table";
+        _lookupErrors.Add(errorMsg);
+        return -1; // Placeholder - will fail at end of OnScanFinished
     }
 
     private List<CharacterVendorItemRecord> CreateCharacterVendorItemRecords(int characterId, VendorInventory vendorInventory)
