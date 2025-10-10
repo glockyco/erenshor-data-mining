@@ -17,7 +17,7 @@ from erenshor.domain.entities.page import EntityRef
 from erenshor.domain.services.drop_calculator import format_drops
 from erenshor.infrastructure.database.repositories import (
     get_characters,
-    get_factions_map,
+    get_faction_desc_by_ref,
     get_loot_for_character,
     get_spawnpoints_for_character,
 )
@@ -72,8 +72,8 @@ class CharacterGenerator(BaseGenerator):
             GeneratedContent for each character, one at a time
         """
         link_resolver = RegistryLinkResolver(registry)
-        # Map faction names to display descriptions for wiki output
-        factions_map = get_factions_map(engine)
+        # Map faction REFNAME to display descriptions for wiki output
+        faction_desc_by_ref = get_faction_desc_by_ref(engine)
 
         chars = get_characters(engine)
         # Filter out SimPlayers per CLAUDE.md
@@ -263,14 +263,14 @@ class CharacterGenerator(BaseGenerator):
                 formatted: list[str] = []
                 for mod in char.FactionModifiers:
                     sign = "+" if mod.modifier_value > 0 else ""
-                    description = factions_map.get(mod.faction_name, mod.faction_name)
+                    description = faction_desc_by_ref.get(mod.faction_name, mod.faction_name)
                     formatted.append(f"{sign}{mod.modifier_value} [[{description}]]")
                 faction_change = WIKITEXT_LINE_SEPARATOR.join(formatted)
 
             faction_display = ""
             if char.MyWorldFaction:
                 # Use explicit world faction if set, wiki-link it since faction pages exist
-                faction_name = factions_map.get(
+                faction_name = faction_desc_by_ref.get(
                     char.MyWorldFaction, char.MyWorldFaction
                 )
                 faction_display = f"[[{faction_name}]]" if faction_name else ""
@@ -285,11 +285,11 @@ class CharacterGenerator(BaseGenerator):
                 "PreyAnimal",
             ):
                 # Good-aligned factions map to "Generic Good" faction page
-                faction_name = factions_map.get("Generic Good", "The Followers of Good")
+                faction_name = faction_desc_by_ref.get("GOOD", "The Followers of Good")
                 faction_display = f"[[{faction_name}]]"
             elif char.MyFaction and char.MyFaction not in ("Player", "PC", "DEBUG"):
                 # Evil-aligned factions map to "Generic Evil" faction page
-                faction_name = factions_map.get("Generic Evil", "The Followers of Evil")
+                faction_name = faction_desc_by_ref.get("EVIL", "The Followers of Evil")
                 faction_display = f"[[{faction_name}]]"
 
             entity_ref = EntityRef.from_character(char)
