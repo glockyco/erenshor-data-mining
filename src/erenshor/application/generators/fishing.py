@@ -91,8 +91,11 @@ class FishingGenerator:
                 try:
                     drop_rate = float(fishable.get("DropChance") or 0)
                     rate_str = f"{drop_rate:.2f}%"
-                except Exception:
-                    rate_str = ""
+                except (TypeError, ValueError) as e:
+                    raise ValueError(
+                        f"Invalid drop chance for fishable item '{item_name}' in zone '{zone_name}': "
+                        f"{fishable.get('DropChance')!r}"
+                    ) from e
 
                 by_zone.setdefault(zone_name, []).append(
                     {
