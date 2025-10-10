@@ -466,13 +466,11 @@ def run_update_command(
     from erenshor.application.reporting import Category, Reporter
     from erenshor.application.services.update_service import UpdateService
     from erenshor.domain.events import ContentGenerated, UpdateComplete
-    from erenshor.infrastructure.templates.engine import Renderer
 
     console = Console()
     env = setup_wiki_environment(db, cache_dir, output_dir)
 
-    renderer = Renderer()
-    generator = config.generator_class(renderer)
+    generator = config.generator_class()
 
     if config.requires_parser_merger:
         from erenshor.application.transformers.merger import FieldMerger
