@@ -292,12 +292,7 @@ class WikiRegistry:
         }
 
     def _entity_from_dict(self, data: dict[str, object]) -> EntityRef:
-        """Reconstruct entity from dict.
-
-        Preserves SPELL and SKILL types from registry. Legacy "ability" types
-        cannot be reliably migrated (no way to know if it was a spell or skill),
-        so they remain as ABILITY type for backward compatibility.
-        """
+        """Reconstruct entity from dict."""
         type_value = cast(str, data["type"])
 
         return EntityRef(
