@@ -12,9 +12,6 @@ export REPO_ROOT="$(get_repo_root)"
 PROJECT_CONFIG="$REPO_ROOT/config.toml"
 USER_CONFIG="${ERENSHOR_CONFIG:-$REPO_ROOT/.erenshor/config.local.toml}"
 
-# For backward compatibility (environment variable override)
-ERENSHOR_CONFIG="${ERENSHOR_CONFIG:-$USER_CONFIG}"
-
 # Default configuration values
 # NOTE: Variant-specific paths (game, unity, database) should NOT be here.
 # They are dynamically resolved via variant_get_path() in variants.sh
