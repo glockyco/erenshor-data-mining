@@ -874,11 +874,11 @@ class GoogleSheetsPublisher:
         end_row = start_row + new_row_count
         start_col = table_range.get("startColumnIndex", 0)
 
-        # Determine column count: expand if needed, never shrink
+        # Determine column count from data
         current_end_col = table_range.get("endColumnIndex", 26)
         if new_column_count is not None:
-            # Expand table width if new data has more columns
-            end_col = max(current_end_col, start_col + new_column_count)
+            # Resize table width to match data (expand or shrink)
+            end_col = start_col + new_column_count
         else:
             # No new column count provided, preserve existing width
             end_col = current_end_col
