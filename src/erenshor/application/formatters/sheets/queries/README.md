@@ -37,14 +37,12 @@ rows = formatter.format_sheet("items")  # Reads items.sql
 13. `zones.sql` - Zone information
 14. `teleports.sql` - Teleport locations
 15. `treasure-locations.sql` - Treasure hunting spots
-16. `teleport-destinations.sql` - Teleport destinations
-17. `wishing-wells.sql` - Wishing well locations
-18. `fishing.sql` - Fishing spots and drops
-19. `mining-nodes.sql` - Mining node locations
-20. `spawn-points.sql` - NPC spawn points
-21. `secret-passages.sql` - Secret passage locations
-22. `achievement-triggers.sql` - Achievement trigger locations
-23. `wiki-comparison.sql` - Wiki comparison results
+16. `wishing-wells.sql` - Wishing well locations
+17. `fishing.sql` - Fishing spots and drops
+18. `mining-nodes.sql` - Mining node locations
+19. `spawn-points.sql` - NPC spawn points
+20. `secret-passages.sql` - Secret passage locations
+21. `achievement-triggers.sql` - Achievement trigger locations
 
 ## Adding New Queries
 

@@ -56,7 +56,7 @@ The formatter automatically converts database values for Google Sheets:
 
 ## Available Sheets
 
-The `queries/` directory contains 23 SQL query files:
+The `queries/` directory contains 21 SQL query files:
 
 1. `drop-chances` - NPC loot drop probabilities
 2. `items` - All items with stats
@@ -73,14 +73,12 @@ The `queries/` directory contains 23 SQL query files:
 13. `zones` - Zone information
 14. `teleports` - Teleport locations
 15. `treasure-locations` - Treasure hunting spots
-16. `teleport-destinations` - Teleport destinations
-17. `wishing-wells` - Wishing well locations
-18. `fishing` - Fishing spots and drops
-19. `mining-nodes` - Mining node locations
-20. `spawn-points` - NPC spawn points
-21. `secret-passages` - Secret passage locations
-22. `achievement-triggers` - Achievement trigger locations
-23. `wiki-comparison` - Wiki comparison results
+16. `wishing-wells` - Wishing well locations
+17. `fishing` - Fishing spots and drops
+18. `mining-nodes` - Mining node locations
+19. `spawn-points` - NPC spawn points
+20. `secret-passages` - Secret passage locations
+21. `achievement-triggers` - Achievement trigger locations
 
 ## Query File Structure
 
