@@ -251,6 +251,189 @@ _assetripper_reset() {
     sleep 2
 }
 
+_validate_dependencies() {
+    if ! assetripper_check_installed; then
+        return $ERROR_DEPENDENCY
+    fi
+
+    if ! command -v jq &> /dev/null; then
+        log_error "jq command not found. Install with: brew install jq"
+        return $ERROR_DEPENDENCY
+    fi
+
+    return 0
+}
+
+_find_game_data_dir() {
+    local game_dir="$1"
+
+    if [[ -d "$game_dir/Erenshor_Data" ]]; then
+        echo "$game_dir/Erenshor_Data"
+        return 0
+    elif [[ -d "$game_dir" ]]; then
+        echo "$game_dir"
+        return 0
+    else
+        log_error "Game data directory not found"
+        return $ERROR_NOT_FOUND
+    fi
+}
+
+_clean_unity_project() {
+    local unity_project="$1"
+
+    if ! _validate_variant_unity_path "$unity_project"; then
+        log_error "Refusing to clean invalid Unity project path: $unity_project"
+        return $ERROR_VALIDATION
+    fi
+
+    if [[ -d "$unity_project" ]] && [ "$(ls -A "$unity_project" 2>/dev/null)" ]; then
+        log_info "Cleaning Unity project directory to prevent version mixing..."
+        rm -rf "$unity_project"/*
+        log_debug "Unity project directory cleaned: $unity_project"
+    fi
+
+    return 0
+}
+
+_run_extraction_workflow() {
+    local variant="$1"
+    local game_data_dir="$2"
+    local extract_dir="$3"
+
+    if ! _assetripper_start_server "$variant"; then
+        return $ERROR_PROCESS
+    fi
+
+    if ! _assetripper_load_files "$game_data_dir"; then
+        _assetripper_stop_server
+        return $ERROR_PROCESS
+    fi
+
+    if ! _assetripper_export_files "$extract_dir"; then
+        _assetripper_stop_server
+        return $ERROR_PROCESS
+    fi
+
+    if ! _assetripper_monitor_export; then
+        log_warn "Export may not have completed successfully"
+        _assetripper_stop_server
+        return $ERROR_TIMEOUT
+    fi
+
+    return 0
+}
+
+_move_extracted_directory() {
+    local unity_project="$1"
+    local dir_name="$2"
+    local is_critical="${3:-false}"
+
+    if [[ -d "$unity_project/ExportedProject/$dir_name" ]]; then
+        log_info "Moving $dir_name..."
+        if ! mv "$unity_project/ExportedProject/$dir_name" "$unity_project/"; then
+            if [[ "$is_critical" == "true" ]]; then
+                log_error "Failed to move $dir_name"
+                return $ERROR_PROCESS
+            else
+                log_warn "Failed to move $dir_name"
+            fi
+        fi
+    fi
+
+    return 0
+}
+
+_organize_extracted_assets() {
+    local unity_project="$1"
+
+    log_info "Organizing extracted assets..."
+
+    if [[ ! -d "$unity_project/ExportedProject" ]]; then
+        log_error "Expected ExportedProject directory not found at: $unity_project/ExportedProject"
+        log_error "AssetRipper may have failed or extracted to a different location"
+        return $ERROR_PROCESS
+    fi
+
+    _move_extracted_directory "$unity_project" "Assets" false || return $?
+    _move_extracted_directory "$unity_project" "ProjectSettings" true || return $?
+    _move_extracted_directory "$unity_project" "Packages" true || return $?
+
+    if ! _validate_variant_unity_path "$unity_project"; then
+        log_error "Refusing to delete from invalid path: $unity_project"
+        return $ERROR_VALIDATION
+    fi
+
+    log_info "Cleaning up temporary files..."
+    if [[ -d "$unity_project/ExportedProject" ]]; then
+        rm -rf "$unity_project/ExportedProject"
+    fi
+    if [[ -d "$unity_project/AuxiliaryFiles" ]]; then
+        rm -rf "$unity_project/AuxiliaryFiles"
+    fi
+
+    return 0
+}
+
+_copy_nuget_packages() {
+    local src_assets="$1"
+    local unity_project="$2"
+
+    if [[ -d "$src_assets/Packages" ]]; then
+        log_info "Copying NuGet packages from source..."
+        mkdir -p "$unity_project/Assets/Packages"
+        rsync -av "$src_assets/Packages/" "$unity_project/Assets/Packages/" || log_warn "Failed to copy some packages"
+    else
+        log_warn "Source Packages directory not found at: $src_assets/Packages"
+    fi
+
+    return 0
+}
+
+_copy_nuget_configs() {
+    local src_assets="$1"
+    local unity_project="$2"
+
+    if [[ -f "$src_assets/NuGet.config" ]]; then
+        log_info "Copying NuGet.config..."
+        cp "$src_assets/NuGet.config" "$unity_project/Assets/" || log_warn "Failed to copy NuGet.config"
+    fi
+
+    if [[ -f "$src_assets/packages.config" ]]; then
+        log_info "Copying packages.config..."
+        cp "$src_assets/packages.config" "$unity_project/Assets/" || log_warn "Failed to copy packages.config"
+    fi
+
+    return 0
+}
+
+_create_editor_symlink() {
+    local src_assets="$1"
+    local unity_project="$2"
+
+    if [[ -d "$src_assets/Editor" ]]; then
+        log_info "Creating Editor symlink..."
+        mkdir -p "$unity_project/Assets"
+        ln -sf "../../../../src/Assets/Editor" "$unity_project/Assets/Editor"
+    else
+        log_warn "Source Editor directory not found at: $src_assets/Editor"
+    fi
+
+    return 0
+}
+
+_setup_unity_project() {
+    local unity_project="$1"
+    local repo_root="${REPO_ROOT:-$(get_repo_root)}"
+    local src_assets="$repo_root/src/Assets"
+
+    _copy_nuget_packages "$src_assets" "$unity_project" || return $?
+    _copy_nuget_configs "$src_assets" "$unity_project" || return $?
+    _create_editor_symlink "$src_assets" "$unity_project" || return $?
+
+    return 0
+}
+
 # Extract game assets (main function)
 # Usage: assetripper_extract [game_dir] [unity_project] [variant]
 assetripper_extract() {
@@ -263,163 +446,27 @@ assetripper_extract() {
     log_debug "Unity project: $unity_project"
     log_debug "Variant: ${variant:-default}"
 
-    # Check if AssetRipper is installed
-    if ! assetripper_check_installed; then
-        return $ERROR_DEPENDENCY
-    fi
+    _validate_dependencies || return $?
 
-    # Check if jq is available (needed for URL encoding)
-    if ! command -v jq &> /dev/null; then
-        log_error "jq command not found. Install with: brew install jq"
-        return $ERROR_DEPENDENCY
-    fi
-
-    # Find game data directory
     local game_data_dir
-    if [[ -d "$game_dir/Erenshor_Data" ]]; then
-        game_data_dir="$game_dir/Erenshor_Data"
-    elif [[ -d "$game_dir" ]]; then
-        game_data_dir="$game_dir"
-    else
-        log_error "Game data directory not found"
-        return $ERROR_NOT_FOUND
-    fi
+    game_data_dir=$(_find_game_data_dir "$game_dir") || return $?
 
-    # Clean Unity project directory before extraction to prevent version mixing
-    if ! _validate_variant_unity_path "$unity_project"; then
-        log_error "Refusing to clean invalid Unity project path: $unity_project"
-        return $ERROR_VALIDATION
-    fi
+    _clean_unity_project "$unity_project" || return $?
 
-    if [[ -d "$unity_project" ]] && [ "$(ls -A "$unity_project" 2>/dev/null)" ]; then
-        log_info "Cleaning Unity project directory to prevent version mixing..."
-        rm -rf "$unity_project"/*
-        log_debug "Unity project directory cleaned: $unity_project"
-    fi
-
-    # AssetRipper extracts to a subdirectory structure
-    # We extract to unity_project root, which creates:
-    #   unity_project/ExportedProject/Assets/
-    #   unity_project/ExportedProject/ProjectSettings/
-    #   unity_project/AuxiliaryFiles/
-    # We'll then move the contents up to the unity_project level
-    local extract_dir="$unity_project"
-
-    # Setup cleanup trap
     trap '_assetripper_stop_server' EXIT INT TERM
 
-    # Step 1: Start server
-    if ! _assetripper_start_server "$variant"; then
-        return $ERROR_PROCESS
-    fi
+    _run_extraction_workflow "$variant" "$game_data_dir" "$unity_project" || return $?
 
-    # Step 2: Load files
-    if ! _assetripper_load_files "$game_data_dir"; then
+    if ! _organize_extracted_assets "$unity_project"; then
         _assetripper_stop_server
-        return $ERROR_PROCESS
+        return $?
     fi
 
-    # Step 3: Export files
-    if ! _assetripper_export_files "$extract_dir"; then
+    if ! _setup_unity_project "$unity_project"; then
         _assetripper_stop_server
-        return $ERROR_PROCESS
+        return $?
     fi
 
-    # Step 4: Monitor progress
-    if ! _assetripper_monitor_export; then
-        log_warn "Export may not have completed successfully"
-        _assetripper_stop_server
-        return $ERROR_TIMEOUT
-    fi
-
-    # Step 5: Move extracted assets to final location
-    log_info "Organizing extracted assets..."
-
-    # AssetRipper creates:
-    #   unity_project/ExportedProject/Assets/
-    #   unity_project/ExportedProject/ProjectSettings/
-    #   unity_project/AuxiliaryFiles/
-    if [[ -d "$unity_project/ExportedProject" ]]; then
-        # Move Assets
-        if [[ -d "$unity_project/ExportedProject/Assets" ]]; then
-            log_info "Moving extracted Assets..."
-            mv "$unity_project/ExportedProject/Assets" "$unity_project/" || log_warn "Failed to move Assets"
-        fi
-
-        # Move ProjectSettings if needed
-        if [[ -d "$unity_project/ExportedProject/ProjectSettings" ]]; then
-            log_info "Moving ProjectSettings..."
-            if ! mv "$unity_project/ExportedProject/ProjectSettings" "$unity_project/"; then
-                log_error "Failed to move ProjectSettings"
-                _assetripper_stop_server
-                return $ERROR_PROCESS
-            fi
-        fi
-
-        # Move Packages if needed
-        if [[ -d "$unity_project/ExportedProject/Packages" ]]; then
-            log_info "Moving Packages..."
-            if ! mv "$unity_project/ExportedProject/Packages" "$unity_project/"; then
-                log_error "Failed to move Packages"
-                _assetripper_stop_server
-                return $ERROR_PROCESS
-            fi
-        fi
-
-        # Clean up temporary directories
-        log_info "Cleaning up temporary files..."
-        if ! _validate_variant_unity_path "$unity_project"; then
-            log_error "Refusing to delete from invalid path: $unity_project"
-            _assetripper_stop_server
-            return $ERROR_VALIDATION
-        fi
-
-        if [[ -d "$unity_project/ExportedProject" ]]; then
-            rm -rf "$unity_project/ExportedProject"
-        fi
-        if [[ -d "$unity_project/AuxiliaryFiles" ]]; then
-            rm -rf "$unity_project/AuxiliaryFiles"
-        fi
-    else
-        log_error "Expected ExportedProject directory not found at: $unity_project/ExportedProject"
-        log_error "AssetRipper may have failed or extracted to a different location"
-        _assetripper_stop_server
-        return $ERROR_PROCESS
-    fi
-
-    # Step 6: Copy NuGet packages and config files from source
-    # These are not extracted by AssetRipper but are required for Unity compilation
-    local repo_root="${REPO_ROOT:-$(get_repo_root)}"
-    local src_assets="$repo_root/src/Assets"
-
-    if [[ -d "$src_assets/Packages" ]]; then
-        log_info "Copying NuGet packages from source..."
-        mkdir -p "$unity_project/Assets/Packages"
-        rsync -av "$src_assets/Packages/" "$unity_project/Assets/Packages/" || log_warn "Failed to copy some packages"
-    else
-        log_warn "Source Packages directory not found at: $src_assets/Packages"
-    fi
-
-    if [[ -f "$src_assets/NuGet.config" ]]; then
-        log_info "Copying NuGet.config..."
-        cp "$src_assets/NuGet.config" "$unity_project/Assets/" || log_warn "Failed to copy NuGet.config"
-    fi
-
-    if [[ -f "$src_assets/packages.config" ]]; then
-        log_info "Copying packages.config..."
-        cp "$src_assets/packages.config" "$unity_project/Assets/" || log_warn "Failed to copy packages.config"
-    fi
-
-    # Create Editor symlink (source code)
-    if [[ -d "$src_assets/Editor" ]]; then
-        log_info "Creating Editor symlink..."
-        mkdir -p "$unity_project/Assets"
-        ln -sf "../../../../src/Assets/Editor" "$unity_project/Assets/Editor"
-    else
-        log_warn "Source Editor directory not found at: $src_assets/Editor"
-    fi
-
-    # Step 7: Cleanup
     _assetripper_stop_server
     trap - EXIT INT TERM
 
