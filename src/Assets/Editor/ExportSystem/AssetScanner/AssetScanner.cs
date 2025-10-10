@@ -23,7 +23,7 @@ public class AssetScanner
 
     public void RegisterGameObjectListener(IAssetScanListener<GameObject> listener)
     {
-        RegisterListener(_gameObjectListeners, listener);;
+        RegisterListener(_gameObjectListeners, listener);
     }
     
     public void RegisterComponentListener<T>(IAssetScanListener<T> listener) where T : Component
