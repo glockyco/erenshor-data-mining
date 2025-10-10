@@ -65,7 +65,7 @@ class FieldMerger:
             try:
                 code_new = mw_parse(generated_infobox)
                 new_tpls = list(code_new.filter_templates())
-            except Exception as e:
+            except (ValueError, AttributeError, TypeError) as e:
                 logger.warning(
                     f"Failed to parse generated infobox during field merge: {e}"
                 )
@@ -79,7 +79,7 @@ class FieldMerger:
                         return (
                             str(nt_.get(name_).value).strip() if nt_.has(name_) else ""
                         )
-                    except Exception as e:
+                    except (AttributeError, KeyError, TypeError) as e:
                         logger.warning(
                             f"Failed to extract parameter '{name_}' from template: {e}"
                         )
@@ -118,9 +118,9 @@ class FieldMerger:
                 generated_infobox, merge
             )
 
-        except Exception as e:
+        except (ValueError, AttributeError, KeyError, TypeError) as e:
             logger.error(
-                f"Unexpected error merging manual fields: {e}",
+                f"Error merging manual fields: {e}",
                 exc_info=True,
             )
 

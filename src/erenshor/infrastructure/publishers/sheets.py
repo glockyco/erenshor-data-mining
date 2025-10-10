@@ -917,9 +917,16 @@ class GoogleSheetsPublisher:
 
         Returns:
             True if connection successful, False otherwise
+
+        Raises:
+            HttpError: If API connection fails (logged and re-raised)
         """
         try:
             self._get_service()
             return True
-        except Exception:
-            return False
+        except HttpError as e:
+            logger.error(f"Google Sheets API connection failed: {e}")
+            raise
+        except Exception as e:
+            logger.error(f"Unexpected error testing Google Sheets connection: {e}")
+            raise

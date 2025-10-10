@@ -168,8 +168,10 @@ def deploy(
 
     # Test connection first
     console.print("[dim]Testing Google Sheets API connection...[/dim]")
-    if not service.test_connection():
-        console.print("[red]Error: Failed to connect to Google Sheets API[/red]")
+    try:
+        service.test_connection()
+    except Exception as e:
+        console.print(f"[red]Error: Failed to connect to Google Sheets API: {e}[/red]")
         console.print(
             "\n[yellow]Check:[/yellow]"
         )
@@ -380,8 +382,10 @@ def validate(
 
     console.print("[green]✓[/green] Publisher initialized successfully")
 
-    if not publisher.test_connection():
-        console.print("[red]✗[/red] Failed to connect to Google Sheets API")
+    try:
+        publisher.test_connection()
+    except Exception as e:
+        console.print(f"[red]✗[/red] Failed to connect to Google Sheets API: {e}")
         console.print(
             "\n[yellow]Check:[/yellow]"
         )

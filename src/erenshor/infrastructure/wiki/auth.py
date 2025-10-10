@@ -71,38 +71,40 @@ class MediaWikiAuth:
         return token
 
     def login(self) -> bool:
-        """Perform bot login with MediaWiki two-step authentication process."""
-        try:
-            logger.info(f"Authenticating bot user: {self.credentials.username}")
+        """Perform bot login with MediaWiki two-step authentication process.
 
-            self.get_login_token()
-            logger.info("Login token obtained")
+        Returns:
+            True if login successful, False if login failed (wrong credentials, etc.)
 
-            login_params = {
-                "action": "login",
-                "lgname": self.credentials.username,
-                "lgpassword": self.credentials.password,
-                "lgtoken": self.login_token,
-                "format": "json",
-            }
-            response = self._request(login_params, method="POST")
+        Raises:
+            WikiAPIError: If network/API errors occur during authentication
+        """
+        logger.info(f"Authenticating bot user: {self.credentials.username}")
 
-            login_result = response.get("login", {})
-            result = login_result.get("result")
+        self.get_login_token()
+        logger.info("Login token obtained")
 
-            if result == "Success":
-                self.logged_in = True
-                logger.info("Bot authentication successful")
-                return True
-            else:
-                error_msg = f"Login failed: {result}"
-                if "reason" in login_result:
-                    error_msg += f" - {login_result['reason']}"
-                logger.error(error_msg)
-                return False
+        login_params = {
+            "action": "login",
+            "lgname": self.credentials.username,
+            "lgpassword": self.credentials.password,
+            "lgtoken": self.login_token,
+            "format": "json",
+        }
+        response = self._request(login_params, method="POST")
 
-        except Exception as e:
-            logger.error(f"Authentication failed: {e}")
+        login_result = response.get("login", {})
+        result = login_result.get("result")
+
+        if result == "Success":
+            self.logged_in = True
+            logger.info("Bot authentication successful")
+            return True
+        else:
+            error_msg = f"Login failed: {result}"
+            if "reason" in login_result:
+                error_msg += f" - {login_result['reason']}"
+            logger.error(error_msg)
             return False
 
     def get_csrf_token(self) -> str:

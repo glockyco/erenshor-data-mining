@@ -15,6 +15,7 @@ from erenshor.application.reporting import Category, Reporter
 from erenshor.application.services import UploadService
 from erenshor.application.upload import PageUploader
 from erenshor.domain.events import UploadComplete
+from erenshor.domain.exceptions import WikiAPIError
 from erenshor.infrastructure.config.settings import load_settings
 from erenshor.infrastructure.wiki.auth import BotCredentials, MediaWikiAuth
 from erenshor.infrastructure.wiki.client import WikiAPIClient
@@ -159,8 +160,13 @@ def push(
             api_url=config.api_url,
         )
         auth = MediaWikiAuth(credentials)
-        if not auth.login():
-            console.print("[red]Error: Authentication failed[/red]")
+        try:
+            if not auth.login():
+                console.print("[red]Error: Authentication failed (wrong credentials)[/red]")
+                reporter.finish(exit_code=1)
+                raise typer.Exit(1)
+        except WikiAPIError as e:
+            console.print(f"[red]Error: Authentication failed: {e}[/red]")
             reporter.finish(exit_code=1)
             raise typer.Exit(1)
         client.set_auth_session(auth.session)
