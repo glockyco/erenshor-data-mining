@@ -15,7 +15,7 @@ source "$PYTHON_MODULE_DIR/../core/variants.sh"
 
 # Python environment detection
 readonly PYTHON_PACKAGE="erenshor"
-readonly PYTHON_CLI_MODULE="erenshor.cli.main"
+readonly PYTHON_CLI_MODULE="erenshor.cli"
 
 # Check if uv is available
 python_has_uv() {
