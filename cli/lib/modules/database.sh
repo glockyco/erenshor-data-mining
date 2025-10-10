@@ -31,10 +31,10 @@ database_backup() {
         return 0
     fi
 
-    # Validate variant if provided
+    # Validate variant
     if [[ -n "$variant" ]] && ! variant_validate "$variant" 2>/dev/null; then
-        log_warn "Invalid variant '$variant', using 'main'"
-        variant="main"
+        log_error "Invalid variant: $variant"
+        return 1
     fi
 
     mkdir -p "$backups_root"
