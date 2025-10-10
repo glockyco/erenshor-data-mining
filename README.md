@@ -540,41 +540,15 @@ uv run python -m erenshor.cli.main sheets deploy --all-sheets
 uv run python -m erenshor.cli.main sheets deploy --sheets items characters quests
 ```
 
-### Bash CLI Commands
+### CLI Commands
 
-| Command | Description |
-|---------|-------------|
-| `erenshor update [--variant <v>]` | Run full pipeline (download → extract → export) |
-| `erenshor download [--variant <v>]` | Download game from Steam via SteamCMD |
-| `erenshor extract [--variant <v>]` | Extract Unity project via AssetRipper |
-| `erenshor export [--variant <v>]` | Export data to SQLite via Unity batch mode |
-| `erenshor deploy [--variant <v>]` | Deploy database to wiki project directory |
-| `erenshor status [--all-variants]` | Show pipeline status and statistics |
-| `erenshor config get [<key>]` | View configuration values |
-| `erenshor symlink check\|create\|status` | Manage symlinks between src/ and Unity |
-| `erenshor doctor` | Run system health checks |
-| `erenshor test-python` | Test Python integration |
-
-### Python CLI Commands
-
-| Command | Description |
-|---------|-------------|
-| `wiki fetch [pages...]` | Fetch wiki pages for comparison |
-| `wiki update <entity>` | Generate wiki content (items, characters, etc.) |
-| `wiki validate-items` | Validate item wiki pages |
-| `wiki push [pages...]` | Upload pages to MediaWiki |
-| `wiki diff <page>` | Compare database vs. wiki content |
-| `sheets list` | List available sheets |
-| `sheets validate` | Validate Google credentials |
-| `sheets deploy` | Deploy data to Google Sheets |
-| `db stats` | Show database statistics |
-| `db validate` | Validate database schema |
-
-For full command reference:
+For complete command reference:
 ```bash
-cli/bin/erenshor --help
-uv run python -m erenshor.cli.main --help
+erenshor --help              # Bash CLI commands
+uv run python -m erenshor.cli.main --help  # Python CLI commands
 ```
+
+See **[CLAUDE.md](CLAUDE.md)** for detailed command documentation and usage examples.
 
 ---
 
@@ -681,98 +655,31 @@ Configuration supports path expansion:
 
 ```
 erenshor/
-├── cli/                        # Bash CLI orchestration layer
-│   ├── bin/erenshor            # Main CLI entry point
-│   ├── commands/               # Pipeline commands
-│   │   ├── download.sh         # SteamCMD game download
-│   │   ├── extract.sh          # AssetRipper extraction
-│   │   ├── export.sh           # Unity batch mode export
-│   │   ├── deploy.sh           # Deploy to wiki/sheets
-│   │   └── update.sh           # Full pipeline
-│   └── lib/
-│       ├── core/               # Core utilities
-│       │   ├── config.sh       # Configuration management
-│       │   ├── logging.sh      # Logging utilities
-│       │   └── state.sh        # State management
-│       └── modules/            # Feature modules
-│           ├── python.sh       # Python CLI integration
-│           ├── steamcmd.sh     # SteamCMD integration
-│           ├── assetripper.sh  # AssetRipper integration
-│           ├── unity.sh        # Unity Editor automation
-│           └── database.sh     # Database operations
+├── cli/                    # Bash CLI orchestration
+│   ├── bin/erenshor        # Main entry point
+│   ├── commands/           # Pipeline commands (download, extract, export, deploy)
+│   └── lib/                # Core utilities and modules
 ├── src/
-│   ├── erenshor/               # Python business logic layer
-│   │   ├── cli/                # Python CLI commands
-│   │   ├── application/        # Application services
-│   │   │   ├── formatters/     # Data formatters
-│   │   │   │   └── sheets/     # Google Sheets formatters
-│   │   │   │       └── queries/  # SQL query files
-│   │   │   ├── generators/     # Wiki content generators
-│   │   │   ├── services/       # Business services
-│   │   │   └── transformers/   # Content transformers
-│   │   ├── domain/             # Domain models and logic
-│   │   │   ├── entities/       # Business entities
-│   │   │   └── validation/     # Validation rules
-│   │   ├── infrastructure/     # Infrastructure layer
-│   │   │   ├── database/       # SQLite repositories
-│   │   │   ├── publishers/     # MediaWiki, Google Sheets
-│   │   │   └── storage/        # File system operations
-│   │   ├── presentation/       # Presentation layer
-│   │   │   └── cli/            # CLI interface
-│   │   ├── registry/           # Entity registries
-│   │   ├── shared/             # Shared utilities
-│   │   └── templates/          # Jinja2 templates
-│   └── Assets/                 # Unity C# export layer
-│       ├── Editor/             # Unity Editor scripts (symlinked)
-│       │   ├── ExportBatch.cs  # Batch mode entry point
-│       │   ├── Database/       # SQLite table records
-│       │   ├── ExportSystem/   # Asset scanning system
-│       │   │   ├── AssetScanner.cs
-│       │   │   └── AssetScanner/
-│       │   │       └── Listener/  # Entity listeners (20+ types)
-│       │   └── WikiUtils/      # Wiki comparison tools
-│       └── Packages/           # NuGet packages (copied to Unity)
-├── variants/                   # Working directories (NOT tracked)
-│   ├── main/                   # Main game variant
-│   │   ├── game/               # Downloaded game files (~9GB)
-│   │   ├── unity/              # Unity project
-│   │   │   └── Assets/Editor -> ../../../../src/Assets/Editor/
-│   │   ├── logs/               # Export logs
-│   │   ├── backups/            # Database backups
-│   │   └── erenshor-main.sqlite
-│   ├── playtest/               # Playtest variant
-│   └── demo/                   # Demo variant
-├── docs/                       # Documentation
-│   ├── ARCHITECTURE_MERGE.md   # Architecture overview
-│   ├── PYTHON_INTEGRATION.md   # Python CLI integration guide
-│   ├── PHASE3_COMPLETION_REPORT.md
-│   └── GOOGLE_SHEETS_DEPLOYMENT.md
-├── tests/                      # Python tests
-├── out/                        # Python output (NOT tracked)
-│   ├── wiki/                   # Generated wiki pages
-│   ├── json/                   # JSON exports
-│   ├── csv/                    # CSV exports
-│   └── reports/                # Operation reports (JSONL)
-├── .erenshor/                  # Project state (NOT tracked)
-│   ├── state.json              # Pipeline state
-│   ├── config.local.toml       # Local config overrides
-│   └── logs/                   # Global logs
-├── config.toml                 # Main configuration
-├── pyproject.toml              # Python dependencies
-├── .env.example                # Example environment variables
-├── CLAUDE.md                   # AI assistant context (detailed)
-├── README.md                   # This file (overview)
-└── README_WIKI.md              # Python wiki system docs (detailed)
+│   ├── erenshor/           # Python business logic (wiki, sheets, formatters)
+│   └── Assets/Editor/      # Unity C# export scripts (symlinked to Unity projects)
+├── variants/               # Working directories (NOT tracked in git)
+│   ├── main/               # Main game: game files, Unity project, database
+│   ├── playtest/           # Playtest variant
+│   └── demo/               # Demo variant
+├── docs/                   # Documentation (architecture, troubleshooting, guides)
+├── tests/                  # Python test suite
+├── config.toml             # Main configuration
+└── .erenshor/              # Local state and overrides (NOT tracked)
 ```
 
-### Key Directories
+**Key Directories**:
+- `cli/` - Bash orchestration layer
+- `src/erenshor/` - Python business logic
+- `src/Assets/Editor/` - Unity export scripts
+- `variants/` - Per-variant game files and databases
+- `docs/` - Architecture and troubleshooting
 
-- **`cli/`** - Bash scripts for pipeline orchestration
-- **`src/erenshor/`** - Python package for wiki generation
-- **`src/Assets/Editor/`** - Unity C# scripts for data export
-- **`variants/`** - Per-variant working directories (game files, Unity projects, databases)
-- **`docs/`** - Architecture and integration documentation
-- **`tests/`** - Python test suite
+See **[CLAUDE.md](CLAUDE.md)** for complete directory structure with all subdirectories.
 
 ---
 
