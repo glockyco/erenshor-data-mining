@@ -115,12 +115,6 @@ _config_load_file() {
 
 # Load configuration (loads both project and user configs with proper precedence)
 config_load() {
-    # If a specific file is provided, load only that file (for backward compatibility)
-    if [[ $# -gt 0 ]]; then
-        _config_load_file "$1"
-        return
-    fi
-
     # Load project config first (base settings)
     if [[ -f "$PROJECT_CONFIG" ]]; then
         _config_load_file "$PROJECT_CONFIG"
