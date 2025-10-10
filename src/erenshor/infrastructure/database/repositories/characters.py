@@ -192,7 +192,8 @@ def get_loot_for_character(engine: Engine, character_guid: str) -> list[dict[str
                COALESCE(ld.IsUnique, 0) AS IsUnique,
                i.ItemName,
                i.ResourceName,
-               COALESCE(i.ItemIconName, '') AS ItemIconName
+               COALESCE(i.ItemIconName, '') AS ItemIconName,
+               COALESCE(i."Unique", 0) AS ItemUnique
         FROM LootDrops ld
         LEFT JOIN Items i ON i.Id = ld.ItemId
         WHERE ld.CharacterPrefabGuid = :guid

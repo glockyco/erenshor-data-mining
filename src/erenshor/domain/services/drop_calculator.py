@@ -56,16 +56,16 @@ def format_drops(
         return (-probability, item_name)
 
     # Prepare entries with sort keys
-    guaranteed_entries: list[tuple[tuple[float, str], str]] = []
-    regular_entries: list[tuple[tuple[float, str], str]] = []
+    guaranteed_entries_no_pct: list[tuple[tuple[float, str], str]] = []  # For guaranteeddrops field
+    all_entries_with_pct: list[tuple[tuple[float, str], str]] = []  # For droprates field
 
     for drop_data in loot_rows:
-        title = link_resolver.resolve_item_title(
-            drop_data.get("ResourceName", "") or "",
-            drop_data.get("ItemName", "") or "",
-            drop_data.get("ItemId"),
-        )
-        if not title:
+        resource_name = drop_data.get("ResourceName", "") or ""
+        item_name = drop_data.get("ItemName", "") or ""
+        item_id = drop_data.get("ItemId")
+
+        # Skip if no valid item data
+        if not item_name:
             continue
 
         drop_probability = float(drop_data.get("DropProbability") or 0.0)
@@ -73,28 +73,42 @@ def format_drops(
             continue
 
         probability_text = _format_probability(drop_probability)
-        entry = f"{{{{ItemLink|{title}}}}}"
+        is_guaranteed = drop_data.get("IsGuaranteed")
+
+        # Use link resolver to create ItemLink template
+        item_link = link_resolver.item_link(resource_name, item_name, item_id)
+
+        # Build entry with percentage (for droprates field)
+        entry_with_pct = item_link
         if probability_text:
-            entry += f" ({probability_text})"
-        # Non-exclusive refs; suppress for IsActual
-        if not drop_data.get("IsActual"):
-            references: list[str] = []
-            if append_visible_ref and drop_data.get("IsVisible") and character_name:
-                references.append(
-                    f"<ref>If {character_name} has {{{{ItemLink|{title}}}}} equipped, it is guaranteed to drop.</ref>"
-                )
-            if drop_data.get("IsUnique"):
-                references.append(
-                    f"<ref>If the player is already holding {{{{ItemLink|{title}}}}} in their inventory, another will not drop.</ref>"
-                )
-            if references:
-                entry += "".join(references)
+            entry_with_pct += f" ({probability_text})"
+
+        # Add refs for special cases
+        references: list[str] = []
+
+        # IsVisible ref: if character has item equipped, it drops
+        if append_visible_ref and drop_data.get("IsVisible") and character_name:
+            references.append(
+                f"<ref>If {character_name} has {item_link} equipped, it is guaranteed to drop.</ref>"
+            )
+
+        # ItemUnique ref: if item is unique, only one can be held at a time
+        if drop_data.get("ItemUnique"):
+            references.append(
+                f"<ref>If the player is already holding {item_link} in their inventory, another will not drop.</ref>"
+            )
+
+        if references:
+            entry_with_pct += "".join(references)
 
         sort_key = _sort_key(drop_data)
-        if drop_data.get("IsGuaranteed"):
-            guaranteed_entries.append((sort_key, entry))
-        else:
-            regular_entries.append((sort_key, entry))
+
+        # All items go to droprates with percentage
+        all_entries_with_pct.append((sort_key, entry_with_pct))
+
+        # Guaranteed items also go to guaranteeddrops WITHOUT percentage
+        if is_guaranteed:
+            guaranteed_entries_no_pct.append((sort_key, item_link))
 
     # Sort by key and deduplicate while preserving order
     def _join_entries(entries: list[tuple[tuple[float, str], str]]) -> str:
@@ -109,4 +123,4 @@ def format_drops(
                 output.append(entry_text)
         return WIKITEXT_LINE_SEPARATOR.join(output)
 
-    return _join_entries(guaranteed_entries), _join_entries(regular_entries)
+    return _join_entries(guaranteed_entries_no_pct), _join_entries(all_entries_with_pct)
