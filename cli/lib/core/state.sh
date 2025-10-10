@@ -230,32 +230,6 @@ state_set_operation() {
     state_update_timestamp
 }
 
-# Record game update
-state_record_game() {
-    local build_id="$1"
-    local files_path="$2"
-    local size_bytes="${3:-0}"
-
-    state_set "game.build_id" "$build_id"
-    state_set "game.last_downloaded" "$(timestamp_iso)"
-    state_set "game.files_path" "$files_path"
-    state_set_number "game.size_bytes" "$size_bytes"
-    state_update_timestamp
-}
-
-# Record database export
-state_record_export() {
-    local db_path="$1"
-    local size_bytes="${2:-0}"
-    local entity_counts="${3:-{}}"
-
-    state_set "database.path" "$db_path"
-    state_set "database.last_export" "$(timestamp_iso)"
-    state_set_number "database.size_bytes" "$size_bytes"
-    state_set_object "database.entity_counts" "$entity_counts"
-    state_update_timestamp
-}
-
 # Record pipeline run
 state_record_pipeline() {
     local status="$1"
