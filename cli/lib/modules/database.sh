@@ -183,14 +183,6 @@ database_deploy() {
         return $ERROR_VALIDATION
     fi
 
-    # Backup existing target
-    if [[ -f "$target_db" ]]; then
-        local auto_backup=$(config_get behavior.auto_backup)
-        if [[ "$auto_backup" == "true" ]]; then
-            database_backup "$target_db"
-        fi
-    fi
-
     # Copy to target
     cp "$source_db" "$target_db"
 

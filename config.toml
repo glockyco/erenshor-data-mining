@@ -46,7 +46,6 @@ timeout = 3600                             # 60 minutes
 # ============================================================================
 [global.database]
 # Database settings (used by both Bash and Python)
-backup_enabled = true
 validate = true
 
 [global.mediawiki]
@@ -77,7 +76,6 @@ retry_delay = 5                            # Seconds between retries
 # ============================================================================
 [global.behavior]
 # Behavioral settings
-auto_backup = true
 confirm_destructive = true
 parallel_downloads = true
 max_retries = 3
