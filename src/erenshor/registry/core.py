@@ -50,6 +50,14 @@ class WikiRegistry:
 
         data = json.loads(self.registry_file.read_text())
 
+        # Require version 2.0
+        version = data.get("version", "1.0")
+        if version != "2.0":
+            raise ValueError(
+                f"Unsupported registry version: {version}. "
+                f"Expected version 2.0. Please regenerate your registry."
+            )
+
         for page_data in data.get("pages", []):
             page = self._page_from_dict(page_data)
             self.pages[page.title] = page
@@ -265,10 +273,6 @@ class WikiRegistry:
         page.updated_content_hash = cast(
             Optional[str], data.get("updated_content_hash")
         )
-
-        # Registry v1 used 'content_hash', v2 split into original/updated hashes
-        if data.get("content_hash") and not page.updated_content_hash:
-            page.updated_content_hash = cast(Optional[str], data.get("content_hash"))
 
         # Load entities
         entities_list = cast(list[dict[str, object]], data.get("entities", []))
