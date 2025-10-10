@@ -46,8 +46,10 @@ def _num(v: int | float | None) -> str:
         if s.startswith("-"):
             s = "&minus;" + s[1:]
         return s
-    except Exception:
-        return ""
+    except (TypeError, ValueError) as e:
+        raise ValueError(
+            f"Cannot format stat value: {v!r} (type: {type(v).__name__})"
+        ) from e
 
 
 def _classes_text(classes: list[str] | None) -> str:
