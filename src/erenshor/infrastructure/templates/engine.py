@@ -63,7 +63,6 @@ def render_template(template_path: str, ctx: Any) -> str:
     """Render a template with the given context.
 
     Uses a singleton environment instance for efficiency.
-    Replaces the old Renderer class with a simpler function-based approach.
 
     Args:
         template_path: Path to template relative to templates/ directory
@@ -79,28 +78,4 @@ def render_template(template_path: str, ctx: Any) -> str:
     return template.render(ctx=ctx)
 
 
-class Renderer:
-    """Lightweight renderer wrapper for backward compatibility.
-
-    Provides the TemplateRenderer protocol interface while using
-    the functional render_template internally.
-    """
-
-    def __init__(self) -> None:
-        """Initialize renderer (environment created lazily)."""
-        pass
-
-    def render(self, template_path: str, *, ctx: Any) -> str:
-        """Render a template with the given context.
-
-        Args:
-            template_path: Path to template relative to templates/ directory
-            ctx: Context object to pass to template
-
-        Returns:
-            Rendered template string
-        """
-        return render_template(template_path, ctx)
-
-
-__all__ = ["build_env", "render_template", "Renderer"]
+__all__ = ["build_env", "render_template"]
