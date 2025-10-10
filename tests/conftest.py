@@ -34,7 +34,6 @@ from erenshor.domain.validation.characters import CharacterValidator
 from erenshor.domain.validation.items import ItemValidator
 from erenshor.infrastructure.config.settings import WikiSettings
 from erenshor.infrastructure.storage.page_storage import PageStorage
-from erenshor.infrastructure.templates.engine import Renderer
 from erenshor.registry.core import WikiRegistry
 from erenshor.registry.links import RegistryLinkResolver
 
@@ -147,12 +146,6 @@ def test_settings(test_db_path: Path, temp_dir: Path) -> WikiSettings:
 
 
 @pytest.fixture
-def test_renderer() -> Renderer:
-    """Create Renderer with test templates."""
-    return Renderer()
-
-
-@pytest.fixture
 def test_link_resolver(test_registry: WikiRegistry) -> RegistryLinkResolver:
     """Create RegistryLinkResolver for generating wiki links."""
     return RegistryLinkResolver(test_registry)
@@ -160,27 +153,27 @@ def test_link_resolver(test_registry: WikiRegistry) -> RegistryLinkResolver:
 
 # Generator fixtures
 @pytest.fixture
-def item_generator(test_renderer: Renderer) -> ItemGenerator:
+def item_generator() -> ItemGenerator:
     """Create ItemGenerator for testing."""
-    return ItemGenerator(test_renderer)
+    return ItemGenerator()
 
 
 @pytest.fixture
-def character_generator(test_renderer: Renderer) -> CharacterGenerator:
+def character_generator() -> CharacterGenerator:
     """Create CharacterGenerator for testing."""
-    return CharacterGenerator(test_renderer)
+    return CharacterGenerator()
 
 
 @pytest.fixture
-def ability_generator(test_renderer: Renderer) -> AbilityGenerator:
+def ability_generator() -> AbilityGenerator:
     """Create AbilityGenerator for testing."""
-    return AbilityGenerator(test_renderer)
+    return AbilityGenerator()
 
 
 @pytest.fixture
-def fishing_generator(test_renderer: Renderer) -> FishingGenerator:
+def fishing_generator() -> FishingGenerator:
     """Create FishingGenerator for testing."""
-    return FishingGenerator(test_renderer)
+    return FishingGenerator()
 
 
 # Transformer fixtures
