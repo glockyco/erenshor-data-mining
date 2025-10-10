@@ -263,24 +263,6 @@ database_compare() {
     done
 }
 
-# Clean old databases
-database_clean() {
-    local output_dir=$(config_get paths.output)
-
-    log_info "Cleaning old database files..."
-
-    # Remove old output databases (keep last 3)
-    if [[ -d "$output_dir" ]]; then
-        local db_files=$(ls -1t "$output_dir"/*.sqlite 2>/dev/null)
-        local count=$(echo "$db_files" | wc -l)
-
-        if [[ $count -gt 3 ]]; then
-            echo "$db_files" | tail -n +4 | xargs rm -f
-            log_info "Removed $((count - 3)) old database file(s)"
-        fi
-    fi
-}
-
 # Clean old databases for specific variant
 database_clean_variant() {
     local variant="$1"
