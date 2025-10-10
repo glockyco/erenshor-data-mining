@@ -198,14 +198,9 @@ database_deploy() {
     if ! verify_database "$target_db"; then
         log_error "Deployed database validation failed"
 
-        # Restore from backup (new directory structure)
+        # Restore from backup
         local backups_root=$(config_get paths.backups)
         local latest_backup=$(find "$backups_root" -type f -name "erenshor.sqlite" 2>/dev/null | head -1)
-
-        # Fallback to old backup format if no new backups found
-        if [[ -z "$latest_backup" ]]; then
-            latest_backup=$(ls -1t "$backups_root"/erenshor_*.sqlite 2>/dev/null | head -1)
-        fi
 
         if [[ -n "$latest_backup" ]]; then
             log_warn "Restoring from backup: $latest_backup"
