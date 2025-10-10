@@ -102,14 +102,10 @@ command_main() {
         fi
 
         # Check for export script
-        if [[ -f "$unity_project/export.sh" ]]; then
+        if [[ -f "$repo_root/src/export.sh" ]]; then
             success "Export script found"
-        elif [[ -f "$repo_root/export.sh" ]]; then
-            warning "Export script not copied to Unity project"
-            info "Run: erenshor export (will auto-copy on first run)"
-            ((warnings++))
         else
-            error "Export script not found: $repo_root/export.sh"
+            error "Export script not found: $repo_root/src/export.sh"
             ((errors++))
         fi
 

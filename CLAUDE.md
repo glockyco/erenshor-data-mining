@@ -81,6 +81,7 @@ erenshor/
 │   │   ├── infrastructure/     # Infrastructure layer
 │   │   │   └── publishers/     # Google Sheets, MediaWiki
 │   │   └── registry/           # Entity registries
+│   ├── export.sh               # Unity batch mode export wrapper
 │   └── Assets/
 │       ├── Editor/             # Unity export scripts (symlinked to Unity)
 │       │   ├── ExportBatch.cs  # Batch mode export entry

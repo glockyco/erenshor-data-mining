@@ -87,11 +87,6 @@ command_main() {
         warning "Failed to sync NuGet packages - Unity compilation may fail"
     fi
 
-    # Setup export script
-    if ! unity_setup_export_script "$unity_path"; then
-        warning "Failed to setup export script - export command may not work"
-    fi
-
     # Record state
     state_set_variant "$variant" "unity.last_extraction" "$(timestamp_iso)"
     state_set_variant "$variant" "unity.project_path" "$unity_path"

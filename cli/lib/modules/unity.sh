@@ -23,38 +23,28 @@ unity_check_installed() {
     return 0
 }
 
-# Setup Unity export wrapper script
-# Usage: unity_setup_export_script [unity_project]
-unity_setup_export_script() {
-    local unity_project="${1:-$(config_get paths.unity_project)}"
+# Verify Unity export script exists
+# Usage: unity_verify_export_script
+unity_verify_export_script() {
     local repo_root="${REPO_ROOT:-$(get_repo_root)}"
-    local source_script="$repo_root/export.sh"
-    local target_script="$unity_project/export.sh"
+    local export_script="$repo_root/src/export.sh"
 
-    # Check if source script exists
-    if [[ ! -f "$source_script" ]]; then
-        log_error "Source export script not found: $source_script"
+    # Check if source script exists and is executable
+    if [[ ! -f "$export_script" ]]; then
+        log_error "Export script not found: $export_script"
         return $ERROR_NOT_FOUND
     fi
 
-    # Check if target already exists and is valid
-    if [[ -f "$target_script" ]]; then
-        # Check if it's executable and the same as source
-        if cmp -s "$source_script" "$target_script"; then
-            log_debug "Export script already up to date"
-            return 0
-        fi
+    if [[ ! -x "$export_script" ]]; then
+        log_debug "Making export script executable"
+        chmod +x "$export_script" || {
+            log_error "Failed to make export script executable"
+            return $ERROR_PROCESS
+        }
     fi
 
-    # Copy script to Unity project
-    log_info "Setting up export script in Unity project..."
-    if cp "$source_script" "$target_script" && chmod +x "$target_script"; then
-        log_info "Export script ready: $target_script"
-        return 0
-    else
-        log_error "Failed to setup export script"
-        return $ERROR_PROCESS
-    fi
+    log_debug "Export script ready: $export_script"
+    return 0
 }
 
 # Export game data using Unity batch mode
@@ -82,9 +72,9 @@ unity_export() {
     # Verify Unity project
     require_directory "$unity_project" "Unity project not found: $unity_project"
 
-    # Ensure export script is present
-    if ! unity_setup_export_script "$unity_project"; then
-        log_error "Failed to setup export script"
+    # Verify export script exists
+    if ! unity_verify_export_script; then
+        log_error "Failed to verify export script"
         return $ERROR_DEPENDENCY
     fi
 
@@ -110,12 +100,14 @@ unity_export() {
     mkdir -p "$(dirname "$log_file")"
 
     # Use export.sh script
-    local export_script="$unity_project/export.sh"
+    local repo_root="${REPO_ROOT:-$(get_repo_root)}"
+    local export_script="$repo_root/src/export.sh"
 
     log_info "Using export script: $export_script"
 
     local cmd=(
         "$export_script"
+        "$unity_project"
         "-o" "$output_db"
         "-l" "normal"
     )
