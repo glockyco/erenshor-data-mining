@@ -7,7 +7,6 @@ command_main() {
     local skip_download=false
     local entities="all"
     local dry_run=false
-    local skip_backup=false
     local variant="$(config_get default_variant)"
     local all_variants=false
     local original_args=("$@")
@@ -29,10 +28,6 @@ command_main() {
                 ;;
             -n|--dry-run)
                 dry_run=true
-                shift
-                ;;
-            --no-backup)
-                skip_backup=true
                 shift
                 ;;
             --variant)
@@ -154,12 +149,10 @@ command_main() {
         local source_filename=$(basename "$database_path")
         local wiki_db="$(config_get paths.wiki_project)/$source_filename"
 
-        # Backup if enabled
-        if [[ "$skip_backup" != true ]]; then
-            local backup_dir=$(database_backup "$wiki_db" "$variant")
-            if [[ -n "$backup_dir" ]]; then
-                log_info "Backup created: $backup_dir"
-            fi
+        # Backup existing database
+        local backup_dir=$(database_backup "$wiki_db" "$variant")
+        if [[ -n "$backup_dir" ]]; then
+            log_info "Backup created: $backup_dir"
         fi
 
         if ! database_deploy "$database_path" "$wiki_db"; then
@@ -221,7 +214,6 @@ OPTIONS:
     -s, --skip-download   Skip game download (use existing files)
     -e, --entities LIST   Export specific entity types (comma-separated)
     -n, --dry-run         Show what would happen without doing it
-    --no-backup           Skip database backup
     --variant VARIANT     Update specific variant (main, playtest, demo)
     --all-variants        Update all enabled variants sequentially
     -h, --help            Show this help message

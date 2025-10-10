@@ -3,7 +3,6 @@
 
 # Command entry point
 command_main() {
-    local skip_backup=false
     local source=""
     local variant="$(config_get default_variant)"
     local all_variants=false
@@ -15,10 +14,6 @@ command_main() {
     # Parse arguments
     while [[ $# -gt 0 ]]; do
         case $1 in
-            --no-backup)
-                skip_backup=true
-                shift
-                ;;
             -s|--source)
                 source="$2"
                 shift 2
@@ -86,7 +81,7 @@ command_main() {
     # Route to appropriate deployment function
     case "$target" in
         sqlite)
-            deploy_sqlite "$variant" "$source" "$skip_backup" "$start_time"
+            deploy_sqlite "$variant" "$source" "$start_time"
             ;;
         sheets)
             deploy_sheets "$variant" "$dry_run" "${sheets[@]}"
@@ -98,8 +93,7 @@ command_main() {
 deploy_sqlite() {
     local variant="$1"
     local source="$2"
-    local skip_backup="$3"
-    local start_time="$4"
+    local start_time="$3"
 
     # Show header
     echo ""
@@ -131,16 +125,14 @@ deploy_sqlite() {
     local source_filename=$(basename "$source")
     local wiki_db="$(config_get paths.wiki_project)/$source_filename"
 
-    # Backup if enabled
-    if [[ "$skip_backup" != true ]]; then
-        if [[ -f "$wiki_db" ]]; then
-            info "Creating backup..."
-            local backup_dir=$(database_backup "$wiki_db" "$variant")
-            if [[ -n "$backup_dir" ]]; then
-                log_info "Backup created: $backup_dir"
-            fi
-            echo ""
+    # Backup existing database
+    if [[ -f "$wiki_db" ]]; then
+        info "Creating backup..."
+        local backup_dir=$(database_backup "$wiki_db" "$variant")
+        if [[ -n "$backup_dir" ]]; then
+            log_info "Backup created: $backup_dir"
         fi
+        echo ""
     fi
 
     # Deploy
@@ -221,7 +213,6 @@ OPTIONS:
     --dry-run             Preview without uploading (sheets only)
     --sheet NAME          Specific sheet to deploy (sheets only, can be repeated)
     -s, --source PATH     Source database path (sqlite only)
-    --no-backup           Skip database backup (sqlite only)
     -h, --help            Show this help message
 
 TARGETS:
@@ -243,9 +234,6 @@ EXAMPLES:
 
     # Deploy from custom SQLite location
     erenshor deploy --target sqlite --source /tmp/test.sqlite
-
-    # Deploy SQLite without backup
-    erenshor deploy --target sqlite --no-backup
 
     # Deploy all variants to sheets
     erenshor deploy --target sheets --all-variants
