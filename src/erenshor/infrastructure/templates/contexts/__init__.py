@@ -3,7 +3,7 @@
 All Pydantic models used for rendering Jinja2 templates.
 Organized by content type: abilities, spells, skills, characters, fishing, items.
 
-This module provides backward-compatible imports for all context classes.
+This module provides convenience imports for all context classes.
 """
 
 from erenshor.infrastructure.templates.contexts.abilities import (

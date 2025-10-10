@@ -4,7 +4,7 @@ Provides ItemGenerator facade that delegates to specialized generators
 for different item types: weapons, armor, auras, consumables, ability books,
 molds, and general items.
 
-This module maintains backward compatibility while providing a clean
+This module maintains a stable interface while providing a clean
 separation of concerns internally.
 """
 
@@ -45,9 +45,8 @@ logger = logging.getLogger(__name__)
 class ItemGenerator(BaseGenerator):
     """Generate item page content from database.
 
-    Facade that coordinates specialized generators for different item types.
-    Maintains backward compatibility with the original monolithic implementation
-    while providing clean separation of concerns.
+    Facade that coordinates specialized generators for different item types
+    with clean separation of concerns.
 
     Delegates to:
     - WeaponArmorGenerator: Weapons and armor with fancy tables

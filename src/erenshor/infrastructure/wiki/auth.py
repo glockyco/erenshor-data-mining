@@ -75,11 +75,9 @@ class MediaWikiAuth:
         try:
             logger.info(f"Authenticating bot user: {self.credentials.username}")
 
-            # Step 1: Get login token
             self.get_login_token()
             logger.info("Login token obtained")
 
-            # Step 2: Login with credentials and token
             login_params = {
                 "action": "login",
                 "lgname": self.credentials.username,
