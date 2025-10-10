@@ -11,6 +11,10 @@ source "$STEAMCMD_MODULE_DIR/../core/logger.sh"
 source "$STEAMCMD_MODULE_DIR/../core/errors.sh"
 source "$STEAMCMD_MODULE_DIR/../core/config.sh"
 
+# Constants
+readonly BUILD_ID_MANUAL="manual"  # Special value indicating manual/non-Steam installation
+readonly BUILD_ID_NONE="0"         # No build ID found
+
 # Check if SteamCMD is installed
 steamcmd_check_installed() {
     if ! command_exists steamcmd; then
@@ -66,7 +70,7 @@ steamcmd_get_current_build() {
     if [[ ! -f "$manifest_file" ]]; then
         log_error "Manifest not found: $manifest_file"
         log_error "Cannot determine build ID - game may be manually installed or corrupted"
-        echo "manual"
+        echo "$BUILD_ID_MANUAL"
         return 1
     fi
 
@@ -84,7 +88,7 @@ steamcmd_get_current_build() {
         fi
         log_error "Failed to extract build ID from manifest"
         log_error "Build ID is 0 - download may be incomplete or corrupted"
-        echo "manual"
+        echo "$BUILD_ID_MANUAL"
         return 1
     fi
 

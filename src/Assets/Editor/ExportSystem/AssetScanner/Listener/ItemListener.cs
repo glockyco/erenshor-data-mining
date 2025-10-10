@@ -28,7 +28,9 @@ public class ItemListener : IAssetScanListener<Item>
     {
         "Charm", "Head", "Neck", "Ring", "Hand", "Chest", "Shoulder", "Arm", "Bracer", "Leg", "Waist", "Foot", "Back"
     };
-    
+
+    private const float VendorBuybackPercentage = 0.65f;
+
     public ItemListener(SQLiteConnection db)
     {
         _db = db;
@@ -220,7 +222,7 @@ public class ItemListener : IAssetScanListener<Item>
 
             // --- Economy & Inventory ---
             ItemValue = item.ItemValue,
-            SellValue = Mathf.RoundToInt(item.ItemValue * 0.65f),
+            SellValue = Mathf.RoundToInt(item.ItemValue * VendorBuybackPercentage),
             Stackable = item.Stackable,
             Disposable = item.Disposable,
             Unique = item.Unique,

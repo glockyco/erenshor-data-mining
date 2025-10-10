@@ -16,6 +16,12 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
     private readonly List<SpawnPointStopQuestRecord> _spawnPointStopQuestRecords = new();
     private readonly List<SpawnPointPatrolPointRecord> _spawnPointPatrolPointRecords = new();
 
+    // Spawn delay multipliers from GameManager.SpawnTimeMod
+    // TODO: Verify these values from actual game code and add SpawnDelay5 multiplier
+    private const float SpawnDelayMultiplier2 = 1.1f;
+    private const float SpawnDelayMultiplier3 = 1.8f;
+    private const float SpawnDelayMultiplier4 = 1.8f;
+
     public SpawnPointListener(SQLiteConnection db)
     {
         _db = db;
@@ -97,9 +103,9 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
             RareNPCChance = spawnPoint.RareNPCChance,
             LevelMod = spawnPoint.levelMod,
             SpawnDelay1 = spawnDelay,
-            SpawnDelay2 = spawnDelay / 1.1f, // See: GameManager.SpawnTimeMod
-            SpawnDelay3 = spawnDelay / 1.8f, // See: GameManager.SpawnTimeMod
-            SpawnDelay4 = spawnDelay / 1.8f, // See: GameManager.SpawnTimeMod
+            SpawnDelay2 = spawnDelay / SpawnDelayMultiplier2,
+            SpawnDelay3 = spawnDelay / SpawnDelayMultiplier3,
+            SpawnDelay4 = spawnDelay / SpawnDelayMultiplier4,
             Staggerable = spawnPoint.staggerable,
             StaggerMod = spawnPoint.staggerMod,
             NightSpawn = spawnPoint.NightSpawn,
