@@ -98,7 +98,7 @@ public class AssetScannerExporterWindow : EditorWindow
                     EditorPrefs.SetString(Repository.EditorPrefsKey, _outputPath);
                 }
             } catch (System.Exception ex) {
-                Debug.LogError($"[AssetScannerExporterWindow] Invalid output path: {newPath}. Error: {ex.Message}");
+                UnityEngine.Debug.LogError($"[AssetScannerExporterWindow] Invalid output path: {newPath}. Error: {ex.Message}");
                 EditorUtility.DisplayDialog("Invalid Path", $"The specified output path is invalid:\n\n{newPath}\n\nError: {ex.Message}", "OK");
             }
         }
