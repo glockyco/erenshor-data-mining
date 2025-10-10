@@ -17,7 +17,6 @@ from erenshor.infrastructure.templates.contexts import (
     ItemInfoboxContext,
 )
 from erenshor.infrastructure.templates.engine import (
-    Renderer,
     build_env,
     render_template,
 )
@@ -26,7 +25,6 @@ __all__ = [
     # Engine
     "build_env",
     "render_template",
-    "Renderer",
     # Contexts
     "AbilityInfoboxContext",
     "CharacterInfoboxContext",
