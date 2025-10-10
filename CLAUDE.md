@@ -319,15 +319,33 @@ spreadsheet_id = "1eOYfjaudAhvE6HGBtWyRGgQDsmWDLENaoEwRvgBO_0E"
 
 ## Code Quality Principles
 
-1. **Fail Fast and Loud** - Never add fallback functionality that hides errors. If something fails, it should fail immediately with a clear error message.
+1. **Fail Fast and Loud**
+   - No fallback functionality that hides errors
+   - Fail immediately with clear error messages
 
-2. **No Backward Compatibility** - When changing behavior, make a clean break. Never maintain legacy code paths "just in case". If old data exists and needs migration, do a one-off migration script but don't leave migration code in the codebase.
+2. **No Backward Compatibility**
+   - Clean breaks when changing behavior
+   - No legacy code paths "just in case"
+   - One-off migration scripts OK, but don't leave migration code
 
-3. **Keep It Simple** - Don't overcomplicate solutions. Implement what's requested, nothing more. Avoid adding configuration options, flags, or features that weren't explicitly requested.
+3. **Keep It Simple**
+   - No extra config options, flags, or features
+   - Suggest improvements proactively, but only implement after discussion
 
-4. **Be Proactive, But Don't Presume** - If you have ideas for improvements beyond the simple solution, discuss them first. Don't implement unrequested features just because they "might be useful someday".
+4. **Clean Cuts Only**
+   - Remove old code entirely when refactoring
+   - No "legacy support" or "fallback paths"
+   - Less code = less maintenance
 
-5. **Clean Cuts Only** - When refactoring or changing systems, remove old code entirely. No "legacy support", no "fallback paths", no "just in case" code. Less code = less maintenance burden.
+5. **Minimal Comments**
+   - Don't comment what's obvious from code
+   - No development history in comments
+   - Comments explain *why*, not *what*
+
+6. **Atomic Commits**
+   - Commit regularly with logical, focused changes
+   - One concept per commit
+   - Clear, concise commit messages
 
 ## Testing
 
