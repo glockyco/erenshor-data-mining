@@ -170,93 +170,13 @@ backups = "$REPO_ROOT/variants/demo/backups"
 # NOTES
 # ============================================================================
 #
-# Directory Structure:
-#   ~/Projects/erenshor/
-#   ├── .erenshor/              # Project-local state (NOT tracked)
-#   │   ├── state.json          # Pipeline state
-#   │   ├── config.local.toml   # Local overrides
-#   │   └── logs/               # Global logs
-#   ├── cli/                    # Bash CLI scripts (tracked)
-#   ├── src/
-#   │   ├── Assets/Editor/      # Unity export scripts (tracked, source of truth)
-#   │   └── erenshor/           # Python package (tracked)
-#   ├── out/                    # Python outputs (NOT tracked)
-#   │   ├── wiki/               # Generated wiki pages
-#   │   ├── json/               # JSON exports
-#   │   ├── csv/                # CSV exports
-#   │   └── reports/            # Operation reports
-#   ├── variants/               # All variant data (NOT tracked)
-#   │   ├── main/
-#   │   │   ├── game/           # Game files (~9GB)
-#   │   │   ├── unity/          # Unity project
-#   │   │   │   └── Assets/Editor -> ../../../../src/Assets/Editor/  # Symlink
-#   │   │   ├── logs/           # Variant-specific logs
-#   │   │   ├── backups/        # Database backups
-#   │   │   └── erenshor-main.sqlite
-#   │   ├── playtest/
-#   │   └── demo/
-#   ├── config.toml             # This file (tracked)
-#   ├── .env                    # Environment variables (NOT tracked)
-#   └── .env.example            # Example environment variables (tracked)
-#
-# Configuration Loading (Priority Order):
+# Configuration Loading Priority:
 #   1. Environment variables (ERENSHOR_* prefix)
-#   2. .env file (gitignored, for local secrets)
-#   3. config.local.toml (gitignored, for local overrides)
-#   4. config.toml (tracked, project defaults)
-#
-# Local Configuration:
-#   Option 1: Create config.local.toml for TOML-based overrides:
-#
-#   [global.steam]
-#   username = "yourusername"
-#
-#   [global.mediawiki]
-#   bot_username = "YourBot@WikiJob"
-#   bot_password = "your_bot_password"
-#
-#   [variants.playtest]
-#   enabled = true
-#
-#   Option 2: Create .env file for environment variable overrides:
-#
-#   ERENSHOR_STEAM_USERNAME=yourusername
-#   ERENSHOR_BOT_USERNAME=YourBot@WikiJob
-#   ERENSHOR_BOT_PASSWORD=your_bot_password
-#   ERENSHOR_VARIANTS_PLAYTEST_ENABLED=true
-#
-#   Both files are NOT tracked in Git and override config.toml
+#   2. config.local.toml (gitignored, for local overrides)
+#   3. config.toml (project defaults)
 #
 # Path Expansion:
-#   - $REPO_ROOT = Repository root (auto-detected from Git)
-#   - $HOME = User's home directory
-#   - ~ = User's home directory
+#   $REPO_ROOT - Repository root (auto-detected)
+#   $HOME, ~   - User's home directory
 #
-# Bash CLI Usage:
-#   # Default variant (main)
-#   erenshor download
-#   erenshor export
-#
-#   # Specific variant
-#   erenshor download --variant playtest
-#   erenshor export --variant demo
-#
-#   # All enabled variants
-#   erenshor status --all-variants
-#   erenshor update --all-variants
-#
-# Python CLI Usage:
-#   # Generate wiki pages
-#   erenshor-wiki generate items --variant main
-#
-#   # Deploy to MediaWiki
-#   erenshor-wiki deploy wiki --variant main
-#
-#   # Deploy to Google Sheets
-#   erenshor-wiki deploy sheets --variant main
-#
-# Symlink Management:
-#   erenshor symlink check          # Verify all symlinks
-#   erenshor symlink create         # Create missing symlinks
-#   erenshor symlink repair         # Fix broken symlinks
-#   erenshor symlink status         # Show symlink details
+# See CLAUDE.md and README.md for directory structure, CLI usage, and examples.
