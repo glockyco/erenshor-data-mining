@@ -317,6 +317,18 @@ spreadsheet_id = "1eOYfjaudAhvE6HGBtWyRGgQDsmWDLENaoEwRvgBO_0E"
 6. **Work with variants** - Test changes across main, playtest, and demo
 7. **Follow Python best practices** - Type hints, tests, domain-driven design
 
+## Code Quality Principles
+
+1. **Fail Fast and Loud** - Never add fallback functionality that hides errors. If something fails, it should fail immediately with a clear error message.
+
+2. **No Backward Compatibility** - When changing behavior, make a clean break. Never maintain legacy code paths "just in case". If old data exists and needs migration, do a one-off migration script but don't leave migration code in the codebase.
+
+3. **Keep It Simple** - Don't overcomplicate solutions. Implement what's requested, nothing more. Avoid adding configuration options, flags, or features that weren't explicitly requested.
+
+4. **Be Proactive, But Don't Presume** - If you have ideas for improvements beyond the simple solution, discuss them first. Don't implement unrequested features just because they "might be useful someday".
+
+5. **Clean Cuts Only** - When refactoring or changing systems, remove old code entirely. No "legacy support", no "fallback paths", no "just in case" code. Less code = less maintenance burden.
+
 ## Testing
 
 ### Python Tests
