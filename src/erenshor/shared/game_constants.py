@@ -28,11 +28,12 @@ Skills.Cooldown is stored in ticks and must be divided by this value
 to convert to seconds for display.
 """
 
-SECONDS_PER_DURATION_TICK = 6
-"""Duration ticks represent 6-second intervals.
+SECONDS_PER_DURATION_TICK = 3
+"""Duration ticks represent 3-second intervals.
 
 Spells.SpellDurationInTicks uses this interval. Multiply by this value
-to get duration in seconds.
+to get duration in seconds. The game runs TickEffects() every 180 frames
+(180 / 60 FPS = 3 seconds), where StatusEffect.Duration is decremented by 1.
 """
 
 # Display formatting constants
