@@ -48,22 +48,13 @@ database_backup() {
     if [[ -n "$build_timestamp" && "$build_timestamp" != "null" ]]; then
         # Convert ISO 8601 to YYYYMMDD-HHMMSS format
         # Example: 2025-10-09T23:32:23Z -> 20251009-233223
-        # Use sed with extended regex (BSD/GNU compatible)
-        if command -v gsed >/dev/null 2>&1; then
-            # Use GNU sed if available (macOS via Homebrew)
-            file_timestamp=$(echo "$build_timestamp" | gsed -E 's/([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})Z/\1\2\3-\4\5\6/')
-        elif echo "$build_timestamp" | sed -E 's/test/test/' >/dev/null 2>&1; then
-            # BSD sed supports -E
-            file_timestamp=$(echo "$build_timestamp" | sed -E 's/([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})Z/\1\2\3-\4\5\6/')
-        else
-            # Fallback to basic regex (less portable)
-            file_timestamp=$(echo "$build_timestamp" | sed 's/\([0-9]\{4\}\)-\([0-9]\{2\}\)-\([0-9]\{2\}\)T\([0-9]\{2\}\):\([0-9]\{2\}\):\([0-9]\{2\}\)Z/\1\2\3-\4\5\6/')
-        fi
+        # Requires: sed with -E flag (macOS/BSD/GNU)
+        file_timestamp=$(echo "$build_timestamp" | sed -E 's/([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})Z/\1\2\3-\4\5\6/')
 
         # Validate conversion succeeded
         if [[ ! "$file_timestamp" =~ ^[0-9]{8}-[0-9]{6}$ ]]; then
-            log_warn "Failed to convert build timestamp to filename format: $build_timestamp"
-            file_timestamp=$(timestamp_file)
+            log_error "Failed to convert build timestamp (sed -E not supported?): $build_timestamp"
+            return 1
         fi
     else
         # Fallback to current timestamp
