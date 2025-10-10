@@ -808,6 +808,7 @@ FodyWeavers.xsd
 
 # CLI scripts should be tracked
 !/cli/bin/
+!/cli/lib/
 
 # Wiki-specific
 out/
