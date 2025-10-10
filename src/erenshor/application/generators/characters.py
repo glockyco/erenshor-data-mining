@@ -263,11 +263,18 @@ class CharacterGenerator(BaseGenerator):
             # Faction change
             faction_change = ""
             if char.FactionModifiers:
-                formatted: list[str] = []
+                # Build list with display names for sorting
+                faction_entries: list[tuple[str, int, str]] = []
                 for mod in char.FactionModifiers:
                     sign = "+" if mod.modifier_value > 0 else ""
                     description = faction_desc_by_ref.get(mod.faction_name, mod.faction_name)
-                    formatted.append(f"{sign}{mod.modifier_value} [[{description}]]")
+                    faction_entries.append((description, mod.modifier_value, sign))
+
+                # Sort by display name
+                faction_entries.sort(key=lambda x: x[0])
+
+                # Format sorted entries
+                formatted = [f"{sign}{value} [[{desc}]]" for desc, value, sign in faction_entries]
                 faction_change = WIKITEXT_LINE_SEPARATOR.join(formatted)
 
             faction_display = ""
