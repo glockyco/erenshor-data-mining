@@ -18,6 +18,14 @@ ASSETRIPPER_LOG=""
 # Timeout constants (in seconds)
 readonly ASSETRIPPER_SERVER_STARTUP_TIMEOUT=30
 
+# Validate variant Unity project path
+# Usage: _validate_variant_unity_path <path>
+# Returns: 0 if valid, 1 if invalid
+_validate_variant_unity_path() {
+    local path="$1"
+    [[ -n "$path" && "$path" =~ ^.*/variants/.*/unity(/.*)?$ ]]
+}
+
 # Get AssetRipper base URL
 _assetripper_get_url() {
     local port=$(config_get assetripper.port)
@@ -278,16 +286,15 @@ assetripper_extract() {
     fi
 
     # Clean Unity project directory before extraction to prevent version mixing
-    # Validate path matches pattern before deletion for safety
-    if [[ -n "$unity_project" && "$unity_project" =~ ^.*/variants/.*/unity$ ]]; then
-        if [[ -d "$unity_project" ]] && [ "$(ls -A "$unity_project" 2>/dev/null)" ]; then
-            log_info "Cleaning Unity project directory to prevent version mixing..."
-            rm -rf "$unity_project"/*
-            log_debug "Unity project directory cleaned: $unity_project"
-        fi
-    else
+    if ! _validate_variant_unity_path "$unity_project"; then
         log_error "Refusing to clean invalid Unity project path: $unity_project"
         return $ERROR_VALIDATION
+    fi
+
+    if [[ -d "$unity_project" ]] && [ "$(ls -A "$unity_project" 2>/dev/null)" ]; then
+        log_info "Cleaning Unity project directory to prevent version mixing..."
+        rm -rf "$unity_project"/*
+        log_debug "Unity project directory cleaned: $unity_project"
     fi
 
     # AssetRipper extracts to a subdirectory structure
@@ -353,18 +360,17 @@ assetripper_extract() {
 
         # Clean up temporary directories
         log_info "Cleaning up temporary files..."
-        # Validate paths before removing
-        if [[ -n "$unity_project" && "$unity_project" =~ ^.*/variants/.*/unity$ ]]; then
-            if [[ -d "$unity_project/ExportedProject" ]]; then
-                rm -rf "$unity_project/ExportedProject"
-            fi
-            if [[ -d "$unity_project/AuxiliaryFiles" ]]; then
-                rm -rf "$unity_project/AuxiliaryFiles"
-            fi
-        else
+        if ! _validate_variant_unity_path "$unity_project"; then
             log_error "Refusing to delete from invalid path: $unity_project"
             _assetripper_stop_server
             return $ERROR_VALIDATION
+        fi
+
+        if [[ -d "$unity_project/ExportedProject" ]]; then
+            rm -rf "$unity_project/ExportedProject"
+        fi
+        if [[ -d "$unity_project/AuxiliaryFiles" ]]; then
+            rm -rf "$unity_project/AuxiliaryFiles"
         fi
     else
         log_error "Expected ExportedProject directory not found at: $unity_project/ExportedProject"
@@ -508,13 +514,11 @@ assetripper_clean() {
 
     if [[ -d "$extract_dir" ]]; then
         log_info "Cleaning extraction artifacts..."
-        # Validate path before removing
-        if [[ -n "$extract_dir" && "$extract_dir" =~ ^.*/variants/.*/unity/ExtractedAssets$ ]]; then
-            rm -rf "$extract_dir"
-        else
+        if ! _validate_variant_unity_path "$extract_dir"; then
             log_error "Refusing to delete invalid path: $extract_dir"
             return $ERROR_VALIDATION
         fi
+        rm -rf "$extract_dir"
     fi
 }
 
