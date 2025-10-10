@@ -18,6 +18,7 @@ from erenshor.domain.services.drop_calculator import format_drops
 from erenshor.infrastructure.database.repositories import (
     get_characters,
     get_faction_desc_by_ref,
+    get_factions_map,
     get_loot_for_character,
     get_spawnpoints_for_character,
 )
@@ -72,8 +73,10 @@ class CharacterGenerator(BaseGenerator):
             GeneratedContent for each character, one at a time
         """
         link_resolver = RegistryLinkResolver(registry)
-        # Map faction REFNAME to display descriptions for wiki output
+        # Map faction REFNAME to display descriptions (for FactionModifiers)
         faction_desc_by_ref = get_faction_desc_by_ref(engine)
+        # Map faction names to display descriptions (for MyWorldFaction)
+        factions_map = get_factions_map(engine)
 
         chars = get_characters(engine)
         # Filter out SimPlayers per CLAUDE.md
@@ -270,7 +273,8 @@ class CharacterGenerator(BaseGenerator):
             faction_display = ""
             if char.MyWorldFaction:
                 # Use explicit world faction if set, wiki-link it since faction pages exist
-                faction_name = faction_desc_by_ref.get(
+                # MyWorldFaction contains FactionName values, not REFNAME
+                faction_name = factions_map.get(
                     char.MyWorldFaction, char.MyWorldFaction
                 )
                 faction_display = f"[[{faction_name}]]" if faction_name else ""
@@ -285,11 +289,11 @@ class CharacterGenerator(BaseGenerator):
                 "PreyAnimal",
             ):
                 # Good-aligned factions map to "Generic Good" faction page
-                faction_name = faction_desc_by_ref.get("GOOD", "The Followers of Good")
+                faction_name = factions_map.get("Generic Good", "The Followers of Good")
                 faction_display = f"[[{faction_name}]]"
             elif char.MyFaction and char.MyFaction not in ("Player", "PC", "DEBUG"):
                 # Evil-aligned factions map to "Generic Evil" faction page
-                faction_name = faction_desc_by_ref.get("EVIL", "The Followers of Evil")
+                faction_name = factions_map.get("Generic Evil", "The Followers of Evil")
                 faction_display = f"[[{faction_name}]]"
 
             entity_ref = EntityRef.from_character(char)
