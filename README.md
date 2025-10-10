@@ -611,8 +611,6 @@ port = 8080
 timeout = 3600  # 60 minutes
 
 [global.database]
-backup_enabled = true
-backup_count = 10
 validate = true
 
 [global.mediawiki]

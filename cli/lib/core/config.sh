@@ -38,7 +38,6 @@ declare -gA CONFIG=(
     [export.entities]="all"
     [export.log_level]="normal"
 
-    [database.backup_enabled]="true"
     [database.backup_count]="10"
     [database.validate]="true"
 
@@ -47,7 +46,6 @@ declare -gA CONFIG=(
     [notifications.on_success]="true"
     [notifications.on_failure]="true"
 
-    [behavior.auto_backup]="true"
     [behavior.confirm_destructive]="true"
     [behavior.parallel_downloads]="true"
     [behavior.max_retries]="3"
@@ -261,7 +259,6 @@ log_level = $(_config_quote_value "$(_config_get_with_default export.log_level "
 
 [database]
 # Database configuration
-backup_enabled = $(_config_get_with_default database.backup_enabled true)
 backup_count = $(_config_get_with_default database.backup_count 10)       # Keep last N backups
 validate = $(_config_get_with_default database.validate true)         # Validate after export/deploy
 
@@ -274,7 +271,6 @@ on_failure = $(_config_get_with_default notifications.on_failure true)
 
 [behavior]
 # Behavioral settings
-auto_backup = $(_config_get_with_default behavior.auto_backup true)              # Backup before overwriting
 confirm_destructive = $(_config_get_with_default behavior.confirm_destructive true)      # Confirm destructive operations
 parallel_downloads = $(_config_get_with_default behavior.parallel_downloads true)       # Enable parallel operations
 max_retries = $(_config_get_with_default behavior.max_retries 3)                 # Retry failed operations
