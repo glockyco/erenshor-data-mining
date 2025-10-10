@@ -81,19 +81,12 @@ unity_export() {
     # Create output directory
     mkdir -p "$(dirname "$output_db")"
 
-    # Determine log directory
-    # Use variant-specific logs if variant is specified, otherwise use global logs
+    # Determine log directory (variant-specific if provided, otherwise global)
     local logs_dir
     if [[ -n "$variant" ]]; then
-        logs_dir=$(config_get "variants.$variant.logs")
-    fi
-    # Fallback to global logs if variant logs not found
-    if [[ -z "$logs_dir" ]]; then
-        logs_dir=$(config_get "global.paths.logs")
-    fi
-    # Final fallback to default location
-    if [[ -z "$logs_dir" ]]; then
-        logs_dir="$REPO_ROOT/.erenshor/logs"
+        logs_dir=$(config_get "variants.$variant.logs" "$REPO_ROOT/variants/$variant/logs")
+    else
+        logs_dir=$(config_get "paths.logs" "$REPO_ROOT/.erenshor/logs")
     fi
 
     local log_file="$logs_dir/unity_export_$(timestamp_file).log"

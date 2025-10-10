@@ -17,13 +17,8 @@ resolve_path() {
         path="$(pwd)/$path"
     fi
 
-    # Normalize path (remove .., ., etc.)
-    if command -v realpath &>/dev/null; then
-        realpath "$path" 2>/dev/null || echo "$path"
-    else
-        # Fallback for macOS without realpath
-        python3 -c "import os; print(os.path.normpath(os.path.abspath('$path')))" 2>/dev/null || echo "$path"
-    fi
+    # Normalize path (requires realpath)
+    realpath "$path" 2>/dev/null || echo "$path"
 }
 
 # Check if command exists
