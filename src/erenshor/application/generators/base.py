@@ -14,7 +14,6 @@ from typing import Iterator, Protocol
 from sqlalchemy.engine import Engine
 
 from erenshor.application.models import RenderedBlock
-from erenshor.infrastructure.templates.engine import Renderer
 from erenshor.registry.core import EntityRef, WikiRegistry
 
 __all__ = ["BaseGenerator", "ContentGenerator", "GeneratedContent"]
@@ -60,9 +59,6 @@ class ContentGenerator(Protocol):
     Example:
         ```python
         class ItemGenerator:
-            def __init__(self, renderer: Renderer):
-                self._renderer = renderer
-
             def generate(
                 self,
                 engine: Engine,
@@ -110,20 +106,9 @@ class ContentGenerator(Protocol):
 class BaseGenerator(ABC):
     """Abstract base class for content generators with common patterns.
 
-    Provides shared initialization and filter logic that all generators need,
+    Provides shared filter logic that all generators need,
     eliminating duplication across ItemGenerator, CharacterGenerator, etc.
-
-    Attributes:
-        _renderer: Jinja2 renderer for template rendering
     """
-
-    def __init__(self, renderer: Renderer) -> None:
-        """Initialize generator with renderer.
-
-        Args:
-            renderer: Jinja2 renderer for template rendering
-        """
-        self._renderer = renderer
 
     @abstractmethod
     def generate(
