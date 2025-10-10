@@ -32,8 +32,10 @@ def format_drops(
     def _format_probability(probability: float) -> str:
         try:
             prob_float = float(probability)
-        except Exception:
-            return ""
+        except (TypeError, ValueError) as e:
+            raise ValueError(
+                f"Invalid drop probability for character '{character_name}': {probability!r}"
+            ) from e
         return (
             f"{prob_float * 100:.1f}%"
             if 0.0 <= prob_float <= 1.0
@@ -44,8 +46,12 @@ def format_drops(
         # Descending probability, then ascending item name as tiebreaker
         try:
             probability = float(drop_data.get("DropProbability") or 0.0)
-        except Exception:
-            probability = 0.0
+        except (TypeError, ValueError) as e:
+            item_name = drop_data.get("ItemName", "<unknown>")
+            raise ValueError(
+                f"Invalid drop probability for item '{item_name}' (character '{character_name}'): "
+                f"{drop_data.get('DropProbability')!r}"
+            ) from e
         item_name = (drop_data.get("ItemName") or "").lower()
         return (-probability, item_name)
 
