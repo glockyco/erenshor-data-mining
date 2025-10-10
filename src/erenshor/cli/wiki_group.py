@@ -30,6 +30,7 @@ app.add_typer(validation.app, name="", no_args_is_help=False)
 
 def get_registry(engine: Any) -> Any:
     """Initialize or load central registry with automatic cleanup."""
+    from erenshor.infrastructure.config.paths import get_path_resolver
     from erenshor.infrastructure.config.settings import load_settings
     from erenshor.registry.core import WikiRegistry
     from erenshor.registry.migration import MappingImporter, RegistryBuilder
@@ -37,10 +38,11 @@ def get_registry(engine: Any) -> Any:
     console = Console()
     settings = load_settings()
 
-    # Use central registry location
-    registry_dir = Path("registry")
+    # Use variant-specific registry location from PathResolver
+    resolver = get_path_resolver(variant="main")
+    registry_dir = resolver.registry_dir
     registry = WikiRegistry(registry_dir)
-    mapping_file = Path("mapping.json")
+    mapping_file = resolver.mapping_file
 
     if not registry.registry_file.exists():
         # First run - build from scratch
