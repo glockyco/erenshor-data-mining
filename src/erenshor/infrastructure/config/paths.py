@@ -3,6 +3,8 @@
 This module provides a PathResolver class that handles all path resolution
 for the project, supporting both development and installed modes with
 configurable overrides via environment variables.
+
+Wiki commands always use the main variant.
 """
 
 from __future__ import annotations
@@ -10,7 +12,7 @@ from __future__ import annotations
 import logging
 import os
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 __all__ = ["PathResolver", "get_path_resolver"]
 
@@ -40,6 +42,8 @@ class PathResolver:
     for development mode, installed mode, and user overrides via environment
     variables.
 
+    Wiki commands always use the main variant configuration from config.toml.
+
     Auto-detection priority:
     1. Explicit parameter (PathResolver(root=...))
     2. Environment variable (ERENSHOR_PROJECT_ROOT)
@@ -58,18 +62,22 @@ class PathResolver:
         ERENSHOR_REPORTS_DIR: Override reports directory
     """
 
-    def __init__(self, root: Optional[Path] = None) -> None:
+    def __init__(self, root: Optional[Path] = None, variant: str = "main") -> None:
         """Initialize resolver with optional root override.
 
         Args:
             root: Explicit project root. If None, auto-detects.
+            variant: Variant name for variant-specific paths (default: "main")
         """
         self._root = root.resolve() if root else self._detect_project_root()
+        self._variant = variant
         self._mode = self._detect_mode()
+        self._variant_config: dict[str, Any] = {}
+        self._load_variant_config()
         self._validate_project_root()
 
         # Log initialization details
-        logger.info(f"PathResolver initialized: root={self._root}, mode={self._mode}")
+        logger.info(f"PathResolver initialized: root={self._root}, mode={self._mode}, variant={self._variant}")
         logger.debug(f"Project root exists: {self._root.exists()}")
         logger.debug(f"Database path: {self.db_path}")
         logger.debug(f"Registry dir: {self.registry_dir}")
@@ -124,6 +132,30 @@ class PathResolver:
         if (self._root / "pyproject.toml").exists():
             return "development"
         return "installed"
+
+    def _load_variant_config(self) -> None:
+        """Load variant configuration from config.toml.
+
+        Uses TomlConfigLoader to load variant-specific paths.
+        Falls back to empty dict if config cannot be loaded.
+        """
+        try:
+            from erenshor.infrastructure.config.toml_loader import load_config
+
+            config = load_config(self._root)
+            self._variant_config = config.get_variant_config(self._variant)
+
+            if not self._variant_config:
+                logger.warning(
+                    f"Variant '{self._variant}' not found in config.toml. "
+                    f"Using fallback paths. "
+                    f"Available variants: main, playtest, demo"
+                )
+        except Exception as e:
+            logger.warning(
+                f"Could not load variant config from config.toml: {e}. "
+                f"Using fallback paths."
+            )
 
     def _validate_project_root(self) -> None:
         """Validate that root looks like erenshor-wiki project.
@@ -235,18 +267,60 @@ class PathResolver:
 
     @property
     def registry_dir(self) -> Path:
-        """Get registry directory."""
-        return self.data_dir("registry")
+        """Get variant-specific registry directory.
+
+        Returns:
+            Path to registry directory for the configured variant
+            (e.g., variants/main/registry/)
+        """
+        # Check env override
+        env_key = "ERENSHOR_REGISTRY_DIR"
+        env_val = os.environ.get(env_key)
+        if env_val:
+            resolved = Path(env_val).resolve()
+            logger.debug(f"Using {env_key}: {resolved}")
+            return resolved
+
+        # Use variant-specific path
+        return self._root / "variants" / self._variant / "registry"
 
     @property
     def cache_dir(self) -> Path:
-        """Get wiki cache directory."""
-        return self.data_dir("wiki_cache")
+        """Get variant-specific wiki cache directory.
+
+        Returns:
+            Path to wiki_cache directory for the configured variant
+            (e.g., variants/main/wiki_cache/)
+        """
+        # Check env override
+        env_key = "ERENSHOR_WIKI_CACHE_DIR"
+        env_val = os.environ.get(env_key)
+        if env_val:
+            resolved = Path(env_val).resolve()
+            logger.debug(f"Using {env_key}: {resolved}")
+            return resolved
+
+        # Use variant-specific path
+        return self._root / "variants" / self._variant / "wiki_cache"
 
     @property
     def output_dir(self) -> Path:
-        """Get wiki output directory."""
-        return self.data_dir("wiki_updated")
+        """Get variant-specific wiki output directory.
+
+        Returns:
+            Path to wiki_updated directory for the configured variant
+            (e.g., variants/main/wiki_updated/)
+        """
+        # Check env override
+        env_key = "ERENSHOR_WIKI_UPDATED_DIR"
+        env_val = os.environ.get(env_key)
+        if env_val:
+            resolved = Path(env_val).resolve()
+            logger.debug(f"Using {env_key}: {resolved}")
+            return resolved
+
+        # Use variant-specific path
+        return self._root / "variants" / self._variant / "wiki_updated"
 
     @property
     def reports_dir(self) -> Path:
@@ -287,10 +361,10 @@ class PathResolver:
 
     @property
     def db_path(self) -> Path:
-        """Get database path.
+        """Get database path for the configured variant.
 
         Returns:
-            Path to erenshor.sqlite database file
+            Path to variant-specific database file (e.g., variants/main/erenshor-main.sqlite)
         """
         # Check env override
         env_path = os.environ.get("ERENSHOR_DB_PATH")
@@ -298,6 +372,18 @@ class PathResolver:
             resolved = Path(env_path).resolve()
             logger.debug(f"Using ERENSHOR_DB_PATH: {resolved}")
             return resolved
+
+        # Use variant config from config.toml
+        if self._variant_config:
+            db_path_str = self._variant_config.get("database", "")
+            if db_path_str:
+                return Path(db_path_str)
+
+        # Fallback to old behavior if config not available
+        logger.warning(
+            f"No database path configured for variant '{self._variant}'. "
+            f"Using fallback: {self._root}/erenshor.sqlite"
+        )
         return self._root / "erenshor.sqlite"
 
     @property
@@ -342,16 +428,17 @@ class PathResolver:
 _resolver: Optional[PathResolver] = None
 
 
-def get_path_resolver(root: Optional[Path] = None) -> PathResolver:
+def get_path_resolver(root: Optional[Path] = None, variant: str = "main") -> PathResolver:
     """Get or create PathResolver singleton.
 
     Args:
         root: Optional explicit root (for testing or override)
+        variant: Variant name for variant-specific paths (default: "main")
 
     Returns:
         PathResolver instance
     """
     global _resolver
     if _resolver is None or root is not None:
-        _resolver = PathResolver(root)
+        _resolver = PathResolver(root, variant)
     return _resolver
