@@ -50,7 +50,7 @@ erenshor/
 ├── .erenshor/                  # Project state (NOT in git)
 │   ├── state.json              # Pipeline state tracking
 │   └── config.local.toml       # User config overrides
-├── cli/                        # Bash CLI (tracked)
+├── cli/                        # Bash CLI
 │   ├── bin/erenshor            # Main CLI entry point
 │   ├── commands/               # Bash command implementations
 │   │   ├── download.sh         # SteamCMD game download
@@ -68,12 +68,12 @@ erenshor/
 │           ├── assetripper.sh  # AssetRipper integration
 │           ├── unity.sh        # Unity Editor automation
 │           └── database.sh     # Database operations
-├── src/                        # Source code (tracked)
+├── src/                        # Source code
 │   ├── erenshor/               # Python package
 │   │   ├── application/        # Application services
 │   │   │   ├── formatters/     # Data formatters
 │   │   │   │   └── sheets/     # Google Sheets formatters
-│   │   │   │       └── queries/  # SQL query files (23 sheets)
+│   │   │   │       └── queries/  # SQL query files
 │   │   │   └── services/       # Business services
 │   │   ├── cli/                # Python CLI implementation
 │   │   │   └── commands/       # Python command implementations
@@ -101,10 +101,9 @@ erenshor/
 │   ├── playtest/               # Playtest (App ID 3090030)
 │   └── demo/                   # Demo (App ID 2522260)
 ├── docs/                       # Documentation
-├── tests/                      # Python tests (192 tests, 99.5% pass)
-├── config.toml                 # Main config (tracked)
-├── pyproject.toml              # Python dependencies
-└── erenshor.sqlite             # Reference DB copy (NOT in git)
+├── tests/                      # Python tests
+├── config.toml                 # Main config
+└── pyproject.toml              # Python dependencies
 ```
 
 ### Multi-Variant System
@@ -261,7 +260,7 @@ command_main() {
 
 ### Database Schema
 
-**Junction Tables**: 29 junction tables for many-to-many relationships:
+**Junction Tables**: junction tables for many-to-many relationships:
 - Character abilities: `CharacterAttackSpells`, `CharacterBuffSpells`
 - Quest relationships: `QuestRequiredItems`, `QuestRewards`
 - Class restrictions: `ItemClasses`, `SpellClasses`
@@ -274,12 +273,12 @@ command_main() {
 **Architecture**: SQL queries → Formatter → Publisher → Google Sheets
 
 **Components**:
-1. **SQL Query Files** (23 files): `src/erenshor/application/formatters/sheets/queries/*.sql`
+1. **SQL Query Files**: `src/erenshor/application/formatters/sheets/queries/*.sql`
 2. **SheetsFormatter**: Executes SQL, formats results as spreadsheet rows
 3. **GoogleSheetsPublisher**: Publishes via Google Sheets API v4
 4. **SheetsDeployService**: Orchestrates deployment workflow
 
-**Available Sheets**: 23 sheets including items, characters, spells, quests, drop-chances, spawn-points, and more.
+**Available Sheets**: various sheets including items, characters, spells, quests, drop-chances, spawn-points, and more.
 
 See `docs/GOOGLE_SHEETS_DEPLOYMENT.md` for complete guide.
 
@@ -322,7 +321,7 @@ spreadsheet_id = "1eOYfjaudAhvE6HGBtWyRGgQDsmWDLENaoEwRvgBO_0E"
 
 ### Python Tests
 ```bash
-# Run all tests (192 tests, 99.5% pass rate)
+# Run all tests
 uv run pytest
 
 # With coverage
@@ -427,12 +426,6 @@ python_exec <command>
 - `.erenshor/config.local.toml` - User overrides
 - `pyproject.toml` - Python dependencies
 
-**Documentation**:
-- `docs/PYTHON_INTEGRATION.md` - Python integration guide
-- `docs/GOOGLE_SHEETS_DEPLOYMENT.md` - Google Sheets guide
-- `docs/PHASE3_COMPLETION_REPORT.md` - Phase 3 completion
-- `docs/ARCHITECTURE_MERGE.md` - Architecture documentation
-
 ## Quick Reference
 
 ```bash
@@ -465,12 +458,5 @@ erenshor status --all-variants
 ```
 
 ## Notes
-
-This project successfully completed Phase 3 (Python Integration) and Phase 4 (Google Sheets Deployment). The two-layer CLI architecture enables:
-- Bash orchestration of complex pipelines
-- Python business logic and data processing
-- Seamless integration between layers
-- Comprehensive testing (192 Python tests)
-- Production-ready Google Sheets deployment
 
 For AI assistance: Focus on the separation of concerns - Bash handles orchestration and system operations, Python handles data processing and API integrations. Always respect the "only modify src/" constraint.

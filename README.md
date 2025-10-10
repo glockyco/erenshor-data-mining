@@ -4,7 +4,7 @@
 
 [![Python](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
 [![Unity](https://img.shields.io/badge/unity-2021.3.45f2-black.svg)](https://unity.com/)
-[![Tests](https://img.shields.io/badge/tests-197%20passing-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/tests-190+%20passing-brightgreen.svg)]()
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ---
@@ -27,7 +27,7 @@ It handles downloading game files, extracting Unity assets, exporting structured
 - 🔄 **Multi-Variant Support** - Handle main game, playtest, and demo separately
 - 📊 **Multiple Output Formats** - MediaWiki, Google Sheets, JSON, CSV
 - 🏗️ **Two-Layer Architecture** - Bash orchestration + Python business logic
-- 🧪 **Comprehensive Testing** - 197 tests with 99.5% pass rate
+- 🧪 **Comprehensive Testing** - 190+ unit and integration tests
 - 📝 **29 Junction Tables** - Fully normalized database schema
 - 🚀 **Streaming Architecture** - Memory-efficient processing of thousands of entities
 - 🎨 **Rich Terminal UI** - Real-time progress tracking
@@ -277,7 +277,7 @@ uv run python -m erenshor.cli.main sheets deploy --all-sheets
 uv run python -m erenshor.cli.main sheets deploy --all-sheets --dry-run
 ```
 
-**Available Sheets** (23 total):
+**Available Sheets**:
 - items, item-stats, armor, weapons, consumables
 - characters, character-vendor-items
 - spells, skills, abilities, attack-spells, buff-spells
@@ -594,7 +594,7 @@ Priority (highest to lowest):
 
 ### Main Configuration (`config.toml`)
 
-Project-wide settings (tracked in git):
+Project-wide settings:
 
 ```toml
 version = "3.0"
@@ -708,7 +708,7 @@ erenshor/
 │   │   ├── application/        # Application services
 │   │   │   ├── formatters/     # Data formatters
 │   │   │   │   └── sheets/     # Google Sheets formatters
-│   │   │   │       └── queries/  # SQL query files (23 sheets)
+│   │   │   │       └── queries/  # SQL query files
 │   │   │   ├── generators/     # Wiki content generators
 │   │   │   ├── services/       # Business services
 │   │   │   └── transformers/   # Content transformers
@@ -749,7 +749,7 @@ erenshor/
 │   ├── PYTHON_INTEGRATION.md   # Python CLI integration guide
 │   ├── PHASE3_COMPLETION_REPORT.md
 │   └── GOOGLE_SHEETS_DEPLOYMENT.md
-├── tests/                      # Python tests (197 tests)
+├── tests/                      # Python tests
 ├── out/                        # Python output (NOT tracked)
 │   ├── wiki/                   # Generated wiki pages
 │   ├── json/                   # JSON exports
@@ -759,7 +759,7 @@ erenshor/
 │   ├── state.json              # Pipeline state
 │   ├── config.local.toml       # Local config overrides
 │   └── logs/                   # Global logs
-├── config.toml                 # Main configuration (tracked)
+├── config.toml                 # Main configuration
 ├── pyproject.toml              # Python dependencies
 ├── .env.example                # Example environment variables
 ├── CLAUDE.md                   # AI assistant context (detailed)
@@ -774,7 +774,7 @@ erenshor/
 - **`src/Assets/Editor/`** - Unity C# scripts for data export
 - **`variants/`** - Per-variant working directories (game files, Unity projects, databases)
 - **`docs/`** - Architecture and integration documentation
-- **`tests/`** - Python test suite (197 tests, 99.5% pass rate)
+- **`tests/`** - Python test suite
 
 ---
 
@@ -807,7 +807,7 @@ uv run pytest
 ### Running Tests
 
 ```bash
-# Run all tests (197 tests)
+# Run all tests
 uv run pytest
 
 # Run with coverage report
