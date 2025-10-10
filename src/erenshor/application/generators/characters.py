@@ -50,7 +50,7 @@ class CharacterGenerator(BaseGenerator):
     The generator is responsible for:
     1. Querying database for characters and related data (spawn points, loot, factions)
     2. Building template contexts (EnemyInfoboxContext)
-    3. Rendering templates via Renderer
+    3. Rendering templates via render_template
     4. Resolving page titles via registry
     5. Yielding GeneratedContent with rendered blocks
     """
