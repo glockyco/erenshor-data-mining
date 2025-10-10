@@ -160,7 +160,9 @@ log_rotate() {
     if [[ $size_mb -gt $max_size_mb ]]; then
         local backup="${LOG_FILE}.1"
         mv "$LOG_FILE" "$backup"
-        gzip "$backup" 2>/dev/null || true
+        if ! gzip "$backup" 2>/dev/null; then
+            log_warn "Failed to compress rotated log file: $backup"
+        fi
         log_debug "Rotated log file (${size_mb}MB > ${max_size_mb}MB)"
     fi
 }
