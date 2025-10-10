@@ -589,11 +589,12 @@ class GoogleSheetsPublisher:
 
         logger.debug(f"Growing table by {rows_to_add} rows")
 
-        # Step 1: Ensure sheet has enough rows (expand grid if needed)
-        self._ensure_sheet_size(
+        # Step 1: Insert rows (shifts content below down)
+        self._insert_rows(
             spreadsheet_id=spreadsheet_id,
             sheet_id=sheet_id,
-            min_rows=current_end_row + rows_to_add,
+            start_index=current_end_row,
+            row_count=rows_to_add,
         )
 
         # Step 2: Update new rows with data
