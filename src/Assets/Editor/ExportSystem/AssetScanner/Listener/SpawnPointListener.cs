@@ -16,11 +16,10 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
     private readonly List<SpawnPointStopQuestRecord> _spawnPointStopQuestRecords = new();
     private readonly List<SpawnPointPatrolPointRecord> _spawnPointPatrolPointRecords = new();
 
-    // Spawn delay multipliers from GameManager.SpawnTimeMod
-    // TODO: Verify these values from actual game code and add SpawnDelay5 multiplier
-    private const float SpawnDelayMultiplier2 = 1.1f;
-    private const float SpawnDelayMultiplier3 = 1.8f;
-    private const float SpawnDelayMultiplier4 = 1.8f;
+    // Spawn delay multipliers from GameManager.SpawnTimeMod (lines 209-224)
+    private const float SpawnDelayMultiplier2 = 1.1f;  // 1-2 group members
+    private const float SpawnDelayMultiplier3 = 1.5f;  // 3 group members
+    private const float SpawnDelayMultiplier4 = 1.8f;  // 4 group members
 
     public SpawnPointListener(SQLiteConnection db)
     {
