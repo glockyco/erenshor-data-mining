@@ -135,7 +135,7 @@ deploy_sqlite() {
     if [[ "$skip_backup" != true ]]; then
         if [[ -f "$wiki_db" ]]; then
             info "Creating backup..."
-            database_backup "$wiki_db"
+            database_backup "$wiki_db" "$variant"
             echo ""
         fi
     fi

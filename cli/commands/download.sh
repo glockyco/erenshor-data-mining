@@ -81,10 +81,24 @@ command_main() {
         die $ERROR_PROCESS "Game download failed"
     fi
 
-    # Record state
+    # Capture build metadata
     local build_id=$(steamcmd_get_current_build "$game_path")
     local game_size=$(steamcmd_get_game_size "$game_path")
-    state_record_variant_game "$variant" "$build_id" "$game_path" "$game_size"
+    local branch="public"
+    local build_timestamp=$(steamcmd_get_build_timestamp "$app_id" "$branch")
+    local manifest_id=$(steamcmd_get_manifest_id "$game_path" "$app_id")
+    local download_size_bytes=$(steamcmd_get_download_size "$app_id" "$branch")
+
+    # Log metadata for debugging
+    log_debug "Build metadata captured:"
+    log_debug "  build_id: $build_id"
+    log_debug "  build_timestamp: $build_timestamp"
+    log_debug "  manifest_id: $manifest_id"
+    log_debug "  download_size_bytes: $download_size_bytes"
+
+    # Record state with all metadata
+    state_record_variant_game "$variant" "$build_id" "$game_path" "$game_size" \
+        "$build_timestamp" "$branch" "$manifest_id" "$download_size_bytes"
 
     # Calculate duration
     local end_time=$(date +%s)

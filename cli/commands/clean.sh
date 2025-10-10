@@ -85,27 +85,6 @@ command_main() {
         fi
     fi
 
-    # Clean variant-specific database backups (keep last 3)
-    local backups_dir=$(config_get paths.backups)
-    if [[ -d "$backups_dir" ]]; then
-        local backup_count=$(config_get database.backup_count)
-        local variant_backups=$(ls -1t "$backups_dir"/erenshor_${variant}_*.sqlite 2>/dev/null || true)
-        local existing=$(echo "$variant_backups" | wc -l)
-
-        if [[ $existing -gt $backup_count ]]; then
-            info "Cleaning old backups (keep last $backup_count)..."
-
-            if [[ "$dry_run" != true ]]; then
-                echo "$variant_backups" | tail -n +$((backup_count + 1)) | xargs rm -f
-                local removed_backups=$((existing - backup_count))
-                success "Removed $removed_backups old backup(s)"
-                ((removed += removed_backups))
-            else
-                info "Would remove $((existing - backup_count)) old backup(s)"
-            fi
-        fi
-    fi
-
     # Clean incomplete SteamCMD downloads
     local game_path=$(variant_get_path "$variant" "game")
     if [[ -d "$game_path/steamapps/downloading" ]]; then
@@ -169,7 +148,7 @@ OPTIONS:
 
 WHAT GETS CLEANED:
     - Log files older than $CLEAN_LOG_RETENTION_DAYS days
-    - Old backups (keeps last N from config)
+    - Incomplete SteamCMD downloads
     - AssetRipper extraction artifacts (with --all)
     - Old database exports (with --all)
 

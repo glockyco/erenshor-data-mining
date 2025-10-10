@@ -188,6 +188,154 @@ steamcmd_get_game_size() {
     du -sm "$install_dir" | cut -f1
 }
 
+# Get build timestamp from Steam
+# Returns ISO 8601 formatted timestamp, or empty string if unavailable
+steamcmd_get_build_timestamp() {
+    local app_id="${1:-$(config_get steam.app_id)}"
+    local branch="${2:-public}"
+
+    if [[ -z "$branch" ]]; then
+        log_debug "Invalid branch parameter (empty)"
+        echo ""
+        return
+    fi
+
+    log_debug "Fetching build timestamp for app $app_id, branch $branch"
+
+    # Check if steamcmd is available
+    if ! command_exists steamcmd; then
+        log_debug "SteamCMD not available"
+        echo ""
+        return
+    fi
+
+    # Use SteamCMD to get app info
+    local app_info=$(steamcmd \
+        "+login anonymous" \
+        "+app_info_print $app_id" \
+        "+quit" 2>/dev/null)
+
+    if [[ -z "$app_info" ]]; then
+        log_debug "Failed to fetch app info from Steam"
+        echo ""
+        return
+    fi
+
+    # Extract timeupdated from the specified branch
+    # Format: "timeupdated"		"1728523943"
+    local timestamp_unix=$(echo "$app_info" | \
+        grep -A 50 "\"branches\"" | \
+        grep -A 10 "\"$branch\"" | \
+        grep '"timeupdated"' | \
+        head -1 | \
+        grep -o '[0-9]\+' || echo "")
+
+    if [[ -z "$timestamp_unix" ]]; then
+        log_debug "Could not extract build timestamp from Steam"
+        echo ""
+        return
+    fi
+
+    # Convert Unix timestamp to ISO 8601 format
+    if command -v date >/dev/null 2>&1; then
+        # macOS uses -r for Unix timestamp, Linux uses -d
+        if date -r "$timestamp_unix" -u +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null; then
+            return
+        elif date -d "@$timestamp_unix" -u +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null; then
+            return
+        fi
+    fi
+
+    # Fallback - return empty string
+    log_debug "Could not convert timestamp to ISO 8601 format"
+    echo ""
+}
+
+# Get download size from Steam
+# Returns compressed download size in bytes, or empty string if unavailable
+steamcmd_get_download_size() {
+    local app_id="${1:-$(config_get steam.app_id)}"
+    local branch="${2:-public}"
+
+    if [[ -z "$branch" ]]; then
+        log_debug "Invalid branch parameter (empty)"
+        echo ""
+        return
+    fi
+
+    log_debug "Fetching download size for app $app_id, branch $branch"
+
+    # Check if steamcmd is available
+    if ! command_exists steamcmd; then
+        log_debug "SteamCMD not available"
+        echo ""
+        return
+    fi
+
+    # Use SteamCMD to get app info
+    local app_info=$(steamcmd \
+        "+login anonymous" \
+        "+app_info_print $app_id" \
+        "+quit" 2>/dev/null)
+
+    if [[ -z "$app_info" ]]; then
+        log_debug "Failed to fetch app info from Steam"
+        echo ""
+        return
+    fi
+
+    # Extract download size from depots
+    # The structure is:
+    #   "depots"
+    #   {
+    #       "2382521"  // Main depot (first depot typically)
+    #       {
+    #           "manifests"
+    #           {
+    #               "public"
+    #               {
+    #                   "download"  "2465185200"  // Compressed download size
+    #               }
+    #           }
+    #       }
+    #   }
+
+    # Find the depots section, then find the first depot with manifests for our branch
+    local download_size=$(echo "$app_info" | \
+        grep -A 200 "\"depots\"" | \
+        grep -A 100 "\"manifests\"" | \
+        grep -A 10 "\"$branch\"" | \
+        grep '"download"' | \
+        head -1 | \
+        grep -o '[0-9]\+' || echo "")
+
+    if [[ -z "$download_size" ]]; then
+        log_debug "Could not extract download size from Steam"
+        echo ""
+        return
+    fi
+
+    echo "$download_size"
+}
+
+# Get manifest ID for current build
+steamcmd_get_manifest_id() {
+    local install_dir="${1:-$(config_get paths.game_files)}"
+    local app_id="${2:-$(config_get steam.app_id)}"
+
+    local manifest_file="$install_dir/steamapps/appmanifest_${app_id}.acf"
+
+    if [[ ! -f "$manifest_file" ]]; then
+        echo ""
+        return
+    fi
+
+    # Extract manifest ID
+    # Format: "manifest"		"8701699651234567890"
+    local manifest_id=$(grep '"manifest"' "$manifest_file" | head -1 | grep -o '[0-9]\+' || echo "")
+    echo "$manifest_id"
+}
+
 # Clean up incomplete SteamCMD downloads
 steamcmd_clean_incomplete() {
     local install_dir="${1:-$(config_get paths.game_files)}"

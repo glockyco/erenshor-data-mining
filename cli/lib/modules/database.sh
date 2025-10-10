@@ -11,33 +11,74 @@ source "$DATABASE_MODULE_DIR/../core/logger.sh"
 source "$DATABASE_MODULE_DIR/../core/errors.sh"
 source "$DATABASE_MODULE_DIR/../core/config.sh"
 source "$DATABASE_MODULE_DIR/../core/utils.sh"
+source "$DATABASE_MODULE_DIR/../core/state.sh"
 
 # Backup database
+# Usage: database_backup <db_path> [variant]
 database_backup() {
     local db_path="$1"
+    local variant="${2:-main}"
     local backup_dir=$(config_get paths.backups)
+
+    if [[ -z "$db_path" ]]; then
+        log_error "Database path is required"
+        return 1
+    fi
 
     if [[ ! -f "$db_path" ]]; then
         log_debug "No database to backup: $db_path"
         return 0
     fi
 
+    # Validate variant if provided
+    if [[ -n "$variant" ]] && ! variant_validate "$variant" 2>/dev/null; then
+        log_warn "Invalid variant '$variant', using 'main'"
+        variant="main"
+    fi
+
     mkdir -p "$backup_dir"
 
-    local timestamp=$(timestamp_file)
-    local backup_file="$backup_dir/erenshor_${timestamp}.sqlite"
+    # Get build metadata from state for naming
+    local build_id=$(state_get_variant "$variant" "game.build_id" "")
+    local build_timestamp=$(state_get_variant "$variant" "game.build_timestamp" "")
+
+    # Generate timestamp for filename
+    local file_timestamp=""
+    if [[ -n "$build_timestamp" && "$build_timestamp" != "null" ]]; then
+        # Convert ISO 8601 to YYYYMMDD-HHMMSS format
+        # Example: 2025-10-09T23:32:23Z -> 20251009-233223
+        # Use sed with extended regex (BSD/GNU compatible)
+        if command -v gsed >/dev/null 2>&1; then
+            # Use GNU sed if available (macOS via Homebrew)
+            file_timestamp=$(echo "$build_timestamp" | gsed -E 's/([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})Z/\1\2\3-\4\5\6/')
+        elif echo "$build_timestamp" | sed -E 's/test/test/' >/dev/null 2>&1; then
+            # BSD sed supports -E
+            file_timestamp=$(echo "$build_timestamp" | sed -E 's/([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})Z/\1\2\3-\4\5\6/')
+        else
+            # Fallback to basic regex (less portable)
+            file_timestamp=$(echo "$build_timestamp" | sed 's/\([0-9]\{4\}\)-\([0-9]\{2\}\)-\([0-9]\{2\}\)T\([0-9]\{2\}\):\([0-9]\{2\}\):\([0-9]\{2\}\)Z/\1\2\3-\4\5\6/')
+        fi
+
+        # Validate conversion succeeded
+        if [[ ! "$file_timestamp" =~ ^[0-9]{8}-[0-9]{6}$ ]]; then
+            log_warn "Failed to convert build timestamp to filename format: $build_timestamp"
+            file_timestamp=$(timestamp_file)
+        fi
+    else
+        # Fallback to current timestamp
+        file_timestamp=$(timestamp_file)
+    fi
+
+    # Format: erenshor_YYYYMMDD-HHMMSS_buildBUILDID.sqlite
+    local backup_file
+    if [[ -n "$build_id" && "$build_id" != "null" ]]; then
+        backup_file="$backup_dir/erenshor_${file_timestamp}_build${build_id}.sqlite"
+    else
+        backup_file="$backup_dir/erenshor_${file_timestamp}.sqlite"
+    fi
 
     log_info "Creating backup: $backup_file"
     cp "$db_path" "$backup_file"
-
-    # Keep only last N backups
-    local backup_count=$(config_get database.backup_count)
-    local existing_backups=$(ls -1t "$backup_dir"/erenshor_*.sqlite 2>/dev/null | wc -l)
-
-    if [[ $existing_backups -gt $backup_count ]]; then
-        log_debug "Removing old backups (keeping last $backup_count)"
-        ls -1t "$backup_dir"/erenshor_*.sqlite | tail -n +$((backup_count + 1)) | xargs rm -f
-    fi
 
     return 0
 }

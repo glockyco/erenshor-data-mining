@@ -28,10 +28,14 @@ state_init() {
     "main": {
       "game": {
         "build_id": null,
+        "build_timestamp": null,
+        "branch": "public",
         "last_checked": null,
         "last_downloaded": null,
         "files_path": null,
-        "size_bytes": 0
+        "size_bytes": 0,
+        "manifest_id": null,
+        "download_size_bytes": null
       },
       "database": {
         "path": null,
@@ -47,10 +51,14 @@ state_init() {
     "playtest": {
       "game": {
         "build_id": null,
+        "build_timestamp": null,
+        "branch": "public",
         "last_checked": null,
         "last_downloaded": null,
         "files_path": null,
-        "size_bytes": 0
+        "size_bytes": 0,
+        "manifest_id": null,
+        "download_size_bytes": null
       },
       "database": {
         "path": null,
@@ -66,10 +74,14 @@ state_init() {
     "demo": {
       "game": {
         "build_id": null,
+        "build_timestamp": null,
+        "branch": "public",
         "last_checked": null,
         "last_downloaded": null,
         "files_path": null,
-        "size_bytes": 0
+        "size_bytes": 0,
+        "manifest_id": null,
+        "download_size_bytes": null
       },
       "database": {
         "path": null,
@@ -119,6 +131,11 @@ state_set() {
     local value="$2"
     local state_file="${ERENSHOR_STATE}"
 
+    if [[ -z "$key" ]]; then
+        log_error "state_set: key parameter is required"
+        return 1
+    fi
+
     if [[ ! -f "$state_file" ]]; then
         state_init
     fi
@@ -127,9 +144,17 @@ state_set() {
         local temp_file="${state_file}.tmp"
         # Handle null values
         if [[ "$value" == "null" ]]; then
-            jq ".${key} = null" "$state_file" > "$temp_file"
+            if ! jq ".${key} = null" "$state_file" > "$temp_file" 2>/dev/null; then
+                log_error "state_set: failed to set key '$key' to null"
+                rm -f "$temp_file"
+                return 1
+            fi
         else
-            jq ".${key} = \"$value\"" "$state_file" > "$temp_file"
+            if ! jq ".${key} = \"$value\"" "$state_file" > "$temp_file" 2>/dev/null; then
+                log_error "state_set: failed to set key '$key' to '$value'"
+                rm -f "$temp_file"
+                return 1
+            fi
         fi
         mv "$temp_file" "$state_file"
     fi
@@ -141,13 +166,22 @@ state_set_number() {
     local value="$2"
     local state_file="${ERENSHOR_STATE}"
 
+    if [[ -z "$key" ]]; then
+        log_error "state_set_number: key parameter is required"
+        return 1
+    fi
+
     if [[ ! -f "$state_file" ]]; then
         state_init
     fi
 
     if command_exists jq; then
         local temp_file="${state_file}.tmp"
-        jq ".${key} = $value" "$state_file" > "$temp_file"
+        if ! jq ".${key} = $value" "$state_file" > "$temp_file" 2>/dev/null; then
+            log_error "state_set_number: failed to set key '$key' to $value"
+            rm -f "$temp_file"
+            return 1
+        fi
         mv "$temp_file" "$state_file"
     fi
 }
@@ -158,6 +192,11 @@ state_set_object() {
     local json="$2"
     local state_file="${ERENSHOR_STATE}"
 
+    if [[ -z "$key" ]]; then
+        log_error "state_set_object: key parameter is required"
+        return 1
+    fi
+
     if [[ ! -f "$state_file" ]]; then
         state_init
     fi
@@ -166,15 +205,16 @@ state_set_object() {
         local temp_file="${state_file}.tmp"
         # Validate JSON first, use empty object if invalid
         if ! echo "$json" | jq empty 2>/dev/null; then
+            log_warn "state_set_object: invalid JSON for key '$key', using empty object"
             json="{}"
         fi
         # Use --argjson to safely pass JSON object
-        jq --argjson obj "$json" ".${key} = \$obj" "$state_file" > "$temp_file" 2>/dev/null
-        if [[ $? -eq 0 ]]; then
-            mv "$temp_file" "$state_file"
-        else
+        if ! jq --argjson obj "$json" ".${key} = \$obj" "$state_file" > "$temp_file" 2>/dev/null; then
+            log_error "state_set_object: failed to set key '$key'"
             rm -f "$temp_file"
+            return 1
         fi
+        mv "$temp_file" "$state_file"
     fi
 }
 
@@ -291,11 +331,38 @@ state_record_variant_game() {
     local build_id="$2"
     local files_path="$3"
     local size_bytes="${4:-0}"
+    local build_timestamp="${5:-}"
+    local branch="${6:-public}"
+    local manifest_id="${7:-}"
+    local download_size_bytes="${8:-}"
 
     state_set_variant "$variant" "game.build_id" "$build_id"
     state_set_variant "$variant" "game.last_downloaded" "$(timestamp_iso)"
+    state_set_variant "$variant" "game.last_checked" "$(timestamp_iso)"
     state_set_variant "$variant" "game.files_path" "$files_path"
     state_set_variant_number "$variant" "game.size_bytes" "$size_bytes"
+
+    # Set new metadata fields (with null if empty)
+    if [[ -n "$build_timestamp" ]]; then
+        state_set_variant "$variant" "game.build_timestamp" "$build_timestamp"
+    else
+        state_set_variant "$variant" "game.build_timestamp" "null"
+    fi
+
+    state_set_variant "$variant" "game.branch" "$branch"
+
+    if [[ -n "$manifest_id" ]]; then
+        state_set_variant "$variant" "game.manifest_id" "$manifest_id"
+    else
+        state_set_variant "$variant" "game.manifest_id" "null"
+    fi
+
+    if [[ -n "$download_size_bytes" ]]; then
+        state_set_variant_number "$variant" "game.download_size_bytes" "$download_size_bytes"
+    else
+        state_set_variant "$variant" "game.download_size_bytes" "null"
+    fi
+
     state_update_timestamp
 }
 
@@ -326,10 +393,14 @@ state_init_variant() {
             state_set_variant_object "$variant" "" "{
                 \"game\": {
                     \"build_id\": null,
+                    \"build_timestamp\": null,
+                    \"branch\": \"public\",
                     \"last_checked\": null,
                     \"last_downloaded\": null,
                     \"files_path\": null,
-                    \"size_bytes\": 0
+                    \"size_bytes\": 0,
+                    \"manifest_id\": null,
+                    \"download_size_bytes\": null
                 },
                 \"database\": {
                     \"path\": null,

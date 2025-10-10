@@ -47,7 +47,6 @@ timeout = 3600                             # 60 minutes
 [global.database]
 # Database settings (used by both Bash and Python)
 backup_enabled = true
-backup_count = 10                          # Keep last N backups per variant
 validate = true
 
 [global.mediawiki]
