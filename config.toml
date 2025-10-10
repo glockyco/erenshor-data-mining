@@ -16,10 +16,6 @@ default_variant = "main"
 state = "$REPO_ROOT/.erenshor/state.json"
 config_local = "$REPO_ROOT/.erenshor/config.local.toml"
 logs = "$REPO_ROOT/.erenshor/logs"
-wiki_output = "$REPO_ROOT/out/wiki"        # Wiki pages output (Python)
-json_export = "$REPO_ROOT/out/json"        # JSON export output (Python)
-csv_export = "$REPO_ROOT/out/csv"          # CSV export output (Python)
-reports = "$REPO_ROOT/out/reports"         # Operation reports (Python)
 
 # ============================================================================
 # BASH CLI CONFIGURATION
@@ -76,16 +72,12 @@ retry_delay = 5                            # Seconds between retries
 # ============================================================================
 [global.behavior]
 # Behavioral settings
-confirm_destructive = true
-parallel_downloads = true
 max_retries = 3
 retry_delay = 30
 
 [global.logging]
 # Logging configuration
 level = "info"                             # debug, info, warn, error
-file_enabled = true
-console_enabled = true
 
 # ============================================================================
 # VARIANT: MAIN (Public Release)
@@ -103,7 +95,6 @@ app_id = "2382520"
 unity_project = "$REPO_ROOT/variants/main/unity"
 editor_scripts = "$REPO_ROOT/src/Assets/Editor"
 game_files = "$REPO_ROOT/variants/main/game"
-output = "$REPO_ROOT/variants/main/output"
 database = "$REPO_ROOT/variants/main/erenshor-main.sqlite"
 
 # Logs and backups
@@ -130,7 +121,6 @@ app_id = "3090030"
 unity_project = "$REPO_ROOT/variants/playtest/unity"
 editor_scripts = "$REPO_ROOT/src/Assets/Editor"
 game_files = "$REPO_ROOT/variants/playtest/game"
-output = "$REPO_ROOT/variants/playtest/output"
 database = "$REPO_ROOT/variants/playtest/erenshor-playtest.sqlite"
 
 # Logs and backups
@@ -157,7 +147,6 @@ app_id = "2522260"
 unity_project = "$REPO_ROOT/variants/demo/unity"
 editor_scripts = "$REPO_ROOT/src/Assets/Editor"
 game_files = "$REPO_ROOT/variants/demo/game"
-output = "$REPO_ROOT/variants/demo/output"
 database = "$REPO_ROOT/variants/demo/erenshor-demo.sqlite"
 
 # Logs and backups
