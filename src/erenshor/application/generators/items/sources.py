@@ -101,20 +101,6 @@ class SourceEnricher:
 
         return f"{object_name}|{scene}|{coord_x}|{coord_y}|{coord_z}"
 
-    def _format_character_link(self, stable_identifier: str, display_name: str) -> str:
-        """Format character link with optional display name override.
-
-        Args:
-            stable_identifier: Stable ID for registry lookup
-            display_name: Character display name
-
-        Returns:
-            Formatted wiki link string
-        """
-        title = self.linker.resolve_character_title(stable_identifier, display_name)
-        if title != display_name:
-            return f"[[{title}|{display_name}]]"
-        return f"[[{title}]]"
 
     def _format_crafting_items(
         self,
@@ -189,7 +175,19 @@ class SourceEnricher:
                 continue
 
             stable_identifier = self._build_stable_identifier(vendor_data)
-            vendor_link = self._format_character_link(stable_identifier, vendor_name)
+
+            # Create EntityRef for link resolver
+            from erenshor.domain.entities.page import EntityRef
+            from erenshor.domain.value_objects.entity_type import EntityType
+
+            vendor_guid = vendor_data.get("Guid")
+            entity_ref = EntityRef(
+                entity_type=EntityType.CHARACTER,
+                db_id=vendor_guid,
+                db_name=vendor_name,
+                resource_name=stable_identifier,
+            )
+            vendor_link = self.linker.character_link(entity_ref)
             vendor_sources.append(vendor_link)
 
         logger.debug(
@@ -222,9 +220,19 @@ class SourceEnricher:
                 continue
 
             stable_identifier = self._build_stable_identifier(dropper_data)
-            character_link = self._format_character_link(
-                stable_identifier, dropper_name
+
+            # Create EntityRef for link resolver
+            from erenshor.domain.entities.page import EntityRef
+            from erenshor.domain.value_objects.entity_type import EntityType
+
+            dropper_guid = dropper_data.get("Guid")
+            entity_ref = EntityRef(
+                entity_type=EntityType.CHARACTER,
+                db_id=dropper_guid,
+                db_name=dropper_name,
+                resource_name=stable_identifier,
             )
+            character_link = self.linker.character_link(entity_ref)
 
             drop_probability = float(dropper_data.get("DropProbability", 0.0))
             formatted_link = (
