@@ -320,7 +320,8 @@ class SourceEnricher:
                 producer_item.ItemName,
                 producer_item.Id,
             )
-            craft_sources.append(producer_link)
+            # Add 1x prefix to mold for consistency with materials
+            craft_sources.append(f"1x {producer_link}")
             craft_sources.extend(ingredient_links)
 
         component_for: list[str] = []
