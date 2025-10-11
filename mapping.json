@@ -1763,6 +1763,20 @@
       "mapping_type": "exclude",
       "reason": "Internal placeholder item that should not appear in wiki"
     },
+    "item:GEN - KGTI": {
+      "wiki_page_name": null,
+      "display_name": null,
+      "image_name": null,
+      "mapping_type": "exclude",
+      "reason": "Golden ticket items should not appear in wiki"
+    },
+    "item:GEN - ST 1": {
+      "wiki_page_name": null,
+      "display_name": null,
+      "image_name": null,
+      "mapping_type": "exclude",
+      "reason": "Golden ticket items should not appear in wiki"
+    },
     "item:GEN - Time Stone": {
       "wiki_page_name": "Time Stone",
       "display_name": null,
