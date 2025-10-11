@@ -352,14 +352,14 @@
     "item:GEN - Braxonian Portal Shard - Fire": {
       "wiki_page_name": "Braxonian Portal Shard (Fire)",
       "display_name": "Braxonian Portal Shard (Fire)",
-      "image_name": null,
+      "image_name": "Braxonian Portal Shard (Fire)",
       "mapping_type": "custom",
       "reason": null
     },
     "item:GEN - Braxonian Portal Shard - Ice": {
       "wiki_page_name": "Braxonian Portal Shard (Ice)",
       "display_name": "Braxonian Portal Shard (Ice)",
-      "image_name": null,
+      "image_name": "Braxonian Portal Shard (Ice)",
       "mapping_type": "custom",
       "reason": null
     },
@@ -478,35 +478,35 @@
     "item:QUEST - Charged Soul Gem Aragath": {
       "wiki_page_name": "Charged Soul Gem (Aragath)",
       "display_name": null,
-      "image_name": null,
+      "image_name": "Charged Soul Gem (Aragath)",
       "mapping_type": "custom",
       "reason": null
     },
     "item:QUEST - Charged Soul Gem Leah": {
       "wiki_page_name": "Charged Soul Gem (Leah)",
       "display_name": null,
-      "image_name": null,
+      "image_name": "Charged Soul Gem (Leah)",
       "mapping_type": "custom",
       "reason": null
     },
     "item:QUEST - Charged Soul Gem Posta": {
       "wiki_page_name": "Charged Soul Gem (Posta)",
       "display_name": null,
-      "image_name": null,
+      "image_name": "Charged Soul Gem (Posta)",
       "mapping_type": "custom",
       "reason": null
     },
     "item:QUEST - Charged Soul Gem Revid": {
       "wiki_page_name": "Charged Soul Gem (Revid)",
       "display_name": null,
-      "image_name": null,
+      "image_name": "Charged Soul Gem (Revid)",
       "mapping_type": "custom",
       "reason": null
     },
     "item:QUEST - Charged Soul Gem Stalzo": {
       "wiki_page_name": "Charged Soul Gem (Stalzo)",
       "display_name": null,
-      "image_name": null,
+      "image_name": "Charged Soul Gem (Stalzo)",
       "mapping_type": "custom",
       "reason": null
     },
@@ -526,8 +526,8 @@
     },
     "skill:Archery - Envenomed Arrow": {
       "wiki_page_name": "Envenomed Arrow",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Envenomed Arrow",
+      "image_name": "Envenomed Arrow",
       "mapping_type": "custom",
       "reason": null
     },
@@ -1290,14 +1290,14 @@
     "item:RING - 39 - Sivakaya's Touch": {
       "wiki_page_name": "Sivakaya's Touch",
       "display_name": null,
-      "image_name": null,
+      "image_name": "Sivakaya's Touch",
       "mapping_type": "custom",
       "reason": null
     },
     "spell:NONE - Sivakayas Kiss": {
       "wiki_page_name": "Sivakaya's Touch (Effect)",
       "display_name": null,
-      "image_name": null,
+      "image_name": "Sivakaya's Touch (Effect)",
       "mapping_type": "custom",
       "reason": null
     },
@@ -1346,28 +1346,28 @@
     "skill:Archery - Skycaller Arrow": {
       "wiki_page_name": "Skycall",
       "display_name": null,
-      "image_name": null,
+      "image_name": "Skycall (Spell)",
       "mapping_type": "custom",
       "reason": null
     },
     "spell:NONE - Skycall": {
       "wiki_page_name": "Skycall",
       "display_name": null,
-      "image_name": null,
+      "image_name": "Skycall (Skill)",
       "mapping_type": "custom",
       "reason": null
     },
     "skill:Soluna's Touch": {
-      "wiki_page_name": null,
+      "wiki_page_name": "Soluna's Touch",
       "display_name": null,
-      "image_name": null,
-      "mapping_type": "exclude",
+      "image_name": "Soluna's Touch (Skill)",
+      "mapping_type": "custom",
       "reason": null
     },
     "spell:PAL - Soluna's Touch": {
       "wiki_page_name": "Soluna's Touch",
       "display_name": null,
-      "image_name": null,
+      "image_name": "Soluna's Touch (Spell)",
       "mapping_type": "custom",
       "reason": null
     },
@@ -1395,28 +1395,28 @@
     "item:QUEST - Soul Gem Leah": {
       "wiki_page_name": "Soul Gem (Leah)",
       "display_name": null,
-      "image_name": null,
+      "image_name": "Soul Gem (Leah)",
       "mapping_type": "custom",
       "reason": null
     },
     "item:QUEST - Soul Gem Posta": {
       "wiki_page_name": "Soul Gem (Posta)",
       "display_name": null,
-      "image_name": null,
+      "image_name": "Soul Gem (Posta)",
       "mapping_type": "custom",
       "reason": null
     },
     "item:QUEST - Soul Gem Revid": {
       "wiki_page_name": "Soul Gem (Revid)",
       "display_name": null,
-      "image_name": null,
+      "image_name": "Soul Gem (Revid)",
       "mapping_type": "custom",
       "reason": null
     },
     "item:QUEST - Soul Gem Stalzo": {
       "wiki_page_name": "Soul Gem (Stalzo)",
       "display_name": null,
-      "image_name": null,
+      "image_name": "Soul Gem (Stalzo)",
       "mapping_type": "custom",
       "reason": null
     },
@@ -1451,7 +1451,7 @@
     "character:Stardust": {
       "wiki_page_name": "Stardust",
       "display_name": null,
-      "image_name": null,
+      "image_name": "Stardust",
       "mapping_type": "custom",
       "reason": null
     },
@@ -1535,14 +1535,14 @@
     "spell:ARC - Sunburst": {
       "wiki_page_name": "Sunburst (Lux)",
       "display_name": null,
-      "image_name": null,
+      "image_name": "Sunburst (Lux)",
       "mapping_type": "custom",
       "reason": null
     },
     "spell:PAL - Sunburst": {
       "wiki_page_name": "Sunburst",
       "display_name": null,
-      "image_name": null,
+      "image_name": "Sunburst",
       "mapping_type": "custom",
       "reason": null
     },
@@ -1766,28 +1766,28 @@
     "item:GEN - Time Stone": {
       "wiki_page_name": "Time Stone",
       "display_name": null,
-      "image_name": null,
+      "image_name": "Time Stone",
       "mapping_type": "custom",
       "reason": null
     },
     "spell:NONE - Time Stone": {
       "wiki_page_name": "Time Stone (Effect)",
       "display_name": null,
-      "image_name": null,
+      "image_name": "Time Stone (Effect)",
       "mapping_type": "custom",
       "reason": null
     },
     "item:GEN - Wyrm's Bane": {
       "wiki_page_name": "Wyrm's Bane",
       "display_name": null,
-      "image_name": null,
+      "image_name": "Wyrm's Bane",
       "mapping_type": "custom",
       "reason": null
     },
     "spell:NONE - Wyrm's Bane": {
       "wiki_page_name": "Wyrm's Bane (Effect)",
       "display_name": null,
-      "image_name": null,
+      "image_name": "Wyrm's Bane (Effect)",
       "mapping_type": "custom",
       "reason": null
     },
@@ -1822,35 +1822,35 @@
     "spell:NONE - Exploding Arrow": {
       "wiki_page_name": "Exploding Arrow",
       "display_name": "Exploding Arrow",
-      "image_name": null,
+      "image_name": "Exploding Arrow",
       "mapping_type": "custom",
       "reason": "fix typo"
     },
     "spell:ARC - Intrusive Ideas": {
       "wiki_page_name": "Intrusive Ideas",
       "display_name": "Intrusive Ideas",
-      "image_name": null,
+      "image_name": "Intrusive Ideas",
       "mapping_type": "custom",
       "reason": "Fix typo in spell name"
     },
     "spell:AURA - Resonate": {
       "wiki_page_name": "Aura: Resonance",
       "display_name": "Aura: Resonance",
-      "image_name": null,
+      "image_name": "Aura: Resonance",
       "mapping_type": "custom",
       "reason": "disambiguate from the resonance page"
     },
     "spell:ARC - Twisting Mind": {
       "wiki_page_name": "Twisting Mind",
       "display_name": "Twisting Mind",
-      "image_name": null,
+      "image_name": "Twisting Mind",
       "mapping_type": "custom",
       "reason": "fix typo"
     },
     "spell:DRU - Summon Dire Wolf": {
       "wiki_page_name": "Summon Dire Wolf",
       "display_name": "Summon Dire Wolf",
-      "image_name": null,
+      "image_name": "Summon Dire Wolf",
       "mapping_type": "custom",
       "reason": "fix typo"
     },
@@ -1867,6 +1867,34 @@
       "image_name": null,
       "mapping_type": "custom",
       "reason": null
+    },
+    "item:SPELL SCROLL - Meditate": {
+      "wiki_page_name": null,
+      "display_name": null,
+      "image_name": "Spell Scroll: Meditative Trance (1)",
+      "mapping_type": "custom",
+      "reason": null
+    },
+    "item:SPELL SCROLL - Meditate Dru": {
+      "wiki_page_name": null,
+      "display_name": null,
+      "image_name": "Spell Scroll: Meditative Trance (2)",
+      "mapping_type": "custom",
+      "reason": null
+    },
+    "item:QUEST - Bellwain Sun Lillies": {
+      "wiki_page_name": "The Sun Lilies",
+      "display_name": "The Sun Lilies",
+      "image_name": "The Sun Lilies",
+      "mapping_type": "custom",
+      "reason": "Remove trailing space from item name"
+    },
+    "item:GEN - Scribbles of a mad priest 4": {
+      "wiki_page_name": null,
+      "display_name": null,
+      "image_name": null,
+      "mapping_type": "exclude",
+      "reason": "Exclude from wiki"
     }
   }
 }
