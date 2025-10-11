@@ -101,6 +101,9 @@ database = "$REPO_ROOT/variants/main/erenshor-main.sqlite"
 logs = "$REPO_ROOT/variants/main/logs"
 backups = "$REPO_ROOT/variants/main/backups"
 
+# Image processing
+images_output = "$REPO_ROOT/variants/main/images/processed"
+
 # Google Sheets configuration (Python)
 [variants.main.google_sheets]
 spreadsheet_id = "1eOYfjaudAhvE6HGBtWyRGgQDsmWDLENaoEwRvgBO_0E"
@@ -127,6 +130,9 @@ database = "$REPO_ROOT/variants/playtest/erenshor-playtest.sqlite"
 logs = "$REPO_ROOT/variants/playtest/logs"
 backups = "$REPO_ROOT/variants/playtest/backups"
 
+# Image processing
+images_output = "$REPO_ROOT/variants/playtest/images/processed"
+
 # Google Sheets configuration (Python)
 [variants.playtest.google_sheets]
 spreadsheet_id = "1gRgoCSXVRcbAbLNa7_FD5CMN9Z0PQA-mInSLeW1cRGE"
@@ -152,6 +158,9 @@ database = "$REPO_ROOT/variants/demo/erenshor-demo.sqlite"
 # Logs and backups
 logs = "$REPO_ROOT/variants/demo/logs"
 backups = "$REPO_ROOT/variants/demo/backups"
+
+# Image processing
+images_output = "$REPO_ROOT/variants/demo/images/processed"
 
 # ============================================================================
 # CUSTOM VARIANTS (Example)

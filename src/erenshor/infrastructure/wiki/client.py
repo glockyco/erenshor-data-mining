@@ -321,6 +321,114 @@ class WikiAPIClient:
         """
         self.auth_session = session
 
+    def check_file_exists(self, filename: str) -> bool:
+        """Check if a file already exists on the wiki.
+
+        Args:
+            filename: File name (e.g., "Sword.png")
+
+        Returns:
+            True if file exists, False otherwise
+        """
+        data = self._request(
+            {
+                "action": "query",
+                "format": "json",
+                "titles": f"File:{filename}",
+                "prop": "imageinfo",
+                "formatversion": "2",
+            }
+        )
+        pages = data.get("query", {}).get("pages", [])
+        if not pages:
+            return False
+        # File exists if page is not missing
+        return not pages[0].get("missing", False)
+
+    def upload_file(
+        self,
+        file_path: str,
+        filename: str,
+        comment: str,
+        text: str = "",
+        ignore_warnings: bool = False,
+        bot: bool = True,
+    ) -> dict[str, Any]:
+        """Upload a file to the wiki.
+
+        This requires authentication to be set up via set_auth_session().
+
+        Args:
+            file_path: Path to the file on disk
+            filename: Target filename on wiki (e.g., "Sword.png")
+            comment: Upload comment/summary
+            text: Wiki text for the file description page
+            ignore_warnings: Ignore API warnings (e.g., duplicate files)
+            bot: Mark as bot upload (requires bot permissions)
+
+        Returns:
+            API response dict (contains imageinfo, etc.)
+
+        Raises:
+            WikiAPIError: If upload fails or not authenticated
+        """
+        if not self.auth_session:
+            raise WikiAPIError(
+                "Authentication required for upload. Use set_auth_session()."
+            )
+
+        # Get CSRF token (requires authenticated session)
+        token_data = self._request(
+            {"action": "query", "meta": "tokens", "format": "json"}
+        )
+        csrf_token = token_data["query"]["tokens"]["csrftoken"]
+
+        # Upload file
+        with open(file_path, "rb") as f:
+            files = {"file": (filename, f, "image/png")}
+            data: dict[str, Any] = {
+                "action": "upload",
+                "filename": filename,
+                "comment": comment,
+                "text": text,
+                "token": csrf_token,
+                "format": "json",
+            }
+
+            if ignore_warnings:
+                data["ignorewarnings"] = "1"
+
+            if bot:
+                data["bot"] = "1"
+
+            headers = {"User-Agent": self.user_agent}
+            response = self.auth_session.post(
+                self.api_url,
+                data=data,
+                files=files,
+                headers=headers,
+                timeout=WIKI_API_TIMEOUT_SECONDS,
+            )
+            response.raise_for_status()
+            result: dict[str, Any] = response.json()
+
+        # Check result
+        if "error" in result:
+            error_info = result["error"]
+            raise WikiAPIError(
+                f"Upload failed: {error_info.get('code')}: {error_info.get('info')}"
+            )
+
+        upload_result = result.get("upload", {})
+        if upload_result.get("result") != "Success":
+            # Handle warnings
+            if "warnings" in upload_result and not ignore_warnings:
+                warnings = upload_result["warnings"]
+                raise WikiAPIError(f"Upload warnings: {warnings}")
+            raise WikiAPIError(f"Unexpected upload response: {result}")
+
+        return upload_result
+
     def fetch_templatedata(
         self,
         titles: list[str],

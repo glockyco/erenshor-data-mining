@@ -20,6 +20,7 @@ __all__ = [
     "RegistryError",
     "JunctionEnrichmentError",
     "ConfigurationError",
+    "ImageProcessingError",
 ]
 
 
@@ -113,6 +114,18 @@ class ConfigurationError(ErenShorWikiError):
 
     Example:
         raise ConfigurationError("WIKI_API_URL not set in environment")
+    """
+
+    pass
+
+
+class ImageProcessingError(ErenShorWikiError):
+    """Image processing operation failed.
+
+    Raised when image extraction, resizing, or upload fails.
+
+    Example:
+        raise ImageProcessingError("Failed to resize image: unsupported format")
     """
 
     pass
