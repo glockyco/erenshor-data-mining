@@ -131,11 +131,11 @@ class CharmGenerator(ItemGeneratorBase):
         def has(name: str) -> bool:
             return name in classes
 
-        # Format scaling values (convert float to int if non-zero, empty string if zero)
+        # Format scaling values (always round to integer)
         def format_scaling(value: float | None) -> str:
             if value is None or value == 0:
                 return ""
-            return str(int(value)) if value == int(value) else str(value)
+            return str(round(value))
 
         charm_ctx = FancyCharmContext(
             block_id=item.ResourceName,
