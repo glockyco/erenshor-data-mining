@@ -269,7 +269,7 @@ def upload(
     # Build upload list: resource name → display name mapping
     # Images are stored as resource names (e.g., "GEN - KGTI.png")
     # We need to map them to display names for wiki upload
-    upload_items: list[tuple[Path, str]] = []  # (file_path, wiki_filename)
+    upload_items: list[tuple[Path, str, str]] = []  # (file_path, wiki_filename, original_name)
     skipped_excluded = 0
 
     all_image_files = sorted(images_dir.glob("*.png"))
@@ -303,9 +303,16 @@ def upload(
         if entity:
             # Get display name from registry for wiki upload
             display_name = registry.get_image_name(entity)
-            # Sanitize display name for wiki filename (MediaWiki handles special chars)
-            wiki_filename = f"{display_name}.png"
-            upload_items.append((image_file, wiki_filename))
+
+            # Sanitize filename for MediaWiki (remove problematic characters)
+            # MediaWiki doesn't allow: : | # < > [ ] { }
+            sanitized_name = display_name
+            sanitized_name = sanitized_name.replace(":", "")  # Remove colons
+            sanitized_name = sanitized_name.replace("|", "")  # Remove pipes
+            sanitized_name = sanitized_name.replace("#", "")  # Remove hashes
+
+            wiki_filename = f"{sanitized_name}.png"
+            upload_items.append((image_file, wiki_filename, display_name))
         else:
             # Not in registry = excluded entity
             skipped_excluded += 1
@@ -337,6 +344,7 @@ def upload(
     # Upload images with progress bar
     stats = {"uploaded": 0, "skipped": 0, "failed": 0}
     processed = 0  # Uploaded + failed (not skipped)
+    redirects_to_create: list[tuple[str, str]] = []  # (original_name, sanitized_name)
 
     with Progress(
         SpinnerColumn(),
@@ -348,7 +356,7 @@ def upload(
     ) as progress:
         task = progress.add_task("[cyan]Uploading images...", total=len(upload_items))
 
-        for image_file, wiki_filename in upload_items:
+        for image_file, wiki_filename, original_name in upload_items:
             # Check batch limit (skipped don't count)
             if batch_size and processed >= batch_size:
                 break
@@ -366,6 +374,11 @@ def upload(
                 console.print(f"[dim]Would upload: {image_file.name} → {wiki_filename}[/dim]")
                 stats["uploaded"] += 1
                 processed += 1
+
+                # Track redirect for dry-run
+                original_filename = f"{original_name}.png"
+                if original_filename != wiki_filename:
+                    redirects_to_create.append((original_filename, wiki_filename))
             else:
                 try:
                     client.upload_file(
@@ -377,6 +390,11 @@ def upload(
                     )
                     stats["uploaded"] += 1
                     processed += 1
+
+                    # Track redirect only after successful upload
+                    original_filename = f"{original_name}.png"
+                    if original_filename != wiki_filename:
+                        redirects_to_create.append((original_filename, wiki_filename))
 
                     # Add delay between uploads
                     if delay:
@@ -399,8 +417,63 @@ def upload(
 
     if dry_run:
         console.print("[yellow]DRY-RUN: No files were uploaded[/yellow]")
+
+        # Show redirects that would be created
+        if redirects_to_create:
+            console.print()
+            console.print(f"[bold cyan]Redirects that would be created: {len(redirects_to_create)}[/bold cyan]")
+            for original, sanitized in redirects_to_create[:10]:  # Show first 10
+                console.print(f"  [yellow]File:{original}[/yellow] → [green]File:{sanitized}[/green]")
+            if len(redirects_to_create) > 10:
+                console.print(f"  [dim]... and {len(redirects_to_create) - 10} more[/dim]")
     else:
         console.print(f"[green]Upload complete[/green]")
+
+        # Create redirect pages automatically
+        if redirects_to_create:
+            console.print()
+            console.print(f"[bold cyan]Creating {len(redirects_to_create)} redirect pages...[/bold cyan]")
+
+            redirect_stats = {"created": 0, "failed": 0}
+
+            with Progress(
+                SpinnerColumn(),
+                TextColumn("[progress.description]{task.description}"),
+                BarColumn(),
+                MofNCompleteColumn(),
+                TimeElapsedColumn(),
+                console=console,
+            ) as progress:
+                task = progress.add_task("[cyan]Creating redirects...", total=len(redirects_to_create))
+
+                for original, sanitized in redirects_to_create:
+                    redirect_title = f"File:{original}"
+                    redirect_content = f"#REDIRECT [[File:{sanitized}]]"
+
+                    try:
+                        client.upload_page(
+                            title=redirect_title,
+                            content=redirect_content,
+                            summary="Automated redirect for sanitized filename",
+                            minor=True,
+                            bot=True,
+                        )
+                        redirect_stats["created"] += 1
+
+                        # Add delay between redirects
+                        if delay:
+                            import time
+                            time.sleep(delay)
+                    except Exception as e:
+                        console.print(f"[red]Failed to create redirect {redirect_title}: {e}[/red]")
+                        redirect_stats["failed"] += 1
+
+                    progress.advance(task)
+
+            console.print()
+            console.print(f"[green]Redirects created: {redirect_stats['created']}[/green]")
+            if redirect_stats["failed"] > 0:
+                console.print(f"[red]Redirects failed: {redirect_stats['failed']}[/red]")
 
     if stats["failed"] > 0:
         raise typer.Exit(1)
