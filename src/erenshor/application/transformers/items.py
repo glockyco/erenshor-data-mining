@@ -92,6 +92,12 @@ class ItemTransformer(PageTransformer):
         else:
             page_text = self._parser.remove_fancy_tables(page_text)
 
+        # Handle charm templates
+        if kind_str == "charm":
+            charm_body = snippets.get("charm", "").strip()
+            if charm_body:
+                page_text = self._parser.ensure_fancy_charm(page_text, charm_body)
+
         return page_text
 
     def _infer_kind_from_snippets(self, snippets: dict[str, str]) -> str:
@@ -101,12 +107,14 @@ class ItemTransformer(PageTransformer):
             snippets: Extracted snippet dictionary
 
         Returns:
-            Item kind string (weapon, armor, aura, ability_book, mold, consumable, general)
+            Item kind string (weapon, armor, charm, aura, ability_book, mold, consumable, general)
         """
         if "table_weapon" in snippets or any("tier_weapon_" in k for k in snippets):
             return "weapon"
         if "table_armor" in snippets or any("tier_armor_" in k for k in snippets):
             return "armor"
+        if "charm" in snippets:
+            return "charm"
 
         # Check infobox to determine other types
         infobox = snippets.get("infobox", "")
@@ -137,7 +145,7 @@ class ItemTransformer(PageTransformer):
 
         target_name = (
             "Item"
-            if kind in ("weapon", "armor", "aura", "general", "consumable")
+            if kind in ("weapon", "armor", "charm", "aura", "general", "consumable")
             else "Ability Books"
             if kind == "ability_book"
             else "Mold"

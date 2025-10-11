@@ -84,6 +84,13 @@ class DbItemStats(BaseModel):
     ER: Optional[int] = 0
     PR: Optional[int] = 0
     VR: Optional[int] = 0
+    StrScaling: Optional[float] = 0.0
+    EndScaling: Optional[float] = 0.0
+    DexScaling: Optional[float] = 0.0
+    AgiScaling: Optional[float] = 0.0
+    IntScaling: Optional[float] = 0.0
+    WisScaling: Optional[float] = 0.0
+    ChaScaling: Optional[float] = 0.0
 
 
 __all__ = ["DbItem", "DbItemStats"]

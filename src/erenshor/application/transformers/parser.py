@@ -193,3 +193,50 @@ class WikiParser:
         from erenshor.shared.wiki_parser import template_params
 
         return template_params(template)
+
+    def ensure_fancy_charm(self, page_text: str, charm_body: str) -> str:
+        """Ensure Fancy-charm template is present.
+
+        If Fancy-charm template exists, replaces it. Otherwise, inserts
+        the template immediately after the infobox.
+
+        Args:
+            page_text: Original wiki page text
+            charm_body: Rendered Fancy-charm template to insert/replace
+
+        Returns:
+            Updated page text with Fancy-charm template
+
+        Raises:
+            ValueError: If page cannot be parsed
+        """
+        try:
+            code = mw_parse(page_text)
+        except Exception as exc:
+            raise ValueError(f"Failed to parse page for Fancy-charm placement: {exc}")
+
+        # Check if Fancy-charm template already exists
+        fancy_charms = mw_find_templates(code, ["Fancy-charm"])
+        if fancy_charms:
+            # Replace existing template
+            return mw_replace_template(code, fancy_charms[0], charm_body.rstrip("\n"))
+
+        # No existing template, insert after infobox
+        infobox_names = [
+            "Weapon",
+            "Armor",
+            "Auras",
+            "Ability Books",
+            "Ability_Books",
+            "Mold",
+            "Item",
+            "Consumable",
+        ]
+        infoboxes = mw_find_templates(code, infobox_names)
+        if infoboxes:
+            infobox = infoboxes[0]
+            combo = str(infobox) + "\n\n" + charm_body.strip() + "\n\n"
+            return mw_replace_template(code, infobox, combo)
+
+        # No infobox found, insert at top
+        return charm_body.strip() + "\n\n" + page_text.lstrip("\n")

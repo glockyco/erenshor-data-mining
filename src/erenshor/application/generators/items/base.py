@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 def classify_item_kind(item: DbItem) -> str:
-    """Classify item into one of: weapon, armor, aura, ability_book, consumable, mold, general.
+    """Classify item into one of: weapon, armor, charm, aura, ability_book, consumable, mold, general.
 
     Args:
         item: Database item to classify
@@ -50,8 +50,9 @@ def classify_item_kind(item: DbItem) -> str:
     )
 
     is_aura = slot_raw.lower() == "aura"
+    is_charm = slot_raw.lower() == "charm"
 
-    non_equip = {"general", "aura"}
+    non_equip = {"general", "aura", "charm"}
     is_armor = (
         (not is_weapon)
         and (not is_mold)
@@ -76,6 +77,8 @@ def classify_item_kind(item: DbItem) -> str:
         return "ability_book"
     if is_aura:
         return "aura"
+    if is_charm:
+        return "charm"
     if is_consumable:
         return "consumable"
     if is_weapon:

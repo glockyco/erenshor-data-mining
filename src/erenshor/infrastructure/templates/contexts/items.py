@@ -198,6 +198,27 @@ class FancyArmorTemplateContext(BaseModel):
     tier: _b.str = ""
 
 
+class FancyCharmContext(BaseModel):
+    """Context for Fancy-charm template."""
+
+    block_id: _b.str  # fancy:charm:{ResourceName}
+    image: _b.str = ""
+    name: _b.str = ""
+    description: _b.str = ""
+    strscaling: _b.str = ""
+    endscaling: _b.str = ""
+    dexscaling: _b.str = ""
+    agiscaling: _b.str = ""
+    intscaling: _b.str = ""
+    wisscaling: _b.str = ""
+    chascaling: _b.str = ""
+    arcanist: _b.str = ""
+    duelist: _b.str = ""
+    druid: _b.str = ""
+    paladin: _b.str = ""
+    stormcaller: _b.str = ""
+
+
 __all__ = [
     "ItemInfoboxContext",
     "AbilityBookInfoboxContext",
@@ -208,4 +229,5 @@ __all__ = [
     "FancyArmorTableContext",
     "FancyWeaponTemplateContext",
     "FancyArmorTemplateContext",
+    "FancyCharmContext",
 ]

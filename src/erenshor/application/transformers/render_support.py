@@ -14,6 +14,7 @@ def extract_canonical_item_snippets(blocks: List[Tuple[str, str]]) -> Dict[str, 
       - infobox: one of Infobox_item_weapon/armor/aura/ability_book/consumable/mold/item
       - table: Fancy_<weapon|armor>_table
       - tiers: Fancy_<weapon|armor>_tier_0/1/2
+      - charm: Fancy_charm template
     """
     out: Dict[str, str] = {}
     for key, text in blocks:
@@ -30,4 +31,6 @@ def extract_canonical_item_snippets(blocks: List[Tuple[str, str]]) -> Dict[str, 
         elif key.startswith("Fancy_armor_template_tier_"):
             tier = key.rsplit("_", 1)[-1]
             out[f"tier_armor_{tier}"] = body
+        elif key == "Fancy_charm":
+            out["charm"] = body
     return out

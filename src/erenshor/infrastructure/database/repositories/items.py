@@ -112,7 +112,14 @@ def get_item_stats(engine: Engine, item_id: str) -> List[DbItemStats]:
                COALESCE(MR, 0) AS MR,
                COALESCE(ER, 0) AS ER,
                COALESCE(PR, 0) AS PR,
-               COALESCE(VR, 0) AS VR
+               COALESCE(VR, 0) AS VR,
+               COALESCE(StrScaling, 0.0) AS StrScaling,
+               COALESCE(EndScaling, 0.0) AS EndScaling,
+               COALESCE(DexScaling, 0.0) AS DexScaling,
+               COALESCE(AgiScaling, 0.0) AS AgiScaling,
+               COALESCE(IntScaling, 0.0) AS IntScaling,
+               COALESCE(WisScaling, 0.0) AS WisScaling,
+               COALESCE(ChaScaling, 0.0) AS ChaScaling
         FROM ItemStats
         WHERE ItemId = :item_id
         ORDER BY CASE Quality

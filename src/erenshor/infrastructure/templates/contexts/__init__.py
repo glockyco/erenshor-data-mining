@@ -25,6 +25,7 @@ from erenshor.infrastructure.templates.contexts.items import (
     FancyArmorColumn,
     FancyArmorTableContext,
     FancyArmorTemplateContext,
+    FancyCharmContext,
     FancyWeaponColumn,
     FancyWeaponTableContext,
     FancyWeaponTemplateContext,
@@ -54,4 +55,5 @@ __all__ = [
     "FancyArmorTableContext",
     "FancyWeaponTemplateContext",
     "FancyArmorTemplateContext",
+    "FancyCharmContext",
 ]

@@ -25,6 +25,7 @@ from erenshor.application.generators.items.base import (
     build_item_types,
     classify_item_kind,
 )
+from erenshor.application.generators.items.charms import CharmGenerator
 from erenshor.application.generators.items.consumables import ConsumableGenerator
 from erenshor.application.generators.items.general import GeneralItemGenerator
 from erenshor.application.generators.items.molds import MoldGenerator
@@ -50,6 +51,7 @@ class ItemGenerator(BaseGenerator):
 
     Delegates to:
     - WeaponArmorGenerator: Weapons and armor with fancy tables
+    - CharmGenerator: Charm items with Fancy-charm template
     - AuraGenerator: Aura items
     - AbilityBookGenerator: Ability books
     - ConsumableGenerator: Consumable items
@@ -61,6 +63,7 @@ class ItemGenerator(BaseGenerator):
         """Initialize item generator facade."""
         super().__init__()
         self._weapon_armor_gen = WeaponArmorGenerator()
+        self._charm_gen = CharmGenerator()
         self._aura_gen = AuraGenerator()
         self._ability_book_gen = AbilityBookGenerator()
         self._consumable_gen = ConsumableGenerator()
@@ -150,10 +153,10 @@ class ItemGenerator(BaseGenerator):
                     item, fishable_names, mining_names
                 )
 
-                # Deduplicate (sort all lists for determinism)
+                # Deduplicate
                 vendor_sources = self._dedup(sorted(vendor_sources))
                 drop_sources = self._dedup(sorted(drop_sources))
-                craft_sources = self._dedup(sorted(craft_sources))
+                craft_sources = self._dedup(craft_sources)  # Preserve order: mold first, then materials
                 component_for = self._dedup(sorted(component_for))
 
                 # Build type display
@@ -189,6 +192,19 @@ class ItemGenerator(BaseGenerator):
                         component_for,
                         crafting_results,
                         recipe_ingredients,
+                    )
+                elif item_kind == "charm":
+                    blocks = self._charm_gen.generate_charm_blocks(
+                        engine,
+                        item,
+                        page_title,
+                        linker,
+                        vendor_sources,
+                        drop_sources,
+                        quest_sources,
+                        related_quests,
+                        craft_sources,
+                        component_for,
                     )
                 elif item_kind == "aura":
                     block = self._aura_gen.generate_aura_block(
@@ -305,6 +321,7 @@ __all__ = [
     "ItemGenerator",
     "ItemGeneratorBase",
     "WeaponArmorGenerator",
+    "CharmGenerator",
     "AuraGenerator",
     "AbilityBookGenerator",
     "ConsumableGenerator",
