@@ -196,22 +196,13 @@ class WikiRegistry:
         self.display_name_overrides[entity_uid] = display_name
 
     def get_image_name(self, entity: EntityRef) -> str:
-        """Get image name with fallback: image_name → display_name → page_title → db_name.
+        """Get image name: override if present, otherwise db_name.
 
         MediaWiki accepts raw special characters in [[File:...]] references,
         so no URL encoding is needed. Always returns an explicit name.
         """
-        if entity.uid in self.image_name_overrides:
-            return self.image_name_overrides[entity.uid]
-
-        if entity.uid in self.display_name_overrides:
-            return self.display_name_overrides[entity.uid]
-
-        page = self.resolve_entity(entity)
-        if page:
-            return page.title
-
-        return entity.db_name
+        # Use override if present, otherwise use db_name (no multi-step fallback)
+        return self.image_name_overrides.get(entity.uid, entity.db_name)
 
     def set_image_name_override(self, entity_uid: str, image_name: str) -> None:
         """Set image name override for an entity."""

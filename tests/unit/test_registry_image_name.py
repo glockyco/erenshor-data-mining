@@ -39,8 +39,8 @@ def test_get_image_name_with_override(temp_registry: WikiRegistry) -> None:
     assert result == "Custom_Image_Name"
 
 
-def test_get_image_name_fallback_to_display_name(temp_registry: WikiRegistry) -> None:
-    """Falls back to display_name when no image override."""
+def test_get_image_name_no_fallback_to_display_name(temp_registry: WikiRegistry) -> None:
+    """No cascading fallback: display_name does not affect image_name."""
     entity = EntityRef(
         entity_type=EntityType.ITEM,
         db_id="456",
@@ -52,11 +52,11 @@ def test_get_image_name_fallback_to_display_name(temp_registry: WikiRegistry) ->
     temp_registry.set_display_name_override(entity.uid, "Custom Display Name")
 
     result = temp_registry.get_image_name(entity)
-    assert result == "Custom Display Name"
+    assert result == "Test Item"  # Falls back to db_name, not display_name
 
 
-def test_get_image_name_fallback_to_page_title(temp_registry: WikiRegistry) -> None:
-    """Falls back to page title when no display_name or image override."""
+def test_get_image_name_no_fallback_to_page_title(temp_registry: WikiRegistry) -> None:
+    """No cascading fallback: page_title does not affect image_name."""
     entity = EntityRef(
         entity_type=EntityType.CHARACTER,
         db_id="789",
@@ -67,7 +67,7 @@ def test_get_image_name_fallback_to_page_title(temp_registry: WikiRegistry) -> N
     temp_registry.register_entity(entity, "Test Character Page")
 
     result = temp_registry.get_image_name(entity)
-    assert result == "Test Character Page"
+    assert result == "Test Character"  # Falls back to db_name, not page_title
 
 
 def test_get_image_name_fallback_to_db_name_when_not_mapped(
@@ -123,8 +123,8 @@ def test_image_name_persistence(temp_registry: WikiRegistry) -> None:
     assert new_registry.get_image_name(entity) == "Persistent_Image"
 
 
-def test_fallback_chain_priority_order(temp_registry: WikiRegistry) -> None:
-    """Fallback chain: image_name > display_name > page_title > db_name."""
+def test_no_cascading_fallbacks(temp_registry: WikiRegistry) -> None:
+    """No cascading fallbacks: only image_name override or db_name."""
     entity = EntityRef(
         entity_type=EntityType.SPELL,
         db_id="333",
@@ -132,20 +132,24 @@ def test_fallback_chain_priority_order(temp_registry: WikiRegistry) -> None:
         resource_name="PRIORITY_TEST",
     )
 
+    # Default: db_name
     assert temp_registry.get_image_name(entity) == "Original DB Name"
 
+    # Page title does NOT affect image_name
     temp_registry.register_entity(entity, "Wiki Page Title")
-    assert temp_registry.get_image_name(entity) == "Wiki Page Title"
+    assert temp_registry.get_image_name(entity) == "Original DB Name"
 
+    # Display name does NOT affect image_name
     temp_registry.set_display_name_override(entity.uid, "Display Override")
-    assert temp_registry.get_image_name(entity) == "Display Override"
+    assert temp_registry.get_image_name(entity) == "Original DB Name"
 
+    # Only image override changes image_name
     temp_registry.set_image_name_override(entity.uid, "Image Override")
     assert temp_registry.get_image_name(entity) == "Image Override"
 
 
 def test_image_name_with_manual_mapping(temp_registry: WikiRegistry) -> None:
-    """Image name works with manual mappings."""
+    """Manual page mappings do not affect image_name (no cascading)."""
     entity = EntityRef(
         entity_type=EntityType.SPELL,
         db_id="444",
@@ -156,11 +160,14 @@ def test_image_name_with_manual_mapping(temp_registry: WikiRegistry) -> None:
     temp_registry.create_page("Manual Page Title")
     temp_registry.set_manual_mapping(entity.stable_key, "Manual Page Title")
 
-    assert temp_registry.get_image_name(entity) == "Manual Page Title"
+    # Manual mapping does NOT affect image_name
+    assert temp_registry.get_image_name(entity) == "Spell Name"
 
+    # Display override does NOT affect image_name
     temp_registry.set_display_name_override(entity.uid, "Manual Display")
-    assert temp_registry.get_image_name(entity) == "Manual Display"
+    assert temp_registry.get_image_name(entity) == "Spell Name"
 
+    # Only image override changes image_name
     temp_registry.set_image_name_override(entity.uid, "Manual Image")
     assert temp_registry.get_image_name(entity) == "Manual Image"
 
@@ -181,27 +188,28 @@ def test_image_name_never_returns_none(temp_registry: WikiRegistry) -> None:
 
 
 def test_image_name_with_special_characters(temp_registry: WikiRegistry) -> None:
-    """Image names with special characters returned raw, not URL-encoded."""
+    """Image names with special characters returned raw from db_name, not URL-encoded."""
     test_cases = [
-        ("Aura: Blessing of Stone", "Aura: Blessing of Stone"),
-        ("Predator's Grace", "Predator's Grace"),
-        ("Explorer's Cap", "Explorer's Cap"),
-        ("Spell Scroll: Infernis", "Spell Scroll: Infernis"),
-        ("Stone Giant's Blood", "Stone Giant's Blood"),
+        "Aura: Blessing of Stone",
+        "Predator's Grace",
+        "Explorer's Cap",
+        "Spell Scroll: Infernis",
+        "Stone Giant's Blood",
     ]
 
-    for page_title, expected_image in test_cases:
+    for db_name in test_cases:
         entity = EntityRef(
             entity_type=EntityType.SPELL,
-            db_id=f"test_{page_title}",
-            db_name=page_title,
-            resource_name=f"TEST_{page_title}",
+            db_id=f"test_{db_name}",
+            db_name=db_name,
+            resource_name=f"TEST_{db_name}",
         )
 
-        temp_registry.register_entity(entity, page_title)
+        # Register with a different page title to ensure we're getting db_name, not page title
+        temp_registry.register_entity(entity, f"Page: {db_name}")
 
         result = temp_registry.get_image_name(entity)
-        assert result == expected_image
+        assert result == db_name  # Should return db_name, not page title
         assert "{{PAGENAMEE}}" not in result
         assert "%3A" not in result
         assert "%27" not in result

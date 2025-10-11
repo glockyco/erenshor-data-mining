@@ -41,7 +41,7 @@ def test_image_name_in_spell_generation(
     test_registry.image_name_overrides.pop(entity.uid)
     image_name = test_registry.get_image_name(entity)
     assert image_name == spell.SpellName, (
-        f"Should fall back to page title '{spell.SpellName}', got '{image_name}'"
+        f"Should fall back to db_name '{spell.SpellName}', got '{image_name}'"
     )
 
 
@@ -92,11 +92,11 @@ def test_image_name_overrides_display_name(
     assert display_name == "Display Name Override"
 
 
-def test_image_name_fallback_to_page_title(
+def test_image_name_no_fallback_to_page_title(
     test_engine: Engine,
     test_registry: WikiRegistry,
 ) -> None:
-    """When no image_name or display_name override, falls back to page title."""
+    """No cascading fallback: page title does not affect image_name."""
     from erenshor.infrastructure.database.repositories import get_items
 
     items = list(get_items(test_engine, obtainable_only=False))
@@ -110,14 +110,14 @@ def test_image_name_fallback_to_page_title(
     test_registry.register_entity(entity, custom_page_name)
 
     image_name = test_registry.get_image_name(entity)
-    assert image_name == custom_page_name
+    assert image_name == item.ItemName  # Falls back to db_name, not page title
 
 
-def test_image_name_with_display_name_fallback(
+def test_image_name_no_fallback_to_display_name(
     test_engine: Engine,
     test_registry: WikiRegistry,
 ) -> None:
-    """When no image_name but display_name is set, uses display_name for image."""
+    """No cascading fallback: display_name does not affect image_name."""
     from erenshor.infrastructure.database.repositories import get_spells
 
     spells = list(get_spells(test_engine, obtainable_only=False))
@@ -132,7 +132,7 @@ def test_image_name_with_display_name_fallback(
     test_registry.set_display_name_override(entity.uid, "Custom Display Name")
 
     image_name = test_registry.get_image_name(entity)
-    assert image_name == "Custom Display Name"
+    assert image_name == spell.SpellName  # Falls back to db_name, not display_name
 
 
 def test_character_image_name_override(
