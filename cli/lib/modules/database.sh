@@ -19,7 +19,7 @@ source "$DATABASE_MODULE_DIR/../core/state.sh"
 database_backup() {
     local db_path="$1"
     local variant="${2:-main}"
-    local backups_root=$(config_get paths.backups)
+    local backups_root=$(config_get_variant "$variant" "backups")
 
     if [[ -z "$db_path" ]]; then
         log_error "Database path is required"
@@ -34,6 +34,12 @@ database_backup() {
     # Validate variant
     if [[ -n "$variant" ]] && ! variant_validate "$variant" 2>/dev/null; then
         log_error "Invalid variant: $variant"
+        return 1
+    fi
+
+    # Validate backups path
+    if [[ -z "$backups_root" ]]; then
+        log_error "Backup path not configured for variant: $variant"
         return 1
     fi
 

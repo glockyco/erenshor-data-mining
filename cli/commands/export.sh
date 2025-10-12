@@ -71,6 +71,20 @@ command_main() {
         output="$database_path"
     fi
 
+    # Backup existing database before overwriting
+    if [[ -f "$output" ]]; then
+        info "Backing up existing database..."
+        local backup_dir=$(database_backup "$output" "$variant")
+        if [[ -n "$backup_dir" ]]; then
+            # Also backup game scripts
+            backup_game_scripts "$backup_dir" "$unity_project"
+            success "Backup created: $backup_dir"
+        else
+            warning "Backup failed, but continuing with export"
+        fi
+        echo ""
+    fi
+
     # Delete existing database to avoid ID conflicts
     if [[ -f "$output" ]]; then
         log_debug "Removing existing database: $output"
