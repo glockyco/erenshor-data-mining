@@ -26,11 +26,11 @@ declare -gA CONFIG=(
 
     [unity.version]="2021.3.45f1"
     [unity.path]="/Applications/Unity/Hub/Editor/2021.3.45f1/Unity.app/Contents/MacOS/Unity"
-    [unity.timeout]="1800"
+    [unity.timeout]="3600"
 
     [assetripper.path]="$HOME/Projects/AssetRipper/AssetRipper.GUI.Free"
     [assetripper.port]="8080"
-    [assetripper.timeout]="1800"
+    [assetripper.timeout]="3600"
 
     [export.entities]="all"
     [export.log_level]="normal"
@@ -131,7 +131,23 @@ config_get() {
     local key="$1"
     local default="${2:-}"
 
-    local value="${CONFIG[$key]:-$default}"
+    local value=""
+
+    # Try with global. prefix first (from config.toml)
+    if [[ "$key" != global.* ]]; then
+        value="${CONFIG["global.$key"]:-}"
+    fi
+
+    # Fall back to direct key (hardcoded defaults)
+    if [[ -z "$value" ]]; then
+        value="${CONFIG[$key]:-}"
+    fi
+
+    # Fall back to default parameter
+    if [[ -z "$value" ]]; then
+        value="$default"
+    fi
+
     # Safe expansion - only expand $REPO_ROOT and $HOME
     value="${value//\$REPO_ROOT/$REPO_ROOT}"
     value="${value//\$HOME/$HOME}"
@@ -235,13 +251,13 @@ wiki_project = $(_config_quote_value "$(_config_get_with_default paths.wiki_proj
 # Unity configuration
 version = $(_config_quote_value "$(_config_get_with_default unity.version "2021.3.45f1")")
 path = $(_config_quote_value "$(_config_get_with_default unity.path "/Applications/Unity/Hub/Editor/2021.3.45f1/Unity.app/Contents/MacOS/Unity")")
-timeout = $(_config_get_with_default unity.timeout 1800)          # 30 minutes max for export
+timeout = $(_config_get_with_default unity.timeout 3600)          # 60 minutes max for export
 
 [assetripper]
 # AssetRipper configuration
 path = $(_config_quote_value "$(_config_get_with_default assetripper.path "\$HOME/Projects/AssetRipper/AssetRipper.GUI.Free")")
 port = $(_config_get_with_default assetripper.port 8080)             # Web API port
-timeout = $(_config_get_with_default assetripper.timeout 1800)          # 30 minutes max for extraction
+timeout = $(_config_get_with_default assetripper.timeout 3600)          # 60 minutes max for extraction
 
 [export]
 # Export configuration
