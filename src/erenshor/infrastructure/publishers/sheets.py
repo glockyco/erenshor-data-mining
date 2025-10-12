@@ -565,7 +565,13 @@ class GoogleSheetsPublisher:
         new_column_count: int,
         is_data_source_table: bool = False,
     ) -> None:
-        """Grow table by inserting rows, updating data, and resizing table.
+        """Grow table by expanding sheet, inserting rows, updating data, and resizing table.
+
+        This method preserves any existing content outside the table:
+        1. Expands the sheet if needed (adds rows to the end)
+        2. Inserts rows at table's end position (shifts content below down)
+        3. Writes new data to the inserted rows
+        4. Resizes table to include the new rows
 
         Args:
             spreadsheet_id: Google Sheets spreadsheet ID
@@ -589,7 +595,16 @@ class GoogleSheetsPublisher:
 
         logger.debug(f"Growing table by {rows_to_add} rows")
 
-        # Step 1: Insert rows (shifts content below down)
+        # Step 1: Ensure sheet has enough rows to accommodate the table growth
+        # This expands the sheet at the end if needed, preserving all existing content
+        min_rows_needed = current_end_row + rows_to_add
+        self._ensure_sheet_size(
+            spreadsheet_id=spreadsheet_id,
+            sheet_id=sheet_id,
+            min_rows=min_rows_needed,
+        )
+
+        # Step 2: Insert rows (shifts content below down)
         self._insert_rows(
             spreadsheet_id=spreadsheet_id,
             sheet_id=sheet_id,
@@ -597,7 +612,7 @@ class GoogleSheetsPublisher:
             row_count=rows_to_add,
         )
 
-        # Step 2: Update new rows with data
+        # Step 3: Update new rows with data
         # A1 notation is 1-based, so add 1 to 0-based index
         new_data_start_a1 = f"{sheet_name}!A{current_end_row + 1}"
         new_rows_data = rows[current_row_count:]
@@ -611,7 +626,7 @@ class GoogleSheetsPublisher:
             body={"values": new_rows_data},
         ).execute()
 
-        # Step 3: Resize table to include new rows and columns
+        # Step 4: Resize table to include new rows and columns
         self._update_table_range(
             spreadsheet_id=spreadsheet_id,
             sheet_id=sheet_id,
