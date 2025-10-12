@@ -88,47 +88,52 @@ command_main() {
     # Check projects
     echo "$(bold "Projects:")"
 
-    local unity_project=$(config_get paths.unity_project)
-    if [[ -d "$unity_project" ]]; then
-        success "Unity project: $unity_project"
-
-        # Check for Editor scripts in src/
-        local repo_root="$(get_repo_root)"
-        if [[ -d "$repo_root/src/Assets/Editor" ]]; then
-            success "Editor scripts found"
-        else
-            warning "Editor scripts not found in src/Assets/Editor"
-            ((warnings++))
-        fi
-
-        # Check for export script
-        if [[ -f "$repo_root/src/export.sh" ]]; then
-            success "Export script found"
-        else
-            error "Export script not found: $repo_root/src/export.sh"
-            ((errors++))
-        fi
-
-        # Check for NuGet packages
-        if [[ -d "$unity_project/Assets/Packages" ]]; then
-            success "NuGet packages found"
-        else
-            error "NuGet packages missing (required for Unity compilation)"
-            info "Run: erenshor extract (will auto-copy packages)"
-            ((errors++))
-        fi
-
-        # Check for NuGet config files
-        if [[ -f "$unity_project/Assets/NuGet.config" && -f "$unity_project/Assets/packages.config" ]]; then
-            success "NuGet config files found"
-        else
-            warning "NuGet config files missing"
-            ((warnings++))
-        fi
+    # Check for Editor scripts in src/
+    local repo_root="$(get_repo_root)"
+    if [[ -d "$repo_root/src/Assets/Editor" ]]; then
+        success "Editor scripts found"
     else
-        error "Unity project not found: $unity_project"
+        warning "Editor scripts not found in src/Assets/Editor"
+        ((warnings++))
+    fi
+
+    # Check for export script
+    if [[ -f "$repo_root/src/export.sh" ]]; then
+        success "Export script found"
+    else
+        error "Export script not found: $repo_root/src/export.sh"
         ((errors++))
     fi
+
+    # Check variant-specific Unity projects
+    for variant in "${ERENSHOR_VARIANTS[@]}"; do
+        if ! variant_is_enabled "$variant"; then
+            continue
+        fi
+
+        local unity_project=$(variant_get_path "$variant" "unity")
+        if [[ -d "$unity_project" ]]; then
+            success "Unity project ($variant): $unity_project"
+
+            # Check for NuGet packages in this variant
+            if [[ -d "$unity_project/Assets/Packages" ]]; then
+                success "  NuGet packages found"
+            else
+                warning "  NuGet packages missing (run: erenshor extract --variant $variant)"
+                ((warnings++))
+            fi
+
+            # Check for NuGet config files
+            if [[ -f "$unity_project/Assets/NuGet.config" && -f "$unity_project/Assets/packages.config" ]]; then
+                success "  NuGet config files found"
+            else
+                warning "  NuGet config files missing"
+                ((warnings++))
+            fi
+        else
+            info "Unity project ($variant): not yet extracted (run: erenshor extract --variant $variant)"
+        fi
+    done
 
     local wiki_project=$(config_get paths.wiki_project)
     if [[ -d "$wiki_project" ]]; then
@@ -148,14 +153,6 @@ command_main() {
         success "Can write to logs directory"
     else
         error "Cannot write to logs directory: $logs_dir"
-        ((errors++))
-    fi
-
-    local output_dir=$(config_get paths.output)
-    if [[ -w "$(dirname "$output_dir")" ]] || [[ -w "$output_dir" ]]; then
-        success "Can write to output directory"
-    else
-        error "Cannot write to output directory: $output_dir"
         ((errors++))
     fi
 

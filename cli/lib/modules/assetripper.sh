@@ -63,11 +63,11 @@ _assetripper_start_server() {
     # Use variant-specific logs if variant is specified, otherwise use global logs
     local logs_dir=""
     if [[ -n "$variant" ]]; then
-        logs_dir=$(config_get "variants.$variant.logs" || echo "")
+        logs_dir=$(config_get_variant "$variant" "logs" "")
     fi
     # Fallback to global logs if variant logs not found
     if [[ -z "$logs_dir" ]]; then
-        logs_dir=$(config_get "global.paths.logs" || echo "")
+        logs_dir=$(config_get "paths.logs" "")
     fi
     # Final fallback to default location
     if [[ -z "$logs_dir" ]]; then

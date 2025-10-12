@@ -67,7 +67,6 @@ command_main() {
     info "Config: $USER_CONFIG"
     info "Default Variant: $(variant_get_display_name "$(config_get default_variant)")"
     info "Logs: $(config_get paths.logs)"
-    info "Backups: $(config_get paths.backups)"
     echo ""
 }
 
@@ -112,6 +111,20 @@ show_variant_status() {
         info "  Tables: $entity_count"
     else
         warning "  Not found: $database_path"
+    fi
+
+    # Backup status
+    local backup_path=$(config_get_variant "$variant" "backups")
+    if [[ -d "$backup_path" ]]; then
+        local backup_count=$(find "$backup_path" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l | tr -d ' ')
+        if [[ $backup_count -gt 0 ]]; then
+            local latest_backup=$(ls -1dt "$backup_path"/*/ 2>/dev/null | head -1 | sed 's:/$::')
+            info "Backups:"
+            info "  Count: $backup_count"
+            if [[ -n "$latest_backup" ]]; then
+                info "  Latest: $(basename "$latest_backup")"
+            fi
+        fi
     fi
     echo ""
 }

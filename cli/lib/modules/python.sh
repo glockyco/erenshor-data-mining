@@ -178,8 +178,7 @@ python_get_cli_version() {
 python_install_deps() {
     log_info "Installing Python dependencies..."
 
-    local repo_root
-    repo_root=$(config_get paths.repo_root)
+    local repo_root="$REPO_ROOT"
 
     if python_has_uv; then
         log_info "Using uv to install dependencies"
@@ -204,8 +203,7 @@ python_install_deps() {
 python_run_tests() {
     log_info "Running Python test suite..."
 
-    local repo_root
-    repo_root=$(config_get paths.repo_root)
+    local repo_root="$REPO_ROOT"
 
     if python_has_uv; then
         cd "$repo_root" && uv run pytest "$@"

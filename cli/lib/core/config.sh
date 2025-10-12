@@ -302,15 +302,9 @@ config_validate() {
         ((errors++))
     fi
 
-    # Check project paths exist
-    local unity_project=$(config_get paths.unity_project)
-    if [[ ! -d "$unity_project" ]]; then
-        log_error "Unity project not found: $unity_project"
-        ((errors++))
-    fi
-
+    # Check wiki project (optional)
     local wiki_project=$(config_get paths.wiki_project)
-    if [[ ! -d "$wiki_project" ]]; then
+    if [[ -n "$wiki_project" ]] && [[ ! -d "$wiki_project" ]]; then
         log_warn "Wiki project not found: $wiki_project"
     fi
 

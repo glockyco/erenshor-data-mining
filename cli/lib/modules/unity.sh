@@ -84,7 +84,7 @@ unity_export() {
     # Determine log directory (variant-specific if provided, otherwise global)
     local logs_dir
     if [[ -n "$variant" ]]; then
-        logs_dir=$(config_get "variants.$variant.logs" "$REPO_ROOT/variants/$variant/logs")
+        logs_dir=$(config_get_variant "$variant" "logs" "$REPO_ROOT/variants/$variant/logs")
     else
         logs_dir=$(config_get "paths.logs" "$REPO_ROOT/.erenshor/logs")
     fi
