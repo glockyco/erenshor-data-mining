@@ -208,15 +208,16 @@ database_stats_json() {
 
     local stats=$(db_stats "$db_path")
     local json="{"
-
     local first=true
-    echo "$stats" | while IFS='|' read -r table count; do
+
+    # Use process substitution to avoid subshell issue with pipe
+    while IFS='|' read -r table count; do
         if [[ "$first" != true ]]; then
             json="$json,"
         fi
         json="$json\"$table\": $count"
         first=false
-    done
+    done < <(echo "$stats")
 
     json="$json}"
     echo "$json"
