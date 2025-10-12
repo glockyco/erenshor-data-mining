@@ -87,37 +87,6 @@ command_main() {
         warning "Failed to sync NuGet packages - Unity compilation may fail"
     fi
 
-    # Create backups
-    echo ""
-    info "Creating backups..."
-
-    # Backup database first (if it exists)
-    local database_path=$(variant_get_path "$variant" "database")
-    local backup_dir=""
-
-    if [[ -f "$database_path" ]]; then
-        backup_dir=$(database_backup "$database_path" "$variant")
-        if [[ -n "$backup_dir" ]]; then
-            log_info "Database backed up successfully"
-        else
-            log_warn "Database backup failed, but continuing"
-        fi
-    else
-        log_debug "No database to backup yet"
-    fi
-
-    # Backup game scripts (if backup directory was created)
-    if [[ -n "$backup_dir" ]]; then
-        backup_game_scripts "$backup_dir" "$unity_path"
-    elif [[ -f "$database_path" ]]; then
-        # Database exists but backup failed - still try to backup scripts separately
-        local backups_root=$(config_get paths.backups)
-        local timestamp=$(timestamp_file)
-        backup_dir="$backups_root/${timestamp}"
-        mkdir -p "$backup_dir"
-        backup_game_scripts "$backup_dir" "$unity_path"
-    fi
-
     # Record state
     state_set_variant "$variant" "unity.last_extraction" "$(timestamp_iso)"
     state_set_variant "$variant" "unity.project_path" "$unity_path"
