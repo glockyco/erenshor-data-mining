@@ -528,3 +528,7 @@ def update_all(
     console.print("  3. ✓ Characters")
     console.print("  4. ✓ Fishing")
     console.print("  5. ✓ Overviews")
+    console.print()
+    console.print("[yellow]Next steps:[/yellow]")
+    console.print("  → Compare with wiki: wiki push --all --dry-run")
+    console.print("  → Upload to wiki: wiki push --all")

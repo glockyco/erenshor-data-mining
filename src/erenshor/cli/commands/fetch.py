@@ -238,6 +238,12 @@ def _display_fetch_summary(result: Any, console: Console, report_dir: Path) -> N
 
     console.print(f"\n[dim]Full report: {report_dir}/[/dim]")
 
+    # Show next steps
+    console.print("\n[yellow]Next steps:[/yellow]")
+    console.print("  → Generate local pages: update all")
+    console.print("  → Compare changes: wiki push --all --dry-run")
+    console.print("  → Upload to wiki: wiki push --all")
+
 
 @app.command("fetch-templates")
 def fetch_templates(
