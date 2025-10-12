@@ -46,6 +46,8 @@ def push(
         False, "--characters", help="Only upload character/enemy pages"
     ),
     items: bool = typer.Option(False, "--items", help="Only upload item pages"),
+    weapons: bool = typer.Option(False, "--weapons", help="Only upload weapon pages"),
+    armor: bool = typer.Option(False, "--armor", help="Only upload armor pages"),
     abilities: bool = typer.Option(
         False, "--abilities", help="Only upload ability (spell/skill) pages"
     ),
@@ -79,6 +81,12 @@ def push(
 
         # Upload only character pages
         wiki push --characters --dry-run
+
+        # Upload only weapon pages
+        wiki push --weapons --dry-run
+
+        # Upload only armor pages
+        wiki push --armor --dry-run
 
         # Upload specific pages
         wiki push Armor Weapons "Time Stone"
@@ -118,7 +126,7 @@ def push(
 
     # Determine pages to upload
     with console.status("[bold blue]Discovering pages to upload..."):
-        titles = _get_titles(pages, all, stdin, characters, items, abilities, env)
+        titles = _get_titles(pages, all, stdin, characters, items, weapons, armor, abilities, env)
 
     if not titles:
         console.print(
@@ -269,12 +277,64 @@ def _filter_pages_with_content(titles: list[str], env: WikiEnvironment) -> list[
     return filtered_titles
 
 
+def _get_items_by_kind(
+    env: WikiEnvironment, weapons: bool, armor: bool
+) -> list[Any]:
+    """Get item pages filtered by ItemKind (weapon/armor).
+
+    Args:
+        env: WikiEnvironment with engine and registry
+        weapons: Include weapon pages
+        armor: Include armor pages
+
+    Returns:
+        List of WikiPage objects for matching items
+    """
+    from erenshor.domain.services.item_classifier import classify_item_kind
+    from erenshor.domain.value_objects.entity_type import EntityType
+    from erenshor.infrastructure.database.repositories.items import get_items
+
+    # Get all items from database
+    items = get_items(env.engine, obtainable_only=False)
+
+    # Build mapping of item ID to ItemKind
+    item_kinds: dict[str, str] = {}
+    for item in items:
+        kind = classify_item_kind(
+            required_slot=item.RequiredSlot,
+            teach_spell=item.TeachSpell,
+            teach_skill=item.TeachSkill,
+            template_flag=item.Template,
+            click_effect=item.ItemEffectOnClick,
+            disposable=item.Disposable,
+        )
+        item_kinds[item.Id] = kind
+
+    # Filter pages by ItemKind
+    all_item_pages = env.registry.list_pages_by_entity_type(EntityType.ITEM)
+    filtered_pages = []
+    for page in all_item_pages:
+        # Check if any entity on this page matches the desired kind
+        for entity in page.entities:
+            if entity.entity_type == EntityType.ITEM:
+                entity_id = entity.db_id
+                if entity_id and entity_id in item_kinds:
+                    kind = item_kinds[entity_id]
+                    if (weapons and kind == "weapon") or (armor and kind == "armor"):
+                        filtered_pages.append(page)
+                        break  # Found a match, no need to check other entities on this page
+
+    return filtered_pages
+
+
 def _get_titles(
     pages: list[str] | None,
     all: bool,
     stdin: bool,
     characters: bool,
     items: bool,
+    weapons: bool,
+    armor: bool,
     abilities: bool,
     env: WikiEnvironment,
 ) -> list[str]:
@@ -286,6 +346,8 @@ def _get_titles(
         stdin: Read titles from stdin
         characters: Only upload character/enemy pages
         items: Only upload item pages
+        weapons: Only upload weapon pages
+        armor: Only upload armor pages
         abilities: Only upload ability pages
         env: WikiEnvironment with registry
 
@@ -304,6 +366,9 @@ def _get_titles(
     elif items:
         # Item pages only
         all_pages = env.registry.list_pages_by_entity_type(EntityType.ITEM)
+    elif weapons or armor:
+        # Filter items by ItemKind
+        all_pages = _get_items_by_kind(env, weapons, armor)
     elif abilities:
         # Ability pages (both spells and skills)
         spell_pages = env.registry.list_pages_by_entity_type(EntityType.SPELL)
