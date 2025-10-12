@@ -138,9 +138,10 @@ class ProcExtractor:
                 _proc_name, spell_id = parsed_tuple
                 spell = self._get_cached_spell(engine, spell_id)
                 if spell:
-                    proc_name = link_resolver.ability_link(
-                        spell.ResourceName, spell.SpellName
-                    )
+                    from erenshor.domain.entities.page import EntityRef
+
+                    entity = EntityRef.from_spell(spell)
+                    proc_name = link_resolver.ability_link(entity)
                     if spell.SpellDesc:
                         proc_desc = spell.SpellDesc
                 proc_chance = str(item.WeaponProcChance)
@@ -151,9 +152,10 @@ class ProcExtractor:
                 _proc_name, spell_id = parsed_tuple
                 spell = self._get_cached_spell(engine, spell_id)
                 if spell:
-                    proc_name = link_resolver.ability_link(
-                        spell.ResourceName, spell.SpellName
-                    )
+                    from erenshor.domain.entities.page import EntityRef
+
+                    entity = EntityRef.from_spell(spell)
+                    proc_name = link_resolver.ability_link(entity)
                     if spell.SpellDesc:
                         proc_desc = spell.SpellDesc
                 proc_chance = str(item.WandProcChance)
@@ -164,9 +166,10 @@ class ProcExtractor:
                 _proc_name, spell_id = parsed_tuple
                 spell = self._get_cached_spell(engine, spell_id)
                 if spell:
-                    proc_name = link_resolver.ability_link(
-                        spell.ResourceName, spell.SpellName
-                    )
+                    from erenshor.domain.entities.page import EntityRef
+
+                    entity = EntityRef.from_spell(spell)
+                    proc_name = link_resolver.ability_link(entity)
                     if spell.SpellDesc:
                         proc_desc = spell.SpellDesc
                 proc_chance = str(item.BowProcChance)
@@ -177,9 +180,10 @@ class ProcExtractor:
                 _proc_name, spell_id = parsed_tuple
                 spell = self._get_cached_spell(engine, spell_id)
                 if spell:
-                    proc_name = link_resolver.ability_link(
-                        spell.ResourceName, spell.SpellName
-                    )
+                    from erenshor.domain.entities.page import EntityRef
+
+                    entity = EntityRef.from_spell(spell)
+                    proc_name = link_resolver.ability_link(entity)
                     if spell.SpellDesc:
                         proc_desc = spell.SpellDesc
                 proc_style = "Activatable"
@@ -212,9 +216,10 @@ class ProcExtractor:
                 _proc_name, spell_id = parsed_tuple
                 spell = self._get_cached_spell(engine, spell_id)
                 if spell:
-                    proc_name = link_resolver.ability_link(
-                        spell.ResourceName, spell.SpellName
-                    )
+                    from erenshor.domain.entities.page import EntityRef
+
+                    entity = EntityRef.from_spell(spell)
+                    proc_name = link_resolver.ability_link(entity)
                     if spell.SpellDesc:
                         proc_desc = spell.SpellDesc
                 proc_chance = str(item.WeaponProcChance)
@@ -225,9 +230,10 @@ class ProcExtractor:
                 _proc_name, spell_id = parsed_tuple
                 spell = self._get_cached_spell(engine, spell_id)
                 if spell:
-                    proc_name = link_resolver.ability_link(
-                        spell.ResourceName, spell.SpellName
-                    )
+                    from erenshor.domain.entities.page import EntityRef
+
+                    entity = EntityRef.from_spell(spell)
+                    proc_name = link_resolver.ability_link(entity)
                     if spell.SpellDesc:
                         proc_desc = spell.SpellDesc
                 proc_style = "Worn"
@@ -237,9 +243,10 @@ class ProcExtractor:
                 _proc_name, spell_id = parsed_tuple
                 spell = self._get_cached_spell(engine, spell_id)
                 if spell:
-                    proc_name = link_resolver.ability_link(
-                        spell.ResourceName, spell.SpellName
-                    )
+                    from erenshor.domain.entities.page import EntityRef
+
+                    entity = EntityRef.from_spell(spell)
+                    proc_name = link_resolver.ability_link(entity)
                     if spell.SpellDesc:
                         proc_desc = spell.SpellDesc
                 proc_style = "Activatable"

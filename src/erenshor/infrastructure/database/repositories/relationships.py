@@ -88,7 +88,7 @@ def get_quests_rewarding_item(engine: Engine, item_id: str) -> list[dict[str, An
     pattern = f"%({item_id})%"
     sql = text(
         """
-        SELECT QuestDBIndex AS Id, QuestName, ItemOnCompleteId
+        SELECT QuestDBIndex AS Id, COALESCE(DBName,'') AS DBName, QuestName, ItemOnCompleteId
         FROM Quests
         WHERE COALESCE(ItemOnCompleteId,'') LIKE :pattern
         ORDER BY QuestName COLLATE NOCASE
@@ -109,7 +109,7 @@ def get_quests_requiring_item(engine: Engine, item_id: str) -> list[dict[str, An
     pattern = f"%({item_id})%"
     sql = text(
         """
-        SELECT QuestDBIndex AS Id, QuestName, RequiredItemIds
+        SELECT QuestDBIndex AS Id, COALESCE(DBName,'') AS DBName, QuestName, RequiredItemIds
         FROM Quests
         WHERE COALESCE(RequiredItemIds,'') LIKE :pattern
         ORDER BY QuestName COLLATE NOCASE

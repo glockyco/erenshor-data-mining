@@ -73,12 +73,21 @@ def parse_spell_reference(
     Returns:
         Wiki link like {{AbilityLink|Spell Name}}
     """
+    from erenshor.domain.entities.page import EntityRef
+    from erenshor.domain.value_objects.entity_type import EntityType
+
     # Parse "Name (ID)" format
     match = re.search(r"^(.+?)\s*\((\d+)\)$", text.strip())
     if not match:
         # No ID found, use name directly
         name = text.split("(")[0].strip()
-        return link_resolver.ability_link("", name)
+        fallback_entity = EntityRef(
+            entity_type=EntityType.SPELL,
+            db_id=None,
+            db_name=name,
+            resource_name="",
+        )
+        return link_resolver.ability_link(fallback_entity)
 
     name = match.group(1).strip()
     spell_id = match.group(2)
@@ -86,12 +95,17 @@ def parse_spell_reference(
     # Look up the spell (effects ONLY reference spells, not skills)
     cached_spell = get_spell(spell_id)
     if cached_spell:
-        return link_resolver.ability_link(
-            cached_spell.ResourceName or "", cached_spell.SpellName
-        )
+        entity = EntityRef.from_spell(cached_spell)
+        return link_resolver.ability_link(entity)
 
     # Spell not found, use parsed name
-    return link_resolver.ability_link("", name)
+    fallback_entity = EntityRef(
+        entity_type=EntityType.SPELL,
+        db_id=spell_id,
+        db_name=name,
+        resource_name="",
+    )
+    return link_resolver.ability_link(fallback_entity)
 
 
 def build_sorted_classes_list(

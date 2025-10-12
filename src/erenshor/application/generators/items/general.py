@@ -70,7 +70,16 @@ class GeneralItemGenerator(ItemGeneratorBase):
             if parsed and len(parsed) == 2:
                 effect_name, effect_id = parsed
                 if effect_name:
-                    item_effect = linker.ability_link(effect_id, effect_name)
+                    from erenshor.domain.entities.page import EntityRef
+                    from erenshor.domain.value_objects.entity_type import EntityType
+
+                    entity = EntityRef(
+                        entity_type=EntityType.SPELL,
+                        db_id=effect_id,
+                        db_name=effect_name,
+                        resource_name=effect_name,
+                    )
+                    item_effect = linker.ability_link(entity)
 
         # Get image name from registry
         from erenshor.domain.entities.page import EntityRef

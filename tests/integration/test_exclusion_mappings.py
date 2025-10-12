@@ -297,6 +297,12 @@ def test_exclusion_does_not_affect_link_resolution(
     linker = RegistryLinkResolver(test_registry)
 
     # Link generation should not crash (may return fallback link)
-    link = linker.ability_link("ExcludedSpell", "Excluded Spell")
+    test_entity = EntityRef(
+        entity_type=EntityType.SPELL,
+        db_id=None,
+        db_name="Excluded Spell",
+        resource_name="ExcludedSpell",
+    )
+    link = linker.ability_link(test_entity)
     assert link is not None
     assert "ExcludedSpell" in link or "Excluded Spell" in link

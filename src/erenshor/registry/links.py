@@ -142,14 +142,11 @@ class RegistryLinkResolver:
             return f"{{{{ItemLink|{title}|{'|'.join(params)}}}}}"
         return f"{{{{ItemLink|{title}}}}}"
 
-    def ability_link(self, resource_name: str, fallback_name: str) -> str:
+    def ability_link(self, entity: EntityRef) -> str:
         """Generate {{AbilityLink|...}} for an ability (spell/skill).
 
-        Tries SPELL first, then SKILL. Both map to unified {{AbilityLink}} template.
-
         Args:
-            resource_name: Ability resource name for lookup
-            fallback_name: Display name if not in registry
+            entity: EntityRef for the ability (must be SPELL or SKILL type)
 
         Returns:
             {{AbilityLink|PageTitle|image=ImageName.png|text=DisplayText}} with applicable params
@@ -157,41 +154,17 @@ class RegistryLinkResolver:
         """
         from .core import EntityType
 
-        # Try spell first
-        spell_entity = EntityRef(
-            entity_type=EntityType.SPELL,
-            db_id=None,
-            db_name=fallback_name,
-            resource_name=resource_name,
-        )
-        page = self.registry.resolve_entity(spell_entity)
+        # Verify entity type
+        if entity.entity_type not in (EntityType.SPELL, EntityType.SKILL):
+            raise ValueError(
+                f"ability_link() requires SPELL or SKILL entity, got {entity.entity_type}"
+            )
+
+        page = self.registry.resolve_entity(entity)
         if page:
             title = page.title
-            display_name = self.registry.get_display_name(spell_entity)
-            image_name = self.registry.get_image_name(spell_entity)
-
-            params = []
-            if image_name != title:
-                params.append(f"image={image_name}.png")
-            if display_name != title:
-                params.append(f"text={display_name}")
-
-            if params:
-                return f"{{{{AbilityLink|{title}|{'|'.join(params)}}}}}"
-            return f"{{{{AbilityLink|{title}}}}}"
-
-        # Try skill
-        skill_entity = EntityRef(
-            entity_type=EntityType.SKILL,
-            db_id=None,
-            db_name=fallback_name,
-            resource_name=resource_name,
-        )
-        page = self.registry.resolve_entity(skill_entity)
-        if page:
-            title = page.title
-            display_name = self.registry.get_display_name(skill_entity)
-            image_name = self.registry.get_image_name(skill_entity)
+            display_name = self.registry.get_display_name(entity)
+            image_name = self.registry.get_image_name(entity)
 
             params = []
             if image_name != title:
@@ -204,7 +177,34 @@ class RegistryLinkResolver:
             return f"{{{{AbilityLink|{title}}}}}"
 
         # Fallback
-        return f"{{{{AbilityLink|{fallback_name}}}}}"
+        return f"{{{{AbilityLink|{entity.db_name}}}}}"
+
+    def quest_link(self, db_name: str, fallback_name: str) -> str:
+        """Generate {{QuestLink|...}} for a quest.
+
+        Args:
+            db_name: Quest database name (resource name) for lookup
+            fallback_name: Display name if not in registry
+
+        Returns:
+            {{QuestLink|PageTitle|text=DisplayText}} if display differs
+            {{QuestLink|PageTitle}} if no overrides needed
+        """
+        from .core import EntityType
+
+        entity = EntityRef(
+            entity_type=EntityType.QUEST,
+            db_id=None,
+            db_name=fallback_name,
+            resource_name=db_name,
+        )
+
+        title = self.resolve_quest_title(db_name, fallback_name)
+        display_name = self.registry.get_display_name(entity)
+
+        if display_name != title:
+            return f"{{{{QuestLink|{title}|text={display_name}}}}}"
+        return f"{{{{QuestLink|{title}}}}}"
 
     def character_link(self, entity_ref: EntityRef) -> str:
         """Generate standard MediaWiki link for a character.

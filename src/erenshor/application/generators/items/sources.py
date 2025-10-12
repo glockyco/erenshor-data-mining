@@ -261,18 +261,20 @@ class SourceEnricher:
         logger.debug(f"Found {len(rewarding_quests)} quests rewarding {item.ItemName}")
 
         for quest_data in rewarding_quests:
+            db_name = quest_data.get("DBName") or ""
             quest_name = quest_data.get("QuestName") or ""
-            if quest_name:
-                reward_sources.append(f"[[{quest_name}]]")
+            if db_name and quest_name:
+                reward_sources.append(self.linker.quest_link(db_name, quest_name))
 
         requirement_sources: list[str] = []
         requiring_quests = get_quests_requiring_item(self.engine, item.Id)
         logger.debug(f"Found {len(requiring_quests)} quests requiring {item.ItemName}")
 
         for quest_data in requiring_quests:
+            db_name = quest_data.get("DBName") or ""
             quest_name = quest_data.get("QuestName") or ""
-            if quest_name:
-                requirement_sources.append(f"[[{quest_name}]]")
+            if db_name and quest_name:
+                requirement_sources.append(self.linker.quest_link(db_name, quest_name))
 
         logger.debug(
             f"Generated {len(reward_sources)} reward and {len(requirement_sources)} "
@@ -417,13 +419,13 @@ class SourceEnricher:
         quest_data = get_quest_by_dbname(self.engine, complete_on_read)
         if quest_data:
             quest_display_name = quest_data.get("QuestName") or ""
-            quest_title = self.linker.resolve_quest_title(
-                complete_on_read, quest_display_name
-            )
-            if quest_title:
-                related_quests.append(f"[[{quest_title}]]")
+            if quest_display_name:
+                quest_link = self.linker.quest_link(
+                    complete_on_read, quest_display_name
+                )
+                related_quests.append(quest_link)
                 logger.debug(
-                    f"Generated quest completion link for {item.ItemName}: {quest_title}"
+                    f"Generated quest completion link for {item.ItemName}: {quest_link}"
                 )
         else:
             logger.warning(

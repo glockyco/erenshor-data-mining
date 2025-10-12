@@ -246,7 +246,10 @@ class OverviewGenerator:
                     _, sid = tup
                     sp = get_spell_by_id(engine, sid)
                     if sp:
-                        link = linker.ability_link(sp.ResourceName, sp.SpellName)
+                        from erenshor.domain.entities.page import EntityRef
+
+                        entity = EntityRef.from_spell(sp)
+                        link = linker.ability_link(entity)
                         trigger = (
                             "on bash"
                             if bool(getattr(it, "Shield", False))
@@ -260,7 +263,10 @@ class OverviewGenerator:
                     _, sid = tup
                     sp = get_spell_by_id(engine, sid)
                     if sp:
-                        link = linker.ability_link(sp.ResourceName, sp.SpellName)
+                        from erenshor.domain.entities.page import EntityRef
+
+                        entity = EntityRef.from_spell(sp)
+                        link = linker.ability_link(entity)
                         pieces.append(f"{link}, {int(it.WandProcChance)}% on cast")
 
             if it.BowEffect and (it.BowProcChance or 0) > 0:
@@ -269,7 +275,10 @@ class OverviewGenerator:
                     _, sid = tup
                     sp = get_spell_by_id(engine, sid)
                     if sp:
-                        link = linker.ability_link(sp.ResourceName, sp.SpellName)
+                        from erenshor.domain.entities.page import EntityRef
+
+                        entity = EntityRef.from_spell(sp)
+                        link = linker.ability_link(entity)
                         pieces.append(f"{link}, {int(it.BowProcChance)}% on attack")
 
             if it.WornEffect:
@@ -278,7 +287,10 @@ class OverviewGenerator:
                     _, sid = tup
                     sp = get_spell_by_id(engine, sid)
                     if sp:
-                        link = linker.ability_link(sp.ResourceName, sp.SpellName)
+                        from erenshor.domain.entities.page import EntityRef
+
+                        entity = EntityRef.from_spell(sp)
+                        link = linker.ability_link(entity)
                         pieces.append(f"Worn: {link}")
 
             if it.ItemEffectOnClick:
@@ -287,7 +299,10 @@ class OverviewGenerator:
                     _, sid = tup
                     sp = get_spell_by_id(engine, sid)
                     if sp:
-                        link = linker.ability_link(sp.ResourceName, sp.SpellName)
+                        from erenshor.domain.entities.page import EntityRef
+
+                        entity = EntityRef.from_spell(sp)
+                        link = linker.ability_link(entity)
                         pieces.append(f"On click: {link}")
 
             notes = WIKITEXT_LINE_SEPARATOR.join(pieces)
@@ -417,7 +432,10 @@ class OverviewGenerator:
                     _, sid = tup
                     sp = get_spell_by_id(engine, sid)
                     if sp:
-                        link = linker.ability_link(sp.ResourceName, sp.SpellName)
+                        from erenshor.domain.entities.page import EntityRef
+
+                        entity = EntityRef.from_spell(sp)
+                        link = linker.ability_link(entity)
                         pieces.append(f"Worn: {link}")
 
             if it.ItemEffectOnClick:
@@ -426,7 +444,10 @@ class OverviewGenerator:
                     _, sid = tup
                     sp = get_spell_by_id(engine, sid)
                     if sp:
-                        link = linker.ability_link(sp.ResourceName, sp.SpellName)
+                        from erenshor.domain.entities.page import EntityRef
+
+                        entity = EntityRef.from_spell(sp)
+                        link = linker.ability_link(entity)
                         pieces.append(f"On click: {link}")
 
             if (
@@ -439,7 +460,10 @@ class OverviewGenerator:
                     _, sid = tup
                     sp = get_spell_by_id(engine, sid)
                     if sp:
-                        link = linker.ability_link(sp.ResourceName, sp.SpellName)
+                        from erenshor.domain.entities.page import EntityRef
+
+                        entity = EntityRef.from_spell(sp)
+                        link = linker.ability_link(entity)
                         pieces.append(f"{link}, {int(it.WeaponProcChance)}% on cast")
 
             notes = WIKITEXT_LINE_SEPARATOR.join(pieces)

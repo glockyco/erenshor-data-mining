@@ -63,7 +63,16 @@ class AuraGenerator(ItemGeneratorBase):
             parsed = parse_name_and_id(item.Aura)
             if parsed:
                 aura_name, aura_id = parsed
-                aura_effect = linker.ability_link(aura_id, aura_name)
+                from erenshor.domain.entities.page import EntityRef
+                from erenshor.domain.value_objects.entity_type import EntityType
+
+                entity = EntityRef(
+                    entity_type=EntityType.SPELL,
+                    db_id=aura_id,
+                    db_name=aura_name,
+                    resource_name=aura_name,
+                )
+                aura_effect = linker.ability_link(entity)
 
         # Get image name from registry
         from erenshor.domain.entities.page import EntityRef
