@@ -345,7 +345,12 @@ state_record_variant_export() {
     local variant="$1"
     local db_path="$2"
     local size_bytes="${3:-0}"
-    local entity_counts="${4:-{}}"
+    local entity_counts="$4"
+
+    # Use empty object if not provided
+    if [[ -z "$entity_counts" ]]; then
+        entity_counts="{}"
+    fi
 
     state_set_variant "$variant" "database.path" "$db_path"
     state_set_variant "$variant" "database.last_export" "$(timestamp_iso)"
