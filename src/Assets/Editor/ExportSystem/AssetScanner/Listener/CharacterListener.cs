@@ -400,7 +400,7 @@ public class CharacterListener : IAssetScanListener<Character>
             record.BossXpMultiplier = character.BossXp;
             
             // Calculate effective stats based on game logic
-            if (character.isNPC && npc != null)
+            if (npc != null)
             {
                 if (!npc.HandSetResistances)
                 {
