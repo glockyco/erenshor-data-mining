@@ -77,6 +77,11 @@ public static class ExportBatch
 
             using (SQLiteConnection db = new SQLiteConnection(args.dbPath, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create))
             {
+                // Clear shared Coordinates table before export
+                // Each listener will repopulate its category during the scan
+                db.CreateTable<CoordinateRecord>();
+                db.DeleteAll<CoordinateRecord>();
+
                 // Register listeners based on entity selection
                 int registeredCount = RegisterListeners(scanner, db, args.entityTypes, args.logLevel);
 
