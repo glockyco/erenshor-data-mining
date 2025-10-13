@@ -113,11 +113,11 @@ backup_game_scripts() {
         return 0
     fi
 
-    # Source: {unity_path}/Assets/Scripts/AssemblyCSharp/
-    local scripts_source="$unity_path/Assets/Scripts/AssemblyCSharp"
+    # Source: {unity_path}/Assets/Scripts/Assembly-CSharp/
+    local scripts_source="$unity_path/Assets/Scripts/Assembly-CSharp"
 
     if [[ ! -d "$scripts_source" ]]; then
-        log_warn "AssemblyCSharp folder not found, skipping script backup: $scripts_source"
+        log_warn "Assembly-CSharp folder not found, skipping script backup: $scripts_source"
         return 0
     fi
 
@@ -130,7 +130,7 @@ backup_game_scripts() {
     mkdir -p "$scripts_target"
 
     # Copy all .cs files with directory structure preserved
-    # Strip the AssemblyCSharp prefix from paths
+    # Strip the Assembly-CSharp prefix from paths
     if ! rsync -a --include='*/' --include='*.cs' --exclude='*' "$scripts_source/" "$scripts_target/"; then
         log_error "Failed to backup game scripts"
         return 1
