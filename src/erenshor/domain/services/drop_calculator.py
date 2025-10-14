@@ -36,11 +36,9 @@ def format_drops(
             raise ValueError(
                 f"Invalid drop probability for character '{character_name}': {probability!r}"
             ) from e
-        return (
-            f"{prob_float * 100:.1f}%"
-            if 0.0 <= prob_float <= 1.0
-            else f"{prob_float:.1f}%"
-        )
+        # Database stores probabilities as percentages (e.g., 11.48 = 11.48%)
+        # Do NOT multiply by 100
+        return f"{prob_float:.1f}%"
 
     def _sort_key(drop_data: dict[str, Any]) -> tuple[float, str]:
         # Descending probability, then ascending item name as tiebreaker
