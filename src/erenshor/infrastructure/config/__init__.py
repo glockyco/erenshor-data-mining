@@ -5,6 +5,7 @@ Configuration can be loaded from TOML files with environment variable
 expansion and local overrides.
 """
 
+from erenshor.infrastructure.config.loader import ConfigLoadError, load_config
 from erenshor.infrastructure.config.schema import (
     AssetRipperConfig,
     BehaviorConfig,
@@ -25,6 +26,7 @@ __all__ = [
     "AssetRipperConfig",
     "BehaviorConfig",
     "Config",
+    "ConfigLoadError",
     "DatabaseConfig",
     "GlobalConfig",
     "GoogleSheetsConfig",
@@ -35,4 +37,5 @@ __all__ = [
     "UnityConfig",
     "VariantConfig",
     "VariantGoogleSheetsConfig",
+    "load_config",
 ]
