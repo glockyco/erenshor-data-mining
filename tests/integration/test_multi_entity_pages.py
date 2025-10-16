@@ -6,14 +6,12 @@ to the same wiki page are correctly merged into a single file with multiple info
 
 from __future__ import annotations
 
-from pathlib import Path
 
 from sqlalchemy.engine import Engine
 
 from erenshor.application.services.update_service import UpdateService
 from erenshor.domain.events import PageUpdated, UpdateComplete
 from erenshor.infrastructure.storage.page_storage import PageStorage
-from erenshor.registry.core import WikiRegistry
 
 
 def test_multi_entity_page_grouping_logic(
@@ -25,7 +23,7 @@ def test_multi_entity_page_grouping_logic(
     Note: Test database may not have specific merged entities, but we verify
     the grouping logic works by checking event emission patterns.
     """
-    from erenshor.domain.events import ContentGenerated, PageUpdated
+    from erenshor.domain.events import ContentGenerated
 
     # Generate all abilities
     events = list(ability_update_service.update_pages(test_engine))
@@ -48,9 +46,9 @@ def test_multi_entity_page_grouping_logic(
         updated_titles = {e.page_title for e in page_updated_events}
 
         for title in multi_entity_pages:
-            assert title in updated_titles, (
-                f"Multi-entity page '{title}' should have PageUpdated event"
-            )
+            assert (
+                title in updated_titles
+            ), f"Multi-entity page '{title}' should have PageUpdated event"
 
 
 def test_single_entity_page_unchanged(
@@ -74,9 +72,9 @@ def test_single_entity_page_unchanged(
 
     # Should have exactly ONE infobox
     ability_count = content.count("{{Ability")
-    assert ability_count == 1, (
-        f"Single-entity page should have 1 infobox, found {ability_count}"
-    )
+    assert (
+        ability_count == 1
+    ), f"Single-entity page should have 1 infobox, found {ability_count}"
 
 
 def test_statistics_count_entities_correctly(
@@ -94,6 +92,6 @@ def test_statistics_count_entities_correctly(
 
     # Total should count all entities
     # In test data: 8 spells + 10 skills = 18 abilities total
-    assert complete.total >= 18, (
-        f"Total should count entities (18+), got {complete.total}"
-    )
+    assert (
+        complete.total >= 18
+    ), f"Total should count entities (18+), got {complete.total}"

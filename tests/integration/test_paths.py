@@ -11,7 +11,7 @@ from erenshor.application.services.mapping_service import MappingService
 from erenshor.application.reporting import Reporter
 from erenshor.domain.mapping import MappingFile, save_mapping_file
 from erenshor.infrastructure.services import ZoneService
-from erenshor.infrastructure.config.paths import PathResolver, get_path_resolver
+from erenshor.infrastructure.config.paths import get_path_resolver
 from erenshor.infrastructure.config.settings import WikiSettings, load_settings
 
 

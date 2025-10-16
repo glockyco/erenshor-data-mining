@@ -113,9 +113,7 @@ class FishingGenerator:
             ],
         }
 
-        rendered = normalize_wikitext(
-            render_template("fishing/canonical.j2", model)
-        )
+        rendered = normalize_wikitext(render_template("fishing/canonical.j2", model))
 
         # Register Fishing as an overview page
         title = "Fishing"

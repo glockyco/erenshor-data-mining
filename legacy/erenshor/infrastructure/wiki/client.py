@@ -358,15 +358,12 @@ class WikiAPIClient:
                     continue
 
                 # Not retryable or out of retries
-                error_msg = (
-                    f"{error_code}: "
-                    f"{error_info.get('info', 'no details')}"
-                )
+                error_msg = f"{error_code}: " f"{error_info.get('info', 'no details')}"
                 raise WikiAPIError(f"Upload failed: {error_msg}")
 
             edit_result: dict[str, Any] = response.get("edit", {})
             if edit_result.get("result") != "Success":
-                raise WikiAPIError(f"Upload failed: Unknown error")
+                raise WikiAPIError("Upload failed: Unknown error")
 
             return edit_result
 

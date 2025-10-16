@@ -201,7 +201,9 @@ class GoogleSheetsPublisher:
 
             if tables:
                 # Table-aware update: preserve filters/sorting
-                logger.debug(f"Table detected on sheet '{sheet_name}', using table-aware update")
+                logger.debug(
+                    f"Table detected on sheet '{sheet_name}', using table-aware update"
+                )
                 self._publish_with_table(spreadsheet_id, sheet_name, rows, tables[0])
             else:
                 # Standard update: clear and write
@@ -219,9 +221,9 @@ class GoogleSheetsPublisher:
             # Provide helpful error message for permission errors
             if e.status_code == 403:
                 error_msg = (
-                    f"Permission denied: Service account does not have Editor access to spreadsheet. "
-                    f"Please share the spreadsheet with the service account email (found in credentials JSON: 'client_email' field) "
-                    f"and grant 'Editor' permissions (not 'Viewer')."
+                    "Permission denied: Service account does not have Editor access to spreadsheet. "
+                    "Please share the spreadsheet with the service account email (found in credentials JSON: 'client_email' field) "
+                    "and grant 'Editor' permissions (not 'Viewer')."
                 )
             else:
                 error_msg = f"Google Sheets API error ({e.status_code}): {e.reason}"
@@ -296,7 +298,7 @@ class GoogleSheetsPublisher:
                 ).execute()
                 return  # Success
 
-            except HttpError as e:
+            except HttpError:
                 if attempt < self.max_retries - 1:
                     # Exponential backoff
                     delay = self.retry_delay * (2**attempt)
@@ -314,9 +316,9 @@ class GoogleSheetsPublisher:
         service = self._get_service()
 
         # Get sheet ID
-        sheet_metadata = service.spreadsheets().get(
-            spreadsheetId=spreadsheet_id
-        ).execute()
+        sheet_metadata = (
+            service.spreadsheets().get(spreadsheetId=spreadsheet_id).execute()
+        )
 
         sheet_id = None
         for sheet in sheet_metadata["sheets"]:
@@ -377,25 +379,31 @@ class GoogleSheetsPublisher:
 
         try:
             # Get spreadsheet metadata including tables
-            spreadsheet_metadata = service.spreadsheets().get(
-                spreadsheetId=spreadsheet_id,
-                includeGridData=False,
-            ).execute()
+            spreadsheet_metadata = (
+                service.spreadsheets()
+                .get(
+                    spreadsheetId=spreadsheet_id,
+                    includeGridData=False,
+                )
+                .execute()
+            )
 
             # Find the target sheet
-            sheet_id = None
             for sheet in spreadsheet_metadata["sheets"]:
                 if sheet["properties"]["title"] == sheet_name:
-                    sheet_id = sheet["properties"]["sheetId"]
                     # Check for regular tables first (most common)
                     if "tables" in sheet:
                         tables = sheet["tables"]
-                        logger.debug(f"Found {len(tables)} table(s) on sheet '{sheet_name}'")
+                        logger.debug(
+                            f"Found {len(tables)} table(s) on sheet '{sheet_name}'"
+                        )
                         return tables
                     # Check for data source tables (connected data)
                     if "dataSourceTables" in sheet:
                         tables = sheet["dataSourceTables"]
-                        logger.debug(f"Found {len(tables)} data source table(s) on sheet '{sheet_name}'")
+                        logger.debug(
+                            f"Found {len(tables)} data source table(s) on sheet '{sheet_name}'"
+                        )
                         return tables
                     break
 
@@ -499,8 +507,12 @@ class GoogleSheetsPublisher:
         # Write data to existing rows (use A1 notation for values.update)
         overlap_rows = min(current_row_count, new_row_count)
         if overlap_rows > 0:
-            start_a1 = f"{sheet_name}!A{current_start_row + 1}"  # A1 notation is 1-based
-            logger.debug(f"Updating {overlap_rows} overlapping rows starting at {start_a1}")
+            start_a1 = (
+                f"{sheet_name}!A{current_start_row + 1}"  # A1 notation is 1-based
+            )
+            logger.debug(
+                f"Updating {overlap_rows} overlapping rows starting at {start_a1}"
+            )
 
             service.spreadsheets().values().update(
                 spreadsheetId=spreadsheet_id,
@@ -617,7 +629,9 @@ class GoogleSheetsPublisher:
         new_data_start_a1 = f"{sheet_name}!A{current_end_row + 1}"
         new_rows_data = rows[current_row_count:]
 
-        logger.debug(f"Updating {len(new_rows_data)} new rows starting at {new_data_start_a1}")
+        logger.debug(
+            f"Updating {len(new_rows_data)} new rows starting at {new_data_start_a1}"
+        )
 
         service.spreadsheets().values().update(
             spreadsheetId=spreadsheet_id,
@@ -669,7 +683,9 @@ class GoogleSheetsPublisher:
 
         rows_to_remove = current_row_count - new_row_count
         current_start_row = table_range.get("startRowIndex", 0)
-        current_end_row = table_range.get("endRowIndex", current_start_row + current_row_count)
+        current_end_row = table_range.get(
+            "endRowIndex", current_start_row + current_row_count
+        )
         new_end_row = current_start_row + new_row_count
 
         logger.debug(f"Shrinking table by {rows_to_remove} rows")
@@ -826,9 +842,9 @@ class GoogleSheetsPublisher:
         service = self._get_service()
 
         # Get current sheet size
-        sheet_metadata = service.spreadsheets().get(
-            spreadsheetId=spreadsheet_id
-        ).execute()
+        sheet_metadata = (
+            service.spreadsheets().get(spreadsheetId=spreadsheet_id).execute()
+        )
 
         current_rows = 0
         for sheet in sheet_metadata["sheets"]:
@@ -838,7 +854,9 @@ class GoogleSheetsPublisher:
 
         if current_rows < min_rows:
             rows_to_add = min_rows - current_rows
-            logger.debug(f"Expanding sheet from {current_rows} to {min_rows} rows ({rows_to_add} new rows)")
+            logger.debug(
+                f"Expanding sheet from {current_rows} to {min_rows} rows ({rows_to_add} new rows)"
+            )
 
             requests = [
                 {
@@ -855,7 +873,9 @@ class GoogleSheetsPublisher:
                 body={"requests": requests},
             ).execute()
         else:
-            logger.debug(f"Sheet already has {current_rows} rows (>= {min_rows}), no expansion needed")
+            logger.debug(
+                f"Sheet already has {current_rows} rows (>= {min_rows}), no expansion needed"
+            )
 
     def _update_table_range(
         self,

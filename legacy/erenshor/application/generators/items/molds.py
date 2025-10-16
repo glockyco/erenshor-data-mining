@@ -110,9 +110,7 @@ class MoldGenerator(ItemGeneratorBase):
             recipe=WIKITEXT_LINE_SEPARATOR.join(recipe_ings) if recipe_ings else "",
         )
 
-        mold_rendered = normalize_wikitext(
-            render_template("items/mold.j2", mold_ctx)
-        )
+        mold_rendered = normalize_wikitext(render_template("items/mold.j2", mold_ctx))
         return RenderedBlock(
             page_title=page_title,
             block_id=item.ResourceName,

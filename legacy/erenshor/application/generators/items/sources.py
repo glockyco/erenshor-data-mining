@@ -101,7 +101,6 @@ class SourceEnricher:
 
         return f"{object_name}|{scene}|{coord_x}|{coord_y}|{coord_z}"
 
-
     def _format_crafting_items(
         self,
         items: list[CraftingReward] | list[CraftingMaterial],

@@ -15,7 +15,6 @@ from __future__ import annotations
 import hashlib
 from pathlib import Path
 
-import pytest
 from sqlalchemy.engine import Engine
 
 from erenshor.application.services.update_service import UpdateService
@@ -66,9 +65,9 @@ def test_item_idempotency(
     updated_run1 = [e for e in events_run1 if isinstance(e, PageUpdated)]
     updated_run2 = [e for e in events_run2 if isinstance(e, PageUpdated)]
 
-    assert len(updated_run1) == len(updated_run2), (
-        f"Different number of updates: run1={len(updated_run1)}, run2={len(updated_run2)}"
-    )
+    assert (
+        len(updated_run1) == len(updated_run2)
+    ), f"Different number of updates: run1={len(updated_run1)}, run2={len(updated_run2)}"
 
     # Compare file hashes
     assert hashes_run1 == hashes_run2, (
@@ -238,6 +237,6 @@ def test_content_change_detection(
             # Verify file was restored to original (without our comment)
             final_content = test_output_storage.read(first_page)
             assert final_content is not None
-            assert "<!-- test modification -->" not in final_content, (
-                "Generated content should overwrite manual modifications"
-            )
+            assert (
+                "<!-- test modification -->" not in final_content
+            ), "Generated content should overwrite manual modifications"

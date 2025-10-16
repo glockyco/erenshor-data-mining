@@ -35,8 +35,12 @@ class WikiRegistry:
 
         # Manual mappings from mapping.json
         self.manual_mappings: Dict[str, str] = {}  # entity.stable_key -> page_title
-        self.display_name_overrides: Dict[str, str] = {}  # entity.stable_key -> display_name
-        self.image_name_overrides: Dict[str, str] = {}  # entity.stable_key -> image_name
+        self.display_name_overrides: Dict[
+            str, str
+        ] = {}  # entity.stable_key -> display_name
+        self.image_name_overrides: Dict[
+            str, str
+        ] = {}  # entity.stable_key -> image_name
 
         # Metadata
         self.next_page_id: int = 1

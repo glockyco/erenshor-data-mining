@@ -47,9 +47,9 @@ def test_unique_boss_generation(
         assert_page_structure_valid(content, ["Enemy"])
 
         # Unique bosses should have coordinates (since IsUnique=true)
-        assert "coordinates" in content.lower() or "location" in content.lower(), (
-            "Unique boss should have coordinates"
-        )
+        assert (
+            "coordinates" in content.lower() or "location" in content.lower()
+        ), "Unique boss should have coordinates"
 
 
 def test_rare_enemy_generation(
@@ -133,9 +133,9 @@ def test_friendly_npc_generation(
         assert_page_structure_valid(content, ["Enemy"])
 
         # Friendly NPCs should have type=NPC or similar
-        assert "NPC" in content or "Friendly" in content, (
-            "Friendly NPC should be marked appropriately"
-        )
+        assert (
+            "NPC" in content or "Friendly" in content
+        ), "Friendly NPC should be marked appropriately"
 
 
 def test_character_with_drops(
@@ -236,12 +236,12 @@ def test_character_content_not_empty(
         assert content is not None
 
         assert content is not None, f"Page content is None: {event.page_title}"
-        assert len(content) > 50, (
-            f"Page content too short ({len(content)} chars): {event.page_title}"
-        )
-        assert "{{" in content and "}}" in content, (
-            f"Page has no templates: {event.page_title}"
-        )
+        assert (
+            len(content) > 50
+        ), f"Page content too short ({len(content)} chars): {event.page_title}"
+        assert (
+            "{{" in content and "}}" in content
+        ), f"Page has no templates: {event.page_title}"
 
 
 def test_simplayer_skip(
@@ -255,9 +255,9 @@ def test_simplayer_skip(
 
     # None of our test data has IsSimPlayer=1, but verify logic
     # by checking that only expected characters are generated
-    assert len(updated_events) <= 10, (
-        "Should not generate more than 10 character pages (test data has 10 non-sim characters)"
-    )
+    assert (
+        len(updated_events) <= 10
+    ), "Should not generate more than 10 character pages (test data has 10 non-sim characters)"
 
 
 def test_enemy_template_used_for_all(
@@ -280,6 +280,6 @@ def test_enemy_template_used_for_all(
         assert_page_structure_valid(content, ["Enemy"])
 
         # Should NOT have legacy "Enemy Stats" template
-        assert "Enemy Stats" not in content, (
-            "Should not have legacy Enemy Stats template"
-        )
+        assert (
+            "Enemy Stats" not in content
+        ), "Should not have legacy Enemy Stats template"

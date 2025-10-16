@@ -126,7 +126,9 @@ def push(
 
     # Determine pages to upload
     with console.status("[bold blue]Discovering pages to upload..."):
-        titles = _get_titles(pages, all, stdin, characters, items, weapons, armor, abilities, env)
+        titles = _get_titles(
+            pages, all, stdin, characters, items, weapons, armor, abilities, env
+        )
 
     if not titles:
         console.print(
@@ -170,7 +172,9 @@ def push(
         auth = MediaWikiAuth(credentials)
         try:
             if not auth.login():
-                console.print("[red]Error: Authentication failed (wrong credentials)[/red]")
+                console.print(
+                    "[red]Error: Authentication failed (wrong credentials)[/red]"
+                )
                 reporter.finish(exit_code=1)
                 raise typer.Exit(1)
         except WikiAPIError as e:
@@ -218,7 +222,9 @@ def push(
     else:
         # Real upload mode
         uploader = PageUploader(client)
-        service = UploadService(uploader, env.output_storage, env.cache_storage, env.registry)
+        service = UploadService(
+            uploader, env.output_storage, env.cache_storage, env.registry
+        )
 
         with Live(
             Panel(
@@ -277,9 +283,7 @@ def _filter_pages_with_content(titles: list[str], env: WikiEnvironment) -> list[
     return filtered_titles
 
 
-def _get_items_by_kind(
-    env: WikiEnvironment, weapons: bool, armor: bool
-) -> list[Any]:
+def _get_items_by_kind(env: WikiEnvironment, weapons: bool, armor: bool) -> list[Any]:
     """Get item pages filtered by ItemKind (weapon/armor).
 
     Args:

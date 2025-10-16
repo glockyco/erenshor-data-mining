@@ -250,9 +250,9 @@ def test_all_entities_excluded_no_page(
     matching_files = [
         f for f in os.listdir(output_dir) if spell.SpellName.replace(" ", "_") in f
     ]
-    assert len(matching_files) == 0, (
-        "Page should not exist when all entities are excluded"
-    )
+    assert (
+        len(matching_files) == 0
+    ), "Page should not exist when all entities are excluded"
 
 
 def test_exclusion_count_reported(

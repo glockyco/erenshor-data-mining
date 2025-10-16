@@ -19,7 +19,6 @@ from sqlalchemy.engine import Engine
 from erenshor.application.formatters.sheets.items import SheetsFormatter
 from erenshor.infrastructure.publishers.sheets import (
     GoogleSheetsPublisher,
-    PublishResult,
 )
 
 __all__ = [

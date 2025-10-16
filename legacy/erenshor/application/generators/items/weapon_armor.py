@@ -143,9 +143,7 @@ class WeaponArmorGenerator(ItemGeneratorBase):
             recipe=WIKITEXT_LINE_SEPARATOR.join(recipe_ings) if recipe_ings else "",
         )
 
-        inf_rendered = normalize_wikitext(
-            render_template("items/item.j2", inf_ctx)
-        )
+        inf_rendered = normalize_wikitext(render_template("items/item.j2", inf_ctx))
         blocks.append(
             RenderedBlock(
                 page_title=page_title,
@@ -385,9 +383,7 @@ class WeaponArmorGenerator(ItemGeneratorBase):
             recipe=WIKITEXT_LINE_SEPARATOR.join(recipe_ings) if recipe_ings else "",
         )
 
-        inf_rendered = normalize_wikitext(
-            render_template("items/item.j2", inf_ctx)
-        )
+        inf_rendered = normalize_wikitext(render_template("items/item.j2", inf_ctx))
         blocks.append(
             RenderedBlock(
                 page_title=page_title,

@@ -224,12 +224,7 @@ class TestPathResolver:
         """Test zones.json path in development mode."""
         (tmp_path / "pyproject.toml").touch()
         zones_file = (
-            tmp_path
-            / "src"
-            / "erenshor"
-            / "infrastructure"
-            / "config"
-            / "zones.json"
+            tmp_path / "src" / "erenshor" / "infrastructure" / "config" / "zones.json"
         )
         zones_file.parent.mkdir(parents=True)
 
@@ -502,7 +497,7 @@ class TestPathResolverLogging:
         import logging
 
         with caplog.at_level(logging.INFO):
-            resolver = PathResolver(root=tmp_path)
+            PathResolver(root=tmp_path)
 
         # Should have logged initialization
         assert any(

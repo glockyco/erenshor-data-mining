@@ -76,9 +76,9 @@ def test_dry_run_flag_no_writes(
     # The CLI layer would handle --dry-run by not calling write
     # So this test verifies normal operation; CLI tests verify --dry-run flag
 
-    assert len(files_after) > len(files_before), (
-        "Service layer should write files (dry-run is CLI concern)"
-    )
+    assert len(files_after) > len(
+        files_before
+    ), "Service layer should write files (dry-run is CLI concern)"
 
 
 def test_filter_flag_processes_subset(
@@ -138,9 +138,9 @@ def test_validate_only_flag(
     gen_with = [e for e in events_with_validation if isinstance(e, ContentGenerated)]
     gen_without = [e for e in events_no_validation if isinstance(e, ContentGenerated)]
 
-    assert len(gen_with) == len(gen_without), (
-        "Validation flag should not affect generation count"
-    )
+    assert len(gen_with) == len(
+        gen_without
+    ), "Validation flag should not affect generation count"
 
 
 def test_skip_validation_parameter(
@@ -167,9 +167,9 @@ def test_skip_validation_parameter(
     ]
 
     # Second run should have NO validation events (skip_validation=True)
-    assert len(validation_events_2) == 0, (
-        f"Expected 0 validation events with skip_validation=True, got {len(validation_events_2)}"
-    )
+    assert (
+        len(validation_events_2) == 0
+    ), f"Expected 0 validation events with skip_validation=True, got {len(validation_events_2)}"
 
 
 def test_cli_integration_smoke(
@@ -230,6 +230,6 @@ def test_statistics_tracking(
 
     # Total processed should equal generated
     total_processed = complete.updated + complete.unchanged + complete.failed
-    assert total_processed == complete.total, (
-        f"Total processed ({total_processed}) should equal total ({complete.total})"
-    )
+    assert (
+        total_processed == complete.total
+    ), f"Total processed ({total_processed}) should equal total ({complete.total})"

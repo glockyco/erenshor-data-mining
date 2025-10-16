@@ -119,7 +119,9 @@ class TomlConfigLoader:
                 result[key] = value
         return result
 
-    def _deep_merge(self, base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]:
+    def _deep_merge(
+        self, base: dict[str, Any], override: dict[str, Any]
+    ) -> dict[str, Any]:
         """Deep merge two dictionaries.
 
         Args:
@@ -131,7 +133,11 @@ class TomlConfigLoader:
         """
         result = base.copy()
         for key, value in override.items():
-            if key in result and isinstance(result[key], dict) and isinstance(value, dict):
+            if (
+                key in result
+                and isinstance(result[key], dict)
+                and isinstance(value, dict)
+            ):
                 result[key] = self._deep_merge(result[key], value)
             else:
                 result[key] = value

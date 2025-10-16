@@ -120,9 +120,7 @@ class CharacterTransformer(PageTransformer):
                             if nt.has("type"):
                                 nt.add("type", "[[Enemies|Boss]]", showkey=True)
                         except Exception as e:
-                            logger.warning(
-                                f"Failed to preserve Boss type: {e}"
-                            )
+                            logger.warning(f"Failed to preserve Boss type: {e}")
 
                     rendered_infobox = str(nt)
             except Exception as e:

@@ -2,18 +2,14 @@
 
 from __future__ import annotations
 
-import hashlib
-import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterator
 
 from PIL import Image
 from sqlalchemy import text
-from sqlalchemy.engine import Engine
 
 from erenshor.domain.entities.page import EntityRef
-from erenshor.domain.exceptions import ImageProcessingError
 from erenshor.domain.value_objects.entity_type import EntityType
 from erenshor.infrastructure.database import get_engine
 from erenshor.registry.core import WikiRegistry
@@ -157,9 +153,7 @@ class ImageProcessor:
                     source_path=source_path if source_path.exists() else None,
                 )
 
-    def process_images(
-        self, force: bool = False
-    ) -> Iterator[ProcessedImage]:
+    def process_images(self, force: bool = False) -> Iterator[ProcessedImage]:
         """Process all images: resize, pad, border.
 
         Args:
@@ -219,7 +213,11 @@ class ImageProcessor:
                 )
 
     def _is_in_registry(
-        self, entity_type: EntityType, entity_id: str, entity_name: str, resource_name: str | None
+        self,
+        entity_type: EntityType,
+        entity_id: str,
+        entity_name: str,
+        resource_name: str | None,
     ) -> bool:
         """Check if an entity is in the registry (not excluded).
 

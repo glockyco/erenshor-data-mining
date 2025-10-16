@@ -68,9 +68,9 @@ def test_damage_spell(
         assert content is not None
 
         # Should have damage information
-        assert "damage" in content.lower() or "dmg" in content.lower(), (
-            "Damage spell should mention damage"
-        )
+        assert (
+            "damage" in content.lower() or "dmg" in content.lower()
+        ), "Damage spell should mention damage"
 
 
 def test_healing_spell(
@@ -148,9 +148,9 @@ def test_skill_generation(
         assert content is not None
 
         # Abilities should have content
-        assert len(content) > 50, (
-            f"Ability page should have content: {event.page_title}"
-        )
+        assert (
+            len(content) > 50
+        ), f"Ability page should have content: {event.page_title}"
 
 
 def test_ability_update_statistics(
@@ -166,9 +166,9 @@ def test_ability_update_statistics(
 
     complete = complete_events[0]
     # Test data has 8 spells + 10 skills = 18 abilities total
-    assert complete.total >= 18, (
-        f"Should generate at least 18 abilities, got {complete.total}"
-    )
+    assert (
+        complete.total >= 18
+    ), f"Should generate at least 18 abilities, got {complete.total}"
 
 
 def test_ability_validation_passes(
@@ -206,9 +206,9 @@ def test_ability_content_not_empty(
         assert content is not None
 
         assert content is not None, f"Page content is None: {event.page_title}"
-        assert len(content) > 50, (
-            f"Page content too short ({len(content)} chars): {event.page_title}"
-        )
+        assert (
+            len(content) > 50
+        ), f"Page content too short ({len(content)} chars): {event.page_title}"
 
 
 def test_spell_vs_skill_distinction(
@@ -227,9 +227,9 @@ def test_spell_vs_skill_distinction(
     # This is expected behavior in the registry system
     titles = [e.page_title for e in updated_events]
     unique_titles = set(titles)
-    assert len(unique_titles) >= 8, (
-        f"Should have at least 8 unique pages, got {len(unique_titles)}"
-    )
+    assert (
+        len(unique_titles) >= 8
+    ), f"Should have at least 8 unique pages, got {len(unique_titles)}"
 
 
 def test_skill_casttime_innate_vs_noninnate(
@@ -450,17 +450,17 @@ The best strategy is to mine everything you see to level up quickly."""
     assert updated_content is not None
 
     # Verify manual content is preserved
-    assert "'''Mining''' is an innate skill" in updated_content, (
-        "Manual description after infobox should be preserved"
-    )
+    assert (
+        "'''Mining''' is an innate skill" in updated_content
+    ), "Manual description after infobox should be preserved"
     assert "=Mining Nodes=" in updated_content, "Manual sections should be preserved"
-    assert "Copper nodes in starting areas" in updated_content, (
-        "Manual bullet points should be preserved"
-    )
+    assert (
+        "Copper nodes in starting areas" in updated_content
+    ), "Manual bullet points should be preserved"
     assert "=Strategy=" in updated_content, "Manual sections should be preserved"
-    assert "best strategy is to mine everything" in updated_content, (
-        "Manual content should be preserved"
-    )
+    assert (
+        "best strategy is to mine everything" in updated_content
+    ), "Manual content should be preserved"
 
 
 def test_ability_preserves_manual_content_before_infobox(
@@ -506,15 +506,15 @@ This ability is very powerful in endgame content."""
     assert updated_content is not None
 
     # Verify content before infobox is preserved
-    assert "{{Spoiler|" in updated_content, (
-        "Spoiler template before infobox should be preserved"
-    )
-    assert "WARNING:" in updated_content, (
-        "Warning text before infobox should be preserved"
-    )
-    assert "This ability is very powerful in endgame content" in updated_content, (
-        "Content after infobox should be preserved"
-    )
+    assert (
+        "{{Spoiler|" in updated_content
+    ), "Spoiler template before infobox should be preserved"
+    assert (
+        "WARNING:" in updated_content
+    ), "Warning text before infobox should be preserved"
+    assert (
+        "This ability is very powerful in endgame content" in updated_content
+    ), "Content after infobox should be preserved"
 
 
 def test_ability_idempotency(
@@ -566,15 +566,15 @@ def test_ability_idempotency(
                 second_run_content[event.page_title] = content
 
     # Verify content is identical
-    assert len(first_run_content) == len(second_run_content), (
-        "Same number of pages should be generated"
-    )
+    assert len(first_run_content) == len(
+        second_run_content
+    ), "Same number of pages should be generated"
 
     for title in first_run_content:
         assert title in second_run_content, f"Page {title} should exist in both runs"
-        assert first_run_content[title] == second_run_content[title], (
-            f"Page {title} content should be identical across runs (idempotency)"
-        )
+        assert (
+            first_run_content[title] == second_run_content[title]
+        ), f"Page {title} content should be identical across runs (idempotency)"
 
 
 def test_summoning_spell_character_links(
@@ -608,16 +608,16 @@ def test_summoning_spell_character_links(
     for page, content, pet_value in summoning_pages:
         # pet_to_summon should use standard MediaWiki link syntax [[...]]
         # Pattern: |pet_to_summon=[[Character Name]] or [[Page|Display]]
-        assert pet_value.startswith("[["), (
-            f"Summoning spell {page.title} should use [[...]] link syntax, got: {pet_value}"
-        )
+        assert pet_value.startswith(
+            "[["
+        ), f"Summoning spell {page.title} should use [[...]] link syntax, got: {pet_value}"
 
         # Should end with ]]
-        assert pet_value.endswith("]]"), (
-            f"MediaWiki link in {page.title} should be properly closed, got: {pet_value}"
-        )
+        assert pet_value.endswith(
+            "]]"
+        ), f"MediaWiki link in {page.title} should be properly closed, got: {pet_value}"
 
         # Should NOT use custom templates
-        assert "{{CharacterLink" not in pet_value, (
-            f"Summoning spell {page.title} should not use {{{{CharacterLink}}}} template, got: {pet_value}"
-        )
+        assert (
+            "{{CharacterLink" not in pet_value
+        ), f"Summoning spell {page.title} should not use {{{{CharacterLink}}}} template, got: {pet_value}"
