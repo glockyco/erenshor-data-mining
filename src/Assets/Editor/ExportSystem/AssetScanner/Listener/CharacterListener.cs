@@ -300,7 +300,7 @@ public class CharacterListener : IAssetScanListener<Character>
             CoordinateId = coordinateId,
             Guid = guid,
             ObjectName = character.gameObject != null ? character.gameObject.name : null,
-            MyWorldFaction = character.MyWorldFaction != null ? character.MyWorldFaction.FactionName : null,
+            MyWorldFaction = character.MyWorldFaction != null ? character.MyWorldFaction.REFNAME : null,
             MyFaction = character.MyFaction.ToString(),
             AggroRange = character.AggroRange,
             AttackRange = character.AttackRange,
@@ -400,7 +400,7 @@ public class CharacterListener : IAssetScanListener<Character>
             record.BossXpMultiplier = character.BossXp;
             
             // Calculate effective stats based on game logic
-            if (npc != null)
+            if (npc != null && simPlayer == null)
             {
                 if (!npc.HandSetResistances)
                 {
@@ -422,25 +422,25 @@ public class CharacterListener : IAssetScanListener<Character>
                     record.EffectiveMinPR = record.EffectiveMaxPR = stats.BasePR;
                     record.EffectiveMinVR = record.EffectiveMaxVR = stats.BaseVR;
                 }
-                
+
                 // BaseAtkDmg is set to at least Level for NPCs
                 record.EffectiveBaseAtkDmg = Mathf.Max(npc.BaseAtkDmg, stats.Level);
-                
+
                 // Calculate effective AC for NPCs
                 int baseAC = npc.HardSetAC > 0 ? npc.HardSetAC : stats.Level * 15;
-                
+
                 // Apply CharacterClass MitigationBonus if set, otherwise use DefaultNPC (1.0)
                 float mitigationBonus = 1.0f; // Default for NPCs
                 if (stats.CharacterClass != null)
                 {
                     mitigationBonus = stats.CharacterClass.MitigationBonus;
                 }
-                
+
                 record.EffectiveAC = Mathf.RoundToInt(baseAC * mitigationBonus);
-                
+
                 // Calculate effective HP for NPCs (OverrideHPforNPC = true)
                 record.EffectiveHP = stats.BaseHP;
-                
+
                 // Calculate effective attack ability for NPCs
                 float baseAttackAbility = 100 + (stats.Level - 1) * 40;
                 if (stats.Level >= 20)
@@ -454,7 +454,7 @@ public class CharacterListener : IAssetScanListener<Character>
             }
             else
             {
-                // Non-NPCs use their base resistance values
+                // SimPlayers and non-NPCs use their base resistance values
                 record.EffectiveMinMR = record.EffectiveMaxMR = stats.BaseMR;
                 record.EffectiveMinER = record.EffectiveMaxER = stats.BaseER;
                 record.EffectiveMinPR = record.EffectiveMaxPR = stats.BasePR;
