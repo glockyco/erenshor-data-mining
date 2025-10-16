@@ -2,8 +2,8 @@
   "metadata": {
     "schema_version": "2.0",
     "created_at": "2025-09-21T15:44:48.853024Z",
-    "updated_at": "2025-10-02T15:30:07.163835Z",
-    "total_rules": 265
+    "updated_at": "2025-10-14T13:00:00.000000Z",
+    "total_rules": 275
   },
   "rules": {
     "character:Brackish Crocodile": {
@@ -338,14 +338,14 @@
     "character:Braxonian Planar Guardian Fire": {
       "wiki_page_name": "Braxonian Planar Guard (Fire)",
       "display_name": "Braxonian Planar Guard (Fire)",
-      "image_name": null,
+      "image_name": "Fire Planar Guard",
       "mapping_type": "custom",
       "reason": null
     },
     "character:Braxonian Planar Guardian Ice": {
       "wiki_page_name": "Braxonian Planar Guard (Ice)",
       "display_name": "Braxonian Planar Guard (Ice)",
-      "image_name": null,
+      "image_name": "Ice Planar Guard",
       "mapping_type": "custom",
       "reason": null
     },
@@ -1909,6 +1909,34 @@
       "image_name": null,
       "mapping_type": "exclude",
       "reason": "Exclude from wiki"
+    },
+    "skill:Fishing": {
+      "wiki_page_name": null,
+      "display_name": null,
+      "image_name": null,
+      "mapping_type": "exclude",
+      "reason": "Fishing ability should not appear in wiki"
+    },
+    "character:Golden Spirit": {
+      "wiki_page_name": null,
+      "display_name": null,
+      "image_name": null,
+      "mapping_type": "exclude",
+      "reason": "Exclude from wiki"
+    },
+    "character:EndKio": {
+      "wiki_page_name": "Kio the Darkbringer",
+      "display_name": "Kio the Darkbringer",
+      "image_name": "Kio the Darkbringer",
+      "mapping_type": "custom",
+      "reason": "Fix capitalization: 'The' -> 'the'"
+    },
+    "faction:Brax": {
+      "wiki_page_name": "The Torchbearers of Brax",
+      "display_name": "The Torchbearers of Brax",
+      "image_name": null,
+      "mapping_type": "custom",
+      "reason": "Fix typo lowercase 'the' in FactionDesc"
     }
   }
 }
