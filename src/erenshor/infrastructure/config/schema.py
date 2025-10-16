@@ -11,6 +11,7 @@ The configuration supports:
 - Multiple game variants (main, playtest, demo) with variant-specific configs
 """
 
+from pathlib import Path
 from typing import Literal
 
 from pydantic import BaseModel, Field
@@ -19,7 +20,7 @@ from pydantic import BaseModel, Field
 class PathsConfig(BaseModel):
     """Global path configuration for project directories and files.
 
-    All paths support environment variable expansion:
+    All paths support variable expansion:
     - $REPO_ROOT: Repository root directory (auto-detected)
     - $HOME, ~: User's home directory
     """
@@ -36,6 +37,24 @@ class PathsConfig(BaseModel):
         default="$REPO_ROOT/.erenshor/logs",
         description="Directory for global logs",
     )
+
+    def resolved_state(self, repo_root: Path) -> Path:
+        """Get resolved state file path."""
+        from .paths import resolve_path
+
+        return resolve_path(self.state, repo_root)
+
+    def resolved_config_local(self, repo_root: Path) -> Path:
+        """Get resolved local config file path."""
+        from .paths import resolve_path
+
+        return resolve_path(self.config_local, repo_root)
+
+    def resolved_logs(self, repo_root: Path) -> Path:
+        """Get resolved logs directory path."""
+        from .paths import resolve_path
+
+        return resolve_path(self.logs, repo_root)
 
 
 class SteamConfig(BaseModel):
@@ -76,6 +95,23 @@ class UnityConfig(BaseModel):
         description="Maximum time in seconds for Unity batch exports (60s - 2h)",
     )
 
+    def resolved_path(self, repo_root: Path, validate: bool = True) -> Path:
+        """Get resolved Unity executable path.
+
+        Args:
+            repo_root: Repository root for path expansion.
+            validate: If True, verify that Unity executable exists.
+
+        Returns:
+            Absolute path to Unity executable.
+
+        Raises:
+            PathResolutionError: If validation enabled and Unity not found.
+        """
+        from .paths import resolve_path
+
+        return resolve_path(self.path, repo_root, validate=validate)
+
 
 class AssetRipperConfig(BaseModel):
     """AssetRipper configuration for extracting Unity projects from game files.
@@ -99,6 +135,23 @@ class AssetRipperConfig(BaseModel):
         le=7200,
         description="Maximum time in seconds for asset extraction (60s - 2h)",
     )
+
+    def resolved_path(self, repo_root: Path, validate: bool = True) -> Path:
+        """Get resolved AssetRipper executable path.
+
+        Args:
+            repo_root: Repository root for path expansion.
+            validate: If True, verify that AssetRipper executable exists.
+
+        Returns:
+            Absolute path to AssetRipper executable or directory.
+
+        Raises:
+            PathResolutionError: If validation enabled and AssetRipper not found.
+        """
+        from .paths import resolve_path
+
+        return resolve_path(self.path, repo_root, validate=validate)
 
 
 class DatabaseConfig(BaseModel):
@@ -195,6 +248,23 @@ class GoogleSheetsConfig(BaseModel):
         le=60,
         description="Delay in seconds between retry attempts",
     )
+
+    def resolved_credentials_file(self, repo_root: Path, validate: bool = True) -> Path:
+        """Get resolved credentials file path.
+
+        Args:
+            repo_root: Repository root for path expansion.
+            validate: If True, verify that credentials file exists.
+
+        Returns:
+            Absolute path to Google credentials JSON file.
+
+        Raises:
+            PathResolutionError: If validation enabled and credentials not found.
+        """
+        from .paths import resolve_path
+
+        return resolve_path(self.credentials_file, repo_root, validate=validate)
 
 
 class BehaviorConfig(BaseModel):
@@ -334,6 +404,48 @@ class VariantConfig(BaseModel):
         default_factory=VariantGoogleSheetsConfig,
         description="Google Sheets configuration for this variant",
     )
+
+    def resolved_unity_project(self, repo_root: Path) -> Path:
+        """Get resolved Unity project directory path."""
+        from .paths import resolve_path
+
+        return resolve_path(self.unity_project, repo_root)
+
+    def resolved_editor_scripts(self, repo_root: Path) -> Path:
+        """Get resolved Editor scripts directory path."""
+        from .paths import resolve_path
+
+        return resolve_path(self.editor_scripts, repo_root)
+
+    def resolved_game_files(self, repo_root: Path) -> Path:
+        """Get resolved game files directory path."""
+        from .paths import resolve_path
+
+        return resolve_path(self.game_files, repo_root)
+
+    def resolved_database(self, repo_root: Path) -> Path:
+        """Get resolved database file path."""
+        from .paths import resolve_path
+
+        return resolve_path(self.database, repo_root)
+
+    def resolved_logs(self, repo_root: Path) -> Path:
+        """Get resolved logs directory path."""
+        from .paths import resolve_path
+
+        return resolve_path(self.logs, repo_root)
+
+    def resolved_backups(self, repo_root: Path) -> Path:
+        """Get resolved backups directory path."""
+        from .paths import resolve_path
+
+        return resolve_path(self.backups, repo_root)
+
+    def resolved_images_output(self, repo_root: Path) -> Path:
+        """Get resolved images output directory path."""
+        from .paths import resolve_path
+
+        return resolve_path(self.images_output, repo_root)
 
 
 class Config(BaseModel):

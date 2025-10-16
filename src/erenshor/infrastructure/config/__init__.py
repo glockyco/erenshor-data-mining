@@ -1,11 +1,12 @@
 """Configuration schema and loading for Erenshor data mining pipeline.
 
 This module provides Pydantic models for configuration management.
-Configuration can be loaded from TOML files with environment variable
-expansion and local overrides.
+Configuration can be loaded from TOML files with variable expansion
+($REPO_ROOT, $HOME, ~) and local overrides.
 """
 
-from erenshor.infrastructure.config.loader import ConfigLoadError, load_config
+from erenshor.infrastructure.config.loader import ConfigLoadError, get_repo_root, load_config
+from erenshor.infrastructure.config.paths import PathResolutionError, resolve_path
 from erenshor.infrastructure.config.schema import (
     AssetRipperConfig,
     BehaviorConfig,
@@ -32,10 +33,13 @@ __all__ = [
     "GoogleSheetsConfig",
     "LoggingConfig",
     "MediaWikiConfig",
+    "PathResolutionError",
     "PathsConfig",
     "SteamConfig",
     "UnityConfig",
     "VariantConfig",
     "VariantGoogleSheetsConfig",
+    "get_repo_root",
     "load_config",
+    "resolve_path",
 ]

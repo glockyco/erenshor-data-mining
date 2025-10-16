@@ -10,8 +10,9 @@ The loader performs deep merging of configurations, where local values override
 base values at any nesting level. Validation is performed using Pydantic models
 to ensure configuration correctness.
 
-Path expansion (e.g., $REPO_ROOT, $HOME) is NOT performed by this module.
-Path resolution is handled separately by the path resolver module.
+Path expansion (e.g., $REPO_ROOT, $HOME) is NOT performed during loading.
+Path resolution is handled separately via the resolve_path() function and
+property methods on config models.
 """
 
 import tomllib
@@ -99,6 +100,26 @@ def _deep_merge(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any
                 result[key] = override_value
 
     return result
+
+
+def get_repo_root() -> Path:
+    """Get repository root directory.
+
+    Searches upward from current working directory until .git directory
+    is found. This is the same logic used by load_config().
+
+    Returns:
+        Path to repository root directory.
+
+    Raises:
+        ConfigLoadError: If repository root cannot be found.
+
+    Example:
+        >>> repo_root = get_repo_root()
+        >>> print(repo_root)
+        /Users/joe/Projects/Erenshor
+    """
+    return _find_repo_root()
 
 
 def load_config() -> Config:
