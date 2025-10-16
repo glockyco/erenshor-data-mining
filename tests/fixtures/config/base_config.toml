@@ -1,0 +1,65 @@
+# Minimal valid base configuration for testing
+version = "0.3"
+default_variant = "main"
+
+[global.paths]
+state = "$REPO_ROOT/.erenshor/state.json"
+config_local = "$REPO_ROOT/.erenshor/config.local.toml"
+logs = "$REPO_ROOT/.erenshor/logs"
+
+[global.steam]
+username = "test_user"
+platform = "windows"
+
+[global.unity]
+version = "2021.3.45f2"
+path = "/Applications/Unity/Hub/Editor/2021.3.45f2/Unity.app"
+timeout = 3600
+
+[global.assetripper]
+path = "$HOME/Projects/AssetRipper/AssetRipper.GUI.Free"
+port = 8080
+timeout = 3600
+
+[global.database]
+enable_validation = true
+
+[global.mediawiki]
+api_url = "https://erenshor.wiki.gg/api.php"
+api_batch_size = 25
+api_delay = 1.0
+upload_batch_size = 10
+upload_delay = 1.0
+upload_edit_summary = "Automated wiki update"
+upload_minor_edit = true
+bot_username = ""
+bot_password = ""
+
+[global.google_sheets]
+credentials_file = "$HOME/.config/erenshor/google-credentials.json"
+batch_size = 1000
+max_retries = 3
+retry_delay = 5
+
+[global.behavior]
+max_retries = 3
+retry_delay = 30
+
+[global.logging]
+level = "info"
+
+[variants.main]
+enabled = true
+name = "Main Game"
+description = "Production game"
+app_id = "2382520"
+unity_project = "$REPO_ROOT/variants/main/unity"
+editor_scripts = "$REPO_ROOT/src/Assets/Editor"
+game_files = "$REPO_ROOT/variants/main/game"
+database = "$REPO_ROOT/variants/main/erenshor-main.sqlite"
+logs = "$REPO_ROOT/variants/main/logs"
+backups = "$REPO_ROOT/variants/main/backups"
+images_output = "$REPO_ROOT/variants/main/images"
+
+[variants.main.google_sheets]
+spreadsheet_id = "test-spreadsheet-id-main"

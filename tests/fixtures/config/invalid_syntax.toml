@@ -1,0 +1,8 @@
+# Invalid TOML syntax for testing error handling
+version = "0.3"
+default_variant = "main"
+
+[global.unity
+# Missing closing bracket
+version = "2021.3.45f2"
+path = "/Applications/Unity/Hub/Editor/2021.3.45f2/Unity.app"

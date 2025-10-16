@@ -1,0 +1,34 @@
+# Override configuration for testing two-layer system
+default_variant = "playtest"
+
+[global.unity]
+path = "/custom/unity/path/Unity.app"
+timeout = 7200
+
+[global.logging]
+level = "debug"
+
+[global.mediawiki]
+api_batch_size = 50
+bot_username = "override_bot"
+
+[variants.main]
+enabled = false
+
+[variants.main.google_sheets]
+spreadsheet_id = "override-spreadsheet-id"
+
+[variants.playtest]
+enabled = true
+name = "Playtest Branch"
+app_id = "3090030"
+unity_project = "$REPO_ROOT/variants/playtest/unity"
+editor_scripts = "$REPO_ROOT/src/Assets/Editor"
+game_files = "$REPO_ROOT/variants/playtest/game"
+database = "$REPO_ROOT/variants/playtest/erenshor-playtest.sqlite"
+logs = "$REPO_ROOT/variants/playtest/logs"
+backups = "$REPO_ROOT/variants/playtest/backups"
+images_output = ""
+
+[variants.playtest.google_sheets]
+spreadsheet_id = "test-spreadsheet-id-playtest"

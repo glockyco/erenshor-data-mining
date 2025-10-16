@@ -1,0 +1,15 @@
+# Valid TOML syntax but invalid configuration values
+version = "0.3"
+default_variant = "main"
+
+[global.unity]
+version = "2021.3.45f2"
+path = "/Applications/Unity/Hub/Editor/2021.3.45f2/Unity.app"
+timeout = 99999  # Exceeds max constraint (7200)
+
+[global.assetripper]
+path = "$HOME/Projects/AssetRipper"
+port = 99999  # Exceeds max constraint (65535)
+
+[global.logging]
+level = "invalid_level"  # Not one of: debug, info, warn, error
