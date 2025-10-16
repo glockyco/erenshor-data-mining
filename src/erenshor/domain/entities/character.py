@@ -24,16 +24,26 @@ class DbCharacter(BaseModel):
 
     Id: int
     Guid: Optional[str] = None
-    NPCName: str
     ObjectName: Optional[str] = None
+    NPCName: str
+    MyWorldFaction: Optional[str] = None
+    MyFaction: Optional[str] = None
+    AggroRange: Optional[float] = 0.0
+    AttackRange: Optional[float] = 0.0
     IsPrefab: bool = False
     IsNPC: bool = False
     IsSimPlayer: bool = False
     IsFriendly: bool = False
     IsUnique: bool = False
     IsRare: bool = False
-    MyFaction: Optional[str] = None
-    MyWorldFaction: Optional[str] = None
+    IsVendor: bool = False
+    IsMiningNode: bool = False
+    HasStats: bool = False
+    HasModifyFaction: bool = False
+    Invulnerable: bool = False
+    ShoutOnDeath: Optional[str] = None
+    QuestCompleteOnDeath: Optional[str] = None
+    DestroyOnDeath: bool = False
     Scene: Optional[str] = None
     ZoneName: Optional[str] = None
     X: Optional[float] = None
@@ -53,6 +63,7 @@ class DbCharacter(BaseModel):
     BaseInt: Optional[int] = 0
     BaseWis: Optional[int] = 0
     BaseCha: Optional[int] = 0
+    BaseRes: Optional[int] = 0
     EffectiveMinMR: Optional[int] = 0
     EffectiveMaxMR: Optional[int] = 0
     EffectiveMinER: Optional[int] = 0
@@ -61,6 +72,14 @@ class DbCharacter(BaseModel):
     EffectiveMaxPR: Optional[int] = 0
     EffectiveMinVR: Optional[int] = 0
     EffectiveMaxVR: Optional[int] = 0
+    RunSpeed: Optional[float] = 0.0
+    BaseLifeSteal: Optional[float] = 0.0
+    BaseMHAtkDelay: Optional[float] = 0.0
+    BaseOHAtkDelay: Optional[float] = 0.0
+    PetSpell: Optional[str] = None
+    ProcOnHit: Optional[str] = None
+    ProcOnHitChance: Optional[float] = 0.0
+    VendorDesc: Optional[str] = None
 
     # Junction table fields - populated by JunctionEnricher
     AggressiveFactions: Optional[list[str]] = Field(
