@@ -35,7 +35,6 @@ from erenshor.infrastructure.database.repositories.items import (
 )
 from erenshor.infrastructure.database.repositories.relationships import (
     get_faction_desc_by_ref,
-    get_faction_ref_by_name,
     get_factions,
     get_factions_map,
     get_quest_by_dbname,
@@ -85,7 +84,6 @@ __all__ = [
     "get_items_that_teach_spell",
     # Relationships
     "get_factions_map",
-    "get_faction_ref_by_name",
     "get_faction_desc_by_ref",
     "get_factions",
     "get_quests_rewarding_item",

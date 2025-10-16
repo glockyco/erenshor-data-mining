@@ -35,8 +35,8 @@ class WikiRegistry:
 
         # Manual mappings from mapping.json
         self.manual_mappings: Dict[str, str] = {}  # entity.stable_key -> page_title
-        self.display_name_overrides: Dict[str, str] = {}  # entity.uid -> display_name
-        self.image_name_overrides: Dict[str, str] = {}  # entity.uid -> image_name
+        self.display_name_overrides: Dict[str, str] = {}  # entity.stable_key -> display_name
+        self.image_name_overrides: Dict[str, str] = {}  # entity.stable_key -> image_name
 
         # Metadata
         self.next_page_id: int = 1
@@ -189,11 +189,11 @@ class WikiRegistry:
 
     def get_display_name(self, entity: EntityRef) -> str:
         """Get display name for entity (override if present, otherwise db_name)."""
-        return self.display_name_overrides.get(entity.uid, entity.db_name)
+        return self.display_name_overrides.get(entity.stable_key, entity.db_name)
 
-    def set_display_name_override(self, entity_uid: str, display_name: str) -> None:
+    def set_display_name_override(self, entity_key: str, display_name: str) -> None:
         """Set display name override for an entity."""
-        self.display_name_overrides[entity_uid] = display_name
+        self.display_name_overrides[entity_key] = display_name
 
     def get_image_name(self, entity: EntityRef) -> str:
         """Get image name: override if present, otherwise db_name.
@@ -201,12 +201,11 @@ class WikiRegistry:
         MediaWiki accepts raw special characters in [[File:...]] references,
         so no URL encoding is needed. Always returns an explicit name.
         """
-        # Use override if present, otherwise use db_name (no multi-step fallback)
-        return self.image_name_overrides.get(entity.uid, entity.db_name)
+        return self.image_name_overrides.get(entity.stable_key, entity.db_name)
 
-    def set_image_name_override(self, entity_uid: str, image_name: str) -> None:
+    def set_image_name_override(self, entity_key: str, image_name: str) -> None:
         """Set image name override for an entity."""
-        self.image_name_overrides[entity_uid] = image_name
+        self.image_name_overrides[entity_key] = image_name
 
     def clear_entity_mappings(self) -> None:
         """Clear all entity mappings (for rebuild)."""

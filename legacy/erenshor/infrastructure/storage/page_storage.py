@@ -50,8 +50,11 @@ class PageStorage:
         temp.replace(path)
 
         if is_local_update:
+            # Only update timestamp if content actually changed
+            old_hash = page.updated_content_hash
             page.updated_content_hash = content_hash
-            page.last_updated = datetime.now(timezone.utc)
+            if old_hash != content_hash:
+                page.last_updated = datetime.now(timezone.utc)
         else:
             # Fetched from wiki: reset both hashes to match remote
             page.original_content_hash = content_hash

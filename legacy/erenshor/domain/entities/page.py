@@ -98,6 +98,20 @@ class EntityRef:
             resource_name=skill.ResourceName,
         )
 
+    @classmethod
+    def from_faction(cls, faction: Any) -> "EntityRef":
+        """Create from database faction.
+
+        Uses REFNAME as resource_name (stable across game updates).
+        FactionDesc is the display name (e.g., "The Torchbearers of Brax").
+        """
+        return cls(
+            entity_type=EntityType.FACTION,
+            db_id=None,
+            db_name=faction.FactionDesc,
+            resource_name=faction.REFNAME,
+        )
+
 
 @dataclass
 class WikiPage:

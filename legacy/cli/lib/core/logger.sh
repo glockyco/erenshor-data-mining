@@ -85,9 +85,9 @@ _log() {
         fi
     fi
 
-    # Write to console with color
+    # Write to console with color (to stderr, not stdout)
     if [[ "$LOG_TO_CONSOLE" == true ]]; then
-        echo -e "${color}${log_line}${COLOR_RESET}"
+        echo -e "${color}${log_line}${COLOR_RESET}" >&2
     fi
 }
 

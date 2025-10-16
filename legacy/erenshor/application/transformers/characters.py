@@ -79,37 +79,54 @@ class CharacterTransformer(PageTransformer):
         pet_templates = mw_find_templates(code, ["Pet"])
         enemy_stats_templates = mw_find_templates(code, ["Enemy Stats"])
 
-        # Merge existing imagecaption when blank in generated
+        # Preserve existing Boss type classification and imagecaption
         existing_caption = ""
+        existing_type = ""
         if enemy_templates:
             try:
                 existing = mw_template_params(enemy_templates[0])
                 existing_caption = (existing.get("imagecaption") or "").strip()
+                existing_type = (existing.get("type") or "").strip()
             except Exception as e:
                 logger.warning(
-                    f"Failed to extract imagecaption from existing Enemy template: {e}"
+                    f"Failed to extract params from existing Enemy template: {e}"
                 )
 
-        if existing_caption:
+        # Merge existing values when appropriate
+        if existing_caption or (existing_type == "[[Enemies|Boss]]"):
             try:
                 new_code = mw_parse(rendered_infobox)
                 new_tpls = list(new_code.filter_templates())
                 if new_tpls:
                     nt = new_tpls[0]
-                    cur_cap = ""
-                    try:
-                        if nt.has("imagecaption"):
-                            cur_cap = str(nt.get("imagecaption").value).strip()
-                    except Exception as e:
-                        logger.warning(
-                            f"Failed to extract imagecaption from template: {e}"
-                        )
+
+                    # Preserve imagecaption when blank in generated
+                    if existing_caption:
                         cur_cap = ""
-                    if not cur_cap:
-                        nt.add("imagecaption", existing_caption, showkey=True)
-                        rendered_infobox = str(nt)
+                        try:
+                            if nt.has("imagecaption"):
+                                cur_cap = str(nt.get("imagecaption").value).strip()
+                        except Exception as e:
+                            logger.warning(
+                                f"Failed to extract imagecaption from template: {e}"
+                            )
+                            cur_cap = ""
+                        if not cur_cap:
+                            nt.add("imagecaption", existing_caption, showkey=True)
+
+                    # Preserve Boss type if it was manually set
+                    if existing_type == "[[Enemies|Boss]]":
+                        try:
+                            if nt.has("type"):
+                                nt.add("type", "[[Enemies|Boss]]", showkey=True)
+                        except Exception as e:
+                            logger.warning(
+                                f"Failed to preserve Boss type: {e}"
+                            )
+
+                    rendered_infobox = str(nt)
             except Exception as e:
-                logger.warning(f"Failed to merge imagecaption for character page: {e}")
+                logger.warning(f"Failed to merge cached fields for character page: {e}")
 
         # Remove templates that predate current Enemy-only standard
         for t in enemy_stats_templates:

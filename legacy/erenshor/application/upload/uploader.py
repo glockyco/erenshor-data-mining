@@ -1,4 +1,4 @@
-"""Core upload logic with content comparison and streaming results."""
+"""Core upload logic with streaming results."""
 
 from __future__ import annotations
 
@@ -6,8 +6,6 @@ import logging
 import time
 from collections.abc import Callable, Iterator
 from datetime import datetime, timezone
-
-import httpx
 
 from erenshor.domain.events import PageUploaded, ProgressEvent
 from erenshor.infrastructure.wiki.client import WikiAPIClient
@@ -21,10 +19,11 @@ logger = logging.getLogger(__name__)
 
 
 class PageUploader:
-    """Core upload logic with content comparison and progress tracking.
+    """Core upload logic with rate limiting and progress tracking.
 
-    This class handles the actual uploading of pages with content comparison,
-    rate limiting, and progress callbacks. It's designed to be testable.
+    This class handles the actual uploading of pages with rate limiting
+    and progress callbacks. It trusts local state - if called to upload,
+    it uploads. MediaWiki handles no-op edits efficiently.
     """
 
     def __init__(
@@ -53,8 +52,8 @@ class PageUploader:
     ) -> Iterator[UploadResult]:
         """Upload pages and yield results as they complete.
 
-        If force=False, fetches current content and skips if identical.
-        If force=True, always upload regardless of content comparison.
+        Trust local state - if we're told to upload, we upload.
+        MediaWiki handles no-op edits efficiently.
 
         Progress events are emitted via on_progress callback:
         - PageUploaded(title, success, action): After each page upload attempt
@@ -65,42 +64,12 @@ class PageUploader:
             minor: Mark as minor edit
             bot: Mark as bot edit (requires bot permissions)
             delay: Delay in seconds between uploads (rate limiting)
-            force: Force upload even if content is identical
+            force: Unused - kept for API compatibility
 
         Yields:
-            UploadResult for each page (uploaded, skipped, or failed)
+            UploadResult for each page (uploaded or failed)
         """
         for title, new_content in pages_with_content:
-            # Check if content changed (unless forced)
-            if not force:
-                try:
-                    current = self.client.fetch_page(title)
-                    if current is not None and current == new_content:
-                        # Skip because wiki content is identical
-                        # This is a WIKI-BASED skip - we should update last_pushed
-                        # because we've confirmed the wiki is up to date
-                        result = UploadResult(
-                            title=title,
-                            success=True,
-                            action="skipped_wiki",  # Distinguish from local skips
-                            message="Content identical to wiki",
-                            timestamp=datetime.now(timezone.utc),
-                        )
-                        self.on_progress(
-                            PageUploaded(
-                                page_title=title,
-                                action="skipped",
-                                message="Content identical to wiki",
-                            )
-                        )
-                        yield result
-                        continue
-                except (httpx.HTTPStatusError, httpx.RequestError) as e:
-                    # If fetch fails (network error, API error), proceed with upload anyway
-                    logger.warning(
-                        "Failed to fetch page %s for comparison: %s", title, e
-                    )
-
             # Rate limiting
             if delay > 0:
                 elapsed = time.time() - self.last_upload_time

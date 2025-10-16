@@ -68,6 +68,10 @@ class MappingImporter:
                 rules.custom_mappings[key] = page_title
                 registry.set_manual_mapping(key, page_title)
 
+                # Create the page if it doesn't exist (needed for entities like factions
+                # that aren't registered through build_from_db but need pages for links)
+                registry.get_or_create_page(page_title)
+
             if rule.get("display_name"):
                 display_name = rule["display_name"]
                 rules.display_name_mappings[key] = display_name
@@ -120,10 +124,10 @@ class RegistryBuilder:
             if mapping_rules:
                 display_name = mapping_rules.get_display_name(entity.stable_key)
                 if display_name:
-                    registry.set_display_name_override(entity.uid, display_name)
+                    registry.set_display_name_override(entity.stable_key, display_name)
                 image_name = mapping_rules.get_image_name(entity.stable_key)
                 if image_name:
-                    registry.set_image_name_override(entity.uid, image_name)
+                    registry.set_image_name_override(entity.stable_key, image_name)
 
         for char in get_characters(engine):
             entity = EntityRef.from_character(char)
@@ -137,10 +141,10 @@ class RegistryBuilder:
             if mapping_rules:
                 display_name = mapping_rules.get_display_name(entity.stable_key)
                 if display_name:
-                    registry.set_display_name_override(entity.uid, display_name)
+                    registry.set_display_name_override(entity.stable_key, display_name)
                 image_name = mapping_rules.get_image_name(entity.stable_key)
                 if image_name:
-                    registry.set_image_name_override(entity.uid, image_name)
+                    registry.set_image_name_override(entity.stable_key, image_name)
 
         for spell in get_spells(engine, obtainable_only=False):
             entity = EntityRef.from_spell(spell)
@@ -154,10 +158,10 @@ class RegistryBuilder:
             if mapping_rules:
                 display_name = mapping_rules.get_display_name(entity.stable_key)
                 if display_name:
-                    registry.set_display_name_override(entity.uid, display_name)
+                    registry.set_display_name_override(entity.stable_key, display_name)
                 image_name = mapping_rules.get_image_name(entity.stable_key)
                 if image_name:
-                    registry.set_image_name_override(entity.uid, image_name)
+                    registry.set_image_name_override(entity.stable_key, image_name)
 
         for skill in get_skills(engine):
             entity = EntityRef.from_skill(skill)
@@ -171,10 +175,10 @@ class RegistryBuilder:
             if mapping_rules:
                 display_name = mapping_rules.get_display_name(entity.stable_key)
                 if display_name:
-                    registry.set_display_name_override(entity.uid, display_name)
+                    registry.set_display_name_override(entity.stable_key, display_name)
                 image_name = mapping_rules.get_image_name(entity.stable_key)
                 if image_name:
-                    registry.set_image_name_override(entity.uid, image_name)
+                    registry.set_image_name_override(entity.stable_key, image_name)
 
         # Remove orphaned pages from entity merges in mapping.json
         orphaned_count = registry.remove_orphaned_pages()
