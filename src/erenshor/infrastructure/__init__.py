@@ -8,6 +8,7 @@ provides implementations for interfaces defined in other layers.
 Modules:
 - config: Configuration management
 - database: SQLite database access and repositories
+- logging: Logging setup and configuration
 - publishers: External publishing (Google Sheets, MediaWiki)
 - storage: File system storage operations
 - wiki: MediaWiki API client
