@@ -39,7 +39,9 @@ def test_get_image_name_with_override(temp_registry: WikiRegistry) -> None:
     assert result == "Custom_Image_Name"
 
 
-def test_get_image_name_no_fallback_to_display_name(temp_registry: WikiRegistry) -> None:
+def test_get_image_name_no_fallback_to_display_name(
+    temp_registry: WikiRegistry,
+) -> None:
     """No cascading fallback: display_name does not affect image_name."""
     entity = EntityRef(
         entity_type=EntityType.ITEM,

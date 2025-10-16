@@ -77,7 +77,9 @@ class PathResolver:
         self._validate_project_root()
 
         # Log initialization details
-        logger.info(f"PathResolver initialized: root={self._root}, mode={self._mode}, variant={self._variant}")
+        logger.info(
+            f"PathResolver initialized: root={self._root}, mode={self._mode}, variant={self._variant}"
+        )
         logger.debug(f"Project root exists: {self._root.exists()}")
         logger.debug(f"Database path: {self.db_path}")
         logger.debug(f"Registry dir: {self.registry_dir}")
@@ -428,7 +430,9 @@ class PathResolver:
 _resolver: Optional[PathResolver] = None
 
 
-def get_path_resolver(root: Optional[Path] = None, variant: str = "main") -> PathResolver:
+def get_path_resolver(
+    root: Optional[Path] = None, variant: str = "main"
+) -> PathResolver:
     """Get or create PathResolver singleton.
 
     Args:

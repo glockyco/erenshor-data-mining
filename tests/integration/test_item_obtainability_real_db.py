@@ -60,9 +60,9 @@ def test_spell_scrolls_obtainability_coverage(test_engine: Engine) -> None:
 
     # Verify that all items were classified (function didn't error)
     # Specific obtainability counts depend on test database content
-    assert obtainable_count + unobtainable_count == len(spell_scrolls), (
-        "All scrolls should be classified"
-    )
+    assert obtainable_count + unobtainable_count == len(
+        spell_scrolls
+    ), "All scrolls should be classified"
 
 
 def test_skill_books_obtainability_coverage(test_engine: Engine) -> None:
@@ -91,9 +91,9 @@ def test_skill_books_obtainability_coverage(test_engine: Engine) -> None:
 
     # Verify that all items were classified (function didn't error)
     # Specific obtainability counts depend on test database content
-    assert obtainable_count + unobtainable_count == len(skill_books), (
-        "All skill books should be classified"
-    )
+    assert obtainable_count + unobtainable_count == len(
+        skill_books
+    ), "All skill books should be classified"
 
 
 def test_item_with_multiple_sources(test_engine: Engine) -> None:

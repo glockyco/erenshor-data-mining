@@ -7,7 +7,7 @@ and format the results as spreadsheet rows ready for Google Sheets API.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List
 
 from sqlalchemy import text
 from sqlalchemy.engine import Engine

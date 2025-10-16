@@ -17,11 +17,9 @@ from rich.progress import (
 )
 from rich.table import Table
 
-from erenshor.application.formatters.sheets.items import SheetsFormatter
 from erenshor.application.services.sheets_deploy_service import (
     SheetsDeployService,
 )
-from erenshor.infrastructure.config.settings import load_settings
 from erenshor.infrastructure.config.toml_loader import load_config
 from erenshor.infrastructure.database.repositories import get_engine
 from erenshor.infrastructure.publishers.sheets import GoogleSheetsPublisher
@@ -63,16 +61,13 @@ def deploy(
     console = Console()
 
     # Load configuration
-    settings = load_settings()
     config = load_config()
 
     # Get variant configuration
     variant_config = config.get_variant_config(variant)
     if not variant_config:
         console.print(f"[red]Error: Variant '{variant}' not found in config.toml[/red]")
-        console.print(
-            "\n[yellow]Available variants:[/yellow] main, playtest, demo"
-        )
+        console.print("\n[yellow]Available variants:[/yellow] main, playtest, demo")
         raise typer.Exit(1)
 
     # Check if variant is enabled
@@ -91,9 +86,7 @@ def deploy(
         console.print(
             f"[red]Error: Database not found for variant '{variant}': {db_path}[/red]"
         )
-        console.print(
-            "\n[yellow]Run the export pipeline first:[/yellow]"
-        )
+        console.print("\n[yellow]Run the export pipeline first:[/yellow]")
         console.print(f"  erenshor export --variant {variant}")
         raise typer.Exit(1)
 
@@ -105,9 +98,7 @@ def deploy(
         console.print(
             f"[red]Error: No Google Sheets spreadsheet_id configured for variant '{variant}'[/red]"
         )
-        console.print(
-            "\n[yellow]Add spreadsheet_id to config.toml:[/yellow]"
-        )
+        console.print("\n[yellow]Add spreadsheet_id to config.toml:[/yellow]")
         console.print(f"  [variants.{variant}.google_sheets]")
         console.print('  spreadsheet_id = "your_spreadsheet_id_here"')
         raise typer.Exit(1)
@@ -124,7 +115,9 @@ def deploy(
                 "\n[yellow]Add credentials_file to config.toml or use --credentials flag[/yellow]"
             )
             console.print("  [global.google_sheets]")
-            console.print('  credentials_file = "$HOME/.config/erenshor/google-credentials.json"')
+            console.print(
+                '  credentials_file = "$HOME/.config/erenshor/google-credentials.json"'
+            )
             raise typer.Exit(1)
 
         # Expand path
@@ -132,12 +125,8 @@ def deploy(
         credentials = Path(credentials_path_str)
 
     if not credentials.exists():
-        console.print(
-            f"[red]Error: Credentials file not found: {credentials}[/red]"
-        )
-        console.print(
-            "\n[yellow]Get credentials from Google Cloud Console:[/yellow]"
-        )
+        console.print(f"[red]Error: Credentials file not found: {credentials}[/red]")
+        console.print("\n[yellow]Get credentials from Google Cloud Console:[/yellow]")
         console.print("  1. Go to https://console.cloud.google.com/")
         console.print("  2. Create a service account with Google Sheets API access")
         console.print("  3. Download JSON credentials file")
@@ -172,9 +161,7 @@ def deploy(
         service.test_connection()
     except Exception as e:
         console.print(f"[red]Error: Failed to connect to Google Sheets API: {e}[/red]")
-        console.print(
-            "\n[yellow]Check:[/yellow]"
-        )
+        console.print("\n[yellow]Check:[/yellow]")
         console.print("  - Credentials file is valid")
         console.print("  - Service account has access to the spreadsheet")
         console.print("  - Google Sheets API is enabled in Google Cloud Console")
@@ -200,7 +187,7 @@ def deploy(
         raise typer.Exit(1)
 
     # Show deployment info
-    console.print(f"[bold cyan]Google Sheets Deployment[/bold cyan]")
+    console.print("[bold cyan]Google Sheets Deployment[/bold cyan]")
     console.print(f"Variant:       [yellow]{variant}[/yellow]")
     console.print(f"Database:      [dim]{db_path}[/dim]")
     console.print(f"Spreadsheet:   [dim]{spreadsheet_id}[/dim]")
@@ -270,9 +257,7 @@ def list_sheets() -> None:
     sql_files = sorted(queries_dir.glob("*.sql"))
 
     if not sql_files:
-        console.print(
-            f"[yellow]No query files found in {queries_dir}[/yellow]"
-        )
+        console.print(f"[yellow]No query files found in {queries_dir}[/yellow]")
         raise typer.Exit(0)
 
     # Display table
@@ -285,9 +270,7 @@ def list_sheets() -> None:
         table.add_row(sheet_name, sql_file.name)
 
     console.print(table)
-    console.print(
-        f"\n[dim]Query directory: {queries_dir}[/dim]"
-    )
+    console.print(f"\n[dim]Query directory: {queries_dir}[/dim]")
 
 
 @app.command("validate")
@@ -313,9 +296,7 @@ def validate(
     variant_config = config.get_variant_config(variant)
     if not variant_config:
         console.print(f"[red]✗[/red] Variant '{variant}' not found in config.toml")
-        console.print(
-            "[yellow]Available variants:[/yellow] main, playtest, demo"
-        )
+        console.print("[yellow]Available variants:[/yellow] main, playtest, demo")
         raise typer.Exit(1)
 
     console.print(f"[green]✓[/green] Variant '{variant}' found in config.toml")
@@ -332,14 +313,14 @@ def validate(
 
     if not spreadsheet_id:
         console.print("[red]✗[/red] No spreadsheet_id configured")
-        console.print(
-            "\n[yellow]Add to config.toml:[/yellow]"
-        )
+        console.print("\n[yellow]Add to config.toml:[/yellow]")
         console.print(f"  [variants.{variant}.google_sheets]")
         console.print('  spreadsheet_id = "your_spreadsheet_id_here"')
         raise typer.Exit(1)
 
-    console.print(f"[green]✓[/green] Spreadsheet ID configured: [dim]{spreadsheet_id}[/dim]")
+    console.print(
+        f"[green]✓[/green] Spreadsheet ID configured: [dim]{spreadsheet_id}[/dim]"
+    )
 
     # Check credentials file
     global_config = config.get_global_config("google_sheets")
@@ -347,11 +328,11 @@ def validate(
 
     if not credentials_path_str:
         console.print("[red]✗[/red] No credentials_file configured")
-        console.print(
-            "\n[yellow]Add to config.toml:[/yellow]"
-        )
+        console.print("\n[yellow]Add to config.toml:[/yellow]")
         console.print("  [global.google_sheets]")
-        console.print('  credentials_file = "$HOME/.config/erenshor/google-credentials.json"')
+        console.print(
+            '  credentials_file = "$HOME/.config/erenshor/google-credentials.json"'
+        )
         raise typer.Exit(1)
 
     # Expand path
@@ -360,9 +341,7 @@ def validate(
 
     if not credentials.exists():
         console.print(f"[red]✗[/red] Credentials file not found: {credentials}")
-        console.print(
-            "\n[yellow]Get credentials from Google Cloud Console:[/yellow]"
-        )
+        console.print("\n[yellow]Get credentials from Google Cloud Console:[/yellow]")
         console.print("  1. Go to https://console.cloud.google.com/")
         console.print("  2. Create a service account with Google Sheets API access")
         console.print("  3. Download JSON credentials file")
@@ -386,9 +365,7 @@ def validate(
         publisher.test_connection()
     except Exception as e:
         console.print(f"[red]✗[/red] Failed to connect to Google Sheets API: {e}")
-        console.print(
-            "\n[yellow]Check:[/yellow]"
-        )
+        console.print("\n[yellow]Check:[/yellow]")
         console.print("  - Credentials file is valid JSON")
         console.print("  - Service account exists in Google Cloud Console")
         console.print("  - Google Sheets API is enabled")
@@ -420,25 +397,27 @@ def validate(
             # This requires Editor permissions
             service.spreadsheets().batchUpdate(
                 spreadsheetId=spreadsheet_id,
-                body={"requests": []},  # Empty request - does nothing but requires Editor
+                body={
+                    "requests": []
+                },  # Empty request - does nothing but requires Editor
             ).execute()
 
             console.print(
-                f"[green]✓[/green] Write access confirmed (Editor permissions)"
+                "[green]✓[/green] Write access confirmed (Editor permissions)"
             )
 
         except HttpError as e:
             if e.status_code == 403:
                 console.print(
-                    f"[red]✗[/red] No write access to spreadsheet (Viewer permissions only)"
+                    "[red]✗[/red] No write access to spreadsheet (Viewer permissions only)"
                 )
-                console.print(
-                    "\n[yellow]Fix:[/yellow]"
-                )
+                console.print("\n[yellow]Fix:[/yellow]")
                 console.print("  1. Open the spreadsheet in Google Sheets")
                 console.print(f"     {spreadsheet_id}")
                 console.print("  2. Click 'Share' button")
-                console.print("  3. Find the service account email in your credentials file:")
+                console.print(
+                    "  3. Find the service account email in your credentials file:"
+                )
                 console.print(f"     [dim]grep client_email {credentials}[/dim]")
                 console.print("  4. If the service account is already shared:")
                 console.print("     - Click the dropdown next to their email")
@@ -448,32 +427,21 @@ def validate(
                 console.print("     - Grant 'Editor' permissions (not 'Viewer')")
                 raise typer.Exit(1)
 
-
     except HttpError as e:
         if e.status_code == 404:
-            console.print(
-                f"[red]✗[/red] Spreadsheet not found: {spreadsheet_id}"
-            )
-            console.print(
-                "\n[yellow]Check:[/yellow]"
-            )
+            console.print(f"[red]✗[/red] Spreadsheet not found: {spreadsheet_id}")
+            console.print("\n[yellow]Check:[/yellow]")
             console.print("  - Spreadsheet ID is correct")
             console.print("  - Spreadsheet exists")
         elif e.status_code == 403:
             console.print(
                 f"[red]✗[/red] Access denied to spreadsheet: {spreadsheet_id}"
             )
-            console.print(
-                "\n[yellow]Fix:[/yellow]"
-            )
+            console.print("\n[yellow]Fix:[/yellow]")
             console.print("  1. Open the spreadsheet in Google Sheets")
             console.print("  2. Click 'Share' button")
-            console.print(
-                f"  3. Add service account email with Editor permissions"
-            )
-            console.print(
-                f"     (Find email in credentials JSON: 'client_email' field)"
-            )
+            console.print("  3. Add service account email with Editor permissions")
+            console.print("     (Find email in credentials JSON: 'client_email' field)")
         else:
             console.print(f"[red]✗[/red] Error accessing spreadsheet: {e}")
 
@@ -484,12 +452,8 @@ def validate(
         raise typer.Exit(1)
 
     # All checks passed
-    console.print(
-        "\n[bold green]✓ All validation checks passed![/bold green]"
-    )
-    console.print(
-        "\n[dim]Ready to deploy sheets with:[/dim]"
-    )
+    console.print("\n[bold green]✓ All validation checks passed![/bold green]")
+    console.print("\n[dim]Ready to deploy sheets with:[/dim]")
     console.print(f"  erenshor-wiki sheets deploy --variant {variant}")
 
 
@@ -506,9 +470,7 @@ def _display_deployment_summary(
         console: Rich console for output
     """
     # Summary table
-    table = Table(
-        title="Deployment Complete" if not dry_run else "Dry Run Complete"
-    )
+    table = Table(title="Deployment Complete" if not dry_run else "Dry Run Complete")
     table.add_column("Metric")
     table.add_column("Value", style="cyan")
 
@@ -546,7 +508,11 @@ def _display_deployment_summary(
         details_table.add_column("Status")
 
         for deployment in result.deployments:
-            status = "[green]✓ Success[/green]" if deployment.success else f"[red]✗ {deployment.error}[/red]"
+            status = (
+                "[green]✓ Success[/green]"
+                if deployment.success
+                else f"[red]✗ {deployment.error}[/red]"
+            )
             details_table.add_row(
                 deployment.sheet_name,
                 str(deployment.row_count),

@@ -60,14 +60,18 @@ def process(
     variant_config = config.get_variant_config(variant)
 
     if not variant_config:
-        console.print(f"[red]Error: Variant '{variant}' not found in configuration[/red]")
+        console.print(
+            f"[red]Error: Variant '{variant}' not found in configuration[/red]"
+        )
         raise typer.Exit(1)
 
     # Setup paths
     db_path = Path(variant_config["database"])
     unity_project = Path(variant_config["unity_project"])
     texture_dir = unity_project / "Assets" / "Texture2D"
-    output_dir = Path(variant_config.get("images_output", f"variants/{variant}/images/processed"))
+    output_dir = Path(
+        variant_config.get("images_output", f"variants/{variant}/images/processed")
+    )
 
     # Verify paths
     if not db_path.exists():
@@ -120,9 +124,7 @@ def process(
         TimeElapsedColumn(),
         console=console,
     ) as progress:
-        task = progress.add_task(
-            "[cyan]Processing images...", total=None
-        )
+        task = progress.add_task("[cyan]Processing images...", total=None)
 
         for result in processor.process_images(force=force):
             if result.action == "processed":
@@ -153,7 +155,9 @@ def process(
     console.print(f"  Total: {sum(stats.values())}")
 
     if stats["failed"] > 0:
-        console.print("[yellow]Some images failed to process (see errors above)[/yellow]")
+        console.print(
+            "[yellow]Some images failed to process (see errors above)[/yellow]"
+        )
         raise typer.Exit(1)
 
     if dry_run:
@@ -169,7 +173,9 @@ def upload(
     force: bool = typer.Option(False, "--force", help="Re-upload existing images"),
     filter: str = typer.Option(None, "--filter", help="Filter images by name"),
     batch_size: int = typer.Option(None, "--batch-size", help="Max images to upload"),
-    delay: float = typer.Option(None, "--delay", help="Delay between uploads (seconds)"),
+    delay: float = typer.Option(
+        None, "--delay", help="Delay between uploads (seconds)"
+    ),
 ) -> None:
     """Upload processed images to MediaWiki.
 
@@ -223,15 +229,21 @@ def upload(
     variant_config = config.get_variant_config(variant)
 
     if not variant_config:
-        console.print(f"[red]Error: Variant '{variant}' not found in configuration[/red]")
+        console.print(
+            f"[red]Error: Variant '{variant}' not found in configuration[/red]"
+        )
         raise typer.Exit(1)
 
     # Setup paths
-    images_dir = Path(variant_config.get("images_output", f"variants/{variant}/images/processed"))
+    images_dir = Path(
+        variant_config.get("images_output", f"variants/{variant}/images/processed")
+    )
     db_path = Path(variant_config["database"])
 
     if not images_dir.exists():
-        console.print(f"[red]Error: Processed images directory not found: {images_dir}[/red]")
+        console.print(
+            f"[red]Error: Processed images directory not found: {images_dir}[/red]"
+        )
         console.print("Run 'images process' first")
         raise typer.Exit(1)
 
@@ -263,7 +275,9 @@ def upload(
         auth = MediaWikiAuth(credentials)
         try:
             if not auth.login():
-                console.print("[red]Error: Authentication failed (wrong credentials)[/red]")
+                console.print(
+                    "[red]Error: Authentication failed (wrong credentials)[/red]"
+                )
                 raise typer.Exit(1)
         except WikiAPIError as e:
             console.print(f"[red]Error: Authentication failed: {e}[/red]")
@@ -273,12 +287,16 @@ def upload(
     # Build upload list: resource name → display name mapping
     # Images are stored as resource names (e.g., "GEN - KGTI.png")
     # We need to map them to display names for wiki upload
-    upload_items: list[tuple[Path, str, str]] = []  # (file_path, wiki_filename, original_name)
+    upload_items: list[
+        tuple[Path, str, str]
+    ] = []  # (file_path, wiki_filename, original_name)
     skipped_excluded = 0
 
     all_image_files = sorted(images_dir.glob("*.png"))
     if filter:
-        all_image_files = [f for f in all_image_files if filter.lower() in f.stem.lower()]
+        all_image_files = [
+            f for f in all_image_files if filter.lower() in f.stem.lower()
+        ]
 
     # Map resource names to entities for quick lookup
     entity_map: dict[str, EntityRef] = {}
@@ -297,7 +315,9 @@ def upload(
             # Skip malformed filenames
             skipped_excluded += 1
             if dry_run:
-                console.print(f"[dim]Skipping malformed filename: {image_file.name}[/dim]")
+                console.print(
+                    f"[dim]Skipping malformed filename: {image_file.name}[/dim]"
+                )
             continue
 
         # Convert filename back to stable key format (replace @ with :)
@@ -325,7 +345,9 @@ def upload(
 
     console.print(f"[bold]Found {len(upload_items)} images to upload[/bold]")
     if skipped_excluded > 0:
-        console.print(f"[dim]Skipped {skipped_excluded} images for excluded entities[/dim]")
+        console.print(
+            f"[dim]Skipped {skipped_excluded} images for excluded entities[/dim]"
+        )
     if batch_size and len(upload_items) > batch_size:
         console.print(f"[yellow]Batch limit: {batch_size} images[/yellow]")
     if not dry_run and delay:
@@ -340,7 +362,9 @@ def upload(
             # List all files in File: namespace (namespace 6)
             file_titles = client.list_pages(namespace=6)
             existing_files = set(file_titles)
-            console.print(f"[dim]Found {len(existing_files)} existing files on wiki[/dim]")
+            console.print(
+                f"[dim]Found {len(existing_files)} existing files on wiki[/dim]"
+            )
         except Exception as e:
             console.print(f"[yellow]Warning: Could not fetch file list: {e}[/yellow]")
             console.print("[yellow]Proceeding without existence checks[/yellow]")
@@ -375,7 +399,9 @@ def upload(
 
             # Upload
             if dry_run:
-                console.print(f"[dim]Would upload: {image_file.name} → {wiki_filename}[/dim]")
+                console.print(
+                    f"[dim]Would upload: {image_file.name} → {wiki_filename}[/dim]"
+                )
                 stats["uploaded"] += 1
                 processed += 1
 
@@ -403,6 +429,7 @@ def upload(
                     # Add delay between uploads
                     if delay:
                         import time
+
                         time.sleep(delay)
                 except WikiAPIError as e:
                     error_msg = str(e)
@@ -413,7 +440,9 @@ def upload(
                         # Don't count as processed since we didn't actually upload
                     else:
                         # Real error
-                        console.print(f"[red]Failed to upload {wiki_filename}: {e}[/red]")
+                        console.print(
+                            f"[red]Failed to upload {wiki_filename}: {e}[/red]"
+                        )
                         stats["failed"] += 1
                         processed += 1
                 except Exception as e:
@@ -437,18 +466,26 @@ def upload(
         # Show redirects that would be created
         if redirects_to_create:
             console.print()
-            console.print(f"[bold cyan]Redirects that would be created: {len(redirects_to_create)}[/bold cyan]")
+            console.print(
+                f"[bold cyan]Redirects that would be created: {len(redirects_to_create)}[/bold cyan]"
+            )
             for original, sanitized in redirects_to_create[:10]:  # Show first 10
-                console.print(f"  [yellow]File:{original}[/yellow] → [green]File:{sanitized}[/green]")
+                console.print(
+                    f"  [yellow]File:{original}[/yellow] → [green]File:{sanitized}[/green]"
+                )
             if len(redirects_to_create) > 10:
-                console.print(f"  [dim]... and {len(redirects_to_create) - 10} more[/dim]")
+                console.print(
+                    f"  [dim]... and {len(redirects_to_create) - 10} more[/dim]"
+                )
     else:
-        console.print(f"[green]Upload complete[/green]")
+        console.print("[green]Upload complete[/green]")
 
         # Create redirect pages automatically
         if redirects_to_create:
             console.print()
-            console.print(f"[bold cyan]Creating {len(redirects_to_create)} redirect pages...[/bold cyan]")
+            console.print(
+                f"[bold cyan]Creating {len(redirects_to_create)} redirect pages...[/bold cyan]"
+            )
 
             redirect_stats = {"created": 0, "failed": 0}
 
@@ -460,7 +497,9 @@ def upload(
                 TimeElapsedColumn(),
                 console=console,
             ) as progress:
-                task = progress.add_task("[cyan]Creating redirects...", total=len(redirects_to_create))
+                task = progress.add_task(
+                    "[cyan]Creating redirects...", total=len(redirects_to_create)
+                )
 
                 for original, sanitized in redirects_to_create:
                     redirect_title = f"File:{original}"
@@ -479,17 +518,24 @@ def upload(
                         # Add delay between redirects
                         if delay:
                             import time
+
                             time.sleep(delay)
                     except Exception as e:
-                        console.print(f"[red]Failed to create redirect {redirect_title}: {e}[/red]")
+                        console.print(
+                            f"[red]Failed to create redirect {redirect_title}: {e}[/red]"
+                        )
                         redirect_stats["failed"] += 1
 
                     progress.advance(task)
 
             console.print()
-            console.print(f"[green]Redirects created: {redirect_stats['created']}[/green]")
+            console.print(
+                f"[green]Redirects created: {redirect_stats['created']}[/green]"
+            )
             if redirect_stats["failed"] > 0:
-                console.print(f"[red]Redirects failed: {redirect_stats['failed']}[/red]")
+                console.print(
+                    f"[red]Redirects failed: {redirect_stats['failed']}[/red]"
+                )
 
     if stats["failed"] > 0:
         raise typer.Exit(1)
@@ -499,8 +545,12 @@ def upload(
 def fetch(
     variant: str = typer.Option("main", help="Variant to fetch images for"),
     force: bool = typer.Option(False, "--force", help="Re-download existing images"),
-    delay: float = typer.Option(0.5, "--delay", help="Delay between downloads (seconds)"),
-    batch_size: int = typer.Option(0, "--batch-size", help="Limit number of images to fetch (0 = all)"),
+    delay: float = typer.Option(
+        0.5, "--delay", help="Delay between downloads (seconds)"
+    ),
+    batch_size: int = typer.Option(
+        0, "--batch-size", help="Limit number of images to fetch (0 = all)"
+    ),
 ) -> None:
     """Fetch item and ability images from wiki for comparison.
 
@@ -535,7 +585,9 @@ def fetch(
     variant_config = config.get_variant_config(variant)
 
     if not variant_config:
-        console.print(f"[red]Error: Variant '{variant}' not found in configuration[/red]")
+        console.print(
+            f"[red]Error: Variant '{variant}' not found in configuration[/red]"
+        )
         raise typer.Exit(1)
 
     # Setup paths
@@ -571,7 +623,9 @@ def fetch(
     console.print()
 
     # Build list of images to fetch (items and spells only)
-    images_to_fetch: list[tuple[EntityRef, str, str]] = []  # (entity, local_filename, wiki_filename)
+    images_to_fetch: list[
+        tuple[EntityRef, str, str]
+    ] = []  # (entity, local_filename, wiki_filename)
 
     for page in registry.list_pages():
         for entity in registry.list_entities_for_page(page.title):
@@ -582,7 +636,9 @@ def fetch(
 
                 # Wiki filename is the sanitized display name
                 display_name = registry.get_image_name(entity)
-                sanitized_name = display_name.replace(":", "").replace("|", "").replace("#", "")
+                sanitized_name = (
+                    display_name.replace(":", "").replace("|", "").replace("#", "")
+                )
                 wiki_filename = f"{sanitized_name}.png"
 
                 images_to_fetch.append((entity, local_filename, wiki_filename))
@@ -619,21 +675,27 @@ def fetch(
             cache_path = cache_dir / local_filename
 
             # Skip if already cached (unless force)
-            if not force and local_filename in existing_metadata and cache_path.exists():
+            if (
+                not force
+                and local_filename in existing_metadata
+                and cache_path.exists()
+            ):
                 stats["skipped"] += 1
                 progress.advance(task)
                 continue
 
             try:
                 # Fetch imageinfo from wiki
-                response = client._request({
-                    "action": "query",
-                    "format": "json",
-                    "titles": file_title,
-                    "prop": "imageinfo",
-                    "iiprop": "url|sha1|size",
-                    "formatversion": "2",
-                })
+                response = client._request(
+                    {
+                        "action": "query",
+                        "format": "json",
+                        "titles": file_title,
+                        "prop": "imageinfo",
+                        "iiprop": "url|sha1|size",
+                        "formatversion": "2",
+                    }
+                )
 
                 pages = response.get("query", {}).get("pages", [])
                 if not pages or pages[0].get("missing"):
@@ -654,7 +716,9 @@ def fetch(
                 size = imageinfo.get("size", 0)
 
                 if not image_url or not sha1:
-                    console.print(f"[yellow]Warning: Missing URL or SHA-1 for {local_filename}[/yellow]")
+                    console.print(
+                        f"[yellow]Warning: Missing URL or SHA-1 for {local_filename}[/yellow]"
+                    )
                     stats["failed"] += 1
                     progress.advance(task)
                     continue
@@ -713,7 +777,9 @@ def fetch(
 
     if stats["missing"] > 0:
         console.print()
-        console.print(f"[yellow]{stats['missing']} images not yet on wiki (will be uploaded)[/yellow]")
+        console.print(
+            f"[yellow]{stats['missing']} images not yet on wiki (will be uploaded)[/yellow]"
+        )
 
     if stats["failed"] > 0:
         raise typer.Exit(1)
@@ -722,7 +788,9 @@ def fetch(
 @app.command("compare")
 def compare(
     variant: str = typer.Option("main", help="Variant to compare images for"),
-    show_all: bool = typer.Option(False, "--show-all", help="Show all files (not just differences)"),
+    show_all: bool = typer.Option(
+        False, "--show-all", help="Show all files (not just differences)"
+    ),
     limit: int = typer.Option(0, "--limit", help="Limit output to N files (0 = all)"),
 ) -> None:
     """Compare SHA-1 hashes between cached wiki images and local processed images.
@@ -746,13 +814,17 @@ def compare(
     variant_config = config.get_variant_config(variant)
 
     if not variant_config:
-        console.print(f"[red]Error: Variant '{variant}' not found in configuration[/red]")
+        console.print(
+            f"[red]Error: Variant '{variant}' not found in configuration[/red]"
+        )
         raise typer.Exit(1)
 
     # Setup paths
     variant_root = Path(variant_config["database"]).parent
     cache_dir = variant_root / "image_cache"
-    processed_dir = Path(variant_config.get("images_output", f"variants/{variant}/images/processed"))
+    processed_dir = Path(
+        variant_config.get("images_output", f"variants/{variant}/images/processed")
+    )
     metadata_file = variant_root / "image_metadata.json"
 
     # Check if cache exists
@@ -762,7 +834,9 @@ def compare(
         raise typer.Exit(1)
 
     if not processed_dir.exists():
-        console.print(f"[red]Error: Processed images directory not found: {processed_dir}[/red]")
+        console.print(
+            f"[red]Error: Processed images directory not found: {processed_dir}[/red]"
+        )
         console.print("Run 'images process' first to process images")
         raise typer.Exit(1)
 
@@ -843,11 +917,13 @@ def compare(
                 items_to_show.append((filename, "[green]Identical[/green]", sha1[:8]))
 
         for filename, wiki_sha1, local_sha1 in different:
-            items_to_show.append((
-                filename,
-                "[yellow]Different[/yellow]",
-                f"Wiki: {wiki_sha1[:8]}, Local: {local_sha1[:8]}"
-            ))
+            items_to_show.append(
+                (
+                    filename,
+                    "[yellow]Different[/yellow]",
+                    f"Wiki: {wiki_sha1[:8]}, Local: {local_sha1[:8]}",
+                )
+            )
 
         for filename in new_local:
             local_sha1 = local_hashes[filename]
@@ -869,15 +945,24 @@ def compare(
         console.print(table)
 
         if limit > 0 and len(items_to_show) >= limit:
-            total_remaining = len(different) + len(new_local) + (len(identical) if show_all else 0) - limit
+            total_remaining = (
+                len(different)
+                + len(new_local)
+                + (len(identical) if show_all else 0)
+                - limit
+            )
             if total_remaining > 0:
-                console.print(f"\n[dim]... and {total_remaining} more (use --limit to show more)[/dim]")
+                console.print(
+                    f"\n[dim]... and {total_remaining} more (use --limit to show more)[/dim]"
+                )
 
     # Show next steps
     if different or new_local:
         console.print()
         console.print("[yellow]Next steps:[/yellow]")
-        console.print(f"  → Upload {len(different) + len(new_local)} images: images upload")
+        console.print(
+            f"  → Upload {len(different) + len(new_local)} images: images upload"
+        )
         console.print("  → Preview upload: images upload --dry-run")
 
     # Exit with error if there are differences (useful for CI/CD)

@@ -49,7 +49,9 @@ def test_query_files_not_empty():
     for sql_file in sql_files:
         content = sql_file.read_text(encoding="utf-8").strip()
         assert content, f"Query file {sql_file.name} is empty"
-        assert "SELECT" in content.upper(), f"Query file {sql_file.name} doesn't contain SELECT"
+        assert (
+            "SELECT" in content.upper()
+        ), f"Query file {sql_file.name} doesn't contain SELECT"
 
 
 def test_sheets_formatter_get_sheet_names():
@@ -100,8 +102,8 @@ def test_query_files_have_valid_sql():
         upper_content = content.upper()
 
         # Should start with SELECT or WITH (for CTEs)
-        assert (
-            upper_content.startswith("SELECT") or upper_content.startswith("WITH")
+        assert upper_content.startswith("SELECT") or upper_content.startswith(
+            "WITH"
         ), f"{sql_file.name} doesn't start with SELECT or WITH"
 
         # Should end with semicolon (optional but good practice)

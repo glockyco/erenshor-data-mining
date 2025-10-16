@@ -54,8 +54,12 @@ def format_drops(
         return (-probability, item_name)
 
     # Prepare entries with sort keys
-    guaranteed_entries_no_pct: list[tuple[tuple[float, str], str]] = []  # For guaranteeddrops field
-    all_entries_with_pct: list[tuple[tuple[float, str], str]] = []  # For droprates field
+    guaranteed_entries_no_pct: list[
+        tuple[tuple[float, str], str]
+    ] = []  # For guaranteeddrops field
+    all_entries_with_pct: list[
+        tuple[tuple[float, str], str]
+    ] = []  # For droprates field
 
     for drop_data in loot_rows:
         resource_name = drop_data.get("ResourceName", "") or ""

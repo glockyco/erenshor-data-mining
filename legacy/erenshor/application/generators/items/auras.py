@@ -116,9 +116,7 @@ class AuraGenerator(ItemGeneratorBase):
             itemid=item.Id if item.Id is not None else "",
         )
 
-        aura_rendered = normalize_wikitext(
-            render_template("items/item.j2", aura_ctx)
-        )
+        aura_rendered = normalize_wikitext(render_template("items/item.j2", aura_ctx))
         return RenderedBlock(
             page_title=page_title,
             block_id=item.ResourceName,

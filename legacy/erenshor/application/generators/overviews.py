@@ -12,7 +12,6 @@ from sqlalchemy.engine import Engine
 
 from erenshor.application.generators.base import GeneratedContent
 from erenshor.application.models import RenderedBlock
-from erenshor.domain.entities.page import EntityRef
 from erenshor.domain.services.item_classifier import classify_item_kind
 from erenshor.domain.value_objects.entity_type import EntityType
 from erenshor.infrastructure.database.repositories import (
@@ -20,7 +19,6 @@ from erenshor.infrastructure.database.repositories import (
     get_items,
     get_spell_by_id,
 )
-from erenshor.infrastructure.templates.engine import render_template
 from erenshor.registry.core import WikiRegistry
 from erenshor.registry.links import RegistryLinkResolver
 from erenshor.shared.game_constants import WIKITEXT_LINE_SEPARATOR

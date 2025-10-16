@@ -2,23 +2,17 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 
 import pytest
 from sqlalchemy.engine import Engine
 
-from erenshor.application.services.update_service import UpdateService
 from erenshor.domain.entities.page import EntityRef
-from erenshor.domain.events import PageUpdated
-from erenshor.domain.value_objects.entity_type import EntityType
-from erenshor.infrastructure.storage.page_storage import PageStorage
 from erenshor.registry.core import WikiRegistry
 
 
 def test_image_name_in_spell_generation(
     test_engine: Engine,
     test_registry: WikiRegistry,
-    test_link_resolver: RegistryLinkResolver,
 ) -> None:
     """Spell generators use custom image_name from registry."""
     from erenshor.infrastructure.database.repositories import get_spells
@@ -34,15 +28,15 @@ def test_image_name_in_spell_generation(
     test_registry.set_image_name_override(entity.uid, "Custom_Spell_Image")
 
     image_name = test_registry.get_image_name(entity)
-    assert image_name == "Custom_Spell_Image", (
-        f"Expected 'Custom_Spell_Image', got '{image_name}'"
-    )
+    assert (
+        image_name == "Custom_Spell_Image"
+    ), f"Expected 'Custom_Spell_Image', got '{image_name}'"
 
     test_registry.image_name_overrides.pop(entity.uid)
     image_name = test_registry.get_image_name(entity)
-    assert image_name == spell.SpellName, (
-        f"Should fall back to db_name '{spell.SpellName}', got '{image_name}'"
-    )
+    assert (
+        image_name == spell.SpellName
+    ), f"Should fall back to db_name '{spell.SpellName}', got '{image_name}'"
 
 
 def test_image_name_in_item_generation(

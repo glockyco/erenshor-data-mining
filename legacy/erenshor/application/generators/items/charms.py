@@ -84,7 +84,9 @@ class CharmGenerator(ItemGeneratorBase):
             craftsource=WIKITEXT_LINE_SEPARATOR.join(craft_sources)
             if craft_sources
             else "",
-            componentfor=WIKITEXT_LINE_SEPARATOR.join(component_for) if component_for else "",
+            componentfor=WIKITEXT_LINE_SEPARATOR.join(component_for)
+            if component_for
+            else "",
             relic="",
             classes="",
             effects="",
@@ -100,9 +102,7 @@ class CharmGenerator(ItemGeneratorBase):
             itemid=item.Id if item.Id is not None else "",
         )
 
-        inf_rendered = normalize_wikitext(
-            render_template("items/item.j2", inf_ctx)
-        )
+        inf_rendered = normalize_wikitext(render_template("items/item.j2", inf_ctx))
         blocks.append(
             RenderedBlock(
                 page_title=page_title,
@@ -142,13 +142,27 @@ class CharmGenerator(ItemGeneratorBase):
             image=f"[[File:{image_name}.png|80px]]",
             name=page_title,
             description=item.Lore or "",
-            strscaling=format_scaling(scaling_stat.StrScaling if scaling_stat else None),
-            endscaling=format_scaling(scaling_stat.EndScaling if scaling_stat else None),
-            dexscaling=format_scaling(scaling_stat.DexScaling if scaling_stat else None),
-            agiscaling=format_scaling(scaling_stat.AgiScaling if scaling_stat else None),
-            intscaling=format_scaling(scaling_stat.IntScaling if scaling_stat else None),
-            wisscaling=format_scaling(scaling_stat.WisScaling if scaling_stat else None),
-            chascaling=format_scaling(scaling_stat.ChaScaling if scaling_stat else None),
+            strscaling=format_scaling(
+                scaling_stat.StrScaling if scaling_stat else None
+            ),
+            endscaling=format_scaling(
+                scaling_stat.EndScaling if scaling_stat else None
+            ),
+            dexscaling=format_scaling(
+                scaling_stat.DexScaling if scaling_stat else None
+            ),
+            agiscaling=format_scaling(
+                scaling_stat.AgiScaling if scaling_stat else None
+            ),
+            intscaling=format_scaling(
+                scaling_stat.IntScaling if scaling_stat else None
+            ),
+            wisscaling=format_scaling(
+                scaling_stat.WisScaling if scaling_stat else None
+            ),
+            chascaling=format_scaling(
+                scaling_stat.ChaScaling if scaling_stat else None
+            ),
             arcanist=("True" if has("Arcanist") else ""),
             duelist=("True" if has("Duelist") else ""),
             druid=("True" if has("Druid") else ""),

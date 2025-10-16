@@ -280,21 +280,29 @@ class CharacterGenerator(BaseGenerator):
                         continue
                     sign = "+" if mod.modifier_value > 0 else ""
                     description = faction_desc_by_ref[mod.faction_name]
-                    faction_link = link_resolver.faction_link(mod.faction_name, description)
-                    faction_entries.append((description, mod.modifier_value, sign, faction_link))
+                    faction_link = link_resolver.faction_link(
+                        mod.faction_name, description
+                    )
+                    faction_entries.append(
+                        (description, mod.modifier_value, sign, faction_link)
+                    )
 
                 # Sort by display name
                 faction_entries.sort(key=lambda x: x[0])
 
                 # Format sorted entries
-                formatted = [f"{sign}{value} {link}" for _, value, sign, link in faction_entries]
+                formatted = [
+                    f"{sign}{value} {link}" for _, value, sign, link in faction_entries
+                ]
                 faction_change = WIKITEXT_LINE_SEPARATOR.join(formatted)
 
             faction_display = ""
             if char.MyWorldFaction:
                 # MyWorldFaction contains faction REFNAME (stable ID)
                 faction_desc = faction_desc_by_ref[char.MyWorldFaction]
-                faction_display = link_resolver.faction_link(char.MyWorldFaction, faction_desc)
+                faction_display = link_resolver.faction_link(
+                    char.MyWorldFaction, faction_desc
+                )
             elif char.MyFaction in (
                 # Per the game logic, MyFaction values are auto-mapped to world factions:
                 # - Villager, GoodHuman, GoodGuard, OtherGood, PreyAnimal -> "Generic Good"

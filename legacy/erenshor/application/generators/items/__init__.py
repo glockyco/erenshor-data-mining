@@ -156,7 +156,9 @@ class ItemGenerator(BaseGenerator):
                 # Deduplicate
                 vendor_sources = self._dedup(sorted(vendor_sources))
                 drop_sources = self._dedup(sorted(drop_sources))
-                craft_sources = self._dedup(craft_sources)  # Preserve order: mold first, then materials
+                craft_sources = self._dedup(
+                    craft_sources
+                )  # Preserve order: mold first, then materials
                 component_for = self._dedup(sorted(component_for))
 
                 # Build type display

@@ -319,9 +319,9 @@ def test_item_update_statistics(
 
     complete = complete_events[0]
     assert complete.total > 0, "Should generate some items"
-    assert complete.updated > 0 or complete.unchanged > 0, (
-        "Should have updated or unchanged items"
-    )
+    assert (
+        complete.updated > 0 or complete.unchanged > 0
+    ), "Should have updated or unchanged items"
 
 
 def test_item_validation_passes(
@@ -365,12 +365,12 @@ def test_item_content_not_empty(
         assert content is not None
 
         assert content is not None, f"Page content is None: {event.page_title}"
-        assert len(content) > 100, (
-            f"Page content too short ({len(content)} chars): {event.page_title}"
-        )
-        assert "{{" in content and "}}" in content, (
-            f"Page has no templates: {event.page_title}"
-        )
+        assert (
+            len(content) > 100
+        ), f"Page content too short ({len(content)} chars): {event.page_title}"
+        assert (
+            "{{" in content and "}}" in content
+        ), f"Page has no templates: {event.page_title}"
 
 
 def test_weapon_tier_stats(
@@ -402,9 +402,9 @@ def test_weapon_tier_stats(
         lines = content.split("\n")
         tier_lines = [line for line in lines if "tier = " in line]
 
-        assert len(tier_lines) >= 3, (
-            f"Should have at least 3 tier rows in {event.page_title}"
-        )
+        assert (
+            len(tier_lines) >= 3
+        ), f"Should have at least 3 tier rows in {event.page_title}"
 
 
 def test_weapon_with_wrong_tier_count_is_skipped(
@@ -447,18 +447,18 @@ def test_weapon_with_wrong_tier_count_is_skipped(
         bad_weapon_generated = [
             e for e in generated_events if "Test Bad Weapon" in e.page_title
         ]
-        assert len(bad_weapon_generated) == 0, (
-            f"'Test Bad Weapon' should not be generated. Found: {bad_weapon_generated}"
-        )
+        assert (
+            len(bad_weapon_generated) == 0
+        ), f"'Test Bad Weapon' should not be generated. Found: {bad_weapon_generated}"
 
         # Verify that "Test Bad Weapon" was NOT updated (skipped)
         updated_events = [e for e in events if isinstance(e, PageUpdated)]
         bad_weapon_updated = [
             e for e in updated_events if "Test Bad Weapon" in e.page_title
         ]
-        assert len(bad_weapon_updated) == 0, (
-            f"'Test Bad Weapon' should not be updated. Found: {bad_weapon_updated}"
-        )
+        assert (
+            len(bad_weapon_updated) == 0
+        ), f"'Test Bad Weapon' should not be updated. Found: {bad_weapon_updated}"
 
         # Verify error was logged
         error_logs = [
@@ -474,15 +474,15 @@ def test_weapon_with_wrong_tier_count_is_skipped(
 
         # Verify error message mentions tier count and DATA ERROR
         error_msg = error_logs[0]
-        assert "DATA ERROR" in error_msg, (
-            f"Error message should mention DATA ERROR: {error_msg}"
-        )
-        assert "tier" in error_msg.lower(), (
-            f"Error message should mention tiers: {error_msg}"
-        )
-        assert "2" in error_msg and "3" in error_msg, (
-            f"Error message should mention expected (3) and actual (2) tier counts: {error_msg}"
-        )
+        assert (
+            "DATA ERROR" in error_msg
+        ), f"Error message should mention DATA ERROR: {error_msg}"
+        assert (
+            "tier" in error_msg.lower()
+        ), f"Error message should mention tiers: {error_msg}"
+        assert (
+            "2" in error_msg and "3" in error_msg
+        ), f"Error message should mention expected (3) and actual (2) tier counts: {error_msg}"
 
     finally:
         # Clean up test data

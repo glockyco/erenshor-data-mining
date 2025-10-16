@@ -78,7 +78,9 @@ class PageUploader:
 
             # Upload the page
             try:
-                response = self.client.upload_page(title, new_content, summary, minor, bot)
+                response = self.client.upload_page(
+                    title, new_content, summary, minor, bot
+                )
                 result = UploadResult(
                     title=title,
                     success=True,

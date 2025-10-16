@@ -166,8 +166,6 @@ def load_settings() -> WikiSettings:
 
     # Get MediaWiki configuration from TOML
     mediawiki_config = toml_config.get_global_config("mediawiki")
-    google_sheets_config = toml_config.get_global_config("google_sheets")
-    paths_config = toml_config.get_global_config("paths")
 
     # Set Field defaults from TOML (pydantic will use these if env vars not set)
     # This ensures environment variables have higher priority than TOML config
