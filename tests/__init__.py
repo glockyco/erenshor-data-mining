@@ -1,9 +1,9 @@
-"""Integration tests for erenshor-wiki refactoring.
+"""
+Test Suite.
 
-This test suite provides comprehensive integration testing following the PRD requirement:
-"Real integration tests with actual database, renderer, and file I/O" - NO MOCKING
+Contains unit tests and integration tests for the Erenshor package.
 
-Test structure:
-- fixtures/: Test database and baseline page fixtures
-- integration/: Full pipeline integration tests
+Structure:
+- unit: Fast, isolated unit tests
+- integration: Integration tests with external dependencies
 """

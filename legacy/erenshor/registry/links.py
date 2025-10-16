@@ -226,3 +226,34 @@ class RegistryLinkResolver:
         if display_name != title:
             return f"[[{title}|{display_name}]]"
         return f"[[{title}]]"
+
+    def faction_link(self, refname: str, fallback_name: str) -> str:
+        """Generate standard MediaWiki link for a faction.
+
+        Uses [[Page]] or [[Page|Display]] syntax, consistent with characters and zones.
+
+        Args:
+            refname: Faction REFNAME (resource name) for lookup
+            fallback_name: Display name if not in registry
+
+        Returns:
+            [[PageTitle|DisplayText]] if display differs
+            [[PageTitle]] otherwise
+        """
+        from .core import EntityType
+
+        entity = EntityRef(
+            entity_type=EntityType.FACTION,
+            db_id=None,
+            db_name=fallback_name,
+            resource_name=refname,
+        )
+
+        page = self.registry.resolve_entity(entity)
+        title = page.title if page else fallback_name
+
+        display_name = self.registry.get_display_name(entity)
+
+        if display_name != title:
+            return f"[[{title}|{display_name}]]"
+        return f"[[{title}]]"

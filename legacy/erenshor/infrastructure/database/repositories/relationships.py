@@ -11,7 +11,6 @@ from erenshor.domain.entities import DbFaction
 
 __all__ = [
     "get_faction_desc_by_ref",
-    "get_faction_ref_by_name",
     "get_factions",
     "get_factions_map",
     "get_quest_by_dbname",
@@ -34,21 +33,6 @@ def get_factions_map(engine: Engine) -> dict[str, str]:
                 d = d[0].upper() + d[1:]
             m[str(name).strip()] = d
     return m
-
-
-def get_faction_ref_by_name(engine: Engine) -> dict[str, str]:
-    """Map Factions.FactionName -> Factions.REFNAME for link resolution.
-
-    Returns empty string for names without a ref.
-    """
-    sql = text("SELECT FactionName, COALESCE(REFNAME,'') FROM Factions")
-    with engine.connect() as conn:
-        rows = conn.execute(sql).all()
-    out: dict[str, str] = {}
-    for name, ref in rows:
-        if name:
-            out[str(name).strip()] = str(ref or "").strip()
-    return out
 
 
 def get_faction_desc_by_ref(engine: Engine) -> dict[str, str]:

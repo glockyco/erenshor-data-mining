@@ -30,17 +30,20 @@ class UploadService:
         self,
         uploader: PageUploader,
         storage: PageStorage,
+        cache_storage: PageStorage,
         registry: WikiRegistry,
     ):
         """Initialize upload service.
 
         Args:
             uploader: PageUploader for uploading pages
-            storage: PageStorage for reading page content
+            storage: PageStorage for reading updated page content (wiki_updated/)
+            cache_storage: PageStorage for reading cached page content (wiki_cache/)
             registry: WikiRegistry for tracking page metadata
         """
         self.uploader = uploader
         self.storage = storage
+        self.cache_storage = cache_storage
         self.registry = registry
 
     def upload_pages(
@@ -99,41 +102,37 @@ class UploadService:
                 )
                 continue
 
-            content = self.storage.read(page)
-            if not content:
+            # Read updated content (wiki_updated/)
+            updated_content = self.storage.read(page)
+            if not updated_content:
                 failed_count += 1
                 processed_count += 1  # Failures count toward batch limit
                 yield UploadFailed(
                     page_title=title,
-                    error="No content found",
+                    error="No content found in wiki_updated/",
                 )
                 continue
 
-            # LOCAL-BASED SKIP: Check if content has changed locally
-            # This prevents unnecessary wiki fetches when nothing changed locally
+            # Compare with cached content (wiki_cache/) - trust actual files, not registry
             if not force:
-                current_hash = hashlib.sha256(content.encode()).hexdigest()
-                if (
-                    page.updated_content_hash
-                    and current_hash == page.updated_content_hash
-                    and (
-                        page.last_pushed is not None
-                        or page.original_content_hash == page.updated_content_hash
-                    )
-                ):
-                    # Content hasn't changed since last check AND either:
-                    # - We've pushed before (last_pushed is set), OR
-                    # - Content is unchanged from original wiki fetch (no modifications)
-                    # Skip without fetching from wiki (no timestamp update needed)
-                    skipped_count += 1
-                    yield PageUploaded(
-                        page_title=title,
-                        action="skipped",
-                        message="No local changes since last push",
-                    )
-                    continue
+                cached_content = self.cache_storage.read(page)
+                if cached_content is not None:
+                    # Compare actual file hashes
+                    cached_hash = hashlib.sha256(cached_content.encode()).hexdigest()
+                    updated_hash = hashlib.sha256(updated_content.encode()).hexdigest()
 
-            pages_with_content.append((title, content))
+                    if cached_hash == updated_hash:
+                        # Content unchanged between cache and updated - skip
+                        skipped_count += 1
+                        yield PageUploaded(
+                            page_title=title,
+                            action="skipped",
+                            message="No changes between cached and updated content",
+                        )
+                        continue
+                # If no cached content, proceed with upload (new page or never fetched)
+
+            pages_with_content.append((title, updated_content))
 
         # Upload pages (streaming with progress callbacks)
         registry_modified = False
@@ -145,10 +144,12 @@ class UploadService:
                 break
 
             if result.action == "uploaded":
-                # Update registry timestamp for successful uploads
+                # Update registry for successful uploads
                 page = self.registry.get_page_by_title(result.title)
                 if page:
                     page.last_pushed = result.timestamp or datetime.now(timezone.utc)
+                    # Sync original hash with updated hash - wiki now has our content
+                    page.original_content_hash = page.updated_content_hash
                     registry_modified = True
                 uploaded_count += 1
                 processed_count += 1  # Uploads count toward batch limit
@@ -157,21 +158,8 @@ class UploadService:
                     action="uploaded",
                     message=result.message,
                 )
-            elif result.action == "skipped_wiki":
-                # WIKI-BASED SKIP: Content is identical to wiki
-                # Update last_pushed to confirm wiki is up to date
-                page = self.registry.get_page_by_title(result.title)
-                if page:
-                    page.last_pushed = result.timestamp or datetime.now(timezone.utc)
-                    registry_modified = True
-                skipped_count += 1
-                # Skips do NOT count toward batch limit
-                yield PageUploaded(
-                    page_title=result.title,
-                    action="skipped",
-                    message="Content identical to wiki",
-                )
             elif result.action == "skipped":
+                # Should rarely happen since we trust local state
                 skipped_count += 1
                 # Skips do NOT count toward batch limit
                 yield PageUploaded(

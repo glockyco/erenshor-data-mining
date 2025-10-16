@@ -160,7 +160,15 @@ class WikiAPIClient:
             except httpx.HTTPStatusError as e:
                 status = e.response.status_code
                 if status in (429, 503) and attempt < max_retries:
-                    delay = backoff_base * (2**attempt)
+                    # Check for Retry-After header
+                    retry_after = e.response.headers.get("Retry-After")
+                    if retry_after:
+                        try:
+                            delay = float(retry_after)
+                        except ValueError:
+                            delay = backoff_base * (2**attempt)
+                    else:
+                        delay = backoff_base * (2**attempt)
                     time.sleep(delay)
                     attempt += 1
                     continue
@@ -222,7 +230,15 @@ class WikiAPIClient:
                 except httpx.HTTPStatusError as e:
                     status = e.response.status_code
                     if status in (429, 503) and attempt < max_retries:
-                        delay = backoff_base * (2**attempt)
+                        # Check for Retry-After header
+                        retry_after = e.response.headers.get("Retry-After")
+                        if retry_after:
+                            try:
+                                delay = float(retry_after)
+                            except ValueError:
+                                delay = backoff_base * (2**attempt)
+                        else:
+                            delay = backoff_base * (2**attempt)
                         time.sleep(delay)
                         attempt += 1
                         continue
@@ -253,8 +269,10 @@ class WikiAPIClient:
         summary: str,
         minor: bool = True,
         bot: bool = True,
+        max_retries: int = WIKI_DEFAULT_MAX_RETRIES,
+        backoff_base: float = WIKI_DEFAULT_BACKOFF_BASE,
     ) -> dict[str, Any]:
-        """Upload (edit) a page on the wiki.
+        """Upload (edit) a page on the wiki with retry logic.
 
         This requires authentication to be set up via set_auth_session().
 
@@ -264,6 +282,8 @@ class WikiAPIClient:
             summary: Edit summary
             minor: Mark as minor edit
             bot: Mark as bot edit (requires bot permissions)
+            max_retries: Maximum number of retry attempts for rate limits
+            backoff_base: Base delay for exponential backoff (seconds)
 
         Returns:
             API response dict (contains newrevid, etc.)
@@ -282,7 +302,7 @@ class WikiAPIClient:
         )
         csrf_token = token_data["query"]["tokens"]["csrftoken"]
 
-        # Perform the edit
+        # Perform the edit with retry logic
         edit_params: dict[str, Any] = {
             "action": "edit",
             "title": title,
@@ -298,20 +318,57 @@ class WikiAPIClient:
         if bot:
             edit_params["bot"] = "1"
 
-        response = self._post_request(edit_params)
-        edit_result: dict[str, Any] = response.get("edit", {})
+        attempt = 0
+        while True:
+            try:
+                response = self._post_request(edit_params)
+            except httpx.HTTPStatusError as e:
+                status = e.response.status_code
+                # Retry on rate limit (429) or service unavailable (503)
+                if status in (429, 503) and attempt < max_retries:
+                    # Check for Retry-After header (server tells us how long to wait)
+                    retry_after = e.response.headers.get("Retry-After")
+                    if retry_after:
+                        try:
+                            delay = float(retry_after)
+                        except ValueError:
+                            # Fallback to exponential backoff if header is invalid
+                            delay = backoff_base * (2**attempt)
+                    else:
+                        # Use exponential backoff if no Retry-After header
+                        delay = backoff_base * (2**attempt)
+                    time.sleep(delay)
+                    attempt += 1
+                    continue
+                raise
 
-        if edit_result.get("result") != "Success":
-            error_msg = "Unknown error"
+            # Check for API-level rate limit error (not HTTP 429, but error in JSON)
             if "error" in response:
                 error_info = response["error"]
+                error_code = error_info.get("code", "")
+
+                # Handle rate limit as retryable error
+                if error_code == "ratelimited" and attempt < max_retries:
+                    # MediaWiki may provide wait time in error info
+                    # Format: "You've exceeded your rate limit. Please wait some time and try again."
+                    # Try exponential backoff
+                    delay = backoff_base * (2**attempt)
+                    time.sleep(delay)
+                    attempt += 1
+                    continue
+
+                # Not retryable or out of retries
                 error_msg = (
-                    f"{error_info.get('code', 'unknown')}: "
+                    f"{error_code}: "
                     f"{error_info.get('info', 'no details')}"
                 )
-            raise WikiAPIError(f"Upload failed: {error_msg}")
+                raise WikiAPIError(f"Upload failed: {error_msg}")
 
-        return edit_result
+            edit_result: dict[str, Any] = response.get("edit", {})
+            if edit_result.get("result") != "Success":
+                raise WikiAPIError(f"Upload failed: Unknown error")
+
+            return edit_result
 
     def set_auth_session(self, session: httpx.Client) -> None:
         """Set authenticated session for upload operations.
@@ -353,8 +410,10 @@ class WikiAPIClient:
         text: str = "",
         ignore_warnings: bool = False,
         bot: bool = True,
+        max_retries: int = WIKI_DEFAULT_MAX_RETRIES,
+        backoff_base: float = WIKI_DEFAULT_BACKOFF_BASE,
     ) -> dict[str, Any]:
-        """Upload a file to the wiki.
+        """Upload a file to the wiki with retry logic.
 
         This requires authentication to be set up via set_auth_session().
 
@@ -365,6 +424,8 @@ class WikiAPIClient:
             text: Wiki text for the file description page
             ignore_warnings: Ignore API warnings (e.g., duplicate files)
             bot: Mark as bot upload (requires bot permissions)
+            max_retries: Maximum number of retry attempts for rate limits
+            backoff_base: Base delay for exponential backoff (seconds)
 
         Returns:
             API response dict (contains imageinfo, etc.)
@@ -383,51 +444,83 @@ class WikiAPIClient:
         )
         csrf_token = token_data["query"]["tokens"]["csrftoken"]
 
-        # Upload file
-        with open(file_path, "rb") as f:
-            files = {"file": (filename, f, "image/png")}
-            data: dict[str, Any] = {
-                "action": "upload",
-                "filename": filename,
-                "comment": comment,
-                "text": text,
-                "token": csrf_token,
-                "format": "json",
-            }
+        attempt = 0
+        while True:
+            # Upload file with retry logic
+            try:
+                with open(file_path, "rb") as f:
+                    files = {"file": (filename, f, "image/png")}
+                    data: dict[str, Any] = {
+                        "action": "upload",
+                        "filename": filename,
+                        "comment": comment,
+                        "text": text,
+                        "token": csrf_token,
+                        "format": "json",
+                    }
 
-            if ignore_warnings:
-                data["ignorewarnings"] = "1"
+                    if ignore_warnings:
+                        data["ignorewarnings"] = "1"
 
-            if bot:
-                data["bot"] = "1"
+                    if bot:
+                        data["bot"] = "1"
 
-            headers = {"User-Agent": self.user_agent}
-            response = self.auth_session.post(
-                self.api_url,
-                data=data,
-                files=files,
-                headers=headers,
-                timeout=WIKI_API_TIMEOUT_SECONDS,
-            )
-            response.raise_for_status()
-            result: dict[str, Any] = response.json()
+                    headers = {"User-Agent": self.user_agent}
+                    response = self.auth_session.post(
+                        self.api_url,
+                        data=data,
+                        files=files,
+                        headers=headers,
+                        timeout=WIKI_API_TIMEOUT_SECONDS,
+                    )
+                    response.raise_for_status()
+                    result: dict[str, Any] = response.json()
+            except httpx.HTTPStatusError as e:
+                status = e.response.status_code
+                # Retry on rate limit (429) or service unavailable (503)
+                if status in (429, 503) and attempt < max_retries:
+                    # Check for Retry-After header (server tells us how long to wait)
+                    retry_after = e.response.headers.get("Retry-After")
+                    if retry_after:
+                        try:
+                            delay = float(retry_after)
+                        except ValueError:
+                            # Fallback to exponential backoff if header is invalid
+                            delay = backoff_base * (2**attempt)
+                    else:
+                        # Use exponential backoff if no Retry-After header
+                        delay = backoff_base * (2**attempt)
+                    time.sleep(delay)
+                    attempt += 1
+                    continue
+                raise
 
-        # Check result
-        if "error" in result:
-            error_info = result["error"]
-            raise WikiAPIError(
-                f"Upload failed: {error_info.get('code')}: {error_info.get('info')}"
-            )
+            # Check for API-level rate limit error (not HTTP 429, but error in JSON)
+            if "error" in result:
+                error_info = result["error"]
+                error_code = error_info.get("code", "")
 
-        upload_result = result.get("upload", {})
-        if upload_result.get("result") != "Success":
-            # Handle warnings
-            if "warnings" in upload_result and not ignore_warnings:
-                warnings = upload_result["warnings"]
-                raise WikiAPIError(f"Upload warnings: {warnings}")
-            raise WikiAPIError(f"Unexpected upload response: {result}")
+                # Handle rate limit as retryable error
+                if error_code == "ratelimited" and attempt < max_retries:
+                    delay = backoff_base * (2**attempt)
+                    time.sleep(delay)
+                    attempt += 1
+                    continue
 
-        return upload_result
+                # Not retryable or out of retries
+                raise WikiAPIError(
+                    f"Upload failed: {error_code}: {error_info.get('info')}"
+                )
+
+            upload_result = result.get("upload", {})
+            if upload_result.get("result") != "Success":
+                # Handle warnings
+                if "warnings" in upload_result and not ignore_warnings:
+                    warnings = upload_result["warnings"]
+                    raise WikiAPIError(f"Upload warnings: {warnings}")
+                raise WikiAPIError(f"Unexpected upload response: {result}")
+
+            return upload_result
 
     def fetch_templatedata(
         self,
@@ -461,7 +554,15 @@ class WikiAPIClient:
             except httpx.HTTPStatusError as e:
                 status = e.response.status_code
                 if status in (429, 503) and attempt < max_retries:
-                    delay = backoff_base * (2**attempt)
+                    # Check for Retry-After header
+                    retry_after = e.response.headers.get("Retry-After")
+                    if retry_after:
+                        try:
+                            delay = float(retry_after)
+                        except ValueError:
+                            delay = backoff_base * (2**attempt)
+                    else:
+                        delay = backoff_base * (2**attempt)
                     time.sleep(delay)
                     attempt += 1
                     continue

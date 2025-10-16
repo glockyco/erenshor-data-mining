@@ -1,0 +1,167 @@
+
+SPELLS WITH CHANGED TICK COUNTS (87 spells)
+=====================================================================================================================================================================
+ID         Spell Name                          Old(ticks)  New(ticks)  Old(sec)   New(sec)   Diff(sec)  +Change    ResourceName                            
+=====================================================================================================================================================================
+28062972   Soluna's Solar Blessing             2           5           10s        15s        +5s        +50.0%     PAL - Soluna's Blessing                 
+36862728   Targeted Gust                       3           7           15s        21s        +6s        +40.0%     STC - Targeted Gust                     
+258099     Targeted Windstorm                  3           7           15s        21s        +6s        +40.0%     STC - Targeted Windstorm                
+337008     Grip of Grief                       1           2           5s         6s         +1s        +20.0%     NONE - Grip of Grief                    
+73440540   Ionize                              3           6           15s        18s        +3s        +20.0%     STC - Ionize                            
+6769156    Magma Coat                          2           4           10s        12s        +2s        +20.0%     NONE - Magma Coat                       
+5595198    Static Invocation                   3           6           15s        18s        +3s        +20.0%     STC - Static Invocation                 
+30824901   Stun                                1           2           5s         6s         +1s        +20.0%     GEN - Stun Short                        
+8660964    Annihilate                          4           7           20s        21s        +1s        +5.0%      DRU - Annihilate                        
+41995980   Arterial Decay                      4           7           20s        21s        +1s        +5.0%      DRU - Arterial Decay                    
+15725000   Death's Embrace                     4           7           20s        21s        +1s        +5.0%      DUEL - Deathly Embrace                  
+9103236    Death's Embrace II                  4           7           20s        21s        +1s        +5.0%      DUEL - Deathly Embrace II               
+34693164   Death's Embrace II (Caster)         4           7           20s        21s        +1s        +5.0%      Death's Embrace II (Caster)             
+61800508   Greater Regrowth                    4           7           20s        21s        +1s        +5.0%      DRU - Greater Regrowth (Cast)           
+3032400    Greater Regrowth                    4           7           20s        21s        +1s        +5.0%      DRU - Greater Regrowth (Effect)         
+42586336   Healing Bloom                       4           7           20s        21s        +1s        +5.0%      DRU - Healing Bloom (Cast)              
+12168345   Healing Bloom                       4           7           20s        21s        +1s        +5.0%      DRU - Healing Bloom (Effect)            
+1519210    Internal Rot                        4           7           20s        21s        +1s        +5.0%      DRU - Internal Rot                      
+9265597    Regrowth                            4           7           20s        21s        +1s        +5.0%      DRU - Regrowth (Cast)                   
+7779982    Regrowth                            4           7           20s        21s        +1s        +5.0%      DRU - Regrowth (Effect)                 
+8733214    Venom of the Asp                    4           7           20s        21s        +1s        +5.0%      NONE - Venom of the Asp                 
+6788096    Blight Shock                        3           5           15s        15s        +0s        +0.0%      None - Blightshock                      
+28902287   Dazzle                              3           5           15s        15s        +0s        +0.0%      ARC - Dazzle                            
+48091315   Enlightened Path I                  600         1000        3000s      3000s      +0s        +0.0%      NONE - Blessing of XP 1                 
+45942378   Enlightened Path II                 600         1000        3000s      3000s      +0s        +0.0%      NONE - Blessing of XP 2                 
+13189590   Enlightened Path III                600         1000        3000s      3000s      +0s        +0.0%      NONE - Blessing of XP 3                 
+35843310   Enlightened Path IV                 600         1000        3000s      3000s      +0s        +0.0%      NONE - Blessing of XP 4                 
+51559354   Focus                               3           5           15s        15s        +0s        +0.0%      ARC - Focus                             
+11174852   Glare of Soluna                     3           5           15s        15s        +0s        +0.0%      PAL - Glare of Soluna                   
+35732955   Grip of Azynthi                     30          50          150s       150s       +0s        +0.0%      None - Grip of Azynthi                  
+40924576   Invasive Thoughts                   30          50          150s       150s       +0s        +0.0%      ARC - Invasive Thoughts                 
+18174920   Pride                               3           5           15s        15s        +0s        +0.0%      DUEL - Pride                            
+11638242   Spectrum                            6           10          30s        30s        +0s        +0.0%      PAL - Spectrum                          
+37659720   Sunburst                            3           5           15s        15s        +0s        +0.0%      PAL - Sunburst                          
+3818637    Theft of Vigor                      3           5           15s        15s        +0s        +0.0%      PAL - Sap Vitality                      
+18285300   Vithean Revenge                     3           5           15s        15s        +0s        +0.0%      DUEL - Vithean Revenge                  
+20309875   Hydrated                            100         166         500s       498s       -2s        -0.4%      ALL - Hydrated                          
+1735287    Nourished                           100         166         500s       498s       -2s        -0.4%      ALL - Nourished                         
+4865624    Call of the Void                    20          33          100s       99s        -1s        -1.0%      ARC - Call of the Void                  
+23358166   Intruisive Ideas                    20          33          100s       99s        -1s        -1.0%      ARC - Intrusive Ideas                   
+76077019   Blight                              5           8           25s        24s        -1s        -4.0%      NONE - Blight                           
+10108096   Burning Chains                      5           8           25s        24s        -1s        -4.0%      ARC - Burning Chains                    
+10594621   Cave Lung                           10          16          50s        48s        -2s        -4.0%      None - Cave lung                        
+6669884    Coma                                10          16          50s        48s        -2s        -4.0%      ARC - Coma                              
+41721290   Funeral Pyre                        5           8           25s        24s        -1s        -4.0%      ARC - Pyre                              
+7281576    Hardened Skin                       5           8           25s        24s        -1s        -4.0%      ARC - Hardened Skin                     
+8513952    Immolation                          5           8           25s        24s        -1s        -4.0%      ARC - Immolation                        
+59622570   Infernis                            5           8           25s        24s        -1s        -4.0%      ARC - Infernis                          
+10644536   Lingering Inferno                   5           8           25s        24s        -1s        -4.0%      ARC - Lingering Inferno                 
+9867251    Magical Skin                        5           8           25s        24s        -1s        -4.0%      ARC - Magical Skin                      
+18271806   Melting Bones                       10          16          50s        48s        -2s        -4.0%      DRU - Melting Bones                     
+27967806   Sivakaya's Dismay                   5           8           25s        24s        -1s        -4.0%      NONE - Sivakaya's Dismay                
+11671960   Sivakaya's Touch                    5           8           25s        24s        -1s        -4.0%      NONE - Sivakayas Kiss                   
+1802112    Toxicity                            10          16          50s        48s        -2s        -4.0%      DRU - Toxicity                          
+1292200    Vampiric Touch                      10          16          50s        48s        -2s        -4.0%      DUEL - Vampiric Touch                   
+18999990   Vampirism                           5           8           25s        24s        -1s        -4.0%      NONE - Vampirism                        
+4259300    Weak Poison                         5           8           25s        24s        -1s        -4.0%      DRU - Weak Poison                       
+2596816    Soluna's Solar Invigoration         140         220         700s       660s       -40s       -5.7%      PAL - Soluna's Invigoration             
+21999831   Tangle                              9           14          45s        42s        -3s        -6.7%      DRU - Tangle                            
+10775537   Lava Coat                           99          150         495s       450s       -45s       -9.1%      NONE - Lava Coat                        
+2207876    Biting Vines                        6           9           30s        27s        -3s        -10.0%     DRU - Biting Vines                      
+8793590    Crushing Current                    6           9           30s        27s        -3s        -10.0%     DUEL - SLOW Crushing Current            
+11532540   Death's Embrace (Caster)            4           6           20s        18s        -2s        -10.0%     Death's Embrace (Caster)                
+11650080   Dooming Undertow                    6           9           30s        27s        -3s        -10.0%     DUEL - SLOW Dooming Undertow            
+2503512    Expose Weakness                     6           9           30s        27s        -3s        -10.0%     DUEL - Expose Weakness                  
+49947232   Mana Charge                         2           3           10s        9s         -1s        -10.0%     ARC - Mana Charge                       
+913744     Mana Charge II                      2           3           10s        9s         -1s        -10.0%     ARC - Mana Charge II                    
+62662014   Marsh Rot                           6           9           30s        27s        -3s        -10.0%     ALL - Marsh Rot                         
+14066106   Morbidity's Grasp                   6           9           30s        27s        -3s        -10.0%     DRU - Morbidity's Grasp                 
+608685     Ocean's Lull                        6           9           30s        27s        -3s        -10.0%     DUEL - SLOW Ocean's Lull                
+61166248   Sleep                               6           9           30s        27s        -3s        -10.0%     ARC - Sleep                             
+7328452    Spiced Fury                         20          30          100s       90s        -10s       -10.0%     ALL - Spiced Fury                       
+9692298    Stun                                2           3           10s        9s         -1s        -10.0%     GEN - Stun                              
+7550883    Weight of the Sea                   6           9           30s        27s        -3s        -10.0%     DUEL - SLOW Weight of the Sea           
+3690830    Dark Haste                          5           7           25s        21s        -4s        -16.0%     NONE - Dark Haste                       
+72616514   Stolen Vigor                        5           7           25s        21s        -4s        -16.0%     NONE - Stolen Vigor                     
+5080986    Predator's Grace                    240         320         1200s      960s       -240s      -20.0%     DRU - Predator's Grace                  
+17010584   Spirit of the Flock                 300         400         1500s      1200s      -300s      -20.0%     DRU - Spirit of the Flock               
+15855356   Minor Protection                    240         300         1200s      900s       -300s      -25.0%     ALL - Minor Protection                  
+29490660   Protection                          240         300         1200s      900s       -300s      -25.0%     ALL - Protection                        
+39532889   Twisting MInd                       20          25          100s       75s        -25s       -25.0%     ARC - Twisting Mind                     
+45807425   Contagious Rage                     3           2           15s        6s         -9s        -60.0%     NONE - Contagious Rage                  
+18068040   Embrace of Shadow                   3           2           15s        6s         -9s        -60.0%     NONE - Embrace of Shadow                
+6359294    Gift of Rot                         3           2           15s        6s         -9s        -60.0%     NONE - Gift of Rot                      
+16613100   Hint of Shadow                      3           2           15s        6s         -9s        -60.0%     NONE - Hint of Shadow                   
+65359656   Ocean's Kiss                        3           2           15s        6s         -9s        -60.0%     NONE - Sea's Kiss                       
+108204     Flight of Foot                      12          2           60s        6s         -54s       -90.0%     DRU - Flight of Foot                    
+
+SPELLS WITH SAME TICK COUNTS (66 spells)
+=====================================================================================================================================================================
+ID         Spell Name                          Old(ticks)  New(ticks)  Old(sec)   New(sec)   Diff(sec)  +Change    ResourceName                            
+=====================================================================================================================================================================
+6827460    Aura: Ancient Presence              2           2           10s        6s         -4s        -40.0%     AURA - Ancient Presence                 
+2453698    Aura: Blessing of Stone             2           2           10s        6s         -4s        -40.0%     AURA - Stone                            
+375410     Aura: Corruption of Sivakaya        2           2           10s        6s         -4s        -40.0%     AURA - Corruption                       
+53516175   Aura: Mosquito Spirit               2           2           10s        6s         -4s        -40.0%     AURA - Mosquito                         
+4887963    Aura: Presence of Azynthi           2           2           10s        6s         -4s        -40.0%     AURA - Azynthian                        
+29302546   Aura: Presence of Brax I            2           2           10s        6s         -4s        -40.0%     AURA - Brax 1                           
+20833458   Aura: Presence of Brax II           2           2           10s        6s         -4s        -40.0%     AURA - Brax 2                           
+9382716    Aura: Presence of Brax III          2           2           10s        6s         -4s        -40.0%     AURA - Brax 3                           
+1190816    Aura: Presence of Brax IV           2           2           10s        6s         -4s        -40.0%     AURA - Brax 4                           
+8447686    Aura: Presence of Brax V            2           2           10s        6s         -4s        -40.0%     AURA - Brax 5                           
+3243500    Aura: Presence of Fernalla I        2           2           10s        6s         -4s        -40.0%     AURA - Fernalla 1                       
+21362162   Aura: Presence of Fernalla II       2           2           10s        6s         -4s        -40.0%     AURA - Fernalla 2                       
+27578964   Aura: Presence of Fernalla III      2           2           10s        6s         -4s        -40.0%     AURA - Fernalla 3                       
+31722589   Aura: Presence of Fernalla IV       2           2           10s        6s         -4s        -40.0%     AURA - Fernalla 4                       
+76211272   Aura: Presence of Soluna I          2           2           10s        6s         -4s        -40.0%     AURA - Soluna 1                         
+80328040   Aura: Presence of Soluna II         2           2           10s        6s         -4s        -40.0%     AURA - Soluna 2                         
+10674990   Aura: Presence of Soluna III        2           2           10s        6s         -4s        -40.0%     AURA - Soluna 3                         
+3420731    Aura: Presence of Soluna IV         2           2           10s        6s         -4s        -40.0%     AURA - Soluna 4                         
+12936696   Aura: Presence of Storms I          2           2           10s        6s         -4s        -40.0%     AURA - Storm 1                          
+11403891   Aura: Presence of Storms II         2           2           10s        6s         -4s        -40.0%     AURA - Storm 2                          
+20695740   Aura: Presence of Storms III        2           2           10s        6s         -4s        -40.0%     AURA - Storm 3                          
+18065310   Aura: Presence of Storms IV         2           2           10s        6s         -4s        -40.0%     AURA - Storm 4                          
+26299728   Aura: Presence of Vitheo I          2           2           10s        6s         -4s        -40.0%     AURA - Vitheo 1                         
+245616     Aura: Presence of Vitheo II         2           2           10s        6s         -4s        -40.0%     AURA - Vitheo 2                         
+6872576    Aura: Presence of Vitheo III        2           2           10s        6s         -4s        -40.0%     AURA - Vitheo 3                         
+10367574   Aura: Presence of Vitheo IV         2           2           10s        6s         -4s        -40.0%     AURA - Vitheo 4                         
+31521292   Aura: Spirit of the Flame Steed     2           2           10s        6s         -4s        -40.0%     AURA - Steed                            
+12319460   Aura: The Prism                     2           2           10s        6s         -4s        -40.0%     AURA - Prism                            
+73732530   Aura: The Sage                      2           2           10s        6s         -4s        -40.0%     AURA - Sage                             
+61555545   Aura: Wisp's Presence               2           2           10s        6s         -4s        -40.0%     AURA - Wisp's Dance                     
+8060751    Bleed                               10          10          50s        30s        -20s       -40.0%     None - Bleed2                           
+44968149   Blessed Quiver                      4           4           20s        12s        -8s        -40.0%     STC - Blessed Quiver                    
+9309339    Blessing of Brax                    3           3           15s        9s         -6s        -40.0%     NONE - Strength of Brax                 
+22482254   Death Stare                         1           1           5s         3s         -2s        -40.0%     NONE - Deathstare                       
+1776360    Dissipate Storm                     9           9           45s        27s        -18s       -40.0%     DRU - Dissipate Storm                   
+49491128   Envenomed Arrow                     5           5           25s        15s        -10s       -40.0%     NONE - Envenomed Arrow                  
+7382601    Flight of Foot 2                    2           2           10s        6s         -4s        -40.0%     DRU - Flight of Foot 2                  
+4323587    Flow                                5           5           25s        15s        -10s       -40.0%     NONE - Flow                             
+31539688   Focus Target                        3           3           15s        9s         -6s        -40.0%     STC - Focus Target                      
+55007322   Hallows                             2           2           10s        6s         -4s        -40.0%     AURA - Hallows                          
+5279617    Invoke Storm                        9           9           45s        27s        -18s       -40.0%     DRU - Invoke Storm                      
+5379426    Magical Skin II                     32          32          160s       96s        -64s       -40.0%     ARC - Magical Skin II                   
+2933490    Mana Burst                          1           1           5s         3s         -2s        -40.0%     ARC - ManaBurst                         
+27383139   Mana Call                           1           1           5s         3s         -2s        -40.0%     ARC - Manacall                          
+4140192    Mana Flood                          1           1           5s         3s         -2s        -40.0%     ARC - ManaFlood                         
+14737962   Meditative Trance                   1           1           5s         3s         -2s        -40.0%     ARC - Meditate                          
+11784192   Minor Regeneration                  2           2           10s        6s         -4s        -40.0%     DRU DUEL - Minor Regen                  
+85802230   Moonburst                           3           3           15s        9s         -6s        -40.0%     NPC - Stoneburst                        
+55019648   Moonburst                           3           3           15s        9s         -6s        -40.0%     NPC - Stoneburst 1                      
+9311575    Moonburst                           3           3           15s        9s         -6s        -40.0%     PAL - Moonburst                         
+57714566   Nightstalker's Finesse              2           2           10s        6s         -4s        -40.0%     DUEL - Nightstalker's Finesse           
+7820504    Quake                               3           3           15s        9s         -6s        -40.0%     NPC - Stoneburst 2                      
+38526250   Queen's Bite                        10          10          50s        30s        -20s       -40.0%     None - Queen's Bite                     
+47471450   Read Map                            5           5           25s        15s        -10s       -40.0%     NONE - Read Map                         
+3449688    Regeneration                        2           2           10s        6s         -4s        -40.0%     DRU DUEL - Regen                        
+6014260    Resonance                           2           2           10s        6s         -4s        -40.0%     AURA - Resonate                         
+26496000   Slime Flow                          2           2           10s        6s         -4s        -40.0%     NONE - Slime Flow                       
+17035864   Thornwhip                           3           3           15s        9s         -6s        -40.0%     NPC - Thornwhip                         
+36581596   Vithean Breeze                      1           1           5s         3s         -2s        -40.0%     DUEL - Vithean Breeze                   
+17504846   Vithean Frenzy                      3           3           15s        9s         -6s        -40.0%     DUEL - Vithean Frenzy                   
+40669695   Vithean Gale                        1           1           5s         3s         -2s        -40.0%     DUEL - Vithean Gale                     
+13295100   Vithean Wind                        1           1           5s         3s         -2s        -40.0%     DUEL - Vithean Wind                     
+68325939   Vitheo's Blessing of the Sea        2           2           10s        6s         -4s        -40.0%     DUEL - Vitheo's Blessing of The Sea     
+1605207    Vitheo's Blessing of the Wind       2           2           10s        6s         -4s        -40.0%     DUEL - VItheo's Blessing of The Wind    
+5148390    Voidblast                           3           3           15s        9s         -6s        -40.0%     PAL - Blast of the Void                 
+4588380    Windblessed                         3           3           15s        9s         -6s        -40.0%     NONE - Windblessed                      
+
+=====================================================================================================================================================================
+Summary: 87 with changed ticks, 66 with same ticks
+Old (5 sec/tick), New (3 sec/tick)

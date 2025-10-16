@@ -73,9 +73,9 @@ class CharacterGenerator(BaseGenerator):
             GeneratedContent for each character, one at a time
         """
         link_resolver = RegistryLinkResolver(registry)
-        # Map faction REFNAME to display descriptions (for FactionModifiers)
+        # Map faction REFNAME to display descriptions
         faction_desc_by_ref = get_faction_desc_by_ref(engine)
-        # Map faction names to display descriptions (for MyWorldFaction)
+        # Map faction names to display descriptions (for Generic Good/Evil fallback)
         factions_map = get_factions_map(engine)
 
         chars = get_characters(engine)
@@ -249,7 +249,17 @@ class CharacterGenerator(BaseGenerator):
                         chance_strs.append(
                             display if len(zones_sorted) == 1 else f"{display} ({zone})"
                         )
-                    spawn_chance_str = WIKITEXT_LINE_SEPARATOR.join(chance_strs)
+
+                    # Don't show spawn chance if single spawn point with 100% chance
+                    all_chances = [
+                        chance
+                        for chances in chances_by_zone.values()
+                        for chance in chances
+                    ]
+                    if len(all_chances) == 1 and all_chances[0] == 100.0:
+                        spawn_chance_str = ""
+                    else:
+                        spawn_chance_str = WIKITEXT_LINE_SEPARATOR.join(chance_strs)
 
             # Loot/drops
             loot = get_loot_for_character(engine, char.Guid) if char.Guid else []
@@ -264,27 +274,27 @@ class CharacterGenerator(BaseGenerator):
             faction_change = ""
             if char.FactionModifiers:
                 # Build list with display names for sorting
-                faction_entries: list[tuple[str, int, str]] = []
+                faction_entries: list[tuple[str, int, str, str]] = []
                 for mod in char.FactionModifiers:
+                    if mod.modifier_value == 0:
+                        continue
                     sign = "+" if mod.modifier_value > 0 else ""
-                    description = faction_desc_by_ref.get(mod.faction_name, mod.faction_name)
-                    faction_entries.append((description, mod.modifier_value, sign))
+                    description = faction_desc_by_ref[mod.faction_name]
+                    faction_link = link_resolver.faction_link(mod.faction_name, description)
+                    faction_entries.append((description, mod.modifier_value, sign, faction_link))
 
                 # Sort by display name
                 faction_entries.sort(key=lambda x: x[0])
 
                 # Format sorted entries
-                formatted = [f"{sign}{value} [[{desc}]]" for desc, value, sign in faction_entries]
+                formatted = [f"{sign}{value} {link}" for _, value, sign, link in faction_entries]
                 faction_change = WIKITEXT_LINE_SEPARATOR.join(formatted)
 
             faction_display = ""
             if char.MyWorldFaction:
-                # Use explicit world faction if set, wiki-link it since faction pages exist
-                # MyWorldFaction contains FactionName values, not REFNAME
-                faction_name = factions_map.get(
-                    char.MyWorldFaction, char.MyWorldFaction
-                )
-                faction_display = f"[[{faction_name}]]" if faction_name else ""
+                # MyWorldFaction contains faction REFNAME (stable ID)
+                faction_desc = faction_desc_by_ref[char.MyWorldFaction]
+                faction_display = link_resolver.faction_link(char.MyWorldFaction, faction_desc)
             elif char.MyFaction in (
                 # Per the game logic, MyFaction values are auto-mapped to world factions:
                 # - Villager, GoodHuman, GoodGuard, OtherGood, PreyAnimal -> "Generic Good"
@@ -295,13 +305,13 @@ class CharacterGenerator(BaseGenerator):
                 "OtherGood",
                 "PreyAnimal",
             ):
-                # Good-aligned factions map to "Generic Good" faction page
-                faction_name = factions_map.get("Generic Good", "The Followers of Good")
-                faction_display = f"[[{faction_name}]]"
+                # Good-aligned factions use GOOD REFNAME
+                faction_desc = factions_map.get("Generic Good", "The Followers of Good")
+                faction_display = link_resolver.faction_link("GOOD", faction_desc)
             elif char.MyFaction and char.MyFaction not in ("Player", "PC", "DEBUG"):
-                # Evil-aligned factions map to "Generic Evil" faction page
-                faction_name = factions_map.get("Generic Evil", "The Followers of Evil")
-                faction_display = f"[[{faction_name}]]"
+                # Evil-aligned factions use EVIL REFNAME
+                faction_desc = factions_map.get("Generic Evil", "The Followers of Evil")
+                faction_display = link_resolver.faction_link("EVIL", faction_desc)
 
             entity_ref = EntityRef.from_character(char)
             display_name = registry.get_display_name(entity_ref)

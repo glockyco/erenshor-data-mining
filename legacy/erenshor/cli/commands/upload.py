@@ -218,7 +218,7 @@ def push(
     else:
         # Real upload mode
         uploader = PageUploader(client)
-        service = UploadService(uploader, env.output_storage, env.registry)
+        service = UploadService(uploader, env.output_storage, env.cache_storage, env.registry)
 
         with Live(
             Panel(
@@ -442,35 +442,34 @@ def _dry_run_upload_events(
             )
             continue
 
-        content = env.output_storage.read(page)
-        if not content:
+        updated_content = env.output_storage.read(page)
+        if not updated_content:
             failed_count += 1
             processed_count += 1
             yield UploadFailed(
                 page_title=title,
-                error="No content found",
+                error="No content found in wiki_updated/",
             )
             continue
 
-        # LOCAL-BASED SKIP: Check if content has changed locally
+        # Compare with cached content (wiki_cache/) - trust actual files, not registry
         if not force:
-            current_hash = hashlib.sha256(content.encode()).hexdigest()
-            if (
-                page.updated_content_hash
-                and current_hash == page.updated_content_hash
-                and (
-                    page.last_pushed is not None
-                    or page.original_content_hash == page.updated_content_hash
-                )
-            ):
-                # Would skip due to no local changes
-                skipped_count += 1
-                yield PageUploaded(
-                    page_title=title,
-                    action="skipped",
-                    message="Would skip - no local changes since last push",
-                )
-                continue
+            cached_content = env.cache_storage.read(page)
+            if cached_content is not None:
+                # Compare actual file hashes
+                cached_hash = hashlib.sha256(cached_content.encode()).hexdigest()
+                updated_hash = hashlib.sha256(updated_content.encode()).hexdigest()
+
+                if cached_hash == updated_hash:
+                    # Content unchanged between cache and updated - skip
+                    skipped_count += 1
+                    yield PageUploaded(
+                        page_title=title,
+                        action="skipped",
+                        message="Would skip - no changes between cached and updated content",
+                    )
+                    continue
+            # If no cached content, proceed with upload (new page or never fetched)
 
         # Simulate successful upload
         uploaded_count += 1
@@ -478,7 +477,7 @@ def _dry_run_upload_events(
         yield PageUploaded(
             page_title=title,
             action="uploaded",
-            message=f"Would upload {len(content)} bytes",
+            message=f"Would upload {len(updated_content)} bytes",
         )
 
     # Emit completion event
