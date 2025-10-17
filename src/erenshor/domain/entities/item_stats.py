@@ -60,9 +60,6 @@ class ItemStats(BaseEntity):
     resist_scaling: float | None = Field(default=None, description="Resistance scaling factor")
     mitigation_scaling: float | None = Field(default=None, description="Mitigation scaling factor")
 
-    # Wiki export
-    wiki_string: str | None = Field(default=None, description="Formatted wiki string")
-
     @property
     def composite_key(self) -> str:
         """Generate composite key for lookups.
