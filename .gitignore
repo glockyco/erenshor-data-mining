@@ -830,3 +830,10 @@ unity_*.log
 tests/**/*.db
 tests/**/*.sqlite
 !tests/fixtures/database/*.sql
+
+# Maps project build artifacts
+src/maps/node_modules/
+src/maps/.svelte-kit/
+src/maps/build/
+src/maps/.DS_Store
+src/maps/**/.DS_Store
