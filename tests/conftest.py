@@ -15,48 +15,47 @@ from __future__ import annotations
 import shutil
 import tempfile
 from pathlib import Path
-from typing import Generator
+from typing import TYPE_CHECKING
 
 import pytest
 from sqlalchemy import create_engine, text
-from sqlalchemy.engine import Engine
 
-from erenshor.application.generators.abilities import AbilityGenerator
-from erenshor.application.generators.characters import CharacterGenerator
-from erenshor.application.generators.fishing import FishingGenerator
-from erenshor.application.generators.items import ItemGenerator
-from erenshor.application.services.update_service import UpdateService
-from erenshor.application.transformers.abilities import AbilityTransformer
-from erenshor.application.transformers.characters import CharacterTransformer
-from erenshor.application.transformers.items import ItemTransformer
-from erenshor.domain.validation.abilities import AbilityValidator
-from erenshor.domain.validation.characters import CharacterValidator
-from erenshor.domain.validation.items import ItemValidator
-from erenshor.infrastructure.config.settings import WikiSettings
-from erenshor.infrastructure.storage.page_storage import PageStorage
-from erenshor.registry.core import WikiRegistry
-from erenshor.registry.links import RegistryLinkResolver
+if TYPE_CHECKING:
+    from collections.abc import Generator
+
+    from sqlalchemy.engine import Engine
+
+# Lazy imports to avoid loading modules that don't exist yet during early testing
+# These imports happen inside fixture functions only when actually needed
 
 
 @pytest.fixture(autouse=True)
-def reset_path_resolver() -> Generator[None, None, None]:
+def reset_path_resolver() -> Generator[None]:
     """Automatically reset PathResolver singleton before each test.
 
     This ensures tests don't interfere with each other through shared state.
     The fixture is autouse=True, so it runs for every test automatically.
     """
-    from erenshor.infrastructure.config import paths
+    try:
+        from erenshor.infrastructure.config import paths
 
-    # Store original resolver if any
-    original = paths._resolver
+        # Only reset if the module has _resolver attribute
+        if hasattr(paths, "_resolver"):
+            # Store original resolver if any
+            original = paths._resolver
 
-    # Reset singleton before test
-    paths._resolver = None
+            # Reset singleton before test
+            paths._resolver = None
 
-    yield
+            yield
 
-    # Restore original after test (or reset again)
-    paths._resolver = original or None
+            # Restore original after test (or reset again)
+            paths._resolver = original or None
+        else:
+            yield
+    except (ImportError, AttributeError):
+        # Module doesn't exist yet or doesn't have _resolver
+        yield
 
 
 @pytest.fixture(scope="session")
@@ -81,10 +80,10 @@ def test_db_path(tmp_path_factory: pytest.TempPathFactory) -> Path:
         with engine.connect() as conn:
             sql_content = fixture_path.read_text()
             # Execute each statement separately (SQLite doesn't support executescript via SQLAlchemy)
-            for statement in sql_content.split(";"):
-                statement = statement.strip()
-                if statement:
-                    conn.execute(text(statement))
+            for stmt in sql_content.split(";"):
+                stmt = stmt.strip()  # noqa: PLW2901
+                if stmt:
+                    conn.execute(text(stmt))
             conn.commit()
     finally:
         engine.dispose()
@@ -93,7 +92,7 @@ def test_db_path(tmp_path_factory: pytest.TempPathFactory) -> Path:
 
 
 @pytest.fixture(scope="session")
-def test_engine(test_db_path: Path) -> Generator[Engine, None, None]:
+def test_engine(test_db_path: Path) -> Generator[Engine]:
     """Create SQLAlchemy engine for test database."""
     engine = create_engine(f"sqlite:///{test_db_path}")
     yield engine
@@ -101,7 +100,7 @@ def test_engine(test_db_path: Path) -> Generator[Engine, None, None]:
 
 
 @pytest.fixture
-def temp_dir() -> Generator[Path, None, None]:
+def temp_dir() -> Generator[Path]:
     """Create a temporary directory that gets cleaned up after test."""
     dirpath = Path(tempfile.mkdtemp())
     yield dirpath
@@ -109,8 +108,10 @@ def temp_dir() -> Generator[Path, None, None]:
 
 
 @pytest.fixture
-def test_registry(temp_dir: Path) -> WikiRegistry:
+def test_registry(temp_dir: Path):
     """Create a fresh WikiRegistry for testing."""
+    from erenshor.registry.core import WikiRegistry
+
     registry_dir = temp_dir / "registry"
     registry_dir.mkdir(parents=True)
 
@@ -119,24 +120,30 @@ def test_registry(temp_dir: Path) -> WikiRegistry:
 
 
 @pytest.fixture
-def test_cache_storage(test_registry: WikiRegistry, temp_dir: Path) -> PageStorage:
+def test_cache_storage(test_registry, temp_dir: Path):
     """Create PageStorage for cached (input) pages."""
+    from erenshor.infrastructure.storage.page_storage import PageStorage
+
     cache_dir = temp_dir / "wiki_cache"
     cache_dir.mkdir(parents=True, exist_ok=True)
     return PageStorage(test_registry, cache_dir)
 
 
 @pytest.fixture
-def test_output_storage(test_registry: WikiRegistry, temp_dir: Path) -> PageStorage:
+def test_output_storage(test_registry, temp_dir: Path):
     """Create PageStorage for generated (output) pages."""
+    from erenshor.infrastructure.storage.page_storage import PageStorage
+
     output_dir = temp_dir / "wiki_updated"
     output_dir.mkdir(parents=True, exist_ok=True)
     return PageStorage(test_registry, output_dir)
 
 
 @pytest.fixture
-def test_settings(test_db_path: Path, temp_dir: Path) -> WikiSettings:
+def test_settings(test_db_path: Path, temp_dir: Path):
     """Create WikiSettings for testing."""
+    from erenshor.infrastructure.config.settings import WikiSettings
+
     return WikiSettings(
         db_path=test_db_path,
         cache_dir=temp_dir / "wiki_cache",
@@ -146,40 +153,51 @@ def test_settings(test_db_path: Path, temp_dir: Path) -> WikiSettings:
 
 
 @pytest.fixture
-def test_link_resolver(test_registry: WikiRegistry) -> RegistryLinkResolver:
+def test_link_resolver(test_registry):
     """Create RegistryLinkResolver for generating wiki links."""
+    from erenshor.registry.links import RegistryLinkResolver
+
     return RegistryLinkResolver(test_registry)
 
 
 # Generator fixtures
 @pytest.fixture
-def item_generator() -> ItemGenerator:
+def item_generator():
     """Create ItemGenerator for testing."""
+    from erenshor.application.generators.items import ItemGenerator
+
     return ItemGenerator()
 
 
 @pytest.fixture
-def character_generator() -> CharacterGenerator:
+def character_generator():
     """Create CharacterGenerator for testing."""
+    from erenshor.application.generators.characters import CharacterGenerator
+
     return CharacterGenerator()
 
 
 @pytest.fixture
-def ability_generator() -> AbilityGenerator:
+def ability_generator():
     """Create AbilityGenerator for testing."""
+    from erenshor.application.generators.abilities import AbilityGenerator
+
     return AbilityGenerator()
 
 
 @pytest.fixture
-def fishing_generator() -> FishingGenerator:
+def fishing_generator():
     """Create FishingGenerator for testing."""
+    from erenshor.application.generators.fishing import FishingGenerator
+
     return FishingGenerator()
 
 
 # Transformer fixtures
 @pytest.fixture
-def item_transformer() -> ItemTransformer:
+def item_transformer():
     """Create ItemTransformer for testing."""
+    from erenshor.application.transformers.items import ItemTransformer
     from erenshor.application.transformers.merger import FieldMerger
     from erenshor.application.transformers.parser import WikiParser
 
@@ -187,47 +205,59 @@ def item_transformer() -> ItemTransformer:
 
 
 @pytest.fixture
-def character_transformer() -> CharacterTransformer:
+def character_transformer():
     """Create CharacterTransformer for testing."""
+    from erenshor.application.transformers.characters import CharacterTransformer
+
     return CharacterTransformer()
 
 
 @pytest.fixture
-def ability_transformer() -> AbilityTransformer:
+def ability_transformer():
     """Create AbilityTransformer for testing."""
+    from erenshor.application.transformers.abilities import AbilityTransformer
+
     return AbilityTransformer()
 
 
 # Validator fixtures
 @pytest.fixture
-def item_validator() -> ItemValidator:
+def item_validator():
     """Create ItemValidator for testing."""
+    from erenshor.domain.validation.items import ItemValidator
+
     return ItemValidator()
 
 
 @pytest.fixture
-def character_validator() -> CharacterValidator:
+def character_validator():
     """Create CharacterValidator for testing."""
+    from erenshor.domain.validation.characters import CharacterValidator
+
     return CharacterValidator()
 
 
 @pytest.fixture
-def ability_validator() -> AbilityValidator:
+def ability_validator():
     """Create AbilityValidator for testing."""
+    from erenshor.domain.validation.abilities import AbilityValidator
+
     return AbilityValidator()
 
 
 # Service fixtures
 @pytest.fixture
 def item_update_service(
-    item_generator: ItemGenerator,
-    item_transformer: ItemTransformer,
-    item_validator: ItemValidator,
-    test_cache_storage: PageStorage,
-    test_output_storage: PageStorage,
-    test_registry: WikiRegistry,
-) -> UpdateService:
+    item_generator,
+    item_transformer,
+    item_validator,
+    test_cache_storage,
+    test_output_storage,
+    test_registry,
+):
     """Create UpdateService for item updates."""
+    from erenshor.application.services.update_service import UpdateService
+
     return UpdateService(
         generator=item_generator,
         transformer=item_transformer,
@@ -240,14 +270,16 @@ def item_update_service(
 
 @pytest.fixture
 def character_update_service(
-    character_generator: CharacterGenerator,
-    character_transformer: CharacterTransformer,
-    character_validator: CharacterValidator,
-    test_cache_storage: PageStorage,
-    test_output_storage: PageStorage,
-    test_registry: WikiRegistry,
-) -> UpdateService:
+    character_generator,
+    character_transformer,
+    character_validator,
+    test_cache_storage,
+    test_output_storage,
+    test_registry,
+):
     """Create UpdateService for character updates."""
+    from erenshor.application.services.update_service import UpdateService
+
     return UpdateService(
         generator=character_generator,
         transformer=character_transformer,
@@ -260,14 +292,16 @@ def character_update_service(
 
 @pytest.fixture
 def ability_update_service(
-    ability_generator: AbilityGenerator,
-    ability_transformer: AbilityTransformer,
-    ability_validator: AbilityValidator,
-    test_cache_storage: PageStorage,
-    test_output_storage: PageStorage,
-    test_registry: WikiRegistry,
-) -> UpdateService:
+    ability_generator,
+    ability_transformer,
+    ability_validator,
+    test_cache_storage,
+    test_output_storage,
+    test_registry,
+):
     """Create UpdateService for ability updates."""
+    from erenshor.application.services.update_service import UpdateService
+
     return UpdateService(
         generator=ability_generator,
         transformer=ability_transformer,
@@ -283,9 +317,7 @@ def load_baseline_page(page_name: str) -> str:
 
     Baseline pages are expected outputs stored in tests/fixtures/baseline_pages/
     """
-    baseline_path = (
-        Path(__file__).parent / "fixtures" / "baseline_pages" / f"{page_name}.txt"
-    )
+    baseline_path = Path(__file__).parent / "fixtures" / "baseline_pages" / f"{page_name}.txt"
 
     if not baseline_path.exists():
         pytest.fail(f"Baseline page not found: {baseline_path}")
@@ -309,7 +341,4 @@ def assert_page_structure_valid(content: str, expected_templates: list[str]) -> 
 
     for expected in expected_templates:
         if expected not in templates:
-            pytest.fail(
-                f"Expected template '{expected}' not found in page. "
-                f"Found templates: {templates}"
-            )
+            pytest.fail(f"Expected template '{expected}' not found in page. " f"Found templates: {templates}")
