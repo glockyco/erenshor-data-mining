@@ -65,7 +65,6 @@ def register_entity(
     resource_name: str,
     display_name: str,
     wiki_page_title: str | None = None,
-    is_manual: bool = False,
 ) -> EntityRecord:
     """Register or update an entity in the registry.
 
@@ -79,7 +78,6 @@ def register_entity(
         resource_name: Stable resource identifier from game data
         display_name: Human-readable name shown in game UI
         wiki_page_title: Associated wiki page title (None if no wiki page)
-        is_manual: True if wiki page was manually created (not auto-generated)
 
     Returns:
         EntityRecord instance (newly created or updated)
@@ -115,8 +113,6 @@ def register_entity(
         if wiki_page_title is not None:
             existing.wiki_page_title = wiki_page_title
 
-        existing.is_manual = is_manual
-
         session.add(existing)
         session.commit()
         session.refresh(existing)
@@ -133,7 +129,6 @@ def register_entity(
         resource_name=resource_name,
         display_name=display_name,
         wiki_page_title=wiki_page_title,
-        is_manual=is_manual,
         first_seen=now,
         last_seen=now,
     )

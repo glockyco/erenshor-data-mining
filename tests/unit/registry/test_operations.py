@@ -79,7 +79,6 @@ class TestRegisterEntity:
         assert entity.resource_name == "iron_sword"
         assert entity.display_name == "Iron Sword"
         assert entity.wiki_page_title is None
-        assert entity.is_manual is False
 
     def test_register_entity_with_wiki_page(self, in_memory_session):
         """Test registering entity with wiki page title."""
@@ -92,18 +91,6 @@ class TestRegisterEntity:
         )
 
         assert entity.wiki_page_title == "Iron Sword Wiki"
-
-    def test_register_entity_with_is_manual(self, in_memory_session):
-        """Test registering entity with is_manual flag."""
-        entity = register_entity(
-            in_memory_session,
-            EntityType.ITEM,
-            "iron_sword",
-            "Iron Sword",
-            is_manual=True,
-        )
-
-        assert entity.is_manual is True
 
     def test_register_entity_upsert_updates_existing(self, in_memory_session):
         """Test that registering existing entity updates it (upsert)."""
