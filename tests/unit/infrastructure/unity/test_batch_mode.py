@@ -1,0 +1,604 @@
+"""Unit tests for Unity batch mode wrapper.
+
+These tests verify the UnityBatchMode wrapper's behavior using mocks to avoid
+requiring actual Unity installation or lengthy batch mode executions.
+"""
+
+from pathlib import Path
+from subprocess import TimeoutExpired
+from unittest.mock import MagicMock, patch
+
+import pytest
+
+from erenshor.infrastructure.unity import (
+    UnityBatchMode,
+    UnityBatchModeError,
+    UnityCompilationError,
+    UnityExecutionError,
+    UnityNotFoundError,
+    UnityRuntimeError,
+)
+
+
+class TestUnityBatchModeInitialization:
+    """Test UnityBatchMode initialization and validation."""
+
+    def test_init_success(self, tmp_path: Path) -> None:
+        """Test successful initialization when Unity executable exists."""
+        unity_exe = tmp_path / "Unity"
+        unity_exe.touch()
+
+        unity = UnityBatchMode(unity_path=unity_exe, timeout=1800)
+
+        assert unity.unity_path == unity_exe
+        assert unity.timeout == 1800
+
+    def test_init_default_timeout(self, tmp_path: Path) -> None:
+        """Test default timeout value is set correctly."""
+        unity_exe = tmp_path / "Unity"
+        unity_exe.touch()
+
+        unity = UnityBatchMode(unity_path=unity_exe)
+
+        assert unity.timeout == 3600
+
+    def test_init_unity_not_found(self, tmp_path: Path) -> None:
+        """Test initialization fails when Unity executable doesn't exist."""
+        unity_exe = tmp_path / "NonExistent" / "Unity"
+
+        with pytest.raises(UnityNotFoundError) as exc_info:
+            UnityBatchMode(unity_path=unity_exe)
+
+        assert "Unity executable not found" in str(exc_info.value)
+        assert str(unity_exe) in str(exc_info.value)
+
+    def test_init_unity_path_is_directory(self, tmp_path: Path) -> None:
+        """Test initialization fails when Unity path is a directory."""
+        unity_dir = tmp_path / "Unity"
+        unity_dir.mkdir()
+
+        with pytest.raises(UnityNotFoundError) as exc_info:
+            UnityBatchMode(unity_path=unity_dir)
+
+        assert "not a file" in str(exc_info.value)
+
+
+class TestUnityBatchModeExecuteMethod:
+    """Test Unity batch mode method execution."""
+
+    @patch("erenshor.infrastructure.unity.batch_mode.subprocess.run")
+    def test_execute_method_success(self, mock_run: MagicMock, tmp_path: Path) -> None:
+        """Test successful method execution."""
+        # Setup
+        unity_exe = tmp_path / "Unity"
+        unity_exe.touch()
+        project_path = tmp_path / "UnityProject"
+        project_path.mkdir()
+        (project_path / "Assets").mkdir()
+        (project_path / "ProjectSettings").mkdir()
+        log_file = tmp_path / "logs" / "export.log"
+
+        # Create successful log file
+        log_file.parent.mkdir(parents=True, exist_ok=True)
+        log_file.write_text("[EXPORT_COMPLETE] Export completed successfully\n")
+
+        mock_run.return_value = MagicMock(returncode=0, stdout="", stderr="")
+
+        # Execute
+        unity = UnityBatchMode(unity_path=unity_exe, timeout=1800)
+        unity.execute_method(
+            project_path=project_path,
+            class_name="ExportBatch",
+            method_name="Run",
+            log_file=log_file,
+            arguments={"dbPath": "/path/to/db.sqlite", "logLevel": "verbose"},
+        )
+
+        # Verify subprocess.run was called with correct command
+        mock_run.assert_called_once()
+        call_args = mock_run.call_args[0][0]
+        assert str(unity_exe) in call_args
+        assert "-batchmode" in call_args
+        assert "-quit" in call_args
+        assert "-projectPath" in call_args
+        assert str(project_path.absolute()) in call_args
+        assert "-executeMethod" in call_args
+        assert "ExportBatch.Run" in call_args
+        assert "-logFile" in call_args
+        assert str(log_file.absolute()) in call_args
+        assert "-dbPath" in call_args
+        assert "/path/to/db.sqlite" in call_args
+        assert "-logLevel" in call_args
+        assert "verbose" in call_args
+
+    @patch("erenshor.infrastructure.unity.batch_mode.subprocess.run")
+    def test_execute_method_without_arguments(self, mock_run: MagicMock, tmp_path: Path) -> None:
+        """Test method execution without custom arguments."""
+        unity_exe = tmp_path / "Unity"
+        unity_exe.touch()
+        project_path = tmp_path / "UnityProject"
+        project_path.mkdir()
+        log_file = tmp_path / "export.log"
+        log_file.write_text("Success\n")
+
+        mock_run.return_value = MagicMock(returncode=0, stdout="", stderr="")
+
+        unity = UnityBatchMode(unity_path=unity_exe)
+        unity.execute_method(
+            project_path=project_path,
+            class_name="TestClass",
+            method_name="TestMethod",
+            log_file=log_file,
+        )
+
+        # Verify no custom arguments in command
+        call_args = mock_run.call_args[0][0]
+        assert "-batchmode" in call_args
+        assert "-executeMethod" in call_args
+        assert "TestClass.TestMethod" in call_args
+
+    @patch("erenshor.infrastructure.unity.batch_mode.subprocess.run")
+    def test_execute_method_creates_log_directory(self, mock_run: MagicMock, tmp_path: Path) -> None:
+        """Test that log directory is created if it doesn't exist."""
+        unity_exe = tmp_path / "Unity"
+        unity_exe.touch()
+        project_path = tmp_path / "UnityProject"
+        project_path.mkdir()
+        log_file = tmp_path / "nested" / "logs" / "export.log"
+
+        mock_run.return_value = MagicMock(returncode=0, stdout="", stderr="")
+
+        def create_log_file(*args, **kwargs):
+            log_file.parent.mkdir(parents=True, exist_ok=True)
+            log_file.write_text("Success\n")
+            return MagicMock(returncode=0)
+
+        mock_run.side_effect = create_log_file
+
+        unity = UnityBatchMode(unity_path=unity_exe)
+        unity.execute_method(
+            project_path=project_path,
+            class_name="Test",
+            method_name="Method",
+            log_file=log_file,
+        )
+
+        assert log_file.parent.exists()
+
+    @patch("erenshor.infrastructure.unity.batch_mode.subprocess.run")
+    def test_execute_method_project_not_found(self, mock_run: MagicMock, tmp_path: Path) -> None:
+        """Test execution fails when project path doesn't exist."""
+        unity_exe = tmp_path / "Unity"
+        unity_exe.touch()
+        project_path = tmp_path / "NonExistentProject"
+
+        unity = UnityBatchMode(unity_path=unity_exe)
+
+        with pytest.raises(UnityNotFoundError) as exc_info:
+            unity.execute_method(
+                project_path=project_path,
+                class_name="Test",
+                method_name="Method",
+            )
+
+        assert "Unity project not found" in str(exc_info.value)
+
+    @patch("erenshor.infrastructure.unity.batch_mode.subprocess.run")
+    def test_execute_method_timeout(self, mock_run: MagicMock, tmp_path: Path) -> None:
+        """Test execution fails when Unity times out."""
+        unity_exe = tmp_path / "Unity"
+        unity_exe.touch()
+        project_path = tmp_path / "UnityProject"
+        project_path.mkdir()
+
+        mock_run.side_effect = TimeoutExpired(cmd=["unity"], timeout=10)
+
+        unity = UnityBatchMode(unity_path=unity_exe, timeout=10)
+
+        with pytest.raises(UnityRuntimeError) as exc_info:
+            unity.execute_method(
+                project_path=project_path,
+                class_name="Test",
+                method_name="Method",
+            )
+
+        assert "timed out" in str(exc_info.value)
+        assert "10 seconds" in str(exc_info.value)
+
+
+class TestUnityBatchModeErrorDetection:
+    """Test Unity error detection and classification."""
+
+    @patch("erenshor.infrastructure.unity.batch_mode.subprocess.run")
+    def test_compilation_error_detection(self, mock_run: MagicMock, tmp_path: Path) -> None:
+        """Test compilation errors are detected and raised."""
+        unity_exe = tmp_path / "Unity"
+        unity_exe.touch()
+        project_path = tmp_path / "UnityProject"
+        project_path.mkdir()
+        log_file = tmp_path / "export.log"
+
+        # Create log with compilation error
+        log_file.write_text(
+            "Compilation failed: error CS0246: The type or namespace name 'SomeType' could not be found\n"
+            "error CS0103: The name 'variable' does not exist in the current context\n"
+        )
+
+        mock_run.return_value = MagicMock(returncode=1, stdout="", stderr="")
+
+        unity = UnityBatchMode(unity_path=unity_exe)
+
+        with pytest.raises(UnityCompilationError) as exc_info:
+            unity.execute_method(
+                project_path=project_path,
+                class_name="Test",
+                method_name="Method",
+                log_file=log_file,
+            )
+
+        assert "compilation failed" in str(exc_info.value).lower()
+        assert "error CS" in str(exc_info.value)
+
+    @patch("erenshor.infrastructure.unity.batch_mode.subprocess.run")
+    def test_execution_error_detection(self, mock_run: MagicMock, tmp_path: Path) -> None:
+        """Test method execution errors are detected and raised."""
+        unity_exe = tmp_path / "Unity"
+        unity_exe.touch()
+        project_path = tmp_path / "UnityProject"
+        project_path.mkdir()
+        log_file = tmp_path / "export.log"
+
+        # Create log with execution error
+        log_file.write_text("Executing method failed: Method 'Run' not found in class 'ExportBatch'\n")
+
+        mock_run.return_value = MagicMock(returncode=1, stdout="", stderr="")
+
+        unity = UnityBatchMode(unity_path=unity_exe)
+
+        with pytest.raises(UnityExecutionError) as exc_info:
+            unity.execute_method(
+                project_path=project_path,
+                class_name="Test",
+                method_name="Method",
+                log_file=log_file,
+            )
+
+        assert "Failed to execute Unity method" in str(exc_info.value)
+
+    @patch("erenshor.infrastructure.unity.batch_mode.subprocess.run")
+    def test_runtime_error_detection_export_error(self, mock_run: MagicMock, tmp_path: Path) -> None:
+        """Test runtime errors with EXPORT_ERROR marker are detected."""
+        unity_exe = tmp_path / "Unity"
+        unity_exe.touch()
+        project_path = tmp_path / "UnityProject"
+        project_path.mkdir()
+        log_file = tmp_path / "export.log"
+
+        # Create log with runtime error
+        log_file.write_text(
+            "[EXPORT_ERROR] Export failed: Database connection failed\n"
+            "[EXPORT_STACKTRACE] at ExportBatch.Run() in /path/to/ExportBatch.cs:120\n"
+        )
+
+        mock_run.return_value = MagicMock(returncode=1, stdout="", stderr="")
+
+        unity = UnityBatchMode(unity_path=unity_exe)
+
+        with pytest.raises(UnityRuntimeError) as exc_info:
+            unity.execute_method(
+                project_path=project_path,
+                class_name="Test",
+                method_name="Method",
+                log_file=log_file,
+            )
+
+        assert "Unity script execution failed" in str(exc_info.value)
+        assert "[EXPORT_ERROR]" in str(exc_info.value)
+
+    @patch("erenshor.infrastructure.unity.batch_mode.subprocess.run")
+    def test_runtime_error_detection_exception(self, mock_run: MagicMock, tmp_path: Path) -> None:
+        """Test runtime errors with exceptions are detected."""
+        unity_exe = tmp_path / "Unity"
+        unity_exe.touch()
+        project_path = tmp_path / "UnityProject"
+        project_path.mkdir()
+        log_file = tmp_path / "export.log"
+
+        # Create log with exception
+        log_file.write_text(
+            "NullReferenceException: Object reference not set to an instance of an object\n"
+            "  at ExportBatch.Run () [0x00042] in /path/to/ExportBatch.cs:85\n"
+        )
+
+        mock_run.return_value = MagicMock(returncode=1, stdout="", stderr="")
+
+        unity = UnityBatchMode(unity_path=unity_exe)
+
+        with pytest.raises(UnityRuntimeError) as exc_info:
+            unity.execute_method(
+                project_path=project_path,
+                class_name="Test",
+                method_name="Method",
+                log_file=log_file,
+            )
+
+        assert "Unity script execution failed" in str(exc_info.value)
+
+    @patch("erenshor.infrastructure.unity.batch_mode.subprocess.run")
+    def test_generic_error_when_log_missing(self, mock_run: MagicMock, tmp_path: Path) -> None:
+        """Test generic error is raised when log file is missing."""
+        unity_exe = tmp_path / "Unity"
+        unity_exe.touch()
+        project_path = tmp_path / "UnityProject"
+        project_path.mkdir()
+        log_file = tmp_path / "export.log"
+
+        mock_run.return_value = MagicMock(returncode=1, stdout="", stderr="")
+
+        unity = UnityBatchMode(unity_path=unity_exe)
+
+        with pytest.raises(UnityRuntimeError) as exc_info:
+            unity.execute_method(
+                project_path=project_path,
+                class_name="Test",
+                method_name="Method",
+                log_file=log_file,
+            )
+
+        assert "log file is missing" in str(exc_info.value)
+
+    @patch("erenshor.infrastructure.unity.batch_mode.subprocess.run")
+    def test_success_with_exit_code_zero(self, mock_run: MagicMock, tmp_path: Path) -> None:
+        """Test that exit code 0 is treated as success."""
+        unity_exe = tmp_path / "Unity"
+        unity_exe.touch()
+        project_path = tmp_path / "UnityProject"
+        project_path.mkdir()
+        log_file = tmp_path / "export.log"
+        log_file.write_text("Success\n")
+
+        mock_run.return_value = MagicMock(returncode=0, stdout="", stderr="")
+
+        unity = UnityBatchMode(unity_path=unity_exe)
+        unity.execute_method(
+            project_path=project_path,
+            class_name="Test",
+            method_name="Method",
+            log_file=log_file,
+        )
+
+
+class TestUnityBatchModeProjectValidation:
+    """Test Unity project validation."""
+
+    def test_validate_project_success(self, tmp_path: Path) -> None:
+        """Test project validation succeeds for valid project."""
+        unity_exe = tmp_path / "Unity"
+        unity_exe.touch()
+
+        project_path = tmp_path / "UnityProject"
+        project_path.mkdir()
+        (project_path / "Assets").mkdir()
+        (project_path / "ProjectSettings").mkdir()
+
+        unity = UnityBatchMode(unity_path=unity_exe)
+        assert unity.validate_project(project_path) is True
+
+    def test_validate_project_missing_assets(self, tmp_path: Path) -> None:
+        """Test project validation fails when Assets directory is missing."""
+        unity_exe = tmp_path / "Unity"
+        unity_exe.touch()
+
+        project_path = tmp_path / "UnityProject"
+        project_path.mkdir()
+        (project_path / "ProjectSettings").mkdir()
+
+        unity = UnityBatchMode(unity_path=unity_exe)
+        assert unity.validate_project(project_path) is False
+
+    def test_validate_project_missing_project_settings(self, tmp_path: Path) -> None:
+        """Test project validation fails when ProjectSettings is missing."""
+        unity_exe = tmp_path / "Unity"
+        unity_exe.touch()
+
+        project_path = tmp_path / "UnityProject"
+        project_path.mkdir()
+        (project_path / "Assets").mkdir()
+
+        unity = UnityBatchMode(unity_path=unity_exe)
+        assert unity.validate_project(project_path) is False
+
+    def test_validate_project_path_not_exists(self, tmp_path: Path) -> None:
+        """Test project validation fails when path doesn't exist."""
+        unity_exe = tmp_path / "Unity"
+        unity_exe.touch()
+
+        project_path = tmp_path / "NonExistentProject"
+
+        unity = UnityBatchMode(unity_path=unity_exe)
+        assert unity.validate_project(project_path) is False
+
+
+class TestUnityBatchModeVersionDetection:
+    """Test Unity version detection."""
+
+    def test_get_version_from_path(self, tmp_path: Path) -> None:
+        """Test version is extracted from Unity path."""
+        unity_path = tmp_path / "Unity" / "Hub" / "Editor" / "2021.3.45f2" / "Unity.app" / "Contents" / "MacOS"
+        unity_path.mkdir(parents=True)
+        unity_exe = unity_path / "Unity"
+        unity_exe.touch()
+
+        unity = UnityBatchMode(unity_path=unity_exe)
+        version = unity.get_version()
+
+        assert version == "2021.3.45f2"
+
+    def test_get_version_unknown_when_not_in_path(self, tmp_path: Path) -> None:
+        """Test version returns 'unknown' when not in path."""
+        unity_exe = tmp_path / "Unity"
+        unity_exe.touch()
+
+        unity = UnityBatchMode(unity_path=unity_exe)
+        version = unity.get_version()
+
+        assert version == "unknown"
+
+    def test_get_version_with_different_unity_version(self, tmp_path: Path) -> None:
+        """Test version detection with different Unity version format."""
+        unity_path = tmp_path / "Applications" / "Unity" / "2020.3.12f1" / "Unity"
+        unity_path.parent.mkdir(parents=True)
+        unity_path.touch()
+
+        unity = UnityBatchMode(unity_path=unity_path)
+        version = unity.get_version()
+
+        assert version == "2020.3.12f1"
+
+
+class TestUnityBatchModeInstallationCheck:
+    """Test Unity installation detection."""
+
+    def test_is_installed_true(self, tmp_path: Path) -> None:
+        """Test is_installed returns True when Unity exists."""
+        unity_exe = tmp_path / "Unity"
+        unity_exe.touch()
+
+        unity = UnityBatchMode(unity_path=unity_exe)
+        assert unity.is_installed() is True
+
+    def test_is_installed_false_when_missing(self, tmp_path: Path) -> None:
+        """Test is_installed returns False when Unity doesn't exist."""
+        unity_exe = tmp_path / "Unity"
+        unity_exe.touch()
+
+        unity = UnityBatchMode(unity_path=unity_exe)
+        unity_exe.unlink()  # Delete after initialization
+
+        assert unity.is_installed() is False
+
+    def test_is_installed_false_when_directory(self, tmp_path: Path) -> None:
+        """Test is_installed returns False when path is directory."""
+        unity_exe = tmp_path / "Unity"
+        unity_exe.touch()
+
+        unity = UnityBatchMode(unity_path=unity_exe)
+        unity_exe.unlink()
+        unity_exe.mkdir()  # Convert to directory
+
+        assert unity.is_installed() is False
+
+
+class TestUnityBatchModeErrorHierarchy:
+    """Test exception hierarchy."""
+
+    def test_exception_hierarchy(self) -> None:
+        """Test that all exceptions inherit from UnityBatchModeError."""
+        assert issubclass(UnityNotFoundError, UnityBatchModeError)
+        assert issubclass(UnityCompilationError, UnityBatchModeError)
+        assert issubclass(UnityExecutionError, UnityBatchModeError)
+        assert issubclass(UnityRuntimeError, UnityBatchModeError)
+
+    def test_catch_all_unity_errors(self, tmp_path: Path) -> None:
+        """Test that catching UnityBatchModeError catches all Unity errors."""
+        unity_exe = tmp_path / "NonExistent"
+
+        caught = False
+        try:
+            UnityBatchMode(unity_path=unity_exe)
+        except UnityBatchModeError:
+            caught = True
+
+        assert caught, "UnityBatchModeError should catch UnityNotFoundError"
+
+
+class TestUnityBatchModeLogParsing:
+    """Test Unity log parsing methods."""
+
+    def test_has_compilation_error(self, tmp_path: Path) -> None:
+        """Test _has_compilation_error detects various compilation errors."""
+        unity_exe = tmp_path / "Unity"
+        unity_exe.touch()
+        unity = UnityBatchMode(unity_path=unity_exe)
+
+        compilation_error_logs = [
+            "Compilation failed: 2 errors",
+            "error CS0246: The type or namespace name could not be found",
+            "Assembly has reference to non-existent assembly",
+            "The type or namespace name 'Something' could not be found",
+            "does not contain a definition for 'Method'",
+        ]
+
+        for log_content in compilation_error_logs:
+            assert unity._has_compilation_error(log_content) is True
+
+    def test_has_execution_error(self, tmp_path: Path) -> None:
+        """Test _has_execution_error detects method execution errors."""
+        unity_exe = tmp_path / "Unity"
+        unity_exe.touch()
+        unity = UnityBatchMode(unity_path=unity_exe)
+
+        execution_error_logs = [
+            "Executing method failed",
+            "Method or operation is not found",
+            "Could not execute the method TestMethod",
+        ]
+
+        for log_content in execution_error_logs:
+            assert unity._has_execution_error(log_content) is True
+
+    def test_has_runtime_error(self, tmp_path: Path) -> None:
+        """Test _has_runtime_error detects various runtime errors."""
+        unity_exe = tmp_path / "Unity"
+        unity_exe.touch()
+        unity = UnityBatchMode(unity_path=unity_exe)
+
+        runtime_error_logs = [
+            "[EXPORT_ERROR] Database error",
+            "NullReferenceException: Object reference not set",
+            "ArgumentException: Invalid argument",
+            "InvalidOperationException: Operation is not valid",
+            "Exception: Something went wrong",
+            "Error: Failed to process",
+        ]
+
+        for log_content in runtime_error_logs:
+            assert unity._has_runtime_error(log_content) is True
+
+    def test_extract_compilation_errors(self, tmp_path: Path) -> None:
+        """Test _extract_compilation_errors extracts error details."""
+        unity_exe = tmp_path / "Unity"
+        unity_exe.touch()
+        unity = UnityBatchMode(unity_path=unity_exe)
+
+        log_content = """
+        Some log output
+        error CS0246: The type or namespace name 'SomeType' could not be found
+        error CS0103: The name 'variable' does not exist
+        More log output
+        """
+
+        errors = unity._extract_compilation_errors(log_content)
+
+        assert "error CS0246" in errors
+        assert "error CS0103" in errors
+        assert "SomeType" in errors
+        assert "variable" in errors
+
+    def test_extract_runtime_errors(self, tmp_path: Path) -> None:
+        """Test _extract_runtime_errors extracts error details."""
+        unity_exe = tmp_path / "Unity"
+        unity_exe.touch()
+        unity = UnityBatchMode(unity_path=unity_exe)
+
+        log_content = """
+        Normal log output
+        [EXPORT_ERROR] Export failed: Database connection error
+        [EXPORT_STACKTRACE] at ExportBatch.Run() in ExportBatch.cs:120
+        More output
+        """
+
+        errors = unity._extract_runtime_errors(log_content)
+
+        assert "[EXPORT_ERROR]" in errors
+        assert "Database connection error" in errors
