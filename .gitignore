@@ -825,3 +825,8 @@ config.local.toml
 *.sqlite
 export_*.log
 unity_*.log
+
+# Test artifacts
+tests/**/*.db
+tests/**/*.sqlite
+!tests/fixtures/database/*.sql
