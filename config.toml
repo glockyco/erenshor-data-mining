@@ -67,6 +67,13 @@ images_output = "$REPO_ROOT/variants/main/images"
 [variants.main.google_sheets]
 spreadsheet_id = "1eOYfjaudAhvE6HGBtWyRGgQDsmWDLENaoEwRvgBO_0E"
 
+[variants.main.maps]
+source_dir = "$REPO_ROOT/src/maps"
+data_dir = "$REPO_ROOT/src/maps/static/data"
+database_dir = "$REPO_ROOT/src/maps/static/db"
+build_dir = "$REPO_ROOT/src/maps/build"
+deploy_target = "erenshor-maps"
+
 [variants.playtest]
 enabled = true
 name = "Playtest"

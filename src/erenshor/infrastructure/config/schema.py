@@ -357,6 +357,60 @@ class VariantGoogleSheetsConfig(BaseModel):
     )
 
 
+class MapsConfig(BaseModel):
+    """Configuration for the interactive maps web application.
+
+    The maps project is a SvelteKit application that displays game data
+    in an interactive map interface. It reads from a SQLite database
+    and deploys to Cloudflare Pages.
+    """
+
+    source_dir: str = Field(
+        default="$REPO_ROOT/src/maps",
+        description="Path to maps source directory (SvelteKit project root)",
+    )
+    data_dir: str = Field(
+        default="$REPO_ROOT/src/maps/static/data",
+        description="Path to maps static/data directory for exported data files",
+    )
+    database_dir: str = Field(
+        default="$REPO_ROOT/src/maps/static/db",
+        description="Path to maps static/db directory for SQLite database",
+    )
+    build_dir: str = Field(
+        default="$REPO_ROOT/src/maps/build",
+        description="Path to build output directory (created by npm run build)",
+    )
+    deploy_target: str = Field(
+        default="erenshor-maps",
+        description="Cloudflare Pages project name for deployment",
+    )
+
+    def resolved_source_dir(self, repo_root: Path) -> Path:
+        """Get resolved maps source directory path."""
+        from .paths import resolve_path
+
+        return resolve_path(self.source_dir, repo_root)
+
+    def resolved_data_dir(self, repo_root: Path) -> Path:
+        """Get resolved maps data directory path."""
+        from .paths import resolve_path
+
+        return resolve_path(self.data_dir, repo_root)
+
+    def resolved_database_dir(self, repo_root: Path) -> Path:
+        """Get resolved maps database directory path."""
+        from .paths import resolve_path
+
+        return resolve_path(self.database_dir, repo_root)
+
+    def resolved_build_dir(self, repo_root: Path) -> Path:
+        """Get resolved maps build directory path."""
+        from .paths import resolve_path
+
+        return resolve_path(self.build_dir, repo_root)
+
+
 class VariantConfig(BaseModel):
     """Configuration for a single game variant.
 
@@ -403,6 +457,10 @@ class VariantConfig(BaseModel):
     google_sheets: VariantGoogleSheetsConfig = Field(
         default_factory=VariantGoogleSheetsConfig,
         description="Google Sheets configuration for this variant",
+    )
+    maps: MapsConfig = Field(
+        default_factory=MapsConfig,
+        description="Interactive maps web application configuration",
     )
 
     def resolved_unity_project(self, repo_root: Path) -> Path:

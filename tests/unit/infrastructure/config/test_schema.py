@@ -17,6 +17,7 @@ from erenshor.infrastructure.config.schema import (
     GlobalConfig,
     GoogleSheetsConfig,
     LoggingConfig,
+    MapsConfig,
     MediaWikiConfig,
     PathsConfig,
     SteamConfig,
@@ -425,6 +426,62 @@ class TestVariantGoogleSheetsConfig:
         """Test setting custom spreadsheet ID."""
         config = VariantGoogleSheetsConfig(spreadsheet_id="1eOYfjaudAhvE6HGBtWyRGgQDsmWDLENaoEwRvgBO_0E")
         assert config.spreadsheet_id == "1eOYfjaudAhvE6HGBtWyRGgQDsmWDLENaoEwRvgBO_0E"
+
+
+class TestMapsConfig:
+    """Tests for MapsConfig model."""
+
+    def test_default_values(self):
+        """Test that MapsConfig has correct default values."""
+        config = MapsConfig()
+        assert config.source_dir == "$REPO_ROOT/src/maps"
+        assert config.data_dir == "$REPO_ROOT/src/maps/static/data"
+        assert config.database_dir == "$REPO_ROOT/src/maps/static/db"
+        assert config.build_dir == "$REPO_ROOT/src/maps/build"
+        assert config.deploy_target == "erenshor-maps"
+
+    def test_custom_values(self):
+        """Test creating MapsConfig with custom values."""
+        config = MapsConfig(
+            source_dir="/custom/maps",
+            data_dir="/custom/data",
+            database_dir="/custom/db",
+            build_dir="/custom/build",
+            deploy_target="custom-project",
+        )
+        assert config.source_dir == "/custom/maps"
+        assert config.data_dir == "/custom/data"
+        assert config.database_dir == "/custom/db"
+        assert config.build_dir == "/custom/build"
+        assert config.deploy_target == "custom-project"
+
+    def test_resolved_source_dir(self, tmp_path: Path):
+        """Test resolved_source_dir() method."""
+        config = MapsConfig(source_dir="$REPO_ROOT/src/maps")
+        resolved = config.resolved_source_dir(tmp_path)
+        assert resolved == tmp_path / "src/maps"
+        assert resolved.is_absolute()
+
+    def test_resolved_data_dir(self, tmp_path: Path):
+        """Test resolved_data_dir() method."""
+        config = MapsConfig(data_dir="$REPO_ROOT/src/maps/static/data")
+        resolved = config.resolved_data_dir(tmp_path)
+        assert resolved == tmp_path / "src/maps/static/data"
+        assert resolved.is_absolute()
+
+    def test_resolved_database_dir(self, tmp_path: Path):
+        """Test resolved_database_dir() method."""
+        config = MapsConfig(database_dir="$REPO_ROOT/src/maps/static/db")
+        resolved = config.resolved_database_dir(tmp_path)
+        assert resolved == tmp_path / "src/maps/static/db"
+        assert resolved.is_absolute()
+
+    def test_resolved_build_dir(self, tmp_path: Path):
+        """Test resolved_build_dir() method."""
+        config = MapsConfig(build_dir="$REPO_ROOT/src/maps/build")
+        resolved = config.resolved_build_dir(tmp_path)
+        assert resolved == tmp_path / "src/maps/build"
+        assert resolved.is_absolute()
 
 
 class TestVariantConfig:
