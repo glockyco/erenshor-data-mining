@@ -17,6 +17,7 @@ from erenshor.infrastructure.config import ConfigLoadError, get_repo_root, load_
 from erenshor.infrastructure.logging import setup_logging
 from erenshor.infrastructure.logging.setup import LoggingSetupError
 
+from .commands import extract, maps, sheets, wiki
 from .context import CLIContext
 
 if TYPE_CHECKING:
@@ -30,6 +31,12 @@ app = typer.Typer(
     no_args_is_help=True,
     rich_markup_mode="rich",
 )
+
+# Register command groups
+app.add_typer(extract.app, name="extract")
+app.add_typer(wiki.app, name="wiki")
+app.add_typer(sheets.app, name="sheets")
+app.add_typer(maps.app, name="maps")
 
 
 @app.callback()
