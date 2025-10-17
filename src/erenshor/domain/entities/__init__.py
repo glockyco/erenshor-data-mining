@@ -6,6 +6,7 @@ provide stable key generation for registry lookups.
 
 Entity Types:
 - Item: Equipment, consumables, quest items, crafting materials
+- ItemStats: Item statistics by quality level (Normal, Blessed, Godly)
 - Spell: Damage spells, buffs, debuffs, heals, crowd control
 - Skill: Combat skills and special abilities
 - Character: NPCs, creatures, vendors, quest givers
@@ -23,6 +24,7 @@ from .base import BaseEntity
 from .character import Character
 from .faction import Faction
 from .item import Item
+from .item_stats import ItemStats
 from .loot_table import LootTable
 from .quest import Quest
 from .skill import Skill
@@ -35,6 +37,7 @@ __all__ = [
     "Character",
     "Faction",
     "Item",
+    "ItemStats",
     "LootTable",
     "Quest",
     "Skill",
