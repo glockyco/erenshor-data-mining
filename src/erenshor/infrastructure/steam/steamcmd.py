@@ -1,0 +1,342 @@
+"""SteamCMD wrapper for downloading game files from Steam.
+
+This module provides a Python wrapper around the SteamCMD command-line tool,
+enabling programmatic download and management of Steam game files.
+
+Features:
+- Download game files by App ID
+- Support for different platforms (Windows/macOS/Linux)
+- Steam authentication (username/password or anonymous)
+- File validation options
+- Build ID and manifest tracking
+- Proper error handling and logging
+
+The SteamCMD class wraps the steamcmd CLI and provides type-safe, testable
+interfaces for downloading game files. It's designed to work with the
+multi-variant system (main/playtest/demo).
+"""
+
+import shutil
+import subprocess
+from pathlib import Path
+from typing import Literal
+
+from loguru import logger
+
+
+class SteamCMDError(Exception):
+    """Base exception for SteamCMD-related errors.
+
+    This is the parent exception for all SteamCMD-specific errors.
+    Catch this to handle all SteamCMD failures.
+    """
+
+    pass
+
+
+class SteamCMDNotFoundError(SteamCMDError):
+    """Raised when SteamCMD executable is not found on the system.
+
+    This typically means SteamCMD is not installed or not in PATH.
+    On macOS: brew install steamcmd
+    On Linux: Install via package manager or download from Valve
+    """
+
+    pass
+
+
+class SteamCMDDownloadError(SteamCMDError):
+    """Raised when game download fails.
+
+    This can occur due to:
+    - Network errors
+    - Invalid App ID
+    - Insufficient disk space
+    - Permission errors
+    - SteamCMD process failure
+    """
+
+    pass
+
+
+class SteamCMDAuthenticationError(SteamCMDError):
+    """Raised when Steam authentication fails.
+
+    This occurs when:
+    - Invalid username/password
+    - Account requires Steam Guard
+    - Account is locked or banned
+    - Network connectivity issues
+    """
+
+    pass
+
+
+PlatformType = Literal["windows", "macos", "linux"]
+
+
+class SteamCMD:
+    """Wrapper for SteamCMD command-line tool.
+
+    This class provides a Python interface to SteamCMD for downloading
+    game files from Steam. It handles authentication, platform selection,
+    and file validation.
+
+    Attributes:
+        username: Steam username (use "anonymous" for anonymous login).
+        platform: Target platform for game files.
+
+    Example:
+        >>> # Download game files
+        >>> steamcmd = SteamCMD(username="myuser", platform="windows")
+        >>> steamcmd.download(
+        ...     app_id="2382520",
+        ...     install_dir=Path("variants/main/game"),
+        ...     validate=False
+        ... )
+
+        >>> # Anonymous download (if game supports it)
+        >>> steamcmd = SteamCMD(username="anonymous")
+        >>> steamcmd.download(app_id="2382520", install_dir=Path("game"))
+
+        >>> # Download with full file validation
+        >>> steamcmd.download(
+        ...     app_id="2382520",
+        ...     install_dir=Path("game"),
+        ...     validate=True
+        ... )
+    """
+
+    def __init__(
+        self,
+        username: str = "anonymous",
+        platform: PlatformType = "windows",
+    ) -> None:
+        """Initialize SteamCMD wrapper.
+
+        Args:
+            username: Steam username or "anonymous" for anonymous login.
+            platform: Target platform for game downloads (usually "windows" for cross-platform compatibility).
+
+        Raises:
+            SteamCMDNotFoundError: If steamcmd executable is not found in PATH.
+        """
+        self.username = username
+        self.platform = platform
+
+        # Verify SteamCMD is installed
+        if not self._check_installed():
+            raise SteamCMDNotFoundError(
+                "SteamCMD not found in PATH.\n"
+                "Install with: brew install steamcmd (macOS)\n"
+                "Or download from: https://developer.valvesoftware.com/wiki/SteamCMD"
+            )
+
+        logger.debug(f"SteamCMD initialized: username={username}, platform={platform}")
+
+    def _check_installed(self) -> bool:
+        """Check if SteamCMD is installed and available in PATH.
+
+        Returns:
+            True if steamcmd is found, False otherwise.
+        """
+        return shutil.which("steamcmd") is not None
+
+    def download(
+        self,
+        app_id: str,
+        install_dir: Path,
+        validate: bool = False,
+        password: str | None = None,
+    ) -> None:
+        """Download game files from Steam.
+
+        Downloads the specified Steam app to the target directory. Supports
+        incremental updates (only downloads changed files) unless validate=True.
+
+        Args:
+            app_id: Steam App ID to download (e.g., "2382520" for Erenshor).
+            install_dir: Target directory for game files (will be created if needed).
+            validate: If True, validates all files against Steam servers (slower, ensures integrity).
+            password: Steam account password (optional, for non-anonymous login).
+
+        Raises:
+            SteamCMDDownloadError: If download fails.
+            SteamCMDAuthenticationError: If authentication fails.
+
+        Example:
+            >>> steamcmd = SteamCMD(username="myuser", platform="windows")
+            >>> steamcmd.download(
+            ...     app_id="2382520",
+            ...     install_dir=Path("variants/main/game"),
+            ...     validate=False,
+            ...     password="mypassword"
+            ... )
+        """
+        logger.info(f"Starting game download: app_id={app_id}, install_dir={install_dir}")
+
+        # Ensure install directory exists
+        install_dir.mkdir(parents=True, exist_ok=True)
+
+        # Build SteamCMD command
+        cmd = [
+            "steamcmd",
+            "+@sSteamCmdForcePlatformType",
+            self.platform,
+            "+force_install_dir",
+            str(install_dir.absolute()),
+            "+login",
+            self.username,
+        ]
+
+        # Add password if provided (for non-anonymous login)
+        if password:
+            cmd.append(password)
+
+        # Add app_update command with optional validation
+        if validate:
+            logger.info("File validation enabled: all files will be verified against Steam servers")
+            cmd.extend(["+app_update", app_id, "validate"])
+        else:
+            logger.info("Incremental update mode: only changed files will be downloaded")
+            cmd.extend(["+app_update", app_id])
+
+        # Add quit command
+        cmd.append("+quit")
+
+        # Log command (mask password if present)
+        if password:
+            safe_cmd = cmd.copy()
+            # Find password position (after +login username)
+            try:
+                login_idx = safe_cmd.index("+login")
+                if login_idx + 2 < len(safe_cmd):
+                    safe_cmd[login_idx + 2] = "***"
+            except ValueError:
+                pass
+            logger.debug(f"Executing SteamCMD: {' '.join(safe_cmd)}")
+        else:
+            logger.debug(f"Executing SteamCMD: {' '.join(cmd)}")
+
+        # Execute SteamCMD
+        try:
+            result = subprocess.run(
+                cmd,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+
+            # Check output for authentication errors
+            if "Login Failure" in result.stdout or "Invalid Password" in result.stdout:
+                logger.error("Steam authentication failed")
+                raise SteamCMDAuthenticationError(
+                    f"Steam authentication failed for user: {self.username}\n"
+                    "Check username and password, or ensure account is not locked.\n"
+                    "Note: Some accounts may require Steam Guard verification."
+                )
+
+            logger.info(f"Download completed successfully: app_id={app_id}")
+            logger.debug(f"SteamCMD output: {result.stdout}")
+
+        except subprocess.CalledProcessError as e:
+            logger.error(f"SteamCMD failed with exit code {e.returncode}")
+            logger.debug(f"SteamCMD stderr: {e.stderr}")
+            logger.debug(f"SteamCMD stdout: {e.stdout}")
+
+            # Get error output (prefer stderr, fallback to stdout)
+            error_output = e.stderr or e.stdout or ""
+
+            # Check for specific error conditions
+            if "Login Failure" in error_output or "Invalid Password" in error_output:
+                raise SteamCMDAuthenticationError(
+                    f"Steam authentication failed for user: {self.username}\n"
+                    f"Error: {error_output}\n"
+                    "Check username and password."
+                ) from e
+
+            raise SteamCMDDownloadError(
+                f"Game download failed: app_id={app_id}\n"
+                f"Exit code: {e.returncode}\n"
+                f"Error: {error_output}\n"
+                "Check network connectivity, disk space, and App ID."
+            ) from e
+
+        except FileNotFoundError as e:
+            # This shouldn't happen if _check_installed worked, but handle it anyway
+            raise SteamCMDNotFoundError("SteamCMD executable not found") from e
+
+    def get_build_id(self, install_dir: Path, app_id: str) -> str | None:
+        """Get the currently installed build ID for a game.
+
+        Reads the Steam manifest file to extract the build ID. Returns None
+        if the game is not installed or the manifest is missing.
+
+        Args:
+            install_dir: Directory where game is installed.
+            app_id: Steam App ID.
+
+        Returns:
+            Build ID string if found, None if game not installed or manifest missing.
+
+        Example:
+            >>> steamcmd = SteamCMD()
+            >>> build_id = steamcmd.get_build_id(
+            ...     install_dir=Path("variants/main/game"),
+            ...     app_id="2382520"
+            ... )
+            >>> print(f"Current build: {build_id}")
+        """
+        manifest_file = install_dir / "steamapps" / f"appmanifest_{app_id}.acf"
+
+        if not manifest_file.exists():
+            logger.debug(f"Manifest file not found: {manifest_file}")
+            return None
+
+        try:
+            content = manifest_file.read_text(encoding="utf-8")
+
+            # Parse build ID from manifest (ACF format)
+            for line in content.splitlines():
+                if '"buildid"' in line:
+                    # Extract number from line
+                    parts = line.split('"')
+                    if len(parts) >= 4:
+                        build_id = parts[3]
+                        logger.debug(f"Found build ID: {build_id}")
+                        return build_id
+
+            logger.warning(f"Build ID not found in manifest: {manifest_file}")
+            return None
+
+        except Exception as e:
+            logger.error(f"Failed to read manifest file: {e}")
+            return None
+
+    def is_game_installed(self, install_dir: Path, game_executable: str = "Erenshor.exe") -> bool:
+        """Check if game files are present in the install directory.
+
+        This is a simple check for the main game executable to verify
+        that the game has been downloaded.
+
+        Args:
+            install_dir: Directory to check for game files.
+            game_executable: Name of main game executable (default: "Erenshor.exe").
+
+        Returns:
+            True if game files are present, False otherwise.
+
+        Example:
+            >>> steamcmd = SteamCMD()
+            >>> if steamcmd.is_game_installed(Path("variants/main/game")):
+            ...     print("Game is installed")
+            ... else:
+            ...     print("Game not found")
+        """
+        executable_path = install_dir / game_executable
+        data_dir = install_dir / f"{game_executable.replace('.exe', '')}_Data"
+
+        is_installed = executable_path.exists() and data_dir.exists()
+        logger.debug(f"Game installed check: {is_installed} (executable={executable_path}, data={data_dir})")
+
+        return is_installed
