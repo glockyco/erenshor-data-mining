@@ -106,12 +106,16 @@ class BaseRepository[T: BaseModel]:
 
         Raises:
             RepositoryError: If query execution fails.
+            ValueError: If params is not a tuple.
 
         Example:
             >>> rows = self._execute_raw("SELECT * FROM Characters WHERE Level > ?", (50,))
             >>> for row in rows:
             ...     print(row["ObjectName"])
         """
+        if not isinstance(params, tuple):
+            raise ValueError(f"params must be a tuple, got {type(params).__name__}")
+
         with self.db.connect() as conn:
             try:
                 cursor = conn.execute(query, params)
