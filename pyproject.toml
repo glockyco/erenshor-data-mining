@@ -104,6 +104,8 @@ ignore = [
     "B008",    # Do not perform function calls in argument defaults (required for Typer)
     "PLC0415", # Import should be at top-level (we use local imports to avoid circular dependencies)
     "PLR0912", # Too many branches (will be fixed when CLI is refactored)
+    "PLR0915", # Too many statements (will be fixed when CLI is refactored)
+    "TC003",   # Move standard library import into type-checking block (false positive for runtime-needed imports)
 ]
 
 [tool.ruff.format]
