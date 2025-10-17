@@ -7,12 +7,18 @@ with real components (no mocking):
 - Real file I/O for pages
 - Real rendering with Jinja2
 
+Database Fixtures:
+- in_memory_db: Fresh SQLite in-memory database for fast unit tests
+- integration_db: Loads integration-28kb.sql fixture for integration tests
+- production_db: Optional full database (skips if missing)
+
 All fixtures create temporary directories and clean up after themselves.
 """
 
 from __future__ import annotations
 
 import shutil
+import sqlite3
 import tempfile
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -27,6 +33,81 @@ if TYPE_CHECKING:
 
 # Lazy imports to avoid loading modules that don't exist yet during early testing
 # These imports happen inside fixture functions only when actually needed
+
+
+# === Database Fixtures ===
+
+
+@pytest.fixture
+def in_memory_db() -> Generator[sqlite3.Connection]:
+    """Create a fresh in-memory SQLite database for fast unit tests.
+
+    This fixture provides a clean database with schema loaded but no data.
+    Perfect for unit tests that need to test database operations without
+    the overhead of loading full test data.
+
+    Yields:
+        sqlite3.Connection: Connection to in-memory database
+    """
+    conn = sqlite3.connect(":memory:")
+    schema_path = Path(__file__).parent / "fixtures" / "database" / "schema.sql"
+
+    if schema_path.exists():
+        schema_sql = schema_path.read_text()
+        conn.executescript(schema_sql)
+        conn.commit()
+
+    yield conn
+    conn.close()
+
+
+@pytest.fixture(scope="session")
+def integration_db(tmp_path_factory: pytest.TempPathFactory) -> Generator[Path]:
+    """Create integration test database from SQL fixture.
+
+    This fixture loads the integration-28kb.sql fixture which contains
+    realistic sample data for all entity types. Session-scoped to avoid
+    recreating the database for every test.
+
+    Returns:
+        Path: Path to the SQLite database file
+    """
+    db_path = tmp_path_factory.mktemp("db") / "integration.sqlite"
+    fixture_path = Path(__file__).parent / "fixtures" / "database" / "integration-28kb.sql"
+
+    if not fixture_path.exists():
+        pytest.skip(f"Integration database fixture not found: {fixture_path}")
+
+    # Load fixture using sqlite3
+    conn = sqlite3.connect(str(db_path))
+    try:
+        fixture_sql = fixture_path.read_text()
+        conn.executescript(fixture_sql)
+        conn.commit()
+    finally:
+        conn.close()
+
+    yield db_path
+
+
+@pytest.fixture
+def production_db() -> Generator[Path | None]:
+    """Optional fixture for testing against production database.
+
+    This fixture looks for a production database in the variants/main directory.
+    If not found, the test is skipped. Use this for tests that need to verify
+    behavior against real production data.
+
+    Returns:
+        Path | None: Path to production database or None if not available
+    """
+    repo_root = Path(__file__).parent.parent
+    prod_db_path = repo_root / "variants" / "main" / "erenshor-main.sqlite"
+
+    if not prod_db_path.exists():
+        pytest.skip("Production database not available (run 'erenshor export' first)")
+
+    yield prod_db_path
 
 
 @pytest.fixture(autouse=True)
