@@ -1,88 +1,29 @@
-"""Faction repository for database operations."""
+"""Faction repository for specialized faction queries.
 
-from typing import Any
+Add query methods here ONLY when actually needed for specific features.
+
+GOOD examples (when to add queries):
+- get_faction_members(faction_id) -> for wiki faction member lists
+- get_faction_reputation_changes() -> for wiki reputation tables
+- get_hostile_factions(faction_id) -> for wiki faction relationship sections
+
+BAD examples (do not add):
+- get_by_id() -> use raw SQL when needed
+- get_all() -> too broad, query specific subset
+- create()/update() -> we're read-only
+"""
 
 from erenshor.domain.entities.faction import Faction
-from erenshor.infrastructure.database.repository import BaseRepository, RepositoryError
-
-from ._case_utils import pascal_to_snake, snake_to_pascal
+from erenshor.infrastructure.database.repository import BaseRepository
 
 
 class FactionRepository(BaseRepository[Faction]):
-    """Repository for Faction entities.
+    """Repository for faction-specific database queries.
 
-    Provides basic CRUD operations for factions and reputation systems.
-    Custom queries can be added as needed using raw SQL via execute_query().
+    Add specialized query methods here as needed for wiki generation,
+    Google Sheets export, or other pipeline features.
+
+    All queries should use raw SQL via self._execute_raw().
     """
 
-    @property
-    def table_name(self) -> str:
-        """Get the database table name."""
-        return "Factions"
-
-    @property
-    def id_column(self) -> str:
-        """Get the primary key column name."""
-        return "REFNAME"
-
-    def _row_to_entity(self, row: Any) -> Faction:
-        """Convert database row to Faction entity.
-
-        Args:
-            row: Database row with PascalCase column names.
-
-        Returns:
-            Faction domain entity with snake_case fields.
-
-        Raises:
-            RepositoryError: If conversion fails.
-        """
-        try:
-            # Convert row to dict with snake_case keys
-            # Special handling for REFNAME (all caps)
-            data = {}
-            for key in row:
-                if key == "REFNAME":
-                    data["refname"] = row[key]
-                else:
-                    data[pascal_to_snake(key)] = row[key]
-            return Faction(**data)
-        except Exception as e:
-            raise RepositoryError(f"Failed to convert row to Faction: {e}") from e
-
-    def _entity_to_row(self, entity: Faction) -> dict[str, Any]:
-        """Convert Faction entity to database row.
-
-        Args:
-            entity: Faction domain entity with snake_case fields.
-
-        Returns:
-            Dictionary with PascalCase column names for database.
-
-        Raises:
-            RepositoryError: If conversion fails.
-        """
-        try:
-            data = entity.model_dump()
-            # Convert to PascalCase, but keep REFNAME all caps
-            result = {}
-            for key, value in data.items():
-                if key == "refname":
-                    result["REFNAME"] = value
-                else:
-                    result[snake_to_pascal(key)] = value
-            return result
-        except Exception as e:
-            raise RepositoryError(f"Failed to convert Faction to row: {e}") from e
-
-    def _get_insert_columns(self) -> list[str]:
-        """Get column names for INSERT operations."""
-        # Map entity fields to column names
-        return ["REFNAME", "ResourceName", "FactionName", "FactionDesc", "DefaultValue"]
-
-    def _get_update_columns(self) -> list[str]:
-        """Get column names for UPDATE operations."""
-        # Exclude primary key
-        return ["ResourceName", "FactionName", "FactionDesc", "DefaultValue"]
-
-    # TODO: Add custom query methods as needed using raw SQL
+    pass  # Add query methods when actually needed

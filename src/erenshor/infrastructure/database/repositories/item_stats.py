@@ -1,92 +1,29 @@
-"""Item stats repository for database operations."""
+"""Item stats repository for specialized item stats queries.
 
-from typing import Any
+Add query methods here ONLY when actually needed for specific features.
+
+GOOD examples (when to add queries):
+- get_item_quality_stats(item_id) -> for wiki item quality tables
+- get_stat_scaling_info(item_id) -> for wiki stat scaling sections
+- get_quality_variations(item_id) -> for wiki quality comparison tables
+
+BAD examples (do not add):
+- get_by_id() -> use raw SQL when needed
+- get_all() -> too broad, query specific subset
+- create()/update() -> we're read-only
+"""
 
 from erenshor.domain.entities.item_stats import ItemStats
-from erenshor.infrastructure.database.repository import BaseRepository, RepositoryError
-
-from ._case_utils import pascal_to_snake, snake_to_pascal
+from erenshor.infrastructure.database.repository import BaseRepository
 
 
 class ItemStatsRepository(BaseRepository[ItemStats]):
-    """Repository for ItemStats entities.
+    """Repository for item-stats-specific database queries.
 
-    Provides basic CRUD operations for item statistics by quality level.
-    Custom queries can be added as needed using raw SQL via execute_query().
+    Add specialized query methods here as needed for wiki generation,
+    Google Sheets export, or other pipeline features.
 
-    NOTE: ItemStats uses a composite key (item_id, quality), so standard
-    get_by_id operations are not meaningful. Use custom queries when needed.
+    All queries should use raw SQL via self._execute_raw().
     """
 
-    @property
-    def table_name(self) -> str:
-        """Get the database table name."""
-        return "ItemStats"
-
-    @property
-    def id_column(self) -> str:
-        """Get the primary key column name.
-
-        NOTE: ItemStats doesn't have a single ID column. We use ItemId
-        as a placeholder, but prefer using custom queries.
-        """
-        return "ItemId"
-
-    def _row_to_entity(self, row: Any) -> ItemStats:
-        """Convert database row to ItemStats entity.
-
-        Args:
-            row: Database row with PascalCase column names.
-
-        Returns:
-            ItemStats domain entity with snake_case fields.
-
-        Raises:
-            RepositoryError: If conversion fails.
-        """
-        try:
-            # Convert row to dict with snake_case keys
-            # Handle aliases: HP, AC, Str, Dex, etc.
-            data = {}
-            for key in row:
-                snake_key = pascal_to_snake(key)
-                # Keep abbreviated stat names as-is (they match aliases)
-                data[snake_key] = row[key]
-
-            return ItemStats(**data)
-        except Exception as e:
-            raise RepositoryError(f"Failed to convert row to ItemStats: {e}") from e
-
-    def _entity_to_row(self, entity: ItemStats) -> dict[str, Any]:
-        """Convert ItemStats entity to database row.
-
-        Args:
-            entity: ItemStats domain entity with snake_case fields.
-
-        Returns:
-            Dictionary with PascalCase column names for database.
-
-        Raises:
-            RepositoryError: If conversion fails.
-        """
-        try:
-            # Get entity data with aliases (uses abbreviated names like HP, AC, Str)
-            data = entity.model_dump(by_alias=True)
-            return {snake_to_pascal(key): value for key, value in data.items()}
-        except Exception as e:
-            raise RepositoryError(f"Failed to convert ItemStats to row: {e}") from e
-
-    def _get_insert_columns(self) -> list[str]:
-        """Get column names for INSERT operations."""
-        entity_fields = ItemStats.model_fields.keys()
-        columns = [snake_to_pascal(field) for field in entity_fields]
-        return columns
-
-    def _get_update_columns(self) -> list[str]:
-        """Get column names for UPDATE operations."""
-        # Exclude composite key columns from updates
-        entity_fields = ItemStats.model_fields.keys()
-        columns = [snake_to_pascal(field) for field in entity_fields if field not in ("item_id", "quality")]
-        return columns
-
-    # TODO: Add custom query methods as needed using raw SQL
+    pass  # Add query methods when actually needed

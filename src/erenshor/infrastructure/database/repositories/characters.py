@@ -1,82 +1,30 @@
-"""Character repository for database operations."""
+"""Character repository for specialized character queries.
 
-from typing import Any
+Add query methods here ONLY when actually needed for specific features.
+
+GOOD examples (when to add queries):
+- get_vendors() -> for wiki vendor lists
+- get_quest_givers() -> for wiki quest giver tables
+- get_spawn_data(character_id) -> for wiki spawn location sections
+- get_character_abilities(character_id) -> for wiki ability tables
+
+BAD examples (do not add):
+- get_by_id() -> use raw SQL when needed
+- get_all() -> too broad, query specific subset
+- create()/update() -> we're read-only
+"""
 
 from erenshor.domain.entities.character import Character
-from erenshor.infrastructure.database.repository import BaseRepository, RepositoryError
-
-from ._case_utils import pascal_to_snake, snake_to_pascal
+from erenshor.infrastructure.database.repository import BaseRepository
 
 
 class CharacterRepository(BaseRepository[Character]):
-    """Repository for Character entities.
+    """Repository for character-specific database queries.
 
-    Provides basic CRUD operations for NPCs, creatures, vendors, and other
-    in-game characters. Custom queries can be added as needed using raw SQL
-    via execute_query().
+    Add specialized query methods here as needed for wiki generation,
+    Google Sheets export, or other pipeline features.
 
-    NOTE: Character abilities are stored in junction tables (CharacterAttackSpells,
-    CharacterBuffSpells, etc.). Use relationship repositories to load these.
+    All queries should use raw SQL via self._execute_raw().
     """
 
-    @property
-    def table_name(self) -> str:
-        """Get the database table name."""
-        return "Characters"
-
-    @property
-    def id_column(self) -> str:
-        """Get the primary key column name."""
-        return "Id"
-
-    def _row_to_entity(self, row: Any) -> Character:
-        """Convert database row to Character entity.
-
-        Args:
-            row: Database row with PascalCase column names.
-
-        Returns:
-            Character domain entity with snake_case fields.
-
-        Raises:
-            RepositoryError: If conversion fails.
-        """
-        try:
-            # Convert row to dict with snake_case keys
-            data = {pascal_to_snake(key): row[key] for key in row}
-            return Character(**data)
-        except Exception as e:
-            raise RepositoryError(f"Failed to convert row to Character: {e}") from e
-
-    def _entity_to_row(self, entity: Character) -> dict[str, Any]:
-        """Convert Character entity to database row.
-
-        Args:
-            entity: Character domain entity with snake_case fields.
-
-        Returns:
-            Dictionary with PascalCase column names for database.
-
-        Raises:
-            RepositoryError: If conversion fails.
-        """
-        try:
-            data = entity.model_dump()
-            return {snake_to_pascal(key): value for key, value in data.items()}
-        except Exception as e:
-            raise RepositoryError(f"Failed to convert Character to row: {e}") from e
-
-    def _get_insert_columns(self) -> list[str]:
-        """Get column names for INSERT operations."""
-        entity_fields = Character.model_fields.keys()
-        # Id is auto-generated
-        columns = [snake_to_pascal(field) for field in entity_fields if field != "id"]
-        return columns
-
-    def _get_update_columns(self) -> list[str]:
-        """Get column names for UPDATE operations."""
-        entity_fields = Character.model_fields.keys()
-        columns = [snake_to_pascal(field) for field in entity_fields if field != "id"]
-        return columns
-
-    # TODO: Add custom query methods as needed using raw SQL
+    pass  # Add query methods when actually needed
