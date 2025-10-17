@@ -9,11 +9,13 @@ Modules:
 - schema: Database schema definitions (EntityRecord, MigrationRecord, ConflictRecord)
 - resource_names: Utilities for working with resource names as stable identifiers
 - operations: Core registry CRUD operations and conflict detection
+- item_classifier: Item kind classification for category generation
 - core: Core registry functionality
 - links: Entity linking and relationships
 - migration: Migration tools and utilities
 """
 
+from erenshor.registry.item_classifier import ItemKind, classify_item_kind
 from erenshor.registry.operations import (
     create_conflict_record,
     find_conflicts,
@@ -38,8 +40,10 @@ __all__ = [
     "ConflictRecord",
     "EntityRecord",
     "EntityType",
+    "ItemKind",
     "MigrationRecord",
     "build_stable_key",
+    "classify_item_kind",
     "create_conflict_record",
     "extract_resource_name",
     "find_conflicts",
