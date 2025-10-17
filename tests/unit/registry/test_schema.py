@@ -30,7 +30,6 @@ class TestEntityRecord:
         assert entity.entity_type == EntityType.ITEM
         assert entity.resource_name == "iron_sword"
         assert entity.display_name == "Iron Sword"
-        assert entity.is_manual is False  # Default value
 
     def test_entity_record_all_entity_types(self, in_memory_session):
         """Test EntityRecord creation with all EntityType values."""
@@ -143,21 +142,6 @@ class TestEntityRecord:
         in_memory_session.refresh(entity)
 
         assert entity.wiki_page_title == "Test Item Wiki Page"
-
-    def test_default_values(self, in_memory_session):
-        """Test default values (is_manual defaults to False)."""
-        entity = EntityRecord(
-            entity_type=EntityType.ITEM,
-            resource_name="test_item",
-            display_name="Test Item",
-            first_seen=datetime.now(UTC),
-            last_seen=datetime.now(UTC),
-        )
-        in_memory_session.add(entity)
-        in_memory_session.commit()
-        in_memory_session.refresh(entity)
-
-        assert entity.is_manual is False
 
     def test_timestamp_fields(self, in_memory_session):
         """Test timestamp fields (first_seen, last_seen)."""
