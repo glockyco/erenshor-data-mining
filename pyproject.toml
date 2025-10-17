@@ -158,6 +158,10 @@ markers = [
 filterwarnings = [
     "error",
     "ignore::DeprecationWarning",
+    # Ignore pytest's PytestUnraisableExceptionWarning wrapping ResourceWarning
+    # from coverage.py's SQLite database handling (not our code)
+    # See: tests/unit/infrastructure/config/test_loader.py::test_deep_merge_preserves_base_nested_values
+    "ignore::pytest.PytestUnraisableExceptionWarning",
 ]
 
 [tool.coverage.run]
