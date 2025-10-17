@@ -7,7 +7,6 @@ configuration loading, logging setup, and error handling.
 from __future__ import annotations
 
 import sys
-from typing import TYPE_CHECKING
 
 import typer
 from loguru import logger
@@ -19,9 +18,6 @@ from erenshor.infrastructure.logging.setup import LoggingSetupError
 
 from .commands import extract, maps, sheets, wiki
 from .context import CLIContext
-
-if TYPE_CHECKING:
-    from typing import Optional  # noqa: F401
 
 # Create Typer app instance
 app = typer.Typer(
@@ -47,7 +43,6 @@ def main(
         "--variant",
         "-V",
         help="Game variant to operate on (main, playtest, demo)",
-        envvar="ERENSHOR_VARIANT",
     ),
     dry_run: bool = typer.Option(
         False,

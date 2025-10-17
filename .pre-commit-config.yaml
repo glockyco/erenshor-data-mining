@@ -17,3 +17,7 @@ repos:
           - sqlmodel>=0.0.24
           - loguru>=0.7.0
           - types-pillow
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.21.2
+    hooks:
+      - id: gitleaks

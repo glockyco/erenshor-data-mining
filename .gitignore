@@ -810,6 +810,9 @@ FodyWeavers.xsd
 !/cli/bin/
 !/cli/lib/
 
+# Erenshor state directory (contains local config and secrets)
+.erenshor/
+
 # Wiki-specific
 out/
 state.json
