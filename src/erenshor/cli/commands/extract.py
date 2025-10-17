@@ -8,6 +8,10 @@ This module provides commands for managing the data extraction pipeline:
 
 import typer
 
+from erenshor.cli.preconditions import require_preconditions
+from erenshor.cli.preconditions.checks.steam import game_files_exist, steam_credentials_exist
+from erenshor.cli.preconditions.checks.unity import editor_scripts_linked, unity_project_exists, unity_version_matches
+
 app = typer.Typer(
     name="extract",
     help="Extract game data from Steam, AssetRipper, and Unity",
@@ -47,6 +51,7 @@ def full(
 
 
 @app.command()
+@require_preconditions(steam_credentials_exist)
 def download(
     ctx: typer.Context,
     force: bool = typer.Option(
@@ -65,6 +70,7 @@ def download(
 
 
 @app.command()
+@require_preconditions(game_files_exist)
 def rip(
     ctx: typer.Context,
     force: bool = typer.Option(
@@ -83,6 +89,11 @@ def rip(
 
 
 @app.command()
+@require_preconditions(
+    unity_project_exists,
+    editor_scripts_linked,
+    unity_version_matches,
+)
 def export(
     ctx: typer.Context,
     force: bool = typer.Option(
