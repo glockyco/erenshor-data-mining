@@ -1,0 +1,48 @@
++--------------------------+-------------------------+-------+----------------+
+|        ObjectName        |         NPCName         | Level |      Zone      |
++--------------------------+-------------------------+-------+----------------+
+| Nightmare                | Hypnic                  | 38    | RipperPortal   |
+| The Abomination          | The Abomination         | 38    | VitheosEnd     |
+| Vos Ashlyn               | Vos Ashlyn              | 38    | Azynthi        |
+| Ancient Canine           | Ancient Canine          | 36    | AzynthiClear   |
+| Molorai Acquirer         | Molorai Acquirer        | 35    | AzynthiClear   |
+| Molorai Curator          | Molorai Curator         | 34    | AzynthiClear   |
+| Molorai Eldermistress    | Molorai Eldermistress   | 30    | AzynthiClear   |
+| Sivakayan Spymaster      | Sivakayan Spymaster     | 29    | Ripper         |
+| Gherist Morthario        | Gherist Morthario       | 28    | Rottenfoot     |
+| Volcanic Giant           | Volcanic Giant          | 27    | Rockshade      |
+| Warded Phantom           | Warded Shadow           | 26    | ShiveringTomb2 |
+| Pamia the Cursed 1       | Pamia the Coward        | 25    | VitheosEnd     |
+| EndKio                   | Kio The Darkbringer     | 24    | ShiveringStep  |
+| Crypt Guardian           | The Crypt Guardian      | 23    | VitheosEnd     |
+| Fearantula               | Fearantula              | 23    | ShiveringStep  |
+| Nightmare                | Nightmare               | 23    | ShiveringStep  |
+| Phantasmal Demon         | Mephallo                | 23    | ShiveringStep  |
+| Dreambear                | Dream                   | 22    | ShiveringTomb  |
+| Ghost of Plaxitheris     | Ghost of Plaxitheris    | 22    | ShiveringStep  |
+| Priest of Brax 1         | Apha, Priest of Brax    | 22    | Braxonian      |
+| Gloopa                   | Gloopa                  | 21    | Elderstone     |
+| Gloopa Half              | Gloopa                  | 21    |                |
+| Gloopa Quarter           | Gloopa                  | 21    |                |
+| Priest of Brax           | Upha, Priest of Brax    | 21    | Braxonian      |
+| Fungal Sentinel          | A Fungal Sentinel       | 19    | Elderstone     |
+| Stoneman Diamondine      | Stoneman Diamondine     | 19    | Windwashed     |
+| Algaeth Bilgeflow 1      | Algaeth Bilgeback       | 18    | Windwashed     |
+| Ecclesiarch              | Ecclesiarch             | 17    | SaltedStrand   |
+| Ragewhip                 | Ragewhip                | 15    | Rottenfoot     |
+| Grizzlepaw               | Grizzlepaw              | 9     | Brake          |
+| Wiggleribs               | Wiggleribs              | 8     | Willowwatch    |
+| Autmis the Lost          | Autmis the Lost         | 7     | Willowwatch    |
+| Plaxitheris              | Plaxitheris             | 7     | Stowaway       |
+| Priel Lieutenant         | Priel Lieutenant Bovo   | 7     | Hidden         |
+| Priel Lieutenant 1       | Priel Lieutenant Lance  | 7     | Hidden         |
+| Priel Lieutenant 2       | Priel Lieutenant Laflin | 7     | Willowwatch    |
+| Sylvan Giant Runt        | Sylvan Giant Runt       | 7     | Willowwatch    |
+| Battlefist               | Battlefist              | 6     | Willowwatch    |
+| Failed Cremation         | Failed Cremation        | 6     | Tutorial       |
+| Ghost of Wylan Sercher   | Ghost of Wyland Sercher | 4     | Tutorial       |
+| Mourning                 | Mourning                | 4     | Tutorial       |
+| Vevillo Polter           | Vevillo Polter          | 4     | Stowaway       |
+| Brackish Crocodile Whelp | A Brackish Croc Whelp   | 1     | Stowaway       |
+| Rattlewrists             | Rattlewrists            | 1     | Stowaway       |
++--------------------------+-------------------------+-------+----------------+
