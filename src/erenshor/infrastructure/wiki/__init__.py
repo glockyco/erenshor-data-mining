@@ -11,12 +11,22 @@ from erenshor.infrastructure.wiki.client import (
     MediaWikiNetworkError,
     MediaWikiRateLimitError,
 )
+from erenshor.infrastructure.wiki.template_parser import (
+    InvalidWikitextError,
+    TemplateNotFoundError,
+    TemplateParser,
+    TemplateParserError,
+)
 
 __all__ = [
+    "InvalidWikitextError",
     "MediaWikiAPIError",
     "MediaWikiAuthenticationError",
     "MediaWikiClient",
     "MediaWikiEditError",
     "MediaWikiNetworkError",
     "MediaWikiRateLimitError",
+    "TemplateNotFoundError",
+    "TemplateParser",
+    "TemplateParserError",
 ]

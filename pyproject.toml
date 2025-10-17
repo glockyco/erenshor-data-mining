@@ -139,6 +139,10 @@ module = "httpx.*"
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
+module = "mwparserfromhell.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
 module = "erenshor.cli.*"
 disallow_untyped_decorators = false
 
