@@ -1,0 +1,255 @@
+"""Registry database schema definitions using SQLModel.
+
+This module defines the database schema for the entity registry system.
+The registry tracks game entities across versions using stable resource-name-based
+identifiers, enabling reliable cross-referencing between wiki pages and game data.
+
+The registry provides:
+- Stable entity tracking using resource names instead of Unity internal IDs
+- Version tracking (first_seen, last_seen timestamps)
+- Wiki page associations for automatic page generation
+- Conflict detection and resolution for name collisions
+- Migration tracking for entity renames and consolidations
+
+Database Tables:
+- entities: Core entity registry with resource names and wiki associations
+- migrations: Historical tracking of entity renames and consolidations
+- conflicts: Detection and resolution of name collisions and ambiguous references
+
+Entity Types:
+The system tracks various game data types including items, spells, characters,
+quests, and more. Each entity has a stable resource_name identifier that persists
+across game versions, unlike Unity's internal IDs which can change.
+"""
+
+from datetime import UTC, datetime
+from enum import Enum as PyEnum
+
+from sqlmodel import Column, Field, Index, SQLModel
+from sqlmodel import Enum as SQLEnum
+
+
+class EntityType(str, PyEnum):
+    """Game entity types tracked by the registry.
+
+    Each entity type represents a distinct category of game data that requires
+    tracking across versions. The resource_name format varies by type but must
+    be stable and unique within each type.
+
+    Common resource name patterns:
+    - Items: Internal name from game data (e.g., "SwordOfFlames")
+    - Spells: Spell identifier (e.g., "Fireball")
+    - Characters: NPC/creature name (e.g., "GoblinWarrior")
+    - Quests: Quest identifier (e.g., "MainQuest_01")
+    - Locations: Zone or area name (e.g., "Elderwood")
+    """
+
+    ITEM = "item"
+    SPELL = "spell"
+    SKILL = "skill"
+    CHARACTER = "character"  # NPCs and creatures
+    QUEST = "quest"
+    FACTION = "faction"
+    LOCATION = "location"
+    ACHIEVEMENT = "achievement"
+    CRAFTING_RECIPE = "crafting_recipe"
+    LOOT_TABLE = "loot_table"
+    DIALOG = "dialog"
+    OTHER = "other"  # Catch-all for uncategorized entities
+
+
+class EntityRecord(SQLModel, table=True):
+    """Core entity registry table tracking game entities with stable identifiers.
+
+    Each record represents a unique game entity identified by its resource name.
+    The registry uses resource names as stable identifiers instead of Unity's
+    internal IDs, which can change between game versions or exports.
+
+    The entity_type and resource_name combination must be unique, preventing
+    duplicate registrations. Wiki page associations enable automated page
+    generation and cross-referencing.
+
+    Timestamps track when entities are first discovered and last seen, enabling
+    detection of removed or deprecated content across game versions.
+
+    Indexes:
+    - Primary key on id (auto-increment)
+    - Unique composite index on (entity_type, resource_name)
+    - Index on wiki_page_title for reverse lookups
+    - Index on entity_type for type-based filtering
+    """
+
+    __tablename__ = "entities"
+
+    id: int | None = Field(
+        default=None,
+        primary_key=True,
+        description="Auto-incrementing primary key",
+    )
+
+    entity_type: EntityType = Field(
+        sa_column=Column(SQLEnum(EntityType), nullable=False),
+        description="Type of game entity (item, spell, character, etc.)",
+    )
+
+    resource_name: str = Field(
+        index=True,
+        max_length=255,
+        description="Stable resource identifier from game data (unique within entity_type)",
+    )
+
+    display_name: str = Field(
+        max_length=255,
+        description="Human-readable name shown in game UI",
+    )
+
+    wiki_page_title: str | None = Field(
+        default=None,
+        index=True,
+        max_length=255,
+        description="Associated wiki page title (null if no wiki page exists)",
+    )
+
+    first_seen: datetime = Field(
+        default_factory=lambda: datetime.now(UTC),
+        description="Timestamp when entity was first discovered in game data",
+    )
+
+    last_seen: datetime = Field(
+        default_factory=lambda: datetime.now(UTC),
+        description="Timestamp when entity was last seen in game data",
+    )
+
+    is_manual: bool = Field(
+        default=False,
+        description="True if wiki page was manually created (not auto-generated)",
+    )
+
+    __table_args__ = (
+        Index(
+            "ix_entity_type_resource_name",
+            "entity_type",
+            "resource_name",
+            unique=True,
+        ),
+    )
+
+
+class MigrationRecord(SQLModel, table=True):
+    """Migration tracking table for historical entity renames and consolidations.
+
+    Tracks when entities are renamed, merged, or otherwise migrated from one
+    identifier to another. This enables the system to:
+    - Maintain historical references from old mapping.json files
+    - Support wiki page redirects from old to new names
+    - Preserve data continuity across game updates
+
+    Migrations are imported from historical mapping.json data and new migrations
+    are recorded when entity renames are detected in future game versions.
+
+    Indexes:
+    - Primary key on id (auto-increment)
+    - Index on old_key for forward lookups (old -> new)
+    - Index on new_key for reverse lookups (new -> old)
+    """
+
+    __tablename__ = "migrations"
+
+    id: int | None = Field(
+        default=None,
+        primary_key=True,
+        description="Auto-incrementing primary key",
+    )
+
+    old_key: str = Field(
+        index=True,
+        max_length=255,
+        description="Previous entity identifier before migration",
+    )
+
+    new_key: str = Field(
+        index=True,
+        max_length=255,
+        description="Current entity identifier after migration",
+    )
+
+    migration_date: datetime = Field(
+        default_factory=lambda: datetime.now(UTC),
+        description="Timestamp when migration was recorded",
+    )
+
+    notes: str | None = Field(
+        default=None,
+        max_length=1000,
+        description="Optional notes explaining the migration reason or context",
+    )
+
+
+class ConflictRecord(SQLModel, table=True):
+    """Conflict tracking table for name collisions requiring resolution.
+
+    Detects and tracks situations where multiple entities share the same name
+    or identifier, requiring manual or automated resolution. Common conflict types:
+
+    - name_collision: Multiple entities with identical display names
+    - ambiguous_reference: Unclear which entity a wiki reference points to
+    - duplicate_resource_name: Same resource_name with different entity_types
+
+    The entity_ids field stores a JSON array of entity IDs involved in the
+    conflict. Resolution workflow:
+    1. Conflict detected and recorded with resolved=False
+    2. Manual or automated resolution chooses one entity
+    3. resolution_entity_id set to chosen entity
+    4. resolved=True and resolved_at timestamp recorded
+
+    Indexes:
+    - Primary key on id (auto-increment)
+    - Index on resolved for filtering unresolved conflicts
+    - Foreign key on resolution_entity_id referencing entities table
+    """
+
+    __tablename__ = "conflicts"
+
+    id: int | None = Field(
+        default=None,
+        primary_key=True,
+        description="Auto-incrementing primary key",
+    )
+
+    entity_ids: str = Field(
+        max_length=1000,
+        description="JSON array of entity IDs involved in conflict (e.g., '[1, 2, 3]')",
+    )
+
+    conflict_type: str = Field(
+        max_length=50,
+        description="Type of conflict: 'name_collision', 'ambiguous_reference', or 'duplicate_resource_name'",
+    )
+
+    resolved: bool = Field(
+        default=False,
+        index=True,
+        description="True if conflict has been resolved",
+    )
+
+    resolution_entity_id: int | None = Field(
+        default=None,
+        foreign_key="entities.id",
+        description="ID of chosen entity if conflict is resolved (references entities.id)",
+    )
+
+    resolution_notes: str | None = Field(
+        default=None,
+        max_length=1000,
+        description="Notes explaining how conflict was resolved",
+    )
+
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(UTC),
+        description="Timestamp when conflict was first detected",
+    )
+
+    resolved_at: datetime | None = Field(
+        default=None,
+        description="Timestamp when conflict was resolved (null if unresolved)",
+    )
