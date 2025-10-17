@@ -16,6 +16,8 @@ repos:
           - pydantic-settings>=2.0.0
           - sqlmodel>=0.0.24
           - loguru>=0.7.0
+          - typer>=0.12.0
+          - rich>=13.0.0
           - types-pillow
   - repo: https://github.com/gitleaks/gitleaks
     rev: v8.21.2
