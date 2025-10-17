@@ -70,6 +70,7 @@ dev = [
     "pre-commit>=4.0.0",
     # Type stubs
     "types-pillow",
+    "types-jinja2",
 ]
 
 [tool.ruff]
@@ -148,6 +149,10 @@ ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 module = "googleapiclient.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "jinja2"
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
