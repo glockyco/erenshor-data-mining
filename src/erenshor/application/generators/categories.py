@@ -1,0 +1,159 @@
+"""Category tag generation for wiki pages.
+
+This module generates MediaWiki category tags programmatically based on entity properties,
+supporting multi-category items and clean separation from template logic.
+
+Categories are determined by:
+- Item kind (weapon, armor, consumable, etc.)
+- Item properties (quest items, crafting materials)
+- Entity type (character, spell, etc.)
+
+Design principles:
+- Categories are separate from templates (not template-based)
+- Multi-category support (items can belong to multiple categories)
+- Type-safe with domain models
+- Easy to extend with new category rules
+"""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, ClassVar
+
+if TYPE_CHECKING:
+    from erenshor.domain.entities.item import Item
+
+__all__ = ["CategoryGenerator", "ItemKind", "classify_item_kind"]
+
+
+# Import from existing classifier
+from erenshor.registry.item_classifier import ItemKind, classify_item_kind
+
+
+class CategoryGenerator:
+    """Generate category tags for wiki pages.
+
+    This class determines which MediaWiki categories an entity should belong to
+    based on its type and properties. Categories are returned as a list of names
+    without the [[Category:...]] wrapper, which is added during page generation.
+
+    Examples:
+        >>> generator = CategoryGenerator()
+        >>> item = Item(required_slot="Primary", ...)
+        >>> categories = generator.generate_item_categories(item)
+        >>> categories
+        ['Weapons']
+
+        >>> mold = Item(template=1, required_slot="General", ...)
+        >>> categories = generator.generate_item_categories(mold)
+        >>> categories
+        ['Molds', 'Crafting Materials']
+    """
+
+    # Mapping from ItemKind to primary category name
+    ITEM_KIND_TO_CATEGORY: ClassVar[dict[ItemKind, str]] = {
+        "weapon": "Weapons",
+        "armor": "Armor",
+        "aura": "Auras",
+        "ability_book": "Ability Books",
+        "consumable": "Consumables",
+        "mold": "Molds",
+        "general": "Items",
+    }
+
+    def generate_item_categories(self, item: Item) -> list[str]:
+        """Generate category tags for an item.
+
+        Determines categories based on:
+        1. Item kind (weapon, armor, consumable, etc.) → primary category
+        2. Item properties → secondary categories
+
+        Args:
+            item: Item entity to generate categories for
+
+        Returns:
+            List of category names (without [[Category:...]] wrapper)
+            Always includes at least one category (primary from item kind)
+
+        Examples:
+            Weapon:
+                >>> item = Item(required_slot="Primary", ...)
+                >>> generate_item_categories(item)
+                ['Weapons']
+
+            Mold (multi-category):
+                >>> item = Item(template=1, required_slot="General", ...)
+                >>> generate_item_categories(item)
+                ['Molds', 'Crafting Materials']
+
+            Quest Item (cross-cutting category):
+                >>> item = Item(assign_quest_on_read="SomeQuest", ...)
+                >>> generate_item_categories(item)
+                ['Items', 'Quest Items']
+        """
+        categories: list[str] = []
+
+        # Determine item kind using existing classifier
+        kind = classify_item_kind(
+            required_slot=item.required_slot,
+            teach_spell=item.teach_spell,
+            teach_skill=item.teach_skill,
+            template_flag=item.template,
+            click_effect=item.item_effect_on_click,
+            disposable=bool(item.disposable) if item.disposable is not None else None,
+        )
+
+        # Add primary category from item kind
+        primary_category = self.ITEM_KIND_TO_CATEGORY.get(kind, "Items")
+        categories.append(primary_category)
+
+        # Add secondary categories based on properties
+
+        # Quest Items - items that interact with quests
+        if self._is_quest_item(item):
+            categories.append("Quest Items")
+
+        # Crafting Materials - molds are crafting templates
+        # Note: template=1 means this is a crafting mold/template
+        if item.template == 1 and "Crafting Materials" not in categories:
+            categories.append("Crafting Materials")
+
+        return categories
+
+    def _is_quest_item(self, item: Item) -> bool:
+        """Check if item is a quest item.
+
+        Quest items are items that:
+        - Assign a quest when read (quest starter items)
+        - Complete a quest when read (quest completion items)
+
+        Args:
+            item: Item to check
+
+        Returns:
+            True if item has quest interactions
+        """
+        return bool(
+            (item.assign_quest_on_read and item.assign_quest_on_read.strip())
+            or (item.complete_on_read and item.complete_on_read.strip())
+        )
+
+    def format_category_tags(self, categories: list[str]) -> str:
+        """Format category names as MediaWiki category tags.
+
+        Converts category names to full MediaWiki syntax with [[Category:...]] wrapper.
+        Categories are joined with newlines for proper wiki formatting.
+
+        Args:
+            categories: List of category names (e.g., ["Weapons", "Quest Items"])
+
+        Returns:
+            Formatted wikitext with category tags, one per line
+
+        Examples:
+            >>> format_category_tags(["Weapons"])
+            '[[Category:Weapons]]'
+
+            >>> format_category_tags(["Molds", "Crafting Materials"])
+            '[[Category:Molds]]\\n[[Category:Crafting Materials]]'
+        """
+        return "\n".join(f"[[Category:{cat}]]" for cat in categories)
