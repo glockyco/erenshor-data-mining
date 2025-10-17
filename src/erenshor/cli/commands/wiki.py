@@ -8,6 +8,9 @@ This module provides commands for managing MediaWiki content:
 
 import typer
 
+from erenshor.cli.preconditions import require_preconditions
+from erenshor.cli.preconditions.checks.database import database_exists, database_has_items, database_valid
+
 app = typer.Typer(
     name="wiki",
     help="Manage MediaWiki pages and content",
@@ -34,6 +37,11 @@ def fetch(
 
 
 @app.command()
+@require_preconditions(
+    database_exists,
+    database_valid,
+    database_has_items,
+)
 def update(
     ctx: typer.Context,
 ) -> None:
