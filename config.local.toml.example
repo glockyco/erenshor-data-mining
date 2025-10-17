@@ -1,0 +1,202 @@
+# config.local.toml.example
+#
+# This is an example local configuration file showing common customizations.
+# Copy this to `config.local.toml` and adjust values for your local environment.
+#
+# IMPORTANT: `config.local.toml` is gitignored - never commit sensitive data!
+#
+# Configuration Priority (highest to lowest):
+# 1. config.local.toml (this file, when copied and renamed)
+# 2. config.toml (project defaults)
+#
+# Values in config.local.toml override the defaults in config.toml.
+
+# =============================================================================
+# GLOBAL SETTINGS
+# =============================================================================
+
+[global.steam]
+# Your Steam username (REQUIRED for downloading game files)
+# Get this from your Steam account settings
+username = "your_steam_username"
+
+# Platform for SteamCMD downloads (usually "windows" even on Mac/Linux)
+platform = "windows"
+
+[global.unity]
+# Path to Unity Editor executable
+# REQUIRED: Must match the exact version used by the game (2021.3.45f2)
+#
+# Common paths:
+# - macOS: "/Applications/Unity/Hub/Editor/2021.3.45f2/Unity.app/Contents/MacOS/Unity"
+# - Windows: "C:/Program Files/Unity/Hub/Editor/2021.3.45f2/Editor/Unity.exe"
+# - Linux: "/opt/Unity/Editor/2021.3.45f2/Editor/Unity"
+path = "/Applications/Unity/Hub/Editor/2021.3.45f2/Unity.app/Contents/MacOS/Unity"
+
+# Unity Editor version (must match exactly - DO NOT change unless game updates)
+version = "2021.3.45f2"
+
+# Timeout in seconds for Unity batch exports (increase if exports are timing out)
+timeout = 3600
+
+[global.assetripper]
+# Path to AssetRipper executable
+# Download from: https://github.com/AssetRipper/AssetRipper/releases
+#
+# Examples:
+# - macOS/Linux: "$HOME/Applications/AssetRipper/AssetRipper.ConsoleApp"
+# - Windows: "C:/Tools/AssetRipper/AssetRipper.ConsoleApp.exe"
+path = "$HOME/Applications/AssetRipper/AssetRipper.ConsoleApp"
+
+# Port for AssetRipper GUI (if using GUI version)
+port = 8080
+
+# Timeout in seconds for AssetRipper extraction
+timeout = 3600
+
+[global.database]
+# Enable database validation after exports (recommended: true)
+enable_validation = true
+
+[global.mediawiki]
+# MediaWiki API endpoint (change if using different wiki)
+api_url = "https://erenshor.wiki.gg/api.php"
+
+# Bot credentials (from Special:BotPasswords)
+# NEVER commit these values! Keep them in config.local.toml only.
+#
+# To create bot credentials:
+# 1. Log in to wiki
+# 2. Go to Special:BotPasswords
+# 3. Create new bot with "Edit existing pages" grant
+# 4. Username format: "YourUsername@BotName"
+bot_username = ""  # e.g., "WikiEditor@DataBot"
+bot_password = ""  # Get from Special:BotPasswords
+
+# API settings (rarely need changing)
+api_batch_size = 25
+api_delay = 1.0
+upload_batch_size = 10
+upload_delay = 1.0
+upload_edit_summary = "Automated wiki update"
+upload_minor_edit = true
+
+[global.google_sheets]
+# Path to Google service account credentials JSON
+# NEVER commit the credentials file itself!
+#
+# To get credentials:
+# 1. Go to https://console.cloud.google.com
+# 2. Create project or select existing
+# 3. Enable Google Sheets API
+# 4. Create service account with "Editor" role
+# 5. Download JSON key file
+# 6. Save to secure location (e.g., ~/.config/erenshor/)
+# 7. Share spreadsheets with service account email
+credentials_file = "$HOME/.config/erenshor/google-credentials.json"
+
+# Batch processing settings (rarely need changing)
+batch_size = 1000
+max_retries = 3
+retry_delay = 5
+
+[global.behavior]
+# Global retry behavior (rarely need changing)
+max_retries = 3
+retry_delay = 30
+
+[global.logging]
+# Log level: "debug", "info", "warning", "error"
+# - "debug": Verbose output for troubleshooting
+# - "info": Standard output (recommended)
+# - "warning": Only warnings and errors
+# - "error": Only errors
+level = "info"
+
+# =============================================================================
+# VARIANT OVERRIDES
+# =============================================================================
+#
+# Uncomment and customize settings for specific game variants.
+# Most users only need the "main" variant.
+
+# Main Game Variant (Production)
+# -------------------------------
+[variants.main]
+# Enable/disable variant (set to false to skip in operations)
+enabled = true
+
+# Google Sheets spreadsheet ID (from spreadsheet URL)
+# URL format: https://docs.google.com/spreadsheets/d/{SPREADSHEET_ID}/edit
+# Uncomment and replace with your spreadsheet ID if different
+# [variants.main.google_sheets]
+# spreadsheet_id = "your_spreadsheet_id_here"
+
+# Maps deployment (rarely need changing)
+# [variants.main.maps]
+# deploy_target = "erenshor-maps"  # Cloudflare Pages project name
+
+# Playtest Variant (Beta/Alpha Testing)
+# --------------------------------------
+# [variants.playtest]
+# enabled = true  # Set to true to enable playtest variant
+# [variants.playtest.google_sheets]
+# spreadsheet_id = ""  # Your playtest spreadsheet ID
+
+# Demo Variant (Free Demo Version)
+# ---------------------------------
+# [variants.demo]
+# enabled = true  # Set to true to enable demo variant
+# [variants.demo.google_sheets]
+# spreadsheet_id = ""  # Your demo spreadsheet ID
+
+# =============================================================================
+# PATH CUSTOMIZATION (ADVANCED)
+# =============================================================================
+#
+# Override default paths if you have a non-standard setup.
+# Most users do NOT need to change these.
+
+# [global.paths]
+# state = "$REPO_ROOT/.erenshor/state.json"
+# config_local = "$REPO_ROOT/.erenshor/config.local.toml"
+# logs = "$REPO_ROOT/.erenshor/logs"
+
+# Variant-specific path overrides (example for custom database location)
+# [variants.main]
+# database = "/custom/path/to/erenshor-main.sqlite"
+# images_output = "/custom/path/to/images"
+# backups = "/custom/path/to/backups"
+
+# =============================================================================
+# NOTES
+# =============================================================================
+#
+# Path Variables:
+# - $REPO_ROOT - Repository root directory (auto-detected from git)
+# - $HOME - User's home directory
+# - ~ - User's home directory (in paths)
+#
+# Common Tasks:
+# 1. Set Steam username
+# 2. Set Unity path (if not in default location)
+# 3. Set AssetRipper path
+# 4. Set MediaWiki bot credentials (for wiki uploads)
+# 5. Set Google Sheets credentials (for sheet uploads)
+#
+# Security Best Practices:
+# - NEVER commit config.local.toml to git
+# - NEVER commit credentials files
+# - Keep bot passwords secure
+# - Use service accounts for Google Sheets (not personal credentials)
+# - Rotate credentials periodically
+#
+# Troubleshooting:
+# - Run `erenshor config show` to see loaded configuration
+# - Run `erenshor doctor` to validate settings
+# - Check logs in .erenshor/logs/ for errors
+#
+# For more information, see:
+# - README.md - Installation and setup guide
+# - CLAUDE.md - Complete configuration reference
+# - docs/ - Additional documentation

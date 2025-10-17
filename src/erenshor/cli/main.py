@@ -133,7 +133,7 @@ def version() -> None:
 
 
 @app.command()
-def status(  # noqa: PLR0915 (too many statements)
+def status(
     ctx: typer.Context,
     all_variants: bool = typer.Option(
         False,
@@ -255,7 +255,7 @@ def status(  # noqa: PLR0915 (too many statements)
 
 
 @app.command()
-def doctor(  # noqa: PLR0915 (too many statements), PLR0912 (too many branches)
+def doctor(
     ctx: typer.Context,
 ) -> None:
     """Run system health check.
@@ -473,7 +473,7 @@ def _add_tree_node(tree: Tree, key: str, value: Any) -> None:
 
 
 @config_app.command("show")
-def config_show(  # noqa: PLR0915 (too many statements), PLR0912 (too many branches)
+def config_show(
     ctx: typer.Context,
     key: str = typer.Argument(
         None,

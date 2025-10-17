@@ -4,8 +4,10 @@
 
 [![Python](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
 [![Unity](https://img.shields.io/badge/unity-2021.3.45f2-black.svg)](https://unity.com/)
-[![Tests](https://img.shields.io/badge/tests-190+%20passing-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/tests-265+%20passing-brightgreen.svg)]()
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+> **Phase 1 Complete**: Foundation refactoring complete! New Python-based CLI with TOML config, Loguru logging, comprehensive testing, and integrated maps support. See [Phase 1 Completion Report](docs/refactoring-plan/phase-1-completion.md) for details.
 
 ---
 
@@ -93,20 +95,34 @@ cli/bin/erenshor doctor
 ### Your First Export
 
 ```bash
-# Run the complete pipeline (this takes 30-60 minutes first time)
-cli/bin/erenshor update
+# NEW CLI (Phase 1+): Unified Python CLI via 'erenshor' command
+uv run erenshor --help              # Show all commands
+uv run erenshor version             # Show version
+uv run erenshor status              # Check system status
+uv run erenshor doctor              # Validate configuration
 
-# Or run individual steps:
-cli/bin/erenshor download  # Download game from Steam (~15 min)
-cli/bin/erenshor extract   # Extract Unity project (~20 min)
-cli/bin/erenshor export    # Export to SQLite (~5 min)
+# Wiki operations (Phase 2+)
+uv run erenshor wiki fetch --all    # Fetch wiki pages
+uv run erenshor wiki update         # Update content
 
-# Generate wiki content (using Python)
-uv run python -m erenshor.cli.main wiki fetch --all
-uv run python -m erenshor.cli.main wiki update
+# Google Sheets deployment
+uv run erenshor sheets deploy --all-sheets
+
+# Maps development
+uv run erenshor maps dev            # Start dev server
+uv run erenshor maps build          # Build for production
+
+# LEGACY CLI (archived in legacy/): Bash pipeline commands
+# Note: The full pipeline will be reimplemented in Phase 2
+# legacy/cli/bin/erenshor update    # OLD: Run complete pipeline
+# legacy/cli/bin/erenshor download  # OLD: Download from Steam
+# legacy/cli/bin/erenshor extract   # OLD: Extract Unity project
+# legacy/cli/bin/erenshor export    # OLD: Export to SQLite
 ```
 
 Expected output: `variants/main/erenshor-main.sqlite` (50MB+ database) and generated wiki pages in `wiki_updated/`.
+
+**Note**: Phase 1 provides the foundation (config, logging, CLI structure, maps integration). Full extraction pipeline and wiki generation will be implemented in Phase 2.
 
 ---
 
@@ -1049,30 +1065,29 @@ Created for the Erenshor community by the wiki team.
 ### Essential Commands
 
 ```bash
-# Full pipeline
-cli/bin/erenshor update
+# NEW CLI (Phase 1+)
+uv run erenshor version             # Show version
+uv run erenshor status              # Show status
+uv run erenshor doctor              # Health check
+uv run erenshor config show         # View configuration
+uv run erenshor test                # Run all tests
+uv run erenshor test unit           # Run unit tests only
 
-# Individual steps
-cli/bin/erenshor download
-cli/bin/erenshor extract
-cli/bin/erenshor export
+# Maps commands
+uv run erenshor maps dev            # Start dev server
+uv run erenshor maps build          # Build for production
+uv run erenshor maps deploy         # Deploy to Cloudflare
 
-# Wiki generation
-uv run python -m erenshor.cli.main wiki fetch --all
-uv run python -m erenshor.cli.main wiki update all
-uv run python -m erenshor.cli.main wiki push --all
+# LEGACY CLI (for extraction pipeline until Phase 2)
+legacy/cli/bin/erenshor update      # Full pipeline
+legacy/cli/bin/erenshor download    # Download from Steam
+legacy/cli/bin/erenshor extract     # Extract Unity project
+legacy/cli/bin/erenshor export      # Export to SQLite
 
-# Google Sheets
-uv run python -m erenshor.cli.main sheets deploy --all-sheets
-
-# Health check
-cli/bin/erenshor doctor
-
-# Status
-cli/bin/erenshor status --all-variants
-
-# Tests
-uv run pytest
+# Direct pytest (alternative)
+uv run pytest                       # All tests
+uv run pytest -m unit               # Unit tests only
+uv run pytest --cov                 # With coverage
 ```
 
 ### Important Files
