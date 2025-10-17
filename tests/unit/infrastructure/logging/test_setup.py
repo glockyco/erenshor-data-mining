@@ -126,6 +126,9 @@ class TestLoggingSetup:
         logger.debug("Debug message test")
         logger.info("Info message test")
 
+        # Flush all queued log messages to file (enqueue=True makes logging async)
+        logger.complete()
+
         # Check the log file to verify both levels appear
         log_dir = tmp_path / ".erenshor" / "logs"
         log_files = list(log_dir.glob("erenshor_*.log"))
@@ -152,6 +155,9 @@ class TestLoggingSetup:
         # Log at different levels
         logger.debug("Debug message test - should be filtered")
         logger.info("Info message test - should appear")
+
+        # Flush all queued log messages to file (enqueue=True makes logging async)
+        logger.complete()
 
         # Check the log file to verify filtering
         log_dir = tmp_path / ".erenshor" / "logs"
@@ -181,6 +187,9 @@ class TestLoggingSetup:
         logger.info("Info message test - should be filtered")
         logger.warning("Warning message test - should appear")
 
+        # Flush all queued log messages to file (enqueue=True makes logging async)
+        logger.complete()
+
         # Check the log file to verify filtering
         log_dir = tmp_path / ".erenshor" / "logs"
         log_files = list(log_dir.glob("erenshor_*.log"))
@@ -208,6 +217,9 @@ class TestLoggingSetup:
         # Log at different levels
         logger.warning("Warning message test - should be filtered")
         logger.error("Error message test - should appear")
+
+        # Flush all queued log messages to file (enqueue=True makes logging async)
+        logger.complete()
 
         # Check the log file to verify filtering
         log_dir = tmp_path / ".erenshor" / "logs"
@@ -386,6 +398,9 @@ class TestLoggingSetup:
 
         # Write a log message to ensure file is created
         logger.info("Test message for file handler")
+
+        # Flush all queued log messages to file (enqueue=True makes logging async)
+        logger.complete()
 
         # Check that log file exists (with timestamp pattern)
         log_dir = tmp_path / ".erenshor" / "logs"
