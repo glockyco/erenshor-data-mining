@@ -40,6 +40,11 @@ def normalize_resource_name(resource_name: str) -> str:
     - Replace multiple consecutive spaces with single space
     - Preserve underscores and other special characters
 
+    IMPORTANT: This normalization is LOSSY. The original case and exact whitespace
+    formatting cannot be reconstructed from the normalized form. This is intentional
+    to enable case-insensitive and whitespace-tolerant lookups. The display_name
+    field in EntityRecord preserves the original formatting for display purposes.
+
     Args:
         resource_name: The resource name to normalize
 

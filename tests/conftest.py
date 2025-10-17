@@ -81,7 +81,7 @@ def test_db_path(tmp_path_factory: pytest.TempPathFactory) -> Path:
             sql_content = fixture_path.read_text()
             # Execute each statement separately (SQLite doesn't support executescript via SQLAlchemy)
             for stmt in sql_content.split(";"):
-                stmt = stmt.strip()  # noqa: PLW2901
+                stmt = stmt.strip()  # noqa: PLW2901 (redefined loop variable)
                 if stmt:
                     conn.execute(text(stmt))
             conn.commit()

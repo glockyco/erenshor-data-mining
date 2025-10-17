@@ -133,7 +133,7 @@ def version() -> None:
 
 
 @app.command()
-def status(  # noqa: PLR0915
+def status(  # noqa: PLR0915 (too many statements)
     ctx: typer.Context,
     all_variants: bool = typer.Option(
         False,
@@ -255,7 +255,7 @@ def status(  # noqa: PLR0915
 
 
 @app.command()
-def doctor(  # noqa: PLR0915, PLR0912
+def doctor(  # noqa: PLR0915 (too many statements), PLR0912 (too many branches)
     ctx: typer.Context,
 ) -> None:
     """Run system health check.
@@ -325,8 +325,7 @@ def doctor(  # noqa: PLR0915, PLR0912
             all_checks_passed = False
     else:
         console.print(
-            f"  [yellow]\u26a0[/yellow] Variant logs directory not found "
-            f"(will be created when needed): {variant_logs}"
+            f"  [yellow]\u26a0[/yellow] Variant logs directory not found (will be created when needed): {variant_logs}"
         )
 
     console.print()
@@ -384,7 +383,7 @@ def doctor(  # noqa: PLR0915, PLR0912
     if all_checks_passed:
         console.print(
             Panel(
-                "[bold green]All critical checks passed![/bold green]\n" "Your system is ready to run the pipeline.",
+                "[bold green]All critical checks passed![/bold green]\nYour system is ready to run the pipeline.",
                 border_style="green",
             )
         )
@@ -392,7 +391,7 @@ def doctor(  # noqa: PLR0915, PLR0912
     else:
         console.print(
             Panel(
-                "[bold red]Some checks failed![/bold red]\n" "Please fix the issues above before running the pipeline.",
+                "[bold red]Some checks failed![/bold red]\nPlease fix the issues above before running the pipeline.",
                 border_style="red",
             )
         )
@@ -440,7 +439,7 @@ def _format_config_tree(obj: Any, name: str = "config") -> Tree:
     return tree
 
 
-def _add_tree_node(tree: Tree, key: str, value: Any) -> None:  # noqa: PLR0912
+def _add_tree_node(tree: Tree, key: str, value: Any) -> None:
     """Add a node to the config tree."""
     if isinstance(value, dict):
         if value:  # Non-empty dict
@@ -474,7 +473,7 @@ def _add_tree_node(tree: Tree, key: str, value: Any) -> None:  # noqa: PLR0912
 
 
 @config_app.command("show")
-def config_show(  # noqa: PLR0915, PLR0912
+def config_show(  # noqa: PLR0915 (too many statements), PLR0912 (too many branches)
     ctx: typer.Context,
     key: str = typer.Argument(
         None,

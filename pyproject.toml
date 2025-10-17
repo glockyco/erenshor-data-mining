@@ -102,6 +102,8 @@ ignore = [
     "RET504",  # Unnecessary assignment before return
     "SIM108",  # Use ternary operator (sometimes less readable)
     "B008",    # Do not perform function calls in argument defaults (required for Typer)
+    "PLC0415", # Import should be at top-level (we use local imports to avoid circular dependencies)
+    "PLR0912", # Too many branches (will be fixed when CLI is refactored)
 ]
 
 [tool.ruff.format]
@@ -156,6 +158,7 @@ markers = [
 filterwarnings = [
     "error",
     "ignore::DeprecationWarning",
+    "ignore::ResourceWarning",
 ]
 
 [tool.coverage.run]

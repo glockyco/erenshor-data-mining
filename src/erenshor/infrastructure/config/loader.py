@@ -54,7 +54,7 @@ def _find_repo_root() -> Path:
             return parent
 
     raise ConfigLoadError(
-        "Could not find repository root. " "Make sure you are running from within the Erenshor repository."
+        "Could not find repository root. Make sure you are running from within the Erenshor repository."
     )
 
 
@@ -174,7 +174,7 @@ def load_config() -> Config:
             base_config = tomllib.load(f)
     except tomllib.TOMLDecodeError as e:
         raise ConfigLoadError(
-            f"Invalid TOML syntax in {base_config_path}:\n{e}\n" f"Fix the syntax error and try again."
+            f"Invalid TOML syntax in {base_config_path}:\n{e}\nFix the syntax error and try again."
         ) from e
     except OSError as e:
         raise ConfigLoadError(f"Failed to read {base_config_path}: {e}") from e
@@ -191,7 +191,7 @@ def load_config() -> Config:
 
         except tomllib.TOMLDecodeError as e:
             raise ConfigLoadError(
-                f"Invalid TOML syntax in {local_config_path}:\n{e}\n" f"Fix the syntax error and try again."
+                f"Invalid TOML syntax in {local_config_path}:\n{e}\nFix the syntax error and try again."
             ) from e
         except OSError as e:
             raise ConfigLoadError(f"Failed to read {local_config_path}: {e}") from e
