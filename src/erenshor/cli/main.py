@@ -133,7 +133,7 @@ def version() -> None:
 
 
 @app.command()
-def status(  # noqa: PLR0915
+def status(  # noqa: PLR0915 (too many statements)
     ctx: typer.Context,
     all_variants: bool = typer.Option(
         False,
@@ -255,7 +255,7 @@ def status(  # noqa: PLR0915
 
 
 @app.command()
-def doctor(  # noqa: PLR0915, PLR0912
+def doctor(  # noqa: PLR0915 (too many statements)
     ctx: typer.Context,
 ) -> None:
     """Run system health check.
@@ -440,7 +440,7 @@ def _format_config_tree(obj: Any, name: str = "config") -> Tree:
     return tree
 
 
-def _add_tree_node(tree: Tree, key: str, value: Any) -> None:  # noqa: PLR0912
+def _add_tree_node(tree: Tree, key: str, value: Any) -> None:
     """Add a node to the config tree."""
     if isinstance(value, dict):
         if value:  # Non-empty dict
@@ -474,7 +474,7 @@ def _add_tree_node(tree: Tree, key: str, value: Any) -> None:  # noqa: PLR0912
 
 
 @config_app.command("show")
-def config_show(  # noqa: PLR0915, PLR0912
+def config_show(  # noqa: PLR0915 (too many statements)
     ctx: typer.Context,
     key: str = typer.Argument(
         None,
