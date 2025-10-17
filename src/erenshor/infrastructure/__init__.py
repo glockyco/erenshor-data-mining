@@ -13,3 +13,21 @@ Modules:
 - storage: File system storage operations
 - wiki: MediaWiki API client
 """
+
+from erenshor.infrastructure.wiki import (
+    MediaWikiAPIError,
+    MediaWikiAuthenticationError,
+    MediaWikiClient,
+    MediaWikiEditError,
+    MediaWikiNetworkError,
+    MediaWikiRateLimitError,
+)
+
+__all__ = [
+    "MediaWikiAPIError",
+    "MediaWikiAuthenticationError",
+    "MediaWikiClient",
+    "MediaWikiEditError",
+    "MediaWikiNetworkError",
+    "MediaWikiRateLimitError",
+]
