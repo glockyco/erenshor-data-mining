@@ -151,9 +151,10 @@ addopts = [
     "--cov-branch",
 ]
 markers = [
-    "integration: integration tests with real database and file I/O",
-    "slow: tests that take more than a few seconds",
-    "unit: fast unit tests that run in isolation",
+    "unit: Fast, isolated unit tests",
+    "integration: Tests with real database (28KB fixture)",
+    "production: Optional tests with full database (skip if unavailable)",
+    "slow: Tests that take >5 seconds",
 ]
 filterwarnings = [
     "error",
