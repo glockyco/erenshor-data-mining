@@ -135,6 +135,10 @@ module = "typer.*"
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
+module = "httpx.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
 module = "erenshor.cli.*"
 disallow_untyped_decorators = false
 
