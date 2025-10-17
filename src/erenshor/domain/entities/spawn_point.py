@@ -32,17 +32,11 @@ class SpawnPoint(BaseEntity):
     # Spawn timing (supports up to 4 spawn slots)
     # Group size adjustments: spawn delays scale based on group size
     spawn_delay_1: float | None = Field(
-        default=None, description="Respawn delay when player is in group with 1-2 players (group size 2-3) (seconds)"
+        default=None, description="Respawn delay for solo players (group size 1) (seconds)"
     )
-    spawn_delay_2: float | None = Field(
-        default=None, description="Respawn delay when player is in group with 3 players (group size 4) (seconds)"
-    )
-    spawn_delay_3: float | None = Field(
-        default=None, description="Respawn delay when player is in group with 4 players (group size 5) (seconds)"
-    )
-    spawn_delay_4: float | None = Field(
-        default=None, description="Respawn delay (purpose unclear - possibly for larger groups) (seconds)"
-    )
+    spawn_delay_2: float | None = Field(default=None, description="Respawn delay for groups of 2-3 players (seconds)")
+    spawn_delay_3: float | None = Field(default=None, description="Respawn delay for groups of 4 players (seconds)")
+    spawn_delay_4: float | None = Field(default=None, description="Respawn delay for groups of 5+ players (seconds)")
 
     # Spawn behavior
     staggerable: int | None = Field(default=None, description="Stagger spawn timing (boolean)")
