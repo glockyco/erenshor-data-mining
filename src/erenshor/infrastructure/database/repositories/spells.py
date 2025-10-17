@@ -11,8 +11,9 @@ from ._case_utils import pascal_to_snake, snake_to_pascal
 class SpellRepository(BaseRepository[Spell]):
     """Repository for Spell entities.
 
-    Provides type-safe database operations for spells including damage spells,
-    buffs, debuffs, heals, and crowd control effects.
+    Provides basic CRUD operations for spells including damage spells, buffs,
+    debuffs, heals, and crowd control effects. Custom queries can be added as
+    needed using raw SQL via execute_query().
     """
 
     @property
@@ -91,25 +92,4 @@ class SpellRepository(BaseRepository[Spell]):
         columns = [snake_to_pascal(field) for field in entity_fields if field != "spell_db_index"]
         return columns
 
-    def get_by_resource_name(self, resource_name: str) -> Spell | None:
-        """Get spell by resource name.
-
-        Args:
-            resource_name: Spell resource name.
-
-        Returns:
-            Spell if found, None otherwise.
-        """
-        results = self.execute_query("SELECT * FROM Spells WHERE ResourceName = ?", (resource_name,))
-        return results[0] if results else None
-
-    def get_by_type(self, spell_type: str) -> list[Spell]:
-        """Get spells by type.
-
-        Args:
-            spell_type: Spell type (e.g., "Damage", "Heal", "Buff").
-
-        Returns:
-            List of spells of the specified type.
-        """
-        return self.execute_query("SELECT * FROM Spells WHERE Type = ?", (spell_type,))
+    # TODO: Add custom query methods as needed using raw SQL

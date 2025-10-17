@@ -11,8 +11,9 @@ from ._case_utils import pascal_to_snake, snake_to_pascal
 class ItemRepository(BaseRepository[Item]):
     """Repository for Item entities.
 
-    Provides type-safe database operations for items including equipment,
-    consumables, quest items, and crafting materials.
+    Provides basic CRUD operations for items including equipment, consumables,
+    quest items, and crafting materials. Custom queries can be added as needed
+    using raw SQL via execute_query().
     """
 
     @property
@@ -83,14 +84,4 @@ class ItemRepository(BaseRepository[Item]):
         columns = [snake_to_pascal(field) for field in entity_fields if field not in ("id", "item_db_index")]
         return columns
 
-    def get_by_resource_name(self, resource_name: str) -> Item | None:
-        """Get item by resource name.
-
-        Args:
-            resource_name: Item resource name.
-
-        Returns:
-            Item if found, None otherwise.
-        """
-        results = self.execute_query("SELECT * FROM Items WHERE ResourceName = ?", (resource_name,))
-        return results[0] if results else None
+    # TODO: Add custom query methods as needed using raw SQL

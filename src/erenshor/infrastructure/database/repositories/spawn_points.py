@@ -11,7 +11,8 @@ from ._case_utils import pascal_to_snake, snake_to_pascal
 class SpawnPointRepository(BaseRepository[SpawnPoint]):
     """Repository for SpawnPoint entities.
 
-    Provides type-safe database operations for creature and NPC spawn points.
+    Provides basic CRUD operations for creature and NPC spawn points. Custom
+    queries can be added as needed using raw SQL via execute_query().
 
     NOTE: Spawn point characters are stored in the SpawnPointCharacters junction
     table. Use relationship repositories to load these.
@@ -77,29 +78,4 @@ class SpawnPointRepository(BaseRepository[SpawnPoint]):
         columns = [snake_to_pascal(field) for field in entity_fields if field != "id"]
         return columns
 
-    def get_by_coordinate_id(self, coordinate_id: int) -> list[SpawnPoint]:
-        """Get spawn points by coordinate ID.
-
-        Args:
-            coordinate_id: Coordinate reference ID.
-
-        Returns:
-            List of spawn points at the specified coordinate.
-        """
-        return self.execute_query("SELECT * FROM SpawnPoints WHERE CoordinateId = ?", (coordinate_id,))
-
-    def get_enabled_only(self) -> list[SpawnPoint]:
-        """Get all enabled spawn points.
-
-        Returns:
-            List of enabled spawn points.
-        """
-        return self.execute_query("SELECT * FROM SpawnPoints WHERE IsEnabled = 1")
-
-    def get_night_spawns(self) -> list[SpawnPoint]:
-        """Get spawn points that only spawn at night.
-
-        Returns:
-            List of night-only spawn points.
-        """
-        return self.execute_query("SELECT * FROM SpawnPoints WHERE NightSpawn = 1")
+    # TODO: Add custom query methods as needed using raw SQL

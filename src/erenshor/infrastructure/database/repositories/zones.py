@@ -11,7 +11,8 @@ from ._case_utils import pascal_to_snake, snake_to_pascal
 class ZoneRepository(BaseRepository[Zone]):
     """Repository for Zone entities.
 
-    Provides type-safe database operations for game zones and areas.
+    Provides basic CRUD operations for game zones and areas. Custom queries
+    can be added as needed using raw SQL via execute_query().
 
     NOTE: This currently represents the Coordinates table, which contains
     spatial positions. True zone definitions are in ZoneAnnounces and
@@ -78,13 +79,4 @@ class ZoneRepository(BaseRepository[Zone]):
         columns = [snake_to_pascal(field) for field in entity_fields if field != "id"]
         return columns
 
-    def get_by_scene(self, scene: str) -> list[Zone]:
-        """Get zones by scene name.
-
-        Args:
-            scene: Scene/zone name.
-
-        Returns:
-            List of zones with the specified scene name.
-        """
-        return self.execute_query("SELECT * FROM Coordinates WHERE Scene = ?", (scene,))
+    # TODO: Add custom query methods as needed using raw SQL

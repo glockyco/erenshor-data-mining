@@ -11,7 +11,8 @@ from ._case_utils import pascal_to_snake, snake_to_pascal
 class SkillRepository(BaseRepository[Skill]):
     """Repository for Skill entities.
 
-    Provides type-safe database operations for combat skills and special abilities.
+    Provides basic CRUD operations for combat skills and special abilities.
+    Custom queries can be added as needed using raw SQL via execute_query().
     """
 
     @property
@@ -73,25 +74,4 @@ class SkillRepository(BaseRepository[Skill]):
         columns = [snake_to_pascal(field) for field in entity_fields if field != "skill_db_index"]
         return columns
 
-    def get_by_resource_name(self, resource_name: str) -> Skill | None:
-        """Get skill by resource name.
-
-        Args:
-            resource_name: Skill resource name.
-
-        Returns:
-            Skill if found, None otherwise.
-        """
-        results = self.execute_query("SELECT * FROM Skills WHERE ResourceName = ?", (resource_name,))
-        return results[0] if results else None
-
-    def get_by_type(self, skill_type: str) -> list[Skill]:
-        """Get skills by type.
-
-        Args:
-            skill_type: Skill type.
-
-        Returns:
-            List of skills of the specified type.
-        """
-        return self.execute_query("SELECT * FROM Skills WHERE TypeOfSkill = ?", (skill_type,))
+    # TODO: Add custom query methods as needed using raw SQL

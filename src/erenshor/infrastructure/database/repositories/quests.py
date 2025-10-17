@@ -11,8 +11,9 @@ from ._case_utils import pascal_to_snake, snake_to_pascal
 class QuestRepository(BaseRepository[Quest]):
     """Repository for Quest entities.
 
-    Provides type-safe database operations for quests and their objectives,
-    requirements, and rewards.
+    Provides basic CRUD operations for quests and their objectives, requirements,
+    and rewards. Custom queries can be added as needed using raw SQL via
+    execute_query().
 
     NOTE: Quest requirements and rewards are stored in junction tables
     (QuestRequiredItems, QuestRewards, etc.). Use relationship repositories
@@ -78,22 +79,4 @@ class QuestRepository(BaseRepository[Quest]):
         columns = [snake_to_pascal(field) for field in entity_fields if field != "quest_db_index"]
         return columns
 
-    def get_by_db_name(self, db_name: str) -> Quest | None:
-        """Get quest by database name (stable identifier).
-
-        Args:
-            db_name: Quest database name.
-
-        Returns:
-            Quest if found, None otherwise.
-        """
-        results = self.execute_query("SELECT * FROM Quests WHERE DBName = ?", (db_name,))
-        return results[0] if results else None
-
-    def get_repeatable(self) -> list[Quest]:
-        """Get all repeatable quests.
-
-        Returns:
-            List of repeatable quests.
-        """
-        return self.execute_query("SELECT * FROM Quests WHERE Repeatable = 1")
+    # TODO: Add custom query methods as needed using raw SQL

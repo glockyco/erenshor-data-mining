@@ -11,8 +11,9 @@ from ._case_utils import pascal_to_snake, snake_to_pascal
 class CharacterRepository(BaseRepository[Character]):
     """Repository for Character entities.
 
-    Provides type-safe database operations for NPCs, creatures, vendors,
-    and other in-game characters.
+    Provides basic CRUD operations for NPCs, creatures, vendors, and other
+    in-game characters. Custom queries can be added as needed using raw SQL
+    via execute_query().
 
     NOTE: Character abilities are stored in junction tables (CharacterAttackSpells,
     CharacterBuffSpells, etc.). Use relationship repositories to load these.
@@ -78,48 +79,4 @@ class CharacterRepository(BaseRepository[Character]):
         columns = [snake_to_pascal(field) for field in entity_fields if field != "id"]
         return columns
 
-    def get_by_object_name(self, object_name: str) -> Character | None:
-        """Get character by object name.
-
-        Args:
-            object_name: Character object name (stable identifier).
-
-        Returns:
-            Character if found, None otherwise.
-        """
-        results = self.execute_query("SELECT * FROM Characters WHERE ObjectName = ?", (object_name,))
-        return results[0] if results else None
-
-    def get_by_faction(self, faction: str) -> list[Character]:
-        """Get characters by faction.
-
-        Args:
-            faction: Faction name.
-
-        Returns:
-            List of characters in the specified faction.
-        """
-        return self.execute_query("SELECT * FROM Characters WHERE MyFaction = ?", (faction,))
-
-    def get_vendors(self) -> list[Character]:
-        """Get all vendor characters.
-
-        Returns:
-            List of vendor characters.
-        """
-        return self.execute_query("SELECT * FROM Characters WHERE IsVendor = 1")
-
-    def get_by_level_range(self, min_level: int, max_level: int) -> list[Character]:
-        """Get characters within a level range.
-
-        Args:
-            min_level: Minimum level (inclusive).
-            max_level: Maximum level (inclusive).
-
-        Returns:
-            List of characters within the level range.
-        """
-        return self.execute_query(
-            "SELECT * FROM Characters WHERE Level >= ? AND Level <= ?",
-            (min_level, max_level),
-        )
+    # TODO: Add custom query methods as needed using raw SQL

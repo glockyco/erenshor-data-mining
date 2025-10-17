@@ -11,7 +11,8 @@ from ._case_utils import pascal_to_snake, snake_to_pascal
 class FactionRepository(BaseRepository[Faction]):
     """Repository for Faction entities.
 
-    Provides type-safe database operations for factions and reputation systems.
+    Provides basic CRUD operations for factions and reputation systems.
+    Custom queries can be added as needed using raw SQL via execute_query().
     """
 
     @property
@@ -84,14 +85,4 @@ class FactionRepository(BaseRepository[Faction]):
         # Exclude primary key
         return ["ResourceName", "FactionName", "FactionDesc", "DefaultValue"]
 
-    def get_by_refname(self, refname: str) -> Faction | None:
-        """Get faction by REFNAME (same as get_by_id since REFNAME is the primary key).
-
-        Args:
-            refname: Faction REFNAME.
-
-        Returns:
-            Faction if found, None otherwise.
-        """
-        results = self.execute_query("SELECT * FROM Factions WHERE REFNAME = ?", (refname,))
-        return results[0] if results else None
+    # TODO: Add custom query methods as needed using raw SQL

@@ -11,11 +11,11 @@ from ._case_utils import pascal_to_snake, snake_to_pascal
 class ItemStatsRepository(BaseRepository[ItemStats]):
     """Repository for ItemStats entities.
 
-    Provides type-safe database operations for item statistics by quality level.
+    Provides basic CRUD operations for item statistics by quality level.
+    Custom queries can be added as needed using raw SQL via execute_query().
 
     NOTE: ItemStats uses a composite key (item_id, quality), so standard
-    get_by_id operations are not meaningful. Use custom queries or
-    get_by_composite_key instead.
+    get_by_id operations are not meaningful. Use custom queries when needed.
     """
 
     @property
@@ -89,40 +89,4 @@ class ItemStatsRepository(BaseRepository[ItemStats]):
         columns = [snake_to_pascal(field) for field in entity_fields if field not in ("item_id", "quality")]
         return columns
 
-    def get_by_item_id(self, item_id: str) -> list[ItemStats]:
-        """Get all stat variations for an item.
-
-        Args:
-            item_id: Item ID.
-
-        Returns:
-            List of stat entries for all quality levels.
-        """
-        return self.execute_query("SELECT * FROM ItemStats WHERE ItemId = ?", (item_id,))
-
-    def get_by_composite_key(self, item_id: str, quality: str) -> ItemStats | None:
-        """Get item stats by composite key.
-
-        Args:
-            item_id: Item ID.
-            quality: Quality level (Normal, Blessed, Godly).
-
-        Returns:
-            ItemStats entry if found, None otherwise.
-        """
-        results = self.execute_query(
-            "SELECT * FROM ItemStats WHERE ItemId = ? AND Quality = ?",
-            (item_id, quality),
-        )
-        return results[0] if results else None
-
-    def get_by_quality(self, quality: str) -> list[ItemStats]:
-        """Get all item stats for a specific quality level.
-
-        Args:
-            quality: Quality level (Normal, Blessed, Godly).
-
-        Returns:
-            List of item stats at the specified quality.
-        """
-        return self.execute_query("SELECT * FROM ItemStats WHERE Quality = ?", (quality,))
+    # TODO: Add custom query methods as needed using raw SQL
