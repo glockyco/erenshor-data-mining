@@ -207,8 +207,8 @@ class ItemRepository(BaseRepository[Item]):
         Returns:
             Item domain entity.
         """
-        # Convert PascalCase columns to snake_case fields
-        data = {pascal_to_snake(key): row[key] for key in row}
+        # Convert row to dict and transform PascalCase keys to snake_case
+        data = {pascal_to_snake(key): value for key, value in dict(row).items()}
 
         # Pydantic will handle validation and type conversion
         return Item.model_validate(data)
