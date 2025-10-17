@@ -434,15 +434,18 @@ class TestUnityBatchModeVersionDetection:
 
         assert version == "2021.3.45f2"
 
-    def test_get_version_unknown_when_not_in_path(self, tmp_path: Path) -> None:
-        """Test version returns 'unknown' when not in path."""
+    def test_get_version_raises_when_not_in_path(self, tmp_path: Path) -> None:
+        """Test version raises exception when not in path."""
         unity_exe = tmp_path / "Unity"
         unity_exe.touch()
 
         unity = UnityBatchMode(unity_path=unity_exe)
-        version = unity.get_version()
 
-        assert version == "unknown"
+        with pytest.raises(UnityNotFoundError) as exc_info:
+            unity.get_version()
+
+        assert "Could not detect Unity version" in str(exc_info.value)
+        assert "2021.3.45f2" in str(exc_info.value)  # Example in error message
 
     def test_get_version_with_different_unity_version(self, tmp_path: Path) -> None:
         """Test version detection with different Unity version format."""

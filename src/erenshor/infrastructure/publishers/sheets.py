@@ -15,18 +15,12 @@ import logging
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import Any, ClassVar
 
-if TYPE_CHECKING:
-    from google.auth.exceptions import GoogleAuthError
-    from google.oauth2 import service_account
-    from googleapiclient.discovery import build
-    from googleapiclient.errors import HttpError
-else:
-    from google.auth.exceptions import GoogleAuthError
-    from google.oauth2 import service_account
-    from googleapiclient.discovery import build
-    from googleapiclient.errors import HttpError
+from google.auth.exceptions import GoogleAuthError
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
 
 logger = logging.getLogger(__name__)
 

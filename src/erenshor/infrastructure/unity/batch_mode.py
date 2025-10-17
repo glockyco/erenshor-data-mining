@@ -494,7 +494,10 @@ class UnityBatchMode:
         follow the format: YYYY.X.YYfZ (e.g., 2021.3.45f2).
 
         Returns:
-            Unity version string, or "unknown" if version cannot be determined.
+            Unity version string.
+
+        Raises:
+            UnityNotFoundError: If version cannot be detected from path.
 
         Example:
             >>> unity = UnityBatchMode(
@@ -508,13 +511,16 @@ class UnityBatchMode:
         version_pattern = r"(\d{4}\.\d+\.\d+[a-z]\d+)"
         match = re.search(version_pattern, path_str)
 
-        if match:
-            version = match.group(1)
-            logger.debug(f"Unity version detected: {version}")
-            return version
+        if not match:
+            raise UnityNotFoundError(
+                f"Could not detect Unity version from path: {self.unity_path}\n"
+                "Unity path must contain version number (e.g., 2021.3.45f2)\n"
+                "Example valid path: /Applications/Unity/Hub/Editor/2021.3.45f2/Unity.app"
+            )
 
-        logger.debug("Unity version could not be determined from path")
-        return "unknown"
+        version = match.group(1)
+        logger.debug(f"Unity version detected: {version}")
+        return version
 
     def is_installed(self) -> bool:
         """Check if Unity is properly installed and accessible.

@@ -35,10 +35,14 @@ Example:
 """
 
 from collections.abc import Mapping, Sequence
-from typing import Any
+from typing import TYPE_CHECKING
 
 import mwparserfromhell as mw
 from loguru import logger
+
+if TYPE_CHECKING:
+    from mwparserfromhell.nodes import Template
+    from mwparserfromhell.wikicode import Wikicode
 
 
 class TemplateParserError(Exception):
@@ -89,7 +93,7 @@ class TemplateParser:
         {'name': 'Sword', 'damage': '10'}
     """
 
-    def parse(self, wikitext: str) -> Any:
+    def parse(self, wikitext: str) -> "Wikicode":
         """Parse wikitext into mwparserfromhell AST.
 
         Args:
@@ -114,7 +118,7 @@ class TemplateParser:
             logger.error(f"Failed to parse wikitext: {e}")
             raise InvalidWikitextError(f"Failed to parse wikitext: {e}") from e
 
-    def find_templates(self, code: Any, names: Sequence[str]) -> list[Any]:
+    def find_templates(self, code: "Wikicode", names: Sequence[str]) -> list["Template"]:
         """Find all templates matching any of the given names.
 
         Template name matching is case-insensitive and strips whitespace.
@@ -144,7 +148,7 @@ class TemplateParser:
         logger.debug(f"Found {len(templates)} templates matching {names}")
         return templates
 
-    def find_template(self, code: Any, names: Sequence[str]) -> Any:
+    def find_template(self, code: "Wikicode", names: Sequence[str]) -> "Template":
         """Find first template matching any of the given names.
 
         Convenience method that returns a single template instead of a list.
@@ -173,7 +177,7 @@ class TemplateParser:
             raise TemplateNotFoundError(f"No template found matching: {names}")
         return templates[0]
 
-    def get_params(self, template: Any) -> dict[str, str]:
+    def get_params(self, template: "Template") -> dict[str, str]:
         """Extract all parameters from a template as key-value pairs.
 
         Parameter names and values are stripped of whitespace.
@@ -200,7 +204,7 @@ class TemplateParser:
         logger.debug(f"Extracted {len(params)} parameters from template")
         return params
 
-    def get_param(self, template: Any, name: str, default: str | None = None) -> str | None:
+    def get_param(self, template: "Template", name: str, default: str | None = None) -> str | None:
         """Get value of a single template parameter.
 
         Args:
@@ -225,7 +229,7 @@ class TemplateParser:
         params = self.get_params(template)
         return params.get(name, default)
 
-    def set_param(self, template: Any, name: str, value: str) -> None:
+    def set_param(self, template: "Template", name: str, value: str) -> None:
         """Set or update a template parameter.
 
         If the parameter exists, updates its value. If not, adds it.
@@ -258,7 +262,7 @@ class TemplateParser:
             logger.error(f"Failed to set parameter {name}={value}: {e}")
             raise TemplateParserError(f"Failed to set parameter: {e}") from e
 
-    def remove_param(self, template: Any, name: str) -> None:
+    def remove_param(self, template: "Template", name: str) -> None:
         """Remove a parameter from a template.
 
         If the parameter doesn't exist, does nothing (idempotent).
@@ -285,7 +289,7 @@ class TemplateParser:
             logger.error(f"Failed to remove parameter {name}: {e}")
             raise TemplateParserError(f"Failed to remove parameter: {e}") from e
 
-    def replace_template(self, code: Any, old_template: Any, new_content: str) -> str:
+    def replace_template(self, code: "Wikicode", old_template: "Template", new_content: str) -> str:
         """Replace a template with new content.
 
         Args:
@@ -312,7 +316,7 @@ class TemplateParser:
             logger.error(f"Failed to replace template: {e}")
             raise TemplateParserError(f"Failed to replace template: {e}") from e
 
-    def remove_template(self, code: Any, template: Any) -> str:
+    def remove_template(self, code: "Wikicode", template: "Template") -> str:
         """Remove a template from wikitext.
 
         Convenience method equivalent to replace_template(code, template, "").
@@ -383,7 +387,7 @@ class TemplateParser:
         logger.debug(f"Generated template: {name} with {len(str_params)} parameters")
         return result
 
-    def render(self, code: Any) -> str:
+    def render(self, code: "Wikicode") -> str:
         """Render wikicode object back to wikitext string.
 
         This is the inverse of parse() - converts the AST back to text.
@@ -410,8 +414,19 @@ class TemplateParser:
 
         Returns:
             String representation suitable for wiki templates.
+
+        Note:
+            None values are converted to empty strings. In MediaWiki templates,
+            there is a difference between a missing parameter and an explicitly
+            empty parameter (|param=), but this method treats None as explicitly
+            empty. This is intentional for template generation where we want to
+            explicitly set parameters to empty values.
         """
         if value is None:
+            # MediaWiki treats missing params and empty params differently.
+            # Converting None to empty string means the parameter will be
+            # explicitly set to empty (|param=) rather than omitted entirely.
+            logger.debug("Converting None to empty string - parameter will be explicitly empty")
             return ""
         if isinstance(value, bool):
             return "yes" if value else "no"
