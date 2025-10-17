@@ -11,7 +11,7 @@ This module tests the setup_logging() function, including:
 
 import sys
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 from loguru import logger
@@ -363,8 +363,12 @@ class TestLoggingSetup:
         # Create fake repo root
         monkeypatch.setattr("erenshor.infrastructure.logging.setup.get_repo_root", lambda: tmp_path)
 
-        # Mock stderr to verify it's being used
-        mock_stderr = MagicMock()
+        # Mock stderr with a StringIO-like object to prevent file creation
+        # MagicMock alone causes loguru to interpret str(mock) as a filename
+        from io import StringIO
+
+        mock_stderr = StringIO()
+
         with patch.object(sys, "stderr", mock_stderr):
             setup_logging(minimal_config)
 
