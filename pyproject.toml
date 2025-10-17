@@ -101,6 +101,7 @@ ignore = [
     "PLR2004", # Magic value used in comparison
     "RET504",  # Unnecessary assignment before return
     "SIM108",  # Use ternary operator (sometimes less readable)
+    "B008",    # Do not perform function calls in argument defaults (required for Typer)
 ]
 
 [tool.ruff.format]
