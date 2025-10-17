@@ -20,7 +20,10 @@ path = "/Applications/Unity/Hub/Editor/2021.3.45f2/Unity.app/Contents/MacOS/Unit
 timeout = 3600
 
 [global.assetripper]
-path = "$HOME/Projects/AssetRipper/AssetRipper.GUI.Free"
+# Path to AssetRipper executable (required, configure in .erenshor/config.local.toml)
+# Example: path = "$HOME/Projects/AssetRipper/AssetRipper.GUI.Free"
+# Download: https://github.com/AssetRipper/AssetRipper/releases
+path = ""
 port = 8080
 timeout = 3600
 

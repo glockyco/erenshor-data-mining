@@ -117,11 +117,12 @@ class AssetRipperConfig(BaseModel):
     """AssetRipper configuration for extracting Unity projects from game files.
 
     AssetRipper converts compiled game assets back into editable Unity projects.
+    Path must be configured in .erenshor/config.local.toml - no defaults provided.
     """
 
     path: str = Field(
-        default="$HOME/Projects/AssetRipper/AssetRipper.GUI.Free",
-        description="Path to AssetRipper executable or directory",
+        default="",
+        description="Path to AssetRipper executable (required, must be configured)",
     )
     port: int = Field(
         default=8080,
