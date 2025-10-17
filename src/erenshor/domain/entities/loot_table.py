@@ -21,27 +21,41 @@ class LootTable(BaseEntity):
     """
 
     # Identifiers (composite key)
-    character_prefab_guid: str | None = Field(default=None, description="Character GUID that drops this item")
+    character_prefab_guid: str | None = Field(
+        default=None,
+        description="Character GUID (misleading name: non-prefab characters also have GUIDs, "
+        "though prefab and non-prefab have different formats)",
+    )
     item_id: str | None = Field(default=None, description="Item ID that can drop")
 
     # Drop probability
-    drop_probability: float | None = Field(default=None, description="Drop chance (0-1)")
+    drop_probability: float | None = Field(default=None, description="Drop probability percentage (0-100)")
     expected_per_kill: float | None = Field(default=None, description="Expected drops per kill")
     drop_count_distribution: str | None = Field(default=None, description="Drop count distribution data")
 
     # Drop type flags
-    is_actual: int | None = Field(default=None, description="Actual drop (boolean)")
-    is_guaranteed: int | None = Field(default=None, description="Guaranteed drop (boolean)")
+    is_actual: int | None = Field(default=None, description="If true, item ALWAYS drops on kill (boolean)")
+    is_guaranteed: int | None = Field(
+        default=None,
+        description="If true, ONE of the guaranteed items always drops on kill (NOT all of them) (boolean)",
+    )
 
     # Rarity flags
     is_common: int | None = Field(default=None, description="Common rarity (boolean)")
     is_uncommon: int | None = Field(default=None, description="Uncommon rarity (boolean)")
     is_rare: int | None = Field(default=None, description="Rare rarity (boolean)")
     is_legendary: int | None = Field(default=None, description="Legendary rarity (boolean)")
-    is_unique: int | None = Field(default=None, description="Unique rarity (boolean)")
+    is_unique: int | None = Field(
+        default=None,
+        description="Item only drops if not already in player's inventory (NOT a rarity class) (boolean)",
+    )
 
     # Visibility
-    is_visible: int | None = Field(default=None, description="Visible drop (boolean)")
+    is_visible: int | None = Field(
+        default=None,
+        description="If true, shows item on dropping character's model "
+        "(players know item will drop if character is wearing it) (boolean)",
+    )
 
     @property
     def composite_key(self) -> str:

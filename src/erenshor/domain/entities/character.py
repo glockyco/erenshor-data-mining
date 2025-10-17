@@ -29,8 +29,12 @@ class Character(BaseEntity):
     npc_name: str | None = Field(default=None, description="Display name")
 
     # Faction
-    my_world_faction: str | None = Field(default=None, description="World faction")
-    my_faction: str | None = Field(default=None, description="Character faction")
+    my_world_faction: str | None = Field(
+        default=None, description="World faction (heritage/origin area), references Factions.REFNAME"
+    )
+    my_faction: str | None = Field(
+        default=None, description="Alignment faction (good vs. evil, affects allies/aggression)"
+    )
     aggro_range: float | None = Field(default=None, description="Aggro detection range")
     attack_range: float | None = Field(default=None, description="Attack range")
     aggressive_towards: str | None = Field(default=None, description="Hostile factions")
@@ -50,7 +54,11 @@ class Character(BaseEntity):
     # Feature flags
     has_stats: int | None = Field(default=None, description="Has combat stats (boolean)")
     has_dialog: int | None = Field(default=None, description="Has dialog (boolean)")
-    has_modify_faction: int | None = Field(default=None, description="Modifies faction (boolean)")
+    has_modify_faction: int | None = Field(
+        default=None,
+        description="Faction modifications are applied when this character is killed. "
+        "Exact changes stored in modify_factions field. (boolean)",
+    )
     is_enabled: int | None = Field(default=None, description="Is enabled (boolean)")
     invulnerable: int | None = Field(default=None, description="Cannot be killed (boolean)")
 
@@ -80,9 +88,9 @@ class Character(BaseEntity):
     # Resistances
     base_res: int | None = Field(default=None, description="Base resistance")
     base_mr: int | None = Field(default=None, description="Base magic resistance")
-    base_er: int | None = Field(default=None, description="Base energy resistance")
+    base_er: int | None = Field(default=None, description="Base elemental resistance")
     base_pr: int | None = Field(default=None, description="Base poison resistance")
-    base_vr: int | None = Field(default=None, description="Base vitality resistance")
+    base_vr: int | None = Field(default=None, description="Base void resistance")
 
     # Combat attributes
     run_speed: float | None = Field(default=None, description="Movement speed")
@@ -97,26 +105,30 @@ class Character(BaseEntity):
     effective_attack_ability: float | None = Field(default=None, description="Calculated attack rating")
     effective_min_mr: int | None = Field(default=None, description="Calculated min magic resist")
     effective_max_mr: int | None = Field(default=None, description="Calculated max magic resist")
-    effective_min_er: int | None = Field(default=None, description="Calculated min energy resist")
-    effective_max_er: int | None = Field(default=None, description="Calculated max energy resist")
+    effective_min_er: int | None = Field(default=None, description="Calculated min elemental resist")
+    effective_max_er: int | None = Field(default=None, description="Calculated max elemental resist")
     effective_min_pr: int | None = Field(default=None, description="Calculated min poison resist")
     effective_max_pr: int | None = Field(default=None, description="Calculated max poison resist")
-    effective_min_vr: int | None = Field(default=None, description="Calculated min vitality resist")
-    effective_max_vr: int | None = Field(default=None, description="Calculated max vitality resist")
+    effective_min_vr: int | None = Field(default=None, description="Calculated min void resist")
+    effective_max_vr: int | None = Field(default=None, description="Calculated max void resist")
 
-    # Abilities (comma-separated lists)
-    attack_skills: str | None = Field(default=None, description="Attack skill IDs")
-    attack_spells: str | None = Field(default=None, description="Attack spell IDs")
-    buff_spells: str | None = Field(default=None, description="Buff spell IDs")
-    heal_spells: str | None = Field(default=None, description="Heal spell IDs")
-    group_heal_spells: str | None = Field(default=None, description="Group heal spell IDs")
-    cc_spells: str | None = Field(default=None, description="Crowd control spell IDs")
-    taunt_spells: str | None = Field(default=None, description="Taunt spell IDs")
-    pet_spell: str | None = Field(default=None, description="Pet summon spell ID")
+    # Abilities (comma-separated lists - LEGACY DATA, use junction tables instead)
+    # WARNING: These fields contain legacy data with mixed formats.
+    # Use junction tables (CharacterAttackSpells, CharacterBuffSpells, etc.) for reliable ability relationships.
+    attack_skills: str | None = Field(default=None, description="Attack skill IDs (legacy, use junction tables)")
+    attack_spells: str | None = Field(default=None, description="Attack spell IDs (legacy, use junction tables)")
+    buff_spells: str | None = Field(default=None, description="Buff spell IDs (legacy, use junction tables)")
+    heal_spells: str | None = Field(default=None, description="Heal spell IDs (legacy, use junction tables)")
+    group_heal_spells: str | None = Field(
+        default=None, description="Group heal spell IDs (legacy, use junction tables)"
+    )
+    cc_spells: str | None = Field(default=None, description="Crowd control spell IDs (legacy, use junction tables)")
+    taunt_spells: str | None = Field(default=None, description="Taunt spell IDs (legacy, use junction tables)")
+    pet_spell: str | None = Field(default=None, description="Pet summon spell ID (legacy, use junction tables)")
 
     # Proc mechanics
     proc_on_hit: str | None = Field(default=None, description="Proc effect on hit")
-    proc_on_hit_chance: float | None = Field(default=None, description="Proc chance (0-1)")
+    proc_on_hit_chance: float | None = Field(default=None, description="Proc chance percentage (0-100)")
 
     # Stat overrides
     hand_set_resistances: int | None = Field(default=None, description="Manually set resistances (boolean)")
@@ -161,7 +173,9 @@ class Character(BaseEntity):
 
     # Vendor data
     vendor_desc: str | None = Field(default=None, description="Vendor description")
-    items_for_sale: str | None = Field(default=None, description="Vendor inventory IDs")
+    items_for_sale: str | None = Field(
+        default=None, description="Vendor inventory IDs (legacy, use junction tables for reliable data)"
+    )
 
     @property
     def stable_key(self) -> str:

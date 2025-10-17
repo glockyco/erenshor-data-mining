@@ -1,8 +1,14 @@
 """Zone entity model.
 
-This module defines the Zone domain entity representing in-game zones, areas,
-and map locations. Zones are represented by the Coordinates table with
-scene/location information.
+This module defines the Zone domain entity representing in-game zones and areas.
+
+Zones are defined by ZoneAnnounces and ZoneAtlasEntries tables. The Coordinates
+table (which this entity originally represented) contains spatial positions for
+various game entities but does not define zones themselves. ZoneLines show
+connections between zones.
+
+Note: This entity may need refactoring to properly represent actual zones
+rather than coordinates. Currently it stores minimal zone identification data.
 """
 
 from pydantic import Field
@@ -14,12 +20,13 @@ from .base import BaseEntity
 
 
 class Zone(BaseEntity):
-    """Domain entity representing an in-game zone or map location.
+    """Domain entity representing an in-game zone or area.
 
-    Zones are geographic areas in the game world. They are tracked through
-    the Coordinates table which stores scene names and spatial positions.
+    Zones are geographic areas/regions in the game world. They are properly
+    defined by ZoneAnnounces (zone metadata) and ZoneAtlasEntries (map data).
+    ZoneLines define connections between zones.
 
-    This entity uses the Scene field as the stable identifier for zones.
+    This entity currently uses the Scene field as the stable identifier.
     """
 
     # Primary key
@@ -28,26 +35,9 @@ class Zone(BaseEntity):
     # Zone identification
     scene: str | None = Field(default=None, description="Scene/zone name")
 
-    # Spatial coordinates
-    x: float | None = Field(default=None, description="X coordinate")
-    y: float | None = Field(default=None, description="Y coordinate")
-    z: float | None = Field(default=None, description="Z coordinate")
-
-    # Coordinate category
-    category: str | None = Field(default=None, description="Coordinate category/type")
-
-    # Entity references (foreign keys to other tables)
-    achievement_trigger_id: int | None = Field(default=None, description="Achievement trigger reference")
-    character_id: int | None = Field(default=None, description="Character reference")
-    door_id: int | None = Field(default=None, description="Door reference")
-    mining_node_id: int | None = Field(default=None, description="Mining node reference")
-    secret_passage_id: int | None = Field(default=None, description="Secret passage reference")
-    spawn_point_id: int | None = Field(default=None, description="Spawn point reference")
-    teleport_id: int | None = Field(default=None, description="Teleport reference")
-    treasure_loc_id: int | None = Field(default=None, description="Treasure location reference")
-    water_id: int | None = Field(default=None, description="Water reference")
-    zone_line_id: int | None = Field(default=None, description="Zone line reference")
-    item_bag_id: int | None = Field(default=None, description="Item bag reference")
+    # Zone metadata references
+    zone_atlas_entry_id: str | None = Field(default=None, description="Reference to ZoneAtlasEntries.Id")
+    zone_announce_id: str | None = Field(default=None, description="Reference to ZoneAnnounces.SceneName")
 
     @property
     def stable_key(self) -> str:

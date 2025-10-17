@@ -56,7 +56,7 @@ class Skill(BaseEntity):
     ae_skill: int | None = Field(default=None, description="Area effect skill (boolean)")
     interrupt: int | None = Field(default=None, description="Interrupts target (boolean)")
     spawn_on_use_resource_name: str | None = Field(default=None, description="Spawned entity on use")
-    effect_to_apply_id: str | None = Field(default=None, description="Applied effect ID")
+    effect_to_apply_id: str | None = Field(default=None, description="Applied effect ID (can only contain spell IDs)")
 
     # Targeting
     affect_player: int | None = Field(default=None, description="Affects player (boolean)")
@@ -75,7 +75,9 @@ class Skill(BaseEntity):
     guarantee_proc: int | None = Field(default=None, description="Guaranteed proc (boolean)")
 
     # Automation
-    automate_attack: int | None = Field(default=None, description="Auto-attack skill (boolean)")
+    automate_attack: int | None = Field(
+        default=None, description="Causes character to start auto-attacking when skill is used (boolean)"
+    )
     cast_on_target_id: str | None = Field(default=None, description="Cast spell on target")
 
     # Visual/Audio
@@ -83,8 +85,10 @@ class Skill(BaseEntity):
     skill_icon_name: str | None = Field(default=None, description="Icon asset name")
 
     # Usage tracking
-    player_uses: str | None = Field(default=None, description="Player usage data")
-    npc_uses: str | None = Field(default=None, description="NPC usage data")
+    player_uses: str | None = Field(
+        default=None, description="Message shown in combat log when skill is used by player"
+    )
+    npc_uses: str | None = Field(default=None, description="Message shown in combat log when skill is used by NPC")
 
     @property
     def stable_key(self) -> str:

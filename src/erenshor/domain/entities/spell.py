@@ -28,8 +28,10 @@ class Spell(BaseEntity):
 
     # Display fields
     spell_name: str | None = Field(default=None, description="Display name")
-    spell_desc: str | None = Field(default=None, description="Spell description")
-    special_descriptor: str | None = Field(default=None, description="Special categorization")
+    spell_desc: str | None = Field(default=None, description="Spell description (shown in one UI location)")
+    special_descriptor: str | None = Field(
+        default=None, description="Special descriptor (shown in different UI location)"
+    )
 
     # Spell classification
     type: str | None = Field(default=None, description="Spell type (damage, heal, buff, etc.)")
@@ -86,12 +88,14 @@ class Spell(BaseEntity):
 
     # Resistances
     magic_resist: int | None = Field(default=None, description="Magic resistance modifier", alias="MR")
-    energy_resist: int | None = Field(default=None, description="Energy resistance modifier", alias="ER")
+    elemental_resist: int | None = Field(default=None, description="Elemental resistance modifier", alias="ER")
     poison_resist: int | None = Field(default=None, description="Poison resistance modifier", alias="PR")
-    vitality_resist: int | None = Field(default=None, description="Vitality resistance modifier", alias="VR")
+    void_resist: int | None = Field(default=None, description="Void resistance modifier", alias="VR")
 
     # Combat modifiers
-    damage_shield: int | None = Field(default=None, description="Damage shield amount")
+    damage_shield: int | None = Field(
+        default=None, description="Thorns effect - damage dealt to attackers when they hit the affected character"
+    )
     haste: float | None = Field(default=None, description="Haste modifier")
     percent_lifesteal: float | None = Field(default=None, description="Lifesteal percentage")
     atk_roll_modifier: int | None = Field(default=None, description="Attack roll modifier")
@@ -112,7 +116,9 @@ class Spell(BaseEntity):
     reap_and_renew: int | None = Field(default=None, description="Reap and Renew mechanic")
     resonate_chance: int | None = Field(default=None, description="Resonate chance percentage")
     xp_bonus: float | None = Field(default=None, description="XP bonus multiplier")
-    automate_attack: int | None = Field(default=None, description="Auto-attack (boolean)")
+    automate_attack: int | None = Field(
+        default=None, description="Causes character to start auto-attacking when spell is cast (boolean)"
+    )
     worn_effect: int | None = Field(default=None, description="Worn as passive (boolean)")
 
     # Visual effects
@@ -127,8 +133,12 @@ class Spell(BaseEntity):
     color_a: float | None = Field(default=None, description="Effect alpha channel")
 
     # Status messages
-    status_effect_message_on_player: str | None = Field(default=None, description="Player status message")
-    status_effect_message_on_npc: str | None = Field(default=None, description="NPC status message")
+    status_effect_message_on_player: str | None = Field(
+        default=None, description="Message shown in combat log when used on player"
+    )
+    status_effect_message_on_npc: str | None = Field(
+        default=None, description="Message shown in combat log when used on NPC"
+    )
 
     @property
     def stable_key(self) -> str:

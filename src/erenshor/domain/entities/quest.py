@@ -31,7 +31,11 @@ class Quest(BaseEntity):
     quest_desc: str | None = Field(default=None, description="Quest description/objectives")
 
     # Requirements
-    required_item_ids: str | None = Field(default=None, description="Required item IDs (comma-separated)")
+    # WARNING: Legacy format - uses comma-separated "Small Cat Statue (24575054), ..."
+    # Use junction tables (QuestRequiredItems) for reliable data
+    required_item_ids: str | None = Field(
+        default=None, description='Required item IDs (legacy format: "Item Name (ID), ...") - use junction tables'
+    )
 
     # Rewards
     xp_on_complete: int | None = Field(default=None, description="XP reward")
@@ -39,9 +43,13 @@ class Quest(BaseEntity):
     gold_on_complete: int | None = Field(default=None, description="Gold reward")
 
     # Quest chains
-    assign_new_quest_on_complete_db_name: str | None = Field(default=None, description="Quest assigned on completion")
+    assign_new_quest_on_complete_db_name: str | None = Field(
+        default=None,
+        description='Quest assigned on completion (format: "QuestName (DBName)" e.g., "Destroying Aragath (Aragath2)")',
+    )
     complete_other_quest_db_names: str | None = Field(
-        default=None, description="Other quests completed (comma-separated)"
+        default=None,
+        description='Other quests completed (format: "QuestName (DBName)" e.g., "Destroying Aragath (Aragath2)")',
     )
 
     # Dialog
@@ -50,7 +58,10 @@ class Quest(BaseEntity):
     disable_text: str | None = Field(default=None, description="Disabled quest text")
 
     # Faction effects
-    affected_factions: str | None = Field(default=None, description="Affected faction IDs")
+    affected_factions: str | None = Field(
+        default=None,
+        description='Affected faction IDs (comma-separated Factions.REFNAME values e.g., "Fernalla, Sivakayans")',
+    )
     affected_faction_amounts: str | None = Field(default=None, description="Faction change amounts")
 
     # Quest flags

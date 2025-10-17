@@ -15,8 +15,9 @@ from .base import BaseEntity
 class Faction(BaseEntity):
     """Domain entity representing an in-game faction.
 
-    Factions represent groups, guilds, or organizations with which players can
-    gain or lose reputation. The REFNAME field is used as the stable identifier.
+    Factions represent reputation groups and alignments (NOT guilds). In-game displays
+    typically show the faction description rather than the faction name. The REFNAME
+    field is used as the stable identifier.
 
     All fields match the Unity export schema from the Factions table.
     """

@@ -30,10 +30,19 @@ class SpawnPoint(BaseEntity):
     level_mod: int | None = Field(default=None, description="Level modifier for spawned NPCs")
 
     # Spawn timing (supports up to 4 spawn slots)
-    spawn_delay_1: float | None = Field(default=None, description="Respawn delay for slot 1 (seconds)")
-    spawn_delay_2: float | None = Field(default=None, description="Respawn delay for slot 2 (seconds)")
-    spawn_delay_3: float | None = Field(default=None, description="Respawn delay for slot 3 (seconds)")
-    spawn_delay_4: float | None = Field(default=None, description="Respawn delay for slot 4 (seconds)")
+    # Group size adjustments: spawn delays scale based on group size
+    spawn_delay_1: float | None = Field(
+        default=None, description="Respawn delay when player is in group with 1-2 players (group size 2-3) (seconds)"
+    )
+    spawn_delay_2: float | None = Field(
+        default=None, description="Respawn delay when player is in group with 3 players (group size 4) (seconds)"
+    )
+    spawn_delay_3: float | None = Field(
+        default=None, description="Respawn delay when player is in group with 4 players (group size 5) (seconds)"
+    )
+    spawn_delay_4: float | None = Field(
+        default=None, description="Respawn delay (purpose unclear - possibly for larger groups) (seconds)"
+    )
 
     # Spawn behavior
     staggerable: int | None = Field(default=None, description="Stagger spawn timing (boolean)")
