@@ -11,6 +11,12 @@ from erenshor.application.services.backup_service import (
     BackupStats,
     BackupValidationError,
 )
+from erenshor.application.services.sheets_service import (
+    DeploymentResult,
+    SheetMetadata,
+    SheetsService,
+    SheetsServiceError,
+)
 from erenshor.application.services.wiki_service import (
     UpdateResult,
     WikiService,
@@ -23,6 +29,10 @@ __all__ = [
     "BackupService",
     "BackupStats",
     "BackupValidationError",
+    "DeploymentResult",
+    "SheetMetadata",
+    "SheetsService",
+    "SheetsServiceError",
     "UpdateResult",
     "WikiService",
     "WikiServiceError",
