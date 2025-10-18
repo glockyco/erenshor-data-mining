@@ -1,0 +1,441 @@
+"""Field preservation system for wiki template regeneration.
+
+This module provides a system to preserve manually-edited fields when regenerating
+wiki pages from database content. It allows selective field preservation based on
+template-specific rules.
+
+Core concept: When regenerating wiki pages, some template fields should keep their
+existing values rather than being overwritten with fresh database values.
+
+Design principles (from Phase 3 feedback):
+- Keep it simple: 4 handlers only (override, preserve, prefer_manual, custom)
+- Template-specific rules
+- Default behavior is override (always use new database value)
+- Configuration via Python dict (easy to migrate to TOML later)
+
+Example:
+    >>> config = FieldPreservationConfig()
+    >>> handler = FieldPreservationHandler(config)
+    >>>
+    >>> # Old page has manual description, new page has database description
+    >>> old_fields = {"description": "Custom lore text", "damage": "10"}
+    >>> new_fields = {"description": "Generic item", "damage": "15"}
+    >>>
+    >>> # Apply preservation rules
+    >>> result = handler.apply_preservation("Item", old_fields, new_fields)
+    >>> print(result)
+    {'description': 'Custom lore text', 'damage': '15'}  # description preserved, damage updated
+
+Usage in page generators:
+    >>> parser = TemplateParser()
+    >>> handler = FieldPreservationHandler()
+    >>>
+    >>> # Generate new page content
+    >>> new_wikitext = generate_item_page(item)
+    >>>
+    >>> # If old page exists, preserve fields
+    >>> if old_wikitext:
+    >>>     preserved = handler.merge_templates(
+    >>>         old_wikitext=old_wikitext,
+    >>>         new_wikitext=new_wikitext,
+    >>>         template_names=["Item"]
+    >>>     )
+    >>>     final_wikitext = preserved
+    >>> else:
+    >>>     final_wikitext = new_wikitext
+"""
+
+from collections.abc import Callable, Mapping
+from typing import Any
+
+from loguru import logger
+
+from erenshor.infrastructure.wiki.template_parser import TemplateParser
+
+# Type alias for handler functions
+# Signature: (old_value: str, new_value: str, context: dict[str, Any]) -> str
+PreservationHandler = Callable[[str, str, dict[str, Any]], str]
+
+
+class FieldPreservationError(Exception):
+    """Base exception for field preservation errors."""
+
+    pass
+
+
+class HandlerNotFoundError(FieldPreservationError):
+    """Raised when a handler name is not registered."""
+
+    pass
+
+
+class InvalidRuleError(FieldPreservationError):
+    """Raised when preservation rule is invalid."""
+
+    pass
+
+
+# Built-in handlers
+def override_handler(old_value: str, new_value: str, context: dict[str, Any]) -> str:
+    """Always use new database value (default behavior).
+
+    Args:
+        old_value: Existing wiki field value (ignored)
+        new_value: New database value
+        context: Additional context (unused)
+
+    Returns:
+        New value
+    """
+    return new_value
+
+
+def preserve_handler(old_value: str, new_value: str, context: dict[str, Any]) -> str:
+    """Always keep existing wiki value.
+
+    Args:
+        old_value: Existing wiki field value
+        new_value: New database value (ignored)
+        context: Additional context (unused)
+
+    Returns:
+        Old value
+    """
+    return old_value
+
+
+def prefer_manual_handler(old_value: str, new_value: str, context: dict[str, Any]) -> str:
+    """Keep wiki value if non-empty, else use database value.
+
+    This is useful for fields that editors might add manually but that
+    also have default values from the database.
+
+    Args:
+        old_value: Existing wiki field value
+        new_value: New database value
+        context: Additional context (unused)
+
+    Returns:
+        Old value if non-empty, else new value
+    """
+    return old_value if old_value and old_value.strip() else new_value
+
+
+# Default preservation rules per template
+DEFAULT_PRESERVATION_RULES: dict[str, dict[str, str]] = {
+    "Item": {
+        # Manual content that editors add
+        "description": "preserve",  # Custom lore/flavor text
+        "image": "prefer_manual",  # Custom images
+        "imagecaption": "prefer_manual",  # Custom captions
+        # Source fields - manually researched by editors
+        "vendorsource": "preserve",
+        "source": "preserve",
+        "othersource": "preserve",
+        "questsource": "preserve",
+        "relatedquest": "preserve",
+        "craftsource": "preserve",
+        "componentfor": "preserve",
+        # All other fields implicitly use "override" (default)
+    },
+    "Fancy-weapon": {
+        "description": "preserve",  # Item lore
+        "image": "prefer_manual",  # Custom icons
+        "name": "prefer_manual",  # Custom display names
+    },
+    "Fancy-armor": {
+        "description": "preserve",  # Item lore
+        "image": "prefer_manual",  # Custom icons
+        "name": "prefer_manual",  # Custom display names
+    },
+    "Fancy-charm": {
+        "description": "preserve",
+        "image": "prefer_manual",
+        "name": "prefer_manual",
+    },
+    "Character": {
+        "description": "preserve",  # Manual NPC descriptions
+        "image": "prefer_manual",  # Custom NPC images
+    },
+    "Ability": {
+        "description": "preserve",  # Manual ability descriptions
+        "image": "prefer_manual",  # Custom ability icons
+    },
+}
+
+
+class FieldPreservationConfig:
+    """Configuration for field preservation rules.
+
+    Manages template-specific preservation rules and handler registry.
+    Provides lookup and validation for preservation rules.
+
+    Example:
+        >>> config = FieldPreservationConfig()
+        >>> rule = config.get_rule("Item", "description")
+        >>> print(rule)
+        'preserve'
+    """
+
+    def __init__(
+        self,
+        rules: dict[str, dict[str, str]] | None = None,
+        handlers: dict[str, PreservationHandler] | None = None,
+    ) -> None:
+        """Initialize field preservation configuration.
+
+        Args:
+            rules: Template-specific preservation rules (defaults to DEFAULT_PRESERVATION_RULES)
+            handlers: Custom handler registry (defaults to built-in handlers only)
+        """
+        self._rules = rules if rules is not None else DEFAULT_PRESERVATION_RULES.copy()
+        self._handlers: dict[str, PreservationHandler] = {
+            "override": override_handler,
+            "preserve": preserve_handler,
+            "prefer_manual": prefer_manual_handler,
+        }
+        if handlers:
+            self._handlers.update(handlers)
+
+        logger.debug(f"Initialized preservation config with {len(self._rules)} template rules")
+
+    def get_rule(self, template_name: str, field_name: str) -> str:
+        """Get preservation rule for a specific template field.
+
+        Args:
+            template_name: Template name (e.g., "Item", "Fancy-weapon")
+            field_name: Field name (e.g., "description", "damage")
+
+        Returns:
+            Handler name (e.g., "preserve", "override", "prefer_manual")
+            Defaults to "override" if no specific rule exists.
+        """
+        template_rules = self._rules.get(template_name, {})
+        rule = template_rules.get(field_name, "override")
+        logger.debug(f"Rule for {template_name}.{field_name}: {rule}")
+        return rule
+
+    def get_handler(self, handler_name: str) -> PreservationHandler:
+        """Get handler function by name.
+
+        Args:
+            handler_name: Handler name (e.g., "preserve", "override")
+
+        Returns:
+            Handler function
+
+        Raises:
+            HandlerNotFoundError: If handler name is not registered
+        """
+        if handler_name not in self._handlers:
+            raise HandlerNotFoundError(
+                f"Handler not found: {handler_name}. " f"Available handlers: {', '.join(self._handlers.keys())}"
+            )
+        return self._handlers[handler_name]
+
+    def register_handler(self, name: str, handler: PreservationHandler) -> None:
+        """Register a custom handler function.
+
+        Args:
+            name: Handler name for use in rules
+            handler: Handler function with signature (old, new, context) -> str
+
+        Example:
+            >>> def custom_handler(old, new, ctx):
+            ...     return f"{old} + {new}"
+            >>> config.register_handler("concat", custom_handler)
+        """
+        self._handlers[name] = handler
+        logger.debug(f"Registered custom handler: {name}")
+
+    def add_rule(self, template_name: str, field_name: str, handler_name: str) -> None:
+        """Add or update a preservation rule.
+
+        Args:
+            template_name: Template name
+            field_name: Field name
+            handler_name: Handler name
+
+        Raises:
+            HandlerNotFoundError: If handler name is not registered
+        """
+        # Validate handler exists
+        self.get_handler(handler_name)
+
+        if template_name not in self._rules:
+            self._rules[template_name] = {}
+
+        self._rules[template_name][field_name] = handler_name
+        logger.debug(f"Added rule: {template_name}.{field_name} = {handler_name}")
+
+    def get_template_rules(self, template_name: str) -> dict[str, str]:
+        """Get all preservation rules for a template.
+
+        Args:
+            template_name: Template name
+
+        Returns:
+            Dictionary mapping field names to handler names
+        """
+        return self._rules.get(template_name, {}).copy()
+
+
+class FieldPreservationHandler:
+    """Handler for applying field preservation rules to templates.
+
+    Uses FieldPreservationConfig to determine which fields to preserve when
+    merging old wiki content with new database content.
+
+    Example:
+        >>> handler = FieldPreservationHandler()
+        >>> old = {"description": "Manual text", "damage": "10"}
+        >>> new = {"description": "Database text", "damage": "15"}
+        >>> result = handler.apply_preservation("Item", old, new)
+        >>> print(result)
+        {'description': 'Manual text', 'damage': '15'}
+    """
+
+    def __init__(self, config: FieldPreservationConfig | None = None) -> None:
+        """Initialize field preservation handler.
+
+        Args:
+            config: Preservation configuration (defaults to new instance with default rules)
+        """
+        self._config = config if config is not None else FieldPreservationConfig()
+        self._parser = TemplateParser()
+        logger.debug("Initialized field preservation handler")
+
+    def apply_preservation(
+        self,
+        template_name: str,
+        old_fields: Mapping[str, str],
+        new_fields: Mapping[str, str],
+        context: dict[str, Any] | None = None,
+    ) -> dict[str, str]:
+        """Apply preservation rules to merge old and new field values.
+
+        Args:
+            template_name: Template name (e.g., "Item", "Fancy-weapon")
+            old_fields: Existing wiki field values
+            new_fields: New database field values
+            context: Additional context passed to handlers
+
+        Returns:
+            Merged field dictionary with preservation rules applied
+
+        Example:
+            >>> handler = FieldPreservationHandler()
+            >>> old = {"description": "Custom", "damage": "10"}
+            >>> new = {"description": "Default", "damage": "15", "level": "5"}
+            >>> result = handler.apply_preservation("Item", old, new)
+            >>> # description preserved, damage updated, level added
+            >>> print(result)
+            {'description': 'Custom', 'damage': '15', 'level': '5'}
+        """
+        ctx = context if context is not None else {}
+        ctx["template_name"] = template_name
+
+        result: dict[str, str] = {}
+
+        # Get all field names from both old and new
+        all_fields = set(old_fields.keys()) | set(new_fields.keys())
+
+        logger.debug(f"Applying preservation for {template_name}: {len(all_fields)} fields")
+
+        for field_name in all_fields:
+            old_value = old_fields.get(field_name, "")
+            new_value = new_fields.get(field_name, "")
+
+            # Get preservation rule for this field
+            rule_name = self._config.get_rule(template_name, field_name)
+            handler = self._config.get_handler(rule_name)
+
+            # Apply handler
+            result[field_name] = handler(old_value, new_value, ctx)
+
+            if old_value != result[field_name]:
+                logger.debug(f"  {field_name}: '{old_value}' -> '{result[field_name]}' (rule: {rule_name})")
+
+        return result
+
+    def merge_templates(
+        self,
+        old_wikitext: str,
+        new_wikitext: str,
+        template_names: list[str],
+        context: dict[str, Any] | None = None,
+    ) -> str:
+        """Merge templates from old and new wikitext with field preservation.
+
+        This is the main entry point for page generators. It:
+        1. Parses old and new wikitext
+        2. Finds matching templates
+        3. Applies preservation rules
+        4. Replaces templates in new wikitext with preserved versions
+
+        Args:
+            old_wikitext: Existing wiki page content
+            new_wikitext: Freshly generated page content
+            template_names: List of template names to merge (e.g., ["Item"])
+            context: Additional context passed to handlers
+
+        Returns:
+            New wikitext with preserved fields applied
+
+        Example:
+            >>> handler = FieldPreservationHandler()
+            >>> old = "{{Item|description=Manual text|damage=10}}"
+            >>> new = "{{Item|description=Default|damage=15|level=5}}"
+            >>> result = handler.merge_templates(old, new, ["Item"])
+            >>> # Result has manual description, updated damage, new level
+        """
+        logger.debug(f"Merging templates: {template_names}")
+
+        # Parse both pages
+        old_code = self._parser.parse(old_wikitext)
+        new_code = self._parser.parse(new_wikitext)
+
+        # Find templates in both pages
+        old_templates = self._parser.find_templates(old_code, template_names)
+        new_templates = self._parser.find_templates(new_code, template_names)
+
+        if not old_templates:
+            logger.debug("No old templates found, returning new wikitext as-is")
+            return new_wikitext
+
+        if not new_templates:
+            logger.debug("No new templates found, returning new wikitext as-is")
+            return new_wikitext
+
+        # For each template type, merge fields
+        for template_name in template_names:
+            # Get first matching template from each page
+            old_tmpl = next((t for t in old_templates if str(t.name).strip() == template_name), None)
+            new_tmpl = next((t for t in new_templates if str(t.name).strip() == template_name), None)
+
+            if not old_tmpl or not new_tmpl:
+                continue
+
+            # Extract field dictionaries
+            old_fields = self._parser.get_params(old_tmpl)
+            new_fields = self._parser.get_params(new_tmpl)
+
+            # Apply preservation
+            preserved_fields = self.apply_preservation(template_name, old_fields, new_fields, context)
+
+            # Update new template with preserved values
+            for field_name, field_value in preserved_fields.items():
+                self._parser.set_param(new_tmpl, field_name, field_value)
+
+        # Render modified wikitext
+        result = self._parser.render(new_code)
+        logger.debug(f"Merged templates successfully ({len(result)} characters)")
+        return result
+
+    def get_config(self) -> FieldPreservationConfig:
+        """Get the preservation configuration.
+
+        Returns:
+            Current FieldPreservationConfig instance
+        """
+        return self._config
