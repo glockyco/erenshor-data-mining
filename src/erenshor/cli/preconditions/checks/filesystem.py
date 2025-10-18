@@ -7,6 +7,7 @@ different paths.
 
 import os
 from pathlib import Path
+from typing import Any
 
 from ..base import PreconditionResult
 
@@ -107,23 +108,19 @@ def directory_writable(context: dict[str, Any]) -> PreconditionResult:
 
     dir_path = Path(dir_path_str)
 
+    # If directory doesn't exist, check if we can create it
     if not dir_path.exists():
-        # Check if parent is writable (so we can create the directory)
         parent = dir_path.parent
-        if not parent.exists():
-            return PreconditionResult(
-                passed=False,
-                check_name="directory_writable",
-                message=f"Directory and parent do not exist: {dir_path.name}",
-                detail=f"Missing: {dir_path}\nParent also missing: {parent}",
-            )
-
-        if not os.access(parent, os.W_OK):
+        if not parent.exists() or not os.access(parent, os.W_OK):
             return PreconditionResult(
                 passed=False,
                 check_name="directory_writable",
                 message=f"Cannot create directory: {dir_path.name}",
-                detail=f"No write permission to parent: {parent}",
+                detail=(
+                    f"Missing: {dir_path}\nParent also missing: {parent}"
+                    if not parent.exists()
+                    else f"No write permission to parent: {parent}"
+                ),
             )
 
         return PreconditionResult(
@@ -132,6 +129,7 @@ def directory_writable(context: dict[str, Any]) -> PreconditionResult:
             message=f"Can create directory: {dir_path.name}",
         )
 
+    # Directory exists - check if it's actually a directory and writable
     if not dir_path.is_dir():
         return PreconditionResult(
             passed=False,

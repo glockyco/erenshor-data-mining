@@ -7,9 +7,19 @@ This module provides commands for managing MediaWiki content:
 """
 
 import typer
+from loguru import logger
+from rich.console import Console
+from rich.panel import Panel
 
+from erenshor.application.services.wiki_service import WikiService
+from erenshor.cli.context import CLIContext
 from erenshor.cli.preconditions import require_preconditions
 from erenshor.cli.preconditions.checks.database import database_exists, database_has_items, database_valid
+from erenshor.infrastructure.database.connection import DatabaseConnection
+from erenshor.infrastructure.database.repositories.characters import CharacterRepository
+from erenshor.infrastructure.database.repositories.items import ItemRepository
+from erenshor.infrastructure.database.repositories.spells import SpellRepository
+from erenshor.infrastructure.wiki.client import MediaWikiClient
 
 app = typer.Typer(
     name="wiki",
@@ -17,23 +27,45 @@ app = typer.Typer(
     no_args_is_help=True,
 )
 
+console = Console()
 
-@app.command()
-def fetch(
-    ctx: typer.Context,
-    force: bool = typer.Option(
-        False,
-        "--force",
-        help="Force re-fetch even if cached data exists",
-    ),
-) -> None:
-    """Fetch current wiki templates and pages.
 
-    Downloads current wiki page content and templates from
-    MediaWiki for comparison with database content. Cached
-    locally for offline comparison and conflict resolution.
+def _create_wiki_service(cli_ctx: CLIContext) -> WikiService:
+    """Create WikiService with dependencies.
+
+    Args:
+        cli_ctx: CLI context with config and variant info.
+
+    Returns:
+        Configured WikiService instance.
     """
-    typer.echo("Not yet implemented: wiki fetch")
+    # Get variant config
+    variant_config = cli_ctx.config.variants[cli_ctx.variant]
+
+    # Create database connection
+    db_path = variant_config.resolved_database(cli_ctx.repo_root)
+    db_connection = DatabaseConnection(db_path, read_only=True)
+
+    # Create repositories
+    item_repo = ItemRepository(db_connection)
+    character_repo = CharacterRepository(db_connection)
+    spell_repo = SpellRepository(db_connection)
+
+    # Create wiki client
+    wiki_config = cli_ctx.config.global_.mediawiki
+    wiki_client = MediaWikiClient(
+        api_url=wiki_config.api_url,
+        bot_username=wiki_config.bot_username,
+        bot_password=wiki_config.bot_password,
+    )
+
+    # Create and return service
+    return WikiService(
+        wiki_client=wiki_client,
+        item_repo=item_repo,
+        character_repo=character_repo,
+        spell_repo=spell_repo,
+    )
 
 
 @app.command()
@@ -44,32 +76,67 @@ def fetch(
 )
 def update(
     ctx: typer.Context,
+    entity_type: str = typer.Option(
+        "items",
+        "--entity-type",
+        "-t",
+        help="Entity type to update: items, characters, spells",
+    ),
+    limit: int | None = typer.Option(
+        None,
+        "--limit",
+        "-n",
+        help="Limit number of pages to update (for testing)",
+    ),
 ) -> None:
     """Update wiki pages with new data.
 
     Generates updated wiki pages from database content and
-    compares with current wiki state. Shows diffs and prepares
-    pages for pushing. Respects --dry-run flag.
+    updates the wiki. Preserves manually-edited fields and
+    removes legacy templates. Shows warnings for manual edits.
     """
-    typer.echo("Not yet implemented: wiki update")
+    cli_ctx: CLIContext = ctx.obj
 
+    console.print()
+    console.print(
+        Panel.fit(
+            f"[bold cyan]Updating {entity_type} wiki pages[/bold cyan]\n"
+            f"Variant: {cli_ctx.variant}\n"
+            f"Dry-run: {cli_ctx.dry_run}",
+            border_style="cyan",
+        )
+    )
+    console.print()
 
-@app.command()
-def push(
-    ctx: typer.Context,
-    force: bool = typer.Option(
-        False,
-        "--force",
-        help="Force push even if conflicts exist",
-    ),
-) -> None:
-    """Push changes to wiki.
+    try:
+        # Create service
+        service = _create_wiki_service(cli_ctx)
 
-    Uploads prepared wiki page changes to MediaWiki. Requires
-    MediaWiki credentials and edit permissions. Will abort if
-    conflicts exist unless --force is used.
-    """
-    typer.echo("Not yet implemented: wiki push")
+        # Update pages based on entity type
+        if entity_type == "items":
+            result = service.update_item_pages(dry_run=cli_ctx.dry_run, limit=limit)
+        elif entity_type == "characters":
+            result = service.update_character_pages(dry_run=cli_ctx.dry_run, limit=limit)
+        elif entity_type == "spells":
+            result = service.update_spell_pages(dry_run=cli_ctx.dry_run, limit=limit)
+        else:
+            console.print(f"[red]Error: Invalid entity type '{entity_type}'[/red]")
+            console.print("Valid types: items, characters, spells")
+            raise typer.Exit(1)
+
+        # Exit with error code if there were failures
+        if result.failed > 0:
+            logger.error(f"Update completed with {result.failed} failures")
+            raise typer.Exit(1)
+
+        # Exit with warning if there were warnings
+        if result.has_warnings():
+            logger.warning(f"Update completed with {len(result.warnings)} warnings")
+
+    except Exception as e:
+        console.print(f"[red]Error during wiki update: {e}[/red]")
+        logger.exception("Wiki update failed")
+        raise typer.Exit(1) from e
 
 
 @app.command()

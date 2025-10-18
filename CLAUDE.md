@@ -284,10 +284,9 @@ See `docs/GOOGLE_SHEETS_DEPLOYMENT.md` for complete guide.
 
 ## Configuration
 
-Configuration loads from multiple sources (in order):
-1. Environment variables (e.g., `ERENSHOR_UNITY_PATH`)
-2. `.erenshor/config.local.toml` (user overrides, NOT tracked)
-3. `config.toml` (project defaults, tracked)
+Two-layer configuration system (NO environment variables):
+1. `config.toml` (project defaults, tracked in git)
+2. `.erenshor/config.local.toml` (user overrides, NOT tracked in git)
 
 **Key config values**:
 ```toml

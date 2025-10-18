@@ -18,7 +18,7 @@ from erenshor.cli.context import CLIContext
 from .base import PreconditionCheck, PreconditionResult
 
 
-def require_preconditions(*checks: PreconditionCheck) -> Callable[[Callable], Callable]:
+def require_preconditions(*checks: PreconditionCheck) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """Decorator to enforce precondition checks on command functions.
 
     This decorator provides structural enforcement of preconditions:
@@ -64,7 +64,7 @@ def require_preconditions(*checks: PreconditionCheck) -> Callable[[Callable], Ca
             # Command logic here
     """
 
-    def decorator(func: Callable) -> Callable:
+    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             console = Console()

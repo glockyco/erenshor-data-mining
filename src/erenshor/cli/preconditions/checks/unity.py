@@ -5,6 +5,7 @@ and Unity installation.
 """
 
 from pathlib import Path
+from typing import Any
 
 from ..base import PreconditionResult
 
@@ -97,7 +98,11 @@ def editor_scripts_linked(context: dict[str, Any]) -> PreconditionResult:
             passed=False,
             check_name="editor_scripts_linked",
             message="Editor directory exists but is not a symlink",
-            detail=f"Expected symlink to: {source_editor_dir}\nFound regular directory: {editor_dir}\nManually remove and run 'erenshor symlink create'",
+            detail=(
+                f"Expected symlink to: {source_editor_dir}\n"
+                f"Found regular directory: {editor_dir}\n"
+                "Manually remove and run 'erenshor symlink create'"
+            ),
         )
 
     # Check if symlink points to correct location
@@ -149,7 +154,11 @@ def unity_version_matches(context: dict[str, Any]) -> PreconditionResult:
             passed=False,
             check_name="unity_version_matches",
             message="Unity not found at configured path",
-            detail=f"Missing: {unity_path}\nExpected version: {unity_config.version}\nConfigure correct path in config.toml",
+            detail=(
+                f"Missing: {unity_path}\n"
+                f"Expected version: {unity_config.version}\n"
+                "Configure correct path in config.toml"
+            ),
         )
 
     # Check if version is in the path (Unity Hub structure)
@@ -159,7 +168,10 @@ def unity_version_matches(context: dict[str, Any]) -> PreconditionResult:
             passed=False,
             check_name="unity_version_matches",
             message="Unity version mismatch",
-            detail=f"Expected version {expected_version} not found in path: {unity_path}\nGame requires exact Unity version {expected_version}",
+            detail=(
+                f"Expected version {expected_version} not found in path: {unity_path}\n"
+                f"Game requires exact Unity version {expected_version}"
+            ),
         )
 
     return PreconditionResult(

@@ -6,6 +6,7 @@ extraction operations.
 """
 
 from pathlib import Path
+from typing import Any
 
 from ..base import PreconditionResult
 
@@ -67,27 +68,41 @@ def game_files_exist(context: dict[str, Any]) -> PreconditionResult:
 def steam_credentials_exist(context: dict[str, Any]) -> PreconditionResult:
     """Check if Steam credentials are configured.
 
-    This is a basic check that looks for credential-related environment
-    variables. Actual validation happens during SteamCMD execution.
+    Checks if Steam credentials are present in the configuration system.
+    Credentials are loaded from config.toml (defaults) or .erenshor/config.local.toml
+    (user overrides). Store sensitive credentials in config.local.toml only.
 
     Args:
-        context: Check context (credentials checked via environment).
+        context: Check context containing 'config' key with loaded configuration.
 
     Returns:
         PreconditionResult indicating success or failure.
     """
-    import os
+    config = context.get("config")
+    if not config:
+        return PreconditionResult(
+            passed=False,
+            check_name="steam_credentials_exist",
+            message="Configuration not available",
+            detail="Config must be loaded before checking Steam credentials",
+        )
 
-    # Check for Steam credentials in environment
-    steam_user = os.environ.get("STEAM_USERNAME")
-    steam_pass = os.environ.get("STEAM_PASSWORD")
+    steam_config = config.global_.steam
+    steam_user = steam_config.username
+    steam_pass = steam_config.password
 
     if not steam_user:
         return PreconditionResult(
             passed=False,
             check_name="steam_credentials_exist",
             message="Steam credentials not configured",
-            detail="Missing STEAM_USERNAME environment variable\nSet credentials: export STEAM_USERNAME=your_username\nSteamCMD requires valid Steam account credentials",
+            detail=(
+                "Missing Steam username in configuration\n"
+                "Add to .erenshor/config.local.toml:\n"
+                "[global.steam]\n"
+                'username = "your_steam_username"\n'
+                "SteamCMD requires valid Steam account credentials"
+            ),
         )
 
     if not steam_pass:
@@ -95,7 +110,13 @@ def steam_credentials_exist(context: dict[str, Any]) -> PreconditionResult:
             passed=False,
             check_name="steam_credentials_exist",
             message="Steam credentials incomplete",
-            detail="Missing STEAM_PASSWORD environment variable\nSet credentials: export STEAM_PASSWORD=your_password\nSteamCMD requires both username and password",
+            detail=(
+                "Missing Steam password in configuration\n"
+                "Add to .erenshor/config.local.toml:\n"
+                "[global.steam]\n"
+                'password = "your_steam_password"\n'
+                "SteamCMD requires both username and password"
+            ),
         )
 
     # Don't expose actual credentials in output
