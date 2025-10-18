@@ -7,6 +7,7 @@ before running commands that depend on it.
 
 import sqlite3
 from pathlib import Path
+from typing import Any
 
 from ..base import PreconditionResult
 

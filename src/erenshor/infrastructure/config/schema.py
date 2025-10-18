@@ -61,12 +61,17 @@ class SteamConfig(BaseModel):
     """Steam and SteamCMD configuration.
 
     SteamCMD is used to download game files from Steam. Credentials
-    are loaded from environment variables or local config for security.
+    are loaded from config.toml or .erenshor/config.local.toml.
+    Store sensitive credentials in config.local.toml only (gitignored).
     """
 
     username: str = Field(
         default="",
-        description="Steam username (set via ERENSHOR_STEAM_USERNAME or config.local.toml)",
+        description="Steam username (set in .erenshor/config.local.toml)",
+    )
+    password: str = Field(
+        default="",
+        description="Steam password (set in .erenshor/config.local.toml)",
     )
     platform: Literal["windows", "macos", "linux"] = Field(
         default="windows",
@@ -170,7 +175,8 @@ class MediaWikiConfig(BaseModel):
     """MediaWiki API configuration for wiki synchronization.
 
     Supports fetching wiki templates and uploading generated pages.
-    Bot credentials are loaded from environment variables for security.
+    Bot credentials are loaded from config.toml or .erenshor/config.local.toml.
+    Store sensitive credentials in config.local.toml only (gitignored).
     """
 
     api_url: str = Field(
@@ -211,11 +217,11 @@ class MediaWikiConfig(BaseModel):
     )
     bot_username: str = Field(
         default="",
-        description="MediaWiki bot username from Special:BotPasswords (set via env or config.local.toml)",
+        description="MediaWiki bot username from Special:BotPasswords (set in .erenshor/config.local.toml)",
     )
     bot_password: str = Field(
         default="",
-        description="MediaWiki bot password from Special:BotPasswords (set via env or config.local.toml)",
+        description="MediaWiki bot password from Special:BotPasswords (set in .erenshor/config.local.toml)",
     )
 
 
@@ -513,10 +519,11 @@ class Config(BaseModel):
     for the pipeline. It supports multiple game variants with variant-specific
     overrides while sharing global settings.
 
-    Configuration loading priority:
-    1. Environment variables (ERENSHOR_* prefix)
-    2. config.local.toml (gitignored, for local overrides)
-    3. config.toml (project defaults)
+    Two-layer configuration system:
+    1. config.toml (project defaults, tracked in git)
+    2. .erenshor/config.local.toml (user overrides, gitignored)
+
+    NO environment variables are used. All configuration comes from TOML files.
     """
 
     version: str = Field(
