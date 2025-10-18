@@ -11,6 +11,11 @@ from erenshor.application.services.backup_service import (
     BackupStats,
     BackupValidationError,
 )
+from erenshor.application.services.wiki_service import (
+    UpdateResult,
+    WikiService,
+    WikiServiceError,
+)
 
 __all__ = [
     "BackupError",
@@ -18,4 +23,7 @@ __all__ = [
     "BackupService",
     "BackupStats",
     "BackupValidationError",
+    "UpdateResult",
+    "WikiService",
+    "WikiServiceError",
 ]
