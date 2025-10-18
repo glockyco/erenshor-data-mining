@@ -158,7 +158,7 @@ class TestAssetRipperServerManagement:
         assetripper = AssetRipper(executable_path=executable)
         assetripper._server_pid = 12345
 
-        assetripper.start_server()
+        assetripper.start_server(log_dir=tmp_path)
 
         # Should not spawn new process
         mock_popen.assert_not_called()
@@ -230,7 +230,7 @@ class TestAssetRipperExtraction:
         assetripper = AssetRipper(executable_path=executable)
 
         with pytest.raises(AssetRipperNotFoundError) as exc_info:
-            assetripper.extract(source_dir=source_dir, target_dir=target_dir)
+            assetripper.extract(source_dir=source_dir, target_dir=target_dir, log_dir=tmp_path)
 
         assert "does not exist" in str(exc_info.value).lower()
 
@@ -263,7 +263,7 @@ class TestAssetRipperExtraction:
         assetripper = AssetRipper(executable_path=executable, port=8080)
 
         with pytest.raises(AssetRipperExportError) as exc_info:
-            assetripper.extract(source_dir=source_dir, target_dir=target_dir)
+            assetripper.extract(source_dir=source_dir, target_dir=target_dir, log_dir=tmp_path)
 
         assert "does not exist" in str(exc_info.value).lower()
 
@@ -316,7 +316,7 @@ class TestAssetRipperExtraction:
             patch.object(Path, "read_text", return_value=log_content),
             pytest.raises(AssetRipperExportError) as exc_info,
         ):
-            assetripper.extract(source_dir=source_dir, target_dir=target_dir)
+            assetripper.extract(source_dir=source_dir, target_dir=target_dir, log_dir=tmp_path)
 
         assert "timed out" in str(exc_info.value).lower()
 

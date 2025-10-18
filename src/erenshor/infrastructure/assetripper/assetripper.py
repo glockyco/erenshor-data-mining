@@ -162,14 +162,15 @@ class AssetRipper:
         except (subprocess.TimeoutExpired, FileNotFoundError):
             return False
 
-    def start_server(self, log_dir: Path | None = None) -> None:
+    def start_server(self, log_dir: Path) -> None:
         """Start AssetRipper web API server.
 
         Args:
-            log_dir: Directory for log files (default: current directory).
+            log_dir: Directory for log files (required).
 
         Raises:
             AssetRipperServerError: If server fails to start.
+            ValueError: If log_dir is not provided.
         """
         if self._server_pid is not None:
             logger.debug(f"Server already running (PID: {self._server_pid})")
@@ -177,12 +178,9 @@ class AssetRipper:
 
         logger.info(f"Starting AssetRipper server on port {self.port}...")
 
-        # Create log file
-        if log_dir:
-            log_dir.mkdir(parents=True, exist_ok=True)
-            self._log_file = log_dir / f"assetripper_{int(time.time())}.log"
-        else:
-            self._log_file = Path(f"assetripper_{int(time.time())}.log")
+        # Create log directory and file
+        log_dir.mkdir(parents=True, exist_ok=True)
+        self._log_file = log_dir / f"assetripper_{int(time.time())}.log"
 
         # Start server in background
         try:
@@ -406,7 +404,7 @@ class AssetRipper:
         self,
         source_dir: Path,
         target_dir: Path,
-        log_dir: Path | None = None,
+        log_dir: Path,
     ) -> None:
         """Extract game assets to Unity project.
 
@@ -416,18 +414,20 @@ class AssetRipper:
         Args:
             source_dir: Directory containing game data files (e.g., Erenshor_Data).
             target_dir: Target directory for Unity project (will be created if needed).
-            log_dir: Directory for AssetRipper logs (optional).
+            log_dir: Directory for AssetRipper logs (required).
 
         Raises:
             AssetRipperNotFoundError: If source directory doesn't exist.
             AssetRipperServerError: If server fails to start.
             AssetRipperExportError: If extraction fails or times out.
+            ValueError: If log_dir is not provided.
 
         Example:
             >>> assetripper = AssetRipper()
             >>> assetripper.extract(
             ...     source_dir=Path("variants/main/game/Erenshor_Data"),
-            ...     target_dir=Path("variants/main/unity")
+            ...     target_dir=Path("variants/main/unity"),
+            ...     log_dir=Path("variants/main/logs")
             ... )
         """
         logger.info("Starting asset extraction...")
