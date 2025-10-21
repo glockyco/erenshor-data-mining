@@ -43,7 +43,6 @@ def main(
         "--variant",
         "-V",
         help="Game variant to operate on (main, playtest, demo)",
-        envvar="ERENSHOR_VARIANT",
     ),
     dry_run: bool = typer.Option(
         False,
