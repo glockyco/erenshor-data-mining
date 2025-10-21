@@ -51,7 +51,10 @@ def initialize_registry(db_path: Path) -> None:
 
     # Create engine and tables
     engine = create_engine(f"sqlite:///{db_path}")
-    SQLModel.metadata.create_all(engine)
+    try:
+        SQLModel.metadata.create_all(engine)
+    finally:
+        engine.dispose()
 
     logger.info(f"Registry database initialized successfully at {db_path}")
 
