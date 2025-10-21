@@ -122,7 +122,7 @@ def register_entity(
         session.refresh(existing)
 
         logger.debug(
-            f"Updated entity: {entity_type.value}:{resource_name} " f"(id={existing.id}, display_name={display_name!r})"
+            f"Updated entity: {entity_type.value}:{resource_name} (id={existing.id}, display_name={display_name!r})"
         )
 
         return existing
@@ -143,8 +143,7 @@ def register_entity(
     session.refresh(entity)
 
     logger.info(
-        f"Registered new entity: {entity_type.value}:{resource_name} "
-        f"(id={entity.id}, display_name={display_name!r})"
+        f"Registered new entity: {entity_type.value}:{resource_name} (id={entity.id}, display_name={display_name!r})"
     )
 
     return entity
@@ -292,7 +291,7 @@ def find_conflicts(session: Session) -> list[tuple[str, list[EntityRecord]]]:
     for (entity_type, display_name), entities in groups.items():
         if len(entities) > 1:
             conflicts.append((display_name, entities))
-            logger.debug(f"Found conflict: {display_name} ({entity_type.value}) " f"has {len(entities)} entities")
+            logger.debug(f"Found conflict: {display_name} ({entity_type.value}) has {len(entities)} entities")
 
     logger.info(f"Found {len(conflicts)} name conflicts")
     return conflicts
@@ -337,7 +336,7 @@ def create_conflict_record(
     session.commit()
     session.refresh(conflict)
 
-    logger.info(f"Created conflict record: id={conflict.id}, " f"type={conflict_type}, entity_ids={entity_ids}")
+    logger.info(f"Created conflict record: id={conflict.id}, type={conflict_type}, entity_ids={entity_ids}")
 
     return conflict
 
@@ -381,7 +380,7 @@ def resolve_conflict(
     entity_ids = json.loads(conflict.entity_ids)
     if chosen_entity_id not in entity_ids:
         raise ValueError(
-            f"Entity {chosen_entity_id} is not part of conflict {conflict_id}. " f"Valid entity IDs: {entity_ids}"
+            f"Entity {chosen_entity_id} is not part of conflict {conflict_id}. Valid entity IDs: {entity_ids}"
         )
 
     # Update conflict record
@@ -393,7 +392,7 @@ def resolve_conflict(
     session.add(conflict)
     session.commit()
 
-    logger.info(f"Resolved conflict: id={conflict_id}, " f"chosen_entity={chosen_entity_id}, notes={notes!r}")
+    logger.info(f"Resolved conflict: id={conflict_id}, chosen_entity={chosen_entity_id}, notes={notes!r}")
 
 
 def migrate_from_mapping_json(session: Session, mapping_path: Path) -> int:

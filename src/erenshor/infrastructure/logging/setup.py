@@ -83,9 +83,7 @@ def setup_logging(config: Config, variant: str | None = None) -> None:
         log_level = "WARNING"
 
     # Console handler: Colorized, simple format
-    console_format = (
-        "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | " "<level>{level:<8}</level> | " "<level>{message}</level>"
-    )
+    console_format = "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level:<8}</level> | <level>{message}</level>"
 
     logger.add(
         sys.stderr,
@@ -126,7 +124,7 @@ def setup_logging(config: Config, variant: str | None = None) -> None:
         ) from e
 
     # File handler: Detailed format with rotation/compression
-    file_format = "{time:YYYY-MM-DD HH:mm:ss} | " "{level:<8} | " "{name}:{function}:{line} - {message}"
+    file_format = "{time:YYYY-MM-DD HH:mm:ss} | {level:<8} | {name}:{function}:{line} - {message}"
 
     try:
         logger.add(
@@ -148,4 +146,4 @@ def setup_logging(config: Config, variant: str | None = None) -> None:
         ) from e
 
     # Log successful setup
-    logger.info(f"Logging configured: level={log_level}, " f"variant={variant or 'global'}, " f"log_dir={log_dir}")
+    logger.info(f"Logging configured: level={log_level}, variant={variant or 'global'}, log_dir={log_dir}")

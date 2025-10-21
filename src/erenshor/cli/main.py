@@ -325,8 +325,7 @@ def doctor(  # noqa: PLR0915 (too many statements)
             all_checks_passed = False
     else:
         console.print(
-            f"  [yellow]\u26a0[/yellow] Variant logs directory not found "
-            f"(will be created when needed): {variant_logs}"
+            f"  [yellow]\u26a0[/yellow] Variant logs directory not found (will be created when needed): {variant_logs}"
         )
 
     console.print()
@@ -384,7 +383,7 @@ def doctor(  # noqa: PLR0915 (too many statements)
     if all_checks_passed:
         console.print(
             Panel(
-                "[bold green]All critical checks passed![/bold green]\n" "Your system is ready to run the pipeline.",
+                "[bold green]All critical checks passed![/bold green]\nYour system is ready to run the pipeline.",
                 border_style="green",
             )
         )
@@ -392,7 +391,7 @@ def doctor(  # noqa: PLR0915 (too many statements)
     else:
         console.print(
             Panel(
-                "[bold red]Some checks failed![/bold red]\n" "Please fix the issues above before running the pipeline.",
+                "[bold red]Some checks failed![/bold red]\nPlease fix the issues above before running the pipeline.",
                 border_style="red",
             )
         )
