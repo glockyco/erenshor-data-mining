@@ -51,13 +51,13 @@ class CategoryGenerator:
 
     # Mapping from ItemKind to primary category name
     ITEM_KIND_TO_CATEGORY: ClassVar[dict[ItemKind, str]] = {
-        "weapon": "Weapons",
-        "armor": "Armor",
-        "aura": "Auras",
-        "ability_book": "Ability Books",
-        "consumable": "Consumables",
-        "mold": "Molds",
-        "general": "Items",
+        ItemKind.WEAPON: "Weapons",
+        ItemKind.ARMOR: "Armor",
+        ItemKind.AURA: "Auras",
+        ItemKind.ABILITY_BOOK: "Ability Books",
+        ItemKind.CONSUMABLE: "Consumables",
+        ItemKind.MOLD: "Molds",
+        ItemKind.GENERAL: "Items",
     }
 
     def generate_item_categories(self, item: Item) -> list[str]:

@@ -14,20 +14,25 @@ Classification rules are explicit and minimal:
 - General: fallback for all other items
 """
 
-from typing import Literal
+from enum import StrEnum
 
 __all__ = ["ItemKind", "classify_item_kind"]
 
 
-ItemKind = Literal[
-    "weapon",
-    "armor",
-    "aura",
-    "ability_book",
-    "consumable",
-    "mold",
-    "general",
-]
+class ItemKind(StrEnum):
+    """Item kind enumeration.
+
+    Uses StrEnum so members are actual strings, providing both
+    enum safety and string compatibility.
+    """
+
+    WEAPON = "weapon"
+    ARMOR = "armor"
+    AURA = "aura"
+    ABILITY_BOOK = "ability_book"
+    CONSUMABLE = "consumable"
+    MOLD = "mold"
+    GENERAL = "general"
 
 
 def classify_item_kind(  # noqa: PLR0911
@@ -70,7 +75,7 @@ def classify_item_kind(  # noqa: PLR0911
         ...     click_effect=None,
         ...     disposable=None,
         ... )
-        'weapon'
+        ItemKind.WEAPON
 
         >>> classify_item_kind(
         ...     required_slot="General",
@@ -80,7 +85,7 @@ def classify_item_kind(  # noqa: PLR0911
         ...     click_effect=None,
         ...     disposable=None,
         ... )
-        'mold'
+        ItemKind.MOLD
 
         >>> classify_item_kind(
         ...     required_slot="General",
@@ -90,34 +95,34 @@ def classify_item_kind(  # noqa: PLR0911
         ...     click_effect="HealSpell",
         ...     disposable=True,
         ... )
-        'consumable'
+        ItemKind.CONSUMABLE
     """
     slot = (required_slot or "").strip()
     slot_low = slot.lower()
 
     # 1. Auras take precedence (special equipment slot)
     if slot_low == "aura":
-        return "aura"
+        return ItemKind.AURA
 
     # 2. Ability books (teach spells or skills)
     if (teach_spell and teach_spell.strip()) or (teach_skill and teach_skill.strip()):
-        return "ability_book"
+        return ItemKind.ABILITY_BOOK
 
     # 3. Molds (crafting templates)
     if (template_flag or 0) == 1:
-        return "mold"
+        return ItemKind.MOLD
 
     # 4. Consumables (clickable, disposable general items)
     if slot_low == "general" and (click_effect and click_effect.strip()) and bool(disposable):
-        return "consumable"
+        return ItemKind.CONSUMABLE
 
     # 5. Weapons (primary/secondary slots)
     if slot in {"Primary", "PrimaryOrSecondary", "Secondary"}:
-        return "weapon"
+        return ItemKind.WEAPON
 
     # 6. Armor (equippable, not general/aura/weapon)
     if slot and slot_low not in {"general", "aura"}:
-        return "armor"
+        return ItemKind.ARMOR
 
     # 7. General (fallback)
-    return "general"
+    return ItemKind.GENERAL

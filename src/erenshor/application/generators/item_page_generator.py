@@ -58,11 +58,11 @@ class ItemPageGenerator(PageGeneratorBase):
         kind = self._classify(item)
 
         # Generate appropriate templates based on kind
-        if kind == "weapon":
+        if kind == ItemKind.WEAPON:
             template_wikitext = self._generate_weapon_page(item, page_title)
-        elif kind == "armor":
+        elif kind == ItemKind.ARMOR:
             template_wikitext = self._generate_armor_page(item, page_title)
-        elif kind in ("charm", "aura", "ability_book", "consumable", "mold", "general"):
+        elif kind in (ItemKind.AURA, ItemKind.ABILITY_BOOK, ItemKind.CONSUMABLE, ItemKind.MOLD, ItemKind.GENERAL):
             # All non-weapon/armor items use general template for now
             template_wikitext = self._generate_general_item_page(item, page_title)
         else:
