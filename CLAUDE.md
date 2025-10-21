@@ -348,7 +348,8 @@ spreadsheet_id = "1eOYfjaudAhvE6HGBtWyRGgQDsmWDLENaoEwRvgBO_0E"
 
 ## Testing
 
-### Python Tests
+### Local Testing
+
 ```bash
 # Run all tests
 uv run pytest
@@ -362,6 +363,37 @@ uv run pytest -m integration
 # Watch mode (run on file changes)
 uv run pytest-watch
 ```
+
+### Continuous Integration
+
+The project uses GitHub Actions for automated testing on every push and pull request:
+
+- **Linting**: Ruff checks code style and formatting
+- **Type Checking**: MyPy validates type hints
+- **Security**: Gitleaks scans for secrets
+- **Testing**: Full pytest suite with coverage reporting
+
+CI runs on all pushes to main and all pull requests. View results at:
+https://github.com/glockyco/erenshor-wiki/actions
+
+### Pre-commit Hooks
+
+Pre-commit hooks run fast local checks only (no tests):
+
+```bash
+# Install hooks
+uv run pre-commit install
+
+# Run manually
+uv run pre-commit run --all-files
+```
+
+Hooks include:
+- Ruff linting and formatting
+- MyPy type checking
+- Gitleaks secret scanning
+
+Tests are NOT run in pre-commit (too slow). They run in CI instead.
 
 ### Bash Integration Tests
 ```bash

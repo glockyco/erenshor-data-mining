@@ -4,7 +4,8 @@
 
 [![Python](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
 [![Unity](https://img.shields.io/badge/unity-2021.3.45f2-black.svg)](https://unity.com/)
-[![Tests](https://img.shields.io/badge/tests-265+%20passing-brightgreen.svg)]()
+[![CI](https://github.com/glockyco/erenshor-wiki/actions/workflows/ci.yml/badge.svg)](https://github.com/glockyco/erenshor-wiki/actions/workflows/ci.yml)
+[![Tests](https://img.shields.io/badge/tests-735+%20passing-brightgreen.svg)]()
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ---
@@ -716,7 +717,7 @@ uv run pytest
 ### Running Tests
 
 ```bash
-# Run all tests
+# Run all tests locally
 uv run pytest
 
 # Run with coverage report
@@ -735,6 +736,8 @@ uv run pytest tests/test_wiki_generator.py
 uv run pytest tests/test_wiki_generator.py::test_item_generation
 ```
 
+**Note**: Tests are NOT run in pre-commit hooks (too slow). Pre-commit only runs fast linting and type checking. Full test suite runs automatically in CI on every push and PR.
+
 ### Code Quality
 
 ```bash
@@ -747,9 +750,20 @@ uv run ruff check src/ tests/
 # Type checking (mypy)
 uv run mypy src/
 
-# Run all pre-commit hooks
+# Run all pre-commit hooks (fast checks only, no tests)
 uv run pre-commit run --all-files
 ```
+
+### Continuous Integration
+
+GitHub Actions automatically runs on every push and pull request:
+
+- **Linting**: Ruff code style and formatting checks
+- **Type Checking**: MyPy static type validation
+- **Security**: Gitleaks secret scanning
+- **Testing**: Full pytest suite (735+ tests) with coverage reporting
+
+View CI results: [GitHub Actions](https://github.com/glockyco/erenshor-wiki/actions)
 
 ### Adding New Content Types
 
