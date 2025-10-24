@@ -313,6 +313,25 @@ class UnityBatchMode:
                 f"Failed to execute Unity method.\n" f"Check log file: {log_file}\n" f"Error: {error_details}"
             )
 
+        # Check for licensing errors (before generic runtime errors)
+        if self._has_licensing_error(log_content):
+            logger.error("Unity licensing error detected")
+            raise UnityRuntimeError(
+                "Unity licensing validation failed.\n"
+                "\n"
+                "This typically happens when Unity's license needs to be refreshed.\n"
+                "\n"
+                "Solution:\n"
+                "  • Start Unity Hub (this refreshes the license automatically)\n"
+                "  • Then retry the export command\n"
+                "\n"
+                "If that doesn't work, check Unity Hub > Preferences > Licenses\n"
+                "\n"
+                f"Log file: {log_file}\n"
+                "\n"
+                "Note: Unity Personal (free) requires periodic license validation."
+            )
+
         # Check for runtime errors (exceptions, EXPORT_ERROR markers)
         if self._has_runtime_error(log_content):
             error_details = self._extract_runtime_errors(log_content)
@@ -360,6 +379,24 @@ class UnityBatchMode:
             "Could not execute the method",
         ]
         return any(marker in log_content for marker in execution_markers)
+
+    def _has_licensing_error(self, log_content: str) -> bool:
+        """Check if log contains Unity licensing errors.
+
+        Args:
+            log_content: Unity log file content.
+
+        Returns:
+            True if licensing errors detected, False otherwise.
+        """
+        licensing_markers = [
+            "[Licensing::Client] Error:",
+            "[Licensing::Module] Error:",
+            "No ULF license found",
+            "Access token is unavailable",
+            "LicensingClient has failed validation",
+        ]
+        return any(marker in log_content for marker in licensing_markers)
 
     def _has_runtime_error(self, log_content: str) -> bool:
         """Check if log contains runtime errors.
