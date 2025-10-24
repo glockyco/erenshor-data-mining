@@ -118,11 +118,20 @@ def full(
 @require_preconditions(steam_credentials_exist)
 def download(
     ctx: typer.Context,
+    validate: bool = typer.Option(
+        False,
+        "--validate",
+        help="Verify file integrity and redownload corrupted files (slower)",
+    ),
 ) -> None:
     """Download or update game files from Steam via SteamCMD.
 
     Downloads the Erenshor game files for the selected variant using SteamCMD.
     Automatically detects and downloads updates if a newer build is available.
+
+    Use --validate only if you suspect file corruption or extraction issues.
+    Validation checks all files against Steam's checksums and redownloads any
+    that don't match. This is slower but ensures complete file integrity.
 
     Requires valid Steam credentials and game ownership.
     """
@@ -162,11 +171,16 @@ def download(
 
         # Download/update game files
         # SteamCMD automatically detects if an update is needed
-        logger.info(f"Downloading/updating game files for variant '{cli_ctx.variant}'...")
+        if validate:
+            logger.info(f"Downloading/updating game files for variant '{cli_ctx.variant}' with validation...")
+            console.print("[yellow]Validation enabled: verifying file integrity (this may take longer)[/yellow]")
+        else:
+            logger.info(f"Downloading/updating game files for variant '{cli_ctx.variant}'...")
+
         steamcmd.download(
             app_id=variant_config.app_id,
             install_dir=game_files_dir,
-            validate=False,  # Incremental updates only
+            validate=validate,
             password=steam_config.password or None,
         )
 
