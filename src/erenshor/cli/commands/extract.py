@@ -224,8 +224,8 @@ def rip(
             log_dir=logs_dir,
         )
 
-        # Create Editor scripts symlink
-        editor_target = unity_project_dir / "Assets" / "Editor"
+        # Create Editor scripts symlink (AssetRipper exports to ExportedProject subdirectory)
+        editor_target = unity_project_dir / "ExportedProject" / "Assets" / "Editor"
         editor_source = variant_config.resolved_editor_scripts(cli_ctx.repo_root)
         logger.info(f"Creating Editor scripts symlink: {editor_target} -> {editor_source}")
         editor_target.symlink_to(editor_source)
@@ -290,9 +290,9 @@ def export(
 
         log_file = logs_dir / f"export_{int(time.time())}.log"
 
-        # Export data
+        # Export data (AssetRipper exports to ExportedProject subdirectory)
         unity.execute_method(
-            project_path=unity_project_dir,
+            project_path=unity_project_dir / "ExportedProject",
             class_name="ExportBatch",
             method_name="Run",
             log_file=log_file,

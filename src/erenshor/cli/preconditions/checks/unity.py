@@ -39,24 +39,25 @@ def unity_project_exists(context: dict[str, Any]) -> PreconditionResult:
             detail=f"Expected directory: {unity_dir}",
         )
 
-    # Check for Assets directory (required for Unity project)
-    assets_dir = unity_dir / "Assets"
+    # Check for Assets directory (AssetRipper exports to ExportedProject subdirectory)
+    exported_project = unity_dir / "ExportedProject"
+    assets_dir = exported_project / "Assets"
     if not assets_dir.exists():
         return PreconditionResult(
             passed=False,
             check_name="unity_project_exists",
             message="Invalid Unity project: no Assets directory",
-            detail=f"Missing Assets directory in: {unity_dir}\nProject may be corrupted",
+            detail=f"Missing Assets directory in: {exported_project}\nProject may be corrupted",
         )
 
     # Check for ProjectSettings (another indicator of Unity project)
-    project_settings = unity_dir / "ProjectSettings"
+    project_settings = exported_project / "ProjectSettings"
     if not project_settings.exists():
         return PreconditionResult(
             passed=False,
             check_name="unity_project_exists",
             message="Invalid Unity project: no ProjectSettings",
-            detail=f"Missing ProjectSettings directory in: {unity_dir}\nProject may be incomplete",
+            detail=f"Missing ProjectSettings directory in: {exported_project}\nProject may be incomplete",
         )
 
     return PreconditionResult(
@@ -70,7 +71,7 @@ def editor_scripts_linked(context: dict[str, Any]) -> PreconditionResult:
     """Check if Editor scripts are properly symlinked.
 
     The Editor scripts must be symlinked from src/Assets/Editor
-    to the Unity project's Assets/Editor directory.
+    to the Unity project's ExportedProject/Assets/Editor directory.
 
     Args:
         context: Check context containing 'unity_project' and 'repo_root' keys.
@@ -81,7 +82,7 @@ def editor_scripts_linked(context: dict[str, Any]) -> PreconditionResult:
     unity_dir = Path(context["unity_project"])
     repo_root = Path(context["repo_root"])
 
-    editor_dir = unity_dir / "Assets" / "Editor"
+    editor_dir = unity_dir / "ExportedProject" / "Assets" / "Editor"
     source_editor_dir = repo_root / "src" / "Assets" / "Editor"
 
     if not editor_dir.exists():
