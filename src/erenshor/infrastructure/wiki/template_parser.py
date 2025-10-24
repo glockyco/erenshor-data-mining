@@ -410,8 +410,19 @@ class TemplateParser:
 
         Returns:
             String representation suitable for wiki templates.
+
+        Note:
+            None values are converted to empty strings. In MediaWiki templates,
+            there is a difference between a missing parameter and an explicitly
+            empty parameter (|param=), but this method treats None as explicitly
+            empty. This is intentional for template generation where we want to
+            explicitly set parameters to empty values.
         """
         if value is None:
+            # MediaWiki treats missing params and empty params differently.
+            # Converting None to empty string means the parameter will be
+            # explicitly set to empty (|param=) rather than omitted entirely.
+            logger.debug("Converting None to empty string - parameter will be explicitly empty")
             return ""
         if isinstance(value, bool):
             return "yes" if value else "no"
