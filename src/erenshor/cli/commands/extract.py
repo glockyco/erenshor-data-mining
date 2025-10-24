@@ -81,7 +81,7 @@ def full(
         # Step 1: Download
         if not skip_download:
             console.print("[bold]Step 1/3: Downloading game files from Steam[/bold]")
-            download(ctx, force=False)
+            download(ctx)
         else:
             console.print("[yellow]Skipping download step[/yellow]")
             console.print()
@@ -118,24 +118,20 @@ def full(
 @require_preconditions(steam_credentials_exist)
 def download(
     ctx: typer.Context,
-    force: bool = typer.Option(
-        False,
-        "--force",
-        help="Force re-download even if files exist",
-    ),
 ) -> None:
-    """Download game files from Steam via SteamCMD.
+    """Download or update game files from Steam via SteamCMD.
 
-    Downloads the Erenshor game files for the selected variant
-    using SteamCMD. Requires valid Steam credentials and game
-    ownership.
+    Downloads the Erenshor game files for the selected variant using SteamCMD.
+    Automatically detects and downloads updates if a newer build is available.
+
+    Requires valid Steam credentials and game ownership.
     """
     cli_ctx: CLIContext = ctx.obj
 
     console.print()
     console.print(
         Panel.fit(
-            f"[bold cyan]Downloading game files from Steam[/bold cyan]\n"
+            f"[bold cyan]Downloading/updating game files from Steam[/bold cyan]\n"
             f"Variant: {cli_ctx.variant}\n"
             f"Dry-run: {cli_ctx.dry_run}",
             border_style="cyan",
@@ -157,29 +153,24 @@ def download(
             platform=steam_config.platform,
         )
 
-        # Check if game is already installed
-        if not force and steamcmd.is_game_installed(game_files_dir):
-            console.print("[yellow]Game files already exist. Use --force to re-download.[/yellow]")
-            console.print()
-            return
-
         if cli_ctx.dry_run:
-            console.print("[yellow]Dry-run mode: Would download game files[/yellow]")
+            console.print("[yellow]Dry-run mode: Would download/update game files[/yellow]")
             console.print(f"App ID: {variant_config.app_id}")
             console.print(f"Install directory: {game_files_dir}")
             console.print()
             return
 
-        # Download game files
-        logger.info(f"Downloading game files for variant '{cli_ctx.variant}'...")
+        # Download/update game files
+        # SteamCMD automatically detects if an update is needed
+        logger.info(f"Downloading/updating game files for variant '{cli_ctx.variant}'...")
         steamcmd.download(
             app_id=variant_config.app_id,
             install_dir=game_files_dir,
-            validate=force,  # Validate all files if force=True
+            validate=False,  # Incremental updates only
             password=steam_config.password or None,
         )
 
-        console.print("[green]Game files downloaded successfully![/green]")
+        console.print("[green]Game files up to date![/green]")
         console.print(f"Location: {game_files_dir}")
         console.print()
 
