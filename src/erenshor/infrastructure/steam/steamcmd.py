@@ -206,14 +206,8 @@ class SteamCMD:
 
         # Log command (mask password if present)
         if password:
-            safe_cmd = cmd.copy()
-            # Find password position (after +login username)
-            try:
-                login_idx = safe_cmd.index("+login")
-                if login_idx + 2 < len(safe_cmd):
-                    safe_cmd[login_idx + 2] = "***"
-            except ValueError:
-                pass
+            # Create safe command with password masked
+            safe_cmd = [arg if arg != password else "***" for arg in cmd]
             logger.debug(f"Executing SteamCMD: {' '.join(safe_cmd)}")
         else:
             logger.debug(f"Executing SteamCMD: {' '.join(cmd)}")
