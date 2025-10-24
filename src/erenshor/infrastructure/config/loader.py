@@ -4,7 +4,7 @@ This module implements configuration loading from TOML files with a two-layer
 override system:
 
 1. Base layer: config.toml (required, project defaults)
-2. Override layer: config.local.toml (optional, user-specific overrides)
+2. Override layer: .erenshor/config.local.toml (optional, user-specific overrides)
 
 The loader performs deep merging of configurations, where local values override
 base values at any nesting level. Validation is performed using Pydantic models
@@ -127,7 +127,7 @@ def load_config() -> Config:
 
     Loads configuration using a two-layer system:
     1. config.toml (required): Project defaults from repository
-    2. config.local.toml (optional): User-specific overrides
+    2. .erenshor/config.local.toml (optional): User-specific overrides
 
     The loader performs deep merging where local values override base values
     at any nesting level. The merged configuration is validated against the
@@ -159,7 +159,7 @@ def load_config() -> Config:
 
     # Define config file paths
     base_config_path = repo_root / "config.toml"
-    local_config_path = repo_root / "config.local.toml"
+    local_config_path = repo_root / ".erenshor" / "config.local.toml"
 
     # Load base configuration (required)
     if not base_config_path.exists():
