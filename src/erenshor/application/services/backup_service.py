@@ -4,8 +4,13 @@ This module provides automated backup functionality that creates uncompressed
 backups of game data organized by Steam build ID. Backups are designed for
 easy diffing and change tracking across game versions.
 
+PURPOSE: Backups are for cross-version analysis, NOT for restoration:
+- Compare data between game versions with SQL queries
+- Diff C# scripts to detect mechanic changes
+- Track game evolution over time
+
 Features:
-- Per-build ID backups (not timestamp-based)
+- Per-build ID backups (Steam build ID or timestamp fallback)
 - Uncompressed format for easy diffing
 - Atomic operations (temp dir + rename)
 - Automatic overwrite of same build
@@ -13,7 +18,7 @@ Features:
 - Metadata tracking
 
 The service is integrated with the export command to automatically create
-backups after successful database exports.
+backups after successful database exports. Backups are kept indefinitely.
 """
 
 import json

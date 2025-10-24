@@ -8,13 +8,15 @@ This module provides commands for managing the data extraction pipeline:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from pathlib import Path
+from typing import TYPE_CHECKING, Any
 
 import typer
 from loguru import logger
 from rich.console import Console
 from rich.panel import Panel
 
+from erenshor.application.services.backup_service import BackupService
 from erenshor.cli.preconditions import require_preconditions
 from erenshor.cli.preconditions.checks.steam import game_files_exist, steam_credentials_exist
 from erenshor.cli.preconditions.checks.unity import editor_scripts_linked, unity_project_exists, unity_version_matches
@@ -349,7 +351,71 @@ def export(
         console.print(f"Log file: {log_file}")
         console.print()
 
+        # Create backup for cross-version analysis
+        # (SQL queries, C# diffs, change detection)
+        _create_backup_after_export(cli_ctx, variant_config, database_path)
+
     except Exception as e:
         console.print(f"[red]Error during export: {e}[/red]")
         logger.exception("Unity export failed")
         raise typer.Exit(1) from e
+
+
+def _create_backup_after_export(cli_ctx: CLIContext, variant_config: Any, database_path: Path) -> None:
+    """Create backup after successful Unity export.
+
+    Attempts to get Steam build ID from manifest. If not available, falls back
+    to timestamp-based ID. Backups are for cross-version analysis (SQL queries,
+    C# diffs, change detection), not for restoration.
+
+    Args:
+        cli_ctx: CLI context with config and variant info.
+        variant_config: Variant-specific configuration.
+        database_path: Path to exported database.
+    """
+    from datetime import datetime
+
+    console.print("[bold]Creating backup...[/bold]")
+
+    try:
+        # Get build ID from Steam manifest
+        game_files_dir = variant_config.resolved_game_files(cli_ctx.repo_root)
+        steam_config = cli_ctx.config.global_.steam
+        steamcmd = SteamCMD(
+            username=steam_config.username,
+            platform=steam_config.platform,
+        )
+
+        build_id = steamcmd.get_build_id(game_files_dir, variant_config.app_id)
+
+        # Fallback: Use timestamp-based ID if Steam build ID unavailable
+        if not build_id:
+            build_id = datetime.now().strftime("backup-%Y%m%d-%H%M%S")
+            logger.warning(f"Could not determine Steam build ID, using timestamp: {build_id}")
+            console.print(f"[yellow]Using timestamp-based backup ID: {build_id}[/yellow]")
+
+        # Get paths for backup
+        unity_project_dir = variant_config.resolved_unity_project(cli_ctx.repo_root)
+        scripts_path = unity_project_dir / "Assets" / "Scripts"
+        backup_dir = variant_config.resolved_backups(cli_ctx.repo_root)
+
+        # Create backup
+        service = BackupService()
+        stats = service.create_backup(
+            variant=cli_ctx.variant,
+            build_id=build_id,
+            database_path=database_path,
+            scripts_path=scripts_path,
+            backup_dir=backup_dir,
+            app_id=variant_config.app_id,
+        )
+
+        # Display backup stats
+        service.display_backup_stats(stats)
+
+    except Exception as e:
+        # Log error but don't fail the export
+        logger.error(f"Failed to create backup: {e}")
+        console.print(f"[yellow]Warning: Backup creation failed: {e}[/yellow]")
+        console.print("[yellow]Export succeeded but backup was not created.[/yellow]")
+        console.print()

@@ -6,7 +6,6 @@ configuration loading, logging setup, and error handling.
 
 from __future__ import annotations
 
-import datetime
 import subprocess
 import sys
 from typing import Any
@@ -23,7 +22,7 @@ from erenshor.infrastructure.config import ConfigLoadError, get_repo_root, load_
 from erenshor.infrastructure.logging import setup_logging
 from erenshor.infrastructure.logging.setup import LoggingSetupError
 
-from .commands import extract, maps, sheets, wiki
+from .commands import backup, extract, maps, sheets, wiki
 from .context import CLIContext
 
 console = Console()
@@ -42,6 +41,7 @@ app.add_typer(extract.app, name="extract")
 app.add_typer(wiki.app, name="wiki")
 app.add_typer(sheets.app, name="sheets")
 app.add_typer(maps.app, name="maps")
+app.add_typer(backup.app, name="backup")
 
 
 @app.callback()
@@ -580,101 +580,6 @@ def config_show(
 
 
 app.add_typer(config_app, name="config")
-
-
-# Backup command group
-backup_app = typer.Typer(
-    name="backup",
-    help="Manage database backups",
-    no_args_is_help=True,
-)
-
-
-@backup_app.command("info")
-def backup_info(
-    ctx: typer.Context,
-) -> None:
-    """Show backup information.
-
-    Displays information about database backups including
-    last backup time, backup location, and backup history.
-    """
-    cli_ctx: CLIContext = ctx.obj
-
-    console.print()
-    console.print(
-        Panel.fit(
-            f"[bold cyan]Database Backups (variant: {cli_ctx.variant})[/bold cyan]",
-            border_style="cyan",
-        )
-    )
-    console.print()
-
-    variant_config = cli_ctx.config.variants[cli_ctx.variant]
-    backups_dir = variant_config.resolved_backups(cli_ctx.repo_root)
-
-    # Check if backups directory exists
-    if not backups_dir.exists():
-        console.print(f"[yellow]No backups directory found at:[/yellow] {backups_dir}")
-        console.print()
-        console.print("[dim]The backups directory will be created when the first backup is made.[/dim]")
-        console.print()
-        return
-
-    # List all backup files
-    backup_files = sorted(
-        backups_dir.glob("*.sqlite"),
-        key=lambda p: p.stat().st_mtime,
-        reverse=True,
-    )
-
-    if not backup_files:
-        console.print(f"[yellow]No backup files found in:[/yellow] {backups_dir}")
-        console.print()
-        console.print("[dim]Backups will appear here after running the backup command.[/dim]")
-        console.print()
-        return
-
-    # Show backup directory
-    console.print(f"[bold]Backup Directory:[/bold] {backups_dir}")
-    console.print()
-
-    # Show backups table
-    console.print(f"[bold]Available Backups:[/bold] {len(backup_files)} file(s)")
-    console.print()
-
-    table = Table(show_header=True, box=None, padding=(0, 2))
-    table.add_column("Backup File", style="cyan")
-    table.add_column("Size", justify="right")
-    table.add_column("Modified", justify="right")
-
-    total_size = 0
-    for backup_file in backup_files:
-        stats = backup_file.stat()
-        size_bytes = stats.st_size
-        size_mb = size_bytes / (1024 * 1024)
-        total_size += size_bytes
-
-        # Format modification time
-        mtime = datetime.datetime.fromtimestamp(stats.st_mtime)
-        time_str = mtime.strftime("%Y-%m-%d %H:%M:%S")
-
-        table.add_row(
-            backup_file.name,
-            f"{size_mb:.2f} MB",
-            time_str,
-        )
-
-    console.print(table)
-    console.print()
-
-    # Show total size
-    total_mb = total_size / (1024 * 1024)
-    console.print(f"[bold]Total Backup Size:[/bold] {total_mb:.2f} MB")
-    console.print()
-
-
-app.add_typer(backup_app, name="backup")
 
 
 # Test command group
