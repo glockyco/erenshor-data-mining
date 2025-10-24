@@ -5,7 +5,7 @@
 [![Python](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
 [![Unity](https://img.shields.io/badge/unity-2021.3.45f2-black.svg)](https://unity.com/)
 [![CI](https://github.com/glockyco/erenshor-wiki/actions/workflows/ci.yml/badge.svg)](https://github.com/glockyco/erenshor-wiki/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-735+%20passing-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/tests-766+%20passing-brightgreen.svg)]()
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ---
@@ -27,8 +27,8 @@ It handles downloading game files, extracting Unity assets, exporting structured
 - 🎮 **Full Pipeline Automation** - One command from download to deployment
 - 🔄 **Multi-Variant Support** - Handle main game, playtest, and demo separately
 - 📊 **Multiple Output Formats** - MediaWiki, Google Sheets, JSON, CSV
-- 🏗️ **Two-Layer Architecture** - Bash orchestration + Python business logic
-- 🧪 **Comprehensive Testing** - 190+ unit and integration tests
+- 🐍 **Pure Python CLI** - Built with Typer for type-safe command handling
+- 🧪 **Comprehensive Testing** - 766+ unit and integration tests
 - 📝 **29 Junction Tables** - Fully normalized database schema
 - 🚀 **Streaming Architecture** - Memory-efficient processing of thousands of entities
 - 🎨 **Rich Terminal UI** - Real-time progress tracking
@@ -88,7 +88,7 @@ cp .env.example .env
 # Edit .env with your bot credentials (see instructions in file)
 
 # 5. Verify installation
-cli/bin/erenshor doctor
+uv run erenshor doctor
 ```
 
 ### Your First Export
@@ -145,21 +145,16 @@ Expected output: `variants/main/erenshor-main.sqlite` (50MB+ database) and gener
   └──────────┴──────────┴──────────┴──────────┘
 ```
 
-### Two-Layer CLI Architecture
+### Pure Python CLI Architecture
 
-The project uses a **hybrid Bash + Python architecture**:
+The project uses a **pure Python CLI** built with Typer:
 
 ```
 ┌─────────────────────────────────────────┐
-│    Bash CLI (Orchestration Layer)      │
+│      Python CLI (Typer Framework)      │
 │  • Pipeline automation                  │
 │  • System operations                    │
 │  • Unity/Steam/AssetRipper integration  │
-└──────────────┬──────────────────────────┘
-               │ python_exec()
-               ↓
-┌─────────────────────────────────────────┐
-│   Python CLI (Business Logic Layer)    │
 │  • Database operations                  │
 │  • Wiki generation & publishing         │
 │  • Google Sheets deployment             │
@@ -167,7 +162,7 @@ The project uses a **hybrid Bash + Python architecture**:
 └─────────────────────────────────────────┘
 ```
 
-**Design Principle**: Bash orchestrates pipelines and system operations, Python handles business logic and data processing.
+**Entry Point**: `uv run erenshor` (console script defined in pyproject.toml)
 
 ### Three-Layer Data Flow
 
@@ -210,55 +205,38 @@ Each variant maintains:
 
 ## Features
 
-### Bash CLI Automation
+### Python CLI Commands
 
-Complete pipeline automation from game download to database export:
+Complete pipeline automation from game download to deployment:
 
 ```bash
-# System health check
-cli/bin/erenshor doctor
+# System commands
+uv run erenshor version             # Show version
+uv run erenshor status              # Show status
+uv run erenshor doctor              # Health check
 
-# Check pipeline status
-cli/bin/erenshor status --all-variants
+# Extraction pipeline (download → rip → export)
+uv run erenshor extract download    # Download from Steam
+uv run erenshor extract rip         # Extract Unity project
+uv run erenshor extract export      # Export to SQLite
+uv run erenshor extract full        # Complete pipeline
 
-# Download latest game version
-cli/bin/erenshor download --variant main
-
-# Extract Unity project with AssetRipper
-cli/bin/erenshor extract --variant main
-
-# Export game data to SQLite (Unity batch mode)
-cli/bin/erenshor export --variant main
-
-# Run complete pipeline
-cli/bin/erenshor update --variant main
-
-# Manage symlinks (Editor scripts → Unity projects)
-cli/bin/erenshor symlink check
-cli/bin/erenshor symlink create
+# Configuration
+uv run erenshor config show         # View configuration
+uv run erenshor config validate     # Validate configuration
 ```
 
-### Python Wiki Generation
+### Wiki Generation
 
 Sophisticated wiki content generation and publishing:
 
 ```bash
-# Fetch current wiki pages for comparison
-uv run python -m erenshor.cli.main wiki fetch --all
+# Update wiki pages
+uv run erenshor wiki update         # Update all wiki content
 
-# Generate content from database
-uv run python -m erenshor.cli.main wiki update items
-uv run python -m erenshor.cli.main wiki update characters
-uv run python -m erenshor.cli.main wiki update all
-
-# Validate before upload
-uv run python -m erenshor.cli.main wiki validate-items
-
-# Preview changes (dry-run)
-uv run python -m erenshor.cli.main wiki push --all --dry-run
-
-# Upload to MediaWiki
-uv run python -m erenshor.cli.main wiki push --all
+# Use global options for control
+uv run erenshor wiki update --dry-run    # Preview only
+uv run erenshor wiki update --verbose    # Detailed output
 ```
 
 ### Google Sheets Deployment
@@ -267,19 +245,16 @@ Deploy formatted data to Google Sheets spreadsheets:
 
 ```bash
 # List available sheets
-uv run python -m erenshor.cli.main sheets list
-
-# Validate credentials and permissions
-uv run python -m erenshor.cli.main sheets validate
-
-# Deploy specific sheets
-uv run python -m erenshor.cli.main sheets deploy --sheets items characters
+uv run erenshor sheets list
 
 # Deploy all sheets
-uv run python -m erenshor.cli.main sheets deploy --all-sheets
+uv run erenshor sheets deploy --all-sheets
+
+# Deploy specific sheets
+uv run erenshor sheets deploy --sheets items characters
 
 # Preview without uploading
-uv run python -m erenshor.cli.main sheets deploy --all-sheets --dry-run
+uv run erenshor sheets deploy --all-sheets --dry-run
 ```
 
 **Available Sheets**:
@@ -457,7 +432,7 @@ ERENSHOR_GOOGLE_SHEETS_CREDENTIALS_FILE=$HOME/.config/erenshor/google-credential
 #### 5. Verify Installation
 
 ```bash
-cli/bin/erenshor doctor
+uv run erenshor doctor
 ```
 
 This checks:
@@ -466,7 +441,7 @@ This checks:
 - ✅ SteamCMD availability
 - ✅ AssetRipper installation
 - ✅ Configuration validity
-- ✅ Symlink status
+- ✅ Required dependencies
 
 ---
 
@@ -477,80 +452,54 @@ This checks:
 #### Full Pipeline Update (After Game Patch)
 
 ```bash
-# 1. Download latest game version from Steam
-cli/bin/erenshor download
+# 1. Run complete extraction pipeline (download → rip → export)
+uv run erenshor extract full
 
-# 2. Extract Unity project with AssetRipper
-cli/bin/erenshor extract
+# 2. Update wiki content
+uv run erenshor wiki update
 
-# 3. Export data to SQLite
-cli/bin/erenshor export
+# 3. Deploy to Google Sheets
+uv run erenshor sheets deploy --all-sheets
 
-# 4. Generate wiki content
-uv run python -m erenshor.cli.main wiki fetch --all
-uv run python -m erenshor.cli.main wiki update all
-
-# 5. Validate and upload
-uv run python -m erenshor.cli.main wiki validate-items
-uv run python -m erenshor.cli.main wiki push --all --dry-run  # Preview
-uv run python -m erenshor.cli.main wiki push --all             # Upload
-
-# Or run steps 1-3 in one command:
-cli/bin/erenshor update
-```
-
-#### Working with Specific Items
-
-```bash
-# Fetch specific wiki pages for comparison
-uv run python -m erenshor.cli.main wiki fetch "Broken Sword" "Time Stone"
-
-# Update single item
-uv run python -m erenshor.cli.main wiki update items --filter "Broken Sword"
-
-# Compare database vs. wiki
-uv run python -m erenshor.cli.main wiki diff "Broken Sword"
-
-# Upload single page
-uv run python -m erenshor.cli.main wiki push "Broken Sword"
+# Or run individual extraction steps:
+uv run erenshor extract download    # Download from Steam
+uv run erenshor extract rip          # Extract Unity project
+uv run erenshor extract export       # Export to SQLite
 ```
 
 #### Managing Multiple Variants
 
 ```bash
 # Update playtest variant
-cli/bin/erenshor update --variant playtest
+uv run erenshor extract full --variant playtest
 
 # Compare databases between variants
 sqlite3 variants/main/erenshor-main.sqlite "SELECT COUNT(*) FROM Items"
 sqlite3 variants/playtest/erenshor-playtest.sqlite "SELECT COUNT(*) FROM Items"
 
-# Check status of all variants
-cli/bin/erenshor status --all-variants
+# Check status
+uv run erenshor status
 ```
 
 #### Google Sheets Workflow
 
 ```bash
-# 1. Validate credentials and permissions
-uv run python -m erenshor.cli.main sheets validate
+# 1. Preview deployment (dry-run)
+uv run erenshor sheets deploy --all-sheets --dry-run
 
-# 2. Preview deployment (dry-run)
-uv run python -m erenshor.cli.main sheets deploy --all-sheets --dry-run
-
-# 3. Deploy to spreadsheet
-uv run python -m erenshor.cli.main sheets deploy --all-sheets
+# 2. Deploy to spreadsheet
+uv run erenshor sheets deploy --all-sheets
 
 # Deploy specific sheets only
-uv run python -m erenshor.cli.main sheets deploy --sheets items characters quests
+uv run erenshor sheets deploy --sheets items characters quests
 ```
 
 ### CLI Commands
 
 For complete command reference:
 ```bash
-erenshor --help              # Bash CLI commands
-uv run python -m erenshor.cli.main --help  # Python CLI commands
+uv run erenshor --help              # Show all commands
+uv run erenshor <command> --help    # Command-specific help
 ```
 
 See **[CLAUDE.md](CLAUDE.md)** for detailed command documentation and usage examples.
@@ -660,29 +609,34 @@ Configuration supports path expansion:
 
 ```
 erenshor/
-├── cli/                    # Bash CLI orchestration
-│   ├── bin/erenshor        # Main entry point
-│   ├── commands/           # Pipeline commands (download, extract, export, deploy)
-│   └── lib/                # Core utilities and modules
 ├── src/
-│   ├── erenshor/           # Python business logic (wiki, sheets, formatters)
+│   ├── erenshor/           # Python package (CLI, services, formatters)
+│   │   ├── cli/            # Typer CLI implementation
+│   │   ├── application/    # Business services
+│   │   ├── infrastructure/ # External integrations (Steam, Unity, AssetRipper)
+│   │   ├── domain/         # Domain models
+│   │   └── registry/       # Entity registries
 │   └── Assets/Editor/      # Unity C# export scripts (symlinked to Unity projects)
 ├── variants/               # Working directories (NOT tracked in git)
 │   ├── main/               # Main game: game files, Unity project, database
 │   ├── playtest/           # Playtest variant
 │   └── demo/               # Demo variant
+├── legacy/                 # Legacy bash CLI (archived, not used)
+│   └── cli/                # Old bash implementation
 ├── docs/                   # Documentation (architecture, troubleshooting, guides)
-├── tests/                  # Python test suite
+├── tests/                  # Python test suite (766+ tests)
 ├── config.toml             # Main configuration
+├── pyproject.toml          # Python dependencies and console script entry point
 └── .erenshor/              # Local state and overrides (NOT tracked)
 ```
 
 **Key Directories**:
-- `cli/` - Bash orchestration layer
-- `src/erenshor/` - Python business logic
-- `src/Assets/Editor/` - Unity export scripts
+- `src/erenshor/` - Python package (CLI, services, infrastructure)
+- `src/Assets/Editor/` - Unity C# export scripts
 - `variants/` - Per-variant game files and databases
+- `tests/` - Comprehensive test suite
 - `docs/` - Architecture and troubleshooting
+- `legacy/cli/` - Old bash CLI (archived)
 
 See **[CLAUDE.md](CLAUDE.md)** for complete directory structure with all subdirectories.
 
@@ -761,7 +715,7 @@ GitHub Actions automatically runs on every push and pull request:
 - **Linting**: Ruff code style and formatting checks
 - **Type Checking**: MyPy static type validation
 - **Security**: Gitleaks secret scanning
-- **Testing**: Full pytest suite (735+ tests) with coverage reporting
+- **Testing**: Full pytest suite (766+ tests) with coverage reporting
 
 View CI results: [GitHub Actions](https://github.com/glockyco/erenshor-wiki/actions)
 
@@ -926,8 +880,8 @@ For detailed troubleshooting guides, see **[docs/TROUBLESHOOTING.md](docs/TROUBL
 
 **Quick Diagnostics**:
 ```bash
-erenshor doctor              # System health check
-erenshor status              # Pipeline status
+uv run erenshor doctor       # System health check
+uv run erenshor status       # Pipeline status
 ```
 
 **Common Issues**:
@@ -1089,19 +1043,19 @@ uv run pytest --cov                 # With coverage
 
 | File | Purpose |
 |------|---------|
-| `cli/bin/erenshor` | Main CLI entry point |
+| `pyproject.toml` | Python dependencies and console script entry point |
 | `config.toml` | Project configuration |
 | `.erenshor/config.local.toml` | Local overrides |
 | `.env` | Secrets and credentials |
 | `variants/main/erenshor-main.sqlite` | Main database |
 | `src/Assets/Editor/` | Unity export scripts |
-| `src/erenshor/` | Python wiki generation |
+| `src/erenshor/` | Python package (CLI, services, infrastructure) |
 | `docs/` | Architecture documentation |
 
 ### Key Concepts
 
 - **Variants**: Separate pipelines for main, playtest, and demo
-- **Two-Layer CLI**: Bash (orchestration) + Python (business logic)
+- **Pure Python CLI**: Built with Typer for type-safe command handling
 - **Three-Layer Data Flow**: Export (Unity) → Format (Python) → Deploy (API)
 - **Symlinks**: `src/Assets/Editor/` linked into Unity projects
 - **Streaming**: Memory-efficient processing of large datasets
