@@ -230,6 +230,15 @@ def rip(
         logger.info(f"Creating Editor scripts symlink: {editor_target} -> {editor_source}")
         editor_target.symlink_to(editor_source)
 
+        # Copy NuGet packages (DLLs must be copied, not symlinked, due to Unity assembly loading)
+        packages_source = cli_ctx.repo_root / "src" / "Assets" / "Packages"
+        packages_target = unity_project_dir / "ExportedProject" / "Assets" / "Packages"
+        if packages_source.exists():
+            logger.info(f"Copying NuGet packages: {packages_source} -> {packages_target}")
+            shutil.copytree(packages_source, packages_target, dirs_exist_ok=True)
+        else:
+            logger.warning(f"Packages directory not found: {packages_source}")
+
         logger.info(f"Unity project extraction complete: {unity_project_dir}")
         logger.info("Next: Run 'erenshor extract export' to export game data to SQLite")
 
