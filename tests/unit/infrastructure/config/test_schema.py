@@ -161,7 +161,7 @@ class TestAssetRipperConfig:
     def test_default_values(self):
         """Test that AssetRipperConfig has correct default values."""
         config = AssetRipperConfig()
-        assert "$HOME" in config.path or "AssetRipper" in config.path
+        assert config.path == ""  # No default path - must be configured
         assert config.port == 8080
         assert config.timeout == 3600
 
