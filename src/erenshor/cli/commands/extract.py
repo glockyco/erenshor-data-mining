@@ -158,6 +158,7 @@ def download(
         )
 
         logger.info(f"Download complete: {game_files_dir}")
+        logger.info("Next: Run 'erenshor extract rip' to extract Unity project")
 
     except Exception as e:
         console.print(f"[red]Error during download: {e}[/red]")
@@ -217,6 +218,7 @@ def rip(
         )
 
         logger.info(f"Unity project extraction complete: {unity_project_dir}")
+        logger.info("Next: Run 'erenshor extract export' to export game data to SQLite")
 
     except Exception as e:
         console.print(f"[red]Error during extraction: {e}[/red]")
@@ -288,6 +290,7 @@ def export(
         )
 
         logger.info(f"Data export complete: db={database_path}, log={log_file}")
+        logger.info("Database ready! Use 'erenshor sheets deploy' or 'erenshor wiki update' to publish data")
 
         # Create backup for cross-version analysis
         _create_backup_after_export(cli_ctx, variant_config, database_path)
