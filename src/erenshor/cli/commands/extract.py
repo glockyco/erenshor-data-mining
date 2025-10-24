@@ -189,7 +189,7 @@ def rip(
     logs_dir = variant_config.resolved_logs(cli_ctx.repo_root)
 
     # Check if Unity project already exists
-    if not force and unity_project_dir.exists() and (unity_project_dir / "Assets").exists():
+    if not force and unity_project_dir.exists() and (unity_project_dir / "ExportedProject" / "Assets").exists():
         logger.info(f"Unity project already exists: {unity_project_dir}")
         logger.info("Use --force to re-extract")
         return
@@ -224,7 +224,7 @@ def rip(
             log_dir=logs_dir,
         )
 
-        # Create Editor scripts symlink (AssetRipper exports to ExportedProject subdirectory)
+        # Create Editor scripts symlink
         editor_target = unity_project_dir / "ExportedProject" / "Assets" / "Editor"
         editor_source = variant_config.resolved_editor_scripts(cli_ctx.repo_root)
         logger.info(f"Creating Editor scripts symlink: {editor_target} -> {editor_source}")
@@ -290,7 +290,7 @@ def export(
 
         log_file = logs_dir / f"export_{int(time.time())}.log"
 
-        # Export data (AssetRipper exports to ExportedProject subdirectory)
+        # Export data
         unity.execute_method(
             project_path=unity_project_dir / "ExportedProject",
             class_name="ExportBatch",
@@ -349,7 +349,7 @@ def _create_backup_after_export(cli_ctx: CLIContext, variant_config: Any, databa
 
         # Get paths for backup
         unity_project_dir = variant_config.resolved_unity_project(cli_ctx.repo_root)
-        scripts_path = unity_project_dir / "Assets" / "Scripts"
+        scripts_path = unity_project_dir / "ExportedProject" / "Assets" / "Scripts"
         backup_dir = variant_config.resolved_backups(cli_ctx.repo_root)
 
         # Create backup

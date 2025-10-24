@@ -39,7 +39,7 @@ def unity_project_exists(context: dict[str, Any]) -> PreconditionResult:
             detail=f"Expected directory: {unity_dir}",
         )
 
-    # Check for Assets directory (AssetRipper exports to ExportedProject subdirectory)
+    # Check for Assets directory
     exported_project = unity_dir / "ExportedProject"
     assets_dir = exported_project / "Assets"
     if not assets_dir.exists():

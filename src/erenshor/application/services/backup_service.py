@@ -131,7 +131,7 @@ class BackupService:
         ...     variant="main",
         ...     build_id="20370413",
         ...     database_path=Path("variants/main/erenshor-main.sqlite"),
-        ...     scripts_path=Path("variants/main/unity/Assets/Scripts"),
+        ...     scripts_path=Path("variants/main/unity/ExportedProject/Assets/Scripts"),
         ...     backup_dir=Path("variants/main/backups"),
         ...     app_id="2382520"
         ... )
