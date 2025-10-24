@@ -336,6 +336,14 @@ class UnityBatchMode:
                 f"Failed to execute Unity method.\n" f"Check log file: {log_file}\n" f"Error: {error_details}"
             )
 
+        # Check for export errors first (most specific)
+        if "[EXPORT_ERROR]" in log_content:
+            error_details = self._extract_export_error(log_content)
+            logger.error(f"Unity export error: {error_details}")
+            raise UnityRuntimeError(
+                f"Unity export script failed.\n" f"Check log file: {log_file}\n" f"Error:\n{error_details}"
+            )
+
         # Check for licensing errors (before generic runtime errors)
         if self._has_licensing_error(log_content):
             logger.error("Unity licensing error detected")
@@ -355,7 +363,7 @@ class UnityBatchMode:
                 "Note: Unity Personal (free) requires periodic license validation."
             )
 
-        # Check for runtime errors (exceptions, EXPORT_ERROR markers)
+        # Check for runtime errors (exceptions, generic errors)
         if self._has_runtime_error(log_content):
             error_details = self._extract_runtime_errors(log_content)
             logger.error(f"Unity runtime error: {error_details}")
@@ -404,22 +412,37 @@ class UnityBatchMode:
         return any(marker in log_content for marker in execution_markers)
 
     def _has_licensing_error(self, log_content: str) -> bool:
-        """Check if log contains Unity licensing errors.
+        """Check if log contains Unity licensing errors that caused failure.
+
+        Only returns True if licensing errors exist AND licensing didn't ultimately succeed.
+        Transient licensing errors that resolve are ignored.
 
         Args:
             log_content: Unity log file content.
 
         Returns:
-            True if licensing errors detected, False otherwise.
+            True if licensing failed, False otherwise.
         """
-        licensing_markers = [
+        # Check for licensing error markers
+        licensing_error_markers = [
             "[Licensing::Client] Error:",
             "[Licensing::Module] Error:",
             "No ULF license found",
             "Access token is unavailable",
             "LicensingClient has failed validation",
         ]
-        return any(marker in log_content for marker in licensing_markers)
+        has_licensing_errors = any(marker in log_content for marker in licensing_error_markers)
+
+        # Check for licensing success markers
+        licensing_success_markers = [
+            "Successfully updated license",
+            "Successfully resolved entitlement details",
+            "Serial number assigned to:",
+        ]
+        has_licensing_success = any(marker in log_content for marker in licensing_success_markers)
+
+        # Only report licensing error if we saw errors but NO success
+        return has_licensing_errors and not has_licensing_success
 
     def _has_runtime_error(self, log_content: str) -> bool:
         """Check if log contains runtime errors.
@@ -475,6 +498,24 @@ class UnityBatchMode:
                 return line.strip()
 
         return "Method execution failed (see log for details)"
+
+    def _extract_export_error(self, log_content: str) -> str:
+        """Extract export error details from log.
+
+        Args:
+            log_content: Unity log file content.
+
+        Returns:
+            Formatted export error details.
+        """
+        lines = log_content.splitlines()
+
+        for line in lines:
+            if "[EXPORT_ERROR]" in line:
+                # Extract just the error message after the marker
+                return line.split("[EXPORT_ERROR]", 1)[1].strip()
+
+        return "Export failed (see log for details)"
 
     def _extract_runtime_errors(self, log_content: str) -> str:
         """Extract runtime error details from log.

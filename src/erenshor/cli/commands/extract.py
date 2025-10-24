@@ -299,6 +299,16 @@ def export(
 
         log_file = logs_dir / f"export_{int(time.time())}.log"
 
+        # Map Python log levels to Unity log levels
+        python_to_unity_log_level = {
+            "DEBUG": "verbose",
+            "INFO": "normal",
+            "WARNING": "normal",
+            "ERROR": "quiet",
+            "CRITICAL": "quiet",
+        }
+        unity_log_level = python_to_unity_log_level.get(cli_ctx.config.global_.logging.level.upper(), "normal")
+
         # Export data
         unity.execute_method(
             project_path=unity_project_dir / "ExportedProject",
@@ -307,7 +317,7 @@ def export(
             log_file=log_file,
             arguments={
                 "dbPath": str(database_path.absolute()),
-                "logLevel": cli_ctx.config.global_.logging.level,
+                "logLevel": unity_log_level,
             },
         )
 
