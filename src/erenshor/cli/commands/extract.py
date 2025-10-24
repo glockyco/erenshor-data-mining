@@ -6,17 +6,32 @@ This module provides commands for managing the data extraction pipeline:
 - Exporting game data to SQLite via Unity batch mode
 """
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import typer
+from loguru import logger
+from rich.console import Console
+from rich.panel import Panel
 
 from erenshor.cli.preconditions import require_preconditions
 from erenshor.cli.preconditions.checks.steam import game_files_exist, steam_credentials_exist
 from erenshor.cli.preconditions.checks.unity import editor_scripts_linked, unity_project_exists, unity_version_matches
+from erenshor.infrastructure.assetripper.assetripper import AssetRipper
+from erenshor.infrastructure.steam.steamcmd import SteamCMD
+from erenshor.infrastructure.unity.batch_mode import UnityBatchMode
+
+if TYPE_CHECKING:
+    from erenshor.cli.context import CLIContext
 
 app = typer.Typer(
     name="extract",
     help="Extract game data from Steam, AssetRipper, and Unity",
     no_args_is_help=True,
 )
+
+console = Console()
 
 
 @app.command()
@@ -47,7 +62,54 @@ def full(
 
     Steps can be skipped if data already exists.
     """
-    typer.echo("Not yet implemented: extract full")
+    cli_ctx: CLIContext = ctx.obj
+
+    console.print()
+    console.print(
+        Panel.fit(
+            f"[bold cyan]Running full extraction pipeline[/bold cyan]\n"
+            f"Variant: {cli_ctx.variant}\n"
+            f"Dry-run: {cli_ctx.dry_run}",
+            border_style="cyan",
+        )
+    )
+    console.print()
+
+    try:
+        # Step 1: Download
+        if not skip_download:
+            console.print("[bold]Step 1/3: Downloading game files from Steam[/bold]")
+            download(ctx, force=False)
+        else:
+            console.print("[yellow]Skipping download step[/yellow]")
+            console.print()
+
+        # Step 2: Rip
+        if not skip_rip:
+            console.print("[bold]Step 2/3: Extracting Unity project via AssetRipper[/bold]")
+            rip(ctx, force=False)
+        else:
+            console.print("[yellow]Skipping AssetRipper extraction step[/yellow]")
+            console.print()
+
+        # Step 3: Export
+        if not skip_export:
+            console.print("[bold]Step 3/3: Exporting data to SQLite via Unity[/bold]")
+            export(ctx, force=False)
+        else:
+            console.print("[yellow]Skipping Unity export step[/yellow]")
+            console.print()
+
+        console.print("[green bold]Full extraction pipeline completed successfully![/green bold]")
+        console.print()
+
+    except typer.Exit:
+        # Re-raise typer.Exit to preserve exit code
+        raise
+    except Exception as e:
+        console.print(f"[red]Error during full extraction pipeline: {e}[/red]")
+        logger.exception("Full extraction pipeline failed")
+        raise typer.Exit(1) from e
 
 
 @app.command()
@@ -66,7 +128,63 @@ def download(
     using SteamCMD. Requires valid Steam credentials and game
     ownership.
     """
-    typer.echo("Not yet implemented: extract download")
+    cli_ctx: CLIContext = ctx.obj
+
+    console.print()
+    console.print(
+        Panel.fit(
+            f"[bold cyan]Downloading game files from Steam[/bold cyan]\n"
+            f"Variant: {cli_ctx.variant}\n"
+            f"Dry-run: {cli_ctx.dry_run}",
+            border_style="cyan",
+        )
+    )
+    console.print()
+
+    try:
+        # Get variant config
+        variant_config = cli_ctx.config.variants[cli_ctx.variant]
+
+        # Get paths
+        game_files_dir = variant_config.resolved_game_files(cli_ctx.repo_root)
+
+        # Create SteamCMD wrapper
+        steam_config = cli_ctx.config.global_.steam
+        steamcmd = SteamCMD(
+            username=steam_config.username,
+            platform=steam_config.platform,
+        )
+
+        # Check if game is already installed
+        if not force and steamcmd.is_game_installed(game_files_dir):
+            console.print("[yellow]Game files already exist. Use --force to re-download.[/yellow]")
+            console.print()
+            return
+
+        if cli_ctx.dry_run:
+            console.print("[yellow]Dry-run mode: Would download game files[/yellow]")
+            console.print(f"App ID: {variant_config.app_id}")
+            console.print(f"Install directory: {game_files_dir}")
+            console.print()
+            return
+
+        # Download game files
+        logger.info(f"Downloading game files for variant '{cli_ctx.variant}'...")
+        steamcmd.download(
+            app_id=variant_config.app_id,
+            install_dir=game_files_dir,
+            validate=force,  # Validate all files if force=True
+            password=steam_config.password or None,
+        )
+
+        console.print("[green]Game files downloaded successfully![/green]")
+        console.print(f"Location: {game_files_dir}")
+        console.print()
+
+    except Exception as e:
+        console.print(f"[red]Error during download: {e}[/red]")
+        logger.exception("Game download failed")
+        raise typer.Exit(1) from e
 
 
 @app.command()
@@ -85,7 +203,65 @@ def rip(
     a Unity project structure. This allows access to game assets
     and ScriptableObjects for data mining.
     """
-    typer.echo("Not yet implemented: extract rip")
+    cli_ctx: CLIContext = ctx.obj
+
+    console.print()
+    console.print(
+        Panel.fit(
+            f"[bold cyan]Extracting Unity project via AssetRipper[/bold cyan]\n"
+            f"Variant: {cli_ctx.variant}\n"
+            f"Dry-run: {cli_ctx.dry_run}",
+            border_style="cyan",
+        )
+    )
+    console.print()
+
+    try:
+        # Get variant config
+        variant_config = cli_ctx.config.variants[cli_ctx.variant]
+
+        # Get paths
+        game_files_dir = variant_config.resolved_game_files(cli_ctx.repo_root)
+        unity_project_dir = variant_config.resolved_unity_project(cli_ctx.repo_root)
+        logs_dir = variant_config.resolved_logs(cli_ctx.repo_root)
+
+        # Check if Unity project already exists
+        if not force and unity_project_dir.exists() and (unity_project_dir / "Assets").exists():
+            console.print("[yellow]Unity project already exists. Use --force to re-extract.[/yellow]")
+            console.print()
+            return
+
+        if cli_ctx.dry_run:
+            console.print("[yellow]Dry-run mode: Would extract Unity project[/yellow]")
+            console.print(f"Source: {game_files_dir / 'Erenshor_Data'}")
+            console.print(f"Target: {unity_project_dir}")
+            console.print()
+            return
+
+        # Create AssetRipper wrapper
+        assetripper_config = cli_ctx.config.global_.assetripper
+        assetripper = AssetRipper(
+            executable_path=assetripper_config.resolved_path(cli_ctx.repo_root),
+            port=assetripper_config.port,
+            timeout=assetripper_config.timeout,
+        )
+
+        # Extract Unity project
+        logger.info(f"Extracting Unity project for variant '{cli_ctx.variant}'...")
+        assetripper.extract(
+            source_dir=game_files_dir / "Erenshor_Data",
+            target_dir=unity_project_dir,
+            log_dir=logs_dir,
+        )
+
+        console.print("[green]Unity project extracted successfully![/green]")
+        console.print(f"Location: {unity_project_dir}")
+        console.print()
+
+    except Exception as e:
+        console.print(f"[red]Error during extraction: {e}[/red]")
+        logger.exception("AssetRipper extraction failed")
+        raise typer.Exit(1) from e
 
 
 @app.command()
@@ -108,4 +284,72 @@ def export(
     export data to SQLite database. Uses custom Unity Editor
     scripts to extract items, NPCs, quests, spells, and more.
     """
-    typer.echo("Not yet implemented: extract export")
+    cli_ctx: CLIContext = ctx.obj
+
+    console.print()
+    console.print(
+        Panel.fit(
+            f"[bold cyan]Exporting data to SQLite via Unity[/bold cyan]\n"
+            f"Variant: {cli_ctx.variant}\n"
+            f"Dry-run: {cli_ctx.dry_run}",
+            border_style="cyan",
+        )
+    )
+    console.print()
+
+    try:
+        # Get variant config
+        variant_config = cli_ctx.config.variants[cli_ctx.variant]
+
+        # Get paths
+        unity_project_dir = variant_config.resolved_unity_project(cli_ctx.repo_root)
+        database_path = variant_config.resolved_database(cli_ctx.repo_root)
+        logs_dir = variant_config.resolved_logs(cli_ctx.repo_root)
+
+        # Check if database already exists
+        if not force and database_path.exists():
+            console.print("[yellow]Database already exists. Use --force to re-export.[/yellow]")
+            console.print()
+            return
+
+        if cli_ctx.dry_run:
+            console.print("[yellow]Dry-run mode: Would export data to SQLite[/yellow]")
+            console.print(f"Unity project: {unity_project_dir}")
+            console.print(f"Database: {database_path}")
+            console.print()
+            return
+
+        # Create Unity batch mode wrapper
+        unity_config = cli_ctx.config.global_.unity
+        unity = UnityBatchMode(
+            unity_path=unity_config.resolved_path(cli_ctx.repo_root),
+            timeout=unity_config.timeout,
+        )
+
+        # Create log file path
+        import time
+
+        log_file = logs_dir / f"export_{int(time.time())}.log"
+
+        # Export data
+        logger.info(f"Exporting data for variant '{cli_ctx.variant}'...")
+        unity.execute_method(
+            project_path=unity_project_dir,
+            class_name="ExportBatch",
+            method_name="Run",
+            log_file=log_file,
+            arguments={
+                "dbPath": str(database_path.absolute()),
+                "logLevel": cli_ctx.config.global_.logging.level,
+            },
+        )
+
+        console.print("[green]Data exported successfully![/green]")
+        console.print(f"Database: {database_path}")
+        console.print(f"Log file: {log_file}")
+        console.print()
+
+    except Exception as e:
+        console.print(f"[red]Error during export: {e}[/red]")
+        logger.exception("Unity export failed")
+        raise typer.Exit(1) from e
