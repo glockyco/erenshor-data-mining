@@ -151,15 +151,52 @@ class TestExtractRipCommand:
         # Verify - either succeeds or fails gracefully
         assert result.exit_code in [0, 1]
 
+    @patch("erenshor.infrastructure.logging.setup_logging")
+    @patch("erenshor.infrastructure.config.load_config")
+    @patch("erenshor.infrastructure.config.get_repo_root")
     @patch("erenshor.cli.commands.extract.AssetRipper")
-    def test_rip_already_exists(self, mock_assetripper_class):
+    def test_rip_already_exists(
+        self, mock_assetripper_class, mock_get_repo_root, mock_load_config, mock_setup_logging, tmp_path
+    ):
         """Test rip when Unity project already exists."""
         # Setup mock AssetRipper
         mock_assetripper = MagicMock()
         mock_assetripper_class.return_value = mock_assetripper
 
-        # Note: This test is complex due to path checking - skip for now
-        pytest.skip("Path mocking too complex for this test pattern")
+        # Create real Unity project directory structure
+        unity_project_dir = tmp_path / "unity"
+        unity_project_dir.mkdir()
+        (unity_project_dir / "Assets").mkdir()
+
+        # Mock repo root
+        mock_get_repo_root.return_value = tmp_path
+
+        # Mock config
+        mock_config = MagicMock()
+        mock_config.default_variant = "main"
+        mock_config.global_.logging.level = "info"
+        mock_config.global_.paths.resolved_logs.return_value = tmp_path / ".erenshor" / "logs"
+        mock_config.global_.paths.resolved_config_local.return_value = tmp_path / ".erenshor" / "config.local.toml"
+        mock_config.global_.assetripper.resolved_path.return_value = tmp_path / "assetripper"
+        mock_config.global_.assetripper.port = 8080
+        mock_config.global_.assetripper.timeout = 3600
+
+        # Mock variant config to return our tmp_path directories
+        mock_variant_config = MagicMock()
+        mock_variant_config.resolved_game_files.return_value = tmp_path / "game"
+        mock_variant_config.resolved_unity_project.return_value = unity_project_dir
+        mock_variant_config.resolved_logs.return_value = tmp_path / "logs"
+
+        mock_config.variants = {"main": mock_variant_config}
+        mock_load_config.return_value = mock_config
+
+        # Run command without --force
+        result = runner.invoke(app, ["extract", "rip"])
+
+        # Verify - should skip extraction
+        assert result.exit_code == 0
+        assert "already exists" in result.stdout
+        mock_assetripper.extract.assert_not_called()
 
     @patch("erenshor.cli.commands.extract.AssetRipper")
     def test_rip_force(self, mock_assetripper_class):
@@ -220,15 +257,50 @@ class TestExtractExportCommand:
         # Verify - either succeeds or fails gracefully
         assert result.exit_code in [0, 1]
 
+    @patch("erenshor.infrastructure.logging.setup_logging")
+    @patch("erenshor.infrastructure.config.load_config")
+    @patch("erenshor.infrastructure.config.get_repo_root")
     @patch("erenshor.cli.commands.extract.UnityBatchMode")
-    def test_export_already_exists(self, mock_unity_class):
+    def test_export_already_exists(
+        self, mock_unity_class, mock_get_repo_root, mock_load_config, mock_setup_logging, tmp_path
+    ):
         """Test export when database already exists."""
         # Setup mock Unity
         mock_unity = MagicMock()
         mock_unity_class.return_value = mock_unity
 
-        # Skip - path mocking too complex
-        pytest.skip("Path mocking too complex for this test pattern")
+        # Create real database file
+        database_path = tmp_path / "erenshor-main.sqlite"
+        database_path.touch()
+
+        # Mock repo root
+        mock_get_repo_root.return_value = tmp_path
+
+        # Mock config
+        mock_config = MagicMock()
+        mock_config.default_variant = "main"
+        mock_config.global_.logging.level = "info"
+        mock_config.global_.paths.resolved_logs.return_value = tmp_path / ".erenshor" / "logs"
+        mock_config.global_.paths.resolved_config_local.return_value = tmp_path / ".erenshor" / "config.local.toml"
+        mock_config.global_.unity.resolved_path.return_value = tmp_path / "unity"
+        mock_config.global_.unity.timeout = 3600
+
+        # Mock variant config to return our tmp_path directories
+        mock_variant_config = MagicMock()
+        mock_variant_config.resolved_unity_project.return_value = tmp_path / "unity"
+        mock_variant_config.resolved_database.return_value = database_path
+        mock_variant_config.resolved_logs.return_value = tmp_path / "logs"
+
+        mock_config.variants = {"main": mock_variant_config}
+        mock_load_config.return_value = mock_config
+
+        # Run command without --force
+        result = runner.invoke(app, ["extract", "export"])
+
+        # Verify - should skip export
+        assert result.exit_code == 0
+        assert "already exists" in result.stdout
+        mock_unity.execute_method.assert_not_called()
 
     @patch("erenshor.cli.commands.extract.UnityBatchMode")
     def test_export_force(self, mock_unity_class):
