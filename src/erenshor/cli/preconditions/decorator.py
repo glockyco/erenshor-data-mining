@@ -70,15 +70,19 @@ def require_preconditions(*checks: PreconditionCheck) -> Callable[[Callable[...,
             console = Console()
 
             # Extract CLIContext from first argument (Typer passes it as ctx)
-            # This assumes the command has ctx: typer.Context as first param
-            ctx = args[0] if args else None
-            if not isinstance(ctx, typer.Context) or not isinstance(ctx.obj, CLIContext):
-                # Fallback: if no context, still try to run checks with minimal context
-                # This allows testing without full CLI setup
-                context = kwargs
-            else:
-                cli_ctx: CLIContext = ctx.obj
-                context = _build_check_context(cli_ctx)
+            # Note: Typer passes ctx in kwargs (not args) and uses click.core.Context at runtime
+            ctx = args[0] if args else kwargs.get("ctx")
+
+            # Fail fast if context is missing or invalid
+            if not ctx or not hasattr(ctx, "obj"):
+                raise RuntimeError("Command missing ctx parameter - preconditions require ctx: typer.Context")
+
+            if not isinstance(ctx.obj, CLIContext):
+                raise RuntimeError(f"Invalid context object type: {type(ctx.obj)} - expected CLIContext")
+
+            # Build context for precondition checks
+            cli_ctx: CLIContext = ctx.obj
+            context = _build_check_context(cli_ctx)
 
             # Run all precondition checks
             results: list[PreconditionResult] = []
