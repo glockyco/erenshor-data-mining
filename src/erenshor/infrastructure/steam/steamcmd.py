@@ -147,18 +147,20 @@ class SteamCMD:
         app_id: str,
         install_dir: Path,
         validate: bool = False,
-        password: str | None = None,
     ) -> None:
         """Download game files from Steam.
 
         Downloads the specified Steam app to the target directory. Supports
         incremental updates (only downloads changed files) unless validate=True.
 
+        SteamCMD will use saved login tokens if available. On first run or if
+        token expired, it will prompt for password and Steam Guard code
+        interactively. Login tokens are cached for future use.
+
         Args:
             app_id: Steam App ID to download (e.g., "2382520" for Erenshor).
             install_dir: Target directory for game files (will be created if needed).
             validate: If True, validates all files against Steam servers (slower, ensures integrity).
-            password: Steam account password (optional, for non-anonymous login).
 
         Raises:
             SteamCMDDownloadError: If download fails.
@@ -169,16 +171,17 @@ class SteamCMD:
             >>> steamcmd.download(
             ...     app_id="2382520",
             ...     install_dir=Path("variants/main/game"),
-            ...     validate=False,
-            ...     password="mypassword"
+            ...     validate=False
             ... )
         """
-        logger.info(f"Starting game download: app_id={app_id}, install_dir={install_dir}")
+        logger.debug(f"Starting game download: app_id={app_id}, install_dir={install_dir}")
 
         # Ensure install directory exists
         install_dir.mkdir(parents=True, exist_ok=True)
 
         # Build SteamCMD command
+        # Note: Don't pass password on command line - let SteamCMD use saved login token
+        # or prompt for password. Passing password prevents token caching.
         cmd = [
             "steamcmd",
             "+@sSteamCmdForcePlatformType",
@@ -189,72 +192,74 @@ class SteamCMD:
             self.username,
         ]
 
-        # Add password if provided (for non-anonymous login)
-        if password:
-            cmd.append(password)
-
         # Add app_update command with optional validation
         if validate:
-            logger.info("File validation enabled: all files will be verified against Steam servers")
+            logger.debug("File validation enabled: all files will be verified against Steam servers")
             cmd.extend(["+app_update", app_id, "validate"])
         else:
-            logger.info("Incremental update mode: only changed files will be downloaded")
+            logger.debug("Incremental update mode: only changed files will be downloaded")
             cmd.extend(["+app_update", app_id])
 
         # Add quit command
         cmd.append("+quit")
 
-        # Log command (mask password if present)
-        if password:
-            # Create safe command with password masked
-            safe_cmd = [arg if arg != password else "***" for arg in cmd]
-            logger.debug(f"Executing SteamCMD: {' '.join(safe_cmd)}")
-        else:
-            logger.debug(f"Executing SteamCMD: {' '.join(cmd)}")
+        logger.debug(f"Executing SteamCMD: {' '.join(cmd)}")
 
-        # Execute SteamCMD
+        # Execute SteamCMD with real-time output
         try:
-            result = subprocess.run(
+            # Use Popen to stream output line by line
+            process = subprocess.Popen(
                 cmd,
-                check=True,
-                capture_output=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,  # Merge stderr into stdout
                 text=True,
+                bufsize=1,  # Line buffered
             )
 
-            # Check output for authentication errors
-            if "Login Failure" in result.stdout or "Invalid Password" in result.stdout:
-                logger.error("Steam authentication failed")
-                raise SteamCMDAuthenticationError(
-                    f"Steam authentication failed for user: {self.username}\n"
-                    "Check username and password, or ensure account is not locked.\n"
-                    "Note: Some accounts may require Steam Guard verification."
+            # Collect output for error checking while showing progress
+            output_lines = []
+            if process.stdout:
+                for line in process.stdout:
+                    output_lines.append(line)
+                    # Show progress lines to user
+                    line_stripped = line.rstrip()
+                    if line_stripped and any(
+                        keyword in line_stripped
+                        for keyword in ["Logging in", "Update state", "Success", "Downloading", "Validating"]
+                    ):
+                        logger.info(line_stripped)
+
+            # Wait for process to complete
+            return_code = process.wait()
+            full_output = "".join(output_lines)
+
+            # Check for errors
+            if return_code != 0:
+                # Check for authentication errors
+                if "Login Failure" in full_output or "Invalid Password" in full_output:
+                    logger.error("Steam authentication failed")
+                    raise SteamCMDAuthenticationError(
+                        f"Steam authentication failed for user: {self.username}\n"
+                        "Check username and password, or ensure account is not locked.\n"
+                        "Note: Some accounts may require Steam Guard verification."
+                    )
+
+                # General download error
+                logger.error(f"SteamCMD failed with exit code {return_code}")
+                raise SteamCMDDownloadError(
+                    f"Game download failed: app_id={app_id}\n"
+                    f"Exit code: {return_code}\n"
+                    "Check network connectivity, disk space, and App ID."
                 )
 
             logger.info(f"Download completed successfully: app_id={app_id}")
-            logger.debug(f"SteamCMD output: {result.stdout}")
 
-        except subprocess.CalledProcessError as e:
-            logger.error(f"SteamCMD failed with exit code {e.returncode}")
-            logger.debug(f"SteamCMD stderr: {e.stderr}")
-            logger.debug(f"SteamCMD stdout: {e.stdout}")
-
-            # Get error output (prefer stderr, fallback to stdout)
-            error_output = e.stderr or e.stdout or ""
-
-            # Check for specific error conditions
-            if "Login Failure" in error_output or "Invalid Password" in error_output:
-                raise SteamCMDAuthenticationError(
-                    f"Steam authentication failed for user: {self.username}\n"
-                    f"Error: {error_output}\n"
-                    "Check username and password."
-                ) from e
-
-            raise SteamCMDDownloadError(
-                f"Game download failed: app_id={app_id}\n"
-                f"Exit code: {e.returncode}\n"
-                f"Error: {error_output}\n"
-                "Check network connectivity, disk space, and App ID."
-            ) from e
+        except SteamCMDAuthenticationError:
+            # Re-raise authentication errors
+            raise
+        except SteamCMDDownloadError:
+            # Re-raise download errors
+            raise
 
         except FileNotFoundError as e:
             # This shouldn't happen if _check_installed worked, but handle it anyway

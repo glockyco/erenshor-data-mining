@@ -89,33 +89,19 @@ def steam_credentials_exist(context: dict[str, Any]) -> PreconditionResult:
 
     steam_config = config.global_.steam
     steam_user = steam_config.username
-    steam_pass = steam_config.password
 
     if not steam_user:
         return PreconditionResult(
             passed=False,
             check_name="steam_credentials_exist",
-            message="Steam credentials not configured",
+            message="Steam username not configured",
             detail=(
                 "Missing Steam username in configuration\n"
                 "Add to .erenshor/config.local.toml:\n"
                 "[global.steam]\n"
-                'username = "your_steam_username"\n'
-                "SteamCMD requires valid Steam account credentials"
-            ),
-        )
-
-    if not steam_pass:
-        return PreconditionResult(
-            passed=False,
-            check_name="steam_credentials_exist",
-            message="Steam credentials incomplete",
-            detail=(
-                "Missing Steam password in configuration\n"
-                "Add to .erenshor/config.local.toml:\n"
-                "[global.steam]\n"
-                'password = "your_steam_password"\n'
-                "SteamCMD requires both username and password"
+                'username = "your_steam_username"\n\n'
+                "Note: Password is NOT stored in config for security.\n"
+                "SteamCMD will prompt for password on first run and cache login tokens."
             ),
         )
 
@@ -125,5 +111,5 @@ def steam_credentials_exist(context: dict[str, Any]) -> PreconditionResult:
     return PreconditionResult(
         passed=True,
         check_name="steam_credentials_exist",
-        message=f"Steam credentials configured (user: {user_preview})",
+        message=f"Steam username configured (user: {user_preview})",
     )

@@ -14,7 +14,6 @@ from typing import TYPE_CHECKING, Any
 import typer
 from loguru import logger
 from rich.console import Console
-from rich.panel import Panel
 
 from erenshor.application.services.backup_service import BackupService
 from erenshor.cli.preconditions import require_preconditions
@@ -66,16 +65,7 @@ def full(
     """
     cli_ctx: CLIContext = ctx.obj
 
-    console.print()
-    console.print(
-        Panel.fit(
-            f"[bold cyan]Running full extraction pipeline[/bold cyan]\n"
-            f"Variant: {cli_ctx.variant}\n"
-            f"Dry-run: {cli_ctx.dry_run}",
-            border_style="cyan",
-        )
-    )
-    console.print()
+    logger.info(f"Running full extraction pipeline: variant={cli_ctx.variant}, dry_run={cli_ctx.dry_run}")
 
     try:
         # Step 1: Download
@@ -136,24 +126,22 @@ def download(
     Requires valid Steam credentials and game ownership.
     """
     cli_ctx: CLIContext = ctx.obj
+    variant_config = cli_ctx.config.variants[cli_ctx.variant]
+    game_files_dir = variant_config.resolved_game_files(cli_ctx.repo_root)
 
-    console.print()
-    console.print(
-        Panel.fit(
-            f"[bold cyan]Downloading/updating game files from Steam[/bold cyan]\n"
-            f"Variant: {cli_ctx.variant}\n"
-            f"Dry-run: {cli_ctx.dry_run}",
-            border_style="cyan",
-        )
-    )
-    console.print()
+    if cli_ctx.dry_run:
+        logger.info(f"[Dry-run] Would download/update game files: app_id={variant_config.app_id}, dir={game_files_dir}")
+        return
 
     try:
-        # Get variant config
-        variant_config = cli_ctx.config.variants[cli_ctx.variant]
-
-        # Get paths
-        game_files_dir = variant_config.resolved_game_files(cli_ctx.repo_root)
+        # Log what we're doing
+        if validate:
+            logger.info(
+                f"Downloading game files with validation: variant={cli_ctx.variant}, app_id={variant_config.app_id}"
+            )
+            logger.info("File validation enabled - all files will be verified (slower)")
+        else:
+            logger.info(f"Downloading game files: variant={cli_ctx.variant}, app_id={variant_config.app_id}")
 
         # Create SteamCMD wrapper
         steam_config = cli_ctx.config.global_.steam
@@ -162,31 +150,14 @@ def download(
             platform=steam_config.platform,
         )
 
-        if cli_ctx.dry_run:
-            console.print("[yellow]Dry-run mode: Would download/update game files[/yellow]")
-            console.print(f"App ID: {variant_config.app_id}")
-            console.print(f"Install directory: {game_files_dir}")
-            console.print()
-            return
-
         # Download/update game files
-        # SteamCMD automatically detects if an update is needed
-        if validate:
-            logger.info(f"Downloading/updating game files for variant '{cli_ctx.variant}' with validation...")
-            console.print("[yellow]Validation enabled: verifying file integrity (this may take longer)[/yellow]")
-        else:
-            logger.info(f"Downloading/updating game files for variant '{cli_ctx.variant}'...")
-
         steamcmd.download(
             app_id=variant_config.app_id,
             install_dir=game_files_dir,
             validate=validate,
-            password=steam_config.password or None,
         )
 
-        console.print("[green]Game files up to date![/green]")
-        console.print(f"Location: {game_files_dir}")
-        console.print()
+        logger.info(f"Download complete: {game_files_dir}")
 
     except Exception as e:
         console.print(f"[red]Error during download: {e}[/red]")
@@ -211,39 +182,24 @@ def rip(
     and ScriptableObjects for data mining.
     """
     cli_ctx: CLIContext = ctx.obj
+    variant_config = cli_ctx.config.variants[cli_ctx.variant]
+    game_files_dir = variant_config.resolved_game_files(cli_ctx.repo_root)
+    unity_project_dir = variant_config.resolved_unity_project(cli_ctx.repo_root)
+    logs_dir = variant_config.resolved_logs(cli_ctx.repo_root)
 
-    console.print()
-    console.print(
-        Panel.fit(
-            f"[bold cyan]Extracting Unity project via AssetRipper[/bold cyan]\n"
-            f"Variant: {cli_ctx.variant}\n"
-            f"Dry-run: {cli_ctx.dry_run}",
-            border_style="cyan",
-        )
-    )
-    console.print()
+    # Check if Unity project already exists
+    if not force and unity_project_dir.exists() and (unity_project_dir / "Assets").exists():
+        logger.info(f"Unity project already exists: {unity_project_dir}")
+        logger.info("Use --force to re-extract")
+        return
+
+    if cli_ctx.dry_run:
+        source_dir = game_files_dir / "Erenshor_Data"
+        logger.info(f"[Dry-run] Would extract Unity project: source={source_dir}, target={unity_project_dir}")
+        return
 
     try:
-        # Get variant config
-        variant_config = cli_ctx.config.variants[cli_ctx.variant]
-
-        # Get paths
-        game_files_dir = variant_config.resolved_game_files(cli_ctx.repo_root)
-        unity_project_dir = variant_config.resolved_unity_project(cli_ctx.repo_root)
-        logs_dir = variant_config.resolved_logs(cli_ctx.repo_root)
-
-        # Check if Unity project already exists
-        if not force and unity_project_dir.exists() and (unity_project_dir / "Assets").exists():
-            console.print("[yellow]Unity project already exists. Use --force to re-extract.[/yellow]")
-            console.print()
-            return
-
-        if cli_ctx.dry_run:
-            console.print("[yellow]Dry-run mode: Would extract Unity project[/yellow]")
-            console.print(f"Source: {game_files_dir / 'Erenshor_Data'}")
-            console.print(f"Target: {unity_project_dir}")
-            console.print()
-            return
+        logger.info(f"Extracting Unity project: variant={cli_ctx.variant}")
 
         # Create AssetRipper wrapper
         assetripper_config = cli_ctx.config.global_.assetripper
@@ -254,16 +210,13 @@ def rip(
         )
 
         # Extract Unity project
-        logger.info(f"Extracting Unity project for variant '{cli_ctx.variant}'...")
         assetripper.extract(
             source_dir=game_files_dir / "Erenshor_Data",
             target_dir=unity_project_dir,
             log_dir=logs_dir,
         )
 
-        console.print("[green]Unity project extracted successfully![/green]")
-        console.print(f"Location: {unity_project_dir}")
-        console.print()
+        logger.info(f"Unity project extraction complete: {unity_project_dir}")
 
     except Exception as e:
         console.print(f"[red]Error during extraction: {e}[/red]")
@@ -292,39 +245,23 @@ def export(
     scripts to extract items, NPCs, quests, spells, and more.
     """
     cli_ctx: CLIContext = ctx.obj
+    variant_config = cli_ctx.config.variants[cli_ctx.variant]
+    unity_project_dir = variant_config.resolved_unity_project(cli_ctx.repo_root)
+    database_path = variant_config.resolved_database(cli_ctx.repo_root)
+    logs_dir = variant_config.resolved_logs(cli_ctx.repo_root)
 
-    console.print()
-    console.print(
-        Panel.fit(
-            f"[bold cyan]Exporting data to SQLite via Unity[/bold cyan]\n"
-            f"Variant: {cli_ctx.variant}\n"
-            f"Dry-run: {cli_ctx.dry_run}",
-            border_style="cyan",
-        )
-    )
-    console.print()
+    # Check if database already exists
+    if not force and database_path.exists():
+        logger.info(f"Database already exists: {database_path}")
+        logger.info("Use --force to re-export")
+        return
+
+    if cli_ctx.dry_run:
+        logger.info(f"[Dry-run] Would export data to SQLite: unity={unity_project_dir}, db={database_path}")
+        return
 
     try:
-        # Get variant config
-        variant_config = cli_ctx.config.variants[cli_ctx.variant]
-
-        # Get paths
-        unity_project_dir = variant_config.resolved_unity_project(cli_ctx.repo_root)
-        database_path = variant_config.resolved_database(cli_ctx.repo_root)
-        logs_dir = variant_config.resolved_logs(cli_ctx.repo_root)
-
-        # Check if database already exists
-        if not force and database_path.exists():
-            console.print("[yellow]Database already exists. Use --force to re-export.[/yellow]")
-            console.print()
-            return
-
-        if cli_ctx.dry_run:
-            console.print("[yellow]Dry-run mode: Would export data to SQLite[/yellow]")
-            console.print(f"Unity project: {unity_project_dir}")
-            console.print(f"Database: {database_path}")
-            console.print()
-            return
+        logger.info(f"Exporting game data: variant={cli_ctx.variant}")
 
         # Create Unity batch mode wrapper
         unity_config = cli_ctx.config.global_.unity
@@ -339,7 +276,6 @@ def export(
         log_file = logs_dir / f"export_{int(time.time())}.log"
 
         # Export data
-        logger.info(f"Exporting data for variant '{cli_ctx.variant}'...")
         unity.execute_method(
             project_path=unity_project_dir,
             class_name="ExportBatch",
@@ -351,13 +287,9 @@ def export(
             },
         )
 
-        console.print("[green]Data exported successfully![/green]")
-        console.print(f"Database: {database_path}")
-        console.print(f"Log file: {log_file}")
-        console.print()
+        logger.info(f"Data export complete: db={database_path}, log={log_file}")
 
         # Create backup for cross-version analysis
-        # (SQL queries, C# diffs, change detection)
         _create_backup_after_export(cli_ctx, variant_config, database_path)
 
     except Exception as e:

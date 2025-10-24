@@ -69,10 +69,6 @@ class SteamConfig(BaseModel):
         default="",
         description="Steam username (set in .erenshor/config.local.toml)",
     )
-    password: str = Field(
-        default="",
-        description="Steam password (set in .erenshor/config.local.toml)",
-    )
     platform: Literal["windows", "macos", "linux"] = Field(
         default="windows",
         description="Platform version to download (force Windows for cross-platform compatibility)",
