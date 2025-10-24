@@ -22,6 +22,7 @@ ExportBatch.cs entry point and other Unity Editor scripts.
 
 import re
 import subprocess
+import time
 from pathlib import Path
 from typing import Literal
 
@@ -240,29 +241,51 @@ class UnityBatchMode:
 
         logger.debug(f"Executing Unity: {' '.join(cmd)}")
 
-        # Execute Unity
+        # Execute Unity in background and monitor progress
         try:
-            result = subprocess.run(
+            process = subprocess.Popen(
                 cmd,
-                check=False,
-                capture_output=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
                 text=True,
-                timeout=self.timeout,
             )
 
+            logger.info("Monitoring Unity export progress...")
+
+            # Monitor progress by checking log file periodically
+            start_time = time.time()
+            last_update = 0
+
+            while True:
+                # Check if process has finished
+                returncode = process.poll()
+                if returncode is not None:
+                    logger.info("Unity export completed")
+                    break
+
+                # Show progress every 30 seconds
+                elapsed = int(time.time() - start_time)
+                if elapsed - last_update >= 30:
+                    logger.info(f"Still exporting... ({elapsed}s elapsed)")
+                    last_update = elapsed
+
+                # Check for timeout
+                if elapsed > self.timeout:
+                    process.kill()
+                    logger.error(f"Unity execution timed out after {self.timeout}s")
+                    raise UnityRuntimeError(
+                        f"Unity execution timed out after {self.timeout} seconds.\n"
+                        f"Check log file: {log_file}\n"
+                        "Consider increasing timeout in config.toml"
+                    )
+
+                time.sleep(5)  # Check every 5 seconds
+
             # Parse log file for errors
-            self._check_execution_result(result.returncode, log_file)
+            self._check_execution_result(returncode, log_file)
 
             logger.info("Unity execution completed successfully")
             logger.debug(f"Log file: {log_file}")
-
-        except subprocess.TimeoutExpired as e:
-            logger.error(f"Unity execution timed out after {self.timeout}s")
-            raise UnityRuntimeError(
-                f"Unity execution timed out after {self.timeout} seconds.\n"
-                f"Check log file: {log_file}\n"
-                "Consider increasing timeout in config.toml"
-            ) from e
 
         except FileNotFoundError as e:
             raise UnityNotFoundError(f"Unity executable not found: {self.unity_path}") from e
