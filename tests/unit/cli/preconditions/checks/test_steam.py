@@ -1,6 +1,7 @@
 """Tests for Steam/game file precondition checks."""
 
 from pathlib import Path
+from unittest.mock import MagicMock
 
 from erenshor.cli.preconditions.checks.steam import game_files_exist, steam_credentials_exist
 
@@ -54,12 +55,14 @@ def test_game_files_exist_when_path_is_file(tmp_path: Path):
     assert "not a directory" in result.message.lower()
 
 
-def test_steam_credentials_exist_with_both_set(monkeypatch):
+def test_steam_credentials_exist_with_both_set():
     """Test steam_credentials_exist passes when both credentials are set."""
-    monkeypatch.setenv("STEAM_USERNAME", "testuser")
-    monkeypatch.setenv("STEAM_PASSWORD", "testpass")
+    # Create mock config with Steam credentials
+    mock_config = MagicMock()
+    mock_config.global_.steam.username = "testuser"
+    mock_config.global_.steam.password = "testpass"
 
-    context = {}
+    context = {"config": mock_config}
     result = steam_credentials_exist(context)
 
     assert result.passed is True
@@ -68,50 +71,58 @@ def test_steam_credentials_exist_with_both_set(monkeypatch):
     assert "tes***" in result.message
 
 
-def test_steam_credentials_exist_without_username(monkeypatch):
+def test_steam_credentials_exist_without_username():
     """Test steam_credentials_exist fails when username is missing."""
-    monkeypatch.delenv("STEAM_USERNAME", raising=False)
-    monkeypatch.setenv("STEAM_PASSWORD", "testpass")
+    # Create mock config with only password set
+    mock_config = MagicMock()
+    mock_config.global_.steam.username = ""  # Empty username
+    mock_config.global_.steam.password = "testpass"
 
-    context = {}
+    context = {"config": mock_config}
     result = steam_credentials_exist(context)
 
     assert result.passed is False
     assert "not configured" in result.message.lower()
-    assert "STEAM_USERNAME" in result.detail
+    assert "config.local.toml" in result.detail
 
 
-def test_steam_credentials_exist_without_password(monkeypatch):
+def test_steam_credentials_exist_without_password():
     """Test steam_credentials_exist fails when password is missing."""
-    monkeypatch.setenv("STEAM_USERNAME", "testuser")
-    monkeypatch.delenv("STEAM_PASSWORD", raising=False)
+    # Create mock config with only username set
+    mock_config = MagicMock()
+    mock_config.global_.steam.username = "testuser"
+    mock_config.global_.steam.password = ""  # Empty password
 
-    context = {}
+    context = {"config": mock_config}
     result = steam_credentials_exist(context)
 
     assert result.passed is False
     assert "incomplete" in result.message.lower()
-    assert "STEAM_PASSWORD" in result.detail
+    assert "config.local.toml" in result.detail
 
 
-def test_steam_credentials_exist_with_neither_set(monkeypatch):
+def test_steam_credentials_exist_with_neither_set():
     """Test steam_credentials_exist fails when neither credential is set."""
-    monkeypatch.delenv("STEAM_USERNAME", raising=False)
-    monkeypatch.delenv("STEAM_PASSWORD", raising=False)
+    # Create mock config with no credentials
+    mock_config = MagicMock()
+    mock_config.global_.steam.username = ""
+    mock_config.global_.steam.password = ""
 
-    context = {}
+    context = {"config": mock_config}
     result = steam_credentials_exist(context)
 
     assert result.passed is False
     assert "not configured" in result.message.lower()
 
 
-def test_steam_credentials_preview_short_username(monkeypatch):
+def test_steam_credentials_preview_short_username():
     """Test steam_credentials_exist handles short usernames safely."""
-    monkeypatch.setenv("STEAM_USERNAME", "ab")  # Short username
-    monkeypatch.setenv("STEAM_PASSWORD", "testpass")
+    # Create mock config with short username
+    mock_config = MagicMock()
+    mock_config.global_.steam.username = "ab"  # Short username
+    mock_config.global_.steam.password = "testpass"
 
-    context = {}
+    context = {"config": mock_config}
     result = steam_credentials_exist(context)
 
     assert result.passed is True
