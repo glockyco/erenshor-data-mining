@@ -257,12 +257,13 @@ class AssetRipper:
 
         return urllib.parse.quote(path, safe="")
 
-    def _api_post(self, endpoint: str, data: dict[str, str]) -> tuple[str, int]:
+    def _api_post(self, endpoint: str, data: dict[str, str], timeout: int | None = None) -> tuple[str, int]:
         """Make POST request to AssetRipper API.
 
         Args:
             endpoint: API endpoint (e.g., "/LoadFolder").
             data: Form data to post.
+            timeout: Request timeout in seconds (None = no timeout).
 
         Returns:
             Tuple of (response body, HTTP status code).
@@ -275,6 +276,10 @@ class AssetRipper:
         # Build curl command
         cmd = ["curl", "-s", "-w", "\\n%{http_code}", "-X", "POST", url]
         cmd.extend(["-H", "Content-Type: application/x-www-form-urlencoded"])
+
+        # Add timeout if specified
+        if timeout:
+            cmd.extend(["--max-time", str(timeout)])
 
         # Add form data
         for key, value in data.items():
@@ -352,10 +357,14 @@ class AssetRipper:
         # Create target directory if needed
         target_dir.mkdir(parents=True, exist_ok=True)
 
-        # Start export
-        _, status_code = self._api_post("/Export/UnityProject", {"path": str(target_dir.absolute())})
+        # Start export with short timeout (API call is synchronous and blocks until completion)
+        # We timeout after 10 seconds to avoid blocking, then monitor via log file
+        _, status_code = self._api_post("/Export/UnityProject", {"path": str(target_dir.absolute())}, timeout=10)
 
-        if status_code != 302:  # AssetRipper returns 302 redirect on success
+        # Status code 0 means curl timed out, which is expected for long-running exports
+        # Status code 302 means immediate success (unlikely for large exports)
+        # Any other status code is an error
+        if status_code not in (0, 302):
             raise AssetRipperExportError(f"Failed to start export. HTTP status: {status_code}")
 
         logger.info("Export started successfully")
@@ -371,29 +380,37 @@ class AssetRipper:
             return
 
         logger.info(f"Monitoring export progress (timeout: {self.timeout}s)...")
+        logger.info("This may take 15-20 minutes. Progress updates every 30 seconds...")
 
         poll_interval = 5
         wait_time = 0
 
         while wait_time < self.timeout:
-            # Check log for completion indicators
-            try:
-                log_content = self._log_file.read_text()
-
-                # AssetRipper outputs these messages when export completes
-                if "Finished post-export" in log_content or "Finished exporting assets" in log_content:
-                    logger.info("Export completed successfully!")
-                    return
-
-            except Exception as e:
-                logger.debug(f"Error reading log file: {e}")
-
             time.sleep(poll_interval)
             wait_time += poll_interval
 
             # Show progress periodically
             if wait_time % 30 == 0:
                 logger.info(f"Still exporting... ({wait_time}s elapsed)")
+
+            # Check log for completion indicators
+            # Only read the last 10KB of the log file to avoid blocking on huge files
+            try:
+                with self._log_file.open("rb") as f:
+                    # Seek to last 10KB (or start of file if smaller)
+                    f.seek(0, 2)  # Seek to end
+                    file_size = f.tell()
+                    read_size = min(10240, file_size)  # Read last 10KB max
+                    f.seek(max(0, file_size - read_size))
+                    log_tail = f.read().decode("utf-8", errors="ignore")
+
+                # AssetRipper outputs these messages when export completes
+                if "Finished post-export" in log_tail or "Finished exporting assets" in log_tail:
+                    logger.info("Export completed successfully!")
+                    return
+
+            except Exception as e:
+                logger.debug(f"Error reading log file: {e}")
 
         raise AssetRipperExportError(
             f"Export monitoring timed out after {self.timeout} seconds.\n"
