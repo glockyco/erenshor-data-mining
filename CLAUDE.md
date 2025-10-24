@@ -10,12 +10,12 @@ This is a data mining project for Erenshor, a single-player simulated MMORPG. Th
 
 ## Project Context
 
-- **Solo Developer**: Hobby project maintained by a single developer
-- **Zero Cost**: Everything must be free (SteamCMD, AssetRipper, Unity Personal, Google Sheets API)
-- **Automated Pipeline**: Full automation from Steam download to Google Sheets deployment
-- **Multi-Variant Support**: Handles main game, playtest, and demo versions separately
-- **Unity Constraints**: Non-Editor code cannot be included in git (belongs to game developer)
-- **Output**: SQLite databases and formatted data for wiki generation and spreadsheets
+-   **Solo Developer**: Hobby project maintained by a single developer
+-   **Zero Cost**: Everything must be free (SteamCMD, AssetRipper, Unity Personal, Google Sheets API)
+-   **Automated Pipeline**: Full automation from Steam download to Google Sheets deployment
+-   **Multi-Variant Support**: Handles main game, playtest, and demo versions separately
+-   **Unity Constraints**: Non-Editor code cannot be included in git (belongs to game developer)
+-   **Output**: SQLite databases and formatted data for wiki generation and spreadsheets
 
 ## Architecture
 
@@ -83,7 +83,7 @@ erenshor/
 ├── legacy/                     # Legacy bash CLI (archived)
 │   └── cli/                    # Old bash implementation
 ├── docs/                       # Documentation
-├── tests/                      # Python tests (766+ passing)
+├── tests/                      # Python tests
 ├── config.toml                 # Main config
 └── pyproject.toml              # Python dependencies
 ```
@@ -91,19 +91,21 @@ erenshor/
 ### Multi-Variant System
 
 Three game variants with separate pipelines:
-- **main** (App ID 2382520): Production game
-- **playtest** (App ID 3090030): Public test branch
-- **demo** (App ID 2522260): Free demo version
+
+-   **main** (App ID 2382520): Production game
+-   **playtest** (App ID 3090030): Public test branch
+-   **demo** (App ID 2522260): Free demo version
 
 Each variant has:
-- Separate game downloads (`variants/{variant}/game/`)
-- Separate Unity projects (`variants/{variant}/unity/`)
-- Separate databases (`erenshor-{variant}.sqlite`)
-- Separate logs (`variants/{variant}/logs/`)
+
+-   Separate game downloads (`variants/{variant}/game/`)
+-   Separate Unity projects (`variants/{variant}/unity/`)
+-   Separate databases (`erenshor-{variant}.sqlite`)
+-   Separate logs (`variants/{variant}/logs/`)
 
 ## CLI Commands
 
-All commands are now pure Python via the Typer CLI:
+All commands are pure Python via the Typer CLI:
 
 ```bash
 # Main entry point
@@ -125,34 +127,28 @@ uv run erenshor wiki update         # Update wiki pages
 uv run erenshor sheets list         # List available sheets
 uv run erenshor sheets deploy       # Deploy to Google Sheets
 
-# Maps commands
+# Interactive Maps
 uv run erenshor maps dev            # Start dev server
 uv run erenshor maps build          # Build for production
 uv run erenshor maps deploy         # Deploy to Cloudflare
 
 # Configuration
 uv run erenshor config show         # View configuration
-uv run erenshor config validate     # Validate configuration
 
 # Backup management
-uv run erenshor backup create       # Create backup
-uv run erenshor backup restore      # Restore from backup
 uv run erenshor backup list         # List backups
 
 # Testing
-uv run erenshor test                # Run all tests
 uv run erenshor test unit           # Run unit tests
 uv run erenshor test integration    # Run integration tests
-
-# Documentation
-uv run erenshor docs generate       # Generate documentation
 ```
 
 **Global Options**:
-- `--variant <variant>` - Specify variant (main, playtest, demo)
-- `--dry-run` - Preview without making changes
-- `--verbose` - Enable verbose output
-- `--quiet` - Suppress non-essential output
+
+-   `--variant <variant>` - Specify variant (main, playtest, demo)
+-   `--dry-run` - Preview without making changes
+-   `--verbose` - Enable verbose output
+-   `--quiet` - Suppress non-essential output
 
 ## Common Workflows
 
@@ -209,6 +205,7 @@ def my_action(
 ```
 
 Register in `src/erenshor/cli/main.py`:
+
 ```python
 from erenshor.cli.commands import my_command
 
@@ -222,25 +219,28 @@ app.add_typer(my_command.app, name="my-command")
 **Location**: `src/Assets/Editor/ExportSystem/`
 
 **Core Components:**
-- `ExportBatch.cs` - Entry point for batch mode exports
-- `AssetScanner.cs` - Scans Unity project for game assets
-- `Repository.cs` - Database operations and table management
+
+-   `ExportBatch.cs` - Entry point for batch mode exports
+-   `AssetScanner.cs` - Scans Unity project for game assets
+-   `Repository.cs` - Database operations and table management
 
 **Listeners**: Each listener extracts specific game data:
-- `ItemListener.cs` - Items and equipment
-- `CharacterListener.cs` - NPCs and creatures
-- `SpawnPointListener.cs` - Enemy spawn locations
-- `QuestListener.cs` - Quest data
-- `LootTableListener.cs` - Drop tables
-- And 20+ more...
+
+-   `ItemListener.cs` - Items and equipment
+-   `CharacterListener.cs` - NPCs and creatures
+-   `SpawnPointListener.cs` - Enemy spawn locations
+-   `QuestListener.cs` - Quest data
+-   `LootTableListener.cs` - Drop tables
+-   And 20+ more...
 
 ### Database Schema
 
 **Junction Tables**: junction tables for many-to-many relationships:
-- Character abilities: `CharacterAttackSpells`, `CharacterBuffSpells`
-- Quest relationships: `QuestRequiredItems`, `QuestRewards`
-- Class restrictions: `ItemClasses`, `SpellClasses`
-- Spawn mechanics: `SpawnPointCharacters`, `SpawnPointPatrolPoints`
+
+-   Character abilities: `CharacterAttackSpells`, `CharacterBuffSpells`
+-   Quest relationships: `QuestRequiredItems`, `QuestRewards`
+-   Class restrictions: `ItemClasses`, `SpellClasses`
+-   Spawn mechanics: `SpawnPointCharacters`, `SpawnPointPatrolPoints`
 
 **Total**: 20,600+ normalized rows across all junction tables.
 
@@ -249,6 +249,7 @@ app.add_typer(my_command.app, name="my-command")
 **Architecture**: SQL queries → Formatter → Publisher → Google Sheets
 
 **Components**:
+
 1. **SQL Query Files**: `src/erenshor/application/formatters/sheets/queries/*.sql`
 2. **SheetsFormatter**: Executes SQL, formats results as spreadsheet rows
 3. **GoogleSheetsPublisher**: Publishes via Google Sheets API v4
@@ -256,21 +257,21 @@ app.add_typer(my_command.app, name="my-command")
 
 **Available Sheets**: various sheets including items, characters, spells, quests, drop-chances, spawn-points, and more.
 
-See `docs/GOOGLE_SHEETS_DEPLOYMENT.md` for complete guide.
-
 ## Configuration
 
 Two-layer configuration system (NO environment variables):
+
 1. `config.toml` (project defaults, tracked in git)
 2. `.erenshor/config.local.toml` (user overrides, NOT tracked in git)
 
 **Key config values**:
+
 ```toml
-[unity]
+[global.unity]
 path = "/Applications/Unity/Hub/Editor/2021.3.45f2/Unity.app/Contents/MacOS/Unity"
 version = "2021.3.45f2"
 
-[google_sheets]
+[global.google_sheets]
 credentials_file = "$HOME/.config/erenshor/google-credentials.json"
 batch_size = 1000
 
@@ -294,33 +295,46 @@ spreadsheet_id = "1eOYfjaudAhvE6HGBtWyRGgQDsmWDLENaoEwRvgBO_0E"
 
 ## Code Quality Principles
 
-1. **Fail Fast and Loud**
-   - No fallback functionality that hides errors
-   - Fail immediately with clear error messages
+1. **Be Thorough - Validate Every Claim**
 
-2. **No Backward Compatibility**
-   - Clean breaks when changing behavior
-   - No legacy code paths "just in case"
-   - One-off migration scripts OK, but don't leave migration code
+    - NEVER make claims or decisions without validating them against actual code
+    - When checking if something exists: grep for it, read the file, verify the implementation
+    - When saying something is "not used": search the entire codebase, check imports, verify no references exist
+    - Half-hearted checking is unacceptable - if you make a statement, it must be backed by verified data
+    - Example: Don't claim ".env is not used" after only checking one file - search ALL Python files for dotenv/load_dotenv
 
-3. **Keep It Simple**
-   - No extra config options, flags, or features
-   - Suggest improvements proactively, but only implement after discussion
+2. **Fail Fast and Loud**
 
-4. **Clean Cuts Only**
-   - Remove old code entirely when refactoring
-   - No "legacy support" or "fallback paths"
-   - Less code = less maintenance
+    - No fallback functionality that hides errors
+    - Fail immediately with clear error messages
 
-5. **Minimal Comments**
-   - Don't comment what's obvious from code
-   - No development history in comments
-   - Comments explain *why*, not *what*
+3. **No Backward Compatibility**
 
-6. **Atomic Commits**
-   - Commit regularly with logical, focused changes
-   - One concept per commit
-   - Clear, concise commit messages
+    - Clean breaks when changing behavior
+    - No legacy code paths "just in case"
+    - One-off migration scripts OK, but don't leave migration code
+
+4. **Keep It Simple**
+
+    - No extra config options, flags, or features
+    - Suggest improvements proactively, but only implement after discussion
+
+5. **Clean Cuts Only**
+
+    - Remove old code entirely when refactoring
+    - No "legacy support" or "fallback paths"
+    - Less code = less maintenance
+
+6. **Minimal Comments**
+
+    - Don't comment what's obvious from code
+    - No development history in comments
+    - Comments explain _why_, not _what_
+
+7. **Atomic Commits**
+    - Commit regularly with logical, focused changes
+    - One concept per commit
+    - Clear, concise commit messages
 
 ## Testing
 
@@ -344,13 +358,13 @@ uv run pytest-watch
 
 The project uses GitHub Actions for automated testing on every push and pull request:
 
-- **Linting**: Ruff checks code style and formatting
-- **Type Checking**: MyPy validates type hints
-- **Security**: Gitleaks scans for secrets
-- **Testing**: Full pytest suite with coverage reporting
+-   **Linting**: Ruff checks code style and formatting
+-   **Type Checking**: MyPy validates type hints
+-   **Security**: Gitleaks scans for secrets
+-   **Testing**: Full pytest suite with coverage reporting
 
 CI runs on all pushes to main and all pull requests. View results at:
-https://github.com/glockyco/erenshor-wiki/actions
+https://github.com/glockyco/erenshor-data-mining/actions
 
 ### Pre-commit Hooks
 
@@ -365,15 +379,17 @@ uv run pre-commit run --all-files
 ```
 
 Hooks include:
-- Ruff linting and formatting
-- MyPy type checking
-- Gitleaks secret scanning
+
+-   Ruff linting and formatting
+-   MyPy type checking
+-   Gitleaks secret scanning
 
 Tests are NOT run in pre-commit (too slow). They run in CI instead.
 
 ## Python Environment
 
 **Preferred**: Use `uv` for automatic dependency management
+
 ```bash
 uv sync --dev              # Install dependencies
 uv run pytest              # Run tests
@@ -381,6 +397,7 @@ uv run erenshor --help     # Run CLI via console script
 ```
 
 **Alternative invocations**:
+
 ```bash
 # Via module (if not installed as console script)
 uv run python -m erenshor.cli.main --help
@@ -392,6 +409,7 @@ uv run pytest
 ## Debugging
 
 ### Export Issues
+
 1. Check logs: `variants/{variant}/logs/export_*.log`
 2. Check global logs: `.erenshor/logs/`
 3. Verify Unity version: `uv run erenshor config show`
@@ -400,6 +418,7 @@ uv run pytest
 6. Run Unity in GUI mode for console errors
 
 ### CLI Issues
+
 ```bash
 # Check system health
 uv run erenshor doctor
@@ -409,16 +428,13 @@ uv run erenshor config show
 
 # Enable verbose logging
 uv run erenshor --verbose <command>
-
-# Validate configuration
-uv run erenshor config validate
 ```
 
 ### Google Sheets Issues
-- **Authentication**: Check `~/.config/erenshor/google-credentials.json` exists
-- **Permissions**: Service account needs **Editor** access (not just Viewer)
-- **Validation**: Run `uv run erenshor sheets validate` to test credentials
-- **Dry-run**: Test without writing: `uv run erenshor sheets deploy --dry-run`
+
+-   **Authentication**: Check `~/.config/erenshor/google-credentials.json` exists
+-   **Permissions**: Service account needs **Editor** access (not just Viewer)
+-   **Dry-run**: Test without writing: `uv run erenshor sheets deploy --dry-run`
 
 ## Important Constraints
 
@@ -432,23 +448,27 @@ uv run erenshor config validate
 ## Key Files
 
 **Python CLI**:
-- `src/erenshor/cli/main.py` - Main CLI entry point (Typer)
-- `src/erenshor/cli/commands/*.py` - Command implementations
-- `src/erenshor/application/services/` - Business services
-- `src/erenshor/infrastructure/` - External integrations (Steam, Unity, AssetRipper)
+
+-   `src/erenshor/cli/main.py` - Main CLI entry point (Typer)
+-   `src/erenshor/cli/commands/*.py` - Command implementations
+-   `src/erenshor/application/services/` - Business services
+-   `src/erenshor/infrastructure/` - External integrations (Steam, Unity, AssetRipper)
 
 **Unity Export**:
-- `src/Assets/Editor/ExportBatch.cs` - Batch export entry point
-- `src/Assets/Editor/ExportSystem/AssetScanner.cs` - Asset scanner
-- `src/Assets/Editor/Database/*.cs` - SQLite table records
+
+-   `src/Assets/Editor/ExportBatch.cs` - Batch export entry point
+-   `src/Assets/Editor/ExportSystem/AssetScanner.cs` - Asset scanner
+-   `src/Assets/Editor/Database/*.cs` - SQLite table records
 
 **Configuration**:
-- `config.toml` - Main configuration
-- `.erenshor/config.local.toml` - User overrides
-- `pyproject.toml` - Python dependencies and console script entry point
+
+-   `config.toml` - Main configuration
+-   `.erenshor/config.local.toml` - User overrides
+-   `pyproject.toml` - Python dependencies and console script entry point
 
 **Legacy**:
-- `legacy/cli/` - Old bash CLI (archived, not used)
+
+-   `legacy/cli/` - Old bash CLI (archived, not used)
 
 ## Quick Reference
 
@@ -469,21 +489,21 @@ uv run erenshor extract export          # Export to SQLite
 uv run erenshor wiki update             # Update wiki pages
 uv run erenshor sheets deploy --all-sheets  # Deploy to Google Sheets
 
-# Maps
+# Interactive Maps
 uv run erenshor maps dev                # Start dev server
 uv run erenshor maps build              # Build for production
 uv run erenshor maps deploy             # Deploy to Cloudflare
 
 # Testing
-uv run erenshor test                    # Run all tests
-uv run pytest                           # Direct pytest
+uv run pytest                           # Run all tests
 uv run pytest --cov                     # With coverage
+uv run erenshor test unit               # Unit tests only
+uv run erenshor test integration        # Integration tests only
 
 # Backup
-uv run erenshor backup create           # Create backup
 uv run erenshor backup list             # List backups
 ```
 
 ## Notes
 
-For AI assistance: The project is now pure Python using Typer for the CLI. All orchestration, system operations, and business logic are in Python. The legacy bash CLI has been moved to `legacy/cli/` and is no longer used. Always respect the "only modify src/" constraint.
+For AI assistance: The project is pure Python using Typer for the CLI. All orchestration, system operations, and business logic are in Python. The legacy bash CLI has been moved to `legacy/cli/` and is not used. Always respect the "only modify src/" constraint.

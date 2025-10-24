@@ -53,7 +53,7 @@ dependencies = [
 
 [project.urls]
 Homepage = "https://erenshor.wiki.gg"
-Repository = "https://github.com/glockyco/erenshor-wiki"
+Repository = "https://github.com/glockyco/erenshor-data-mining"
 
 [project.scripts]
 erenshor = "erenshor.cli.main:cli_main"

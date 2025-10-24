@@ -1,0 +1,334 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		// ====================================================================
+		// PYTHON TASKS
+		// ====================================================================
+		{
+			"label": "Python: Run All Tests",
+			"type": "shell",
+			"command": "uv run pytest",
+			"group": {
+				"kind": "test",
+				"isDefault": true
+			},
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"group": "python"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Python: Run Tests with Coverage",
+			"type": "shell",
+			"command": "uv run pytest --cov",
+			"group": "test",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"group": "python"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Python: Run Unit Tests Only",
+			"type": "shell",
+			"command": "uv run pytest -m unit",
+			"group": "test",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"group": "python"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Python: Run Integration Tests",
+			"type": "shell",
+			"command": "uv run pytest -m integration",
+			"group": "test",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"group": "python"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Python: Lint with Ruff",
+			"type": "shell",
+			"command": "uv run ruff check src/ tests/ --output-format=concise",
+			"group": "build",
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared",
+				"group": "python"
+			},
+			"problemMatcher": {
+				"owner": "ruff",
+				"fileLocation": ["relative", "${workspaceFolder}"],
+				"pattern": {
+					"regexp": "^(.+):(\\d+):(\\d+):\\s+(\\S+)\\s+(.+)$",
+					"file": 1,
+					"line": 2,
+					"column": 3,
+					"code": 4,
+					"message": 5
+				}
+			}
+		},
+		{
+			"label": "Python: Format with Ruff",
+			"type": "shell",
+			"command": "uv run ruff format src/ tests/",
+			"group": "build",
+			"presentation": {
+				"reveal": "silent",
+				"panel": "shared",
+				"group": "python"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Python: Type Check with MyPy",
+			"type": "shell",
+			"command": "uv run mypy src/erenshor",
+			"group": "build",
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared",
+				"group": "python"
+			},
+			"problemMatcher": {
+				"owner": "mypy",
+				"fileLocation": ["relative", "${workspaceFolder}"],
+				"pattern": {
+					"regexp": "^(.+):(\\d+):\\s+(error|warning|note):\\s+(.+)\\s+\\[(.+)\\]$",
+					"file": 1,
+					"line": 2,
+					"severity": 3,
+					"message": 4,
+					"code": 5
+				}
+			}
+		},
+		// ====================================================================
+		// ERENSHOR CLI TASKS
+		// ====================================================================
+		{
+			"label": "Erenshor: Status",
+			"type": "shell",
+			"command": "uv run erenshor status",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"group": "pipeline"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Erenshor: Doctor (Health Check)",
+			"type": "shell",
+			"command": "uv run erenshor doctor",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"group": "pipeline"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Erenshor: Extract - Full Pipeline (main)",
+			"type": "shell",
+			"command": "uv run erenshor extract full --variant main",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"group": "pipeline"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Erenshor: Extract - Download Only (main)",
+			"type": "shell",
+			"command": "uv run erenshor extract download --variant main",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"group": "pipeline"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Erenshor: Extract - Rip Only (main)",
+			"type": "shell",
+			"command": "uv run erenshor extract rip --variant main",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"group": "pipeline"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Erenshor: Extract - Export to SQLite (main)",
+			"type": "shell",
+			"command": "uv run erenshor extract export --variant main",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"group": "pipeline"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Erenshor: Sheets - Deploy All",
+			"type": "shell",
+			"command": "uv run erenshor sheets deploy --all-sheets",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"group": "pipeline"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Erenshor: Sheets - List Available",
+			"type": "shell",
+			"command": "uv run erenshor sheets list",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"group": "pipeline"
+			},
+			"problemMatcher": []
+		},
+		// ====================================================================
+		// MAPS (TypeScript/Svelte) TASKS
+		// ====================================================================
+		{
+			"label": "Maps: Start Dev Server",
+			"type": "shell",
+			"command": "npm run dev",
+			"options": {
+				"cwd": "${workspaceFolder}/src/maps"
+			},
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"group": "maps"
+			},
+			"problemMatcher": [],
+			"isBackground": true
+		},
+		{
+			"label": "Maps: Build for Production",
+			"type": "shell",
+			"command": "npm run build",
+			"options": {
+				"cwd": "${workspaceFolder}/src/maps"
+			},
+			"group": "build",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"group": "maps"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Maps: Preview Production Build",
+			"type": "shell",
+			"command": "npm run preview",
+			"options": {
+				"cwd": "${workspaceFolder}/src/maps"
+			},
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"group": "maps"
+			},
+			"problemMatcher": [],
+			"isBackground": true
+		},
+		{
+			"label": "Maps: Lint",
+			"type": "shell",
+			"command": "npm run lint",
+			"options": {
+				"cwd": "${workspaceFolder}/src/maps"
+			},
+			"group": "build",
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared",
+				"group": "maps"
+			},
+			"problemMatcher": "$eslint-stylish"
+		},
+		{
+			"label": "Maps: Format",
+			"type": "shell",
+			"command": "npm run format",
+			"options": {
+				"cwd": "${workspaceFolder}/src/maps"
+			},
+			"group": "build",
+			"presentation": {
+				"reveal": "silent",
+				"panel": "shared",
+				"group": "maps"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Maps: Type Check",
+			"type": "shell",
+			"command": "npm run check",
+			"options": {
+				"cwd": "${workspaceFolder}/src/maps"
+			},
+			"group": "build",
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared",
+				"group": "maps"
+			},
+			"problemMatcher": "$tsc"
+		},
+		{
+			"label": "Maps: Run Tests",
+			"type": "shell",
+			"command": "npm run test",
+			"options": {
+				"cwd": "${workspaceFolder}/src/maps"
+			},
+			"group": "test",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"group": "maps"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Maps: Deploy to Cloudflare",
+			"type": "shell",
+			"command": "npm run deploy",
+			"options": {
+				"cwd": "${workspaceFolder}/src/maps"
+			},
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"group": "maps"
+			},
+			"problemMatcher": []
+		}
+	]
+}

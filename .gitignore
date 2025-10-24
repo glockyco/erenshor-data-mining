@@ -806,6 +806,9 @@ FodyWeavers.xsd
 
 # End of https://www.toptal.com/developers/gitignore/api/linux,macos,unity,windows,intellij+all,visualstudio,visualstudiocode,python
 
+# VS Code workspace file should be tracked
+!Erenshor.code-workspace
+
 # CLI scripts should be tracked
 !/cli/bin/
 !/cli/lib/

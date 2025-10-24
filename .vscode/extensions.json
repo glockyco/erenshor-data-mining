@@ -1,0 +1,57 @@
+{
+	"recommendations": [
+		// ====================================================================
+		// PYTHON EXTENSIONS (Required)
+		// ====================================================================
+		"ms-python.python",
+		// Python IntelliSense, linting, debugging
+		"ms-python.vscode-pylance",
+		// Fast Python language server
+		"ms-python.debugpy",
+		// Python debugger
+		"charliermarsh.ruff",
+		// Ruff linter and formatter
+		"ms-python.mypy-type-checker",
+		// MyPy type checker (official Microsoft extension)
+		// ====================================================================
+		// TYPESCRIPT/SVELTE EXTENSIONS (Required)
+		// ====================================================================
+		"svelte.svelte-vscode",
+		// Svelte language support
+		"dbaeumer.vscode-eslint",
+		// ESLint integration
+		"esbenp.prettier-vscode",
+		// Prettier code formatter
+		"ms-vscode.js-debug",
+		// JavaScript debugger (built-in, explicit listing)
+		// ====================================================================
+		// C# EXTENSIONS (Required)
+		// ====================================================================
+		"ms-dotnettools.csharp",
+		// C# language support (OmniSharp)
+		"ms-dotnettools.csdevkit",
+		// C# Dev Kit for enhanced features
+		// ====================================================================
+		// GENERAL PRODUCTIVITY (Recommended)
+		// ====================================================================
+		"gruntfuggly.todo-tree",
+		// TODO/FIXME highlighting
+		"usernamehw.errorlens",
+		// Inline error messages
+		// ====================================================================
+		// DATA/CONFIG FILE SUPPORT (Recommended)
+		// ====================================================================
+		"tamasfe.even-better-toml",
+		// TOML language support
+		"mtxr.sqltools",
+		// SQL query runner and database browser
+		"mtxr.sqltools-driver-sqlite"
+		// SQLite driver for SQLTools
+	],
+	"unwantedRecommendations": [
+		"ms-python.isort",
+		"ms-python.black-formatter",
+		"ms-python.flake8",
+		"matangover.mypy"
+	]
+}

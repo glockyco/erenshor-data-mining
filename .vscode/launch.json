@@ -1,0 +1,84 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		// ====================================================================
+		// PYTHON DEBUGGING
+		// ====================================================================
+		{
+			"name": "Python: Debug Current File",
+			"type": "debugpy",
+			"request": "launch",
+			"program": "${file}",
+			"console": "integratedTerminal",
+			"justMyCode": true
+		},
+		{
+			"name": "Python: Debug Erenshor CLI",
+			"type": "debugpy",
+			"request": "launch",
+			"module": "erenshor.cli.main",
+			"args": [
+				"--help"
+			],
+			"console": "integratedTerminal",
+			"justMyCode": true
+		},
+		{
+			"name": "Python: Debug Tests (Current File)",
+			"type": "debugpy",
+			"request": "launch",
+			"module": "pytest",
+			"args": [
+				"${file}",
+				"-v"
+			],
+			"console": "integratedTerminal",
+			"justMyCode": false
+		},
+		{
+			"name": "Python: Debug All Tests",
+			"type": "debugpy",
+			"request": "launch",
+			"module": "pytest",
+			"args": [
+				"tests/",
+				"-v"
+			],
+			"console": "integratedTerminal",
+			"justMyCode": false
+		},
+		{
+			"name": "Python: Debug Unit Tests",
+			"type": "debugpy",
+			"request": "launch",
+			"module": "pytest",
+			"args": [
+				"-m",
+				"unit",
+				"-v"
+			],
+			"console": "integratedTerminal",
+			"justMyCode": false
+		},
+		// ====================================================================
+		// TYPESCRIPT/SVELTE DEBUGGING (Chrome)
+		// ====================================================================
+		{
+			"name": "Maps: Debug in Chrome",
+			"type": "chrome",
+			"request": "launch",
+			"url": "http://localhost:5173",
+			"webRoot": "${workspaceFolder}/src/maps",
+			"sourceMaps": true,
+			"preLaunchTask": "Maps: Start Dev Server"
+		},
+		{
+			"name": "Maps: Attach to Chrome",
+			"type": "chrome",
+			"request": "attach",
+			"port": 9222,
+			"webRoot": "${workspaceFolder}/src/maps",
+			"sourceMaps": true
+		}
+	]
+}

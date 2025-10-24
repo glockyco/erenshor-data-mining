@@ -1,0 +1,264 @@
+{
+	"folders": [
+		{
+			"name": "⚙️ Config (Root)",
+			"path": "."
+		},
+		{
+			"name": "🐍 Python CLI",
+			"path": "src/erenshor"
+		},
+		{
+			"name": "📋 Tests",
+			"path": "tests"
+		},
+		{
+			"name": "🗺️ Maps (TypeScript/Svelte)",
+			"path": "src/maps"
+		},
+		{
+			"name": "🎮 Unity Editor Scripts (C#)",
+			"path": "src/Assets/Editor"
+		},
+		{
+			"name": "📜 Game Scripts (main)",
+			"path": "variants/main/unity/ExportedProject/Assets/Scripts"
+		},
+		{
+			"name": "📜 Game Scripts (playtest)",
+			"path": "variants/playtest/unity/ExportedProject/Assets/Scripts"
+		},
+		{
+			"name": "📜 Game Scripts (demo)",
+			"path": "variants/demo/unity/ExportedProject/Assets/Scripts"
+		},
+		{
+			"name": "📄 Documentation",
+			"path": "docs"
+		}
+	],
+	"settings": {
+		// ========================================================================
+		// PYTHON CONFIGURATION (uv + ruff + mypy + pytest)
+		// ========================================================================
+		"python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
+		"python.analysis.extraPaths": [
+			"${workspaceFolder}/src"
+		],
+		"python.analysis.autoImportCompletions": true,
+		"python.analysis.typeCheckingMode": "strict",
+		"python.analysis.diagnosticMode": "workspace",
+		"python.analysis.inlayHints.functionReturnTypes": true,
+		"python.analysis.inlayHints.variableTypes": true,
+		"python.analysis.indexing": true,
+		"python.analysis.diagnosticSeverityOverrides": {
+			"reportMissingTypeStubs": "none"
+		},
+		"python.analysis.exclude": [
+			"**/node_modules",
+			"**/__pycache__",
+			"**/.*",
+			"**/variants/*/game/**",
+			"**/variants/*/unity/ExportedProject/**"
+		],
+		"python.analysis.ignore": [
+			"**/node_modules",
+			"**/variants/*/game/**",
+			"**/variants/*/unity/ExportedProject/**"
+		],
+		// Python testing
+		"python.testing.pytestEnabled": true,
+		"python.testing.unittestEnabled": false,
+		"python.testing.pytestArgs": [
+			"tests"
+		],
+		"python.testing.autoTestDiscoverOnSaveEnabled": true,
+		// Python formatting and linting (Ruff)
+		"[python]": {
+			"editor.defaultFormatter": "charliermarsh.ruff",
+			"editor.formatOnSave": true,
+			"editor.tabSize": 4,
+			"editor.insertSpaces": true,
+			"editor.codeActionsOnSave": {
+				"source.fixAll": "explicit",
+				"source.organizeImports": "explicit"
+			}
+		},
+		// Ruff native server configuration
+		"ruff.nativeServer": "on",
+		"ruff.configuration": "pyproject.toml",
+		// Python type checking (mypy - Microsoft official extension)
+		"mypy-type-checker.importStrategy": "fromEnvironment",
+		"mypy-type-checker.args": [
+			"--config-file=pyproject.toml"
+		],
+		"mypy-type-checker.reportingScope": "workspace",
+		"mypy-type-checker.preferDaemon": true,
+		// ========================================================================
+		// TYPESCRIPT/SVELTE CONFIGURATION (Prettier + ESLint + SvelteKit)
+		// ========================================================================
+		"typescript.tsdk": "src/maps/node_modules/typescript/lib",
+		"typescript.enablePromptUseWorkspaceTsdk": true,
+		"typescript.preferences.importModuleSpecifier": "relative",
+		"typescript.updateImportsOnFileMove.enabled": "always",
+		"typescript.tsserver.maxTsServerMemory": 4096,
+		"typescript.tsserver.watchOptions": {
+			"excludeDirectories": [
+				"**/node_modules",
+				"**/.svelte-kit"
+			]
+		},
+		// Svelte
+		"svelte.enable-ts-plugin": true,
+		"svelte.plugin.svelte.compilerWarnings": {
+			"a11y-no-static-element-interactions": "ignore"
+		},
+		// TypeScript/Svelte formatting (Prettier)
+		"[typescript]": {
+			"editor.defaultFormatter": "esbenp.prettier-vscode",
+			"editor.formatOnSave": true,
+			"editor.tabSize": 4,
+			"editor.insertSpaces": true
+		},
+		"[javascript]": {
+			"editor.defaultFormatter": "esbenp.prettier-vscode",
+			"editor.formatOnSave": true,
+			"editor.tabSize": 4,
+			"editor.insertSpaces": true
+		},
+		"[svelte]": {
+			"editor.defaultFormatter": "svelte.svelte-vscode",
+			"editor.formatOnSave": true,
+			"editor.tabSize": 4,
+			"editor.insertSpaces": true
+		},
+		// ESLint
+		"eslint.workingDirectories": [
+			{
+				"pattern": "src/maps"
+			}
+		],
+		"eslint.validate": [
+			"javascript",
+			"typescript",
+			"svelte"
+		],
+		// Prettier auto-discovers config from workspace folders
+		"prettier.resolveGlobalModules": false,
+		// ========================================================================
+		// C# CONFIGURATION (OmniSharp for basic support, use Rider for serious work)
+		// ========================================================================
+		"[csharp]": {
+			"editor.defaultFormatter": "ms-dotnettools.csharp",
+			"editor.formatOnSave": true,
+			"editor.tabSize": 4,
+			"editor.insertSpaces": true,
+			"editor.codeActionsOnSave": {
+				"source.addMissingImports": "explicit",
+				"source.organizeImports": "explicit"
+			}
+		},
+		"omnisharp.useModernNet": true,
+		"omnisharp.enableEditorConfigSupport": true,
+		"omnisharp.enableRoslynAnalyzers": true,
+		// ========================================================================
+		// GENERAL EDITOR SETTINGS
+		// ========================================================================
+		"editor.rulers": [
+			120
+		],
+		"editor.tabSize": 4,
+		"editor.insertSpaces": true,
+		"editor.detectIndentation": false,
+		"editor.bracketPairColorization.enabled": true,
+		"editor.guides.bracketPairs": "active",
+		"editor.inlineSuggest.enabled": true,
+		"editor.suggestSelection": "first",
+		"editor.semanticHighlighting.enabled": true,
+		"editor.formatOnSave": true,
+		// ========================================================================
+		// FILE EXCLUSIONS (Hide noise from all workspace folders)
+		// ========================================================================
+		"files.exclude": {
+			// Python build artifacts
+			"**/__pycache__": true,
+			"**/*.pyc": true,
+			"**/.pytest_cache": true,
+			"**/.mypy_cache": true,
+			"**/.ruff_cache": true,
+			"**/.coverage": true,
+			"**/htmlcov": true,
+			"**/*.egg-info": true,
+			// Node/TypeScript build artifacts
+			"**/node_modules": true,
+			"**/.svelte-kit": true,
+			"**/build": true,
+			"**/dist": true,
+			// Unity metadata (not useful in VS Code)
+			"**/*.meta": true,
+			// System files
+			"**/.DS_Store": true,
+			"**/Thumbs.db": true,
+			// IDE files
+			"**/.idea": true,
+			// Generated files that are never useful to view
+			"out": true
+		},
+		// Don't watch these directories for changes (performance)
+		"files.watcherExclude": {
+			"**/.git/objects/**": true,
+			"**/.git/subtree-cache/**": true,
+			"**/node_modules/**": true,
+			"**/.venv/**": true,
+			"**/__pycache__/**": true,
+			"**/.pytest_cache/**": true,
+			"**/.mypy_cache/**": true,
+			"**/.ruff_cache/**": true,
+			"**/htmlcov/**": true,
+			"**/variants/*/game/**": true,
+			"**/variants/*/unity/ExportedProject/Assets/**": true,
+			"**/variants/*/unity/ExportedProject/ProjectSettings/**": true,
+			"**/variants/*/unity/Temp/**": true,
+			"**/variants/*/unity/Library/**": true,
+			"**/.erenshor/**": true,
+			"**/legacy/**": true
+		},
+		// Exclude from search
+		"search.exclude": {
+			"**/node_modules": true,
+			"**/.venv": true,
+			"**/__pycache__": true,
+			"**/*.pyc": true,
+			"**/.pytest_cache": true,
+			"**/.mypy_cache": true,
+			"**/.ruff_cache": true,
+			"**/htmlcov": true,
+			"**/.svelte-kit": true,
+			"**/build": true,
+			"**/dist": true,
+			"**/*.sqlite": true,
+			"**/coverage.json": true,
+			"**/*.meta": true
+		},
+		// ========================================================================
+		// TERMINAL CONFIGURATION
+		// ========================================================================
+		"terminal.integrated.defaultProfile.osx": "zsh",
+		"terminal.integrated.cwd": "${workspaceFolder}",
+		// ========================================================================
+		// GIT CONFIGURATION
+		// ========================================================================
+		"git.ignoreLimitWarning": true,
+		"git.autofetch": true,
+		"git.confirmSync": false,
+		// ========================================================================
+		// FILE ASSOCIATIONS
+		// ========================================================================
+		"files.associations": {
+			"*.toml": "toml",
+			"*.sql": "sql",
+			"*.md": "markdown",
+			"*.cs": "csharp"
+		}
+	}
+}
