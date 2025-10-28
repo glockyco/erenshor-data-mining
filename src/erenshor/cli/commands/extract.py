@@ -200,6 +200,13 @@ def rip(
         return
 
     try:
+        # Clean up old Unity project if force re-extraction
+        if force and unity_project_dir.exists():
+            logger.info(f"Removing old Unity project: {unity_project_dir}")
+            import shutil
+
+            shutil.rmtree(unity_project_dir)
+
         logger.info(f"Extracting Unity project: variant={cli_ctx.variant}")
 
         # Create AssetRipper wrapper
@@ -216,6 +223,12 @@ def rip(
             target_dir=unity_project_dir,
             log_dir=logs_dir,
         )
+
+        # Create Editor scripts symlink
+        editor_target = unity_project_dir / "Assets" / "Editor"
+        editor_source = variant_config.resolved_editor_scripts(cli_ctx.repo_root)
+        logger.info(f"Creating Editor scripts symlink: {editor_target} -> {editor_source}")
+        editor_target.symlink_to(editor_source)
 
         logger.info(f"Unity project extraction complete: {unity_project_dir}")
         logger.info("Next: Run 'erenshor extract export' to export game data to SQLite")
