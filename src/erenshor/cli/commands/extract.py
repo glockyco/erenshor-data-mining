@@ -8,6 +8,7 @@ This module provides commands for managing the data extraction pipeline:
 
 from __future__ import annotations
 
+import shutil
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -203,8 +204,6 @@ def rip(
         # Clean up old Unity project if force re-extraction
         if force and unity_project_dir.exists():
             logger.info(f"Removing old Unity project: {unity_project_dir}")
-            import shutil
-
             shutil.rmtree(unity_project_dir)
 
         logger.info(f"Extracting Unity project: variant={cli_ctx.variant}")
