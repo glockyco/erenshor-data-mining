@@ -8,7 +8,7 @@ public class ItemStatsRecord
     public const string TableName = "ItemStats";
     
     [Indexed(Name = "ItemStats_Primary_IDX", Order = 1, Unique = true)]
-    public string ItemId { get; set; } = string.Empty;
+    public string ItemResourceName { get; set; } = string.Empty;
     [Indexed(Name = "ItemStats_Primary_IDX", Order = 2, Unique = true)]
     public string Quality { get; set; } = string.Empty; // "Normal", "Blessed", "Godly"
     

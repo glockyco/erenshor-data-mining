@@ -127,18 +127,18 @@ public class QuestListener : IAssetScanListener<Quest>
     private List<QuestRequiredItemRecord> CreateQuestRequiredItemRecords(int questDbIndex, Quest quest)
     {
         var records = new List<QuestRequiredItemRecord>();
-        var seenIds = new HashSet<string>();
+        var seenResourceNames = new HashSet<string>();
 
         if (quest.RequiredItems != null && quest.RequiredItems.Count > 0)
         {
             foreach (var item in quest.RequiredItems)
             {
-                if (item != null && !string.IsNullOrEmpty(item.Id) && seenIds.Add(item.Id))
+                if (item != null && !string.IsNullOrEmpty(item.name) && seenResourceNames.Add(item.name))
                 {
                     records.Add(new QuestRequiredItemRecord
                     {
                         QuestId = questDbIndex,
-                        ItemId = item.Id
+                        ItemResourceName = item.name
                     });
                 }
             }

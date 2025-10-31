@@ -11,5 +11,5 @@ public class CharacterCCSpellRecord
     public int CharacterId { get; set; }
 
     [Indexed(Name = "CharacterCCSpells_Primary_IDX", Order = 2, Unique = true)]
-    public int SpellId { get; set; }
+    public string SpellResourceName { get; set; } = string.Empty;
 }

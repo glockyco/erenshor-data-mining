@@ -8,8 +8,8 @@ public class SpellRecord
     public const string TableName = "Spells";
     
     // --- Core Identification ---
-    [PrimaryKey]
     public int SpellDBIndex { get; set; } // Index in the Resources.LoadAll array
+    [Indexed]
     public string Id { get; set; } = string.Empty; // From BaseScriptableObject.Id
     public string SpellName { get; set; } = string.Empty; // From Spell.SpellName
     public string SpellDesc { get; set; } = string.Empty; // From Spell.SpellDesc
@@ -111,5 +111,6 @@ public class SpellRecord
     public string StatusEffectMessageOnNPC { get; set; } = string.Empty; // From Spell.StatusEffectMessageOnNPC
     
     // --- Internals ---
+    [PrimaryKey]
     public string ResourceName { get; set; } = string.Empty; // From Spell.name (ScriptableObject name)
 }

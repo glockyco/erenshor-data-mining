@@ -71,7 +71,7 @@ public class ItemBagListener : IAssetScanListener<ItemBag>
         {
             Id = TableIdGenerator.NextId(ItemBagRecord.TableName),
             CoordinateId = coordinate.Id,
-            ItemId = asset.Contents?.Id,
+            ItemResourceName = asset.Contents?.name,
             Respawns = asset.Respawns,
             RespawnTimer = asset.RespawnTimer
         };

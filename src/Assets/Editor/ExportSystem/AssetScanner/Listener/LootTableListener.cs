@@ -62,7 +62,6 @@ public class LootTableListener : IAssetScanListener<LootTable>
         foreach (var item in EnumerateAllUniqueItems(lootTable))
         {
             var itemName = item.name;
-            var itemId = item.Id;
 
             perItemDistributions.TryGetValue(itemName, out var dist);
 
@@ -85,7 +84,7 @@ public class LootTableListener : IAssetScanListener<LootTable>
             var record = new LootTableRecord
             {
                 CharacterPrefabGuid = guid,
-                ItemId = itemId,
+                ItemResourceName = itemName,
                 DropProbability = dropProbability,
                 ExpectedPerKill = Math.Round(expectedDrops.GetValueOrDefault(itemName, 0.0), 4),
                 DropCountDistribution = JsonConvert.SerializeObject(dropCountList),
@@ -122,7 +121,7 @@ public class LootTableListener : IAssetScanListener<LootTable>
             records.Add(new LootTableRecord
             {
                 CharacterPrefabGuid = guid,
-                ItemId = LootTableProbabilityCalculator.WorldDropKey,
+                ItemResourceName = LootTableProbabilityCalculator.WorldDropKey,
                 DropProbability = worldProb,
                 ExpectedPerKill = Math.Round(expectedDrops.GetValueOrDefault(LootTableProbabilityCalculator.WorldDropKey, 0.0), 4),
                 DropCountDistribution = JsonConvert.SerializeObject(worldDropCountList),

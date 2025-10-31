@@ -119,19 +119,19 @@ def database_has_items(context: dict[str, Any]) -> PreconditionResult:
         conn = sqlite3.connect(str(db_path))
         cursor = conn.cursor()
 
-        # Check if Item table exists
-        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='Item'")
+        # Check if Items table exists
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='Items'")
         if not cursor.fetchone():
             conn.close()
             return PreconditionResult(
                 passed=False,
                 check_name="database_has_items",
-                message="Database has no Item table",
+                message="Database has no Items table",
                 detail="Database may be empty or from old export\nRun 'erenshor extract export' to populate",
             )
 
         # Count items
-        cursor.execute("SELECT COUNT(*) FROM Item")
+        cursor.execute("SELECT COUNT(*) FROM Items")
         count = cursor.fetchone()[0]
         conn.close()
 

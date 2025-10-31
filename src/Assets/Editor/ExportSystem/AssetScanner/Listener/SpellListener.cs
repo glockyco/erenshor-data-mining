@@ -40,7 +40,7 @@ public class SpellListener : IAssetScanListener<Spell>
         if (record != null)
         {
             _records.Add(record);
-            _spellClassRecords.AddRange(CreateSpellClassRecords(asset, _records.Count - 1));
+            _spellClassRecords.AddRange(CreateSpellClassRecords(asset));
         }
     }
 
@@ -176,7 +176,7 @@ public class SpellListener : IAssetScanListener<Spell>
         };
     }
 
-    private List<SpellClassRecord> CreateSpellClassRecords(Spell spell, int spellDbIndex)
+    private List<SpellClassRecord> CreateSpellClassRecords(Spell spell)
     {
         var records = new List<SpellClassRecord>();
 
@@ -188,7 +188,7 @@ public class SpellListener : IAssetScanListener<Spell>
                 {
                     records.Add(new SpellClassRecord
                     {
-                        SpellId = spellDbIndex,
+                        SpellResourceName = spell.name,
                         ClassName = characterClass.ClassName
                     });
                 }

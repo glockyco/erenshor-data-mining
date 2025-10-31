@@ -9,7 +9,7 @@ public class ItemRecord
     
     // --- Core Identification ---
     public int ItemDBIndex { get; set; } // Index in the Resources.LoadAll<Item> array
-    [PrimaryKey]
+    [Indexed]
     public string Id { get; set; } = string.Empty;
     public string ItemName { get; set; } = string.Empty;
     public string Lore { get; set; } = string.Empty;
@@ -123,5 +123,6 @@ public class ItemRecord
     //public float ItemLeatherSecondaryA { get; set; }
 
     // --- Internal ---
+    [PrimaryKey]
     public string ResourceName { get; set; } = string.Empty; // Original Item.name (ScriptableObject filename)
 }

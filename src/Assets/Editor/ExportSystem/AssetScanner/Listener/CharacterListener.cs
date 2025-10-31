@@ -26,10 +26,8 @@ public class CharacterListener : IAssetScanListener<Character>
     private readonly List<CharacterFactionModifierRecord> _characterFactionModifierRecords = new();
     private readonly List<CharacterDeathShoutRecord> _characterDeathShoutRecords = new();
 
-    // Store ability IDs (not NPC references) for deferred junction record creation
-    private readonly List<(int characterId, List<string> attackSkillIds, List<string> attackSpellIds, List<string> buffSpellIds, List<string> healSpellIds, List<string> groupHealSpellIds, List<string> ccSpellIds, List<string> tauntSpellIds)> _npcAbilityData = new();
-    private Dictionary<string, int>? _spellIdToDbIndexCache = null;
-    private Dictionary<string, int>? _skillIdToDbIndexCache = null;
+    // Store ability ResourceNames (not NPC references) for deferred junction record creation
+    private readonly List<(int characterId, List<string> attackSkillResourceNames, List<string> attackSpellResourceNames, List<string> buffSpellResourceNames, List<string> healSpellResourceNames, List<string> groupHealSpellResourceNames, List<string> ccSpellResourceNames, List<string> tauntSpellResourceNames)> _npcAbilityData = new();
     private Dictionary<string, string>? _factionNameToRefNameCache = null;
     private readonly List<string> _lookupErrors = new();
 
@@ -59,27 +57,21 @@ public class CharacterListener : IAssetScanListener<Character>
         _characterRecords.Clear();
         _characterDialogRecords.Clear();
 
-        // Populate FK lookup caches (SpellRecord/SkillRecord/WorldFactionRecord tables are now populated if their entities were exported)
-        _spellIdToDbIndexCache = TableExists<SpellRecord>()
-            ? _db.Table<SpellRecord>().ToDictionary(s => s.Id, s => s.SpellDBIndex)
-            : new Dictionary<string, int>();
-        _skillIdToDbIndexCache = TableExists<SkillRecord>()
-            ? _db.Table<SkillRecord>().ToDictionary(s => s.Id, s => s.SkillDBIndex)
-            : new Dictionary<string, int>();
+        // Populate FK lookup cache for factions (WorldFactionRecord table is now populated if faction entities were exported)
         _factionNameToRefNameCache = TableExists<WorldFactionRecord>()
             ? _db.Table<WorldFactionRecord>().ToDictionary(f => f.FactionName, f => f.REFNAME)
             : new Dictionary<string, string>();
 
         // Process saved ability data to create junction records
-        foreach (var (characterId, attackSkillIds, attackSpellIds, buffSpellIds, healSpellIds, groupHealSpellIds, ccSpellIds, tauntSpellIds) in _npcAbilityData)
+        foreach (var (characterId, attackSkillResourceNames, attackSpellResourceNames, buffSpellResourceNames, healSpellResourceNames, groupHealSpellResourceNames, ccSpellResourceNames, tauntSpellResourceNames) in _npcAbilityData)
         {
-            _characterAttackSkillRecords.AddRange(CreateCharacterAttackSkillRecords(characterId, attackSkillIds));
-            _characterAttackSpellRecords.AddRange(CreateCharacterAttackSpellRecords(characterId, attackSpellIds));
-            _characterBuffSpellRecords.AddRange(CreateCharacterBuffSpellRecords(characterId, buffSpellIds));
-            _characterHealSpellRecords.AddRange(CreateCharacterHealSpellRecords(characterId, healSpellIds));
-            _characterGroupHealSpellRecords.AddRange(CreateCharacterGroupHealSpellRecords(characterId, groupHealSpellIds));
-            _characterCCSpellRecords.AddRange(CreateCharacterCCSpellRecords(characterId, ccSpellIds));
-            _characterTauntSpellRecords.AddRange(CreateCharacterTauntSpellRecords(characterId, tauntSpellIds));
+            _characterAttackSkillRecords.AddRange(CreateCharacterAttackSkillRecords(characterId, attackSkillResourceNames));
+            _characterAttackSpellRecords.AddRange(CreateCharacterAttackSpellRecords(characterId, attackSpellResourceNames));
+            _characterBuffSpellRecords.AddRange(CreateCharacterBuffSpellRecords(characterId, buffSpellResourceNames));
+            _characterHealSpellRecords.AddRange(CreateCharacterHealSpellRecords(characterId, healSpellResourceNames));
+            _characterGroupHealSpellRecords.AddRange(CreateCharacterGroupHealSpellRecords(characterId, groupHealSpellResourceNames));
+            _characterCCSpellRecords.AddRange(CreateCharacterCCSpellRecords(characterId, ccSpellResourceNames));
+            _characterTauntSpellRecords.AddRange(CreateCharacterTauntSpellRecords(characterId, tauntSpellResourceNames));
         }
 
         // Fail if any lookup errors occurred during junction record creation
@@ -223,17 +215,16 @@ public class CharacterListener : IAssetScanListener<Character>
         var npc = asset.GetComponent<NPC>();
         if (npc != null)
         {
-            // Extract ability IDs NOW (while assets are loaded) for deferred junction record creation
-            // (FK resolution must happen in OnScanFinished after Spell/Skill tables are populated)
-            var attackSkillIds = npc.MyAttackSkills?.Where(s => s != null && !string.IsNullOrEmpty(s.Id)).Select(s => s.Id).ToList() ?? new List<string>();
-            var attackSpellIds = npc.MyAttackSpells?.Where(s => s != null && !string.IsNullOrEmpty(s.Id)).Select(s => s.Id).ToList() ?? new List<string>();
-            var buffSpellIds = npc.MyBuffSpells?.Where(s => s != null && !string.IsNullOrEmpty(s.Id)).Select(s => s.Id).ToList() ?? new List<string>();
-            var healSpellIds = npc.MyHealSpells?.Where(s => s != null && !string.IsNullOrEmpty(s.Id)).Select(s => s.Id).ToList() ?? new List<string>();
-            var groupHealSpellIds = npc.GroupHeals?.Where(s => s != null && !string.IsNullOrEmpty(s.Id)).Select(s => s.Id).ToList() ?? new List<string>();
-            var ccSpellIds = npc.MyCCSpells?.Where(s => s != null && !string.IsNullOrEmpty(s.Id)).Select(s => s.Id).ToList() ?? new List<string>();
-            var tauntSpellIds = npc.MyTauntSpell?.Where(s => s != null && !string.IsNullOrEmpty(s.Id)).Select(s => s.Id).ToList() ?? new List<string>();
+            // Extract ability ResourceNames NOW (while assets are loaded) for junction record creation
+            var attackSkillResourceNames = npc.MyAttackSkills?.Where(s => s != null && !string.IsNullOrEmpty(s.name)).Select(s => s.name).ToList() ?? new List<string>();
+            var attackSpellResourceNames = npc.MyAttackSpells?.Where(s => s != null && !string.IsNullOrEmpty(s.name)).Select(s => s.name).ToList() ?? new List<string>();
+            var buffSpellResourceNames = npc.MyBuffSpells?.Where(s => s != null && !string.IsNullOrEmpty(s.name)).Select(s => s.name).ToList() ?? new List<string>();
+            var healSpellResourceNames = npc.MyHealSpells?.Where(s => s != null && !string.IsNullOrEmpty(s.name)).Select(s => s.name).ToList() ?? new List<string>();
+            var groupHealSpellResourceNames = npc.GroupHeals?.Where(s => s != null && !string.IsNullOrEmpty(s.name)).Select(s => s.name).ToList() ?? new List<string>();
+            var ccSpellResourceNames = npc.MyCCSpells?.Where(s => s != null && !string.IsNullOrEmpty(s.name)).Select(s => s.name).ToList() ?? new List<string>();
+            var tauntSpellResourceNames = npc.MyTauntSpell?.Where(s => s != null && !string.IsNullOrEmpty(s.name)).Select(s => s.name).ToList() ?? new List<string>();
 
-            _npcAbilityData.Add((characterRecord.Id, attackSkillIds, attackSpellIds, buffSpellIds, healSpellIds, groupHealSpellIds, ccSpellIds, tauntSpellIds));
+            _npcAbilityData.Add((characterRecord.Id, attackSkillResourceNames, attackSpellResourceNames, buffSpellResourceNames, healSpellResourceNames, groupHealSpellResourceNames, ccSpellResourceNames, tauntSpellResourceNames));
         }
 
         var vendorInventory = asset.GetComponent<VendorInventory>();
@@ -506,100 +497,90 @@ public class CharacterListener : IAssetScanListener<Character>
         };
     }
 
-    private List<CharacterAttackSkillRecord> CreateCharacterAttackSkillRecords(int characterId, List<string> skillIds)
+    private List<CharacterAttackSkillRecord> CreateCharacterAttackSkillRecords(int characterId, List<string> skillResourceNames)
     {
         return CreateJunctionRecords(
-            skillIds,
-            LookupSkillDbIndex,
-            (cId, sId) => new CharacterAttackSkillRecord { CharacterId = cId, SkillId = sId },
+            skillResourceNames,
+            (cId, sResourceName) => new CharacterAttackSkillRecord { CharacterId = cId, SkillResourceName = sResourceName },
             characterId
         );
     }
 
-    private List<CharacterAttackSpellRecord> CreateCharacterAttackSpellRecords(int characterId, List<string> spellIds)
+    private List<CharacterAttackSpellRecord> CreateCharacterAttackSpellRecords(int characterId, List<string> spellResourceNames)
     {
         return CreateJunctionRecords(
-            spellIds,
-            LookupSpellDbIndex,
-            (cId, sId) => new CharacterAttackSpellRecord { CharacterId = cId, SpellId = sId },
+            spellResourceNames,
+            (cId, sResourceName) => new CharacterAttackSpellRecord { CharacterId = cId, SpellResourceName = sResourceName },
             characterId
         );
     }
 
-    private List<CharacterBuffSpellRecord> CreateCharacterBuffSpellRecords(int characterId, List<string> spellIds)
+    private List<CharacterBuffSpellRecord> CreateCharacterBuffSpellRecords(int characterId, List<string> spellResourceNames)
     {
         return CreateJunctionRecords(
-            spellIds,
-            LookupSpellDbIndex,
-            (cId, sId) => new CharacterBuffSpellRecord { CharacterId = cId, SpellId = sId },
+            spellResourceNames,
+            (cId, sResourceName) => new CharacterBuffSpellRecord { CharacterId = cId, SpellResourceName = sResourceName },
             characterId
         );
     }
 
-    private List<CharacterHealSpellRecord> CreateCharacterHealSpellRecords(int characterId, List<string> spellIds)
+    private List<CharacterHealSpellRecord> CreateCharacterHealSpellRecords(int characterId, List<string> spellResourceNames)
     {
         return CreateJunctionRecords(
-            spellIds,
-            LookupSpellDbIndex,
-            (cId, sId) => new CharacterHealSpellRecord { CharacterId = cId, SpellId = sId },
+            spellResourceNames,
+            (cId, sResourceName) => new CharacterHealSpellRecord { CharacterId = cId, SpellResourceName = sResourceName },
             characterId
         );
     }
 
-    private List<CharacterGroupHealSpellRecord> CreateCharacterGroupHealSpellRecords(int characterId, List<string> spellIds)
+    private List<CharacterGroupHealSpellRecord> CreateCharacterGroupHealSpellRecords(int characterId, List<string> spellResourceNames)
     {
         return CreateJunctionRecords(
-            spellIds,
-            LookupSpellDbIndex,
-            (cId, sId) => new CharacterGroupHealSpellRecord { CharacterId = cId, SpellId = sId },
+            spellResourceNames,
+            (cId, sResourceName) => new CharacterGroupHealSpellRecord { CharacterId = cId, SpellResourceName = sResourceName },
             characterId
         );
     }
 
-    private List<CharacterCCSpellRecord> CreateCharacterCCSpellRecords(int characterId, List<string> spellIds)
+    private List<CharacterCCSpellRecord> CreateCharacterCCSpellRecords(int characterId, List<string> spellResourceNames)
     {
         return CreateJunctionRecords(
-            spellIds,
-            LookupSpellDbIndex,
-            (cId, sId) => new CharacterCCSpellRecord { CharacterId = cId, SpellId = sId },
+            spellResourceNames,
+            (cId, sResourceName) => new CharacterCCSpellRecord { CharacterId = cId, SpellResourceName = sResourceName },
             characterId
         );
     }
 
-    private List<CharacterTauntSpellRecord> CreateCharacterTauntSpellRecords(int characterId, List<string> spellIds)
+    private List<CharacterTauntSpellRecord> CreateCharacterTauntSpellRecords(int characterId, List<string> spellResourceNames)
     {
         return CreateJunctionRecords(
-            spellIds,
-            LookupSpellDbIndex,
-            (cId, sId) => new CharacterTauntSpellRecord { CharacterId = cId, SpellId = sId },
+            spellResourceNames,
+            (cId, sResourceName) => new CharacterTauntSpellRecord { CharacterId = cId, SpellResourceName = sResourceName },
             characterId
         );
     }
 
     /// <summary>
     /// Generic helper method to create junction table records with deduplication.
-    /// Converts ability IDs to database indexes, deduplicates by database index, and creates records.
+    /// Deduplicates by resource name and creates records.
     /// </summary>
-    /// <param name="abilityIds">List of ability IDs (spell or skill IDs from Unity assets)</param>
-    /// <param name="lookupFunc">Function to convert ability ID to database index</param>
-    /// <param name="recordFactory">Function to create a junction record given characterId and abilityDbIndex</param>
+    /// <param name="resourceNames">List of ability resource names (spell or skill ResourceNames from Unity assets)</param>
+    /// <param name="recordFactory">Function to create a junction record given characterId and abilityResourceName</param>
     /// <param name="characterId">The character's database ID</param>
     /// <returns>List of junction records with duplicate ability references removed</returns>
     private List<T> CreateJunctionRecords<T>(
-        List<string> abilityIds,
-        System.Func<string, int> lookupFunc,
-        System.Func<int, int, T> recordFactory,
+        List<string> resourceNames,
+        System.Func<int, string, T> recordFactory,
         int characterId)
     {
         var records = new List<T>();
-        var seenDbIndexes = new HashSet<int>();
+        var seenResourceNames = new HashSet<string>();
 
-        foreach (var abilityId in abilityIds)
+        foreach (var resourceName in resourceNames)
         {
-            var dbIndex = lookupFunc(abilityId);
-            if (seenDbIndexes.Add(dbIndex))
+            if (seenResourceNames.Add(resourceName))
             {
-                records.Add(recordFactory(characterId, dbIndex));
+                records.Add(recordFactory(characterId, resourceName));
             }
         }
 
@@ -615,32 +596,6 @@ public class CharacterListener : IAssetScanListener<Character>
         var tableName = typeof(T).Name.Replace("Record", "s");
         var result = _db.ExecuteScalar<int>("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=?", tableName);
         return result > 0;
-    }
-
-    private int LookupSpellDbIndex(string spellId)
-    {
-        // Cache is populated in OnScanFinished before this method is called
-        if (_spellIdToDbIndexCache!.TryGetValue(spellId, out int dbIndex))
-        {
-            return dbIndex;
-        }
-
-        string errorMsg = $"Spell ID '{spellId}' not found in SpellRecord table";
-        _lookupErrors.Add(errorMsg);
-        return -1; // Placeholder - will fail at end of OnScanFinished
-    }
-
-    private int LookupSkillDbIndex(string skillId)
-    {
-        // Cache is populated in OnScanFinished before this method is called
-        if (_skillIdToDbIndexCache!.TryGetValue(skillId, out int dbIndex))
-        {
-            return dbIndex;
-        }
-
-        string errorMsg = $"Skill ID '{skillId}' not found in SkillRecord table";
-        _lookupErrors.Add(errorMsg);
-        return -1; // Placeholder - will fail at end of OnScanFinished
     }
 
     private List<CharacterVendorItemRecord> CreateCharacterVendorItemRecords(int characterId, VendorInventory vendorInventory)

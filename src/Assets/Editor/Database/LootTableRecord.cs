@@ -11,7 +11,7 @@ public class LootTableRecord
     public string CharacterPrefabGuid { get; set; } = string.Empty;
 
     [Indexed(Name = "LootDrops_Primary_IDX", Order = 2, Unique = true)]
-    public string ItemId { get; set; } = string.Empty;
+    public string ItemResourceName { get; set; } = string.Empty;
 
     // Probability that this item drops at least once per kill
     public double DropProbability { get; set; }

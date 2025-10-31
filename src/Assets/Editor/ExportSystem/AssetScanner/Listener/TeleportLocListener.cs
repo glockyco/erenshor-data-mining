@@ -19,12 +19,12 @@ public class TeleportLocListener : IAssetScanListener<Object>
         _db.Execute("DELETE FROM Coordinates WHERE Category = ?", nameof(CoordinateCategory.Teleport));
         _db.DeleteAll<TeleportRecord>();
 
-        InsertTeleport("Azure", 10.8f, 29.4f, 335.2f, "5016816");
-        InsertTeleport("Braxonian", 382.6f, 49.3f, 878f, "2096280");
-        InsertTeleport("Hidden", 9.34f, 1f, -114.33f, "36740470");
-        InsertTeleport("Silkengrass", 188.5f, 63.52f, 712.92f, "71979710");
-        InsertTeleport("Soluna", 225f, 77f, 249f, "5388624");
-        InsertTeleport("Ripper", 572f, 54.4f, 293f, "2810120");
+        InsertTeleport("Azure", 10.8f, 29.4f, 335.2f, "GEN - Rune of Azure");
+        InsertTeleport("Braxonian", 382.6f, 49.3f, 878f, "GEN - Rune of Sands");
+        InsertTeleport("Hidden", 9.34f, 1f, -114.33f, "GEN - Rune of The Hills");
+        InsertTeleport("Silkengrass", 188.5f, 63.52f, 712.92f, "GEN - Rune of Silkengrass");
+        InsertTeleport("Soluna", 225f, 77f, 249f, "GEN - Rune of Soluna's Landing");
+        InsertTeleport("Ripper", 572f, 54.4f, 293f, "GEN - Rune of Ripper's Keep");
         
         _db.Execute(@"
             UPDATE Coordinates
@@ -51,7 +51,7 @@ public class TeleportLocListener : IAssetScanListener<Object>
         // do nothing
     }
     
-    private void InsertTeleport(string scene, float x, float y, float z, string itemId)
+    private void InsertTeleport(string scene, float x, float y, float z, string itemResourceName)
     {
         var coordinate = new CoordinateRecord
         {
@@ -61,15 +61,15 @@ public class TeleportLocListener : IAssetScanListener<Object>
             Z = z,
             Category = nameof(CoordinateCategory.Teleport)
         };
-        
+
         _db.Insert(coordinate);
 
         var teleport = new TeleportRecord
         {
             CoordinateId = coordinate.Id,
-            TeleportItemId = itemId,
+            TeleportItemResourceName = itemResourceName,
         };
-        
+
         _db.Insert(teleport);
     }
 }

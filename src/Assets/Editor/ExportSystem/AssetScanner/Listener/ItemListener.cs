@@ -42,7 +42,7 @@ public class ItemListener : IAssetScanListener<Item>
     {
         foreach (var itemRecord in _itemRecords)
         {
-            foreach (var itemStatsRecord in _itemStatsRecords.Where(itemStatsRecord => itemStatsRecord.ItemId == itemRecord.Id))
+            foreach (var itemStatsRecord in _itemStatsRecords.Where(itemStatsRecord => itemStatsRecord.ItemResourceName == itemRecord.ResourceName))
             {
                 if (WeaponSlots.Contains(itemRecord.RequiredSlot))
                 {
@@ -301,7 +301,7 @@ public class ItemListener : IAssetScanListener<Item>
         {
             var itemStatsRecord = new ItemStatsRecord
             {
-                ItemId = item.Id,
+                ItemResourceName = item.name,
                 Quality = quality switch
                 {
                     1 => "Normal",
@@ -352,7 +352,7 @@ public class ItemListener : IAssetScanListener<Item>
 
         if (item.Classes != null && item.Classes.Count > 0)
         {
-            // Use HashSet to prevent duplicate ItemId+ClassName combinations
+            // Use HashSet to prevent duplicate ItemResourceName+ClassName combinations
             var uniqueClasses = new HashSet<string>();
 
             foreach (var characterClass in item.Classes)
@@ -364,7 +364,7 @@ public class ItemListener : IAssetScanListener<Item>
                     {
                         records.Add(new ItemClassRecord
                         {
-                            ItemId = item.Id,
+                            ItemResourceName = item.name,
                             ClassName = characterClass.name
                         });
                     }

@@ -12,7 +12,7 @@ public class ItemBagRecord
     [Indexed]
     public int CoordinateId { get; set; }
     [Indexed]
-    public string? ItemId { get; set; }
+    public string? ItemResourceName { get; set; }
     public bool Respawns { get; set; }
     public float RespawnTimer { get; set; }
 }

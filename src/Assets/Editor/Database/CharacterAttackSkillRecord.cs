@@ -11,5 +11,5 @@ public class CharacterAttackSkillRecord
     public int CharacterId { get; set; }
 
     [Indexed(Name = "CharacterAttackSkills_Primary_IDX", Order = 2, Unique = true)]
-    public int SkillId { get; set; }
+    public string SkillResourceName { get; set; } = string.Empty;
 }

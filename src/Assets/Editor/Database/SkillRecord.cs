@@ -8,8 +8,8 @@ public class SkillRecord
     public const string TableName = "Skills";
     
     // --- Core Identification ---
-    [PrimaryKey]
     public int SkillDBIndex { get; set; } // Index in the Resources.LoadAll array
+    [Indexed]
     public string Id { get; set; } // From BaseScriptableObject.Id
     public string SkillName { get; set; } = string.Empty; // From Skill.SkillName
     public string SkillDesc { get; set; } = string.Empty; // From Skill.SkillDesc
@@ -60,5 +60,6 @@ public class SkillRecord
     public string NPCUses { get; set; } = string.Empty; // From Skill.NPCUses
 
     // --- Internals ---
+    [PrimaryKey]
     public string ResourceName { get; set; } = string.Empty; // From Skill.name (ScriptableObject name)
 }

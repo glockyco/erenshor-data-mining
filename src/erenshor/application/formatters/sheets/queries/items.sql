@@ -85,7 +85,7 @@ SELECT
     ResourceName--,
     --WikiString
 FROM items i
-LEFT JOIN ItemStats s ON s.ItemId = i.Id
+LEFT JOIN ItemStats s ON s.ItemResourceName = i.ResourceName
 ORDER BY i.ItemDBIndex,
     CASE s.Quality
         WHEN 'Normal' THEN 1

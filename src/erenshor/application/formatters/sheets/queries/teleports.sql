@@ -1,5 +1,5 @@
 SELECT
-    i.Id AS TeleportItemId,
+    i.ResourceName AS TeleportItemResourceName,
     i.ItemName AS TeleportItemName,
     za.ZoneName,
     ROUND(co.X, 2) AS PositionX,
@@ -9,5 +9,5 @@ SELECT
 FROM Teleports t
 JOIN Coordinates co ON co.TeleportId = t.Id
 JOIN ZoneAnnounces za ON za.SceneName = co.Scene
-JOIN Items i ON i.Id = t.TeleportItemId
+JOIN Items i ON i.ResourceName = t.TeleportItemResourceName
 ORDER BY i.ItemName;

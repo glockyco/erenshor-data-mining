@@ -11,5 +11,5 @@ public class QuestRequiredItemRecord
     public int QuestId { get; set; }
 
     [Indexed(Name = "QuestRequiredItems_Primary_IDX", Order = 2, Unique = true)]
-    public string ItemId { get; set; } = string.Empty;
+    public string ItemResourceName { get; set; } = string.Empty;
 }
