@@ -91,7 +91,7 @@ backups = "$REPO_ROOT/variants/playtest/backups"
 images_output = "$REPO_ROOT/variants/playtest/images"
 
 [variants.playtest.google_sheets]
-spreadsheet_id = ""
+spreadsheet_id = "1gRgoCSXVRcbAbLNa7_FD5CMN9Z0PQA-mInSLeW1cRGE"
 
 [variants.demo]
 enabled = true
