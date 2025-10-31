@@ -2,6 +2,47 @@
 
 Utility scripts for Erenshor data mining and comparison.
 
+## validate_database.py
+
+Validates database for data quality issues like duplicate IDs and missing fields.
+
+### Usage
+
+```bash
+# Validate a specific variant
+python scripts/validate_database.py main
+python scripts/validate_database.py playtest
+
+# Validate all variants
+python scripts/validate_database.py --all
+
+# Generate a report file
+python scripts/validate_database.py playtest -o validation_report.md
+```
+
+### Checks
+
+- **Duplicate IDs**: Items, Spells, Skills, Characters, Quests
+- **Missing ResourceNames**: Items, Spells, Skills
+- **Data consistency issues**
+
+### Exit Codes
+
+- `0`: All validations passed
+- `1`: Validation failed with errors
+
+### Examples
+
+```bash
+# Quick validation check before deployment
+python scripts/validate_database.py playtest
+
+# Generate report for all variants
+python scripts/validate_database.py --all -o validation.md
+```
+
+---
+
 ## compare_variants.py
 
 Automatically compares two database variants to identify new content.
