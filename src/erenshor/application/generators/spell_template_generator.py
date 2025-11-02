@@ -1,59 +1,59 @@
-"""Spell page generator for wiki content.
+"""Spell template generator for wiki content.
 
-This module generates complete MediaWiki pages for spells and abilities including
-damage spells, buffs, debuffs, heals, and crowd control effects.
+This module generates MediaWiki {{Ability}} template wikitext for spell entities.
 
-Page structure:
-- {{Ability}} template + category tags
+Template generators handle SINGLE entities only. Multi-entity page assembly
+is handled by WikiService.
 """
 
 from loguru import logger
 
 from erenshor.application.generators.formatting import safe_str
-from erenshor.application.generators.page_generator_base import PageGeneratorBase
+from erenshor.application.generators.template_generator_base import TemplateGeneratorBase
 from erenshor.domain.entities.spell import Spell
 
 
-class SpellPageGenerator(PageGeneratorBase):
-    """Generator for spell wiki pages.
+class SpellTemplateGenerator(TemplateGeneratorBase):
+    """Generator for spell wiki templates.
 
-    Creates complete wikitext pages for spells with {{Ability}} template
-    and appropriate category tags.
+    Generates {{Ability}} template wikitext for a SINGLE spell entity.
+
+    Multi-entity page assembly is handled by WikiService, not here.
 
     Example:
-        >>> generator = SpellPageGenerator()
+        >>> generator = SpellTemplateGenerator()
         >>> spell = Spell(...)  # From repository
-        >>> wikitext = generator.generate_page(spell, page_title="Fireball")
+        >>> wikitext = generator.generate_template(spell, page_title="Fireball")
     """
 
-    def generate_page(self, spell: Spell, page_title: str) -> str:
-        """Generate complete wiki page for a spell.
+    def generate_template(self, spell: Spell, page_title: str) -> str:
+        """Generate {{Ability}} template wikitext for a single spell.
 
         Args:
-            spell: Spell entity from repository
+            spell: Single Spell entity from repository
             page_title: Wiki page title (from registry)
 
         Returns:
-            Complete wikitext page with template and category tags
+            Template wikitext for single spell (infobox + categories)
 
         Example:
             >>> spell = Spell(spell_db_index=1, resource_name="Fireball", spell_name="Fireball")
-            >>> wikitext = generator.generate_page(spell, "Fireball")
+            >>> wikitext = generator.generate_template(spell, "Fireball")
         """
-        logger.debug(f"Generating page for spell: {spell.spell_name}")
+        logger.debug(f"Generating template for spell: {spell.spell_name}")
 
         # Build template context
         context = self._build_spell_template_context(spell, page_title)
 
         # Render template
-        template_wikitext = self.render_template("spell.jinja2", context)
+        template_wikitext = self.render_template("ability.jinja2", context)
 
         # TODO: Add category tags when CategoryGenerator supports spells
 
         return self.normalize_wikitext(template_wikitext)
 
     def _build_spell_template_context(self, spell: Spell, page_title: str) -> dict[str, str]:
-        """Build context for {{Ability}} template.
+        """Build context for {{Ability}} template from Spell entity.
 
         Converts Spell entity to template context dict. The {{Ability}} template
         has many fields, most of which are optional.

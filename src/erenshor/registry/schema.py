@@ -1,25 +1,21 @@
 """Registry database schema definitions using SQLModel.
 
 This module defines the database schema for the entity registry system.
-The registry tracks game entities across versions using stable resource-name-based
-identifiers, enabling reliable cross-referencing between wiki pages and game data.
+The registry stores manual overrides for wiki page titles, display names, and
+image names. These overrides are loaded from mapping.json during initial setup.
 
 The registry provides:
-- Stable entity tracking using resource names instead of Unity internal IDs
-- Version tracking (first_seen, last_seen timestamps)
-- Wiki page associations for automatic page generation
+- Manual override storage (wiki page title, display name, image name)
 - Conflict detection and resolution for name collisions
-- Migration tracking for entity renames and consolidations
 
 Database Tables:
-- entities: Core entity registry with resource names and wiki associations
-- migrations: Historical tracking of entity renames and consolidations
+- entities: Manual overrides for wiki page titles, display names, and image names
 - conflicts: Detection and resolution of name collisions and ambiguous references
 
-Entity Types:
-The system tracks various game data types including items, spells, characters,
-quests, and more. Each entity has a stable resource_name identifier that persists
-across game versions, unlike Unity's internal IDs which can change.
+Entity resolution:
+- page_title: Use override if present, else fall back to entity name
+- display_name: Use override if present, else fall back to entity name
+- image_name: Use override if present, else fall back to entity name
 """
 
 from datetime import UTC, datetime
@@ -59,24 +55,17 @@ class EntityType(str, PyEnum):
 
 
 class EntityRecord(SQLModel, table=True):
-    """Core entity registry table tracking game entities with stable identifiers.
+    """Entity registry table for manual overrides.
 
-    Each record represents a unique game entity identified by its resource name.
-    The registry uses resource names as stable identifiers instead of Unity's
-    internal IDs, which can change between game versions or exports.
+    Stores manual overrides for wiki page titles, display names, and image names.
+    Only entities with custom mappings are stored in this table.
 
     The entity_type and resource_name combination must be unique, preventing
-    duplicate registrations. Wiki page associations enable automated page
-    generation and cross-referencing.
-
-    Timestamps track when entities are first discovered and last seen, enabling
-    detection of removed or deprecated content across game versions.
+    duplicate registrations.
 
     Indexes:
     - Primary key on id (auto-increment)
     - Unique composite index on (entity_type, resource_name)
-    - Index on wiki_page_title for reverse lookups
-    - Index on entity_type for type-based filtering
     """
 
     __tablename__ = "entities"
@@ -98,26 +87,27 @@ class EntityRecord(SQLModel, table=True):
         description="Stable resource identifier from game data (unique within entity_type)",
     )
 
-    display_name: str = Field(
-        max_length=255,
-        description="Human-readable name shown in game UI",
-    )
-
-    wiki_page_title: str | None = Field(
+    page_title: str | None = Field(
         default=None,
-        index=True,
         max_length=255,
-        description="Associated wiki page title (null if no wiki page exists)",
+        description="Custom wiki page title override (null = use entity name)",
     )
 
-    first_seen: datetime = Field(
-        default_factory=lambda: datetime.now(UTC),
-        description="Timestamp when entity was first discovered in game data",
+    display_name: str | None = Field(
+        default=None,
+        max_length=255,
+        description="Custom display name override (null = use entity name)",
     )
 
-    last_seen: datetime = Field(
-        default_factory=lambda: datetime.now(UTC),
-        description="Timestamp when entity was last seen in game data",
+    image_name: str | None = Field(
+        default=None,
+        max_length=255,
+        description="Custom image filename override (null = use entity name)",
+    )
+
+    excluded: bool = Field(
+        default=False,
+        description="True if entity should be excluded from wiki (mapping.json has null wiki_page_name)",
     )
 
     __table_args__ = (
@@ -127,56 +117,6 @@ class EntityRecord(SQLModel, table=True):
             "resource_name",
             unique=True,
         ),
-    )
-
-
-class MigrationRecord(SQLModel, table=True):
-    """Migration tracking table for historical entity renames and consolidations.
-
-    Tracks when entities are renamed, merged, or otherwise migrated from one
-    identifier to another. This enables the system to:
-    - Maintain historical references from old mapping.json files
-    - Support wiki page redirects from old to new names
-    - Preserve data continuity across game updates
-
-    Migrations are imported from historical mapping.json data and new migrations
-    are recorded when entity renames are detected in future game versions.
-
-    Indexes:
-    - Primary key on id (auto-increment)
-    - Index on old_key for forward lookups (old -> new)
-    - Index on new_key for reverse lookups (new -> old)
-    """
-
-    __tablename__ = "migrations"
-
-    id: int | None = Field(
-        default=None,
-        primary_key=True,
-        description="Auto-incrementing primary key",
-    )
-
-    old_key: str = Field(
-        index=True,
-        max_length=255,
-        description="Previous entity identifier before migration",
-    )
-
-    new_key: str = Field(
-        index=True,
-        max_length=255,
-        description="Current entity identifier after migration",
-    )
-
-    migration_date: datetime = Field(
-        default_factory=lambda: datetime.now(UTC),
-        description="Timestamp when migration was recorded",
-    )
-
-    notes: str | None = Field(
-        default=None,
-        max_length=1000,
-        description="Optional notes explaining the migration reason or context",
     )
 
 

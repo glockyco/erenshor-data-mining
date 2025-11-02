@@ -1,7 +1,8 @@
-"""Base class for page generators with Jinja2 template support.
+"""Base class for template generators with Jinja2 template support.
 
-This module provides the abstract base class for all page generators. Page generators
-are responsible for creating complete MediaWiki wikitext pages from game entities.
+This module provides the abstract base class for all template generators. Template
+generators are responsible for generating individual MediaWiki template/infobox wikitext
+for a single game entity.
 
 Key responsibilities:
 - Load and render Jinja2 templates
@@ -10,7 +11,7 @@ Key responsibilities:
 - Provide common utilities for subclasses
 
 Design:
-- Composition over inheritance (use helper classes, not deep hierarchies)
+- Generators handle SINGLE entities only (multi-entity logic is in WikiService)
 - Template-driven (business logic in Python, markup in Jinja2)
 - Type-safe (full Pydantic validation)
 """
@@ -23,29 +24,32 @@ from jinja2 import Environment, FileSystemLoader
 from loguru import logger
 
 
-class PageGeneratorError(Exception):
-    """Base exception for page generator errors."""
+class TemplateGeneratorError(Exception):
+    """Base exception for template generator errors."""
 
     pass
 
 
-class TemplateNotFoundError(PageGeneratorError):
+class TemplateNotFoundError(TemplateGeneratorError):
     """Raised when a Jinja2 template file cannot be found."""
 
     pass
 
 
-class TemplateRenderError(PageGeneratorError):
+class TemplateRenderError(TemplateGeneratorError):
     """Raised when template rendering fails."""
 
     pass
 
 
-class PageGeneratorBase(ABC):
-    """Abstract base class for page generators.
+class TemplateGeneratorBase(ABC):
+    """Abstract base class for template generators.
 
     Provides common functionality for rendering Jinja2 templates and formatting
-    wikitext. Subclasses implement entity-specific generation logic.
+    wikitext. Subclasses implement entity-specific template generation logic.
+
+    Template generators handle SINGLE entities only. Multi-entity page assembly
+    is handled by WikiService.
 
     The template system expects:
     - Templates in src/erenshor/application/generators/templates/
@@ -53,8 +57,8 @@ class PageGeneratorBase(ABC):
     - MediaWiki template syntax in Jinja2 templates
 
     Example:
-        >>> class ItemPageGenerator(PageGeneratorBase):
-        ...     def generate_page(self, item: Item) -> str:
+        >>> class ItemTemplateGenerator(TemplateGeneratorBase):
+        ...     def generate_template(self, item: Item, page_title: str) -> str:
         ...         context = {"name": item.item_name, "level": item.item_level}
         ...         wikitext = self.render_template("item.jinja2", context)
         ...         categories = self.format_category_tags(["Items", "Equipment"])
@@ -62,7 +66,7 @@ class PageGeneratorBase(ABC):
     """
 
     def __init__(self) -> None:
-        """Initialize page generator with Jinja2 environment."""
+        """Initialize template generator with Jinja2 environment."""
         self._template_dir = self._get_template_directory()
         self._jinja_env = self._create_jinja_environment()
         logger.debug(f"Initialized {self.__class__.__name__} with template dir: {self._template_dir}")
@@ -199,17 +203,19 @@ class PageGeneratorBase(ABC):
         return result
 
     @abstractmethod
-    def generate_page(self, *args: Any, **kwargs: Any) -> str:
-        """Generate complete wiki page for an entity.
+    def generate_template(self, *args: Any, **kwargs: Any) -> str:
+        """Generate template wikitext for a single entity.
 
-        Subclasses must implement this to define entity-specific page generation.
-        Should return complete wikitext including templates and category tags.
+        Subclasses must implement this to define entity-specific template generation.
+        Should return template wikitext (infobox + categories) for ONE entity only.
+
+        Multi-entity page assembly is handled by WikiService, not here.
 
         Args:
-            *args: Entity data (subclass-specific)
-            **kwargs: Additional options (subclass-specific)
+            *args: Entity data (subclass-specific, must be single entity)
+            **kwargs: Additional options (e.g., page_title)
 
         Returns:
-            Complete wikitext page as string
+            Template wikitext for single entity
         """
         pass

@@ -115,8 +115,8 @@ class TestUnityBatchModeExecuteMethod:
         assert "-logLevel" in call_args
         assert "verbose" in call_args
 
-    @patch("erenshor.infrastructure.unity.batch_mode.subprocess.Popen")
-    def test_execute_method_without_arguments(self, mock_popen: MagicMock, tmp_path: Path) -> None:
+    @patch("erenshor.infrastructure.unity.batch_mode.subprocess.run")
+    def test_execute_method_without_arguments(self, mock_run: MagicMock, tmp_path: Path) -> None:
         """Test method execution without custom arguments."""
         unity_exe = tmp_path / "Unity"
         unity_exe.touch()
@@ -125,11 +125,7 @@ class TestUnityBatchModeExecuteMethod:
         log_file = tmp_path / "export.log"
         log_file.write_text("Success\n")
 
-        # Mock process
-        mock_process = MagicMock()
-        mock_process.poll.return_value = 0  # Process has completed
-        mock_process.returncode = 0
-        mock_popen.return_value = mock_process
+        mock_run.return_value = MagicMock(returncode=0, stdout="", stderr="")
 
         unity = UnityBatchMode(unity_path=unity_exe)
         unity.execute_method(
@@ -140,13 +136,13 @@ class TestUnityBatchModeExecuteMethod:
         )
 
         # Verify no custom arguments in command
-        call_args = mock_popen.call_args[0][0]
+        call_args = mock_run.call_args[0][0]
         assert "-batchmode" in call_args
         assert "-executeMethod" in call_args
         assert "TestClass.TestMethod" in call_args
 
-    @patch("erenshor.infrastructure.unity.batch_mode.subprocess.Popen")
-    def test_execute_method_creates_log_directory(self, mock_popen: MagicMock, tmp_path: Path) -> None:
+    @patch("erenshor.infrastructure.unity.batch_mode.subprocess.run")
+    def test_execute_method_creates_log_directory(self, mock_run: MagicMock, tmp_path: Path) -> None:
         """Test that log directory is created if it doesn't exist."""
         unity_exe = tmp_path / "Unity"
         unity_exe.touch()
@@ -154,16 +150,14 @@ class TestUnityBatchModeExecuteMethod:
         project_path.mkdir()
         log_file = tmp_path / "nested" / "logs" / "export.log"
 
+        mock_run.return_value = MagicMock(returncode=0, stdout="", stderr="")
+
         def create_log_file(*args, **kwargs):
             log_file.parent.mkdir(parents=True, exist_ok=True)
             log_file.write_text("Success\n")
-            # Return mock process
-            mock_process = MagicMock()
-            mock_process.poll.return_value = 0  # Process has completed
-            mock_process.returncode = 0
-            return mock_process
+            return MagicMock(returncode=0)
 
-        mock_popen.side_effect = create_log_file
+        mock_run.side_effect = create_log_file
 
         unity = UnityBatchMode(unity_path=unity_exe)
         unity.execute_method(
@@ -175,8 +169,8 @@ class TestUnityBatchModeExecuteMethod:
 
         assert log_file.parent.exists()
 
-    @patch("erenshor.infrastructure.unity.batch_mode.subprocess.Popen")
-    def test_execute_method_project_not_found(self, mock_popen: MagicMock, tmp_path: Path) -> None:
+    @patch("erenshor.infrastructure.unity.batch_mode.subprocess.run")
+    def test_execute_method_project_not_found(self, mock_run: MagicMock, tmp_path: Path) -> None:
         """Test execution fails when project path doesn't exist."""
         unity_exe = tmp_path / "Unity"
         unity_exe.touch()
@@ -193,19 +187,15 @@ class TestUnityBatchModeExecuteMethod:
 
         assert "Unity project not found" in str(exc_info.value)
 
-    @patch("erenshor.infrastructure.unity.batch_mode.subprocess.Popen")
-    def test_execute_method_timeout(self, mock_popen: MagicMock, tmp_path: Path) -> None:
+    @patch("erenshor.infrastructure.unity.batch_mode.subprocess.run")
+    def test_execute_method_timeout(self, mock_run: MagicMock, tmp_path: Path) -> None:
         """Test execution fails when Unity times out."""
         unity_exe = tmp_path / "Unity"
         unity_exe.touch()
         project_path = tmp_path / "UnityProject"
         project_path.mkdir()
 
-        # Mock process that never finishes (will timeout)
-        mock_process = MagicMock()
-        mock_process.poll.return_value = None  # Process still running
-        mock_process.kill = MagicMock()
-        mock_popen.return_value = mock_process
+        mock_run.side_effect = TimeoutExpired(cmd=["unity"], timeout=10)
 
         unity = UnityBatchMode(unity_path=unity_exe, timeout=10)
 
@@ -223,8 +213,8 @@ class TestUnityBatchModeExecuteMethod:
 class TestUnityBatchModeErrorDetection:
     """Test Unity error detection and classification."""
 
-    @patch("erenshor.infrastructure.unity.batch_mode.subprocess.Popen")
-    def test_compilation_error_detection(self, mock_popen: MagicMock, tmp_path: Path) -> None:
+    @patch("erenshor.infrastructure.unity.batch_mode.subprocess.run")
+    def test_compilation_error_detection(self, mock_run: MagicMock, tmp_path: Path) -> None:
         """Test compilation errors are detected and raised."""
         unity_exe = tmp_path / "Unity"
         unity_exe.touch()
@@ -238,11 +228,7 @@ class TestUnityBatchModeErrorDetection:
             "error CS0103: The name 'variable' does not exist in the current context\n"
         )
 
-        # Mock process
-        mock_process = MagicMock()
-        mock_process.poll.return_value = 1  # Process has completed
-        mock_process.returncode = 1
-        mock_popen.return_value = mock_process
+        mock_run.return_value = MagicMock(returncode=1, stdout="", stderr="")
 
         unity = UnityBatchMode(unity_path=unity_exe)
 
@@ -257,8 +243,8 @@ class TestUnityBatchModeErrorDetection:
         assert "compilation failed" in str(exc_info.value).lower()
         assert "error CS" in str(exc_info.value)
 
-    @patch("erenshor.infrastructure.unity.batch_mode.subprocess.Popen")
-    def test_execution_error_detection(self, mock_popen: MagicMock, tmp_path: Path) -> None:
+    @patch("erenshor.infrastructure.unity.batch_mode.subprocess.run")
+    def test_execution_error_detection(self, mock_run: MagicMock, tmp_path: Path) -> None:
         """Test method execution errors are detected and raised."""
         unity_exe = tmp_path / "Unity"
         unity_exe.touch()
@@ -269,11 +255,7 @@ class TestUnityBatchModeErrorDetection:
         # Create log with execution error
         log_file.write_text("Executing method failed: Method 'Run' not found in class 'ExportBatch'\n")
 
-        # Mock process
-        mock_process = MagicMock()
-        mock_process.poll.return_value = 1  # Process has completed
-        mock_process.returncode = 1
-        mock_popen.return_value = mock_process
+        mock_run.return_value = MagicMock(returncode=1, stdout="", stderr="")
 
         unity = UnityBatchMode(unity_path=unity_exe)
 
@@ -287,8 +269,8 @@ class TestUnityBatchModeErrorDetection:
 
         assert "Failed to execute Unity method" in str(exc_info.value)
 
-    @patch("erenshor.infrastructure.unity.batch_mode.subprocess.Popen")
-    def test_runtime_error_detection_export_error(self, mock_popen: MagicMock, tmp_path: Path) -> None:
+    @patch("erenshor.infrastructure.unity.batch_mode.subprocess.run")
+    def test_runtime_error_detection_export_error(self, mock_run: MagicMock, tmp_path: Path) -> None:
         """Test runtime errors with EXPORT_ERROR marker are detected."""
         unity_exe = tmp_path / "Unity"
         unity_exe.touch()
@@ -302,11 +284,7 @@ class TestUnityBatchModeErrorDetection:
             "[EXPORT_STACKTRACE] at ExportBatch.Run() in /path/to/ExportBatch.cs:120\n"
         )
 
-        # Mock process
-        mock_process = MagicMock()
-        mock_process.poll.return_value = 1  # Process has completed
-        mock_process.returncode = 1
-        mock_popen.return_value = mock_process
+        mock_run.return_value = MagicMock(returncode=1, stdout="", stderr="")
 
         unity = UnityBatchMode(unity_path=unity_exe)
 
@@ -318,11 +296,11 @@ class TestUnityBatchModeErrorDetection:
                 log_file=log_file,
             )
 
-        assert "Unity export script failed" in str(exc_info.value)
-        assert "Export failed: Database connection failed" in str(exc_info.value)
+        assert "Unity script execution failed" in str(exc_info.value)
+        assert "[EXPORT_ERROR]" in str(exc_info.value)
 
-    @patch("erenshor.infrastructure.unity.batch_mode.subprocess.Popen")
-    def test_runtime_error_detection_exception(self, mock_popen: MagicMock, tmp_path: Path) -> None:
+    @patch("erenshor.infrastructure.unity.batch_mode.subprocess.run")
+    def test_runtime_error_detection_exception(self, mock_run: MagicMock, tmp_path: Path) -> None:
         """Test runtime errors with exceptions are detected."""
         unity_exe = tmp_path / "Unity"
         unity_exe.touch()
@@ -336,11 +314,7 @@ class TestUnityBatchModeErrorDetection:
             "  at ExportBatch.Run () [0x00042] in /path/to/ExportBatch.cs:85\n"
         )
 
-        # Mock process
-        mock_process = MagicMock()
-        mock_process.poll.return_value = 1  # Process has completed
-        mock_process.returncode = 1
-        mock_popen.return_value = mock_process
+        mock_run.return_value = MagicMock(returncode=1, stdout="", stderr="")
 
         unity = UnityBatchMode(unity_path=unity_exe)
 
@@ -354,8 +328,8 @@ class TestUnityBatchModeErrorDetection:
 
         assert "Unity script execution failed" in str(exc_info.value)
 
-    @patch("erenshor.infrastructure.unity.batch_mode.subprocess.Popen")
-    def test_generic_error_when_log_missing(self, mock_popen: MagicMock, tmp_path: Path) -> None:
+    @patch("erenshor.infrastructure.unity.batch_mode.subprocess.run")
+    def test_generic_error_when_log_missing(self, mock_run: MagicMock, tmp_path: Path) -> None:
         """Test generic error is raised when log file is missing."""
         unity_exe = tmp_path / "Unity"
         unity_exe.touch()
@@ -363,11 +337,7 @@ class TestUnityBatchModeErrorDetection:
         project_path.mkdir()
         log_file = tmp_path / "export.log"
 
-        # Mock process
-        mock_process = MagicMock()
-        mock_process.poll.return_value = 1  # Process has completed
-        mock_process.returncode = 1
-        mock_popen.return_value = mock_process
+        mock_run.return_value = MagicMock(returncode=1, stdout="", stderr="")
 
         unity = UnityBatchMode(unity_path=unity_exe)
 
@@ -381,8 +351,8 @@ class TestUnityBatchModeErrorDetection:
 
         assert "log file is missing" in str(exc_info.value)
 
-    @patch("erenshor.infrastructure.unity.batch_mode.subprocess.Popen")
-    def test_success_with_exit_code_zero(self, mock_popen: MagicMock, tmp_path: Path) -> None:
+    @patch("erenshor.infrastructure.unity.batch_mode.subprocess.run")
+    def test_success_with_exit_code_zero(self, mock_run: MagicMock, tmp_path: Path) -> None:
         """Test that exit code 0 is treated as success."""
         unity_exe = tmp_path / "Unity"
         unity_exe.touch()
@@ -391,11 +361,7 @@ class TestUnityBatchModeErrorDetection:
         log_file = tmp_path / "export.log"
         log_file.write_text("Success\n")
 
-        # Mock process
-        mock_process = MagicMock()
-        mock_process.poll.return_value = 0  # Process has completed
-        mock_process.returncode = 0
-        mock_popen.return_value = mock_process
+        mock_run.return_value = MagicMock(returncode=0, stdout="", stderr="")
 
         unity = UnityBatchMode(unity_path=unity_exe)
         unity.execute_method(

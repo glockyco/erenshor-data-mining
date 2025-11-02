@@ -6,20 +6,19 @@ import pytest
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, SQLModel, create_engine, select
 
-from erenshor.registry.schema import ConflictRecord, EntityRecord, EntityType, MigrationRecord
+from erenshor.registry.schema import ConflictRecord, EntityRecord, EntityType
 
 
 class TestEntityRecord:
     """Test EntityRecord model."""
 
     def test_entity_record_creation(self, in_memory_session):
-        """Test creating entity record with valid data."""
+        """Test creating entity record with overrides."""
         entity = EntityRecord(
             entity_type=EntityType.ITEM,
             resource_name="iron_sword",
+            page_title="Iron Sword (Weapon)",
             display_name="Iron Sword",
-            first_seen=datetime.now(UTC),
-            last_seen=datetime.now(UTC),
         )
 
         in_memory_session.add(entity)
@@ -29,7 +28,9 @@ class TestEntityRecord:
         assert entity.id is not None
         assert entity.entity_type == EntityType.ITEM
         assert entity.resource_name == "iron_sword"
+        assert entity.page_title == "Iron Sword (Weapon)"
         assert entity.display_name == "Iron Sword"
+        assert entity.excluded is False
 
     def test_entity_record_all_entity_types(self, in_memory_session):
         """Test EntityRecord creation with all EntityType values."""
@@ -52,9 +53,7 @@ class TestEntityRecord:
             entity = EntityRecord(
                 entity_type=entity_type,
                 resource_name=f"test_{entity_type.value}",
-                display_name=f"Test {entity_type.value}",
-                first_seen=datetime.now(UTC),
-                last_seen=datetime.now(UTC),
+                page_title=f"Test {entity_type.value} Page",
             )
             in_memory_session.add(entity)
 
@@ -70,9 +69,7 @@ class TestEntityRecord:
         entity1 = EntityRecord(
             entity_type=EntityType.ITEM,
             resource_name="iron_sword",
-            display_name="Iron Sword",
-            first_seen=datetime.now(UTC),
-            last_seen=datetime.now(UTC),
+            page_title="Iron Sword",
         )
         in_memory_session.add(entity1)
         in_memory_session.commit()
@@ -81,9 +78,7 @@ class TestEntityRecord:
         entity2 = EntityRecord(
             entity_type=EntityType.ITEM,
             resource_name="iron_sword",
-            display_name="Different Name",
-            first_seen=datetime.now(UTC),
-            last_seen=datetime.now(UTC),
+            page_title="Different Name",
         )
         in_memory_session.add(entity2)
 
@@ -96,9 +91,7 @@ class TestEntityRecord:
         entity1 = EntityRecord(
             entity_type=EntityType.ITEM,
             resource_name="fireball",
-            display_name="Fireball (Item)",
-            first_seen=datetime.now(UTC),
-            last_seen=datetime.now(UTC),
+            page_title="Fireball (Item)",
         )
         in_memory_session.add(entity1)
         in_memory_session.commit()
@@ -107,9 +100,7 @@ class TestEntityRecord:
         entity2 = EntityRecord(
             entity_type=EntityType.SPELL,
             resource_name="fireball",
-            display_name="Fireball (Spell)",
-            first_seen=datetime.now(UTC),
-            last_seen=datetime.now(UTC),
+            page_title="Fireball (Spell)",
         )
         in_memory_session.add(entity2)
         in_memory_session.commit()
@@ -118,86 +109,47 @@ class TestEntityRecord:
         entities = in_memory_session.exec(select(EntityRecord)).all()
         assert len(entities) == 2
 
-    def test_nullable_fields(self, in_memory_session):
-        """Test nullable fields (wiki_page_title)."""
-        # Create entity without wiki_page_title
+    def test_nullable_override_fields(self, in_memory_session):
+        """Test nullable override fields (page_title, display_name, image_name)."""
+        # Create entity without any overrides
         entity = EntityRecord(
             entity_type=EntityType.ITEM,
             resource_name="test_item",
-            display_name="Test Item",
-            first_seen=datetime.now(UTC),
-            last_seen=datetime.now(UTC),
-            wiki_page_title=None,
         )
         in_memory_session.add(entity)
         in_memory_session.commit()
         in_memory_session.refresh(entity)
 
-        assert entity.wiki_page_title is None
+        assert entity.page_title is None
+        assert entity.display_name is None
+        assert entity.image_name is None
+        assert entity.excluded is False
 
-        # Update with wiki_page_title
-        entity.wiki_page_title = "Test Item Wiki Page"
+        # Update with overrides
+        entity.page_title = "Test Item Page"
+        entity.display_name = "Test Item Display"
+        entity.image_name = "TestItem.png"
         in_memory_session.add(entity)
         in_memory_session.commit()
         in_memory_session.refresh(entity)
 
-        assert entity.wiki_page_title == "Test Item Wiki Page"
+        assert entity.page_title == "Test Item Page"
+        assert entity.display_name == "Test Item Display"
+        assert entity.image_name == "TestItem.png"
 
-    def test_timestamp_fields(self, in_memory_session):
-        """Test timestamp fields (first_seen, last_seen)."""
-        now = datetime.now(UTC)
+    def test_excluded_field(self, in_memory_session):
+        """Test excluded field for wiki exclusion."""
         entity = EntityRecord(
-            entity_type=EntityType.ITEM,
-            resource_name="test_item",
-            display_name="Test Item",
-            first_seen=now,
-            last_seen=now,
+            entity_type=EntityType.SPELL,
+            resource_name="test_spell",
+            excluded=True,
         )
         in_memory_session.add(entity)
         in_memory_session.commit()
         in_memory_session.refresh(entity)
 
-        assert entity.first_seen is not None
-        assert entity.last_seen is not None
-        assert isinstance(entity.first_seen, datetime)
-        assert isinstance(entity.last_seen, datetime)
-
-
-class TestMigrationRecord:
-    """Test MigrationRecord model."""
-
-    def test_migration_record_creation(self, in_memory_session):
-        """Test creating migration record."""
-        migration = MigrationRecord(
-            old_key="item:old_name",
-            new_key="item:new_name",
-            migration_date=datetime.now(UTC),
-            notes="Renamed item",
-        )
-
-        in_memory_session.add(migration)
-        in_memory_session.commit()
-        in_memory_session.refresh(migration)
-
-        assert migration.id is not None
-        assert migration.old_key == "item:old_name"
-        assert migration.new_key == "item:new_name"
-        assert migration.notes == "Renamed item"
-
-    def test_migration_record_nullable_notes(self, in_memory_session):
-        """Test migration record with null notes."""
-        migration = MigrationRecord(
-            old_key="item:old_name",
-            new_key="item:new_name",
-            migration_date=datetime.now(UTC),
-            notes=None,
-        )
-
-        in_memory_session.add(migration)
-        in_memory_session.commit()
-        in_memory_session.refresh(migration)
-
-        assert migration.notes is None
+        assert entity.excluded is True
+        assert entity.page_title is None  # Excluded entities have no overrides
 
 
 class TestConflictRecord:
@@ -228,9 +180,7 @@ class TestConflictRecord:
         entity = EntityRecord(
             entity_type=EntityType.ITEM,
             resource_name="test_item",
-            display_name="Test Item",
-            first_seen=datetime.now(UTC),
-            last_seen=datetime.now(UTC),
+            page_title="Test Item",
         )
         in_memory_session.add(entity)
         in_memory_session.commit()
@@ -297,10 +247,6 @@ class TestTableCreation:
             # Test entities table
             entities = session.exec(select(EntityRecord)).all()
             assert entities == []
-
-            # Test migrations table
-            migrations = session.exec(select(MigrationRecord)).all()
-            assert migrations == []
 
             # Test conflicts table
             conflicts = session.exec(select(ConflictRecord)).all()

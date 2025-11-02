@@ -29,6 +29,7 @@ database = "$REPO_ROOT/variants/playtest/erenshor-playtest.sqlite"
 logs = "$REPO_ROOT/variants/playtest/logs"
 backups = "$REPO_ROOT/variants/playtest/backups"
 images_output = ""
+wiki = "$REPO_ROOT/variants/playtest/wiki"
 
 [variants.playtest.google_sheets]
 spreadsheet_id = "test-spreadsheet-id-playtest"

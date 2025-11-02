@@ -60,6 +60,7 @@ database = "$REPO_ROOT/variants/main/erenshor-main.sqlite"
 logs = "$REPO_ROOT/variants/main/logs"
 backups = "$REPO_ROOT/variants/main/backups"
 images_output = "$REPO_ROOT/variants/main/images"
+wiki = "$REPO_ROOT/variants/main/wiki"
 
 [variants.main.google_sheets]
 spreadsheet_id = "test-spreadsheet-id-main"

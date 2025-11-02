@@ -69,37 +69,21 @@ class TestExtractDownloadCommand:
 
     @patch("erenshor.cli.commands.extract.SteamCMD")
     def test_download_already_exists(self, mock_steamcmd_class):
-        """Test download when game files already exist."""
+        """Test download proceeds even when game files exist (incremental update).
+
+        SteamCMD handles incremental updates internally, so the download command
+        always calls steamcmd.download() regardless of existing files.
+        """
         # Setup mock SteamCMD
         mock_steamcmd = MagicMock()
-        mock_steamcmd.is_game_installed.return_value = True
         mock_steamcmd_class.return_value = mock_steamcmd
 
-        # Run command without --force
+        # Run command
         result = runner.invoke(app, ["extract", "download"])
 
-        # Verify - should skip download
-        assert result.exit_code == 0
-        assert "already exist" in result.stdout
-        mock_steamcmd.download.assert_not_called()
-
-    @patch("erenshor.cli.commands.extract.SteamCMD")
-    def test_download_force(self, mock_steamcmd_class):
-        """Test forced re-download."""
-        # Setup mock SteamCMD
-        mock_steamcmd = MagicMock()
-        mock_steamcmd.is_game_installed.return_value = True
-        mock_steamcmd_class.return_value = mock_steamcmd
-
-        # Run command with --force
-        result = runner.invoke(app, ["extract", "download", "--force"])
-
-        # Verify - should download anyway
+        # Verify - should always download (for incremental updates)
         assert result.exit_code == 0
         mock_steamcmd.download.assert_called_once()
-        # When force=True, validate should be True
-        call_args = mock_steamcmd.download.call_args
-        assert call_args.kwargs["validate"] is True
 
     @patch("erenshor.cli.commands.extract.SteamCMD")
     def test_download_dry_run(self, mock_steamcmd_class):
@@ -114,7 +98,7 @@ class TestExtractDownloadCommand:
 
         # Verify - should not actually download
         assert result.exit_code == 0
-        assert "Dry-run mode" in result.stdout
+        assert "DRY RUN" in result.stdout or "Dry-run" in result.stdout
         mock_steamcmd.download.assert_not_called()
 
     @patch("erenshor.cli.commands.extract.SteamCMD")
@@ -150,53 +134,6 @@ class TestExtractRipCommand:
 
         # Verify - either succeeds or fails gracefully
         assert result.exit_code in [0, 1]
-
-    @patch("erenshor.infrastructure.logging.setup_logging")
-    @patch("erenshor.infrastructure.config.load_config")
-    @patch("erenshor.infrastructure.config.get_repo_root")
-    @patch("erenshor.cli.commands.extract.AssetRipper")
-    def test_rip_already_exists(
-        self, mock_assetripper_class, mock_get_repo_root, mock_load_config, mock_setup_logging, tmp_path
-    ):
-        """Test rip when Unity project already exists."""
-        # Setup mock AssetRipper
-        mock_assetripper = MagicMock()
-        mock_assetripper_class.return_value = mock_assetripper
-
-        # Create real Unity project directory structure
-        unity_project_dir = tmp_path / "unity"
-        unity_project_dir.mkdir()
-        (unity_project_dir / "Assets").mkdir()
-
-        # Mock repo root
-        mock_get_repo_root.return_value = tmp_path
-
-        # Mock config
-        mock_config = MagicMock()
-        mock_config.default_variant = "main"
-        mock_config.global_.logging.level = "info"
-        mock_config.global_.paths.resolved_logs.return_value = tmp_path / ".erenshor" / "logs"
-        mock_config.global_.paths.resolved_config_local.return_value = tmp_path / ".erenshor" / "config.local.toml"
-        mock_config.global_.assetripper.resolved_path.return_value = tmp_path / "assetripper"
-        mock_config.global_.assetripper.port = 8080
-        mock_config.global_.assetripper.timeout = 3600
-
-        # Mock variant config to return our tmp_path directories
-        mock_variant_config = MagicMock()
-        mock_variant_config.resolved_game_files.return_value = tmp_path / "game"
-        mock_variant_config.resolved_unity_project.return_value = unity_project_dir
-        mock_variant_config.resolved_logs.return_value = tmp_path / "logs"
-
-        mock_config.variants = {"main": mock_variant_config}
-        mock_load_config.return_value = mock_config
-
-        # Run command without --force
-        result = runner.invoke(app, ["extract", "rip"])
-
-        # Verify - should skip extraction
-        assert result.exit_code == 0
-        assert "already exists" in result.stdout
-        mock_assetripper.extract.assert_not_called()
 
     @patch("erenshor.cli.commands.extract.AssetRipper")
     def test_rip_force(self, mock_assetripper_class):

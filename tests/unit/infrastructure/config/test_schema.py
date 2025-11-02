@@ -520,6 +520,7 @@ class TestVariantConfig:
             database="$REPO_ROOT/variants/main/erenshor.sqlite",
             logs="$REPO_ROOT/variants/main/logs",
             backups="$REPO_ROOT/variants/main/backups",
+            wiki="$REPO_ROOT/variants/main/wiki",
         )
 
         assert config.enabled is True  # Default
@@ -540,6 +541,7 @@ class TestVariantConfig:
             database="/path/to/db.sqlite",
             logs="/path/to/logs",
             backups="/path/to/backups",
+            wiki="/path/to/wiki",
         )
         assert config.enabled is False
 
@@ -555,6 +557,7 @@ class TestVariantConfig:
             logs="$REPO_ROOT/logs",
             backups="$REPO_ROOT/backups",
             images_output="$REPO_ROOT/images",
+            wiki="$REPO_ROOT/wiki",
         )
 
         assert config.resolved_unity_project(tmp_path) == tmp_path / "unity"
@@ -592,6 +595,7 @@ class TestConfig:
                     database="/path/to/db.sqlite",
                     logs="/path/to/logs",
                     backups="/path/to/backups",
+                    wiki="/path/to/wiki",
                 )
             }
         )
@@ -631,6 +635,7 @@ class TestConfig:
                     database="/main/db.sqlite",
                     logs="/main/logs",
                     backups="/main/backups",
+                    wiki="/main/wiki",
                 ),
                 "playtest": VariantConfig(
                     name="Playtest",
@@ -641,6 +646,7 @@ class TestConfig:
                     database="/playtest/db.sqlite",
                     logs="/playtest/logs",
                     backups="/playtest/backups",
+                    wiki="/playtest/wiki",
                 ),
             }
         )

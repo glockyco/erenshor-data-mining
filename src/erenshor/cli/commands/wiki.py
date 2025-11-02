@@ -17,6 +17,9 @@ Example workflow:
     $ erenshor wiki deploy --entity-type items
 """
 
+import sys
+from pathlib import Path
+
 import typer
 from loguru import logger
 from rich.console import Console
@@ -30,8 +33,10 @@ from erenshor.cli.preconditions.checks.database import database_exists, database
 from erenshor.infrastructure.database.connection import DatabaseConnection
 from erenshor.infrastructure.database.repositories.characters import CharacterRepository
 from erenshor.infrastructure.database.repositories.items import ItemRepository
+from erenshor.infrastructure.database.repositories.skills import SkillRepository
 from erenshor.infrastructure.database.repositories.spells import SpellRepository
 from erenshor.infrastructure.wiki.client import MediaWikiClient
+from erenshor.registry.resolver import RegistryResolver
 
 app = typer.Typer(
     name="wiki",
@@ -40,6 +45,45 @@ app = typer.Typer(
 )
 
 console = Console()
+
+
+def _read_page_titles(pages_file: str) -> list[str]:
+    """Read page titles from file or stdin.
+
+    Args:
+        pages_file: Path to file containing page titles (one per line), or "-" for stdin.
+
+    Returns:
+        List of page titles (stripped, no empty lines or comments).
+
+    Raises:
+        typer.Exit: If file doesn't exist or can't be read.
+    """
+    try:
+        if pages_file == "-":
+            # Read from stdin
+            lines = sys.stdin.readlines()
+        else:
+            # Read from file
+            file_path = Path(pages_file)
+            if not file_path.exists():
+                logger.error(f"File not found: {pages_file}")
+                raise typer.Exit(1)
+            lines = file_path.read_text(encoding="utf-8").splitlines()
+
+        # Parse lines: strip whitespace, ignore empty lines and comments
+        titles = []
+        for line in lines:
+            line = line.strip()
+            if line and not line.startswith("#"):
+                titles.append(line)
+
+        logger.debug(f"Read {len(titles)} page titles from {pages_file}")
+        return titles
+
+    except Exception as e:
+        logger.error(f"Failed to read page titles from {pages_file}: {e}")
+        raise typer.Exit(1) from e
 
 
 def _create_wiki_service(cli_ctx: CLIContext) -> WikiService:
@@ -62,6 +106,11 @@ def _create_wiki_service(cli_ctx: CLIContext) -> WikiService:
     item_repo = ItemRepository(db_connection)
     character_repo = CharacterRepository(db_connection)
     spell_repo = SpellRepository(db_connection)
+    skill_repo = SkillRepository(db_connection)
+
+    # Create registry resolver
+    registry_db_path = cli_ctx.repo_root / "registry.db"
+    resolver = RegistryResolver(registry_db_path)
 
     # Create wiki client
     wiki_config = cli_ctx.config.global_.mediawiki
@@ -82,6 +131,8 @@ def _create_wiki_service(cli_ctx: CLIContext) -> WikiService:
         item_repo=item_repo,
         character_repo=character_repo,
         spell_repo=spell_repo,
+        skill_repo=skill_repo,
+        registry_resolver=resolver,
     )
 
 
@@ -93,17 +144,22 @@ def _create_wiki_service(cli_ctx: CLIContext) -> WikiService:
 )
 def fetch(
     ctx: typer.Context,
-    entity_type: str = typer.Option(
-        "items",
-        "--entity-type",
-        "-t",
-        help="Entity type to fetch: items, characters, spells",
-    ),
     limit: int | None = typer.Option(
         None,
         "--limit",
         "-n",
         help="Limit number of pages to fetch (for testing)",
+    ),
+    force: bool = typer.Option(
+        False,
+        "--force",
+        "-f",
+        help="Force re-fetch even if pages are already cached",
+    ),
+    pages_file: str | None = typer.Option(
+        None,
+        "--pages-file",
+        help="File with page titles to fetch (one per line), or '-' for stdin. If not specified, fetches all pages.",
     ),
 ) -> None:
     """Fetch wiki pages from MediaWiki.
@@ -112,16 +168,33 @@ def fetch(
     storage for later use during generation. This allows you to work offline
     and avoid re-fetching pages multiple times.
 
+    By default, skips pages that have already been fetched. Use --force to
+    re-fetch all pages regardless of cache status.
+
+    You can specify which pages to fetch using --pages-file:
+    - Fetch from file: --pages-file pages.txt
+    - Fetch from stdin: --pages-file - < pages.txt
+    - Fetch all pages: (no --pages-file option)
+
+    When --pages-file is used, --limit is ignored.
+
     Fetched pages are cached in variants/{variant}/wiki/fetched/
     """
     cli_ctx: CLIContext = ctx.obj
 
+    # Read page titles if specified
+    page_titles: list[str] | None = None
+    if pages_file:
+        page_titles = _read_page_titles(pages_file)
+        logger.info(f"Fetching {len(page_titles)} pages from {pages_file}")
+
     console.print()
     console.print(
         Panel.fit(
-            f"[bold cyan]Fetching {entity_type} wiki pages[/bold cyan]\n"
+            f"[bold cyan]Fetching wiki pages[/bold cyan]\n"
             f"Variant: {cli_ctx.variant}\n"
-            f"Dry-run: {cli_ctx.dry_run}",
+            f"Dry-run: {cli_ctx.dry_run}\n"
+            f"Pages: {'from ' + pages_file if pages_file else 'all'}",
             border_style="cyan",
         )
     )
@@ -131,17 +204,13 @@ def fetch(
         # Create service
         service = _create_wiki_service(cli_ctx)
 
-        # Fetch pages based on entity type
-        if entity_type == "items":
-            result = service.fetch_item_pages(dry_run=cli_ctx.dry_run, limit=limit)
-        elif entity_type == "characters":
-            result = service.fetch_character_pages(dry_run=cli_ctx.dry_run, limit=limit)
-        elif entity_type == "spells":
-            result = service.fetch_spell_pages(dry_run=cli_ctx.dry_run, limit=limit)
-        else:
-            console.print(f"[red]Error: Invalid entity type '{entity_type}'[/red]")
-            console.print("Valid types: items, characters, spells")
-            raise typer.Exit(1)
+        # Fetch pages (all or specified)
+        result = service.fetch_all(
+            dry_run=cli_ctx.dry_run,
+            limit=limit,
+            force_refetch=force,
+            page_titles=page_titles,
+        )
 
         # Show warnings and errors
         if result.has_warnings():
@@ -165,17 +234,16 @@ def fetch(
 )
 def generate(
     ctx: typer.Context,
-    entity_type: str = typer.Option(
-        "items",
-        "--entity-type",
-        "-t",
-        help="Entity type to generate: items, characters, spells",
-    ),
     limit: int | None = typer.Option(
         None,
         "--limit",
         "-n",
         help="Limit number of pages to generate (for testing)",
+    ),
+    pages_file: str | None = typer.Option(
+        None,
+        "--pages-file",
+        help="File with page titles to generate (one per line), or '-' for stdin. If not specified, generates all pages.",
     ),
 ) -> None:
     """Generate wiki pages locally.
@@ -184,20 +252,36 @@ def generate(
     (if available), preserves manually-edited fields, and removes legacy
     templates. Generated pages are saved locally for review before deployment.
 
+    You can specify which pages to generate using --pages-file:
+    - Generate from file: --pages-file pages.txt
+    - Generate from stdin: --pages-file - < pages.txt
+    - Generate all pages: (no --pages-file option)
+
+    Generates all entity types (items, characters, spells, skills) and groups
+    them by resolved page titles from the registry. Multi-entity pages (e.g.,
+    spell + skill sharing one page) are automatically handled.
+
     Generated pages are saved to variants/{variant}/wiki/generated/
 
     You can review generated files before deploying them with:
-        $ cat variants/{variant}/wiki/generated/item:*.txt
+        $ cat variants/{variant}/wiki/generated/*.txt
         $ git diff variants/{variant}/wiki/fetched/ variants/{variant}/wiki/generated/
     """
     cli_ctx: CLIContext = ctx.obj
 
+    # Read page titles if specified
+    page_titles: list[str] | None = None
+    if pages_file:
+        page_titles = _read_page_titles(pages_file)
+        logger.info(f"Generating {len(page_titles)} pages from {pages_file}")
+
     console.print()
     console.print(
         Panel.fit(
-            f"[bold cyan]Generating {entity_type} wiki pages[/bold cyan]\n"
+            f"[bold cyan]Generating wiki pages[/bold cyan]\n"
             f"Variant: {cli_ctx.variant}\n"
-            f"Dry-run: {cli_ctx.dry_run}",
+            f"Dry-run: {cli_ctx.dry_run}\n"
+            f"Pages: {'from ' + pages_file if pages_file else 'all'}",
             border_style="cyan",
         )
     )
@@ -207,17 +291,12 @@ def generate(
         # Create service
         service = _create_wiki_service(cli_ctx)
 
-        # Generate pages based on entity type
-        if entity_type == "items":
-            result = service.generate_item_pages(dry_run=cli_ctx.dry_run, limit=limit)
-        elif entity_type == "characters":
-            result = service.generate_character_pages(dry_run=cli_ctx.dry_run, limit=limit)
-        elif entity_type == "spells":
-            result = service.generate_spell_pages(dry_run=cli_ctx.dry_run, limit=limit)
-        else:
-            console.print(f"[red]Error: Invalid entity type '{entity_type}'[/red]")
-            console.print("Valid types: items, characters, spells")
-            raise typer.Exit(1)
+        # Generate pages (all or specified)
+        result = service.generate_all(
+            dry_run=cli_ctx.dry_run,
+            limit=limit,
+            page_titles=page_titles,
+        )
 
         # Show warnings and errors
         if result.has_warnings():
@@ -233,7 +312,7 @@ def generate(
             wiki_dir = variant_config.resolved_wiki(cli_ctx.repo_root)
             console.print(f"[bold]Next steps:[/bold]")
             console.print(f"  Review generated files: {wiki_dir / 'generated'}")
-            console.print(f"  Deploy to wiki: [cyan]erenshor wiki deploy --entity-type {entity_type}[/cyan]")
+            console.print(f"  Deploy to wiki: [cyan]erenshor wiki deploy[/cyan]")
             console.print()
 
     except Exception as e:
@@ -245,34 +324,45 @@ def generate(
 @app.command()
 def deploy(
     ctx: typer.Context,
-    entity_type: str = typer.Option(
-        "items",
-        "--entity-type",
-        "-t",
-        help="Entity type to deploy: items, characters, spells",
-    ),
     limit: int | None = typer.Option(
         None,
         "--limit",
         "-n",
         help="Limit number of pages to deploy (for testing)",
     ),
+    pages_file: str | None = typer.Option(
+        None,
+        "--pages-file",
+        help="File with page titles to deploy (one per line), or '-' for stdin. If not specified, deploys all pages.",
+    ),
 ) -> None:
     """Deploy generated wiki pages to MediaWiki.
 
-    Uploads pages from local storage to MediaWiki. Only pages that have been
-    generated (exist in variants/{variant}/wiki/generated/) will be deployed.
+    Uploads generated pages from local storage to MediaWiki. Only pages that have
+    been generated (exist in variants/{variant}/wiki/generated/) will be deployed.
+
+    You can specify which pages to deploy using --pages-file:
+    - Deploy from file: --pages-file pages.txt
+    - Deploy from stdin: --pages-file - < pages.txt
+    - Deploy all pages: (no --pages-file option)
 
     Use --dry-run to preview what would be uploaded without actually doing it.
     """
     cli_ctx: CLIContext = ctx.obj
 
+    # Read page titles if specified
+    page_titles: list[str] | None = None
+    if pages_file:
+        page_titles = _read_page_titles(pages_file)
+        logger.info(f"Deploying {len(page_titles)} pages from {pages_file}")
+
     console.print()
     console.print(
         Panel.fit(
-            f"[bold cyan]Deploying {entity_type} wiki pages[/bold cyan]\n"
+            f"[bold cyan]Deploying wiki pages[/bold cyan]\n"
             f"Variant: {cli_ctx.variant}\n"
-            f"Dry-run: {cli_ctx.dry_run}",
+            f"Dry-run: {cli_ctx.dry_run}\n"
+            f"Pages: {'from ' + pages_file if pages_file else 'all'}",
             border_style="cyan",
         )
     )
@@ -282,17 +372,12 @@ def deploy(
         # Create service
         service = _create_wiki_service(cli_ctx)
 
-        # Deploy pages based on entity type
-        if entity_type == "items":
-            result = service.deploy_item_pages(dry_run=cli_ctx.dry_run, limit=limit)
-        elif entity_type == "characters":
-            result = service.deploy_character_pages(dry_run=cli_ctx.dry_run, limit=limit)
-        elif entity_type == "spells":
-            result = service.deploy_spell_pages(dry_run=cli_ctx.dry_run, limit=limit)
-        else:
-            console.print(f"[red]Error: Invalid entity type '{entity_type}'[/red]")
-            console.print("Valid types: items, characters, spells")
-            raise typer.Exit(1)
+        # Deploy pages (all or specified)
+        result = service.deploy_all(
+            dry_run=cli_ctx.dry_run,
+            limit=limit,
+            page_titles=page_titles,
+        )
 
         # Show warnings and errors
         if result.has_warnings():

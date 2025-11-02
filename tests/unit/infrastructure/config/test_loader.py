@@ -288,9 +288,11 @@ class TestLoadConfig:
         base_config_path = tmp_path / "config.toml"
         base_config_path.write_text(fixture_path.read_text())
 
-        # Copy override config fixture as config.local.toml
+        # Create .erenshor directory and copy override config
+        erenshor_dir = tmp_path / ".erenshor"
+        erenshor_dir.mkdir()
         override_fixture = Path(__file__).parent / "../../../fixtures/config/override_config.toml"
-        local_config_path = tmp_path / "config.local.toml"
+        local_config_path = erenshor_dir / "config.local.toml"
         local_config_path.write_text(override_fixture.read_text())
 
         # Change to repo directory
@@ -368,9 +370,11 @@ class TestLoadConfig:
         base_config_path = tmp_path / "config.toml"
         base_config_path.write_text(base_fixture.read_text())
 
-        # Copy invalid syntax fixture as local config
+        # Create .erenshor directory and copy invalid syntax fixture
+        erenshor_dir = tmp_path / ".erenshor"
+        erenshor_dir.mkdir()
         invalid_fixture = Path(__file__).parent / "../../../fixtures/config/invalid_syntax.toml"
-        local_config_path = tmp_path / "config.local.toml"
+        local_config_path = erenshor_dir / "config.local.toml"
         local_config_path.write_text(invalid_fixture.read_text())
 
         monkeypatch.chdir(tmp_path)
@@ -483,13 +487,16 @@ game_files = "/path/to/game"
 database = "/path/to/db.sqlite"
 logs = "/path/to/logs"
 backups = "/path/to/backups"
+wiki = "/path/to/wiki"
 
 [variants.main.google_sheets]
 spreadsheet_id = "base-spreadsheet-id"
 """)
 
-        # Create local config that overrides only some nested values
-        local_config = tmp_path / "config.local.toml"
+        # Create .erenshor directory and local config that overrides only some nested values
+        erenshor_dir = tmp_path / ".erenshor"
+        erenshor_dir.mkdir()
+        local_config = erenshor_dir / "config.local.toml"
         local_config.write_text("""
 [global.unity]
 timeout = 7200

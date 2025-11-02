@@ -1,18 +1,16 @@
 """
 Registry System.
 
-Provides entity registration, lookup, and migration capabilities.
+Provides entity registration, lookup, and conflict detection.
 Tracks entity relationships and enables cross-referencing between
 different data types.
 
 Modules:
-- schema: Database schema definitions (EntityRecord, MigrationRecord, ConflictRecord)
+- schema: Database schema definitions (EntityRecord, ConflictRecord)
 - resource_names: Utilities for working with resource names as stable identifiers
 - operations: Core registry CRUD operations and conflict detection
+- resolver: Entity name resolution service (page titles, display names, image names)
 - item_classifier: Item kind classification for category generation
-- core: Core registry functionality
-- links: Entity linking and relationships
-- migration: Migration tools and utilities
 """
 
 from erenshor.registry.item_classifier import ItemKind, classify_item_kind
@@ -22,10 +20,11 @@ from erenshor.registry.operations import (
     get_entity,
     initialize_registry,
     list_entities,
-    migrate_from_mapping_json,
+    load_mapping_json,
     register_entity,
     resolve_conflict,
 )
+from erenshor.registry.resolver import RegistryResolver
 from erenshor.registry.resource_names import (
     build_stable_key,
     extract_resource_name,
@@ -34,14 +33,14 @@ from erenshor.registry.resource_names import (
     validate_resource_name,
     validate_stable_key,
 )
-from erenshor.registry.schema import ConflictRecord, EntityRecord, EntityType, MigrationRecord
+from erenshor.registry.schema import ConflictRecord, EntityRecord, EntityType
 
 __all__ = [
     "ConflictRecord",
     "EntityRecord",
     "EntityType",
     "ItemKind",
-    "MigrationRecord",
+    "RegistryResolver",
     "build_stable_key",
     "classify_item_kind",
     "create_conflict_record",
@@ -50,7 +49,7 @@ __all__ = [
     "get_entity",
     "initialize_registry",
     "list_entities",
-    "migrate_from_mapping_json",
+    "load_mapping_json",
     "normalize_resource_name",
     "parse_stable_key",
     "register_entity",

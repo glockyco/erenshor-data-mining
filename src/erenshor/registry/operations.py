@@ -26,7 +26,7 @@ from loguru import logger
 from sqlmodel import Session, SQLModel, create_engine, select
 
 from .resource_names import parse_stable_key
-from .schema import ConflictRecord, EntityRecord, EntityType, MigrationRecord
+from .schema import ConflictRecord, EntityRecord, EntityType
 
 
 def initialize_registry(db_path: Path) -> None:
@@ -63,21 +63,28 @@ def register_entity(
     session: Session,
     entity_type: EntityType,
     resource_name: str,
-    display_name: str,
-    wiki_page_title: str | None = None,
+    page_title: str | None = None,
+    display_name: str | None = None,
+    image_name: str | None = None,
+    excluded: bool = False,
 ) -> EntityRecord:
-    """Register or update an entity in the registry.
+    """Register or update an entity override in the registry.
 
     Uses upsert pattern: if an entity with the same entity_type and resource_name
-    already exists, it updates last_seen and optionally display_name/wiki_page_title.
-    Otherwise, creates a new entity record.
+    already exists, it updates the override fields. Otherwise, creates a new entity record.
+
+    Only entities with custom overrides should be registered. The registry stores
+    ONLY overrides - if all fields are None and excluded is False, the entity should
+    not be registered.
 
     Args:
         session: SQLModel database session
         entity_type: Type of entity (item, spell, character, etc.)
         resource_name: Stable resource identifier from game data
-        display_name: Human-readable name shown in game UI
-        wiki_page_title: Associated wiki page title (None if no wiki page)
+        page_title: Custom wiki page title override (None = use entity name)
+        display_name: Custom display name override (None = use entity name)
+        image_name: Custom image filename override (None = use entity name)
+        excluded: True if entity should be excluded from wiki (mapping.json has null wiki_page_name)
 
     Returns:
         EntityRecord instance (newly created or updated)
@@ -90,14 +97,11 @@ def register_entity(
         ...         session,
         ...         EntityType.ITEM,
         ...         "iron_sword",
-        ...         "Iron Sword",
-        ...         wiki_page_title="Iron Sword",
+        ...         page_title="Iron Sword (Weapon)",
         ...     )
-        ...     print(f"Registered: {entity.display_name}")
-        Registered: Iron Sword
+        ...     print(f"Registered override: {entity.page_title}")
+        Registered override: Iron Sword (Weapon)
     """
-    now = datetime.now(UTC)
-
     # Check if entity already exists
     statement = select(EntityRecord).where(
         EntityRecord.entity_type == entity_type,
@@ -107,18 +111,17 @@ def register_entity(
 
     if existing:
         # Update existing entity
-        existing.last_seen = now
+        existing.page_title = page_title
         existing.display_name = display_name
-
-        if wiki_page_title is not None:
-            existing.wiki_page_title = wiki_page_title
+        existing.image_name = image_name
+        existing.excluded = excluded
 
         session.add(existing)
         session.commit()
         session.refresh(existing)
 
         logger.debug(
-            f"Updated entity: {entity_type.value}:{resource_name} (id={existing.id}, display_name={display_name!r})"
+            f"Updated entity: {entity_type.value}:{resource_name} (id={existing.id}, page_title={page_title!r}, excluded={excluded})"
         )
 
         return existing
@@ -127,10 +130,10 @@ def register_entity(
     entity = EntityRecord(
         entity_type=entity_type,
         resource_name=resource_name,
+        page_title=page_title,
         display_name=display_name,
-        wiki_page_title=wiki_page_title,
-        first_seen=now,
-        last_seen=now,
+        image_name=image_name,
+        excluded=excluded,
     )
 
     session.add(entity)
@@ -138,7 +141,7 @@ def register_entity(
     session.refresh(entity)
 
     logger.info(
-        f"Registered new entity: {entity_type.value}:{resource_name} (id={entity.id}, display_name={display_name!r})"
+        f"Registered new entity: {entity_type.value}:{resource_name} (id={entity.id}, page_title={page_title!r}, excluded={excluded})"
     )
 
     return entity
@@ -390,40 +393,43 @@ def resolve_conflict(
     logger.info(f"Resolved conflict: id={conflict_id}, chosen_entity={chosen_entity_id}, notes={notes!r}")
 
 
-def migrate_from_mapping_json(session: Session, mapping_path: Path) -> int:
-    """Import historical entity mappings from mapping.json.
+def load_mapping_json(session: Session, mapping_path: Path) -> int:
+    """Import entity overrides from mapping.json into registry.
 
     The mapping.json file contains entity mapping rules in the format:
     {
         "rules": {
-            "old_key": {
-                "wiki_page_name": "New Page Name",
-                ...
+            "entity_type:resource_name": {
+                "wiki_page_name": "Custom Page Title",
+                "display_name": "Custom Display Name",
+                "image_name": "CustomImage.png",
+                "mapping_type": "custom"
             }
         }
     }
 
-    This function extracts old_key -> wiki_page_name mappings and creates
-    MigrationRecord entries for historical tracking.
+    This function creates EntityRecord entries for each rule with non-null overrides.
+    Only entities with custom mappings are imported - entities without overrides
+    are skipped (they will use entity name as default).
 
     Args:
         session: SQLModel database session
         mapping_path: Path to mapping.json file
 
     Returns:
-        Number of migration records imported
+        Number of entity overrides imported
 
     Example:
         >>> from pathlib import Path
         >>> from sqlmodel import Session, create_engine
         >>> engine = create_engine("sqlite:///registry.db")
         >>> with Session(engine) as session:
-        ...     count = migrate_from_mapping_json(
+        ...     count = load_mapping_json(
         ...         session,
         ...         Path("mapping.json"),
         ...     )
-        ...     print(f"Imported {count} mappings")
-        Imported 275 mappings
+        ...     print(f"Imported {count} entity overrides")
+        Imported 275 entity overrides
     """
     # Check if file exists
     if not mapping_path.exists():
@@ -444,29 +450,42 @@ def migrate_from_mapping_json(session: Session, mapping_path: Path) -> int:
         logger.warning(f"No rules found in mapping file: {mapping_path}")
         return 0
 
-    # Create migration records
+    # Import entity overrides
     count = 0
-    now = datetime.now(UTC)
 
-    for old_key, rule_data in rules.items():
-        # Skip if no wiki_page_name (excluded or invalid)
-        wiki_page_name = rule_data.get("wiki_page_name")
-        if not wiki_page_name:
+    for stable_key, rule_data in rules.items():
+        # Parse stable key
+        try:
+            entity_type, resource_name = parse_stable_key(stable_key)
+        except ValueError as e:
+            logger.warning(f"Skipping invalid stable key '{stable_key}': {e}")
             continue
 
-        # Create migration record
-        migration = MigrationRecord(
-            old_key=old_key,
-            new_key=f"{old_key} -> {wiki_page_name}",  # Encode mapping
-            migration_date=now,
-            notes=f"Imported from mapping.json: {rule_data.get('reason', 'N/A')}",
-        )
+        # Check if entity is excluded (wiki_page_name explicitly null in mapping)
+        # Note: We check if the key exists but value is null
+        excluded = "wiki_page_name" in rule_data and rule_data["wiki_page_name"] is None
 
-        session.add(migration)
+        # Extract override fields
+        page_title = rule_data.get("wiki_page_name")
+        display_name = rule_data.get("display_name")
+        image_name = rule_data.get("image_name")
+
+        # Skip if no overrides and not excluded (entity not in mapping.json at all)
+        if not excluded and page_title is None and display_name is None and image_name is None:
+            logger.debug(f"Skipping {stable_key} - no overrides and not excluded")
+            continue
+
+        # Register entity override (including exclusions)
+        register_entity(
+            session,
+            entity_type=entity_type,
+            resource_name=resource_name,
+            page_title=page_title,
+            display_name=display_name,
+            image_name=image_name,
+            excluded=excluded,
+        )
         count += 1
 
-    # Commit all migrations
-    session.commit()
-
-    logger.info(f"Imported {count} migration records from {mapping_path}")
+    logger.info(f"Imported {count} entity overrides from {mapping_path}")
     return count

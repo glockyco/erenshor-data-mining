@@ -167,11 +167,17 @@ class TestAssetRipperServerManagement:
 class TestAssetRipperExtraction:
     """Test AssetRipper extraction workflow."""
 
+    @patch("erenshor.infrastructure.assetripper.assetripper.time.time")
     @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.run")
     @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.Popen")
     @patch("erenshor.infrastructure.assetripper.assetripper.time.sleep")
     def test_extract_success(
-        self, mock_sleep: MagicMock, mock_popen: MagicMock, mock_run: MagicMock, tmp_path: Path
+        self,
+        mock_sleep: MagicMock,
+        mock_popen: MagicMock,
+        mock_run: MagicMock,
+        mock_time: MagicMock,
+        tmp_path: Path,
     ) -> None:
         """Test successful extraction workflow."""
         executable = tmp_path / "AssetRipper.GUI.Free"
@@ -181,6 +187,10 @@ class TestAssetRipperExtraction:
         source_dir.mkdir(parents=True)
 
         target_dir = tmp_path / "unity"
+        log_dir = tmp_path
+
+        # Mock time.time() to return fixed timestamp for log filename
+        mock_time.return_value = 1234567890
 
         # Mock process for server
         mock_process = MagicMock()
@@ -204,14 +214,24 @@ class TestAssetRipperExtraction:
 
         mock_run.side_effect = mock_run_side_effect
 
-        # Mock log file with completion message
-        log_content = "Export started\\nFinished post-export\\n"
-
         assetripper = AssetRipper(executable_path=executable, port=8080)
 
-        # Patch log file reading
-        with patch.object(Path, "read_text", return_value=log_content):
-            assetripper.extract(source_dir=source_dir, target_dir=target_dir, log_dir=tmp_path)
+        # Create log file with known filename (based on mocked time)
+        log_file = log_dir / "assetripper_1234567890.log"
+
+        # Mock sleep to write completion message to log on first check
+        sleep_count = 0
+
+        def mock_sleep_side_effect(seconds):
+            nonlocal sleep_count
+            sleep_count += 1
+            # After first sleep in _monitor_export, write completion message
+            if sleep_count == 1:
+                log_file.write_text("Export started\nFinished post-export\n")
+
+        mock_sleep.side_effect = mock_sleep_side_effect
+
+        assetripper.extract(source_dir=source_dir, target_dir=target_dir, log_dir=log_dir)
 
         # Verify target directory was created
         assert target_dir.exists()

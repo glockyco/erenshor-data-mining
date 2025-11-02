@@ -73,14 +73,14 @@ def test_database_valid_with_corrupted_file(tmp_path: Path):
 
 
 def test_database_has_items_with_populated_database(tmp_path: Path):
-    """Test database_has_items passes when Item table has data."""
+    """Test database_has_items passes when Items table has data."""
     db_path = tmp_path / "test.sqlite"
 
     # Create database with items
     conn = sqlite3.connect(str(db_path))
-    conn.execute("CREATE TABLE Item (id INTEGER PRIMARY KEY, name TEXT)")
-    conn.execute("INSERT INTO Item (id, name) VALUES (1, 'Test Item')")
-    conn.execute("INSERT INTO Item (id, name) VALUES (2, 'Another Item')")
+    conn.execute("CREATE TABLE Items (id INTEGER PRIMARY KEY, name TEXT)")
+    conn.execute("INSERT INTO Items (id, name) VALUES (1, 'Test Item')")
+    conn.execute("INSERT INTO Items (id, name) VALUES (2, 'Another Item')")
     conn.commit()
     conn.close()
 
@@ -92,12 +92,12 @@ def test_database_has_items_with_populated_database(tmp_path: Path):
 
 
 def test_database_has_items_with_empty_table(tmp_path: Path):
-    """Test database_has_items fails when Item table is empty."""
+    """Test database_has_items fails when Items table is empty."""
     db_path = tmp_path / "test.sqlite"
 
-    # Create database with empty Item table
+    # Create database with empty Items table
     conn = sqlite3.connect(str(db_path))
-    conn.execute("CREATE TABLE Item (id INTEGER PRIMARY KEY, name TEXT)")
+    conn.execute("CREATE TABLE Items (id INTEGER PRIMARY KEY, name TEXT)")
     conn.commit()
     conn.close()
 
@@ -122,7 +122,7 @@ def test_database_has_items_with_missing_table(tmp_path: Path):
     result = database_has_items(context)
 
     assert result.passed is False
-    assert "no item table" in result.message.lower()
+    assert "no items table" in result.message.lower()
 
 
 def test_database_has_items_with_missing_file(tmp_path: Path):

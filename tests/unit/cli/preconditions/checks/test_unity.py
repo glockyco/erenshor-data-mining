@@ -10,8 +10,10 @@ def test_unity_project_exists_with_valid_project(tmp_path: Path):
     """Test unity_project_exists passes with valid Unity project."""
     unity_dir = tmp_path / "Unity"
     unity_dir.mkdir()
-    (unity_dir / "Assets").mkdir()
-    (unity_dir / "ProjectSettings").mkdir()
+    exported_project = unity_dir / "ExportedProject"
+    exported_project.mkdir()
+    (exported_project / "Assets").mkdir()
+    (exported_project / "ProjectSettings").mkdir()
 
     context = {"unity_project": unity_dir}
     result = unity_project_exists(context)
@@ -35,7 +37,9 @@ def test_unity_project_exists_without_assets(tmp_path: Path):
     """Test unity_project_exists fails without Assets directory."""
     unity_dir = tmp_path / "Unity"
     unity_dir.mkdir()
-    (unity_dir / "ProjectSettings").mkdir()
+    exported_project = unity_dir / "ExportedProject"
+    exported_project.mkdir()
+    (exported_project / "ProjectSettings").mkdir()
 
     context = {"unity_project": unity_dir}
     result = unity_project_exists(context)
@@ -48,7 +52,9 @@ def test_unity_project_exists_without_project_settings(tmp_path: Path):
     """Test unity_project_exists fails without ProjectSettings directory."""
     unity_dir = tmp_path / "Unity"
     unity_dir.mkdir()
-    (unity_dir / "Assets").mkdir()
+    exported_project = unity_dir / "ExportedProject"
+    exported_project.mkdir()
+    (exported_project / "Assets").mkdir()
 
     context = {"unity_project": unity_dir}
     result = unity_project_exists(context)
@@ -79,9 +85,10 @@ def test_editor_scripts_linked_with_valid_symlink(tmp_path: Path):
     source_editor.mkdir(parents=True)
     (source_editor / "test.cs").write_text("// test")
 
-    # Create Unity project
-    (unity_dir / "Assets").mkdir(parents=True)
-    editor_link = unity_dir / "Assets" / "Editor"
+    # Create Unity project with ExportedProject subdirectory
+    exported_project = unity_dir / "ExportedProject"
+    (exported_project / "Assets").mkdir(parents=True)
+    editor_link = exported_project / "Assets" / "Editor"
     editor_link.symlink_to(source_editor)
 
     context = {
@@ -98,7 +105,8 @@ def test_editor_scripts_linked_when_missing(tmp_path: Path):
     """Test editor_scripts_linked fails when symlink doesn't exist."""
     repo_root = tmp_path / "repo"
     unity_dir = tmp_path / "unity"
-    (unity_dir / "Assets").mkdir(parents=True)
+    exported_project = unity_dir / "ExportedProject"
+    (exported_project / "Assets").mkdir(parents=True)
 
     context = {
         "unity_project": unity_dir,
@@ -116,7 +124,8 @@ def test_editor_scripts_linked_when_not_symlink(tmp_path: Path):
     unity_dir = tmp_path / "unity"
 
     # Create regular directory instead of symlink
-    editor_dir = unity_dir / "Assets" / "Editor"
+    exported_project = unity_dir / "ExportedProject"
+    editor_dir = exported_project / "Assets" / "Editor"
     editor_dir.mkdir(parents=True)
 
     context = {
@@ -143,8 +152,9 @@ def test_editor_scripts_linked_when_wrong_target(tmp_path: Path):
     wrong_target.mkdir()
 
     # Create symlink pointing to wrong location
-    (unity_dir / "Assets").mkdir(parents=True)
-    editor_link = unity_dir / "Assets" / "Editor"
+    exported_project = unity_dir / "ExportedProject"
+    (exported_project / "Assets").mkdir(parents=True)
+    editor_link = exported_project / "Assets" / "Editor"
     editor_link.symlink_to(wrong_target)
 
     context = {

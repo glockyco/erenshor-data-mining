@@ -1,24 +1,24 @@
-"""Unit tests for ItemPageGenerator.
+"""Unit tests for ItemTemplateGenerator.
 
 Tests item page generation for different item types including weapons, armor,
 consumables, and general items.
 """
 
-from erenshor.application.generators.item_page_generator import ItemPageGenerator
+from erenshor.application.generators.item_template_generator import ItemTemplateGenerator
 from erenshor.domain.entities.item import Item
 
 
-class TestItemPageGenerator:
-    """Test suite for ItemPageGenerator."""
+class TestItemTemplateGenerator:
+    """Test suite for ItemTemplateGenerator."""
 
     def test_init_creates_category_generator(self):
         """Test that initialization creates category generator."""
-        generator = ItemPageGenerator()
+        generator = ItemTemplateGenerator()
         assert generator._category_generator is not None
 
     def test_generate_page_for_general_item(self):
         """Test generating page for general item."""
-        generator = ItemPageGenerator()
+        generator = ItemTemplateGenerator()
 
         item = Item(
             id="1",
@@ -30,7 +30,7 @@ class TestItemPageGenerator:
             sell_value=25,
         )
 
-        result = generator.generate_page(item, page_title="Test Item")
+        result = generator.generate_template(item, page_title="Test Item")
 
         # Should contain {{Item}} template
         assert "{{Item" in result
@@ -44,7 +44,7 @@ class TestItemPageGenerator:
 
     def test_generate_page_for_weapon(self):
         """Test generating page for weapon."""
-        generator = ItemPageGenerator()
+        generator = ItemTemplateGenerator()
 
         item = Item(
             id="2",
@@ -58,7 +58,7 @@ class TestItemPageGenerator:
             sell_value=125,
         )
 
-        result = generator.generate_page(item, page_title="Test Sword")
+        result = generator.generate_template(item, page_title="Test Sword")
 
         # Should contain {{Item}} template (fancy weapon deferred for now)
         assert "{{Item" in result
@@ -71,7 +71,7 @@ class TestItemPageGenerator:
 
     def test_generate_page_for_armor(self):
         """Test generating page for armor."""
-        generator = ItemPageGenerator()
+        generator = ItemTemplateGenerator()
 
         item = Item(
             id="3",
@@ -84,7 +84,7 @@ class TestItemPageGenerator:
             sell_value=75,
         )
 
-        result = generator.generate_page(item, page_title="Test Helmet")
+        result = generator.generate_template(item, page_title="Test Helmet")
 
         # Should contain {{Item}} template (fancy armor deferred for now)
         assert "{{Item" in result
@@ -96,7 +96,7 @@ class TestItemPageGenerator:
 
     def test_generate_page_for_charm(self):
         """Test generating page for charm."""
-        generator = ItemPageGenerator()
+        generator = ItemTemplateGenerator()
 
         item = Item(
             id="4",
@@ -107,7 +107,7 @@ class TestItemPageGenerator:
             classes="Arcanist, Druid",
         )
 
-        result = generator.generate_page(item, page_title="Test Charm")
+        result = generator.generate_template(item, page_title="Test Charm")
 
         # Should contain {{Item}} template (fancy charm deferred for now)
         assert "{{Item" in result
@@ -118,7 +118,7 @@ class TestItemPageGenerator:
 
     def test_generate_page_for_consumable(self):
         """Test generating page for consumable."""
-        generator = ItemPageGenerator()
+        generator = ItemTemplateGenerator()
 
         item = Item(
             id="5",
@@ -133,7 +133,7 @@ class TestItemPageGenerator:
             sell_value=10,
         )
 
-        result = generator.generate_page(item, page_title="Test Potion")
+        result = generator.generate_template(item, page_title="Test Potion")
 
         # Should contain {{Item}} template
         assert "{{Item" in result
@@ -144,7 +144,7 @@ class TestItemPageGenerator:
 
     def test_generate_page_for_mold(self):
         """Test generating page for mold (crafting template)."""
-        generator = ItemPageGenerator()
+        generator = ItemTemplateGenerator()
 
         item = Item(
             id="6",
@@ -157,7 +157,7 @@ class TestItemPageGenerator:
             template_reward_ids="7",
         )
 
-        result = generator.generate_page(item, page_title="Test Mold")
+        result = generator.generate_template(item, page_title="Test Mold")
 
         # Should contain {{Item}} template
         assert "{{Item" in result
@@ -168,7 +168,7 @@ class TestItemPageGenerator:
 
     def test_generate_page_for_ability_book(self):
         """Test generating page for ability book."""
-        generator = ItemPageGenerator()
+        generator = ItemTemplateGenerator()
 
         item = Item(
             id="7",
@@ -179,7 +179,7 @@ class TestItemPageGenerator:
             teach_spell="Fireball",
         )
 
-        result = generator.generate_page(item, page_title="Spell Scroll: Fireball")
+        result = generator.generate_template(item, page_title="Spell Scroll: Fireball")
 
         # Should contain {{Item}} template
         assert "{{Item" in result
@@ -190,7 +190,7 @@ class TestItemPageGenerator:
 
     def test_generate_page_handles_none_values(self):
         """Test that generator handles None values gracefully."""
-        generator = ItemPageGenerator()
+        generator = ItemTemplateGenerator()
 
         item = Item(
             id="8",
@@ -204,7 +204,7 @@ class TestItemPageGenerator:
             sell_value=None,
         )
 
-        result = generator.generate_page(item, page_title="Minimal Item")
+        result = generator.generate_template(item, page_title="Minimal Item")
 
         # Should generate valid wikitext even with minimal data
         assert "{{Item" in result
@@ -215,7 +215,7 @@ class TestItemPageGenerator:
 
     def test_generate_page_handles_relic_flag(self):
         """Test that relic flag is properly formatted."""
-        generator = ItemPageGenerator()
+        generator = ItemTemplateGenerator()
 
         # Relic item
         relic_item = Item(
@@ -225,7 +225,7 @@ class TestItemPageGenerator:
             relic=1,
         )
 
-        result = generator.generate_page(relic_item, page_title="Relic Item")
+        result = generator.generate_template(relic_item, page_title="Relic Item")
         assert "|relic=True" in result
 
         # Non-relic item
@@ -236,13 +236,13 @@ class TestItemPageGenerator:
             relic=0,
         )
 
-        result = generator.generate_page(normal_item, page_title="Normal Item")
+        result = generator.generate_template(normal_item, page_title="Normal Item")
         assert "|relic=True" not in result
         assert "|relic=" in result  # Empty value
 
     def test_classify_weapon_by_required_slot(self):
         """Test weapon classification by RequiredSlot."""
-        generator = ItemPageGenerator()
+        generator = ItemTemplateGenerator()
 
         # Primary slot weapon
         primary = Item(id="11", resource_name="Primary", item_name="Primary", required_slot="Primary")
@@ -258,7 +258,7 @@ class TestItemPageGenerator:
 
     def test_classify_armor_by_required_slot(self):
         """Test armor classification by RequiredSlot."""
-        generator = ItemPageGenerator()
+        generator = ItemTemplateGenerator()
 
         armor_slots = ["Head", "Shoulders", "Chest", "Hands", "Legs", "Feet", "Waist", "Neck", "Back"]
 
@@ -268,7 +268,7 @@ class TestItemPageGenerator:
 
     def test_classify_consumable(self):
         """Test consumable classification."""
-        generator = ItemPageGenerator()
+        generator = ItemTemplateGenerator()
 
         consumable = Item(
             id="14",
@@ -282,7 +282,7 @@ class TestItemPageGenerator:
 
     def test_classify_mold(self):
         """Test mold classification."""
-        generator = ItemPageGenerator()
+        generator = ItemTemplateGenerator()
 
         mold = Item(
             id="15",
@@ -294,7 +294,7 @@ class TestItemPageGenerator:
 
     def test_classify_ability_book(self):
         """Test ability book classification."""
-        generator = ItemPageGenerator()
+        generator = ItemTemplateGenerator()
 
         spell_book = Item(
             id="16",
@@ -314,7 +314,7 @@ class TestItemPageGenerator:
 
     def test_classify_aura(self):
         """Test aura classification."""
-        generator = ItemPageGenerator()
+        generator = ItemTemplateGenerator()
 
         aura = Item(
             id="18",
@@ -326,7 +326,7 @@ class TestItemPageGenerator:
 
     def test_build_item_template_context(self):
         """Test building template context from item."""
-        generator = ItemPageGenerator()
+        generator = ItemTemplateGenerator()
 
         item = Item(
             id="19",

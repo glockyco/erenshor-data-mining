@@ -87,18 +87,22 @@ def test_steam_credentials_exist_without_username():
 
 
 def test_steam_credentials_exist_without_password():
-    """Test steam_credentials_exist fails when password is missing."""
+    """Test steam_credentials_exist passes with only username (password not required).
+
+    SteamCMD caches login tokens, so password doesn't need to be stored in config.
+    It will prompt for password on first run if needed.
+    """
     # Create mock config with only username set
     mock_config = MagicMock()
     mock_config.global_.steam.username = "testuser"
-    mock_config.global_.steam.password = ""  # Empty password
+    mock_config.global_.steam.password = ""  # Empty password is OK
 
     context = {"config": mock_config}
     result = steam_credentials_exist(context)
 
-    assert result.passed is False
-    assert "incomplete" in result.message.lower()
-    assert "config.local.toml" in result.detail
+    assert result.passed is True
+    assert "configured" in result.message.lower()
+    assert "tes***" in result.message
 
 
 def test_steam_credentials_exist_with_neither_set():

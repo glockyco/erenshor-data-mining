@@ -1,46 +1,51 @@
-"""Character page generator for wiki content.
+"""Character template generator for wiki content.
 
-This module generates complete MediaWiki pages for characters including NPCs,
-enemies, vendors, and other in-game entities.
+This module generates MediaWiki {{Character}} template wikitext for individual
+characters including NPCs, enemies, vendors, and other in-game entities.
 
-Page structure:
+Template generators handle SINGLE entities only. Multi-entity page assembly
+is handled by WikiService.
+
+Template structure:
 - {{Character}} template + category tags
 """
 
 from loguru import logger
 
 from erenshor.application.generators.formatting import safe_str
-from erenshor.application.generators.page_generator_base import PageGeneratorBase
+from erenshor.application.generators.template_generator_base import TemplateGeneratorBase
 from erenshor.domain.entities.character import Character
 
 
-class CharacterPageGenerator(PageGeneratorBase):
-    """Generator for character wiki pages.
+class CharacterTemplateGenerator(TemplateGeneratorBase):
+    """Generator for character wiki templates.
 
-    Creates complete wikitext pages for characters with {{Character}} template
-    and appropriate category tags.
+    Generates {{Character}} template wikitext for a SINGLE character entity
+    with appropriate category tags.
+
+    Multi-entity page assembly is handled by WikiService, not here.
 
     Example:
-        >>> generator = CharacterPageGenerator()
+        >>> generator = CharacterTemplateGenerator()
         >>> character = Character(...)  # From repository
-        >>> wikitext = generator.generate_page(character, page_title="Goblin Scout")
+        >>> wikitext = generator.generate_template(character, page_title="Goblin Scout")
     """
 
-    def generate_page(self, character: Character, page_title: str) -> str:
-        """Generate complete wiki page for a character.
+    def generate_template(self, character: Character, page_title: str) -> str:
+        """Generate template wikitext for a single character.
 
         Args:
-            character: Character entity from repository
+            character: Single Character entity from repository
             page_title: Wiki page title (from registry)
 
         Returns:
-            Complete wikitext page with template and category tags
+            Template wikitext for single character (infobox + categories)
 
         Example:
             >>> character = Character(id=1, object_name="Goblin", npc_name="Goblin Scout")
-            >>> wikitext = generator.generate_page(character, "Goblin Scout")
+            >>> wikitext = generator.generate_template(character, "Goblin Scout")
         """
-        logger.debug(f"Generating page for character: {character.npc_name}")
+        logger.debug(f"Generating template for character: {character.npc_name}")
 
         # Build template context
         context = self._build_character_template_context(character, page_title)

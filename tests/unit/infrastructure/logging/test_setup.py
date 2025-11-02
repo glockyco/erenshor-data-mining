@@ -67,6 +67,7 @@ def minimal_config(tmp_path: Path) -> Config:
                 database="variants/main/erenshor-main.sqlite",
                 logs="variants/main/logs",
                 backups="variants/main/backups",
+                wiki="variants/main/wiki",
                 google_sheets=VariantGoogleSheetsConfig(
                     spreadsheet_id="test-spreadsheet-id",
                 ),

@@ -45,47 +45,55 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+from urllib.parse import quote, unquote
 
 from loguru import logger
 
 
 @dataclass
 class PageMetadata:
-    """Metadata for a wiki page.
+    """Metadata for a wiki page (supports multi-entity pages).
+
+    A wiki page may contain multiple entities (e.g., spell + skill sharing one page).
+    This metadata tracks all entities that contribute to a single page.
 
     Attributes:
-        stable_key: Stable identifier (entity_type:resource_name).
-        wiki_title: MediaWiki page title (e.g., "Item:Iron Sword").
-        entity_name: Human-readable entity name (e.g., "Iron Sword").
+        page_title: MediaWiki page title (e.g., "Lingering Inferno").
+        stable_keys: List of stable identifiers contributing to this page
+            (e.g., ["spell:lingering_inferno", "skill:lingering_inferno"]).
+        entity_names: List of human-readable entity names (parallel to stable_keys).
         fetched_at: ISO timestamp when page was fetched from wiki.
         generated_at: ISO timestamp when page was generated locally.
     """
 
-    stable_key: str
-    wiki_title: str
-    entity_name: str
+    page_title: str
+    stable_keys: list[str]
+    entity_names: list[str]
     fetched_at: str | None = None
     generated_at: str | None = None
+    wiki_revision_id: int | None = None  # Latest revision ID from wiki when fetched
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
         return {
-            "stable_key": self.stable_key,
-            "wiki_title": self.wiki_title,
-            "entity_name": self.entity_name,
+            "page_title": self.page_title,
+            "stable_keys": self.stable_keys,
+            "entity_names": self.entity_names,
             "fetched_at": self.fetched_at,
             "generated_at": self.generated_at,
+            "wiki_revision_id": self.wiki_revision_id,
         }
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> PageMetadata:
-        """Create from dictionary after JSON deserialization."""
+        """Create from dictionary after JSON deseriization."""
         return cls(
-            stable_key=data["stable_key"],
-            wiki_title=data["wiki_title"],
-            entity_name=data["entity_name"],
+            page_title=data["page_title"],
+            stable_keys=data["stable_keys"],
+            entity_names=data["entity_names"],
             fetched_at=data.get("fetched_at"),
             generated_at=data.get("generated_at"),
+            wiki_revision_id=data.get("wiki_revision_id"),
         )
 
 
@@ -123,143 +131,6 @@ class WikiStorage:
 
         logger.debug(f"WikiStorage initialized: {wiki_dir}")
 
-    def _get_fetched_path(self, stable_key: str) -> Path:
-        """Get file path for fetched page."""
-        return self._fetched_dir / f"{stable_key}.txt"
-
-    def _get_generated_path(self, stable_key: str) -> Path:
-        """Get file path for generated page."""
-        return self._generated_dir / f"{stable_key}.txt"
-
-    def save_fetched(self, stable_key: str, wiki_title: str, content: str, entity_name: str) -> None:
-        """Save fetched page from MediaWiki.
-
-        Args:
-            stable_key: Stable identifier (e.g., "item:iron_sword").
-            wiki_title: MediaWiki page title (e.g., "Item:Iron Sword").
-            content: Wiki page content (wikitext).
-            entity_name: Human-readable entity name (e.g., "Iron Sword").
-        """
-        # Save content to file
-        file_path = self._get_fetched_path(stable_key)
-        file_path.write_text(content, encoding="utf-8")
-
-        # Update metadata
-        metadata = self._load_metadata()
-        metadata[stable_key] = PageMetadata(
-            stable_key=stable_key,
-            wiki_title=wiki_title,
-            entity_name=entity_name,
-            fetched_at=datetime.now().isoformat(),
-        )
-        self._save_metadata(metadata)
-
-        logger.debug(f"Saved fetched page: {stable_key} -> {file_path}")
-
-    def read_fetched(self, stable_key: str) -> str | None:
-        """Read fetched page content.
-
-        Args:
-            stable_key: Stable identifier (e.g., "item:iron_sword").
-
-        Returns:
-            Page content if exists, None otherwise.
-        """
-        file_path = self._get_fetched_path(stable_key)
-        if not file_path.exists():
-            return None
-
-        return file_path.read_text(encoding="utf-8")
-
-    def save_generated(self, stable_key: str, content: str) -> None:
-        """Save generated page (ready to deploy).
-
-        Args:
-            stable_key: Stable identifier (e.g., "item:iron_sword").
-            content: Generated wiki page content (wikitext).
-        """
-        # Save content to file
-        file_path = self._get_generated_path(stable_key)
-        file_path.write_text(content, encoding="utf-8")
-
-        # Update metadata timestamp
-        metadata = self._load_metadata()
-        if stable_key in metadata:
-            metadata[stable_key].generated_at = datetime.now().isoformat()
-        else:
-            # Create minimal metadata if not exists (shouldn't happen normally)
-            logger.warning(f"Creating metadata for {stable_key} without fetch info")
-            metadata[stable_key] = PageMetadata(
-                stable_key=stable_key,
-                wiki_title=stable_key.replace(":", ":", 1).title(),  # Placeholder
-                entity_name=stable_key.split(":", 1)[1].replace("_", " ").title(),
-                generated_at=datetime.now().isoformat(),
-            )
-        self._save_metadata(metadata)
-
-        logger.debug(f"Saved generated page: {stable_key} -> {file_path}")
-
-    def read_generated(self, stable_key: str) -> str | None:
-        """Read generated page content.
-
-        Args:
-            stable_key: Stable identifier (e.g., "item:iron_sword").
-
-        Returns:
-            Page content if exists, None otherwise.
-        """
-        file_path = self._get_generated_path(stable_key)
-        if not file_path.exists():
-            return None
-
-        return file_path.read_text(encoding="utf-8")
-
-    def list_fetched(self) -> list[str]:
-        """List all fetched stable keys.
-
-        Returns:
-            List of stable keys for fetched pages.
-        """
-        if not self._fetched_dir.exists():
-            return []
-
-        return [p.stem for p in self._fetched_dir.glob("*.txt")]
-
-    def list_generated(self) -> list[str]:
-        """List all generated stable keys.
-
-        Returns:
-            List of stable keys for generated pages.
-        """
-        if not self._generated_dir.exists():
-            return []
-
-        return [p.stem for p in self._generated_dir.glob("*.txt")]
-
-    def get_metadata(self, stable_key: str) -> PageMetadata | None:
-        """Get metadata for a page.
-
-        Args:
-            stable_key: Stable identifier (e.g., "item:iron_sword").
-
-        Returns:
-            PageMetadata if exists, None otherwise.
-        """
-        metadata = self._load_metadata()
-        return metadata.get(stable_key)
-
-    def get_wiki_title(self, stable_key: str) -> str | None:
-        """Get MediaWiki page title for a stable key.
-
-        Args:
-            stable_key: Stable identifier (e.g., "item:iron_sword").
-
-        Returns:
-            Wiki page title if exists, None otherwise.
-        """
-        meta = self.get_metadata(stable_key)
-        return meta.wiki_title if meta else None
-
     def _load_metadata(self) -> dict[str, PageMetadata]:
         """Load metadata from JSON file."""
         if not self._metadata_file.exists():
@@ -276,6 +147,126 @@ class WikiStorage:
         """Save metadata to JSON file."""
         data = {key: value.to_dict() for key, value in metadata.items()}
         self._metadata_file.write_text(json.dumps(data, indent=2), encoding="utf-8")
+
+    def _encode_page_title_for_filename(self, page_title: str) -> str:
+        """Encode page title for safe filesystem storage.
+
+        Uses URL encoding while preserving common readable characters.
+
+        Args:
+            page_title: MediaWiki page title
+
+        Returns:
+            URL-encoded filename
+        """
+        return quote(page_title, safe='_-.')
+
+    def save_fetched_by_title(
+        self,
+        page_title: str,
+        stable_keys: list[str],
+        content: str,
+        entity_names: list[str],
+    ) -> None:
+        """Save fetched page from MediaWiki.
+
+        Args:
+            page_title: MediaWiki page title.
+            stable_keys: Stable identifiers for all entities on this page.
+            content: Wiki page content (wikitext).
+            entity_names: Human-readable names for all entities on this page.
+        """
+        safe_filename = self._encode_page_title_for_filename(page_title)
+        file_path = self._fetched_dir / f"{safe_filename}.txt"
+        file_path.write_text(content, encoding="utf-8")
+
+        metadata = self._load_metadata()
+        metadata[page_title] = PageMetadata(
+            page_title=page_title,
+            stable_keys=stable_keys,
+            entity_names=entity_names,
+            fetched_at=datetime.now().isoformat(),
+        )
+        self._save_metadata(metadata)
+
+        logger.debug(f"Saved fetched page: {page_title} ({len(stable_keys)} entities)")
+
+    def read_fetched_by_title(self, page_title: str) -> str | None:
+        """Read fetched page content by title.
+
+        Args:
+            page_title: MediaWiki page title.
+
+        Returns:
+            Page content if exists, None otherwise.
+        """
+        safe_filename = self._encode_page_title_for_filename(page_title)
+        file_path = self._fetched_dir / f"{safe_filename}.txt"
+        if not file_path.exists():
+            return None
+
+        return file_path.read_text(encoding="utf-8")
+
+    def save_generated_by_title(
+        self,
+        page_title: str,
+        stable_keys: list[str],
+        content: str,
+    ) -> None:
+        """Save generated page.
+
+        Args:
+            page_title: MediaWiki page title.
+            stable_keys: Stable identifiers for all entities on this page.
+            content: Generated wiki page content (wikitext).
+        """
+        safe_filename = self._encode_page_title_for_filename(page_title)
+        file_path = self._generated_dir / f"{safe_filename}.txt"
+        file_path.write_text(content, encoding="utf-8")
+
+        metadata = self._load_metadata()
+        if page_title in metadata:
+            metadata[page_title].generated_at = datetime.now().isoformat()
+        else:
+            logger.warning(f"Creating metadata for {page_title} without fetch info")
+            entity_names = [sk.split(":", 1)[1].replace("_", " ").title() for sk in stable_keys]
+            metadata[page_title] = PageMetadata(
+                page_title=page_title,
+                stable_keys=stable_keys,
+                entity_names=entity_names,
+                generated_at=datetime.now().isoformat(),
+            )
+        self._save_metadata(metadata)
+
+        logger.debug(f"Saved generated page: {page_title} ({len(stable_keys)} entities)")
+
+    def read_generated_by_title(self, page_title: str) -> str | None:
+        """Read generated page content by title.
+
+        Args:
+            page_title: MediaWiki page title.
+
+        Returns:
+            Page content if exists, None otherwise.
+        """
+        safe_filename = self._encode_page_title_for_filename(page_title)
+        file_path = self._generated_dir / f"{safe_filename}.txt"
+        if not file_path.exists():
+            return None
+
+        return file_path.read_text(encoding="utf-8")
+
+    def get_metadata_by_title(self, page_title: str) -> PageMetadata | None:
+        """Get metadata for a page by title.
+
+        Args:
+            page_title: MediaWiki page title.
+
+        Returns:
+            PageMetadata if exists, None otherwise.
+        """
+        metadata = self._load_metadata()
+        return metadata.get(page_title)
 
     def clear_fetched(self) -> int:
         """Clear all fetched pages.

@@ -621,3 +621,67 @@ class MediaWikiClient:
 
         logger.debug(f"Page {title}: {'exists' if exists else 'does not exist'}")
         return exists
+
+    def get_recent_changes(self, days: int = 30, limit: int = 500) -> dict[str, str]:
+        """Get pages that were recently modified with their modification timestamps.
+
+        Uses MediaWiki's recentchanges API to efficiently identify pages that
+        have been edited within the last N days, along with when they were last
+        modified. This enables smart cache invalidation by comparing modification
+        timestamps with fetch timestamps.
+
+        Args:
+            days: Number of days to look back (default: 30).
+            limit: Maximum number of results to return (default: 500, max: 500).
+
+        Returns:
+            Dictionary mapping page title to ISO 8601 timestamp of last modification.
+            If a page appears multiple times, only the most recent timestamp is kept.
+
+        Raises:
+            MediaWikiAPIError: If API request fails.
+
+        Example:
+            >>> client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php")
+            >>> recent = client.get_recent_changes(days=30)
+            >>> print(f"{len(recent)} pages modified in last 30 days")
+            >>> for title, timestamp in list(recent.items())[:5]:
+            ...     print(f"{title}: {timestamp}")
+        """
+        logger.info(f"Fetching recent changes (last {days} days, limit {limit})")
+
+        # Calculate timestamp for N days ago (MediaWiki format: ISO 8601)
+        from datetime import datetime, timedelta, timezone
+
+        cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+        rc_start = cutoff.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+        params = {
+            "action": "query",
+            "list": "recentchanges",
+            "rcstart": rc_start,
+            "rcprop": "title|timestamp",  # Get both title and timestamp
+            "rclimit": min(limit, 500),  # API max is 500
+            "rctype": "edit|new",  # Only edits and new pages, not logs
+        }
+
+        result = self._request(params)
+
+        # Extract page titles with timestamps
+        # If a page appears multiple times, keep the most recent timestamp
+        changes = result.get("query", {}).get("recentchanges", [])
+        page_timestamps: dict[str, str] = {}
+
+        for change in changes:
+            title = change.get("title")
+            timestamp = change.get("timestamp")
+
+            if not title or not timestamp:
+                continue
+
+            # Keep most recent timestamp for each page
+            if title not in page_timestamps or timestamp > page_timestamps[title]:
+                page_timestamps[title] = timestamp
+
+        logger.info(f"Found {len(page_timestamps)} pages modified in last {days} days")
+        return page_timestamps

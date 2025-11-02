@@ -11,11 +11,11 @@ from erenshor.registry.operations import (
     get_entity,
     initialize_registry,
     list_entities,
-    migrate_from_mapping_json,
+    load_mapping_json,
     register_entity,
     resolve_conflict,
 )
-from erenshor.registry.schema import ConflictRecord, EntityRecord, EntityType, MigrationRecord
+from erenshor.registry.schema import ConflictRecord, EntityRecord, EntityType
 
 
 class TestInitializeRegistry:
@@ -39,7 +39,6 @@ class TestInitializeRegistry:
             with Session(engine) as session:
                 # Should not raise errors
                 session.exec(select(EntityRecord)).all()
-                session.exec(select(MigrationRecord)).all()
                 session.exec(select(ConflictRecord)).all()
         finally:
             engine.dispose()
@@ -66,31 +65,34 @@ class TestRegisterEntity:
     """Test register_entity function."""
 
     def test_register_new_entity(self, in_memory_session):
-        """Test registering a new entity."""
+        """Test registering a new entity with overrides."""
         entity = register_entity(
             in_memory_session,
             EntityType.ITEM,
             "iron_sword",
-            "Iron Sword",
+            page_title="Iron Sword (Weapon)",
+            display_name="Iron Sword",
         )
 
         assert entity.id is not None
         assert entity.entity_type == EntityType.ITEM
         assert entity.resource_name == "iron_sword"
+        assert entity.page_title == "Iron Sword (Weapon)"
         assert entity.display_name == "Iron Sword"
-        assert entity.wiki_page_title is None
+        assert entity.excluded is False
 
-    def test_register_entity_with_wiki_page(self, in_memory_session):
-        """Test registering entity with wiki page title."""
+    def test_register_entity_with_page_title(self, in_memory_session):
+        """Test registering entity with custom page title."""
         entity = register_entity(
             in_memory_session,
             EntityType.ITEM,
             "iron_sword",
-            "Iron Sword",
-            wiki_page_title="Iron Sword Wiki",
+            page_title="Iron Sword (Weapon)",
         )
 
-        assert entity.wiki_page_title == "Iron Sword Wiki"
+        assert entity.page_title == "Iron Sword (Weapon)"
+        assert entity.display_name is None  # Not set
+        assert entity.excluded is False
 
     def test_register_entity_upsert_updates_existing(self, in_memory_session):
         """Test that registering existing entity updates it (upsert)."""
@@ -99,54 +101,25 @@ class TestRegisterEntity:
             in_memory_session,
             EntityType.ITEM,
             "iron_sword",
-            "Iron Sword",
+            page_title="Iron Sword",
         )
         entity1_id = entity1.id
-        first_seen_original = entity1.first_seen
 
-        # Register again with updated display name
+        # Register again with updated page title
         entity2 = register_entity(
             in_memory_session,
             EntityType.ITEM,
             "iron_sword",
-            "Updated Iron Sword",
+            page_title="Iron Sword (Updated)",
         )
 
         # Should be same entity (same ID)
         assert entity2.id == entity1_id
-        assert entity2.display_name == "Updated Iron Sword"
-        assert entity2.first_seen == first_seen_original  # First seen unchanged
+        assert entity2.page_title == "Iron Sword (Updated)"
 
         # Verify only one entity exists
         entities = in_memory_session.exec(select(EntityRecord)).all()
         assert len(entities) == 1
-
-    def test_register_entity_updates_last_seen(self, in_memory_session):
-        """Test that re-registering entity updates last_seen timestamp."""
-        # Create initial entity
-        entity1 = register_entity(
-            in_memory_session,
-            EntityType.ITEM,
-            "iron_sword",
-            "Iron Sword",
-        )
-        last_seen_original = entity1.last_seen
-
-        # Small delay to ensure timestamp difference
-        import time
-
-        time.sleep(0.01)
-
-        # Register again
-        entity2 = register_entity(
-            in_memory_session,
-            EntityType.ITEM,
-            "iron_sword",
-            "Iron Sword",
-        )
-
-        # last_seen should be updated
-        assert entity2.last_seen > last_seen_original
 
     def test_register_entity_different_types_same_name(self, in_memory_session):
         """Test registering entities with same resource_name but different types."""
@@ -154,14 +127,14 @@ class TestRegisterEntity:
             in_memory_session,
             EntityType.ITEM,
             "fireball",
-            "Fireball (Item)",
+            page_title="Fireball (Item)",
         )
 
         entity2 = register_entity(
             in_memory_session,
             EntityType.SPELL,
             "fireball",
-            "Fireball (Spell)",
+            page_title="Fireball (Spell)",
         )
 
         # Should create two separate entities
@@ -180,7 +153,8 @@ class TestGetEntity:
             in_memory_session,
             EntityType.ITEM,
             "iron_sword",
-            "Iron Sword",
+            page_title="Iron Sword (Weapon)",
+            display_name="Iron Sword",
         )
 
         # Retrieve by stable key
@@ -189,6 +163,7 @@ class TestGetEntity:
         assert entity is not None
         assert entity.entity_type == EntityType.ITEM
         assert entity.resource_name == "iron_sword"
+        assert entity.page_title == "Iron Sword (Weapon)"
         assert entity.display_name == "Iron Sword"
 
     def test_get_entity_not_found(self, in_memory_session):
@@ -269,9 +244,19 @@ class TestFindConflicts:
 
     def test_find_conflicts_detects_duplicates(self, in_memory_session):
         """Test that find_conflicts detects same display_name within type."""
-        # Create two items with same display name
-        register_entity(in_memory_session, EntityType.ITEM, "iron_sword_1", "Iron Sword")
-        register_entity(in_memory_session, EntityType.ITEM, "iron_sword_2", "Iron Sword")
+        # Create two items with same display name override
+        register_entity(
+            in_memory_session,
+            EntityType.ITEM,
+            "iron_sword_1",
+            display_name="Iron Sword",
+        )
+        register_entity(
+            in_memory_session,
+            EntityType.ITEM,
+            "iron_sword_2",
+            display_name="Iron Sword",
+        )
 
         conflicts = find_conflicts(in_memory_session)
 
@@ -283,8 +268,18 @@ class TestFindConflicts:
     def test_find_conflicts_per_entity_type(self, in_memory_session):
         """Test that conflicts are detected per-entity-type."""
         # Create item and spell with same display name (should NOT conflict)
-        register_entity(in_memory_session, EntityType.ITEM, "fireball_item", "Fireball")
-        register_entity(in_memory_session, EntityType.SPELL, "fireball_spell", "Fireball")
+        register_entity(
+            in_memory_session,
+            EntityType.ITEM,
+            "fireball_item",
+            display_name="Fireball",
+        )
+        register_entity(
+            in_memory_session,
+            EntityType.SPELL,
+            "fireball_spell",
+            display_name="Fireball",
+        )
 
         conflicts = find_conflicts(in_memory_session)
 
@@ -294,13 +289,13 @@ class TestFindConflicts:
     def test_find_conflicts_multiple_conflicts(self, in_memory_session):
         """Test finding multiple conflicts."""
         # Create first conflict (items)
-        register_entity(in_memory_session, EntityType.ITEM, "sword_1", "Sword")
-        register_entity(in_memory_session, EntityType.ITEM, "sword_2", "Sword")
+        register_entity(in_memory_session, EntityType.ITEM, "sword_1", display_name="Sword")
+        register_entity(in_memory_session, EntityType.ITEM, "sword_2", display_name="Sword")
 
         # Create second conflict (characters)
-        register_entity(in_memory_session, EntityType.CHARACTER, "goblin_1", "Goblin")
-        register_entity(in_memory_session, EntityType.CHARACTER, "goblin_2", "Goblin")
-        register_entity(in_memory_session, EntityType.CHARACTER, "goblin_3", "Goblin")
+        register_entity(in_memory_session, EntityType.CHARACTER, "goblin_1", display_name="Goblin")
+        register_entity(in_memory_session, EntityType.CHARACTER, "goblin_2", display_name="Goblin")
+        register_entity(in_memory_session, EntityType.CHARACTER, "goblin_3", display_name="Goblin")
 
         conflicts = find_conflicts(in_memory_session)
 
@@ -314,9 +309,9 @@ class TestFindConflicts:
 
     def test_find_conflicts_empty_when_no_duplicates(self, in_memory_session):
         """Test that no conflicts found when all names unique."""
-        register_entity(in_memory_session, EntityType.ITEM, "iron_sword", "Iron Sword")
-        register_entity(in_memory_session, EntityType.ITEM, "steel_sword", "Steel Sword")
-        register_entity(in_memory_session, EntityType.SPELL, "fireball", "Fireball")
+        register_entity(in_memory_session, EntityType.ITEM, "iron_sword", display_name="Iron Sword")
+        register_entity(in_memory_session, EntityType.ITEM, "steel_sword", display_name="Steel Sword")
+        register_entity(in_memory_session, EntityType.SPELL, "fireball", display_name="Fireball")
 
         conflicts = find_conflicts(in_memory_session)
 
@@ -424,34 +419,39 @@ class TestResolveConflict:
 
 
 class TestMigrateFromMappingJson:
-    """Test migrate_from_mapping_json function."""
+    """Test load_mapping_json function."""
 
     def test_migrate_imports_mappings(self, in_memory_session, sample_mapping_json):
-        """Test that migrate_from_mapping_json imports mappings."""
-        count = migrate_from_mapping_json(in_memory_session, sample_mapping_json)
+        """Test that load_mapping_json imports mappings."""
+        count = load_mapping_json(in_memory_session, sample_mapping_json)
 
-        # Should import 2 mappings (excluding the one with null wiki_page_name)
-        assert count == 2
+        # Should import 3 mappings (2 with overrides + 1 excluded)
+        assert count == 3
 
-        # Verify migrations were created
-        migrations = in_memory_session.exec(select(MigrationRecord)).all()
-        assert len(migrations) == 2
+        # Verify entity records were created
+        entities = in_memory_session.exec(select(EntityRecord)).all()
+        assert len(entities) == 3
 
-    def test_migrate_skips_null_wiki_page_name(self, in_memory_session, sample_mapping_json):
-        """Test that entries with null wiki_page_name are skipped."""
-        migrate_from_mapping_json(in_memory_session, sample_mapping_json)
+    def test_migrate_imports_excluded_entities(self, in_memory_session, sample_mapping_json):
+        """Test that entries with null wiki_page_name are imported as excluded."""
+        load_mapping_json(in_memory_session, sample_mapping_json)
 
-        migrations = in_memory_session.exec(select(MigrationRecord)).all()
+        entities = in_memory_session.exec(select(EntityRecord)).all()
 
-        # Should not include the excluded spell entry
-        old_keys = [m.old_key for m in migrations]
-        assert "spell:NONE - Offering Stone" not in old_keys
+        # Should include the excluded spell entry with excluded=True
+        excluded_entity = next(
+            (e for e in entities if e.resource_name == "NONE - Offering Stone"),
+            None,
+        )
+        assert excluded_entity is not None
+        assert excluded_entity.excluded is True
+        assert excluded_entity.page_title is None
 
     def test_migrate_handles_missing_file(self, in_memory_session, tmp_path):
         """Test that missing file returns 0 without raising error."""
         nonexistent_path = tmp_path / "nonexistent.json"
 
-        count = migrate_from_mapping_json(in_memory_session, nonexistent_path)
+        count = load_mapping_json(in_memory_session, nonexistent_path)
 
         assert count == 0
 
@@ -475,7 +475,7 @@ class TestMigrateFromMappingJson:
         with mapping_file.open("w") as f:
             json.dump(mapping_data, f)
 
-        count = migrate_from_mapping_json(in_memory_session, mapping_file)
+        count = load_mapping_json(in_memory_session, mapping_file)
 
         assert count == 5
 
@@ -487,19 +487,17 @@ class TestMigrateFromMappingJson:
         with mapping_file.open("w") as f:
             json.dump(mapping_data, f)
 
-        count = migrate_from_mapping_json(in_memory_session, mapping_file)
+        count = load_mapping_json(in_memory_session, mapping_file)
 
         assert count == 0
 
-    def test_migrate_creates_migration_records(self, in_memory_session, sample_mapping_json):
-        """Test that migration records have correct structure."""
-        migrate_from_mapping_json(in_memory_session, sample_mapping_json)
+    def test_migrate_creates_entity_records(self, in_memory_session, sample_mapping_json):
+        """Test that entity records have correct structure."""
+        load_mapping_json(in_memory_session, sample_mapping_json)
 
-        migrations = in_memory_session.exec(select(MigrationRecord)).all()
+        entities = in_memory_session.exec(select(EntityRecord)).all()
 
-        for migration in migrations:
-            assert migration.id is not None
-            assert migration.old_key is not None
-            assert migration.new_key is not None
-            assert migration.migration_date is not None
-            assert "Imported from mapping.json" in migration.notes
+        for entity in entities:
+            assert entity.id is not None
+            assert entity.entity_type is not None
+            assert entity.resource_name is not None

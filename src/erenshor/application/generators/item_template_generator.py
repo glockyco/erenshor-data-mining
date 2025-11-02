@@ -1,9 +1,12 @@
-"""Item page generator for wiki content.
+"""Item template generator for wiki content.
 
-This module generates complete MediaWiki pages for items including weapons, armor,
-consumables, and other item types.
+This module generates MediaWiki template wikitext for individual items including
+weapons, armor, consumables, and other item types.
 
-Page structure:
+Template generators handle SINGLE entities only. Multi-entity page assembly
+is handled by WikiService.
+
+Template structure:
 - General items: {{Item}} template + category tags
 - Weapons: {{Item}} + 3x {{Fancy-weapon}} (Normal/Blessed/Godly) + category tags
 - Armor: {{Item}} + 3x {{Fancy-armor}} (Normal/Blessed/Godly) + category tags
@@ -17,43 +20,45 @@ from loguru import logger
 
 from erenshor.application.generators.categories import CategoryGenerator
 from erenshor.application.generators.formatting import safe_str
-from erenshor.application.generators.page_generator_base import PageGeneratorBase
+from erenshor.application.generators.template_generator_base import TemplateGeneratorBase
 from erenshor.domain.entities.item import Item
 from erenshor.registry.item_classifier import ItemKind, classify_item_kind
 
 
-class ItemPageGenerator(PageGeneratorBase):
-    """Generator for item wiki pages.
+class ItemTemplateGenerator(TemplateGeneratorBase):
+    """Generator for item wiki templates.
 
-    Creates complete wikitext pages for items with appropriate templates and
-    category tags based on item classification.
+    Generates template wikitext for a SINGLE item entity with appropriate templates
+    and category tags based on item classification.
+
+    Multi-entity page assembly is handled by WikiService, not here.
 
     Example:
-        >>> generator = ItemPageGenerator()
+        >>> generator = ItemTemplateGenerator()
         >>> item = Item(...)  # From repository
-        >>> wikitext = generator.generate_page(item, page_title="Sword of Truth")
+        >>> wikitext = generator.generate_template(item, page_title="Sword of Truth")
     """
 
     def __init__(self) -> None:
-        """Initialize item page generator."""
+        """Initialize item template generator."""
         super().__init__()
         self._category_generator = CategoryGenerator()
 
-    def generate_page(self, item: Item, page_title: str) -> str:
-        """Generate complete wiki page for an item.
+    def generate_template(self, item: Item, page_title: str) -> str:
+        """Generate template wikitext for a single item.
 
         Args:
-            item: Item entity from repository
+            item: Single Item entity from repository
             page_title: Wiki page title (from registry)
 
         Returns:
-            Complete wikitext page with templates and category tags
+            Template wikitext for single item (infobox + categories)
 
         Example:
             >>> item = Item(id="1", resource_name="Sword", item_name="Sword")
-            >>> wikitext = generator.generate_page(item, "Sword")
+            >>> wikitext = generator.generate_template(item, "Sword")
         """
-        logger.debug(f"Generating page for item: {item.item_name} (kind: {self._classify(item)})")
+        logger.debug(f"Generating template for item: {item.item_name} (kind: {self._classify(item)})")
 
         # Classify item to determine templates
         kind = self._classify(item)

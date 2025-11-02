@@ -1,4 +1,4 @@
-"""Unit tests for PageGeneratorBase.
+"""Unit tests for TemplateGeneratorBase.
 
 Tests the base class functionality including template rendering, category
 formatting, and wikitext normalization.
@@ -6,32 +6,32 @@ formatting, and wikitext normalization.
 
 import pytest
 
-from erenshor.application.generators.page_generator_base import (
-    PageGeneratorBase,
+from erenshor.application.generators.template_generator_base import (
+    TemplateGeneratorBase,
     TemplateNotFoundError,
 )
 
 
-class ConcretePageGenerator(PageGeneratorBase):
+class ConcreteTemplateGenerator(TemplateGeneratorBase):
     """Concrete implementation for testing abstract base."""
 
-    def generate_page(self, *args, **kwargs) -> str:
+    def generate_template(self, *args, **kwargs) -> str:
         """Minimal implementation for testing."""
-        return "test page"
+        return "test template"
 
 
-class TestPageGeneratorBase:
-    """Test suite for PageGeneratorBase."""
+class TestTemplateGeneratorBase:
+    """Test suite for TemplateGeneratorBase."""
 
     def test_init_creates_jinja_environment(self):
         """Test that initialization creates Jinja2 environment."""
-        generator = ConcretePageGenerator()
+        generator = ConcreteTemplateGenerator()
         assert generator._jinja_env is not None
         assert generator._template_dir.exists()
 
     def test_render_template_with_simple_context(self):
         """Test rendering a template with simple context."""
-        generator = ConcretePageGenerator()
+        generator = ConcreteTemplateGenerator()
 
         # Item template exists in templates/
         context = {
@@ -73,14 +73,14 @@ class TestPageGeneratorBase:
 
     def test_render_template_not_found(self):
         """Test that rendering non-existent template raises error."""
-        generator = ConcretePageGenerator()
+        generator = ConcreteTemplateGenerator()
 
         with pytest.raises(TemplateNotFoundError):
             generator.render_template("nonexistent.jinja2", {})
 
     def test_format_category_tags_with_categories(self):
         """Test formatting category tags."""
-        generator = ConcretePageGenerator()
+        generator = ConcreteTemplateGenerator()
 
         categories = ["Items", "Weapons", "Level 10"]
         result = generator.format_category_tags(categories)
@@ -89,7 +89,7 @@ class TestPageGeneratorBase:
 
     def test_format_category_tags_empty_list(self):
         """Test formatting empty category list."""
-        generator = ConcretePageGenerator()
+        generator = ConcreteTemplateGenerator()
 
         result = generator.format_category_tags([])
 
@@ -97,7 +97,7 @@ class TestPageGeneratorBase:
 
     def test_normalize_wikitext_removes_trailing_whitespace(self):
         """Test that normalization removes trailing whitespace from lines."""
-        generator = ConcretePageGenerator()
+        generator = ConcreteTemplateGenerator()
 
         text = "Line 1   \nLine 2\t\nLine 3"
         result = generator.normalize_wikitext(text)
@@ -109,7 +109,7 @@ class TestPageGeneratorBase:
 
     def test_normalize_wikitext_reduces_excessive_blank_lines(self):
         """Test that normalization reduces 3+ consecutive blank lines to 2."""
-        generator = ConcretePageGenerator()
+        generator = ConcreteTemplateGenerator()
 
         text = "Line 1\n\n\n\n\nLine 2"
         result = generator.normalize_wikitext(text)
@@ -120,7 +120,7 @@ class TestPageGeneratorBase:
 
     def test_normalize_wikitext_ensures_trailing_newline(self):
         """Test that normalization ensures single trailing newline."""
-        generator = ConcretePageGenerator()
+        generator = ConcreteTemplateGenerator()
 
         text_without_newline = "Line 1\nLine 2"
         result = generator.normalize_wikitext(text_without_newline)
@@ -129,7 +129,7 @@ class TestPageGeneratorBase:
 
     def test_normalize_wikitext_empty_string(self):
         """Test normalizing empty string."""
-        generator = ConcretePageGenerator()
+        generator = ConcreteTemplateGenerator()
 
         result = generator.normalize_wikitext("")
 
@@ -137,7 +137,7 @@ class TestPageGeneratorBase:
 
     def test_render_weapon_template(self):
         """Test rendering weapon template."""
-        generator = ConcretePageGenerator()
+        generator = ConcreteTemplateGenerator()
 
         context = {
             "image": "[[File:Sword.png|150px]]",
@@ -183,7 +183,7 @@ class TestPageGeneratorBase:
 
     def test_render_armor_template(self):
         """Test rendering armor template."""
-        generator = ConcretePageGenerator()
+        generator = ConcreteTemplateGenerator()
 
         context = {
             "image": "[[File:Helmet.png|150px]]",
@@ -227,7 +227,7 @@ class TestPageGeneratorBase:
 
     def test_render_charm_template(self):
         """Test rendering charm template."""
-        generator = ConcretePageGenerator()
+        generator = ConcreteTemplateGenerator()
 
         context = {
             "image": "[[File:Charm.png|150px]]",
@@ -255,7 +255,7 @@ class TestPageGeneratorBase:
 
     def test_render_character_template(self):
         """Test rendering character template."""
-        generator = ConcretePageGenerator()
+        generator = ConcreteTemplateGenerator()
 
         context = {
             "name": "Test Goblin",
@@ -276,7 +276,7 @@ class TestPageGeneratorBase:
 
     def test_render_spell_template(self):
         """Test rendering spell template (partial check due to size)."""
-        generator = ConcretePageGenerator()
+        generator = ConcreteTemplateGenerator()
 
         context = {
             "id": "spell_001",
@@ -348,7 +348,7 @@ class TestPageGeneratorBase:
             "source": "",
         }
 
-        result = generator.render_template("spell.jinja2", context)
+        result = generator.render_template("ability.jinja2", context)
 
         assert "{{Ability" in result
         assert "|title=Test Spell" in result
