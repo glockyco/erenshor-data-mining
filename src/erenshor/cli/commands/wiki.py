@@ -1,9 +1,20 @@
 """Wiki commands for MediaWiki page management.
 
-This module provides commands for managing MediaWiki content:
-- Fetching templates and pages from the wiki
-- Updating wiki pages with extracted game data
-- Validating wiki content against database
+This module provides commands for managing MediaWiki content through a three-stage
+workflow:
+
+1. fetch: Download existing pages from MediaWiki and cache locally
+2. generate: Create new pages from database, merge with fetched content, save locally
+3. deploy: Upload generated pages to MediaWiki
+
+This workflow enables reviewing content before deployment and interrupting/resuming
+at any stage.
+
+Example workflow:
+    $ erenshor wiki fetch --entity-type items
+    $ erenshor wiki generate --entity-type items
+    $ # Review generated files in variants/main/wiki/generated/
+    $ erenshor wiki deploy --entity-type items
 """
 
 import typer
@@ -12,6 +23,7 @@ from rich.console import Console
 from rich.panel import Panel
 
 from erenshor.application.services.wiki_service import WikiService
+from erenshor.application.services.wiki_storage import WikiStorage
 from erenshor.cli.context import CLIContext
 from erenshor.cli.preconditions import require_preconditions
 from erenshor.cli.preconditions.checks.database import database_exists, database_has_items, database_valid
@@ -59,9 +71,14 @@ def _create_wiki_service(cli_ctx: CLIContext) -> WikiService:
         bot_password=wiki_config.bot_password,
     )
 
+    # Create wiki storage
+    wiki_dir = variant_config.resolved_wiki(cli_ctx.repo_root)
+    storage = WikiStorage(wiki_dir)
+
     # Create and return service
     return WikiService(
         wiki_client=wiki_client,
+        storage=storage,
         item_repo=item_repo,
         character_repo=character_repo,
         spell_repo=spell_repo,
@@ -74,33 +91,35 @@ def _create_wiki_service(cli_ctx: CLIContext) -> WikiService:
     database_valid,
     database_has_items,
 )
-def update(
+def fetch(
     ctx: typer.Context,
     entity_type: str = typer.Option(
         "items",
         "--entity-type",
         "-t",
-        help="Entity type to update: items, characters, spells",
+        help="Entity type to fetch: items, characters, spells",
     ),
     limit: int | None = typer.Option(
         None,
         "--limit",
         "-n",
-        help="Limit number of pages to update (for testing)",
+        help="Limit number of pages to fetch (for testing)",
     ),
 ) -> None:
-    """Update wiki pages with new data.
+    """Fetch wiki pages from MediaWiki.
 
-    Generates updated wiki pages from database content and
-    updates the wiki. Preserves manually-edited fields and
-    removes legacy templates. Shows warnings for manual edits.
+    Downloads existing wiki pages from MediaWiki and saves them to local
+    storage for later use during generation. This allows you to work offline
+    and avoid re-fetching pages multiple times.
+
+    Fetched pages are cached in variants/{variant}/wiki/fetched/
     """
     cli_ctx: CLIContext = ctx.obj
 
     console.print()
     console.print(
         Panel.fit(
-            f"[bold cyan]Updating {entity_type} wiki pages[/bold cyan]\n"
+            f"[bold cyan]Fetching {entity_type} wiki pages[/bold cyan]\n"
             f"Variant: {cli_ctx.variant}\n"
             f"Dry-run: {cli_ctx.dry_run}",
             border_style="cyan",
@@ -112,57 +131,178 @@ def update(
         # Create service
         service = _create_wiki_service(cli_ctx)
 
-        # Update pages based on entity type
+        # Fetch pages based on entity type
         if entity_type == "items":
-            result = service.update_item_pages(dry_run=cli_ctx.dry_run, limit=limit)
+            result = service.fetch_item_pages(dry_run=cli_ctx.dry_run, limit=limit)
         elif entity_type == "characters":
-            result = service.update_character_pages(dry_run=cli_ctx.dry_run, limit=limit)
+            result = service.fetch_character_pages(dry_run=cli_ctx.dry_run, limit=limit)
         elif entity_type == "spells":
-            result = service.update_spell_pages(dry_run=cli_ctx.dry_run, limit=limit)
+            result = service.fetch_spell_pages(dry_run=cli_ctx.dry_run, limit=limit)
         else:
             console.print(f"[red]Error: Invalid entity type '{entity_type}'[/red]")
             console.print("Valid types: items, characters, spells")
             raise typer.Exit(1)
 
-        # Exit with error code if there were failures
+        # Show warnings and errors
+        if result.has_warnings():
+            logger.warning(f"Fetch completed with {len(result.warnings)} warnings")
+
         if result.failed > 0:
-            logger.error(f"Update completed with {result.failed} failures")
+            logger.error(f"Fetch completed with {result.failed} failures")
             raise typer.Exit(1)
 
-        # Exit with warning if there were warnings
-        if result.has_warnings():
-            logger.warning(f"Update completed with {len(result.warnings)} warnings")
-
     except Exception as e:
-        console.print(f"[red]Error during wiki update: {e}[/red]")
-        logger.exception("Wiki update failed")
+        console.print(f"[red]Error during wiki fetch: {e}[/red]")
+        logger.exception("Wiki fetch failed")
         raise typer.Exit(1) from e
 
 
 @app.command()
-def conflicts(
+@require_preconditions(
+    database_exists,
+    database_valid,
+    database_has_items,
+)
+def generate(
     ctx: typer.Context,
+    entity_type: str = typer.Option(
+        "items",
+        "--entity-type",
+        "-t",
+        help="Entity type to generate: items, characters, spells",
+    ),
+    limit: int | None = typer.Option(
+        None,
+        "--limit",
+        "-n",
+        help="Limit number of pages to generate (for testing)",
+    ),
 ) -> None:
-    """List wiki page conflicts.
+    """Generate wiki pages locally.
 
-    Shows pages that have been modified on the wiki since last
-    fetch, which would conflict with local changes. Used to
-    identify pages that need conflict resolution before pushing.
+    Creates new wiki pages from database content, merges with fetched pages
+    (if available), preserves manually-edited fields, and removes legacy
+    templates. Generated pages are saved locally for review before deployment.
+
+    Generated pages are saved to variants/{variant}/wiki/generated/
+
+    You can review generated files before deploying them with:
+        $ cat variants/{variant}/wiki/generated/item:*.txt
+        $ git diff variants/{variant}/wiki/fetched/ variants/{variant}/wiki/generated/
     """
-    typer.echo("Not yet implemented: wiki conflicts")
+    cli_ctx: CLIContext = ctx.obj
+
+    console.print()
+    console.print(
+        Panel.fit(
+            f"[bold cyan]Generating {entity_type} wiki pages[/bold cyan]\n"
+            f"Variant: {cli_ctx.variant}\n"
+            f"Dry-run: {cli_ctx.dry_run}",
+            border_style="cyan",
+        )
+    )
+    console.print()
+
+    try:
+        # Create service
+        service = _create_wiki_service(cli_ctx)
+
+        # Generate pages based on entity type
+        if entity_type == "items":
+            result = service.generate_item_pages(dry_run=cli_ctx.dry_run, limit=limit)
+        elif entity_type == "characters":
+            result = service.generate_character_pages(dry_run=cli_ctx.dry_run, limit=limit)
+        elif entity_type == "spells":
+            result = service.generate_spell_pages(dry_run=cli_ctx.dry_run, limit=limit)
+        else:
+            console.print(f"[red]Error: Invalid entity type '{entity_type}'[/red]")
+            console.print("Valid types: items, characters, spells")
+            raise typer.Exit(1)
+
+        # Show warnings and errors
+        if result.has_warnings():
+            logger.warning(f"Generation completed with {len(result.warnings)} warnings")
+
+        if result.failed > 0:
+            logger.error(f"Generation completed with {result.failed} failures")
+            raise typer.Exit(1)
+
+        # Show next steps
+        if not cli_ctx.dry_run and result.succeeded > 0:
+            variant_config = cli_ctx.config.variants[cli_ctx.variant]
+            wiki_dir = variant_config.resolved_wiki(cli_ctx.repo_root)
+            console.print(f"[bold]Next steps:[/bold]")
+            console.print(f"  Review generated files: {wiki_dir / 'generated'}")
+            console.print(f"  Deploy to wiki: [cyan]erenshor wiki deploy --entity-type {entity_type}[/cyan]")
+            console.print()
+
+    except Exception as e:
+        console.print(f"[red]Error during wiki generation: {e}[/red]")
+        logger.exception("Wiki generation failed")
+        raise typer.Exit(1) from e
 
 
 @app.command()
-def resolve_conflict(
+def deploy(
     ctx: typer.Context,
-    conflict_id: int = typer.Argument(
-        ...,
-        help="ID of the conflict to resolve",
+    entity_type: str = typer.Option(
+        "items",
+        "--entity-type",
+        "-t",
+        help="Entity type to deploy: items, characters, spells",
+    ),
+    limit: int | None = typer.Option(
+        None,
+        "--limit",
+        "-n",
+        help="Limit number of pages to deploy (for testing)",
     ),
 ) -> None:
-    """Resolve a specific conflict.
+    """Deploy generated wiki pages to MediaWiki.
 
-    Interactive conflict resolution for a wiki page. Shows
-    both versions and allows choosing how to merge changes.
+    Uploads pages from local storage to MediaWiki. Only pages that have been
+    generated (exist in variants/{variant}/wiki/generated/) will be deployed.
+
+    Use --dry-run to preview what would be uploaded without actually doing it.
     """
-    typer.echo(f"Not yet implemented: wiki resolve-conflict (ID: {conflict_id})")
+    cli_ctx: CLIContext = ctx.obj
+
+    console.print()
+    console.print(
+        Panel.fit(
+            f"[bold cyan]Deploying {entity_type} wiki pages[/bold cyan]\n"
+            f"Variant: {cli_ctx.variant}\n"
+            f"Dry-run: {cli_ctx.dry_run}",
+            border_style="cyan",
+        )
+    )
+    console.print()
+
+    try:
+        # Create service
+        service = _create_wiki_service(cli_ctx)
+
+        # Deploy pages based on entity type
+        if entity_type == "items":
+            result = service.deploy_item_pages(dry_run=cli_ctx.dry_run, limit=limit)
+        elif entity_type == "characters":
+            result = service.deploy_character_pages(dry_run=cli_ctx.dry_run, limit=limit)
+        elif entity_type == "spells":
+            result = service.deploy_spell_pages(dry_run=cli_ctx.dry_run, limit=limit)
+        else:
+            console.print(f"[red]Error: Invalid entity type '{entity_type}'[/red]")
+            console.print("Valid types: items, characters, spells")
+            raise typer.Exit(1)
+
+        # Show warnings and errors
+        if result.has_warnings():
+            logger.warning(f"Deployment completed with {len(result.warnings)} warnings")
+
+        if result.failed > 0:
+            logger.error(f"Deployment completed with {result.failed} failures")
+            raise typer.Exit(1)
+
+    except Exception as e:
+        console.print(f"[red]Error during wiki deployment: {e}[/red]")
+        logger.exception("Wiki deployment failed")
+        raise typer.Exit(1) from e

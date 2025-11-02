@@ -18,7 +18,7 @@ from erenshor.application.services.sheets_service import (
     SheetsServiceError,
 )
 from erenshor.application.services.wiki_service import (
-    UpdateResult,
+    OperationResult,
     WikiService,
     WikiServiceError,
 )
@@ -30,10 +30,10 @@ __all__ = [
     "BackupStats",
     "BackupValidationError",
     "DeploymentResult",
+    "OperationResult",
     "SheetMetadata",
     "SheetsService",
     "SheetsServiceError",
-    "UpdateResult",
     "WikiService",
     "WikiServiceError",
 ]

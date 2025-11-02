@@ -1,35 +1,40 @@
-"""Wiki service for orchestrating wiki page updates.
+"""Wiki service for orchestrating wiki page fetch/generate/deploy workflow.
 
-This module provides the WikiService class that orchestrates the complete wiki
-page update workflow including:
-- Fetching existing wiki pages
-- Generating new content using page generators
-- Preserving manually-edited fields
-- Removing legacy templates
-- Updating wiki pages via MediaWikiClient
-- Push-style progress notifications
+This module provides the WikiService class that orchestrates the three-stage wiki
+workflow:
 
-The service uses a "fail-soft" approach where individual page failures don't
-stop the entire batch, allowing users to see all issues at once.
+1. Fetch: Download existing pages from MediaWiki and cache locally
+2. Generate: Create new wiki pages from database, merge with fetched content,
+   preserve manual edits, and save locally for review
+3. Deploy: Upload generated pages to MediaWiki
+
+The service uses local file storage (WikiStorage) to enable:
+- Reviewing generated content before deployment
+- Interrupting and resuming workflows
+- Testing and validation without hitting the wiki
+- Tracking what changed between versions
 
 Example:
     >>> from erenshor.application.services.wiki_service import WikiService
     >>> from erenshor.infrastructure.wiki.client import MediaWikiClient
+    >>> from pathlib import Path
     >>>
-    >>> # Initialize service with dependencies
+    >>> # Initialize service
     >>> wiki_client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php")
+    >>> storage = WikiStorage(Path("variants/main/wiki"))
     >>> service = WikiService(
     ...     wiki_client=wiki_client,
+    ...     storage=storage,
     ...     item_repo=item_repo,
     ...     character_repo=character_repo,
     ...     spell_repo=spell_repo,
     ... )
     >>>
-    >>> # Update item pages with progress display
-    >>> result = service.update_item_pages(dry_run=False, limit=10)
-    >>> print(f"Updated {result.updated} pages")
-    >>> if result.warnings:
-    ...     print(f"Warnings: {len(result.warnings)}")
+    >>> # Three-stage workflow
+    >>> service.fetch_pages(entity_type="items")
+    >>> service.generate_pages(entity_type="items")
+    >>> # Review files in variants/main/wiki/generated/
+    >>> service.deploy_pages(entity_type="items")
 """
 
 from dataclasses import dataclass
@@ -44,6 +49,7 @@ from erenshor.application.generators.field_preservation import FieldPreservation
 from erenshor.application.generators.item_page_generator import ItemPageGenerator
 from erenshor.application.generators.legacy_template_remover import LegacyTemplateRemover
 from erenshor.application.generators.spell_page_generator import SpellPageGenerator
+from erenshor.application.services.wiki_storage import WikiStorage
 from erenshor.domain.entities.character import Character
 from erenshor.domain.entities.item import Item
 from erenshor.domain.entities.spell import Spell
@@ -60,22 +66,22 @@ class WikiServiceError(Exception):
 
 
 @dataclass
-class UpdateResult:
-    """Result of a wiki update operation.
+class OperationResult:
+    """Result of a wiki operation (fetch/generate/deploy).
 
     Attributes:
         total: Total number of pages processed.
-        updated: Number of pages successfully updated.
-        skipped: Number of pages skipped (no changes needed).
-        failed: Number of pages that failed to update.
+        succeeded: Number of pages successfully processed.
+        failed: Number of pages that failed to process.
+        skipped: Number of pages skipped (e.g., no changes needed).
         warnings: List of warning messages.
         errors: List of error messages.
     """
 
     total: int
-    updated: int
-    skipped: int
+    succeeded: int
     failed: int
+    skipped: int
     warnings: list[str]
     errors: list[str]
 
@@ -89,16 +95,12 @@ class UpdateResult:
 
 
 class WikiService:
-    """Service for orchestrating wiki page updates.
+    """Service for orchestrating wiki page fetch/generate/deploy workflow.
 
-    This service coordinates the wiki update workflow:
-    1. Fetch entities from database
-    2. Generate new wiki content
-    3. Fetch existing wiki pages (batched)
-    4. Preserve manual edits
-    5. Remove legacy templates
-    6. Update wiki pages (individual)
-    7. Display progress and notifications inline
+    This service coordinates the three-stage wiki workflow:
+    1. Fetch: Download pages from MediaWiki → save to storage
+    2. Generate: Create pages from DB, merge, preserve → save to storage
+    3. Deploy: Upload pages from storage → MediaWiki
 
     The service uses dependency injection for testability and follows
     a "fail-soft" approach where individual failures don't stop the batch.
@@ -106,17 +108,20 @@ class WikiService:
     Example:
         >>> service = WikiService(
         ...     wiki_client=wiki_client,
+        ...     storage=storage,
         ...     item_repo=item_repo,
         ...     character_repo=character_repo,
         ...     spell_repo=spell_repo,
         ... )
-        >>> result = service.update_item_pages(dry_run=False)
-        >>> print(f"Updated: {result.updated}, Failed: {result.failed}")
+        >>> service.fetch_pages(entity_type="items")
+        >>> service.generate_pages(entity_type="items")
+        >>> service.deploy_pages(entity_type="items")
     """
 
     def __init__(
         self,
         wiki_client: MediaWikiClient,
+        storage: WikiStorage,
         item_repo: ItemRepository,
         character_repo: CharacterRepository,
         spell_repo: SpellRepository,
@@ -125,11 +130,13 @@ class WikiService:
 
         Args:
             wiki_client: MediaWiki API client for fetching/updating pages.
+            storage: Local file storage for wiki pages.
             item_repo: Repository for fetching items from database.
             character_repo: Repository for fetching characters from database.
             spell_repo: Repository for fetching spells from database.
         """
         self._wiki_client = wiki_client
+        self._storage = storage
         self._item_repo = item_repo
         self._character_repo = character_repo
         self._spell_repo = spell_repo
@@ -146,49 +153,120 @@ class WikiService:
 
         logger.debug("WikiService initialized")
 
-    def update_item_pages(
+    def fetch_item_pages(
         self,
         dry_run: bool = False,
         limit: int | None = None,
-    ) -> UpdateResult:
-        """Update all item wiki pages.
+    ) -> OperationResult:
+        """Fetch item wiki pages from MediaWiki.
 
-        Generates fresh wiki content for all items and updates the wiki,
-        preserving manually-edited fields and removing legacy templates.
+        Downloads existing wiki pages and saves them to local storage for later
+        use during generation. Pages are cached using stable keys.
 
         Args:
-            dry_run: If True, generate content but don't update wiki.
-            limit: Maximum number of items to process (for testing).
+            dry_run: If True, simulate fetch without actually downloading.
+            limit: Maximum number of items to fetch (for testing).
 
         Returns:
-            UpdateResult with summary statistics and warnings/errors.
-
-        Example:
-            >>> result = service.update_item_pages(dry_run=False, limit=10)
-            >>> print(f"Updated {result.updated}/{result.total} pages")
+            OperationResult with summary statistics and warnings/errors.
         """
-        logger.info(f"Updating item pages (dry_run={dry_run}, limit={limit})")
+        logger.info(f"Fetching item pages (dry_run={dry_run}, limit={limit})")
 
-        # Fetch items from database
+        # Fetch items from database to know which pages to fetch
         items = self._item_repo.get_items_for_wiki_generation()
 
-        # Apply limit if specified
         if limit is not None:
             items = items[:limit]
 
-        if not items:
-            logger.warning("No items found for wiki generation")
-            return UpdateResult(
-                total=0,
-                updated=0,
-                skipped=0,
-                failed=0,
-                warnings=["No items found in database"],
-                errors=[],
-            )
+        return self._fetch_pages(
+            entities=items,
+            entity_type="item",
+            page_title_fn=lambda item: f"Item:{item.item_name}",
+            dry_run=dry_run,
+        )
 
-        # Update items with progress tracking
-        return self._update_pages(
+    def fetch_character_pages(
+        self,
+        dry_run: bool = False,
+        limit: int | None = None,
+    ) -> OperationResult:
+        """Fetch character wiki pages from MediaWiki.
+
+        Args:
+            dry_run: If True, simulate fetch without actually downloading.
+            limit: Maximum number of characters to fetch (for testing).
+
+        Returns:
+            OperationResult with summary statistics and warnings/errors.
+        """
+        logger.info(f"Fetching character pages (dry_run={dry_run}, limit={limit})")
+
+        characters = self._character_repo.get_characters_for_wiki_generation()
+
+        if limit is not None:
+            characters = characters[:limit]
+
+        return self._fetch_pages(
+            entities=characters,
+            entity_type="character",
+            page_title_fn=lambda char: f"Character:{char.npc_name}",
+            dry_run=dry_run,
+        )
+
+    def fetch_spell_pages(
+        self,
+        dry_run: bool = False,
+        limit: int | None = None,
+    ) -> OperationResult:
+        """Fetch spell wiki pages from MediaWiki.
+
+        Args:
+            dry_run: If True, simulate fetch without actually downloading.
+            limit: Maximum number of spells to fetch (for testing).
+
+        Returns:
+            OperationResult with summary statistics and warnings/errors.
+        """
+        logger.info(f"Fetching spell pages (dry_run={dry_run}, limit={limit})")
+
+        spells = self._spell_repo.get_spells_for_wiki_generation()
+
+        if limit is not None:
+            spells = spells[:limit]
+
+        return self._fetch_pages(
+            entities=spells,
+            entity_type="spell",
+            page_title_fn=lambda spell: f"Spell:{spell.spell_name}",
+            dry_run=dry_run,
+        )
+
+    def generate_item_pages(
+        self,
+        dry_run: bool = False,
+        limit: int | None = None,
+    ) -> OperationResult:
+        """Generate item wiki pages locally.
+
+        Generates fresh wiki content for items, merges with fetched content (if exists),
+        preserves manual edits, removes legacy templates, and saves to local storage
+        for review before deployment.
+
+        Args:
+            dry_run: If True, generate content but don't save to storage.
+            limit: Maximum number of items to process (for testing).
+
+        Returns:
+            OperationResult with summary statistics and warnings/errors.
+        """
+        logger.info(f"Generating item pages (dry_run={dry_run}, limit={limit})")
+
+        items = self._item_repo.get_items_for_wiki_generation()
+
+        if limit is not None:
+            items = items[:limit]
+
+        return self._generate_pages(
             entities=items,
             entity_type="item",
             generator=self._item_generator,
@@ -197,49 +275,28 @@ class WikiService:
             dry_run=dry_run,
         )
 
-    def update_character_pages(
+    def generate_character_pages(
         self,
         dry_run: bool = False,
         limit: int | None = None,
-    ) -> UpdateResult:
-        """Update all character wiki pages.
-
-        Generates fresh wiki content for all characters/enemies and updates
-        the wiki, preserving manually-edited fields.
+    ) -> OperationResult:
+        """Generate character wiki pages locally.
 
         Args:
-            dry_run: If True, generate content but don't update wiki.
+            dry_run: If True, generate content but don't save to storage.
             limit: Maximum number of characters to process (for testing).
 
         Returns:
-            UpdateResult with summary statistics and warnings/errors.
-
-        Example:
-            >>> result = service.update_character_pages(dry_run=False)
-            >>> print(f"Updated {result.updated}/{result.total} pages")
+            OperationResult with summary statistics and warnings/errors.
         """
-        logger.info(f"Updating character pages (dry_run={dry_run}, limit={limit})")
+        logger.info(f"Generating character pages (dry_run={dry_run}, limit={limit})")
 
-        # Fetch characters from database
         characters = self._character_repo.get_characters_for_wiki_generation()
 
-        # Apply limit if specified
         if limit is not None:
             characters = characters[:limit]
 
-        if not characters:
-            logger.warning("No characters found for wiki generation")
-            return UpdateResult(
-                total=0,
-                updated=0,
-                skipped=0,
-                failed=0,
-                warnings=["No characters found in database"],
-                errors=[],
-            )
-
-        # Update characters with progress tracking
-        return self._update_pages(
+        return self._generate_pages(
             entities=characters,
             entity_type="character",
             generator=self._character_generator,
@@ -248,49 +305,28 @@ class WikiService:
             dry_run=dry_run,
         )
 
-    def update_spell_pages(
+    def generate_spell_pages(
         self,
         dry_run: bool = False,
         limit: int | None = None,
-    ) -> UpdateResult:
-        """Update all spell wiki pages.
-
-        Generates fresh wiki content for all spells/abilities and updates
-        the wiki, preserving manually-edited fields.
+    ) -> OperationResult:
+        """Generate spell wiki pages locally.
 
         Args:
-            dry_run: If True, generate content but don't update wiki.
+            dry_run: If True, generate content but don't save to storage.
             limit: Maximum number of spells to process (for testing).
 
         Returns:
-            UpdateResult with summary statistics and warnings/errors.
-
-        Example:
-            >>> result = service.update_spell_pages(dry_run=False)
-            >>> print(f"Updated {result.updated}/{result.total} pages")
+            OperationResult with summary statistics and warnings/errors.
         """
-        logger.info(f"Updating spell pages (dry_run={dry_run}, limit={limit})")
+        logger.info(f"Generating spell pages (dry_run={dry_run}, limit={limit})")
 
-        # Fetch spells from database
         spells = self._spell_repo.get_spells_for_wiki_generation()
 
-        # Apply limit if specified
         if limit is not None:
             spells = spells[:limit]
 
-        if not spells:
-            logger.warning("No spells found for wiki generation")
-            return UpdateResult(
-                total=0,
-                updated=0,
-                skipped=0,
-                failed=0,
-                warnings=["No spells found in database"],
-                errors=[],
-            )
-
-        # Update spells with progress tracking
-        return self._update_pages(
+        return self._generate_pages(
             entities=spells,
             entity_type="spell",
             generator=self._spell_generator,
@@ -299,7 +335,206 @@ class WikiService:
             dry_run=dry_run,
         )
 
-    def _update_pages(
+    def deploy_item_pages(
+        self,
+        dry_run: bool = False,
+        limit: int | None = None,
+    ) -> OperationResult:
+        """Deploy generated item pages to MediaWiki.
+
+        Uploads pages from local storage to the wiki. Only uploads pages that
+        have been generated (exist in storage).
+
+        Args:
+            dry_run: If True, simulate deployment without actually uploading.
+            limit: Maximum number of items to deploy (for testing).
+
+        Returns:
+            OperationResult with summary statistics and warnings/errors.
+        """
+        logger.info(f"Deploying item pages (dry_run={dry_run}, limit={limit})")
+
+        # Get list of generated items from storage
+        generated_keys = self._storage.list_generated()
+        item_keys = [k for k in generated_keys if k.startswith("item:")]
+
+        if limit is not None:
+            item_keys = item_keys[:limit]
+
+        return self._deploy_pages(
+            stable_keys=item_keys,
+            entity_type="item",
+            dry_run=dry_run,
+        )
+
+    def deploy_character_pages(
+        self,
+        dry_run: bool = False,
+        limit: int | None = None,
+    ) -> OperationResult:
+        """Deploy generated character pages to MediaWiki.
+
+        Args:
+            dry_run: If True, simulate deployment without actually uploading.
+            limit: Maximum number of characters to deploy (for testing).
+
+        Returns:
+            OperationResult with summary statistics and warnings/errors.
+        """
+        logger.info(f"Deploying character pages (dry_run={dry_run}, limit={limit})")
+
+        generated_keys = self._storage.list_generated()
+        character_keys = [k for k in generated_keys if k.startswith("character:")]
+
+        if limit is not None:
+            character_keys = character_keys[:limit]
+
+        return self._deploy_pages(
+            stable_keys=character_keys,
+            entity_type="character",
+            dry_run=dry_run,
+        )
+
+    def deploy_spell_pages(
+        self,
+        dry_run: bool = False,
+        limit: int | None = None,
+    ) -> OperationResult:
+        """Deploy generated spell pages to MediaWiki.
+
+        Args:
+            dry_run: If True, simulate deployment without actually uploading.
+            limit: Maximum number of spells to deploy (for testing).
+
+        Returns:
+            OperationResult with summary statistics and warnings/errors.
+        """
+        logger.info(f"Deploying spell pages (dry_run={dry_run}, limit={limit})")
+
+        generated_keys = self._storage.list_generated()
+        spell_keys = [k for k in generated_keys if k.startswith("spell:")]
+
+        if limit is not None:
+            spell_keys = spell_keys[:limit]
+
+        return self._deploy_pages(
+            stable_keys=spell_keys,
+            entity_type="spell",
+            dry_run=dry_run,
+        )
+
+    def _fetch_pages(
+        self,
+        entities: list[Item] | list[Character] | list[Spell],
+        entity_type: str,
+        page_title_fn: Any,
+        dry_run: bool,
+    ) -> OperationResult:
+        """Fetch wiki pages for a list of entities.
+
+        Args:
+            entities: List of entities to fetch pages for.
+            entity_type: Entity type name for display.
+            page_title_fn: Function to get wiki page title from entity.
+            dry_run: If True, skip actual fetching.
+
+        Returns:
+            OperationResult with statistics and warnings/errors.
+        """
+        total = len(entities)
+        succeeded = 0
+        failed = 0
+        skipped = 0
+        warnings: list[str] = []
+        errors: list[str] = []
+
+        self._console.print(f"\n[bold]Fetching {total} {entity_type} pages...[/bold]\n")
+
+        if not entities:
+            logger.warning(f"No {entity_type} entities found")
+            return OperationResult(
+                total=0,
+                succeeded=0,
+                failed=0,
+                skipped=0,
+                warnings=[f"No {entity_type} entities found"],
+                errors=[],
+            )
+
+        # Build page title mapping
+        page_titles = [page_title_fn(entity) for entity in entities]
+
+        # Fetch pages in batches from wiki
+        if not dry_run:
+            try:
+                self._console.print("[dim]Fetching pages from MediaWiki...[/dim]")
+                fetched_pages = self._wiki_client.get_pages(page_titles)
+                self._console.print(f"[dim]Fetched {len(fetched_pages)} pages[/dim]\n")
+
+                # Save fetched pages to storage
+                for entity, page_title in track(
+                    zip(entities, page_titles, strict=False),
+                    description=f"Saving {entity_type}s",
+                    total=total,
+                ):
+                    try:
+                        stable_key = entity.stable_key
+                        content = fetched_pages.get(page_title)
+
+                        if content:
+                            # Save fetched content
+                            entity_name = getattr(entity, f"{entity_type}_name", str(entity))
+                            self._storage.save_fetched(stable_key, page_title, content, entity_name)
+                            succeeded += 1
+                        else:
+                            # Page doesn't exist yet - skip
+                            skipped += 1
+
+                    except Exception as e:
+                        error_msg = f"Error saving {page_title}: {e}"
+                        logger.error(error_msg)
+                        errors.append(error_msg)
+                        failed += 1
+
+            except MediaWikiAPIError as e:
+                error_msg = f"Failed to fetch pages from MediaWiki: {e}"
+                logger.error(error_msg)
+                errors.append(error_msg)
+                return OperationResult(
+                    total=total,
+                    succeeded=0,
+                    failed=total,
+                    skipped=0,
+                    warnings=warnings,
+                    errors=[error_msg],
+                )
+        else:
+            # Dry run - just count
+            succeeded = total
+
+        # Display summary
+        self._display_summary(
+            entity_type=entity_type,
+            operation="Fetch",
+            total=total,
+            succeeded=succeeded,
+            failed=failed,
+            skipped=skipped,
+            warnings=warnings,
+            errors=errors,
+            dry_run=dry_run,
+        )
+
+        return OperationResult(
+            total=total,
+            succeeded=succeeded,
+            failed=failed,
+            skipped=skipped,
+            warnings=warnings,
+            errors=errors,
+        )
+
+    def _generate_pages(
         self,
         entities: list[Item] | list[Character] | list[Spell],
         entity_type: str,
@@ -307,66 +542,54 @@ class WikiService:
         page_title_fn: Any,
         template_names: list[str],
         dry_run: bool,
-    ) -> UpdateResult:
-        """Update wiki pages for a list of entities.
-
-        This is the core update workflow that:
-        1. Generates new content for all entities
-        2. Fetches existing wiki pages in batches
-        3. Preserves manual edits and removes legacy templates
-        4. Updates wiki pages individually
-        5. Shows progress and inline notifications
+    ) -> OperationResult:
+        """Generate wiki pages for a list of entities.
 
         Args:
-            entities: List of entities to process.
+            entities: List of entities to generate pages for.
             entity_type: Entity type name for display.
             generator: Page generator instance.
             page_title_fn: Function to get wiki page title from entity.
             template_names: Template names to preserve/merge.
-            dry_run: If True, skip wiki API calls.
+            dry_run: If True, skip saving to storage.
 
         Returns:
-            UpdateResult with statistics and warnings/errors.
+            OperationResult with statistics and warnings/errors.
         """
         total = len(entities)
-        updated = 0
-        skipped = 0
+        succeeded = 0
         failed = 0
+        skipped = 0
         warnings: list[str] = []
         errors: list[str] = []
 
-        self._console.print(f"\n[bold]Updating {total} {entity_type} pages...[/bold]\n")
+        self._console.print(f"\n[bold]Generating {total} {entity_type} pages...[/bold]\n")
 
-        # Build page title mapping
-        page_titles = [page_title_fn(entity) for entity in entities]
-
-        # Fetch existing wiki pages in batches (skip in dry-run)
-        existing_pages: dict[str, str | None] = {}
-        if not dry_run:
-            try:
-                self._console.print("[dim]Fetching existing pages...[/dim]")
-                existing_pages = self._wiki_client.get_pages(page_titles)
-                existing_count = sum(1 for content in existing_pages.values() if content)
-                self._console.print(f"[dim]Found {existing_count} existing pages[/dim]\n")
-            except MediaWikiAPIError as e:
-                error_msg = f"Failed to fetch existing pages: {e}"
-                logger.error(error_msg)
-                errors.append(error_msg)
-                # Continue with empty dict (treat all as new pages)
-                existing_pages = {}
+        if not entities:
+            return OperationResult(
+                total=0,
+                succeeded=0,
+                failed=0,
+                skipped=0,
+                warnings=[f"No {entity_type} entities found"],
+                errors=[],
+            )
 
         # Process each entity with progress bar
-        for entity, page_title in track(
-            zip(entities, page_titles, strict=False),
+        for entity in track(
+            entities,
             description=f"Processing {entity_type}s",
             total=total,
         ):
             try:
+                stable_key = entity.stable_key
+                page_title = page_title_fn(entity)
+
                 # Generate new content
                 new_content = generator.generate_page(entity, page_title)
 
-                # Get existing content
-                existing_content = existing_pages.get(page_title) if not dry_run else None
+                # Try to get fetched content for merging
+                existing_content = self._storage.read_fetched(stable_key)
 
                 # Apply preservation and legacy removal if page exists
                 if existing_content:
@@ -386,36 +609,23 @@ class WikiService:
                     # Remove legacy templates
                     if self._legacy_remover.has_legacy_templates(preserved_content):
                         final_content = self._legacy_remover.remove_legacy_templates(preserved_content)
-                        warning = f"Legacy templates removed: {page_title}"
-                        warnings.append(warning)
-                        self._console.print(f"[blue]i[/blue] {warning}")
+                        info = f"Legacy templates removed: {page_title}"
+                        warnings.append(info)
+                        self._console.print(f"[blue]i[/blue] {info}")
                     else:
                         final_content = preserved_content
                 else:
                     # New page, no preservation needed
                     final_content = new_content
 
-                # Update wiki (skip in dry-run)
+                # Save to storage (skip in dry-run)
                 if not dry_run:
-                    try:
-                        self._wiki_client.edit_page(
-                            title=page_title,
-                            content=final_content,
-                            summary=f"Automated {entity_type} page update from database",
-                        )
-                        updated += 1
-                    except MediaWikiAPIError as e:
-                        error_msg = f"Failed to update {page_title}: {e}"
-                        logger.error(error_msg)
-                        errors.append(error_msg)
-                        self._console.print(f"[red]✗[/red] {error_msg}")
-                        failed += 1
-                else:
-                    # In dry-run, count as updated (would have been updated)
-                    updated += 1
+                    self._storage.save_generated(stable_key, final_content)
+
+                succeeded += 1
 
             except Exception as e:
-                error_msg = f"Error processing {page_title}: {e}"
+                error_msg = f"Error generating page for {entity}: {e}"
                 logger.error(error_msg)
                 errors.append(error_msg)
                 self._console.print(f"[red]✗[/red] {error_msg}")
@@ -424,20 +634,128 @@ class WikiService:
         # Display summary
         self._display_summary(
             entity_type=entity_type,
+            operation="Generate",
             total=total,
-            updated=updated,
-            skipped=skipped,
+            succeeded=succeeded,
             failed=failed,
+            skipped=skipped,
             warnings=warnings,
             errors=errors,
             dry_run=dry_run,
         )
 
-        return UpdateResult(
+        return OperationResult(
             total=total,
-            updated=updated,
-            skipped=skipped,
+            succeeded=succeeded,
             failed=failed,
+            skipped=skipped,
+            warnings=warnings,
+            errors=errors,
+        )
+
+    def _deploy_pages(
+        self,
+        stable_keys: list[str],
+        entity_type: str,
+        dry_run: bool,
+    ) -> OperationResult:
+        """Deploy pages from storage to MediaWiki.
+
+        Args:
+            stable_keys: List of stable keys for pages to deploy.
+            entity_type: Entity type name for display.
+            dry_run: If True, skip actual upload.
+
+        Returns:
+            OperationResult with statistics and warnings/errors.
+        """
+        total = len(stable_keys)
+        succeeded = 0
+        failed = 0
+        skipped = 0
+        warnings: list[str] = []
+        errors: list[str] = []
+
+        self._console.print(f"\n[bold]Deploying {total} {entity_type} pages...[/bold]\n")
+
+        if not stable_keys:
+            return OperationResult(
+                total=0,
+                succeeded=0,
+                failed=0,
+                skipped=0,
+                warnings=[f"No generated {entity_type} pages found"],
+                errors=[],
+            )
+
+        # Deploy each page with progress bar
+        for stable_key in track(
+            stable_keys,
+            description=f"Deploying {entity_type}s",
+            total=total,
+        ):
+            try:
+                # Read generated content
+                content = self._storage.read_generated(stable_key)
+                if not content:
+                    warning = f"No generated content for {stable_key}"
+                    warnings.append(warning)
+                    skipped += 1
+                    continue
+
+                # Get wiki title from metadata
+                wiki_title = self._storage.get_wiki_title(stable_key)
+                if not wiki_title:
+                    error_msg = f"No wiki title found for {stable_key}"
+                    logger.error(error_msg)
+                    errors.append(error_msg)
+                    failed += 1
+                    continue
+
+                # Upload to wiki (skip in dry-run)
+                if not dry_run:
+                    try:
+                        self._wiki_client.edit_page(
+                            title=wiki_title,
+                            content=content,
+                            summary=f"Automated {entity_type} page update from database",
+                        )
+                        succeeded += 1
+                    except MediaWikiAPIError as e:
+                        error_msg = f"Failed to upload {wiki_title}: {e}"
+                        logger.error(error_msg)
+                        errors.append(error_msg)
+                        self._console.print(f"[red]✗[/red] {error_msg}")
+                        failed += 1
+                else:
+                    # In dry-run, count as succeeded
+                    succeeded += 1
+
+            except Exception as e:
+                error_msg = f"Error deploying {stable_key}: {e}"
+                logger.error(error_msg)
+                errors.append(error_msg)
+                self._console.print(f"[red]✗[/red] {error_msg}")
+                failed += 1
+
+        # Display summary
+        self._display_summary(
+            entity_type=entity_type,
+            operation="Deploy",
+            total=total,
+            succeeded=succeeded,
+            failed=failed,
+            skipped=skipped,
+            warnings=warnings,
+            errors=errors,
+            dry_run=dry_run,
+        )
+
+        return OperationResult(
+            total=total,
+            succeeded=succeeded,
+            failed=failed,
+            skipped=skipped,
             warnings=warnings,
             errors=errors,
         )
@@ -445,34 +763,36 @@ class WikiService:
     def _display_summary(
         self,
         entity_type: str,
+        operation: str,
         total: int,
-        updated: int,
-        skipped: int,
+        succeeded: int,
         failed: int,
+        skipped: int,
         warnings: list[str],
         errors: list[str],
         dry_run: bool,
     ) -> None:
-        """Display update summary with Rich formatting.
+        """Display operation summary with Rich formatting.
 
         Args:
             entity_type: Entity type name for display.
+            operation: Operation name (Fetch/Generate/Deploy).
             total: Total pages processed.
-            updated: Pages successfully updated.
-            skipped: Pages skipped.
+            succeeded: Pages successfully processed.
             failed: Pages that failed.
+            skipped: Pages skipped.
             warnings: Warning messages.
             errors: Error messages.
             dry_run: Whether this was a dry-run.
         """
         self._console.print()
-        self._console.print("[bold]Summary:[/bold]")
+        self._console.print(f"[bold]{operation} Summary:[/bold]")
         self._console.print(f"  Total pages:   {total}")
 
         if dry_run:
-            self._console.print(f"  [dim]Generated:    {updated}[/dim]")
+            self._console.print(f"  [dim]Simulated:    {succeeded}[/dim]")
         else:
-            self._console.print(f"  [green]Updated:       {updated}[/green]")
+            self._console.print(f"  [green]Succeeded:     {succeeded}[/green]")
 
         if skipped > 0:
             self._console.print(f"  [dim]Skipped:       {skipped}[/dim]")
@@ -487,6 +807,6 @@ class WikiService:
             self._console.print(f"  [red]Errors:        {len(errors)}[/red]")
 
         if dry_run:
-            self._console.print("\n[dim]Dry-run mode: No pages were actually updated[/dim]")
+            self._console.print(f"\n[dim]Dry-run mode: No actual {operation.lower()} performed[/dim]")
 
         self._console.print()

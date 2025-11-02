@@ -457,6 +457,9 @@ class VariantConfig(BaseModel):
         default="",
         description="Directory for processed game images",
     )
+    wiki: str = Field(
+        description="Directory for wiki working files (fetched and generated pages)",
+    )
     google_sheets: VariantGoogleSheetsConfig = Field(
         default_factory=VariantGoogleSheetsConfig,
         description="Google Sheets configuration for this variant",
@@ -507,6 +510,12 @@ class VariantConfig(BaseModel):
         from .paths import resolve_path
 
         return resolve_path(self.images_output, repo_root)
+
+    def resolved_wiki(self, repo_root: Path) -> Path:
+        """Get resolved wiki working directory path."""
+        from .paths import resolve_path
+
+        return resolve_path(self.wiki, repo_root)
 
 
 class Config(BaseModel):

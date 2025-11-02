@@ -9,6 +9,7 @@ Page structure:
 
 from loguru import logger
 
+from erenshor.application.generators.formatting import safe_str
 from erenshor.application.generators.page_generator_base import PageGeneratorBase
 from erenshor.domain.entities.spell import Spell
 
@@ -64,16 +65,6 @@ class SpellPageGenerator(PageGeneratorBase):
         Returns:
             Template context dict with all {{Ability}} template fields
         """
-
-        def safe_str(value: object) -> str:
-            """Convert value to string, handling None."""
-            if value is None:
-                return ""
-            if isinstance(value, bool):
-                return "True" if value else ""
-            if isinstance(value, int | float):
-                return str(value)
-            return str(value)
 
         def bool_str(value: int | None) -> str:
             """Convert int boolean to 'True' or empty string."""

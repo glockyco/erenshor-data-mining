@@ -9,6 +9,7 @@ Page structure:
 
 from loguru import logger
 
+from erenshor.application.generators.formatting import safe_str
 from erenshor.application.generators.page_generator_base import PageGeneratorBase
 from erenshor.domain.entities.character import Character
 
@@ -63,14 +64,6 @@ class CharacterPageGenerator(PageGeneratorBase):
         Returns:
             Template context dict
         """
-
-        def safe_str(value: object) -> str:
-            """Convert value to string, handling None."""
-            if value is None:
-                return ""
-            if isinstance(value, bool):
-                return "True" if value else ""
-            return str(value)
 
         # Calculate XP range if available
         xp_range = ""

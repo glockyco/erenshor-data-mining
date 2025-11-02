@@ -16,6 +16,7 @@ Note: This initial implementation generates fresh content without source enrichm
 from loguru import logger
 
 from erenshor.application.generators.categories import CategoryGenerator
+from erenshor.application.generators.formatting import safe_str
 from erenshor.application.generators.page_generator_base import PageGeneratorBase
 from erenshor.domain.entities.item import Item
 from erenshor.registry.item_classifier import ItemKind, classify_item_kind
@@ -175,18 +176,6 @@ class ItemPageGenerator(PageGeneratorBase):
         Returns:
             Template context dict
         """
-
-        # Helper to convert None to empty string
-        def safe_str(value: object) -> str:
-            if value is None:
-                return ""
-            if isinstance(value, bool):
-                return "True" if value else ""
-            if isinstance(value, int):
-                return str(value)
-            if isinstance(value, float):
-                return str(value)
-            return str(value)
 
         # Build context with all {{Item}} template fields
         context: dict[str, str] = {

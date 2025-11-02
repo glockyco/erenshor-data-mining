@@ -66,6 +66,7 @@ database = "$REPO_ROOT/variants/main/erenshor-main.sqlite"
 logs = "$REPO_ROOT/variants/main/logs"
 backups = "$REPO_ROOT/variants/main/backups"
 images_output = "$REPO_ROOT/variants/main/images"
+wiki = "$REPO_ROOT/variants/main/wiki"
 
 [variants.main.google_sheets]
 spreadsheet_id = "1eOYfjaudAhvE6HGBtWyRGgQDsmWDLENaoEwRvgBO_0E"
@@ -89,6 +90,7 @@ database = "$REPO_ROOT/variants/playtest/erenshor-playtest.sqlite"
 logs = "$REPO_ROOT/variants/playtest/logs"
 backups = "$REPO_ROOT/variants/playtest/backups"
 images_output = "$REPO_ROOT/variants/playtest/images"
+wiki = "$REPO_ROOT/variants/playtest/wiki"
 
 [variants.playtest.google_sheets]
 spreadsheet_id = "1gRgoCSXVRcbAbLNa7_FD5CMN9Z0PQA-mInSLeW1cRGE"
@@ -105,6 +107,7 @@ database = "$REPO_ROOT/variants/demo/erenshor-demo.sqlite"
 logs = "$REPO_ROOT/variants/demo/logs"
 backups = "$REPO_ROOT/variants/demo/backups"
 images_output = "$REPO_ROOT/variants/demo/images"
+wiki = "$REPO_ROOT/variants/demo/wiki"
 
 [variants.demo.google_sheets]
 spreadsheet_id = ""
