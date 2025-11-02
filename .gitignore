@@ -813,16 +813,11 @@ FodyWeavers.xsd
 !/cli/bin/
 !/cli/lib/
 
-# Erenshor state directory (contains local config and secrets)
+# Erenshor state and configuration
 .erenshor/
 
-# Wiki-specific
-out/
-state.json
+# Pipeline working directories
 variants/
-wiki_cache/
-wiki_updated/
-config.local.toml
 
 # Export artifacts
 *.sqlite
