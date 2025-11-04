@@ -376,7 +376,7 @@ class TemplateParser:
             param_str = "|".join(f"{k}={v}" for k, v in str_params.items())
             result = f"{{{{{name}|{param_str}}}}}" if param_str else f"{{{{{name}}}}}"
         elif str_params:
-            lines = [f"{{{{{name}}}"]
+            lines = [f"{{{{{name}"]
             for k, v in str_params.items():
                 lines.append(f"|{k}={v}")
             lines.append("}}")
