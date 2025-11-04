@@ -76,8 +76,7 @@ class Skill(BaseEntity):
 
     # Automation
     automate_attack: int | None = Field(default=None, description="Start auto-attacking when used (boolean)")
-    cast_on_target_id: str | None = Field(default=None, description="Cast spell on target")
-    # Example cast_on_target_id: "Bleed (8060751)"
+    cast_on_target: str | None = Field(default=None, description="Cast spell ResourceName on target")
 
     # Visual/Audio
     skill_anim_name: str | None = Field(default=None, description="Animation name")

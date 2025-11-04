@@ -18,7 +18,7 @@ public class QuestRecord
 
     // --- Rewards & Completion ---
     public int XPonComplete { get; set; } // From Quest.XPonComplete
-    public string ItemOnCompleteId { get; set; } = string.Empty; // Item ResourceName
+    public string ItemOnComplete { get; set; } = string.Empty; // Item ResourceName
     public int GoldOnComplete { get; set; } // From Quest.GoldOnComplete
     public string AssignNewQuestOnCompleteDBName { get; set; } = string.Empty; // "QuestName (DBName)" from Quest.AssignNewQuestOnComplete
     public string CompleteOtherQuestDBNames { get; set; } = string.Empty; // Comma-separated "QuestName (DBName)" from Quest.CompleteOtherQuests

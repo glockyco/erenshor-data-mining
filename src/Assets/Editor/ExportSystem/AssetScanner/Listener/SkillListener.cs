@@ -85,7 +85,7 @@ public class SkillListener : IAssetScanListener<Skill>
             ProcShield = skill.ProcShield,
             GuaranteeProc = skill.GuaranteeProc,
             AutomateAttack = skill.AutomateAttack,
-            CastOnTargetId = skill.CastOnTarget?.name ?? string.Empty,
+            CastOnTarget = skill.CastOnTarget?.name ?? string.Empty,
 
             // --- Visual/Audio ---
             SkillAnimName = skill.SkillAnimName,

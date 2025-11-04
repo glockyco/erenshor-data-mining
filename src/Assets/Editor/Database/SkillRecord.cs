@@ -49,7 +49,7 @@ public class SkillRecord
     public bool ProcShield { get; set; } // From Skill.ProcShield
     public bool GuaranteeProc { get; set; } // From Skill.GuaranteeProc
     public bool AutomateAttack { get; set; } // From Skill.AutomateAttack
-    public string CastOnTargetId { get; set; } = string.Empty; // Spell ResourceName
+    public string CastOnTarget { get; set; } = string.Empty; // Spell ResourceName
 
     // --- Visual/Audio ---
     public string SkillAnimName { get; set; } = string.Empty; // From Skill.SkillAnimName
