@@ -16,12 +16,13 @@ The MediaWikiClient class provides a type-safe, testable interface for wiki
 operations, designed to work with wiki.gg (https://erenshor.wiki.gg).
 """
 
-import time
 from collections.abc import Sequence
 from typing import Any
 
 import httpx
 from loguru import logger
+
+from erenshor.infrastructure.time import Clock, RealClock
 
 
 class MediaWikiAPIError(Exception):
@@ -141,6 +142,7 @@ class MediaWikiClient:
         edit_summary: str = "Automated wiki update",
         minor_edit: bool = True,
         timeout: float = 30.0,
+        clock: Clock | None = None,
     ) -> None:
         """Initialize MediaWiki API client.
 
@@ -153,6 +155,7 @@ class MediaWikiClient:
             edit_summary: Default edit summary for page updates.
             minor_edit: Whether edits should be marked as minor by default.
             timeout: HTTP request timeout in seconds.
+            clock: Clock implementation for time operations (default: RealClock()).
 
         Raises:
             ValueError: If api_url doesn't end with /api.php or batch_size is invalid.
@@ -171,13 +174,17 @@ class MediaWikiClient:
         self.edit_summary = edit_summary
         self.minor_edit = minor_edit
         self.timeout = timeout
+        self.clock = clock if clock is not None else RealClock()
 
-        # Session state
-        self._client = httpx.Client(timeout=timeout)
+        # Session state with custom User-Agent (required by wiki.gg)
+        # User-Agent should include bot name and contact info
+        user_agent = f"{bot_username or 'ErenshorDataBot'}/0.3 (automated wiki updates) httpx"
+        headers = {"User-Agent": user_agent}
+        self._client = httpx.Client(timeout=timeout, headers=headers)
         self._csrf_token: str | None = None
         self._last_request_time: float = 0.0
 
-        logger.debug(f"MediaWiki client initialized: api_url={api_url}, batch_size={batch_size}")
+        logger.debug(f"MediaWiki client initialized: api_url={api_url}, user_agent={user_agent}")
 
     def __enter__(self) -> "MediaWikiClient":
         """Context manager entry."""
@@ -200,12 +207,12 @@ class MediaWikiClient:
 
         Ensures minimum delay between API requests to avoid throttling.
         """
-        elapsed = time.time() - self._last_request_time
+        elapsed = self.clock.time() - self._last_request_time
         if elapsed < self.rate_limit_delay:
             sleep_time = self.rate_limit_delay - elapsed
             logger.debug(f"Rate limiting: sleeping {sleep_time:.2f}s")
-            time.sleep(sleep_time)
-        self._last_request_time = time.time()
+            self.clock.sleep(sleep_time)
+        self._last_request_time = self.clock.time()
 
     def _request(
         self,

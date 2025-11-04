@@ -10,6 +10,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+from erenshor.infrastructure.time import MockClock
 from erenshor.infrastructure.unity import (
     UnityBatchMode,
     UnityBatchModeError,
@@ -207,7 +208,9 @@ class TestUnityBatchModeExecuteMethod:
         mock_process.kill = MagicMock()
         mock_popen.return_value = mock_process
 
-        unity = UnityBatchMode(unity_path=unity_exe, timeout=10)
+        # Use MockClock for instant timeout (no actual waiting)
+        mock_clock = MockClock()
+        unity = UnityBatchMode(unity_path=unity_exe, timeout=10, clock=mock_clock)
 
         with pytest.raises(UnityRuntimeError) as exc_info:
             unity.execute_method(

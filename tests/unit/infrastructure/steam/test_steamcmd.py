@@ -57,16 +57,15 @@ class TestSteamCMDDownload:
     """Test SteamCMD download functionality."""
 
     @patch("erenshor.infrastructure.steam.steamcmd.shutil.which")
-    @patch("erenshor.infrastructure.steam.steamcmd.subprocess.Popen")
-    def test_download_success(self, mock_popen: MagicMock, mock_which: MagicMock, tmp_path: Path) -> None:
+    @patch("erenshor.infrastructure.steam.steamcmd.subprocess.run")
+    def test_download_success(self, mock_run: MagicMock, mock_which: MagicMock, tmp_path: Path) -> None:
         """Test successful game download."""
         mock_which.return_value = "/usr/local/bin/steamcmd"
 
-        # Mock process
-        mock_process = MagicMock()
-        mock_process.stdout = iter(["Success! App '2382520' fully installed.\n"])
-        mock_process.wait.return_value = 0
-        mock_popen.return_value = mock_process
+        # Mock successful run
+        mock_result = MagicMock()
+        mock_result.returncode = 0
+        mock_run.return_value = mock_result
 
         steamcmd = SteamCMD(username="testuser", platform="windows")
         install_dir = tmp_path / "game"
@@ -76,9 +75,9 @@ class TestSteamCMDDownload:
         # Verify directory was created
         assert install_dir.exists()
 
-        # Verify subprocess.Popen was called with correct command
-        mock_popen.assert_called_once()
-        call_args = mock_popen.call_args[0][0]
+        # Verify subprocess.run was called with correct command
+        mock_run.assert_called_once()
+        call_args = mock_run.call_args[0][0]
         assert call_args[0] == "steamcmd"
         assert "+@sSteamCmdForcePlatformType" in call_args
         assert "windows" in call_args
@@ -90,16 +89,15 @@ class TestSteamCMDDownload:
         assert "+quit" in call_args
 
     @patch("erenshor.infrastructure.steam.steamcmd.shutil.which")
-    @patch("erenshor.infrastructure.steam.steamcmd.subprocess.Popen")
-    def test_download_with_validation(self, mock_popen: MagicMock, mock_which: MagicMock, tmp_path: Path) -> None:
+    @patch("erenshor.infrastructure.steam.steamcmd.subprocess.run")
+    def test_download_with_validation(self, mock_run: MagicMock, mock_which: MagicMock, tmp_path: Path) -> None:
         """Test download with file validation enabled."""
         mock_which.return_value = "/usr/local/bin/steamcmd"
 
-        # Mock process
-        mock_process = MagicMock()
-        mock_process.stdout = iter(["Success!\n"])
-        mock_process.wait.return_value = 0
-        mock_popen.return_value = mock_process
+        # Mock successful run
+        mock_result = MagicMock()
+        mock_result.returncode = 0
+        mock_run.return_value = mock_result
 
         steamcmd = SteamCMD()
         install_dir = tmp_path / "game"
@@ -107,7 +105,7 @@ class TestSteamCMDDownload:
         steamcmd.download(app_id="2382520", install_dir=install_dir, validate=True)
 
         # Verify 'validate' flag is in command
-        call_args = mock_popen.call_args[0][0]
+        call_args = mock_run.call_args[0][0]
         assert "validate" in call_args
 
     @patch("erenshor.infrastructure.steam.steamcmd.shutil.which")
@@ -115,14 +113,11 @@ class TestSteamCMDDownload:
     def test_download_authentication_failure(self, mock_run: MagicMock, mock_which: MagicMock, tmp_path: Path) -> None:
         """Test download fails with authentication error."""
         mock_which.return_value = "/usr/local/bin/steamcmd"
-        from subprocess import CalledProcessError
 
-        mock_run.side_effect = CalledProcessError(
-            returncode=1,
-            cmd="steamcmd",
-            output="Login Failure: Invalid Password",
-            stderr="Login Failure: Invalid Password",
-        )
+        # Mock authentication failure (exit code 5)
+        mock_result = MagicMock()
+        mock_result.returncode = 5
+        mock_run.return_value = mock_result
 
         steamcmd = SteamCMD(username="testuser")
         install_dir = tmp_path / "game"
@@ -135,9 +130,11 @@ class TestSteamCMDDownload:
     def test_download_process_failure(self, mock_run: MagicMock, mock_which: MagicMock, tmp_path: Path) -> None:
         """Test download fails when SteamCMD process fails."""
         mock_which.return_value = "/usr/local/bin/steamcmd"
-        from subprocess import CalledProcessError
 
-        mock_run.side_effect = CalledProcessError(returncode=1, cmd="steamcmd", stderr="Network error")
+        # Mock process failure (exit code 7 = disk write failure)
+        mock_result = MagicMock()
+        mock_result.returncode = 7
+        mock_run.return_value = mock_result
 
         steamcmd = SteamCMD()
         install_dir = tmp_path / "game"

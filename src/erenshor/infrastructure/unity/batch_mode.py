@@ -22,11 +22,12 @@ ExportBatch.cs entry point and other Unity Editor scripts.
 
 import re
 import subprocess
-import time
 from pathlib import Path
 from typing import Literal
 
 from loguru import logger
+
+from erenshor.infrastructure.time import Clock, RealClock
 
 
 class UnityBatchModeError(Exception):
@@ -134,18 +135,21 @@ class UnityBatchMode:
         self,
         unity_path: Path,
         timeout: int = 3600,
+        clock: Clock | None = None,
     ) -> None:
         """Initialize Unity batch mode wrapper.
 
         Args:
             unity_path: Path to Unity Editor executable (must exist).
             timeout: Maximum execution time in seconds (default: 3600).
+            clock: Clock implementation for time operations (default: RealClock()).
 
         Raises:
             UnityNotFoundError: If Unity executable is not found.
         """
         self.unity_path = unity_path
         self.timeout = timeout
+        self.clock = clock if clock is not None else RealClock()
 
         # Verify Unity exists and is executable
         if not self.unity_path.exists():
@@ -253,7 +257,7 @@ class UnityBatchMode:
             logger.info("Monitoring Unity export progress...")
 
             # Monitor progress by checking log file periodically
-            start_time = time.time()
+            start_time = self.clock.time()
             last_update = 0
 
             while True:
@@ -264,7 +268,7 @@ class UnityBatchMode:
                     break
 
                 # Show progress every 30 seconds
-                elapsed = int(time.time() - start_time)
+                elapsed = int(self.clock.time() - start_time)
                 if elapsed - last_update >= 30:
                     logger.info(f"Still exporting... ({elapsed}s elapsed)")
                     last_update = elapsed
@@ -279,7 +283,7 @@ class UnityBatchMode:
                         "Consider increasing timeout in config.toml"
                     )
 
-                time.sleep(5)  # Check every 5 seconds
+                self.clock.sleep(5)  # Check every 5 seconds
 
             # Parse log file for errors
             self._check_execution_result(returncode, log_file)

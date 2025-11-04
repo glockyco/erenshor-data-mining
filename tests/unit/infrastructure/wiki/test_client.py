@@ -9,6 +9,7 @@ from unittest.mock import MagicMock, patch
 import httpx
 import pytest
 
+from erenshor.infrastructure.time import MockClock
 from erenshor.infrastructure.wiki import (
     MediaWikiAPIError,
     MediaWikiAuthenticationError,
@@ -30,6 +31,7 @@ class TestMediaWikiClientInitialization:
             bot_password="testpass",
             batch_size=25,
             rate_limit_delay=1.0,
+            clock=MockClock(),
         )
 
         assert client.api_url == "https://erenshor.wiki.gg/api.php"
@@ -41,22 +43,22 @@ class TestMediaWikiClientInitialization:
     def test_init_invalid_api_url(self) -> None:
         """Test initialization fails with invalid API URL."""
         with pytest.raises(ValueError, match="must end with /api.php"):
-            MediaWikiClient(api_url="https://erenshor.wiki.gg/")
+            MediaWikiClient(api_url="https://erenshor.wiki.gg/", clock=MockClock())
 
         with pytest.raises(ValueError, match="must end with /api.php"):
-            MediaWikiClient(api_url="https://erenshor.wiki.gg/index.php")
+            MediaWikiClient(api_url="https://erenshor.wiki.gg/index.php", clock=MockClock())
 
     def test_init_invalid_batch_size(self) -> None:
         """Test initialization fails with invalid batch size."""
         with pytest.raises(ValueError, match="Batch size must be between 1 and 50"):
-            MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php", batch_size=0)
+            MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php", batch_size=0, clock=MockClock())
 
         with pytest.raises(ValueError, match="Batch size must be between 1 and 50"):
-            MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php", batch_size=51)
+            MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php", batch_size=51, clock=MockClock())
 
     def test_init_defaults(self) -> None:
         """Test default values are set correctly."""
-        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php")
+        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php", clock=MockClock())
 
         assert client.bot_username == ""
         assert client.bot_password == ""
@@ -67,7 +69,7 @@ class TestMediaWikiClientInitialization:
 
     def test_context_manager(self) -> None:
         """Test client works as context manager."""
-        with MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php") as client:
+        with MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php", clock=MockClock()) as client:
             assert isinstance(client, MediaWikiClient)
 
 
@@ -95,6 +97,7 @@ class TestMediaWikiClientLogin:
             api_url="https://erenshor.wiki.gg/api.php",
             bot_username="TestBot@TestBot",
             bot_password="testpass",
+            clock=MockClock(),
         )
 
         client.login()
@@ -108,7 +111,7 @@ class TestMediaWikiClientLogin:
         """Test login fails when credentials not provided."""
         mock_client_class.return_value = MagicMock()
 
-        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php")
+        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php", clock=MockClock())
 
         with pytest.raises(ValueError, match="Bot username and password required"):
             client.login()
@@ -134,6 +137,7 @@ class TestMediaWikiClientLogin:
             api_url="https://erenshor.wiki.gg/api.php",
             bot_username="TestBot@TestBot",
             bot_password="wrongpass",
+            clock=MockClock(),
         )
 
         with pytest.raises(MediaWikiAuthenticationError, match="Login failed"):
@@ -165,7 +169,7 @@ class TestMediaWikiClientGetPage:
 
         mock_http_client.get.return_value = response
 
-        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php")
+        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php", clock=MockClock())
         content = client.get_page("Item:Sword")
 
         assert content == "{{Item|name=Sword|damage=10}}"
@@ -192,7 +196,7 @@ class TestMediaWikiClientGetPage:
 
         mock_http_client.get.return_value = response
 
-        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php")
+        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php", clock=MockClock())
         content = client.get_page("Item:NonExistent")
 
         assert content is None
@@ -205,7 +209,7 @@ class TestMediaWikiClientGetPage:
 
         mock_http_client.get.side_effect = httpx.NetworkError("Connection failed")
 
-        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php")
+        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php", clock=MockClock())
 
         with pytest.raises(MediaWikiNetworkError, match="Network error"):
             client.get_page("Item:Sword")
@@ -245,7 +249,7 @@ class TestMediaWikiClientGetPages:
 
         mock_http_client.get.return_value = response
 
-        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php")
+        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php", clock=MockClock())
         pages = client.get_pages(["Item:Sword", "Item:Shield", "Item:Missing"])
 
         assert len(pages) == 3
@@ -258,7 +262,7 @@ class TestMediaWikiClientGetPages:
         """Test batch fetch with empty list returns empty dict."""
         mock_client_class.return_value = MagicMock()
 
-        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php")
+        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php", clock=MockClock())
         pages = client.get_pages([])
 
         assert pages == {}
@@ -275,7 +279,7 @@ class TestMediaWikiClientGetPages:
         mock_http_client.get.return_value = response
 
         # Request 60 pages with batch size 25 (should make 3 requests)
-        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php", batch_size=25)
+        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php", batch_size=25, clock=MockClock())
         titles = [f"Page:{i}" for i in range(60)]
         client.get_pages(titles)
 
@@ -303,7 +307,7 @@ class TestMediaWikiClientEditPage:
         mock_http_client.get.return_value = token_response
         mock_http_client.post.return_value = edit_response
 
-        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php")
+        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php", clock=MockClock())
         client.edit_page(
             title="Item:Sword",
             content="{{Item|name=Sword|damage=10}}",
@@ -331,7 +335,7 @@ class TestMediaWikiClientEditPage:
         mock_http_client.get.return_value = token_response
         mock_http_client.post.return_value = edit_response
 
-        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php")
+        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php", clock=MockClock())
 
         with pytest.raises(MediaWikiEditError, match="Edit failed"):
             client.edit_page(title="Item:Sword", content="new content")
@@ -355,6 +359,7 @@ class TestMediaWikiClientEditPage:
             api_url="https://erenshor.wiki.gg/api.php",
             edit_summary="Default summary",
             minor_edit=True,
+            clock=MockClock(),
         )
 
         client.edit_page(title="Item:Sword", content="new content")
@@ -379,7 +384,7 @@ class TestMediaWikiClientPageExists:
 
         mock_http_client.get.return_value = response
 
-        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php")
+        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php", clock=MockClock())
         exists = client.page_exists("Item:Sword")
 
         assert exists is True
@@ -395,7 +400,7 @@ class TestMediaWikiClientPageExists:
 
         mock_http_client.get.return_value = response
 
-        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php")
+        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php", clock=MockClock())
         exists = client.page_exists("Item:Missing")
 
         assert exists is False
@@ -404,33 +409,38 @@ class TestMediaWikiClientPageExists:
 class TestMediaWikiClientRateLimiting:
     """Test rate limiting behavior."""
 
-    @patch("erenshor.infrastructure.wiki.client.time.sleep")
-    @patch("erenshor.infrastructure.wiki.client.time.time")
     @patch("erenshor.infrastructure.wiki.client.httpx.Client")
-    def test_rate_limiting_applied(
-        self, mock_client_class: MagicMock, mock_time: MagicMock, mock_sleep: MagicMock
-    ) -> None:
+    def test_rate_limiting_applied(self, mock_client_class: MagicMock) -> None:
         """Test rate limiting delays requests."""
+        from erenshor.infrastructure.time import MockClock
+
         mock_http_client = MagicMock()
         mock_client_class.return_value = mock_http_client
 
-        # Mock time to simulate rapid requests
-        # time() calls: initial (0.0), first request (0.0, 0.5), second request (0.5, 1.0)
-        mock_time.side_effect = [0.0, 0.0, 0.5, 0.5, 1.0]
-
         response = MagicMock()
-        response.json.return_value = {"query": {"pages": {}}}
+        response.json.return_value = {"query": {"pages": {"1": {"revisions": [{"slots": {"main": {"*": "content"}}}]}}}}
         mock_http_client.get.return_value = response
 
-        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php", rate_limit_delay=1.0)
+        # Use MockClock to verify rate limiting behavior without actual delays
+        mock_clock = MockClock()
+        client = MediaWikiClient(
+            api_url="https://erenshor.wiki.gg/api.php", rate_limit_delay=1.0, clock=mock_clock
+        )
 
-        # Make first request (should delay because _last_request_time starts at 0.0)
+        # Make first request (won't sleep since _last_request_time is 0.0)
         client.get_page("Page1")
-        assert mock_sleep.call_count == 1
+        time_after_first = mock_clock.time()
 
-        # Make second request (should delay again)
+        # Advance clock by less than rate limit to trigger sleep on next request
+        mock_clock.advance(0.3)
+
+        # Make second request - should sleep for 0.7s to maintain 1.0s rate limit
         client.get_page("Page2")
-        assert mock_sleep.call_count == 2
+        time_after_second = mock_clock.time()
+
+        # Time between requests should be at least rate_limit_delay
+        time_between_requests = time_after_second - time_after_first
+        assert time_between_requests >= 1.0
 
 
 class TestMediaWikiClientErrorHandling:
@@ -447,7 +457,7 @@ class TestMediaWikiClientErrorHandling:
 
         mock_http_client.get.return_value = response
 
-        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php")
+        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php", clock=MockClock())
 
         with pytest.raises(MediaWikiAPIError, match="Invalid CSRF token"):
             client.get_page("Item:Sword")
@@ -462,7 +472,7 @@ class TestMediaWikiClientErrorHandling:
         response.status_code = 429
         mock_http_client.get.side_effect = httpx.HTTPStatusError("Rate limited", request=MagicMock(), response=response)
 
-        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php")
+        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php", clock=MockClock())
 
         with pytest.raises(MediaWikiRateLimitError, match="Rate limit exceeded"):
             client.get_page("Item:Sword")
@@ -475,7 +485,7 @@ class TestMediaWikiClientErrorHandling:
 
         mock_http_client.get.side_effect = httpx.TimeoutException("Request timeout")
 
-        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php")
+        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php", clock=MockClock())
 
         with pytest.raises(MediaWikiNetworkError, match="Request timeout"):
             client.get_page("Item:Sword")
@@ -491,7 +501,7 @@ class TestMediaWikiClientErrorHandling:
 
         mock_http_client.get.return_value = response
 
-        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php")
+        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php", clock=MockClock())
 
         with pytest.raises(MediaWikiAPIError, match="Invalid JSON response"):
             client.get_page("Item:Sword")
@@ -511,7 +521,7 @@ class TestMediaWikiClientCSRFToken:
 
         mock_http_client.get.return_value = token_response
 
-        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php")
+        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php", clock=MockClock())
 
         # Get token twice
         token1 = client.get_csrf_token()
@@ -539,7 +549,7 @@ class TestMediaWikiClientCSRFToken:
 
         mock_http_client.get.side_effect = [token_response, error_response]
 
-        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php")
+        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php", clock=MockClock())
 
         # Get token (succeeds)
         client.get_csrf_token()

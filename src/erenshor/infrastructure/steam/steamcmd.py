@@ -205,52 +205,33 @@ class SteamCMD:
 
         logger.debug(f"Executing SteamCMD: {' '.join(cmd)}")
 
-        # Execute SteamCMD with real-time output
+        # Execute SteamCMD with interactive terminal (no output capture for Steam Guard)
         try:
-            # Use Popen to stream output line by line
-            process = subprocess.Popen(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,  # Merge stderr into stdout
-                text=True,
-                bufsize=1,  # Line buffered
-            )
+            logger.info("Running SteamCMD in interactive mode (Steam Guard prompts will appear)")
 
-            # Collect output for error checking while showing progress
-            output_lines = []
-            if process.stdout:
-                for line in process.stdout:
-                    output_lines.append(line)
-                    # Show progress lines to user
-                    line_stripped = line.rstrip()
-                    if line_stripped and any(
-                        keyword in line_stripped
-                        for keyword in ["Logging in", "Update state", "Success", "Downloading", "Validating"]
-                    ):
-                        logger.info(line_stripped)
+            # Run directly without capturing - allows full interactive input/output
+            result = subprocess.run(cmd, check=False)
+            return_code = result.returncode
 
-            # Wait for process to complete
-            return_code = process.wait()
-            full_output = "".join(output_lines)
-
-            # Check for errors
+            # Check for errors based on return code only
             if return_code != 0:
-                # Check for authentication errors
-                if "Login Failure" in full_output or "Invalid Password" in full_output:
-                    logger.error("Steam authentication failed")
+                logger.error(f"SteamCMD failed with exit code {return_code}")
+                # Exit code 5 typically means authentication failure
+                if return_code == 5:
                     raise SteamCMDAuthenticationError(
                         f"Steam authentication failed for user: {self.username}\n"
                         "Check username and password, or ensure account is not locked.\n"
                         "Note: Some accounts may require Steam Guard verification."
                     )
-
-                # General download error
-                logger.error(f"SteamCMD failed with exit code {return_code}")
-                raise SteamCMDDownloadError(
-                    f"Game download failed: app_id={app_id}\n"
-                    f"Exit code: {return_code}\n"
-                    "Check network connectivity, disk space, and App ID."
-                )
+                else:
+                    raise SteamCMDDownloadError(
+                        f"Game download failed: app_id={app_id}\n"
+                        f"Exit code: {return_code}\n"
+                        "Common exit codes:\n"
+                        "  5 = Authentication failure\n"
+                        "  7 = Disk write failure\n"
+                        "  8 = Invalid App ID"
+                    )
 
             logger.info(f"Download completed successfully: app_id={app_id}")
 

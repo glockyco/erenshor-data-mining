@@ -17,10 +17,11 @@ multi-variant system (main/playtest/demo).
 """
 
 import subprocess
-import time
 from pathlib import Path
 
 from loguru import logger
+
+from erenshor.infrastructure.time import Clock, RealClock
 
 
 class AssetRipperError(Exception):
@@ -101,6 +102,7 @@ class AssetRipper:
         executable_path: Path,
         port: int = 8080,
         timeout: int = 3600,
+        clock: Clock | None = None,
     ) -> None:
         """Initialize AssetRipper wrapper.
 
@@ -108,6 +110,7 @@ class AssetRipper:
             executable_path: Path to AssetRipper executable (required).
             port: Port for AssetRipper web API server (default: 8080).
             timeout: Maximum time to wait for export operations in seconds (default: 3600).
+            clock: Clock implementation for time operations (default: RealClock()).
 
         Raises:
             AssetRipperNotFoundError: If AssetRipper executable is not found.
@@ -115,6 +118,7 @@ class AssetRipper:
         self.executable_path = executable_path
         self.port = port
         self.timeout = timeout
+        self.clock = clock if clock is not None else RealClock()
         self._server_pid: int | None = None
         self._log_file: Path | None = None
 
@@ -180,7 +184,7 @@ class AssetRipper:
 
         # Create log directory and file
         log_dir.mkdir(parents=True, exist_ok=True)
-        self._log_file = log_dir / f"assetripper_{int(time.time())}.log"
+        self._log_file = log_dir / f"assetripper_{int(self.clock.time())}.log"
 
         # Start server in background
         try:
@@ -209,7 +213,7 @@ class AssetRipper:
                 logger.debug(f"Server log: {self._log_file}")
                 return
 
-            time.sleep(1)
+            self.clock.sleep(1)
             wait_time += 1
 
         # Server failed to start within timeout
@@ -231,7 +235,7 @@ class AssetRipper:
             subprocess.run(["kill", str(self._server_pid)], check=False)
 
             # Wait briefly for graceful shutdown
-            time.sleep(2)
+            self.clock.sleep(2)
 
             # Force kill if still running
             subprocess.run(["kill", "-9", str(self._server_pid)], check=False)
@@ -341,7 +345,7 @@ class AssetRipper:
             raise AssetRipperExportError(f"Failed to load files. HTTP status: {status_code}")
 
         logger.info("Files loaded successfully. Processing...")
-        time.sleep(5)  # Wait for initial processing
+        self.clock.sleep(5)  # Wait for initial processing
 
     def _export_files(self, target_dir: Path) -> None:
         """Export loaded files to Unity project.
@@ -386,7 +390,7 @@ class AssetRipper:
         wait_time = 0
 
         while wait_time < self.timeout:
-            time.sleep(poll_interval)
+            self.clock.sleep(poll_interval)
             wait_time += poll_interval
 
             # Show progress periodically

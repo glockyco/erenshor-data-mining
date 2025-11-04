@@ -17,6 +17,7 @@ from erenshor.infrastructure.assetripper import (
     AssetRipperNotFoundError,
     AssetRipperServerError,
 )
+from erenshor.infrastructure.time import MockClock
 
 
 class TestAssetRipperInitialization:
@@ -98,7 +99,9 @@ class TestAssetRipperServerManagement:
         # Mock server check to always return False (server not responding)
         mock_run.return_value = MagicMock(returncode=1)
 
-        assetripper = AssetRipper(executable_path=executable, port=8080)
+        # Use MockClock for instant timeout (no actual waiting)
+        mock_clock = MockClock()
+        assetripper = AssetRipper(executable_path=executable, port=8080, clock=mock_clock)
 
         with pytest.raises(AssetRipperServerError) as exc_info:
             assetripper.start_server(log_dir=tmp_path)
@@ -128,7 +131,7 @@ class TestAssetRipperServerManagement:
         executable = tmp_path / "AssetRipper.GUI.Free"
         executable.touch()
 
-        assetripper = AssetRipper(executable_path=executable)
+        assetripper = AssetRipper(executable_path=executable, clock=MockClock())
         assetripper._server_pid = 12345
 
         assetripper.stop_server()
@@ -167,16 +170,12 @@ class TestAssetRipperServerManagement:
 class TestAssetRipperExtraction:
     """Test AssetRipper extraction workflow."""
 
-    @patch("erenshor.infrastructure.assetripper.assetripper.time.time")
     @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.run")
     @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.Popen")
-    @patch("erenshor.infrastructure.assetripper.assetripper.time.sleep")
     def test_extract_success(
         self,
-        mock_sleep: MagicMock,
         mock_popen: MagicMock,
         mock_run: MagicMock,
-        mock_time: MagicMock,
         tmp_path: Path,
     ) -> None:
         """Test successful extraction workflow."""
@@ -188,9 +187,6 @@ class TestAssetRipperExtraction:
 
         target_dir = tmp_path / "unity"
         log_dir = tmp_path
-
-        # Mock time.time() to return fixed timestamp for log filename
-        mock_time.return_value = 1234567890
 
         # Mock process for server
         mock_process = MagicMock()
@@ -214,24 +210,22 @@ class TestAssetRipperExtraction:
 
         mock_run.side_effect = mock_run_side_effect
 
-        assetripper = AssetRipper(executable_path=executable, port=8080)
+        # Use MockClock for instant execution
+        mock_clock = MockClock()
+        assetripper = AssetRipper(executable_path=executable, port=8080, timeout=1, clock=mock_clock)
 
-        # Create log file with known filename (based on mocked time)
-        log_file = log_dir / "assetripper_1234567890.log"
+        # Patch Path.open to return completion message when log file is read in binary mode
+        original_path_open = Path.open
+        from io import BytesIO
 
-        # Mock sleep to write completion message to log on first check
-        sleep_count = 0
+        def patched_path_open(self, mode='r', *args, **kwargs):
+            # When log file is read in binary mode for monitoring, return completion message
+            if 'assetripper_' in str(self) and 'rb' in mode:
+                return BytesIO(b"Export started\nFinished post-export\n")
+            return original_path_open(self, mode, *args, **kwargs)
 
-        def mock_sleep_side_effect(seconds):
-            nonlocal sleep_count
-            sleep_count += 1
-            # After first sleep in _monitor_export, write completion message
-            if sleep_count == 1:
-                log_file.write_text("Export started\nFinished post-export\n")
-
-        mock_sleep.side_effect = mock_sleep_side_effect
-
-        assetripper.extract(source_dir=source_dir, target_dir=target_dir, log_dir=log_dir)
+        with patch.object(Path, 'open', patched_path_open):
+            assetripper.extract(source_dir=source_dir, target_dir=target_dir, log_dir=log_dir)
 
         # Verify target directory was created
         assert target_dir.exists()
@@ -256,9 +250,8 @@ class TestAssetRipperExtraction:
 
     @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.run")
     @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.Popen")
-    @patch("erenshor.infrastructure.assetripper.assetripper.time.sleep")
     def test_extract_load_files_error(
-        self, mock_sleep: MagicMock, mock_popen: MagicMock, mock_run: MagicMock, tmp_path: Path
+        self, mock_popen: MagicMock, mock_run: MagicMock, tmp_path: Path
     ) -> None:
         """Test extraction fails when loading files fails."""
         executable = tmp_path / "AssetRipper.GUI.Free"
@@ -280,7 +273,9 @@ class TestAssetRipperExtraction:
             MagicMock(returncode=0, stdout="false"),  # Directory doesn't exist
         ]
 
-        assetripper = AssetRipper(executable_path=executable, port=8080)
+        # Use MockClock for instant execution
+        mock_clock = MockClock()
+        assetripper = AssetRipper(executable_path=executable, port=8080, clock=mock_clock)
 
         with pytest.raises(AssetRipperExportError) as exc_info:
             assetripper.extract(source_dir=source_dir, target_dir=target_dir, log_dir=tmp_path)
@@ -292,9 +287,8 @@ class TestAssetRipperExtraction:
 
     @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.run")
     @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.Popen")
-    @patch("erenshor.infrastructure.assetripper.assetripper.time.sleep")
     def test_extract_export_timeout(
-        self, mock_sleep: MagicMock, mock_popen: MagicMock, mock_run: MagicMock, tmp_path: Path
+        self, mock_popen: MagicMock, mock_run: MagicMock, tmp_path: Path
     ) -> None:
         """Test extraction fails when export times out."""
         executable = tmp_path / "AssetRipper.GUI.Free"
@@ -330,7 +324,9 @@ class TestAssetRipperExtraction:
         # Mock log file without completion message (will timeout)
         log_content = "Export started\\nProcessing...\\n"
 
-        assetripper = AssetRipper(executable_path=executable, port=8080, timeout=1)
+        # Use MockClock for instant timeout
+        mock_clock = MockClock()
+        assetripper = AssetRipper(executable_path=executable, port=8080, timeout=1, clock=mock_clock)
 
         with (
             patch.object(Path, "read_text", return_value=log_content),
