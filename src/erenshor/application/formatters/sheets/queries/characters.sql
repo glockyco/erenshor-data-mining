@@ -58,13 +58,9 @@ SELECT
    c.GroupEncounter,
    c.AggroRegardlessOfLevel,
    -- Spells & Abilities
-   c.AttackSkills,
-   c.AttackSpells,
-   c.BuffSpells,
-   c.HealSpells,
-   c.GroupHealSpells,
-   c.CCSpells,
-   c.TauntSpells,
+   -- Note: Attack/buff/heal/CC/taunt spells are now in junction tables:
+   -- CharacterAttackSkillRecord, CharacterAttackSpellRecord, CharacterBuffSpellRecord,
+   -- CharacterHealSpellRecord, CharacterGroupHealSpellRecord, CharacterCCSpellRecord, CharacterTauntSpellRecord
    c.PetSpell,
    c.ProcOnHit,
    c.ProcOnHitChance,

@@ -31,15 +31,11 @@ class Quest(BaseEntity):
     quest_desc: str | None = Field(default=None, description="Quest description")
 
     # Requirements
-    # WARNING: Legacy format - uses comma-separated "Small Cat Statue (24575054), ..."
-    # Use junction tables (QuestRequiredItems) for reliable data
-    required_item_ids: str | None = Field(default=None, description="Required items")
-    # Example required_item_ids: "Charged Soul Gem (27931596), Charged Soul Gem (9590672)"
+    # Required items are stored in QuestRequiredItemRecord junction table
 
     # Rewards
     xp_on_complete: int | None = Field(default=None, description="XP reward")
     item_on_complete_id: str | None = Field(default=None, description="Item reward ID")
-    # Example item_on_complete_id: "Nightmare Crystal (10853480)"
     gold_on_complete: int | None = Field(default=None, description="Gold reward")
 
     # Quest chains

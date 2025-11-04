@@ -63,9 +63,7 @@ public class QuestListener : IAssetScanListener<Quest>
 
     private QuestRecord CreateRecord(Quest quest, int questDbIndex)
     {
-        string requiredItems = quest.RequiredItems != null
-            ? string.Join(", ", quest.RequiredItems.Where(item => item != null && !string.IsNullOrEmpty(item.Id)).Select(item => $"{item.ItemName} ({item.Id})"))
-            : "";
+        // Required items are stored in QuestRequiredItemRecord junction table
 
         string affectedFactions = quest.AffectFactions != null
             ? string.Join(", ", quest.AffectFactions.Where(f => f != null && !string.IsNullOrEmpty(f.REFNAME)).Select(f => f.REFNAME))
@@ -87,11 +85,11 @@ public class QuestListener : IAssetScanListener<Quest>
             QuestDesc = quest.QuestDesc,
 
             // --- Requirements ---
-            RequiredItemIds = requiredItems,
+            // (stored in junction table)
 
             // --- Rewards & Completion ---
             XPonComplete = quest.XPonComplete,
-            ItemOnCompleteId = quest.ItemOnComplete != null ? $"{quest.ItemOnComplete.ItemName} ({quest.ItemOnComplete.Id})" : "",
+            ItemOnCompleteId = quest.ItemOnComplete?.Id ?? string.Empty,
             GoldOnComplete = quest.GoldOnComplete,
             AssignNewQuestOnCompleteDBName = quest.AssignNewQuestOnComplete != null ? $"{quest.AssignNewQuestOnComplete.QuestName} ({quest.AssignNewQuestOnComplete.DBName})" : "",
             CompleteOtherQuestDBNames = completeQuests,

@@ -118,22 +118,14 @@ class Character(BaseEntity):
     effective_min_vr: int | None = Field(default=None, description="Calculated min void resist")
     effective_max_vr: int | None = Field(default=None, description="Calculated max void resist")
 
-    # Abilities (comma-separated lists - LEGACY DATA, use junction tables instead)
-    # WARNING: These fields contain legacy data with mixed formats.
-    # Use junction tables (CharacterAttackSpells, CharacterBuffSpells, etc.) for reliable ability relationships.
-    attack_skills: str | None = Field(default=None, description="Attack skill IDs (legacy, use junction tables)")
-    attack_spells: str | None = Field(default=None, description="Attack spell IDs (legacy, use junction tables)")
-    buff_spells: str | None = Field(default=None, description="Buff spell IDs (legacy, use junction tables)")
-    heal_spells: str | None = Field(default=None, description="Heal spell IDs (legacy, use junction tables)")
-    group_heal_spells: str | None = Field(
-        default=None, description="Group heal spell IDs (legacy, use junction tables)"
-    )
-    cc_spells: str | None = Field(default=None, description="Crowd control spell IDs (legacy, use junction tables)")
-    taunt_spells: str | None = Field(default=None, description="Taunt spell IDs (legacy, use junction tables)")
-    pet_spell: str | None = Field(default=None, description="Pet summon spell ID (legacy, use junction tables)")
+    # Abilities - stored in junction tables:
+    # - CharacterAttackSkillRecord
+    # - CharacterAttackSpellRecord, CharacterBuffSpellRecord, CharacterHealSpellRecord
+    # - CharacterGroupHealSpellRecord, CharacterCCSpellRecord, CharacterTauntSpellRecord
 
     # Proc mechanics
-    proc_on_hit: str | None = Field(default=None, description="Proc effect on hit")
+    pet_spell: str | None = Field(default=None, description="Pet summon spell ID")
+    proc_on_hit: str | None = Field(default=None, description="Proc spell ID")
     proc_on_hit_chance: float | None = Field(default=None, description="Proc chance percentage (0-100)")
 
     # Stat overrides

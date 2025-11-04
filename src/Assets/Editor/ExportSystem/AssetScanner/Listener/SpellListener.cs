@@ -112,7 +112,7 @@ public class SpellListener : IAssetScanListener<Spell>
             Lifetap = spell.Lifetap,
             DamageType = spell.MyDamageType.ToString(),
             ResistModifier = spell.ResistModifier,
-            AddProc = spell.AddProc is not null ? $"{spell.AddProc.SpellName} ({spell.AddProc.Id})" : "",
+            AddProc = spell.AddProc?.Id ?? string.Empty,
             AddProcChance = spell.AddProcChance,
 
             // --- Stat Buffs/Debuffs ---
@@ -149,7 +149,7 @@ public class SpellListener : IAssetScanListener<Spell>
 
             // --- Special Mechanics ---
             PetToSummonResourceName = spell.PetToSummon != null ? spell.PetToSummon.name : null,
-            StatusEffectToApply = spell.StatusEffectToApply is not null ? $"{spell.StatusEffectToApply.SpellName} ({spell.StatusEffectToApply.Id})" : "",
+            StatusEffectToApply = spell.StatusEffectToApply?.Id ?? string.Empty,
             ReapAndRenew = spell.ReapAndRenew,
             ResonateChance = spell.ResonateChance,
             XPBonus = spell.XPBonus,

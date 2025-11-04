@@ -14,11 +14,11 @@ public class QuestRecord
     public string QuestDesc { get; set; } = string.Empty; // From Quest.QuestDesc (Description Text)
 
     // --- Requirements ---
-    public string RequiredItemIds { get; set; } = string.Empty; // Comma-separated "ItemName (ID)" from Quest.RequiredItems
+    // Required items are stored in QuestRequiredItemRecord junction table
 
     // --- Rewards & Completion ---
     public int XPonComplete { get; set; } // From Quest.XPonComplete
-    public string ItemOnCompleteId { get; set; } = string.Empty; // "ItemName (ID)" from Quest.ItemOnComplete
+    public string ItemOnCompleteId { get; set; } = string.Empty; // Item ID from Quest.ItemOnComplete
     public int GoldOnComplete { get; set; } // From Quest.GoldOnComplete
     public string AssignNewQuestOnCompleteDBName { get; set; } = string.Empty; // "QuestName (DBName)" from Quest.AssignNewQuestOnComplete
     public string CompleteOtherQuestDBNames { get; set; } = string.Empty; // Comma-separated "QuestName (DBName)" from Quest.CompleteOtherQuests

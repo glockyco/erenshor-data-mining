@@ -51,7 +51,7 @@ public class SpellRecord
     public bool Lifetap { get; set; } // From Spell.Lifetap
     public string DamageType { get; set; } // From Spell.MyDamageType enum
     public float ResistModifier { get; set; } // From Spell.ResistModifier
-    public string AddProc { get; set; } // From Spell.AddProc
+    public string AddProc { get; set; } = string.Empty; // Spell ID from Spell.AddProc
     public int AddProcChance { get; set; } // From Spell.AddProcChance
 
     // --- Stat Buffs/Debuffs ---
@@ -88,7 +88,7 @@ public class SpellRecord
 
     // --- Special Mechanics ---
     public string PetToSummonResourceName { get; set; } = string.Empty; // From Spell.PetToSummon.name
-    public string StatusEffectToApply { get; set; } = string.Empty; // From Spell.StatusEffectToApply
+    public string StatusEffectToApply { get; set; } = string.Empty; // Spell ID from Spell.StatusEffectToApply
     public bool ReapAndRenew { get; set; } // From Spell.ReapAndRenew
     public int ResonateChance { get; set; } // From Spell.ResonateChance
     public float XPBonus { get; set; } // From Spell.XPBonus

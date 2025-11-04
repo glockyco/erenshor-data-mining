@@ -82,15 +82,13 @@ public class CharacterRecord
     public int EffectiveMaxVR { get; set; }
     
     // NPC properties
-    public string AttackSkills { get; set; } = string.Empty;
-    public string AttackSpells { get; set; } = string.Empty;
-    public string BuffSpells { get; set; } = string.Empty;
-    public string HealSpells { get; set; } = string.Empty;
-    public string GroupHealSpells { get; set; } = string.Empty;
-    public string CCSpells { get; set; } = string.Empty;
-    public string TauntSpells { get; set; } = string.Empty;
-    public string PetSpell { get; set; } = string.Empty;
-    public string ProcOnHit { get; set; } = string.Empty;
+    // Spells and skills are stored in junction tables:
+    // - CharacterAttackSkillRecord
+    // - CharacterAttackSpellRecord, CharacterBuffSpellRecord, CharacterHealSpellRecord
+    // - CharacterGroupHealSpellRecord, CharacterCCSpellRecord, CharacterTauntSpellRecord
+
+    public string PetSpell { get; set; } = string.Empty; // Spell ID
+    public string ProcOnHit { get; set; } = string.Empty; // Spell ID
     public float ProcOnHitChance { get; set; }
     
     // NPC Combat Mechanics
