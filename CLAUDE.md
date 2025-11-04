@@ -332,9 +332,15 @@ spreadsheet_id = "1eOYfjaudAhvE6HGBtWyRGgQDsmWDLENaoEwRvgBO_0E"
     - Comments explain _why_, not _what_
 
 7. **Atomic Commits**
+
     - Commit regularly with logical, focused changes
     - One concept per commit
     - Clear, concise commit messages
+
+8. **Fix All Errors**
+    - Don't ignore errors, even if you didn't introduce them
+    - When you discover bugs or validation failures during testing, fix them
+    - Never leave broken functionality unaddressed
 
 ## Testing
 
