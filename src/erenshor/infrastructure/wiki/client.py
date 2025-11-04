@@ -234,6 +234,12 @@ class MediaWikiClient:
         # Add format=json to all requests
         params["format"] = "json"
 
+        # Add maxlag parameter for batch operations (recommended for non-interactive tasks)
+        # Higher values = more aggressive, lower values = nicer to server
+        # 5 seconds is a good balance for batch operations
+        if "maxlag" not in params:
+            params["maxlag"] = "5"
+
         try:
             if method == "GET":
                 response = self._client.get(self.api_url, params=params)
@@ -253,7 +259,14 @@ class MediaWikiClient:
         except httpx.HTTPStatusError as e:
             logger.error(f"MediaWiki API HTTP error: {e.response.status_code}")
             if e.response.status_code == 429:
-                raise MediaWikiRateLimitError("Rate limit exceeded") from e
+                # Check for Retry-After header
+                retry_after = e.response.headers.get("Retry-After")
+                if retry_after:
+                    logger.warning(f"Rate limit exceeded. Retry-After: {retry_after}s")
+                    raise MediaWikiRateLimitError(f"Rate limit exceeded. Retry after {retry_after}s") from e
+                else:
+                    logger.warning("Rate limit exceeded (no Retry-After header)")
+                    raise MediaWikiRateLimitError("Rate limit exceeded") from e
             raise MediaWikiNetworkError(f"HTTP {e.response.status_code}: {e}") from e
 
         # Parse JSON response
