@@ -16,13 +16,17 @@ from erenshor.application.generators.item_template_generator import ItemTemplate
 from erenshor.application.generators.legacy_template_remover import LegacyTemplateRemover
 from erenshor.application.generators.skill_template_generator import SkillTemplateGenerator
 from erenshor.application.generators.spell_template_generator import SpellTemplateGenerator
+from erenshor.application.services.character_enricher import CharacterEnricher
 from erenshor.application.services.wiki_helpers import display_operation_summary, group_entities_by_page_title
 from erenshor.application.services.wiki_page import OperationResult, WikiPage
 from erenshor.application.services.wiki_storage import WikiStorage
 from erenshor.domain.entities import Character, Item, Skill, Spell
 from erenshor.infrastructure.database.repositories.characters import CharacterRepository
+from erenshor.infrastructure.database.repositories.factions import FactionRepository
 from erenshor.infrastructure.database.repositories.items import ItemRepository
+from erenshor.infrastructure.database.repositories.loot_tables import LootTableRepository
 from erenshor.infrastructure.database.repositories.skills import SkillRepository
+from erenshor.infrastructure.database.repositories.spawn_points import SpawnPointRepository
 from erenshor.infrastructure.database.repositories.spells import SpellRepository
 from erenshor.registry.resolver import RegistryResolver
 
@@ -37,6 +41,9 @@ class WikiGenerateService:
         character_repo: CharacterRepository,
         spell_repo: SpellRepository,
         skill_repo: SkillRepository,
+        faction_repo: FactionRepository,
+        spawn_repo: SpawnPointRepository,
+        loot_repo: LootTableRepository,
         registry_resolver: RegistryResolver,
         console: Console | None = None,
     ) -> None:
@@ -48,6 +55,9 @@ class WikiGenerateService:
             character_repo: Repository for character entities.
             spell_repo: Repository for spell entities.
             skill_repo: Repository for skill entities.
+            faction_repo: Repository for faction data.
+            spawn_repo: Repository for spawn point data.
+            loot_repo: Repository for loot table data.
             registry_resolver: Resolver for page titles from registry.
             console: Rich console for output (optional).
         """
@@ -59,11 +69,22 @@ class WikiGenerateService:
         self._resolver = registry_resolver
         self._console = console or Console()
 
+        # Initialize character enricher
+        character_enricher = CharacterEnricher(
+            faction_repo=faction_repo,
+            spawn_repo=spawn_repo,
+            loot_repo=loot_repo,
+            registry_resolver=registry_resolver,
+        )
+
         # Initialize generators and handlers
         self._item_generator = ItemTemplateGenerator()
         self._character_generator = CharacterTemplateGenerator()
         self._spell_generator = SpellTemplateGenerator()
         self._skill_generator = SkillTemplateGenerator()
+
+        # Store enricher for service orchestration
+        self._enricher = character_enricher
         self._preservation_handler = FieldPreservationHandler()
         self._legacy_remover = LegacyTemplateRemover()
 
@@ -167,11 +188,11 @@ class WikiGenerateService:
                 templates = []
 
                 for entity in page.entities:
-                    # Pick appropriate generator for entity type
                     if isinstance(entity, Item):
                         template = self._item_generator.generate_template(entity, page.title)
                     elif isinstance(entity, Character):
-                        template = self._character_generator.generate_template(entity, page.title)
+                        enriched = self._enricher.enrich(entity, page.title)
+                        template = self._character_generator.generate_template(enriched)
                     elif isinstance(entity, Spell):
                         template = self._spell_generator.generate_template(entity, page.title)
                     elif isinstance(entity, Skill):
@@ -194,14 +215,8 @@ class WikiGenerateService:
                     preserved_content = self._preservation_handler.merge_templates(
                         old_wikitext=existing,
                         new_wikitext=page_content,
-                        template_names=["Item", "Character", "Ability"],
+                        template_names=["Item", "Enemy", "Character", "Ability"],
                     )
-
-                    # Check if preservation made changes
-                    if preserved_content != page_content:
-                        warning = f"Manual edits preserved: {page.title}"
-                        warnings.append(warning)
-                        self._console.print(f"[yellow]⚠[/yellow] {warning}")
 
                     # Remove legacy templates
                     if self._legacy_remover.has_legacy_templates(preserved_content):

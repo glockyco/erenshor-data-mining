@@ -16,11 +16,11 @@ class ItemStats(BaseEntity):
     (Normal, Blessed, Godly). Each item can have multiple stat entries - one for each
     quality level. Only weapons and armor have item stats.
 
-    The composite key is (item_id, quality).
+    The composite key is (item_resource_name, quality).
     """
 
     # Primary keys (composite)
-    item_id: str = Field(description="Item ID (references Items.Id)")
+    item_resource_name: str = Field(description="Item resource name (stable identifier)")
     quality: str = Field(description="Quality level (Normal, Blessed, Godly)")
 
     # Weapon damage
@@ -66,6 +66,15 @@ class ItemStats(BaseEntity):
         """Generate composite key for lookups.
 
         Returns:
-            Composite key in format "item_id:quality"
+            Composite key in format "item_resource_name:quality"
         """
-        return f"{self.item_id}:{self.quality}"
+        return f"{self.item_resource_name}:{self.quality}"
+
+    @property
+    def stable_key(self) -> str:
+        """Return stable identifier for this entity.
+
+        Returns:
+            Composite key based on resource name and quality.
+        """
+        return self.composite_key

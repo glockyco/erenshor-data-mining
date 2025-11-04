@@ -43,9 +43,10 @@ class EntityType(str, PyEnum):
     ITEM = "item"
     SPELL = "spell"
     SKILL = "skill"
-    CHARACTER = "character"  # NPCs and creatures
+    CHARACTER = "character"  # (friendly) NPCs and (non-friendly) enemies
     QUEST = "quest"
     FACTION = "faction"
+    ZONE = "zone"
     LOCATION = "location"
     ACHIEVEMENT = "achievement"
     CRAFTING_RECIPE = "crafting_recipe"

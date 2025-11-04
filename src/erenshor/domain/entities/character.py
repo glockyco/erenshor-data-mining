@@ -6,6 +6,7 @@ all friendly and non-friendly NPCs, creatures, etc.
 
 from pydantic import Field
 
+from erenshor.domain.value_objects.faction import FactionModifier
 from erenshor.registry.resource_names import build_stable_key, normalize_resource_name
 from erenshor.registry.schema import EntityType
 
@@ -31,6 +32,12 @@ class Character(BaseEntity):
     object_name: str | None = Field(default=None, description="Stable object identifier")
     npc_name: str | None = Field(default=None, description="Display name")
 
+    # Coordinate data (from Coordinates table JOIN)
+    scene: str | None = Field(default=None, description="Scene name")
+    x: float | None = Field(default=None, description="X coordinate")
+    y: float | None = Field(default=None, description="Y coordinate")
+    z: float | None = Field(default=None, description="Z coordinate")
+
     # Faction
     my_world_faction: str | None = Field(default=None, description="World faction (Factions.REFNAME)")
     my_faction: str | None = Field(default=None, description="Faction")
@@ -39,8 +46,10 @@ class Character(BaseEntity):
     aggressive_towards: str | None = Field(default=None, description="Hostile factions")
     allies: str | None = Field(default=None, description="Allied factions")
     has_modify_faction: int | None = Field(default=None, description="Rewards reputation on kill (boolean)")
-    modify_factions: str | None = Field(default=None, description="On-kill reputation changes")
-    # Example modify_factions: "Savannah Priel (-3), Citizens of Port Azure (3), People of Erenshor (3)"
+    faction_modifiers: list[FactionModifier] | None = Field(
+        default=None,
+        description="On-kill reputation changes (from CharacterFactionModifiers junction table)",
+    )
 
     # Character type flags
     is_prefab: int | None = Field(default=None, description="Is prefab (boolean)")
@@ -175,15 +184,34 @@ class Character(BaseEntity):
     def stable_key(self) -> str:
         """Generate stable key for registry lookups.
 
+        Format depends on whether character is a prefab:
+        - Prefab: "character:object_name"
+        - Non-prefab: "character:object_name|scene|x|y|z"
+
+        Non-prefab characters (scene-specific instances) need coordinates
+        for unique identification since multiple different characters can
+        exist in the same scene.
+
         Returns:
-            Stable key in format "character:object_name"
+            Stable key for registry lookups
 
         Raises:
             ValueError: If object_name is None
         """
         if self.object_name is None:
             raise ValueError("Cannot generate stable_key: object_name is None")
-        return build_stable_key(EntityType.CHARACTER, self.object_name)
+
+        # Prefab characters: simple object name
+        if self.is_prefab:
+            return build_stable_key(EntityType.CHARACTER, self.object_name)
+
+        # Non-prefab characters: include scene and coordinates
+        scene = self.scene if self.scene is not None else "Unknown"
+        x = f"{self.x:.2f}" if self.x is not None else "0.00"
+        y = f"{self.y:.2f}" if self.y is not None else "0.00"
+        z = f"{self.z:.2f}" if self.z is not None else "0.00"
+        identifier = f"{self.object_name}|{scene}|{x}|{y}|{z}"
+        return build_stable_key(EntityType.CHARACTER, identifier)
 
     @property
     def normalized_resource_name(self) -> str:

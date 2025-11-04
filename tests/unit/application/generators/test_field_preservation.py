@@ -325,41 +325,44 @@ class TestFieldPreservationHandler:
         assert params["level"] == "5"
 
     def test_merge_templates_with_no_old_templates(self) -> None:
-        """merge_templates should return new wikitext when no old templates found."""
+        """merge_templates should append new template when no old template found."""
         handler = FieldPreservationHandler()
 
-        old_wikitext = "Some text without templates"
+        old_wikitext = "Some manual text without templates"
         new_wikitext = "{{Item|name=Sword|damage=10}}"
 
         result = handler.merge_templates(old_wikitext, new_wikitext, ["Item"])
 
-        # Should return new wikitext unchanged
-        assert result == new_wikitext
+        # Should append new template to old wikitext (preserving manual text)
+        assert "Some manual text without templates" in result
+        assert "{{Item" in result
+        assert "name=Sword" in result or "name = Sword" in result
 
     def test_merge_templates_with_no_new_templates(self) -> None:
-        """merge_templates should return new wikitext when no new templates found."""
+        """merge_templates should return old wikitext when no new templates found."""
         handler = FieldPreservationHandler()
 
-        old_wikitext = "{{Item|name=Sword|damage=10}}"
+        old_wikitext = "{{Item|name=Sword|damage=10}}\nManual content"
         new_wikitext = "Some text without templates"
 
         result = handler.merge_templates(old_wikitext, new_wikitext, ["Item"])
 
-        # Should return new wikitext unchanged
-        assert result == new_wikitext
+        # Should return old wikitext unchanged (preserving everything)
+        assert result == old_wikitext
 
     def test_merge_templates_preserves_non_template_content(self) -> None:
-        """merge_templates should preserve non-template content."""
+        """merge_templates should preserve non-template content from old page."""
         handler = FieldPreservationHandler()
 
-        old_wikitext = "{{Item|description=Old}}\nSome wiki text"
-        new_wikitext = "{{Item|description=New}}\nNew wiki text"
+        old_wikitext = "{{Item|description=Old}}\n\nSome manual wiki text\n\n[[Category:Items]]"
+        new_wikitext = "{{Item|description=New}}"
 
         result = handler.merge_templates(old_wikitext, new_wikitext, ["Item"])
 
-        # Should have new non-template content
-        assert "New wiki text" in result
-        # But old description preserved
+        # Should preserve manual content from old page
+        assert "Some manual wiki text" in result
+        assert "[[Category:Items]]" in result
+        # But old description preserved (preserve rule)
         assert "description=Old" in result or "description = Old" in result
 
     def test_merge_templates_with_multiple_template_types(self) -> None:
@@ -507,3 +510,178 @@ class TestIntegrationScenarios:
         assert "Legendary Sword" in result
         # Damage updated to 15 in both templates
         assert result.count("15") == 2
+
+
+class TestTemplateFormatting:
+    """Tests for template formatting preservation (multiline, field order)."""
+
+    def test_merge_templates_preserves_multiline_formatting(self) -> None:
+        """merge_templates should preserve multiline template formatting."""
+        handler = FieldPreservationHandler()
+
+        old_wikitext = """{{Enemy
+|name=Test NPC
+|type=NPC
+|level=5
+|health=100
+}}"""
+
+        new_wikitext = """{{Enemy
+|name=Test NPC
+|image=[[File:Test.png|thumb]]
+|imagecaption=
+|type=
+|faction=Villager
+|factionChange=
+|zones=
+|coordinates=
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=10
+|experience=50-100
+|health=200
+|mana=50
+|ac=5
+|strength=10
+|endurance=8
+|dexterity=9
+|agility=7
+|intelligence=6
+|wisdom=5
+|charisma=4
+|magic=0
+|poison=0
+|elemental=0
+|void=0
+}}"""
+
+        result = handler.merge_templates(old_wikitext, new_wikitext, ["Enemy"])
+
+        # Should have newlines between fields (not compacted to single line)
+        assert "\n|name=" in result
+        assert "\n|level=" in result
+        assert "\n|health=" in result
+        assert "\n|type=" in result
+
+        # Should not be single-line format
+        assert "|name=Test NPC|image=" not in result
+        assert "|level=10|experience=" not in result
+
+    def test_merge_templates_preserves_field_order(self) -> None:
+        """merge_templates should preserve field order from new template."""
+        handler = FieldPreservationHandler()
+
+        old_wikitext = """{{Enemy
+|name=Test
+|type=NPC
+|zones=Forest
+|level=5
+}}"""
+
+        new_wikitext = """{{Enemy
+|name=Test
+|image=[[File:Test.png|thumb]]
+|imagecaption=
+|type=
+|faction=Villager
+|factionChange=
+|zones=
+|coordinates=
+|level=10
+|health=200
+}}"""
+
+        result = handler.merge_templates(old_wikitext, new_wikitext, ["Enemy"])
+
+        # Extract field order from result
+        lines = [l for l in result.split("\n") if l.startswith("|")]
+        field_names = [l.split("=")[0].strip("|") for l in lines]
+
+        # Field order should match new template, not old template
+        expected_order = [
+            "name",
+            "image",
+            "imagecaption",
+            "type",
+            "faction",
+            "factionChange",
+            "zones",
+            "coordinates",
+            "level",
+            "health",
+        ]
+        assert field_names == expected_order
+
+    def test_merge_templates_with_enemy_template_preserves_manual_fields(self) -> None:
+        """merge_templates should preserve Enemy template manual edit fields only."""
+        handler = FieldPreservationHandler()
+
+        old_wikitext = """{{Enemy
+|name=Goblin Scout
+|type=[[:Category:Characters|Enemy]]
+|imagecaption=A fearsome goblin
+|zones=[[Rottenfoot]]
+|coordinates=100.0 x 20.0 x 200.0
+|droprates=Manual loot table
+|level=5
+|health=100
+}}"""
+
+        new_wikitext = """{{Enemy
+|name=Goblin Scout
+|image=[[File:Goblin Scout.png|thumb]]
+|imagecaption=
+|type=
+|faction=Bandit
+|factionChange=+5 [[Bandits]]
+|zones=[[Darkwood Forest]]
+|coordinates=150.0 x 30.0 x 250.0
+|spawnchance=75%
+|respawn=10m
+|guaranteeddrops={{ItemLink|Goblin Tooth}}
+|droprates={{ItemLink|Rusty Dagger}} (50%)
+|level=10
+|experience=50-100
+|health=200
+|mana=50
+|ac=5
+|strength=10
+|endurance=8
+|dexterity=9
+|agility=7
+|intelligence=6
+|wisdom=5
+|charisma=4
+|magic=0
+|poison=0
+|elemental=0
+|void=0
+}}"""
+
+        result = handler.merge_templates(old_wikitext, new_wikitext, ["Enemy"])
+
+        # Manual edit fields should be preserved
+        assert "A fearsome goblin" in result  # imagecaption (preserve)
+        assert "[[:Category:Characters|Enemy]]" in result  # type (prefer_manual - had value)
+
+        # Database-generated fields should be UPDATED from new wikitext
+        assert "[[Darkwood Forest]]" in result  # zones (from DB, not old manual value)
+        assert "150.0 x 30.0 x 250.0" in result  # coordinates (from DB)
+        assert "{{ItemLink|Rusty Dagger}} (50%)" in result  # droprates (from DB)
+        assert "+5 [[Bandits]]" in result  # factionChange (from DB)
+        assert "75%" in result  # spawnchance (from DB)
+        assert "10m" in result  # respawn (from DB)
+        assert "{{ItemLink|Goblin Tooth}}" in result  # guaranteeddrops (from DB)
+
+        # Should NOT have old manual values
+        assert "[[Rottenfoot]]" not in result  # old zones
+        assert "100.0 x 20.0 x 200.0" not in result  # old coordinates
+        assert "Manual loot table" not in result  # old droprates
+
+        # Stats should be updated
+        assert "level=10" in result or "|level=10\n" in result
+        assert "health=200" in result or "|health=200\n" in result
+        assert "experience=50-100" in result or "|experience=50-100\n" in result
+        assert "faction=Bandit" in result or "|faction=Bandit\n" in result

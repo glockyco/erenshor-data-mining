@@ -12,6 +12,9 @@ from erenshor.application.generators.formatting import safe_str
 from erenshor.application.generators.template_generator_base import TemplateGeneratorBase
 from erenshor.domain.entities.spell import Spell
 
+# Game constants for cast time calculation
+GAME_TICKS_PER_SECOND = 60  # Game runs at 60 ticks per second
+
 
 class SpellTemplateGenerator(TemplateGeneratorBase):
     """Generator for spell wiki templates.
@@ -78,10 +81,13 @@ class SpellTemplateGenerator(TemplateGeneratorBase):
         # Format class restrictions
         classes = safe_str(spell.classes)
 
+        # Format cast time: convert ticks to seconds, treat 0 and <0.05s as "Instant"
+        cast_time_str = self._format_cast_time(spell.spell_charge_time)
+
         context: dict[str, str] = {
             "id": safe_str(spell.id),
             "title": page_title,
-            "image": f"{spell.resource_name or 'Unknown'}.png",  # TODO: Use registry for image name
+            "image": f"{spell.resource_name if spell.resource_name is not None else 'Unknown'}.png",  # TODO: Use registry for image name
             "imagecaption": "",
             "description": safe_str(spell.spell_desc),
             "type": safe_str(spell.type),
@@ -91,7 +97,7 @@ class SpellTemplateGenerator(TemplateGeneratorBase):
             "manacost": safe_str(spell.mana_cost),
             "aggro": safe_str(spell.aggro),
             "is_taunt": bool_str(spell.taunt_spell),
-            "casttime": safe_str(spell.spell_charge_time),
+            "casttime": cast_time_str,
             "cooldown": safe_str(spell.cooldown),
             "duration": duration,
             "duration_in_ticks": safe_str(spell.spell_duration_in_ticks),
@@ -152,3 +158,35 @@ class SpellTemplateGenerator(TemplateGeneratorBase):
         }
 
         return context
+
+    def _format_cast_time(self, spell_charge_time: float | None) -> str:
+        """Format spell cast time in ticks to human-readable string.
+
+        Args:
+            spell_charge_time: Spell charge time in game ticks (60 ticks/second)
+
+        Returns:
+            Formatted cast time string:
+            - "Instant" for None or 0
+            - "X.X seconds" for all other values
+
+        Examples:
+            >>> self._format_cast_time(None)
+            'Instant'
+            >>> self._format_cast_time(0)
+            'Instant'
+            >>> self._format_cast_time(2)  # 2 ticks = 0.033s
+            '0.0 seconds'
+            >>> self._format_cast_time(60)  # 60 ticks = 1.0s
+            '1.0 seconds'
+            >>> self._format_cast_time(180)  # 180 ticks = 3.0s
+            '3.0 seconds'
+        """
+        if spell_charge_time is None or spell_charge_time == 0:
+            return "Instant"
+
+        # Convert ticks to seconds
+        seconds = spell_charge_time / GAME_TICKS_PER_SECOND
+
+        # Format as "X.X seconds"
+        return f"{seconds:.1f} seconds"

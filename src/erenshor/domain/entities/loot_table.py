@@ -22,7 +22,7 @@ class LootTable(BaseEntity):
 
     # Identifiers (composite key)
     character_prefab_guid: str | None = Field(default=None, description="Character GUID")
-    item_id: str | None = Field(default=None, description="Item ID that can drop")
+    item_resource_name: str | None = Field(default=None, description="Item resource name that can drop")
 
     # Drop probability
     drop_probability: float | None = Field(default=None, description="Drop probability percentage (0-100)")
@@ -62,11 +62,20 @@ class LootTable(BaseEntity):
         """Generate composite key for lookups.
 
         Returns:
-            Composite key in format "character_guid:item_id"
+            Composite key in format "character_guid:item_resource_name"
 
         Raises:
             ValueError: If either field is None
         """
-        if self.character_prefab_guid is None or self.item_id is None:
-            raise ValueError("Cannot generate composite_key: character_prefab_guid or item_id is None")
-        return f"{self.character_prefab_guid}:{self.item_id}"
+        if self.character_prefab_guid is None or self.item_resource_name is None:
+            raise ValueError("Cannot generate composite_key: character_prefab_guid or item_resource_name is None")
+        return f"{self.character_prefab_guid}:{self.item_resource_name}"
+
+    @property
+    def stable_key(self) -> str:
+        """Return stable identifier for this entity.
+
+        Returns:
+            Composite key based on character GUID and item resource name.
+        """
+        return self.composite_key

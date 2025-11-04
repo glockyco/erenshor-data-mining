@@ -78,6 +78,30 @@ def mock_registry_resolver():
 
 
 @pytest.fixture
+def mock_faction_repo():
+    """Mock faction repository."""
+    repo = Mock()
+    repo.get_faction_modifiers_for_character.return_value = []
+    return repo
+
+
+@pytest.fixture
+def mock_spawn_repo():
+    """Mock spawn point repository."""
+    repo = Mock()
+    repo.get_spawns_for_character.return_value = []
+    return repo
+
+
+@pytest.fixture
+def mock_loot_repo():
+    """Mock loot table repository."""
+    repo = Mock()
+    repo.get_loot_for_character.return_value = []
+    return repo
+
+
+@pytest.fixture
 def wiki_service(
     mock_wiki_client,
     mock_storage,
@@ -85,6 +109,9 @@ def wiki_service(
     mock_character_repo,
     mock_spell_repo,
     mock_skill_repo,
+    mock_faction_repo,
+    mock_spawn_repo,
+    mock_loot_repo,
     mock_registry_resolver,
 ):
     """WikiService instance with mocked dependencies."""
@@ -95,6 +122,9 @@ def wiki_service(
         character_repo=mock_character_repo,
         spell_repo=mock_spell_repo,
         skill_repo=mock_skill_repo,
+        faction_repo=mock_faction_repo,
+        spawn_repo=mock_spawn_repo,
+        loot_repo=mock_loot_repo,
         registry_resolver=mock_registry_resolver,
     )
 
@@ -150,6 +180,9 @@ class TestWikiServiceInit:
         mock_character_repo,
         mock_spell_repo,
         mock_skill_repo,
+        mock_faction_repo,
+        mock_spawn_repo,
+        mock_loot_repo,
         mock_registry_resolver,
     ):
         """Test service initializes with all dependencies."""
@@ -160,6 +193,9 @@ class TestWikiServiceInit:
             character_repo=mock_character_repo,
             spell_repo=mock_spell_repo,
             skill_repo=mock_skill_repo,
+            faction_repo=mock_faction_repo,
+            spawn_repo=mock_spawn_repo,
+            loot_repo=mock_loot_repo,
             registry_resolver=mock_registry_resolver,
         )
 

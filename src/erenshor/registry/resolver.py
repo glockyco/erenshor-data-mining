@@ -169,3 +169,105 @@ class RegistryResolver:
         with Session(self.engine) as session:
             entity = get_entity(session, stable_key)
             return entity.excluded if entity else False
+
+    def item_link(self, resource_name: str, item_name: str) -> str:
+        """Generate {{ItemLink|...}} template for an item.
+
+        Args:
+            resource_name: Item resource name (internal identifier)
+            item_name: Item display name (ItemName)
+
+        Returns:
+            {{ItemLink|PageTitle|image=ImageName.png|text=DisplayText}} with applicable params
+            {{ItemLink|PageTitle}} if no overrides needed
+            Plain display name (no link) if excluded
+
+        Example:
+            >>> resolver.item_link("IronSword", "Iron Sword")
+            "{{ItemLink|Iron Sword}}"
+        """
+        stable_key = f"item:{resource_name}"
+        page_title = self.resolve_page_title(stable_key, item_name)
+
+        if page_title is None:
+            logger.debug(f"Item {resource_name} is excluded, returning plain display name")
+            return item_name
+
+        # Get display name and image overrides
+        display_name = self.resolve_display_name(stable_key, item_name)
+        image_name = self.resolve_image_name(stable_key, item_name)
+
+        # Build template parameters
+        params = []
+        if image_name and image_name != page_title:
+            # Add .png extension if not already present
+            img = image_name if image_name.endswith(".png") else f"{image_name}.png"
+            params.append(f"image={img}")
+        if display_name and display_name != page_title:
+            params.append(f"text={display_name}")
+
+        if params:
+            return f"{{{{ItemLink|{page_title}|{'|'.join(params)}}}}}"
+        return f"{{{{ItemLink|{page_title}}}}}"
+
+    def faction_link(self, faction_refname: str, faction_display_name: str) -> str:
+        """Generate standard MediaWiki link for a faction.
+
+        Uses [[Page]] or [[Page|Display]] syntax.
+
+        Args:
+            faction_refname: Faction REFNAME (internal identifier)
+            faction_display_name: Faction display name (FactionDesc)
+
+        Returns:
+            [[PageTitle|DisplayText]] if display differs
+            [[PageTitle]] otherwise
+            Plain display name (no link) if excluded
+
+        Example:
+            >>> resolver.faction_link("AzureCitizens", "The Citizens of Port Azure")
+            "[[The Citizens of Port Azure]]"
+        """
+        stable_key = f"faction:{faction_refname}"
+        page_title = self.resolve_page_title(stable_key, faction_display_name)
+
+        if page_title is None:
+            logger.debug(f"Faction {faction_refname} is excluded, returning plain display name")
+            return faction_display_name
+
+        display_name = self.resolve_display_name(stable_key, faction_display_name)
+
+        if display_name and display_name != page_title:
+            return f"[[{page_title}|{display_name}]]"
+        return f"[[{page_title}]]"
+
+    def zone_link(self, scene_name: str, zone_display_name: str) -> str:
+        """Generate standard MediaWiki link for a zone.
+
+        Uses [[Page]] or [[Page|Display]] syntax.
+
+        Args:
+            scene_name: Scene name (internal identifier)
+            zone_display_name: Zone display name (ZoneName from ZoneAnnounces)
+
+        Returns:
+            [[PageTitle|DisplayText]] if display differs
+            [[PageTitle]] otherwise
+            Plain display name (no link) if excluded
+
+        Example:
+            >>> resolver.zone_link("Azure", "Port Azure")
+            "[[Port Azure]]"
+        """
+        stable_key = f"zone:{scene_name}"
+        page_title = self.resolve_page_title(stable_key, zone_display_name)
+
+        if page_title is None:
+            logger.debug(f"Zone {scene_name} is excluded, returning plain display name")
+            return zone_display_name
+
+        display_name = self.resolve_display_name(stable_key, zone_display_name)
+
+        if display_name and display_name != page_title:
+            return f"[[{page_title}|{display_name}]]"
+        return f"[[{page_title}]]"

@@ -32,8 +32,11 @@ from erenshor.cli.preconditions import require_preconditions
 from erenshor.cli.preconditions.checks.database import database_exists, database_has_items, database_valid
 from erenshor.infrastructure.database.connection import DatabaseConnection
 from erenshor.infrastructure.database.repositories.characters import CharacterRepository
+from erenshor.infrastructure.database.repositories.factions import FactionRepository
 from erenshor.infrastructure.database.repositories.items import ItemRepository
+from erenshor.infrastructure.database.repositories.loot_tables import LootTableRepository
 from erenshor.infrastructure.database.repositories.skills import SkillRepository
+from erenshor.infrastructure.database.repositories.spawn_points import SpawnPointRepository
 from erenshor.infrastructure.database.repositories.spells import SpellRepository
 from erenshor.infrastructure.wiki.client import MediaWikiClient
 from erenshor.registry.resolver import RegistryResolver
@@ -107,6 +110,9 @@ def _create_wiki_service(cli_ctx: CLIContext) -> WikiService:
     character_repo = CharacterRepository(db_connection)
     spell_repo = SpellRepository(db_connection)
     skill_repo = SkillRepository(db_connection)
+    faction_repo = FactionRepository(db_connection)
+    spawn_repo = SpawnPointRepository(db_connection)
+    loot_repo = LootTableRepository(db_connection)
 
     # Create registry resolver
     registry_db_path = cli_ctx.repo_root / "registry.db"
@@ -132,6 +138,9 @@ def _create_wiki_service(cli_ctx: CLIContext) -> WikiService:
         character_repo=character_repo,
         spell_repo=spell_repo,
         skill_repo=skill_repo,
+        faction_repo=faction_repo,
+        spawn_repo=spawn_repo,
+        loot_repo=loot_repo,
         registry_resolver=resolver,
     )
 

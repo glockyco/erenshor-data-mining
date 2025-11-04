@@ -153,9 +153,18 @@ DEFAULT_PRESERVATION_RULES: dict[str, dict[str, str]] = {
         "image": "prefer_manual",
         "name": "prefer_manual",
     },
-    "Character": {
-        "description": "preserve",  # Manual NPC descriptions
-        "image": "prefer_manual",  # Custom NPC images
+    "Enemy": {
+        # Manual edit fields only
+        "imagecaption": "preserve",  # Custom image captions
+        "type": "prefer_manual",  # NPC/Enemy/Boss classification (some manual, some DB)
+        # All other fields use default "override" behavior (regenerated from DB):
+        # - factionChange: from Character.FactionModifiers
+        # - zones: from SpawnPoint data or Character.Zone
+        # - coordinates: from Character X/Y/Z or SpawnPoint
+        # - spawnchance: from SpawnPoint.SpawnChance
+        # - respawn: from SpawnPoint.BaseRespawn
+        # - guaranteeddrops: from LootTable
+        # - droprates: from LootTable
     },
     "Ability": {
         "description": "preserve",  # Manual ability descriptions
@@ -229,7 +238,7 @@ class FieldPreservationConfig:
         """
         if handler_name not in self._handlers:
             raise HandlerNotFoundError(
-                f"Handler not found: {handler_name}. " f"Available handlers: {', '.join(self._handlers.keys())}"
+                f"Handler not found: {handler_name}. Available handlers: {', '.join(self._handlers.keys())}"
             )
         return self._handlers[handler_name]
 
@@ -365,71 +374,102 @@ class FieldPreservationHandler:
         template_names: list[str],
         context: dict[str, Any] | None = None,
     ) -> str:
-        """Merge templates from old and new wikitext with field preservation.
+        """Merge new templates into existing page, preserving all manual content.
 
-        This is the main entry point for page generators. It:
-        1. Parses old and new wikitext
-        2. Finds matching templates
-        3. Applies preservation rules
-        4. Replaces templates in new wikitext with preserved versions
+        This method starts with old_wikitext (which has templates + manual content) and
+        updates only the specified templates in place. Everything else (manual sections,
+        categories, etc.) is preserved.
 
         Args:
-            old_wikitext: Existing wiki page content
-            new_wikitext: Freshly generated page content
+            old_wikitext: Existing wiki page (templates + manual content)
+            new_wikitext: Freshly generated templates (just templates, no manual content)
             template_names: List of template names to merge (e.g., ["Item"])
             context: Additional context passed to handlers
 
         Returns:
-            New wikitext with preserved fields applied
+            Old wikitext with templates updated, all manual content preserved
 
         Example:
             >>> handler = FieldPreservationHandler()
-            >>> old = "{{Item|description=Manual text|damage=10}}"
-            >>> new = "{{Item|description=Default|damage=15|level=5}}"
+            >>> old = "{{Item|description=Manual|damage=10}}\\n\\n== Notes ==\\nManual content."
+            >>> new = "{{Item|description=Auto|damage=15|level=5}}"
             >>> result = handler.merge_templates(old, new, ["Item"])
-            >>> # Result has manual description, updated damage, new level
+            >>> # Result: Updated Item template + preserved Notes section
         """
-        logger.debug(f"Merging templates: {template_names}")
+        logger.debug(f"Merging {len(template_names)} templates into existing page")
 
-        # Parse both pages
+        # Parse old page (contains everything: templates + manual content)
         old_code = self._parser.parse(old_wikitext)
+
+        # Parse new templates to extract their content
         new_code = self._parser.parse(new_wikitext)
+        new_templates_found = self._parser.find_templates(new_code, template_names)
 
-        # Find templates in both pages
-        old_templates = self._parser.find_templates(old_code, template_names)
-        new_templates = self._parser.find_templates(new_code, template_names)
+        if not new_templates_found:
+            logger.debug("No new templates found, returning old wikitext as-is")
+            return old_wikitext
 
-        if not old_templates:
-            logger.debug("No old templates found, returning new wikitext as-is")
-            return new_wikitext
-
-        if not new_templates:
-            logger.debug("No new templates found, returning new wikitext as-is")
-            return new_wikitext
+        # Build dict of template_name -> new_template for easy lookup
+        new_template_map: dict[str, Any] = {}
+        for tmpl in new_templates_found:
+            tmpl_name = str(tmpl.name).strip()
+            if tmpl_name in template_names:
+                new_template_map[tmpl_name] = tmpl
 
         # For each template type, merge fields
         for template_name in template_names:
-            # Get first matching template from each page
-            old_tmpl = next((t for t in old_templates if str(t.name).strip() == template_name), None)
-            new_tmpl = next((t for t in new_templates if str(t.name).strip() == template_name), None)
+            # Find template in old page
+            old_templates = self._parser.find_templates(old_code, [template_name])
 
-            if not old_tmpl or not new_tmpl:
+            # Get new template for this name
+            new_tmpl = new_template_map.get(template_name)
+            if not new_tmpl:
+                logger.debug(f"No new template for {template_name}, skipping")
                 continue
+
+            if not old_templates:
+                # Template doesn't exist in old page, append to end
+                logger.debug(f"Template {template_name} not found in old page, appending")
+
+                # Extract fields from new template
+                new_fields = self._parser.get_params(new_tmpl)
+
+                # Generate formatted template
+                formatted_template = self._parser.generate_template(
+                    template_name,
+                    new_fields,
+                    inline=False,
+                )
+
+                old_code.append(f"\n\n{formatted_template}")
+                continue
+
+            # Get first matching template from old page
+            old_tmpl = old_templates[0]
 
             # Extract field dictionaries
             old_fields = self._parser.get_params(old_tmpl)
             new_fields = self._parser.get_params(new_tmpl)
 
-            # Apply preservation
+            # Apply preservation rules
             preserved_fields = self.apply_preservation(template_name, old_fields, new_fields, context)
 
-            # Update new template with preserved values
-            for field_name, field_value in preserved_fields.items():
-                self._parser.set_param(new_tmpl, field_name, field_value)
+            # Preserve field order from new template (from Jinja2 template order)
+            ordered_preserved = {k: preserved_fields[k] for k in new_fields.keys() if k in preserved_fields}
 
-        # Render modified wikitext
-        result = self._parser.render(new_code)
-        logger.debug(f"Merged templates successfully ({len(result)} characters)")
+            # Generate properly formatted template from merged fields
+            formatted_template = self._parser.generate_template(
+                template_name,
+                ordered_preserved,
+                inline=False,  # Multi-line format
+            )
+
+            # Replace template in old_code (preserving everything else)
+            self._parser.replace_template(old_code, old_tmpl, formatted_template)
+
+        # Render modified old page (templates updated, manual content preserved)
+        result = self._parser.render(old_code)
+        logger.debug(f"Merged templates into existing page successfully ({len(result)} characters)")
         return result
 
     def get_config(self) -> FieldPreservationConfig:

@@ -114,7 +114,7 @@ class SkillTemplateGenerator(TemplateGeneratorBase):
         context: dict[str, str] = {
             "id": safe_str(skill.id),
             "title": page_title,
-            "image": f"{skill.resource_name or 'Unknown'}.png",  # TODO: Use registry for image name
+            "image": f"{skill.resource_name if skill.resource_name is not None else 'Unknown'}.png",  # TODO: Use registry for image name
             "imagecaption": "",
             "description": safe_str(skill.skill_desc),
             "type": safe_str(skill.type_of_skill),

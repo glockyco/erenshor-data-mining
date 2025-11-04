@@ -169,7 +169,7 @@ class LegacyTemplateRemover:
             if not legacy_templates:
                 continue
 
-            logger.info(f"Found {len(legacy_templates)} instances of legacy template {{{{{{legacy_name}}}}}}")
+            logger.info(f"Found {len(legacy_templates)} instances of legacy template {{{{{legacy_name}}}}}")
 
             for template in legacy_templates:
                 # Get all parameters
@@ -181,7 +181,7 @@ class LegacyTemplateRemover:
                 # Replace old template with new one
                 self.parser.replace_template(code, template, new_template_str)
 
-                logger.debug("Replaced {{{legacy_name}}} -> {{{active_name}}}")
+                logger.debug(f"Replaced {{{{{legacy_name}}}}} -> {{{{{active_name}}}}}")
                 replacements_count += 1
 
         # Render back to wikitext

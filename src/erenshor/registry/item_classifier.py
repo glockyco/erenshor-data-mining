@@ -97,7 +97,7 @@ def classify_item_kind(  # noqa: PLR0911
         ... )
         ItemKind.CONSUMABLE
     """
-    slot = (required_slot or "").strip()
+    slot = (required_slot if required_slot is not None else "").strip()
     slot_low = slot.lower()
 
     # 1. Auras take precedence (special equipment slot)
@@ -105,7 +105,7 @@ def classify_item_kind(  # noqa: PLR0911
         return ItemKind.AURA
 
     # 2. Ability books (teach spells or skills)
-    if (teach_spell and teach_spell.strip()) or (teach_skill and teach_skill.strip()):
+    if (teach_spell is not None and teach_spell.strip()) or (teach_skill is not None and teach_skill.strip()):
         return ItemKind.ABILITY_BOOK
 
     # 3. Molds (crafting templates)
@@ -113,7 +113,7 @@ def classify_item_kind(  # noqa: PLR0911
         return ItemKind.MOLD
 
     # 4. Consumables (clickable, disposable general items)
-    if slot_low == "general" and (click_effect and click_effect.strip()) and bool(disposable):
+    if slot_low == "general" and (click_effect is not None and click_effect.strip()) and bool(disposable):
         return ItemKind.CONSUMABLE
 
     # 5. Weapons (primary/secondary slots)
