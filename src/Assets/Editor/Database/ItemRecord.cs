@@ -24,35 +24,35 @@ public class ItemRecord
     public float WeaponDly { get; set; }
     public bool Shield { get; set; } // Is it a shield?
     public float WeaponProcChance { get; set; }
-    public string WeaponProcOnHit { get; set; } = string.Empty; // Id of the Spell to proc
-    
+    public string WeaponProcOnHit { get; set; } = string.Empty; // Spell ResourceName
+
     // --- Wand Properties ---
     public bool IsWand { get; set; }
     public int WandRange { get; set; }
     public float WandProcChance { get; set; }
-    public string WandEffect { get; set; } = string.Empty;
+    public string WandEffect { get; set; } = string.Empty; // Spell ResourceName
     public float WandBoltColorR { get; set; }
     public float WandBoltColorG { get; set; }
     public float WandBoltColorB { get; set; }
     public float WandBoltColorA { get; set; }
     public float WandBoltSpeed { get; set; }
     public string? WandAttackSoundName { get; set; } = string.Empty;
-    
+
     // --- Bow Properties ---
     public bool IsBow { get; set; }
-    public string BowEffect { get; set; } = string.Empty;
+    public string BowEffect { get; set; } = string.Empty; // Spell ResourceName
     public float BowProcChance { get; set; }
     public int BowRange { get; set; }
     public float BowArrowSpeed { get; set; }
     public string? BowAttackSoundName { get; set; } = string.Empty;
 
     // --- Effects & Interactions ---
-    public string ItemEffectOnClick { get; set; } = string.Empty; // Id of the Spell to cast on click
-    public string ItemSkillUse { get; set; } = string.Empty; // Id of the Skill to use on click
-    public string TeachSpell { get; set; } = string.Empty; // Id of the Spell taught by this item
-    public string TeachSkill { get; set; } = string.Empty; // Id of the Skill taught by this item
-    public string Aura { get; set; } = string.Empty; // Id of the Spell providing a passive aura
-    public string WornEffect { get; set; } = string.Empty; // Id of the Spell providing a passive worn effect
+    public string ItemEffectOnClick { get; set; } = string.Empty; // Spell ResourceName
+    public string ItemSkillUse { get; set; } = string.Empty; // Skill ResourceName
+    public string TeachSpell { get; set; } = string.Empty; // Spell ResourceName
+    public string TeachSkill { get; set; } = string.Empty; // Skill ResourceName
+    public string Aura { get; set; } = string.Empty; // Spell ResourceName
+    public string WornEffect { get; set; } = string.Empty; // Spell ResourceName
     public float SpellCastTime { get; set; } // Cast time modifier or specific cast time? (Check Item.cs usage)
 
     // --- Quest Interaction ---

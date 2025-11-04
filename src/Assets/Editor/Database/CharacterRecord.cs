@@ -87,8 +87,8 @@ public class CharacterRecord
     // - CharacterAttackSpellRecord, CharacterBuffSpellRecord, CharacterHealSpellRecord
     // - CharacterGroupHealSpellRecord, CharacterCCSpellRecord, CharacterTauntSpellRecord
 
-    public string PetSpell { get; set; } = string.Empty; // Spell ID
-    public string ProcOnHit { get; set; } = string.Empty; // Spell ID
+    public string PetSpell { get; set; } = string.Empty; // Spell ResourceName
+    public string ProcOnHit { get; set; } = string.Empty; // Spell ResourceName
     public float ProcOnHitChance { get; set; }
     
     // NPC Combat Mechanics

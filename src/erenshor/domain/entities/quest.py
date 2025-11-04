@@ -35,7 +35,7 @@ class Quest(BaseEntity):
 
     # Rewards
     xp_on_complete: int | None = Field(default=None, description="XP reward")
-    item_on_complete_id: str | None = Field(default=None, description="Item reward ID")
+    item_on_complete_id: str | None = Field(default=None, description="Item reward ResourceName")
     gold_on_complete: int | None = Field(default=None, description="Gold reward")
 
     # Quest chains

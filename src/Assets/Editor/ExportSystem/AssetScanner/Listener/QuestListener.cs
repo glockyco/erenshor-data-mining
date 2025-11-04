@@ -89,7 +89,7 @@ public class QuestListener : IAssetScanListener<Quest>
 
             // --- Rewards & Completion ---
             XPonComplete = quest.XPonComplete,
-            ItemOnCompleteId = quest.ItemOnComplete?.Id ?? string.Empty,
+            ItemOnCompleteId = quest.ItemOnComplete?.name ?? string.Empty,
             GoldOnComplete = quest.GoldOnComplete,
             AssignNewQuestOnCompleteDBName = quest.AssignNewQuestOnComplete != null ? $"{quest.AssignNewQuestOnComplete.QuestName} ({quest.AssignNewQuestOnComplete.DBName})" : "",
             CompleteOtherQuestDBNames = completeQuests,

@@ -180,13 +180,13 @@ public class ItemListener : IAssetScanListener<Item>
             WeaponDly = item.WeaponDly,
             Shield = item.Shield,
             WeaponProcChance = item.WeaponProcChance,
-            WeaponProcOnHit = item.WeaponProcOnHit?.Id ?? string.Empty,
+            WeaponProcOnHit = item.WeaponProcOnHit?.name ?? string.Empty,
 
             // --- Wand Properties ---
             IsWand = item.IsWand,
             WandRange = item.IsWand ? item.WandRange : item.WeaponDmg > 0 ? 1 : 0,
             WandProcChance = item.WandProcChance,
-            WandEffect = item.WandEffect?.Id ?? string.Empty,
+            WandEffect = item.WandEffect?.name ?? string.Empty,
             WandBoltColorR = item.WandBoltColor.r,
             WandBoltColorG = item.WandBoltColor.g,
             WandBoltColorB = item.WandBoltColor.b,
@@ -196,19 +196,19 @@ public class ItemListener : IAssetScanListener<Item>
             
             // --- Bow Properties ---
             IsBow = item.IsBow,
-            BowEffect = item.BowEffect?.Id ?? string.Empty,
+            BowEffect = item.BowEffect?.name ?? string.Empty,
             BowProcChance = item.BowProcChance,
             BowRange = item.BowRange,
             BowArrowSpeed = item.BowArrowSpeed,
             BowAttackSoundName = bowAttackSound,
 
             // --- Effects & Interactions ---
-            ItemEffectOnClick = item.ItemEffectOnClick?.Id ?? string.Empty,
-            ItemSkillUse = item.ItemSkillUse?.Id ?? string.Empty,
-            TeachSpell = item.TeachSpell?.Id ?? string.Empty,
-            TeachSkill = item.TeachSkill?.Id ?? string.Empty,
-            Aura = item.Aura?.Id ?? string.Empty,
-            WornEffect = item.WornEffect?.Id ?? string.Empty,
+            ItemEffectOnClick = item.ItemEffectOnClick?.name ?? string.Empty,
+            ItemSkillUse = item.ItemSkillUse?.name ?? string.Empty,
+            TeachSpell = item.TeachSpell?.name ?? string.Empty,
+            TeachSkill = item.TeachSkill?.name ?? string.Empty,
+            Aura = item.Aura?.name ?? string.Empty,
+            WornEffect = item.WornEffect?.name ?? string.Empty,
             SpellCastTime = item.SpellCastTime,
 
             // --- Quest Interaction ---

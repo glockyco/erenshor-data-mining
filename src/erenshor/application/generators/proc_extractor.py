@@ -3,15 +3,14 @@
 This module extracts weapon and armor proc information including spell effects,
 chances, and style labels (Attack, Bash, Cast, Worn, Activatable).
 
-Proc fields in the database store spell IDs as foreign keys, which are looked up
-to get spell names and descriptions for display.
+Proc fields store Spell ResourceNames, which are looked up to get spell names
+and descriptions for display.
 """
 
-from sqlalchemy import Connection
+from sqlalchemy import Connection, text
 
 from erenshor.domain.entities.item import Item
 from erenshor.domain.entities.spell import Spell
-from erenshor.infrastructure.database.repositories.spells import get_spell_by_id
 
 
 class ProcExtractor:
@@ -25,21 +24,36 @@ class ProcExtractor:
         """Initialize proc extractor with spell cache."""
         self._spell_cache: dict[str, Spell] = {}
 
-    def _get_cached_spell(self, conn: Connection, spell_id: str) -> Spell | None:
-        """Get spell from cache or database.
+    def _get_cached_spell(self, conn: Connection, resource_name: str) -> Spell | None:
+        """Get spell from cache or database by ResourceName.
 
         Args:
             conn: Database connection
-            spell_id: Spell ID
+            resource_name: Spell ResourceName (primary key)
 
         Returns:
             Spell object or None if not found
         """
-        if spell_id in self._spell_cache:
-            return self._spell_cache[spell_id]
-        spell = get_spell_by_id(conn, spell_id)
-        if spell is not None:
-            self._spell_cache[spell_id] = spell
+        if not resource_name:
+            return None
+
+        if resource_name in self._spell_cache:
+            return self._spell_cache[resource_name]
+
+        # Query by ResourceName (primary key)
+        query = text("SELECT SpellName, SpellDesc FROM Spells WHERE ResourceName = :resource_name")
+        result = conn.execute(query, {"resource_name": resource_name}).fetchone()
+
+        if result is None:
+            return None
+
+        # Create minimal Spell object with just name and description
+        spell = Spell(
+            spell_db_index=0,  # Not needed for proc display
+            spell_name=result[0],
+            spell_desc=result[1],
+        )
+        self._spell_cache[resource_name] = spell
         return spell
 
     def clear_cache(self) -> None:

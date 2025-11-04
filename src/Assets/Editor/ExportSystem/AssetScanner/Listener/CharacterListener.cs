@@ -317,8 +317,8 @@ public class CharacterListener : IAssetScanListener<Character>
         {
             record.NPCName = npc.NPCName;
             // Spells and skills are stored in junction tables, not in denormalized fields
-            record.PetSpell = npc.MyPetSpell?.Id ?? string.Empty;
-            record.ProcOnHit = npc.NPCProcOnHit?.Id ?? string.Empty;
+            record.PetSpell = npc.MyPetSpell?.name ?? string.Empty;
+            record.ProcOnHit = npc.NPCProcOnHit?.name ?? string.Empty;
             record.ProcOnHitChance = npc.NPCProcOnHitChance;
             
             // NPC Combat Mechanics

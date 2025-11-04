@@ -124,8 +124,8 @@ class Character(BaseEntity):
     # - CharacterGroupHealSpellRecord, CharacterCCSpellRecord, CharacterTauntSpellRecord
 
     # Proc mechanics
-    pet_spell: str | None = Field(default=None, description="Pet summon spell ID")
-    proc_on_hit: str | None = Field(default=None, description="Proc spell ID")
+    pet_spell: str | None = Field(default=None, description="Pet summon spell ResourceName")
+    proc_on_hit: str | None = Field(default=None, description="Proc spell ResourceName")
     proc_on_hit_chance: float | None = Field(default=None, description="Proc chance percentage (0-100)")
 
     # Stat overrides
