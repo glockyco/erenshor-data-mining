@@ -4,6 +4,8 @@ Tests item page generation for different item types including weapons, armor,
 consumables, and general items.
 """
 
+import pytest
+
 from erenshor.application.generators.item_template_generator import ItemTemplateGenerator
 from erenshor.domain.entities.item import Item
 
@@ -348,3 +350,104 @@ class TestItemTemplateGenerator:
         assert context["sell"] == "25"
         assert context["relic"] == "True"
         assert context["itemid"] == "19"
+
+    def test_long_name_font_adjustment(self):
+        """Test that long item names (>24 chars) get smaller font."""
+        generator = ItemTemplateGenerator()
+
+        # Short name - no font adjustment
+        short_item = Item(
+            id="20",
+            resource_name="ShortItem",
+            item_name="Short Name",
+            required_slot="General",
+        )
+        short_result = generator.generate_template(short_item, page_title="Short Name")
+        assert "|title=Short Name" in short_result
+        assert '<span style="font-size:' not in short_result
+
+        # Long name (>24 chars) - should get font adjustment
+        long_item = Item(
+            id="21",
+            resource_name="LongItem",
+            item_name="This is a very long item name that exceeds 24 characters",
+            required_slot="General",
+        )
+        long_result = generator.generate_template(long_item, page_title="This is a very long item name that exceeds 24 characters")
+        assert '<span style="font-size:20px">This is a very long item name that exceeds 24 characters</span>' in long_result
+
+    def test_item_type_display_consumable(self):
+        """Test item type display for consumables."""
+        generator = ItemTemplateGenerator()
+
+        consumable = Item(
+            id="22",
+            resource_name="Potion",
+            item_name="Health Potion",
+            required_slot="General",
+            item_effect_on_click="Heal",
+            disposable=1,
+        )
+
+        result = generator.generate_template(consumable, page_title="Health Potion")
+        assert "[[Consumables|Consumable]]" in result
+
+    def test_item_type_display_quest_item(self):
+        """Test item type display for quest items."""
+        generator = ItemTemplateGenerator()
+
+        quest_item = Item(
+            id="23",
+            resource_name="QuestLetter",
+            item_name="Quest Letter",
+            required_slot="General",
+            complete_on_read="SomeQuest",
+        )
+
+        result = generator.generate_template(quest_item, page_title="Quest Letter")
+        assert "[[Quest Items|Quest Item]]" in result
+
+    def test_item_type_display_summoning_item(self):
+        """Test item type display for summoning items."""
+        generator = ItemTemplateGenerator()
+
+        summoning_item = Item(
+            id="24",
+            resource_name="SummonStone",
+            item_name="Summon Stone",
+            required_slot="General",
+            item_effect_on_click="Summon Pet (12345)",
+        )
+
+        result = generator.generate_template(summoning_item, page_title="Summon Stone")
+        assert "[[:Category:Items|Summoning Item]]" in result
+
+    def test_complete_on_read_support(self):
+        """Test CompleteOnRead field marks item as quest item."""
+        generator = ItemTemplateGenerator()
+
+        # Item with CompleteOnRead should be marked as quest item
+        quest_completion_item = Item(
+            id="25",
+            resource_name="QuestNote",
+            item_name="Quest Note",
+            required_slot="General",
+            complete_on_read="CompleteQuest_123",
+        )
+
+        result = generator.generate_template(quest_completion_item, page_title="Quest Note")
+        # Should have Quest Item type
+        assert "[[Quest Items|Quest Item]]" in result
+
+        # Item without CompleteOnRead should not be marked as quest item (unless has other quest markers)
+        normal_item = Item(
+            id="26",
+            resource_name="NormalNote",
+            item_name="Normal Note",
+            required_slot="General",
+            complete_on_read=None,
+        )
+
+        result = generator.generate_template(normal_item, page_title="Normal Note")
+        # Should not have Quest Item type
+        assert "[[Quest Items|Quest Item]]" not in result

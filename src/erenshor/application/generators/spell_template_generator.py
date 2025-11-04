@@ -75,6 +75,7 @@ class SpellTemplateGenerator(TemplateGeneratorBase):
 
         # Calculate duration from ticks (if available)
         duration = ""
+        has_duration = bool(spell.spell_duration_in_ticks)
         if spell.spell_duration_in_ticks:
             duration = f"{spell.spell_duration_in_ticks} ticks"
 
@@ -146,7 +147,7 @@ class SpellTemplateGenerator(TemplateGeneratorBase):
             "resonance": safe_str(spell.resonate_chance),
             "movement_speed": safe_str(spell.movement_speed),
             "atk_roll_modifier": safe_str(spell.atk_roll_modifier),
-            "xp_bonus": safe_str(spell.xp_bonus),
+            "xp_bonus": safe_str(spell.xp_bonus) if has_duration else "",
             # Crowd control
             "is_root": bool_str(spell.root_target),
             "is_stun": bool_str(spell.stun_target),

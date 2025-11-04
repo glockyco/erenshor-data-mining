@@ -20,9 +20,14 @@ from loguru import logger
 
 from erenshor.application.generators.categories import CategoryGenerator
 from erenshor.application.generators.formatting import safe_str
+from erenshor.application.generators.item_type_display import (
+    build_item_types,
+    is_summoning_item,
+)
 from erenshor.application.generators.template_generator_base import TemplateGeneratorBase
 from erenshor.domain.entities.item import Item
 from erenshor.registry.item_classifier import ItemKind, classify_item_kind
+from erenshor.shared.game_constants import LONG_NAME_FONT_SIZE, LONG_NAME_THRESHOLD
 
 
 class ItemTemplateGenerator(TemplateGeneratorBase):
@@ -181,13 +186,39 @@ class ItemTemplateGenerator(TemplateGeneratorBase):
         Returns:
             Template context dict
         """
+        # Classify item to determine type
+        kind = self._classify(item)
+
+        # Build item type display (Consumable, Quest Item, Crafting, Summoning Item)
+        # Note: related_quests and component_for will be populated when source enrichment is added
+        related_quests: list[str] = []
+        component_for: list[str] = []
+
+        # Check for CompleteOnRead to add to related quests
+        if item.complete_on_read:
+            # TODO: Generate quest link when quest repository is available
+            # For now, just mark that this is a quest item
+            related_quests.append("")  # Placeholder
+
+        item_type = build_item_types(
+            item=item,
+            item_kind=kind,
+            related_quests=related_quests,
+            component_for=component_for,
+            is_summoning_item=is_summoning_item(item),
+        )
+
+        # Apply long name font adjustment for names >24 characters
+        display_title = page_title
+        if item.item_name and len(item.item_name) > LONG_NAME_THRESHOLD:
+            display_title = f'<span style="font-size:{LONG_NAME_FONT_SIZE}">{page_title}</span>'
 
         # Build context with all {{Item}} template fields
         context: dict[str, str] = {
-            "title": page_title,
+            "title": display_title,
             "image": f"[[File:{item.resource_name}.png]]",  # TODO: Use registry for image name
             "imagecaption": "",
-            "type": "",  # TODO: Build from item kind + quest/crafting flags
+            "type": item_type,
             "vendorsource": "",  # TODO: Source enrichment (future task)
             "source": "",  # TODO: Source enrichment (future task)
             "othersource": "",  # TODO: Source enrichment (future task)
