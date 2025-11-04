@@ -2,6 +2,9 @@
 
 This module extracts weapon and armor proc information including spell effects,
 chances, and style labels (Attack, Bash, Cast, Worn, Activatable).
+
+Proc fields in the database store spell IDs as foreign keys, which are looked up
+to get spell names and descriptions for display.
 """
 
 from sqlalchemy import Connection
@@ -9,7 +12,6 @@ from sqlalchemy import Connection
 from erenshor.domain.entities.item import Item
 from erenshor.domain.entities.spell import Spell
 from erenshor.infrastructure.database.repositories.spells import get_spell_by_id
-from erenshor.shared.text import parse_name_and_id
 
 
 class ProcExtractor:
@@ -72,53 +74,41 @@ class ProcExtractor:
 
         # Priority 1: WeaponProcOnHit
         if item.weapon_proc_on_hit and (item.weapon_proc_chance or 0) > 0:
-            parsed_tuple = parse_name_and_id(item.weapon_proc_on_hit)
-            if parsed_tuple:
-                _proc_name, spell_id = parsed_tuple
-                spell = self._get_cached_spell(conn, spell_id)
-                if spell and spell.spell_name:
-                    proc_name = spell.spell_name
-                    if spell.spell_desc:
-                        proc_desc = spell.spell_desc
+            spell = self._get_cached_spell(conn, item.weapon_proc_on_hit)
+            if spell and spell.spell_name:
+                proc_name = spell.spell_name
+                if spell.spell_desc:
+                    proc_desc = spell.spell_desc
             proc_chance = str(item.weapon_proc_chance)
             proc_style = "Bash" if item.shield else "Attack"
 
         # Priority 2: WandEffect
         elif item.wand_effect and (item.wand_proc_chance or 0) > 0:
-            parsed_tuple = parse_name_and_id(item.wand_effect)
-            if parsed_tuple:
-                _proc_name, spell_id = parsed_tuple
-                spell = self._get_cached_spell(conn, spell_id)
-                if spell and spell.spell_name:
-                    proc_name = spell.spell_name
-                    if spell.spell_desc:
-                        proc_desc = spell.spell_desc
+            spell = self._get_cached_spell(conn, item.wand_effect)
+            if spell and spell.spell_name:
+                proc_name = spell.spell_name
+                if spell.spell_desc:
+                    proc_desc = spell.spell_desc
             proc_chance = str(item.wand_proc_chance)
             proc_style = "Attack"
 
         # Priority 3: BowEffect
         elif item.bow_effect and (item.bow_proc_chance or 0) > 0:
-            parsed_tuple = parse_name_and_id(item.bow_effect)
-            if parsed_tuple:
-                _proc_name, spell_id = parsed_tuple
-                spell = self._get_cached_spell(conn, spell_id)
-                if spell and spell.spell_name:
-                    proc_name = spell.spell_name
-                    if spell.spell_desc:
-                        proc_desc = spell.spell_desc
+            spell = self._get_cached_spell(conn, item.bow_effect)
+            if spell and spell.spell_name:
+                proc_name = spell.spell_name
+                if spell.spell_desc:
+                    proc_desc = spell.spell_desc
             proc_chance = str(item.bow_proc_chance)
             proc_style = "Attack"
 
         # Priority 4: ItemEffectOnClick
         elif item.item_effect_on_click:
-            parsed_tuple = parse_name_and_id(item.item_effect_on_click)
-            if parsed_tuple:
-                _proc_name, spell_id = parsed_tuple
-                spell = self._get_cached_spell(conn, spell_id)
-                if spell and spell.spell_name:
-                    proc_name = spell.spell_name
-                    if spell.spell_desc:
-                        proc_desc = spell.spell_desc
+            spell = self._get_cached_spell(conn, item.item_effect_on_click)
+            if spell and spell.spell_name:
+                proc_name = spell.spell_name
+                if spell.spell_desc:
+                    proc_desc = spell.spell_desc
             proc_style = "Activatable"
 
         return proc_name, proc_desc, proc_chance, proc_style
@@ -150,39 +140,30 @@ class ProcExtractor:
 
         # Priority 1: WeaponProcOnHit (for armor, this is a "Cast" proc)
         if item.weapon_proc_on_hit and (item.weapon_proc_chance or 0) > 0:
-            parsed_tuple = parse_name_and_id(item.weapon_proc_on_hit)
-            if parsed_tuple:
-                _proc_name, spell_id = parsed_tuple
-                spell = self._get_cached_spell(conn, spell_id)
-                if spell and spell.spell_name:
-                    proc_name = spell.spell_name
-                    if spell.spell_desc:
-                        proc_desc = spell.spell_desc
+            spell = self._get_cached_spell(conn, item.weapon_proc_on_hit)
+            if spell and spell.spell_name:
+                proc_name = spell.spell_name
+                if spell.spell_desc:
+                    proc_desc = spell.spell_desc
             proc_chance = str(item.weapon_proc_chance)
             proc_style = "Cast"
 
         # Priority 2: WornEffect
         elif item.worn_effect:
-            parsed_tuple = parse_name_and_id(item.worn_effect)
-            if parsed_tuple:
-                _proc_name, spell_id = parsed_tuple
-                spell = self._get_cached_spell(conn, spell_id)
-                if spell and spell.spell_name:
-                    proc_name = spell.spell_name
-                    if spell.spell_desc:
-                        proc_desc = spell.spell_desc
+            spell = self._get_cached_spell(conn, item.worn_effect)
+            if spell and spell.spell_name:
+                proc_name = spell.spell_name
+                if spell.spell_desc:
+                    proc_desc = spell.spell_desc
             proc_style = "Worn"
 
         # Priority 3: ItemEffectOnClick
         elif item.item_effect_on_click:
-            parsed_tuple = parse_name_and_id(item.item_effect_on_click)
-            if parsed_tuple:
-                _proc_name, spell_id = parsed_tuple
-                spell = self._get_cached_spell(conn, spell_id)
-                if spell and spell.spell_name:
-                    proc_name = spell.spell_name
-                    if spell.spell_desc:
-                        proc_desc = spell.spell_desc
+            spell = self._get_cached_spell(conn, item.item_effect_on_click)
+            if spell and spell.spell_name:
+                proc_name = spell.spell_name
+                if spell.spell_desc:
+                    proc_desc = spell.spell_desc
             proc_style = "Activatable"
 
         return proc_name, proc_desc, proc_chance, proc_style

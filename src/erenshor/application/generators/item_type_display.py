@@ -13,7 +13,6 @@ def build_item_types(
     item_kind: ItemKind,
     related_quests: list[str],
     component_for: list[str],
-    is_summoning_item: bool = False,
 ) -> str:
     """Build item type display string from item properties.
 
@@ -22,10 +21,14 @@ def build_item_types(
         item_kind: Classified item kind
         related_quests: List of related quest links
         component_for: List of crafting component links
-        is_summoning_item: Whether item summons a pet
 
     Returns:
         Comma-separated type string (e.g., "[[Consumables|Consumable]], [[Quest Items|Quest Item]]")
+
+    Note:
+        Summoning item detection is not included here as it requires database access
+        to look up the spell referenced by item_effect_on_click. This will be added
+        when source enrichment is implemented with proper DB context.
     """
     types: list[str] = []
 
@@ -41,25 +44,5 @@ def build_item_types(
     if component_for:
         types.append("[[Crafting]]")
 
-    # Summoning item type
-    if is_summoning_item:
-        types.append("[[:Category:Items|Summoning Item]]")
-
     # Deduplicate while preserving order
     return ", ".join(dict.fromkeys(types))
-
-
-def is_summoning_item(item: Item) -> bool:
-    """Check if item is a summoning item.
-
-    Args:
-        item: Item entity
-
-    Returns:
-        True if item summons a pet when clicked
-    """
-    if not item.item_effect_on_click:
-        return False
-
-    # Check if the click effect contains "Summon"
-    return "Summon" in item.item_effect_on_click

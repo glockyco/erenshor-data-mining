@@ -180,13 +180,13 @@ public class ItemListener : IAssetScanListener<Item>
             WeaponDly = item.WeaponDly,
             Shield = item.Shield,
             WeaponProcChance = item.WeaponProcChance,
-            WeaponProcOnHit = item.WeaponProcOnHit is null ? string.Empty : $"{item.WeaponProcOnHit.SpellName} ({item.WeaponProcOnHit.Id})",
-            
+            WeaponProcOnHit = item.WeaponProcOnHit?.Id ?? string.Empty,
+
             // --- Wand Properties ---
             IsWand = item.IsWand,
             WandRange = item.IsWand ? item.WandRange : item.WeaponDmg > 0 ? 1 : 0,
             WandProcChance = item.WandProcChance,
-            WandEffect = item.WandEffect is null ? string.Empty : $"{item.WandEffect.SpellName} ({item.WandEffect.Id})",
+            WandEffect = item.WandEffect?.Id ?? string.Empty,
             WandBoltColorR = item.WandBoltColor.r,
             WandBoltColorG = item.WandBoltColor.g,
             WandBoltColorB = item.WandBoltColor.b,
@@ -196,19 +196,19 @@ public class ItemListener : IAssetScanListener<Item>
             
             // --- Bow Properties ---
             IsBow = item.IsBow,
-            BowEffect = item.BowEffect is null ? string.Empty : $"{item.BowEffect.SpellName} ({item.BowEffect.Id})",
+            BowEffect = item.BowEffect?.Id ?? string.Empty,
             BowProcChance = item.BowProcChance,
             BowRange = item.BowRange,
             BowArrowSpeed = item.BowArrowSpeed,
             BowAttackSoundName = bowAttackSound,
 
             // --- Effects & Interactions ---
-            ItemEffectOnClick = item.ItemEffectOnClick is null ? string.Empty : $"{item.ItemEffectOnClick.SpellName} ({item.ItemEffectOnClick.Id})",
-            ItemSkillUse = item.ItemSkillUse is null ? string.Empty : $"{item.ItemSkillUse.SkillName} ({item.ItemSkillUse.Id})",
-            TeachSpell = item.TeachSpell is null ? string.Empty : $"{item.TeachSpell.SpellName} ({item.TeachSpell.Id})",
-            TeachSkill = item.TeachSkill is null ? string.Empty : $"{item.TeachSkill.SkillName} ({item.TeachSkill.Id})",
-            Aura = item.Aura is null ? string.Empty : $"{item.Aura.SpellName} ({item.Aura.Id})",
-            WornEffect = item.WornEffect is null ? string.Empty : $"{item.WornEffect.SpellName} ({item.WornEffect.Id})",
+            ItemEffectOnClick = item.ItemEffectOnClick?.Id ?? string.Empty,
+            ItemSkillUse = item.ItemSkillUse?.Id ?? string.Empty,
+            TeachSpell = item.TeachSpell?.Id ?? string.Empty,
+            TeachSkill = item.TeachSkill?.Id ?? string.Empty,
+            Aura = item.Aura?.Id ?? string.Empty,
+            WornEffect = item.WornEffect?.Id ?? string.Empty,
             SpellCastTime = item.SpellCastTime,
 
             // --- Quest Interaction ---

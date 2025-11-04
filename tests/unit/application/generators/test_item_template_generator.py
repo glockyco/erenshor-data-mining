@@ -407,21 +407,6 @@ class TestItemTemplateGenerator:
         result = generator.generate_template(quest_item, page_title="Quest Letter")
         assert "[[Quest Items|Quest Item]]" in result
 
-    def test_item_type_display_summoning_item(self):
-        """Test item type display for summoning items."""
-        generator = ItemTemplateGenerator()
-
-        summoning_item = Item(
-            id="24",
-            resource_name="SummonStone",
-            item_name="Summon Stone",
-            required_slot="General",
-            item_effect_on_click="Summon Pet (12345)",
-        )
-
-        result = generator.generate_template(summoning_item, page_title="Summon Stone")
-        assert "[[:Category:Items|Summoning Item]]" in result
-
     def test_complete_on_read_support(self):
         """Test CompleteOnRead field marks item as quest item."""
         generator = ItemTemplateGenerator()

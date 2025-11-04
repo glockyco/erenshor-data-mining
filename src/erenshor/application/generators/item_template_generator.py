@@ -20,10 +20,7 @@ from loguru import logger
 
 from erenshor.application.generators.categories import CategoryGenerator
 from erenshor.application.generators.formatting import safe_str
-from erenshor.application.generators.item_type_display import (
-    build_item_types,
-    is_summoning_item,
-)
+from erenshor.application.generators.item_type_display import build_item_types
 from erenshor.application.generators.template_generator_base import TemplateGeneratorBase
 from erenshor.domain.entities.item import Item
 from erenshor.registry.item_classifier import ItemKind, classify_item_kind
@@ -205,7 +202,6 @@ class ItemTemplateGenerator(TemplateGeneratorBase):
             item_kind=kind,
             related_quests=related_quests,
             component_for=component_for,
-            is_summoning_item=is_summoning_item(item),
         )
 
         # Apply long name font adjustment for names >24 characters
