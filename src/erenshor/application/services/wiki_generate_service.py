@@ -125,7 +125,7 @@ class WikiGenerateService:
         spells = self._spell_repo.get_spells_for_wiki_generation()
         skills = self._skill_repo.get_skills_for_wiki_generation()
 
-        all_entities = list(chain(items, characters, spells, skills))
+        all_entities: list[Item | Character | Spell | Skill] = list(chain(items, characters, spells, skills))
 
         # Group entities by page title
         pages = group_entities_by_page_title(all_entities, self._resolver)

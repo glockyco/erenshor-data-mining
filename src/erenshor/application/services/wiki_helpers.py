@@ -43,6 +43,9 @@ def group_entities_by_page_title(
             logger.warning(f"Unknown entity type: {type(entity)}")
             continue
 
+        if not entity_name:
+            raise ValueError(f"Entity {entity.stable_key} has no name (ID={entity.id})")
+
         # Resolve page title via registry
         page_title = registry_resolver.resolve_page_title(
             entity.stable_key,

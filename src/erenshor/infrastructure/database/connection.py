@@ -120,9 +120,7 @@ class DatabaseConnection:
 
             except sqlite3.Error as e:
                 raise DatabaseConnectionError(
-                    f"Failed to connect to database: {self.database_path}\n"
-                    f"Error: {e}\n"
-                    f"Check file path and permissions."
+                    f"Failed to connect to database: {self.database_path}\nError: {e}\nCheck file path and permissions."
                 ) from e
 
         return self._connection

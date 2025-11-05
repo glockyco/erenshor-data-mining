@@ -42,10 +42,10 @@ class TestMediaWikiClientInitialization:
 
     def test_init_invalid_api_url(self) -> None:
         """Test initialization fails with invalid API URL."""
-        with pytest.raises(ValueError, match="must end with /api.php"):
+        with pytest.raises(ValueError, match=r"must end with /api\.php"):
             MediaWikiClient(api_url="https://erenshor.wiki.gg/", clock=MockClock())
 
-        with pytest.raises(ValueError, match="must end with /api.php"):
+        with pytest.raises(ValueError, match=r"must end with /api\.php"):
             MediaWikiClient(api_url="https://erenshor.wiki.gg/index.php", clock=MockClock())
 
     def test_init_invalid_batch_size(self) -> None:
@@ -423,9 +423,7 @@ class TestMediaWikiClientRateLimiting:
 
         # Use MockClock to verify rate limiting behavior without actual delays
         mock_clock = MockClock()
-        client = MediaWikiClient(
-            api_url="https://erenshor.wiki.gg/api.php", rate_limit_delay=1.0, clock=mock_clock
-        )
+        client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php", rate_limit_delay=1.0, clock=mock_clock)
 
         # Make first request (won't sleep since _last_request_time is 0.0)
         client.get_page("Page1")

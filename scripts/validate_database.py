@@ -41,15 +41,17 @@ def check_duplicate_ids(db_path: Path, variant: str) -> list[dict]:
         ORDER BY Count DESC, Id
     """)
     for row in cursor.fetchall():
-        issues.append({
-            "variant": variant,
-            "type": "Items",
-            "severity": "ERROR",
-            "id": row[0],
-            "count": row[1],
-            "resources": row[2],
-            "message": f"Duplicate Item ID {row[0]} found in {row[1]} items: {row[2]}",
-        })
+        issues.append(
+            {
+                "variant": variant,
+                "type": "Items",
+                "severity": "ERROR",
+                "id": row[0],
+                "count": row[1],
+                "resources": row[2],
+                "message": f"Duplicate Item ID {row[0]} found in {row[1]} items: {row[2]}",
+            }
+        )
 
     # Check Spells
     cursor.execute("""
@@ -61,15 +63,17 @@ def check_duplicate_ids(db_path: Path, variant: str) -> list[dict]:
         ORDER BY Count DESC, Id
     """)
     for row in cursor.fetchall():
-        issues.append({
-            "variant": variant,
-            "type": "Spells",
-            "severity": "ERROR",
-            "id": row[0],
-            "count": row[1],
-            "resources": row[2],
-            "message": f"Duplicate Spell ID {row[0]} found in {row[1]} spells: {row[2]}",
-        })
+        issues.append(
+            {
+                "variant": variant,
+                "type": "Spells",
+                "severity": "ERROR",
+                "id": row[0],
+                "count": row[1],
+                "resources": row[2],
+                "message": f"Duplicate Spell ID {row[0]} found in {row[1]} spells: {row[2]}",
+            }
+        )
 
     # Check Skills
     cursor.execute("""
@@ -81,15 +85,17 @@ def check_duplicate_ids(db_path: Path, variant: str) -> list[dict]:
         ORDER BY Count DESC, Id
     """)
     for row in cursor.fetchall():
-        issues.append({
-            "variant": variant,
-            "type": "Skills",
-            "severity": "ERROR",
-            "id": row[0],
-            "count": row[1],
-            "resources": row[2],
-            "message": f"Duplicate Skill ID {row[0]} found in {row[1]} skills: {row[2]}",
-        })
+        issues.append(
+            {
+                "variant": variant,
+                "type": "Skills",
+                "severity": "ERROR",
+                "id": row[0],
+                "count": row[1],
+                "resources": row[2],
+                "message": f"Duplicate Skill ID {row[0]} found in {row[1]} skills: {row[2]}",
+            }
+        )
 
     # Check Characters (by Id, not Guid)
     cursor.execute("""
@@ -102,15 +108,17 @@ def check_duplicate_ids(db_path: Path, variant: str) -> list[dict]:
         LIMIT 10
     """)
     for row in cursor.fetchall():
-        issues.append({
-            "variant": variant,
-            "type": "Characters",
-            "severity": "WARNING",
-            "id": row[0],
-            "count": row[1],
-            "resources": row[2],
-            "message": f"Duplicate Character ID {row[0]} found in {row[1]} characters: {row[2]}",
-        })
+        issues.append(
+            {
+                "variant": variant,
+                "type": "Characters",
+                "severity": "WARNING",
+                "id": row[0],
+                "count": row[1],
+                "resources": row[2],
+                "message": f"Duplicate Character ID {row[0]} found in {row[1]} characters: {row[2]}",
+            }
+        )
 
     # Check Quests
     cursor.execute("""
@@ -123,15 +131,17 @@ def check_duplicate_ids(db_path: Path, variant: str) -> list[dict]:
         LIMIT 10
     """)
     for row in cursor.fetchall():
-        issues.append({
-            "variant": variant,
-            "type": "Quests",
-            "severity": "ERROR",
-            "id": row[0],
-            "count": row[1],
-            "resources": row[2],
-            "message": f"Duplicate Quest ID {row[0]} found in {row[1]} quests: {row[2]}",
-        })
+        issues.append(
+            {
+                "variant": variant,
+                "type": "Quests",
+                "severity": "ERROR",
+                "id": row[0],
+                "count": row[1],
+                "resources": row[2],
+                "message": f"Duplicate Quest ID {row[0]} found in {row[1]} quests: {row[2]}",
+            }
+        )
 
     conn.close()
     return issues
@@ -150,12 +160,14 @@ def check_missing_resource_names(db_path: Path, variant: str) -> list[dict]:
     """)
     count = cursor.fetchone()[0]
     if count > 0:
-        issues.append({
-            "variant": variant,
-            "type": "Items",
-            "severity": "WARNING",
-            "message": f"{count} items have missing ResourceName",
-        })
+        issues.append(
+            {
+                "variant": variant,
+                "type": "Items",
+                "severity": "WARNING",
+                "message": f"{count} items have missing ResourceName",
+            }
+        )
 
     # Check Spells
     cursor.execute("""
@@ -163,12 +175,14 @@ def check_missing_resource_names(db_path: Path, variant: str) -> list[dict]:
     """)
     count = cursor.fetchone()[0]
     if count > 0:
-        issues.append({
-            "variant": variant,
-            "type": "Spells",
-            "severity": "WARNING",
-            "message": f"{count} spells have missing ResourceName",
-        })
+        issues.append(
+            {
+                "variant": variant,
+                "type": "Spells",
+                "severity": "WARNING",
+                "message": f"{count} spells have missing ResourceName",
+            }
+        )
 
     # Check Skills
     cursor.execute("""
@@ -176,12 +190,14 @@ def check_missing_resource_names(db_path: Path, variant: str) -> list[dict]:
     """)
     count = cursor.fetchone()[0]
     if count > 0:
-        issues.append({
-            "variant": variant,
-            "type": "Skills",
-            "severity": "WARNING",
-            "message": f"{count} skills have missing ResourceName",
-        })
+        issues.append(
+            {
+                "variant": variant,
+                "type": "Skills",
+                "severity": "WARNING",
+                "message": f"{count} skills have missing ResourceName",
+            }
+        )
 
     conn.close()
     return issues

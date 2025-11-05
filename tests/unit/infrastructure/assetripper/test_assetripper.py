@@ -218,13 +218,13 @@ class TestAssetRipperExtraction:
         original_path_open = Path.open
         from io import BytesIO
 
-        def patched_path_open(self, mode='r', *args, **kwargs):
+        def patched_path_open(self, mode="r", *args, **kwargs):
             # When log file is read in binary mode for monitoring, return completion message
-            if 'assetripper_' in str(self) and 'rb' in mode:
+            if "assetripper_" in str(self) and "rb" in mode:
                 return BytesIO(b"Export started\nFinished post-export\n")
             return original_path_open(self, mode, *args, **kwargs)
 
-        with patch.object(Path, 'open', patched_path_open):
+        with patch.object(Path, "open", patched_path_open):
             assetripper.extract(source_dir=source_dir, target_dir=target_dir, log_dir=log_dir)
 
         # Verify target directory was created
@@ -250,9 +250,7 @@ class TestAssetRipperExtraction:
 
     @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.run")
     @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.Popen")
-    def test_extract_load_files_error(
-        self, mock_popen: MagicMock, mock_run: MagicMock, tmp_path: Path
-    ) -> None:
+    def test_extract_load_files_error(self, mock_popen: MagicMock, mock_run: MagicMock, tmp_path: Path) -> None:
         """Test extraction fails when loading files fails."""
         executable = tmp_path / "AssetRipper.GUI.Free"
         executable.touch()
@@ -287,9 +285,7 @@ class TestAssetRipperExtraction:
 
     @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.run")
     @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.Popen")
-    def test_extract_export_timeout(
-        self, mock_popen: MagicMock, mock_run: MagicMock, tmp_path: Path
-    ) -> None:
+    def test_extract_export_timeout(self, mock_popen: MagicMock, mock_run: MagicMock, tmp_path: Path) -> None:
         """Test extraction fails when export times out."""
         executable = tmp_path / "AssetRipper.GUI.Free"
         executable.touch()

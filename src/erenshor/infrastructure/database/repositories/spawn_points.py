@@ -52,9 +52,8 @@ class SpawnPointRepository(BaseRepository[SpawnPoint]):
         if is_prefab and character_guid:
             # Prefab characters: via spawn points
             return self._get_prefab_spawn_info(character_guid)
-        else:
-            # Non-prefab characters: direct coordinates
-            return self._get_non_prefab_spawn_info(character_id)
+        # Non-prefab characters: direct coordinates
+        return self._get_non_prefab_spawn_info(character_id)
 
     def _get_prefab_spawn_info(self, character_guid: str) -> list[CharacterSpawnInfo]:
         """Get spawn info for prefab characters (via SpawnPoints).

@@ -104,7 +104,7 @@ class TestLegacyTemplateRemover:
 
     def test_multiple_legacy_templates_on_same_page(self, remover: LegacyTemplateRemover) -> None:
         """Test handling multiple legacy templates on same page."""
-        wikitext = "{{Character|name=Goblin|level=5}}\n" "{{Consumable|name=Potion}}\n" "{{Pet|name=Wolf}}"
+        wikitext = "{{Character|name=Goblin|level=5}}\n{{Consumable|name=Potion}}\n{{Pet|name=Wolf}}"
         result = remover.remove_legacy_templates(wikitext)
 
         # All legacy templates should be replaced
@@ -118,7 +118,7 @@ class TestLegacyTemplateRemover:
 
     def test_multiple_instances_of_same_legacy_template(self, remover: LegacyTemplateRemover) -> None:
         """Test handling multiple instances of the same legacy template."""
-        wikitext = "{{Consumable|name=Potion1}}\n" "{{Consumable|name=Potion2}}\n" "{{Consumable|name=Potion3}}"
+        wikitext = "{{Consumable|name=Potion1}}\n{{Consumable|name=Potion2}}\n{{Consumable|name=Potion3}}"
         result = remover.remove_legacy_templates(wikitext)
 
         assert "{{Consumable" not in result
@@ -126,7 +126,7 @@ class TestLegacyTemplateRemover:
 
     def test_mixed_legacy_and_active_templates(self, remover: LegacyTemplateRemover) -> None:
         """Test page with both legacy and active templates."""
-        wikitext = "{{Item|name=Active Item}}\n" "{{Consumable|name=Legacy Consumable}}\n" "{{Enemy|name=Active Enemy}}"
+        wikitext = "{{Item|name=Active Item}}\n{{Consumable|name=Legacy Consumable}}\n{{Enemy|name=Active Enemy}}"
         result = remover.remove_legacy_templates(wikitext)
 
         # Legacy template should be replaced

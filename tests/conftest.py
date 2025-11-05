@@ -422,4 +422,4 @@ def assert_page_structure_valid(content: str, expected_templates: list[str]) -> 
 
     for expected in expected_templates:
         if expected not in templates:
-            pytest.fail(f"Expected template '{expected}' not found in page. " f"Found templates: {templates}")
+            pytest.fail(f"Expected template '{expected}' not found in page. Found templates: {templates}")

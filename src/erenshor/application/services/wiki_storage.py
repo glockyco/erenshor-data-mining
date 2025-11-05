@@ -45,7 +45,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any
-from urllib.parse import quote, unquote
+from urllib.parse import quote
 
 from loguru import logger
 
@@ -159,7 +159,7 @@ class WikiStorage:
         Returns:
             URL-encoded filename
         """
-        return quote(page_title, safe='_-.')
+        return quote(page_title, safe="_-.")
 
     def save_fetched_by_title(
         self,

@@ -138,7 +138,7 @@ class AssetRipper:
                 "Configure correct path in .erenshor/config.local.toml"
             )
 
-        logger.debug(f"AssetRipper initialized: executable={self.executable_path}, " f"port={port}, timeout={timeout}s")
+        logger.debug(f"AssetRipper initialized: executable={self.executable_path}, port={port}, timeout={timeout}s")
 
     def _get_base_url(self) -> str:
         """Get AssetRipper web API base URL.
@@ -219,7 +219,7 @@ class AssetRipper:
         # Server failed to start within timeout
         self.stop_server()
         raise AssetRipperServerError(
-            f"Server failed to start within {startup_timeout} seconds.\n" f"Check log file: {self._log_file}"
+            f"Server failed to start within {startup_timeout} seconds.\nCheck log file: {self._log_file}"
         )
 
     def stop_server(self) -> None:

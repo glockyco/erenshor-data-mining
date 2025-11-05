@@ -7,12 +7,13 @@ This module normalizes wiki pages by:
 """
 
 import re
+from typing import ClassVar
 
 
 class PageNormalizer:
     """Normalize wiki page content."""
 
-    LEGACY_CATEGORIES = {
+    LEGACY_CATEGORIES: ClassVar[set[str]] = {
         "[[Category:The Bone Pits]]",
     }
 
@@ -77,7 +78,7 @@ class PageNormalizer:
             Deduplicated list of category tags in original order
         """
         # Find all category tags
-        category_pattern = r'\[\[Category:[^\]]+\]\]'
+        category_pattern = r"\[\[Category:[^\]]+\]\]"
         matches = re.findall(category_pattern, wikitext)
 
         # Deduplicate while preserving order
@@ -100,8 +101,8 @@ class PageNormalizer:
             Wikitext with categories removed
         """
         # Remove category tags
-        category_pattern = r'\[\[Category:[^\]]+\]\]\n?'
-        return re.sub(category_pattern, '', wikitext)
+        category_pattern = r"\[\[Category:[^\]]+\]\]\n?"
+        return re.sub(category_pattern, "", wikitext)
 
     def _normalize_empty_lines(self, wikitext: str) -> str:
         """Normalize consecutive empty lines to max 1.
@@ -114,4 +115,4 @@ class PageNormalizer:
         """
         # Replace 2+ consecutive newlines with just 2 (1 empty line)
         # This preserves paragraph breaks but removes excessive spacing
-        return re.sub(r'\n{3,}', '\n\n', wikitext)
+        return re.sub(r"\n{3,}", "\n\n", wikitext)

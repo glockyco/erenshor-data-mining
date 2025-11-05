@@ -121,7 +121,8 @@ def register_entity(
         session.refresh(existing)
 
         logger.debug(
-            f"Updated entity: {entity_type.value}:{resource_name} (id={existing.id}, page_title={page_title!r}, excluded={excluded})"
+            f"Updated entity: {entity_type.value}:{resource_name} "
+            f"(id={existing.id}, page_title={page_title!r}, excluded={excluded})"
         )
 
         return existing
@@ -141,7 +142,8 @@ def register_entity(
     session.refresh(entity)
 
     logger.info(
-        f"Registered new entity: {entity_type.value}:{resource_name} (id={entity.id}, page_title={page_title!r}, excluded={excluded})"
+        f"Registered new entity: {entity_type.value}:{resource_name} "
+        f"(id={entity.id}, page_title={page_title!r}, excluded={excluded})"
     )
 
     return entity
@@ -274,12 +276,17 @@ def find_conflicts(session: Session) -> list[tuple[str, list[EntityRecord]]]:
 
     # Group entities by entity_type and display_name
     all_entities = session.exec(
-        select(EntityRecord).order_by(EntityRecord.entity_type, EntityRecord.display_name)
+        select(EntityRecord).order_by(
+            EntityRecord.entity_type,
+            EntityRecord.display_name,  # type: ignore[arg-type]
+        )
     ).all()
 
     # Group by (entity_type, display_name)
     groups: dict[tuple[EntityType, str], list[EntityRecord]] = {}
     for entity in all_entities:
+        if entity.display_name is None:
+            raise ValueError(f"Entity {entity.entity_type}:{entity.resource_name} (id={entity.id}) has no display_name")
         key = (entity.entity_type, entity.display_name)
         if key not in groups:
             groups[key] = []

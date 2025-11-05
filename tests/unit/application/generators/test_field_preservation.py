@@ -424,9 +424,9 @@ class TestDefaultRules:
 
         for template_name, field_rules in DEFAULT_PRESERVATION_RULES.items():
             for field_name, handler_name in field_rules.items():
-                assert (
-                    handler_name in valid_handlers
-                ), f"Invalid handler '{handler_name}' for {template_name}.{field_name}"
+                assert handler_name in valid_handlers, (
+                    f"Invalid handler '{handler_name}' for {template_name}.{field_name}"
+                )
 
 
 class TestIntegrationScenarios:
@@ -596,8 +596,8 @@ class TestTemplateFormatting:
         result = handler.merge_templates(old_wikitext, new_wikitext, ["Enemy"])
 
         # Extract field order from result
-        lines = [l for l in result.split("\n") if l.startswith("|")]
-        field_names = [l.split("=")[0].strip("|") for l in lines]
+        lines = [line for line in result.split("\n") if line.startswith("|")]
+        field_names = [line.split("=")[0].strip("|") for line in lines]
 
         # Field order should match new template, not old template
         expected_order = [

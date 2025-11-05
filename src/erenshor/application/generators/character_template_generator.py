@@ -10,6 +10,7 @@ Template structure:
 - {{Character}} template + category tags
 """
 
+from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
 from loguru import logger
@@ -17,6 +18,7 @@ from loguru import logger
 from erenshor.application.generators.categories import CategoryGenerator
 from erenshor.application.generators.formatting import safe_str
 from erenshor.application.generators.template_generator_base import TemplateGeneratorBase
+from erenshor.domain.entities.character import Character
 from erenshor.domain.value_objects.loot import LootDropInfo
 from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
 from erenshor.registry.resolver import RegistryResolver
@@ -114,7 +116,7 @@ class CharacterTemplateGenerator(TemplateGeneratorBase):
 
         return self.normalize_wikitext(page_content)
 
-    def _format_enemy_type(self, character, spawn_infos: list[CharacterSpawnInfo]) -> str:
+    def _format_enemy_type(self, character: Character, spawn_infos: list[CharacterSpawnInfo]) -> str:
         """Classify character as Boss/Rare/Enemy/NPC for template display."""
         if character.is_friendly:
             return "[[:Category:Characters|NPC]]"
@@ -129,7 +131,9 @@ class CharacterTemplateGenerator(TemplateGeneratorBase):
                 return "[[Enemies|Rare]]"
         return "[[Enemies|Enemy]]"
 
-    def _format_faction(self, character, faction_display_names: dict[str, str], resolver: RegistryResolver) -> str:
+    def _format_faction(
+        self, character: Character, faction_display_names: dict[str, str], resolver: RegistryResolver
+    ) -> str:
         """Format faction field using MyWorldFaction or MyFaction."""
         if character.my_world_faction:
             faction_desc = faction_display_names.get(character.my_world_faction, character.my_world_faction)
@@ -147,7 +151,7 @@ class CharacterTemplateGenerator(TemplateGeneratorBase):
 
     def _format_faction_modifiers(
         self,
-        character,
+        character: Character,
         faction_display_names: dict[str, str],
         character_name: str,
         resolver: RegistryResolver,
@@ -191,7 +195,7 @@ class CharacterTemplateGenerator(TemplateGeneratorBase):
 
         return f"{spawn.x:.1f} x {spawn.y:.1f} x {spawn.z:.1f}"
 
-    def _format_spawn_chance(self, spawn_infos: list[CharacterSpawnInfo], character) -> str:
+    def _format_spawn_chance(self, spawn_infos: list[CharacterSpawnInfo], character: Character) -> str:
         """Format spawn chance for wiki template."""
         if not spawn_infos:
             return ""
@@ -272,8 +276,16 @@ class CharacterTemplateGenerator(TemplateGeneratorBase):
         all_entries: list[tuple[float, str]] = []
 
         for drop in loot_drops:
-            if not drop.item_name or drop.drop_probability <= 0:
-                continue
+            if not drop.item_name:
+                raise ValueError(
+                    f"Invalid loot drop for {character_name}: missing item_name (resource_name={drop.resource_name})"
+                )
+            if not drop.resource_name:
+                raise ValueError(
+                    f"Invalid loot drop for {character_name}: missing resource_name (item_name={drop.item_name})"
+                )
+            if drop.drop_probability <= 0:
+                continue  # Zero probability drops are valid (disabled drops)
 
             item_link = resolver.item_link(drop.resource_name, drop.item_name)
             stable_key = f"item:{drop.resource_name}"
@@ -287,7 +299,8 @@ class CharacterTemplateGenerator(TemplateGeneratorBase):
                 refs.append(f"<ref>If {character_name} has {item_link} equipped, it is guaranteed to drop.</ref>")
             if drop.item_unique:
                 refs.append(
-                    f"<ref>If the player is already holding {item_link} in their inventory, another will not drop.</ref>"
+                    f"<ref>If the player is already holding {item_link} in their "
+                    f"inventory, another will not drop.</ref>"
                 )
 
             if refs:
@@ -299,13 +312,13 @@ class CharacterTemplateGenerator(TemplateGeneratorBase):
             if drop.is_guaranteed:
                 guaranteed_entries.append((resolved_display_name.lower(), item_link))
 
-        def _join_entries(entries: list[tuple[float | str, str]]) -> str:
+        def _join_entries(entries: Sequence[tuple[float | str, str]]) -> str:
             if not entries:
                 return ""
-            entries.sort()
+            sorted_entries = sorted(entries)
             seen = set()
             output = []
-            for _, entry_text in entries:
+            for _, entry_text in sorted_entries:
                 if entry_text not in seen:
                     seen.add(entry_text)
                     output.append(entry_text)
@@ -319,7 +332,7 @@ class CharacterTemplateGenerator(TemplateGeneratorBase):
 
     def _build_character_template_context(
         self,
-        character,
+        character: Character,
         display_name: str,
         image_name: str,
         enemy_type: str,
@@ -347,7 +360,9 @@ class CharacterTemplateGenerator(TemplateGeneratorBase):
             else:
                 xp_range = f"{xp_min}-{xp_max}"
 
-        def _format_resistance(base_val: int | None, min_val: int | None, max_val: int | None, hand_set: int | None) -> str:
+        def _format_resistance(
+            base_val: int | None, min_val: int | None, max_val: int | None, hand_set: int | None
+        ) -> str:
             if hand_set:
                 return safe_str(base_val)
             min_r = min_val or 0
@@ -379,10 +394,30 @@ class CharacterTemplateGenerator(TemplateGeneratorBase):
             "intelligence": safe_str(character.base_int),
             "wisdom": safe_str(character.base_wis),
             "charisma": safe_str(character.base_cha),
-            "magic": _format_resistance(character.base_mr, character.effective_min_mr, character.effective_max_mr, character.hand_set_resistances),
-            "poison": _format_resistance(character.base_pr, character.effective_min_pr, character.effective_max_pr, character.hand_set_resistances),
-            "elemental": _format_resistance(character.base_er, character.effective_min_er, character.effective_max_er, character.hand_set_resistances),
-            "void": _format_resistance(character.base_vr, character.effective_min_vr, character.effective_max_vr, character.hand_set_resistances),
+            "magic": _format_resistance(
+                character.base_mr,
+                character.effective_min_mr,
+                character.effective_max_mr,
+                character.hand_set_resistances,
+            ),
+            "poison": _format_resistance(
+                character.base_pr,
+                character.effective_min_pr,
+                character.effective_max_pr,
+                character.hand_set_resistances,
+            ),
+            "elemental": _format_resistance(
+                character.base_er,
+                character.effective_min_er,
+                character.effective_max_er,
+                character.hand_set_resistances,
+            ),
+            "void": _format_resistance(
+                character.base_vr,
+                character.effective_min_vr,
+                character.effective_max_vr,
+                character.hand_set_resistances,
+            ),
         }
 
         return context

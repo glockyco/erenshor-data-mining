@@ -318,8 +318,7 @@ class UnityBatchMode:
         if not log_file.exists():
             logger.warning(f"Unity log file not found: {log_file}")
             raise UnityRuntimeError(
-                f"Unity execution failed with exit code {exit_code}, but log file is missing.\n"
-                f"Expected log: {log_file}"
+                f"Unity execution failed with exit code {exit_code}, but log file is missing.\nExpected log: {log_file}"
             )
 
         log_content = log_file.read_text()
@@ -329,7 +328,7 @@ class UnityBatchMode:
             error_details = self._extract_compilation_errors(log_content)
             logger.error(f"Unity compilation failed: {error_details}")
             raise UnityCompilationError(
-                f"Unity script compilation failed.\n" f"Check log file: {log_file}\n" f"Errors:\n{error_details}"
+                f"Unity script compilation failed.\nCheck log file: {log_file}\nErrors:\n{error_details}"
             )
 
         # Check for method execution errors
@@ -337,16 +336,14 @@ class UnityBatchMode:
             error_details = self._extract_execution_error(log_content)
             logger.error(f"Unity method execution failed: {error_details}")
             raise UnityExecutionError(
-                f"Failed to execute Unity method.\n" f"Check log file: {log_file}\n" f"Error: {error_details}"
+                f"Failed to execute Unity method.\nCheck log file: {log_file}\nError: {error_details}"
             )
 
         # Check for export errors first (most specific)
         if "[EXPORT_ERROR]" in log_content:
             error_details = self._extract_export_error(log_content)
             logger.error(f"Unity export error: {error_details}")
-            raise UnityRuntimeError(
-                f"Unity export script failed.\n" f"Check log file: {log_file}\n" f"Error:\n{error_details}"
-            )
+            raise UnityRuntimeError(f"Unity export script failed.\nCheck log file: {log_file}\nError:\n{error_details}")
 
         # Check for licensing errors (before generic runtime errors)
         if self._has_licensing_error(log_content):
@@ -372,13 +369,13 @@ class UnityBatchMode:
             error_details = self._extract_runtime_errors(log_content)
             logger.error(f"Unity runtime error: {error_details}")
             raise UnityRuntimeError(
-                f"Unity script execution failed.\n" f"Check log file: {log_file}\n" f"Errors:\n{error_details}"
+                f"Unity script execution failed.\nCheck log file: {log_file}\nErrors:\n{error_details}"
             )
 
         # Generic error if we can't determine cause
         logger.error(f"Unity failed with exit code {exit_code} (cause unknown)")
         raise UnityRuntimeError(
-            f"Unity execution failed with exit code {exit_code}.\n" f"Check log file for details: {log_file}"
+            f"Unity execution failed with exit code {exit_code}.\nCheck log file for details: {log_file}"
         )
 
     def _has_compilation_error(self, log_content: str) -> bool:

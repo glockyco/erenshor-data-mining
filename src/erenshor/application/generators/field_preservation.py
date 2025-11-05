@@ -455,7 +455,7 @@ class FieldPreservationHandler:
             preserved_fields = self.apply_preservation(template_name, old_fields, new_fields, context)
 
             # Preserve field order from new template (from Jinja2 template order)
-            ordered_preserved = {k: preserved_fields[k] for k in new_fields.keys() if k in preserved_fields}
+            ordered_preserved = {k: preserved_fields[k] for k in new_fields if k in preserved_fields}
 
             # Generate properly formatted template from merged fields
             formatted_template = self._parser.generate_template(

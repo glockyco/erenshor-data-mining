@@ -301,10 +301,10 @@ class TestFindConflicts:
 
         assert len(conflicts) == 2
         # Check first conflict
-        display_name1, entities1 = conflicts[0]
+        display_name1, _entities1 = conflicts[0]
         assert display_name1 in ["Goblin", "Sword"]
         # Check second conflict
-        display_name2, entities2 = conflicts[1]
+        display_name2, _entities2 = conflicts[1]
         assert display_name2 in ["Goblin", "Sword"]
 
     def test_find_conflicts_empty_when_no_duplicates(self, in_memory_session):

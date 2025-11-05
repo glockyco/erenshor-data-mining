@@ -74,7 +74,7 @@ class SheetsFormatter:
         if not sql_file.exists():
             available = ", ".join(self.get_sheet_names())
             raise ValueError(
-                f"Query file '{sheet_name}.sql' not found in {self.queries_dir}. " f"Available sheets: {available}"
+                f"Query file '{sheet_name}.sql' not found in {self.queries_dir}. Available sheets: {available}"
             )
 
         # Read query from file

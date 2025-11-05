@@ -94,12 +94,14 @@ def compare_items(base_db: Path, new_db: Path) -> list[dict[str, Any]]:
             # Replace newlines with spaces, then collapse multiple spaces
             lore = " ".join(lore.split())
 
-        results.append({
-            "name": row[0],
-            "slot": row[1],
-            "level": row[2],
-            "lore": lore,
-        })
+        results.append(
+            {
+                "name": row[0],
+                "slot": row[1],
+                "level": row[2],
+                "lore": lore,
+            }
+        )
 
     conn.close()
     return results
@@ -131,13 +133,15 @@ def compare_spells(base_db: Path, new_db: Path) -> list[dict[str, Any]]:
         if desc:
             desc = " ".join(desc.split())
 
-        results.append({
-            "name": row[0],
-            "type": row[1],
-            "classes": row[2],
-            "level": row[3],
-            "desc": desc,
-        })
+        results.append(
+            {
+                "name": row[0],
+                "type": row[1],
+                "classes": row[2],
+                "level": row[3],
+                "desc": desc,
+            }
+        )
 
     conn.close()
     return results
@@ -175,14 +179,16 @@ def compare_characters(base_db: Path, new_db: Path) -> list[dict[str, Any]]:
 
     results = []
     for row in cursor.fetchall():
-        results.append({
-            "name": row[0],
-            "level": row[1],
-            "is_npc": bool(row[2]),
-            "is_vendor": bool(row[3]),
-            "hp": row[4],
-            "zone": row[6],
-        })
+        results.append(
+            {
+                "name": row[0],
+                "level": row[1],
+                "is_npc": bool(row[2]),
+                "is_vendor": bool(row[3]),
+                "hp": row[4],
+                "zone": row[6],
+            }
+        )
 
     conn.close()
     return results
@@ -213,12 +219,14 @@ def compare_quests(base_db: Path, new_db: Path) -> list[dict[str, Any]]:
         if desc:
             desc = " ".join(desc.split())
 
-        results.append({
-            "name": row[0],
-            "xp": row[1],
-            "gold": row[2],
-            "desc": desc,
-        })
+        results.append(
+            {
+                "name": row[0],
+                "xp": row[1],
+                "gold": row[2],
+                "desc": desc,
+            }
+        )
 
     conn.close()
     return results
@@ -242,10 +250,12 @@ def compare_zones(base_db: Path, new_db: Path) -> list[dict[str, Any]]:
 
     results = []
     for row in cursor.fetchall():
-        results.append({
-            "name": row[0],
-            "scene": row[1],
-        })
+        results.append(
+            {
+                "name": row[0],
+                "scene": row[1],
+            }
+        )
 
     conn.close()
     return results
@@ -262,7 +272,7 @@ def format_items_section(items: list[dict[str, Any]]) -> str:
         slot = item["slot"] or "General"
         level = item["level"] or 0
         lore = item["lore"] or "No description"
-        output.append(f"- **{item['name']}** ({slot}, Level {level}) - \"{lore}\"\n")
+        output.append(f'- **{item["name"]}** ({slot}, Level {level}) - "{lore}"\n')
 
     output.append("\n")
     return "".join(output)
@@ -280,7 +290,7 @@ def format_spells_section(spells: list[dict[str, Any]]) -> str:
         classes = spell["classes"] or "All"
         level = spell["level"] or 1
         desc = spell["desc"] or "No description"
-        output.append(f"- **{spell['name']}** ({spell_type}, {classes}, Level {level}) - \"{desc}\"\n")
+        output.append(f'- **{spell["name"]}** ({spell_type}, {classes}, Level {level}) - "{desc}"\n')
 
     output.append("\n")
     return "".join(output)
@@ -294,7 +304,7 @@ def format_characters_section(characters: list[dict[str, Any]]) -> str:
     output = []
     # Sort by level (descending), then by name alphabetically
     for char in sorted(characters, key=lambda x: (-(x["level"] or 0), x["name"])):
-        hp_str = f"{char['hp']:,}" if char['hp'] else "Unknown"
+        hp_str = f"{char['hp']:,}" if char["hp"] else "Unknown"
         vendor_str = " [Vendor]" if char["is_vendor"] else ""
         zone_str = f" - {char['zone']}" if char.get("zone") else ""
         output.append(f"- **{char['name']}** (Level {char['level']}, {hp_str} HP){vendor_str}{zone_str}\n")

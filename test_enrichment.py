@@ -2,7 +2,6 @@
 """Test script to verify enrichment features."""
 
 import sqlite3
-from pathlib import Path
 
 from erenshor.infrastructure.config import get_repo_root, load_config
 
@@ -102,7 +101,15 @@ def test_database_schema():
         cursor = conn.execute("PRAGMA table_info(Characters)")
         columns = [col[1] for col in cursor.fetchall()]
 
-        removed_fields = ["AttackSkills", "AttackSpells", "BuffSpells", "HealSpells", "GroupHealSpells", "CCSpells", "TauntSpells"]
+        removed_fields = [
+            "AttackSkills",
+            "AttackSpells",
+            "BuffSpells",
+            "HealSpells",
+            "GroupHealSpells",
+            "CCSpells",
+            "TauntSpells",
+        ]
         for field in removed_fields:
             if field in columns:
                 print(f"❌ Characters.{field} still exists (should be removed)")
@@ -139,9 +146,8 @@ def test_enrichment_constants():
         if LONG_NAME_THRESHOLD == 24 and LONG_NAME_FONT_SIZE == "20px":
             print("✓ Constants have expected values")
             return True
-        else:
-            print("❌ Constants have unexpected values")
-            return False
+        print("❌ Constants have unexpected values")
+        return False
 
     except ImportError as e:
         print(f"❌ Failed to import constants: {e}")
@@ -158,16 +164,18 @@ def test_enrichment_modules():
 
     try:
         from erenshor.application.generators.item_type_display import build_item_types
+
         print("✓ item_type_display module imported")
-        print(f"  - build_item_types function available")
+        print("  - build_item_types function available")
     except ImportError as e:
         print(f"❌ Failed to import item_type_display: {e}")
         success = False
 
     try:
         from erenshor.application.generators.proc_extractor import ProcExtractor
+
         print("✓ proc_extractor module imported")
-        print(f"  - ProcExtractor class available")
+        print("  - ProcExtractor class available")
     except ImportError as e:
         print(f"❌ Failed to import proc_extractor: {e}")
         success = False

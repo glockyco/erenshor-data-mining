@@ -13,9 +13,7 @@ import pytest
 
 from erenshor.application.services.wiki_page import OperationResult
 from erenshor.application.services.wiki_service import WikiService
-from erenshor.domain.entities.character import Character
 from erenshor.domain.entities.item import Item
-from erenshor.domain.entities.spell import Spell
 
 
 @pytest.fixture

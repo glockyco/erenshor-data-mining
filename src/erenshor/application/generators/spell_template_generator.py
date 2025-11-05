@@ -88,7 +88,9 @@ class SpellTemplateGenerator(TemplateGeneratorBase):
         context: dict[str, str] = {
             "id": safe_str(spell.id),
             "title": page_title,
-            "image": f"{spell.resource_name if spell.resource_name is not None else 'Unknown'}.png",  # TODO: Use registry for image name
+            "image": (
+                f"{spell.resource_name if spell.resource_name is not None else 'Unknown'}.png"
+            ),  # TODO: Use registry for image name
             "imagecaption": "",
             "description": safe_str(spell.spell_desc),
             "type": safe_str(spell.type),

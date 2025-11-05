@@ -17,6 +17,7 @@ operations, designed to work with wiki.gg (https://erenshor.wiki.gg).
 """
 
 from collections.abc import Sequence
+from datetime import UTC
 from typing import Any
 
 import httpx
@@ -271,9 +272,8 @@ class MediaWikiClient:
                 if retry_after:
                     logger.warning(f"Rate limit exceeded. Retry-After: {retry_after}s")
                     raise MediaWikiRateLimitError(f"Rate limit exceeded. Retry after {retry_after}s") from e
-                else:
-                    logger.warning("Rate limit exceeded (no Retry-After header)")
-                    raise MediaWikiRateLimitError("Rate limit exceeded") from e
+                logger.warning("Rate limit exceeded (no Retry-After header)")
+                raise MediaWikiRateLimitError("Rate limit exceeded") from e
             raise MediaWikiNetworkError(f"HTTP {e.response.status_code}: {e}") from e
 
         # Parse JSON response
@@ -671,9 +671,9 @@ class MediaWikiClient:
         logger.info(f"Fetching recent changes (last {days} days, limit {limit})")
 
         # Calculate timestamp for N days ago (MediaWiki format: ISO 8601)
-        from datetime import datetime, timedelta, timezone
+        from datetime import datetime, timedelta
 
-        cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+        cutoff = datetime.now(UTC) - timedelta(days=days)
         rc_start = cutoff.strftime("%Y-%m-%dT%H:%M:%SZ")
 
         params = {

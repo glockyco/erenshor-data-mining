@@ -17,9 +17,8 @@ from erenshor.application.services.sheets_service import (
     SheetsService,
     SheetsServiceError,
 )
-from erenshor.application.services.wiki_page import WikiPage
+from erenshor.application.services.wiki_page import OperationResult, WikiPage
 from erenshor.application.services.wiki_service import (
-    OperationResult,
     WikiService,
     WikiServiceError,
 )

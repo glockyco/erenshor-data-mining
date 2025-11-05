@@ -94,7 +94,7 @@ class WikiFetchService:
         spells = self._spell_repo.get_spells_for_wiki_generation()
         skills = self._skill_repo.get_skills_for_wiki_generation()
 
-        all_entities = list(chain(items, characters, spells, skills))
+        all_entities: list[Item | Character | Spell | Skill] = list(chain(items, characters, spells, skills))
 
         # Group entities by page title
         pages = group_entities_by_page_title(all_entities, self._resolver)
@@ -223,16 +223,21 @@ class WikiFetchService:
 
                         if content:
                             # Get entity names for metadata
-                            entity_names = []
-                            for e in page.entities:
-                                if isinstance(e, Item):
-                                    entity_names.append(e.item_name)
-                                elif isinstance(e, Character):
-                                    entity_names.append(e.npc_name)
-                                elif isinstance(e, Spell):
-                                    entity_names.append(e.spell_name)
-                                elif isinstance(e, Skill):
-                                    entity_names.append(e.skill_name)
+                            entity_names: list[str] = []
+                            for entity in page.entities:
+                                name: str | None = None
+                                if isinstance(entity, Item):
+                                    name = entity.item_name
+                                elif isinstance(entity, Character):
+                                    name = entity.npc_name
+                                elif isinstance(entity, Spell):
+                                    name = entity.spell_name
+                                elif isinstance(entity, Skill):
+                                    name = entity.skill_name
+
+                                if name is None:
+                                    raise ValueError(f"Entity {entity.stable_key} has no name (ID={entity.id})")
+                                entity_names.append(name)
 
                             # Save fetched content
                             self._storage.save_fetched_by_title(

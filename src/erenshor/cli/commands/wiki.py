@@ -76,8 +76,8 @@ def _read_page_titles(pages_file: str) -> list[str]:
 
         # Parse lines: strip whitespace, ignore empty lines and comments
         titles = []
-        for line in lines:
-            line = line.strip()
+        for raw_line in lines:
+            line = raw_line.strip()
             if line and not line.startswith("#"):
                 titles.append(line)
 
@@ -252,7 +252,9 @@ def generate(
     pages_file: str | None = typer.Option(
         None,
         "--pages-file",
-        help="File with page titles to generate (one per line), or '-' for stdin. If not specified, generates all pages.",
+        help=(
+            "File with page titles to generate (one per line), or '-' for stdin. If not specified, generates all pages."
+        ),
     ),
 ) -> None:
     """Generate wiki pages locally.
@@ -319,9 +321,9 @@ def generate(
         if not cli_ctx.dry_run and result.succeeded > 0:
             variant_config = cli_ctx.config.variants[cli_ctx.variant]
             wiki_dir = variant_config.resolved_wiki(cli_ctx.repo_root)
-            console.print(f"[bold]Next steps:[/bold]")
+            console.print("[bold]Next steps:[/bold]")
             console.print(f"  Review generated files: {wiki_dir / 'generated'}")
-            console.print(f"  Deploy to wiki: [cyan]erenshor wiki deploy[/cyan]")
+            console.print("  Deploy to wiki: [cyan]erenshor wiki deploy[/cyan]")
             console.print()
 
     except Exception as e:

@@ -60,9 +60,7 @@ class ProcExtractor:
         """Clear the spell cache for deterministic behavior."""
         self._spell_cache.clear()
 
-    def extract_weapon_proc(
-        self, conn: Connection, item: Item
-    ) -> tuple[str, str, str, str]:
+    def extract_weapon_proc(self, conn: Connection, item: Item) -> tuple[str, str, str, str]:
         """Extract weapon proc information.
 
         Priority order:
@@ -127,9 +125,7 @@ class ProcExtractor:
 
         return proc_name, proc_desc, proc_chance, proc_style
 
-    def extract_armor_proc(
-        self, conn: Connection, item: Item
-    ) -> tuple[str, str, str, str]:
+    def extract_armor_proc(self, conn: Connection, item: Item) -> tuple[str, str, str, str]:
         """Extract armor proc information.
 
         Priority order:

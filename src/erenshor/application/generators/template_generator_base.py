@@ -85,7 +85,7 @@ class TemplateGeneratorBase(ABC):
 
         if not template_dir.exists():
             raise TemplateNotFoundError(
-                f"Template directory not found: {template_dir}. " "Expected templates/ directory in generators module."
+                f"Template directory not found: {template_dir}. Expected templates/ directory in generators module."
             )
 
         return template_dir

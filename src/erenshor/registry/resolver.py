@@ -89,7 +89,7 @@ class RegistryResolver:
             logger.debug(f"Using entity name fallback for {stable_key}: {entity_name!r}")
             return entity_name
 
-    def resolve_display_name(self, stable_key: str, entity_name: str) -> str | None:
+    def resolve_display_name(self, stable_key: str, entity_name: str) -> str:
         """Resolve entity stable key to display name.
 
         Args:
@@ -97,7 +97,11 @@ class RegistryResolver:
             entity_name: Entity's display name from game data (ItemName, NPCName, etc.)
 
         Returns:
-            Display name (override or fallback to entity_name), or None if excluded
+            Display name (override or fallback to entity_name)
+
+        Note:
+            Always returns a name, even for excluded entities. Exclusion filtering
+            should be done separately via resolve_page_title or explicit checks.
 
         Example:
             >>> resolver.resolve_display_name("character:Brackish Crocodile", "Brackish Crocodile")
@@ -106,15 +110,9 @@ class RegistryResolver:
         with Session(self.engine) as session:
             entity = get_entity(session, stable_key)
 
-            if entity:
-                # Entity has registry entry
-                if entity.excluded:
-                    logger.debug(f"Entity {stable_key} is excluded from wiki")
-                    return None
-
-                if entity.display_name:
-                    logger.debug(f"Using display_name override for {stable_key}: {entity.display_name!r}")
-                    return entity.display_name
+            if entity and entity.display_name:
+                logger.debug(f"Using display_name override for {stable_key}: {entity.display_name!r}")
+                return entity.display_name
 
             # Fall back to entity name
             logger.debug(f"Using entity name fallback for {stable_key}: {entity_name!r}")

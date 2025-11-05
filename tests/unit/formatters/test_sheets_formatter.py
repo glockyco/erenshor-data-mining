@@ -85,7 +85,7 @@ def test_sheets_formatter_validates_missing_file():
 
     formatter = SheetsFormatter(engine, queries_dir)
 
-    with pytest.raises(ValueError, match="Query file 'nonexistent.sql' not found"):
+    with pytest.raises(ValueError, match=r"Query file 'nonexistent\.sql' not found"):
         formatter.format_sheet("nonexistent")
 
 
@@ -102,9 +102,9 @@ def test_query_files_have_valid_sql():
         upper_content = content.upper()
 
         # Should start with SELECT or WITH (for CTEs)
-        assert upper_content.startswith("SELECT") or upper_content.startswith(
-            "WITH"
-        ), f"{sql_file.name} doesn't start with SELECT or WITH"
+        assert upper_content.startswith("SELECT") or upper_content.startswith("WITH"), (
+            f"{sql_file.name} doesn't start with SELECT or WITH"
+        )
 
         # Should end with semicolon (optional but good practice)
         # Note: Not all queries have semicolons, so this is just a warning check

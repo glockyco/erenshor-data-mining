@@ -353,7 +353,7 @@ class GoogleSheetsPublisher:
         current_start_row = table_range.get("startRowIndex", 0)
         # endRowIndex should always be present in table metadata
         if "endRowIndex" not in table_range:
-            raise ValueError(f"Table metadata missing 'endRowIndex' field. " f"Table range: {table_range}")
+            raise ValueError(f"Table metadata missing 'endRowIndex' field. Table range: {table_range}")
         current_end_row = table_range["endRowIndex"]
         current_row_count = current_end_row - current_start_row
 
@@ -650,7 +650,7 @@ class GoogleSheetsPublisher:
         # Validate range is non-empty (can't delete 0 or negative rows)
         if end_index <= start_index:
             logger.warning(
-                f"Skipping delete: end_index={end_index} <= start_index={start_index} " f"(must be > start_index)"
+                f"Skipping delete: end_index={end_index} <= start_index={start_index} (must be > start_index)"
             )
             return
 

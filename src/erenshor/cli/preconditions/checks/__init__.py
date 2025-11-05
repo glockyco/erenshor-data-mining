@@ -33,19 +33,15 @@ from .steam import game_files_exist, steam_credentials_exist
 from .unity import editor_scripts_linked, unity_project_exists, unity_version_matches
 
 __all__ = [
-    # Database checks
     "database_exists",
-    "database_valid",
     "database_has_items",
-    # Filesystem checks
-    "file_exists",
+    "database_valid",
     "directory_exists",
     "directory_writable",
-    # Unity checks
-    "unity_project_exists",
     "editor_scripts_linked",
-    "unity_version_matches",
-    # Steam checks
+    "file_exists",
     "game_files_exist",
     "steam_credentials_exist",
+    "unity_project_exists",
+    "unity_version_matches",
 ]

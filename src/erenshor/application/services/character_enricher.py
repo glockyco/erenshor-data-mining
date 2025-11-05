@@ -10,13 +10,11 @@ This service aggregates and formats all character-related data for wiki template
 from loguru import logger
 
 from erenshor.domain.entities.character import Character
-from erenshor.domain.value_objects.faction import FactionModifier
 from erenshor.domain.value_objects.loot import LootDropInfo
 from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
 from erenshor.infrastructure.database.repositories.factions import FactionRepository
 from erenshor.infrastructure.database.repositories.loot_tables import LootTableRepository
 from erenshor.infrastructure.database.repositories.spawn_points import SpawnPointRepository
-from erenshor.registry.resolver import RegistryResolver
 
 __all__ = ["CharacterEnricher", "EnrichedCharacterData"]
 

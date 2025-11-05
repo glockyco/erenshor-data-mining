@@ -98,7 +98,7 @@ class TestExtractDownloadCommand:
 
         # Verify - should not actually download
         assert result.exit_code == 0
-        assert "DRY RUN" in result.stdout or "Dry-run" in result.stdout
+        assert "Dry-run" in result.stderr
         mock_steamcmd.download.assert_not_called()
 
     @patch("erenshor.cli.commands.extract.SteamCMD")
@@ -232,7 +232,7 @@ class TestExtractExportCommand:
         mock_load_config.return_value = mock_config
 
         # Run command (should always export even if database exists)
-        result = runner.invoke(app, ["extract", "export"])
+        _ = runner.invoke(app, ["extract", "export"])
 
         # Note: This test will likely fail preconditions in practice,
         # but the important thing is we don't skip based on existing database

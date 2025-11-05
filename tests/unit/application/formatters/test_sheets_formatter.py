@@ -163,12 +163,12 @@ class TestSheetsFormatterFormatSheet:
 
     def test_format_sheet_nonexistent_query_raises_error(self, formatter: SheetsFormatter) -> None:
         """Test that nonexistent query file raises ValueError."""
-        with pytest.raises(ValueError, match="Query file 'nonexistent.sql' not found"):
+        with pytest.raises(ValueError, match=r"Query file 'nonexistent\.sql' not found"):
             formatter.format_sheet("nonexistent")
 
     def test_format_sheet_empty_query_raises_error(self, formatter: SheetsFormatter) -> None:
         """Test that empty query file raises ValueError."""
-        with pytest.raises(ValueError, match="Query file 'empty.sql' is empty"):
+        with pytest.raises(ValueError, match=r"Query file 'empty\.sql' is empty"):
             formatter.format_sheet("empty")
 
     def test_format_sheet_invalid_sql_raises_error(self, formatter: SheetsFormatter) -> None:

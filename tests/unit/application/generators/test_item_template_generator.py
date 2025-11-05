@@ -4,8 +4,6 @@ Tests item page generation for different item types including weapons, armor,
 consumables, and general items.
 """
 
-import pytest
-
 from erenshor.application.generators.item_template_generator import ItemTemplateGenerator
 from erenshor.domain.entities.item import Item
 
@@ -373,8 +371,13 @@ class TestItemTemplateGenerator:
             item_name="This is a very long item name that exceeds 24 characters",
             required_slot="General",
         )
-        long_result = generator.generate_template(long_item, page_title="This is a very long item name that exceeds 24 characters")
-        assert '<span style="font-size:20px">This is a very long item name that exceeds 24 characters</span>' in long_result
+        long_result = generator.generate_template(
+            long_item, page_title="This is a very long item name that exceeds 24 characters"
+        )
+        assert (
+            '<span style="font-size:20px">This is a very long item name that exceeds 24 characters</span>'
+            in long_result
+        )
 
     def test_item_type_display_consumable(self):
         """Test item type display for consumables."""

@@ -223,15 +223,14 @@ class SteamCMD:
                         "Check username and password, or ensure account is not locked.\n"
                         "Note: Some accounts may require Steam Guard verification."
                     )
-                else:
-                    raise SteamCMDDownloadError(
-                        f"Game download failed: app_id={app_id}\n"
-                        f"Exit code: {return_code}\n"
-                        "Common exit codes:\n"
-                        "  5 = Authentication failure\n"
-                        "  7 = Disk write failure\n"
-                        "  8 = Invalid App ID"
-                    )
+                raise SteamCMDDownloadError(
+                    f"Game download failed: app_id={app_id}\n"
+                    f"Exit code: {return_code}\n"
+                    "Common exit codes:\n"
+                    "  5 = Authentication failure\n"
+                    "  7 = Disk write failure\n"
+                    "  8 = Invalid App ID"
+                )
 
             logger.info(f"Download completed successfully: app_id={app_id}")
 

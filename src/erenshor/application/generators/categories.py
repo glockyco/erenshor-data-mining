@@ -138,7 +138,7 @@ class CategoryGenerator:
             or (item.complete_on_read and item.complete_on_read.strip())
         )
 
-    def generate_character_categories(self, enriched: "EnrichedCharacterData") -> list[str]:
+    def generate_character_categories(self, enriched: EnrichedCharacterData) -> list[str]:
         """Generate category tags for a character.
 
         Determines categories based on:

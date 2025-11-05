@@ -5,7 +5,6 @@ requiring actual Unity installation or lengthy batch mode executions.
 """
 
 from pathlib import Path
-from subprocess import TimeoutExpired
 from unittest.mock import MagicMock, patch
 
 import pytest

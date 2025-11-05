@@ -181,9 +181,7 @@ More content."""
         # Verify ends with newline
         assert result.endswith("\n")
 
-    def test_normalize_preserves_one_empty_line_between_sections(
-        self, normalizer: PageNormalizer
-    ) -> None:
+    def test_normalize_preserves_one_empty_line_between_sections(self, normalizer: PageNormalizer) -> None:
         """Test one empty line between sections is preserved."""
         wikitext = """[[Category:Items]]
 

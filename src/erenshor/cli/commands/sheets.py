@@ -180,9 +180,7 @@ def deploy(
     console.print()
     console.print(
         Panel.fit(
-            f"[bold cyan]Deploying Google Sheets[/bold cyan]\n"
-            f"Variant: {cli_ctx.variant}\n"
-            f"Dry-run: {cli_ctx.dry_run}",
+            f"[bold cyan]Deploying Google Sheets[/bold cyan]\nVariant: {cli_ctx.variant}\nDry-run: {cli_ctx.dry_run}",
             border_style="cyan",
         )
     )
