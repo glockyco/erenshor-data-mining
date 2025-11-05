@@ -262,6 +262,11 @@ def export(ctx: typer.Context) -> None:
         return
 
     try:
+        # Clean up old database before export
+        if database_path.exists():
+            logger.info(f"Removing old database: {database_path}")
+            database_path.unlink()
+
         logger.info(f"Exporting game data: variant={cli_ctx.variant}")
 
         # Create Unity batch mode wrapper
