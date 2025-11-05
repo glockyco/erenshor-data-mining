@@ -14,7 +14,7 @@ def test_database_schema():
     print("=" * 60)
 
     repo_root = get_repo_root()
-    config = load_config(repo_root)
+    config = load_config()
     db_path = config.variants["main"].resolved_database(repo_root)
 
     if not db_path.exists():
