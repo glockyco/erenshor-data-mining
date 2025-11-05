@@ -128,13 +128,13 @@ class GoogleSheetsPublisher:
                 raise FileNotFoundError(f"Google credentials file not found: {self.credentials_file}")
 
             try:
-                creds = service_account.Credentials.from_service_account_file(
+                creds = service_account.Credentials.from_service_account_file(  # type: ignore[no-untyped-call]
                     str(self.credentials_file),
                     scopes=self.SCOPES,
                 )
                 self._service = build("sheets", "v4", credentials=creds)
             except Exception as e:
-                raise GoogleAuthError(f"Failed to authenticate with Google: {e}") from e
+                raise GoogleAuthError(f"Failed to authenticate with Google: {e}") from e  # type: ignore[no-untyped-call]
 
         return self._service
 

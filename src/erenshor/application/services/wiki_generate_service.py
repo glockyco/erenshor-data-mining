@@ -14,6 +14,7 @@ from erenshor.application.generators.character_template_generator import Charact
 from erenshor.application.generators.field_preservation import FieldPreservationHandler
 from erenshor.application.generators.item_template_generator import ItemTemplateGenerator
 from erenshor.application.generators.legacy_template_remover import LegacyTemplateRemover
+from erenshor.application.generators.page_normalizer import PageNormalizer
 from erenshor.application.generators.skill_template_generator import SkillTemplateGenerator
 from erenshor.application.generators.spell_template_generator import SpellTemplateGenerator
 from erenshor.application.services.character_enricher import CharacterEnricher
@@ -74,7 +75,6 @@ class WikiGenerateService:
             faction_repo=faction_repo,
             spawn_repo=spawn_repo,
             loot_repo=loot_repo,
-            registry_resolver=registry_resolver,
         )
 
         # Initialize generators and handlers
@@ -87,6 +87,7 @@ class WikiGenerateService:
         self._enricher = character_enricher
         self._preservation_handler = FieldPreservationHandler()
         self._legacy_remover = LegacyTemplateRemover()
+        self._page_normalizer = PageNormalizer()
 
         logger.debug("WikiGenerateService initialized")
 
@@ -191,8 +192,8 @@ class WikiGenerateService:
                     if isinstance(entity, Item):
                         template = self._item_generator.generate_template(entity, page.title)
                     elif isinstance(entity, Character):
-                        enriched = self._enricher.enrich(entity, page.title)
-                        template = self._character_generator.generate_template(enriched)
+                        enriched = self._enricher.enrich(entity)
+                        template = self._character_generator.generate_template(enriched, page.title, self._resolver)
                     elif isinstance(entity, Spell):
                         template = self._spell_generator.generate_template(entity, page.title)
                     elif isinstance(entity, Skill):
@@ -226,9 +227,12 @@ class WikiGenerateService:
                         self._console.print(f"[blue]i[/blue] {info}")
                     else:
                         final_content = preserved_content
+
+                    # Normalize page: merge categories from old + new, move to top, clean spacing
+                    final_content = self._page_normalizer.normalize(final_content, page_content)
                 else:
-                    # New page, no preservation needed
-                    final_content = page_content
+                    # New page, just normalize
+                    final_content = self._page_normalizer.normalize(page_content)
 
                 # Save to storage (skip in dry-run)
                 if not dry_run:

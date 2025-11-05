@@ -1,9 +1,27 @@
 """Tests for category tag generation."""
 
+from dataclasses import dataclass
+
 import pytest
 
 from erenshor.application.generators.categories import CategoryGenerator
+from erenshor.domain.entities.character import Character
 from erenshor.domain.entities.item import Item
+
+
+@dataclass
+class CharacterSpawnInfo:
+    """Mock spawn info for testing."""
+
+    zone_display: str
+
+
+@dataclass
+class EnrichedCharacterData:
+    """Mock enriched character data for testing."""
+
+    character: Character
+    spawn_infos: list[CharacterSpawnInfo]
 
 
 class TestCategoryGenerator:
@@ -313,3 +331,229 @@ class TestCategoryGenerator:
         assert "Molds" in categories
         assert "Crafting Materials" in categories
         assert len(categories) == 2
+
+
+class TestCharacterCategories:
+    """Test character category generation."""
+
+    @pytest.fixture
+    def generator(self) -> CategoryGenerator:
+        """Create CategoryGenerator instance."""
+        return CategoryGenerator()
+
+    def test_friendly_character_single_zone(self, generator: CategoryGenerator) -> None:
+        """Test friendly NPC in single zone gets Characters + zone category."""
+        character = Character(
+            id=1,
+            resource_name="VillageGuard",
+            is_friendly=1,
+            is_vendor=0,
+        )
+        enriched = EnrichedCharacterData(
+            character=character,
+            spawn_infos=[CharacterSpawnInfo(zone_display="Port Azure")],
+        )
+        categories = generator.generate_character_categories(enriched)
+        assert "Characters" in categories
+        assert "Port Azure" in categories
+        assert len(categories) == 2
+
+    def test_enemy_single_zone(self, generator: CategoryGenerator) -> None:
+        """Test enemy in single zone gets Enemies + zone category."""
+        character = Character(
+            id=2,
+            resource_name="Goblin",
+            is_friendly=0,
+            is_vendor=0,
+        )
+        enriched = EnrichedCharacterData(
+            character=character,
+            spawn_infos=[CharacterSpawnInfo(zone_display="Hidden Hills")],
+        )
+        categories = generator.generate_character_categories(enriched)
+        assert "Enemies" in categories
+        assert "Hidden Hills" in categories
+        assert len(categories) == 2
+
+    def test_enemy_multiple_zones(self, generator: CategoryGenerator) -> None:
+        """Test enemy in multiple zones gets Enemies + all zone categories."""
+        character = Character(
+            id=3,
+            resource_name="Skeleton",
+            is_friendly=0,
+            is_vendor=0,
+        )
+        enriched = EnrichedCharacterData(
+            character=character,
+            spawn_infos=[
+                CharacterSpawnInfo(zone_display="The Bonepits"),
+                CharacterSpawnInfo(zone_display="Hidden Hills"),
+                CharacterSpawnInfo(zone_display="Faerie's Brake"),
+            ],
+        )
+        categories = generator.generate_character_categories(enriched)
+        assert "Enemies" in categories
+        assert "The Bonepits" in categories
+        assert "Hidden Hills" in categories
+        assert "Faerie's Brake" in categories
+        assert len(categories) == 4
+
+    def test_vendor_character(self, generator: CategoryGenerator) -> None:
+        """Test vendor character gets Characters + Vendors + zone category."""
+        character = Character(
+            id=4,
+            resource_name="Shopkeeper",
+            is_friendly=1,
+            is_vendor=1,
+        )
+        enriched = EnrichedCharacterData(
+            character=character,
+            spawn_infos=[CharacterSpawnInfo(zone_display="Port Azure")],
+        )
+        categories = generator.generate_character_categories(enriched)
+        assert "Characters" in categories
+        assert "Vendors" in categories
+        assert "Port Azure" in categories
+        assert len(categories) == 3
+
+    def test_character_no_spawn_locations(self, generator: CategoryGenerator) -> None:
+        """Test character with no spawn locations gets only type category."""
+        character = Character(
+            id=5,
+            resource_name="QuestNPC",
+            is_friendly=1,
+            is_vendor=0,
+        )
+        enriched = EnrichedCharacterData(
+            character=character,
+            spawn_infos=[],
+        )
+        categories = generator.generate_character_categories(enriched)
+        assert categories == ["Characters"]
+
+    def test_zone_categories_sorted(self, generator: CategoryGenerator) -> None:
+        """Test zone categories are sorted alphabetically."""
+        character = Character(
+            id=6,
+            resource_name="WanderingEnemy",
+            is_friendly=0,
+            is_vendor=0,
+        )
+        enriched = EnrichedCharacterData(
+            character=character,
+            spawn_infos=[
+                CharacterSpawnInfo(zone_display="Willowwatch Ridge"),
+                CharacterSpawnInfo(zone_display="Braxonian Desert"),
+                CharacterSpawnInfo(zone_display="Hidden Hills"),
+            ],
+        )
+        categories = generator.generate_character_categories(enriched)
+        # Zone categories should be sorted (first 3 items before "Enemies")
+        zone_categories = [c for c in categories if c != "Enemies"]
+        assert zone_categories == ["Braxonian Desert", "Hidden Hills", "Willowwatch Ridge"]
+
+    def test_duplicate_zones_deduplicated(self, generator: CategoryGenerator) -> None:
+        """Test duplicate zone names are deduplicated."""
+        character = Character(
+            id=7,
+            resource_name="PatrollingGuard",
+            is_friendly=1,
+            is_vendor=0,
+        )
+        enriched = EnrichedCharacterData(
+            character=character,
+            spawn_infos=[
+                CharacterSpawnInfo(zone_display="Port Azure"),
+                CharacterSpawnInfo(zone_display="Port Azure"),
+                CharacterSpawnInfo(zone_display="Port Azure"),
+            ],
+        )
+        categories = generator.generate_character_categories(enriched)
+        # Should only have one "Port Azure" category
+        assert categories.count("Port Azure") == 1
+        assert len(categories) == 2  # Port Azure + Characters
+
+    def test_hostile_vendor_impossible_but_handled(self, generator: CategoryGenerator) -> None:
+        """Test hostile vendor (impossible in game, but handled gracefully)."""
+        character = Character(
+            id=8,
+            resource_name="EvilMerchant",
+            is_friendly=0,
+            is_vendor=1,
+        )
+        enriched = EnrichedCharacterData(
+            character=character,
+            spawn_infos=[CharacterSpawnInfo(zone_display="Dark Cave")],
+        )
+        categories = generator.generate_character_categories(enriched)
+        assert "Enemies" in categories
+        assert "Vendors" in categories
+        assert "Dark Cave" in categories
+
+    def test_real_world_aranuil_olaseo(self, generator: CategoryGenerator) -> None:
+        """Test real NPC from game: Aranuil Olaseo."""
+        character = Character(
+            id=9,
+            resource_name="Aranuil Olaseo",
+            is_friendly=1,
+            is_vendor=0,
+        )
+        enriched = EnrichedCharacterData(
+            character=character,
+            spawn_infos=[CharacterSpawnInfo(zone_display="Rottenfoot")],
+        )
+        categories = generator.generate_character_categories(enriched)
+        assert categories == ["Rottenfoot", "Characters"]
+
+    def test_real_world_brittle_skeleton(self, generator: CategoryGenerator) -> None:
+        """Test real enemy from game: A Brittle Skeleton (spawns in 7 zones)."""
+        character = Character(
+            id=10,
+            resource_name="A Brittle Skeleton",
+            is_friendly=0,
+            is_vendor=0,
+        )
+        enriched = EnrichedCharacterData(
+            character=character,
+            spawn_infos=[
+                CharacterSpawnInfo(zone_display="Braxonian Desert"),
+                CharacterSpawnInfo(zone_display="Faerie's Brake"),
+                CharacterSpawnInfo(zone_display="Hidden Hills"),
+                CharacterSpawnInfo(zone_display="Island Tomb"),
+                CharacterSpawnInfo(zone_display="Stowaway's Step"),
+                CharacterSpawnInfo(zone_display="The Bonepits"),
+                CharacterSpawnInfo(zone_display="Willowwatch Ridge"),
+            ],
+        )
+        categories = generator.generate_character_categories(enriched)
+        # Should have all 7 zones + Enemies
+        assert len(categories) == 8
+        assert "Enemies" in categories
+        assert all(
+            zone in categories
+            for zone in [
+                "Braxonian Desert",
+                "Faerie's Brake",
+                "Hidden Hills",
+                "Island Tomb",
+                "Stowaway's Step",
+                "The Bonepits",
+                "Willowwatch Ridge",
+            ]
+        )
+
+    def test_real_world_vendor_akaran_black(self, generator: CategoryGenerator) -> None:
+        """Test real vendor from game: Akaran Black."""
+        character = Character(
+            id=11,
+            resource_name="Akaran Black",
+            is_friendly=1,
+            is_vendor=1,
+        )
+        enriched = EnrichedCharacterData(
+            character=character,
+            spawn_infos=[CharacterSpawnInfo(zone_display="Port Azure")],
+        )
+        categories = generator.generate_character_categories(enriched)
+        assert set(categories) == {"Port Azure", "Characters", "Vendors"}
+        assert len(categories) == 3

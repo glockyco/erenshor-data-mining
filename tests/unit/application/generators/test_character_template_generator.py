@@ -16,27 +16,28 @@ def generator():
 
 
 @pytest.fixture
+def mock_resolver():
+    """Create mock registry resolver."""
+    resolver = MagicMock()
+    resolver.resolve_page_title.return_value = "Test Character"
+    return resolver
+
+
+@pytest.fixture
 def mock_enriched():
-    """Create mock enriched character data."""
+    """Create mock enriched character data with raw data."""
     enriched = MagicMock(spec=EnrichedCharacterData)
-    enriched.display_name = "Test Character"
-    enriched.image_name = "Test Character"
-    enriched.enemy_type = "Enemy"
-    enriched.faction = "[[Test Faction]]"
-    enriched.faction_change = ""
-    enriched.zones = "[[Test Zone]]"
-    enriched.coordinates = ""
-    enriched.spawn_chance = ""
-    enriched.respawn = "5 minutes"
-    enriched.guaranteed_drops = ""
-    enriched.drop_rates = ""
+    # Raw data - no pre-formatted strings
+    enriched.spawn_infos = []
+    enriched.loot_drops = []
+    enriched.faction_display_names = {}
     return enriched
 
 
 class TestResistanceFormatting:
     """Test resistance value formatting based on HandSetResistances flag."""
 
-    def test_dynamic_resistances_show_range(self, generator, mock_enriched):
+    def test_dynamic_resistances_show_range(self, generator, mock_enriched, mock_resolver):
         """Characters without HandSetResistances should show resistance ranges."""
         character = Character(
             id=1,
@@ -60,7 +61,7 @@ class TestResistanceFormatting:
         )
         mock_enriched.character = character
 
-        template = generator.generate_template(mock_enriched)
+        template = generator.generate_template(mock_enriched, "Test Character", mock_resolver)
 
         # Should show ranges, not base values
         assert "|magic=0-1" in template
@@ -71,7 +72,7 @@ class TestResistanceFormatting:
         assert "|magic=5" not in template
         assert "|poison=15" not in template
 
-    def test_hand_set_resistances_use_base_values(self, generator, mock_enriched):
+    def test_hand_set_resistances_use_base_values(self, generator, mock_enriched, mock_resolver):
         """Characters with HandSetResistances=1 should use base resistance values."""
         character = Character(
             id=1,
@@ -95,7 +96,7 @@ class TestResistanceFormatting:
         )
         mock_enriched.character = character
 
-        template = generator.generate_template(mock_enriched)
+        template = generator.generate_template(mock_enriched, "Test Character", mock_resolver)
 
         # Should show base values
         assert "|magic=50" in template
@@ -105,7 +106,7 @@ class TestResistanceFormatting:
         # Should NOT show ranges
         assert "5-12" not in template
 
-    def test_dynamic_resistances_same_min_max_shows_single_value(self, generator, mock_enriched):
+    def test_dynamic_resistances_same_min_max_shows_single_value(self, generator, mock_enriched, mock_resolver):
         """When min and max are the same, show single value not range."""
         character = Character(
             id=1,
@@ -125,7 +126,7 @@ class TestResistanceFormatting:
         )
         mock_enriched.character = character
 
-        template = generator.generate_template(mock_enriched)
+        template = generator.generate_template(mock_enriched, "Test Character", mock_resolver)
 
         # Should show single values when min == max
         assert "|magic=5" in template
@@ -136,7 +137,7 @@ class TestResistanceFormatting:
         assert "5-5" not in template
         assert "10-10" not in template
 
-    def test_none_resistances_default_to_zero(self, generator, mock_enriched):
+    def test_none_resistances_default_to_zero(self, generator, mock_enriched, mock_resolver):
         """None resistance values should default to 0."""
         character = Character(
             id=1,
@@ -155,7 +156,7 @@ class TestResistanceFormatting:
         )
         mock_enriched.character = character
 
-        template = generator.generate_template(mock_enriched)
+        template = generator.generate_template(mock_enriched, "Test Character", mock_resolver)
 
         # Should show 0 for all None values
         assert "|magic=0" in template
@@ -167,7 +168,7 @@ class TestResistanceFormatting:
 class TestResistanceRegressions:
     """Regression tests for resistance calculation bugs."""
 
-    def test_grass_spider_resistances(self, generator, mock_enriched):
+    def test_grass_spider_resistances(self, generator, mock_enriched, mock_resolver):
         """A Grass Spider should show 0-1 resistance range, not base values.
 
         Regression test: Previously showed incorrect base values (5, 15, 5, 5)
@@ -199,7 +200,7 @@ class TestResistanceRegressions:
         )
         mock_enriched.character = character
 
-        template = generator.generate_template(mock_enriched)
+        template = generator.generate_template(mock_enriched, "Test Character", mock_resolver)
 
         # Should show calculated ranges for level 1 creature
         assert "|magic=0-1" in template
@@ -214,7 +215,7 @@ class TestResistanceRegressions:
 class TestExperienceCalculation:
     """Test XP calculation with BossXpMultiplier."""
 
-    def test_normal_npc_xp_no_multiplier(self, generator, mock_enriched):
+    def test_normal_npc_xp_no_multiplier(self, generator, mock_enriched, mock_resolver):
         """Normal NPCs with no multiplier should show base XP range."""
         character = Character(
             id=1,
@@ -228,12 +229,12 @@ class TestExperienceCalculation:
         )
         mock_enriched.character = character
 
-        template = generator.generate_template(mock_enriched)
+        template = generator.generate_template(mock_enriched, "Test Character", mock_resolver)
 
         # Should show base XP (16-36)
         assert "|experience=16-36" in template
 
-    def test_boss_xp_with_multiplier(self, generator, mock_enriched):
+    def test_boss_xp_with_multiplier(self, generator, mock_enriched, mock_resolver):
         """Boss NPCs should apply XP multiplier."""
         character = Character(
             id=1,
@@ -247,12 +248,12 @@ class TestExperienceCalculation:
         )
         mock_enriched.character = character
 
-        template = generator.generate_template(mock_enriched)
+        template = generator.generate_template(mock_enriched, "Test Character", mock_resolver)
 
         # Should show multiplied XP (160*8 to 360*8 = 1280-2880)
         assert "|experience=1280-2880" in template
 
-    def test_zero_multiplier_treated_as_one(self, generator, mock_enriched):
+    def test_zero_multiplier_treated_as_one(self, generator, mock_enriched, mock_resolver):
         """Zero multiplier should be treated as 1.0."""
         character = Character(
             id=1,
@@ -266,12 +267,12 @@ class TestExperienceCalculation:
         )
         mock_enriched.character = character
 
-        template = generator.generate_template(mock_enriched)
+        template = generator.generate_template(mock_enriched, "Test Character", mock_resolver)
 
         # Should show base XP (not multiplied by 0)
         assert "|experience=16-36" in template
 
-    def test_same_min_max_xp_shows_single_value(self, generator, mock_enriched):
+    def test_same_min_max_xp_shows_single_value(self, generator, mock_enriched, mock_resolver):
         """When min and max XP are the same, show single value."""
         character = Character(
             id=1,
@@ -285,7 +286,7 @@ class TestExperienceCalculation:
         )
         mock_enriched.character = character
 
-        template = generator.generate_template(mock_enriched)
+        template = generator.generate_template(mock_enriched, "Test Character", mock_resolver)
 
         # Should show single value (100*2 = 200)
         assert "|experience=200" in template

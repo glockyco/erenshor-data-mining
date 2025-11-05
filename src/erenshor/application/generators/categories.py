@@ -20,6 +20,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, ClassVar
 
 if TYPE_CHECKING:
+    from erenshor.application.services.character_enricher import EnrichedCharacterData
     from erenshor.domain.entities.item import Item
 
 __all__ = ["CategoryGenerator", "ItemKind", "classify_item_kind"]
@@ -136,6 +137,48 @@ class CategoryGenerator:
             (item.assign_quest_on_read and item.assign_quest_on_read.strip())
             or (item.complete_on_read and item.complete_on_read.strip())
         )
+
+    def generate_character_categories(self, enriched: "EnrichedCharacterData") -> list[str]:
+        """Generate category tags for a character.
+
+        Determines categories based on:
+        1. Spawn locations → zone categories
+        2. Character type (Enemy/Rare/Boss) → type category
+        3. Vendor status → Vendor category
+
+        Args:
+            enriched: Enriched character data with spawn info
+
+        Returns:
+            List of category names (without [[Category:...]] wrapper)
+
+        Examples:
+            Boss in Port Azure:
+                >>> categories
+                ['Port Azure', 'Bosses']
+
+            Vendor NPC in multiple zones:
+                >>> categories
+                ['Fernalla's Revival Plains', 'Port Azure', 'Vendors']
+        """
+        categories: list[str] = []
+
+        # Add zone categories from spawn locations
+        zone_names = sorted({info.zone_display for info in enriched.spawn_infos})
+        categories.extend(zone_names)
+
+        # Add type category
+        character = enriched.character
+        if character.is_friendly:
+            categories.append("Characters")
+        else:
+            categories.append("Enemies")
+
+        # Add Vendor category
+        if character.is_vendor:
+            categories.append("Vendors")
+
+        return categories
 
     def format_category_tags(self, categories: list[str]) -> str:
         """Format category names as MediaWiki category tags.
