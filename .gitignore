@@ -828,3 +828,4 @@ unity_*.log
 tests/**/*.db
 tests/**/*.sqlite
 !tests/fixtures/database/*.sql
+tests/.test-temp/

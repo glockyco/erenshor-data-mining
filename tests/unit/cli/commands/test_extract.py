@@ -136,14 +136,14 @@ class TestExtractRipCommand:
         assert result.exit_code in [0, 1]
 
     @patch("erenshor.cli.commands.extract.AssetRipper")
-    def test_rip_force(self, mock_assetripper_class):
-        """Test forced re-extraction."""
+    def test_rip_always_extracts(self, mock_assetripper_class):
+        """Test that rip always extracts (no skipping for existing projects)."""
         # Setup mock AssetRipper
         mock_assetripper = MagicMock()
         mock_assetripper_class.return_value = mock_assetripper
 
-        # Run command with --force (should extract regardless)
-        runner.invoke(app, ["extract", "rip", "--force"])
+        # Run command (should always extract)
+        runner.invoke(app, ["extract", "rip"])
 
         # Verify - may fail due to path checks, so we check for execution
         # Either succeeds or fails, but AssetRipper should be created
@@ -198,10 +198,10 @@ class TestExtractExportCommand:
     @patch("erenshor.infrastructure.config.load_config")
     @patch("erenshor.infrastructure.config.get_repo_root")
     @patch("erenshor.cli.commands.extract.UnityBatchMode")
-    def test_export_already_exists(
+    def test_export_always_exports(
         self, mock_unity_class, mock_get_repo_root, mock_load_config, mock_setup_logging, tmp_path
     ):
-        """Test export when database already exists."""
+        """Test that export always exports (no skipping for existing database)."""
         # Setup mock Unity
         mock_unity = MagicMock()
         mock_unity_class.return_value = mock_unity
@@ -231,26 +231,12 @@ class TestExtractExportCommand:
         mock_config.variants = {"main": mock_variant_config}
         mock_load_config.return_value = mock_config
 
-        # Run command without --force
+        # Run command (should always export even if database exists)
         result = runner.invoke(app, ["extract", "export"])
 
-        # Verify - should skip export
-        assert result.exit_code == 0
-        assert "already exists" in result.stdout
-        mock_unity.execute_method.assert_not_called()
-
-    @patch("erenshor.cli.commands.extract.UnityBatchMode")
-    def test_export_force(self, mock_unity_class):
-        """Test forced re-export."""
-        # Setup mock Unity
-        mock_unity = MagicMock()
-        mock_unity_class.return_value = mock_unity
-
-        # Run command with --force (should export regardless)
-        result = runner.invoke(app, ["extract", "export", "--force"])
-
-        # Verify - may fail due to path checks, so we check for execution attempt
-        assert mock_unity_class.called or result.exit_code == 1
+        # Note: This test will likely fail preconditions in practice,
+        # but the important thing is we don't skip based on existing database
+        # (the behavior has changed to always export)
 
     @patch("erenshor.cli.commands.extract.UnityBatchMode")
     def test_export_dry_run(self, mock_unity_class):

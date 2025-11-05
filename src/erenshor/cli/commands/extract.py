@@ -80,7 +80,7 @@ def full(
         # Step 2: Rip
         if not skip_rip:
             console.print("[bold]Step 2/3: Extracting Unity project via AssetRipper[/bold]")
-            rip(ctx, force=False)
+            rip(ctx)
         else:
             console.print("[yellow]Skipping AssetRipper extraction step[/yellow]")
             console.print()
@@ -88,7 +88,7 @@ def full(
         # Step 3: Export
         if not skip_export:
             console.print("[bold]Step 3/3: Exporting data to SQLite via Unity[/bold]")
-            export(ctx, force=False)
+            export(ctx)
         else:
             console.print("[yellow]Skipping Unity export step[/yellow]")
             console.print()
@@ -169,19 +169,14 @@ def download(
 
 @app.command()
 @require_preconditions(game_files_exist)
-def rip(
-    ctx: typer.Context,
-    force: bool = typer.Option(
-        False,
-        "--force",
-        help="Force re-extraction even if Unity project exists",
-    ),
-) -> None:
+def rip(ctx: typer.Context) -> None:
     """Extract Unity project from game files via AssetRipper.
 
     Uses AssetRipper to decompile the Erenshor game files into
     a Unity project structure. This allows access to game assets
     and ScriptableObjects for data mining.
+
+    Always performs fresh extraction, removing any existing Unity project.
     """
     cli_ctx: CLIContext = ctx.obj
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
@@ -189,20 +184,14 @@ def rip(
     unity_project_dir = variant_config.resolved_unity_project(cli_ctx.repo_root)
     logs_dir = variant_config.resolved_logs(cli_ctx.repo_root)
 
-    # Check if Unity project already exists
-    if not force and unity_project_dir.exists() and (unity_project_dir / "ExportedProject" / "Assets").exists():
-        logger.info(f"Unity project already exists: {unity_project_dir}")
-        logger.info("Use --force to re-extract")
-        return
-
     if cli_ctx.dry_run:
         source_dir = game_files_dir / "Erenshor_Data"
         logger.info(f"[Dry-run] Would extract Unity project: source={source_dir}, target={unity_project_dir}")
         return
 
     try:
-        # Clean up old Unity project if force re-extraction
-        if force and unity_project_dir.exists():
+        # Clean up old Unity project before extraction
+        if unity_project_dir.exists():
             logger.info(f"Removing old Unity project: {unity_project_dir}")
             shutil.rmtree(unity_project_dir)
 
@@ -253,31 +242,20 @@ def rip(
     editor_scripts_linked,
     unity_version_matches,
 )
-def export(
-    ctx: typer.Context,
-    force: bool = typer.Option(
-        False,
-        "--force",
-        help="Force re-export even if database is up-to-date",
-    ),
-) -> None:
+def export(ctx: typer.Context) -> None:
     """Export data to SQLite via Unity batch mode.
 
     Runs Unity Editor in batch mode to scan game assets and
     export data to SQLite database. Uses custom Unity Editor
     scripts to extract items, NPCs, quests, spells, and more.
+
+    Always performs fresh export, overwriting any existing database.
     """
     cli_ctx: CLIContext = ctx.obj
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
     unity_project_dir = variant_config.resolved_unity_project(cli_ctx.repo_root)
     database_path = variant_config.resolved_database(cli_ctx.repo_root)
     logs_dir = variant_config.resolved_logs(cli_ctx.repo_root)
-
-    # Check if database already exists
-    if not force and database_path.exists():
-        logger.info(f"Database already exists: {database_path}")
-        logger.info("Use --force to re-export")
-        return
 
     if cli_ctx.dry_run:
         logger.info(f"[Dry-run] Would export data to SQLite: unity={unity_project_dir}, db={database_path}")
