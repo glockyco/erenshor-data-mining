@@ -410,13 +410,17 @@ class TestDefaultRules:
         assert item_rules["craftsource"] == "preserve"
         assert item_rules["componentfor"] == "preserve"
 
-    def test_fancy_weapon_has_description_preserve(self) -> None:
-        """Fancy-weapon template should preserve description field."""
-        assert DEFAULT_PRESERVATION_RULES["Fancy-weapon"]["description"] == "preserve"
+    def test_fancy_weapon_has_no_preservation_rules(self) -> None:
+        """Fancy-weapon template should have no preservation rules (all override)."""
+        assert DEFAULT_PRESERVATION_RULES["Fancy-weapon"] == {}
 
-    def test_fancy_armor_has_description_preserve(self) -> None:
-        """Fancy-armor template should preserve description field."""
-        assert DEFAULT_PRESERVATION_RULES["Fancy-armor"]["description"] == "preserve"
+    def test_fancy_armor_has_no_preservation_rules(self) -> None:
+        """Fancy-armor template should have no preservation rules (all override)."""
+        assert DEFAULT_PRESERVATION_RULES["Fancy-armor"] == {}
+
+    def test_fancy_charm_has_no_preservation_rules(self) -> None:
+        """Fancy-charm template should have no preservation rules (all override)."""
+        assert DEFAULT_PRESERVATION_RULES["Fancy-charm"] == {}
 
     def test_all_templates_have_valid_handler_names(self) -> None:
         """All rules should reference valid handler names."""
@@ -504,10 +508,11 @@ class TestIntegrationScenarios:
 
         # Item description preserved
         assert "A fine weapon" in result
-        # Fancy-weapon description preserved
-        assert "Deals holy damage" in result
-        # Fancy-weapon name preferred (was non-empty)
-        assert "Legendary Sword" in result
+        # Fancy-weapon description OVERRIDDEN (no preservation)
+        assert "Generic weapon" in result
+        assert "Deals holy damage" not in result
+        # Fancy-weapon name OVERRIDDEN (no preservation)
+        assert "Legendary Sword" not in result
         # Damage updated to 15 in both templates
         assert result.count("15") == 2
 

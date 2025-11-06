@@ -13,8 +13,7 @@ class CharacterSpawnInfo(BaseModel):
 
     Example:
         >>> spawn = CharacterSpawnInfo(
-        ...     scene="Azure",
-        ...     zone_display="Port Azure",
+        ...     zone_stable_key="zone:azure",
         ...     base_respawn=120.0,
         ...     x=10.5,
         ...     y=5.2,
@@ -25,8 +24,7 @@ class CharacterSpawnInfo(BaseModel):
         ... )
     """
 
-    scene: str = Field(description="Scene name (internal zone identifier)")
-    zone_display: str = Field(description="Display name for zone")
+    zone_stable_key: str = Field(description="Zone stable key (format: 'zone:scene_name')")
     base_respawn: float = Field(description="Base respawn time in seconds")
     x: float | None = Field(default=None, description="X coordinate")
     y: float | None = Field(default=None, description="Y coordinate")

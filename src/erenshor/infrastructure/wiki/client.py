@@ -687,6 +687,7 @@ class MediaWikiClient:
             "rcprop": "title|timestamp",  # Get both title and timestamp
             "rclimit": min(limit, 500),  # API max is 500
             "rctype": "edit|new",  # Only edits and new pages, not logs
+            # No rcshow parameter = include ALL edits (bot, minor, anon, everything)
         }
 
         result = self._request(params)

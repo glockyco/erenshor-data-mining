@@ -12,8 +12,8 @@ WITH
             c.ObjectName AS 'NPC Prefab Name',
             i.ResourceName AS 'Item Resource Name'
         FROM Characters c
-        LEFT JOIN LootDrops ld ON c.Guid = ld.CharacterPrefabGuid
-        INNER JOIN Items i ON ld.ItemResourceName = i.ResourceName
+        LEFT JOIN LootDrops ld ON c.StableKey = ld.CharacterStableKey
+        INNER JOIN Items i ON ld.ItemStableKey = i.StableKey
         ORDER BY c.NPCName, c.Guid
     )
 SELECT * FROM drops

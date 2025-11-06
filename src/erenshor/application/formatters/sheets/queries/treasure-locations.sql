@@ -10,5 +10,5 @@ SELECT
     'https://erenshor-maps.wowmuch1.workers.dev/' || za.SceneName || '?coordinateId=' || co.Id AS MapLink
 FROM TreasureHunting th
 JOIN Coordinates co ON co.Scene = th.ZoneName AND co.Category = 'TreasureLoc'
-JOIN ZoneAnnounces za ON za.SceneName = th.ZoneName
+JOIN Zones za ON za.SceneName = th.ZoneName
 ORDER BY th.IsPickableAlways DESC, th.IsPickableGreater20 DESC, th.IsPickableGreater30;

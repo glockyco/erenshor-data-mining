@@ -44,13 +44,10 @@ def group_entities_by_page_title(
             continue
 
         if not entity_name:
-            raise ValueError(f"Entity {entity.stable_key} has no name (ID={entity.id})")
+            raise ValueError(f"Entity {entity.stable_key} has no name")
 
         # Resolve page title via registry
-        page_title = registry_resolver.resolve_page_title(
-            entity.stable_key,
-            entity_name,
-        )
+        page_title = registry_resolver.resolve_page_title(entity.stable_key)
 
         # Skip excluded entities (None means excluded)
         if page_title is None:

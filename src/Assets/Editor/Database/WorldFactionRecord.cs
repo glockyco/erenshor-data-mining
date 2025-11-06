@@ -6,14 +6,15 @@ using SQLite;
 public class WorldFactionRecord
 {
     public const string TableName = "Factions";
-    
-    public int FactionDBIndex { get; set; } // Index from GlobalFactionManager.FactionDB array
+
+    [PrimaryKey]
+    public string StableKey { get; set; } = string.Empty; // Stable identifier: "faction:refname"
+    public int FactionDBIndex { get; set; } // Index from GlobalFactionManager.FactionDB array (internal Unity use only)
     public string FactionName { get; set; } = string.Empty; // From WorldFaction.FactionName (Display Name)
     public string FactionDesc { get; set; } = string.Empty; // From WorldFaction.FactionDesc
     public float DefaultValue { get; set; } // From WorldFaction.DEFAULTVAL
 
     // Internals / Metadata
-    [PrimaryKey] // Use REFNAME as the primary key for uniqueness
     public string REFNAME { get; set; } = string.Empty; // From WorldFaction.REFNAME (Unique Identifier)
     public string ResourceName { get; set; } = string.Empty; // The filename of the ScriptableObject asset
 

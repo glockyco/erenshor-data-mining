@@ -6,11 +6,12 @@ using SQLite;
 public class SkillRecord
 {
     public const string TableName = "Skills";
-    
+
     // --- Core Identification ---
-    public int SkillDBIndex { get; set; } // Index in the Resources.LoadAll array
-    [Indexed]
-    public string Id { get; set; } // From BaseScriptableObject.Id
+    [PrimaryKey]
+    public string StableKey { get; set; } = string.Empty; // Stable identifier: "skill:resource_name"
+    public int SkillDBIndex { get; set; } // Index in the Resources.LoadAll array (internal Unity use only)
+    public string Id { get; set; } // BaseScriptableObject.Id (internal Unity use only)
     public string SkillName { get; set; } = string.Empty; // From Skill.SkillName
     public string SkillDesc { get; set; } = string.Empty; // From Skill.SkillDesc
     public string TypeOfSkill { get; set; } = string.Empty; // From Skill.TypeOfSkill enum as string
@@ -36,8 +37,10 @@ public class SkillRecord
     // --- Effects & Mechanics ---
     public bool AESkill { get; set; } // From Skill.AESkill
     public bool Interrupt { get; set; } // From Skill.Interrupt
-    public string SpawnOnUseResourceName { get; set; } = string.Empty; // From Skill.SpawnOnUse.name
-    public string EffectToApplyId { get; set; } = string.Empty; // From Skill.EffectToApply.Id (Spell ID)
+    [ForeignKey(typeof(CharacterRecord), "StableKey")]
+    public string? SpawnOnUseStableKey { get; set; }
+    [ForeignKey(typeof(SpellRecord), "StableKey")]
+    public string? EffectToApplyStableKey { get; set; }
     public bool AffectPlayer { get; set; } // From Skill.AffectPlayer
     public bool AffectTarget { get; set; } // From Skill.AffectTarget
     public float SkillRange { get; set; } // From Skill.SkillRange
@@ -49,7 +52,8 @@ public class SkillRecord
     public bool ProcShield { get; set; } // From Skill.ProcShield
     public bool GuaranteeProc { get; set; } // From Skill.GuaranteeProc
     public bool AutomateAttack { get; set; } // From Skill.AutomateAttack
-    public string CastOnTarget { get; set; } = string.Empty; // Spell ResourceName
+    [ForeignKey(typeof(SpellRecord), "StableKey")]
+    public string? CastOnTargetStableKey { get; set; }
 
     // --- Visual/Audio ---
     public string SkillAnimName { get; set; } = string.Empty; // From Skill.SkillAnimName
@@ -60,6 +64,5 @@ public class SkillRecord
     public string NPCUses { get; set; } = string.Empty; // From Skill.NPCUses
 
     // --- Internals ---
-    [PrimaryKey]
     public string ResourceName { get; set; } = string.Empty; // From Skill.name (ScriptableObject name)
 }

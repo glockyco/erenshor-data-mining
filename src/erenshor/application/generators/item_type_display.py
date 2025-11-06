@@ -36,8 +36,14 @@ def build_item_types(
     if item_kind == ItemKind.CONSUMABLE:
         types.append("[[Consumables|Consumable]]")
 
-    # Quest item type
-    if related_quests:
+    # Quest item type - mark as quest item if:
+    # 1. Related to quests (rewards/requirements)
+    # 2. Has CompleteOnRead (completes quest when read)
+    # 3. Has AssignQuestOnRead (starts quest when read)
+    is_quest_item = (
+        bool(related_quests) or bool(item.complete_on_read_stable_key) or bool(item.assign_quest_on_read_stable_key)
+    )
+    if is_quest_item:
         types.append("[[Quest Items|Quest Item]]")
 
     # Crafting component type

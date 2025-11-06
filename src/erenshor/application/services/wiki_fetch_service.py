@@ -236,7 +236,7 @@ class WikiFetchService:
                                     name = entity.skill_name
 
                                 if name is None:
-                                    raise ValueError(f"Entity {entity.stable_key} has no name (ID={entity.id})")
+                                    raise ValueError(f"Entity {entity.stable_key} has no name")
                                 entity_names.append(name)
 
                             # Save fetched content

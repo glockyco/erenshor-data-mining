@@ -6,17 +6,17 @@ using SQLite;
 public class CharacterRecord
 {
     public const string TableName = "Characters";
-    
+
     [PrimaryKey]
-    public int Id { get; set; }
+    public string StableKey { get; set; } = string.Empty; // Stable identifier: "character:object_name" or "character:object_name|scene|x|y|z"
     [Indexed]
     public int? CoordinateId { get; set; }
 
-    public string Guid { get; set; } = string.Empty;
+    public string Guid { get; set; } = string.Empty; // Unity GUID (internal use only)
     public string? ObjectName { get; set; } = string.Empty;
     public string NPCName { get; set; } = string.Empty;
 
-    public string? MyWorldFaction { get; set; } = string.Empty;
+    public string? MyWorldFactionStableKey { get; set; } = string.Empty;
     public string MyFaction { get; set; } = string.Empty;
     public float AggroRange { get; set; }
     public float AttackRange { get; set; }
@@ -87,8 +87,10 @@ public class CharacterRecord
     // - CharacterAttackSpellRecord, CharacterBuffSpellRecord, CharacterHealSpellRecord
     // - CharacterGroupHealSpellRecord, CharacterCCSpellRecord, CharacterTauntSpellRecord
 
-    public string PetSpell { get; set; } = string.Empty; // Spell ResourceName
-    public string ProcOnHit { get; set; } = string.Empty; // Spell ResourceName
+    [ForeignKey(typeof(SpellRecord), "StableKey")]
+    public string? PetSpellStableKey { get; set; }
+    [ForeignKey(typeof(SpellRecord), "StableKey")]
+    public string? ProcOnHitStableKey { get; set; }
     public float ProcOnHitChance { get; set; }
     
     // NPC Combat Mechanics

@@ -6,9 +6,10 @@ using SQLite;
 public class ItemStatsRecord
 {
     public const string TableName = "ItemStats";
-    
+
     [Indexed(Name = "ItemStats_Primary_IDX", Order = 1, Unique = true)]
-    public string ItemResourceName { get; set; } = string.Empty;
+    [ForeignKey(typeof(ItemRecord), "StableKey")]
+    public string ItemStableKey { get; set; } = string.Empty;
     [Indexed(Name = "ItemStats_Primary_IDX", Order = 2, Unique = true)]
     public string Quality { get; set; } = string.Empty; // "Normal", "Blessed", "Godly"
     

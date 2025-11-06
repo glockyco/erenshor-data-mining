@@ -163,21 +163,11 @@ DEFAULT_PRESERVATION_RULES: dict[str, dict[str, str]] = {
         "componentfor": "preserve",
         # All other fields implicitly use "override" (default)
     },
-    "Fancy-weapon": {
-        "description": "preserve",  # Item lore
-        "image": "prefer_manual",  # Custom icons
-        "name": "prefer_manual",  # Custom display names
-    },
-    "Fancy-armor": {
-        "description": "preserve",  # Item lore
-        "image": "prefer_manual",  # Custom icons
-        "name": "prefer_manual",  # Custom display names
-    },
-    "Fancy-charm": {
-        "description": "preserve",
-        "image": "prefer_manual",
-        "name": "prefer_manual",
-    },
+    # Fancy-* templates: All fields use default "override" behavior
+    # No manual content - everything comes from database
+    "Fancy-weapon": {},
+    "Fancy-armor": {},
+    "Fancy-charm": {},
     "Enemy": {
         # Manual edit fields only
         "imagecaption": "preserve",  # Custom image captions

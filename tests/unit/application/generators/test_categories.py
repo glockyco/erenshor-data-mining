@@ -13,7 +13,7 @@ from erenshor.domain.entities.item import Item
 class CharacterSpawnInfo:
     """Mock spawn info for testing."""
 
-    zone_display: str
+    zone_stable_key: str
 
 
 @dataclass
@@ -28,9 +28,9 @@ class TestCategoryGenerator:
     """Test CategoryGenerator class."""
 
     @pytest.fixture
-    def generator(self) -> CategoryGenerator:
+    def generator(self, mock_resolver) -> CategoryGenerator:
         """Create CategoryGenerator instance."""
-        return CategoryGenerator()
+        return CategoryGenerator(mock_resolver)
 
     # Primary category tests (based on item kind)
 
@@ -60,7 +60,7 @@ class TestCategoryGenerator:
             id="3",
             resource_name="HealthPotion",
             required_slot="General",
-            item_effect_on_click="HealSpell",
+            item_effect_on_click_stable_key="HealSpell",
             disposable=1,
         )
         categories = generator.generate_item_categories(item)
@@ -83,7 +83,7 @@ class TestCategoryGenerator:
             id="5",
             resource_name="FireballBook",
             required_slot="General",
-            teach_spell="Fireball",
+            teach_spell_stable_key="Fireball",
         )
         categories = generator.generate_item_categories(item)
         assert categories == ["Ability Books"]
@@ -116,7 +116,7 @@ class TestCategoryGenerator:
             id="8",
             resource_name="QuestStarter",
             required_slot="General",
-            assign_quest_on_read="SomeQuest",
+            assign_quest_on_read_stable_key="SomeQuest",
         )
         categories = generator.generate_item_categories(item)
         assert "Items" in categories
@@ -128,7 +128,7 @@ class TestCategoryGenerator:
             id="9",
             resource_name="QuestCompletion",
             required_slot="General",
-            complete_on_read="SomeQuest",
+            complete_on_read_stable_key="SomeQuest",
         )
         categories = generator.generate_item_categories(item)
         assert "Items" in categories
@@ -154,7 +154,7 @@ class TestCategoryGenerator:
             id="11",
             resource_name="QuestSword",
             required_slot="Primary",
-            assign_quest_on_read="HeroQuest",
+            assign_quest_on_read_stable_key="HeroQuest",
         )
         categories = generator.generate_item_categories(item)
         assert "Weapons" in categories
@@ -166,9 +166,9 @@ class TestCategoryGenerator:
             id="12",
             resource_name="QuestPotion",
             required_slot="General",
-            item_effect_on_click="HealSpell",
+            item_effect_on_click_stable_key="HealSpell",
             disposable=1,
-            complete_on_read="QuestName",
+            complete_on_read_stable_key="QuestName",
         )
         categories = generator.generate_item_categories(item)
         assert "Consumables" in categories
@@ -182,8 +182,8 @@ class TestCategoryGenerator:
             id="13",
             resource_name="RegularItem",
             required_slot="General",
-            assign_quest_on_read="",  # Empty string
-            complete_on_read="   ",  # Whitespace only
+            assign_quest_on_read_stable_key="",  # Empty string
+            complete_on_read_stable_key="   ",  # Whitespace only
         )
         categories = generator.generate_item_categories(item)
         assert "Quest Items" not in categories
@@ -255,7 +255,7 @@ class TestCategoryGenerator:
             id="18",
             resource_name="MiningBook",
             required_slot="General",
-            teach_skill="Mining",
+            teach_skill_stable_key="Mining",
         )
         categories = generator.generate_item_categories(item)
         assert categories == ["Ability Books"]
@@ -306,10 +306,10 @@ class TestCategoryGenerator:
             resource_name="ElixirOfLife",
             item_name="Elixir of Life",
             required_slot="General",
-            item_effect_on_click="FullHeal",
+            item_effect_on_click_stable_key="FullHeal",
             disposable=1,
             unique=1,
-            assign_quest_on_read="LifeQuest",
+            assign_quest_on_read_stable_key="LifeQuest",
         )
         categories = generator.generate_item_categories(item)
         assert "Consumables" in categories
@@ -337,9 +337,9 @@ class TestCharacterCategories:
     """Test character category generation."""
 
     @pytest.fixture
-    def generator(self) -> CategoryGenerator:
+    def generator(self, mock_resolver) -> CategoryGenerator:
         """Create CategoryGenerator instance."""
-        return CategoryGenerator()
+        return CategoryGenerator(mock_resolver)
 
     def test_friendly_character_single_zone(self, generator: CategoryGenerator) -> None:
         """Test friendly NPC in single zone gets Characters + zone category."""
@@ -351,7 +351,7 @@ class TestCharacterCategories:
         )
         enriched = EnrichedCharacterData(
             character=character,
-            spawn_infos=[CharacterSpawnInfo(zone_display="Port Azure")],
+            spawn_infos=[CharacterSpawnInfo(zone_stable_key="zone:Port Azure")],
         )
         categories = generator.generate_character_categories(enriched)
         assert "Characters" in categories
@@ -368,7 +368,7 @@ class TestCharacterCategories:
         )
         enriched = EnrichedCharacterData(
             character=character,
-            spawn_infos=[CharacterSpawnInfo(zone_display="Hidden Hills")],
+            spawn_infos=[CharacterSpawnInfo(zone_stable_key="zone:Hidden Hills")],
         )
         categories = generator.generate_character_categories(enriched)
         assert "Enemies" in categories
@@ -386,9 +386,9 @@ class TestCharacterCategories:
         enriched = EnrichedCharacterData(
             character=character,
             spawn_infos=[
-                CharacterSpawnInfo(zone_display="The Bonepits"),
-                CharacterSpawnInfo(zone_display="Hidden Hills"),
-                CharacterSpawnInfo(zone_display="Faerie's Brake"),
+                CharacterSpawnInfo(zone_stable_key="zone:The Bonepits"),
+                CharacterSpawnInfo(zone_stable_key="zone:Hidden Hills"),
+                CharacterSpawnInfo(zone_stable_key="zone:Faerie's Brake"),
             ],
         )
         categories = generator.generate_character_categories(enriched)
@@ -408,7 +408,7 @@ class TestCharacterCategories:
         )
         enriched = EnrichedCharacterData(
             character=character,
-            spawn_infos=[CharacterSpawnInfo(zone_display="Port Azure")],
+            spawn_infos=[CharacterSpawnInfo(zone_stable_key="zone:Port Azure")],
         )
         categories = generator.generate_character_categories(enriched)
         assert "Characters" in categories
@@ -442,9 +442,9 @@ class TestCharacterCategories:
         enriched = EnrichedCharacterData(
             character=character,
             spawn_infos=[
-                CharacterSpawnInfo(zone_display="Willowwatch Ridge"),
-                CharacterSpawnInfo(zone_display="Braxonian Desert"),
-                CharacterSpawnInfo(zone_display="Hidden Hills"),
+                CharacterSpawnInfo(zone_stable_key="zone:Willowwatch Ridge"),
+                CharacterSpawnInfo(zone_stable_key="zone:Braxonian Desert"),
+                CharacterSpawnInfo(zone_stable_key="zone:Hidden Hills"),
             ],
         )
         categories = generator.generate_character_categories(enriched)
@@ -463,9 +463,9 @@ class TestCharacterCategories:
         enriched = EnrichedCharacterData(
             character=character,
             spawn_infos=[
-                CharacterSpawnInfo(zone_display="Port Azure"),
-                CharacterSpawnInfo(zone_display="Port Azure"),
-                CharacterSpawnInfo(zone_display="Port Azure"),
+                CharacterSpawnInfo(zone_stable_key="zone:Port Azure"),
+                CharacterSpawnInfo(zone_stable_key="zone:Port Azure"),
+                CharacterSpawnInfo(zone_stable_key="zone:Port Azure"),
             ],
         )
         categories = generator.generate_character_categories(enriched)
@@ -483,7 +483,7 @@ class TestCharacterCategories:
         )
         enriched = EnrichedCharacterData(
             character=character,
-            spawn_infos=[CharacterSpawnInfo(zone_display="Dark Cave")],
+            spawn_infos=[CharacterSpawnInfo(zone_stable_key="zone:Dark Cave")],
         )
         categories = generator.generate_character_categories(enriched)
         assert "Enemies" in categories
@@ -500,7 +500,7 @@ class TestCharacterCategories:
         )
         enriched = EnrichedCharacterData(
             character=character,
-            spawn_infos=[CharacterSpawnInfo(zone_display="Rottenfoot")],
+            spawn_infos=[CharacterSpawnInfo(zone_stable_key="zone:Rottenfoot")],
         )
         categories = generator.generate_character_categories(enriched)
         assert categories == ["Rottenfoot", "Characters"]
@@ -516,13 +516,13 @@ class TestCharacterCategories:
         enriched = EnrichedCharacterData(
             character=character,
             spawn_infos=[
-                CharacterSpawnInfo(zone_display="Braxonian Desert"),
-                CharacterSpawnInfo(zone_display="Faerie's Brake"),
-                CharacterSpawnInfo(zone_display="Hidden Hills"),
-                CharacterSpawnInfo(zone_display="Island Tomb"),
-                CharacterSpawnInfo(zone_display="Stowaway's Step"),
-                CharacterSpawnInfo(zone_display="The Bonepits"),
-                CharacterSpawnInfo(zone_display="Willowwatch Ridge"),
+                CharacterSpawnInfo(zone_stable_key="zone:Braxonian Desert"),
+                CharacterSpawnInfo(zone_stable_key="zone:Faerie's Brake"),
+                CharacterSpawnInfo(zone_stable_key="zone:Hidden Hills"),
+                CharacterSpawnInfo(zone_stable_key="zone:Island Tomb"),
+                CharacterSpawnInfo(zone_stable_key="zone:Stowaway's Step"),
+                CharacterSpawnInfo(zone_stable_key="zone:The Bonepits"),
+                CharacterSpawnInfo(zone_stable_key="zone:Willowwatch Ridge"),
             ],
         )
         categories = generator.generate_character_categories(enriched)
@@ -552,7 +552,7 @@ class TestCharacterCategories:
         )
         enriched = EnrichedCharacterData(
             character=character,
-            spawn_infos=[CharacterSpawnInfo(zone_display="Port Azure")],
+            spawn_infos=[CharacterSpawnInfo(zone_stable_key="zone:Port Azure")],
         )
         categories = generator.generate_character_categories(enriched)
         assert set(categories) == {"Port Azure", "Characters", "Vendors"}

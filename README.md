@@ -5,7 +5,7 @@
 
 Data mining pipeline for Erenshor (single-player MMORPG). Downloads game files from Steam, extracts Unity assets, exports to SQLite, and publishes to MediaWiki and Google Sheets.
 
-**Pipeline**: Steam → Game Files → Unity Project → SQLite Database → Wiki/Sheets
+**Pipeline**: SteamCMD → Game Files → AssetRipper → Unity Project → Unity Export Scripts → SQLite → Python Services → MediaWiki/Google Sheets
 
 ---
 
@@ -68,40 +68,44 @@ uv run erenshor sheets deploy --all-sheets
 
 ### Pipeline
 
-**Steam** → **SteamCMD** → **Game Files** → **AssetRipper** → **Unity Project** → **Unity Editor Scripts (C#)** → **SQLite** → **Python Formatters** → **MediaWiki / Google Sheets**
+**SteamCMD** → **Game Files** → **AssetRipper** → **Unity Project** → **Unity Editor Scripts (C#)** → **SQLite** → **Python Services** → **MediaWiki / Google Sheets**
 
-Python CLI (`uv run erenshor`) built with Typer handles pipeline automation, data formatting, and publishing.
+The Python CLI (`uv run erenshor`) built with Typer orchestrates the entire pipeline: downloading games via SteamCMD, extracting Unity projects via AssetRipper, running Unity exports in batch mode, formatting data, and deploying to MediaWiki and Google Sheets.
 
 ### Data Flow
 
-**Export Layer** (Unity C# → SQLite)
+**Extract Layer** (Game → Unity → SQLite)
 
--   Unity Editor scripts extract game data from ScriptableObjects
--   Custom listeners for each entity type (items, characters, quests, etc.)
--   Location: `src/Assets/Editor/`
+-   SteamCMD downloads game files from Steam
+-   AssetRipper extracts Unity project from game files
+-   Unity Editor scripts scan assets and export to SQLite
+-   Custom listeners for each entity type (items, characters, spells, quests, etc.)
+-   Location: `src/Assets/Editor/ExportSystem/`
 
-**Format Layer** (SQLite → Content)
+**Transform Layer** (SQLite → Content)
 
--   Python generators stream entities from database
--   Jinja2 templates render MediaWiki markup
--   Custom formatters for Google Sheets
+-   Python services read entities from database
+-   Template generators create MediaWiki markup with field preservation
+-   SQL formatters generate spreadsheet-ready data
+-   Registry resolver maps entity IDs to wiki page titles
 -   Location: `src/erenshor/application/`
 
 **Deploy Layer** (Content → Destinations)
 
--   MediaWiki API client for wiki uploads
--   Google Sheets API v4 for spreadsheet publishing
+-   MediaWiki client manages three-stage workflow (fetch, generate, deploy)
+-   Google Sheets publisher uploads formatted data via API v4
+-   Cloudflare static hosting for interactive maps
 -   Location: `src/erenshor/infrastructure/`
 
 ### Multi-Variant Support
 
 Three game variants with separate pipelines:
 
-| Variant      | App ID  | Description                |
-| ------------ | ------- | -------------------------- |
-| **main**     | 2382520 | Production release         |
-| **playtest** | 3090030 | Private beta/alpha testing |
-| **demo**     | 2522260 | Free demo version          |
+| Variant      | App ID  | Description            |
+| ------------ | ------- | ---------------------- |
+| **main**     | 2382520 | Production release     |
+| **playtest** | 3090030 | Beta/alpha testing     |
+| **demo**     | 2522260 | Free demo version      |
 
 Each variant maintains separate game downloads, Unity projects, databases, spreadsheets, and logs.
 
@@ -114,11 +118,13 @@ Each variant maintains separate game downloads, Unity projects, databases, sprea
 **Full Pipeline Update (After Game Patch)**
 
 ```bash
-# Run complete extraction pipeline
+# Run complete extraction pipeline (download → rip → export)
 uv run erenshor extract full
 
-# Update wiki content
-uv run erenshor wiki update
+# Fetch existing wiki pages, generate new content, and deploy
+uv run erenshor wiki fetch
+uv run erenshor wiki generate
+uv run erenshor wiki deploy
 
 # Deploy to Google Sheets
 uv run erenshor sheets deploy --all-sheets
@@ -175,17 +181,26 @@ uv run erenshor extract download    # Download from Steam
 uv run erenshor extract rip         # Extract Unity project
 uv run erenshor extract export      # Export to SQLite
 
-# Publishing
-uv run erenshor wiki update         # Update wiki pages
+# Wiki (three-stage workflow)
+uv run erenshor wiki fetch          # Fetch existing pages from MediaWiki
+uv run erenshor wiki generate       # Generate new pages locally
+uv run erenshor wiki deploy         # Deploy generated pages to MediaWiki
+
+# Google Sheets
+uv run erenshor sheets list         # List available sheets
 uv run erenshor sheets deploy       # Deploy to Google Sheets
 
-# Maps
-uv run erenshor maps dev            # Start dev server
+# Interactive Maps
+uv run erenshor maps dev            # Start dev server with live reloading
+uv run erenshor maps preview        # Preview built site locally
 uv run erenshor maps build          # Build for production
-uv run erenshor maps deploy         # Deploy to Cloudflare
+uv run erenshor maps deploy         # Deploy to Cloudflare Pages
 
-# Testing
+# Backup & Testing
+uv run erenshor backup list         # List backups
 uv run erenshor test                # Run all tests
+uv run erenshor test unit           # Run unit tests only
+uv run erenshor test integration    # Run integration tests only
 ```
 
 See **[CLAUDE.md](CLAUDE.md)** for detailed documentation.
@@ -391,34 +406,59 @@ Commit types: `feat:`, `fix:`, `docs:`, `style:`, `refactor:`, `perf:`, `test:`,
 ```
 erenshor/
 ├── src/
-│   ├── erenshor/           # Python package (CLI, services, formatters)
-│   │   ├── cli/            # Typer CLI implementation
-│   │   ├── application/    # Business services
-│   │   ├── infrastructure/ # External integrations (Steam, Unity, AssetRipper)
-│   │   ├── domain/         # Domain models
-│   │   └── registry/       # Entity registries
-│   └── Assets/Editor/      # Unity C# export scripts
-├── variants/               # Working directories (NOT tracked)
-│   ├── main/               # Main game files, Unity project, database
-│   ├── playtest/           # Playtest variant
-│   └── demo/               # Demo variant
-├── tests/                  # Python test suite
-├── docs/                   # Documentation
-├── config.toml             # Project configuration
-├── pyproject.toml          # Python dependencies
-└── .erenshor/              # Local state and overrides (NOT tracked)
+│   ├── erenshor/                 # Python package
+│   │   ├── cli/                  # Typer CLI (commands, preconditions, context)
+│   │   ├── application/          # Services, generators, formatters
+│   │   │   ├── generators/       # Wiki template generators
+│   │   │   ├── formatters/       # Google Sheets formatters
+│   │   │   │   └── sheets/queries/  # SQL query files
+│   │   │   └── services/         # Business logic (wiki, sheets, backup)
+│   │   ├── domain/               # Entities and value objects
+│   │   ├── infrastructure/       # External integrations
+│   │   │   ├── assetripper/      # AssetRipper automation
+│   │   │   ├── steam/            # SteamCMD integration
+│   │   │   ├── unity/            # Unity batch mode executor
+│   │   │   ├── wiki/             # MediaWiki client
+│   │   │   ├── publishers/       # Google Sheets publisher
+│   │   │   ├── database/         # SQLite repositories
+│   │   │   └── config/           # Configuration loader
+│   │   ├── registry/             # Entity-to-page resolver
+│   │   └── shared/               # Shared utilities
+│   └── Assets/Editor/            # Unity C# export scripts
+│       ├── ExportSystem/         # Asset scanner and listeners
+│       ├── Database/             # SQLite record models
+│       └── ExportBatch.cs        # Batch mode entry point
+├── variants/                     # Working directories (NOT tracked)
+│   ├── main/                     # Main game variant
+│   │   ├── game/                 # Downloaded from Steam
+│   │   ├── unity/                # Unity project from AssetRipper
+│   │   ├── wiki/                 # Wiki fetch/generate/deploy cache
+│   │   ├── logs/                 # Variant-specific logs
+│   │   └── erenshor-main.sqlite  # Exported database
+│   ├── playtest/                 # Playtest variant
+│   └── demo/                     # Demo variant
+├── tests/                        # Python test suite
+├── docs/                         # Documentation
+├── registry.db                   # Entity-to-page mapping database
+├── config.toml                   # Project configuration
+├── pyproject.toml                # Python dependencies and CLI entry point
+└── .erenshor/                    # Local state and overrides (NOT tracked)
+    ├── config.local.toml         # User configuration overrides
+    ├── state.json                # Pipeline state tracking
+    └── logs/                     # Global logs
 ```
 
 ### Key Files
 
-| File                                 | Purpose                           |
-| ------------------------------------ | --------------------------------- |
-| `config.toml`                        | Project configuration             |
-| `.erenshor/config.local.toml`        | Local overrides                   |
-| `variants/main/erenshor-main.sqlite` | Main database                     |
-| `src/Assets/Editor/`                 | Unity export scripts              |
-| `src/erenshor/`                      | Python package                    |
-| `pyproject.toml`                     | Python dependencies and CLI entry |
+| File                                 | Purpose                                       |
+| ------------------------------------ | --------------------------------------------- |
+| `config.toml`                        | Project configuration (tracked in git)        |
+| `.erenshor/config.local.toml`        | Local overrides (NOT tracked)                 |
+| `registry.db`                        | Entity-to-page mapping database               |
+| `variants/main/erenshor-main.sqlite` | Main game database (50MB+)                    |
+| `src/Assets/Editor/`                 | Unity C# export scripts                       |
+| `src/erenshor/`                      | Python package (CLI, services, infrastructure)|
+| `pyproject.toml`                     | Python dependencies and CLI entry point       |
 
 ### Troubleshooting
 

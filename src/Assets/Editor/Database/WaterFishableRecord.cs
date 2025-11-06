@@ -12,6 +12,7 @@ public class WaterFishableRecord
     [Indexed(Name = "WaterFishable_Primary_IDX", Order = 2, Unique = true)]
     public string Type { get; set; } = string.Empty; // "DayFishable" or "NightFishable"
     [Indexed(Name = "WaterFishable_Primary_IDX", Order = 3, Unique = true)]
-    public string ItemName { get; set; } = string.Empty;
+    [ForeignKey(typeof(ItemRecord), "StableKey")]
+    public string ItemStableKey { get; set; } = string.Empty;
     public float DropChance { get; set; }
 }

@@ -156,53 +156,6 @@ def build_stable_key(entity_type: EntityType, resource_name: str) -> str:
     return f"{entity_type.value}:{normalized}"
 
 
-def parse_stable_key(key: str) -> tuple[EntityType, str]:
-    """Parse a stable key into entity type and resource name.
-
-    Splits the key on the first colon and validates both parts.
-
-    Args:
-        key: The stable key to parse (format: "entity_type:resource_name")
-
-    Returns:
-        Tuple of (EntityType, resource_name)
-
-    Raises:
-        ValueError: If key format is invalid or entity type is unknown
-
-    Examples:
-        >>> parse_stable_key("item:iron_sword")
-        (EntityType.ITEM, "iron_sword")
-        >>> parse_stable_key("character:goblin_warrior")
-        (EntityType.CHARACTER, "goblin_warrior")
-        >>> parse_stable_key("quest:main_quest_01")
-        (EntityType.QUEST, "main_quest_01")
-        >>> parse_stable_key("invalid_key")
-        Traceback (most recent call last):
-            ...
-        ValueError: Invalid stable key format: 'invalid_key' (must contain ':')
-        >>> parse_stable_key("unknown_type:some_name")
-        Traceback (most recent call last):
-            ...
-        ValueError: Unknown entity type: 'unknown_type'
-    """
-    # Validate key contains colon
-    if ":" not in key:
-        raise ValueError(f"Invalid stable key format: {key!r} (must contain ':')")
-
-    # Split on first colon only
-    entity_type_str, resource_name = key.split(":", 1)
-
-    # Validate entity type
-    try:
-        entity_type = EntityType(entity_type_str)
-    except ValueError as e:
-        raise ValueError(f"Unknown entity type: {entity_type_str!r}") from e
-
-    # Return parsed components
-    return entity_type, resource_name
-
-
 def extract_resource_name(entity_type: EntityType, entity_data: dict[str, Any]) -> str:
     """Extract resource name from entity data based on entity type.
 
@@ -234,7 +187,7 @@ def extract_resource_name(entity_type: EntityType, entity_data: dict[str, Any]) 
         "mainquest_01"
         >>> extract_resource_name(EntityType.FACTION, {"REFNAME": "MerchantGuild"})
         "merchantguild"
-        >>> extract_resource_name(EntityType.LOCATION, {"Name": "Elderwood"})
+        >>> extract_resource_name(EntityType.ZONE, {"Name": "Elderwood"})
         "elderwood"
         >>> extract_resource_name(EntityType.ITEM, {"Name": "Sword"})
         Traceback (most recent call last):

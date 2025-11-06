@@ -16,9 +16,7 @@ class SpawnPointRepository(BaseRepository[SpawnPoint]):
     All queries should use raw SQL via self._execute_raw().
     """
 
-    def get_spawn_info_for_character(
-        self, character_guid: str | None, character_id: int, is_prefab: bool
-    ) -> list[CharacterSpawnInfo]:
+    def get_spawn_info_for_character(self, character_stable_key: str, is_prefab: bool) -> list[CharacterSpawnInfo]:
         """Get all spawn point locations for a character.
 
         Returns spawn information including coordinates, zone names, respawn times,
@@ -26,11 +24,10 @@ class SpawnPointRepository(BaseRepository[SpawnPoint]):
 
         Characters connect to coordinates in two ways:
         - Prefabs: via SpawnPoints and SpawnPointCharacters (can have multiple spawns)
-        - Non-prefabs: directly via Coordinates.CharacterId (single location)
+        - Non-prefabs: directly via Coordinates.CharacterStableKey (single location)
 
         Args:
-            character_guid: Character GUID (for prefabs, None for non-prefabs)
-            character_id: Character database ID (for non-prefabs)
+            character_stable_key: Character stable key
             is_prefab: True if character is a prefab, False otherwise
 
         Returns:
@@ -42,20 +39,20 @@ class SpawnPointRepository(BaseRepository[SpawnPoint]):
 
         Example:
             >>> # Prefab character (e.g., wolf - spawns in multiple locations)
-            >>> repo.get_spawn_info_for_character("abc123guid", 42, True)
+            >>> repo.get_spawn_info_for_character("character:Wolf", True)
             [CharacterSpawnInfo(...), CharacterSpawnInfo(...)]
 
             >>> # Non-prefab character (e.g., unique NPC - one fixed location)
-            >>> repo.get_spawn_info_for_character(None, 123, False)
+            >>> repo.get_spawn_info_for_character("character:Blacksmith", False)
             [CharacterSpawnInfo(...)]
         """
-        if is_prefab and character_guid:
+        if is_prefab:
             # Prefab characters: via spawn points
-            return self._get_prefab_spawn_info(character_guid)
+            return self._get_prefab_spawn_info(character_stable_key)
         # Non-prefab characters: direct coordinates
-        return self._get_non_prefab_spawn_info(character_id)
+        return self._get_non_prefab_spawn_info(character_stable_key)
 
-    def _get_prefab_spawn_info(self, character_guid: str) -> list[CharacterSpawnInfo]:
+    def _get_prefab_spawn_info(self, character_stable_key: str) -> list[CharacterSpawnInfo]:
         """Get spawn info for prefab characters (via SpawnPoints).
 
         Prefab characters (IsPrefab=1) can spawn at multiple locations defined
@@ -67,8 +64,7 @@ class SpawnPointRepository(BaseRepository[SpawnPoint]):
         """
         query = """
             SELECT
-                co.Scene AS scene,
-                COALESCE(za.ZoneName, co.Scene) AS zone_display,
+                za.StableKey AS zone_stable_key,
                 sp.SpawnDelay1 AS base_respawn,
                 co.X AS x,
                 co.Y AS y,
@@ -79,17 +75,17 @@ class SpawnPointRepository(BaseRepository[SpawnPoint]):
             FROM SpawnPoints sp
             JOIN SpawnPointCharacters spc ON spc.SpawnPointId = sp.Id
             JOIN Coordinates co ON co.SpawnPointId = sp.Id
-            JOIN Characters c ON c.Guid = spc.CharacterGuid
-            LEFT JOIN ZoneAnnounces za ON za.SceneName = co.Scene
-            WHERE spc.CharacterGuid = ?
+            JOIN Characters c ON c.StableKey = spc.CharacterStableKey
+            LEFT JOIN Zones za ON za.SceneName = co.Scene
+            WHERE spc.CharacterStableKey = ?
               AND COALESCE(spc.SpawnChance, 0) > 0
               AND co.Scene IS NOT NULL
               AND sp.IsEnabled = 1
-            ORDER BY co.Scene COLLATE NOCASE, co.X, co.Y, co.Z
+            ORDER BY za.StableKey COLLATE NOCASE
         """
 
         try:
-            rows = self._execute_raw(query, (character_guid,))
+            rows = self._execute_raw(query, (character_stable_key,))
 
             if not rows:
                 return []
@@ -100,7 +96,7 @@ class SpawnPointRepository(BaseRepository[SpawnPoint]):
             if is_unique:
                 # Unique characters: should only have one spawn point, include coordinates
                 spawn_infos = [CharacterSpawnInfo.model_validate(dict(row)) for row in rows]
-                logger.debug(f"Retrieved {len(spawn_infos)} spawn point(s) for unique prefab {character_guid}")
+                logger.debug(f"Retrieved {len(spawn_infos)} spawn point(s) for unique prefab {character_stable_key}")
             else:
                 # Non-unique characters: collect all spawn points per zone
                 # Keep all spawn chances/respawns so generator can calculate ranges
@@ -113,22 +109,21 @@ class SpawnPointRepository(BaseRepository[SpawnPoint]):
                     spawn_data["z"] = None
                     spawn_infos.append(CharacterSpawnInfo.model_validate(spawn_data))
 
-                logger.debug(f"Retrieved {len(spawn_infos)} spawn points for non-unique prefab {character_guid}")
+                logger.debug(f"Retrieved {len(spawn_infos)} spawn points for non-unique prefab {character_stable_key}")
 
             return spawn_infos
         except Exception as e:
-            raise RepositoryError(f"Failed to retrieve spawn info for prefab {character_guid}: {e}") from e
+            raise RepositoryError(f"Failed to retrieve spawn info for prefab {character_stable_key}: {e}") from e
 
-    def _get_non_prefab_spawn_info(self, character_id: int) -> list[CharacterSpawnInfo]:
+    def _get_non_prefab_spawn_info(self, character_stable_key: str) -> list[CharacterSpawnInfo]:
         """Get spawn info for non-prefab characters (direct Coordinates).
 
         Non-prefab characters (IsPrefab=0) typically have a single fixed location
-        stored directly in Coordinates.CharacterId.
+        stored directly in Coordinates.CharacterStableKey.
         """
         query = """
             SELECT
-                co.Scene AS scene,
-                COALESCE(za.ZoneName, co.Scene) AS zone_display,
+                za.StableKey AS zone_stable_key,
                 0.0 AS base_respawn,
                 co.X AS x,
                 co.Y AS y,
@@ -137,17 +132,17 @@ class SpawnPointRepository(BaseRepository[SpawnPoint]):
                 0 AS is_rare,
                 COALESCE(c.IsUnique, 0) AS is_unique
             FROM Coordinates co
-            JOIN Characters c ON c.Id = co.CharacterId
-            LEFT JOIN ZoneAnnounces za ON za.SceneName = co.Scene
-            WHERE co.CharacterId = ?
+            JOIN Characters c ON c.StableKey = co.CharacterStableKey
+            LEFT JOIN Zones za ON za.SceneName = co.Scene
+            WHERE co.CharacterStableKey = ?
               AND co.Scene IS NOT NULL
-            ORDER BY co.Scene COLLATE NOCASE, co.X, co.Y, co.Z
+            ORDER BY za.StableKey COLLATE NOCASE
         """
 
         try:
-            rows = self._execute_raw(query, (character_id,))
+            rows = self._execute_raw(query, (character_stable_key,))
             spawn_infos = [CharacterSpawnInfo.model_validate(dict(row)) for row in rows]
-            logger.debug(f"Retrieved {len(spawn_infos)} coordinates for non-prefab character {character_id}")
+            logger.debug(f"Retrieved {len(spawn_infos)} coordinates for non-prefab character {character_stable_key}")
             return spawn_infos
         except Exception as e:
-            raise RepositoryError(f"Failed to retrieve coordinates for non-prefab {character_id}: {e}") from e
+            raise RepositoryError(f"Failed to retrieve coordinates for non-prefab {character_stable_key}: {e}") from e

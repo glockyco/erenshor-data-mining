@@ -6,9 +6,6 @@ and special abilities used by players and NPCs.
 
 from pydantic import Field
 
-from erenshor.registry.resource_names import build_stable_key, normalize_resource_name
-from erenshor.registry.schema import EntityType
-
 from .base import BaseEntity
 
 
@@ -23,9 +20,7 @@ class Skill(BaseEntity):
     """
 
     # Primary keys and identifiers
-    skill_db_index: int = Field(description="Database index (primary key)")
-    id: str | None = Field(default=None, description="Skill ID")
-    resource_name: str | None = Field(default=None, description="Stable resource identifier")
+    stable_key: str | None = Field(default=None, description="Stable key from database (primary key)")
 
     # Display fields
     skill_name: str | None = Field(default=None, description="Display name")
@@ -55,8 +50,8 @@ class Skill(BaseEntity):
     # Skill effects
     ae_skill: int | None = Field(default=None, description="Area effect skill (boolean)")
     interrupt: int | None = Field(default=None, description="Interrupts target (boolean)")
-    spawn_on_use_resource_name: str | None = Field(default=None, description="Spawned entity on use")
-    effect_to_apply_id: str | None = Field(default=None, description="Applied effect ID (can only contain spell IDs)")
+    spawn_on_use_stable_key: str | None = Field(default=None, description="Spawned character stable key")
+    effect_to_apply_stable_key: str | None = Field(default=None, description="Applied effect stable key (spell)")
 
     # Targeting
     affect_player: int | None = Field(default=None, description="Affects player (boolean)")
@@ -76,7 +71,7 @@ class Skill(BaseEntity):
 
     # Automation
     automate_attack: int | None = Field(default=None, description="Start auto-attacking when used (boolean)")
-    cast_on_target: str | None = Field(default=None, description="Cast spell ResourceName on target")
+    cast_on_target_stable_key: str | None = Field(default=None, description="Cast spell ResourceName on target")
 
     # Visual/Audio
     skill_anim_name: str | None = Field(default=None, description="Animation name")
@@ -85,31 +80,3 @@ class Skill(BaseEntity):
     # Usage tracking
     player_uses: str | None = Field(default=None, description="Message shown in combat log when used by player")
     npc_uses: str | None = Field(default=None, description="Message shown in combat log when used by NPC")
-
-    @property
-    def stable_key(self) -> str:
-        """Generate stable key for registry lookups.
-
-        Returns:
-            Stable key in format "skill:resource_name"
-
-        Raises:
-            ValueError: If resource_name is None
-        """
-        if self.resource_name is None:
-            raise ValueError("Cannot generate stable_key: resource_name is None")
-        return build_stable_key(EntityType.SKILL, self.resource_name)
-
-    @property
-    def normalized_resource_name(self) -> str:
-        """Get normalized resource name for comparisons.
-
-        Returns:
-            Lowercase, whitespace-normalized resource name
-
-        Raises:
-            ValueError: If resource_name is None
-        """
-        if self.resource_name is None:
-            raise ValueError("Cannot normalize: resource_name is None")
-        return normalize_resource_name(self.resource_name)

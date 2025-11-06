@@ -61,8 +61,8 @@ SELECT
    -- Note: Attack/buff/heal/CC/taunt spells are now in junction tables:
    -- CharacterAttackSkillRecord, CharacterAttackSpellRecord, CharacterBuffSpellRecord,
    -- CharacterHealSpellRecord, CharacterGroupHealSpellRecord, CharacterCCSpellRecord, CharacterTauntSpellRecord
-   c.PetSpell,
-   c.ProcOnHit,
+   c.PetSpellStableKey,
+   c.ProcOnHitStableKey,
    c.ProcOnHitChance,
    -- Special Properties & Quest Integration
    c.Invulnerable,

@@ -45,6 +45,7 @@ public class SkillListener : IAssetScanListener<Skill>
         return new SkillRecord
         {
             // --- Core Identification ---
+            StableKey = StableKeyGenerator.ForSkill(skill),
             SkillDBIndex = skillDbIndex,
             Id = skill.Id,
             SkillName = skill.SkillName,
@@ -72,8 +73,12 @@ public class SkillListener : IAssetScanListener<Skill>
             // --- Effects & Mechanics ---
             AESkill = skill.AESkill,
             Interrupt = skill.Interrupt,
-            SpawnOnUseResourceName = skill.SpawnOnUse != null ? skill.SpawnOnUse.name : null,
-            EffectToApplyId = skill.EffectToApply != null ? skill.EffectToApply.Id : null,
+            SpawnOnUseStableKey = skill.SpawnOnUse != null
+                ? StableKeyGenerator.ForCharacter(skill.SpawnOnUse.GetComponent<Character>())
+                : null,
+            EffectToApplyStableKey = skill.EffectToApply != null
+                ? StableKeyGenerator.ForSpell(skill.EffectToApply)
+                : null,
             AffectPlayer = skill.AffectPlayer,
             AffectTarget = skill.AffectTarget,
             SkillRange = skill.SkillRange,
@@ -85,7 +90,9 @@ public class SkillListener : IAssetScanListener<Skill>
             ProcShield = skill.ProcShield,
             GuaranteeProc = skill.GuaranteeProc,
             AutomateAttack = skill.AutomateAttack,
-            CastOnTarget = skill.CastOnTarget?.name ?? string.Empty,
+            CastOnTargetStableKey = skill.CastOnTarget != null
+                ? StableKeyGenerator.ForSpell(skill.CastOnTarget)
+                : null,
 
             // --- Visual/Audio ---
             SkillAnimName = skill.SkillAnimName,

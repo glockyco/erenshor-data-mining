@@ -6,9 +6,6 @@ and their objectives, rewards, and requirements.
 
 from pydantic import Field
 
-from erenshor.registry.resource_names import build_stable_key, normalize_resource_name
-from erenshor.registry.schema import EntityType
-
 from .base import BaseEntity
 
 
@@ -22,9 +19,7 @@ class Quest(BaseEntity):
     """
 
     # Primary keys and identifiers
-    quest_db_index: int = Field(description="Database index (primary key)")
-    db_name: str | None = Field(default=None, description="Stable quest identifier")
-    resource_name: str | None = Field(default=None, description="Resource name")
+    stable_key: str | None = Field(default=None, description="Stable key from database (primary key)")
 
     # Display fields
     quest_name: str | None = Field(default=None, description="Display name")
@@ -35,11 +30,11 @@ class Quest(BaseEntity):
 
     # Rewards
     xp_on_complete: int | None = Field(default=None, description="XP reward")
-    item_on_complete: str | None = Field(default=None, description="Item reward ResourceName")
+    item_on_complete_stable_key: str | None = Field(default=None, description="Item reward ResourceName")
     gold_on_complete: int | None = Field(default=None, description="Gold reward")
 
     # Quest chains
-    assign_new_quest_on_complete_db_name: str | None = Field(
+    assign_new_quest_on_complete_stable_key: str | None = Field(
         default=None,
         description='Quest assigned on completion (format: "QuestName (DBName)" e.g., "Destroying Aragath (Aragath2)")',
     )
@@ -77,31 +72,3 @@ class Quest(BaseEntity):
     # Achievements
     set_achievement_on_get: str | None = Field(default=None, description="Achievement on quest accept")
     set_achievement_on_finish: str | None = Field(default=None, description="Achievement on completion")
-
-    @property
-    def stable_key(self) -> str:
-        """Generate stable key for registry lookups.
-
-        Returns:
-            Stable key in format "quest:db_name"
-
-        Raises:
-            ValueError: If db_name is None
-        """
-        if self.db_name is None:
-            raise ValueError("Cannot generate stable_key: db_name is None")
-        return build_stable_key(EntityType.QUEST, self.db_name)
-
-    @property
-    def normalized_resource_name(self) -> str:
-        """Get normalized resource name for comparisons.
-
-        Returns:
-            Lowercase, whitespace-normalized db_name
-
-        Raises:
-            ValueError: If db_name is None
-        """
-        if self.db_name is None:
-            raise ValueError("Cannot normalize: db_name is None")
-        return normalize_resource_name(self.db_name)

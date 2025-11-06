@@ -5,7 +5,10 @@ SELECT
     Lore,
     RequiredSlot,
     ThisWeaponType,
-    Classes,
+    (SELECT GROUP_CONCAT(ClassName, ', ')
+     FROM ItemClasses ic
+     WHERE ic.ItemStableKey = i.StableKey
+     ORDER BY ClassName) AS Classes,
     Quality,
     ItemLevel,
     HP,
@@ -36,11 +39,11 @@ SELECT
     WeaponDly,
     Shield,
     WeaponProcChance,
-    WeaponProcOnHit,
+    WeaponProcOnHitStableKey,
     IsWand,
     WandRange,
     WandProcChance,
-    WandEffect,
+    WandEffectStableKey,
     --WandBoltColorR,
     --WandBoltColorG,
     --WandBoltColorB,
@@ -48,20 +51,20 @@ SELECT
     --WandBoltSpeed,
     --WandAttackSoundName,
     IsBow,
-    BowEffect,
+    BowEffectStableKey,
     BowProcChance,
     BowRange,
     --BowArrowSpeed,
     --BowAttackSoundName,
-    ItemEffectOnClick,
-    ItemSkillUse,
-    TeachSpell,
-    TeachSkill,
-    Aura,
-    WornEffect,
+    ItemEffectOnClickStableKey,
+    ItemSkillUseStableKey,
+    TeachSpellStableKey,
+    TeachSkillStableKey,
+    AuraStableKey,
+    WornEffectStableKey,
     SpellCastTime,
-    AssignQuestOnRead,
-    CompleteOnRead,
+    AssignQuestOnReadStableKey,
+    CompleteOnReadStableKey,
     Template,
     TemplateIngredientIds,
     TemplateRewardIds,
@@ -85,7 +88,7 @@ SELECT
     ResourceName--,
     --WikiString
 FROM items i
-LEFT JOIN ItemStats s ON s.ItemResourceName = i.ResourceName
+LEFT JOIN ItemStats s ON s.ItemStableKey = i.StableKey
 ORDER BY i.ItemDBIndex,
     CASE s.Quality
         WHEN 'Normal' THEN 1

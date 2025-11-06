@@ -10,7 +10,7 @@ Each repository:
 - Provides common query methods (get_by_resource_name, etc.)
 
 Available repositories:
-- ItemRepository: Items and equipment
+- ItemRepository: Items, equipment, and item statistics
 - SpellRepository: Spells and magical abilities
 - SkillRepository: Combat skills and special abilities
 - CharacterRepository: NPCs, creatures, and vendors
@@ -19,7 +19,6 @@ Available repositories:
 - ZoneRepository: Game zones and areas
 - LootTableRepository: Loot drop tables
 - SpawnPointRepository: Creature spawn points
-- ItemStatsRepository: Item statistics by quality
 
 Usage:
     >>> from erenshor.infrastructure.database.connection import DatabaseConnection
@@ -32,7 +31,6 @@ Usage:
 
 from .characters import CharacterRepository
 from .factions import FactionRepository
-from .item_stats import ItemStatsRepository
 from .items import ItemRepository
 from .loot_tables import LootTableRepository
 from .quests import QuestRepository
@@ -45,7 +43,6 @@ __all__ = [
     "CharacterRepository",
     "FactionRepository",
     "ItemRepository",
-    "ItemStatsRepository",
     "LootTableRepository",
     "QuestRepository",
     "SkillRepository",

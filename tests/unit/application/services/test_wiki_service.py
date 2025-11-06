@@ -31,6 +31,12 @@ def mock_item_repo():
     """Mock item repository."""
     repo = Mock()
     repo.get_items_for_wiki_generation.return_value = []
+    repo.get_item_stats.return_value = []
+    repo.get_item_classes.return_value = []
+    # Source enrichment methods
+    repo.get_items_producing_item.return_value = []
+    repo.get_items_requiring_item.return_value = []
+    repo.get_crafting_recipe.return_value = None
     return repo
 
 
@@ -39,6 +45,9 @@ def mock_character_repo():
     """Mock character repository."""
     repo = Mock()
     repo.get_characters_for_wiki_generation.return_value = []
+    # Source enrichment methods
+    repo.get_vendors_selling_item.return_value = []
+    repo.get_characters_dropping_item.return_value = []
     return repo
 
 
@@ -113,6 +122,12 @@ def wiki_service(
     mock_registry_resolver,
 ):
     """WikiService instance with mocked dependencies."""
+    from unittest.mock import Mock
+
+    mock_quest_repo = Mock()
+    mock_quest_repo.get_quests_rewarding_item.return_value = []
+    mock_quest_repo.get_quests_requiring_item.return_value = []
+
     return WikiService(
         wiki_client=mock_wiki_client,
         storage=mock_storage,
@@ -123,6 +138,7 @@ def wiki_service(
         faction_repo=mock_faction_repo,
         spawn_repo=mock_spawn_repo,
         loot_repo=mock_loot_repo,
+        quest_repo=mock_quest_repo,
         registry_resolver=mock_registry_resolver,
     )
 
@@ -136,9 +152,8 @@ def sample_item():
         item_name="Test Sword",
         resource_name="TestSword",
         lore="A test sword",
-        required_slot="Main Hand",
+        required_slot="Primary",
         this_weapon_type="Sword",
-        classes="Warrior,Paladin",
         item_level=10,
         weapon_dly=2.5,
         is_quest_item=0,
@@ -184,6 +199,10 @@ class TestWikiServiceInit:
         mock_registry_resolver,
     ):
         """Test service initializes with all dependencies."""
+        from unittest.mock import Mock
+
+        mock_quest_repo = Mock()
+
         service = WikiService(
             wiki_client=mock_wiki_client,
             storage=mock_storage,
@@ -194,6 +213,7 @@ class TestWikiServiceInit:
             faction_repo=mock_faction_repo,
             spawn_repo=mock_spawn_repo,
             loot_repo=mock_loot_repo,
+            quest_repo=mock_quest_repo,
             registry_resolver=mock_registry_resolver,
         )
 
@@ -236,9 +256,8 @@ class TestFetchAll:
                 item_name=f"Test Sword {i}",  # Different names = different pages
                 resource_name=f"TestSword{i}",
                 lore="A test sword",
-                required_slot="Main Hand",
+                required_slot="Primary",
                 this_weapon_type="Sword",
-                classes="Warrior",
                 item_level=10,
                 weapon_dly=2.5,
                 is_quest_item=0,
@@ -287,11 +306,40 @@ class TestGenerateAll:
 
     def test_dry_run_mode(self, wiki_service, mock_item_repo, sample_item):
         """Test dry-run mode doesn't save to storage."""
+        from erenshor.domain.entities.item_stats import ItemStats
+
         mock_item_repo.get_items_for_wiki_generation.return_value = [sample_item]
+        mock_item_repo.get_item_stats.return_value = [
+            ItemStats(
+                item_resource_name="TestSword",
+                quality="Normal",
+                weapon_dmg=10,
+                hp=0,
+                ac=0,
+                mana=0,
+                strength=0,
+                dexterity=0,
+                endurance=0,
+                agility=0,
+                wisdom=0,
+                intelligence=0,
+                charisma=0,
+                magic_resist=0,
+                elemental_resist=0,
+                void_resist=0,
+                poison_resist=0,
+                damage=10,
+                damage_variance=2,
+                attack_roll_bonus=0,
+                crit_roll_bonus=0,
+                worn_effect=None,
+                equipped_effect_intensity=None,
+            ),
+        ]
+        mock_item_repo.get_item_classes.return_value = ["Warrior", "Paladin"]
 
         result = wiki_service.generate_all(dry_run=True)
 
-        # Should generate but not save
         assert result.total == 1
         assert result.succeeded == 1
         assert result.failed == 0
@@ -307,9 +355,8 @@ class TestGenerateAll:
                 item_name=f"Test Sword {i}",  # Different names = different pages
                 resource_name=f"TestSword{i}",
                 lore="A test sword",
-                required_slot="Main Hand",
+                required_slot="Primary",
                 this_weapon_type="Sword",
-                classes="Warrior",
                 item_level=10,
                 weapon_dly=2.5,
                 is_quest_item=0,
@@ -345,7 +392,37 @@ class TestGenerateAll:
 
     def test_page_titles_filter(self, wiki_service, mock_item_repo, sample_item):
         """Test page_titles parameter filters pages."""
+        from erenshor.domain.entities.item_stats import ItemStats
+
         mock_item_repo.get_items_for_wiki_generation.return_value = [sample_item]
+        mock_item_repo.get_item_stats.return_value = [
+            ItemStats(
+                item_resource_name="TestSword",
+                quality="Normal",
+                weapon_dmg=10,
+                hp=0,
+                ac=0,
+                mana=0,
+                strength=0,
+                dexterity=0,
+                endurance=0,
+                agility=0,
+                wisdom=0,
+                intelligence=0,
+                charisma=0,
+                magic_resist=0,
+                elemental_resist=0,
+                void_resist=0,
+                poison_resist=0,
+                damage=10,
+                damage_variance=2,
+                attack_roll_bonus=0,
+                crit_roll_bonus=0,
+                worn_effect=None,
+                equipped_effect_intensity=None,
+            ),
+        ]
+        mock_item_repo.get_item_classes.return_value = ["Warrior", "Paladin"]
 
         result = wiki_service.generate_all(dry_run=True, page_titles=["Test Sword"])
 

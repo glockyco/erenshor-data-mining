@@ -8,6 +8,7 @@ public class ZoneAtlasEntryListener : IAssetScanListener<ZoneAtlasEntry>
 {
     private readonly SQLiteConnection _db;
     private readonly List<ZoneAtlasEntryRecord> _records = new();
+    private readonly List<ZoneAtlasNeighborRecord> _neighborRecords = new();
 
     public ZoneAtlasEntryListener(SQLiteConnection db)
     {
@@ -23,13 +24,19 @@ public class ZoneAtlasEntryListener : IAssetScanListener<ZoneAtlasEntry>
             _db.InsertAll(_records);
         });
         _records.Clear();
+
+        _db.CreateTable<ZoneAtlasNeighborRecord>();
+        _db.RunInTransaction(() =>
+        {
+            _db.DeleteAll<ZoneAtlasNeighborRecord>();
+            _db.InsertAll(_neighborRecords);
+        });
+        _neighborRecords.Clear();
     }
 
     public void OnAssetFound(ZoneAtlasEntry asset)
     {
         Debug.Log($"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
-
-        string neighboringZones = string.Join(", ", asset!.NeighboringZones ?? new List<string>());
 
         ZoneAtlasEntryRecord record = new ZoneAtlasEntryRecord
         {
@@ -39,10 +46,24 @@ public class ZoneAtlasEntryListener : IAssetScanListener<ZoneAtlasEntry>
             LevelRangeLow = asset.LevelRangeLow,
             LevelRangeHigh = asset.LevelRangeHigh,
             Dungeon = asset.Dungeon,
-            NeighboringZones = neighboringZones,
             ResourceName = asset.name,
         };
 
         _records.Add(record);
+
+        if (asset.NeighboringZones != null)
+        {
+            foreach (var neighborZoneName in asset.NeighboringZones)
+            {
+                if (!string.IsNullOrEmpty(neighborZoneName))
+                {
+                    _neighborRecords.Add(new ZoneAtlasNeighborRecord
+                    {
+                        ZoneAtlasId = asset.Id,
+                        NeighborZoneStableKey = StableKeyGenerator.ForZoneFromSceneName(neighborZoneName)
+                    });
+                }
+            }
+        }
     }
 }

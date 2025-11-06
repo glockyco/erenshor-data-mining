@@ -6,11 +6,12 @@ using SQLite;
 public class SpellRecord
 {
     public const string TableName = "Spells";
-    
+
     // --- Core Identification ---
-    public int SpellDBIndex { get; set; } // Index in the Resources.LoadAll array
-    [Indexed]
-    public string Id { get; set; } = string.Empty; // From BaseScriptableObject.Id
+    [PrimaryKey]
+    public string StableKey { get; set; } = string.Empty; // Stable identifier: "spell:resource_name"
+    public int SpellDBIndex { get; set; } // Index in the Resources.LoadAll array (internal Unity use only)
+    public string Id { get; set; } = string.Empty; // BaseScriptableObject.Id (internal Unity use only)
     public string SpellName { get; set; } = string.Empty; // From Spell.SpellName
     public string SpellDesc { get; set; } = string.Empty; // From Spell.SpellDesc
     public string SpecialDescriptor { get; set; } = string.Empty; // From Spell.SpecialDescriptor
@@ -18,7 +19,6 @@ public class SpellRecord
     public string Line { get; set; } = string.Empty; // From Spell.Line enum
 
     // --- Requirements & Cost ---
-    public string Classes { get; set; } = string.Empty; // Comma-separated list from Spell.UsedBy
     public int RequiredLevel { get; set; } // From Spell.RequiredLevel
     public int ManaCost { get; set; } // From Spell.ManaCost
 
@@ -51,7 +51,8 @@ public class SpellRecord
     public bool Lifetap { get; set; } // From Spell.Lifetap
     public string DamageType { get; set; } // From Spell.MyDamageType enum
     public float ResistModifier { get; set; } // From Spell.ResistModifier
-    public string AddProc { get; set; } = string.Empty; // Spell ResourceName
+    [ForeignKey(typeof(SpellRecord), "StableKey")]
+    public string? AddProcStableKey { get; set; }
     public int AddProcChance { get; set; } // From Spell.AddProcChance
 
     // --- Stat Buffs/Debuffs ---
@@ -87,8 +88,10 @@ public class SpellRecord
     public bool TauntSpell { get; set; } // From Spell.TauntSpell
 
     // --- Special Mechanics ---
-    public string PetToSummonResourceName { get; set; } = string.Empty; // From Spell.PetToSummon.name
-    public string StatusEffectToApply { get; set; } = string.Empty; // Spell ResourceName
+    [ForeignKey(typeof(CharacterRecord), "StableKey")]
+    public string? PetToSummonStableKey { get; set; }
+    [ForeignKey(typeof(SpellRecord), "StableKey")]
+    public string? StatusEffectToApplyStableKey { get; set; }
     public bool ReapAndRenew { get; set; } // From Spell.ReapAndRenew
     public int ResonateChance { get; set; } // From Spell.ResonateChance
     public float XPBonus { get; set; } // From Spell.XPBonus
@@ -111,6 +114,5 @@ public class SpellRecord
     public string StatusEffectMessageOnNPC { get; set; } = string.Empty; // From Spell.StatusEffectMessageOnNPC
     
     // --- Internals ---
-    [PrimaryKey]
     public string ResourceName { get; set; } = string.Empty; // From Spell.name (ScriptableObject name)
 }

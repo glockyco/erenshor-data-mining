@@ -14,7 +14,7 @@ class LootDropInfo(BaseModel):
     Example:
         >>> loot = LootDropInfo(
         ...     item_name="Iron Sword",
-        ...     resource_name="IronSword",
+        ...     item_stable_key="item:IronSword",
         ...     drop_probability=5.25,
         ...     is_guaranteed=False,
         ...     is_actual=True,
@@ -29,7 +29,7 @@ class LootDropInfo(BaseModel):
     """
 
     item_name: str | None = Field(default=None, description="Item display name")
-    resource_name: str | None = Field(default=None, description="Item resource name (stable identifier)")
+    item_stable_key: str | None = Field(default=None, description="Item stable key (format: 'item:resource_name')")
     drop_probability: float = Field(description="Drop probability percentage (0-100)")
     is_guaranteed: bool = Field(description="Is guaranteed drop")
     is_actual: bool = Field(description="Is actual item (vs placeholder/aggregate)")

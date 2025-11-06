@@ -12,5 +12,6 @@ public class DoorRecord
     [Indexed]
     public int CoordinateId { get; set; }
     [Indexed]
-    public string? KeyItemId { get; set; }
+    [ForeignKey(typeof(ItemRecord), "StableKey")]
+    public string? KeyItemStableKey { get; set; }
 }

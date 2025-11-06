@@ -31,6 +31,7 @@ public class WorldFactionListener : IAssetScanListener<WorldFaction>
 
         var record = new WorldFactionRecord
         {
+            StableKey = StableKeyGenerator.ForFaction(asset),
             REFNAME = asset.REFNAME,
             FactionDBIndex = _records.Count,
             FactionName = asset.FactionName,

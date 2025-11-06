@@ -21,7 +21,7 @@ Entity resolution:
 from datetime import UTC, datetime
 from enum import Enum as PyEnum
 
-from sqlmodel import Column, Field, Index, SQLModel
+from sqlmodel import Column, Field, SQLModel
 from sqlmodel import Enum as SQLEnum
 
 
@@ -43,49 +43,34 @@ class EntityType(str, PyEnum):
     ITEM = "item"
     SPELL = "spell"
     SKILL = "skill"
-    CHARACTER = "character"  # (friendly) NPCs and (non-friendly) enemies
+    CHARACTER = "character"
     QUEST = "quest"
     FACTION = "faction"
     ZONE = "zone"
-    LOCATION = "location"
-    ACHIEVEMENT = "achievement"
-    CRAFTING_RECIPE = "crafting_recipe"
-    LOOT_TABLE = "loot_table"
-    DIALOG = "dialog"
-    OTHER = "other"  # Catch-all for uncategorized entities
 
 
 class EntityRecord(SQLModel, table=True):
     """Entity registry table for manual overrides.
 
     Stores manual overrides for wiki page titles, display names, and image names.
-    Only entities with custom mappings are stored in this table.
+    Uses stable_key as the primary key (format: "entity_type:resource_name").
 
-    The entity_type and resource_name combination must be unique, preventing
-    duplicate registrations.
-
-    Indexes:
-    - Primary key on id (auto-increment)
-    - Unique composite index on (entity_type, resource_name)
+    The stable_key directly matches the StableKey column from the game database,
+    ensuring consistency across the entire system. The entity_type is stored
+    separately for efficient querying by type.
     """
 
     __tablename__ = "entities"
 
-    id: int | None = Field(
-        default=None,
+    stable_key: str = Field(
         primary_key=True,
-        description="Auto-incrementing primary key",
+        max_length=255,
+        description="Stable key from game database (format: 'entity_type:resource_name')",
     )
 
     entity_type: EntityType = Field(
-        sa_column=Column(SQLEnum(EntityType), nullable=False),
-        description="Type of game entity (item, spell, character, etc.)",
-    )
-
-    resource_name: str = Field(
-        index=True,
-        max_length=255,
-        description="Stable resource identifier from game data (unique within entity_type)",
+        sa_column=Column(SQLEnum(EntityType), nullable=False, index=True),
+        description="Type of game entity (item, spell, character, etc.) - extracted from stable_key",
     )
 
     page_title: str | None = Field(
@@ -111,15 +96,6 @@ class EntityRecord(SQLModel, table=True):
         description="True if entity should be excluded from wiki (mapping.json has null wiki_page_name)",
     )
 
-    __table_args__ = (
-        Index(
-            "ix_entity_type_resource_name",
-            "entity_type",
-            "resource_name",
-            unique=True,
-        ),
-    )
-
 
 class ConflictRecord(SQLModel, table=True):
     """Conflict tracking table for name collisions requiring resolution.
@@ -131,17 +107,17 @@ class ConflictRecord(SQLModel, table=True):
     - ambiguous_reference: Unclear which entity a wiki reference points to
     - duplicate_resource_name: Same resource_name with different entity_types
 
-    The entity_ids field stores a JSON array of entity IDs involved in the
-    conflict. Resolution workflow:
+    The entity_stable_keys field stores a JSON array of entity stable keys involved
+    in the conflict. Resolution workflow:
     1. Conflict detected and recorded with resolved=False
     2. Manual or automated resolution chooses one entity
-    3. resolution_entity_id set to chosen entity
+    3. resolution_stable_key set to chosen entity's stable key
     4. resolved=True and resolved_at timestamp recorded
 
     Indexes:
     - Primary key on id (auto-increment)
     - Index on resolved for filtering unresolved conflicts
-    - Foreign key on resolution_entity_id referencing entities table
+    - Foreign key on resolution_stable_key referencing entities.stable_key
     """
 
     __tablename__ = "conflicts"
@@ -152,9 +128,9 @@ class ConflictRecord(SQLModel, table=True):
         description="Auto-incrementing primary key",
     )
 
-    entity_ids: str = Field(
+    entity_stable_keys: str = Field(
         max_length=1000,
-        description="JSON array of entity IDs involved in conflict (e.g., '[1, 2, 3]')",
+        description='JSON array of entity stable keys involved in conflict (e.g., \'["item:sword", "item:blade"]\')',
     )
 
     conflict_type: str = Field(
@@ -168,10 +144,10 @@ class ConflictRecord(SQLModel, table=True):
         description="True if conflict has been resolved",
     )
 
-    resolution_entity_id: int | None = Field(
+    resolution_stable_key: str | None = Field(
         default=None,
-        foreign_key="entities.id",
-        description="ID of chosen entity if conflict is resolved (references entities.id)",
+        foreign_key="entities.stable_key",
+        description="Stable key of chosen entity if conflict is resolved (references entities.stable_key)",
     )
 
     resolution_notes: str | None = Field(

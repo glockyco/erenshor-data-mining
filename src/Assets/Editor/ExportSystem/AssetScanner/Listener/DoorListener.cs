@@ -71,7 +71,9 @@ public class DoorListener : IAssetScanListener<Door>
         return new DoorRecord
         {
             CoordinateId = coordinate.Id,
-            KeyItemId = door.RequiredKey?.Id
+            KeyItemStableKey = door.RequiredKey != null
+                ? StableKeyGenerator.ForItem(door.RequiredKey)
+                : null
         };
     }
 }

@@ -6,7 +6,7 @@ SELECT
     ROUND(co.Y, 2) AS PositionY,
     ROUND(co.Z, 2) AS PositionZ,
     sp.IsEnabled,
-    c.Id AS CharacterId,
+    c.StableKey AS CharacterStableKey,
     c.NPCName,
     --c.ObjectName,
     ROUND(spc.SpawnChance, 2) AS 'Spawn Chance (%)',
@@ -25,15 +25,17 @@ SELECT
     sp.PatrolPoints,
     sp.LoopPatrol,
     sp.RandomWanderRange,
-    sp.SpawnUponQuestCompleteDBName,
-    sp.StopIfQuestCompleteDBNames,
+    sp.SpawnUponQuestCompleteStableKey,
+    (SELECT GROUP_CONCAT(QuestStableKey, ', ')
+     FROM SpawnPointStopQuests spsq
+     WHERE spsq.SpawnPointId = sp.Id) AS StopIfQuestCompleteStableKeys,
     'https://erenshor-maps.wowmuch1.workers.dev/' || za.SceneName || '?coordinateId=' || co.Id AS MapLink
 FROM
     main.SpawnPoints sp
     JOIN SpawnPointCharacters spc ON sp.Id = spc.SpawnPointId
-    JOIN Characters c ON spc.CharacterGuid = c.Guid
+    JOIN Characters c ON spc.CharacterStableKey = c.StableKey
     JOIN Coordinates co ON co.SpawnPointId = sp.Id
-    JOIN ZoneAnnounces za ON za.SceneName = co.Scene
+    JOIN Zones za ON za.SceneName = co.Scene
 ORDER BY
     sp.Id,
     spc.SpawnChance DESC,

@@ -67,7 +67,7 @@ public class TeleportLocListener : IAssetScanListener<Object>
         var teleport = new TeleportRecord
         {
             CoordinateId = coordinate.Id,
-            TeleportItemResourceName = itemResourceName,
+            TeleportItemStableKey = StableKeyGenerator.ForItemFromResourceName(itemResourceName),
         };
 
         _db.Insert(teleport);

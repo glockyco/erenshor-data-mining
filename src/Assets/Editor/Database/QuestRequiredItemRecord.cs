@@ -8,8 +8,10 @@ public class QuestRequiredItemRecord
     public const string TableName = "QuestRequiredItems";
 
     [Indexed(Name = "QuestRequiredItems_Primary_IDX", Order = 1, Unique = true)]
-    public int QuestId { get; set; }
+    [ForeignKey(typeof(QuestVariantRecord), "ResourceName")]
+    public string QuestVariantResourceName { get; set; } = string.Empty;
 
     [Indexed(Name = "QuestRequiredItems_Primary_IDX", Order = 2, Unique = true)]
-    public string ItemResourceName { get; set; } = string.Empty;
+    [ForeignKey(typeof(ItemRecord), "StableKey")]
+    public string ItemStableKey { get; set; } = string.Empty;
 }

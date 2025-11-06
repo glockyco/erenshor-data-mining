@@ -6,12 +6,14 @@ using SQLite;
 public class LootTableRecord
 {
     public const string TableName = "LootDrops";
-    
+
     [Indexed(Name = "LootDrops_Primary_IDX", Order = 1, Unique = true)]
-    public string CharacterPrefabGuid { get; set; } = string.Empty;
+    [ForeignKey(typeof(CharacterRecord), "StableKey")]
+    public string CharacterStableKey { get; set; } = string.Empty;
 
     [Indexed(Name = "LootDrops_Primary_IDX", Order = 2, Unique = true)]
-    public string ItemResourceName { get; set; } = string.Empty;
+    [ForeignKey(typeof(ItemRecord), "StableKey")]
+    public string ItemStableKey { get; set; } = string.Empty;
 
     // Probability that this item drops at least once per kill
     public double DropProbability { get; set; }

@@ -85,8 +85,8 @@ class ProcExtractor:
         proc_style = ""
 
         # Priority 1: WeaponProcOnHit
-        if item.weapon_proc_on_hit and (item.weapon_proc_chance or 0) > 0:
-            spell = self._get_cached_spell(conn, item.weapon_proc_on_hit)
+        if item.weapon_proc_on_hit_stable_key and (item.weapon_proc_chance or 0) > 0:
+            spell = self._get_cached_spell(conn, item.weapon_proc_on_hit_stable_key)
             if spell and spell.spell_name:
                 proc_name = spell.spell_name
                 if spell.spell_desc:
@@ -95,8 +95,8 @@ class ProcExtractor:
             proc_style = "Bash" if item.shield else "Attack"
 
         # Priority 2: WandEffect
-        elif item.wand_effect and (item.wand_proc_chance or 0) > 0:
-            spell = self._get_cached_spell(conn, item.wand_effect)
+        elif item.wand_effect_stable_key and (item.wand_proc_chance or 0) > 0:
+            spell = self._get_cached_spell(conn, item.wand_effect_stable_key)
             if spell and spell.spell_name:
                 proc_name = spell.spell_name
                 if spell.spell_desc:
@@ -105,8 +105,8 @@ class ProcExtractor:
             proc_style = "Attack"
 
         # Priority 3: BowEffect
-        elif item.bow_effect and (item.bow_proc_chance or 0) > 0:
-            spell = self._get_cached_spell(conn, item.bow_effect)
+        elif item.bow_effect_stable_key and (item.bow_proc_chance or 0) > 0:
+            spell = self._get_cached_spell(conn, item.bow_effect_stable_key)
             if spell and spell.spell_name:
                 proc_name = spell.spell_name
                 if spell.spell_desc:
@@ -115,8 +115,8 @@ class ProcExtractor:
             proc_style = "Attack"
 
         # Priority 4: ItemEffectOnClick
-        elif item.item_effect_on_click:
-            spell = self._get_cached_spell(conn, item.item_effect_on_click)
+        elif item.item_effect_on_click_stable_key:
+            spell = self._get_cached_spell(conn, item.item_effect_on_click_stable_key)
             if spell and spell.spell_name:
                 proc_name = spell.spell_name
                 if spell.spell_desc:
@@ -149,8 +149,8 @@ class ProcExtractor:
         proc_style = ""
 
         # Priority 1: WeaponProcOnHit (for armor, this is a "Cast" proc)
-        if item.weapon_proc_on_hit and (item.weapon_proc_chance or 0) > 0:
-            spell = self._get_cached_spell(conn, item.weapon_proc_on_hit)
+        if item.weapon_proc_on_hit_stable_key and (item.weapon_proc_chance or 0) > 0:
+            spell = self._get_cached_spell(conn, item.weapon_proc_on_hit_stable_key)
             if spell and spell.spell_name:
                 proc_name = spell.spell_name
                 if spell.spell_desc:
@@ -159,8 +159,8 @@ class ProcExtractor:
             proc_style = "Cast"
 
         # Priority 2: WornEffect
-        elif item.worn_effect:
-            spell = self._get_cached_spell(conn, item.worn_effect)
+        elif item.worn_effect_stable_key:
+            spell = self._get_cached_spell(conn, item.worn_effect_stable_key)
             if spell and spell.spell_name:
                 proc_name = spell.spell_name
                 if spell.spell_desc:
@@ -168,8 +168,8 @@ class ProcExtractor:
             proc_style = "Worn"
 
         # Priority 3: ItemEffectOnClick
-        elif item.item_effect_on_click:
-            spell = self._get_cached_spell(conn, item.item_effect_on_click)
+        elif item.item_effect_on_click_stable_key:
+            spell = self._get_cached_spell(conn, item.item_effect_on_click_stable_key)
             if spell and spell.spell_name:
                 proc_name = spell.spell_name
                 if spell.spell_desc:

@@ -7,9 +7,7 @@ using UnityEngine;
 public class ZoneAnnounceListener : IAssetScanListener<ZoneAnnounce>
 {
     private readonly SQLiteConnection _db;
-    private readonly List<ZoneAnnounceRecord> _records = new();
-    private readonly List<QuestZoneAssignmentRecord> _questZoneAssignmentRecords = new();
-    private readonly List<QuestZoneCompletionRecord> _questZoneCompletionRecords = new();
+    private readonly List<ZoneRecord> _records = new();
 
     public ZoneAnnounceListener(SQLiteConnection db)
     {
@@ -18,72 +16,37 @@ public class ZoneAnnounceListener : IAssetScanListener<ZoneAnnounce>
 
     public void OnScanFinished()
     {
-        _db.CreateTable<ZoneAnnounceRecord>();
+        _db.CreateTable<ZoneRecord>();
         _db.RunInTransaction(() =>
         {
-            _db.DeleteAll<ZoneAnnounceRecord>();
+            _db.DeleteAll<ZoneRecord>();
             _db.InsertAll(_records);
         });
         _records.Clear();
-
-        // Create and insert junction table records after parent records are inserted
-        _db.CreateTable<QuestZoneAssignmentRecord>();
-        _db.CreateTable<QuestZoneCompletionRecord>();
-        _db.RunInTransaction(() =>
-        {
-            _db.DeleteAll<QuestZoneAssignmentRecord>();
-            _db.DeleteAll<QuestZoneCompletionRecord>();
-            _db.InsertAll(_questZoneAssignmentRecords);
-            _db.InsertAll(_questZoneCompletionRecords);
-        });
-        _questZoneAssignmentRecords.Clear();
-        _questZoneCompletionRecords.Clear();
     }
 
     public void OnAssetFound(ZoneAnnounce asset)
     {
         var sceneName = asset.gameObject.scene.name;
 
-        ZoneAnnounceRecord record = new ZoneAnnounceRecord
+        ZoneRecord record = new ZoneRecord
         {
+            StableKey = StableKeyGenerator.ForZone(sceneName),
             SceneName = sceneName,
             ZoneName = asset.ZoneName,
             IsDungeon = asset.isDungeon,
             Achievement = asset.Achievement,
-            CompleteQuestOnEnter = asset.CompleteQuestOnEnter,
-            CompleteSecondQuestOnEnter = asset.CompleteSecondQuestOnEnter,
-            AssignQuestOnEnter = asset.AssignQuestOnEnter
+            CompleteQuestOnEnterStableKey = !string.IsNullOrEmpty(asset.CompleteQuestOnEnter)
+                ? StableKeyGenerator.ForQuestFromDBName(asset.CompleteQuestOnEnter)
+                : null,
+            CompleteSecondQuestOnEnterStableKey = !string.IsNullOrEmpty(asset.CompleteSecondQuestOnEnter)
+                ? StableKeyGenerator.ForQuestFromDBName(asset.CompleteSecondQuestOnEnter)
+                : null,
+            AssignQuestOnEnterStableKey = !string.IsNullOrEmpty(asset.AssignQuestOnEnter)
+                ? StableKeyGenerator.ForQuestFromDBName(asset.AssignQuestOnEnter)
+                : null
         };
 
         _records.Add(record);
-
-        // Extract quest zone assignments
-        if (!string.IsNullOrEmpty(asset.AssignQuestOnEnter))
-        {
-            _questZoneAssignmentRecords.Add(new QuestZoneAssignmentRecord
-            {
-                QuestDBName = asset.AssignQuestOnEnter,
-                ZoneSceneName = sceneName
-            });
-        }
-
-        // Extract quest zone completions
-        if (!string.IsNullOrEmpty(asset.CompleteQuestOnEnter))
-        {
-            _questZoneCompletionRecords.Add(new QuestZoneCompletionRecord
-            {
-                QuestDBName = asset.CompleteQuestOnEnter,
-                ZoneSceneName = sceneName
-            });
-        }
-
-        if (!string.IsNullOrEmpty(asset.CompleteSecondQuestOnEnter))
-        {
-            _questZoneCompletionRecords.Add(new QuestZoneCompletionRecord
-            {
-                QuestDBName = asset.CompleteSecondQuestOnEnter,
-                ZoneSceneName = sceneName
-            });
-        }
     }
 }

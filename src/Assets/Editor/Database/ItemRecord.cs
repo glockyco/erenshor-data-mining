@@ -6,31 +6,33 @@ using SQLite;
 public class ItemRecord
 {
     public const string TableName = "Items";
-    
+
     // --- Core Identification ---
-    public int ItemDBIndex { get; set; } // Index in the Resources.LoadAll<Item> array
-    [Indexed]
-    public string Id { get; set; } = string.Empty;
+    [PrimaryKey]
+    public string StableKey { get; set; } = string.Empty; // Stable identifier: "item:resource_name"
+    public int ItemDBIndex { get; set; } // Index in the Resources.LoadAll<Item> array (internal Unity use only)
+    public string Id { get; set; } = string.Empty; // BaseScriptableObject.Id (internal Unity use only)
     public string ItemName { get; set; } = string.Empty;
     public string Lore { get; set; } = string.Empty;
 
     // --- Classification & Requirements ---
     public string RequiredSlot { get; set; } = string.Empty; // From Item.SlotType enum
     public string ThisWeaponType { get; set; } = string.Empty; // From Item.WeaponType enum
-    public string Classes { get; set; } = string.Empty; // Comma-separated list from Item.Classes
     public int ItemLevel { get; set; }
 
     // --- Weapon/Combat Properties ---
     public float WeaponDly { get; set; }
     public bool Shield { get; set; } // Is it a shield?
     public float WeaponProcChance { get; set; }
-    public string WeaponProcOnHit { get; set; } = string.Empty; // Spell ResourceName
+    [ForeignKey(typeof(SpellRecord), "StableKey")]
+    public string? WeaponProcOnHitStableKey { get; set; }
 
     // --- Wand Properties ---
     public bool IsWand { get; set; }
     public int WandRange { get; set; }
     public float WandProcChance { get; set; }
-    public string WandEffect { get; set; } = string.Empty; // Spell ResourceName
+    [ForeignKey(typeof(SpellRecord), "StableKey")]
+    public string? WandEffectStableKey { get; set; }
     public float WandBoltColorR { get; set; }
     public float WandBoltColorG { get; set; }
     public float WandBoltColorB { get; set; }
@@ -40,24 +42,33 @@ public class ItemRecord
 
     // --- Bow Properties ---
     public bool IsBow { get; set; }
-    public string BowEffect { get; set; } = string.Empty; // Spell ResourceName
+    [ForeignKey(typeof(SpellRecord), "StableKey")]
+    public string? BowEffectStableKey { get; set; }
     public float BowProcChance { get; set; }
     public int BowRange { get; set; }
     public float BowArrowSpeed { get; set; }
     public string? BowAttackSoundName { get; set; } = string.Empty;
 
     // --- Effects & Interactions ---
-    public string ItemEffectOnClick { get; set; } = string.Empty; // Spell ResourceName
-    public string ItemSkillUse { get; set; } = string.Empty; // Skill ResourceName
-    public string TeachSpell { get; set; } = string.Empty; // Spell ResourceName
-    public string TeachSkill { get; set; } = string.Empty; // Skill ResourceName
-    public string Aura { get; set; } = string.Empty; // Spell ResourceName
-    public string WornEffect { get; set; } = string.Empty; // Spell ResourceName
+    [ForeignKey(typeof(SpellRecord), "StableKey")]
+    public string? ItemEffectOnClickStableKey { get; set; }
+    [ForeignKey(typeof(SkillRecord), "StableKey")]
+    public string? ItemSkillUseStableKey { get; set; }
+    [ForeignKey(typeof(SpellRecord), "StableKey")]
+    public string? TeachSpellStableKey { get; set; }
+    [ForeignKey(typeof(SkillRecord), "StableKey")]
+    public string? TeachSkillStableKey { get; set; }
+    [ForeignKey(typeof(SpellRecord), "StableKey")]
+    public string? AuraStableKey { get; set; }
+    [ForeignKey(typeof(SpellRecord), "StableKey")]
+    public string? WornEffectStableKey { get; set; }
     public float SpellCastTime { get; set; } // Cast time modifier or specific cast time? (Check Item.cs usage)
 
     // --- Quest Interaction ---
-    public string? AssignQuestOnRead { get; set; } = string.Empty; // Quest assigned on read
-    public string? CompleteOnRead { get; set; } = string.Empty; // Quest completed on read
+    [ForeignKey(typeof(QuestRecord), "StableKey")]
+    public string? AssignQuestOnReadStableKey { get; set; }
+    [ForeignKey(typeof(QuestRecord), "StableKey")]
+    public string? CompleteOnReadStableKey { get; set; }
 
     // --- Crafting & Templates ---
     public bool Template { get; set; }
@@ -123,6 +134,5 @@ public class ItemRecord
     //public float ItemLeatherSecondaryA { get; set; }
 
     // --- Internal ---
-    [PrimaryKey]
     public string ResourceName { get; set; } = string.Empty; // Original Item.name (ScriptableObject filename)
 }

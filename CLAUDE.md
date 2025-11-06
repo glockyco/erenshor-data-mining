@@ -42,66 +42,87 @@ The project uses a **pure Python CLI** built with Typer:
 
 ```
 erenshor/
-├── .erenshor/                  # Project state (NOT in git)
-│   ├── state.json              # Pipeline state tracking
-│   └── config.local.toml       # User config overrides
-├── src/                        # Source code
-│   ├── erenshor/               # Python package
-│   │   ├── application/        # Application services
-│   │   │   ├── formatters/     # Data formatters
-│   │   │   │   └── sheets/     # Google Sheets formatters
-│   │   │   │       └── queries/  # SQL query files
-│   │   │   └── services/       # Business services
-│   │   ├── cli/                # Python CLI implementation (Typer)
-│   │   │   ├── main.py         # CLI entry point
-│   │   │   └── commands/       # Command implementations
-│   │   ├── domain/             # Domain models
-│   │   ├── infrastructure/     # Infrastructure layer
-│   │   │   ├── publishers/     # Google Sheets, MediaWiki
-│   │   │   ├── steamcmd.py     # SteamCMD integration
-│   │   │   ├── assetripper.py  # AssetRipper integration
-│   │   │   └── unity.py        # Unity Editor automation
-│   │   └── registry/           # Entity registries
-│   └── Assets/
-│       ├── Editor/             # Unity export scripts (symlinked to Unity)
-│       │   ├── ExportBatch.cs  # Batch mode export entry
-│       │   ├── Database/       # SQLite table records
-│       │   ├── ExportSystem/   # Asset scanning system
-│       │   │   ├── AssetScanner.cs
-│       │   │   └── AssetScanner/Listener/  # Entity listeners
-│       │   └── WikiUtils/      # Wiki comparison tools
-│       └── Packages/           # NuGet packages (copied to Unity)
-├── variants/                   # Working directories (NOT in git)
-│   ├── main/                   # Main game (App ID 2382520)
-│   │   ├── game/               # Downloaded from Steam
-│   │   ├── unity/              # Unity project from AssetRipper
+├── .erenshor/                      # Project state (NOT in git)
+│   ├── state.json                  # Pipeline state tracking
+│   ├── config.local.toml           # User config overrides
+│   └── logs/                       # Global logs
+├── src/                            # Source code
+│   ├── erenshor/                   # Python package
+│   │   ├── cli/                    # Python CLI (Typer)
+│   │   │   ├── main.py             # CLI entry point
+│   │   │   ├── commands/           # Command implementations (extract, wiki, sheets, maps, backup)
+│   │   │   ├── preconditions/      # Command precondition checks
+│   │   │   └── context.py          # CLI context object
+│   │   ├── application/            # Application layer
+│   │   │   ├── generators/         # Wiki template generators (items, characters, spells, skills)
+│   │   │   ├── formatters/         # Data formatters
+│   │   │   │   └── sheets/         # Google Sheets formatters
+│   │   │   │       └── queries/    # SQL query files (*.sql)
+│   │   │   └── services/           # Business services (wiki, sheets, backup)
+│   │   ├── domain/                 # Domain layer
+│   │   │   ├── entities/           # Domain entities (item, character, spell, etc.)
+│   │   │   └── value_objects/      # Value objects
+│   │   ├── infrastructure/         # Infrastructure layer
+│   │   │   ├── assetripper/        # AssetRipper automation
+│   │   │   ├── steam/              # SteamCMD integration
+│   │   │   ├── unity/              # Unity batch mode executor
+│   │   │   ├── wiki/               # MediaWiki client
+│   │   │   ├── publishers/         # Google Sheets publisher
+│   │   │   ├── database/           # SQLite connection and repositories
+│   │   │   ├── config/             # Configuration loader
+│   │   │   └── logging/            # Logging setup
+│   │   ├── registry/               # Entity-to-page resolver
+│   │   │   ├── resolver.py         # Page title resolver
+│   │   │   ├── operations.py       # Registry operations
+│   │   │   └── item_classifier.py  # Item type classifier
+│   │   └── shared/                 # Shared utilities
+│   └── Assets/Editor/              # Unity C# export scripts (symlinked to Unity)
+│       ├── ExportBatch.cs          # Batch mode export entry
+│       ├── Database/               # SQLite record models (ItemRecord, CharacterRecord, etc.)
+│       └── ExportSystem/           # Asset scanning system
+│           ├── AssetScanner.cs     # Main asset scanner
+│           └── AssetScanner/Listener/  # Entity listeners (ItemListener, CharacterListener, etc.)
+├── variants/                       # Working directories (NOT in git)
+│   ├── main/                       # Main game (App ID 2382520)
+│   │   ├── game/                   # Downloaded from Steam
+│   │   ├── unity/                  # Unity project from AssetRipper
 │   │   │   └── Assets/Editor -> ../../../../src/Assets/Editor/
-│   │   ├── logs/               # Variant-specific logs
-│   │   └── erenshor-main.sqlite
-│   ├── playtest/               # Playtest (App ID 3090030)
-│   └── demo/                   # Demo (App ID 2522260)
-├── legacy/                     # Legacy bash CLI (archived)
-│   └── cli/                    # Old bash implementation
-├── docs/                       # Documentation
-├── tests/                      # Python tests
-├── config.toml                 # Main config
-└── pyproject.toml              # Python dependencies
+│   │   ├── wiki/                   # Wiki fetch/generate/deploy cache
+│   │   │   ├── fetched/            # Pages fetched from MediaWiki
+│   │   │   └── generated/          # Pages generated locally
+│   │   ├── logs/                   # Variant-specific logs
+│   │   └── erenshor-main.sqlite    # Exported database
+│   ├── playtest/                   # Playtest (App ID 3090030)
+│   └── demo/                       # Demo (App ID 2522260)
+├── docs/                           # Documentation
+│   ├── TROUBLESHOOTING.md          # Troubleshooting guide
+│   ├── refactoring-plan/           # Refactoring documentation
+│   └── reviews/                    # Code reviews
+├── tests/                          # Python tests
+│   ├── unit/                       # Unit tests
+│   └── integration/                # Integration tests (requires database)
+├── registry.db                     # Entity-to-page mapping database
+├── config.toml                     # Main config (tracked in git)
+├── pyproject.toml                  # Python dependencies and CLI entry point
+└── README.md                       # User documentation
 ```
 
 ### Multi-Variant System
 
 Three game variants with separate pipelines:
 
--   **main** (App ID 2382520): Production game
--   **playtest** (App ID 3090030): Public test branch
+-   **main** (App ID 2382520): Production release
+-   **playtest** (App ID 3090030): Beta/alpha testing
 -   **demo** (App ID 2522260): Free demo version
 
-Each variant has:
+Each variant maintains completely separate:
 
--   Separate game downloads (`variants/{variant}/game/`)
--   Separate Unity projects (`variants/{variant}/unity/`)
--   Separate databases (`erenshor-{variant}.sqlite`)
--   Separate logs (`variants/{variant}/logs/`)
+-   Game downloads (`variants/{variant}/game/`)
+-   Unity projects (`variants/{variant}/unity/`)
+-   Databases (`variants/{variant}/erenshor-{variant}.sqlite`)
+-   Wiki caches (`variants/{variant}/wiki/fetched/` and `generated/`)
+-   Logs (`variants/{variant}/logs/`)
+-   Google Sheets spreadsheets (separate spreadsheet IDs in config)
 
 ## CLI Commands
 
@@ -121,7 +142,9 @@ uv run erenshor extract export      # Export to SQLite via Unity batch mode
 uv run erenshor extract full        # Run complete pipeline
 
 # Wiki operations
-uv run erenshor wiki update         # Update wiki pages
+uv run erenshor wiki fetch          # Fetch wiki pages
+uv run erenshor wiki generate       # Generate wiki pages locally
+uv run erenshor wiki deploy         # Deploy wiki pages
 
 # Google Sheets deployment
 uv run erenshor sheets list         # List available sheets
@@ -129,8 +152,9 @@ uv run erenshor sheets deploy       # Deploy to Google Sheets
 
 # Interactive Maps
 uv run erenshor maps dev            # Start dev server
+uv run erenshor maps preview        # Preview built site
 uv run erenshor maps build          # Build for production
-uv run erenshor maps deploy         # Deploy to Cloudflare
+uv run erenshor maps deploy         # Deploy to Cloudflare static hosting
 
 # Configuration
 uv run erenshor config show         # View configuration
@@ -138,9 +162,9 @@ uv run erenshor config show         # View configuration
 # Backup management
 uv run erenshor backup list         # List backups
 
-# Testing
-uv run erenshor test unit           # Run unit tests
-uv run erenshor test integration    # Run integration tests
+# Testing and documentation
+uv run erenshor test                # Run tests
+uv run erenshor docs                # Generate documentation
 ```
 
 **Global Options**:
@@ -228,10 +252,19 @@ app.add_typer(my_command.app, name="my-command")
 
 -   `ItemListener.cs` - Items and equipment
 -   `CharacterListener.cs` - NPCs and creatures
--   `SpawnPointListener.cs` - Enemy spawn locations
+-   `SpellListener.cs` - Spells and abilities
+-   `SkillListener.cs` - Skills and professions
 -   `QuestListener.cs` - Quest data
+-   `SpawnPointListener.cs` - Enemy spawn locations
 -   `LootTableListener.cs` - Drop tables
--   And 20+ more...
+-   `TeleportLocListener.cs` - Teleport locations
+-   `ItemBagListener.cs` - Item bag definitions
+-   `BookListener.cs` - In-game books
+-   `AchievementTriggerListener.cs` - Achievement triggers
+-   `AscensionListener.cs` - Ascension system
+-   `ClassListener.cs` - Character classes
+-   `WorldFactionListener.cs` - Faction data
+-   And 15+ more...
 
 ### Database Schema
 
@@ -255,7 +288,14 @@ app.add_typer(my_command.app, name="my-command")
 3. **GoogleSheetsPublisher**: Publishes via Google Sheets API v4
 4. **SheetsDeployService**: Orchestrates deployment workflow
 
-**Available Sheets**: various sheets including items, characters, spells, quests, drop-chances, spawn-points, and more.
+**Available Sheets** (20+ sheets):
+- items, characters, spells, skills
+- quests, achievement-triggers, ascensions
+- drop-chances, spawn-points, loot tables
+- teleports, item-bags, books
+- fishing, mining-nodes, treasure-locations, wishing-wells
+- classes, factions, zones
+- secret-passages, character-dialogs
 
 ## Configuration
 
@@ -456,25 +496,54 @@ uv run erenshor --verbose <command>
 **Python CLI**:
 
 -   `src/erenshor/cli/main.py` - Main CLI entry point (Typer)
--   `src/erenshor/cli/commands/*.py` - Command implementations
--   `src/erenshor/application/services/` - Business services
--   `src/erenshor/infrastructure/` - External integrations (Steam, Unity, AssetRipper)
+-   `src/erenshor/cli/commands/extract.py` - Extract commands (download, rip, export, full)
+-   `src/erenshor/cli/commands/wiki.py` - Wiki commands (fetch, generate, deploy)
+-   `src/erenshor/cli/commands/sheets.py` - Google Sheets commands (list, deploy)
+-   `src/erenshor/cli/commands/maps.py` - Interactive maps commands (dev, build, preview, deploy)
+-   `src/erenshor/cli/commands/backup.py` - Backup commands
+-   `src/erenshor/cli/preconditions/` - Command precondition checks
+
+**Python Application**:
+
+-   `src/erenshor/application/services/wiki_service.py` - Three-stage wiki workflow
+-   `src/erenshor/application/services/sheets_service.py` - Google Sheets deployment
+-   `src/erenshor/application/generators/item_template_generator.py` - Item wiki templates
+-   `src/erenshor/application/generators/character_template_generator.py` - Character wiki templates
+-   `src/erenshor/application/generators/spell_template_generator.py` - Spell wiki templates
+-   `src/erenshor/application/generators/skill_template_generator.py` - Skill wiki templates
+-   `src/erenshor/application/generators/field_preservation.py` - Preserve manually-edited fields
+-   `src/erenshor/application/formatters/sheets/formatter.py` - SQL to sheets formatter
+-   `src/erenshor/application/formatters/sheets/queries/*.sql` - SQL query files (20+ sheets)
+
+**Python Infrastructure**:
+
+-   `src/erenshor/infrastructure/steam/` - SteamCMD integration
+-   `src/erenshor/infrastructure/assetripper/` - AssetRipper automation
+-   `src/erenshor/infrastructure/unity/` - Unity batch mode executor
+-   `src/erenshor/infrastructure/wiki/client.py` - MediaWiki API client
+-   `src/erenshor/infrastructure/publishers/google_sheets.py` - Google Sheets API v4 publisher
+-   `src/erenshor/infrastructure/database/repositories/` - SQLite repositories (items, characters, etc.)
+-   `src/erenshor/infrastructure/config/loader.py` - Two-layer TOML config loader
+
+**Python Registry**:
+
+-   `src/erenshor/registry/resolver.py` - Entity-to-page title resolver
+-   `src/erenshor/registry/operations.py` - Registry CRUD operations
+-   `src/erenshor/registry/item_classifier.py` - Item type classification
 
 **Unity Export**:
 
 -   `src/Assets/Editor/ExportBatch.cs` - Batch export entry point
 -   `src/Assets/Editor/ExportSystem/AssetScanner.cs` - Asset scanner
--   `src/Assets/Editor/Database/*.cs` - SQLite table records
+-   `src/Assets/Editor/ExportSystem/AssetScanner/Listener/*.cs` - Entity listeners (30+ listeners)
+-   `src/Assets/Editor/Database/*.cs` - SQLite record models (40+ tables)
 
 **Configuration**:
 
--   `config.toml` - Main configuration
--   `.erenshor/config.local.toml` - User overrides
+-   `config.toml` - Main configuration (tracked in git)
+-   `.erenshor/config.local.toml` - User overrides (NOT tracked)
+-   `registry.db` - Entity-to-page mapping database
 -   `pyproject.toml` - Python dependencies and console script entry point
-
-**Legacy**:
-
--   `legacy/cli/` - Old bash CLI (archived, not used)
 
 ## Quick Reference
 
@@ -492,22 +561,26 @@ uv run erenshor extract rip             # Extract Unity project
 uv run erenshor extract export          # Export to SQLite
 
 # Wiki and Sheets
-uv run erenshor wiki update             # Update wiki pages
+uv run erenshor wiki fetch              # Fetch wiki pages
+uv run erenshor wiki generate           # Generate wiki pages locally
+uv run erenshor wiki deploy             # Deploy wiki pages
+uv run erenshor sheets list             # List available sheets
 uv run erenshor sheets deploy --all-sheets  # Deploy to Google Sheets
 
 # Interactive Maps
 uv run erenshor maps dev                # Start dev server
+uv run erenshor maps preview            # Preview built site
 uv run erenshor maps build              # Build for production
-uv run erenshor maps deploy             # Deploy to Cloudflare
+uv run erenshor maps deploy             # Deploy to Cloudflare static hosting
 
 # Testing
 uv run pytest                           # Run all tests
 uv run pytest --cov                     # With coverage
-uv run erenshor test unit               # Unit tests only
-uv run erenshor test integration        # Integration tests only
+uv run erenshor test                    # Run tests via CLI
 
-# Backup
+# Backup & Documentation
 uv run erenshor backup list             # List backups
+uv run erenshor docs                    # Generate documentation
 ```
 
 ## Notes

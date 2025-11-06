@@ -35,6 +35,7 @@ from erenshor.infrastructure.database.repositories.characters import CharacterRe
 from erenshor.infrastructure.database.repositories.factions import FactionRepository
 from erenshor.infrastructure.database.repositories.items import ItemRepository
 from erenshor.infrastructure.database.repositories.loot_tables import LootTableRepository
+from erenshor.infrastructure.database.repositories.quests import QuestRepository
 from erenshor.infrastructure.database.repositories.skills import SkillRepository
 from erenshor.infrastructure.database.repositories.spawn_points import SpawnPointRepository
 from erenshor.infrastructure.database.repositories.spells import SpellRepository
@@ -113,10 +114,13 @@ def _create_wiki_service(cli_ctx: CLIContext) -> WikiService:
     faction_repo = FactionRepository(db_connection)
     spawn_repo = SpawnPointRepository(db_connection)
     loot_repo = LootTableRepository(db_connection)
+    quest_repo = QuestRepository(db_connection)
 
     # Create registry resolver
-    registry_db_path = cli_ctx.repo_root / "registry.db"
-    resolver = RegistryResolver(registry_db_path)
+    wiki_dir = variant_config.resolved_wiki(cli_ctx.repo_root)
+    registry_db_path = wiki_dir / "registry.db"
+    mapping_json_path = cli_ctx.repo_root / "mapping.json"
+    resolver = RegistryResolver(registry_db_path, game_db_path=db_path, mapping_json_path=mapping_json_path)
 
     # Create wiki client
     wiki_config = cli_ctx.config.global_.mediawiki
@@ -141,6 +145,7 @@ def _create_wiki_service(cli_ctx: CLIContext) -> WikiService:
         faction_repo=faction_repo,
         spawn_repo=spawn_repo,
         loot_repo=loot_repo,
+        quest_repo=quest_repo,
         registry_resolver=resolver,
     )
 

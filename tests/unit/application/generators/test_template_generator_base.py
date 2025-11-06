@@ -78,23 +78,6 @@ class TestTemplateGeneratorBase:
         with pytest.raises(TemplateNotFoundError):
             generator.render_template("nonexistent.jinja2", {})
 
-    def test_format_category_tags_with_categories(self):
-        """Test formatting category tags."""
-        generator = ConcreteTemplateGenerator()
-
-        categories = ["Items", "Weapons", "Level 10"]
-        result = generator.format_category_tags(categories)
-
-        assert result == "[[Category:Items]]\n[[Category:Weapons]]\n[[Category:Level 10]]"
-
-    def test_format_category_tags_empty_list(self):
-        """Test formatting empty category list."""
-        generator = ConcreteTemplateGenerator()
-
-        result = generator.format_category_tags([])
-
-        assert result == ""
-
     def test_normalize_wikitext_removes_trailing_whitespace(self):
         """Test that normalization removes trailing whitespace from lines."""
         generator = ConcreteTemplateGenerator()

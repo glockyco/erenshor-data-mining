@@ -3,16 +3,63 @@
 Tests spell page generation including XP bonus conditional display.
 """
 
+from unittest.mock import Mock
+
+import pytest
+
 from erenshor.application.generators.spell_template_generator import SpellTemplateGenerator
+from erenshor.domain.enriched_data.spell import EnrichedSpellData
 from erenshor.domain.entities.spell import Spell
+
+
+@pytest.fixture
+def enrich_spell():
+    """Helper to wrap spells in EnrichedSpellData."""
+
+    def _enrich(
+        spell: Spell,
+        classes: list[str] | None = None,
+        items_with_effect: list[str] | None = None,
+        teaching_items: list[str] | None = None,
+    ) -> EnrichedSpellData:
+        return EnrichedSpellData(
+            spell=spell,
+            classes=classes or [],
+            items_with_effect=items_with_effect or [],
+            teaching_items=teaching_items or [],
+        )
+
+    return _enrich
+
+
+@pytest.fixture
+def mock_resolver():
+    """Mock registry resolver."""
+
+    def resolve_image_name(stable_key: str | None) -> str:
+        """Resolve image name from stable key."""
+        if not stable_key:
+            return ""
+        if ":" in stable_key:
+            return stable_key.split(":")[-1]
+        return stable_key
+
+    resolver = Mock()
+    resolver.resolve_image_name.side_effect = resolve_image_name
+    return resolver
+
+
+@pytest.fixture
+def generator(mock_resolver):
+    """Create spell template generator."""
+    return SpellTemplateGenerator(mock_resolver)
 
 
 class TestSpellTemplateGenerator:
     """Test suite for SpellTemplateGenerator."""
 
-    def test_xp_bonus_displayed_when_spell_has_duration(self):
+    def test_xp_bonus_displayed_when_spell_has_duration(self, generator, enrich_spell):
         """Test XP bonus is displayed only when spell has duration."""
-        generator = SpellTemplateGenerator()
 
         # Spell with duration AND xp_bonus - should display xp_bonus
         spell_with_duration = Spell(
@@ -25,12 +72,12 @@ class TestSpellTemplateGenerator:
             xp_bonus=1.5,
         )
 
-        result = generator.generate_template(spell_with_duration, page_title="XP Buff")
+        enriched = enrich_spell(spell_with_duration)
+        result = generator.generate_template(enriched, page_title="XP Buff")
         assert "|xp_bonus=1.5" in result
 
-    def test_xp_bonus_not_displayed_when_spell_has_no_duration(self):
+    def test_xp_bonus_not_displayed_when_spell_has_no_duration(self, generator, enrich_spell):
         """Test XP bonus is NOT displayed when spell has no duration."""
-        generator = SpellTemplateGenerator()
 
         # Spell without duration but WITH xp_bonus - should NOT display xp_bonus
         spell_without_duration = Spell(
@@ -43,13 +90,13 @@ class TestSpellTemplateGenerator:
             xp_bonus=1.5,
         )
 
-        result = generator.generate_template(spell_without_duration, page_title="Instant Buff")
+        enriched = enrich_spell(spell_without_duration)
+        result = generator.generate_template(enriched, page_title="Instant Buff")
         # XP bonus should be empty since spell has no duration
         assert "|xp_bonus=\n" in result or "|xp_bonus=|" in result
 
-    def test_duration_formatting(self):
-        """Test spell duration is formatted in ticks."""
-        generator = SpellTemplateGenerator()
+    def test_duration_formatting(self, generator, enrich_spell):
+        """Test spell duration is formatted in seconds (3 seconds per tick)."""
 
         spell = Spell(
             spell_db_index=3,
@@ -59,12 +106,13 @@ class TestSpellTemplateGenerator:
             spell_duration_in_ticks=180,
         )
 
-        result = generator.generate_template(spell, page_title="Timed Spell")
-        assert "|duration=180 ticks" in result
+        enriched = enrich_spell(spell)
+        result = generator.generate_template(enriched, page_title="Timed Spell")
+        # 180 ticks * 3 seconds/tick = 540 seconds
+        assert "|duration=540 seconds" in result
 
-    def test_instant_cast_time_formatting(self):
+    def test_instant_cast_time_formatting(self, generator, enrich_spell):
         """Test instant cast time formatting."""
-        generator = SpellTemplateGenerator()
 
         # None cast time should be "Instant"
         spell_none = Spell(
@@ -75,7 +123,8 @@ class TestSpellTemplateGenerator:
             spell_charge_time=None,
         )
 
-        result = generator.generate_template(spell_none, page_title="Instant Spell 1")
+        enriched = enrich_spell(spell_none)
+        result = generator.generate_template(enriched, page_title="Instant Spell 1")
         assert "|casttime=Instant" in result
 
         # Zero cast time should be "Instant"
@@ -87,12 +136,12 @@ class TestSpellTemplateGenerator:
             spell_charge_time=0,
         )
 
-        result = generator.generate_template(spell_zero, page_title="Instant Spell 2")
+        enriched = enrich_spell(spell_zero)
+        result = generator.generate_template(enriched, page_title="Instant Spell 2")
         assert "|casttime=Instant" in result
 
-    def test_cast_time_formatting(self):
+    def test_cast_time_formatting(self, generator, enrich_spell):
         """Test cast time is converted from ticks to seconds."""
-        generator = SpellTemplateGenerator()
 
         # 60 ticks = 1.0 seconds
         spell = Spell(
@@ -103,12 +152,12 @@ class TestSpellTemplateGenerator:
             spell_charge_time=60,
         )
 
-        result = generator.generate_template(spell, page_title="Slow Spell")
+        enriched = enrich_spell(spell)
+        result = generator.generate_template(enriched, page_title="Slow Spell")
         assert "|casttime=1.0 seconds" in result
 
-    def test_boolean_fields_formatting(self):
+    def test_boolean_fields_formatting(self, generator, enrich_spell):
         """Test boolean fields are formatted as 'True' or empty."""
-        generator = SpellTemplateGenerator()
 
         # Spell with taunt flag
         taunt_spell = Spell(
@@ -119,7 +168,8 @@ class TestSpellTemplateGenerator:
             taunt_spell=1,
         )
 
-        result = generator.generate_template(taunt_spell, page_title="Taunt")
+        enriched = enrich_spell(taunt_spell)
+        result = generator.generate_template(enriched, page_title="Taunt")
         assert "|is_taunt=True" in result
 
         # Spell without taunt flag
@@ -131,12 +181,12 @@ class TestSpellTemplateGenerator:
             taunt_spell=0,
         )
 
-        result = generator.generate_template(normal_spell, page_title="Normal")
+        enriched = enrich_spell(normal_spell)
+        result = generator.generate_template(enriched, page_title="Normal")
         assert "|is_taunt=\n" in result or "|is_taunt=|" in result
 
-    def test_generate_page_handles_none_values(self):
+    def test_generate_page_handles_none_values(self, generator, enrich_spell):
         """Test that generator handles None values gracefully."""
-        generator = SpellTemplateGenerator()
 
         spell = Spell(
             spell_db_index=9,
@@ -149,7 +199,8 @@ class TestSpellTemplateGenerator:
             xp_bonus=None,
         )
 
-        result = generator.generate_template(spell, page_title="Minimal")
+        enriched = enrich_spell(spell)
+        result = generator.generate_template(enriched, page_title="Minimal")
 
         # Should generate valid wikitext even with minimal data
         assert "{{Ability" in result

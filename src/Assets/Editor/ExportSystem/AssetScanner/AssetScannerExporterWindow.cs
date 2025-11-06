@@ -163,7 +163,7 @@ public class AssetScannerExporterWindow : EditorWindow
         _exportWaters = EditorGUILayout.ToggleLeft("Waters", _exportWaters);
         _exportWishingWells = EditorGUILayout.ToggleLeft("Wishing Wells", _exportWishingWells);
         _exportWorldFactions = EditorGUILayout.ToggleLeft("World Factions", _exportWorldFactions);
-        _exportZoneAnnounces = EditorGUILayout.ToggleLeft("Zone Announces", _exportZoneAnnounces);
+        _exportZoneAnnounces = EditorGUILayout.ToggleLeft("Zones", _exportZoneAnnounces);
         _exportZoneAtlasEntries = EditorGUILayout.ToggleLeft("Zone Atlas Entries", _exportZoneAtlasEntries);
         _exportZoneLines = EditorGUILayout.ToggleLeft("Zone Lines", _exportZoneLines);
         EditorGUI.EndDisabledGroup();

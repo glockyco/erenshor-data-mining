@@ -13,11 +13,11 @@ class FactionModifier(BaseModel):
     decrease reputation (become more hostile).
 
     Example:
-        >>> modifier = FactionModifier(faction_refname="FACTION_GUARDS", modifier_value=-5)
+        >>> modifier = FactionModifier(faction_stable_key="faction:guards", modifier_value=-5)
         >>> # Killing this character decreases Guards reputation by 5 points
     """
 
-    faction_refname: str = Field(description="Faction REFNAME (not display name)")
+    faction_stable_key: str = Field(description="Faction stable key (format: 'faction:resource_name')")
     modifier_value: int = Field(description="Reputation change (+friendly, -hostile)")
 
     model_config = {"frozen": True}  # Immutable value object

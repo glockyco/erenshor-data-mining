@@ -12,6 +12,7 @@ public class CharacterListener : IAssetScanListener<Character>
     private readonly SQLiteConnection _db;
     private readonly List<CoordinateRecord> _coordinateRecords = new();
     private readonly List<CharacterRecord> _characterRecords = new();
+    private readonly Dictionary<string, int> _stableKeyCounters = new(); // Track occurrence count for each base stable key
     private readonly List<CharacterDialogRecord> _characterDialogRecords = new();
     private readonly List<CharacterAttackSkillRecord> _characterAttackSkillRecords = new();
     private readonly List<CharacterAttackSpellRecord> _characterAttackSpellRecords = new();
@@ -25,11 +26,6 @@ public class CharacterListener : IAssetScanListener<Character>
     private readonly List<CharacterAlliedFactionRecord> _characterAlliedFactionRecords = new();
     private readonly List<CharacterFactionModifierRecord> _characterFactionModifierRecords = new();
     private readonly List<CharacterDeathShoutRecord> _characterDeathShoutRecords = new();
-
-    // Store ability ResourceNames (not NPC references) for deferred junction record creation
-    private readonly List<(int characterId, List<string> attackSkillResourceNames, List<string> attackSpellResourceNames, List<string> buffSpellResourceNames, List<string> healSpellResourceNames, List<string> groupHealSpellResourceNames, List<string> ccSpellResourceNames, List<string> tauntSpellResourceNames)> _npcAbilityData = new();
-    private Dictionary<string, string>? _factionNameToRefNameCache = null;
-    private readonly List<string> _lookupErrors = new();
 
     public CharacterListener(SQLiteConnection db)
     {
@@ -57,31 +53,7 @@ public class CharacterListener : IAssetScanListener<Character>
         _characterRecords.Clear();
         _characterDialogRecords.Clear();
 
-        // Populate FK lookup cache for factions (WorldFactionRecord table is now populated if faction entities were exported)
-        _factionNameToRefNameCache = TableExists<WorldFactionRecord>()
-            ? _db.Table<WorldFactionRecord>().ToDictionary(f => f.FactionName, f => f.REFNAME)
-            : new Dictionary<string, string>();
-
-        // Process saved ability data to create junction records
-        foreach (var (characterId, attackSkillResourceNames, attackSpellResourceNames, buffSpellResourceNames, healSpellResourceNames, groupHealSpellResourceNames, ccSpellResourceNames, tauntSpellResourceNames) in _npcAbilityData)
-        {
-            _characterAttackSkillRecords.AddRange(CreateCharacterAttackSkillRecords(characterId, attackSkillResourceNames));
-            _characterAttackSpellRecords.AddRange(CreateCharacterAttackSpellRecords(characterId, attackSpellResourceNames));
-            _characterBuffSpellRecords.AddRange(CreateCharacterBuffSpellRecords(characterId, buffSpellResourceNames));
-            _characterHealSpellRecords.AddRange(CreateCharacterHealSpellRecords(characterId, healSpellResourceNames));
-            _characterGroupHealSpellRecords.AddRange(CreateCharacterGroupHealSpellRecords(characterId, groupHealSpellResourceNames));
-            _characterCCSpellRecords.AddRange(CreateCharacterCCSpellRecords(characterId, ccSpellResourceNames));
-            _characterTauntSpellRecords.AddRange(CreateCharacterTauntSpellRecords(characterId, tauntSpellResourceNames));
-        }
-
-        // Fail if any lookup errors occurred during junction record creation
-        if (_lookupErrors.Count > 0)
-        {
-            string errorSummary = $"[CharacterListener] Failed to lookup {_lookupErrors.Count} spell/skill references:\n" +
-                                  string.Join("\n", _lookupErrors);
-            Debug.LogError(errorSummary);
-            throw new System.Exception(errorSummary);
-        }
+        // All junction records have been created during ProcessCharacter() while Unity assets were available
 
         _db.CreateTable<CharacterAttackSkillRecord>();
         _db.CreateTable<CharacterAttackSpellRecord>();
@@ -137,7 +109,6 @@ public class CharacterListener : IAssetScanListener<Character>
         _characterAlliedFactionRecords.Clear();
         _characterFactionModifierRecords.Clear();
         _characterDeathShoutRecords.Clear();
-        _npcAbilityData.Clear();
 
         _db.Execute(@"
             UPDATE Characters
@@ -146,7 +117,7 @@ public class CharacterListener : IAssetScanListener<Character>
             (
                 SELECT DISTINCT c.Guid
                 FROM Characters c
-                LEFT JOIN SpawnPointCharacters spc ON spc.CharacterGuid = c.Guid
+                LEFT JOIN SpawnPointCharacters spc ON spc.CharacterStableKey = c.StableKey
                 WHERE NOT c.IsPrefab OR (spc.IsCommon AND spc.SpawnChance > 0)
             );
         ");
@@ -158,7 +129,7 @@ public class CharacterListener : IAssetScanListener<Character>
             (
                 SELECT DISTINCT c.Guid
                 FROM Characters c
-                JOIN SpawnPointCharacters spc ON spc.CharacterGuid = c.Guid
+                JOIN SpawnPointCharacters spc ON spc.CharacterStableKey = c.StableKey
                 WHERE spc.IsRare AND spc.SpawnChance > 0
             );
         ");
@@ -173,7 +144,7 @@ public class CharacterListener : IAssetScanListener<Character>
                 (
                     SELECT count(DISTINCT spc.SpawnPointId) AS spawnPointCount, count(DISTINCT c.Guid) AS instanceCount, *
                     FROM Characters c
-                    LEFT JOIN SpawnPointCharacters spc ON spc.CharacterGuid = c.Guid
+                    LEFT JOIN SpawnPointCharacters spc ON spc.CharacterStableKey = c.StableKey
                     WHERE NOT c.IsPrefab OR (spc.SpawnChance > 0)
                     GROUP BY c.NPCName
                 )
@@ -190,12 +161,28 @@ public class CharacterListener : IAssetScanListener<Character>
         }
 
         var coordinateRecord = CreateCoordinateRecord(asset);
-        var characterRecord = CreateCharacterRecord(asset, coordinateRecord?.Id);
+
+        // Generate base stable key and check for duplicates
+        var baseStableKey = StableKeyGenerator.ForCharacter(asset);
+        int variantIndex = 0;
+
+        if (_stableKeyCounters.ContainsKey(baseStableKey))
+        {
+            _stableKeyCounters[baseStableKey]++;
+            variantIndex = _stableKeyCounters[baseStableKey];
+            UnityEngine.Debug.LogWarning($"[CharacterListener] Duplicate character StableKey: '{baseStableKey}'. GameObject: '{asset.gameObject.name}'. Assigning variant index |{variantIndex}.");
+        }
+        else
+        {
+            _stableKeyCounters[baseStableKey] = 0;
+        }
+
+        var characterRecord = CreateCharacterRecord(asset, coordinateRecord, variantIndex);
         _characterRecords.Add(characterRecord);
 
         if (coordinateRecord != null)
         {
-            coordinateRecord.CharacterId = characterRecord.Id;
+            coordinateRecord.CharacterStableKey = characterRecord.StableKey;
             _coordinateRecords.Add(coordinateRecord);
         }
 
@@ -206,7 +193,7 @@ public class CharacterListener : IAssetScanListener<Character>
             var dialogRecords = new List<CharacterDialogRecord>();
             foreach (var dialog in dialogs)
             {
-                dialogRecords.Add(CreateDialogRecord(characterRecord.Id, i, dialog));
+                dialogRecords.Add(CreateDialogRecord(characterRecord.StableKey, i, dialog));
                 i++;
             }
             _characterDialogRecords.AddRange(dialogRecords);
@@ -215,35 +202,33 @@ public class CharacterListener : IAssetScanListener<Character>
         var npc = asset.GetComponent<NPC>();
         if (npc != null)
         {
-            // Extract ability ResourceNames NOW (while assets are loaded) for junction record creation
-            var attackSkillResourceNames = npc.MyAttackSkills?.Where(s => s != null && !string.IsNullOrEmpty(s.name)).Select(s => s.name).ToList() ?? new List<string>();
-            var attackSpellResourceNames = npc.MyAttackSpells?.Where(s => s != null && !string.IsNullOrEmpty(s.name)).Select(s => s.name).ToList() ?? new List<string>();
-            var buffSpellResourceNames = npc.MyBuffSpells?.Where(s => s != null && !string.IsNullOrEmpty(s.name)).Select(s => s.name).ToList() ?? new List<string>();
-            var healSpellResourceNames = npc.MyHealSpells?.Where(s => s != null && !string.IsNullOrEmpty(s.name)).Select(s => s.name).ToList() ?? new List<string>();
-            var groupHealSpellResourceNames = npc.GroupHeals?.Where(s => s != null && !string.IsNullOrEmpty(s.name)).Select(s => s.name).ToList() ?? new List<string>();
-            var ccSpellResourceNames = npc.MyCCSpells?.Where(s => s != null && !string.IsNullOrEmpty(s.name)).Select(s => s.name).ToList() ?? new List<string>();
-            var tauntSpellResourceNames = npc.MyTauntSpell?.Where(s => s != null && !string.IsNullOrEmpty(s.name)).Select(s => s.name).ToList() ?? new List<string>();
-
-            _npcAbilityData.Add((characterRecord.Id, attackSkillResourceNames, attackSpellResourceNames, buffSpellResourceNames, healSpellResourceNames, groupHealSpellResourceNames, ccSpellResourceNames, tauntSpellResourceNames));
+            // Create ability junction records NOW (while Unity assets are loaded)
+            _characterAttackSkillRecords.AddRange(CreateCharacterAttackSkillRecords(characterRecord.StableKey, npc.MyAttackSkills ?? new List<Skill>()));
+            _characterAttackSpellRecords.AddRange(CreateCharacterAttackSpellRecords(characterRecord.StableKey, npc.MyAttackSpells ?? new List<Spell>()));
+            _characterBuffSpellRecords.AddRange(CreateCharacterBuffSpellRecords(characterRecord.StableKey, npc.MyBuffSpells ?? new List<Spell>()));
+            _characterHealSpellRecords.AddRange(CreateCharacterHealSpellRecords(characterRecord.StableKey, npc.MyHealSpells ?? new List<Spell>()));
+            _characterGroupHealSpellRecords.AddRange(CreateCharacterGroupHealSpellRecords(characterRecord.StableKey, npc.GroupHeals ?? new List<Spell>()));
+            _characterCCSpellRecords.AddRange(CreateCharacterCCSpellRecords(characterRecord.StableKey, npc.MyCCSpells ?? new List<Spell>()));
+            _characterTauntSpellRecords.AddRange(CreateCharacterTauntSpellRecords(characterRecord.StableKey, npc.MyTauntSpell ?? new List<Spell>()));
         }
 
         var vendorInventory = asset.GetComponent<VendorInventory>();
         if (vendorInventory != null)
         {
-            _characterVendorItemRecords.AddRange(CreateCharacterVendorItemRecords(characterRecord.Id, vendorInventory));
+            _characterVendorItemRecords.AddRange(CreateCharacterVendorItemRecords(characterRecord.StableKey, vendorInventory));
         }
 
-        // Phase 2C: Faction and Death Shout junction tables
-        _characterAggressiveFactionRecords.AddRange(CreateCharacterAggressiveFactionRecords(characterRecord.Id, asset));
-        _characterAlliedFactionRecords.AddRange(CreateCharacterAlliedFactionRecords(characterRecord.Id, asset));
+        // Faction and Death Shout junction tables
+        _characterAggressiveFactionRecords.AddRange(CreateCharacterAggressiveFactionRecords(characterRecord.StableKey, asset));
+        _characterAlliedFactionRecords.AddRange(CreateCharacterAlliedFactionRecords(characterRecord.StableKey, asset));
 
         var modifyFactions = asset.GetComponents<ModifyFaction>();
         foreach (var modifyFaction in modifyFactions)
         {
-            _characterFactionModifierRecords.AddRange(CreateCharacterFactionModifierRecords(characterRecord.Id, modifyFaction));
+            _characterFactionModifierRecords.AddRange(CreateCharacterFactionModifierRecords(characterRecord.StableKey, modifyFaction));
         }
 
-        _characterDeathShoutRecords.AddRange(CreateCharacterDeathShoutRecords(characterRecord.Id, asset));
+        _characterDeathShoutRecords.AddRange(CreateCharacterDeathShoutRecords(characterRecord.StableKey, asset));
     }
 
     private CoordinateRecord? CreateCoordinateRecord(Character character)
@@ -263,7 +248,7 @@ public class CharacterListener : IAssetScanListener<Character>
         };
     }
     
-    private CharacterRecord CreateCharacterRecord(Character character, int? coordinateId)
+    private CharacterRecord CreateCharacterRecord(Character character, CoordinateRecord? coordinate, int variantIndex = 0)
     {
         var npc = character.GetComponent<NPC>();
         var vendorInventory = character.GetComponent<VendorInventory>();
@@ -287,11 +272,11 @@ public class CharacterListener : IAssetScanListener<Character>
         
         var record = new CharacterRecord
         {
-            Id = TableIdGenerator.NextId(CharacterRecord.TableName),
-            CoordinateId = coordinateId,
+            StableKey = StableKeyGenerator.ForCharacter(character, variantIndex),
+            CoordinateId = coordinate?.Id,
             Guid = guid,
             ObjectName = character.gameObject != null ? character.gameObject.name : null,
-            MyWorldFaction = character.MyWorldFaction != null ? character.MyWorldFaction.REFNAME : null,
+            MyWorldFactionStableKey = character.MyWorldFaction != null ? StableKeyGenerator.ForFaction(character.MyWorldFaction) : null,
             MyFaction = character.MyFaction.ToString(),
             AggroRange = character.AggroRange,
             AttackRange = character.AttackRange,
@@ -317,8 +302,12 @@ public class CharacterListener : IAssetScanListener<Character>
         {
             record.NPCName = npc.NPCName;
             // Spells and skills are stored in junction tables, not in denormalized fields
-            record.PetSpell = npc.MyPetSpell?.name ?? string.Empty;
-            record.ProcOnHit = npc.NPCProcOnHit?.name ?? string.Empty;
+            record.PetSpellStableKey = npc.MyPetSpell != null
+                ? StableKeyGenerator.ForSpell(npc.MyPetSpell)
+                : null;
+            record.ProcOnHitStableKey = npc.NPCProcOnHit != null
+                ? StableKeyGenerator.ForSpell(npc.NPCProcOnHit)
+                : null;
             record.ProcOnHitChance = npc.NPCProcOnHitChance;
             
             // NPC Combat Mechanics
@@ -470,116 +459,195 @@ public class CharacterListener : IAssetScanListener<Character>
         return record;
     }
     
-    private CharacterDialogRecord CreateDialogRecord(int characterId, int dialogIndex, NPCDialog dialog)
+    private CharacterDialogRecord CreateDialogRecord(string characterStableKey, int dialogIndex, NPCDialog dialog)
     {
         var keywords = dialog.KeywordToActivate == null || dialog.KeywordToActivate.Count == 0 ? null : string.Join(", ", dialog.KeywordToActivate);
         var repeatingQuestDialog = dialog.RepeatingQuestDialog == "" ? null : dialog.RepeatingQuestDialog.Trim();
 
         return new CharacterDialogRecord
         {
-            CharacterId = characterId,
+            CharacterStableKey = characterStableKey,
             DialogIndex = dialogIndex,
             DialogText = dialog.Dialog.Trim(),
             Keywords = keywords,
-            GiveItemName = dialog.GiveItem?.ItemName,
-            AssignQuestDBName = dialog.QuestToAssign?.DBName,
-            CompleteQuestDBName = dialog.QuestToComplete?.DBName,
+            GiveItemStableKey = dialog.GiveItem != null ? StableKeyGenerator.ForItem(dialog.GiveItem) : null,
+            AssignQuestStableKey = dialog.QuestToAssign != null ? StableKeyGenerator.ForQuest(dialog.QuestToAssign) : null,
+            CompleteQuestStableKey = dialog.QuestToComplete != null ? StableKeyGenerator.ForQuest(dialog.QuestToComplete) : null,
             RepeatingQuestDialog = repeatingQuestDialog,
             KillSelfOnSay = dialog.KillMeOnSay,
-            RequiredQuestDBName = dialog.RequireQuestComplete?.DBName,
-            SpawnName = dialog.Spawn != null ? dialog.Spawn.name : null,
+            RequiredQuestStableKey = dialog.RequireQuestComplete != null ? StableKeyGenerator.ForQuest(dialog.RequireQuestComplete) : null,
+            SpawnCharacterStableKey = dialog.Spawn != null ? StableKeyGenerator.ForCharacter(dialog.Spawn.GetComponent<Character>()) : null,
         };
     }
 
-    private List<CharacterAttackSkillRecord> CreateCharacterAttackSkillRecords(int characterId, List<string> skillResourceNames)
+    private List<CharacterAttackSkillRecord> CreateCharacterAttackSkillRecords(string characterStableKey, List<Skill> skills)
     {
-        return CreateJunctionRecords(
-            skillResourceNames,
-            (cId, sResourceName) => new CharacterAttackSkillRecord { CharacterId = cId, SkillResourceName = sResourceName },
-            characterId
-        );
-    }
+        var records = new List<CharacterAttackSkillRecord>();
+        var seenSkillStableKeys = new HashSet<string>();
 
-    private List<CharacterAttackSpellRecord> CreateCharacterAttackSpellRecords(int characterId, List<string> spellResourceNames)
-    {
-        return CreateJunctionRecords(
-            spellResourceNames,
-            (cId, sResourceName) => new CharacterAttackSpellRecord { CharacterId = cId, SpellResourceName = sResourceName },
-            characterId
-        );
-    }
-
-    private List<CharacterBuffSpellRecord> CreateCharacterBuffSpellRecords(int characterId, List<string> spellResourceNames)
-    {
-        return CreateJunctionRecords(
-            spellResourceNames,
-            (cId, sResourceName) => new CharacterBuffSpellRecord { CharacterId = cId, SpellResourceName = sResourceName },
-            characterId
-        );
-    }
-
-    private List<CharacterHealSpellRecord> CreateCharacterHealSpellRecords(int characterId, List<string> spellResourceNames)
-    {
-        return CreateJunctionRecords(
-            spellResourceNames,
-            (cId, sResourceName) => new CharacterHealSpellRecord { CharacterId = cId, SpellResourceName = sResourceName },
-            characterId
-        );
-    }
-
-    private List<CharacterGroupHealSpellRecord> CreateCharacterGroupHealSpellRecords(int characterId, List<string> spellResourceNames)
-    {
-        return CreateJunctionRecords(
-            spellResourceNames,
-            (cId, sResourceName) => new CharacterGroupHealSpellRecord { CharacterId = cId, SpellResourceName = sResourceName },
-            characterId
-        );
-    }
-
-    private List<CharacterCCSpellRecord> CreateCharacterCCSpellRecords(int characterId, List<string> spellResourceNames)
-    {
-        return CreateJunctionRecords(
-            spellResourceNames,
-            (cId, sResourceName) => new CharacterCCSpellRecord { CharacterId = cId, SpellResourceName = sResourceName },
-            characterId
-        );
-    }
-
-    private List<CharacterTauntSpellRecord> CreateCharacterTauntSpellRecords(int characterId, List<string> spellResourceNames)
-    {
-        return CreateJunctionRecords(
-            spellResourceNames,
-            (cId, sResourceName) => new CharacterTauntSpellRecord { CharacterId = cId, SpellResourceName = sResourceName },
-            characterId
-        );
-    }
-
-    /// <summary>
-    /// Generic helper method to create junction table records with deduplication.
-    /// Deduplicates by resource name and creates records.
-    /// </summary>
-    /// <param name="resourceNames">List of ability resource names (spell or skill ResourceNames from Unity assets)</param>
-    /// <param name="recordFactory">Function to create a junction record given characterId and abilityResourceName</param>
-    /// <param name="characterId">The character's database ID</param>
-    /// <returns>List of junction records with duplicate ability references removed</returns>
-    private List<T> CreateJunctionRecords<T>(
-        List<string> resourceNames,
-        System.Func<int, string, T> recordFactory,
-        int characterId)
-    {
-        var records = new List<T>();
-        var seenResourceNames = new HashSet<string>();
-
-        foreach (var resourceName in resourceNames)
+        foreach (var skill in skills)
         {
-            if (seenResourceNames.Add(resourceName))
+            if (skill != null && !string.IsNullOrEmpty(skill.name))
             {
-                records.Add(recordFactory(characterId, resourceName));
+                var skillStableKey = StableKeyGenerator.ForSkill(skill);
+                if (seenSkillStableKeys.Add(skillStableKey))
+                {
+                    records.Add(new CharacterAttackSkillRecord
+                    {
+                        CharacterStableKey = characterStableKey,
+                        SkillStableKey = skillStableKey
+                    });
+                }
             }
         }
 
         return records;
     }
+
+    private List<CharacterAttackSpellRecord> CreateCharacterAttackSpellRecords(string characterStableKey, List<Spell> spells)
+    {
+        var records = new List<CharacterAttackSpellRecord>();
+        var seenSpellStableKeys = new HashSet<string>();
+
+        foreach (var spell in spells)
+        {
+            if (spell != null && !string.IsNullOrEmpty(spell.name))
+            {
+                var spellStableKey = StableKeyGenerator.ForSpell(spell);
+                if (seenSpellStableKeys.Add(spellStableKey))
+                {
+                    records.Add(new CharacterAttackSpellRecord
+                    {
+                        CharacterStableKey = characterStableKey,
+                        SpellStableKey = spellStableKey
+                    });
+                }
+            }
+        }
+
+        return records;
+    }
+
+    private List<CharacterBuffSpellRecord> CreateCharacterBuffSpellRecords(string characterStableKey, List<Spell> spells)
+    {
+        var records = new List<CharacterBuffSpellRecord>();
+        var seenSpellStableKeys = new HashSet<string>();
+
+        foreach (var spell in spells)
+        {
+            if (spell != null && !string.IsNullOrEmpty(spell.name))
+            {
+                var spellStableKey = StableKeyGenerator.ForSpell(spell);
+                if (seenSpellStableKeys.Add(spellStableKey))
+                {
+                    records.Add(new CharacterBuffSpellRecord
+                    {
+                        CharacterStableKey = characterStableKey,
+                        SpellStableKey = spellStableKey
+                    });
+                }
+            }
+        }
+
+        return records;
+    }
+
+    private List<CharacterHealSpellRecord> CreateCharacterHealSpellRecords(string characterStableKey, List<Spell> spells)
+    {
+        var records = new List<CharacterHealSpellRecord>();
+        var seenSpellStableKeys = new HashSet<string>();
+
+        foreach (var spell in spells)
+        {
+            if (spell != null && !string.IsNullOrEmpty(spell.name))
+            {
+                var spellStableKey = StableKeyGenerator.ForSpell(spell);
+                if (seenSpellStableKeys.Add(spellStableKey))
+                {
+                    records.Add(new CharacterHealSpellRecord
+                    {
+                        CharacterStableKey = characterStableKey,
+                        SpellStableKey = spellStableKey
+                    });
+                }
+            }
+        }
+
+        return records;
+    }
+
+    private List<CharacterGroupHealSpellRecord> CreateCharacterGroupHealSpellRecords(string characterStableKey, List<Spell> spells)
+    {
+        var records = new List<CharacterGroupHealSpellRecord>();
+        var seenSpellStableKeys = new HashSet<string>();
+
+        foreach (var spell in spells)
+        {
+            if (spell != null && !string.IsNullOrEmpty(spell.name))
+            {
+                var spellStableKey = StableKeyGenerator.ForSpell(spell);
+                if (seenSpellStableKeys.Add(spellStableKey))
+                {
+                    records.Add(new CharacterGroupHealSpellRecord
+                    {
+                        CharacterStableKey = characterStableKey,
+                        SpellStableKey = spellStableKey
+                    });
+                }
+            }
+        }
+
+        return records;
+    }
+
+    private List<CharacterCCSpellRecord> CreateCharacterCCSpellRecords(string characterStableKey, List<Spell> spells)
+    {
+        var records = new List<CharacterCCSpellRecord>();
+        var seenSpellStableKeys = new HashSet<string>();
+
+        foreach (var spell in spells)
+        {
+            if (spell != null && !string.IsNullOrEmpty(spell.name))
+            {
+                var spellStableKey = StableKeyGenerator.ForSpell(spell);
+                if (seenSpellStableKeys.Add(spellStableKey))
+                {
+                    records.Add(new CharacterCCSpellRecord
+                    {
+                        CharacterStableKey = characterStableKey,
+                        SpellStableKey = spellStableKey
+                    });
+                }
+            }
+        }
+
+        return records;
+    }
+
+    private List<CharacterTauntSpellRecord> CreateCharacterTauntSpellRecords(string characterStableKey, List<Spell> spells)
+    {
+        var records = new List<CharacterTauntSpellRecord>();
+        var seenSpellStableKeys = new HashSet<string>();
+
+        foreach (var spell in spells)
+        {
+            if (spell != null && !string.IsNullOrEmpty(spell.name))
+            {
+                var spellStableKey = StableKeyGenerator.ForSpell(spell);
+                if (seenSpellStableKeys.Add(spellStableKey))
+                {
+                    records.Add(new CharacterTauntSpellRecord
+                    {
+                        CharacterStableKey = characterStableKey,
+                        SpellStableKey = spellStableKey
+                    });
+                }
+            }
+        }
+
+        return records;
+    }
+
 
     /// <summary>
     /// Checks if a database table exists for the given record type.
@@ -592,22 +660,26 @@ public class CharacterListener : IAssetScanListener<Character>
         return result > 0;
     }
 
-    private List<CharacterVendorItemRecord> CreateCharacterVendorItemRecords(int characterId, VendorInventory vendorInventory)
+    private List<CharacterVendorItemRecord> CreateCharacterVendorItemRecords(string characterStableKey, VendorInventory vendorInventory)
     {
         var records = new List<CharacterVendorItemRecord>();
-        var seenItemNames = new HashSet<string>();
+        var seenItemStableKeys = new HashSet<string>();
 
         if (vendorInventory.ItemsForSale != null && vendorInventory.ItemsForSale.Count > 0)
         {
             foreach (var item in vendorInventory.ItemsForSale)
             {
-                if (item != null && !string.IsNullOrEmpty(item.ItemName) && seenItemNames.Add(item.ItemName))
+                if (item != null && !string.IsNullOrEmpty(item.name))
                 {
-                    records.Add(new CharacterVendorItemRecord
+                    var itemStableKey = StableKeyGenerator.ForItem(item);
+                    if (seenItemStableKeys.Add(itemStableKey))
                     {
-                        CharacterId = characterId,
-                        ItemName = item.ItemName
-                    });
+                        records.Add(new CharacterVendorItemRecord
+                        {
+                            CharacterStableKey = characterStableKey,
+                            ItemStableKey = itemStableKey
+                        });
+                    }
                 }
             }
         }
@@ -615,7 +687,7 @@ public class CharacterListener : IAssetScanListener<Character>
         return records;
     }
 
-    private List<CharacterAggressiveFactionRecord> CreateCharacterAggressiveFactionRecords(int characterId, Character character)
+    private List<CharacterAggressiveFactionRecord> CreateCharacterAggressiveFactionRecords(string characterStableKey, Character character)
     {
         var records = new List<CharacterAggressiveFactionRecord>();
         var seenFactions = new HashSet<string>();
@@ -629,7 +701,7 @@ public class CharacterListener : IAssetScanListener<Character>
                 {
                     records.Add(new CharacterAggressiveFactionRecord
                     {
-                        CharacterId = characterId,
+                        CharacterStableKey = characterStableKey,
                         FactionName = factionName
                     });
                 }
@@ -639,7 +711,7 @@ public class CharacterListener : IAssetScanListener<Character>
         return records;
     }
 
-    private List<CharacterAlliedFactionRecord> CreateCharacterAlliedFactionRecords(int characterId, Character character)
+    private List<CharacterAlliedFactionRecord> CreateCharacterAlliedFactionRecords(string characterStableKey, Character character)
     {
         var records = new List<CharacterAlliedFactionRecord>();
         var seenFactions = new HashSet<string>();
@@ -653,7 +725,7 @@ public class CharacterListener : IAssetScanListener<Character>
                 {
                     records.Add(new CharacterAlliedFactionRecord
                     {
-                        CharacterId = characterId,
+                        CharacterStableKey = characterStableKey,
                         FactionName = factionName
                     });
                 }
@@ -663,23 +735,27 @@ public class CharacterListener : IAssetScanListener<Character>
         return records;
     }
 
-    private List<CharacterFactionModifierRecord> CreateCharacterFactionModifierRecords(int characterId, ModifyFaction modifyFaction)
+    private List<CharacterFactionModifierRecord> CreateCharacterFactionModifierRecords(string characterStableKey, ModifyFaction modifyFaction)
     {
         var records = new List<CharacterFactionModifierRecord>();
-        var seenRefNames = new HashSet<string>();
+        var seenFactionStableKeys = new HashSet<string>();
 
         if (modifyFaction != null && modifyFaction.Factions != null && modifyFaction.Factions.Count > 0)
         {
             foreach (var faction in modifyFaction.Factions)
             {
-                if (faction != null && !string.IsNullOrEmpty(faction.REFNAME) && seenRefNames.Add(faction.REFNAME))
+                if (faction != null && !string.IsNullOrEmpty(faction.REFNAME))
                 {
-                    records.Add(new CharacterFactionModifierRecord
+                    var factionStableKey = StableKeyGenerator.ForFaction(faction);
+                    if (seenFactionStableKeys.Add(factionStableKey))
                     {
-                        CharacterId = characterId,
-                        FactionREFNAME = faction.REFNAME,
-                        ModifierValue = (int)modifyFaction.Modifier
-                    });
+                        records.Add(new CharacterFactionModifierRecord
+                        {
+                            CharacterStableKey = characterStableKey,
+                            FactionStableKey = factionStableKey,
+                            ModifierValue = (int)modifyFaction.Modifier
+                        });
+                    }
                 }
             }
         }
@@ -687,7 +763,7 @@ public class CharacterListener : IAssetScanListener<Character>
         return records;
     }
 
-    private List<CharacterDeathShoutRecord> CreateCharacterDeathShoutRecords(int characterId, Character character)
+    private List<CharacterDeathShoutRecord> CreateCharacterDeathShoutRecords(string characterStableKey, Character character)
     {
         var records = new List<CharacterDeathShoutRecord>();
 
@@ -700,7 +776,7 @@ public class CharacterListener : IAssetScanListener<Character>
                 {
                     records.Add(new CharacterDeathShoutRecord
                     {
-                        CharacterId = characterId,
+                        CharacterStableKey = characterStableKey,
                         SequenceIndex = i,
                         ShoutText = shout
                     });

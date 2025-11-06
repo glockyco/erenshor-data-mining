@@ -28,6 +28,7 @@ class ItemKind(StrEnum):
 
     WEAPON = "weapon"
     ARMOR = "armor"
+    CHARM = "charm"
     AURA = "aura"
     ABILITY_BOOK = "ability_book"
     CONSUMABLE = "consumable"
@@ -48,12 +49,13 @@ def classify_item_kind(  # noqa: PLR0911
 
     Classification priority (first match wins):
     1. Auras - RequiredSlot == 'Aura'
-    2. Ability Books - TeachSpell or TeachSkill present
-    3. Molds - template_flag == 1
-    4. Consumables - RequiredSlot == 'General' + click effect + Disposable
-    5. Weapons - RequiredSlot in {Primary, PrimaryOrSecondary, Secondary}
-    6. Armor - Equippable slot not in weapon/general/aura
-    7. General - fallback
+    2. Charms - RequiredSlot == 'Charm'
+    3. Ability Books - TeachSpell or TeachSkill present
+    4. Molds - template_flag == 1
+    5. Consumables - RequiredSlot == 'General' + click effect + Disposable
+    6. Weapons - RequiredSlot in {Primary, PrimaryOrSecondary, Secondary}
+    7. Armor - Equippable slot not in weapon/general/aura/charm
+    8. General - fallback
 
     Args:
         required_slot: Equipment slot (e.g., 'Primary', 'Head', 'General', 'Aura')
@@ -104,25 +106,29 @@ def classify_item_kind(  # noqa: PLR0911
     if slot_low == "aura":
         return ItemKind.AURA
 
-    # 2. Ability books (teach spells or skills)
+    # 2. Charms (special equipment slot)
+    if slot_low == "charm":
+        return ItemKind.CHARM
+
+    # 3. Ability books (teach spells or skills)
     if (teach_spell is not None and teach_spell.strip()) or (teach_skill is not None and teach_skill.strip()):
         return ItemKind.ABILITY_BOOK
 
-    # 3. Molds (crafting templates)
+    # 4. Molds (crafting templates)
     if (template_flag or 0) == 1:
         return ItemKind.MOLD
 
-    # 4. Consumables (clickable, disposable general items)
+    # 5. Consumables (clickable, disposable general items)
     if slot_low == "general" and (click_effect is not None and click_effect.strip()) and bool(disposable):
         return ItemKind.CONSUMABLE
 
-    # 5. Weapons (primary/secondary slots)
+    # 6. Weapons (primary/secondary slots)
     if slot in {"Primary", "PrimaryOrSecondary", "Secondary"}:
         return ItemKind.WEAPON
 
-    # 6. Armor (equippable, not general/aura/weapon)
-    if slot and slot_low not in {"general", "aura"}:
+    # 7. Armor (equippable, not general/aura/charm/weapon)
+    if slot and slot_low not in {"general", "aura", "charm"}:
         return ItemKind.ARMOR
 
-    # 7. General (fallback)
+    # 8. General (fallback)
     return ItemKind.GENERAL

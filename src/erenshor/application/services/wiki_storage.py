@@ -12,27 +12,35 @@ page title changes.
 
 Directory structure:
     variants/{variant}/wiki/
-    ├── fetched/          # Pages fetched from wiki
-    │   ├── item:iron_sword.txt
-    │   ├── character:rat.txt
-    │   └── spell:fireball.txt
-    ├── generated/        # Generated pages ready to deploy
-    │   ├── item:iron_sword.txt
-    │   └── character:rat.txt
-    └── metadata.json     # Fetch timestamps, page title mappings
+    ├── fetched/          # Pages fetched from wiki (URL-encoded page titles)
+    │   ├── Cloth%20Sleeves.txt
+    │   ├── A%20Beaktooth.txt
+    │   └── Hydrated.txt
+    ├── generated/        # Generated pages ready to deploy (URL-encoded page titles)
+    │   ├── Cloth%20Sleeves.txt
+    │   └── A%20Beaktooth.txt
+    └── metadata.json     # Maps page titles to stable keys, fetch timestamps, hashes
 
 Example:
     >>> from pathlib import Path
     >>> storage = WikiStorage(Path("variants/main/wiki"))
     >>>
-    >>> # Save fetched page
-    >>> storage.save_fetched("item:iron_sword", "Item:Iron Sword", "{{Item|...}}")
+    >>> # Save fetched page (files stored by page title, metadata tracks stable keys)
+    >>> storage.save_fetched_by_title(
+    ...     page_title="Cloth Sleeves",
+    ...     stable_keys=["item:arm - 1 - cloth sleeves"],
+    ...     content="{{Item|...}}"
+    ... )
     >>>
-    >>> # Read fetched page
-    >>> content = storage.read_fetched("item:iron_sword")
+    >>> # Read fetched page by title
+    >>> content = storage.read_fetched_by_title("Cloth Sleeves")
     >>>
     >>> # Save generated page
-    >>> storage.save_generated("item:iron_sword", "{{Item|...}}")
+    >>> storage.save_generated_by_title(
+    ...     page_title="Cloth Sleeves",
+    ...     stable_keys=["item:arm - 1 - cloth sleeves"],
+    ...     content="{{Item|...}}"
+    ... )
     >>>
     >>> # List all generated pages
     >>> pages = storage.list_generated()
@@ -59,10 +67,11 @@ class PageMetadata:
     This metadata tracks all entities that contribute to a single page.
 
     Attributes:
-        page_title: MediaWiki page title (e.g., "Lingering Inferno").
+        page_title: MediaWiki page title (e.g., "Cloth Sleeves").
         stable_keys: List of stable identifiers contributing to this page
-            (e.g., ["spell:lingering_inferno", "skill:lingering_inferno"]).
-        entity_names: List of human-readable entity names (parallel to stable_keys).
+            (e.g., ["item:arm - 1 - cloth sleeves"] or ["spell:all - hydrated"]).
+        entity_names: List of human-readable entity names (parallel to stable_keys)
+            (e.g., ["Cloth Sleeves"] or ["Hydrated"]).
         fetched_at: ISO timestamp when page was fetched from wiki.
         fetched_hash: SHA256 hash of fetched wiki content.
         generated_at: ISO timestamp when page was generated locally.

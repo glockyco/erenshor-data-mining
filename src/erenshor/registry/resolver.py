@@ -44,24 +44,28 @@ class RegistryResolver:
     to entity name fields when no override exists.
     """
 
-    def __init__(self, registry_db_path: Path, mapping_json_path: Path | None = None) -> None:
+    def __init__(
+        self,
+        registry_db_path: Path,
+        game_db_path: Path,
+        mapping_json_path: Path,
+    ) -> None:
         """Initialize the resolver with a registry database.
 
         If the registry database doesn't exist or is empty, it will be automatically
-        initialized and populated from mapping.json.
+        initialized and populated from the game database, then mapping.json overrides applied.
 
-        If mapping.json is newer than registry.db, the registry will be rebuilt.
+        If game database or mapping.json is newer than registry.db, the registry will be rebuilt.
 
         Args:
             registry_db_path: Path to the registry database file
-            mapping_json_path: Path to mapping.json (defaults to repo_root/mapping.json)
+            game_db_path: Path to the game database
+            mapping_json_path: Path to mapping.json
         """
         self.registry_db_path = registry_db_path
 
-        # Determine mapping.json path
-        if mapping_json_path is None:
-            # Default to mapping.json in repo root (parent of registry.db)
-            mapping_json_path = registry_db_path.parent / "mapping.json"
+        if not game_db_path.exists():
+            raise FileNotFoundError(f"Cannot initialize registry: game database not found at {game_db_path}")
 
         if not mapping_json_path.exists():
             raise FileNotFoundError(f"Cannot initialize registry: mapping.json not found at {mapping_json_path}")
@@ -74,32 +78,32 @@ class RegistryResolver:
         elif registry_db_path.stat().st_size == 0:
             logger.info(f"Registry database is empty at {registry_db_path}, will initialize")
             needs_init = True
+        elif game_db_path.stat().st_mtime > registry_db_path.stat().st_mtime:
+            logger.info("Game database is newer than registry.db, will rebuild")
+            needs_init = True
         elif mapping_json_path.stat().st_mtime > registry_db_path.stat().st_mtime:
-            logger.info(
-                f"mapping.json is newer than registry.db "
-                f"(mapping: {mapping_json_path.stat().st_mtime:.0f}, "
-                f"registry: {registry_db_path.stat().st_mtime:.0f}), will rebuild"
-            )
+            logger.info("mapping.json is newer than registry.db, will rebuild")
             needs_init = True
 
         if needs_init:
-            self._build_registry(registry_db_path, mapping_json_path)
+            self._build_registry(registry_db_path, game_db_path, mapping_json_path)
 
         self.engine = create_engine(f"sqlite:///{registry_db_path}")
         logger.debug(f"RegistryResolver initialized with database: {registry_db_path}")
 
-    def _build_registry(self, db_path: Path, mapping_path: Path) -> None:
-        """Build registry database from mapping.json.
+    def _build_registry(self, db_path: Path, game_db_path: Path, mapping_path: Path) -> None:
+        """Build registry database from game database and mapping.json.
 
         Args:
             db_path: Path to create registry database
+            game_db_path: Path to game database
             mapping_path: Path to mapping.json
         """
-        from .operations import initialize_registry, load_mapping_json
+        from .operations import initialize_registry, load_mapping_json, populate_all_entities
 
-        logger.info(f"Building registry database from {mapping_path}")
+        logger.info(f"Building registry database from {game_db_path} and {mapping_path}")
 
-        # Delete old database if it exists (for clean rebuild)
+        # Delete old database if it exists
         if db_path.exists():
             logger.debug(f"Removing existing registry database: {db_path}")
             db_path.unlink()
@@ -107,108 +111,106 @@ class RegistryResolver:
         # Initialize empty database
         initialize_registry(db_path)
 
-        # Load mapping.json
         temp_engine = create_engine(f"sqlite:///{db_path}")
         with Session(temp_engine) as session:
-            count = load_mapping_json(session, mapping_path)
+            # First populate all entities from game database
+            entity_count = populate_all_entities(session, game_db_path)
+            logger.info(f"Populated {entity_count} entities from game database")
+
+            # Then apply overrides from mapping.json
+            override_count = load_mapping_json(session, mapping_path)
+            logger.info(f"Applied {override_count} overrides from mapping.json")
+
             session.commit()
 
-        logger.info(f"Registry built successfully: {count} entities loaded")
+        logger.info(f"Registry built successfully: {entity_count} entities with {override_count} overrides")
 
-    def resolve_page_title(self, stable_key: str, entity_name: str) -> str | None:
+    def resolve_page_title(self, stable_key: str) -> str | None:
         """Resolve entity stable key to wiki page title.
 
         Args:
             stable_key: Stable key in format "entity_type:resource_name"
-            entity_name: Entity's display name from game data (ItemName, NPCName, etc.)
 
         Returns:
-            Wiki page title (override or fallback to entity_name), or None if excluded
+            Wiki page title from registry, or None if excluded
 
         Example:
-            >>> resolver.resolve_page_title("character:Brackish Crocodile", "Brackish Crocodile")
+            >>> resolver.resolve_page_title("character:brackish crocodile")
             "A Brackish Croc"
-            >>> resolver.resolve_page_title("item:Iron Sword", "Iron Sword")
+            >>> resolver.resolve_page_title("item:iron sword")
             "Iron Sword"
-            >>> resolver.resolve_page_title("character:Player", "Player")
-            None  # excluded
+            >>> resolver.resolve_page_title("character:player")
+            None
         """
         with Session(self.engine) as session:
             entity = get_entity(session, stable_key)
 
-            if entity:
-                # Entity has registry entry
-                if entity.excluded:
-                    logger.debug(f"Entity {stable_key} is excluded from wiki")
-                    return None
+            if not entity:
+                raise ValueError(f"Entity not found in registry: {stable_key}")
 
-                if entity.page_title:
-                    logger.debug(f"Using page_title override for {stable_key}: {entity.page_title!r}")
-                    return entity.page_title
+            if entity.excluded:
+                logger.debug(f"Entity {stable_key} is excluded from wiki")
+                return None
 
-            # Fall back to entity name
-            logger.debug(f"Using entity name fallback for {stable_key}: {entity_name!r}")
-            return entity_name
+            if not entity.page_title:
+                raise ValueError(f"Entity {stable_key} has no page_title in registry")
 
-    def resolve_display_name(self, stable_key: str, entity_name: str) -> str:
+            logger.debug(f"Resolved page_title for {stable_key}: {entity.page_title!r}")
+            return entity.page_title
+
+    def resolve_display_name(self, stable_key: str) -> str:
         """Resolve entity stable key to display name.
 
         Args:
             stable_key: Stable key in format "entity_type:resource_name"
-            entity_name: Entity's display name from game data (ItemName, NPCName, etc.)
 
         Returns:
-            Display name (override or fallback to entity_name)
-
-        Note:
-            Always returns a name, even for excluded entities. Exclusion filtering
-            should be done separately via resolve_page_title or explicit checks.
+            Display name from registry
 
         Example:
-            >>> resolver.resolve_display_name("character:Brackish Crocodile", "Brackish Crocodile")
-            "Brackish Crocodile"  # or override if exists
+            >>> resolver.resolve_display_name("character:brackish crocodile")
+            "Brackish Crocodile"
         """
         with Session(self.engine) as session:
             entity = get_entity(session, stable_key)
 
-            if entity and entity.display_name:
-                logger.debug(f"Using display_name override for {stable_key}: {entity.display_name!r}")
-                return entity.display_name
+            if not entity:
+                raise ValueError(f"Entity not found in registry: {stable_key}")
 
-            # Fall back to entity name
-            logger.debug(f"Using entity name fallback for {stable_key}: {entity_name!r}")
-            return entity_name
+            if not entity.display_name:
+                raise ValueError(f"Entity {stable_key} has no display_name in registry")
 
-    def resolve_image_name(self, stable_key: str, entity_name: str) -> str | None:
+            logger.debug(f"Resolved display_name for {stable_key}: {entity.display_name!r}")
+            return entity.display_name
+
+    def resolve_image_name(self, stable_key: str) -> str | None:
         """Resolve entity stable key to image filename.
 
         Args:
             stable_key: Stable key in format "entity_type:resource_name"
-            entity_name: Entity's display name from game data (ItemName, NPCName, etc.)
 
         Returns:
-            Image filename (override or fallback to entity_name), or None if excluded
+            Image filename from registry, or None if excluded
 
         Example:
-            >>> resolver.resolve_image_name("item:Sword of Power", "Sword of Power")
-            "SwordOfPower.png"  # or override if exists
+            >>> resolver.resolve_image_name("item:sword of power")
+            "Sword of Power"
         """
         with Session(self.engine) as session:
             entity = get_entity(session, stable_key)
 
-            if entity:
-                # Entity has registry entry
-                if entity.excluded:
-                    logger.debug(f"Entity {stable_key} is excluded from wiki")
-                    return None
+            if not entity:
+                raise ValueError(f"Entity not found in registry: {stable_key}")
 
-                if entity.image_name:
-                    logger.debug(f"Using image_name override for {stable_key}: {entity.image_name!r}")
-                    return entity.image_name
+            if entity.excluded:
+                logger.debug(f"Entity {stable_key} is excluded from wiki")
+                return None
 
-            # Fall back to entity name
-            logger.debug(f"Using entity name fallback for {stable_key}: {entity_name!r}")
-            return entity_name
+            if not entity.image_name:
+                raise ValueError(f"Entity {stable_key} has no image_name in registry")
+
+            logger.debug(f"Resolved image_name for {stable_key}: {entity.image_name!r}")
+            return entity.image_name
 
     def is_excluded(self, stable_key: str) -> bool:
         """Check if entity is excluded from wiki.
@@ -229,12 +231,11 @@ class RegistryResolver:
             entity = get_entity(session, stable_key)
             return entity.excluded if entity else False
 
-    def item_link(self, resource_name: str, item_name: str) -> str:
+    def item_link(self, stable_key: str) -> str:
         """Generate {{ItemLink|...}} template for an item.
 
         Args:
-            resource_name: Item resource name (internal identifier)
-            item_name: Item display name (ItemName)
+            stable_key: Item stable key string (e.g., "item:iron sword")
 
         Returns:
             {{ItemLink|PageTitle|image=ImageName.png|text=DisplayText}} with applicable params
@@ -242,27 +243,22 @@ class RegistryResolver:
             Plain display name (no link) if excluded
 
         Example:
-            >>> resolver.item_link("IronSword", "Iron Sword")
+            >>> item = Item(stable_key="item:iron sword", ...)
+            >>> resolver.item_link(item.stable_key)
             "{{ItemLink|Iron Sword}}"
         """
-        from .resource_names import build_stable_key
-        from .schema import EntityType
-
-        stable_key = build_stable_key(EntityType.ITEM, resource_name)
-        page_title = self.resolve_page_title(stable_key, item_name)
+        page_title = self.resolve_page_title(stable_key)
 
         if page_title is None:
-            logger.debug(f"Item {resource_name} is excluded, returning plain display name")
-            return item_name
+            display_name = self.resolve_display_name(stable_key)
+            logger.debug(f"Entity {stable_key} is excluded")
+            return display_name
 
-        # Get display name and image overrides
-        display_name = self.resolve_display_name(stable_key, item_name)
-        image_name = self.resolve_image_name(stable_key, item_name)
+        display_name = self.resolve_display_name(stable_key)
+        image_name = self.resolve_image_name(stable_key)
 
-        # Build template parameters
         params = []
         if image_name and image_name != page_title:
-            # Add .png extension if not already present
             img = image_name if image_name.endswith(".png") else f"{image_name}.png"
             params.append(f"image={img}")
         if display_name and display_name != page_title:
@@ -272,14 +268,50 @@ class RegistryResolver:
             return f"{{{{ItemLink|{page_title}|{'|'.join(params)}}}}}"
         return f"{{{{ItemLink|{page_title}}}}}"
 
-    def faction_link(self, faction_refname: str, faction_display_name: str) -> str:
+    def ability_link(self, stable_key: str) -> str:
+        """Generate {{AbilityLink|...}} template for a spell or skill.
+
+        Args:
+            stable_key: Spell/skill stable key from Spell.stable_key or Skill.stable_key property
+
+        Returns:
+            {{AbilityLink|PageTitle|image=ImageName.png|text=DisplayText}} with applicable params
+            {{AbilityLink|PageTitle}} if no overrides needed
+            Plain display name (no link) if excluded
+
+        Example:
+            >>> spell = Spell(resource_name="gen - stun", ...)
+            >>> resolver.ability_link(spell.stable_key)
+            "{{AbilityLink|Stun}}"
+        """
+        page_title = self.resolve_page_title(stable_key)
+
+        if page_title is None:
+            display_name = self.resolve_display_name(stable_key)
+            logger.debug(f"Entity {stable_key} is excluded")
+            return display_name
+
+        display_name = self.resolve_display_name(stable_key)
+        image_name = self.resolve_image_name(stable_key)
+
+        params = []
+        if image_name and image_name != page_title:
+            img = image_name if image_name.endswith(".png") else f"{image_name}.png"
+            params.append(f"image={img}")
+        if display_name and display_name != page_title:
+            params.append(f"text={display_name}")
+
+        if params:
+            return f"{{{{AbilityLink|{page_title}|{'|'.join(params)}}}}}"
+        return f"{{{{AbilityLink|{page_title}}}}}"
+
+    def faction_link(self, stable_key: str) -> str:
         """Generate standard MediaWiki link for a faction.
 
         Uses [[Page]] or [[Page|Display]] syntax.
 
         Args:
-            faction_refname: Faction REFNAME (internal identifier)
-            faction_display_name: Faction display name (FactionDesc)
+            stable_key: Faction stable key from Faction.stable_key property
 
         Returns:
             [[PageTitle|DisplayText]] if display differs
@@ -287,33 +319,30 @@ class RegistryResolver:
             Plain display name (no link) if excluded
 
         Example:
-            >>> resolver.faction_link("AzureCitizens", "The Citizens of Port Azure")
+            >>> faction = Faction(refname="AzureCitizens", ...)
+            >>> resolver.faction_link(faction.stable_key)
             "[[The Citizens of Port Azure]]"
         """
-        from .resource_names import build_stable_key
-        from .schema import EntityType
-
-        stable_key = build_stable_key(EntityType.FACTION, faction_refname)
-        page_title = self.resolve_page_title(stable_key, faction_display_name)
+        page_title = self.resolve_page_title(stable_key)
 
         if page_title is None:
-            logger.debug(f"Faction {faction_refname} is excluded, returning plain display name")
-            return faction_display_name
+            display_name = self.resolve_display_name(stable_key)
+            logger.debug(f"Entity {stable_key} is excluded")
+            return display_name
 
-        display_name = self.resolve_display_name(stable_key, faction_display_name)
+        display_name = self.resolve_display_name(stable_key)
 
         if display_name and display_name != page_title:
             return f"[[{page_title}|{display_name}]]"
         return f"[[{page_title}]]"
 
-    def zone_link(self, scene_name: str, zone_display_name: str) -> str:
+    def zone_link(self, stable_key: str) -> str:
         """Generate standard MediaWiki link for a zone.
 
         Uses [[Page]] or [[Page|Display]] syntax.
 
         Args:
-            scene_name: Scene name (internal identifier)
-            zone_display_name: Zone display name (ZoneName from ZoneAnnounces)
+            stable_key: Zone stable key from Zone.stable_key property
 
         Returns:
             [[PageTitle|DisplayText]] if display differs
@@ -321,20 +350,78 @@ class RegistryResolver:
             Plain display name (no link) if excluded
 
         Example:
-            >>> resolver.zone_link("Azure", "Port Azure")
+            >>> zone = Zone(scene="Azure", ...)
+            >>> resolver.zone_link(zone.stable_key)
             "[[Port Azure]]"
         """
-        from .resource_names import build_stable_key
-        from .schema import EntityType
-
-        stable_key = build_stable_key(EntityType.ZONE, scene_name)
-        page_title = self.resolve_page_title(stable_key, zone_display_name)
+        page_title = self.resolve_page_title(stable_key)
 
         if page_title is None:
-            logger.debug(f"Zone {scene_name} is excluded, returning plain display name")
-            return zone_display_name
+            display_name = self.resolve_display_name(stable_key)
+            logger.debug(f"Entity {stable_key} is excluded")
+            return display_name
 
-        display_name = self.resolve_display_name(stable_key, zone_display_name)
+        display_name = self.resolve_display_name(stable_key)
+
+        if display_name and display_name != page_title:
+            return f"[[{page_title}|{display_name}]]"
+        return f"[[{page_title}]]"
+
+    def quest_link(self, stable_key: str) -> str:
+        """Generate {{QuestLink|...}} template for a quest.
+
+        Args:
+            stable_key: Quest stable key from Quest.stable_key property
+
+        Returns:
+            {{QuestLink|PageTitle|text=DisplayText}} if display differs
+            {{QuestLink|PageTitle}} if no overrides needed
+            Plain display name (no link) if excluded
+
+        Example:
+            >>> quest = Quest(db_name="CatForDeer", ...)
+            >>> resolver.quest_link(quest.stable_key)
+            "{{QuestLink|A Cat for a Deer}}"
+        """
+        page_title = self.resolve_page_title(stable_key)
+
+        if page_title is None:
+            display_name = self.resolve_display_name(stable_key)
+            logger.debug(f"Entity {stable_key} is excluded")
+            return display_name
+
+        display_name = self.resolve_display_name(stable_key)
+
+        if display_name and display_name != page_title:
+            return f"{{{{QuestLink|{page_title}|text={display_name}}}}}"
+        return f"{{{{QuestLink|{page_title}}}}}"
+
+    def character_link(self, stable_key: str) -> str:
+        """Generate standard MediaWiki link for a character.
+
+        Uses [[Page]] or [[Page|Display]] syntax, consistent with zones and factions.
+
+        Args:
+            stable_key: Character stable key from Character.stable_key property
+
+        Returns:
+            [[PageTitle|DisplayText]] if display differs
+            [[PageTitle]] otherwise
+            Plain display name (no link) if excluded
+
+        Example:
+            >>> character = Character(object_name="Goblin", ...)
+            >>> resolver.character_link(character.stable_key)
+            "[[Goblin]]"
+        """
+        page_title = self.resolve_page_title(stable_key)
+
+        if page_title is None:
+            display_name = self.resolve_display_name(stable_key)
+            logger.debug(f"Entity {stable_key} is excluded")
+            return display_name
+
+        display_name = self.resolve_display_name(stable_key)
 
         if display_name and display_name != page_title:
             return f"[[{page_title}|{display_name}]]"

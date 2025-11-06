@@ -82,20 +82,22 @@ public class MiningNodeListener : IAssetScanListener<MiningNode>
 
         // Guarantee
         var guaranteeItem = node.guarantee ?? GameData.GM?.GuaranteeMine;
-        if (guaranteeItem != null)
+        if (guaranteeItem != null && !string.IsNullOrEmpty(guaranteeItem.name))
         {
-            itemTotalDropChances.TryAdd(guaranteeItem.ItemName, 0f);
-            itemTotalDropChances[guaranteeItem.ItemName] += guaranteeChance;
+            var itemStableKey = StableKeyGenerator.ForItem(guaranteeItem);
+            itemTotalDropChances.TryAdd(itemStableKey, 0f);
+            itemTotalDropChances[itemStableKey] += guaranteeChance;
         }
 
         // Common
         if (node.Common is { Count: > 0 })
         {
             var dropChancePerItem = commonChance / node.Common.Count;
-            foreach (var item in node.Common.Where(i => i != null))
+            foreach (var item in node.Common.Where(i => i != null && !string.IsNullOrEmpty(i.name)))
             {
-                itemTotalDropChances.TryAdd(item.ItemName, 0f);
-                itemTotalDropChances[item.ItemName] += dropChancePerItem;
+                var itemStableKey = StableKeyGenerator.ForItem(item);
+                itemTotalDropChances.TryAdd(itemStableKey, 0f);
+                itemTotalDropChances[itemStableKey] += dropChancePerItem;
             }
         }
 
@@ -103,10 +105,11 @@ public class MiningNodeListener : IAssetScanListener<MiningNode>
         if (node.Rare is { Count: > 0 })
         {
             var dropChancePerItem = rareChance / node.Rare.Count;
-            foreach (var item in node.Rare.Where(i => i != null))
+            foreach (var item in node.Rare.Where(i => i != null && !string.IsNullOrEmpty(i.name)))
             {
-                itemTotalDropChances.TryAdd(item.ItemName, 0f);
-                itemTotalDropChances[item.ItemName] += dropChancePerItem;
+                var itemStableKey = StableKeyGenerator.ForItem(item);
+                itemTotalDropChances.TryAdd(itemStableKey, 0f);
+                itemTotalDropChances[itemStableKey] += dropChancePerItem;
             }
         }
 
@@ -114,10 +117,11 @@ public class MiningNodeListener : IAssetScanListener<MiningNode>
         if (node.Legend is { Count: > 0 })
         {
             var dropChancePerItem = legendChance / node.Legend.Count;
-            foreach (var item in node.Legend.Where(i => i != null))
+            foreach (var item in node.Legend.Where(i => i != null && !string.IsNullOrEmpty(i.name)))
             {
-                itemTotalDropChances.TryAdd(item.ItemName, 0f);
-                itemTotalDropChances[item.ItemName] += dropChancePerItem;
+                var itemStableKey = StableKeyGenerator.ForItem(item);
+                itemTotalDropChances.TryAdd(itemStableKey, 0f);
+                itemTotalDropChances[itemStableKey] += dropChancePerItem;
             }
         }
 
@@ -125,7 +129,7 @@ public class MiningNodeListener : IAssetScanListener<MiningNode>
         var itemRecords = itemTotalDropChances.Select(kvp => new MiningNodeItemRecord
         {
             MiningNodeId = miningNodeId,
-            ItemName = kvp.Key,
+            ItemStableKey = kvp.Key,
             DropChance = kvp.Value
         }).ToList();
 

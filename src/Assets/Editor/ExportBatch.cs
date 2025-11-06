@@ -77,6 +77,9 @@ public static class ExportBatch
 
             using (SQLiteConnection db = new SQLiteConnection(args.dbPath, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create))
             {
+                // Enable foreign key constraints
+                db.Execute("PRAGMA foreign_keys = ON");
+
                 // Clear shared Coordinates table before export
                 // Each listener will repopulate its category during the scan
                 db.CreateTable<CoordinateRecord>();

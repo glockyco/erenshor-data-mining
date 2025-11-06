@@ -13,10 +13,11 @@ public class CraftingRewardRecord
     public const string TableName = "CraftingRewards";
 
     /// <summary>
-    /// The ID of the recipe item that grants these rewards
+    /// The stable key of the recipe item that grants these rewards
     /// </summary>
     [Indexed(Name = "CraftingRewards_Primary_IDX", Order = 1, Unique = true)]
-    public string RecipeItemId { get; set; } = string.Empty;
+    [ForeignKey(typeof(ItemRecord), "StableKey")]
+    public string RecipeItemStableKey { get; set; } = string.Empty;
 
     /// <summary>
     /// The slot position of this reward (1-based).
@@ -26,9 +27,10 @@ public class CraftingRewardRecord
     public int RewardSlot { get; set; }
 
     /// <summary>
-    /// The ID of the reward item granted
+    /// The stable key of the reward item granted
     /// </summary>
-    public string RewardItemId { get; set; } = string.Empty;
+    [ForeignKey(typeof(ItemRecord), "StableKey")]
+    public string RewardItemStableKey { get; set; } = string.Empty;
 
     /// <summary>
     /// The quantity of this reward item granted.

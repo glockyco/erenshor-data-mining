@@ -25,7 +25,6 @@ from pathlib import Path
 from loguru import logger
 from sqlmodel import Session, SQLModel, create_engine, select
 
-from .resource_names import normalize_resource_name, parse_stable_key
 from .schema import ConflictRecord, EntityRecord, EntityType
 
 
@@ -61,8 +60,7 @@ def initialize_registry(db_path: Path) -> None:
 
 def register_entity(
     session: Session,
-    entity_type: EntityType,
-    resource_name: str,
+    stable_key: str,
     page_title: str | None = None,
     display_name: str | None = None,
     image_name: str | None = None,
@@ -70,8 +68,8 @@ def register_entity(
 ) -> EntityRecord:
     """Register or update an entity override in the registry.
 
-    Uses upsert pattern: if an entity with the same entity_type and resource_name
-    already exists, it updates the override fields. Otherwise, creates a new entity record.
+    Uses upsert pattern: if an entity with the same stable_key already exists,
+    it updates the override fields. Otherwise, creates a new entity record.
 
     Only entities with custom overrides should be registered. The registry stores
     ONLY overrides - if all fields are None and excluded is False, the entity should
@@ -79,8 +77,7 @@ def register_entity(
 
     Args:
         session: SQLModel database session
-        entity_type: Type of entity (item, spell, character, etc.)
-        resource_name: Stable resource identifier from game data
+        stable_key: Stable key from game database (format: "entity_type:resource_name")
         page_title: Custom wiki page title override (None = use entity name)
         display_name: Custom display name override (None = use entity name)
         image_name: Custom image filename override (None = use entity name)
@@ -95,42 +92,42 @@ def register_entity(
         >>> with Session(engine) as session:
         ...     entity = register_entity(
         ...         session,
-        ...         EntityType.ITEM,
-        ...         "iron_sword",
+        ...         "item:iron_sword",
         ...         page_title="Iron Sword (Weapon)",
         ...     )
         ...     print(f"Registered override: {entity.page_title}")
         Registered override: Iron Sword (Weapon)
     """
     # Check if entity already exists
-    statement = select(EntityRecord).where(
-        EntityRecord.entity_type == entity_type,
-        EntityRecord.resource_name == resource_name,
-    )
+    statement = select(EntityRecord).where(EntityRecord.stable_key == stable_key)
     existing = session.exec(statement).first()
 
     if existing:
-        # Update existing entity
-        existing.page_title = page_title
-        existing.display_name = display_name
-        existing.image_name = image_name
+        # Update existing entity - only override non-None values
+        if page_title is not None:
+            existing.page_title = page_title
+        if display_name is not None:
+            existing.display_name = display_name
+        if image_name is not None:
+            existing.image_name = image_name
         existing.excluded = excluded
 
         session.add(existing)
         session.commit()
         session.refresh(existing)
 
-        logger.debug(
-            f"Updated entity: {entity_type.value}:{resource_name} "
-            f"(id={existing.id}, page_title={page_title!r}, excluded={excluded})"
-        )
+        logger.debug(f"Updated entity: {stable_key} (page_title={page_title!r}, excluded={excluded})")
 
         return existing
 
+    # Extract entity_type from stable_key (format: "entity_type:resource_name")
+    entity_type_str = stable_key.split(":", 1)[0]
+    entity_type = EntityType(entity_type_str)
+
     # Create new entity
     entity = EntityRecord(
+        stable_key=stable_key,
         entity_type=entity_type,
-        resource_name=resource_name,
         page_title=page_title,
         display_name=display_name,
         image_name=image_name,
@@ -141,10 +138,7 @@ def register_entity(
     session.commit()
     session.refresh(entity)
 
-    logger.debug(
-        f"Registered new entity: {entity_type.value}:{resource_name} "
-        f"(id={entity.id}, page_title={page_title!r}, excluded={excluded})"
-    )
+    logger.debug(f"Registered new entity: {stable_key} (page_title={page_title!r}, excluded={excluded})")
 
     return entity
 
@@ -152,18 +146,12 @@ def register_entity(
 def get_entity(session: Session, stable_key: str) -> EntityRecord | None:
     """Retrieve entity by stable key.
 
-    Parses the stable key into entity_type and resource_name, then queries
-    for the matching entity record.
-
     Args:
         session: SQLModel database session
         stable_key: Stable key in format "entity_type:resource_name"
 
     Returns:
         EntityRecord if found, None otherwise
-
-    Raises:
-        ValueError: If stable_key format is invalid
 
     Example:
         >>> from sqlmodel import Session, create_engine
@@ -176,18 +164,12 @@ def get_entity(session: Session, stable_key: str) -> EntityRecord | None:
         ...         print("Not found")
         Found: Iron Sword
     """
-    # Parse stable key
-    entity_type, resource_name = parse_stable_key(stable_key)
-
-    # Query for entity
-    statement = select(EntityRecord).where(
-        EntityRecord.entity_type == entity_type,
-        EntityRecord.resource_name == resource_name,
-    )
+    # Query for entity by stable_key
+    statement = select(EntityRecord).where(EntityRecord.stable_key == stable_key)
     entity = session.exec(statement).first()
 
     if entity:
-        logger.debug(f"Found entity: {stable_key} (id={entity.id})")
+        logger.debug(f"Found entity: {stable_key}")
     else:
         logger.debug(f"Entity not found: {stable_key}")
 
@@ -202,11 +184,11 @@ def list_entities(
 
     Args:
         session: SQLModel database session
-        entity_type: If provided, only return entities of this type.
+        entity_type: If provided, only return entities of this type (filters by stable_key prefix).
                      If None, return all entities.
 
     Returns:
-        List of EntityRecord instances, ordered by entity_type then resource_name
+        List of EntityRecord instances, ordered by stable_key
 
     Example:
         >>> from sqlmodel import Session, create_engine
@@ -226,10 +208,12 @@ def list_entities(
     statement = select(EntityRecord)
 
     if entity_type is not None:
-        statement = statement.where(EntityRecord.entity_type == entity_type)
+        # Filter by stable_key prefix (e.g., "item:")
+        prefix = f"{entity_type.value}:"
+        statement = statement.where(EntityRecord.stable_key.like(f"{prefix}%"))  # type: ignore[attr-defined]
 
-    # Order by entity_type, then resource_name
-    statement = statement.order_by(EntityRecord.entity_type, EntityRecord.resource_name)
+    # Order by stable_key
+    statement = statement.order_by(EntityRecord.stable_key)
 
     # Execute query
     entities = list(session.exec(statement).all())
@@ -264,39 +248,43 @@ def find_conflicts(session: Session) -> list[tuple[str, list[EntityRecord]]]:
         >>> with Session(engine) as session:
         ...     conflicts = find_conflicts(session)
         ...     for display_name, entities in conflicts:
-        ...         entity_type = entities[0].entity_type
-        ...         print(f"Conflict: {display_name} ({entity_type.value})")
+        ...         # Extract entity_type from stable_key
+        ...         entity_type = entities[0].stable_key.split(":")[0]
+        ...         print(f"Conflict: {display_name} ({entity_type})")
         ...         for entity in entities:
-        ...             print(f"  - {entity.resource_name}")
+        ...             print(f"  - {entity.stable_key}")
         Conflict: Iron Sword (item)
-          - iron_sword_1
-          - iron_sword_2
+          - item:iron_sword_1
+          - item:iron_sword_2
     """
     conflicts: list[tuple[str, list[EntityRecord]]] = []
 
     # Group entities by entity_type and display_name
     all_entities = session.exec(
         select(EntityRecord).order_by(
-            EntityRecord.entity_type,
+            EntityRecord.stable_key,
             EntityRecord.display_name,  # type: ignore[arg-type]
         )
     ).all()
 
     # Group by (entity_type, display_name)
-    groups: dict[tuple[EntityType, str], list[EntityRecord]] = {}
+    # Extract entity_type from stable_key
+    groups: dict[tuple[str, str], list[EntityRecord]] = {}
     for entity in all_entities:
         if entity.display_name is None:
-            raise ValueError(f"Entity {entity.entity_type}:{entity.resource_name} (id={entity.id}) has no display_name")
-        key = (entity.entity_type, entity.display_name)
+            raise ValueError(f"Entity {entity.stable_key} has no display_name")
+        # Extract entity type from stable_key (format: "entity_type:resource_name")
+        entity_type_str = entity.stable_key.split(":", 1)[0] if ":" in entity.stable_key else "unknown"
+        key = (entity_type_str, entity.display_name)
         if key not in groups:
             groups[key] = []
         groups[key].append(entity)
 
     # Find groups with multiple entities (conflicts)
-    for (entity_type, display_name), entities in groups.items():
+    for (entity_type_str, display_name), entities in groups.items():
         if len(entities) > 1:
             conflicts.append((display_name, entities))
-            logger.debug(f"Found conflict: {display_name} ({entity_type.value}) has {len(entities)} entities")
+            logger.debug(f"Found conflict: {display_name} ({entity_type_str}) has {len(entities)} entities")
 
     logger.info(f"Found {len(conflicts)} name conflicts")
     return conflicts
@@ -400,6 +388,162 @@ def resolve_conflict(
     logger.info(f"Resolved conflict: id={conflict_id}, chosen_entity={chosen_entity_id}, notes={notes!r}")
 
 
+def populate_all_entities(session: Session, db_path: Path) -> int:
+    """Populate registry with ALL entities from game database.
+
+    Scans Items, Spells, Skills, Characters, Quests, Factions (WorldFactions), and Zones tables
+    and creates registry entries for every entity with their default names. This should be called
+    FIRST to populate the registry, then load_mapping_json() to apply overrides.
+
+    All stable keys are normalized to lowercase for case-insensitive lookups.
+
+    Args:
+        session: SQLModel database session
+        db_path: Path to game database (erenshor-main.sqlite)
+
+    Returns:
+        Number of entities added to registry
+
+    Example:
+        >>> from pathlib import Path
+        >>> from sqlmodel import Session, create_engine
+        >>> engine = create_engine("sqlite:///registry.db")
+        >>> with Session(engine) as session:
+        ...     count = populate_all_entities(session, Path("erenshor-main.sqlite"))
+        ...     print(f"Added {count} entities")
+        Added 2500 entities
+    """
+    import sqlite3
+
+    if not db_path.exists():
+        logger.error(f"Game database not found: {db_path}")
+        return 0
+
+    logger.info(f"Populating registry with all entities from {db_path}")
+
+    # Connect to game database
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+
+    count = 0
+
+    # Items
+    cursor.execute("SELECT StableKey, ItemName FROM Items")
+    for row in cursor.fetchall():
+        stable_key = row["StableKey"]
+        item_name = row["ItemName"]
+
+        register_entity(
+            session,
+            stable_key=stable_key,
+            page_title=item_name,
+            display_name=item_name,
+            image_name=item_name,
+        )
+        count += 1
+
+    # Spells
+    cursor.execute("SELECT StableKey, SpellName FROM Spells")
+    for row in cursor.fetchall():
+        stable_key = row["StableKey"]
+        spell_name = row["SpellName"]
+
+        register_entity(
+            session,
+            stable_key=stable_key,
+            page_title=spell_name,
+            display_name=spell_name,
+            image_name=spell_name,
+        )
+        count += 1
+
+    # Skills
+    cursor.execute("SELECT StableKey, SkillName FROM Skills")
+    for row in cursor.fetchall():
+        stable_key = row["StableKey"]
+        skill_name = row["SkillName"]
+
+        register_entity(
+            session,
+            stable_key=stable_key,
+            page_title=skill_name,
+            display_name=skill_name,
+            image_name=skill_name,
+        )
+        count += 1
+
+    # Characters
+    cursor.execute("SELECT StableKey, NPCName FROM Characters")
+    for row in cursor.fetchall():
+        stable_key = row["StableKey"]
+        npc_name = row["NPCName"]
+
+        register_entity(
+            session,
+            stable_key=stable_key,
+            page_title=npc_name,
+            display_name=npc_name,
+            image_name=npc_name,
+        )
+        count += 1
+
+    # Quests (get name from first QuestVariant)
+    cursor.execute("""
+        SELECT q.StableKey, qv.QuestName
+        FROM Quests q
+        JOIN QuestVariants qv ON q.StableKey = qv.QuestStableKey
+        GROUP BY q.StableKey
+    """)
+    for row in cursor.fetchall():
+        stable_key = row["StableKey"]
+        quest_name = row["QuestName"]
+
+        register_entity(
+            session,
+            stable_key=stable_key,
+            page_title=quest_name,
+            display_name=quest_name,
+            image_name=quest_name,
+        )
+        count += 1
+
+    # Factions
+    cursor.execute("SELECT StableKey, FactionDesc FROM Factions")
+    for row in cursor.fetchall():
+        stable_key = row["StableKey"]
+        faction_desc = row["FactionDesc"]
+
+        register_entity(
+            session,
+            stable_key=stable_key,
+            page_title=faction_desc,
+            display_name=faction_desc,
+            image_name=faction_desc,
+        )
+        count += 1
+
+    # Zones
+    cursor.execute("SELECT StableKey, ZoneName FROM Zones")
+    for row in cursor.fetchall():
+        stable_key = row["StableKey"]
+        zone_name = row["ZoneName"]
+
+        register_entity(
+            session,
+            stable_key=stable_key,
+            page_title=zone_name,
+            display_name=zone_name,
+            image_name=zone_name,
+        )
+        count += 1
+
+    conn.close()
+
+    logger.info(f"Added {count} entities to registry")
+    return count
+
+
 def load_mapping_json(session: Session, mapping_path: Path) -> int:
     """Import entity overrides from mapping.json into registry.
 
@@ -461,16 +605,12 @@ def load_mapping_json(session: Session, mapping_path: Path) -> int:
     count = 0
 
     for stable_key, rule_data in rules.items():
-        # Parse stable key
-        try:
-            entity_type, resource_name = parse_stable_key(stable_key)
-        except ValueError as e:
-            logger.warning(f"Skipping invalid stable key '{stable_key}': {e}")
-            continue
+        # Validate stable key format (should be "entity_type:resource_name")
+        if ":" not in stable_key:
+            raise ValueError(f"Invalid stable key '{stable_key}': missing ':' separator")
 
-        # Normalize resource name to match build_stable_key() behavior
-        # This allows mapping.json to use any case (will be normalized to lowercase)
-        resource_name = normalize_resource_name(resource_name)
+        # Normalize stable key to lowercase for case-insensitive lookups
+        stable_key = stable_key.lower()
 
         # Check if entity is excluded (wiki_page_name explicitly null in mapping)
         # Note: We check if the key exists but value is null
@@ -489,8 +629,7 @@ def load_mapping_json(session: Session, mapping_path: Path) -> int:
         # Register entity override (including exclusions)
         register_entity(
             session,
-            entity_type=entity_type,
-            resource_name=resource_name,
+            stable_key=stable_key,
             page_title=page_title,
             display_name=display_name,
             image_name=image_name,

@@ -10,6 +10,7 @@ from loguru import logger
 from rich.console import Console
 from rich.progress import track
 
+from erenshor.application.generators.categories import CategoryGenerator
 from erenshor.application.generators.character_template_generator import CharacterTemplateGenerator
 from erenshor.application.generators.field_preservation import FieldPreservationHandler
 from erenshor.application.generators.item_template_generator import ItemTemplateGenerator
@@ -18,6 +19,9 @@ from erenshor.application.generators.page_normalizer import PageNormalizer
 from erenshor.application.generators.skill_template_generator import SkillTemplateGenerator
 from erenshor.application.generators.spell_template_generator import SpellTemplateGenerator
 from erenshor.application.services.character_enricher import CharacterEnricher
+from erenshor.application.services.item_enricher import ItemEnricher
+from erenshor.application.services.skill_enricher import SkillEnricher
+from erenshor.application.services.spell_enricher import SpellEnricher
 from erenshor.application.services.wiki_helpers import display_operation_summary, group_entities_by_page_title
 from erenshor.application.services.wiki_page import OperationResult, WikiPage
 from erenshor.application.services.wiki_storage import WikiStorage
@@ -26,6 +30,7 @@ from erenshor.infrastructure.database.repositories.characters import CharacterRe
 from erenshor.infrastructure.database.repositories.factions import FactionRepository
 from erenshor.infrastructure.database.repositories.items import ItemRepository
 from erenshor.infrastructure.database.repositories.loot_tables import LootTableRepository
+from erenshor.infrastructure.database.repositories.quests import QuestRepository
 from erenshor.infrastructure.database.repositories.skills import SkillRepository
 from erenshor.infrastructure.database.repositories.spawn_points import SpawnPointRepository
 from erenshor.infrastructure.database.repositories.spells import SpellRepository
@@ -45,6 +50,7 @@ class WikiGenerateService:
         faction_repo: FactionRepository,
         spawn_repo: SpawnPointRepository,
         loot_repo: LootTableRepository,
+        quest_repo: QuestRepository,
         registry_resolver: RegistryResolver,
         console: Console | None = None,
     ) -> None:
@@ -52,13 +58,14 @@ class WikiGenerateService:
 
         Args:
             storage: Storage for saving generated pages.
-            item_repo: Repository for item entities.
+            item_repo: Repository for item entities and related data.
             character_repo: Repository for character entities.
             spell_repo: Repository for spell entities.
             skill_repo: Repository for skill entities.
             faction_repo: Repository for faction data.
             spawn_repo: Repository for spawn point data.
             loot_repo: Repository for loot table data.
+            quest_repo: Repository for quest data.
             registry_resolver: Resolver for page titles from registry.
             console: Rich console for output (optional).
         """
@@ -67,24 +74,37 @@ class WikiGenerateService:
         self._character_repo = character_repo
         self._spell_repo = spell_repo
         self._skill_repo = skill_repo
+        self._quest_repo = quest_repo
         self._resolver = registry_resolver
         self._console = console or Console()
 
-        # Initialize character enricher
-        character_enricher = CharacterEnricher(
-            faction_repo=faction_repo,
+        # Initialize enrichers
+        self._item_enricher = ItemEnricher(
+            item_repo=item_repo,
+            spell_repo=spell_repo,
+            character_repo=character_repo,
+            quest_repo=quest_repo,
+        )
+        self._character_enricher = CharacterEnricher(
             spawn_repo=spawn_repo,
             loot_repo=loot_repo,
         )
+        self._spell_enricher = SpellEnricher(
+            spell_repo=spell_repo,
+            item_repo=item_repo,
+        )
+        self._skill_enricher = SkillEnricher(
+            item_repo=item_repo,
+        )
 
         # Initialize generators and handlers
-        self._item_generator = ItemTemplateGenerator()
-        self._character_generator = CharacterTemplateGenerator()
-        self._spell_generator = SpellTemplateGenerator()
-        self._skill_generator = SkillTemplateGenerator()
+        category_generator = CategoryGenerator(registry_resolver)
+        self._item_generator = ItemTemplateGenerator(registry_resolver, category_generator)
+        self._character_generator = CharacterTemplateGenerator(registry_resolver, category_generator)
+        self._spell_generator = SpellTemplateGenerator(registry_resolver)
+        self._skill_generator = SkillTemplateGenerator(registry_resolver)
 
-        # Store enricher for service orchestration
-        self._enricher = character_enricher
+        # Store handlers
         self._preservation_handler = FieldPreservationHandler()
         self._legacy_remover = LegacyTemplateRemover()
         self._page_normalizer = PageNormalizer()
@@ -190,14 +210,17 @@ class WikiGenerateService:
 
                 for entity in page.entities:
                     if isinstance(entity, Item):
-                        template = self._item_generator.generate_template(entity, page.title)
+                        enriched = self._item_enricher.enrich(entity)
+                        template = self._item_generator.generate_template(enriched, page.title)
                     elif isinstance(entity, Character):
-                        enriched = self._enricher.enrich(entity)
-                        template = self._character_generator.generate_template(enriched, page.title, self._resolver)
+                        enriched = self._character_enricher.enrich(entity)
+                        template = self._character_generator.generate_template(enriched, page.title)
                     elif isinstance(entity, Spell):
-                        template = self._spell_generator.generate_template(entity, page.title)
+                        enriched = self._spell_enricher.enrich(entity)
+                        template = self._spell_generator.generate_template(enriched, page.title)
                     elif isinstance(entity, Skill):
-                        template = self._skill_generator.generate_template(entity, page.title)
+                        enriched = self._skill_enricher.enrich(entity)
+                        template = self._skill_generator.generate_template(enriched, page.title)
                     else:
                         logger.warning(f"Unknown entity type: {type(entity)}")
                         continue
@@ -228,7 +251,11 @@ class WikiGenerateService:
                         template_names=["Item", "Enemy", "Ability"],
                     )
 
-                    # Normalize page: merge categories from old + new, move to top, clean spacing
+                    # Replace fancy tables (Fancy-weapon, Fancy-armor, Fancy-charm)
+                    # These tables are 100% generated, no manual content
+                    final_content = self._replace_fancy_tables(final_content, page_content)
+
+                    # Normalize page: merge categories from old + new, move to top, clean formatting
                     final_content = self._page_normalizer.normalize(final_content, page_content)
                 else:
                     # New page, just normalize
@@ -272,3 +299,189 @@ class WikiGenerateService:
             warnings=warnings,
             errors=errors,
         )
+
+    def _replace_fancy_tables(self, old_wikitext: str, new_wikitext: str) -> str:
+        """Replace fancy content (tables or standalone templates) with freshly generated versions.
+
+        Weapons/Armor: {| |- ||{{Fancy-weapon}}...||...||... |}  (table with 3 quality tiers)
+        Charms: {{Fancy-charm\n...\n}}  (single template, charms don't upgrade)
+
+        These contain no manual content and should be completely replaced to ensure
+        consistent formatting.
+
+        Args:
+            old_wikitext: Existing page content (may have old fancy content)
+            new_wikitext: New generated content (has new fancy content)
+
+        Returns:
+            Updated wikitext with fancy content replaced
+        """
+        from mwparserfromhell import parse
+
+        # Parse old content only (we'll extract raw text from new_wikitext)
+        old_code = parse(old_wikitext)
+
+        # Find Fancy-* templates in new content (to determine type)
+        new_code = parse(new_wikitext)
+        fancy_template_names = ["Fancy-weapon", "Fancy-armor", "Fancy-charm"]
+        new_fancy_templates = [t for t in new_code.filter_templates() if str(t.name).strip() in fancy_template_names]
+
+        if not new_fancy_templates:
+            # No fancy templates in new content
+            return old_wikitext
+
+        # Determine if we're dealing with a table or standalone template
+        # Tables contain Fancy-weapon or Fancy-armor (3 tiers each)
+        # Standalone is Fancy-charm (single template, no table)
+        has_weapon_or_armor = any(str(t.name).strip() in ["Fancy-weapon", "Fancy-armor"] for t in new_fancy_templates)
+
+        if has_weapon_or_armor:
+            # Find and replace the wiki table containing Fancy-weapon/Fancy-armor
+            return self._replace_wiki_table(old_code, new_wikitext, fancy_template_names)
+        # Find and replace standalone Fancy-charm template
+        return self._replace_fancy_charm_template(old_code, new_wikitext)
+
+    def _replace_wiki_table(self, old_code, new_wikitext: str, fancy_names: list[str]) -> str:
+        """Replace wiki table containing Fancy-* templates.
+
+        Args:
+            old_code: Parsed old wikitext
+            new_wikitext: Raw new wikitext (not parsed, preserves formatting)
+            fancy_names: List of fancy template names to look for
+
+        Returns:
+            Updated wikitext
+        """
+        from mwparserfromhell import parse
+
+        # Parse new content to find the table node
+        new_code = parse(new_wikitext)
+
+        # Find the table in new content
+        new_table_node = None
+        for node in new_code.nodes:
+            node_str = str(node)
+            if node_str.startswith("{|") and any(name in node_str for name in fancy_names):
+                new_table_node = node
+                break
+
+        if not new_table_node:
+            return str(old_code)
+
+        # Get the raw string representation (preserves original formatting from new_wikitext)
+        # Find the exact position of this table in the original new_wikitext
+        new_wikitext_str = str(new_code)
+        table_str = str(new_table_node)
+
+        # The table in new_wikitext should be identical to what we just found
+        # So we can use the original from new_wikitext which has correct formatting
+        table_start = new_wikitext.find("{|")
+        table_end = new_wikitext.find("|}", table_start) + 2
+        new_table_raw = new_wikitext[table_start:table_end]
+
+        # Find and replace the table in old content
+        for node in old_code.nodes:
+            node_str = str(node)
+            if node_str.startswith("{|") and any(name in node_str for name in fancy_names):
+                old_code.replace(node, new_table_raw)
+                logger.debug("Replaced fancy table with raw text")
+                return str(old_code)
+
+        # No old table found, insert after {{Item}}
+        item_template = self._find_item_template(old_code)
+        if item_template:
+            # Insert after {{Item}}
+            item_index = old_code.index(item_template)
+            old_code.insert(item_index + 1, f"\n\n{new_table_raw}")
+            logger.debug("Inserted fancy table after {{Item}}")
+            return str(old_code)
+
+        # Fallback: append
+        old_code.append(f"\n\n{new_table_raw}")
+        logger.debug("Appended fancy table")
+        return str(old_code)
+
+    def _replace_fancy_charm_template(self, old_code, new_wikitext: str) -> str:
+        """Replace standalone Fancy-charm template.
+
+        Args:
+            old_code: Parsed old wikitext
+            new_wikitext: Raw new wikitext (not parsed, preserves formatting)
+
+        Returns:
+            Updated wikitext
+        """
+        from mwparserfromhell import parse
+
+        # Parse new content to find Fancy-charm template
+        new_code = parse(new_wikitext)
+
+        # Find Fancy-charm in new content
+        new_charm_node = None
+        for node in new_code.filter_templates():
+            if str(node.name).strip() == "Fancy-charm":
+                new_charm_node = node
+                break
+
+        if not new_charm_node:
+            return str(old_code)
+
+        # Find the template in the original new_wikitext to preserve formatting
+        # Look for {{Fancy-charm at the start and }} at the end
+        charm_start = new_wikitext.find("{{Fancy-charm")
+        if charm_start == -1:
+            return str(old_code)
+
+        # Find the matching closing braces
+        # Count opening {{ and closing }} to handle nested templates
+        brace_count = 0
+        i = charm_start
+        while i < len(new_wikitext):
+            if new_wikitext[i : i + 2] == "{{":
+                brace_count += 1
+                i += 2
+            elif new_wikitext[i : i + 2] == "}}":
+                brace_count -= 1
+                if brace_count == 0:
+                    new_charm_raw = new_wikitext[charm_start : i + 2]
+                    break
+                i += 2
+            else:
+                i += 1
+        else:
+            # Couldn't find closing braces
+            return str(old_code)
+
+        # Find and replace in old content
+        for node in old_code.filter_templates():
+            if str(node.name).strip() == "Fancy-charm":
+                old_code.replace(node, new_charm_raw)
+                logger.debug("Replaced {{Fancy-charm}} template with raw text")
+                return str(old_code)
+
+        # No old charm, insert after {{Item}}
+        item_template = self._find_item_template(old_code)
+        if item_template:
+            item_index = old_code.index(item_template)
+            old_code.insert(item_index + 1, f"\n\n{new_charm_raw}")
+            logger.debug("Inserted {{Fancy-charm}} after {{Item}}")
+            return str(old_code)
+
+        # Fallback: append
+        old_code.append(f"\n\n{new_charm_raw}")
+        logger.debug("Appended {{Fancy-charm}}")
+        return str(old_code)
+
+    def _find_item_template(self, code):
+        """Find {{Item}} template in parsed wikicode.
+
+        Args:
+            code: Parsed wikicode
+
+        Returns:
+            Item template node or None
+        """
+        for node in code.filter_templates():
+            if str(node.name).strip() == "Item":
+                return node
+        return None

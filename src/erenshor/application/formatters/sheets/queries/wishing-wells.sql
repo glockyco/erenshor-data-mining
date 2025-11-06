@@ -7,6 +7,6 @@ SELECT
     ROUND(c.Z, 2) AS PositionZ,
     'https://erenshor-maps.wowmuch1.workers.dev/' || za.SceneName || '?coordinateId=' || c.Id AS MapLink
 FROM Coordinates c
-JOIN ZoneAnnounces za ON za.SceneName = c.Scene
+JOIN Zones za ON za.SceneName = c.Scene
 WHERE Category = 'WishingWell'
 ORDER BY za.ZoneName;

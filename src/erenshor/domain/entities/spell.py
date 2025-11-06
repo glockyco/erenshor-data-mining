@@ -6,9 +6,6 @@ including damage spells, buffs, debuffs, heals, and crowd control effects.
 
 from pydantic import Field
 
-from erenshor.registry.resource_names import build_stable_key, normalize_resource_name
-from erenshor.registry.schema import EntityType
-
 from .base import BaseEntity
 
 
@@ -23,9 +20,7 @@ class Spell(BaseEntity):
     """
 
     # Primary keys and identifiers
-    spell_db_index: int = Field(description="Database index (primary key)")
-    id: str | None = Field(default=None, description="Spell ID")
-    resource_name: str | None = Field(default=None, description="Stable resource identifier")
+    stable_key: str | None = Field(default=None, description="Stable key from database (primary key)")
 
     # Display fields
     spell_name: str | None = Field(default=None, description="Display name")
@@ -37,7 +32,6 @@ class Spell(BaseEntity):
     # Spell classification
     type: str | None = Field(default=None, description="Spell type (Damage, StatusEffect, Beneficial, etc.)")
     line: str | None = Field(default=None, description="Spell line/school (Generic, Global_Buff, Direct_Damage, etc.)")
-    classes: str | None = Field(default=None, description="Class restrictions (e.g., 'Arcanist, Druid, Duelist')")
     required_level: int | None = Field(default=None, description="Minimum level requirement")
 
     # Casting properties
@@ -70,7 +64,7 @@ class Spell(BaseEntity):
     resist_modifier: float | None = Field(default=None, description="Resist check modifier")
 
     # Proc effects
-    add_proc: str | None = Field(default=None, description="Additional proc effect")
+    add_proc_stable_key: str | None = Field(default=None, description="Additional proc effect")
     # Example add_proc: "Soul Tap (10488989)"
     add_proc_chance: int | None = Field(default=None, description="Proc chance percentage (0-100)")
 
@@ -115,9 +109,9 @@ class Spell(BaseEntity):
     taunt_spell: int | None = Field(default=None, description="Taunt effect (boolean)")
 
     # Special effects
-    pet_to_summon_resource_name: str | None = Field(default=None, description="Summoned pet resource name")
-    # pet_to_summon_resource_name is actually the Characters.NPCName of the summoned creature
-    status_effect_to_apply: str | None = Field(default=None, description="Status effect ID")
+    pet_to_summon_stable_key: str | None = Field(default=None, description="Summoned pet resource name")
+    # pet_to_summon_stable_key is actually the Characters.NPCName of the summoned creature
+    status_effect_to_apply_stable_key: str | None = Field(default=None, description="Status effect ID")
     # status_effect_to_apply: "Vithean Revenge (18285300)" # noqa: ERA001 (commented-out code, false positive)
     reap_and_renew: int | None = Field(default=None, description="Reap and Renew mechanic")
     resonate_chance: int | None = Field(default=None, description="Resonate chance percentage")
@@ -143,31 +137,3 @@ class Spell(BaseEntity):
     status_effect_message_on_npc: str | None = Field(
         default=None, description="Message shown in combat log when used on NPC"
     )
-
-    @property
-    def stable_key(self) -> str:
-        """Generate stable key for registry lookups.
-
-        Returns:
-            Stable key in format "spell:resource_name"
-
-        Raises:
-            ValueError: If resource_name is None
-        """
-        if self.resource_name is None:
-            raise ValueError("Cannot generate stable_key: resource_name is None")
-        return build_stable_key(EntityType.SPELL, self.resource_name)
-
-    @property
-    def normalized_resource_name(self) -> str:
-        """Get normalized resource name for comparisons.
-
-        Returns:
-            Lowercase, whitespace-normalized resource name
-
-        Raises:
-            ValueError: If resource_name is None
-        """
-        if self.resource_name is None:
-            raise ValueError("Cannot normalize: resource_name is None")
-        return normalize_resource_name(self.resource_name)

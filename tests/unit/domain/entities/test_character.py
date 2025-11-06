@@ -1,17 +1,15 @@
-"""Tests for Character entity stable_key logic."""
-
-import pytest
+"""Tests for Character entity stable_key field."""
 
 from erenshor.domain.entities.character import Character
 
 
 class TestCharacterStableKey:
-    """Tests for Character.stable_key property."""
+    """Tests for Character.stable_key field."""
 
-    def test_prefab_character_uses_simple_key(self):
-        """Prefab characters use simple object_name format."""
+    def test_prefab_character_stable_key(self):
+        """Prefab characters can have stable_key set from database."""
         character = Character(
-            id=1,
+            stable_key="character:dire wolf",
             object_name="Dire Wolf",
             npc_name="A Dire Wolf",
             is_prefab=1,
@@ -23,10 +21,10 @@ class TestCharacterStableKey:
 
         assert character.stable_key == "character:dire wolf"
 
-    def test_non_prefab_character_includes_coordinates(self):
-        """Non-prefab characters include scene and coordinates in key."""
+    def test_non_prefab_character_stable_key(self):
+        """Non-prefab characters have stable_key set from database."""
         character = Character(
-            id=1,
+            stable_key="character:town guard|azure|123.45|67.89|234.56",
             object_name="Town Guard",
             npc_name="Guard Captain",
             is_prefab=0,
@@ -38,10 +36,10 @@ class TestCharacterStableKey:
 
         assert character.stable_key == "character:town guard|azure|123.45|67.89|234.56"
 
-    def test_non_prefab_with_none_is_prefab_field(self):
-        """Non-prefab with is_prefab=None defaults to coordinate format."""
+    def test_stable_key_can_be_none(self):
+        """stable_key can be None if not set from database."""
         character = Character(
-            id=1,
+            stable_key=None,
             object_name="Wandering Merchant",
             npc_name="A Merchant",
             is_prefab=None,
@@ -51,13 +49,12 @@ class TestCharacterStableKey:
             z=75.0,
         )
 
-        # None is falsy, so should use coordinate format
-        assert character.stable_key == "character:wandering merchant|braxonian|50.00|10.00|75.00"
+        assert character.stable_key is None
 
-    def test_non_prefab_with_missing_scene_uses_unknown(self):
-        """Non-prefab without scene uses 'Unknown' placeholder."""
+    def test_stable_key_independent_of_coordinates(self):
+        """stable_key is set independently from coordinates."""
         character = Character(
-            id=1,
+            stable_key="character:mysterious npc|unknown|100.00|200.00|300.00",
             object_name="Mysterious NPC",
             npc_name="???",
             is_prefab=0,
@@ -69,10 +66,10 @@ class TestCharacterStableKey:
 
         assert character.stable_key == "character:mysterious npc|unknown|100.00|200.00|300.00"
 
-    def test_non_prefab_with_missing_coordinates_uses_zeros(self):
-        """Non-prefab without coordinates uses 0.00 placeholders."""
+    def test_stable_key_independent_of_missing_coordinates(self):
+        """stable_key is set independently, coordinates don't affect it."""
         character = Character(
-            id=1,
+            stable_key="character:static npc|temple|0.00|0.00|0.00",
             object_name="Static NPC",
             npc_name="Statue",
             is_prefab=0,
@@ -84,10 +81,10 @@ class TestCharacterStableKey:
 
         assert character.stable_key == "character:static npc|temple|0.00|0.00|0.00"
 
-    def test_coordinates_formatted_to_two_decimals(self):
-        """Coordinates are formatted with exactly 2 decimal places."""
+    def test_stable_key_format_preserved(self):
+        """stable_key format is preserved as set."""
         character = Character(
-            id=1,
+            stable_key="character:precise npc|workshop|1.20|3.46|10.00",
             object_name="Precise NPC",
             npc_name="Engineer",
             is_prefab=0,
@@ -99,22 +96,21 @@ class TestCharacterStableKey:
 
         assert character.stable_key == "character:precise npc|workshop|1.20|3.46|10.00"
 
-    def test_stable_key_raises_on_none_object_name(self):
-        """stable_key raises ValueError if object_name is None."""
+    def test_stable_key_allows_none_object_name(self):
+        """stable_key field allows None object_name (validated at database level)."""
         character = Character(
-            id=1,
+            stable_key="character:unnamed",
             object_name=None,
             npc_name="Unnamed",
             is_prefab=1,
         )
 
-        with pytest.raises(ValueError, match="Cannot generate stable_key: object_name is None"):
-            _ = character.stable_key
+        assert character.stable_key == "character:unnamed"
 
-    def test_prefab_ignores_coordinate_data(self):
-        """Prefab characters ignore coordinate data even if present."""
+    def test_prefab_stable_key_format(self):
+        """Prefab character stable_key format."""
         character = Character(
-            id=1,
+            stable_key="character:skeleton",
             object_name="Skeleton",
             npc_name="A Skeleton",
             is_prefab=1,
@@ -124,13 +120,13 @@ class TestCharacterStableKey:
             z=77.77,
         )
 
-        # Prefab = simple key, coordinates ignored
+        # Prefab stable_key is set from database
         assert character.stable_key == "character:skeleton"
 
-    def test_different_coordinates_produce_different_keys(self):
-        """Same object_name with different coordinates produce unique keys."""
+    def test_different_characters_different_keys(self):
+        """Different characters have different stable_keys."""
         char1 = Character(
-            id=1,
+            stable_key="character:guard|city|10.00|20.00|30.00",
             object_name="Guard",
             npc_name="Guard #1",
             is_prefab=0,
@@ -141,7 +137,7 @@ class TestCharacterStableKey:
         )
 
         char2 = Character(
-            id=2,
+            stable_key="character:guard|city|40.00|50.00|60.00",
             object_name="Guard",
             npc_name="Guard #2",
             is_prefab=0,

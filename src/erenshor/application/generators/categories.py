@@ -22,6 +22,7 @@ from typing import TYPE_CHECKING, ClassVar
 if TYPE_CHECKING:
     from erenshor.application.services.character_enricher import EnrichedCharacterData
     from erenshor.domain.entities.item import Item
+    from erenshor.registry.resolver import RegistryResolver
 
 __all__ = ["CategoryGenerator", "ItemKind", "classify_item_kind"]
 
@@ -38,7 +39,8 @@ class CategoryGenerator:
     without the [[Category:...]] wrapper, which is added during page generation.
 
     Examples:
-        >>> generator = CategoryGenerator()
+        >>> resolver = RegistryResolver(...)
+        >>> generator = CategoryGenerator(resolver)
         >>> item = Item(required_slot="Primary", ...)
         >>> categories = generator.generate_item_categories(item)
         >>> categories
@@ -49,6 +51,14 @@ class CategoryGenerator:
         >>> categories
         ['Molds', 'Crafting Materials']
     """
+
+    def __init__(self, resolver: RegistryResolver) -> None:
+        """Initialize CategoryGenerator with registry resolver.
+
+        Args:
+            resolver: Registry resolver for display name lookups
+        """
+        self._resolver = resolver
 
     # Mapping from ItemKind to primary category name
     ITEM_KIND_TO_CATEGORY: ClassVar[dict[ItemKind, str]] = {
@@ -96,10 +106,10 @@ class CategoryGenerator:
         # Determine item kind using existing classifier
         kind = classify_item_kind(
             required_slot=item.required_slot,
-            teach_spell=item.teach_spell,
-            teach_skill=item.teach_skill,
+            teach_spell=item.teach_spell_stable_key,
+            teach_skill=item.teach_skill_stable_key,
             template_flag=item.template,
-            click_effect=item.item_effect_on_click,
+            click_effect=item.item_effect_on_click_stable_key,
             disposable=bool(item.disposable) if item.disposable is not None else None,
         )
 
@@ -134,8 +144,8 @@ class CategoryGenerator:
             True if item has quest interactions
         """
         return bool(
-            (item.assign_quest_on_read and item.assign_quest_on_read.strip())
-            or (item.complete_on_read and item.complete_on_read.strip())
+            (item.assign_quest_on_read_stable_key and item.assign_quest_on_read_stable_key.strip())
+            or (item.complete_on_read_stable_key and item.complete_on_read_stable_key.strip())
         )
 
     def generate_character_categories(self, enriched: EnrichedCharacterData) -> list[str]:
@@ -164,8 +174,14 @@ class CategoryGenerator:
         categories: list[str] = []
 
         # Add zone categories from spawn locations
-        zone_names = sorted({info.zone_display for info in enriched.spawn_infos})
-        categories.extend(zone_names)
+        zone_page_titles = sorted(
+            {
+                title
+                for info in enriched.spawn_infos
+                if (title := self._resolver.resolve_page_title(info.zone_stable_key)) is not None
+            }
+        )
+        categories.extend(zone_page_titles)
 
         # Add type category
         character = enriched.character

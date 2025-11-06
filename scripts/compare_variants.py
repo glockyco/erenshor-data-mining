@@ -57,7 +57,7 @@ def get_counts(db_path: Path) -> dict[str, int]:
         ("Skills", "Skills"),
         ("Characters", "Characters"),
         ("Quests", "Quests"),
-        ("Zones", "ZoneAnnounces"),
+        ("Zones", "Zones"),
     ]
 
     for name, table in tables:
@@ -168,10 +168,10 @@ def compare_characters(base_db: Path, new_db: Path) -> list[dict[str, Any]]:
         LEFT JOIN SpawnPointCharacters spc ON spc.CharacterGuid = ch.Guid
         LEFT JOIN SpawnPoints sp ON sp.Id = spc.SpawnPointId
         LEFT JOIN Coordinates c_spawn ON c_spawn.SpawnPointId = sp.Id
-        LEFT JOIN ZoneAnnounces za_spawn ON za_spawn.SceneName = c_spawn.Scene
+        LEFT JOIN Zones za_spawn ON za_spawn.SceneName = c_spawn.Scene
         -- Fall back to direct coordinate if no spawn point
         LEFT JOIN Coordinates c_direct ON c_direct.Id = ch.CoordinateId
-        LEFT JOIN ZoneAnnounces za_direct ON za_direct.SceneName = c_direct.Scene
+        LEFT JOIN Zones za_direct ON za_direct.SceneName = c_direct.Scene
         WHERE ch.ObjectName NOT IN (SELECT ObjectName FROM base.Characters)
         GROUP BY ch.Guid
         ORDER BY ch.IsNPC DESC, ch.Level, ch.NPCName
@@ -243,8 +243,8 @@ def compare_zones(base_db: Path, new_db: Path) -> list[dict[str, Any]]:
         SELECT
             ZoneName,
             SceneName
-        FROM ZoneAnnounces
-        WHERE SceneName NOT IN (SELECT SceneName FROM base.ZoneAnnounces)
+        FROM Zones
+        WHERE SceneName NOT IN (SELECT SceneName FROM base.Zones)
         ORDER BY ZoneName
     """)
 

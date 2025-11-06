@@ -74,12 +74,13 @@ public class WaterListener : IAssetScanListener<Water>
     {
         var waterFishableRecords = new List<WaterFishableRecord>();
 
-        var treasureMapPieces = new List<string>
+        // Treasure map piece stable keys (normalized item names)
+        var treasureMapPieceStableKeys = new List<string>
         {
-            "Torn Treasure Map (Top Right)",
-            "Torn Treasure Map (Top Left)",
-            "Torn Treasure Map (Bottom Right)",
-            "Torn Treasure Map (Bottom Left)"
+            "item:torn treasure map (top right)",
+            "item:torn treasure map (top left)",
+            "item:torn treasure map (bottom right)",
+            "item:torn treasure map (bottom left)"
         };
 
         void AddFishableRecords(List<Item> fishables, string type)
@@ -93,15 +94,16 @@ public class WaterListener : IAssetScanListener<Water>
             var fishableChance = 95f / fishables.Count;
 
             var itemTotalDropChances = new Dictionary<string, float>();
-            foreach (var item in fishables.Where(i => i != null))
+            foreach (var item in fishables.Where(i => i != null && !string.IsNullOrEmpty(i.name)))
             {
-                itemTotalDropChances.TryAdd(item.ItemName, 0f);
-                itemTotalDropChances[item.ItemName] += fishableChance;
+                var itemStableKey = StableKeyGenerator.ForItem(item);
+                itemTotalDropChances.TryAdd(itemStableKey, 0f);
+                itemTotalDropChances[itemStableKey] += fishableChance;
             }
-            foreach (var itemName in treasureMapPieces)
+            foreach (var itemStableKey in treasureMapPieceStableKeys)
             {
-                itemTotalDropChances.TryAdd(itemName, 0f);
-                itemTotalDropChances[itemName] += mapFragmentChance / treasureMapPieces.Count;
+                itemTotalDropChances.TryAdd(itemStableKey, 0f);
+                itemTotalDropChances[itemStableKey] += mapFragmentChance / treasureMapPieceStableKeys.Count;
             }
 
             foreach (var kvp in itemTotalDropChances)
@@ -110,7 +112,7 @@ public class WaterListener : IAssetScanListener<Water>
                 {
                     WaterId = waterId,
                     Type = type,
-                    ItemName = kvp.Key,
+                    ItemStableKey = kvp.Key,
                     DropChance = kvp.Value
                 });
             }

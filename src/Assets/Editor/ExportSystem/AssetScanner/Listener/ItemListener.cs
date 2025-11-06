@@ -73,15 +73,6 @@ public class ItemListener : IAssetScanListener<Item>
     private ItemRecord CreateItemRecord(Item item, int itemDbIndex)
     {
         // Prepare common data that doesn't change with quality
-        string classesString = "";
-        if (item.Classes != null && item.Classes.Count > 0)
-        {
-            var classNames = item.Classes
-                .Where(c => c != null && !string.IsNullOrEmpty(c.name))
-                .Select(c => c.name);
-            classesString = string.Join(", ", classNames);
-        }
-
         string templateIngredientIds = "";
         if (item.TemplateIngredients != null && item.TemplateIngredients.Count > 0)
         {
@@ -131,6 +122,7 @@ public class ItemListener : IAssetScanListener<Item>
         var itemRecord = new ItemRecord
         {
             // --- Core Identification ---
+            StableKey = StableKeyGenerator.ForItem(item),
             ItemDBIndex = itemDbIndex,
             Id = item.Id,
             ItemName = item.ItemName,
@@ -139,20 +131,23 @@ public class ItemListener : IAssetScanListener<Item>
             // --- Classification & Requirements ---
             RequiredSlot = item.RequiredSlot.ToString(),
             ThisWeaponType = item.ThisWeaponType.ToString(),
-            Classes = classesString,
             ItemLevel = item.ItemLevel,
 
             // --- Weapon/Combat Properties ---
             WeaponDly = item.WeaponDly,
             Shield = item.Shield,
             WeaponProcChance = item.WeaponProcChance,
-            WeaponProcOnHit = item.WeaponProcOnHit?.name ?? string.Empty,
+            WeaponProcOnHitStableKey = item.WeaponProcOnHit != null
+                ? StableKeyGenerator.ForSpell(item.WeaponProcOnHit)
+                : null,
 
             // --- Wand Properties ---
             IsWand = item.IsWand,
             WandRange = item.IsWand ? item.WandRange : item.WeaponDmg > 0 ? 1 : 0,
             WandProcChance = item.WandProcChance,
-            WandEffect = item.WandEffect?.name ?? string.Empty,
+            WandEffectStableKey = item.WandEffect != null
+                ? StableKeyGenerator.ForSpell(item.WandEffect)
+                : null,
             WandBoltColorR = item.WandBoltColor.r,
             WandBoltColorG = item.WandBoltColor.g,
             WandBoltColorB = item.WandBoltColor.b,
@@ -162,24 +157,42 @@ public class ItemListener : IAssetScanListener<Item>
             
             // --- Bow Properties ---
             IsBow = item.IsBow,
-            BowEffect = item.BowEffect?.name ?? string.Empty,
+            BowEffectStableKey = item.BowEffect != null
+                ? StableKeyGenerator.ForSpell(item.BowEffect)
+                : null,
             BowProcChance = item.BowProcChance,
             BowRange = item.BowRange,
             BowArrowSpeed = item.BowArrowSpeed,
             BowAttackSoundName = bowAttackSound,
 
             // --- Effects & Interactions ---
-            ItemEffectOnClick = item.ItemEffectOnClick?.name ?? string.Empty,
-            ItemSkillUse = item.ItemSkillUse?.name ?? string.Empty,
-            TeachSpell = item.TeachSpell?.name ?? string.Empty,
-            TeachSkill = item.TeachSkill?.name ?? string.Empty,
-            Aura = item.Aura?.name ?? string.Empty,
-            WornEffect = item.WornEffect?.name ?? string.Empty,
+            ItemEffectOnClickStableKey = item.ItemEffectOnClick != null
+                ? StableKeyGenerator.ForSpell(item.ItemEffectOnClick)
+                : null,
+            ItemSkillUseStableKey = item.ItemSkillUse != null
+                ? StableKeyGenerator.ForSkill(item.ItemSkillUse)
+                : null,
+            TeachSpellStableKey = item.TeachSpell != null
+                ? StableKeyGenerator.ForSpell(item.TeachSpell)
+                : null,
+            TeachSkillStableKey = item.TeachSkill != null
+                ? StableKeyGenerator.ForSkill(item.TeachSkill)
+                : null,
+            AuraStableKey = item.Aura != null
+                ? StableKeyGenerator.ForSpell(item.Aura)
+                : null,
+            WornEffectStableKey = item.WornEffect != null
+                ? StableKeyGenerator.ForSpell(item.WornEffect)
+                : null,
             SpellCastTime = item.SpellCastTime,
 
             // --- Quest Interaction ---
-            AssignQuestOnRead = item.AssignQuestOnRead?.DBName,
-            CompleteOnRead = item.CompleteOnRead?.DBName,
+            AssignQuestOnReadStableKey = item.AssignQuestOnRead != null
+                ? StableKeyGenerator.ForQuest(item.AssignQuestOnRead)
+                : null,
+            CompleteOnReadStableKey = item.CompleteOnRead != null
+                ? StableKeyGenerator.ForQuest(item.CompleteOnRead)
+                : null,
 
             // --- Crafting & Templates ---
             Template = item.Template,
@@ -262,12 +275,13 @@ public class ItemListener : IAssetScanListener<Item>
 
         var maxQuality = hasQualityVariants ? 3 : 1;
 
+        var itemStableKey = StableKeyGenerator.ForItem(item);
         var itemStatsRecords = new List<ItemStatsRecord>();
         for (var quality = 1; quality <= maxQuality; quality++)
         {
             var itemStatsRecord = new ItemStatsRecord
             {
-                ItemResourceName = item.name,
+                ItemStableKey = itemStableKey,
                 Quality = quality switch
                 {
                     1 => "Normal",
@@ -318,7 +332,8 @@ public class ItemListener : IAssetScanListener<Item>
 
         if (item.Classes != null && item.Classes.Count > 0)
         {
-            // Use HashSet to prevent duplicate ItemResourceName+ClassName combinations
+            var itemStableKey = StableKeyGenerator.ForItem(item);
+            // Use HashSet to prevent duplicate ItemStableKey+ClassName combinations
             var uniqueClasses = new HashSet<string>();
 
             foreach (var characterClass in item.Classes)
@@ -330,7 +345,7 @@ public class ItemListener : IAssetScanListener<Item>
                     {
                         records.Add(new ItemClassRecord
                         {
-                            ItemResourceName = item.name,
+                            ItemStableKey = itemStableKey,
                             ClassName = characterClass.name
                         });
                     }
@@ -352,15 +367,18 @@ public class ItemListener : IAssetScanListener<Item>
         if (item.TemplateIngredients == null || item.TemplateIngredients.Count == 0)
             return records;
 
-        // Count occurrences to determine quantities
+        var recipeItemStableKey = StableKeyGenerator.ForItem(item);
+
+        // Count occurrences to determine quantities (using stable keys)
         var ingredientCounts = new Dictionary<string, int>();
         foreach (var ingredient in item.TemplateIngredients)
         {
-            if (ingredient != null && !string.IsNullOrEmpty(ingredient.Id))
+            if (ingredient != null && !string.IsNullOrEmpty(ingredient.name))
             {
-                if (!ingredientCounts.ContainsKey(ingredient.Id))
-                    ingredientCounts[ingredient.Id] = 0;
-                ingredientCounts[ingredient.Id]++;
+                var ingredientStableKey = StableKeyGenerator.ForItem(ingredient);
+                if (!ingredientCounts.ContainsKey(ingredientStableKey))
+                    ingredientCounts[ingredientStableKey] = 0;
+                ingredientCounts[ingredientStableKey]++;
             }
         }
 
@@ -370,9 +388,9 @@ public class ItemListener : IAssetScanListener<Item>
         {
             records.Add(new CraftingRecipeRecord
             {
-                RecipeItemId = item.Id,
+                RecipeItemStableKey = recipeItemStableKey,
                 MaterialSlot = slot,
-                MaterialItemId = kvp.Key,
+                MaterialItemStableKey = kvp.Key,
                 MaterialQuantity = kvp.Value
             });
             slot++;
@@ -392,15 +410,18 @@ public class ItemListener : IAssetScanListener<Item>
         if (item.TemplateRewards == null || item.TemplateRewards.Count == 0)
             return records;
 
-        // Count occurrences to determine quantities
+        var recipeItemStableKey = StableKeyGenerator.ForItem(item);
+
+        // Count occurrences to determine quantities (using stable keys)
         var rewardCounts = new Dictionary<string, int>();
         foreach (var reward in item.TemplateRewards)
         {
-            if (reward != null && !string.IsNullOrEmpty(reward.Id))
+            if (reward != null && !string.IsNullOrEmpty(reward.name))
             {
-                if (!rewardCounts.ContainsKey(reward.Id))
-                    rewardCounts[reward.Id] = 0;
-                rewardCounts[reward.Id]++;
+                var rewardStableKey = StableKeyGenerator.ForItem(reward);
+                if (!rewardCounts.ContainsKey(rewardStableKey))
+                    rewardCounts[rewardStableKey] = 0;
+                rewardCounts[rewardStableKey]++;
             }
         }
 
@@ -410,9 +431,9 @@ public class ItemListener : IAssetScanListener<Item>
         {
             records.Add(new CraftingRewardRecord
             {
-                RecipeItemId = item.Id,
+                RecipeItemStableKey = recipeItemStableKey,
                 RewardSlot = slot,
-                RewardItemId = kvp.Key,
+                RewardItemStableKey = kvp.Key,
                 RewardQuantity = kvp.Value
             });
             slot++;

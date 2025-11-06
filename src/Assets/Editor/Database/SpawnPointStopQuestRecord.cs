@@ -11,5 +11,6 @@ public class SpawnPointStopQuestRecord
     public int SpawnPointId { get; set; }
 
     [Indexed(Name = "SpawnPointStopQuests_Primary_IDX", Order = 2, Unique = true)]
-    public string QuestDBName { get; set; } = string.Empty;
+    [ForeignKey(typeof(QuestRecord), "StableKey")]
+    public string QuestStableKey { get; set; } = string.Empty;
 }

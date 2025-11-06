@@ -11,5 +11,6 @@ public class TeleportRecord
     public int Id { get; set; }
     [Indexed]
     public int CoordinateId { get; set; }
-    public string TeleportItemResourceName { get; set; } = string.Empty;
+    [ForeignKey(typeof(ItemRecord), "StableKey")]
+    public string TeleportItemStableKey { get; set; } = string.Empty;
 }

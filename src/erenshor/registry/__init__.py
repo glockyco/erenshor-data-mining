@@ -28,8 +28,6 @@ from erenshor.registry.resolver import RegistryResolver
 from erenshor.registry.resource_names import (
     build_stable_key,
     extract_resource_name,
-    normalize_resource_name,
-    parse_stable_key,
     validate_resource_name,
     validate_stable_key,
 )
@@ -50,8 +48,6 @@ __all__ = [
     "initialize_registry",
     "list_entities",
     "load_mapping_json",
-    "normalize_resource_name",
-    "parse_stable_key",
     "register_entity",
     "resolve_conflict",
     "validate_resource_name",

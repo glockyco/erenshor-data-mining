@@ -34,6 +34,7 @@ class SkillRepository(BaseRepository[Skill]):
         """
         query = """
             SELECT
+                StableKey,
                 SkillDBIndex,
                 Id,
                 ResourceName,
@@ -54,8 +55,8 @@ class SkillRepository(BaseRepository[Skill]):
                 SimPlayersAutolearn,
                 AESkill,
                 Interrupt,
-                SpawnOnUseResourceName,
-                EffectToApplyId,
+                SpawnOnUseStableKey,
+                EffectToApplyStableKey,
                 AffectPlayer,
                 AffectTarget,
                 SkillRange,
@@ -67,7 +68,7 @@ class SkillRepository(BaseRepository[Skill]):
                 ProcShield,
                 GuaranteeProc,
                 AutomateAttack,
-                CastOnTarget,
+                CastOnTargetStableKey,
                 SkillAnimName,
                 SkillIconName,
                 PlayerUses,
@@ -85,73 +86,6 @@ class SkillRepository(BaseRepository[Skill]):
             return skills
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve skills for wiki: {e}") from e
-
-    def get_skill_by_skill_name(self, skill_name: str) -> Skill | None:
-        """Get single skill by skill name.
-
-        Used by: Individual page updates, cross-references
-
-        Args:
-            skill_name: SkillName field value (display name)
-
-        Returns:
-            Skill entity if found, None otherwise.
-
-        Raises:
-            RepositoryError: If query execution fails.
-        """
-        query = """
-            SELECT
-                SkillDBIndex,
-                Id,
-                ResourceName,
-                SkillName,
-                SkillDesc,
-                TypeOfSkill,
-                Cooldown,
-                DuelistRequiredLevel,
-                PaladinRequiredLevel,
-                ArcanistRequiredLevel,
-                DruidRequiredLevel,
-                StormcallerRequiredLevel,
-                RequireBehind,
-                Require2H,
-                RequireDW,
-                RequireBow,
-                RequireShield,
-                SimPlayersAutolearn,
-                AESkill,
-                Interrupt,
-                SpawnOnUseResourceName,
-                EffectToApplyId,
-                AffectPlayer,
-                AffectTarget,
-                SkillRange,
-                SkillPower,
-                PercentDmg,
-                DamageType,
-                ScaleOffWeapon,
-                ProcWeap,
-                ProcShield,
-                GuaranteeProc,
-                AutomateAttack,
-                CastOnTarget,
-                SkillAnimName,
-                SkillIconName,
-                PlayerUses,
-                NPCUses
-            FROM Skills
-            WHERE SkillName = ?
-            LIMIT 1
-        """
-
-        try:
-            rows = self._execute_raw(query, (skill_name,))
-            if not rows:
-                return None
-            return self._row_to_skill(rows[0])
-        except Exception as e:
-            raise RepositoryError(f"Failed to retrieve skill by skill_name={skill_name}: {e}") from e
 
     def _row_to_skill(self, row: dict[str, object]) -> Skill:
         """Convert database row to Skill entity.

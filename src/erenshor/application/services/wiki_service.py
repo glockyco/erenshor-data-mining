@@ -50,6 +50,7 @@ from erenshor.infrastructure.database.repositories.characters import CharacterRe
 from erenshor.infrastructure.database.repositories.factions import FactionRepository
 from erenshor.infrastructure.database.repositories.items import ItemRepository
 from erenshor.infrastructure.database.repositories.loot_tables import LootTableRepository
+from erenshor.infrastructure.database.repositories.quests import QuestRepository
 from erenshor.infrastructure.database.repositories.skills import SkillRepository
 from erenshor.infrastructure.database.repositories.spawn_points import SpawnPointRepository
 from erenshor.infrastructure.database.repositories.spells import SpellRepository
@@ -80,6 +81,10 @@ class WikiService:
         ...     character_repo=character_repo,
         ...     spell_repo=spell_repo,
         ...     skill_repo=skill_repo,
+        ...     faction_repo=faction_repo,
+        ...     spawn_repo=spawn_repo,
+        ...     loot_repo=loot_repo,
+        ...     quest_repo=quest_repo,
         ...     registry_resolver=registry_resolver,
         ... )
         >>> service.fetch_all()
@@ -98,6 +103,7 @@ class WikiService:
         faction_repo: FactionRepository,
         spawn_repo: SpawnPointRepository,
         loot_repo: LootTableRepository,
+        quest_repo: QuestRepository,
         registry_resolver: RegistryResolver,
         console: Console | None = None,
     ) -> None:
@@ -106,13 +112,14 @@ class WikiService:
         Args:
             wiki_client: MediaWiki API client for fetching/updating pages.
             storage: Local file storage for wiki pages.
-            item_repo: Repository for fetching items from database.
+            item_repo: Repository for fetching items and related data from database.
             character_repo: Repository for fetching characters from database.
             spell_repo: Repository for fetching spells from database.
             skill_repo: Repository for fetching skills from database.
             faction_repo: Repository for faction data.
             spawn_repo: Repository for spawn point data.
             loot_repo: Repository for loot table data.
+            quest_repo: Repository for quest data.
             registry_resolver: Registry resolver for page title resolution.
             console: Rich console for output (optional).
         """
@@ -139,6 +146,7 @@ class WikiService:
             faction_repo=faction_repo,
             spawn_repo=spawn_repo,
             loot_repo=loot_repo,
+            quest_repo=quest_repo,
             registry_resolver=registry_resolver,
             console=console,
         )

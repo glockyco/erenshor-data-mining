@@ -8,11 +8,13 @@ using UnityEngine;
 public class QuestListener : IAssetScanListener<Quest>
 {
     private readonly SQLiteConnection _db;
-    private readonly List<QuestRecord> _records = new();
+    private readonly List<QuestRecord> _records = new(); // Canonical quests (one per DBName)
+    private readonly List<QuestVariantRecord> _variantRecords = new(); // All quest variants
     private readonly List<QuestRequiredItemRecord> _questRequiredItemRecords = new();
     private readonly List<QuestFactionAffectRecord> _questFactionAffectRecords = new();
     private readonly List<QuestRewardRecord> _questRewardRecords = new();
     private readonly List<QuestCompleteOtherQuestRecord> _questCompleteOtherQuestRecords = new();
+    private readonly HashSet<string> _seenDBNames = new(); // Track which DBNames we've seen
 
     public QuestListener(SQLiteConnection db)
     {
@@ -21,6 +23,7 @@ public class QuestListener : IAssetScanListener<Quest>
 
     public void OnScanFinished()
     {
+        // Insert canonical quests (one per DBName)
         _db.CreateTable<QuestRecord>();
         _db.RunInTransaction(() =>
         {
@@ -28,6 +31,15 @@ public class QuestListener : IAssetScanListener<Quest>
             _db.InsertAll(_records);
         });
         _records.Clear();
+
+        // Insert all quest variants
+        _db.CreateTable<QuestVariantRecord>();
+        _db.RunInTransaction(() =>
+        {
+            _db.DeleteAll<QuestVariantRecord>();
+            _db.InsertAll(_variantRecords);
+        });
+        _variantRecords.Clear();
 
         // Create and insert junction table records after parent records are inserted
         _db.CreateTable<QuestRequiredItemRecord>();
@@ -53,55 +65,54 @@ public class QuestListener : IAssetScanListener<Quest>
 
     public void OnAssetFound(Quest asset)
     {
-        var questRecord = CreateRecord(asset, _records.Count);
-        _records.Add(questRecord);
-        _questRequiredItemRecords.AddRange(CreateQuestRequiredItemRecords(questRecord.QuestDBIndex, asset));
-        _questFactionAffectRecords.AddRange(CreateQuestFactionAffectRecords(questRecord.QuestDBIndex, asset));
-        _questRewardRecords.AddRange(CreateQuestRewardRecords(questRecord.QuestDBIndex, asset));
-        _questCompleteOtherQuestRecords.AddRange(CreateQuestCompleteOtherQuestRecords(questRecord.QuestDBIndex, asset));
+        var questStableKey = StableKeyGenerator.ForQuest(asset);
+
+        // Add canonical quest record (one per DBName) - only on first encounter
+        if (!_seenDBNames.Contains(asset.DBName))
+        {
+            _seenDBNames.Add(asset.DBName);
+            _records.Add(new QuestRecord
+            {
+                StableKey = questStableKey,
+                DBName = asset.DBName
+            });
+        }
+
+        // Add variant record (one per Quest ScriptableObject) - always
+        _variantRecords.Add(CreateVariantRecord(asset, _variantRecords.Count, questStableKey));
+
+        // Add junction table records (one set per variant)
+        _questRequiredItemRecords.AddRange(CreateQuestRequiredItemRecords(asset));
+        _questFactionAffectRecords.AddRange(CreateQuestFactionAffectRecords(asset));
+        _questRewardRecords.AddRange(CreateQuestRewardRecords(asset));
+        _questCompleteOtherQuestRecords.AddRange(CreateQuestCompleteOtherQuestRecords(asset));
     }
 
-    private QuestRecord CreateRecord(Quest quest, int questDbIndex)
+    private QuestVariantRecord CreateVariantRecord(Quest quest, int questDbIndex, string questStableKey)
     {
-        // Required items are stored in QuestRequiredItemRecord junction table
-
-        string affectedFactions = quest.AffectFactions != null
-            ? string.Join(", ", quest.AffectFactions.Where(f => f != null && !string.IsNullOrEmpty(f.REFNAME)).Select(f => f.REFNAME))
-            : "";
-
-        string affectedFactionAmounts = quest.AffectFactionAmts != null
-            ? string.Join(", ", quest.AffectFactionAmts)
-            : "";
-
-        string completeQuests = quest.CompleteOtherQuests != null
-            ? string.Join(", ", quest.CompleteOtherQuests.Where(q => q != null && !string.IsNullOrEmpty(q.DBName)).Select(q => $"{q.QuestName} ({q.DBName})"))
-            : "";
-
-        return new QuestRecord
+        return new QuestVariantRecord
         {
             // --- Core Identification ---
+            ResourceName = quest.name,
+            QuestStableKey = questStableKey,
             QuestDBIndex = questDbIndex,
             QuestName = quest.QuestName,
             QuestDesc = quest.QuestDesc,
 
-            // --- Requirements ---
-            // (stored in junction table)
-
             // --- Rewards & Completion ---
             XPonComplete = quest.XPonComplete,
-            ItemOnComplete = quest.ItemOnComplete?.name ?? string.Empty,
+            ItemOnCompleteStableKey = quest.ItemOnComplete != null
+                ? StableKeyGenerator.ForItem(quest.ItemOnComplete)
+                : null,
             GoldOnComplete = quest.GoldOnComplete,
-            AssignNewQuestOnCompleteDBName = quest.AssignNewQuestOnComplete != null ? $"{quest.AssignNewQuestOnComplete.QuestName} ({quest.AssignNewQuestOnComplete.DBName})" : "",
-            CompleteOtherQuestDBNames = completeQuests,
+            AssignNewQuestOnCompleteStableKey = quest.AssignNewQuestOnComplete != null
+                ? StableKeyGenerator.ForQuest(quest.AssignNewQuestOnComplete)
+                : null,
 
             // --- Dialog & Text ---
             DialogOnSuccess = quest.DialogOnSuccess,
             DialogOnPartialSuccess = quest.DialogOnPartialSuccess,
             DisableText = quest.DisableText,
-
-            // --- Faction Adjustments ---
-            AffectedFactions = affectedFactions,
-            AffectedFactionAmounts = affectedFactionAmounts,
 
             // --- Flags & Behavior ---
             AssignThisQuestOnPartialComplete = quest.AssignThisQuestOnPartialComplete,
@@ -115,29 +126,29 @@ public class QuestListener : IAssetScanListener<Quest>
             // --- Achievements ---
             SetAchievementOnGet = quest.SetAchievementOnGet,
             SetAchievementOnFinish = quest.SetAchievementOnFinish,
-
-            // --- Internals / Metadata ---
-            DBName = quest.DBName,
-            ResourceName = quest.name,
         };
     }
 
-    private List<QuestRequiredItemRecord> CreateQuestRequiredItemRecords(int questDbIndex, Quest quest)
+    private List<QuestRequiredItemRecord> CreateQuestRequiredItemRecords(Quest quest)
     {
         var records = new List<QuestRequiredItemRecord>();
-        var seenResourceNames = new HashSet<string>();
+        var seenItemStableKeys = new HashSet<string>();
 
         if (quest.RequiredItems != null && quest.RequiredItems.Count > 0)
         {
             foreach (var item in quest.RequiredItems)
             {
-                if (item != null && !string.IsNullOrEmpty(item.name) && seenResourceNames.Add(item.name))
+                if (item != null && !string.IsNullOrEmpty(item.name))
                 {
-                    records.Add(new QuestRequiredItemRecord
+                    var itemStableKey = StableKeyGenerator.ForItem(item);
+                    if (seenItemStableKeys.Add(itemStableKey))
                     {
-                        QuestId = questDbIndex,
-                        ItemResourceName = item.name
-                    });
+                        records.Add(new QuestRequiredItemRecord
+                        {
+                            QuestVariantResourceName = quest.name,
+                            ItemStableKey = itemStableKey
+                        });
+                    }
                 }
             }
         }
@@ -145,10 +156,10 @@ public class QuestListener : IAssetScanListener<Quest>
         return records;
     }
 
-    private List<QuestFactionAffectRecord> CreateQuestFactionAffectRecords(int questDbIndex, Quest quest)
+    private List<QuestFactionAffectRecord> CreateQuestFactionAffectRecords(Quest quest)
     {
         var records = new List<QuestFactionAffectRecord>();
-        var seenRefNames = new HashSet<string>();
+        var seenFactionStableKeys = new HashSet<string>();
 
         // Zip AffectFactions and AffectFactionAmts together
         if (quest.AffectFactions != null && quest.AffectFactionAmts != null)
@@ -164,14 +175,18 @@ public class QuestListener : IAssetScanListener<Quest>
                 var faction = factions[i];
                 var amount = amounts[i];
 
-                if (!string.IsNullOrEmpty(faction.REFNAME) && seenRefNames.Add(faction.REFNAME))
+                if (!string.IsNullOrEmpty(faction.REFNAME))
                 {
-                    records.Add(new QuestFactionAffectRecord
+                    var factionStableKey = StableKeyGenerator.ForFaction(faction);
+                    if (seenFactionStableKeys.Add(factionStableKey))
                     {
-                        QuestId = questDbIndex,
-                        FactionREFNAME = faction.REFNAME,
-                        ModifierValue = (int)amount
-                    });
+                        records.Add(new QuestFactionAffectRecord
+                        {
+                            QuestVariantResourceName = quest.name,
+                            FactionStableKey = factionStableKey,
+                            ModifierValue = (int)amount
+                        });
+                    }
                 }
             }
         }
@@ -179,7 +194,7 @@ public class QuestListener : IAssetScanListener<Quest>
         return records;
     }
 
-    private List<QuestRewardRecord> CreateQuestRewardRecords(int questDbIndex, Quest quest)
+    private List<QuestRewardRecord> CreateQuestRewardRecords(Quest quest)
     {
         var records = new List<QuestRewardRecord>();
         var seenRewards = new HashSet<(string RewardType, string RewardValue)>();
@@ -192,7 +207,7 @@ public class QuestListener : IAssetScanListener<Quest>
             {
                 records.Add(new QuestRewardRecord
                 {
-                    QuestId = questDbIndex,
+                    QuestVariantResourceName = quest.name,
                     RewardType = "XP",
                     RewardValue = quest.XPonComplete.ToString(),
                     Quantity = quest.XPonComplete
@@ -208,7 +223,7 @@ public class QuestListener : IAssetScanListener<Quest>
             {
                 records.Add(new QuestRewardRecord
                 {
-                    QuestId = questDbIndex,
+                    QuestVariantResourceName = quest.name,
                     RewardType = "Gold",
                     RewardValue = quest.GoldOnComplete.ToString(),
                     Quantity = quest.GoldOnComplete
@@ -216,17 +231,18 @@ public class QuestListener : IAssetScanListener<Quest>
             }
         }
 
-        // Item Reward
-        if (quest.ItemOnComplete != null && !string.IsNullOrEmpty(quest.ItemOnComplete.Id))
+        // Item Reward - store ItemStableKey as RewardValue
+        if (quest.ItemOnComplete != null && !string.IsNullOrEmpty(quest.ItemOnComplete.name))
         {
-            var reward = ("Item", quest.ItemOnComplete.Id);
+            var itemStableKey = StableKeyGenerator.ForItem(quest.ItemOnComplete);
+            var reward = ("Item", itemStableKey);
             if (seenRewards.Add(reward))
             {
                 records.Add(new QuestRewardRecord
                 {
-                    QuestId = questDbIndex,
+                    QuestVariantResourceName = quest.name,
                     RewardType = "Item",
-                    RewardValue = quest.ItemOnComplete.Id,
+                    RewardValue = itemStableKey,
                     Quantity = 1
                 });
             }
@@ -235,22 +251,26 @@ public class QuestListener : IAssetScanListener<Quest>
         return records;
     }
 
-    private List<QuestCompleteOtherQuestRecord> CreateQuestCompleteOtherQuestRecords(int questDbIndex, Quest quest)
+    private List<QuestCompleteOtherQuestRecord> CreateQuestCompleteOtherQuestRecords(Quest quest)
     {
         var records = new List<QuestCompleteOtherQuestRecord>();
-        var seenDBNames = new HashSet<string>();
+        var seenCompletedQuestStableKeys = new HashSet<string>();
 
         if (quest.CompleteOtherQuests != null && quest.CompleteOtherQuests.Count > 0)
         {
             foreach (var otherQuest in quest.CompleteOtherQuests)
             {
-                if (otherQuest != null && !string.IsNullOrEmpty(otherQuest.DBName) && seenDBNames.Add(otherQuest.DBName))
+                if (otherQuest != null && !string.IsNullOrEmpty(otherQuest.DBName))
                 {
-                    records.Add(new QuestCompleteOtherQuestRecord
+                    var completedQuestStableKey = StableKeyGenerator.ForQuest(otherQuest);
+                    if (seenCompletedQuestStableKeys.Add(completedQuestStableKey))
                     {
-                        QuestId = questDbIndex,
-                        CompletedQuestDBName = otherQuest.DBName
-                    });
+                        records.Add(new QuestCompleteOtherQuestRecord
+                        {
+                            QuestVariantResourceName = quest.name,
+                            CompletedQuestStableKey = completedQuestStableKey
+                        });
+                    }
                 }
             }
         }

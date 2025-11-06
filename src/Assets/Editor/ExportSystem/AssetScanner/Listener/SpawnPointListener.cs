@@ -111,15 +111,16 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
             PatrolPoints = spawnPoint.PatrolPoints != null ? string.Join(", ", spawnPoint.PatrolPoints.Select(t => t.position.ToString())) : null,
             LoopPatrol = spawnPoint.LoopPatrol,
             RandomWanderRange = spawnPoint.RandomWanderRange,
-            SpawnUponQuestCompleteDBName = spawnPoint.SpawnUponQuestComplete?.DBName,
-            StopIfQuestCompleteDBNames = spawnPoint.StopIfQuestComplete?.Count > 0 ? string.Join(", ", spawnPoint.StopIfQuestComplete.Where(q => q != null && !string.IsNullOrEmpty(q.DBName)).Select(q => q.DBName)) : null,
-            ProtectorName = (spawnPoint.Protector != null) ? spawnPoint.Protector.name : null,
+            SpawnUponQuestCompleteStableKey = spawnPoint.SpawnUponQuestComplete != null
+                ? StableKeyGenerator.ForQuest(spawnPoint.SpawnUponQuestComplete)
+                : null,
+            ProtectorStableKey = GetProtectorStableKey(spawnPoint),
         };
     }
 
     private List<SpawnPointCharacterRecord> CreateSpawnPointCharacterRecords(SpawnPoint spawnPoint, int spawnPointId)
     {
-        // Use GUID as the key for grouping
+        // Use Character stable key for grouping
         var characterData = new Dictionary<string, (float spawnChance, bool isCommon, bool isRare)>();
 
         float rareNpcChance = spawnPoint.RareSpawns.Count == 0 ? 0 : spawnPoint.RareNPCChance;
@@ -131,18 +132,23 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
             var rareSpawnChance = rareNpcChance / spawnPoint.RareSpawns.Count;
             foreach (var rareSpawn in spawnPoint.RareSpawns)
             {
-                var path = AssetDatabase.GetAssetPath(rareSpawn);
-                var guid = AssetDatabase.AssetPathToGUID(path);
-
-                if (!characterData.ContainsKey(guid))
+                var character = rareSpawn.GetComponent<Character>();
+                if (character == null)
                 {
-                    characterData[guid] = (0f, false, false);
+                    UnityEngine.Debug.LogWarning($"[SpawnPointListener] RareSpawn GameObject '{rareSpawn.name}' has no Character component, skipping");
+                    continue;
+                }
+                var characterStableKey = StableKeyGenerator.ForCharacter(character);
+
+                if (!characterData.ContainsKey(characterStableKey))
+                {
+                    characterData[characterStableKey] = (0f, false, false);
                 }
 
-                var entry = characterData[guid];
+                var entry = characterData[characterStableKey];
                 entry.spawnChance += rareSpawnChance;
                 entry.isRare = true;
-                characterData[guid] = entry;
+                characterData[characterStableKey] = entry;
             }
         }
 
@@ -152,18 +158,23 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
             var commonSpawnChance = commonNpcChance / spawnPoint.CommonSpawns.Count;
             foreach (var commonSpawn in spawnPoint.CommonSpawns)
             {
-                var path = AssetDatabase.GetAssetPath(commonSpawn);
-                var guid = AssetDatabase.AssetPathToGUID(path);
-
-                if (!characterData.ContainsKey(guid))
+                var character = commonSpawn.GetComponent<Character>();
+                if (character == null)
                 {
-                    characterData[guid] = (0f, false, false);
+                    UnityEngine.Debug.LogWarning($"[SpawnPointListener] CommonSpawn GameObject '{commonSpawn.name}' has no Character component, skipping");
+                    continue;
+                }
+                var characterStableKey = StableKeyGenerator.ForCharacter(character);
+
+                if (!characterData.ContainsKey(characterStableKey))
+                {
+                    characterData[characterStableKey] = (0f, false, false);
                 }
 
-                var entry = characterData[guid];
+                var entry = characterData[characterStableKey];
                 entry.spawnChance += commonSpawnChance;
                 entry.isCommon = true;
-                characterData[guid] = entry;
+                characterData[characterStableKey] = entry;
             }
         }
 
@@ -174,7 +185,7 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
             records.Add(new SpawnPointCharacterRecord
             {
                 SpawnPointId = spawnPointId,
-                CharacterGuid = kvp.Key,
+                CharacterStableKey = kvp.Key,
                 SpawnChance = kvp.Value.spawnChance,
                 IsCommon = kvp.Value.isCommon,
                 IsRare = kvp.Value.isRare,
@@ -187,19 +198,23 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
     private List<SpawnPointStopQuestRecord> CreateSpawnPointStopQuestRecords(SpawnPoint spawnPoint, int spawnPointId)
     {
         var records = new List<SpawnPointStopQuestRecord>();
-        var seenDBNames = new HashSet<string>();
+        var seenQuestStableKeys = new HashSet<string>();
 
         if (spawnPoint.StopIfQuestComplete != null && spawnPoint.StopIfQuestComplete.Count > 0)
         {
             foreach (var quest in spawnPoint.StopIfQuestComplete)
             {
-                if (quest != null && !string.IsNullOrEmpty(quest.DBName) && seenDBNames.Add(quest.DBName))
+                if (quest != null && !string.IsNullOrEmpty(quest.DBName))
                 {
-                    records.Add(new SpawnPointStopQuestRecord
+                    var questStableKey = StableKeyGenerator.ForQuest(quest);
+                    if (seenQuestStableKeys.Add(questStableKey))
                     {
-                        SpawnPointId = spawnPointId,
-                        QuestDBName = quest.DBName
-                    });
+                        records.Add(new SpawnPointStopQuestRecord
+                        {
+                            SpawnPointId = spawnPointId,
+                            QuestStableKey = questStableKey
+                        });
+                    }
                 }
             }
         }
@@ -231,5 +246,20 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
         }
 
         return records;
+    }
+
+    private string? GetProtectorStableKey(SpawnPoint spawnPoint)
+    {
+        if (spawnPoint.Protector == null)
+            return null;
+
+        var character = spawnPoint.Protector.GetComponent<Character>();
+        if (character == null)
+        {
+            UnityEngine.Debug.LogWarning($"[SpawnPointListener] Protector GameObject '{spawnPoint.Protector.name}' at {spawnPoint.transform.position} has no Character component, skipping");
+            return null;
+        }
+
+        return StableKeyGenerator.ForCharacter(character);
     }
 }

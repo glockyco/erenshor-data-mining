@@ -137,28 +137,6 @@ class TemplateGeneratorBase(ABC):
                 raise TemplateNotFoundError(f"Template not found: {template_name}") from e
             raise TemplateRenderError(f"Failed to render template {template_name}: {e}") from e
 
-    def format_category_tags(self, categories: list[str]) -> str:
-        """Format category tags for MediaWiki.
-
-        Args:
-            categories: List of category names (without "Category:" prefix)
-
-        Returns:
-            Formatted category tags as wikitext
-
-        Example:
-            >>> self.format_category_tags(["Items", "Weapons", "Level 10"])
-            "[[Category:Items]]\\n[[Category:Weapons]]\\n[[Category:Level 10]]"
-
-            >>> self.format_category_tags([])
-            ""
-        """
-        if not categories:
-            return ""
-
-        tags = [f"[[Category:{cat}]]" for cat in categories]
-        return "\n".join(tags)
-
     def normalize_wikitext(self, wikitext: str) -> str:
         """Normalize wikitext output.
 

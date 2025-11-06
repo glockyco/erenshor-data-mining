@@ -36,7 +36,21 @@ public class LootTableListener : IAssetScanListener<LootTable>
 
         var records = CreateRecords(asset);
 
-        _records.AddRange(records);
+        // Check for duplicates and skip them
+        foreach (var record in records)
+        {
+            var existingRecord = _records.FirstOrDefault(r =>
+                r.CharacterStableKey == record.CharacterStableKey &&
+                r.ItemStableKey == record.ItemStableKey);
+
+            if (existingRecord != null)
+            {
+                UnityEngine.Debug.LogWarning($"[LootTableListener] Duplicate loot drop: Character '{record.CharacterStableKey}' dropping Item '{record.ItemStableKey}'. LootTable asset: '{asset.name}'. Skipping duplicate.");
+                continue;
+            }
+
+            _records.Add(record);
+        }
     }
 
     private List<LootTableRecord> CreateRecords(LootTable lootTable)
@@ -44,26 +58,23 @@ public class LootTableListener : IAssetScanListener<LootTable>
         var perItemDistributions = _probabilityCalculator.CalculatePerItemDropCountDistributions(lootTable);
         var expectedDrops = _probabilityCalculator.ComputeExpectedDrops(perItemDistributions);
 
-        string guid;
-        var prefabType = PrefabUtility.GetPrefabAssetType(lootTable.gameObject);
-        if (prefabType != PrefabAssetType.NotAPrefab)
+        // Get Character component to generate stable key
+        var character = lootTable.gameObject.GetComponent<Character>();
+        if (character == null)
         {
-            var prefabPath = AssetDatabase.GetAssetPath(lootTable.gameObject);
-            guid = AssetDatabase.AssetPathToGUID(prefabPath);
+            Debug.LogWarning($"[{GetType().Name}] LootTable on {lootTable.gameObject.name} has no Character component - skipping");
+            return new List<LootTableRecord>();
         }
-        else
-        {
-            var sceneName = lootTable.gameObject.scene.name;
-            guid = $"scene:{sceneName}:{lootTable.gameObject.GetInstanceID()}";
-        }
+
+        var characterStableKey = StableKeyGenerator.ForCharacter(character);
 
         var records = new List<LootTableRecord>();
 
         foreach (var item in EnumerateAllUniqueItems(lootTable))
         {
-            var itemName = item.name;
+            var itemStableKey = StableKeyGenerator.ForItem(item);
 
-            perItemDistributions.TryGetValue(itemName, out var dist);
+            perItemDistributions.TryGetValue(item.name, out var dist);
 
             var dropProbability = dist is { Length: > 0 } ? 1.0 - dist[0] : 0.0;
             dropProbability = Math.Round(dropProbability * 100.0, 2); // as percentage
@@ -83,10 +94,10 @@ public class LootTableListener : IAssetScanListener<LootTable>
 
             var record = new LootTableRecord
             {
-                CharacterPrefabGuid = guid,
-                ItemResourceName = itemName,
+                CharacterStableKey = characterStableKey,
+                ItemStableKey = itemStableKey,
                 DropProbability = dropProbability,
-                ExpectedPerKill = Math.Round(expectedDrops.GetValueOrDefault(itemName, 0.0), 4),
+                ExpectedPerKill = Math.Round(expectedDrops.GetValueOrDefault(item.name, 0.0), 4),
                 DropCountDistribution = JsonConvert.SerializeObject(dropCountList),
                 IsActual = lootTable.ActualDrops != null && lootTable.ActualDrops.Contains(item),
                 IsGuaranteed = lootTable.GuaranteeOneDrop != null && lootTable.GuaranteeOneDrop.Contains(item),
@@ -120,8 +131,8 @@ public class LootTableListener : IAssetScanListener<LootTable>
 
             records.Add(new LootTableRecord
             {
-                CharacterPrefabGuid = guid,
-                ItemResourceName = LootTableProbabilityCalculator.WorldDropKey,
+                CharacterStableKey = characterStableKey,
+                ItemStableKey = LootTableProbabilityCalculator.WorldDropKey,
                 DropProbability = worldProb,
                 ExpectedPerKill = Math.Round(expectedDrops.GetValueOrDefault(LootTableProbabilityCalculator.WorldDropKey, 0.0), 4),
                 DropCountDistribution = JsonConvert.SerializeObject(worldDropCountList),

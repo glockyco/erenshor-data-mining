@@ -44,12 +44,12 @@ class CharacterRepository(BaseRepository[Character]):
         """
         query = """
             SELECT
-                c.Id,
+                c.StableKey,
                 c.CoordinateId,
                 c.Guid,
                 c.ObjectName,
                 c.NPCName,
-                c.MyWorldFaction,
+                c.MyWorldFactionStableKey,
                 c.MyFaction,
                 c.AggroRange,
                 c.AttackRange,
@@ -107,8 +107,8 @@ class CharacterRepository(BaseRepository[Character]):
                 c.EffectiveMaxPR,
                 c.EffectiveMinVR,
                 c.EffectiveMaxVR,
-                c.PetSpell,
-                c.ProcOnHit,
+                c.PetSpellStableKey,
+                c.ProcOnHitStableKey,
                 c.ProcOnHitChance,
                 c.HandSetResistances,
                 c.HardSetAC,
@@ -153,197 +153,133 @@ class CharacterRepository(BaseRepository[Character]):
             characters = [self._row_to_character(row) for row in rows]
 
             # Enrich characters with faction modifiers from junction table
-            character_ids = [char.id for char in characters]
-            if character_ids:
-                faction_modifiers_map = self._get_faction_modifiers_for_characters(character_ids)
+            stable_keys = [char.stable_key for char in characters if char.stable_key]
+            if stable_keys:
+                faction_modifiers_map = self._get_faction_modifiers_for_characters(stable_keys)
                 for char in characters:
-                    char.faction_modifiers = faction_modifiers_map.get(char.id, [])
+                    if char.stable_key:
+                        char.faction_modifiers = faction_modifiers_map.get(char.stable_key, [])
 
             logger.debug(f"Retrieved {len(characters)} characters for wiki generation")
             return characters
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve characters for wiki: {e}") from e
 
-    def get_character_by_object_name(self, object_name: str) -> Character | None:
-        """Get single character by object name.
-
-        Used by: Individual page updates, cross-references
-
-        Args:
-            object_name: ObjectName field value (stable identifier)
-
-        Returns:
-            Character entity if found, None otherwise.
-
-        Raises:
-            RepositoryError: If query execution fails.
-        """
-        query = """
-            SELECT
-                Id,
-                CoordinateId,
-                Guid,
-                ObjectName,
-                NPCName,
-                MyWorldFaction,
-                MyFaction,
-                AggroRange,
-                AttackRange,
-                AggressiveTowards,
-                Allies,
-                IsPrefab,
-                IsCommon,
-                IsRare,
-                IsUnique,
-                IsFriendly,
-                IsNPC,
-                IsSimPlayer,
-                IsVendor,
-                IsMiningNode,
-                HasStats,
-                HasDialog,
-                HasModifyFaction,
-                IsEnabled,
-                Invulnerable,
-                ShoutOnDeath,
-                QuestCompleteOnDeath,
-                DestroyOnDeath,
-                Level,
-                BaseXpMin,
-                BaseXpMax,
-                BossXpMultiplier,
-                BaseHP,
-                BaseAC,
-                BaseMana,
-                BaseStr,
-                BaseEnd,
-                BaseDex,
-                BaseAgi,
-                BaseInt,
-                BaseWis,
-                BaseCha,
-                BaseRes,
-                BaseMR,
-                BaseER,
-                BasePR,
-                BaseVR,
-                RunSpeed,
-                BaseLifeSteal,
-                BaseMHAtkDelay,
-                BaseOHAtkDelay,
-                EffectiveHP,
-                EffectiveAC,
-                EffectiveBaseAtkDmg,
-                EffectiveAttackAbility,
-                EffectiveMinMR,
-                EffectiveMaxMR,
-                EffectiveMinER,
-                EffectiveMaxER,
-                EffectiveMinPR,
-                EffectiveMaxPR,
-                EffectiveMinVR,
-                EffectiveMaxVR,
-                AttackSkills,
-                AttackSpells,
-                BuffSpells,
-                HealSpells,
-                GroupHealSpells,
-                CCSpells,
-                TauntSpells,
-                PetSpell,
-                ProcOnHit,
-                ProcOnHitChance,
-                HandSetResistances,
-                HardSetAC,
-                BaseAtkDmg,
-                OHAtkDmg,
-                MinAtkDmg,
-                DamageRangeMin,
-                DamageRangeMax,
-                DamageMult,
-                ArmorPenMult,
-                PowerAttackBaseDmg,
-                PowerAttackFreq,
-                HealTolerance,
-                LeashRange,
-                AggroRegardlessOfLevel,
-                Mobile,
-                GroupEncounter,
-                TreasureChest,
-                DoNotLeaveCorpse,
-                SetAchievementOnDefeat,
-                SetAchievementOnSpawn,
-                AggroMsg,
-                AggroEmote,
-                SpawnEmote,
-                GuildName,
-                VendorDesc,
-                ItemsForSale
-            FROM Characters
-            WHERE ObjectName = ?
-            LIMIT 1
-        """
-
-        try:
-            rows = self._execute_raw(query, (object_name,))
-            if not rows:
-                return None
-            character = self._row_to_character(rows[0])
-
-            # Enrich with faction modifiers
-            faction_modifiers_map = self._get_faction_modifiers_for_characters([character.id])
-            character.faction_modifiers = faction_modifiers_map.get(character.id, [])
-
-            return character
-        except Exception as e:
-            raise RepositoryError(f"Failed to retrieve character by object_name={object_name}: {e}") from e
-
-    def _get_faction_modifiers_for_characters(self, character_ids: list[int]) -> dict[int, list[FactionModifier]]:
+    def _get_faction_modifiers_for_characters(self, stable_keys: list[str]) -> dict[str, list[FactionModifier]]:
         """Get faction modifiers for multiple characters.
 
         Args:
-            character_ids: List of character IDs to query
+            stable_keys: List of character stable keys to query
 
         Returns:
-            Dict mapping character ID to list of FactionModifiers
+            Dict mapping character stable key to list of FactionModifiers
 
         Raises:
             RepositoryError: If query execution fails
         """
-        if not character_ids:
+        if not stable_keys:
             return {}
 
         # Build query with placeholders for IN clause
-        placeholders = ",".join("?" * len(character_ids))
+        placeholders = ",".join("?" * len(stable_keys))
         query = f"""
             SELECT
-                CharacterId,
-                FactionREFNAME,
+                CharacterStableKey,
+                FactionStableKey,
                 ModifierValue
             FROM CharacterFactionModifiers
-            WHERE CharacterId IN ({placeholders})
-            ORDER BY CharacterId, FactionREFNAME
+            WHERE CharacterStableKey IN ({placeholders})
+            ORDER BY CharacterStableKey, FactionStableKey
         """
 
         try:
-            rows = self._execute_raw(query, tuple(character_ids))
+            rows = self._execute_raw(query, tuple(stable_keys))
 
-            # Group by character ID
-            result: dict[int, list[FactionModifier]] = {}
+            # Group by character stable key
+            result: dict[str, list[FactionModifier]] = {}
             for row in rows:
-                char_id = row["CharacterId"]
+                char_key = row["CharacterStableKey"]
                 modifier = FactionModifier(
-                    faction_refname=row["FactionREFNAME"],
+                    faction_stable_key=row["FactionStableKey"],
                     modifier_value=row["ModifierValue"],
                 )
-                if char_id not in result:
-                    result[char_id] = []
-                result[char_id].append(modifier)
+                if char_key not in result:
+                    result[char_key] = []
+                result[char_key].append(modifier)
 
             logger.debug(f"Retrieved faction modifiers for {len(result)} characters")
             return result
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve faction modifiers: {e}") from e
+
+    def get_vendors_selling_item(self, item_stable_key: str) -> list[dict[str, object]]:
+        """Get characters (vendors) that sell the given item.
+
+        Uses CharacterVendorItems junction table.
+
+        Used by: Item source enrichment
+
+        Args:
+            item_stable_key: Item stable key (format: 'item:resource_name')
+
+        Returns:
+            List of vendor data dicts with fields:
+            - StableKey: Character stable key
+
+        Raises:
+            RepositoryError: If query execution fails
+        """
+        query = """
+            SELECT DISTINCT c.StableKey
+            FROM Characters c
+            JOIN CharacterVendorItems cvi ON c.StableKey = cvi.CharacterStableKey
+            WHERE cvi.ItemStableKey = ?
+            ORDER BY c.StableKey
+        """
+
+        try:
+            rows = self._execute_raw(query, (item_stable_key,))
+            logger.debug(f"Found {len(rows)} vendors selling '{item_stable_key}'")
+            return [dict(row) for row in rows]
+        except Exception as e:
+            raise RepositoryError(f"Failed to retrieve vendors for item '{item_stable_key}': {e}") from e
+
+    def get_characters_dropping_item(self, item_stable_key: str) -> list[dict[str, object]]:
+        """Get characters that drop the given item.
+
+        Uses LootDrops table to find characters dropping this item.
+        Only includes drops with non-zero probability.
+
+        Used by: Item source enrichment
+
+        Args:
+            item_stable_key: Item stable key (format: 'item:resource_name')
+
+        Returns:
+            List of dropper data dicts with fields:
+            - StableKey: Character stable key
+            - DropProbability: Percentage chance to drop
+
+        Raises:
+            RepositoryError: If query execution fails
+        """
+        query = """
+            SELECT DISTINCT
+                c.StableKey,
+                ld.DropProbability
+            FROM Characters c
+            JOIN LootDrops ld ON c.StableKey = ld.CharacterStableKey
+            WHERE ld.ItemStableKey = ?
+                AND COALESCE(ld.DropProbability, 0.0) > 0.0
+            ORDER BY c.StableKey
+        """
+
+        try:
+            rows = self._execute_raw(query, (item_stable_key,))
+            logger.debug(f"Found {len(rows)} characters dropping '{item_stable_key}'")
+            return [dict(row) for row in rows]
+        except Exception as e:
+            raise RepositoryError(f"Failed to retrieve droppers for item '{item_stable_key}': {e}") from e
 
     def _row_to_character(self, row: dict[str, object]) -> Character:
         """Convert database row to Character entity.

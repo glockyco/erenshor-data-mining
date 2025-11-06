@@ -13,10 +13,11 @@ public class CraftingRecipeRecord
     public const string TableName = "CraftingRecipes";
 
     /// <summary>
-    /// The ID of the item that is crafted (the recipe/template item)
+    /// The stable key of the item that is crafted (the recipe/template item)
     /// </summary>
     [Indexed(Name = "CraftingRecipes_Primary_IDX", Order = 1, Unique = true)]
-    public string RecipeItemId { get; set; } = string.Empty;
+    [ForeignKey(typeof(ItemRecord), "StableKey")]
+    public string RecipeItemStableKey { get; set; } = string.Empty;
 
     /// <summary>
     /// The slot position of this material in the recipe (1-based).
@@ -26,9 +27,10 @@ public class CraftingRecipeRecord
     public int MaterialSlot { get; set; }
 
     /// <summary>
-    /// The ID of the material item required for this slot
+    /// The stable key of the material item required for this slot
     /// </summary>
-    public string MaterialItemId { get; set; } = string.Empty;
+    [ForeignKey(typeof(ItemRecord), "StableKey")]
+    public string MaterialItemStableKey { get; set; } = string.Empty;
 
     /// <summary>
     /// The quantity of this material required.

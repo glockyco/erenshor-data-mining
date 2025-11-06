@@ -8,11 +8,34 @@ Tests registry resolver functionality including:
 """
 
 import json
+import sqlite3
 from pathlib import Path
 
 import pytest
 
 from erenshor.registry.resolver import RegistryResolver
+
+
+@pytest.fixture
+def game_database(tmp_path: Path) -> Path:
+    """Create a test game database with empty tables."""
+    db_path = tmp_path / "game.sqlite"
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    # Create tables that RegistryResolver expects
+    cursor.execute("CREATE TABLE Items (StableKey TEXT PRIMARY KEY, ItemName TEXT)")
+    cursor.execute("CREATE TABLE Spells (StableKey TEXT PRIMARY KEY, SpellName TEXT)")
+    cursor.execute("CREATE TABLE Skills (StableKey TEXT PRIMARY KEY, SkillName TEXT)")
+    cursor.execute("CREATE TABLE Characters (StableKey TEXT PRIMARY KEY, NPCName TEXT)")
+    cursor.execute("CREATE TABLE Zones (StableKey TEXT PRIMARY KEY, ZoneName TEXT)")
+    cursor.execute("CREATE TABLE Factions (StableKey TEXT PRIMARY KEY, FactionDesc TEXT)")
+    cursor.execute("CREATE TABLE Quests (StableKey TEXT PRIMARY KEY)")
+    cursor.execute("CREATE TABLE QuestVariants (QuestStableKey TEXT, QuestName TEXT)")
+
+    conn.commit()
+    conn.close()
+    return db_path
 
 
 @pytest.fixture
@@ -90,6 +113,34 @@ def temp_mapping_json(tmp_path: Path) -> Path:
                 "mapping_type": "exclude",
                 "reason": "Internal test zone",
             },
+            "spell:test_with_image": {
+                "wiki_page_name": "Test Page Title",
+                "display_name": "Test Spell",
+                "image_name": "CustomImage",
+                "mapping_type": "custom",
+                "reason": "Test image override",
+            },
+            "spell:test_with_display": {
+                "wiki_page_name": "Test Page Title",
+                "display_name": "Custom Display",
+                "image_name": None,
+                "mapping_type": "custom",
+                "reason": "Test display override",
+            },
+            "spell:excluded_spell": {
+                "wiki_page_name": None,
+                "display_name": None,
+                "image_name": None,
+                "mapping_type": "exclude",
+                "reason": "Internal test spell",
+            },
+            "skill:excluded_skill": {
+                "wiki_page_name": None,
+                "display_name": None,
+                "image_name": None,
+                "mapping_type": "exclude",
+                "reason": "Internal test skill",
+            },
         }
     }
 
@@ -99,41 +150,41 @@ def temp_mapping_json(tmp_path: Path) -> Path:
 
 
 @pytest.fixture
-def resolver(tmp_path: Path, temp_mapping_json: Path) -> RegistryResolver:
+def resolver(tmp_path: Path, game_database: Path, temp_mapping_json: Path) -> RegistryResolver:
     """Create a RegistryResolver with test data."""
     registry_path = tmp_path / "registry.db"
-    return RegistryResolver(registry_path, temp_mapping_json)
+    return RegistryResolver(registry_path, game_database, temp_mapping_json)
 
 
 class TestAutoInitialization:
     """Tests for automatic registry initialization."""
 
-    def test_creates_registry_when_missing(self, tmp_path: Path, temp_mapping_json: Path) -> None:
+    def test_creates_registry_when_missing(self, tmp_path: Path, game_database: Path, temp_mapping_json: Path) -> None:
         """Test registry is created when database doesn't exist."""
         registry_path = tmp_path / "registry.db"
         assert not registry_path.exists()
 
-        _resolver = RegistryResolver(registry_path, temp_mapping_json)
+        _resolver = RegistryResolver(registry_path, game_database, temp_mapping_json)
 
         assert registry_path.exists()
         assert registry_path.stat().st_size > 0
 
-    def test_rebuilds_when_empty(self, tmp_path: Path, temp_mapping_json: Path) -> None:
+    def test_rebuilds_when_empty(self, tmp_path: Path, game_database: Path, temp_mapping_json: Path) -> None:
         """Test registry is rebuilt when database is empty."""
         registry_path = tmp_path / "registry.db"
         registry_path.touch()  # Create empty file
         assert registry_path.stat().st_size == 0
 
-        RegistryResolver(registry_path, temp_mapping_json)
+        RegistryResolver(registry_path, game_database, temp_mapping_json)
 
         assert registry_path.stat().st_size > 0
 
-    def test_rebuilds_when_mapping_newer(self, tmp_path: Path, temp_mapping_json: Path) -> None:
+    def test_rebuilds_when_mapping_newer(self, tmp_path: Path, game_database: Path, temp_mapping_json: Path) -> None:
         """Test registry is rebuilt when mapping.json is newer than registry.db."""
         registry_path = tmp_path / "registry.db"
 
         # Create initial registry
-        RegistryResolver(registry_path, temp_mapping_json)
+        RegistryResolver(registry_path, game_database, temp_mapping_json)
         initial_mtime = registry_path.stat().st_mtime
 
         # Simulate mapping.json being updated
@@ -143,35 +194,35 @@ class TestAutoInitialization:
         temp_mapping_json.touch()
 
         # Initialize again - should rebuild
-        RegistryResolver(registry_path, temp_mapping_json)
+        RegistryResolver(registry_path, game_database, temp_mapping_json)
         new_mtime = registry_path.stat().st_mtime
 
         assert new_mtime > initial_mtime
 
-    def test_no_rebuild_when_up_to_date(self, tmp_path: Path, temp_mapping_json: Path) -> None:
+    def test_no_rebuild_when_up_to_date(self, tmp_path: Path, game_database: Path, temp_mapping_json: Path) -> None:
         """Test registry is NOT rebuilt when already up-to-date."""
         registry_path = tmp_path / "registry.db"
 
         # Create initial registry
-        RegistryResolver(registry_path, temp_mapping_json)
+        RegistryResolver(registry_path, game_database, temp_mapping_json)
         initial_mtime = registry_path.stat().st_mtime
 
         # Initialize again - should NOT rebuild
         import time
 
         time.sleep(0.1)
-        RegistryResolver(registry_path, temp_mapping_json)
+        RegistryResolver(registry_path, game_database, temp_mapping_json)
         new_mtime = registry_path.stat().st_mtime
 
         assert new_mtime == initial_mtime
 
-    def test_raises_when_mapping_missing(self, tmp_path: Path) -> None:
+    def test_raises_when_mapping_missing(self, tmp_path: Path, game_database: Path) -> None:
         """Test raises FileNotFoundError when mapping.json doesn't exist."""
         registry_path = tmp_path / "registry.db"
         missing_mapping = tmp_path / "missing.json"
 
         with pytest.raises(FileNotFoundError, match=r"mapping\.json not found"):
-            RegistryResolver(registry_path, missing_mapping)
+            RegistryResolver(registry_path, game_database, missing_mapping)
 
 
 class TestResourceNameNormalization:
@@ -346,3 +397,59 @@ class TestLinkGeneration:
 
         assert result == "Excluded Zone"
         assert "[[" not in result
+
+
+class TestAbilityLink:
+    """Test ability_link method for spells and skills."""
+
+    def test_ability_link_spell_simple(self, resolver: RegistryResolver) -> None:
+        """Test simple spell link without overrides."""
+        result = resolver.ability_link("spell", "GEN - Stun", "Stun")
+
+        assert result == "{{AbilityLink|Stun}}"
+
+    def test_ability_link_skill_simple(self, resolver: RegistryResolver) -> None:
+        """Test simple skill link without overrides."""
+        result = resolver.ability_link("skill", "Bash", "Bash")
+
+        assert result == "{{AbilityLink|Bash}}"
+
+    def test_ability_link_with_image_override(self, resolver: RegistryResolver) -> None:
+        """Test ability link with image name override."""
+        result = resolver.ability_link("spell", "test_with_image", "Test Spell")
+
+        assert "{{AbilityLink|Test Page Title" in result
+        assert "image=CustomImage.png" in result
+
+    def test_ability_link_with_display_override(self, resolver: RegistryResolver) -> None:
+        """Test ability link with display name override."""
+        result = resolver.ability_link("spell", "test_with_display", "Test Spell")
+
+        assert "{{AbilityLink|Test Page Title" in result
+        assert "text=Custom Display" in result
+
+    def test_ability_link_spell_excluded(self, resolver: RegistryResolver) -> None:
+        """Test returns plain text for excluded spells."""
+        result = resolver.ability_link("spell", "excluded_spell", "Excluded Spell")
+
+        assert result == "Excluded Spell"
+        assert "{{" not in result
+
+    def test_ability_link_skill_excluded(self, resolver: RegistryResolver) -> None:
+        """Test returns plain text for excluded skills."""
+        result = resolver.ability_link("skill", "excluded_skill", "Excluded Skill")
+
+        assert result == "Excluded Skill"
+        assert "{{" not in result
+
+    def test_ability_link_invalid_entity_type_raises_error(self, resolver: RegistryResolver) -> None:
+        """Test raises ValueError for invalid entity type."""
+        with pytest.raises(ValueError, match="entity_type must be 'spell' or 'skill'"):
+            resolver.ability_link("invalid", "TEST", "Test")
+
+    def test_ability_link_normalizes_case(self, resolver: RegistryResolver) -> None:
+        """Test ability_link normalizes uppercase resource names."""
+        result = resolver.ability_link("spell", "GEN - STUN", "Stun")
+
+        # Should normalize the stable key
+        assert "{{AbilityLink|" in result

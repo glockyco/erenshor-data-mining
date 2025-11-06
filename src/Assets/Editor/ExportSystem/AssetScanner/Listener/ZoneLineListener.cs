@@ -70,7 +70,9 @@ public class ZoneLineListener : IAssetScanListener<Zoneline>
             CoordinateId = coordinate.Id,
             IsEnabled = zoneLine.isActiveAndEnabled,
             DisplayText = zoneLine.DisplayText,
-            DestinationZone = zoneLine.DestinationZone,
+            DestinationZoneStableKey = !string.IsNullOrEmpty(zoneLine.DestinationZone)
+                ? StableKeyGenerator.ForZoneFromSceneName(zoneLine.DestinationZone)
+                : null,
             LandingPositionX = zoneLine.LandingPosition.x,
             LandingPositionY = zoneLine.LandingPosition.y,
             LandingPositionZ = zoneLine.LandingPosition.z,

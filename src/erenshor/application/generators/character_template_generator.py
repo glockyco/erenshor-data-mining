@@ -11,22 +11,17 @@ Template structure:
 """
 
 from collections.abc import Sequence
-from typing import TYPE_CHECKING
 
 from loguru import logger
 
 from erenshor.application.generators.categories import CategoryGenerator
 from erenshor.application.generators.formatting import safe_str
 from erenshor.application.generators.template_generator_base import TemplateGeneratorBase
+from erenshor.domain.enriched_data.character import EnrichedCharacterData
 from erenshor.domain.entities.character import Character
 from erenshor.domain.value_objects.loot import LootDropInfo
 from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
 from erenshor.registry.resolver import RegistryResolver
-from erenshor.registry.resource_names import build_stable_key
-from erenshor.registry.schema import EntityType
-
-if TYPE_CHECKING:
-    from erenshor.application.services.character_enricher import EnrichedCharacterData
 
 WIKITEXT_LINE_SEPARATOR = "<br>"
 
@@ -40,53 +35,59 @@ class CharacterTemplateGenerator(TemplateGeneratorBase):
     Multi-entity page assembly is handled by WikiService, not here.
 
     Example:
-        >>> generator = CharacterTemplateGenerator()
+        >>> resolver = RegistryResolver(...)
+        >>> category_generator = CategoryGenerator(resolver)
+        >>> generator = CharacterTemplateGenerator(resolver, category_generator)
         >>> enriched_data = enricher.enrich(character)
-        >>> wikitext = generator.generate_template(enriched_data, "Goblin Scout", resolver)
+        >>> wikitext = generator.generate_template(enriched_data, "Goblin Scout")
     """
 
-    def __init__(self) -> None:
-        """Initialize generator."""
+    def __init__(self, resolver: RegistryResolver, category_generator: CategoryGenerator) -> None:
+        """Initialize character template generator.
+
+        Args:
+            resolver: Registry resolver for links and display names
+            category_generator: Category generator for creating category tags
+        """
         super().__init__()
-        self._category_generator = CategoryGenerator()
+        self._resolver = resolver
+        self._category_generator = category_generator
 
     def generate_template(
         self,
-        enriched: "EnrichedCharacterData",
+        enriched: EnrichedCharacterData,
         page_title: str,
-        resolver: RegistryResolver,
     ) -> str:
         """Generate template wikitext for a single character.
 
         Args:
             enriched: Enriched character data with spawn/loot/faction data
             page_title: Wiki page title
-            resolver: Registry resolver for links and overrides
 
         Returns:
             Template wikitext for single character (infobox + categories)
 
         Example:
             >>> enriched = enricher.enrich(character)
-            >>> wikitext = generator.generate_template(enriched, "Goblin Scout", resolver)
+            >>> wikitext = generator.generate_template(enriched, "Goblin Scout")
         """
         logger.debug(f"Generating template for character: {enriched.character.npc_name}")
 
         character = enriched.character
 
         # Resolve display name and image from registry
-        display_name = resolver.resolve_display_name(character.stable_key, page_title)
-        image_name = resolver.resolve_image_name(character.stable_key, page_title) or page_title
+        display_name = self._resolver.resolve_display_name(character.stable_key)
+        image_name = self._resolver.resolve_image_name(character.stable_key)
 
         # Format all fields
         enemy_type = self._format_enemy_type(character, enriched.spawn_infos)
-        faction = self._format_faction(character, enriched.faction_display_names, resolver)
-        faction_change = self._format_faction_modifiers(character, enriched.faction_display_names, page_title, resolver)
-        zones = self._format_zones(enriched.spawn_infos, resolver)
+        faction = self._format_faction(character)
+        faction_change = self._format_faction_modifiers(character)
+        zones = self._format_zones(enriched.spawn_infos)
         coordinates = self._format_coordinates(enriched.spawn_infos)
         spawn_chance = self._format_spawn_chance(enriched.spawn_infos, character)
         respawn = self._format_respawn(enriched.spawn_infos)
-        guaranteed_drops, drop_rates = self._format_loot_drops(enriched.loot_drops, page_title, resolver)
+        guaranteed_drops, drop_rates = self._format_loot_drops(enriched.loot_drops, page_title)
 
         # Build template context
         context = self._build_character_template_context(
@@ -133,31 +134,20 @@ class CharacterTemplateGenerator(TemplateGeneratorBase):
                 return "[[Enemies|Rare]]"
         return "[[Enemies|Enemy]]"
 
-    def _format_faction(
-        self, character: Character, faction_display_names: dict[str, str], resolver: RegistryResolver
-    ) -> str:
-        """Format faction field using MyWorldFaction or MyFaction."""
-        if character.my_world_faction:
-            faction_desc = faction_display_names.get(character.my_world_faction, character.my_world_faction)
-            return resolver.faction_link(character.my_world_faction, faction_desc)
+    def _format_faction(self, character: Character) -> str:
+        """Format faction field using MyWorldFactionStableKey or MyFaction."""
+        if character.my_world_faction_stable_key:
+            return self._resolver.faction_link(character.my_world_faction_stable_key)
 
         if character.my_faction in ("Villager", "GoodHuman", "GoodGuard", "OtherGood", "PreyAnimal"):
-            faction_desc = faction_display_names.get("GOOD", "The Followers of Good")
-            return resolver.faction_link("GOOD", faction_desc)
+            return self._resolver.faction_link("faction:good")
 
         if character.my_faction and character.my_faction not in ("Player", "PC", "DEBUG"):
-            faction_desc = faction_display_names.get("EVIL", "The Followers of Evil")
-            return resolver.faction_link("EVIL", faction_desc)
+            return self._resolver.faction_link("faction:evil")
 
         return ""
 
-    def _format_faction_modifiers(
-        self,
-        character: Character,
-        faction_display_names: dict[str, str],
-        character_name: str,
-        resolver: RegistryResolver,
-    ) -> str:
+    def _format_faction_modifiers(self, character: Character) -> str:
         """Format faction modifiers with display names."""
         if not character.faction_modifiers:
             return ""
@@ -168,23 +158,32 @@ class CharacterTemplateGenerator(TemplateGeneratorBase):
 
         entries: list[tuple[str, str]] = []
         for mod in nonzero_mods:
-            display_name = faction_display_names.get(mod.faction_refname, mod.faction_refname)
+            display_name = self._resolver.resolve_display_name(mod.faction_stable_key)
             sign = "+" if mod.modifier_value > 0 else ""
-            faction_link = resolver.faction_link(mod.faction_refname, display_name)
+            faction_link = self._resolver.faction_link(mod.faction_stable_key)
             formatted = f"{sign}{mod.modifier_value} {faction_link}"
             entries.append((display_name, formatted))
 
         entries.sort(key=lambda x: x[0])
         return WIKITEXT_LINE_SEPARATOR.join(line for _, line in entries)
 
-    def _format_zones(self, spawn_infos: list[CharacterSpawnInfo], resolver: RegistryResolver) -> str:
+    def _format_zones(self, spawn_infos: list[CharacterSpawnInfo]) -> str:
         """Format zone list for wiki template."""
         if not spawn_infos:
             return ""
 
-        zone_pairs = sorted({(info.scene, info.zone_display) for info in spawn_infos}, key=lambda x: x[1])
-        zone_links = [resolver.zone_link(scene, zone_display) for scene, zone_display in zone_pairs]
-        return WIKITEXT_LINE_SEPARATOR.join(zone_links)
+        # Get unique zone stable keys
+        zone_stable_keys = {info.zone_stable_key for info in spawn_infos}
+
+        # Build (display_name, link) tuples and sort by display name
+        zone_data = []
+        for stable_key in zone_stable_keys:
+            display_name = self._resolver.resolve_display_name(stable_key)
+            link = self._resolver.zone_link(stable_key)
+            zone_data.append((display_name, link))
+
+        zone_data.sort(key=lambda x: x[0].lower())
+        return WIKITEXT_LINE_SEPARATOR.join(link for _, link in zone_data)
 
     def _format_coordinates(self, spawn_infos: list[CharacterSpawnInfo]) -> str:
         """Format coordinates for wiki template."""
@@ -216,7 +215,8 @@ class CharacterTemplateGenerator(TemplateGeneratorBase):
         # Group spawn chances by zone
         chances_by_zone: dict[str, list[float]] = {}
         for info in spawn_infos:
-            chances_by_zone.setdefault(info.zone_display, []).append(info.spawn_chance)
+            zone_display = self._resolver.resolve_display_name(info.zone_stable_key)
+            chances_by_zone.setdefault(zone_display, []).append(info.spawn_chance)
 
         # Get unique zones sorted alphabetically
         zones_sorted = sorted(chances_by_zone.keys())
@@ -253,7 +253,7 @@ class CharacterTemplateGenerator(TemplateGeneratorBase):
         # Group respawn times by zone and round to nearest minute
         respawns_by_zone: dict[str, list[int]] = {}
         for spawn in spawn_infos:
-            zone_display = spawn.zone_display
+            zone_display = self._resolver.resolve_display_name(spawn.zone_stable_key)
             base_respawn = spawn.base_respawn or 0.0
             # Round to nearest minute
             minutes = round(base_respawn / 60.0)
@@ -307,7 +307,6 @@ class CharacterTemplateGenerator(TemplateGeneratorBase):
         self,
         loot_drops: list[LootDropInfo],
         character_name: str,
-        resolver: RegistryResolver,
     ) -> tuple[str, str]:
         """Format loot drops for wiki template."""
         if not loot_drops:
@@ -317,20 +316,13 @@ class CharacterTemplateGenerator(TemplateGeneratorBase):
         all_entries: list[tuple[float, str]] = []
 
         for drop in loot_drops:
-            if not drop.item_name:
-                raise ValueError(
-                    f"Invalid loot drop for {character_name}: missing item_name (resource_name={drop.resource_name})"
-                )
-            if not drop.resource_name:
-                raise ValueError(
-                    f"Invalid loot drop for {character_name}: missing resource_name (item_name={drop.item_name})"
-                )
+            if not drop.item_stable_key:
+                raise ValueError(f"Invalid loot drop for {character_name}: missing item_stable_key")
             if drop.drop_probability <= 0:
                 continue  # Zero probability drops are valid (disabled drops)
 
-            item_link = resolver.item_link(drop.resource_name, drop.item_name)
-            stable_key = build_stable_key(EntityType.ITEM, drop.resource_name)
-            resolved_display_name = resolver.resolve_display_name(stable_key, drop.item_name)
+            item_link = self._resolver.item_link(drop.item_stable_key)
+            display_name = self._resolver.resolve_display_name(drop.item_stable_key)
 
             probability_text = f"{drop.drop_probability:.1f}%"
             entry_with_pct = f"{item_link} ({probability_text})"
@@ -347,11 +339,11 @@ class CharacterTemplateGenerator(TemplateGeneratorBase):
             if refs:
                 entry_with_pct += "".join(refs)
 
-            sort_key = (-drop.drop_probability, resolved_display_name.lower())
-            all_entries.append((sort_key[0], entry_with_pct))
+            sort_key = (-drop.drop_probability, display_name.lower())
+            all_entries.append((sort_key, entry_with_pct))
 
             if drop.is_guaranteed:
-                guaranteed_entries.append((resolved_display_name.lower(), item_link))
+                guaranteed_entries.append((display_name.lower(), item_link))
 
         def _join_entries(entries: Sequence[tuple[float | str, str]]) -> str:
             if not entries:

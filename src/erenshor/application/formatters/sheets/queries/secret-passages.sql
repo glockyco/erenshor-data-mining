@@ -10,5 +10,5 @@ SELECT
     'https://erenshor-maps.wowmuch1.workers.dev/' || za.SceneName || '?coordinateId=' || c.Id AS MapLink
 FROM SecretPassages sp
 JOIN Coordinates c ON c.SecretPassageId = sp.Id
-JOIN ZoneAnnounces za ON za.SceneName = c.Scene
+JOIN Zones za ON za.SceneName = c.Scene
 ORDER BY za.ZoneName;

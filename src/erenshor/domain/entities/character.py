@@ -7,8 +7,6 @@ all friendly and non-friendly NPCs, creatures, etc.
 from pydantic import Field
 
 from erenshor.domain.value_objects.faction import FactionModifier
-from erenshor.registry.resource_names import build_stable_key, normalize_resource_name
-from erenshor.registry.schema import EntityType
 
 from .base import BaseEntity
 
@@ -23,12 +21,8 @@ class Character(BaseEntity):
     """
 
     # Primary keys and identifiers
-    id: int = Field(description="Database ID (primary key)")
+    stable_key: str | None = Field(default=None, description="Stable key from database (primary key)")
     coordinate_id: int | None = Field(default=None, description="Coordinate reference")
-    # Prefabs and non-prefabs have different GUID formats:
-    # - Example prefab GUID: "0075a488310a97f4d84a3c31f2998a8a"
-    # - Example non-prefab GUID: "scene:Azure:2486006"
-    guid: str | None = Field(default=None, description="Unity GUID")
     object_name: str | None = Field(default=None, description="Stable object identifier")
     npc_name: str | None = Field(default=None, description="Display name")
 
@@ -39,7 +33,9 @@ class Character(BaseEntity):
     z: float | None = Field(default=None, description="Z coordinate")
 
     # Faction
-    my_world_faction: str | None = Field(default=None, description="World faction (Factions.REFNAME)")
+    my_world_faction_stable_key: str | None = Field(
+        default=None, description="World faction stable key (e.g., 'faction:good')"
+    )
     my_faction: str | None = Field(default=None, description="Faction")
     aggro_range: float | None = Field(default=None, description="Aggro detection range")
     attack_range: float | None = Field(default=None, description="Attack range")
@@ -124,8 +120,8 @@ class Character(BaseEntity):
     # - CharacterGroupHealSpellRecord, CharacterCCSpellRecord, CharacterTauntSpellRecord
 
     # Proc mechanics
-    pet_spell: str | None = Field(default=None, description="Pet summon spell ResourceName")
-    proc_on_hit: str | None = Field(default=None, description="Proc spell ResourceName")
+    pet_spell_stable_key: str | None = Field(default=None, description="Pet summon spell ResourceName")
+    proc_on_hit_stable_key: str | None = Field(default=None, description="Proc spell ResourceName")
     proc_on_hit_chance: float | None = Field(default=None, description="Proc chance percentage (0-100)")
 
     # Stat overrides
@@ -171,50 +167,3 @@ class Character(BaseEntity):
     items_for_sale: str | None = Field(default=None, description="Vendor inventory IDs")
     # LEGACY! Use junction table (ItemsForSale) instead of items_for_sale.
     # Example items_for_sale: "The Fall of Rockshade Hold, Strange Beasts of Erenshor, The Birth of Port Azure"
-
-    @property
-    def stable_key(self) -> str:
-        """Generate stable key for registry lookups.
-
-        Format depends on whether character is a prefab:
-        - Prefab: "character:object_name"
-        - Non-prefab: "character:object_name|scene|x|y|z"
-
-        Non-prefab characters (scene-specific instances) need coordinates
-        for unique identification since multiple different characters can
-        exist in the same scene.
-
-        Returns:
-            Stable key for registry lookups
-
-        Raises:
-            ValueError: If object_name is None
-        """
-        if self.object_name is None:
-            raise ValueError("Cannot generate stable_key: object_name is None")
-
-        # Prefab characters: simple object name
-        if self.is_prefab:
-            return build_stable_key(EntityType.CHARACTER, self.object_name)
-
-        # Non-prefab characters: include scene and coordinates
-        scene = self.scene if self.scene is not None else "Unknown"
-        x = f"{self.x:.2f}" if self.x is not None else "0.00"
-        y = f"{self.y:.2f}" if self.y is not None else "0.00"
-        z = f"{self.z:.2f}" if self.z is not None else "0.00"
-        identifier = f"{self.object_name}|{scene}|{x}|{y}|{z}"
-        return build_stable_key(EntityType.CHARACTER, identifier)
-
-    @property
-    def normalized_resource_name(self) -> str:
-        """Get normalized resource name for comparisons.
-
-        Returns:
-            Lowercase, whitespace-normalized object name
-
-        Raises:
-            ValueError: If object_name is None
-        """
-        if self.object_name is None:
-            raise ValueError("Cannot normalize: object_name is None")
-        return normalize_resource_name(self.object_name)

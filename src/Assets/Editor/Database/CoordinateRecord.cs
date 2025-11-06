@@ -20,7 +20,8 @@ public class CoordinateRecord
     [Indexed]
     public int? AchievementTriggerId { get; set; }
     [Indexed]
-    public int? CharacterId { get; set; }
+    [ForeignKey(typeof(CharacterRecord), "StableKey")]
+    public string? CharacterStableKey { get; set; }
     [Indexed]
     public int? DoorId { get; set; }
     [Indexed]

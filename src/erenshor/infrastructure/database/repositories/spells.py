@@ -34,6 +34,7 @@ class SpellRepository(BaseRepository[Spell]):
         """
         query = """
             SELECT
+                StableKey,
                 SpellDBIndex,
                 Id,
                 ResourceName,
@@ -42,7 +43,6 @@ class SpellRepository(BaseRepository[Spell]):
                 SpecialDescriptor,
                 Type,
                 Line,
-                Classes,
                 RequiredLevel,
                 ManaCost,
                 SimUsable,
@@ -65,7 +65,7 @@ class SpellRepository(BaseRepository[Spell]):
                 Lifetap,
                 DamageType,
                 ResistModifier,
-                AddProc,
+                AddProcStableKey,
                 AddProcChance,
                 HP,
                 AC,
@@ -95,8 +95,8 @@ class SpellRepository(BaseRepository[Spell]):
                 BreakOnDamage,
                 BreakOnAnyAction,
                 TauntSpell,
-                PetToSummonResourceName,
-                StatusEffectToApply,
+                PetToSummonStableKey,
+                StatusEffectToApplyStableKey,
                 ReapAndRenew,
                 ResonateChance,
                 XPBonus,
@@ -127,13 +127,13 @@ class SpellRepository(BaseRepository[Spell]):
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve spells for wiki: {e}") from e
 
-    def get_spell_by_spell_name(self, spell_name: str) -> Spell | None:
-        """Get single spell by spell name.
+    def get_spell_by_stable_key(self, stable_key: str) -> Spell | None:
+        """Get single spell by stable key.
 
-        Used by: Individual page updates, cross-references
+        Used by: Item enrichment (items reference spells via stable keys)
 
         Args:
-            spell_name: SpellName field value (display name)
+            stable_key: Spell stable key (format: 'spell:resource_name')
 
         Returns:
             Spell entity if found, None otherwise.
@@ -143,97 +143,50 @@ class SpellRepository(BaseRepository[Spell]):
         """
         query = """
             SELECT
+                StableKey,
                 SpellDBIndex,
-                Id,
-                ResourceName,
                 SpellName,
-                SpellDesc,
-                SpecialDescriptor,
-                Type,
-                Line,
-                Classes,
-                RequiredLevel,
-                ManaCost,
-                SimUsable,
-                Aggro,
-                SpellChargeTime,
-                Cooldown,
-                SpellDurationInTicks,
-                UnstableDuration,
-                InstantEffect,
-                SpellRange,
-                SelfOnly,
-                MaxLevelTarget,
-                GroupEffect,
-                CanHitPlayers,
-                ApplyToCaster,
-                TargetDamage,
-                TargetHealing,
-                CasterHealing,
-                ShieldingAmt,
-                Lifetap,
-                DamageType,
-                ResistModifier,
-                AddProc,
-                AddProcChance,
-                HP,
-                AC,
-                Mana,
-                PercentManaRestoration,
-                MovementSpeed,
-                Str,
-                Dex,
-                "End",
-                Agi,
-                Wis,
-                Int,
-                Cha,
-                MR,
-                ER,
-                PR,
-                VR,
-                DamageShield,
-                Haste,
-                PercentLifesteal,
-                AtkRollModifier,
-                BleedDamagePercent,
-                RootTarget,
-                StunTarget,
-                CharmTarget,
-                CrowdControlSpell,
-                BreakOnDamage,
-                BreakOnAnyAction,
-                TauntSpell,
-                PetToSummonResourceName,
-                StatusEffectToApply,
-                ReapAndRenew,
-                ResonateChance,
-                XPBonus,
-                AutomateAttack,
-                WornEffect,
-                SpellChargeFXIndex,
-                SpellResolveFXIndex,
-                SpellIconName,
-                ShakeDur,
-                ShakeAmp,
-                ColorR,
-                ColorG,
-                ColorB,
-                ColorA,
-                StatusEffectMessageOnPlayer,
-                StatusEffectMessageOnNPC
+                SpellDesc
             FROM Spells
-            WHERE SpellName = ?
+            WHERE StableKey = ?
             LIMIT 1
         """
 
         try:
-            rows = self._execute_raw(query, (spell_name,))
+            rows = self._execute_raw(query, (stable_key,))
             if not rows:
                 return None
             return self._row_to_spell(rows[0])
         except Exception as e:
-            raise RepositoryError(f"Failed to retrieve spell by spell_name={spell_name}: {e}") from e
+            raise RepositoryError(f"Failed to retrieve spell by stable_key={stable_key}: {e}") from e
+
+    def get_spell_classes(self, stable_key: str) -> list[str]:
+        """Get class restrictions for a spell from SpellClasses junction table.
+
+        Args:
+            stable_key: Spell stable key (format: 'spell:resource_name')
+
+        Returns:
+            List of class names that can use this spell (e.g., ["Arcanist", "Duelist"]).
+            Empty list means no class restrictions (item effects, enemy abilities, etc.).
+
+        Raises:
+            RepositoryError: If query execution fails
+        """
+        query = """
+            SELECT ClassName
+            FROM SpellClasses
+            WHERE SpellStableKey = ?
+            ORDER BY ClassName
+        """
+
+        try:
+            rows = self._execute_raw(query, (stable_key,))
+            classes = [row["ClassName"] for row in rows]
+            logger.debug(f"Retrieved {len(classes)} class restrictions for spell {stable_key}")
+            return classes
+        except Exception as e:
+            raise RepositoryError(f"Failed to retrieve spell classes for {stable_key}: {e}") from e
 
     def _row_to_spell(self, row: dict[str, object]) -> Spell:
         """Convert database row to Spell entity.

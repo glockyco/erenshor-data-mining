@@ -393,14 +393,15 @@ CREATE TABLE IF NOT EXISTS "Coordinates" (
 "ItemBagId" integer
 );
 
-CREATE TABLE IF NOT EXISTS "ZoneAnnounces" (
-"SceneName" varchar primary key not null ,
+CREATE TABLE IF NOT EXISTS "Zones" (
+"StableKey" varchar primary key not null ,
+"SceneName" varchar ,
 "ZoneName" varchar ,
 "IsDungeon" integer ,
 "Achievement" varchar ,
-"CompleteQuestOnEnter" varchar ,
-"CompleteSecondQuestOnEnter" varchar ,
-"AssignQuestOnEnter" varchar
+"CompleteQuestOnEnterStableKey" varchar ,
+"CompleteSecondQuestOnEnterStableKey" varchar ,
+"AssignQuestOnEnterStableKey" varchar
 );
 
 CREATE TABLE IF NOT EXISTS "MiningNodeItems" (
@@ -663,11 +664,11 @@ VALUES
 (2, 'TestZone', 100.0, 50.0, 200.0, 1),
 (3, 'TestZone', 150.0, 50.0, 250.0, 2);
 
--- ZoneAnnounces for test zones
-INSERT INTO ZoneAnnounces (SceneName, ZoneName, IsDungeon)
+-- Zones for test zones
+INSERT INTO Zones (StableKey, SceneName, ZoneName, IsDungeon)
 VALUES
-('TestZone', 'Test Zone', 0),
-('TestZone2', 'Test Zone 2', 0);
+('testzone', 'TestZone', 'Test Zone', 0),
+('testzone2', 'TestZone2', 'Test Zone 2', 0);
 
 -- Spawn points for characters
 INSERT INTO SpawnPoints (Id, CoordinateId, SpawnDelay1)

@@ -9,5 +9,5 @@ SELECT
     'https://erenshor-maps.wowmuch1.workers.dev/' || za.SceneName || '?coordinateId=' || c.Id AS MapLink
 FROM AchievementTriggers at
 JOIN Coordinates c ON c.AchievementTriggerId = at.Id
-JOIN ZoneAnnounces za ON za.SceneName = c.Scene
+JOIN Zones za ON za.SceneName = c.Scene
 ORDER BY za.ZoneName;
