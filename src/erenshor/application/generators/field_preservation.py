@@ -185,6 +185,7 @@ DEFAULT_PRESERVATION_RULES: dict[str, dict[str, str]] = {
         # Location fields - prefer database but fallback to wiki if DB has no data
         "zones": "prefer_database",  # From coordinate (non-prefab), spawn point (prefab) or manual (fallback)
         "coordinates": "prefer_database",  # From coordinate (non-prefab), spawn point (prefab) or manual (fallback)
+        "respawn": "prefer_database",  # From spawn point (prefab) or manual (fallback)
         # All other fields implicitly use "override" (default)
     },
     "Ability": {
