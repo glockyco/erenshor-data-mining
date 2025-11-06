@@ -1576,8 +1576,8 @@
     },
     "character:Snappy": {
       "wiki_page_name": "Thorn (Enemy)",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Thorn",
+      "image_name": "Thorn Boss",
       "mapping_type": "custom",
       "reason": null
     },
