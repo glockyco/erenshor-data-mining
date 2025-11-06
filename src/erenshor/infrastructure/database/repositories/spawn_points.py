@@ -84,6 +84,7 @@ class SpawnPointRepository(BaseRepository[SpawnPoint]):
             WHERE spc.CharacterGuid = ?
               AND COALESCE(spc.SpawnChance, 0) > 0
               AND co.Scene IS NOT NULL
+              AND sp.IsEnabled = 1
             ORDER BY co.Scene COLLATE NOCASE, co.X, co.Y, co.Z
         """
 
