@@ -229,9 +229,9 @@ class CharacterTemplateGenerator(TemplateGeneratorBase):
             max_chance = max(zone_chances)
 
             if min_chance == max_chance:
-                display = f"{int(min_chance)}%"
+                display = f"{round(min_chance)}%"
             else:
-                display = f"{int(min_chance)}-{int(max_chance)}%"
+                display = f"{round(min_chance)}-{round(max_chance)}%"
 
             # Include zone name only if character spawns in multiple zones
             if len(zones_sorted) > 1:
