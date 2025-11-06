@@ -257,7 +257,10 @@ class RegistryResolver:
             >>> resolver.zone_link("Azure", "Port Azure")
             "[[Port Azure]]"
         """
-        stable_key = f"zone:{scene_name}"
+        from .resource_names import build_stable_key
+        from .schema import EntityType
+
+        stable_key = build_stable_key(EntityType.ZONE, scene_name)
         page_title = self.resolve_page_title(stable_key, zone_display_name)
 
         if page_title is None:
