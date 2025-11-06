@@ -44,15 +44,76 @@ class RegistryResolver:
     to entity name fields when no override exists.
     """
 
-    def __init__(self, registry_db_path: Path) -> None:
+    def __init__(self, registry_db_path: Path, mapping_json_path: Path | None = None) -> None:
         """Initialize the resolver with a registry database.
+
+        If the registry database doesn't exist or is empty, it will be automatically
+        initialized and populated from mapping.json.
+
+        If mapping.json is newer than registry.db, the registry will be rebuilt.
 
         Args:
             registry_db_path: Path to the registry database file
+            mapping_json_path: Path to mapping.json (defaults to repo_root/mapping.json)
         """
         self.registry_db_path = registry_db_path
+
+        # Determine mapping.json path
+        if mapping_json_path is None:
+            # Default to mapping.json in repo root (parent of registry.db)
+            mapping_json_path = registry_db_path.parent / "mapping.json"
+
+        if not mapping_json_path.exists():
+            raise FileNotFoundError(f"Cannot initialize registry: mapping.json not found at {mapping_json_path}")
+
+        # Check if registry needs initialization or rebuild
+        needs_init = False
+        if not registry_db_path.exists():
+            logger.info(f"Registry database not found at {registry_db_path}, will initialize")
+            needs_init = True
+        elif registry_db_path.stat().st_size == 0:
+            logger.info(f"Registry database is empty at {registry_db_path}, will initialize")
+            needs_init = True
+        elif mapping_json_path.stat().st_mtime > registry_db_path.stat().st_mtime:
+            logger.info(
+                f"mapping.json is newer than registry.db "
+                f"(mapping: {mapping_json_path.stat().st_mtime:.0f}, "
+                f"registry: {registry_db_path.stat().st_mtime:.0f}), will rebuild"
+            )
+            needs_init = True
+
+        if needs_init:
+            self._build_registry(registry_db_path, mapping_json_path)
+
         self.engine = create_engine(f"sqlite:///{registry_db_path}")
         logger.debug(f"RegistryResolver initialized with database: {registry_db_path}")
+
+    def _build_registry(self, db_path: Path, mapping_path: Path) -> None:
+        """Build registry database from mapping.json.
+
+        Args:
+            db_path: Path to create registry database
+            mapping_path: Path to mapping.json
+        """
+        from .operations import initialize_registry, load_mapping_json
+
+        logger.info(f"Building registry database from {mapping_path}")
+
+        # Delete old database if it exists (for clean rebuild)
+        if db_path.exists():
+            logger.debug(f"Removing existing registry database: {db_path}")
+            db_path.unlink()
+
+        # Initialize empty database
+        initialize_registry(db_path)
+
+        # Load mapping.json
+        temp_engine = create_engine(f"sqlite:///{db_path}")
+        with Session(temp_engine) as session:
+            count = load_mapping_json(session, mapping_path)
+            session.commit()
+
+        logger.info(f"Registry built successfully: {count} entities loaded")
 
     def resolve_page_title(self, stable_key: str, entity_name: str) -> str | None:
         """Resolve entity stable key to wiki page title.
