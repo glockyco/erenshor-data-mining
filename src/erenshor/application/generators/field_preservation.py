@@ -8,10 +8,17 @@ Core concept: When regenerating wiki pages, some template fields should keep the
 existing values rather than being overwritten with fresh database values.
 
 Design principles (from Phase 3 feedback):
-- Keep it simple: 4 handlers only (override, preserve, prefer_manual, custom)
+- Keep it simple: 5 handlers (override, preserve, prefer_manual, prefer_database, custom)
 - Template-specific rules
 - Default behavior is override (always use new database value)
 - Configuration via Python dict (easy to migrate to TOML later)
+
+Handlers:
+- override: Always use new database value (default)
+- preserve: Always keep existing wiki value
+- prefer_manual: Use wiki value if non-empty, else database value
+- prefer_database: Use database value if non-empty, else wiki value
+- custom: Register your own handler function
 
 Example:
     >>> config = FieldPreservationConfig()
@@ -121,6 +128,24 @@ def prefer_manual_handler(old_value: str, new_value: str, context: dict[str, Any
     return old_value if old_value and old_value.strip() else new_value
 
 
+def prefer_database_handler(old_value: str, new_value: str, context: dict[str, Any]) -> str:
+    """Use database value if non-empty, else keep wiki value.
+
+    This is the inverse of prefer_manual. It's useful for fields that should
+    normally be generated from the database, but if database doesn't have data,
+    we should preserve whatever is in the wiki (could be manual or from previous export).
+
+    Args:
+        old_value: Existing wiki field value
+        new_value: New database value
+        context: Additional context (unused)
+
+    Returns:
+        New value if non-empty, else old value
+    """
+    return new_value if new_value and new_value.strip() else old_value
+
+
 # Default preservation rules per template
 DEFAULT_PRESERVATION_RULES: dict[str, dict[str, str]] = {
     "Item": {
@@ -202,6 +227,7 @@ class FieldPreservationConfig:
             "override": override_handler,
             "preserve": preserve_handler,
             "prefer_manual": prefer_manual_handler,
+            "prefer_database": prefer_database_handler,
         }
         if handlers:
             self._handlers.update(handlers)
