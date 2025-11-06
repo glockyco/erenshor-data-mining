@@ -1744,8 +1744,8 @@
     },
     "character:Savannah Priel": {
       "wiki_page_name": "Savannah Priel (Character)",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Savannah Priel",
+      "image_name": "Savannah Priel (Character)",
       "mapping_type": "custom",
       "reason": null
     },
