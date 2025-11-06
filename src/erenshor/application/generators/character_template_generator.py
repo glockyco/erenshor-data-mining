@@ -211,56 +211,95 @@ class CharacterTemplateGenerator(TemplateGeneratorBase):
         if all(c == 100.0 for c in chances):
             return ""
 
-        unique_chances = sorted(set(chances), reverse=True)
-        formatted_chances = [f"{int(chance)}%" for chance in unique_chances]
+        # Group spawn chances by zone
+        chances_by_zone: dict[str, list[float]] = {}
+        for info in spawn_infos:
+            chances_by_zone.setdefault(info.zone_display, []).append(info.spawn_chance)
+
+        # Get unique zones sorted alphabetically
+        zones_sorted = sorted(chances_by_zone.keys())
+
+        # Format spawn chances with zone names if multiple zones
+        formatted_chances: list[str] = []
+        for zone in zones_sorted:
+            zone_chances = chances_by_zone[zone]
+            min_chance = min(zone_chances)
+            max_chance = max(zone_chances)
+
+            if min_chance == max_chance:
+                display = f"{int(min_chance)}%"
+            else:
+                display = f"{int(min_chance)}-{int(max_chance)}%"
+
+            # Include zone name only if character spawns in multiple zones
+            if len(zones_sorted) > 1:
+                formatted_chances.append(f"{display} ({zone})")
+            else:
+                formatted_chances.append(display)
+
         return WIKITEXT_LINE_SEPARATOR.join(formatted_chances)
 
     def _format_respawn(self, spawn_infos: list[CharacterSpawnInfo]) -> str:
-        """Format respawn time for wiki template."""
+        """Format respawn time for wiki template.
+
+        Rounds to nearest minute for readability. Shows ranges if respawn times
+        differ within a zone.
+        """
         if not spawn_infos:
             return ""
 
-        respawn_by_zone: dict[str, float] = {}
+        # Group respawn times by zone and round to nearest minute
+        respawns_by_zone: dict[str, list[int]] = {}
         for spawn in spawn_infos:
             zone_display = spawn.zone_display
             base_respawn = spawn.base_respawn or 0.0
-            current_respawn = respawn_by_zone.get(zone_display)
-            if current_respawn is None:
-                respawn_by_zone[zone_display] = base_respawn
+            # Round to nearest minute
+            minutes = round(base_respawn / 60.0)
+            respawns_by_zone.setdefault(zone_display, []).append(minutes)
+
+        zones_sorted = sorted(respawns_by_zone.keys())
+
+        # Format respawn times with ranges if they differ within a zone
+        respawn_strs: list[tuple[str, str]] = []
+        for zone in zones_sorted:
+            zone_minutes = respawns_by_zone[zone]
+            min_minutes = min(zone_minutes)
+            max_minutes = max(zone_minutes)
+
+            if min_minutes == max_minutes:
+                time_str = self._minutes_to_duration(min_minutes)
             else:
-                respawn_by_zone[zone_display] = min(current_respawn, base_respawn)
+                time_str = f"{min_minutes}-{max_minutes} minutes"
 
-        zones_sorted = sorted(respawn_by_zone.keys())
-        respawn_strs = [(zone, self._seconds_to_duration(respawn_by_zone[zone])) for zone in zones_sorted]
+            respawn_strs.append((zone, time_str))
 
+        # Single zone - no zone name needed
         if len(respawn_strs) == 1:
             return respawn_strs[0][1]
 
+        # All zones have same time - no zone names needed
         unique_times = {time_str for _, time_str in respawn_strs}
         if len(unique_times) == 1:
             return respawn_strs[0][1]
 
+        # Multiple zones with different times - show zone names
         formatted = [f"{time_str} ({zone})" for zone, time_str in respawn_strs]
         return WIKITEXT_LINE_SEPARATOR.join(formatted)
 
-    def _seconds_to_duration(self, seconds: float) -> str:
-        """Convert seconds to human-readable duration."""
-        if seconds <= 0:
+    def _minutes_to_duration(self, minutes: int) -> str:
+        """Convert minutes to human-readable duration.
+
+        Args:
+            minutes: Number of minutes (already rounded)
+
+        Returns:
+            Human-readable duration string (e.g., "7 minutes", "1 minute")
+        """
+        if minutes <= 0:
             return ""
-
-        minutes = int(seconds // 60)
-        secs = int(seconds % 60)
-
-        if minutes > 0 and secs > 0:
-            min_str = f"{minutes} minute{'s' if minutes != 1 else ''}"
-            sec_str = f"{secs} second{'s' if secs != 1 else ''}"
-            return f"{min_str} {sec_str}"
-        if minutes > 0:
-            return f"{minutes} minute{'s' if minutes != 1 else ''}"
-        if secs > 0:
-            return f"{secs} second{'s' if secs != 1 else ''}"
-
-        return ""
+        if minutes == 1:
+            return "1 minute"
+        return f"{minutes} minutes"
 
     def _format_loot_drops(
         self,

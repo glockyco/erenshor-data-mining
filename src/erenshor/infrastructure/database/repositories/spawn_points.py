@@ -101,24 +101,18 @@ class SpawnPointRepository(BaseRepository[SpawnPoint]):
                 spawn_infos = [CharacterSpawnInfo.model_validate(dict(row)) for row in rows]
                 logger.debug(f"Retrieved {len(spawn_infos)} spawn point(s) for unique prefab {character_guid}")
             else:
-                # Non-unique characters: deduplicate by zone, omit coordinates
-                seen_zones = set()
+                # Non-unique characters: collect all spawn points per zone
+                # Keep all spawn chances/respawns so generator can calculate ranges
                 spawn_infos = []
                 for row in rows:
-                    zone = row["scene"]
-                    if zone not in seen_zones:
-                        seen_zones.add(zone)
-                        # Create spawn info without coordinates (zone only)
-                        spawn_data = dict(row)
-                        spawn_data["x"] = None
-                        spawn_data["y"] = None
-                        spawn_data["z"] = None
-                        spawn_infos.append(CharacterSpawnInfo.model_validate(spawn_data))
+                    # Create spawn info without coordinates (zone only)
+                    spawn_data = dict(row)
+                    spawn_data["x"] = None
+                    spawn_data["y"] = None
+                    spawn_data["z"] = None
+                    spawn_infos.append(CharacterSpawnInfo.model_validate(spawn_data))
 
-                logger.debug(
-                    f"Retrieved {len(spawn_infos)} unique zones for non-unique prefab {character_guid} "
-                    f"(from {len(rows)} total spawn points)"
-                )
+                logger.debug(f"Retrieved {len(spawn_infos)} spawn points for non-unique prefab {character_guid}")
 
             return spawn_infos
         except Exception as e:

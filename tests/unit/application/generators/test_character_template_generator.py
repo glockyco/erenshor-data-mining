@@ -20,6 +20,11 @@ def mock_resolver():
     """Create mock registry resolver."""
     resolver = MagicMock()
     resolver.resolve_page_title.return_value = "Test Character"
+    resolver.resolve_display_name.return_value = "Test Character"
+    resolver.resolve_image_name.return_value = "Test Character"
+    resolver.faction_link.return_value = ""
+    resolver.zone_link.return_value = "[[Test Zone]]"
+    resolver.item_link.return_value = "{{ItemLink|Test Item}}"
     return resolver
 
 
@@ -291,3 +296,309 @@ class TestExperienceCalculation:
         # Should show single value (100*2 = 200)
         assert "|experience=200" in template
         assert "200-200" not in template
+
+
+class TestSpawnChanceFormatting:
+    """Test spawn chance formatting with multiple spawn points per zone."""
+
+    def test_single_spawn_chance_single_zone(self, generator, mock_enriched, mock_resolver):
+        """Single spawn point should show simple percentage without zone name."""
+        from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
+
+        character = Character(
+            id=1,
+            object_name="Test",
+            npc_name="Test Rare",
+            guid="test-guid",
+            level=10,
+            is_rare=1,
+        )
+        mock_enriched.character = character
+        mock_enriched.spawn_infos = [
+            CharacterSpawnInfo(
+                scene="TestZone",
+                zone_display="Test Zone",
+                base_respawn=300.0,
+                x=None,
+                y=None,
+                z=None,
+                spawn_chance=25.0,
+                is_rare=1,
+                is_unique=False,
+            )
+        ]
+
+        template = generator.generate_template(mock_enriched, "Test Rare", mock_resolver)
+
+        assert "|spawnchance=25%" in template
+        # Spawn chance should not include zone name for single zone
+        assert "25% (Test Zone)" not in template
+
+    def test_spawn_chance_range_single_zone(self, generator, mock_enriched, mock_resolver):
+        """Multiple spawn points with different chances in same zone should show range."""
+        from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
+
+        character = Character(
+            id=1,
+            object_name="Test",
+            npc_name="Test Rare",
+            guid="test-guid",
+            level=10,
+            is_rare=1,
+        )
+        mock_enriched.character = character
+        mock_enriched.spawn_infos = [
+            CharacterSpawnInfo(
+                scene="TestZone",
+                zone_display="Test Zone",
+                base_respawn=300.0,
+                x=None,
+                y=None,
+                z=None,
+                spawn_chance=3.0,
+                is_rare=1,
+                is_unique=False,
+            ),
+            CharacterSpawnInfo(
+                scene="TestZone",
+                zone_display="Test Zone",
+                base_respawn=300.0,
+                x=None,
+                y=None,
+                z=None,
+                spawn_chance=25.0,
+                is_rare=1,
+                is_unique=False,
+            ),
+        ]
+
+        template = generator.generate_template(mock_enriched, "Test Rare", mock_resolver)
+
+        assert "|spawnchance=3-25%" in template
+        # Spawn chance should not include zone name for single zone
+        assert "3-25% (Test Zone)" not in template
+
+    def test_spawn_chance_multiple_zones(self, generator, mock_enriched, mock_resolver):
+        """Multiple zones should show zone names with spawn chances."""
+        from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
+
+        character = Character(
+            id=1,
+            object_name="Test",
+            npc_name="Test Rare",
+            guid="test-guid",
+            level=10,
+            is_rare=1,
+        )
+        mock_enriched.character = character
+        mock_enriched.spawn_infos = [
+            CharacterSpawnInfo(
+                scene="ZoneA",
+                zone_display="Zone A",
+                base_respawn=300.0,
+                x=None,
+                y=None,
+                z=None,
+                spawn_chance=5.0,
+                is_rare=1,
+                is_unique=False,
+            ),
+            CharacterSpawnInfo(
+                scene="ZoneB",
+                zone_display="Zone B",
+                base_respawn=300.0,
+                x=None,
+                y=None,
+                z=None,
+                spawn_chance=3.0,
+                is_rare=1,
+                is_unique=False,
+            ),
+            CharacterSpawnInfo(
+                scene="ZoneB",
+                zone_display="Zone B",
+                base_respawn=300.0,
+                x=None,
+                y=None,
+                z=None,
+                spawn_chance=25.0,
+                is_rare=1,
+                is_unique=False,
+            ),
+        ]
+
+        template = generator.generate_template(mock_enriched, "Test Rare", mock_resolver)
+
+        assert "|spawnchance=5% (Zone A)<br>3-25% (Zone B)" in template
+
+
+class TestRespawnTimeFormatting:
+    """Test respawn time formatting with rounding and ranges."""
+
+    def test_single_respawn_single_zone(self, generator, mock_enriched, mock_resolver):
+        """Single spawn point should show simple time without zone name."""
+        from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
+
+        character = Character(
+            id=1,
+            object_name="Test",
+            npc_name="Test Character",
+            guid="test-guid",
+            level=10,
+        )
+        mock_enriched.character = character
+        mock_enriched.spawn_infos = [
+            CharacterSpawnInfo(
+                scene="TestZone",
+                zone_display="Test Zone",
+                base_respawn=420.0,  # 7 minutes
+                x=None,
+                y=None,
+                z=None,
+                spawn_chance=100.0,
+                is_rare=False,
+                is_unique=False,
+            )
+        ]
+
+        template = generator.generate_template(mock_enriched, "Test Character", mock_resolver)
+
+        assert "|respawn=7 minutes" in template
+        # Respawn should not include zone name for single zone
+        assert "7 minutes (Test Zone)" not in template
+
+    def test_respawn_range_single_zone(self, generator, mock_enriched, mock_resolver):
+        """Multiple spawn points with different respawn times in same zone should show range."""
+        from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
+
+        character = Character(
+            id=1,
+            object_name="Test",
+            npc_name="Test Character",
+            guid="test-guid",
+            level=10,
+        )
+        mock_enriched.character = character
+        mock_enriched.spawn_infos = [
+            CharacterSpawnInfo(
+                scene="TestZone",
+                zone_display="Test Zone",
+                base_respawn=300.0,  # 5 minutes
+                x=None,
+                y=None,
+                z=None,
+                spawn_chance=100.0,
+                is_rare=False,
+                is_unique=False,
+            ),
+            CharacterSpawnInfo(
+                scene="TestZone",
+                zone_display="Test Zone",
+                base_respawn=480.0,  # 8 minutes
+                x=None,
+                y=None,
+                z=None,
+                spawn_chance=100.0,
+                is_rare=False,
+                is_unique=False,
+            ),
+        ]
+
+        template = generator.generate_template(mock_enriched, "Test Character", mock_resolver)
+
+        assert "|respawn=5-8 minutes" in template
+        # Respawn should not include zone name for single zone
+        assert "5-8 minutes (Test Zone)" not in template
+
+    def test_respawn_rounding_to_minutes(self, generator, mock_enriched, mock_resolver):
+        """Respawn times should be rounded to nearest minute."""
+        from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
+
+        character = Character(
+            id=1,
+            object_name="Test",
+            npc_name="Test Character",
+            guid="test-guid",
+            level=10,
+        )
+        mock_enriched.character = character
+        mock_enriched.spawn_infos = [
+            CharacterSpawnInfo(
+                scene="TestZone",
+                zone_display="Test Zone",
+                base_respawn=280.0,  # 4m 40s -> rounds to 5 minutes
+                x=None,
+                y=None,
+                z=None,
+                spawn_chance=100.0,
+                is_rare=False,
+                is_unique=False,
+            ),
+            CharacterSpawnInfo(
+                scene="TestZone",
+                zone_display="Test Zone",
+                base_respawn=460.0,  # 7m 40s -> rounds to 8 minutes
+                x=None,
+                y=None,
+                z=None,
+                spawn_chance=100.0,
+                is_rare=False,
+                is_unique=False,
+            ),
+        ]
+
+        template = generator.generate_template(mock_enriched, "Test Character", mock_resolver)
+
+        assert "|respawn=5-8 minutes" in template
+
+    def test_respawn_multiple_zones(self, generator, mock_enriched, mock_resolver):
+        """Multiple zones should show zone names with respawn times."""
+        from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
+
+        character = Character(
+            id=1,
+            object_name="Test",
+            npc_name="Test Character",
+            guid="test-guid",
+            level=10,
+        )
+        mock_enriched.character = character
+        mock_enriched.spawn_infos = [
+            CharacterSpawnInfo(
+                scene="ZoneA",
+                zone_display="Zone A",
+                base_respawn=180.0,  # 3 minutes
+                x=None,
+                y=None,
+                z=None,
+                spawn_chance=100.0,
+                is_rare=False,
+                is_unique=False,
+            ),
+            CharacterSpawnInfo(
+                scene="ZoneB",
+                zone_display="Zone B",
+                base_respawn=300.0,  # 5 minutes
+                x=None,
+                y=None,
+                z=None,
+                spawn_chance=100.0,
+                is_rare=False,
+                is_unique=False,
+            ),
+            CharacterSpawnInfo(
+                scene="ZoneB",
+                zone_display="Zone B",
+                base_respawn=480.0,  # 8 minutes
+                x=None,
+                y=None,
+                z=None,
+                spawn_chance=100.0,
+                is_rare=False,
+                is_unique=False,
+            ),
+        ]
+
+        template = generator.generate_template(mock_enriched, "Test Character", mock_resolver)
+
+        assert "|respawn=3 minutes (Zone A)<br>5-8 minutes (Zone B)" in template
