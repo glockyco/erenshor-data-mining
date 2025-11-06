@@ -365,17 +365,17 @@
     },
     "item:GEN - Braxonian Scripture": {
       "wiki_page_name": "Braxonian Scripture",
-      "display_name": null,
+      "display_name": "Braxonian Scripture (2)",
       "image_name": null,
       "mapping_type": "custom",
-      "reason": null
+      "reason": "Two items with same name, disambiguated by display text"
     },
     "item:GEN - Braxonian Scripture 1": {
       "wiki_page_name": "Braxonian Scripture",
-      "display_name": null,
+      "display_name": "Braxonian Scripture (1)",
       "image_name": null,
       "mapping_type": "custom",
-      "reason": null
+      "reason": "Two items with same name, disambiguated by display text"
     },
     "character:Character_Peasant_White|PrielPlateau|73.57|0.05|343.45": {
       "wiki_page_name": "Captive Miner",
@@ -1904,11 +1904,11 @@
       "reason": "Remove trailing space from item name"
     },
     "item:GEN - Scribbles of a mad priest 4": {
-      "wiki_page_name": null,
-      "display_name": null,
-      "image_name": null,
-      "mapping_type": "exclude",
-      "reason": "Exclude from wiki"
+      "wiki_page_name": "Scribbles of a Mad Priest",
+      "display_name": "Scribbles of a Mad Priest",
+      "image_name": "Scribbles of a Mad Priest",
+      "mapping_type": "custom",
+      "reason": null
     },
     "skill:Fishing": {
       "wiki_page_name": null,
