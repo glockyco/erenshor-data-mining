@@ -1986,6 +1986,27 @@
       "image_name": null,
       "mapping_type": "custom",
       "reason": "Distinguish the three portal zones"
+    },
+    "character:leah": {
+      "wiki_page_name": "Leah",
+      "display_name": null,
+      "image_name": "Leah Body",
+      "mapping_type": "custom",
+      "reason": "Distinguish from the watchlight"
+    },
+    "character:posta": {
+      "wiki_page_name": "Posta",
+      "display_name": null,
+      "image_name": "Posta's Body",
+      "mapping_type": "custom",
+      "reason": "Distinguish from the watchlight"
+    },
+    "character:revid": {
+      "wiki_page_name": "Revid",
+      "display_name": null,
+      "image_name": "Revid Body",
+      "mapping_type": "custom",
+      "reason": "Distinguish from the watchlight"
     }
   }
 }
