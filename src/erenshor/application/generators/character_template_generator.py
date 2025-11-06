@@ -22,6 +22,8 @@ from erenshor.domain.entities.character import Character
 from erenshor.domain.value_objects.loot import LootDropInfo
 from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
 from erenshor.registry.resolver import RegistryResolver
+from erenshor.registry.resource_names import build_stable_key
+from erenshor.registry.schema import EntityType
 
 if TYPE_CHECKING:
     from erenshor.application.services.character_enricher import EnrichedCharacterData
@@ -327,7 +329,7 @@ class CharacterTemplateGenerator(TemplateGeneratorBase):
                 continue  # Zero probability drops are valid (disabled drops)
 
             item_link = resolver.item_link(drop.resource_name, drop.item_name)
-            stable_key = f"item:{drop.resource_name}"
+            stable_key = build_stable_key(EntityType.ITEM, drop.resource_name)
             resolved_display_name = resolver.resolve_display_name(stable_key, drop.item_name)
 
             probability_text = f"{drop.drop_probability:.1f}%"

@@ -184,7 +184,10 @@ class RegistryResolver:
             >>> resolver.item_link("IronSword", "Iron Sword")
             "{{ItemLink|Iron Sword}}"
         """
-        stable_key = f"item:{resource_name}"
+        from .resource_names import build_stable_key
+        from .schema import EntityType
+
+        stable_key = build_stable_key(EntityType.ITEM, resource_name)
         page_title = self.resolve_page_title(stable_key, item_name)
 
         if page_title is None:
@@ -226,7 +229,10 @@ class RegistryResolver:
             >>> resolver.faction_link("AzureCitizens", "The Citizens of Port Azure")
             "[[The Citizens of Port Azure]]"
         """
-        stable_key = f"faction:{faction_refname}"
+        from .resource_names import build_stable_key
+        from .schema import EntityType
+
+        stable_key = build_stable_key(EntityType.FACTION, faction_refname)
         page_title = self.resolve_page_title(stable_key, faction_display_name)
 
         if page_title is None:
