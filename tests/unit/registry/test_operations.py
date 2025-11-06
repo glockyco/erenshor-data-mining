@@ -440,7 +440,7 @@ class TestMigrateFromMappingJson:
 
         # Should include the excluded spell entry with excluded=True
         excluded_entity = next(
-            (e for e in entities if e.resource_name == "NONE - Offering Stone"),
+            (e for e in entities if e.resource_name == "none - offering stone"),
             None,
         )
         assert excluded_entity is not None
