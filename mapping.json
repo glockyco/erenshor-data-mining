@@ -2007,6 +2007,13 @@
       "image_name": "Revid Body",
       "mapping_type": "custom",
       "reason": "Distinguish from the watchlight"
+    },
+    "character:summoned: brute": {
+      "wiki_page_name": "Summoned: Brute",
+      "display_name": "Summoned: Brute",
+      "image_name": "Summoned Brute",
+      "mapping_type": "custom",
+      "reason": null
     }
   }
 }
