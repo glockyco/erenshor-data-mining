@@ -14,7 +14,20 @@ class PageNormalizer:
     """Normalize wiki page content."""
 
     LEGACY_CATEGORIES: ClassVar[set[str]] = {
+        "[[Category:Duskenlight Coast]]",
+        "[[Category:Duskenlight_Coast]]",
+        "[[Category:Elderstone Mines]]",
+        "[[Category:Loomingwood]]",
         "[[Category:The Bone Pits]]",
+        "[[Category: Bosses]]",
+        "[[Category: Enemies]]",
+        "[[Category: Abyssal Lake]]",
+        "[[Category: Faerie's Brake]]",
+        "[[Category: Hidden Hills]]",
+        "[[Category: Island Tomb]]",
+        "[[Category: Soluna's Landing]]",
+        "[[Category: Stowaway's Step]]",
+        "[[Category: Vendors]]",
     }
 
     def normalize(self, wikitext: str, new_wikitext: str | None = None) -> str:
