@@ -16,49 +16,15 @@ public class ItemListener : IAssetScanListener<Item>
     private readonly List<CraftingRecipeRecord> _craftingRecipeRecords = new();
     private readonly List<CraftingRewardRecord> _craftingRewardRecords = new();
 
-    private readonly WikiFancyWeaponFactory _weaponFactory;
-    private readonly WikiFancyArmorFactory _armorFactory;
-
-    private static readonly HashSet<string> WeaponSlots = new(StringComparer.OrdinalIgnoreCase)
-    {
-        "PrimaryOrSecondary", "Primary", "Secondary"
-    };
-    
-    private static readonly HashSet<string> ArmorSlots = new(StringComparer.OrdinalIgnoreCase)
-    {
-        "Charm", "Head", "Neck", "Ring", "Hand", "Chest", "Shoulder", "Arm", "Bracer", "Leg", "Waist", "Foot", "Back"
-    };
-
     private const float VendorBuybackPercentage = 0.65f;
 
     public ItemListener(SQLiteConnection db)
     {
         _db = db;
-        _weaponFactory = new WikiFancyWeaponFactory(db);
-        _armorFactory = new WikiFancyArmorFactory(db);
     }
 
     public void OnScanFinished()
     {
-        foreach (var itemRecord in _itemRecords)
-        {
-            foreach (var itemStatsRecord in _itemStatsRecords.Where(itemStatsRecord => itemStatsRecord.ItemResourceName == itemRecord.ResourceName))
-            {
-                if (WeaponSlots.Contains(itemRecord.RequiredSlot))
-                {
-                    itemStatsRecord.WikiString = _weaponFactory.Create(itemRecord, itemStatsRecord).ToString();
-                }
-                else if (ArmorSlots.Contains(itemRecord.RequiredSlot))
-                {
-                    itemStatsRecord.WikiString = _armorFactory.Create(itemRecord, itemStatsRecord).ToString();
-                }
-                else
-                {
-                    itemStatsRecord.WikiString = "";
-                }
-            }
-        }
-        
         _db.RunInTransaction(() =>
         {
             _db.DropTable<ItemRecord>();

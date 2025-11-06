@@ -40,6 +40,4 @@ public class ItemStatsRecord
     public float ChaScaling { get; set; }
     public float ResistScaling { get; set; }
     public float MitigationScaling { get; set; }
-
-    public string WikiString { get; set; } = string.Empty;
 }
