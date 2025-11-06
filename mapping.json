@@ -1937,6 +1937,27 @@
       "image_name": null,
       "mapping_type": "custom",
       "reason": "Fix typo lowercase 'the' in FactionDesc"
+    },
+    "character:ancient demon": {
+      "wiki_page_name": null,
+      "display_name": null,
+      "image_name": null,
+      "mapping_type": "excluded",
+      "reason": "Excluded from wiki"
+    },
+    "character:ancient skeleton": {
+      "wiki_page_name": null,
+      "display_name": null,
+      "image_name": null,
+      "mapping_type": "excluded",
+      "reason": "Excluded from wiki"
+    },
+    "character:ancient horror": {
+      "wiki_page_name": null,
+      "display_name": null,
+      "image_name": null,
+      "mapping_type": "excluded",
+      "reason": "Excluded from wiki"
     }
   }
 }
