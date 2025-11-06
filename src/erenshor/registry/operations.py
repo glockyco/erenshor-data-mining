@@ -141,7 +141,7 @@ def register_entity(
     session.commit()
     session.refresh(entity)
 
-    logger.info(
+    logger.debug(
         f"Registered new entity: {entity_type.value}:{resource_name} "
         f"(id={entity.id}, page_title={page_title!r}, excluded={excluded})"
     )

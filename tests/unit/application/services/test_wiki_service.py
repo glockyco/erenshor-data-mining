@@ -449,10 +449,6 @@ Manual content that should be preserved."""
         assert result.succeeded == 1
         assert result.total == 1
 
-        # Verify warning about legacy template migration
-        assert len(result.warnings) == 1
-        assert "Legacy templates migrated" in result.warnings[0]
-
         # Read generated content
         generated_content = mock_storage.read_generated_by_title("Test Character")
         assert generated_content is not None

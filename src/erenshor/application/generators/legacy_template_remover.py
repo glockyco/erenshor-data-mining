@@ -144,7 +144,7 @@ class LegacyTemplateRemover:
             logger.debug("Empty wikitext, nothing to process")
             return wikitext
 
-        logger.info("Processing wikitext for legacy templates")
+        logger.debug("Processing wikitext for legacy templates")
 
         # Parse wikitext into AST
         code = self.parser.parse(wikitext)
@@ -157,7 +157,7 @@ class LegacyTemplateRemover:
         if self.TEMPLATES_TO_REMOVE:
             templates_to_remove = self.parser.find_templates(code, list(self.TEMPLATES_TO_REMOVE))
             for template in templates_to_remove:
-                logger.info(f"Removing deprecated template: {{{{{str(template.name).strip()}}}}}")
+                logger.debug(f"Removing deprecated template: {{{{{str(template.name).strip()}}}}}")
                 self.parser.remove_template(code, template)
                 removals_count += 1
 
@@ -169,7 +169,7 @@ class LegacyTemplateRemover:
             if not legacy_templates:
                 continue
 
-            logger.info(f"Found {len(legacy_templates)} instances of legacy template {{{{{legacy_name}}}}}")
+            logger.debug(f"Found {len(legacy_templates)} instances of legacy template {{{{{legacy_name}}}}}")
 
             for template in legacy_templates:
                 # Get all parameters
@@ -189,7 +189,7 @@ class LegacyTemplateRemover:
 
         # Log summary
         if replacements_count > 0 or removals_count > 0:
-            logger.info(f"Legacy template migration complete: {replacements_count} replaced, {removals_count} removed")
+            logger.debug(f"Legacy template migration complete: {replacements_count} replaced, {removals_count} removed")
         else:
             logger.debug("No legacy templates found")
 

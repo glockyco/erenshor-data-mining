@@ -217,9 +217,7 @@ class WikiGenerateService:
                     # we try to merge Enemy fields, avoiding duplicate templates
                     if self._legacy_remover.has_legacy_templates(existing):
                         migrated_content = self._legacy_remover.remove_legacy_templates(existing)
-                        info = f"Legacy templates migrated: {page.title}"
-                        warnings.append(info)
-                        self._console.print(f"[blue]i[/blue] {info}")
+                        logger.debug(f"Legacy templates migrated: {page.title}")
                     else:
                         migrated_content = existing
 

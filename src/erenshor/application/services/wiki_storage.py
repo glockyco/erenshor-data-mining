@@ -281,7 +281,13 @@ class WikiStorage:
         content_hash = hashlib.sha256(content.encode("utf-8")).hexdigest()
 
         metadata = self._load_metadata()
+        content_changed = False
+
         if page_title in metadata:
+            # Check if content actually changed
+            old_hash = metadata[page_title].generated_hash
+            content_changed = old_hash != content_hash
+
             metadata[page_title].generated_at = datetime.now().isoformat()
             metadata[page_title].generated_hash = content_hash
         else:
@@ -294,9 +300,15 @@ class WikiStorage:
                 generated_at=datetime.now().isoformat(),
                 generated_hash=content_hash,
             )
+            content_changed = True  # New page counts as changed
+
         self._save_metadata(metadata)
 
-        logger.debug(f"Saved generated page: {page_title} ({len(stable_keys)} entities)")
+        # Only log at INFO level when content actually changed
+        if content_changed:
+            logger.info(f"Updated: {page_title}")
+        else:
+            logger.debug(f"No changes: {page_title}")
 
     def read_generated_by_title(self, page_title: str) -> str | None:
         """Read generated page content by title.
