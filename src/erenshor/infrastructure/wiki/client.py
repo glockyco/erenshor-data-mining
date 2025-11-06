@@ -527,6 +527,7 @@ class MediaWikiClient:
         content: str,
         summary: str | None = None,
         minor: bool | None = None,
+        bot: bool = True,
         create_only: bool = False,
         no_create: bool = False,
     ) -> None:
@@ -539,6 +540,7 @@ class MediaWikiClient:
             content: New page content (wikitext).
             summary: Edit summary (defaults to self.edit_summary).
             minor: Mark as minor edit (defaults to self.minor_edit).
+            bot: Mark as bot edit (requires bot permissions).
             create_only: Only create page if it doesn't exist (fails if page exists).
             no_create: Only edit existing page (fails if page doesn't exist).
 
@@ -581,6 +583,8 @@ class MediaWikiClient:
         # Add optional flags
         if minor:
             data["minor"] = "1"
+        if bot:
+            data["bot"] = "1"
         if create_only:
             data["createonly"] = "1"
         if no_create:
