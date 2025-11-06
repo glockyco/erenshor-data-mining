@@ -420,7 +420,7 @@ class TestDefaultRules:
 
     def test_all_templates_have_valid_handler_names(self) -> None:
         """All rules should reference valid handler names."""
-        valid_handlers = {"override", "preserve", "prefer_manual"}
+        valid_handlers = {"override", "preserve", "prefer_manual", "prefer_database"}
 
         for template_name, field_rules in DEFAULT_PRESERVATION_RULES.items():
             for field_name, handler_name in field_rules.items():
