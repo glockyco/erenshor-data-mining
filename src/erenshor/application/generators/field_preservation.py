@@ -182,14 +182,10 @@ DEFAULT_PRESERVATION_RULES: dict[str, dict[str, str]] = {
         # Manual edit fields only
         "imagecaption": "preserve",  # Custom image captions
         "type": "prefer_manual",  # NPC/Enemy/Boss classification (some manual, some DB)
-        # All other fields use default "override" behavior (regenerated from DB):
-        # - factionChange: from Character.FactionModifiers
-        # - zones: from SpawnPoint data or Character.Zone
-        # - coordinates: from Character X/Y/Z or SpawnPoint
-        # - spawnchance: from SpawnPoint.SpawnChance
-        # - respawn: from SpawnPoint.BaseRespawn
-        # - guaranteeddrops: from LootTable
-        # - droprates: from LootTable
+        # Location fields - prefer database but fallback to wiki if DB has no data
+        "zones": "prefer_database",  # From coordinate (non-prefab), spawn point (prefab) or manual (fallback)
+        "coordinates": "prefer_database",  # From coordinate (non-prefab), spawn point (prefab) or manual (fallback)
+        # All other fields implicitly use "override" (default)
     },
     "Ability": {
         "description": "preserve",  # Manual ability descriptions
