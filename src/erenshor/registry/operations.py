@@ -25,7 +25,7 @@ from pathlib import Path
 from loguru import logger
 from sqlmodel import Session, SQLModel, create_engine, select
 
-from .resource_names import parse_stable_key
+from .resource_names import normalize_resource_name, parse_stable_key
 from .schema import ConflictRecord, EntityRecord, EntityType
 
 
@@ -467,6 +467,10 @@ def load_mapping_json(session: Session, mapping_path: Path) -> int:
         except ValueError as e:
             logger.warning(f"Skipping invalid stable key '{stable_key}': {e}")
             continue
+
+        # Normalize resource name to match build_stable_key() behavior
+        # This allows mapping.json to use any case (will be normalized to lowercase)
+        resource_name = normalize_resource_name(resource_name)
 
         # Check if entity is excluded (wiki_page_name explicitly null in mapping)
         # Note: We check if the key exists but value is null
