@@ -74,24 +74,15 @@ class WikiDeployService:
         # Filter by requested page titles if specified
         if page_titles:
             page_titles_set = set(page_titles)
-            deploy_titles = [t for t in all_generated_titles if t in page_titles_set]
+            candidate_titles = [t for t in all_generated_titles if t in page_titles_set]
             logger.info(
-                f"Filtered to {len(deploy_titles)} pages matching requested titles "
+                f"Filtered to {len(candidate_titles)} pages matching requested titles "
                 f"(out of {len(all_generated_titles)} total)"
             )
         else:
-            deploy_titles = all_generated_titles
+            candidate_titles = all_generated_titles
 
-        # Apply limit after filtering
-        if limit:
-            deploy_titles = deploy_titles[:limit]
-            logger.info(f"Limited to {len(deploy_titles)} pages")
-
-        total = len(deploy_titles)
-
-        self._console.print(f"\n[bold]Deploying {total} wiki pages...[/bold]\n")
-
-        if not deploy_titles:
+        if not candidate_titles:
             return OperationResult(
                 total=0,
                 succeeded=0,
@@ -101,13 +92,45 @@ class WikiDeployService:
                 errors=[],
             )
 
-        # Deploy each page with progress bar
+        # Login to wiki before deploying (required for edit operations)
+        if not dry_run:
+            try:
+                self._wiki_client.login()
+            except Exception as e:
+                error_msg = f"Failed to login to wiki: {e}"
+                logger.error(error_msg)
+                return OperationResult(
+                    total=len(candidate_titles),
+                    succeeded=0,
+                    failed=len(candidate_titles),
+                    skipped=0,
+                    warnings=[],
+                    errors=[error_msg],
+                )
+
+        self._console.print("\n[bold]Deploying wiki pages...[/bold]\n")
+
+        # Deploy each page with progress bar, respecting limit
         for page_title in track(
-            deploy_titles,
+            candidate_titles,
             description="Deploying pages",
-            total=total,
+            total=len(candidate_titles),
         ):
             try:
+                # Check if limit reached (limit applies to successful deployments only)
+                if limit and succeeded >= limit:
+                    logger.info(f"Reached deployment limit of {limit}")
+                    break
+
+                # Check if page should be deployed
+                page_metadata = metadata.get(page_title)
+                if page_metadata:
+                    should_deploy, reason = page_metadata.should_deploy()
+                    if not should_deploy:
+                        logger.debug(f"Skipping {page_title}: {reason}")
+                        skipped += 1
+                        continue
+
                 # Read generated content
                 content = self._storage.read_generated_by_title(page_title)
                 if not content:
@@ -122,8 +145,10 @@ class WikiDeployService:
                         self._wiki_client.edit_page(
                             title=page_title,
                             content=content,
-                            summary="Automated wiki page update from database",
+                            summary="Automated wiki update",
                         )
+                        # Update deployment metadata after successful upload
+                        self._storage.update_deployed(page_title, content)
                         succeeded += 1
                     except MediaWikiAPIError as e:
                         error_msg = f"Failed to upload {page_title}: {e}"

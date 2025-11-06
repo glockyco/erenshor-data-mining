@@ -40,6 +40,7 @@ Example:
 
 from __future__ import annotations
 
+import hashlib
 import json
 from dataclasses import dataclass
 from datetime import datetime
@@ -63,15 +64,22 @@ class PageMetadata:
             (e.g., ["spell:lingering_inferno", "skill:lingering_inferno"]).
         entity_names: List of human-readable entity names (parallel to stable_keys).
         fetched_at: ISO timestamp when page was fetched from wiki.
+        fetched_hash: SHA256 hash of fetched wiki content.
         generated_at: ISO timestamp when page was generated locally.
+        generated_hash: SHA256 hash of generated content.
+        deployed_at: ISO timestamp when page was deployed to wiki.
+        deployed_hash: SHA256 hash of deployed content.
     """
 
     page_title: str
     stable_keys: list[str]
     entity_names: list[str]
     fetched_at: str | None = None
+    fetched_hash: str | None = None
     generated_at: str | None = None
-    wiki_revision_id: int | None = None  # Latest revision ID from wiki when fetched
+    generated_hash: str | None = None
+    deployed_at: str | None = None
+    deployed_hash: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
@@ -80,8 +88,11 @@ class PageMetadata:
             "stable_keys": self.stable_keys,
             "entity_names": self.entity_names,
             "fetched_at": self.fetched_at,
+            "fetched_hash": self.fetched_hash,
             "generated_at": self.generated_at,
-            "wiki_revision_id": self.wiki_revision_id,
+            "generated_hash": self.generated_hash,
+            "deployed_at": self.deployed_at,
+            "deployed_hash": self.deployed_hash,
         }
 
     @classmethod
@@ -92,9 +103,38 @@ class PageMetadata:
             stable_keys=data["stable_keys"],
             entity_names=data["entity_names"],
             fetched_at=data.get("fetched_at"),
+            fetched_hash=data.get("fetched_hash"),
             generated_at=data.get("generated_at"),
-            wiki_revision_id=data.get("wiki_revision_id"),
+            generated_hash=data.get("generated_hash"),
+            deployed_at=data.get("deployed_at"),
+            deployed_hash=data.get("deployed_hash"),
         )
+
+    def should_deploy(self) -> tuple[bool, str]:
+        """Check if page should be deployed based on metadata.
+
+        Returns:
+            Tuple of (should_deploy, reason)
+            - (True, "") if page should be deployed
+            - (False, reason) if page should be skipped with explanation
+        """
+        # Must have generated content
+        if self.generated_at is None:
+            return False, "not generated"
+
+        # Skip if not regenerated since last deployment
+        if self.deployed_at is not None and self.generated_at <= self.deployed_at:
+            return False, "not regenerated since deployment"
+
+        # Skip if older than fetched content (prevents overwriting wiki edits)
+        if self.fetched_at is not None and self.generated_at <= self.fetched_at:
+            return False, "older than fetched (fetch and regenerate first)"
+
+        # Skip if content unchanged
+        if self.generated_hash == self.deployed_hash:
+            return False, "content unchanged"
+
+        return True, ""
 
 
 class WikiStorage:
@@ -180,12 +220,25 @@ class WikiStorage:
         file_path = self._fetched_dir / f"{safe_filename}.txt"
         file_path.write_text(content, encoding="utf-8")
 
+        # Compute content hash
+        content_hash = hashlib.sha256(content.encode("utf-8")).hexdigest()
+
         metadata = self._load_metadata()
+
+        # Preserve existing metadata if it exists
+        existing = metadata.get(page_title)
+
         metadata[page_title] = PageMetadata(
             page_title=page_title,
             stable_keys=stable_keys,
             entity_names=entity_names,
             fetched_at=datetime.now().isoformat(),
+            fetched_hash=content_hash,
+            # Preserve generation and deployment info
+            generated_at=existing.generated_at if existing else None,
+            generated_hash=existing.generated_hash if existing else None,
+            deployed_at=existing.deployed_at if existing else None,
+            deployed_hash=existing.deployed_hash if existing else None,
         )
         self._save_metadata(metadata)
 
@@ -224,9 +277,13 @@ class WikiStorage:
         file_path = self._generated_dir / f"{safe_filename}.txt"
         file_path.write_text(content, encoding="utf-8")
 
+        # Compute content hash
+        content_hash = hashlib.sha256(content.encode("utf-8")).hexdigest()
+
         metadata = self._load_metadata()
         if page_title in metadata:
             metadata[page_title].generated_at = datetime.now().isoformat()
+            metadata[page_title].generated_hash = content_hash
         else:
             logger.warning(f"Creating metadata for {page_title} without fetch info")
             entity_names = [sk.split(":", 1)[1].replace("_", " ").title() for sk in stable_keys]
@@ -235,6 +292,7 @@ class WikiStorage:
                 stable_keys=stable_keys,
                 entity_names=entity_names,
                 generated_at=datetime.now().isoformat(),
+                generated_hash=content_hash,
             )
         self._save_metadata(metadata)
 
@@ -267,6 +325,31 @@ class WikiStorage:
         """
         metadata = self._load_metadata()
         return metadata.get(page_title)
+
+    def update_deployed(
+        self,
+        page_title: str,
+        content: str,
+    ) -> None:
+        """Update deployment metadata after successful wiki upload.
+
+        Args:
+            page_title: MediaWiki page title that was deployed.
+            content: Content that was deployed.
+        """
+        # Compute content hash
+        content_hash = hashlib.sha256(content.encode("utf-8")).hexdigest()
+
+        metadata = self._load_metadata()
+        if page_title not in metadata:
+            logger.warning(f"Cannot update deployed metadata for unknown page: {page_title}")
+            return
+
+        metadata[page_title].deployed_at = datetime.now().isoformat()
+        metadata[page_title].deployed_hash = content_hash
+
+        self._save_metadata(metadata)
+        logger.debug(f"Updated deployment metadata for: {page_title}")
 
     def clear_fetched(self) -> int:
         """Clear all fetched pages.
