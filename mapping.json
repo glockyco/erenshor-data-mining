@@ -674,28 +674,28 @@
     "character:TreasureChest 0-10 1": {
       "wiki_page_name": "Lost Treasure (1-10)",
       "display_name": "Lost Treasure (1-10)",
-      "image_name": null,
+      "image_name": "Lost Treasure",
       "mapping_type": "custom",
       "reason": null
     },
     "character:TreasureChest 10-20 1": {
       "wiki_page_name": "Lost Treasure (10-20)",
       "display_name": "Lost Treasure (10-20)",
-      "image_name": null,
+      "image_name": "Lost Treasure",
       "mapping_type": "custom",
       "reason": null
     },
     "character:TreasureChest 20-30 1": {
       "wiki_page_name": "Lost Treasure (20-30)",
       "display_name": "Lost Treasure (20-30)",
-      "image_name": null,
+      "image_name": "Lost Treasure",
       "mapping_type": "custom",
       "reason": null
     },
     "character:TreasureChest 30-35": {
       "wiki_page_name": "Lost Treasure (30+)",
       "display_name": "Lost Treasure (30+)",
-      "image_name": null,
+      "image_name": "Lost Treasure",
       "mapping_type": "custom",
       "reason": null
     },
