@@ -212,21 +212,23 @@ class WikiGenerateService:
 
                 # Apply preservation and legacy removal if page exists
                 if existing:
-                    # Preserve manual edits
-                    preserved_content = self._preservation_handler.merge_templates(
-                        old_wikitext=existing,
-                        new_wikitext=page_content,
-                        template_names=["Item", "Enemy", "Character", "Ability"],
-                    )
-
-                    # Remove legacy templates
-                    if self._legacy_remover.has_legacy_templates(preserved_content):
-                        final_content = self._legacy_remover.remove_legacy_templates(preserved_content)
-                        info = f"Legacy templates removed: {page.title}"
+                    # Remove legacy templates FIRST (before field preservation)
+                    # This ensures {{Character}} → {{Enemy}} conversion happens before
+                    # we try to merge Enemy fields, avoiding duplicate templates
+                    if self._legacy_remover.has_legacy_templates(existing):
+                        migrated_content = self._legacy_remover.remove_legacy_templates(existing)
+                        info = f"Legacy templates migrated: {page.title}"
                         warnings.append(info)
                         self._console.print(f"[blue]i[/blue] {info}")
                     else:
-                        final_content = preserved_content
+                        migrated_content = existing
+
+                    # Preserve manual edits (after legacy migration)
+                    final_content = self._preservation_handler.merge_templates(
+                        old_wikitext=migrated_content,
+                        new_wikitext=page_content,
+                        template_names=["Item", "Enemy", "Ability"],
+                    )
 
                     # Normalize page: merge categories from old + new, move to top, clean spacing
                     final_content = self._page_normalizer.normalize(final_content, page_content)

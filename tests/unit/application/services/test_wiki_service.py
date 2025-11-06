@@ -379,6 +379,100 @@ class TestDeployAll:
         assert result.succeeded == 1
 
 
+class TestLegacyTemplateMigration:
+    """Tests for legacy template migration during page generation."""
+
+    def test_legacy_character_template_migration_no_duplicates(
+        self, wiki_service, mock_storage, mock_character_repo, mock_faction_repo, mock_spawn_repo, mock_loot_repo
+    ):
+        """Test that {{Character}} → {{Enemy}} migration happens before field preservation.
+
+        This prevents duplicate templates when:
+        1. Fetched content has {{Character|...}}
+        2. Generated content has {{Enemy|...}}
+        3. Legacy migration should happen FIRST, converting Character → Enemy
+        4. Then field preservation merges the two Enemy templates
+        5. Result: Single Enemy template with preserved fields
+        """
+        from erenshor.domain.entities.character import Character
+
+        # Create a test character
+        character = Character(
+            id=1,
+            guid="test-guid",
+            npc_name="Test Character",
+            resource_name="test_character",
+            object_name="Test_Character",  # Required for stable_key
+            is_prefab=0,
+            level=10,
+            base_hp=1000,
+            base_mana=100,
+            base_ac=50,
+            base_str=10,
+            base_end=10,
+            base_dex=10,
+            base_agi=10,
+            base_int=10,
+            base_wis=10,
+            base_cha=10,
+            is_friendly=1,
+            my_faction="GoodHuman",
+        )
+        mock_character_repo.get_characters_for_wiki_generation.return_value = [character]
+
+        # Mock enrichment repositories to return empty data
+        mock_faction_repo.get_faction_display_names.return_value = {}
+        mock_spawn_repo.get_spawn_info_for_character.return_value = []
+        mock_loot_repo.get_loot_drops_for_character.return_value = []
+
+        # Simulate fetched content with legacy {{Character}} template
+        fetched_content = """{{Character
+|name=Test Character
+|level=5
+|health=500
+}}
+
+Manual content that should be preserved."""
+
+        # Save fetched content to storage
+        mock_storage.save_fetched_by_title(
+            "Test Character",
+            ["character:test_character"],
+            fetched_content,
+            ["Test Character"],
+        )
+
+        # Generate page (should migrate Character → Enemy, then preserve fields)
+        result = wiki_service.generate_all(dry_run=False, page_titles=["Test Character"])
+
+        # Verify generation succeeded
+        assert result.succeeded == 1
+        assert result.total == 1
+
+        # Verify warning about legacy template migration
+        assert len(result.warnings) == 1
+        assert "Legacy templates migrated" in result.warnings[0]
+
+        # Read generated content
+        generated_content = mock_storage.read_generated_by_title("Test Character")
+        assert generated_content is not None
+
+        # Verify NO duplicate Enemy templates (should only have one)
+        enemy_count = generated_content.count("{{Enemy")
+        assert enemy_count == 1, f"Expected 1 Enemy template, found {enemy_count}"
+
+        # Verify NO Character templates remain
+        assert "{{Character" not in generated_content
+
+        # Verify modern field names (not legacy field names)
+        assert "|guaranteeddrops=" in generated_content or "|droprates=" in generated_content
+        assert "|commondrops=" not in generated_content
+        assert "|uncommondrops=" not in generated_content
+
+        # Verify manual content preserved
+        assert "Manual content that should be preserved" in generated_content
+
+
 class TestOperationResult:
     """Tests for OperationResult dataclass."""
 
