@@ -174,6 +174,10 @@ class CategoryGenerator:
         else:
             categories.append("Enemies")
 
+            # Add Bosses category for unique enemies
+            if character.is_unique:
+                categories.append("Bosses")
+
         # Add Vendor category
         if character.is_vendor:
             categories.append("Vendors")
