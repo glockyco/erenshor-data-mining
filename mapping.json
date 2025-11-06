@@ -2,8 +2,8 @@
   "metadata": {
     "schema_version": "2.0",
     "created_at": "2025-09-21T15:44:48.853024Z",
-    "updated_at": "2025-10-14T13:00:00.000000Z",
-    "total_rules": 275
+    "updated_at": "2025-11-06T06:14:07Z",
+    "total_rules": 283
   },
   "rules": {
     "character:Brackish Crocodile": {
@@ -1958,6 +1958,34 @@
       "image_name": null,
       "mapping_type": "excluded",
       "reason": "Excluded from wiki"
+    },
+    "zone:azynthi": {
+      "wiki_page_name": "Azynthi's Garden",
+      "display_name": "Azynthi's Garden (Dimensional Rift)",
+      "image_name": null,
+      "mapping_type": "custom",
+      "reason": "Distinguish from AzynthiClear zone"
+    },
+    "zone:duskenportal": {
+      "wiki_page_name": "Mysterious Portal",
+      "display_name": "Mysterious Portal (1)",
+      "image_name": null,
+      "mapping_type": "custom",
+      "reason": "Distinguish the three portal zones"
+    },
+    "zone:fernallaportal": {
+      "wiki_page_name": "Mysterious Portal",
+      "display_name": "Mysterious Portal (2)",
+      "image_name": null,
+      "mapping_type": "custom",
+      "reason": "Distinguish the three portal zones"
+    },
+    "zone:ripperportal": {
+      "wiki_page_name": "Mysterious Portal",
+      "display_name": "Mysterious Portal (3)",
+      "image_name": null,
+      "mapping_type": "custom",
+      "reason": "Distinguish the three portal zones"
     }
   }
 }
