@@ -231,6 +231,38 @@ class RegistryResolver:
             entity = get_entity(session, stable_key)
             return entity.excluded if entity else False
 
+    def get_stable_keys_for_page(self, page_title: str) -> list[str]:
+        """Get all stable keys for entities that map to a given page title.
+
+        This is a reverse lookup from page title to stable keys. Useful for
+        finding which entities contribute to a multi-entity page.
+
+        Args:
+            page_title: Wiki page title
+
+        Returns:
+            List of stable keys for all entities on this page
+
+        Example:
+            >>> resolver.get_stable_keys_for_page("Aura: Blessing of Stone")
+            ["spell:aura - blessing of stone", "skill:aura - blessing of stone"]
+        """
+        from sqlmodel import select
+
+        from .schema import EntityRecord
+
+        with Session(self.engine) as session:
+            statement = select(EntityRecord).where(EntityRecord.page_title == page_title)
+            entities = session.exec(statement).all()
+
+            if not entities:
+                logger.warning(f"No entities found for page title: {page_title}")
+                return []
+
+            stable_keys = [entity.stable_key for entity in entities]
+            logger.debug(f"Found {len(stable_keys)} entities for page {page_title!r}: {stable_keys}")
+            return stable_keys
+
     def item_link(self, stable_key: str) -> str:
         """Generate {{ItemLink|...}} template for an item.
 

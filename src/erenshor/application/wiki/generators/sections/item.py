@@ -1,10 +1,10 @@
-"""Item template generator for wiki content.
+"""Item section generator for wiki content.
 
 This module generates MediaWiki template wikitext for individual items including
 weapons, armor, consumables, and other item types.
 
-Template generators handle SINGLE entities only. Multi-entity page assembly
-is handled by WikiService.
+This section generator produces templates for single items. Multi-entity page
+assembly is handled by PageGenerator classes.
 
 Template structure:
 - General items: {{Item}} template + category tags
@@ -18,46 +18,47 @@ Note: This initial implementation generates fresh content without source enrichm
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from loguru import logger
 
-from erenshor.application.generators.categories import CategoryGenerator
-from erenshor.application.generators.formatting import safe_str
-from erenshor.application.generators.item_type_display import build_item_types
-from erenshor.application.generators.template_generator_base import TemplateGeneratorBase
-from erenshor.domain.enriched_data.item import EnrichedItemData
-from erenshor.domain.entities.item import Item
-from erenshor.domain.entities.item_stats import ItemStats
+from erenshor.application.wiki.generators.formatting import safe_str
+from erenshor.application.wiki.generators.item_type_display import build_item_types
+from erenshor.application.wiki.generators.sections.base import SectionGeneratorBase
 from erenshor.registry.item_classifier import ItemKind, classify_item_kind
-from erenshor.registry.resolver import RegistryResolver
 from erenshor.shared.game_constants import LONG_NAME_FONT_SIZE, LONG_NAME_THRESHOLD
 
+if TYPE_CHECKING:
+    from erenshor.domain.enriched_data.item import EnrichedItemData
+    from erenshor.domain.entities.item import Item
+    from erenshor.domain.entities.item_stats import ItemStats
+    from erenshor.registry.resolver import RegistryResolver
 
-class ItemTemplateGenerator(TemplateGeneratorBase):
-    """Generator for item wiki templates.
+
+class ItemSectionGenerator(SectionGeneratorBase):
+    """Generator for item wiki sections.
 
     Generates template wikitext for a SINGLE item entity with appropriate templates
     and category tags based on item classification.
 
-    Multi-entity page assembly is handled by WikiService, not here.
+    Multi-entity page assembly is handled by PageGenerator classes, not here.
 
     Example:
         >>> resolver = RegistryResolver(...)
         >>> category_generator = CategoryGenerator(resolver)
-        >>> generator = ItemTemplateGenerator(resolver, category_generator)
+        >>> generator = ItemSectionGenerator(resolver, category_generator)
         >>> item = Item(...)  # From repository
         >>> wikitext = generator.generate_template(item, page_title="Sword of Truth")
     """
 
-    def __init__(self, resolver: RegistryResolver, category_generator: CategoryGenerator) -> None:
-        """Initialize item template generator.
+    def __init__(self, resolver: RegistryResolver) -> None:
+        """Initialize item section generator.
 
         Args:
             resolver: Registry resolver for links and display names
-            category_generator: Category generator for creating category tags
         """
         super().__init__()
         self._resolver = resolver
-        self._category_generator = category_generator
 
     def generate_template(self, enriched: EnrichedItemData, page_title: str) -> str:
         """Generate template wikitext for a single item.
@@ -74,7 +75,6 @@ class ItemTemplateGenerator(TemplateGeneratorBase):
             >>> wikitext = generator.generate_template(enriched, "Sword")
         """
         item = enriched.item
-        stats = enriched.stats
 
         logger.debug(f"Generating template for item: {item.item_name} (kind: {self._classify(item)})")
 
@@ -95,16 +95,7 @@ class ItemTemplateGenerator(TemplateGeneratorBase):
             # Fallback (should never reach here due to exhaustive ItemKind)
             template_wikitext = self._generate_general_item_page(enriched, page_title)
 
-        # Generate category tags
-        categories = self._category_generator.generate_item_categories(item)
-        category_wikitext = self._category_generator.format_category_tags(categories)
-
-        # Combine templates and categories
-        page_content = template_wikitext
-        if category_wikitext:
-            page_content += "\n" + category_wikitext
-
-        return self.normalize_wikitext(page_content)
+        return self.normalize_wikitext(template_wikitext)
 
     def _classify(self, item: Item) -> ItemKind:
         """Classify item kind.
@@ -221,7 +212,6 @@ class ItemTemplateGenerator(TemplateGeneratorBase):
         Returns:
             Wikitext with {{Item}} + {{Fancy-charm}} templates
         """
-        item = enriched.item
         stats = enriched.stats
 
         item_context = self._build_weapon_armor_item_context(enriched, page_title)
@@ -393,7 +383,7 @@ class ItemTemplateGenerator(TemplateGeneratorBase):
         vendor_sources = self._format_vendor_sources(enriched)
         drop_sources = self._format_drop_sources(enriched)
         quest_rewards, quest_requirements = self._format_quest_sources(enriched)
-        craft_sources, component_for = self._format_crafting_sources(enriched)
+        craft_sources_str, component_for_str = self._format_crafting_sources(enriched)
         crafting_results, recipe_ingredients = self._format_recipe_info(enriched)
 
         # Build context with all {{Item}} template fields
@@ -407,8 +397,8 @@ class ItemTemplateGenerator(TemplateGeneratorBase):
             "othersource": "",  # Primarily manual content
             "questsource": quest_rewards,
             "relatedquest": quest_requirements,
-            "craftsource": craft_sources,
-            "componentfor": component_for,
+            "craftsource": craft_sources_str,
+            "componentfor": component_for_str,
             "relic": "True" if item.relic else "",
             "classes": classes,
             "effects": effects,
@@ -469,16 +459,16 @@ class ItemTemplateGenerator(TemplateGeneratorBase):
 
         context = {
             "image": f"[[File:{page_title}.png|80px]]",
-            "name": self._format_item_name_for_fancy_template(item.item_name, page_title),
+            "name": self._format_item_name_for_fancy_template(item.item_name or "", page_title),
             "type": weapon_type,
             "relic": "True" if item.relic else "",
-            "str": safe_str(stat.strength),
-            "end": safe_str(stat.endurance),
-            "dex": safe_str(stat.dexterity),
-            "agi": safe_str(stat.agility),
-            "int": safe_str(stat.intelligence),
-            "wis": safe_str(stat.wisdom),
-            "cha": safe_str(stat.charisma),
+            "str": safe_str(stat.str_),
+            "end": safe_str(stat.end_),
+            "dex": safe_str(stat.dex),
+            "agi": safe_str(stat.agi),
+            "int": safe_str(stat.int_),
+            "wis": safe_str(stat.wis),
+            "cha": safe_str(stat.cha),
             "res": safe_str(stat.res),
             "damage": safe_str(stat.weapon_dmg) if stat.weapon_dmg else "",
             "delay": safe_str(item.weapon_dly) if item.weapon_dly else "",
@@ -542,17 +532,17 @@ class ItemTemplateGenerator(TemplateGeneratorBase):
 
         context = {
             "image": f"[[File:{page_title}.png|80px]]",
-            "name": self._format_item_name_for_fancy_template(item.item_name, page_title),
+            "name": self._format_item_name_for_fancy_template(item.item_name or "", page_title),
             "type": "",  # Armor doesn't use "type" field
             "slot": slot,
             "relic": "True" if item.relic else "",
-            "str": safe_str(stat.strength),
-            "end": safe_str(stat.endurance),
-            "dex": safe_str(stat.dexterity),
-            "agi": safe_str(stat.agility),
-            "int": safe_str(stat.intelligence),
-            "wis": safe_str(stat.wisdom),
-            "cha": safe_str(stat.charisma),
+            "str": safe_str(stat.str_),
+            "end": safe_str(stat.end_),
+            "dex": safe_str(stat.dex),
+            "agi": safe_str(stat.agi),
+            "int": safe_str(stat.int_),
+            "wis": safe_str(stat.wis),
+            "cha": safe_str(stat.cha),
             "res": safe_str(stat.res),
             "health": safe_str(stat.hp),
             "mana": safe_str(stat.mana),
@@ -601,7 +591,7 @@ class ItemTemplateGenerator(TemplateGeneratorBase):
 
         context = {
             "image_name": f"{page_title}.png",
-            "name": self._format_item_name_for_fancy_template(item.item_name, page_title),
+            "name": self._format_item_name_for_fancy_template(item.item_name or "", page_title),
             "description": safe_str(item.lore),
             "str_scaling": format_scaling(stat.str_scaling),
             "end_scaling": format_scaling(stat.end_scaling),

@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from erenshor.application.services.character_enricher import CharacterEnricher, EnrichedCharacterData
+from erenshor.application.enrichers.character_enricher import CharacterEnricher, EnrichedCharacterData
 from erenshor.domain.entities.character import Character
 from erenshor.domain.value_objects.loot import LootDropInfo
 from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
@@ -138,28 +138,31 @@ class TestCharacterEnrichment:
         assert result.loot_drops[0].item_name == "Iron Sword"
 
     def test_enrich_handles_character_without_stable_key(self, enricher):
-        """Test enricher handles character with no stable key."""
-        # Create a mock loot repo that returns empty for None
+        """Test enricher handles character with minimal data."""
+        # Create a mock loot repo that returns empty
         from unittest.mock import MagicMock
 
         mock_loot_repo = MagicMock()
         mock_loot_repo.get_loot_for_character.return_value = []
 
+        mock_spawn_repo = MagicMock()
+        mock_spawn_repo.get_spawn_info_for_character.return_value = []
+
         enricher = CharacterEnricher(
-            spawn_repo=MagicMock(return_value=[]),
+            spawn_repo=mock_spawn_repo,
             loot_repo=mock_loot_repo,
         )
 
         character = Character(
-            stable_key=None,
+            stable_key="char:NoKeyCharacter",
             object_name="NoKeyCharacter",
             npc_name="No Key Character",
         )
 
         result = enricher.enrich(character)
 
-        # Should still call loot repo with None
-        mock_loot_repo.get_loot_for_character.assert_called_once_with(None)
+        # Should call loot repo with stable key
+        mock_loot_repo.get_loot_for_character.assert_called_once_with("char:NoKeyCharacter")
         assert result.loot_drops == []
 
     def test_enriched_data_structure(self, enricher):

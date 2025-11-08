@@ -2,7 +2,7 @@
 
 import pytest
 
-from erenshor.application.generators.page_normalizer import PageNormalizer
+from erenshor.application.wiki.generators.page_normalizer import PageNormalizer
 
 
 class TestPageNormalizer:

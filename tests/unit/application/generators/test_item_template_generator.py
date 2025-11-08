@@ -1,4 +1,4 @@
-"""Unit tests for ItemTemplateGenerator.
+"""Unit tests for ItemSectionGenerator.
 
 Tests item page generation for different item types including weapons, armor,
 consumables, and general items.
@@ -8,8 +8,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from erenshor.application.generators.categories import CategoryGenerator
-from erenshor.application.generators.item_template_generator import ItemTemplateGenerator
+from erenshor.application.wiki.generators.sections.categories import CategoryGenerator
+from erenshor.application.wiki.generators.sections.item import ItemSectionGenerator
 from erenshor.domain.enriched_data.item import EnrichedItemData
 from erenshor.domain.entities.item import Item
 from erenshor.domain.entities.item_stats import ItemStats
@@ -34,8 +34,21 @@ def enrich_item():
 def mock_resolver():
     """Create mock registry resolver."""
     resolver = MagicMock()
-    resolver.resolve_display_name.return_value = "Test Item"
-    resolver.resolve_image_name.return_value = "Test Item"
+
+    # Make resolver return the item name based on stable_key
+    def resolve_display_name(stable_key: str) -> str:
+        # Extract name from stable_key (format: "item:name")
+        if ":" in stable_key:
+            name = stable_key.split(":", 1)[1]
+            # Convert to title case (e.g., "testsword" -> "Test Sword")
+            return " ".join(word.capitalize() for word in name.replace("_", " ").split())
+        return "Test Item"
+
+    def resolve_image_name(stable_key: str) -> str:
+        return resolve_display_name(stable_key)
+
+    resolver.resolve_display_name.side_effect = resolve_display_name
+    resolver.resolve_image_name.side_effect = resolve_image_name
     resolver.ability_link.return_value = "{{AbilityLink|Test Ability}}"
     resolver.item_link.return_value = "{{ItemLink|Test Item}}"
     return resolver
@@ -48,23 +61,20 @@ def category_generator(mock_resolver):
 
 
 @pytest.fixture
-def generator(mock_resolver, category_generator):
+def generator(mock_resolver):
     """Create item template generator."""
-    return ItemTemplateGenerator(mock_resolver, category_generator)
+    return ItemSectionGenerator(mock_resolver)
 
 
-class TestItemTemplateGenerator:
-    """Test suite for ItemTemplateGenerator."""
-
-    def test_init_creates_category_generator(self, generator):
-        """Test that initialization creates category generator."""
-        assert generator._category_generator is not None
+class TestItemSectionGenerator:
+    """Test suite for ItemSectionGenerator."""
 
     def test_generate_page_for_general_item(self, generator, enrich_item):
         """Test generating page for general item."""
         item = Item(
             id="1",
             resource_name="TestItem",
+            stable_key="item:test item",
             item_name="Test Item",
             lore="A test item",
             required_slot="General",
@@ -82,9 +92,6 @@ class TestItemTemplateGenerator:
         assert "|buy=100" in result
         assert "|sell=25" in result
 
-        # Should contain category tags
-        assert "[[Category:" in result
-
     def test_generate_page_for_weapon(self, generator, enrich_item):
         """Test generating page for weapon with fancy templates."""
         from erenshor.domain.entities.item_stats import ItemStats
@@ -92,6 +99,7 @@ class TestItemTemplateGenerator:
         item = Item(
             id="2",
             resource_name="TestSword",
+            stable_key="item:test sword",
             item_name="Test Sword",
             lore="A sharp blade",
             required_slot="Primary",
@@ -137,9 +145,6 @@ class TestItemTemplateGenerator:
         # Should contain {{Fancy-weapon}} template
         assert "{{Fancy-weapon" in result
 
-        # Should contain category tags
-        assert "[[Category:" in result
-
     def test_weapon_with_damage_shows_value(self, generator, enrich_item):
         """Test weapons with damage show actual damage values."""
         from erenshor.domain.entities.item_stats import ItemStats
@@ -147,6 +152,7 @@ class TestItemTemplateGenerator:
         item = Item(
             id="100",
             resource_name="HAND - 1 - Copper Sword",
+            stable_key="item:hand - 1 - copper sword",
             item_name="Copper Sword",
             required_slot="Primary",
             weapon_dly=1.2,
@@ -212,6 +218,7 @@ class TestItemTemplateGenerator:
         item = Item(
             id="101",
             resource_name="SECONDARY - 1 - Old Buckler",
+            stable_key="item:secondary - 1 - old buckler",
             item_name="Old Buckler",
             required_slot="Secondary",
             shield=1,
@@ -283,6 +290,7 @@ class TestItemTemplateGenerator:
         item = Item(
             id="3",
             resource_name="TestHelmet",
+            stable_key="item:test helmet",
             item_name="Test Helmet",
             lore="Protective headgear",
             required_slot="Head",
@@ -324,15 +332,13 @@ class TestItemTemplateGenerator:
         # Should contain {{Fancy-armor}} template
         assert "{{Fancy-armor" in result
 
-        # Should contain category tags
-        assert "[[Category:" in result
-
     def test_generate_page_for_charm(self, generator, enrich_item):
         """Test generating page for charm."""
 
         item = Item(
             id="4",
             resource_name="TestCharm",
+            stable_key="item:test charm",
             item_name="Test Charm",
             lore="Magical charm",
             required_slot="Charm",
@@ -346,15 +352,13 @@ class TestItemTemplateGenerator:
         assert "{{Item" in result
         assert "|title=Test Charm" in result
 
-        # Should contain category tags
-        assert "[[Category:" in result
-
     def test_generate_page_for_consumable(self, generator, enrich_item):
         """Test generating page for consumable."""
 
         item = Item(
             id="5",
             resource_name="TestPotion",
+            stable_key="item:testpotion",
             item_name="Test Potion",
             lore="Restores health",
             required_slot="General",
@@ -372,15 +376,13 @@ class TestItemTemplateGenerator:
         assert "{{Item" in result
         assert "|title=Test Potion" in result
 
-        # Should contain category tags (including Consumable)
-        assert "[[Category:" in result
-
     def test_generate_page_for_mold(self, generator, enrich_item):
         """Test generating page for mold (crafting template)."""
 
         item = Item(
             id="6",
             resource_name="TestMold",
+            stable_key="item:testmold",
             item_name="Test Mold",
             lore="Crafting template",
             required_slot="General",
@@ -396,15 +398,13 @@ class TestItemTemplateGenerator:
         assert "{{Item" in result
         assert "|title=Test Mold" in result
 
-        # Should contain category tags
-        assert "[[Category:" in result
-
     def test_generate_page_for_ability_book(self, generator, enrich_item):
         """Test generating page for ability book."""
 
         item = Item(
             id="7",
             resource_name="TestSpellBook",
+            stable_key="item:testspellbook",
             item_name="Spell Scroll: Fireball",
             lore="Teaches Fireball",
             required_slot="General",
@@ -418,15 +418,13 @@ class TestItemTemplateGenerator:
         assert "{{Item" in result
         assert "|title=Spell Scroll: Fireball" in result
 
-        # Should contain category tags
-        assert "[[Category:" in result
-
     def test_generate_page_handles_none_values(self, generator, enrich_item):
         """Test that generator handles None values gracefully."""
 
         item = Item(
             id="8",
             resource_name="MinimalItem",
+            stable_key="item:minimalitem",
             item_name="Minimal Item",
             # Most fields are None
             required_slot=None,
@@ -453,6 +451,7 @@ class TestItemTemplateGenerator:
         relic_item = Item(
             id="9",
             resource_name="RelicItem",
+            stable_key="item:relicitem",
             item_name="Relic Item",
             relic=1,
         )
@@ -465,6 +464,7 @@ class TestItemTemplateGenerator:
         normal_item = Item(
             id="10",
             resource_name="NormalItem",
+            stable_key="item:normalitem",
             item_name="Normal Item",
             relic=0,
         )
@@ -478,15 +478,33 @@ class TestItemTemplateGenerator:
         """Test weapon classification by RequiredSlot."""
 
         # Primary slot weapon
-        primary = Item(id="11", resource_name="Primary", item_name="Primary", required_slot="Primary")
+        primary = Item(
+            id="11",
+            resource_name="Primary",
+            stable_key="item:primary",
+            item_name="Primary",
+            required_slot="Primary",
+        )
         assert generator._classify(primary) == "weapon"
 
         # Secondary slot weapon
-        secondary = Item(id="12", resource_name="Secondary", item_name="Secondary", required_slot="Secondary")
+        secondary = Item(
+            id="12",
+            resource_name="Secondary",
+            stable_key="item:secondary",
+            item_name="Secondary",
+            required_slot="Secondary",
+        )
         assert generator._classify(secondary) == "weapon"
 
         # Two-hand weapon (via slot name pattern)
-        twohanded = Item(id="13", resource_name="TwoHand", item_name="TwoHand", required_slot="PrimaryOrSecondary")
+        twohanded = Item(
+            id="13",
+            resource_name="TwoHand",
+            stable_key="item:twohand",
+            item_name="TwoHand",
+            required_slot="PrimaryOrSecondary",
+        )
         assert generator._classify(twohanded) == "weapon"
 
     def test_classify_armor_by_required_slot(self, generator, enrich_item):
@@ -495,7 +513,13 @@ class TestItemTemplateGenerator:
         armor_slots = ["Head", "Shoulders", "Chest", "Hands", "Legs", "Feet", "Waist", "Neck", "Back"]
 
         for slot in armor_slots:
-            item = Item(id=f"armor_{slot}", resource_name=slot, item_name=slot, required_slot=slot)
+            item = Item(
+                id=f"armor_{slot}",
+                resource_name=slot,
+                stable_key=f"item:{slot.lower()}",
+                item_name=slot,
+                required_slot=slot,
+            )
             assert generator._classify(item) == "armor", f"Failed for slot: {slot}"
 
     def test_classify_consumable(self, generator, enrich_item):
@@ -504,6 +528,7 @@ class TestItemTemplateGenerator:
         consumable = Item(
             id="14",
             resource_name="Potion",
+            stable_key="item:potion",
             item_name="Potion",
             required_slot="General",
             item_effect_on_click_stable_key="HealSpell",
@@ -517,6 +542,7 @@ class TestItemTemplateGenerator:
         mold = Item(
             id="15",
             resource_name="Mold",
+            stable_key="item:mold",
             item_name="Mold",
             template=1,
         )
@@ -528,6 +554,7 @@ class TestItemTemplateGenerator:
         spell_book = Item(
             id="16",
             resource_name="SpellBook",
+            stable_key="item:spellbook",
             item_name="Spell Book",
             teach_spell_stable_key="Fireball",
         )
@@ -536,6 +563,7 @@ class TestItemTemplateGenerator:
         skill_book = Item(
             id="17",
             resource_name="SkillBook",
+            stable_key="item:skillbook",
             item_name="Skill Book",
             teach_skill_stable_key="Mining",
         )
@@ -547,6 +575,7 @@ class TestItemTemplateGenerator:
         aura = Item(
             id="18",
             resource_name="Aura",
+            stable_key="item:aura",
             item_name="Aura",
             required_slot="Aura",
         )
@@ -558,6 +587,7 @@ class TestItemTemplateGenerator:
         item = Item(
             id="19",
             resource_name="TestItem",
+            stable_key="item:testitem",
             item_name="Test Item",
             lore="Test description",
             item_value=100,
@@ -582,6 +612,7 @@ class TestItemTemplateGenerator:
         short_item = Item(
             id="20",
             resource_name="ShortItem",
+            stable_key="item:shortitem",
             item_name="Short Name",
             required_slot="General",
         )
@@ -594,6 +625,7 @@ class TestItemTemplateGenerator:
         long_item = Item(
             id="21",
             resource_name="LongItem",
+            stable_key="item:longitem",
             item_name="This is a very long item name that exceeds 24 characters",
             required_slot="General",
         )
@@ -610,6 +642,7 @@ class TestItemTemplateGenerator:
         consumable = Item(
             id="22",
             resource_name="Potion",
+            stable_key="item:potion",
             item_name="Health Potion",
             required_slot="General",
             item_effect_on_click_stable_key="Heal",
@@ -626,6 +659,7 @@ class TestItemTemplateGenerator:
         quest_item = Item(
             id="23",
             resource_name="QuestLetter",
+            stable_key="item:questletter",
             item_name="Quest Letter",
             required_slot="General",
             complete_on_read_stable_key="SomeQuest",
@@ -642,6 +676,7 @@ class TestItemTemplateGenerator:
         quest_completion_item = Item(
             id="25",
             resource_name="QuestNote",
+            stable_key="item:questnote",
             item_name="Quest Note",
             required_slot="General",
             complete_on_read_stable_key="CompleteQuest_123",
@@ -656,6 +691,7 @@ class TestItemTemplateGenerator:
         normal_item = Item(
             id="26",
             resource_name="NormalNote",
+            stable_key="item:normalnote",
             item_name="Normal Note",
             required_slot="General",
             complete_on_read_stable_key=None,
@@ -676,6 +712,7 @@ class TestFancyTemplateGeneration:
         weapon = Item(
             id="100",
             resource_name="TestSword",
+            stable_key="item:test sword",
             item_name="Test Sword",
             lore="A sharp blade",
             required_slot="Primary",
@@ -803,6 +840,7 @@ class TestFancyTemplateGeneration:
         weapon = Item(
             id="101",
             resource_name="BrokenSword",
+            stable_key="item:brokensword",
             item_name="Broken Sword",
             required_slot="Primary",
             weapon_dly=2.0,
@@ -819,6 +857,7 @@ class TestFancyTemplateGeneration:
         armor = Item(
             id="102",
             resource_name="TestHelmet",
+            stable_key="item:test helmet",
             item_name="Test Helmet",
             lore="Protective headgear",
             required_slot="Head",
@@ -949,6 +988,7 @@ class TestFancyTemplateGeneration:
         armor = Item(
             id="103",
             resource_name="BrokenHelmet",
+            stable_key="item:brokenhelmet",
             item_name="Broken Helmet",
             required_slot="Head",
         )
@@ -964,6 +1004,7 @@ class TestFancyTemplateGeneration:
         potion = Item(
             id="104",
             resource_name="HealthPotion",
+            stable_key="item:healthpotion",
             item_name="Health Potion",
             lore="Restores health",
             required_slot="General",
@@ -991,6 +1032,7 @@ class TestFancyTemplateGeneration:
         weapon = Item(
             id="105",
             resource_name="TableTest",
+            stable_key="item:table test",
             item_name="Table Test",
             required_slot="Primary",
             weapon_dly=1.5,
@@ -1092,12 +1134,11 @@ class TestFancyTemplateGeneration:
         # Should start with table syntax
         assert "{|" in result
 
-        # Should have row separator
-        assert "|-" in result
+        # Should have header cells with fancy templates
+        assert "!{{Fancy-weapon" in result
 
         # Should end with table closing
         assert "|}" in result
 
-        # Templates should be separated by ||
-        # (We can't easily test this without parsing the structure, but the presence
-        # of multiple {{Fancy-weapon templates and table syntax is a good indicator)
+        # Should have multiple fancy templates (one per quality tier)
+        assert result.count("{{Fancy-weapon") == 3

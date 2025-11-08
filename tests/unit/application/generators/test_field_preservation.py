@@ -2,7 +2,7 @@
 
 import pytest
 
-from erenshor.application.generators.field_preservation import (
+from erenshor.application.wiki.generators.field_preservation import (
     DEFAULT_PRESERVATION_RULES,
     FieldPreservationConfig,
     FieldPreservationHandler,

@@ -12,8 +12,8 @@ The service uses a "fail-soft" approach where individual sheet failures don't
 stop the entire batch, allowing users to see all issues at once.
 
 Example:
-    >>> from erenshor.application.services.sheets_service import SheetsService
-    >>> from erenshor.application.formatters.sheets.formatter import SheetsFormatter
+    >>> from erenshor.application.sheets.service import SheetsService
+    >>> from erenshor.application.sheets.formatter import SheetsFormatter
     >>> from erenshor.infrastructure.publishers.sheets import GoogleSheetsPublisher
     >>>
     >>> # Initialize service with dependencies
@@ -38,7 +38,7 @@ from loguru import logger
 from rich.console import Console
 from rich.progress import track
 
-from erenshor.application.formatters.sheets.formatter import SheetsFormatter
+from erenshor.application.sheets.formatter import SheetsFormatter
 from erenshor.infrastructure.publishers.sheets import GoogleSheetsPublisher
 
 

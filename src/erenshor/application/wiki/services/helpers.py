@@ -9,7 +9,7 @@ from collections import defaultdict
 from loguru import logger
 from rich.console import Console
 
-from erenshor.application.services.wiki_page import WikiPage
+from erenshor.application.wiki.services.page import WikiPage
 from erenshor.domain.entities import Character, Item, Skill, Spell
 from erenshor.registry.resolver import RegistryResolver
 

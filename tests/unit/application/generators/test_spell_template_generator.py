@@ -1,4 +1,4 @@
-"""Unit tests for SpellTemplateGenerator.
+"""Unit tests for SpellSectionGenerator.
 
 Tests spell page generation including XP bonus conditional display.
 """
@@ -7,7 +7,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from erenshor.application.generators.spell_template_generator import SpellTemplateGenerator
+from erenshor.application.wiki.generators.sections.spell import SpellSectionGenerator
 from erenshor.domain.enriched_data.spell import EnrichedSpellData
 from erenshor.domain.entities.spell import Spell
 
@@ -52,11 +52,11 @@ def mock_resolver():
 @pytest.fixture
 def generator(mock_resolver):
     """Create spell template generator."""
-    return SpellTemplateGenerator(mock_resolver)
+    return SpellSectionGenerator(mock_resolver)
 
 
-class TestSpellTemplateGenerator:
-    """Test suite for SpellTemplateGenerator."""
+class TestSpellSectionGenerator:
+    """Test suite for SpellSectionGenerator."""
 
     def test_xp_bonus_displayed_when_spell_has_duration(self, generator, enrich_spell):
         """Test XP bonus is displayed only when spell has duration."""
@@ -66,6 +66,7 @@ class TestSpellTemplateGenerator:
             spell_db_index=1,
             id="1",
             resource_name="BuffSpell",
+            stable_key="spell:buffspell",
             spell_name="XP Buff",
             spell_desc="Grants XP bonus",
             spell_duration_in_ticks=100,  # Has duration
@@ -84,6 +85,7 @@ class TestSpellTemplateGenerator:
             spell_db_index=2,
             id="2",
             resource_name="InstantSpell",
+            stable_key="spell:instantspell",
             spell_name="Instant Buff",
             spell_desc="Instant effect",
             spell_duration_in_ticks=None,  # No duration
@@ -102,6 +104,7 @@ class TestSpellTemplateGenerator:
             spell_db_index=3,
             id="3",
             resource_name="TimedSpell",
+            stable_key="spell:timedspell",
             spell_name="Timed Spell",
             spell_duration_in_ticks=180,
         )
@@ -119,6 +122,7 @@ class TestSpellTemplateGenerator:
             spell_db_index=4,
             id="4",
             resource_name="InstantSpell1",
+            stable_key="spell:instantspell1",
             spell_name="Instant Spell 1",
             spell_charge_time=None,
         )
@@ -132,6 +136,7 @@ class TestSpellTemplateGenerator:
             spell_db_index=5,
             id="5",
             resource_name="InstantSpell2",
+            stable_key="spell:instantspell2",
             spell_name="Instant Spell 2",
             spell_charge_time=0,
         )
@@ -148,6 +153,7 @@ class TestSpellTemplateGenerator:
             spell_db_index=6,
             id="6",
             resource_name="SlowSpell",
+            stable_key="spell:slowspell",
             spell_name="Slow Spell",
             spell_charge_time=60,
         )
@@ -164,6 +170,7 @@ class TestSpellTemplateGenerator:
             spell_db_index=7,
             id="7",
             resource_name="TauntSpell",
+            stable_key="spell:tauntspell",
             spell_name="Taunt",
             taunt_spell=1,
         )
@@ -177,6 +184,7 @@ class TestSpellTemplateGenerator:
             spell_db_index=8,
             id="8",
             resource_name="NormalSpell",
+            stable_key="spell:normalspell",
             spell_name="Normal",
             taunt_spell=0,
         )
@@ -192,6 +200,7 @@ class TestSpellTemplateGenerator:
             spell_db_index=9,
             id="9",
             resource_name="MinimalSpell",
+            stable_key="spell:minimalspell",
             spell_name="Minimal",
             # Most fields are None
             spell_desc=None,

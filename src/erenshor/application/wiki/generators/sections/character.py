@@ -1,10 +1,10 @@
-"""Character template generator for wiki content.
+"""Character section generator for wiki content.
 
 This module generates MediaWiki {{Character}} template wikitext for individual
 characters including NPCs, enemies, vendors, and other in-game entities.
 
-Template generators handle SINGLE entities only. Multi-entity page assembly
-is handled by WikiService.
+This section generator produces templates for single characters. Multi-entity page
+assembly is handled by PageGenerator classes.
 
 Template structure:
 - {{Character}} template + category tags
@@ -14,9 +14,8 @@ from collections.abc import Sequence
 
 from loguru import logger
 
-from erenshor.application.generators.categories import CategoryGenerator
-from erenshor.application.generators.formatting import safe_str
-from erenshor.application.generators.template_generator_base import TemplateGeneratorBase
+from erenshor.application.wiki.generators.formatting import safe_str
+from erenshor.application.wiki.generators.sections.base import SectionGeneratorBase
 from erenshor.domain.enriched_data.character import EnrichedCharacterData
 from erenshor.domain.entities.character import Character
 from erenshor.domain.value_objects.loot import LootDropInfo
@@ -26,32 +25,30 @@ from erenshor.registry.resolver import RegistryResolver
 WIKITEXT_LINE_SEPARATOR = "<br>"
 
 
-class CharacterTemplateGenerator(TemplateGeneratorBase):
-    """Generator for character wiki templates.
+class CharacterSectionGenerator(SectionGeneratorBase):
+    """Generator for character wiki sections.
 
     Generates {{Character}} template wikitext for a SINGLE character entity
     with appropriate category tags.
 
-    Multi-entity page assembly is handled by WikiService, not here.
+    Multi-entity page assembly is handled by PageGenerator classes, not here.
 
     Example:
         >>> resolver = RegistryResolver(...)
         >>> category_generator = CategoryGenerator(resolver)
-        >>> generator = CharacterTemplateGenerator(resolver, category_generator)
+        >>> generator = CharacterSectionGenerator(resolver, category_generator)
         >>> enriched_data = enricher.enrich(character)
         >>> wikitext = generator.generate_template(enriched_data, "Goblin Scout")
     """
 
-    def __init__(self, resolver: RegistryResolver, category_generator: CategoryGenerator) -> None:
-        """Initialize character template generator.
+    def __init__(self, resolver: RegistryResolver) -> None:
+        """Initialize character section generator.
 
         Args:
             resolver: Registry resolver for links and display names
-            category_generator: Category generator for creating category tags
         """
         super().__init__()
         self._resolver = resolver
-        self._category_generator = category_generator
 
     def generate_template(
         self,
@@ -93,7 +90,7 @@ class CharacterTemplateGenerator(TemplateGeneratorBase):
         context = self._build_character_template_context(
             character=character,
             display_name=display_name,
-            image_name=image_name,
+            image_name=image_name or "",
             enemy_type=enemy_type,
             faction=faction,
             faction_change=faction_change,
@@ -105,19 +102,8 @@ class CharacterTemplateGenerator(TemplateGeneratorBase):
             drop_rates=drop_rates,
         )
 
-        # Render template
         template_wikitext = self.render_template("character.jinja2", context)
-
-        # Generate category tags
-        categories = self._category_generator.generate_character_categories(enriched)
-        category_wikitext = self._category_generator.format_category_tags(categories)
-
-        # Combine template and categories
-        page_content = template_wikitext
-        if category_wikitext:
-            page_content += "\n" + category_wikitext
-
-        return self.normalize_wikitext(page_content)
+        return self.normalize_wikitext(template_wikitext)
 
     def _format_enemy_type(self, character: Character, spawn_infos: list[CharacterSpawnInfo]) -> str:
         """Classify character as Boss/Rare/Enemy/NPC for template display."""
@@ -312,8 +298,8 @@ class CharacterTemplateGenerator(TemplateGeneratorBase):
         if not loot_drops:
             return ("", "")
 
-        guaranteed_entries: list[tuple[str, str]] = []
-        all_entries: list[tuple[float, str]] = []
+        guaranteed_entries: list[tuple[tuple[float, str], str]] = []
+        all_entries: list[tuple[tuple[float, str], str]] = []
 
         for drop in loot_drops:
             if not drop.item_stable_key:
@@ -343,9 +329,9 @@ class CharacterTemplateGenerator(TemplateGeneratorBase):
             all_entries.append((sort_key, entry_with_pct))
 
             if drop.is_guaranteed:
-                guaranteed_entries.append((display_name.lower(), item_link))
+                guaranteed_entries.append(((0.0, display_name.lower()), item_link))
 
-        def _join_entries(entries: Sequence[tuple[float | str, str]]) -> str:
+        def _join_entries(entries: Sequence[tuple[tuple[float, str], str]]) -> str:
             if not entries:
                 return ""
             sorted_entries = sorted(entries)

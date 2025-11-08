@@ -37,6 +37,10 @@ class PathsConfig(BaseModel):
         default="$REPO_ROOT/.erenshor/logs",
         description="Directory for global logs",
     )
+    templates: str = Field(
+        default="$REPO_ROOT/src/erenshor/application/wiki/generators/templates",
+        description="Directory for Jinja2 wiki templates",
+    )
 
     def resolved_state(self, repo_root: Path) -> Path:
         """Get resolved state file path."""
@@ -55,6 +59,12 @@ class PathsConfig(BaseModel):
         from .paths import resolve_path
 
         return resolve_path(self.logs, repo_root)
+
+    def resolved_templates(self, repo_root: Path) -> Path:
+        """Get resolved templates directory path."""
+        from .paths import resolve_path
+
+        return resolve_path(self.templates, repo_root)
 
 
 class SteamConfig(BaseModel):

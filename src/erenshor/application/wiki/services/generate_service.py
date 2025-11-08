@@ -4,37 +4,37 @@ This service handles generating wiki pages from database entities, merging with
 fetched content, and preserving manual edits.
 """
 
-from itertools import chain
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from loguru import logger
 from rich.console import Console
 from rich.progress import track
 
-from erenshor.application.generators.categories import CategoryGenerator
-from erenshor.application.generators.character_template_generator import CharacterTemplateGenerator
-from erenshor.application.generators.field_preservation import FieldPreservationHandler
-from erenshor.application.generators.item_template_generator import ItemTemplateGenerator
-from erenshor.application.generators.legacy_template_remover import LegacyTemplateRemover
-from erenshor.application.generators.page_normalizer import PageNormalizer
-from erenshor.application.generators.skill_template_generator import SkillTemplateGenerator
-from erenshor.application.generators.spell_template_generator import SpellTemplateGenerator
-from erenshor.application.services.character_enricher import CharacterEnricher
-from erenshor.application.services.item_enricher import ItemEnricher
-from erenshor.application.services.skill_enricher import SkillEnricher
-from erenshor.application.services.spell_enricher import SpellEnricher
-from erenshor.application.services.wiki_helpers import display_operation_summary, group_entities_by_page_title
-from erenshor.application.services.wiki_page import OperationResult, WikiPage
-from erenshor.application.services.wiki_storage import WikiStorage
-from erenshor.domain.entities import Character, Item, Skill, Spell
-from erenshor.infrastructure.database.repositories.characters import CharacterRepository
-from erenshor.infrastructure.database.repositories.factions import FactionRepository
-from erenshor.infrastructure.database.repositories.items import ItemRepository
-from erenshor.infrastructure.database.repositories.loot_tables import LootTableRepository
-from erenshor.infrastructure.database.repositories.quests import QuestRepository
-from erenshor.infrastructure.database.repositories.skills import SkillRepository
-from erenshor.infrastructure.database.repositories.spawn_points import SpawnPointRepository
-from erenshor.infrastructure.database.repositories.spells import SpellRepository
-from erenshor.registry.resolver import RegistryResolver
+if TYPE_CHECKING:
+    import mwparserfromhell
+    import mwparserfromhell.nodes
+    import mwparserfromhell.wikicode
+
+    from erenshor.application.wiki.generators.base import GeneratedPage
+    from erenshor.application.wiki.services.storage import WikiStorage
+    from erenshor.infrastructure.database.repositories.characters import CharacterRepository
+    from erenshor.infrastructure.database.repositories.factions import FactionRepository
+    from erenshor.infrastructure.database.repositories.items import ItemRepository
+    from erenshor.infrastructure.database.repositories.loot_tables import LootTableRepository
+    from erenshor.infrastructure.database.repositories.quests import QuestRepository
+    from erenshor.infrastructure.database.repositories.skills import SkillRepository
+    from erenshor.infrastructure.database.repositories.spawn_points import SpawnPointRepository
+    from erenshor.infrastructure.database.repositories.spells import SpellRepository
+    from erenshor.registry.resolver import RegistryResolver
+
+from erenshor.application.wiki.generators.context import GeneratorContext
+from erenshor.application.wiki.generators.field_preservation import FieldPreservationHandler
+from erenshor.application.wiki.generators.legacy_template_remover import LegacyTemplateRemover
+from erenshor.application.wiki.generators.page_normalizer import PageNormalizer
+from erenshor.application.wiki.generators.registry import get_generators_by_name
+from erenshor.application.wiki.services.page import OperationResult
 
 
 class WikiGenerateService:
@@ -70,41 +70,23 @@ class WikiGenerateService:
             console: Rich console for output (optional).
         """
         self._storage = storage
-        self._item_repo = item_repo
-        self._character_repo = character_repo
-        self._spell_repo = spell_repo
-        self._skill_repo = skill_repo
-        self._quest_repo = quest_repo
-        self._resolver = registry_resolver
         self._console = console or Console()
 
-        # Initialize enrichers
-        self._item_enricher = ItemEnricher(
+        # Create generator context with all dependencies
+        self._context = GeneratorContext(
             item_repo=item_repo,
-            spell_repo=spell_repo,
             character_repo=character_repo,
-            quest_repo=quest_repo,
-        )
-        self._character_enricher = CharacterEnricher(
+            spell_repo=spell_repo,
+            skill_repo=skill_repo,
+            faction_repo=faction_repo,
             spawn_repo=spawn_repo,
             loot_repo=loot_repo,
-        )
-        self._spell_enricher = SpellEnricher(
-            spell_repo=spell_repo,
-            item_repo=item_repo,
-        )
-        self._skill_enricher = SkillEnricher(
-            item_repo=item_repo,
+            quest_repo=quest_repo,
+            resolver=registry_resolver,
+            storage=storage,
         )
 
-        # Initialize generators and handlers
-        category_generator = CategoryGenerator(registry_resolver)
-        self._item_generator = ItemTemplateGenerator(registry_resolver, category_generator)
-        self._character_generator = CharacterTemplateGenerator(registry_resolver, category_generator)
-        self._spell_generator = SpellTemplateGenerator(registry_resolver)
-        self._skill_generator = SkillTemplateGenerator(registry_resolver)
-
-        # Store handlers
+        # Handlers for preservation and normalization
         self._preservation_handler = FieldPreservationHandler()
         self._legacy_remover = LegacyTemplateRemover()
         self._page_normalizer = PageNormalizer()
@@ -116,79 +98,87 @@ class WikiGenerateService:
         dry_run: bool = False,
         limit: int | None = None,
         page_titles: list[str] | None = None,
+        generator_names: list[str] | None = None,
     ) -> OperationResult:
-        """Generate wiki pages for all entities or specified page titles.
+        """Generate wiki pages using registered generators.
 
         Workflow:
-        1. Load ALL entities from ALL repositories (or filter by page_titles)
-        2. Resolve ALL page titles via registry
-        3. Group entities by page title
-        4. For each page, generate appropriate templates
-        5. Assemble and save locally
+        1. Instantiate generators from registry
+        2. Each generator produces GeneratedPage objects
+        3. Apply preservation and normalization
+        4. Save to storage
 
         Args:
             dry_run: If True, generate content but don't save to storage.
             limit: Maximum number of pages to generate (for testing).
             page_titles: If specified, only generate these specific page titles. If None, generate all pages.
+            generator_names: Optional list of generator names to use. If None, use all registered generators.
 
         Returns:
             OperationResult with summary statistics and warnings/errors.
         """
         logger.info(
             f"Generating wiki pages (dry_run={dry_run}, limit={limit}, "
-            f"page_titles={len(page_titles) if page_titles else 'all'})"
+            f"page_titles={len(page_titles) if page_titles else 'all'}, "
+            f"generators={generator_names or 'all'})"
         )
 
-        # Load ALL entities from ALL repositories
-        items = self._item_repo.get_items_for_wiki_generation()
-        characters = self._character_repo.get_characters_for_wiki_generation()
-        spells = self._spell_repo.get_spells_for_wiki_generation()
-        skills = self._skill_repo.get_skills_for_wiki_generation()
+        # Get generators from registry
+        generators = get_generators_by_name(self._context, generator_names)
+        logger.debug(f"Using {len(generators)} generators")
 
-        all_entities: list[Item | Character | Spell | Skill] = list(chain(items, characters, spells, skills))
+        # Collect generated pages from all generators
+        all_generated_pages = []
+        for generator in generators:
+            logger.debug(f"Running generator: {generator.__class__.__name__}")
+            generated_pages = list(generator.generate_pages())
+            all_generated_pages.extend(generated_pages)
+            logger.debug(f"  Generated {len(generated_pages)} pages")
 
-        # Group entities by page title
-        pages = group_entities_by_page_title(all_entities, self._resolver)
-        total_pages = len(pages)
+        logger.info(f"Total pages generated: {len(all_generated_pages)}")
 
         # Filter by requested page titles if specified
         if page_titles:
             page_titles_set = set(page_titles)
-            pages = [p for p in pages if p.title in page_titles_set]
-            logger.info(f"Filtered to {len(pages)} pages matching requested titles (out of {total_pages} total)")
+            filtered_pages = [p for p in all_generated_pages if p.title in page_titles_set]
+            logger.info(
+                f"Filtered to {len(filtered_pages)} pages matching requested titles "
+                f"(out of {len(all_generated_pages)} total)"
+            )
+            all_generated_pages = filtered_pages
 
         # Apply limit after filtering
         if limit:
-            pages = pages[:limit]
-            logger.info(f"Limited to {len(pages)} pages")
+            all_generated_pages = all_generated_pages[:limit]
+            logger.info(f"Limited to {len(all_generated_pages)} pages")
 
-        # Generate each page
-        return self._generate_pages_bulk(pages, dry_run)
+        # Process and save pages
+        return self._process_generated_pages(all_generated_pages, dry_run)
 
-    def _generate_pages_bulk(
+    def _process_generated_pages(
         self,
-        pages: list[WikiPage],
+        generated_pages: list[GeneratedPage],
         dry_run: bool,
     ) -> OperationResult:
-        """Generate pages using appropriate template generators.
+        """Process generated pages with preservation and normalization.
 
         Args:
-            pages: List of WikiPage objects to generate.
+            generated_pages: List of GeneratedPage objects from generators.
             dry_run: If True, skip saving to storage.
 
         Returns:
             OperationResult with statistics and warnings/errors.
         """
-        total = len(pages)
+
+        total = len(generated_pages)
         succeeded = 0
         failed = 0
-        skipped = 0
         warnings: list[str] = []
         errors: list[str] = []
 
         self._console.print(f"\n[bold]Generating {total} wiki pages...[/bold]\n")
 
-        if not pages:
+        if not generated_pages:
             return OperationResult(
                 total=0,
                 succeeded=0,
@@ -198,64 +188,39 @@ class WikiGenerateService:
                 errors=[],
             )
 
-        # Process each page with progress bar
-        for page in track(
-            pages,
+        # Process each generated page with progress bar
+        for gen_page in track(
+            generated_pages,
             description="Processing pages",
             total=total,
         ):
             try:
-                # Determine which generator to use and generate templates for each entity
-                templates = []
-
-                for entity in page.entities:
-                    if isinstance(entity, Item):
-                        enriched = self._item_enricher.enrich(entity)
-                        template = self._item_generator.generate_template(enriched, page.title)
-                    elif isinstance(entity, Character):
-                        enriched = self._character_enricher.enrich(entity)
-                        template = self._character_generator.generate_template(enriched, page.title)
-                    elif isinstance(entity, Spell):
-                        enriched = self._spell_enricher.enrich(entity)
-                        template = self._spell_generator.generate_template(enriched, page.title)
-                    elif isinstance(entity, Skill):
-                        enriched = self._skill_enricher.enrich(entity)
-                        template = self._skill_generator.generate_template(enriched, page.title)
-                    else:
-                        logger.warning(f"Unknown entity type: {type(entity)}")
-                        continue
-
-                    templates.append(template)
-
-                # Concatenate templates
-                page_content = "\n\n".join(templates)
+                # Get generated content
+                page_content = gen_page.content
 
                 # Fetch existing content for preservation
-                existing = self._storage.read_fetched_by_title(page.title)
+                existing = self._storage.read_fetched_by_title(gen_page.title)
 
                 # Apply preservation and legacy removal if page exists
                 if existing:
-                    # Remove legacy templates FIRST (before field preservation)
-                    # This ensures {{Character}} → {{Enemy}} conversion happens before
-                    # we try to merge Enemy fields, avoiding duplicate templates
+                    # Remove legacy templates FIRST
                     if self._legacy_remover.has_legacy_templates(existing):
                         migrated_content = self._legacy_remover.remove_legacy_templates(existing)
-                        logger.debug(f"Legacy templates migrated: {page.title}")
+                        logger.debug(f"Legacy templates migrated: {gen_page.title}")
                     else:
                         migrated_content = existing
 
-                    # Preserve manual edits (after legacy migration)
+                    # Preserve manual edits
                     final_content = self._preservation_handler.merge_templates(
                         old_wikitext=migrated_content,
                         new_wikitext=page_content,
                         template_names=["Item", "Enemy", "Ability"],
                     )
 
-                    # Replace fancy tables (Fancy-weapon, Fancy-armor, Fancy-charm)
-                    # These tables are 100% generated, no manual content
+                    # Replace fancy tables
                     final_content = self._replace_fancy_tables(final_content, page_content)
 
-                    # Normalize page: merge categories from old + new, move to top, clean formatting
+                    # Normalize page
                     final_content = self._page_normalizer.normalize(final_content, page_content)
                 else:
                     # New page, just normalize
@@ -264,28 +229,30 @@ class WikiGenerateService:
                 # Save to storage (skip in dry-run)
                 if not dry_run:
                     self._storage.save_generated_by_title(
-                        page.title,
-                        page.stable_keys,
+                        gen_page.title,
+                        gen_page.stable_keys,
                         final_content,
                     )
 
                 succeeded += 1
 
             except Exception as e:
-                error_msg = f"Error generating page {page.title}: {e}"
+                error_msg = f"Error generating page {gen_page.title}: {e}"
                 logger.error(error_msg)
                 errors.append(error_msg)
                 self._console.print(f"[red]✗[/red] {error_msg}")
                 failed += 1
 
         # Display summary
+        from erenshor.application.wiki.services.helpers import display_operation_summary
+
         display_operation_summary(
             console=self._console,
             operation="Generate",
             total=total,
             succeeded=succeeded,
             failed=failed,
-            skipped=skipped,
+            skipped=0,
             warnings=warnings,
             errors=errors,
             dry_run=dry_run,
@@ -295,7 +262,7 @@ class WikiGenerateService:
             total=total,
             succeeded=succeeded,
             failed=failed,
-            skipped=skipped,
+            skipped=0,
             warnings=warnings,
             errors=errors,
         )
@@ -341,7 +308,9 @@ class WikiGenerateService:
         # Find and replace standalone Fancy-charm template
         return self._replace_fancy_charm_template(old_code, new_wikitext)
 
-    def _replace_wiki_table(self, old_code, new_wikitext: str, fancy_names: list[str]) -> str:
+    def _replace_wiki_table(
+        self, old_code: mwparserfromhell.wikicode.Wikicode, new_wikitext: str, fancy_names: list[str]
+    ) -> str:
         """Replace wiki table containing Fancy-* templates.
 
         Args:
@@ -368,11 +337,6 @@ class WikiGenerateService:
         if not new_table_node:
             return str(old_code)
 
-        # Get the raw string representation (preserves original formatting from new_wikitext)
-        # Find the exact position of this table in the original new_wikitext
-        new_wikitext_str = str(new_code)
-        table_str = str(new_table_node)
-
         # The table in new_wikitext should be identical to what we just found
         # So we can use the original from new_wikitext which has correct formatting
         table_start = new_wikitext.find("{|")
@@ -396,12 +360,12 @@ class WikiGenerateService:
             logger.debug("Inserted fancy table after {{Item}}")
             return str(old_code)
 
-        # Fallback: append
+        # If no {{Item}} template found, append table at the end
         old_code.append(f"\n\n{new_table_raw}")
         logger.debug("Appended fancy table")
         return str(old_code)
 
-    def _replace_fancy_charm_template(self, old_code, new_wikitext: str) -> str:
+    def _replace_fancy_charm_template(self, old_code: mwparserfromhell.wikicode.Wikicode, new_wikitext: str) -> str:
         """Replace standalone Fancy-charm template.
 
         Args:
@@ -467,12 +431,12 @@ class WikiGenerateService:
             logger.debug("Inserted {{Fancy-charm}} after {{Item}}")
             return str(old_code)
 
-        # Fallback: append
+        # If no {{Item}} template found, append charm template at the end
         old_code.append(f"\n\n{new_charm_raw}")
         logger.debug("Appended {{Fancy-charm}}")
         return str(old_code)
 
-    def _find_item_template(self, code):
+    def _find_item_template(self, code: mwparserfromhell.wikicode.Wikicode) -> mwparserfromhell.nodes.Template | None:
         """Find {{Item}} template in parsed wikicode.
 
         Args:

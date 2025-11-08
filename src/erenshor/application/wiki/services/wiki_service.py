@@ -14,7 +14,7 @@ The service uses local file storage (WikiStorage) to enable:
 - Tracking what changed between versions
 
 Example:
-    >>> from erenshor.application.services.wiki_service import WikiService
+    >>> from erenshor.application.wiki.services.wiki_service import WikiService
     >>> from erenshor.infrastructure.wiki.client import MediaWikiClient
     >>> from pathlib import Path
     >>>
@@ -41,11 +41,11 @@ Example:
 from loguru import logger
 from rich.console import Console
 
-from erenshor.application.services.wiki_deploy_service import WikiDeployService
-from erenshor.application.services.wiki_fetch_service import WikiFetchService
-from erenshor.application.services.wiki_generate_service import WikiGenerateService
-from erenshor.application.services.wiki_page import OperationResult
-from erenshor.application.services.wiki_storage import WikiStorage
+from erenshor.application.wiki.services.deploy_service import WikiDeployService
+from erenshor.application.wiki.services.fetch_service import WikiFetchService
+from erenshor.application.wiki.services.generate_service import WikiGenerateService
+from erenshor.application.wiki.services.page import OperationResult
+from erenshor.application.wiki.services.storage import WikiStorage
 from erenshor.infrastructure.database.repositories.characters import CharacterRepository
 from erenshor.infrastructure.database.repositories.factions import FactionRepository
 from erenshor.infrastructure.database.repositories.items import ItemRepository
@@ -133,6 +133,10 @@ class WikiService:
             character_repo=character_repo,
             spell_repo=spell_repo,
             skill_repo=skill_repo,
+            faction_repo=faction_repo,
+            spawn_repo=spawn_repo,
+            loot_repo=loot_repo,
+            quest_repo=quest_repo,
             registry_resolver=registry_resolver,
             console=console,
         )

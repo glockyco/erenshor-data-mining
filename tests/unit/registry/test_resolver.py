@@ -3,8 +3,9 @@
 Tests registry resolver functionality including:
 - Auto-initialization when registry.db is missing
 - Auto-rebuild when mapping.json is newer
-- Resource name normalization in link methods
+- Resource name normalization via stable_key
 - Page title, display name, and image name resolution
+- Link template generation
 """
 
 import json
@@ -18,7 +19,7 @@ from erenshor.registry.resolver import RegistryResolver
 
 @pytest.fixture
 def game_database(tmp_path: Path) -> Path:
-    """Create a test game database with empty tables."""
+    """Create a test game database with test entities."""
     db_path = tmp_path / "game.sqlite"
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
@@ -32,6 +33,27 @@ def game_database(tmp_path: Path) -> Path:
     cursor.execute("CREATE TABLE Factions (StableKey TEXT PRIMARY KEY, FactionDesc TEXT)")
     cursor.execute("CREATE TABLE Quests (StableKey TEXT PRIMARY KEY)")
     cursor.execute("CREATE TABLE QuestVariants (QuestStableKey TEXT, QuestName TEXT)")
+
+    # Populate test entities
+    cursor.execute("INSERT INTO Items (StableKey, ItemName) VALUES ('item:test sword', 'Test Sword')")
+    cursor.execute(
+        "INSERT INTO Items (StableKey, ItemName) VALUES "
+        "('item:gen - scribbles of a mad priest 4', 'Scribbles of a mad priest')"
+    )
+    cursor.execute("INSERT INTO Items (StableKey, ItemName) VALUES ('item:excluded_item', 'Excluded Item')")
+    cursor.execute("INSERT INTO Factions (StableKey, FactionDesc) VALUES ('faction:brax', 'the Torchbearers of Brax')")
+    cursor.execute(
+        "INSERT INTO Factions (StableKey, FactionDesc) VALUES ('faction:excluded_faction', 'Excluded Faction')"
+    )
+    cursor.execute("INSERT INTO Zones (StableKey, ZoneName) VALUES ('zone:azure', 'Port Azure')")
+    cursor.execute("INSERT INTO Zones (StableKey, ZoneName) VALUES ('zone:excluded_zone', 'Excluded Zone')")
+    cursor.execute("INSERT INTO Spells (StableKey, SpellName) VALUES ('spell:fireball', 'Fireball')")
+    cursor.execute("INSERT INTO Spells (StableKey, SpellName) VALUES ('spell:test_with_image', 'Test With Image')")
+    cursor.execute("INSERT INTO Spells (StableKey, SpellName) VALUES ('spell:test_with_display', 'Test With Display')")
+    cursor.execute("INSERT INTO Spells (StableKey, SpellName) VALUES ('spell:excluded_spell', 'Excluded Spell')")
+    cursor.execute("INSERT INTO Skills (StableKey, SkillName) VALUES ('skill:sword mastery', 'Sword Mastery')")
+    cursor.execute("INSERT INTO Skills (StableKey, SkillName) VALUES ('skill:excluded_skill', 'Excluded Skill')")
+    cursor.execute("INSERT INTO Characters (StableKey, NPCName) VALUES ('character:excluded_npc', 'Excluded NPC')")
 
     conn.commit()
     conn.close()
@@ -225,63 +247,31 @@ class TestAutoInitialization:
             RegistryResolver(registry_path, game_database, missing_mapping)
 
 
-class TestResourceNameNormalization:
-    """Tests for resource name normalization in link methods."""
-
-    def test_item_link_normalizes_uppercase(self, resolver: RegistryResolver) -> None:
-        """Test item_link normalizes uppercase resource names."""
-        # "GEN - Scribbles of a mad priest 4" should normalize to lowercase
-        result = resolver.item_link("GEN - Scribbles of a mad priest 4", "Scribbles of a mad priest")
-
-        assert result == "{{ItemLink|Scribbles of a Mad Priest}}"
-
-    def test_faction_link_normalizes_uppercase(self, resolver: RegistryResolver) -> None:
-        """Test faction_link normalizes uppercase resource names."""
-        # "Brax" should normalize to "brax" for lookup
-        result = resolver.faction_link("Brax", "the Torchbearers of Brax")
-
-        assert result == "[[The Torchbearers of Brax]]"
-
-    def test_zone_link_normalizes_uppercase(self, resolver: RegistryResolver) -> None:
-        """Test zone_link normalizes uppercase resource names."""
-        # "Azure" should normalize to "azure" for lookup
-        result = resolver.zone_link("Azure", "Port Azure")
-
-        assert result == "[[Port Azure]]"
-
-    def test_item_link_with_mixed_case(self, resolver: RegistryResolver) -> None:
-        """Test item_link handles mixed case resource names."""
-        result = resolver.item_link("Test Sword", "Test Sword")
-
-        assert result == "{{ItemLink|Test Sword}}"
-
-    def test_faction_link_with_mixed_case(self, resolver: RegistryResolver) -> None:
-        """Test faction_link handles mixed case resource names."""
-        result = resolver.faction_link("BRAX", "the Torchbearers of Brax")
-
-        assert result == "[[The Torchbearers of Brax]]"
-
-
 class TestPageTitleResolution:
     """Tests for page title resolution."""
 
     def test_resolve_with_override(self, resolver: RegistryResolver) -> None:
         """Test resolves page title using mapping.json override."""
-        result = resolver.resolve_page_title("faction:brax", "the Torchbearers of Brax")
+        result = resolver.resolve_page_title("faction:brax")
 
         assert result == "The Torchbearers of Brax"
 
-    def test_resolve_with_fallback(self, resolver: RegistryResolver) -> None:
-        """Test falls back to entity name when no override exists."""
-        result = resolver.resolve_page_title("item:unknown", "Unknown Item")
+    def test_resolve_without_override(self, resolver: RegistryResolver) -> None:
+        """Test resolves page title from database when no override exists."""
+        result = resolver.resolve_page_title("item:test sword")
 
-        assert result == "Unknown Item"
+        assert result == "Test Sword"
 
     def test_resolve_excluded_returns_none(self, resolver: RegistryResolver) -> None:
         """Test returns None for excluded entities."""
-        result = resolver.resolve_page_title("character:excluded_npc", "Excluded NPC")
+        result = resolver.resolve_page_title("character:excluded_npc")
 
         assert result is None
+
+    def test_resolve_missing_entity_raises_error(self, resolver: RegistryResolver) -> None:
+        """Test raises ValueError for missing entities."""
+        with pytest.raises(ValueError, match="Entity not found in registry"):
+            resolver.resolve_page_title("item:does_not_exist")
 
 
 class TestDisplayNameResolution:
@@ -289,21 +279,26 @@ class TestDisplayNameResolution:
 
     def test_resolve_with_override(self, resolver: RegistryResolver) -> None:
         """Test resolves display name using mapping.json override."""
-        result = resolver.resolve_display_name("item:gen - scribbles of a mad priest 4", "Scribbles of a mad priest")
+        result = resolver.resolve_display_name("item:gen - scribbles of a mad priest 4")
 
         assert result == "Scribbles of a Mad Priest"
 
-    def test_resolve_with_fallback(self, resolver: RegistryResolver) -> None:
-        """Test falls back to entity name when no override exists."""
-        result = resolver.resolve_display_name("item:unknown", "Unknown Item")
+    def test_resolve_without_override(self, resolver: RegistryResolver) -> None:
+        """Test resolves display name from database when no override exists."""
+        result = resolver.resolve_display_name("item:test sword")
 
-        assert result == "Unknown Item"
+        assert result == "Test Sword"
 
     def test_resolve_excluded_still_returns_name(self, resolver: RegistryResolver) -> None:
         """Test returns display name even for excluded entities."""
-        result = resolver.resolve_display_name("character:excluded_npc", "Excluded NPC")
+        result = resolver.resolve_display_name("character:excluded_npc")
 
         assert result == "Excluded NPC"
+
+    def test_resolve_missing_entity_raises_error(self, resolver: RegistryResolver) -> None:
+        """Test raises ValueError for missing entities."""
+        with pytest.raises(ValueError, match="Entity not found in registry"):
+            resolver.resolve_display_name("item:does_not_exist")
 
 
 class TestImageNameResolution:
@@ -311,21 +306,26 @@ class TestImageNameResolution:
 
     def test_resolve_with_override(self, resolver: RegistryResolver) -> None:
         """Test resolves image name using mapping.json override."""
-        result = resolver.resolve_image_name("item:gen - scribbles of a mad priest 4", "Scribbles of a mad priest")
+        result = resolver.resolve_image_name("item:gen - scribbles of a mad priest 4")
 
         assert result == "Scribbles of a Mad Priest"
 
-    def test_resolve_with_fallback(self, resolver: RegistryResolver) -> None:
-        """Test falls back to entity name when no override exists."""
-        result = resolver.resolve_image_name("item:unknown", "Unknown Item")
+    def test_resolve_without_override(self, resolver: RegistryResolver) -> None:
+        """Test resolves image name from database when no override exists."""
+        result = resolver.resolve_image_name("item:test sword")
 
-        assert result == "Unknown Item"
+        assert result == "Test Sword"
 
     def test_resolve_excluded_returns_none(self, resolver: RegistryResolver) -> None:
         """Test returns None for excluded entities."""
-        result = resolver.resolve_image_name("character:excluded_npc", "Excluded NPC")
+        result = resolver.resolve_image_name("character:excluded_npc")
 
         assert result is None
+
+    def test_resolve_missing_entity_raises_error(self, resolver: RegistryResolver) -> None:
+        """Test raises ValueError for missing entities."""
+        with pytest.raises(ValueError, match="Entity not found in registry"):
+            resolver.resolve_image_name("item:does_not_exist")
 
 
 class TestExclusionChecks:
@@ -349,51 +349,51 @@ class TestLinkGeneration:
 
     def test_item_link_simple(self, resolver: RegistryResolver) -> None:
         """Test generates simple ItemLink template."""
-        result = resolver.item_link("test sword", "Test Sword")
+        result = resolver.item_link("item:test sword")
 
         assert result == "{{ItemLink|Test Sword}}"
 
     def test_item_link_with_overrides(self, resolver: RegistryResolver) -> None:
         """Test generates ItemLink with display name and image overrides."""
-        result = resolver.item_link("gen - scribbles of a mad priest 4", "Scribbles of a mad priest")
+        result = resolver.item_link("item:gen - scribbles of a mad priest 4")
 
         assert result == "{{ItemLink|Scribbles of a Mad Priest}}"
 
     def test_item_link_excluded(self, resolver: RegistryResolver) -> None:
         """Test returns plain text for excluded items."""
-        result = resolver.item_link("excluded_item", "Excluded Item")
+        result = resolver.item_link("item:excluded_item")
 
         assert result == "Excluded Item"
         assert "{{ItemLink" not in result
 
     def test_faction_link_simple(self, resolver: RegistryResolver) -> None:
         """Test generates simple faction link."""
-        result = resolver.faction_link("azure", "Port Azure Citizens")
+        result = resolver.faction_link("zone:azure")
 
-        assert result == "[[Port Azure Citizens]]"
+        assert result == "[[Port Azure]]"
 
     def test_faction_link_with_override(self, resolver: RegistryResolver) -> None:
         """Test generates faction link with override."""
-        result = resolver.faction_link("brax", "the Torchbearers of Brax")
+        result = resolver.faction_link("faction:brax")
 
         assert result == "[[The Torchbearers of Brax]]"
 
     def test_faction_link_excluded(self, resolver: RegistryResolver) -> None:
         """Test returns plain text for excluded factions."""
-        result = resolver.faction_link("excluded_faction", "Excluded Faction")
+        result = resolver.faction_link("faction:excluded_faction")
 
         assert result == "Excluded Faction"
         assert "[[" not in result
 
     def test_zone_link_simple(self, resolver: RegistryResolver) -> None:
         """Test generates simple zone link."""
-        result = resolver.zone_link("azure", "Port Azure")
+        result = resolver.zone_link("zone:azure")
 
         assert result == "[[Port Azure]]"
 
     def test_zone_link_excluded(self, resolver: RegistryResolver) -> None:
         """Test returns plain text for excluded zones."""
-        result = resolver.zone_link("excluded_zone", "Excluded Zone")
+        result = resolver.zone_link("zone:excluded_zone")
 
         assert result == "Excluded Zone"
         assert "[[" not in result
@@ -404,52 +404,40 @@ class TestAbilityLink:
 
     def test_ability_link_spell_simple(self, resolver: RegistryResolver) -> None:
         """Test simple spell link without overrides."""
-        result = resolver.ability_link("spell", "GEN - Stun", "Stun")
+        result = resolver.ability_link("spell:fireball")
 
-        assert result == "{{AbilityLink|Stun}}"
+        assert result == "{{AbilityLink|Fireball}}"
 
     def test_ability_link_skill_simple(self, resolver: RegistryResolver) -> None:
         """Test simple skill link without overrides."""
-        result = resolver.ability_link("skill", "Bash", "Bash")
+        result = resolver.ability_link("skill:sword mastery")
 
-        assert result == "{{AbilityLink|Bash}}"
+        assert result == "{{AbilityLink|Sword Mastery}}"
 
     def test_ability_link_with_image_override(self, resolver: RegistryResolver) -> None:
         """Test ability link with image name override."""
-        result = resolver.ability_link("spell", "test_with_image", "Test Spell")
+        result = resolver.ability_link("spell:test_with_image")
 
         assert "{{AbilityLink|Test Page Title" in result
         assert "image=CustomImage.png" in result
 
     def test_ability_link_with_display_override(self, resolver: RegistryResolver) -> None:
         """Test ability link with display name override."""
-        result = resolver.ability_link("spell", "test_with_display", "Test Spell")
+        result = resolver.ability_link("spell:test_with_display")
 
         assert "{{AbilityLink|Test Page Title" in result
         assert "text=Custom Display" in result
 
     def test_ability_link_spell_excluded(self, resolver: RegistryResolver) -> None:
         """Test returns plain text for excluded spells."""
-        result = resolver.ability_link("spell", "excluded_spell", "Excluded Spell")
+        result = resolver.ability_link("spell:excluded_spell")
 
         assert result == "Excluded Spell"
         assert "{{" not in result
 
     def test_ability_link_skill_excluded(self, resolver: RegistryResolver) -> None:
         """Test returns plain text for excluded skills."""
-        result = resolver.ability_link("skill", "excluded_skill", "Excluded Skill")
+        result = resolver.ability_link("skill:excluded_skill")
 
         assert result == "Excluded Skill"
         assert "{{" not in result
-
-    def test_ability_link_invalid_entity_type_raises_error(self, resolver: RegistryResolver) -> None:
-        """Test raises ValueError for invalid entity type."""
-        with pytest.raises(ValueError, match="entity_type must be 'spell' or 'skill'"):
-            resolver.ability_link("invalid", "TEST", "Test")
-
-    def test_ability_link_normalizes_case(self, resolver: RegistryResolver) -> None:
-        """Test ability_link normalizes uppercase resource names."""
-        result = resolver.ability_link("spell", "GEN - STUN", "Stun")
-
-        # Should normalize the stable key
-        assert "{{AbilityLink|" in result

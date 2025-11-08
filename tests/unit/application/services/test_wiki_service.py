@@ -11,8 +11,8 @@ from unittest.mock import Mock
 
 import pytest
 
-from erenshor.application.services.wiki_page import OperationResult
-from erenshor.application.services.wiki_service import WikiService
+from erenshor.application.wiki.services.page import OperationResult
+from erenshor.application.wiki.services.wiki_service import WikiService
 from erenshor.domain.entities.item import Item
 
 
@@ -70,7 +70,7 @@ def mock_skill_repo():
 @pytest.fixture
 def mock_storage(tmp_path):
     """Mock wiki storage."""
-    from erenshor.application.services.wiki_storage import WikiStorage
+    from erenshor.application.wiki.services.storage import WikiStorage
 
     return WikiStorage(tmp_path / "wiki")
 
@@ -79,8 +79,16 @@ def mock_storage(tmp_path):
 def mock_registry_resolver():
     """Mock registry resolver."""
     resolver = Mock()
-    # Default behavior: return entity name as page title
-    resolver.resolve_page_title.side_effect = lambda key, name: name
+
+    # Default behavior: return appropriate page title based on stable_key
+    def resolve_title(key: str) -> str:
+        if key == "item:testsword":
+            return "Test Sword"
+        if key.startswith("character:"):
+            return key.split(":", 1)[1].replace("_", " ").title()
+        return key
+
+    resolver.resolve_page_title.side_effect = resolve_title
     return resolver
 
 
@@ -147,6 +155,7 @@ def wiki_service(
 def sample_item():
     """Sample item entity."""
     return Item(
+        stable_key="item:testsword",
         item_db_index=1,
         id="item-1",
         item_name="Test Sword",
@@ -253,6 +262,7 @@ class TestFetchAll:
             item = Item(
                 item_db_index=i,
                 id=f"item-{i}",
+                stable_key=f"item:testsword{i}",
                 item_name=f"Test Sword {i}",  # Different names = different pages
                 resource_name=f"TestSword{i}",
                 lore="A test sword",
@@ -311,7 +321,7 @@ class TestGenerateAll:
         mock_item_repo.get_items_for_wiki_generation.return_value = [sample_item]
         mock_item_repo.get_item_stats.return_value = [
             ItemStats(
-                item_resource_name="TestSword",
+                item_stable_key="item:testsword",
                 quality="Normal",
                 weapon_dmg=10,
                 hp=0,
@@ -324,16 +334,11 @@ class TestGenerateAll:
                 wisdom=0,
                 intelligence=0,
                 charisma=0,
-                magic_resist=0,
-                elemental_resist=0,
-                void_resist=0,
-                poison_resist=0,
-                damage=10,
-                damage_variance=2,
-                attack_roll_bonus=0,
-                crit_roll_bonus=0,
-                worn_effect=None,
-                equipped_effect_intensity=None,
+                res=0,
+                mr=0,
+                er=0,
+                vr=0,
+                pr=0,
             ),
         ]
         mock_item_repo.get_item_classes.return_value = ["Warrior", "Paladin"]
@@ -346,12 +351,16 @@ class TestGenerateAll:
 
     def test_limit_parameter(self, wiki_service, mock_item_repo, sample_item):
         """Test limit parameter restricts processing."""
+        from erenshor.domain.entities.item_stats import ItemStats
+
         # Create items with different names to get different pages
         items = []
+        item_stats = []
         for i in range(10):
             item = Item(
                 item_db_index=i,
                 id=f"item-{i}",
+                stable_key=f"item:testsword{i}",
                 item_name=f"Test Sword {i}",  # Different names = different pages
                 resource_name=f"TestSword{i}",
                 lore="A test sword",
@@ -384,7 +393,23 @@ class TestGenerateAll:
                 equipped_effect_intensity=None,
             )
             items.append(item)
+            item_stats.append(
+                ItemStats(
+                    item_stable_key=f"item:testsword{i}",
+                    quality="Normal",
+                    weapon_dmg=10,
+                    hp=0,
+                    mana=0,
+                    armor=0,
+                    mr=0,
+                    er=0,
+                    vr=0,
+                    pr=0,
+                )
+            )
         mock_item_repo.get_items_for_wiki_generation.return_value = items
+        mock_item_repo.get_item_stats.return_value = item_stats
+        mock_item_repo.get_item_classes.return_value = []
 
         result = wiki_service.generate_all(dry_run=True, limit=3)
 
@@ -397,7 +422,7 @@ class TestGenerateAll:
         mock_item_repo.get_items_for_wiki_generation.return_value = [sample_item]
         mock_item_repo.get_item_stats.return_value = [
             ItemStats(
-                item_resource_name="TestSword",
+                item_stable_key="item:testsword",
                 quality="Normal",
                 weapon_dmg=10,
                 hp=0,
@@ -410,16 +435,11 @@ class TestGenerateAll:
                 wisdom=0,
                 intelligence=0,
                 charisma=0,
-                magic_resist=0,
-                elemental_resist=0,
-                void_resist=0,
-                poison_resist=0,
-                damage=10,
-                damage_variance=2,
-                attack_roll_bonus=0,
-                crit_roll_bonus=0,
-                worn_effect=None,
-                equipped_effect_intensity=None,
+                res=0,
+                mr=0,
+                er=0,
+                vr=0,
+                pr=0,
             ),
         ]
         mock_item_repo.get_item_classes.return_value = ["Warrior", "Paladin"]
@@ -479,6 +499,7 @@ class TestLegacyTemplateMigration:
             guid="test-guid",
             npc_name="Test Character",
             resource_name="test_character",
+            stable_key="character:test_character",
             object_name="Test_Character",  # Required for stable_key
             is_prefab=0,
             level=10,
@@ -500,7 +521,7 @@ class TestLegacyTemplateMigration:
         # Mock enrichment repositories to return empty data
         mock_faction_repo.get_faction_display_names.return_value = {}
         mock_spawn_repo.get_spawn_info_for_character.return_value = []
-        mock_loot_repo.get_loot_drops_for_character.return_value = []
+        mock_loot_repo.get_loot_for_character.return_value = []
 
         # Simulate fetched content with legacy {{Character}} template
         fetched_content = """{{Character

@@ -1,34 +1,38 @@
-"""Skill template generator for wiki content.
+"""Skill section generator for wiki content.
 
 This module generates MediaWiki {{Ability}} template wikitext for skill entities.
 
-Template generators handle SINGLE entities only. Multi-entity page assembly
-is handled by WikiService.
+This section generator produces templates for single skills. Multi-entity page
+assembly is handled by PageGenerator classes.
 """
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from loguru import logger
 
-from erenshor.application.generators.formatting import safe_str
-from erenshor.application.generators.template_generator_base import TemplateGeneratorBase
-from erenshor.domain.enriched_data.skill import EnrichedSkillData
-from erenshor.registry.resolver import RegistryResolver
+from erenshor.application.wiki.generators.formatting import safe_str
+from erenshor.application.wiki.generators.sections.base import SectionGeneratorBase
+
+if TYPE_CHECKING:
+    from erenshor.domain.enriched_data.skill import EnrichedSkillData
+    from erenshor.registry.resolver import RegistryResolver
 
 # Game constants for cooldown calculation
 GAME_TICKS_PER_SECOND = 60  # Game runs at 60 ticks per second
 
 
-class SkillTemplateGenerator(TemplateGeneratorBase):
-    """Generator for skill wiki templates.
+class SkillSectionGenerator(SectionGeneratorBase):
+    """Generator for skill wiki sections.
 
-    Generates {{Ability}} template wikitext for a SINGLE skill entity.
+    Generates {{Ability}} template wikitext for a single skill entity.
 
-    Multi-entity page assembly is handled by WikiService, not here.
+    Multi-entity page assembly is handled by PageGenerator classes, not here.
 
     Example:
         >>> resolver = RegistryResolver(...)
-        >>> generator = SkillTemplateGenerator(resolver)
+        >>> generator = SkillSectionGenerator(resolver)
         >>> skill = Skill(...)  # From repository
         >>> wikitext = generator.generate_template(skill, page_title="Shield Bash")
     """
@@ -110,9 +114,6 @@ class SkillTemplateGenerator(TemplateGeneratorBase):
         class_level_pairs.sort(key=lambda x: x[0])
         classes_list = [f"[[{class_name}]] ({level})" for class_name, level in class_level_pairs]
         classes = ", ".join(classes_list)
-
-        # Determine minimum level requirement across all classes
-        min_level = min([level for _, level in class_level_pairs]) if class_level_pairs else None
 
         # Build equipment requirements description
         equipment_reqs = []

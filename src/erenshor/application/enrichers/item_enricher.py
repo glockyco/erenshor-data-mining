@@ -124,7 +124,7 @@ class ItemEnricher:
                 return ProcInfo(
                     stable_key=item.weapon_proc_on_hit_stable_key,
                     description=spell.spell_desc or "",
-                    proc_chance=str(int(item.weapon_proc_chance)),
+                    proc_chance=str(int(item.weapon_proc_chance)) if item.weapon_proc_chance is not None else "0",
                     proc_style=proc_style,
                 )
 
@@ -135,7 +135,7 @@ class ItemEnricher:
                 return ProcInfo(
                     stable_key=item.wand_effect_stable_key,
                     description=spell.spell_desc or "",
-                    proc_chance=str(int(item.wand_proc_chance)),
+                    proc_chance=str(int(item.wand_proc_chance)) if item.wand_proc_chance is not None else "0",
                     proc_style="Attack",
                 )
 
@@ -146,7 +146,7 @@ class ItemEnricher:
                 return ProcInfo(
                     stable_key=item.bow_effect_stable_key,
                     description=spell.spell_desc or "",
-                    proc_chance=str(int(item.bow_proc_chance)),
+                    proc_chance=str(int(item.bow_proc_chance)) if item.bow_proc_chance is not None else "0",
                     proc_style="Attack",
                 )
 
@@ -233,7 +233,13 @@ class ItemEnricher:
             List of (character_stable_key, drop_probability) tuples
         """
         drop_rows = self._character_repo.get_characters_dropping_item(item.stable_key)
-        drops = [(str(row["StableKey"]), float(row["DropProbability"])) for row in drop_rows]
+        drops = [
+            (
+                str(row["StableKey"]),
+                float(row["DropProbability"]) if row["DropProbability"] is not None else 0.0,
+            )
+            for row in drop_rows
+        ]
         logger.debug(f"Found {len(drops)} drop sources for {item.item_name}")
         return drops
 

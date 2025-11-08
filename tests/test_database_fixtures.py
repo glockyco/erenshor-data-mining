@@ -37,10 +37,11 @@ def test_in_memory_db_can_insert_data(in_memory_db: sqlite3.Connection):
     cursor.execute(
         """
         INSERT INTO Items VALUES (
-            0, 'test_item', 'Test Item', 'A test item', 'Primary', 'None',
-            '', 1, 0.0, 0, 0.0, '', 0, 0, 0.0, '', 0.0, 0.0, 0.0, 0.0, 0.0, NULL,
-            0, '', 0.0, 0, 0.0, NULL, '', '', '', '', '', '', 0.0, NULL, NULL, 0, '', '',
-            10, 5, 1, 0, 0, 0, 0, '', 0, 0, 0, 0, NULL, NULL, '', 0, 0, 'TestItem'
+            0, 'test_item', 'item:test_item', 'Test Item', 'A test item', 'Primary', 'None',
+            '', 1, 0.0, 0, 0.0, '', NULL, 0, 0, 0.0, '', NULL, 0.0, 0.0, 0.0, 0.0, 0.0, NULL,
+            0, '', NULL, 0.0, 0, 0.0, NULL, '', NULL, '', NULL, '', NULL, '', NULL,
+            '', NULL, '', NULL, 0.0, NULL, NULL, NULL, NULL, 0, '', '',
+            10, 5, 1, 0, 0, 0, 0, '', 0, 0, 0, 0, NULL, '', '', 0, 0, 'TestItem'
         )
         """
     )

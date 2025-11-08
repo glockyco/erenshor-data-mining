@@ -8,9 +8,9 @@ from loguru import logger
 from rich.console import Console
 from rich.progress import track
 
-from erenshor.application.services.wiki_helpers import display_operation_summary
-from erenshor.application.services.wiki_page import OperationResult
-from erenshor.application.services.wiki_storage import WikiStorage
+from erenshor.application.wiki.services.helpers import display_operation_summary
+from erenshor.application.wiki.services.page import OperationResult
+from erenshor.application.wiki.services.storage import WikiStorage
 from erenshor.infrastructure.wiki.client import MediaWikiAPIError, MediaWikiClient
 
 

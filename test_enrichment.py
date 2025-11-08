@@ -171,15 +171,7 @@ def test_enrichment_modules():
         print(f"❌ Failed to import item_type_display: {e}")
         success = False
 
-    try:
-        from erenshor.application.generators.proc_extractor import ProcExtractor
-
-        print("✓ proc_extractor module imported")
-        print("  - ProcExtractor class available")
-    except ImportError as e:
-        print(f"❌ Failed to import proc_extractor: {e}")
-        success = False
-
+    # Note: proc_extractor.py was removed - proc logic moved to enrichers
     return success
 
 

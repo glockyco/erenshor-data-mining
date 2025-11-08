@@ -20,7 +20,7 @@ class Spell(BaseEntity):
     """
 
     # Primary keys and identifiers
-    stable_key: str | None = Field(default=None, description="Stable key from database (primary key)")
+    stable_key: str = Field(description="Stable key from database (primary key)")
 
     # Display fields
     spell_name: str | None = Field(default=None, description="Display name")
@@ -75,20 +75,21 @@ class Spell(BaseEntity):
     percent_mana_restoration: int | None = Field(default=None, description="Mana regen percentage")
     movement_speed: float | None = Field(default=None, description="Movement speed modifier")
 
-    # Primary stats
-    strength: int | None = Field(default=None, description="Strength modifier", alias="Str")
-    dexterity: int | None = Field(default=None, description="Dexterity modifier", alias="Dex")
-    endurance: int | None = Field(default=None, description="Endurance modifier", alias="End")
-    agility: int | None = Field(default=None, description="Agility modifier", alias="Agi")
-    wisdom: int | None = Field(default=None, description="Wisdom modifier", alias="Wis")
-    intelligence: int | None = Field(default=None, description="Intelligence modifier", alias="Int")
-    charisma: int | None = Field(default=None, description="Charisma modifier", alias="Cha")
+    # Primary stats (using safe field names with aliases for DB columns)
+    # Note: 'str', 'int', 'end' are Python builtins, so we use safe names + Field(alias=...)
+    str_: int | None = Field(default=None, description="Strength modifier (from DB column 'Str')", alias="str")
+    dex: int | None = Field(default=None, description="Dexterity modifier (from DB column 'Dex')")
+    end_: int | None = Field(default=None, description="Endurance modifier (from DB column 'End')", alias="end")
+    agi: int | None = Field(default=None, description="Agility modifier (from DB column 'Agi')")
+    wis: int | None = Field(default=None, description="Wisdom modifier (from DB column 'Wis')")
+    int_: int | None = Field(default=None, description="Intelligence modifier (from DB column 'Int')", alias="int")
+    cha: int | None = Field(default=None, description="Charisma modifier (from DB column 'Cha')")
 
-    # Resistances
-    magic_resist: int | None = Field(default=None, description="Magic resistance modifier", alias="MR")
-    elemental_resist: int | None = Field(default=None, description="Elemental resistance modifier", alias="ER")
-    poison_resist: int | None = Field(default=None, description="Poison resistance modifier", alias="PR")
-    void_resist: int | None = Field(default=None, description="Void resistance modifier", alias="VR")
+    # Resistances (field names match pascal_to_snake output from DB columns)
+    mr: int | None = Field(default=None, description="Magic resistance modifier (from DB column 'MR')")
+    er: int | None = Field(default=None, description="Elemental resistance modifier (from DB column 'ER')")
+    pr: int | None = Field(default=None, description="Poison resistance modifier (from DB column 'PR')")
+    vr: int | None = Field(default=None, description="Void resistance modifier (from DB column 'VR')")
 
     # Combat modifiers
     damage_shield: int | None = Field(

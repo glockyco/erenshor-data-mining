@@ -153,6 +153,9 @@ def get_entity(session: Session, stable_key: str) -> EntityRecord | None:
     Returns:
         EntityRecord if found, None otherwise
 
+    Raises:
+        ValueError: If stable_key format is invalid or entity_type is unknown
+
     Example:
         >>> from sqlmodel import Session, create_engine
         >>> engine = create_engine("sqlite:///registry.db")
@@ -164,6 +167,17 @@ def get_entity(session: Session, stable_key: str) -> EntityRecord | None:
         ...         print("Not found")
         Found: Iron Sword
     """
+    # Validate stable key format
+    if ":" not in stable_key:
+        raise ValueError(f"Invalid stable key format: '{stable_key}' (expected 'entity_type:resource_name')")
+
+    # Validate entity type
+    entity_type_str = stable_key.split(":", 1)[0]
+    try:
+        EntityType(entity_type_str)
+    except ValueError as err:
+        raise ValueError(f"Unknown entity type: '{entity_type_str}' in stable key '{stable_key}'") from err
+
     # Query for entity by stable_key
     statement = select(EntityRecord).where(EntityRecord.stable_key == stable_key)
     entity = session.exec(statement).first()
@@ -292,14 +306,14 @@ def find_conflicts(session: Session) -> list[tuple[str, list[EntityRecord]]]:
 
 def create_conflict_record(
     session: Session,
-    entity_ids: list[int],
+    entity_stable_keys: list[str],
     conflict_type: str,
 ) -> ConflictRecord:
     """Create a conflict record for tracking.
 
     Args:
         session: SQLModel database session
-        entity_ids: List of entity IDs involved in the conflict
+        entity_stable_keys: List of entity stable keys involved in the conflict
         conflict_type: Type of conflict (e.g., "name_collision", "ambiguous_reference")
 
     Returns:
@@ -311,7 +325,7 @@ def create_conflict_record(
         >>> with Session(engine) as session:
         ...     conflict = create_conflict_record(
         ...         session,
-        ...         entity_ids=[1, 2, 3],
+        ...         entity_stable_keys=["item:sword1", "item:sword2"],
         ...         conflict_type="name_collision",
         ...     )
         ...     print(f"Created conflict record: {conflict.id}")
@@ -319,7 +333,7 @@ def create_conflict_record(
     """
     # Create conflict record
     conflict = ConflictRecord(
-        entity_ids=json.dumps(entity_ids),
+        entity_stable_keys=json.dumps(entity_stable_keys),
         conflict_type=conflict_type,
         resolved=False,
         created_at=datetime.now(UTC),
@@ -329,7 +343,9 @@ def create_conflict_record(
     session.commit()
     session.refresh(conflict)
 
-    logger.info(f"Created conflict record: id={conflict.id}, type={conflict_type}, entity_ids={entity_ids}")
+    logger.info(
+        f"Created conflict record: id={conflict.id}, type={conflict_type}, entity_stable_keys={entity_stable_keys}"
+    )
 
     return conflict
 
@@ -337,7 +353,7 @@ def create_conflict_record(
 def resolve_conflict(
     session: Session,
     conflict_id: int,
-    chosen_entity_id: int,
+    chosen_stable_key: str,
     notes: str | None = None,
 ) -> None:
     """Resolve a conflict by choosing canonical entity.
@@ -345,11 +361,11 @@ def resolve_conflict(
     Args:
         session: SQLModel database session
         conflict_id: ID of the conflict record to resolve
-        chosen_entity_id: ID of the chosen canonical entity
+        chosen_stable_key: Stable key of the chosen canonical entity
         notes: Optional notes explaining the resolution
 
     Raises:
-        ValueError: If conflict not found or chosen_entity_id not in conflict
+        ValueError: If conflict not found or chosen_stable_key not in conflict
 
     Example:
         >>> from sqlmodel import Session, create_engine
@@ -358,8 +374,8 @@ def resolve_conflict(
         ...     resolve_conflict(
         ...         session,
         ...         conflict_id=1,
-        ...         chosen_entity_id=2,
-        ...         notes="Chose entity 2 as canonical version",
+        ...         chosen_stable_key="item:sword2",
+        ...         notes="Chose sword2 as canonical version",
         ...     )
         ...     print("Conflict resolved")
         Conflict resolved
@@ -369,23 +385,23 @@ def resolve_conflict(
     if not conflict:
         raise ValueError(f"Conflict not found: {conflict_id}")
 
-    # Verify chosen_entity_id is in conflict
-    entity_ids = json.loads(conflict.entity_ids)
-    if chosen_entity_id not in entity_ids:
+    # Verify chosen_stable_key is in conflict
+    entity_stable_keys = json.loads(conflict.entity_stable_keys)
+    if chosen_stable_key not in entity_stable_keys:
         raise ValueError(
-            f"Entity {chosen_entity_id} is not part of conflict {conflict_id}. Valid entity IDs: {entity_ids}"
+            f"Entity {chosen_stable_key} is not part of conflict {conflict_id}. Valid stable keys: {entity_stable_keys}"
         )
 
     # Update conflict record
     conflict.resolved = True
-    conflict.resolution_entity_id = chosen_entity_id
+    conflict.resolution_stable_key = chosen_stable_key
     conflict.resolution_notes = notes
     conflict.resolved_at = datetime.now(UTC)
 
     session.add(conflict)
     session.commit()
 
-    logger.info(f"Resolved conflict: id={conflict_id}, chosen_entity={chosen_entity_id}, notes={notes!r}")
+    logger.info(f"Resolved conflict: id={conflict_id}, chosen_entity={chosen_stable_key}, notes={notes!r}")
 
 
 def populate_all_entities(session: Session, db_path: Path) -> int:
@@ -610,7 +626,7 @@ def load_mapping_json(session: Session, mapping_path: Path) -> int:
             raise ValueError(f"Invalid stable key '{stable_key}': missing ':' separator")
 
         # Normalize stable key to lowercase for case-insensitive lookups
-        stable_key = stable_key.lower()
+        normalized_key = stable_key.lower()
 
         # Check if entity is excluded (wiki_page_name explicitly null in mapping)
         # Note: We check if the key exists but value is null
@@ -623,13 +639,13 @@ def load_mapping_json(session: Session, mapping_path: Path) -> int:
 
         # Skip if no overrides and not excluded (entity not in mapping.json at all)
         if not excluded and page_title is None and display_name is None and image_name is None:
-            logger.debug(f"Skipping {stable_key} - no overrides and not excluded")
+            logger.debug(f"Skipping {normalized_key} - no overrides and not excluded")
             continue
 
         # Register entity override (including exclusions)
         register_entity(
             session,
-            stable_key=stable_key,
+            stable_key=normalized_key,
             page_title=page_title,
             display_name=display_name,
             image_name=image_name,

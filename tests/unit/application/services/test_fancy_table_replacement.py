@@ -4,7 +4,7 @@ Tests that fancy tables and templates are replaced correctly while preserving
 the original formatting (no spaces added around equals signs).
 """
 
-from erenshor.application.services.wiki_generate_service import WikiGenerateService
+from erenshor.application.wiki.services.generate_service import WikiGenerateService
 
 
 class TestFancyTableReplacement:

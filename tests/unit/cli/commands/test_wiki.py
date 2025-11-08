@@ -11,7 +11,7 @@ with patch("erenshor.cli.preconditions.require_preconditions") as mock_decorator
     mock_decorator.side_effect = lambda *checks: lambda func: func
     from erenshor.cli.main import app
 
-from erenshor.application.services.wiki_page import OperationResult
+from erenshor.application.wiki.services.page import OperationResult
 
 runner = CliRunner()
 

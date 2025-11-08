@@ -36,10 +36,10 @@ class TestCharacterStableKey:
 
         assert character.stable_key == "character:town guard|azure|123.45|67.89|234.56"
 
-    def test_stable_key_can_be_none(self):
-        """stable_key can be None if not set from database."""
+    def test_stable_key_required(self):
+        """stable_key is required and must be provided."""
         character = Character(
-            stable_key=None,
+            stable_key="character:wandering merchant",
             object_name="Wandering Merchant",
             npc_name="A Merchant",
             is_prefab=None,
@@ -49,7 +49,7 @@ class TestCharacterStableKey:
             z=75.0,
         )
 
-        assert character.stable_key is None
+        assert character.stable_key == "character:wandering merchant"
 
     def test_stable_key_independent_of_coordinates(self):
         """stable_key is set independently from coordinates."""

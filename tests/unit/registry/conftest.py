@@ -1,7 +1,6 @@
 """Pytest configuration and fixtures for registry tests."""
 
 import json
-from datetime import UTC, datetime
 
 import pytest
 from sqlmodel import Session, SQLModel, create_engine
@@ -36,42 +35,31 @@ def temp_db_path(tmp_path):
 @pytest.fixture
 def sample_entities():
     """Create sample EntityRecord instances for testing."""
-    now = datetime.now(UTC)
     return [
         EntityRecord(
+            stable_key="item:iron_sword",
             entity_type=EntityType.ITEM,
-            resource_name="iron_sword",
             display_name="Iron Sword",
-            first_seen=now,
-            last_seen=now,
         ),
         EntityRecord(
+            stable_key="item:steel_sword",
             entity_type=EntityType.ITEM,
-            resource_name="steel_sword",
             display_name="Steel Sword",
-            first_seen=now,
-            last_seen=now,
         ),
         EntityRecord(
+            stable_key="spell:fireball",
             entity_type=EntityType.SPELL,
-            resource_name="fireball",
             display_name="Fireball",
-            first_seen=now,
-            last_seen=now,
         ),
         EntityRecord(
+            stable_key="character:goblin_warrior",
             entity_type=EntityType.CHARACTER,
-            resource_name="goblin_warrior",
             display_name="Goblin Warrior",
-            first_seen=now,
-            last_seen=now,
         ),
         EntityRecord(
+            stable_key="character:goblin_shaman",
             entity_type=EntityType.CHARACTER,
-            resource_name="goblin_shaman",
             display_name="Goblin Warrior",  # Duplicate display name for conflict testing
-            first_seen=now,
-            last_seen=now,
         ),
     ]
 

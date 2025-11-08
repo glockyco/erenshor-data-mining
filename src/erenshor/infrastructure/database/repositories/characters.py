@@ -5,6 +5,7 @@ from loguru import logger
 from erenshor.domain.entities.character import Character
 from erenshor.domain.value_objects.faction import FactionModifier
 from erenshor.infrastructure.database.repository import BaseRepository, RepositoryError
+from erenshor.infrastructure.database.row_types import CharacterDropRow
 
 from ._case_utils import pascal_to_snake
 
@@ -244,7 +245,7 @@ class CharacterRepository(BaseRepository[Character]):
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve vendors for item '{item_stable_key}': {e}") from e
 
-    def get_characters_dropping_item(self, item_stable_key: str) -> list[dict[str, object]]:
+    def get_characters_dropping_item(self, item_stable_key: str) -> list[CharacterDropRow]:
         """Get characters that drop the given item.
 
         Uses LootDrops table to find characters dropping this item.
@@ -277,7 +278,13 @@ class CharacterRepository(BaseRepository[Character]):
         try:
             rows = self._execute_raw(query, (item_stable_key,))
             logger.debug(f"Found {len(rows)} characters dropping '{item_stable_key}'")
-            return [dict(row) for row in rows]
+            return [
+                {
+                    "StableKey": str(row["StableKey"]),
+                    "DropProbability": (float(row["DropProbability"]) if row["DropProbability"] is not None else None),
+                }
+                for row in rows
+            ]
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve droppers for item '{item_stable_key}': {e}") from e
 

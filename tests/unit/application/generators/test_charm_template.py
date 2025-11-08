@@ -4,8 +4,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from erenshor.application.generators.categories import CategoryGenerator
-from erenshor.application.generators.item_template_generator import ItemTemplateGenerator
+from erenshor.application.wiki.generators.sections.categories import CategoryGenerator
+from erenshor.application.wiki.generators.sections.item import ItemSectionGenerator
 from erenshor.domain.enriched_data.item import EnrichedItemData
 from erenshor.domain.entities.item import Item
 from erenshor.domain.entities.item_stats import ItemStats
@@ -39,9 +39,9 @@ def category_generator(mock_resolver):
 
 
 @pytest.fixture
-def generator(mock_resolver, category_generator):
+def generator(mock_resolver):
     """Create item template generator."""
-    return ItemTemplateGenerator(mock_resolver, category_generator)
+    return ItemSectionGenerator(mock_resolver)
 
 
 class TestCharmTemplate:
@@ -53,6 +53,7 @@ class TestCharmTemplate:
         item = Item(
             id="charm-1",
             resource_name="CharmBrilliance",
+            stable_key="item:charmbrilliance",
             item_name="Charm of Brilliance",
             required_slot="Charm",
             lore="You find yourself saying 'actually...' more.",
@@ -87,6 +88,7 @@ class TestCharmTemplate:
         item = Item(
             id="charm-2",
             resource_name="WarlordCharm",
+            stable_key="item:warlordcharm",
             item_name="Warlord's Charm",
             required_slot="Charm",
         )
@@ -118,6 +120,7 @@ class TestCharmTemplate:
         item = Item(
             id="charm-3",
             resource_name="BasicCharm",
+            stable_key="item:basiccharm",
             item_name="Basic Charm",
             required_slot="Charm",
         )
@@ -134,6 +137,7 @@ class TestCharmTemplate:
         item = Item(
             id="charm-4",
             resource_name="AdventureCharm",
+            stable_key="item:adventurecharm",
             item_name="Adventure Charm",
             required_slot="Charm",
             lore="Your step has more confidence and your mind is clear",

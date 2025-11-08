@@ -26,28 +26,29 @@ class ItemStats(BaseEntity):
     # Weapon damage
     weapon_dmg: int | None = Field(default=None, description="Weapon damage")
 
-    # Core stats
-    ac: int | None = Field(default=None, description="Armor", alias="AC")
-    hp: int | None = Field(default=None, description="Health", alias="HP")
-    mana: int | None = Field(default=None, description="Mana", alias="Mana")
+    # Core stats (field names match pascal_to_snake output from DB columns)
+    ac: int | None = Field(default=None, description="Armor (from DB column 'AC')")
+    hp: int | None = Field(default=None, description="Health (from DB column 'HP')")
+    mana: int | None = Field(default=None, description="Mana (from DB column 'Mana')")
 
-    # Primary attributes
-    strength: int | None = Field(default=None, description="Strength", alias="Str")
-    endurance: int | None = Field(default=None, description="Endurance", alias="End")
-    dexterity: int | None = Field(default=None, description="Dexterity", alias="Dex")
-    agility: int | None = Field(default=None, description="Agility", alias="Agi")
-    intelligence: int | None = Field(default=None, description="Intelligence", alias="Int")
-    wisdom: int | None = Field(default=None, description="Wisdom", alias="Wis")
-    charisma: int | None = Field(default=None, description="Charisma", alias="Cha")
+    # Primary attributes (using safe field names with aliases for DB columns)
+    # Note: 'str', 'int', 'end' are Python builtins, so we use safe names + Field(alias=...)
+    str_: int | None = Field(default=None, description="Strength (from DB column 'Str')", alias="str")
+    end_: int | None = Field(default=None, description="Endurance (from DB column 'End')", alias="end")
+    dex: int | None = Field(default=None, description="Dexterity (from DB column 'Dex')")
+    agi: int | None = Field(default=None, description="Agility (from DB column 'Agi')")
+    int_: int | None = Field(default=None, description="Intelligence (from DB column 'Int')", alias="int")
+    wis: int | None = Field(default=None, description="Wisdom (from DB column 'Wis')")
+    cha: int | None = Field(default=None, description="Charisma (from DB column 'Cha')")
 
-    # Special stats
-    res: int | None = Field(default=None, description="Resonance", alias="Res")
+    # Special stats (field names match pascal_to_snake output from DB columns)
+    res: int | None = Field(default=None, description="Resonance (from DB column 'Res')")
 
-    # Resistances
-    mr: int | None = Field(default=None, description="Magic resistance", alias="MR")
-    er: int | None = Field(default=None, description="Elemental resistance", alias="ER")
-    pr: int | None = Field(default=None, description="Poison resistance", alias="PR")
-    vr: int | None = Field(default=None, description="Void resistance", alias="VR")
+    # Resistances (field names match pascal_to_snake output from DB columns)
+    mr: int | None = Field(default=None, description="Magic resistance (from DB column 'MR')")
+    er: int | None = Field(default=None, description="Elemental resistance (from DB column 'ER')")
+    pr: int | None = Field(default=None, description="Poison resistance (from DB column 'PR')")
+    vr: int | None = Field(default=None, description="Void resistance (from DB column 'VR')")
 
     # Stat scaling properties
     # These are often referred to as "proficiencies" throughout the game.

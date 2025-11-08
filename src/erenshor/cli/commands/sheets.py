@@ -17,8 +17,8 @@ from rich.panel import Panel
 from rich.table import Table
 from sqlalchemy import create_engine
 
-from erenshor.application.formatters.sheets.formatter import SheetsFormatter
-from erenshor.application.services.sheets_service import SheetsService
+from erenshor.application.sheets.formatter import SheetsFormatter
+from erenshor.application.sheets.service import SheetsService
 from erenshor.cli.preconditions import require_preconditions
 from erenshor.cli.preconditions.checks.database import database_exists, database_has_items, database_valid
 from erenshor.infrastructure.publishers.sheets import GoogleSheetsPublisher

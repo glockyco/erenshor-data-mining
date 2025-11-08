@@ -1,4 +1,4 @@
-"""Unit tests for TemplateGeneratorBase.
+"""Unit tests for SectionGeneratorBase.
 
 Tests the base class functionality including template rendering, category
 formatting, and wikitext normalization.
@@ -6,13 +6,13 @@ formatting, and wikitext normalization.
 
 import pytest
 
-from erenshor.application.generators.template_generator_base import (
-    TemplateGeneratorBase,
+from erenshor.application.wiki.generators.sections.base import (
+    SectionGeneratorBase,
     TemplateNotFoundError,
 )
 
 
-class ConcreteTemplateGenerator(TemplateGeneratorBase):
+class ConcreteSectionGenerator(SectionGeneratorBase):
     """Concrete implementation for testing abstract base."""
 
     def generate_template(self, *args, **kwargs) -> str:
@@ -25,13 +25,13 @@ class TestTemplateGeneratorBase:
 
     def test_init_creates_jinja_environment(self):
         """Test that initialization creates Jinja2 environment."""
-        generator = ConcreteTemplateGenerator()
+        generator = ConcreteSectionGenerator()
         assert generator._jinja_env is not None
         assert generator._template_dir.exists()
 
     def test_render_template_with_simple_context(self):
         """Test rendering a template with simple context."""
-        generator = ConcreteTemplateGenerator()
+        generator = ConcreteSectionGenerator()
 
         # Item template exists in templates/
         context = {
@@ -73,14 +73,14 @@ class TestTemplateGeneratorBase:
 
     def test_render_template_not_found(self):
         """Test that rendering non-existent template raises error."""
-        generator = ConcreteTemplateGenerator()
+        generator = ConcreteSectionGenerator()
 
         with pytest.raises(TemplateNotFoundError):
             generator.render_template("nonexistent.jinja2", {})
 
     def test_normalize_wikitext_removes_trailing_whitespace(self):
         """Test that normalization removes trailing whitespace from lines."""
-        generator = ConcreteTemplateGenerator()
+        generator = ConcreteSectionGenerator()
 
         text = "Line 1   \nLine 2\t\nLine 3"
         result = generator.normalize_wikitext(text)
@@ -92,7 +92,7 @@ class TestTemplateGeneratorBase:
 
     def test_normalize_wikitext_reduces_excessive_blank_lines(self):
         """Test that normalization reduces 3+ consecutive blank lines to 2."""
-        generator = ConcreteTemplateGenerator()
+        generator = ConcreteSectionGenerator()
 
         text = "Line 1\n\n\n\n\nLine 2"
         result = generator.normalize_wikitext(text)
@@ -103,7 +103,7 @@ class TestTemplateGeneratorBase:
 
     def test_normalize_wikitext_ensures_trailing_newline(self):
         """Test that normalization ensures single trailing newline."""
-        generator = ConcreteTemplateGenerator()
+        generator = ConcreteSectionGenerator()
 
         text_without_newline = "Line 1\nLine 2"
         result = generator.normalize_wikitext(text_without_newline)
@@ -112,7 +112,7 @@ class TestTemplateGeneratorBase:
 
     def test_normalize_wikitext_empty_string(self):
         """Test normalizing empty string."""
-        generator = ConcreteTemplateGenerator()
+        generator = ConcreteSectionGenerator()
 
         result = generator.normalize_wikitext("")
 
@@ -120,7 +120,7 @@ class TestTemplateGeneratorBase:
 
     def test_render_weapon_template(self):
         """Test rendering weapon template."""
-        generator = ConcreteTemplateGenerator()
+        generator = ConcreteSectionGenerator()
 
         context = {
             "image": "[[File:Sword.png|150px]]",
@@ -166,7 +166,7 @@ class TestTemplateGeneratorBase:
 
     def test_render_armor_template(self):
         """Test rendering armor template."""
-        generator = ConcreteTemplateGenerator()
+        generator = ConcreteSectionGenerator()
 
         context = {
             "image": "[[File:Helmet.png|150px]]",
@@ -210,7 +210,7 @@ class TestTemplateGeneratorBase:
 
     def test_render_charm_template(self):
         """Test rendering charm template."""
-        generator = ConcreteTemplateGenerator()
+        generator = ConcreteSectionGenerator()
 
         context = {
             "image": "[[File:Charm.png|150px]]",
@@ -238,7 +238,7 @@ class TestTemplateGeneratorBase:
 
     def test_render_character_template(self):
         """Test rendering character template."""
-        generator = ConcreteTemplateGenerator()
+        generator = ConcreteSectionGenerator()
 
         context = {
             "name": "Test Goblin",
@@ -259,7 +259,7 @@ class TestTemplateGeneratorBase:
 
     def test_render_spell_template(self):
         """Test rendering spell template (partial check due to size)."""
-        generator = ConcreteTemplateGenerator()
+        generator = ConcreteSectionGenerator()
 
         context = {
             "id": "spell_001",

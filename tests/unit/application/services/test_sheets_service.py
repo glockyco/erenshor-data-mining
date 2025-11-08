@@ -14,7 +14,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from erenshor.application.services.sheets_service import (
+from erenshor.application.sheets.service import (
     DeploymentResult,
     SheetMetadata,
     SheetsService,

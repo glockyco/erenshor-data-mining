@@ -27,7 +27,7 @@ class Zone(BaseEntity):
     """
 
     # Primary key
-    stable_key: str | None = Field(default=None, description="Stable key from database (primary key)")
+    stable_key: str = Field(description="Stable key from database (primary key)")
 
     # Zone identification
     scene: str | None = Field(default=None, description="Scene/zone name")

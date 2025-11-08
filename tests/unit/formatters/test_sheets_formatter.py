@@ -7,7 +7,7 @@ import pytest
 
 def test_query_files_exist():
     """Test that all 21 query files exist."""
-    queries_dir = Path("src/erenshor/application/formatters/sheets/queries")
+    queries_dir = Path("src/erenshor/application/sheets/queries")
 
     expected_queries = [
         "achievement-triggers",
@@ -40,7 +40,7 @@ def test_query_files_exist():
 
 def test_query_files_not_empty():
     """Test that all query files have content."""
-    queries_dir = Path("src/erenshor/application/formatters/sheets/queries")
+    queries_dir = Path("src/erenshor/application/sheets/queries")
 
     # Get all .sql files
     sql_files = list(queries_dir.glob("*.sql"))
@@ -56,11 +56,11 @@ def test_sheets_formatter_get_sheet_names():
     """Test that SheetsFormatter can read sheet names from query files."""
     from sqlalchemy import create_engine
 
-    from erenshor.application.formatters.sheets import SheetsFormatter
+    from erenshor.application.sheets.formatter import SheetsFormatter
 
     # Use in-memory database for testing
     engine = create_engine("sqlite:///:memory:")
-    queries_dir = Path("src/erenshor/application/formatters/sheets/queries")
+    queries_dir = Path("src/erenshor/application/sheets/queries")
 
     formatter = SheetsFormatter(engine, queries_dir)
     sheet_names = formatter.get_sheet_names()

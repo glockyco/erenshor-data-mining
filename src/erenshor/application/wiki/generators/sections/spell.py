@@ -1,34 +1,38 @@
-"""Spell template generator for wiki content.
+"""Spell section generator for wiki content.
 
 This module generates MediaWiki {{Ability}} template wikitext for spell entities.
 
-Template generators handle SINGLE entities only. Multi-entity page assembly
-is handled by WikiService.
+This section generator produces templates for single spells. Multi-entity page
+assembly is handled by PageGenerator classes.
 """
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from loguru import logger
 
-from erenshor.application.generators.formatting import safe_str
-from erenshor.application.generators.template_generator_base import TemplateGeneratorBase
-from erenshor.domain.enriched_data.spell import EnrichedSpellData
-from erenshor.registry.resolver import RegistryResolver
+from erenshor.application.wiki.generators.formatting import safe_str
+from erenshor.application.wiki.generators.sections.base import SectionGeneratorBase
+
+if TYPE_CHECKING:
+    from erenshor.domain.enriched_data.spell import EnrichedSpellData
+    from erenshor.registry.resolver import RegistryResolver
 
 # Game constants for cast time calculation
 GAME_TICKS_PER_SECOND = 60  # Game runs at 60 ticks per second
 
 
-class SpellTemplateGenerator(TemplateGeneratorBase):
-    """Generator for spell wiki templates.
+class SpellSectionGenerator(SectionGeneratorBase):
+    """Generator for spell wiki sections.
 
-    Generates {{Ability}} template wikitext for a SINGLE spell entity.
+    Generates {{Ability}} template wikitext for a single spell entity.
 
-    Multi-entity page assembly is handled by WikiService, not here.
+    Multi-entity page assembly is handled by PageGenerator classes, not here.
 
     Example:
         >>> resolver = RegistryResolver(...)
-        >>> generator = SpellTemplateGenerator(resolver)
+        >>> generator = SpellSectionGenerator(resolver)
         >>> spell = Spell(...)  # From repository
         >>> wikitext = generator.generate_template(spell, page_title="Fireball")
     """
@@ -130,15 +134,20 @@ class SpellTemplateGenerator(TemplateGeneratorBase):
         if spell.add_proc_stable_key:
             add_proc = self._resolver.ability_link(spell.add_proc_stable_key)
 
+        # Format imagecaption from status effect message
+        imagecaption = ""
+        if spell.status_effect_message_on_player:
+            imagecaption = f"You {spell.status_effect_message_on_player}"
+
         context: dict[str, str] = {
             "title": page_title,
             "image": image,
-            "imagecaption": "",
+            "imagecaption": imagecaption,
             "description": safe_str(spell.spell_desc),
             "type": safe_str(spell.type),
             "line": safe_str(spell.line),
             "classes": classes,
-            "required_level": "",  # Redundant with classes field
+            "required_level": safe_str(spell.required_level, zero_as_blank=True),
             "manacost": safe_str(spell.mana_cost, zero_as_blank=True),
             "aggro": safe_str(spell.aggro, zero_as_blank=True),
             "is_taunt": bool_str(spell.taunt_spell),
@@ -150,7 +159,7 @@ class SpellTemplateGenerator(TemplateGeneratorBase):
             "is_instant_effect": bool_str(spell.instant_effect),
             "is_reap_and_renew": bool_str(spell.reap_and_renew),
             "is_sim_usable": bool_str(spell.sim_usable),
-            "range": "" if spell.self_only else safe_str(spell.spell_range, zero_as_blank=True),
+            "range": "" if spell.self_only else (str(int(spell.spell_range)) if spell.spell_range else ""),
             "max_level_target": safe_str(spell.max_level_target, zero_as_blank=True),
             "is_self_only": bool_str(spell.self_only),
             "is_group_effect": bool_str(spell.group_effect),
@@ -176,22 +185,22 @@ class SpellTemplateGenerator(TemplateGeneratorBase):
             "hp": safe_str(spell.hp, zero_as_blank=True),
             "ac": safe_str(spell.ac, zero_as_blank=True),
             "mana": safe_str(spell.mana, zero_as_blank=True),
-            "str": safe_str(spell.strength, zero_as_blank=True),
-            "dex": safe_str(spell.dexterity, zero_as_blank=True),
-            "end": safe_str(spell.endurance, zero_as_blank=True),
-            "agi": safe_str(spell.agility, zero_as_blank=True),
-            "wis": safe_str(spell.wisdom, zero_as_blank=True),
-            "int": safe_str(spell.intelligence, zero_as_blank=True),
-            "cha": safe_str(spell.charisma, zero_as_blank=True),
-            "mr": safe_str(spell.magic_resist, zero_as_blank=True),
-            "er": safe_str(spell.elemental_resist, zero_as_blank=True),
-            "vr": safe_str(spell.void_resist, zero_as_blank=True),
-            "pr": safe_str(spell.poison_resist, zero_as_blank=True),
+            "str": safe_str(spell.str_, zero_as_blank=True),
+            "dex": safe_str(spell.dex, zero_as_blank=True),
+            "end": safe_str(spell.end_, zero_as_blank=True),
+            "agi": safe_str(spell.agi, zero_as_blank=True),
+            "wis": safe_str(spell.wis, zero_as_blank=True),
+            "int": safe_str(spell.int_, zero_as_blank=True),
+            "cha": safe_str(spell.cha, zero_as_blank=True),
+            "mr": safe_str(spell.mr, zero_as_blank=True),
+            "er": safe_str(spell.er, zero_as_blank=True),
+            "vr": safe_str(spell.vr, zero_as_blank=True),
+            "pr": safe_str(spell.pr, zero_as_blank=True),
             "haste": safe_str(spell.haste, zero_as_blank=True),
             "resonance": safe_str(spell.resonate_chance, zero_as_blank=True),
             "movement_speed": safe_str(spell.movement_speed, zero_as_blank=True),
             "atk_roll_modifier": safe_str(spell.atk_roll_modifier, zero_as_blank=True),
-            "xp_bonus": safe_str(spell.xp_bonus) if has_duration else "",
+            "xp_bonus": safe_str(spell.xp_bonus, zero_as_blank=True) if has_duration else "",
             # Crowd control
             "is_root": bool_str(spell.root_target),
             "is_stun": bool_str(spell.stun_target),

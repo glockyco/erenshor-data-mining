@@ -4,7 +4,9 @@ from loguru import logger
 
 from erenshor.domain.entities.item import Item
 from erenshor.domain.entities.item_stats import ItemStats
+from erenshor.domain.value_objects.crafting_recipe import CraftingMaterial, CraftingRecipe, CraftingReward
 from erenshor.infrastructure.database.repository import BaseRepository, RepositoryError
+from erenshor.infrastructure.database.row_types import ItemStatsRow
 
 from ._case_utils import pascal_to_snake
 
@@ -267,7 +269,7 @@ class ItemRepository(BaseRepository[Item]):
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve items requiring '{item_stable_key}': {e}") from e
 
-    def get_crafting_recipe(self, item_stable_key: str) -> dict[str, object] | None:
+    def get_crafting_recipe(self, item_stable_key: str) -> CraftingRecipe | None:
         """Get complete crafting recipe for a mold item.
 
         Retrieves materials and rewards for the given crafting recipe.
@@ -306,19 +308,34 @@ class ItemRepository(BaseRepository[Item]):
         """
 
         try:
-            materials = self._execute_raw(materials_query, (item_stable_key,))
-            rewards = self._execute_raw(rewards_query, (item_stable_key,))
+            materials_rows = self._execute_raw(materials_query, (item_stable_key,))
+            rewards_rows = self._execute_raw(rewards_query, (item_stable_key,))
 
-            if not materials and not rewards:
+            if not materials_rows and not rewards_rows:
                 return None
+
+            materials: list[CraftingMaterial] = [
+                {
+                    "MaterialItemStableKey": str(row["MaterialItemStableKey"]),
+                    "MaterialQuantity": int(row["MaterialQuantity"]),
+                    "MaterialSlot": int(row["MaterialSlot"]),
+                }
+                for row in materials_rows
+            ]
+
+            rewards: list[CraftingReward] = [
+                {
+                    "RewardItemStableKey": str(row["RewardItemStableKey"]),
+                    "RewardQuantity": int(row["RewardQuantity"]),
+                    "RewardSlot": int(row["RewardSlot"]),
+                }
+                for row in rewards_rows
+            ]
 
             logger.debug(
                 f"Retrieved recipe for '{item_stable_key}': {len(materials)} materials, {len(rewards)} rewards"
             )
-            return {
-                "materials": [dict(row) for row in materials],
-                "rewards": [dict(row) for row in rewards],
-            }
+            return {"materials": materials, "rewards": rewards}
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve recipe for '{item_stable_key}': {e}") from e
 
@@ -479,119 +496,77 @@ class ItemRepository(BaseRepository[Item]):
         Raises:
             RepositoryError: If critical query failure occurs
         """
-        # Check if item is dropped by any character (with positive drop rate)
-        drops_query = """
-            SELECT 1 FROM LootDrops
-            WHERE ItemStableKey = ?
-            AND COALESCE(DropProbability, 0.0) > 0.0
-            LIMIT 1
+        # Check all acquisition methods in a single query using EXISTS
+        obtainability_query = """
+            SELECT 1 WHERE EXISTS (
+                -- Drops from characters (with positive drop rate)
+                SELECT 1 FROM LootDrops
+                WHERE ItemStableKey = ? AND COALESCE(DropProbability, 0.0) > 0.0
+            ) OR EXISTS (
+                -- Purchase from vendors
+                SELECT 1 FROM CharacterVendorItems WHERE ItemStableKey = ?
+            ) OR EXISTS (
+                -- Quest rewards
+                SELECT 1 FROM QuestRewards WHERE RewardType = 'Item' AND RewardValue = ?
+            ) OR EXISTS (
+                -- Quest dialog rewards
+                SELECT 1 FROM CharacterDialogs WHERE GiveItemStableKey = ?
+            ) OR EXISTS (
+                -- Fishing
+                SELECT 1 FROM WaterFishables WHERE ItemStableKey = ?
+            ) OR EXISTS (
+                -- Mining
+                SELECT 1 FROM MiningNodeItems WHERE ItemStableKey = ?
+            ) OR EXISTS (
+                -- Crafting
+                SELECT 1 FROM CraftingRewards WHERE RewardItemStableKey = ?
+            ) OR EXISTS (
+                -- World item bags
+                SELECT 1 FROM ItemBags WHERE ItemStableKey = ?
+            )
         """
-        if self._execute_raw(drops_query, (item_stable_key,)):
-            return True
+        return bool(self._execute_raw(obtainability_query, (item_stable_key,) * 8))
 
-        # Check if item is sold by any vendor
-        vendor_query = """
-            SELECT 1 FROM CharacterVendorItems
-            WHERE ItemStableKey = ?
-            LIMIT 1
-        """
-        if self._execute_raw(vendor_query, (item_stable_key,)):
-            return True
-
-        # Check if item is a quest reward
-        quest_reward_query = """
-            SELECT 1 FROM QuestRewards
-            WHERE RewardType = 'Item' AND RewardValue = ?
-            LIMIT 1
-        """
-        if self._execute_raw(quest_reward_query, (item_stable_key,)):
-            return True
-
-        # Check if item is given through quest dialog
-        quest_dialog_query = """
-            SELECT 1 FROM CharacterDialogs
-            WHERE GiveItemStableKey = ?
-            LIMIT 1
-        """
-        if self._execute_raw(quest_dialog_query, (item_stable_key,)):
-            return True
-
-        # Check if item is obtainable via fishing
-        fishing_query = """
-            SELECT 1 FROM WaterFishables
-            WHERE ItemStableKey = ?
-            LIMIT 1
-        """
-        if self._execute_raw(fishing_query, (item_stable_key,)):
-            return True
-
-        # Check if item is obtainable via mining
-        mining_query = """
-            SELECT 1 FROM MiningNodeItems
-            WHERE ItemStableKey = ?
-            LIMIT 1
-        """
-        if self._execute_raw(mining_query, (item_stable_key,)):
-            return True
-
-        # Check if item is craftable
-        crafting_query = """
-            SELECT 1 FROM CraftingRewards
-            WHERE RewardItemStableKey = ?
-            LIMIT 1
-        """
-        if self._execute_raw(crafting_query, (item_stable_key,)):
-            return True
-
-        # Check if item is in a world item bag
-        itembag_query = """
-            SELECT 1 FROM ItemBags
-            WHERE ItemStableKey = ?
-            LIMIT 1
-        """
-        if self._execute_raw(itembag_query, (item_stable_key,)):
-            return True
-
-        # No acquisition method found
-        return False
-
-    def _row_to_item_stats(self, row: dict[str, object]) -> ItemStats:
+    def _row_to_item_stats(self, row: ItemStatsRow) -> ItemStats:
         """Convert database row to ItemStats entity.
 
         Args:
-            row: sqlite3.Row object with ItemStats columns
+            row: Database row with ItemStats columns
 
         Returns:
             ItemStats entity
         """
-        return ItemStats(
-            item_stable_key=row["ItemStableKey"],
-            quality=row["Quality"],
-            weapon_dmg=row["WeaponDmg"],
-            hp=row["HP"],
-            ac=row["AC"],
-            mana=row["Mana"],
-            strength=row["Str"],
-            endurance=row["End"],
-            dexterity=row["Dex"],
-            agility=row["Agi"],
-            intelligence=row["Int"],
-            wisdom=row["Wis"],
-            charisma=row["Cha"],
-            res=row["Res"],
-            mr=row["MR"],
-            er=row["ER"],
-            pr=row["PR"],
-            vr=row["VR"],
-            str_scaling=row["StrScaling"],
-            end_scaling=row["EndScaling"],
-            dex_scaling=row["DexScaling"],
-            agi_scaling=row["AgiScaling"],
-            int_scaling=row["IntScaling"],
-            wis_scaling=row["WisScaling"],
-            cha_scaling=row["ChaScaling"],
-            resist_scaling=row["ResistScaling"],
-            mitigation_scaling=row["MitigationScaling"],
+        # Use model_validate with data dict (Pydantic handles aliases)
+        return ItemStats.model_validate(
+            {
+                "item_stable_key": row["ItemStableKey"],
+                "quality": row["Quality"],
+                "weapon_dmg": row["WeaponDmg"],
+                "hp": row["HP"],
+                "ac": row["AC"],
+                "mana": row["Mana"],
+                "str": row["Str"],  # Pydantic alias handles this
+                "end": row["End"],  # Pydantic alias handles this
+                "dex": row["Dex"],
+                "agi": row["Agi"],
+                "int": row["Int"],  # Pydantic alias handles this
+                "wis": row["Wis"],
+                "cha": row["Cha"],
+                "res": row["Res"],
+                "mr": row["MR"],
+                "er": row["ER"],
+                "pr": row["PR"],
+                "vr": row["VR"],
+                "str_scaling": row["StrScaling"],
+                "end_scaling": row["EndScaling"],
+                "dex_scaling": row["DexScaling"],
+                "agi_scaling": row["AgiScaling"],
+                "int_scaling": row["IntScaling"],
+                "wis_scaling": row["WisScaling"],
+                "cha_scaling": row["ChaScaling"],
+                "resist_scaling": row["ResistScaling"],
+                "mitigation_scaling": row["MitigationScaling"],
+            }
         )
 
     def _row_to_item(self, row: dict[str, object]) -> Item:

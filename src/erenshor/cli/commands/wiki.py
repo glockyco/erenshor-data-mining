@@ -25,8 +25,8 @@ from loguru import logger
 from rich.console import Console
 from rich.panel import Panel
 
-from erenshor.application.services.wiki_service import WikiService
-from erenshor.application.services.wiki_storage import WikiStorage
+from erenshor.application.wiki.services.storage import WikiStorage
+from erenshor.application.wiki.services.wiki_service import WikiService
 from erenshor.cli.context import CLIContext
 from erenshor.cli.preconditions import require_preconditions
 from erenshor.cli.preconditions.checks.database import database_exists, database_has_items, database_valid

@@ -20,7 +20,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, ClassVar
 
 if TYPE_CHECKING:
-    from erenshor.application.services.character_enricher import EnrichedCharacterData
+    from erenshor.domain.enriched_data.character import EnrichedCharacterData
+    from erenshor.domain.enriched_data.item import EnrichedItemData
+    from erenshor.domain.enriched_data.skill import EnrichedSkillData
+    from erenshor.domain.enriched_data.spell import EnrichedSpellData
     from erenshor.domain.entities.item import Item
     from erenshor.registry.resolver import RegistryResolver
 
@@ -60,6 +63,31 @@ class CategoryGenerator:
         """
         self._resolver = resolver
 
+    def generate_categories(
+        self,
+        enriched: EnrichedItemData | EnrichedCharacterData | EnrichedSpellData | EnrichedSkillData,
+    ) -> list[str]:
+        """Generate category list for any enriched entity.
+
+        Args:
+            enriched: Enriched entity data
+
+        Returns:
+            List of category names
+        """
+        from erenshor.domain.enriched_data.character import EnrichedCharacterData
+        from erenshor.domain.enriched_data.item import EnrichedItemData
+        from erenshor.domain.enriched_data.skill import EnrichedSkillData
+        from erenshor.domain.enriched_data.spell import EnrichedSpellData
+
+        if isinstance(enriched, EnrichedItemData):
+            return self.generate_item_categories(enriched)
+        if isinstance(enriched, EnrichedCharacterData):
+            return self.generate_character_categories(enriched)
+        if isinstance(enriched, (EnrichedSpellData, EnrichedSkillData)):
+            return []
+        return []
+
     # Mapping from ItemKind to primary category name
     ITEM_KIND_TO_CATEGORY: ClassVar[dict[ItemKind, str]] = {
         ItemKind.WEAPON: "Weapons",
@@ -71,7 +99,7 @@ class CategoryGenerator:
         ItemKind.GENERAL: "Items",
     }
 
-    def generate_item_categories(self, item: Item) -> list[str]:
+    def generate_item_categories(self, enriched: EnrichedItemData) -> list[str]:
         """Generate category tags for an item.
 
         Determines categories based on:
@@ -79,7 +107,7 @@ class CategoryGenerator:
         2. Item properties → secondary categories
 
         Args:
-            item: Item entity to generate categories for
+            enriched: Enriched item data
 
         Returns:
             List of category names (without [[Category:...]] wrapper)
@@ -87,20 +115,19 @@ class CategoryGenerator:
 
         Examples:
             Weapon:
-                >>> item = Item(required_slot="Primary", ...)
-                >>> generate_item_categories(item)
+                >>> generate_item_categories(enriched_weapon)
                 ['Weapons']
 
             Mold (multi-category):
-                >>> item = Item(template=1, required_slot="General", ...)
-                >>> generate_item_categories(item)
+                >>> generate_item_categories(enriched_mold)
                 ['Molds', 'Crafting Materials']
 
             Quest Item (cross-cutting category):
-                >>> item = Item(assign_quest_on_read="SomeQuest", ...)
-                >>> generate_item_categories(item)
+                >>> generate_item_categories(enriched_quest_item)
                 ['Items', 'Quest Items']
         """
+
+        item = enriched.item
         categories: list[str] = []
 
         # Determine item kind using existing classifier

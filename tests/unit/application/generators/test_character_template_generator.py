@@ -1,11 +1,11 @@
-"""Tests for character template generator."""
+"""Tests for character section generator."""
 
 from unittest.mock import MagicMock
 
 import pytest
 
-from erenshor.application.generators.categories import CategoryGenerator
-from erenshor.application.generators.character_template_generator import CharacterTemplateGenerator
+from erenshor.application.wiki.generators.sections.categories import CategoryGenerator
+from erenshor.application.wiki.generators.sections.character import CharacterSectionGenerator
 from erenshor.domain.enriched_data.character import EnrichedCharacterData
 from erenshor.domain.entities.character import Character
 
@@ -39,9 +39,9 @@ def category_generator(mock_resolver):
 
 
 @pytest.fixture
-def generator(mock_resolver, category_generator):
+def generator(mock_resolver):
     """Create character template generator."""
-    return CharacterTemplateGenerator(mock_resolver, category_generator)
+    return CharacterSectionGenerator(mock_resolver)
 
 
 @pytest.fixture
@@ -64,6 +64,7 @@ class TestResistanceFormatting:
             id=1,
             object_name="Test",
             npc_name="Test Character",
+            stable_key="character:test",
             guid="test-guid",
             level=1,
             hand_set_resistances=0,  # Dynamic resistances
@@ -99,6 +100,7 @@ class TestResistanceFormatting:
             id=1,
             object_name="Test",
             npc_name="Test Character",
+            stable_key="character:test",
             guid="test-guid",
             level=10,
             hand_set_resistances=1,  # Use base values
@@ -133,6 +135,7 @@ class TestResistanceFormatting:
             id=1,
             object_name="Test",
             npc_name="Test Character",
+            stable_key="character:test",
             guid="test-guid",
             level=1,
             hand_set_resistances=0,
@@ -164,6 +167,7 @@ class TestResistanceFormatting:
             id=1,
             object_name="Test",
             npc_name="Test Character",
+            stable_key="character:test",
             guid="test-guid",
             hand_set_resistances=0,
             effective_min_mr=None,
@@ -203,6 +207,7 @@ class TestResistanceRegressions:
             id=42,
             object_name="AGrassSpider",
             npc_name="A Grass Spider",
+            stable_key="character:agrassspider",
             guid="test-guid",
             level=1,
             hand_set_resistances=0,  # Dynamic calculation
@@ -242,6 +247,7 @@ class TestExperienceCalculation:
             id=1,
             object_name="Test",
             npc_name="Test Character",
+            stable_key="character:test",
             guid="test-guid",
             level=4,
             base_xp_min=16.0,
@@ -261,6 +267,7 @@ class TestExperienceCalculation:
             id=1,
             object_name="Test",
             npc_name="Test Boss",
+            stable_key="character:test boss",
             guid="test-guid",
             level=40,
             base_xp_min=160.0,
@@ -280,6 +287,7 @@ class TestExperienceCalculation:
             id=1,
             object_name="Test",
             npc_name="Test Character",
+            stable_key="character:test",
             guid="test-guid",
             level=4,
             base_xp_min=16.0,
@@ -299,6 +307,7 @@ class TestExperienceCalculation:
             id=1,
             object_name="Test",
             npc_name="Test Character",
+            stable_key="character:test",
             guid="test-guid",
             level=10,
             base_xp_min=100.0,
@@ -325,6 +334,7 @@ class TestSpawnChanceFormatting:
             id=1,
             object_name="Test",
             npc_name="Test Rare",
+            stable_key="character:test rare",
             guid="test-guid",
             level=10,
             is_rare=1,
@@ -357,6 +367,7 @@ class TestSpawnChanceFormatting:
             id=1,
             object_name="Test",
             npc_name="Test Rare",
+            stable_key="character:test rare",
             guid="test-guid",
             level=10,
             is_rare=1,
@@ -453,6 +464,7 @@ class TestRespawnTimeFormatting:
             id=1,
             object_name="Test",
             npc_name="Test Character",
+            stable_key="character:test",
             guid="test-guid",
             level=10,
         )
@@ -484,6 +496,7 @@ class TestRespawnTimeFormatting:
             id=1,
             object_name="Test",
             npc_name="Test Character",
+            stable_key="character:test",
             guid="test-guid",
             level=10,
         )
@@ -525,6 +538,7 @@ class TestRespawnTimeFormatting:
             id=1,
             object_name="Test",
             npc_name="Test Character",
+            stable_key="character:test",
             guid="test-guid",
             level=10,
         )

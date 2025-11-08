@@ -11,14 +11,14 @@ from erenshor.application.services.backup_service import (
     BackupStats,
     BackupValidationError,
 )
-from erenshor.application.services.sheets_service import (
+from erenshor.application.sheets.service import (
     DeploymentResult,
     SheetMetadata,
     SheetsService,
     SheetsServiceError,
 )
-from erenshor.application.services.wiki_page import OperationResult, WikiPage
-from erenshor.application.services.wiki_service import (
+from erenshor.application.wiki.services.page import OperationResult, WikiPage
+from erenshor.application.wiki.services.wiki_service import (
     WikiService,
     WikiServiceError,
 )

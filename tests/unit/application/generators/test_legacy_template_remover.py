@@ -2,7 +2,7 @@
 
 import pytest
 
-from erenshor.application.generators.legacy_template_remover import LegacyTemplateRemover
+from erenshor.application.wiki.generators.legacy_template_remover import LegacyTemplateRemover
 
 
 class TestLegacyTemplateRemover:

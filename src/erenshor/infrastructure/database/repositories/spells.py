@@ -37,7 +37,6 @@ class SpellRepository(BaseRepository[Spell]):
                 StableKey,
                 SpellDBIndex,
                 Id,
-                ResourceName,
                 SpellName,
                 SpellDesc,
                 SpecialDescriptor,
@@ -115,7 +114,7 @@ class SpellRepository(BaseRepository[Spell]):
                 StatusEffectMessageOnNPC
             FROM Spells
             WHERE COALESCE(SpellName, '') != ''
-              AND COALESCE(ResourceName, '') != ''
+              AND COALESCE(StableKey, '') != ''
             ORDER BY SpellName COLLATE NOCASE
         """
 
@@ -197,7 +196,7 @@ class SpellRepository(BaseRepository[Spell]):
         Returns:
             Spell domain entity.
         """
-        # Convert row to dict and transform PascalCase keys to snake_case
+        # Convert PascalCase column names to snake_case field names
         data = {pascal_to_snake(key): value for key, value in dict(row).items()}
 
         # Pydantic will handle validation and type conversion

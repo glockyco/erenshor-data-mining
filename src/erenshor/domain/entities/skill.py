@@ -20,7 +20,7 @@ class Skill(BaseEntity):
     """
 
     # Primary keys and identifiers
-    stable_key: str | None = Field(default=None, description="Stable key from database (primary key)")
+    stable_key: str = Field(description="Stable key from database (primary key)")
 
     # Display fields
     skill_name: str | None = Field(default=None, description="Display name")

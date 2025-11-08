@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from erenshor.application.services.item_enricher import EnrichedItemData, ItemEnricher
+from erenshor.application.enrichers.item_enricher import EnrichedItemData, ItemEnricher
 from erenshor.domain.entities.item import Item
 from erenshor.domain.entities.item_stats import ItemStats
 
@@ -141,6 +141,7 @@ class TestItemEnrichment:
         item = Item(
             id="1",
             resource_name="TestSword",
+            stable_key="item:testsword",
             item_name="Test Sword",
         )
 
@@ -183,6 +184,7 @@ class TestItemEnrichment:
         item = Item(
             id="1",
             resource_name="TestItem",
+            stable_key="item:testitem",
             item_name="Test Item",
         )
 
@@ -207,6 +209,7 @@ class TestEnrichedItemData:
         item = Item(
             id="1",
             resource_name="Test",
+            stable_key="item:test",
             item_name="Test Item",
         )
         stats = [
@@ -250,7 +253,7 @@ class TestEnrichedItemData:
 
     def test_enriched_data_stores_raw_data_not_formatted(self):
         """Test EnrichedItemData stores raw data, not formatted strings."""
-        item = Item(id="1", resource_name="Test", item_name="Test")
+        item = Item(id="1", resource_name="Test", stable_key="item:test", item_name="Test")
 
         enriched = EnrichedItemData(item=item, stats=[], classes=[])
 
