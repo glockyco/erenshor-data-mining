@@ -18,6 +18,7 @@ operations, designed to work with wiki.gg (https://erenshor.wiki.gg).
 
 from collections.abc import Sequence
 from datetime import UTC
+from pathlib import Path
 from typing import Any
 
 import httpx
@@ -710,3 +711,116 @@ class MediaWikiClient:
 
         logger.info(f"Found {len(page_timestamps)} pages modified in last {days} days")
         return page_timestamps
+
+    def upload_file(
+        self,
+        file_path: str,
+        filename: str,
+        comment: str,
+        text: str = "",
+        ignore_warnings: bool = False,
+        bot: bool = True,
+    ) -> dict[str, Any]:
+        """Upload a file to the wiki.
+
+        Requires authentication (call login() first). Uses CSRF token for security.
+
+        Args:
+            file_path: Path to the file on disk.
+            filename: Target filename on wiki (e.g., "Sword.png").
+            comment: Upload comment/summary.
+            text: Wiki text for the file description page.
+            ignore_warnings: Ignore API warnings (e.g., duplicate files).
+            bot: Mark as bot upload (requires bot permissions).
+
+        Returns:
+            API response dict containing upload result.
+
+        Raises:
+            MediaWikiAPIError: If upload fails or not authenticated.
+            FileNotFoundError: If file_path doesn't exist.
+
+        Example:
+            >>> client = MediaWikiClient(
+            ...     api_url="https://erenshor.wiki.gg/api.php",
+            ...     bot_username="MyBot@MyBot",
+            ...     bot_password="secret"
+            ... )
+            >>> client.login()
+            >>> client.upload_file(
+            ...     file_path="/path/to/sword.png",
+            ...     filename="Sword.png",
+            ...     comment="Upload sword icon",
+            ...     text="{{ImageMetadata|type=item}}"
+            ... )
+        """
+
+        # Check file exists
+        if not Path(file_path).exists():
+            raise FileNotFoundError(f"File not found: {file_path}")
+
+        logger.info(f"Uploading file: {file_path} → File:{filename}")
+
+        # Get CSRF token
+        token = self.get_csrf_token()
+
+        # Prepare upload data
+        data = {
+            "action": "upload",
+            "filename": filename,
+            "comment": comment,
+            "text": text,
+            "token": token,
+            "format": "json",
+        }
+
+        if ignore_warnings:
+            data["ignorewarnings"] = "1"
+
+        if bot:
+            data["bot"] = "1"
+
+        # Open file and upload
+        try:
+            with Path(file_path).open("rb") as f:
+                files = {"file": (filename, f, "image/png")}
+
+                # Use httpx's files parameter for multipart upload
+                response = self._client.post(
+                    self.api_url,
+                    data=data,
+                    files=files,
+                )
+                response.raise_for_status()
+                result: dict[str, Any] = response.json()
+
+        except httpx.HTTPStatusError as e:
+            logger.error(f"HTTP error during upload: {e.response.status_code}")
+            raise MediaWikiAPIError(f"HTTP {e.response.status_code} during file upload") from e
+
+        except httpx.RequestError as e:
+            logger.error(f"Network error during upload: {e}")
+            raise MediaWikiNetworkError(f"Network error during upload: {e}") from e
+
+        # Check for API errors
+        if "error" in result:
+            error_info = result["error"]
+            error_code = error_info.get("code", "unknown")
+            error_text = error_info.get("info", "Unknown error")
+            logger.error(f"Upload API error: {error_code} - {error_text}")
+            raise MediaWikiAPIError(f"Upload failed ({error_code}): {error_text}")
+
+        # Check upload result
+        upload_result: dict[str, Any] = result.get("upload", {})
+        if upload_result.get("result") != "Success":
+            # Handle warnings
+            if "warnings" in upload_result and not ignore_warnings:
+                warnings = upload_result["warnings"]
+                logger.error(f"Upload warnings: {warnings}")
+                raise MediaWikiAPIError(f"Upload warnings: {warnings}")
+
+            logger.error(f"Unexpected upload response: {result}")
+            raise MediaWikiAPIError(f"Unexpected upload response: {result}")
+
+        logger.info(f"Successfully uploaded: File:{filename}")
+        return upload_result

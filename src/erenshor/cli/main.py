@@ -22,7 +22,7 @@ from erenshor.infrastructure.config import ConfigLoadError, get_repo_root, load_
 from erenshor.infrastructure.logging import setup_logging
 from erenshor.infrastructure.logging.setup import LoggingSetupError
 
-from .commands import backup, extract, maps, sheets, wiki
+from .commands import backup, extract, images, maps, sheets, wiki
 from .context import CLIContext
 
 console = Console()
@@ -41,6 +41,7 @@ app.add_typer(extract.app, name="extract")
 app.add_typer(wiki.app, name="wiki")
 app.add_typer(sheets.app, name="sheets")
 app.add_typer(maps.app, name="maps")
+app.add_typer(images.app, name="images")
 app.add_typer(backup.app, name="backup")
 
 

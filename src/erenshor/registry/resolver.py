@@ -458,3 +458,23 @@ class RegistryResolver:
         if display_name and display_name != page_title:
             return f"[[{page_title}|{display_name}]]"
         return f"[[{page_title}]]"
+
+    def list_all_keys(self) -> list[str]:
+        """List all stable keys in the registry.
+
+        Returns:
+            List of all stable keys (including excluded entities)
+
+        Example:
+            >>> resolver.list_all_keys()
+            ["item:iron sword", "character:goblin", "spell:fireball", ...]
+        """
+        from sqlmodel import select
+
+        from .schema import EntityRecord
+
+        with Session(self.engine) as session:
+            statement = select(EntityRecord.stable_key)
+            stable_keys = list(session.exec(statement).all())
+            logger.debug(f"Found {len(stable_keys)} entities in registry")
+            return stable_keys
