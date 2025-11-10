@@ -386,10 +386,14 @@ class ItemSectionGenerator(SectionGeneratorBase):
         craft_sources_str, component_for_str = self._format_crafting_sources(enriched)
         crafting_results, recipe_ingredients = self._format_recipe_info(enriched)
 
+        # Get image name from registry (resolve stable key to image filename)
+        image_name = self._resolver.resolve_image_name(item.stable_key)
+        image_field = f"[[File:{image_name}.png]]" if image_name else ""
+
         # Build context with all {{Item}} template fields
         context: dict[str, str] = {
             "title": display_title,
-            "image": f"[[File:{item.stable_key}.png]]",
+            "image": image_field,
             "imagecaption": "",
             "type": item_type,
             "vendorsource": vendor_sources,
