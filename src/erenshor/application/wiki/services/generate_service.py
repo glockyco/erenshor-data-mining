@@ -203,25 +203,33 @@ class WikiGenerateService:
 
                 # Apply preservation and legacy removal if page exists
                 if existing:
-                    # Remove legacy templates FIRST
-                    if self._legacy_remover.has_legacy_templates(existing):
-                        migrated_content = self._legacy_remover.remove_legacy_templates(existing)
-                        logger.debug(f"Legacy templates migrated: {gen_page.title}")
+                    # Check if this is an overview page (Weapons, Armor)
+                    # These pages need special handling: preserve intro, replace table
+                    if gen_page.title in ["Weapons", "Armor"]:
+                        final_content = self._replace_overview_table(existing, page_content)
+                        # Normalize page
+                        final_content = self._page_normalizer.normalize(final_content, page_content)
                     else:
-                        migrated_content = existing
+                        # Standard entity page processing
+                        # Remove legacy templates FIRST
+                        if self._legacy_remover.has_legacy_templates(existing):
+                            migrated_content = self._legacy_remover.remove_legacy_templates(existing)
+                            logger.debug(f"Legacy templates migrated: {gen_page.title}")
+                        else:
+                            migrated_content = existing
 
-                    # Preserve manual edits
-                    final_content = self._preservation_handler.merge_templates(
-                        old_wikitext=migrated_content,
-                        new_wikitext=page_content,
-                        template_names=["Item", "Enemy", "Ability"],
-                    )
+                        # Preserve manual edits
+                        final_content = self._preservation_handler.merge_templates(
+                            old_wikitext=migrated_content,
+                            new_wikitext=page_content,
+                            template_names=["Item", "Enemy", "Ability"],
+                        )
 
-                    # Replace fancy tables
-                    final_content = self._replace_fancy_tables(final_content, page_content)
+                        # Replace fancy tables
+                        final_content = self._replace_fancy_tables(final_content, page_content)
 
-                    # Normalize page
-                    final_content = self._page_normalizer.normalize(final_content, page_content)
+                        # Normalize page
+                        final_content = self._page_normalizer.normalize(final_content, page_content)
                 else:
                     # New page, just normalize
                     final_content = self._page_normalizer.normalize(page_content)
@@ -266,6 +274,52 @@ class WikiGenerateService:
             warnings=warnings,
             errors=errors,
         )
+
+    def _replace_overview_table(self, old_wikitext: str, new_wikitext: str) -> str:
+        """Replace overview page wikitable while preserving intro text.
+
+        Overview pages (Weapons, Armor) have:
+        1. Manual intro paragraphs
+        2. Large wikitable with game data
+
+        We need to:
+        - Preserve the manual intro text
+        - Replace the entire wikitable with freshly generated content
+
+        Args:
+            old_wikitext: Existing page content (has manual intro + old table)
+            new_wikitext: New generated content (has fresh table)
+
+        Returns:
+            Updated wikitext with preserved intro and new table
+        """
+        # Find where the wikitable starts in old content
+        old_table_start = old_wikitext.find("{|")
+
+        if old_table_start == -1:
+            # No old table found, just return new content
+            logger.debug("No wikitable found in old content, using new content")
+            return new_wikitext
+
+        # Extract intro text (everything before the table)
+        intro_text = old_wikitext[:old_table_start].rstrip()
+
+        # Find the wikitable in new content
+        new_table_start = new_wikitext.find("{|")
+
+        if new_table_start == -1:
+            # No new table generated, keep old content
+            logger.warning("No wikitable in new content, keeping old content")
+            return old_wikitext
+
+        # Extract new table (everything from {| onwards)
+        new_table = new_wikitext[new_table_start:]
+
+        # Combine: intro + new table
+        result = f"{intro_text}\n\n{new_table}"
+
+        logger.debug("Replaced overview wikitable while preserving intro text")
+        return result
 
     def _replace_fancy_tables(self, old_wikitext: str, new_wikitext: str) -> str:
         """Replace fancy content (tables or standalone templates) with freshly generated versions.

@@ -236,23 +236,30 @@ class TestFetchAll:
     """Tests for fetch_all method."""
 
     def test_empty_repositories(self, wiki_service):
-        """Test handling of empty repositories."""
+        """Test handling of empty repositories.
+
+        Note: Even with empty repositories, overview pages (Weapons, Armor) are still generated.
+        """
         result = wiki_service.fetch_all(dry_run=True)
 
-        assert result.total == 0
-        assert result.succeeded == 0
+        # Overview pages are always generated even with empty repositories
+        assert result.total == 2  # Weapons and Armor overview pages
+        assert result.succeeded == 2
         assert result.failed == 0
-        assert "No pages to fetch" in result.warnings[0]
 
     def test_dry_run_mode(self, wiki_service, mock_item_repo, mock_wiki_client, sample_item):
-        """Test dry-run mode doesn't call wiki API."""
+        """Test dry-run mode doesn't call wiki API.
+
+        Note: With overview pages (Weapons, Armor), we get 3 pages total:
+        1 entity page + 2 overview pages.
+        """
         mock_item_repo.get_items_for_wiki_generation.return_value = [sample_item]
 
         result = wiki_service.fetch_all(dry_run=True)
 
         # Should not fetch pages in dry-run
         mock_wiki_client.get_pages.assert_not_called()
-        assert result.succeeded == 1
+        assert result.succeeded == 3  # 1 entity + 2 overview pages
 
     def test_limit_parameter(self, wiki_service, mock_item_repo, sample_item):
         """Test limit parameter restricts processing."""
@@ -306,16 +313,23 @@ class TestGenerateAll:
     """Tests for generate_all method."""
 
     def test_empty_repositories(self, wiki_service):
-        """Test handling of empty repositories."""
+        """Test handling of empty repositories.
+
+        Note: Even with empty repositories, overview pages (Weapons, Armor) are still generated.
+        """
         result = wiki_service.generate_all(dry_run=True)
 
-        assert result.total == 0
-        assert result.succeeded == 0
+        # Overview pages are always generated even with empty repositories
+        assert result.total == 2  # Weapons and Armor overview pages
+        assert result.succeeded == 2
         assert result.failed == 0
-        assert "No pages to generate" in result.warnings[0]
 
     def test_dry_run_mode(self, wiki_service, mock_item_repo, sample_item):
-        """Test dry-run mode doesn't save to storage."""
+        """Test dry-run mode doesn't save to storage.
+
+        Note: With overview pages (Weapons, Armor), we get 3 pages total:
+        1 entity page + 2 overview pages.
+        """
         from erenshor.domain.entities.item_stats import ItemStats
 
         mock_item_repo.get_items_for_wiki_generation.return_value = [sample_item]
@@ -345,8 +359,8 @@ class TestGenerateAll:
 
         result = wiki_service.generate_all(dry_run=True)
 
-        assert result.total == 1
-        assert result.succeeded == 1
+        assert result.total == 3  # 1 entity + 2 overview pages
+        assert result.succeeded == 3
         assert result.failed == 0
 
     def test_limit_parameter(self, wiki_service, mock_item_repo, sample_item):

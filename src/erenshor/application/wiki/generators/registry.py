@@ -12,7 +12,13 @@ from typing import TYPE_CHECKING
 
 from loguru import logger
 
+from erenshor.application.wiki.generators.pages.armor_overview import (
+    ArmorOverviewPageGenerator,
+)
 from erenshor.application.wiki.generators.pages.entities import EntityPageGenerator
+from erenshor.application.wiki.generators.pages.weapons_overview import (
+    WeaponsOverviewPageGenerator,
+)
 
 if TYPE_CHECKING:
     from erenshor.application.wiki.generators.base import GeneratedPage, PageGenerator
@@ -40,6 +46,16 @@ WIKI_GENERATORS: list[GeneratorRegistration] = [
         name="entities",
         generator_class=EntityPageGenerator,
         description="Generate pages for all game entities (items, characters, spells, skills)",
+    ),
+    GeneratorRegistration(
+        name="weapons_overview",
+        generator_class=WeaponsOverviewPageGenerator,
+        description="Generate Weapons overview page with sortable stats table",
+    ),
+    GeneratorRegistration(
+        name="armor_overview",
+        generator_class=ArmorOverviewPageGenerator,
+        description="Generate Armor overview page with sortable stats table",
     ),
 ]
 
