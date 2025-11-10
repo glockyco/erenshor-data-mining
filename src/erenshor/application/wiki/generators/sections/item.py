@@ -633,13 +633,13 @@ class ItemSectionGenerator(SectionGeneratorBase):
             resolver: Registry resolver for character links
 
         Returns:
-            Comma-separated list of vendor links (e.g., "[[Vendor A]], [[Vendor B]]")
+            <br>-separated list of vendor links (e.g., "[[Vendor A]]<br>[[Vendor B]]")
         """
         if not enriched.sources or not enriched.sources.vendors:
             return ""
 
         vendor_links = [self._resolver.character_link(stable_key) for stable_key in enriched.sources.vendors]
-        return ", ".join(vendor_links)
+        return "<br>".join(vendor_links)
 
     def _format_drop_sources(self, enriched: EnrichedItemData) -> str:
         """Format drop sources as wiki links with drop probabilities.
@@ -649,7 +649,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
             resolver: Registry resolver for character links
 
         Returns:
-            Comma-separated list of drop links with probabilities (e.g., "[[Enemy A]] (5.00%), [[Enemy B]] (10.00%)")
+            <br>-separated list of drop links with probabilities (e.g., "[[Enemy A]] (5.00%)<br>[[Enemy B]] (10.00%)")
         """
         if not enriched.sources or not enriched.sources.drops:
             return ""
@@ -660,7 +660,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
             # Format probability to 2 decimal places
             drop_links.append(f"{link} ({drop_probability:.2f}%)")
 
-        return ", ".join(drop_links)
+        return "<br>".join(drop_links)
 
     def _format_quest_sources(self, enriched: EnrichedItemData) -> tuple[str, str]:
         """Format quest reward and requirement sources as wiki links.
@@ -671,8 +671,8 @@ class ItemSectionGenerator(SectionGeneratorBase):
 
         Returns:
             Tuple of (reward_links, requirement_links):
-            - reward_links: Comma-separated quest reward links
-            - requirement_links: Comma-separated quest requirement links
+            - reward_links: <br>-separated quest reward links
+            - requirement_links: <br>-separated quest requirement links
         """
         if not enriched.sources:
             return ("", "")
@@ -685,7 +685,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
             self._resolver.quest_link(stable_key) for stable_key in enriched.sources.quest_requirements
         ]
 
-        return (", ".join(reward_links), ", ".join(requirement_links))
+        return ("<br>".join(reward_links), "<br>".join(requirement_links))
 
     def _format_crafting_sources(self, enriched: EnrichedItemData) -> tuple[str, str]:
         """Format crafting sources (how to craft this item) and component usage.
@@ -708,7 +708,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
         # Format component usage (items that require this as a component)
         component_links = [self._resolver.item_link(stable_key) for stable_key in enriched.sources.component_for]
 
-        return (", ".join(craft_links), ", ".join(component_links))
+        return ("<br>".join(craft_links), "<br>".join(component_links))
 
     def _format_recipe_info(self, enriched: EnrichedItemData) -> tuple[str, str]:
         """Format recipe results and ingredients for mold items.
@@ -737,4 +737,4 @@ class ItemSectionGenerator(SectionGeneratorBase):
             link = self._resolver.item_link(stable_key)
             ingredient_links.append(f"{quantity}x {link}")
 
-        return (", ".join(result_links), ", ".join(ingredient_links))
+        return ("<br>".join(result_links), "<br>".join(ingredient_links))
