@@ -54,9 +54,9 @@ def _create_sheets_service(cli_ctx: CLIContext) -> SheetsService:
     # Get queries directory path
     from pathlib import Path
 
-    import erenshor.application.formatters.sheets
+    import erenshor.application.sheets
 
-    queries_dir = Path(erenshor.application.formatters.sheets.__file__).parent / "queries"
+    queries_dir = Path(erenshor.application.sheets.__file__).parent / "queries"
 
     # Create formatter
     formatter = SheetsFormatter(engine=engine, queries_dir=queries_dir)
