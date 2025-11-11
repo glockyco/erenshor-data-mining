@@ -18,26 +18,55 @@ from pathlib import Path
 from typing import Any
 
 
-def get_db_path(variant: str) -> Path:
-    """Get the database path for a variant."""
+def get_db_path(variant_or_path: str) -> Path:
+    """Get the database path for a variant or return path if it's already a path.
+
+    Args:
+        variant_or_path: Either a variant name (main/playtest/demo) or a direct path to a database file
+
+    Returns:
+        Path to the database file
+    """
+    # Check if it's already a path (contains / or ends with .sqlite)
+    if "/" in variant_or_path or variant_or_path.endswith(".sqlite"):
+        return Path(variant_or_path)
+
+    # Otherwise treat as variant name
     repo_root = Path(__file__).parent.parent
-    return repo_root / "variants" / variant / f"erenshor-{variant}.sqlite"
+    return repo_root / "variants" / variant_or_path / f"erenshor-{variant_or_path}.sqlite"
 
 
-def get_build_id(variant: str) -> str:
-    """Get the build ID from the most recent backup directory."""
+def get_build_id(variant_or_path: str) -> str:
+    """Get the build ID from the most recent backup directory or from path.
+
+    Args:
+        variant_or_path: Either a variant name or a database path
+
+    Returns:
+        Build ID string or "Unknown"
+    """
     try:
+        # If it's a path, try to extract build ID from the path
+        if "/" in variant_or_path or variant_or_path.endswith(".sqlite"):
+            path = Path(variant_or_path)
+            # Look for backup-NNNNNNNN pattern in path
+            for part in path.parts:
+                if part.startswith("backup-"):
+                    return part.replace("backup-", "")
+            return "Current"
+
+        # Otherwise, get from most recent backup directory for variant
         repo_root = Path(__file__).parent.parent
-        backup_dir = repo_root / "variants" / variant / "backups"
+        backup_dir = repo_root / "variants" / variant_or_path / "backups"
 
         if not backup_dir.exists():
             return "Unknown"
 
-        # Find the most recent build-* directory
-        build_dirs = sorted(backup_dir.glob("build-*"), reverse=True)
+        # Find the most recent build-* or backup-* directory
+        build_dirs = sorted(backup_dir.glob("backup-*"), reverse=True)
         if build_dirs:
-            # Extract build ID from directory name (e.g., "build-20611000" -> "20611000")
-            build_id = build_dirs[0].name.replace("build-", "")
+            # Extract build ID from directory name (e.g., "backup-20611000" -> "20611000")
+            build_id = build_dirs[0].name.replace("backup-", "")
             return build_id
 
         return "Unknown"
@@ -118,18 +147,16 @@ def compare_spells(base_db: Path, new_db: Path) -> list[dict[str, Any]]:
         SELECT
             SpellName,
             Type,
-            Classes,
-            RequiredLevel,
             SpellDesc
         FROM Spells
         WHERE ResourceName NOT IN (SELECT ResourceName FROM base.Spells)
-        ORDER BY Type, RequiredLevel, SpellName
+        ORDER BY Type, SpellName
     """)
 
     results = []
     for row in cursor.fetchall():
         # Clean up text: normalize whitespace
-        desc = row[4]
+        desc = row[2]
         if desc:
             desc = " ".join(desc.split())
 
@@ -137,8 +164,6 @@ def compare_spells(base_db: Path, new_db: Path) -> list[dict[str, Any]]:
             {
                 "name": row[0],
                 "type": row[1],
-                "classes": row[2],
-                "level": row[3],
                 "desc": desc,
             }
         )
@@ -160,12 +185,12 @@ def compare_characters(base_db: Path, new_db: Path) -> list[dict[str, Any]]:
             ch.Level,
             ch.IsNPC,
             ch.IsVendor,
-            ch.BaseHP,
-            ch.Guid,
+            ch.EffectiveHP,
+            ch.StableKey,
             COALESCE(za_spawn.ZoneName, za_direct.ZoneName) as ZoneName
         FROM Characters ch
         -- Try to get zone from spawn point first
-        LEFT JOIN SpawnPointCharacters spc ON spc.CharacterGuid = ch.Guid
+        LEFT JOIN SpawnPointCharacters spc ON spc.CharacterStableKey = ch.StableKey
         LEFT JOIN SpawnPoints sp ON sp.Id = spc.SpawnPointId
         LEFT JOIN Coordinates c_spawn ON c_spawn.SpawnPointId = sp.Id
         LEFT JOIN Zones za_spawn ON za_spawn.SceneName = c_spawn.Scene
@@ -173,7 +198,7 @@ def compare_characters(base_db: Path, new_db: Path) -> list[dict[str, Any]]:
         LEFT JOIN Coordinates c_direct ON c_direct.Id = ch.CoordinateId
         LEFT JOIN Zones za_direct ON za_direct.SceneName = c_direct.Scene
         WHERE ch.ObjectName NOT IN (SELECT ObjectName FROM base.Characters)
-        GROUP BY ch.Guid
+        GROUP BY ch.StableKey
         ORDER BY ch.IsNPC DESC, ch.Level, ch.NPCName
     """)
 
@@ -203,13 +228,14 @@ def compare_quests(base_db: Path, new_db: Path) -> list[dict[str, Any]]:
 
     cursor.execute("""
         SELECT
-            QuestName,
-            XPonComplete,
-            GoldOnComplete,
-            SUBSTR(QuestDesc, 1, 150) as DescPreview
-        FROM Quests
-        WHERE DBName NOT IN (SELECT DBName FROM base.Quests)
-        ORDER BY QuestName
+            qv.QuestName,
+            qv.XPonComplete,
+            qv.GoldOnComplete,
+            SUBSTR(qv.QuestDesc, 1, 150) as DescPreview
+        FROM Quests q
+        LEFT JOIN QuestVariants qv ON qv.QuestStableKey = q.StableKey
+        WHERE q.DBName NOT IN (SELECT DBName FROM base.Quests)
+        ORDER BY qv.QuestName
     """)
 
     results = []
@@ -284,13 +310,11 @@ def format_spells_section(spells: list[dict[str, Any]]) -> str:
         return "_No new spells found._\n"
 
     output = []
-    # Sort by level (descending), then by name
-    for spell in sorted(spells, key=lambda x: (-(x["level"] or 0), x["name"])):
+    # Sort by name
+    for spell in sorted(spells, key=lambda x: x["name"]):
         spell_type = spell["type"] or "Other"
-        classes = spell["classes"] or "All"
-        level = spell["level"] or 1
         desc = spell["desc"] or "No description"
-        output.append(f'- **{spell["name"]}** ({spell_type}, {classes}, Level {level}) - "{desc}"\n')
+        output.append(f'- **{spell["name"]}** ({spell_type}) - "{desc}"\n')
 
     output.append("\n")
     return "".join(output)
@@ -448,14 +472,12 @@ Examples:
 
     parser.add_argument(
         "base_variant",
-        choices=["main", "playtest", "demo"],
-        help="Old variant to compare against",
+        help="Old variant to compare against (variant name or path to .sqlite file)",
     )
 
     parser.add_argument(
         "new_variant",
-        choices=["main", "playtest", "demo"],
-        help="New variant to compare",
+        help="New variant to compare (variant name or path to .sqlite file)",
     )
 
     parser.add_argument(
