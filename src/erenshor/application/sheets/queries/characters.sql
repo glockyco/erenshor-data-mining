@@ -3,7 +3,7 @@ SELECT
    c.Guid,
    c.ObjectName,
    c.NPCName,
-   COALESCE(f.FactionDesc, c.MyWorldFaction) AS MyWorldFaction,
+   COALESCE(f.FactionDesc, c.MyWorldFactionStableKey) AS MyWorldFaction,
    c.MyFaction,
    c.Level,
    -- Effective Combat Stats (calculated runtime values players encounter)
@@ -79,4 +79,4 @@ SELECT
    c.VendorDesc,
    c.ItemsForSale
 FROM Characters c
-LEFT JOIN Factions f ON f.REFNAME = c.MyWorldFaction;
+LEFT JOIN Factions f ON f.StableKey = c.MyWorldFactionStableKey;
