@@ -150,18 +150,11 @@ def prefer_database_handler(old_value: str, new_value: str, context: dict[str, A
 DEFAULT_PRESERVATION_RULES: dict[str, dict[str, str]] = {
     "Item": {
         # Manual content that editors add
-        "description": "preserve",  # Custom lore/flavor text
         "image": "prefer_manual",  # Custom images
         "imagecaption": "prefer_manual",  # Custom captions
-        # Source fields - manually researched by editors
-        "vendorsource": "preserve",
-        "source": "preserve",
-        "othersource": "preserve",
-        "questsource": "preserve",
-        "relatedquest": "preserve",
-        "craftsource": "preserve",
-        "componentfor": "preserve",
-        # All other fields implicitly use "override" (default)
+        "othersource": "preserve",  # Manually-added sources that don't fit other categories
+        # All other fields (including vendorsource, source, questsource, etc.) use "override" (default)
+        # Source fields are auto-generated from database, not manually researched
     },
     # Fancy-* templates: All fields use default "override" behavior
     # No manual content - everything comes from database
@@ -179,7 +172,6 @@ DEFAULT_PRESERVATION_RULES: dict[str, dict[str, str]] = {
         # All other fields implicitly use "override" (default)
     },
     "Ability": {
-        "description": "preserve",  # Manual ability descriptions
         "image": "prefer_manual",  # Custom ability icons
     },
 }
