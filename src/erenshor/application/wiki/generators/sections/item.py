@@ -628,6 +628,11 @@ class ItemSectionGenerator(SectionGeneratorBase):
     def _format_vendor_sources(self, enriched: EnrichedItemData) -> str:
         """Format vendor sources as wiki links.
 
+        Vendors are:
+        - Filtered to exclude entities that don't have wiki pages
+        - Deduplicated by link text
+        - Sorted alphabetically by display name
+
         Args:
             enriched: Enriched item data with vendor sources
             resolver: Registry resolver for character links
@@ -638,7 +643,22 @@ class ItemSectionGenerator(SectionGeneratorBase):
         if not enriched.sources or not enriched.sources.vendors:
             return ""
 
-        vendor_links = [self._resolver.character_link(stable_key) for stable_key in enriched.sources.vendors]
+        # Resolve all vendor links, filter excluded entities, and deduplicate
+        vendor_links = []
+        seen = set()
+        for stable_key in enriched.sources.vendors:
+            # Skip excluded entities (those without wiki pages)
+            if self._resolver.resolve_page_title(stable_key) is None:
+                continue
+
+            link = self._resolver.character_link(stable_key)
+            if link not in seen:
+                seen.add(link)
+                vendor_links.append(link)
+
+        # Sort alphabetically
+        vendor_links.sort()
+
         return "<br>".join(vendor_links)
 
     def _format_drop_sources(self, enriched: EnrichedItemData) -> str:
