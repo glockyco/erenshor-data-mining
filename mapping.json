@@ -1807,29 +1807,29 @@
     },
     "spell:DUEL - Deathly Embrace": {
       "wiki_page_name": "Death's Embrace",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Death's Embrace",
+      "image_name": "Death's Embrace",
       "mapping_type": "custom",
       "reason": null
     },
     "spell:Death's Embrace (Caster)": {
       "wiki_page_name": "Death's Embrace",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Death's Embrace (Caster)",
+      "image_name": "Death's Embrace",
       "mapping_type": "custom",
       "reason": "merge with main spell page"
     },
     "spell:DUEL - Deathly Embrace II": {
       "wiki_page_name": "Death's Embrace II",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Death's Embrace II",
+      "image_name": "Death's Embrace II",
       "mapping_type": "custom",
       "reason": null
     },
     "spell:Death's Embrace II (Caster)": {
       "wiki_page_name": "Death's Embrace II",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Death's Embrace II (Caster)",
+      "image_name": "Death's Embrace II",
       "mapping_type": "custom",
       "reason": "merge with main spell page"
     },
