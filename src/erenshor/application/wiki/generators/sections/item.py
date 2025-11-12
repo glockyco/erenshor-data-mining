@@ -664,6 +664,11 @@ class ItemSectionGenerator(SectionGeneratorBase):
     def _format_drop_sources(self, enriched: EnrichedItemData) -> str:
         """Format drop sources as wiki links with drop probabilities.
 
+        Drop sources are:
+        - Filtered to exclude entities that don't have wiki pages
+        - Sorted by drop probability (descending, highest first)
+        - Deduplicated by resolved link text (same character, same drop %)
+
         Args:
             enriched: Enriched item data with drop sources
             resolver: Registry resolver for character links
@@ -674,16 +679,35 @@ class ItemSectionGenerator(SectionGeneratorBase):
         if not enriched.sources or not enriched.sources.drops:
             return ""
 
-        drop_links = []
+        # Build list of (link, probability) tuples, filtering out excluded entities
+        drop_data = []
         for stable_key, drop_probability in enriched.sources.drops:
-            link = self._resolver.character_link(stable_key)
-            # Format probability to 2 decimal places
-            drop_links.append(f"{link} ({drop_probability:.2f}%)")
+            # Skip excluded entities (those without wiki pages)
+            if self._resolver.resolve_page_title(stable_key) is None:
+                continue
 
-        return "<br>".join(drop_links)
+            link = self._resolver.character_link(stable_key)
+            drop_data.append((link, drop_probability))
+
+        # Sort by probability descending (highest first), then by link text ascending (for ties)
+        drop_data.sort(key=lambda x: (-x[1], x[0]))
+
+        # Deduplicate by link text (keeping first occurrence which has highest probability)
+        seen = set()
+        unique_drops = []
+        for link, probability in drop_data:
+            # Create unique key from link and probability
+            key = (link, probability)
+            if key not in seen:
+                seen.add(key)
+                unique_drops.append(f"{link} ({probability:.1f}%)")
+
+        return "<br>".join(unique_drops)
 
     def _format_quest_sources(self, enriched: EnrichedItemData) -> tuple[str, str]:
         """Format quest reward and requirement sources as wiki links.
+
+        Quests are filtered to exclude entities that don't have wiki pages.
 
         Args:
             enriched: Enriched item data with quest sources
