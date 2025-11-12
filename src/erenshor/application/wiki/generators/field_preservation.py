@@ -414,63 +414,80 @@ class FieldPreservationHandler:
             logger.debug("No new templates found, returning old wikitext as-is")
             return old_wikitext
 
-        # Build dict of template_name -> new_template for easy lookup
-        new_template_map: dict[str, Any] = {}
+        # Build list of new templates grouped by template name
+        new_template_map: dict[str, list[Any]] = {}
         for tmpl in new_templates_found:
             tmpl_name = str(tmpl.name).strip()
             if tmpl_name in template_names:
-                new_template_map[tmpl_name] = tmpl
+                if tmpl_name not in new_template_map:
+                    new_template_map[tmpl_name] = []
+                new_template_map[tmpl_name].append(tmpl)
 
         # For each template type, merge fields
         for template_name in template_names:
-            # Find template in old page
+            # Find templates in old page
             old_templates = self._parser.find_templates(old_code, [template_name])
 
-            # Get new template for this name
-            new_tmpl = new_template_map.get(template_name)
-            if not new_tmpl:
-                logger.debug(f"No new template for {template_name}, skipping")
+            # Get new templates for this name
+            new_tmpls = new_template_map.get(template_name, [])
+            if not new_tmpls:
+                logger.debug(f"No new templates for {template_name}, skipping")
                 continue
 
             if not old_templates:
-                # Template doesn't exist in old page, append to end
-                logger.debug(f"Template {template_name} not found in old page, appending")
-
-                # Extract fields from new template
-                new_fields = self._parser.get_params(new_tmpl)
-
-                # Generate formatted template
-                formatted_template = self._parser.generate_template(
-                    template_name,
-                    new_fields,
-                    inline=False,
+                # Templates don't exist in old page, append all to end
+                logger.debug(
+                    f"Template {template_name} not found in old page, appending {len(new_tmpls)} new templates"
                 )
 
-                old_code.append(f"\n\n{formatted_template}")
+                for new_tmpl in new_tmpls:
+                    # Extract fields from new template
+                    new_fields = self._parser.get_params(new_tmpl)
+
+                    # Generate formatted template
+                    formatted_template = self._parser.generate_template(
+                        template_name,
+                        new_fields,
+                        inline=False,
+                    )
+
+                    old_code.append(f"\n\n{formatted_template}")
                 continue
 
-            # Get first matching template from old page
-            old_tmpl = old_templates[0]
+            # Match old and new templates by position (order in which they appear)
+            # Process pairs in order: (old[0], new[0]), (old[1], new[1]), etc.
+            for i, new_tmpl in enumerate(new_tmpls):
+                new_fields = self._parser.get_params(new_tmpl)
 
-            # Extract field dictionaries
-            old_fields = self._parser.get_params(old_tmpl)
-            new_fields = self._parser.get_params(new_tmpl)
+                if i < len(old_templates):
+                    # Have matching old template at same position, merge fields
+                    old_tmpl = old_templates[i]
+                    old_fields = self._parser.get_params(old_tmpl)
 
-            # Apply preservation rules
-            preserved_fields = self.apply_preservation(template_name, old_fields, new_fields, context)
+                    # Apply preservation rules
+                    preserved_fields = self.apply_preservation(template_name, old_fields, new_fields, context)
 
-            # Preserve field order from new template (from Jinja2 template order)
-            ordered_preserved = {k: preserved_fields[k] for k in new_fields if k in preserved_fields}
+                    # Preserve field order from new template (from Jinja2 template order)
+                    ordered_preserved = {k: preserved_fields[k] for k in new_fields if k in preserved_fields}
 
-            # Generate properly formatted template from merged fields
-            formatted_template = self._parser.generate_template(
-                template_name,
-                ordered_preserved,
-                inline=False,  # Multi-line format
-            )
+                    # Generate properly formatted template from merged fields
+                    formatted_template = self._parser.generate_template(
+                        template_name,
+                        ordered_preserved,
+                        inline=False,  # Multi-line format
+                    )
 
-            # Replace template in old_code (preserving everything else)
-            self._parser.replace_template(old_code, old_tmpl, formatted_template)
+                    # Replace template in old_code (preserving everything else)
+                    self._parser.replace_template(old_code, old_tmpl, formatted_template)
+                else:
+                    # More new templates than old, append extras to end
+                    logger.debug(f"Extra new template {template_name} at position {i}, appending")
+                    formatted_template = self._parser.generate_template(
+                        template_name,
+                        new_fields,
+                        inline=False,
+                    )
+                    old_code.append(f"\n\n{formatted_template}")
 
         # Render modified old page (templates updated, manual content preserved)
         result = self._parser.render(old_code)
