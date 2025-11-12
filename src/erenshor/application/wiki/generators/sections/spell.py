@@ -169,7 +169,7 @@ class SpellSectionGenerator(SectionGeneratorBase):
             "is_applied_to_caster": bool_str(spell.apply_to_caster),
             "effects": "",  # TODO: Build from multiple effect fields
             "damage_type": safe_str(spell.damage_type) if spell.target_damage else "",
-            "resist_modifier": safe_str(spell.resist_modifier, zero_as_blank=True),
+            "resist_modifier": str(int(spell.resist_modifier)) if spell.resist_modifier else "",
             "target_damage": safe_str(spell.target_damage, zero_as_blank=True),
             "target_healing": safe_str(spell.target_healing, zero_as_blank=True),
             "caster_healing": safe_str(spell.caster_healing, zero_as_blank=True),
