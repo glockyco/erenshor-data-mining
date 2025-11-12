@@ -113,7 +113,7 @@ class SkillSectionGenerator(SectionGeneratorBase):
         # Sort alphabetically and format with wiki links and levels
         class_level_pairs.sort(key=lambda x: x[0])
         classes_list = [f"[[{class_name}]] ({level})" for class_name, level in class_level_pairs]
-        classes = ", ".join(classes_list)
+        classes = "<br>".join(classes_list)
 
         # Build equipment requirements description
         equipment_reqs = []

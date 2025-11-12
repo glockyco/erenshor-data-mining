@@ -112,7 +112,7 @@ class SpellSectionGenerator(SectionGeneratorBase):
         if enriched.classes and spell.required_level and spell.required_level > 0:
             for class_name in sorted(enriched.classes):
                 classes_list.append(f"[[{class_name}]] ({spell.required_level})")
-        classes = ", ".join(classes_list)
+        classes = "<br>".join(classes_list)
 
         # Format cast time: convert ticks to seconds, treat 0 and <0.05s as "Instant"
         cast_time_str = self._format_cast_time(spell.spell_charge_time)

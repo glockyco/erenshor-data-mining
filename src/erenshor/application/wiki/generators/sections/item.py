@@ -649,7 +649,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
             resolver: Registry resolver for character links
 
         Returns:
-            <br>-separated list of drop links with probabilities (e.g., "[[Enemy A]] (5.00%)<br>[[Enemy B]] (10.00%)")
+            <br>-separated list of drop links with probabilities (e.g., "[[Enemy A]] (5.0%)<br>[[Enemy B]] (10.0%)")
         """
         if not enriched.sources or not enriched.sources.drops:
             return ""
