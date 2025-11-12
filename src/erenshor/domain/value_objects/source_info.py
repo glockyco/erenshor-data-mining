@@ -25,6 +25,7 @@ class SourceInfo:
 
     # Crafting
     craft_sources: list[str]  # Item stable keys (molds) that produce this item
+    craft_recipe: list[tuple[str, int]]  # Recipe to craft this item: mold + ingredients (item_stable_key, quantity)
     component_for: list[str]  # Item stable keys that require this as component
     crafting_results: list[tuple[str, int]]  # What this mold produces: (item_stable_key, quantity)
     recipe_ingredients: list[tuple[str, int]]  # What this mold needs: (item_stable_key, quantity)

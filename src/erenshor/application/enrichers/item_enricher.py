@@ -195,8 +195,10 @@ class ItemEnricher:
         # Get quest sources (returns tuple of reward/requirement lists)
         quest_rewards, quest_requirements = self._get_quest_sources(item)
 
-        # Get crafting sources (returns tuple of 4 lists)
-        craft_sources, component_for, crafting_results, recipe_ingredients = self._get_crafting_sources(item)
+        # Get crafting sources (returns tuple of 5 lists)
+        craft_sources, craft_recipe, component_for, crafting_results, recipe_ingredients = self._get_crafting_sources(
+            item
+        )
 
         return SourceInfo(
             vendors=vendors,
@@ -204,6 +206,7 @@ class ItemEnricher:
             quest_rewards=quest_rewards,
             quest_requirements=quest_requirements,
             craft_sources=craft_sources,
+            craft_recipe=craft_recipe,
             component_for=component_for,
             crafting_results=crafting_results,
             recipe_ingredients=recipe_ingredients,
@@ -266,21 +269,40 @@ class ItemEnricher:
 
     def _get_crafting_sources(
         self, item: Item
-    ) -> tuple[list[str], list[str], list[tuple[str, int]], list[tuple[str, int]]]:
+    ) -> tuple[list[str], list[tuple[str, int]], list[str], list[tuple[str, int]], list[tuple[str, int]]]:
         """Get crafting sources for this item.
 
         Args:
             item: Item to query
 
         Returns:
-            Tuple of (craft_sources, component_for, crafting_results, recipe_ingredients)
+            Tuple of (craft_sources, craft_recipe, component_for, crafting_results, recipe_ingredients)
             - craft_sources: Item stable keys of molds that produce this item
+            - craft_recipe: Full recipe to craft this item (mold + all ingredients with quantities)
             - component_for: Item stable keys that require this as component
             - crafting_results: What this mold produces (item_stable_key, quantity)
             - recipe_ingredients: What this mold needs (item_stable_key, quantity)
         """
         # Get items that produce this item (craft_sources)
         craft_sources = self._item_repo.get_items_producing_item(item.stable_key)
+
+        # Get full recipe to craft this item (mold + ingredients from first mold that produces it)
+        craft_recipe: list[tuple[str, int]] = []
+        if craft_sources:
+            # Use first mold's recipe
+            mold_stable_key = craft_sources[0]
+            mold_recipe = self._item_repo.get_crafting_recipe(mold_stable_key)
+            if mold_recipe:
+                # Add mold itself (1x quantity)
+                craft_recipe.append((mold_stable_key, 1))
+
+                # Add all ingredients from the mold's recipe
+                materials = sorted(mold_recipe.get("materials", []), key=lambda m: m.get("MaterialSlot", 0))
+                for material_row in materials:
+                    stable_key = str(material_row.get("MaterialItemStableKey") or "")
+                    quantity = int(material_row.get("MaterialQuantity", 1))
+                    if stable_key:
+                        craft_recipe.append((stable_key, quantity))
 
         # Get items that require this item (component_for)
         component_for = self._item_repo.get_items_requiring_item(item.stable_key)
@@ -308,8 +330,8 @@ class ItemEnricher:
                     recipe_ingredients.append((stable_key, quantity))
 
         logger.debug(
-            f"Found {len(craft_sources)} craft sources, {len(component_for)} component usages, "
-            f"{len(crafting_results)} crafting results, and {len(recipe_ingredients)} recipe ingredients "
-            f"for {item.item_name}"
+            f"Found {len(craft_sources)} craft sources, {len(craft_recipe)} craft recipe items, "
+            f"{len(component_for)} component usages, {len(crafting_results)} crafting results, "
+            f"and {len(recipe_ingredients)} recipe ingredients for {item.item_name}"
         )
-        return (craft_sources, component_for, crafting_results, recipe_ingredients)
+        return (craft_sources, craft_recipe, component_for, crafting_results, recipe_ingredients)

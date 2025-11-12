@@ -677,13 +677,17 @@ class ItemSectionGenerator(SectionGeneratorBase):
         if not enriched.sources:
             return ("", "")
 
-        # Format reward quests
-        reward_links = [self._resolver.quest_link(stable_key) for stable_key in enriched.sources.quest_rewards]
+        # Format reward quests, filtering out excluded entities
+        reward_links = []
+        for stable_key in enriched.sources.quest_rewards:
+            if self._resolver.resolve_page_title(stable_key) is not None:
+                reward_links.append(self._resolver.quest_link(stable_key))
 
-        # Format requirement quests
-        requirement_links = [
-            self._resolver.quest_link(stable_key) for stable_key in enriched.sources.quest_requirements
-        ]
+        # Format requirement quests, filtering out excluded entities
+        requirement_links = []
+        for stable_key in enriched.sources.quest_requirements:
+            if self._resolver.resolve_page_title(stable_key) is not None:
+                requirement_links.append(self._resolver.quest_link(stable_key))
 
         return ("<br>".join(reward_links), "<br>".join(requirement_links))
 
@@ -696,14 +700,17 @@ class ItemSectionGenerator(SectionGeneratorBase):
 
         Returns:
             Tuple of (craft_sources, component_for):
-            - craft_sources: How to craft this item (mold + materials)
+            - craft_sources: Full recipe to craft this item (mold + materials with quantities)
             - component_for: What items use this as a component
         """
         if not enriched.sources:
             return ("", "")
 
-        # Format craft sources (items that produce this item)
-        craft_links = [self._resolver.item_link(stable_key) for stable_key in enriched.sources.craft_sources]
+        # Format craft recipe (mold + all ingredients with quantities)
+        craft_links = []
+        for stable_key, quantity in enriched.sources.craft_recipe:
+            link = self._resolver.item_link(stable_key)
+            craft_links.append(f"{quantity}x {link}")
 
         # Format component usage (items that require this as a component)
         component_links = [self._resolver.item_link(stable_key) for stable_key in enriched.sources.component_for]
