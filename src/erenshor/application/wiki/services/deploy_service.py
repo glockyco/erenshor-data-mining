@@ -4,6 +4,8 @@ This service handles deploying generated wiki pages to MediaWiki with proper
 error handling and progress tracking.
 """
 
+import time
+
 from loguru import logger
 from rich.console import Console
 from rich.progress import track
@@ -150,6 +152,9 @@ class WikiDeployService:
                         # Update deployment metadata after successful upload
                         self._storage.update_deployed(page_title, content)
                         succeeded += 1
+
+                        # Rate limit: 30 uploads per minute = 2 seconds between uploads
+                        time.sleep(2.0)
                     except MediaWikiAPIError as e:
                         error_msg = f"Failed to upload {page_title}: {e}"
                         logger.error(error_msg)
