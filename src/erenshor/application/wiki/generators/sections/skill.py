@@ -173,8 +173,11 @@ class SkillSectionGenerator(SectionGeneratorBase):
         # Format source from teaching items
         source = self._format_item_links(enriched.teaching_items)
 
+        # Get display name from resolver (respects mapping.json overrides)
+        display_name = self._resolver.resolve_display_name(skill.stable_key)
+
         context: dict[str, str] = {
-            "title": page_title,
+            "title": display_name,
             "image": image,
             "imagecaption": "",
             "description": safe_str(skill.skill_desc),

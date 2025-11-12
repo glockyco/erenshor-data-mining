@@ -139,8 +139,11 @@ class SpellSectionGenerator(SectionGeneratorBase):
         if spell.status_effect_message_on_player:
             imagecaption = f"You {spell.status_effect_message_on_player}"
 
+        # Get display name from resolver (respects mapping.json overrides)
+        display_name = self._resolver.resolve_display_name(spell.stable_key)
+
         context: dict[str, str] = {
-            "title": page_title,
+            "title": display_name,
             "image": image,
             "imagecaption": imagecaption,
             "description": safe_str(spell.spell_desc),
