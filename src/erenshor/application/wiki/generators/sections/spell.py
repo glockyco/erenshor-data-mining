@@ -245,6 +245,10 @@ class SpellSectionGenerator(SectionGeneratorBase):
         # Convert ticks to seconds
         seconds = spell_charge_time / GAME_TICKS_PER_SECOND
 
+        # Treat very small cast times (< 0.05s) as "Instant"
+        if seconds < 0.05:
+            return "Instant"
+
         # Format as "X.X seconds"
         return f"{seconds:.1f} seconds"
 
