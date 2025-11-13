@@ -371,8 +371,8 @@ class ItemSectionGenerator(SectionGeneratorBase):
         if item.item_name and len(item.item_name) > LONG_NAME_THRESHOLD:
             display_title = f'<span style="font-size:{LONG_NAME_FONT_SIZE}">{page_title}</span>'
 
-        # Format class restrictions (comma-separated)
-        classes = ", ".join(enriched.classes) if enriched.classes else ""
+        # Format class restrictions (comma-separated with wiki links)
+        classes = ", ".join(f"[[{cls}]]" for cls in enriched.classes) if enriched.classes else ""
 
         # Extract effects (ItemEffectOnClick, WornEffect, etc)
         effects = ""
