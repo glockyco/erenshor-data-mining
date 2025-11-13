@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING
 
 from loguru import logger
 
-from erenshor.application.wiki.generators.formatting import safe_str
+from erenshor.application.wiki.generators.formatting import format_description, safe_str
 from erenshor.application.wiki.generators.sections.base import SectionGeneratorBase
 
 if TYPE_CHECKING:
@@ -146,7 +146,7 @@ class SpellSectionGenerator(SectionGeneratorBase):
             "title": display_name,
             "image": image,
             "imagecaption": imagecaption,
-            "description": safe_str(spell.spell_desc),
+            "description": format_description(safe_str(spell.spell_desc)) if spell.spell_desc else "",
             "type": safe_str(spell.type),
             "line": safe_str(spell.line),
             "classes": classes,

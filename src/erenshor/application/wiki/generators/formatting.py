@@ -5,6 +5,43 @@ for consistent wiki output.
 """
 
 
+def format_description(text: str) -> str:
+    """Format description text for wiki display.
+
+    Converts newlines to <br> tags and Unity color tags to HTML spans.
+
+    Args:
+        text: Description text with newlines and possibly Unity color tags
+
+    Returns:
+        Text formatted for wiki display with <br> tags and HTML spans
+
+    Examples:
+        >>> format_description("Line 1\\nLine 2")
+        'Line 1<br>Line 2'
+        >>> format_description("Para 1\\n\\nPara 2")
+        'Para 1<br><br>Para 2'
+        >>> format_description("<color=green>text</color>")
+        '<span style="color: #15e300;">text</span>'
+    """
+    import re
+
+    # Replace newlines with <br>
+    result = text.replace("\n", "<br>")
+
+    # Collapse more than 2 consecutive <br> tags into exactly 2
+    # This prevents excessive spacing while preserving paragraph breaks
+    result = re.sub(r"(<br>){3,}", "<br><br>", result)
+
+    # Convert Unity green color tags to HTML spans
+    # Handles: <color=green>content</color> or <color=green> content </color> (with spaces)
+    result = re.sub(
+        r"<color=green>\s*([^<]*?)\s*</color>", r'<span style="color: #15e300;">\1</span>', result, flags=re.IGNORECASE
+    )
+
+    return result
+
+
 def safe_str(value: object, zero_as_blank: bool = False) -> str:
     """Convert value to string for wiki display.
 

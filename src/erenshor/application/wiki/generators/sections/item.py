@@ -22,7 +22,7 @@ from typing import TYPE_CHECKING
 
 from loguru import logger
 
-from erenshor.application.wiki.generators.formatting import safe_str
+from erenshor.application.wiki.generators.formatting import format_description, safe_str
 from erenshor.application.wiki.generators.item_type_display import build_item_types
 from erenshor.application.wiki.generators.sections.base import SectionGeneratorBase
 from erenshor.registry.item_classifier import ItemKind, classify_item_kind
@@ -412,7 +412,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
             "casttime": "",  # Not used for general items
             "duration": "",  # Not used for general items
             "cooldown": "",  # Not used for general items
-            "description": safe_str(item.lore),
+            "description": format_description(safe_str(item.lore)) if item.lore else "",
             "buy": safe_str(item.item_value) if item.item_value else "",
             "sell": safe_str(item.sell_value) if item.sell_value else "",
             "crafting": crafting_results,
@@ -483,7 +483,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
             "poison": safe_str(stat.pr),
             "elemental": safe_str(stat.er),
             "void": safe_str(stat.vr),
-            "description": safe_str(item.lore),
+            "description": format_description(safe_str(item.lore)) if item.lore else "",
             **class_flags,
             "proc_name": proc_name,
             "proc_desc": proc_desc,
@@ -555,7 +555,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
             "poison": safe_str(stat.pr),
             "elemental": safe_str(stat.er),
             "void": safe_str(stat.vr),
-            "description": safe_str(item.lore),
+            "description": format_description(safe_str(item.lore)) if item.lore else "",
             **class_flags,
             "proc_name": proc_name,
             "proc_desc": proc_desc,
@@ -596,7 +596,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
         context = {
             "image_name": f"{page_title}.png",
             "name": self._format_item_name_for_fancy_template(item.item_name or "", page_title),
-            "description": safe_str(item.lore),
+            "description": format_description(safe_str(item.lore)) if item.lore else "",
             "str_scaling": format_scaling(stat.str_scaling),
             "end_scaling": format_scaling(stat.end_scaling),
             "dex_scaling": format_scaling(stat.dex_scaling),

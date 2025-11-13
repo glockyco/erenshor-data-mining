@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING
 
 from loguru import logger
 
-from erenshor.application.wiki.generators.formatting import safe_str
+from erenshor.application.wiki.generators.formatting import format_description, safe_str
 from erenshor.application.wiki.generators.sections.base import SectionGeneratorBase
 
 if TYPE_CHECKING:
@@ -180,7 +180,7 @@ class SkillSectionGenerator(SectionGeneratorBase):
             "title": display_name,
             "image": image,
             "imagecaption": "",
-            "description": safe_str(skill.skill_desc),
+            "description": format_description(safe_str(skill.skill_desc)) if skill.skill_desc else "",
             "type": skill_type,
             "line": "",  # Skills don't have spell lines
             "classes": classes,
