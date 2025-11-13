@@ -146,6 +146,62 @@ def prefer_database_handler(old_value: str, new_value: str, context: dict[str, A
     return new_value if new_value and new_value.strip() else old_value
 
 
+def merge_handler(old_value: str, new_value: str, context: dict[str, Any]) -> str:
+    """Merge old and new values, combining both.
+
+    Useful for fields where both manual wiki content and database content should coexist.
+    For <br>-separated lists, deduplicates entries while preserving order.
+    For comma-separated lists, merges and deduplicates.
+
+    Args:
+        old_value: Existing wiki field value
+        new_value: New database value
+        context: Additional context (unused)
+
+    Returns:
+        Merged value with deduplicated entries
+    """
+    if not old_value or not old_value.strip():
+        return new_value
+    if not new_value or not new_value.strip():
+        return old_value
+
+    # Check if this is a <br>-separated list
+    if "<br>" in old_value or "<br>" in new_value:
+        old_items = [item.strip() for item in old_value.split("<br>") if item.strip()]
+        new_items = [item.strip() for item in new_value.split("<br>") if item.strip()]
+
+        # Deduplicate while preserving order (old items first, then new items not in old)
+        seen = set()
+        merged = []
+        for item in old_items + new_items:
+            if item not in seen:
+                seen.add(item)
+                merged.append(item)
+
+        return "<br>".join(merged)
+
+    # Check if this is a comma-separated list
+    if "," in old_value or "," in new_value:
+        old_items = [item.strip() for item in old_value.split(",") if item.strip()]
+        new_items = [item.strip() for item in new_value.split(",") if item.strip()]
+
+        # Deduplicate while preserving order
+        seen = set()
+        merged = []
+        for item in old_items + new_items:
+            if item not in seen:
+                seen.add(item)
+                merged.append(item)
+
+        return ", ".join(merged)
+
+    # For non-list fields, prefer new value but append old if different
+    if old_value.strip() != new_value.strip():
+        return f"{new_value}, {old_value}"
+    return new_value
+
+
 # Default preservation rules per template
 DEFAULT_PRESERVATION_RULES: dict[str, dict[str, str]] = {
     "Item": {
@@ -153,8 +209,12 @@ DEFAULT_PRESERVATION_RULES: dict[str, dict[str, str]] = {
         "image": "prefer_manual",  # Custom images
         "imagecaption": "prefer_manual",  # Custom captions
         "othersource": "preserve",  # Manually-added sources that don't fit other categories
-        # All other fields (including vendorsource, source, questsource, etc.) use "override" (default)
-        # Source fields are auto-generated from database, not manually researched
+        # Fields that benefit from merging manual and database values
+        "type": "merge",  # Combine manual types with database types
+        "questsource": "merge",  # Combine manual quest sources with database quest sources
+        "relatedquest": "merge",  # Combine manual related quests with database related quests
+        # All other fields (including vendorsource, source, etc.) use "override" (default)
+        # Most source fields are auto-generated from database, not manually researched
     },
     # Fancy-* templates: All fields use default "override" behavior
     # No manual content - everything comes from database
@@ -207,6 +267,7 @@ class FieldPreservationConfig:
             "preserve": preserve_handler,
             "prefer_manual": prefer_manual_handler,
             "prefer_database": prefer_database_handler,
+            "merge": merge_handler,
         }
         if handlers:
             self._handlers.update(handlers)
