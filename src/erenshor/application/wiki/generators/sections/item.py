@@ -721,17 +721,25 @@ class ItemSectionGenerator(SectionGeneratorBase):
         if not enriched.sources:
             return ("", "")
 
-        # Format reward quests, filtering out excluded entities
+        # Format reward quests, filtering out excluded entities and deduplicating
         reward_links = []
+        seen_rewards = set()
         for stable_key in enriched.sources.quest_rewards:
             if self._resolver.resolve_page_title(stable_key) is not None:
-                reward_links.append(self._resolver.quest_link(stable_key))
+                link = self._resolver.quest_link(stable_key)
+                if link not in seen_rewards:
+                    seen_rewards.add(link)
+                    reward_links.append(link)
 
-        # Format requirement quests, filtering out excluded entities
+        # Format requirement quests, filtering out excluded entities and deduplicating
         requirement_links = []
+        seen_requirements = set()
         for stable_key in enriched.sources.quest_requirements:
             if self._resolver.resolve_page_title(stable_key) is not None:
-                requirement_links.append(self._resolver.quest_link(stable_key))
+                link = self._resolver.quest_link(stable_key)
+                if link not in seen_requirements:
+                    seen_requirements.add(link)
+                    requirement_links.append(link)
 
         return ("<br>".join(reward_links), "<br>".join(requirement_links))
 
