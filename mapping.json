@@ -69,6 +69,13 @@
       "mapping_type": "custom",
       "reason": null
     },
+    "item:quest - bellwain collection": {
+      "wiki_page_name": "A Collection of Notes",
+      "display_name": "A Collection of Notes",
+      "image_name": "A Collection of Notes",
+      "mapping_type": "custom",
+      "reason": null
+    },
     "item:GEN - Scribbles of a mad priest 1": {
       "wiki_page_name": "A Lost Poem",
       "display_name": "A Lost Poem (1)",
