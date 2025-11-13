@@ -406,7 +406,7 @@ class RegistryResolver:
             stable_key: Quest stable key from Quest.stable_key property
 
         Returns:
-            {{QuestLink|PageTitle|text=DisplayText}} if display differs
+            {{QuestLink|link=PageTitle{{!}}DisplayText}} if display differs
             {{QuestLink|PageTitle}} if no overrides needed
             Plain display name (no link) if excluded
 
@@ -425,7 +425,7 @@ class RegistryResolver:
         display_name = self.resolve_display_name(stable_key)
 
         if display_name and display_name != page_title:
-            return f"{{{{QuestLink|{page_title}|text={display_name}}}}}"
+            return f"{{{{QuestLink|link={page_title}{{{{!}}}}{display_name}}}}}"
         return f"{{{{QuestLink|{page_title}}}}}"
 
     def character_link(self, stable_key: str) -> str:
