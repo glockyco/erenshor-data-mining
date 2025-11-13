@@ -44,8 +44,19 @@ def mock_resolver():
             return stable_key.split(":")[-1]
         return stable_key
 
+    def resolve_display_name(stable_key: str | None) -> str:
+        """Resolve display name from stable key (defaults to spell name)."""
+        if not stable_key:
+            return ""
+        # For testing, return the spell name from the stable_key
+        if ":" in stable_key:
+            # Convert "spell:minimalspell" -> "minimalspell"
+            return stable_key.split(":")[-1]
+        return stable_key
+
     resolver = Mock()
     resolver.resolve_image_name.side_effect = resolve_image_name
+    resolver.resolve_display_name.side_effect = resolve_display_name
     return resolver
 
 
@@ -213,7 +224,8 @@ class TestSpellSectionGenerator:
 
         # Should generate valid wikitext even with minimal data
         assert "{{Ability" in result
-        assert "|title=Minimal" in result
+        # Title comes from resolve_display_name(stable_key) which returns lowercase resource name
+        assert "|title=minimalspell" in result
         # Empty fields should be present but empty
         assert "|description=" in result
         assert "|duration=" in result

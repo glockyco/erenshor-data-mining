@@ -600,7 +600,7 @@ class TestItemSectionGenerator:
 
         assert context["title"] == "Test Item"
         assert context["description"] == "Test description"
-        assert context["classes"] == "Arcanist, Duelist"
+        assert context["classes"] == "[[Arcanist]], [[Duelist]]"
         assert context["buy"] == "100"
         assert context["sell"] == "25"
         assert context["relic"] == "True"

@@ -7,6 +7,7 @@ from erenshor.application.wiki.generators.field_preservation import (
     FieldPreservationConfig,
     FieldPreservationHandler,
     HandlerNotFoundError,
+    merge_handler,
     override_handler,
     prefer_manual_handler,
     preserve_handler,
@@ -56,6 +57,37 @@ class TestBuiltInHandlers:
         result = prefer_manual_handler("", "", {})
         assert result == ""
 
+    def test_merge_handler_combines_values(self) -> None:
+        """merge_handler should combine old and new values."""
+        # <br>-separated lists - combine with <br>
+        result = merge_handler("Quest1<br>Quest2", "Quest3<br>Quest4", {})
+        assert result == "Quest1<br>Quest2<br>Quest3<br>Quest4"
+
+        # <br>-separated lists - deduplicates
+        result = merge_handler("Quest1<br>Quest2", "Quest2<br>Quest3", {})
+        assert result == "Quest1<br>Quest2<br>Quest3"
+
+        # Comma-separated lists (like type field) - WikiLinks contain |, treated as non-list
+        # Non-list behavior: new first, then old
+        result = merge_handler("[[Quest Items|Quest Item]]", "[[Consumables|Consumable]]", {})
+        assert result == "[[Consumables|Consumable]], [[Quest Items|Quest Item]]"
+
+        # Comma-separated lists - deduplicates
+        result = merge_handler("Type1, Type2", "Type2, Type3", {})
+        assert result == "Type1, Type2, Type3"
+
+        # Old empty -> use new
+        result = merge_handler("", "new", {})
+        assert result == "new"
+
+        # New empty -> use old
+        result = merge_handler("old", "", {})
+        assert result == "old"
+
+        # Non-list fields (no comma or <br>) - combine with comma
+        result = merge_handler("Value1", "Value2", {})
+        assert result == "Value2, Value1"
+
 
 class TestFieldPreservationConfig:
     """Tests for FieldPreservationConfig."""
@@ -66,8 +98,11 @@ class TestFieldPreservationConfig:
 
         # Check Item template has expected rules
         item_rules = config.get_template_rules("Item")
-        assert item_rules["description"] == "preserve"
-        assert item_rules["vendorsource"] == "preserve"
+        assert item_rules["image"] == "prefer_manual"
+        assert item_rules["othersource"] == "preserve"
+        assert item_rules["type"] == "merge"
+        assert item_rules["questsource"] == "merge"
+        assert item_rules["relatedquest"] == "merge"
 
     def test_init_with_custom_rules(self) -> None:
         """Config should accept custom rules."""
@@ -96,8 +131,9 @@ class TestFieldPreservationConfig:
         """get_rule should return explicit rule when configured."""
         config = FieldPreservationConfig()
 
-        assert config.get_rule("Item", "description") == "preserve"
         assert config.get_rule("Item", "image") == "prefer_manual"
+        assert config.get_rule("Item", "othersource") == "preserve"
+        assert config.get_rule("Item", "type") == "merge"
 
     def test_get_handler_returns_built_in_handlers(self) -> None:
         """get_handler should return built-in handlers."""
@@ -276,26 +312,36 @@ class TestFieldPreservationHandler:
         handler = FieldPreservationHandler()  # Uses default rules
 
         old_fields = {
-            "description": "Manual lore text",
             "image": "Custom.png",
-            "vendorsource": "[[Blacksmith]]",
+            "imagecaption": "Old caption",
+            "othersource": "Manual source",
+            "type": "[[Quest Items|Quest Item]]",
+            "questsource": "{{QuestLink|Old Quest}}",
             "damage": "10",
         }
         new_fields = {
-            "description": "Default description",
             "image": "",
-            "vendorsource": "Database vendor",
+            "imagecaption": "",
+            "othersource": "",
+            "type": "[[Consumables|Consumable]]",
+            "questsource": "{{QuestLink|New Quest}}",
             "damage": "15",
         }
 
         result = handler.apply_preservation("Item", old_fields, new_fields)
 
-        # These should be preserved
-        assert result["description"] == "Manual lore text"
-        assert result["vendorsource"] == "[[Blacksmith]]"
-
         # Image uses prefer_manual -> keeps old if non-empty
         assert result["image"] == "Custom.png"
+        assert result["imagecaption"] == "Old caption"
+
+        # Othersource uses preserve -> always keeps old
+        assert result["othersource"] == "Manual source"
+
+        # Type and questsource use merge -> combines old and new
+        assert "Quest Item" in result["type"]
+        assert "Consumable" in result["type"]
+        assert "Old Quest" in result["questsource"]
+        assert "New Quest" in result["questsource"]
 
         # Damage has no rule -> uses override (default)
         assert result["damage"] == "15"
@@ -304,8 +350,8 @@ class TestFieldPreservationHandler:
         """merge_templates should merge a single template's fields."""
         handler = FieldPreservationHandler()
 
-        old_wikitext = "{{Item|description=Manual text|damage=10}}"
-        new_wikitext = "{{Item|description=Default|damage=15|level=5}}"
+        old_wikitext = "{{Item|image=Custom.png|othersource=Manual|damage=10}}"
+        new_wikitext = "{{Item|image=|othersource=|damage=15|level=5}}"
 
         result = handler.merge_templates(old_wikitext, new_wikitext, ["Item"])
 
@@ -317,8 +363,10 @@ class TestFieldPreservationHandler:
         template = parser.find_template(code, ["Item"])
         params = parser.get_params(template)
 
-        # Description preserved (preserve rule)
-        assert params["description"] == "Manual text"
+        # Image preserved (prefer_manual rule - old is non-empty)
+        assert params["image"] == "Custom.png"
+        # Othersource preserved (preserve rule)
+        assert params["othersource"] == "Manual"
         # Damage updated (override rule)
         assert params["damage"] == "15"
         # Level added (new field)
@@ -354,16 +402,16 @@ class TestFieldPreservationHandler:
         """merge_templates should preserve non-template content from old page."""
         handler = FieldPreservationHandler()
 
-        old_wikitext = "{{Item|description=Old}}\n\nSome manual wiki text\n\n[[Category:Items]]"
-        new_wikitext = "{{Item|description=New}}"
+        old_wikitext = "{{Item|othersource=Old}}\n\nSome manual wiki text\n\n[[Category:Items]]"
+        new_wikitext = "{{Item|othersource=New}}"
 
         result = handler.merge_templates(old_wikitext, new_wikitext, ["Item"])
 
         # Should preserve manual content from old page
         assert "Some manual wiki text" in result
         assert "[[Category:Items]]" in result
-        # But old description preserved (preserve rule)
-        assert "description=Old" in result or "description = Old" in result
+        # But old othersource preserved (preserve rule)
+        assert "othersource=Old" in result or "othersource = Old" in result
 
     def test_merge_templates_with_multiple_template_types(self) -> None:
         """merge_templates should handle multiple template types."""
@@ -395,20 +443,22 @@ class TestFieldPreservationHandler:
 class TestDefaultRules:
     """Tests for DEFAULT_PRESERVATION_RULES."""
 
-    def test_item_template_has_description_preserve(self) -> None:
-        """Item template should preserve description field."""
-        assert DEFAULT_PRESERVATION_RULES["Item"]["description"] == "preserve"
-
-    def test_item_template_has_source_fields_preserve(self) -> None:
-        """Item template should preserve all source fields."""
+    def test_item_template_has_manual_content_rules(self) -> None:
+        """Item template should have prefer_manual for images."""
         item_rules = DEFAULT_PRESERVATION_RULES["Item"]
-        assert item_rules["vendorsource"] == "preserve"
-        assert item_rules["source"] == "preserve"
-        assert item_rules["othersource"] == "preserve"
-        assert item_rules["questsource"] == "preserve"
-        assert item_rules["relatedquest"] == "preserve"
-        assert item_rules["craftsource"] == "preserve"
-        assert item_rules["componentfor"] == "preserve"
+        assert item_rules["image"] == "prefer_manual"
+        assert item_rules["imagecaption"] == "prefer_manual"
+
+    def test_item_template_has_merge_rules(self) -> None:
+        """Item template should merge quest-related fields."""
+        item_rules = DEFAULT_PRESERVATION_RULES["Item"]
+        assert item_rules["type"] == "merge"
+        assert item_rules["questsource"] == "merge"
+        assert item_rules["relatedquest"] == "merge"
+
+    def test_item_template_preserves_othersource(self) -> None:
+        """Item template should preserve othersource field."""
+        assert DEFAULT_PRESERVATION_RULES["Item"]["othersource"] == "preserve"
 
     def test_fancy_weapon_has_no_preservation_rules(self) -> None:
         """Fancy-weapon template should have no preservation rules (all override)."""
@@ -424,7 +474,7 @@ class TestDefaultRules:
 
     def test_all_templates_have_valid_handler_names(self) -> None:
         """All rules should reference valid handler names."""
-        valid_handlers = {"override", "preserve", "prefer_manual", "prefer_database"}
+        valid_handlers = {"override", "preserve", "prefer_manual", "prefer_database", "merge"}
 
         for template_name, field_rules in DEFAULT_PRESERVATION_RULES.items():
             for field_name, handler_name in field_rules.items():
@@ -443,8 +493,10 @@ class TestIntegrationScenarios:
         # Original wiki page with manual content
         old_wikitext = """{{Item
 |image=[[File:Sword.png]]
-|description=This is a legendary sword forged by ancient smiths.
-|vendorsource=[[Blacksmith]] in [[Newhaven City]]
+|imagecaption=Custom image caption
+|othersource=Found in treasure chest
+|type=[[Quest Items|Quest Item]]
+|questsource={{QuestLink|Manual Quest}}
 |damage=10
 |level=5
 }}
@@ -455,8 +507,10 @@ class TestIntegrationScenarios:
         # Fresh page generated from database
         new_wikitext = """{{Item
 |image=
-|description=A basic sword.
-|vendorsource=
+|imagecaption=
+|othersource=
+|type=[[Consumables|Consumable]]
+|questsource={{QuestLink|Database Quest}}
 |damage=15
 |level=5
 }}
@@ -466,11 +520,20 @@ class TestIntegrationScenarios:
 
         result = handler.merge_templates(old_wikitext, new_wikitext, ["Item"])
 
-        # Manual content should be preserved
-        assert "legendary sword forged by ancient smiths" in result
-        assert "[[Blacksmith]] in [[Newhaven City]]" in result
+        # Manual content should be preserved (prefer_manual)
+        assert "[[File:Sword.png]]" in result
+        assert "Custom image caption" in result
 
-        # Database updates should apply
+        # Othersource should be preserved
+        assert "Found in treasure chest" in result
+
+        # Type and questsource should be merged
+        assert "Quest Item" in result
+        assert "Consumable" in result
+        assert "Manual Quest" in result
+        assert "Database Quest" in result
+
+        # Database updates should apply (override)
         assert "damage=15" in result or "damage = 15" in result
 
         # Categories should remain (not in template)
@@ -481,7 +544,8 @@ class TestIntegrationScenarios:
         handler = FieldPreservationHandler()
 
         old_wikitext = """{{Item
-|description=A fine weapon
+|image=[[File:OldWeapon.png]]
+|othersource=Manual source
 |damage=10
 }}
 
@@ -493,7 +557,8 @@ class TestIntegrationScenarios:
 }}"""
 
         new_wikitext = """{{Item
-|description=Default weapon
+|image=
+|othersource=
 |damage=15
 }}
 
@@ -506,8 +571,10 @@ class TestIntegrationScenarios:
 
         result = handler.merge_templates(old_wikitext, new_wikitext, ["Item", "Fancy-weapon"])
 
-        # Item description preserved
-        assert "A fine weapon" in result
+        # Item image preserved (prefer_manual)
+        assert "[[File:OldWeapon.png]]" in result
+        # Item othersource preserved
+        assert "Manual source" in result
         # Fancy-weapon description OVERRIDDEN (no preservation)
         assert "Generic weapon" in result
         assert "Deals holy damage" not in result
