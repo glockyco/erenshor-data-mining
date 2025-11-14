@@ -224,19 +224,18 @@ class ItemSectionGenerator(SectionGeneratorBase):
             return f"{item_template}\n\n{charm_template}"
         return item_template
 
-    def _format_item_name_for_fancy_template(self, item_name: str, page_title: str) -> str:
+    def _format_item_name_for_fancy_template(self, display_name: str) -> str:
         """Format item name for fancy templates, wrapping long names with font-size span.
 
         Args:
-            item_name: Original item name from database
-            page_title: Wiki page title to display
+            display_name: Display name from registry to show
 
         Returns:
-            Page title wrapped in span if name exceeds LONG_NAME_THRESHOLD, otherwise plain page title
+            Display name wrapped in span if name exceeds LONG_NAME_THRESHOLD, otherwise plain display name
         """
-        if len(item_name) > LONG_NAME_THRESHOLD:
-            return f'<span style="font-size:{LONG_NAME_FONT_SIZE}">{page_title}</span>'
-        return page_title
+        if len(display_name) > LONG_NAME_THRESHOLD:
+            return f'<span style="font-size:{LONG_NAME_FONT_SIZE}">{display_name}</span>'
+        return display_name
 
     def _weapon_type_display(self, required_slot: str | None, this_weapon_type: str | None) -> str:
         """Convert weapon slot and type to display format for Fancy templates.
@@ -461,9 +460,12 @@ class ItemSectionGenerator(SectionGeneratorBase):
             proc_chance = proc.proc_chance
             proc_style = proc.proc_style
 
+        # Get display name from registry (may differ from page title for disambiguation)
+        display_name = self._resolver.resolve_display_name(item.stable_key)
+
         context = {
             "image": f"[[File:{page_title}.png|80px]]",
-            "name": self._format_item_name_for_fancy_template(item.item_name or "", page_title),
+            "name": self._format_item_name_for_fancy_template(display_name),
             "type": weapon_type,
             "relic": "True" if item.relic else "",
             "str": safe_str(stat.str_),
@@ -534,9 +536,12 @@ class ItemSectionGenerator(SectionGeneratorBase):
             proc_chance = proc.proc_chance
             proc_style = proc.proc_style
 
+        # Get display name from registry (may differ from page title for disambiguation)
+        display_name = self._resolver.resolve_display_name(item.stable_key)
+
         context = {
             "image": f"[[File:{page_title}.png|80px]]",
-            "name": self._format_item_name_for_fancy_template(item.item_name or "", page_title),
+            "name": self._format_item_name_for_fancy_template(display_name),
             "type": "",  # Armor doesn't use "type" field
             "slot": slot,
             "relic": "True" if item.relic else "",
@@ -593,9 +598,12 @@ class ItemSectionGenerator(SectionGeneratorBase):
             "stormcaller": "True" if "Stormcaller" in enriched.classes else "",
         }
 
+        # Get display name from registry (may differ from page title for disambiguation)
+        display_name = self._resolver.resolve_display_name(item.stable_key)
+
         context = {
             "image_name": f"{page_title}.png",
-            "name": self._format_item_name_for_fancy_template(item.item_name or "", page_title),
+            "name": self._format_item_name_for_fancy_template(display_name),
             "description": format_description(safe_str(item.lore)) if item.lore else "",
             "str_scaling": format_scaling(stat.str_scaling),
             "end_scaling": format_scaling(stat.end_scaling),
