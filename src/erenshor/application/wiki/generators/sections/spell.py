@@ -124,15 +124,15 @@ class SpellSectionGenerator(SectionGeneratorBase):
         # Resolve references to links
         pet_to_summon = ""
         if spell.pet_to_summon_stable_key:
-            pet_to_summon = self._resolver.character_link(spell.pet_to_summon_stable_key)
+            pet_to_summon = str(self._resolver.character_link(spell.pet_to_summon_stable_key))
 
         status_effect = ""
         if spell.status_effect_to_apply_stable_key:
-            status_effect = self._resolver.ability_link(spell.status_effect_to_apply_stable_key)
+            status_effect = str(self._resolver.ability_link(spell.status_effect_to_apply_stable_key))
 
         add_proc = ""
         if spell.add_proc_stable_key:
-            add_proc = self._resolver.ability_link(spell.add_proc_stable_key)
+            add_proc = str(self._resolver.ability_link(spell.add_proc_stable_key))
 
         # Format imagecaption from status effect message
         imagecaption = ""
@@ -337,4 +337,4 @@ class SpellSectionGenerator(SectionGeneratorBase):
         # Extract just the links
         item_links = [link for _, link in item_data]
 
-        return "<br>".join(item_links)
+        return "<br>".join(str(link) for link in item_links)

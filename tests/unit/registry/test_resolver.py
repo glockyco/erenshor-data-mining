@@ -351,52 +351,52 @@ class TestLinkGeneration:
         """Test generates simple ItemLink template."""
         result = resolver.item_link("item:test sword")
 
-        assert result == "{{ItemLink|Test Sword}}"
+        assert str(result) == "{{ItemLink|Test Sword}}"
 
     def test_item_link_with_overrides(self, resolver: RegistryResolver) -> None:
         """Test generates ItemLink with display name and image overrides."""
         result = resolver.item_link("item:gen - scribbles of a mad priest 4")
 
-        assert result == "{{ItemLink|Scribbles of a Mad Priest}}"
+        assert str(result) == "{{ItemLink|Scribbles of a Mad Priest}}"
 
     def test_item_link_excluded(self, resolver: RegistryResolver) -> None:
         """Test returns plain text for excluded items."""
         result = resolver.item_link("item:excluded_item")
 
-        assert result == "Excluded Item"
-        assert "{{ItemLink" not in result
+        assert str(result) == "Excluded Item"
+        assert "{{ItemLink" not in str(result)
 
     def test_faction_link_simple(self, resolver: RegistryResolver) -> None:
         """Test generates simple faction link."""
         result = resolver.faction_link("zone:azure")
 
-        assert result == "[[Port Azure]]"
+        assert str(result) == "[[Port Azure]]"
 
     def test_faction_link_with_override(self, resolver: RegistryResolver) -> None:
         """Test generates faction link with override."""
         result = resolver.faction_link("faction:brax")
 
-        assert result == "[[The Torchbearers of Brax]]"
+        assert str(result) == "[[The Torchbearers of Brax]]"
 
     def test_faction_link_excluded(self, resolver: RegistryResolver) -> None:
         """Test returns plain text for excluded factions."""
         result = resolver.faction_link("faction:excluded_faction")
 
-        assert result == "Excluded Faction"
-        assert "[[" not in result
+        assert str(result) == "Excluded Faction"
+        assert "[[" not in str(result)
 
     def test_zone_link_simple(self, resolver: RegistryResolver) -> None:
         """Test generates simple zone link."""
         result = resolver.zone_link("zone:azure")
 
-        assert result == "[[Port Azure]]"
+        assert str(result) == "[[Port Azure]]"
 
     def test_zone_link_excluded(self, resolver: RegistryResolver) -> None:
         """Test returns plain text for excluded zones."""
         result = resolver.zone_link("zone:excluded_zone")
 
-        assert result == "Excluded Zone"
-        assert "[[" not in result
+        assert str(result) == "Excluded Zone"
+        assert "[[" not in str(result)
 
 
 class TestAbilityLink:
@@ -406,38 +406,38 @@ class TestAbilityLink:
         """Test simple spell link without overrides."""
         result = resolver.ability_link("spell:fireball")
 
-        assert result == "{{AbilityLink|Fireball}}"
+        assert str(result) == "{{AbilityLink|Fireball}}"
 
     def test_ability_link_skill_simple(self, resolver: RegistryResolver) -> None:
         """Test simple skill link without overrides."""
         result = resolver.ability_link("skill:sword mastery")
 
-        assert result == "{{AbilityLink|Sword Mastery}}"
+        assert str(result) == "{{AbilityLink|Sword Mastery}}"
 
     def test_ability_link_with_image_override(self, resolver: RegistryResolver) -> None:
         """Test ability link with image name override."""
         result = resolver.ability_link("spell:test_with_image")
 
-        assert "{{AbilityLink|Test Page Title" in result
-        assert "image=CustomImage.png" in result
+        assert "{{AbilityLink|Test Page Title" in str(result)
+        assert "image=CustomImage.png" in str(result)
 
     def test_ability_link_with_display_override(self, resolver: RegistryResolver) -> None:
         """Test ability link with display name override."""
         result = resolver.ability_link("spell:test_with_display")
 
-        assert "{{AbilityLink|Test Page Title" in result
-        assert "text=Custom Display" in result
+        assert "{{AbilityLink|Test Page Title" in str(result)
+        assert "text=Custom Display" in str(result)
 
     def test_ability_link_spell_excluded(self, resolver: RegistryResolver) -> None:
         """Test returns plain text for excluded spells."""
         result = resolver.ability_link("spell:excluded_spell")
 
-        assert result == "Excluded Spell"
-        assert "{{" not in result
+        assert str(result) == "Excluded Spell"
+        assert "{{" not in str(result)
 
     def test_ability_link_skill_excluded(self, resolver: RegistryResolver) -> None:
         """Test returns plain text for excluded skills."""
         result = resolver.ability_link("skill:excluded_skill")
 
-        assert result == "Excluded Skill"
-        assert "{{" not in result
+        assert str(result) == "Excluded Skill"
+        assert "{{" not in str(result)

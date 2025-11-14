@@ -34,6 +34,15 @@ from pathlib import Path
 from loguru import logger
 from sqlmodel import Session, create_engine
 
+from erenshor.domain.value_objects import (
+    AbilityLink,
+    CharacterLink,
+    FactionLink,
+    ItemLink,
+    QuestLink,
+    ZoneLink,
+)
+
 from .operations import get_entity
 
 
@@ -263,201 +272,181 @@ class RegistryResolver:
             logger.debug(f"Found {len(stable_keys)} entities for page {page_title!r}: {stable_keys}")
             return stable_keys
 
-    def item_link(self, stable_key: str) -> str:
-        """Generate {{ItemLink|...}} template for an item.
+    def item_link(self, stable_key: str) -> ItemLink:
+        """Generate ItemLink object for an item.
 
         Args:
             stable_key: Item stable key string (e.g., "item:iron sword")
 
         Returns:
-            {{ItemLink|PageTitle|image=ImageName.png|text=DisplayText}} with applicable params
-            {{ItemLink|PageTitle}} if no overrides needed
-            Plain display name (no link) if excluded
+            ItemLink object with page_title, display_name, and image_name
+            If entity is excluded, page_title=None (renders as plain text)
 
         Example:
             >>> item = Item(stable_key="item:iron sword", ...)
-            >>> resolver.item_link(item.stable_key)
+            >>> link = resolver.item_link(item.stable_key)
+            >>> str(link)
             "{{ItemLink|Iron Sword}}"
+
+            >>> excluded_item = Item(stable_key="item:excluded", ...)
+            >>> link = resolver.item_link(excluded_item.stable_key)
+            >>> str(link)
+            "Excluded Item"  # Plain text, no link
         """
         page_title = self.resolve_page_title(stable_key)
+        display_name = self.resolve_display_name(stable_key)
+        image_name = self.resolve_image_name(stable_key) if page_title else None
 
         if page_title is None:
-            display_name = self.resolve_display_name(stable_key)
             logger.debug(f"Entity {stable_key} is excluded")
-            return display_name
 
-        display_name = self.resolve_display_name(stable_key)
-        image_name = self.resolve_image_name(stable_key)
+        return ItemLink(page_title=page_title, display_name=display_name, image_name=image_name)
 
-        params = []
-        if image_name and image_name != page_title:
-            img = image_name if image_name.endswith(".png") else f"{image_name}.png"
-            params.append(f"image={img}")
-        if display_name and display_name != page_title:
-            params.append(f"text={display_name}")
-
-        if params:
-            return f"{{{{ItemLink|{page_title}|{'|'.join(params)}}}}}"
-        return f"{{{{ItemLink|{page_title}}}}}"
-
-    def ability_link(self, stable_key: str) -> str:
-        """Generate {{AbilityLink|...}} template for a spell or skill.
+    def ability_link(self, stable_key: str) -> AbilityLink:
+        """Generate AbilityLink object for a spell or skill.
 
         Args:
             stable_key: Spell/skill stable key from Spell.stable_key or Skill.stable_key property
 
         Returns:
-            {{AbilityLink|PageTitle|image=ImageName.png|text=DisplayText}} with applicable params
-            {{AbilityLink|PageTitle}} if no overrides needed
-            Plain display name (no link) if excluded
+            AbilityLink object with page_title, display_name, and image_name
+            If entity is excluded, page_title=None (renders as plain text)
 
         Example:
             >>> spell = Spell(resource_name="gen - stun", ...)
-            >>> resolver.ability_link(spell.stable_key)
+            >>> link = resolver.ability_link(spell.stable_key)
+            >>> str(link)
             "{{AbilityLink|Stun}}"
+
+            >>> excluded_spell = Spell(resource_name="excluded", ...)
+            >>> link = resolver.ability_link(excluded_spell.stable_key)
+            >>> str(link)
+            "Excluded Spell"  # Plain text, no link
         """
         page_title = self.resolve_page_title(stable_key)
+        display_name = self.resolve_display_name(stable_key)
+        image_name = self.resolve_image_name(stable_key) if page_title else None
 
         if page_title is None:
-            display_name = self.resolve_display_name(stable_key)
             logger.debug(f"Entity {stable_key} is excluded")
-            return display_name
 
-        display_name = self.resolve_display_name(stable_key)
-        image_name = self.resolve_image_name(stable_key)
+        return AbilityLink(page_title=page_title, display_name=display_name, image_name=image_name)
 
-        params = []
-        if image_name and image_name != page_title:
-            img = image_name if image_name.endswith(".png") else f"{image_name}.png"
-            params.append(f"image={img}")
-        if display_name and display_name != page_title:
-            params.append(f"text={display_name}")
-
-        if params:
-            return f"{{{{AbilityLink|{page_title}|{'|'.join(params)}}}}}"
-        return f"{{{{AbilityLink|{page_title}}}}}"
-
-    def faction_link(self, stable_key: str) -> str:
-        """Generate standard MediaWiki link for a faction.
-
-        Uses [[Page]] or [[Page|Display]] syntax.
+    def faction_link(self, stable_key: str) -> FactionLink:
+        """Generate FactionLink object for a faction.
 
         Args:
             stable_key: Faction stable key from Faction.stable_key property
 
         Returns:
-            [[PageTitle|DisplayText]] if display differs
-            [[PageTitle]] otherwise
-            Plain display name (no link) if excluded
+            FactionLink (StandardLink) object with page_title and display_name
+            If entity is excluded, page_title=None (renders as plain text)
 
         Example:
             >>> faction = Faction(refname="AzureCitizens", ...)
-            >>> resolver.faction_link(faction.stable_key)
+            >>> link = resolver.faction_link(faction.stable_key)
+            >>> str(link)
             "[[The Citizens of Port Azure]]"
+
+            >>> excluded_faction = Faction(refname="Excluded", ...)
+            >>> link = resolver.faction_link(excluded_faction.stable_key)
+            >>> str(link)
+            "Excluded Faction"  # Plain text, no link
         """
         page_title = self.resolve_page_title(stable_key)
-
-        if page_title is None:
-            display_name = self.resolve_display_name(stable_key)
-            logger.debug(f"Entity {stable_key} is excluded")
-            return display_name
-
         display_name = self.resolve_display_name(stable_key)
 
-        if display_name and display_name != page_title:
-            return f"[[{page_title}|{display_name}]]"
-        return f"[[{page_title}]]"
+        if page_title is None:
+            logger.debug(f"Entity {stable_key} is excluded")
 
-    def zone_link(self, stable_key: str) -> str:
-        """Generate standard MediaWiki link for a zone.
+        return FactionLink(page_title=page_title, display_name=display_name, image_name=None)
 
-        Uses [[Page]] or [[Page|Display]] syntax.
+    def zone_link(self, stable_key: str) -> ZoneLink:
+        """Generate ZoneLink object for a zone.
 
         Args:
             stable_key: Zone stable key from Zone.stable_key property
 
         Returns:
-            [[PageTitle|DisplayText]] if display differs
-            [[PageTitle]] otherwise
-            Plain display name (no link) if excluded
+            ZoneLink (StandardLink) object with page_title and display_name
+            If entity is excluded, page_title=None (renders as plain text)
 
         Example:
             >>> zone = Zone(scene="Azure", ...)
-            >>> resolver.zone_link(zone.stable_key)
+            >>> link = resolver.zone_link(zone.stable_key)
+            >>> str(link)
             "[[Port Azure]]"
+
+            >>> excluded_zone = Zone(scene="Excluded", ...)
+            >>> link = resolver.zone_link(excluded_zone.stable_key)
+            >>> str(link)
+            "Excluded Zone"  # Plain text, no link
         """
         page_title = self.resolve_page_title(stable_key)
-
-        if page_title is None:
-            display_name = self.resolve_display_name(stable_key)
-            logger.debug(f"Entity {stable_key} is excluded")
-            return display_name
-
         display_name = self.resolve_display_name(stable_key)
 
-        if display_name and display_name != page_title:
-            return f"[[{page_title}|{display_name}]]"
-        return f"[[{page_title}]]"
+        if page_title is None:
+            logger.debug(f"Entity {stable_key} is excluded")
 
-    def quest_link(self, stable_key: str) -> str:
-        """Generate {{QuestLink|...}} template for a quest.
+        return ZoneLink(page_title=page_title, display_name=display_name, image_name=None)
+
+    def quest_link(self, stable_key: str) -> QuestLink:
+        """Generate QuestLink object for a quest.
 
         Args:
             stable_key: Quest stable key from Quest.stable_key property
 
         Returns:
-            {{QuestLink|link=PageTitle{{!}}DisplayText}} if display differs
-            {{QuestLink|PageTitle}} if no overrides needed
-            Plain display name (no link) if excluded
+            QuestLink object with page_title and display_name
+            If entity is excluded, page_title=None (renders as plain text)
 
         Example:
             >>> quest = Quest(db_name="CatForDeer", ...)
-            >>> resolver.quest_link(quest.stable_key)
+            >>> link = resolver.quest_link(quest.stable_key)
+            >>> str(link)
             "{{QuestLink|A Cat for a Deer}}"
+
+            >>> excluded_quest = Quest(db_name="ExcludedQuest", ...)
+            >>> link = resolver.quest_link(excluded_quest.stable_key)
+            >>> str(link)
+            "Excluded Quest"  # Plain text, no link
         """
         page_title = self.resolve_page_title(stable_key)
-
-        if page_title is None:
-            display_name = self.resolve_display_name(stable_key)
-            logger.debug(f"Entity {stable_key} is excluded")
-            return display_name
-
         display_name = self.resolve_display_name(stable_key)
 
-        if display_name and display_name != page_title:
-            return f"{{{{QuestLink|link={page_title}{{{{!}}}}{display_name}}}}}"
-        return f"{{{{QuestLink|{page_title}}}}}"
+        if page_title is None:
+            logger.debug(f"Entity {stable_key} is excluded")
 
-    def character_link(self, stable_key: str) -> str:
-        """Generate standard MediaWiki link for a character.
+        return QuestLink(page_title=page_title, display_name=display_name, image_name=None)
 
-        Uses [[Page]] or [[Page|Display]] syntax, consistent with zones and factions.
+    def character_link(self, stable_key: str) -> CharacterLink:
+        """Generate CharacterLink object for a character.
 
         Args:
             stable_key: Character stable key from Character.stable_key property
 
         Returns:
-            [[PageTitle|DisplayText]] if display differs
-            [[PageTitle]] otherwise
-            Plain display name (no link) if excluded
+            CharacterLink (StandardLink) object with page_title and display_name
+            If entity is excluded, page_title=None (renders as plain text)
 
         Example:
             >>> character = Character(object_name="Goblin", ...)
-            >>> resolver.character_link(character.stable_key)
+            >>> link = resolver.character_link(character.stable_key)
+            >>> str(link)
             "[[Goblin]]"
+
+            >>> excluded_character = Character(object_name="Excluded", ...)
+            >>> link = resolver.character_link(excluded_character.stable_key)
+            >>> str(link)
+            "Excluded Character"  # Plain text, no link
         """
         page_title = self.resolve_page_title(stable_key)
-
-        if page_title is None:
-            display_name = self.resolve_display_name(stable_key)
-            logger.debug(f"Entity {stable_key} is excluded")
-            return display_name
-
         display_name = self.resolve_display_name(stable_key)
 
-        if display_name and display_name != page_title:
-            return f"[[{page_title}|{display_name}]]"
-        return f"[[{page_title}]]"
+        if page_title is None:
+            logger.debug(f"Entity {stable_key} is excluded")
+
+        return CharacterLink(page_title=page_title, display_name=display_name, image_name=None)
 
     def list_all_keys(self) -> list[str]:
         """List all stable keys in the registry.

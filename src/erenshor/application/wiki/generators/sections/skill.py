@@ -137,15 +137,15 @@ class SkillSectionGenerator(SectionGeneratorBase):
         # Resolve references to links
         pet_to_summon = ""
         if skill.spawn_on_use_stable_key:
-            pet_to_summon = self._resolver.character_link(skill.spawn_on_use_stable_key)
+            pet_to_summon = str(self._resolver.character_link(skill.spawn_on_use_stable_key))
 
         status_effect = ""
         if skill.effect_to_apply_stable_key:
-            status_effect = self._resolver.ability_link(skill.effect_to_apply_stable_key)
+            status_effect = str(self._resolver.ability_link(skill.effect_to_apply_stable_key))
 
         cast_on_target = ""
         if skill.cast_on_target_stable_key:
-            cast_on_target = self._resolver.ability_link(skill.cast_on_target_stable_key)
+            cast_on_target = str(self._resolver.ability_link(skill.cast_on_target_stable_key))
 
         # Combine effects (both status_effect and cast_on_target)
         effects_parts = []
@@ -346,4 +346,4 @@ class SkillSectionGenerator(SectionGeneratorBase):
         # Extract just the links
         item_links = [link for _, link in item_data]
 
-        return "<br>".join(item_links)
+        return "<br>".join(str(link) for link in item_links)

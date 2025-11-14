@@ -232,7 +232,7 @@ class WeaponsOverviewPageGenerator(OverviewPageGeneratorBase):
             class_names: List of class names that can equip this weapon
         """
         # Item link
-        name = self.context.resolver.item_link(weapon.stable_key)
+        name = str(self.context.resolver.item_link(weapon.stable_key))
 
         # Slot and type
         slot = self._slot_label(weapon)
@@ -303,28 +303,28 @@ class WeaponsOverviewPageGenerator(OverviewPageGeneratorBase):
 
         # Weapon proc
         if weapon.weapon_proc_on_hit_stable_key and weapon.weapon_proc_chance:
-            spell_link = self.context.resolver.ability_link(weapon.weapon_proc_on_hit_stable_key)
+            spell_link = str(self.context.resolver.ability_link(weapon.weapon_proc_on_hit_stable_key))
             trigger = "on bash" if weapon.shield else "on attack"
             notes_parts.append(f"{spell_link}, {int(weapon.weapon_proc_chance)}% {trigger}")
 
         # Wand effect
         if weapon.wand_effect_stable_key and weapon.wand_proc_chance:
-            spell_link = self.context.resolver.ability_link(weapon.wand_effect_stable_key)
+            spell_link = str(self.context.resolver.ability_link(weapon.wand_effect_stable_key))
             notes_parts.append(f"{spell_link}, {int(weapon.wand_proc_chance)}% on cast")
 
         # Bow effect
         if weapon.bow_effect_stable_key and weapon.bow_proc_chance:
-            spell_link = self.context.resolver.ability_link(weapon.bow_effect_stable_key)
+            spell_link = str(self.context.resolver.ability_link(weapon.bow_effect_stable_key))
             notes_parts.append(f"{spell_link}, {int(weapon.bow_proc_chance)}% on attack")
 
         # Worn effect
         if weapon.worn_effect_stable_key:
-            spell_link = self.context.resolver.ability_link(weapon.worn_effect_stable_key)
+            spell_link = str(self.context.resolver.ability_link(weapon.worn_effect_stable_key))
             notes_parts.append(f"Worn: {spell_link}")
 
         # Click effect
         if weapon.item_effect_on_click_stable_key:
-            spell_link = self.context.resolver.ability_link(weapon.item_effect_on_click_stable_key)
+            spell_link = str(self.context.resolver.ability_link(weapon.item_effect_on_click_stable_key))
             notes_parts.append(f"On click: {spell_link}")
 
         return "<br>".join(notes_parts)

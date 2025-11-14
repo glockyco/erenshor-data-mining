@@ -170,7 +170,7 @@ class ArmorOverviewPageGenerator(OverviewPageGeneratorBase):
             class_names: List of class names that can equip this armor
         """
         # Item link
-        name = self.context.resolver.item_link(armor.stable_key)
+        name = str(self.context.resolver.item_link(armor.stable_key))
 
         # Slot
         slot = armor.required_slot or ""
@@ -233,17 +233,17 @@ class ArmorOverviewPageGenerator(OverviewPageGeneratorBase):
 
         # Worn effect
         if armor.worn_effect_stable_key:
-            spell_link = self.context.resolver.ability_link(armor.worn_effect_stable_key)
+            spell_link = str(self.context.resolver.ability_link(armor.worn_effect_stable_key))
             notes_parts.append(f"Worn: {spell_link}")
 
         # Click effect
         if armor.item_effect_on_click_stable_key:
-            spell_link = self.context.resolver.ability_link(armor.item_effect_on_click_stable_key)
+            spell_link = str(self.context.resolver.ability_link(armor.item_effect_on_click_stable_key))
             notes_parts.append(f"On click: {spell_link}")
 
         # Bracer proc
         if armor.required_slot == "Bracer" and armor.weapon_proc_on_hit_stable_key and armor.weapon_proc_chance:
-            spell_link = self.context.resolver.ability_link(armor.weapon_proc_on_hit_stable_key)
+            spell_link = str(self.context.resolver.ability_link(armor.weapon_proc_on_hit_stable_key))
             notes_parts.append(f"{spell_link}, {int(armor.weapon_proc_chance)}% on cast")
 
         return "<br>".join(notes_parts)

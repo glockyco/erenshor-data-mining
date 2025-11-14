@@ -123,13 +123,13 @@ class CharacterSectionGenerator(SectionGeneratorBase):
     def _format_faction(self, character: Character) -> str:
         """Format faction field using MyWorldFactionStableKey or MyFaction."""
         if character.my_world_faction_stable_key:
-            return self._resolver.faction_link(character.my_world_faction_stable_key)
+            return str(self._resolver.faction_link(character.my_world_faction_stable_key))
 
         if character.my_faction in ("Villager", "GoodHuman", "GoodGuard", "OtherGood", "PreyAnimal"):
-            return self._resolver.faction_link("faction:good")
+            return str(self._resolver.faction_link("faction:good"))
 
         if character.my_faction and character.my_faction not in ("Player", "PC", "DEBUG"):
-            return self._resolver.faction_link("faction:evil")
+            return str(self._resolver.faction_link("faction:evil"))
 
         return ""
 
@@ -169,7 +169,7 @@ class CharacterSectionGenerator(SectionGeneratorBase):
             zone_data.append((display_name, link))
 
         zone_data.sort(key=lambda x: x[0].lower())
-        return WIKITEXT_LINE_SEPARATOR.join(link for _, link in zone_data)
+        return WIKITEXT_LINE_SEPARATOR.join(str(link) for _, link in zone_data)
 
     def _format_coordinates(self, spawn_infos: list[CharacterSpawnInfo]) -> str:
         """Format coordinates for wiki template."""
@@ -329,7 +329,7 @@ class CharacterSectionGenerator(SectionGeneratorBase):
             all_entries.append((sort_key, entry_with_pct))
 
             if drop.is_guaranteed:
-                guaranteed_entries.append(((0.0, display_name.lower()), item_link))
+                guaranteed_entries.append(((0.0, display_name.lower()), str(item_link)))
 
         def _join_entries(entries: Sequence[tuple[tuple[float, str], str]]) -> str:
             if not entries:

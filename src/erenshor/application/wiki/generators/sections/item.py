@@ -372,7 +372,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
         # Extract effects (ItemEffectOnClick, WornEffect, etc)
         effects = ""
         if enriched.proc:
-            effects = self._resolver.ability_link(enriched.proc.stable_key)
+            effects = str(self._resolver.ability_link(enriched.proc.stable_key))
 
         # Format source fields
         vendor_sources = self._format_vendor_sources(enriched)
@@ -451,7 +451,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
         proc_style = ""
         if enriched.proc:
             proc = enriched.proc
-            proc_name = self._resolver.ability_link(proc.stable_key)
+            proc_name = str(self._resolver.ability_link(proc.stable_key))
             proc_desc = proc.description
             proc_chance = proc.proc_chance
             proc_style = proc.proc_style
@@ -527,7 +527,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
         proc_style = ""
         if enriched.proc:
             proc = enriched.proc
-            proc_name = self._resolver.ability_link(proc.stable_key)
+            proc_name = str(self._resolver.ability_link(proc.stable_key))
             proc_desc = proc.description
             proc_chance = proc.proc_chance
             proc_style = proc.proc_style
@@ -660,10 +660,10 @@ class ItemSectionGenerator(SectionGeneratorBase):
                 seen.add(link)
                 vendor_links.append(link)
 
-        # Sort alphabetically
+        # Sort alphabetically by display name
         vendor_links.sort()
 
-        return "<br>".join(vendor_links)
+        return "<br>".join(str(link) for link in vendor_links)
 
     def _format_drop_sources(self, enriched: EnrichedItemData) -> str:
         """Format drop sources as wiki links with drop probabilities.
@@ -693,7 +693,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
             link = self._resolver.character_link(stable_key)
             drop_data.append((link, drop_probability))
 
-        # Sort by probability descending (highest first), then by link text ascending (for ties)
+        # Sort by probability descending (highest first), then by display name ascending (for ties)
         drop_data.sort(key=lambda x: (-x[1], x[0]))
 
         # Deduplicate by link text (keeping first occurrence which has highest probability)
@@ -704,7 +704,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
             key = (link, probability)
             if key not in seen:
                 seen.add(key)
-                unique_drops.append(f"{link} ({probability:.1f}%)")
+                unique_drops.append(f"{link!s} ({probability:.1f}%)")
 
         return "<br>".join(unique_drops)
 
@@ -738,7 +738,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
                     seen_rewards.add(link)
                     reward_links.append(link)
 
-        # Sort reward links alphabetically
+        # Sort reward links alphabetically by display name
         reward_links.sort()
 
         # Format requirement quests, filtering out excluded entities and deduplicating
@@ -751,10 +751,10 @@ class ItemSectionGenerator(SectionGeneratorBase):
                     seen_requirements.add(link)
                     requirement_links.append(link)
 
-        # Sort requirement links alphabetically
+        # Sort requirement links alphabetically by display name
         requirement_links.sort()
 
-        return ("<br>".join(reward_links), "<br>".join(requirement_links))
+        return ("<br>".join(str(link) for link in reward_links), "<br>".join(str(link) for link in requirement_links))
 
     def _format_crafting_sources(self, enriched: EnrichedItemData) -> tuple[str, str]:
         """Format crafting sources (how to craft this item) and component usage.
@@ -775,12 +775,12 @@ class ItemSectionGenerator(SectionGeneratorBase):
         craft_links = []
         for stable_key, quantity in enriched.sources.craft_recipe:
             link = self._resolver.item_link(stable_key)
-            craft_links.append(f"{quantity}x {link}")
+            craft_links.append(f"{quantity}x {link!s}")
 
         # Format component usage (items that require this as a component)
         component_links = [self._resolver.item_link(stable_key) for stable_key in enriched.sources.component_for]
 
-        return ("<br>".join(craft_links), "<br>".join(component_links))
+        return ("<br>".join(craft_links), "<br>".join(str(link) for link in component_links))
 
     def _format_recipe_info(self, enriched: EnrichedItemData) -> tuple[str, str]:
         """Format recipe results and ingredients for mold items.
@@ -801,12 +801,12 @@ class ItemSectionGenerator(SectionGeneratorBase):
         result_links = []
         for stable_key, quantity in enriched.sources.crafting_results:
             link = self._resolver.item_link(stable_key)
-            result_links.append(f"{quantity}x {link}")
+            result_links.append(f"{quantity}x {link!s}")
 
         # Format recipe ingredients (what this mold needs)
         ingredient_links = []
         for stable_key, quantity in enriched.sources.recipe_ingredients:
             link = self._resolver.item_link(stable_key)
-            ingredient_links.append(f"{quantity}x {link}")
+            ingredient_links.append(f"{quantity}x {link!s}")
 
         return ("<br>".join(result_links), "<br>".join(ingredient_links))
