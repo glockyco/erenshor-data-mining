@@ -95,6 +95,20 @@ class TestBuiltInHandlers:
         result = merge_handler("Value1", "Value2", {})
         assert result == "Value1<br>Value2"
 
+        # QuestLink with comma in display name - should use <br> separator (not split on internal comma)
+        result = merge_handler(
+            "{{QuestLink|link=The Mathers' Demise{{!}}The Mather's Demise, Part 3}}",
+            "{{QuestLink|link=The Mathers' Demise{{!}}The Mather's Demise}}",
+            {},
+        )
+        expected = (
+            "{{QuestLink|link=The Mathers' Demise{{!}}The Mather's Demise, Part 3}}"
+            "<br>{{QuestLink|link=The Mathers' Demise{{!}}The Mather's Demise}}"
+        )
+        assert result == expected
+        # Ensure it didn't break the QuestLink template by splitting on the comma
+        assert "}}, {{" not in result  # Should not have broken the template
+
 
 class TestFieldPreservationConfig:
     """Tests for FieldPreservationConfig."""

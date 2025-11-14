@@ -167,29 +167,47 @@ def merge_handler(old_value: str, new_value: str, context: dict[str, Any]) -> st
         return old_value
 
     # Determine separator to use:
-    # - Use <br> if either value has <br>, or if both have no separators
-    # - Use comma only if both values have commas and neither has <br>
+    # - Use <br> if either value has <br>
+    # - Use comma only if BOTH values have commas AND neither has <br> AND we don't detect {{!}} (QuestLink pipe)
+    # - The {{!}} pattern indicates a QuestLink with display name override, which may contain commas
     has_br = "<br>" in old_value or "<br>" in new_value
-    has_comma = "," in old_value or "," in new_value
+    has_comma_in_old = "," in old_value
+    has_comma_in_new = "," in new_value
+    # Check if this looks like a QuestLink with display name (which may contain commas internally)
+    has_questlink_pipe = "{{!}}" in old_value or "{{!}}" in new_value
 
-    # Choose separator: prefer <br> unless only commas exist
-    if has_br or not has_comma:
+    # Choose separator
+    if has_br:
+        # If either has <br>, use <br>
         separator = "<br>"
-        split_char = "<br>"
-    else:
+        old_items = (
+            [item.strip() for item in old_value.split("<br>") if item.strip()]
+            if "<br>" in old_value
+            else ([old_value.strip()] if old_value.strip() else [])
+        )
+        new_items = (
+            [item.strip() for item in new_value.split("<br>") if item.strip()]
+            if "<br>" in new_value
+            else ([new_value.strip()] if new_value.strip() else [])
+        )
+    elif (has_comma_in_old or has_comma_in_new) and not has_questlink_pipe:
+        # At least one has commas and no QuestLink pipes - likely comma-separated list like type field
+        # Use comma separator and split both on comma (treating single items as 1-item lists)
         separator = ", "
-        split_char = ","
-
-    # Split both values on the appropriate separator
-    # If a value doesn't have that separator, treat it as a single item
-    if split_char in old_value:
-        old_items = [item.strip() for item in old_value.split(split_char) if item.strip()]
+        old_items = (
+            [item.strip() for item in old_value.split(",") if item.strip()]
+            if "," in old_value
+            else ([old_value.strip()] if old_value.strip() else [])
+        )
+        new_items = (
+            [item.strip() for item in new_value.split(",") if item.strip()]
+            if "," in new_value
+            else ([new_value.strip()] if new_value.strip() else [])
+        )
     else:
+        # Default to <br> (single values or QuestLink with comma in display name)
+        separator = "<br>"
         old_items = [old_value.strip()] if old_value.strip() else []
-
-    if split_char in new_value:
-        new_items = [item.strip() for item in new_value.split(split_char) if item.strip()]
-    else:
         new_items = [new_value.strip()] if new_value.strip() else []
 
     # Deduplicate while preserving order (old items first, then new items not in old)
