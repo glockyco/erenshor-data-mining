@@ -2,8 +2,7 @@
   "metadata": {
     "schema_version": "2.0",
     "created_at": "2025-09-21T15:44:48.853024Z",
-    "updated_at": "2025-11-06T06:14:07Z",
-    "total_rules": 283
+    "updated_at": "2025-11-13T06:14:07Z"
   },
   "rules": {
     "character:Brackish Crocodile": {
@@ -62,6 +61,13 @@
       "mapping_type": "custom",
       "reason": null
     },
+    "item:quest - game piece monarch of flame": {
+      "wiki_page_name": "Monarch of Flame (Game Piece)",
+      "display_name": "Monarch of Flame",
+      "image_name": "Monarch of Flame",
+      "mapping_type": "custom",
+      "reason": null
+    },
     "item:QUEST - Game Piece Blazefiend": {
       "wiki_page_name": "Blaze Fiend (Game Piece)",
       "display_name": "Blaze Fiend",
@@ -75,6 +81,20 @@
       "image_name": "A Collection of Notes",
       "mapping_type": "custom",
       "reason": null
+    },
+    "item:gen - priel note": {
+      "wiki_page_name": "Priel Note",
+      "display_name": "Priel Note (1)",
+      "image_name": "Priel Note",
+      "mapping_type": "custom",
+      "reason": "Distinguish the two different 'Priel Note' items"
+    },
+    "item:gen - priel note 1": {
+      "wiki_page_name": "Priel Note",
+      "display_name": "Priel Note (2)",
+      "image_name": "Priel Note",
+      "mapping_type": "custom",
+      "reason": "Distinguish the two different 'Priel Note' items"
     },
     "item:GEN - Scribbles of a mad priest 1": {
       "wiki_page_name": "A Lost Poem",
@@ -96,6 +116,20 @@
       "image_name": null,
       "mapping_type": "custom",
       "reason": null
+    },
+    "character:fungal bear": {
+      "wiki_page_name": "Fungal Bear",
+      "display_name": "Fungal Bear",
+      "image_name": "Fungal Bear",
+      "mapping_type": "custom",
+      "reason": ""
+    },
+    "character:corrupted fungal bear": {
+      "wiki_page_name": "Fungal Bear",
+      "display_name": "Fungal Bear",
+      "image_name": "Corrupted Fungal Bear",
+      "mapping_type": "custom",
+      "reason": "Disambiguate from the 'regular' fungal bear."
     },
     "character:Lost Sea Giant": {
       "wiki_page_name": "A Lost Sea Giant",
@@ -1078,10 +1112,10 @@
       "reason": null
     },
     "spell:NONE - Offering Stone": {
-      "wiki_page_name": null,
-      "display_name": null,
+      "wiki_page_name": "Offering Stone (Effect)",
+      "display_name": "Offering Stone",
       "image_name": null,
-      "mapping_type": "exclude",
+      "mapping_type": "custom",
       "reason": null
     },
     "character:Peon": {
@@ -1728,6 +1762,13 @@
       "mapping_type": "custom",
       "reason": null
     },
+    "character:fallen fernalla|bloomingsepulcher|788.35|254.99|837.27": {
+      "wiki_page_name": "Fallen Fernalla (NPC)",
+      "display_name": "Fallen Fernalla",
+      "image_name": "Fallen Fernalla NPC",
+      "mapping_type": "custom",
+      "reason": "Disambiguate from the 'Fallen Fernalla' enemy."
+    },
     "faction:Molarai": {
       "wiki_page_name": "Eldoth Molorai (Faction)",
       "display_name": null,
@@ -1910,6 +1951,209 @@
       "mapping_type": "custom",
       "reason": "Remove trailing space from item name"
     },
+    "item:gen - samuel's note": {
+      "wiki_page_name": "Samuel's Note (Item)",
+      "display_name": "Samuel's Note",
+      "image_name": "Samuel's Note",
+      "mapping_type": "custom",
+      "reason": "Disambiguate from Samuel's Note quest"
+    },
+    "quest:solunascelestialblade": {
+      "wiki_page_name": "Soluna's Celestial Blade",
+      "display_name": "Soluna's Celestial Blade",
+      "image_name": null,
+      "mapping_type": "custom",
+      "reason": null
+    },
+    "quest:solunascelestialblade1": {
+      "wiki_page_name": "Soluna's Celestial Blade",
+      "display_name": "Soluna's Celestial Blade - Part 2",
+      "image_name": null,
+      "mapping_type": "custom",
+      "reason": null
+    },
+    "quest:solunascelestialblade2": {
+      "wiki_page_name": "Soluna's Celestial Blade",
+      "display_name": "Soluna's Celestial Blade - Part 3",
+      "image_name": null,
+      "mapping_type": "custom",
+      "reason": null
+    },
+    "quest:lostfaith": {
+      "wiki_page_name": "Lost Faith (Quest)",
+      "display_name": "Lost Faith",
+      "image_name": null,
+      "mapping_type": "custom",
+      "reason": "Disambiguate from Lost Faith item"
+    },
+    "quest:willowsoil": {
+      "wiki_page_name": "Willow Soil (Quest)",
+      "display_name": "Willow Soil",
+      "image_name": null,
+      "mapping_type": "custom",
+      "reason": "Disambiguate from Willow Soil item"
+    },
+    "quest:shiver-glasses": {
+      "wiki_page_name": "Seeing the Truth",
+      "display_name": "Seeing the Truth",
+      "image_name": null,
+      "mapping_type": "custom",
+      "reason": "Rename from 'Seeing the truth' to 'Seeing the Truth'"
+    },
+    "quest:wyland's note": {
+      "wiki_page_name": "Whispers of Wyland",
+      "display_name": "Whispers of Wyland",
+      "image_name": null,
+      "mapping_type": "custom",
+      "reason": "Map to main quest page"
+    },
+    "quest:bellwainletters": {
+      "wiki_page_name": "The Mystery of Bellwain Island",
+      "display_name": "The Mystery of Bellwain Island",
+      "image_name": null,
+      "mapping_type": "custom",
+      "reason": "Map to main quest page"
+    },
+    "quest:bellwainletters2": {
+      "wiki_page_name": null,
+      "display_name": null,
+      "image_name": null,
+      "mapping_type": "exclude",
+      "reason": "Quest should not appear in wiki"
+    },
+    "quest:clearingthebonepits": {
+      "wiki_page_name": null,
+      "display_name": null,
+      "image_name": null,
+      "mapping_type": "exclude",
+      "reason": "Quest is not currently obtainable"
+    },
+    "quest:breadedislandfinmade": {
+      "wiki_page_name": "The Mystery of Bellwain Island",
+      "display_name": "The Mystery of Bellwain Island",
+      "image_name": null,
+      "mapping_type": "custom",
+      "reason": "Map to main quest page"
+    },
+    "quest:thelostsoul": {
+      "wiki_page_name": "The Lost Soul",
+      "display_name": "The Lost Soul Pt. 1",
+      "image_name": null,
+      "mapping_type": "custom",
+      "reason": "Map all Lost Soul quest parts to same page"
+    },
+    "quest:thelostsoul2": {
+      "wiki_page_name": "The Lost Soul",
+      "display_name": "The Lost Soul Pt. 2",
+      "image_name": null,
+      "mapping_type": "custom",
+      "reason": "Map all Lost Soul quest parts to same page"
+    },
+    "quest:thelostsoul3": {
+      "wiki_page_name": "The Lost Soul",
+      "display_name": "The Lost Soul Pt. 3",
+      "image_name": null,
+      "mapping_type": "custom",
+      "reason": "Map all Lost Soul quest parts to same page"
+    },
+    "quest:wishlanshope": {
+      "wiki_page_name": "Wishlan's Hope (Quest)",
+      "display_name": "Wishlan's Hope",
+      "image_name": null,
+      "mapping_type": "custom",
+      "reason": "Disambiguate from Wishlan's Hope item"
+    },
+    "quest:wishlanshope2": {
+      "wiki_page_name": "Wishlan's Hope (Quest)",
+      "display_name": "Wishlan's Hope Pt. 2",
+      "image_name": null,
+      "mapping_type": "custom",
+      "reason": "Disambiguate from Wishlan's Hope item"
+    },
+    "quest:theduskenlightritual": {
+      "wiki_page_name": "The Duskenlight Ritual (Quest)",
+      "display_name": "The Duskenlight Ritual",
+      "image_name": null,
+      "mapping_type": "custom",
+      "reason": "Disambiguate from The Duskenlight Ritual item"
+    },
+    "quest:braxscript": {
+      "wiki_page_name": "Braxonian Scripture (Quest)",
+      "display_name": "Braxonian Scripture",
+      "image_name": null,
+      "mapping_type": "custom",
+      "reason": "Disambiguate from Braxonian Scripture items"
+    },
+    "quest:mathersdemise3": {
+      "wiki_page_name": "The Mathers' Demise",
+      "display_name": null,
+      "image_name": null,
+      "mapping_type": "custom",
+      "reason": "Map multiple quest instances to same page"
+    },
+    "quest:mathersdemise2": {
+      "wiki_page_name": "The Mathers' Demise",
+      "display_name": null,
+      "image_name": null,
+      "mapping_type": "custom",
+      "reason": "Map multiple quest instances to same page"
+    },
+    "quest:shiver-ending": {
+      "wiki_page_name": "Shivering Step (Quest)",
+      "display_name": "Shivering Step",
+      "image_name": null,
+      "mapping_type": "custom",
+      "reason": "Disambiguate from Shivering Step zone"
+    },
+    "quest:soulgemleah": {
+      "wiki_page_name": null,
+      "display_name": null,
+      "image_name": null,
+      "mapping_type": "exclude",
+      "reason": "Soul gem quest should not appear in wiki"
+    },
+    "quest:soulgemposta": {
+      "wiki_page_name": null,
+      "display_name": null,
+      "image_name": null,
+      "mapping_type": "exclude",
+      "reason": "Soul gem quest should not appear in wiki"
+    },
+    "quest:soulgemrevid": {
+      "wiki_page_name": null,
+      "display_name": null,
+      "image_name": null,
+      "mapping_type": "exclude",
+      "reason": "Soul gem quest should not appear in wiki"
+    },
+    "quest:soulgemstalzo": {
+      "wiki_page_name": null,
+      "display_name": null,
+      "image_name": null,
+      "mapping_type": "exclude",
+      "reason": "Soul gem quest should not appear in wiki"
+    },
+    "quest:daggerhart ancestral coin": {
+      "wiki_page_name": "Daggerhart Ancestral Coin (Quest)",
+      "display_name": "Daggerhart Ancestral Coin",
+      "image_name": null,
+      "mapping_type": "custom",
+      "reason": "Disambiguate from Daggerhart Ancestral Coin item"
+    },
+    "quest:occuphage": {
+      "wiki_page_name": "Seaslimed Bracelet (Quest)",
+      "display_name": null,
+      "image_name": null,
+      "mapping_type": "custom",
+      "reason": "Disambiguate from Seaslimed Bracelet item"
+    },
+    "item:gen - gt": {
+      "wiki_page_name": null,
+      "display_name": null,
+      "image_name": null,
+      "mapping_type": "exclude",
+      "reason": "Unobtainable"
+    },
     "item:GEN - Scribbles of a mad priest 4": {
       "wiki_page_name": "Scribbles of a Mad Priest",
       "display_name": "Scribbles of a Mad Priest",
@@ -1931,7 +2175,7 @@
       "mapping_type": "exclude",
       "reason": "Exclude from wiki"
     },
-    "character:EndKio": {
+    "character:endkio": {
       "wiki_page_name": "Kio the Darkbringer",
       "display_name": "Kio the Darkbringer",
       "image_name": "Kio the Darkbringer",
