@@ -11,7 +11,7 @@ from erenshor.registry.item_classifier import ItemKind
 def build_item_types(
     item: Item,
     item_kind: ItemKind,
-    related_quests: list[str],
+    quest_requirements: list[str],
     component_for: list[str],
 ) -> str:
     """Build item type display string from item properties.
@@ -19,16 +19,17 @@ def build_item_types(
     Args:
         item: Item entity
         item_kind: Classified item kind
-        related_quests: List of related quest links
+        quest_requirements: List of quest requirement links (items needed for quests)
         component_for: List of crafting component links
 
     Returns:
         Comma-separated type string (e.g., "[[Consumables|Consumable]], [[Quest Items|Quest Item]]")
 
     Note:
-        Summoning item detection is not included here as it requires database access
-        to look up the spell referenced by item_effect_on_click. This will be added
-        when source enrichment is implemented with proper DB context.
+        Items are classified as "Quest Item" only if they are:
+        - Required by quests (quest_requirements), NOT if they are merely quest rewards
+        - Have CompleteOnRead (completes quest when read)
+        - Have AssignQuestOnRead (starts quest when read)
     """
     types: list[str] = []
 
@@ -37,11 +38,11 @@ def build_item_types(
         types.append("[[Consumables|Consumable]]")
 
     # Quest item type - mark as quest item if:
-    # 1. Related to quests (rewards/requirements)
+    # 1. Required by quests (NOT just rewarded by quests)
     # 2. Has CompleteOnRead (completes quest when read)
     # 3. Has AssignQuestOnRead (starts quest when read)
     is_quest_item = (
-        bool(related_quests) or bool(item.complete_on_read_stable_key) or bool(item.assign_quest_on_read_stable_key)
+        bool(quest_requirements) or bool(item.complete_on_read_stable_key) or bool(item.assign_quest_on_read_stable_key)
     )
     if is_quest_item:
         types.append("[[Quest Items|Quest Item]]")

@@ -286,7 +286,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
         # Format source fields
         vendor_sources = self._format_vendor_sources(enriched)
         drop_sources = self._format_drop_sources(enriched)
-        quest_rewards, quest_requirements = self._format_quest_sources(enriched)
+        quest_rewards_str, quest_requirements_str = self._format_quest_sources(enriched)
         craft_sources, component_for = self._format_crafting_sources(enriched)
         crafting_results, recipe_ingredients = self._format_recipe_info(enriched)
 
@@ -300,8 +300,8 @@ class ItemSectionGenerator(SectionGeneratorBase):
             "vendorsource": vendor_sources,
             "source": drop_sources,
             "othersource": "",  # Primarily manual content
-            "questsource": quest_rewards,
-            "relatedquest": quest_requirements,
+            "questsource": quest_rewards_str,
+            "relatedquest": quest_requirements_str,
             "craftsource": craft_sources,
             "componentfor": component_for,
             "relic": "",  # Shown in fancy templates, not here
@@ -344,15 +344,13 @@ class ItemSectionGenerator(SectionGeneratorBase):
         kind = self._classify(item)
 
         # Build item type display (Consumable, Quest Item, Crafting, Summoning Item)
-        related_quests: list[str] = []
+        quest_requirements: list[str] = []
         component_for: list[str] = []
 
-        # Use enriched quest sources for related quests
+        # Use enriched quest sources
+        # Only quest requirements (not rewards) make an item a "Quest Item"
         if enriched.sources:
-            # Quest rewards show this item is related to quests
-            related_quests.extend(enriched.sources.quest_rewards)
-            # Quest requirements also make this a quest item
-            related_quests.extend(enriched.sources.quest_requirements)
+            quest_requirements = enriched.sources.quest_requirements
 
         # Use enriched crafting sources for component usage
         if enriched.sources:
@@ -361,14 +359,12 @@ class ItemSectionGenerator(SectionGeneratorBase):
         item_type = build_item_types(
             item=item,
             item_kind=kind,
-            related_quests=related_quests,
+            quest_requirements=quest_requirements,
             component_for=component_for,
         )
 
-        # Apply long name font adjustment for names >24 characters
-        display_title = page_title
-        if item.item_name and len(item.item_name) > LONG_NAME_THRESHOLD:
-            display_title = f'<span style="font-size:{LONG_NAME_FONT_SIZE}">{page_title}</span>'
+        # Get display name from registry (may differ from page title for disambiguation)
+        display_name = self._resolver.resolve_display_name(item.stable_key)
 
         # Format class restrictions (comma-separated with wiki links)
         classes = ", ".join(f"[[{cls}]]" for cls in enriched.classes) if enriched.classes else ""
@@ -381,7 +377,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
         # Format source fields
         vendor_sources = self._format_vendor_sources(enriched)
         drop_sources = self._format_drop_sources(enriched)
-        quest_rewards, quest_requirements = self._format_quest_sources(enriched)
+        quest_rewards_str, quest_requirements_str = self._format_quest_sources(enriched)
         craft_sources_str, component_for_str = self._format_crafting_sources(enriched)
         crafting_results, recipe_ingredients = self._format_recipe_info(enriched)
 
@@ -391,15 +387,15 @@ class ItemSectionGenerator(SectionGeneratorBase):
 
         # Build context with all {{Item}} template fields
         context: dict[str, str] = {
-            "title": display_title,
+            "title": display_name,
             "image": image_field,
             "imagecaption": "",
             "type": item_type,
             "vendorsource": vendor_sources,
             "source": drop_sources,
             "othersource": "",  # Primarily manual content
-            "questsource": quest_rewards,
-            "relatedquest": quest_requirements,
+            "questsource": quest_rewards_str,
+            "relatedquest": quest_requirements_str,
             "craftsource": craft_sources_str,
             "componentfor": component_for_str,
             "relic": "True" if item.relic else "",
@@ -715,7 +711,10 @@ class ItemSectionGenerator(SectionGeneratorBase):
     def _format_quest_sources(self, enriched: EnrichedItemData) -> tuple[str, str]:
         """Format quest reward and requirement sources as wiki links.
 
-        Quests are filtered to exclude entities that don't have wiki pages.
+        Quests are:
+        - Filtered to exclude entities that don't have wiki pages
+        - Deduplicated by link text
+        - Sorted alphabetically
 
         Args:
             enriched: Enriched item data with quest sources
@@ -723,8 +722,8 @@ class ItemSectionGenerator(SectionGeneratorBase):
 
         Returns:
             Tuple of (reward_links, requirement_links):
-            - reward_links: <br>-separated quest reward links
-            - requirement_links: <br>-separated quest requirement links
+            - reward_links: <br>-separated quest reward links (sorted alphabetically)
+            - requirement_links: <br>-separated quest requirement links (sorted alphabetically)
         """
         if not enriched.sources:
             return ("", "")
@@ -739,6 +738,9 @@ class ItemSectionGenerator(SectionGeneratorBase):
                     seen_rewards.add(link)
                     reward_links.append(link)
 
+        # Sort reward links alphabetically
+        reward_links.sort()
+
         # Format requirement quests, filtering out excluded entities and deduplicating
         requirement_links = []
         seen_requirements = set()
@@ -748,6 +750,9 @@ class ItemSectionGenerator(SectionGeneratorBase):
                 if link not in seen_requirements:
                     seen_requirements.add(link)
                     requirement_links.append(link)
+
+        # Sort requirement links alphabetically
+        requirement_links.sort()
 
         return ("<br>".join(reward_links), "<br>".join(requirement_links))
 
