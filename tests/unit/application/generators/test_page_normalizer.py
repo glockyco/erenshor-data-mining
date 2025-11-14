@@ -258,3 +258,51 @@ Manually written lore section.
         assert result4.endswith("\n")
         # Should have exactly one trailing newline
         assert not result4.endswith("\n\n")
+
+    def test_normalize_spoiler_tag_before_categories(self) -> None:
+        """Test that categories are placed after {{spoiler}} tag if present."""
+        normalizer = PageNormalizer()
+
+        # Spoiler tag with categories scattered in content
+        wikitext = """[[Category:Items]]
+
+{{spoiler}}
+
+{{Item|name=Test}}
+
+[[Category:Quest Items]]
+Some content"""
+
+        result = normalizer.normalize(wikitext)
+
+        # Expected: {{spoiler}} first, then categories sorted, then content
+        expected = """{{spoiler}}
+[[Category:Items]]
+[[Category:Quest Items]]
+
+{{Item|name=Test}}
+
+Some content
+"""
+
+        assert result == expected
+
+    def test_normalize_no_spoiler_categories_at_top(self) -> None:
+        """Test that categories go at top when no {{spoiler}} tag present."""
+        normalizer = PageNormalizer()
+
+        wikitext = """{{Item|name=Test}}
+
+[[Category:Items]]
+Some content"""
+
+        result = normalizer.normalize(wikitext)
+
+        expected = """[[Category:Items]]
+
+{{Item|name=Test}}
+
+Some content
+"""
+
+        assert result == expected
