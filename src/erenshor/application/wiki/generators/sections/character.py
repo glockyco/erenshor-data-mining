@@ -84,7 +84,7 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         coordinates = self._format_coordinates(enriched.spawn_infos)
         spawn_chance = self._format_spawn_chance(enriched.spawn_infos, character)
         respawn = self._format_respawn(enriched.spawn_infos)
-        guaranteed_drops, drop_rates = self._format_loot_drops(enriched.loot_drops, page_title)
+        guaranteed_drops, drop_rates = self._format_loot_drops(enriched.loot_drops, display_name)
 
         # Build template context
         context = self._build_character_template_context(
@@ -292,7 +292,7 @@ class CharacterSectionGenerator(SectionGeneratorBase):
     def _format_loot_drops(
         self,
         loot_drops: list[LootDropInfo],
-        character_name: str,
+        character_display_name: str,
     ) -> tuple[str, str]:
         """Format loot drops for wiki template."""
         if not loot_drops:
@@ -303,7 +303,7 @@ class CharacterSectionGenerator(SectionGeneratorBase):
 
         for drop in loot_drops:
             if not drop.item_stable_key:
-                raise ValueError(f"Invalid loot drop for {character_name}: missing item_stable_key")
+                raise ValueError(f"Invalid loot drop for {character_display_name}: missing item_stable_key")
             if drop.drop_probability <= 0:
                 continue  # Zero probability drops are valid (disabled drops)
 
@@ -315,7 +315,9 @@ class CharacterSectionGenerator(SectionGeneratorBase):
 
             refs: list[str] = []
             if drop.is_visible:
-                refs.append(f"<ref>If {character_name} has {item_link} equipped, it is guaranteed to drop.</ref>")
+                refs.append(
+                    f"<ref>If {character_display_name} has {item_link} equipped, it is guaranteed to drop.</ref>"
+                )
             if drop.item_unique:
                 refs.append(
                     f"<ref>If the player is already holding {item_link} in their "
