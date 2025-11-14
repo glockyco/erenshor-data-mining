@@ -26,8 +26,15 @@ def format_description(text: str) -> str:
     """
     import re
 
+    # Strip leading and trailing whitespace
+    result = text.strip()
+
+    # Normalize line endings (handle Windows \r\n, Unix \n, old Mac \r)
+    # Replace \r\n with \n first, then replace any remaining \r with \n
+    result = result.replace("\r\n", "\n").replace("\r", "\n")
+
     # Replace newlines with <br>
-    result = text.replace("\n", "<br>")
+    result = result.replace("\n", "<br>")
 
     # Collapse more than 2 consecutive <br> tags into exactly 2
     # This prevents excessive spacing while preserving paragraph breaks
