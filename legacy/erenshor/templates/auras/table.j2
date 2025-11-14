@@ -1,7 +1,0 @@
-{| class="wikitable"
-! Item !! Buff !! Stats !! Classes
-{% for row in ctx.rows %}
-|-
-| {{ row.item }} || {{ row.buff }} || {{ row.stats }} || {{ row.classes|join(', ') }}
-{% endfor %}
-|}
