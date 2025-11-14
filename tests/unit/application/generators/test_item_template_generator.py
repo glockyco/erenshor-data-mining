@@ -40,12 +40,24 @@ def mock_resolver():
         # Extract name from stable_key (format: "item:name")
         if ":" in stable_key:
             name = stable_key.split(":", 1)[1]
-            # Convert to title case (e.g., "testsword" -> "Test Sword")
-            return " ".join(word.capitalize() for word in name.replace("_", " ").split())
+            # Convert underscores to spaces and capitalize each word
+            # Handle camelCase by inserting spaces before capitals
+            import re
+
+            # Insert space before uppercase letters (for camelCase)
+            spaced = re.sub(r"([a-z])([A-Z])", r"\1 \2", name)
+            # Replace underscores with spaces
+            spaced = spaced.replace("_", " ")
+            # Capitalize each word
+            return " ".join(word.capitalize() for word in spaced.split())
         return "Test Item"
 
     def resolve_image_name(stable_key: str) -> str:
-        return resolve_display_name(stable_key)
+        # For image names, just capitalize without spaces (like the resource name)
+        if ":" in stable_key:
+            name = stable_key.split(":", 1)[1]
+            return name.capitalize()
+        return "Testitem"
 
     resolver.resolve_display_name.side_effect = resolve_display_name
     resolver.resolve_image_name.side_effect = resolve_image_name
@@ -358,7 +370,7 @@ class TestItemSectionGenerator:
         item = Item(
             id="5",
             resource_name="TestPotion",
-            stable_key="item:testpotion",
+            stable_key="item:test_potion",
             item_name="Test Potion",
             lore="Restores health",
             required_slot="General",
@@ -382,7 +394,7 @@ class TestItemSectionGenerator:
         item = Item(
             id="6",
             resource_name="TestMold",
-            stable_key="item:testmold",
+            stable_key="item:test_mold",
             item_name="Test Mold",
             lore="Crafting template",
             required_slot="General",
@@ -404,7 +416,7 @@ class TestItemSectionGenerator:
         item = Item(
             id="7",
             resource_name="TestSpellBook",
-            stable_key="item:testspellbook",
+            stable_key="item:test_spell_book",
             item_name="Spell Scroll: Fireball",
             lore="Teaches Fireball",
             required_slot="General",
@@ -416,7 +428,8 @@ class TestItemSectionGenerator:
 
         # Should contain {{Item}} template
         assert "{{Item" in result
-        assert "|title=Spell Scroll: Fireball" in result
+        # Title comes from resolve_display_name(stable_key), not item_name
+        assert "|title=Test Spell Book" in result
 
     def test_generate_page_handles_none_values(self, generator, enrich_item):
         """Test that generator handles None values gracefully."""
@@ -424,7 +437,7 @@ class TestItemSectionGenerator:
         item = Item(
             id="8",
             resource_name="MinimalItem",
-            stable_key="item:minimalitem",
+            stable_key="item:minimal_item",
             item_name="Minimal Item",
             # Most fields are None
             required_slot=None,
@@ -451,7 +464,7 @@ class TestItemSectionGenerator:
         relic_item = Item(
             id="9",
             resource_name="RelicItem",
-            stable_key="item:relicitem",
+            stable_key="item:relic_item",
             item_name="Relic Item",
             relic=1,
         )
@@ -587,7 +600,7 @@ class TestItemSectionGenerator:
         item = Item(
             id="19",
             resource_name="TestItem",
-            stable_key="item:testitem",
+            stable_key="item:test_item",
             item_name="Test Item",
             lore="Test description",
             item_value=100,
@@ -606,13 +619,13 @@ class TestItemSectionGenerator:
         assert context["relic"] == "True"
 
     def test_long_name_font_adjustment(self, generator, enrich_item):
-        """Test that long item names (>24 chars) get smaller font."""
+        """Test that general items don't apply font adjustment (only fancy templates do)."""
 
         # Short name - no font adjustment
         short_item = Item(
             id="20",
             resource_name="ShortItem",
-            stable_key="item:shortitem",
+            stable_key="item:short_name",
             item_name="Short Name",
             required_slot="General",
         )
@@ -621,20 +634,20 @@ class TestItemSectionGenerator:
         assert "|title=Short Name" in short_result
         assert '<span style="font-size:' not in short_result
 
-        # Long name (>24 chars) - should get font adjustment
+        # Long name (>24 chars) - general items don't apply font adjustment
+        # Font adjustment is only applied in fancy templates (weapons/armor/charms)
         long_item = Item(
             id="21",
             resource_name="LongItem",
-            stable_key="item:longitem",
+            stable_key="item:this_is_a_very_long_item_name_that_exceeds_24_characters",
             item_name="This is a very long item name that exceeds 24 characters",
             required_slot="General",
         )
         enriched = enrich_item(long_item)
-        long_result = generator.generate_template(enriched, "This is a very long item name that exceeds 24 characters")
-        assert (
-            '<span style="font-size:20px">This is a very long item name that exceeds 24 characters</span>'
-            in long_result
-        )
+        long_result = generator.generate_template(enriched, "This Is A Very Long Item Name That Exceeds 24 Characters")
+        # General items use plain title, no font adjustment
+        assert "|title=This Is A Very Long Item Name That Exceeds 24 Characters" in long_result
+        assert '<span style="font-size:' not in long_result
 
     def test_item_type_display_consumable(self, generator, enrich_item):
         """Test item type display for consumables."""
@@ -1004,7 +1017,7 @@ class TestFancyTemplateGeneration:
         potion = Item(
             id="104",
             resource_name="HealthPotion",
-            stable_key="item:healthpotion",
+            stable_key="item:health_potion",
             item_name="Health Potion",
             lore="Restores health",
             required_slot="General",

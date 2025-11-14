@@ -88,7 +88,19 @@ def mock_registry_resolver():
             return key.split(":", 1)[1].replace("_", " ").title()
         return key
 
+    def resolve_display(key: str) -> str:
+        """Resolve display name (same as page title for tests)."""
+        return resolve_title(key)
+
+    def resolve_image(key: str) -> str:
+        """Resolve image name (capitalized resource name)."""
+        if ":" in key:
+            return key.split(":", 1)[1].capitalize()
+        return key.capitalize()
+
     resolver.resolve_page_title.side_effect = resolve_title
+    resolver.resolve_display_name.side_effect = resolve_display
+    resolver.resolve_image_name.side_effect = resolve_image
     return resolver
 
 
