@@ -166,40 +166,41 @@ def merge_handler(old_value: str, new_value: str, context: dict[str, Any]) -> st
     if not new_value or not new_value.strip():
         return old_value
 
-    # Check if this is a <br>-separated list
-    if "<br>" in old_value or "<br>" in new_value:
-        old_items = [item.strip() for item in old_value.split("<br>") if item.strip()]
-        new_items = [item.strip() for item in new_value.split("<br>") if item.strip()]
+    # Determine separator to use:
+    # - Use <br> if either value has <br>, or if both have no separators
+    # - Use comma only if both values have commas and neither has <br>
+    has_br = "<br>" in old_value or "<br>" in new_value
+    has_comma = "," in old_value or "," in new_value
 
-        # Deduplicate while preserving order (old items first, then new items not in old)
-        seen = set()
-        merged = []
-        for item in old_items + new_items:
-            if item not in seen:
-                seen.add(item)
-                merged.append(item)
+    # Choose separator: prefer <br> unless only commas exist
+    if has_br or not has_comma:
+        separator = "<br>"
+        split_char = "<br>"
+    else:
+        separator = ", "
+        split_char = ","
 
-        return "<br>".join(merged)
+    # Split both values on the appropriate separator
+    # If a value doesn't have that separator, treat it as a single item
+    if split_char in old_value:
+        old_items = [item.strip() for item in old_value.split(split_char) if item.strip()]
+    else:
+        old_items = [old_value.strip()] if old_value.strip() else []
 
-    # Check if this is a comma-separated list
-    if "," in old_value or "," in new_value:
-        old_items = [item.strip() for item in old_value.split(",") if item.strip()]
-        new_items = [item.strip() for item in new_value.split(",") if item.strip()]
+    if split_char in new_value:
+        new_items = [item.strip() for item in new_value.split(split_char) if item.strip()]
+    else:
+        new_items = [new_value.strip()] if new_value.strip() else []
 
-        # Deduplicate while preserving order
-        seen = set()
-        merged = []
-        for item in old_items + new_items:
-            if item not in seen:
-                seen.add(item)
-                merged.append(item)
+    # Deduplicate while preserving order (old items first, then new items not in old)
+    seen = set()
+    merged = []
+    for item in old_items + new_items:
+        if item not in seen:
+            seen.add(item)
+            merged.append(item)
 
-        return ", ".join(merged)
-
-    # For non-list fields, prefer new value but append old if different
-    if old_value.strip() != new_value.strip():
-        return f"{new_value}, {old_value}"
-    return new_value
+    return separator.join(merged)
 
 
 # Default preservation rules per template

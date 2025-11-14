@@ -67,10 +67,17 @@ class TestBuiltInHandlers:
         result = merge_handler("Quest1<br>Quest2", "Quest2<br>Quest3", {})
         assert result == "Quest1<br>Quest2<br>Quest3"
 
-        # Comma-separated lists (like type field) - WikiLinks contain |, treated as non-list
-        # Non-list behavior: new first, then old
-        result = merge_handler("[[Quest Items|Quest Item]]", "[[Consumables|Consumable]]", {})
-        assert result == "[[Consumables|Consumable]], [[Quest Items|Quest Item]]"
+        # Neither has separator - use <br> to combine (old first, then new)
+        result = merge_handler("{{QuestLink|Whispers of Wyland}}", "{{QuestLink|A Retired Locksmith}}", {})
+        assert result == "{{QuestLink|Whispers of Wyland}}<br>{{QuestLink|A Retired Locksmith}}"
+
+        # Mixed separators - old has no separator, new has <br> - should use <br> for result
+        result = merge_handler("Quest1", "Quest2<br>Quest3", {})
+        assert result == "Quest1<br>Quest2<br>Quest3"
+
+        # Comma-separated lists (like type field) - both have commas, use comma
+        result = merge_handler("[[Quest Items|Quest Item]], Other", "[[Consumables|Consumable]], Another", {})
+        assert result == "[[Quest Items|Quest Item]], Other, [[Consumables|Consumable]], Another"
 
         # Comma-separated lists - deduplicates
         result = merge_handler("Type1, Type2", "Type2, Type3", {})
@@ -84,9 +91,9 @@ class TestBuiltInHandlers:
         result = merge_handler("old", "", {})
         assert result == "old"
 
-        # Non-list fields (no comma or <br>) - combine with comma
+        # Non-list fields (no comma or <br>) - combine with <br>
         result = merge_handler("Value1", "Value2", {})
-        assert result == "Value2, Value1"
+        assert result == "Value1<br>Value2"
 
 
 class TestFieldPreservationConfig:
