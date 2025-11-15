@@ -202,3 +202,6 @@ vite.config.ts.timestamp-*
 static/db
 static/mods
 static/tiles
+
+# Un-ignore our TypeScript source files in src/lib/
+!src/lib/
