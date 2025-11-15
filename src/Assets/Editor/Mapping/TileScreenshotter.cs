@@ -990,6 +990,28 @@ public class TileScreenshotter
                 }
             },
             {
+                "ShiveringTomb", new TileScreenshotter.TileShotterSettings {
+                    ZoomLevels = 3,
+                    OriginX = -400,
+                    OriginY = -115,
+                    BaseTilesX = 3,
+                    BaseTilesY = 2,
+                    PreProcess = (zoomLevel) =>
+                    {
+                        if (zoomLevel == 1)
+                        {
+                            foreach (GameObject obj in SceneManager.GetActiveScene().GetRootGameObjects())
+                            {
+                                if (obj.layer == LayerMask.NameToLayer("Roof"))
+                                {
+                                    obj.SetActive(false);
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            {
                 "Silkengrass", new TileScreenshotter.TileShotterSettings
                 {
                     ZoomLevels = 3,
