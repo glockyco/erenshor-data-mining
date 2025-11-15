@@ -196,6 +196,29 @@ public class TileScreenshotter
                 }
             },
             {
+                "BloomingSepulcher", new TileScreenshotter.TileShotterSettings
+                {
+                    ZoomLevels = 1,
+                    OriginX = 0,
+                    OriginY = 0,
+                    BaseTilesX = 3,
+                    BaseTilesY = 3,
+                    PreProcess = (zoomLevel) =>
+                    {
+                        if (zoomLevel == 0)
+                        {
+                            foreach (GameObject obj in SceneManager.GetActiveScene().GetRootGameObjects())
+                            {
+                                if (obj.layer == LayerMask.NameToLayer("Roof"))
+                                {
+                                    obj.SetActive(false);
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            {
                 "Blight", new TileScreenshotter.TileShotterSettings
                 {
                     ZoomLevels = 3,
