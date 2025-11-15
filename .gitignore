@@ -829,3 +829,7 @@ tests/**/*.db
 tests/**/*.sqlite
 !tests/fixtures/database/*.sql
 tests/.test-temp/
+
+# BepInEx Mod Build Artifacts
+src/mods/**/bin/
+src/mods/**/obj/

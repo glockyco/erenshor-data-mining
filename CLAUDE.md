@@ -76,12 +76,17 @@ erenshor/
 │   │   │   ├── operations.py       # Registry operations
 │   │   │   └── item_classifier.py  # Item type classifier
 │   │   └── shared/                 # Shared utilities
-│   └── Assets/Editor/              # Unity C# export scripts (symlinked to Unity)
-│       ├── ExportBatch.cs          # Batch mode export entry
-│       ├── Database/               # SQLite record models (ItemRecord, CharacterRecord, etc.)
-│       └── ExportSystem/           # Asset scanning system
-│           ├── AssetScanner.cs     # Main asset scanner
-│           └── AssetScanner/Listener/  # Entity listeners (ItemListener, CharacterListener, etc.)
+│   ├── Assets/Editor/              # Unity C# export scripts (symlinked to Unity)
+│   │   ├── ExportBatch.cs          # Batch mode export entry
+│   │   ├── Database/               # SQLite record models (ItemRecord, CharacterRecord, etc.)
+│   │   └── ExportSystem/           # Asset scanning system
+│   │       ├── AssetScanner.cs     # Main asset scanner
+│   │       └── AssetScanner/Listener/  # Entity listeners (ItemListener, CharacterListener, etc.)
+│   ├── mods/                       # BepInEx mods (C# plugins)
+│   │   ├── CLAUDE.md               # Mod-specific documentation
+│   │   ├── erenshor-mods.sln       # Visual Studio solution
+│   │   └── InteractiveMapsCompanion/  # WebSocket companion for interactive maps
+│   └── maps/                       # Interactive maps (SvelteKit web app)
 ├── variants/                       # Working directories (NOT in git)
 │   ├── main/                       # Main game (App ID 2382520)
 │   │   ├── game/                   # Downloaded from Steam
@@ -155,6 +160,11 @@ uv run erenshor maps dev            # Start dev server
 uv run erenshor maps preview        # Preview built site
 uv run erenshor maps build          # Build for production
 uv run erenshor maps deploy         # Deploy to Cloudflare static hosting
+
+# BepInEx Mods (requires Mono on macOS)
+cd src/mods
+xbuild erenshor-mods.sln /p:Configuration=Debug    # Build mods in Debug
+xbuild erenshor-mods.sln /p:Configuration=Release  # Build mods in Release
 
 # Configuration
 uv run erenshor config show         # View configuration

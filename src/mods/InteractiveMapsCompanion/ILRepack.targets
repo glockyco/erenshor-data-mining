@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <!-- ILRepack -->
+    <Target Name="ILRepacker" AfterTargets="Build" Condition="'$(Configuration)' == 'Release' Or '$(Configuration)' == 'Debug'">
+        <ItemGroup>
+            <InputAssemblies Include="$(OutputPath)\$(AssemblyName).dll"/>
+            <InputAssemblies Include="$(OutputPath)\Fleck.dll"/>
+            <InputAssemblies Include="$(OutputPath)\Newtonsoft.Json.dll"/>
+        </ItemGroup>
+
+        <ILRepack
+                Parallel="true"
+                Internalize="true"
+                InputAssemblies="@(InputAssemblies)"
+                TargetKind="Dll"
+                OutputFile="$(OutputPath)\$(AssemblyName).dll"
+                LibraryPath="..\..\..\variants\main\game\Erenshor_Data\Managed;..\..\..\variants\main\game\BepInEx\core"
+        />
+    </Target>
+    <!-- /ILRepack -->
+</Project>
