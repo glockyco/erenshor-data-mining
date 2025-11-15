@@ -28,6 +28,7 @@
 	let playerPosition = $state<PositionData | null>(null);
 	let playerMarker = $state<L.Marker | null>(null);
 	let webSocket: WebSocket | null = null;
+	let lastMapName = $state<string | null>(null);
 
 	function calculateRotation(fx: number, fy: number, fz: number) {
 		const angleInRadians = Math.atan2(fz, fx);
@@ -68,10 +69,9 @@
 	});
 
 	$effect(() => {
-		// Reference data.mapName to ensure effect re-runs on route changes
-		const currentMapName = data.mapName;
+		if (lastMapName === data.mapName) return;
+		lastMapName = data.mapName;
 
-		// Clean up previous map instance
 		mapInstance?.remove();
 		mapInstance = null;
 		playerMarker = null;
@@ -112,7 +112,7 @@
 				});
 			}
 
-			if (playerPosition && playerPosition.scene == currentMapName && playerMarkerTransform) {
+			if (playerPosition && playerPosition.scene == data.mapName && playerMarkerTransform) {
 				playerMarker = createPlayerMarker(playerMarkerTransform);
 				playerMarker.addTo(mapInstance);
 			}
@@ -130,7 +130,7 @@
 					const { scene, x, y, z, fx, fy, fz } = message;
 					playerPosition = { scene: scene, x: x, y: y, z: z, fx: fx, fy: fy, fz: fz };
 
-					if (mapInstance && !playerMarker && playerPosition && playerPosition.scene == currentMapName && playerMarkerTransform) {
+					if (mapInstance && !playerMarker && playerPosition && playerPosition.scene == data.mapName && playerMarkerTransform) {
 						playerMarker = createPlayerMarker(playerMarkerTransform);
 						playerMarker.addTo(mapInstance);
 					}
@@ -158,37 +158,28 @@
 
 			const repository = new Repository();
 			repository.init().then(async () => {
-				const achievementMarkers = await repository.getAchievementTriggerMarkers(currentMapName);
-				const characterMarkers = await repository.getCharacterMarkers(currentMapName);
-				const doorMarkers = await repository.getDoorMarkers(currentMapName);
-				const forgeMarkers = await repository.getForgeMarkers(currentMapName);
-				const itemBagMarkers = await repository.getItemBagMarkers(currentMapName);
-				const miningNodeMarkers = await repository.getMiningNodeMarkers(currentMapName);
-				const secretPassageMarkers = await repository.getSecretPassageMarkers(currentMapName);
-				const spawnPointMarkers = await repository.getSpawnPointMarkers(currentMapName);
-				const teleportMarkers = await repository.getTeleportMarkers(currentMapName);
-				const treasureLocMarkers = await repository.getTreasureLocMarkers(currentMapName);
-				const waterMarkers = await repository.getWaterMarkers(currentMapName);
-				const wishingWellMarkers = await repository.getWishingWellMarkers(currentMapName);
-				const zoneLineMarkers = await repository.getZoneLineMarkers(currentMapName);
+				const achievementMarkers = await repository.getAchievementTriggerMarkers(data.mapName);
+				const characterMarkers = await repository.getCharacterMarkers(data.mapName);
+				const doorMarkers = await repository.getDoorMarkers(data.mapName);
+				const forgeMarkers = await repository.getForgeMarkers(data.mapName);
+				const itemBagMarkers = await repository.getItemBagMarkers(data.mapName);
+				const miningNodeMarkers = await repository.getMiningNodeMarkers(data.mapName);
+				const secretPassageMarkers = await repository.getSecretPassageMarkers(data.mapName);
+				const spawnPointMarkers = await repository.getSpawnPointMarkers(data.mapName);
+				const teleportMarkers = await repository.getTeleportMarkers(data.mapName);
+				const treasureLocMarkers = await repository.getTreasureLocMarkers(data.mapName);
+				const waterMarkers = await repository.getWaterMarkers(data.mapName);
+				const wishingWellMarkers = await repository.getWishingWellMarkers(data.mapName);
+				const zoneLineMarkers = await repository.getZoneLineMarkers(data.mapName);
 
-				// Sort markers: spawn-points first (by rarity), then characters
-				// getSpawnPointMarkers returns both spawn-point and character markers
-				spawnPointMarkers.sort((a, b) => {
-					// Spawn-points always come before characters
-					if (a.category === 'spawn-point' && b.category === 'character') return -1;
-					if (a.category === 'character' && b.category === 'spawn-point') return 1;
-
-					// Sort spawn-points by rarity (unique > rare > common)
-					if (a.category === 'spawn-point' && b.category === 'spawn-point') {
-						const rankA = a.hasUnique ? 2 : (a.hasRare ? 1 : 0);
-						const rankB = b.hasUnique ? 2 : (b.hasRare ? 1 : 0);
-						return rankA - rankB;
-					}
-
-					// Characters maintain their original order
+				function getRarityRank(marker: SpawnPointMarker) {
+					if (marker.hasUnique) return 2;
+					if (marker.hasRare) return 1;
 					return 0;
-				});
+				}
+
+				// Sort markers so unique are drawn above rare and above common
+				spawnPointMarkers.sort((a, b) => getRarityRank(a) - getRarityRank(b));
 
 				let markers: Marker[] = [
 					...waterMarkers,
