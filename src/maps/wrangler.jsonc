@@ -7,7 +7,9 @@
 	"name": "erenshor-maps",
 	"compatibility_date": "2025-06-01",
 	"assets": {
-		"directory": "./build"
+		"directory": "./build",
+		"html_handling": "auto-trailing-slash",
+		"not_found_handling": "single-page-application"
 	},
 	"observability": {
 		"enabled": true
