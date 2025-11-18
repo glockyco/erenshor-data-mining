@@ -187,6 +187,50 @@ class SpellRepository(BaseRepository[Spell]):
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve spell classes for {stable_key}: {e}") from e
 
+    def get_spells_used_by_character(self, character_stable_key: str) -> list[str]:
+        """Get spells used by a character (NPC/enemy).
+
+        Queries all character-spell junction tables (attack, buff, heal, group heal, CC, taunt).
+
+        Used by: Character enrichment for "spells" field
+
+        Args:
+            character_stable_key: Character stable key (format: 'character:resource_name')
+
+        Returns:
+            List of spell stable keys used by this character (sorted alphabetically,
+            deduplicated if character uses spell in multiple ways)
+
+        Raises:
+            RepositoryError: If query execution fails
+        """
+        query = """
+            SELECT DISTINCT SpellStableKey
+            FROM (
+                SELECT SpellStableKey FROM CharacterAttackSpells WHERE CharacterStableKey = ?
+                UNION
+                SELECT SpellStableKey FROM CharacterBuffSpells WHERE CharacterStableKey = ?
+                UNION
+                SELECT SpellStableKey FROM CharacterHealSpells WHERE CharacterStableKey = ?
+                UNION
+                SELECT SpellStableKey FROM CharacterGroupHealSpells WHERE CharacterStableKey = ?
+                UNION
+                SELECT SpellStableKey FROM CharacterCCSpells WHERE CharacterStableKey = ?
+                UNION
+                SELECT SpellStableKey FROM CharacterTauntSpells WHERE CharacterStableKey = ?
+            )
+            ORDER BY SpellStableKey COLLATE NOCASE
+        """
+
+        try:
+            # Pass character_stable_key 6 times (once for each UNION query)
+            rows = self._execute_raw(query, (character_stable_key,) * 6)
+            spell_keys = [str(row["SpellStableKey"]) for row in rows]
+            logger.debug(f"Found {len(spell_keys)} spells used by character '{character_stable_key}'")
+            return spell_keys
+        except Exception as e:
+            raise RepositoryError(f"Failed to retrieve spells used by character '{character_stable_key}': {e}") from e
+
     def _row_to_spell(self, row: dict[str, object]) -> Spell:
         """Convert database row to Spell entity.
 

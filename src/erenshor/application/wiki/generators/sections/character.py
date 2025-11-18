@@ -85,6 +85,7 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         spawn_chance = self._format_spawn_chance(enriched.spawn_infos, character)
         respawn = self._format_respawn(enriched.spawn_infos)
         guaranteed_drops, drop_rates = self._format_loot_drops(enriched.loot_drops, display_name)
+        spells = self._format_ability_links(enriched.spells)
 
         # Build template context
         context = self._build_character_template_context(
@@ -100,6 +101,7 @@ class CharacterSectionGenerator(SectionGeneratorBase):
             respawn=respawn,
             guaranteed_drops=guaranteed_drops,
             drop_rates=drop_rates,
+            spells=spells,
         )
 
         template_wikitext = self.render_template("character.jinja2", context)
@@ -365,6 +367,7 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         respawn: str,
         guaranteed_drops: str,
         drop_rates: str,
+        spells: str,
     ) -> dict[str, str]:
         """Build context for {{Character}} template."""
         xp_range = ""
@@ -439,6 +442,37 @@ class CharacterSectionGenerator(SectionGeneratorBase):
                 character.effective_max_vr,
                 character.hand_set_resistances,
             ),
+            "spells": spells,
         }
 
         return context
+
+    def _format_ability_links(
+        self,
+        spells: list[str],
+    ) -> str:
+        """Format list of spells as {{AbilityLink}} templates separated by <br>.
+
+        Args:
+            spells: List of spell stable keys
+
+        Returns:
+            Formatted string like "{{AbilityLink|Spell1}}<br>{{AbilityLink|Spell2}}"
+            sorted alphabetically by display name, or empty string if no spells
+
+        Examples:
+            >>> spells = ["spell:fireball"]
+            >>> self._format_ability_links(spells)
+            '{{AbilityLink|Fireball}}'
+        """
+        if not spells:
+            return ""
+
+        # Create link objects and filter out excluded spells (page_title=None)
+        links = [self._resolver.ability_link(key) for key in spells]
+        links = [link for link in links if link.page_title is not None]
+
+        # Sort by display name (WikiLink.__lt__ handles this)
+        links.sort()
+
+        return "<br>".join(str(link) for link in links)

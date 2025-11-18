@@ -19,6 +19,7 @@ class EnrichedCharacterData:
         character: Character,
         spawn_infos: list[CharacterSpawnInfo],
         loot_drops: list[LootDropInfo],
+        spells: list[str],
     ) -> None:
         """Initialize enriched character data.
 
@@ -26,7 +27,9 @@ class EnrichedCharacterData:
             character: Character entity
             spawn_infos: Spawn point data from SpawnPointRepository
             loot_drops: Loot drop data from LootTableRepository
+            spells: Spell stable keys that this character can use
         """
         self.character = character
         self.spawn_infos = spawn_infos
         self.loot_drops = loot_drops
+        self.spells = spells
