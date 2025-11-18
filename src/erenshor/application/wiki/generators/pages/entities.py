@@ -65,6 +65,7 @@ class EntityPageGenerator(PageGenerator):
         self.spell_enricher = SpellEnricher(
             spell_repo=context.spell_repo,
             item_repo=context.item_repo,
+            character_repo=context.character_repo,
         )
         self.skill_enricher = SkillEnricher(
             item_repo=context.item_repo,

@@ -3,12 +3,14 @@
 This service aggregates spell-related data from multiple tables:
 - Class restrictions from SpellClasses junction table
 - Obtainability check for teaching items (only show classes if spell is obtainable)
+- Characters that use this spell (NPCs/enemies)
 """
 
 from loguru import logger
 
 from erenshor.domain.enriched_data.spell import EnrichedSpellData
 from erenshor.domain.entities.spell import Spell
+from erenshor.infrastructure.database.repositories.characters import CharacterRepository
 from erenshor.infrastructure.database.repositories.items import ItemRepository
 from erenshor.infrastructure.database.repositories.spells import SpellRepository
 
@@ -25,15 +27,18 @@ class SpellEnricher:
         self,
         spell_repo: SpellRepository,
         item_repo: ItemRepository,
+        character_repo: CharacterRepository,
     ) -> None:
         """Initialize spell enricher.
 
         Args:
             spell_repo: Repository for spell data (classes, etc.)
             item_repo: Repository for item data (teaching items, obtainability)
+            character_repo: Repository for character data (NPCs/enemies using spells)
         """
         self._spell_repo = spell_repo
         self._item_repo = item_repo
+        self._character_repo = character_repo
 
     def enrich(self, spell: Spell) -> EnrichedSpellData:
         """Enrich spell with related data from other tables.
@@ -46,7 +51,7 @@ class SpellEnricher:
 
         Returns:
             EnrichedSpellData with classes (empty if no obtainable teaching items),
-            items with effect, and teaching items
+            items with effect, teaching items, and characters using this spell
         """
         logger.debug(f"Enriching spell: {spell.spell_name}")
 
@@ -71,9 +76,14 @@ class SpellEnricher:
         items_with_effect = self._item_repo.get_items_with_spell_effect(spell.stable_key)
         logger.debug(f"Spell '{spell.spell_name}' has {len(items_with_effect)} items with effect")
 
+        # Get characters that use this spell
+        used_by_characters = self._character_repo.get_characters_using_spell(spell.stable_key)
+        logger.debug(f"Spell '{spell.spell_name}' is used by {len(used_by_characters)} characters")
+
         return EnrichedSpellData(
             spell=spell,
             classes=classes,
             items_with_effect=items_with_effect,
             teaching_items=obtainable_teaching_items,
+            used_by_characters=used_by_characters,
         )

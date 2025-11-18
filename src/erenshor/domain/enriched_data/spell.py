@@ -18,6 +18,7 @@ class EnrichedSpellData:
         classes: list[str],
         items_with_effect: list[str],
         teaching_items: list[str],
+        used_by_characters: list[str],
     ) -> None:
         """Initialize enriched spell data.
 
@@ -27,8 +28,10 @@ class EnrichedSpellData:
                      Empty list if no obtainable teaching items exist.
             items_with_effect: Item stable keys that grant this spell as an effect
             teaching_items: Item stable keys that teach this spell
+            used_by_characters: Character stable keys that use this spell (NPCs/enemies)
         """
         self.spell = spell
         self.classes = classes
         self.items_with_effect = items_with_effect
         self.teaching_items = teaching_items
+        self.used_by_characters = used_by_characters

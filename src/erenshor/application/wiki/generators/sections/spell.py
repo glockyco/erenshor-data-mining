@@ -212,6 +212,7 @@ class SpellSectionGenerator(SectionGeneratorBase):
             # Sources
             "itemswitheffect": self._format_item_links(enriched.items_with_effect),
             "source": self._format_item_links(enriched.teaching_items),
+            "used_by": self._format_character_links(enriched.used_by_characters),
         }
 
         return context
@@ -311,7 +312,7 @@ class SpellSectionGenerator(SectionGeneratorBase):
 
         Returns:
             Formatted string like "{{ItemLink|Item1}}<br>{{ItemLink|Item2}}"
-            sorted alphabetically by resolved page title, or empty string if no items
+            sorted alphabetically by display name, or empty string if no items
 
         Examples:
             >>> items = ["item:water"]
@@ -321,20 +322,41 @@ class SpellSectionGenerator(SectionGeneratorBase):
         if not items:
             return ""
 
-        # Resolve page titles and build (title, link) tuples
-        item_data = []
-        for stable_key in items:
-            page_title = self._resolver.resolve_page_title(stable_key)
-            if page_title is None:
-                # Skip excluded items
-                continue
-            link = self._resolver.item_link(stable_key)
-            item_data.append((page_title, link))
+        # Create link objects and filter out excluded items (page_title=None)
+        links = [self._resolver.item_link(key) for key in items]
+        links = [link for link in links if link.page_title is not None]
 
-        # Sort by page title (case-insensitive)
-        item_data.sort(key=lambda x: x[0].lower())
+        # Sort by display name (WikiLink.__lt__ handles this)
+        links.sort()
 
-        # Extract just the links
-        item_links = [link for _, link in item_data]
+        return "<br>".join(str(link) for link in links)
 
-        return "<br>".join(str(link) for link in item_links)
+    def _format_character_links(
+        self,
+        characters: list[str],
+    ) -> str:
+        """Format list of characters as [[Character]] links separated by <br>.
+
+        Args:
+            characters: List of character stable keys
+
+        Returns:
+            Formatted string like "[[Character1]]<br>[[Character2]]"
+            sorted alphabetically by display name, or empty string if no characters
+
+        Examples:
+            >>> characters = ["character:goblin"]
+            >>> self._format_character_links(characters)
+            '[[Goblin]]'
+        """
+        if not characters:
+            return ""
+
+        # Create link objects and filter out excluded characters (page_title=None)
+        links = [self._resolver.character_link(key) for key in characters]
+        links = [link for link in links if link.page_title is not None]
+
+        # Sort by display name (WikiLink.__lt__ handles this)
+        links.sort()
+
+        return "<br>".join(str(link) for link in links)
