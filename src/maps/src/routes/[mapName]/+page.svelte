@@ -94,7 +94,9 @@
 
 			// Get north bearing for this zone
 			const northBearing = await repository.getZoneNorthBearing(currentMapName);
-			trueNorthBearing = northBearing;
+			// Convert from Unity rotation to Leaflet bearing
+			// Unity Z-axis maps to down on our Leaflet map, so we need to flip
+			trueNorthBearing = (180 - northBearing + 360) % 360;
 
 			const map = L.map(container, {
 				crs: L.CRS.Simple,
@@ -107,7 +109,7 @@
 					[worldSizeY + 256, worldSizeX + 256]
 				],
 				rotate: true,
-				bearing: rotationMode === 'compass' ? northBearing : 0,
+				bearing: rotationMode === 'compass' ? (180 - northBearing + 360) % 360 : 0,
 				rotateControl: false, // Disable default rotation control
 				touchRotate: true, // Keep touch rotation enabled
 				shiftKeyRotate: true, // Enable shift+drag rotation
