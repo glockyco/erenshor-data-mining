@@ -44,7 +44,9 @@ public class ZoneAnnounceListener : IAssetScanListener<ZoneAnnounce>
                 : null,
             AssignQuestOnEnterStableKey = !string.IsNullOrEmpty(asset.AssignQuestOnEnter)
                 ? StableKeyGenerator.ForQuestFromDBName(asset.AssignQuestOnEnter)
-                : null
+                : null,
+            // North bearing from ZoneAnnounce GameObject's Y rotation
+            NorthBearing = asset.transform.eulerAngles.y
         };
 
         _records.Add(record);

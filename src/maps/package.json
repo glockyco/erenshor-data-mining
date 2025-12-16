@@ -44,6 +44,7 @@
 	"dependencies": {
 		"@tailwindcss/vite": "^4.1.11",
 		"leaflet": "^1.9.4",
+		"leaflet-rotate": "^0.2.8",
 		"sql.js": "^1.13.0",
 		"tslib": "^2.8.1"
 	}

@@ -805,4 +805,22 @@ export class RepositoryBase {
 			return "an unknown time"
 		}
 	};
+
+	async getZoneNorthBearing(mapName: string): Promise<number> {
+		if (!this.db) throw new Error('DB not initialized');
+
+		const stmt = this.db.prepare(`
+			SELECT NorthBearing
+			FROM Zones
+			WHERE SceneName = ?
+		`, [mapName]);
+
+		if (stmt.step()) {
+			const row = stmt.getAsObject();
+			stmt.free();
+			return row.NorthBearing as number;
+		}
+		stmt.free();
+		return 0; // Default to 0 if not found
+	}
 }

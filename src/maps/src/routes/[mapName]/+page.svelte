@@ -34,6 +34,11 @@
 	let playerPosition = $state<PositionData | null>(null);
 	let playerMarker = $state<L.Marker | null>(null);
 	let webSocket: WebSocket | null = null;
+	// Load rotation mode from localStorage, defaulting to 'compass'
+	let rotationMode = $state<'compass' | 'coordinates'>(
+		(typeof window !== 'undefined' && localStorage.getItem('mapRotationMode') as 'compass' | 'coordinates') || 'compass'
+	);
+	let trueNorthBearing = $state(0); // Store the zone's true north bearing
 
 	// Track initialization to prevent re-init on query param changes
 	let lastInitializedMapName = $state<string | null>(null);
@@ -76,9 +81,20 @@
 
 		// Initialize new map
 		import('leaflet').then(async (L) => {
+			// Import leaflet-rotate for rotation support
+			await import('leaflet-rotate');
+
 			// Create map instance
 			const worldSizeX = config.baseTilesX * config.tileSize;
 			const worldSizeY = config.baseTilesY * config.tileSize;
+
+			// Load and create markers
+			const repository = new Repository();
+			await repository.init();
+
+			// Get north bearing for this zone
+			const northBearing = await repository.getZoneNorthBearing(currentMapName);
+			trueNorthBearing = northBearing;
 
 			const map = L.map(container, {
 				crs: L.CRS.Simple,
@@ -89,7 +105,14 @@
 				maxBounds: [
 					[-256, -256],
 					[worldSizeY + 256, worldSizeX + 256]
-				]
+				],
+				rotate: true,
+				bearing: rotationMode === 'compass' ? northBearing : 0,
+				rotateControl: false, // Disable default rotation control
+				touchRotate: true, // Keep touch rotation enabled
+				shiftKeyRotate: true, // Enable shift+drag rotation
+				bearingSnap: 0, // Disable snapping to allow free rotation
+				zoomControl: false // Disable default zoom control (we'll add it back in the right order)
 			});
 
 			L.tileLayer(config.tileUrl, {
@@ -134,10 +157,6 @@
 					webSocket = null;
 				};
 			}
-
-			// Load and create markers
-			const repository = new Repository();
-			await repository.init();
 
 			const [
 				achievementMarkers,
@@ -351,6 +370,81 @@
 			}
 
 			L.control.layers(undefined, overlayMaps).addTo(map);
+
+			// Add custom rotation mode control
+			const RotationModeControl = L.Control.extend({
+				options: {
+					position: 'topleft'
+				},
+				onAdd: function() {
+					const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+					container.style.backgroundColor = 'white';
+					container.style.padding = '5px 10px';
+					container.style.cursor = 'pointer';
+					container.style.fontWeight = 'bold';
+					container.style.fontSize = '14px';
+
+					const updateLabel = () => {
+						container.innerHTML = rotationMode === 'compass'
+							? '🧭 Match Compass'
+							: '📍 Match Coordinates';
+					};
+
+					updateLabel();
+
+					// Add tooltip
+					container.title = 'Toggle between compass-aligned view and coordinate-aligned view';
+
+					container.onclick = () => {
+						// Toggle between compass and coordinates
+						if (rotationMode === 'compass') {
+							rotationMode = 'coordinates';
+							map.setBearing(0, { animate: true, duration: 0.5 });
+						} else {
+							rotationMode = 'compass';
+							map.setBearing(trueNorthBearing, { animate: true, duration: 0.5 });
+						}
+						// Save preference to localStorage
+						localStorage.setItem('mapRotationMode', rotationMode);
+						updateLabel();
+					};
+
+					return container;
+				}
+			});
+
+			map.addControl(new RotationModeControl());
+
+			// Add zoom control after rotation control so it appears below
+			L.control.zoom({ position: 'topleft' }).addTo(map);
+
+			// Add back to overview button (icon only) - below zoom controls
+			const BackButtonControl = L.Control.extend({
+				options: {
+					position: 'topleft'
+				},
+				onAdd: function() {
+					const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+					const button = L.DomUtil.create('a', 'leaflet-control-zoom-in', container);
+					button.innerHTML = '<i class="fa-solid fa-house" style="font-size: 14px;"></i>';
+					button.href = '#';
+					button.title = 'Back to map overview';
+					button.setAttribute('role', 'button');
+					button.setAttribute('aria-label', 'Back to map overview');
+					button.style.display = 'flex';
+					button.style.alignItems = 'center';
+					button.style.justifyContent = 'center';
+
+					L.DomEvent.on(button, 'click', (e) => {
+						L.DomEvent.preventDefault(e);
+						goto('/');
+					});
+
+					return container;
+				}
+			});
+
+			map.addControl(new BackButtonControl());
 
 			// Update state
 			mapInstance = map;

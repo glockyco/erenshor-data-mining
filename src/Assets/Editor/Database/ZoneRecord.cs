@@ -20,4 +20,7 @@ public class ZoneRecord
     public string? CompleteSecondQuestOnEnterStableKey { get; set; }
     [ForeignKey(typeof(QuestRecord), "StableKey")]
     public string? AssignQuestOnEnterStableKey { get; set; }
+
+    // North bearing for compass orientation (in degrees, from ZoneAnnounce Y rotation)
+    public float NorthBearing { get; set; }
 }
