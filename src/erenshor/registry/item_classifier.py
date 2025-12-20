@@ -8,7 +8,8 @@ Classification rules are explicit and minimal:
 - Weapons: RequiredSlot in {Primary, PrimaryOrSecondary, Secondary}
 - Armor: Equippable slot not in weapon slots; not General; not Aura
 - Auras: RequiredSlot == 'Aura'
-- Ability Books: TeachSpell or TeachSkill present
+- Spell Books: TeachSpell present
+- Skill Books: TeachSkill present
 - Consumables: RequiredSlot == 'General' AND click effect present AND Disposable is true
 - Molds: template_flag == 1
 - General: fallback for all other items
@@ -30,7 +31,8 @@ class ItemKind(StrEnum):
     ARMOR = "armor"
     CHARM = "charm"
     AURA = "aura"
-    ABILITY_BOOK = "ability_book"
+    SPELL_SCROLL = "spellscroll"
+    SKILL_BOOK = "skillbook"
     CONSUMABLE = "consumable"
     MOLD = "mold"
     GENERAL = "general"
@@ -50,12 +52,13 @@ def classify_item_kind(  # noqa: PLR0911
     Classification priority (first match wins):
     1. Auras - RequiredSlot == 'Aura'
     2. Charms - RequiredSlot == 'Charm'
-    3. Ability Books - TeachSpell or TeachSkill present
-    4. Molds - template_flag == 1
-    5. Consumables - RequiredSlot == 'General' + click effect + Disposable
-    6. Weapons - RequiredSlot in {Primary, PrimaryOrSecondary, Secondary}
-    7. Armor - Equippable slot not in weapon/general/aura/charm
-    8. General - fallback
+    3. Spell Books - TeachSpell present
+    4. Skill Books - TeachSkill present
+    5. Molds - template_flag == 1
+    6. Consumables - RequiredSlot == 'General' + click effect + Disposable
+    7. Weapons - RequiredSlot in {Primary, PrimaryOrSecondary, Secondary}
+    8. Armor - Equippable slot not in weapon/general/aura/charm
+    9. General - fallback
 
     Args:
         required_slot: Equipment slot (e.g., 'Primary', 'Head', 'General', 'Aura')
@@ -110,25 +113,29 @@ def classify_item_kind(  # noqa: PLR0911
     if slot_low == "charm":
         return ItemKind.CHARM
 
-    # 3. Ability books (teach spells or skills)
-    if (teach_spell is not None and teach_spell.strip()) or (teach_skill is not None and teach_skill.strip()):
-        return ItemKind.ABILITY_BOOK
+    # 3. Spell books (teach spells)
+    if teach_spell is not None and teach_spell.strip():
+        return ItemKind.SPELL_SCROLL
 
-    # 4. Molds (crafting templates)
+    # 4. Skill books (teach skills)
+    if teach_skill is not None and teach_skill.strip():
+        return ItemKind.SKILL_BOOK
+
+    # 5. Molds (crafting templates)
     if (template_flag or 0) == 1:
         return ItemKind.MOLD
 
-    # 5. Consumables (clickable, disposable general items)
+    # 6. Consumables (clickable, disposable general items)
     if slot_low == "general" and (click_effect is not None and click_effect.strip()) and bool(disposable):
         return ItemKind.CONSUMABLE
 
-    # 6. Weapons (primary/secondary slots)
+    # 7. Weapons (primary/secondary slots)
     if slot in {"Primary", "PrimaryOrSecondary", "Secondary"}:
         return ItemKind.WEAPON
 
-    # 7. Armor (equippable, not general/aura/charm/weapon)
+    # 8. Armor (equippable, not general/aura/charm/weapon)
     if slot and slot_low not in {"general", "aura", "charm"}:
         return ItemKind.ARMOR
 
-    # 8. General (fallback)
+    # 9. General (fallback)
     return ItemKind.GENERAL

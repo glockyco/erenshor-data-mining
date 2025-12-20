@@ -1,7 +1,7 @@
 """Page normalization for wiki content.
 
 This module normalizes wiki pages by:
-- Extracting all category tags and placing them after spoiler tags (if present) or at the top
+- Extracting all category tags and placing them at the bottom of the page
 - Deduplicating categories
 - Removing multiple consecutive empty lines (max 1)
 """
@@ -41,7 +41,7 @@ class PageNormalizer:
             new_wikitext: Newly generated content with fresh categories (optional)
 
         Returns:
-            Normalized wikitext with merged categories at top and clean formatting
+            Normalized wikitext with merged categories at bottom and clean formatting
         """
         # Extract categories from both old and new content
         categories = self._extract_categories(wikitext)
@@ -71,20 +71,10 @@ class PageNormalizer:
         # Strip leading/trailing whitespace to avoid extra empty lines
         normalized_content = normalized_content.strip()
 
-        # Check if content starts with {{spoiler}} tag
-        spoiler_match = re.match(r"^(\{\{spoiler\}\}\s*)", normalized_content)
-
-        # Reassemble: If spoiler tag exists, put it first, then categories, then rest of content
-        # Otherwise, categories at top, then content
+        # Reassemble: content first, then categories at the bottom
         if categories:
             category_text = "\n".join(categories)
-            if spoiler_match:
-                # Extract spoiler tag and remaining content
-                spoiler_tag = spoiler_match.group(1).rstrip()
-                remaining_content = normalized_content[len(spoiler_match.group(0)) :]
-                result = f"{spoiler_tag}\n{category_text}\n\n{remaining_content}"
-            else:
-                result = f"{category_text}\n\n{normalized_content}"
+            result = f"{normalized_content}\n\n{category_text}"
         else:
             result = normalized_content
 

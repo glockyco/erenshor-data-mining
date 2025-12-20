@@ -225,8 +225,11 @@ class WikiGenerateService:
                             template_names=["Item", "Enemy", "Ability"],
                         )
 
-                        # Replace fancy tables
+                        # Replace fancy tables (weapons, armor, charms)
                         final_content = self._replace_fancy_tables(final_content, page_content)
+
+                        # Replace/insert item type templates (aura, spellscroll, skillbook, consumable, mold, general)
+                        final_content = self._replace_item_type_templates(final_content, page_content)
 
                         # Normalize page
                         final_content = self._page_normalizer.normalize(final_content, page_content)
@@ -322,55 +325,64 @@ class WikiGenerateService:
         return result
 
     def _replace_fancy_tables(self, old_wikitext: str, new_wikitext: str) -> str:
-        """Replace fancy content (tables or standalone templates) with freshly generated versions.
+        """Replace item quality tables/templates with freshly generated versions.
 
-        Weapons/Armor: {| |- ||{{Fancy-weapon}}...||...||... |}  (table with 3 quality tiers)
-        Charms: {{Fancy-charm\n...\n}}  (single template, charms don't upgrade)
+        Weapons/Armor: {| |- ||{{Item/Weapon}}...||...||... |}  (table with 3 quality tiers)
+        Charms: {{Item/Charm\n...\n}}  (single template, charms don't upgrade)
+
+        Old pages may still have {{Fancy-weapon}}, {{Fancy-armor}}, {{Fancy-charm}}
+        which need to be replaced with the new {{Item/Weapon}}, {{Item/Armor}}, {{Item/Charm}}.
 
         These contain no manual content and should be completely replaced to ensure
         consistent formatting.
 
         Args:
-            old_wikitext: Existing page content (may have old fancy content)
-            new_wikitext: New generated content (has new fancy content)
+            old_wikitext: Existing page content (may have old or new templates)
+            new_wikitext: New generated content (has new Item/* templates)
 
         Returns:
-            Updated wikitext with fancy content replaced
+            Updated wikitext with item quality templates replaced
         """
         from mwparserfromhell import parse
 
         # Parse old content only (we'll extract raw text from new_wikitext)
         old_code = parse(old_wikitext)
 
-        # Find Fancy-* templates in new content (to determine type)
-        new_code = parse(new_wikitext)
-        fancy_template_names = ["Fancy-weapon", "Fancy-armor", "Fancy-charm"]
-        new_fancy_templates = [t for t in new_code.filter_templates() if str(t.name).strip() in fancy_template_names]
+        # New template names (what we generate now)
+        new_template_names = ["Item/Weapon", "Item/Armor", "Item/Charm"]
+        # Legacy template names (what old pages may have)
+        legacy_template_names = ["Fancy-weapon", "Fancy-armor", "Fancy-charm"]
+        # All possible names to look for in old content
+        all_template_names = new_template_names + legacy_template_names
 
-        if not new_fancy_templates:
-            # No fancy templates in new content
+        # Find Item/* templates in new content (to determine type)
+        new_code = parse(new_wikitext)
+        new_item_templates = [t for t in new_code.filter_templates() if str(t.name).strip() in new_template_names]
+
+        if not new_item_templates:
+            # No item quality templates in new content
             return old_wikitext
 
         # Determine if we're dealing with a table or standalone template
-        # Tables contain Fancy-weapon or Fancy-armor (3 tiers each)
-        # Standalone is Fancy-charm (single template, no table)
-        has_weapon_or_armor = any(str(t.name).strip() in ["Fancy-weapon", "Fancy-armor"] for t in new_fancy_templates)
+        # Tables contain Item/Weapon or Item/Armor (3 tiers each)
+        # Standalone is Item/Charm (single template, no table)
+        has_weapon_or_armor = any(str(t.name).strip() in ["Item/Weapon", "Item/Armor"] for t in new_item_templates)
 
         if has_weapon_or_armor:
-            # Find and replace the wiki table containing Fancy-weapon/Fancy-armor
-            return self._replace_wiki_table(old_code, new_wikitext, fancy_template_names)
-        # Find and replace standalone Fancy-charm template
+            # Find and replace the wiki table containing item quality templates
+            return self._replace_wiki_table(old_code, new_wikitext, all_template_names)
+        # Find and replace standalone charm template
         return self._replace_fancy_charm_template(old_code, new_wikitext)
 
     def _replace_wiki_table(
-        self, old_code: mwparserfromhell.wikicode.Wikicode, new_wikitext: str, fancy_names: list[str]
+        self, old_code: mwparserfromhell.wikicode.Wikicode, new_wikitext: str, template_names: list[str]
     ) -> str:
-        """Replace wiki table containing Fancy-* templates.
+        """Replace wiki table containing item quality templates.
 
         Args:
             old_code: Parsed old wikitext
             new_wikitext: Raw new wikitext (not parsed, preserves formatting)
-            fancy_names: List of fancy template names to look for
+            template_names: List of template names to look for (both new and legacy)
 
         Returns:
             Updated wikitext
@@ -384,7 +396,7 @@ class WikiGenerateService:
         new_table_node = None
         for node in new_code.nodes:
             node_str = str(node)
-            if node_str.startswith("{|") and any(name in node_str for name in fancy_names):
+            if node_str.startswith("{|") and any(name in node_str for name in template_names):
                 new_table_node = node
                 break
 
@@ -397,12 +409,12 @@ class WikiGenerateService:
         table_end = new_wikitext.find("|}", table_start) + 2
         new_table_raw = new_wikitext[table_start:table_end]
 
-        # Find and replace the table in old content
+        # Find and replace the table in old content (check for both old and new template names)
         for node in old_code.nodes:
             node_str = str(node)
-            if node_str.startswith("{|") and any(name in node_str for name in fancy_names):
+            if node_str.startswith("{|") and any(name in node_str for name in template_names):
                 old_code.replace(node, new_table_raw)
-                logger.debug("Replaced fancy table with raw text")
+                logger.debug("Replaced item quality table with raw text")
                 return str(old_code)
 
         # No old table found, insert after {{Item}}
@@ -411,16 +423,16 @@ class WikiGenerateService:
             # Insert after {{Item}}
             item_index = old_code.index(item_template)
             old_code.insert(item_index + 1, f"\n\n{new_table_raw}")
-            logger.debug("Inserted fancy table after {{Item}}")
+            logger.debug("Inserted item quality table after {{Item}}")
             return str(old_code)
 
         # If no {{Item}} template found, append table at the end
         old_code.append(f"\n\n{new_table_raw}")
-        logger.debug("Appended fancy table")
+        logger.debug("Appended item quality table")
         return str(old_code)
 
     def _replace_fancy_charm_template(self, old_code: mwparserfromhell.wikicode.Wikicode, new_wikitext: str) -> str:
-        """Replace standalone Fancy-charm template.
+        """Replace standalone charm template (Item/Charm or legacy Fancy-charm).
 
         Args:
             old_code: Parsed old wikitext
@@ -431,13 +443,17 @@ class WikiGenerateService:
         """
         from mwparserfromhell import parse
 
-        # Parse new content to find Fancy-charm template
+        # New and legacy charm template names
+        new_charm_name = "Item/Charm"
+        legacy_charm_name = "Fancy-charm"
+
+        # Parse new content to find Item/Charm template
         new_code = parse(new_wikitext)
 
-        # Find Fancy-charm in new content
+        # Find Item/Charm in new content
         new_charm_node = None
         for node in new_code.filter_templates():
-            if str(node.name).strip() == "Fancy-charm":
+            if str(node.name).strip() == new_charm_name:
                 new_charm_node = node
                 break
 
@@ -445,8 +461,8 @@ class WikiGenerateService:
             return str(old_code)
 
         # Find the template in the original new_wikitext to preserve formatting
-        # Look for {{Fancy-charm at the start and }} at the end
-        charm_start = new_wikitext.find("{{Fancy-charm")
+        # Look for {{Item/Charm at the start and }} at the end
+        charm_start = new_wikitext.find("{{Item/Charm")
         if charm_start == -1:
             return str(old_code)
 
@@ -470,11 +486,12 @@ class WikiGenerateService:
             # Couldn't find closing braces
             return str(old_code)
 
-        # Find and replace in old content
+        # Find and replace in old content (check for both new and legacy charm)
         for node in old_code.filter_templates():
-            if str(node.name).strip() == "Fancy-charm":
+            template_name = str(node.name).strip()
+            if template_name in [new_charm_name, legacy_charm_name]:
                 old_code.replace(node, new_charm_raw)
-                logger.debug("Replaced {{Fancy-charm}} template with raw text")
+                logger.debug(f"Replaced {{{{{template_name}}}}} template with {{{{Item/Charm}}}}")
                 return str(old_code)
 
         # No old charm, insert after {{Item}}
@@ -482,12 +499,12 @@ class WikiGenerateService:
         if item_template:
             item_index = old_code.index(item_template)
             old_code.insert(item_index + 1, f"\n\n{new_charm_raw}")
-            logger.debug("Inserted {{Fancy-charm}} after {{Item}}")
+            logger.debug("Inserted {{Item/Charm}} after {{Item}}")
             return str(old_code)
 
         # If no {{Item}} template found, append charm template at the end
         old_code.append(f"\n\n{new_charm_raw}")
-        logger.debug("Appended {{Fancy-charm}}")
+        logger.debug("Appended {{Item/Charm}}")
         return str(old_code)
 
     def _find_item_template(self, code: mwparserfromhell.wikicode.Wikicode) -> mwparserfromhell.nodes.Template | None:
@@ -503,3 +520,173 @@ class WikiGenerateService:
             if str(node.name).strip() == "Item":
                 return node
         return None
+
+    def _replace_item_type_templates(self, old_wikitext: str, new_wikitext: str) -> str:
+        """Replace or insert ALL item type tooltip templates.
+
+        These are TOOLTIP templates ({{Item/Aura}}, {{Item/SpellScroll}}, etc.) that
+        are generated alongside {{Item}} for non-weapon/armor/charm items.
+
+        For multi-item pages (multiple items sharing the same wiki page), this handles
+        multiple tooltips by matching them positionally - first new tooltip replaces
+        first old tooltip, second new replaces second old, etc.
+
+        Note: Legacy INFOBOX templates ({{Auras}}, {{Ability Books}}, {{Mold}}) are
+        handled by LegacyTemplateRemover which converts them to {{Item}}.
+
+        This method:
+        1. Finds ALL tooltip templates in new content
+        2. Finds ALL tooltip templates in old content
+        3. Replaces by position (new[0] -> old[0], new[1] -> old[1], etc.)
+        4. Inserts extras after the last {{Item}} if more new than old
+
+        Args:
+            old_wikitext: Existing page content (after legacy template removal)
+            new_wikitext: New generated content
+
+        Returns:
+            Updated wikitext with ALL tooltip templates replaced/inserted
+        """
+        from mwparserfromhell import parse
+
+        # Tooltip template names (what we generate)
+        tooltip_templates = [
+            "Item/Aura",
+            "Item/SpellScroll",
+            "Item/SkillBook",
+            "Item/Consumable",
+            "Item/Mold",
+            "Item/General",
+        ]
+
+        # Find ALL tooltip templates in new content (in order)
+        new_code = parse(new_wikitext)
+        new_tooltip_names: list[str] = []
+        for template in new_code.filter_templates():
+            name = str(template.name).strip()
+            if name in tooltip_templates:
+                new_tooltip_names.append(name)
+
+        if not new_tooltip_names:
+            # No tooltip templates in new content, nothing to do
+            return old_wikitext
+
+        # Extract raw template text for each new tooltip
+        # Track occurrence index for each template name to handle multiples of same type
+        name_occurrence_count: dict[str, int] = {}
+        new_tooltip_raw_list: list[str] = []
+
+        for tooltip_name in new_tooltip_names:
+            occurrence_index = name_occurrence_count.get(tooltip_name, 0)
+            raw = self._extract_nth_template_raw(new_wikitext, tooltip_name, occurrence_index)
+            if raw:
+                new_tooltip_raw_list.append(raw)
+                name_occurrence_count[tooltip_name] = occurrence_index + 1
+
+        if not new_tooltip_raw_list:
+            return old_wikitext
+
+        # Parse old content
+        old_code = parse(old_wikitext)
+
+        # Find ALL existing tooltip templates in old content (in order)
+        old_tooltip_templates: list[mwparserfromhell.nodes.Template] = []
+        for template in old_code.filter_templates():
+            name = str(template.name).strip()
+            if name in tooltip_templates:
+                old_tooltip_templates.append(template)
+
+        # If old page has NO tooltip templates but we have multiple new ones,
+        # this is a multi-item legacy page that needs proper structure.
+        # Use the new content's structure which has proper interleaving and separators.
+        if not old_tooltip_templates and len(new_tooltip_raw_list) > 1:
+            logger.debug(f"Multi-item legacy page with {len(new_tooltip_raw_list)} tooltips - using new structure")
+            return new_wikitext
+
+        # Replace existing tooltips by position, collect extras to append
+        extras_to_append: list[str] = []
+
+        for i, new_raw in enumerate(new_tooltip_raw_list):
+            if i < len(old_tooltip_templates):
+                # Replace existing tooltip at position i
+                old_template = old_tooltip_templates[i]
+                old_name = str(old_template.name).strip()
+                old_code.replace(old_template, new_raw)
+                logger.debug(f"Replaced tooltip {i}: {{{{{old_name}}}}} with {{{{{new_tooltip_names[i]}}}}}")
+            else:
+                # No more old tooltips at this position, collect for appending
+                extras_to_append.append(new_raw)
+                logger.debug(f"Will append tooltip {i}: {{{{{new_tooltip_names[i]}}}}}")
+
+        # Append all extra tooltips at the end (preserves order)
+        for extra_raw in extras_to_append:
+            old_code.append(f"\n\n{extra_raw}")
+
+        return str(old_code)
+
+    def _extract_template_raw(self, wikitext: str, template_name: str) -> str | None:
+        """Extract raw template text from wikitext preserving formatting.
+
+        Args:
+            wikitext: Raw wikitext
+            template_name: Template name to find (e.g., "Item/Aura")
+
+        Returns:
+            Raw template text including {{ and }}, or None if not found
+        """
+        return self._extract_nth_template_raw(wikitext, template_name, 0)
+
+    def _extract_nth_template_raw(self, wikitext: str, template_name: str, n: int = 0) -> str | None:
+        """Extract the Nth occurrence of a template from wikitext.
+
+        Args:
+            wikitext: Raw wikitext
+            template_name: Template name to find (e.g., "Item/General")
+            n: 0-based index of which occurrence to extract
+
+        Returns:
+            Raw template text including {{ and }}, or None if not found
+        """
+        search_str = "{{" + template_name
+        start = 0
+        occurrences_found = 0
+
+        while start < len(wikitext):
+            pos = wikitext.find(search_str, start)
+            if pos == -1:
+                return None
+
+            if occurrences_found == n:
+                # Found the Nth occurrence, extract it
+                return self._extract_template_at_position(wikitext, pos)
+
+            # Skip past this occurrence and continue searching
+            occurrences_found += 1
+            start = pos + len(search_str)
+
+        return None
+
+    def _extract_template_at_position(self, wikitext: str, start: int) -> str:
+        """Extract template starting at given position.
+
+        Args:
+            wikitext: Raw wikitext
+            start: Position where template starts (at the first '{')
+
+        Returns:
+            Raw template text including {{ and }}
+        """
+        brace_count = 0
+        i = start
+        while i < len(wikitext):
+            if wikitext[i : i + 2] == "{{":
+                brace_count += 1
+                i += 2
+            elif wikitext[i : i + 2] == "}}":
+                brace_count -= 1
+                i += 2
+                if brace_count == 0:
+                    return wikitext[start:i]
+            else:
+                i += 1
+        return wikitext[start:]  # Unclosed template, return rest

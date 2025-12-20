@@ -65,11 +65,20 @@ def mock_loot_repo():
 
 
 @pytest.fixture
-def enricher(mock_faction_repo, mock_spawn_repo, mock_loot_repo):
+def mock_spell_repo():
+    """Create mock spell repository."""
+    repo = MagicMock()
+    repo.get_spells_used_by_character.return_value = []
+    return repo
+
+
+@pytest.fixture
+def enricher(mock_faction_repo, mock_spawn_repo, mock_loot_repo, mock_spell_repo):
     """Create character enricher with mocked repositories."""
     return CharacterEnricher(
         spawn_repo=mock_spawn_repo,
         loot_repo=mock_loot_repo,
+        spell_repo=mock_spell_repo,
     )
 
 
@@ -148,9 +157,13 @@ class TestCharacterEnrichment:
         mock_spawn_repo = MagicMock()
         mock_spawn_repo.get_spawn_info_for_character.return_value = []
 
+        mock_spell_repo = MagicMock()
+        mock_spell_repo.get_spells_used_by_character.return_value = []
+
         enricher = CharacterEnricher(
             spawn_repo=mock_spawn_repo,
             loot_repo=mock_loot_repo,
+            spell_repo=mock_spell_repo,
         )
 
         character = Character(
@@ -230,6 +243,7 @@ class TestEnrichedCharacterData:
             character=character,
             spawn_infos=spawn_infos,
             loot_drops=loot_drops,
+            spells=[],
         )
 
         assert enriched.character == character
@@ -244,6 +258,7 @@ class TestEnrichedCharacterData:
             character=character,
             spawn_infos=[],
             loot_drops=[],
+            spells=[],
         )
 
         # Should be raw data structures, not formatted strings

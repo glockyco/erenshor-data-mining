@@ -156,22 +156,6 @@ class TestLegacyTemplateRemover:
         # Should remain exactly the same
         assert result == wikitext
 
-    def test_preserve_fancy_weapon_template(self, remover: LegacyTemplateRemover) -> None:
-        """Test that {{Fancy-weapon}} template is not modified."""
-        wikitext = "{{Fancy-weapon|name=Godly Sword|damage=100|tier=Godly}}"
-        result = remover.remove_legacy_templates(wikitext)
-
-        # Should remain exactly the same
-        assert result == wikitext
-
-    def test_preserve_fancy_armor_template(self, remover: LegacyTemplateRemover) -> None:
-        """Test that {{Fancy-armor}} template is not modified."""
-        wikitext = "{{Fancy-armor|name=Blessed Helmet|armor=50|tier=Blessed}}"
-        result = remover.remove_legacy_templates(wikitext)
-
-        # Should remain exactly the same
-        assert result == wikitext
-
     # -------------------------------------------------------------------------
     # Parameter Preservation Tests
     # -------------------------------------------------------------------------
@@ -361,21 +345,6 @@ class TestLegacyTemplateRemover:
     # -------------------------------------------------------------------------
     # Integration Tests (Real-World Scenarios)
     # -------------------------------------------------------------------------
-
-    def test_weapon_page_with_multiple_templates(self, remover: LegacyTemplateRemover) -> None:
-        """Test realistic weapon page with {{Item}} + {{Fancy-weapon}} templates."""
-        wikitext = """
-{{Item|name=Iron Sword|source=Vendor}}
-
-{{Fancy-weapon|name=Iron Sword|tier=Normal|damage=10}}
-{{Fancy-weapon|name=Iron Sword|tier=Blessed|damage=15}}
-{{Fancy-weapon|name=Iron Sword|tier=Godly|damage=20}}
-"""
-        result = remover.remove_legacy_templates(wikitext)
-
-        # Should preserve all templates unchanged (no legacy templates)
-        assert result.count("{{Item") == 1
-        assert result.count("{{Fancy-weapon") == 3
 
     def test_character_page_with_enemy_stats_removal(self, remover: LegacyTemplateRemover) -> None:
         """Test character page replacing {{Character}} and removing {{Enemy Stats}}."""

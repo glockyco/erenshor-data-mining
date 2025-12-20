@@ -56,6 +56,7 @@ def mock_spell_repo():
     """Mock spell repository."""
     repo = Mock()
     repo.get_spells_for_wiki_generation.return_value = []
+    repo.get_spells_used_by_character.return_value = []
     return repo
 
 

@@ -30,7 +30,15 @@ def mock_spell_repo():
 
 
 @pytest.fixture
-def enricher(mock_item_repo, mock_spell_repo):
+def mock_skill_repo():
+    """Create mock skill repository."""
+    repo = MagicMock()
+    repo.get_skill_by_stable_key.return_value = None
+    return repo
+
+
+@pytest.fixture
+def enricher(mock_item_repo, mock_spell_repo, mock_skill_repo):
     """Create item enricher with mocked repositories."""
     from unittest.mock import Mock
 
@@ -50,6 +58,7 @@ def enricher(mock_item_repo, mock_spell_repo):
     return ItemEnricher(
         item_repo=mock_item_repo,
         spell_repo=mock_spell_repo,
+        skill_repo=mock_skill_repo,
         character_repo=mock_character_repo,
         quest_repo=mock_quest_repo,
     )

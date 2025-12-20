@@ -52,7 +52,7 @@ class CategoryGenerator:
         >>> mold = Item(template=1, required_slot="General", ...)
         >>> categories = generator.generate_item_categories(mold)
         >>> categories
-        ['Molds', 'Crafting Materials']
+        ['Molds', 'Crafting']
     """
 
     def __init__(self, resolver: RegistryResolver) -> None:
@@ -92,8 +92,10 @@ class CategoryGenerator:
     ITEM_KIND_TO_CATEGORY: ClassVar[dict[ItemKind, str]] = {
         ItemKind.WEAPON: "Weapons",
         ItemKind.ARMOR: "Armor",
+        ItemKind.CHARM: "Charms",
         ItemKind.AURA: "Auras",
-        ItemKind.ABILITY_BOOK: "Ability Books",
+        ItemKind.SPELL_SCROLL: "Ability Books",
+        ItemKind.SKILL_BOOK: "Ability Books",
         ItemKind.CONSUMABLE: "Consumables",
         ItemKind.MOLD: "Molds",
         ItemKind.GENERAL: "Items",
@@ -120,7 +122,7 @@ class CategoryGenerator:
 
             Mold (multi-category):
                 >>> generate_item_categories(enriched_mold)
-                ['Molds', 'Crafting Materials']
+                ['Molds', 'Crafting']
 
             Quest Item (cross-cutting category):
                 >>> generate_item_categories(enriched_quest_item)
@@ -150,10 +152,10 @@ class CategoryGenerator:
         if self._is_quest_item(item):
             categories.append("Quest Items")
 
-        # Crafting Materials - molds are crafting templates
+        # Crafting - molds are crafting templates
         # Note: template=1 means this is a crafting mold/template
-        if item.template == 1 and "Crafting Materials" not in categories:
-            categories.append("Crafting Materials")
+        if item.template == 1 and "Crafting" not in categories:
+            categories.append("Crafting")
 
         return categories
 
@@ -243,7 +245,7 @@ class CategoryGenerator:
             >>> format_category_tags(["Weapons"])
             '[[Category:Weapons]]'
 
-            >>> format_category_tags(["Molds", "Crafting Materials"])
-            '[[Category:Molds]]\\n[[Category:Crafting Materials]]'
+            >>> format_category_tags(["Molds", "Crafting"])
+            '[[Category:Molds]]\\n[[Category:Crafting]]'
         """
         return "\n".join(f"[[Category:{cat}]]" for cat in categories)

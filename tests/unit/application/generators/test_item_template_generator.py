@@ -145,17 +145,16 @@ class TestItemSectionGenerator:
         assert "|title=Test Sword" in result
         assert "|buy=500" in result
         assert "|sell=125" in result
-        # Verify {{Item}} section has empty stat fields
+        # Verify {{Item}} section does NOT have stat/class/description fields (removed to avoid duplication)
         item_section = result.split("}}")[0]  # Get just the {{Item}} template
-        assert "|delay=" in item_section  # Field exists
-        assert "|delay=2.0" not in item_section  # No value in Item template
-        assert "|classes=" in item_section  # Field exists
-        assert "|classes=Duelist" not in item_section  # No value in Item template
-        assert "|description=" in item_section  # Field exists
-        assert "|description=A sharp blade" not in item_section  # No value in Item template
+        # These fields are NOT in {{Item}} anymore - they only appear in tooltips
+        assert "|delay=" not in item_section
+        assert "|classes=" not in item_section
+        assert "|description=" not in item_section
+        assert "|relic=" not in item_section
 
-        # Should contain {{Fancy-weapon}} template
-        assert "{{Fancy-weapon" in result
+        # Should contain {{Item/Weapon}} template
+        assert "{{Item/Weapon" in result
 
     def test_weapon_with_damage_shows_value(self, generator, enrich_item):
         """Test weapons with damage show actual damage values."""
@@ -334,15 +333,14 @@ class TestItemSectionGenerator:
         assert "|title=Test Helmet" in result
         assert "|buy=300" in result
         assert "|sell=75" in result
-        # Verify {{Item}} section has empty stat fields
+        # Verify {{Item}} section does NOT have stat/class/description fields (removed to avoid duplication)
         item_section = result.split("}}")[0]  # Get just the {{Item}} template
-        assert "|description=" in item_section  # Field exists
-        assert "|description=Protective headgear" not in item_section  # No value in Item template
-        assert "|classes=" in item_section  # Field exists
-        assert "|classes=Arcanist" not in item_section  # No value in Item template
+        assert "|description=" not in item_section  # Field removed (in tooltip only)
+        assert "|classes=" not in item_section  # Field removed (in tooltip only)
+        assert "|relic=" not in item_section  # Field removed (in tooltip only)
 
-        # Should contain {{Fancy-armor}} template
-        assert "{{Fancy-armor" in result
+        # Should contain {{Item/Armor}} template
+        assert "{{Item/Armor" in result
 
     def test_generate_page_for_charm(self, generator, enrich_item):
         """Test generating page for charm."""
@@ -415,12 +413,12 @@ class TestItemSectionGenerator:
 
         item = Item(
             id="7",
-            resource_name="TestSpellBook",
-            stable_key="item:test_spell_book",
+            resource_name="TestSpellScroll",
+            stable_key="item:test_spell_scroll",
             item_name="Spell Scroll: Fireball",
             lore="Teaches Fireball",
             required_slot="General",
-            teach_spell="Fireball",
+            teach_spell_stable_key="spell:fireball",
         )
 
         enriched = enrich_item(item)
@@ -429,7 +427,7 @@ class TestItemSectionGenerator:
         # Should contain {{Item}} template
         assert "{{Item" in result
         # Title comes from resolve_display_name(stable_key), not item_name
-        assert "|title=Test Spell Book" in result
+        assert "|title=Test Spell Scroll" in result
 
     def test_generate_page_handles_none_values(self, generator, enrich_item):
         """Test that generator handles None values gracefully."""
@@ -453,12 +451,14 @@ class TestItemSectionGenerator:
         # Should generate valid wikitext even with minimal data
         assert "{{Item" in result
         assert "|title=Minimal Item" in result
-        # Empty fields should be present but empty
-        assert "|description=" in result
-        assert "|classes=" in result
+        # These fields are removed from {{Item}} (they appear in tooltip templates only)
+        item_section = result.split("}}")[0]  # Get just the {{Item}} template
+        assert "|description=" not in item_section
+        assert "|classes=" not in item_section
+        assert "|relic=" not in item_section
 
     def test_generate_page_handles_relic_flag(self, generator, enrich_item):
-        """Test that relic flag is properly formatted."""
+        """Test that relic flag appears in tooltip template (not {{Item}} infobox)."""
 
         # Relic item
         relic_item = Item(
@@ -471,7 +471,9 @@ class TestItemSectionGenerator:
 
         enriched = enrich_item(relic_item)
         result = generator.generate_template(enriched, "Relic Item")
-        assert "|relic=True" in result
+        # relic is NOT in {{Item}} infobox anymore - it only appears in tooltip templates
+        item_section = result.split("}}")[0]  # Get just the {{Item}} template
+        assert "|relic=" not in item_section
 
         # Non-relic item
         normal_item = Item(
@@ -484,8 +486,9 @@ class TestItemSectionGenerator:
 
         enriched = enrich_item(normal_item)
         result = generator.generate_template(enriched, "Normal Item")
-        assert "|relic=True" not in result
-        assert "|relic=" in result  # Empty value
+        # relic is NOT in {{Item}} infobox anymore
+        item_section = result.split("}}")[0]  # Get just the {{Item}} template
+        assert "|relic=" not in item_section
 
     def test_classify_weapon_by_required_slot(self, generator, enrich_item):
         """Test weapon classification by RequiredSlot."""
@@ -562,16 +565,16 @@ class TestItemSectionGenerator:
         assert generator._classify(mold) == ItemKind.MOLD
 
     def test_classify_ability_book(self, generator, enrich_item):
-        """Test ability book classification."""
+        """Test spell book and skill book classification."""
 
-        spell_book = Item(
+        spell_scroll = Item(
             id="16",
-            resource_name="SpellBook",
-            stable_key="item:spellbook",
-            item_name="Spell Book",
+            resource_name="SpellScroll",
+            stable_key="item:spellscroll",
+            item_name="Spell Scroll",
             teach_spell_stable_key="Fireball",
         )
-        assert generator._classify(spell_book) == ItemKind.ABILITY_BOOK
+        assert generator._classify(spell_scroll) == ItemKind.SPELL_SCROLL
 
         skill_book = Item(
             id="17",
@@ -580,7 +583,7 @@ class TestItemSectionGenerator:
             item_name="Skill Book",
             teach_skill_stable_key="Mining",
         )
-        assert generator._classify(skill_book) == ItemKind.ABILITY_BOOK
+        assert generator._classify(skill_book) == ItemKind.SKILL_BOOK
 
     def test_classify_aura(self, generator, enrich_item):
         """Test aura classification."""
@@ -609,14 +612,16 @@ class TestItemSectionGenerator:
         )
 
         enriched = enrich_item(item, classes=["Arcanist", "Duelist"])
-        context = generator._build_item_template_context(enriched, page_title="Test Item")
+        context = generator._build_item_infobox_context(enriched, page_title="Test Item")
 
+        # {{Item}} infobox only has source fields - no description, classes, or relic
         assert context["title"] == "Test Item"
-        assert context["description"] == "Test description"
-        assert context["classes"] == "[[Arcanist]], [[Duelist]]"
         assert context["buy"] == "100"
         assert context["sell"] == "25"
-        assert context["relic"] == "True"
+        # These fields are NOT in the infobox context anymore
+        assert "description" not in context
+        assert "classes" not in context
+        assert "relic" not in context
 
     def test_long_name_font_adjustment(self, generator, enrich_item):
         """Test that general items don't apply font adjustment (only fancy templates do)."""
@@ -720,7 +725,7 @@ class TestFancyTemplateGeneration:
     """Test fancy template generation for weapons and armor."""
 
     def test_weapon_with_stats_generates_fancy_weapon_templates(self, generator, enrich_item):
-        """Test weapon with stats generates {{Item}} + {{Fancy-weapon}} templates."""
+        """Test weapon with stats generates {{Item}} + {{Item/Weapon}} templates."""
 
         weapon = Item(
             id="100",
@@ -830,8 +835,8 @@ class TestFancyTemplateGeneration:
         assert "{{Item" in result
         assert "|title=Test Sword" in result
 
-        # Should contain {{Fancy-weapon}} templates
-        assert "{{Fancy-weapon" in result
+        # Should contain {{Item/Weapon}} templates
+        assert "{{Item/Weapon" in result
 
         # Should have tier markers for all three quality levels
         assert "|tier=0" in result  # Normal
@@ -865,7 +870,7 @@ class TestFancyTemplateGeneration:
             generator.generate_template(enriched, "Broken Sword")
 
     def test_armor_with_stats_generates_fancy_armor_templates(self, generator, enrich_item):
-        """Test armor with stats generates {{Item}} + {{Fancy-armor}} templates."""
+        """Test armor with stats generates {{Item}} + {{Item/Armor}} templates."""
 
         armor = Item(
             id="102",
@@ -974,8 +979,8 @@ class TestFancyTemplateGeneration:
         assert "{{Item" in result
         assert "|title=Test Helmet" in result
 
-        # Should contain {{Fancy-armor}} templates
-        assert "{{Fancy-armor" in result
+        # Should contain {{Item/Armor}} templates
+        assert "{{Item/Armor" in result
 
         # Should have tier markers for all three quality levels
         assert "|tier=0" in result  # Normal
@@ -1033,8 +1038,8 @@ class TestFancyTemplateGeneration:
         assert "|title=Health Potion" in result
 
         # Should NOT contain fancy templates
-        assert "{{Fancy-weapon" not in result
-        assert "{{Fancy-armor" not in result
+        assert "{{Item/Weapon" not in result
+        assert "{{Item/Armor" not in result
 
         # Should NOT have tier markers
         assert "|tier=" not in result
@@ -1148,10 +1153,523 @@ class TestFancyTemplateGeneration:
         assert "{|" in result
 
         # Should have header cells with fancy templates
-        assert "!{{Fancy-weapon" in result
+        assert "!{{Item/Weapon" in result
 
         # Should end with table closing
         assert "|}" in result
 
         # Should have multiple fancy templates (one per quality tier)
-        assert result.count("{{Fancy-weapon") == 3
+        assert result.count("{{Item/Weapon") == 3
+
+
+class TestTypeSpecificFields:
+    """Test type-specific fields in the {{Item}} template for different item kinds."""
+
+    def test_aura_item_has_buffgiven_field(self, generator, enrich_item):
+        """Test aura items populate the buffgiven field with ability link."""
+        from erenshor.domain.enriched_data.item import EnrichedItemData
+        from erenshor.domain.entities.spell import Spell
+
+        item = Item(
+            id="200",
+            resource_name="TestAura",
+            stable_key="item:test_aura",
+            item_name="Test Aura",
+            lore="Grants a magical buff",
+            required_slot="Aura",
+            aura_stable_key="spell:test_buff",
+        )
+
+        # Create enriched data with aura spell
+        aura_spell = Spell(
+            stable_key="spell:test_buff",
+            spell_name="Test Buff",
+            type="Beneficial",
+            spell_desc="A test buff effect",
+        )
+        enriched = EnrichedItemData(
+            item=item,
+            stats=[],
+            classes=[],
+            aura_spell=aura_spell,
+        )
+
+        result = generator.generate_template(enriched, "Test Aura")
+
+        # buffgiven is NOT in {{Item}} infobox anymore - it's in the Item/Aura tooltip
+        item_section = result.split("}}")[0]  # Get just the {{Item}} template
+        assert "|buffgiven=" not in item_section
+        # But the aura spell info should be in the Item/Aura tooltip
+        assert "{{Item/Aura" in result
+        assert "|aura_spell_name=" in result
+
+    def test_spellscroll_item_has_taught_spell_fields(self, generator, mock_resolver):
+        """Test spell scroll items populate taughtspell, spelltype, and manacost fields."""
+        from erenshor.domain.enriched_data.item import EnrichedItemData
+        from erenshor.domain.entities.spell import Spell
+
+        item = Item(
+            id="201",
+            resource_name="SpellScrollFireball",
+            stable_key="item:spell_scroll_fireball",
+            item_name="Spell Scroll: Fireball",
+            lore="Teaches the Fireball spell",
+            required_slot="General",
+            teach_spell_stable_key="spell:fireball",
+        )
+
+        # Create enriched data with taught spell
+        taught_spell = Spell(
+            stable_key="spell:fireball",
+            spell_name="Fireball",
+            type="Damage",
+            mana_cost=150,
+            spell_desc="Hurls a ball of fire",
+        )
+        enriched = EnrichedItemData(
+            item=item,
+            stats=[],
+            classes=[],
+            taught_spell=taught_spell,
+        )
+
+        result = generator.generate_template(enriched, "Spell Scroll: Fireball")
+
+        # taughtspell is in {{Item}} infobox
+        assert "|taughtspell={{AbilityLink|Test Ability}}" in result
+        # spelltype and manacost are NOT in {{Item}} - they're in the Item/SpellScroll tooltip
+        item_section = result.split("}}")[0]  # Get just the {{Item}} template
+        assert "|spelltype=" not in item_section
+        assert "|manacost=" not in item_section
+        # But they should be in the Item/SpellScroll tooltip
+        assert "{{Item/SpellScroll" in result
+        assert "|spell_type=Damage" in result
+        assert "|mana_cost=150" in result
+
+    def test_skillbook_item_has_taught_skill_fields(self, generator, mock_resolver):
+        """Test skill book items populate taughtskill and skilltype fields."""
+        from erenshor.domain.enriched_data.item import EnrichedItemData
+        from erenshor.domain.entities.skill import Skill
+
+        item = Item(
+            id="202",
+            resource_name="SkillBookBackstab",
+            stable_key="item:skill_book_backstab",
+            item_name="Skill Book: Backstab",
+            lore="Teaches the Backstab skill",
+            required_slot="General",
+            teach_skill_stable_key="skill:backstab",
+        )
+
+        # Create enriched data with taught skill
+        taught_skill = Skill(
+            stable_key="skill:backstab",
+            skill_name="Backstab",
+            type_of_skill="Attack",
+            skill_desc="Deal major damage from behind",
+            duelist_required_level=6,
+        )
+        enriched = EnrichedItemData(
+            item=item,
+            stats=[],
+            classes=[],
+            taught_skill=taught_skill,
+        )
+
+        result = generator.generate_template(enriched, "Skill Book: Backstab")
+
+        # taughtskill is in {{Item}} infobox
+        assert "|taughtskill={{AbilityLink|Test Ability}}" in result
+        # skilltype is NOT in {{Item}} - it's in the Item/SkillBook tooltip
+        item_section = result.split("}}")[0]  # Get just the {{Item}} template
+        assert "|skilltype=" not in item_section
+        # But it should be in the Item/SkillBook tooltip
+        assert "{{Item/SkillBook" in result
+        assert "|skill_type=Attack" in result
+
+    def test_consumable_item_has_effect_and_disposable_fields(self, generator, mock_resolver):
+        """Test consumable items populate effect and disposable fields."""
+        from erenshor.domain.enriched_data.item import EnrichedItemData
+        from erenshor.domain.entities.spell import Spell
+        from erenshor.domain.value_objects.proc_info import ProcInfo
+
+        item = Item(
+            id="203",
+            resource_name="HealthPotion",
+            stable_key="item:health_potion",
+            item_name="Health Potion",
+            lore="Restores health",
+            required_slot="General",
+            item_effect_on_click_stable_key="spell:heal",
+            disposable=1,
+        )
+
+        # Create enriched data with proc (effect) spell
+        heal_spell = Spell(
+            stable_key="spell:heal",
+            spell_name="Heal",
+            type="Heal",
+            target_healing=50,
+        )
+        proc_info = ProcInfo(
+            stable_key="spell:heal",
+            description="Restores health",
+            proc_chance="100",
+            proc_style="Activatable",
+            spell=heal_spell,
+        )
+        enriched = EnrichedItemData(
+            item=item,
+            stats=[],
+            classes=[],
+            proc=proc_info,
+        )
+
+        result = generator.generate_template(enriched, "Health Potion")
+
+        # effect and disposable are NOT in {{Item}} - they're in the Item/Consumable tooltip
+        item_section = result.split("}}")[0]  # Get just the {{Item}} template
+        assert "|effect=" not in item_section
+        assert "|disposable=" not in item_section
+        # But they should be in the Item/Consumable tooltip
+        assert "{{Item/Consumable" in result
+        assert "|disposable=True" in result
+
+    def test_non_disposable_consumable_has_empty_disposable(self, generator, mock_resolver):
+        """Test non-disposable items have empty disposable field."""
+        from erenshor.domain.enriched_data.item import EnrichedItemData
+        from erenshor.domain.entities.spell import Spell
+        from erenshor.domain.value_objects.proc_info import ProcInfo
+
+        item = Item(
+            id="204",
+            resource_name="ReusableWand",
+            stable_key="item:reusable_wand",
+            item_name="Reusable Wand",
+            lore="Can be used multiple times",
+            required_slot="General",
+            item_effect_on_click_stable_key="spell:spark",
+            disposable=0,  # Not disposable
+        )
+
+        # Create enriched data with proc (effect) spell
+        spark_spell = Spell(
+            stable_key="spell:spark",
+            spell_name="Spark",
+            type="Damage",
+            target_damage=10,
+        )
+        proc_info = ProcInfo(
+            stable_key="spell:spark",
+            description="Deals spark damage",
+            proc_chance="100",
+            proc_style="Activatable",
+            spell=spark_spell,
+        )
+        enriched = EnrichedItemData(
+            item=item,
+            stats=[],
+            classes=[],
+            proc=proc_info,
+        )
+
+        result = generator.generate_template(enriched, "Reusable Wand")
+
+        # Should NOT have disposable=True (empty instead)
+        assert "|disposable=True" not in result
+        # But field should still exist
+        assert "|disposable=" in result
+
+    def test_mold_item_has_produces_and_ingredients_fields(self, generator, mock_resolver):
+        """Test mold items populate produces and ingredients fields."""
+        from erenshor.domain.enriched_data.item import EnrichedItemData
+        from erenshor.domain.value_objects.source_info import SourceInfo
+
+        item = Item(
+            id="205",
+            resource_name="MoldCopperSword",
+            stable_key="item:mold_copper_sword",
+            item_name="Mold: Copper Sword",
+            lore="A crafting template for copper sword",
+            required_slot="General",
+            template=1,
+        )
+
+        # Create source info with recipe data
+        source_info = SourceInfo(
+            vendors=[],
+            drops=[],
+            quest_rewards=[],
+            quest_requirements=[],
+            craft_sources=[],
+            craft_recipe=[],
+            component_for=[],
+            crafting_results=[("item:copper_sword", 1)],  # Produces 1x Copper Sword
+            recipe_ingredients=[
+                ("item:copper_ore", 2),  # Needs 2x Copper Ore
+                ("item:coal", 1),  # Needs 1x Coal
+            ],
+        )
+        enriched = EnrichedItemData(
+            item=item,
+            stats=[],
+            classes=[],
+            sources=source_info,
+        )
+
+        result = generator.generate_template(enriched, "Mold: Copper Sword")
+
+        # produces and ingredients are NOT in {{Item}} - they're in the Item/Mold tooltip
+        item_section = result.split("}}")[0]  # Get just the {{Item}} template
+        assert "|produces=" not in item_section
+        assert "|ingredients=" not in item_section
+        # But they should be in the Item/Mold tooltip
+        assert "{{Item/Mold" in result
+        assert "|rewards=" in result  # produces is called "rewards" in Item/Mold
+        assert "|ingredients=" in result  # ingredients is in the tooltip part
+
+    def test_weapon_with_worn_effect_has_worneffect_field(self, generator, enrich_item):
+        """Test weapons with worn effects populate worneffect field."""
+        item = Item(
+            id="206",
+            resource_name="EnchantedSword",
+            stable_key="item:enchanted_sword",
+            item_name="Enchanted Sword",
+            lore="Glows with magical energy",
+            required_slot="Primary",
+            weapon_dly=2.0,
+            worn_effect_stable_key="spell:glow",
+        )
+
+        stats = [
+            ItemStats(
+                item_stable_key="EnchantedSword",
+                quality="Normal",
+                weapon_dmg=15,
+                hp=0,
+                ac=0,
+                mana=0,
+                res=0,
+                mr=0,
+                er=0,
+                pr=0,
+                vr=0,
+            ),
+            ItemStats(
+                item_stable_key="EnchantedSword",
+                quality="Blessed",
+                weapon_dmg=17,
+                hp=0,
+                ac=0,
+                mana=0,
+                res=0,
+                mr=0,
+                er=0,
+                pr=0,
+                vr=0,
+            ),
+            ItemStats(
+                item_stable_key="EnchantedSword",
+                quality="Godly",
+                weapon_dmg=19,
+                hp=0,
+                ac=0,
+                mana=0,
+                res=0,
+                mr=0,
+                er=0,
+                pr=0,
+                vr=0,
+            ),
+        ]
+        enriched = enrich_item(item, stats)
+
+        result = generator.generate_template(enriched, "Enchanted Sword")
+
+        # worneffect is NOT in {{Item}} template anymore - it's in tooltip templates only
+        item_section = result.split("}}")[0]
+        assert "|worneffect=" not in item_section
+        # But should be in the Item/Weapon tooltip
+        assert "{{Item/Weapon" in result
+
+    def test_general_item_with_worn_effect_has_worneffect_field(self, generator, mock_resolver):
+        """Test general items with worn effects - worneffect is in tooltip, not infobox."""
+        from erenshor.domain.enriched_data.item import EnrichedItemData
+
+        item = Item(
+            id="207",
+            resource_name="MagicRing",
+            stable_key="item:magic_ring",
+            item_name="Magic Ring",
+            lore="A ring that grants a passive effect",
+            required_slot="General",
+            worn_effect_stable_key="spell:minor_protection",
+        )
+
+        enriched = EnrichedItemData(
+            item=item,
+            stats=[],
+            classes=[],
+        )
+
+        result = generator.generate_template(enriched, "Magic Ring")
+
+        # worneffect is NOT in {{Item}} infobox - it's in Item/General tooltip
+        item_section = result.split("}}")[0]
+        assert "|worneffect=" not in item_section
+
+    def test_weapon_with_proc_effect_has_proceffect_field(self, generator, enrich_item):
+        """Test weapons with proc on hit populate proceffect field."""
+        item = Item(
+            id="208",
+            resource_name="VenomousBlade",
+            stable_key="item:venomous_blade",
+            item_name="Venomous Blade",
+            lore="Coated in deadly poison",
+            required_slot="Primary",
+            weapon_dly=1.8,
+            weapon_proc_on_hit_stable_key="spell:poison_proc",
+        )
+
+        stats = [
+            ItemStats(
+                item_stable_key="VenomousBlade",
+                quality="Normal",
+                weapon_dmg=12,
+                hp=0,
+                ac=0,
+                mana=0,
+                res=0,
+                mr=0,
+                er=0,
+                pr=0,
+                vr=0,
+            ),
+            ItemStats(
+                item_stable_key="VenomousBlade",
+                quality="Blessed",
+                weapon_dmg=14,
+                hp=0,
+                ac=0,
+                mana=0,
+                res=0,
+                mr=0,
+                er=0,
+                pr=0,
+                vr=0,
+            ),
+            ItemStats(
+                item_stable_key="VenomousBlade",
+                quality="Godly",
+                weapon_dmg=16,
+                hp=0,
+                ac=0,
+                mana=0,
+                res=0,
+                mr=0,
+                er=0,
+                pr=0,
+                vr=0,
+            ),
+        ]
+        enriched = enrich_item(item, stats)
+
+        result = generator.generate_template(enriched, "Venomous Blade")
+
+        # proceffect is NOT in {{Item}} template anymore - it's in tooltip templates only
+        item_section = result.split("}}")[0]
+        assert "|proceffect=" not in item_section
+        # But should be in the Item/Weapon tooltip
+        assert "{{Item/Weapon" in result
+
+    def test_spellscroll_without_spell_data_has_empty_fields(self, generator, mock_resolver):
+        """Test spell scroll with no enriched spell data has empty type/mana fields in tooltip."""
+        from erenshor.domain.enriched_data.item import EnrichedItemData
+
+        item = Item(
+            id="209",
+            resource_name="MysterySpellScroll",
+            stable_key="item:mystery_spell_scroll",
+            item_name="Spell Scroll: Mystery",
+            lore="Teaches an unknown spell",
+            required_slot="General",
+            teach_spell_stable_key="spell:mystery",
+        )
+
+        # No taught_spell provided (spell data not found in DB)
+        enriched = EnrichedItemData(
+            item=item,
+            stats=[],
+            classes=[],
+            taught_spell=None,
+        )
+
+        result = generator.generate_template(enriched, "Spell Scroll: Mystery")
+
+        # taughtspell is in {{Item}} infobox
+        assert "|taughtspell={{AbilityLink|Test Ability}}" in result
+        # spelltype and manacost are NOT in {{Item}} - they're in the Item/SpellScroll tooltip
+        item_section = result.split("}}")[0]  # Get just the {{Item}} template
+        assert "|spelltype=" not in item_section
+        assert "|manacost=" not in item_section
+
+    def test_skillbook_without_skill_data_has_empty_fields(self, generator, mock_resolver):
+        """Test skill book with no enriched skill data has empty type field in tooltip."""
+        from erenshor.domain.enriched_data.item import EnrichedItemData
+
+        item = Item(
+            id="210",
+            resource_name="MysterySkillBook",
+            stable_key="item:mystery_skill_book",
+            item_name="Skill Book: Mystery",
+            lore="Teaches an unknown skill",
+            required_slot="General",
+            teach_skill_stable_key="skill:mystery",
+        )
+
+        # No taught_skill provided (skill data not found in DB)
+        enriched = EnrichedItemData(
+            item=item,
+            stats=[],
+            classes=[],
+            taught_skill=None,
+        )
+
+        result = generator.generate_template(enriched, "Skill Book: Mystery")
+
+        # taughtskill is in {{Item}} infobox
+        assert "|taughtskill={{AbilityLink|Test Ability}}" in result
+        # skilltype is NOT in {{Item}} - it's in the Item/SkillBook tooltip
+        item_section = result.split("}}")[0]  # Get just the {{Item}} template
+        assert "|skilltype=" not in item_section
+
+    def test_mold_without_sources_has_empty_recipe_fields(self, generator, mock_resolver):
+        """Test mold item without sources has empty produces/ingredients fields."""
+        from erenshor.domain.enriched_data.item import EnrichedItemData
+
+        item = Item(
+            id="211",
+            resource_name="BrokenMold",
+            stable_key="item:broken_mold",
+            item_name="Broken Mold",
+            lore="A damaged crafting template",
+            required_slot="General",
+            template=1,
+        )
+
+        # No sources provided
+        enriched = EnrichedItemData(
+            item=item,
+            stats=[],
+            classes=[],
+            sources=None,
+        )
+
+        result = generator.generate_template(enriched, "Broken Mold")
+
+        # produces and ingredients are NOT in {{Item}} - they're in the Item/Mold tooltip
+        item_section = result.split("}}")[0]  # Get just the {{Item}} template
+        assert "|produces=" not in item_section
+        assert "|ingredients=" not in item_section
+        # They should be in the Item/Mold tooltip (but empty)
+        assert "{{Item/Mold" in result

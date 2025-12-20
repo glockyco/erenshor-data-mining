@@ -44,13 +44,18 @@ Removed Entirely:
 
 Not Migrated (Active Templates):
 - {{Item}}
-- {{Fancy-weapon}}
-- {{Fancy-armor}}
-- {{Fancy-charm}}
+- {{Item/Weapon}}
+- {{Item/Armor}}
+- {{Item/Charm}}
 - {{Enemy}}
 - {{Ability}}
 - {{Mold}}
 - {{Ability Books}}
+
+Handled Specially (by _replace_fancy_tables in generate_service.py):
+- {{Fancy-weapon}} - Replaced by {{Item/Weapon}} (entire table replaced)
+- {{Fancy-armor}} - Replaced by {{Item/Armor}} (entire table replaced)
+- {{Fancy-charm}} - Replaced by {{Item/Charm}} (entire table replaced)
 """
 
 from collections.abc import Sequence
@@ -94,14 +99,17 @@ class LegacyTemplateRemover:
         "Weapon": "Item",  # Non-stat info (source, vendors, etc.)
         "Armor": "Item",  # Non-stat info (source, vendors, etc.)
         "Auras": "Item",
-        # Note: {{Mold}} and {{Ability Books}} should eventually
-        # be replaced # by {{Item}} as well but need some changes
-        # in the wiki templates # before they can be migrated.
+        "Ability Books": "Item",
+        "Ability_Books": "Item",  # Alternate formatting with underscore
+        "Mold": "Item",
     }
 
     # Templates to remove entirely (no replacement)
     #
     # These templates are deprecated and should be removed from wiki pages.
+    # Note: Fancy-* templates are NOT in this list - they are handled specially
+    # by _replace_fancy_tables() in generate_service.py which replaces the entire
+    # wiki table containing them with the new Item/* template table.
     TEMPLATES_TO_REMOVE: ClassVar[Sequence[str]] = [
         "Enemy Stats",
     ]

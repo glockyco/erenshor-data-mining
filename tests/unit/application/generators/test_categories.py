@@ -141,8 +141,8 @@ class TestCategoryGenerator:
         assert "Items" in categories
         assert "Quest Items" in categories
 
-    def test_mold_gets_crafting_materials_category(self, generator: CategoryGenerator) -> None:
-        """Test molds (template=1) get 'Crafting Materials' category."""
+    def test_mold_gets_crafting_category(self, generator: CategoryGenerator) -> None:
+        """Test molds (template=1) get 'Crafting' category."""
         item = Item(
             id="10",
             resource_name="ArmorMold",
@@ -152,7 +152,7 @@ class TestCategoryGenerator:
         )
         categories = generator.generate_item_categories(self._enrich_item(item))
         assert "Molds" in categories
-        assert "Crafting Materials" in categories
+        assert "Crafting" in categories
 
     # Multi-category tests
 
@@ -231,8 +231,8 @@ class TestCategoryGenerator:
 
     def test_format_multiple_categories(self, generator: CategoryGenerator) -> None:
         """Test formatting multiple category tags."""
-        formatted = generator.format_category_tags(["Molds", "Crafting Materials"])
-        expected = "[[Category:Molds]]\n[[Category:Crafting Materials]]"
+        formatted = generator.format_category_tags(["Molds", "Crafting"])
+        expected = "[[Category:Molds]]\n[[Category:Crafting]]"
         assert formatted == expected
 
     def test_format_empty_list(self, generator: CategoryGenerator) -> None:
@@ -350,7 +350,7 @@ class TestCategoryGenerator:
         )
         categories = generator.generate_item_categories(self._enrich_item(item))
         assert "Molds" in categories
-        assert "Crafting Materials" in categories
+        assert "Crafting" in categories
         assert len(categories) == 2
 
 
@@ -375,6 +375,7 @@ class TestCharacterCategories:
             character=character,
             spawn_infos=[CharacterSpawnInfo(zone_stable_key="zone:Port Azure")],
             loot_drops=[],
+            spells=[],
         )
         categories = generator.generate_character_categories(enriched)
         assert "Characters" in categories
@@ -394,6 +395,7 @@ class TestCharacterCategories:
             character=character,
             spawn_infos=[CharacterSpawnInfo(zone_stable_key="zone:Hidden Hills")],
             loot_drops=[],
+            spells=[],
         )
         categories = generator.generate_character_categories(enriched)
         assert "Enemies" in categories
@@ -417,6 +419,7 @@ class TestCharacterCategories:
                 CharacterSpawnInfo(zone_stable_key="zone:Faerie's Brake"),
             ],
             loot_drops=[],
+            spells=[],
         )
         categories = generator.generate_character_categories(enriched)
         assert "Enemies" in categories
@@ -438,6 +441,7 @@ class TestCharacterCategories:
             character=character,
             spawn_infos=[CharacterSpawnInfo(zone_stable_key="zone:Port Azure")],
             loot_drops=[],
+            spells=[],
         )
         categories = generator.generate_character_categories(enriched)
         assert "Characters" in categories
@@ -458,6 +462,7 @@ class TestCharacterCategories:
             character=character,
             spawn_infos=[],
             loot_drops=[],
+            spells=[],
         )
         categories = generator.generate_character_categories(enriched)
         assert categories == ["Characters"]
@@ -479,6 +484,7 @@ class TestCharacterCategories:
                 CharacterSpawnInfo(zone_stable_key="zone:Hidden Hills"),
             ],
             loot_drops=[],
+            spells=[],
         )
         categories = generator.generate_character_categories(enriched)
         # Zone categories should be sorted (first 3 items before "Enemies")
@@ -502,6 +508,7 @@ class TestCharacterCategories:
                 CharacterSpawnInfo(zone_stable_key="zone:Port Azure"),
             ],
             loot_drops=[],
+            spells=[],
         )
         categories = generator.generate_character_categories(enriched)
         # Should only have one "Port Azure" category
@@ -521,6 +528,7 @@ class TestCharacterCategories:
             character=character,
             spawn_infos=[CharacterSpawnInfo(zone_stable_key="zone:Dark Cave")],
             loot_drops=[],
+            spells=[],
         )
         categories = generator.generate_character_categories(enriched)
         assert "Enemies" in categories
@@ -540,6 +548,7 @@ class TestCharacterCategories:
             character=character,
             spawn_infos=[CharacterSpawnInfo(zone_stable_key="zone:Rottenfoot")],
             loot_drops=[],
+            spells=[],
         )
         categories = generator.generate_character_categories(enriched)
         assert categories == ["Rottenfoot", "Characters"]
@@ -565,6 +574,7 @@ class TestCharacterCategories:
                 CharacterSpawnInfo(zone_stable_key="zone:Willowwatch Ridge"),
             ],
             loot_drops=[],
+            spells=[],
         )
         categories = generator.generate_character_categories(enriched)
         # Should have all 7 zones + Enemies
@@ -596,6 +606,7 @@ class TestCharacterCategories:
             character=character,
             spawn_infos=[CharacterSpawnInfo(zone_stable_key="zone:Port Azure")],
             loot_drops=[],
+            spells=[],
         )
         categories = generator.generate_character_categories(enriched)
         assert set(categories) == {"Port Azure", "Characters", "Vendors"}

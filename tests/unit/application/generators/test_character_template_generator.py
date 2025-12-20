@@ -51,6 +51,7 @@ def mock_enriched():
     # Raw data - no pre-formatted strings
     enriched.spawn_infos = []
     enriched.loot_drops = []
+    enriched.spells = []
     enriched.faction_display_names = {}
     return enriched
 

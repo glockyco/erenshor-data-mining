@@ -32,6 +32,7 @@ if TYPE_CHECKING:
     from erenshor.domain.enriched_data.item import EnrichedItemData
     from erenshor.domain.entities.item import Item
     from erenshor.domain.entities.item_stats import ItemStats
+    from erenshor.domain.entities.spell import Spell
     from erenshor.registry.resolver import RegistryResolver
 
 
@@ -88,12 +89,21 @@ class ItemSectionGenerator(SectionGeneratorBase):
             template_wikitext = self._generate_armor_page(enriched, page_title)
         elif kind == ItemKind.CHARM:
             template_wikitext = self._generate_charm_page(enriched, page_title)
-        elif kind in (ItemKind.AURA, ItemKind.ABILITY_BOOK, ItemKind.CONSUMABLE, ItemKind.MOLD, ItemKind.GENERAL):
-            # All non-weapon/armor/charm items use general template for now
-            template_wikitext = self._generate_general_item_page(enriched, page_title)
+        elif kind == ItemKind.AURA:
+            template_wikitext = self._generate_aura_page(enriched, page_title)
+        elif kind == ItemKind.SPELL_SCROLL:
+            template_wikitext = self._generate_spellscroll_page(enriched, page_title)
+        elif kind == ItemKind.SKILL_BOOK:
+            template_wikitext = self._generate_skillbook_page(enriched, page_title)
+        elif kind == ItemKind.CONSUMABLE:
+            template_wikitext = self._generate_consumable_page(enriched, page_title)
+        elif kind == ItemKind.MOLD:
+            template_wikitext = self._generate_mold_page(enriched, page_title)
+        elif kind == ItemKind.GENERAL:
+            template_wikitext = self._generate_general_page(enriched, page_title)
         else:
             # Fallback (should never reach here due to exhaustive ItemKind)
-            template_wikitext = self._generate_general_item_page(enriched, page_title)
+            template_wikitext = self._generate_general_page(enriched, page_title)
 
         return self.normalize_wikitext(template_wikitext)
 
@@ -115,8 +125,280 @@ class ItemSectionGenerator(SectionGeneratorBase):
             disposable=bool(item.disposable),
         )
 
+    def _generate_aura_page(self, enriched: EnrichedItemData, page_title: str) -> str:
+        """Generate page for aura items.
+
+        Aura items provide passive spell effects when worn. Generates {{Item}} template
+        for source fields plus {{Item/Aura}} template with full spell details.
+
+        Args:
+            enriched: Enriched item data with aura_spell
+            page_title: Wiki page title
+
+        Returns:
+            Wikitext with {{Item}} + {{Item/Aura}} templates
+        """
+        item = enriched.item
+
+        # Generate {{Item}} template for sources
+        item_context = self._build_item_infobox_context(enriched, page_title)
+        item_template = self.render_template("item.jinja2", item_context)
+
+        # Generate {{Item/Aura}} template with spell details
+        display_name = self._resolver.resolve_display_name(item.stable_key)
+        image_name = self._resolver.resolve_image_name(item.stable_key)
+
+        # Build spell details from aura spell
+        spell_details = self._build_spell_details_context(enriched.aura_spell, prefix="aura")
+
+        aura_context = {
+            "image": f"{image_name}.png" if image_name else "",
+            "name": display_name,
+            "description": format_description(safe_str(item.lore)) if item.lore else "",
+            **spell_details,
+        }
+
+        aura_template = self.render_template("aura.jinja2", aura_context)
+        return f"{item_template}\n\n{aura_template}"
+
+    def _generate_spellscroll_page(self, enriched: EnrichedItemData, page_title: str) -> str:
+        """Generate page for spell scroll items.
+
+        Spell scrolls teach spells to the player. Generates {{Item}} template for sources
+        plus {{Item/SpellScroll}} template with taught spell info.
+
+        Level requirements are shown per-class: if a class can learn the spell, show the
+        spell's required_level for that class. Empty string if the class cannot learn it.
+
+        Args:
+            enriched: Enriched item data with taught_spell
+            page_title: Wiki page title
+
+        Returns:
+            Wikitext with {{Item}} + {{Item/SpellScroll}} templates
+        """
+        item = enriched.item
+        spell = enriched.taught_spell
+
+        # Generate {{Item}} template for sources
+        item_context = self._build_item_infobox_context(enriched, page_title)
+        item_template = self.render_template("item.jinja2", item_context)
+
+        # Generate {{Item/SpellScroll}} template
+        display_name = self._resolver.resolve_display_name(item.stable_key)
+        image_name = self._resolver.resolve_image_name(item.stable_key)
+
+        # Get classes that can use the taught spell and the required level
+        spell_classes = enriched.taught_spell_classes
+        required_level = str(spell.required_level) if spell and spell.required_level else ""
+
+        # Build per-class level requirements: show level if class can learn, empty otherwise
+        def class_level(class_name: str) -> str:
+            return required_level if class_name in spell_classes else ""
+
+        spellscroll_context = {
+            "image": f"{image_name}.png" if image_name else "",
+            "name": display_name,
+            "arcanist_level": class_level("Arcanist"),
+            "druid_level": class_level("Druid"),
+            "duelist_level": class_level("Duelist"),
+            "paladin_level": class_level("Paladin"),
+            "stormcaller_level": class_level("Stormcaller"),
+            "mana_cost": str(spell.mana_cost) if spell and spell.mana_cost else "",
+            "spell_type": spell.type if spell and spell.type else "",
+            "spell_desc": format_description(spell.spell_desc) if spell and spell.spell_desc else "",
+        }
+
+        spellscroll_template = self.render_template("spellscroll.jinja2", spellscroll_context)
+        return f"{item_template}\n\n{spellscroll_template}"
+
+    def _generate_skillbook_page(self, enriched: EnrichedItemData, page_title: str) -> str:
+        """Generate page for skill book items.
+
+        Skill books teach skills to the player. Generates {{Item}} template for sources
+        plus {{Item/SkillBook}} template with taught skill info including class levels.
+
+        Args:
+            enriched: Enriched item data with taught_skill
+            page_title: Wiki page title
+
+        Returns:
+            Wikitext with {{Item}} + {{Item/SkillBook}} templates
+        """
+        item = enriched.item
+        skill = enriched.taught_skill
+
+        # Generate {{Item}} template for sources
+        item_context = self._build_item_infobox_context(enriched, page_title)
+        item_template = self.render_template("item.jinja2", item_context)
+
+        # Generate {{Item/SkillBook}} template
+        display_name = self._resolver.resolve_display_name(item.stable_key)
+        image_name = self._resolver.resolve_image_name(item.stable_key)
+
+        # Helper for class level formatting (empty if None or 0)
+        def level_str(val: int | None) -> str:
+            if val is None or val == 0:
+                return ""
+            return str(val)
+
+        skillbook_context = {
+            "image": f"{image_name}.png" if image_name else "",
+            "name": display_name,
+            "duelist_level": level_str(skill.duelist_required_level) if skill else "",
+            "druid_level": level_str(skill.druid_required_level) if skill else "",
+            "arcanist_level": level_str(skill.arcanist_required_level) if skill else "",
+            "paladin_level": level_str(skill.paladin_required_level) if skill else "",
+            "stormcaller_level": level_str(skill.stormcaller_required_level) if skill else "",
+            "skill_type": skill.type_of_skill if skill and skill.type_of_skill else "",
+            "skill_desc": format_description(skill.skill_desc) if skill and skill.skill_desc else "",
+            "simplayers_autolearn": "True" if skill and skill.sim_players_autolearn else "",
+        }
+
+        skillbook_template = self.render_template("skillbook.jinja2", skillbook_context)
+        return f"{item_template}\n\n{skillbook_template}"
+
+    def _generate_consumable_page(self, enriched: EnrichedItemData, page_title: str) -> str:
+        """Generate page for consumable items.
+
+        Consumables are items that trigger a spell effect when used and may be consumed.
+        Generates {{Item}} template for sources plus {{Item/Consumable}} with effect details.
+
+        Args:
+            enriched: Enriched item data with proc (effect)
+            page_title: Wiki page title
+
+        Returns:
+            Wikitext with {{Item}} + {{Item/Consumable}} templates
+        """
+        item = enriched.item
+
+        # Generate {{Item}} template for sources
+        item_context = self._build_item_infobox_context(enriched, page_title)
+        item_template = self.render_template("item.jinja2", item_context)
+
+        # Generate {{Item/Consumable}} template with spell details
+        display_name = self._resolver.resolve_display_name(item.stable_key)
+        image_name = self._resolver.resolve_image_name(item.stable_key)
+
+        # Get effect spell from proc info
+        effect_spell = enriched.proc.spell if enriched.proc else None
+        spell_details = self._build_spell_details_context(effect_spell, prefix="effect")
+
+        consumable_context = {
+            "image": f"{image_name}.png" if image_name else "",
+            "name": display_name,
+            "description": format_description(safe_str(item.lore)) if item.lore else "",
+            "disposable": "True" if item.disposable else "",
+            **spell_details,
+        }
+
+        consumable_template = self.render_template("consumable.jinja2", consumable_context)
+        return f"{item_template}\n\n{consumable_template}"
+
+    def _generate_mold_page(self, enriched: EnrichedItemData, page_title: str) -> str:
+        """Generate page for mold/template items.
+
+        Molds are crafting templates that define recipes. Generates {{Item}} template
+        for sources plus {{Item/Mold}} with recipe details.
+
+        Args:
+            enriched: Enriched item data with recipe info in sources
+            page_title: Wiki page title
+
+        Returns:
+            Wikitext with {{Item}} + {{Item/Mold}} templates
+        """
+        item = enriched.item
+
+        # Generate {{Item}} template for sources
+        item_context = self._build_item_infobox_context(enriched, page_title)
+        item_template = self.render_template("item.jinja2", item_context)
+
+        # Generate {{Item/Mold}} template
+        display_name = self._resolver.resolve_display_name(item.stable_key)
+        image_name = self._resolver.resolve_image_name(item.stable_key)
+
+        # Format recipe ingredients and rewards from sources
+        ingredients = ""
+        rewards = ""
+        if enriched.sources:
+            # Format ingredients
+            ingredient_links = []
+            for stable_key, quantity in enriched.sources.recipe_ingredients:
+                link = self._resolver.item_link(stable_key)
+                ingredient_links.append(f"{quantity}x {link!s}")
+            ingredients = "<br>".join(ingredient_links)
+
+            # Format rewards (only show first result - game always produces one item)
+            if enriched.sources.crafting_results:
+                stable_key, _quantity = enriched.sources.crafting_results[0]
+                rewards = str(self._resolver.item_link(stable_key))
+
+        mold_context = {
+            "image": f"{image_name}.png" if image_name else "",
+            "name": display_name,
+            "description": format_description(safe_str(item.lore)) if item.lore else "",
+            "ingredients": ingredients,
+            "rewards": rewards,
+            "station": "",  # Crafting station info not currently in database
+        }
+
+        mold_template = self.render_template("mold.jinja2", mold_context)
+        return f"{item_template}\n\n{mold_template}"
+
+    def _generate_general_page(self, enriched: EnrichedItemData, page_title: str) -> str:
+        """Generate page for general items (quest items, misc items, etc).
+
+        General items are items that don't fit into other categories.
+        Generates {{Item}} template plus {{Item/General}} for basic info.
+
+        Args:
+            enriched: Enriched item data
+            page_title: Wiki page title
+
+        Returns:
+            Wikitext with {{Item}} + {{Item/General}} templates
+        """
+        item = enriched.item
+
+        # Generate {{Item}} template for sources
+        item_context = self._build_item_infobox_context(enriched, page_title)
+        item_template = self.render_template("item.jinja2", item_context)
+
+        # Generate {{Item/General}} template
+        display_name = self._resolver.resolve_display_name(item.stable_key)
+        image_name = self._resolver.resolve_image_name(item.stable_key)
+
+        # Build spell details context from proc info (if available - for ItemEffectOnClick)
+        spell = enriched.proc.spell if enriched.proc else None
+        spell_details = self._build_spell_details_context(spell, prefix="effect")
+
+        # Add proc trigger info (style and chance) from enriched.proc
+        if enriched.proc:
+            spell_details["effect_style"] = enriched.proc.proc_style
+            spell_details["effect_chance"] = enriched.proc.proc_chance
+        else:
+            spell_details["effect_style"] = ""
+            spell_details["effect_chance"] = ""
+
+        general_context = {
+            "image": f"{image_name}.png" if image_name else "",
+            "name": display_name,
+            "description": format_description(safe_str(item.lore)) if item.lore else "",
+            "value": safe_str(item.item_value) if item.item_value else "",
+            "stack_size": "",  # Stack size info would need to be added
+            "disposable": "True" if item.disposable else "",
+            **spell_details,
+        }
+
+        general_template = self.render_template("general.jinja2", general_context)
+        return f"{item_template}\n\n{general_template}"
+
     def _generate_general_item_page(self, enriched: EnrichedItemData, page_title: str) -> str:
         """Generate page for general items (consumables, molds, ability books, etc).
+
+        DEPRECATED: Use specific generator methods instead (_generate_aura_page, etc.)
 
         Args:
             enriched: Enriched item data
@@ -126,7 +408,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
         Returns:
             Wikitext with {{Item}} template
         """
-        context = self._build_item_template_context(enriched, page_title)
+        context = self._build_item_infobox_context(enriched, page_title)
         return self.render_template("item.jinja2", context)
 
     def _generate_weapon_page(self, enriched: EnrichedItemData, page_title: str) -> str:
@@ -154,7 +436,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
             )
 
         # Generate {{Item}} template (SOURCE FIELDS ONLY for weapons)
-        item_context = self._build_weapon_armor_item_context(enriched, page_title)
+        item_context = self._build_item_infobox_context(enriched, page_title)
         item_template = self.render_template("item.jinja2", item_context)
 
         # Generate {{Fancy-weapon}} templates (one per quality tier)
@@ -189,7 +471,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
             )
 
         # Generate {{Item}} template (SOURCE FIELDS ONLY for armor)
-        item_context = self._build_weapon_armor_item_context(enriched, page_title)
+        item_context = self._build_item_infobox_context(enriched, page_title)
         item_template = self.render_template("item.jinja2", item_context)
 
         # Generate {{Fancy-armor}} templates (one per quality tier)
@@ -201,26 +483,25 @@ class ItemSectionGenerator(SectionGeneratorBase):
     def _generate_charm_page(self, enriched: EnrichedItemData, page_title: str) -> str:
         """Generate page for charms.
 
-        Generates {{Item}} template for source fields plus {{Fancy-charm}} template
+        Generates {{Item}} template for source fields plus {{Item/Charm}} template
         for stat scaling display.
 
         Args:
             enriched: Enriched item data with stats
             page_title: Wiki page title
-            resolver: Registry resolver for links and overrides
 
         Returns:
-            Wikitext with {{Item}} + {{Fancy-charm}} templates
+            Wikitext with {{Item}} + {{Item/Charm}} templates
         """
         stats = enriched.stats
 
-        item_context = self._build_weapon_armor_item_context(enriched, page_title)
+        item_context = self._build_item_infobox_context(enriched, page_title)
         item_template = self.render_template("item.jinja2", item_context)
 
         if stats:
             charm_stat = stats[0]
-            charm_context = self._build_fancy_charm(enriched, page_title, charm_stat)
-            charm_template = self.render_template("fancy-charm.jinja2", charm_context)
+            charm_context = self._build_charm_context(enriched, page_title, charm_stat)
+            charm_template = self.render_template("charm.jinja2", charm_context)
             return f"{item_template}\n\n{charm_template}"
         return item_template
 
@@ -261,24 +542,59 @@ class ItemSectionGenerator(SectionGeneratorBase):
 
         return slot
 
-    def _build_weapon_armor_item_context(self, enriched: EnrichedItemData, page_title: str) -> dict[str, str]:
-        """Build context for {{Item}} template for weapons/armor (SOURCE FIELDS ONLY).
+    def _get_weapon_range(self, item: Item) -> str:
+        """Get weapon range display value.
 
-        For weapons and armor, the {{Item}} template should ONLY contain source-related
-        fields (vendors, drops, quests, crafting). All stat fields (damage, delay, classes,
-        relic, description, etc.) are shown in the {{Fancy-weapon}}/{{Fancy-armor}} templates
-        instead, so they should be empty strings in the {{Item}} template.
+        Based on game logic in ItemInfoWindow.cs:
+        - Wands use WandRange
+        - Bows use BowRange
+        - Melee weapons don't display range (implicitly 1)
 
-        This matches the legacy implementation behavior to avoid duplicate information.
+        Args:
+            item: Item entity
+
+        Returns:
+            Range value as string, or empty string for melee weapons
+        """
+        if item.is_wand and item.wand_range and item.wand_range > 0:
+            return str(item.wand_range)
+        if item.is_bow and item.bow_range and item.bow_range > 0:
+            return str(item.bow_range)
+        return ""
+
+    def _build_item_infobox_context(self, enriched: EnrichedItemData, page_title: str) -> dict[str, str]:
+        """Build context for {{Item}} infobox template.
+
+        The {{Item}} template contains only source and acquisition information.
+        All stats, descriptions, and item-specific data are shown in the Item/*
+        tooltip templates instead to avoid duplication.
 
         Args:
             enriched: Enriched item data with sources
             page_title: Wiki page title
 
         Returns:
-            Template context dict with ONLY source fields populated
+            Template context dict with infobox fields
         """
         item = enriched.item
+
+        # Classify item to determine type
+        kind = self._classify(item)
+
+        # Build item type display (Consumable, Quest Item, Crafting, etc.)
+        quest_requirements: list[str] = []
+        component_for_list: list[str] = []
+
+        if enriched.sources:
+            quest_requirements = enriched.sources.quest_requirements
+            component_for_list = enriched.sources.component_for
+
+        item_type = build_item_types(
+            item=item,
+            item_kind=kind,
+            quest_requirements=quest_requirements,
+            component_for=component_for_list,
+        )
 
         # Get display name from registry (no styling for {{Item}} template)
         display_name = self._resolver.resolve_display_name(item.stable_key)
@@ -287,137 +603,39 @@ class ItemSectionGenerator(SectionGeneratorBase):
         vendor_sources = self._format_vendor_sources(enriched)
         drop_sources = self._format_drop_sources(enriched)
         quest_rewards_str, quest_requirements_str = self._format_quest_sources(enriched)
-        craft_sources, component_for = self._format_crafting_sources(enriched)
-        crafting_results, recipe_ingredients = self._format_recipe_info(enriched)
+        craft_sources, component_for_str = self._format_crafting_sources(enriched)
 
-        # Build context with SOURCE FIELDS ONLY
-        # All stat/class/relic/description fields are EMPTY for weapons/armor
+        # Spell Book: link to taught spell
+        taughtspell = ""
+        if item.teach_spell_stable_key:
+            taughtspell = str(self._resolver.ability_link(item.teach_spell_stable_key))
+
+        # Skill Book: link to taught skill
+        taughtskill = ""
+        if item.teach_skill_stable_key:
+            taughtskill = str(self._resolver.ability_link(item.teach_skill_stable_key))
+
+        # Build context with only fields needed by {{Item}} template
         context: dict[str, str] = {
             "title": display_name,
-            "image": "",  # Image shown in fancy templates, not here
-            "imagecaption": "",
-            "type": "",  # No type for weapons/armor
-            "vendorsource": vendor_sources,
-            "source": drop_sources,
-            "othersource": "",  # Primarily manual content
-            "questsource": quest_rewards_str,
-            "relatedquest": quest_requirements_str,
-            "craftsource": craft_sources,
-            "componentfor": component_for,
-            "relic": "",  # Shown in fancy templates, not here
-            "classes": "",  # Shown in fancy templates, not here
-            "effects": "",
-            "damage": "",  # Shown in fancy templates, not here
-            "delay": "",  # Shown in fancy templates, not here
-            "dps": "",
-            "casttime": "",
-            "duration": "",
-            "cooldown": "",
-            "description": "",  # Shown in fancy templates, not here
-            "buy": safe_str(item.item_value) if item.item_value else "",
-            "sell": safe_str(item.sell_value) if item.sell_value else "",
-            "crafting": crafting_results,
-            "recipe": recipe_ingredients,
-        }
-
-        return context
-
-    def _build_item_template_context(self, enriched: EnrichedItemData, page_title: str) -> dict[str, str]:
-        """Build context for {{Item}} template for general items.
-
-        For general items (consumables, molds, ability books, etc), the {{Item}} template
-        contains ALL fields including stats, classes, description, etc.
-
-        Converts Item entity to template context dict. Handles None values,
-        formats booleans, and provides empty strings for fields without data.
-
-        Args:
-            enriched: Enriched item data
-            page_title: Wiki page title
-
-        Returns:
-            Template context dict
-        """
-        item = enriched.item
-
-        # Classify item to determine type
-        kind = self._classify(item)
-
-        # Build item type display (Consumable, Quest Item, Crafting, Summoning Item)
-        quest_requirements: list[str] = []
-        component_for: list[str] = []
-
-        # Use enriched quest sources
-        # Only quest requirements (not rewards) make an item a "Quest Item"
-        if enriched.sources:
-            quest_requirements = enriched.sources.quest_requirements
-
-        # Use enriched crafting sources for component usage
-        if enriched.sources:
-            component_for = enriched.sources.component_for
-
-        item_type = build_item_types(
-            item=item,
-            item_kind=kind,
-            quest_requirements=quest_requirements,
-            component_for=component_for,
-        )
-
-        # Get display name from registry (may differ from page title for disambiguation)
-        display_name = self._resolver.resolve_display_name(item.stable_key)
-
-        # Format class restrictions (comma-separated with wiki links)
-        classes = ", ".join(f"[[{cls}]]" for cls in enriched.classes) if enriched.classes else ""
-
-        # Extract effects (ItemEffectOnClick, WornEffect, etc)
-        effects = ""
-        if enriched.proc:
-            effects = str(self._resolver.ability_link(enriched.proc.stable_key))
-
-        # Format source fields
-        vendor_sources = self._format_vendor_sources(enriched)
-        drop_sources = self._format_drop_sources(enriched)
-        quest_rewards_str, quest_requirements_str = self._format_quest_sources(enriched)
-        craft_sources_str, component_for_str = self._format_crafting_sources(enriched)
-        crafting_results, recipe_ingredients = self._format_recipe_info(enriched)
-
-        # Get image name from registry (resolve stable key to image filename)
-        image_name = self._resolver.resolve_image_name(item.stable_key)
-        image_field = f"[[File:{image_name}.png]]" if image_name else ""
-
-        # Build context with all {{Item}} template fields
-        context: dict[str, str] = {
-            "title": display_name,
-            "image": image_field,
-            "imagecaption": "",
             "type": item_type,
             "vendorsource": vendor_sources,
             "source": drop_sources,
             "othersource": "",  # Primarily manual content
             "questsource": quest_rewards_str,
             "relatedquest": quest_requirements_str,
-            "craftsource": craft_sources_str,
+            "craftsource": craft_sources,
             "componentfor": component_for_str,
-            "relic": "True" if item.relic else "",
-            "classes": classes,
-            "effects": effects,
-            "damage": "",  # Not used for general items
-            "delay": "",  # Not used for general items
-            "dps": "",  # Not used for general items
-            "casttime": "",  # Not used for general items
-            "duration": "",  # Not used for general items
-            "cooldown": "",  # Not used for general items
-            "description": format_description(safe_str(item.lore)) if item.lore else "",
             "buy": safe_str(item.item_value) if item.item_value else "",
             "sell": safe_str(item.sell_value) if item.sell_value else "",
-            "crafting": crafting_results,
-            "recipe": recipe_ingredients,
+            "taughtspell": taughtspell,
+            "taughtskill": taughtskill,
         }
 
         return context
 
     def _build_fancy_weapon(self, enriched: EnrichedItemData, page_title: str, stat: ItemStats) -> str:
-        """Build a single {{Fancy-weapon}} template for one quality tier.
+        """Build a single {{Item/Weapon}} template for one quality tier.
 
         Args:
             enriched: Enriched item data with classes and proc info
@@ -425,7 +643,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
             stat: ItemStats for this quality tier
 
         Returns:
-            Rendered {{Fancy-weapon}} template wikitext
+            Rendered {{Item/Weapon}} template wikitext
         """
         item = enriched.item
 
@@ -444,23 +662,23 @@ class ItemSectionGenerator(SectionGeneratorBase):
             "stormcaller": "True" if "Stormcaller" in enriched.classes else "",
         }
 
-        # Extract proc info using resolver
-        proc_name = ""
-        proc_desc = ""
-        proc_chance = ""
-        proc_style = ""
-        if enriched.proc:
-            proc = enriched.proc
-            proc_name = str(self._resolver.ability_link(proc.stable_key))
-            proc_desc = proc.description
-            proc_chance = proc.proc_chance
-            proc_style = proc.proc_style
-
         # Get display name from registry (may differ from page title for disambiguation)
         display_name = self._resolver.resolve_display_name(item.stable_key)
 
+        # Build spell details context from proc info (if available)
+        spell = enriched.proc.spell if enriched.proc else None
+        spell_details = self._build_spell_details_context(spell, prefix="proc")
+
+        # Add proc trigger info (style and chance) from enriched.proc
+        if enriched.proc:
+            spell_details["proc_style"] = enriched.proc.proc_style
+            spell_details["proc_chance"] = enriched.proc.proc_chance
+        else:
+            spell_details["proc_style"] = ""
+            spell_details["proc_chance"] = ""
+
         context = {
-            "image": f"[[File:{page_title}.png|80px]]",
+            "image": f"{page_title}.png",
             "name": self._format_item_name_for_fancy_template(display_name),
             "type": weapon_type,
             "relic": "True" if item.relic else "",
@@ -474,6 +692,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
             "res": safe_str(stat.res),
             "damage": safe_str(stat.weapon_dmg) if stat.weapon_dmg else "",
             "delay": safe_str(item.weapon_dly) if item.weapon_dly else "",
+            "range": self._get_weapon_range(item),
             "health": safe_str(stat.hp),
             "mana": safe_str(stat.mana),
             "armor": safe_str(stat.ac),
@@ -483,17 +702,14 @@ class ItemSectionGenerator(SectionGeneratorBase):
             "void": safe_str(stat.vr),
             "description": format_description(safe_str(item.lore)) if item.lore else "",
             **class_flags,
-            "proc_name": proc_name,
-            "proc_desc": proc_desc,
-            "proc_chance": proc_chance,
-            "proc_style": proc_style,
+            **spell_details,
             "tier": str(tier),
         }
 
         return self.render_template("weapon.jinja2", context)
 
     def _build_fancy_armor(self, enriched: EnrichedItemData, page_title: str, stat: ItemStats) -> str:
-        """Build a single {{Fancy-armor}} template for one quality tier.
+        """Build a single {{Item/Armor}} template for one quality tier.
 
         Args:
             enriched: Enriched item data with classes and proc info
@@ -501,14 +717,14 @@ class ItemSectionGenerator(SectionGeneratorBase):
             stat: ItemStats for this quality tier
 
         Returns:
-            Rendered {{Fancy-armor}} template wikitext
+            Rendered {{Item/Armor}} template wikitext
         """
         item = enriched.item
 
         # Determine tier number (0=Normal, 1=Blessed, 2=Godly)
         tier = {"Normal": 0, "Blessed": 1, "Godly": 2}.get(stat.quality, 0)
 
-        # TODO: Get armor slot from item.required_slot
+        # Get armor slot from item.required_slot
         slot = safe_str(item.required_slot)
 
         # Class obtainability
@@ -520,23 +736,23 @@ class ItemSectionGenerator(SectionGeneratorBase):
             "stormcaller": "True" if "Stormcaller" in enriched.classes else "",
         }
 
-        # Extract proc info using resolver
-        proc_name = ""
-        proc_desc = ""
-        proc_chance = ""
-        proc_style = ""
-        if enriched.proc:
-            proc = enriched.proc
-            proc_name = str(self._resolver.ability_link(proc.stable_key))
-            proc_desc = proc.description
-            proc_chance = proc.proc_chance
-            proc_style = proc.proc_style
-
         # Get display name from registry (may differ from page title for disambiguation)
         display_name = self._resolver.resolve_display_name(item.stable_key)
 
+        # Build spell details context from proc info (if available)
+        spell = enriched.proc.spell if enriched.proc else None
+        spell_details = self._build_spell_details_context(spell, prefix="proc")
+
+        # Add proc trigger info (style and chance) from enriched.proc
+        if enriched.proc:
+            spell_details["proc_style"] = enriched.proc.proc_style
+            spell_details["proc_chance"] = enriched.proc.proc_chance
+        else:
+            spell_details["proc_style"] = ""
+            spell_details["proc_chance"] = ""
+
         context = {
-            "image": f"[[File:{page_title}.png|80px]]",
+            "image": f"{page_title}.png",
             "name": self._format_item_name_for_fancy_template(display_name),
             "type": "",  # Armor doesn't use "type" field
             "slot": slot,
@@ -558,17 +774,14 @@ class ItemSectionGenerator(SectionGeneratorBase):
             "void": safe_str(stat.vr),
             "description": format_description(safe_str(item.lore)) if item.lore else "",
             **class_flags,
-            "proc_name": proc_name,
-            "proc_desc": proc_desc,
-            "proc_chance": proc_chance,
-            "proc_style": proc_style,
+            **spell_details,
             "tier": str(tier),
         }
 
         return self.render_template("armor.jinja2", context)
 
-    def _build_fancy_charm(self, enriched: EnrichedItemData, page_title: str, stat: ItemStats) -> dict[str, str]:
-        """Build context for {{Fancy-charm}} template.
+    def _build_charm_context(self, enriched: EnrichedItemData, page_title: str, stat: ItemStats) -> dict[str, str]:
+        """Build context for {{Item/Charm}} template.
 
         Args:
             enriched: Enriched item data with classes
@@ -576,17 +789,33 @@ class ItemSectionGenerator(SectionGeneratorBase):
             stat: ItemStats (use first/Normal quality, scaling is same across all tiers)
 
         Returns:
-            Template context dict for fancy-charm template
+            Template context dict for charm template
         """
         item = enriched.item
 
         def format_scaling(value: float | None) -> str:
-            """Format scaling value - empty string if 0 or None, otherwise the value."""
+            """Format scaling value - empty string if 0 or None, otherwise rounded to int."""
             if value is None or value == 0.0:
                 return ""
-            return str(int(value)) if value == int(value) else str(value)
+            return str(round(value))
 
-        class_flags = {
+        # Get display name and image from registry
+        display_name = self._resolver.resolve_display_name(item.stable_key)
+        image_name = self._resolver.resolve_image_name(item.stable_key)
+
+        context = {
+            "image": f"{image_name}.png" if image_name else f"{page_title}.png",
+            "name": display_name,
+            "tier": "0",  # Charms don't have tiers in the new system
+            "strscaling": format_scaling(stat.str_scaling),
+            "endscaling": format_scaling(stat.end_scaling),
+            "dexscaling": format_scaling(stat.dex_scaling),
+            "agiscaling": format_scaling(stat.agi_scaling),
+            "intscaling": format_scaling(stat.int_scaling),
+            "wisscaling": format_scaling(stat.wis_scaling),
+            "chascaling": format_scaling(stat.cha_scaling),
+            "resistscaling": format_scaling(stat.resist_scaling),
+            "mitigationscaling": format_scaling(stat.mitigation_scaling),
             "arcanist": "True" if "Arcanist" in enriched.classes else "",
             "duelist": "True" if "Duelist" in enriched.classes else "",
             "druid": "True" if "Druid" in enriched.classes else "",
@@ -594,21 +823,166 @@ class ItemSectionGenerator(SectionGeneratorBase):
             "stormcaller": "True" if "Stormcaller" in enriched.classes else "",
         }
 
-        # Get display name from registry (may differ from page title for disambiguation)
-        display_name = self._resolver.resolve_display_name(item.stable_key)
+        return context
 
-        context = {
-            "image_name": f"{page_title}.png",
-            "name": self._format_item_name_for_fancy_template(display_name),
-            "description": format_description(safe_str(item.lore)) if item.lore else "",
-            "str_scaling": format_scaling(stat.str_scaling),
-            "end_scaling": format_scaling(stat.end_scaling),
-            "dex_scaling": format_scaling(stat.dex_scaling),
-            "agi_scaling": format_scaling(stat.agi_scaling),
-            "int_scaling": format_scaling(stat.int_scaling),
-            "wis_scaling": format_scaling(stat.wis_scaling),
-            "cha_scaling": format_scaling(stat.cha_scaling),
-            **class_flags,
+    def _build_spell_details_context(self, spell: Spell | None, prefix: str = "proc") -> dict[str, str]:
+        """Build template context for spell details fields.
+
+        Extracts all relevant spell fields and prefixes them appropriately
+        for use in templates like {{Item/Weapon}}, {{Item/Armor}}, etc.
+
+        Args:
+            spell: Spell entity (can be None if no proc/effect)
+            prefix: Field name prefix (e.g., "proc", "effect", "aura")
+
+        Returns:
+            Dict with prefixed spell fields, all empty strings if spell is None
+        """
+        # Define all the spell detail fields with their context keys
+        empty_context: dict[str, str] = {
+            f"{prefix}_spell_icon": "",
+            f"{prefix}_spell_name": "",
+            f"{prefix}_spell_level": "",
+            f"{prefix}_spell_duration_ticks": "",
+            f"{prefix}_spell_type": "",
+            f"{prefix}_spell_line": "",
+            f"{prefix}_target_damage": "",
+            f"{prefix}_target_healing": "",
+            f"{prefix}_shielding_amt": "",
+            f"{prefix}_damage_type": "",
+            f"{prefix}_cast_time": "",
+            f"{prefix}_cooldown": "",
+            f"{prefix}_spell_range": "",
+            f"{prefix}_lifetap": "",
+            f"{prefix}_group_effect": "",
+            f"{prefix}_stun_target": "",
+            f"{prefix}_charm_target": "",
+            f"{prefix}_root_target": "",
+            f"{prefix}_taunt_spell": "",
+            f"{prefix}_aggro": "",
+            f"{prefix}_status_effect_name": "",
+            f"{prefix}_hp": "",
+            f"{prefix}_ac": "",
+            f"{prefix}_mana": "",
+            f"{prefix}_str": "",
+            f"{prefix}_dex": "",
+            f"{prefix}_end": "",
+            f"{prefix}_agi": "",
+            f"{prefix}_wis": "",
+            f"{prefix}_int": "",
+            f"{prefix}_cha": "",
+            f"{prefix}_mr": "",
+            f"{prefix}_er": "",
+            f"{prefix}_pr": "",
+            f"{prefix}_vr": "",
+            f"{prefix}_movement_speed": "",
+            f"{prefix}_damage_shield": "",
+            f"{prefix}_haste": "",
+            f"{prefix}_percent_lifesteal": "",
+            f"{prefix}_atk_roll_modifier": "",
+            f"{prefix}_resonate_chance": "",
+            f"{prefix}_add_proc_name": "",
+            f"{prefix}_add_proc_chance": "",
+            f"{prefix}_special_descriptor": "",
+            f"{prefix}_xp_bonus": "",
+        }
+
+        if spell is None:
+            return empty_context
+
+        # Helper to convert boolean-like integers to display strings
+        def bool_str(val: int | None) -> str:
+            return "True" if val else ""
+
+        # Helper to safely format numeric values (skip zeros)
+        def num_str(val: int | float | None) -> str:
+            if val is None or val == 0:
+                return ""
+            return str(val)
+
+        # Build context from spell entity
+        # Resolve add_proc name if present
+        add_proc_name = ""
+        if spell.add_proc_stable_key:
+            add_proc_name = str(self._resolver.ability_link(spell.add_proc_stable_key))
+
+        # Resolve status effect name if present
+        status_effect_name = ""
+        if spell.status_effect_to_apply_stable_key:
+            stable_key = spell.status_effect_to_apply_stable_key
+            page_title = self._resolver.resolve_page_title(stable_key)
+            display_name = self._resolver.resolve_display_name(stable_key)
+            if page_title:
+                if display_name and display_name != page_title:
+                    status_effect_name = f"<br>[[{page_title}|{display_name}]]"
+                else:
+                    status_effect_name = f"<br>[[{page_title}]]"
+            else:
+                # No wiki page, just show display name
+                status_effect_name = f"<br>{display_name}" if display_name else ""
+
+        # Resolve spell display name and icon from registry
+        spell_display_name = self._resolver.resolve_display_name(spell.stable_key) or spell.spell_name or ""
+        spell_icon_name = self._resolver.resolve_image_name(spell.stable_key)
+        spell_icon = f"{spell_icon_name}.png" if spell_icon_name else ""
+
+        # Generate wiki link for spell name: [[PageName|DisplayName]] or [[DisplayName]]
+        spell_page_title = self._resolver.resolve_page_title(spell.stable_key)
+        if spell_page_title:
+            if spell_display_name != spell_page_title:
+                spell_name_link = f"[[{spell_page_title}|{spell_display_name}]]"
+            else:
+                spell_name_link = f"[[{spell_display_name}]]"
+        else:
+            # Excluded spell - plain text
+            spell_name_link = spell_display_name
+
+        context: dict[str, str] = {
+            f"{prefix}_spell_icon": spell_icon,
+            f"{prefix}_spell_name": spell_name_link,
+            f"{prefix}_spell_level": num_str(spell.required_level),
+            f"{prefix}_spell_duration_ticks": num_str(spell.spell_duration_in_ticks),
+            f"{prefix}_spell_type": spell.type or "",
+            f"{prefix}_spell_line": spell.line or "",
+            f"{prefix}_target_damage": num_str(spell.target_damage),
+            f"{prefix}_target_healing": num_str(spell.target_healing),
+            f"{prefix}_shielding_amt": num_str(spell.shielding_amt),
+            f"{prefix}_damage_type": spell.damage_type or "",
+            f"{prefix}_cast_time": f"{spell.spell_charge_time / 60.0:.1f}" if spell.spell_charge_time else "",
+            f"{prefix}_cooldown": num_str(spell.cooldown),
+            f"{prefix}_spell_range": num_str(spell.spell_range),
+            f"{prefix}_lifetap": bool_str(spell.lifetap),
+            f"{prefix}_group_effect": bool_str(spell.group_effect),
+            f"{prefix}_stun_target": bool_str(spell.stun_target),
+            f"{prefix}_charm_target": bool_str(spell.charm_target),
+            f"{prefix}_root_target": bool_str(spell.root_target),
+            f"{prefix}_taunt_spell": bool_str(spell.taunt_spell),
+            f"{prefix}_aggro": num_str(spell.aggro),
+            f"{prefix}_status_effect_name": status_effect_name,
+            f"{prefix}_hp": num_str(spell.hp),
+            f"{prefix}_ac": num_str(spell.ac),
+            f"{prefix}_mana": num_str(spell.mana),
+            f"{prefix}_str": num_str(spell.str_),
+            f"{prefix}_dex": num_str(spell.dex),
+            f"{prefix}_end": num_str(spell.end_),
+            f"{prefix}_agi": num_str(spell.agi),
+            f"{prefix}_wis": num_str(spell.wis),
+            f"{prefix}_int": num_str(spell.int_),
+            f"{prefix}_cha": num_str(spell.cha),
+            f"{prefix}_mr": num_str(spell.mr),
+            f"{prefix}_er": num_str(spell.er),
+            f"{prefix}_pr": num_str(spell.pr),
+            f"{prefix}_vr": num_str(spell.vr),
+            f"{prefix}_movement_speed": num_str(spell.movement_speed),
+            f"{prefix}_damage_shield": num_str(spell.damage_shield),
+            f"{prefix}_haste": num_str(spell.haste),
+            f"{prefix}_percent_lifesteal": num_str(spell.percent_lifesteal),
+            f"{prefix}_atk_roll_modifier": num_str(spell.atk_roll_modifier),
+            f"{prefix}_resonate_chance": num_str(spell.resonate_chance),
+            f"{prefix}_add_proc_name": add_proc_name,
+            f"{prefix}_add_proc_chance": num_str(spell.add_proc_chance),
+            f"{prefix}_special_descriptor": spell.special_descriptor or "",
+            f"{prefix}_xp_bonus": str(round(spell.xp_bonus * 100)) if spell.xp_bonus else "",
         }
 
         return context

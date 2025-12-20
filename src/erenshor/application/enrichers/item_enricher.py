@@ -19,6 +19,7 @@ from erenshor.domain.value_objects.source_info import SourceInfo
 from erenshor.infrastructure.database.repositories.characters import CharacterRepository
 from erenshor.infrastructure.database.repositories.items import ItemRepository
 from erenshor.infrastructure.database.repositories.quests import QuestRepository
+from erenshor.infrastructure.database.repositories.skills import SkillRepository
 from erenshor.infrastructure.database.repositories.spells import SpellRepository
 
 __all__ = [
@@ -39,6 +40,7 @@ class ItemEnricher:
         self,
         item_repo: ItemRepository,
         spell_repo: SpellRepository,
+        skill_repo: SkillRepository,
         character_repo: CharacterRepository,
         quest_repo: QuestRepository,
     ) -> None:
@@ -47,11 +49,13 @@ class ItemEnricher:
         Args:
             item_repo: Repository for item data (stats, classes, crafting, etc.)
             spell_repo: Repository for spell data (for proc lookup)
+            skill_repo: Repository for skill data (for skill book lookup)
             character_repo: Repository for character data (vendors, droppers)
             quest_repo: Repository for quest data (rewards, requirements)
         """
         self._item_repo = item_repo
         self._spell_repo = spell_repo
+        self._skill_repo = skill_repo
         self._character_repo = character_repo
         self._quest_repo = quest_repo
 
@@ -78,12 +82,33 @@ class ItemEnricher:
         # Get source information
         sources = self._get_sources(item)
 
+        # Get aura spell (for aura items)
+        aura_spell = None
+        if item.aura_stable_key:
+            aura_spell = self._spell_repo.get_spell_by_stable_key(item.aura_stable_key)
+
+        # Get taught spell and its classes (for spell scrolls)
+        taught_spell = None
+        taught_spell_classes: list[str] = []
+        if item.teach_spell_stable_key:
+            taught_spell = self._spell_repo.get_spell_by_stable_key(item.teach_spell_stable_key)
+            taught_spell_classes = self._spell_repo.get_spell_classes(item.teach_spell_stable_key)
+
+        # Get taught skill (for skill books)
+        taught_skill = None
+        if item.teach_skill_stable_key:
+            taught_skill = self._skill_repo.get_skill_by_stable_key(item.teach_skill_stable_key)
+
         return EnrichedItemData(
             item=item,
             stats=stats,
             classes=classes,
             proc=proc,
             sources=sources,
+            aura_spell=aura_spell,
+            taught_spell=taught_spell,
+            taught_spell_classes=taught_spell_classes,
+            taught_skill=taught_skill,
         )
 
     def _extract_proc(self, item: Item) -> ProcInfo | None:
@@ -126,6 +151,7 @@ class ItemEnricher:
                     description=spell.spell_desc or "",
                     proc_chance=str(int(item.weapon_proc_chance)) if item.weapon_proc_chance is not None else "0",
                     proc_style=proc_style,
+                    spell=spell,
                 )
 
         # Priority 2: WandEffect (weapons only)
@@ -137,6 +163,7 @@ class ItemEnricher:
                     description=spell.spell_desc or "",
                     proc_chance=str(int(item.wand_proc_chance)) if item.wand_proc_chance is not None else "0",
                     proc_style="Attack",
+                    spell=spell,
                 )
 
         # Priority 3: BowEffect (weapons only)
@@ -148,6 +175,7 @@ class ItemEnricher:
                     description=spell.spell_desc or "",
                     proc_chance=str(int(item.bow_proc_chance)) if item.bow_proc_chance is not None else "0",
                     proc_style="Attack",
+                    spell=spell,
                 )
 
         # Priority 4: WornEffect (armor only, no chance)
@@ -159,6 +187,7 @@ class ItemEnricher:
                     description=spell.spell_desc or "",
                     proc_chance="",
                     proc_style="Worn",
+                    spell=spell,
                 )
 
         # Priority 5: ItemEffectOnClick (both weapons and armor, activatable, no chance)
@@ -170,6 +199,7 @@ class ItemEnricher:
                     description=spell.spell_desc or "",
                     proc_chance="",
                     proc_style="Activatable",
+                    spell=spell,
                 )
 
         # No proc found

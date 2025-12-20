@@ -79,24 +79,27 @@ class TestPageNormalizer:
         result = normalizer._normalize_empty_lines(wikitext)
         assert result == "Line 1\nLine 2\nLine 3"
 
-    def test_normalize_categories_at_top(self, normalizer: PageNormalizer) -> None:
-        """Test categories are placed at top of page."""
+    def test_normalize_categories_at_bottom(self, normalizer: PageNormalizer) -> None:
+        """Test categories are placed at bottom of page."""
         wikitext = "Content\n[[Category:Weapons]]\n[[Category:Items]]"
         result = normalizer.normalize(wikitext)
-        lines = result.split("\n")
-        assert lines[0] == "[[Category:Items]]"
-        assert lines[1] == "[[Category:Weapons]]"
-        assert lines[2] == ""  # Empty line after categories
-        assert lines[3] == "Content"
+        lines = result.strip().split("\n")
+        assert lines[0] == "Content"
+        assert lines[1] == ""  # Empty line before categories
+        assert lines[2] == "[[Category:Items]]"
+        assert lines[3] == "[[Category:Weapons]]"
 
     def test_normalize_sorts_categories(self, normalizer: PageNormalizer) -> None:
         """Test categories are sorted alphabetically."""
         wikitext = "[[Category:Z]]\n[[Category:A]]\n[[Category:M]]\nContent"
         result = normalizer.normalize(wikitext)
-        lines = result.split("\n")
-        assert lines[0] == "[[Category:A]]"
-        assert lines[1] == "[[Category:M]]"
-        assert lines[2] == "[[Category:Z]]"
+        lines = result.strip().split("\n")
+        # Content first, then empty line, then sorted categories at bottom
+        assert lines[0] == "Content"
+        assert lines[1] == ""
+        assert lines[2] == "[[Category:A]]"
+        assert lines[3] == "[[Category:M]]"
+        assert lines[4] == "[[Category:Z]]"
 
     def test_normalize_removes_legacy_categories(self, normalizer: PageNormalizer) -> None:
         """Test legacy categories are filtered out."""
@@ -105,11 +108,11 @@ class TestPageNormalizer:
         assert "[[Category:The Bone Pits]]" not in result
         assert "[[Category:Enemies]]" in result
 
-    def test_normalize_adds_empty_line_after_categories(self, normalizer: PageNormalizer) -> None:
-        """Test empty line is added after category block."""
+    def test_normalize_adds_empty_line_before_categories(self, normalizer: PageNormalizer) -> None:
+        """Test empty line is added before category block at bottom."""
         wikitext = "[[Category:Items]]{{Item|name=Sword}}"
         result = normalizer.normalize(wikitext)
-        assert result == "[[Category:Items]]\n\n{{Item|name=Sword}}\n"
+        assert result == "{{Item|name=Sword}}\n\n[[Category:Items]]\n"
 
     def test_normalize_no_categories_no_empty_line(self, normalizer: PageNormalizer) -> None:
         """Test no empty line added when there are no categories."""
@@ -148,15 +151,14 @@ Some manual content here.
 
 [[Category:Vendors]]"""
         result = normalizer.normalize(wikitext)
-        lines = result.split("\n")
-        # All categories at top, sorted
-        assert lines[0] == "[[Category:Enemies]]"
-        assert lines[1] == "[[Category:Port Azure]]"
-        assert lines[2] == "[[Category:Vendors]]"
-        assert lines[3] == ""  # Empty line
-        # Content follows
+        lines = result.strip().split("\n")
+        # Content first
         assert "{{Enemy" in result
         assert "Some manual content here." in result
+        # All categories at bottom, sorted
+        assert lines[-3] == "[[Category:Enemies]]"
+        assert lines[-2] == "[[Category:Port Azure]]"
+        assert lines[-1] == "[[Category:Vendors]]"
 
     def test_normalize_removes_excessive_spacing(self, normalizer: PageNormalizer) -> None:
         """Test normalizing removes excessive empty lines."""
@@ -189,14 +191,13 @@ More content."""
 
 Description paragraph."""
         result = normalizer.normalize(wikitext)
-        lines = result.split("\n")
-        # Categories
-        assert lines[0] == "[[Category:Items]]"
-        assert lines[1] == ""  # Empty after categories
+        lines = result.strip().split("\n")
         # Template
         assert "{{Item|name=Sword}}" in result
         # Should have single empty line between template and description
         assert "\n\nDescription paragraph." in result
+        # Categories at bottom
+        assert lines[-1] == "[[Category:Items]]"
 
     def test_normalize_complex_merge_scenario(self, normalizer: PageNormalizer) -> None:
         """Test complex scenario with old manual categories and new generated ones."""
@@ -219,15 +220,14 @@ Manually written lore section.
 |updated=true
 }}"""
         result = normalizer.normalize(old_wikitext, new_wikitext)
-        lines = result.split("\n")
+        lines = result.strip().split("\n")
 
-        # All unique categories, sorted
-        assert lines[0] == "[[Category:Another Manual]]"
-        assert lines[1] == "[[Category:Enemies]]"
-        assert lines[2] == "[[Category:Manual Category]]"
-        assert lines[3] == "[[Category:Zone A]]"
-        assert lines[4] == "[[Category:Zone B]]"
-        assert lines[5] == ""  # Empty line after categories
+        # All unique categories at bottom, sorted
+        assert lines[-5] == "[[Category:Another Manual]]"
+        assert lines[-4] == "[[Category:Enemies]]"
+        assert lines[-3] == "[[Category:Manual Category]]"
+        assert lines[-2] == "[[Category:Zone A]]"
+        assert lines[-1] == "[[Category:Zone B]]"
 
         # Zone A should appear only once (was in both)
         assert result.count("[[Category:Zone A]]") == 1
@@ -259,8 +259,8 @@ Manually written lore section.
         # Should have exactly one trailing newline
         assert not result4.endswith("\n\n")
 
-    def test_normalize_spoiler_tag_before_categories(self) -> None:
-        """Test that categories are placed after {{spoiler}} tag if present."""
+    def test_normalize_spoiler_tag_at_top(self) -> None:
+        """Test that {{spoiler}} tag stays at top, categories go to bottom."""
         normalizer = PageNormalizer()
 
         # Spoiler tag with categories scattered in content
@@ -275,20 +275,21 @@ Some content"""
 
         result = normalizer.normalize(wikitext)
 
-        # Expected: {{spoiler}} first, then categories sorted, then content
+        # Expected: {{spoiler}} at top, content, then categories at bottom
         expected = """{{spoiler}}
-[[Category:Items]]
-[[Category:Quest Items]]
 
 {{Item|name=Test}}
 
 Some content
+
+[[Category:Items]]
+[[Category:Quest Items]]
 """
 
         assert result == expected
 
-    def test_normalize_no_spoiler_categories_at_top(self) -> None:
-        """Test that categories go at top when no {{spoiler}} tag present."""
+    def test_normalize_no_spoiler_categories_at_bottom(self) -> None:
+        """Test that categories go at bottom when no {{spoiler}} tag present."""
         normalizer = PageNormalizer()
 
         wikitext = """{{Item|name=Test}}
@@ -298,11 +299,11 @@ Some content"""
 
         result = normalizer.normalize(wikitext)
 
-        expected = """[[Category:Items]]
-
-{{Item|name=Test}}
+        expected = """{{Item|name=Test}}
 
 Some content
+
+[[Category:Items]]
 """
 
         assert result == expected

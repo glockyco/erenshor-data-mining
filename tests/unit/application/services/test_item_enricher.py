@@ -112,6 +112,8 @@ def enricher(mock_item_repo):
     from unittest.mock import Mock
 
     mock_spell_repo = Mock()
+    mock_skill_repo = Mock()
+    mock_skill_repo.get_skill_by_stable_key.return_value = None
     mock_character_repo = Mock()
     mock_character_repo.get_vendors_selling_item.return_value = []
     mock_character_repo.get_characters_dropping_item.return_value = []
@@ -128,6 +130,7 @@ def enricher(mock_item_repo):
     return ItemEnricher(
         item_repo=mock_item_repo,
         spell_repo=mock_spell_repo,
+        skill_repo=mock_skill_repo,
         character_repo=mock_character_repo,
         quest_repo=mock_quest_repo,
     )

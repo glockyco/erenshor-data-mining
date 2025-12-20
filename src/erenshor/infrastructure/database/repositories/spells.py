@@ -127,7 +127,7 @@ class SpellRepository(BaseRepository[Spell]):
             raise RepositoryError(f"Failed to retrieve spells for wiki: {e}") from e
 
     def get_spell_by_stable_key(self, stable_key: str) -> Spell | None:
-        """Get single spell by stable key.
+        """Get single spell by stable key with all fields.
 
         Used by: Item enrichment (items reference spells via stable keys)
 
@@ -135,7 +135,7 @@ class SpellRepository(BaseRepository[Spell]):
             stable_key: Spell stable key (format: 'spell:resource_name')
 
         Returns:
-            Spell entity if found, None otherwise.
+            Spell entity if found with all fields populated, None otherwise.
 
         Raises:
             RepositoryError: If query execution fails.
@@ -144,8 +144,82 @@ class SpellRepository(BaseRepository[Spell]):
             SELECT
                 StableKey,
                 SpellDBIndex,
+                Id,
                 SpellName,
-                SpellDesc
+                SpellDesc,
+                SpecialDescriptor,
+                Type,
+                Line,
+                RequiredLevel,
+                ManaCost,
+                SimUsable,
+                Aggro,
+                SpellChargeTime,
+                Cooldown,
+                SpellDurationInTicks,
+                UnstableDuration,
+                InstantEffect,
+                SpellRange,
+                SelfOnly,
+                MaxLevelTarget,
+                GroupEffect,
+                CanHitPlayers,
+                ApplyToCaster,
+                TargetDamage,
+                TargetHealing,
+                CasterHealing,
+                ShieldingAmt,
+                Lifetap,
+                DamageType,
+                ResistModifier,
+                AddProcStableKey,
+                AddProcChance,
+                HP,
+                AC,
+                Mana,
+                PercentManaRestoration,
+                MovementSpeed,
+                Str,
+                Dex,
+                "End",
+                Agi,
+                Wis,
+                Int,
+                Cha,
+                MR,
+                ER,
+                PR,
+                VR,
+                DamageShield,
+                Haste,
+                PercentLifesteal,
+                AtkRollModifier,
+                BleedDamagePercent,
+                RootTarget,
+                StunTarget,
+                CharmTarget,
+                CrowdControlSpell,
+                BreakOnDamage,
+                BreakOnAnyAction,
+                TauntSpell,
+                PetToSummonStableKey,
+                StatusEffectToApplyStableKey,
+                ReapAndRenew,
+                ResonateChance,
+                XPBonus,
+                AutomateAttack,
+                WornEffect,
+                SpellChargeFXIndex,
+                SpellResolveFXIndex,
+                SpellIconName,
+                ShakeDur,
+                ShakeAmp,
+                ColorR,
+                ColorG,
+                ColorB,
+                ColorA,
+                StatusEffectMessageOnPlayer,
+                StatusEffectMessageOnNPC
             FROM Spells
             WHERE StableKey = ?
             LIMIT 1

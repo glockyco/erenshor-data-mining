@@ -159,7 +159,7 @@ class TestTemplateGeneratorBase:
 
         result = generator.render_template("weapon.jinja2", context)
 
-        assert "{{Fancy-weapon" in result
+        assert "{{Item/Weapon" in result
         assert "|name=Sword of Testing" in result
         assert "|damage=10" in result
         assert "|tier=Normal" in result
@@ -204,7 +204,7 @@ class TestTemplateGeneratorBase:
 
         result = generator.render_template("armor.jinja2", context)
 
-        assert "{{Fancy-armor" in result
+        assert "{{Item/Armor" in result
         assert "|slot=Head" in result
         assert "|armor=10" in result
 
@@ -232,9 +232,8 @@ class TestTemplateGeneratorBase:
 
         result = generator.render_template("charm.jinja2", context)
 
-        assert "{{Fancy-charm" in result
+        assert "{{Item/Charm" in result
         assert "|strscaling=1.0" in result
-        assert "|description=Magical charm" in result
 
     def test_render_character_template(self):
         """Test rendering character template."""

@@ -87,6 +87,72 @@ class SkillRepository(BaseRepository[Skill]):
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve skills for wiki: {e}") from e
 
+    def get_skill_by_stable_key(self, stable_key: str) -> Skill | None:
+        """Get a skill by its stable key.
+
+        Args:
+            stable_key: Skill stable key (e.g., "skill:Backstab")
+
+        Returns:
+            Skill entity if found, None otherwise.
+
+        Raises:
+            RepositoryError: If query execution fails.
+        """
+        query = """
+            SELECT
+                StableKey,
+                SkillDBIndex,
+                Id,
+                ResourceName,
+                SkillName,
+                SkillDesc,
+                TypeOfSkill,
+                Cooldown,
+                DuelistRequiredLevel,
+                PaladinRequiredLevel,
+                ArcanistRequiredLevel,
+                DruidRequiredLevel,
+                StormcallerRequiredLevel,
+                RequireBehind,
+                Require2H,
+                RequireDW,
+                RequireBow,
+                RequireShield,
+                SimPlayersAutolearn,
+                AESkill,
+                Interrupt,
+                SpawnOnUseStableKey,
+                EffectToApplyStableKey,
+                AffectPlayer,
+                AffectTarget,
+                SkillRange,
+                SkillPower,
+                PercentDmg,
+                DamageType,
+                ScaleOffWeapon,
+                ProcWeap,
+                ProcShield,
+                GuaranteeProc,
+                AutomateAttack,
+                CastOnTargetStableKey,
+                SkillAnimName,
+                SkillIconName,
+                PlayerUses,
+                NPCUses
+            FROM Skills
+            WHERE StableKey = ?
+        """
+
+        try:
+            rows = self._execute_raw(query, (stable_key,))
+            if not rows:
+                logger.debug(f"Skill not found: {stable_key}")
+                return None
+            return self._row_to_skill(rows[0])
+        except Exception as e:
+            raise RepositoryError(f"Failed to retrieve skill {stable_key}: {e}") from e
+
     def _row_to_skill(self, row: dict[str, object]) -> Skill:
         """Convert database row to Skill entity.
 

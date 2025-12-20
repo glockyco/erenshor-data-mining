@@ -54,9 +54,10 @@ class EntityPageGenerator(PageGenerator):
         # Initialize enrichers
         self.item_enricher = ItemEnricher(
             item_repo=context.item_repo,
+            spell_repo=context.spell_repo,
+            skill_repo=context.skill_repo,
             character_repo=context.character_repo,
             quest_repo=context.quest_repo,
-            spell_repo=context.spell_repo,
         )
         self.character_enricher = CharacterEnricher(
             spawn_repo=context.spawn_repo,
@@ -192,8 +193,11 @@ class EntityPageGenerator(PageGenerator):
 
                 templates.append(template)
 
-            # Combine all entity templates
-            entity_content = "\n\n".join(templates)
+            # Combine all entity templates (use horizontal rule separator for multi-entity pages)
+            if len(templates) > 1:
+                entity_content = "\n\n----\n\n".join(templates)
+            else:
+                entity_content = templates[0] if templates else ""
 
             # Generate category tags from first enriched entity
             categories = self.category_generator.generate_categories(enriched_entities[0])

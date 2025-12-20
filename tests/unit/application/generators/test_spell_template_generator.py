@@ -21,12 +21,14 @@ def enrich_spell():
         classes: list[str] | None = None,
         items_with_effect: list[str] | None = None,
         teaching_items: list[str] | None = None,
+        used_by_characters: list[str] | None = None,
     ) -> EnrichedSpellData:
         return EnrichedSpellData(
             spell=spell,
             classes=classes or [],
             items_with_effect=items_with_effect or [],
             teaching_items=teaching_items or [],
+            used_by_characters=used_by_characters or [],
         )
 
     return _enrich
