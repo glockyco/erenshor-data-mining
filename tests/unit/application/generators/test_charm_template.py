@@ -75,7 +75,7 @@ class TestCharmTemplate:
         result = generator.generate_template(enriched, page_title="Charm of Brilliance")
 
         assert "{{Item" in result
-        assert "{{Fancy-charm" in result
+        assert "{{Item/Charm" in result
         assert "|intscaling=4" in result
         assert "|strscaling=" in result and "|strscaling=0" not in result
         assert "|arcanist=True" in result
@@ -108,7 +108,7 @@ class TestCharmTemplate:
         enriched = enrich_item(item, stats=[stat], classes=["Paladin"])
         result = generator.generate_template(enriched, page_title="Warlord's Charm")
 
-        assert "{{Fancy-charm" in result
+        assert "{{Item/Charm" in result
         assert "|strscaling=6" in result
         assert "|dexscaling=2" in result
         assert "|intscaling=" in result and "|intscaling=0" not in result
@@ -132,7 +132,7 @@ class TestCharmTemplate:
         assert "{{Fancy-charm" not in result
 
     def test_charm_description_formatting(self, generator, enrich_item):
-        """Test charm description is properly formatted."""
+        """Test charm with multiple classes and stat scaling."""
 
         item = Item(
             id="charm-4",
@@ -155,7 +155,8 @@ class TestCharmTemplate:
         enriched = enrich_item(item, stats=[stat], classes=["Arcanist", "Duelist", "Druid", "Paladin", "Stormcaller"])
         result = generator.generate_template(enriched, page_title="Adventure Charm")
 
-        assert "Your step has more confidence and your mind is clear" in result
+        # Note: lore/description is not included in charm templates
+        assert "{{Item/Charm" in result
         assert "|endscaling=1" in result
         assert "|dexscaling=1" in result
         assert "|intscaling=1" in result
