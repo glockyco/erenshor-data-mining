@@ -827,12 +827,12 @@
             // Zone connections
             vis.zoneLines && zoneLineConnectionsLayer,
             vis.zoneLines && zoneLineDestinationsLayer,
-            // Enemies (by rarity)
+            // Common enemies
             vis.spawnPoints && enemiesCommonLayer,
-            vis.spawnPointsRare && enemiesRareLayer,
-            vis.spawnPointsUnique && enemiesUniqueLayer,
             // NPCs
             vis.characters && npcsLayer,
+            // Rare enemies
+            vis.spawnPointsRare && enemiesRareLayer,
             // Resources
             vis.miningNodes && miningNodesLayer,
             vis.itemBags && itemBagsLayer,
@@ -846,8 +846,10 @@
             vis.forges && forgesLayer,
             vis.wishingWells && wishingWellsLayer,
             vis.teleports && teleportsLayer,
-            // Zone lines on top
-            vis.zoneLines && zoneLineIconsLayer
+            // Zone line icons
+            vis.zoneLines && zoneLineIconsLayer,
+            // Unique enemies
+            vis.spawnPointsUnique && enemiesUniqueLayer
         ]
             .flat()
             .filter(Boolean);
