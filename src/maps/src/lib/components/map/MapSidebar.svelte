@@ -299,6 +299,17 @@
     {:else}
         <!-- Collapsed: Icon toggles with circular backgrounds -->
         <div class="flex flex-1 flex-col items-center gap-2 overflow-y-auto py-2">
+            <!-- Home button -->
+            <a
+                href="/"
+                class="flex h-7 w-7 items-center justify-center rounded-md text-zinc-400 transition-colors hover:bg-zinc-700 hover:text-white"
+                title="Home"
+            >
+                <Home class="h-4 w-4" />
+            </a>
+
+            <div class="my-1 w-8 border-t border-zinc-700"></div>
+
             <!-- Enemies -->
             {#each enemyToggles as toggle (toggle.key)}
                 {@const Icon = toggle.icon}
