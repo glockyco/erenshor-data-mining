@@ -38,8 +38,10 @@ const MARKER_ICONS: Record<string, { icon: IconNode; colorKey: keyof typeof LAYE
     enemy: { icon: Skull, colorKey: 'enemy' },
     'enemy-rare': { icon: Skull, colorKey: 'enemy-rare' },
     'enemy-unique': { icon: Skull, colorKey: 'enemy-unique' },
+    'enemy-disabled': { icon: Skull, colorKey: 'disabled' },
     // NPCs (friendly characters)
     npc: { icon: User, colorKey: 'npc' },
+    'npc-disabled': { icon: User, colorKey: 'disabled' },
     // Zone connections (portals)
     'zone-line': { icon: CircleDot, colorKey: 'zone-line' },
     'zone-line-disabled': { icon: CircleDot, colorKey: 'disabled' },
@@ -169,9 +171,16 @@ export async function createIconAtlas(): Promise<IconAtlasResult> {
 }
 
 /**
- * Get the icon type key for an enemy marker based on its rarity.
+ * Get the icon type key for an enemy marker based on its enabled state and rarity.
  */
-export function getEnemyIconType(marker: { isUnique?: boolean; isRare?: boolean }): MarkerIconType {
+export function getEnemyIconType(marker: {
+    isEnabled?: boolean;
+    isUnique?: boolean;
+    isRare?: boolean;
+}): MarkerIconType {
+    if (marker.isEnabled === false) {
+        return 'enemy-disabled';
+    }
     if (marker.isUnique) {
         return 'enemy-unique';
     }
@@ -179,6 +188,13 @@ export function getEnemyIconType(marker: { isUnique?: boolean; isRare?: boolean 
         return 'enemy-rare';
     }
     return 'enemy';
+}
+
+/**
+ * Get the icon type key for an NPC marker based on its enabled state.
+ */
+export function getNpcIconType(marker: { isEnabled?: boolean }): MarkerIconType {
+    return marker.isEnabled === false ? 'npc-disabled' : 'npc';
 }
 
 /**

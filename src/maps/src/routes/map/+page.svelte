@@ -7,7 +7,13 @@
         getTileWorldCorners,
         type ZoneTileIndex
     } from '$lib/map/zone-tileset';
-    import { createIconAtlas, getZoneLineIconType, type IconAtlasResult } from '$lib/map/icons';
+    import {
+        createIconAtlas,
+        getZoneLineIconType,
+        getEnemyIconType,
+        getNpcIconType,
+        type IconAtlasResult
+    } from '$lib/map/icons';
     import {
         createDebugStore,
         getEffectiveZones,
@@ -289,19 +295,27 @@
         };
 
         // Helper for creating icon layers
+        type MarkerWithState = {
+            worldPosition: [number, number];
+            zone: string;
+            isEnabled?: boolean;
+            isUnique?: boolean;
+            isRare?: boolean;
+        };
         const createIconLayer = (
             id: string,
-            markerData: { worldPosition: [number, number]; zone: string }[],
-            iconType: string
+            markerData: MarkerWithState[],
+            iconTypeOrFn: string | ((d: MarkerWithState) => string)
         ) => {
+            const getIconFn =
+                typeof iconTypeOrFn === 'function' ? iconTypeOrFn : () => iconTypeOrFn;
             return new IconLayer({
                 id,
                 data: markerData,
                 iconAtlas: atlas.atlas,
                 iconMapping: atlas.mapping,
-                getPosition: (d: { worldPosition: [number, number]; zone: string }) =>
-                    getMarkerPosition(d),
-                getIcon: () => iconType,
+                getPosition: (d: MarkerWithState) => getMarkerPosition(d),
+                getIcon: getIconFn,
                 getSize: ICON_SIZE.base,
                 sizeUnits: 'pixels',
                 sizeMinPixels: ICON_SIZE.min,
@@ -521,25 +535,25 @@
             }
         });
 
-        // Enemy layers (by rarity)
+        // Enemy layers (by rarity, with disabled state support)
         const enemiesCommonLayer = createIconLayer(
             'enemies-common',
             data.markers.enemiesCommon,
-            'enemy'
+            getEnemyIconType
         );
         const enemiesRareLayer = createIconLayer(
             'enemies-rare',
             data.markers.enemiesRare,
-            'enemy-rare'
+            getEnemyIconType
         );
         const enemiesUniqueLayer = createIconLayer(
             'enemies-unique',
             data.markers.enemiesUnique,
-            'enemy-unique'
+            getEnemyIconType
         );
 
-        // NPC layer
-        const npcsLayer = createIconLayer('npcs', data.markers.npcs, 'npc');
+        // NPC layer (with disabled state support)
+        const npcsLayer = createIconLayer('npcs', data.markers.npcs, getNpcIconType);
 
         // Resource layers
         const miningNodesLayer = createIconLayer(
