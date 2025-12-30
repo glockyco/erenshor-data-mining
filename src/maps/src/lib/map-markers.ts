@@ -1,78 +1,82 @@
 export type BaseMarker = {
-	coordinateId: number;
-	position: { x: number, y: number };
-	popup?: string;
+    coordinateId: number;
+    position: { x: number; y: number };
+    popup?: string;
 };
 
 export type AchievementTriggerMarker = BaseMarker & {
-	category: 'achievement-trigger';
+    category: 'achievement-trigger';
 };
 
-export type CharacterMarker = BaseMarker & {
-	category: 'character';
-	isEnabled: boolean;
-	isUnique: boolean;
+export type NpcMarker = BaseMarker & {
+    category: 'npc';
+    isEnabled: boolean;
 };
 
 export type DoorMarker = BaseMarker & {
-	category: 'door';
+    category: 'door';
 };
 
 export type ForgeMarker = BaseMarker & {
-	category: 'forge';
+    category: 'forge';
 };
 
 export type ItemBagMarker = BaseMarker & {
-	category: 'item-bag';
+    category: 'item-bag';
 };
 
 export type MiningNodeMarker = BaseMarker & {
-	category: 'mining-node';
+    category: 'mining-node';
 };
 
 export type SecretPassageMarker = BaseMarker & {
-	category: 'secret-passage';
-}
+    category: 'secret-passage';
+};
 
-export type SpawnPointMarker = BaseMarker & {
-	category: 'spawn-point';
-	isEnabled: boolean;
-	hasUnique: boolean;
-	hasRare: boolean;
+export type EnemyMarker = BaseMarker & {
+    category: 'enemy';
+    isEnabled: boolean;
+    isUnique: boolean;
+    isRare: boolean;
 };
 
 export type TeleportMarker = BaseMarker & {
-	category: 'teleport';
+    category: 'teleport';
 };
 
 export type TreasureLocMarker = BaseMarker & {
-	category: 'treasure-loc';
+    category: 'treasure-loc';
 };
 
 export type WaterMarker = BaseMarker & {
-	category: 'water';
+    category: 'water';
 };
 
 export type WishingWellMarker = BaseMarker & {
-	category: 'wishing-well';
+    category: 'wishing-well';
 };
 
 export type ZoneLineMarker = BaseMarker & {
-	category: 'zone-line';
-	isEnabled: boolean;
+    category: 'zone-line';
+    destinationZone: string;
+    destinationZoneName: string;
+    landingPosition: { x: number; y: number; z: number };
+    levelRangeLow: number | null;
+    levelRangeHigh: number | null;
+    isEnabled: boolean;
 };
 
 export type Marker =
-	| AchievementTriggerMarker
-	| CharacterMarker
-	| DoorMarker
-	| ForgeMarker
-	| ItemBagMarker
-	| MiningNodeMarker
-	| SecretPassageMarker
-	| SpawnPointMarker
-	| TeleportMarker
-	| TreasureLocMarker
-	| WaterMarker
-	| WishingWellMarker
-	| ZoneLineMarker;
+    | AchievementTriggerMarker
+    | DoorMarker
+    | EnemyMarker
+    | ForgeMarker
+    | ItemBagMarker
+    | MiningNodeMarker
+    | NpcMarker
+    | SecretPassageMarker
+    | TeleportMarker
+    | TreasureLocMarker
+    | WaterMarker
+    | WishingWellMarker
+    | ZoneLineMarker;

@@ -1,0 +1,7 @@
+{
+    "*.{js,ts,svelte}": [
+        "pnpm --filter erenshor-maps exec prettier --write",
+        "pnpm --filter erenshor-maps exec eslint --fix --max-warnings 0"
+    ],
+    "*.{css,json,md}": ["pnpm --filter erenshor-maps exec prettier --write"]
+}
