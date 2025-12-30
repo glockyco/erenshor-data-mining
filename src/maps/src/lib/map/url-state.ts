@@ -68,24 +68,32 @@ let lastMtype: string | null = null;
  * Short keys for compact URLs.
  */
 const LAYER_KEYS: Record<keyof LayerVisibility, string> = {
-    achievementTriggers: 'ach',
-    characters: 'npc',
-    doors: 'door',
-    forges: 'forge',
-    itemBags: 'bag',
-    miningNodes: 'mine',
-    secretPassages: 'sec',
-    spawnPoints: 'sp',
-    spawnPointsUnique: 'spu',
-    spawnPointsRare: 'spr',
-    teleports: 'tp',
-    treasureLocs: 'tr',
-    water: 'fish',
-    wishingWells: 'well',
-    zoneLines: 'zl',
+    // Terrain
+    tiles: 'tile',
+    worldMap: 'wm',
     zoneBounds: 'zb',
     zoneLabels: 'zlbl',
-    tiles: 'tile'
+    // Enemies
+    spawnPoints: 'sp',
+    spawnPointsRare: 'spr',
+    spawnPointsUnique: 'spu',
+    // NPCs
+    characters: 'npc',
+    // Zone connections
+    zoneLines: 'zl',
+    teleports: 'tp',
+    // Utilities
+    forges: 'forge',
+    wishingWells: 'well',
+    // Resources
+    miningNodes: 'mine',
+    water: 'fish',
+    itemBags: 'bag',
+    treasureLocs: 'tr',
+    // Secrets
+    doors: 'door',
+    secretPassages: 'sec',
+    achievementTriggers: 'ach'
 };
 
 const LAYER_KEYS_REVERSE: Record<string, keyof LayerVisibility> = Object.fromEntries(

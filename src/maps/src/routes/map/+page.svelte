@@ -37,6 +37,7 @@
         type UrlStateParams
     } from '$lib/map/url-state';
     import { DEFAULT_LAYER_VISIBILITY, type LayerVisibility } from '$lib/types/map';
+    import MapSidebar from '$lib/components/map/MapSidebar.svelte';
     import type { PageData } from './$types';
 
     let { data }: { data: PageData } = $props();
@@ -49,6 +50,47 @@
 
     // Debug mode state (derived from URL or initial parse)
     let isDebugMode = $state(false);
+
+    // Sidebar state (persisted to localStorage)
+    let sidebarCollapsed = $state(false);
+    const SIDEBAR_COLLAPSED_KEY = 'erenshor-map-sidebar-collapsed';
+
+    // Load sidebar state from localStorage
+    $effect(() => {
+        if (browser) {
+            const stored = localStorage.getItem(SIDEBAR_COLLAPSED_KEY);
+            if (stored !== null) {
+                sidebarCollapsed = stored === 'true';
+            }
+        }
+    });
+
+    // Save sidebar state to localStorage
+    function toggleSidebar() {
+        sidebarCollapsed = !sidebarCollapsed;
+        if (browser) {
+            localStorage.setItem(SIDEBAR_COLLAPSED_KEY, String(sidebarCollapsed));
+        }
+    }
+
+    // Handle layer visibility change
+    function handleLayerVisibilityChange(key: keyof LayerVisibility, value: boolean) {
+        layerVisibility = { ...layerVisibility, [key]: value };
+        urlManager.syncPreferences(buildUrlStateParams());
+        updateLayers();
+    }
+
+    // Keyboard shortcuts
+    function handleKeydown(event: KeyboardEvent) {
+        // Ignore if typing in an input
+        if (event.target instanceof HTMLInputElement || event.target instanceof HTMLSelectElement) {
+            return;
+        }
+
+        if (event.key === 'b' || event.key === 'B') {
+            toggleSidebar();
+        }
+    }
 
     // Debug store: centralized state management
     const debugStore = createDebugStore(
@@ -552,13 +594,13 @@
             pickable: false
         });
 
-        // Debug backdrop layer (world map image for zone alignment)
-        const backdropLayer = debugStore.backdrop.enabled
+        // World map backdrop layer (low-res overview image)
+        const backdropLayer = layerVisibility.worldMap
             ? new BitmapLayer({
-                  id: 'debug-backdrop',
+                  id: 'world-map',
                   image: BACKDROP_IMAGE,
                   bounds: computeBackdropBounds(debugStore.backdrop),
-                  opacity: 0.3,
+                  opacity: 0.5,
                   pickable: false
               })
             : null;
@@ -772,44 +814,69 @@
         );
         const teleportsLayer = createIconLayer('teleports', data.markers.teleports, 'teleport');
 
-        // === LAYER ORDER ===
+        // === LAYER ORDER (filtered by visibility) ===
+        const vis = layerVisibility;
         return [
+            // Always show background
             backgroundLayer,
-            backdropLayer,
-            ...tileLayers,
-            zoneBoundsLayer,
-            zoneLabelsLayer,
-            zoneLineConnectionsLayer,
-            zoneLineDestinationsLayer,
-            enemiesCommonLayer,
-            npcsLayer,
-            enemiesRareLayer,
-            miningNodesLayer,
-            itemBagsLayer,
-            treasureLocsLayer,
-            achievementTriggersLayer,
-            doorsLayer,
-            secretPassagesLayer,
-            forgesLayer,
-            wishingWellsLayer,
-            teleportsLayer,
-            zoneLineIconsLayer,
-            enemiesUniqueLayer
-        ].filter(Boolean);
+            // Terrain layers
+            vis.worldMap && backdropLayer,
+            vis.tiles && tileLayers,
+            vis.zoneBounds && zoneBoundsLayer,
+            vis.zoneLabels && zoneLabelsLayer,
+            // Zone connections
+            vis.zoneLines && zoneLineConnectionsLayer,
+            vis.zoneLines && zoneLineDestinationsLayer,
+            // Enemies (by rarity)
+            vis.spawnPoints && enemiesCommonLayer,
+            vis.spawnPointsRare && enemiesRareLayer,
+            vis.spawnPointsUnique && enemiesUniqueLayer,
+            // NPCs
+            vis.characters && npcsLayer,
+            // Resources
+            vis.miningNodes && miningNodesLayer,
+            vis.itemBags && itemBagsLayer,
+            vis.treasureLocs && treasureLocsLayer,
+            vis.water && null, // TODO: Add water layer when implemented
+            // Secrets
+            vis.achievementTriggers && achievementTriggersLayer,
+            vis.doors && doorsLayer,
+            vis.secretPassages && secretPassagesLayer,
+            // Utilities
+            vis.forges && forgesLayer,
+            vis.wishingWells && wishingWellsLayer,
+            vis.teleports && teleportsLayer,
+            // Zone lines on top
+            vis.zoneLines && zoneLineIconsLayer
+        ]
+            .flat()
+            .filter(Boolean);
     }
 </script>
+
+<svelte:window onkeydown={handleKeydown} />
 
 <svelte:head>
     <title>World Map | Erenshor Maps</title>
 </svelte:head>
 
-<div class="relative h-screen w-full">
+<div class="relative h-screen w-full bg-zinc-900">
+    <!-- Sidebar -->
+    <MapSidebar
+        visibility={layerVisibility}
+        collapsed={sidebarCollapsed}
+        onVisibilityChange={handleLayerVisibilityChange}
+        onToggleCollapse={toggleSidebar}
+    />
+
     <!-- Map container -->
     <div bind:this={container} class="absolute inset-0"></div>
 
     <!-- Loading overlay -->
     {#if isLoading}
-        <div class="loading-overlay absolute inset-0 flex items-center justify-center bg-zinc-900">
+        <div
+            class="loading-overlay absolute inset-0 z-50 flex items-center justify-center bg-zinc-900"
+        >
             <div class="text-center">
                 <div
                     class="mb-4 h-8 w-8 animate-spin rounded-full border-4 border-zinc-600 border-t-white"
@@ -828,8 +895,13 @@
         </div>
     {/if}
 
-    <!-- Debug info -->
-    <div class="absolute bottom-4 left-4 rounded bg-zinc-800/80 p-2 text-xs text-zinc-400">
+    <!-- Debug info (offset by sidebar) -->
+    <div
+        class="absolute bottom-4 rounded bg-zinc-800/80 p-2 text-xs text-zinc-400 transition-all"
+        class:left-68={!sidebarCollapsed}
+        class:left-16={sidebarCollapsed}
+        style:left={sidebarCollapsed ? '4rem' : '17rem'}
+    >
         <p>X: {currentViewState.x.toFixed(0)}</p>
         <p>Y: {currentViewState.y.toFixed(0)}</p>
         <p>Zoom: {currentViewState.zoom.toFixed(2)}</p>

@@ -171,49 +171,64 @@ export type AnyMapMarker =
  * Layer visibility toggle state
  */
 export interface LayerVisibility {
-    achievementTriggers: boolean;
-    characters: boolean;
-    doors: boolean;
+    // Terrain layers
+    tiles: boolean; // Per-zone tile imagery
+    worldMap: boolean; // Full world backdrop image
+    zoneBounds: boolean; // Zone outline polygons
+    zoneLabels: boolean; // Zone name text labels
+    // Enemy layers (by rarity)
+    spawnPoints: boolean; // Common enemies
+    spawnPointsRare: boolean; // Rare enemies
+    spawnPointsUnique: boolean; // Unique/boss enemies
+    // NPC layers
+    characters: boolean; // All NPCs
+    // Zone connections
+    zoneLines: boolean; // Zone portals
+    teleports: boolean; // Teleport destinations
+    // Utilities
     forges: boolean;
-    itemBags: boolean;
-    miningNodes: boolean;
-    secretPassages: boolean;
-    spawnPoints: boolean;
-    spawnPointsUnique: boolean; // Sub-filter for unique spawns
-    spawnPointsRare: boolean; // Sub-filter for rare spawns
-    teleports: boolean;
-    treasureLocs: boolean;
-    water: boolean;
     wishingWells: boolean;
-    zoneLines: boolean;
-    // Zone visualization
-    zoneBounds: boolean;
-    zoneLabels: boolean;
-    tiles: boolean;
+    // Resources
+    miningNodes: boolean;
+    water: boolean; // Fishing spots
+    itemBags: boolean;
+    treasureLocs: boolean;
+    // Secrets
+    doors: boolean;
+    secretPassages: boolean;
+    achievementTriggers: boolean;
 }
 
 /**
- * Default layer visibility (all enabled except tiles which depend on zoom)
+ * Default layer visibility (all ON by default)
  */
 export const DEFAULT_LAYER_VISIBILITY: LayerVisibility = {
-    achievementTriggers: true,
-    characters: true,
-    doors: true,
-    forges: true,
-    itemBags: true,
-    miningNodes: true,
-    secretPassages: true,
-    spawnPoints: true,
-    spawnPointsUnique: true,
-    spawnPointsRare: true,
-    teleports: true,
-    treasureLocs: true,
-    water: true,
-    wishingWells: true,
-    zoneLines: true,
-    zoneBounds: true,
+    // Terrain
+    tiles: true,
+    worldMap: true,
+    zoneBounds: false,
     zoneLabels: true,
-    tiles: true
+    // Enemies
+    spawnPoints: true,
+    spawnPointsRare: true,
+    spawnPointsUnique: true,
+    // NPCs
+    characters: true,
+    // Zone connections
+    zoneLines: true,
+    teleports: true,
+    // Utilities
+    forges: true,
+    wishingWells: true,
+    // Resources
+    miningNodes: true,
+    water: true,
+    itemBags: true,
+    treasureLocs: true,
+    // Secrets
+    doors: true,
+    secretPassages: true,
+    achievementTriggers: true
 };
 
 /**
