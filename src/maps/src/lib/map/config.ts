@@ -4,7 +4,7 @@
 export const INITIAL_VIEW_STATE = {
     target: [0, 0, 0] as [number, number, number],
     zoom: -2,
-    minZoom: -4,
+    minZoom: -6,
     maxZoom: 4
 } as const;
 
