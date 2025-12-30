@@ -50,6 +50,8 @@ export type TreasureLocMarker = BaseMarker & {
 
 export type WaterMarker = BaseMarker & {
     category: 'water';
+    width: number;
+    height: number;
 };
 
 export type WishingWellMarker = BaseMarker & {

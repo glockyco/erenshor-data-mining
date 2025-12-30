@@ -715,6 +715,8 @@ export class RepositoryBase {
 				co.X AS PositionX,
 				co.Y AS PositionY,
 				co.Z AS PositionZ,
+				w.Width,
+				w.Depth,
 				wf.Type,
 				i.ItemName,
 				wf.DropChance
@@ -734,6 +736,8 @@ export class RepositoryBase {
                 coordinateId: number;
                 position: { x: number; y: number };
                 coordinates: { x: number; y: number; z: number };
+                width: number;
+                height: number;
                 daytimeItems: { name: string; dropChance: number }[];
                 nighttimeItems: { name: string; dropChance: number }[];
             }
@@ -755,6 +759,8 @@ export class RepositoryBase {
                         y: row.PositionY as number,
                         z: row.PositionZ as number
                     },
+                    width: row.Width as number,
+                    height: row.Depth as number,
                     daytimeItems: [],
                     nighttimeItems: []
                 });
@@ -779,6 +785,8 @@ export class RepositoryBase {
             coordinateId,
             position,
             coordinates,
+            width,
+            height,
             daytimeItems,
             nighttimeItems
         } of waterMap.values()) {
@@ -814,6 +822,8 @@ export class RepositoryBase {
                 coordinateId: coordinateId,
                 category: 'water',
                 position,
+                width,
+                height,
                 popup: popupText
             });
         }

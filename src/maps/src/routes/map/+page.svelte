@@ -338,7 +338,17 @@
         const npcsLayer = createIconLayer('npcs', data.markers.npcs, 'npc');
 
         // Resource layers
-        const waterLayer = createIconLayer('water', data.markers.water, 'water');
+        // Water layer (disabled pending data investigation)
+        // const waterLayer = new PolygonLayer({
+        //     id: 'water',
+        //     data: data.markers.water,
+        //     getPolygon: (d: { worldPolygon: [number, number][] }) => d.worldPolygon,
+        //     getFillColor: [...LAYER_COLORS.water, 120],
+        //     getLineColor: [...LAYER_COLORS.water, 200],
+        //     getLineWidth: 1,
+        //     lineWidthUnits: 'pixels',
+        //     pickable: true
+        // });
         const miningNodesLayer = createIconLayer(
             'mining-nodes',
             data.markers.miningNodes,
@@ -393,7 +403,7 @@
             // Enemies (rare)
             enemiesRareLayer,
             // Resources
-            waterLayer,
+            // waterLayer,
             miningNodesLayer,
             itemBagsLayer,
             treasureLocsLayer,

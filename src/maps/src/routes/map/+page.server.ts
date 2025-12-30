@@ -25,6 +25,51 @@ interface ZoneLineWithArc extends MarkerWithWorldPosition {
     destinationWorldPosition: [number, number] | null;
 }
 
+interface WaterWithPolygon extends MarkerWithWorldPosition {
+    width: number;
+    height: number;
+    worldPolygon: [number, number][];
+}
+
+/**
+ * Calculate zone bounds in game coordinates
+ */
+function getZoneGameBounds(config: ZoneConfig): {
+    minX: number;
+    minZ: number;
+    maxX: number;
+    maxZ: number;
+} {
+    const width = config.baseTilesX * config.tileSize;
+    const height = config.baseTilesY * config.tileSize;
+    return {
+        minX: config.originX,
+        minZ: config.originY,
+        maxX: config.originX + width,
+        maxZ: config.originY + height
+    };
+}
+
+/**
+ * Clamp a rectangle to bounds in game coordinates, returning null if no overlap
+ */
+function clampRectToBounds(
+    rect: { minX: number; minZ: number; maxX: number; maxZ: number },
+    bounds: { minX: number; minZ: number; maxX: number; maxZ: number }
+): { minX: number; minZ: number; maxX: number; maxZ: number } | null {
+    const clampedMinX = Math.max(rect.minX, bounds.minX);
+    const clampedMinZ = Math.max(rect.minZ, bounds.minZ);
+    const clampedMaxX = Math.min(rect.maxX, bounds.maxX);
+    const clampedMaxZ = Math.min(rect.maxZ, bounds.maxZ);
+
+    // Check if there's any overlap
+    if (clampedMinX >= clampedMaxX || clampedMinZ >= clampedMaxZ) {
+        return null;
+    }
+
+    return { minX: clampedMinX, minZ: clampedMinZ, maxX: clampedMaxX, maxZ: clampedMaxZ };
+}
+
 /**
  * Transform game coordinates to world map coordinates
  */
@@ -78,7 +123,7 @@ export async function load() {
     const enemiesUnique: MarkerWithWorldPosition[] = [];
     const teleports: MarkerWithWorldPosition[] = [];
     const treasureLocs: MarkerWithWorldPosition[] = [];
-    const water: MarkerWithWorldPosition[] = [];
+    const water: WaterWithPolygon[] = [];
     const wishingWells: MarkerWithWorldPosition[] = [];
     const zoneLines: ZoneLineWithArc[] = [];
 
@@ -325,20 +370,57 @@ export async function load() {
             });
         }
 
-        // Load water (fishing spots)
+        // Load water (fishing spots) - compute polygon corners and clip to zone bounds
         const zoneWater = await repo.getWaterMarkers(zoneKey);
+        const zoneConfig = zoneConfigs[zoneKey];
+        const zoneBounds = getZoneGameBounds(zoneConfig);
+
         for (const marker of zoneWater) {
+            // Compute water bounds in game coordinates
+            const halfWidth = marker.width / 2;
+            const halfHeight = marker.height / 2;
+            const cx = marker.position.x;
+            const cz = marker.position.y; // position.y is game Z coordinate
+
+            const waterBounds = {
+                minX: cx - halfWidth,
+                minZ: cz - halfHeight,
+                maxX: cx + halfWidth,
+                maxZ: cz + halfHeight
+            };
+
+            // Clamp water to zone bounds in game coordinates
+            const clampedBounds = clampRectToBounds(waterBounds, zoneBounds);
+            if (!clampedBounds) continue; // Water completely outside zone
+
+            // Transform clamped corners to world coordinates
+            const corners: [number, number][] = [
+                [clampedBounds.minX, clampedBounds.minZ],
+                [clampedBounds.maxX, clampedBounds.minZ],
+                [clampedBounds.maxX, clampedBounds.maxZ],
+                [clampedBounds.minX, clampedBounds.maxZ]
+            ];
+
+            const worldPolygon = corners.map(([gx, gz]) =>
+                transformToWorld(gx, gz, zoneKey, zoneConfigs, zonePositions)
+            );
+
+            // Use clamped center for world position
+            const clampedCenterX = (clampedBounds.minX + clampedBounds.maxX) / 2;
+            const clampedCenterZ = (clampedBounds.minZ + clampedBounds.maxZ) / 2;
             const worldPos = transformToWorld(
-                marker.position.x,
-                marker.position.y,
+                clampedCenterX,
+                clampedCenterZ,
                 zoneKey,
                 zoneConfigs,
                 zonePositions
             );
+
             water.push({
                 ...marker,
                 zone: zoneKey,
-                worldPosition: worldPos
+                worldPosition: worldPos,
+                worldPolygon
             });
         }
     }
