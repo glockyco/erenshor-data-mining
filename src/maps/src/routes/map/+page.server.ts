@@ -107,6 +107,19 @@ export async function load() {
     const zonePositions = buildZoneWorldPositions(zoneConfigs);
     const worldCenter = calculateWorldCenter(zonePositions);
 
+    // Calculate world bounds from all zone bounds
+    let minX = Infinity,
+        minY = Infinity,
+        maxX = -Infinity,
+        maxY = -Infinity;
+    for (const zone of zonePositions) {
+        minX = Math.min(minX, zone.bounds.minX);
+        minY = Math.min(minY, zone.bounds.minY);
+        maxX = Math.max(maxX, zone.bounds.maxX);
+        maxY = Math.max(maxY, zone.bounds.maxY);
+    }
+    const worldBounds = { minX, minY, maxX, maxY };
+
     // Get zone keys for marker loading
     const zoneKeys = zonePositions.map((z) => z.key);
 
@@ -445,6 +458,7 @@ export async function load() {
         },
         zones: zonePositions,
         zoneConfigs,
-        worldCenter
+        worldCenter,
+        worldBounds
     };
 }

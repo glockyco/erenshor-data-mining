@@ -1,6 +1,6 @@
 <script lang="ts">
     import { browser } from '$app/environment';
-    import { page } from '$app/stores';
+    import { tick } from 'svelte';
     import { INITIAL_VIEW_STATE, ICON_SIZE, BACKGROUND_COLOR, LAYER_COLORS } from '$lib/map/config';
     import {
         createZoneTileset2D,
@@ -30,12 +30,25 @@
         type DragInfo,
         type BackdropSettings
     } from '$lib/map/debug';
+    import {
+        urlManager,
+        parseUrlState,
+        parseLayerVisibility,
+        type UrlStateParams
+    } from '$lib/map/url-state';
+    import { DEFAULT_LAYER_VISIBILITY, type LayerVisibility } from '$lib/types/map';
     import type { PageData } from './$types';
 
     let { data }: { data: PageData } = $props();
 
-    // Debug mode: URL-based activation
-    const isDebugMode = $derived(browser && $page.url.searchParams.get('debug') === 'true');
+    // Layer visibility state
+    let layerVisibility = $state<LayerVisibility>({ ...DEFAULT_LAYER_VISIBILITY });
+
+    // Zone focus state (null = world view)
+    let focusedZone = $state<string | null>(null);
+
+    // Debug mode state (derived from URL or initial parse)
+    let isDebugMode = $state(false);
 
     // Debug store: centralized state management
     const debugStore = createDebugStore(
@@ -61,7 +74,7 @@
         }
     );
 
-    // Enable debug store when URL param is set
+    // Enable debug store when debug mode is active
     $effect(() => {
         if (isDebugMode) {
             debugStore.enable();
@@ -69,6 +82,73 @@
             debugStore.disable();
         }
     });
+
+    // Build current URL state params for syncing
+    function buildUrlStateParams(): UrlStateParams {
+        return {
+            x: currentViewState.x,
+            y: currentViewState.y,
+            z: currentViewState.zoom,
+            zone: focusedZone,
+            layers: layerVisibility,
+            debug: isDebugMode
+            // marker and mtype will be added when selection is implemented
+        };
+    }
+
+    // Restore state from URL (called on mount and popstate)
+    async function restoreFromUrl(): Promise<void> {
+        const urlState = parseUrlState();
+
+        if (urlState) {
+            // Restore debug mode
+            isDebugMode = urlState.debug;
+
+            // Restore layer visibility
+            layerVisibility = parseLayerVisibility(urlState.layers);
+
+            // Restore zone focus
+            focusedZone = urlState.zone;
+
+            // Restore view state if deck is initialized
+            if (deckInstance) {
+                deckInstance.setProps({
+                    initialViewState: {
+                        target: [urlState.x, urlState.y, 0] as [number, number, number],
+                        zoom: urlState.z,
+                        minZoom: INITIAL_VIEW_STATE.minZoom,
+                        maxZoom: INITIAL_VIEW_STATE.maxZoom
+                    }
+                });
+            }
+
+            // Update local view state
+            currentViewState = {
+                x: urlState.x,
+                y: urlState.y,
+                zoom: urlState.z
+            };
+
+            // Track selection for deduplication
+            urlManager.setLastSelection(urlState.marker, urlState.mtype);
+        } else {
+            // No URL state - use defaults
+            isDebugMode = false;
+            layerVisibility = { ...DEFAULT_LAYER_VISIBILITY };
+            focusedZone = null;
+        }
+
+        await tick();
+    }
+
+    // Handle browser back/forward navigation
+    function handlePopstate(): void {
+        urlManager.enterPassiveMode();
+        restoreFromUrl().finally(() => {
+            urlManager.exitPassiveMode();
+            updateLayers();
+        });
+    }
 
     // deck.gl instance and modules
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -82,7 +162,7 @@
     let loadError = $state<string | null>(null);
 
     // View state
-    let currentViewState = $state({
+    let currentViewState = $state<{ x: number; y: number; zoom: number }>({
         x: 0,
         y: 0,
         zoom: INITIAL_VIEW_STATE.zoom
@@ -164,13 +244,70 @@
         }
     }
 
+    // Track whether URL has explicit view state (x, y, z params)
+    let hasUrlViewState = false;
+
+    // Calculate zoom level to fit bounds in viewport
+    function calculateFitZoom(
+        bounds: { minX: number; minY: number; maxX: number; maxY: number },
+        viewportWidth: number,
+        viewportHeight: number,
+        padding: number = 50
+    ): number {
+        const boundsWidth = bounds.maxX - bounds.minX;
+        const boundsHeight = bounds.maxY - bounds.minY;
+
+        // Account for padding
+        const availableWidth = viewportWidth - padding * 2;
+        const availableHeight = viewportHeight - padding * 2;
+
+        // Calculate zoom to fit (deck.gl zoom is log2 scale)
+        const zoomX = Math.log2(availableWidth / boundsWidth);
+        const zoomY = Math.log2(availableHeight / boundsHeight);
+
+        // Use the smaller zoom to ensure both dimensions fit
+        return Math.min(zoomX, zoomY);
+    }
+
     // Initialize deck.gl when component mounts
     $effect(() => {
         if (!browser || !container) return;
 
+        // Restore URL state before initializing deck
+        urlManager.enterPassiveMode();
+        const urlState = parseUrlState();
+
+        // Check if URL has explicit view state params
+        const params = new URLSearchParams(window.location.search);
+        hasUrlViewState = params.has('x') || params.has('y') || params.has('z');
+
+        if (urlState) {
+            isDebugMode = urlState.debug;
+            layerVisibility = parseLayerVisibility(urlState.layers);
+            focusedZone = urlState.zone;
+
+            if (hasUrlViewState) {
+                currentViewState = {
+                    x: urlState.x,
+                    y: urlState.y,
+                    zoom: urlState.z
+                };
+            }
+            urlManager.setLastSelection(urlState.marker, urlState.mtype);
+        }
+
         initializeDeck();
 
+        // Add popstate listener for back/forward navigation
+        window.addEventListener('popstate', handlePopstate);
+
+        // Exit passive mode after initial setup
+        tick().then(() => {
+            urlManager.exitPassiveMode();
+        });
+
         return () => {
+            window.removeEventListener('popstate', handlePopstate);
             if (deckInstance) {
                 deckInstance.finalize();
                 deckInstance = null;
@@ -208,8 +345,48 @@
             // Create icon atlas for marker layers
             iconAtlas = await createIconAtlas();
 
-            // Use world center from server
-            const [centerX, centerY] = data.worldCenter;
+            // Determine initial view state
+            let initialX: number;
+            let initialY: number;
+            let initialZoom: number;
+
+            if (hasUrlViewState) {
+                // Use URL-specified view state
+                initialX = currentViewState.x;
+                initialY = currentViewState.y;
+                initialZoom = currentViewState.zoom;
+            } else {
+                // Fit to world map bounds (show full map)
+                // Use backdrop bounds as the authoritative world extent
+                const backdropSettings = debugStore.backdrop;
+                const backdropWidth = BACKDROP_WIDTH * backdropSettings.scale;
+                const backdropHeight = BACKDROP_HEIGHT * backdropSettings.scale;
+
+                const worldBounds = {
+                    minX: backdropSettings.x - backdropWidth / 2,
+                    maxX: backdropSettings.x + backdropWidth / 2,
+                    minY: backdropSettings.y - backdropHeight / 2,
+                    maxY: backdropSettings.y + backdropHeight / 2
+                };
+
+                initialX = backdropSettings.x;
+                initialY = backdropSettings.y;
+                initialZoom = calculateFitZoom(
+                    worldBounds,
+                    container.clientWidth,
+                    container.clientHeight,
+                    40 // padding
+                );
+
+                // Clamp to allowed zoom range
+                initialZoom = Math.max(
+                    INITIAL_VIEW_STATE.minZoom,
+                    Math.min(INITIAL_VIEW_STATE.maxZoom, initialZoom)
+                );
+
+                // Update current view state to match
+                currentViewState = { x: initialX, y: initialY, zoom: initialZoom };
+            }
 
             // Create layers
             const layers = createLayers(iconAtlas);
@@ -219,8 +396,8 @@
                 parent: container,
                 views: new deckModules.OrthographicView({}),
                 initialViewState: {
-                    target: [centerX, centerY, 0] as [number, number, number],
-                    zoom: INITIAL_VIEW_STATE.zoom,
+                    target: [initialX, initialY, 0] as [number, number, number],
+                    zoom: initialZoom,
                     minZoom: INITIAL_VIEW_STATE.minZoom,
                     maxZoom: INITIAL_VIEW_STATE.maxZoom
                 },
@@ -249,6 +426,9 @@
                             y: viewState.target[1],
                             zoom: viewState.zoom
                         };
+
+                        // Sync view state to URL (debounced)
+                        urlManager.syncViewState(buildUrlStateParams());
                     }
                 },
                 onHover: () => {

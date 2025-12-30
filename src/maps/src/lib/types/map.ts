@@ -300,21 +300,26 @@ export interface MapMarkerData {
 }
 
 /**
- * URL state for shareable links
+ * URL state for shareable links.
+ * @see url-state.ts for parsing and serialization functions.
  */
 export interface MapUrlState {
-    /** Center X coordinate */
+    /** Center X coordinate (1 decimal) */
     x: number;
-    /** Center Y coordinate */
+    /** Center Y coordinate (1 decimal) */
     y: number;
-    /** Zoom level */
-    zoom: number;
-    /** Selected zone (null = world view) */
+    /** Zoom level (2 decimals) */
+    z: number;
+    /** Selected marker coordinateId */
+    marker: string | null;
+    /** Selected marker type (enemy, npc, zone-line, etc.) */
+    mtype: string | null;
+    /** Focused zone key (filters to single zone) */
     zone: string | null;
-    /** Selected marker coordinate ID */
-    selected: number | null;
-    /** Live mode enabled */
-    live: boolean;
+    /** Layer visibility (comma-separated, null = defaults) */
+    layers: string | null;
+    /** Debug mode */
+    debug: boolean;
 }
 
 /**
