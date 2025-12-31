@@ -178,11 +178,18 @@ export async function load() {
                     worldPatrolWaypoints
                 } as WorldNpc);
             } else {
+                // Compute level range from non-invulnerable characters
+                // Invulnerable enemies get -Infinity/Infinity so they always pass the filter
+                const vulnerableChars = marker.characters.filter((c) => !c.isInvulnerable);
+                const levels = vulnerableChars.map((c) => c.level);
+                const allInvulnerable = vulnerableChars.length === 0;
                 const enemyMarker = {
                     ...marker,
                     zone: zoneKey,
                     worldPosition: worldPos,
-                    worldPatrolWaypoints
+                    worldPatrolWaypoints,
+                    levelMin: allInvulnerable ? -Infinity : Math.min(...levels),
+                    levelMax: allInvulnerable ? Infinity : Math.max(...levels)
                 } as WorldEnemy;
                 if (enemyMarker.isUnique) {
                     enemiesUnique.push(enemyMarker);
@@ -213,11 +220,18 @@ export async function load() {
                     worldPatrolWaypoints: null
                 } as WorldNpc);
             } else {
+                // Compute level range from non-invulnerable characters
+                // Invulnerable enemies get -Infinity/Infinity so they always pass the filter
+                const vulnerableChars = marker.characters.filter((c) => !c.isInvulnerable);
+                const levels = vulnerableChars.map((c) => c.level);
+                const allInvulnerable = vulnerableChars.length === 0;
                 const enemyMarker = {
                     ...marker,
                     zone: zoneKey,
                     worldPosition: worldPos,
-                    worldPatrolWaypoints: null
+                    worldPatrolWaypoints: null,
+                    levelMin: allInvulnerable ? -Infinity : Math.min(...levels),
+                    levelMax: allInvulnerable ? Infinity : Math.max(...levels)
                 } as WorldEnemy;
                 if (enemyMarker.isUnique) {
                     enemiesUnique.push(enemyMarker);
@@ -480,6 +494,24 @@ export async function load() {
         }
     }
 
+    // Compute overall enemy level range for filter bounds
+    // Skip invulnerable enemies (they have -Infinity/Infinity levels)
+    let enemyLevelMin = Infinity;
+    let enemyLevelMax = -Infinity;
+    for (const enemies of [enemiesCommon, enemiesRare, enemiesUnique]) {
+        for (const enemy of enemies) {
+            if (isFinite(enemy.levelMin)) {
+                enemyLevelMin = Math.min(enemyLevelMin, enemy.levelMin);
+            }
+            if (isFinite(enemy.levelMax)) {
+                enemyLevelMax = Math.max(enemyLevelMax, enemy.levelMax);
+            }
+        }
+    }
+    // Fallback if no vulnerable enemies found
+    if (!isFinite(enemyLevelMin)) enemyLevelMin = 1;
+    if (!isFinite(enemyLevelMax)) enemyLevelMax = 100;
+
     return {
         markers: {
             achievementTriggers,
@@ -501,6 +533,7 @@ export async function load() {
         zones: zonePositions,
         zoneConfigs,
         worldCenter,
-        worldBounds
+        worldBounds,
+        levelRange: { min: enemyLevelMin, max: enemyLevelMax }
     };
 }

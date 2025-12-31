@@ -1,6 +1,6 @@
 <script lang="ts">
     import { browser } from '$app/environment';
-    import { tick } from 'svelte';
+    import { tick, untrack } from 'svelte';
     import {
         INITIAL_VIEW_STATE,
         ICON_SIZE,
@@ -69,6 +69,12 @@
     let sidebarCollapsed = $state(false);
     const SIDEBAR_COLLAPSED_KEY = 'erenshor-map-sidebar-collapsed';
 
+    // Level filter state (enemies only)
+    // Use untrack() to explicitly capture initial value without creating reactive dependency
+    let levelFilter = $state<[number, number]>(
+        untrack(() => [data.levelRange.min, data.levelRange.max])
+    );
+
     // Tooltip state
     let hoveredMarker = $state<AnyWorldMarker | null>(null);
     let hoveredZone = $state<ZoneWorldPosition | null>(null);
@@ -135,7 +141,9 @@
             entityType: selectedMarker?.category ?? null,
             selectedZoneKey: selectedZone?.key ?? null,
             focusedZoneId: focusedZone,
-            debug: isDebugMode
+            debug: isDebugMode,
+            levelFilter,
+            levelRange: data.levelRange
         };
     }
 
@@ -222,6 +230,12 @@
         updateLayers();
     }
 
+    function handleLevelFilterChange(newFilter: [number, number]) {
+        levelFilter = newFilter;
+        urlManager.syncPreferences(buildUrlParams());
+        updateLayers();
+    }
+
     // Keyboard shortcuts
     function handleKeydown(event: KeyboardEvent) {
         // Ignore if typing in an input
@@ -293,6 +307,13 @@
 
                 // Restore zone focus
                 focusedZone = urlState.zone;
+
+                // Restore level filter
+                if (urlState.levelFilter) {
+                    levelFilter = urlState.levelFilter;
+                } else {
+                    levelFilter = [data.levelRange.min, data.levelRange.max];
+                }
 
                 // Restore view state
                 currentViewState = {
@@ -494,6 +515,11 @@
                 layerVisibility = parseLayerVisibility(urlState.layers);
                 focusedZone = urlState.zone;
 
+                // Restore level filter
+                if (urlState.levelFilter) {
+                    levelFilter = urlState.levelFilter;
+                }
+
                 if (hasUrlViewState) {
                     currentViewState = {
                         x: urlState.x,
@@ -538,15 +564,17 @@
     async function initializeDeck() {
         try {
             // Dynamic imports for deck.gl (SSR safety)
-            const [deckCore, deckLayers, deckGeoLayers] = await Promise.all([
+            const [deckCore, deckLayers, deckGeoLayers, deckExtensions] = await Promise.all([
                 import('@deck.gl/core'),
                 import('@deck.gl/layers'),
-                import('@deck.gl/geo-layers')
+                import('@deck.gl/geo-layers'),
+                import('@deck.gl/extensions')
             ]);
 
             const { Deck, OrthographicView } = deckCore;
             const { IconLayer, PolygonLayer, TextLayer, BitmapLayer, LineLayer, ScatterplotLayer } =
                 deckLayers;
+            const { DataFilterExtension } = deckExtensions;
             const { TileLayer, _Tileset2D: Tileset2D } = deckGeoLayers;
 
             deckModules = {
@@ -559,7 +587,8 @@
                 LineLayer,
                 ScatterplotLayer,
                 TileLayer,
-                Tileset2D
+                Tileset2D,
+                DataFilterExtension
             };
 
             // Create icon atlas for marker layers
@@ -706,7 +735,8 @@
             TileLayer,
             Tileset2D,
             LineLayer,
-            ScatterplotLayer
+            ScatterplotLayer,
+            DataFilterExtension
         } = deckModules;
 
         // Use effective zones (with overrides applied)
@@ -960,22 +990,79 @@
             }
         });
 
-        // Enemy layers (by rarity, with disabled state support)
-        const enemiesCommonLayer = createIconLayer(
-            'enemies-common',
-            data.markers.enemiesCommon,
-            getEnemyIconType
-        );
-        const enemiesRareLayer = createIconLayer(
-            'enemies-rare',
-            data.markers.enemiesRare,
-            getEnemyIconType
-        );
-        const enemiesUniqueLayer = createIconLayer(
-            'enemies-unique',
-            data.markers.enemiesUnique,
-            getEnemyIconType
-        );
+        // Enemy layers (by rarity, with level filtering via DataFilterExtension)
+        // Filter logic: show spawn if levelMin <= filterMax AND levelMax >= filterMin (overlap)
+        const levelFilterExt = new DataFilterExtension({ filterSize: 2 });
+
+        const enemiesCommonLayer = new IconLayer({
+            id: 'enemies-common',
+            data: data.markers.enemiesCommon,
+            iconAtlas: atlas.atlas,
+            iconMapping: atlas.mapping,
+            getPosition: (d: WorldEnemy) => getMarkerPosition(d),
+            getIcon: (d: WorldEnemy) => getEnemyIconType(d),
+            getSize: ICON_SIZE.base,
+            sizeUnits: 'pixels',
+            sizeMinPixels: ICON_SIZE.min,
+            sizeMaxPixels: ICON_SIZE.max,
+            pickable: true,
+            extensions: [levelFilterExt],
+            getFilterValue: (d: WorldEnemy) => [d.levelMin, d.levelMax],
+            filterRange: [
+                [-Infinity, levelFilter[1]], // levelMin <= filterMax
+                [levelFilter[0], Infinity] // levelMax >= filterMin
+            ],
+            updateTriggers: {
+                getPosition: [overrides],
+                filterRange: levelFilter
+            }
+        });
+        const enemiesRareLayer = new IconLayer({
+            id: 'enemies-rare',
+            data: data.markers.enemiesRare,
+            iconAtlas: atlas.atlas,
+            iconMapping: atlas.mapping,
+            getPosition: (d: WorldEnemy) => getMarkerPosition(d),
+            getIcon: (d: WorldEnemy) => getEnemyIconType(d),
+            getSize: ICON_SIZE.base,
+            sizeUnits: 'pixels',
+            sizeMinPixels: ICON_SIZE.min,
+            sizeMaxPixels: ICON_SIZE.max,
+            pickable: true,
+            extensions: [levelFilterExt],
+            getFilterValue: (d: WorldEnemy) => [d.levelMin, d.levelMax],
+            filterRange: [
+                [-Infinity, levelFilter[1]],
+                [levelFilter[0], Infinity]
+            ],
+            updateTriggers: {
+                getPosition: [overrides],
+                filterRange: levelFilter
+            }
+        });
+        const enemiesUniqueLayer = new IconLayer({
+            id: 'enemies-unique',
+            data: data.markers.enemiesUnique,
+            iconAtlas: atlas.atlas,
+            iconMapping: atlas.mapping,
+            getPosition: (d: WorldEnemy) => getMarkerPosition(d),
+            getIcon: (d: WorldEnemy) => getEnemyIconType(d),
+            getSize: ICON_SIZE.base,
+            sizeUnits: 'pixels',
+            sizeMinPixels: ICON_SIZE.min,
+            sizeMaxPixels: ICON_SIZE.max,
+            pickable: true,
+            extensions: [levelFilterExt],
+            getFilterValue: (d: WorldEnemy) => [d.levelMin, d.levelMax],
+            filterRange: [
+                [-Infinity, levelFilter[1]],
+                [levelFilter[0], Infinity]
+            ],
+            updateTriggers: {
+                getPosition: [overrides],
+                filterRange: levelFilter
+            }
+        });
 
         // NPC layer (with disabled state support)
         const npcsLayer = createIconLayer('npcs', data.markers.npcs, getNpcIconType);
@@ -1232,6 +1319,9 @@
         collapsed={sidebarCollapsed}
         onVisibilityChange={handleLayerVisibilityChange}
         onToggleCollapse={toggleSidebar}
+        levelRange={data.levelRange}
+        {levelFilter}
+        onLevelFilterChange={handleLevelFilterChange}
     />
 
     <!-- Map container -->

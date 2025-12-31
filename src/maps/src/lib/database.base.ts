@@ -114,7 +114,8 @@ export class RepositoryBase {
 				c.IsCommon,
 				c.IsRare,
 				c.IsUnique,
-				c.IsFriendly
+				c.IsFriendly,
+				c.Invulnerable
 			FROM Characters c
 			JOIN Coordinates co ON co.CharacterStableKey = c.StableKey
 			WHERE co.Scene = ?
@@ -163,7 +164,8 @@ export class RepositoryBase {
                                 isCommon: !!row.IsCommon,
                                 isRare: !!row.IsRare,
                                 isUnique: !!row.IsUnique,
-                                isFriendly: !!row.IsFriendly
+                                isFriendly: !!row.IsFriendly,
+                                isInvulnerable: !!row.Invulnerable
                             }
                         ],
                         coordinates,
@@ -531,6 +533,7 @@ export class RepositoryBase {
 				c.Level,
 				c.IsVendor,
 				c.HasDialog,
+				c.Invulnerable,
 				sum(spc.SpawnChance) AS SpawnChance,
 				max(spc.IsCommon) AS IsCommon,
 				max(spc.IsRare) AS IsRare,
@@ -568,6 +571,7 @@ export class RepositoryBase {
                     isRare: boolean;
                     isUnique: boolean;
                     isFriendly: boolean;
+                    isInvulnerable: boolean;
                     isVendor: boolean;
                     hasDialog: boolean;
                 }[];
@@ -608,6 +612,7 @@ export class RepositoryBase {
                 isRare: !!row.IsRare,
                 isUnique: !!row.IsUnique,
                 isFriendly: !!row.IsFriendly,
+                isInvulnerable: !!row.Invulnerable,
                 isVendor: !!row.IsVendor,
                 hasDialog: !!row.HasDialog
             });

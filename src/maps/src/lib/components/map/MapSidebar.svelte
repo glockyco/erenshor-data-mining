@@ -1,8 +1,9 @@
 <script lang="ts">
     import { LAYER_COLORS } from '$lib/map/config';
-    import type { LayerVisibility } from '$lib/types/world-map';
+    import type { LayerVisibility, LevelRange } from '$lib/types/world-map';
     import LayerToggle from './LayerToggle.svelte';
     import SidebarSection from './SidebarSection.svelte';
+    import LevelFilter from './LevelFilter.svelte';
 
     // Lucide icons
     import Home from '@lucide/svelte/icons/home';
@@ -26,9 +27,20 @@
         collapsed?: boolean;
         onVisibilityChange: (key: keyof LayerVisibility, value: boolean) => void;
         onToggleCollapse: () => void;
+        levelRange: LevelRange;
+        levelFilter: [number, number];
+        onLevelFilterChange: (value: [number, number]) => void;
     }
 
-    let { visibility, collapsed = false, onVisibilityChange, onToggleCollapse }: Props = $props();
+    let {
+        visibility,
+        collapsed = false,
+        onVisibilityChange,
+        onToggleCollapse,
+        levelRange,
+        levelFilter,
+        onLevelFilterChange
+    }: Props = $props();
 
     function rgbToHex(rgb: readonly [number, number, number]): string {
         return `#${rgb.map((c) => c.toString(16).padStart(2, '0')).join('')}`;
@@ -157,6 +169,13 @@
         <div class="flex-1 overflow-y-auto">
             <!-- Enemies -->
             <SidebarSection title="Enemies">
+                <LevelFilter
+                    label="Level"
+                    min={levelRange.min}
+                    max={levelRange.max}
+                    value={levelFilter}
+                    onchange={onLevelFilterChange}
+                />
                 <LayerToggle
                     label="Unique"
                     checked={visibility.spawnPointsUnique}

@@ -7,6 +7,6 @@ export default defineConfig({
     assetsInclude: ['**/*.wasm'],
     build: { sourcemap: true },
     ssr: {
-        noExternal: ['@lucide/svelte']
+        noExternal: ['@lucide/svelte', 'bits-ui']
     }
 });

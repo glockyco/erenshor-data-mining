@@ -40,6 +40,8 @@ export interface UrlStateParams {
     selectedZoneKey: string | null;
     focusedZoneId: string | null;
     debug: boolean;
+    levelFilter: [number, number];
+    levelRange: { min: number; max: number };
 }
 
 /**
@@ -55,6 +57,7 @@ export interface ParsedUrlState {
     selectedZone: string | null;
     zone: string | null;
     debug: boolean;
+    levelFilter: [number, number] | null;
 }
 
 // ============================================================================
@@ -213,8 +216,17 @@ function cancelViewSync(): void {
 export function buildUrl(params: UrlStateParams): string {
     const searchParams = new URLSearchParams();
 
-    const { viewState, layers, entityId, entityType, selectedZoneKey, focusedZoneId, debug } =
-        params;
+    const {
+        viewState,
+        layers,
+        entityId,
+        entityType,
+        selectedZoneKey,
+        focusedZoneId,
+        debug,
+        levelFilter,
+        levelRange
+    } = params;
 
     // View state (omit if defaults)
     if (Math.abs(viewState.x - DEFAULT_X) > 0.1) {
@@ -251,6 +263,11 @@ export function buildUrl(params: UrlStateParams): string {
         searchParams.set('layers', layerStr);
     }
 
+    // Level filter (only if not matching full range)
+    if (levelFilter[0] !== levelRange.min || levelFilter[1] !== levelRange.max) {
+        searchParams.set('lvl', `${levelFilter[0]}-${levelFilter[1]}`);
+    }
+
     // Debug mode
     if (debug) {
         searchParams.set('debug', 'true');
@@ -279,10 +296,21 @@ export function parseUrlState(): ParsedUrlState | null {
         params.has('selzone') ||
         params.has('zone') ||
         params.has('layers') ||
+        params.has('lvl') ||
         params.has('debug');
 
     if (!hasMapParams) {
         return null;
+    }
+
+    // Parse level filter if present
+    let levelFilter: [number, number] | null = null;
+    const lvl = params.get('lvl');
+    if (lvl) {
+        const parts = lvl.split('-').map(Number);
+        if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+            levelFilter = [parts[0], parts[1]];
+        }
     }
 
     return {
@@ -294,7 +322,8 @@ export function parseUrlState(): ParsedUrlState | null {
         etype: params.get('etype'),
         selectedZone: params.get('selzone'),
         zone: params.get('zone'),
-        debug: params.get('debug') === 'true'
+        debug: params.get('debug') === 'true',
+        levelFilter
     };
 }
 

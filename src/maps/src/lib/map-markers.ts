@@ -14,6 +14,7 @@ export type SpawnCharacter = {
     isRare: boolean;
     isUnique: boolean;
     isFriendly: boolean;
+    isInvulnerable: boolean;
 };
 
 // Movement data for patrol paths and wander ranges

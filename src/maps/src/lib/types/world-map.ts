@@ -51,6 +51,8 @@ export type WorldNpc = WorldMarker<NpcMarker> & {
 };
 export type WorldEnemy = WorldMarker<EnemyMarker> & {
     worldPatrolWaypoints: [number, number][] | null;
+    levelMin: number;
+    levelMax: number;
 };
 export type WorldForge = WorldMarker<ForgeMarker>;
 export type WorldWishingWell = WorldMarker<WishingWellMarker>;
@@ -146,6 +148,11 @@ export interface ZoneEnemyInfo {
     levelRange: { min: number; max: number } | null;
     uniques: { name: string; level: number }[];
     rares: { name: string; level: number }[];
+}
+
+export interface LevelRange {
+    min: number;
+    max: number;
 }
 
 export interface ZoneWorldPosition {
