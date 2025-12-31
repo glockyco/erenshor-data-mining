@@ -6,8 +6,8 @@ Tile processing script for Erenshor maps.
 """
 
 import math
-import shutil
 from pathlib import Path
+
 from PIL import Image
 
 TILE_SIZE = 256
@@ -145,7 +145,7 @@ def generate_negative_zoom_level(
     return out_tiles_x, out_tiles_y
 
 
-def process_zone(zone_name: str, config: dict) -> dict:
+def process_zone(zone_name: str, config: dict[str, int]) -> dict[str, int | bool]:
     """Process a single zone. Returns stats."""
     zone_dir = TILES_DIR / zone_name
     if not zone_dir.exists():
@@ -182,7 +182,7 @@ def process_zone(zone_name: str, config: dict) -> dict:
     return stats
 
 
-def main():
+def main() -> None:
     print("Tile Processing Script")
     print("=" * 50)
 
@@ -197,7 +197,7 @@ def main():
     print()
 
     total_converted = 0
-    min_zoom_summary = {}
+    min_zoom_summary: dict[str, int] = {}
 
     for zone_name, config in sorted(ZONES.items()):
         print(f"Processing {zone_name}...")
