@@ -20,6 +20,15 @@
                         ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
                         : 'text-slate-300 hover:text-white hover:bg-slate-700'}"
                 >
+                    Interactive World Map
+                </a>
+                <a
+                    href="/zone-maps"
+                    class="px-8 py-3 rounded-lg font-semibold transition-all duration-300 inline-block {page
+                        .url.pathname === '/zone-maps'
+                        ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+                        : 'text-slate-300 hover:text-white hover:bg-slate-700'}"
+                >
                     Interactive Zone Maps
                 </a>
                 <a
