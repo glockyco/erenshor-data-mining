@@ -7,6 +7,8 @@ export type BaseMarker = {
 // Character info for spawn points (enemies that can spawn at a location)
 export type SpawnCharacter = {
     name: string;
+    stableKey: string;
+    level: number;
     spawnChance: number;
     isCommon: boolean;
     isRare: boolean;
@@ -20,6 +22,12 @@ export type MiningNodeItem = {
     dropChance: number;
 };
 
+// Character loot drop info (for popups)
+export type CharacterDrop = {
+    itemName: string;
+    dropProbability: number;
+};
+
 export type AchievementTriggerMarker = BaseMarker & {
     category: 'achievement-trigger';
     achievementName: string;
@@ -28,7 +36,11 @@ export type AchievementTriggerMarker = BaseMarker & {
 export type NpcMarker = BaseMarker & {
     category: 'npc';
     name: string;
+    stableKey: string;
+    level: number;
     isEnabled: boolean;
+    isVendor: boolean;
+    hasDialog: boolean;
     spawnDelay: number | null;
     isNightSpawn: boolean;
 };
@@ -83,6 +95,8 @@ export type WaterMarker = BaseMarker & {
     category: 'water';
     width: number;
     height: number;
+    daytimeItems: { name: string; dropChance: number }[];
+    nighttimeItems: { name: string; dropChance: number }[];
 };
 
 export type WishingWellMarker = BaseMarker & {

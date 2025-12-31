@@ -2,6 +2,7 @@ import type { Database, SqlJsStatic } from 'sql.js/dist/sql-wasm.js';
 
 import type {
     AchievementTriggerMarker,
+    CharacterDrop,
     DoorMarker,
     EnemyMarker,
     ForgeMarker,
@@ -75,7 +76,11 @@ export class RepositoryBase {
 				co.Y AS PositionY,
 				co.Z AS PositionZ,
 				c.NPCName,
+				c.StableKey,
+				c.Level,
 				c.IsEnabled,
+				c.IsVendor,
+				c.HasDialog,
 				c.IsCommon,
 				c.IsRare,
 				c.IsUnique,
@@ -97,6 +102,8 @@ export class RepositoryBase {
                 y: row.PositionY as number,
                 z: row.PositionZ as number
             };
+            const stableKey = row.StableKey as string;
+            const level = (row.Level as number) ?? 1;
             const isFriendly = row.IsFriendly;
             if (isFriendly) {
                 markers.push(
@@ -104,8 +111,12 @@ export class RepositoryBase {
                         coordinateId,
                         coordinates,
                         row.NPCName as string,
+                        stableKey,
+                        level,
                         null,
                         !!row.IsEnabled,
+                        !!row.IsVendor,
+                        !!row.HasDialog,
                         false
                     )
                 );
@@ -116,6 +127,8 @@ export class RepositoryBase {
                         [
                             {
                                 name: row.NPCName as string,
+                                stableKey,
+                                level,
                                 spawnChance: 100,
                                 isCommon: !!row.IsCommon,
                                 isRare: !!row.IsRare,
@@ -140,8 +153,12 @@ export class RepositoryBase {
         coordinateId: number,
         coordinates: { x: number; y: number; z: number },
         npcName: string,
+        stableKey: string,
+        level: number,
         spawnDelay: number | null,
         isEnabled: boolean,
+        isVendor: boolean,
+        hasDialog: boolean,
         isNightSpawn: boolean
     ): NpcMarker {
         const positionText = `NPC @ ${formatCoordinates(coordinates.x, coordinates.y, coordinates.z)}`;
@@ -155,6 +172,8 @@ export class RepositoryBase {
             coordinateId: coordinateId,
             category: 'npc',
             name: npcName,
+            stableKey,
+            level,
             spawnDelay,
             isNightSpawn,
             position: {
@@ -162,7 +181,9 @@ export class RepositoryBase {
                 y: coordinates.z
             },
             popup: popupText.trim(),
-            isEnabled: isEnabled
+            isEnabled: isEnabled,
+            isVendor,
+            hasDialog
         };
     }
 
@@ -468,6 +489,10 @@ export class RepositoryBase {
 				sp.IsEnabled AS IsEnabled,
 				sp.NightSpawn AS IsNightSpawn,
 				c.NPCName,
+				c.StableKey,
+				c.Level,
+				c.IsVendor,
+				c.HasDialog,
 				sum(spc.SpawnChance) AS SpawnChance,
 				max(spc.IsCommon) AS IsCommon,
 				max(spc.IsRare) AS IsRare,
@@ -478,7 +503,7 @@ export class RepositoryBase {
 			JOIN Characters c ON c.StableKey = spc.CharacterStableKey
 			JOIN Coordinates co ON co.SpawnPointId = sp.Id
 			WHERE co.Scene = ? AND spc.SpawnChance > 0
-			GROUP BY co.Id, c.NPCName
+			GROUP BY co.Id, c.StableKey
 		`,
             [mapName]
         );
@@ -495,11 +520,15 @@ export class RepositoryBase {
                 isNightSpawn: boolean;
                 characters: {
                     name: string;
+                    stableKey: string;
+                    level: number;
                     spawnChance: number;
                     isCommon: boolean;
                     isRare: boolean;
                     isUnique: boolean;
                     isFriendly: boolean;
+                    isVendor: boolean;
+                    hasDialog: boolean;
                 }[];
             }
         >();
@@ -528,11 +557,15 @@ export class RepositoryBase {
             }
             spawnPointMap.get(spawnPointId)!.characters.push({
                 name: row.NPCName as string,
+                stableKey: row.StableKey as string,
+                level: (row.Level as number) ?? 1,
                 spawnChance: row.SpawnChance as number,
                 isCommon: !!row.IsCommon,
                 isRare: !!row.IsRare,
                 isUnique: !!row.IsUnique,
-                isFriendly: !!row.IsFriendly
+                isFriendly: !!row.IsFriendly,
+                isVendor: !!row.IsVendor,
+                hasDialog: !!row.HasDialog
             });
         }
 
@@ -555,8 +588,12 @@ export class RepositoryBase {
                         coordinateId,
                         coordinates,
                         npc.name,
+                        npc.stableKey,
+                        npc.level,
                         spawnDelay,
                         isEnabled,
+                        npc.isVendor,
+                        npc.hasDialog,
                         isNightSpawn
                     )
                 );
@@ -840,6 +877,8 @@ export class RepositoryBase {
                 position,
                 width,
                 height,
+                daytimeItems: sortedDaytimeItems,
+                nighttimeItems: sortedNighttimeItems,
                 popup: popupText
             });
         }
@@ -1010,5 +1049,37 @@ export class RepositoryBase {
         }
         stmt.free();
         return bearings;
+    }
+
+    async getDropsForCharacter(stableKey: string): Promise<CharacterDrop[]> {
+        if (!this.db) throw new Error('DB not initialized');
+
+        const stmt = this.db.prepare(
+            `
+            SELECT
+                i.ItemName AS itemName,
+                ld.DropProbability AS dropProbability
+            FROM LootDrops ld
+            JOIN Items i ON i.StableKey = ld.ItemStableKey
+            WHERE ld.CharacterStableKey = ?
+              AND ld.IsActual = 1
+              AND ld.IsVisible = 1
+            ORDER BY ld.DropProbability DESC
+            LIMIT 10
+        `,
+            [stableKey]
+        );
+
+        const drops: CharacterDrop[] = [];
+
+        while (stmt.step()) {
+            const row = stmt.getAsObject();
+            drops.push({
+                itemName: row.itemName as string,
+                dropProbability: row.dropProbability as number
+            });
+        }
+        stmt.free();
+        return drops;
     }
 }

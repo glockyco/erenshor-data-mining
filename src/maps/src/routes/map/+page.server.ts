@@ -5,31 +5,25 @@ import {
     calculateWorldCenter
 } from '$lib/map/zone-config';
 import { transformToMapCoords } from '$lib/map/config';
-import type { ZoneConfig, ZoneWorldPosition } from '$lib/types/map';
+import type {
+    ZoneConfig,
+    ZoneWorldPosition,
+    AchievementTriggerMarker,
+    DoorMarker,
+    EnemyMarker,
+    ForgeMarker,
+    ItemBagMarker,
+    MiningNodeMarker,
+    NpcMarker,
+    SecretPassageMarker,
+    TeleportMarker,
+    TreasureLocMarker,
+    WaterMarker,
+    WishingWellMarker,
+    ZoneLineMarker
+} from '$lib/types/map';
 
 export const prerender = true;
-
-interface MarkerWithWorldPosition {
-    coordinateId: number;
-    position: { x: number; y: number };
-    worldPosition: [number, number];
-    zone: string;
-    popup?: string;
-    [key: string]: unknown;
-}
-
-interface ZoneLineWithArc extends MarkerWithWorldPosition {
-    destinationZone: string;
-    destinationZoneName: string;
-    isEnabled: boolean;
-    destinationWorldPosition: [number, number] | null;
-}
-
-interface WaterWithPolygon extends MarkerWithWorldPosition {
-    width: number;
-    height: number;
-    worldPolygon: [number, number][];
-}
 
 /**
  * Calculate zone bounds in game coordinates
@@ -124,21 +118,21 @@ export async function load() {
     const zoneKeys = zonePositions.map((z) => z.key);
 
     // Load markers for each zone
-    const achievementTriggers: MarkerWithWorldPosition[] = [];
-    const npcs: MarkerWithWorldPosition[] = [];
-    const doors: MarkerWithWorldPosition[] = [];
-    const forges: MarkerWithWorldPosition[] = [];
-    const itemBags: MarkerWithWorldPosition[] = [];
-    const miningNodes: MarkerWithWorldPosition[] = [];
-    const secretPassages: MarkerWithWorldPosition[] = [];
-    const enemiesCommon: MarkerWithWorldPosition[] = [];
-    const enemiesRare: MarkerWithWorldPosition[] = [];
-    const enemiesUnique: MarkerWithWorldPosition[] = [];
-    const teleports: MarkerWithWorldPosition[] = [];
-    const treasureLocs: MarkerWithWorldPosition[] = [];
-    const water: WaterWithPolygon[] = [];
-    const wishingWells: MarkerWithWorldPosition[] = [];
-    const zoneLines: ZoneLineWithArc[] = [];
+    const achievementTriggers: AchievementTriggerMarker[] = [];
+    const npcs: NpcMarker[] = [];
+    const doors: DoorMarker[] = [];
+    const forges: ForgeMarker[] = [];
+    const itemBags: ItemBagMarker[] = [];
+    const miningNodes: MiningNodeMarker[] = [];
+    const secretPassages: SecretPassageMarker[] = [];
+    const enemiesCommon: EnemyMarker[] = [];
+    const enemiesRare: EnemyMarker[] = [];
+    const enemiesUnique: EnemyMarker[] = [];
+    const teleports: TeleportMarker[] = [];
+    const treasureLocs: TreasureLocMarker[] = [];
+    const water: WaterMarker[] = [];
+    const wishingWells: WishingWellMarker[] = [];
+    const zoneLines: ZoneLineMarker[] = [];
 
     for (const zoneKey of zoneKeys) {
         // Load spawn points (split by category and rarity for layer ordering)
@@ -151,20 +145,26 @@ export async function load() {
                 zoneConfigs,
                 zonePositions
             );
-            const spawnMarker = {
-                ...marker,
-                zone: zoneKey,
-                worldPosition: worldPos
-            };
             // NPC spawn points go with NPCs, enemy spawn points sorted by rarity
             if (marker.category === 'npc') {
-                npcs.push(spawnMarker);
-            } else if (marker.isUnique) {
-                enemiesUnique.push(spawnMarker);
-            } else if (marker.isRare) {
-                enemiesRare.push(spawnMarker);
+                npcs.push({
+                    ...marker,
+                    zone: zoneKey,
+                    worldPosition: worldPos
+                } as NpcMarker);
             } else {
-                enemiesCommon.push(spawnMarker);
+                const enemyMarker = {
+                    ...marker,
+                    zone: zoneKey,
+                    worldPosition: worldPos
+                } as EnemyMarker;
+                if (enemyMarker.isUnique) {
+                    enemiesUnique.push(enemyMarker);
+                } else if (enemyMarker.isRare) {
+                    enemiesRare.push(enemyMarker);
+                } else {
+                    enemiesCommon.push(enemyMarker);
+                }
             }
         }
 
@@ -178,20 +178,26 @@ export async function load() {
                 zoneConfigs,
                 zonePositions
             );
-            const worldMarker = {
-                ...marker,
-                zone: zoneKey,
-                worldPosition: worldPos
-            };
             // Sort into appropriate array based on category and rarity
             if (marker.category === 'npc') {
-                npcs.push(worldMarker);
-            } else if (marker.isUnique) {
-                enemiesUnique.push(worldMarker);
-            } else if (marker.isRare) {
-                enemiesRare.push(worldMarker);
+                npcs.push({
+                    ...marker,
+                    zone: zoneKey,
+                    worldPosition: worldPos
+                } as NpcMarker);
             } else {
-                enemiesCommon.push(worldMarker);
+                const enemyMarker = {
+                    ...marker,
+                    zone: zoneKey,
+                    worldPosition: worldPos
+                } as EnemyMarker;
+                if (enemyMarker.isUnique) {
+                    enemiesUnique.push(enemyMarker);
+                } else if (enemyMarker.isRare) {
+                    enemiesRare.push(enemyMarker);
+                } else {
+                    enemiesCommon.push(enemyMarker);
+                }
             }
         }
 

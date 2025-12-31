@@ -1,164 +1,71 @@
 /**
- * Marker category types
- * Note: 'enemy' and 'npc' are the actual categories from the database
+ * Map types for the world map page.
+ *
+ * This file extends the database layer types from map-markers.ts with
+ * world positioning (zone and worldPosition fields).
  */
-export type MarkerCategory =
-    | 'achievement-trigger'
-    | 'door'
-    | 'enemy'
-    | 'forge'
-    | 'item-bag'
-    | 'mining-node'
-    | 'npc'
-    | 'secret-passage'
-    | 'teleport'
-    | 'treasure-loc'
-    | 'water'
-    | 'wishing-well'
-    | 'zone-line';
+
+import type {
+    BaseMarker,
+    AchievementTriggerMarker as DBAchievementTriggerMarker,
+    DoorMarker as DBDoorMarker,
+    EnemyMarker as DBEnemyMarker,
+    ForgeMarker as DBForgeMarker,
+    ItemBagMarker as DBItemBagMarker,
+    MiningNodeMarker as DBMiningNodeMarker,
+    NpcMarker as DBNpcMarker,
+    SecretPassageMarker as DBSecretPassageMarker,
+    TeleportMarker as DBTeleportMarker,
+    TreasureLocMarker as DBTreasureLocMarker,
+    WaterMarker as DBWaterMarker,
+    WishingWellMarker as DBWishingWellMarker,
+    ZoneLineMarker as DBZoneLineMarker
+} from '$lib/map-markers';
+
+// Re-export SpawnCharacter for convenience
+export type { SpawnCharacter } from '$lib/map-markers';
+
+// =============================================================================
+// World-positioned marker types
+// =============================================================================
 
 /**
- * Base interface for all map markers
+ * Fields added when transforming database markers to world coordinates
  */
-export interface MapMarker {
-    coordinateId: number;
-    category: MarkerCategory;
-    position: [number, number]; // [x, y] in local zone coordinates
+interface WorldPositioning {
     zone: string; // Zone key (e.g., "Soluna", "Silkengrass")
-    popup?: string; // HTML popup content
+    worldPosition: [number, number]; // World coordinates for rendering
 }
 
 /**
- * Achievement trigger marker
+ * Utility type to add world positioning to a database marker type
  */
-export interface AchievementTriggerMarker extends MapMarker {
-    category: 'achievement-trigger';
-    achievementName: string;
-}
+type WithWorldPosition<T extends BaseMarker> = T & WorldPositioning;
+
+// Full marker types with world positioning
+export type AchievementTriggerMarker = WithWorldPosition<DBAchievementTriggerMarker>;
+export type DoorMarker = WithWorldPosition<DBDoorMarker>;
+export type EnemyMarker = WithWorldPosition<DBEnemyMarker>;
+export type ForgeMarker = WithWorldPosition<DBForgeMarker>;
+export type ItemBagMarker = WithWorldPosition<DBItemBagMarker>;
+export type MiningNodeMarker = WithWorldPosition<DBMiningNodeMarker>;
+export type NpcMarker = WithWorldPosition<DBNpcMarker>;
+export type SecretPassageMarker = WithWorldPosition<DBSecretPassageMarker>;
+export type TeleportMarker = WithWorldPosition<DBTeleportMarker>;
+export type TreasureLocMarker = WithWorldPosition<DBTreasureLocMarker>;
+export type WishingWellMarker = WithWorldPosition<DBWishingWellMarker>;
+
+// Water and ZoneLine have additional world-computed fields
+export type WaterMarker = WithWorldPosition<DBWaterMarker> & {
+    worldPolygon: [number, number][]; // Clamped polygon corners in world coords
+};
+
+export type ZoneLineMarker = WithWorldPosition<DBZoneLineMarker> & {
+    destinationWorldPosition: [number, number] | null; // World coords of landing point
+};
 
 /**
- * Friendly NPC marker
- */
-export interface NpcMarker extends MapMarker {
-    category: 'npc';
-    name: string;
-    isEnabled: boolean;
-    spawnDelay: number | null;
-    isNightSpawn: boolean;
-}
-
-/**
- * Locked door marker
- */
-export interface DoorMarker extends MapMarker {
-    category: 'door';
-    keyItemName: string;
-}
-
-/**
- * Crafting forge marker
- */
-export interface ForgeMarker extends MapMarker {
-    category: 'forge';
-}
-
-/**
- * Item bag/container marker
- */
-export interface ItemBagMarker extends MapMarker {
-    category: 'item-bag';
-    itemName: string;
-    respawnTimer: number;
-}
-
-/**
- * Mining node marker
- */
-export interface MiningNodeMarker extends MapMarker {
-    category: 'mining-node';
-    items: { name: string; dropChance: number }[];
-    respawnTime: number;
-}
-
-/**
- * Secret passage marker (hidden doors, illusory walls)
- */
-export interface SecretPassageMarker extends MapMarker {
-    category: 'secret-passage';
-    passageType: 'HiddenDoor' | 'IllusoryWall' | 'InvisibleFloor';
-}
-
-/**
- * Character info for enemy spawn points
- */
-export interface SpawnCharacter {
-    name: string;
-    spawnChance: number;
-    isCommon: boolean;
-    isRare: boolean;
-    isUnique: boolean;
-    isFriendly: boolean;
-}
-
-/**
- * Enemy spawn point marker
- */
-export interface EnemyMarker extends MapMarker {
-    category: 'enemy';
-    characters: SpawnCharacter[];
-    spawnDelay: number | null;
-    isEnabled: boolean;
-    isNightSpawn: boolean;
-    isUnique: boolean;
-    isRare: boolean;
-}
-
-/**
- * Teleport destination marker
- */
-export interface TeleportMarker extends MapMarker {
-    category: 'teleport';
-    teleportItemName: string;
-}
-
-/**
- * Treasure hunting location marker
- */
-export interface TreasureLocMarker extends MapMarker {
-    category: 'treasure-loc';
-}
-
-/**
- * Fishable water marker
- */
-export interface WaterMarker extends MapMarker {
-    category: 'water';
-    daytimeItems: { name: string; dropChance: number }[];
-    nighttimeItems: { name: string; dropChance: number }[];
-}
-
-/**
- * Wishing well (respawn point) marker
- */
-export interface WishingWellMarker extends MapMarker {
-    category: 'wishing-well';
-}
-
-/**
- * Zone connection portal marker
- */
-export interface ZoneLineMarker extends MapMarker {
-    category: 'zone-line';
-    destinationZone: string;
-    destinationZoneName: string;
-    landingPosition: { x: number; y: number; z: number };
-    levelRangeLow: number | null;
-    levelRangeHigh: number | null;
-    isEnabled: boolean;
-}
-
-/**
- * Union of all marker types
+ * Union of all marker types with world positioning
  */
 export type AnyMapMarker =
     | AchievementTriggerMarker
@@ -175,30 +82,31 @@ export type AnyMapMarker =
     | WishingWellMarker
     | ZoneLineMarker;
 
-/**
- * Layer visibility toggle state
- */
+// =============================================================================
+// Layer visibility
+// =============================================================================
+
 export interface LayerVisibility {
     // Terrain layers
-    tiles: boolean; // Per-zone tile imagery
-    worldMap: boolean; // Full world backdrop image
-    zoneBounds: boolean; // Zone outline polygons
-    zoneLabels: boolean; // Zone name text labels
+    tiles: boolean;
+    worldMap: boolean;
+    zoneBounds: boolean;
+    zoneLabels: boolean;
     // Enemy layers (by rarity)
-    spawnPoints: boolean; // Common enemies
-    spawnPointsRare: boolean; // Rare enemies
-    spawnPointsUnique: boolean; // Unique/boss enemies
+    spawnPoints: boolean;
+    spawnPointsRare: boolean;
+    spawnPointsUnique: boolean;
     // NPC layers
-    characters: boolean; // All NPCs
+    characters: boolean;
     // Zone connections
-    zoneLines: boolean; // Zone portals
-    teleports: boolean; // Teleport destinations
+    zoneLines: boolean;
+    teleports: boolean;
     // Utilities
     forges: boolean;
     wishingWells: boolean;
     // Resources
     miningNodes: boolean;
-    water: boolean; // Fishing spots
+    water: boolean;
     itemBags: boolean;
     treasureLocs: boolean;
     // Secrets
@@ -207,66 +115,47 @@ export interface LayerVisibility {
     achievementTriggers: boolean;
 }
 
-/**
- * Default layer visibility (all ON by default)
- */
 export const DEFAULT_LAYER_VISIBILITY: LayerVisibility = {
-    // Terrain
     tiles: true,
     worldMap: true,
     zoneBounds: false,
     zoneLabels: true,
-    // Enemies
     spawnPoints: true,
     spawnPointsRare: true,
     spawnPointsUnique: true,
-    // NPCs
     characters: true,
-    // Zone connections
     zoneLines: true,
     teleports: true,
-    // Utilities
     forges: true,
     wishingWells: true,
-    // Resources
     miningNodes: true,
     water: true,
     itemBags: true,
     treasureLocs: true,
-    // Secrets
     doors: true,
     secretPassages: true,
     achievementTriggers: true
 };
 
-/**
- * Zone world position for unified map rendering
- */
+// =============================================================================
+// Zone configuration
+// =============================================================================
+
 export interface ZoneWorldPosition {
-    /** Zone key (e.g., "Soluna") */
     key: string;
-    /** Display name */
     name: string;
-    /** World X offset (added to local coordinates) */
     worldX: number;
-    /** World Y offset (added to local coordinates) */
     worldY: number;
-    /** Zone bounds in world coordinates (axis-aligned bounding box) */
     bounds: {
         minX: number;
         minY: number;
         maxX: number;
         maxY: number;
     };
-    /** Actual rotated polygon corners in world coordinates */
     polygon: [number, number][];
-    /** Polygon centroid for label positioning */
     centroid: [number, number];
 }
 
-/**
- * Zone configuration from existing maps.ts
- */
 export interface ZoneConfig {
     zoneName: string;
     tileUrl: string;
@@ -278,12 +167,13 @@ export interface ZoneConfig {
     maxZoom: number;
     originX: number;
     originY: number;
-    northBearing: number; // Degrees, for compass alignment
+    northBearing: number;
 }
 
-/**
- * Pre-filtered marker data (computed once, not on every render)
- */
+// =============================================================================
+// Map data interfaces
+// =============================================================================
+
 export interface FilteredMapData {
     achievementTriggers: AchievementTriggerMarker[];
     npcs: NpcMarker[];
@@ -302,9 +192,6 @@ export interface FilteredMapData {
     zoneLines: ZoneLineMarker[];
 }
 
-/**
- * All marker data for the map (raw, before filtering)
- */
 export interface MapMarkerData {
     achievementTriggers: AchievementTriggerMarker[];
     npcs: NpcMarker[];
@@ -324,32 +211,10 @@ export interface MapMarkerData {
     zones: ZoneWorldPosition[];
 }
 
-/**
- * URL state for shareable links.
- * @see url-state.ts for parsing and serialization functions.
- */
-export interface MapUrlState {
-    /** Center X coordinate (1 decimal) */
-    x: number;
-    /** Center Y coordinate (1 decimal) */
-    y: number;
-    /** Zoom level (2 decimals) */
-    z: number;
-    /** Selected marker coordinateId */
-    marker: string | null;
-    /** Selected marker type (enemy, npc, zone-line, etc.) */
-    mtype: string | null;
-    /** Focused zone key (filters to single zone) */
-    zone: string | null;
-    /** Layer visibility (comma-separated, null = defaults) */
-    layers: string | null;
-    /** Debug mode */
-    debug: boolean;
-}
+// =============================================================================
+// Live entities (WebSocket)
+// =============================================================================
 
-/**
- * Live entity from WebSocket
- */
 export interface LiveEntity {
     id: string;
     type: 'player' | 'simplayer' | 'npc';
@@ -359,18 +224,12 @@ export interface LiveEntity {
     rotation: number;
 }
 
-/**
- * WebSocket connection state
- */
 export type ConnectionState =
     | { status: 'disconnected' }
     | { status: 'connecting'; attempt: number }
     | { status: 'connected' }
     | { status: 'reconnecting'; attempt: number; lastError: string };
 
-/**
- * Zone list item for dropdown selection
- */
 export interface ZoneListItem {
     key: string;
     name: string;

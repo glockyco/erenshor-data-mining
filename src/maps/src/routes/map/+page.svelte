@@ -30,12 +30,7 @@
         type DragInfo,
         type BackdropSettings
     } from '$lib/map/debug';
-    import {
-        urlManager,
-        parseUrlState,
-        parseLayerVisibility,
-        type UrlStateParams
-    } from '$lib/map/url-state';
+    import { urlManager, parseUrlState, parseLayerVisibility } from '$lib/map/url-state';
     import {
         DEFAULT_LAYER_VISIBILITY,
         type LayerVisibility,
@@ -64,6 +59,11 @@
     let hoveredMarker = $state<AnyMapMarker | null>(null);
     let hoverPosition = $state<{ x: number; y: number }>({ x: 0, y: 0 });
 
+    // Selection state (for popups)
+    let selectedMarker = $state<AnyMapMarker | null>(null);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- used by popup component
+    let selectedMarkerZoneName = $state<string>('');
+
     // Desktop detection (tooltips only on desktop)
     let isDesktop = $state(false);
     $effect(() => {
@@ -79,6 +79,62 @@
     function getZoneName(zoneKey: string): string {
         const zone = data.zones.find((z) => z.key === zoneKey);
         return zone?.name ?? zoneKey;
+    }
+
+    // Find marker by coordinateId and category
+    function findMarkerByIdAndType(id: number, type: string): AnyMapMarker | null {
+        const allMarkers: AnyMapMarker[] = [
+            ...data.markers.achievementTriggers,
+            ...data.markers.doors,
+            ...data.markers.enemiesCommon,
+            ...data.markers.enemiesRare,
+            ...data.markers.enemiesUnique,
+            ...data.markers.forges,
+            ...data.markers.itemBags,
+            ...data.markers.miningNodes,
+            ...data.markers.npcs,
+            ...data.markers.secretPassages,
+            ...data.markers.teleports,
+            ...data.markers.treasureLocs,
+            ...data.markers.water,
+            ...data.markers.wishingWells,
+            ...data.markers.zoneLines
+        ];
+        return allMarkers.find((m) => m.coordinateId === id && m.category === type) ?? null;
+    }
+
+    /**
+     * Build complete URL params from current state.
+     * Called by all URL sync operations.
+     */
+    function buildUrlParams() {
+        return {
+            viewState: currentViewState,
+            layers: layerVisibility,
+            entityId: selectedMarker ? String(selectedMarker.coordinateId) : null,
+            entityType: selectedMarker?.category ?? null,
+            focusedZoneId: focusedZone,
+            debug: isDebugMode
+        };
+    }
+
+    /**
+     * Apply selection state. Single point for all selection changes.
+     * @param marker - Marker to select, or null to clear
+     * @param skipUrlUpdate - True when restoring from URL
+     */
+    function applySelection(marker: AnyMapMarker | null, skipUrlUpdate = false): void {
+        selectedMarker = marker;
+        selectedMarkerZoneName = marker ? getZoneName(marker.zone) : '';
+
+        if (!skipUrlUpdate) {
+            urlManager.pushSelection(buildUrlParams());
+        }
+    }
+
+    // Close popup
+    function closePopup(): void {
+        applySelection(null);
     }
 
     // Load sidebar state from localStorage
@@ -102,7 +158,7 @@
     // Handle layer visibility change
     function handleLayerVisibilityChange(key: keyof LayerVisibility, value: boolean) {
         layerVisibility = { ...layerVisibility, [key]: value };
-        urlManager.syncPreferences(buildUrlStateParams());
+        urlManager.syncPreferences(buildUrlParams());
         updateLayers();
     }
 
@@ -113,6 +169,13 @@
             return;
         }
 
+        // ESC closes popup
+        if (event.key === 'Escape' && selectedMarker) {
+            closePopup();
+            return;
+        }
+
+        // B toggles sidebar
         if (event.key === 'b' || event.key === 'B') {
             toggleSidebar();
         }
@@ -151,71 +214,78 @@
         }
     });
 
-    // Build current URL state params for syncing
-    function buildUrlStateParams(): UrlStateParams {
-        return {
-            x: currentViewState.x,
-            y: currentViewState.y,
-            z: currentViewState.zoom,
-            zone: focusedZone,
-            layers: layerVisibility,
-            debug: isDebugMode
-            // marker and mtype will be added when selection is implemented
-        };
-    }
-
-    // Restore state from URL (called on mount and popstate)
+    /**
+     * Restore state from URL. Called on mount and popstate.
+     * Uses try/finally to guarantee passive mode exit.
+     */
     async function restoreFromUrl(): Promise<void> {
-        const urlState = parseUrlState();
+        urlManager.enterPassiveMode();
 
-        if (urlState) {
-            // Restore debug mode
-            isDebugMode = urlState.debug;
+        try {
+            const urlState = parseUrlState();
 
-            // Restore layer visibility
-            layerVisibility = parseLayerVisibility(urlState.layers);
+            if (urlState) {
+                // Restore debug mode
+                isDebugMode = urlState.debug;
 
-            // Restore zone focus
-            focusedZone = urlState.zone;
+                // Restore layer visibility
+                layerVisibility = parseLayerVisibility(urlState.layers);
 
-            // Restore view state if deck is initialized
-            if (deckInstance) {
-                deckInstance.setProps({
-                    initialViewState: {
-                        target: [urlState.x, urlState.y, 0] as [number, number, number],
-                        zoom: urlState.z,
-                        minZoom: INITIAL_VIEW_STATE.minZoom,
-                        maxZoom: INITIAL_VIEW_STATE.maxZoom
+                // Restore zone focus
+                focusedZone = urlState.zone;
+
+                // Restore view state
+                currentViewState = {
+                    x: urlState.x,
+                    y: urlState.y,
+                    zoom: urlState.zoom
+                };
+
+                // Restore view state if deck is initialized
+                if (deckInstance) {
+                    deckInstance.setProps({
+                        initialViewState: {
+                            target: [urlState.x, urlState.y, 0] as [number, number, number],
+                            zoom: urlState.zoom,
+                            minZoom: INITIAL_VIEW_STATE.minZoom,
+                            maxZoom: INITIAL_VIEW_STATE.maxZoom
+                        }
+                    });
+                }
+
+                // Restore selection
+                if (urlState.entity && urlState.etype) {
+                    const marker = findMarkerByIdAndType(parseInt(urlState.entity), urlState.etype);
+                    if (marker) {
+                        applySelection(marker, true);
+                    } else {
+                        console.warn(`Marker not found: ${urlState.etype}:${urlState.entity}`);
+                        applySelection(null, true);
                     }
-                });
+                } else {
+                    applySelection(null, true);
+                }
+
+                // Sync deduplication tracking
+                urlManager.setLastSelection(urlState.entity, urlState.etype);
+            } else {
+                // No URL state - use defaults
+                isDebugMode = false;
+                layerVisibility = { ...DEFAULT_LAYER_VISIBILITY };
+                focusedZone = null;
+                applySelection(null, true);
             }
 
-            // Update local view state
-            currentViewState = {
-                x: urlState.x,
-                y: urlState.y,
-                zoom: urlState.z
-            };
-
-            // Track selection for deduplication
-            urlManager.setLastSelection(urlState.marker, urlState.mtype);
-        } else {
-            // No URL state - use defaults
-            isDebugMode = false;
-            layerVisibility = { ...DEFAULT_LAYER_VISIBILITY };
-            focusedZone = null;
+            await tick();
+        } finally {
+            urlManager.exitPassiveMode();
         }
-
-        await tick();
     }
 
     // Handle browser back/forward navigation
-    function handlePopstate(): void {
-        urlManager.enterPassiveMode();
-        restoreFromUrl().finally(() => {
-            urlManager.exitPassiveMode();
-            updateLayers();
-        });
+    async function handlePopstate(): Promise<void> {
+        await restoreFromUrl();
+        updateLayers();
     }
 
     // deck.gl instance and modules
@@ -341,38 +411,37 @@
     $effect(() => {
         if (!browser || !container) return;
 
-        // Restore URL state before initializing deck
-        urlManager.enterPassiveMode();
-        const urlState = parseUrlState();
-
         // Check if URL has explicit view state params
         const params = new URLSearchParams(window.location.search);
         hasUrlViewState = params.has('x') || params.has('y') || params.has('z');
 
-        if (urlState) {
-            isDebugMode = urlState.debug;
-            layerVisibility = parseLayerVisibility(urlState.layers);
-            focusedZone = urlState.zone;
+        // Parse initial URL state (passive mode is handled in restoreFromUrl)
+        urlManager.enterPassiveMode();
+        try {
+            const urlState = parseUrlState();
 
-            if (hasUrlViewState) {
-                currentViewState = {
-                    x: urlState.x,
-                    y: urlState.y,
-                    zoom: urlState.z
-                };
+            if (urlState) {
+                isDebugMode = urlState.debug;
+                layerVisibility = parseLayerVisibility(urlState.layers);
+                focusedZone = urlState.zone;
+
+                if (hasUrlViewState) {
+                    currentViewState = {
+                        x: urlState.x,
+                        y: urlState.y,
+                        zoom: urlState.zoom
+                    };
+                }
+                urlManager.setLastSelection(urlState.entity, urlState.etype);
             }
-            urlManager.setLastSelection(urlState.marker, urlState.mtype);
+        } finally {
+            urlManager.exitPassiveMode();
         }
 
         initializeDeck();
 
         // Add popstate listener for back/forward navigation
         window.addEventListener('popstate', handlePopstate);
-
-        // Exit passive mode after initial setup
-        tick().then(() => {
-            urlManager.exitPassiveMode();
-        });
 
         return () => {
             window.removeEventListener('popstate', handlePopstate);
@@ -496,7 +565,7 @@
                         };
 
                         // Sync view state to URL (debounced)
-                        urlManager.syncViewState(buildUrlStateParams());
+                        urlManager.syncViewState(buildUrlParams());
                     }
                 },
                 onHover: (info: { object?: AnyMapMarker; x: number; y: number }) => {
@@ -507,8 +576,11 @@
                         hoveredMarker = null;
                     }
                 },
-                onClick: () => {
-                    // TODO: Implement popup on click
+                onClick: (info: { object?: AnyMapMarker }) => {
+                    if (info.object) {
+                        applySelection(info.object);
+                    }
+                    // Don't close on click-away - use close button or ESC instead
                 },
                 onDragStart: handleDragStart,
                 onDrag: handleDrag,

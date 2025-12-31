@@ -1,68 +1,79 @@
 /**
  * URL state management for shareable map links.
  *
- * Uses explicit urlManager object pattern (not reactive effects) with:
+ * Uses explicit urlManager object pattern with:
  * - pushSelection() - adds to browser history (back/forward works)
  * - syncViewState() - debounced replace (no history spam during pan/zoom)
- * - syncPreferences() - immediate replace for layers/filters
+ * - syncPreferences() - immediate replace for layers/zone focus
  * - Passive mode - prevents URL updates during popstate restoration
+ *
+ * Key pattern: All sync methods take COMPLETE UrlStateParams (no optionals).
+ * This eliminates merging bugs - the caller is responsible for providing full state.
  */
 
 import { browser } from '$app/environment';
 import { pushState, replaceState } from '$app/navigation';
 import { DEFAULT_LAYER_VISIBILITY, type LayerVisibility } from '$lib/types/map';
 
+// ============================================================================
+// Types
+// ============================================================================
+
 /**
- * URL state interface for Erenshor maps
+ * Selection state for URL tracking and deduplication.
  */
-export interface UrlState {
-    /** Center X coordinate (1 decimal) */
-    x: number;
-    /** Center Y coordinate (1 decimal) */
-    y: number;
-    /** Zoom level (2 decimals) */
-    z: number;
-    /** Selected marker coordinateId */
-    marker: string | null;
-    /** Selected marker type (enemy, npc, zone-line, etc.) */
-    mtype: string | null;
-    /** Focused zone key */
-    zone: string | null;
-    /** Comma-separated visible layers (null = defaults) */
-    layers: string | null;
-    /** Debug mode */
+export interface SelectionState {
+    entityId: string | null;
+    entityType: string | null;
+}
+
+/**
+ * Complete state needed to build a URL.
+ * All fields required - no optionals, no partial updates.
+ */
+export interface UrlStateParams {
+    viewState: { x: number; y: number; zoom: number };
+    layers: LayerVisibility;
+    entityId: string | null;
+    entityType: string | null;
+    focusedZoneId: string | null;
     debug: boolean;
 }
 
 /**
- * Parameters for URL state updates (all optional for partial updates)
+ * Parsed URL state (what we read FROM the URL).
  */
-export interface UrlStateParams {
-    x?: number;
-    y?: number;
-    z?: number;
-    marker?: string | null;
-    mtype?: string | null;
-    zone?: string | null;
-    layers?: LayerVisibility | null;
-    debug?: boolean;
+export interface ParsedUrlState {
+    x: number;
+    y: number;
+    zoom: number;
+    layers: string | null;
+    entity: string | null;
+    etype: string | null;
+    zone: string | null;
+    debug: boolean;
 }
 
-// Default view state values
+// ============================================================================
+// Constants
+// ============================================================================
+
 const DEFAULT_X = 0;
 const DEFAULT_Y = 0;
-const DEFAULT_Z = -2;
+const DEFAULT_ZOOM = -2;
+const VIEW_SYNC_DEBOUNCE_MS = 150;
 
-// Debounce timer for view state sync
-let viewStateDebounceTimer: ReturnType<typeof setTimeout> | null = null;
-const VIEW_STATE_DEBOUNCE_MS = 150;
+// ============================================================================
+// Module State
+// ============================================================================
 
-// Passive mode state
-let isPassive = false;
+let lastSelection: SelectionState = { entityId: null, entityType: null };
+let isPassiveMode = false;
+let viewSyncTimer: ReturnType<typeof setTimeout> | null = null;
 
-// Last selection for deduplication
-let lastMarker: string | null = null;
-let lastMtype: string | null = null;
+// ============================================================================
+// Layer Serialization
+// ============================================================================
 
 /**
  * Layer key mappings for URL serialization.
@@ -102,7 +113,7 @@ const LAYER_KEYS_REVERSE: Record<string, keyof LayerVisibility> = Object.fromEnt
 );
 
 /**
- * Check if layer visibility matches defaults
+ * Check if layer visibility matches defaults.
  */
 function layersMatchDefaults(layers: LayerVisibility): boolean {
     for (const key of Object.keys(DEFAULT_LAYER_VISIBILITY) as (keyof LayerVisibility)[]) {
@@ -123,10 +134,8 @@ function serializeLayers(layers: LayerVisibility): string | null {
         return null;
     }
 
-    // Find layers that are ON but shouldn't be (compared to defaults)
-    const enabledNonDefaults: string[] = [];
-    // Find layers that are OFF but should be ON (compared to defaults)
     const disabledDefaults: string[] = [];
+    const enabledNonDefaults: string[] = [];
 
     for (const key of Object.keys(DEFAULT_LAYER_VISIBILITY) as (keyof LayerVisibility)[]) {
         const isOn = layers[key];
@@ -139,15 +148,11 @@ function serializeLayers(layers: LayerVisibility): string | null {
         }
     }
 
-    // Use whichever representation is shorter:
-    // - If more layers are disabled than enabled, list disabled with "-" prefix
-    // - Otherwise list enabled layers
     if (disabledDefaults.length === 0 && enabledNonDefaults.length === 0) {
         return null;
     }
 
-    // Format: enabled layers OR -disabled layers (whichever is shorter)
-    // For simplicity, just list the disabled layers with "-" prefix
+    // List disabled layers with "-" prefix
     if (disabledDefaults.length > 0) {
         return disabledDefaults.map((k) => `-${k}`).join(',');
     }
@@ -157,28 +162,23 @@ function serializeLayers(layers: LayerVisibility): string | null {
 
 /**
  * Parse layer visibility from URL string.
- * Returns null if string is null/empty (use defaults).
  */
-function parseLayers(layerStr: string | null): LayerVisibility | null {
+function parseLayers(layerStr: string | null): LayerVisibility {
     if (!layerStr) {
-        return null;
+        return { ...DEFAULT_LAYER_VISIBILITY };
     }
 
-    // Start with defaults
     const layers = { ...DEFAULT_LAYER_VISIBILITY };
-
     const parts = layerStr.split(',').filter(Boolean);
 
     for (const part of parts) {
         if (part.startsWith('-')) {
-            // Disabled layer
             const key = part.slice(1);
             const layerKey = LAYER_KEYS_REVERSE[key];
             if (layerKey) {
                 layers[layerKey] = false;
             }
         } else {
-            // Enabled layer (non-default)
             const layerKey = LAYER_KEYS_REVERSE[part];
             if (layerKey) {
                 layers[layerKey] = true;
@@ -189,230 +189,74 @@ function parseLayers(layerStr: string | null): LayerVisibility | null {
     return layers;
 }
 
+// ============================================================================
+// Core Functions
+// ============================================================================
+
 /**
- * Build URL search params from state.
+ * Cancel any pending debounced view sync.
+ */
+function cancelViewSync(): void {
+    if (viewSyncTimer) {
+        clearTimeout(viewSyncTimer);
+        viewSyncTimer = null;
+    }
+}
+
+/**
+ * Build URL string from complete params.
  * Omits default values for compact URLs.
  */
-function buildSearchParams(state: UrlStateParams): URLSearchParams {
-    const params = new URLSearchParams();
+export function buildUrl(params: UrlStateParams): string {
+    const searchParams = new URLSearchParams();
+
+    const { viewState, layers, entityId, entityType, focusedZoneId, debug } = params;
 
     // View state (omit if defaults)
-    if (state.x !== undefined && Math.abs(state.x - DEFAULT_X) > 0.1) {
-        params.set('x', state.x.toFixed(1));
+    if (Math.abs(viewState.x - DEFAULT_X) > 0.1) {
+        searchParams.set('x', viewState.x.toFixed(1));
     }
-    if (state.y !== undefined && Math.abs(state.y - DEFAULT_Y) > 0.1) {
-        params.set('y', state.y.toFixed(1));
+    if (Math.abs(viewState.y - DEFAULT_Y) > 0.1) {
+        searchParams.set('y', viewState.y.toFixed(1));
     }
-    if (state.z !== undefined && Math.abs(state.z - DEFAULT_Z) > 0.01) {
-        params.set('z', state.z.toFixed(2));
+    if (Math.abs(viewState.zoom - DEFAULT_ZOOM) > 0.01) {
+        searchParams.set('z', viewState.zoom.toFixed(2));
     }
 
     // Selection
-    if (state.marker) {
-        params.set('marker', state.marker);
+    if (entityId) {
+        searchParams.set('entity', entityId);
     }
-    if (state.mtype) {
-        params.set('mtype', state.mtype);
+    if (entityType) {
+        searchParams.set('etype', entityType);
     }
 
     // Zone focus
-    if (state.zone) {
-        params.set('zone', state.zone);
+    if (focusedZoneId) {
+        searchParams.set('zone', focusedZoneId);
     }
 
     // Layers (only if non-default)
-    if (state.layers) {
-        const layerStr = serializeLayers(state.layers);
-        if (layerStr) {
-            params.set('layers', layerStr);
-        }
+    const layerStr = serializeLayers(layers);
+    if (layerStr) {
+        searchParams.set('layers', layerStr);
     }
 
     // Debug mode
-    if (state.debug) {
-        params.set('debug', 'true');
+    if (debug) {
+        searchParams.set('debug', 'true');
     }
 
-    return params;
+    const queryStr = searchParams.toString();
+    const basePath = browser ? window.location.pathname : '/map';
+    return queryStr ? `${basePath}?${queryStr}` : basePath;
 }
-
-/**
- * Update URL with new params using replaceState (no history entry)
- */
-function replaceUrl(params: URLSearchParams): void {
-    if (!browser || isPassive) return;
-
-    const url = new URL(window.location.href);
-    url.search = params.toString();
-    replaceState(url, {});
-}
-
-/**
- * Update URL with new params using pushState (creates history entry)
- */
-function pushUrl(params: URLSearchParams): void {
-    if (!browser || isPassive) return;
-
-    const url = new URL(window.location.href);
-    url.search = params.toString();
-    pushState(url, {});
-}
-
-/**
- * URL manager for map state synchronization.
- *
- * History Management Rules:
- * | Action | Method | Effect |
- * |--------|--------|--------|
- * | Pan/zoom map | syncViewState | Replace (debounced 150ms) |
- * | Toggle layer | syncPreferences | Replace (immediate) |
- * | Change zone focus | syncPreferences | Replace (immediate) |
- * | Click marker | pushSelection | Push (back/forward works) |
- * | Close popup | pushSelection | Push (can go back to selection) |
- * | Browser back/forward | Passive mode | Restore state, no URL update |
- */
-export const urlManager = {
-    /**
-     * Enter passive mode (for popstate handling).
-     * While passive, no URL updates are made.
-     */
-    enterPassiveMode(): void {
-        isPassive = true;
-    },
-
-    /**
-     * Exit passive mode.
-     */
-    exitPassiveMode(): void {
-        isPassive = false;
-    },
-
-    /**
-     * Check if currently in passive mode.
-     */
-    isPassive(): boolean {
-        return isPassive;
-    },
-
-    /**
-     * Track last selection for deduplication.
-     * Call this when restoring state from URL to prevent duplicate pushes.
-     */
-    setLastSelection(markerId: string | null, markerType: string | null): void {
-        lastMarker = markerId;
-        lastMtype = markerType;
-    },
-
-    /**
-     * Sync view state to URL (debounced, replaceState).
-     * Use for pan/zoom operations that shouldn't create history entries.
-     */
-    syncViewState(state: UrlStateParams): void {
-        if (!browser || isPassive) return;
-
-        // Clear existing debounce timer
-        if (viewStateDebounceTimer) {
-            clearTimeout(viewStateDebounceTimer);
-        }
-
-        // Debounce the URL update
-        viewStateDebounceTimer = setTimeout(() => {
-            const currentParams = new URLSearchParams(window.location.search);
-
-            // Merge with existing params
-            const params = buildSearchParams({
-                x: state.x,
-                y: state.y,
-                z: state.z,
-                marker: state.marker ?? currentParams.get('marker'),
-                mtype: state.mtype ?? currentParams.get('mtype'),
-                zone: state.zone ?? currentParams.get('zone'),
-                layers: state.layers,
-                debug: state.debug ?? currentParams.get('debug') === 'true'
-            });
-
-            replaceUrl(params);
-        }, VIEW_STATE_DEBOUNCE_MS);
-    },
-
-    /**
-     * Sync preferences to URL (immediate, replaceState).
-     * Use for layer toggles, zone focus changes.
-     */
-    syncPreferences(state: UrlStateParams): void {
-        if (!browser || isPassive) return;
-
-        const currentParams = new URLSearchParams(window.location.search);
-
-        // Merge with existing params
-        const params = buildSearchParams({
-            x: state.x ?? parseFloat(currentParams.get('x') ?? String(DEFAULT_X)),
-            y: state.y ?? parseFloat(currentParams.get('y') ?? String(DEFAULT_Y)),
-            z: state.z ?? parseFloat(currentParams.get('z') ?? String(DEFAULT_Z)),
-            marker: state.marker ?? currentParams.get('marker'),
-            mtype: state.mtype ?? currentParams.get('mtype'),
-            zone: state.zone,
-            layers: state.layers,
-            debug: state.debug ?? currentParams.get('debug') === 'true'
-        });
-
-        replaceUrl(params);
-    },
-
-    /**
-     * Push selection change to URL (pushState for history).
-     * Use when user clicks a marker to select it.
-     * Creates history entry so back/forward navigation works.
-     */
-    pushSelection(state: UrlStateParams): void {
-        if (!browser || isPassive) return;
-
-        // Deduplicate: don't push if selection hasn't changed
-        const newMarker = state.marker ?? null;
-        const newMtype = state.mtype ?? null;
-
-        if (newMarker === lastMarker && newMtype === lastMtype) {
-            return;
-        }
-
-        lastMarker = newMarker;
-        lastMtype = newMtype;
-
-        const currentParams = new URLSearchParams(window.location.search);
-
-        // Merge with existing params
-        const params = buildSearchParams({
-            x: state.x ?? parseFloat(currentParams.get('x') ?? String(DEFAULT_X)),
-            y: state.y ?? parseFloat(currentParams.get('y') ?? String(DEFAULT_Y)),
-            z: state.z ?? parseFloat(currentParams.get('z') ?? String(DEFAULT_Z)),
-            marker: state.marker,
-            mtype: state.mtype,
-            zone: state.zone ?? currentParams.get('zone'),
-            layers: state.layers,
-            debug: state.debug ?? currentParams.get('debug') === 'true'
-        });
-
-        pushUrl(params);
-    },
-
-    /**
-     * Clear selection from URL (pushState for history).
-     * Use when user closes a popup.
-     */
-    clearSelection(state?: UrlStateParams): void {
-        this.pushSelection({
-            ...state,
-            marker: null,
-            mtype: null
-        });
-    }
-};
 
 /**
  * Parse URL state from current location.
- * Returns null if no map state params are present.
+ * Returns null if no map params are present.
  */
-export function parseUrlState(): UrlState | null {
+export function parseUrlState(): ParsedUrlState | null {
     if (!browser) return null;
 
     const params = new URLSearchParams(window.location.search);
@@ -422,7 +266,7 @@ export function parseUrlState(): UrlState | null {
         params.has('x') ||
         params.has('y') ||
         params.has('z') ||
-        params.has('marker') ||
+        params.has('entity') ||
         params.has('zone') ||
         params.has('layers') ||
         params.has('debug');
@@ -434,31 +278,113 @@ export function parseUrlState(): UrlState | null {
     return {
         x: parseFloat(params.get('x') ?? String(DEFAULT_X)),
         y: parseFloat(params.get('y') ?? String(DEFAULT_Y)),
-        z: parseFloat(params.get('z') ?? String(DEFAULT_Z)),
-        marker: params.get('marker'),
-        mtype: params.get('mtype'),
-        zone: params.get('zone'),
+        zoom: parseFloat(params.get('z') ?? String(DEFAULT_ZOOM)),
         layers: params.get('layers'),
+        entity: params.get('entity'),
+        etype: params.get('etype'),
+        zone: params.get('zone'),
         debug: params.get('debug') === 'true'
     };
 }
 
 /**
- * Parse layer visibility from URL state.
+ * Parse layer visibility from URL string.
  * Returns default visibility if no layers param.
  */
 export function parseLayerVisibility(layerStr: string | null): LayerVisibility {
-    const parsed = parseLayers(layerStr);
-    return parsed ?? { ...DEFAULT_LAYER_VISIBILITY };
+    return parseLayers(layerStr);
 }
 
+// ============================================================================
+// URL Manager
+// ============================================================================
+
 /**
- * Build URL string from state params.
- * Useful for generating shareable links.
+ * URL manager for map state synchronization.
+ *
+ * History Management Rules:
+ * | Action              | Method          | Effect                          |
+ * |---------------------|-----------------|----------------------------------|
+ * | Pan/zoom map        | syncViewState   | Replace (debounced 150ms)        |
+ * | Toggle layer        | syncPreferences | Replace (immediate)              |
+ * | Change zone focus   | syncPreferences | Replace (immediate)              |
+ * | Click marker        | pushSelection   | Push (back/forward works)        |
+ * | Close popup         | pushSelection   | Push (can go back to selection)  |
+ * | Browser back/forward| Passive mode    | Restore state, no URL update     |
  */
-export function buildUrl(state: UrlStateParams, baseUrl?: string): string {
-    const params = buildSearchParams(state);
-    const base = baseUrl ?? (browser ? window.location.pathname : '/map');
-    const queryStr = params.toString();
-    return queryStr ? `${base}?${queryStr}` : base;
-}
+export const urlManager = {
+    /**
+     * Enter passive mode. Use try/finally to ensure exit.
+     * While passive, no URL updates are made.
+     */
+    enterPassiveMode(): void {
+        isPassiveMode = true;
+        cancelViewSync();
+    },
+
+    /**
+     * Exit passive mode.
+     */
+    exitPassiveMode(): void {
+        isPassiveMode = false;
+    },
+
+    /**
+     * Check if currently in passive mode.
+     */
+    isPassive(): boolean {
+        return isPassiveMode;
+    },
+
+    /**
+     * Sync internal tracking after URL restore.
+     * Prevents duplicate history entries when user clicks same marker again.
+     */
+    setLastSelection(entityId: string | null, entityType: string | null): void {
+        lastSelection = { entityId, entityType };
+    },
+
+    /**
+     * Debounced view state sync (pan/zoom).
+     * Uses replaceState - no history entry.
+     */
+    syncViewState(params: UrlStateParams): void {
+        if (!browser || isPassiveMode) return;
+
+        cancelViewSync();
+        viewSyncTimer = setTimeout(() => {
+            replaceState(buildUrl(params), {});
+            viewSyncTimer = null;
+        }, VIEW_SYNC_DEBOUNCE_MS);
+    },
+
+    /**
+     * Immediate preference sync (layers, zone focus).
+     * Uses replaceState - no history entry.
+     */
+    syncPreferences(params: UrlStateParams): void {
+        if (!browser || isPassiveMode) return;
+
+        cancelViewSync();
+        replaceState(buildUrl(params), {});
+    },
+
+    /**
+     * Push selection change to history.
+     * Deduplicates to prevent duplicate entries when clicking same marker.
+     */
+    pushSelection(params: UrlStateParams): void {
+        if (!browser || isPassiveMode) return;
+
+        const { entityId, entityType } = params;
+
+        // Deduplicate
+        if (entityId === lastSelection.entityId && entityType === lastSelection.entityType) {
+            return;
+        }
+
+        cancelViewSync();
+        pushState(buildUrl(params), {});
+        lastSelection = { entityId, entityType };
+    }
+};
