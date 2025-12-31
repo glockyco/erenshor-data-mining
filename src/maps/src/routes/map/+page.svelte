@@ -36,8 +36,13 @@
         parseLayerVisibility,
         type UrlStateParams
     } from '$lib/map/url-state';
-    import { DEFAULT_LAYER_VISIBILITY, type LayerVisibility } from '$lib/types/map';
+    import {
+        DEFAULT_LAYER_VISIBILITY,
+        type LayerVisibility,
+        type AnyMapMarker
+    } from '$lib/types/map';
     import MapSidebar from '$lib/components/map/MapSidebar.svelte';
+    import MapTooltip from '$lib/components/map/MapTooltip.svelte';
     import type { PageData } from './$types';
 
     let { data }: { data: PageData } = $props();
@@ -54,6 +59,27 @@
     // Sidebar state (persisted to localStorage)
     let sidebarCollapsed = $state(false);
     const SIDEBAR_COLLAPSED_KEY = 'erenshor-map-sidebar-collapsed';
+
+    // Tooltip state
+    let hoveredMarker = $state<AnyMapMarker | null>(null);
+    let hoverPosition = $state<{ x: number; y: number }>({ x: 0, y: 0 });
+
+    // Desktop detection (tooltips only on desktop)
+    let isDesktop = $state(false);
+    $effect(() => {
+        if (!browser) return;
+        const mediaQuery = window.matchMedia('(min-width: 768px)');
+        isDesktop = mediaQuery.matches;
+        const handler = (e: MediaQueryListEvent) => (isDesktop = e.matches);
+        mediaQuery.addEventListener('change', handler);
+        return () => mediaQuery.removeEventListener('change', handler);
+    });
+
+    // Get zone display name from zone key
+    function getZoneName(zoneKey: string): string {
+        const zone = data.zones.find((z) => z.key === zoneKey);
+        return zone?.name ?? zoneKey;
+    }
 
     // Load sidebar state from localStorage
     $effect(() => {
@@ -473,8 +499,13 @@
                         urlManager.syncViewState(buildUrlStateParams());
                     }
                 },
-                onHover: () => {
-                    // TODO: Implement tooltip on hover
+                onHover: (info: { object?: AnyMapMarker; x: number; y: number }) => {
+                    if (info.object) {
+                        hoveredMarker = info.object;
+                        hoverPosition = { x: info.x, y: info.y };
+                    } else {
+                        hoveredMarker = null;
+                    }
                 },
                 onClick: () => {
                     // TODO: Implement popup on click
@@ -895,6 +926,16 @@
                 <p class="text-red-500">Error: {loadError}</p>
             </div>
         </div>
+    {/if}
+
+    <!-- Tooltip (desktop only) -->
+    {#if hoveredMarker && isDesktop}
+        <MapTooltip
+            marker={hoveredMarker}
+            x={hoverPosition.x}
+            y={hoverPosition.y}
+            zoneName={getZoneName(hoveredMarker.zone)}
+        />
     {/if}
 
     <!-- Debug info (offset by sidebar) -->

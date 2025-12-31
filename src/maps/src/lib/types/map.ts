@@ -1,15 +1,16 @@
 /**
  * Marker category types
+ * Note: 'enemy' and 'npc' are the actual categories from the database
  */
 export type MarkerCategory =
     | 'achievement-trigger'
-    | 'character'
     | 'door'
+    | 'enemy'
     | 'forge'
     | 'item-bag'
     | 'mining-node'
+    | 'npc'
     | 'secret-passage'
-    | 'spawn-point'
     | 'teleport'
     | 'treasure-loc'
     | 'water'
@@ -38,11 +39,12 @@ export interface AchievementTriggerMarker extends MapMarker {
 /**
  * Friendly NPC marker
  */
-export interface CharacterMarker extends MapMarker {
-    category: 'character';
+export interface NpcMarker extends MapMarker {
+    category: 'npc';
     name: string;
     isEnabled: boolean;
-    isUnique: boolean;
+    spawnDelay: number | null;
+    isNightSpawn: boolean;
 }
 
 /**
@@ -87,22 +89,28 @@ export interface SecretPassageMarker extends MapMarker {
 }
 
 /**
+ * Character info for enemy spawn points
+ */
+export interface SpawnCharacter {
+    name: string;
+    spawnChance: number;
+    isCommon: boolean;
+    isRare: boolean;
+    isUnique: boolean;
+    isFriendly: boolean;
+}
+
+/**
  * Enemy spawn point marker
  */
-export interface SpawnPointMarker extends MapMarker {
-    category: 'spawn-point';
-    characters: {
-        name: string;
-        spawnChance: number;
-        isCommon: boolean;
-        isRare: boolean;
-        isUnique: boolean;
-    }[];
+export interface EnemyMarker extends MapMarker {
+    category: 'enemy';
+    characters: SpawnCharacter[];
     spawnDelay: number | null;
     isEnabled: boolean;
     isNightSpawn: boolean;
-    hasUnique: boolean;
-    hasRare: boolean;
+    isUnique: boolean;
+    isRare: boolean;
 }
 
 /**
@@ -154,13 +162,13 @@ export interface ZoneLineMarker extends MapMarker {
  */
 export type AnyMapMarker =
     | AchievementTriggerMarker
-    | CharacterMarker
     | DoorMarker
+    | EnemyMarker
     | ForgeMarker
     | ItemBagMarker
     | MiningNodeMarker
+    | NpcMarker
     | SecretPassageMarker
-    | SpawnPointMarker
     | TeleportMarker
     | TreasureLocMarker
     | WaterMarker
@@ -278,15 +286,15 @@ export interface ZoneConfig {
  */
 export interface FilteredMapData {
     achievementTriggers: AchievementTriggerMarker[];
-    characters: CharacterMarker[];
+    npcs: NpcMarker[];
     doors: DoorMarker[];
     forges: ForgeMarker[];
     itemBags: ItemBagMarker[];
     miningNodes: MiningNodeMarker[];
     secretPassages: SecretPassageMarker[];
-    spawnPointsRegular: SpawnPointMarker[];
-    spawnPointsUnique: SpawnPointMarker[];
-    spawnPointsRare: SpawnPointMarker[];
+    enemiesCommon: EnemyMarker[];
+    enemiesRare: EnemyMarker[];
+    enemiesUnique: EnemyMarker[];
     teleports: TeleportMarker[];
     treasureLocs: TreasureLocMarker[];
     water: WaterMarker[];
@@ -299,13 +307,15 @@ export interface FilteredMapData {
  */
 export interface MapMarkerData {
     achievementTriggers: AchievementTriggerMarker[];
-    characters: CharacterMarker[];
+    npcs: NpcMarker[];
     doors: DoorMarker[];
+    enemiesCommon: EnemyMarker[];
+    enemiesRare: EnemyMarker[];
+    enemiesUnique: EnemyMarker[];
     forges: ForgeMarker[];
     itemBags: ItemBagMarker[];
     miningNodes: MiningNodeMarker[];
     secretPassages: SecretPassageMarker[];
-    spawnPoints: SpawnPointMarker[];
     teleports: TeleportMarker[];
     treasureLocs: TreasureLocMarker[];
     water: WaterMarker[];

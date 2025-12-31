@@ -7,8 +7,10 @@ import type {
     ForgeMarker,
     ItemBagMarker,
     MiningNodeMarker,
+    MiningNodeItem,
     NpcMarker,
     SecretPassageMarker,
+    SpawnCharacter,
     TeleportMarker,
     TreasureLocMarker,
     WaterMarker,
@@ -46,14 +48,16 @@ export class RepositoryBase {
 
         while (stmt.step()) {
             const row = stmt.getAsObject();
+            const achievementName = row.AchievementName as string;
             markers.push({
                 coordinateId: row.CoordinateId as number,
                 category: 'achievement-trigger',
+                achievementName,
                 position: {
                     x: row.PositionX as number,
                     y: row.PositionZ as number
                 },
-                popup: `Achievement @ ${formatCoordinates(row.PositionX as number, row.PositionY as number, row.PositionZ as number)}<br><br>${row.AchievementName}`
+                popup: `Achievement @ ${formatCoordinates(row.PositionX as number, row.PositionY as number, row.PositionZ as number)}<br><br>${achievementName}`
             });
         }
         stmt.free();
@@ -150,6 +154,9 @@ export class RepositoryBase {
         return {
             coordinateId: coordinateId,
             category: 'npc',
+            name: npcName,
+            spawnDelay,
+            isNightSpawn,
             position: {
                 x: coordinates.x,
                 y: coordinates.z
@@ -183,15 +190,17 @@ export class RepositoryBase {
 
         while (stmt.step()) {
             const row = stmt.getAsObject();
+            const keyItemName = row.ItemName as string;
 
             const positionText = `Locked Door @ ${formatCoordinates(row.PositionX as number, row.PositionY as number, row.PositionZ as number)}`;
-            const keyText = `<br><br>Requires <a href="https://erenshor.wiki.gg/wiki/${encodeURIComponent(row.ItemName as string)}">${row.ItemName}</a> to unlock.`;
+            const keyText = `<br><br>Requires <a href="https://erenshor.wiki.gg/wiki/${encodeURIComponent(keyItemName)}">${keyItemName}</a> to unlock.`;
 
             const popupText = `${positionText}${keyText}`;
 
             markers.push({
                 coordinateId: row.CoordinateId as number,
                 category: 'door',
+                keyItemName,
                 position: {
                     x: row.PositionX as number,
                     y: row.PositionZ as number
@@ -268,11 +277,13 @@ export class RepositoryBase {
 
         while (stmt.step()) {
             const row = stmt.getAsObject();
+            const itemName = row.ItemName as string;
+            const respawnTimer = row.RespawnTimer as number;
+            const respawns = !!row.Respawns;
 
             const positionText = `Item Bag @ ${formatCoordinates(row.PositionX as number, row.PositionY as number, row.PositionZ as number)}`;
-            const itemText = `<br><br>Contains <a href="https://erenshor.wiki.gg/wiki/${encodeURIComponent(row.ItemName as string)}">${row.ItemName}</a>.`;
+            const itemText = `<br><br>Contains <a href="https://erenshor.wiki.gg/wiki/${encodeURIComponent(itemName)}">${itemName}</a>.`;
 
-            const respawnTimer = row.RespawnTimer as number;
             const respawnText =
                 respawnTimer > 0
                     ? `<br><br>Respawns after ca. ${this.convertToMinutesAndSeconds(respawnTimer)} or when re-entering the zone.`
@@ -283,6 +294,9 @@ export class RepositoryBase {
             markers.push({
                 coordinateId: row.CoordinateId as number,
                 category: 'item-bag',
+                itemName,
+                respawnTimer,
+                respawns,
                 position: {
                     x: row.PositionX as number,
                     y: row.PositionZ as number
@@ -325,7 +339,7 @@ export class RepositoryBase {
                 position: { x: number; y: number };
                 coordinates: { x: number; y: number; z: number };
                 respawnTime: number;
-                items: { name: string; dropChance: number }[];
+                items: MiningNodeItem[];
             }
         >();
 
@@ -377,6 +391,8 @@ export class RepositoryBase {
             markers.push({
                 coordinateId: coordinateId,
                 category: 'mining-node',
+                items: sortedItems,
+                respawnTime,
                 position,
                 popup: `Mining Node @ ${formatCoordinates(
                     coordinates.x,
@@ -416,14 +432,16 @@ export class RepositoryBase {
 
         while (stmt.step()) {
             const row = stmt.getAsObject();
+            const passageType = row.Type as string;
 
             const positionText = `Secret Passage @ ${formatCoordinates(row.PositionX as number, row.PositionY as number, row.PositionZ as number)}`;
-            const descriptionText = descriptionMap[row.Type as string] || '';
+            const descriptionText = descriptionMap[passageType] || '';
             const popupText = `${positionText}<br><br>${descriptionText}`;
 
             markers.push({
                 coordinateId: row.CoordinateId as number,
                 category: 'secret-passage',
+                passageType,
                 position: {
                     x: row.PositionX as number,
                     y: row.PositionZ as number
@@ -561,14 +579,7 @@ export class RepositoryBase {
 
     getEnemyMarker(
         coordinateId: number,
-        characters: {
-            name: string;
-            spawnChance: number;
-            isCommon: boolean;
-            isRare: boolean;
-            isUnique: boolean;
-            isFriendly: boolean;
-        }[],
+        characters: SpawnCharacter[],
         coordinates: { x: number; y: number; z: number },
         position: { x: number; y: number },
         spawnDelay: number | null,
@@ -600,6 +611,9 @@ export class RepositoryBase {
         return {
             coordinateId: coordinateId,
             category: 'enemy',
+            characters: sortedCharacters,
+            spawnDelay,
+            isNightSpawn,
             position: position,
             popup: popupText,
             isEnabled: isEnabled,
@@ -644,15 +658,17 @@ export class RepositoryBase {
 
         while (stmt.step()) {
             const row = stmt.getAsObject();
+            const teleportItemName = row.ItemName as string;
 
             const positionText = `Teleport Destination @ ${formatCoordinates(row.PositionX as number, row.PositionY as number, row.PositionZ as number)}`;
-            const teleportText = `<br><br>Use <a href="https://erenshor.wiki.gg/wiki/${encodeURIComponent(row.ItemName as string)}">${row.ItemName}</a> to teleport here.`;
+            const teleportText = `<br><br>Use <a href="https://erenshor.wiki.gg/wiki/${encodeURIComponent(teleportItemName)}">${teleportItemName}</a> to teleport here.`;
 
             const popupText = `${positionText}${teleportText}`;
 
             markers.push({
                 coordinateId: row.CoordinateId as number,
                 category: 'teleport',
+                teleportItemName,
                 position: {
                     x: row.PositionX as number,
                     y: row.PositionZ as number
