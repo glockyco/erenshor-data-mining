@@ -81,8 +81,10 @@
         return `${minutes}m`;
     }
 
+    type TooltipContent = { name: string; detail: string; warning?: string };
+
     // Get enemy spawn tooltip content
-    function getEnemyContent(m: EnemyMarker): { name: string; detail: string } {
+    function getEnemyContent(m: EnemyMarker): TooltipContent {
         const chars = m.characters;
         if (chars.length === 0) {
             return { name: 'Empty Spawn', detail: '' };
@@ -98,42 +100,50 @@
         const rarest = sorted[0];
         const rarestRarity = rarest.isUnique ? 'Unique' : rarest.isRare ? 'Rare' : '';
         const respawn = formatRespawnTime(m.spawnDelay);
+        const night = m.isNightSpawn ? '🌙 23:00-7:00' : '';
+        const warning = !m.isEnabled ? '(Initially) Disabled' : undefined;
 
         if (chars.length === 1) {
-            const parts = [rarestRarity, respawn].filter(Boolean);
+            const parts = [rarestRarity, night, respawn].filter(Boolean);
             return {
                 name: rarest.name,
-                detail: parts.join(' • ')
+                detail: parts.join(' • '),
+                warning
             };
         }
 
         // Multiple enemies - show rarest + count
         const others = chars.length - 1;
-        const parts = [rarestRarity, `+${others} more`, respawn].filter(Boolean);
+        const parts = [rarestRarity, `+${others} more`, night, respawn].filter(Boolean);
         return {
             name: rarest.name,
-            detail: parts.join(' • ')
+            detail: parts.join(' • '),
+            warning
         };
     }
 
     // Get NPC tooltip content
-    function getNpcContent(m: NpcMarker): { name: string; detail: string } {
+    function getNpcContent(m: NpcMarker): TooltipContent {
+        const night = m.isNightSpawn ? '🌙 23:00-7:00' : '';
+        const parts = ['NPC', night].filter(Boolean);
         return {
             name: m.name,
-            detail: 'NPC'
+            detail: parts.join(' • '),
+            warning: !m.isEnabled ? '(Initially) Disabled' : undefined
         };
     }
 
     // Get zone line tooltip content
-    function getZoneLineContent(m: ZoneLineMarker): { name: string; detail: string } {
+    function getZoneLineContent(m: ZoneLineMarker): TooltipContent {
         return {
             name: `→ ${m.destinationZoneName}`,
-            detail: 'Zone Connection'
+            detail: 'Zone Connection',
+            warning: !m.isEnabled ? '(Initially) Disabled' : undefined
         };
     }
 
     // Get door tooltip content
-    function getDoorContent(m: DoorMarker): { name: string; detail: string } {
+    function getDoorContent(m: DoorMarker): TooltipContent {
         return {
             name: 'Locked Door',
             detail: `Key: ${m.keyItemName}`
@@ -141,7 +151,7 @@
     }
 
     // Get item bag tooltip content
-    function getItemBagContent(m: ItemBagMarker): { name: string; detail: string } {
+    function getItemBagContent(m: ItemBagMarker): TooltipContent {
         return {
             name: m.itemName,
             detail: 'Item Bag'
@@ -149,7 +159,7 @@
     }
 
     // Get teleport tooltip content
-    function getTeleportContent(m: TeleportMarker): { name: string; detail: string } {
+    function getTeleportContent(m: TeleportMarker): TooltipContent {
         return {
             name: 'Teleport Point',
             detail: `Via: ${m.teleportItemName}`
@@ -157,7 +167,7 @@
     }
 
     // Get secret passage tooltip content
-    function getSecretPassageContent(m: SecretPassageMarker): { name: string; detail: string } {
+    function getSecretPassageContent(m: SecretPassageMarker): TooltipContent {
         const typeMap: Record<string, string> = {
             HiddenDoor: 'Hidden Door',
             IllusoryWall: 'Illusory Wall',
@@ -170,7 +180,7 @@
     }
 
     // Get achievement tooltip content
-    function getAchievementContent(m: AchievementTriggerMarker): { name: string; detail: string } {
+    function getAchievementContent(m: AchievementTriggerMarker): TooltipContent {
         return {
             name: m.achievementName,
             detail: 'Achievement'
@@ -178,7 +188,7 @@
     }
 
     // Get tooltip content based on marker type
-    function getTooltipContent(): { name: string; detail: string } {
+    function getTooltipContent(): TooltipContent {
         switch (marker.category) {
             case 'enemy':
                 return getEnemyContent(marker as EnemyMarker);
@@ -224,5 +234,8 @@
     {#if content.detail}
         <div class="text-xs text-zinc-400">{content.detail}</div>
     {/if}
-    <div class="mt-0.5 text-xs text-zinc-500">{zoneName}</div>
+    {#if content.warning}
+        <div class="text-xs text-amber-400">{content.warning}</div>
+    {/if}
+    <div class="text-xs text-zinc-500">{zoneName}</div>
 </div>
