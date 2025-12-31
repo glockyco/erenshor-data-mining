@@ -161,7 +161,7 @@
                                 Drops
                             </div>
                             <div class="space-y-0.5">
-                                {#each drops as drop (drop.itemName)}
+                                {#each drops as drop, i (i)}
                                     <div class="flex justify-between text-xs">
                                         <span class="text-zinc-300">{drop.itemName}</span>
                                         <span class="text-zinc-500"

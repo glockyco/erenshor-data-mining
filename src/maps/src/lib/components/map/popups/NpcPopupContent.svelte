@@ -77,7 +77,7 @@
             <div class="rounded bg-zinc-800 p-3">
                 <div class="text-xs text-zinc-500 uppercase tracking-wide mb-2">Sells</div>
                 <div class="space-y-1.5">
-                    {#each vendorItems as item (item)}
+                    {#each vendorItems as item, i (i)}
                         <div class="flex items-center justify-between text-sm">
                             <span class="text-zinc-300 truncate min-w-0">{item}</span>
                             <div class="shrink-0 ml-2">
@@ -97,7 +97,7 @@
         <div class="rounded bg-zinc-800 p-3">
             <div class="text-xs text-zinc-500 uppercase tracking-wide mb-2">Drops</div>
             <div class="space-y-1.5">
-                {#each drops as drop (drop.itemName)}
+                {#each drops as drop, i (i)}
                     <div class="flex items-center justify-between text-sm">
                         <span class="text-zinc-300 truncate min-w-0">{drop.itemName}</span>
                         <div class="flex items-center gap-2 shrink-0">

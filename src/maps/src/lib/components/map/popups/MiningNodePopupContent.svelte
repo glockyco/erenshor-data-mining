@@ -29,7 +29,7 @@
         <div class="rounded bg-zinc-800 p-3">
             <div class="text-xs text-zinc-500 uppercase tracking-wide mb-2">Possible Items</div>
             <div class="space-y-1.5">
-                {#each marker.items as item (item.name)}
+                {#each marker.items as item, i (i)}
                     <div class="flex items-center justify-between text-sm">
                         <span class="text-zinc-300">{item.name}</span>
                         <div class="flex items-center gap-2">

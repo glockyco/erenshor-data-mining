@@ -34,7 +34,7 @@
             <div class="rounded bg-zinc-800 p-3">
                 <div class="text-xs text-zinc-500 uppercase tracking-wide mb-2">Catchable Fish</div>
                 <div class="space-y-1.5">
-                    {#each marker.daytimeItems as item (item.name)}
+                    {#each marker.daytimeItems as item, i (i)}
                         <div class="flex items-center justify-between text-sm">
                             <span class="text-zinc-300">{item.name}</span>
                             <div class="flex items-center gap-2">
@@ -58,7 +58,7 @@
                     Daytime (7:00-23:00)
                 </div>
                 <div class="space-y-1.5">
-                    {#each marker.daytimeItems as item (item.name)}
+                    {#each marker.daytimeItems as item, i (i)}
                         <div class="flex items-center justify-between text-sm">
                             <span class="text-zinc-300">{item.name}</span>
                             <div class="flex items-center gap-2">
@@ -79,7 +79,7 @@
                     Nighttime (23:00-7:00)
                 </div>
                 <div class="space-y-1.5">
-                    {#each marker.nighttimeItems as item (item.name)}
+                    {#each marker.nighttimeItems as item, i (i)}
                         <div class="flex items-center justify-between text-sm">
                             <span class="text-zinc-300">{item.name}</span>
                             <div class="flex items-center gap-2">
