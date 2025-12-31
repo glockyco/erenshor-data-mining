@@ -316,7 +316,7 @@
                 {@const isActive = visibility[toggle.key]}
                 <button
                     type="button"
-                    class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full transition-opacity"
+                    class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full transition-all hover:ring-2 hover:ring-white"
                     class:opacity-40={!isActive}
                     style:background-color={toggle.color}
                     title="{toggle.label} ({isActive ? 'on' : 'off'})"
@@ -333,7 +333,7 @@
                 {@const npcActive = visibility[npcToggle.key]}
                 <button
                     type="button"
-                    class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full transition-opacity"
+                    class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full transition-all hover:ring-2 hover:ring-white"
                     class:opacity-40={!npcActive}
                     style:background-color={npcToggle.color}
                     title="{npcToggle.label} ({npcActive ? 'on' : 'off'})"
@@ -351,7 +351,7 @@
                 {@const isActive = visibility[toggle.key]}
                 <button
                     type="button"
-                    class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full transition-opacity"
+                    class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full transition-all hover:ring-2 hover:ring-white"
                     class:opacity-40={!isActive}
                     style:background-color={toggle.color}
                     title="{toggle.label} ({isActive ? 'on' : 'off'})"
@@ -369,7 +369,7 @@
                 {@const isActive = visibility[toggle.key]}
                 <button
                     type="button"
-                    class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full transition-opacity"
+                    class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full transition-all hover:ring-2 hover:ring-white"
                     class:opacity-40={!isActive}
                     style:background-color={toggle.color}
                     title="{toggle.label} ({isActive ? 'on' : 'off'})"
@@ -387,7 +387,7 @@
                 {@const isActive = visibility[toggle.key]}
                 <button
                     type="button"
-                    class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full transition-opacity"
+                    class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full transition-all hover:ring-2 hover:ring-white"
                     class:opacity-40={!isActive}
                     style:background-color={toggle.color}
                     title="{toggle.label} ({isActive ? 'on' : 'off'})"
@@ -405,7 +405,7 @@
                 {@const isActive = visibility[toggle.key]}
                 <button
                     type="button"
-                    class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full transition-opacity"
+                    class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full transition-all hover:ring-2 hover:ring-white"
                     class:opacity-40={!isActive}
                     style:background-color={toggle.color}
                     title="{toggle.label} ({isActive ? 'on' : 'off'})"
