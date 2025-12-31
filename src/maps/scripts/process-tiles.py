@@ -174,9 +174,7 @@ def process_zone(zone_name: str, config: dict[str, int]) -> dict[str, int | bool
     current_x, current_y = base_x, base_y
     for target_zoom in range(-1, min_zoom - 1, -1):
         source_zoom = target_zoom + 1
-        current_x, current_y = generate_negative_zoom_level(
-            zone_dir, source_zoom, target_zoom, current_x, current_y
-        )
+        current_x, current_y = generate_negative_zoom_level(zone_dir, source_zoom, target_zoom, current_x, current_y)
         stats["negative_levels"] += 1
 
     return stats
