@@ -1,4 +1,4 @@
-import type { ZoneWorldPosition, ZoneConfig } from '../types/map';
+import type { ZoneWorldPosition, ZoneConfig } from '../types/world-map';
 import { MAPS } from '../maps';
 import { transformToMapCoords } from './config';
 import zonePositions from '../data/zone-positions.json';

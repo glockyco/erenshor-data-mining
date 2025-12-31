@@ -34,8 +34,8 @@
     import {
         DEFAULT_LAYER_VISIBILITY,
         type LayerVisibility,
-        type AnyMapMarker
-    } from '$lib/types/map';
+        type AnyWorldMarker
+    } from '$lib/types/world-map';
     import MapSidebar from '$lib/components/map/MapSidebar.svelte';
     import MapTooltip from '$lib/components/map/MapTooltip.svelte';
     import type { PageData } from './$types';
@@ -56,11 +56,11 @@
     const SIDEBAR_COLLAPSED_KEY = 'erenshor-map-sidebar-collapsed';
 
     // Tooltip state
-    let hoveredMarker = $state<AnyMapMarker | null>(null);
+    let hoveredMarker = $state<AnyWorldMarker | null>(null);
     let hoverPosition = $state<{ x: number; y: number }>({ x: 0, y: 0 });
 
     // Selection state (for popups)
-    let selectedMarker = $state<AnyMapMarker | null>(null);
+    let selectedMarker = $state<AnyWorldMarker | null>(null);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars -- used by popup component
     let selectedMarkerZoneName = $state<string>('');
 
@@ -82,8 +82,8 @@
     }
 
     // Find marker by coordinateId and category
-    function findMarkerByIdAndType(id: number, type: string): AnyMapMarker | null {
-        const allMarkers: AnyMapMarker[] = [
+    function findMarkerByIdAndType(id: number, type: string): AnyWorldMarker | null {
+        const allMarkers: AnyWorldMarker[] = [
             ...data.markers.achievementTriggers,
             ...data.markers.doors,
             ...data.markers.enemiesCommon,
@@ -123,7 +123,7 @@
      * @param marker - Marker to select, or null to clear
      * @param skipUrlUpdate - True when restoring from URL
      */
-    function applySelection(marker: AnyMapMarker | null, skipUrlUpdate = false): void {
+    function applySelection(marker: AnyWorldMarker | null, skipUrlUpdate = false): void {
         selectedMarker = marker;
         selectedMarkerZoneName = marker ? getZoneName(marker.zone) : '';
 
@@ -568,7 +568,7 @@
                         urlManager.syncViewState(buildUrlParams());
                     }
                 },
-                onHover: (info: { object?: AnyMapMarker; x: number; y: number }) => {
+                onHover: (info: { object?: AnyWorldMarker; x: number; y: number }) => {
                     if (info.object) {
                         hoveredMarker = info.object;
                         hoverPosition = { x: info.x, y: info.y };
@@ -576,7 +576,7 @@
                         hoveredMarker = null;
                     }
                 },
-                onClick: (info: { object?: AnyMapMarker }) => {
+                onClick: (info: { object?: AnyWorldMarker }) => {
                     if (info.object) {
                         applySelection(info.object);
                     }

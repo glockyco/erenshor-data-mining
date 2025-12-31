@@ -1,19 +1,19 @@
 <script lang="ts">
     import type {
-        AnyMapMarker,
-        EnemyMarker,
-        NpcMarker,
-        ZoneLineMarker,
-        DoorMarker,
-        ItemBagMarker,
-        TeleportMarker,
-        SecretPassageMarker,
-        AchievementTriggerMarker
-    } from '$lib/types/map';
+        AnyWorldMarker,
+        WorldEnemy,
+        WorldNpc,
+        WorldZoneLine,
+        WorldDoor,
+        WorldItemBag,
+        WorldTeleport,
+        WorldSecretPassage,
+        WorldAchievementTrigger
+    } from '$lib/types/world-map';
     import { calculateTooltipPosition } from '$lib/utils/tooltip';
 
     interface Props {
-        marker: AnyMapMarker;
+        marker: AnyWorldMarker;
         x: number;
         y: number;
         zoneName: string;
@@ -39,7 +39,7 @@
     function getBorderColorClass(): string {
         switch (marker.category) {
             case 'enemy': {
-                const m = marker as EnemyMarker;
+                const m = marker as WorldEnemy;
                 if (m.isUnique) return 'border-l-zinc-900';
                 if (m.isRare) return 'border-l-red-500';
                 return 'border-l-blue-500';
@@ -84,7 +84,7 @@
     type TooltipContent = { name: string; detail: string; warning?: string };
 
     // Get enemy spawn tooltip content
-    function getEnemyContent(m: EnemyMarker): TooltipContent {
+    function getEnemyContent(m: WorldEnemy): TooltipContent {
         const chars = m.characters;
         if (chars.length === 0) {
             return { name: 'Empty Spawn', detail: '' };
@@ -123,7 +123,7 @@
     }
 
     // Get NPC tooltip content
-    function getNpcContent(m: NpcMarker): TooltipContent {
+    function getNpcContent(m: WorldNpc): TooltipContent {
         const night = m.isNightSpawn ? '🌙 23:00-7:00' : '';
         const parts = ['NPC', night].filter(Boolean);
         return {
@@ -134,7 +134,7 @@
     }
 
     // Get zone line tooltip content
-    function getZoneLineContent(m: ZoneLineMarker): TooltipContent {
+    function getZoneLineContent(m: WorldZoneLine): TooltipContent {
         return {
             name: `→ ${m.destinationZoneName}`,
             detail: 'Zone Connection',
@@ -143,7 +143,7 @@
     }
 
     // Get door tooltip content
-    function getDoorContent(m: DoorMarker): TooltipContent {
+    function getDoorContent(m: WorldDoor): TooltipContent {
         return {
             name: 'Locked Door',
             detail: `Key: ${m.keyItemName}`
@@ -151,7 +151,7 @@
     }
 
     // Get item bag tooltip content
-    function getItemBagContent(m: ItemBagMarker): TooltipContent {
+    function getItemBagContent(m: WorldItemBag): TooltipContent {
         return {
             name: m.itemName,
             detail: 'Item Bag'
@@ -159,7 +159,7 @@
     }
 
     // Get teleport tooltip content
-    function getTeleportContent(m: TeleportMarker): TooltipContent {
+    function getTeleportContent(m: WorldTeleport): TooltipContent {
         return {
             name: 'Teleport Point',
             detail: `Via: ${m.teleportItemName}`
@@ -167,7 +167,7 @@
     }
 
     // Get secret passage tooltip content
-    function getSecretPassageContent(m: SecretPassageMarker): TooltipContent {
+    function getSecretPassageContent(m: WorldSecretPassage): TooltipContent {
         const typeMap: Record<string, string> = {
             HiddenDoor: 'Hidden Door',
             IllusoryWall: 'Illusory Wall',
@@ -180,7 +180,7 @@
     }
 
     // Get achievement tooltip content
-    function getAchievementContent(m: AchievementTriggerMarker): TooltipContent {
+    function getAchievementContent(m: WorldAchievementTrigger): TooltipContent {
         return {
             name: m.achievementName,
             detail: 'Achievement'
@@ -191,23 +191,23 @@
     function getTooltipContent(): TooltipContent {
         switch (marker.category) {
             case 'enemy':
-                return getEnemyContent(marker as EnemyMarker);
+                return getEnemyContent(marker as WorldEnemy);
             case 'npc':
-                return getNpcContent(marker as NpcMarker);
+                return getNpcContent(marker as WorldNpc);
             case 'zone-line':
-                return getZoneLineContent(marker as ZoneLineMarker);
+                return getZoneLineContent(marker as WorldZoneLine);
             case 'door':
-                return getDoorContent(marker as DoorMarker);
+                return getDoorContent(marker as WorldDoor);
             case 'item-bag':
-                return getItemBagContent(marker as ItemBagMarker);
+                return getItemBagContent(marker as WorldItemBag);
             case 'mining-node':
                 return { name: 'Mining Node', detail: '' };
             case 'teleport':
-                return getTeleportContent(marker as TeleportMarker);
+                return getTeleportContent(marker as WorldTeleport);
             case 'secret-passage':
-                return getSecretPassageContent(marker as SecretPassageMarker);
+                return getSecretPassageContent(marker as WorldSecretPassage);
             case 'achievement-trigger':
-                return getAchievementContent(marker as AchievementTriggerMarker);
+                return getAchievementContent(marker as WorldAchievementTrigger);
             case 'forge':
                 return { name: 'Forge', detail: 'Crafting Station' };
             case 'wishing-well':

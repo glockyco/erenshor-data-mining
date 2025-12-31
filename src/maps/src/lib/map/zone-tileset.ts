@@ -6,7 +6,7 @@
  * by transforming viewport bounds back to local tile coordinates.
  */
 
-import type { ZoneConfig, ZoneWorldPosition } from '../types/map';
+import type { ZoneConfig, ZoneWorldPosition } from '../types/world-map';
 
 // Tile index with zone context
 export interface ZoneTileIndex {

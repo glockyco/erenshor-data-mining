@@ -1,6 +1,6 @@
 <script lang="ts">
     import { LAYER_COLORS } from '$lib/map/config';
-    import type { LayerVisibility } from '$lib/types/map';
+    import type { LayerVisibility } from '$lib/types/world-map';
     import LayerToggle from './LayerToggle.svelte';
     import SidebarSection from './SidebarSection.svelte';
 

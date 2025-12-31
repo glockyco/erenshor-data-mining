@@ -8,20 +8,20 @@ import { transformToMapCoords } from '$lib/map/config';
 import type {
     ZoneConfig,
     ZoneWorldPosition,
-    AchievementTriggerMarker,
-    DoorMarker,
-    EnemyMarker,
-    ForgeMarker,
-    ItemBagMarker,
-    MiningNodeMarker,
-    NpcMarker,
-    SecretPassageMarker,
-    TeleportMarker,
-    TreasureLocMarker,
-    WaterMarker,
-    WishingWellMarker,
-    ZoneLineMarker
-} from '$lib/types/map';
+    WorldAchievementTrigger,
+    WorldDoor,
+    WorldEnemy,
+    WorldForge,
+    WorldItemBag,
+    WorldMiningNode,
+    WorldNpc,
+    WorldSecretPassage,
+    WorldTeleport,
+    WorldTreasureLoc,
+    WorldWater,
+    WorldWishingWell,
+    WorldZoneLine
+} from '$lib/types/world-map';
 
 export const prerender = true;
 
@@ -118,21 +118,21 @@ export async function load() {
     const zoneKeys = zonePositions.map((z) => z.key);
 
     // Load markers for each zone
-    const achievementTriggers: AchievementTriggerMarker[] = [];
-    const npcs: NpcMarker[] = [];
-    const doors: DoorMarker[] = [];
-    const forges: ForgeMarker[] = [];
-    const itemBags: ItemBagMarker[] = [];
-    const miningNodes: MiningNodeMarker[] = [];
-    const secretPassages: SecretPassageMarker[] = [];
-    const enemiesCommon: EnemyMarker[] = [];
-    const enemiesRare: EnemyMarker[] = [];
-    const enemiesUnique: EnemyMarker[] = [];
-    const teleports: TeleportMarker[] = [];
-    const treasureLocs: TreasureLocMarker[] = [];
-    const water: WaterMarker[] = [];
-    const wishingWells: WishingWellMarker[] = [];
-    const zoneLines: ZoneLineMarker[] = [];
+    const achievementTriggers: WorldAchievementTrigger[] = [];
+    const npcs: WorldNpc[] = [];
+    const doors: WorldDoor[] = [];
+    const forges: WorldForge[] = [];
+    const itemBags: WorldItemBag[] = [];
+    const miningNodes: WorldMiningNode[] = [];
+    const secretPassages: WorldSecretPassage[] = [];
+    const enemiesCommon: WorldEnemy[] = [];
+    const enemiesRare: WorldEnemy[] = [];
+    const enemiesUnique: WorldEnemy[] = [];
+    const teleports: WorldTeleport[] = [];
+    const treasureLocs: WorldTreasureLoc[] = [];
+    const water: WorldWater[] = [];
+    const wishingWells: WorldWishingWell[] = [];
+    const zoneLines: WorldZoneLine[] = [];
 
     for (const zoneKey of zoneKeys) {
         // Load spawn points (split by category and rarity for layer ordering)
@@ -151,13 +151,13 @@ export async function load() {
                     ...marker,
                     zone: zoneKey,
                     worldPosition: worldPos
-                } as NpcMarker);
+                } as WorldNpc);
             } else {
                 const enemyMarker = {
                     ...marker,
                     zone: zoneKey,
                     worldPosition: worldPos
-                } as EnemyMarker;
+                } as WorldEnemy;
                 if (enemyMarker.isUnique) {
                     enemiesUnique.push(enemyMarker);
                 } else if (enemyMarker.isRare) {
@@ -184,13 +184,13 @@ export async function load() {
                     ...marker,
                     zone: zoneKey,
                     worldPosition: worldPos
-                } as NpcMarker);
+                } as WorldNpc);
             } else {
                 const enemyMarker = {
                     ...marker,
                     zone: zoneKey,
                     worldPosition: worldPos
-                } as EnemyMarker;
+                } as WorldEnemy;
                 if (enemyMarker.isUnique) {
                     enemiesUnique.push(enemyMarker);
                 } else if (enemyMarker.isRare) {

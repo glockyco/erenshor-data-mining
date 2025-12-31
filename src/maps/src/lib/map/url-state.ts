@@ -13,7 +13,7 @@
 
 import { browser } from '$app/environment';
 import { pushState, replaceState } from '$app/navigation';
-import { DEFAULT_LAYER_VISIBILITY, type LayerVisibility } from '$lib/types/map';
+import { DEFAULT_LAYER_VISIBILITY, type LayerVisibility } from '$lib/types/world-map';
 
 // ============================================================================
 // Types
