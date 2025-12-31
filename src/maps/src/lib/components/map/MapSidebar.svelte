@@ -298,7 +298,7 @@
         </div>
     {:else}
         <!-- Collapsed: Icon toggles with circular backgrounds -->
-        <div class="flex flex-1 flex-col items-center gap-2 overflow-y-auto py-2">
+        <div class="flex flex-1 flex-col items-center gap-2 overflow-y-auto pb-2 pt-2">
             <!-- Home button -->
             <a
                 href="/"
@@ -308,7 +308,7 @@
                 <Home class="h-4 w-4" />
             </a>
 
-            <div class="my-1 w-8 border-t border-zinc-700"></div>
+            <div class="w-8 border-t border-zinc-700"></div>
 
             <!-- Enemies -->
             {#each enemyToggles as toggle (toggle.key)}
