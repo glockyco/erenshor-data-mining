@@ -218,9 +218,11 @@ export function createZoneTileset2D(
             if (index.z <= config.minZoom) {
                 return null;
             }
+            // For negative Y indices: floor properly groups tiles
+            // y=-1,-2 → parent y=-1; y=-3,-4 → parent y=-2
             return {
                 x: Math.floor(index.x / 2),
-                y: Math.ceil(index.y / 2), // Ceiling for negative Y
+                y: Math.floor(index.y / 2),
                 z: index.z - 1,
                 zoneName: index.zoneName
             };
