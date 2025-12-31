@@ -9,6 +9,7 @@
  */
 
 import { browser } from '$app/environment';
+import { pushState, replaceState } from '$app/navigation';
 import { DEFAULT_LAYER_VISIBILITY, type LayerVisibility } from '$lib/types/map';
 
 /**
@@ -243,7 +244,7 @@ function replaceUrl(params: URLSearchParams): void {
 
     const url = new URL(window.location.href);
     url.search = params.toString();
-    window.history.replaceState(null, '', url.toString());
+    replaceState(url, {});
 }
 
 /**
@@ -254,7 +255,7 @@ function pushUrl(params: URLSearchParams): void {
 
     const url = new URL(window.location.href);
     url.search = params.toString();
-    window.history.pushState(null, '', url.toString());
+    pushState(url, {});
 }
 
 /**
