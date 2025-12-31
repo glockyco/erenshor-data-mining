@@ -40,7 +40,7 @@
         switch (marker.category) {
             case 'enemy': {
                 const m = marker as WorldEnemy;
-                if (m.isUnique) return 'border-l-zinc-900';
+                if (m.isUnique) return 'border-l-white';
                 if (m.isRare) return 'border-l-red-500';
                 return 'border-l-blue-500';
             }
@@ -209,9 +209,9 @@
             case 'achievement-trigger':
                 return getAchievementContent(marker as WorldAchievementTrigger);
             case 'forge':
-                return { name: 'Forge', detail: 'Crafting Station' };
+                return { name: 'Forge', detail: 'Interactable' };
             case 'wishing-well':
-                return { name: 'Wishing Well', detail: 'Set Respawn Point' };
+                return { name: 'Wishing Well', detail: 'Interactable' };
             case 'treasure-loc':
                 return { name: 'Treasure Location', detail: '' };
             case 'water':

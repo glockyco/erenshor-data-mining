@@ -1,7 +1,14 @@
 <script lang="ts">
     import { browser } from '$app/environment';
     import { tick } from 'svelte';
-    import { INITIAL_VIEW_STATE, ICON_SIZE, BACKGROUND_COLOR, LAYER_COLORS } from '$lib/map/config';
+    import {
+        INITIAL_VIEW_STATE,
+        ICON_SIZE,
+        BACKGROUND_COLOR,
+        LAYER_COLORS,
+        HIGHLIGHT_COLORS
+    } from '$lib/map/config';
+    import { flyTo, flyToBounds } from '$lib/map/flyto';
     import {
         createZoneTileset2D,
         getTileWorldCorners,
@@ -34,10 +41,14 @@
     import {
         DEFAULT_LAYER_VISIBILITY,
         type LayerVisibility,
-        type AnyWorldMarker
+        type AnyWorldMarker,
+        type ZoneWorldPosition
     } from '$lib/types/world-map';
     import MapSidebar from '$lib/components/map/MapSidebar.svelte';
     import MapTooltip from '$lib/components/map/MapTooltip.svelte';
+    import ZoneTooltip from '$lib/components/map/ZoneTooltip.svelte';
+    import MapPopup from '$lib/components/map/MapPopup.svelte';
+    import ZonePopup from '$lib/components/map/ZonePopup.svelte';
     import type { PageData } from './$types';
 
     let { data }: { data: PageData } = $props();
@@ -57,12 +68,13 @@
 
     // Tooltip state
     let hoveredMarker = $state<AnyWorldMarker | null>(null);
+    let hoveredZone = $state<ZoneWorldPosition | null>(null);
     let hoverPosition = $state<{ x: number; y: number }>({ x: 0, y: 0 });
 
     // Selection state (for popups)
     let selectedMarker = $state<AnyWorldMarker | null>(null);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- used by popup component
     let selectedMarkerZoneName = $state<string>('');
+    let selectedZone = $state<ZoneWorldPosition | null>(null);
 
     // Desktop detection (tooltips only on desktop)
     let isDesktop = $state(false);
@@ -103,6 +115,11 @@
         return allMarkers.find((m) => m.coordinateId === id && m.category === type) ?? null;
     }
 
+    // Find zone by key
+    function findZoneByKey(key: string): ZoneWorldPosition | null {
+        return data.zones.find((z) => z.key === key) ?? null;
+    }
+
     /**
      * Build complete URL params from current state.
      * Called by all URL sync operations.
@@ -113,6 +130,7 @@
             layers: layerVisibility,
             entityId: selectedMarker ? String(selectedMarker.coordinateId) : null,
             entityType: selectedMarker?.category ?? null,
+            selectedZoneKey: selectedZone?.key ?? null,
             focusedZoneId: focusedZone,
             debug: isDebugMode
         };
@@ -126,15 +144,54 @@
     function applySelection(marker: AnyWorldMarker | null, skipUrlUpdate = false): void {
         selectedMarker = marker;
         selectedMarkerZoneName = marker ? getZoneName(marker.zone) : '';
+        selectedZone = null; // Close zone popup when selecting a marker
 
         if (!skipUrlUpdate) {
             urlManager.pushSelection(buildUrlParams());
         }
+        updateLayers();
     }
 
-    // Close popup
+    /**
+     * Close popup.
+     */
     function closePopup(): void {
-        applySelection(null);
+        if (selectedMarker) {
+            applySelection(null);
+        } else if (selectedZone) {
+            selectZone(null);
+        }
+    }
+
+    /**
+     * Select a zone (for zone popups), or null to close.
+     * Matches applySelection pattern with skipUrlUpdate parameter.
+     */
+    function selectZone(zone: ZoneWorldPosition | null, skipUrlUpdate = false): void {
+        selectedZone = zone;
+        selectedMarker = null;
+        selectedMarkerZoneName = '';
+
+        if (!skipUrlUpdate) {
+            urlManager.pushSelection(buildUrlParams());
+        }
+        updateLayers();
+    }
+
+    // Focus on marker (fly to position, adjusted for zone overrides)
+    function focusMarker(marker: AnyWorldMarker): void {
+        const position = adjustMarkerPosition(
+            marker.worldPosition,
+            marker.zone,
+            data.zones,
+            debugStore.overrides
+        );
+        flyTo(deckInstance, position[0], position[1], { zoom: 0 });
+    }
+
+    // Focus on zone (fly to show full zone bounds)
+    function focusZone(zone: ZoneWorldPosition): void {
+        flyToBounds(deckInstance, zone.bounds);
     }
 
     // Load sidebar state from localStorage
@@ -170,7 +227,7 @@
         }
 
         // ESC closes popup
-        if (event.key === 'Escape' && selectedMarker) {
+        if (event.key === 'Escape' && (selectedMarker || selectedZone)) {
             closePopup();
             return;
         }
@@ -216,7 +273,7 @@
 
     /**
      * Restore state from URL. Called on mount and popstate.
-     * Uses try/finally to guarantee passive mode exit.
+     * Uses passive mode to prevent URL updates during restoration.
      */
     async function restoreFromUrl(): Promise<void> {
         urlManager.enterPassiveMode();
@@ -253,7 +310,7 @@
                     });
                 }
 
-                // Restore selection
+                // Restore selection (marker or zone)
                 if (urlState.entity && urlState.etype) {
                     const marker = findMarkerByIdAndType(parseInt(urlState.entity), urlState.etype);
                     if (marker) {
@@ -262,12 +319,21 @@
                         console.warn(`Marker not found: ${urlState.etype}:${urlState.entity}`);
                         applySelection(null, true);
                     }
+                } else if (urlState.selectedZone) {
+                    const zone = findZoneByKey(urlState.selectedZone);
+                    if (zone) {
+                        selectZone(zone, true);
+                    } else {
+                        console.warn(`Zone not found: ${urlState.selectedZone}`);
+                        selectedZone = null;
+                    }
                 } else {
                     applySelection(null, true);
+                    selectedZone = null;
                 }
 
                 // Sync deduplication tracking
-                urlManager.setLastSelection(urlState.entity, urlState.etype);
+                urlManager.setLastSelection(urlState.entity, urlState.etype, urlState.selectedZone);
             } else {
                 // No URL state - use defaults
                 isDebugMode = false;
@@ -432,7 +498,21 @@
                         zoom: urlState.zoom
                     };
                 }
-                urlManager.setLastSelection(urlState.entity, urlState.etype);
+
+                // Restore selection from URL (marker or zone)
+                if (urlState.entity && urlState.etype) {
+                    const marker = findMarkerByIdAndType(parseInt(urlState.entity), urlState.etype);
+                    if (marker) {
+                        applySelection(marker, true);
+                    }
+                } else if (urlState.selectedZone) {
+                    const zone = findZoneByKey(urlState.selectedZone);
+                    if (zone) {
+                        selectZone(zone, true);
+                    }
+                }
+
+                urlManager.setLastSelection(urlState.entity, urlState.etype, urlState.selectedZone);
             }
         } finally {
             urlManager.exitPassiveMode();
@@ -568,17 +648,34 @@
                         urlManager.syncViewState(buildUrlParams());
                     }
                 },
-                onHover: (info: { object?: AnyWorldMarker; x: number; y: number }) => {
+                onHover: (info: {
+                    object?: AnyWorldMarker | ZoneWorldPosition;
+                    x: number;
+                    y: number;
+                }) => {
                     if (info.object) {
-                        hoveredMarker = info.object;
                         hoverPosition = { x: info.x, y: info.y };
+                        // Check if it's a zone or a marker
+                        if ('category' in info.object) {
+                            hoveredMarker = info.object as AnyWorldMarker;
+                            hoveredZone = null;
+                        } else if ('key' in info.object && 'polygon' in info.object) {
+                            hoveredZone = info.object as ZoneWorldPosition;
+                            hoveredMarker = null;
+                        }
                     } else {
                         hoveredMarker = null;
+                        hoveredZone = null;
                     }
                 },
-                onClick: (info: { object?: AnyWorldMarker }) => {
+                onClick: (info: { object?: AnyWorldMarker | ZoneWorldPosition }) => {
                     if (info.object) {
-                        applySelection(info.object);
+                        // Check if it's a zone (has 'key' and 'polygon') or a marker (has 'category')
+                        if ('category' in info.object) {
+                            applySelection(info.object as AnyWorldMarker);
+                        } else if ('key' in info.object && 'polygon' in info.object) {
+                            selectZone(info.object as ZoneWorldPosition);
+                        }
                     }
                     // Don't close on click-away - use close button or ESC instead
                 },
@@ -917,6 +1014,53 @@
         );
         const teleportsLayer = createIconLayer('teleports', data.markers.teleports, 'teleport');
 
+        // === SELECTION HIGHLIGHT LAYERS ===
+
+        // Zone selection highlight (yellow border around selected zone)
+        const zoneSelectionLayer = selectedZone
+            ? new PolygonLayer({
+                  id: 'zone-selection-highlight',
+                  data: [selectedZone],
+                  getPolygon: (d: ZoneWorldPosition) => d.polygon,
+                  getFillColor: HIGHLIGHT_COLORS.primaryFill,
+                  getLineColor: HIGHLIGHT_COLORS.primaryRing,
+                  getLineWidth: 4,
+                  lineWidthUnits: 'pixels',
+                  stroked: true,
+                  filled: true,
+                  pickable: false
+              })
+            : null;
+
+        // Marker selection highlight (yellow ring around selected marker)
+        // Size based on ICON_SIZE with slight reduction to create ring effect
+        const highlightSize = {
+            base: ICON_SIZE.base * 0.6,
+            min: ICON_SIZE.min * 0.65,
+            max: ICON_SIZE.max * 0.7
+        };
+        const markerSelectionLayer = selectedMarker
+            ? new ScatterplotLayer({
+                  id: 'marker-selection-highlight',
+                  data: [selectedMarker],
+                  getPosition: (d: AnyWorldMarker) => getMarkerPosition(d),
+                  getFillColor: HIGHLIGHT_COLORS.primaryFill,
+                  getLineColor: HIGHLIGHT_COLORS.primaryRing,
+                  getRadius: highlightSize.base,
+                  radiusUnits: 'pixels',
+                  radiusMinPixels: highlightSize.min,
+                  radiusMaxPixels: highlightSize.max,
+                  stroked: true,
+                  lineWidthUnits: 'pixels',
+                  lineWidthMinPixels: 3,
+                  lineWidthMaxPixels: 4,
+                  pickable: false,
+                  updateTriggers: {
+                      getPosition: [overrides]
+                  }
+              })
+            : null;
+
         // === LAYER ORDER (filtered by visibility) ===
         const vis = layerVisibility;
         return [
@@ -952,7 +1096,10 @@
             // Zone line icons
             vis.zoneLines && zoneLineIconsLayer,
             // Unique enemies
-            vis.spawnPointsUnique && enemiesUniqueLayer
+            vis.spawnPointsUnique && enemiesUniqueLayer,
+            // Selection highlights (on top of everything)
+            zoneSelectionLayer,
+            markerSelectionLayer
         ]
             .flat()
             .filter(Boolean);
@@ -1008,6 +1155,25 @@
             y={hoverPosition.y}
             zoneName={getZoneName(hoveredMarker.zone)}
         />
+    {:else if hoveredZone && isDesktop}
+        <ZoneTooltip zone={hoveredZone} x={hoverPosition.x} y={hoverPosition.y} />
+    {/if}
+
+    <!-- Popup (selected marker details) -->
+    {#if selectedMarker}
+        {@const marker = selectedMarker}
+        <MapPopup
+            {marker}
+            zoneName={selectedMarkerZoneName}
+            onClose={closePopup}
+            onFocus={() => focusMarker(marker)}
+        />
+    {/if}
+
+    <!-- Popup (selected zone details) -->
+    {#if selectedZone}
+        {@const zone = selectedZone}
+        <ZonePopup {zone} onClose={closePopup} onFocus={() => focusZone(zone)} />
     {/if}
 
     <!-- Debug info (offset by sidebar) -->

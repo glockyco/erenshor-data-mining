@@ -8,6 +8,7 @@ import { transformToMapCoords } from '$lib/map/config';
 import type {
     ZoneConfig,
     ZoneWorldPosition,
+    ZoneEnemyInfo,
     WorldAchievementTrigger,
     WorldDoor,
     WorldEnemy,
@@ -98,8 +99,21 @@ export async function load() {
 
     // Build zone configs and positions dynamically
     const zoneConfigs = buildZoneConfigs(bearings);
-    const zonePositions = buildZoneWorldPositions(zoneConfigs);
-    const worldCenter = calculateWorldCenter(zonePositions);
+    const zonePositionsBase = buildZoneWorldPositions(zoneConfigs);
+    const worldCenter = calculateWorldCenter(zonePositionsBase);
+
+    // Load enemy info for each zone
+    const zoneEnemyInfoMap = new Map<string, ZoneEnemyInfo>();
+    for (const zone of zonePositionsBase) {
+        const enemyInfo = await repo.getZoneEnemyInfo(zone.key);
+        zoneEnemyInfoMap.set(zone.key, enemyInfo);
+    }
+
+    // Add enemy info to zone positions
+    const zonePositions: ZoneWorldPosition[] = zonePositionsBase.map((zone) => ({
+        ...zone,
+        enemyInfo: zoneEnemyInfoMap.get(zone.key) ?? { levelRange: null, uniques: [], rares: [] }
+    }));
 
     // Calculate world bounds from all zone bounds
     let minX = Infinity,
@@ -228,11 +242,19 @@ export async function load() {
                 );
             }
 
+            // Get destination zone enemy info
+            const destEnemyInfo = zoneEnemyInfoMap.get(marker.destinationZone) ?? {
+                levelRange: null,
+                uniques: [],
+                rares: []
+            };
+
             zoneLines.push({
                 ...marker,
                 zone: zoneKey,
                 worldPosition: worldPos,
-                destinationWorldPosition: destinationWorldPos
+                destinationWorldPosition: destinationWorldPos,
+                destinationEnemyInfo: destEnemyInfo
             });
         }
 

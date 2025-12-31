@@ -25,6 +25,7 @@ import { DEFAULT_LAYER_VISIBILITY, type LayerVisibility } from '$lib/types/world
 export interface SelectionState {
     entityId: string | null;
     entityType: string | null;
+    selectedZoneKey: string | null;
 }
 
 /**
@@ -36,6 +37,7 @@ export interface UrlStateParams {
     layers: LayerVisibility;
     entityId: string | null;
     entityType: string | null;
+    selectedZoneKey: string | null;
     focusedZoneId: string | null;
     debug: boolean;
 }
@@ -50,6 +52,7 @@ export interface ParsedUrlState {
     layers: string | null;
     entity: string | null;
     etype: string | null;
+    selectedZone: string | null;
     zone: string | null;
     debug: boolean;
 }
@@ -67,7 +70,7 @@ const VIEW_SYNC_DEBOUNCE_MS = 150;
 // Module State
 // ============================================================================
 
-let lastSelection: SelectionState = { entityId: null, entityType: null };
+let lastSelection: SelectionState = { entityId: null, entityType: null, selectedZoneKey: null };
 let isPassiveMode = false;
 let viewSyncTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -210,7 +213,8 @@ function cancelViewSync(): void {
 export function buildUrl(params: UrlStateParams): string {
     const searchParams = new URLSearchParams();
 
-    const { viewState, layers, entityId, entityType, focusedZoneId, debug } = params;
+    const { viewState, layers, entityId, entityType, selectedZoneKey, focusedZoneId, debug } =
+        params;
 
     // View state (omit if defaults)
     if (Math.abs(viewState.x - DEFAULT_X) > 0.1) {
@@ -223,7 +227,7 @@ export function buildUrl(params: UrlStateParams): string {
         searchParams.set('z', viewState.zoom.toFixed(2));
     }
 
-    // Selection
+    // Marker selection
     if (entityId) {
         searchParams.set('entity', entityId);
     }
@@ -231,7 +235,12 @@ export function buildUrl(params: UrlStateParams): string {
         searchParams.set('etype', entityType);
     }
 
-    // Zone focus
+    // Zone selection (popup)
+    if (selectedZoneKey) {
+        searchParams.set('selzone', selectedZoneKey);
+    }
+
+    // Zone focus (filtering)
     if (focusedZoneId) {
         searchParams.set('zone', focusedZoneId);
     }
@@ -267,6 +276,7 @@ export function parseUrlState(): ParsedUrlState | null {
         params.has('y') ||
         params.has('z') ||
         params.has('entity') ||
+        params.has('selzone') ||
         params.has('zone') ||
         params.has('layers') ||
         params.has('debug');
@@ -282,6 +292,7 @@ export function parseUrlState(): ParsedUrlState | null {
         layers: params.get('layers'),
         entity: params.get('entity'),
         etype: params.get('etype'),
+        selectedZone: params.get('selzone'),
         zone: params.get('zone'),
         debug: params.get('debug') === 'true'
     };
@@ -338,10 +349,14 @@ export const urlManager = {
 
     /**
      * Sync internal tracking after URL restore.
-     * Prevents duplicate history entries when user clicks same marker again.
+     * Prevents duplicate history entries when user clicks same marker/zone again.
      */
-    setLastSelection(entityId: string | null, entityType: string | null): void {
-        lastSelection = { entityId, entityType };
+    setLastSelection(
+        entityId: string | null,
+        entityType: string | null,
+        selectedZoneKey: string | null = null
+    ): void {
+        lastSelection = { entityId, entityType, selectedZoneKey };
     },
 
     /**
@@ -371,20 +386,24 @@ export const urlManager = {
 
     /**
      * Push selection change to history.
-     * Deduplicates to prevent duplicate entries when clicking same marker.
+     * Deduplicates to prevent duplicate entries when clicking same marker/zone.
      */
     pushSelection(params: UrlStateParams): void {
         if (!browser || isPassiveMode) return;
 
-        const { entityId, entityType } = params;
+        const { entityId, entityType, selectedZoneKey } = params;
 
         // Deduplicate
-        if (entityId === lastSelection.entityId && entityType === lastSelection.entityType) {
+        if (
+            entityId === lastSelection.entityId &&
+            entityType === lastSelection.entityType &&
+            selectedZoneKey === lastSelection.selectedZoneKey
+        ) {
             return;
         }
 
         cancelViewSync();
         pushState(buildUrl(params), {});
-        lastSelection = { entityId, entityType };
+        lastSelection = { entityId, entityType, selectedZoneKey };
     }
 };

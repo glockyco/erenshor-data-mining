@@ -65,6 +65,7 @@ export type WorldWater = WorldMarker<WaterMarker> & {
 
 export type WorldZoneLine = WorldMarker<ZoneLineMarker> & {
     destinationWorldPosition: [number, number] | null;
+    destinationEnemyInfo: ZoneEnemyInfo;
 };
 
 /**
@@ -137,6 +138,12 @@ export const DEFAULT_LAYER_VISIBILITY: LayerVisibility = {
 // Zone Configuration
 // =============================================================================
 
+export interface ZoneEnemyInfo {
+    levelRange: { min: number; max: number } | null;
+    uniques: { name: string; level: number }[];
+    rares: { name: string; level: number }[];
+}
+
 export interface ZoneWorldPosition {
     key: string;
     name: string;
@@ -150,6 +157,7 @@ export interface ZoneWorldPosition {
     };
     polygon: [number, number][];
     centroid: [number, number];
+    enemyInfo?: ZoneEnemyInfo;
 }
 
 export interface ZoneConfig {

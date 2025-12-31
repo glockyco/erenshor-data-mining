@@ -1062,8 +1062,6 @@ export class RepositoryBase {
             FROM LootDrops ld
             JOIN Items i ON i.StableKey = ld.ItemStableKey
             WHERE ld.CharacterStableKey = ?
-              AND ld.IsActual = 1
-              AND ld.IsVisible = 1
             ORDER BY ld.DropProbability DESC
             LIMIT 10
         `,
@@ -1081,5 +1079,135 @@ export class RepositoryBase {
         }
         stmt.free();
         return drops;
+    }
+
+    async getVendorItems(stableKey: string): Promise<string[]> {
+        if (!this.db) throw new Error('DB not initialized');
+
+        const stmt = this.db.prepare(
+            `
+            SELECT i.ItemName
+            FROM CharacterVendorItems cvi
+            JOIN Items i ON i.StableKey = cvi.ItemStableKey
+            WHERE cvi.CharacterStableKey = ?
+            ORDER BY i.ItemName
+            `,
+            [stableKey]
+        );
+
+        const items: string[] = [];
+
+        while (stmt.step()) {
+            const row = stmt.getAsObject();
+            items.push(row.ItemName as string);
+        }
+        stmt.free();
+        return items;
+    }
+
+    async getZoneEnemyInfo(zoneName: string): Promise<{
+        levelRange: { min: number; max: number } | null;
+        uniques: { name: string; level: number }[];
+        rares: { name: string; level: number }[];
+    }> {
+        if (!this.db) throw new Error('DB not initialized');
+
+        // Query level range from both directly placed and spawn point enemies
+        const levelStmt = this.db.prepare(
+            `
+            SELECT MIN(Level) as MinLevel, MAX(Level) as MaxLevel
+            FROM (
+                SELECT c.Level
+                FROM Characters c
+                JOIN Coordinates co ON co.CharacterStableKey = c.StableKey
+                WHERE co.Scene = ? AND c.IsFriendly = 0
+
+                UNION ALL
+
+                SELECT c.Level
+                FROM SpawnPointCharacters spc
+                JOIN Characters c ON c.StableKey = spc.CharacterStableKey
+                JOIN SpawnPoints sp ON sp.Id = spc.SpawnPointId
+                JOIN Coordinates co ON co.SpawnPointId = sp.Id
+                WHERE co.Scene = ? AND c.IsFriendly = 0
+            )
+            `,
+            [zoneName, zoneName]
+        );
+
+        let levelRange: { min: number; max: number } | null = null;
+        if (levelStmt.step()) {
+            const row = levelStmt.getAsObject();
+            const minLevel = row.MinLevel as number | null;
+            const maxLevel = row.MaxLevel as number | null;
+            if (minLevel !== null && maxLevel !== null) {
+                levelRange = { min: minLevel, max: maxLevel };
+            }
+        }
+        levelStmt.free();
+
+        // Query unique enemies
+        const uniqueStmt = this.db.prepare(
+            `
+            SELECT DISTINCT c.NPCName, c.Level
+            FROM (
+                SELECT c.StableKey, c.NPCName, c.Level
+                FROM Characters c
+                JOIN Coordinates co ON co.CharacterStableKey = c.StableKey
+                WHERE co.Scene = ? AND c.IsFriendly = 0 AND c.IsUnique = 1
+
+                UNION
+
+                SELECT c.StableKey, c.NPCName, c.Level
+                FROM SpawnPointCharacters spc
+                JOIN Characters c ON c.StableKey = spc.CharacterStableKey
+                JOIN SpawnPoints sp ON sp.Id = spc.SpawnPointId
+                JOIN Coordinates co ON co.SpawnPointId = sp.Id
+                WHERE co.Scene = ? AND c.IsFriendly = 0 AND c.IsUnique = 1
+            ) c
+            ORDER BY c.Level, c.NPCName
+            `,
+            [zoneName, zoneName]
+        );
+
+        const uniques: { name: string; level: number }[] = [];
+        while (uniqueStmt.step()) {
+            const row = uniqueStmt.getAsObject();
+            uniques.push({ name: row.NPCName as string, level: row.Level as number });
+        }
+        uniqueStmt.free();
+
+        // Query rare enemies (exclude uniques)
+        const rareStmt = this.db.prepare(
+            `
+            SELECT DISTINCT c.NPCName, c.Level
+            FROM (
+                SELECT c.StableKey, c.NPCName, c.Level
+                FROM Characters c
+                JOIN Coordinates co ON co.CharacterStableKey = c.StableKey
+                WHERE co.Scene = ? AND c.IsFriendly = 0 AND c.IsRare = 1 AND c.IsUnique = 0
+
+                UNION
+
+                SELECT c.StableKey, c.NPCName, c.Level
+                FROM SpawnPointCharacters spc
+                JOIN Characters c ON c.StableKey = spc.CharacterStableKey
+                JOIN SpawnPoints sp ON sp.Id = spc.SpawnPointId
+                JOIN Coordinates co ON co.SpawnPointId = sp.Id
+                WHERE co.Scene = ? AND c.IsFriendly = 0 AND c.IsRare = 1 AND c.IsUnique = 0
+            ) c
+            ORDER BY c.Level, c.NPCName
+            `,
+            [zoneName, zoneName]
+        );
+
+        const rares: { name: string; level: number }[] = [];
+        while (rareStmt.step()) {
+            const row = rareStmt.getAsObject();
+            rares.push({ name: row.NPCName as string, level: row.Level as number });
+        }
+        rareStmt.free();
+
+        return { levelRange, uniques, rares };
     }
 }
