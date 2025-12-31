@@ -104,7 +104,7 @@ export const MAPS: Record<string, MapConfig> = {
         tileSize: 256,
         zoom: 0,
         minZoom: -1,
-        maxZoom: 3,
+        maxZoom: 2,
         originX: 0,
         originY: 0
     },
@@ -224,7 +224,7 @@ export const MAPS: Record<string, MapConfig> = {
         tileSize: 256,
         zoom: 0,
         minZoom: -1,
-        maxZoom: 4,
+        maxZoom: 3,
         originX: 200,
         originY: -110
     },
@@ -440,7 +440,7 @@ export const MAPS: Record<string, MapConfig> = {
         tileSize: 256,
         zoom: 0,
         minZoom: -1,
-        maxZoom: 3,
+        maxZoom: 2,
         originX: 0,
         originY: 0
     },
