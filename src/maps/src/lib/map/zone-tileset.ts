@@ -178,11 +178,15 @@ export function createZoneTileset2D(
             const tileMaxY = Math.floor(localBounds.maxY / tileWorldSize);
 
             // Zone extent at this zoom level
-            // X: 0 to (baseTilesX * scale - 1)
-            // Y: -1 to -(baseTilesY * scale) (negative!)
+            // For negative zoom (z < 0), tiles are combined so use ceiling for non-power-of-2 grids
+            // For positive zoom (z >= 0), tiles are split so use exact multiplication
+            const numTilesX =
+                z < 0 ? Math.ceil(config.baseTilesX * scale) : config.baseTilesX * scale;
+            const numTilesY =
+                z < 0 ? Math.ceil(config.baseTilesY * scale) : config.baseTilesY * scale;
             const zoneMinX = 0;
-            const zoneMaxX = config.baseTilesX * scale - 1;
-            const zoneMinY = -config.baseTilesY * scale;
+            const zoneMaxX = numTilesX - 1;
+            const zoneMinY = -numTilesY;
             const zoneMaxY = -1;
 
             // Clamp to zone extent

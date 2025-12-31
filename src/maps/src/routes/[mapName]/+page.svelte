@@ -130,7 +130,10 @@
                 bounds: [
                     [0, 0],
                     [worldSizeY, worldSizeX]
-                ]
+                ],
+                // TileLayer needs its own minZoom/maxZoom for negative zoom support
+                minZoom: config.minZoom,
+                maxZoom: config.maxZoom
             }).addTo(map);
 
             // Initialize WebSocket for player position
@@ -358,7 +361,7 @@
 
                 // Use SvelteKit navigation instead of manual history manipulation
                 m.on('popupopen', () => {
-                    // eslint-disable-next-line svelte/no-navigation-without-resolve -- pre-existing
+                     
                     goto(`?coordinateId=${marker.coordinateId}`, {
                         replaceState: true,
                         noScroll: true,
@@ -367,7 +370,7 @@
                 });
 
                 m.on('popupclose', () => {
-                    // eslint-disable-next-line svelte/no-navigation-without-resolve -- pre-existing
+                     
                     goto('?', {
                         replaceState: true,
                         noScroll: true,
@@ -462,7 +465,7 @@
 
                     L.DomEvent.on(button, 'click', (e) => {
                         L.DomEvent.preventDefault(e);
-                        // eslint-disable-next-line svelte/no-navigation-without-resolve -- pre-existing
+                         
                         goto('/');
                     });
 
@@ -505,7 +508,7 @@
 
         // Only clear coordinateId if we're actually changing maps (not initial load)
         if (previousMapName !== null && previousMapName !== mapName && coordId) {
-            // eslint-disable-next-line svelte/no-navigation-without-resolve -- pre-existing
+             
             goto('?', {
                 replaceState: true,
                 noScroll: true,
