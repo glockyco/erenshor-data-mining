@@ -1176,26 +1176,6 @@
         <ZonePopup {zone} onClose={closePopup} onFocus={() => focusZone(zone)} />
     {/if}
 
-    <!-- Debug info (offset by sidebar) -->
-    <div
-        class="absolute bottom-4 rounded bg-zinc-800/80 p-2 text-xs text-zinc-400 transition-all"
-        class:left-68={!sidebarCollapsed}
-        class:left-16={sidebarCollapsed}
-        style:left={sidebarCollapsed ? '4rem' : '17rem'}
-    >
-        <p>X: {currentViewState.x.toFixed(0)}</p>
-        <p>Y: {currentViewState.y.toFixed(0)}</p>
-        <p>Zoom: {currentViewState.zoom.toFixed(2)}</p>
-        <p>Zones: {data.zones.length}</p>
-        <p>
-            Enemies: {data.markers.enemiesCommon.length +
-                data.markers.enemiesRare.length +
-                data.markers.enemiesUnique.length}
-        </p>
-        <p>NPCs: {data.markers.npcs.length}</p>
-        <p>Zone Lines: {data.markers.zoneLines.length}</p>
-    </div>
-
     <!-- Debug mode panel -->
     {#if debugStore.enabled}
         <div class="fixed right-4 top-4 z-50 rounded-lg bg-zinc-800/95 p-4 shadow-lg">
