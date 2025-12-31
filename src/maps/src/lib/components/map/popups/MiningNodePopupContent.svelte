@@ -8,13 +8,11 @@
 
     let { marker }: Props = $props();
 
-    // Format respawn time
     function formatRespawnTime(seconds: number): string {
-        if (seconds === 0) return 'Instant';
         const minutes = Math.round(seconds / 60);
-        if (minutes < 1) return `${seconds}s`;
-        if (minutes === 1) return '1 minute';
-        return `${minutes} minutes`;
+        if (minutes < 1) return `after ~${seconds}s or when re-entering the zone`;
+        if (minutes === 1) return 'after ~1 minute or when re-entering the zone';
+        return `after ~${minutes} minutes or when re-entering the zone`;
     }
 
     // Format drop chance (0-100 range from database)
@@ -44,8 +42,7 @@
         <div class="text-sm text-zinc-400">No item data available.</div>
     {/if}
 
-    <!-- Respawn time -->
     <div class="text-xs text-zinc-400">
-        Respawn: {formatRespawnTime(marker.respawnTime)}
+        Respawns {formatRespawnTime(marker.respawnTime)}
     </div>
 </div>
