@@ -1,6 +1,6 @@
 <script lang="ts">
     import { SvelteMap } from 'svelte/reactivity';
-    import type { WorldEnemy } from '$lib/types/world-map';
+    import type { WorldEnemy, SpawnCharacter } from '$lib/types/world-map';
     import type { CharacterDrop } from '$lib/map-markers';
     import { Repository } from '$lib/database.default';
     import WikiLink from '$lib/components/map/WikiLink.svelte';
@@ -11,8 +11,7 @@
 
     let { marker }: Props = $props();
 
-    // Drops state: Map of stableKey -> drops array
-    let characterDrops: SvelteMap<string, CharacterDrop[]> = new SvelteMap();
+    let characterDrops = new SvelteMap<string, CharacterDrop[]>();
     let isLoadingDrops = $state(true);
     let loadError = $state<string | null>(null);
 
@@ -28,17 +27,15 @@
     async function loadDrops() {
         isLoadingDrops = true;
         loadError = null;
-        characterDrops = new SvelteMap();
+        characterDrops.clear();
         try {
             const repo = new Repository();
             await repo.init();
 
-            const newDrops = new SvelteMap<string, CharacterDrop[]>();
             for (const char of marker.characters) {
                 const drops = await repo.getDropsForCharacter(char.stableKey);
-                newDrops.set(char.stableKey, drops);
+                characterDrops.set(char.stableKey, drops);
             }
-            characterDrops = newDrops;
 
             repo.close();
         } catch (err) {
@@ -107,6 +104,29 @@
             <div class="text-xs text-amber-400">(Initially) Disabled</div>
         {/if}
     </div>
+
+    <!-- Movement Info -->
+    {#if marker.movement?.wanderRange || marker.worldPatrolWaypoints}
+        <div class="space-y-1 text-xs text-zinc-400 border-t border-zinc-700 pt-2">
+            {#if marker.movement?.wanderRange && marker.movement.wanderRange > 0}
+                <div class="flex items-center gap-1.5">
+                    <span class="inline-block w-2 h-2 rounded-full bg-blue-400"></span>
+                    <span>Wanders {marker.movement.wanderRange.toFixed(0)} units</span>
+                </div>
+            {/if}
+            {#if marker.worldPatrolWaypoints && marker.worldPatrolWaypoints.length > 0}
+                <div class="flex items-center gap-1.5">
+                    <span class="inline-block w-2 h-2 rounded-full bg-yellow-400"></span>
+                    <span
+                        >Patrols {marker.worldPatrolWaypoints.length} waypoints{marker.movement
+                            ?.loopPatrol
+                            ? ' (loops)'
+                            : ''}</span
+                    >
+                </div>
+            {/if}
+        </div>
+    {/if}
 
     <!-- Characters -->
     <div class="space-y-3">

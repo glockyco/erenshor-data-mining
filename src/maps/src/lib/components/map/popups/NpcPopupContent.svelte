@@ -122,4 +122,27 @@
             <div class="text-amber-400">(Initially) Disabled</div>
         {/if}
     </div>
+
+    <!-- Movement Info -->
+    {#if marker.movement?.wanderRange || marker.worldPatrolWaypoints}
+        <div class="space-y-1 text-xs text-zinc-400 border-t border-zinc-700 pt-2">
+            {#if marker.movement?.wanderRange && marker.movement.wanderRange > 0}
+                <div class="flex items-center gap-1.5">
+                    <span class="inline-block w-2 h-2 rounded-full bg-blue-400"></span>
+                    <span>Wanders {marker.movement.wanderRange.toFixed(0)} units</span>
+                </div>
+            {/if}
+            {#if marker.worldPatrolWaypoints && marker.worldPatrolWaypoints.length > 0}
+                <div class="flex items-center gap-1.5">
+                    <span class="inline-block w-2 h-2 rounded-full bg-yellow-400"></span>
+                    <span
+                        >Patrols {marker.worldPatrolWaypoints.length} waypoints{marker.movement
+                            ?.loopPatrol
+                            ? ' (loops)'
+                            : ''}</span
+                    >
+                </div>
+            {/if}
+        </div>
+    {/if}
 </div>

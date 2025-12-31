@@ -6,7 +6,8 @@
         ICON_SIZE,
         BACKGROUND_COLOR,
         LAYER_COLORS,
-        HIGHLIGHT_COLORS
+        HIGHLIGHT_COLORS,
+        MOVEMENT_COLORS
     } from '$lib/map/config';
     import { flyTo, flyToBounds } from '$lib/map/flyto';
     import {
@@ -42,7 +43,9 @@
         DEFAULT_LAYER_VISIBILITY,
         type LayerVisibility,
         type AnyWorldMarker,
-        type ZoneWorldPosition
+        type ZoneWorldPosition,
+        type WorldEnemy,
+        type WorldNpc
     } from '$lib/types/world-map';
     import MapSidebar from '$lib/components/map/MapSidebar.svelte';
     import MapTooltip from '$lib/components/map/MapTooltip.svelte';
@@ -1061,6 +1064,111 @@
               })
             : null;
 
+        // === MOVEMENT VISUALIZATION LAYERS ===
+        // Only show for selected enemy/NPC markers with movement data
+
+        // Helper to get movement data from selected marker
+        const getSelectedMovement = (): {
+            position: [number, number];
+            wanderRange: number | null;
+            worldWaypoints: [number, number][] | null;
+            loopPatrol: boolean;
+        } | null => {
+            if (!selectedMarker) return null;
+            if (selectedMarker.category !== 'enemy' && selectedMarker.category !== 'npc')
+                return null;
+            const marker = selectedMarker as WorldEnemy | WorldNpc;
+            if (!marker.movement && !marker.worldPatrolWaypoints) return null;
+            return {
+                position: getMarkerPosition(marker),
+                wanderRange: marker.movement?.wanderRange ?? null,
+                worldWaypoints: marker.worldPatrolWaypoints,
+                loopPatrol: marker.movement?.loopPatrol ?? false
+            };
+        };
+
+        const movementData = getSelectedMovement();
+
+        // Wander range circle (blue, 10% fill)
+        const wanderRangeLayer =
+            movementData?.wanderRange && movementData.wanderRange > 0
+                ? new ScatterplotLayer({
+                      id: 'wander-range',
+                      data: [{ position: movementData.position, radius: movementData.wanderRange }],
+                      getPosition: (d: { position: [number, number] }) => d.position,
+                      getRadius: (d: { radius: number }) => d.radius,
+                      getFillColor: MOVEMENT_COLORS.wanderCircle,
+                      getLineColor: MOVEMENT_COLORS.wanderStroke,
+                      stroked: true,
+                      lineWidthUnits: 'pixels',
+                      lineWidthMinPixels: 1,
+                      lineWidthMaxPixels: 2,
+                      pickable: false,
+                      updateTriggers: {
+                          getPosition: [overrides, selectedMarker]
+                      }
+                  })
+                : null;
+
+        // Patrol path layers
+        let patrolSpawnLineLayer = null;
+        let patrolPathLayer = null;
+        let patrolWaypointsLayer = null;
+
+        if (movementData?.worldWaypoints && movementData.worldWaypoints.length > 0) {
+            const waypoints = movementData.worldWaypoints;
+            const spawnPos = movementData.position;
+
+            // Dashed line from spawn to first waypoint
+            patrolSpawnLineLayer = new LineLayer({
+                id: 'patrol-spawn-line',
+                data: [{ source: spawnPos, target: waypoints[0] }],
+                getSourcePosition: (d: { source: [number, number] }) => d.source,
+                getTargetPosition: (d: { target: [number, number] }) => d.target,
+                getColor: MOVEMENT_COLORS.patrolDashed,
+                getWidth: 2,
+                widthUnits: 'pixels',
+                pickable: false
+            });
+
+            // Solid patrol path through waypoints (close loop if loopPatrol)
+            const pathSegments: { source: [number, number]; target: [number, number] }[] = [];
+            for (let i = 0; i < waypoints.length - 1; i++) {
+                pathSegments.push({ source: waypoints[i], target: waypoints[i + 1] });
+            }
+            // Close the loop if LoopPatrol is true
+            if (movementData.loopPatrol && waypoints.length > 1) {
+                pathSegments.push({
+                    source: waypoints[waypoints.length - 1],
+                    target: waypoints[0]
+                });
+            }
+
+            if (pathSegments.length > 0) {
+                patrolPathLayer = new LineLayer({
+                    id: 'patrol-path',
+                    data: pathSegments,
+                    getSourcePosition: (d: { source: [number, number] }) => d.source,
+                    getTargetPosition: (d: { target: [number, number] }) => d.target,
+                    getColor: MOVEMENT_COLORS.patrolLine,
+                    getWidth: 2,
+                    widthUnits: 'pixels',
+                    pickable: false
+                });
+            }
+
+            // Waypoint markers (small circles)
+            patrolWaypointsLayer = new ScatterplotLayer({
+                id: 'patrol-waypoints',
+                data: waypoints.map((wp) => ({ position: wp })),
+                getPosition: (d: { position: [number, number] }) => d.position,
+                getRadius: 4,
+                radiusUnits: 'pixels',
+                getFillColor: MOVEMENT_COLORS.waypoint,
+                pickable: false
+            });
+        }
+
         // === LAYER ORDER (filtered by visibility) ===
         const vis = layerVisibility;
         return [
@@ -1097,6 +1205,11 @@
             vis.zoneLines && zoneLineIconsLayer,
             // Unique enemies
             vis.spawnPointsUnique && enemiesUniqueLayer,
+            // Movement visualization (below selection highlight)
+            wanderRangeLayer,
+            patrolSpawnLineLayer,
+            patrolPathLayer,
+            patrolWaypointsLayer,
             // Selection highlights (on top of everything)
             zoneSelectionLayer,
             markerSelectionLayer

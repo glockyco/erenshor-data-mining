@@ -16,6 +16,13 @@ export type SpawnCharacter = {
     isFriendly: boolean;
 };
 
+// Movement data for patrol paths and wander ranges
+export type MovementData = {
+    wanderRange: number | null;
+    patrolWaypoints: [number, number][] | null;
+    loopPatrol: boolean;
+};
+
 // Item drop info for mining nodes
 export type MiningNodeItem = {
     name: string;
@@ -43,6 +50,7 @@ export type NpcMarker = BaseMarker & {
     hasDialog: boolean;
     spawnDelay: number | null;
     isNightSpawn: boolean;
+    movement: MovementData | null;
 };
 
 export type DoorMarker = BaseMarker & {
@@ -80,6 +88,7 @@ export type EnemyMarker = BaseMarker & {
     isEnabled: boolean;
     isUnique: boolean;
     isRare: boolean;
+    movement: MovementData | null;
 };
 
 export type TeleportMarker = BaseMarker & {

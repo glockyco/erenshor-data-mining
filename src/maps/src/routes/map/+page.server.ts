@@ -159,18 +159,30 @@ export async function load() {
                 zoneConfigs,
                 zonePositions
             );
+
+            // Transform patrol waypoints to world coordinates if present
+            // Waypoints are [x, z] in local game coords (z becomes y on 2D map)
+            let worldPatrolWaypoints: [number, number][] | null = null;
+            if (marker.movement?.patrolWaypoints) {
+                worldPatrolWaypoints = marker.movement.patrolWaypoints.map(([x, z]) =>
+                    transformToWorld(x, z, zoneKey, zoneConfigs, zonePositions)
+                );
+            }
+
             // NPC spawn points go with NPCs, enemy spawn points sorted by rarity
             if (marker.category === 'npc') {
                 npcs.push({
                     ...marker,
                     zone: zoneKey,
-                    worldPosition: worldPos
+                    worldPosition: worldPos,
+                    worldPatrolWaypoints
                 } as WorldNpc);
             } else {
                 const enemyMarker = {
                     ...marker,
                     zone: zoneKey,
-                    worldPosition: worldPos
+                    worldPosition: worldPos,
+                    worldPatrolWaypoints
                 } as WorldEnemy;
                 if (enemyMarker.isUnique) {
                     enemiesUnique.push(enemyMarker);
@@ -182,7 +194,7 @@ export async function load() {
             }
         }
 
-        // Load NPCs and non-spawn enemies
+        // Load NPCs and non-spawn enemies (directly placed, no patrol data)
         const zoneNpcsAndEnemies = await repo.getCharacterMarkers(zoneKey);
         for (const marker of zoneNpcsAndEnemies) {
             const worldPos = transformToWorld(
@@ -197,13 +209,15 @@ export async function load() {
                 npcs.push({
                     ...marker,
                     zone: zoneKey,
-                    worldPosition: worldPos
+                    worldPosition: worldPos,
+                    worldPatrolWaypoints: null
                 } as WorldNpc);
             } else {
                 const enemyMarker = {
                     ...marker,
                     zone: zoneKey,
-                    worldPosition: worldPos
+                    worldPosition: worldPos,
+                    worldPatrolWaypoints: null
                 } as WorldEnemy;
                 if (enemyMarker.isUnique) {
                     enemiesUnique.push(enemyMarker);

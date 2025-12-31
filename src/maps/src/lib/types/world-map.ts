@@ -22,8 +22,8 @@ import type {
     ZoneLineMarker
 } from '$lib/map-markers';
 
-// Re-export SpawnCharacter for popup generation
-export type { SpawnCharacter } from '$lib/map-markers';
+// Re-export types for popup generation
+export type { SpawnCharacter, MovementData } from '$lib/map-markers';
 
 // =============================================================================
 // World Positioning
@@ -46,8 +46,12 @@ export type WorldMarker<T extends Marker = Marker> = T & WorldPositioning;
 // Shorthand Types
 // =============================================================================
 
-export type WorldNpc = WorldMarker<NpcMarker>;
-export type WorldEnemy = WorldMarker<EnemyMarker>;
+export type WorldNpc = WorldMarker<NpcMarker> & {
+    worldPatrolWaypoints: [number, number][] | null;
+};
+export type WorldEnemy = WorldMarker<EnemyMarker> & {
+    worldPatrolWaypoints: [number, number][] | null;
+};
 export type WorldForge = WorldMarker<ForgeMarker>;
 export type WorldWishingWell = WorldMarker<WishingWellMarker>;
 export type WorldTeleport = WorldMarker<TeleportMarker>;

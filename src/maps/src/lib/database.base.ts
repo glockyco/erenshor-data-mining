@@ -9,6 +9,7 @@ import type {
     ItemBagMarker,
     MiningNodeMarker,
     MiningNodeItem,
+    MovementData,
     NpcMarker,
     SecretPassageMarker,
     SpawnCharacter,
@@ -21,6 +22,35 @@ import type {
 
 function formatCoordinates(x: number, y: number, z: number): string {
     return `(X: ${x.toFixed(2)}, Y: ${y.toFixed(2)}, Z: ${z.toFixed(2)})`;
+}
+
+// Parse patrol path string "x1,z1;x2,z2;..." into local coordinate pairs [x, z]
+// Note: z becomes y on the 2D map (game Y is height, ignored)
+function parsePatrolPath(patrolPath: string | null): [number, number][] | null {
+    if (!patrolPath) return null;
+    const waypoints: [number, number][] = [];
+    for (const point of patrolPath.split(';')) {
+        const [x, z] = point.split(',').map(Number);
+        if (!isNaN(x) && !isNaN(z)) {
+            waypoints.push([x, z]);
+        }
+    }
+    return waypoints.length > 0 ? waypoints : null;
+}
+
+// Build movement data from spawn point fields
+function buildMovementData(
+    wanderRange: number | null,
+    loopPatrol: boolean,
+    patrolPath: string | null
+): MovementData | null {
+    const patrolWaypoints = parsePatrolPath(patrolPath);
+    if (!wanderRange && !patrolWaypoints) return null;
+    return {
+        wanderRange,
+        patrolWaypoints,
+        loopPatrol
+    };
 }
 
 export class RepositoryBase {
@@ -159,7 +189,8 @@ export class RepositoryBase {
         isEnabled: boolean,
         isVendor: boolean,
         hasDialog: boolean,
-        isNightSpawn: boolean
+        isNightSpawn: boolean,
+        movement: MovementData | null = null
     ): NpcMarker {
         const positionText = `NPC @ ${formatCoordinates(coordinates.x, coordinates.y, coordinates.z)}`;
         const npcLink = `<br><br><a href='https://erenshor.wiki.gg/wiki/${encodeURIComponent(npcName)}'>${npcName}</a>`;
@@ -183,7 +214,8 @@ export class RepositoryBase {
             popup: popupText.trim(),
             isEnabled: isEnabled,
             isVendor,
-            hasDialog
+            hasDialog,
+            movement
         };
     }
 
@@ -488,6 +520,12 @@ export class RepositoryBase {
 				sp.SpawnDelay4 AS SpawnDelay,
 				sp.IsEnabled AS IsEnabled,
 				sp.NightSpawn AS IsNightSpawn,
+				sp.RandomWanderRange AS WanderRange,
+				sp.LoopPatrol AS LoopPatrol,
+				(SELECT GROUP_CONCAT(pp.X || ',' || pp.Z, ';')
+				 FROM SpawnPointPatrolPoints pp
+				 WHERE pp.SpawnPointId = sp.Id
+				 ORDER BY pp.SequenceIndex) AS PatrolPath,
 				c.NPCName,
 				c.StableKey,
 				c.Level,
@@ -518,6 +556,9 @@ export class RepositoryBase {
                 spawnDelay: number;
                 isEnabled: boolean;
                 isNightSpawn: boolean;
+                wanderRange: number | null;
+                loopPatrol: boolean;
+                patrolPath: string | null;
                 characters: {
                     name: string;
                     stableKey: string;
@@ -552,6 +593,9 @@ export class RepositoryBase {
                     spawnDelay: row.SpawnDelay as number,
                     isEnabled: !!row.IsEnabled,
                     isNightSpawn: !!row.IsNightSpawn,
+                    wanderRange: (row.WanderRange as number) || null,
+                    loopPatrol: !!row.LoopPatrol,
+                    patrolPath: (row.PatrolPath as string) || null,
                     characters: []
                 });
             }
@@ -578,8 +622,12 @@ export class RepositoryBase {
             spawnDelay,
             isEnabled,
             isNightSpawn,
+            wanderRange,
+            loopPatrol,
+            patrolPath,
             characters
         } of spawnPointMap.values()) {
+            const movement = buildMovementData(wanderRange, loopPatrol, patrolPath);
             const isNpc = characters.length == 1 && characters[0].isFriendly;
             if (isNpc) {
                 const npc = characters[0];
@@ -594,7 +642,8 @@ export class RepositoryBase {
                         isEnabled,
                         npc.isVendor,
                         npc.hasDialog,
-                        isNightSpawn
+                        isNightSpawn,
+                        movement
                     )
                 );
             } else {
@@ -606,7 +655,8 @@ export class RepositoryBase {
                         position,
                         spawnDelay,
                         isEnabled,
-                        isNightSpawn
+                        isNightSpawn,
+                        movement
                     )
                 );
             }
@@ -621,7 +671,8 @@ export class RepositoryBase {
         position: { x: number; y: number },
         spawnDelay: number | null,
         isEnabled: boolean,
-        isNightSpawn: boolean
+        isNightSpawn: boolean,
+        movement: MovementData | null = null
     ): EnemyMarker {
         const sortedCharacters = characters.slice().sort((a, b) => b.spawnChance - a.spawnChance);
 
@@ -655,7 +706,8 @@ export class RepositoryBase {
             popup: popupText,
             isEnabled: isEnabled,
             isUnique: isUnique,
-            isRare: isRare
+            isRare: isRare,
+            movement
         };
     }
 

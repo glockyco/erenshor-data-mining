@@ -75,6 +75,17 @@ export const HIGHLIGHT_COLORS = {
 } as const;
 
 /**
+ * Movement visualization colors (patrol paths, wander range)
+ */
+export const MOVEMENT_COLORS = {
+    wanderCircle: [96, 165, 250, 25] as [number, number, number, number], // blue-400, 10% fill
+    wanderStroke: [96, 165, 250, 200] as [number, number, number, number], // blue-400
+    patrolLine: [250, 204, 21, 255] as [number, number, number, number], // yellow-400
+    patrolDashed: [250, 204, 21, 150] as [number, number, number, number], // yellow-400 faded
+    waypoint: [250, 204, 21, 255] as [number, number, number, number] // yellow-400
+} as const;
+
+/**
  * Fly-to animation configuration
  */
 export const FLY_TO_CONFIG = {
