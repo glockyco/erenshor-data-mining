@@ -30,9 +30,9 @@
             <div class="text-xs text-zinc-500 uppercase tracking-wide mb-2">Possible Items</div>
             <div class="space-y-1.5">
                 {#each marker.items as item, i (i)}
-                    <div class="flex items-center justify-between text-sm">
-                        <span class="text-zinc-300">{item.name}</span>
-                        <div class="flex items-center gap-2">
+                    <div class="flex items-center justify-between gap-2 text-sm">
+                        <span class="text-zinc-300 truncate min-w-0">{item.name}</span>
+                        <div class="flex items-center gap-2 shrink-0">
                             <span class="text-zinc-500">{formatDropChance(item.dropChance)}</span>
                             <WikiLink name={item.name} />
                         </div>
