@@ -11,11 +11,12 @@ public class LootTableProbabilityCalculator
     public Dictionary<string, double> CalculateDropProbabilities(LootTable lootTable)
     {
         // Gather all unique items (excluding world)
-        List<Item>[] dropLists = new List<Item>[4];
-        dropLists[0] = lootTable.LegendaryDrop ?? new List<Item>();
-        dropLists[1] = lootTable.RareDrop ?? new List<Item>();
-        dropLists[2] = lootTable.UncommonDrop ?? new List<Item>();
-        dropLists[3] = lootTable.CommonDrop ?? new List<Item>();
+        List<Item>[] dropLists = new List<Item>[5];
+        dropLists[0] = lootTable.UltraRareDrop ?? new List<Item>();
+        dropLists[1] = lootTable.LegendaryDrop ?? new List<Item>();
+        dropLists[2] = lootTable.RareDrop ?? new List<Item>();
+        dropLists[3] = lootTable.UncommonDrop ?? new List<Item>();
+        dropLists[4] = lootTable.CommonDrop ?? new List<Item>();
 
         var allItems = new List<Item>();
         var itemIndex = new Dictionary<Item, int>();
@@ -36,8 +37,8 @@ public class LootTableProbabilityCalculator
 
         // Precompute per-list item counts (for duplicates)
         var dropItemCounts = new List<Dictionary<Item, int>>();
-        var totalEntries = new int[4];
-        for (int i = 0; i < 4; ++i)
+        var totalEntries = new int[5];
+        for (int i = 0; i < 5; ++i)
         {
             var dict = new Dictionary<Item, int>();
             var list = dropLists[i];
@@ -59,15 +60,15 @@ public class LootTableProbabilityCalculator
         }
 
         // Prepare effective drop probabilities (with fall-through)
-        double[] baseProbs = new double[] { 2.3, 4.7, 8.0, 55.0 }; // percentages
-        double[] effectiveProbs = new double[4];
+        double[] baseProbs = new double[] { 0.33, 2.3, 4.7, 8.0, 55.0 }; // percentages (UltraRare, Legendary, Rare, Uncommon, Common)
+        double[] effectiveProbs = new double[5];
         double carry = 0.0;
         int maxNonCommon = lootTable.MaxNonCommonDrops;
         bool nonCommonAllowed = maxNonCommon > 0;
 
-        for (int i = 0; i < 4; ++i)
+        for (int i = 0; i < 5; ++i)
         {
-            bool hasItems = dropLists[i] != null && dropLists[i].Count > 0 && (i < 3 ? nonCommonAllowed : true);
+            bool hasItems = dropLists[i] != null && dropLists[i].Count > 0 && (i < 4 ? nonCommonAllowed : true);
             if (hasItems)
             {
                 effectiveProbs[i] = baseProbs[i] + carry;
@@ -110,9 +111,9 @@ public class LootTableProbabilityCalculator
             // If non-common cap reached, only common can drop
             if (nonCommonUsed >= maxNonCommon)
             {
-                if (effectiveProbs[3] > 0 && totalEntries[3] > 0)
+                if (effectiveProbs[4] > 0 && totalEntries[4] > 0)
                 {
-                    double pCommon = effectiveProbs[3] / 100.0;
+                    double pCommon = effectiveProbs[4] / 100.0;
                     double pWorld = pCommon * 0.1;
                     double pNormal = pCommon * 0.9;
 
@@ -125,8 +126,8 @@ public class LootTableProbabilityCalculator
                     }
 
                     // Normal common (duplicates allowed)
-                    var commonDict = dropItemCounts[3];
-                    int totalCommonEntries = totalEntries[3];
+                    var commonDict = dropItemCounts[4];
+                    int totalCommonEntries = totalEntries[4];
                     double pPerCommon = (totalCommonEntries > 0) ? pNormal / totalCommonEntries : 0.0;
                     foreach (var kvp in commonDict)
                     {
@@ -142,14 +143,14 @@ public class LootTableProbabilityCalculator
             else
             {
                 // Otherwise, all tiers possible
-                for (int tier = 0; tier < 4; ++tier)
+                for (int tier = 0; tier < 5; ++tier)
                 {
                     if (effectiveProbs[tier] > 0 && totalEntries[tier] > 0)
                     {
                         double pTier = effectiveProbs[tier] / 100.0;
                         pSum += pTier;
 
-                        if (tier < 3) // Legendary, Rare, Uncommon: non-common (duplicates allowed)
+                        if (tier < 4) // UltraRare, Legendary, Rare, Uncommon: non-common (duplicates allowed)
                         {
                             var itemCounts = dropItemCounts[tier];
                             int totalEntriesTier = totalEntries[tier];
@@ -175,8 +176,8 @@ public class LootTableProbabilityCalculator
                             }
 
                             // Normal common (duplicates allowed)
-                            var commonDict = dropItemCounts[3];
-                            int totalCommonEntries = totalEntries[3];
+                            var commonDict = dropItemCounts[4];
+                            int totalCommonEntries = totalEntries[4];
                             double pNormal = pTier * 0.9;
                             double pPerCommon = (totalCommonEntries > 0) ? pNormal / totalCommonEntries : 0.0;
                             foreach (var kvp in commonDict)
@@ -255,11 +256,12 @@ public class LootTableProbabilityCalculator
     public Dictionary<string, double[]> CalculatePerItemDropCountDistributions(LootTable lootTable)
     {
         // Gather all unique items (excluding world)
-        List<Item>[] dropLists = new List<Item>[4];
-        dropLists[0] = lootTable.LegendaryDrop ?? new List<Item>();
-        dropLists[1] = lootTable.RareDrop ?? new List<Item>();
-        dropLists[2] = lootTable.UncommonDrop ?? new List<Item>();
-        dropLists[3] = lootTable.CommonDrop ?? new List<Item>();
+        List<Item>[] dropLists = new List<Item>[5];
+        dropLists[0] = lootTable.UltraRareDrop ?? new List<Item>();
+        dropLists[1] = lootTable.LegendaryDrop ?? new List<Item>();
+        dropLists[2] = lootTable.RareDrop ?? new List<Item>();
+        dropLists[3] = lootTable.UncommonDrop ?? new List<Item>();
+        dropLists[4] = lootTable.CommonDrop ?? new List<Item>();
 
         var allItems = new List<Item>();
         var itemIndex = new Dictionary<Item, int>();
@@ -281,8 +283,8 @@ public class LootTableProbabilityCalculator
 
         // Precompute per-list item counts (for duplicates)
         var dropItemCounts = new List<Dictionary<Item, int>>();
-        var totalEntries = new int[4];
-        for (int i = 0; i < 4; ++i)
+        var totalEntries = new int[5];
+        for (int i = 0; i < 5; ++i)
         {
             var dict = new Dictionary<Item, int>();
             var list = dropLists[i];
@@ -305,15 +307,15 @@ public class LootTableProbabilityCalculator
             dropItemCounts.Add(dict);
         }
 
-        double[] baseProbs = new double[] { 2.3, 4.7, 8.0, 55.0 }; // percentages
-        double[] effectiveProbs = new double[4];
+        double[] baseProbs = new double[] { 0.33, 2.3, 4.7, 8.0, 55.0 }; // percentages (UltraRare, Legendary, Rare, Uncommon, Common)
+        double[] effectiveProbs = new double[5];
         double carry = 0.0;
         int maxNonCommon = lootTable.MaxNonCommonDrops;
         bool nonCommonAllowed = maxNonCommon > 0;
 
-        for (int i = 0; i < 4; ++i)
+        for (int i = 0; i < 5; ++i)
         {
-            bool hasItems = dropLists[i] != null && dropLists[i].Count > 0 && (i < 3 ? nonCommonAllowed : true);
+            bool hasItems = dropLists[i] != null && dropLists[i].Count > 0 && (i < 4 ? nonCommonAllowed : true);
             if (hasItems)
             {
                 effectiveProbs[i] = baseProbs[i] + carry;
@@ -359,13 +361,13 @@ public class LootTableProbabilityCalculator
             }
 
             // Probabilities for this roll
-            double[] rollProbs = new double[4];
-            Array.Copy(effectiveProbs, rollProbs, 4);
+            double[] rollProbs = new double[5];
+            Array.Copy(effectiveProbs, rollProbs, 5);
 
             // If non-common cap reached, only common can drop
             if (nonCommonUsed >= maxNonCommon)
             {
-                rollProbs[0] = rollProbs[1] = rollProbs[2] = 0.0;
+                rollProbs[0] = rollProbs[1] = rollProbs[2] = rollProbs[3] = 0.0;
             }
 
             double pSum = 0.0;
@@ -374,8 +376,8 @@ public class LootTableProbabilityCalculator
             // Each outcome: (itemIdx, isWorldDrop, tier, countInTier, probability)
             var outcomes = new List<(int itemIdx, bool isWorld, double probability)>();
 
-            // Legendary, Rare, Uncommon
-            for (int tier = 0; tier < 3; ++tier)
+            // UltraRare, Legendary, Rare, Uncommon
+            for (int tier = 0; tier < 4; ++tier)
             {
                 if (rollProbs[tier] > 0 && totalEntries[tier] > 0)
                 {
@@ -393,9 +395,9 @@ public class LootTableProbabilityCalculator
             }
 
             // Common
-            if (rollProbs[3] > 0 && totalEntries[3] > 0)
+            if (rollProbs[4] > 0 && totalEntries[4] > 0)
             {
-                double pTier = rollProbs[3] / 100.0;
+                double pTier = rollProbs[4] / 100.0;
                 double pWorld = pTier * 0.1;
                 double pNormal = pTier * 0.9;
                 pSum += pTier;
@@ -405,8 +407,8 @@ public class LootTableProbabilityCalculator
                     outcomes.Add((worldDropIdx, true, pWorld));
 
                 // Normal common (duplicates allowed)
-                var commonDict = dropItemCounts[3];
-                int totalCommonEntries = totalEntries[3];
+                var commonDict = dropItemCounts[4];
+                int totalCommonEntries = totalEntries[4];
                 foreach (var kvp in commonDict)
                 {
                     int idx = itemIndex[kvp.Key];
@@ -453,11 +455,11 @@ public class LootTableProbabilityCalculator
                 else if (idx < itemCount && idx >= 0 && idx < itemCount && idx >= 0 && idx < itemCount)
                 {
                     // Only increment nonCommonUsed if it's a non-common drop
-                    // (for legendary, rare, uncommon)
+                    // (for ultrarare, legendary, rare, uncommon)
                     if (idx < itemCount && idx >= 0 && !isWorld && idx < itemCount)
                     {
                         // Find which tier this item is in
-                        for (int tier = 0; tier < 3; ++tier)
+                        for (int tier = 0; tier < 4; ++tier)
                         {
                             if (dropLists[tier].Contains(allItems[idx]))
                             {

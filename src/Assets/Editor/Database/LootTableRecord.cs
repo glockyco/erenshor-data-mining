@@ -30,6 +30,8 @@ public class LootTableRecord
     public bool IsUncommon { get; set; }
     public bool IsRare { get; set; }
     public bool IsLegendary { get; set; }
+    public bool IsUltraRare { get; set; }
     public bool IsUnique { get; set; }
     public bool IsVisible { get; set; }
+    public string Zone { get; set; } = string.Empty;
 }
