@@ -12,7 +12,6 @@ public class QuestListener : IAssetScanListener<Quest>
     private readonly List<QuestVariantRecord> _variantRecords = new(); // All quest variants
     private readonly List<QuestRequiredItemRecord> _questRequiredItemRecords = new();
     private readonly List<QuestFactionAffectRecord> _questFactionAffectRecords = new();
-    private readonly List<QuestRewardRecord> _questRewardRecords = new();
     private readonly List<QuestCompleteOtherQuestRecord> _questCompleteOtherQuestRecords = new();
     private readonly HashSet<string> _seenDBNames = new(); // Track which DBNames we've seen
 
@@ -44,22 +43,18 @@ public class QuestListener : IAssetScanListener<Quest>
         // Create and insert junction table records after parent records are inserted
         _db.CreateTable<QuestRequiredItemRecord>();
         _db.CreateTable<QuestFactionAffectRecord>();
-        _db.CreateTable<QuestRewardRecord>();
         _db.CreateTable<QuestCompleteOtherQuestRecord>();
         _db.RunInTransaction(() =>
         {
             _db.DeleteAll<QuestRequiredItemRecord>();
             _db.DeleteAll<QuestFactionAffectRecord>();
-            _db.DeleteAll<QuestRewardRecord>();
             _db.DeleteAll<QuestCompleteOtherQuestRecord>();
             _db.InsertAll(_questRequiredItemRecords);
             _db.InsertAll(_questFactionAffectRecords);
-            _db.InsertAll(_questRewardRecords);
             _db.InsertAll(_questCompleteOtherQuestRecords);
         });
         _questRequiredItemRecords.Clear();
         _questFactionAffectRecords.Clear();
-        _questRewardRecords.Clear();
         _questCompleteOtherQuestRecords.Clear();
     }
 
@@ -84,7 +79,6 @@ public class QuestListener : IAssetScanListener<Quest>
         // Add junction table records (one set per variant)
         _questRequiredItemRecords.AddRange(CreateQuestRequiredItemRecords(asset));
         _questFactionAffectRecords.AddRange(CreateQuestFactionAffectRecords(asset));
-        _questRewardRecords.AddRange(CreateQuestRewardRecords(asset));
         _questCompleteOtherQuestRecords.AddRange(CreateQuestCompleteOtherQuestRecords(asset));
     }
 
@@ -193,63 +187,6 @@ public class QuestListener : IAssetScanListener<Quest>
                         });
                     }
                 }
-            }
-        }
-
-        return records;
-    }
-
-    private List<QuestRewardRecord> CreateQuestRewardRecords(Quest quest)
-    {
-        var records = new List<QuestRewardRecord>();
-        var seenRewards = new HashSet<(string RewardType, string RewardValue)>();
-
-        // XP Reward
-        if (quest.XPonComplete > 0)
-        {
-            var reward = ("XP", quest.XPonComplete.ToString());
-            if (seenRewards.Add(reward))
-            {
-                records.Add(new QuestRewardRecord
-                {
-                    QuestVariantResourceName = quest.name,
-                    RewardType = "XP",
-                    RewardValue = quest.XPonComplete.ToString(),
-                    Quantity = quest.XPonComplete
-                });
-            }
-        }
-
-        // Gold Reward
-        if (quest.GoldOnComplete > 0)
-        {
-            var reward = ("Gold", quest.GoldOnComplete.ToString());
-            if (seenRewards.Add(reward))
-            {
-                records.Add(new QuestRewardRecord
-                {
-                    QuestVariantResourceName = quest.name,
-                    RewardType = "Gold",
-                    RewardValue = quest.GoldOnComplete.ToString(),
-                    Quantity = quest.GoldOnComplete
-                });
-            }
-        }
-
-        // Item Reward - store ItemStableKey as RewardValue
-        if (quest.ItemOnComplete != null && !string.IsNullOrEmpty(quest.ItemOnComplete.name))
-        {
-            var itemStableKey = StableKeyGenerator.ForItem(quest.ItemOnComplete);
-            var reward = ("Item", itemStableKey);
-            if (seenRewards.Add(reward))
-            {
-                records.Add(new QuestRewardRecord
-                {
-                    QuestVariantResourceName = quest.name,
-                    RewardType = "Item",
-                    RewardValue = itemStableKey,
-                    Quantity = 1
-                });
             }
         }
 

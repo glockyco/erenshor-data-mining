@@ -288,6 +288,7 @@ public static class ExportBatch
             ["zonelines"] = () => scanner.RegisterComponentListener(new ZoneLineListener(db)),
 
             // Characters depend on spawn points (for IsUnique calculation), so register last
+            // CharacterListener also populates QuestCompletionSources at the end of OnScanFinished
             ["characters"] = () => scanner.RegisterComponentListener(new CharacterListener(db)),
         };
 

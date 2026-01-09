@@ -39,7 +39,10 @@ public class CharacterRecord
     public bool IsEnabled { get; set; }
     public bool Invulnerable { get; set; }
     public string? ShoutOnDeath { get; set; } = string.Empty;
+    [ForeignKey(typeof(QuestRecord), "StableKey")]
     public string? QuestCompleteOnDeath { get; set; } = string.Empty;
+    [ForeignKey(typeof(QuestRecord), "StableKey")]
+    public string? ShoutTriggerQuestStableKey { get; set; } = string.Empty;
     public bool DestroyOnDeath { get; set; }
 
     // Stats properties
@@ -135,4 +138,7 @@ public class CharacterRecord
     // VendorInventory properties
     public string VendorDesc { get; set; } = string.Empty;
     public string? ItemsForSale { get; set; } = string.Empty;
+
+    // QuestManager properties
+    public bool QuestManagerSimUsable { get; set; }
 }

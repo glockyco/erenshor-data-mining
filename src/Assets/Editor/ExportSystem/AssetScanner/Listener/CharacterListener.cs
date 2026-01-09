@@ -28,6 +28,8 @@ public class CharacterListener : IAssetScanListener<Character>
     private readonly List<CharacterDeathShoutRecord> _characterDeathShoutRecords = new();
     private readonly List<CharacterVendorQuestUnlockRecord> _characterVendorQuestUnlockRecords = new();
     private readonly List<CharacterQuestManagerRecord> _characterQuestManagerRecords = new();
+    private readonly List<QuestCharacterRoleRecord> _questCharacterRoleRecords = new();
+    private readonly HashSet<(string, string, string)> _seenQuestCharacterRoles = new(); // (QuestStableKey, CharacterStableKey, Role)
 
     public CharacterListener(SQLiteConnection db)
     {
@@ -71,6 +73,7 @@ public class CharacterListener : IAssetScanListener<Character>
         _db.CreateTable<CharacterDeathShoutRecord>();
         _db.CreateTable<CharacterVendorQuestUnlockRecord>();
         _db.CreateTable<CharacterQuestManagerRecord>();
+        _db.CreateTable<QuestCharacterRoleRecord>();
 
         _db.RunInTransaction(() =>
         {
@@ -88,6 +91,7 @@ public class CharacterListener : IAssetScanListener<Character>
             _db.DeleteAll<CharacterDeathShoutRecord>();
             _db.DeleteAll<CharacterVendorQuestUnlockRecord>();
             _db.DeleteAll<CharacterQuestManagerRecord>();
+            _db.DeleteAll<QuestCharacterRoleRecord>();
 
             _db.InsertAll(_characterAttackSkillRecords);
             _db.InsertAll(_characterAttackSpellRecords);
@@ -103,6 +107,7 @@ public class CharacterListener : IAssetScanListener<Character>
             _db.InsertAll(_characterDeathShoutRecords);
             _db.InsertAll(_characterVendorQuestUnlockRecords);
             _db.InsertAll(_characterQuestManagerRecords);
+            _db.InsertAll(_questCharacterRoleRecords);
         });
 
         _characterAttackSkillRecords.Clear();
@@ -119,6 +124,8 @@ public class CharacterListener : IAssetScanListener<Character>
         _characterDeathShoutRecords.Clear();
         _characterVendorQuestUnlockRecords.Clear();
         _characterQuestManagerRecords.Clear();
+        _questCharacterRoleRecords.Clear();
+        _seenQuestCharacterRoles.Clear();
 
         _db.Execute(@"
             UPDATE Characters
@@ -161,6 +168,93 @@ public class CharacterListener : IAssetScanListener<Character>
                 WHERE ((IsPrefab AND spawnPointCount = 1) OR (NOT IsPrefab AND instanceCount = 1))
             );
         ");
+
+        // Populate QuestCompletionSources from all exported tables
+        // This must run after all other listeners have created their tables
+        PopulateQuestCompletionSources();
+    }
+
+    private void PopulateQuestCompletionSources()
+    {
+        _db.CreateTable<QuestCompletionSourceRecord>();
+        _db.DeleteAll<QuestCompletionSourceRecord>();
+
+        // 1. Item turnin - from QuestCharacterRoles where role = 'item_turnin'
+        _db.Execute(@"
+            INSERT INTO QuestCompletionSources (QuestStableKey, Method, SourceType, SourceStableKey)
+            SELECT DISTINCT QuestStableKey, 'item_turnin', 'character', CharacterStableKey
+            FROM QuestCharacterRoles
+            WHERE Role = 'item_turnin'
+        ");
+
+        // 2. Talk - from CharacterDialogs where CompleteQuestStableKey is set
+        _db.Execute(@"
+            INSERT INTO QuestCompletionSources (QuestStableKey, Method, SourceType, SourceStableKey)
+            SELECT DISTINCT CompleteQuestStableKey, 'talk', 'character', CharacterStableKey
+            FROM CharacterDialogs
+            WHERE CompleteQuestStableKey IS NOT NULL AND CompleteQuestStableKey != ''
+        ");
+
+        // 3. Zone entry - from Zones where CompleteQuestOnEnterStableKey is set
+        _db.Execute(@"
+            INSERT INTO QuestCompletionSources (QuestStableKey, Method, SourceType, SourceStableKey)
+            SELECT DISTINCT CompleteQuestOnEnterStableKey, 'zone', 'zone', StableKey
+            FROM Zones
+            WHERE CompleteQuestOnEnterStableKey IS NOT NULL AND CompleteQuestOnEnterStableKey != ''
+        ");
+
+        // 3b. Zone entry - from Zones where CompleteSecondQuestOnEnterStableKey is set
+        _db.Execute(@"
+            INSERT INTO QuestCompletionSources (QuestStableKey, Method, SourceType, SourceStableKey)
+            SELECT DISTINCT CompleteSecondQuestOnEnterStableKey, 'zone', 'zone', StableKey
+            FROM Zones
+            WHERE CompleteSecondQuestOnEnterStableKey IS NOT NULL AND CompleteSecondQuestOnEnterStableKey != ''
+        ");
+
+        // 4. Item read - from Items where CompleteOnReadStableKey is set
+        _db.Execute(@"
+            INSERT INTO QuestCompletionSources (QuestStableKey, Method, SourceType, SourceStableKey)
+            SELECT DISTINCT CompleteOnReadStableKey, 'read', 'item', StableKey
+            FROM Items
+            WHERE CompleteOnReadStableKey IS NOT NULL AND CompleteOnReadStableKey != ''
+        ");
+
+        // 5. Shout - from Characters where ShoutTriggerQuestStableKey is set
+        _db.Execute(@"
+            INSERT INTO QuestCompletionSources (QuestStableKey, Method, SourceType, SourceStableKey)
+            SELECT DISTINCT ShoutTriggerQuestStableKey, 'shout', 'character', StableKey
+            FROM Characters
+            WHERE ShoutTriggerQuestStableKey IS NOT NULL AND ShoutTriggerQuestStableKey != ''
+        ");
+
+        // 6. Scripted completions - hardcoded list with notes
+        InsertScriptedCompletion("quest:bellwain", "AngelScript.cs - torch/beam puzzle");
+        InsertScriptedCompletion("quest:jawsseen", "SivTorchLight.cs - gaze at torch 800 frames");
+        InsertScriptedCompletion("quest:shiver-meetall", "ShiverEvent.cs - defeat 4 keepers");
+
+        // 7. Chain completions - quests only completed via QuestCompleteOtherQuests
+        // Only insert if the quest has no other completion method
+        _db.Execute(@"
+            INSERT INTO QuestCompletionSources (QuestStableKey, Method, SourceType, SourceStableKey)
+            SELECT DISTINCT qcoq.CompletedQuestStableKey, 'chain', 'quest', qv.QuestStableKey
+            FROM QuestCompleteOtherQuests qcoq
+            JOIN QuestVariants qv ON qv.ResourceName = qcoq.QuestVariantResourceName
+            WHERE qcoq.CompletedQuestStableKey NOT IN (
+                SELECT QuestStableKey FROM QuestCompletionSources
+            )
+        ");
+    }
+
+    private void InsertScriptedCompletion(string questStableKey, string note)
+    {
+        _db.Insert(new QuestCompletionSourceRecord
+        {
+            QuestStableKey = questStableKey,
+            Method = "scripted",
+            SourceType = "scripted",
+            SourceStableKey = null,
+            Note = note
+        });
     }
 
     public void OnAssetFound(Character asset)
@@ -205,6 +299,36 @@ public class CharacterListener : IAssetScanListener<Character>
             {
                 dialogRecords.Add(CreateDialogRecord(characterRecord.StableKey, i, dialog));
                 i++;
+
+                // Extract quest roles from dialogs
+                if (dialog.QuestToAssign != null && !string.IsNullOrEmpty(dialog.QuestToAssign.DBName))
+                {
+                    var questStableKey = StableKeyGenerator.ForQuest(dialog.QuestToAssign);
+                    var key = (questStableKey, characterRecord.StableKey, "giver");
+                    if (_seenQuestCharacterRoles.Add(key))
+                    {
+                        _questCharacterRoleRecords.Add(new QuestCharacterRoleRecord
+                        {
+                            QuestStableKey = questStableKey,
+                            CharacterStableKey = characterRecord.StableKey,
+                            Role = "giver"
+                        });
+                    }
+                }
+                if (dialog.QuestToComplete != null && !string.IsNullOrEmpty(dialog.QuestToComplete.DBName))
+                {
+                    var questStableKey = StableKeyGenerator.ForQuest(dialog.QuestToComplete);
+                    var key = (questStableKey, characterRecord.StableKey, "completer");
+                    if (_seenQuestCharacterRoles.Add(key))
+                    {
+                        _questCharacterRoleRecords.Add(new QuestCharacterRoleRecord
+                        {
+                            QuestStableKey = questStableKey,
+                            CharacterStableKey = characterRecord.StableKey,
+                            Role = "completer"
+                        });
+                    }
+                }
             }
             _characterDialogRecords.AddRange(dialogRecords);
         }
@@ -245,6 +369,7 @@ public class CharacterListener : IAssetScanListener<Character>
         if (questManager != null)
         {
             _characterQuestManagerRecords.AddRange(CreateCharacterQuestManagerRecords(characterRecord.StableKey, questManager));
+            _questCharacterRoleRecords.AddRange(CreateQuestCharacterRoleRecords(characterRecord.StableKey, questManager));
         }
     }
 
@@ -271,6 +396,7 @@ public class CharacterListener : IAssetScanListener<Character>
         var vendorInventory = character.GetComponent<VendorInventory>();
         var simPlayer = character.GetComponent<SimPlayer>();
         var stats = character.GetComponent<Stats>();
+        var questManager = character.GetComponent<QuestManager>();
         var hasDialog = character.GetComponents<NPCDialog>().Any(d => !string.IsNullOrWhiteSpace(d.Dialog));
         var modifyFactions = character.GetComponents<ModifyFaction>();
         
@@ -471,6 +597,17 @@ public class CharacterListener : IAssetScanListener<Character>
         {
             record.VendorDesc = vendorInventory.VendorDesc;
             record.ItemsForSale = vendorInventory.ItemsForSale != null ? string.Join(", ", vendorInventory.ItemsForSale.Select(i => i.ItemName)) : null;
+        }
+
+        if (questManager != null)
+        {
+            record.QuestManagerSimUsable = questManager.SimUsable;
+        }
+
+        var npcShoutListener = character.GetComponent<NPCShoutListener>();
+        if (npcShoutListener?.TriggerQuest != null)
+        {
+            record.ShoutTriggerQuestStableKey = StableKeyGenerator.ForQuest(npcShoutListener.TriggerQuest);
         }
 
         return record;
@@ -848,8 +985,35 @@ public class CharacterListener : IAssetScanListener<Character>
                         records.Add(new CharacterQuestManagerRecord
                         {
                             CharacterStableKey = characterStableKey,
+                            QuestStableKey = questStableKey
+                        });
+                    }
+                }
+            }
+        }
+
+        return records;
+    }
+
+    private List<QuestCharacterRoleRecord> CreateQuestCharacterRoleRecords(string characterStableKey, QuestManager questManager)
+    {
+        var records = new List<QuestCharacterRoleRecord>();
+
+        if (questManager.NPCQuests != null && questManager.NPCQuests.Count > 0)
+        {
+            foreach (var quest in questManager.NPCQuests)
+            {
+                if (quest != null && !string.IsNullOrEmpty(quest.DBName))
+                {
+                    var questStableKey = StableKeyGenerator.ForQuest(quest);
+                    var key = (questStableKey, characterStableKey, "item_turnin");
+                    if (_seenQuestCharacterRoles.Add(key))
+                    {
+                        records.Add(new QuestCharacterRoleRecord
+                        {
                             QuestStableKey = questStableKey,
-                            SimUsable = questManager.SimUsable
+                            CharacterStableKey = characterStableKey,
+                            Role = "item_turnin"
                         });
                     }
                 }

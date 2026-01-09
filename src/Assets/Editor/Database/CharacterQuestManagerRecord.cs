@@ -14,6 +14,4 @@ public class CharacterQuestManagerRecord
     [Indexed(Name = "CharacterQuestManagerQuests_Primary_IDX", Order = 2, Unique = true)]
     [ForeignKey(typeof(QuestRecord), "StableKey")]
     public string QuestStableKey { get; set; } = string.Empty;
-
-    public bool SimUsable { get; set; }
 }
