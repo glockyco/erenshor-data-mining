@@ -32,8 +32,8 @@ using Debug = UnityEngine.Debug;
 /// Available entity types:
 /// achievementtriggers, ascensions, books, characters, classes, doors, forges,
 /// itembags, items, loottables, miningnodes, quests, secretpassages, skills,
-/// spells, spawnpoints, teleportlocs, treasurehunting, treasurelocs, waters,
-/// wishingwells, worldfactions, zoneannounces, zoneatlasentries, zonelines
+/// spells, spawnpoints, stances, teleportlocs, treasurehunting, treasurelocs,
+/// waters, wishingwells, worldfactions, zoneannounces, zoneatlasentries, zonelines
 ///
 /// Exit codes:
 /// - 0: Success
@@ -265,6 +265,7 @@ public static class ExportBatch
             ["quests"] = () => scanner.RegisterScriptableObjectListener(new QuestListener(db)),
             ["skills"] = () => scanner.RegisterScriptableObjectListener(new SkillListener(db)),
             ["spells"] = () => scanner.RegisterScriptableObjectListener(new SpellListener(db)),
+            ["stances"] = () => scanner.RegisterScriptableObjectListener(new StanceListener(db)),
             ["worldfactions"] = () => scanner.RegisterScriptableObjectListener(new WorldFactionListener(db)),
             ["zoneatlasentries"] = () => scanner.RegisterScriptableObjectListener(new ZoneAtlasEntryListener(db)),
 
