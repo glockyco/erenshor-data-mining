@@ -51,6 +51,20 @@ public static class StableKeyGenerator
     }
 
     /// <summary>
+    /// Generate stable key for a stance.
+    /// Format: "stance:resource_name"
+    /// </summary>
+    public static string ForStance(Stance stance)
+    {
+        if (stance == null)
+            throw new ArgumentNullException(nameof(stance));
+        if (string.IsNullOrEmpty(stance.name))
+            throw new ArgumentException("Stance.name cannot be null or empty");
+
+        return $"stance:{Normalize(stance.name)}";
+    }
+
+    /// <summary>
     /// Generate stable key for a quest.
     /// Format: "quest:db_name"
     /// </summary>

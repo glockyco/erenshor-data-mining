@@ -35,6 +35,7 @@ public class AssetScannerExporterWindow : EditorWindow
     private bool _exportSecretPassages = true;
     private bool _exportSkills = true;
     private bool _exportSpells = true;
+    private bool _exportStances = true;
     private bool _exportSpawnPoints = true;
     private bool _exportTeleportLocs = true;
     private bool _exportTreasureHunting = true;
@@ -156,6 +157,7 @@ public class AssetScannerExporterWindow : EditorWindow
         _exportSecretPassages = EditorGUILayout.ToggleLeft("Secret Passages", _exportSecretPassages);
         _exportSkills = EditorGUILayout.ToggleLeft("Skills", _exportSkills);
         _exportSpells = EditorGUILayout.ToggleLeft("Spells", _exportSpells);
+        _exportStances = EditorGUILayout.ToggleLeft("Stances", _exportStances);
         _exportSpawnPoints = EditorGUILayout.ToggleLeft("Spawn Points", _exportSpawnPoints);
         _exportTeleportLocs = EditorGUILayout.ToggleLeft("Teleport Locations", _exportTeleportLocs);
         _exportTreasureHunting = EditorGUILayout.ToggleLeft("Treasure Hunting", _exportTreasureHunting);
@@ -186,6 +188,7 @@ public class AssetScannerExporterWindow : EditorWindow
         _exportSecretPassages = value;
         _exportSkills = value;
         _exportSpells = value;
+        _exportStances = value;
         _exportSpawnPoints = value;
         _exportTeleportLocs = value;
         _exportTreasureHunting = value;
@@ -221,6 +224,7 @@ public class AssetScannerExporterWindow : EditorWindow
         if (_exportQuests) _activeScanner.RegisterScriptableObjectListener(new QuestListener(_db));
         if (_exportSkills) _activeScanner.RegisterScriptableObjectListener(new SkillListener(_db));
         if (_exportSpells) _activeScanner.RegisterScriptableObjectListener(new SpellListener(_db));
+        if (_exportStances) _activeScanner.RegisterScriptableObjectListener(new StanceListener(_db));
         if (_exportWorldFactions) _activeScanner.RegisterScriptableObjectListener(new WorldFactionListener(_db));
         if (_exportZoneAtlasEntries) _activeScanner.RegisterScriptableObjectListener(new ZoneAtlasEntryListener(_db));
         
@@ -287,6 +291,7 @@ public class AssetScannerExporterWindow : EditorWindow
             _exportSecretPassages ||
             _exportSkills ||
             _exportSpells ||
+            _exportStances ||
             _exportSpawnPoints ||
             _exportTeleportLocs ||
             _exportTreasureHunting ||
