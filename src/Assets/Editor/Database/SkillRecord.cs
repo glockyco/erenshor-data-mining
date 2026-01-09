@@ -25,6 +25,7 @@ public class SkillRecord
     public int ArcanistRequiredLevel { get; set; } // From Skill.ArcanistRequiredLevel
     public int DruidRequiredLevel { get; set; } // From Skill.DruidRequiredLevel
     public int StormcallerRequiredLevel { get; set; } // From Skill.StormcallerRequiredLevel
+    public int ReaverRequiredLevel { get; set; } // From Skill.ReaverRequiredLevel
     public bool RequireBehind { get; set; } // From Skill.RequireBehind
     public bool Require2H { get; set; } // From Skill.Require2H
     public bool RequireDW { get; set; } // From Skill.RequireDW
@@ -54,6 +55,8 @@ public class SkillRecord
     public bool AutomateAttack { get; set; } // From Skill.AutomateAttack
     [ForeignKey(typeof(SpellRecord), "StableKey")]
     public string? CastOnTargetStableKey { get; set; }
+    [ForeignKey(typeof(StanceRecord), "StableKey")]
+    public string? StanceToUseStableKey { get; set; }
 
     // --- Visual/Audio ---
     public string SkillAnimName { get; set; } = string.Empty; // From Skill.SkillAnimName

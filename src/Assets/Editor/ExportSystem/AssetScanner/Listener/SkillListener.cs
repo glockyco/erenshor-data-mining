@@ -58,6 +58,7 @@ public class SkillListener : IAssetScanListener<Skill>
             ArcanistRequiredLevel = skill.ArcanistRequiredLevel,
             DruidRequiredLevel = skill.DruidRequiredLevel,
             StormcallerRequiredLevel = skill.StormcallerRequiredLevel,
+            ReaverRequiredLevel = skill.ReaverRequiredLevel,
             RequireBehind = skill.RequireBehind,
             Require2H = skill.Require2H,
             RequireDW = skill.RequireDW,
@@ -92,6 +93,9 @@ public class SkillListener : IAssetScanListener<Skill>
             AutomateAttack = skill.AutomateAttack,
             CastOnTargetStableKey = skill.CastOnTarget != null
                 ? StableKeyGenerator.ForSpell(skill.CastOnTarget)
+                : null,
+            StanceToUseStableKey = skill.StanceToUse != null
+                ? StableKeyGenerator.ForStance(skill.StanceToUse)
                 : null,
 
             // --- Visual/Audio ---
