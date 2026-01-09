@@ -34,9 +34,12 @@ Three game variants with separate pipelines:
 ## Essential Commands
 
 ```bash
-uv run erenshor extract full        # Complete pipeline
+uv run erenshor extract download    # Download game files from Steam
+uv run erenshor extract rip         # Extract Unity project via AssetRipper
+uv run erenshor extract export      # Export data to SQLite via Unity
 uv run erenshor sheets deploy       # Deploy to Google Sheets
 uv run erenshor wiki deploy         # Deploy to MediaWiki
+uv run erenshor --variant playtest extract download  # Use different variant
 uv run pytest                       # Run tests
 uv run pre-commit run --all-files   # Run linters
 ```
