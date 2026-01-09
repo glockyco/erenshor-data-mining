@@ -90,7 +90,8 @@ public class ItemRecord
     public bool FuelSource { get; set; }
     public int FuelLevel { get; set; } // From Item.FuelTier enum
     public bool SimPlayersCantGet { get; set; } // Flag for simulation behavior
-    
+    public bool FurnitureSet { get; set; } // Marks items as furniture set pieces for Planning Table
+
     // --- Visuals & Sound ---
     public string? AttackSoundName { get; set; } = string.Empty; // Name of the AudioClip
     public string? ItemIconName { get; set; } = string.Empty; // Name of the Sprite for the icon
