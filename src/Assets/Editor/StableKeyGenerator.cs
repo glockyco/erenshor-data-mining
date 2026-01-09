@@ -65,6 +65,20 @@ public static class StableKeyGenerator
     }
 
     /// <summary>
+    /// Generate stable key for a guild topic.
+    /// Format: "guildtopic:resource_name"
+    /// </summary>
+    public static string ForGuildTopic(GuildTopic guildTopic)
+    {
+        if (guildTopic == null)
+            throw new ArgumentNullException(nameof(guildTopic));
+        if (string.IsNullOrEmpty(guildTopic.name))
+            throw new ArgumentException("GuildTopic.name cannot be null or empty");
+
+        return $"guildtopic:{Normalize(guildTopic.name)}";
+    }
+
+    /// <summary>
     /// Generate stable key for a quest.
     /// Format: "quest:db_name"
     /// </summary>

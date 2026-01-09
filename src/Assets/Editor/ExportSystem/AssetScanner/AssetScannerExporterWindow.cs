@@ -27,6 +27,7 @@ public class AssetScannerExporterWindow : EditorWindow
     private bool _exportClasses = true;
     private bool _exportDoors = true;
     private bool _exportForges = true;
+    private bool _exportGuildTopics = true;
     private bool _exportItemBags = true;
     private bool _exportItems = true;
     private bool _exportLootTables = true;
@@ -149,6 +150,7 @@ public class AssetScannerExporterWindow : EditorWindow
         _exportClasses = EditorGUILayout.ToggleLeft("Classes", _exportClasses);
         _exportDoors = EditorGUILayout.ToggleLeft("Doors", _exportDoors);
         _exportForges = EditorGUILayout.ToggleLeft("Forges", _exportForges);
+        _exportGuildTopics = EditorGUILayout.ToggleLeft("Guild Topics", _exportGuildTopics);
         _exportItemBags = EditorGUILayout.ToggleLeft("Item Bags", _exportItemBags);
         _exportItems = EditorGUILayout.ToggleLeft("Items", _exportItems);
         _exportLootTables = EditorGUILayout.ToggleLeft("Loot Drops", _exportLootTables);
@@ -180,6 +182,7 @@ public class AssetScannerExporterWindow : EditorWindow
         _exportClasses = value;
         _exportDoors = value;
         _exportForges = value;
+        _exportGuildTopics = value;
         _exportItemBags = value;
         _exportItems = value;
         _exportLootTables = value;
@@ -221,6 +224,7 @@ public class AssetScannerExporterWindow : EditorWindow
         if (_exportAscensions) _activeScanner.RegisterScriptableObjectListener(new AscensionListener(_db));
         if (_exportBooks) _activeScanner.RegisterScriptableObjectListener(new BookListener(_db));
         if (_exportClasses) _activeScanner.RegisterScriptableObjectListener(new ClassListener(_db));
+        if (_exportGuildTopics) _activeScanner.RegisterScriptableObjectListener(new GuildTopicListener(_db));
         if (_exportQuests) _activeScanner.RegisterScriptableObjectListener(new QuestListener(_db));
         if (_exportSkills) _activeScanner.RegisterScriptableObjectListener(new SkillListener(_db));
         if (_exportSpells) _activeScanner.RegisterScriptableObjectListener(new SpellListener(_db));
@@ -282,6 +286,7 @@ public class AssetScannerExporterWindow : EditorWindow
             _exportClasses ||
             _exportDoors ||
             _exportForges ||
+            _exportGuildTopics ||
             _exportWorldFactions ||
             _exportItemBags ||
             _exportItems ||
