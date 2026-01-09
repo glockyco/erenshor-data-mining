@@ -375,7 +375,9 @@ spreadsheet_id = "1eOYfjaudAhvE6HGBtWyRGgQDsmWDLENaoEwRvgBO_0E"
 
     - Commit regularly with logical, focused changes
     - One concept per commit
-    - Clear, concise commit messages
+    - Conventional commits format: `type(scope): summary`
+    - Prose descriptions, not bullet lists
+    - 80 character line limit
 
 8. **Fix All Errors**
     - Don't ignore errors, even if you didn't introduce them
