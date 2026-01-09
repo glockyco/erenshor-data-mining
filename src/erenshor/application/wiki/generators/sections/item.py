@@ -8,9 +8,9 @@ assembly is handled by PageGenerator classes.
 
 Template structure:
 - General items: {{Item}} template + category tags
-- Weapons: {{Item}} + 3x {{Fancy-weapon}} (Normal/Blessed/Godly) + category tags
-- Armor: {{Item}} + 3x {{Fancy-armor}} (Normal/Blessed/Godly) + category tags
-- Charms: {{Item}} + {{Fancy-charm}} + category tags
+- Weapons: {{Item}} + 3x {{Item/Weapon}} (Normal/Blessed/Godly) + category tags
+- Armor: {{Item}} + 3x {{Item/Armor}} (Normal/Blessed/Godly) + category tags
+- Charms: {{Item}} + {{Item/Charm}} + category tags
 
 Note: This initial implementation generates fresh content without source enrichment
 (vendors, drops, quests, crafting). Source enrichment will be added in future tasks.
@@ -414,7 +414,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
     def _generate_weapon_page(self, enriched: EnrichedItemData, page_title: str) -> str:
         """Generate page for weapons.
 
-        Generates {{Item}} template for general info plus 3x {{Fancy-weapon}} templates
+        Generates {{Item}} template for general info plus 3x {{Item/Weapon}} templates
         (one for each quality tier: Normal/Blessed/Godly) in a wiki table.
 
         Args:
@@ -423,7 +423,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
             resolver: Registry resolver for links and overrides
 
         Returns:
-            Wikitext with {{Item}} template + {{Fancy-weapon}} table
+            Wikitext with {{Item}} template + {{Item/Weapon}} table
 
         Raises:
             ValueError: If stats is empty (all weapons must have stats)
@@ -439,7 +439,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
         item_context = self._build_item_infobox_context(enriched, page_title)
         item_template = self.render_template("item.jinja2", item_context)
 
-        # Generate {{Fancy-weapon}} templates (one per quality tier)
+        # Generate {{Item/Weapon}} templates (one per quality tier)
         fancy_templates = [self._build_fancy_weapon(enriched, page_title, stat) for stat in stats]
         fancy_table = self._format_fancy_table(fancy_templates)
 
@@ -448,7 +448,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
     def _generate_armor_page(self, enriched: EnrichedItemData, page_title: str) -> str:
         """Generate page for armor.
 
-        Generates {{Item}} template for general info plus 3x {{Fancy-armor}} templates
+        Generates {{Item}} template for general info plus 3x {{Item/Armor}} templates
         (one for each quality tier: Normal/Blessed/Godly) in a wiki table.
 
         Args:
@@ -457,7 +457,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
             resolver: Registry resolver for links and overrides
 
         Returns:
-            Wikitext with {{Item}} template + {{Fancy-armor}} table
+            Wikitext with {{Item}} template + {{Item/Armor}} table
 
         Raises:
             ValueError: If stats is empty (all armor must have stats)
@@ -474,7 +474,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
         item_context = self._build_item_infobox_context(enriched, page_title)
         item_template = self.render_template("item.jinja2", item_context)
 
-        # Generate {{Fancy-armor}} templates (one per quality tier)
+        # Generate {{Item/Armor}} templates (one per quality tier)
         fancy_templates = [self._build_fancy_armor(enriched, page_title, stat) for stat in stats]
         fancy_table = self._format_fancy_table(fancy_templates)
 
