@@ -19,12 +19,14 @@ public class TeleportLocListener : IAssetScanListener<Object>
         _db.Execute("DELETE FROM Coordinates WHERE Category = ?", nameof(CoordinateCategory.Teleport));
         _db.DeleteAll<TeleportRecord>();
 
-        InsertTeleport("Azure", 10.8f, 29.4f, 335.2f, "GEN - Rune of Azure");
-        InsertTeleport("Braxonian", 382.6f, 49.3f, 878f, "GEN - Rune of Sands");
-        InsertTeleport("Hidden", 9.34f, 1f, -114.33f, "GEN - Rune of The Hills");
+        // Teleport destinations from SpellVessel.cs "Portal to X" cases
+        InsertTeleport("Windwashed", 755.27f, 66f, 474.4f, "GEN - Rune of Winds");
         InsertTeleport("Silkengrass", 188.5f, 63.52f, 712.92f, "GEN - Rune of Silkengrass");
+        InsertTeleport("Braxonian", 382.6f, 49.3f, 878f, "GEN - Rune of Sands");
         InsertTeleport("Soluna", 225f, 77f, 249f, "GEN - Rune of Soluna's Landing");
         InsertTeleport("Ripper", 572f, 54.4f, 293f, "GEN - Rune of Ripper's Keep");
+        InsertTeleport("Hidden", 9.34f, 1f, -114.33f, "GEN - Rune of The Hills");
+        InsertTeleport("Reliquary", 275f, 1.82f, 309f, "GEN - Box of Portals");
         
         _db.Execute(@"
             UPDATE Coordinates
