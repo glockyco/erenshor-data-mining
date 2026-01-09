@@ -26,6 +26,7 @@ public class CharacterListener : IAssetScanListener<Character>
     private readonly List<CharacterAlliedFactionRecord> _characterAlliedFactionRecords = new();
     private readonly List<CharacterFactionModifierRecord> _characterFactionModifierRecords = new();
     private readonly List<CharacterDeathShoutRecord> _characterDeathShoutRecords = new();
+    private readonly List<CharacterVendorQuestUnlockRecord> _characterVendorQuestUnlockRecords = new();
 
     public CharacterListener(SQLiteConnection db)
     {
@@ -67,6 +68,7 @@ public class CharacterListener : IAssetScanListener<Character>
         _db.CreateTable<CharacterAlliedFactionRecord>();
         _db.CreateTable<CharacterFactionModifierRecord>();
         _db.CreateTable<CharacterDeathShoutRecord>();
+        _db.CreateTable<CharacterVendorQuestUnlockRecord>();
 
         _db.RunInTransaction(() =>
         {
@@ -82,6 +84,7 @@ public class CharacterListener : IAssetScanListener<Character>
             _db.DeleteAll<CharacterAlliedFactionRecord>();
             _db.DeleteAll<CharacterFactionModifierRecord>();
             _db.DeleteAll<CharacterDeathShoutRecord>();
+            _db.DeleteAll<CharacterVendorQuestUnlockRecord>();
 
             _db.InsertAll(_characterAttackSkillRecords);
             _db.InsertAll(_characterAttackSpellRecords);
@@ -95,6 +98,7 @@ public class CharacterListener : IAssetScanListener<Character>
             _db.InsertAll(_characterAlliedFactionRecords);
             _db.InsertAll(_characterFactionModifierRecords);
             _db.InsertAll(_characterDeathShoutRecords);
+            _db.InsertAll(_characterVendorQuestUnlockRecords);
         });
 
         _characterAttackSkillRecords.Clear();
@@ -109,6 +113,7 @@ public class CharacterListener : IAssetScanListener<Character>
         _characterAlliedFactionRecords.Clear();
         _characterFactionModifierRecords.Clear();
         _characterDeathShoutRecords.Clear();
+        _characterVendorQuestUnlockRecords.Clear();
 
         _db.Execute(@"
             UPDATE Characters
@@ -216,6 +221,7 @@ public class CharacterListener : IAssetScanListener<Character>
         if (vendorInventory != null)
         {
             _characterVendorItemRecords.AddRange(CreateCharacterVendorItemRecords(characterRecord.StableKey, vendorInventory));
+            _characterVendorQuestUnlockRecords.AddRange(CreateCharacterVendorQuestUnlockRecords(characterRecord.StableKey, vendorInventory));
         }
 
         // Faction and Death Shout junction tables
@@ -678,6 +684,33 @@ public class CharacterListener : IAssetScanListener<Character>
                         {
                             CharacterStableKey = characterStableKey,
                             ItemStableKey = itemStableKey
+                        });
+                    }
+                }
+            }
+        }
+
+        return records;
+    }
+
+    private List<CharacterVendorQuestUnlockRecord> CreateCharacterVendorQuestUnlockRecords(string characterStableKey, VendorInventory vendorInventory)
+    {
+        var records = new List<CharacterVendorQuestUnlockRecord>();
+        var seenQuestStableKeys = new HashSet<string>();
+
+        if (vendorInventory.QuestRewardsForSale != null && vendorInventory.QuestRewardsForSale.Count > 0)
+        {
+            foreach (var quest in vendorInventory.QuestRewardsForSale)
+            {
+                if (quest != null && !string.IsNullOrEmpty(quest.DBName))
+                {
+                    var questStableKey = StableKeyGenerator.ForQuest(quest);
+                    if (seenQuestStableKeys.Add(questStableKey))
+                    {
+                        records.Add(new CharacterVendorQuestUnlockRecord
+                        {
+                            CharacterStableKey = characterStableKey,
+                            QuestStableKey = questStableKey
                         });
                     }
                 }
