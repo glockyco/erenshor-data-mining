@@ -18,6 +18,14 @@ repos:
         require_serial: true
         pass_filenames: false
         args: [src/]
+  - repo: local
+    hooks:
+      - id: lint-staged-maps
+        name: lint-staged (maps)
+        entry: pnpm --filter erenshor-maps exec lint-staged
+        language: system
+        pass_filenames: false
+        files: ^src/maps/
   - repo: https://github.com/gitleaks/gitleaks
     rev: v8.29.0
     hooks:

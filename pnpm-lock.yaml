@@ -99,6 +99,9 @@ importers:
       globals:
         specifier: ^16.0.0
         version: 16.5.0
+      lint-staged:
+        specifier: ^16.2.7
+        version: 16.2.7
       prettier:
         specifier: ^3.4.2
         version: 3.7.4
