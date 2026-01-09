@@ -27,6 +27,7 @@ public class CharacterListener : IAssetScanListener<Character>
     private readonly List<CharacterFactionModifierRecord> _characterFactionModifierRecords = new();
     private readonly List<CharacterDeathShoutRecord> _characterDeathShoutRecords = new();
     private readonly List<CharacterVendorQuestUnlockRecord> _characterVendorQuestUnlockRecords = new();
+    private readonly List<CharacterQuestManagerRecord> _characterQuestManagerRecords = new();
 
     public CharacterListener(SQLiteConnection db)
     {
@@ -69,6 +70,7 @@ public class CharacterListener : IAssetScanListener<Character>
         _db.CreateTable<CharacterFactionModifierRecord>();
         _db.CreateTable<CharacterDeathShoutRecord>();
         _db.CreateTable<CharacterVendorQuestUnlockRecord>();
+        _db.CreateTable<CharacterQuestManagerRecord>();
 
         _db.RunInTransaction(() =>
         {
@@ -85,6 +87,7 @@ public class CharacterListener : IAssetScanListener<Character>
             _db.DeleteAll<CharacterFactionModifierRecord>();
             _db.DeleteAll<CharacterDeathShoutRecord>();
             _db.DeleteAll<CharacterVendorQuestUnlockRecord>();
+            _db.DeleteAll<CharacterQuestManagerRecord>();
 
             _db.InsertAll(_characterAttackSkillRecords);
             _db.InsertAll(_characterAttackSpellRecords);
@@ -99,6 +102,7 @@ public class CharacterListener : IAssetScanListener<Character>
             _db.InsertAll(_characterFactionModifierRecords);
             _db.InsertAll(_characterDeathShoutRecords);
             _db.InsertAll(_characterVendorQuestUnlockRecords);
+            _db.InsertAll(_characterQuestManagerRecords);
         });
 
         _characterAttackSkillRecords.Clear();
@@ -114,6 +118,7 @@ public class CharacterListener : IAssetScanListener<Character>
         _characterFactionModifierRecords.Clear();
         _characterDeathShoutRecords.Clear();
         _characterVendorQuestUnlockRecords.Clear();
+        _characterQuestManagerRecords.Clear();
 
         _db.Execute(@"
             UPDATE Characters
@@ -235,6 +240,12 @@ public class CharacterListener : IAssetScanListener<Character>
         }
 
         _characterDeathShoutRecords.AddRange(CreateCharacterDeathShoutRecords(characterRecord.StableKey, asset));
+
+        var questManager = asset.GetComponent<QuestManager>();
+        if (questManager != null)
+        {
+            _characterQuestManagerRecords.AddRange(CreateCharacterQuestManagerRecords(characterRecord.StableKey, questManager));
+        }
     }
 
     private CoordinateRecord? CreateCoordinateRecord(Character character)
@@ -813,6 +824,34 @@ public class CharacterListener : IAssetScanListener<Character>
                         SequenceIndex = i,
                         ShoutText = shout
                     });
+                }
+            }
+        }
+
+        return records;
+    }
+
+    private List<CharacterQuestManagerRecord> CreateCharacterQuestManagerRecords(string characterStableKey, QuestManager questManager)
+    {
+        var records = new List<CharacterQuestManagerRecord>();
+        var seenQuestStableKeys = new HashSet<string>();
+
+        if (questManager.NPCQuests != null && questManager.NPCQuests.Count > 0)
+        {
+            foreach (var quest in questManager.NPCQuests)
+            {
+                if (quest != null && !string.IsNullOrEmpty(quest.DBName))
+                {
+                    var questStableKey = StableKeyGenerator.ForQuest(quest);
+                    if (seenQuestStableKeys.Add(questStableKey))
+                    {
+                        records.Add(new CharacterQuestManagerRecord
+                        {
+                            CharacterStableKey = characterStableKey,
+                            QuestStableKey = questStableKey,
+                            SimUsable = questManager.SimUsable
+                        });
+                    }
                 }
             }
         }
