@@ -58,6 +58,8 @@ SELECT
     s.RootTarget,
     s.StunTarget,
     s.CharmTarget,
+    s.FearTarget,
+    s.InflictOnSelf,
     s.CrowdControlSpell,
     s.BreakOnDamage,
     s.BreakOnAnyAction,

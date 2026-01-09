@@ -74,6 +74,7 @@ SELECT
     Disposable,
     "Unique",
     Relic,
+    FurnitureSet,
     NoTradeNoDestroy,
     BookTitle,
     Mining,

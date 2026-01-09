@@ -1,1 +1,1 @@
-SELECT * FROM skills;
+SELECT * FROM Skills ORDER BY SkillDBIndex;
