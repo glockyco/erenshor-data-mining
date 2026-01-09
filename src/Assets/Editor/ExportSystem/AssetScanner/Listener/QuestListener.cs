@@ -126,6 +126,11 @@ public class QuestListener : IAssetScanListener<Quest>
             // --- Achievements ---
             SetAchievementOnGet = quest.SetAchievementOnGet,
             SetAchievementOnFinish = quest.SetAchievementOnFinish,
+
+            // --- Vendor Unlocks ---
+            UnlockItemForVendorStableKey = quest.UnlockItemForVendor != null
+                ? StableKeyGenerator.ForItem(quest.UnlockItemForVendor)
+                : null,
         };
     }
 

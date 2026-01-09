@@ -45,4 +45,8 @@ public class QuestVariantRecord
     // --- Achievements ---
     public string SetAchievementOnGet { get; set; } = string.Empty;
     public string SetAchievementOnFinish { get; set; } = string.Empty;
+
+    // --- Vendor Unlocks ---
+    [ForeignKey(typeof(ItemRecord), "StableKey")]
+    public string? UnlockItemForVendorStableKey { get; set; }
 }
