@@ -42,6 +42,7 @@ public class SpellRecord
     public bool GroupEffect { get; set; } // From Spell.GroupEffect
     public bool CanHitPlayers { get; set; } // From Spell.CanHitPlayers
     public bool ApplyToCaster { get; set; } // From Spell.ApplyToCaster
+    public bool InflictOnSelf { get; set; } // From Spell.InflictOnSelf
 
     // --- Core Effects (Damage/Heal/Shield) ---
     public int TargetDamage { get; set; } // From Spell.TargetDamage
@@ -82,6 +83,7 @@ public class SpellRecord
     public bool RootTarget { get; set; } // From Spell.RootTarget
     public bool StunTarget { get; set; } // From Spell.StunTarget
     public bool CharmTarget { get; set; } // From Spell.CharmTarget
+    public bool FearTarget { get; set; } // From Spell.FearTarget
     public bool CrowdControlSpell { get; set; } // From Spell.CrowdControlSpell
     public bool BreakOnDamage { get; set; } // From Spell.BreakOnDamage
     public bool BreakOnAnyAction { get; set; } // From Spell.BreakOnAnyAction
