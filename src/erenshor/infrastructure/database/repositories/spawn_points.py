@@ -71,7 +71,8 @@ class SpawnPointRepository(BaseRepository[SpawnPoint]):
                 co.Z AS z,
                 spc.SpawnChance AS spawn_chance,
                 COALESCE(spc.IsRare, 0) AS is_rare,
-                COALESCE(c.IsUnique, 0) AS is_unique
+                COALESCE(c.IsUnique, 0) AS is_unique,
+                COALESCE(sp.LevelMod, 0) AS level_mod
             FROM SpawnPoints sp
             JOIN SpawnPointCharacters spc ON spc.SpawnPointId = sp.Id
             JOIN Coordinates co ON co.SpawnPointId = sp.Id
@@ -130,7 +131,8 @@ class SpawnPointRepository(BaseRepository[SpawnPoint]):
                 co.Z AS z,
                 100.0 AS spawn_chance,
                 0 AS is_rare,
-                COALESCE(c.IsUnique, 0) AS is_unique
+                COALESCE(c.IsUnique, 0) AS is_unique,
+                0 AS level_mod
             FROM Coordinates co
             JOIN Characters c ON c.StableKey = co.CharacterStableKey
             LEFT JOIN Zones za ON za.SceneName = co.Scene

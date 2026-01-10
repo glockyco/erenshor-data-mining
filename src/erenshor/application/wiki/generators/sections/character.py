@@ -87,6 +87,14 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         guaranteed_drops, drop_rates = self._format_loot_drops(enriched.loot_drops, display_name)
         spells = self._format_ability_links(enriched.spells)
 
+        # Calculate level modifier range from spawn points
+        level_mod_min, level_mod_max = self._calculate_level_mod_range(enriched.spawn_infos)
+
+        # Random variance: -1 to +1 for regular NPCs, 0 for GroupEncounter
+        is_group_encounter = bool(character.group_encounter)
+        variance_min = 0 if is_group_encounter else -1
+        variance_max = 0 if is_group_encounter else 1
+
         # Build template context
         context = self._build_character_template_context(
             character=character,
@@ -102,6 +110,10 @@ class CharacterSectionGenerator(SectionGeneratorBase):
             guaranteed_drops=guaranteed_drops,
             drop_rates=drop_rates,
             spells=spells,
+            level_mod_min=level_mod_min,
+            level_mod_max=level_mod_max,
+            variance_min=variance_min,
+            variance_max=variance_max,
         )
 
         template_wikitext = self.render_template("character.jinja2", context)
@@ -353,6 +365,24 @@ class CharacterSectionGenerator(SectionGeneratorBase):
 
         return (guaranteed_str, _join_entries(all_entries))
 
+    def _calculate_level_mod_range(
+        self,
+        spawn_infos: list[CharacterSpawnInfo],
+    ) -> tuple[int, int]:
+        """Calculate min and max level modifiers from spawn points.
+
+        Args:
+            spawn_infos: List of spawn point info with level_mod values
+
+        Returns:
+            Tuple of (min_level_mod, max_level_mod)
+        """
+        if not spawn_infos:
+            return (0, 0)
+
+        level_mods = [info.level_mod for info in spawn_infos]
+        return (min(level_mods), max(level_mods))
+
     def _build_character_template_context(
         self,
         character: Character,
@@ -368,21 +398,16 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         guaranteed_drops: str,
         drop_rates: str,
         spells: str,
+        level_mod_min: int,
+        level_mod_max: int,
+        variance_min: int,
+        variance_max: int,
     ) -> dict[str, str]:
         """Build context for {{Character}} template."""
-        xp_range = ""
-        if character.base_xp_min and character.base_xp_max:
-            multiplier = character.boss_xp_multiplier if character.boss_xp_multiplier else 1.0
-            if multiplier == 0.0:
-                multiplier = 1.0
-
-            xp_min = int(character.base_xp_min * multiplier)
-            xp_max = int(character.base_xp_max * multiplier)
-
-            if xp_min == xp_max:
-                xp_range = str(xp_min)
-            else:
-                xp_range = f"{xp_min}-{xp_max}"
+        # XP multiplier (boss_xp_multiplier, default 1.0)
+        xp_multiplier = character.boss_xp_multiplier if character.boss_xp_multiplier else 1.0
+        if xp_multiplier == 0.0:
+            xp_multiplier = 1.0
 
         def _format_resistance(
             base_val: int | None, min_val: int | None, max_val: int | None, hand_set: int | None
@@ -407,7 +432,11 @@ class CharacterSectionGenerator(SectionGeneratorBase):
             "guaranteed_drops": guaranteed_drops,
             "drop_rates": drop_rates,
             "level": safe_str(character.level),
-            "experience": xp_range,
+            "level_mod_min": str(level_mod_min),
+            "level_mod_max": str(level_mod_max),
+            "variance_min": str(variance_min),
+            "variance_max": str(variance_max),
+            "xp_multiplier": str(xp_multiplier),
             "health": safe_str(character.base_hp or character.effective_hp),
             "mana": safe_str(character.base_mana),
             "ac": safe_str(character.base_ac or character.effective_ac),

@@ -32,5 +32,6 @@ class CharacterSpawnInfo(BaseModel):
     spawn_chance: float = Field(description="Spawn chance percentage (0-100)")
     is_rare: bool = Field(description="Is rare spawn")
     is_unique: bool = Field(description="Is unique/boss spawn")
+    level_mod: int = Field(default=0, description="Level modifier applied at spawn")
 
     model_config = {"frozen": True}  # Immutable value object

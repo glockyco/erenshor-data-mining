@@ -240,10 +240,10 @@ class TestResistanceRegressions:
 
 
 class TestExperienceCalculation:
-    """Test XP calculation with BossXpMultiplier."""
+    """Test XP multiplier output in template context."""
 
     def test_normal_npc_xp_no_multiplier(self, generator, mock_enriched, mock_resolver):
-        """Normal NPCs with no multiplier should show base XP range."""
+        """Normal NPCs with no multiplier should show xp_multiplier=1.0."""
         character = Character(
             id=1,
             object_name="Test",
@@ -259,11 +259,11 @@ class TestExperienceCalculation:
 
         template = generator.generate_template(mock_enriched, "Test Character")
 
-        # Should show base XP (16-36)
-        assert "|experience=16-36" in template
+        # Should show xp_multiplier=1.0 (default)
+        assert "|xpmultiplier=1.0" in template
 
     def test_boss_xp_with_multiplier(self, generator, mock_enriched, mock_resolver):
-        """Boss NPCs should apply XP multiplier."""
+        """Boss NPCs should output their XP multiplier."""
         character = Character(
             id=1,
             object_name="Test",
@@ -279,8 +279,8 @@ class TestExperienceCalculation:
 
         template = generator.generate_template(mock_enriched, "Test Character")
 
-        # Should show multiplied XP (160*8 to 360*8 = 1280-2880)
-        assert "|experience=1280-2880" in template
+        # Should show the multiplier value
+        assert "|xpmultiplier=8.0" in template
 
     def test_zero_multiplier_treated_as_one(self, generator, mock_enriched, mock_resolver):
         """Zero multiplier should be treated as 1.0."""
@@ -299,11 +299,11 @@ class TestExperienceCalculation:
 
         template = generator.generate_template(mock_enriched, "Test Character")
 
-        # Should show base XP (not multiplied by 0)
-        assert "|experience=16-36" in template
+        # Zero multiplier should be converted to 1.0
+        assert "|xpmultiplier=1.0" in template
 
-    def test_same_min_max_xp_shows_single_value(self, generator, mock_enriched, mock_resolver):
-        """When min and max XP are the same, show single value."""
+    def test_fractional_multiplier(self, generator, mock_enriched, mock_resolver):
+        """Fractional multipliers should be preserved."""
         character = Character(
             id=1,
             object_name="Test",
@@ -313,15 +313,14 @@ class TestExperienceCalculation:
             level=10,
             base_xp_min=100.0,
             base_xp_max=100.0,
-            boss_xp_multiplier=2.0,
+            boss_xp_multiplier=2.5,
         )
         mock_enriched.character = character
 
         template = generator.generate_template(mock_enriched, "Test Character")
 
-        # Should show single value (100*2 = 200)
-        assert "|experience=200" in template
-        assert "200-200" not in template
+        # Should show the fractional multiplier
+        assert "|xpmultiplier=2.5" in template
 
 
 class TestSpawnChanceFormatting:
@@ -619,3 +618,273 @@ class TestRespawnTimeFormatting:
 
         # Current implementation aggregates respawn times into a range
         assert "|respawn=3-8 minutes" in template
+
+
+class TestLevelFormatting:
+    """Test level component output for spawn point levelMod and random variance.
+
+    Template receives raw components and calculates effective level range.
+    Game logic (NPC.cs:394-403):
+    - Regular NPCs: base + levelMod + random(-1, 0, +1)
+    - GroupEncounter NPCs: base + levelMod (no random variance)
+    - Floor at level 1
+    """
+
+    def test_regular_npc_no_level_mod(self, generator, mock_enriched, mock_resolver):
+        """Regular NPC with no levelMod outputs base level and variance fields."""
+        from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
+
+        character = Character(
+            stable_key="character:test",
+            object_name="Test",
+            npc_name="Test Character",
+            level=10,
+            group_encounter=0,
+        )
+        mock_enriched.character = character
+        mock_enriched.spawn_infos = [
+            CharacterSpawnInfo(
+                zone_stable_key="zone:Test Zone",
+                base_respawn=300.0,
+                x=None,
+                y=None,
+                z=None,
+                spawn_chance=100.0,
+                is_rare=False,
+                is_unique=False,
+                level_mod=0,
+            )
+        ]
+
+        template = generator.generate_template(mock_enriched, "Test Character")
+
+        # Raw components for template to calculate 9-11
+        assert "|level=10" in template
+        assert "|levelmodmin=0" in template
+        assert "|levelmodmax=0" in template
+        assert "|levelvariancemin=-1" in template
+        assert "|levelvariancemax=1" in template
+
+    def test_regular_npc_with_level_mod(self, generator, mock_enriched, mock_resolver):
+        """Regular NPC with levelMod outputs adjusted modifier range."""
+        from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
+
+        character = Character(
+            stable_key="character:test",
+            object_name="Test",
+            npc_name="Test Boss",
+            level=10,
+            group_encounter=0,
+        )
+        mock_enriched.character = character
+        mock_enriched.spawn_infos = [
+            CharacterSpawnInfo(
+                zone_stable_key="zone:Test Zone",
+                base_respawn=300.0,
+                x=None,
+                y=None,
+                z=None,
+                spawn_chance=100.0,
+                is_rare=False,
+                is_unique=True,
+                level_mod=5,
+            )
+        ]
+
+        template = generator.generate_template(mock_enriched, "Test Boss")
+
+        # Raw components for template to calculate 14-16
+        assert "|level=10" in template
+        assert "|levelmodmin=5" in template
+        assert "|levelmodmax=5" in template
+        assert "|levelvariancemin=-1" in template
+        assert "|levelvariancemax=1" in template
+
+    def test_regular_npc_level_floor_at_one(self, generator, mock_enriched, mock_resolver):
+        """Level 1 NPC outputs raw components (template handles floor)."""
+        from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
+
+        character = Character(
+            stable_key="character:test",
+            object_name="Test",
+            npc_name="Test Critter",
+            level=1,
+            group_encounter=0,
+        )
+        mock_enriched.character = character
+        mock_enriched.spawn_infos = [
+            CharacterSpawnInfo(
+                zone_stable_key="zone:Test Zone",
+                base_respawn=300.0,
+                x=None,
+                y=None,
+                z=None,
+                spawn_chance=100.0,
+                is_rare=False,
+                is_unique=False,
+                level_mod=0,
+            )
+        ]
+
+        template = generator.generate_template(mock_enriched, "Test Critter")
+
+        # Raw components for template to calculate 1-2 (flooring at 1)
+        assert "|level=1" in template
+        assert "|levelmodmin=0" in template
+        assert "|levelmodmax=0" in template
+        assert "|levelvariancemin=-1" in template
+        assert "|levelvariancemax=1" in template
+
+    def test_regular_npc_multiple_level_mods(self, generator, mock_enriched, mock_resolver):
+        """Multiple spawn points with different levelMod values output min/max range."""
+        from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
+
+        character = Character(
+            stable_key="character:test",
+            object_name="Test",
+            npc_name="Test Character",
+            level=10,
+            group_encounter=0,
+        )
+        mock_enriched.character = character
+        mock_enriched.spawn_infos = [
+            CharacterSpawnInfo(
+                zone_stable_key="zone:Zone A",
+                base_respawn=300.0,
+                x=None,
+                y=None,
+                z=None,
+                spawn_chance=100.0,
+                is_rare=False,
+                is_unique=False,
+                level_mod=0,
+            ),
+            CharacterSpawnInfo(
+                zone_stable_key="zone:Zone B",
+                base_respawn=300.0,
+                x=None,
+                y=None,
+                z=None,
+                spawn_chance=100.0,
+                is_rare=False,
+                is_unique=False,
+                level_mod=5,
+            ),
+        ]
+
+        template = generator.generate_template(mock_enriched, "Test Character")
+
+        # Raw components for template to calculate 9-16
+        assert "|level=10" in template
+        assert "|levelmodmin=0" in template
+        assert "|levelmodmax=5" in template
+        assert "|levelvariancemin=-1" in template
+        assert "|levelvariancemax=1" in template
+
+    def test_group_encounter_no_variance(self, generator, mock_enriched, mock_resolver):
+        """GroupEncounter NPC outputs zero variance."""
+        from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
+
+        character = Character(
+            stable_key="character:test",
+            object_name="Test",
+            npc_name="Test Raid Boss",
+            level=10,
+            group_encounter=1,
+        )
+        mock_enriched.character = character
+        mock_enriched.spawn_infos = [
+            CharacterSpawnInfo(
+                zone_stable_key="zone:Test Zone",
+                base_respawn=300.0,
+                x=None,
+                y=None,
+                z=None,
+                spawn_chance=100.0,
+                is_rare=False,
+                is_unique=True,
+                level_mod=0,
+            )
+        ]
+
+        template = generator.generate_template(mock_enriched, "Test Raid Boss")
+
+        # GroupEncounter: no variance (both 0)
+        assert "|level=10" in template
+        assert "|levelmodmin=0" in template
+        assert "|levelmodmax=0" in template
+        assert "|levelvariancemin=0" in template
+        assert "|levelvariancemax=0" in template
+
+    def test_group_encounter_with_level_mod(self, generator, mock_enriched, mock_resolver):
+        """GroupEncounter NPC with levelMod outputs modifier and zero variance."""
+        from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
+
+        character = Character(
+            stable_key="character:test",
+            object_name="Test",
+            npc_name="Test Raid Boss",
+            level=10,
+            group_encounter=1,
+        )
+        mock_enriched.character = character
+        mock_enriched.spawn_infos = [
+            CharacterSpawnInfo(
+                zone_stable_key="zone:Test Zone",
+                base_respawn=300.0,
+                x=None,
+                y=None,
+                z=None,
+                spawn_chance=100.0,
+                is_rare=False,
+                is_unique=True,
+                level_mod=5,
+            )
+        ]
+
+        template = generator.generate_template(mock_enriched, "Test Raid Boss")
+
+        # GroupEncounter: base level 10, levelMod 5, no variance
+        assert "|level=10" in template
+        assert "|levelmodmin=5" in template
+        assert "|levelmodmax=5" in template
+        assert "|levelvariancemin=0" in template
+        assert "|levelvariancemax=0" in template
+
+    def test_no_spawn_infos_shows_variance(self, generator, mock_enriched, mock_resolver):
+        """Character with no spawn infos outputs zero level mods with variance."""
+        character = Character(
+            stable_key="character:test",
+            object_name="Test",
+            npc_name="Test NPC",
+            level=10,
+            group_encounter=0,
+        )
+        mock_enriched.character = character
+        mock_enriched.spawn_infos = []
+
+        template = generator.generate_template(mock_enriched, "Test NPC")
+
+        # No spawn info: level_mod defaults to 0, variance still applies
+        assert "|level=10" in template
+        assert "|levelmodmin=0" in template
+        assert "|levelmodmax=0" in template
+        assert "|levelvariancemin=-1" in template
+        assert "|levelvariancemax=1" in template
+
+    def test_none_level_shows_empty(self, generator, mock_enriched, mock_resolver):
+        """Character with None level shows empty string."""
+        character = Character(
+            stable_key="character:test",
+            object_name="Test",
+            npc_name="Test NPC",
+            level=None,
+            group_encounter=0,
+        )
+        mock_enriched.character = character
+        mock_enriched.spawn_infos = []
+
+        template = generator.generate_template(mock_enriched, "Test NPC")
+
+        assert "|level=\n" in template
+        assert "|level=None" not in template

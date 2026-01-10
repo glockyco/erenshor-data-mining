@@ -246,7 +246,11 @@ class TestTemplateGeneratorBase:
             "faction": "Evil",
             "zones": "Forest, Cave",
             "level": "5",
-            "experience": "100-150",
+            "level_mod_min": "0",
+            "level_mod_max": "0",
+            "variance_min": "-1",
+            "variance_max": "1",
+            "xp_multiplier": "1.0",
         }
 
         result = generator.render_template("character.jinja2", context)
@@ -254,7 +258,8 @@ class TestTemplateGeneratorBase:
         assert "{{Enemy" in result
         assert "|name=Test Goblin" in result
         assert "|level=5" in result
-        assert "|experience=100-150" in result
+        assert "|levelmodmin=0" in result
+        assert "|xpmultiplier=1.0" in result
 
     def test_render_spell_template(self):
         """Test rendering spell template (partial check due to size)."""
