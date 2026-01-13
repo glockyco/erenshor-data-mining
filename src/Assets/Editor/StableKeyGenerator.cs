@@ -79,6 +79,20 @@ public static class StableKeyGenerator
     }
 
     /// <summary>
+    /// Generate stable key for an ascension.
+    /// Format: "ascension:resource_name"
+    /// </summary>
+    public static string ForAscension(Ascension ascension)
+    {
+        if (ascension == null)
+            throw new ArgumentNullException(nameof(ascension));
+        if (string.IsNullOrEmpty(ascension.name))
+            throw new ArgumentException("Ascension.name cannot be null or empty");
+
+        return $"ascension:{Normalize(ascension.name)}";
+    }
+
+    /// <summary>
     /// Generate stable key for a quest.
     /// Format: "quest:db_name"
     /// </summary>

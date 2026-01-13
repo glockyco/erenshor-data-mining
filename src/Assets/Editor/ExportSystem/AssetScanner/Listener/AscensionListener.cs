@@ -31,6 +31,7 @@ public class AscensionListener : IAssetScanListener<Ascension>
 
         var record = new AscensionRecord
         {
+            StableKey = StableKeyGenerator.ForAscension(asset),
             AscensionDBIndex = _records.Count,
             Id = asset.Id,
 

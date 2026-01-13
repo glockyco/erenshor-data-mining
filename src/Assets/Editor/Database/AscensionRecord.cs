@@ -6,9 +6,11 @@ using SQLite;
 public class AscensionRecord
 {
     public const string TableName = "Ascensions";
-    
-    public int AscensionDBIndex { get; set; } // Index from the loaded Resources array
+
+    // --- Core Identification ---
     [PrimaryKey]
+    public string StableKey { get; set; } = string.Empty; // Stable identifier: "ascension:resource_name"
+    public int AscensionDBIndex { get; set; } // Index from the loaded Resources array
     public string Id { get; set; } = string.Empty; // From BaseScriptableObject.Id
 
     public string UsedBy { get; set; } = string.Empty; // Store Ascension.Class enum as string
