@@ -1,5 +1,6 @@
 SELECT
     s.SpellDBIndex,
+    s.Id,
     s.StableKey,
     s.SpellName,
     s.SpellDesc,

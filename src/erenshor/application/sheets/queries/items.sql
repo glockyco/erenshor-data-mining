@@ -1,5 +1,6 @@
 SELECT
     ItemDBIndex,
+    Id,
     StableKey,
     ItemName,
     Lore,
