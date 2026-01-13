@@ -71,10 +71,9 @@ SELECT
      FROM CraftingRecipes cr
      WHERE cr.RecipeItemStableKey = i.StableKey
      ORDER BY cr.MaterialSlot) AS TemplateIngredientStableKeys,
-    (SELECT GROUP_CONCAT(RewardItemStableKey || ' (x' || RewardQuantity || ')', ', ')
+    (SELECT RewardItemStableKey || ' (x' || RewardQuantity || ')'
      FROM CraftingRewards crw
-     WHERE crw.RecipeItemStableKey = i.StableKey
-     ORDER BY crw.RewardSlot) AS TemplateRewardStableKeys,
+     WHERE crw.RecipeItemStableKey = i.StableKey AND crw.RewardSlot = 1) AS TemplateRewardStableKey,
     ItemValue,
     SellValue,
     Stackable,
