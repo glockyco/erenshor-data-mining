@@ -66,8 +66,14 @@ SELECT
     AssignQuestOnReadStableKey,
     CompleteOnReadStableKey,
     Template,
-    TemplateIngredientIds,
-    TemplateRewardIds,
+    (SELECT GROUP_CONCAT(MaterialItemStableKey || ' (x' || MaterialQuantity || ')', ', ')
+     FROM CraftingRecipes cr
+     WHERE cr.RecipeItemStableKey = i.StableKey
+     ORDER BY cr.MaterialSlot) AS TemplateIngredientStableKeys,
+    (SELECT GROUP_CONCAT(RewardItemStableKey || ' (x' || RewardQuantity || ')', ', ')
+     FROM CraftingRewards crw
+     WHERE crw.RecipeItemStableKey = i.StableKey
+     ORDER BY crw.RewardSlot) AS TemplateRewardStableKeys,
     ItemValue,
     SellValue,
     Stackable,
