@@ -111,3 +111,10 @@ uv run pytest -m integration     # Integration tests only
 
 CI runs on all pushes: linting (Ruff), type checking (MyPy), secret scanning
 (Gitleaks), and full test suite.
+
+## Database Files
+
+Exported SQLite databases are stored per-variant:
+- `variants/main/erenshor-main.sqlite` - Production release data
+- `variants/playtest/erenshor-playtest.sqlite` - Beta/playtest data
+- `variants/demo/erenshor-demo.sqlite` - Demo version data
