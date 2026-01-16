@@ -982,7 +982,9 @@ class ItemSectionGenerator(SectionGeneratorBase):
             f"{prefix}_add_proc_name": add_proc_name,
             f"{prefix}_add_proc_chance": num_str(spell.add_proc_chance),
             f"{prefix}_special_descriptor": spell.special_descriptor or "",
-            f"{prefix}_xp_bonus": str(round(spell.xp_bonus * 100)) if spell.xp_bonus else "",
+            f"{prefix}_xp_bonus": str(round(spell.xp_bonus * 100))
+            if spell.xp_bonus and spell.line == "XPBonus"
+            else "",
         }
 
         return context
