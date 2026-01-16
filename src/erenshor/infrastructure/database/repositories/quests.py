@@ -18,8 +18,7 @@ class QuestRepository(BaseRepository[Quest]):
     def get_quests_rewarding_item(self, item_stable_key: str) -> list[str]:
         """Get quests that reward the given item.
 
-        Uses QuestRewards table to find quests rewarding this item.
-        Only includes rewards of type 'Item'.
+        Uses QuestVariants.ItemOnCompleteStableKey to find quests rewarding this item.
 
         Used by: Item source enrichment
 
@@ -36,9 +35,7 @@ class QuestRepository(BaseRepository[Quest]):
             SELECT DISTINCT q.StableKey
             FROM Quests q
             JOIN QuestVariants qv ON q.StableKey = qv.QuestStableKey
-            JOIN QuestRewards qr ON qv.ResourceName = qr.QuestVariantResourceName
-            WHERE qr.RewardType = 'Item'
-                AND qr.RewardValue = ?
+            WHERE qv.ItemOnCompleteStableKey = ?
             ORDER BY q.StableKey
         """
 

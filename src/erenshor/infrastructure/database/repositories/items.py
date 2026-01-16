@@ -478,7 +478,7 @@ class ItemRepository(BaseRepository[Item]):
         An item is considered obtainable if it can be acquired via:
         - Drops from characters (LootDrops.ItemStableKey)
         - Purchase from vendors (CharacterVendorItems.ItemStableKey)
-        - Quest rewards (QuestRewards.ItemStableKey)
+        - Quest rewards (QuestVariants.ItemOnCompleteStableKey)
         - Quest dialog rewards (CharacterDialogs.GiveItemStableKey)
         - Fishing (WaterFishables.ItemStableKey)
         - Mining (MiningNodeItems.ItemStableKey)
@@ -507,7 +507,7 @@ class ItemRepository(BaseRepository[Item]):
                 SELECT 1 FROM CharacterVendorItems WHERE ItemStableKey = ?
             ) OR EXISTS (
                 -- Quest rewards
-                SELECT 1 FROM QuestRewards WHERE RewardType = 'Item' AND RewardValue = ?
+                SELECT 1 FROM QuestVariants WHERE ItemOnCompleteStableKey = ?
             ) OR EXISTS (
                 -- Quest dialog rewards
                 SELECT 1 FROM CharacterDialogs WHERE GiveItemStableKey = ?
