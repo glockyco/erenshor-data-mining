@@ -29,3 +29,6 @@ class SourceInfo:
     component_for: list[str]  # Item stable keys that require this as component
     crafting_results: list[tuple[str, int]]  # What this mold produces: (item_stable_key, quantity)
     recipe_ingredients: list[tuple[str, int]]  # What this mold needs: (item_stable_key, quantity)
+
+    # Item drops (for consumables like fossils that produce random items)
+    item_drops: list[tuple[str, float]]  # (dropped_item_stable_key, drop_probability)

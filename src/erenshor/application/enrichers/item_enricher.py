@@ -212,14 +212,14 @@ class ItemEnricher:
             item: Item to get sources for
 
         Returns:
-            SourceInfo with vendors, drops, quests, and crafting sources
+            SourceInfo with vendors, drops, quests, crafting sources, and item drops
         """
         logger.debug(f"Getting sources for item: {item.item_name}")
 
         # Get vendor sources
         vendors = self._get_vendor_sources(item)
 
-        # Get drop sources
+        # Get drop sources (from characters)
         drops = self._get_drop_sources(item)
 
         # Get quest sources (returns tuple of reward/requirement lists)
@@ -229,6 +229,9 @@ class ItemEnricher:
         craft_sources, craft_recipe, component_for, crafting_results, recipe_ingredients = self._get_crafting_sources(
             item
         )
+
+        # Get item drops (for consumables like fossils that produce random items)
+        item_drops = self._get_item_drops(item)
 
         return SourceInfo(
             vendors=vendors,
@@ -240,6 +243,7 @@ class ItemEnricher:
             component_for=component_for,
             crafting_results=crafting_results,
             recipe_ingredients=recipe_ingredients,
+            item_drops=item_drops,
         )
 
     def _get_vendor_sources(self, item: Item) -> list[str]:
@@ -365,3 +369,16 @@ class ItemEnricher:
             f"and {len(recipe_ingredients)} recipe ingredients for {item.item_name}"
         )
         return (craft_sources, craft_recipe, component_for, crafting_results, recipe_ingredients)
+
+    def _get_item_drops(self, item: Item) -> list[tuple[str, float]]:
+        """Get items that drop from using this item (for consumables like fossils).
+
+        Args:
+            item: Item to query
+
+        Returns:
+            List of (dropped_item_stable_key, drop_probability) tuples
+        """
+        item_drops = self._item_repo.get_item_drops(item.stable_key)
+        logger.debug(f"Found {len(item_drops)} item drops for {item.item_name}")
+        return item_drops

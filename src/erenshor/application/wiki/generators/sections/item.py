@@ -615,6 +615,10 @@ class ItemSectionGenerator(SectionGeneratorBase):
         if item.teach_skill_stable_key:
             taughtskill = str(self._resolver.ability_link(item.teach_skill_stable_key))
 
+        # Format item drops (for consumables like fossils)
+        guaranteed_drops = self._format_guaranteed_drops(enriched)
+        drop_rates = self._format_drop_rates(enriched)
+
         # Build context with only fields needed by {{Item}} template
         context: dict[str, str] = {
             "title": display_name,
@@ -630,6 +634,8 @@ class ItemSectionGenerator(SectionGeneratorBase):
             "sell": safe_str(item.sell_value) if item.sell_value else "",
             "taughtspell": taughtspell,
             "taughtskill": taughtskill,
+            "guaranteeddrops": guaranteed_drops,
+            "droprates": drop_rates,
         }
 
         return context
@@ -1186,3 +1192,61 @@ class ItemSectionGenerator(SectionGeneratorBase):
             ingredient_links.append(f"{quantity}x {link!s}")
 
         return ("<br>".join(result_links), "<br>".join(ingredient_links))
+
+    def _format_guaranteed_drops(self, enriched: EnrichedItemData) -> str:
+        """Format guaranteed drop pool as wiki links (no percentages).
+
+        For consumables like fossils that produce random items when used.
+        All items in the pool are listed, sorted alphabetically by display name
+        (consistent with character page guaranteed drops).
+
+        Args:
+            enriched: Enriched item data with item drops
+
+        Returns:
+            <br>-separated {{ItemLink}}s, or empty string if no drops
+        """
+        if not enriched.sources or not enriched.sources.item_drops:
+            return ""
+
+        # Collect items with display names for alphabetical sorting
+        items_with_names: list[tuple[str, str]] = []  # (display_name_lower, link)
+        for stable_key, _ in enriched.sources.item_drops:
+            # Skip items without wiki pages
+            if self._resolver.resolve_page_title(stable_key) is None:
+                continue
+            display_name = self._resolver.resolve_display_name(stable_key)
+            link = self._resolver.item_link(stable_key)
+            items_with_names.append((display_name.lower(), str(link)))
+
+        # Sort alphabetically by display name
+        items_with_names.sort(key=lambda x: x[0])
+
+        return "<br>".join(link for _, link in items_with_names)
+
+    def _format_drop_rates(self, enriched: EnrichedItemData) -> str:
+        """Format drop rates as wiki links with percentages.
+
+        For consumables like fossils that produce random items when used.
+        Shows each item with its drop probability.
+
+        Args:
+            enriched: Enriched item data with item drops
+
+        Returns:
+            <br>-separated {{ItemLink}}s with (X%) suffix, or empty string if no drops
+        """
+        if not enriched.sources or not enriched.sources.item_drops:
+            return ""
+
+        # Items are already sorted by probability desc from the repository
+        links = []
+        for stable_key, probability in enriched.sources.item_drops:
+            # Skip items without wiki pages
+            if self._resolver.resolve_page_title(stable_key) is None:
+                continue
+            link = self._resolver.item_link(stable_key)
+            # Use integer percentage (no decimals) per the example
+            links.append(f"{link!s} ({probability:.0f}%)")
+
+        return "<br>".join(links)

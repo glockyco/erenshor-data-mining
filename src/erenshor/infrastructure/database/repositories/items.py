@@ -472,6 +472,36 @@ class ItemRepository(BaseRepository[Item]):
         except Exception as e:
             raise RepositoryError(f"Failed to get items with skill effect '{skill_stable_key}': {e}") from e
 
+    def get_item_drops(self, source_item_stable_key: str) -> list[tuple[str, float]]:
+        """Get items that can drop from using this item (e.g., fossil).
+
+        Used by: Item enrichment for consumables that produce random items.
+
+        Args:
+            source_item_stable_key: Item stable key of the source item (e.g., fossil)
+
+        Returns:
+            List of (dropped_item_stable_key, drop_probability) tuples,
+            sorted by probability descending.
+
+        Raises:
+            RepositoryError: If query execution fails
+        """
+        query = """
+            SELECT DroppedItemStableKey, DropProbability
+            FROM ItemDrops
+            WHERE SourceItemStableKey = ?
+            ORDER BY DropProbability DESC
+        """
+
+        try:
+            rows = self._execute_raw(query, (source_item_stable_key,))
+            result = [(str(row["DroppedItemStableKey"]), float(row["DropProbability"])) for row in rows]
+            logger.debug(f"Found {len(result)} item drops for '{source_item_stable_key}'")
+            return result
+        except Exception as e:
+            raise RepositoryError(f"Failed to get item drops for '{source_item_stable_key}': {e}") from e
+
     def is_item_obtainable(self, item_stable_key: str) -> bool:
         """Check if an item is obtainable in the game through any means.
 

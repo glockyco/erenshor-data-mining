@@ -1409,6 +1409,7 @@ class TestTypeSpecificFields:
                 ("item:copper_ore", 2),  # Needs 2x Copper Ore
                 ("item:coal", 1),  # Needs 1x Coal
             ],
+            item_drops=[],
         )
         enriched = EnrichedItemData(
             item=item,

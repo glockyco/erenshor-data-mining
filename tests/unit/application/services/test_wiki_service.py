@@ -37,6 +37,8 @@ def mock_item_repo():
     repo.get_items_producing_item.return_value = []
     repo.get_items_requiring_item.return_value = []
     repo.get_crafting_recipe.return_value = None
+    repo.get_item_drops.return_value = []
+    repo.get_item_sources.return_value = []
     return repo
 
 
