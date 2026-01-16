@@ -83,3 +83,4 @@ def action(ctx: typer.Context) -> None:
 - `maps` - Interactive maps dev/build/deploy
 - `images` - Image processing and wiki upload
 - `backup` - Backup management
+- `mod` - Companion mod development (setup, build, deploy, launch)
