@@ -1050,17 +1050,16 @@ class ItemSectionGenerator(SectionGeneratorBase):
     def _format_drop_sources(self, enriched: EnrichedItemData) -> str:
         """Format drop sources as wiki links with drop probabilities.
 
-        Drop sources are:
+        Drop sources include both characters and items (e.g., fossils) and are:
         - Filtered to exclude entities that don't have wiki pages
         - Sorted by drop probability (descending, highest first)
-        - Deduplicated by resolved link text (same character, same drop %)
+        - Deduplicated by resolved link text (same source, same drop %)
 
         Args:
             enriched: Enriched item data with drop sources
-            resolver: Registry resolver for character links
 
         Returns:
-            <br>-separated list of drop links with probabilities (e.g., "[[Enemy A]] (5.0%)<br>[[Enemy B]] (10.0%)")
+            <br>-separated list of drop links with probabilities (e.g., "[[Enemy A]] (5.0%)<br>[[Fossil]] (26.0%)")
         """
         if not enriched.sources or not enriched.sources.drops:
             return ""
@@ -1072,7 +1071,8 @@ class ItemSectionGenerator(SectionGeneratorBase):
             if self._resolver.resolve_page_title(stable_key) is None:
                 continue
 
-            link = self._resolver.character_link(stable_key)
+            # Use plain [[Name]] links for all drop sources (items and characters)
+            link = self._resolver.standard_link(stable_key)
             drop_data.append((link, drop_probability))
 
         # Sort by probability descending (highest first), then by display name ascending (for ties)

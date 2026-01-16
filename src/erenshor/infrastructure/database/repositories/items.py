@@ -502,6 +502,39 @@ class ItemRepository(BaseRepository[Item]):
         except Exception as e:
             raise RepositoryError(f"Failed to get item drops for '{source_item_stable_key}': {e}") from e
 
+    def get_item_sources(self, item_stable_key: str) -> list[tuple[str, float]]:
+        """Get items that can drop this item (e.g., fossils).
+
+        Reverse lookup of get_item_drops - finds source items that produce
+        this item when used.
+
+        Used by: Item source enrichment (drop sources)
+
+        Args:
+            item_stable_key: Item stable key of the dropped item
+
+        Returns:
+            List of (source_item_stable_key, drop_probability) tuples,
+            sorted by probability descending.
+
+        Raises:
+            RepositoryError: If query execution fails
+        """
+        query = """
+            SELECT SourceItemStableKey, DropProbability
+            FROM ItemDrops
+            WHERE DroppedItemStableKey = ?
+            ORDER BY DropProbability DESC
+        """
+
+        try:
+            rows = self._execute_raw(query, (item_stable_key,))
+            result = [(str(row["SourceItemStableKey"]), float(row["DropProbability"])) for row in rows]
+            logger.debug(f"Found {len(result)} item sources for '{item_stable_key}'")
+            return result
+        except Exception as e:
+            raise RepositoryError(f"Failed to get item sources for '{item_stable_key}': {e}") from e
+
     def is_item_obtainable(self, item_stable_key: str) -> bool:
         """Check if an item is obtainable in the game through any means.
 

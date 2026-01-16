@@ -40,6 +40,7 @@ from erenshor.domain.value_objects import (
     FactionLink,
     ItemLink,
     QuestLink,
+    StandardLink,
     ZoneLink,
 )
 
@@ -447,6 +448,32 @@ class RegistryResolver:
             logger.debug(f"Entity {stable_key} is excluded")
 
         return CharacterLink(page_title=page_title, display_name=display_name, image_name=None)
+
+    def standard_link(self, stable_key: str) -> StandardLink:
+        """Generate a plain [[Name]] style link for any entity type.
+
+        Used when you need a simple wiki link without special formatting
+        (e.g., in drop source lists where {{ItemLink|...}} icons look out of place).
+
+        Args:
+            stable_key: Any entity stable key
+
+        Returns:
+            StandardLink object with page_title and display_name
+            If entity is excluded, page_title=None (renders as plain text)
+
+        Example:
+            >>> link = resolver.standard_link("item:gen - braxonian fossil")
+            >>> str(link)
+            '[[Braxonian Fossil]]'
+        """
+        page_title = self.resolve_page_title(stable_key)
+        display_name = self.resolve_display_name(stable_key)
+
+        if page_title is None:
+            logger.debug(f"Entity {stable_key} is excluded")
+
+        return StandardLink(page_title=page_title, display_name=display_name, image_name=None)
 
     def list_all_keys(self) -> list[str]:
         """List all stable keys in the registry.

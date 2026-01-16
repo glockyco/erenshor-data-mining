@@ -261,23 +261,34 @@ class ItemEnricher:
         return vendors
 
     def _get_drop_sources(self, item: Item) -> list[tuple[str, float]]:
-        """Get characters dropping this item.
+        """Get characters and items that drop this item.
 
         Args:
             item: Item to query
 
         Returns:
-            List of (character_stable_key, drop_probability) tuples
+            List of (stable_key, drop_probability) tuples for both
+            characters and items (e.g., fossils) that can drop this item
         """
+        # Get character drops
         drop_rows = self._character_repo.get_characters_dropping_item(item.stable_key)
-        drops = [
+        character_drops = [
             (
                 str(row["StableKey"]),
                 float(row["DropProbability"]) if row["DropProbability"] is not None else 0.0,
             )
             for row in drop_rows
         ]
-        logger.debug(f"Found {len(drops)} drop sources for {item.item_name}")
+
+        # Get item sources (e.g., fossils that can drop this item)
+        item_sources = self._item_repo.get_item_sources(item.stable_key)
+
+        # Merge both lists
+        drops = character_drops + item_sources
+        logger.debug(
+            f"Found {len(drops)} drop sources for {item.item_name} "
+            f"({len(character_drops)} characters, {len(item_sources)} items)"
+        )
         return drops
 
     def _get_quest_sources(self, item: Item) -> tuple[list[str], list[str]]:
