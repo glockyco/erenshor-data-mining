@@ -29,8 +29,8 @@ sentences. Wrap at 80 characters.
 
 ## Scopes
 
-Common scopes: `map`, `maps`, `wiki`, `sheets`, `cli`, `export`, `domain`,
-`infra`
+Common scopes: `mod`, `map`, `maps`, `wiki`, `sheets`, `cli`, `export`,
+`protocol`, `domain`, `infra`
 
 ## Rules
 
@@ -41,6 +41,15 @@ Common scopes: `map`, `maps`, `wiki`, `sheets`, `cli`, `export`, `domain`,
 - Prose over bullet points - write flowing sentences
 - Explain why, not what (the diff shows what)
 - No Claude attribution or co-author lines
+- One concept per commit (atomic commits)
+
+## Issue References
+
+Reference GitHub issues in commit bodies:
+- `Part of #N` - Contributes to but doesn't complete the issue
+- `Closes #N` - Completes the issue (GitHub auto-closes on merge)
+
+Place at end of commit body as a separate line.
 
 ## Good Example
 
@@ -50,6 +59,8 @@ feat(map): add enemy level filter with dual-thumb slider
 Players can now filter spawn points by enemy level range. The slider
 uses a dual-thumb design allowing min/max selection. Filter state
 persists in the URL for shareable links.
+
+Part of #42.
 ```
 
 ## Bad Example
