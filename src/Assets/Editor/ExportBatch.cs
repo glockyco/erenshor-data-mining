@@ -252,6 +252,7 @@ public static class ExportBatch
         var listenerRegistry = new Dictionary<string, Action>
         {
             // Null listeners (no asset type, special processing)
+            ["gameconstants"] = () => scanner.RegisterNullListener(new GameConstantListener(db)),
             ["teleportlocs"] = () => scanner.RegisterNullListener(new TeleportLocListener(db)),
 
             // GameObject listeners
@@ -279,6 +280,7 @@ public static class ExportBatch
             ["forges"] = () => scanner.RegisterComponentListener(new ForgeListener(db)),
             ["itembags"] = () => scanner.RegisterComponentListener(new ItemBagListener(db)),
             ["loottables"] = () => scanner.RegisterComponentListener(new LootTableListener(db)),
+            ["itemdrops"] = () => scanner.RegisterComponentListener(new MiscListener(db)),
             ["miningnodes"] = () => scanner.RegisterComponentListener(new MiningNodeListener(db)),
             ["spawnpoints"] = () => scanner.RegisterComponentListener(new SpawnPointListener(db)),
             ["treasurehunting"] = () => scanner.RegisterComponentListener(new TreasureHuntingListener(db)),

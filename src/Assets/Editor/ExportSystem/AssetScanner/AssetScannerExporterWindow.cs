@@ -240,6 +240,7 @@ public class AssetScannerExporterWindow : EditorWindow
         if (_exportForges) _activeScanner.RegisterComponentListener(new ForgeListener(_db));
         if (_exportItemBags) _activeScanner.RegisterComponentListener(new ItemBagListener(_db));
         if (_exportLootTables) _activeScanner.RegisterComponentListener(new LootTableListener(_db));
+        if (_exportLootTables) _activeScanner.RegisterComponentListener(new MiscListener(_db));
         if (_exportMiningNodes) _activeScanner.RegisterComponentListener(new MiningNodeListener(_db));
         if (_exportSpawnPoints) _activeScanner.RegisterComponentListener(new SpawnPointListener(_db));
         if (_exportTreasureHunting) _activeScanner.RegisterComponentListener(new TreasureHuntingListener(_db));
