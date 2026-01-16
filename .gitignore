@@ -829,3 +829,8 @@ tests/**/*.db
 tests/**/*.sqlite
 !tests/fixtures/database/*.sql
 tests/.test-temp/
+
+# Companion mod project files should be tracked
+!src/mods/**/*.csproj
+!src/mods/**/lib/
+!src/mods/**/lib/README.md
