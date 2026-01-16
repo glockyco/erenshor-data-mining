@@ -6,10 +6,15 @@ Guidance for Claude Code when working with this repository.
 
 Data mining project for Erenshor, a single-player simulated MMORPG. Extracts
 game data via AssetRipper, exports to SQLite via Unity Editor scripts, deploys
-to MediaWiki and Google Sheets.
+to MediaWiki, Google Sheets, and an interactive map website. Includes companion
+mods for real-time game integration.
 
-**CRITICAL**: Only modify code in `src/Assets/Editor/` and `src/erenshor/`.
-All other files are from the original game and MUST NOT be changed.
+**CRITICAL**: Only modify code in `src/Assets/Editor/`, `src/erenshor/`,
+`src/mods/`, and `src/maps/`. All other files are from the original game and
+MUST NOT be changed.
+
+**GitHub Project**: [Erenshor Data Mining](https://github.com/users/glockyco/projects/3/)
+tracks all development work including data mining, wiki, maps, and mods.
 
 ## Project Context
 
@@ -21,10 +26,18 @@ All other files are from the original game and MUST NOT be changed.
 ## Architecture
 
 ```
-Python CLI (Typer) → Unity batch mode → SQLite → Wiki/Sheets
+Python CLI (Typer) → Unity batch mode → SQLite → Wiki/Sheets/Maps
+                                              ↓
+                   BepInEx Mod → WebSocket → Interactive Map (live mode)
 ```
 
 **Entry point**: `uv run erenshor`
+
+Components:
+- **src/erenshor/**: Python CLI for data extraction and deployment
+- **src/Assets/Editor/**: Unity Editor scripts for SQLite export
+- **src/maps/**: SvelteKit interactive map website (Cloudflare Pages)
+- **src/mods/**: BepInEx companion mods for real-time features
 
 Three game variants with separate pipelines:
 - **main** (App ID 2382520): Production release
@@ -40,13 +53,16 @@ uv run erenshor extract export      # Export data to SQLite via Unity
 uv run erenshor sheets deploy       # Deploy to Google Sheets
 uv run erenshor wiki deploy         # Deploy to MediaWiki
 uv run erenshor --variant playtest extract download  # Use different variant
+uv run erenshor mod setup           # Copy game DLLs for mod compilation
+uv run erenshor mod build           # Build companion mod
+uv run erenshor mod deploy          # Build and copy mod to BepInEx plugins
 uv run pytest                       # Run tests
 uv run pre-commit run --all-files   # Run linters
 ```
 
 ## Development Guidelines
 
-1. Only modify `src/Assets/Editor/` and `src/erenshor/`
+1. Only modify `src/Assets/Editor/`, `src/erenshor/`, `src/mods/`, and `src/maps/`
 2. Use `uv` for Python dependencies
 3. Maintain Unity 2021.3.45f2 compatibility
 4. Test changes across all variants
@@ -118,3 +134,15 @@ Exported SQLite databases are stored per-variant:
 - `variants/main/erenshor-main.sqlite` - Production release data
 - `variants/playtest/erenshor-playtest.sqlite` - Beta/playtest data
 - `variants/demo/erenshor-demo.sqlite` - Demo version data
+
+## Mod Development
+
+The `src/mods/` directory contains BepInEx companion mods:
+
+- **InteractiveMapCompanion**: Real-time entity tracking for the interactive map
+
+Mods follow patterns from [erenshor-logs](https://github.com/glockyco/erenshor-logs):
+- Dependency injection for composition
+- Generic + adapter pattern for testability
+- Harmony patches with static property injection
+- Fleck for WebSocket server
