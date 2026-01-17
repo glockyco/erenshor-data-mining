@@ -34,6 +34,8 @@
         liveEnabled: boolean;
         connectionState: ConnectionState;
         onLiveModeChange: (enabled: boolean) => void;
+        autoFollowEnabled: boolean;
+        onAutoFollowChange: (enabled: boolean) => void;
     }
 
     let {
@@ -46,7 +48,9 @@
         onLevelFilterChange,
         liveEnabled,
         connectionState,
-        onLiveModeChange
+        onLiveModeChange,
+        autoFollowEnabled,
+        onAutoFollowChange
     }: Props = $props();
 
     function rgbToHex(rgb: readonly [number, number, number]): string {
@@ -374,6 +378,45 @@
                             </div>
                         {/if}
                     </div>
+
+                    <!-- Auto-Follow toggle (only when connected) -->
+                    <label
+                        class="mt-2 flex cursor-pointer items-center gap-2 py-1 text-sm hover:bg-zinc-700/50"
+                        class:opacity-50={connectionState !== 'connected'}
+                        class:cursor-not-allowed={connectionState !== 'connected'}
+                    >
+                        <input
+                            type="checkbox"
+                            checked={autoFollowEnabled}
+                            disabled={connectionState !== 'connected'}
+                            onchange={(e) => onAutoFollowChange(e.currentTarget.checked)}
+                            class="sr-only"
+                        />
+                        <span
+                            class="flex h-4 w-4 items-center justify-center rounded border transition-colors"
+                            class:bg-zinc-600={!autoFollowEnabled}
+                            class:border-zinc-500={!autoFollowEnabled}
+                            class:bg-cyan-500={autoFollowEnabled}
+                            class:border-cyan-500={autoFollowEnabled}
+                        >
+                            {#if autoFollowEnabled}
+                                <svg
+                                    class="h-3 w-3 text-white"
+                                    viewBox="0 0 12 12"
+                                    fill="none"
+                                    stroke="currentColor"
+                                >
+                                    <path
+                                        d="M2 6l3 3 5-6"
+                                        stroke-width="2"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    />
+                                </svg>
+                            {/if}
+                        </span>
+                        <span class="text-zinc-200 text-xs">Auto-Follow Player</span>
+                    </label>
                 {/if}
             </SidebarSection>
         </div>

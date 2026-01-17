@@ -76,6 +76,10 @@
     let liveEnabled = $state(false);
     const LIVE_MODE_KEY = 'erenshor-map-live-mode';
 
+    // Auto-follow state (persisted to localStorage)
+    let autoFollowEnabled = $state(false);
+    const AUTO_FOLLOW_KEY = 'erenshor-map-auto-follow';
+
     // Level filter state (enemies only)
     // Use untrack() to explicitly capture initial value without creating reactive dependency
     let levelFilter = $state<[number, number]>(
@@ -232,6 +236,16 @@
         }
     });
 
+    // Load auto-follow state from localStorage
+    $effect(() => {
+        if (browser) {
+            const stored = localStorage.getItem(AUTO_FOLLOW_KEY);
+            if (stored !== null) {
+                autoFollowEnabled = stored === 'true';
+            }
+        }
+    });
+
     // Connect/disconnect live mode based on toggle
     $effect(() => {
         if (liveEnabled) {
@@ -240,6 +254,36 @@
             liveConnection.disconnect();
         }
     });
+
+    /**
+     * Update camera position to instantly follow player (lock-on mode).
+     * Called from layer update effect at 10 Hz (every 100ms).
+     */
+    function updateAutoFollow() {
+        if (!autoFollowEnabled || !liveState.player || !liveState.zone) return;
+        if (!deckInstance || !browser) return;
+
+        const playerPos = transformEntityToWorld(
+            { ...liveState.player, zone: liveState.zone },
+            data.zones,
+            data.zoneConfigs,
+            debugStore.overrides
+        );
+
+        // Skip if in unmapped zone, but keep auto-follow enabled
+        if (!playerPos) return;
+
+        // Instant camera update (no transition)
+        deckInstance.setProps({
+            initialViewState: {
+                target: [playerPos[0], playerPos[1], 0],
+                zoom: currentViewState.zoom,
+                minZoom: INITIAL_VIEW_STATE.minZoom,
+                maxZoom: INITIAL_VIEW_STATE.maxZoom,
+                transitionDuration: 0
+            }
+        });
+    }
 
     // Watch for live state changes and update layers
     $effect(() => {
@@ -252,6 +296,7 @@
         // Trigger layer update when live state changes
         if (browser && deckInstance) {
             updateLayers();
+            updateAutoFollow();
         }
     });
 
@@ -280,6 +325,13 @@
         liveEnabled = enabled;
         if (browser) {
             localStorage.setItem(LIVE_MODE_KEY, String(enabled));
+        }
+    }
+
+    function handleAutoFollowChange(enabled: boolean) {
+        autoFollowEnabled = enabled;
+        if (browser) {
+            localStorage.setItem(AUTO_FOLLOW_KEY, String(enabled));
         }
     }
 
@@ -711,11 +763,22 @@
                     return isHovering ? 'pointer' : 'grab';
                 },
                 onViewStateChange: ({
-                    viewState
+                    viewState,
+                    interactionState
                 }: {
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     viewState: any;
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    interactionState?: any;
                 }) => {
+                    // If user manually panned/zoomed, disable auto-follow
+                    if (autoFollowEnabled && interactionState?.isPanning) {
+                        autoFollowEnabled = false;
+                        if (browser) {
+                            localStorage.setItem(AUTO_FOLLOW_KEY, 'false');
+                        }
+                    }
+
                     if (viewState.target) {
                         currentViewState = {
                             x: viewState.target[0],
@@ -1457,6 +1520,8 @@
         {liveEnabled}
         connectionState={liveState.connectionState}
         onLiveModeChange={handleLiveModeChange}
+        {autoFollowEnabled}
+        onAutoFollowChange={handleAutoFollowChange}
     />
 
     <!-- Map container -->
