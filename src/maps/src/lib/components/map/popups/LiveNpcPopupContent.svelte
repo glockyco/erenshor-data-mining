@@ -1,8 +1,8 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
     import type { EntityData } from '$lib/map/live/types';
-    import { Repository } from '$lib/database.default';
     import type { CharacterDrop } from '$lib/map-markers';
+    import { Repository } from '$lib/database.default';
+    import WikiLink from '$lib/components/map/WikiLink.svelte';
 
     interface Props {
         entity: EntityData;
@@ -10,106 +10,85 @@
 
     let { entity }: Props = $props();
 
-    let drops = $state<CharacterDrop[] | null>(null);
-    let dropsLoading = $state(true);
-    let characterStableKey = $state<string | null>(null);
+    let drops = $state<CharacterDrop[]>([]);
+    let isLoadingDrops = $state(true);
 
-    onMount(async () => {
-        // Try to find character in database by NPCName
-        const db = new Repository();
-        await db.init();
-
-        try {
-            const result = await db.getCharacterByName(entity.name);
-
-            if (result) {
-                characterStableKey = result.stableKey;
-
-                // Load drops
-                drops = await db.getDropsForCharacter(characterStableKey);
-            }
-        } catch (err) {
-            console.error('Failed to load character data:', err);
-        } finally {
-            dropsLoading = false;
-        }
+    $effect(() => {
+        loadData();
     });
 
-    const wikiUrl = $derived(
-        characterStableKey
-            ? `https://erenshor.wiki/${encodeURIComponent(entity.name.replace(/ /g, '_'))}`
-            : null
-    );
+    async function loadData() {
+        isLoadingDrops = true;
+        try {
+            const repo = new Repository();
+            await repo.init();
 
-    const [x, y] = entity.position;
+            const result = await repo.getCharacterByName(entity.name);
+
+            if (result) {
+                drops = await repo.getDropsForCharacter(result.stableKey);
+            }
+
+            repo.close();
+        } catch (err) {
+            console.error('Failed to load NPC data:', err);
+        } finally {
+            isLoadingDrops = false;
+        }
+    }
+
+    function formatDropChance(probability: number): string {
+        return `${probability.toFixed(1)}%`;
+    }
+
+    function getRarityClass(): string {
+        if (entity.rarity === 'boss') return 'bg-zinc-700 text-zinc-200';
+        if (entity.rarity === 'rare') return 'bg-red-900/50 text-red-300';
+        return 'bg-blue-900/50 text-blue-300';
+    }
+
+    function getRarityLabel(): string {
+        if (entity.rarity === 'boss') return 'Boss';
+        if (entity.rarity === 'rare') return 'Rare';
+        return 'Common';
+    }
 </script>
 
-<div class="space-y-4">
-    <!-- Live Entity Info -->
-    <div class="space-y-2">
-        <h3 class="text-sm font-semibold text-gray-300">Live Entity Info</h3>
-        <div class="space-y-1 text-sm">
+<div class="space-y-3">
+    <!-- Level, Rarity Badge, and Wiki Link -->
+    <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
             {#if entity.level}
-                <div class="flex justify-between">
-                    <span class="text-gray-400">Level:</span>
-                    <span class="text-white">{entity.level}</span>
-                </div>
+                <div class="text-sm text-zinc-300">Level {entity.level}</div>
             {/if}
-            {#if entity.rarity}
-                <div class="flex justify-between">
-                    <span class="text-gray-400">Rarity:</span>
-                    <span class="text-white capitalize">{entity.rarity}</span>
-                </div>
+            {#if entity.rarity && entity.entityType === 'npc_enemy'}
+                <span class="rounded px-1.5 py-0.5 text-xs {getRarityClass()}">
+                    {getRarityLabel()}
+                </span>
             {/if}
-            <div class="flex justify-between">
-                <span class="text-gray-400">Position:</span>
-                <span class="text-white font-mono text-xs">{x.toFixed(1)}, {y.toFixed(1)}</span>
-            </div>
         </div>
-
-        {#if wikiUrl}
-            <a
-                href={wikiUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="inline-flex items-center gap-1 text-sm text-blue-400 hover:text-blue-300 hover:underline"
-            >
-                View on Wiki
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                    />
-                </svg>
-            </a>
-        {/if}
+        <WikiLink name={entity.name} />
     </div>
 
-    <!-- Drops Section -->
-    {#if dropsLoading}
-        <div class="space-y-2">
-            <h3 class="text-sm font-semibold text-gray-300">Drops</h3>
-            <p class="text-sm text-gray-400">Loading...</p>
-        </div>
-    {:else if drops && drops.length > 0}
-        <div class="space-y-2">
-            <h3 class="text-sm font-semibold text-gray-300">Drops</h3>
-            <div class="space-y-1">
-                {#each drops as drop (drop.itemName)}
-                    <div class="flex justify-between text-sm">
-                        <span class="text-white">{drop.itemName}</span>
-                        <span class="text-gray-400">{(drop.dropProbability * 100).toFixed(1)}%</span
-                        >
+    <!-- Drops -->
+    {#if isLoadingDrops}
+        <div class="text-xs text-zinc-500">Loading drops...</div>
+    {:else if drops.length > 0}
+        <div class="rounded bg-zinc-800 p-3">
+            <div class="mb-2 text-xs uppercase tracking-wide text-zinc-500">Drops</div>
+            <div class="space-y-1.5">
+                {#each drops as drop, i (i)}
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="min-w-0 truncate text-zinc-300">{drop.itemName}</span>
+                        <div class="flex shrink-0 items-center gap-2">
+                            <span class="text-zinc-500"
+                                >{formatDropChance(drop.dropProbability)}</span
+                            >
+                            <WikiLink name={drop.itemName} />
+                        </div>
                     </div>
                 {/each}
             </div>
-        </div>
-    {:else if characterStableKey}
-        <div class="space-y-2">
-            <h3 class="text-sm font-semibold text-gray-300">Drops</h3>
-            <p class="text-sm text-gray-400">No drops found</p>
         </div>
     {/if}
 </div>

@@ -13,8 +13,8 @@
         {#if entity.level}
             <div class="text-sm text-zinc-300">Level {entity.level}</div>
         {/if}
-        {#if entity.characterClass}
-            <div class="text-sm text-zinc-300">{entity.characterClass}</div>
-        {/if}
     </div>
+    {#if entity.owner}
+        <div class="text-sm text-zinc-400">Belongs to {entity.owner}</div>
+    {/if}
 </div>
