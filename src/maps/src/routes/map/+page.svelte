@@ -7,7 +7,8 @@
         BACKGROUND_COLOR,
         LAYER_COLORS,
         HIGHLIGHT_COLORS,
-        MOVEMENT_COLORS
+        MOVEMENT_COLORS,
+        SIDEBAR_WIDTH
     } from '$lib/map/config';
     import { flyTo, flyToBounds } from '$lib/map/flyto';
     import {
@@ -256,6 +257,24 @@
     });
 
     /**
+     * Update camera to center on target coordinates with instant transition.
+     * Used for auto-follow tracking and re-centering after sidebar toggle.
+     */
+    function updateCameraTarget(targetX: number, targetY: number) {
+        if (!deckInstance) return;
+
+        deckInstance.setProps({
+            initialViewState: {
+                target: [targetX, targetY, 0],
+                zoom: currentViewState.zoom,
+                minZoom: INITIAL_VIEW_STATE.minZoom,
+                maxZoom: INITIAL_VIEW_STATE.maxZoom,
+                transitionDuration: 0
+            }
+        });
+    }
+
+    /**
      * Update camera position to instantly follow player (lock-on mode).
      * Called from layer update effect at 10 Hz (every 100ms).
      */
@@ -273,16 +292,7 @@
         // Skip if in unmapped zone, but keep auto-follow enabled
         if (!playerPos) return;
 
-        // Instant camera update (no transition)
-        deckInstance.setProps({
-            initialViewState: {
-                target: [playerPos[0], playerPos[1], 0],
-                zoom: currentViewState.zoom,
-                minZoom: INITIAL_VIEW_STATE.minZoom,
-                maxZoom: INITIAL_VIEW_STATE.maxZoom,
-                transitionDuration: 0
-            }
-        });
+        updateCameraTarget(playerPos[0], playerPos[1]);
     }
 
     // Watch for live state changes and update layers
@@ -297,6 +307,42 @@
         if (browser && deckInstance) {
             updateLayers();
             updateAutoFollow();
+        }
+    });
+
+    // Update deck.gl view padding when sidebar is toggled
+    $effect(() => {
+        // IMPORTANT: Access sidebarCollapsed outside the guard to ensure Svelte 5
+        // tracks it as a dependency. If accessed only inside a conditional that's
+        // false on first run, the dependency won't be established.
+        const collapsed = sidebarCollapsed;
+
+        if (!deckInstance || !deckModules) return;
+
+        // Update view padding to account for sidebar width
+        deckInstance.setProps({
+            views: new deckModules.OrthographicView({
+                padding: {
+                    left: collapsed ? SIDEBAR_WIDTH.collapsed : SIDEBAR_WIDTH.expanded,
+                    right: 0,
+                    top: 0,
+                    bottom: 0
+                }
+            })
+        });
+
+        // Re-center camera if auto-follow is active
+        if (autoFollowEnabled && liveState.player && liveState.zone) {
+            const playerPos = transformEntityToWorld(
+                { ...liveState.player, zone: liveState.zone },
+                data.zones,
+                data.zoneConfigs,
+                debugStore.overrides
+            );
+
+            if (playerPos) {
+                updateCameraTarget(playerPos[0], playerPos[1]);
+            }
         }
     });
 
@@ -742,7 +788,14 @@
             // Initialize deck.gl
             deckInstance = new deckModules.Deck({
                 parent: container,
-                views: new deckModules.OrthographicView({}),
+                views: new deckModules.OrthographicView({
+                    padding: {
+                        left: sidebarCollapsed ? SIDEBAR_WIDTH.collapsed : SIDEBAR_WIDTH.expanded,
+                        right: 0,
+                        top: 0,
+                        bottom: 0
+                    }
+                }),
                 initialViewState: {
                     target: [initialX, initialY, 0] as [number, number, number],
                     zoom: initialZoom,

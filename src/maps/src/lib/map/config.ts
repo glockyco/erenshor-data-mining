@@ -9,6 +9,14 @@ export const INITIAL_VIEW_STATE = {
 } as const;
 
 /**
+ * Sidebar dimensions (matches Tailwind classes in MapSidebar.svelte)
+ */
+export const SIDEBAR_WIDTH = {
+    expanded: 256, // w-64 (16rem * 16px)
+    collapsed: 56 // w-14 (3.5rem * 16px)
+} as const;
+
+/**
  * Layer colors by marker category (Tailwind colors as RGB)
  */
 export const LAYER_COLORS = {
