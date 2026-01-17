@@ -2,8 +2,11 @@ using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
 using InteractiveMapCompanion.Config;
+using InteractiveMapCompanion.Entities;
 using InteractiveMapCompanion.Server;
+using InteractiveMapCompanion.State;
 using Microsoft.Extensions.DependencyInjection;
+using UnityEngine.SceneManagement;
 
 namespace InteractiveMapCompanion;
 
@@ -20,6 +23,7 @@ public sealed class Plugin : BaseUnityPlugin
     private ServiceProvider? _services;
     private Harmony? _harmony;
     private IWebSocketServer? _server;
+    private IBroadcastLoop? _broadcastLoop;
 
     private void Awake()
     {
@@ -33,29 +37,65 @@ public sealed class Plugin : BaseUnityPlugin
         _server = _services.GetRequiredService<IWebSocketServer>();
         _server.Start();
 
-        // TODO: Configure patches when implemented
-        // _harmony.PatchAll();
+        // Get broadcast loop for Update calls
+        _broadcastLoop = _services.GetRequiredService<IBroadcastLoop>();
+
+        // Subscribe to scene changes
+        SceneManager.sceneLoaded += OnSceneLoaded;
+
+        // Initialize with current scene
+        var currentScene = SceneManager.GetActiveScene().name;
+        _broadcastLoop.OnSceneLoaded(currentScene);
 
         Log.LogInfo($"{PluginInfo.Name} v{PluginInfo.Version} loaded");
+    }
+
+    private void Update()
+    {
+        _broadcastLoop?.Tick(UnityEngine.Time.deltaTime);
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        _broadcastLoop?.OnSceneLoaded(scene.name);
     }
 
     private ServiceProvider ConfigureServices()
     {
         var services = new ServiceCollection();
 
+        // Configuration and logging
         services.AddSingleton(_config!);
         services.AddSingleton(Log);
+
+        // Entity tracking components
+        services.AddSingleton<IEntityFinder, EntityFinder>();
+        services.AddSingleton<IEntityClassifier, EntityClassifier>();
+        services.AddSingleton<IEntityExtractor, EntityExtractor>();
+
+        // Entity filter - for #148, only track the player
+        // Expand this filter in future issues to track more entity types
+        services.AddSingleton<Func<EntityType, bool>>(type => type == EntityType.Player);
+
+        services.AddSingleton<IEntityTracker, EntityTrackerAdapter>();
+
+        // WebSocket server
         services.AddSingleton<IWebSocketServer, WebSocketServer>();
 
-        // TODO: Register additional services as they are implemented
-        // services.AddSingleton<IEntityTracker, EntityTrackerAdapter>();
-        // services.AddSingleton<IStateManager, StateManager>();
+        // Broadcast loop
+        services.AddSingleton<IBroadcastLoop>(sp => new BroadcastLoop(
+            sp.GetRequiredService<IEntityTracker>(),
+            sp.GetRequiredService<IWebSocketServer>(),
+            sp.GetRequiredService<ModConfig>(),
+            msg => Log.LogDebug(msg)
+        ));
 
         return services.BuildServiceProvider();
     }
 
     private void OnDestroy()
     {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
         _server?.Stop();
         _harmony?.UnpatchSelf();
         _services?.Dispose();
