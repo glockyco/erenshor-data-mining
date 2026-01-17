@@ -140,6 +140,11 @@ BepInEx soft dependency pattern - other mods can optionally use API if installed
 - **Protocol**: JSON messages with `type` field
 - **Clients**: Multiple simultaneous connections supported
 
+### JSON Naming Convention
+
+- **Property names**: camelCase (`protocolVersion`, `entityType`, `spawnPointId`)
+- **Enum/type values**: lowercase with underscores (`npc_friendly`, `set_waypoint`)
+
 ### Handshake
 
 On connection, server sends:

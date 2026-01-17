@@ -832,5 +832,10 @@ tests/.test-temp/
 
 # Companion mod project files should be tracked
 !src/mods/**/*.csproj
+!src/mods/**/nuget.config
 !src/mods/**/lib/
 !src/mods/**/lib/README.md
+src/mods/**/lib/*.dll
+!src/mods/**/tests/
+!src/mods/**/tests/*.csproj
+!src/mods/**/tests/**/*.cs
