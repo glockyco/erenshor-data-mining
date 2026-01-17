@@ -1,6 +1,7 @@
 import type { AnyWorldMarker, ZoneWorldPosition, ZoneConfig } from './world-map';
 import type { EntityData } from '$lib/map/live/types';
 import { transformEntityToWorld } from '$lib/map/coordinate-transform';
+import { MARKER_BORDER_COLORS } from '$lib/map/config';
 
 /**
  * Discriminated union for all selectable entities on the map.
@@ -90,27 +91,25 @@ export function getSelectionBorderColor(selection: Selection): string {
 }
 
 function getMarkerBorderColor(marker: AnyWorldMarker): string {
-    switch (marker.category) {
-        case 'enemy': {
-            const chars = marker.characters;
-            if (chars.length === 0) return 'border-gray-500';
-            const hasUnique = chars.some((c) => c.isUnique);
-            const hasRare = chars.some((c) => c.isRare);
-            if (hasUnique) return 'border-violet-700';
-            if (hasRare) return 'border-rose-600';
-            return 'border-amber-600';
-        }
-        case 'npc':
-            return 'border-sky-500';
-        case 'zone-line':
-            return 'border-purple-500';
-        case 'door':
-            return 'border-amber-700';
-        case 'teleport':
-            return 'border-violet-500';
-        default:
-            return 'border-gray-500';
+    // Special handling for enemy markers (need to check rarity)
+    if (marker.category === 'enemy') {
+        const chars = marker.characters;
+        if (chars.length === 0) return 'border-gray-500';
+        const hasUnique = chars.some((c) => c.isUnique);
+        const hasRare = chars.some((c) => c.isRare);
+        if (hasUnique) return 'border-violet-700';
+        if (hasRare) return 'border-rose-600';
+        return 'border-amber-600';
     }
+
+    // For all other markers, use the centralized color mapping (without 'border-l-' prefix)
+    const colorWithPrefix = MARKER_BORDER_COLORS[marker.category];
+    if (colorWithPrefix) {
+        // Remove 'border-l-' prefix to get just 'border-{color}'
+        return colorWithPrefix.replace('border-l-', 'border-');
+    }
+
+    return 'border-gray-500';
 }
 
 function getLiveEntityBorderColor(entity: EntityData): string {
