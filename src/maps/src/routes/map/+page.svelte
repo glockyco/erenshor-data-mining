@@ -98,6 +98,7 @@
     let selectedMarker = $state<AnyWorldMarker | null>(null);
     let selectedMarkerZoneName = $state<string>('');
     let selectedZone = $state<ZoneWorldPosition | null>(null);
+    let selectedLiveEntity = $state<EntityData | null>(null);
 
     // Desktop detection (tooltips only on desktop)
     let isDesktop = $state(false);
@@ -185,6 +186,8 @@
             applySelection(null);
         } else if (selectedZone) {
             selectZone(null);
+        } else if (selectedLiveEntity) {
+            selectedLiveEntity = null;
         }
     }
 
@@ -875,13 +878,23 @@
                         hoveredLiveEntity = null;
                     }
                 },
-                onClick: (info: { object?: AnyWorldMarker | ZoneWorldPosition }) => {
+                onClick: (info: { object?: AnyWorldMarker | ZoneWorldPosition | EntityData }) => {
                     if (info.object) {
-                        // Check if it's a zone (has 'key' and 'polygon') or a marker (has 'category')
+                        // Type discrimination: marker, zone, or live entity
                         if ('category' in info.object) {
+                            // Static marker
                             applySelection(info.object as AnyWorldMarker);
+                            selectedLiveEntity = null;
+                        } else if ('id' in info.object && 'entityType' in info.object) {
+                            // Live entity
+                            selectedLiveEntity = info.object as EntityData;
+                            selectedMarker = null;
+                            selectedZone = null;
+                            // Note: Auto-follow remains enabled when clicking entities
                         } else if ('key' in info.object && 'polygon' in info.object) {
+                            // Zone
                             selectZone(info.object as ZoneWorldPosition);
+                            selectedLiveEntity = null;
                         }
                     }
                     // Don't close on click-away - use close button or ESC instead
