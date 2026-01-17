@@ -53,6 +53,7 @@
     } from '$lib/types/world-map';
     import MapSidebar from '$lib/components/map/MapSidebar.svelte';
     import MapTooltip from '$lib/components/map/MapTooltip.svelte';
+    import LiveEntityTooltip from '$lib/components/map/LiveEntityTooltip.svelte';
     import ZoneTooltip from '$lib/components/map/ZoneTooltip.svelte';
     import MapPopup from '$lib/components/map/MapPopup.svelte';
     import ZonePopup from '$lib/components/map/ZonePopup.svelte';
@@ -90,6 +91,7 @@
     // Tooltip state
     let hoveredMarker = $state<AnyWorldMarker | null>(null);
     let hoveredZone = $state<ZoneWorldPosition | null>(null);
+    let hoveredLiveEntity = $state<EntityData | null>(null);
     let hoverPosition = $state<{ x: number; y: number }>({ x: 0, y: 0 });
 
     // Selection state (for popups)
@@ -844,23 +846,33 @@
                     }
                 },
                 onHover: (info: {
-                    object?: AnyWorldMarker | ZoneWorldPosition;
+                    object?: AnyWorldMarker | ZoneWorldPosition | EntityData;
                     x: number;
                     y: number;
                 }) => {
                     if (info.object) {
                         hoverPosition = { x: info.x, y: info.y };
-                        // Check if it's a zone or a marker
+                        // Type discrimination: marker, zone, or live entity
                         if ('category' in info.object) {
+                            // Static marker
                             hoveredMarker = info.object as AnyWorldMarker;
                             hoveredZone = null;
+                            hoveredLiveEntity = null;
+                        } else if ('id' in info.object && 'entityType' in info.object) {
+                            // Live entity (has unique id + entityType)
+                            hoveredLiveEntity = info.object as EntityData;
+                            hoveredMarker = null;
+                            hoveredZone = null;
                         } else if ('key' in info.object && 'polygon' in info.object) {
+                            // Zone
                             hoveredZone = info.object as ZoneWorldPosition;
                             hoveredMarker = null;
+                            hoveredLiveEntity = null;
                         }
                     } else {
                         hoveredMarker = null;
                         hoveredZone = null;
+                        hoveredLiveEntity = null;
                     }
                 },
                 onClick: (info: { object?: AnyWorldMarker | ZoneWorldPosition }) => {
@@ -1653,7 +1665,9 @@
     {/if}
 
     <!-- Tooltip (desktop only) -->
-    {#if hoveredMarker && isDesktop}
+    {#if hoveredLiveEntity && isDesktop}
+        <LiveEntityTooltip entity={hoveredLiveEntity} x={hoverPosition.x} y={hoverPosition.y} />
+    {:else if hoveredMarker && isDesktop}
         <MapTooltip
             marker={hoveredMarker}
             x={hoverPosition.x}
