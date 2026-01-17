@@ -280,9 +280,14 @@ uv sync --dev
 # Install pre-commit hooks
 uv run pre-commit install
 
-# Verify setup
+# Verify pre-commit setup
+uv run pre-commit run --all-files
+
+# Verify tests
 uv run pytest
 ```
+
+**Important**: If you modify `.pre-commit-config.yaml`, run `uv run pre-commit install` again to update the hooks!
 
 ### Testing
 
@@ -303,7 +308,13 @@ uv run pytest-watch
 uv run pytest tests/test_wiki_generator.py::test_item_generation
 ```
 
-Pre-commit hooks run linting and type checking only (no tests). Full test suite runs in CI on every push and PR.
+**Pre-commit hooks** automatically format code and block commits with unfixable violations. **CI** verifies formatting and runs the full test suite.
+
+**Philosophy**:
+- Pre-commit: Auto-fix what can be fixed (Python imports, C# formatting), fail on violations that need manual fixes
+- CI: Verify everything is correct, run full test suite
+
+Never use `git commit --no-verify` as it bypasses formatting checks that CI will catch anyway.
 
 ### Code Quality
 

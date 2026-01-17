@@ -10,11 +10,6 @@ import subprocess
 import sys
 from typing import Any
 
-from dotenv import load_dotenv
-
-# Load .env file before any other imports to ensure environment variables are available
-load_dotenv()
-
 import typer
 from loguru import logger
 from rich.console import Console
@@ -740,6 +735,11 @@ def cli_main() -> None:
     This wrapper catches any unhandled exceptions and displays
     user-friendly error messages before exiting.
     """
+    # Load .env file before running the app to ensure environment variables are available
+    from dotenv import load_dotenv
+
+    load_dotenv()
+
     try:
         app()
     except KeyboardInterrupt:

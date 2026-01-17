@@ -183,16 +183,17 @@ public class WebSocketServer : IWebSocketServer
 
             bool shouldLog = level switch
             {
-                Fleck.LogLevel.Debug => configuredLevel == InteractiveMapCompanion.Config.LogLevel.Debug,
-                Fleck.LogLevel.Info =>
-                    configuredLevel == InteractiveMapCompanion.Config.LogLevel.Debug
+                Fleck.LogLevel.Debug => configuredLevel
+                    == InteractiveMapCompanion.Config.LogLevel.Debug,
+                Fleck.LogLevel.Info => configuredLevel
+                    == InteractiveMapCompanion.Config.LogLevel.Debug
                     || configuredLevel == InteractiveMapCompanion.Config.LogLevel.Info,
-                Fleck.LogLevel.Warn =>
-                    configuredLevel == InteractiveMapCompanion.Config.LogLevel.Debug
+                Fleck.LogLevel.Warn => configuredLevel
+                    == InteractiveMapCompanion.Config.LogLevel.Debug
                     || configuredLevel == InteractiveMapCompanion.Config.LogLevel.Info
                     || configuredLevel == InteractiveMapCompanion.Config.LogLevel.Warning,
                 Fleck.LogLevel.Error => true, // Always log errors
-                _ => false
+                _ => false,
             };
 
             if (!shouldLog)

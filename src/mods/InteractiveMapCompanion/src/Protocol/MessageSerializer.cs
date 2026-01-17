@@ -13,14 +13,13 @@ public static class MessageSerializer
     {
         ContractResolver = new DefaultContractResolver
         {
-            NamingStrategy = new CamelCaseNamingStrategy()
+            NamingStrategy = new CamelCaseNamingStrategy(),
         },
         NullValueHandling = NullValueHandling.Ignore,
         Formatting = Formatting.None,
     };
 
-    public static string Serialize<T>(T message) =>
-        JsonConvert.SerializeObject(message, Settings);
+    public static string Serialize<T>(T message) => JsonConvert.SerializeObject(message, Settings);
 
     public static T? Deserialize<T>(string json) =>
         JsonConvert.DeserializeObject<T>(json, Settings);

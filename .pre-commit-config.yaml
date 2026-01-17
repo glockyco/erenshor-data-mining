@@ -50,7 +50,7 @@ repos:
     hooks:
       - id: csharpier
         name: csharpier
-        entry: bash -c 'cd src/mods/InteractiveMapCompanion && dotnet tool restore --verbosity quiet && dotnet csharpier --check .'
+        entry: bash -c 'cd src/mods/InteractiveMapCompanion && dotnet tool restore --verbosity quiet && dotnet csharpier .'
         language: system
         files: ^src/mods/.*\.cs$
         pass_filenames: false
