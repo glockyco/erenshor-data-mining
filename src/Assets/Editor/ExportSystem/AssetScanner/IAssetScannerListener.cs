@@ -11,7 +11,7 @@ public interface IAssetScanListener<T>
     {
         // do nothing (override in implementations)
     }
-    
+
     void OnScanFinished()
     {
         // do nothing (override in implementations)

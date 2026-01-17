@@ -379,7 +379,7 @@ public class CharacterListener : IAssetScanListener<Character>
         {
             return null;
         }
-        
+
         return new CoordinateRecord
         {
             Scene = character.gameObject.scene.name,
@@ -389,7 +389,7 @@ public class CharacterListener : IAssetScanListener<Character>
             Category = nameof(CoordinateCategory.Character)
         };
     }
-    
+
     private CharacterRecord CreateCharacterRecord(Character character, CoordinateRecord? coordinate, int variantIndex = 0)
     {
         var npc = character.GetComponent<NPC>();
@@ -399,7 +399,7 @@ public class CharacterListener : IAssetScanListener<Character>
         var questManager = character.GetComponent<QuestManager>();
         var hasDialog = character.GetComponents<NPCDialog>().Any(d => !string.IsNullOrWhiteSpace(d.Dialog));
         var modifyFactions = character.GetComponents<ModifyFaction>();
-        
+
         string guid;
         var prefabType = PrefabUtility.GetPrefabAssetType(character.gameObject);
         if (prefabType != PrefabAssetType.NotAPrefab)
@@ -412,7 +412,7 @@ public class CharacterListener : IAssetScanListener<Character>
             var sceneName = character.gameObject.scene.name;
             guid = $"scene:{sceneName}:{character.gameObject.GetInstanceID()}";
         }
-        
+
         var record = new CharacterRecord
         {
             StableKey = StableKeyGenerator.ForCharacter(character, variantIndex),
@@ -440,7 +440,7 @@ public class CharacterListener : IAssetScanListener<Character>
             QuestCompleteOnDeath = character.QuestCompleteOnDeath != null ? character.QuestCompleteOnDeath.DBName : null,
             DestroyOnDeath = character.DestroyOnDeath,
         };
-        
+
         if (npc != null)
         {
             record.NPCName = npc.NPCName;
@@ -452,7 +452,7 @@ public class CharacterListener : IAssetScanListener<Character>
                 ? StableKeyGenerator.ForSpell(npc.NPCProcOnHit)
                 : null;
             record.ProcOnHitChance = npc.NPCProcOnHitChance;
-            
+
             // NPC Combat Mechanics
             record.HandSetResistances = npc.HandSetResistances;
             record.HardSetAC = npc.HardSetAC;
@@ -463,33 +463,33 @@ public class CharacterListener : IAssetScanListener<Character>
             record.DamageRangeMax = npc.DamageRange.y;
             record.DamageMult = npc.DamageMult;
             record.ArmorPenMult = npc.ArmorPenMult;
-            
+
             // Special Abilities
             record.PowerAttackBaseDmg = npc.PowerAttackBaseDmg;
             record.PowerAttackFreq = npc.PowerAttackFreq;
             record.HealTolerance = npc.HealTolerance;
-            
+
             // AI Behavior
             record.LeashRange = npc.LeashRange;
             record.AggroRegardlessOfLevel = npc.AggroRegardlessOfLevel;
             record.Mobile = npc.Mobile;
             record.GroupEncounter = npc.GroupEncounter;
-            
+
             // Loot/Corpse
             record.TreasureChest = npc.TreasureChest;
             record.DoNotLeaveCorpse = npc.DoNotLeaveCorpse;
-            
+
             // Achievements
             record.SetAchievementOnDefeat = npc.SetAchievementOnDefeat ?? string.Empty;
             record.SetAchievementOnSpawn = npc.SetAchievementOnSpawn ?? string.Empty;
-            
+
             // Flavor Text
             record.AggroMsg = npc.AggroMsg ?? string.Empty;
             record.AggroEmote = npc.AggroEmote ?? string.Empty;
             record.SpawnEmote = npc.SpawnEmote ?? string.Empty;
             record.GuildName = npc.GuildName ?? string.Empty;
         }
-        
+
         if (stats != null)
         {
             record.Level = stats.Level;
@@ -515,7 +515,7 @@ public class CharacterListener : IAssetScanListener<Character>
             record.BaseXpMin = stats.Level * 4;
             record.BaseXpMax = record.BaseXpMin + stats.Level * 5;
             record.BossXpMultiplier = character.BossXp;
-            
+
             // Calculate effective stats based on game logic
             if (npc != null && simPlayer == null)
             {
@@ -612,7 +612,7 @@ public class CharacterListener : IAssetScanListener<Character>
 
         return record;
     }
-    
+
     private CharacterDialogRecord CreateDialogRecord(string characterStableKey, int dialogIndex, NPCDialog dialog)
     {
         var keywords = dialog.KeywordToActivate == null || dialog.KeywordToActivate.Count == 0 ? null : string.Join(", ", dialog.KeywordToActivate);

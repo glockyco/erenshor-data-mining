@@ -25,7 +25,7 @@ public class SecretPassageListener : IAssetScanListener<GameObject>
         {
             _db.Execute("DELETE FROM Coordinates WHERE Category = ?", nameof(CoordinateCategory.SecretPassage));
             _db.DeleteAll<SecretPassageRecord>();
-            
+
             _db.InsertAll(_coordinateRecords);
             _db.InsertAll(_secretPassageRecords);
         });
@@ -75,7 +75,7 @@ public class SecretPassageListener : IAssetScanListener<GameObject>
         {
             return;
         }
-        
+
         var isHiddenDoor = asset.GetComponent<Door>() && !asset.name.ToLower().Contains("door") && !asset.name.ToLower().Contains("gate");
         var isIllusoryWall = !enabledCollider && enabledRenderer;
         var isInvisibleFloor = enabledCollider && !enabledRenderer;
@@ -120,7 +120,7 @@ public class SecretPassageListener : IAssetScanListener<GameObject>
         };
 
         coordinate.SecretPassageId = secretPassage.Id;
-        
+
         _coordinateRecords.Add(coordinate);
         _secretPassageRecords.Add(secretPassage);
     }

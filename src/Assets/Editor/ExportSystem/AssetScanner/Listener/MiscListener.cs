@@ -9,7 +9,7 @@ using UnityEngine;
 /// <summary>
 /// Extracts item drop data from the Misc component's item lists.
 /// Currently handles FossilGame (Braxonian Fossil drops).
-/// 
+///
 /// Note: This listener stores stable keys during OnAssetFound and
 /// processes them in OnScanFinished, because the Items table doesn't exist
 /// until ItemListener.OnScanFinished has run.

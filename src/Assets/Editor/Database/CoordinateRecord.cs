@@ -6,17 +6,17 @@ using SQLite;
 public class CoordinateRecord
 {
     public const string TableName = "Coordinates";
-    
+
     [PrimaryKey]
     public int Id { get; set; }
-    
+
     public string Scene { get; set; } = string.Empty;
     public float X { get; set; }
     public float Y { get; set; }
     public float Z { get; set; }
 
     public string Category { get; set; } = string.Empty;
-    
+
     [Indexed]
     public int? AchievementTriggerId { get; set; }
     [Indexed]

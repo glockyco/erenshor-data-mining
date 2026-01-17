@@ -6,7 +6,7 @@ using SQLite;
 public class DoorRecord
 {
     public const string TableName = "Doors";
-    
+
     [PrimaryKey, AutoIncrement]
     public int Id { get; set; }
     [Indexed]

@@ -32,8 +32,18 @@ public class EntityTrackerTests
     {
         var characters = new[]
         {
-            new MockCharacter { Id = 1, Name = "Player", Type = EntityType.Player },
-            new MockCharacter { Id = 2, Name = "Enemy", Type = EntityType.NpcEnemy }
+            new MockCharacter
+            {
+                Id = 1,
+                Name = "Player",
+                Type = EntityType.Player,
+            },
+            new MockCharacter
+            {
+                Id = 2,
+                Name = "Enemy",
+                Type = EntityType.NpcEnemy,
+            },
         };
 
         var tracker = new EntityTracker<MockCharacter>(
@@ -53,8 +63,18 @@ public class EntityTrackerTests
     {
         var characters = new[]
         {
-            new MockCharacter { Id = 1, Name = "Player", Type = EntityType.Player },
-            new MockCharacter { Id = 2, Name = "MiningNode", Type = null }  // Excluded
+            new MockCharacter
+            {
+                Id = 1,
+                Name = "Player",
+                Type = EntityType.Player,
+            },
+            new MockCharacter
+            {
+                Id = 2,
+                Name = "MiningNode",
+                Type = null,
+            }, // Excluded
         };
 
         var tracker = new EntityTracker<MockCharacter>(
@@ -75,9 +95,24 @@ public class EntityTrackerTests
     {
         var characters = new[]
         {
-            new MockCharacter { Id = 1, Name = "Player", Type = EntityType.Player },
-            new MockCharacter { Id = 2, Name = "Enemy", Type = EntityType.NpcEnemy },
-            new MockCharacter { Id = 3, Name = "SimPlayer", Type = EntityType.SimPlayer }
+            new MockCharacter
+            {
+                Id = 1,
+                Name = "Player",
+                Type = EntityType.Player,
+            },
+            new MockCharacter
+            {
+                Id = 2,
+                Name = "Enemy",
+                Type = EntityType.NpcEnemy,
+            },
+            new MockCharacter
+            {
+                Id = 3,
+                Name = "SimPlayer",
+                Type = EntityType.SimPlayer,
+            },
         };
 
         // Only track Player type
@@ -99,19 +134,25 @@ public class EntityTrackerTests
     {
         var characters = new[]
         {
-            new MockCharacter { Id = 42, Name = "TestPlayer", Type = EntityType.Player }
+            new MockCharacter
+            {
+                Id = 42,
+                Name = "TestPlayer",
+                Type = EntityType.Player,
+            },
         };
 
         var tracker = new EntityTracker<MockCharacter>(
             findEntities: () => characters,
             classify: c => c.Type,
-            extract: (c, t) => new EntityData(
-                Id: c.Id,
-                EntityType: "player",
-                Name: c.Name,
-                Position: [1.0f, 2.0f, 3.0f],
-                Rotation: 90.0f
-            ),
+            extract: (c, t) =>
+                new EntityData(
+                    Id: c.Id,
+                    EntityType: "player",
+                    Name: c.Name,
+                    Position: [1.0f, 2.0f, 3.0f],
+                    Rotation: 90.0f
+                ),
             shouldTrack: _ => true
         );
 
@@ -131,10 +172,30 @@ public class EntityTrackerTests
     {
         var characters = new[]
         {
-            new MockCharacter { Id = 1, Name = "Player", Type = EntityType.Player },
-            new MockCharacter { Id = 2, Name = "Enemy1", Type = EntityType.NpcEnemy },
-            new MockCharacter { Id = 3, Name = "Enemy2", Type = EntityType.NpcEnemy },
-            new MockCharacter { Id = 4, Name = "Friendly", Type = EntityType.NpcFriendly }
+            new MockCharacter
+            {
+                Id = 1,
+                Name = "Player",
+                Type = EntityType.Player,
+            },
+            new MockCharacter
+            {
+                Id = 2,
+                Name = "Enemy1",
+                Type = EntityType.NpcEnemy,
+            },
+            new MockCharacter
+            {
+                Id = 3,
+                Name = "Enemy2",
+                Type = EntityType.NpcEnemy,
+            },
+            new MockCharacter
+            {
+                Id = 4,
+                Name = "Friendly",
+                Type = EntityType.NpcFriendly,
+            },
         };
 
         // Track Player and NpcEnemy

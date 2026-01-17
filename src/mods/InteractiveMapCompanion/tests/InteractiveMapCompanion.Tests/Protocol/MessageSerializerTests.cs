@@ -42,10 +42,7 @@ public class MessageSerializerTests
     [Fact]
     public void Serialize_HandshakeMessage_IsCompact()
     {
-        var message = HandshakeMessage.Create(
-            zone: "Zone",
-            capabilities: ["entities"]
-        );
+        var message = HandshakeMessage.Create(zone: "Zone", capabilities: ["entities"]);
 
         var json = MessageSerializer.Serialize(message);
 

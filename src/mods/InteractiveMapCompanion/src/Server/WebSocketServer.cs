@@ -115,7 +115,9 @@ public class WebSocketServer : IWebSocketServer
     private void OnClientConnected(IWebSocketConnection socket)
     {
         _clients[socket.ConnectionInfo.Id] = socket;
-        _logger.LogInfo($"Client connected: {socket.ConnectionInfo.ClientIpAddress} (total: {ClientCount})");
+        _logger.LogInfo(
+            $"Client connected: {socket.ConnectionInfo.ClientIpAddress} (total: {ClientCount})"
+        );
 
         SendHandshake(socket);
     }
@@ -123,7 +125,9 @@ public class WebSocketServer : IWebSocketServer
     private void OnClientDisconnected(IWebSocketConnection socket)
     {
         _clients.TryRemove(socket.ConnectionInfo.Id, out _);
-        _logger.LogInfo($"Client disconnected: {socket.ConnectionInfo.ClientIpAddress} (total: {ClientCount})");
+        _logger.LogInfo(
+            $"Client disconnected: {socket.ConnectionInfo.ClientIpAddress} (total: {ClientCount})"
+        );
     }
 
     private void OnClientError(IWebSocketConnection socket, Exception ex)
@@ -136,7 +140,9 @@ public class WebSocketServer : IWebSocketServer
     {
         // Inbound message handling will be implemented in the bidirectional milestone.
         // For now, just log that we received something.
-        _logger.LogDebug($"Received message from {socket.ConnectionInfo.ClientIpAddress}: {message}");
+        _logger.LogDebug(
+            $"Received message from {socket.ConnectionInfo.ClientIpAddress}: {message}"
+        );
     }
 
     private void SendHandshake(IWebSocketConnection socket)

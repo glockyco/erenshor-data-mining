@@ -28,7 +28,7 @@ public class BookListener : IAssetScanListener<NullScriptableObject>
     public void OnScanStarted()
     {
         Debug.Log($"[{GetType().Name}] Collecting all books...");
-        
+
         var books = AllBooks.Books;
         foreach (var (bookName, pages) in books)
         {

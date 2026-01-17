@@ -30,7 +30,8 @@ public sealed class BroadcastLoop : IBroadcastLoop
         IEntityTracker entityTracker,
         IWebSocketServer server,
         ModConfig config,
-        Action<string>? log = null)
+        Action<string>? log = null
+    )
     {
         _entityTracker = entityTracker;
         _server = server;

@@ -115,7 +115,7 @@ public class TileScreenshotter
                         {
                             var obj = GameObject.Find("SM_Tree_Generic_Giant_01_LOD_01 (1)");
                             obj?.SetActive(false);
-                            
+
                             foreach (GameObject rootObj in SceneManager.GetActiveScene().GetRootGameObjects())
                             {
                                 if (rootObj.layer == LayerMask.NameToLayer("Roof"))
@@ -131,7 +131,7 @@ public class TileScreenshotter
                                 if (obj.transform.position.x > 650f || obj.transform.position.y < 115f) continue;
                                 if (!obj.name.StartsWith("SM_") && !obj.name.ToLower().Contains("torch") && !obj.name.ToLower().Contains("fire")) continue;
                                 if (obj.name.StartsWith("SM_Bld_Base_Floor_Combined")) continue;
-                                
+
                                 obj.SetActive(false);
                             }
                         }
@@ -141,7 +141,7 @@ public class TileScreenshotter
                             {
                                 if (obj.transform.position.x > 650f || obj.transform.position.y < 105f) continue;
                                 if (!obj.name.StartsWith("SM_") && !obj.name.ToLower().Contains("torch") && !obj.name.ToLower().Contains("fire")) continue;
-                                
+
                                 obj.SetActive(false);
                             }
                         }
@@ -162,7 +162,7 @@ public class TileScreenshotter
                         {
                             var obj = GameObject.Find("SM_Tree_Generic_Giant_01_LOD_01 (1)");
                             obj?.SetActive(false);
-                            
+
                             foreach (GameObject rootObj in SceneManager.GetActiveScene().GetRootGameObjects())
                             {
                                 if (rootObj.layer == LayerMask.NameToLayer("Roof"))
@@ -178,7 +178,7 @@ public class TileScreenshotter
                                 if (obj.transform.position.x > 650f || obj.transform.position.y < 115f) continue;
                                 if (!obj.name.StartsWith("SM_") && !obj.name.ToLower().Contains("torch") && !obj.name.ToLower().Contains("fire")) continue;
                                 if (obj.name.StartsWith("SM_Bld_Base_Floor_Combined")) continue;
-                                
+
                                 obj.SetActive(false);
                             }
                         }
@@ -188,7 +188,7 @@ public class TileScreenshotter
                             {
                                 if (obj.transform.position.x > 650f || obj.transform.position.y < 105f) continue;
                                 if (!obj.name.StartsWith("SM_") && !obj.name.ToLower().Contains("torch") && !obj.name.ToLower().Contains("fire")) continue;
-                                
+
                                 obj.SetActive(false);
                             }
                         }
@@ -413,7 +413,7 @@ public class TileScreenshotter
                         {
                             var obj = GameObject.Find("SM_Env_Rock_Cliff_03 (58)");
                             obj?.SetActive(false);
-                            
+
                             foreach (GameObject rootObj in SceneManager.GetActiveScene().GetRootGameObjects())
                             {
                                 if (rootObj.layer == LayerMask.NameToLayer("Roof"))
@@ -527,7 +527,7 @@ public class TileScreenshotter
                                 var obj = GameObject.Find(objName);
                                 obj?.SetActive(false);
                             }
-                            
+
                             foreach (GameObject rootObj in SceneManager.GetActiveScene().GetRootGameObjects())
                             {
                                 if (rootObj.layer == LayerMask.NameToLayer("Roof"))
@@ -553,7 +553,7 @@ public class TileScreenshotter
                         {
                             var obj = GameObject.Find("rock4 (25)");
                             obj?.SetActive(false);
-                            
+
                             foreach (GameObject rootObj in SceneManager.GetActiveScene().GetRootGameObjects())
                             {
                                 if (rootObj.layer == LayerMask.NameToLayer("Roof"))
@@ -726,7 +726,7 @@ public class TileScreenshotter
                                 var obj = GameObject.Find(objName);
                                 obj?.SetActive(false);
                             }
-                            
+
                             foreach (GameObject rootObj in SceneManager.GetActiveScene().GetRootGameObjects())
                             {
                                 if (rootObj.layer == LayerMask.NameToLayer("Roof"))
@@ -946,7 +946,7 @@ public class TileScreenshotter
                                 var obj = GameObject.Find(objName);
                                 obj?.SetActive(false);
                             }
-                            
+
                             foreach (GameObject rootObj in SceneManager.GetActiveScene().GetRootGameObjects())
                             {
                                 if (rootObj.layer == LayerMask.NameToLayer("Roof"))
@@ -1366,7 +1366,7 @@ public class TileScreenshotter
                                 var obj = GameObject.Find(objName);
                                 obj?.SetActive(false);
                             }
-                            
+
                             foreach (GameObject rootObj in SceneManager.GetActiveScene().GetRootGameObjects())
                             {
                                 if (rootObj.layer == LayerMask.NameToLayer("Roof"))
@@ -1402,7 +1402,7 @@ public class TileScreenshotter
 
         Camera cam = Camera.main;
         Scene scene = SceneManager.GetActiveScene();
-        
+
         WorldFogController fogController = UnityEngine.Object.FindObjectOfType<WorldFogController>();
         fogController?.gameObject.SetActive(false);
 

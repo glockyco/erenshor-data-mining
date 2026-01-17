@@ -90,13 +90,13 @@ All services configured in `Plugin.Awake()`:
 private ServiceProvider ConfigureServices()
 {
     var services = new ServiceCollection();
-    
+
     services.AddSingleton<IEntityTracker, EntityTrackerAdapter>();
     services.AddSingleton<ISpawnTracker, SpawnTracker>();
     services.AddSingleton<IMarkerAPI, MarkerRegistry>();
     services.AddSingleton<IStateManager, StateManager>();
     services.AddSingleton<IWebSocketServer, WebSocketServer>();
-    
+
     return services.BuildServiceProvider();
 }
 ```
@@ -217,7 +217,7 @@ public class ModConfig
     public ConfigEntry<int> Port { get; }
     public ConfigEntry<int> UpdateInterval { get; }
     // ...
-    
+
     public ModConfig(ConfigFile config)
     {
         Port = config.Bind("Server", "Port", 18584, "WebSocket port");

@@ -6,7 +6,7 @@ using SQLite;
 public class MiningNodeRecord
 {
     public const string TableName = "MiningNodes";
-    
+
     [PrimaryKey, AutoIncrement]
     public int Id { get; set; }
     [Indexed]

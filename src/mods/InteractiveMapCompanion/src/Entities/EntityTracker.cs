@@ -5,7 +5,8 @@ namespace InteractiveMapCompanion.Entities;
 /// Uses delegates to abstract away Unity/game type dependencies.
 /// </summary>
 /// <typeparam name="TCharacter">The character type (Character in production, mock type in tests).</typeparam>
-public sealed class EntityTracker<TCharacter> where TCharacter : class
+public sealed class EntityTracker<TCharacter>
+    where TCharacter : class
 {
     private readonly Func<IEnumerable<TCharacter>> _findEntities;
     private readonly Func<TCharacter, EntityType?> _classify;
@@ -23,7 +24,8 @@ public sealed class EntityTracker<TCharacter> where TCharacter : class
         Func<IEnumerable<TCharacter>> findEntities,
         Func<TCharacter, EntityType?> classify,
         Func<TCharacter, EntityType, EntityData> extract,
-        Func<EntityType, bool> shouldTrack)
+        Func<EntityType, bool> shouldTrack
+    )
     {
         _findEntities = findEntities;
         _classify = classify;

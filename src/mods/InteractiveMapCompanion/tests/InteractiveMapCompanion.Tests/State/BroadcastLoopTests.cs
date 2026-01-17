@@ -26,8 +26,11 @@ public class BroadcastLoopTests
         public int ClientCount { get; set; } = 1;
 
         public void Start() { }
+
         public void Stop() { }
+
         public void Broadcast(string message) => BroadcastedMessages.Add(message);
+
         public void Dispose() { }
     }
 
@@ -39,7 +42,8 @@ public class BroadcastLoopTests
     private static IBroadcastLoop CreateBroadcastLoop(
         MockEntityTracker? tracker = null,
         MockWebSocketServer? server = null,
-        int updateIntervalMs = 100)
+        int updateIntervalMs = 100
+    )
     {
         tracker ??= new MockEntityTracker();
         server ??= new MockWebSocketServer();
@@ -63,7 +67,8 @@ public class BroadcastLoopTests
         public TestBroadcastLoop(
             IEntityTracker entityTracker,
             IWebSocketServer server,
-            int intervalMs)
+            int intervalMs
+        )
         {
             _entityTracker = entityTracker;
             _server = server;
@@ -84,7 +89,8 @@ public class BroadcastLoopTests
                 return;
 
             var entities = _entityTracker.GetTrackedEntities();
-            var json = $"{{\"type\":\"stateUpdate\",\"zone\":\"{_currentZone}\",\"entities\":{entities.Count}}}";
+            var json =
+                $"{{\"type\":\"stateUpdate\",\"zone\":\"{_currentZone}\",\"entities\":{entities.Count}}}";
             _server.Broadcast(json);
         }
 
@@ -93,15 +99,23 @@ public class BroadcastLoopTests
             var previousZone = _currentZone;
             _currentZone = newZone;
 
-            if (!string.IsNullOrEmpty(previousZone) && previousZone != newZone && _server.ClientCount > 0)
+            if (
+                !string.IsNullOrEmpty(previousZone)
+                && previousZone != newZone
+                && _server.ClientCount > 0
+            )
             {
-                _server.Broadcast($"{{\"type\":\"zoneChange\",\"previousZone\":\"{previousZone}\",\"zone\":\"{newZone}\"}}");
+                _server.Broadcast(
+                    $"{{\"type\":\"zoneChange\",\"previousZone\":\"{previousZone}\",\"zone\":\"{newZone}\"}}"
+                );
             }
 
             if (_server.ClientCount > 0)
             {
                 var entities = _entityTracker.GetTrackedEntities();
-                _server.Broadcast($"{{\"type\":\"stateUpdate\",\"zone\":\"{_currentZone}\",\"entities\":{entities.Count}}}");
+                _server.Broadcast(
+                    $"{{\"type\":\"stateUpdate\",\"zone\":\"{_currentZone}\",\"entities\":{entities.Count}}}"
+                );
             }
         }
     }

@@ -6,7 +6,7 @@ using SQLite;
 public class TeleportRecord
 {
     public const string TableName = "Teleports";
-    
+
     [PrimaryKey, AutoIncrement]
     public int Id { get; set; }
     [Indexed]

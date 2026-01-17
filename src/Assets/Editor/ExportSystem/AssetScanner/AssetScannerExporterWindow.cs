@@ -10,7 +10,7 @@ public class AssetScannerExporterWindow : EditorWindow
 {
     private string _outputPath;
     private SQLiteConnection _db;
-    
+
     private bool _isScanning;
     private bool _cancelRequested;
     private string _status = "Idle";
@@ -48,7 +48,7 @@ public class AssetScannerExporterWindow : EditorWindow
     private bool _exportZoneAtlasEntries = true;
     private bool _exportZoneLines = true;
 
-    [MenuItem("Tools/Export Game Data")] 
+    [MenuItem("Tools/Export Game Data")]
     public static void ShowWindow()
     {
         var window = GetWindow<AssetScannerExporterWindow>("Asset Scanner Exporter");
@@ -211,16 +211,16 @@ public class AssetScannerExporterWindow : EditorWindow
         _isScanning = true;
         _cancelRequested = false;
         _progress = new AssetScanProgress();
-        
+
         _activeScanner = new AssetScanner();
-        
+
         _db = new SQLiteConnection(_outputPath);
-        
+
         if (_exportTeleportLocs) _activeScanner.RegisterNullListener(new TeleportLocListener(_db));
-        
+
         if (_exportSecretPassages) _activeScanner.RegisterGameObjectListener(new SecretPassageListener(_db));
         if (_exportWishingWells) _activeScanner.RegisterGameObjectListener(new WishingWellListener(_db));
-        
+
         if (_exportAscensions) _activeScanner.RegisterScriptableObjectListener(new AscensionListener(_db));
         if (_exportBooks) _activeScanner.RegisterScriptableObjectListener(new BookListener(_db));
         if (_exportClasses) _activeScanner.RegisterScriptableObjectListener(new ClassListener(_db));
@@ -231,10 +231,10 @@ public class AssetScannerExporterWindow : EditorWindow
         if (_exportStances) _activeScanner.RegisterScriptableObjectListener(new StanceListener(_db));
         if (_exportWorldFactions) _activeScanner.RegisterScriptableObjectListener(new WorldFactionListener(_db));
         if (_exportZoneAtlasEntries) _activeScanner.RegisterScriptableObjectListener(new ZoneAtlasEntryListener(_db));
-        
+
         // Item wikiStrings depend on spells for proc data, so we need to register items later.
         if (_exportItems) _activeScanner.RegisterScriptableObjectListener(new ItemListener(_db));
-        
+
         if (_exportAchievementTriggers) _activeScanner.RegisterComponentListener(new AchievementTriggerListener(_db));
         if (_exportDoors) _activeScanner.RegisterComponentListener(new DoorListener(_db));
         if (_exportForges) _activeScanner.RegisterComponentListener(new ForgeListener(_db));
@@ -248,10 +248,10 @@ public class AssetScannerExporterWindow : EditorWindow
         if (_exportWaters) _activeScanner.RegisterComponentListener(new WaterListener(_db));
         if (_exportZoneAnnounces) _activeScanner.RegisterComponentListener(new ZoneAnnounceListener(_db));
         if (_exportZoneLines) _activeScanner.RegisterComponentListener(new ZoneLineListener(_db));
-        
+
         // Characters.IsUnique depends on spawn point data, so we need to register characters later.
         if (_exportCharacters) _activeScanner.RegisterComponentListener(new CharacterListener(_db));
-        
+
         _stopwatch = Stopwatch.StartNew();
         EditorCoroutineRunner.StartCoroutine(ScanAndExportCoroutine());
     }

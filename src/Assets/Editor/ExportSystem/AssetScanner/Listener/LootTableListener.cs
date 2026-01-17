@@ -170,7 +170,7 @@ public class LootTableListener : IAssetScanListener<LootTable>
             }
         }
     }
-    
+
     private class DropCountProbability
     {
         public int Count { get; set; }

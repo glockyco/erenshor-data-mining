@@ -13,12 +13,10 @@ public static class MessageSerializer
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-        WriteIndented = false
+        WriteIndented = false,
     };
 
-    public static string Serialize<T>(T message) =>
-        JsonSerializer.Serialize(message, Options);
+    public static string Serialize<T>(T message) => JsonSerializer.Serialize(message, Options);
 
-    public static T? Deserialize<T>(string json) =>
-        JsonSerializer.Deserialize<T>(json, Options);
+    public static T? Deserialize<T>(string json) => JsonSerializer.Deserialize<T>(json, Options);
 }

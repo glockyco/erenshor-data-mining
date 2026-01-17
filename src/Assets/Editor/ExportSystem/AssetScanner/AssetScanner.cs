@@ -25,7 +25,7 @@ public class AssetScanner
     {
         RegisterListener(_gameObjectListeners, listener);
     }
-    
+
     public void RegisterComponentListener<T>(IAssetScanListener<T> listener) where T : Component
     {
         RegisterListener(_componentListeners, listener);
@@ -73,7 +73,7 @@ public class AssetScanner
         if (_scriptableObjectListeners.Count > 0)
         {
             var assets = new List<ScriptableObject>(Resources.LoadAll<ScriptableObject>(""));
-            
+
             var guids = AssetDatabase.FindAssets("t:Class");
             foreach (var guid in guids)
             {
@@ -84,7 +84,7 @@ public class AssetScanner
                     assets.Add(asset);
                 }
             }
-            
+
             int total = assets.Count;
             int current = 0;
             stopwatch.Restart();
@@ -160,7 +160,7 @@ public class AssetScanner
                 if (prefab != null)
                 {
                     foreach (var _ in ScanGameObjectsAndComponentsInHierarchy(
-                        prefab, stopwatch, maxFrameTimeMs, cancelRequested, progressCallback, 
+                        prefab, stopwatch, maxFrameTimeMs, cancelRequested, progressCallback,
                         "Prefabs", prefabCurrent, prefabTotal, false))
                     {
                         yield return null;

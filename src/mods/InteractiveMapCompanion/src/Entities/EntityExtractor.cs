@@ -24,15 +24,16 @@ public sealed class EntityExtractor : IEntityExtractor
     /// <summary>
     /// Converts EntityType enum to protocol string (snake_case).
     /// </summary>
-    private static string EntityTypeToString(EntityType type) => type switch
-    {
-        EntityType.Player => "player",
-        EntityType.SimPlayer => "simplayer",
-        EntityType.Pet => "pet",
-        EntityType.NpcFriendly => "npc_friendly",
-        EntityType.NpcEnemy => "npc_enemy",
-        _ => "unknown"
-    };
+    private static string EntityTypeToString(EntityType type) =>
+        type switch
+        {
+            EntityType.Player => "player",
+            EntityType.SimPlayer => "simplayer",
+            EntityType.Pet => "pet",
+            EntityType.NpcFriendly => "npc_friendly",
+            EntityType.NpcEnemy => "npc_enemy",
+            _ => "unknown",
+        };
 
     /// <summary>
     /// Normalizes rotation to 0-360 range.

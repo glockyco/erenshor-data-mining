@@ -93,7 +93,7 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
     {
         // Default value 600f is taken from `SpawnPoint.Start`.
         var spawnDelay = spawnPoint.SpawnDelay == 0f ? 600f : spawnPoint.SpawnDelay;
-        
+
         return new SpawnPointRecord
         {
             Id = TableIdGenerator.NextId(SpawnPointRecord.TableName),

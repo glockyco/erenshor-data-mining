@@ -16,14 +16,14 @@ public class TreasureLocListener : IAssetScanListener<TreasureLoc>
     public void OnScanStarted()
     {
         _db.CreateTable<CoordinateRecord>();
-        
+
         _db.Execute("DELETE FROM Coordinates WHERE Category = ?", nameof(CoordinateCategory.TreasureLoc));
     }
 
     public void OnScanFinished()
     {
         _db.InsertAll(_records);
-        
+
         _records.Clear();
     }
 

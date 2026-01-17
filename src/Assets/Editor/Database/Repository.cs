@@ -12,7 +12,7 @@ public static class Repository
     public const string DefaultFilename = "Erenshor.sqlite";
 
     private static readonly Dictionary<string, SQLiteConnection> Connections = new();
-    
+
     public static SQLiteConnection CreateConnection()
     {
         return CreateConnection(GetDefaultDatabasePath());

@@ -24,7 +24,7 @@ public class SpellRecord
 
     // --- Simulation ---
     public bool SimUsable { get; set; } // From Spell.SimUsable
-    
+
     // --- Aggro ---
     public int Aggro { get; set; } // From Spell.Aggro
 
@@ -114,7 +114,7 @@ public class SpellRecord
     // --- Text/Metadata ---
     public string StatusEffectMessageOnPlayer { get; set; } = string.Empty; // From Spell.StatusEffectMessageOnPlayer
     public string StatusEffectMessageOnNPC { get; set; } = string.Empty; // From Spell.StatusEffectMessageOnNPC
-    
+
     // --- Internals ---
     public string ResourceName { get; set; } = string.Empty; // From Spell.name (ScriptableObject name)
 }

@@ -57,8 +57,8 @@ public class SceneScriptSearchWindow : EditorWindow
             {
                 EditorGUILayout.BeginHorizontal();
 
-                string label = reference.IsPrefab ? 
-                    $"Prefab: {reference.AssetPath}" : 
+                string label = reference.IsPrefab ?
+                    $"Prefab: {reference.AssetPath}" :
                     $"Scene: {reference.AssetPath} → {reference.ObjectPath}";
 
                 EditorGUILayout.LabelField(label);
@@ -107,7 +107,7 @@ public class SceneScriptSearchWindow : EditorWindow
                 for (int i = 0; i < prefabCount; i++)
                 {
                     string prefabPath = AssetDatabase.GUIDToAssetPath(prefabGuids[i]);
-                    EditorUtility.DisplayProgressBar("Searching Prefabs", 
+                    EditorUtility.DisplayProgressBar("Searching Prefabs",
                         $"Checking {prefabPath}", (float)i / prefabCount);
 
                     GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
@@ -133,7 +133,7 @@ public class SceneScriptSearchWindow : EditorWindow
                 for (int i = 0; i < sceneCount; i++)
                 {
                     string scenePath = AssetDatabase.GUIDToAssetPath(sceneGuids[i]);
-                    EditorUtility.DisplayProgressBar("Searching Scenes", 
+                    EditorUtility.DisplayProgressBar("Searching Scenes",
                         $"Checking {scenePath}", (float)i / sceneCount);
 
                     Scene scene = EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Single);

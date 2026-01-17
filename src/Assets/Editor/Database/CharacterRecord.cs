@@ -22,7 +22,7 @@ public class CharacterRecord
     public float AttackRange { get; set; }
     public string? AggressiveTowards { get; set; } = string.Empty;
     public string? Allies { get; set; } = string.Empty;
-    
+
     public bool IsPrefab { get; set; }
     public bool IsCommon { get; set; }
     public bool IsRare { get; set; }
@@ -35,7 +35,7 @@ public class CharacterRecord
     public bool HasStats { get; set; }
     public bool HasDialog { get; set; }
     public bool HasModifyFaction { get; set; }
-    
+
     public bool IsEnabled { get; set; }
     public bool Invulnerable { get; set; }
     public string? ShoutOnDeath { get; set; } = string.Empty;
@@ -47,8 +47,8 @@ public class CharacterRecord
 
     // Stats properties
     public int Level { get; set; }
-    public float BaseXpMin { get; set; } 
-    public float BaseXpMax { get; set; } 
+    public float BaseXpMin { get; set; }
+    public float BaseXpMax { get; set; }
     public float BossXpMultiplier { get; set; }
     public int BaseHP { get; set; }
     public int BaseAC { get; set; }
@@ -69,7 +69,7 @@ public class CharacterRecord
     public float BaseLifeSteal { get; set; }
     public float BaseMHAtkDelay { get; set; }
     public float BaseOHAtkDelay { get; set; }
-    
+
     // Calculated/Effective Stats for NPCs
     public int EffectiveHP { get; set; }
     public int EffectiveAC { get; set; }
@@ -83,7 +83,7 @@ public class CharacterRecord
     public int EffectiveMaxPR { get; set; }
     public int EffectiveMinVR { get; set; }
     public int EffectiveMaxVR { get; set; }
-    
+
     // NPC properties
     // Spells and skills are stored in junction tables:
     // - CharacterAttackSkillRecord
@@ -95,7 +95,7 @@ public class CharacterRecord
     [ForeignKey(typeof(SpellRecord), "StableKey")]
     public string? ProcOnHitStableKey { get; set; }
     public float ProcOnHitChance { get; set; }
-    
+
     // NPC Combat Mechanics
     public bool HandSetResistances { get; set; }
     public int HardSetAC { get; set; }
@@ -106,35 +106,35 @@ public class CharacterRecord
     public float DamageRangeMax { get; set; }
     public float DamageMult { get; set; }
     public float ArmorPenMult { get; set; }
-    
+
     // Special Abilities
     public int PowerAttackBaseDmg { get; set; }
     public float PowerAttackFreq { get; set; }
     public float HealTolerance { get; set; }
-    
+
     // AI Behavior
     public float LeashRange { get; set; }
     public bool AggroRegardlessOfLevel { get; set; }
     public bool Mobile { get; set; }
     public bool GroupEncounter { get; set; }
-    
+
     // Loot/Corpse
     public bool TreasureChest { get; set; }
     public bool DoNotLeaveCorpse { get; set; }
-    
+
     // Achievements
     public string SetAchievementOnDefeat { get; set; } = string.Empty;
     public string SetAchievementOnSpawn { get; set; } = string.Empty;
-    
+
     // Flavor Text
     public string AggroMsg { get; set; } = string.Empty;
     public string AggroEmote { get; set; } = string.Empty;
     public string SpawnEmote { get; set; } = string.Empty;
     public string GuildName { get; set; } = string.Empty;
-    
+
     // ModifyFaction properties
     public string ModifyFactions { get; set; } = string.Empty;
-    
+
     // VendorInventory properties
     public string VendorDesc { get; set; } = string.Empty;
     public string? ItemsForSale { get; set; } = string.Empty;

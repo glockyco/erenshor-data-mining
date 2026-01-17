@@ -56,7 +56,7 @@ public class DoorListener : IAssetScanListener<Door>
     {
         var renderer = door.GetComponent<Renderer>();
         var position = renderer != null ? renderer.bounds.center : door.transform.position;
-        
+
         var coordinate = new CoordinateRecord
         {
             Scene = door.gameObject.scene.name,

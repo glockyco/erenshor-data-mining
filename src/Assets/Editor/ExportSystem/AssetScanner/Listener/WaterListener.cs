@@ -20,12 +20,12 @@ public class WaterListener : IAssetScanListener<Water>
         _db.CreateTable<CoordinateRecord>();
         _db.CreateTable<WaterRecord>();
         _db.CreateTable<WaterFishableRecord>();
-        
+
         _db.Execute("DELETE FROM Coordinates WHERE Category = ?", nameof(CoordinateCategory.Water));
         _db.DeleteAll<WaterRecord>();
         _db.DeleteAll<WaterFishableRecord>();
     }
-    
+
     public void OnScanFinished()
     {
         _db.Execute(@"
@@ -46,7 +46,7 @@ public class WaterListener : IAssetScanListener<Water>
     public void OnAssetFound(Water asset)
     {
         Debug.Log($"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
-        
+
         var coordinate = new CoordinateRecord
         {
             Scene = asset.gameObject.scene.name,

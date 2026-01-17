@@ -7,7 +7,7 @@ public class StatsObjectFinder : EditorWindow
 {
     private Vector2 scrollPosition;
     private string searchString = "";
-    private List<(GameObject obj, int level, float baseHP, string npcName, int? maxDrops, int? maxNonCommonDrops)> objectsWithStats = 
+    private List<(GameObject obj, int level, float baseHP, string npcName, int? maxDrops, int? maxNonCommonDrops)> objectsWithStats =
         new List<(GameObject obj, int level, float baseHP, string npcName, int? maxDrops, int? maxNonCommonDrops)>();
     private int minimumLevel = 0;
 
@@ -59,7 +59,7 @@ public class StatsObjectFinder : EditorWindow
 
         if (!string.IsNullOrEmpty(searchString))
         {
-            filteredObjects = filteredObjects.FindAll(item => 
+            filteredObjects = filteredObjects.FindAll(item =>
                 item.obj.name.ToLower().Contains(searchString.ToLower()) ||
                 item.npcName.ToLower().Contains(searchString.ToLower()));
         }
@@ -122,12 +122,12 @@ public class StatsObjectFinder : EditorWindow
         }
     }
 
-    private IEnumerable<(GameObject obj, int level, float baseHP, string npcName, int? maxDrops, int? maxNonCommonDrops)> 
+    private IEnumerable<(GameObject obj, int level, float baseHP, string npcName, int? maxDrops, int? maxNonCommonDrops)>
         SortObjects(List<(GameObject obj, int level, float baseHP, string npcName, int? maxDrops, int? maxNonCommonDrops)> objects)
     {
         return sortField switch
         {
-            SortField.Name => sortAscending 
+            SortField.Name => sortAscending
                 ? objects.OrderBy(x => x.obj.name)
                 : objects.OrderByDescending(x => x.obj.name),
 
@@ -176,16 +176,16 @@ public class StatsObjectFinder : EditorWindow
                 NPC npc = prefab.GetComponent<NPC>();
                 LootTable lootTable = prefab.GetComponent<LootTable>();
                 SimPlayer simPlayer = prefab.GetComponent<SimPlayer>();
-                
+
                 if (stats != null && character != null && npc != null && simPlayer == null)
                 {
                     int? maxDrops = lootTable?.MaxNumberDrops;
                     int? maxNonCommonDrops = lootTable?.MaxNonCommonDrops;
-                    
+
                     objectsWithStats.Add((
-                        prefab, 
-                        stats.Level, 
-                        stats.BaseHP, 
+                        prefab,
+                        stats.Level,
+                        stats.BaseHP,
                         npc.NPCName,
                         maxDrops,
                         maxNonCommonDrops

@@ -97,21 +97,21 @@ public class ItemListener : IAssetScanListener<Item>
             var path = AssetDatabase.GetAssetPath(item.AttackSound);
             attackSound = System.IO.Path.GetFileNameWithoutExtension(path);
         }
-        
+
         string? wandAttackSound = null;
         if (item.WandAttackSound != null)
         {
             var path = AssetDatabase.GetAssetPath(item.WandAttackSound);
             wandAttackSound = System.IO.Path.GetFileNameWithoutExtension(path);
         }
-        
+
         string? bowAttackSound = null;
         if (item.BowAttackSound != null)
         {
             var path = AssetDatabase.GetAssetPath(item.BowAttackSound);
             bowAttackSound = System.IO.Path.GetFileNameWithoutExtension(path);
         }
-            
+
         string? itemIconName = null;
         if (item.ItemIcon != null)
         {
@@ -154,7 +154,7 @@ public class ItemListener : IAssetScanListener<Item>
             WandBoltColorA = item.WandBoltColor.a,
             WandBoltSpeed = item.WandBoltSpeed,
             WandAttackSoundName = wandAttackSound,
-            
+
             // --- Bow Properties ---
             IsBow = item.IsBow,
             BowEffectStableKey = item.BowEffect != null
@@ -308,7 +308,7 @@ public class ItemListener : IAssetScanListener<Item>
                 ER = item.CalcStat(item.ER, quality), // Elemental Resist
                 PR = item.CalcStat(item.PR, quality), // Poison Resist
                 VR = item.CalcStat(item.VR, quality), // Void Resist
-                
+
                 // --- Stat Scaling Properties ---
                 StrScaling = item.StrScaling,
                 EndScaling = item.EndScaling,
@@ -320,7 +320,7 @@ public class ItemListener : IAssetScanListener<Item>
                 ResistScaling = item.ResistScaling,
                 MitigationScaling = item.MitigationScaling,
             };
-            
+
             itemStatsRecords.Add(itemStatsRecord);
         }
 

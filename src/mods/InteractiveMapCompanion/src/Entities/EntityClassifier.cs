@@ -1,5 +1,3 @@
-using UnityEngine;
-
 namespace InteractiveMapCompanion.Entities;
 
 /// <summary>
@@ -49,16 +47,17 @@ public sealed class EntityClassifier : IEntityClassifier
         // Check if explicitly aggressive toward player factions
         if (character.AggressiveTowards != null)
         {
-            if (character.AggressiveTowards.Contains(Character.Faction.Player) ||
-                character.AggressiveTowards.Contains(Character.Faction.PC))
+            if (
+                character.AggressiveTowards.Contains(Character.Faction.Player)
+                || character.AggressiveTowards.Contains(Character.Faction.PC)
+            )
             {
                 return true;
             }
         }
 
         // Check world faction reputation - negative value means hostile
-        if (character.MyWorldFaction != null &&
-            character.MyWorldFaction.FactionValue <= 0f)
+        if (character.MyWorldFaction != null && character.MyWorldFaction.FactionValue <= 0f)
         {
             return true;
         }

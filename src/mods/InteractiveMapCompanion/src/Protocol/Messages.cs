@@ -26,12 +26,7 @@ public record HandshakeMessage(
 /// <summary>
 /// Periodic state update containing all tracked entities.
 /// </summary>
-public record StateUpdateMessage(
-    string Type,
-    string Zone,
-    long Timestamp,
-    EntityData[] Entities
-)
+public record StateUpdateMessage(string Type, string Zone, long Timestamp, EntityData[] Entities)
 {
     public static StateUpdateMessage Create(string zone, EntityData[] entities) =>
         new(
@@ -46,12 +41,7 @@ public record StateUpdateMessage(
 /// Notification sent when the player changes zones.
 /// Clients should clear entities from the previous zone.
 /// </summary>
-public record ZoneChangeMessage(
-    string Type,
-    string PreviousZone,
-    string Zone,
-    long Timestamp
-)
+public record ZoneChangeMessage(string Type, string PreviousZone, string Zone, long Timestamp)
 {
     public static ZoneChangeMessage Create(string previousZone, string zone) =>
         new(

@@ -15,7 +15,7 @@ public class TeleportLocListener : IAssetScanListener<Object>
     {
         _db.CreateTable<CoordinateRecord>();
         _db.CreateTable<TeleportRecord>();
-        
+
         _db.Execute("DELETE FROM Coordinates WHERE Category = ?", nameof(CoordinateCategory.Teleport));
         _db.DeleteAll<TeleportRecord>();
 
@@ -27,7 +27,7 @@ public class TeleportLocListener : IAssetScanListener<Object>
         InsertTeleport("Ripper", 572f, 54.4f, 293f, "GEN - Rune of Ripper's Keep");
         InsertTeleport("Hidden", 9.34f, 1f, -114.33f, "GEN - Rune of The Hills");
         InsertTeleport("Reliquary", 275f, 1.82f, 309f, "GEN - Box of Portals");
-        
+
         _db.Execute(@"
             UPDATE Coordinates
             SET TeleportId = (
@@ -52,7 +52,7 @@ public class TeleportLocListener : IAssetScanListener<Object>
     {
         // do nothing
     }
-    
+
     private void InsertTeleport(string scene, float x, float y, float z, string itemResourceName)
     {
         var coordinate = new CoordinateRecord

@@ -19,7 +19,8 @@ public sealed class EntityTrackerAdapter : IEntityTracker
         IEntityFinder finder,
         IEntityClassifier classifier,
         IEntityExtractor extractor,
-        Func<EntityType, bool> entityFilter)
+        Func<EntityType, bool> entityFilter
+    )
     {
         _inner = new EntityTracker<Character>(
             findEntities: finder.FindAll,

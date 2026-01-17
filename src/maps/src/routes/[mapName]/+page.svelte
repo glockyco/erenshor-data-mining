@@ -361,7 +361,6 @@
 
                 // Use SvelteKit navigation instead of manual history manipulation
                 m.on('popupopen', () => {
-                     
                     goto(`?coordinateId=${marker.coordinateId}`, {
                         replaceState: true,
                         noScroll: true,
@@ -370,7 +369,6 @@
                 });
 
                 m.on('popupclose', () => {
-                     
                     goto('?', {
                         replaceState: true,
                         noScroll: true,
@@ -465,7 +463,7 @@
 
                     L.DomEvent.on(button, 'click', (e) => {
                         L.DomEvent.preventDefault(e);
-                         
+
                         goto('/');
                     });
 
@@ -508,7 +506,6 @@
 
         // Only clear coordinateId if we're actually changing maps (not initial load)
         if (previousMapName !== null && previousMapName !== mapName && coordId) {
-             
             goto('?', {
                 replaceState: true,
                 noScroll: true,

@@ -9,9 +9,9 @@ public class LootTableProbabilityEditor : UnityEditor.Editor
     private Dictionary<string, double> _dropChances = new();
     private Dictionary<string, double[]> _perItemDistributions = new();
     private Dictionary<string, double> _expectedDrops = new();
-    
+
     private bool _isCalculated;
-    
+
     private readonly LootTableProbabilityCalculator _calculator = new();
 
     public override void OnInspectorGUI()

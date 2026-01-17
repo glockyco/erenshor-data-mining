@@ -28,5 +28,5 @@ public enum EntityType
     /// <summary>
     /// Hostile NPC (negative faction reputation or explicitly aggressive).
     /// </summary>
-    NpcEnemy
+    NpcEnemy,
 }

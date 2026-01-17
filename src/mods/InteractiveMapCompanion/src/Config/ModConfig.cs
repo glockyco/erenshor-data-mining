@@ -19,31 +19,36 @@ public class ModConfig
             "Server",
             "Port",
             18584,
-            "WebSocket server port. Clients connect to ws://localhost:{port}");
+            "WebSocket server port. Clients connect to ws://localhost:{port}"
+        );
 
         UpdateInterval = config.Bind(
             "Server",
             "UpdateInterval",
             100,
-            "Interval in milliseconds between state broadcasts to clients");
+            "Interval in milliseconds between state broadcasts to clients"
+        );
 
         EnableSpawnTracking = config.Bind(
             "Features",
             "EnableSpawnTracking",
             true,
-            "Track enemy deaths and broadcast respawn timers");
+            "Track enemy deaths and broadcast respawn timers"
+        );
 
         EnableThirdPartyMarkers = config.Bind(
             "Features",
             "EnableThirdPartyMarkers",
             true,
-            "Allow other mods to register custom markers via the API");
+            "Allow other mods to register custom markers via the API"
+        );
 
         EnableBidirectional = config.Bind(
             "Features",
             "EnableBidirectional",
             true,
-            "Accept messages from clients (waypoints, pings, commands)");
+            "Accept messages from clients (waypoints, pings, commands)"
+        );
     }
 
     /// <summary>
