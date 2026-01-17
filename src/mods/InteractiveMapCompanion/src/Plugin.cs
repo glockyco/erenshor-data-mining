@@ -73,9 +73,8 @@ public sealed class Plugin : BaseUnityPlugin
         services.AddSingleton<IEntityClassifier, EntityClassifier>();
         services.AddSingleton<IEntityExtractor, EntityExtractor>();
 
-        // Entity filter - for #148, only track the player
-        // Expand this filter in future issues to track more entity types
-        services.AddSingleton<Func<EntityType, bool>>(type => type == EntityType.Player);
+        // Track all entity types
+        services.AddSingleton<Func<EntityType, bool>>(_ => true);
 
         services.AddSingleton<IEntityTracker, EntityTrackerAdapter>();
 
