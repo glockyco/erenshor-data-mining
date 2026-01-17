@@ -78,7 +78,7 @@ export function getSelectionZone(selection: Selection): string | null {
  * Get border color for selection.
  */
 export function getSelectionBorderColor(selection: Selection): string {
-    if (!selection) return 'border-gray-400';
+    if (!selection) return 'border-l-gray-400';
 
     switch (selection.type) {
         case 'marker':
@@ -86,7 +86,7 @@ export function getSelectionBorderColor(selection: Selection): string {
         case 'live':
             return getLiveEntityBorderColor(selection.entity);
         case 'zone':
-            return 'border-purple-500';
+            return 'border-l-purple-500';
     }
 }
 
@@ -94,39 +94,39 @@ function getMarkerBorderColor(marker: AnyWorldMarker): string {
     // Special handling for enemy markers (need to check rarity)
     if (marker.category === 'enemy') {
         const chars = marker.characters;
-        if (chars.length === 0) return 'border-gray-500';
+        if (chars.length === 0) return 'border-l-gray-500';
         const hasUnique = chars.some((c) => c.isUnique);
         const hasRare = chars.some((c) => c.isRare);
-        if (hasUnique) return 'border-violet-700';
-        if (hasRare) return 'border-rose-600';
-        return 'border-amber-600';
+        if (hasUnique) return 'border-l-violet-700';
+        if (hasRare) return 'border-l-rose-600';
+        return 'border-l-amber-600';
     }
 
-    // For all other markers, use the centralized color mapping (without 'border-l-' prefix)
-    const colorWithPrefix = MARKER_BORDER_COLORS[marker.category];
-    if (colorWithPrefix) {
-        // Remove 'border-l-' prefix to get just 'border-{color}'
-        return colorWithPrefix.replace('border-l-', 'border-');
+    // For all other markers, use the centralized color mapping
+    const borderColor = MARKER_BORDER_COLORS[marker.category];
+    if (borderColor) {
+        // Already has border-l- prefix (popups and tooltips expect border-l-{color})
+        return borderColor;
     }
 
-    return 'border-gray-500';
+    return 'border-l-gray-500';
 }
 
 function getLiveEntityBorderColor(entity: EntityData): string {
     switch (entity.entityType) {
         case 'player':
-            return 'border-lime-500';
+            return 'border-l-lime-500';
         case 'simplayer':
-            return 'border-cyan-500';
+            return 'border-l-cyan-500';
         case 'pet':
-            return 'border-fuchsia-500';
+            return 'border-l-fuchsia-500';
         case 'npc_friendly':
-            return 'border-emerald-500';
+            return 'border-l-emerald-500';
         case 'npc_enemy':
-            if (entity.rarity === 'boss') return 'border-zinc-900';
-            if (entity.rarity === 'rare') return 'border-red-500';
-            return 'border-orange-500';
+            if (entity.rarity === 'boss') return 'border-l-zinc-900';
+            if (entity.rarity === 'rare') return 'border-l-red-500';
+            return 'border-l-orange-500';
         default:
-            return 'border-gray-400';
+            return 'border-l-gray-400';
     }
 }
