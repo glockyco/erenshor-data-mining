@@ -37,10 +37,14 @@ export interface EntityData {
     position: [number, number, number];
     /** Facing direction in degrees (0-360, where 0° = north in game coordinates) */
     rotation: number;
-    /** Entity level (for NPCs) */
+    /** Entity level */
     level?: number;
     /** Rarity classification (for enemies) */
     rarity?: EntityRarity;
+    /** Character class (for players and SimPlayers) */
+    characterClass?: string;
+    /** Owner name (for pets) */
+    owner?: string;
 }
 
 /**
