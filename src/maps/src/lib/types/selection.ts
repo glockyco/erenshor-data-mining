@@ -15,17 +15,21 @@ export type Selection =
 /**
  * Get world position from any selection type.
  * Returns null if selection doesn't have a valid position.
+ *
+ * @param liveEntities - Current live entities array (used to look up fresh position data)
  */
 export function getSelectionPosition(
     selection: Selection,
     zones: ZoneWorldPosition[],
     zoneConfigs: Record<string, ZoneConfig>,
-    overrides: Record<string, { worldX: number; worldY: number }>
+    overrides: Record<string, { worldX: number; worldY: number }>,
+    liveEntities?: EntityData[]
 ): [number, number] | null {
     if (!selection) return null;
 
     switch (selection.type) {
-        case 'marker': { // Markers already have worldPosition, just apply zone override if needed
+        case 'marker': {
+            // Markers already have worldPosition, just apply zone override if needed
             const override = overrides[selection.marker.zone];
             if (override) {
                 const [x, y] = selection.marker.worldPosition;
@@ -35,13 +39,17 @@ export function getSelectionPosition(
             }
             return selection.marker.worldPosition;
         }
-        case 'live':
+        case 'live': {
+            // Look up current entity data (selection.entity may be stale snapshot)
+            const currentEntity = liveEntities?.find((e) => e.id === selection.entity.id);
+            if (!currentEntity) return null;
             return transformEntityToWorld(
-                { ...selection.entity, zone: selection.zone },
+                { ...currentEntity, zone: selection.zone },
                 zones,
                 zoneConfigs,
                 overrides
             );
+        }
         case 'zone': {
             const bounds = selection.zone.bounds;
             return [(bounds.minX + bounds.maxX) / 2, (bounds.minY + bounds.maxY) / 2];
@@ -63,14 +71,6 @@ export function getSelectionZone(selection: Selection): string | null {
         case 'zone':
             return selection.zone.key;
     }
-}
-
-/**
- * Check if selection can be persisted to URL.
- * Only static markers are URL-persistable.
- */
-export function isUrlPersistable(selection: Selection): boolean {
-    return selection?.type === 'marker';
 }
 
 /**

@@ -208,8 +208,7 @@
                 return { name: entity.name, detail: parts.join(' • ') };
             }
             case 'pet': {
-                const owner = entity.owner ? `${entity.owner}'s pet` : 'Pet';
-                const parts = [owner, level].filter(Boolean);
+                const parts = ['Pet', level].filter(Boolean);
                 return { name: entity.name, detail: parts.join(' • ') };
             }
             case 'npc_friendly': {

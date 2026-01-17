@@ -55,18 +55,15 @@
 </script>
 
 <div class="space-y-3">
-    <!-- Level, Rarity Badge, and Wiki Link -->
+    <!-- Rarity Badge and Wiki Link -->
     <div class="flex items-center justify-between">
-        <div class="flex items-center gap-2">
-            {#if entity.level}
-                <div class="text-sm text-zinc-300">Level {entity.level}</div>
-            {/if}
-            {#if entity.rarity && entity.entityType === 'npc_enemy'}
-                <span class="rounded px-1.5 py-0.5 text-xs {getRarityClass()}">
-                    {getRarityLabel()}
-                </span>
-            {/if}
-        </div>
+        {#if entity.rarity && entity.entityType === 'npc_enemy'}
+            <span class="rounded px-1.5 py-0.5 text-xs {getRarityClass()}">
+                {getRarityLabel()}
+            </span>
+        {:else}
+            <div></div>
+        {/if}
         <WikiLink name={entity.name} />
     </div>
 

@@ -51,12 +51,11 @@
         type WorldEnemy,
         type WorldNpc
     } from '$lib/types/world-map';
+    import type { Selection } from '$lib/types/selection';
+    import { getSelectionPosition, getSelectionZone } from '$lib/types/selection';
     import MapSidebar from '$lib/components/map/MapSidebar.svelte';
     import MapTooltip from '$lib/components/map/MapTooltip.svelte';
-    import LiveEntityTooltip from '$lib/components/map/LiveEntityTooltip.svelte';
-    import ZoneTooltip from '$lib/components/map/ZoneTooltip.svelte';
     import MapPopup from '$lib/components/map/MapPopup.svelte';
-    import ZonePopup from '$lib/components/map/ZonePopup.svelte';
     import type { PageData } from './$types';
 
     let { data }: { data: PageData } = $props();
@@ -89,16 +88,11 @@
     );
 
     // Tooltip state
-    let hoveredMarker = $state<AnyWorldMarker | null>(null);
-    let hoveredZone = $state<ZoneWorldPosition | null>(null);
-    let hoveredLiveEntity = $state<EntityData | null>(null);
+    let hoveredSelection = $state<Selection>(null);
     let hoverPosition = $state<{ x: number; y: number }>({ x: 0, y: 0 });
 
     // Selection state (for popups)
-    let selectedMarker = $state<AnyWorldMarker | null>(null);
-    let selectedMarkerZoneName = $state<string>('');
-    let selectedZone = $state<ZoneWorldPosition | null>(null);
-    let selectedLiveEntity = $state<EntityData | null>(null);
+    let selection = $state<Selection>(null);
 
     // Desktop detection (tooltips only on desktop)
     let isDesktop = $state(false);
@@ -147,14 +141,27 @@
     /**
      * Build complete URL params from current state.
      * Called by all URL sync operations.
+     * Only static markers and zones are persisted (live entities are ephemeral).
      */
     function buildUrlParams() {
+        let entityId: string | null = null;
+        let entityType: string | null = null;
+        let selectedZoneKey: string | null = null;
+
+        // Only persist markers and zones to URL (not ephemeral live entities)
+        if (selection?.type === 'marker') {
+            entityId = String(selection.marker.coordinateId);
+            entityType = selection.marker.category;
+        } else if (selection?.type === 'zone') {
+            selectedZoneKey = selection.zone.key;
+        }
+
         return {
             viewState: currentViewState,
             layers: layerVisibility,
-            entityId: selectedMarker ? String(selectedMarker.coordinateId) : null,
-            entityType: selectedMarker?.category ?? null,
-            selectedZoneKey: selectedZone?.key ?? null,
+            entityId,
+            entityType,
+            selectedZoneKey,
             focusedZoneId: focusedZone,
             debug: isDebugMode,
             levelFilter,
@@ -164,13 +171,11 @@
 
     /**
      * Apply selection state. Single point for all selection changes.
-     * @param marker - Marker to select, or null to clear
+     * @param newSelection - Selection to apply, or null to clear
      * @param skipUrlUpdate - True when restoring from URL
      */
-    function applySelection(marker: AnyWorldMarker | null, skipUrlUpdate = false): void {
-        selectedMarker = marker;
-        selectedMarkerZoneName = marker ? getZoneName(marker.zone) : '';
-        selectedZone = null; // Close zone popup when selecting a marker
+    function applySelection(newSelection: Selection, skipUrlUpdate = false): void {
+        selection = newSelection;
 
         if (!skipUrlUpdate) {
             urlManager.pushSelection(buildUrlParams());
@@ -181,45 +186,30 @@
     /**
      * Close popup.
      */
-    function closePopup(): void {
-        if (selectedMarker) {
-            applySelection(null);
-        } else if (selectedZone) {
-            selectZone(null);
-        } else if (selectedLiveEntity) {
-            selectedLiveEntity = null;
+    function closeSelection(): void {
+        applySelection(null);
+    }
+
+    // Focus on selection (fly to position or bounds)
+    function focusSelection(sel: Selection): void {
+        if (!sel) return;
+
+        if (sel.type === 'zone') {
+            // Fly to zone bounds
+            flyToBounds(deckInstance, sel.zone.bounds);
+        } else {
+            // Fly to position for markers and live entities
+            const position = getSelectionPosition(
+                sel,
+                data.zones,
+                data.zoneConfigs,
+                debugStore.overrides,
+                liveState.entities
+            );
+            if (position) {
+                flyTo(deckInstance, position[0], position[1], { zoom: 0 });
+            }
         }
-    }
-
-    /**
-     * Select a zone (for zone popups), or null to close.
-     * Matches applySelection pattern with skipUrlUpdate parameter.
-     */
-    function selectZone(zone: ZoneWorldPosition | null, skipUrlUpdate = false): void {
-        selectedZone = zone;
-        selectedMarker = null;
-        selectedMarkerZoneName = '';
-
-        if (!skipUrlUpdate) {
-            urlManager.pushSelection(buildUrlParams());
-        }
-        updateLayers();
-    }
-
-    // Focus on marker (fly to position, adjusted for zone overrides)
-    function focusMarker(marker: AnyWorldMarker): void {
-        const position = adjustMarkerPosition(
-            marker.worldPosition,
-            marker.zone,
-            data.zones,
-            debugStore.overrides
-        );
-        flyTo(deckInstance, position[0], position[1], { zoom: 0 });
-    }
-
-    // Focus on zone (fly to show full zone bounds)
-    function focusZone(zone: ZoneWorldPosition): void {
-        flyToBounds(deckInstance, zone.bounds);
     }
 
     // Load sidebar state from localStorage
@@ -394,8 +384,8 @@
         }
 
         // ESC closes popup
-        if (event.key === 'Escape' && (selectedMarker || selectedZone)) {
-            closePopup();
+        if (event.key === 'Escape' && selection) {
+            closeSelection();
             return;
         }
 
@@ -488,7 +478,7 @@
                 if (urlState.entity && urlState.etype) {
                     const marker = findMarkerByIdAndType(parseInt(urlState.entity), urlState.etype);
                     if (marker) {
-                        applySelection(marker, true);
+                        applySelection({ type: 'marker', marker }, true);
                     } else {
                         console.warn(`Marker not found: ${urlState.etype}:${urlState.entity}`);
                         applySelection(null, true);
@@ -496,14 +486,13 @@
                 } else if (urlState.selectedZone) {
                     const zone = findZoneByKey(urlState.selectedZone);
                     if (zone) {
-                        selectZone(zone, true);
+                        applySelection({ type: 'zone', zone }, true);
                     } else {
                         console.warn(`Zone not found: ${urlState.selectedZone}`);
-                        selectedZone = null;
+                        applySelection(null, true);
                     }
                 } else {
                     applySelection(null, true);
-                    selectedZone = null;
                 }
 
                 // Sync deduplication tracking
@@ -682,12 +671,12 @@
                 if (urlState.entity && urlState.etype) {
                     const marker = findMarkerByIdAndType(parseInt(urlState.entity), urlState.etype);
                     if (marker) {
-                        applySelection(marker, true);
+                        applySelection({ type: 'marker', marker }, true);
                     }
                 } else if (urlState.selectedZone) {
                     const zone = findZoneByKey(urlState.selectedZone);
                     if (zone) {
-                        selectZone(zone, true);
+                        applySelection({ type: 'zone', zone }, true);
                     }
                 }
 
@@ -855,46 +844,48 @@
                 }) => {
                     if (info.object) {
                         hoverPosition = { x: info.x, y: info.y };
-                        // Type discrimination: marker, zone, or live entity
+                        // Type discrimination: create Selection from info.object
                         if ('category' in info.object) {
                             // Static marker
-                            hoveredMarker = info.object as AnyWorldMarker;
-                            hoveredZone = null;
-                            hoveredLiveEntity = null;
+                            hoveredSelection = {
+                                type: 'marker',
+                                marker: info.object as AnyWorldMarker
+                            };
                         } else if ('id' in info.object && 'entityType' in info.object) {
                             // Live entity (has unique id + entityType)
-                            hoveredLiveEntity = info.object as EntityData;
-                            hoveredMarker = null;
-                            hoveredZone = null;
+                            const entity = info.object as EntityData;
+                            hoveredSelection = { type: 'live', entity, zone: liveState.zone ?? '' };
                         } else if ('key' in info.object && 'polygon' in info.object) {
                             // Zone
-                            hoveredZone = info.object as ZoneWorldPosition;
-                            hoveredMarker = null;
-                            hoveredLiveEntity = null;
+                            hoveredSelection = {
+                                type: 'zone',
+                                zone: info.object as ZoneWorldPosition
+                            };
                         }
                     } else {
-                        hoveredMarker = null;
-                        hoveredZone = null;
-                        hoveredLiveEntity = null;
+                        hoveredSelection = null;
                     }
                 },
                 onClick: (info: { object?: AnyWorldMarker | ZoneWorldPosition | EntityData }) => {
                     if (info.object) {
-                        // Type discrimination: marker, zone, or live entity
+                        // Type discrimination: create Selection from info.object
                         if ('category' in info.object) {
                             // Static marker
-                            applySelection(info.object as AnyWorldMarker);
-                            selectedLiveEntity = null;
+                            applySelection({
+                                type: 'marker',
+                                marker: info.object as AnyWorldMarker
+                            });
                         } else if ('id' in info.object && 'entityType' in info.object) {
                             // Live entity
-                            selectedLiveEntity = info.object as EntityData;
-                            selectedMarker = null;
-                            selectedZone = null;
+                            const entity = info.object as EntityData;
+                            applySelection({ type: 'live', entity, zone: liveState.zone ?? '' });
                             // Note: Auto-follow remains enabled when clicking entities
                         } else if ('key' in info.object && 'polygon' in info.object) {
                             // Zone
-                            selectZone(info.object as ZoneWorldPosition);
-                            selectedLiveEntity = null;
+                            applySelection({
+                                type: 'zone',
+                                zone: info.object as ZoneWorldPosition
+                            });
                         }
                     }
                     // Don't close on click-away - use close button or ESC instead
@@ -1420,34 +1411,46 @@
 
         // === SELECTION HIGHLIGHT LAYERS ===
 
-        // Zone selection highlight (yellow border around selected zone)
-        const zoneSelectionLayer = selectedZone
-            ? new PolygonLayer({
-                  id: 'zone-selection-highlight',
-                  data: [selectedZone],
-                  getPolygon: (d: ZoneWorldPosition) => d.polygon,
-                  getFillColor: HIGHLIGHT_COLORS.primaryFill,
-                  getLineColor: HIGHLIGHT_COLORS.primaryRing,
-                  getLineWidth: 4,
-                  lineWidthUnits: 'pixels',
-                  stroked: true,
-                  filled: true,
-                  pickable: false
-              })
-            : null;
+        // Selection highlight layers (unified for markers, live entities, and zones)
+        // Zone selection: yellow outline around polygon
+        const zoneSelectionLayer =
+            selection?.type === 'zone'
+                ? new PolygonLayer({
+                      id: 'zone-selection-highlight',
+                      data: [selection.zone],
+                      getPolygon: (d: ZoneWorldPosition) => d.polygon,
+                      getFillColor: HIGHLIGHT_COLORS.primaryFill,
+                      getLineColor: HIGHLIGHT_COLORS.primaryRing,
+                      getLineWidth: 4,
+                      lineWidthUnits: 'pixels',
+                      stroked: true,
+                      filled: true,
+                      pickable: false
+                  })
+                : null;
 
-        // Marker selection highlight (yellow ring around selected marker)
+        // Marker/entity selection: yellow ring around position
         // Size based on ICON_SIZE with slight reduction to create ring effect
         const highlightSize = {
             base: ICON_SIZE.base * 0.6,
             min: ICON_SIZE.min * 0.65,
             max: ICON_SIZE.max * 0.7
         };
-        const markerSelectionLayer = selectedMarker
+        const selectionPosition =
+            selection && selection.type !== 'zone'
+                ? getSelectionPosition(
+                      selection,
+                      zones,
+                      data.zoneConfigs,
+                      overrides,
+                      liveState.entities
+                  )
+                : null;
+        const pointSelectionLayer = selectionPosition
             ? new ScatterplotLayer({
-                  id: 'marker-selection-highlight',
-                  data: [selectedMarker],
-                  getPosition: (d: AnyWorldMarker) => getMarkerPosition(d),
+                  id: 'selection-highlight',
+                  data: [{ position: selectionPosition }],
+                  getPosition: (d: { position: [number, number] }) => d.position,
                   getFillColor: HIGHLIGHT_COLORS.primaryFill,
                   getLineColor: HIGHLIGHT_COLORS.primaryRing,
                   getRadius: highlightSize.base,
@@ -1460,7 +1463,7 @@
                   lineWidthMaxPixels: 4,
                   pickable: false,
                   updateTriggers: {
-                      getPosition: [overrides]
+                      getPosition: [overrides, selection, liveState.entities]
                   }
               })
             : null;
@@ -1475,16 +1478,16 @@
             worldWaypoints: [number, number][] | null;
             loopPatrol: boolean;
         } | null => {
-            if (!selectedMarker) return null;
-            if (selectedMarker.category !== 'enemy' && selectedMarker.category !== 'npc')
-                return null;
-            const marker = selectedMarker as WorldEnemy | WorldNpc;
-            if (!marker.movement && !marker.worldPatrolWaypoints) return null;
+            if (!selection || selection.type !== 'marker') return null;
+            const marker = selection.marker;
+            if (marker.category !== 'enemy' && marker.category !== 'npc') return null;
+            const enemyOrNpc = marker as WorldEnemy | WorldNpc;
+            if (!enemyOrNpc.movement && !enemyOrNpc.worldPatrolWaypoints) return null;
             return {
-                position: getMarkerPosition(marker),
-                wanderRange: marker.movement?.wanderRange ?? null,
-                worldWaypoints: marker.worldPatrolWaypoints,
-                loopPatrol: marker.movement?.loopPatrol ?? false
+                position: getMarkerPosition(enemyOrNpc),
+                wanderRange: enemyOrNpc.movement?.wanderRange ?? null,
+                worldWaypoints: enemyOrNpc.worldPatrolWaypoints,
+                loopPatrol: enemyOrNpc.movement?.loopPatrol ?? false
             };
         };
 
@@ -1506,7 +1509,7 @@
                       lineWidthMaxPixels: 2,
                       pickable: false,
                       updateTriggers: {
-                          getPosition: [overrides, selectedMarker]
+                          getPosition: [overrides, selection]
                       }
                   })
                 : null;
@@ -1621,7 +1624,7 @@
             patrolWaypointsLayer,
             // Selection highlights (on top of everything)
             zoneSelectionLayer,
-            markerSelectionLayer
+            pointSelectionLayer
         ]
             .flat()
             .filter(Boolean);
@@ -1678,34 +1681,27 @@
     {/if}
 
     <!-- Tooltip (desktop only) -->
-    {#if hoveredLiveEntity && isDesktop}
-        <LiveEntityTooltip entity={hoveredLiveEntity} x={hoverPosition.x} y={hoverPosition.y} />
-    {:else if hoveredMarker && isDesktop}
+    {#if hoveredSelection && isDesktop}
+        {@const zoneKey = getSelectionZone(hoveredSelection)}
+        {@const zoneName = zoneKey ? getZoneName(zoneKey) : 'Unknown'}
         <MapTooltip
-            marker={hoveredMarker}
+            selection={hoveredSelection}
             x={hoverPosition.x}
             y={hoverPosition.y}
-            zoneName={getZoneName(hoveredMarker.zone)}
+            {zoneName}
         />
-    {:else if hoveredZone && isDesktop}
-        <ZoneTooltip zone={hoveredZone} x={hoverPosition.x} y={hoverPosition.y} />
     {/if}
 
-    <!-- Popup (selected marker details) -->
-    {#if selectedMarker}
-        {@const marker = selectedMarker}
+    <!-- Popup (selected marker, live entity, or zone) -->
+    {#if selection}
+        {@const zoneKey = getSelectionZone(selection)}
+        {@const zoneName = zoneKey ? getZoneName(zoneKey) : 'Unknown'}
         <MapPopup
-            {marker}
-            zoneName={selectedMarkerZoneName}
-            onClose={closePopup}
-            onFocus={() => focusMarker(marker)}
+            {selection}
+            {zoneName}
+            onClose={closeSelection}
+            onFocus={() => focusSelection(selection)}
         />
-    {/if}
-
-    <!-- Popup (selected zone details) -->
-    {#if selectedZone}
-        {@const zone = selectedZone}
-        <ZonePopup {zone} onClose={closePopup} onFocus={() => focusZone(zone)} />
     {/if}
 
     <!-- Debug mode panel -->
