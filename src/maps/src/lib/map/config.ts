@@ -36,7 +36,13 @@ export const LAYER_COLORS = {
     // Disabled state (for any marker type)
     disabled: [107, 114, 128] as [number, number, number], // gray-500
     // Live entities
-    'player-live': [132, 204, 22] as [number, number, number] // lime-500
+    'player-live': [132, 204, 22] as [number, number, number], // lime-500
+    'simplayer-live': [59, 130, 246] as [number, number, number], // blue-500
+    'pet-live': [236, 72, 153] as [number, number, number], // pink-500
+    'npc-friendly-live': [34, 197, 94] as [number, number, number], // green-500
+    'enemy-common-live': [59, 130, 246] as [number, number, number], // blue-500
+    'enemy-rare-live': [239, 68, 68] as [number, number, number], // red-500
+    'enemy-boss-live': [24, 24, 27] as [number, number, number] // zinc-900
 } as const;
 
 /**

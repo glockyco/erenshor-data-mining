@@ -6,6 +6,7 @@
 import {
     Skull,
     User,
+    Cat,
     CircleDot,
     Flame,
     Droplet,
@@ -60,7 +61,13 @@ const MARKER_ICONS: Record<string, { icon: IconNode; colorKey: keyof typeof LAYE
     'achievement-trigger': { icon: Trophy, colorKey: 'achievement-trigger' },
     water: { icon: Fish, colorKey: 'water' },
     // Live entities
-    'player-live': { icon: Navigation2, colorKey: 'player-live' }
+    'player-live': { icon: Navigation2, colorKey: 'player-live' },
+    'simplayer-live': { icon: User, colorKey: 'simplayer-live' },
+    'pet-live': { icon: Cat, colorKey: 'pet-live' },
+    'npc-friendly-live': { icon: User, colorKey: 'npc-friendly-live' },
+    'enemy-common-live': { icon: Skull, colorKey: 'enemy-common-live' },
+    'enemy-rare-live': { icon: Skull, colorKey: 'enemy-rare-live' },
+    'enemy-boss-live': { icon: Skull, colorKey: 'enemy-boss-live' }
 };
 
 export type MarkerIconType = keyof typeof MARKER_ICONS;

@@ -12,9 +12,9 @@ export type ConnectionState = 'disconnected' | 'connecting' | 'connected' | 'rec
 
 /**
  * Entity type classification.
- * Matches C# EntityType enum values (serialized as lowercase strings).
+ * Matches C# EntityType enum values (serialized as snake_case strings).
  */
-export type EntityType = 'player' | 'simPlayer' | 'pet' | 'npcFriendly' | 'npcEnemy';
+export type EntityType = 'player' | 'simplayer' | 'pet' | 'npc_friendly' | 'npc_enemy';
 
 /**
  * Entity rarity classification.

@@ -20,7 +20,8 @@
         getZoneLineIconType,
         getEnemyIconType,
         getNpcIconType,
-        type IconAtlasResult
+        type IconAtlasResult,
+        type MarkerIconType
     } from '$lib/map/icons';
     import { transformEntityToWorld, transformRotationToMap } from '$lib/map/coordinate-transform';
     import { liveConnection, liveState, type EntityData } from '$lib/map/live';
@@ -243,7 +244,7 @@
     // Watch for live state changes and update layers
     $effect(() => {
         // Access reactive properties to track dependencies (mark as used with void)
-        void liveState.player;
+        void liveState.entities;
         void liveState.connectionState;
         void liveState.zone;
         void liveState.lastUpdate;
@@ -1110,16 +1111,55 @@
             }
         });
 
-        // Live player layer (from InteractiveMapCompanion mod)
-        // Only create layer if player is in a mapped zone
-        const livePlayerLayer =
-            liveState.player &&
+        // Helper functions for live entity rendering
+        function getLiveEntityIcon(entity: EntityData): MarkerIconType {
+            switch (entity.entityType) {
+                case 'player':
+                    return 'player-live';
+                case 'simplayer':
+                    return 'simplayer-live';
+                case 'pet':
+                    return 'pet-live';
+                case 'npc_friendly':
+                    return 'npc-friendly-live';
+                case 'npc_enemy':
+                    if (entity.rarity === 'boss') return 'enemy-boss-live';
+                    if (entity.rarity === 'rare') return 'enemy-rare-live';
+                    return 'enemy-common-live';
+                default:
+                    return 'player-live'; // fallback
+            }
+        }
+
+        function getLiveEntitySize(entity: EntityData): number {
+            switch (entity.entityType) {
+                case 'player':
+                    return ICON_SIZE.base * 1.5; // Largest - most prominent
+                case 'simplayer':
+                    return ICON_SIZE.base * 1.25; // Medium
+                case 'pet':
+                    return ICON_SIZE.base * 1.0; // Normal
+                case 'npc_friendly':
+                    return ICON_SIZE.base * 1.0; // Normal
+                case 'npc_enemy':
+                    if (entity.rarity === 'boss') return ICON_SIZE.base * 1.5; // Boss size
+                    if (entity.rarity === 'rare') return ICON_SIZE.base * 1.25; // Rare size
+                    return ICON_SIZE.base * 1.0; // Common size
+                default:
+                    return ICON_SIZE.base;
+            }
+        }
+
+        // Live entities layer (from InteractiveMapCompanion mod)
+        // Renders all tracked entities in the current zone
+        const liveEntitiesLayer =
             liveState.connectionState === 'connected' &&
             liveState.zone &&
-            data.zoneConfigs[liveState.zone]
+            data.zoneConfigs[liveState.zone] &&
+            liveState.entities.length > 0
                 ? new IconLayer({
-                      id: 'live-player',
-                      data: [liveState.player],
+                      id: 'live-entities',
+                      data: liveState.entities,
                       iconAtlas: atlas.atlas,
                       iconMapping: atlas.mapping,
                       getPosition: (d: EntityData) =>
@@ -1129,8 +1169,8 @@
                               data.zoneConfigs,
                               overrides
                           )!,
-                      getIcon: () => 'player-live',
-                      getSize: ICON_SIZE.base * 1.5,
+                      getIcon: (d: EntityData) => getLiveEntityIcon(d),
+                      getSize: (d: EntityData) => getLiveEntitySize(d),
                       getAngle: (d: EntityData) => {
                           if (!liveState.zone) return 0;
                           return (
@@ -1142,12 +1182,14 @@
                           );
                       },
                       sizeUnits: 'pixels',
-                      sizeMinPixels: ICON_SIZE.min * 1.5,
+                      sizeMinPixels: ICON_SIZE.min,
                       sizeMaxPixels: ICON_SIZE.max * 1.5,
                       pickable: true,
                       updateTriggers: {
-                          getPosition: [liveState.player?.position, liveState.zone, overrides],
-                          getAngle: [liveState.player?.rotation, liveState.zone]
+                          getPosition: [liveState.entities, liveState.zone, overrides],
+                          getAngle: [liveState.entities, liveState.zone],
+                          getIcon: [liveState.entities],
+                          getSize: [liveState.entities]
                       }
                   })
                 : null;
@@ -1381,7 +1423,7 @@
             // Unique enemies
             vis.spawnPointsUnique && enemiesUniqueLayer,
             // Live entities (above static markers)
-            livePlayerLayer,
+            liveEntitiesLayer,
             // Movement visualization (below selection highlight)
             wanderRangeLayer,
             patrolSpawnLineLayer,
