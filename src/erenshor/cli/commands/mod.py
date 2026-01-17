@@ -99,6 +99,11 @@ def _get_mod_output_dir(cli_ctx: CLIContext) -> Path:
     return _get_mod_dir(cli_ctx) / "bin" / "Debug" / "netstandard2.1"
 
 
+def _get_mod_publish_dir(cli_ctx: CLIContext) -> Path:
+    """Get the web publish directory for mod downloads."""
+    return cli_ctx.repo_root / "src" / "maps" / "static" / "mods"
+
+
 @app.command()
 def setup(ctx: typer.Context) -> None:
     """Copy game DLLs for mod compilation.
@@ -276,6 +281,62 @@ def deploy(ctx: typer.Context) -> None:
     console.print()
     console.print("[green]Deploy complete![/green]")
     console.print("[dim]Note: All dependencies are merged into InteractiveMapCompanion.dll via ILRepack[/dim]")
+    console.print()
+
+
+@app.command()
+def publish(ctx: typer.Context) -> None:
+    """Build and publish mod to website download directory.
+
+    Builds the mod and copies the output DLL to the maps website's static
+    directory for public download. Run this before building/deploying the
+    maps website to include the latest mod version.
+
+    Note: The static/mods directory is gitignored, so DLLs are not committed
+    to the repository. You must run this command before deploying the website.
+    """
+    cli_ctx: CLIContext = ctx.obj
+
+    console.print()
+    console.print(Panel.fit("[bold cyan]Mod Publish[/bold cyan]", border_style="cyan"))
+    console.print()
+
+    # First build
+    console.print("[bold]Building mod...[/bold]")
+    build_ctx = ctx
+    try:
+        build(build_ctx)
+    except typer.Exit as e:
+        if e.exit_code != 0:
+            raise
+
+    output_dir = _get_mod_output_dir(cli_ctx)
+    mod_dll = output_dir / "InteractiveMapCompanion.dll"
+    if not mod_dll.exists():
+        console.print(f"[red]Error: Mod DLL not found: {mod_dll}[/red]")
+        raise typer.Exit(1)
+
+    publish_dir = _get_mod_publish_dir(cli_ctx)
+    publish_dir.mkdir(parents=True, exist_ok=True)
+
+    console.print()
+    console.print("[bold]Publishing to website...[/bold]")
+    console.print(f"[dim]Target: {publish_dir}[/dim]")
+    console.print()
+
+    target = publish_dir / "InteractiveMapCompanion.dll"
+    shutil.copy2(mod_dll, target)
+
+    # Get file size for user feedback
+    size_bytes = mod_dll.stat().st_size
+    size_kb = size_bytes / 1024
+    console.print(f"  [green]\u2713[/green] InteractiveMapCompanion.dll ({size_kb:.1f} KB)")
+
+    console.print()
+    console.print("[green]Publish complete![/green]")
+    console.print("[dim]Next steps:[/dim]")
+    console.print("[dim]  1. Commit the updated DLL: git add src/maps/static/mods/[/dim]")
+    console.print("[dim]  2. Deploy the maps website to make the new version available[/dim]")
     console.print()
 
 
