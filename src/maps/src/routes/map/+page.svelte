@@ -1213,49 +1213,92 @@
             }
         }
 
-        // Live entities layer (from InteractiveMapCompanion mod)
-        // Renders all tracked entities in the current zone
-        const liveEntitiesLayer =
-            liveState.connectionState === 'connected' &&
-            liveState.zone &&
-            data.zoneConfigs[liveState.zone] &&
-            liveState.entities.length > 0
-                ? new IconLayer({
-                      id: 'live-entities',
-                      data: liveState.entities,
-                      iconAtlas: atlas.atlas,
-                      iconMapping: atlas.mapping,
-                      getPosition: (d: EntityData) =>
-                          transformEntityToWorld(
-                              { ...d, zone: liveState.zone! },
-                              data.zones,
-                              data.zoneConfigs,
-                              overrides
-                          )!,
-                      getIcon: (d: EntityData) => getLiveEntityIcon(d),
-                      getSize: (d: EntityData) => getLiveEntitySize(d),
-                      getAngle: (d: EntityData) => {
-                          if (!liveState.zone) return 0;
-                          return (
-                              transformRotationToMap(
-                                  d.rotation,
-                                  liveState.zone,
-                                  data.zoneConfigs
-                              ) ?? 0
-                          );
-                      },
-                      sizeUnits: 'pixels',
-                      sizeMinPixels: ICON_SIZE.min,
-                      sizeMaxPixels: ICON_SIZE.max * 1.5,
-                      pickable: true,
-                      updateTriggers: {
-                          getPosition: [liveState.entities, liveState.zone, overrides],
-                          getAngle: [liveState.entities, liveState.zone],
-                          getIcon: [liveState.entities],
-                          getSize: [liveState.entities]
-                      }
-                  })
-                : null;
+        /**
+         * Create a live entity layer for a specific entity type.
+         * Returns null if not connected, no zone, or no entities match the filter.
+         */
+        function createLiveEntityLayer(id: string, filterFn: (e: EntityData) => boolean) {
+            if (
+                liveState.connectionState !== 'connected' ||
+                !liveState.zone ||
+                !data.zoneConfigs[liveState.zone]
+            ) {
+                return null;
+            }
+
+            const filteredEntities = liveState.entities.filter(filterFn);
+
+            if (filteredEntities.length === 0) return null;
+
+            return new IconLayer({
+                id,
+                data: filteredEntities,
+                iconAtlas: atlas.atlas,
+                iconMapping: atlas.mapping,
+                getPosition: (d: EntityData) =>
+                    transformEntityToWorld(
+                        { ...d, zone: liveState.zone! },
+                        data.zones,
+                        data.zoneConfigs,
+                        overrides
+                    )!,
+                getIcon: (d: EntityData) => getLiveEntityIcon(d),
+                getSize: (d: EntityData) => getLiveEntitySize(d),
+                getAngle: (d: EntityData) => {
+                    if (!liveState.zone) return 0;
+                    return (
+                        transformRotationToMap(d.rotation, liveState.zone, data.zoneConfigs) ?? 0
+                    );
+                },
+                sizeUnits: 'pixels',
+                sizeMinPixels: ICON_SIZE.min,
+                sizeMaxPixels: ICON_SIZE.max * 1.5,
+                pickable: true,
+                updateTriggers: {
+                    getPosition: [liveState.entities, liveState.zone, overrides],
+                    getAngle: [liveState.entities, liveState.zone],
+                    getIcon: [liveState.entities],
+                    getSize: [liveState.entities]
+                }
+            });
+        }
+
+        // === LIVE ENTITIES (priority-ordered, bottom to top) ===
+        // Split by entity type to ensure important entities render on top.
+        // Player is always most visible, followed by threats (boss > rare > common),
+        // then allies (simplayers), companions (pets), and background NPCs.
+
+        const liveNpcFriendlyLayer = createLiveEntityLayer(
+            'live-npc-friendly',
+            (e) => e.entityType === 'npc_friendly'
+        );
+
+        const livePetsLayer = createLiveEntityLayer('live-pets', (e) => e.entityType === 'pet');
+
+        const liveSimPlayersLayer = createLiveEntityLayer(
+            'live-simplayers',
+            (e) => e.entityType === 'simplayer'
+        );
+
+        const liveEnemiesCommonLayer = createLiveEntityLayer(
+            'live-enemies-common',
+            (e) => e.entityType === 'npc_enemy' && (!e.rarity || e.rarity === 'common')
+        );
+
+        const liveEnemiesRareLayer = createLiveEntityLayer(
+            'live-enemies-rare',
+            (e) => e.entityType === 'npc_enemy' && e.rarity === 'rare'
+        );
+
+        const liveEnemiesBossLayer = createLiveEntityLayer(
+            'live-enemies-boss',
+            (e) => e.entityType === 'npc_enemy' && e.rarity === 'boss'
+        );
+
+        const livePlayerLayer = createLiveEntityLayer(
+            'live-player',
+            (e) => e.entityType === 'player'
+        );
 
         // NPC layer (with disabled state support)
         const npcsLayer = createIconLayer('npcs', data.markers.npcs, getNpcIconType);
@@ -1485,8 +1528,14 @@
             vis.zoneLines && zoneLineIconsLayer,
             // Unique enemies
             vis.spawnPointsUnique && enemiesUniqueLayer,
-            // Live entities (above static markers)
-            liveEntitiesLayer,
+            // Live entities (above static markers, priority-ordered bottom to top)
+            liveNpcFriendlyLayer,
+            livePetsLayer,
+            liveSimPlayersLayer,
+            liveEnemiesCommonLayer,
+            liveEnemiesRareLayer,
+            liveEnemiesBossLayer,
+            livePlayerLayer,
             // Movement visualization (below selection highlight)
             wanderRangeLayer,
             patrolSpawnLineLayer,
