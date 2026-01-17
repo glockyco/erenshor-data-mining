@@ -17,6 +17,7 @@ import {
     CircleHelp,
     Trophy,
     Fish,
+    Navigation2,
     type IconNode
 } from 'lucide';
 import { LAYER_COLORS } from './config';
@@ -57,7 +58,9 @@ const MARKER_ICONS: Record<string, { icon: IconNode; colorKey: keyof typeof LAYE
     door: { icon: KeyRound, colorKey: 'door' },
     'secret-passage': { icon: CircleHelp, colorKey: 'secret-passage' },
     'achievement-trigger': { icon: Trophy, colorKey: 'achievement-trigger' },
-    water: { icon: Fish, colorKey: 'water' }
+    water: { icon: Fish, colorKey: 'water' },
+    // Live entities
+    'player-live': { icon: Navigation2, colorKey: 'player-live' }
 };
 
 export type MarkerIconType = keyof typeof MARKER_ICONS;

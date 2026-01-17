@@ -1,6 +1,7 @@
 <script lang="ts">
     import { LAYER_COLORS } from '$lib/map/config';
     import type { LayerVisibility, LevelRange } from '$lib/types/world-map';
+    import type { ConnectionState } from '$lib/map/live';
     import LayerToggle from './LayerToggle.svelte';
     import SidebarSection from './SidebarSection.svelte';
     import LevelFilter from './LevelFilter.svelte';
@@ -30,6 +31,9 @@
         levelRange: LevelRange;
         levelFilter: [number, number];
         onLevelFilterChange: (value: [number, number]) => void;
+        liveEnabled: boolean;
+        connectionState: ConnectionState;
+        onLiveModeChange: (enabled: boolean) => void;
     }
 
     let {
@@ -39,7 +43,10 @@
         onToggleCollapse,
         levelRange,
         levelFilter,
-        onLevelFilterChange
+        onLevelFilterChange,
+        liveEnabled,
+        connectionState,
+        onLiveModeChange
     }: Props = $props();
 
     function rgbToHex(rgb: readonly [number, number, number]): string {
@@ -308,6 +315,66 @@
                     color={colors.zoneLabels}
                     onchange={handleToggle('zoneLabels')}
                 />
+            </SidebarSection>
+
+            <!-- Live Mode -->
+            <SidebarSection title="Live Mode">
+                <label
+                    class="flex cursor-pointer items-center gap-2 py-1 text-sm hover:bg-zinc-700/50"
+                >
+                    <input
+                        type="checkbox"
+                        checked={liveEnabled}
+                        onchange={(e) => onLiveModeChange(e.currentTarget.checked)}
+                        class="sr-only"
+                    />
+                    <span
+                        class="flex h-4 w-4 items-center justify-center rounded border transition-colors"
+                        class:bg-zinc-600={!liveEnabled}
+                        class:border-zinc-500={!liveEnabled}
+                        class:bg-lime-500={liveEnabled}
+                        class:border-lime-500={liveEnabled}
+                    >
+                        {#if liveEnabled}
+                            <svg
+                                class="h-3 w-3 text-white"
+                                viewBox="0 0 12 12"
+                                fill="none"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    d="M2 6l3 3 5-6"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                />
+                            </svg>
+                        {/if}
+                    </span>
+                    <span class="text-zinc-200">Enable Live Mode</span>
+                </label>
+
+                <!-- Connection status -->
+                {#if liveEnabled}
+                    <div class="mt-2 text-xs">
+                        {#if connectionState === 'connected'}
+                            <div class="flex items-center gap-1.5 text-lime-400">
+                                <div class="h-2 w-2 rounded-full bg-lime-400"></div>
+                                <span>Connected to mod</span>
+                            </div>
+                        {:else if connectionState === 'connecting' || connectionState === 'reconnecting'}
+                            <div class="flex items-center gap-1.5 text-yellow-400">
+                                <div class="h-2 w-2 rounded-full bg-yellow-400 animate-pulse"></div>
+                                <span>Connecting...</span>
+                            </div>
+                        {:else}
+                            <div class="flex items-center gap-1.5 text-red-400">
+                                <div class="h-2 w-2 rounded-full bg-red-400"></div>
+                                <span>Disconnected</span>
+                            </div>
+                        {/if}
+                    </div>
+                {/if}
             </SidebarSection>
         </div>
 

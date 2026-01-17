@@ -34,7 +34,9 @@ export const LAYER_COLORS = {
     'achievement-trigger': [236, 72, 153] as [number, number, number], // pink-500
     water: [56, 189, 248] as [number, number, number], // sky-400
     // Disabled state (for any marker type)
-    disabled: [107, 114, 128] as [number, number, number] // gray-500
+    disabled: [107, 114, 128] as [number, number, number], // gray-500
+    // Live entities
+    'player-live': [132, 204, 22] as [number, number, number] // lime-500
 } as const;
 
 /**

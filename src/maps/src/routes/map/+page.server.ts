@@ -4,7 +4,7 @@ import {
     buildZoneWorldPositions,
     calculateWorldCenter
 } from '$lib/map/zone-config';
-import { transformToMapCoords } from '$lib/map/config';
+import { transformToWorld } from '$lib/map/coordinate-transform';
 import type {
     ZoneConfig,
     ZoneWorldPosition,
@@ -66,28 +66,20 @@ function clampRectToBounds(
 }
 
 /**
- * Transform game coordinates to world map coordinates
+ * Wrapper for transformToWorld that throws on null (for SSR where all zones should be valid)
  */
-function transformToWorld(
+function transformToWorldOrThrow(
     gameX: number,
     gameZ: number,
     zoneKey: string,
     zoneConfigs: Record<string, ZoneConfig>,
     zonePositions: ZoneWorldPosition[]
 ): [number, number] {
-    const zonePos = zonePositions.find((z) => z.key === zoneKey);
-    const zoneConfig = zoneConfigs[zoneKey];
-
-    if (!zonePos) {
-        throw new Error(`Zone position not found for: ${zoneKey}`);
+    const result = transformToWorld(gameX, gameZ, zoneKey, zoneConfigs, zonePositions);
+    if (!result) {
+        throw new Error(`Failed to transform coordinates for zone: ${zoneKey}`);
     }
-    if (!zoneConfig) {
-        throw new Error(`Zone config not found for: ${zoneKey}`);
-    }
-
-    const [mapX, mapY] = transformToMapCoords(gameX, gameZ, zoneConfig.northBearing, 0, 0);
-
-    return [mapX + zonePos.worldX, mapY + zonePos.worldY];
+    return result;
 }
 
 export async function load() {
@@ -152,7 +144,7 @@ export async function load() {
         // Load spawn points (split by category and rarity for layer ordering)
         const zoneSpawnPoints = await repo.getSpawnPointMarkers(zoneKey);
         for (const marker of zoneSpawnPoints) {
-            const worldPos = transformToWorld(
+            const worldPos = transformToWorldOrThrow(
                 marker.position.x,
                 marker.position.y,
                 zoneKey,
@@ -165,7 +157,7 @@ export async function load() {
             let worldPatrolWaypoints: [number, number][] | null = null;
             if (marker.movement?.patrolWaypoints) {
                 worldPatrolWaypoints = marker.movement.patrolWaypoints.map(([x, z]) =>
-                    transformToWorld(x, z, zoneKey, zoneConfigs, zonePositions)
+                    transformToWorldOrThrow(x, z, zoneKey, zoneConfigs, zonePositions)
                 );
             }
 
@@ -204,7 +196,7 @@ export async function load() {
         // Load NPCs and non-spawn enemies (directly placed, no patrol data)
         const zoneNpcsAndEnemies = await repo.getCharacterMarkers(zoneKey);
         for (const marker of zoneNpcsAndEnemies) {
-            const worldPos = transformToWorld(
+            const worldPos = transformToWorldOrThrow(
                 marker.position.x,
                 marker.position.y,
                 zoneKey,
@@ -246,7 +238,7 @@ export async function load() {
         // Load zone lines (portals)
         const zoneZoneLines = await repo.getZoneLineMarkers(zoneKey);
         for (const marker of zoneZoneLines) {
-            const worldPos = transformToWorld(
+            const worldPos = transformToWorldOrThrow(
                 marker.position.x,
                 marker.position.y,
                 zoneKey,
@@ -261,7 +253,7 @@ export async function load() {
             const destZoneConfig = zoneConfigs[marker.destinationZone];
             const destZonePos = zonePositions.find((z) => z.key === marker.destinationZone);
             if (destZoneConfig && destZonePos) {
-                destinationWorldPos = transformToWorld(
+                destinationWorldPos = transformToWorldOrThrow(
                     marker.landingPosition.x,
                     marker.landingPosition.z,
                     marker.destinationZone,
@@ -289,7 +281,7 @@ export async function load() {
         // Load forges
         const zoneForges = await repo.getForgeMarkers(zoneKey);
         for (const marker of zoneForges) {
-            const worldPos = transformToWorld(
+            const worldPos = transformToWorldOrThrow(
                 marker.position.x,
                 marker.position.y,
                 zoneKey,
@@ -306,7 +298,7 @@ export async function load() {
         // Load wishing wells
         const zoneWishingWells = await repo.getWishingWellMarkers(zoneKey);
         for (const marker of zoneWishingWells) {
-            const worldPos = transformToWorld(
+            const worldPos = transformToWorldOrThrow(
                 marker.position.x,
                 marker.position.y,
                 zoneKey,
@@ -323,7 +315,7 @@ export async function load() {
         // Load achievement triggers
         const zoneAchievementTriggers = await repo.getAchievementTriggerMarkers(zoneKey);
         for (const marker of zoneAchievementTriggers) {
-            const worldPos = transformToWorld(
+            const worldPos = transformToWorldOrThrow(
                 marker.position.x,
                 marker.position.y,
                 zoneKey,
@@ -340,7 +332,7 @@ export async function load() {
         // Load doors
         const zoneDoors = await repo.getDoorMarkers(zoneKey);
         for (const marker of zoneDoors) {
-            const worldPos = transformToWorld(
+            const worldPos = transformToWorldOrThrow(
                 marker.position.x,
                 marker.position.y,
                 zoneKey,
@@ -357,7 +349,7 @@ export async function load() {
         // Load item bags
         const zoneItemBags = await repo.getItemBagMarkers(zoneKey);
         for (const marker of zoneItemBags) {
-            const worldPos = transformToWorld(
+            const worldPos = transformToWorldOrThrow(
                 marker.position.x,
                 marker.position.y,
                 zoneKey,
@@ -374,7 +366,7 @@ export async function load() {
         // Load mining nodes
         const zoneMiningNodes = await repo.getMiningNodeMarkers(zoneKey);
         for (const marker of zoneMiningNodes) {
-            const worldPos = transformToWorld(
+            const worldPos = transformToWorldOrThrow(
                 marker.position.x,
                 marker.position.y,
                 zoneKey,
@@ -391,7 +383,7 @@ export async function load() {
         // Load secret passages
         const zoneSecretPassages = await repo.getSecretPassageMarkers(zoneKey);
         for (const marker of zoneSecretPassages) {
-            const worldPos = transformToWorld(
+            const worldPos = transformToWorldOrThrow(
                 marker.position.x,
                 marker.position.y,
                 zoneKey,
@@ -408,7 +400,7 @@ export async function load() {
         // Load teleports
         const zoneTeleports = await repo.getTeleportMarkers(zoneKey);
         for (const marker of zoneTeleports) {
-            const worldPos = transformToWorld(
+            const worldPos = transformToWorldOrThrow(
                 marker.position.x,
                 marker.position.y,
                 zoneKey,
@@ -425,7 +417,7 @@ export async function load() {
         // Load treasure locations
         const zoneTreasureLocs = await repo.getTreasureLocMarkers(zoneKey);
         for (const marker of zoneTreasureLocs) {
-            const worldPos = transformToWorld(
+            const worldPos = transformToWorldOrThrow(
                 marker.position.x,
                 marker.position.y,
                 zoneKey,
@@ -471,13 +463,13 @@ export async function load() {
             ];
 
             const worldPolygon = corners.map(([gx, gz]) =>
-                transformToWorld(gx, gz, zoneKey, zoneConfigs, zonePositions)
+                transformToWorldOrThrow(gx, gz, zoneKey, zoneConfigs, zonePositions)
             );
 
             // Use clamped center for world position
             const clampedCenterX = (clampedBounds.minX + clampedBounds.maxX) / 2;
             const clampedCenterZ = (clampedBounds.minZ + clampedBounds.maxZ) / 2;
-            const worldPos = transformToWorld(
+            const worldPos = transformToWorldOrThrow(
                 clampedCenterX,
                 clampedCenterZ,
                 zoneKey,

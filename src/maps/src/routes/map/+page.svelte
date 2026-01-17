@@ -22,6 +22,8 @@
         getNpcIconType,
         type IconAtlasResult
     } from '$lib/map/icons';
+    import { transformEntityToWorld, transformRotationToMap } from '$lib/map/coordinate-transform';
+    import { liveConnection, liveState, type EntityData } from '$lib/map/live';
     import {
         createDebugStore,
         getEffectiveZones,
@@ -68,6 +70,10 @@
     // Sidebar state (persisted to localStorage)
     let sidebarCollapsed = $state(false);
     const SIDEBAR_COLLAPSED_KEY = 'erenshor-map-sidebar-collapsed';
+
+    // Live mode state (persisted to localStorage)
+    let liveEnabled = $state(false);
+    const LIVE_MODE_KEY = 'erenshor-map-live-mode';
 
     // Level filter state (enemies only)
     // Use untrack() to explicitly capture initial value without creating reactive dependency
@@ -215,6 +221,39 @@
         }
     });
 
+    // Load live mode state from localStorage
+    $effect(() => {
+        if (browser) {
+            const stored = localStorage.getItem(LIVE_MODE_KEY);
+            if (stored !== null) {
+                liveEnabled = stored === 'true';
+            }
+        }
+    });
+
+    // Connect/disconnect live mode based on toggle
+    $effect(() => {
+        if (liveEnabled) {
+            liveConnection.connect();
+        } else {
+            liveConnection.disconnect();
+        }
+    });
+
+    // Watch for live state changes and update layers
+    $effect(() => {
+        // Access reactive properties to track dependencies (mark as used with void)
+        void liveState.player;
+        void liveState.connectionState;
+        void liveState.zone;
+        void liveState.lastUpdate;
+
+        // Trigger layer update when live state changes
+        if (browser && deckInstance) {
+            updateLayers();
+        }
+    });
+
     // Save sidebar state to localStorage
     function toggleSidebar() {
         sidebarCollapsed = !sidebarCollapsed;
@@ -234,6 +273,13 @@
         levelFilter = newFilter;
         urlManager.syncPreferences(buildUrlParams());
         updateLayers();
+    }
+
+    function handleLiveModeChange(enabled: boolean) {
+        liveEnabled = enabled;
+        if (browser) {
+            localStorage.setItem(LIVE_MODE_KEY, String(enabled));
+        }
     }
 
     // Keyboard shortcuts
@@ -1064,6 +1110,46 @@
             }
         });
 
+        // Live player layer (from InteractiveMapCompanion mod)
+        const livePlayerLayer =
+            liveState.player && liveState.connectionState === 'connected' && liveState.zone
+                ? new IconLayer({
+                      id: 'live-player',
+                      data: [liveState.player],
+                      iconAtlas: atlas.atlas,
+                      iconMapping: atlas.mapping,
+                      getPosition: (d: EntityData) => {
+                          const pos = transformEntityToWorld(
+                              { ...d, zone: liveState.zone! },
+                              data.zones,
+                              data.zoneConfigs,
+                              overrides
+                          );
+                          return pos ?? [0, 0];
+                      },
+                      getIcon: () => 'player-live',
+                      getSize: ICON_SIZE.base * 1.5,
+                      getAngle: (d: EntityData) => {
+                          if (!liveState.zone) return 0;
+                          return (
+                              transformRotationToMap(
+                                  d.rotation,
+                                  liveState.zone,
+                                  data.zoneConfigs
+                              ) ?? 0
+                          );
+                      },
+                      sizeUnits: 'pixels',
+                      sizeMinPixels: ICON_SIZE.min * 1.5,
+                      sizeMaxPixels: ICON_SIZE.max * 1.5,
+                      pickable: true,
+                      updateTriggers: {
+                          getPosition: [liveState.player?.position, liveState.zone, overrides],
+                          getAngle: [liveState.player?.rotation, liveState.zone]
+                      }
+                  })
+                : null;
+
         // NPC layer (with disabled state support)
         const npcsLayer = createIconLayer('npcs', data.markers.npcs, getNpcIconType);
 
@@ -1292,6 +1378,8 @@
             vis.zoneLines && zoneLineIconsLayer,
             // Unique enemies
             vis.spawnPointsUnique && enemiesUniqueLayer,
+            // Live entities (above static markers)
+            livePlayerLayer,
             // Movement visualization (below selection highlight)
             wanderRangeLayer,
             patrolSpawnLineLayer,
@@ -1322,6 +1410,9 @@
         levelRange={data.levelRange}
         {levelFilter}
         onLevelFilterChange={handleLevelFilterChange}
+        {liveEnabled}
+        connectionState={liveState.connectionState}
+        onLiveModeChange={handleLiveModeChange}
     />
 
     <!-- Map container -->
