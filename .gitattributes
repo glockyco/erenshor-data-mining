@@ -1,8 +1,8 @@
 # ============================================================================
 # Default Behavior
 # ============================================================================
-# By default, let Git normalize line endings on checkin and convert to native on checkout
-* text=auto
+# Normalize line endings to LF on commit and checkout (modern best practice)
+* text=auto eol=lf
 
 # ============================================================================
 # Shell Scripts - CRITICAL: Must use LF
