@@ -1111,22 +1111,24 @@
         });
 
         // Live player layer (from InteractiveMapCompanion mod)
+        // Only create layer if player is in a mapped zone
         const livePlayerLayer =
-            liveState.player && liveState.connectionState === 'connected' && liveState.zone
+            liveState.player &&
+            liveState.connectionState === 'connected' &&
+            liveState.zone &&
+            data.zoneConfigs[liveState.zone]
                 ? new IconLayer({
                       id: 'live-player',
                       data: [liveState.player],
                       iconAtlas: atlas.atlas,
                       iconMapping: atlas.mapping,
-                      getPosition: (d: EntityData) => {
-                          const pos = transformEntityToWorld(
+                      getPosition: (d: EntityData) =>
+                          transformEntityToWorld(
                               { ...d, zone: liveState.zone! },
                               data.zones,
                               data.zoneConfigs,
                               overrides
-                          );
-                          return pos ?? [0, 0];
-                      },
+                          )!,
                       getIcon: () => 'player-live',
                       getSize: ICON_SIZE.base * 1.5,
                       getAngle: (d: EntityData) => {
