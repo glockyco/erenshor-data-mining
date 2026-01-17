@@ -216,10 +216,11 @@
                 return { name: entity.name, detail: parts.join(' • ') };
             }
             case 'npc_enemy': {
-                const rarity =
-                    entity.rarity === 'boss' ? 'Boss' : entity.rarity === 'rare' ? 'Rare' : '';
-                const parts = [rarity, level].filter(Boolean);
-                return { name: entity.name, detail: parts.join(' • ') };
+                const parts = ['Enemy', level];
+                if (entity.rarity && entity.rarity !== 'common') {
+                    parts.push(entity.rarity.charAt(0).toUpperCase() + entity.rarity.slice(1));
+                }
+                return { name: entity.name, detail: parts.filter(Boolean).join(' • ') };
             }
             default:
                 return { name: entity.name, detail: '' };
