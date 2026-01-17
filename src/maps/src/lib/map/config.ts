@@ -25,7 +25,7 @@ export const LAYER_COLORS = {
     'enemy-rare': [225, 29, 72] as [number, number, number], // rose-600 (rare spawn)
     'enemy-unique': [109, 40, 217] as [number, number, number], // violet-700 (unique spawn)
     // NPCs (friendly characters)
-    npc: [34, 197, 94] as [number, number, number], // green-500
+    npc: [14, 165, 233] as [number, number, number], // sky-500
     // Zone connections
     'zone-line': [168, 85, 247] as [number, number, number], // purple-500
     // Utilities
@@ -123,7 +123,7 @@ export const MARKER_BORDER_COLORS: Record<string, string> = {
     forge: 'border-l-orange-500',
     'item-bag': 'border-l-orange-400',
     'mining-node': 'border-l-gray-400',
-    npc: 'border-l-green-500',
+    npc: 'border-l-sky-500',
     'secret-passage': 'border-l-violet-400',
     teleport: 'border-l-violet-500',
     'treasure-loc': 'border-l-yellow-400',

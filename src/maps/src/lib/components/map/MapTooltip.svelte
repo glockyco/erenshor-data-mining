@@ -52,7 +52,7 @@
                 return 'border-l-blue-500';
             }
             case 'npc':
-                return 'border-l-green-500';
+                return 'border-l-sky-500';
             case 'zone-line':
                 return 'border-l-purple-500';
             case 'door':

@@ -101,7 +101,7 @@ function getMarkerBorderColor(marker: AnyWorldMarker): string {
             return 'border-blue-500';
         }
         case 'npc':
-            return 'border-green-500';
+            return 'border-sky-500';
         case 'zone-line':
             return 'border-purple-500';
         case 'door':
