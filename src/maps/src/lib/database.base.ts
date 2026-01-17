@@ -1162,6 +1162,23 @@ export class RepositoryBase {
         return items;
     }
 
+    async getCharacterByName(name: string): Promise<{ stableKey: string } | null> {
+        if (!this.db) throw new Error('DB not initialized');
+
+        const stmt = this.db.prepare(`SELECT StableKey FROM Characters WHERE NPCName = ? LIMIT 1`, [
+            name
+        ]);
+
+        if (stmt.step()) {
+            const row = stmt.getAsObject();
+            stmt.free();
+            return { stableKey: row.StableKey as string };
+        }
+
+        stmt.free();
+        return null;
+    }
+
     async getZoneEnemyInfo(zoneName: string): Promise<{
         levelRange: { min: number; max: number } | null;
         uniques: { name: string; level: number }[];
