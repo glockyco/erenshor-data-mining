@@ -115,16 +115,16 @@ export const FLY_TO_CONFIG = {
  * Tailwind border color classes for tooltip by marker category
  */
 export const MARKER_BORDER_COLORS: Record<string, string> = {
-    'achievement-trigger': 'border-l-pink-500',
+    'achievement-trigger': 'border-l-rose-500',
     door: 'border-l-amber-700',
-    enemy: 'border-l-blue-500',
-    'enemy-rare': 'border-l-red-500',
-    'enemy-unique': 'border-l-zinc-900',
+    enemy: 'border-l-amber-600',
+    'enemy-rare': 'border-l-rose-600',
+    'enemy-unique': 'border-l-violet-700',
     forge: 'border-l-orange-500',
-    'item-bag': 'border-l-orange-400',
+    'item-bag': 'border-l-yellow-500',
     'mining-node': 'border-l-gray-400',
     npc: 'border-l-sky-500',
-    'secret-passage': 'border-l-violet-400',
+    'secret-passage': 'border-l-purple-500',
     teleport: 'border-l-violet-500',
     'treasure-loc': 'border-l-yellow-400',
     water: 'border-l-sky-400',

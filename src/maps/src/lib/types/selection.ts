@@ -96,18 +96,18 @@ function getMarkerBorderColor(marker: AnyWorldMarker): string {
             if (chars.length === 0) return 'border-gray-500';
             const hasUnique = chars.some((c) => c.isUnique);
             const hasRare = chars.some((c) => c.isRare);
-            if (hasUnique) return 'border-white';
-            if (hasRare) return 'border-red-500';
-            return 'border-blue-500';
+            if (hasUnique) return 'border-violet-700';
+            if (hasRare) return 'border-rose-600';
+            return 'border-amber-600';
         }
         case 'npc':
             return 'border-sky-500';
         case 'zone-line':
             return 'border-purple-500';
         case 'door':
-            return 'border-yellow-500';
+            return 'border-amber-700';
         case 'teleport':
-            return 'border-cyan-500';
+            return 'border-violet-500';
         default:
             return 'border-gray-500';
     }
@@ -116,17 +116,17 @@ function getMarkerBorderColor(marker: AnyWorldMarker): string {
 function getLiveEntityBorderColor(entity: EntityData): string {
     switch (entity.entityType) {
         case 'player':
-            return 'border-blue-500';
+            return 'border-lime-500';
         case 'simplayer':
             return 'border-cyan-500';
         case 'pet':
-            return 'border-green-500';
+            return 'border-fuchsia-500';
         case 'npc_friendly':
-            return 'border-green-500';
+            return 'border-emerald-500';
         case 'npc_enemy':
-            if (entity.rarity === 'boss') return 'border-white';
+            if (entity.rarity === 'boss') return 'border-zinc-900';
             if (entity.rarity === 'rare') return 'border-red-500';
-            return 'border-blue-500';
+            return 'border-orange-500';
         default:
             return 'border-gray-400';
     }

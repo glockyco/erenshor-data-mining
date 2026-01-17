@@ -47,9 +47,9 @@
         switch (marker.category) {
             case 'enemy': {
                 const m = marker as WorldEnemy;
-                if (m.isUnique) return 'border-l-white';
-                if (m.isRare) return 'border-l-red-500';
-                return 'border-l-blue-500';
+                if (m.isUnique) return 'border-l-violet-700';
+                if (m.isRare) return 'border-l-rose-600';
+                return 'border-l-amber-600';
             }
             case 'npc':
                 return 'border-l-sky-500';
@@ -58,21 +58,21 @@
             case 'door':
                 return 'border-l-amber-700';
             case 'item-bag':
-                return 'border-l-orange-500';
+                return 'border-l-yellow-500';
             case 'mining-node':
-                return 'border-l-gray-500';
+                return 'border-l-gray-400';
             case 'teleport':
                 return 'border-l-violet-500';
             case 'secret-passage':
-                return 'border-l-violet-400';
+                return 'border-l-purple-500';
             case 'achievement-trigger':
-                return 'border-l-pink-500';
+                return 'border-l-rose-500';
             case 'forge':
-                return 'border-l-orange-600';
+                return 'border-l-orange-500';
             case 'wishing-well':
                 return 'border-l-cyan-500';
             case 'treasure-loc':
-                return 'border-l-yellow-500';
+                return 'border-l-yellow-400';
             case 'water':
                 return 'border-l-sky-400';
             default:
