@@ -26,7 +26,7 @@
 
 <div
     class="fixed right-4 top-4 z-40 w-80 max-h-[calc(100vh-2rem)] overflow-hidden
-           rounded-lg border border-l-4 {borderColorClass} border-zinc-700
+           rounded-lg border-l-4 {borderColorClass} border-r-zinc-700 border-t-zinc-700 border-b-zinc-700
            bg-zinc-900/95 shadow-xl backdrop-blur flex flex-col"
 >
     <!-- Header -->
