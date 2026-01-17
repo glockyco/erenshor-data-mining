@@ -1,5 +1,5 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace InteractiveMapCompanion.Protocol;
 
@@ -9,14 +9,19 @@ namespace InteractiveMapCompanion.Protocol;
 /// </summary>
 public static class MessageSerializer
 {
-    private static readonly JsonSerializerOptions Options = new()
+    private static readonly JsonSerializerSettings Settings = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-        WriteIndented = false,
+        ContractResolver = new DefaultContractResolver
+        {
+            NamingStrategy = new CamelCaseNamingStrategy()
+        },
+        NullValueHandling = NullValueHandling.Ignore,
+        Formatting = Formatting.None,
     };
 
-    public static string Serialize<T>(T message) => JsonSerializer.Serialize(message, Options);
+    public static string Serialize<T>(T message) =>
+        JsonConvert.SerializeObject(message, Settings);
 
-    public static T? Deserialize<T>(string json) => JsonSerializer.Deserialize<T>(json, Options);
+    public static T? Deserialize<T>(string json) =>
+        JsonConvert.DeserializeObject<T>(json, Settings);
 }

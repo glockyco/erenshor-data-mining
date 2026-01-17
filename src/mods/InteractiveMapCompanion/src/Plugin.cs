@@ -82,13 +82,22 @@ public sealed class Plugin : BaseUnityPlugin
         // WebSocket server
         services.AddSingleton<IWebSocketServer, WebSocketServer>();
 
-        // Broadcast loop
-        services.AddSingleton<IBroadcastLoop>(sp => new BroadcastLoop(
-            sp.GetRequiredService<IEntityTracker>(),
-            sp.GetRequiredService<IWebSocketServer>(),
-            sp.GetRequiredService<ModConfig>(),
-            msg => Log.LogDebug(msg)
-        ));
+        // Broadcast loop with configurable logging
+        services.AddSingleton<IBroadcastLoop>(sp =>
+        {
+            var config = sp.GetRequiredService<ModConfig>();
+            return new BroadcastLoop(
+                sp.GetRequiredService<IEntityTracker>(),
+                sp.GetRequiredService<IWebSocketServer>(),
+                config,
+                msg =>
+                {
+                    // Only log if ModLogLevel is Debug
+                    if (config.ModLogLevel.Value == InteractiveMapCompanion.Config.LogLevel.Debug)
+                        Log.LogDebug(msg);
+                }
+            );
+        });
 
         return services.BuildServiceProvider();
     }

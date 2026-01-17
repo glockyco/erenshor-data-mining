@@ -3,6 +3,17 @@ using BepInEx.Configuration;
 namespace InteractiveMapCompanion.Config;
 
 /// <summary>
+/// Log level for controlling verbosity of log output.
+/// </summary>
+public enum LogLevel
+{
+    Debug,
+    Info,
+    Warning,
+    Error
+}
+
+/// <summary>
 /// BepInEx configuration for the Interactive Map Companion mod.
 /// </summary>
 public class ModConfig
@@ -12,6 +23,8 @@ public class ModConfig
     public ConfigEntry<bool> EnableSpawnTracking { get; }
     public ConfigEntry<bool> EnableThirdPartyMarkers { get; }
     public ConfigEntry<bool> EnableBidirectional { get; }
+    public ConfigEntry<LogLevel> WebSocketLogLevel { get; }
+    public ConfigEntry<LogLevel> ModLogLevel { get; }
 
     public ModConfig(ConfigFile config)
     {
@@ -48,6 +61,20 @@ public class ModConfig
             "EnableBidirectional",
             true,
             "Accept messages from clients (waypoints, pings, commands)"
+        );
+
+        WebSocketLogLevel = config.Bind(
+            "Logging",
+            "WebSocketLogLevel",
+            LogLevel.Warning,
+            "Log level for WebSocket library. Debug shows all messages (verbose), Warning shows only issues (recommended)."
+        );
+
+        ModLogLevel = config.Bind(
+            "Logging",
+            "ModLogLevel",
+            LogLevel.Info,
+            "Log level for the mod itself. Debug shows detailed diagnostics, Info shows important events (recommended)."
         );
     }
 

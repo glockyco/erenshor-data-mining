@@ -178,6 +178,27 @@ public class WebSocketServer : IWebSocketServer
     {
         FleckLog.LogAction = (level, message, ex) =>
         {
+            // Convert Fleck log level to our config level and check if we should log
+            var configuredLevel = _config.WebSocketLogLevel.Value;
+
+            bool shouldLog = level switch
+            {
+                Fleck.LogLevel.Debug => configuredLevel == InteractiveMapCompanion.Config.LogLevel.Debug,
+                Fleck.LogLevel.Info =>
+                    configuredLevel == InteractiveMapCompanion.Config.LogLevel.Debug
+                    || configuredLevel == InteractiveMapCompanion.Config.LogLevel.Info,
+                Fleck.LogLevel.Warn =>
+                    configuredLevel == InteractiveMapCompanion.Config.LogLevel.Debug
+                    || configuredLevel == InteractiveMapCompanion.Config.LogLevel.Info
+                    || configuredLevel == InteractiveMapCompanion.Config.LogLevel.Warning,
+                Fleck.LogLevel.Error => true, // Always log errors
+                _ => false
+            };
+
+            if (!shouldLog)
+                return;
+
+            // Log to appropriate BepInEx level
             switch (level)
             {
                 case Fleck.LogLevel.Debug:
