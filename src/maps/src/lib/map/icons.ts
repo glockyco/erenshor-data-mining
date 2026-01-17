@@ -6,6 +6,7 @@
 import {
     Skull,
     User,
+    UserPlus,
     Cat,
     CircleDot,
     Flame,
@@ -62,7 +63,7 @@ const MARKER_ICONS: Record<string, { icon: IconNode; colorKey: keyof typeof LAYE
     water: { icon: Fish, colorKey: 'water' },
     // Live entities
     'player-live': { icon: Navigation2, colorKey: 'player-live' },
-    'simplayer-live': { icon: User, colorKey: 'simplayer-live' },
+    'simplayer-live': { icon: UserPlus, colorKey: 'simplayer-live' },
     'pet-live': { icon: Cat, colorKey: 'pet-live' },
     'npc-friendly-live': { icon: User, colorKey: 'npc-friendly-live' },
     'enemy-common-live': { icon: Skull, colorKey: 'enemy-common-live' },

@@ -12,10 +12,10 @@ export const INITIAL_VIEW_STATE = {
  * Layer colors by marker category (Tailwind colors as RGB)
  */
 export const LAYER_COLORS = {
-    // Enemies (by rarity)
-    enemy: [59, 130, 246] as [number, number, number], // blue-500 (common)
-    'enemy-rare': [239, 68, 68] as [number, number, number], // red-500
-    'enemy-unique': [24, 24, 27] as [number, number, number], // zinc-900 (boss)
+    // Enemies (static spawn points - muted warm colors)
+    enemy: [217, 119, 6] as [number, number, number], // amber-600 (common spawn)
+    'enemy-rare': [225, 29, 72] as [number, number, number], // rose-600 (rare spawn)
+    'enemy-unique': [109, 40, 217] as [number, number, number], // violet-700 (unique spawn)
     // NPCs (friendly characters)
     npc: [34, 197, 94] as [number, number, number], // green-500
     // Zone connections
@@ -27,22 +27,22 @@ export const LAYER_COLORS = {
     // Resources
     'mining-node': [156, 163, 175] as [number, number, number], // gray-400
     'treasure-loc': [250, 204, 21] as [number, number, number], // yellow-400
-    'item-bag': [251, 146, 60] as [number, number, number], // orange-400
+    'item-bag': [234, 179, 8] as [number, number, number], // yellow-500
     // Interactables
     door: [180, 83, 9] as [number, number, number], // amber-700
-    'secret-passage': [167, 139, 250] as [number, number, number], // violet-400
-    'achievement-trigger': [236, 72, 153] as [number, number, number], // pink-500
+    'secret-passage': [168, 85, 247] as [number, number, number], // purple-500 (hidden passage)
+    'achievement-trigger': [244, 63, 94] as [number, number, number], // rose-500
     water: [56, 189, 248] as [number, number, number], // sky-400
     // Disabled state (for any marker type)
     disabled: [107, 114, 128] as [number, number, number], // gray-500
-    // Live entities
-    'player-live': [132, 204, 22] as [number, number, number], // lime-500
-    'simplayer-live': [59, 130, 246] as [number, number, number], // blue-500
-    'pet-live': [236, 72, 153] as [number, number, number], // pink-500
-    'npc-friendly-live': [34, 197, 94] as [number, number, number], // green-500
-    'enemy-common-live': [59, 130, 246] as [number, number, number], // blue-500
-    'enemy-rare-live': [239, 68, 68] as [number, number, number], // red-500
-    'enemy-boss-live': [24, 24, 27] as [number, number, number] // zinc-900
+    // Live entities (bright, prominent colors)
+    'player-live': [132, 204, 22] as [number, number, number], // lime-500 - YOU
+    'simplayer-live': [6, 182, 212] as [number, number, number], // cyan-500 - ALLY
+    'pet-live': [217, 70, 239] as [number, number, number], // fuchsia-500 - COMPANION
+    'npc-friendly-live': [16, 185, 129] as [number, number, number], // emerald-500 - FRIENDLY
+    'enemy-common-live': [249, 115, 22] as [number, number, number], // orange-500 - THREAT
+    'enemy-rare-live': [239, 68, 68] as [number, number, number], // red-500 - HIGH THREAT
+    'enemy-boss-live': [24, 24, 27] as [number, number, number] // zinc-900 - BOSS (iconic black)
 } as const;
 
 /**
