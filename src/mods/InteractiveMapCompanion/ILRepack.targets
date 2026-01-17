@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- Custom ILRepack configuration for InteractiveMapCompanion mod -->
+  <!-- Uses custom target name to avoid conflict with package's default target -->
+  
+  <Target Name="ILRepackMod" AfterTargets="Build">
+    <!-- Copy BepInEx/Harmony DLLs temporarily for type resolution -->
+    <PropertyGroup>
+      <BepInExSourcePath>/Users/joaichberger/.nuget/packages/bepinex.baselib/5.4.20/lib/netstandard2.0/BepInEx.dll</BepInExSourcePath>
+      <HarmonySourcePath>/Users/joaichberger/.nuget/packages/harmonyx/2.16.0/lib/netstandard2.0/0Harmony.dll</HarmonySourcePath>
+    </PropertyGroup>
+    
+    <Copy SourceFiles="$(BepInExSourcePath)" DestinationFolder="$(OutputPath)" />
+    <Copy SourceFiles="$(HarmonySourcePath)" DestinationFolder="$(OutputPath)" />
+    
+    <!--  Collect assemblies to merge -->
+    <ItemGroup>
+      <!-- Main assembly first -->
+      <MergeAssemblies Include="$(OutputPath)$(TargetName)$(TargetExt)" />
+      
+      <!-- Dependencies to merge into single DLL -->
+      <MergeAssemblies Include="$(OutputPath)Fleck.dll" />
+      <MergeAssemblies Include="$(OutputPath)System.Text.Json.dll" />
+      <MergeAssemblies Include="$(OutputPath)System.Buffers.dll" />
+      <MergeAssemblies Include="$(OutputPath)System.Memory.dll" />
+      <MergeAssemblies Include="$(OutputPath)System.Runtime.CompilerServices.Unsafe.dll" />
+      <MergeAssemblies Include="$(OutputPath)System.Text.Encodings.Web.dll" />
+      <MergeAssemblies Include="$(OutputPath)Microsoft.Extensions.DependencyInjection.dll" />
+      <MergeAssemblies Include="$(OutputPath)Microsoft.Extensions.DependencyInjection.Abstractions.dll" />
+      <MergeAssemblies Include="$(OutputPath)Microsoft.Bcl.AsyncInterfaces.dll" />
+    </ItemGroup>
+    
+    <!-- Run ILRepack to merge ONLY our dependencies (not BepInEx/Harmony) -->
+    <ILRepack
+      Parallel="true"
+      DebugInfo="true"
+      Internalize="true"
+      InputAssemblies="@(MergeAssemblies)"
+      LibraryPath="$(OutputPath);$(ProjectDir)lib"
+      TargetKind="Dll"
+      OutputFile="$(OutputPath)$(TargetName)$(TargetExt)"
+    />
+    
+    <!-- Clean up merged DLLs to keep output directory clean -->
+    <Delete Files="$(OutputPath)Fleck.dll" />
+    <Delete Files="$(OutputPath)System.Text.Json.dll" />
+    <Delete Files="$(OutputPath)System.Buffers.dll" />
+    <Delete Files="$(OutputPath)System.Memory.dll" />
+    <Delete Files="$(OutputPath)System.Runtime.CompilerServices.Unsafe.dll" />
+    <Delete Files="$(OutputPath)System.Text.Encodings.Web.dll" />
+    <Delete Files="$(OutputPath)Microsoft.Extensions.DependencyInjection.dll" />
+    <Delete Files="$(OutputPath)Microsoft.Extensions.DependencyInjection.Abstractions.dll" />
+    <Delete Files="$(OutputPath)Microsoft.Bcl.AsyncInterfaces.dll" />
+    
+    <!-- Clean up BepInEx/Harmony DLLs (were only needed for type resolution) -->
+    <Delete Files="$(OutputPath)BepInEx.dll" />
+    <Delete Files="$(OutputPath)0Harmony.dll" />
+    
+    <Message Text="ILRepack: Successfully merged dependencies into $(TargetName)$(TargetExt)" Importance="high" />
+  </Target>
+</Project>

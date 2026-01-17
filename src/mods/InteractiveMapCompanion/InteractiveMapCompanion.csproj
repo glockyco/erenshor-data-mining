@@ -21,6 +21,9 @@
 
     <!-- Exclude tests directory from main project compilation -->
     <DefaultItemExcludes>$(DefaultItemExcludes);tests/**</DefaultItemExcludes>
+
+    <!-- Copy NuGet dependencies to output (needed for ILRepack) -->
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
   <ItemGroup>
@@ -39,6 +42,9 @@
 
     <!-- WebSocket server -->
     <PackageReference Include="Fleck" Version="1.*" />
+
+    <!-- ILRepack for merging dependencies into single DLL -->
+    <PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.34.2" />
   </ItemGroup>
 
   <!-- Generate PluginInfo.g.cs with version from .csproj -->
@@ -70,5 +76,8 @@
       <Private>false</Private>
     </Reference>
   </ItemGroup>
+
+  <!-- ILRepack configuration is in ILRepack.targets file -->
+  <!-- This merges all dependencies into a single InteractiveMapCompanion.dll -->
 
 </Project>

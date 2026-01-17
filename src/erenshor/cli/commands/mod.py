@@ -259,23 +259,23 @@ def deploy(ctx: typer.Context) -> None:
     console.print(f"[dim]Target: {plugins_dir}[/dim]")
     console.print()
 
-    # Copy mod DLL and Fleck dependency
-    files_to_copy = [
-        "InteractiveMapCompanion.dll",
-        "Fleck.dll",
-    ]
+    # Copy mod DLL (now contains all dependencies merged via ILRepack)
+    mod_dll = output_dir / "InteractiveMapCompanion.dll"
+    if not mod_dll.exists():
+        console.print(f"[red]Error: Mod DLL not found: {mod_dll}[/red]")
+        raise typer.Exit(1)
 
-    for filename in files_to_copy:
-        source = output_dir / filename
-        if source.exists():
-            target = plugins_dir / filename
-            shutil.copy2(source, target)
-            console.print(f"  [green]\u2713[/green] {filename}")
-        else:
-            console.print(f"  [yellow]\u26a0[/yellow] {filename} - not found (may be optional)")
+    target = plugins_dir / "InteractiveMapCompanion.dll"
+    shutil.copy2(mod_dll, target)
+
+    # Get file size for user feedback
+    size_bytes = mod_dll.stat().st_size
+    size_kb = size_bytes / 1024
+    console.print(f"  [green]\u2713[/green] InteractiveMapCompanion.dll ({size_kb:.1f} KB)")
 
     console.print()
     console.print("[green]Deploy complete![/green]")
+    console.print("[dim]Note: All dependencies are merged into InteractiveMapCompanion.dll via ILRepack[/dim]")
     console.print()
 
 

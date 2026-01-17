@@ -10,6 +10,11 @@ import subprocess
 import sys
 from typing import Any
 
+from dotenv import load_dotenv
+
+# Load .env file before any other imports to ensure environment variables are available
+load_dotenv()
+
 import typer
 from loguru import logger
 from rich.console import Console
