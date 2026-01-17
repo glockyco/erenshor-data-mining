@@ -1,12 +1,13 @@
 <script lang="ts">
     import type {
-        AnyWorldMarker,
         WorldEnemy,
         WorldNpc,
         WorldZoneLine,
         WorldMiningNode,
         WorldWater
     } from '$lib/types/world-map';
+    import type { Selection } from '$lib/types/selection';
+    import { getSelectionBorderColor } from '$lib/types/selection';
     import PopupContainer from './PopupContainer.svelte';
     import EnemyPopupContent from './popups/EnemyPopupContent.svelte';
     import NpcPopupContent from './popups/NpcPopupContent.svelte';
@@ -14,18 +15,34 @@
     import MiningNodePopupContent from './popups/MiningNodePopupContent.svelte';
     import WaterPopupContent from './popups/WaterPopupContent.svelte';
     import SimplePopupContent from './popups/SimplePopupContent.svelte';
+    import ZonePopup from './ZonePopup.svelte';
+    import LivePlayerPopupContent from './popups/LivePlayerPopupContent.svelte';
+    import LiveSimPlayerPopupContent from './popups/LiveSimPlayerPopupContent.svelte';
+    import LivePetPopupContent from './popups/LivePetPopupContent.svelte';
+    import LiveNpcPopupContent from './popups/LiveNpcPopupContent.svelte';
 
     interface Props {
-        marker: AnyWorldMarker;
+        selection: Selection;
         zoneName: string;
         onClose: () => void;
         onFocus: () => void;
     }
 
-    let { marker, zoneName, onClose, onFocus }: Props = $props();
+    let { selection, zoneName, onClose, onFocus }: Props = $props();
 
-    // Get display title based on marker type
+    // Get display title based on selection type
     function getTitle(): string {
+        if (!selection) return '';
+
+        if (selection.type === 'live') {
+            return selection.entity.name;
+        }
+
+        if (selection.type === 'zone') {
+            return selection.zone.name;
+        }
+
+        const marker = selection.marker;
         switch (marker.category) {
             case 'enemy':
                 return 'Spawn Point';
@@ -58,8 +75,40 @@
         }
     }
 
-    // Get category display name (matches sidebar sections)
+    // Get category display name (subtitle)
     function getCategoryLabel(): string {
+        if (!selection) return '';
+
+        if (selection.type === 'live') {
+            const entity = selection.entity;
+            const level = entity.level ? `Level ${entity.level}` : '';
+
+            switch (entity.entityType) {
+                case 'player':
+                    return ['Player', level].filter(Boolean).join(' • ');
+                case 'simplayer':
+                    return ['SimPlayer', level].filter(Boolean).join(' • ');
+                case 'pet':
+                    return ['Pet', level].filter(Boolean).join(' • ');
+                case 'npc_friendly':
+                    return ['Friendly NPC', level].filter(Boolean).join(' • ');
+                case 'npc_enemy': {
+                    const parts = ['Enemy', level];
+                    if (entity.rarity && entity.rarity !== 'common') {
+                        parts.push(entity.rarity.charAt(0).toUpperCase() + entity.rarity.slice(1));
+                    }
+                    return parts.filter(Boolean).join(' • ');
+                }
+                default:
+                    return 'Live Entity';
+            }
+        }
+
+        if (selection.type === 'zone') {
+            return 'Zone';
+        }
+
+        const marker = selection.marker;
         switch (marker.category) {
             case 'enemy': {
                 const m = marker as WorldEnemy;
@@ -94,42 +143,10 @@
         }
     }
 
-    // Get border color based on marker category
+    // Get border color based on selection type
     function getBorderColorClass(): string {
-        switch (marker.category) {
-            case 'enemy': {
-                const m = marker as WorldEnemy;
-                if (m.isUnique) return 'border-l-white';
-                if (m.isRare) return 'border-l-red-500';
-                return 'border-l-blue-500';
-            }
-            case 'npc':
-                return 'border-l-green-500';
-            case 'zone-line':
-                return 'border-l-purple-500';
-            case 'door':
-                return 'border-l-amber-700';
-            case 'item-bag':
-                return 'border-l-orange-500';
-            case 'mining-node':
-                return 'border-l-gray-500';
-            case 'teleport':
-                return 'border-l-violet-500';
-            case 'secret-passage':
-                return 'border-l-violet-400';
-            case 'achievement-trigger':
-                return 'border-l-pink-500';
-            case 'forge':
-                return 'border-l-orange-600';
-            case 'wishing-well':
-                return 'border-l-cyan-500';
-            case 'treasure-loc':
-                return 'border-l-yellow-500';
-            case 'water':
-                return 'border-l-sky-400';
-            default:
-                return 'border-l-gray-500';
-        }
+        if (!selection) return 'border-l-gray-500';
+        return getSelectionBorderColor(selection);
     }
 
     const title = $derived(getTitle());
@@ -137,25 +154,47 @@
     const borderColorClass = $derived(getBorderColorClass());
 </script>
 
-<PopupContainer {title} subtitle={categoryLabel} {borderColorClass} {onClose} {onFocus}>
-    {#if marker.category === 'enemy'}
-        {#key marker.coordinateId}
-            <EnemyPopupContent marker={marker as WorldEnemy} />
-        {/key}
-    {:else if marker.category === 'npc'}
-        {#key marker.coordinateId}
-            <NpcPopupContent marker={marker as WorldNpc} />
-        {/key}
-    {:else if marker.category === 'zone-line'}
-        <ZoneLinePopupContent marker={marker as WorldZoneLine} />
-    {:else if marker.category === 'mining-node'}
-        <MiningNodePopupContent marker={marker as WorldMiningNode} />
-    {:else if marker.category === 'water'}
-        <WaterPopupContent marker={marker as WorldWater} />
-    {:else}
-        <SimplePopupContent {marker} />
-    {/if}
-    {#snippet footer()}
-        {zoneName}
-    {/snippet}
-</PopupContainer>
+{#if !selection}
+    <!-- Nothing -->
+{:else if selection.type === 'zone'}
+    <ZonePopup zone={selection.zone} {onClose} {onFocus} />
+{:else if selection.type === 'live'}
+    <PopupContainer {title} subtitle={categoryLabel} {borderColorClass} {onClose} {onFocus}>
+        {#if selection.entity.entityType === 'player'}
+            <LivePlayerPopupContent entity={selection.entity} />
+        {:else if selection.entity.entityType === 'simplayer'}
+            <LiveSimPlayerPopupContent entity={selection.entity} />
+        {:else if selection.entity.entityType === 'pet'}
+            <LivePetPopupContent entity={selection.entity} />
+        {:else}
+            <LiveNpcPopupContent entity={selection.entity} />
+        {/if}
+        {#snippet footer()}
+            {zoneName}
+        {/snippet}
+    </PopupContainer>
+{:else}
+    {@const marker = selection.marker}
+    <PopupContainer {title} subtitle={categoryLabel} {borderColorClass} {onClose} {onFocus}>
+        {#if marker.category === 'enemy'}
+            {#key marker.coordinateId}
+                <EnemyPopupContent {marker} />
+            {/key}
+        {:else if marker.category === 'npc'}
+            {#key marker.coordinateId}
+                <NpcPopupContent {marker} />
+            {/key}
+        {:else if marker.category === 'zone-line'}
+            <ZoneLinePopupContent marker={marker as WorldZoneLine} />
+        {:else if marker.category === 'mining-node'}
+            <MiningNodePopupContent marker={marker as WorldMiningNode} />
+        {:else if marker.category === 'water'}
+            <WaterPopupContent marker={marker as WorldWater} />
+        {:else}
+            <SimplePopupContent {marker} />
+        {/if}
+        {#snippet footer()}
+            {zoneName}
+        {/snippet}
+    </PopupContainer>
+{/if}

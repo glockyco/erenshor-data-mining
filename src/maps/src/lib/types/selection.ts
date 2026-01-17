@@ -1,7 +1,5 @@
-import type { AnyWorldMarker, ZoneWorldPosition } from './world-map';
+import type { AnyWorldMarker, ZoneWorldPosition, ZoneConfig } from './world-map';
 import type { EntityData } from '$lib/map/live/types';
-import type { ZoneConfig } from '$lib/map/zone-tileset';
-import { adjustMarkerPosition } from '$lib/map/coordinate-transform';
 import { transformEntityToWorld } from '$lib/map/coordinate-transform';
 
 /**
@@ -27,13 +25,16 @@ export function getSelectionPosition(
     if (!selection) return null;
 
     switch (selection.type) {
-        case 'marker':
-            return adjustMarkerPosition(
-                selection.marker.worldPosition,
-                selection.marker.zone,
-                zones,
-                overrides
-            );
+        case 'marker': { // Markers already have worldPosition, just apply zone override if needed
+            const override = overrides[selection.marker.zone];
+            if (override) {
+                const [x, y] = selection.marker.worldPosition;
+                const zonePos = zones.find((z) => z.key === selection.marker.zone);
+                if (!zonePos) return null;
+                return [x - zonePos.worldX + override.worldX, y - zonePos.worldY + override.worldY];
+            }
+            return selection.marker.worldPosition;
+        }
         case 'live':
             return transformEntityToWorld(
                 { ...selection.entity, zone: selection.zone },
@@ -43,7 +44,7 @@ export function getSelectionPosition(
             );
         case 'zone': {
             const bounds = selection.zone.bounds;
-            return [(bounds[0] + bounds[2]) / 2, (bounds[1] + bounds[3]) / 2];
+            return [(bounds.minX + bounds.maxX) / 2, (bounds.minY + bounds.maxY) / 2];
         }
     }
 }

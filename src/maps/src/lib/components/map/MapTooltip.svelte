@@ -1,6 +1,5 @@
 <script lang="ts">
     import type {
-        AnyWorldMarker,
         WorldEnemy,
         WorldNpc,
         WorldZoneLine,
@@ -10,16 +9,19 @@
         WorldSecretPassage,
         WorldAchievementTrigger
     } from '$lib/types/world-map';
+    import type { Selection } from '$lib/types/selection';
+    import type { EntityData } from '$lib/map/live/types';
+    import { getSelectionBorderColor } from '$lib/types/selection';
     import { calculateTooltipPosition } from '$lib/utils/tooltip';
 
     interface Props {
-        marker: AnyWorldMarker;
+        selection: Selection;
         x: number;
         y: number;
         zoneName: string;
     }
 
-    let { marker, x, y, zoneName }: Props = $props();
+    let { selection, x, y, zoneName }: Props = $props();
 
     // Track tooltip dimensions for positioning
     let tooltipRef: HTMLDivElement | null = $state(null);
@@ -35,8 +37,13 @@
 
     let position = $derived(calculateTooltipPosition(x, y, tooltipWidth, tooltipHeight));
 
-    // Get border color based on marker category
+    // Get border color based on selection type
     function getBorderColorClass(): string {
+        if (!selection) return 'border-l-gray-500';
+        if (selection.type === 'live' || selection.type === 'zone') {
+            return getSelectionBorderColor(selection);
+        }
+        const marker = selection.marker;
         switch (marker.category) {
             case 'enemy': {
                 const m = marker as WorldEnemy;
@@ -187,8 +194,52 @@
         };
     }
 
-    // Get tooltip content based on marker type
+    // Get tooltip content for live entities
+    function getLiveEntityContent(entity: EntityData): TooltipContent {
+        const level = entity.level ? `Level ${entity.level}` : '';
+
+        switch (entity.entityType) {
+            case 'player': {
+                const parts = ['Player', level, entity.characterClass].filter(Boolean);
+                return { name: entity.name, detail: parts.join(' • ') };
+            }
+            case 'simplayer': {
+                const parts = ['SimPlayer', level, entity.characterClass].filter(Boolean);
+                return { name: entity.name, detail: parts.join(' • ') };
+            }
+            case 'pet': {
+                const owner = entity.owner ? `${entity.owner}'s pet` : 'Pet';
+                const parts = [owner, level].filter(Boolean);
+                return { name: entity.name, detail: parts.join(' • ') };
+            }
+            case 'npc_friendly': {
+                const parts = ['Friendly NPC', level].filter(Boolean);
+                return { name: entity.name, detail: parts.join(' • ') };
+            }
+            case 'npc_enemy': {
+                const rarity =
+                    entity.rarity === 'boss' ? 'Boss' : entity.rarity === 'rare' ? 'Rare' : '';
+                const parts = [rarity, level].filter(Boolean);
+                return { name: entity.name, detail: parts.join(' • ') };
+            }
+            default:
+                return { name: entity.name, detail: '' };
+        }
+    }
+
+    // Get tooltip content based on selection type
     function getTooltipContent(): TooltipContent {
+        if (!selection) return { name: '', detail: '' };
+
+        if (selection.type === 'live') {
+            return getLiveEntityContent(selection.entity);
+        }
+
+        if (selection.type === 'zone') {
+            return { name: selection.zone.name, detail: 'Zone' };
+        }
+
+        const marker = selection.marker;
         switch (marker.category) {
             case 'enemy':
                 return getEnemyContent(marker as WorldEnemy);
