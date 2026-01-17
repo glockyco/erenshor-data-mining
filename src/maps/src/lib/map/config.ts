@@ -30,7 +30,7 @@ export const LAYER_COLORS = {
     'zone-line': [168, 85, 247] as [number, number, number], // purple-500
     // Utilities
     forge: [249, 115, 22] as [number, number, number], // orange-500
-    'wishing-well': [6, 182, 212] as [number, number, number], // cyan-500
+    'wishing-well': [59, 130, 246] as [number, number, number], // blue-500
     teleport: [139, 92, 246] as [number, number, number], // violet-500
     // Resources
     'mining-node': [156, 163, 175] as [number, number, number], // gray-400
@@ -128,7 +128,7 @@ export const MARKER_BORDER_COLORS: Record<string, string> = {
     teleport: 'border-l-violet-500',
     'treasure-loc': 'border-l-yellow-400',
     water: 'border-l-sky-400',
-    'wishing-well': 'border-l-cyan-500',
+    'wishing-well': 'border-l-blue-500',
     'zone-line': 'border-l-purple-500'
 };
 

@@ -70,7 +70,7 @@
             case 'forge':
                 return 'border-l-orange-500';
             case 'wishing-well':
-                return 'border-l-cyan-500';
+                return 'border-l-blue-500';
             case 'treasure-loc':
                 return 'border-l-yellow-400';
             case 'water':
