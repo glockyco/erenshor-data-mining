@@ -8,8 +8,10 @@ namespace InteractiveMapCompanion.Entities;
 /// <param name="Name">Display name.</param>
 /// <param name="Position">Zone-local coordinates [x, y, z].</param>
 /// <param name="Rotation">Facing direction in degrees (0-360).</param>
-/// <param name="Level">Entity level (for NPCs).</param>
-/// <param name="Rarity">Rarity classification (for enemies): common, rare, unique.</param>
+/// <param name="Level">Entity level (for NPCs, players, SimPlayers).</param>
+/// <param name="Rarity">Rarity classification (for enemies): common, rare, boss.</param>
+/// <param name="CharacterClass">Player/SimPlayer class name (e.g., "Warrior", "Mage").</param>
+/// <param name="Owner">Pet owner name.</param>
 public record EntityData(
     int Id,
     string EntityType,
@@ -17,5 +19,7 @@ public record EntityData(
     float[] Position,
     float Rotation,
     int? Level = null,
-    string? Rarity = null
+    string? Rarity = null,
+    string? CharacterClass = null,
+    string? Owner = null
 );

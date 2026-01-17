@@ -17,7 +17,9 @@ public sealed class EntityExtractor : IEntityExtractor
             Position: [transform.position.x, transform.position.y, transform.position.z],
             Rotation: NormalizeRotation(transform.eulerAngles.y),
             Level: GetLevel(stats, entityType),
-            Rarity: GetRarity(character, entityType)
+            Rarity: GetRarity(character, entityType),
+            CharacterClass: GetCharacterClass(stats, entityType),
+            Owner: GetOwner(character, entityType)
         );
     }
 
@@ -47,14 +49,10 @@ public sealed class EntityExtractor : IEntityExtractor
     }
 
     /// <summary>
-    /// Gets level for entities that have it.
+    /// Gets level for all entities that have stats.
     /// </summary>
     private static int? GetLevel(Stats? stats, EntityType type)
     {
-        // Only include level for NPCs
-        if (type is not (EntityType.NpcEnemy or EntityType.NpcFriendly))
-            return null;
-
         return stats?.Level;
     }
 
@@ -75,5 +73,29 @@ public sealed class EntityExtractor : IEntityExtractor
 
         // Default to common; rare detection deferred to #188
         return "common";
+    }
+
+    /// <summary>
+    /// Gets character class for players and SimPlayers.
+    /// </summary>
+    private static string? GetCharacterClass(Stats? stats, EntityType type)
+    {
+        // Only include class for Player and SimPlayer
+        if (type is not (EntityType.Player or EntityType.SimPlayer))
+            return null;
+
+        return stats?.CharacterClass?.ClassName;
+    }
+
+    /// <summary>
+    /// Gets owner name for pets.
+    /// </summary>
+    private static string? GetOwner(Character character, EntityType type)
+    {
+        // Only include owner for Pets
+        if (type != EntityType.Pet)
+            return null;
+
+        return character.Master?.MyStats?.MyName ?? "Unknown";
     }
 }
