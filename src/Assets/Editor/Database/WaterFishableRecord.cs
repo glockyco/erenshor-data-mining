@@ -8,7 +8,8 @@ public class WaterFishableRecord
     public const string TableName = "WaterFishables";
 
     [Indexed(Name = "WaterFishable_Primary_IDX", Order = 1, Unique = true)]
-    public int WaterId { get; set; }
+    [ForeignKey(typeof(WaterRecord), "StableKey")]
+    public string WaterStableKey { get; set; } = string.Empty;
     [Indexed(Name = "WaterFishable_Primary_IDX", Order = 2, Unique = true)]
     public string Type { get; set; } = string.Empty; // "DayFishable" or "NightFishable"
     [Indexed(Name = "WaterFishable_Primary_IDX", Order = 3, Unique = true)]
