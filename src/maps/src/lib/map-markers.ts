@@ -1,5 +1,5 @@
 export type BaseMarker = {
-    coordinateId: number;
+    stableKey: string;
     position: { x: number; y: number };
     popup?: string;
 };
@@ -44,7 +44,6 @@ export type AchievementTriggerMarker = BaseMarker & {
 export type NpcMarker = BaseMarker & {
     category: 'npc';
     name: string;
-    stableKey: string;
     level: number;
     isEnabled: boolean;
     isVendor: boolean;
