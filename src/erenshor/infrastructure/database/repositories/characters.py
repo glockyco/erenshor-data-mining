@@ -46,7 +46,6 @@ class CharacterRepository(BaseRepository[Character]):
         query = """
             SELECT
                 c.StableKey,
-                c.CoordinateId,
                 c.Guid,
                 c.ObjectName,
                 c.NPCName,
@@ -137,12 +136,11 @@ class CharacterRepository(BaseRepository[Character]):
                 c.GuildName,
                 c.VendorDesc,
                 c.ItemsForSale,
-                co.Scene,
-                co.X,
-                co.Y,
-                co.Z
+                c.Scene,
+                c.X,
+                c.Y,
+                c.Z
             FROM Characters c
-            LEFT JOIN Coordinates co ON co.Id = c.CoordinateId
             WHERE COALESCE(c.ObjectName, '') != ''
                 AND COALESCE(c.IsSimPlayer, 0) = 0
                 AND c.ObjectName != 'Player'
