@@ -1,12 +1,11 @@
 using System.Collections.Generic;
 using SQLite;
 using UnityEngine;
-using static CoordinateRecord;
 
 public class TreasureLocListener : IAssetScanListener<TreasureLoc>
 {
     private readonly SQLiteConnection _db;
-    private readonly List<CoordinateRecord> _records = new();
+    private readonly List<TreasureLocationRecord> _records = new();
 
     public TreasureLocListener(SQLiteConnection db)
     {
@@ -15,9 +14,9 @@ public class TreasureLocListener : IAssetScanListener<TreasureLoc>
 
     public void OnScanStarted()
     {
-        _db.CreateTable<CoordinateRecord>();
+        _db.CreateTable<TreasureLocationRecord>();
 
-        _db.Execute("DELETE FROM Coordinates WHERE Category = ?", nameof(CoordinateCategory.TreasureLoc));
+        _db.DeleteAll<TreasureLocationRecord>();
     }
 
     public void OnScanFinished()
@@ -34,15 +33,20 @@ public class TreasureLocListener : IAssetScanListener<TreasureLoc>
         _records.Add(CreateRecord(asset));
     }
 
-    private CoordinateRecord CreateRecord(TreasureLoc treasureLoc)
+    private TreasureLocationRecord CreateRecord(TreasureLoc treasureLoc)
     {
-        return new CoordinateRecord
+        var scene = treasureLoc.gameObject.scene.name;
+        var x = treasureLoc.transform.position.x;
+        var y = treasureLoc.transform.position.y;
+        var z = treasureLoc.transform.position.z;
+
+        return new TreasureLocationRecord
         {
-            Scene = treasureLoc.gameObject.scene.name,
-            X = treasureLoc.transform.position.x,
-            Y = treasureLoc.transform.position.y,
-            Z = treasureLoc.transform.position.z,
-            Category = nameof(CoordinateCategory.TreasureLoc)
+            StableKey = StableKeyGenerator.ForTreasureLocation(scene, x, y, z),
+            Scene = scene,
+            X = x,
+            Y = y,
+            Z = z
         };
     }
 }
