@@ -10,7 +10,7 @@ public class CharacterListener : IAssetScanListener<Character>
 {
     private readonly SQLiteConnection _db;
     private readonly List<CharacterRecord> _characterRecords = new();
-    private readonly Dictionary<string, int> _stableKeyCounters = new(); // Track occurrence count for each base stable key
+    private readonly DuplicateKeyTracker _keyTracker = new("CharacterListener");
     private readonly List<CharacterDialogRecord> _characterDialogRecords = new();
     private readonly List<CharacterAttackSkillRecord> _characterAttackSkillRecords = new();
     private readonly List<CharacterAttackSpellRecord> _characterAttackSpellRecords = new();
@@ -258,22 +258,10 @@ public class CharacterListener : IAssetScanListener<Character>
             return;
         }
 
-        // Generate base stable key and check for duplicates
         var baseStableKey = StableKeyGenerator.ForCharacter(asset);
-        int variantIndex = 0;
-
-        if (_stableKeyCounters.ContainsKey(baseStableKey))
-        {
-            _stableKeyCounters[baseStableKey]++;
-            variantIndex = _stableKeyCounters[baseStableKey];
-            UnityEngine.Debug.LogWarning($"[CharacterListener] Duplicate character StableKey: '{baseStableKey}'. GameObject: '{asset.gameObject.name}'. Assigning variant index |{variantIndex}.");
-        }
-        else
-        {
-            _stableKeyCounters[baseStableKey] = 0;
-        }
-
-        var characterRecord = CreateCharacterRecord(asset, variantIndex);
+        var stableKey = _keyTracker.GetUniqueKey(baseStableKey, asset.gameObject.name);
+        
+        var characterRecord = CreateCharacterRecord(asset, stableKey);
         _characterRecords.Add(characterRecord);
 
         var dialogs = asset.GetComponents<NPCDialog>().Where(d => !string.IsNullOrWhiteSpace(d.Dialog)).ToList();
@@ -359,7 +347,7 @@ public class CharacterListener : IAssetScanListener<Character>
         }
     }
 
-    private CharacterRecord CreateCharacterRecord(Character character, int variantIndex = 0)
+    private CharacterRecord CreateCharacterRecord(Character character, string stableKey)
     {
         var npc = character.GetComponent<NPC>();
         var vendorInventory = character.GetComponent<VendorInventory>();
@@ -384,7 +372,7 @@ public class CharacterListener : IAssetScanListener<Character>
 
         var record = new CharacterRecord
         {
-            StableKey = StableKeyGenerator.ForCharacter(character, variantIndex),
+            StableKey = stableKey,
             Scene = character.gameObject.scene.name,
             X = character.gameObject.scene.name != null ? character.transform.position.x : (float?)null,
             Y = character.gameObject.scene.name != null ? character.transform.position.y : (float?)null,

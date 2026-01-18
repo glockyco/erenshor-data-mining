@@ -13,7 +13,7 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
     private readonly List<SpawnPointCharacterRecord> _spawnPointCharacterRecords = new();
     private readonly List<SpawnPointStopQuestRecord> _spawnPointStopQuestRecords = new();
     private readonly List<SpawnPointPatrolPointRecord> _spawnPointPatrolPointRecords = new();
-    private readonly Dictionary<string, int> _stableKeyCounters = new(); // Track occurrence count for each base stable key
+    private readonly DuplicateKeyTracker _keyTracker = new("SpawnPointListener");
 
     // Spawn delay multipliers from GameManager.SpawnTimeMod (lines 209-224)
     private const float SpawnDelayMultiplier2 = 1.1f;  // 1-2 group members
@@ -63,22 +63,8 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
         var y = asset.transform.position.y;
         var z = asset.transform.position.z;
         
-        // Generate base stable key and check for duplicates
         var baseStableKey = StableKeyGenerator.ForSpawnPoint(scene, x, y, z);
-        int variantIndex = 0;
-
-        if (_stableKeyCounters.ContainsKey(baseStableKey))
-        {
-            _stableKeyCounters[baseStableKey]++;
-            variantIndex = _stableKeyCounters[baseStableKey];
-            UnityEngine.Debug.LogWarning($"[SpawnPointListener] Duplicate spawn point StableKey: '{baseStableKey}'. GameObject: '{asset.gameObject.name}'. Assigning variant index |{variantIndex}.");
-        }
-        else
-        {
-            _stableKeyCounters[baseStableKey] = 0;
-        }
-
-        var stableKey = variantIndex > 0 ? $"{baseStableKey}:{variantIndex}" : baseStableKey;
+        var stableKey = _keyTracker.GetUniqueKey(baseStableKey, asset.gameObject.name);
 
         var spawnPointRecord = CreateSpawnPointRecord(asset, stableKey, scene, x, y, z);
         _spawnPointRecords.Add(spawnPointRecord);
