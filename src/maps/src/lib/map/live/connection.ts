@@ -16,7 +16,7 @@ const DEFAULT_SERVER_URL = 'ws://localhost:18585';
 const RECONNECT_INTERVAL_MS = 2000;
 
 /** Expected protocol version for compatibility check */
-const EXPECTED_PROTOCOL_VERSION = '0.1.0';
+const EXPECTED_PROTOCOL_VERSION = '0.2.0';
 
 /**
  * WebSocket connection manager for live entity data.
