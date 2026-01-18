@@ -40,6 +40,29 @@ Observable outcomes that indicate completion:
 Focus on "what" not "how". These should be verifiable by someone other than
 the implementer.
 
+### Planned Commits
+Document the atomic commits that will implement this issue:
+
+```markdown
+## Planned Commits
+
+1. `type(scope): short description`
+   - What this commit includes
+   - Key changes or files affected
+
+2. `type(scope): another description`
+   - Details about this commit
+```
+
+This provides:
+- Implementation roadmap for the developer
+- Context for reviewers about the intended structure
+- Reference point for tracking progress on complex changes
+- Forces upfront thinking about how to break down the work
+
+Even single-commit issues should document the planned commit - it clarifies
+intent and ensures the commit message is thought through before implementation.
+
 ### Notes (optional)
 Additional context that doesn't fit above:
 - Constraints or limitations
@@ -128,6 +151,21 @@ update in real-time.
 - Clients can connect to ws://localhost:18584
 - Entity state is received by connected clients
 - Server handles disconnections gracefully without errors
+
+## Planned Commits
+
+1. `feat(mod): add Fleck WebSocket server initialization`
+   - Add Fleck NuGet dependency
+   - Initialize server in Plugin.cs OnEnable()
+   - Add basic connection handling
+
+2. `feat(mod): add entity state message serialization`
+   - Create EntityStateMessage class
+   - Implement JSON serialization
+
+3. `feat(mod): add client broadcast loop`
+   - Implement timed broadcast to all connected clients
+   - Add BepInEx config for port and interval
 
 ## Notes
 
