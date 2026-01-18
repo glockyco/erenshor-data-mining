@@ -7,10 +7,14 @@ public class ItemBagRecord
 {
     public const string TableName = "ItemBags";
 
-    [PrimaryKey, AutoIncrement]
-    public int Id { get; set; }
-    [Indexed]
-    public int CoordinateId { get; set; }
+    [PrimaryKey]
+    public string StableKey { get; set; } = string.Empty;
+
+    public string Scene { get; set; } = string.Empty;
+    public float X { get; set; }
+    public float Y { get; set; }
+    public float Z { get; set; }
+
     [Indexed]
     [ForeignKey(typeof(ItemRecord), "StableKey")]
     public string? ItemStableKey { get; set; }
