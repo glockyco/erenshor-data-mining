@@ -2,13 +2,11 @@ using System.Collections.Generic;
 using System.Linq;
 using SQLite;
 using UnityEngine;
-using static CoordinateRecord;
 using static SecretPassageRecord;
 
 public class SecretPassageListener : IAssetScanListener<GameObject>
 {
     private readonly SQLiteConnection _db;
-    private readonly List<CoordinateRecord> _coordinateRecords = new();
     private readonly List<SecretPassageRecord> _secretPassageRecords = new();
 
     public SecretPassageListener(SQLiteConnection db)
@@ -18,19 +16,15 @@ public class SecretPassageListener : IAssetScanListener<GameObject>
 
     public void OnScanFinished()
     {
-        _db.CreateTable<CoordinateRecord>();
         _db.CreateTable<SecretPassageRecord>();
 
         _db.RunInTransaction(() =>
         {
-            _db.Execute("DELETE FROM Coordinates WHERE Category = ?", nameof(CoordinateCategory.SecretPassage));
             _db.DeleteAll<SecretPassageRecord>();
 
-            _db.InsertAll(_coordinateRecords);
             _db.InsertAll(_secretPassageRecords);
         });
 
-        _coordinateRecords.Clear();
         _secretPassageRecords.Clear();
     }
 
@@ -101,27 +95,22 @@ public class SecretPassageListener : IAssetScanListener<GameObject>
         Debug.Log($"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
 
         var position = enabledRenderer ? enabledRenderer.bounds.center : enabledCollider.bounds.center;
-
-        var coordinate = new CoordinateRecord
-        {
-            Scene = asset.scene.name,
-            X = position.x,
-            Y = position.y,
-            Z = position.z,
-            Category = nameof(CoordinateCategory.SecretPassage),
-        };
+        var scene = asset.scene.name;
+        var x = position.x;
+        var y = position.y;
+        var z = position.z;
 
         var secretPassage = new SecretPassageRecord
         {
-            Id = TableIdGenerator.NextId(SecretPassageRecord.TableName),
-            CoordinateId = coordinate.Id,
+            StableKey = StableKeyGenerator.ForSecretPassage(scene, x, y, z),
+            Scene = scene,
+            X = x,
+            Y = y,
+            Z = z,
             ObjectName = asset.name,
             Type = type.ToString(),
         };
 
-        coordinate.SecretPassageId = secretPassage.Id;
-
-        _coordinateRecords.Add(coordinate);
         _secretPassageRecords.Add(secretPassage);
     }
 }
