@@ -8,6 +8,8 @@ using UnityEngine;
 public class MiningNodeListener : IAssetScanListener<MiningNode>
 {
     private readonly SQLiteConnection _db;
+    private readonly List<MiningNodeRecord> _miningNodeRecords = new();
+    private readonly List<MiningNodeItemRecord> _miningNodeItemRecords = new();
 
     public MiningNodeListener(SQLiteConnection db)
     {
@@ -21,11 +23,18 @@ public class MiningNodeListener : IAssetScanListener<MiningNode>
 
         _db.DeleteAll<MiningNodeRecord>();
         _db.DeleteAll<MiningNodeItemRecord>();
+
+        _miningNodeRecords.Clear();
+        _miningNodeItemRecords.Clear();
     }
 
     public void OnScanFinished()
     {
-        // No post-processing needed
+        _db.InsertAll(_miningNodeRecords);
+        _db.InsertAll(_miningNodeItemRecords);
+
+        _miningNodeRecords.Clear();
+        _miningNodeItemRecords.Clear();
     }
 
     public void OnAssetFound(MiningNode asset)
@@ -49,8 +58,8 @@ public class MiningNodeListener : IAssetScanListener<MiningNode>
             RespawnTime = asset.RespawnTime
         };
 
-        _db.Insert(miningNode);
-        _db.InsertAll(CreateMiningNodeItemRecords(asset, stableKey));
+        _miningNodeRecords.Add(miningNode);
+        _miningNodeItemRecords.AddRange(CreateMiningNodeItemRecords(asset, stableKey));
     }
 
     private static List<MiningNodeItemRecord> CreateMiningNodeItemRecords(MiningNode node, string miningNodeStableKey)
