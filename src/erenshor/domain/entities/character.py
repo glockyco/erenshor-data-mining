@@ -22,11 +22,10 @@ class Character(BaseEntity):
 
     # Primary keys and identifiers
     stable_key: str = Field(description="Stable key from database (primary key)")
-    coordinate_id: int | None = Field(default=None, description="Coordinate reference")
     object_name: str | None = Field(default=None, description="Stable object identifier")
     npc_name: str | None = Field(default=None, description="Display name")
 
-    # Coordinate data (from Coordinates table JOIN)
+    # Coordinate data (embedded in Characters table)
     scene: str | None = Field(default=None, description="Scene name")
     x: float | None = Field(default=None, description="X coordinate")
     y: float | None = Field(default=None, description="Y coordinate")

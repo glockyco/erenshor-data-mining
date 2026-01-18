@@ -18,12 +18,20 @@ class SpawnPoint(BaseEntity):
     All fields match the Unity export schema from the SpawnPoints table.
     """
 
-    # Primary key and references
-    id: int = Field(description="Database ID (primary key)")
-    coordinate_id: int | None = Field(default=None, description="Coordinate reference for location")
+    # Primary key
+    stable_key: str = Field(description="Stable key from database (primary key)")
+
+    # Location (embedded coordinates)
+    scene: str | None = Field(default=None, description="Scene name")
+    x: float | None = Field(default=None, description="X coordinate")
+    y: float | None = Field(default=None, description="Y coordinate")
+    z: float | None = Field(default=None, description="Z coordinate")
 
     # Spawn state
     is_enabled: int | None = Field(default=None, description="Spawn is active (boolean)")
+    is_directly_placed: int | None = Field(
+        default=None, description="Virtual spawn point for directly placed character (boolean)"
+    )
 
     # Spawn properties
     rare_npc_chance: int | None = Field(default=None, description="Rare spawn chance percentage")
