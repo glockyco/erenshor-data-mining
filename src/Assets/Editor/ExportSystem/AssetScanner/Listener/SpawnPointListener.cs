@@ -5,12 +5,10 @@ using System.Linq;
 using SQLite;
 using UnityEditor;
 using UnityEngine;
-using static CoordinateRecord;
 
 public class SpawnPointListener : IAssetScanListener<SpawnPoint>
 {
     private readonly SQLiteConnection _db;
-    private readonly List<CoordinateRecord> _coordinateRecords = new();
     private readonly List<SpawnPointRecord> _spawnPointRecords = new();
     private readonly List<SpawnPointCharacterRecord> _spawnPointCharacterRecords = new();
     private readonly List<SpawnPointStopQuestRecord> _spawnPointStopQuestRecords = new();
@@ -28,22 +26,18 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
 
     public void OnScanFinished()
     {
-        _db.CreateTable<CoordinateRecord>();
         _db.CreateTable<SpawnPointRecord>();
         _db.CreateTable<SpawnPointCharacterRecord>();
 
         _db.RunInTransaction(() =>
         {
-            _db.Execute("DELETE FROM Coordinates WHERE Category = ?", nameof(CoordinateCategory.SpawnPoint));
             _db.DeleteAll<SpawnPointRecord>();
             _db.DeleteAll<SpawnPointCharacterRecord>();
 
-            _db.InsertAll(_coordinateRecords);
             _db.InsertAll(_spawnPointRecords);
             _db.InsertAll(_spawnPointCharacterRecords);
         });
 
-        _coordinateRecords.Clear();
         _spawnPointRecords.Clear();
         _spawnPointCharacterRecords.Clear();
 
@@ -63,41 +57,34 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
 
     public void OnAssetFound(SpawnPoint asset)
     {
-        var coordinateRecord = CreateCoordinateRecord(asset);
-        var spawnPointRecord = CreateSpawnPointRecord(asset, coordinateRecord.Id);
-        coordinateRecord.SpawnPointId = spawnPointRecord.Id;
+        var scene = asset.gameObject.scene.name;
+        var x = asset.transform.position.x;
+        var y = asset.transform.position.y;
+        var z = asset.transform.position.z;
+        var stableKey = StableKeyGenerator.ForSpawnPoint(scene, x, y, z);
 
-        _coordinateRecords.Add(coordinateRecord);
+        var spawnPointRecord = CreateSpawnPointRecord(asset, stableKey, scene, x, y, z);
         _spawnPointRecords.Add(spawnPointRecord);
 
-        var spawnPointCharacterRecords = CreateSpawnPointCharacterRecords(asset, spawnPointRecord.Id);
+        var spawnPointCharacterRecords = CreateSpawnPointCharacterRecords(asset, stableKey);
         _spawnPointCharacterRecords.AddRange(spawnPointCharacterRecords);
 
-        _spawnPointStopQuestRecords.AddRange(CreateSpawnPointStopQuestRecords(asset, spawnPointRecord.Id));
-        _spawnPointPatrolPointRecords.AddRange(CreateSpawnPointPatrolPointRecords(asset, spawnPointRecord.Id));
+        _spawnPointStopQuestRecords.AddRange(CreateSpawnPointStopQuestRecords(asset, stableKey));
+        _spawnPointPatrolPointRecords.AddRange(CreateSpawnPointPatrolPointRecords(asset, stableKey));
     }
 
-    private CoordinateRecord CreateCoordinateRecord(SpawnPoint spawnPoint)
-    {
-        return new CoordinateRecord
-        {
-            Scene = spawnPoint.gameObject.scene.name,
-            X = spawnPoint.transform.position.x,
-            Y = spawnPoint.transform.position.y,
-            Z = spawnPoint.transform.position.z,
-            Category = nameof(CoordinateCategory.SpawnPoint)
-        };
-    }
-
-    private SpawnPointRecord CreateSpawnPointRecord(SpawnPoint spawnPoint, int coordinateId)
+    private SpawnPointRecord CreateSpawnPointRecord(SpawnPoint spawnPoint, string stableKey, string scene, float x, float y, float z)
     {
         // Default value 600f is taken from `SpawnPoint.Start`.
         var spawnDelay = spawnPoint.SpawnDelay == 0f ? 600f : spawnPoint.SpawnDelay;
 
         return new SpawnPointRecord
         {
-            Id = TableIdGenerator.NextId(SpawnPointRecord.TableName),
-            CoordinateId = coordinateId,
+            StableKey = stableKey,
+            Scene = scene,
+            X = x,
+            Y = y,
+            Z = z,
             IsEnabled = spawnPoint.isActiveAndEnabled,
             RareNPCChance = spawnPoint.RareNPCChance,
             LevelMod = spawnPoint.levelMod,
@@ -118,7 +105,7 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
         };
     }
 
-    private List<SpawnPointCharacterRecord> CreateSpawnPointCharacterRecords(SpawnPoint spawnPoint, int spawnPointId)
+    private List<SpawnPointCharacterRecord> CreateSpawnPointCharacterRecords(SpawnPoint spawnPoint, string spawnPointStableKey)
     {
         // Use Character stable key for grouping
         var characterData = new Dictionary<string, (float spawnChance, bool isCommon, bool isRare)>();
@@ -184,7 +171,7 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
         {
             records.Add(new SpawnPointCharacterRecord
             {
-                SpawnPointId = spawnPointId,
+                SpawnPointStableKey = spawnPointStableKey,
                 CharacterStableKey = kvp.Key,
                 SpawnChance = kvp.Value.spawnChance,
                 IsCommon = kvp.Value.isCommon,
@@ -195,7 +182,7 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
         return records;
     }
 
-    private List<SpawnPointStopQuestRecord> CreateSpawnPointStopQuestRecords(SpawnPoint spawnPoint, int spawnPointId)
+    private List<SpawnPointStopQuestRecord> CreateSpawnPointStopQuestRecords(SpawnPoint spawnPoint, string spawnPointStableKey)
     {
         var records = new List<SpawnPointStopQuestRecord>();
         var seenQuestStableKeys = new HashSet<string>();
@@ -211,7 +198,7 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
                     {
                         records.Add(new SpawnPointStopQuestRecord
                         {
-                            SpawnPointId = spawnPointId,
+                            SpawnPointStableKey = spawnPointStableKey,
                             QuestStableKey = questStableKey
                         });
                     }
@@ -222,7 +209,7 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
         return records;
     }
 
-    private List<SpawnPointPatrolPointRecord> CreateSpawnPointPatrolPointRecords(SpawnPoint spawnPoint, int spawnPointId)
+    private List<SpawnPointPatrolPointRecord> CreateSpawnPointPatrolPointRecords(SpawnPoint spawnPoint, string spawnPointStableKey)
     {
         var records = new List<SpawnPointPatrolPointRecord>();
 
@@ -235,7 +222,7 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
                 {
                     records.Add(new SpawnPointPatrolPointRecord
                     {
-                        SpawnPointId = spawnPointId,
+                        SpawnPointStableKey = spawnPointStableKey,
                         SequenceIndex = i,
                         X = patrolPoint.position.x,
                         Y = patrolPoint.position.y,
