@@ -11,7 +11,7 @@ Quick reference for the WebSocket protocol. Full specification in
 ## Key Decisions
 
 - **Protocol version**: `0.1.0` (0.x = breaking changes expected)
-- **Port**: 18584 (configurable)
+- **Port**: 18585 (configurable)
 - **Bind**: `0.0.0.0` (all interfaces for LAN access)
 - **Format**: JSON with `type` field, camelCase naming
 - **Coordinates**: Zone-local Unity coords `[x, y, z]`, client transforms to map

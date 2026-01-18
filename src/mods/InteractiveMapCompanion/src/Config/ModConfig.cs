@@ -31,7 +31,7 @@ public class ModConfig
         Port = config.Bind(
             "Server",
             "Port",
-            18584,
+            18585,
             "WebSocket server port. Clients connect to ws://localhost:{port}"
         );
 
