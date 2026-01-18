@@ -6,6 +6,7 @@ public class ZoneLineListener : IAssetScanListener<Zoneline>
 {
     private readonly SQLiteConnection _db;
     private readonly List<ZoneLineRecord> _records = new();
+    private readonly Dictionary<string, int> _stableKeyCounters = new(); // Track occurrence count for each base stable key
 
     public ZoneLineListener(SQLiteConnection db)
     {
@@ -42,9 +43,26 @@ public class ZoneLineListener : IAssetScanListener<Zoneline>
         var y = zoneLine.transform.position.y;
         var z = zoneLine.transform.position.z;
 
+        // Generate base stable key and check for duplicates
+        var baseStableKey = StableKeyGenerator.ForZoneLine(sourceScene, destScene, x, y, z);
+        int variantIndex = 0;
+
+        if (_stableKeyCounters.ContainsKey(baseStableKey))
+        {
+            _stableKeyCounters[baseStableKey]++;
+            variantIndex = _stableKeyCounters[baseStableKey];
+            UnityEngine.Debug.LogWarning($"[ZoneLineListener] Duplicate zone line StableKey: '{baseStableKey}'. GameObject: '{zoneLine.gameObject.name}'. Assigning variant index |{variantIndex}.");
+        }
+        else
+        {
+            _stableKeyCounters[baseStableKey] = 0;
+        }
+
+        var stableKey = variantIndex > 0 ? $"{baseStableKey}:{variantIndex}" : baseStableKey;
+
         return new ZoneLineRecord
         {
-            StableKey = StableKeyGenerator.ForZoneLine(sourceScene, destScene, x, y, z),
+            StableKey = stableKey,
             Scene = sourceScene,
             X = x,
             Y = y,
