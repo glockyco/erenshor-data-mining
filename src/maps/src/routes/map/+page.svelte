@@ -112,7 +112,7 @@
     }
 
     // Find marker by coordinateId and category
-    function findMarkerByIdAndType(id: number, type: string): AnyWorldMarker | null {
+    function findMarkerByStableKey(stableKey: string): AnyWorldMarker | null {
         const allMarkers: AnyWorldMarker[] = [
             ...data.markers.achievementTriggers,
             ...data.markers.doors,
@@ -130,7 +130,7 @@
             ...data.markers.wishingWells,
             ...data.markers.zoneLines
         ];
-        return allMarkers.find((m) => m.coordinateId === id && m.category === type) ?? null;
+        return allMarkers.find((m) => m.stableKey === stableKey) ?? null;
     }
 
     // Find zone by key
@@ -144,14 +144,12 @@
      * Only static markers and zones are persisted (live entities are ephemeral).
      */
     function buildUrlParams() {
-        let entityId: string | null = null;
-        let entityType: string | null = null;
+        let marker: string | null = null;
         let selectedZoneKey: string | null = null;
 
         // Only persist markers and zones to URL (not ephemeral live entities)
         if (selection?.type === 'marker') {
-            entityId = String(selection.marker.coordinateId);
-            entityType = selection.marker.category;
+            marker = selection.marker.stableKey;
         } else if (selection?.type === 'zone') {
             selectedZoneKey = selection.zone.key;
         }
@@ -159,8 +157,7 @@
         return {
             viewState: currentViewState,
             layers: layerVisibility,
-            entityId,
-            entityType,
+            marker,
             selectedZoneKey,
             focusedZoneId: focusedZone,
             debug: isDebugMode,
@@ -475,12 +472,12 @@
                 }
 
                 // Restore selection (marker or zone)
-                if (urlState.entity && urlState.etype) {
-                    const marker = findMarkerByIdAndType(parseInt(urlState.entity), urlState.etype);
+                if (urlState.marker) {
+                    const marker = findMarkerByStableKey(urlState.marker);
                     if (marker) {
                         applySelection({ type: 'marker', marker }, true);
                     } else {
-                        console.warn(`Marker not found: ${urlState.etype}:${urlState.entity}`);
+                        console.warn(`Marker not found: ${urlState.marker}`);
                         applySelection(null, true);
                     }
                 } else if (urlState.selectedZone) {
@@ -496,7 +493,7 @@
                 }
 
                 // Sync deduplication tracking
-                urlManager.setLastSelection(urlState.entity, urlState.etype, urlState.selectedZone);
+                urlManager.setLastSelection(urlState.marker, urlState.selectedZone);
             } else {
                 // No URL state - use defaults
                 isDebugMode = false;
@@ -668,8 +665,8 @@
                 }
 
                 // Restore selection from URL (marker or zone)
-                if (urlState.entity && urlState.etype) {
-                    const marker = findMarkerByIdAndType(parseInt(urlState.entity), urlState.etype);
+                if (urlState.marker) {
+                    const marker = findMarkerByStableKey(urlState.marker);
                     if (marker) {
                         applySelection({ type: 'marker', marker }, true);
                     }
@@ -680,7 +677,7 @@
                     }
                 }
 
-                urlManager.setLastSelection(urlState.entity, urlState.etype, urlState.selectedZone);
+                urlManager.setLastSelection(urlState.marker, urlState.selectedZone);
             }
         } finally {
             urlManager.exitPassiveMode();

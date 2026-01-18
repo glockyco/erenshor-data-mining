@@ -177,11 +177,11 @@
     {@const marker = selection.marker}
     <PopupContainer {title} subtitle={categoryLabel} {borderColorClass} {onClose} {onFocus}>
         {#if marker.category === 'enemy'}
-            {#key marker.coordinateId}
+            {#key marker.stableKey}
                 <EnemyPopupContent {marker} />
             {/key}
         {:else if marker.category === 'npc'}
-            {#key marker.coordinateId}
+            {#key marker.stableKey}
                 <NpcPopupContent {marker} />
             {/key}
         {:else if marker.category === 'zone-line'}
