@@ -121,10 +121,10 @@ public class QuestListener : IAssetScanListener<Quest>
             SetAchievementOnGet = quest.SetAchievementOnGet,
             SetAchievementOnFinish = quest.SetAchievementOnFinish,
 
-            // --- Vendor Unlocks ---
-            UnlockItemForVendorStableKey = quest.UnlockItemForVendor != null
-                ? StableKeyGenerator.ForItem(quest.UnlockItemForVendor)
-                : null,
+            // DISABLED: UnlockItemForVendor only exists in playtest variant
+            // UnlockItemForVendorStableKey = quest.UnlockItemForVendor != null
+            //     ? StableKeyGenerator.ForItem(quest.UnlockItemForVendor)
+            //     : null,
         };
     }
 

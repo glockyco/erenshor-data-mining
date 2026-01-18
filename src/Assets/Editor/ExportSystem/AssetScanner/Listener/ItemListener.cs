@@ -214,7 +214,8 @@ public class ItemListener : IAssetScanListener<Item>
             FuelSource = item.FuelSource,
             FuelLevel = (int)item.FuelLevel,
             SimPlayersCantGet = item.SimPlayersCantGet,
-            FurnitureSet = item.FurnitureSet,
+            // DISABLED: FurnitureSet only exists in playtest variant
+            // FurnitureSet = item.FurnitureSet,
 
             // --- Visuals & Sound ---
             AttackSoundName = attackSound,

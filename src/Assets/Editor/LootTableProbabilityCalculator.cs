@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,7 +12,9 @@ public class LootTableProbabilityCalculator
     {
         // Gather all unique items (excluding world)
         List<Item>[] dropLists = new List<Item>[5];
-        dropLists[0] = lootTable.UltraRareDrop ?? new List<Item>();
+        // DISABLED: UltraRareDrop only exists in playtest variant
+        // dropLists[0] = lootTable.UltraRareDrop ?? new List<Item>();
+        dropLists[0] = new List<Item>();
         dropLists[1] = lootTable.LegendaryDrop ?? new List<Item>();
         dropLists[2] = lootTable.RareDrop ?? new List<Item>();
         dropLists[3] = lootTable.UncommonDrop ?? new List<Item>();
@@ -257,7 +259,9 @@ public class LootTableProbabilityCalculator
     {
         // Gather all unique items (excluding world)
         List<Item>[] dropLists = new List<Item>[5];
-        dropLists[0] = lootTable.UltraRareDrop ?? new List<Item>();
+        // DISABLED: UltraRareDrop only exists in playtest variant
+        // dropLists[0] = lootTable.UltraRareDrop ?? new List<Item>();
+        dropLists[0] = new List<Item>();
         dropLists[1] = lootTable.LegendaryDrop ?? new List<Item>();
         dropLists[2] = lootTable.RareDrop ?? new List<Item>();
         dropLists[3] = lootTable.UncommonDrop ?? new List<Item>();

@@ -806,24 +806,25 @@ public class CharacterListener : IAssetScanListener<Character>
         var records = new List<CharacterVendorQuestUnlockRecord>();
         var seenQuestStableKeys = new HashSet<string>();
 
-        if (vendorInventory.QuestRewardsForSale != null && vendorInventory.QuestRewardsForSale.Count > 0)
-        {
-            foreach (var quest in vendorInventory.QuestRewardsForSale)
-            {
-                if (quest != null && !string.IsNullOrEmpty(quest.DBName))
-                {
-                    var questStableKey = StableKeyGenerator.ForQuest(quest);
-                    if (seenQuestStableKeys.Add(questStableKey))
-                    {
-                        records.Add(new CharacterVendorQuestUnlockRecord
-                        {
-                            CharacterStableKey = characterStableKey,
-                            QuestStableKey = questStableKey
-                        });
-                    }
-                }
-            }
-        }
+        // DISABLED: QuestRewardsForSale property only exists in playtest variant
+        // if (vendorInventory.QuestRewardsForSale != null && vendorInventory.QuestRewardsForSale.Count > 0)
+        // {
+        //     foreach (var quest in vendorInventory.QuestRewardsForSale)
+        //     {
+        //         if (quest != null && !string.IsNullOrEmpty(quest.DBName))
+        //         {
+        //             var questStableKey = StableKeyGenerator.ForQuest(quest);
+        //             if (seenQuestStableKeys.Add(questStableKey))
+        //             {
+        //                 records.Add(new CharacterVendorQuestUnlockRecord
+        //                 {
+        //                     CharacterStableKey = characterStableKey,
+        //                     QuestStableKey = questStableKey
+        //                 });
+        //             }
+        //         }
+        //     }
+        // }
 
         return records;
     }

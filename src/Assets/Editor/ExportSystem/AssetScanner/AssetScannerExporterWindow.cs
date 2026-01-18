@@ -224,11 +224,12 @@ public class AssetScannerExporterWindow : EditorWindow
         if (_exportAscensions) _activeScanner.RegisterScriptableObjectListener(new AscensionListener(_db));
         if (_exportBooks) _activeScanner.RegisterScriptableObjectListener(new BookListener(_db));
         if (_exportClasses) _activeScanner.RegisterScriptableObjectListener(new ClassListener(_db));
-        if (_exportGuildTopics) _activeScanner.RegisterScriptableObjectListener(new GuildTopicListener(_db));
+        // DISABLED: GuildTopic and Stance types only exist in playtest variant
+        // if (_exportGuildTopics) _activeScanner.RegisterScriptableObjectListener(new GuildTopicListener(_db));
         if (_exportQuests) _activeScanner.RegisterScriptableObjectListener(new QuestListener(_db));
         if (_exportSkills) _activeScanner.RegisterScriptableObjectListener(new SkillListener(_db));
         if (_exportSpells) _activeScanner.RegisterScriptableObjectListener(new SpellListener(_db));
-        if (_exportStances) _activeScanner.RegisterScriptableObjectListener(new StanceListener(_db));
+        // if (_exportStances) _activeScanner.RegisterScriptableObjectListener(new StanceListener(_db));
         if (_exportWorldFactions) _activeScanner.RegisterScriptableObjectListener(new WorldFactionListener(_db));
         if (_exportZoneAtlasEntries) _activeScanner.RegisterScriptableObjectListener(new ZoneAtlasEntryListener(_db));
 

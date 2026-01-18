@@ -267,8 +267,9 @@ public static class ExportBatch
             ["quests"] = () => scanner.RegisterScriptableObjectListener(new QuestListener(db)),
             ["skills"] = () => scanner.RegisterScriptableObjectListener(new SkillListener(db)),
             ["spells"] = () => scanner.RegisterScriptableObjectListener(new SpellListener(db)),
-            ["stances"] = () => scanner.RegisterScriptableObjectListener(new StanceListener(db)),
-            ["guildtopics"] = () => scanner.RegisterScriptableObjectListener(new GuildTopicListener(db)),
+            // DISABLED: Stance and GuildTopic types only exist in playtest variant
+            // ["stances"] = () => scanner.RegisterScriptableObjectListener(new StanceListener(db)),
+            // ["guildtopics"] = () => scanner.RegisterScriptableObjectListener(new GuildTopicListener(db)),
             ["worldfactions"] = () => scanner.RegisterScriptableObjectListener(new WorldFactionListener(db)),
             ["zoneatlasentries"] = () => scanner.RegisterScriptableObjectListener(new ZoneAtlasEntryListener(db)),
 

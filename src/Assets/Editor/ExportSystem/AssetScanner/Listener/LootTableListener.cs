@@ -105,10 +105,13 @@ public class LootTableListener : IAssetScanListener<LootTable>
                 IsUncommon = lootTable.UncommonDrop != null && lootTable.UncommonDrop.Contains(item),
                 IsRare = lootTable.RareDrop != null && lootTable.RareDrop.Contains(item),
                 IsLegendary = lootTable.LegendaryDrop != null && lootTable.LegendaryDrop.Contains(item),
-                IsUltraRare = lootTable.UltraRareDrop != null && lootTable.UltraRareDrop.Contains(item),
+                // DISABLED: UltraRareDrop and ZoneThisLootIsFrom only exist in playtest variant
+                // IsUltraRare = lootTable.UltraRareDrop != null && lootTable.UltraRareDrop.Contains(item),
+                IsUltraRare = false,
                 IsUnique = item.Unique,
                 IsVisible = lootTable.VisiblePieces.Select(t => t.name).Contains(item.EquipmentToActivate),
-                Zone = lootTable.ZoneThisLootIsFrom ?? string.Empty
+                // Zone = lootTable.ZoneThisLootIsFrom ?? string.Empty
+                Zone = string.Empty
             };
             records.Add(record);
         }
@@ -150,9 +153,10 @@ public class LootTableListener : IAssetScanListener<LootTable>
     private static IEnumerable<Item> EnumerateAllUniqueItems(LootTable lootTable)
     {
         var seen = new HashSet<string>();
+        // DISABLED: UltraRareDrop only exists in playtest variant
         foreach (var list in new[]
                  {
-                     lootTable.UltraRareDrop,
+                     // lootTable.UltraRareDrop,
                      lootTable.LegendaryDrop,
                      lootTable.RareDrop,
                      lootTable.UncommonDrop,

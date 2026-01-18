@@ -34,11 +34,11 @@ public class GameConstantListener : IAssetScanListener<Object>
         // Feature flags - presence/absence indicates new features
         AddConstant("XPLossOnDeath", GameData.XPLossOnDeath, "Whether XP is lost on death");
 
-        // Server settings that may vary
-        TryAddConstant("NPCFlee", () => GameData.NPCFlee, "Whether NPCs can flee");
-        TryAddConstant("Jail", () => GameData.Jail, "Whether jail mechanic is enabled");
-        TryAddConstant("ServerPop", () => GameData.ServerPop, "Server population setting");
-        TryAddConstant("XPLock", () => GameData.XPLock, "XP lock level (0 = disabled)");
+        // DISABLED: Server settings only exist in playtest variant
+        // TryAddConstant("NPCFlee", () => GameData.NPCFlee, "Whether NPCs can flee");
+        // TryAddConstant("Jail", () => GameData.Jail, "Whether jail mechanic is enabled");
+        // TryAddConstant("ServerPop", () => GameData.ServerPop, "Server population setting");
+        // TryAddConstant("XPLock", () => GameData.XPLock, "XP lock level (0 = disabled)");
 
         Debug.Log($"[{GetType().Name}] Collected {_records.Count} constants");
     }

@@ -58,7 +58,8 @@ public class SkillListener : IAssetScanListener<Skill>
             ArcanistRequiredLevel = skill.ArcanistRequiredLevel,
             DruidRequiredLevel = skill.DruidRequiredLevel,
             StormcallerRequiredLevel = skill.StormcallerRequiredLevel,
-            ReaverRequiredLevel = skill.ReaverRequiredLevel,
+            // DISABLED: ReaverRequiredLevel only exists in playtest variant
+            // ReaverRequiredLevel = skill.ReaverRequiredLevel,
             RequireBehind = skill.RequireBehind,
             Require2H = skill.Require2H,
             RequireDW = skill.RequireDW,
@@ -94,9 +95,10 @@ public class SkillListener : IAssetScanListener<Skill>
             CastOnTargetStableKey = skill.CastOnTarget != null
                 ? StableKeyGenerator.ForSpell(skill.CastOnTarget)
                 : null,
-            StanceToUseStableKey = skill.StanceToUse != null
-                ? StableKeyGenerator.ForStance(skill.StanceToUse)
-                : null,
+            // DISABLED: StanceToUse only exists in playtest variant
+            // StanceToUseStableKey = skill.StanceToUse != null
+            //     ? StableKeyGenerator.ForStance(skill.StanceToUse)
+            //     : null,
 
             // --- Visual/Audio ---
             SkillAnimName = skill.SkillAnimName,

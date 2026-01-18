@@ -94,7 +94,8 @@ public class SpellListener : IAssetScanListener<Spell>
             GroupEffect = spell.GroupEffect,
             CanHitPlayers = spell.CanHitPlayers,
             ApplyToCaster = spell.ApplyToCaster,
-            InflictOnSelf = spell.InflictOnSelf,
+            // DISABLED: InflictOnSelf only exists in playtest variant
+            // InflictOnSelf = spell.InflictOnSelf,
 
             // --- Core Effects (Damage/Heal/Shield) ---
             TargetDamage = spell.TargetDamage,
@@ -136,7 +137,8 @@ public class SpellListener : IAssetScanListener<Spell>
             RootTarget = spell.RootTarget,
             StunTarget = spell.StunTarget,
             CharmTarget = spell.CharmTarget,
-            FearTarget = spell.FearTarget,
+            // DISABLED: FearTarget only exists in playtest variant
+            // FearTarget = spell.FearTarget,
             CrowdControlSpell = spell.CrowdControlSpell,
             BreakOnDamage = spell.BreakOnDamage,
             BreakOnAnyAction = spell.BreakOnAnyAction,
