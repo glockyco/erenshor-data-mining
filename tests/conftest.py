@@ -1,15 +1,14 @@
-"""Pytest configuration and fixtures for integration tests.
+"""Pytest configuration and fixtures for tests.
 
 This module provides comprehensive fixtures for testing the wiki update pipeline
 with real components (no mocking):
-- Real SQLite database with test data
+- Real SQLite database from exported game data
 - Real registry system
 - Real file I/O for pages
 - Real rendering with Jinja2
 
 Database Fixtures:
-- in_memory_db: Fresh SQLite in-memory database for fast unit tests
-- integration_db: Loads integration-28kb.sql fixture for integration tests
+- integration_db: Uses most recently exported database from variants/ directory
 - production_db: Optional full database (skips if missing)
 
 All fixtures create temporary directories and clean up after themselves.
@@ -18,47 +17,20 @@ All fixtures create temporary directories and clean up after themselves.
 from __future__ import annotations
 
 import shutil
-import sqlite3
 import tempfile
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 import pytest
-from sqlalchemy import create_engine, text
 
 if TYPE_CHECKING:
     from collections.abc import Generator
-
-    from sqlalchemy.engine import Engine
 
 # Lazy imports to avoid loading modules that don't exist yet during early testing
 # These imports happen inside fixture functions only when actually needed
 
 
 # === Database Fixtures ===
-
-
-@pytest.fixture
-def in_memory_db() -> Generator[sqlite3.Connection]:
-    """Create a fresh in-memory SQLite database for fast unit tests.
-
-    This fixture provides a clean database with schema loaded but no data.
-    Perfect for unit tests that need to test database operations without
-    the overhead of loading full test data.
-
-    Yields:
-        sqlite3.Connection: Connection to in-memory database
-    """
-    conn = sqlite3.connect(":memory:")
-    schema_path = Path(__file__).parent / "fixtures" / "database" / "schema.sql"
-
-    if schema_path.exists():
-        schema_sql = schema_path.read_text()
-        conn.executescript(schema_sql)
-        conn.commit()
-
-    yield conn
-    conn.close()
 
 
 @pytest.fixture(scope="session")
@@ -137,47 +109,6 @@ def reset_path_resolver() -> Generator[None]:
         yield
 
 
-@pytest.fixture(scope="session")
-def test_db_path(tmp_path_factory: pytest.TempPathFactory) -> Path:
-    """Create a test database from SQL fixture.
-
-    This fixture is session-scoped to avoid recreating the database for every test.
-    The database contains minimal but representative data for all content types.
-    """
-    # Create temp database file
-    db_path = tmp_path_factory.mktemp("db") / "test_erenshor.sqlite"
-
-    # Load SQL fixture
-    fixture_path = Path(__file__).parent / "fixtures" / "test_erenshor.sql"
-
-    if not fixture_path.exists():
-        pytest.skip(f"Test database fixture not found: {fixture_path}")
-
-    # Create database from SQL
-    engine = create_engine(f"sqlite:///{db_path}")
-    try:
-        with engine.connect() as conn:
-            sql_content = fixture_path.read_text()
-            # Execute each statement separately (SQLite doesn't support executescript via SQLAlchemy)
-            for stmt in sql_content.split(";"):
-                stmt = stmt.strip()  # noqa: PLW2901 (redefined loop variable)
-                if stmt:
-                    conn.execute(text(stmt))
-            conn.commit()
-    finally:
-        engine.dispose()
-
-    return db_path
-
-
-@pytest.fixture(scope="session")
-def test_engine(test_db_path: Path) -> Generator[Engine]:
-    """Create SQLAlchemy engine for test database."""
-    engine = create_engine(f"sqlite:///{test_db_path}")
-    yield engine
-    engine.dispose()
-
-
 @pytest.fixture
 def temp_dir() -> Generator[Path]:
     """Create a temporary directory that gets cleaned up after test."""
@@ -216,19 +147,6 @@ def test_output_storage(test_registry, temp_dir: Path):
     output_dir = temp_dir / "wiki_updated"
     output_dir.mkdir(parents=True, exist_ok=True)
     return PageStorage(test_registry, output_dir)
-
-
-@pytest.fixture
-def test_settings(test_db_path: Path, temp_dir: Path):
-    """Create WikiSettings for testing."""
-    from erenshor.infrastructure.config.settings import WikiSettings
-
-    return WikiSettings(
-        db_path=test_db_path,
-        cache_dir=temp_dir / "wiki_cache",
-        output_dir=temp_dir / "wiki_updated",
-        reports_dir=temp_dir / "reports",
-    )
 
 
 @pytest.fixture
