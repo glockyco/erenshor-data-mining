@@ -8,7 +8,8 @@ public class MiningNodeItemRecord
     public const string TableName = "MiningNodeItems";
 
     [Indexed(Name = "MiningNodeItems_Primary_IDX", Order = 1, Unique = true)]
-    public int MiningNodeId { get; set; }
+    [ForeignKey(typeof(MiningNodeRecord), "StableKey")]
+    public string MiningNodeStableKey { get; set; } = string.Empty;
 
     [Indexed(Name = "MiningNodeItems_Primary_IDX", Order = 2, Unique = true)]
     [ForeignKey(typeof(ItemRecord), "StableKey")]
