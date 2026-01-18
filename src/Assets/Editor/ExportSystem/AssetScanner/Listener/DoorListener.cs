@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using SQLite;
 using UnityEngine;
-using static CoordinateRecord;
 
 public class DoorListener : IAssetScanListener<Door>
 {
@@ -15,10 +14,8 @@ public class DoorListener : IAssetScanListener<Door>
 
     public void OnScanStarted()
     {
-        _db.CreateTable<CoordinateRecord>();
         _db.CreateTable<DoorRecord>();
 
-        _db.Execute("DELETE FROM Coordinates WHERE Category = ?", nameof(CoordinateCategory.Door));
         _db.DeleteAll<DoorRecord>();
 
         _records.Clear();
@@ -27,21 +24,6 @@ public class DoorListener : IAssetScanListener<Door>
     public void OnScanFinished()
     {
         _db.InsertAll(_records);
-
-        _db.Execute(@"
-            UPDATE Coordinates
-            SET DoorId = (
-                SELECT Id
-                FROM Doors
-                WHERE Doors.CoordinateId = Coordinates.Id
-            )
-            WHERE EXISTS (
-                SELECT 1
-                FROM Doors
-                WHERE Doors.CoordinateId = Coordinates.Id
-            );
-        ");
-
         _records.Clear();
     }
 
@@ -57,20 +39,18 @@ public class DoorListener : IAssetScanListener<Door>
         var renderer = door.GetComponent<Renderer>();
         var position = renderer != null ? renderer.bounds.center : door.transform.position;
 
-        var coordinate = new CoordinateRecord
-        {
-            Scene = door.gameObject.scene.name,
-            X = position.x,
-            Y = position.y,
-            Z = position.z,
-            Category = nameof(CoordinateCategory.Door)
-        };
-
-        _db.Insert(coordinate);
+        var scene = door.gameObject.scene.name;
+        var x = position.x;
+        var y = position.y;
+        var z = position.z;
 
         return new DoorRecord
         {
-            CoordinateId = coordinate.Id,
+            StableKey = StableKeyGenerator.ForDoor(scene, x, y, z),
+            Scene = scene,
+            X = x,
+            Y = y,
+            Z = z,
             KeyItemStableKey = door.RequiredKey != null
                 ? StableKeyGenerator.ForItem(door.RequiredKey)
                 : null
