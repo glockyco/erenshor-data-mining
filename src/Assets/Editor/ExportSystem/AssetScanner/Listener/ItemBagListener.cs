@@ -8,6 +8,7 @@ public class ItemBagListener : IAssetScanListener<ItemBag>
 {
     private readonly SQLiteConnection _db;
     private readonly List<ItemBagRecord> _itemBagRecords = new();
+    private readonly DuplicateKeyTracker _keyTracker = new("ItemBagListener");
 
     public ItemBagListener(SQLiteConnection db)
     {
@@ -42,9 +43,12 @@ public class ItemBagListener : IAssetScanListener<ItemBag>
         var y = asset.transform.position.y;
         var z = asset.transform.position.z;
 
+        var baseStableKey = StableKeyGenerator.ForItemBag(scene, x, y, z);
+        var stableKey = _keyTracker.GetUniqueKey(baseStableKey, asset.gameObject.name);
+
         var itemBag = new ItemBagRecord
         {
-            StableKey = StableKeyGenerator.ForItemBag(scene, x, y, z),
+            StableKey = stableKey,
             Scene = scene,
             X = x,
             Y = y,

@@ -8,6 +8,7 @@ public class SecretPassageListener : IAssetScanListener<GameObject>
 {
     private readonly SQLiteConnection _db;
     private readonly List<SecretPassageRecord> _secretPassageRecords = new();
+    private readonly DuplicateKeyTracker _keyTracker = new("SecretPassageListener");
 
     public SecretPassageListener(SQLiteConnection db)
     {
@@ -100,9 +101,12 @@ public class SecretPassageListener : IAssetScanListener<GameObject>
         var y = position.y;
         var z = position.z;
 
+        var baseStableKey = StableKeyGenerator.ForSecretPassage(scene, x, y, z);
+        var stableKey = _keyTracker.GetUniqueKey(baseStableKey, asset.name);
+
         var secretPassage = new SecretPassageRecord
         {
-            StableKey = StableKeyGenerator.ForSecretPassage(scene, x, y, z),
+            StableKey = stableKey,
             Scene = scene,
             X = x,
             Y = y,

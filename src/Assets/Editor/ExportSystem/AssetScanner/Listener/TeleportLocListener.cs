@@ -6,6 +6,7 @@ public class TeleportLocListener : IAssetScanListener<Object>
 {
     private readonly SQLiteConnection _db;
     private readonly List<TeleportRecord> _teleportRecords = new();
+    private readonly DuplicateKeyTracker _keyTracker = new("TeleportLocListener");
 
     public TeleportLocListener(SQLiteConnection db)
     {
@@ -43,9 +44,12 @@ public class TeleportLocListener : IAssetScanListener<Object>
 
     private void AddTeleport(string scene, float x, float y, float z, string itemResourceName)
     {
+        var baseStableKey = StableKeyGenerator.ForTeleport(scene, x, y, z);
+        var stableKey = _keyTracker.GetUniqueKey(baseStableKey, scene);
+
         var teleport = new TeleportRecord
         {
-            StableKey = StableKeyGenerator.ForTeleport(scene, x, y, z),
+            StableKey = stableKey,
             Scene = scene,
             X = x,
             Y = y,

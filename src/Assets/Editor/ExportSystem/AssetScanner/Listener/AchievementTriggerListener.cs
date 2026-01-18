@@ -6,6 +6,7 @@ public class AchievementTriggerListener : IAssetScanListener<AchievementTrigger>
 {
     private readonly SQLiteConnection _db;
     private readonly List<AchievementTriggerRecord> _records = new();
+    private readonly DuplicateKeyTracker _keyTracker = new("AchievementTriggerListener");
 
     public AchievementTriggerListener(SQLiteConnection db)
     {
@@ -41,9 +42,12 @@ public class AchievementTriggerListener : IAssetScanListener<AchievementTrigger>
         var y = achievementTrigger.transform.position.y;
         var z = achievementTrigger.transform.position.z;
 
+        var baseStableKey = StableKeyGenerator.ForAchievementTrigger(scene, x, y, z);
+        var stableKey = _keyTracker.GetUniqueKey(baseStableKey, achievementTrigger.gameObject.name);
+
         return new AchievementTriggerRecord
         {
-            StableKey = StableKeyGenerator.ForAchievementTrigger(scene, x, y, z),
+            StableKey = stableKey,
             Scene = scene,
             X = x,
             Y = y,

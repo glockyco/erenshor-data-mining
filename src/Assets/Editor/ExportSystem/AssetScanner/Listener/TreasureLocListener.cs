@@ -6,6 +6,7 @@ public class TreasureLocListener : IAssetScanListener<TreasureLoc>
 {
     private readonly SQLiteConnection _db;
     private readonly List<TreasureLocationRecord> _records = new();
+    private readonly DuplicateKeyTracker _keyTracker = new("TreasureLocListener");
 
     public TreasureLocListener(SQLiteConnection db)
     {
@@ -40,9 +41,12 @@ public class TreasureLocListener : IAssetScanListener<TreasureLoc>
         var y = treasureLoc.transform.position.y;
         var z = treasureLoc.transform.position.z;
 
+        var baseStableKey = StableKeyGenerator.ForTreasureLocation(scene, x, y, z);
+        var stableKey = _keyTracker.GetUniqueKey(baseStableKey, treasureLoc.gameObject.name);
+
         return new TreasureLocationRecord
         {
-            StableKey = StableKeyGenerator.ForTreasureLocation(scene, x, y, z),
+            StableKey = stableKey,
             Scene = scene,
             X = x,
             Y = y,

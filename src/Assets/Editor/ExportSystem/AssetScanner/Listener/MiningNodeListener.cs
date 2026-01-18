@@ -10,6 +10,7 @@ public class MiningNodeListener : IAssetScanListener<MiningNode>
     private readonly SQLiteConnection _db;
     private readonly List<MiningNodeRecord> _miningNodeRecords = new();
     private readonly List<MiningNodeItemRecord> _miningNodeItemRecords = new();
+    private readonly DuplicateKeyTracker _keyTracker = new("MiningNodeListener");
 
     public MiningNodeListener(SQLiteConnection db)
     {
@@ -45,7 +46,9 @@ public class MiningNodeListener : IAssetScanListener<MiningNode>
         var x = asset.transform.position.x;
         var y = asset.transform.position.y;
         var z = asset.transform.position.z;
-        var stableKey = StableKeyGenerator.ForMiningNode(scene, x, y, z);
+        
+        var baseStableKey = StableKeyGenerator.ForMiningNode(scene, x, y, z);
+        var stableKey = _keyTracker.GetUniqueKey(baseStableKey, asset.gameObject.name);
 
         var miningNode = new MiningNodeRecord
         {

@@ -10,6 +10,7 @@ public class WaterListener : IAssetScanListener<Water>
     private readonly SQLiteConnection _db;
     private readonly List<WaterRecord> _waterRecords = new();
     private readonly List<WaterFishableRecord> _waterFishableRecords = new();
+    private readonly DuplicateKeyTracker _keyTracker = new("WaterListener");
 
     public WaterListener(SQLiteConnection db)
     {
@@ -45,7 +46,9 @@ public class WaterListener : IAssetScanListener<Water>
         var x = asset.transform.position.x;
         var y = asset.transform.position.y;
         var z = asset.transform.position.z;
-        var stableKey = StableKeyGenerator.ForWater(scene, x, y, z);
+        
+        var baseStableKey = StableKeyGenerator.ForWater(scene, x, y, z);
+        var stableKey = _keyTracker.GetUniqueKey(baseStableKey, asset.gameObject.name);
 
         var water = new WaterRecord
         {

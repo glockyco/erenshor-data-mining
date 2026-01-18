@@ -6,6 +6,7 @@ public class ForgeListener : IAssetScanListener<ForgeEffect>
 {
     private readonly SQLiteConnection _db;
     private readonly List<ForgeRecord> _records = new();
+    private readonly DuplicateKeyTracker _keyTracker = new("ForgeListener");
 
     public ForgeListener(SQLiteConnection db)
     {
@@ -34,9 +35,12 @@ public class ForgeListener : IAssetScanListener<ForgeEffect>
         var y = asset.transform.position.y;
         var z = asset.transform.position.z;
 
+        var baseStableKey = StableKeyGenerator.ForForge(scene, x, y, z);
+        var stableKey = _keyTracker.GetUniqueKey(baseStableKey, asset.gameObject.name);
+
         _records.Add(new ForgeRecord
         {
-            StableKey = StableKeyGenerator.ForForge(scene, x, y, z),
+            StableKey = stableKey,
             Scene = scene,
             X = x,
             Y = y,
