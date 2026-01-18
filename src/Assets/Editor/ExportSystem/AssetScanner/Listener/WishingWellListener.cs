@@ -1,12 +1,11 @@
 using System.Collections.Generic;
 using SQLite;
 using UnityEngine;
-using static CoordinateRecord;
 
 public class WishingWellListener : IAssetScanListener<GameObject>
 {
     private readonly SQLiteConnection _db;
-    private readonly List<CoordinateRecord> _records = new();
+    private readonly List<WishingWellRecord> _records = new();
     private readonly HashSet<(string scene, float x, float z)> _seenPositions = new();
 
     public WishingWellListener(SQLiteConnection db)
@@ -16,8 +15,8 @@ public class WishingWellListener : IAssetScanListener<GameObject>
 
     public void OnScanStarted()
     {
-        _db.CreateTable<CoordinateRecord>();
-        _db.Execute("DELETE FROM Coordinates WHERE Category = ?", nameof(CoordinateCategory.WishingWell));
+        _db.CreateTable<WishingWellRecord>();
+        _db.DeleteAll<WishingWellRecord>();
         _records.Clear();
         _seenPositions.Clear();
     }
@@ -49,13 +48,13 @@ public class WishingWellListener : IAssetScanListener<GameObject>
 
         Debug.Log($"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
 
-        _records.Add(new CoordinateRecord
+        _records.Add(new WishingWellRecord
         {
+            StableKey = StableKeyGenerator.ForWishingWell(scene, x, y, z),
             Scene = scene,
             X = x,
             Y = y,
-            Z = z,
-            Category = nameof(CoordinateCategory.WishingWell)
+            Z = z
         });
 
         _seenPositions.Add(key);
