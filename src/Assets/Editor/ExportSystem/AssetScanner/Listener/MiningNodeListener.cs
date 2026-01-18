@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using SQLite;
 using UnityEngine;
-using static CoordinateRecord;
 
 public class MiningNodeListener : IAssetScanListener<MiningNode>
 {
@@ -17,59 +16,44 @@ public class MiningNodeListener : IAssetScanListener<MiningNode>
 
     public void OnScanStarted()
     {
-        _db.CreateTable<CoordinateRecord>();
         _db.CreateTable<MiningNodeRecord>();
         _db.CreateTable<MiningNodeItemRecord>();
 
-        _db.Execute("DELETE FROM Coordinates WHERE Category = ?", nameof(CoordinateCategory.MiningNode));
         _db.DeleteAll<MiningNodeRecord>();
         _db.DeleteAll<MiningNodeItemRecord>();
     }
 
     public void OnScanFinished()
     {
-        _db.Execute(@"
-            UPDATE Coordinates
-            SET MiningNodeId = (
-                SELECT Id
-                FROM MiningNodes
-                WHERE MiningNodes.CoordinateId = Coordinates.Id
-            )
-            WHERE EXISTS (
-                SELECT 1
-                FROM MiningNodes
-                WHERE MiningNodes.CoordinateId = Coordinates.Id
-            );
-        ");
+        // No post-processing needed
     }
 
     public void OnAssetFound(MiningNode asset)
     {
         Debug.Log($"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
 
-        var coordinate = new CoordinateRecord
-        {
-            Scene = asset.gameObject.scene.name,
-            X = asset.transform.position.x,
-            Y = asset.transform.position.y,
-            Z = asset.transform.position.z,
-            Category = nameof(CoordinateCategory.MiningNode)
-        };
-
-        _db.Insert(coordinate);
+        var scene = asset.gameObject.scene.name;
+        var x = asset.transform.position.x;
+        var y = asset.transform.position.y;
+        var z = asset.transform.position.z;
+        var stableKey = StableKeyGenerator.ForMiningNode(scene, x, y, z);
 
         var miningNode = new MiningNodeRecord
         {
-            CoordinateId = coordinate.Id,
+            StableKey = stableKey,
+            Scene = scene,
+            X = x,
+            Y = y,
+            Z = z,
             NPCName = asset.GetComponent<NPC>().NPCName,
             RespawnTime = asset.RespawnTime
         };
 
         _db.Insert(miningNode);
-        _db.InsertAll(CreateMiningNodeItemRecords(asset, miningNode.Id));
+        _db.InsertAll(CreateMiningNodeItemRecords(asset, stableKey));
     }
 
-    private static List<MiningNodeItemRecord> CreateMiningNodeItemRecords(MiningNode node, int miningNodeId)
+    private static List<MiningNodeItemRecord> CreateMiningNodeItemRecords(MiningNode node, string miningNodeStableKey)
     {
         // Calculate drop chances based on the logic in MiningNode.Mine()
         // Legend = 96-99, Rare = 75-95, Common = 20-75, Guarantee = 0-19
@@ -128,7 +112,7 @@ public class MiningNodeListener : IAssetScanListener<MiningNode>
         // Create one record per item
         var itemRecords = itemTotalDropChances.Select(kvp => new MiningNodeItemRecord
         {
-            MiningNodeId = miningNodeId,
+            MiningNodeStableKey = miningNodeStableKey,
             ItemStableKey = kvp.Key,
             DropChance = kvp.Value
         }).ToList();
