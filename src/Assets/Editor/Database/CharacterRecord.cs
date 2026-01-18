@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 using SQLite;
 
@@ -8,9 +8,12 @@ public class CharacterRecord
     public const string TableName = "Characters";
 
     [PrimaryKey]
-    public string StableKey { get; set; } = string.Empty; // Stable identifier: "character:object_name" or "character:object_name|scene|x|y|z"
-    [Indexed]
-    public int? CoordinateId { get; set; }
+    public string StableKey { get; set; } = string.Empty; // Stable identifier: "character:object_name" or "character:object_name:scene:x:y:z"
+
+    public string? Scene { get; set; }
+    public float? X { get; set; }
+    public float? Y { get; set; }
+    public float? Z { get; set; }
 
     public string Guid { get; set; } = string.Empty; // Unity GUID (internal use only)
     public string? ObjectName { get; set; } = string.Empty;
