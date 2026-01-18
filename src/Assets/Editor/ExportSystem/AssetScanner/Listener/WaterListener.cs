@@ -8,6 +8,8 @@ using UnityEngine;
 public class WaterListener : IAssetScanListener<Water>
 {
     private readonly SQLiteConnection _db;
+    private readonly List<WaterRecord> _waterRecords = new();
+    private readonly List<WaterFishableRecord> _waterFishableRecords = new();
 
     public WaterListener(SQLiteConnection db)
     {
@@ -21,11 +23,18 @@ public class WaterListener : IAssetScanListener<Water>
 
         _db.DeleteAll<WaterRecord>();
         _db.DeleteAll<WaterFishableRecord>();
+
+        _waterRecords.Clear();
+        _waterFishableRecords.Clear();
     }
 
     public void OnScanFinished()
     {
-        // No post-processing needed
+        _db.InsertAll(_waterRecords);
+        _db.InsertAll(_waterFishableRecords);
+
+        _waterRecords.Clear();
+        _waterFishableRecords.Clear();
     }
 
     public void OnAssetFound(Water asset)
@@ -50,8 +59,8 @@ public class WaterListener : IAssetScanListener<Water>
             Depth = asset.transform.localScale.z
         };
 
-        _db.Insert(water);
-        _db.InsertAll(CreateWaterFishableRecords(asset, stableKey));
+        _waterRecords.Add(water);
+        _waterFishableRecords.AddRange(CreateWaterFishableRecords(asset, stableKey));
     }
 
     private static List<WaterFishableRecord> CreateWaterFishableRecords(Water water, string waterStableKey)
