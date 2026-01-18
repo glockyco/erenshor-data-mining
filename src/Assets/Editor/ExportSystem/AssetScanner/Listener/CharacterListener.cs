@@ -5,12 +5,10 @@ using System.Linq;
 using SQLite;
 using UnityEditor;
 using UnityEngine;
-using static CoordinateRecord;
 
 public class CharacterListener : IAssetScanListener<Character>
 {
     private readonly SQLiteConnection _db;
-    private readonly List<CoordinateRecord> _coordinateRecords = new();
     private readonly List<CharacterRecord> _characterRecords = new();
     private readonly Dictionary<string, int> _stableKeyCounters = new(); // Track occurrence count for each base stable key
     private readonly List<CharacterDialogRecord> _characterDialogRecords = new();
@@ -38,22 +36,18 @@ public class CharacterListener : IAssetScanListener<Character>
 
     public void OnScanFinished()
     {
-        _db.CreateTable<CoordinateRecord>();
         _db.CreateTable<CharacterRecord>();
         _db.CreateTable<CharacterDialogRecord>();
 
         _db.RunInTransaction(() =>
         {
-            _db.Execute("DELETE FROM Coordinates WHERE Category = ?", nameof(CoordinateCategory.Character));
             _db.DeleteAll<CharacterRecord>();
             _db.DeleteAll<CharacterDialogRecord>();
 
-            _db.InsertAll(_coordinateRecords);
             _db.InsertAll(_characterRecords);
             _db.InsertAll(_characterDialogRecords);
         });
 
-        _coordinateRecords.Clear();
         _characterRecords.Clear();
         _characterDialogRecords.Clear();
 
@@ -159,7 +153,7 @@ public class CharacterListener : IAssetScanListener<Character>
                 SELECT NPCName
                 FROM
                 (
-                    SELECT count(DISTINCT spc.SpawnPointId) AS spawnPointCount, count(DISTINCT c.Guid) AS instanceCount, *
+                    SELECT count(DISTINCT spc.SpawnPointStableKey) AS spawnPointCount, count(DISTINCT c.Guid) AS instanceCount, *
                     FROM Characters c
                     LEFT JOIN SpawnPointCharacters spc ON spc.CharacterStableKey = c.StableKey
                     WHERE NOT c.IsPrefab OR (spc.SpawnChance > 0)
@@ -264,8 +258,6 @@ public class CharacterListener : IAssetScanListener<Character>
             return;
         }
 
-        var coordinateRecord = CreateCoordinateRecord(asset);
-
         // Generate base stable key and check for duplicates
         var baseStableKey = StableKeyGenerator.ForCharacter(asset);
         int variantIndex = 0;
@@ -281,14 +273,8 @@ public class CharacterListener : IAssetScanListener<Character>
             _stableKeyCounters[baseStableKey] = 0;
         }
 
-        var characterRecord = CreateCharacterRecord(asset, coordinateRecord, variantIndex);
+        var characterRecord = CreateCharacterRecord(asset, variantIndex);
         _characterRecords.Add(characterRecord);
-
-        if (coordinateRecord != null)
-        {
-            coordinateRecord.CharacterStableKey = characterRecord.StableKey;
-            _coordinateRecords.Add(coordinateRecord);
-        }
 
         var dialogs = asset.GetComponents<NPCDialog>().Where(d => !string.IsNullOrWhiteSpace(d.Dialog)).ToList();
         if (dialogs.Count > 0)
@@ -373,24 +359,7 @@ public class CharacterListener : IAssetScanListener<Character>
         }
     }
 
-    private CoordinateRecord? CreateCoordinateRecord(Character character)
-    {
-        if (character.gameObject.scene.name == null)
-        {
-            return null;
-        }
-
-        return new CoordinateRecord
-        {
-            Scene = character.gameObject.scene.name,
-            X = character.transform.position.x,
-            Y = character.transform.position.y,
-            Z = character.transform.position.z,
-            Category = nameof(CoordinateCategory.Character)
-        };
-    }
-
-    private CharacterRecord CreateCharacterRecord(Character character, CoordinateRecord? coordinate, int variantIndex = 0)
+    private CharacterRecord CreateCharacterRecord(Character character, int variantIndex = 0)
     {
         var npc = character.GetComponent<NPC>();
         var vendorInventory = character.GetComponent<VendorInventory>();
@@ -416,7 +385,10 @@ public class CharacterListener : IAssetScanListener<Character>
         var record = new CharacterRecord
         {
             StableKey = StableKeyGenerator.ForCharacter(character, variantIndex),
-            CoordinateId = coordinate?.Id,
+            Scene = character.gameObject.scene.name,
+            X = character.gameObject.scene.name != null ? character.transform.position.x : (float?)null,
+            Y = character.gameObject.scene.name != null ? character.transform.position.y : (float?)null,
+            Z = character.gameObject.scene.name != null ? character.transform.position.z : (float?)null,
             Guid = guid,
             ObjectName = character.gameObject != null ? character.gameObject.name : null,
             MyWorldFactionStableKey = character.MyWorldFaction != null ? StableKeyGenerator.ForFaction(character.MyWorldFaction) : null,
