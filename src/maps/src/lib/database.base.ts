@@ -63,14 +63,13 @@ export class RepositoryBase {
         const stmt = this.db.prepare(
             `
 			SELECT
-				co.Id AS CoordinateId,
-				co.X AS PositionX,
-				co.Y AS PositionY,
-				co.Z AS PositionZ,
+				at.StableKey,
+				at.X AS PositionX,
+				at.Y AS PositionY,
+				at.Z AS PositionZ,
 				at.AchievementName
 			FROM AchievementTriggers at
-			JOIN Coordinates co ON co.AchievementTriggerId = at.Id
-			WHERE co.Scene = ?
+			WHERE at.Scene = ?
 		`,
             [mapName]
         );
@@ -81,7 +80,7 @@ export class RepositoryBase {
             const row = stmt.getAsObject();
             const achievementName = row.AchievementName as string;
             markers.push({
-                coordinateId: row.CoordinateId as number,
+                stableKey: row.StableKey as string,
                 category: 'achievement-trigger',
                 achievementName,
                 position: {
@@ -101,12 +100,11 @@ export class RepositoryBase {
         const stmt = this.db.prepare(
             `
 			SELECT
-				co.Id AS CoordinateId,
-				co.X AS PositionX,
-				co.Y AS PositionY,
-				co.Z AS PositionZ,
-				c.NPCName,
 				c.StableKey,
+				c.X AS PositionX,
+				c.Y AS PositionY,
+				c.Z AS PositionZ,
+				c.NPCName,
 				c.Level,
 				c.IsEnabled,
 				c.IsVendor,
@@ -117,8 +115,7 @@ export class RepositoryBase {
 				c.IsFriendly,
 				c.Invulnerable
 			FROM Characters c
-			JOIN Coordinates co ON co.CharacterStableKey = c.StableKey
-			WHERE co.Scene = ?
+			WHERE c.Scene = ?
 		`,
             [mapName]
         );
@@ -127,22 +124,20 @@ export class RepositoryBase {
 
         while (stmt.step()) {
             const row = stmt.getAsObject();
-            const coordinateId = row.CoordinateId as number;
+            const stableKey = row.StableKey as string;
             const coordinates = {
                 x: row.PositionX as number,
                 y: row.PositionY as number,
                 z: row.PositionZ as number
             };
-            const stableKey = row.StableKey as string;
             const level = (row.Level as number) ?? 1;
             const isFriendly = row.IsFriendly;
             if (isFriendly) {
                 markers.push(
                     this.getNpcMarker(
-                        coordinateId,
+                        stableKey,
                         coordinates,
                         row.NPCName as string,
-                        stableKey,
                         level,
                         null,
                         !!row.IsEnabled,
@@ -154,7 +149,7 @@ export class RepositoryBase {
             } else {
                 markers.push(
                     this.getEnemyMarker(
-                        coordinateId,
+                        stableKey,
                         [
                             {
                                 name: row.NPCName as string,
@@ -182,10 +177,9 @@ export class RepositoryBase {
     }
 
     getNpcMarker(
-        coordinateId: number,
+        stableKey: string,
         coordinates: { x: number; y: number; z: number },
         npcName: string,
-        stableKey: string,
         level: number,
         spawnDelay: number | null,
         isEnabled: boolean,
@@ -202,10 +196,9 @@ export class RepositoryBase {
         const popupText = `${positionText}${npcLink}${disabledInfo}${respawnInfo}`.trim();
 
         return {
-            coordinateId: coordinateId,
+            stableKey: stableKey,
             category: 'npc',
             name: npcName,
-            stableKey,
             level,
             spawnDelay,
             isNightSpawn,
@@ -227,16 +220,14 @@ export class RepositoryBase {
         const stmt = this.db.prepare(
             `
 			SELECT
-				co.Id AS CoordinateId,
-				d.Id AS DoorId,
-				co.X AS PositionX,
-				co.Y AS PositionY,
-				co.Z AS PositionZ,
+				d.StableKey,
+				d.X AS PositionX,
+				d.Y AS PositionY,
+				d.Z AS PositionZ,
 				i.ItemName
 			FROM Doors d
-			JOIN Coordinates co ON co.DoorId = d.Id
 			JOIN Items i ON d.KeyItemStableKey = i.StableKey
-			WHERE co.Scene = ? AND d.KeyItemStableKey IS NOT NULL AND i.ItemName != ''
+			WHERE d.Scene = ? AND d.KeyItemStableKey IS NOT NULL AND i.ItemName != ''
 		`,
             [mapName]
         );
@@ -253,7 +244,7 @@ export class RepositoryBase {
             const popupText = `${positionText}${keyText}`;
 
             markers.push({
-                coordinateId: row.CoordinateId as number,
+                stableKey: row.StableKey as string,
                 category: 'door',
                 keyItemName,
                 position: {
@@ -273,12 +264,12 @@ export class RepositoryBase {
         const stmt = this.db.prepare(
             `
 			SELECT
-				co.Id AS CoordinateId,
-				co.X AS PositionX,
-				co.Y AS PositionY,
-				co.Z AS PositionZ
-			FROM Coordinates co
-			WHERE co.Scene = ? AND co.Category = 'Forge'
+				f.StableKey,
+				f.X AS PositionX,
+				f.Y AS PositionY,
+				f.Z AS PositionZ
+			FROM Forges f
+			WHERE f.Scene = ?
 		`,
             [mapName]
         );
@@ -294,7 +285,7 @@ export class RepositoryBase {
             const popupText = `${positionText}${descriptionText}`;
 
             markers.push({
-                coordinateId: row.CoordinateId as number,
+                stableKey: row.StableKey as string,
                 category: 'forge',
                 position: {
                     x: row.PositionX as number,
@@ -313,17 +304,16 @@ export class RepositoryBase {
         const stmt = this.db.prepare(
             `
 			SELECT
-				co.Id AS CoordinateId,
-				co.X AS PositionX,
-				co.Y AS PositionY,
-				co.Z AS PositionZ,
+				ib.StableKey,
+				ib.X AS PositionX,
+				ib.Y AS PositionY,
+				ib.Z AS PositionZ,
 				i.ItemName,
 				ib.Respawns,
 				ib.RespawnTimer
 			FROM ItemBags ib
-			JOIN Coordinates co ON co.ItemBagId = ib.Id
 			JOIN Items i ON i.StableKey = ib.ItemStableKey
-			WHERE co.Scene = ?
+			WHERE ib.Scene = ?
 		`,
             [mapName]
         );
@@ -347,7 +337,7 @@ export class RepositoryBase {
             const popupText = `${positionText}${itemText}${respawnText}`;
 
             markers.push({
-                coordinateId: row.CoordinateId as number,
+                stableKey: row.StableKey as string,
                 category: 'item-bag',
                 itemName,
                 respawnTimer,
@@ -369,28 +359,26 @@ export class RepositoryBase {
         const stmt = this.db.prepare(
             `
 			SELECT
-				co.Id AS CoordinateId,
-				m.Id AS MiningNodeId,
-				co.X AS PositionX,
-				co.Y AS PositionY,
-				co.Z AS PositionZ,
+				m.StableKey,
+				m.X AS PositionX,
+				m.Y AS PositionY,
+				m.Z AS PositionZ,
 				m.RespawnTime,
 				i.ItemName,
 				mi.DropChance
 			FROM MiningNodes m
-			JOIN MiningNodeItems mi ON mi.MiningNodeId = m.Id
+			JOIN MiningNodeItems mi ON mi.MiningNodeStableKey = m.StableKey
 			JOIN Items i ON i.StableKey = mi.ItemStableKey
-			JOIN Coordinates co ON co.MiningNodeId = m.Id
-			WHERE co.Scene = ?
+			WHERE m.Scene = ?
 		`,
             [mapName]
         );
 
-        // Group by mining node ID
+        // Group by mining node stable key
         const nodeMap = new Map<
-            number,
+            string,
             {
-                coordinateId: number;
+                stableKey: string;
                 position: { x: number; y: number };
                 coordinates: { x: number; y: number; z: number };
                 respawnTime: number;
@@ -400,11 +388,10 @@ export class RepositoryBase {
 
         while (stmt.step()) {
             const row = stmt.getAsObject();
-            const coordinateId = row.CoordinateId as number;
-            const nodeId = row.MiningNodeId as number;
-            if (!nodeMap.has(nodeId)) {
-                nodeMap.set(nodeId, {
-                    coordinateId: coordinateId,
+            const stableKey = row.StableKey as string;
+            if (!nodeMap.has(stableKey)) {
+                nodeMap.set(stableKey, {
+                    stableKey: stableKey,
                     position: {
                         x: row.PositionX as number,
                         y: row.PositionZ as number
@@ -418,7 +405,7 @@ export class RepositoryBase {
                     items: []
                 });
             }
-            nodeMap.get(nodeId)!.items.push({
+            nodeMap.get(stableKey)!.items.push({
                 name: row.ItemName as string,
                 dropChance: row.DropChance as number
             });
@@ -427,13 +414,7 @@ export class RepositoryBase {
 
         // Build markers with popup lines for each item
         const markers: MiningNodeMarker[] = [];
-        for (const {
-            coordinateId,
-            position,
-            coordinates,
-            respawnTime,
-            items
-        } of nodeMap.values()) {
+        for (const { stableKey, position, coordinates, respawnTime, items } of nodeMap.values()) {
             const sortedItems = items.slice().sort((a, b) => b.dropChance - a.dropChance);
 
             const itemLines = sortedItems
@@ -444,7 +425,7 @@ export class RepositoryBase {
                 .join('<br>');
 
             markers.push({
-                coordinateId: coordinateId,
+                stableKey: stableKey,
                 category: 'mining-node',
                 items: sortedItems,
                 respawnTime,
@@ -471,14 +452,13 @@ export class RepositoryBase {
         const stmt = this.db.prepare(
             `
         SELECT
-            co.Id AS CoordinateId,
-            co.X AS PositionX,
-            co.Y AS PositionY,
-            co.Z AS PositionZ,
+            sp.StableKey,
+            sp.X AS PositionX,
+            sp.Y AS PositionY,
+            sp.Z AS PositionZ,
             sp.Type AS Type
         FROM SecretPassages sp
-        JOIN Coordinates co ON co.SecretPassageId = sp.Id
-        WHERE co.Scene = ? AND co.Category = 'SecretPassage' AND (sp.ObjectName NOT LIKE '%nav%' OR sp.ObjectName IS NULL)
+        WHERE sp.Scene = ? AND (sp.ObjectName NOT LIKE '%nav%' OR sp.ObjectName IS NULL)
     `,
             [mapName]
         );
@@ -494,7 +474,7 @@ export class RepositoryBase {
             const popupText = `${positionText}<br><br>${descriptionText}`;
 
             markers.push({
-                coordinateId: row.CoordinateId as number,
+                stableKey: row.StableKey as string,
                 category: 'secret-passage',
                 passageType,
                 position: {
@@ -514,11 +494,10 @@ export class RepositoryBase {
         const stmt = this.db.prepare(
             `
 			SELECT
-				co.Id AS CoordinateId,
-				sp.Id AS SpawnPointId,
-				co.X AS PositionX,
-				co.Y AS PositionY,
-				co.Z AS PositionZ,
+				sp.StableKey,
+				sp.X AS PositionX,
+				sp.Y AS PositionY,
+				sp.Z AS PositionZ,
 				sp.SpawnDelay4 AS SpawnDelay,
 				sp.IsEnabled AS IsEnabled,
 				sp.NightSpawn AS IsNightSpawn,
@@ -526,10 +505,10 @@ export class RepositoryBase {
 				sp.LoopPatrol AS LoopPatrol,
 				(SELECT GROUP_CONCAT(pp.X || ',' || pp.Z, ';')
 				 FROM SpawnPointPatrolPoints pp
-				 WHERE pp.SpawnPointId = sp.Id
+				 WHERE pp.SpawnPointStableKey = sp.StableKey
 				 ORDER BY pp.SequenceIndex) AS PatrolPath,
 				c.NPCName,
-				c.StableKey,
+				c.StableKey AS CharacterStableKey,
 				c.Level,
 				c.IsVendor,
 				c.HasDialog,
@@ -540,20 +519,19 @@ export class RepositoryBase {
 				min(c.IsUnique) AS IsUnique,
 				min(c.IsFriendly) AS IsFriendly
 			FROM SpawnPoints sp
-			JOIN SpawnPointCharacters spc ON spc.SpawnPointId = sp.Id
+			JOIN SpawnPointCharacters spc ON spc.SpawnPointStableKey = sp.StableKey
 			JOIN Characters c ON c.StableKey = spc.CharacterStableKey
-			JOIN Coordinates co ON co.SpawnPointId = sp.Id
-			WHERE co.Scene = ? AND spc.SpawnChance > 0
-			GROUP BY co.Id, c.StableKey
+			WHERE sp.Scene = ? AND spc.SpawnChance > 0
+			GROUP BY sp.StableKey, c.StableKey
 		`,
             [mapName]
         );
 
-        // Group by spawn point ID
+        // Group by spawn point stable key
         const spawnPointMap = new Map<
-            number,
+            string,
             {
-                coordinateId: number;
+                stableKey: string;
                 position: { x: number; y: number };
                 coordinates: { x: number; y: number; z: number };
                 spawnDelay: number;
@@ -580,11 +558,10 @@ export class RepositoryBase {
 
         while (stmt.step()) {
             const row = stmt.getAsObject();
-            const coordinateId = row.CoordinateId as number;
-            const spawnPointId = row.SpawnPointId as number;
-            if (!spawnPointMap.has(spawnPointId)) {
-                spawnPointMap.set(spawnPointId, {
-                    coordinateId: coordinateId,
+            const stableKey = row.StableKey as string;
+            if (!spawnPointMap.has(stableKey)) {
+                spawnPointMap.set(stableKey, {
+                    stableKey: stableKey,
                     position: {
                         x: row.PositionX as number,
                         y: row.PositionZ as number
@@ -603,9 +580,9 @@ export class RepositoryBase {
                     characters: []
                 });
             }
-            spawnPointMap.get(spawnPointId)!.characters.push({
+            spawnPointMap.get(stableKey)!.characters.push({
                 name: row.NPCName as string,
-                stableKey: row.StableKey as string,
+                stableKey: row.CharacterStableKey as string,
                 level: (row.Level as number) ?? 1,
                 spawnChance: row.SpawnChance as number,
                 isCommon: !!row.IsCommon,
@@ -621,7 +598,7 @@ export class RepositoryBase {
         // Build markers with popup lines for each character
         const markers: (NpcMarker | EnemyMarker)[] = [];
         for (const {
-            coordinateId,
+            stableKey,
             position,
             coordinates,
             spawnDelay,
@@ -638,10 +615,9 @@ export class RepositoryBase {
                 const npc = characters[0];
                 markers.push(
                     this.getNpcMarker(
-                        coordinateId,
+                        stableKey,
                         coordinates,
                         npc.name,
-                        npc.stableKey,
                         npc.level,
                         spawnDelay,
                         isEnabled,
@@ -654,7 +630,7 @@ export class RepositoryBase {
             } else {
                 markers.push(
                     this.getEnemyMarker(
-                        coordinateId,
+                        stableKey,
                         characters,
                         coordinates,
                         position,
@@ -670,7 +646,7 @@ export class RepositoryBase {
     }
 
     getEnemyMarker(
-        coordinateId: number,
+        stableKey: string,
         characters: SpawnCharacter[],
         coordinates: { x: number; y: number; z: number },
         position: { x: number; y: number },
@@ -702,7 +678,7 @@ export class RepositoryBase {
         const isRare = characters.some((c) => c.isRare && !c.isCommon);
 
         return {
-            coordinateId: coordinateId,
+            stableKey: stableKey,
             category: 'enemy',
             characters: sortedCharacters,
             spawnDelay,
@@ -734,16 +710,14 @@ export class RepositoryBase {
         const stmt = this.db.prepare(
             `
 			SELECT
-				co.Id AS CoordinateId,
-				t.Id AS TeleportId,
-				co.X AS PositionX,
-				co.Y AS PositionY,
-				co.Z AS PositionZ,
+				t.StableKey,
+				t.X AS PositionX,
+				t.Y AS PositionY,
+				t.Z AS PositionZ,
 				i.ItemName
 			FROM Teleports t
-			JOIN Coordinates co ON co.TeleportId = t.Id
 			JOIN Items i ON i.StableKey = t.TeleportItemStableKey
-			WHERE co.Scene = ?
+			WHERE t.Scene = ?
 		`,
             [mapName]
         );
@@ -760,7 +734,7 @@ export class RepositoryBase {
             const popupText = `${positionText}${teleportText}`;
 
             markers.push({
-                coordinateId: row.CoordinateId as number,
+                stableKey: row.StableKey as string,
                 category: 'teleport',
                 teleportItemName,
                 position: {
@@ -780,12 +754,12 @@ export class RepositoryBase {
         const stmt = this.db.prepare(
             `
 			SELECT
-				co.Id AS CoordinateId,
-				co.X AS PositionX,
-				co.Y AS PositionY,
-				co.Z AS PositionZ
-			FROM Coordinates co
-			WHERE co.Scene = ? AND co.Category = 'TreasureLoc'
+				tl.StableKey,
+				tl.X AS PositionX,
+				tl.Y AS PositionY,
+				tl.Z AS PositionZ
+			FROM TreasureLocations tl
+			WHERE tl.Scene = ?
 		`,
             [mapName]
         );
@@ -801,7 +775,7 @@ export class RepositoryBase {
             const popupText = `${positionText}${treasureHuntingText}`;
 
             markers.push({
-                coordinateId: row.CoordinateId as number,
+                stableKey: row.StableKey as string,
                 category: 'treasure-loc',
                 position: {
                     x: row.PositionX as number,
@@ -820,30 +794,28 @@ export class RepositoryBase {
         const stmt = this.db.prepare(
             `
 			SELECT
-				co.Id AS CoordinateId,
-				w.Id AS WaterId,
-				co.X AS PositionX,
-				co.Y AS PositionY,
-				co.Z AS PositionZ,
+				w.StableKey,
+				w.X AS PositionX,
+				w.Y AS PositionY,
+				w.Z AS PositionZ,
 				w.Width,
 				w.Depth,
 				wf.Type,
 				i.ItemName,
 				wf.DropChance
 			FROM Waters w
-			JOIN WaterFishables wf ON wf.WaterId = w.Id
+			JOIN WaterFishables wf ON wf.WaterStableKey = w.StableKey
 			JOIN Items i ON i.StableKey = wf.ItemStableKey
-			JOIN Coordinates co ON co.WaterId = w.Id
-			WHERE co.Scene = ?
+			WHERE w.Scene = ?
 		`,
             [mapName]
         );
 
-        // Group by water ID
+        // Group by water stable key
         const waterMap = new Map<
-            number,
+            string,
             {
-                coordinateId: number;
+                stableKey: string;
                 position: { x: number; y: number };
                 coordinates: { x: number; y: number; z: number };
                 width: number;
@@ -855,11 +827,10 @@ export class RepositoryBase {
 
         while (stmt.step()) {
             const row = stmt.getAsObject();
-            const coordinateId = row.CoordinateId as number;
-            const waterId = row.WaterId as number;
-            if (!waterMap.has(waterId)) {
-                waterMap.set(waterId, {
-                    coordinateId: coordinateId,
+            const stableKey = row.StableKey as string;
+            if (!waterMap.has(stableKey)) {
+                waterMap.set(stableKey, {
+                    stableKey: stableKey,
                     position: {
                         x: row.PositionX as number,
                         y: row.PositionZ as number
@@ -882,9 +853,9 @@ export class RepositoryBase {
             };
 
             if (row.Type === 'DayFishable') {
-                waterMap.get(waterId)!.daytimeItems.push(itemInfo);
+                waterMap.get(stableKey)!.daytimeItems.push(itemInfo);
             } else if (row.Type === 'NightFishable') {
-                waterMap.get(waterId)!.nighttimeItems.push(itemInfo);
+                waterMap.get(stableKey)!.nighttimeItems.push(itemInfo);
             }
         }
         stmt.free();
@@ -892,7 +863,7 @@ export class RepositoryBase {
         // Build markers with popup lines for each item
         const markers: WaterMarker[] = [];
         for (const {
-            coordinateId,
+            stableKey,
             position,
             coordinates,
             width,
@@ -929,7 +900,7 @@ export class RepositoryBase {
             const popupText = `${positionText}<br><br>Fishable at daytime: <br>${daytimeItemLines}<br><br>Fishable at nighttime: <br>${nighttimeItemLines}`;
 
             markers.push({
-                coordinateId: coordinateId,
+                stableKey: stableKey,
                 category: 'water',
                 position,
                 width,
@@ -948,12 +919,12 @@ export class RepositoryBase {
         const stmt = this.db.prepare(
             `
 			SELECT
-				co.Id AS CoordinateId,
-				co.X AS PositionX,
-				co.Y AS PositionY,
-				co.Z AS PositionZ
-			FROM Coordinates co
-			WHERE co.Scene = ? AND co.Category = 'WishingWell'
+				ww.StableKey,
+				ww.X AS PositionX,
+				ww.Y AS PositionY,
+				ww.Z AS PositionZ
+			FROM WishingWells ww
+			WHERE ww.Scene = ?
 		`,
             [mapName]
         );
@@ -969,7 +940,7 @@ export class RepositoryBase {
             const popupText = `${positionText}${descriptionText}`;
 
             markers.push({
-                coordinateId: row.CoordinateId as number,
+                stableKey: row.StableKey as string,
                 category: 'wishing-well',
                 position: {
                     x: row.PositionX as number,
@@ -988,10 +959,10 @@ export class RepositoryBase {
         const stmt = this.db.prepare(
             `
 			SELECT
-				co.Id AS CoordinateId,
-				co.X AS PositionX,
-				co.Y AS PositionY,
-				co.Z AS PositionZ,
+				zl.StableKey,
+				zl.X AS PositionX,
+				zl.Y AS PositionY,
+				zl.Z AS PositionZ,
 				zl.IsEnabled,
 				zl.LandingPositionX,
 				zl.LandingPositionY,
@@ -1003,8 +974,7 @@ export class RepositoryBase {
 			FROM ZoneLines zl
 		 	JOIN Zones z ON z.StableKey = zl.DestinationZoneStableKey
 		 	LEFT JOIN ZoneAtlasEntries zae ON zae.ZoneName = z.SceneName
-		 	JOIN Coordinates co ON co.ZoneLineId = zl.Id
-			WHERE co.Scene = ?
+			WHERE zl.Scene = ?
 		`,
             [mapName]
         );
@@ -1031,7 +1001,7 @@ export class RepositoryBase {
             }
 
             markers.push({
-                coordinateId: row.CoordinateId as number,
+                stableKey: row.StableKey as string,
                 category: 'zone-line',
                 position: {
                     x: row.PositionX as number,
@@ -1193,17 +1163,15 @@ export class RepositoryBase {
             FROM (
                 SELECT c.Level
                 FROM Characters c
-                JOIN Coordinates co ON co.CharacterStableKey = c.StableKey
-                WHERE co.Scene = ? AND c.IsFriendly = 0
+                WHERE c.Scene = ? AND c.IsFriendly = 0
 
                 UNION ALL
 
                 SELECT c.Level
                 FROM SpawnPointCharacters spc
                 JOIN Characters c ON c.StableKey = spc.CharacterStableKey
-                JOIN SpawnPoints sp ON sp.Id = spc.SpawnPointId
-                JOIN Coordinates co ON co.SpawnPointId = sp.Id
-                WHERE co.Scene = ? AND c.IsFriendly = 0
+                JOIN SpawnPoints sp ON sp.StableKey = spc.SpawnPointStableKey
+                WHERE sp.Scene = ? AND c.IsFriendly = 0
             )
             `,
             [zoneName, zoneName]
@@ -1227,17 +1195,15 @@ export class RepositoryBase {
             FROM (
                 SELECT c.StableKey, c.NPCName, c.Level
                 FROM Characters c
-                JOIN Coordinates co ON co.CharacterStableKey = c.StableKey
-                WHERE co.Scene = ? AND c.IsFriendly = 0 AND c.IsUnique = 1
+                WHERE c.Scene = ? AND c.IsFriendly = 0 AND c.IsUnique = 1
 
                 UNION
 
                 SELECT c.StableKey, c.NPCName, c.Level
                 FROM SpawnPointCharacters spc
                 JOIN Characters c ON c.StableKey = spc.CharacterStableKey
-                JOIN SpawnPoints sp ON sp.Id = spc.SpawnPointId
-                JOIN Coordinates co ON co.SpawnPointId = sp.Id
-                WHERE co.Scene = ? AND c.IsFriendly = 0 AND c.IsUnique = 1
+                JOIN SpawnPoints sp ON sp.StableKey = spc.SpawnPointStableKey
+                WHERE sp.Scene = ? AND c.IsFriendly = 0 AND c.IsUnique = 1
             ) c
             ORDER BY c.Level, c.NPCName
             `,
@@ -1258,17 +1224,15 @@ export class RepositoryBase {
             FROM (
                 SELECT c.StableKey, c.NPCName, c.Level
                 FROM Characters c
-                JOIN Coordinates co ON co.CharacterStableKey = c.StableKey
-                WHERE co.Scene = ? AND c.IsFriendly = 0 AND c.IsRare = 1 AND c.IsUnique = 0
+                WHERE c.Scene = ? AND c.IsFriendly = 0 AND c.IsRare = 1 AND c.IsUnique = 0
 
                 UNION
 
                 SELECT c.StableKey, c.NPCName, c.Level
                 FROM SpawnPointCharacters spc
                 JOIN Characters c ON c.StableKey = spc.CharacterStableKey
-                JOIN SpawnPoints sp ON sp.Id = spc.SpawnPointId
-                JOIN Coordinates co ON co.SpawnPointId = sp.Id
-                WHERE co.Scene = ? AND c.IsFriendly = 0 AND c.IsRare = 1 AND c.IsUnique = 0
+                JOIN SpawnPoints sp ON sp.StableKey = spc.SpawnPointStableKey
+                WHERE sp.Scene = ? AND c.IsFriendly = 0 AND c.IsRare = 1 AND c.IsUnique = 0
             ) c
             ORDER BY c.Level, c.NPCName
             `,
