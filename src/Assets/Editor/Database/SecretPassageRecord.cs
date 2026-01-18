@@ -8,9 +8,13 @@ public class SecretPassageRecord
     public const string TableName = "SecretPassages";
 
     [PrimaryKey]
-    public int Id { get; set; }
-    [Indexed]
-    public int CoordinateId { get; set; }
+    public string StableKey { get; set; } = string.Empty;
+
+    public string Scene { get; set; } = string.Empty;
+    public float X { get; set; }
+    public float Y { get; set; }
+    public float Z { get; set; }
+
     public string ObjectName { get; set; } = string.Empty;
     public string Type { get; set; } = string.Empty;
 
