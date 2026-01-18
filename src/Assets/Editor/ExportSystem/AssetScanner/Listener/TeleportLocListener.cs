@@ -1,9 +1,11 @@
+using System.Collections.Generic;
 using SQLite;
 using UnityEngine;
 
 public class TeleportLocListener : IAssetScanListener<Object>
 {
     private readonly SQLiteConnection _db;
+    private readonly List<TeleportRecord> _teleportRecords = new();
 
     public TeleportLocListener(SQLiteConnection db)
     {
@@ -16,19 +18,22 @@ public class TeleportLocListener : IAssetScanListener<Object>
 
         _db.DeleteAll<TeleportRecord>();
 
+        _teleportRecords.Clear();
+
         // Teleport destinations from SpellVessel.cs "Portal to X" cases
-        InsertTeleport("Windwashed", 755.27f, 66f, 474.4f, "GEN - Rune of Winds");
-        InsertTeleport("Silkengrass", 188.5f, 63.52f, 712.92f, "GEN - Rune of Silkengrass");
-        InsertTeleport("Braxonian", 382.6f, 49.3f, 878f, "GEN - Rune of Sands");
-        InsertTeleport("Soluna", 225f, 77f, 249f, "GEN - Rune of Soluna's Landing");
-        InsertTeleport("Ripper", 572f, 54.4f, 293f, "GEN - Rune of Ripper's Keep");
-        InsertTeleport("Hidden", 9.34f, 1f, -114.33f, "GEN - Rune of The Hills");
-        InsertTeleport("Reliquary", 275f, 1.82f, 309f, "GEN - Box of Portals");
+        AddTeleport("Windwashed", 755.27f, 66f, 474.4f, "GEN - Rune of Winds");
+        AddTeleport("Silkengrass", 188.5f, 63.52f, 712.92f, "GEN - Rune of Silkengrass");
+        AddTeleport("Braxonian", 382.6f, 49.3f, 878f, "GEN - Rune of Sands");
+        AddTeleport("Soluna", 225f, 77f, 249f, "GEN - Rune of Soluna's Landing");
+        AddTeleport("Ripper", 572f, 54.4f, 293f, "GEN - Rune of Ripper's Keep");
+        AddTeleport("Hidden", 9.34f, 1f, -114.33f, "GEN - Rune of The Hills");
+        AddTeleport("Reliquary", 275f, 1.82f, 309f, "GEN - Box of Portals");
     }
 
     public void OnScanFinished()
     {
-        // do nothing
+        _db.InsertAll(_teleportRecords);
+        _teleportRecords.Clear();
     }
 
     public void OnAssetFound(Object asset)
@@ -36,7 +41,7 @@ public class TeleportLocListener : IAssetScanListener<Object>
         // do nothing
     }
 
-    private void InsertTeleport(string scene, float x, float y, float z, string itemResourceName)
+    private void AddTeleport(string scene, float x, float y, float z, string itemResourceName)
     {
         var teleport = new TeleportRecord
         {
@@ -48,6 +53,6 @@ public class TeleportLocListener : IAssetScanListener<Object>
             TeleportItemStableKey = StableKeyGenerator.ForItemFromResourceName(itemResourceName),
         };
 
-        _db.Insert(teleport);
+        _teleportRecords.Add(teleport);
     }
 }
