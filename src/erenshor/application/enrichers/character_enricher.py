@@ -54,10 +54,7 @@ class CharacterEnricher:
         logger.debug(f"Enriching character: {character.npc_name}")
 
         # Get spawn points
-        spawn_infos = self._spawn_repo.get_spawn_info_for_character(
-            character_stable_key=character.stable_key,
-            is_prefab=bool(character.is_prefab),
-        )
+        spawn_infos = self._spawn_repo.get_spawn_info_for_character(character.stable_key)
 
         # Get loot drops
         loot_drops = self._loot_repo.get_loot_for_character(character.stable_key)

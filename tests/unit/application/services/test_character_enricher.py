@@ -109,10 +109,7 @@ class TestCharacterEnrichment:
 
         result = enricher.enrich(character)
 
-        mock_spawn_repo.get_spawn_info_for_character.assert_called_once_with(
-            character_stable_key="char:TestGuard",
-            is_prefab=False,
-        )
+        mock_spawn_repo.get_spawn_info_for_character.assert_called_once_with("char:TestGuard")
         assert len(result.spawn_infos) == 1
         assert result.spawn_infos[0].zone_stable_key == "zone:Port Azure"
 
@@ -127,10 +124,7 @@ class TestCharacterEnrichment:
 
         enricher.enrich(character)
 
-        mock_spawn_repo.get_spawn_info_for_character.assert_called_once_with(
-            character_stable_key="char:PrefabEnemy",
-            is_prefab=True,
-        )
+        mock_spawn_repo.get_spawn_info_for_character.assert_called_once_with("char:PrefabEnemy")
 
     def test_enrich_fetches_loot_drops(self, enricher, mock_loot_repo):
         """Test enricher fetches loot drops for characters with guid."""
