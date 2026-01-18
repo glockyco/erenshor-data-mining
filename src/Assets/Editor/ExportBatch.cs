@@ -80,11 +80,6 @@ public static class ExportBatch
                 // Enable foreign key constraints
                 db.Execute("PRAGMA foreign_keys = ON");
 
-                // Clear shared Coordinates table before export
-                // Each listener will repopulate its category during the scan
-                db.CreateTable<CoordinateRecord>();
-                db.DeleteAll<CoordinateRecord>();
-
                 // Register listeners based on entity selection
                 int registeredCount = RegisterListeners(scanner, db, args.entityTypes, args.logLevel);
 
@@ -97,6 +92,9 @@ public static class ExportBatch
 
                 // Execute scan synchronously
                 ExecuteScanSynchronously(scanner, args.logLevel);
+
+                // Create Coordinates view after all entity tables are populated
+                CreateCoordinatesView(db, args.logLevel);
 
                 totalStopwatch.Stop();
                 Log(LogLevel.Normal, args.logLevel, $"[EXPORT_COMPLETE] Export completed successfully in {totalStopwatch.Elapsed.TotalSeconds:F2}s");
@@ -397,6 +395,55 @@ public static class ExportBatch
             Log(LogLevel.Normal, logLevel,
                 $"[EXPORT_PHASE_COMPLETE] {currentPhase} completed in {phaseStopwatch.Elapsed.TotalSeconds:F2}s");
         }
+    }
+
+    /// <summary>
+    /// Creates the Coordinates view that unions all entity tables.
+    /// This view provides a unified query interface for all coordinate-based entities.
+    /// </summary>
+    /// <param name="db">SQLite database connection</param>
+    /// <param name="logLevel">Current log level setting</param>
+    private static void CreateCoordinatesView(SQLiteConnection db, LogLevel logLevel)
+    {
+        Log(LogLevel.Verbose, logLevel, "[EXPORT_VIEW] Creating Coordinates view...");
+
+        // Drop existing view if it exists to ensure we use the latest schema
+        db.Execute("DROP VIEW IF EXISTS Coordinates");
+
+        // Create view that unions all entity tables
+        db.Execute(@"
+            CREATE VIEW Coordinates AS
+            SELECT StableKey, Scene, X, Y, Z, 'Character' AS Category 
+              FROM Characters WHERE Scene IS NOT NULL
+            UNION ALL
+            SELECT StableKey, Scene, X, Y, Z, 'SpawnPoint' AS Category FROM SpawnPoints
+            UNION ALL
+            SELECT StableKey, Scene, X, Y, Z, 'Door' AS Category FROM Doors
+            UNION ALL
+            SELECT StableKey, Scene, X, Y, Z, 'MiningNode' AS Category FROM MiningNodes
+            UNION ALL
+            SELECT StableKey, Scene, X, Y, Z, 'Teleport' AS Category FROM Teleports
+            UNION ALL
+            SELECT StableKey, Scene, X, Y, Z, 'ZoneLine' AS Category FROM ZoneLines
+            UNION ALL
+            SELECT StableKey, Scene, X, Y, Z, 'Water' AS Category FROM Waters
+            UNION ALL
+            SELECT StableKey, Scene, X, Y, Z, 'ItemBag' AS Category FROM ItemBags
+            UNION ALL
+            SELECT StableKey, Scene, X, Y, Z, 'SecretPassage' AS Category FROM SecretPassages
+            UNION ALL
+            SELECT StableKey, Scene, X, Y, Z, 'AchievementTrigger' AS Category 
+              FROM AchievementTriggers
+            UNION ALL
+            SELECT StableKey, Scene, X, Y, Z, 'Forge' AS Category FROM Forges
+            UNION ALL
+            SELECT StableKey, Scene, X, Y, Z, 'WishingWell' AS Category FROM WishingWells
+            UNION ALL
+            SELECT StableKey, Scene, X, Y, Z, 'TreasureLocation' AS Category 
+              FROM TreasureLocations
+        ");
+
+        Log(LogLevel.Verbose, logLevel, "[EXPORT_VIEW] Coordinates view created successfully");
     }
 
     /// <summary>
