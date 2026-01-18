@@ -61,7 +61,7 @@ public class AssetScanner
         Stopwatch stopwatch = new Stopwatch();
 
         // --- Notify Scan Started ---
-        foreach (var listenerMap in new[] { _nullListeners, _scriptableObjectListeners, _componentListeners })
+        foreach (var listenerMap in new[] { _nullListeners, _gameObjectListeners, _scriptableObjectListeners, _componentListeners })
         {
             foreach (var listenerObj in listenerMap.SelectMany(kvp => kvp.Value))
             {
