@@ -93,6 +93,9 @@ public static class ExportBatch
                 // Execute scan synchronously
                 ExecuteScanSynchronously(scanner, args.logLevel);
 
+                // Create spawn points for directly placed characters (must run after CharacterListener)
+                CreateDirectPlacementSpawnPoints(db, args.logLevel);
+
                 // Create Coordinates view after all entity tables are populated
                 CreateCoordinatesView(db, args.logLevel);
 
@@ -444,6 +447,94 @@ public static class ExportBatch
         ");
 
         Log(LogLevel.Verbose, logLevel, "[EXPORT_VIEW] Coordinates view created successfully");
+    }
+
+    /// <summary>
+    /// Creates spawn point records for directly placed (non-prefab) characters.
+    /// This must run after CharacterListener has populated the Characters table.
+    /// </summary>
+    /// <param name="db">SQLite database connection</param>
+    /// <param name="logLevel">Current log level setting</param>
+    private static void CreateDirectPlacementSpawnPoints(SQLiteConnection db, LogLevel logLevel)
+    {
+        Log(LogLevel.Verbose, logLevel, "[EXPORT_SPAWN] Creating spawn points for directly placed characters...");
+
+        // Query existing spawn point keys to avoid collisions
+        var existingSpawnPointKeys = db.Query<SpawnPointRecord>("SELECT StableKey FROM SpawnPoints")
+            .Select(r => r.StableKey)
+            .ToList();
+
+        var keyTracker = new DuplicateKeyTracker("DirectPlacementSpawnPoints", existingSpawnPointKeys);
+
+        // Query Characters table for non-prefab characters with coordinates
+        var directlyPlacedCharacters = db.Query<CharacterRecord>(
+            "SELECT StableKey, Scene, X, Y, Z, IsEnabled FROM Characters WHERE IsPrefab = 0 AND Scene IS NOT NULL AND X IS NOT NULL AND Y IS NOT NULL AND Z IS NOT NULL"
+        );
+
+        Log(LogLevel.Normal, logLevel, $"[EXPORT_SPAWN] Found {directlyPlacedCharacters.Count} directly placed characters");
+
+        var spawnPointRecords = new List<SpawnPointRecord>();
+        var spawnPointCharacterRecords = new List<SpawnPointCharacterRecord>();
+
+        foreach (var character in directlyPlacedCharacters)
+        {
+            // These values are guaranteed non-null by the WHERE clause
+            var scene = character.Scene!;
+            var x = character.X!.Value;
+            var y = character.Y!.Value;
+            var z = character.Z!.Value;
+
+            // Generate spawn point stable key from coordinates
+            var baseStableKey = StableKeyGenerator.ForSpawnPoint(scene, x, y, z);
+            var stableKey = keyTracker.GetUniqueKey(baseStableKey, character.StableKey);
+
+            // Create virtual spawn point record
+            var spawnPointRecord = new SpawnPointRecord
+            {
+                StableKey = stableKey,
+                Scene = scene,
+                X = x,
+                Y = y,
+                Z = z,
+                IsEnabled = character.IsEnabled,
+                IsDirectlyPlaced = true,
+                RareNPCChance = 0,
+                LevelMod = 0,
+                SpawnDelay1 = null,
+                SpawnDelay2 = null,
+                SpawnDelay3 = null,
+                SpawnDelay4 = null,
+                Staggerable = false,
+                StaggerMod = 0f,
+                NightSpawn = false,
+                PatrolPoints = null,
+                LoopPatrol = false,
+                RandomWanderRange = 0f,
+                SpawnUponQuestCompleteStableKey = null,
+                ProtectorStableKey = null,
+            };
+            spawnPointRecords.Add(spawnPointRecord);
+
+            // Create junction record linking spawn point to character (100% spawn chance)
+            var spawnPointCharacterRecord = new SpawnPointCharacterRecord
+            {
+                SpawnPointStableKey = stableKey,
+                CharacterStableKey = character.StableKey,
+                SpawnChance = 100f,
+                IsCommon = true,
+                IsRare = false,
+            };
+            spawnPointCharacterRecords.Add(spawnPointCharacterRecord);
+        }
+
+        // Insert records into database
+        db.RunInTransaction(() =>
+        {
+            db.InsertAll(spawnPointRecords);
+            db.InsertAll(spawnPointCharacterRecords);
+        });
+
+        Log(LogLevel.Verbose, logLevel, $"[EXPORT_SPAWN] Created {spawnPointRecords.Count} spawn points for directly placed characters");
     }
 
     /// <summary>
