@@ -9,7 +9,7 @@
 
     // Derived from SvelteKit stores
     const mapName = $derived($page.params.mapName);
-    const coordinateId = $derived($page.url.searchParams.get('coordinateId'));
+    const markerKey = $derived($page.url.searchParams.get('marker'));
     const config = $derived(mapName ? MAPS[mapName] : undefined);
 
     type PositionData = {
@@ -30,7 +30,7 @@
     // Local state
     let mapContainer = $state<HTMLDivElement | null>(null);
     let mapInstance = $state<LeafletMap | null>(null);
-    let coordinateIdToMarker = $state<Map<number, L.Marker>>(new Map());
+    let stableKeyToMarker = $state<Map<string, L.Marker>>(new Map());
     let playerPosition = $state<PositionData | null>(null);
     let playerMarker = $state<L.Marker | null>(null);
     let webSocket: WebSocket | null = null;
@@ -83,7 +83,7 @@
         mapInstance?.remove();
         mapInstance = null;
         playerMarker = null;
-        coordinateIdToMarker = new Map(); // Clear marker map
+        stableKeyToMarker = new Map(); // Clear marker map
 
         // Initialize new map
         import('leaflet').then(async (L) => {
@@ -242,7 +242,7 @@
 
             const layerGroups: { [key: string]: L.LayerGroup } = {};
             // eslint-disable-next-line svelte/prefer-svelte-reactivity -- pre-existing Leaflet code
-            const markerMap = new Map<number, L.Marker>();
+            const markerMap = new Map<string, L.Marker>();
 
             function createIcon(iconClass: string, color: string, radius: number) {
                 const iconMarkup = `
@@ -357,11 +357,11 @@
                     m.bindPopup(marker.popup);
                 }
 
-                markerMap.set(marker.coordinateId, m);
+                markerMap.set(marker.stableKey, m);
 
                 // Use SvelteKit navigation instead of manual history manipulation
                 m.on('popupopen', () => {
-                    goto(`?coordinateId=${marker.coordinateId}`, {
+                    goto(`?marker=${marker.stableKey}`, {
                         replaceState: true,
                         noScroll: true,
                         keepFocus: true
@@ -475,37 +475,37 @@
 
             // Update state
             mapInstance = map;
-            coordinateIdToMarker = markerMap;
+            stableKeyToMarker = markerMap;
         });
     });
 
-    // Effect 2: Handle coordinateId changes (popup open/close)
+    // Effect 2: Handle marker changes (popup open/close)
     $effect(() => {
-        const coordId = coordinateId;
+        const key = markerKey;
         const map = mapInstance;
-        const markers = coordinateIdToMarker;
+        const markers = stableKeyToMarker;
 
         if (!map || markers.size === 0) return;
 
-        if (coordId) {
-            const marker = markers.get(Number(coordId));
+        if (key) {
+            const marker = markers.get(key);
             if (marker && !marker.isPopupOpen()) {
                 marker.openPopup();
                 map.panTo(marker.getLatLng());
             }
         } else {
-            // Close all popups when coordinateId is cleared
+            // Close all popups when marker is cleared
             map.closePopup();
         }
     });
 
-    // Effect 2b: Clear coordinateId when navigating to a different map
+    // Effect 2b: Clear marker when navigating to a different map
     let previousMapName = $state<string | null>(null);
     $effect(() => {
-        const coordId = coordinateId;
+        const key = markerKey;
 
-        // Only clear coordinateId if we're actually changing maps (not initial load)
-        if (previousMapName !== null && previousMapName !== mapName && coordId) {
+        // Only clear marker if we're actually changing maps (not initial load)
+        if (previousMapName !== null && previousMapName !== mapName && key) {
             goto('?', {
                 replaceState: true,
                 noScroll: true,
