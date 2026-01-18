@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using SQLite;
 using UnityEngine;
-using static CoordinateRecord;
 
 public class WaterListener : IAssetScanListener<Water>
 {
@@ -17,60 +16,45 @@ public class WaterListener : IAssetScanListener<Water>
 
     public void OnScanStarted()
     {
-        _db.CreateTable<CoordinateRecord>();
         _db.CreateTable<WaterRecord>();
         _db.CreateTable<WaterFishableRecord>();
 
-        _db.Execute("DELETE FROM Coordinates WHERE Category = ?", nameof(CoordinateCategory.Water));
         _db.DeleteAll<WaterRecord>();
         _db.DeleteAll<WaterFishableRecord>();
     }
 
     public void OnScanFinished()
     {
-        _db.Execute(@"
-            UPDATE Coordinates
-            SET WaterId = (
-                SELECT Id
-                FROM Waters
-                WHERE Waters.CoordinateId = Coordinates.Id
-            )
-            WHERE EXISTS (
-                SELECT 1
-                FROM Waters
-                WHERE Waters.CoordinateId = Coordinates.Id
-            );
-        ");
+        // No post-processing needed
     }
 
     public void OnAssetFound(Water asset)
     {
         Debug.Log($"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
 
-        var coordinate = new CoordinateRecord
-        {
-            Scene = asset.gameObject.scene.name,
-            X = asset.transform.position.x,
-            Y = asset.transform.position.y,
-            Z = asset.transform.position.z,
-            Category = nameof(CoordinateCategory.Water)
-        };
-
-        _db.Insert(coordinate);
+        var scene = asset.gameObject.scene.name;
+        var x = asset.transform.position.x;
+        var y = asset.transform.position.y;
+        var z = asset.transform.position.z;
+        var stableKey = StableKeyGenerator.ForWater(scene, x, y, z);
 
         var water = new WaterRecord
         {
-            CoordinateId = coordinate.Id,
+            StableKey = stableKey,
+            Scene = scene,
+            X = x,
+            Y = y,
+            Z = z,
             Width = asset.transform.localScale.x,
             Height = asset.transform.localScale.y,
             Depth = asset.transform.localScale.z
         };
 
         _db.Insert(water);
-        _db.InsertAll(CreateWaterFishableRecords(asset, water.Id));
+        _db.InsertAll(CreateWaterFishableRecords(asset, stableKey));
     }
 
-    private static List<WaterFishableRecord> CreateWaterFishableRecords(Water water, int waterId)
+    private static List<WaterFishableRecord> CreateWaterFishableRecords(Water water, string waterStableKey)
     {
         var waterFishableRecords = new List<WaterFishableRecord>();
 
@@ -110,7 +94,7 @@ public class WaterListener : IAssetScanListener<Water>
             {
                 waterFishableRecords.Add(new WaterFishableRecord
                 {
-                    WaterId = waterId,
+                    WaterStableKey = waterStableKey,
                     Type = type,
                     ItemStableKey = kvp.Key,
                     DropChance = kvp.Value
