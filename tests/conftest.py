@@ -62,32 +62,30 @@ def in_memory_db() -> Generator[sqlite3.Connection]:
 
 
 @pytest.fixture(scope="session")
-def integration_db(tmp_path_factory: pytest.TempPathFactory) -> Generator[Path]:
-    """Create integration test database from SQL fixture.
+def integration_db() -> Generator[Path]:
+    """Find most recently exported database from any variant.
 
-    This fixture loads the integration-28kb.sql fixture which contains
-    realistic sample data for all entity types. Session-scoped to avoid
-    recreating the database for every test.
+    This fixture uses real exported databases instead of hand-written fixtures.
+    Searches variants/ directory for erenshor-*.sqlite files and returns
+    the most recently modified one.
 
     Returns:
-        Path: Path to the SQLite database file
+        Path: Path to the most recently exported database
+
+    Raises:
+        pytest.skip: If no exported database exists
     """
-    db_path = tmp_path_factory.mktemp("db") / "integration.sqlite"
-    fixture_path = Path(__file__).parent / "fixtures" / "database" / "integration-28kb.sql"
+    variants_dir = Path(__file__).parent.parent / "variants"
+    databases = list(variants_dir.glob("*/erenshor-*.sqlite"))
 
-    if not fixture_path.exists():
-        pytest.skip(f"Integration database fixture not found: {fixture_path}")
+    # Filter out backup/temp files
+    databases = [db for db in databases if ".pre-" not in db.name]
 
-    # Load fixture using sqlite3
-    conn = sqlite3.connect(str(db_path))
-    try:
-        fixture_sql = fixture_path.read_text()
-        conn.executescript(fixture_sql)
-        conn.commit()
-    finally:
-        conn.close()
+    if not databases:
+        pytest.skip("No exported database found. Run 'uv run erenshor extract export' first.")
 
-    yield db_path
+    # Return most recently modified
+    yield max(databases, key=lambda p: p.stat().st_mtime)
 
 
 @pytest.fixture
