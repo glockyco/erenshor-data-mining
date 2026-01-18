@@ -16,6 +16,7 @@ public class SpawnPointRecord
     public float Z { get; set; }
 
     public bool IsEnabled { get; set; }
+    public bool IsDirectlyPlaced { get; set; }
     public int RareNPCChance { get; set; }
     public int LevelMod { get; set; }
     public float SpawnDelay1 { get; set; }

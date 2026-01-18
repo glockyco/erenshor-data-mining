@@ -89,6 +89,7 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
             Y = y,
             Z = z,
             IsEnabled = spawnPoint.isActiveAndEnabled,
+            IsDirectlyPlaced = false,
             RareNPCChance = spawnPoint.RareNPCChance,
             LevelMod = spawnPoint.levelMod,
             SpawnDelay1 = spawnDelay,
