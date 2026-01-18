@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using SQLite;
 using UnityEngine;
-using static CoordinateRecord;
 
 public class ZoneLineListener : IAssetScanListener<Zoneline>
 {
@@ -15,10 +14,8 @@ public class ZoneLineListener : IAssetScanListener<Zoneline>
 
     public void OnScanStarted()
     {
-        _db.CreateTable<CoordinateRecord>();
         _db.CreateTable<ZoneLineRecord>();
 
-        _db.Execute("DELETE FROM Coordinates WHERE Category = ?", nameof(CoordinateCategory.ZoneLine));
         _db.DeleteAll<ZoneLineRecord>();
 
         _records.Clear();
@@ -27,21 +24,6 @@ public class ZoneLineListener : IAssetScanListener<Zoneline>
     public void OnScanFinished()
     {
         _db.InsertAll(_records);
-
-        _db.Execute(@"
-            UPDATE Coordinates
-            SET ZoneLineId = (
-                SELECT Id
-                FROM ZoneLines
-                WHERE ZoneLines.CoordinateId = Coordinates.Id
-            )
-            WHERE EXISTS (
-                SELECT 1
-                FROM ZoneLines
-                WHERE ZoneLines.CoordinateId = Coordinates.Id
-            );
-        ");
-
         _records.Clear();
     }
 
@@ -54,20 +36,19 @@ public class ZoneLineListener : IAssetScanListener<Zoneline>
 
     private ZoneLineRecord CreateRecord(Zoneline zoneLine)
     {
-        var coordinate = new CoordinateRecord
-        {
-            Scene = zoneLine.gameObject.scene.name,
-            X = zoneLine.transform.position.x,
-            Y = zoneLine.transform.position.y,
-            Z = zoneLine.transform.position.z,
-            Category = nameof(CoordinateCategory.ZoneLine)
-        };
-
-        _db.Insert(coordinate);
+        var sourceScene = zoneLine.gameObject.scene.name;
+        var destScene = zoneLine.DestinationZone ?? string.Empty;
+        var x = zoneLine.transform.position.x;
+        var y = zoneLine.transform.position.y;
+        var z = zoneLine.transform.position.z;
 
         return new ZoneLineRecord
         {
-            CoordinateId = coordinate.Id,
+            StableKey = StableKeyGenerator.ForZoneLine(sourceScene, destScene, x, y, z),
+            Scene = sourceScene,
+            X = x,
+            Y = y,
+            Z = z,
             IsEnabled = zoneLine.isActiveAndEnabled,
             DisplayText = zoneLine.DisplayText,
             DestinationZoneStableKey = !string.IsNullOrEmpty(zoneLine.DestinationZone)
