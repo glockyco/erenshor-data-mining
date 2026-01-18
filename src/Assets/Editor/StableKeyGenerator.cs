@@ -207,6 +207,160 @@ public static class StableKeyGenerator
         return $"item:{Normalize(resourceName)}";
     }
 
+    // ========================================================================
+    // Coordinate-based entity stable key generators
+    // ========================================================================
+
+    /// <summary>
+    /// Generate stable key for a spawn point.
+    /// Format: "spawn:scene:x:y:z"
+    /// </summary>
+    public static string ForSpawnPoint(string scene, float x, float y, float z)
+    {
+        if (string.IsNullOrEmpty(scene))
+            throw new ArgumentException("Scene cannot be null or empty", nameof(scene));
+
+        return $"spawn:{Normalize(scene)}:{FormatCoord(x)}:{FormatCoord(y)}:{FormatCoord(z)}";
+    }
+
+    /// <summary>
+    /// Generate stable key for a door.
+    /// Format: "door:scene:x:y:z"
+    /// </summary>
+    public static string ForDoor(string scene, float x, float y, float z)
+    {
+        if (string.IsNullOrEmpty(scene))
+            throw new ArgumentException("Scene cannot be null or empty", nameof(scene));
+
+        return $"door:{Normalize(scene)}:{FormatCoord(x)}:{FormatCoord(y)}:{FormatCoord(z)}";
+    }
+
+    /// <summary>
+    /// Generate stable key for a mining node.
+    /// Format: "mining:scene:x:y:z"
+    /// </summary>
+    public static string ForMiningNode(string scene, float x, float y, float z)
+    {
+        if (string.IsNullOrEmpty(scene))
+            throw new ArgumentException("Scene cannot be null or empty", nameof(scene));
+
+        return $"mining:{Normalize(scene)}:{FormatCoord(x)}:{FormatCoord(y)}:{FormatCoord(z)}";
+    }
+
+    /// <summary>
+    /// Generate stable key for a teleport destination.
+    /// Format: "teleport:scene:x:y:z"
+    /// </summary>
+    public static string ForTeleport(string scene, float x, float y, float z)
+    {
+        if (string.IsNullOrEmpty(scene))
+            throw new ArgumentException("Scene cannot be null or empty", nameof(scene));
+
+        return $"teleport:{Normalize(scene)}:{FormatCoord(x)}:{FormatCoord(y)}:{FormatCoord(z)}";
+    }
+
+    /// <summary>
+    /// Generate stable key for a zone line.
+    /// Format: "zoneline:source_scene:dest_scene:x:y:z"
+    /// </summary>
+    public static string ForZoneLine(string sourceScene, string destScene, float x, float y, float z)
+    {
+        if (string.IsNullOrEmpty(sourceScene))
+            throw new ArgumentException("Source scene cannot be null or empty", nameof(sourceScene));
+        if (string.IsNullOrEmpty(destScene))
+            throw new ArgumentException("Destination scene cannot be null or empty", nameof(destScene));
+
+        return $"zoneline:{Normalize(sourceScene)}:{Normalize(destScene)}:{FormatCoord(x)}:{FormatCoord(y)}:{FormatCoord(z)}";
+    }
+
+    /// <summary>
+    /// Generate stable key for a water (fishing spot).
+    /// Format: "water:scene:x:y:z"
+    /// </summary>
+    public static string ForWater(string scene, float x, float y, float z)
+    {
+        if (string.IsNullOrEmpty(scene))
+            throw new ArgumentException("Scene cannot be null or empty", nameof(scene));
+
+        return $"water:{Normalize(scene)}:{FormatCoord(x)}:{FormatCoord(y)}:{FormatCoord(z)}";
+    }
+
+    /// <summary>
+    /// Generate stable key for an item bag.
+    /// Format: "itembag:scene:x:y:z"
+    /// </summary>
+    public static string ForItemBag(string scene, float x, float y, float z)
+    {
+        if (string.IsNullOrEmpty(scene))
+            throw new ArgumentException("Scene cannot be null or empty", nameof(scene));
+
+        return $"itembag:{Normalize(scene)}:{FormatCoord(x)}:{FormatCoord(y)}:{FormatCoord(z)}";
+    }
+
+    /// <summary>
+    /// Generate stable key for a secret passage.
+    /// Format: "secret:scene:x:y:z"
+    /// </summary>
+    public static string ForSecretPassage(string scene, float x, float y, float z)
+    {
+        if (string.IsNullOrEmpty(scene))
+            throw new ArgumentException("Scene cannot be null or empty", nameof(scene));
+
+        return $"secret:{Normalize(scene)}:{FormatCoord(x)}:{FormatCoord(y)}:{FormatCoord(z)}";
+    }
+
+    /// <summary>
+    /// Generate stable key for an achievement trigger.
+    /// Format: "achievement:scene:x:y:z"
+    /// </summary>
+    public static string ForAchievementTrigger(string scene, float x, float y, float z)
+    {
+        if (string.IsNullOrEmpty(scene))
+            throw new ArgumentException("Scene cannot be null or empty", nameof(scene));
+
+        return $"achievement:{Normalize(scene)}:{FormatCoord(x)}:{FormatCoord(y)}:{FormatCoord(z)}";
+    }
+
+    /// <summary>
+    /// Generate stable key for a forge.
+    /// Format: "forge:scene:x:y:z"
+    /// </summary>
+    public static string ForForge(string scene, float x, float y, float z)
+    {
+        if (string.IsNullOrEmpty(scene))
+            throw new ArgumentException("Scene cannot be null or empty", nameof(scene));
+
+        return $"forge:{Normalize(scene)}:{FormatCoord(x)}:{FormatCoord(y)}:{FormatCoord(z)}";
+    }
+
+    /// <summary>
+    /// Generate stable key for a wishing well.
+    /// Format: "well:scene:x:y:z"
+    /// </summary>
+    public static string ForWishingWell(string scene, float x, float y, float z)
+    {
+        if (string.IsNullOrEmpty(scene))
+            throw new ArgumentException("Scene cannot be null or empty", nameof(scene));
+
+        return $"well:{Normalize(scene)}:{FormatCoord(x)}:{FormatCoord(y)}:{FormatCoord(z)}";
+    }
+
+    /// <summary>
+    /// Generate stable key for a treasure location.
+    /// Format: "treasure:scene:x:y:z"
+    /// </summary>
+    public static string ForTreasureLocation(string scene, float x, float y, float z)
+    {
+        if (string.IsNullOrEmpty(scene))
+            throw new ArgumentException("Scene cannot be null or empty", nameof(scene));
+
+        return $"treasure:{Normalize(scene)}:{FormatCoord(x)}:{FormatCoord(y)}:{FormatCoord(z)}";
+    }
+
+    // ========================================================================
+    // Helper methods
+    // ========================================================================
+
     /// <summary>
     /// Format a coordinate value to 2 decimal places.
     /// </summary>
