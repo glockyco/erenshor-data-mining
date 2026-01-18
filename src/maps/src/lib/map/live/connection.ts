@@ -10,7 +10,7 @@ import { browser } from '$app/environment';
 import type { ProtocolMessage, ConnectionState } from './types';
 
 /** Default WebSocket server URL (mod default port) */
-const DEFAULT_SERVER_URL = 'ws://localhost:18584';
+const DEFAULT_SERVER_URL = 'ws://localhost:18585';
 
 /** Fixed reconnection interval in milliseconds */
 const RECONNECT_INTERVAL_MS = 2000;
