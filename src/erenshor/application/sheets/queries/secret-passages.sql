@@ -1,14 +1,11 @@
 SELECT
-    --Id,
     za.SceneName,
     za.ZoneName,
-    ROUND(c.X, 2) AS PositionX,
-    ROUND(c.Y, 2) AS PositionY,
-    ROUND(c.Z, 2) AS PositionZ,
-    --sp.ObjectName,
+    ROUND(sp.X, 2) AS PositionX,
+    ROUND(sp.Y, 2) AS PositionY,
+    ROUND(sp.Z, 2) AS PositionZ,
     sp.Type,
-    'https://erenshor-maps.wowmuch1.workers.dev/' || za.SceneName || '?coordinateId=' || c.Id AS MapLink
+    'https://erenshor-maps.wowmuch1.workers.dev/map?marker=' || sp.StableKey AS MapLink
 FROM SecretPassages sp
-JOIN Coordinates c ON c.SecretPassageId = sp.Id
-JOIN Zones za ON za.SceneName = c.Scene
+JOIN Zones za ON za.SceneName = sp.Scene
 ORDER BY za.ZoneName;
