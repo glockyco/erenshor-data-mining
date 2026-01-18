@@ -135,8 +135,8 @@ public static class StableKeyGenerator
     /// <summary>
     /// Generate stable key for a character.
     /// Prefabs: "character:object_name"
-    /// Non-prefabs: "character:object_name|scene|x|y|z"
-    /// Variants (duplicates): append "#index" to the key
+    /// Non-prefabs: "character:object_name:scene:x:y:z"
+    /// Variants (duplicates): append ":index" to the key
     /// </summary>
     public static string ForCharacter(Character character, int variantIndex = 0)
     {
@@ -158,14 +158,14 @@ public static class StableKeyGenerator
         {
             // Non-prefab: include coordinates
             var normalizedSceneName = Normalize(character.gameObject.scene.name);
-            var xStr = character.transform.position.x.ToString("F2");
-            var yStr = character.transform.position.y.ToString("F2");
-            var zStr = character.transform.position.z.ToString("F2");
-            baseKey = $"character:{normalizedObjectName}|{normalizedSceneName}|{xStr}|{yStr}|{zStr}";
+            var xStr = FormatCoord(character.transform.position.x);
+            var yStr = FormatCoord(character.transform.position.y);
+            var zStr = FormatCoord(character.transform.position.z);
+            baseKey = $"character:{normalizedObjectName}:{normalizedSceneName}:{xStr}:{yStr}:{zStr}";
         }
 
         // Append variant index if this is a duplicate
-        return variantIndex > 0 ? $"{baseKey}|{variantIndex}" : baseKey;
+        return variantIndex > 0 ? $"{baseKey}:{variantIndex}" : baseKey;
     }
 
     /// <summary>
@@ -205,6 +205,14 @@ public static class StableKeyGenerator
             throw new ArgumentException("resourceName cannot be null or empty");
 
         return $"item:{Normalize(resourceName)}";
+    }
+
+    /// <summary>
+    /// Format a coordinate value to 2 decimal places.
+    /// </summary>
+    private static string FormatCoord(float value)
+    {
+        return value.ToString("F2");
     }
 
     /// <summary>
