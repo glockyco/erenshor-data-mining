@@ -58,11 +58,20 @@
             ? null
             : {
                   position: [playerPosition.z - config.originY, playerPosition.x - config.originX],
-                  rotation: calculateRotation(
-                      playerPosition.fx,
-                      playerPosition.fy,
-                      playerPosition.fz
-                  )
+                  rotation:
+                      rotationMode === 'compass'
+                          ? (calculateRotation(
+                                playerPosition.fx,
+                                playerPosition.fy,
+                                playerPosition.fz
+                            ) +
+                                trueNorthBearing) %
+                            360
+                          : calculateRotation(
+                                playerPosition.fx,
+                                playerPosition.fy,
+                                playerPosition.fz
+                            )
               }
     );
 
@@ -146,6 +155,13 @@
 
                 webSocket.onmessage = (event) => {
                     const message = JSON.parse(event.data);
+
+                    // Ignore new mod messages (they have a 'type' field)
+                    if (message.type) {
+                        return;
+                    }
+
+                    // Old mod format
                     const { scene, x, y, z, fx, fy, fz } = message;
                     playerPosition = { scene, x, y, z, fx, fy, fz };
                 };
