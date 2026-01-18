@@ -8,9 +8,13 @@ public class SpawnPointRecord
     public const string TableName = "SpawnPoints";
 
     [PrimaryKey]
-    public int Id { get; set; }
-    [Indexed]
-    public int CoordinateId { get; set; }
+    public string StableKey { get; set; } = string.Empty;
+
+    public string Scene { get; set; } = string.Empty;
+    public float X { get; set; }
+    public float Y { get; set; }
+    public float Z { get; set; }
+
     public bool IsEnabled { get; set; }
     public int RareNPCChance { get; set; }
     public int LevelMod { get; set; }
