@@ -5,7 +5,7 @@ namespace InteractiveMapCompanion;
 /// </summary>
 internal static partial class PluginInfo
 {
-    public const string GUID = "com.erenshor.interactivemap";
+    public const string GUID = "wow-much.interactive-map-companion";
     public const string Name = "Interactive Map Companion";
     // Version is generated from .csproj in PluginInfo.g.cs
 }

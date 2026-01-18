@@ -175,7 +175,7 @@ Other mods register markers via `IMarkerAPI`:
 ```csharp
 // Discovery
 var mapCompanion = Chainloader.PluginInfos
-    .GetValueOrDefault("com.erenshor.interactivemap");
+    .GetValueOrDefault("wow-much.interactive-map-companion");
 var api = mapCompanion?.Instance as IMarkerAPI;
 
 // Registration
