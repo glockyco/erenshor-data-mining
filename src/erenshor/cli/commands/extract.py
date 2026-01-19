@@ -21,6 +21,14 @@ from erenshor.cli.preconditions import require_preconditions
 from erenshor.cli.preconditions.checks.steam import game_files_exist, steam_credentials_exist
 from erenshor.cli.preconditions.checks.unity import editor_scripts_linked, unity_project_exists, unity_version_matches
 from erenshor.infrastructure.assetripper.assetripper import AssetRipper
+from erenshor.infrastructure.csproj_generator import (
+    UnityPaths,
+    discover_mod_projects,
+    generate_editor_scripts_csproj,
+    generate_game_scripts_csproj,
+    generate_root_solution,
+    generate_solution_file,
+)
 from erenshor.infrastructure.steam.steamcmd import SteamCMD
 from erenshor.infrastructure.unity.batch_mode import UnityBatchMode
 
@@ -228,6 +236,10 @@ def rip(ctx: typer.Context) -> None:
             logger.warning(f"Packages directory not found: {packages_source}")
 
         logger.info(f"Unity project extraction complete: {unity_project_dir}")
+
+        # Generate .csproj for LSP support
+        _generate_ide_project_files(cli_ctx, variant_config, unity_project_dir, game_files_dir)
+
         logger.info("Next: Run 'erenshor extract export' to export game data to SQLite")
 
     except Exception as e:
@@ -373,3 +385,282 @@ def _create_backup_after_export(cli_ctx: CLIContext, variant_config: Any, databa
         console.print(f"[yellow]Warning: Backup creation failed: {e}[/yellow]")
         console.print("[yellow]Export succeeded but backup was not created.[/yellow]")
         console.print()
+
+
+def _generate_ide_project_files(
+    cli_ctx: CLIContext, variant_config: Any, unity_project_dir: Path, game_files_dir: Path
+) -> None:
+    """Generate .csproj and .sln files for LSP support.
+
+    Creates project files that enable IDE features like "Find References"
+    for the decompiled game scripts.
+
+    Args:
+        cli_ctx: CLI context.
+        variant_config: Variant-specific configuration.
+        unity_project_dir: Path to Unity project directory.
+        game_files_dir: Path to game files directory.
+    """
+    scripts_dir = unity_project_dir / "ExportedProject" / "Assets" / "Scripts" / "Assembly-CSharp"
+    managed_dir = game_files_dir / "Erenshor_Data" / "Managed"
+    plugins_dir = unity_project_dir / "ExportedProject" / "Assets" / "Plugins"
+    solution_dir = unity_project_dir / "ExportedProject"
+
+    if not scripts_dir.exists():
+        logger.warning(f"Scripts directory not found, skipping IDE setup: {scripts_dir}")
+        return
+
+    if not managed_dir.exists():
+        logger.warning(f"Managed DLLs directory not found, skipping IDE setup: {managed_dir}")
+        return
+
+    try:
+        # Generate .csproj
+        csproj_path = generate_game_scripts_csproj(
+            scripts_dir=scripts_dir,
+            managed_dlls_dir=managed_dir,
+            plugins_dir=plugins_dir,
+        )
+        logger.info(f"Generated project file for LSP support: {csproj_path}")
+
+        # Generate .sln
+        sln_path = generate_solution_file(
+            solution_dir=solution_dir,
+            csproj_path=csproj_path,
+        )
+        logger.info(f"Generated solution file: {sln_path}")
+
+    except Exception as e:
+        # Log error but don't fail the rip
+        logger.warning(f"Failed to generate IDE project files: {e}")
+        console.print(f"[yellow]Warning: IDE setup failed: {e}[/yellow]")
+        console.print("[yellow]Rip succeeded but LSP support may not work.[/yellow]")
+
+
+@app.command("ide-setup")
+def ide_setup(ctx: typer.Context) -> None:
+    """Generate IDE project files for all variants and mods.
+
+    Creates .csproj and .sln files that enable IDE features like "Find References"
+    and "Go to Definition" for the decompiled game scripts and mods in Zed, VS Code,
+    or other editors with C# LSP support.
+
+    This command:
+    1. Discovers all existing game variants (main, playtest, demo)
+    2. Generates Assembly-CSharp.csproj for each variant's game scripts
+    3. Discovers all mod projects under src/mods/
+    4. Generates a root Erenshor.sln including all projects
+
+    For Zed users: Configure OmniSharp as the language server for proper
+    cross-file "Find References" support:
+
+        "languages": { "CSharp": { "language_servers": ["omnisharp", "!roslyn"] } }
+    """
+    cli_ctx: CLIContext = ctx.obj
+
+    if cli_ctx.dry_run:
+        logger.info("[Dry-run] Would generate IDE project files for all variants")
+        return
+
+    try:
+        _generate_all_ide_project_files(cli_ctx)
+    except Exception as e:
+        console.print(f"[red]Error generating IDE project files: {e}[/red]")
+        logger.exception("IDE setup failed")
+        raise typer.Exit(1) from e
+
+
+def _generate_all_ide_project_files(cli_ctx: CLIContext) -> None:
+    """Generate IDE project files for all variants and create root solution.
+
+    Discovers all existing variants and mod projects, generates .csproj files
+    for game scripts and Editor scripts, and creates a lightweight Erenshor.sln
+    at the repo root containing mods and Editor scripts (game scripts excluded
+    to avoid excessive memory usage).
+
+    Args:
+        cli_ctx: CLI context with config and repo root.
+    """
+    variant_solutions: list[Path] = []
+    editor_csproj_path: Path | None = None
+
+    # Get Unity paths for Editor script references
+    unity_config = cli_ctx.config.global_.unity
+    unity_editor_path = unity_config.resolved_path(cli_ctx.repo_root)
+
+    try:
+        unity_paths = UnityPaths.from_executable(unity_editor_path)
+    except FileNotFoundError as e:
+        console.print(f"[red]Error:[/red] {e}")
+        console.print("[yellow]Unity Editor is required for IDE setup.[/yellow]")
+        raise typer.Exit(1) from e
+
+    # Process all variants - generate per-variant project files
+    console.print("[bold]Generating variant project files:[/bold]")
+    for variant_name, variant_config in cli_ctx.config.variants.items():
+        unity_project_dir = variant_config.resolved_unity_project(cli_ctx.repo_root)
+        game_files_dir = variant_config.resolved_game_files(cli_ctx.repo_root)
+
+        scripts_dir = unity_project_dir / "ExportedProject" / "Assets" / "Scripts" / "Assembly-CSharp"
+        managed_dir = game_files_dir / "Erenshor_Data" / "Managed"
+        plugins_dir = unity_project_dir / "ExportedProject" / "Assets" / "Plugins"
+        solution_dir = unity_project_dir / "ExportedProject"
+        editor_dir = unity_project_dir / "ExportedProject" / "Assets" / "Editor"
+
+        # Skip variants that don't have extracted game scripts
+        if not scripts_dir.exists():
+            logger.info(f"Variant '{variant_name}' not extracted, skipping")
+            console.print(f"  [dim]- {variant_name} (not extracted)[/dim]")
+            continue
+
+        if not managed_dir.exists():
+            logger.warning(f"Variant '{variant_name}' missing Managed DLLs, skipping")
+            console.print(f"  [yellow]⚠[/yellow] {variant_name} (missing Managed DLLs)")
+            continue
+
+        try:
+            # Generate .csproj for game scripts
+            csproj_path = generate_game_scripts_csproj(
+                scripts_dir=scripts_dir,
+                managed_dlls_dir=managed_dir,
+                plugins_dir=plugins_dir,
+            )
+            logger.info(f"Generated: {csproj_path}")
+            console.print(f"  [green]✓[/green] {csproj_path.relative_to(cli_ctx.repo_root)}")
+
+            # Generate .csproj for Editor scripts if they exist
+            editor_csproj = None
+            if editor_dir.exists():
+                try:
+                    editor_csproj = generate_editor_scripts_csproj(
+                        editor_scripts_dir=editor_dir,
+                        unity_paths=unity_paths,
+                        game_scripts_csproj=csproj_path,
+                    )
+                    logger.info(f"Generated: {editor_csproj}")
+                    console.print(f"  [green]✓[/green] {editor_csproj.relative_to(cli_ctx.repo_root)}")
+                    # Track the first Editor csproj for root solution
+                    if editor_csproj_path is None:
+                        editor_csproj_path = editor_csproj
+                except Exception as e:
+                    logger.warning(f"Failed to generate Editor project for '{variant_name}': {e}")
+                    console.print(f"  [yellow]⚠[/yellow] Editor scripts: {e}")
+
+            # Generate variant-specific .sln (includes both game scripts and Editor)
+            additional_projects = [editor_csproj] if editor_csproj else None
+            sln_path = generate_solution_file(
+                solution_dir=solution_dir,
+                csproj_path=csproj_path,
+                additional_projects=additional_projects,
+            )
+            logger.info(f"Generated: {sln_path}")
+            console.print(f"  [green]✓[/green] {sln_path.relative_to(cli_ctx.repo_root)}")
+            variant_solutions.append(sln_path)
+
+        except Exception as e:
+            logger.warning(f"Failed to generate IDE files for variant '{variant_name}': {e}")
+            console.print(f"  [yellow]⚠[/yellow] {variant_name}: {e}")
+
+    # Generate Editor scripts csproj in src/Assets/Editor for root solution
+    src_editor_dir = cli_ctx.repo_root / "src" / "Assets" / "Editor"
+    src_editor_csproj: Path | None = None
+    if src_editor_dir.exists():
+        console.print()
+        console.print("[bold]Generating Editor scripts project:[/bold]")
+
+        # Find any existing game scripts csproj to reference (use first variant)
+        game_scripts_ref = None
+        for variant_config in cli_ctx.config.variants.values():
+            unity_project_dir = variant_config.resolved_unity_project(cli_ctx.repo_root)
+            potential_csproj = (
+                unity_project_dir
+                / "ExportedProject"
+                / "Assets"
+                / "Scripts"
+                / "Assembly-CSharp"
+                / "Assembly-CSharp.csproj"
+            )
+            if potential_csproj.exists():
+                game_scripts_ref = potential_csproj
+                break
+
+        if game_scripts_ref is None:
+            console.print("  [yellow]⚠[/yellow] No game scripts csproj found - skipping Editor project")
+            console.print("    [dim]Run 'extract ide-setup' after extracting at least one variant[/dim]")
+        else:
+            try:
+                src_editor_csproj = generate_editor_scripts_csproj(
+                    editor_scripts_dir=src_editor_dir,
+                    unity_paths=unity_paths,
+                    game_scripts_csproj=game_scripts_ref,
+                )
+                logger.info(f"Generated: {src_editor_csproj}")
+                console.print(f"  [green]✓[/green] {src_editor_csproj.relative_to(cli_ctx.repo_root)}")
+            except Exception as e:
+                logger.warning(f"Failed to generate Editor scripts project: {e}")
+                console.print(f"  [yellow]⚠[/yellow] {e}")
+
+    # Discover mod projects
+    mods_dir = cli_ctx.repo_root / "src" / "mods"
+    mod_projects, test_projects = discover_mod_projects(mods_dir)
+
+    if mod_projects:
+        console.print()
+        console.print("[bold]Discovered mod projects:[/bold]")
+        for proj in mod_projects:
+            console.print(f"  [green]✓[/green] {proj.relative_to(cli_ctx.repo_root)}")
+
+    if test_projects:
+        console.print()
+        console.print("[bold]Discovered test projects:[/bold]")
+        for proj in test_projects:
+            console.print(f"  [green]✓[/green] {proj.relative_to(cli_ctx.repo_root)}")
+
+    # Build list of projects for root solution (mods + Editor scripts, no game scripts)
+    all_mod_projects = list(mod_projects)
+    if src_editor_csproj:
+        all_mod_projects.insert(0, src_editor_csproj)  # Add Editor scripts to mods list
+
+    # Generate root solution with mods and Editor (game scripts excluded to save memory)
+    if not all_mod_projects and not test_projects:
+        console.print()
+        console.print("[yellow]No mod or Editor projects found. Root solution not generated.[/yellow]")
+        if variant_solutions:
+            console.print()
+            console.print("[green bold]IDE setup complete![/green bold]")
+            console.print()
+            console.print("For game script analysis, open a variant solution:")
+            for sln in variant_solutions:
+                console.print(f"  • {sln.relative_to(cli_ctx.repo_root)}")
+        return
+
+    console.print()
+    console.print("[bold]Generating root solution (mods + Editor)...[/bold]")
+
+    root_sln_path = cli_ctx.repo_root / "Erenshor.sln"
+    generate_root_solution(
+        solution_path=root_sln_path,
+        game_script_projects={},  # Empty - don't include game scripts to save memory
+        mod_projects=all_mod_projects,
+        test_projects=test_projects,
+    )
+
+    console.print(f"  [green]✓[/green] {root_sln_path.relative_to(cli_ctx.repo_root)}")
+    console.print()
+    console.print("[green bold]IDE setup complete![/green bold]")
+    console.print()
+    console.print(f"[bold]Root solution (mods + Editor):[/bold] {root_sln_path}")
+    for proj in all_mod_projects:
+        console.print(f"  • {proj.stem}")
+    for proj in test_projects:
+        console.print(f"  • {proj.stem}")
+
+    if variant_solutions:
+        console.print()
+        console.print("[bold]Game script solutions (per-variant):[/bold]")
+        for sln in variant_solutions:
+            console.print(f"  • {sln.relative_to(cli_ctx.repo_root)}")
+
+    console.print()
+    console.print("[dim]Tip: For Zed, use OmniSharp for cross-file Find References:[/dim]")
+    console.print('[dim]  "languages": { "CSharp": { "language_servers": ["omnisharp", "!roslyn"] } }[/dim]')
