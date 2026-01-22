@@ -42,7 +42,12 @@
         type DragInfo,
         type BackdropSettings
     } from '$lib/map/debug';
-    import { urlManager, parseUrlState, parseLayerVisibility } from '$lib/map/url-state';
+    import {
+        urlManager,
+        parseUrlState,
+        parseLayerVisibility,
+        getNormalizedSearch
+    } from '$lib/map/url-state';
     import {
         DEFAULT_LAYER_VISIBILITY,
         type LayerVisibility,
@@ -638,7 +643,8 @@
         if (!browser || !container) return;
 
         // Check if URL has explicit view state params
-        const params = new URLSearchParams(window.location.search);
+        // Use getNormalizedSearch to fix HTML-encoded ampersands from forum posts
+        const params = new URLSearchParams(getNormalizedSearch());
         hasUrlViewState = params.has('x') || params.has('y') || params.has('z');
 
         // Parse initial URL state (passive mode is handled in restoreFromUrl)

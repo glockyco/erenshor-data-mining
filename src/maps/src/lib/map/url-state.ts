@@ -197,6 +197,23 @@ function parseLayers(layerStr: string | null): LayerVisibility {
 // ============================================================================
 
 /**
+ * Get normalized URL search string.
+ * Fixes HTML entity encoding from forum posts where & becomes &amp;
+ * (e.g., Steam discussion forums HTML-encode URLs, breaking query params).
+ * Also cleans up the browser URL bar to prevent propagating the issue when re-sharing.
+ */
+export function getNormalizedSearch(): string {
+    let search = window.location.search;
+    if (search.includes('&amp;')) {
+        search = search.replaceAll('&amp;', '&');
+        // Clean up browser URL bar so re-sharing works correctly
+        const cleanUrl = window.location.pathname + search + window.location.hash;
+        window.history.replaceState(null, '', cleanUrl);
+    }
+    return search;
+}
+
+/**
  * Cancel any pending debounced view sync.
  */
 function cancelViewSync(): void {
@@ -278,7 +295,7 @@ export function buildUrl(params: UrlStateParams): string {
 export function parseUrlState(): ParsedUrlState | null {
     if (!browser) return null;
 
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(getNormalizedSearch());
 
     // Check if any map params exist
     const hasMapParams =

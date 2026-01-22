@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { browser } from '$app/environment';
     import { page } from '$app/stores';
     import { goto } from '$app/navigation';
     import { onDestroy } from 'svelte';
@@ -6,6 +7,15 @@
     import { Repository } from '$lib/database.default';
     import { type LatLngExpression, type Map as LeafletMap } from 'leaflet';
     import type { Marker, EnemyMarker, NpcMarker } from '$lib/map-markers';
+
+    // Fix HTML-encoded ampersands from forum posts (e.g., Steam discussions)
+    // This must run before any URL parsing to ensure $page.url is correct
+    $effect(() => {
+        if (browser && window.location.search.includes('&amp;')) {
+            const cleanSearch = window.location.search.replaceAll('&amp;', '&');
+            goto(window.location.pathname + cleanSearch, { replaceState: true });
+        }
+    });
 
     // Derived from SvelteKit stores
     const mapName = $derived($page.params.mapName);
