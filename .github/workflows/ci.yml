@@ -158,12 +158,36 @@ jobs:
         run: dotnet test --verbosity normal
         working-directory: src/mods/InteractiveMapCompanion
 
+
+  validate-mods:
+    name: Validate Mods
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --dev
+
+      - name: Validate mod metadata
+        run: uv run python3 scripts/validate-mods-metadata.py
+
   # Summary job that all other jobs depend on
   # This makes it easy to require a single status check for branch protection
   ci-success:
     name: CI Success
     runs-on: ubuntu-latest
-    needs: [lint-python, lint-csharp, type-check, security, test-python, test-csharp]
+    needs: [lint-python, lint-csharp, type-check, security, test-python, test-csharp, validate-mods]
     if: always()
     steps:
       - name: Check all jobs status
@@ -173,7 +197,8 @@ jobs:
              [[ "${{ needs.type-check.result }}" != "success" ]] || \
              [[ "${{ needs.security.result }}" != "success" ]] || \
              [[ "${{ needs.test-python.result }}" != "success" ]] || \
-             [[ "${{ needs.test-csharp.result }}" != "success" ]]; then
+             [[ "${{ needs.test-csharp.result }}" != "success" ]] || \
+             [[ "${{ needs.validate-mods.result }}" != "success" ]]; then
             echo "One or more jobs failed"
             exit 1
           fi
