@@ -1,9 +1,11 @@
 """Mod commands for companion mod development.
 
-This module provides commands for building and deploying the InteractiveMapCompanion mod:
+This module provides commands for building and deploying companion mods:
 - Copying game DLLs for compilation
-- Building the mod with dotnet
+- Building mods with dotnet
 - Deploying to BepInEx plugins folder
+- Publishing to website download directory
+- Generating mod metadata
 - Launching the game
 """
 
@@ -32,8 +34,19 @@ app = typer.Typer(
 
 console = Console()
 
-# Mod directory relative to repo root
-MOD_DIR = Path("src/mods/InteractiveMapCompanion")
+# Mod registry - all companion mods in the project
+MODS = {
+    "interactive-map-companion": {
+        "dir": "src/mods/InteractiveMapCompanion",
+        "name": "Interactive Map Companion",
+        "dll_name": "InteractiveMapCompanion.dll",
+    },
+    "interactive-maps-companion": {
+        "dir": "src/mods/InteractiveMapsCompanion",
+        "name": "Interactive Maps Companion",
+        "dll_name": "InteractiveMapsCompanion.dll",
+    },
+}
 
 # Required DLLs to copy from game
 REQUIRED_DLLS = [
@@ -84,19 +97,21 @@ def _get_bepinex_plugins_dir(game_path: Path) -> Path:
     return game_path / "BepInEx" / "plugins"
 
 
-def _get_mod_dir(cli_ctx: CLIContext) -> Path:
+def _get_mod_dir(cli_ctx: CLIContext, mod_id: str) -> Path:
     """Get the mod source directory."""
-    return cli_ctx.repo_root / MOD_DIR
+    if mod_id not in MODS:
+        raise ValueError(f"Unknown mod: {mod_id}")
+    return cli_ctx.repo_root / MODS[mod_id]["dir"]
 
 
-def _get_mod_lib_dir(cli_ctx: CLIContext) -> Path:
+def _get_mod_lib_dir(cli_ctx: CLIContext, mod_id: str) -> Path:
     """Get the mod lib directory for game DLLs."""
-    return _get_mod_dir(cli_ctx) / "lib"
+    return _get_mod_dir(cli_ctx, mod_id) / "lib"
 
 
-def _get_mod_output_dir(cli_ctx: CLIContext) -> Path:
+def _get_mod_output_dir(cli_ctx: CLIContext, mod_id: str) -> Path:
     """Get the mod build output directory."""
-    return _get_mod_dir(cli_ctx) / "bin" / "Debug" / "netstandard2.1"
+    return _get_mod_dir(cli_ctx, mod_id) / "bin" / "Debug" / "netstandard2.1"
 
 
 def _get_mod_publish_dir(cli_ctx: CLIContext) -> Path:
@@ -104,12 +119,82 @@ def _get_mod_publish_dir(cli_ctx: CLIContext) -> Path:
     return cli_ctx.repo_root / "src" / "maps" / "static" / "mods"
 
 
+def _build_mods_internal(cli_ctx: CLIContext, mod: str | None = None) -> None:
+    """Internal helper to build mods.
+
+    Builds specified mod or all mods, generating metadata. Raises typer.Exit
+    if build fails. Used by both build command and other commands that need
+    to build mods as a prerequisite.
+    """
+    if not _check_dotnet_available():
+        console.print("[red]Error: dotnet CLI not found in PATH[/red]")
+        console.print("Install .NET SDK from https://dotnet.microsoft.com/")
+        raise typer.Exit(1)
+
+    # Determine which mods to build
+    mods_to_build = [mod] if mod else list(MODS.keys())
+    if mod and mod not in MODS:
+        console.print(f"[red]Error: Unknown mod: {mod}[/red]")
+        console.print(f"Available mods: {', '.join(MODS.keys())}")
+        raise typer.Exit(1)
+
+    failed = []
+    for mod_id in mods_to_build:
+        mod_dir = _get_mod_dir(cli_ctx, mod_id)
+        if not mod_dir.exists():
+            console.print(f"[red]Error: Mod directory not found: {mod_dir}[/red]")
+            raise typer.Exit(1)
+
+        lib_dir = _get_mod_lib_dir(cli_ctx, mod_id)
+        if not any(lib_dir.glob("*.dll")):
+            console.print(f"[red]Error: No DLLs in {mod_id}/lib/ directory[/red]")
+            console.print("Run 'uv run erenshor mod setup' first.")
+            raise typer.Exit(1)
+
+        console.print(f"[bold]{MODS[mod_id]['name']}[/bold]")
+        console.print(f"[dim]{mod_dir}[/dim]")
+        console.print()
+
+        # Run dotnet build
+        result = subprocess.run(
+            ["dotnet", "build", "--configuration", "Debug"],
+            cwd=mod_dir,
+            check=False,
+        )
+
+        if result.returncode != 0:
+            console.print("[red]✗ Build failed[/red]")
+            console.print()
+            failed.append(mod_id)
+        else:
+            console.print("[green]✓ Build successful[/green]")
+            console.print()
+
+    if failed:
+        console.print(f"[red]Build failed for: {', '.join(failed)}[/red]")
+        raise typer.Exit(1)
+
+    # Generate metadata after all mods built
+    console.print("[bold]Generating mod metadata...[/bold]")
+    result = subprocess.run(
+        ["uv", "run", "python3", "scripts/generate-mods-metadata.py"],
+        cwd=cli_ctx.repo_root,
+        check=False,
+    )
+
+    if result.returncode != 0:
+        console.print("[red]Warning: Metadata generation failed[/red]")
+        console.print()
+    else:
+        console.print()
+
+
 @app.command()
 def setup(ctx: typer.Context) -> None:
     """Copy game DLLs for mod compilation.
 
     Copies required game assemblies from the game installation to the
-    mod's lib directory. These DLLs are needed to compile the mod but
+    mods' lib directories. These DLLs are needed to compile the mods but
     are not committed to the repository.
 
     Set ERENSHOR_GAME_PATH environment variable to your game installation,
@@ -137,43 +222,48 @@ def setup(ctx: typer.Context) -> None:
         console.print(f"[red]Error: Managed directory not found: {managed_dir}[/red]")
         raise typer.Exit(1)
 
-    lib_dir = _get_mod_lib_dir(cli_ctx)
-    lib_dir.mkdir(parents=True, exist_ok=True)
-
     console.print(f"[dim]Source: {managed_dir}[/dim]")
-    console.print(f"[dim]Target: {lib_dir}[/dim]")
     console.print()
 
-    # Copy each required DLL
-    missing = []
-    for dll_name in REQUIRED_DLLS:
-        source = managed_dir / dll_name
-        target = lib_dir / dll_name
+    # Copy DLLs to all mod lib directories
+    for mod_id in MODS:
+        lib_dir = _get_mod_lib_dir(cli_ctx, mod_id)
+        lib_dir.mkdir(parents=True, exist_ok=True)
 
-        if not source.exists():
-            console.print(f"  [red]\u2717[/red] {dll_name} - not found")
-            missing.append(dll_name)
-            continue
+        console.print(f"[bold]{MODS[mod_id]['name']}[/bold]")
 
-        shutil.copy2(source, target)
-        console.print(f"  [green]\u2713[/green] {dll_name}")
+        missing = []
+        for dll_name in REQUIRED_DLLS:
+            source = managed_dir / dll_name
+            target = lib_dir / dll_name
+            if not source.exists():
+                missing.append(dll_name)
+                console.print(f"  [red]✗[/red] {dll_name} (not found in game)")
+            else:
+                shutil.copy2(source, target)
+                console.print(f"  [green]✓[/green] {dll_name}")
 
-    console.print()
+        if missing:
+            console.print(f"[red]Error: Missing DLLs: {', '.join(missing)}[/red]")
+            raise typer.Exit(1)
 
-    if missing:
-        console.print(f"[yellow]Warning: {len(missing)} DLL(s) not found[/yellow]")
-        raise typer.Exit(1)
+        console.print()
 
     console.print("[green]Setup complete![/green]")
     console.print()
 
 
 @app.command()
-def build(ctx: typer.Context) -> None:
-    """Build the companion mod.
+def build(
+    ctx: typer.Context,
+    mod: str | None = typer.Option(None, "--mod", help="Build specific mod (or all if not specified)"),
+) -> None:
+    """Build companion mods.
 
-    Compiles the InteractiveMapCompanion mod using dotnet build.
-    Requires game DLLs to be present in lib/ directory (run setup first).
+    Compiles the companion mods using dotnet build.
+    Requires game DLLs to be present in lib/ directories (run setup first).
+
+    By default, builds all mods. Use --mod to build a specific one.
     """
     cli_ctx: CLIContext = ctx.obj
 
@@ -181,48 +271,23 @@ def build(ctx: typer.Context) -> None:
     console.print(Panel.fit("[bold cyan]Mod Build[/bold cyan]", border_style="cyan"))
     console.print()
 
-    if not _check_dotnet_available():
-        console.print("[red]Error: dotnet CLI not found in PATH[/red]")
-        console.print("Install .NET SDK from https://dotnet.microsoft.com/")
-        raise typer.Exit(1)
+    _build_mods_internal(cli_ctx, mod)
 
-    mod_dir = _get_mod_dir(cli_ctx)
-    if not mod_dir.exists():
-        console.print(f"[red]Error: Mod directory not found: {mod_dir}[/red]")
-        raise typer.Exit(1)
-
-    lib_dir = _get_mod_lib_dir(cli_ctx)
-    if not any(lib_dir.glob("*.dll")):
-        console.print("[red]Error: No DLLs in lib/ directory[/red]")
-        console.print("Run 'uv run erenshor mod setup' first.")
-        raise typer.Exit(1)
-
-    console.print(f"[dim]Building: {mod_dir}[/dim]")
-    console.print()
-
-    # Run dotnet build
-    result = subprocess.run(
-        ["dotnet", "build", "--configuration", "Debug"],
-        cwd=mod_dir,
-        check=False,
-    )
-
-    if result.returncode != 0:
-        console.print()
-        console.print("[red]Build failed![/red]")
-        raise typer.Exit(result.returncode)
-
-    console.print()
-    console.print("[green]Build successful![/green]")
+    console.print("[green]Build complete![/green]")
     console.print()
 
 
 @app.command()
-def deploy(ctx: typer.Context) -> None:
-    """Build and deploy mod to BepInEx plugins.
+def deploy(
+    ctx: typer.Context,
+    mod: str | None = typer.Option(None, "--mod", help="Deploy specific mod (or all if not specified)"),
+) -> None:
+    """Build and deploy mods to BepInEx plugins.
 
-    Builds the mod and copies the output DLL and dependencies to the
-    BepInEx plugins folder in the game installation.
+    Builds mods and copies the output DLLs to the BepInEx plugins folder
+    in the game installation.
+
+    By default, deploys all mods. Use --mod to deploy a specific one.
     """
     cli_ctx: CLIContext = ctx.obj
 
@@ -230,14 +295,9 @@ def deploy(ctx: typer.Context) -> None:
     console.print(Panel.fit("[bold cyan]Mod Deploy[/bold cyan]", border_style="cyan"))
     console.print()
 
-    # First build
-    console.print("[bold]Building mod...[/bold]")
-    build_ctx = ctx
-    try:
-        build(build_ctx)
-    except typer.Exit as e:
-        if e.exit_code != 0:
-            raise
+    # First build all mods
+    console.print("[bold]Building mods...[/bold]")
+    _build_mods_internal(cli_ctx, mod)
 
     # Find game path for deployment
     game_path = _get_game_path(cli_ctx)
@@ -254,46 +314,50 @@ def deploy(ctx: typer.Context) -> None:
 
     plugins_dir.mkdir(parents=True, exist_ok=True)
 
-    output_dir = _get_mod_output_dir(cli_ctx)
-    if not output_dir.exists():
-        console.print(f"[red]Error: Build output not found: {output_dir}[/red]")
-        raise typer.Exit(1)
-
     console.print()
     console.print("[bold]Deploying to BepInEx...[/bold]")
     console.print(f"[dim]Target: {plugins_dir}[/dim]")
     console.print()
 
-    # Copy mod DLL (now contains all dependencies merged via ILRepack)
-    mod_dll = output_dir / "InteractiveMapCompanion.dll"
-    if not mod_dll.exists():
-        console.print(f"[red]Error: Mod DLL not found: {mod_dll}[/red]")
-        raise typer.Exit(1)
+    # Determine which mods to deploy
+    mods_to_deploy = [mod] if mod else list(MODS.keys())
 
-    target = plugins_dir / "InteractiveMapCompanion.dll"
-    shutil.copy2(mod_dll, target)
+    for mod_id in mods_to_deploy:
+        output_dir = _get_mod_output_dir(cli_ctx, mod_id)
+        if not output_dir.exists():
+            console.print(f"[red]Error: Build output not found: {output_dir}[/red]")
+            raise typer.Exit(1)
 
-    # Get file size for user feedback
-    size_bytes = mod_dll.stat().st_size
-    size_kb = size_bytes / 1024
-    console.print(f"  [green]\u2713[/green] InteractiveMapCompanion.dll ({size_kb:.1f} KB)")
+        dll_name = MODS[mod_id]["dll_name"]
+        mod_dll = output_dir / dll_name
+        if not mod_dll.exists():
+            console.print(f"[red]Error: Mod DLL not found: {mod_dll}[/red]")
+            raise typer.Exit(1)
+
+        target = plugins_dir / dll_name
+        shutil.copy2(mod_dll, target)
+
+        # Get file size for user feedback
+        size_bytes = mod_dll.stat().st_size
+        size_kb = size_bytes / 1024
+        console.print(f"  [green]✓[/green] {dll_name} ({size_kb:.1f} KB)")
 
     console.print()
     console.print("[green]Deploy complete![/green]")
-    console.print("[dim]Note: All dependencies are merged into InteractiveMapCompanion.dll via ILRepack[/dim]")
+    console.print("[dim]Note: All dependencies are merged into DLLs via ILRepack[/dim]")
     console.print()
 
 
 @app.command()
-def publish(ctx: typer.Context) -> None:
-    """Build and publish mod to website download directory.
+def publish(
+    ctx: typer.Context,
+    mod: str | None = typer.Option(None, "--mod", help="Publish specific mod (or all if not specified)"),
+) -> None:
+    """Build and publish mods to website download directory.
 
-    Builds the mod and copies the output DLL to the maps website's static
+    Builds mods and copies the output DLLs to the maps website's static
     directory for public download. Run this before building/deploying the
-    maps website to include the latest mod version.
-
-    Note: The static/mods directory is gitignored, so DLLs are not committed
-    to the repository. You must run this command before deploying the website.
+    maps website to include the latest mod versions.
     """
     cli_ctx: CLIContext = ctx.obj
 
@@ -301,20 +365,9 @@ def publish(ctx: typer.Context) -> None:
     console.print(Panel.fit("[bold cyan]Mod Publish[/bold cyan]", border_style="cyan"))
     console.print()
 
-    # First build
-    console.print("[bold]Building mod...[/bold]")
-    build_ctx = ctx
-    try:
-        build(build_ctx)
-    except typer.Exit as e:
-        if e.exit_code != 0:
-            raise
-
-    output_dir = _get_mod_output_dir(cli_ctx)
-    mod_dll = output_dir / "InteractiveMapCompanion.dll"
-    if not mod_dll.exists():
-        console.print(f"[red]Error: Mod DLL not found: {mod_dll}[/red]")
-        raise typer.Exit(1)
+    # First build all mods
+    console.print("[bold]Building mods...[/bold]")
+    _build_mods_internal(cli_ctx, mod)
 
     publish_dir = _get_mod_publish_dir(cli_ctx)
     publish_dir.mkdir(parents=True, exist_ok=True)
@@ -324,19 +377,27 @@ def publish(ctx: typer.Context) -> None:
     console.print(f"[dim]Target: {publish_dir}[/dim]")
     console.print()
 
-    target = publish_dir / "InteractiveMapCompanion.dll"
-    shutil.copy2(mod_dll, target)
+    # Determine which mods to publish
+    mods_to_publish = [mod] if mod else list(MODS.keys())
 
-    # Get file size for user feedback
-    size_bytes = mod_dll.stat().st_size
-    size_kb = size_bytes / 1024
-    console.print(f"  [green]\u2713[/green] InteractiveMapCompanion.dll ({size_kb:.1f} KB)")
+    for mod_id in mods_to_publish:
+        output_dir = _get_mod_output_dir(cli_ctx, mod_id)
+        dll_name = MODS[mod_id]["dll_name"]
+        mod_dll = output_dir / dll_name
+        if not mod_dll.exists():
+            console.print(f"[red]Error: Mod DLL not found: {mod_dll}[/red]")
+            raise typer.Exit(1)
+
+        target = publish_dir / dll_name
+        shutil.copy2(mod_dll, target)
+
+        # Get file size for user feedback
+        size_bytes = mod_dll.stat().st_size
+        size_kb = size_bytes / 1024
+        console.print(f"  [green]✓[/green] {dll_name} ({size_kb:.1f} KB)")
 
     console.print()
     console.print("[green]Publish complete![/green]")
-    console.print("[dim]Next steps:[/dim]")
-    console.print("[dim]  1. Commit the updated DLL: git add src/maps/static/mods/[/dim]")
-    console.print("[dim]  2. Deploy the maps website to make the new version available[/dim]")
     console.print()
 
 
@@ -389,15 +450,7 @@ def launch(ctx: typer.Context) -> None:
             console.print(f"[red]Error: Game executable not found: {exe_path}[/red]")
             raise typer.Exit(1)
 
-        console.print(f"[dim]Launching: {exe_path}[/dim]")
+        console.print(f"[dim]Executable: {exe_path}[/dim]")
         console.print()
 
-        if sys.platform == "win32":
-            subprocess.Popen([str(exe_path)])
-        else:
-            console.print("[yellow]Warning: Direct launch on this platform may not work[/yellow]")
-            console.print("Set CROSSOVER_BOTTLE for macOS or use Wine on Linux.")
-            subprocess.Popen(["wine", str(exe_path)])
-
-    console.print("[green]Game launched![/green]")
-    console.print()
+        subprocess.run([str(exe_path)], check=False)
