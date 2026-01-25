@@ -50,7 +50,16 @@
             {#if mod.gifUrl}
                 <div class="aspect-video bg-slate-700 overflow-hidden">
                     {#if mod.gifUrl.endsWith('.mp4')}
-                        <video autoplay muted loop class="w-full h-full object-cover">
+                        <video
+                            autoplay
+                            muted
+                            loop
+                            class={`w-full h-full object-cover ${
+                                mod.status === 'legacy'
+                                    ? 'opacity-60 grayscale-[40%] brightness-90'
+                                    : ''
+                            }`}
+                        >
                             <source src={mod.gifUrl} type="video/mp4" />
                             <!-- Fallback for older browsers -->
                             <img
@@ -63,7 +72,11 @@
                         <img
                             src={mod.gifUrl}
                             alt={`${mod.displayName} demo`}
-                            class="w-full h-full object-cover"
+                            class={`w-full h-full object-cover ${
+                                mod.status === 'legacy'
+                                    ? 'opacity-60 grayscale-[40%] brightness-90'
+                                    : ''
+                            }`}
                             loading="lazy"
                         />
                     {/if}
