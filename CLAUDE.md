@@ -146,3 +146,12 @@ Mods follow patterns from [erenshor-logs](https://github.com/glockyco/erenshor-l
 - Generic + adapter pattern for testability
 - Harmony patches with static property injection
 - Fleck for WebSocket server
+
+## Companion Mod Pipeline
+
+The mod build pipeline is fully automated: `setup` (copy DLLs) → `build` (compile,
+version from git) → `publish` (stage for website) → website build (includes mods).
+Version numbers use CalVer format (YYYY.M.D.{decimal_hash}) derived from git commit
+date/hash—never manually specified. Metadata is generated to both source and website
+locations, kept in sync by construction. Pre-commit hooks validate locally, CI
+validates on every push. See `mod-build-pipeline` skill for detailed workflows.
