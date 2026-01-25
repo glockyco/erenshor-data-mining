@@ -46,7 +46,7 @@ public class WaterListener : IAssetScanListener<Water>
         var x = asset.transform.position.x;
         var y = asset.transform.position.y;
         var z = asset.transform.position.z;
-        
+
         var baseStableKey = StableKeyGenerator.ForWater(scene, x, y, z);
         var stableKey = _keyTracker.GetUniqueKey(baseStableKey, asset.gameObject.name);
 

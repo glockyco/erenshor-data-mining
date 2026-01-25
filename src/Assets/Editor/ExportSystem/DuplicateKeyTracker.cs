@@ -5,7 +5,7 @@ using UnityEngine;
 
 /// <summary>
 /// Tracks and assigns unique variant indices to duplicate stable keys.
-/// 
+///
 /// When multiple entities share the same coordinate-based stable key (e.g.,
 /// multiple spawn points at identical positions), this class appends variant
 /// indices (:1, :2, etc.) to ensure uniqueness.
@@ -29,7 +29,7 @@ public class DuplicateKeyTracker
     public DuplicateKeyTracker(string listenerName, IEnumerable<string> existingKeys)
     {
         _listenerName = listenerName;
-        
+
         // Parse existing keys to initialize counters
         foreach (var key in existingKeys)
         {

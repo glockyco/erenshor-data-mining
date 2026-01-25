@@ -11,7 +11,7 @@
     <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Interactive Zone Maps</h2>
     <div class="w-24 h-1 bg-gradient-to-r from-purple-500 to-pink-500 mx-auto rounded-full"></div>
     <p class="text-slate-400 mt-4">
-        Legacy per-zone maps. For a unified experience, try the
+        Legacy zone maps. For a unified experience, try the
         <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
         <a href="/" class="text-purple-400 hover:text-purple-300 underline">Interactive World Map</a
         >.

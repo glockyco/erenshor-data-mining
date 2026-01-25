@@ -260,7 +260,7 @@ public class CharacterListener : IAssetScanListener<Character>
 
         var baseStableKey = StableKeyGenerator.ForCharacter(asset);
         var stableKey = _keyTracker.GetUniqueKey(baseStableKey, asset.gameObject.name);
-        
+
         var characterRecord = CreateCharacterRecord(asset, stableKey);
         _characterRecords.Add(characterRecord);
 

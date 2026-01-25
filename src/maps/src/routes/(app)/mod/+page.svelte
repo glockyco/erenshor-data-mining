@@ -32,7 +32,7 @@
     <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Companion Mods</h2>
     <div class="w-24 h-1 bg-gradient-to-r from-purple-500 to-pink-500 mx-auto rounded-full"></div>
     <p class="text-slate-400 mt-4">
-        Enhance your Erenshor experience with real-time player tracking on the interactive map.
+        Enhance your Erenshor experience with real-time tracking on the interactive maps.
     </p>
 </div>
 
@@ -40,7 +40,7 @@
 <div class="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto mb-12">
     {#each modsMetadata.mods as mod (mod.id)}
         <div
-            class={`rounded-xl overflow-hidden border transition-all duration-300 ${
+            class={`rounded-xl overflow-hidden border transition-all duration-300 flex flex-col h-full ${
                 mod.status === 'current'
                     ? 'bg-slate-800 border-purple-500 shadow-lg shadow-purple-500/20'
                     : 'bg-slate-900 border-slate-700'
@@ -63,7 +63,7 @@
             {/if}
 
             <!-- Card Content -->
-            <div class="p-6">
+            <div class="p-6 flex flex-col flex-grow">
                 <!-- Header with Title and Status Badge -->
                 <div class="flex items-center justify-between mb-3">
                     <h3 class="text-xl font-bold text-white">{mod.displayName}</h3>
@@ -87,7 +87,7 @@
                 <p class="text-slate-300 text-sm mb-4">{mod.description}</p>
 
                 <!-- Features List -->
-                <div class="mb-6">
+                <div class="mb-6 flex-grow">
                     <h4 class="text-xs font-semibold text-slate-300 uppercase tracking-wide mb-2">
                         Features
                     </h4>
@@ -116,7 +116,7 @@
                 <!-- Download Button -->
                 <a
                     href={mod.downloadUrl}
-                    class={`block w-full py-2 px-4 rounded-lg font-semibold text-center transition-all duration-300 ${
+                    class={`block w-full py-2 px-4 rounded-lg font-semibold text-center transition-all duration-300 mt-auto ${
                         mod.status === 'current'
                             ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 shadow-lg hover:shadow-xl'
                             : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
@@ -166,17 +166,30 @@
                         rel="noopener noreferrer"
                         class="text-purple-400 hover:text-purple-300 underline"
                     >
-                        BepInEx
+                        BepInEx 5.4
                     </a>
-                    to your Erenshor game directory. BepInEx is the mod loader that allows companion mods
-                    to run.
+                    to your Erenshor game directory. BepInEx is a mod loader for Unity games.
                 </p>
                 <p class="text-slate-400">
-                    Extract the BepInEx archive to your Erenshor installation folder (the one
-                    containing <span class="font-mono bg-slate-900 px-2 py-1 rounded text-xs"
-                        >Erenshor.exe</span
-                    >).
+                    Extract the BepInEx archive to your Erenshor game folder. Your directory
+                    structure should look like:
                 </p>
+                <pre
+                    class="bg-slate-900 px-3 py-2 rounded text-xs text-slate-200 overflow-x-auto mt-2"><code
+                        >Erenshor/
+├── BepInEx/
+│   ├── config/
+│   ├── plugins/
+│   ├── patchers/
+│   ├── core/
+│   └── ...
+├── doorstop_version
+├── changelog.txt
+├── doorstop_config.ini
+├── winhttp.dll
+├── Erenshor.exe
+└── ...</code
+                    ></pre>
             </div>
         </div>
 
@@ -191,23 +204,86 @@
                 Download & Install Mod
             </h4>
             <div class="ml-9 text-slate-300 space-y-2 text-sm">
-                <p>Click the Download button above to get the mod DLL file.</p>
+                <p>Click the mod's Download button above to get the mod DLL file.</p>
                 <p>Extract the DLL to your BepInEx plugins folder:</p>
-                <p
-                    class="font-mono bg-slate-900 px-3 py-2 rounded text-xs text-slate-200 overflow-x-auto"
-                >
-                    Erenshor/BepInEx/plugins/
-                </p>
+                <div class="space-y-2">
+                    <div>
+                        <p class="text-slate-400 text-xs mb-1">For World Map:</p>
+                        <p
+                            class="font-mono bg-slate-900 px-3 py-2 rounded text-xs text-slate-200 overflow-x-auto"
+                        >
+                            Erenshor/BepInEx/plugins/InteractiveMapCompanion.dll
+                        </p>
+                    </div>
+                    <div>
+                        <p class="text-slate-400 text-xs mb-1">For Zone Maps:</p>
+                        <p
+                            class="font-mono bg-slate-900 px-3 py-2 rounded text-xs text-slate-200 overflow-x-auto"
+                        >
+                            Erenshor/BepInEx/plugins/InteractiveMapsCompanion.dll
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Step 3: Launch Game -->
+        <!-- Step 3: Configure BepInEx -->
         <div>
             <h4 class="text-lg font-semibold text-white mb-2 flex items-center">
                 <span
                     class="flex items-center justify-center w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold mr-3"
                 >
                     3
+                </span>
+                Configure BepInEx
+            </h4>
+            <div class="ml-9 text-slate-300 space-y-3 text-sm">
+                <p>
+                    A Unity security update requires a configuration change. Open your BepInEx
+                    configuration file:
+                </p>
+                <p
+                    class="font-mono bg-slate-900 px-3 py-2 rounded text-xs text-slate-200 overflow-x-auto"
+                >
+                    Erenshor/BepInEx/config/BepInEx.cfg
+                </p>
+
+                <p class="text-slate-400">
+                    Find the <span class="font-semibold text-white">[Chainloader]</span> section and change:
+                </p>
+                <pre
+                    class="bg-slate-900 px-3 py-2 rounded text-xs text-slate-200 overflow-x-auto"><code
+                        class="text-red-400">HideManagerGameObject = false</code
+                    ></pre>
+                <p class="text-slate-400">To:</p>
+                <pre
+                    class="bg-slate-900 px-3 py-2 rounded text-xs text-slate-200 overflow-x-auto"><code
+                        class="text-green-400">HideManagerGameObject = true</code
+                    ></pre>
+
+                <p class="text-slate-400 mt-4">
+                    Then find the <span class="font-semibold text-white">[Logging.Console]</span> section
+                    and change:
+                </p>
+                <pre
+                    class="bg-slate-900 px-3 py-2 rounded text-xs text-slate-200 overflow-x-auto"><code
+                        class="text-red-400">Enabled = false</code
+                    ></pre>
+                <p class="text-slate-400">To:</p>
+                <pre
+                    class="bg-slate-900 px-3 py-2 rounded text-xs text-slate-200 overflow-x-auto"><code
+                        class="text-green-400">Enabled = true</code
+                    ></pre>
+            </div>
+        </div>
+
+        <!-- Step 4: Launch Game -->
+        <div>
+            <h4 class="text-lg font-semibold text-white mb-2 flex items-center">
+                <span
+                    class="flex items-center justify-center w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold mr-3"
+                >
+                    4
                 </span>
                 Launch the Game
             </h4>
@@ -225,15 +301,46 @@
                 <span
                     class="flex items-center justify-center w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold mr-3"
                 >
-                    4
+                    5a
                 </span>
-                Use on the Map
+                Use on the World Map
             </h4>
             <div class="ml-9 text-slate-300 space-y-2 text-sm">
-                <p>Open this interactive map in your browser while the game is running.</p>
                 <p>
-                    Look for the <span class="font-semibold text-white">Live Mode</span> toggle in the
-                    sidebar and enable it. Your character's position should appear on the map in real-time.
+                    Open the <a href="/map" class="text-purple-400 hover:text-purple-300 underline">
+                        world map
+                    </a>
+                    in your browser while the game is running.<br />
+                    Toggle "Enable Live Mode" in the sidebar.<br />
+                    The positions of your character, enemies, NPCs, and pets should appear on the map
+                    in real-time.
+                </p>
+            </div>
+        </div>
+
+        <!-- Step 5b: Use on Zone Maps -->
+        <div>
+            <h4 class="text-lg font-semibold text-white mb-2 flex items-center">
+                <span
+                    class="flex items-center justify-center w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold mr-3"
+                >
+                    5b
+                </span>
+                Use on the Zone Maps
+            </h4>
+            <div class="ml-9 text-slate-300 space-y-2 text-sm">
+                <p>
+                    Open the correct <a
+                        href="/zone-maps"
+                        class="text-purple-400 hover:text-purple-300 underline"
+                    >
+                        zone map
+                    </a>
+                    (e.g.,
+                    <a href="/Stowaway" class="text-purple-400 hover:text-purple-300 underline">
+                        /Stowaway</a
+                    >) in the browser while the game is running.<br />
+                    The position of your character should appear on the map in real-time.
                 </p>
             </div>
         </div>
@@ -255,7 +362,7 @@
                 <p class="text-slate-400">
                     Make sure you have enabled <span class="font-semibold text-white"
                         >Live Mode</span
-                    > in the map sidebar. Your browser may also need to allow WebSocket connections.
+                    > in the map sidebar.
                 </p>
             </div>
             <div>
@@ -267,7 +374,7 @@
                         rel="noopener noreferrer"
                         class="text-purple-400 hover:text-purple-300 underline"
                     >
-                        detailed Steam guide
+                        Erenshor Modding guide on Steam
                     </a>
                     for comprehensive setup instructions and additional troubleshooting.
                 </p>

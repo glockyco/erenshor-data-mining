@@ -490,7 +490,7 @@
                     L.DomEvent.on(button, 'click', (e) => {
                         L.DomEvent.preventDefault(e);
 
-                        goto('/');
+                        goto('/zone-maps');
                     });
 
                     return container;

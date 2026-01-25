@@ -62,7 +62,7 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
         var x = asset.transform.position.x;
         var y = asset.transform.position.y;
         var z = asset.transform.position.z;
-        
+
         var baseStableKey = StableKeyGenerator.ForSpawnPoint(scene, x, y, z);
         var stableKey = _keyTracker.GetUniqueKey(baseStableKey, asset.gameObject.name);
 

@@ -416,7 +416,7 @@ public static class ExportBatch
         // Create view that unions all entity tables
         db.Execute(@"
             CREATE VIEW Coordinates AS
-            SELECT StableKey, Scene, X, Y, Z, 'Character' AS Category 
+            SELECT StableKey, Scene, X, Y, Z, 'Character' AS Category
               FROM Characters WHERE Scene IS NOT NULL
             UNION ALL
             SELECT StableKey, Scene, X, Y, Z, 'SpawnPoint' AS Category FROM SpawnPoints
@@ -435,14 +435,14 @@ public static class ExportBatch
             UNION ALL
             SELECT StableKey, Scene, X, Y, Z, 'SecretPassage' AS Category FROM SecretPassages
             UNION ALL
-            SELECT StableKey, Scene, X, Y, Z, 'AchievementTrigger' AS Category 
+            SELECT StableKey, Scene, X, Y, Z, 'AchievementTrigger' AS Category
               FROM AchievementTriggers
             UNION ALL
             SELECT StableKey, Scene, X, Y, Z, 'Forge' AS Category FROM Forges
             UNION ALL
             SELECT StableKey, Scene, X, Y, Z, 'WishingWell' AS Category FROM WishingWells
             UNION ALL
-            SELECT StableKey, Scene, X, Y, Z, 'TreasureLocation' AS Category 
+            SELECT StableKey, Scene, X, Y, Z, 'TreasureLocation' AS Category
               FROM TreasureLocations
         ");
 
