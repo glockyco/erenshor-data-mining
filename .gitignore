@@ -830,15 +830,8 @@ tests/**/*.sqlite
 !tests/fixtures/database/*.sql
 tests/.test-temp/
 
-# Companion mod project files should be tracked
-!src/mods/**/*.csproj
-!src/mods/**/nuget.config
-!src/mods/**/lib/
-!src/mods/**/lib/README.md
-src/mods/**/lib/*.dll
-!src/mods/**/tests/
-!src/mods/**/tests/*.csproj
-!src/mods/**/tests/**/*.cs
+# Companion mod source and config files managed by src/mods/.gitignore
+# See src/mods/.gitignore for specific patterns
 
 # Generated IDE project files for game scripts LSP support
 # Created by 'erenshor extract rip' or 'erenshor extract ide-setup'

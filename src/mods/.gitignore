@@ -1,0 +1,45 @@
+# Build outputs and artifacts
+bin/
+obj/
+*.dll
+*.pdb
+*.exe
+
+# IDE and tools
+.idea/
+.vscode/
+.vs/
+*.user
+*.suo
+*.sln
+
+# NuGet
+packages/
+.nuget/
+*.nupkg
+
+# Test results
+TestResults/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Generated IDE project files
+ExportedObj/
+
+# But DO track these:
+!*.cs
+!*.csproj
+!.config/
+!.config/**
+!docs/
+!docs/**
+!tests/
+!tests/**
+!src/
+!src/**
+!lib/README.md
+!nuget.config
+!ILRepack.targets
+!packages.config
