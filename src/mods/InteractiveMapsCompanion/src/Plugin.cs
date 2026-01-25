@@ -2,7 +2,6 @@ using BepInEx;
 using BepInEx.Configuration;
 using Fleck;
 using Newtonsoft.Json;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using FleckLogLevel = Fleck.LogLevel;

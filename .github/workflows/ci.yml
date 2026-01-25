@@ -179,8 +179,11 @@ jobs:
       - name: Install dependencies
         run: uv sync --dev
 
-      - name: Validate mod metadata
-        run: uv run python3 scripts/validate-mods-metadata.py
+      - name: Validate mods config
+        run: python3 -c "import yaml; yaml.safe_load(open('src/mods/mods-config.yaml'))"
+
+      - name: Test metadata generation
+        run: uv run python3 scripts/generate-mods-metadata.py
 
   # Summary job that all other jobs depend on
   # This makes it easy to require a single status check for branch protection

@@ -28,6 +28,11 @@ Thumbs.db
 # Generated IDE project files
 ExportedObj/
 
+# Generated metadata (build artifacts)
+# These are auto-generated from mods-config.yaml during build/deploy
+# and should not be committed to git
+mods-metadata.json
+
 # But DO track these:
 !*.cs
 !*.csproj

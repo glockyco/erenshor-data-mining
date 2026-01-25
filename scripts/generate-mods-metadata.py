@@ -203,6 +203,7 @@ def main() -> None:
         output_file.parent.mkdir(parents=True, exist_ok=True)
         with open(output_file, "w") as f:
             json.dump(metadata, f, indent=2)
+            f.write("\n")  # Add trailing newline for POSIX compliance
 
     # Print summary
     mod_count = len(metadata["mods"])
