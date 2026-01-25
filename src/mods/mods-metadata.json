@@ -1,0 +1,34 @@
+{
+  "mods": [
+    {
+      "id": "interactive-map-companion",
+      "name": "Interactive Map Companion",
+      "displayName": "World Map Companion",
+      "description": "Real-time entity tracking for the interactive world map",
+      "status": "current",
+      "port": 18585,
+      "version": "2026.1.25.2690525247",
+      "downloadUrl": "/mods/InteractiveMapCompanion.dll",
+      "releaseDate": "2026-01-25T08:28:39+01:00",
+      "features": [
+        "Live entity tracking (player, NPCs, enemies, pets)",
+        "Auto-Follow Player mode"
+      ]
+    },
+    {
+      "id": "interactive-maps-companion",
+      "name": "Interactive Maps Companion",
+      "displayName": "Zone Maps Companion",
+      "description": "Real-time player tracking for legacy per-zone maps",
+      "status": "legacy",
+      "port": 18584,
+      "version": "2026.1.25.2973888861",
+      "downloadUrl": "/mods/InteractiveMapsCompanion.dll",
+      "releaseDate": "2026-01-25T08:31:46+01:00",
+      "features": [
+        "Live player tracking for zone maps"
+      ],
+      "deprecationNotice": "This mod is for the legacy per-zone maps. The new World Map Companion provides a more comprehensive experience with entity tracking for multiple character types and improved features."
+    }
+  ]
+}

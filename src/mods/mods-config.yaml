@@ -1,0 +1,25 @@
+# Companion mod configuration for website metadata generation
+# This file defines the features, status, and deployment info for each mod
+
+mods:
+  interactive-map-companion:
+    internal_name: "Interactive Map Companion"
+    display_name: "World Map Companion"
+    description: "Real-time entity tracking for the interactive world map"
+    status: "current"
+    port: 18585
+    features:
+      - "Live entity tracking (player, NPCs, enemies, pets)"
+      - "Auto-Follow Player mode"
+    dll_name: "InteractiveMapCompanion.dll"
+
+  interactive-maps-companion:
+    internal_name: "Interactive Maps Companion"
+    display_name: "Zone Maps Companion"
+    description: "Real-time player tracking for legacy per-zone maps"
+    status: "legacy"
+    port: 18584
+    features:
+      - "Live player tracking for zone maps"
+    dll_name: "InteractiveMapsCompanion.dll"
+    deprecation_notice: "This mod is for the legacy per-zone maps. The new World Map Companion provides a more comprehensive experience with entity tracking for multiple character types and improved features."
