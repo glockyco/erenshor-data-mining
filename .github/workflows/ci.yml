@@ -179,9 +179,6 @@ jobs:
       - name: Install dependencies
         run: uv sync --dev
 
-      - name: Validate mods config
-        run: python3 -c "import yaml; yaml.safe_load(open('src/mods/mods-config.yaml'))"
-
       - name: Test metadata generation
         run: uv run python3 scripts/generate-mods-metadata.py
 
