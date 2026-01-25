@@ -7,8 +7,9 @@ history. Outputs to both:
 - src/mods/mods-metadata.json (source of truth, versioned in git)
 - src/maps/static/mods-metadata.json (website static files)
 
-This ensures the website always displays accurate version information
-that matches the actual mod binaries.
+Version is derived from the last commit touching each mod using CalVer
+format (YYYY.M.D.{DECIMAL_HASH}) without dirty markers. This ensures
+stable, reproducible metadata that accurately reflects released versions.
 
 Usage:
   uv run python3 scripts/generate-mods-metadata.py
@@ -19,14 +20,18 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 import yaml
 
 
 def get_mod_version(mod_id: str, mod_dir: Path) -> str:
-    """Get the version for a mod by running the version generation script.
+    """Get the stable version for a mod from git commit history.
+
+    Version is based on the last commit touching the mod, using CalVer format
+    (YYYY.M.D.{DECIMAL_HASH}). No dirty markers are included to ensure stable,
+    reproducible version strings that reflect actual released versions.
 
     Args:
         mod_id: Mod identifier (e.g., 'interactive-map-companion')
@@ -36,16 +41,37 @@ def get_mod_version(mod_id: str, mod_dir: Path) -> str:
         Version string in YYYY.M.D.{DECIMAL_HASH} format
     """
     try:
-        result = subprocess.run(
-            ["python3", "scripts/generate-mod-version.py", str(mod_dir)],
+        # Get commit date in ISO format (YYYY-MM-DD)
+        date_result = subprocess.run(
+            ["git", "log", "-1", "--format=%cs", str(mod_dir)],
             capture_output=True,
             text=True,
             check=True,
         )
-        return result.stdout.strip()
-    except subprocess.CalledProcessError as e:
-        print(f"error: Failed to generate version for {mod_id}", file=sys.stderr)
-        print(f"  {e.stderr}", file=sys.stderr)
+        date_str = date_result.stdout.strip()
+
+        # Get commit hash (short form, 7 chars)
+        hash_result = subprocess.run(
+            ["git", "log", "-1", "--format=%h", str(mod_dir)],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        hash_str = hash_result.stdout.strip()
+
+        if not date_str or not hash_str:
+            return "0.0.0-unknown"
+
+        # Convert YYYY-MM-DD to YYYY.M.D (remove leading zeros)
+        year, month, day = date_str.split("-")
+        date_formatted = f"{year}.{int(month)}.{int(day)}"
+
+        # Convert hex hash to decimal for version compatibility
+        hash_decimal = int(hash_str, 16)
+
+        return f"{date_formatted}.{hash_decimal}"
+    except (subprocess.CalledProcessError, ValueError) as e:
+        print(f"error: Failed to generate version for {mod_id}: {e}", file=sys.stderr)
         return "0.0.0-unknown"
 
 
@@ -68,7 +94,8 @@ def get_mod_release_date(mod_dir: Path) -> str:
         )
         return result.stdout.strip()
     except subprocess.CalledProcessError:
-        return datetime.utcnow().isoformat() + "Z"
+        # Fallback to current time if git fails
+        return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
 def load_mod_config(config_file: Path) -> dict:
