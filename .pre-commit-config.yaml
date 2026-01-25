@@ -49,7 +49,7 @@ repos:
         stages: [pre-push]
       - id: validate-mods-config
         name: validate mods config
-        entry: bash -c 'python3 -c "import yaml; yaml.safe_load(open(\"src/mods/mods-config.yaml\"))"'
+        entry: uv run python3 -c "import yaml; yaml.safe_load(open('src/mods/mods-config.yaml'))"
         language: system
         pass_filenames: false
         files: ^src/mods/mods-config\.yaml$
