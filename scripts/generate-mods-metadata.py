@@ -2,8 +2,10 @@
 """Generate mod metadata JSON from mod configuration and git data.
 
 Reads mod configuration from src/mods/mods-config.yaml and generates
-src/mods/mods-metadata.json with version and release date info from
-git commit history.
+metadata JSON files with version and release date info from git commit
+history. Outputs to both:
+- src/mods/mods-metadata.json (source of truth, versioned in git)
+- src/maps/static/mods-metadata.json (website static files)
 
 This ensures the website always displays accurate version information
 that matches the actual mod binaries.
@@ -163,14 +165,23 @@ def main() -> None:
     # Generate metadata
     metadata = generate_metadata(repo_root, config)
 
-    # Write metadata file
-    output_file = repo_root / "src/mods/mods-metadata.json"
-    with open(output_file, "w") as f:
-        json.dump(metadata, f, indent=2)
+    # Write metadata to both source and website locations
+    output_files = [
+        repo_root / "src/mods/mods-metadata.json",
+        repo_root / "src/maps/static/mods-metadata.json",
+    ]
+
+    for output_file in output_files:
+        # Ensure parent directory exists
+        output_file.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_file, "w") as f:
+            json.dump(metadata, f, indent=2)
 
     # Print summary
     mod_count = len(metadata["mods"])
-    print(f"✓ Generated {output_file}: {mod_count} mod(s)")
+    print(f"✓ Generated metadata for {mod_count} mod(s)")
+    for output_file in output_files:
+        print(f"  → {output_file}")
     for mod in metadata["mods"]:
         status_str = f"[{mod['status'].upper()}]" if mod["status"] != "current" else "[CURRENT]"
         print(f"  - {mod['displayName']} v{mod['version']} {status_str}")
