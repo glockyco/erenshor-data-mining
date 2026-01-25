@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import subprocess
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -104,7 +104,7 @@ def get_version(mod_dir: Path, config: str = "Debug") -> str:
 
     if not git_info:
         # Fallback if git fails
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         timestamp = now.strftime("%Y%m%d%H%M%S")
         return f"0.0.0-{timestamp}"
 
@@ -128,7 +128,7 @@ def get_version(mod_dir: Path, config: str = "Debug") -> str:
             sys.exit(1)
 
         # Debug builds: append dirty marker
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         dirty_timestamp = now.strftime("%Y%m%d-%H%M%S")
         version = f"{version}-dirty-{dirty_timestamp}"
 

@@ -1,21 +1,104 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <!-- ILRepack -->
-    <Target Name="ILRepacker" AfterTargets="Build" Condition="'$(Configuration)' == 'Release' Or '$(Configuration)' == 'Debug'">
-        <ItemGroup>
-            <InputAssemblies Include="$(OutputPath)\$(AssemblyName).dll"/>
-            <InputAssemblies Include="$(OutputPath)\Fleck.dll"/>
-            <InputAssemblies Include="$(OutputPath)\Newtonsoft.Json.dll"/>
-        </ItemGroup>
 
-        <ILRepack
-                Parallel="true"
-                Internalize="true"
-                InputAssemblies="@(InputAssemblies)"
-                TargetKind="Dll"
-                OutputFile="$(OutputPath)\$(AssemblyName).dll"
-                LibraryPath="..\..\..\variants\main\game\Erenshor_Data\Managed;..\..\..\variants\main\game\BepInEx\core"
-        />
-    </Target>
-    <!-- /ILRepack -->
+  <!-- ============================================== -->
+  <!-- STEP 1: Copy BepInEx/Harmony for type resolution -->
+  <!-- ============================================== -->
+  <Target Name="CopyReferenceAssemblies" BeforeTargets="ILRepackMod">
+    <PropertyGroup>
+      <!-- Resolve NuGet package root (cross-platform) -->
+      <!-- On Windows: %USERPROFILE%\.nuget\packages -->
+      <!-- On Unix: ~/.nuget/packages -->
+      <NuGetPackagesPath Condition="'$(NuGetPackageRoot)' != ''">$(NuGetPackageRoot)</NuGetPackagesPath>
+      <NuGetPackagesPath Condition="'$(NuGetPackagesPath)' == '' AND '$(OS)' == 'Windows_NT'">$(USERPROFILE)\.nuget\packages</NuGetPackagesPath>
+      <NuGetPackagesPath Condition="'$(NuGetPackagesPath)' == ''">$(HOME)/.nuget/packages</NuGetPackagesPath>
+
+      <!-- Construct paths to reference assemblies -->
+      <!-- Note: Package names are lowercase in NuGet cache -->
+      <BepInExSource>$(NuGetPackagesPath)/bepinex.baselib/5.4.20/lib/netstandard2.0/BepInEx.dll</BepInExSource>
+      <HarmonySource>$(NuGetPackagesPath)/harmonyx/2.16.0/lib/netstandard2.0/0Harmony.dll</HarmonySource>
+    </PropertyGroup>
+
+    <!-- Copy to output for ILRepack type resolution -->
+    <Copy SourceFiles="$(BepInExSource)" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(HarmonySource)" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="true" />
+
+    <Message Text="Copied reference assemblies for ILRepack type resolution" Importance="normal" />
+  </Target>
+
+  <!-- ============================================== -->
+  <!-- STEP 2: Discover dependencies to merge -->
+  <!-- ============================================== -->
+  <Target Name="DiscoverDependencies" BeforeTargets="ILRepackMod" DependsOnTargets="CopyReferenceAssemblies">
+    <ItemGroup>
+      <!-- Main assembly (always first) -->
+      <MergeAssemblies Include="$(OutputPath)$(TargetName)$(TargetExt)" />
+
+      <!-- All other DLLs in output directory -->
+      <AllOutputDlls Include="$(OutputPath)*.dll" Exclude="$(OutputPath)$(TargetName)$(TargetExt)" />
+
+      <!-- BepInEx-provided assemblies (reference only, don't merge) -->
+      <!-- These are available at runtime from BepInEx framework -->
+      <BepInExProvided Include="$(OutputPath)BepInEx.dll" />
+      <BepInExProvided Include="$(OutputPath)0Harmony.dll" />
+      <BepInExProvided Include="$(OutputPath)Mono.Cecil.dll" />
+      <BepInExProvided Include="$(OutputPath)Mono.Cecil.Mdb.dll" />
+      <BepInExProvided Include="$(OutputPath)Mono.Cecil.Pdb.dll" />
+      <BepInExProvided Include="$(OutputPath)Mono.Cecil.Rocks.dll" />
+      <BepInExProvided Include="$(OutputPath)MonoMod.Core.dll" />
+      <BepInExProvided Include="$(OutputPath)MonoMod.Iced.dll" />
+      <BepInExProvided Include="$(OutputPath)MonoMod.RuntimeDetour.dll" />
+      <BepInExProvided Include="$(OutputPath)MonoMod.Utils.dll" />
+
+      <!-- Merge = All DLLs MINUS BepInEx-provided ones -->
+      <!-- This automatically includes MonoMod.Backports, MonoMod.ILHelpers, and all System.* deps -->
+      <MergeAssemblies Include="@(AllOutputDlls)" Exclude="@(BepInExProvided)" />
+    </ItemGroup>
+
+    <!-- Debug output: Show what we're merging -->
+    <Message Text="╔════════════════════════════════════════════════════════════╗" Importance="high" />
+    <Message Text="║ ILRepack Merge Plan                                       ║" Importance="high" />
+    <Message Text="╠════════════════════════════════════════════════════════════╣" Importance="high" />
+    <Message Text="%(MergeAssemblies.Filename)%(MergeAssemblies.Extension)" Importance="high" />
+    <Message Text="╚════════════════════════════════════════════════════════════╝" Importance="high" />
+  </Target>
+
+  <!-- ============================================== -->
+  <!-- STEP 3: Run ILRepack to create single DLL -->
+  <!-- ============================================== -->
+  <Target Name="ILRepackMod" AfterTargets="Build" DependsOnTargets="DiscoverDependencies">
+    <ILRepack
+      Parallel="true"
+      DebugInfo="true"
+      Internalize="true"
+      InputAssemblies="@(MergeAssemblies)"
+      LibraryPath="$(OutputPath);$(ProjectDir)lib"
+      TargetKind="Dll"
+      OutputFile="$(OutputPath)$(TargetName)$(TargetExt)"
+    />
+
+    <Message Text="✓ ILRepack: Successfully merged dependencies into $(TargetName)$(TargetExt)" Importance="high" />
+  </Target>
+
+  <!-- ============================================== -->
+  <!-- STEP 4: Clean up merged DLLs -->
+  <!-- ============================================== -->
+  <Target Name="CleanupAfterMerge" AfterTargets="ILRepackMod">
+    <ItemGroup>
+      <!-- Keep only the final merged DLL and its companions -->
+      <KeepFiles Include="$(OutputPath)$(TargetName).dll" />
+      <KeepFiles Include="$(OutputPath)$(TargetName).pdb" />
+      <KeepFiles Include="$(OutputPath)$(TargetName).xml" />
+      <KeepFiles Include="$(OutputPath)$(TargetName).deps.json" />
+
+      <!-- Delete everything else -->
+      <AllFiles Include="$(OutputPath)*.*" />
+      <DeleteFiles Include="@(AllFiles)" Exclude="@(KeepFiles)" />
+    </ItemGroup>
+
+    <Delete Files="@(DeleteFiles)" />
+
+    <Message Text="✓ Cleaned up build output - single DLL ready for deployment" Importance="high" />
+  </Target>
+
 </Project>

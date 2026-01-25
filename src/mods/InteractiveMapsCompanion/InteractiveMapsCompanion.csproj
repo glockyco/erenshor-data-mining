@@ -64,13 +64,8 @@
       <PluginInfoFile>$(IntermediateOutputPath)PluginInfo.g.cs</PluginInfoFile>
       <PluginInfoLine1>namespace InteractiveMapsCompanion%3B</PluginInfoLine1>
       <PluginInfoLine2>internal static partial class PluginInfo { public const string Version = "$(Version)"%3B }</PluginInfoLine2>
-      <AssemblyVersionLine>using System.Reflection%3B</AssemblyVersionLine>
-      <AssemblyVersionLine2>[assembly: AssemblyInformationalVersion("$(Version)")]</AssemblyVersionLine2>
     </PropertyGroup>
-    <WriteLinesToFile File="$(PluginInfoFile)" Lines="$(AssemblyVersionLine)" Overwrite="true" />
-    <WriteLinesToFile File="$(PluginInfoFile)" Lines="$(AssemblyVersionLine2)" Overwrite="false" />
-    <WriteLinesToFile File="$(PluginInfoFile)" Lines="" Overwrite="false" />
-    <WriteLinesToFile File="$(PluginInfoFile)" Lines="$(PluginInfoLine1)" Overwrite="false" />
+    <WriteLinesToFile File="$(PluginInfoFile)" Lines="$(PluginInfoLine1)" Overwrite="true" />
     <WriteLinesToFile File="$(PluginInfoFile)" Lines="$(PluginInfoLine2)" Overwrite="false" />
     <ItemGroup>
       <Compile Include="$(PluginInfoFile)" />
