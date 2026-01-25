@@ -9,6 +9,7 @@
       "port": 18585,
       "version": "2026.1.25.2690525247",
       "downloadUrl": "/mods/InteractiveMapCompanion.dll",
+      "gifUrl": "/world-map-companion.gif",
       "releaseDate": "2026-01-25T08:28:39+01:00",
       "features": [
         "Live entity tracking (player, NPCs, enemies, pets)",
@@ -24,6 +25,7 @@
       "port": 18584,
       "version": "2026.1.25.2973888861",
       "downloadUrl": "/mods/InteractiveMapsCompanion.dll",
+      "gifUrl": "/zone-maps-companion.gif",
       "releaseDate": "2026-01-25T08:31:46+01:00",
       "features": [
         "Live player tracking for zone maps"

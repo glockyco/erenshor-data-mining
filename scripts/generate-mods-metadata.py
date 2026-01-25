@@ -116,6 +116,7 @@ def generate_metadata(repo_root: Path, config: dict) -> dict:
             "port": mod_config.get("port", 18584),
             "version": version,
             "downloadUrl": f"/mods/{mod_config.get('dll_name', 'Unknown.dll')}",
+            "gifUrl": mod_config.get("gif_url", ""),
             "releaseDate": release_date,
             "features": mod_config.get("features", []),
         }

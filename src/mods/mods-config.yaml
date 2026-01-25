@@ -12,6 +12,7 @@ mods:
       - "Live entity tracking (player, NPCs, enemies, pets)"
       - "Auto-Follow Player mode"
     dll_name: "InteractiveMapCompanion.dll"
+    gif_url: "/world-map-companion.gif"
 
   interactive-maps-companion:
     internal_name: "Interactive Maps Companion"
@@ -22,4 +23,5 @@ mods:
     features:
       - "Live player tracking for zone maps"
     dll_name: "InteractiveMapsCompanion.dll"
+    gif_url: "/zone-maps-companion.gif"
     deprecation_notice: "This mod is for the legacy per-zone maps. The new World Map Companion provides a more comprehensive experience with entity tracking for multiple character types and improved features."

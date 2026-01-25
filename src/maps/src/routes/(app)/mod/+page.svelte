@@ -1,63 +1,134 @@
-<!-- Companion Mod Section -->
+<script lang="ts">
+    import { onMount } from 'svelte';
+
+    interface ModMetadata {
+        id: string;
+        name: string;
+        displayName: string;
+        description: string;
+        status: 'current' | 'legacy';
+        port: number;
+        version: string;
+        downloadUrl: string;
+        gifUrl: string;
+        releaseDate: string;
+        features: string[];
+    }
+
+    interface ModsData {
+        mods: ModMetadata[];
+    }
+
+    let modsMetadata: ModsData = { mods: [] };
+
+    onMount(async () => {
+        const response = await fetch('/mods-metadata.json');
+        modsMetadata = await response.json();
+    });
+</script>
+
+<!-- Companion Mods Section -->
 <div class="text-center mb-12">
-    <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Companion Mod</h2>
+    <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Companion Mods</h2>
     <div class="w-24 h-1 bg-gradient-to-r from-purple-500 to-pink-500 mx-auto rounded-full"></div>
     <p class="text-slate-400 mt-4">
-        Currently only works with the legacy
-        <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-        <a href="/zone-maps" class="text-purple-400 hover:text-purple-300 underline">Zone Maps</a>.
+        Enhance your Erenshor experience with real-time player tracking on the interactive map.
     </p>
 </div>
 
-<div class="max-w-4xl mx-auto">
-    <!-- Main content card -->
-    <div class="bg-slate-800 rounded-xl p-8 border border-slate-700 mb-8">
-        <div class="text-center mb-8">
-            <h3 class="text-2xl font-bold text-white mb-4">Enhance Your Map Experience</h3>
-            <p class="text-slate-300 text-lg leading-relaxed">
-                Use this companion mod to add a player marker showing your in-game position on the
-                map.
-            </p>
-        </div>
+<!-- Mods Grid -->
+<div class="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto mb-12">
+    {#each modsMetadata.mods as mod (mod.id)}
+        <div
+            class={`rounded-xl overflow-hidden border transition-all duration-300 ${
+                mod.status === 'current'
+                    ? 'bg-slate-800 border-purple-500 shadow-lg shadow-purple-500/20'
+                    : 'bg-slate-900 border-slate-700'
+            }`}
+        >
+            <!-- Demo GIF -->
+            {#if mod.gifUrl}
+                <div class="aspect-video bg-slate-700 overflow-hidden">
+                    <img
+                        src={mod.gifUrl}
+                        alt={`${mod.displayName} demo`}
+                        class="w-full h-full object-cover"
+                        loading="lazy"
+                    />
+                </div>
+            {:else}
+                <div class="aspect-video bg-slate-700 flex items-center justify-center">
+                    <span class="text-slate-500 text-sm">No preview available</span>
+                </div>
+            {/if}
 
-        <!-- Demo GIF -->
-        <div class="mb-8 rounded-lg overflow-hidden border border-slate-600">
-            <div class="aspect-video bg-slate-700 flex items-center justify-center">
-                <img
-                    src="/companion-mod.gif"
-                    alt="Companion Mod Demo"
-                    class="w-full h-full object-cover"
-                />
-            </div>
-        </div>
+            <!-- Card Content -->
+            <div class="p-6">
+                <!-- Header with Title and Status Badge -->
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-xl font-bold text-white">{mod.displayName}</h3>
+                    <span
+                        class={`text-xs font-semibold px-2 py-1 rounded ${
+                            mod.status === 'current'
+                                ? 'bg-green-500/20 text-green-300'
+                                : 'bg-yellow-500/20 text-yellow-300'
+                        }`}
+                    >
+                        {mod.status === 'current' ? 'CURRENT' : 'LEGACY'}
+                    </span>
+                </div>
 
-        <!-- Download and Installation -->
-        <div class="grid md:grid-cols-2 gap-6">
-            <!-- Download Card -->
-            <div class="bg-slate-700 rounded-lg p-6 border border-slate-600">
-                <h4 class="text-xl font-semibold text-white mb-4 flex items-center">
+                <!-- Version Badge -->
+                <div class="text-sm text-slate-400 mb-3">
+                    v<span class="font-mono">{mod.version}</span>
+                </div>
+
+                <!-- Description -->
+                <p class="text-slate-300 text-sm mb-4">{mod.description}</p>
+
+                <!-- Features List -->
+                <div class="mb-6">
+                    <h4 class="text-xs font-semibold text-slate-300 uppercase tracking-wide mb-2">
+                        Features
+                    </h4>
+                    <ul class="space-y-1">
+                        {#each mod.features as feature (feature)}
+                            <li class="text-sm text-slate-400 flex items-start">
+                                <svg
+                                    class="w-4 h-4 mr-2 mt-0.5 flex-shrink-0 text-green-400"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M5 13l4 4L19 7"
+                                    ></path>
+                                </svg>
+                                {feature}
+                            </li>
+                        {/each}
+                    </ul>
+                </div>
+
+                <!-- Download Button -->
+                <a
+                    href={mod.downloadUrl}
+                    class={`block w-full py-2 px-4 rounded-lg font-semibold text-center transition-all duration-300 ${
+                        mod.status === 'current'
+                            ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 shadow-lg hover:shadow-xl'
+                            : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                    }`}
+                    download
+                >
                     <svg
-                        class="w-6 h-6 mr-2 text-purple-400"
+                        class="w-4 h-4 inline mr-2"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
                     >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                        ></path>
-                    </svg>
-                    Download
-                </h4>
-                <p class="text-slate-300 mb-4">Get the latest version of the companion mod:</p>
-                <a
-                    href="https://erenshor-maps.wowmuch1.workers.dev/mods/InteractiveMapsCompanion.dll"
-                    class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
-                    download
-                >
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path
                             stroke-linecap="round"
                             stroke-linejoin="round"
@@ -65,184 +136,142 @@
                             d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
                         ></path>
                     </svg>
-                    Download Mod
-                </a>
-            </div>
-
-            <!-- Installation Card -->
-            <div class="bg-slate-700 rounded-lg p-6 border border-slate-600">
-                <h4 class="text-xl font-semibold text-white mb-4 flex items-center">
-                    <svg
-                        class="w-6 h-6 mr-2 text-purple-400"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                        ></path>
-                    </svg>
-                    Installation
-                </h4>
-                <p class="text-slate-300 mb-4">Need help installing? Check the modding guide:</p>
-                <a
-                    href="https://steamcommunity.com/sharedfiles/filedetails/?id=3485536525"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="inline-flex items-center px-6 py-3 bg-slate-600 text-white font-semibold rounded-lg hover:bg-slate-500 transition-all duration-300 border border-slate-500 hover:border-slate-400"
-                >
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                        ></path>
-                    </svg>
-                    Open Steam Guide
+                    Download
                 </a>
             </div>
         </div>
-    </div>
+    {/each}
+</div>
 
-    <!-- Usage & Troubleshooting Section -->
-    <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 mb-8">
-        <h4
-            class="text-xl font-semibold text-white mb-6 text-center flex items-center justify-center"
-        >
-            <svg
-                class="w-6 h-6 mr-2 text-purple-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-            >
-                <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                ></path>
-            </svg>
-            Usage & Troubleshooting
-        </h4>
+<!-- Installation Guide Section -->
+<div class="bg-slate-800 rounded-xl p-8 border border-slate-700 max-w-4xl mx-auto mb-12">
+    <h3 class="text-2xl font-bold text-white mb-6">Installation Guide</h3>
 
-        <div class="grid md:grid-cols-2 gap-6">
-            <!-- Usage Instructions -->
-            <div class="bg-slate-700 rounded-lg p-5 border border-slate-600">
-                <h5 class="text-lg font-semibold text-white mb-3 flex items-center">
-                    <svg
-                        class="w-5 h-5 mr-2 text-green-400"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+    <div class="space-y-6">
+        <!-- Step 1: BepInEx -->
+        <div>
+            <h4 class="text-lg font-semibold text-white mb-2 flex items-center">
+                <span
+                    class="flex items-center justify-center w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold mr-3"
+                >
+                    1
+                </span>
+                Install BepInEx
+            </h4>
+            <div class="ml-9 text-slate-300 space-y-2 text-sm">
+                <p>
+                    Download and install <a
+                        href="https://github.com/BepInEx/BepInEx/releases"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-purple-400 hover:text-purple-300 underline"
                     >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                        ></path>
-                    </svg>
-                    How to Use
-                </h5>
-                <ul class="text-slate-300 space-y-2 text-sm">
-                    <li class="flex items-start">
-                        <span class="text-purple-400 mr-2">1.</span>
-                        <span>Download and install the mod.</span>
-                    </li>
-                    <li class="flex items-start">
-                        <span class="text-purple-400 mr-2">2.</span>
-                        <span>Start Erenshor and log in with a character.</span>
-                    </li>
-                    <li class="flex items-start">
-                        <span class="text-purple-400 mr-2">3.</span>
-                        <span
-                            >Open the matching zone map in your browser (e.g., <a
-                                href="/Stowaway"
-                                class="text-purple-400 hover:text-purple-300 underline"
-                                >erenshor-maps.../Stowaway</a
-                            > if you're in Stowaway).</span
-                        >
-                    </li>
-                    <li class="flex items-start">
-                        <span class="text-purple-400 mr-2">4.</span>
-                        <span
-                            >The player marker should appear and follow your in-game position.</span
-                        >
-                    </li>
-                </ul>
-                <p class="text-slate-400 text-xs mt-3 italic">
-                    Note: The mod doesn't open maps automatically or change anything in-game. You
-                    need to manually open the correct zone map in your browser.
+                        BepInEx
+                    </a>
+                    to your Erenshor game directory. BepInEx is the mod loader that allows companion mods
+                    to run.
+                </p>
+                <p class="text-slate-400">
+                    Extract the BepInEx archive to your Erenshor installation folder (the one
+                    containing <span class="font-mono bg-slate-900 px-2 py-1 rounded text-xs"
+                        >Erenshor.exe</span
+                    >).
                 </p>
             </div>
+        </div>
 
-            <!-- Troubleshooting -->
-            <div class="bg-slate-700 rounded-lg p-5 border border-slate-600">
-                <h5 class="text-lg font-semibold text-white mb-3 flex items-center">
-                    <svg
-                        class="w-5 h-5 mr-2 text-orange-400"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
-                        ></path>
-                    </svg>
-                    No Marker Showing?
-                </h5>
-                <div class="text-slate-300 text-sm space-y-2">
-                    <p>
-                        If the player marker doesn't appear even after refreshing the map page, the
-                        mod might not be installed correctly.
-                    </p>
-                    <p>
-                        Check your browser's developer console (F12) for errors like the following:
-                    </p>
-                    <div
-                        class="bg-slate-800 rounded px-3 py-2 mt-2 font-mono text-xs text-red-300 border border-slate-600"
-                    >
-                        WebSocket connection to 'ws://localhost:18584/' failed
-                    </div>
-                    <p class="pt-2">
-                        To fix this, reinstall the mod following the Steam guide. If other mods
-                        aren't working either, it's usually a BepInEx configuration issue.
-                    </p>
-                </div>
+        <!-- Step 2: Download Mod -->
+        <div>
+            <h4 class="text-lg font-semibold text-white mb-2 flex items-center">
+                <span
+                    class="flex items-center justify-center w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold mr-3"
+                >
+                    2
+                </span>
+                Download & Install Mod
+            </h4>
+            <div class="ml-9 text-slate-300 space-y-2 text-sm">
+                <p>Click the Download button above to get the mod DLL file.</p>
+                <p>Extract the DLL to your BepInEx plugins folder:</p>
+                <p
+                    class="font-mono bg-slate-900 px-3 py-2 rounded text-xs text-slate-200 overflow-x-auto"
+                >
+                    Erenshor/BepInEx/plugins/
+                </p>
+            </div>
+        </div>
+
+        <!-- Step 3: Launch Game -->
+        <div>
+            <h4 class="text-lg font-semibold text-white mb-2 flex items-center">
+                <span
+                    class="flex items-center justify-center w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold mr-3"
+                >
+                    3
+                </span>
+                Launch the Game
+            </h4>
+            <div class="ml-9 text-slate-300 space-y-2 text-sm">
+                <p>Start Erenshor. The mod will load automatically with BepInEx on game launch.</p>
+                <p class="text-slate-400">
+                    You should see the mod initializing in the BepInEx console.
+                </p>
+            </div>
+        </div>
+
+        <!-- Step 4: Enable Live Mode -->
+        <div>
+            <h4 class="text-lg font-semibold text-white mb-2 flex items-center">
+                <span
+                    class="flex items-center justify-center w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold mr-3"
+                >
+                    4
+                </span>
+                Use on the Map
+            </h4>
+            <div class="ml-9 text-slate-300 space-y-2 text-sm">
+                <p>Open this interactive map in your browser while the game is running.</p>
+                <p>
+                    Look for the <span class="font-semibold text-white">Live Mode</span> toggle in the
+                    sidebar and enable it. Your character's position should appear on the map in real-time.
+                </p>
             </div>
         </div>
     </div>
 
-    <!-- Feature List -->
-    <div class="bg-slate-800 rounded-xl p-6 border border-slate-700">
-        <h4 class="text-xl font-semibold text-white mb-4 text-center">Current Features</h4>
-        <div class="flex justify-center">
-            <div class="flex items-center text-slate-300">
-                <svg
-                    class="w-5 h-5 mr-2 text-green-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                >
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M5 13l4 4L19 7"
-                    ></path>
-                </svg>
-                Real-time player position marker on the interactive maps.
+    <!-- Troubleshooting -->
+    <div class="mt-8 pt-6 border-t border-slate-700">
+        <h4 class="text-lg font-semibold text-white mb-3">Troubleshooting</h4>
+        <div class="space-y-3 text-sm text-slate-300">
+            <div>
+                <p class="font-semibold text-white mb-1">Mod not showing up</p>
+                <p class="text-slate-400">
+                    Check the BepInEx console (should pop up when the game launches). Look for any
+                    error messages related to the mod.
+                </p>
+            </div>
+            <div>
+                <p class="font-semibold text-white mb-1">Position not updating on the map</p>
+                <p class="text-slate-400">
+                    Make sure you have enabled <span class="font-semibold text-white"
+                        >Live Mode</span
+                    > in the map sidebar. Your browser may also need to allow WebSocket connections.
+                </p>
+            </div>
+            <div>
+                <p class="font-semibold text-white mb-1">Need more help?</p>
+                <p class="text-slate-400">
+                    See the <a
+                        href="https://steamcommunity.com/sharedfiles/filedetails/?id=3485536525"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-purple-400 hover:text-purple-300 underline"
+                    >
+                        detailed Steam guide
+                    </a>
+                    for comprehensive setup instructions and additional troubleshooting.
+                </p>
             </div>
         </div>
-        <p class="text-center text-slate-400 mt-4">
-            <span class="italic">More features maybe eventually coming soon-ish!</span> 😉
-        </p>
     </div>
 </div>

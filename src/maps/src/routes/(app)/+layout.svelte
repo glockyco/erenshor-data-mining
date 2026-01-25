@@ -38,7 +38,7 @@
                         ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
                         : 'text-slate-300 hover:text-white hover:bg-slate-700'}"
                 >
-                    Companion Mod
+                    Companion Mods
                 </a>
                 <a
                     href="/spreadsheet"
