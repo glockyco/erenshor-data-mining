@@ -8,7 +8,6 @@
 
     <AssemblyName>InteractiveMapCompanion</AssemblyName>
     <RootNamespace>InteractiveMapCompanion</RootNamespace>
-    <Version>0.1.0</Version>
 
     <!-- Roslyn Analyzers -->
     <AnalysisMode>Recommended</AnalysisMode>
@@ -47,7 +46,25 @@
     <PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.34.2" />
   </ItemGroup>
 
-  <!-- Generate PluginInfo.g.cs with version from .csproj -->
+   <!-- Generate version from git commit data -->
+  <Target Name="GetGitVersion" BeforeTargets="GeneratePluginInfo">
+    <!-- Get version from git in CalVer format (YYYY.M.D.{DECIMAL_HASH}) -->
+    <!-- Uses Python script to ensure consistent version across mod and website -->
+    <Exec Command="python3 ../../scripts/generate-mod-version.py . $(Configuration)"
+          ConsoleToMSBuild="true"
+          IgnoreExitCode="false"
+          StandardOutputImportance="low"
+          EchoOff="true">
+      <Output TaskParameter="ConsoleOutput" PropertyName="GitVersion" />
+    </Exec>
+
+    <!-- Set the version property for use in PluginInfo.g.cs -->
+    <PropertyGroup>
+      <Version>$(GitVersion)</Version>
+    </PropertyGroup>
+  </Target>
+
+  <!-- Generate PluginInfo.g.cs with version from git -->
   <Target Name="GeneratePluginInfo" BeforeTargets="CoreCompile">
     <PropertyGroup>
       <PluginInfoFile>$(IntermediateOutputPath)PluginInfo.g.cs</PluginInfoFile>
