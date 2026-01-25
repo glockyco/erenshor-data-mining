@@ -12,7 +12,7 @@ mods:
       - "Live entity tracking (player, NPCs, enemies, pets)"
       - "Auto-Follow Player mode"
     dll_name: "InteractiveMapCompanion.dll"
-    gif_url: "/world-map-companion.gif"
+    gif_url: "/world-map-companion.mp4"
 
   interactive-maps-companion:
     internal_name: "Interactive Maps Companion"

@@ -46,15 +46,27 @@
                     : 'bg-slate-900 border-slate-700'
             }`}
         >
-            <!-- Demo GIF -->
+            <!-- Demo Video/GIF -->
             {#if mod.gifUrl}
                 <div class="aspect-video bg-slate-700 overflow-hidden">
-                    <img
-                        src={mod.gifUrl}
-                        alt={`${mod.displayName} demo`}
-                        class="w-full h-full object-cover"
-                        loading="lazy"
-                    />
+                    {#if mod.gifUrl.endsWith('.mp4')}
+                        <video autoplay muted loop class="w-full h-full object-cover">
+                            <source src={mod.gifUrl} type="video/mp4" />
+                            <!-- Fallback for older browsers -->
+                            <img
+                                src={mod.gifUrl.replace('.mp4', '.gif')}
+                                alt={`${mod.displayName} demo`}
+                                class="w-full h-full object-cover"
+                            />
+                        </video>
+                    {:else}
+                        <img
+                            src={mod.gifUrl}
+                            alt={`${mod.displayName} demo`}
+                            class="w-full h-full object-cover"
+                            loading="lazy"
+                        />
+                    {/if}
                 </div>
             {:else}
                 <div class="aspect-video bg-slate-700 flex items-center justify-center">
