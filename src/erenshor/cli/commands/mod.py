@@ -396,8 +396,18 @@ def publish(
         size_kb = size_bytes / 1024
         console.print(f"  [green]✓[/green] {dll_name} ({size_kb:.1f} KB)")
 
+    # Verify metadata is present
+    metadata_file = cli_ctx.repo_root / "src" / "maps" / "static" / "mods-metadata.json"
+    if not metadata_file.exists():
+        console.print(f"[red]Error: Metadata file not found: {metadata_file}[/red]")
+        console.print("[dim]This should have been created by the build step.[/dim]")
+        raise typer.Exit(1)
+
+    console.print()
+    console.print(f"[green]✓[/green] Metadata synced: {metadata_file}")
     console.print()
     console.print("[green]Publish complete![/green]")
+    console.print(f"[dim]Ready for website deployment: DLLs and metadata in {publish_dir.parent}[/dim]")
     console.print()
 
 
