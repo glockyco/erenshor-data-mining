@@ -22,6 +22,7 @@
     import Trophy from '@lucide/svelte/icons/trophy';
     import CircleDot from '@lucide/svelte/icons/circle-dot';
     import Compass from '@lucide/svelte/icons/compass';
+    import Download from '@lucide/svelte/icons/download';
 
     interface Props {
         visibility: LayerVisibility;
@@ -358,6 +359,54 @@
                     <span class="text-zinc-200">Enable Live Mode</span>
                 </label>
 
+                <!-- Get Started Guide (when Live Mode disabled) -->
+                {#if !liveEnabled}
+                    <div class="mt-3 rounded-lg bg-zinc-700/40 p-2.5 text-xs text-zinc-300">
+                        <p class="mb-1.5 font-semibold text-zinc-100">Get Started</p>
+                        <p class="mb-2.5 leading-relaxed text-zinc-400">
+                            Install the World Map Companion mod to enable live entity tracking on
+                            the map.
+                        </p>
+                        <a
+                            href="/mod"
+                            class="inline-flex items-center gap-1.5 rounded-md bg-purple-600 px-2.5 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-purple-700"
+                        >
+                            <svg
+                                class="h-3.5 w-3.5"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                />
+                                <path
+                                    d="M21 3v5h-5"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                />
+                                <path
+                                    d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                />
+                                <path
+                                    d="M3 21v-5h5"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                />
+                            </svg>
+                            <span>View Installation Guide</span>
+                        </a>
+                    </div>
+                {/if}
+
                 <!-- Connection status -->
                 {#if liveEnabled}
                     <div class="mt-2 text-xs">
@@ -543,6 +592,17 @@
                     <Icon class="h-4 w-4 text-white drop-shadow-[0_0_1px_rgba(0,0,0,0.8)]" />
                 </button>
             {/each}
+
+            <div class="my-1 w-8 border-t border-zinc-700"></div>
+
+            <!-- Companion Mod link -->
+            <a
+                href="/mod"
+                class="flex h-7 w-7 items-center justify-center rounded-md text-purple-400 transition-colors hover:bg-zinc-700 hover:text-purple-300"
+                title="Companion Mod Installation Guide"
+            >
+                <Download class="h-4 w-4" />
+            </a>
         </div>
     {/if}
 </aside>
