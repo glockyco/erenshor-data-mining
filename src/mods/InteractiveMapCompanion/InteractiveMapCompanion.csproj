@@ -50,7 +50,7 @@
   <Target Name="GetGitVersion" BeforeTargets="GeneratePluginInfo">
     <!-- Get version from git in CalVer format (YYYY.M.D.{DECIMAL_HASH}) -->
     <!-- Uses Python script to ensure consistent version across mod and website -->
-    <Exec Command="python3 ../../scripts/generate-mod-version.py . $(Configuration)"
+    <Exec Command="python3 ../../../scripts/generate-mod-version.py . $(Configuration)"
           ConsoleToMSBuild="true"
           IgnoreExitCode="false"
           StandardOutputImportance="low"
