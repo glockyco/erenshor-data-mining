@@ -47,6 +47,13 @@ repos:
         language: system
         pass_filenames: false
         stages: [pre-push]
+      - id: validate-mods-metadata
+        name: validate mods metadata
+        entry: uv run python3 scripts/validate-mods-metadata.py
+        language: system
+        pass_filenames: false
+        files: ^(src/mods/mods-config\.yaml|scripts/generate-mods-metadata\.py)$
+
 
   # Maps (SvelteKit)
   - repo: local
