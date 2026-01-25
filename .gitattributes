@@ -3,14 +3,12 @@
 # ============================================================================
 # Normalize line endings to LF on commit and checkout (modern best practice)
 * text=auto eol=lf
-
 # ============================================================================
 # Shell Scripts - CRITICAL: Must use LF
 # ============================================================================
 # Unix shell scripts MUST have LF endings or they will fail to execute
 *.sh text eol=lf
 cli/bin/erenshor text eol=lf
-
 # ============================================================================
 # Source Code - Text Files
 # ============================================================================
@@ -18,13 +16,11 @@ cli/bin/erenshor text eol=lf
 *.cs text diff=csharp
 *.csx text diff=csharp
 *.csproj text
-
 # Python files
 *.py text diff=python
 *.pyw text diff=python
 *.pyi text diff=python
 *.pyx text diff=python
-
 # Configuration files
 *.toml text
 *.json text
@@ -34,14 +30,12 @@ cli/bin/erenshor text eol=lf
 *.ini text
 *.cfg text
 *.conf text
-
 # Documentation
 *.md text diff=markdown
 *.txt text
 *.rst text
 *.adoc text
 *.tex text
-
 # Web files
 *.html text diff=html
 *.css text diff=css
@@ -49,7 +43,6 @@ cli/bin/erenshor text eol=lf
 *.ts text
 *.jsx text
 *.tsx text
-
 # Unity-specific text files
 *.meta text
 *.prefab text
@@ -63,7 +56,6 @@ cli/bin/erenshor text eol=lf
 *.mask text
 *.physicMaterial text
 *.physicsMaterial2D text
-
 # ============================================================================
 # Binary Files - Explicitly Mark as Binary
 # ============================================================================
@@ -79,7 +71,6 @@ cli/bin/erenshor text eol=lf
 *.tga binary
 *.exr binary
 *.hdr binary
-
 # Audio
 *.mp3 binary
 *.wav binary
@@ -90,14 +81,12 @@ cli/bin/erenshor text eol=lf
 *.it binary
 *.s3m binary
 *.xm binary
-
 # Video
 *.mov binary
 *.avi binary
-*.mp4 binary
+*.mp4 filter=lfs diff=lfs merge=lfs -text
 *.mpg binary
 *.mpeg binary
-
 # 3D Models
 *.fbx binary
 *.obj binary
@@ -106,21 +95,18 @@ cli/bin/erenshor text eol=lf
 *.dae binary
 *.mb binary
 *.ma binary
-
 # Unity-specific binaries
 *.unity3d binary
 *.asset binary
 *.cubemap binary
 *.flare binary
 *.shadervariants binary
-
 # Fonts
 *.ttf binary
 *.otf binary
 *.woff binary
 *.woff2 binary
 *.eot binary
-
 # Executables and Libraries
 *.exe binary
 *.dll binary
@@ -130,12 +116,10 @@ cli/bin/erenshor text eol=lf
 *.lib binary
 *.pdb binary
 *.mdb binary
-
 # Databases
 *.db binary
 *.sqlite binary
 *.sqlite3 binary
-
 # Archives
 *.zip binary
 *.tar binary
@@ -143,21 +127,17 @@ cli/bin/erenshor text eol=lf
 *.bz2 binary
 *.7z binary
 *.rar binary
-
 # Other Unity binaries
 *.unitypackage binary
-
 # ============================================================================
 # Special Cases
 # ============================================================================
 # Windows batch files should use CRLF
 *.bat text eol=crlf
 *.cmd text eol=crlf
-
 # Makefiles should use LF
 Makefile text eol=lf
 *.mk text eol=lf
-
 # Git configuration files
 .gitignore text
 .gitattributes text
