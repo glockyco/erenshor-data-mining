@@ -1,30 +1,7 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
+    import type { PageData } from './$types';
 
-    interface ModMetadata {
-        id: string;
-        name: string;
-        displayName: string;
-        description: string;
-        status: 'current' | 'legacy';
-        port: number;
-        version: string;
-        downloadUrl: string;
-        gifUrl: string;
-        releaseDate: string;
-        features: string[];
-    }
-
-    interface ModsData {
-        mods: ModMetadata[];
-    }
-
-    let modsMetadata: ModsData = { mods: [] };
-
-    onMount(async () => {
-        const response = await fetch('/mods-metadata.json');
-        modsMetadata = await response.json();
-    });
+    export let data: PageData;
 </script>
 
 <!-- Companion Mods Section -->
@@ -38,7 +15,7 @@
 
 <!-- Mods Grid -->
 <div class="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto mb-12">
-    {#each modsMetadata.mods as mod (mod.id)}
+    {#each data.modsMetadata.mods as mod (mod.id)}
         <div
             class={`rounded-xl overflow-hidden border transition-all duration-300 flex flex-col h-full ${
                 mod.status === 'current'
