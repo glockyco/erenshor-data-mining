@@ -6,7 +6,7 @@ using BepInEx.Configuration;
 using Newtonsoft.Json;
 using UnityEngine.SceneManagement;
 
-[BepInPlugin("wow-much.interactive-maps-companion", "Interactive Maps Companion", "0.0.2")]
+[BepInPlugin(PluginInfo.GUID, PluginInfo.Name, PluginInfo.Version)]
 public class InteractiveMapsCompanion : BaseUnityPlugin
 {
     private ConfigEntry<bool> _configEnableLogging;
