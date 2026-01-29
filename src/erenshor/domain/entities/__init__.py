@@ -9,6 +9,7 @@ Entity Types:
 - ItemStats: Item statistics by quality level (Normal, Blessed, Godly)
 - Spell: Damage spells, buffs, debuffs, heals, crowd control
 - Skill: Combat skills and special abilities
+- Stance: Combat stances that modify character stats
 - Character: NPCs, creatures, vendors, quest givers
 - Quest: Quest objectives, requirements, and rewards
 - Faction: Reputation groups and organizations
@@ -30,6 +31,7 @@ from .quest import Quest
 from .skill import Skill
 from .spawn_point import SpawnPoint
 from .spell import Spell
+from .stance import Stance
 from .zone import Zone
 
 __all__ = [
@@ -43,5 +45,6 @@ __all__ = [
     "Skill",
     "SpawnPoint",
     "Spell",
+    "Stance",
     "Zone",
 ]

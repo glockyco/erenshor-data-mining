@@ -36,6 +36,7 @@ class Skill(BaseEntity):
     arcanist_required_level: int | None = Field(default=None, description="Arcanist level requirement")
     druid_required_level: int | None = Field(default=None, description="Druid level requirement")
     stormcaller_required_level: int | None = Field(default=None, description="Stormcaller level requirement")
+    reaver_required_level: int | None = Field(default=None, description="Reaver level requirement")
 
     # Equipment requirements
     require_behind: int | None = Field(default=None, description="Requires backstab position (boolean)")
@@ -46,6 +47,11 @@ class Skill(BaseEntity):
 
     # Availability
     sim_players_autolearn: int | None = Field(default=None, description="Auto-learned by sim players (boolean)")
+
+    # Stance activation
+    stance_to_use_stable_key: str | None = Field(
+        default=None, description="Stance activated by this skill (FK to Stances)"
+    )
 
     # Skill effects
     ae_skill: int | None = Field(default=None, description="Area effect skill (boolean)")

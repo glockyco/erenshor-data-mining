@@ -53,6 +53,7 @@ class Spell(BaseEntity):
     group_effect: int | None = Field(default=None, description="Affects group (boolean)")
     can_hit_players: int | None = Field(default=None, description="Can target players (boolean)")
     apply_to_caster: int | None = Field(default=None, description="Also affects caster (boolean)")
+    inflict_on_self: int | None = Field(default=None, description="Inflicts damage/effects on caster (boolean)")
 
     # Damage/Healing effects
     target_damage: int | None = Field(default=None, description="Damage to target")
@@ -104,6 +105,7 @@ class Spell(BaseEntity):
     root_target: int | None = Field(default=None, description="Root effect (boolean)")
     stun_target: int | None = Field(default=None, description="Stun effect (boolean)")
     charm_target: int | None = Field(default=None, description="Charm effect (boolean)")
+    fear_target: int | None = Field(default=None, description="Fear effect (boolean)")
     crowd_control_spell: int | None = Field(default=None, description="Is CC spell (boolean)")
     break_on_damage: int | None = Field(default=None, description="Break on damage (boolean)")
     break_on_any_action: int | None = Field(default=None, description="Break on any action (boolean)")
