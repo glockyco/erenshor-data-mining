@@ -187,18 +187,13 @@ def compare_characters(base_db: Path, new_db: Path) -> list[dict[str, Any]]:
             ch.IsVendor,
             ch.EffectiveHP,
             ch.StableKey,
-            COALESCE(za_spawn.ZoneName, za_direct.ZoneName) as ZoneName
+            COALESCE(z_spawn.ZoneName, z_char.ZoneName) as ZoneName
         FROM Characters ch
-        -- Try to get zone from spawn point first
         LEFT JOIN SpawnPointCharacters spc ON spc.CharacterStableKey = ch.StableKey
-        LEFT JOIN SpawnPoints sp ON sp.Id = spc.SpawnPointId
-        LEFT JOIN Coordinates c_spawn ON c_spawn.SpawnPointId = sp.Id
-        LEFT JOIN Zones za_spawn ON za_spawn.SceneName = c_spawn.Scene
-        -- Fall back to direct coordinate if no spawn point
-        LEFT JOIN Coordinates c_direct ON c_direct.Id = ch.CoordinateId
-        LEFT JOIN Zones za_direct ON za_direct.SceneName = c_direct.Scene
+        LEFT JOIN SpawnPoints sp ON sp.StableKey = spc.SpawnPointStableKey
+        LEFT JOIN Zones z_spawn ON z_spawn.SceneName = sp.Scene
+        LEFT JOIN Zones z_char ON z_char.SceneName = ch.Scene
         WHERE ch.ObjectName NOT IN (SELECT ObjectName FROM base.Characters)
-        GROUP BY ch.StableKey
         ORDER BY ch.IsNPC DESC, ch.Level, ch.NPCName
     """)
 
