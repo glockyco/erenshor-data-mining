@@ -71,6 +71,7 @@ class EntityPageGenerator(PageGenerator):
         )
         self.skill_enricher = SkillEnricher(
             item_repo=context.item_repo,
+            stance_repo=context.stance_repo,
         )
 
         # Initialize section generators

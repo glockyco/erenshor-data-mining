@@ -50,6 +50,7 @@ class TestFancyTableReplacement:
             character_repo=None,  # type: ignore
             spell_repo=None,  # type: ignore
             skill_repo=None,  # type: ignore
+            stance_repo=None,  # type: ignore
             faction_repo=None,  # type: ignore
             spawn_repo=None,  # type: ignore
             loot_repo=None,  # type: ignore
@@ -106,6 +107,7 @@ class TestFancyTableReplacement:
             character_repo=None,  # type: ignore
             spell_repo=None,  # type: ignore
             skill_repo=None,  # type: ignore
+            stance_repo=None,  # type: ignore
             faction_repo=None,  # type: ignore
             spawn_repo=None,  # type: ignore
             loot_repo=None,  # type: ignore
@@ -156,6 +158,7 @@ class TestFancyTableReplacement:
             character_repo=None,  # type: ignore
             spell_repo=None,  # type: ignore
             skill_repo=None,  # type: ignore
+            stance_repo=None,  # type: ignore
             faction_repo=None,  # type: ignore
             spawn_repo=None,  # type: ignore
             loot_repo=None,  # type: ignore
@@ -207,6 +210,7 @@ class TestFancyTableReplacement:
             character_repo=None,  # type: ignore
             spell_repo=None,  # type: ignore
             skill_repo=None,  # type: ignore
+            stance_repo=None,  # type: ignore
             faction_repo=None,  # type: ignore
             spawn_repo=None,  # type: ignore
             loot_repo=None,  # type: ignore
@@ -263,6 +267,7 @@ class TestFancyTableReplacement:
             character_repo=None,  # type: ignore
             spell_repo=None,  # type: ignore
             skill_repo=None,  # type: ignore
+            stance_repo=None,  # type: ignore
             faction_repo=None,  # type: ignore
             spawn_repo=None,  # type: ignore
             loot_repo=None,  # type: ignore
@@ -301,6 +306,7 @@ Different content
             character_repo=None,  # type: ignore
             spell_repo=None,  # type: ignore
             skill_repo=None,  # type: ignore
+            stance_repo=None,  # type: ignore
             faction_repo=None,  # type: ignore
             spawn_repo=None,  # type: ignore
             loot_repo=None,  # type: ignore

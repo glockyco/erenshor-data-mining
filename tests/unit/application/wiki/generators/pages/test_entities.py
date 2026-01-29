@@ -23,6 +23,7 @@ def mock_context():
     context.character_repo = Mock()
     context.spell_repo = Mock()
     context.skill_repo = Mock()
+    context.stance_repo = Mock()
     context.faction_repo = Mock()
     context.spawn_repo = Mock()
     context.loot_repo = Mock()

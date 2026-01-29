@@ -54,6 +54,7 @@ from erenshor.infrastructure.database.repositories.quests import QuestRepository
 from erenshor.infrastructure.database.repositories.skills import SkillRepository
 from erenshor.infrastructure.database.repositories.spawn_points import SpawnPointRepository
 from erenshor.infrastructure.database.repositories.spells import SpellRepository
+from erenshor.infrastructure.database.repositories.stances import StanceRepository
 from erenshor.infrastructure.wiki.client import MediaWikiClient
 from erenshor.registry.resolver import RegistryResolver
 
@@ -100,6 +101,7 @@ class WikiService:
         character_repo: CharacterRepository,
         spell_repo: SpellRepository,
         skill_repo: SkillRepository,
+        stance_repo: StanceRepository,
         faction_repo: FactionRepository,
         spawn_repo: SpawnPointRepository,
         loot_repo: LootTableRepository,
@@ -116,6 +118,7 @@ class WikiService:
             character_repo: Repository for fetching characters from database.
             spell_repo: Repository for fetching spells from database.
             skill_repo: Repository for fetching skills from database.
+            stance_repo: Repository for fetching stances from database.
             faction_repo: Repository for faction data.
             spawn_repo: Repository for spawn point data.
             loot_repo: Repository for loot table data.
@@ -133,6 +136,7 @@ class WikiService:
             character_repo=character_repo,
             spell_repo=spell_repo,
             skill_repo=skill_repo,
+            stance_repo=stance_repo,
             faction_repo=faction_repo,
             spawn_repo=spawn_repo,
             loot_repo=loot_repo,
@@ -147,6 +151,7 @@ class WikiService:
             character_repo=character_repo,
             spell_repo=spell_repo,
             skill_repo=skill_repo,
+            stance_repo=stance_repo,
             faction_repo=faction_repo,
             spawn_repo=spawn_repo,
             loot_repo=loot_repo,

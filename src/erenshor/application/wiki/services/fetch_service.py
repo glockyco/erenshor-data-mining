@@ -21,6 +21,7 @@ from erenshor.infrastructure.database.repositories.quests import QuestRepository
 from erenshor.infrastructure.database.repositories.skills import SkillRepository
 from erenshor.infrastructure.database.repositories.spawn_points import SpawnPointRepository
 from erenshor.infrastructure.database.repositories.spells import SpellRepository
+from erenshor.infrastructure.database.repositories.stances import StanceRepository
 from erenshor.infrastructure.wiki.client import MediaWikiAPIError, MediaWikiClient
 from erenshor.registry.resolver import RegistryResolver
 
@@ -36,6 +37,7 @@ class WikiFetchService:
         character_repo: CharacterRepository,
         spell_repo: SpellRepository,
         skill_repo: SkillRepository,
+        stance_repo: StanceRepository,
         faction_repo: FactionRepository,
         spawn_repo: SpawnPointRepository,
         loot_repo: LootTableRepository,
@@ -52,6 +54,7 @@ class WikiFetchService:
             character_repo: Repository for character entities.
             spell_repo: Repository for spell entities.
             skill_repo: Repository for skill entities.
+            stance_repo: Repository for stance entities.
             faction_repo: Repository for faction data.
             spawn_repo: Repository for spawn point data.
             loot_repo: Repository for loot table data.
@@ -69,6 +72,7 @@ class WikiFetchService:
             character_repo=character_repo,
             spell_repo=spell_repo,
             skill_repo=skill_repo,
+            stance_repo=stance_repo,
             faction_repo=faction_repo,
             spawn_repo=spawn_repo,
             loot_repo=loot_repo,

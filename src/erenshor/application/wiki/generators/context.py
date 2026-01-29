@@ -20,6 +20,7 @@ if TYPE_CHECKING:
     from erenshor.infrastructure.database.repositories.skills import SkillRepository
     from erenshor.infrastructure.database.repositories.spawn_points import SpawnPointRepository
     from erenshor.infrastructure.database.repositories.spells import SpellRepository
+    from erenshor.infrastructure.database.repositories.stances import StanceRepository
     from erenshor.registry.resolver import RegistryResolver
 
 
@@ -35,6 +36,7 @@ class GeneratorContext:
         character_repo: Repository for character entities
         spell_repo: Repository for spell entities
         skill_repo: Repository for skill entities
+        stance_repo: Repository for stance entities
         faction_repo: Repository for faction data
         spawn_repo: Repository for spawn point data
         loot_repo: Repository for loot table data
@@ -47,6 +49,7 @@ class GeneratorContext:
     character_repo: CharacterRepository
     spell_repo: SpellRepository
     skill_repo: SkillRepository
+    stance_repo: StanceRepository
     faction_repo: FactionRepository
     spawn_repo: SpawnPointRepository
     loot_repo: LootTableRepository

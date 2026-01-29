@@ -39,6 +39,7 @@ from erenshor.infrastructure.database.repositories.quests import QuestRepository
 from erenshor.infrastructure.database.repositories.skills import SkillRepository
 from erenshor.infrastructure.database.repositories.spawn_points import SpawnPointRepository
 from erenshor.infrastructure.database.repositories.spells import SpellRepository
+from erenshor.infrastructure.database.repositories.stances import StanceRepository
 from erenshor.infrastructure.wiki.client import MediaWikiClient
 from erenshor.registry.resolver import RegistryResolver
 
@@ -111,6 +112,7 @@ def _create_wiki_service(cli_ctx: CLIContext) -> WikiService:
     character_repo = CharacterRepository(db_connection)
     spell_repo = SpellRepository(db_connection)
     skill_repo = SkillRepository(db_connection)
+    stance_repo = StanceRepository(db_connection)
     faction_repo = FactionRepository(db_connection)
     spawn_repo = SpawnPointRepository(db_connection)
     loot_repo = LootTableRepository(db_connection)
@@ -142,6 +144,7 @@ def _create_wiki_service(cli_ctx: CLIContext) -> WikiService:
         character_repo=character_repo,
         spell_repo=spell_repo,
         skill_repo=skill_repo,
+        stance_repo=stance_repo,
         faction_repo=faction_repo,
         spawn_repo=spawn_repo,
         loot_repo=loot_repo,

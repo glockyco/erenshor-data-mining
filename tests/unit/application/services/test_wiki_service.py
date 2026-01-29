@@ -132,6 +132,14 @@ def mock_loot_repo():
 
 
 @pytest.fixture
+def mock_stance_repo():
+    """Mock stance repository."""
+    repo = Mock()
+    repo.get_by_stable_key.return_value = None
+    return repo
+
+
+@pytest.fixture
 def wiki_service(
     mock_wiki_client,
     mock_storage,
@@ -139,6 +147,7 @@ def wiki_service(
     mock_character_repo,
     mock_spell_repo,
     mock_skill_repo,
+    mock_stance_repo,
     mock_faction_repo,
     mock_spawn_repo,
     mock_loot_repo,
@@ -158,6 +167,7 @@ def wiki_service(
         character_repo=mock_character_repo,
         spell_repo=mock_spell_repo,
         skill_repo=mock_skill_repo,
+        stance_repo=mock_stance_repo,
         faction_repo=mock_faction_repo,
         spawn_repo=mock_spawn_repo,
         loot_repo=mock_loot_repo,
@@ -217,6 +227,7 @@ class TestWikiServiceInit:
         mock_character_repo,
         mock_spell_repo,
         mock_skill_repo,
+        mock_stance_repo,
         mock_faction_repo,
         mock_spawn_repo,
         mock_loot_repo,
@@ -234,6 +245,7 @@ class TestWikiServiceInit:
             character_repo=mock_character_repo,
             spell_repo=mock_spell_repo,
             skill_repo=mock_skill_repo,
+            stance_repo=mock_stance_repo,
             faction_repo=mock_faction_repo,
             spawn_repo=mock_spawn_repo,
             loot_repo=mock_loot_repo,

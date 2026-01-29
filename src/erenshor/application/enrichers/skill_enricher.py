@@ -3,6 +3,7 @@
 This service aggregates skill-related data from multiple tables:
 - Items that grant this skill as an effect (procs, click effects, worn effects, etc.)
 - Teaching items (skill books)
+- Stance activated by this skill
 """
 
 from loguru import logger
@@ -10,6 +11,7 @@ from loguru import logger
 from erenshor.domain.enriched_data.skill import EnrichedSkillData
 from erenshor.domain.entities.skill import Skill
 from erenshor.infrastructure.database.repositories.items import ItemRepository
+from erenshor.infrastructure.database.repositories.stances import StanceRepository
 
 __all__ = ["EnrichedSkillData", "SkillEnricher"]
 
@@ -23,13 +25,16 @@ class SkillEnricher:
     def __init__(
         self,
         item_repo: ItemRepository,
+        stance_repo: StanceRepository,
     ) -> None:
         """Initialize skill enricher.
 
         Args:
             item_repo: Repository for item data (teaching items, obtainability)
+            stance_repo: Repository for stance data
         """
         self._item_repo = item_repo
+        self._stance_repo = stance_repo
 
     def enrich(self, skill: Skill) -> EnrichedSkillData:
         """Enrich skill with related data from other tables.
@@ -38,7 +43,7 @@ class SkillEnricher:
             skill: Skill entity
 
         Returns:
-            EnrichedSkillData with items with effect and teaching items
+            EnrichedSkillData with items with effect, teaching items, and activated stance
         """
         logger.debug(f"Enriching skill: {skill.skill_name}")
 
@@ -52,8 +57,14 @@ class SkillEnricher:
         items_with_effect = self._item_repo.get_items_with_skill_effect(skill.stable_key)
         logger.debug(f"Skill '{skill.skill_name}' has {len(items_with_effect)} items with effect")
 
+        # Get stance activated by this skill (if any)
+        activated_stance = None
+        if skill.stance_to_use_stable_key:
+            activated_stance = self._stance_repo.get_by_stable_key(skill.stance_to_use_stable_key)
+
         return EnrichedSkillData(
             skill=skill,
             items_with_effect=items_with_effect,
             teaching_items=obtainable_teaching_items,
+            activated_stance=activated_stance,
         )
