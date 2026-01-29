@@ -8,4 +8,5 @@ SELECT
     'https://erenshor-maps.wowmuch1.workers.dev/map?marker=' || sp.StableKey AS MapLink
 FROM SecretPassages sp
 JOIN Zones za ON za.SceneName = sp.Scene
+WHERE sp.ObjectName NOT LIKE '%nav%' OR sp.ObjectName IS NULL
 ORDER BY za.ZoneName;
