@@ -33,13 +33,25 @@ class StanceRepository(BaseRepository[Stance]):
         query = """
             SELECT
                 StableKey,
-                Name,
-                Icon,
-                StrengthModifier,
-                AgilityModifier,
-                IntelligenceModifier
+                StanceDBIndex,
+                Id,
+                DisplayName,
+                MaxHPMod,
+                DamageMod,
+                ProcRateMod,
+                DamageTakenMod,
+                SelfDamagePerAttack,
+                AggroGenMod,
+                SpellDamageMod,
+                SelfDamagePerCast,
+                LifestealAmount,
+                ResonanceAmount,
+                StopRegen,
+                SwitchMessage,
+                StanceDesc,
+                ResourceName
             FROM Stances
-            ORDER BY Name COLLATE NOCASE
+            ORDER BY DisplayName COLLATE NOCASE
         """
 
         try:
@@ -65,11 +77,23 @@ class StanceRepository(BaseRepository[Stance]):
         query = """
             SELECT
                 StableKey,
-                Name,
-                Icon,
-                StrengthModifier,
-                AgilityModifier,
-                IntelligenceModifier
+                StanceDBIndex,
+                Id,
+                DisplayName,
+                MaxHPMod,
+                DamageMod,
+                ProcRateMod,
+                DamageTakenMod,
+                SelfDamagePerAttack,
+                AggroGenMod,
+                SpellDamageMod,
+                SelfDamagePerCast,
+                LifestealAmount,
+                ResonanceAmount,
+                StopRegen,
+                SwitchMessage,
+                StanceDesc,
+                ResourceName
             FROM Stances
             WHERE StableKey = ?
         """
