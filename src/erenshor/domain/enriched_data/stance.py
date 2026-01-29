@@ -21,7 +21,7 @@ class EnrichedStanceData:
 
         Args:
             stance: Stance entity
-            activated_by_skills: Skill names that activate this stance
+            activated_by_skills: Skill stable keys that activate this stance
         """
         self.stance = stance
         self.activated_by_skills = activated_by_skills

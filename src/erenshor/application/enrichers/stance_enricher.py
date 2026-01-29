@@ -43,11 +43,11 @@ class StanceEnricher:
 
         # Get skills that activate this stance
         activating_skills = self._skill_repo.get_skills_using_stance(stance.stable_key)
-        skill_names = [skill.skill_name for skill in activating_skills if skill.skill_name]
+        skill_stable_keys = [skill.stable_key for skill in activating_skills]
 
-        logger.debug(f"Stance '{stance.display_name}' activated by {len(skill_names)} skills")
+        logger.debug(f"Stance '{stance.display_name}' activated by {len(skill_stable_keys)} skills")
 
         return EnrichedStanceData(
             stance=stance,
-            activated_by_skills=skill_names,
+            activated_by_skills=skill_stable_keys,
         )
