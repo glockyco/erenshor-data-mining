@@ -109,6 +109,8 @@ class SkillSectionGenerator(SectionGeneratorBase):
             class_level_pairs.append(("Druid", skill.druid_required_level))
         if skill.stormcaller_required_level and skill.stormcaller_required_level > 0:
             class_level_pairs.append(("Stormcaller", skill.stormcaller_required_level))
+        if skill.reaver_required_level and skill.reaver_required_level > 0:
+            class_level_pairs.append(("Reaver", skill.reaver_required_level))
 
         # Sort alphabetically and format with wiki links and levels
         class_level_pairs.sort(key=lambda x: x[0])
@@ -143,16 +145,23 @@ class SkillSectionGenerator(SectionGeneratorBase):
         if skill.effect_to_apply_stable_key:
             status_effect = str(self._resolver.ability_link(skill.effect_to_apply_stable_key))
 
+        activated_stance = ""
+        if enriched.activated_stance:
+            activated_stance = str(self._resolver.ability_link(enriched.activated_stance.stable_key))
+
         cast_on_target = ""
         if skill.cast_on_target_stable_key:
             cast_on_target = str(self._resolver.ability_link(skill.cast_on_target_stable_key))
 
-        # Combine effects (both status_effect and cast_on_target)
+        # Combine effects (status_effect, activated_stance, and cast_on_target)
         effects_parts = []
         seen_effects: set[str] = set()
         if status_effect and status_effect not in seen_effects:
             effects_parts.append(status_effect)
             seen_effects.add(status_effect)
+        if activated_stance and activated_stance not in seen_effects:
+            effects_parts.append(activated_stance)
+            seen_effects.add(activated_stance)
         if cast_on_target and cast_on_target not in seen_effects:
             effects_parts.append(cast_on_target)
             seen_effects.add(cast_on_target)

@@ -209,6 +209,8 @@ class SpellSectionGenerator(SectionGeneratorBase):
             "is_stun": bool_str(spell.stun_target),
             "is_charm": bool_str(spell.charm_target),
             "is_broken_on_damage": bool_str(spell.break_on_damage),
+            "is_fear": bool_str(spell.fear_target),
+            "inflict_on_self": bool_str(spell.inflict_on_self),
             # Sources
             "itemswitheffect": self._format_item_links(enriched.items_with_effect),
             "source": self._format_item_links(enriched.teaching_items),
