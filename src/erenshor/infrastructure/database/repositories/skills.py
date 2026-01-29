@@ -47,12 +47,14 @@ class SkillRepository(BaseRepository[Skill]):
                 ArcanistRequiredLevel,
                 DruidRequiredLevel,
                 StormcallerRequiredLevel,
+                ReaverRequiredLevel,
                 RequireBehind,
                 Require2H,
                 RequireDW,
                 RequireBow,
                 RequireShield,
                 SimPlayersAutolearn,
+                StanceToUseStableKey,
                 AESkill,
                 Interrupt,
                 SpawnOnUseStableKey,
@@ -142,6 +144,7 @@ class SkillRepository(BaseRepository[Skill]):
                 NPCUses
             FROM Skills
             WHERE StableKey = ?
+            ORDER BY SkillName COLLATE NOCASE
         """
 
         try:
@@ -167,3 +170,73 @@ class SkillRepository(BaseRepository[Skill]):
 
         # Pydantic will handle validation and type conversion
         return Skill.model_validate(data)
+
+    def get_skills_using_stance(self, stance_stable_key: str) -> list[Skill]:
+        """Get all skills that activate a specific stance.
+
+        Used for bidirectional linking on stance wiki pages.
+
+        Args:
+            stance_stable_key: Stance stable key (e.g., "stance:Aggressive")
+
+        Returns:
+            List of Skill entities that activate this stance.
+
+        Raises:
+            RepositoryError: If query execution fails.
+        """
+        query = """
+            SELECT
+                StableKey,
+                SkillDBIndex,
+                Id,
+                ResourceName,
+                SkillName,
+                SkillDesc,
+                TypeOfSkill,
+                Cooldown,
+                DuelistRequiredLevel,
+                PaladinRequiredLevel,
+                ArcanistRequiredLevel,
+                DruidRequiredLevel,
+                StormcallerRequiredLevel,
+                ReaverRequiredLevel,
+                RequireBehind,
+                Require2H,
+                RequireDW,
+                RequireBow,
+                RequireShield,
+                SimPlayersAutolearn,
+                StanceToUseStableKey,
+                AESkill,
+                Interrupt,
+                SpawnOnUseStableKey,
+                EffectToApplyStableKey,
+                AffectPlayer,
+                AffectTarget,
+                SkillRange,
+                SkillPower,
+                PercentDmg,
+                DamageType,
+                ScaleOffWeapon,
+                ProcWeap,
+                ProcShield,
+                GuaranteeProc,
+                AutomateAttack,
+                CastOnTargetStableKey,
+                SkillAnimName,
+                SkillIconName,
+                PlayerUses,
+                NPCUses
+            FROM Skills
+            WHERE StanceToUseStableKey = ?
+            ORDER BY SkillName COLLATE NOCASE
+        """
+
+        try:
+            rows = self._execute_raw(query, (stance_stable_key,))
+            skills = [self._row_to_skill(row) for row in rows]
+            logger.debug(f"Retrieved {len(skills)} skills using stance {stance_stable_key}")
+            return skills
+        except Exception as e:
+            raise RepositoryError(f"Failed to retrieve skills for stance {stance_stable_key}: {e}") from e

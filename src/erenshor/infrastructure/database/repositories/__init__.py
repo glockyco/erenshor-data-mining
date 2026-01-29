@@ -13,6 +13,7 @@ Available repositories:
 - ItemRepository: Items, equipment, and item statistics
 - SpellRepository: Spells and magical abilities
 - SkillRepository: Combat skills and special abilities
+- StanceRepository: Combat stances and stat modifiers
 - CharacterRepository: NPCs, creatures, and vendors
 - QuestRepository: Quests and objectives
 - FactionRepository: Factions and reputation
@@ -37,6 +38,7 @@ from .quests import QuestRepository
 from .skills import SkillRepository
 from .spawn_points import SpawnPointRepository
 from .spells import SpellRepository
+from .stances import StanceRepository
 from .zones import ZoneRepository
 
 __all__ = [
@@ -48,5 +50,6 @@ __all__ = [
     "SkillRepository",
     "SpawnPointRepository",
     "SpellRepository",
+    "StanceRepository",
     "ZoneRepository",
 ]
