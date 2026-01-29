@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using SQLite;
+using UnityEditor;
 using UnityEngine;
 
 public class GuildTopicListener : IAssetScanListener<GuildTopic>
@@ -30,9 +31,11 @@ public class GuildTopicListener : IAssetScanListener<GuildTopic>
     {
         Debug.Log($"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
 
+        var assetPath = AssetDatabase.GetAssetPath(asset);
+
         var record = new GuildTopicRecord
         {
-            StableKey = StableKeyGenerator.ForGuildTopic(asset),
+            StableKey = StableKeyGenerator.ForGuildTopic(asset, assetPath),
             GuildTopicDBIndex = _records.Count,
             Id = asset.Id,
             ActivationWords = asset.ActivationWords != null ? JsonConvert.SerializeObject(asset.ActivationWords) : "[]",

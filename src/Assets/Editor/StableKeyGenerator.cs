@@ -68,14 +68,27 @@ public static class StableKeyGenerator
     /// Generate stable key for a guild topic.
     /// Format: "guildtopic:resource_name"
     /// </summary>
-    public static string ForGuildTopic(GuildTopic guildTopic)
+    public static string ForGuildTopic(GuildTopic guildTopic, string assetPath)
     {
         if (guildTopic == null)
             throw new ArgumentNullException(nameof(guildTopic));
-        if (string.IsNullOrEmpty(guildTopic.name))
-            throw new ArgumentException("GuildTopic.name cannot be null or empty");
+        if (string.IsNullOrEmpty(assetPath))
+            throw new ArgumentException("assetPath cannot be null or empty");
 
-        return $"guildtopic:{Normalize(guildTopic.name)}";
+        // Extract relative path from Resources folder and remove extension
+        // "Assets/Resources/guildconvotopics/generalworldtopics/azure/Lighthouse.asset"
+        // -> "guildconvotopics/generalworldtopics/azure/Lighthouse"
+        var pathWithoutExtension = System.IO.Path.ChangeExtension(assetPath, null);
+
+        // Find Resources folder position and extract path after it
+        var resourcesIndex = pathWithoutExtension.IndexOf("/Resources/");
+        var resourcePath = resourcesIndex >= 0
+            ? pathWithoutExtension.Substring(resourcesIndex + "/Resources/".Length)
+            : System.IO.Path.GetFileNameWithoutExtension(assetPath);
+
+        // Normalize path: replace slashes with dashes, apply standard normalization
+        var normalizedPath = resourcePath.Replace('/', '-').Replace('\\', '-');
+        return $"guildtopic:{Normalize(normalizedPath)}";
     }
 
     /// <summary>
