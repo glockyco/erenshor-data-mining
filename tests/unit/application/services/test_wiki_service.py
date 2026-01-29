@@ -136,6 +136,7 @@ def mock_stance_repo():
     """Mock stance repository."""
     repo = Mock()
     repo.get_by_stable_key.return_value = None
+    repo.get_all.return_value = []
     return repo
 
 

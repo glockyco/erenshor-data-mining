@@ -45,7 +45,7 @@ WIKI_GENERATORS: list[GeneratorRegistration] = [
     GeneratorRegistration(
         name="entities",
         generator_class=EntityPageGenerator,
-        description="Generate pages for all game entities (items, characters, spells, skills)",
+        description="Generate pages for all game entities (items, characters, spells, skills, stances)",
     ),
     GeneratorRegistration(
         name="weapons_overview",

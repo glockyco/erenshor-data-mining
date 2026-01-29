@@ -15,13 +15,20 @@ from erenshor.application.enrichers.character_enricher import CharacterEnricher
 from erenshor.application.enrichers.item_enricher import ItemEnricher
 from erenshor.application.enrichers.skill_enricher import SkillEnricher
 from erenshor.application.enrichers.spell_enricher import SpellEnricher
+from erenshor.application.enrichers.stance_enricher import StanceEnricher
 from erenshor.application.wiki.generators.base import GeneratedPage, PageGenerator, PageMetadata
 from erenshor.application.wiki.generators.sections.categories import CategoryGenerator
 from erenshor.application.wiki.generators.sections.character import CharacterSectionGenerator
 from erenshor.application.wiki.generators.sections.item import ItemSectionGenerator
 from erenshor.application.wiki.generators.sections.skill import SkillSectionGenerator
 from erenshor.application.wiki.generators.sections.spell import SpellSectionGenerator
-from erenshor.domain.entities import Character, Item, Skill, Spell
+from erenshor.application.wiki.generators.sections.stance import StanceSectionGenerator
+from erenshor.domain.enriched_data.character import EnrichedCharacterData
+from erenshor.domain.enriched_data.item import EnrichedItemData
+from erenshor.domain.enriched_data.skill import EnrichedSkillData
+from erenshor.domain.enriched_data.spell import EnrichedSpellData
+from erenshor.domain.enriched_data.stance import EnrichedStanceData
+from erenshor.domain.entities import Character, Item, Skill, Spell, Stance
 
 if TYPE_CHECKING:
     from erenshor.application.wiki.generators.context import GeneratorContext
@@ -30,7 +37,7 @@ if TYPE_CHECKING:
 class EntityPageGenerator(PageGenerator):
     """Generates wiki pages for all game entities.
 
-    This generator handles all entity types (items, characters, spells, skills)
+    This generator handles all entity types (items, characters, spells, skills, stances)
     and correctly handles multi-entity pages where multiple entities share
     the same page title.
 
@@ -73,18 +80,22 @@ class EntityPageGenerator(PageGenerator):
             item_repo=context.item_repo,
             stance_repo=context.stance_repo,
         )
+        self.stance_enricher = StanceEnricher(
+            skill_repo=context.skill_repo,
+        )
 
         # Initialize section generators
         self.item_generator = ItemSectionGenerator(context.resolver)
         self.character_generator = CharacterSectionGenerator(context.resolver)
         self.spell_generator = SpellSectionGenerator(context.resolver)
         self.skill_generator = SkillSectionGenerator(context.resolver)
+        self.stance_generator = StanceSectionGenerator(context.resolver)
         self.category_generator = CategoryGenerator(context.resolver)
 
         # Cache for entities (populated by _load_entities, reused by both fetch and generate)
-        self._cached_entities: list[Item | Character | Spell | Skill] | None = None
+        self._cached_entities: list[Item | Character | Spell | Skill | Stance] | None = None
 
-    def _load_entities(self) -> list[Item | Character | Spell | Skill]:
+    def _load_entities(self) -> list[Item | Character | Spell | Skill | Stance]:
         """Load all entities from repositories.
 
         Returns:
@@ -93,11 +104,12 @@ class EntityPageGenerator(PageGenerator):
         if self._cached_entities is not None:
             return self._cached_entities
 
-        all_entities: list[Item | Character | Spell | Skill] = []
+        all_entities: list[Item | Character | Spell | Skill | Stance] = []
         all_entities.extend(self.context.item_repo.get_items_for_wiki_generation())
         all_entities.extend(self.context.character_repo.get_characters_for_wiki_generation())
         all_entities.extend(self.context.spell_repo.get_spells_for_wiki_generation())
         all_entities.extend(self.context.skill_repo.get_skills_for_wiki_generation())
+        all_entities.extend(self.context.stance_repo.get_all())
 
         self._cached_entities = all_entities
         return all_entities
@@ -124,10 +136,12 @@ class EntityPageGenerator(PageGenerator):
         characters_count = sum(1 for e in all_entities if isinstance(e, Character))
         spells_count = sum(1 for e in all_entities if isinstance(e, Spell))
         skills_count = sum(1 for e in all_entities if isinstance(e, Skill))
+        stances_count = sum(1 for e in all_entities if isinstance(e, Stance))
 
         logger.info(
             f"EntityPageGenerator: {len(page_titles)} unique pages from {len(all_entities)} entities "
-            f"(items={items_count}, characters={characters_count}, spells={spells_count}, skills={skills_count})"
+            f"(items={items_count}, characters={characters_count}, spells={spells_count}, "
+            f"skills={skills_count}, stances={stances_count})"
         )
 
         return page_titles
@@ -144,7 +158,7 @@ class EntityPageGenerator(PageGenerator):
         all_entities = self._load_entities()
 
         # Group entities by page title (filter out excluded entities where page_title is None)
-        page_groups: dict[str, list[Item | Character | Spell | Skill]] = {}
+        page_groups: dict[str, list[Item | Character | Spell | Skill | Stance]] = {}
         for entity in all_entities:
             page_title = self.context.resolver.resolve_page_title(entity.stable_key)
             if page_title is None:
@@ -159,7 +173,7 @@ class EntityPageGenerator(PageGenerator):
         for page_title, entities in page_groups.items():
             # Enrich all entities first
             enriched_entities: list[
-                EnrichedItemData | EnrichedCharacterData | EnrichedSpellData | EnrichedSkillData
+                EnrichedItemData | EnrichedCharacterData | EnrichedSpellData | EnrichedSkillData | EnrichedStanceData
             ] = []
             for entity in entities:
                 if isinstance(entity, Item):
@@ -170,17 +184,14 @@ class EntityPageGenerator(PageGenerator):
                     enriched_entities.append(self.spell_enricher.enrich(entity))
                 elif isinstance(entity, Skill):
                     enriched_entities.append(self.skill_enricher.enrich(entity))
+                elif isinstance(entity, Stance):
+                    enriched_entities.append(self.stance_enricher.enrich(entity))
                 else:
                     logger.warning(f"Unknown entity type: {type(entity)}")
 
             # Generate templates for each enriched entity
             templates = []
             for enriched in enriched_entities:
-                from erenshor.domain.enriched_data.character import EnrichedCharacterData
-                from erenshor.domain.enriched_data.item import EnrichedItemData
-                from erenshor.domain.enriched_data.skill import EnrichedSkillData
-                from erenshor.domain.enriched_data.spell import EnrichedSpellData
-
                 if isinstance(enriched, EnrichedItemData):
                     template = self.item_generator.generate_template(enriched, page_title)
                 elif isinstance(enriched, EnrichedCharacterData):
@@ -189,6 +200,8 @@ class EntityPageGenerator(PageGenerator):
                     template = self.spell_generator.generate_template(enriched, page_title)
                 elif isinstance(enriched, EnrichedSkillData):
                     template = self.skill_generator.generate_template(enriched, page_title)
+                elif isinstance(enriched, EnrichedStanceData):
+                    template = self.stance_generator.generate_template(enriched, page_title)
                 else:
                     continue
 

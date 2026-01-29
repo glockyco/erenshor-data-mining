@@ -24,6 +24,7 @@ if TYPE_CHECKING:
     from erenshor.domain.enriched_data.item import EnrichedItemData
     from erenshor.domain.enriched_data.skill import EnrichedSkillData
     from erenshor.domain.enriched_data.spell import EnrichedSpellData
+    from erenshor.domain.enriched_data.stance import EnrichedStanceData
     from erenshor.domain.entities.item import Item
     from erenshor.registry.resolver import RegistryResolver
 
@@ -65,7 +66,7 @@ class CategoryGenerator:
 
     def generate_categories(
         self,
-        enriched: EnrichedItemData | EnrichedCharacterData | EnrichedSpellData | EnrichedSkillData,
+        enriched: EnrichedItemData | EnrichedCharacterData | EnrichedSpellData | EnrichedSkillData | EnrichedStanceData,
     ) -> list[str]:
         """Generate category list for any enriched entity.
 
@@ -79,12 +80,13 @@ class CategoryGenerator:
         from erenshor.domain.enriched_data.item import EnrichedItemData
         from erenshor.domain.enriched_data.skill import EnrichedSkillData
         from erenshor.domain.enriched_data.spell import EnrichedSpellData
+        from erenshor.domain.enriched_data.stance import EnrichedStanceData
 
         if isinstance(enriched, EnrichedItemData):
             return self.generate_item_categories(enriched)
         if isinstance(enriched, EnrichedCharacterData):
             return self.generate_character_categories(enriched)
-        if isinstance(enriched, (EnrichedSpellData, EnrichedSkillData)):
+        if isinstance(enriched, (EnrichedSpellData, EnrichedSkillData, EnrichedStanceData)):
             return []
         return []
 
