@@ -202,8 +202,8 @@ def rebuild(ctx: typer.Context) -> None:
             if count > 0:
                 console.print(f"    - {entity_type.value}: {count}")
 
-        # Load mapping.json
-        mapping_count = load_mapping_json(session, mapping_json_path)
+        # Load mapping.json (without validation - we'll check conflicts separately)
+        mapping_count = load_mapping_json(session, mapping_json_path, validate=False)
         console.print(f"  [green]✓[/green] Loaded mapping.json ({mapping_count} rules)")
 
         # Check conflicts

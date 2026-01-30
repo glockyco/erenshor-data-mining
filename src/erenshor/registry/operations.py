@@ -633,7 +633,12 @@ def count_entities_by_type(session: Session) -> dict[EntityType, int]:
     return counts
 
 
-def load_mapping_json(session: Session, mapping_path: Path) -> int:
+def load_mapping_json(
+    session: Session,
+    mapping_path: Path,
+    *,
+    validate: bool = True,
+) -> int:
     """Import entity overrides from mapping.json into registry.
 
     The mapping.json file contains entity mapping rules in the format:
@@ -654,18 +659,21 @@ def load_mapping_json(session: Session, mapping_path: Path) -> int:
     All stable keys in mapping.json are normalized (lowercase, pipe to colon) before
     matching against registry entities.
 
-    After loading, validates that all display_name conflicts are resolved. Raises
-    ValueError if any unresolved conflicts exist.
+    After loading, validates that all display_name conflicts are resolved (unless
+    validate=False). Raises ValueError if any unresolved conflicts exist.
 
     Args:
         session: SQLModel database session
         mapping_path: Path to mapping.json file
+        validate: If True, validates all conflicts are resolved and raises
+            ValueError if unresolved conflicts exist. Set to False only for rebuild
+            or diagnostic operations.
 
     Returns:
         Number of entities updated from mapping file
 
     Raises:
-        ValueError: If unresolved display_name conflicts exist
+        ValueError: If validate=True and unresolved conflicts exist
 
     Example:
         >>> from pathlib import Path
@@ -750,15 +758,15 @@ def load_mapping_json(session: Session, mapping_path: Path) -> int:
 
     logger.info(f"Imported {count} entity overrides from {mapping_path}")
 
-    # Always validate conflicts after importing
-    logger.debug("Validating conflicts after importing mapping.json")
-    _, unresolved = validate_conflicts(session, mapping_path)
+    # Validate conflicts if requested
+    if validate:
+        logger.debug("Validating conflicts after importing mapping.json")
+        _resolved, unresolved = validate_conflicts(session, mapping_path)
 
-    if unresolved:
-        raise ValueError(
-            f"Registry has {len(unresolved)} unresolved conflicts. Run 'erenshor registry conflicts' to see details."
-        )
-
-    logger.info("Conflict validation passed: all conflicts resolved")
+        if unresolved:
+            raise ValueError(
+                f"Registry has {len(unresolved)} unresolved conflicts. "
+                f"Run 'erenshor registry conflicts' to see details."
+            )
 
     return count
