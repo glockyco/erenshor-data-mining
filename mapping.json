@@ -864,13 +864,6 @@
       "display_name": "Colton Calavia",
       "image_name": "Colton Calavia"
     },
-    "character:corrupted fungal bear": {
-      "wiki_page_name": "Fungal Bear",
-      "display_name": "Fungal Bear",
-      "image_name": "Corrupted Fungal Bear",
-      "mapping_type": "custom",
-      "reason": "Disambiguate from the 'regular' fungal bear."
-    },
     "character:crier:azure:238.67:26.44:206.28": {
       "wiki_page_name": "Town Crier",
       "display_name": "Town Crier",
@@ -1051,13 +1044,6 @@
       "wiki_page_name": null,
       "display_name": "Braxonian Flame Well",
       "image_name": "Braxonian Flame Well"
-    },
-    "character:fungal bear": {
-      "wiki_page_name": "Fungal Bear",
-      "display_name": "Fungal Bear",
-      "image_name": "Fungal Bear",
-      "mapping_type": "custom",
-      "reason": ""
     },
     "character:fungal protecter": {
       "wiki_page_name": "Abyssal Fungus Protector",
