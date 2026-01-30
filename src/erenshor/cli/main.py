@@ -22,7 +22,7 @@ from erenshor.infrastructure.config import ConfigLoadError, get_repo_root, load_
 from erenshor.infrastructure.logging import setup_logging
 from erenshor.infrastructure.logging.setup import LoggingSetupError
 
-from .commands import backup, extract, images, maps, mod, sheets, wiki
+from .commands import backup, extract, images, maps, mod, registry, sheets, wiki
 from .context import CLIContext
 
 console = Console()
@@ -44,6 +44,7 @@ app.add_typer(maps.app, name="maps")
 app.add_typer(images.app, name="images")
 app.add_typer(backup.app, name="backup")
 app.add_typer(mod.app, name="mod")
+app.add_typer(registry.app, name="registry")
 
 
 @app.callback()
@@ -378,6 +379,47 @@ def doctor(
     else:
         console.print(f"  [yellow]\u26a0[/yellow] Credentials file not found at {credentials_file}")
         console.print("  [dim]  Google Sheets credentials are only needed for sheets deployment[/dim]")
+
+    console.print()
+
+    # Check 7: Registry health
+    console.print("[bold]Registry Health:[/bold]")
+    wiki_dir = variant_config.resolved_wiki(cli_ctx.repo_root)
+    registry_db_path = wiki_dir / "registry.db"
+
+    if registry_db_path.exists():
+        from sqlmodel import Session, create_engine
+
+        from erenshor.registry.operations import count_entities_by_type, find_conflicts, validate_conflicts
+
+        mapping_json_path = cli_ctx.repo_root / "mapping.json"
+
+        engine = create_engine(f"sqlite:///{registry_db_path}")
+        with Session(engine) as session:
+            try:
+                counts = count_entities_by_type(session)
+                conflicts = find_conflicts(session)
+                _resolved, unresolved = validate_conflicts(session, mapping_json_path)
+
+                total_entities = sum(counts.values())
+
+                if not conflicts:
+                    console.print(f"  [green]✓[/green] Registry healthy ({total_entities} entities, 0 conflicts)")
+                elif not unresolved:
+                    console.print(
+                        f"  [green]✓[/green] Registry healthy ({total_entities} entities, "
+                        f"{len(conflicts)} conflicts all resolved)"
+                    )
+                else:
+                    console.print(f"  [red]✗[/red] {len(unresolved)} unresolved conflicts (of {len(conflicts)} total)")
+                    console.print("  [dim]  Run 'erenshor registry conflicts' for details[/dim]")
+                    all_checks_passed = False
+            except Exception as e:
+                console.print(f"  [red]✗[/red] Registry validation failed: {e}")
+                all_checks_passed = False
+    else:
+        console.print("  [yellow]⚠[/yellow] Registry database not found")
+        console.print("  [dim]  Run 'erenshor registry rebuild' to create it[/dim]")
 
     console.print()
 
