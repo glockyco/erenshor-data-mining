@@ -7,11 +7,10 @@ SELECT
     s.SpecialDescriptor,
     s.Type,
     s.Line,
-    (SELECT GROUP_CONCAT(c.DisplayName, ', ')
+    (SELECT GROUP_CONCAT(c.DisplayName, ', ' ORDER BY c.DisplayName)
      FROM SpellClasses sc
      JOIN Classes c ON sc.ClassName = c.ClassName
-     WHERE sc.SpellStableKey = s.StableKey
-     ORDER BY c.DisplayName) AS Classes,
+     WHERE sc.SpellStableKey = s.StableKey) AS Classes,
     s.RequiredLevel,
     s.ManaCost,
     s.SimUsable,
