@@ -42,6 +42,7 @@ dependencies = [
     "mwparserfromhell>=0.6.0",
     # Image processing
     "pillow>=11.0.0",
+    "imagehash>=4.3.0",
     # Google API
     "google-auth>=2.0.0",
     "google-api-python-client>=2.0.0",
