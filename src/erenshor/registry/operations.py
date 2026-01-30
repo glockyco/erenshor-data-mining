@@ -407,7 +407,7 @@ def resolve_conflict(
 def populate_all_entities(session: Session, db_path: Path) -> int:
     """Populate registry with ALL entities from game database.
 
-    Scans Items, Spells, Skills, Characters, Quests, Factions (WorldFactions), and Zones tables
+    Scans Items, Spells, Skills, Stances, Characters, Quests, Factions, and Zones tables
     and creates registry entries for every entity with their default names. This should be called
     FIRST to populate the registry, then load_mapping_json() to apply overrides.
 
@@ -486,6 +486,21 @@ def populate_all_entities(session: Session, db_path: Path) -> int:
             page_title=skill_name,
             display_name=skill_name,
             image_name=skill_name,
+        )
+        count += 1
+
+    # Stances
+    cursor.execute("SELECT StableKey, DisplayName FROM Stances")
+    for row in cursor.fetchall():
+        stable_key = row["StableKey"]
+        display_name = row["DisplayName"]
+
+        register_entity(
+            session,
+            stable_key=stable_key,
+            page_title=display_name,
+            display_name=display_name,
+            image_name=display_name,
         )
         count += 1
 

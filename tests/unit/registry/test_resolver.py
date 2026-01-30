@@ -28,6 +28,7 @@ def game_database(tmp_path: Path) -> Path:
     cursor.execute("CREATE TABLE Items (StableKey TEXT PRIMARY KEY, ItemName TEXT)")
     cursor.execute("CREATE TABLE Spells (StableKey TEXT PRIMARY KEY, SpellName TEXT)")
     cursor.execute("CREATE TABLE Skills (StableKey TEXT PRIMARY KEY, SkillName TEXT)")
+    cursor.execute("CREATE TABLE Stances (StableKey TEXT PRIMARY KEY, DisplayName TEXT)")
     cursor.execute("CREATE TABLE Characters (StableKey TEXT PRIMARY KEY, NPCName TEXT)")
     cursor.execute("CREATE TABLE Zones (StableKey TEXT PRIMARY KEY, ZoneName TEXT)")
     cursor.execute("CREATE TABLE Factions (StableKey TEXT PRIMARY KEY, FactionDesc TEXT)")
@@ -53,6 +54,7 @@ def game_database(tmp_path: Path) -> Path:
     cursor.execute("INSERT INTO Spells (StableKey, SpellName) VALUES ('spell:excluded_spell', 'Excluded Spell')")
     cursor.execute("INSERT INTO Skills (StableKey, SkillName) VALUES ('skill:sword mastery', 'Sword Mastery')")
     cursor.execute("INSERT INTO Skills (StableKey, SkillName) VALUES ('skill:excluded_skill', 'Excluded Skill')")
+    cursor.execute("INSERT INTO Stances (StableKey, DisplayName) VALUES ('stance:aggressive', 'Aggressive')")
     cursor.execute("INSERT INTO Characters (StableKey, NPCName) VALUES ('character:excluded_npc', 'Excluded NPC')")
 
     conn.commit()

@@ -43,6 +43,7 @@ class EntityType(str, PyEnum):
     ITEM = "item"
     SPELL = "spell"
     SKILL = "skill"
+    STANCE = "stance"
     CHARACTER = "character"
     QUEST = "quest"
     FACTION = "faction"
