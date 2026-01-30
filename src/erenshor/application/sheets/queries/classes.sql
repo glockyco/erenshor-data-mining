@@ -1,5 +1,6 @@
 SELECT
     ClassName,
+    DisplayName,
     MitigationBonus,
     StrBenefit,
     EndBenefit,

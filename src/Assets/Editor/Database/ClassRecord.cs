@@ -10,6 +10,8 @@ public class ClassRecord
     [PrimaryKey]
     public string ClassName { get; set; } = string.Empty;
 
+    public string DisplayName { get; set; } = string.Empty;
+
     public float MitigationBonus { get; set; }
     public int StrBenefit { get; set; }
     public int EndBenefit { get; set; }

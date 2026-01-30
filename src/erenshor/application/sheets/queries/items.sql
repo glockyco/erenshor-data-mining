@@ -6,10 +6,11 @@ SELECT
     Lore,
     RequiredSlot,
     ThisWeaponType,
-    (SELECT GROUP_CONCAT(ClassName, ', ')
+    (SELECT GROUP_CONCAT(c.DisplayName, ', ')
      FROM ItemClasses ic
+     JOIN Classes c ON ic.ClassName = c.ClassName
      WHERE ic.ItemStableKey = i.StableKey
-     ORDER BY ClassName) AS Classes,
+     ORDER BY c.DisplayName) AS Classes,
     Quality,
     ItemLevel,
     HP,

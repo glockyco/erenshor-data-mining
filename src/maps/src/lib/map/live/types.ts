@@ -41,7 +41,7 @@ export interface EntityData {
     level?: number;
     /** Rarity classification (for enemies) */
     rarity?: EntityRarity;
-    /** Character class (for players and SimPlayers) */
+    /** Character class display name (for players and SimPlayers) */
     characterClass?: string;
     /** Owner name (for pets) */
     owner?: string;

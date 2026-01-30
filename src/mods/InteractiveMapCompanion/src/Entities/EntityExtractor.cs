@@ -76,7 +76,7 @@ public sealed class EntityExtractor : IEntityExtractor
     }
 
     /// <summary>
-    /// Gets character class for players and SimPlayers.
+    /// Gets character class display name for players and SimPlayers.
     /// </summary>
     private static string? GetCharacterClass(Stats? stats, EntityType type)
     {
@@ -84,7 +84,7 @@ public sealed class EntityExtractor : IEntityExtractor
         if (type is not (EntityType.Player or EntityType.SimPlayer))
             return null;
 
-        return stats?.CharacterClass?.ClassName;
+        return stats?.CharacterClass?.DisplayName;
     }
 
     /// <summary>

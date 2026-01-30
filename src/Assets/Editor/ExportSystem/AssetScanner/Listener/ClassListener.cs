@@ -32,6 +32,7 @@ public class ClassListener : IAssetScanListener<Class>
         var record = new ClassRecord
         {
             ClassName = asset.ClassName,
+            DisplayName = asset.DisplayName,
             MitigationBonus = asset.MitigationBonus,
             StrBenefit = asset.StrBenefit,
             EndBenefit = asset.EndBenefit,
