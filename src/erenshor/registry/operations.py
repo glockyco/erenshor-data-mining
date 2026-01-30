@@ -640,8 +640,9 @@ def load_mapping_json(session: Session, mapping_path: Path) -> int:
         if ":" not in stable_key:
             raise ValueError(f"Invalid stable key '{stable_key}': missing ':' separator")
 
-        # Normalize stable key to lowercase for case-insensitive lookups
-        normalized_key = stable_key.lower()
+        # Normalize stable key to lowercase and replace pipe delimiters with colons
+        # This handles legacy pipe-formatted keys (pre Jan 18, 2026)
+        normalized_key = stable_key.lower().replace("|", ":")
 
         # Check if entity is excluded (wiki_page_name explicitly null in mapping)
         # Note: We check if the key exists but value is null
