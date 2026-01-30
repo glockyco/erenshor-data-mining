@@ -84,14 +84,14 @@ def temp_mapping_json(tmp_path: Path) -> Path:
             "faction:brax": {
                 "wiki_page_name": "The Torchbearers of Brax",
                 "display_name": "The Torchbearers of Brax",
-                "image_name": None,
+                "image_name": "The Torchbearers of Brax",
                 "mapping_type": "custom",
                 "reason": "Database has lowercase 'the', should be capital 'The'",
             },
             "zone:azure": {
                 "wiki_page_name": "Port Azure",
                 "display_name": "Port Azure",
-                "image_name": None,
+                "image_name": "Port Azure",
                 "mapping_type": "direct",
                 "reason": None,
             },
@@ -112,14 +112,14 @@ def temp_mapping_json(tmp_path: Path) -> Path:
             "spell:fireball": {
                 "wiki_page_name": "Fireball",
                 "display_name": "Fireball",
-                "image_name": None,
+                "image_name": "Fireball",
                 "mapping_type": "direct",
                 "reason": None,
             },
             "skill:sword mastery": {
                 "wiki_page_name": "Sword Mastery",
                 "display_name": "Sword Mastery",
-                "image_name": None,
+                "image_name": "Sword Mastery",
                 "mapping_type": "direct",
                 "reason": None,
             },
@@ -147,7 +147,7 @@ def temp_mapping_json(tmp_path: Path) -> Path:
             "spell:test_with_display": {
                 "wiki_page_name": "Test Page Title",
                 "display_name": "Custom Display",
-                "image_name": None,
+                "image_name": "Custom Display",
                 "mapping_type": "custom",
                 "reason": "Test display override",
             },

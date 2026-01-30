@@ -77,8 +77,8 @@ def sample_mapping_json(tmp_path):
         "rules": {
             "character:Brackish Crocodile": {
                 "wiki_page_name": "A Brackish Croc",
-                "display_name": None,
-                "image_name": None,
+                "display_name": "A Brackish Croc",
+                "image_name": "A Brackish Croc",
                 "mapping_type": "custom",
                 "reason": None,
             },
@@ -90,7 +90,7 @@ def sample_mapping_json(tmp_path):
                 "reason": "Renamed resource",
             },
             "spell:NONE - Offering Stone": {
-                "wiki_page_name": None,  # Excluded entry
+                "wiki_page_name": None,
                 "display_name": None,
                 "image_name": None,
                 "mapping_type": "exclude",
@@ -100,6 +100,161 @@ def sample_mapping_json(tmp_path):
     }
 
     mapping_file = tmp_path / "mapping.json"
+    with mapping_file.open("w") as f:
+        json.dump(mapping_data, f, indent=2)
+
+    yield mapping_file
+
+
+@pytest.fixture
+def conflict_entities():
+    """Create sample entities with conflicts for testing validation."""
+    return [
+        # Conflict 1: "Iron Sword" - 3 entities (item)
+        EntityRecord(
+            stable_key="item:iron_sword",
+            entity_type=EntityType.ITEM,
+            page_title="Iron Sword",
+            display_name="Iron Sword",
+        ),
+        EntityRecord(
+            stable_key="item:iron_sword (1)",
+            entity_type=EntityType.ITEM,
+            page_title="Iron Sword",
+            display_name="Iron Sword",
+        ),
+        EntityRecord(
+            stable_key="item:iron_sword (2)",
+            entity_type=EntityType.ITEM,
+            page_title="Iron Sword",
+            display_name="Iron Sword",
+        ),
+        # Conflict 2: "Goblin" - 2 entities (character)
+        EntityRecord(
+            stable_key="character:goblin",
+            entity_type=EntityType.CHARACTER,
+            page_title="Goblin",
+            display_name="Goblin",
+        ),
+        EntityRecord(
+            stable_key="character:goblin (1)",
+            entity_type=EntityType.CHARACTER,
+            page_title="Goblin",
+            display_name="Goblin",
+        ),
+        # Non-conflict entity
+        EntityRecord(
+            stable_key="spell:fireball",
+            entity_type=EntityType.SPELL,
+            page_title="Fireball",
+            display_name="Fireball",
+        ),
+    ]
+
+
+@pytest.fixture
+def partial_mapping_json(tmp_path):
+    """Create mapping.json with partial conflict resolutions for validation testing."""
+    mapping_data = {
+        "metadata": {
+            "schema_version": "2.0",
+        },
+        "rules": {
+            # Fully resolved conflict: all 3 Iron Sword variants mapped
+            "item:iron_sword": {
+                "wiki_page_name": "Iron Sword",
+                "display_name": "Iron Sword",
+                "image_name": "Iron Sword",
+                "mapping_type": "custom",
+            },
+            "item:iron_sword (1)": {
+                "wiki_page_name": "Iron Sword",
+                "display_name": "Iron Sword",
+                "image_name": "Iron Sword",
+                "mapping_type": "custom",
+            },
+            "item:iron_sword (2)": {
+                "wiki_page_name": "Iron Sword",
+                "display_name": "Iron Sword",
+                "image_name": "Iron Sword",
+                "mapping_type": "custom",
+            },
+            # Partially resolved conflict: only 1 of 2 Goblin variants mapped
+            "character:goblin": {
+                "wiki_page_name": "Goblin",
+                "display_name": "Goblin",
+                "image_name": "Goblin",
+                "mapping_type": "custom",
+            },
+            # character:goblin (1) is MISSING - creates unresolved conflict
+            # Non-conflict entity
+            "spell:fireball": {
+                "wiki_page_name": "Fireball",
+                "display_name": "Fireball",
+                "image_name": "Fireball",
+                "mapping_type": "direct",
+            },
+        },
+    }
+
+    mapping_file = tmp_path / "partial_mapping.json"
+    with mapping_file.open("w") as f:
+        json.dump(mapping_data, f, indent=2)
+
+    yield mapping_file
+
+
+@pytest.fixture
+def fully_resolved_mapping_json(tmp_path):
+    """Create mapping.json with all conflicts fully resolved."""
+    mapping_data = {
+        "metadata": {
+            "schema_version": "2.0",
+        },
+        "rules": {
+            # All Iron Sword variants
+            "item:iron_sword": {
+                "wiki_page_name": "Iron Sword",
+                "display_name": "Iron Sword",
+                "image_name": "Iron Sword",
+                "mapping_type": "custom",
+            },
+            "item:iron_sword (1)": {
+                "wiki_page_name": "Iron Sword",
+                "display_name": "Iron Sword",
+                "image_name": "Iron Sword",
+                "mapping_type": "custom",
+            },
+            "item:iron_sword (2)": {
+                "wiki_page_name": "Iron Sword",
+                "display_name": "Iron Sword",
+                "image_name": "Iron Sword",
+                "mapping_type": "custom",
+            },
+            # All Goblin variants
+            "character:goblin": {
+                "wiki_page_name": "Goblin",
+                "display_name": "Goblin",
+                "image_name": "Goblin",
+                "mapping_type": "custom",
+            },
+            "character:goblin (1)": {
+                "wiki_page_name": "Goblin",
+                "display_name": "Goblin",
+                "image_name": "Goblin",
+                "mapping_type": "custom",
+            },
+            # Non-conflict entity
+            "spell:fireball": {
+                "wiki_page_name": "Fireball",
+                "display_name": "Fireball",
+                "image_name": "Fireball",
+                "mapping_type": "direct",
+            },
+        },
+    }
+
+    mapping_file = tmp_path / "fully_resolved_mapping.json"
     with mapping_file.open("w") as f:
         json.dump(mapping_data, f, indent=2)
 

@@ -7,50 +7,50 @@
   "rules": {
     "character:brackish crocodile": {
       "wiki_page_name": "A Brackish Croc",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "A Brackish Croc",
+      "image_name": "A Brackish Croc",
       "mapping_type": "custom",
       "reason": null
     },
     "character:brackish crocodile small": {
       "wiki_page_name": "A Brackish Croc",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "A Brackish Croc",
+      "image_name": "A Brackish Croc",
       "mapping_type": "custom",
       "reason": null
     },
     "character:grassland ogre elder": {
       "wiki_page_name": "A Grassland Ogre Elder",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "A Grassland Ogre Elder",
+      "image_name": "A Grassland Ogre Elder",
       "mapping_type": "custom",
       "reason": null
     },
     "character:a highwayman raider": {
       "wiki_page_name": "A Highwayman Raider",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "A Highwayman Raider",
+      "image_name": "A Highwayman Raider",
       "mapping_type": "custom",
       "reason": null
     },
     "character:a highwayman raider (1)": {
       "wiki_page_name": "A Highwayman Raider",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "A Highwayman Raider",
+      "image_name": "A Highwayman Raider",
       "mapping_type": "custom",
       "reason": null
     },
     "character:a highwayman raider (1):elderstone:-732.18:-51.70:194.52": {
       "wiki_page_name": "A Highwayman Raider",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "A Highwayman Raider",
+      "image_name": "A Highwayman Raider",
       "mapping_type": "custom",
       "reason": null
     },
     "character:a highwayman raider (2)": {
       "wiki_page_name": "A Highwayman Raider",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "A Highwayman Raider",
+      "image_name": "A Highwayman Raider",
       "mapping_type": "custom",
       "reason": null
     },
@@ -92,21 +92,21 @@
     "item:gen - scribbles of a mad priest 1": {
       "wiki_page_name": "A Lost Poem",
       "display_name": "A Lost Poem (1)",
-      "image_name": null,
+      "image_name": "A Lost Poem",
       "mapping_type": "custom",
       "reason": null
     },
     "item:gen - scribbles of a mad priest 2": {
       "wiki_page_name": "A Lost Poem",
       "display_name": "A Lost Poem (2)",
-      "image_name": null,
+      "image_name": "A Lost Poem",
       "mapping_type": "custom",
       "reason": null
     },
     "item:gen - scribbles of a mad priest 3": {
       "wiki_page_name": "A Lost Poem",
       "display_name": "A Lost Poem (3)",
-      "image_name": null,
+      "image_name": "A Lost Poem",
       "mapping_type": "custom",
       "reason": null
     },
@@ -126,183 +126,183 @@
     },
     "character:lost sea giant": {
       "wiki_page_name": "A Lost Sea Giant",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "A Lost Sea Giant",
+      "image_name": "A Lost Sea Giant",
       "mapping_type": "custom",
       "reason": null
     },
     "character:lost sea giant female": {
       "wiki_page_name": "A Lost Sea Giant",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "A Lost Sea Giant",
+      "image_name": "A Lost Sea Giant",
       "mapping_type": "custom",
       "reason": null
     },
     "character:memorystatue (1):jaws:1183.73:0.87:235.21": {
       "wiki_page_name": "A Memory of Sivakaya",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "A Memory of Sivakaya",
+      "image_name": "A Memory of Sivakaya",
       "mapping_type": "custom",
       "reason": null
     },
     "character:memorystatue (1):jaws:1407.73:-9.46:109.21": {
       "wiki_page_name": "A Memory of Sivakaya",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "A Memory of Sivakaya",
+      "image_name": "A Memory of Sivakaya",
       "mapping_type": "custom",
       "reason": null
     },
     "character:nagalok": {
       "wiki_page_name": "A Nagalok",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "A Nagalok",
+      "image_name": "A Nagalok",
       "mapping_type": "custom",
       "reason": null
     },
     "character:nagalok 1": {
       "wiki_page_name": "A Nagalok",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "A Nagalok",
+      "image_name": "A Nagalok",
       "mapping_type": "custom",
       "reason": null
     },
     "character:a seafiend": {
       "wiki_page_name": "A Seafiend",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "A Seafiend",
+      "image_name": "A Seafiend",
       "mapping_type": "custom",
       "reason": null
     },
     "character:a seafiend spirtist": {
       "wiki_page_name": "A Seafiend",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "A Seafiend",
+      "image_name": "A Seafiend",
       "mapping_type": "custom",
       "reason": null
     },
     "character:fungal protecter": {
       "wiki_page_name": "Abyssal Fungus Protector",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Abyssal Fungus Protector",
+      "image_name": "Abyssal Fungus Protector",
       "mapping_type": "custom",
       "reason": null
     },
     "character:fungal warden": {
       "wiki_page_name": "Abyssal Fungus Protector",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Abyssal Fungus Protector",
+      "image_name": "Abyssal Fungus Protector",
       "mapping_type": "custom",
       "reason": null
     },
     "character:addelia zurin": {
       "wiki_page_name": "Addelia Zurin",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Addelia Zurin",
+      "image_name": "Addelia Zurin",
       "mapping_type": "custom",
       "reason": null
     },
     "character:addelia zurin:duskenlight:866.87:146.48:306.34": {
       "wiki_page_name": "Addelia Zurin",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Addelia Zurin",
+      "image_name": "Addelia Zurin",
       "mapping_type": "custom",
       "reason": null
     },
     "character:immature nagalok": {
       "wiki_page_name": "An Immature Nagalok",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "An Immature Nagalok",
+      "image_name": "An Immature Nagalok",
       "mapping_type": "custom",
       "reason": null
     },
     "character:immature nagalok 1": {
       "wiki_page_name": "An Immature Nagalok",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "An Immature Nagalok",
+      "image_name": "An Immature Nagalok",
       "mapping_type": "custom",
       "reason": null
     },
     "character:braxonian educator": {
       "wiki_page_name": "Ancient Educator",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Ancient Educator",
+      "image_name": "Ancient Educator",
       "mapping_type": "custom",
       "reason": null
     },
     "character:sivakayan educator": {
       "wiki_page_name": "Ancient Educator",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Ancient Educator",
+      "image_name": "Ancient Educator",
       "mapping_type": "custom",
       "reason": null
     },
     "character:arcane pupil": {
       "wiki_page_name": "Arcane Pupil",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Arcane Pupil",
+      "image_name": "Arcane Pupil",
       "mapping_type": "custom",
       "reason": null
     },
     "character:arcane pupil (1)": {
       "wiki_page_name": "Arcane Pupil",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Arcane Pupil",
+      "image_name": "Arcane Pupil",
       "mapping_type": "custom",
       "reason": null
     },
     "character:arcane pupil (2)": {
       "wiki_page_name": "Arcane Pupil",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Arcane Pupil",
+      "image_name": "Arcane Pupil",
       "mapping_type": "custom",
       "reason": null
     },
     "character:arcane pupil (3)": {
       "wiki_page_name": "Arcane Pupil",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Arcane Pupil",
+      "image_name": "Arcane Pupil",
       "mapping_type": "custom",
       "reason": null
     },
     "character:azure guard 4": {
       "wiki_page_name": "Azure Guard",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Azure Guard",
+      "image_name": "Azure Guard",
       "mapping_type": "custom",
       "reason": null
     },
     "character:azure guard broken": {
       "wiki_page_name": "Azure Guard",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Azure Guard",
+      "image_name": "Azure Guard",
       "mapping_type": "custom",
       "reason": null
     },
     "character:azure guard fernalla": {
       "wiki_page_name": "Azure Guard",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Azure Guard",
+      "image_name": "Azure Guard",
       "mapping_type": "custom",
       "reason": null
     },
     "character:azure guard refugee": {
       "wiki_page_name": "Azure Guard",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Azure Guard",
+      "image_name": "Azure Guard",
       "mapping_type": "custom",
       "reason": null
     },
     "character:azure outskirts guard": {
       "wiki_page_name": "Azure Guard",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Azure Guard",
+      "image_name": "Azure Guard",
       "mapping_type": "custom",
       "reason": null
     },
     "character:azure outskirts guard:fernallafield:328.22:25.93:185.66": {
       "wiki_page_name": "Azure Guard",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Azure Guard",
+      "image_name": "Azure Guard",
       "mapping_type": "custom",
       "reason": null
     },
@@ -322,36 +322,36 @@
     },
     "character:boatman": {
       "wiki_page_name": "Boatman",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Boatman",
+      "image_name": "Boatman",
       "mapping_type": "custom",
       "reason": null
     },
     "character:boatman:azynthiclear:323.94:14.92:749.13": {
       "wiki_page_name": "Boatman",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Boatman",
+      "image_name": "Boatman",
       "mapping_type": "custom",
       "reason": null
     },
     "character:braxonian honor guard": {
       "wiki_page_name": "Braxonian Honor Guard",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Braxonian Honor Guard",
+      "image_name": "Braxonian Honor Guard",
       "mapping_type": "custom",
       "reason": null
     },
     "character:braxonian honor guard 2": {
       "wiki_page_name": "Braxonian Honor Guard",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Braxonian Honor Guard",
+      "image_name": "Braxonian Honor Guard",
       "mapping_type": "custom",
       "reason": null
     },
     "character:braxonian honor guard 3": {
       "wiki_page_name": "Braxonian Honor Guard",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Braxonian Honor Guard",
+      "image_name": "Braxonian Honor Guard",
       "mapping_type": "custom",
       "reason": null
     },
@@ -386,154 +386,154 @@
     "item:gen - braxonian scripture": {
       "wiki_page_name": "Braxonian Scripture",
       "display_name": "Braxonian Scripture (2)",
-      "image_name": null,
+      "image_name": "Braxonian Scripture",
       "mapping_type": "custom",
       "reason": "Two items with same name, disambiguated by display text"
     },
     "item:gen - braxonian scripture 1": {
       "wiki_page_name": "Braxonian Scripture",
       "display_name": "Braxonian Scripture (1)",
-      "image_name": null,
+      "image_name": "Braxonian Scripture",
       "mapping_type": "custom",
       "reason": "Two items with same name, disambiguated by display text"
     },
     "character:character_peasant_white:prielplateau:73.57:0.05:343.45": {
       "wiki_page_name": "Captive Miner",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Captive Miner",
+      "image_name": "Captive Miner",
       "mapping_type": "custom",
       "reason": null
     },
     "character:miner (1):prielplateau:81.87:0.25:306.15": {
       "wiki_page_name": "Captive Miner",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Captive Miner",
+      "image_name": "Captive Miner",
       "mapping_type": "custom",
       "reason": null
     },
     "character:miner (2):prielplateau:73.63:0.09:299.68": {
       "wiki_page_name": "Captive Miner",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Captive Miner",
+      "image_name": "Captive Miner",
       "mapping_type": "custom",
       "reason": null
     },
     "character:miner (3):prielplateau:366.91:0.02:216.70": {
       "wiki_page_name": "Captive Miner",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Captive Miner",
+      "image_name": "Captive Miner",
       "mapping_type": "custom",
       "reason": null
     },
     "character:miner (4):prielplateau:367.31:0.12:213.79": {
       "wiki_page_name": "Captive Miner",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Captive Miner",
+      "image_name": "Captive Miner",
       "mapping_type": "custom",
       "reason": null
     },
     "character:miner (5):prielplateau:190.26:22.06:497.57": {
       "wiki_page_name": "Captive Miner",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Captive Miner",
+      "image_name": "Captive Miner",
       "mapping_type": "custom",
       "reason": null
     },
     "character:miner:prielplateau:109.19:0.09:352.44": {
       "wiki_page_name": "Captive Miner",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Captive Miner",
+      "image_name": "Captive Miner",
       "mapping_type": "custom",
       "reason": null
     },
     "character:catnip (1):ripperportal:339.55:0.17:757.54": {
       "wiki_page_name": "Catnip (Enemy)",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Catnip (Enemy)",
+      "image_name": "Catnip (Enemy)",
       "mapping_type": "custom",
       "reason": null
     },
     "character:catnip (2):ripperportal:339.55:-0.02:748.79": {
       "wiki_page_name": "Catnip (Enemy)",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Catnip (Enemy)",
+      "image_name": "Catnip (Enemy)",
       "mapping_type": "custom",
       "reason": null
     },
     "character:catnip:ripperportal:332.30:0.28:757.54": {
       "wiki_page_name": "Catnip (Enemy)",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Catnip (Enemy)",
+      "image_name": "Catnip (Enemy)",
       "mapping_type": "custom",
       "reason": null
     },
     "item:gen - catnip": {
       "wiki_page_name": "Catnip",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Catnip",
+      "image_name": "Catnip",
       "mapping_type": "custom",
       "reason": null
     },
     "character:sm_prop_brazier_01 (1):duskenlight:485.82:65.42:397.38": {
       "wiki_page_name": "Ceremonial Brazier",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Ceremonial Brazier",
+      "image_name": "Ceremonial Brazier",
       "mapping_type": "custom",
       "reason": null
     },
     "character:sm_prop_brazier_01 (1):fernallafield:119.30:31.99:422.96": {
       "wiki_page_name": "Ceremonial Brazier",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Ceremonial Brazier",
+      "image_name": "Ceremonial Brazier",
       "mapping_type": "custom",
       "reason": null
     },
     "character:sm_prop_brazier_01 (1):ripper:130.15:62.11:294.67": {
       "wiki_page_name": "Ceremonial Brazier",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Ceremonial Brazier",
+      "image_name": "Ceremonial Brazier",
       "mapping_type": "custom",
       "reason": null
     },
     "item:quest - charged soul gem aragath": {
       "wiki_page_name": "Charged Soul Gem (Aragath)",
-      "display_name": null,
+      "display_name": "Charged Soul Gem (Aragath)",
       "image_name": "Charged Soul Gem (Aragath)",
       "mapping_type": "custom",
       "reason": null
     },
     "item:quest - charged soul gem leah": {
       "wiki_page_name": "Charged Soul Gem (Leah)",
-      "display_name": null,
+      "display_name": "Charged Soul Gem (Leah)",
       "image_name": "Charged Soul Gem (Leah)",
       "mapping_type": "custom",
       "reason": null
     },
     "item:quest - charged soul gem posta": {
       "wiki_page_name": "Charged Soul Gem (Posta)",
-      "display_name": null,
+      "display_name": "Charged Soul Gem (Posta)",
       "image_name": "Charged Soul Gem (Posta)",
       "mapping_type": "custom",
       "reason": null
     },
     "item:quest - charged soul gem revid": {
       "wiki_page_name": "Charged Soul Gem (Revid)",
-      "display_name": null,
+      "display_name": "Charged Soul Gem (Revid)",
       "image_name": "Charged Soul Gem (Revid)",
       "mapping_type": "custom",
       "reason": null
     },
     "item:quest - charged soul gem stalzo": {
       "wiki_page_name": "Charged Soul Gem (Stalzo)",
-      "display_name": null,
+      "display_name": "Charged Soul Gem (Stalzo)",
       "image_name": "Charged Soul Gem (Stalzo)",
       "mapping_type": "custom",
       "reason": null
     },
     "character:ember acolyte": {
       "wiki_page_name": "Ember Acolyte",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Ember Acolyte",
+      "image_name": "Ember Acolyte",
       "mapping_type": "custom",
       "reason": null
     },
@@ -553,99 +553,99 @@
     },
     "item:ring - 21 - flawless sapphire ring": {
       "wiki_page_name": "Flawless Sapphire Ring",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Flawless Sapphire Ring",
+      "image_name": "Flawless Sapphire Ring",
       "mapping_type": "custom",
       "reason": null
     },
     "item:ring - 6 - fiery sapphire ring": {
       "wiki_page_name": "Fiery Sapphire Ring",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Fiery Sapphire Ring",
+      "image_name": "Fiery Sapphire Ring",
       "mapping_type": "custom",
       "reason": null
     },
     "character:gloopa": {
       "wiki_page_name": "Gloopa",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Gloopa",
+      "image_name": "Gloopa",
       "mapping_type": "custom",
       "reason": null
     },
     "character:gloopa half": {
       "wiki_page_name": "Gloopa",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Gloopa",
+      "image_name": "Gloopa",
       "mapping_type": "custom",
       "reason": null
     },
     "character:gloopa quarter": {
       "wiki_page_name": "Gloopa",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Gloopa",
+      "image_name": "Gloopa",
       "mapping_type": "custom",
       "reason": null
     },
     "character:gloopa quarter loot": {
       "wiki_page_name": "Gloopa",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Gloopa",
+      "image_name": "Gloopa",
       "mapping_type": "custom",
       "reason": null
     },
     "spell:dru - greater regrowth (cast)": {
       "wiki_page_name": "Greater Regrowth",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Greater Regrowth",
+      "image_name": "Greater Regrowth",
       "mapping_type": "custom",
       "reason": null
     },
     "spell:dru - greater regrowth (effect)": {
       "wiki_page_name": "Greater Regrowth",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Greater Regrowth",
+      "image_name": "Greater Regrowth",
       "mapping_type": "custom",
       "reason": null
     },
     "spell:dru - healing bloom (cast)": {
       "wiki_page_name": "Healing Bloom",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Healing Bloom",
+      "image_name": "Healing Bloom",
       "mapping_type": "custom",
       "reason": null
     },
     "spell:dru - healing bloom (effect)": {
       "wiki_page_name": "Healing Bloom",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Healing Bloom",
+      "image_name": "Healing Bloom",
       "mapping_type": "custom",
       "reason": null
     },
     "character:islander bandit": {
       "wiki_page_name": "Islander Bandit",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Islander Bandit",
+      "image_name": "Islander Bandit",
       "mapping_type": "custom",
       "reason": null
     },
     "character:islander bandit 1": {
       "wiki_page_name": "Islander Bandit",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Islander Bandit",
+      "image_name": "Islander Bandit",
       "mapping_type": "custom",
       "reason": null
     },
     "character:islander bandit 2": {
       "wiki_page_name": "Islander Bandit",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Islander Bandit",
+      "image_name": "Islander Bandit",
       "mapping_type": "custom",
       "reason": null
     },
     "character:kingsman": {
       "wiki_page_name": "Kingsman",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Kingsman",
+      "image_name": "Kingsman",
       "mapping_type": "custom",
       "reason": null
     },
@@ -658,36 +658,36 @@
     },
     "character:kio the lightkeeper (1):shiveringstep:799.34:20.07:585.85": {
       "wiki_page_name": "Kio the Light Keeper",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Kio the Light Keeper",
+      "image_name": "Kio the Light Keeper",
       "mapping_type": "custom",
       "reason": null
     },
     "character:kio the lightkeeper:shiveringstep:799.34:20.07:585.85": {
       "wiki_page_name": "Kio the Light Keeper",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Kio the Light Keeper",
+      "image_name": "Kio the Light Keeper",
       "mapping_type": "custom",
       "reason": null
     },
     "character:kio the lightkeeper:stowaway:799.34:20.07:585.85": {
       "wiki_page_name": "Kio the Light Keeper",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Kio the Light Keeper",
+      "image_name": "Kio the Light Keeper",
       "mapping_type": "custom",
       "reason": null
     },
     "skill:lingering inferno": {
       "wiki_page_name": "Lingering Inferno",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Lingering Inferno",
+      "image_name": "Lingering Inferno",
       "mapping_type": "custom",
       "reason": null
     },
     "spell:arc - lingering inferno": {
       "wiki_page_name": "Lingering Inferno",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Lingering Inferno",
+      "image_name": "Lingering Inferno",
       "mapping_type": "custom",
       "reason": null
     },
@@ -721,379 +721,379 @@
     },
     "character:lucian revald:stowaway:432.19:69.90:532.04": {
       "wiki_page_name": "Lucian Revald",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Lucian Revald",
+      "image_name": "Lucian Revald",
       "mapping_type": "custom",
       "reason": null
     },
     "character:molorath cub": {
       "wiki_page_name": "Malaroth Cub",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Malaroth Cub",
+      "image_name": "Malaroth Cub",
       "mapping_type": "custom",
       "reason": null
     },
     "character:molorath cub 1": {
       "wiki_page_name": "Malaroth Cub",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Malaroth Cub",
+      "image_name": "Malaroth Cub",
       "mapping_type": "custom",
       "reason": null
     },
     "character:molorath cub 2": {
       "wiki_page_name": "Malaroth Cub",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Malaroth Cub",
+      "image_name": "Malaroth Cub",
       "mapping_type": "custom",
       "reason": null
     },
     "character:malignant dream (1):fernallaportal:354.89:1.90:401.96": {
       "wiki_page_name": "Malignant Thoughts",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Malignant Thoughts",
+      "image_name": "Malignant Thoughts",
       "mapping_type": "custom",
       "reason": null
     },
     "character:malignant dream (2):fernallaportal:336.65:1.90:401.30": {
       "wiki_page_name": "Malignant Thoughts",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Malignant Thoughts",
+      "image_name": "Malignant Thoughts",
       "mapping_type": "custom",
       "reason": null
     },
     "character:malignant dream (3):fernallaportal:326.78:1.90:530.37": {
       "wiki_page_name": "Malignant Thoughts",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Malignant Thoughts",
+      "image_name": "Malignant Thoughts",
       "mapping_type": "custom",
       "reason": null
     },
     "character:malignant dream:fernallaportal:346.22:1.90:420.41": {
       "wiki_page_name": "Malignant Thoughts",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Malignant Thoughts",
+      "image_name": "Malignant Thoughts",
       "mapping_type": "custom",
       "reason": null
     },
     "character:mature molorath": {
       "wiki_page_name": "Mature Malaroth",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Mature Malaroth",
+      "image_name": "Mature Malaroth",
       "mapping_type": "custom",
       "reason": null
     },
     "character:mature molorath 1": {
       "wiki_page_name": "Mature Malaroth",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Mature Malaroth",
+      "image_name": "Mature Malaroth",
       "mapping_type": "custom",
       "reason": null
     },
     "character:mature molorath 2": {
       "wiki_page_name": "Mature Malaroth",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Mature Malaroth",
+      "image_name": "Mature Malaroth",
       "mapping_type": "custom",
       "reason": null
     },
     "character:molorai ancille": {
       "wiki_page_name": "Molorai Ancille",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Molorai Ancille",
+      "image_name": "Molorai Ancille",
       "mapping_type": "custom",
       "reason": null
     },
     "character:molorai ancille f": {
       "wiki_page_name": "Molorai Ancille",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Molorai Ancille",
+      "image_name": "Molorai Ancille",
       "mapping_type": "custom",
       "reason": null
     },
     "character:molorai anointed": {
       "wiki_page_name": "Molorai Anointed",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Molorai Anointed",
+      "image_name": "Molorai Anointed",
       "mapping_type": "custom",
       "reason": null
     },
     "character:molorai anointed (1)": {
       "wiki_page_name": "Molorai Anointed",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Molorai Anointed",
+      "image_name": "Molorai Anointed",
       "mapping_type": "custom",
       "reason": null
     },
     "character:molorai archaelogist": {
       "wiki_page_name": "Molorai Archaeologist",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Molorai Archaeologist",
+      "image_name": "Molorai Archaeologist",
       "mapping_type": "custom",
       "reason": null
     },
     "character:molorai archaelogist 1": {
       "wiki_page_name": "Molorai Archaeologist",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Molorai Archaeologist",
+      "image_name": "Molorai Archaeologist",
       "mapping_type": "custom",
       "reason": null
     },
     "character:molorai archaelogist 2": {
       "wiki_page_name": "Molorai Archaeologist",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Molorai Archaeologist",
+      "image_name": "Molorai Archaeologist",
       "mapping_type": "custom",
       "reason": null
     },
     "character:molorai high archaelogist 3": {
       "wiki_page_name": "Molorai Archaeologist",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Molorai Archaeologist",
+      "image_name": "Molorai Archaeologist",
       "mapping_type": "custom",
       "reason": null
     },
     "character:molorai archivist": {
       "wiki_page_name": "Molorai Archmage",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Molorai Archmage",
+      "image_name": "Molorai Archmage",
       "mapping_type": "custom",
       "reason": null
     },
     "character:molorai archmage": {
       "wiki_page_name": "Molorai Archmage",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Molorai Archmage",
+      "image_name": "Molorai Archmage",
       "mapping_type": "custom",
       "reason": null
     },
     "character:molorai arcanist": {
       "wiki_page_name": "Molorai Militia Arcanist",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Molorai Militia Arcanist",
+      "image_name": "Molorai Militia Arcanist",
       "mapping_type": "custom",
       "reason": null
     },
     "character:molorai arcanist 1": {
       "wiki_page_name": "Molorai Militia Arcanist",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Molorai Militia Arcanist",
+      "image_name": "Molorai Militia Arcanist",
       "mapping_type": "custom",
       "reason": null
     },
     "character:molorai druid": {
       "wiki_page_name": "Molorai Militia Druid",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Molorai Militia Druid",
+      "image_name": "Molorai Militia Druid",
       "mapping_type": "custom",
       "reason": null
     },
     "character:molorai druid 2 1": {
       "wiki_page_name": "Molorai Militia Druid",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Molorai Militia Druid",
+      "image_name": "Molorai Militia Druid",
       "mapping_type": "custom",
       "reason": null
     },
     "character:molorai warrior": {
       "wiki_page_name": "Molorai Militia Warrior",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Molorai Militia Warrior",
+      "image_name": "Molorai Militia Warrior",
       "mapping_type": "custom",
       "reason": null
     },
     "character:molorai warrior 1": {
       "wiki_page_name": "Molorai Militia Warrior",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Molorai Militia Warrior",
+      "image_name": "Molorai Militia Warrior",
       "mapping_type": "custom",
       "reason": null
     },
     "character:molorai enlightened": {
       "wiki_page_name": "Molorai Outrider",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Molorai Outrider",
+      "image_name": "Molorai Outrider",
       "mapping_type": "custom",
       "reason": null
     },
     "character:molorai outrider": {
       "wiki_page_name": "Molorai Outrider",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Molorai Outrider",
+      "image_name": "Molorai Outrider",
       "mapping_type": "custom",
       "reason": null
     },
     "character:molorai outrider 1": {
       "wiki_page_name": "Molorai Outrider",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Molorai Outrider",
+      "image_name": "Molorai Outrider",
       "mapping_type": "custom",
       "reason": null
     },
     "character:molorai outrider 2": {
       "wiki_page_name": "Molorai Outrider",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Molorai Outrider",
+      "image_name": "Molorai Outrider",
       "mapping_type": "custom",
       "reason": null
     },
     "character:molorai outrider 3": {
       "wiki_page_name": "Molorai Outrider",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Molorai Outrider",
+      "image_name": "Molorai Outrider",
       "mapping_type": "custom",
       "reason": null
     },
     "character:molorai specialist": {
       "wiki_page_name": "Molorai Specialist",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Molorai Specialist",
+      "image_name": "Molorai Specialist",
       "mapping_type": "custom",
       "reason": null
     },
     "character:molorai specialist 1": {
       "wiki_page_name": "Molorai Specialist",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Molorai Specialist",
+      "image_name": "Molorai Specialist",
       "mapping_type": "custom",
       "reason": null
     },
     "character:molorai enllightened m": {
       "wiki_page_name": "Molorai Truthseeker",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Molorai Truthseeker",
+      "image_name": "Molorai Truthseeker",
       "mapping_type": "custom",
       "reason": null
     },
     "character:molorai truthseeker": {
       "wiki_page_name": "Molorai Truthseeker",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Molorai Truthseeker",
+      "image_name": "Molorai Truthseeker",
       "mapping_type": "custom",
       "reason": null
     },
     "character:molorai truthseeker f": {
       "wiki_page_name": "Molorai Truthseeker",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Molorai Truthseeker",
+      "image_name": "Molorai Truthseeker",
       "mapping_type": "custom",
       "reason": null
     },
     "spell:npc - stoneburst": {
       "wiki_page_name": "Stoneburst",
       "display_name": "Stoneburst",
-      "image_name": null,
+      "image_name": "Stoneburst",
       "mapping_type": "custom",
       "reason": null
     },
     "spell:npc - stoneburst 1": {
       "wiki_page_name": "Stoneburst",
       "display_name": "Stoneburst",
-      "image_name": null,
+      "image_name": "Stoneburst",
       "mapping_type": "custom",
       "reason": null
     },
     "spell:pal - moonburst": {
       "wiki_page_name": "Moonburst",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Moonburst",
+      "image_name": "Moonburst",
       "mapping_type": "custom",
       "reason": null
     },
     "character:nightmarian arcanist": {
       "wiki_page_name": "Nightmarian Arcanist",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Nightmarian Arcanist",
+      "image_name": "Nightmarian Arcanist",
       "mapping_type": "custom",
       "reason": null
     },
     "character:nightmarian arcanist (1):fernallaportal:217.72:1.72:597.79": {
       "wiki_page_name": "Nightmarian Arcanist",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Nightmarian Arcanist",
+      "image_name": "Nightmarian Arcanist",
       "mapping_type": "custom",
       "reason": null
     },
     "character:nightmarian arcanist:fernallaportal:178.54:1.97:508.75": {
       "wiki_page_name": "Nightmarian Arcanist",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Nightmarian Arcanist",
+      "image_name": "Nightmarian Arcanist",
       "mapping_type": "custom",
       "reason": null
     },
     "character:nightmarian hound": {
       "wiki_page_name": "Nightmarian Hound",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Nightmarian Hound",
+      "image_name": "Nightmarian Hound",
       "mapping_type": "custom",
       "reason": null
     },
     "character:nightmarian hound:fernallaportal:214.84:2.78:588.39": {
       "wiki_page_name": "Nightmarian Hound",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Nightmarian Hound",
+      "image_name": "Nightmarian Hound",
       "mapping_type": "custom",
       "reason": null
     },
     "character:nightmarian knight": {
       "wiki_page_name": "Nightmarian Knight",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Nightmarian Knight",
+      "image_name": "Nightmarian Knight",
       "mapping_type": "custom",
       "reason": null
     },
     "character:nightmarian knight (1):fernallaportal:101.25:0.95:501.01": {
       "wiki_page_name": "Nightmarian Knight",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Nightmarian Knight",
+      "image_name": "Nightmarian Knight",
       "mapping_type": "custom",
       "reason": null
     },
     "character:nightmarian knight (3):fernallaportal:220.72:2.50:582.56": {
       "wiki_page_name": "Nightmarian Knight",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Nightmarian Knight",
+      "image_name": "Nightmarian Knight",
       "mapping_type": "custom",
       "reason": null
     },
     "character:nightmarian knight:fernallaportal:101.07:0.99:490.38": {
       "wiki_page_name": "Nightmarian Knight",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Nightmarian Knight",
+      "image_name": "Nightmarian Knight",
       "mapping_type": "custom",
       "reason": null
     },
     "character:lighthouse demon:shiveringtomb:75.44:6.85:101.72": {
       "wiki_page_name": "Occuphage, Eater of Eyes",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Occuphage, Eater of Eyes",
+      "image_name": "Occuphage, Eater of Eyes",
       "mapping_type": "custom",
       "reason": null
     },
     "character:lighthouse demon:tutorial:-64.96:22.26:149.12": {
       "wiki_page_name": "Occuphage, Eater of Eyes",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Occuphage, Eater of Eyes",
+      "image_name": "Occuphage, Eater of Eyes",
       "mapping_type": "custom",
       "reason": null
     },
     "item:gen - offering stone": {
       "wiki_page_name": "Offering Stone",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Offering Stone",
+      "image_name": "Offering Stone",
       "mapping_type": "custom",
       "reason": null
     },
     "spell:none - offering stone": {
       "wiki_page_name": "Offering Stone (Effect)",
       "display_name": "Offering Stone",
-      "image_name": null,
+      "image_name": "Offering Stone (Effect)",
       "mapping_type": "custom",
       "reason": null
     },
     "character:peon": {
       "wiki_page_name": "Peon",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Peon",
+      "image_name": "Peon",
       "mapping_type": "custom",
       "reason": null
     },
@@ -1106,274 +1106,274 @@
     },
     "character:poacher (1):rottenfoot:497.72:31.00:355.23": {
       "wiki_page_name": "Poacher",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Poacher",
+      "image_name": "Poacher",
       "mapping_type": "custom",
       "reason": null
     },
     "character:poacher:rottenfoot:487.62:30.81:349.23": {
       "wiki_page_name": "Poacher",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Poacher",
+      "image_name": "Poacher",
       "mapping_type": "custom",
       "reason": null
     },
     "character:prestigio valusha": {
       "wiki_page_name": "Prestigio Valusha",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Prestigio Valusha",
+      "image_name": "Prestigio Valusha",
       "mapping_type": "custom",
       "reason": null
     },
     "character:prestigio valusha 1": {
       "wiki_page_name": "Prestigio Valusha",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Prestigio Valusha",
+      "image_name": "Prestigio Valusha",
       "mapping_type": "custom",
       "reason": null
     },
     "character:priel enforcer": {
       "wiki_page_name": "Priel Enforcer",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Priel Enforcer",
+      "image_name": "Priel Enforcer",
       "mapping_type": "custom",
       "reason": null
     },
     "character:priel naturalist": {
       "wiki_page_name": "Priel Enforcer",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Priel Enforcer",
+      "image_name": "Priel Enforcer",
       "mapping_type": "custom",
       "reason": null
     },
     "character:pteriaped elder": {
       "wiki_page_name": "Pteriaped Matron",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Pteriaped Matron",
+      "image_name": "Pteriaped Matron",
       "mapping_type": "custom",
       "reason": null
     },
     "character:pteriaped matron": {
       "wiki_page_name": "Pteriaped Matron",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Pteriaped Matron",
+      "image_name": "Pteriaped Matron",
       "mapping_type": "custom",
       "reason": null
     },
     "spell:dru - regrowth (cast)": {
       "wiki_page_name": "Regrowth",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Regrowth",
+      "image_name": "Regrowth",
       "mapping_type": "custom",
       "reason": null
     },
     "spell:dru - regrowth (effect)": {
       "wiki_page_name": "Regrowth",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Regrowth",
+      "image_name": "Regrowth",
       "mapping_type": "custom",
       "reason": null
     },
     "character:revan gavault:stowaway:431.79:69.90:535.47": {
       "wiki_page_name": "Revan Gavault",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Revan Gavault",
+      "image_name": "Revan Gavault",
       "mapping_type": "custom",
       "reason": null
     },
     "character:a rottenfoot goblin female": {
       "wiki_page_name": "Rottenfoot Swampwalker",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Rottenfoot Swampwalker",
+      "image_name": "Rottenfoot Swampwalker",
       "mapping_type": "custom",
       "reason": null
     },
     "character:a rottenfoot goblin male": {
       "wiki_page_name": "Rottenfoot Swampwalker",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Rottenfoot Swampwalker",
+      "image_name": "Rottenfoot Swampwalker",
       "mapping_type": "custom",
       "reason": null
     },
     "character:shady fisherman (1):summerevent:80.10:-5.17:6.41": {
       "wiki_page_name": "Shady Fisherman",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Shady Fisherman",
+      "image_name": "Shady Fisherman",
       "mapping_type": "custom",
       "reason": null
     },
     "character:shady fisherman:azure:43.10:13.76:246.95": {
       "wiki_page_name": "Shady Fisherman",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Shady Fisherman",
+      "image_name": "Shady Fisherman",
       "mapping_type": "custom",
       "reason": null
     },
     "character:shady fisherman:summerevent:78.85:-5.17:8.58": {
       "wiki_page_name": "Shady Fisherman",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Shady Fisherman",
+      "image_name": "Shady Fisherman",
       "mapping_type": "custom",
       "reason": null
     },
     "character:shambler": {
       "wiki_page_name": "Shambler",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Shambler",
+      "image_name": "Shambler",
       "mapping_type": "custom",
       "reason": null
     },
     "character:shambler (6):ripperportal:218.64:0.00:430.43": {
       "wiki_page_name": "Shambler",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Shambler",
+      "image_name": "Shambler",
       "mapping_type": "custom",
       "reason": null
     },
     "character:shambler (8):ripperportal:215.32:0.00:433.54": {
       "wiki_page_name": "Shambler",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Shambler",
+      "image_name": "Shambler",
       "mapping_type": "custom",
       "reason": null
     },
     "character:shambler:ripperportal:271.59:0.00:436.70": {
       "wiki_page_name": "Shambler",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Shambler",
+      "image_name": "Shambler",
       "mapping_type": "custom",
       "reason": null
     },
     "item:ring - 39 - sivakaya's touch": {
       "wiki_page_name": "Sivakaya's Touch",
-      "display_name": null,
+      "display_name": "Sivakaya's Touch",
       "image_name": "Sivakaya's Touch",
       "mapping_type": "custom",
       "reason": null
     },
     "spell:none - sivakayas kiss": {
       "wiki_page_name": "Sivakaya's Touch (Effect)",
-      "display_name": null,
+      "display_name": "Sivakaya's Touch (Effect)",
       "image_name": "Sivakaya's Touch (Effect)",
       "mapping_type": "custom",
       "reason": null
     },
     "character:sivakayan cleric": {
       "wiki_page_name": "Sivakayan Cleric",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Sivakayan Cleric",
+      "image_name": "Sivakayan Cleric",
       "mapping_type": "custom",
       "reason": null
     },
     "character:sivakayan raider": {
       "wiki_page_name": "Sivakayan Raider",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Sivakayan Raider",
+      "image_name": "Sivakayan Raider",
       "mapping_type": "custom",
       "reason": null
     },
     "character:sivakayan reaver": {
       "wiki_page_name": "Sivakayan Reaver",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Sivakayan Reaver",
+      "image_name": "Sivakayan Reaver",
       "mapping_type": "custom",
       "reason": null
     },
     "skill:archery - skycaller arrow": {
       "wiki_page_name": "Skycall",
-      "display_name": null,
+      "display_name": "Skycall",
       "image_name": "Skycall (Spell)",
       "mapping_type": "custom",
       "reason": null
     },
     "spell:none - skycall": {
       "wiki_page_name": "Skycall",
-      "display_name": null,
+      "display_name": "Skycall",
       "image_name": "Skycall (Skill)",
       "mapping_type": "custom",
       "reason": null
     },
     "skill:soluna's touch": {
       "wiki_page_name": "Soluna's Touch",
-      "display_name": null,
+      "display_name": "Soluna's Touch",
       "image_name": "Soluna's Touch (Skill)",
       "mapping_type": "custom",
       "reason": null
     },
     "spell:pal - soluna's touch": {
       "wiki_page_name": "Soluna's Touch",
-      "display_name": null,
+      "display_name": "Soluna's Touch",
       "image_name": "Soluna's Touch (Spell)",
       "mapping_type": "custom",
       "reason": null
     },
     "character:solunarian guardian": {
       "wiki_page_name": "Solunarian Protector",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Solunarian Protector",
+      "image_name": "Solunarian Protector",
       "mapping_type": "custom",
       "reason": null
     },
     "character:tinknight_lp (1):malaroth:671.57:89.88:79.40": {
       "wiki_page_name": "Solunarian Protector",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Solunarian Protector",
+      "image_name": "Solunarian Protector",
       "mapping_type": "custom",
       "reason": null
     },
     "character:tinknight_lp (2):malaroth:681.70:88.73:102.11": {
       "wiki_page_name": "Solunarian Protector",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Solunarian Protector",
+      "image_name": "Solunarian Protector",
       "mapping_type": "custom",
       "reason": null
     },
     "item:quest - soul gem leah": {
       "wiki_page_name": "Soul Gem (Leah)",
-      "display_name": null,
+      "display_name": "Soul Gem (Leah)",
       "image_name": "Soul Gem (Leah)",
       "mapping_type": "custom",
       "reason": null
     },
     "item:quest - soul gem posta": {
       "wiki_page_name": "Soul Gem (Posta)",
-      "display_name": null,
+      "display_name": "Soul Gem (Posta)",
       "image_name": "Soul Gem (Posta)",
       "mapping_type": "custom",
       "reason": null
     },
     "item:quest - soul gem revid": {
       "wiki_page_name": "Soul Gem (Revid)",
-      "display_name": null,
+      "display_name": "Soul Gem (Revid)",
       "image_name": "Soul Gem (Revid)",
       "mapping_type": "custom",
       "reason": null
     },
     "item:quest - soul gem stalzo": {
       "wiki_page_name": "Soul Gem (Stalzo)",
-      "display_name": null,
+      "display_name": "Soul Gem (Stalzo)",
       "image_name": "Soul Gem (Stalzo)",
       "mapping_type": "custom",
       "reason": null
     },
     "character:spectre caster": {
       "wiki_page_name": "Spectre",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Spectre",
+      "image_name": "Spectre",
       "mapping_type": "custom",
       "reason": null
     },
     "character:spectre warrior": {
       "wiki_page_name": "Spectre",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Spectre",
+      "image_name": "Spectre",
       "mapping_type": "custom",
       "reason": null
     },
     "item:spell scroll - flight of foot": {
       "wiki_page_name": "Spell Scroll: Flight of Foot",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Spell Scroll: Flight of Foot",
+      "image_name": "Spell Scroll: Flight of Foot",
       "mapping_type": "custom",
       "reason": null
     },
@@ -1386,120 +1386,120 @@
     },
     "character:stardust": {
       "wiki_page_name": "Stardust",
-      "display_name": null,
+      "display_name": "Stardust",
       "image_name": "Stardust",
       "mapping_type": "custom",
       "reason": null
     },
     "item:ore - stardust": {
       "wiki_page_name": "Stardust (Item)",
-      "display_name": null,
+      "display_name": "Stardust (Item)",
       "image_name": "Stardust Item",
       "mapping_type": "custom",
       "reason": null
     },
     "character:stoneman arcanist": {
       "wiki_page_name": "Stoneman",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Stoneman",
+      "image_name": "Stoneman",
       "mapping_type": "custom",
       "reason": null
     },
     "character:stoneman warrior": {
       "wiki_page_name": "Stoneman",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Stoneman",
+      "image_name": "Stoneman",
       "mapping_type": "custom",
       "reason": null
     },
     "character:stoneman seeker (1):blight:438.18:43.30:180.65": {
       "wiki_page_name": "Stoneman Seeker",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Stoneman Seeker",
+      "image_name": "Stoneman Seeker",
       "mapping_type": "custom",
       "reason": null
     },
     "character:stoneman seeker (3):blight:406.32:43.30:187.03": {
       "wiki_page_name": "Stoneman Seeker",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Stoneman Seeker",
+      "image_name": "Stoneman Seeker",
       "mapping_type": "custom",
       "reason": null
     },
     "character:stoneman seeker:blight:432.20:43.30:190.19": {
       "wiki_page_name": "Stoneman Seeker",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Stoneman Seeker",
+      "image_name": "Stoneman Seeker",
       "mapping_type": "custom",
       "reason": null
     },
     "spell:gen - stun": {
       "wiki_page_name": "Stun",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Stun",
+      "image_name": "Stun",
       "mapping_type": "custom",
       "reason": null
     },
     "spell:gen - stun short": {
       "wiki_page_name": "Stun",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Stun",
+      "image_name": "Stun",
       "mapping_type": "custom",
       "reason": null
     },
     "character:summoned protector": {
       "wiki_page_name": "Summoned: Protector",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Summoned: Protector",
+      "image_name": "Summoned: Protector",
       "mapping_type": "custom",
       "reason": null
     },
     "character:summoned protector 1": {
       "wiki_page_name": "Summoned: Protector",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Summoned: Protector",
+      "image_name": "Summoned: Protector",
       "mapping_type": "custom",
       "reason": null
     },
     "spell:arc - sunburst": {
       "wiki_page_name": "Sunburst (Lux)",
-      "display_name": null,
+      "display_name": "Sunburst (Lux)",
       "image_name": "Sunburst (Lux)",
       "mapping_type": "custom",
       "reason": null
     },
     "spell:pal - sunburst": {
       "wiki_page_name": "Sunburst",
-      "display_name": null,
+      "display_name": "Sunburst",
       "image_name": "Sunburst",
       "mapping_type": "custom",
       "reason": null
     },
     "character:jellyfish": {
       "wiki_page_name": "Swamp Nettle",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Swamp Nettle",
+      "image_name": "Swamp Nettle",
       "mapping_type": "custom",
       "reason": null
     },
     "character:jellyfish:rottenfoot:337.00:23.00:475.54": {
       "wiki_page_name": "Swamp Nettle",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Swamp Nettle",
+      "image_name": "Swamp Nettle",
       "mapping_type": "custom",
       "reason": null
     },
     "character:tamed malaroth": {
       "wiki_page_name": "Tamed Malaroth",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Tamed Malaroth",
+      "image_name": "Tamed Malaroth",
       "mapping_type": "custom",
       "reason": null
     },
     "character:tamed malaroth 1": {
       "wiki_page_name": "Tamed Malaroth",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Tamed Malaroth",
+      "image_name": "Tamed Malaroth",
       "mapping_type": "custom",
       "reason": null
     },
@@ -1512,141 +1512,141 @@
     },
     "item:weap - 10 - thorn": {
       "wiki_page_name": "Thorn",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Thorn",
+      "image_name": "Thorn",
       "mapping_type": "custom",
       "reason": null
     },
     "character:tiver banes": {
       "wiki_page_name": "Tiver Banes",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Tiver Banes",
+      "image_name": "Tiver Banes",
       "mapping_type": "custom",
       "reason": null
     },
     "character:tiver banes broken": {
       "wiki_page_name": "Tiver Banes",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Tiver Banes",
+      "image_name": "Tiver Banes",
       "mapping_type": "custom",
       "reason": null
     },
     "character:crier:azure:238.67:26.44:206.28": {
       "wiki_page_name": "Town Crier",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Town Crier",
+      "image_name": "Town Crier",
       "mapping_type": "custom",
       "reason": null
     },
     "character:crier:stowaway:580.99:72.39:444.05": {
       "wiki_page_name": "Town Crier",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Town Crier",
+      "image_name": "Town Crier",
       "mapping_type": "custom",
       "reason": null
     },
     "character:ward of sivakaya (1):jaws:1478.96:-18.28:109.78": {
       "wiki_page_name": "Ward of Piety",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Ward of Piety",
+      "image_name": "Ward of Piety",
       "mapping_type": "custom",
       "reason": null
     },
     "character:ward of sivakaya (2):jaws:1478.96:-18.28:122.28": {
       "wiki_page_name": "Ward of Piety",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Ward of Piety",
+      "image_name": "Ward of Piety",
       "mapping_type": "custom",
       "reason": null
     },
     "character:ward of sivakaya (3):jaws:1478.96:-18.28:97.03": {
       "wiki_page_name": "Ward of Piety",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Ward of Piety",
+      "image_name": "Ward of Piety",
       "mapping_type": "custom",
       "reason": null
     },
     "character:ward of sivakaya (4):jaws:1450.96:-18.28:109.78": {
       "wiki_page_name": "Ward of Piety",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Ward of Piety",
+      "image_name": "Ward of Piety",
       "mapping_type": "custom",
       "reason": null
     },
     "character:ward of sivakaya (5):jaws:1450.96:-18.28:97.03": {
       "wiki_page_name": "Ward of Piety",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Ward of Piety",
+      "image_name": "Ward of Piety",
       "mapping_type": "custom",
       "reason": null
     },
     "character:ward of sivakaya (6):jaws:1450.96:-18.28:122.28": {
       "wiki_page_name": "Ward of Piety",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Ward of Piety",
+      "image_name": "Ward of Piety",
       "mapping_type": "custom",
       "reason": null
     },
     "character:ward of sivakaya:jaws:1461.71:-18.28:109.78": {
       "wiki_page_name": "Ward of Piety",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Ward of Piety",
+      "image_name": "Ward of Piety",
       "mapping_type": "custom",
       "reason": null
     },
     "character:a watchlight leah": {
       "wiki_page_name": "Watchlight",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Watchlight",
+      "image_name": "Watchlight",
       "mapping_type": "custom",
       "reason": null
     },
     "character:a watchlight posta": {
       "wiki_page_name": "Watchlight",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Watchlight",
+      "image_name": "Watchlight",
       "mapping_type": "custom",
       "reason": null
     },
     "character:a watchlight revid": {
       "wiki_page_name": "Watchlight",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Watchlight",
+      "image_name": "Watchlight",
       "mapping_type": "custom",
       "reason": null
     },
     "character:a watchlight stalzo": {
       "wiki_page_name": "Watchlight",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Watchlight",
+      "image_name": "Watchlight",
       "mapping_type": "custom",
       "reason": null
     },
     "character:riftstone:azynthiclear:797.65:46.43:562.68": {
       "wiki_page_name": "Watchlight",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Watchlight",
+      "image_name": "Watchlight",
       "mapping_type": "custom",
       "reason": null
     },
     "character:carl spencer": {
       "wiki_page_name": "Wintham McShanth",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Wintham McShanth",
+      "image_name": "Wintham McShanth",
       "mapping_type": "custom",
       "reason": null
     },
     "character:wintham mcshanth": {
       "wiki_page_name": "Wintham McShanth",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Wintham McShanth",
+      "image_name": "Wintham McShanth",
       "mapping_type": "custom",
       "reason": null
     },
     "character:eldoth molorai": {
       "wiki_page_name": "Eldoth Molorai",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Eldoth Molorai",
+      "image_name": "Eldoth Molorai",
       "mapping_type": "custom",
       "reason": null
     },
@@ -1659,8 +1659,8 @@
     },
     "faction:molarai": {
       "wiki_page_name": "Eldoth Molorai (Faction)",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Eldoth Molorai (Faction)",
+      "image_name": "Eldoth Molorai (Faction)",
       "mapping_type": "custom",
       "reason": null
     },
@@ -1673,8 +1673,8 @@
     },
     "faction:ripper": {
       "wiki_page_name": "Ripper DeMerth",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Ripper DeMerth",
+      "image_name": "Ripper DeMerth",
       "mapping_type": "custom",
       "reason": null
     },
@@ -1687,8 +1687,8 @@
     },
     "faction:priel": {
       "wiki_page_name": "Savannah Priel",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Savannah Priel",
+      "image_name": "Savannah Priel",
       "mapping_type": "custom",
       "reason": null
     },
@@ -1715,28 +1715,28 @@
     },
     "item:gen - time stone": {
       "wiki_page_name": "Time Stone",
-      "display_name": null,
+      "display_name": "Time Stone",
       "image_name": "Time Stone",
       "mapping_type": "custom",
       "reason": null
     },
     "spell:none - time stone": {
       "wiki_page_name": "Time Stone (Effect)",
-      "display_name": null,
+      "display_name": "Time Stone (Effect)",
       "image_name": "Time Stone (Effect)",
       "mapping_type": "custom",
       "reason": null
     },
     "item:gen - wyrm's bane": {
       "wiki_page_name": "Wyrm's Bane",
-      "display_name": null,
+      "display_name": "Wyrm's Bane",
       "image_name": "Wyrm's Bane",
       "mapping_type": "custom",
       "reason": null
     },
     "spell:none - wyrm's bane": {
       "wiki_page_name": "Wyrm's Bane (Effect)",
-      "display_name": null,
+      "display_name": "Wyrm's Bane (Effect)",
       "image_name": "Wyrm's Bane (Effect)",
       "mapping_type": "custom",
       "reason": null
@@ -1807,14 +1807,14 @@
     "spell:dru - summon decayed fawn": {
       "wiki_page_name": "Summon Decayed Fawn",
       "display_name": "Summon Decayed Fawn",
-      "image_name": null,
+      "image_name": "Summon Decayed Fawn",
       "mapping_type": "custom",
       "reason": null
     },
     "spell:arc - meditate": {
       "wiki_page_name": "Meditative Trance",
       "display_name": "Meditative Trance",
-      "image_name": null,
+      "image_name": "Meditative Trance",
       "mapping_type": "custom",
       "reason": null
     },
@@ -1849,56 +1849,56 @@
     "quest:solunascelestialblade": {
       "wiki_page_name": "Soluna's Celestial Blade",
       "display_name": "Soluna's Celestial Blade",
-      "image_name": null,
+      "image_name": "Soluna's Celestial Blade",
       "mapping_type": "custom",
       "reason": null
     },
     "quest:solunascelestialblade1": {
       "wiki_page_name": "Soluna's Celestial Blade",
       "display_name": "Soluna's Celestial Blade - Part 2",
-      "image_name": null,
+      "image_name": "Soluna's Celestial Blade - Part 2",
       "mapping_type": "custom",
       "reason": null
     },
     "quest:solunascelestialblade2": {
       "wiki_page_name": "Soluna's Celestial Blade",
       "display_name": "Soluna's Celestial Blade - Part 3",
-      "image_name": null,
+      "image_name": "Soluna's Celestial Blade - Part 3",
       "mapping_type": "custom",
       "reason": null
     },
     "quest:lostfaith": {
       "wiki_page_name": "Lost Faith (Quest)",
       "display_name": "Lost Faith",
-      "image_name": null,
+      "image_name": "Lost Faith",
       "mapping_type": "custom",
       "reason": "Disambiguate from Lost Faith item"
     },
     "quest:willowsoil": {
       "wiki_page_name": "Willow Soil (Quest)",
       "display_name": "Willow Soil",
-      "image_name": null,
+      "image_name": "Willow Soil",
       "mapping_type": "custom",
       "reason": "Disambiguate from Willow Soil item"
     },
     "quest:shiver-glasses": {
       "wiki_page_name": "Seeing the Truth",
       "display_name": "Seeing the Truth",
-      "image_name": null,
+      "image_name": "Seeing the Truth",
       "mapping_type": "custom",
       "reason": "Rename from 'Seeing the truth' to 'Seeing the Truth'"
     },
     "quest:wyland's note": {
       "wiki_page_name": "Whispers of Wyland",
       "display_name": "Whispers of Wyland",
-      "image_name": null,
+      "image_name": "Whispers of Wyland",
       "mapping_type": "custom",
       "reason": "Map to main quest page"
     },
     "quest:bellwainletters": {
       "wiki_page_name": "The Mystery of Bellwain Island",
       "display_name": "The Mystery of Bellwain Island",
-      "image_name": null,
+      "image_name": "The Mystery of Bellwain Island",
       "mapping_type": "custom",
       "reason": "Map to main quest page"
     },
@@ -1919,77 +1919,77 @@
     "quest:breadedislandfinmade": {
       "wiki_page_name": "The Mystery of Bellwain Island",
       "display_name": "The Mystery of Bellwain Island",
-      "image_name": null,
+      "image_name": "The Mystery of Bellwain Island",
       "mapping_type": "custom",
       "reason": "Map to main quest page"
     },
     "quest:thelostsoul": {
       "wiki_page_name": "The Lost Soul",
       "display_name": "The Lost Soul Pt. 1",
-      "image_name": null,
+      "image_name": "The Lost Soul Pt. 1",
       "mapping_type": "custom",
       "reason": "Map all Lost Soul quest parts to same page"
     },
     "quest:thelostsoul2": {
       "wiki_page_name": "The Lost Soul",
       "display_name": "The Lost Soul Pt. 2",
-      "image_name": null,
+      "image_name": "The Lost Soul Pt. 2",
       "mapping_type": "custom",
       "reason": "Map all Lost Soul quest parts to same page"
     },
     "quest:thelostsoul3": {
       "wiki_page_name": "The Lost Soul",
       "display_name": "The Lost Soul Pt. 3",
-      "image_name": null,
+      "image_name": "The Lost Soul Pt. 3",
       "mapping_type": "custom",
       "reason": "Map all Lost Soul quest parts to same page"
     },
     "quest:wishlanshope": {
       "wiki_page_name": "Wishlan's Hope (Quest)",
       "display_name": "Wishlan's Hope",
-      "image_name": null,
+      "image_name": "Wishlan's Hope",
       "mapping_type": "custom",
       "reason": "Disambiguate from Wishlan's Hope item"
     },
     "quest:wishlanshope2": {
       "wiki_page_name": "Wishlan's Hope (Quest)",
       "display_name": "Wishlan's Hope Pt. 2",
-      "image_name": null,
+      "image_name": "Wishlan's Hope Pt. 2",
       "mapping_type": "custom",
       "reason": "Disambiguate from Wishlan's Hope item"
     },
     "quest:theduskenlightritual": {
       "wiki_page_name": "The Duskenlight Ritual (Quest)",
       "display_name": "The Duskenlight Ritual",
-      "image_name": null,
+      "image_name": "The Duskenlight Ritual",
       "mapping_type": "custom",
       "reason": "Disambiguate from The Duskenlight Ritual item"
     },
     "quest:braxscript": {
       "wiki_page_name": "Braxonian Scripture (Quest)",
       "display_name": "Braxonian Scripture",
-      "image_name": null,
+      "image_name": "Braxonian Scripture",
       "mapping_type": "custom",
       "reason": "Disambiguate from Braxonian Scripture items"
     },
     "quest:mathersdemise3": {
       "wiki_page_name": "The Mathers' Demise",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "The Mathers' Demise",
+      "image_name": "The Mathers' Demise",
       "mapping_type": "custom",
       "reason": "Map multiple quest instances to same page"
     },
     "quest:mathersdemise2": {
       "wiki_page_name": "The Mathers' Demise",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "The Mathers' Demise",
+      "image_name": "The Mathers' Demise",
       "mapping_type": "custom",
       "reason": "Map multiple quest instances to same page"
     },
     "quest:shiver-ending": {
       "wiki_page_name": "Shivering Step (Quest)",
       "display_name": "Shivering Step",
-      "image_name": null,
+      "image_name": "Shivering Step",
       "mapping_type": "custom",
       "reason": "Disambiguate from Shivering Step zone"
     },
@@ -2024,14 +2024,14 @@
     "quest:daggerhart ancestral coin": {
       "wiki_page_name": "Daggerhart Ancestral Coin (Quest)",
       "display_name": "Daggerhart Ancestral Coin",
-      "image_name": null,
+      "image_name": "Daggerhart Ancestral Coin (Quest)",
       "mapping_type": "custom",
       "reason": "Disambiguate from Daggerhart Ancestral Coin item"
     },
     "quest:occuphage": {
       "wiki_page_name": "Seaslimed Bracelet (Quest)",
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Seaslimed Bracelet (Quest)",
+      "image_name": "Seaslimed Bracelet (Quest)",
       "mapping_type": "custom",
       "reason": "Disambiguate from Seaslimed Bracelet item"
     },
@@ -2073,7 +2073,7 @@
     "faction:brax": {
       "wiki_page_name": "The Torchbearers of Brax",
       "display_name": "The Torchbearers of Brax",
-      "image_name": null,
+      "image_name": "The Torchbearers of Brax",
       "mapping_type": "custom",
       "reason": "Fix typo lowercase 'the' in FactionDesc"
     },
@@ -2101,48 +2101,48 @@
     "zone:azynthi": {
       "wiki_page_name": "Azynthi's Garden",
       "display_name": "Azynthi's Garden (Dimensional Rift)",
-      "image_name": null,
+      "image_name": "Azynthi's Garden (Dimensional Rift)",
       "mapping_type": "custom",
       "reason": "Distinguish from AzynthiClear zone"
     },
     "zone:duskenportal": {
       "wiki_page_name": "Mysterious Portal",
       "display_name": "Mysterious Portal (1)",
-      "image_name": null,
+      "image_name": "Mysterious Portal (1)",
       "mapping_type": "custom",
       "reason": "Distinguish the three portal zones"
     },
     "zone:fernallaportal": {
       "wiki_page_name": "Mysterious Portal",
       "display_name": "Mysterious Portal (2)",
-      "image_name": null,
+      "image_name": "Mysterious Portal (2)",
       "mapping_type": "custom",
       "reason": "Distinguish the three portal zones"
     },
     "zone:ripperportal": {
       "wiki_page_name": "Mysterious Portal",
       "display_name": "Mysterious Portal (3)",
-      "image_name": null,
+      "image_name": "Mysterious Portal (3)",
       "mapping_type": "custom",
       "reason": "Distinguish the three portal zones"
     },
     "character:leah": {
       "wiki_page_name": "Leah",
-      "display_name": null,
+      "display_name": "Leah",
       "image_name": "Leah Body",
       "mapping_type": "custom",
       "reason": "Distinguish from the watchlight"
     },
     "character:posta": {
       "wiki_page_name": "Posta",
-      "display_name": null,
+      "display_name": "Posta",
       "image_name": "Posta's Body",
       "mapping_type": "custom",
       "reason": "Distinguish from the watchlight"
     },
     "character:revid": {
       "wiki_page_name": "Revid",
-      "display_name": null,
+      "display_name": "Revid",
       "image_name": "Revid Body",
       "mapping_type": "custom",
       "reason": "Distinguish from the watchlight"

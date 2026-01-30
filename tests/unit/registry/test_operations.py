@@ -6,12 +6,14 @@ import pytest
 from sqlmodel import Session, create_engine, select
 
 from erenshor.registry.operations import (
+    _load_mapping_json_data,
     find_conflicts,
     get_entity,
     initialize_registry,
     list_entities,
     load_mapping_json,
     register_entity,
+    validate_conflicts,
 )
 from erenshor.registry.schema import EntityRecord, EntityType
 
@@ -345,8 +347,8 @@ class TestMigrateFromMappingJson:
             "rules": {
                 f"item:test_{i}": {
                     "wiki_page_name": f"Test Item {i}",
-                    "display_name": None,
-                    "image_name": None,
+                    "display_name": f"Test Item {i}",
+                    "image_name": f"Test Item {i}",
                     "mapping_type": "custom",
                     "reason": None,
                 }
@@ -384,3 +386,200 @@ class TestMigrateFromMappingJson:
             assert entity.stable_key is not None
             assert entity.entity_type is not None
             assert ":" in entity.stable_key  # Verify stable_key format
+
+
+class TestLoadMappingJsonData:
+    """Test _load_mapping_json_data function."""
+
+    def test_load_valid_mapping_json(self, sample_mapping_json):
+        """Test loading valid mapping.json returns rules dict."""
+        data = _load_mapping_json_data(sample_mapping_json)
+
+        # Should return rules dict
+        assert isinstance(data, dict)
+        assert len(data) == 3  # Sample has 3 rules
+
+        # Verify structure
+        assert "character:Brackish Crocodile" in data
+        assert "item:iron_sword_old" in data
+        assert "spell:NONE - Offering Stone" in data
+
+    def test_load_missing_file_returns_empty_dict(self, tmp_path):
+        """Test that missing file returns empty dict without raising error."""
+        nonexistent_path = tmp_path / "nonexistent.json"
+
+        data = _load_mapping_json_data(nonexistent_path)
+
+        assert data == {}
+
+    def test_load_returns_raw_keys(self, sample_mapping_json):
+        """Test that keys are returned exactly as in file (not normalized)."""
+        data = _load_mapping_json_data(sample_mapping_json)
+
+        # Keys should preserve original casing
+        assert "character:Brackish Crocodile" in data  # Mixed case preserved
+        assert "character:brackish crocodile" not in data  # Not normalized
+
+    def test_load_malformed_json_returns_empty_dict(self, tmp_path):
+        """Test that malformed JSON returns empty dict without raising error."""
+        malformed_file = tmp_path / "malformed.json"
+        malformed_file.write_text("{invalid json content")
+
+        data = _load_mapping_json_data(malformed_file)
+
+        assert data == {}
+
+    def test_load_empty_rules_returns_empty_dict(self, tmp_path):
+        """Test that file with empty rules returns empty dict."""
+        mapping_file = tmp_path / "empty_rules.json"
+        mapping_file.write_text('{"rules": {}}')
+
+        data = _load_mapping_json_data(mapping_file)
+
+        assert data == {}
+
+
+class TestValidateConflicts:
+    """Test validate_conflicts function."""
+
+    def test_validate_no_conflicts_returns_empty_lists(self, in_memory_session, tmp_path):
+        """Test that no conflicts returns empty resolved and unresolved lists."""
+        # Create entities with unique display names (no conflicts)
+        register_entity(in_memory_session, "item:sword", display_name="Sword")
+        register_entity(in_memory_session, "item:axe", display_name="Axe")
+
+        mapping_path = tmp_path / "mapping.json"
+        mapping_path.write_text('{"rules": {}}')
+
+        resolved, unresolved = validate_conflicts(in_memory_session, mapping_path)
+
+        assert resolved == []
+        assert unresolved == []
+
+    def test_validate_detects_unresolved_conflicts(self, in_memory_session, partial_mapping_json, conflict_entities):
+        """Test that conflicts with missing entries are detected as unresolved."""
+        # Add conflict entities to session
+        for entity in conflict_entities:
+            in_memory_session.add(entity)
+        in_memory_session.commit()
+
+        _resolved, unresolved = validate_conflicts(in_memory_session, partial_mapping_json)
+
+        # Goblin conflict is partially resolved (1 of 2 mapped) → unresolved
+        assert len(unresolved) == 1
+
+        display_name, all_entities, unmapped = unresolved[0]
+        assert display_name == "Goblin"
+        assert len(all_entities) == 2
+        assert len(unmapped) == 1
+        assert unmapped[0].stable_key == "character:goblin (1)"
+
+    def test_validate_detects_resolved_conflicts(self, in_memory_session, partial_mapping_json, conflict_entities):
+        """Test that conflicts with all entries mapped are detected as resolved."""
+        # Add conflict entities to session
+        for entity in conflict_entities:
+            in_memory_session.add(entity)
+        in_memory_session.commit()
+
+        resolved, _unresolved = validate_conflicts(in_memory_session, partial_mapping_json)
+
+        # Iron Sword conflict is fully resolved (3 of 3 mapped)
+        assert len(resolved) == 1
+
+        display_name, all_entities = resolved[0]
+        assert display_name == "Iron Sword"
+        assert len(all_entities) == 3
+
+    def test_validate_mixed_resolved_unresolved(self, in_memory_session, partial_mapping_json, conflict_entities):
+        """Test handling of mixed resolved and unresolved conflicts."""
+        # Add conflict entities to session
+        for entity in conflict_entities:
+            in_memory_session.add(entity)
+        in_memory_session.commit()
+
+        resolved, unresolved = validate_conflicts(in_memory_session, partial_mapping_json)
+
+        # Should have 1 resolved (Iron Sword) and 1 unresolved (Goblin)
+        assert len(resolved) == 1
+        assert len(unresolved) == 1
+
+    def test_validate_missing_mapping_file(self, in_memory_session, tmp_path, conflict_entities):
+        """Test that missing mapping.json treats all conflicts as unresolved."""
+        # Add conflict entities to session
+        for entity in conflict_entities:
+            in_memory_session.add(entity)
+        in_memory_session.commit()
+
+        nonexistent_path = tmp_path / "nonexistent.json"
+
+        resolved, unresolved = validate_conflicts(in_memory_session, nonexistent_path)
+
+        # All conflicts should be unresolved (no mapping.json entries)
+        assert len(resolved) == 0
+        assert len(unresolved) == 2  # Iron Sword + Goblin
+
+    def test_validate_handles_normalization(self, in_memory_session, tmp_path):
+        """Test that validation handles key normalization correctly."""
+        # Create conflict with lowercase keys in registry
+        register_entity(in_memory_session, "item:test_item", display_name="Test Item")
+        register_entity(in_memory_session, "item:test_item (1)", display_name="Test Item")
+
+        # Create mapping.json with mixed-case keys
+        mapping_data = {
+            "rules": {
+                "Item:Test_Item": {"wiki_page_name": "Test Item"},  # Mixed case
+                "ITEM:TEST_ITEM (1)": {"wiki_page_name": "Test Item"},  # Uppercase
+            }
+        }
+
+        mapping_file = tmp_path / "mapping.json"
+        with mapping_file.open("w") as f:
+            json.dump(mapping_data, f)
+
+        resolved, unresolved = validate_conflicts(in_memory_session, mapping_file)
+
+        # Should be resolved despite case differences
+        assert len(resolved) == 1
+        assert len(unresolved) == 0
+
+
+class TestLoadMappingJsonValidation:
+    """Test load_mapping_json conflict validation."""
+
+    def test_raises_on_unresolved_conflicts(self, in_memory_session, partial_mapping_json, conflict_entities):
+        """Test that unresolved conflicts raise ValueError."""
+        # Add conflict entities to session
+        for entity in conflict_entities:
+            in_memory_session.add(entity)
+        in_memory_session.commit()
+
+        # Should raise because Goblin conflict is unresolved
+        with pytest.raises(ValueError, match="Registry has 1 unresolved conflicts"):
+            load_mapping_json(in_memory_session, partial_mapping_json)
+
+    def test_error_message_format(self, in_memory_session, partial_mapping_json, conflict_entities):
+        """Test that error message is actionable and well-formatted."""
+        # Add conflict entities to session
+        for entity in conflict_entities:
+            in_memory_session.add(entity)
+        in_memory_session.commit()
+
+        # Verify error message contains helpful info
+        with pytest.raises(ValueError) as exc_info:
+            load_mapping_json(in_memory_session, partial_mapping_json)
+
+        error_msg = str(exc_info.value)
+        assert "unresolved conflicts" in error_msg
+        assert "erenshor registry conflicts" in error_msg  # Directs to CLI command
+
+    def test_succeeds_when_all_resolved(self, in_memory_session, fully_resolved_mapping_json, conflict_entities):
+        """Test that validation succeeds when all conflicts are resolved."""
+        # Add conflict entities to session
+        for entity in conflict_entities:
+            in_memory_session.add(entity)
+        in_memory_session.commit()
+
+        # Should not raise - all conflicts are resolved
+        count = load_mapping_json(in_memory_session, fully_resolved_mapping_json)
+
+        assert count == 6  # 6 rules in fully_resolved_mapping_json

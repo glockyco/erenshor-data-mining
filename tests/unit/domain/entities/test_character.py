@@ -24,7 +24,7 @@ class TestCharacterStableKey:
     def test_non_prefab_character_stable_key(self):
         """Non-prefab characters have stable_key set from database."""
         character = Character(
-            stable_key="character:town guard|azure|123.45|67.89|234.56",
+            stable_key="character:town guard:azure:123.45:67.89:234.56",
             object_name="Town Guard",
             npc_name="Guard Captain",
             is_prefab=0,
@@ -34,7 +34,7 @@ class TestCharacterStableKey:
             z=234.56,
         )
 
-        assert character.stable_key == "character:town guard|azure|123.45|67.89|234.56"
+        assert character.stable_key == "character:town guard:azure:123.45:67.89:234.56"
 
     def test_stable_key_required(self):
         """stable_key is required and must be provided."""
@@ -54,7 +54,7 @@ class TestCharacterStableKey:
     def test_stable_key_independent_of_coordinates(self):
         """stable_key is set independently from coordinates."""
         character = Character(
-            stable_key="character:mysterious npc|unknown|100.00|200.00|300.00",
+            stable_key="character:mysterious npc:unknown:100.00:200.00:300.00",
             object_name="Mysterious NPC",
             npc_name="???",
             is_prefab=0,
@@ -64,12 +64,12 @@ class TestCharacterStableKey:
             z=300.0,
         )
 
-        assert character.stable_key == "character:mysterious npc|unknown|100.00|200.00|300.00"
+        assert character.stable_key == "character:mysterious npc:unknown:100.00:200.00:300.00"
 
     def test_stable_key_independent_of_missing_coordinates(self):
         """stable_key is set independently, coordinates don't affect it."""
         character = Character(
-            stable_key="character:static npc|temple|0.00|0.00|0.00",
+            stable_key="character:static npc:temple:0.00:0.00:0.00",
             object_name="Static NPC",
             npc_name="Statue",
             is_prefab=0,
@@ -79,12 +79,12 @@ class TestCharacterStableKey:
             z=None,
         )
 
-        assert character.stable_key == "character:static npc|temple|0.00|0.00|0.00"
+        assert character.stable_key == "character:static npc:temple:0.00:0.00:0.00"
 
     def test_stable_key_format_preserved(self):
         """stable_key format is preserved as set."""
         character = Character(
-            stable_key="character:precise npc|workshop|1.20|3.46|10.00",
+            stable_key="character:precise npc:workshop:1.20:3.46:10.00",
             object_name="Precise NPC",
             npc_name="Engineer",
             is_prefab=0,
@@ -94,7 +94,7 @@ class TestCharacterStableKey:
             z=10.0,
         )
 
-        assert character.stable_key == "character:precise npc|workshop|1.20|3.46|10.00"
+        assert character.stable_key == "character:precise npc:workshop:1.20:3.46:10.00"
 
     def test_stable_key_allows_none_object_name(self):
         """stable_key field allows None object_name (validated at database level)."""
@@ -126,7 +126,7 @@ class TestCharacterStableKey:
     def test_different_characters_different_keys(self):
         """Different characters have different stable_keys."""
         char1 = Character(
-            stable_key="character:guard|city|10.00|20.00|30.00",
+            stable_key="character:guard:city:10.00:20.00:30.00",
             object_name="Guard",
             npc_name="Guard #1",
             is_prefab=0,
@@ -137,7 +137,7 @@ class TestCharacterStableKey:
         )
 
         char2 = Character(
-            stable_key="character:guard|city|40.00|50.00|60.00",
+            stable_key="character:guard:city:40.00:50.00:60.00",
             object_name="Guard",
             npc_name="Guard #2",
             is_prefab=0,
@@ -148,5 +148,5 @@ class TestCharacterStableKey:
         )
 
         assert char1.stable_key != char2.stable_key
-        assert char1.stable_key == "character:guard|city|10.00|20.00|30.00"
-        assert char2.stable_key == "character:guard|city|40.00|50.00|60.00"
+        assert char1.stable_key == "character:guard:city:10.00:20.00:30.00"
+        assert char2.stable_key == "character:guard:city:40.00:50.00:60.00"

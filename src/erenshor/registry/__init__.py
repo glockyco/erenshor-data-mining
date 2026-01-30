@@ -21,6 +21,7 @@ from erenshor.registry.operations import (
     list_entities,
     load_mapping_json,
     register_entity,
+    validate_conflicts,
 )
 from erenshor.registry.resolver import RegistryResolver
 from erenshor.registry.resource_names import (
@@ -45,6 +46,7 @@ __all__ = [
     "list_entities",
     "load_mapping_json",
     "register_entity",
+    "validate_conflicts",
     "validate_resource_name",
     "validate_stable_key",
 ]

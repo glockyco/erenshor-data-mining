@@ -19,6 +19,7 @@ but commit() is called within each function to ensure changes are persisted.
 
 import json
 from pathlib import Path
+from typing import Any
 
 from loguru import logger
 from sqlmodel import Session, SQLModel, create_engine, select
@@ -284,7 +285,15 @@ def find_conflicts(session: Session) -> list[tuple[str, list[EntityRecord]]]:
     groups: dict[tuple[str, str], list[EntityRecord]] = {}
     for entity in all_entities:
         if entity.display_name is None:
-            raise ValueError(f"Entity {entity.stable_key} has no display_name")
+            # Excluded entities don't need display_name (they're not rendered)
+            # Non-excluded entities MUST have display_name
+            if not entity.excluded:
+                raise ValueError(
+                    f"Entity {entity.stable_key} has no display_name. "
+                    f"All non-excluded entities must have a display_name."
+                )
+            # Skip excluded entities - they can't conflict
+            continue
         # Extract entity type from stable_key (format: "entity_type:resource_name")
         entity_type_str = entity.stable_key.split(":", 1)[0] if ":" in entity.stable_key else "unknown"
         key = (entity_type_str, entity.display_name)
@@ -300,6 +309,27 @@ def find_conflicts(session: Session) -> list[tuple[str, list[EntityRecord]]]:
 
     logger.info(f"Found {len(conflicts)} name conflicts")
     return conflicts
+
+
+def _normalize_stable_key(key: str) -> str:
+    """Normalize stable key for consistent comparison.
+
+    Applies lowercase conversion and pipe-to-colon transformation for backward
+    compatibility with legacy mapping.json entries (pre Jan 18, 2026).
+
+    Args:
+        key: Stable key to normalize (format: "entity_type:resource_name")
+
+    Returns:
+        Normalized stable key (lowercase with colons)
+
+    Example:
+        >>> _normalize_stable_key("Character:Goblin Warrior")
+        "character:goblin warrior"
+        >>> _normalize_stable_key("item:iron_sword|variant")
+        "item:iron_sword:variant"
+    """
+    return key.lower().replace("|", ":")
 
 
 def populate_all_entities(session: Session, db_path: Path) -> int:
@@ -473,6 +503,112 @@ def populate_all_entities(session: Session, db_path: Path) -> int:
     return count
 
 
+def validate_conflicts(
+    session: Session,
+    mapping_path: Path,
+) -> tuple[list[tuple[str, list[EntityRecord]]], list[tuple[str, list[EntityRecord], list[EntityRecord]]]]:
+    """Validate that all conflicts have mapping.json resolutions.
+
+    A conflict is resolved when ALL entities in the conflict group have explicit
+    mapping.json entries. If any entity in a conflict is missing from mapping.json,
+    the entire conflict is considered unresolved.
+
+    Args:
+        session: SQLModel database session
+        mapping_path: Path to mapping.json file
+
+    Returns:
+        Tuple of (resolved_conflicts, unresolved_conflicts) where:
+        - resolved: list of (display_name, entities) for fully resolved conflicts
+        - unresolved: list of (display_name, entities, unmapped_entities) for conflicts
+          with missing mapping.json entries
+
+    Example:
+        >>> resolved, unresolved = validate_conflicts(session, Path("mapping.json"))
+        >>> print(f"{len(resolved)} resolved, {len(unresolved)} unresolved")
+        37 resolved, 121 unresolved
+        >>>
+        >>> # Check first unresolved conflict
+        >>> display_name, all_entities, unmapped = unresolved[0]
+        >>> print(f"{display_name}: {len(unmapped)}/{len(all_entities)} unmapped")
+        Shambler: 8/10 unmapped
+    """
+    # Find all conflicts
+    conflicts = find_conflicts(session)
+
+    if not conflicts:
+        logger.debug("No conflicts found, validation passed")
+        return ([], [])
+
+    # Load mapping.json data
+    mapping_data = _load_mapping_json_data(mapping_path)
+
+    # Normalize mapping keys for comparison (lowercase, pipe to colon)
+    normalized_mapping = {_normalize_stable_key(key): True for key in mapping_data}
+
+    resolved = []
+    unresolved = []
+
+    for display_name, entities in conflicts:
+        # Check which entities are missing from mapping.json
+        unmapped = [e for e in entities if e.stable_key not in normalized_mapping]
+
+        if unmapped:
+            # Some entities lack mapping.json entries → unresolved
+            unresolved.append((display_name, entities, unmapped))
+            logger.debug(
+                f"Unresolved conflict: {display_name} has {len(unmapped)}/{len(entities)} "
+                f"entities without mapping.json entries"
+            )
+        else:
+            # All entities have mapping.json entries → resolved
+            resolved.append((display_name, entities))
+            logger.debug(f"Resolved conflict: {display_name} ({len(entities)} entities all mapped)")
+
+    logger.info(
+        f"Conflict validation: {len(resolved)} resolved, {len(unresolved)} unresolved "
+        f"out of {len(conflicts)} total conflicts"
+    )
+
+    return (resolved, unresolved)
+
+
+def _load_mapping_json_data(mapping_path: Path) -> dict[str, dict[str, Any]]:
+    """Load mapping.json data without applying to registry.
+
+    Returns raw rules dict for validation purposes. Does not normalize keys or
+    apply any transformations - returns exactly what's in the file.
+
+    Args:
+        mapping_path: Path to mapping.json file
+
+    Returns:
+        Dictionary of rules from mapping.json, or empty dict if file doesn't exist
+        Format: {"stable_key": {"wiki_page_name": ..., "display_name": ..., ...}, ...}
+
+    Example:
+        >>> data = load_mapping_json_data(Path("mapping.json"))
+        >>> print(len(data))
+        307
+        >>> print(data["character:brackish crocodile"]["wiki_page_name"])
+        "A Brackish Croc"
+    """
+    if not mapping_path.exists():
+        logger.debug(f"Mapping file not found: {mapping_path}")
+        return {}
+
+    try:
+        with mapping_path.open() as f:
+            data = json.load(f)
+    except Exception as e:
+        logger.error(f"Failed to read mapping file {mapping_path}: {e}")
+        return {}
+
+    rules: dict[str, dict[str, Any]] = data.get("rules", {})
+    logger.debug(f"Loaded {len(rules)} rules from {mapping_path}")
+    return rules
+
+
 def load_mapping_json(session: Session, mapping_path: Path) -> int:
     """Import entity overrides from mapping.json into registry.
 
@@ -492,6 +628,10 @@ def load_mapping_json(session: Session, mapping_path: Path) -> int:
     Only entities with custom mappings are imported - entities without overrides
     are skipped (they will use entity name as default).
 
+    After importing, validates that all display_name conflicts have explicit
+    mapping.json resolutions. This ensures wiki generation cannot proceed with
+    ambiguous entity name mappings.
+
     Args:
         session: SQLModel database session
         mapping_path: Path to mapping.json file
@@ -499,15 +639,16 @@ def load_mapping_json(session: Session, mapping_path: Path) -> int:
     Returns:
         Number of entity overrides imported
 
+    Raises:
+        ValueError: If unresolved conflicts exist (entities with duplicate display_name
+                    but missing mapping.json entries)
+
     Example:
         >>> from pathlib import Path
         >>> from sqlmodel import Session, create_engine
         >>> engine = create_engine("sqlite:///registry.db")
         >>> with Session(engine) as session:
-        ...     count = load_mapping_json(
-        ...         session,
-        ...         Path("mapping.json"),
-        ...     )
+        ...     count = load_mapping_json(session, Path("mapping.json"))
         ...     print(f"Imported {count} entity overrides")
         Imported 275 entity overrides
     """
@@ -540,7 +681,7 @@ def load_mapping_json(session: Session, mapping_path: Path) -> int:
 
         # Normalize stable key to lowercase and replace pipe delimiters with colons
         # This handles legacy pipe-formatted keys (pre Jan 18, 2026)
-        normalized_key = stable_key.lower().replace("|", ":")
+        normalized_key = _normalize_stable_key(stable_key)
 
         # Check if entity is excluded (wiki_page_name explicitly null in mapping)
         # Note: We check if the key exists but value is null
@@ -550,6 +691,22 @@ def load_mapping_json(session: Session, mapping_path: Path) -> int:
         page_title = rule_data.get("wiki_page_name")
         display_name = rule_data.get("display_name")
         image_name = rule_data.get("image_name")
+
+        # Validate that non-excluded entities have explicit display_name
+        if not excluded and page_title is not None and display_name is None:
+            raise ValueError(
+                f"Entity {normalized_key} has wiki_page_name but no display_name. "
+                f"Please specify display_name explicitly in mapping.json. "
+                f'Suggestion: "display_name": "{page_title}"'
+            )
+
+        # Validate that non-excluded entities have explicit image_name
+        if not excluded and page_title is not None and image_name is None:
+            raise ValueError(
+                f"Entity {normalized_key} has wiki_page_name but no image_name. "
+                f"Please specify image_name explicitly in mapping.json. "
+                f'Suggestion: "image_name": "{display_name}"'
+            )
 
         # Skip if no overrides and not excluded (entity not in mapping.json at all)
         if not excluded and page_title is None and display_name is None and image_name is None:
@@ -568,4 +725,16 @@ def load_mapping_json(session: Session, mapping_path: Path) -> int:
         count += 1
 
     logger.info(f"Imported {count} entity overrides from {mapping_path}")
+
+    # Always validate conflicts after importing
+    logger.debug("Validating conflicts after importing mapping.json")
+    _, unresolved = validate_conflicts(session, mapping_path)
+
+    if unresolved:
+        raise ValueError(
+            f"Registry has {len(unresolved)} unresolved conflicts. Run 'erenshor registry conflicts' to see details."
+        )
+
+    logger.info("Conflict validation passed: all conflicts resolved")
+
     return count
