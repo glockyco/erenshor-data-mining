@@ -60,7 +60,7 @@ class SpawnPointRepository(BaseRepository[SpawnPoint]):
         query = """
             SELECT
                 za.StableKey AS zone_stable_key,
-                sp.SpawnDelay1 AS base_respawn,
+                sp.SpawnDelay4 AS base_respawn,
                 sp.X AS x,
                 sp.Y AS y,
                 sp.Z AS z,

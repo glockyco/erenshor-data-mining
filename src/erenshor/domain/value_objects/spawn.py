@@ -25,7 +25,10 @@ class CharacterSpawnInfo(BaseModel):
     """
 
     zone_stable_key: str = Field(description="Zone stable key (format: 'zone:scene_name')")
-    base_respawn: float = Field(description="Base respawn time in seconds")
+    base_respawn: float | None = Field(
+        default=None,
+        description="Respawn time in seconds for 5-player group (NULL for directly-placed NPCs)",
+    )
     x: float | None = Field(default=None, description="X coordinate")
     y: float | None = Field(default=None, description="Y coordinate")
     z: float | None = Field(default=None, description="Z coordinate")
