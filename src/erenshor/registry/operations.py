@@ -1,31 +1,29 @@
 """Core registry operations for entity management.
 
-This module provides CRUD operations, conflict detection, and migration support
-for the entity registry system. All operations accept a SQLModel Session parameter
-and handle database transactions internally.
+This module provides CRUD operations and conflict detection for the entity
+registry system. All operations accept a SQLModel Session parameter and handle
+database transactions internally.
 
 Operations:
 - initialize_registry: Create database and tables
 - register_entity: Register or update an entity (upsert)
 - get_entity: Retrieve entity by stable key
 - list_entities: List entities with optional type filter
-- find_conflicts: Detect name collisions within entity types
-- create_conflict_record: Record a conflict for resolution
-- resolve_conflict: Mark conflict as resolved with chosen entity
-- migrate_from_mapping_json: Import historical mappings
+- find_conflicts: Detect display_name collisions within entity types
+- populate_all_entities: Load all entities from game database
+- load_mapping_json: Apply manual overrides from mapping.json
 
 All timestamps use UTC. Session management is the caller's responsibility,
 but commit() is called within each function to ensure changes are persisted.
 """
 
 import json
-from datetime import UTC, datetime
 from pathlib import Path
 
 from loguru import logger
 from sqlmodel import Session, SQLModel, create_engine, select
 
-from .schema import ConflictRecord, EntityRecord, EntityType
+from .schema import EntityRecord, EntityType
 
 
 def initialize_registry(db_path: Path) -> None:
@@ -302,106 +300,6 @@ def find_conflicts(session: Session) -> list[tuple[str, list[EntityRecord]]]:
 
     logger.info(f"Found {len(conflicts)} name conflicts")
     return conflicts
-
-
-def create_conflict_record(
-    session: Session,
-    entity_stable_keys: list[str],
-    conflict_type: str,
-) -> ConflictRecord:
-    """Create a conflict record for tracking.
-
-    Args:
-        session: SQLModel database session
-        entity_stable_keys: List of entity stable keys involved in the conflict
-        conflict_type: Type of conflict (e.g., "name_collision", "ambiguous_reference")
-
-    Returns:
-        ConflictRecord instance (newly created)
-
-    Example:
-        >>> from sqlmodel import Session, create_engine
-        >>> engine = create_engine("sqlite:///registry.db")
-        >>> with Session(engine) as session:
-        ...     conflict = create_conflict_record(
-        ...         session,
-        ...         entity_stable_keys=["item:sword1", "item:sword2"],
-        ...         conflict_type="name_collision",
-        ...     )
-        ...     print(f"Created conflict record: {conflict.id}")
-        Created conflict record: 1
-    """
-    # Create conflict record
-    conflict = ConflictRecord(
-        entity_stable_keys=json.dumps(entity_stable_keys),
-        conflict_type=conflict_type,
-        resolved=False,
-        created_at=datetime.now(UTC),
-    )
-
-    session.add(conflict)
-    session.commit()
-    session.refresh(conflict)
-
-    logger.info(
-        f"Created conflict record: id={conflict.id}, type={conflict_type}, entity_stable_keys={entity_stable_keys}"
-    )
-
-    return conflict
-
-
-def resolve_conflict(
-    session: Session,
-    conflict_id: int,
-    chosen_stable_key: str,
-    notes: str | None = None,
-) -> None:
-    """Resolve a conflict by choosing canonical entity.
-
-    Args:
-        session: SQLModel database session
-        conflict_id: ID of the conflict record to resolve
-        chosen_stable_key: Stable key of the chosen canonical entity
-        notes: Optional notes explaining the resolution
-
-    Raises:
-        ValueError: If conflict not found or chosen_stable_key not in conflict
-
-    Example:
-        >>> from sqlmodel import Session, create_engine
-        >>> engine = create_engine("sqlite:///registry.db")
-        >>> with Session(engine) as session:
-        ...     resolve_conflict(
-        ...         session,
-        ...         conflict_id=1,
-        ...         chosen_stable_key="item:sword2",
-        ...         notes="Chose sword2 as canonical version",
-        ...     )
-        ...     print("Conflict resolved")
-        Conflict resolved
-    """
-    # Get conflict record
-    conflict = session.get(ConflictRecord, conflict_id)
-    if not conflict:
-        raise ValueError(f"Conflict not found: {conflict_id}")
-
-    # Verify chosen_stable_key is in conflict
-    entity_stable_keys = json.loads(conflict.entity_stable_keys)
-    if chosen_stable_key not in entity_stable_keys:
-        raise ValueError(
-            f"Entity {chosen_stable_key} is not part of conflict {conflict_id}. Valid stable keys: {entity_stable_keys}"
-        )
-
-    # Update conflict record
-    conflict.resolved = True
-    conflict.resolution_stable_key = chosen_stable_key
-    conflict.resolution_notes = notes
-    conflict.resolved_at = datetime.now(UTC)
-
-    session.add(conflict)
-    session.commit()
-
-    logger.info(f"Resolved conflict: id={conflict_id}, chosen_entity={chosen_stable_key}, notes={notes!r}")
 
 
 def populate_all_entities(session: Session, db_path: Path) -> int:

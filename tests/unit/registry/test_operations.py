@@ -6,16 +6,14 @@ import pytest
 from sqlmodel import Session, create_engine, select
 
 from erenshor.registry.operations import (
-    create_conflict_record,
     find_conflicts,
     get_entity,
     initialize_registry,
     list_entities,
     load_mapping_json,
     register_entity,
-    resolve_conflict,
 )
-from erenshor.registry.schema import ConflictRecord, EntityRecord, EntityType
+from erenshor.registry.schema import EntityRecord, EntityType
 
 
 class TestInitializeRegistry:
@@ -39,7 +37,6 @@ class TestInitializeRegistry:
             with Session(engine) as session:
                 # Should not raise errors
                 session.exec(select(EntityRecord)).all()
-                session.exec(select(ConflictRecord)).all()
         finally:
             engine.dispose()
 
@@ -302,106 +299,6 @@ class TestFindConflicts:
         conflicts = find_conflicts(in_memory_session)
 
         assert len(conflicts) == 0
-
-
-class TestCreateConflictRecord:
-    """Test create_conflict_record function."""
-
-    def test_create_conflict_record(self, in_memory_session):
-        """Test creating conflict record with entity_stable_keys as JSON."""
-        conflict = create_conflict_record(
-            in_memory_session,
-            entity_stable_keys=["item:sword1", "item:sword2", "item:sword3"],
-            conflict_type="name_collision",
-        )
-
-        assert conflict.id is not None
-        assert conflict.entity_stable_keys == '["item:sword1", "item:sword2", "item:sword3"]'
-        assert conflict.conflict_type == "name_collision"
-        assert conflict.resolved is False
-
-    def test_create_conflict_record_stored_in_db(self, in_memory_session):
-        """Test that conflict record is persisted."""
-        create_conflict_record(
-            in_memory_session,
-            entity_stable_keys=["item:sword1", "item:sword2"],
-            conflict_type="name_collision",
-        )
-
-        conflicts = in_memory_session.exec(select(ConflictRecord)).all()
-        assert len(conflicts) == 1
-
-
-class TestResolveConflict:
-    """Test resolve_conflict function."""
-
-    def test_resolve_conflict_marks_resolved(self, in_memory_session):
-        """Test that resolve_conflict marks conflict as resolved."""
-        # Create conflict
-        conflict = create_conflict_record(
-            in_memory_session,
-            entity_stable_keys=["item:sword1", "item:sword2", "item:sword3"],
-            conflict_type="name_collision",
-        )
-
-        # Resolve conflict
-        resolve_conflict(
-            in_memory_session,
-            conflict_id=conflict.id,
-            chosen_stable_key="item:sword2",
-            notes="Chose sword2 as canonical",
-        )
-
-        # Verify resolution
-        in_memory_session.refresh(conflict)
-        assert conflict.resolved is True
-        assert conflict.resolution_stable_key == "item:sword2"
-        assert conflict.resolution_notes == "Chose sword2 as canonical"
-        assert conflict.resolved_at is not None
-
-    def test_resolve_conflict_validates_chosen_entity(self, in_memory_session):
-        """Test that resolve_conflict validates chosen_stable_key is in conflict."""
-        # Create conflict with stable keys
-        conflict = create_conflict_record(
-            in_memory_session,
-            entity_stable_keys=["item:sword1", "item:sword2", "item:sword3"],
-            conflict_type="name_collision",
-        )
-
-        # Try to resolve with stable key not in conflict
-        with pytest.raises(ValueError, match="Entity item:nonexistent is not part of conflict"):
-            resolve_conflict(
-                in_memory_session,
-                conflict_id=conflict.id,
-                chosen_stable_key="item:nonexistent",
-            )
-
-    def test_resolve_conflict_invalid_conflict_id_raises(self, in_memory_session):
-        """Test that resolve_conflict raises ValueError for invalid conflict_id."""
-        with pytest.raises(ValueError, match="Conflict not found: 999"):
-            resolve_conflict(
-                in_memory_session,
-                conflict_id=999,
-                chosen_stable_key="item:sword1",
-            )
-
-    def test_resolve_conflict_without_notes(self, in_memory_session):
-        """Test resolving conflict without notes."""
-        conflict = create_conflict_record(
-            in_memory_session,
-            entity_stable_keys=["item:sword1", "item:sword2"],
-            conflict_type="name_collision",
-        )
-
-        resolve_conflict(
-            in_memory_session,
-            conflict_id=conflict.id,
-            chosen_stable_key="item:sword1",
-        )
-
-        in_memory_session.refresh(conflict)
-        assert conflict.resolved is True
-        assert conflict.resolution_notes is None
 
 
 class TestMigrateFromMappingJson:

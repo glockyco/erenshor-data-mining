@@ -1,12 +1,10 @@
 """Tests for registry database schema."""
 
-from datetime import UTC, datetime
-
 import pytest
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, SQLModel, create_engine, select
 
-from erenshor.registry.schema import ConflictRecord, EntityRecord, EntityType
+from erenshor.registry.schema import EntityRecord, EntityType
 
 
 class TestEntityRecord:
@@ -149,88 +147,6 @@ class TestEntityRecord:
         assert entity.page_title is None  # Excluded entities have no overrides
 
 
-class TestConflictRecord:
-    """Test ConflictRecord model."""
-
-    def test_conflict_record_creation(self, in_memory_session):
-        """Test creating conflict record with entity_stable_keys JSON."""
-        conflict = ConflictRecord(
-            entity_stable_keys='["item:sword1", "item:sword2", "item:sword3"]',
-            conflict_type="name_collision",
-            resolved=False,
-            created_at=datetime.now(UTC),
-        )
-
-        in_memory_session.add(conflict)
-        in_memory_session.commit()
-        in_memory_session.refresh(conflict)
-
-        assert conflict.id is not None
-        assert conflict.entity_stable_keys == '["item:sword1", "item:sword2", "item:sword3"]'
-        assert conflict.conflict_type == "name_collision"
-        assert conflict.resolved is False
-        assert conflict.resolution_stable_key is None
-
-    def test_conflict_record_foreign_key(self, in_memory_session):
-        """Test ConflictRecord foreign key to EntityRecord."""
-        # Create entity
-        entity = EntityRecord(
-            stable_key="item:test_item",
-            entity_type=EntityType.ITEM,
-            page_title="Test Item",
-        )
-        in_memory_session.add(entity)
-        in_memory_session.commit()
-        in_memory_session.refresh(entity)
-
-        # Create conflict with foreign key
-        conflict = ConflictRecord(
-            entity_stable_keys=f'["{entity.stable_key}"]',
-            conflict_type="name_collision",
-            resolved=True,
-            resolution_stable_key=entity.stable_key,
-            created_at=datetime.now(UTC),
-            resolved_at=datetime.now(UTC),
-        )
-        in_memory_session.add(conflict)
-        in_memory_session.commit()
-        in_memory_session.refresh(conflict)
-
-        assert conflict.resolution_stable_key == entity.stable_key
-
-    def test_conflict_record_resolution_fields(self, in_memory_session):
-        """Test conflict resolution fields."""
-        # Create unresolved conflict
-        conflict = ConflictRecord(
-            entity_stable_keys='["item:sword1", "item:sword2"]',
-            conflict_type="name_collision",
-            resolved=False,
-            created_at=datetime.now(UTC),
-        )
-        in_memory_session.add(conflict)
-        in_memory_session.commit()
-        in_memory_session.refresh(conflict)
-
-        assert conflict.resolved is False
-        assert conflict.resolution_stable_key is None
-        assert conflict.resolution_notes is None
-        assert conflict.resolved_at is None
-
-        # Resolve conflict
-        conflict.resolved = True
-        conflict.resolution_stable_key = "item:sword1"
-        conflict.resolution_notes = "Chose item:sword1 as canonical"
-        conflict.resolved_at = datetime.now(UTC)
-        in_memory_session.add(conflict)
-        in_memory_session.commit()
-        in_memory_session.refresh(conflict)
-
-        assert conflict.resolved is True
-        assert conflict.resolution_stable_key == "item:sword1"
-        assert conflict.resolution_notes == "Chose item:sword1 as canonical"
-        assert conflict.resolved_at is not None
-
-
 class TestTableCreation:
     """Test table creation via SQLModel."""
 
@@ -244,7 +160,3 @@ class TestTableCreation:
             # Test entities table
             entities = session.exec(select(EntityRecord)).all()
             assert entities == []
-
-            # Test conflicts table
-            conflicts = session.exec(select(ConflictRecord)).all()
-            assert conflicts == []
