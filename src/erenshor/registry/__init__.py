@@ -15,11 +15,13 @@ Modules:
 
 from erenshor.registry.item_classifier import ItemKind, classify_item_kind
 from erenshor.registry.operations import (
+    count_entities_by_type,
     find_conflicts,
     get_entity,
     initialize_registry,
     list_entities,
     load_mapping_json,
+    populate_all_entities,
     register_entity,
     validate_conflicts,
 )
@@ -39,12 +41,14 @@ __all__ = [
     "RegistryResolver",
     "build_stable_key",
     "classify_item_kind",
+    "count_entities_by_type",
     "extract_resource_name",
     "find_conflicts",
     "get_entity",
     "initialize_registry",
     "list_entities",
     "load_mapping_json",
+    "populate_all_entities",
     "register_entity",
     "validate_conflicts",
     "validate_resource_name",

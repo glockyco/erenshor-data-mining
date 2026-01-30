@@ -609,6 +609,30 @@ def _load_mapping_json_data(mapping_path: Path) -> dict[str, dict[str, Any]]:
     return rules
 
 
+def count_entities_by_type(session: Session) -> dict[EntityType, int]:
+    """Count entities in registry by type.
+
+    Args:
+        session: SQLModel database session
+
+    Returns:
+        Dictionary mapping EntityType to count
+
+    Example:
+        >>> counts = count_entities_by_type(session)
+        >>> print(counts[EntityType.ITEM])
+        321
+    """
+    from sqlmodel import func
+
+    counts = {}
+    for entity_type in EntityType:
+        stmt = select(func.count()).select_from(EntityRecord).where(EntityRecord.entity_type == entity_type)
+        count = session.exec(stmt).one()
+        counts[entity_type] = count
+    return counts
+
+
 def load_mapping_json(session: Session, mapping_path: Path) -> int:
     """Import entity overrides from mapping.json into registry.
 
@@ -619,29 +643,29 @@ def load_mapping_json(session: Session, mapping_path: Path) -> int:
                 "wiki_page_name": "Custom Page Title",
                 "display_name": "Custom Display Name",
                 "image_name": "CustomImage.png",
-                "mapping_type": "custom"
+                "excluded": false
             }
         }
     }
 
-    This function creates EntityRecord entries for each rule with non-null overrides.
-    Only entities with custom mappings are imported - entities without overrides
-    are skipped (they will use entity name as default).
+    This function applies these overrides to existing registry entities. It should
+    be called AFTER populate_all_entities() to override default values.
 
-    After importing, validates that all display_name conflicts have explicit
-    mapping.json resolutions. This ensures wiki generation cannot proceed with
-    ambiguous entity name mappings.
+    All stable keys in mapping.json are normalized (lowercase, pipe to colon) before
+    matching against registry entities.
+
+    After loading, validates that all display_name conflicts are resolved. Raises
+    ValueError if any unresolved conflicts exist.
 
     Args:
         session: SQLModel database session
         mapping_path: Path to mapping.json file
 
     Returns:
-        Number of entity overrides imported
+        Number of entities updated from mapping file
 
     Raises:
-        ValueError: If unresolved conflicts exist (entities with duplicate display_name
-                    but missing mapping.json entries)
+        ValueError: If unresolved display_name conflicts exist
 
     Example:
         >>> from pathlib import Path
@@ -649,8 +673,8 @@ def load_mapping_json(session: Session, mapping_path: Path) -> int:
         >>> engine = create_engine("sqlite:///registry.db")
         >>> with Session(engine) as session:
         ...     count = load_mapping_json(session, Path("mapping.json"))
-        ...     print(f"Imported {count} entity overrides")
-        Imported 275 entity overrides
+        ...     print(f"Updated {count} entities")
+        Updated 100 entities
     """
     # Check if file exists
     if not mapping_path.exists():
