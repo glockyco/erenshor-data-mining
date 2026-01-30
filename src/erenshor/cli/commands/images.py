@@ -22,6 +22,7 @@ from rich.table import Table
 from erenshor.application.services.image_comparator import ImageComparator
 from erenshor.application.services.image_processor import ImageProcessor
 from erenshor.application.services.image_registry import ImageRegistry
+from erenshor.infrastructure.wiki.filename_sanitizer import needs_redirect, sanitize_wiki_filename
 from erenshor.registry.resolver import RegistryResolver
 
 if TYPE_CHECKING:
@@ -161,11 +162,12 @@ def process(
                 try:
                     result = processor.process_single_image(image_info, output_path)
 
-                    # Register in registry
+                    # Register in registry with previous_dir for hash calculation
                     registry.register_processed_image(
                         stable_key=image_info.stable_key,
                         image_info=image_info,
                         processing_result=result,
+                        previous_dir=previous_dir if previous_dir.exists() else None,
                     )
 
                     stats["processed"] += 1
@@ -459,6 +461,7 @@ def upload(
 
     # Upload images with progress bar
     stats = {"uploaded": 0, "skipped": 0, "failed": 0}
+    redirects_to_create: list[tuple[str, str]] = []  # (original_name, sanitized_name)
 
     with Progress(
         SpinnerColumn(),
@@ -474,7 +477,14 @@ def upload(
             # Build paths
             filename = metadata.stable_key.replace(":", "@", 1).replace("/", "_").replace("\\", "_") + ".png"
             image_path = current_dir / filename
-            wiki_filename = f"{image_name}.png"
+
+            # Sanitize filename for MediaWiki (removes : | # < > [ ] { })
+            sanitized_image_name = sanitize_wiki_filename(image_name)
+            wiki_filename = f"{sanitized_image_name}.png"
+
+            # Track redirect if sanitization changed the name
+            if needs_redirect(image_name, sanitized_image_name):
+                redirects_to_create.append((image_name, sanitized_image_name))
 
             # Check if file exists
             if not image_path.exists():
@@ -493,7 +503,13 @@ def upload(
 
             # Upload
             if dry_run:
-                console.print(f"[dim]Would upload: {filename} → File:{wiki_filename}[/dim]")
+                if needs_redirect(image_name, sanitized_image_name):
+                    console.print(
+                        f"[dim]Would upload: {filename} → File:{wiki_filename} "
+                        f"[yellow](redirect from {image_name})[/yellow][/dim]"
+                    )
+                else:
+                    console.print(f"[dim]Would upload: {filename} → File:{wiki_filename}[/dim]")
                 stats["uploaded"] += 1
             else:
                 try:
@@ -506,7 +522,7 @@ def upload(
                         bot=True,
                     )
 
-                    # Mark as uploaded in registry
+                    # Mark as uploaded in registry (store sanitized filename)
                     if metadata.current_hash:
                         registry.mark_uploaded(
                             stable_key=metadata.stable_key,
@@ -524,7 +540,71 @@ def upload(
                         console.print(f"[red]Failed: {wiki_filename}: {e}[/red]")
                         stats["failed"] += 1
 
+                    # Remove from redirect list if upload failed
+                    if needs_redirect(image_name, sanitized_image_name):
+                        redirects_to_create = [(orig, san) for orig, san in redirects_to_create if orig != image_name]
+
             progress.advance(task)
+
+    # Create redirect pages for sanitized filenames
+    redirect_stats = {"created": 0, "failed": 0}
+    redirect_errors: list[tuple[str, str]] = []  # (original_name, error_message)
+
+    if redirects_to_create:
+        if dry_run:
+            console.print()
+            console.print(f"[bold cyan]Would create {len(redirects_to_create)} redirect pages:[/bold cyan]")
+            for original, sanitized in redirects_to_create[:10]:
+                console.print(f"  [yellow]File:{original}.png[/yellow] → [green]File:{sanitized}.png[/green]")
+            if len(redirects_to_create) > 10:
+                console.print(f"  [dim]... and {len(redirects_to_create) - 10} more[/dim]")
+        else:
+            console.print()
+            console.print(f"[bold cyan]Creating {len(redirects_to_create)} redirect pages...[/bold cyan]")
+
+            with Progress(
+                SpinnerColumn(),
+                TextColumn("[progress.description]{task.description}"),
+                BarColumn(),
+                MofNCompleteColumn(),
+                TimeElapsedColumn(),
+                console=console,
+            ) as progress:
+                task = progress.add_task("[cyan]Creating redirects...", total=len(redirects_to_create))
+
+                for original, sanitized in redirects_to_create:
+                    redirect_title = f"File:{original}.png"
+                    redirect_target = f"File:{sanitized}.png"
+                    redirect_content = f"#REDIRECT [[{redirect_target}]]"
+
+                    try:
+                        client.edit_page(
+                            title=redirect_title,
+                            content=redirect_content,
+                            summary="Automated redirect for sanitized filename",
+                            minor=True,
+                            bot=True,
+                        )
+                        redirect_stats["created"] += 1
+                    except MediaWikiAPIError as e:
+                        redirect_stats["failed"] += 1
+                        error_msg = str(e)
+                        redirect_errors.append((original, error_msg))
+                        # Continue with other redirects even if one fails
+
+                    progress.advance(task)
+
+            # Print redirect summary
+            console.print()
+            console.print(f"[green]✓ Redirects created: {redirect_stats['created']}[/green]")
+            if redirect_stats["failed"] > 0:
+                console.print(f"[red]✗ Redirects failed: {redirect_stats['failed']}[/red]")
+                console.print()
+                console.print("[bold red]Redirect Errors:[/bold red]")
+                for original, error in redirect_errors[:10]:  # Show first 10
+                    console.print(f"  [red]File:{original}.png[/red]: {error}")
+                if len(redirect_errors) > 10:
+                    console.print(f"  [dim]... and {len(redirect_errors) - 10} more errors[/dim]")
 
     # Close client
     client.close()
@@ -544,5 +624,5 @@ def upload(
         console.print()
         console.print("[green]✓ Upload complete[/green]")
 
-    if stats["failed"] > 0:
+    if stats["failed"] > 0 or redirect_stats.get("failed", 0) > 0:
         raise typer.Exit(1)

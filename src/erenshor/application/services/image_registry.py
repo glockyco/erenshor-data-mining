@@ -23,6 +23,7 @@ from typing import TYPE_CHECKING
 
 import imagehash
 from loguru import logger
+from PIL import Image
 
 if TYPE_CHECKING:
     from erenshor.domain.entities.image import ImageInfo, ImageMetadata, ProcessingResult
@@ -143,21 +144,56 @@ class ImageRegistry:
 
         logger.debug(f"Initialized image registry database: {self.db_path}")
 
+    def _calculate_file_hashes(self, file_path: Path) -> tuple[str, str, int]:
+        """Calculate content hash, perceptual hash, and file size.
+
+        Args:
+            file_path: Path to the image file.
+
+        Returns:
+            Tuple of (content_hash, perceptual_hash, file_size).
+
+        Raises:
+            FileNotFoundError: If file doesn't exist.
+        """
+        if not file_path.exists():
+            raise FileNotFoundError(f"File not found: {file_path}")
+
+        # Calculate SHA256 content hash
+        sha256 = hashlib.sha256()
+        with file_path.open("rb") as f:
+            for chunk in iter(lambda: f.read(8192), b""):
+                sha256.update(chunk)
+        content_hash = sha256.hexdigest()
+
+        # Calculate perceptual hash
+        with Image.open(file_path) as img:
+            perceptual_hash = str(imagehash.phash(img))
+
+        # Get file size
+        file_size = file_path.stat().st_size
+
+        return content_hash, perceptual_hash, file_size
+
     def register_processed_image(
         self,
         stable_key: str,
         image_info: ImageInfo,
         processing_result: ProcessingResult,
+        previous_dir: Path | None = None,
     ) -> None:
         """Register a processed image in the registry.
 
-        Updates current_* fields and shifts old current to previous_*.
+        Updates current_* fields and calculates previous_* from filesystem if available.
         Creates new record if entity not seen before.
 
         Args:
             stable_key: Stable identifier "entity_type:resource_name".
             image_info: Discovery information (entity names, source path).
             processing_result: Processing metadata (hashes, size, timestamp).
+            previous_dir: Optional path to previous/ directory for hash calculation.
+                If provided, calculates hashes from actual backed-up files.
+                If not provided, copies database values (for backward compatibility).
         """
         now = datetime.now(UTC).isoformat()
 
@@ -169,19 +205,68 @@ class ImageRegistry:
             exists = cursor.fetchone() is not None
 
             if exists:
-                # Shift current → previous
-                cursor.execute(
-                    """
-                    UPDATE image_versions
-                    SET previous_hash = current_hash,
-                        previous_phash = current_phash,
-                        previous_processed_at = current_processed_at,
-                        previous_file_size = current_file_size,
-                        updated_at = ?
-                    WHERE stable_key = ?
-                    """,
-                    (now, stable_key),
-                )
+                # Calculate previous_* from filesystem if available
+                if previous_dir:
+                    # Build filename from stable_key
+                    filename = stable_key.replace(":", "@", 1).replace("/", "_").replace("\\", "_") + ".png"
+                    previous_file = previous_dir / filename
+
+                    if previous_file.exists():
+                        # Calculate hashes from backed-up file
+                        try:
+                            prev_hash, prev_phash, prev_size = self._calculate_file_hashes(previous_file)
+                            prev_processed_at = datetime.fromtimestamp(
+                                previous_file.stat().st_mtime, tz=UTC
+                            ).isoformat()
+                        except Exception as e:
+                            logger.warning(f"Failed to calculate hash for {previous_file}: {e}, using database values")
+                            # Fall back to database copy
+                            prev_hash = None
+                            prev_phash = None
+                            prev_processed_at = None
+                            prev_size = None
+                    else:
+                        # File doesn't exist in previous/, use database copy
+                        prev_hash = None
+                        prev_phash = None
+                        prev_processed_at = None
+                        prev_size = None
+                else:
+                    # No previous_dir provided, use database copy
+                    prev_hash = None
+                    prev_phash = None
+                    prev_processed_at = None
+                    prev_size = None
+
+                # Update previous_* (either from filesystem or from database)
+                if prev_hash is not None:
+                    # Use calculated values from filesystem
+                    cursor.execute(
+                        """
+                        UPDATE image_versions
+                        SET previous_hash = ?,
+                            previous_phash = ?,
+                            previous_processed_at = ?,
+                            previous_file_size = ?,
+                            updated_at = ?
+                        WHERE stable_key = ?
+                        """,
+                        (prev_hash, prev_phash, prev_processed_at, prev_size, now, stable_key),
+                    )
+                else:
+                    # Fall back to database copy
+                    cursor.execute(
+                        """
+                        UPDATE image_versions
+                        SET previous_hash = current_hash,
+                            previous_phash = current_phash,
+                            previous_processed_at = current_processed_at,
+                            previous_file_size = current_file_size,
+                            updated_at = ?
+                        WHERE stable_key = ?
+                        """,
+                        (now, stable_key),
+                    )
 
                 # Update current_*
                 cursor.execute(
