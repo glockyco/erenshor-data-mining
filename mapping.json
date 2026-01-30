@@ -950,16 +950,14 @@
       "reason": "Fix capitalization: 'The' -> 'the'"
     },
     "character:fallen fernalla 1": {
-      "wiki_page_name": "Fallen Fernalla",
+      "wiki_page_name": "Fallen Fernalla (NPC)",
       "display_name": "Fallen Fernalla",
-      "image_name": "Fallen Fernalla"
+      "image_name": "Fallen Fernalla NPC"
     },
     "character:fallen fernalla:bloomingsepulcher:788.35:254.99:837.27": {
       "wiki_page_name": "Fallen Fernalla (NPC)",
       "display_name": "Fallen Fernalla",
-      "image_name": "Fallen Fernalla NPC",
-      "mapping_type": "custom",
-      "reason": "Disambiguate from the 'Fallen Fernalla' enemy."
+      "image_name": "Fallen Fernalla NPC"
     },
     "character:fernalla's wish - 1": {
       "wiki_page_name": "A Dying Wish",
