@@ -3,7 +3,7 @@
 This service handles the image processing pipeline:
 1. Discover images from database (Items, Spells, Skills)
 2. Process images: resize, pad, add borders/backgrounds
-3. Save processed images with stable_key naming
+3. Generate metadata (hashes, timestamps) for registry tracking
 
 Processing rules:
 - Spells/Skills: Add black border (8px), resize to 150x150
@@ -12,39 +12,20 @@ Processing rules:
 
 from __future__ import annotations
 
+import hashlib
 from collections.abc import Iterator
-from dataclasses import dataclass
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+import imagehash
 from PIL import Image
 
 if TYPE_CHECKING:
+    from erenshor.domain.entities.image import ImageInfo, ProcessingResult
     from erenshor.registry.resolver import RegistryResolver
 
-__all__ = ["ImageInfo", "ImageProcessor", "ProcessedImage"]
-
-
-@dataclass
-class ImageInfo:
-    """Information about a source image."""
-
-    entity_type: str  # "item", "spell", "skill"
-    stable_key: str  # e.g., "item:gen - kgti"
-    entity_name: str  # e.g., "Kingly Gift"
-    icon_name: str  # e.g., "GEN - KGTI"
-    source_path: Path | None  # Path to source PNG in Unity assets
-
-
-@dataclass
-class ProcessedImage:
-    """Result of processing a single image."""
-
-    entity_name: str
-    entity_type: str
-    action: str  # "processed", "skipped", "failed"
-    message: str
-    output_path: Path | None = None
+__all__ = ["ImageProcessor"]
 
 
 class ImageProcessor:
@@ -106,21 +87,25 @@ class ImageProcessor:
                 stable_key = row["StableKey"]
                 icon_name = row["ItemIconName"]
 
-                # Check if excluded in registry
+                # Check if excluded in registry and resolve names
                 try:
                     entity_name = self.resolver.resolve_page_title(stable_key)
+                    image_name = self.resolver.resolve_image_name(stable_key)
                 except ValueError:
                     continue
 
-                if entity_name is None:
+                if entity_name is None or image_name is None:
                     continue
 
                 source_path = self.texture_dir / f"{icon_name}.png"
+
+                from erenshor.domain.entities.image import ImageInfo
 
                 yield ImageInfo(
                     entity_type="item",
                     stable_key=stable_key,
                     entity_name=entity_name,
+                    image_name=image_name,
                     icon_name=icon_name,
                     source_path=source_path if source_path.exists() else None,
                 )
@@ -136,18 +121,22 @@ class ImageProcessor:
 
                 try:
                     entity_name = self.resolver.resolve_page_title(stable_key)
+                    image_name = self.resolver.resolve_image_name(stable_key)
                 except ValueError:
                     continue
 
-                if entity_name is None:
+                if entity_name is None or image_name is None:
                     continue
 
                 source_path = self.texture_dir / f"{icon_name}.png"
+
+                from erenshor.domain.entities.image import ImageInfo
 
                 yield ImageInfo(
                     entity_type="spell",
                     stable_key=stable_key,
                     entity_name=entity_name,
+                    image_name=image_name,
                     icon_name=icon_name,
                     source_path=source_path if source_path.exists() else None,
                 )
@@ -163,82 +152,88 @@ class ImageProcessor:
 
                 try:
                     entity_name = self.resolver.resolve_page_title(stable_key)
+                    image_name = self.resolver.resolve_image_name(stable_key)
                 except ValueError:
                     continue
 
-                if entity_name is None:
+                if entity_name is None or image_name is None:
                     continue
 
                 source_path = self.texture_dir / f"{icon_name}.png"
+
+                from erenshor.domain.entities.image import ImageInfo
 
                 yield ImageInfo(
                     entity_type="skill",
                     stable_key=stable_key,
                     entity_name=entity_name,
+                    image_name=image_name,
                     icon_name=icon_name,
                     source_path=source_path if source_path.exists() else None,
                 )
         finally:
             conn.close()
 
-    def process_images(self, force: bool = False) -> Iterator[ProcessedImage]:
-        """Process all images: resize, pad, border.
+    def process_single_image(self, image_info: ImageInfo, output_path: Path) -> ProcessingResult:
+        """Process a single image and generate metadata.
 
         Args:
-            force: Reprocess even if output exists
+            image_info: Image discovery information.
+            output_path: Where to write processed image.
 
-        Yields:
-            ProcessedImage for each entity
+        Returns:
+            ProcessingResult with hashes and metadata.
+
+        Raises:
+            ValueError: If source file doesn't exist.
+            Exception: If processing fails.
         """
-        self.output_dir.mkdir(parents=True, exist_ok=True)
+        from erenshor.domain.entities.image import ProcessingResult
 
-        for image_info in self.discover_images():
-            # Get final filename using stable key
-            filename = self._get_filename(image_info)
-            output_path = self.output_dir / filename
+        if not image_info.source_path or not image_info.source_path.exists():
+            raise ValueError(f"Source not found: {image_info.icon_name}")
 
-            # Skip if already processed (unless force)
-            if not force and output_path.exists():
-                yield ProcessedImage(
-                    entity_name=image_info.entity_name,
-                    entity_type=image_info.entity_type,
-                    action="skipped",
-                    message="Already processed",
-                    output_path=output_path,
-                )
-                continue
+        # Calculate source hash before processing
+        source_hash = self._sha256_file(image_info.source_path)
 
-            # Check if source exists
-            if not image_info.source_path or not image_info.source_path.exists():
-                yield ProcessedImage(
-                    entity_name=image_info.entity_name,
-                    entity_type=image_info.entity_type,
-                    action="failed",
-                    message=f"Source not found: {image_info.icon_name}",
-                )
-                continue
+        # Process the image
+        with Image.open(image_info.source_path) as source_img:
+            img = source_img.convert("RGBA")
 
-            # Process the image
-            try:
-                self._process_image(
-                    image_info.source_path,
-                    output_path,
-                    image_info.entity_type,
-                )
-                yield ProcessedImage(
-                    entity_name=image_info.entity_name,
-                    entity_type=image_info.entity_type,
-                    action="processed",
-                    message="Processed successfully",
-                    output_path=output_path,
-                )
-            except Exception as e:
-                yield ProcessedImage(
-                    entity_name=image_info.entity_name,
-                    entity_type=image_info.entity_type,
-                    action="failed",
-                    message=f"Processing error: {e}",
-                )
+            if image_info.entity_type in ("spell", "skill"):
+                # Spells/skills: resize with border
+                img = self._resize_and_pad_with_border(img, self.IMAGE_SIZE, self.BORDER_COLOR, self.BORDER_SIZE)
+            else:
+                # Items: resize and overlay on background
+                img = self._resize_and_pad(img, self.IMAGE_SIZE)
+                img = self._overlay_on_background(img, self.IMAGE_SIZE)
+
+            # Save processed image
+            img.save(output_path, "PNG")
+
+            # Generate perceptual hash
+            perceptual_hash = str(imagehash.phash(img))
+
+            # Get dimensions
+            dimensions = img.size
+
+        # Calculate content hash of processed file
+        content_hash = self._sha256_file(output_path)
+
+        # Get file size
+        file_size = output_path.stat().st_size
+
+        # Generate timestamp
+        processed_at = datetime.now(UTC).isoformat()
+
+        return ProcessingResult(
+            content_hash=content_hash,
+            perceptual_hash=perceptual_hash,
+            source_hash=source_hash,
+            file_size=file_size,
+            dimensions=dimensions,
+            processed_at=processed_at,
+        )
 
     def _get_filename(self, image_info: ImageInfo) -> str:
         """Get output filename using stable key format.
@@ -264,26 +259,22 @@ class ImageProcessor:
 
         return f"{filename_base}.png"
 
-    def _process_image(self, source_path: Path, output_path: Path, entity_type: str) -> None:
-        """Process a single image: resize, pad, background/border.
+    @staticmethod
+    def _sha256_file(file_path: Path) -> str:
+        """Calculate SHA256 hash of a file.
 
         Args:
-            source_path: Source PNG path
-            output_path: Output PNG path
-            entity_type: Type of entity (item, spell, skill)
+            file_path: Path to file.
+
+        Returns:
+            Hex string of SHA256 hash.
         """
-        with Image.open(source_path) as source_img:
-            img = source_img.convert("RGBA")
-
-            if entity_type in ("spell", "skill"):
-                # Spells/skills: resize with border
-                img = self._resize_and_pad_with_border(img, self.IMAGE_SIZE, self.BORDER_COLOR, self.BORDER_SIZE)
-            else:
-                # Items: resize and overlay on background
-                img = self._resize_and_pad(img, self.IMAGE_SIZE)
-                img = self._overlay_on_background(img, self.IMAGE_SIZE)
-
-            img.save(output_path, "PNG")
+        sha256_hash = hashlib.sha256()
+        with file_path.open("rb") as f:
+            # Read file in chunks for memory efficiency
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
 
     def _resize_and_pad(self, image: Image.Image, size: tuple[int, int]) -> Image.Image:
         """Resize image to fit within size, preserving aspect ratio.
