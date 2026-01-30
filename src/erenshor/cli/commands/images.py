@@ -68,7 +68,8 @@ def process(
 
     # Load registry resolver
     console.print("[dim]Loading registry...[/dim]")
-    registry_db_path = cli_ctx.repo_root / "registry.db"
+    wiki_dir = variant_config.resolved_wiki(cli_ctx.repo_root)
+    registry_db_path = wiki_dir / "registry.db"
     db_path = variant_config.resolved_database(cli_ctx.repo_root)
     mapping_json_path = cli_ctx.repo_root / "mapping.json"
     resolver = RegistryResolver(registry_db_path, game_db_path=db_path, mapping_json_path=mapping_json_path)
@@ -204,7 +205,8 @@ def upload(
 
     # Load registry resolver
     console.print("[dim]Loading registry...[/dim]")
-    registry_db_path = cli_ctx.repo_root / "registry.db"
+    wiki_dir = variant_config.resolved_wiki(cli_ctx.repo_root)
+    registry_db_path = wiki_dir / "registry.db"
     db_path = variant_config.resolved_database(cli_ctx.repo_root)
     mapping_json_path = cli_ctx.repo_root / "mapping.json"
     resolver = RegistryResolver(registry_db_path, game_db_path=db_path, mapping_json_path=mapping_json_path)
