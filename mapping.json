@@ -3807,6 +3807,26 @@
       "wiki_page_name": "Island Tomb",
       "display_name": "Island Tomb",
       "image_name": "Island Tomb"
+    },
+    "stance:defensive": {
+      "wiki_page_name": "Defensive",
+      "display_name": "Defensive",
+      "image_name": "Defensive"
+    },
+    "stance:normal": {
+      "wiki_page_name": "Normal",
+      "display_name": "Normal",
+      "image_name": "Normal"
+    },
+    "stance:reckless": {
+      "wiki_page_name": "Reckless",
+      "display_name": "Reckless",
+      "image_name": "Reckless"
+    },
+    "stance:taunting": {
+      "wiki_page_name": "Taunting",
+      "display_name": "Taunting",
+      "image_name": "Taunting"
     }
   }
 }
