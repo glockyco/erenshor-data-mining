@@ -515,8 +515,8 @@ public class CharacterListener : IAssetScanListener<Character>
 
                 record.EffectiveAC = Mathf.RoundToInt(baseAC * mitigationBonus);
 
-                // Calculate effective HP for NPCs (OverrideHPforNPC = true)
-                record.EffectiveHP = stats.BaseHP;
+                // Calculate effective HP for NPCs (applies global HP scaling)
+                record.EffectiveHP = Mathf.RoundToInt(stats.BaseHP * GameData.HPScale);
 
                 // Calculate effective attack ability for NPCs
                 float baseAttackAbility = 100 + (stats.Level - 1) * 40;

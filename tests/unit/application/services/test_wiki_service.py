@@ -546,8 +546,10 @@ class TestLegacyTemplateMigration:
             is_prefab=0,
             level=10,
             base_hp=1000,
+            effective_hp=1150,  # BaseHP * HPScale (1000 * 1.15)
             base_mana=100,
             base_ac=50,
+            effective_ac=150,  # Level * 15 (10 * 15)
             base_str=10,
             base_end=10,
             base_dex=10,
