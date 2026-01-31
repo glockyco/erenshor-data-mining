@@ -250,8 +250,9 @@ class WeaponsOverviewPageGenerator(OverviewPageGeneratorBase):
         # Notes column (procs, effects)
         notes = self._build_weapon_notes(weapon)
 
-        # Classes column - format as wiki links (sorted alphabetically)
-        classes = ", ".join(f"[[{cls}]]" for cls in sorted(class_names)) if class_names else ""
+        # Classes column - map to display names (already sorted by map_class_list)
+        display_class_names = self.context.class_display.map_class_list(class_names)
+        classes = ", ".join(f"[[{cls}]]" for cls in display_class_names) if display_class_names else ""
 
         # Add row
         rows.extend(

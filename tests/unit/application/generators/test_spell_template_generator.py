@@ -63,9 +63,9 @@ def mock_resolver():
 
 
 @pytest.fixture
-def generator(mock_resolver):
+def generator(mock_resolver, mock_class_display):
     """Create spell template generator."""
-    return SpellSectionGenerator(mock_resolver)
+    return SpellSectionGenerator(mock_resolver, mock_class_display)
 
 
 class TestSpellSectionGenerator:

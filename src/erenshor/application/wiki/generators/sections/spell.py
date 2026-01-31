@@ -16,6 +16,7 @@ from erenshor.application.wiki.generators.formatting import format_description, 
 from erenshor.application.wiki.generators.sections.base import SectionGeneratorBase
 
 if TYPE_CHECKING:
+    from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
     from erenshor.domain.enriched_data.spell import EnrichedSpellData
     from erenshor.registry.resolver import RegistryResolver
 
@@ -37,14 +38,16 @@ class SpellSectionGenerator(SectionGeneratorBase):
         >>> wikitext = generator.generate_template(spell, page_title="Fireball")
     """
 
-    def __init__(self, resolver: RegistryResolver) -> None:
+    def __init__(self, resolver: RegistryResolver, class_display: ClassDisplayNameService) -> None:
         """Initialize spell template generator.
 
         Args:
             resolver: Registry resolver for links and display names
+            class_display: Service for mapping class names to display names
         """
         super().__init__()
         self._resolver = resolver
+        self._class_display = class_display
 
     def generate_template(
         self,
@@ -107,11 +110,13 @@ class SpellSectionGenerator(SectionGeneratorBase):
         if spell.spell_duration_in_ticks:
             duration = self._format_duration(spell.spell_duration_in_ticks)
 
-        # Format class restrictions with level: [[ClassName]] (level)
+        # Format class restrictions with level: [[DisplayName]] (level)
         classes_list = []
         if enriched.classes and spell.required_level and spell.required_level > 0:
-            for class_name in sorted(enriched.classes):
-                classes_list.append(f"[[{class_name}]] ({spell.required_level})")
+            # Map internal class names to display names (already sorted)
+            display_names = self._class_display.map_class_list(enriched.classes)
+            for display_name in display_names:
+                classes_list.append(f"[[{display_name}]] ({spell.required_level})")
         classes = "<br>".join(classes_list)
 
         # Format cast time: convert ticks to seconds, treat 0 and <0.05s as "Instant"

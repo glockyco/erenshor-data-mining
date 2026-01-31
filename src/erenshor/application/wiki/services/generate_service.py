@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     import mwparserfromhell.wikicode
 
     from erenshor.application.wiki.generators.base import GeneratedPage
+    from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
     from erenshor.application.wiki.services.storage import WikiStorage
     from erenshor.infrastructure.database.repositories.characters import CharacterRepository
     from erenshor.infrastructure.database.repositories.factions import FactionRepository
@@ -54,6 +55,7 @@ class WikiGenerateService:
         loot_repo: LootTableRepository,
         quest_repo: QuestRepository,
         registry_resolver: RegistryResolver,
+        class_display: ClassDisplayNameService,
         console: Console | None = None,
     ) -> None:
         """Initialize generate service.
@@ -70,6 +72,7 @@ class WikiGenerateService:
             loot_repo: Repository for loot table data.
             quest_repo: Repository for quest data.
             registry_resolver: Resolver for page titles from registry.
+            class_display: Service for mapping class names to display names.
             console: Rich console for output (optional).
         """
         self._storage = storage
@@ -88,6 +91,7 @@ class WikiGenerateService:
             quest_repo=quest_repo,
             resolver=registry_resolver,
             storage=storage,
+            class_display=class_display,
         )
 
         # Handlers for preservation and normalization

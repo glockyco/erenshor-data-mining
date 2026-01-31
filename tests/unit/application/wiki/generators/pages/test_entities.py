@@ -36,6 +36,26 @@ def mock_context():
     # Mock storage
     context.storage = Mock()
 
+    # Mock class display service (identity mapping)
+    class_display = Mock()
+    class_display.get_display_name.side_effect = lambda name: name
+    class_display.map_class_list.side_effect = lambda names: sorted(names)
+    class_display.get_all_display_names.return_value = [
+        "Arcanist",
+        "Druid",
+        "Duelist",
+        "Paladin",
+        "Stormcaller",
+    ]
+    class_display.get_all_internal_names.return_value = [
+        "Arcanist",
+        "Druid",
+        "Duelist",
+        "Paladin",
+        "Stormcaller",
+    ]
+    context.class_display = class_display
+
     return context
 
 

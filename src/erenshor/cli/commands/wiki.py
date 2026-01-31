@@ -25,6 +25,7 @@ from loguru import logger
 from rich.console import Console
 from rich.panel import Panel
 
+from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
 from erenshor.application.wiki.services.storage import WikiStorage
 from erenshor.application.wiki.services.wiki_service import WikiService
 from erenshor.cli.context import CLIContext
@@ -136,6 +137,9 @@ def _create_wiki_service(cli_ctx: CLIContext) -> WikiService:
     wiki_dir = variant_config.resolved_wiki(cli_ctx.repo_root)
     storage = WikiStorage(wiki_dir)
 
+    # Create class display name service
+    class_display = ClassDisplayNameService(db_connection)
+
     # Create and return service
     return WikiService(
         wiki_client=wiki_client,
@@ -150,6 +154,7 @@ def _create_wiki_service(cli_ctx: CLIContext) -> WikiService:
         loot_repo=loot_repo,
         quest_repo=quest_repo,
         registry_resolver=resolver,
+        class_display=class_display,
     )
 
 

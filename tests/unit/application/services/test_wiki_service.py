@@ -141,6 +141,29 @@ def mock_stance_repo():
 
 
 @pytest.fixture
+def mock_class_display():
+    """Mock ClassDisplayNameService with identity mapping."""
+    class_display = Mock()
+    class_display.get_display_name.side_effect = lambda name: name
+    class_display.map_class_list.side_effect = lambda names: sorted(names)
+    class_display.get_all_display_names.return_value = [
+        "Arcanist",
+        "Druid",
+        "Duelist",
+        "Paladin",
+        "Stormcaller",
+    ]
+    class_display.get_all_internal_names.return_value = [
+        "Arcanist",
+        "Druid",
+        "Duelist",
+        "Paladin",
+        "Stormcaller",
+    ]
+    return class_display
+
+
+@pytest.fixture
 def wiki_service(
     mock_wiki_client,
     mock_storage,
@@ -153,6 +176,7 @@ def wiki_service(
     mock_spawn_repo,
     mock_loot_repo,
     mock_registry_resolver,
+    mock_class_display,
 ):
     """WikiService instance with mocked dependencies."""
     from unittest.mock import Mock
@@ -174,6 +198,7 @@ def wiki_service(
         loot_repo=mock_loot_repo,
         quest_repo=mock_quest_repo,
         registry_resolver=mock_registry_resolver,
+        class_display=mock_class_display,
     )
 
 
@@ -233,6 +258,7 @@ class TestWikiServiceInit:
         mock_spawn_repo,
         mock_loot_repo,
         mock_registry_resolver,
+        mock_class_display,
     ):
         """Test service initializes with all dependencies."""
         from unittest.mock import Mock
@@ -252,6 +278,7 @@ class TestWikiServiceInit:
             loot_repo=mock_loot_repo,
             quest_repo=mock_quest_repo,
             registry_resolver=mock_registry_resolver,
+            class_display=mock_class_display,
         )
 
         # WikiService now delegates to specialized services

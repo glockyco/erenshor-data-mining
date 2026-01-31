@@ -5,13 +5,40 @@ templates while preserving the original formatting (no spaces added around
 equals signs).
 """
 
+from unittest.mock import Mock
+
+import pytest
+
 from erenshor.application.wiki.services.generate_service import WikiGenerateService
+
+
+@pytest.fixture
+def generate_service():
+    """Create WikiGenerateService with None/mock dependencies.
+
+    Only the _replace_fancy_tables helper methods are exercised by these
+    tests, so most dependencies are unused.
+    """
+    return WikiGenerateService(
+        storage=None,  # type: ignore
+        item_repo=None,  # type: ignore
+        character_repo=None,  # type: ignore
+        spell_repo=None,  # type: ignore
+        skill_repo=None,  # type: ignore
+        stance_repo=None,  # type: ignore
+        faction_repo=None,  # type: ignore
+        spawn_repo=None,  # type: ignore
+        loot_repo=None,  # type: ignore
+        quest_repo=None,  # type: ignore
+        registry_resolver=None,  # type: ignore
+        class_display=Mock(),
+    )
 
 
 class TestFancyTableReplacement:
     """Test fancy table replacement preserves formatting."""
 
-    def test_replace_weapon_table_preserves_no_space_formatting(self):
+    def test_replace_weapon_table_preserves_no_space_formatting(self, generate_service):
         """Test weapon table replacement preserves |param=value format (no spaces)."""
         # Old wikitext has legacy Fancy-weapon templates
         old_wikitext = """{{Item
@@ -43,20 +70,7 @@ class TestFancyTableReplacement:
 |}
 """
 
-        # Create minimal service instance (we only need the helper method)
-        service = WikiGenerateService(
-            storage=None,  # type: ignore
-            item_repo=None,  # type: ignore
-            character_repo=None,  # type: ignore
-            spell_repo=None,  # type: ignore
-            skill_repo=None,  # type: ignore
-            stance_repo=None,  # type: ignore
-            faction_repo=None,  # type: ignore
-            spawn_repo=None,  # type: ignore
-            loot_repo=None,  # type: ignore
-            quest_repo=None,  # type: ignore
-            registry_resolver=None,  # type: ignore
-        )
+        service = generate_service
 
         result = service._replace_fancy_tables(old_wikitext, new_wikitext)
 
@@ -69,7 +83,7 @@ class TestFancyTableReplacement:
         # Legacy template should be replaced
         assert "{{Fancy-weapon" not in result
 
-    def test_replace_armor_table_preserves_no_space_formatting(self):
+    def test_replace_armor_table_preserves_no_space_formatting(self, generate_service):
         """Test armor table replacement preserves |param=value format (no spaces)."""
         # Old wikitext has legacy Fancy-armor templates
         old_wikitext = """{{Item
@@ -101,21 +115,7 @@ class TestFancyTableReplacement:
 |}
 """
 
-        service = WikiGenerateService(
-            storage=None,  # type: ignore
-            item_repo=None,  # type: ignore
-            character_repo=None,  # type: ignore
-            spell_repo=None,  # type: ignore
-            skill_repo=None,  # type: ignore
-            stance_repo=None,  # type: ignore
-            faction_repo=None,  # type: ignore
-            spawn_repo=None,  # type: ignore
-            loot_repo=None,  # type: ignore
-            quest_repo=None,  # type: ignore
-            registry_resolver=None,  # type: ignore
-        )
-
-        result = service._replace_fancy_tables(old_wikitext, new_wikitext)
+        result = generate_service._replace_fancy_tables(old_wikitext, new_wikitext)
 
         # Result should have no spaces around equals and use new template name
         assert "{{Item/Armor" in result
@@ -126,7 +126,7 @@ class TestFancyTableReplacement:
         # Legacy template should be replaced
         assert "{{Fancy-armor" not in result
 
-    def test_replace_charm_template_preserves_no_space_formatting(self):
+    def test_replace_charm_template_preserves_no_space_formatting(self, generate_service):
         """Test charm template replacement preserves |param=value format (no spaces)."""
         # Old wikitext has legacy Fancy-charm template
         old_wikitext = """{{Item
@@ -152,21 +152,7 @@ class TestFancyTableReplacement:
 }}
 """
 
-        service = WikiGenerateService(
-            storage=None,  # type: ignore
-            item_repo=None,  # type: ignore
-            character_repo=None,  # type: ignore
-            spell_repo=None,  # type: ignore
-            skill_repo=None,  # type: ignore
-            stance_repo=None,  # type: ignore
-            faction_repo=None,  # type: ignore
-            spawn_repo=None,  # type: ignore
-            loot_repo=None,  # type: ignore
-            quest_repo=None,  # type: ignore
-            registry_resolver=None,  # type: ignore
-        )
-
-        result = service._replace_fancy_tables(old_wikitext, new_wikitext)
+        result = generate_service._replace_fancy_tables(old_wikitext, new_wikitext)
 
         # Result should have no spaces around equals and use new template name
         assert "{{Item/Charm" in result
@@ -178,7 +164,7 @@ class TestFancyTableReplacement:
         # Legacy template should be replaced
         assert "{{Fancy-charm" not in result
 
-    def test_replace_charm_with_nested_templates(self):
+    def test_replace_charm_with_nested_templates(self, generate_service):
         """Test charm replacement handles nested templates like {{AbilityLink}}."""
         # Old wikitext has legacy Fancy-charm template
         old_wikitext = """{{Item
@@ -204,21 +190,7 @@ class TestFancyTableReplacement:
 }}
 """
 
-        service = WikiGenerateService(
-            storage=None,  # type: ignore
-            item_repo=None,  # type: ignore
-            character_repo=None,  # type: ignore
-            spell_repo=None,  # type: ignore
-            skill_repo=None,  # type: ignore
-            stance_repo=None,  # type: ignore
-            faction_repo=None,  # type: ignore
-            spawn_repo=None,  # type: ignore
-            loot_repo=None,  # type: ignore
-            quest_repo=None,  # type: ignore
-            registry_resolver=None,  # type: ignore
-        )
-
-        result = service._replace_fancy_tables(old_wikitext, new_wikitext)
+        result = generate_service._replace_fancy_tables(old_wikitext, new_wikitext)
 
         # Result should preserve nested template and use new template name
         assert "{{Item/Charm" in result
@@ -229,7 +201,7 @@ class TestFancyTableReplacement:
         # Legacy template should be replaced
         assert "{{Fancy-charm" not in result
 
-    def test_replace_weapon_table_with_nested_templates(self):
+    def test_replace_weapon_table_with_nested_templates(self, generate_service):
         """Test weapon table replacement handles nested templates."""
         # Old wikitext has legacy Fancy-weapon template
         old_wikitext = """{{Item
@@ -261,21 +233,7 @@ class TestFancyTableReplacement:
 |}
 """
 
-        service = WikiGenerateService(
-            storage=None,  # type: ignore
-            item_repo=None,  # type: ignore
-            character_repo=None,  # type: ignore
-            spell_repo=None,  # type: ignore
-            skill_repo=None,  # type: ignore
-            stance_repo=None,  # type: ignore
-            faction_repo=None,  # type: ignore
-            spawn_repo=None,  # type: ignore
-            loot_repo=None,  # type: ignore
-            quest_repo=None,  # type: ignore
-            registry_resolver=None,  # type: ignore
-        )
-
-        result = service._replace_fancy_tables(old_wikitext, new_wikitext)
+        result = generate_service._replace_fancy_tables(old_wikitext, new_wikitext)
 
         # Result should preserve nested template and use new template name
         assert "{{Item/Weapon" in result
@@ -284,7 +242,7 @@ class TestFancyTableReplacement:
         # Legacy template should be replaced
         assert "{{Fancy-weapon" not in result
 
-    def test_no_replacement_when_no_fancy_templates(self):
+    def test_no_replacement_when_no_fancy_templates(self, generate_service):
         """Test no replacement occurs when new content has no fancy templates."""
         old_wikitext = """{{Item
 |title=Test Item
@@ -300,21 +258,7 @@ Some content
 Different content
 """
 
-        service = WikiGenerateService(
-            storage=None,  # type: ignore
-            item_repo=None,  # type: ignore
-            character_repo=None,  # type: ignore
-            spell_repo=None,  # type: ignore
-            skill_repo=None,  # type: ignore
-            stance_repo=None,  # type: ignore
-            faction_repo=None,  # type: ignore
-            spawn_repo=None,  # type: ignore
-            loot_repo=None,  # type: ignore
-            quest_repo=None,  # type: ignore
-            registry_resolver=None,  # type: ignore
-        )
-
-        result = service._replace_fancy_tables(old_wikitext, new_wikitext)
+        result = generate_service._replace_fancy_tables(old_wikitext, new_wikitext)
 
         # Should return old content unchanged
         assert result == old_wikitext

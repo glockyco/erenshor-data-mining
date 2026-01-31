@@ -85,10 +85,10 @@ class EntityPageGenerator(PageGenerator):
         )
 
         # Initialize section generators
-        self.item_generator = ItemSectionGenerator(context.resolver)
+        self.item_generator = ItemSectionGenerator(context.resolver, context.class_display)
         self.character_generator = CharacterSectionGenerator(context.resolver)
-        self.spell_generator = SpellSectionGenerator(context.resolver)
-        self.skill_generator = SkillSectionGenerator(context.resolver)
+        self.spell_generator = SpellSectionGenerator(context.resolver, context.class_display)
+        self.skill_generator = SkillSectionGenerator(context.resolver, context.class_display)
         self.stance_generator = StanceSectionGenerator(context.resolver)
         self.category_generator = CategoryGenerator(context.resolver)
 

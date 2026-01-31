@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
     from erenshor.application.wiki.services.storage import WikiStorage
     from erenshor.infrastructure.database.repositories.characters import CharacterRepository
     from erenshor.infrastructure.database.repositories.factions import FactionRepository
@@ -43,6 +44,7 @@ class GeneratorContext:
         quest_repo: Repository for quest data
         resolver: Registry resolver for page titles and links
         storage: Wiki storage for reading fetched pages
+        class_display: Service for mapping class names to display names
     """
 
     item_repo: ItemRepository
@@ -56,3 +58,4 @@ class GeneratorContext:
     quest_repo: QuestRepository
     resolver: RegistryResolver
     storage: WikiStorage
+    class_display: ClassDisplayNameService

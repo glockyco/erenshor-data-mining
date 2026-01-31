@@ -41,6 +41,7 @@ Example:
 from loguru import logger
 from rich.console import Console
 
+from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
 from erenshor.application.wiki.services.deploy_service import WikiDeployService
 from erenshor.application.wiki.services.fetch_service import WikiFetchService
 from erenshor.application.wiki.services.generate_service import WikiGenerateService
@@ -87,6 +88,7 @@ class WikiService:
         ...     loot_repo=loot_repo,
         ...     quest_repo=quest_repo,
         ...     registry_resolver=registry_resolver,
+        ...     class_display=class_display,
         ... )
         >>> service.fetch_all()
         >>> service.generate_all()
@@ -107,6 +109,7 @@ class WikiService:
         loot_repo: LootTableRepository,
         quest_repo: QuestRepository,
         registry_resolver: RegistryResolver,
+        class_display: ClassDisplayNameService,
         console: Console | None = None,
     ) -> None:
         """Initialize wiki service.
@@ -124,6 +127,7 @@ class WikiService:
             loot_repo: Repository for loot table data.
             quest_repo: Repository for quest data.
             registry_resolver: Registry resolver for page title resolution.
+            class_display: Service for mapping class names to display names.
             console: Rich console for output (optional).
         """
         console = console or Console()
@@ -142,6 +146,7 @@ class WikiService:
             loot_repo=loot_repo,
             quest_repo=quest_repo,
             registry_resolver=registry_resolver,
+            class_display=class_display,
             console=console,
         )
 
@@ -157,6 +162,7 @@ class WikiService:
             loot_repo=loot_repo,
             quest_repo=quest_repo,
             registry_resolver=registry_resolver,
+            class_display=class_display,
             console=console,
         )
 

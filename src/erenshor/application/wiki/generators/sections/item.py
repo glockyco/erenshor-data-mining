@@ -29,6 +29,7 @@ from erenshor.registry.item_classifier import ItemKind, classify_item_kind
 from erenshor.shared.game_constants import LONG_NAME_FONT_SIZE, LONG_NAME_THRESHOLD
 
 if TYPE_CHECKING:
+    from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
     from erenshor.domain.enriched_data.item import EnrichedItemData
     from erenshor.domain.entities.item import Item
     from erenshor.domain.entities.item_stats import ItemStats
@@ -52,14 +53,16 @@ class ItemSectionGenerator(SectionGeneratorBase):
         >>> wikitext = generator.generate_template(item, page_title="Sword of Truth")
     """
 
-    def __init__(self, resolver: RegistryResolver) -> None:
+    def __init__(self, resolver: RegistryResolver, class_display: ClassDisplayNameService) -> None:
         """Initialize item section generator.
 
         Args:
             resolver: Registry resolver for links and display names
+            class_display: Service for mapping class names to display names
         """
         super().__init__()
         self._resolver = resolver
+        self._class_display = class_display
 
     def generate_template(self, enriched: EnrichedItemData, page_title: str) -> str:
         """Generate template wikitext for a single item.
@@ -661,14 +664,8 @@ class ItemSectionGenerator(SectionGeneratorBase):
         # Get weapon type display
         weapon_type = self._weapon_type_display(item.required_slot, item.this_weapon_type)
 
-        # Class obtainability
-        class_flags = {
-            "arcanist": "True" if "Arcanist" in enriched.classes else "",
-            "duelist": "True" if "Duelist" in enriched.classes else "",
-            "druid": "True" if "Druid" in enriched.classes else "",
-            "paladin": "True" if "Paladin" in enriched.classes else "",
-            "stormcaller": "True" if "Stormcaller" in enriched.classes else "",
-        }
+        # Class obtainability - map internal class names to display names
+        class_flags = self._build_class_flags(enriched.classes)
 
         # Get display name from registry (may differ from page title for disambiguation)
         display_name = self._resolver.resolve_display_name(item.stable_key)
@@ -735,14 +732,8 @@ class ItemSectionGenerator(SectionGeneratorBase):
         # Get armor slot from item.required_slot
         slot = safe_str(item.required_slot)
 
-        # Class obtainability
-        class_flags = {
-            "arcanist": "True" if "Arcanist" in enriched.classes else "",
-            "duelist": "True" if "Duelist" in enriched.classes else "",
-            "druid": "True" if "Druid" in enriched.classes else "",
-            "paladin": "True" if "Paladin" in enriched.classes else "",
-            "stormcaller": "True" if "Stormcaller" in enriched.classes else "",
-        }
+        # Class obtainability - map internal class names to display names
+        class_flags = self._build_class_flags(enriched.classes)
 
         # Get display name from registry (may differ from page title for disambiguation)
         display_name = self._resolver.resolve_display_name(item.stable_key)
@@ -824,14 +815,26 @@ class ItemSectionGenerator(SectionGeneratorBase):
             "chascaling": format_scaling(stat.cha_scaling),
             "resistscaling": format_scaling(stat.resist_scaling),
             "mitigationscaling": format_scaling(stat.mitigation_scaling),
-            "arcanist": "True" if "Arcanist" in enriched.classes else "",
-            "duelist": "True" if "Duelist" in enriched.classes else "",
-            "druid": "True" if "Druid" in enriched.classes else "",
-            "paladin": "True" if "Paladin" in enriched.classes else "",
-            "stormcaller": "True" if "Stormcaller" in enriched.classes else "",
+            **self._build_class_flags(enriched.classes),
         }
 
         return context
+
+    def _build_class_flags(self, class_names: list[str]) -> dict[str, str]:
+        """Build class obtainability flags for item templates.
+
+        Uses internal class names (e.g., "Duelist", "Reaver") as template
+        parameter names, since the MediaWiki templates use internal names.
+
+        Args:
+            class_names: Internal class names from enriched.classes
+
+        Returns:
+            Dict like {"arcanist": "True", "duelist": "", "reaver": "True", ...}
+        """
+        class_set = set(class_names)
+        known_classes = self._class_display.get_all_internal_names()
+        return {name.lower(): "True" if name in class_set else "" for name in known_classes}
 
     def _build_spell_details_context(self, spell: Spell | None, prefix: str = "proc") -> dict[str, str]:
         """Build template context for spell details fields.

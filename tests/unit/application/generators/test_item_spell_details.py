@@ -28,9 +28,9 @@ def mock_resolver():
 
 
 @pytest.fixture
-def generator(mock_resolver):
+def generator(mock_resolver, mock_class_display):
     """Create ItemSectionGenerator with mocked resolver."""
-    return ItemSectionGenerator(mock_resolver)
+    return ItemSectionGenerator(mock_resolver, mock_class_display)
 
 
 @pytest.fixture
@@ -418,14 +418,14 @@ class TestBuildSpellDetailsContext:
     # Edge Cases
     # -------------------------------------------------------------------------
 
-    def test_empty_spell_name(self, mock_resolver):
+    def test_empty_spell_name(self, mock_resolver, mock_class_display):
         """Test spell with empty string name returns empty when resolver returns empty."""
         # Configure resolver to return empty for this spell
         mock_resolver.resolve_display_name.return_value = ""
         mock_resolver.resolve_page_title.return_value = None
         mock_resolver.resolve_image_name.return_value = None
 
-        generator = ItemSectionGenerator(mock_resolver)
+        generator = ItemSectionGenerator(mock_resolver, mock_class_display)
         spell = Spell(
             stable_key="spell:empty",
             spell_name="",

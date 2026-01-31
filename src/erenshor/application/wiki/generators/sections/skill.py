@@ -16,6 +16,7 @@ from erenshor.application.wiki.generators.formatting import format_description, 
 from erenshor.application.wiki.generators.sections.base import SectionGeneratorBase
 
 if TYPE_CHECKING:
+    from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
     from erenshor.domain.enriched_data.skill import EnrichedSkillData
     from erenshor.registry.resolver import RegistryResolver
 
@@ -37,14 +38,16 @@ class SkillSectionGenerator(SectionGeneratorBase):
         >>> wikitext = generator.generate_template(skill, page_title="Shield Bash")
     """
 
-    def __init__(self, resolver: RegistryResolver) -> None:
+    def __init__(self, resolver: RegistryResolver, class_display: ClassDisplayNameService) -> None:
         """Initialize skill template generator.
 
         Args:
             resolver: Registry resolver for links and display names
+            class_display: Service for mapping class names to display names
         """
         super().__init__()
         self._resolver = resolver
+        self._class_display = class_display
 
     def generate_template(self, enriched: EnrichedSkillData, page_title: str) -> str:
         """Generate {{Ability}} template wikitext for a single skill.
@@ -97,7 +100,7 @@ class SkillSectionGenerator(SectionGeneratorBase):
             """Convert int boolean to 'True' or empty string."""
             return "True" if value else ""
 
-        # Format class restrictions with levels: [[ClassName]] (level)
+        # Format class restrictions with levels: [[DisplayName]] (level)
         class_level_pairs = []
         if skill.duelist_required_level and skill.duelist_required_level > 0:
             class_level_pairs.append(("Duelist", skill.duelist_required_level))
@@ -112,9 +115,12 @@ class SkillSectionGenerator(SectionGeneratorBase):
         if skill.reaver_required_level and skill.reaver_required_level > 0:
             class_level_pairs.append(("Reaver", skill.reaver_required_level))
 
-        # Sort alphabetically and format with wiki links and levels
-        class_level_pairs.sort(key=lambda x: x[0])
-        classes_list = [f"[[{class_name}]] ({level})" for class_name, level in class_level_pairs]
+        # Map internal names to display names and sort by display name
+        display_pairs = [
+            (self._class_display.get_display_name(class_name), level) for class_name, level in class_level_pairs
+        ]
+        display_pairs.sort(key=lambda x: x[0])
+        classes_list = [f"[[{class_name}]] ({level})" for class_name, level in display_pairs]
         classes = "<br>".join(classes_list)
 
         # Build equipment requirements description

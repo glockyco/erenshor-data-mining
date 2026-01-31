@@ -39,9 +39,9 @@ def category_generator(mock_resolver):
 
 
 @pytest.fixture
-def generator(mock_resolver):
+def generator(mock_resolver, mock_class_display):
     """Create item template generator."""
-    return ItemSectionGenerator(mock_resolver)
+    return ItemSectionGenerator(mock_resolver, mock_class_display)
 
 
 class TestCharmTemplate:
