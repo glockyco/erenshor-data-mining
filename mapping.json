@@ -1076,24 +1076,18 @@
     },
     "character:gloopa half": {
       "wiki_page_name": "Gloopa",
-      "display_name": "Gloopa",
-      "image_name": "Gloopa",
-      "mapping_type": "custom",
-      "reason": null
+      "display_name": "Gloopa (Half)",
+      "image_name": "Gloopa"
     },
     "character:gloopa quarter": {
       "wiki_page_name": "Gloopa",
-      "display_name": "Gloopa",
-      "image_name": "Gloopa",
-      "mapping_type": "custom",
-      "reason": null
+      "display_name": "Gloopa (Quarter)",
+      "image_name": "Gloopa"
     },
     "character:gloopa quarter loot": {
       "wiki_page_name": "Gloopa",
-      "display_name": "Gloopa",
-      "image_name": "Gloopa",
-      "mapping_type": "custom",
-      "reason": null
+      "display_name": "Gloopa (Quarter)",
+      "image_name": "Gloopa"
     },
     "character:golden spirit": {
       "wiki_page_name": null,
