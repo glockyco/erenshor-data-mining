@@ -14,7 +14,17 @@ Examples:
 import os
 import difflib
 from pathlib import Path
+from urllib.parse import unquote, quote
 import argparse
+
+
+def get_wiki_link(page_name, base_url="https://erenshor.wiki.gg"):
+    """Generate wiki URL from page name."""
+    # URL-decode the page name (e.g., "A%20Grass%20Spider" -> "A Grass Spider")
+    decoded = unquote(page_name)
+    # Wiki uses underscores in URLs
+    wiki_page = decoded.replace(" ", "_")
+    return f"{base_url}/wiki/{quote(wiki_page, safe='_')}"
 
 
 def get_file_stats(filepath):
@@ -73,6 +83,7 @@ def analyze_diff(fetched_file, generated_file):
 def main():
     parser = argparse.ArgumentParser(description="Analyze wiki page diffs")
     parser.add_argument("--variant", default="playtest", help="Variant to analyze (default: playtest)")
+    parser.add_argument("--top-n", type=int, default=50, help="Number of top changed pages to display (default: 50)")
     args = parser.parse_args()
 
     # Paths
@@ -134,7 +145,17 @@ def main():
 
         diff_stats = analyze_diff(fetched_file, generated_file)
         if diff_stats:
-            results.append({"path": rel_path, "name": Path(rel_path).stem, **diff_stats})
+            page_name = Path(rel_path).stem
+            results.append(
+                {
+                    "path": rel_path,
+                    "name": page_name,
+                    "fetched_path": f"variants/{args.variant}/wiki/fetched/{rel_path}",
+                    "generated_path": f"variants/{args.variant}/wiki/generated/{rel_path}",
+                    "wiki_link": get_wiki_link(page_name),
+                    **diff_stats,
+                }
+            )
 
     print(f"  Completed {len(results)} comparisons")
     print()
@@ -185,11 +206,15 @@ def main():
     )
     print(f"Pages with >500 line changes: {len(large_diffs)}")
     if large_diffs:
-        print("\nTop 10 largest diffs:")
-        for r in large_diffs[:10]:
+        limit = min(10, len(large_diffs))
+        print(f"\nTop {limit} largest diffs:")
+        for i, r in enumerate(large_diffs[:limit], 1):
             print(
-                f"  {r['total_changes']:4d} changes | {r['size_change']:+6d} bytes ({r['size_change_pct']:+6.1f}%) | {r['name']}"
+                f"\n{i:2d}. {r['total_changes']:4d} changes | {r['size_change']:+6d} bytes ({r['size_change_pct']:+6.1f}%)"
             )
+            print(f"    Page: {r['name']}")
+            print(f"    Wiki: {r['wiki_link']}")
+            print(f"    Generated: {r['generated_path']}")
     print()
 
     # Pages with massive size changes (>100% or <-50%)
@@ -200,44 +225,56 @@ def main():
 
     print(f"Pages with >100% size increase: {len(huge_growth)}")
     if huge_growth:
-        print("\nTop 10 size increases:")
-        for r in huge_growth[:10]:
-            print(
-                f"  {r['size_change_pct']:+7.1f}% | {r['fetched_size']:5d} -> {r['generated_size']:5d} bytes | {r['name']}"
-            )
+        limit = min(10, len(huge_growth))
+        print(f"\nTop {limit} size increases:")
+        for i, r in enumerate(huge_growth[:limit], 1):
+            print(f"\n{i:2d}. {r['size_change_pct']:+7.1f}% | {r['fetched_size']:5d} -> {r['generated_size']:5d} bytes")
+            print(f"    Page: {r['name']}")
+            print(f"    Wiki: {r['wiki_link']}")
+            print(f"    Generated: {r['generated_path']}")
     print()
 
     print(f"Pages with >50% size decrease: {len(huge_shrink)}")
     if huge_shrink:
-        print("\nTop 10 size decreases:")
-        for r in huge_shrink[:10]:
-            print(
-                f"  {r['size_change_pct']:+7.1f}% | {r['fetched_size']:5d} -> {r['generated_size']:5d} bytes | {r['name']}"
-            )
+        limit = min(10, len(huge_shrink))
+        print(f"\nTop {limit} size decreases:")
+        for i, r in enumerate(huge_shrink[:limit], 1):
+            print(f"\n{i:2d}. {r['size_change_pct']:+7.1f}% | {r['fetched_size']:5d} -> {r['generated_size']:5d} bytes")
+            print(f"    Page: {r['name']}")
+            print(f"    Wiki: {r['wiki_link']}")
+            print(f"    Generated: {r['generated_path']}")
     print()
 
     # Very small pages (might be broken)
     tiny_pages = sorted([r for r in results if r["generated_size"] < 100], key=lambda x: x["generated_size"])
     print(f"Generated pages <100 bytes (might be broken): {len(tiny_pages)}")
     if tiny_pages:
-        print("\nSmallest generated pages:")
-        for r in tiny_pages[:10]:
-            print(f"  {r['generated_size']:3d} bytes | {r['name']}")
+        limit = min(10, len(tiny_pages))
+        print(f"\nSmallest {limit} generated pages:")
+        for i, r in enumerate(tiny_pages[:limit], 1):
+            print(f"\n{i:2d}. {r['generated_size']:3d} bytes")
+            print(f"    Page: {r['name']}")
+            print(f"    Wiki: {r['wiki_link']}")
+            print(f"    Generated: {r['generated_path']}")
     print()
 
-    # Top 20 pages by total changes
+    # Top N pages by total changes
     print("=" * 80)
-    print("TOP 20 PAGES BY TOTAL CHANGES")
+    print(f"TOP {args.top_n} PAGES BY TOTAL CHANGES")
     print("=" * 80)
     print()
 
-    top_changes = sorted(with_changes, key=lambda x: x["total_changes"], reverse=True)[:20]
+    top_changes = sorted(with_changes, key=lambda x: x["total_changes"], reverse=True)[: args.top_n]
     for i, r in enumerate(top_changes, 1):
         print(
-            f"{i:2d}. {r['total_changes']:4d} changes (+{r['additions']:-4d}/-{r['deletions']:4d}) | "
-            f"{r['size_change']:+6d}b ({r['size_change_pct']:+6.1f}%) | {r['name']}"
+            f"{i:3d}. {r['total_changes']:4d} changes (+{r['additions']:4d}/-{r['deletions']:4d}) | "
+            f"{r['size_change']:+6d}b ({r['size_change_pct']:+6.1f}%)"
         )
-    print()
+        print(f"     Page: {r['name']}")
+        print(f"     Wiki: {r['wiki_link']}")
+        print(f"     Fetched:   {r['fetched_path']}")
+        print(f"     Generated: {r['generated_path']}")
+        print()
 
     print("=" * 80)
     print("ANALYSIS COMPLETE")
