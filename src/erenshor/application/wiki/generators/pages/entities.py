@@ -6,7 +6,7 @@ Handles multi-entity pages where multiple entities share the same page title.
 
 from __future__ import annotations
 
-from collections.abc import Iterator
+from collections.abc import Iterator, Sequence
 from typing import TYPE_CHECKING
 
 from loguru import logger
@@ -189,6 +189,8 @@ class EntityPageGenerator(PageGenerator):
                 else:
                     logger.warning(f"Unknown entity type: {type(entity)}")
 
+            enriched_entities = self._deduplicate_characters(enriched_entities)
+
             # Generate templates for each enriched entity
             templates = []
             for enriched in enriched_entities:
@@ -234,3 +236,85 @@ class EntityPageGenerator(PageGenerator):
             )
 
         logger.info(f"EntityPageGenerator: Generated {len(page_groups)} pages")
+
+    @staticmethod
+    def _build_character_dedup_key(
+        enriched: EnrichedCharacterData,
+        display_name: str,
+    ) -> tuple[str, int | None, int | None, tuple[tuple[str | None, float], ...], tuple[str, ...]]:
+        """Build a hashable key for deduplicating identical characters.
+
+        Two characters are considered identical if they have the same display
+        name, level, effective HP, loot table, and spell list. The display
+        name comes from the registry resolver and determines the rendered
+        infobox name — characters with different display names always produce
+        different template output and must never be merged.
+
+        Other stats (mana, AC, str, dex, etc.) are derived from level and
+        guaranteed identical when level + HP match.
+
+        Args:
+            enriched: Enriched character data to build key from
+            display_name: Registry-resolved display name for this character
+
+        Returns:
+            Hashable tuple suitable as a dict key
+        """
+        loot_key = tuple(sorted((d.item_stable_key, d.drop_probability) for d in enriched.loot_drops))
+        spell_key = tuple(sorted(enriched.spells))
+        return (
+            display_name,
+            enriched.character.level,
+            enriched.character.effective_hp,
+            loot_key,
+            spell_key,
+        )
+
+    def _deduplicate_characters(
+        self,
+        enriched_entities: Sequence[
+            EnrichedItemData | EnrichedCharacterData | EnrichedSpellData | EnrichedSkillData | EnrichedStanceData
+        ],
+    ) -> list[EnrichedItemData | EnrichedCharacterData | EnrichedSpellData | EnrichedSkillData | EnrichedStanceData]:
+        """Remove duplicate character infoboxes, merging their spawn info.
+
+        Multiple Character entities can share the same NPCName (prefab copies,
+        placed instances, disabled variants). When they have identical stats,
+        loot, and spells, only the first is kept and spawn_infos from all
+        duplicates are merged into it.
+
+        Non-character entities pass through unchanged.
+
+        Args:
+            enriched_entities: Mixed list of enriched entities for one page
+
+        Returns:
+            Filtered list with duplicate characters removed
+        """
+        result: list[
+            EnrichedItemData | EnrichedCharacterData | EnrichedSpellData | EnrichedSkillData | EnrichedStanceData
+        ] = []
+        seen_characters: dict[
+            tuple[str, int | None, int | None, tuple[tuple[str | None, float], ...], tuple[str, ...]],
+            EnrichedCharacterData,
+        ] = {}
+        duplicate_count = 0
+
+        for enriched in enriched_entities:
+            if not isinstance(enriched, EnrichedCharacterData):
+                result.append(enriched)
+                continue
+
+            display_name = self.context.resolver.resolve_display_name(enriched.character.stable_key)
+            key = self._build_character_dedup_key(enriched, display_name)
+            if key in seen_characters:
+                seen_characters[key].spawn_infos.extend(enriched.spawn_infos)
+                duplicate_count += 1
+            else:
+                seen_characters[key] = enriched
+                result.append(enriched)
+
+        if duplicate_count > 0:
+            logger.debug(f"Deduplicated {duplicate_count} character entities")
+
+        return result

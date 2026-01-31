@@ -10,7 +10,11 @@ import pytest
 
 from erenshor.application.wiki.generators.context import GeneratorContext
 from erenshor.application.wiki.generators.pages.entities import EntityPageGenerator
+from erenshor.domain.enriched_data.character import EnrichedCharacterData
+from erenshor.domain.enriched_data.item import EnrichedItemData
 from erenshor.domain.entities import Character, Item, Skill, Spell
+from erenshor.domain.value_objects.loot import LootDropInfo
+from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
 
 
 @pytest.fixture
@@ -30,8 +34,9 @@ def mock_context():
     context.loot_repo = Mock()
     context.quest_repo = Mock()
 
-    # Mock resolver
+    # Mock resolver (identity mapping for display names by default)
     context.resolver = Mock()
+    context.resolver.resolve_display_name.side_effect = lambda key: key
 
     # Mock storage
     context.storage = Mock()
@@ -299,6 +304,13 @@ class TestGeneratePages:
         # Mock all enrichers to return proper types
         enriched_item = Mock(spec=EnrichedItemData)
         enriched_char = Mock(spec=EnrichedCharacterData)
+        enriched_char.character = Mock(spec=Character)
+        enriched_char.character.stable_key = "character:goblin"
+        enriched_char.character.level = 10
+        enriched_char.character.effective_hp = 500
+        enriched_char.loot_drops = []
+        enriched_char.spells = []
+        enriched_char.spawn_infos = []
         enriched_spell = Mock(spec=EnrichedSpellData)
         enriched_skill = Mock(spec=EnrichedSkillData)
 
@@ -403,3 +415,191 @@ class TestGeneratePages:
         assert len(pages[0].stable_keys) == 2
         assert "spell:fireball_i" in pages[0].stable_keys
         assert "skill:shield_bash" in pages[0].stable_keys
+
+
+def _make_enriched_character(
+    stable_key: str = "character:test",
+    level: int = 10,
+    effective_hp: int = 500,
+    loot_drops: list[LootDropInfo] | None = None,
+    spells: list[str] | None = None,
+    spawn_infos: list[CharacterSpawnInfo] | None = None,
+) -> EnrichedCharacterData:
+    """Create an EnrichedCharacterData with sensible defaults for testing."""
+    character = Mock(spec=Character)
+    character.stable_key = stable_key
+    character.level = level
+    character.effective_hp = effective_hp
+    return EnrichedCharacterData(
+        character=character,
+        spawn_infos=spawn_infos if spawn_infos is not None else [],
+        loot_drops=loot_drops if loot_drops is not None else [],
+        spells=spells if spells is not None else [],
+    )
+
+
+def _make_spawn_info(zone: str = "zone:azure") -> CharacterSpawnInfo:
+    """Create a CharacterSpawnInfo for testing."""
+    return CharacterSpawnInfo(
+        zone_stable_key=zone,
+        base_respawn=120.0,
+        x=0.0,
+        y=0.0,
+        z=0.0,
+        spawn_chance=100.0,
+        is_rare=False,
+        is_unique=False,
+    )
+
+
+def _make_loot_drop(item_key: str = "item:sword", probability: float = 5.0) -> LootDropInfo:
+    """Create a LootDropInfo for testing."""
+    return LootDropInfo(
+        item_name="Sword",
+        item_stable_key=item_key,
+        drop_probability=probability,
+        is_guaranteed=False,
+        is_actual=True,
+        is_common=True,
+        is_uncommon=False,
+        is_rare=False,
+        is_legendary=False,
+        is_unique=False,
+        is_visible=True,
+        item_unique=False,
+    )
+
+
+class TestDeduplicateCharacters:
+    """Test character deduplication logic."""
+
+    def test_identical_characters_merged(self, mock_context):
+        """Three characters with same level/hp/loot/spells collapse to one."""
+        generator = EntityPageGenerator(mock_context)
+        entities = [
+            _make_enriched_character(level=10, effective_hp=500),
+            _make_enriched_character(level=10, effective_hp=500),
+            _make_enriched_character(level=10, effective_hp=500),
+        ]
+
+        result = generator._deduplicate_characters(entities)
+
+        characters = [e for e in result if isinstance(e, EnrichedCharacterData)]
+        assert len(characters) == 1
+
+    def test_different_levels_kept(self, mock_context):
+        """Characters with different levels are kept as separate infoboxes."""
+        generator = EntityPageGenerator(mock_context)
+        entities = [
+            _make_enriched_character(level=12),
+            _make_enriched_character(level=25),
+        ]
+
+        result = generator._deduplicate_characters(entities)
+
+        characters = [e for e in result if isinstance(e, EnrichedCharacterData)]
+        assert len(characters) == 2
+
+    def test_different_loot_kept(self, mock_context):
+        """Characters with same stats but different loot are kept separate."""
+        generator = EntityPageGenerator(mock_context)
+        entities = [
+            _make_enriched_character(
+                loot_drops=[_make_loot_drop("item:sword", 5.0)],
+            ),
+            _make_enriched_character(
+                loot_drops=[_make_loot_drop("item:shield", 10.0)],
+            ),
+        ]
+
+        result = generator._deduplicate_characters(entities)
+
+        characters = [e for e in result if isinstance(e, EnrichedCharacterData)]
+        assert len(characters) == 2
+
+    def test_different_spells_kept(self, mock_context):
+        """Characters with same stats but different spells are kept separate."""
+        generator = EntityPageGenerator(mock_context)
+        entities = [
+            _make_enriched_character(spells=["spell:fireball"]),
+            _make_enriched_character(spells=["spell:icebolt"]),
+        ]
+
+        result = generator._deduplicate_characters(entities)
+
+        characters = [e for e in result if isinstance(e, EnrichedCharacterData)]
+        assert len(characters) == 2
+
+    def test_spawn_infos_merged(self, mock_context):
+        """Spawn infos from all duplicates are merged into the surviving entity."""
+        generator = EntityPageGenerator(mock_context)
+        spawn_a = _make_spawn_info("zone:azure")
+        spawn_b = _make_spawn_info("zone:stowaway")
+        spawn_c = _make_spawn_info("zone:rockshade")
+        entities = [
+            _make_enriched_character(spawn_infos=[spawn_a]),
+            _make_enriched_character(spawn_infos=[spawn_b]),
+            _make_enriched_character(spawn_infos=[spawn_c]),
+        ]
+
+        result = generator._deduplicate_characters(entities)
+
+        characters = [e for e in result if isinstance(e, EnrichedCharacterData)]
+        assert len(characters) == 1
+        assert len(characters[0].spawn_infos) == 3
+        assert spawn_a in characters[0].spawn_infos
+        assert spawn_b in characters[0].spawn_infos
+        assert spawn_c in characters[0].spawn_infos
+
+    def test_non_characters_unaffected(self, mock_context):
+        """Non-character enriched entities pass through unchanged."""
+        generator = EntityPageGenerator(mock_context)
+        item = Mock(spec=EnrichedItemData)
+        char_a = _make_enriched_character()
+        char_b = _make_enriched_character()
+
+        result = generator._deduplicate_characters([item, char_a, char_b])
+
+        assert len(result) == 2
+        assert result[0] is item
+        characters = [e for e in result if isinstance(e, EnrichedCharacterData)]
+        assert len(characters) == 1
+
+    def test_ordering_preserved(self, mock_context):
+        """Relative ordering of non-characters and first-seen characters is preserved."""
+        generator = EntityPageGenerator(mock_context)
+        item_a = Mock(spec=EnrichedItemData)
+        char_low = _make_enriched_character(level=5)
+        item_b = Mock(spec=EnrichedItemData)
+        char_high = _make_enriched_character(level=20)
+        char_high_dup = _make_enriched_character(level=20)
+
+        entities = [item_a, char_low, item_b, char_high, char_high_dup]
+        result = generator._deduplicate_characters(entities)
+
+        assert len(result) == 4
+        assert result[0] is item_a
+        assert isinstance(result[1], EnrichedCharacterData)
+        assert result[1].character.level == 5
+        assert result[2] is item_b
+        assert isinstance(result[3], EnrichedCharacterData)
+        assert result[3].character.level == 20
+
+    def test_same_stats_different_display_name_kept(self, mock_context):
+        """Characters with identical stats but different display names are kept separate."""
+        mock_context.resolver.resolve_display_name.side_effect = {
+            "character:dummy_default": "Training Dummy",
+            "character:dummy_400ac": "Training Dummy (400 AC)",
+            "character:dummy_800ac": "Training Dummy (800 AC)",
+        }.__getitem__
+        generator = EntityPageGenerator(mock_context)
+        entities = [
+            _make_enriched_character(stable_key="character:dummy_default"),
+            _make_enriched_character(stable_key="character:dummy_400ac"),
+            _make_enriched_character(stable_key="character:dummy_800ac"),
+        ]
+
+        result = generator._deduplicate_characters(entities)
+
+        characters = [e for e in result if isinstance(e, EnrichedCharacterData)]
+        assert len(characters) == 3
