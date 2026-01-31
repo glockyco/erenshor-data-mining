@@ -506,6 +506,12 @@ public class CharacterListener : IAssetScanListener<Character>
                 // Calculate effective AC for NPCs
                 int baseAC = npc.HardSetAC > 0 ? npc.HardSetAC : stats.Level * 15;
 
+                var testDummy = character.GetComponent<TestDummy>();
+                if (testDummy != null && testDummy.HandSetAC > 0)
+                {
+                    baseAC = testDummy.HandSetAC;
+                }
+
                 // Apply CharacterClass MitigationBonus if set, otherwise use DefaultNPC (1.0)
                 float mitigationBonus = 1.0f; // Default for NPCs
                 if (stats.CharacterClass != null)
