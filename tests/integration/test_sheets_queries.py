@@ -54,6 +54,7 @@ ALL_QUERIES = [
 # Queries that have MapLink column with new ?marker= format
 MAPLINK_QUERIES = {
     "achievement-triggers",
+    "item-bags",
     "secret-passages",
     "spawn-points",
     "teleports",
