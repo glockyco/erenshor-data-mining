@@ -1577,9 +1577,7 @@
     "character:molorai archaelogist 2": {
       "wiki_page_name": "Molorai Archaeologist",
       "display_name": "Molorai Archaeologist",
-      "image_name": "Molorai Archaeologist",
-      "mapping_type": "custom",
-      "reason": null
+      "image_name": "Molorai Archaeologist Dusken"
     },
     "character:molorai archivist": {
       "wiki_page_name": "Molorai Archmage",
@@ -1651,9 +1649,7 @@
     "character:molorai high archaelogist 3": {
       "wiki_page_name": "Molorai Archaeologist",
       "display_name": "Molorai Archaeologist",
-      "image_name": "Molorai Archaeologist",
-      "mapping_type": "custom",
-      "reason": null
+      "image_name": "Molorai Archaeologist Dusken"
     },
     "character:molorai nightmistress": {
       "wiki_page_name": "Molorai Nightmistress",
