@@ -3808,25 +3808,30 @@
       "display_name": "Island Tomb",
       "image_name": "Island Tomb"
     },
+    "stance:aggressive": {
+      "wiki_page_name": "Aggressive",
+      "display_name": "Aggressive",
+      "image_name": "Stance: Aggressive"
+    },
     "stance:defensive": {
       "wiki_page_name": "Defensive",
       "display_name": "Defensive",
-      "image_name": "Defensive"
+      "image_name": "Stance: Defensive"
     },
     "stance:normal": {
       "wiki_page_name": "Normal",
       "display_name": "Normal",
-      "image_name": "Normal"
+      "image_name": "Stance: Normal"
     },
     "stance:reckless": {
       "wiki_page_name": "Reckless",
       "display_name": "Reckless",
-      "image_name": "Reckless"
+      "image_name": "Stance: Reckless"
     },
     "stance:taunting": {
       "wiki_page_name": "Taunting",
       "display_name": "Taunting",
-      "image_name": "Taunting"
+      "image_name": "Stance: Taunting"
     }
   }
 }
