@@ -25,6 +25,8 @@ import imagehash
 from loguru import logger
 from PIL import Image
 
+from erenshor.infrastructure.wiki.filename_sanitizer import sanitize_wiki_filename
+
 if TYPE_CHECKING:
     from erenshor.domain.entities.image import ImageInfo, ImageMetadata, ProcessingResult
 
@@ -268,11 +270,15 @@ class ImageRegistry:
                         (now, stable_key),
                     )
 
-                # Update current_*
+                # Update current_* and refresh identity fields
                 cursor.execute(
                     """
                     UPDATE image_versions
-                    SET current_hash = ?,
+                    SET entity_type = ?,
+                        entity_name = ?,
+                        image_name = ?,
+                        source_icon_name = ?,
+                        current_hash = ?,
                         current_phash = ?,
                         current_processed_at = ?,
                         current_file_size = ?,
@@ -282,6 +288,10 @@ class ImageRegistry:
                     WHERE stable_key = ?
                     """,
                     (
+                        image_info.entity_type,
+                        image_info.entity_name,
+                        image_info.image_name,
+                        image_info.icon_name,
                         processing_result.content_hash,
                         processing_result.perceptual_hash,
                         processing_result.processed_at,
@@ -333,10 +343,64 @@ class ImageRegistry:
 
         logger.debug(f"Registered processed image: {stable_key}")
 
-    def detect_changes(self, similarity_threshold: float = 0.95) -> None:
-        """Detect changes between current and previous versions using perceptual hashing.
+    def update_entity_names(self, stable_key: str, image_info: ImageInfo) -> bool:
+        """Update entity identity fields without reprocessing the image.
 
-        Updates is_changed, change_type, and similarity_score fields for all images.
+        Called when an image is skipped (source unchanged) to ensure renamed
+        entities have their current names in the registry.
+
+        Args:
+            stable_key: Stable identifier "entity_type:resource_name".
+            image_info: Current discovery information with resolved names.
+
+        Returns:
+            True if any field was actually updated, False if already current.
+        """
+        now = datetime.now(UTC).isoformat()
+
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
+
+            cursor.execute(
+                """
+                UPDATE image_versions
+                SET entity_type = ?,
+                    entity_name = ?,
+                    image_name = ?,
+                    source_icon_name = ?,
+                    updated_at = ?
+                WHERE stable_key = ?
+                  AND (entity_type != ? OR entity_name != ?
+                       OR image_name != ? OR source_icon_name != ?)
+                """,
+                (
+                    image_info.entity_type,
+                    image_info.entity_name,
+                    image_info.image_name,
+                    image_info.icon_name,
+                    now,
+                    stable_key,
+                    image_info.entity_type,
+                    image_info.entity_name,
+                    image_info.image_name,
+                    image_info.icon_name,
+                ),
+            )
+
+            updated = cursor.rowcount > 0
+            conn.commit()
+
+        if updated:
+            logger.info(f"Updated entity names for {stable_key}: {image_info.image_name}")
+
+        return updated
+
+    def detect_changes(self, similarity_threshold: float = 0.95) -> None:
+        """Detect changes between current and previous versions.
+
+        Compares perceptual hashes for visual changes and wiki filenames
+        for renames. Updates is_changed, change_type, and similarity_score
+        fields for all images.
 
         Args:
             similarity_threshold: Perceptual similarity threshold (0.0-1.0).
@@ -347,9 +411,9 @@ class ImageRegistry:
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
 
-            # Get all images
             cursor.execute("""
-                SELECT stable_key, current_phash, previous_phash
+                SELECT stable_key, current_phash, previous_phash,
+                       image_name, uploaded_filename
                 FROM image_versions
                 WHERE current_phash IS NOT NULL
             """)
@@ -360,7 +424,6 @@ class ImageRegistry:
                 previous_phash = row["previous_phash"]
 
                 if previous_phash is None:
-                    # New image (no previous version)
                     change_type = "new"
                     is_changed = True
                     similarity_score = 0.0
@@ -377,7 +440,6 @@ class ImageRegistry:
                         # pHash is 64-bit, so max distance is 64
                         similarity_score = 1.0 - (distance / 64.0)
 
-                        # Determine change status
                         if similarity_score >= similarity_threshold:
                             change_type = "unchanged"
                             is_changed = False
@@ -386,12 +448,17 @@ class ImageRegistry:
                             is_changed = True
                     except Exception as e:
                         logger.warning(f"Failed to compare perceptual hashes for {stable_key}: {e}")
-                        # Default to unchanged if comparison fails
                         change_type = "unchanged"
                         is_changed = False
                         similarity_score = 1.0
 
-                # Update database
+                # Detect renames: wiki filename changed but visual content didn't
+                if not is_changed and row["uploaded_filename"] is not None:
+                    expected = f"{sanitize_wiki_filename(row['image_name'])}.png"
+                    if expected != row["uploaded_filename"]:
+                        change_type = "renamed"
+                        is_changed = True
+
                 cursor.execute(
                     """
                     UPDATE image_versions
@@ -524,7 +591,8 @@ class ImageRegistry:
             cursor.execute("""
                 SELECT * FROM image_versions
                 WHERE is_changed = 1
-                  AND (uploaded_hash IS NULL OR uploaded_hash != current_hash)
+                  AND (uploaded_hash IS NULL OR uploaded_hash != current_hash
+                       OR change_type = 'renamed')
                 ORDER BY entity_type, entity_name
             """)
 
@@ -635,6 +703,7 @@ class ImageRegistry:
             - new: New images
             - modified: Modified images
             - unchanged: Unchanged images
+            - renamed: Renamed images (new wiki filename needed)
             - removed: Removed images (if tracked)
         """
         with sqlite3.connect(self.db_path) as conn:
@@ -658,6 +727,7 @@ class ImageRegistry:
                 "new": counts.get("new", 0),
                 "modified": counts.get("modified", 0),
                 "unchanged": counts.get("unchanged", 0),
+                "renamed": counts.get("renamed", 0),
                 "removed": counts.get("removed", 0),
             }
 

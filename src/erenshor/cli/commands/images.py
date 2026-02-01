@@ -144,6 +144,7 @@ def process(
             )
 
             if not force and output_path.exists() and not should_process:
+                registry.update_entity_names(image_info.stable_key, image_info)
                 stats["skipped"] += 1
                 progress.update(task, advance=1)
                 continue
@@ -259,6 +260,7 @@ def compare(
     console.print(f"  Total images:    {report.total}")
     console.print(f"  [green]New:[/green]          {report.new}")
     console.print(f"  [yellow]Modified:[/yellow]     {report.modified}")
+    console.print(f"  [cyan]Renamed:[/cyan]      {report.renamed}")
     console.print(f"  [dim]Unchanged:[/dim]    {report.unchanged}")
     console.print(f"  [red]Removed:[/red]      {report.removed}")
 

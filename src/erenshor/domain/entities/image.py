@@ -13,6 +13,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from erenshor.infrastructure.wiki.filename_sanitizer import sanitize_wiki_filename
+
 __all__ = [
     "ChangeType",
     "ComparisonReport",
@@ -96,7 +98,7 @@ class ImageMetadata:
         uploaded_at: ISO timestamp when uploaded to wiki.
         uploaded_filename: Full wiki filename (image_name.png).
         is_changed: True if current differs from previous (perceptual comparison).
-        change_type: Type of change (new, modified, unchanged, removed).
+        change_type: Type of change (new, modified, unchanged, renamed, removed).
         similarity_score: Perceptual similarity score 0.0-1.0 (1.0 = identical).
         created_at: ISO timestamp when first seen.
         updated_at: ISO timestamp when last modified.
@@ -138,6 +140,18 @@ class ImageMetadata:
     created_at: str | None = None
     updated_at: str | None = None
 
+    @property
+    def expected_wiki_filename(self) -> str:
+        """The wiki filename this image should be uploaded as."""
+        return f"{sanitize_wiki_filename(self.image_name)}.png"
+
+    @property
+    def is_renamed(self) -> bool:
+        """Whether the image needs re-uploading under a new wiki filename."""
+        if self.uploaded_filename is None:
+            return False
+        return self.expected_wiki_filename != self.uploaded_filename
+
     def should_upload(self) -> tuple[bool, str]:
         """Check if image should be uploaded to wiki.
 
@@ -151,6 +165,10 @@ class ImageMetadata:
         # Must have processed content
         if self.current_processed_at is None:
             return False, "not processed"
+
+        # Always upload if the wiki filename changed (entity was renamed)
+        if self.is_renamed:
+            return True, ""
 
         # Skip if not reprocessed since last upload
         if self.uploaded_at is not None and self.current_processed_at <= self.uploaded_at:
@@ -202,6 +220,7 @@ class ChangeType:
     NEW = "new"  # First time seeing this image
     MODIFIED = "modified"  # Visual content changed (perceptual similarity < threshold)
     UNCHANGED = "unchanged"  # Visual content unchanged (perceptual similarity >= threshold)
+    RENAMED = "renamed"  # Entity renamed, needs re-upload under new wiki filename
     REMOVED = "removed"  # Exists in previous but not in current
 
 
@@ -216,8 +235,9 @@ class ComparisonReport:
         new: Number of new images (not in previous).
         modified: Number of images with visual changes.
         unchanged: Number of images with no visual changes.
+        renamed: Number of images needing re-upload under a new wiki filename.
         removed: Number of images removed (in previous but not current).
-        changed_images: List of ImageMetadata for new and modified images.
+        changed_images: List of ImageMetadata for changed images.
         similarity_threshold: Threshold used for comparison (0.0-1.0).
     """
 
@@ -225,14 +245,15 @@ class ComparisonReport:
     new: int
     modified: int
     unchanged: int
+    renamed: int
     removed: int
     changed_images: list[ImageMetadata]
     similarity_threshold: float
 
     @property
     def changed_count(self) -> int:
-        """Total number of changed images (new + modified)."""
-        return self.new + self.modified
+        """Total number of changed images (new + modified + renamed)."""
+        return self.new + self.modified + self.renamed
 
     def summary_text(self) -> str:
         """Generate human-readable summary text."""
@@ -240,6 +261,7 @@ class ComparisonReport:
             f"Total images: {self.total}",
             f"New: {self.new}",
             f"Modified: {self.modified}",
+            f"Renamed: {self.renamed}",
             f"Unchanged: {self.unchanged}",
             f"Removed: {self.removed}",
             f"Similarity threshold: {self.similarity_threshold * 100:.0f}%",

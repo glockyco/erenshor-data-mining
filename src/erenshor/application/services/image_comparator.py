@@ -81,7 +81,8 @@ class ImageComparator:
 
         logger.info(
             f"Comparison complete: {stats['new']} new, {stats['modified']} modified, "
-            f"{stats['unchanged']} unchanged, {stats['removed']} removed"
+            f"{stats['renamed']} renamed, {stats['unchanged']} unchanged, "
+            f"{stats['removed']} removed"
         )
 
         return ComparisonReport(
@@ -89,6 +90,7 @@ class ImageComparator:
             new=stats["new"],
             modified=stats["modified"],
             unchanged=stats["unchanged"],
+            renamed=stats["renamed"],
             removed=stats["removed"],
             changed_images=changed,
             similarity_threshold=similarity_threshold,
