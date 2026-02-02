@@ -248,6 +248,10 @@ public static class ExportBatch
         bool exportAll = entityTypes.Count == 0;
         int registeredCount = 0;
 
+        // Shared resolver ensures all listeners that reference characters by stable key
+        // agree on the same deduplicated key for each Character instance
+        var characterKeyResolver = new CharacterStableKeyResolver();
+
         // Define all available listeners with their type keys
         // Using a dictionary for O(1) lookup and cleaner registration logic
         var listenerRegistry = new Dictionary<string, Action>
@@ -265,8 +269,8 @@ public static class ExportBatch
             ["books"] = () => scanner.RegisterScriptableObjectListener(new BookListener(db)),
             ["classes"] = () => scanner.RegisterScriptableObjectListener(new ClassListener(db)),
             ["quests"] = () => scanner.RegisterScriptableObjectListener(new QuestListener(db)),
-            ["skills"] = () => scanner.RegisterScriptableObjectListener(new SkillListener(db)),
-            ["spells"] = () => scanner.RegisterScriptableObjectListener(new SpellListener(db)),
+            ["skills"] = () => scanner.RegisterScriptableObjectListener(new SkillListener(db, characterKeyResolver)),
+            ["spells"] = () => scanner.RegisterScriptableObjectListener(new SpellListener(db, characterKeyResolver)),
             ["stances"] = () => scanner.RegisterScriptableObjectListener(new StanceListener(db)),
             ["guildtopics"] = () => scanner.RegisterScriptableObjectListener(new GuildTopicListener(db)),
             ["worldfactions"] = () => scanner.RegisterScriptableObjectListener(new WorldFactionListener(db)),
@@ -280,10 +284,10 @@ public static class ExportBatch
             ["doors"] = () => scanner.RegisterComponentListener(new DoorListener(db)),
             ["forges"] = () => scanner.RegisterComponentListener(new ForgeListener(db)),
             ["itembags"] = () => scanner.RegisterComponentListener(new ItemBagListener(db)),
-            ["loottables"] = () => scanner.RegisterComponentListener(new LootTableListener(db)),
+            ["loottables"] = () => scanner.RegisterComponentListener(new LootTableListener(db, characterKeyResolver)),
             ["itemdrops"] = () => scanner.RegisterComponentListener(new MiscListener(db)),
             ["miningnodes"] = () => scanner.RegisterComponentListener(new MiningNodeListener(db)),
-            ["spawnpoints"] = () => scanner.RegisterComponentListener(new SpawnPointListener(db)),
+            ["spawnpoints"] = () => scanner.RegisterComponentListener(new SpawnPointListener(db, characterKeyResolver)),
             ["treasurehunting"] = () => scanner.RegisterComponentListener(new TreasureHuntingListener(db)),
             ["treasurelocs"] = () => scanner.RegisterComponentListener(new TreasureLocListener(db)),
             ["waters"] = () => scanner.RegisterComponentListener(new WaterListener(db)),
@@ -292,7 +296,7 @@ public static class ExportBatch
 
             // Characters depend on spawn points (for IsUnique calculation), so register last
             // CharacterListener also populates QuestCompletionSources at the end of OnScanFinished
-            ["characters"] = () => scanner.RegisterComponentListener(new CharacterListener(db)),
+            ["characters"] = () => scanner.RegisterComponentListener(new CharacterListener(db, characterKeyResolver)),
         };
 
         // Register listeners based on selection

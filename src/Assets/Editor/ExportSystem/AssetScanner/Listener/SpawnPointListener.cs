@@ -9,6 +9,7 @@ using UnityEngine;
 public class SpawnPointListener : IAssetScanListener<SpawnPoint>
 {
     private readonly SQLiteConnection _db;
+    private readonly CharacterStableKeyResolver _characterKeyResolver;
     private readonly List<SpawnPointRecord> _spawnPointRecords = new();
     private readonly List<SpawnPointCharacterRecord> _spawnPointCharacterRecords = new();
     private readonly List<SpawnPointStopQuestRecord> _spawnPointStopQuestRecords = new();
@@ -20,9 +21,10 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
     private const float SpawnDelayMultiplier3 = 1.5f;  // 3 group members
     private const float SpawnDelayMultiplier4 = 1.8f;  // 4 group members
 
-    public SpawnPointListener(SQLiteConnection db)
+    public SpawnPointListener(SQLiteConnection db, CharacterStableKeyResolver characterKeyResolver)
     {
         _db = db;
+        _characterKeyResolver = characterKeyResolver;
     }
 
     public void OnScanFinished()
@@ -129,7 +131,7 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
                     UnityEngine.Debug.LogWarning($"[SpawnPointListener] RareSpawn GameObject '{rareSpawn.name}' has no Character component, skipping");
                     continue;
                 }
-                var characterStableKey = StableKeyGenerator.ForCharacter(character);
+                var characterStableKey = _characterKeyResolver.GetStableKey(character);
 
                 if (!characterData.ContainsKey(characterStableKey))
                 {
@@ -155,7 +157,7 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
                     UnityEngine.Debug.LogWarning($"[SpawnPointListener] CommonSpawn GameObject '{commonSpawn.name}' has no Character component, skipping");
                     continue;
                 }
-                var characterStableKey = StableKeyGenerator.ForCharacter(character);
+                var characterStableKey = _characterKeyResolver.GetStableKey(character);
 
                 if (!characterData.ContainsKey(characterStableKey))
                 {
@@ -251,6 +253,6 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
             return null;
         }
 
-        return StableKeyGenerator.ForCharacter(character);
+        return _characterKeyResolver.GetStableKey(character);
     }
 }

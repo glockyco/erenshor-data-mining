@@ -9,8 +9,8 @@ using UnityEngine;
 public class CharacterListener : IAssetScanListener<Character>
 {
     private readonly SQLiteConnection _db;
+    private readonly CharacterStableKeyResolver _characterKeyResolver;
     private readonly List<CharacterRecord> _characterRecords = new();
-    private readonly DuplicateKeyTracker _keyTracker = new("CharacterListener");
     private readonly List<CharacterDialogRecord> _characterDialogRecords = new();
     private readonly List<CharacterAttackSkillRecord> _characterAttackSkillRecords = new();
     private readonly List<CharacterAttackSpellRecord> _characterAttackSpellRecords = new();
@@ -29,9 +29,10 @@ public class CharacterListener : IAssetScanListener<Character>
     private readonly List<QuestCharacterRoleRecord> _questCharacterRoleRecords = new();
     private readonly HashSet<(string, string, string)> _seenQuestCharacterRoles = new(); // (QuestStableKey, CharacterStableKey, Role)
 
-    public CharacterListener(SQLiteConnection db)
+    public CharacterListener(SQLiteConnection db, CharacterStableKeyResolver characterKeyResolver)
     {
         _db = db;
+        _characterKeyResolver = characterKeyResolver;
     }
 
     public void OnScanFinished()
@@ -258,8 +259,7 @@ public class CharacterListener : IAssetScanListener<Character>
             return;
         }
 
-        var baseStableKey = StableKeyGenerator.ForCharacter(asset);
-        var stableKey = _keyTracker.GetUniqueKey(baseStableKey, asset.gameObject.name);
+        var stableKey = _characterKeyResolver.GetStableKey(asset);
 
         var characterRecord = CreateCharacterRecord(asset, stableKey);
         _characterRecords.Add(characterRecord);
@@ -596,7 +596,7 @@ public class CharacterListener : IAssetScanListener<Character>
             RepeatingQuestDialog = repeatingQuestDialog,
             KillSelfOnSay = dialog.KillMeOnSay,
             RequiredQuestStableKey = dialog.RequireQuestComplete != null ? StableKeyGenerator.ForQuest(dialog.RequireQuestComplete) : null,
-            SpawnCharacterStableKey = dialog.Spawn != null ? StableKeyGenerator.ForCharacter(dialog.Spawn.GetComponent<Character>()) : null,
+            SpawnCharacterStableKey = dialog.Spawn != null ? _characterKeyResolver.GetStableKey(dialog.Spawn.GetComponent<Character>()) : null,
         };
     }
 

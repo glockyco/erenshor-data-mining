@@ -216,6 +216,10 @@ public class AssetScannerExporterWindow : EditorWindow
 
         _db = new SQLiteConnection(_outputPath);
 
+        // Shared resolver ensures all listeners that reference characters by stable key
+        // agree on the same deduplicated key for each Character instance
+        var characterKeyResolver = new CharacterStableKeyResolver();
+
         if (_exportTeleportLocs) _activeScanner.RegisterNullListener(new TeleportLocListener(_db));
 
         if (_exportSecretPassages) _activeScanner.RegisterGameObjectListener(new SecretPassageListener(_db));
@@ -226,8 +230,8 @@ public class AssetScannerExporterWindow : EditorWindow
         if (_exportClasses) _activeScanner.RegisterScriptableObjectListener(new ClassListener(_db));
         if (_exportGuildTopics) _activeScanner.RegisterScriptableObjectListener(new GuildTopicListener(_db));
         if (_exportQuests) _activeScanner.RegisterScriptableObjectListener(new QuestListener(_db));
-        if (_exportSkills) _activeScanner.RegisterScriptableObjectListener(new SkillListener(_db));
-        if (_exportSpells) _activeScanner.RegisterScriptableObjectListener(new SpellListener(_db));
+        if (_exportSkills) _activeScanner.RegisterScriptableObjectListener(new SkillListener(_db, characterKeyResolver));
+        if (_exportSpells) _activeScanner.RegisterScriptableObjectListener(new SpellListener(_db, characterKeyResolver));
         if (_exportStances) _activeScanner.RegisterScriptableObjectListener(new StanceListener(_db));
         if (_exportWorldFactions) _activeScanner.RegisterScriptableObjectListener(new WorldFactionListener(_db));
         if (_exportZoneAtlasEntries) _activeScanner.RegisterScriptableObjectListener(new ZoneAtlasEntryListener(_db));
@@ -239,10 +243,10 @@ public class AssetScannerExporterWindow : EditorWindow
         if (_exportDoors) _activeScanner.RegisterComponentListener(new DoorListener(_db));
         if (_exportForges) _activeScanner.RegisterComponentListener(new ForgeListener(_db));
         if (_exportItemBags) _activeScanner.RegisterComponentListener(new ItemBagListener(_db));
-        if (_exportLootTables) _activeScanner.RegisterComponentListener(new LootTableListener(_db));
+        if (_exportLootTables) _activeScanner.RegisterComponentListener(new LootTableListener(_db, characterKeyResolver));
         if (_exportLootTables) _activeScanner.RegisterComponentListener(new MiscListener(_db));
         if (_exportMiningNodes) _activeScanner.RegisterComponentListener(new MiningNodeListener(_db));
-        if (_exportSpawnPoints) _activeScanner.RegisterComponentListener(new SpawnPointListener(_db));
+        if (_exportSpawnPoints) _activeScanner.RegisterComponentListener(new SpawnPointListener(_db, characterKeyResolver));
         if (_exportTreasureHunting) _activeScanner.RegisterComponentListener(new TreasureHuntingListener(_db));
         if (_exportTreasureLocs) _activeScanner.RegisterComponentListener(new TreasureLocListener(_db));
         if (_exportWaters) _activeScanner.RegisterComponentListener(new WaterListener(_db));
@@ -250,7 +254,7 @@ public class AssetScannerExporterWindow : EditorWindow
         if (_exportZoneLines) _activeScanner.RegisterComponentListener(new ZoneLineListener(_db));
 
         // Characters.IsUnique depends on spawn point data, so we need to register characters later.
-        if (_exportCharacters) _activeScanner.RegisterComponentListener(new CharacterListener(_db));
+        if (_exportCharacters) _activeScanner.RegisterComponentListener(new CharacterListener(_db, characterKeyResolver));
 
         _stopwatch = Stopwatch.StartNew();
         EditorCoroutineRunner.StartCoroutine(ScanAndExportCoroutine());

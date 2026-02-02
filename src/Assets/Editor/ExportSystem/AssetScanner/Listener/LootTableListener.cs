@@ -11,12 +11,14 @@ using UnityEngine;
 public class LootTableListener : IAssetScanListener<LootTable>
 {
     private readonly SQLiteConnection _db;
+    private readonly CharacterStableKeyResolver _characterKeyResolver;
     private readonly List<LootTableRecord> _records = new();
     private readonly LootTableProbabilityCalculator _probabilityCalculator = new();
 
-    public LootTableListener(SQLiteConnection db)
+    public LootTableListener(SQLiteConnection db, CharacterStableKeyResolver characterKeyResolver)
     {
         _db = db;
+        _characterKeyResolver = characterKeyResolver;
     }
 
     public void OnScanFinished()
@@ -66,7 +68,7 @@ public class LootTableListener : IAssetScanListener<LootTable>
             return new List<LootTableRecord>();
         }
 
-        var characterStableKey = StableKeyGenerator.ForCharacter(character);
+        var characterStableKey = _characterKeyResolver.GetStableKey(character);
 
         var records = new List<LootTableRecord>();
 

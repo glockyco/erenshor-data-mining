@@ -8,11 +8,13 @@ using UnityEngine;
 public class SkillListener : IAssetScanListener<Skill>
 {
     private readonly SQLiteConnection _db;
+    private readonly CharacterStableKeyResolver _characterKeyResolver;
     private readonly List<SkillRecord> _records = new();
 
-    public SkillListener(SQLiteConnection db)
+    public SkillListener(SQLiteConnection db, CharacterStableKeyResolver characterKeyResolver)
     {
         _db = db;
+        _characterKeyResolver = characterKeyResolver;
     }
 
     public void OnScanFinished()
@@ -75,7 +77,7 @@ public class SkillListener : IAssetScanListener<Skill>
             AESkill = skill.AESkill,
             Interrupt = skill.Interrupt,
             SpawnOnUseStableKey = skill.SpawnOnUse != null
-                ? StableKeyGenerator.ForCharacter(skill.SpawnOnUse.GetComponent<Character>())
+                ? _characterKeyResolver.GetStableKey(skill.SpawnOnUse.GetComponent<Character>())
                 : null,
             EffectToApplyStableKey = skill.EffectToApply != null
                 ? StableKeyGenerator.ForSpell(skill.EffectToApply)

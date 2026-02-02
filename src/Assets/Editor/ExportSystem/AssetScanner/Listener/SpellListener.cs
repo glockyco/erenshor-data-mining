@@ -9,12 +9,14 @@ using UnityEngine;
 public class SpellListener : IAssetScanListener<Spell>
 {
     private readonly SQLiteConnection _db;
+    private readonly CharacterStableKeyResolver _characterKeyResolver;
     private readonly List<SpellRecord> _records = new();
     private readonly List<SpellClassRecord> _spellClassRecords = new();
 
-    public SpellListener(SQLiteConnection db)
+    public SpellListener(SQLiteConnection db, CharacterStableKeyResolver characterKeyResolver)
     {
         _db = db;
+        _characterKeyResolver = characterKeyResolver;
     }
 
     public void OnScanFinished()
@@ -144,7 +146,7 @@ public class SpellListener : IAssetScanListener<Spell>
 
             // --- Special Mechanics ---
             PetToSummonStableKey = spell.PetToSummon != null
-                ? StableKeyGenerator.ForCharacter(spell.PetToSummon.GetComponent<Character>())
+                ? _characterKeyResolver.GetStableKey(spell.PetToSummon.GetComponent<Character>())
                 : null,
             StatusEffectToApplyStableKey = spell.StatusEffectToApply != null
                 ? StableKeyGenerator.ForSpell(spell.StatusEffectToApply)
