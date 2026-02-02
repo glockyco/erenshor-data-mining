@@ -250,8 +250,12 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         """Format respawn time for wiki template.
 
         Rounds to nearest minute for readability. Shows ranges if respawn times
-        differ within a zone.
+        differ within a zone. Directly-placed NPCs (base_respawn=None) are
+        excluded since they don't use the spawn system.
         """
+        # Directly-placed NPCs have no respawn time
+        spawn_infos = [s for s in spawn_infos if s.base_respawn is not None]
+
         if not spawn_infos:
             return ""
 

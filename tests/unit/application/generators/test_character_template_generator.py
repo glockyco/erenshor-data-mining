@@ -671,6 +671,80 @@ class TestRespawnTimeFormatting:
         # Current implementation aggregates respawn times into a range
         assert "|respawn=3-8 minutes" in template
 
+    def test_directly_placed_excluded_from_respawn(self, generator, mock_enriched, mock_resolver):
+        """Directly-placed spawn infos (base_respawn=None) should not contribute to respawn time."""
+        from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
+
+        mock_resolver.resolve_display_name.side_effect = {
+            "character:boatman": "Boatman",
+            "zone:AzynthiClear": "Azynthi's Garden",
+            "zone:Blight": "The Blight",
+        }.__getitem__
+
+        character = Character(
+            stable_key="character:boatman",
+            object_name="Boatman",
+            npc_name="Boatman",
+            level=22,
+            is_unique=1,
+        )
+        mock_enriched.character = character
+        mock_enriched.spawn_infos = [
+            CharacterSpawnInfo(
+                zone_stable_key="zone:AzynthiClear",
+                base_respawn=None,  # Directly placed
+                x=323.9,
+                y=14.9,
+                z=749.1,
+                spawn_chance=100.0,
+                is_rare=False,
+                is_unique=True,
+            ),
+            CharacterSpawnInfo(
+                zone_stable_key="zone:Blight",
+                base_respawn=277.8,  # ~5 minutes
+                x=129.4,
+                y=31.5,
+                z=457.9,
+                spawn_chance=100.0,
+                is_rare=False,
+                is_unique=True,
+            ),
+        ]
+
+        template = generator.generate_template(mock_enriched, "Boatman")
+
+        assert "|respawn=5 minutes" in template
+        assert "Azynthi" not in template.split("|respawn=")[1].split("\n")[0]
+
+    def test_all_directly_placed_shows_empty_respawn(self, generator, mock_enriched, mock_resolver):
+        """Characters with only directly-placed spawn infos should show no respawn time."""
+        from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
+
+        character = Character(
+            stable_key="character:npc",
+            object_name="NPC",
+            npc_name="Test NPC",
+            level=10,
+        )
+        mock_enriched.character = character
+        mock_enriched.spawn_infos = [
+            CharacterSpawnInfo(
+                zone_stable_key="zone:Test Zone",
+                base_respawn=None,  # Directly placed
+                x=10.0,
+                y=5.0,
+                z=100.0,
+                spawn_chance=100.0,
+                is_rare=False,
+                is_unique=False,
+            ),
+        ]
+
+        template = generator.generate_template(mock_enriched, "Test NPC")
+
+        assert "|respawn=\n" in template
+
 
 class TestLevelFormatting:
     """Test level component output for spawn point levelMod and random variance.
