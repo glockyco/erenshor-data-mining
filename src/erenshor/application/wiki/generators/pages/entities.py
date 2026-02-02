@@ -280,8 +280,13 @@ class EntityPageGenerator(PageGenerator):
 
         Multiple Character entities can share the same NPCName (prefab copies,
         placed instances, disabled variants). When they have identical stats,
-        loot, and spells, only the first is kept and spawn_infos from all
-        duplicates are merged into it.
+        loot, and spells, only one is kept and spawn_infos from all duplicates
+        are merged into it.
+
+        When duplicates differ in rare/unique flags, the entity with rare or
+        unique status is preferred as the survivor. This ensures character-level
+        flags like ``is_rare`` remain accurate after merging, regardless of
+        input ordering.
 
         Non-character entities pass through unchanged.
 
@@ -307,14 +312,34 @@ class EntityPageGenerator(PageGenerator):
 
             display_name = self.context.resolver.resolve_display_name(enriched.character.stable_key)
             key = self._build_character_dedup_key(enriched, display_name)
-            if key in seen_characters:
-                seen_characters[key].spawn_infos.extend(enriched.spawn_infos)
-                duplicate_count += 1
-            else:
+            if key not in seen_characters:
                 seen_characters[key] = enriched
                 result.append(enriched)
+                continue
+
+            existing = seen_characters[key]
+            duplicate_count += 1
+
+            if self._should_replace_survivor(existing, enriched):
+                enriched.spawn_infos.extend(existing.spawn_infos)
+                seen_characters[key] = enriched
+                idx = result.index(existing)
+                result[idx] = enriched
+            else:
+                existing.spawn_infos.extend(enriched.spawn_infos)
 
         if duplicate_count > 0:
             logger.debug(f"Deduplicated {duplicate_count} character entities")
 
         return result
+
+    @staticmethod
+    def _should_replace_survivor(existing: EnrichedCharacterData, candidate: EnrichedCharacterData) -> bool:
+        """Decide whether a duplicate should replace the current survivor.
+
+        Prefers entities with rare or unique character-level flags, so the
+        surviving Character object retains the most descriptive metadata.
+        """
+        existing_special = bool(existing.character.is_rare) or bool(existing.character.is_unique)
+        candidate_special = bool(candidate.character.is_rare) or bool(candidate.character.is_unique)
+        return candidate_special and not existing_special

@@ -82,7 +82,7 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         faction_change = self._format_faction_modifiers(character)
         zones = self._format_zones(enriched.spawn_infos)
         coordinates = self._format_coordinates(enriched.spawn_infos)
-        spawn_chance = self._format_spawn_chance(enriched.spawn_infos, character)
+        spawn_chance = self._format_spawn_chance(enriched.spawn_infos)
         respawn = self._format_respawn(enriched.spawn_infos)
         guaranteed_drops, drop_rates = self._format_loot_drops(enriched.loot_drops, display_name)
         spells = self._format_ability_links(enriched.spells)
@@ -196,16 +196,21 @@ class CharacterSectionGenerator(SectionGeneratorBase):
 
         return f"{spawn.x:.1f} x {spawn.y:.1f} x {spawn.z:.1f}"
 
-    def _format_spawn_chance(self, spawn_infos: list[CharacterSpawnInfo], character: Character) -> str:
-        """Format spawn chance for wiki template."""
+    def _format_spawn_chance(self, spawn_infos: list[CharacterSpawnInfo]) -> str:
+        """Format spawn chance for wiki template.
+
+        Rare/unique status is derived from the spawn infos themselves, not from
+        the character entity. This is resilient to character deduplication which
+        may keep a non-rare entity as the survivor while merging spawn infos
+        from a rare variant.
+        """
         if not spawn_infos:
             return ""
 
-        is_common = bool(character.is_common)
-        is_rare = bool(character.is_rare)
-        is_unique = bool(character.is_unique)
+        any_rare = any(info.is_rare for info in spawn_infos)
+        any_unique = any(info.is_unique for info in spawn_infos)
 
-        if is_common or not (is_rare or is_unique):
+        if not (any_rare or any_unique):
             return ""
 
         chances = [info.spawn_chance for info in spawn_infos]

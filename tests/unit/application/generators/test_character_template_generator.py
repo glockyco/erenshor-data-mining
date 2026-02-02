@@ -452,6 +452,58 @@ class TestSpawnChanceFormatting:
         # Current implementation aggregates spawn chances into a range
         assert "|spawnchance=3-25%" in template or "|spawnchance=5% (Zone A)<br>3-25% (Zone B)" in template
 
+    def test_spawn_chance_derived_from_spawn_infos_not_character(self, generator, mock_enriched, mock_resolver):
+        """Spawn chance should render even when character entity lacks is_rare flag.
+
+        After deduplication, the surviving character entity may have is_rare=0
+        while its merged spawn_infos carry is_rare=True from a different variant.
+        Spawn chance formatting must derive rare status from spawn_infos.
+        """
+        from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
+
+        mock_resolver.resolve_display_name.side_effect = {
+            "character:alpha wolf 1": "Alpha Wolf",
+            "zone:Faerie's Brake": "Faerie's Brake",
+            "zone:Hidden Hills": "Hidden Hills",
+        }.__getitem__
+
+        character = Character(
+            stable_key="character:alpha wolf 1",
+            object_name="Alpha Wolf 1",
+            npc_name="Alpha Wolf",
+            level=6,
+            is_rare=0,
+            is_unique=0,
+            is_common=0,
+        )
+        mock_enriched.character = character
+        mock_enriched.spawn_infos = [
+            CharacterSpawnInfo(
+                zone_stable_key="zone:Faerie's Brake",
+                base_respawn=300.0,
+                x=None,
+                y=None,
+                z=None,
+                spawn_chance=12.0,
+                is_rare=True,
+                is_unique=False,
+            ),
+            CharacterSpawnInfo(
+                zone_stable_key="zone:Hidden Hills",
+                base_respawn=300.0,
+                x=None,
+                y=None,
+                z=None,
+                spawn_chance=25.0,
+                is_rare=True,
+                is_unique=False,
+            ),
+        ]
+
+        template = generator.generate_template(mock_enriched, "Alpha Wolf")
+
+        assert "|spawnchance=12% (Faerie's Brake)<br>25% (Hidden Hills)" in template
+
 
 class TestRespawnTimeFormatting:
     """Test respawn time formatting with rounding and ranges."""

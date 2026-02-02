@@ -424,12 +424,16 @@ def _make_enriched_character(
     loot_drops: list[LootDropInfo] | None = None,
     spells: list[str] | None = None,
     spawn_infos: list[CharacterSpawnInfo] | None = None,
+    is_rare: int = 0,
+    is_unique: int = 0,
 ) -> EnrichedCharacterData:
     """Create an EnrichedCharacterData with sensible defaults for testing."""
     character = Mock(spec=Character)
     character.stable_key = stable_key
     character.level = level
     character.effective_hp = effective_hp
+    character.is_rare = is_rare
+    character.is_unique = is_unique
     return EnrichedCharacterData(
         character=character,
         spawn_infos=spawn_infos if spawn_infos is not None else [],
@@ -603,3 +607,98 @@ class TestDeduplicateCharacters:
 
         characters = [e for e in result if isinstance(e, EnrichedCharacterData)]
         assert len(characters) == 3
+
+    def test_rare_entity_preferred_as_survivor(self, mock_context):
+        """Non-rare entity seen first should be replaced by rare duplicate."""
+        mock_context.resolver.resolve_display_name.side_effect = lambda _: "Alpha Wolf"
+        generator = EntityPageGenerator(mock_context)
+        spawn_a = _make_spawn_info("zone:azure")
+        spawn_b = _make_spawn_info("zone:stowaway")
+        non_rare = _make_enriched_character(
+            stable_key="character:alpha wolf 1",
+            is_rare=0,
+            spawn_infos=[spawn_a],
+        )
+        rare = _make_enriched_character(
+            stable_key="character:alpha wolf",
+            is_rare=1,
+            spawn_infos=[spawn_b],
+        )
+
+        result = generator._deduplicate_characters([non_rare, rare])
+
+        characters = [e for e in result if isinstance(e, EnrichedCharacterData)]
+        assert len(characters) == 1
+        survivor = characters[0]
+        assert survivor.character.is_rare == 1
+        assert len(survivor.spawn_infos) == 2
+        assert spawn_a in survivor.spawn_infos
+        assert spawn_b in survivor.spawn_infos
+
+    def test_rare_entity_preferred_regardless_of_order(self, mock_context):
+        """Rare entity seen first should remain survivor when non-rare follows."""
+        mock_context.resolver.resolve_display_name.side_effect = lambda _: "Alpha Wolf"
+        generator = EntityPageGenerator(mock_context)
+        spawn_a = _make_spawn_info("zone:azure")
+        spawn_b = _make_spawn_info("zone:stowaway")
+        rare = _make_enriched_character(
+            stable_key="character:alpha wolf",
+            is_rare=1,
+            spawn_infos=[spawn_a],
+        )
+        non_rare = _make_enriched_character(
+            stable_key="character:alpha wolf 1",
+            is_rare=0,
+            spawn_infos=[spawn_b],
+        )
+
+        result = generator._deduplicate_characters([rare, non_rare])
+
+        characters = [e for e in result if isinstance(e, EnrichedCharacterData)]
+        assert len(characters) == 1
+        survivor = characters[0]
+        assert survivor.character.is_rare == 1
+        assert len(survivor.spawn_infos) == 2
+
+    def test_unique_entity_preferred_as_survivor(self, mock_context):
+        """Non-unique entity seen first should be replaced by unique duplicate."""
+        mock_context.resolver.resolve_display_name.side_effect = lambda _: "Boss"
+        generator = EntityPageGenerator(mock_context)
+        non_unique = _make_enriched_character(
+            stable_key="character:boss 1",
+            is_unique=0,
+        )
+        unique = _make_enriched_character(
+            stable_key="character:boss",
+            is_unique=1,
+        )
+
+        result = generator._deduplicate_characters([non_unique, unique])
+
+        characters = [e for e in result if isinstance(e, EnrichedCharacterData)]
+        assert len(characters) == 1
+        assert characters[0].character.is_unique == 1
+
+    def test_both_rare_keeps_first(self, mock_context):
+        """When both duplicates are rare, the first one seen is kept."""
+        mock_context.resolver.resolve_display_name.side_effect = lambda _: "Mob"
+        generator = EntityPageGenerator(mock_context)
+        spawn_a = _make_spawn_info("zone:azure")
+        spawn_b = _make_spawn_info("zone:stowaway")
+        first = _make_enriched_character(
+            stable_key="character:mob a",
+            is_rare=1,
+            spawn_infos=[spawn_a],
+        )
+        second = _make_enriched_character(
+            stable_key="character:mob b",
+            is_rare=1,
+            spawn_infos=[spawn_b],
+        )
+
+        result = generator._deduplicate_characters([first, second])
+
+        characters = [e for e in result if isinstance(e, EnrichedCharacterData)]
+        assert len(characters) == 1
+        assert characters[0] is first
+        assert len(characters[0].spawn_infos) == 2
