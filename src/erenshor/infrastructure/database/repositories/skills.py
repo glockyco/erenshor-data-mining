@@ -7,6 +7,50 @@ from erenshor.infrastructure.database.repository import BaseRepository, Reposito
 
 from ._case_utils import pascal_to_snake
 
+_SKILL_COLUMNS = """
+    StableKey,
+    SkillDBIndex,
+    Id,
+    ResourceName,
+    SkillName,
+    SkillDesc,
+    TypeOfSkill,
+    Cooldown,
+    DuelistRequiredLevel,
+    PaladinRequiredLevel,
+    ArcanistRequiredLevel,
+    DruidRequiredLevel,
+    StormcallerRequiredLevel,
+    ReaverRequiredLevel,
+    RequireBehind,
+    Require2H,
+    RequireDW,
+    RequireBow,
+    RequireShield,
+    SimPlayersAutolearn,
+    StanceToUseStableKey,
+    AESkill,
+    Interrupt,
+    SpawnOnUseStableKey,
+    EffectToApplyStableKey,
+    AffectPlayer,
+    AffectTarget,
+    SkillRange,
+    SkillPower,
+    PercentDmg,
+    DamageType,
+    ScaleOffWeapon,
+    ProcWeap,
+    ProcShield,
+    GuaranteeProc,
+    AutomateAttack,
+    CastOnTargetStableKey,
+    SkillAnimName,
+    SkillIconName,
+    PlayerUses,
+    NPCUses
+""".strip()
+
 
 class SkillRepository(BaseRepository[Skill]):
     """Repository for skill-specific database queries.
@@ -32,49 +76,8 @@ class SkillRepository(BaseRepository[Skill]):
         Raises:
             RepositoryError: If query execution fails.
         """
-        query = """
-            SELECT
-                StableKey,
-                SkillDBIndex,
-                Id,
-                ResourceName,
-                SkillName,
-                SkillDesc,
-                TypeOfSkill,
-                Cooldown,
-                DuelistRequiredLevel,
-                PaladinRequiredLevel,
-                ArcanistRequiredLevel,
-                DruidRequiredLevel,
-                StormcallerRequiredLevel,
-                ReaverRequiredLevel,
-                RequireBehind,
-                Require2H,
-                RequireDW,
-                RequireBow,
-                RequireShield,
-                SimPlayersAutolearn,
-                StanceToUseStableKey,
-                AESkill,
-                Interrupt,
-                SpawnOnUseStableKey,
-                EffectToApplyStableKey,
-                AffectPlayer,
-                AffectTarget,
-                SkillRange,
-                SkillPower,
-                PercentDmg,
-                DamageType,
-                ScaleOffWeapon,
-                ProcWeap,
-                ProcShield,
-                GuaranteeProc,
-                AutomateAttack,
-                CastOnTargetStableKey,
-                SkillAnimName,
-                SkillIconName,
-                PlayerUses,
-                NPCUses
+        query = f"""
+            SELECT {_SKILL_COLUMNS}
             FROM Skills
             WHERE COALESCE(SkillName, '') != ''
               AND COALESCE(ResourceName, '') != ''
@@ -101,50 +104,10 @@ class SkillRepository(BaseRepository[Skill]):
         Raises:
             RepositoryError: If query execution fails.
         """
-        query = """
-            SELECT
-                StableKey,
-                SkillDBIndex,
-                Id,
-                ResourceName,
-                SkillName,
-                SkillDesc,
-                TypeOfSkill,
-                Cooldown,
-                DuelistRequiredLevel,
-                PaladinRequiredLevel,
-                ArcanistRequiredLevel,
-                DruidRequiredLevel,
-                StormcallerRequiredLevel,
-                RequireBehind,
-                Require2H,
-                RequireDW,
-                RequireBow,
-                RequireShield,
-                SimPlayersAutolearn,
-                AESkill,
-                Interrupt,
-                SpawnOnUseStableKey,
-                EffectToApplyStableKey,
-                AffectPlayer,
-                AffectTarget,
-                SkillRange,
-                SkillPower,
-                PercentDmg,
-                DamageType,
-                ScaleOffWeapon,
-                ProcWeap,
-                ProcShield,
-                GuaranteeProc,
-                AutomateAttack,
-                CastOnTargetStableKey,
-                SkillAnimName,
-                SkillIconName,
-                PlayerUses,
-                NPCUses
+        query = f"""
+            SELECT {_SKILL_COLUMNS}
             FROM Skills
             WHERE StableKey = ?
-            ORDER BY SkillName COLLATE NOCASE
         """
 
         try:
@@ -185,49 +148,8 @@ class SkillRepository(BaseRepository[Skill]):
         Raises:
             RepositoryError: If query execution fails.
         """
-        query = """
-            SELECT
-                StableKey,
-                SkillDBIndex,
-                Id,
-                ResourceName,
-                SkillName,
-                SkillDesc,
-                TypeOfSkill,
-                Cooldown,
-                DuelistRequiredLevel,
-                PaladinRequiredLevel,
-                ArcanistRequiredLevel,
-                DruidRequiredLevel,
-                StormcallerRequiredLevel,
-                ReaverRequiredLevel,
-                RequireBehind,
-                Require2H,
-                RequireDW,
-                RequireBow,
-                RequireShield,
-                SimPlayersAutolearn,
-                StanceToUseStableKey,
-                AESkill,
-                Interrupt,
-                SpawnOnUseStableKey,
-                EffectToApplyStableKey,
-                AffectPlayer,
-                AffectTarget,
-                SkillRange,
-                SkillPower,
-                PercentDmg,
-                DamageType,
-                ScaleOffWeapon,
-                ProcWeap,
-                ProcShield,
-                GuaranteeProc,
-                AutomateAttack,
-                CastOnTargetStableKey,
-                SkillAnimName,
-                SkillIconName,
-                PlayerUses,
-                NPCUses
+        query = f"""
+            SELECT {_SKILL_COLUMNS}
             FROM Skills
             WHERE StanceToUseStableKey = ?
             ORDER BY SkillName COLLATE NOCASE
