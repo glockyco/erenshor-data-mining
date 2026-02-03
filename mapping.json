@@ -2852,7 +2852,7 @@
     },
     "faction:molarai": {
       "wiki_page_name": "Eldoth Molorai (Faction)",
-      "display_name": "Eldoth Molorai (Faction)",
+      "display_name": "Eldoth Molorai",
       "image_name": "Eldoth Molorai (Faction)",
       "mapping_type": "custom",
       "reason": null
@@ -3091,7 +3091,7 @@
     },
     "item:ore - stardust": {
       "wiki_page_name": "Stardust (Item)",
-      "display_name": "Stardust (Item)",
+      "display_name": "Stardust",
       "image_name": "Stardust Item",
       "mapping_type": "custom",
       "reason": null
@@ -3354,7 +3354,7 @@
     },
     "quest:occuphage": {
       "wiki_page_name": "Seaslimed Bracelet (Quest)",
-      "display_name": "Seaslimed Bracelet (Quest)",
+      "display_name": "Seaslimed Bracelet",
       "image_name": "Seaslimed Bracelet (Quest)",
       "mapping_type": "custom",
       "reason": "Disambiguate from Seaslimed Bracelet item"
@@ -3556,7 +3556,7 @@
     },
     "spell:arc - sunburst": {
       "wiki_page_name": "Sunburst (Lux)",
-      "display_name": "Sunburst (Lux)",
+      "display_name": "Sunburst",
       "image_name": "Sunburst (Lux)",
       "mapping_type": "custom",
       "reason": null
@@ -3694,7 +3694,7 @@
     },
     "spell:none - sivakayas kiss": {
       "wiki_page_name": "Sivakaya's Touch (Effect)",
-      "display_name": "Sivakaya's Touch (Effect)",
+      "display_name": "Sivakaya's Touch",
       "image_name": "Sivakaya's Touch (Effect)",
       "mapping_type": "custom",
       "reason": null
@@ -3708,14 +3708,14 @@
     },
     "spell:none - time stone": {
       "wiki_page_name": "Time Stone (Effect)",
-      "display_name": "Time Stone (Effect)",
+      "display_name": "Time Stone",
       "image_name": "Time Stone (Effect)",
       "mapping_type": "custom",
       "reason": null
     },
     "spell:none - wyrm's bane": {
       "wiki_page_name": "Wyrm's Bane (Effect)",
-      "display_name": "Wyrm's Bane (Effect)",
+      "display_name": "Wyrm's Bane",
       "image_name": "Wyrm's Bane (Effect)",
       "mapping_type": "custom",
       "reason": null
@@ -3785,7 +3785,7 @@
     },
     "zone:shiveringtomb": {
       "wiki_page_name": "Shivering Tomb",
-      "display_name": "Island Tomb (1)",
+      "display_name": "Shivering Tomb (1)",
       "image_name": "Shivering Tomb (1)"
     },
     "zone:shiveringtomb2": {
