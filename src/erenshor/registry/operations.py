@@ -97,6 +97,15 @@ def register_entity(
         ...     print(f"Registered override: {entity.page_title}")
         Registered override: Iron Sword (Weapon)
     """
+    # Strip whitespace from name fields to avoid mismatches with MediaWiki
+    # title normalization (game data sometimes has trailing spaces)
+    if page_title is not None:
+        page_title = page_title.strip()
+    if display_name is not None:
+        display_name = display_name.strip()
+    if image_name is not None:
+        image_name = image_name.strip()
+
     # Check if entity already exists
     statement = select(EntityRecord).where(EntityRecord.stable_key == stable_key)
     existing = session.exec(statement).first()
