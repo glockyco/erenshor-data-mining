@@ -1,14 +1,18 @@
 #!/usr/bin/env python3
 """Generate mod version from git using CalVer format.
 
-Format: YYYY.M.D.{COMMIT_HASH_AS_DECIMAL}
+Format: YYYY.MDD.0
+
+The version uses the date of the latest git commit touching the mod
+directory. The third component is always 0 when generated locally;
+the publish command overrides it with an auto-incremented revision
+from the Thunderstore API.
 
 Example:
-  $ python3 scripts/generate-mod-version.py src/mods/InteractiveMapCompanion
-  2026.1.25.1705838412
+  $ python3 scripts/generate-mod-version.py src/mods/JusticeForF7
+  2026.213.0
 
 For Release builds, fails if working tree has uncommitted changes.
-For Debug builds, appends -dirty-{timestamp} if tree is dirty.
 """
 
 from __future__ import annotations
@@ -18,17 +22,13 @@ import sys
 from pathlib import Path
 
 
-def get_git_info(mod_dir: Path) -> tuple[str, str] | None:
-    """Get git commit date and hash for a directory.
-
-    Args:
-        mod_dir: Path to mod directory (relative to repo root)
+def get_commit_date(mod_dir: Path) -> tuple[int, int, int] | None:
+    """Get the date of the latest commit touching a directory.
 
     Returns:
-        Tuple of (date_YYYY.M.D, commit_hash_hex) or None if git fails
+        Tuple of (year, month, day) or None if git fails
     """
     try:
-        # Get commit date in ISO format (YYYY-MM-DD)
         date_str = subprocess.run(
             ["git", "log", "-1", "--format=%cs", mod_dir],
             capture_output=True,
@@ -36,35 +36,17 @@ def get_git_info(mod_dir: Path) -> tuple[str, str] | None:
             check=True,
         ).stdout.strip()
 
-        # Get commit hash (short form, 7 chars)
-        hash_str = subprocess.run(
-            ["git", "log", "-1", "--format=%h", mod_dir],
-            capture_output=True,
-            text=True,
-            check=True,
-        ).stdout.strip()
-
-        if not date_str or not hash_str:
+        if not date_str:
             return None
 
-        # Convert YYYY-MM-DD to YYYY.M.D (remove leading zeros)
         year, month, day = date_str.split("-")
-        date_formatted = f"{year}.{int(month)}.{int(day)}"
-
-        return (date_formatted, hash_str)
+        return (int(year), int(month), int(day))
     except (subprocess.CalledProcessError, ValueError):
         return None
 
 
 def check_dirty_tree(mod_dir: Path) -> bool:
-    """Check if working tree has uncommitted changes.
-
-    Args:
-        mod_dir: Path to mod directory
-
-    Returns:
-        True if tree has uncommitted changes, False otherwise
-    """
+    """Check if working tree has uncommitted changes."""
     try:
         result = subprocess.run(
             ["git", "status", "--porcelain", mod_dir],
@@ -77,58 +59,32 @@ def check_dirty_tree(mod_dir: Path) -> bool:
         return False
 
 
-def convert_hash_to_decimal(hash_hex: str) -> int:
-    """Convert hex commit hash to decimal for System.Version compatibility.
-
-    Args:
-        hash_hex: Hex commit hash (e.g., 'a52c0c32')
-
-    Returns:
-        Decimal representation as int
-    """
-    return int(hash_hex, 16)
-
-
 def get_version(mod_dir: Path, config: str = "Debug") -> str:
-    """Generate version for a mod.
+    """Generate version for a mod in YYYY.MDD.0 format.
 
     Args:
         mod_dir: Path to mod directory (relative to repo root)
         config: Build configuration (Debug or Release)
 
     Returns:
-        Version string in format YYYY.M.D.{DECIMAL_HASH}
+        Version string in format YYYY.MDD.0
     """
-    git_info = get_git_info(mod_dir)
+    date = get_commit_date(mod_dir)
 
-    if not git_info:
-        # Fallback if git fails (must be valid System.Version: Major.Minor.Build.Revision)
-        return "0.0.0.0"
+    if not date:
+        return "0.0.0"
 
-    date_formatted, hash_hex = git_info
+    year, month, day = date
 
-    # Convert hash to decimal
-    hash_decimal = convert_hash_to_decimal(hash_hex)
-    version = f"{date_formatted}.{hash_decimal}"
+    if check_dirty_tree(mod_dir) and config == "Release":
+        print(
+            f"error: Cannot build Release with uncommitted changes in {mod_dir}",
+            file=sys.stderr,
+        )
+        print("Commit or stash your changes first.", file=sys.stderr)
+        sys.exit(1)
 
-    # Check for uncommitted changes
-    is_dirty = check_dirty_tree(mod_dir)
-
-    if is_dirty:
-        if config == "Release":
-            # Release builds must have clean working tree
-            print(
-                f"error: Cannot build Release with uncommitted changes in {mod_dir}",
-                file=sys.stderr,
-            )
-            print("Commit or stash your changes first.", file=sys.stderr)
-            sys.exit(1)
-
-        # Debug builds: replace hash component with 0 to signal dirty
-        # (System.Version doesn't allow string suffixes)
-        version = f"{date_formatted}.0"
-
-    return version
+    return f"{year}.{month}{day:02d}.0"
 
 
 def main() -> None:

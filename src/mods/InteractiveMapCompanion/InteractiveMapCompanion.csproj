@@ -46,10 +46,14 @@
     <PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.34.2" />
   </ItemGroup>
 
-   <!-- Generate version from git commit data -->
-  <Target Name="GetGitVersion" BeforeTargets="GeneratePluginInfo">
-    <!-- Get version from git in CalVer format (YYYY.M.D.{DECIMAL_HASH}) -->
-    <!-- Uses Python script to ensure consistent version across mod and website -->
+   <!-- Use ModVersion if provided via -p:ModVersion=X, otherwise generate from git -->
+  <Target Name="SetModVersion" BeforeTargets="GeneratePluginInfo" Condition="'$(ModVersion)' != ''">
+    <PropertyGroup>
+      <Version>$(ModVersion)</Version>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="GetGitVersion" BeforeTargets="GeneratePluginInfo" Condition="'$(ModVersion)' == ''">
     <Exec Command="python3 ../../../scripts/generate-mod-version.py . $(Configuration)"
           ConsoleToMSBuild="true"
           IgnoreExitCode="false"
@@ -58,14 +62,13 @@
       <Output TaskParameter="ConsoleOutput" PropertyName="GitVersion" />
     </Exec>
 
-    <!-- Set the version property for use in PluginInfo.g.cs -->
     <PropertyGroup>
       <Version>$(GitVersion)</Version>
     </PropertyGroup>
   </Target>
 
-  <!-- Generate PluginInfo.g.cs with version from git -->
-  <Target Name="GeneratePluginInfo" BeforeTargets="CoreCompile">
+  <!-- Generate PluginInfo.g.cs with version -->
+  <Target Name="GeneratePluginInfo" BeforeTargets="CoreCompile" DependsOnTargets="SetModVersion;GetGitVersion">
     <PropertyGroup>
       <PluginInfoFile>$(IntermediateOutputPath)PluginInfo.g.cs</PluginInfoFile>
       <PluginInfoLine1>namespace InteractiveMapCompanion%3B</PluginInfoLine1>

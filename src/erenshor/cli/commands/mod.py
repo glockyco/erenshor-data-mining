@@ -134,12 +134,19 @@ def _get_mod_publish_dir(cli_ctx: CLIContext) -> Path:
     return cli_ctx.repo_root / "src" / "maps" / "static" / "mods"
 
 
-def _build_mods_internal(cli_ctx: CLIContext, mod: str | None = None) -> None:
+def _build_mods_internal(
+    cli_ctx: CLIContext,
+    mod: str | None = None,
+    version: str | None = None,
+) -> None:
     """Internal helper to build mods.
 
     Builds specified mod or all mods, generating metadata. Raises typer.Exit
     if build fails. Used by both build command and other commands that need
     to build mods as a prerequisite.
+
+    If version is provided, it is passed to dotnet build via -p:ModVersion,
+    overriding the git-derived version from generate-mod-version.py.
     """
     if not _check_dotnet_available():
         console.print("[red]Error: dotnet CLI not found in PATH[/red]")
@@ -171,8 +178,11 @@ def _build_mods_internal(cli_ctx: CLIContext, mod: str | None = None) -> None:
         console.print()
 
         # Run dotnet build
+        build_cmd: list[str] = ["dotnet", "build", "--configuration", "Debug"]
+        if version:
+            build_cmd.append(f"-p:ModVersion={version}")
         result = subprocess.run(
-            ["dotnet", "build", "--configuration", "Debug"],
+            build_cmd,
             cwd=mod_dir,
             check=False,
         )
@@ -519,12 +529,7 @@ def thunderstore(
         console.print("[yellow]No mods configured for Thunderstore publishing.[/yellow]")
         raise typer.Exit(0)
 
-    # Build first
-    console.print("[bold]Building mods...[/bold]")
-    for mod_id in eligible:
-        _build_mods_internal(cli_ctx, mod_id)
-
-    # Publish each mod
+    # Build and publish each mod
     for mod_id in eligible:
         mod_config = MODS[mod_id]
         ts_id = mod_config["thunderstore"]
@@ -548,6 +553,10 @@ def thunderstore(
         console.print(f"[bold]{mod_config['name']}[/bold]")
         version = _get_thunderstore_version(namespace, name)
         console.print(f"  Version: [cyan]{version}[/cyan]")
+
+        # Build with this version baked into the DLL
+        console.print("[bold]Building...[/bold]")
+        _build_mods_internal(cli_ctx, mod_id, version=version)
 
         if dry_run:
             # Build package only
