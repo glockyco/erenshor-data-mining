@@ -5,18 +5,24 @@ This module provides commands for building and deploying companion mods:
 - Building mods with dotnet
 - Deploying to BepInEx plugins folder
 - Publishing to website download directory
+- Publishing to Thunderstore
 - Generating mod metadata
 - Launching the game
 """
 
 from __future__ import annotations
 
+import contextlib
+import json
 import os
 import shutil
 import subprocess
 import sys
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING
+from urllib.error import HTTPError, URLError
+from urllib.request import urlopen
 
 import typer
 from loguru import logger
@@ -50,6 +56,7 @@ MODS = {
         "dir": "src/mods/JusticeForF7",
         "name": "Justice for F7",
         "dll_name": "JusticeForF7.dll",
+        "thunderstore": "WoW_Much/JusticeForF7",
     },
 }
 
@@ -416,6 +423,182 @@ def publish(
     console.print()
     console.print("[green]Publish complete![/green]")
     console.print(f"[dim]Ready for website deployment: DLLs and metadata in {publish_dir.parent}[/dim]")
+    console.print()
+
+
+def _get_thunderstore_version(namespace: str, name: str) -> str:
+    """Compute the next Thunderstore version in YYYY.MDD.R format.
+
+    Queries the Thunderstore API for the latest published version. If
+    the latest version has the same YYYY.MDD prefix as today, increments
+    the revision. Otherwise starts at revision 0.
+    """
+    now = datetime.now(UTC)
+    date_prefix = f"{now.year}.{now.month}{now.day:02d}"
+
+    # Query Thunderstore for latest version
+    url = f"https://thunderstore.io/api/experimental/package/{namespace}/{name}/"
+    latest_version = None
+    try:
+        with urlopen(url, timeout=10) as resp:
+            data = json.loads(resp.read())
+            latest_version = data.get("latest", {}).get("version_number")
+    except (HTTPError, URLError, json.JSONDecodeError, KeyError):
+        pass
+
+    revision = 0
+    if latest_version and latest_version.startswith(f"{date_prefix}."):
+        with contextlib.suppress(IndexError, ValueError):
+            revision = int(latest_version.split(".")[2]) + 1
+
+    return f"{date_prefix}.{revision}"
+
+
+def _check_tcli_available() -> bool:
+    """Check if tcli (Thunderstore CLI) is available in PATH."""
+    # tcli may be in dotnet tools dir which isn't always in PATH
+    dotnet_tools = Path.home() / ".dotnet" / "tools"
+    path_env = os.environ.get("PATH", "")
+    if str(dotnet_tools) not in path_env:
+        os.environ["PATH"] = f"{path_env}{os.pathsep}{dotnet_tools}"
+    return shutil.which("tcli") is not None
+
+
+@app.command()
+def thunderstore(
+    ctx: typer.Context,
+    mod: str | None = typer.Option(None, "--mod", help="Publish specific mod (or all Thunderstore-enabled mods)"),
+    dry_run: bool = typer.Option(False, "--dry-run", help="Build the package but don't upload"),
+) -> None:
+    """Build and publish mods to Thunderstore.
+
+    Builds the mod, packages it with tcli, and uploads to Thunderstore.
+    Only mods with a 'thunderstore' key in the MODS registry are eligible.
+
+    Version is auto-computed as YYYY.MDD.R (CalVer). The revision R
+    increments if a version with today's date already exists on Thunderstore.
+
+    Requires tcli (dotnet tool install -g tcli) and TCLI_AUTH_TOKEN in .env.
+    """
+    cli_ctx: CLIContext = ctx.obj
+
+    console.print()
+    console.print(
+        Panel.fit(
+            "[bold cyan]Thunderstore Publish[/bold cyan]",
+            border_style="cyan",
+        )
+    )
+    console.print()
+
+    # Check prerequisites
+    if not _check_tcli_available():
+        console.print("[red]Error: tcli not found[/red]")
+        console.print("Install with: dotnet tool install -g tcli")
+        raise typer.Exit(1)
+
+    token = os.environ.get("TCLI_AUTH_TOKEN", "")
+    if not dry_run and (not token or token == "your_token_here"):
+        console.print("[red]Error: TCLI_AUTH_TOKEN not set[/red]")
+        console.print("Set it in .env (see .env for instructions).")
+        raise typer.Exit(1)
+
+    # Find eligible mods
+    if mod:
+        if mod not in MODS:
+            console.print(f"[red]Error: Unknown mod: {mod}[/red]")
+            raise typer.Exit(1)
+        if "thunderstore" not in MODS[mod]:
+            console.print(f"[red]Error: {mod} is not configured for Thunderstore[/red]")
+            raise typer.Exit(1)
+        eligible = [mod]
+    else:
+        eligible = [m for m in MODS if "thunderstore" in MODS[m]]
+
+    if not eligible:
+        console.print("[yellow]No mods configured for Thunderstore publishing.[/yellow]")
+        raise typer.Exit(0)
+
+    # Build first
+    console.print("[bold]Building mods...[/bold]")
+    for mod_id in eligible:
+        _build_mods_internal(cli_ctx, mod_id)
+
+    # Publish each mod
+    for mod_id in eligible:
+        mod_config = MODS[mod_id]
+        ts_id = mod_config["thunderstore"]
+        namespace, name = ts_id.split("/")
+        mod_dir = _get_mod_dir(cli_ctx, mod_id)
+
+        # Check thunderstore.toml exists
+        ts_toml = mod_dir / "thunderstore.toml"
+        if not ts_toml.exists():
+            console.print(f"[red]Error: {ts_toml} not found[/red]")
+            raise typer.Exit(1)
+
+        # Check icon exists
+        icon_path = mod_dir / "thunderstore" / "icon.png"
+        if not icon_path.exists():
+            console.print(f"[red]Error: {icon_path} not found[/red]")
+            raise typer.Exit(1)
+
+        # Compute version
+        console.print()
+        console.print(f"[bold]{mod_config['name']}[/bold]")
+        version = _get_thunderstore_version(namespace, name)
+        console.print(f"  Version: [cyan]{version}[/cyan]")
+
+        if dry_run:
+            # Build package only
+            console.print("  [dim]Building package (dry run)...[/dim]")
+            result = subprocess.run(
+                [
+                    "tcli",
+                    "build",
+                    "--package-version",
+                    version,
+                    "--config-path",
+                    str(ts_toml),
+                ],
+                cwd=mod_dir,
+                check=False,
+            )
+            if result.returncode != 0:
+                console.print("  [red]✗ Package build failed[/red]")
+                raise typer.Exit(1)
+
+            build_dir = mod_dir / "thunderstore" / "build"
+            console.print("  [green]✓ Package built[/green]")
+            console.print(f"  [dim]Output: {build_dir}[/dim]")
+            console.print()
+            console.print("[yellow]Dry run — not uploading.[/yellow]")
+        else:
+            # Build and publish
+            console.print("  [dim]Publishing...[/dim]")
+            result = subprocess.run(
+                [
+                    "tcli",
+                    "publish",
+                    "--package-version",
+                    version,
+                    "--token",
+                    token,
+                    "--config-path",
+                    str(ts_toml),
+                ],
+                cwd=mod_dir,
+                check=False,
+            )
+            if result.returncode != 0:
+                console.print("  [red]✗ Publish failed[/red]")
+                raise typer.Exit(1)
+
+            console.print(f"  [green]✓ Published {namespace}-{name}-{version}[/green]")
+            console.print(f"  [dim]https://thunderstore.io/c/erenshor/p/{namespace}/{name}/[/dim]")
+
+    console.print()
+    console.print("[green]Thunderstore publish complete![/green]")
     console.print()
 
 

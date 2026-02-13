@@ -1,0 +1,30 @@
+[config]
+schemaVersion = "0.0.1"
+
+[package]
+namespace = "WoW_Much"
+name = "JusticeForF7"
+# Version is set dynamically at publish time via --package-version
+versionNumber = "0.0.0"
+description = "Extends F7 Hide UI to also hide nameplates, damage numbers, target rings, XP orbs, cast bars, and loot prompts."
+websiteUrl = ""
+containsNsfwContent = false
+
+[package.dependencies]
+BepInEx-BepInExPack = "5.4.2304"
+
+[build]
+icon = "./thunderstore/icon.png"
+readme = "./thunderstore/README.md"
+outdir = "./thunderstore/build"
+
+[[build.copy]]
+source = "./bin/Debug/netstandard2.1/JusticeForF7.dll"
+target = "plugins/JusticeForF7/"
+
+[publish]
+repository = "https://thunderstore.io"
+communities = ["erenshor"]
+
+[publish.categories]
+erenshor = ["mods"]

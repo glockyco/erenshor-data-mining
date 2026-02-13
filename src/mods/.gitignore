@@ -48,3 +48,8 @@ mods-metadata.json
 !nuget.config
 !ILRepack.targets
 !packages.config
+!thunderstore.toml
+!thunderstore/
+!thunderstore/icon.png
+!thunderstore/README.md
+!thunderstore/CHANGELOG.md
