@@ -45,7 +45,7 @@
       "reason": null
     },
     "character:a highwayman raider (1):elderstone:-732.18:-51.70:194.52": {
-      "wiki_page_name": "A Highwayman Raider",
+      "wiki_page_name": null,
       "display_name": "A Highwayman Raider",
       "image_name": "A Highwayman Raider",
       "mapping_type": "custom",
@@ -489,7 +489,7 @@
       "image_name": "Alexander Farland"
     },
     "character:algaeth bilgeflow": {
-      "wiki_page_name": "A Seafiend Manalord",
+      "wiki_page_name": null,
       "display_name": "A Seafiend Manalord",
       "image_name": "A Seafiend Manalord"
     },
@@ -535,7 +535,7 @@
       "reason": "Excluded from wiki"
     },
     "character:annabelle swisher": {
-      "wiki_page_name": "Valrae Cleary",
+      "wiki_page_name": null,
       "display_name": "Valrae Cleary",
       "image_name": "Valrae Cleary"
     },
@@ -675,7 +675,7 @@
       "image_name": "Bella Macmonalle"
     },
     "character:beth constantine": {
-      "wiki_page_name": "Valrae Cleary",
+      "wiki_page_name": null,
       "display_name": "Valrae Cleary",
       "image_name": "Valrae Cleary"
     },
@@ -706,14 +706,14 @@
       "reason": null
     },
     "character:brackish crocodile small": {
-      "wiki_page_name": "A Brackish Croc",
+      "wiki_page_name": null,
       "display_name": "A Brackish Croc",
       "image_name": "A Brackish Croc",
       "mapping_type": "custom",
       "reason": null
     },
     "character:brackish crocodile whelp": {
-      "wiki_page_name": "A Brackish Croc",
+      "wiki_page_name": null,
       "display_name": "A Brackish Croc",
       "image_name": "A Brackish Croc"
     },
@@ -730,7 +730,7 @@
       "image_name": "Historian of Braxonia"
     },
     "character:braxonian historian": {
-      "wiki_page_name": "Historian of Braxonia",
+      "wiki_page_name": null,
       "display_name": "Historian of Braxonia",
       "image_name": "Historian of Braxonia"
     },
@@ -840,7 +840,7 @@
       "image_name": "Chazz Pillot"
     },
     "character:cirreus alxanth": {
-      "wiki_page_name": "Vethalo Gala",
+      "wiki_page_name": null,
       "display_name": "Vethalo Gala",
       "image_name": "Vethalo Gala"
     },
@@ -1058,7 +1058,7 @@
       "reason": null
     },
     "character:garrey ambrose": {
-      "wiki_page_name": "Alexander Farland",
+      "wiki_page_name": null,
       "display_name": "Alexander Farland",
       "image_name": "Alexander Farland"
     },
@@ -1129,7 +1129,7 @@
       "image_name": "Grayleigh Hawke"
     },
     "character:grounds manager": {
-      "wiki_page_name": "Botanist",
+      "wiki_page_name": null,
       "display_name": "Botanist",
       "image_name": "Botanist"
     },
@@ -1193,7 +1193,7 @@
       "reason": null
     },
     "character:island guard": {
-      "wiki_page_name": "Island Guard",
+      "wiki_page_name": null,
       "display_name": "Island Guard",
       "image_name": "Island Guard"
     },
@@ -1243,7 +1243,7 @@
       "reason": null
     },
     "character:julianna priel": {
-      "wiki_page_name": "Julianna Priel",
+      "wiki_page_name": null,
       "display_name": "Julianna Priel",
       "image_name": "Julianna Priel"
     },
@@ -1298,7 +1298,7 @@
       "reason": "Distinguish from the watchlight"
     },
     "character:leo mclaney": {
-      "wiki_page_name": "Leo McLaney",
+      "wiki_page_name": null,
       "display_name": "Leo McLaney",
       "image_name": "Leo McLaney"
     },
@@ -1371,7 +1371,7 @@
       "reason": null
     },
     "character:lucian revald": {
-      "wiki_page_name": "Nylith Valorro",
+      "wiki_page_name": null,
       "display_name": "Nylith Valorro",
       "image_name": "Nylith Valorro"
     },
@@ -1771,7 +1771,7 @@
       "reason": null
     },
     "character:neziroth daggerhart": {
-      "wiki_page_name": "Trevor Ulchand",
+      "wiki_page_name": null,
       "display_name": "Trevor Ulchand",
       "image_name": "Trevor Ulchand"
     },
@@ -1844,22 +1844,22 @@
       "reason": null
     },
     "character:nightmarian rake": {
-      "wiki_page_name": "Aquilamar Rake",
+      "wiki_page_name": null,
       "display_name": "Aquilamar Rake",
       "image_name": "Aquilamar Rake"
     },
     "character:nightmarian rake 1": {
-      "wiki_page_name": "Aquilamar Duelist",
+      "wiki_page_name": null,
       "display_name": "Aquilamar Duelist",
       "image_name": "Aquilamar Duelist"
     },
     "character:nightmarian rake 2": {
-      "wiki_page_name": "Aquilamar Blade",
+      "wiki_page_name": null,
       "display_name": "Aquilamar Blade",
       "image_name": "Aquilamar Blade"
     },
     "character:nightmarian rake 3": {
-      "wiki_page_name": "Aquilamar Protector",
+      "wiki_page_name": null,
       "display_name": "Aquilamar Protector",
       "image_name": "Aquilamar Protector"
     },
@@ -1869,7 +1869,7 @@
       "image_name": "Nylith Valorro"
     },
     "character:olden lennova": {
-      "wiki_page_name": "Thomson Rhett",
+      "wiki_page_name": null,
       "display_name": "Thomson Rhett",
       "image_name": "Thomson Rhett"
     },
@@ -1984,9 +1984,14 @@
       "image_name": "Ravager, The First Infected"
     },
     "character:reaver of sivakaya": {
-      "wiki_page_name": "Assassin of Sivakaya",
-      "display_name": "Assassin of Sivakaya",
-      "image_name": "Assassin of Sivakaya"
+      "wiki_page_name": "Reaver of Sivakaya",
+      "display_name": "Reaver of Sivakaya",
+      "image_name": "Reaver of Sivakaya"
+    },
+    "character:reaver of sivakaya bkp": {
+      "wiki_page_name": null,
+      "display_name": "Reaver of Sivakaya",
+      "image_name": "Reaver of Sivakaya"
     },
     "character:revan gavault:stowaway:431.79:69.90:535.47": {
       "wiki_page_name": "Revan Gavault",
@@ -2034,7 +2039,7 @@
       "reason": null
     },
     "character:saya seawatcher": {
-      "wiki_page_name": "Saya Seawatcher",
+      "wiki_page_name": null,
       "display_name": "Saya Seawatcher",
       "image_name": "Saya Seawatcher"
     },
@@ -2054,12 +2059,12 @@
       "image_name": "Sean Figarello"
     },
     "character:sean figarello:stowaway:605.45:72.16:464.40": {
-      "wiki_page_name": "Sean Figarello",
+      "wiki_page_name": null,
       "display_name": "Sean Figarello",
       "image_name": "Sean Figarello"
     },
     "character:sergeant d'vin": {
-      "wiki_page_name": "Island Guard",
+      "wiki_page_name": null,
       "display_name": "Island Guard",
       "image_name": "Island Guard"
     },
@@ -2273,7 +2278,7 @@
       "image_name": "Reynold"
     },
     "character:sir rattleywrists": {
-      "wiki_page_name": "A Brittle Skeleton",
+      "wiki_page_name": null,
       "display_name": "A Brittle Skeleton",
       "image_name": "A Brittle Skeleton"
     },
@@ -2336,7 +2341,7 @@
       "image_name": "A Skeleton Captain"
     },
     "character:skeleton captain 1": {
-      "wiki_page_name": "A Skeleton Captain",
+      "wiki_page_name": null,
       "display_name": "A Skeleton Captain",
       "image_name": "A Skeleton Captain"
     },
@@ -2647,7 +2652,7 @@
       "image_name": "Thomson Rhett"
     },
     "character:timothy allorn": {
-      "wiki_page_name": "A Hermit",
+      "wiki_page_name": null,
       "display_name": "A Hermit",
       "image_name": "A Hermit"
     },
@@ -2753,7 +2758,7 @@
       "image_name": "Violet Smithfield"
     },
     "character:wally waldorf": {
-      "wiki_page_name": "Cecil Threbb",
+      "wiki_page_name": null,
       "display_name": "Cecil Threbb",
       "image_name": "Cecil Threbb"
     },
@@ -2824,7 +2829,7 @@
       "image_name": "A Young Wolf"
     },
     "character:worn ancient guardian": {
-      "wiki_page_name": "Ravager, The First Infected",
+      "wiki_page_name": null,
       "display_name": "Ravager, The First Infected",
       "image_name": "Ravager, The First Infected"
     },
@@ -2839,7 +2844,7 @@
       "image_name": "Yale Harvey"
     },
     "character:zachary yelmee": {
-      "wiki_page_name": "Chazz Pillot",
+      "wiki_page_name": null,
       "display_name": "Chazz Pillot",
       "image_name": "Chazz Pillot"
     },
