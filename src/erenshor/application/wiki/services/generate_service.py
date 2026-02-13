@@ -145,6 +145,15 @@ class WikiGenerateService:
 
         logger.info(f"Total pages generated: {len(all_generated_pages)}")
 
+        # Remove stale metadata/files when doing a full (unfiltered) generation.
+        # Stale entries arise when page titles change (e.g., whitespace stripping)
+        # and the old entries linger, causing overwrites on MediaWiki.
+        if not page_titles and not limit and not generator_names:
+            valid_titles = {p.title for p in all_generated_pages}
+            removed = self._storage.remove_stale_pages(valid_titles)
+            if removed:
+                logger.info(f"Cleaned up {removed} stale pages")
+
         # Filter by requested page titles if specified
         if page_titles:
             page_titles_set = set(page_titles)

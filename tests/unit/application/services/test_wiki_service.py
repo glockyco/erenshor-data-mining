@@ -638,6 +638,65 @@ Manual content that should be preserved."""
         assert "Manual content that should be preserved" in generated_content
 
 
+class TestRemoveStalePages:
+    """Tests for WikiStorage.remove_stale_pages."""
+
+    def test_removes_stale_metadata_and_files(self, mock_storage):
+        """Stale entries (not in valid set) are removed from metadata and disk."""
+        # Create two pages: one valid, one stale (trailing space)
+        mock_storage.save_generated_by_title(
+            "Windwashed Receptacle",
+            ["character:receptacle-wind"],
+            "{{Enemy|name=Windwashed Receptacle|image=[[File:Windwashed Receptacle.png|thumb]]}}",
+        )
+        mock_storage.save_generated_by_title(
+            "Windwashed Receptacle ",
+            ["character:receptacle-wind"],
+            "{{Enemy|name=Windwashed Receptacle|image=[[File:Windwashed Receptacle .png|thumb]]}}",
+        )
+
+        removed = mock_storage.remove_stale_pages({"Windwashed Receptacle"})
+
+        assert removed == 1
+        assert mock_storage.read_generated_by_title("Windwashed Receptacle") is not None
+        assert mock_storage.read_generated_by_title("Windwashed Receptacle ") is None
+        assert mock_storage.get_metadata_by_title("Windwashed Receptacle") is not None
+        assert mock_storage.get_metadata_by_title("Windwashed Receptacle ") is None
+
+    def test_no_stale_pages_returns_zero(self, mock_storage):
+        """When all metadata entries are valid, nothing is removed."""
+        mock_storage.save_generated_by_title(
+            "Test Page",
+            ["item:test"],
+            "content",
+        )
+
+        removed = mock_storage.remove_stale_pages({"Test Page"})
+
+        assert removed == 0
+        assert mock_storage.read_generated_by_title("Test Page") is not None
+
+    def test_removes_fetched_files_too(self, mock_storage):
+        """Stale fetched files are also cleaned up alongside generated files."""
+        mock_storage.save_fetched_by_title(
+            "Stale Page ",
+            ["character:stale"],
+            "fetched content",
+            entity_names=["Stale Page"],
+        )
+        mock_storage.save_generated_by_title(
+            "Stale Page ",
+            ["character:stale"],
+            "generated content",
+        )
+
+        removed = mock_storage.remove_stale_pages(set())
+
+        assert removed == 1
+        assert mock_storage.read_fetched_by_title("Stale Page ") is None
+        assert mock_storage.read_generated_by_title("Stale Page ") is None
+
+
 class TestOperationResult:
     """Tests for OperationResult dataclass."""
 

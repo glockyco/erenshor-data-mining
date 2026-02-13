@@ -401,3 +401,40 @@ class WikiStorage:
 
         logger.info(f"Cleared {count} generated pages")
         return count
+
+    def remove_stale_pages(self, valid_page_titles: set[str]) -> int:
+        """Remove metadata and files for page titles that no longer exist.
+
+        Compares stored metadata against a set of currently valid page titles
+        and removes any entries that are no longer valid. This prevents stale
+        pages (e.g., from before name normalization fixes) from being deployed
+        and overwriting correct content on the wiki.
+
+        Args:
+            valid_page_titles: Set of page titles that are currently valid.
+
+        Returns:
+            Number of stale entries removed.
+        """
+        metadata = self._load_metadata()
+        stale_titles = [title for title in metadata if title not in valid_page_titles]
+
+        if not stale_titles:
+            return 0
+
+        for title in stale_titles:
+            del metadata[title]
+
+            # Remove associated files
+            safe_filename = self._encode_page_title_for_filename(title)
+            for directory in (self._generated_dir, self._fetched_dir):
+                file_path = directory / f"{safe_filename}.txt"
+                if file_path.exists():
+                    file_path.unlink()
+                    logger.debug(f"Removed stale file: {file_path}")
+
+            logger.info(f"Removed stale page: {title!r}")
+
+        self._save_metadata(metadata)
+        logger.info(f"Removed {len(stale_titles)} stale pages from metadata")
+        return len(stale_titles)
