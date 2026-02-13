@@ -725,12 +725,12 @@
       "reason": null
     },
     "character:braxonian educator:1": {
-      "wiki_page_name": "Historian of Braxonia",
+      "wiki_page_name": null,
       "display_name": "Historian of Braxonia",
       "image_name": "Historian of Braxonia"
     },
     "character:braxonian historian": {
-      "wiki_page_name": null,
+      "wiki_page_name": "Historian of Braxonia",
       "display_name": "Historian of Braxonia",
       "image_name": "Historian of Braxonia"
     },
@@ -775,7 +775,7 @@
       "image_name": "A Brittle Skeleton"
     },
     "character:captain genevieve voldance": {
-      "wiki_page_name": "Saya Seawatcher",
+      "wiki_page_name": null,
       "display_name": "Saya Seawatcher",
       "image_name": "Saya Seawatcher"
     },
@@ -1134,7 +1134,7 @@
       "image_name": "Botanist"
     },
     "character:haileigh serenie": {
-      "wiki_page_name": "Saya Seawatcher",
+      "wiki_page_name": null,
       "display_name": "Saya Seawatcher",
       "image_name": "Saya Seawatcher"
     },
@@ -1984,12 +1984,12 @@
       "image_name": "Ravager, The First Infected"
     },
     "character:reaver of sivakaya": {
-      "wiki_page_name": "Reaver of Sivakaya",
+      "wiki_page_name": null,
       "display_name": "Reaver of Sivakaya",
       "image_name": "Reaver of Sivakaya"
     },
     "character:reaver of sivakaya bkp": {
-      "wiki_page_name": null,
+      "wiki_page_name": "Reaver of Sivakaya",
       "display_name": "Reaver of Sivakaya",
       "image_name": "Reaver of Sivakaya"
     },
@@ -2039,7 +2039,7 @@
       "reason": null
     },
     "character:saya seawatcher": {
-      "wiki_page_name": null,
+      "wiki_page_name": "Saya Seawatcher",
       "display_name": "Saya Seawatcher",
       "image_name": "Saya Seawatcher"
     },
@@ -2054,12 +2054,12 @@
       "image_name": "Scorched Skeleton"
     },
     "character:sean figarello": {
-      "wiki_page_name": "Sean Figarello",
+      "wiki_page_name": null,
       "display_name": "Sean Figarello",
       "image_name": "Sean Figarello"
     },
     "character:sean figarello:stowaway:605.45:72.16:464.40": {
-      "wiki_page_name": null,
+      "wiki_page_name": "Sean Figarello",
       "display_name": "Sean Figarello",
       "image_name": "Sean Figarello"
     },
