@@ -15,7 +15,6 @@ from __future__ import annotations
 
 import subprocess
 import sys
-from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -103,10 +102,8 @@ def get_version(mod_dir: Path, config: str = "Debug") -> str:
     git_info = get_git_info(mod_dir)
 
     if not git_info:
-        # Fallback if git fails
-        now = datetime.now(timezone.utc)
-        timestamp = now.strftime("%Y%m%d%H%M%S")
-        return f"0.0.0-{timestamp}"
+        # Fallback if git fails (must be valid System.Version: Major.Minor.Build.Revision)
+        return "0.0.0.0"
 
     date_formatted, hash_hex = git_info
 
@@ -127,10 +124,9 @@ def get_version(mod_dir: Path, config: str = "Debug") -> str:
             print("Commit or stash your changes first.", file=sys.stderr)
             sys.exit(1)
 
-        # Debug builds: append dirty marker
-        now = datetime.now(timezone.utc)
-        dirty_timestamp = now.strftime("%Y%m%d-%H%M%S")
-        version = f"{version}-dirty-{dirty_timestamp}"
+        # Debug builds: replace hash component with 0 to signal dirty
+        # (System.Version doesn't allow string suffixes)
+        version = f"{date_formatted}.0"
 
     return version
 
