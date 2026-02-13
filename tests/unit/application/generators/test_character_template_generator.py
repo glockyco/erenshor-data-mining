@@ -1014,3 +1014,116 @@ class TestLevelFormatting:
 
         assert "|level=\n" in template
         assert "|level=None" not in template
+
+
+class TestCoordinateFormatting:
+    """Test coordinate display logic in generated templates."""
+
+    def test_single_spawn_with_coordinates(self, generator, mock_enriched, mock_resolver):
+        """Single spawn point with coordinates should display them."""
+        from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
+
+        character = Character(
+            stable_key="character:test",
+            object_name="Test",
+            npc_name="Test NPC",
+            level=10,
+        )
+        mock_enriched.character = character
+        mock_enriched.spawn_infos = [
+            CharacterSpawnInfo(
+                zone_stable_key="zone:Test Zone",
+                base_respawn=300.0,
+                x=146.4,
+                y=26.3,
+                z=348.9,
+                spawn_chance=100.0,
+                is_rare=False,
+                is_unique=False,
+            )
+        ]
+
+        template = generator.generate_template(mock_enriched, "Test NPC")
+
+        assert "|coordinates=146.4 x 26.3 x 348.9" in template
+
+    def test_single_spawn_with_none_coordinates(self, generator, mock_enriched, mock_resolver):
+        """Single spawn point with None coordinates should show empty."""
+        from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
+
+        character = Character(
+            stable_key="character:test",
+            object_name="Test",
+            npc_name="Test NPC",
+            level=10,
+        )
+        mock_enriched.character = character
+        mock_enriched.spawn_infos = [
+            CharacterSpawnInfo(
+                zone_stable_key="zone:Test Zone",
+                base_respawn=300.0,
+                x=None,
+                y=None,
+                z=None,
+                spawn_chance=100.0,
+                is_rare=False,
+                is_unique=False,
+            )
+        ]
+
+        template = generator.generate_template(mock_enriched, "Test NPC")
+
+        assert "|coordinates=\n" in template
+
+    def test_multiple_spawns_no_coordinates(self, generator, mock_enriched, mock_resolver):
+        """Multiple spawn points should not display coordinates."""
+        from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
+
+        character = Character(
+            stable_key="character:test",
+            object_name="Test",
+            npc_name="Test NPC",
+            level=10,
+        )
+        mock_enriched.character = character
+        mock_enriched.spawn_infos = [
+            CharacterSpawnInfo(
+                zone_stable_key="zone:Test Zone",
+                base_respawn=300.0,
+                x=100.0,
+                y=50.0,
+                z=200.0,
+                spawn_chance=100.0,
+                is_rare=False,
+                is_unique=False,
+            ),
+            CharacterSpawnInfo(
+                zone_stable_key="zone:Test Zone",
+                base_respawn=300.0,
+                x=200.0,
+                y=60.0,
+                z=300.0,
+                spawn_chance=100.0,
+                is_rare=False,
+                is_unique=False,
+            ),
+        ]
+
+        template = generator.generate_template(mock_enriched, "Test NPC")
+
+        assert "|coordinates=\n" in template
+
+    def test_no_spawns_no_coordinates(self, generator, mock_enriched, mock_resolver):
+        """No spawn points should show empty coordinates."""
+        character = Character(
+            stable_key="character:test",
+            object_name="Test",
+            npc_name="Test NPC",
+            level=10,
+        )
+        mock_enriched.character = character
+        mock_enriched.spawn_infos = []
+
+        template = generator.generate_template(mock_enriched, "Test NPC")
+
+        assert "|coordinates=\n" in template

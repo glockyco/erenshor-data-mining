@@ -53,9 +53,8 @@ class SpawnPointRepository(BaseRepository[SpawnPoint]):
         All characters (prefab and non-prefab) have SpawnPoint records.
         Non-prefab characters have virtual spawn points with IsDirectlyPlaced=1.
 
-        Unique characters (IsUnique=1) have a single spawn point with exact coordinates.
-        Non-unique characters have multiple spawn points - we return zone info only,
-        deduplicated by zone (no exact coordinates for common spawns).
+        Coordinates are always included. Downstream formatters decide whether
+        to display them (e.g., only when there is exactly one spawn point).
         """
         query = """
             SELECT
@@ -85,28 +84,8 @@ class SpawnPointRepository(BaseRepository[SpawnPoint]):
             if not rows:
                 return []
 
-            # Check if this is a unique character (single spawn point)
-            is_unique = bool(rows[0]["is_unique"])
-
-            if is_unique:
-                # Unique characters: should only have one spawn point, include coordinates
-                spawn_infos = [CharacterSpawnInfo.model_validate(dict(row)) for row in rows]
-                logger.debug(f"Retrieved {len(spawn_infos)} spawn point(s) for unique character {character_stable_key}")
-            else:
-                # Non-unique characters: collect all spawn points per zone
-                # Keep all spawn chances/respawns so generator can calculate ranges
-                spawn_infos = []
-                for row in rows:
-                    # Create spawn info without coordinates (zone only)
-                    spawn_data = dict(row)
-                    spawn_data["x"] = None
-                    spawn_data["y"] = None
-                    spawn_data["z"] = None
-                    spawn_infos.append(CharacterSpawnInfo.model_validate(spawn_data))
-
-                logger.debug(
-                    f"Retrieved {len(spawn_infos)} spawn points for non-unique character {character_stable_key}"
-                )
+            spawn_infos = [CharacterSpawnInfo.model_validate(dict(row)) for row in rows]
+            logger.debug(f"Retrieved {len(spawn_infos)} spawn point(s) for {character_stable_key}")
 
             return spawn_infos
         except Exception as e:
