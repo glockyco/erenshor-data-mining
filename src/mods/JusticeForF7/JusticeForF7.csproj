@@ -1,0 +1,92 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <AssemblyName>JusticeForF7</AssemblyName>
+    <RootNamespace>JusticeForF7</RootNamespace>
+
+    <!-- Roslyn Analyzers -->
+    <AnalysisMode>Recommended</AnalysisMode>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <!-- Suppress warnings that don't apply to mods -->
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+
+    <!-- Copy NuGet dependencies to output (needed for ILRepack) -->
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- BepInEx (provided at runtime by BepInEx framework) -->
+    <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all" />
+    <PackageReference Include="HarmonyX" Version="2.*" PrivateAssets="all" />
+
+    <!-- ILRepack for merging dependencies into single DLL -->
+    <PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.34.2" />
+  </ItemGroup>
+
+  <!-- Generate version from git commit data -->
+  <Target Name="GetGitVersion" BeforeTargets="GeneratePluginInfo">
+    <Exec Command="python3 ../../../scripts/generate-mod-version.py . $(Configuration)"
+          ConsoleToMSBuild="true"
+          IgnoreExitCode="false"
+          StandardOutputImportance="low"
+          EchoOff="true">
+      <Output TaskParameter="ConsoleOutput" PropertyName="GitVersion" />
+    </Exec>
+
+    <PropertyGroup>
+      <Version>$(GitVersion)</Version>
+    </PropertyGroup>
+  </Target>
+
+  <!-- Generate PluginInfo.g.cs with version from git -->
+  <Target Name="GeneratePluginInfo" BeforeTargets="CoreCompile">
+    <PropertyGroup>
+      <PluginInfoFile>$(IntermediateOutputPath)PluginInfo.g.cs</PluginInfoFile>
+      <PluginInfoLine1>namespace JusticeForF7%3B</PluginInfoLine1>
+      <PluginInfoLine2>internal static partial class PluginInfo { public const string Version = "$(Version)"%3B }</PluginInfoLine2>
+    </PropertyGroup>
+    <WriteLinesToFile File="$(PluginInfoFile)" Lines="$(PluginInfoLine1)" Overwrite="true" />
+    <WriteLinesToFile File="$(PluginInfoFile)" Lines="$(PluginInfoLine2)" Overwrite="false" />
+    <ItemGroup>
+      <Compile Include="$(PluginInfoFile)" />
+    </ItemGroup>
+  </Target>
+
+  <!-- Game assembly references (copied via erenshor mod setup) -->
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>lib/Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>lib/UnityEngine.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>lib/UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UIModule">
+      <HintPath>lib/UnityEngine.UIModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>lib/UnityEngine.UI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>lib/Unity.TextMeshPro.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+
+</Project>

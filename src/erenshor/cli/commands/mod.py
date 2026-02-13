@@ -46,6 +46,11 @@ MODS = {
         "name": "Interactive Maps Companion",
         "dll_name": "InteractiveMapsCompanion.dll",
     },
+    "justice-for-f7": {
+        "dir": "src/mods/JusticeForF7",
+        "name": "Justice for F7",
+        "dll_name": "JusticeForF7.dll",
+    },
 }
 
 # Required DLLs to copy from game
@@ -53,6 +58,9 @@ REQUIRED_DLLS = [
     "Assembly-CSharp.dll",
     "UnityEngine.dll",
     "UnityEngine.CoreModule.dll",
+    "UnityEngine.UIModule.dll",
+    "UnityEngine.UI.dll",
+    "Unity.TextMeshPro.dll",
 ]
 
 
