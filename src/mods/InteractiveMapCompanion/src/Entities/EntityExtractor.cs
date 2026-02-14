@@ -14,7 +14,7 @@ public sealed class EntityExtractor : IEntityExtractor
             Id: character.GetInstanceID(),
             EntityType: EntityTypeToString(entityType),
             Name: stats?.MyName ?? character.name,
-            Position: [transform.position.x, transform.position.y, transform.position.z],
+            Position: new[] { transform.position.x, transform.position.y, transform.position.z },
             Rotation: NormalizeRotation(transform.eulerAngles.y),
             Level: GetLevel(stats, entityType),
             Rarity: GetRarity(character, entityType),

@@ -28,13 +28,6 @@
   <ItemGroup>
     <!-- BepInEx -->
     <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all" />
-    <PackageReference Include="HarmonyX" Version="2.*" PrivateAssets="all" />
-
-    <!-- C# language feature polyfills for netstandard2.1 -->
-    <PackageReference Include="PolySharp" Version="1.15.0" PrivateAssets="all" />
-
-    <!-- Dependency injection -->
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.*" />
 
     <!-- JSON serialization -->
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />

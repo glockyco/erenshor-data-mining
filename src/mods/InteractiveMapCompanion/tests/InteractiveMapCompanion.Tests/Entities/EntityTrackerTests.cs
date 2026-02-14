@@ -7,9 +7,9 @@ public class EntityTrackerTests
 {
     private sealed class MockCharacter
     {
-        public int Id { get; init; }
-        public string Name { get; init; } = "";
-        public EntityType? Type { get; init; }
+        public int Id { get; set; }
+        public string Name { get; set; } = "";
+        public EntityType? Type { get; set; }
     }
 
     [Fact]

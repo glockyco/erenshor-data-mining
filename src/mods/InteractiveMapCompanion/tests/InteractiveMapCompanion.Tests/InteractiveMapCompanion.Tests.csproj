@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -23,7 +23,6 @@
 
     <!-- Required for transitive dependencies from main project -->
     <PackageReference Include="BepInEx.Core" Version="5.*" />
-    <PackageReference Include="HarmonyX" Version="2.*" />
   </ItemGroup>
 
   <ItemGroup>

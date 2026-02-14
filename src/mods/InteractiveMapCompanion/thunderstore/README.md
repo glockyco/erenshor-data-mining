@@ -31,7 +31,9 @@ browser connects to directly - nothing is sent to any external server.
 Requires [BepInEx 5](https://thunderstore.io/c/erenshor/p/BepInEx/BepInExPack/).
 
 1. Install BepInEx if you haven't already
-2. Place `InteractiveMapCompanion.dll` in `BepInEx/plugins/`
+2. Copy the `InteractiveMapCompanion/` folder (containing
+   `InteractiveMapCompanion.dll`, `Fleck.dll`, and `Newtonsoft.Json.dll`)
+   into `BepInEx/plugins/`
 3. Launch the game and log in with a character
 4. Open the [interactive world map](https://erenshor-maps.wowmuch1.workers.dev/map)
 5. Toggle **Enable Live Mode** in the sidebar

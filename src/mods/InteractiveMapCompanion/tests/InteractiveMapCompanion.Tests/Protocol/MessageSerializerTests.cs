@@ -34,7 +34,7 @@ public class MessageSerializerTests
 
         Assert.Contains("\"type\":\"handshake\"", json);
         Assert.Contains("\"zone\":\"TestZone\"", json);
-        Assert.Contains("\"protocolVersion\":\"0.1.0\"", json);
+        Assert.Contains($"\"protocolVersion\":\"{ProtocolVersion.Current}\"", json);
         Assert.Contains("\"entities\"", json);
         Assert.Contains("\"markers\"", json);
     }

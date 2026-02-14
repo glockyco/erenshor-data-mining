@@ -139,6 +139,8 @@ def _build_mods_internal(
     cli_ctx: CLIContext,
     mod: str | None = None,
     version: str | None = None,
+    *,
+    skip_ilrepack: bool = False,
 ) -> None:
     """Internal helper to build mods.
 
@@ -148,6 +150,10 @@ def _build_mods_internal(
 
     If version is provided, it is passed to dotnet build via -p:ModVersion,
     overriding the git-derived version from generate-mod-version.py.
+
+    If skip_ilrepack is True, passes -p:SkipILRepack=true to produce
+    separate DLLs instead of a single merged assembly. Used for
+    Thunderstore packaging where reviewers need to inspect individual DLLs.
     """
     if not _check_dotnet_available():
         console.print("[red]Error: dotnet CLI not found in PATH[/red]")
@@ -182,6 +188,8 @@ def _build_mods_internal(
         build_cmd: list[str] = ["dotnet", "build", "--configuration", "Debug"]
         if version:
             build_cmd.append(f"-p:ModVersion={version}")
+        if skip_ilrepack:
+            build_cmd.append("-p:SkipILRepack=true")
         result = subprocess.run(
             build_cmd,
             cwd=mod_dir,
@@ -556,8 +564,9 @@ def thunderstore(
         console.print(f"  Version: [cyan]{version}[/cyan]")
 
         # Build with this version baked into the DLL
+        # Skip ILRepack so reviewers can inspect individual DLLs
         console.print("[bold]Building...[/bold]")
-        _build_mods_internal(cli_ctx, mod_id, version=version)
+        _build_mods_internal(cli_ctx, mod_id, version=version, skip_ilrepack=True)
 
         if dry_run:
             # Build package only
