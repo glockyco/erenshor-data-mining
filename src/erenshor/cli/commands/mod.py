@@ -22,7 +22,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING
 from urllib.error import HTTPError, URLError
-from urllib.request import urlopen
+from urllib.request import Request, urlopen
 
 import typer
 from loguru import logger
@@ -457,9 +457,10 @@ def _get_thunderstore_version(namespace: str, name: str) -> str:
 
     # Query Thunderstore for latest version
     url = f"https://thunderstore.io/api/experimental/package/{namespace}/{name}/"
+    request = Request(url, headers={"User-Agent": "erenshor-cli/1.0"})
     latest_version = None
     try:
-        with urlopen(url, timeout=10) as resp:
+        with urlopen(request, timeout=10) as resp:
             data = json.loads(resp.read())
             latest_version = data.get("latest", {}).get("version_number")
     except (HTTPError, URLError, json.JSONDecodeError, KeyError):
