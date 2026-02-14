@@ -46,6 +46,7 @@ MODS = {
         "dir": "src/mods/InteractiveMapCompanion",
         "name": "Interactive Map Companion",
         "dll_name": "InteractiveMapCompanion.dll",
+        "thunderstore": "WoW_Much/InteractiveMapCompanion",
     },
     "interactive-maps-companion": {
         "dir": "src/mods/InteractiveMapsCompanion",

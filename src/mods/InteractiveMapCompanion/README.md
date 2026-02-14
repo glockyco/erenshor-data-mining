@@ -38,7 +38,7 @@ To use the map on another device on your local network:
 ## Configuration
 
 The mod can be configured via:  
-`BepInEx/config/com.erenshor.InteractiveMapCompanion.cfg`
+`BepInEx/config/wow-much.interactive-map-companion.cfg`
 
 This file is automatically created the first time you run the game with the mod installed.
 

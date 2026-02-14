@@ -1,0 +1,30 @@
+[config]
+schemaVersion = "0.0.1"
+
+[package]
+namespace = "WoW_Much"
+name = "InteractiveMapCompanion"
+# Version is set dynamically at publish time via --package-version
+versionNumber = "0.0.0"
+description = "Companion mod for the interactive world map. Live tracking of all characters — player, SimPlayers, NPCs, enemies, and pets — right in your browser."
+websiteUrl = ""
+containsNsfwContent = false
+
+[package.dependencies]
+BepInEx-BepInExPack = "5.4.2304"
+
+[build]
+icon = "./thunderstore/icon.png"
+readme = "./thunderstore/README.md"
+outdir = "./thunderstore/build"
+
+[[build.copy]]
+source = "./bin/Debug/netstandard2.1/InteractiveMapCompanion.dll"
+target = "plugins/InteractiveMapCompanion/"
+
+[publish]
+repository = "https://thunderstore.io"
+communities = ["erenshor"]
+
+[publish.categories]
+erenshor = ["mods"]
