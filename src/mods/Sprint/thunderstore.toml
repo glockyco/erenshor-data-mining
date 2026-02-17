@@ -1,0 +1,30 @@
+[config]
+schemaVersion = "0.0.1"
+
+[package]
+namespace = "WoW_Much"
+name = "Sprint"
+# Version is set dynamically at publish time via --package-version
+versionNumber = "0.0.0"
+description = "Hold Shift to run faster. Configurable sprint key with adjustable speed from subtle to ludicrous. No stamina, no cooldowns, just speed."
+websiteUrl = ""
+containsNsfwContent = false
+
+[package.dependencies]
+BepInEx-BepInExPack = "5.4.2304"
+
+[build]
+icon = "./thunderstore/icon.png"
+readme = "./thunderstore/README.md"
+outdir = "./thunderstore/build"
+
+[[build.copy]]
+source = "./bin/Debug/netstandard2.1/Sprint.dll"
+target = "plugins/Sprint/"
+
+[publish]
+repository = "https://thunderstore.io"
+communities = ["erenshor"]
+
+[publish.categories]
+erenshor = ["mods"]

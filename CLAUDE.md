@@ -140,12 +140,14 @@ Exported SQLite databases are stored per-variant:
 The `src/mods/` directory contains BepInEx companion mods:
 
 - **InteractiveMapCompanion**: Real-time entity tracking for the interactive map
+- **JusticeForF7**: Extends F7 screenshot mode to hide world-space UI elements
+- **Sprint**: Configurable sprint key with multiplicative speed boost
 
-Mods follow patterns from [erenshor-logs](https://github.com/glockyco/erenshor-logs):
+Map-related mods follow patterns from [erenshor-logs](https://github.com/glockyco/erenshor-logs):
 - Dependency injection for composition
 - Generic + adapter pattern for testability
 - Harmony patches with static property injection
-- Fleck for WebSocket server
+- Fleck for WebSocket server (InteractiveMapCompanion only)
 
 ## Companion Mod Pipeline
 

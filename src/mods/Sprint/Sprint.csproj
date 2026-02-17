@@ -1,0 +1,82 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <AssemblyName>Sprint</AssemblyName>
+    <RootNamespace>Sprint</RootNamespace>
+
+    <!-- Roslyn Analyzers -->
+    <AnalysisMode>Recommended</AnalysisMode>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <!-- Suppress warnings that don't apply to mods -->
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- BepInEx -->
+    <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all" />
+  </ItemGroup>
+
+   <!-- Use ModVersion if provided via -p:ModVersion=X, otherwise generate from git -->
+  <Target Name="SetModVersion" BeforeTargets="GeneratePluginInfo" Condition="'$(ModVersion)' != ''">
+    <PropertyGroup>
+      <Version>$(ModVersion)</Version>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="GetGitVersion" BeforeTargets="GeneratePluginInfo" Condition="'$(ModVersion)' == ''">
+    <Exec Command="python3 ../../../scripts/generate-mod-version.py . $(Configuration)"
+          ConsoleToMSBuild="true"
+          IgnoreExitCode="false"
+          StandardOutputImportance="low"
+          EchoOff="true">
+      <Output TaskParameter="ConsoleOutput" PropertyName="GitVersion" />
+    </Exec>
+
+    <PropertyGroup>
+      <Version>$(GitVersion)</Version>
+    </PropertyGroup>
+  </Target>
+
+  <!-- Generate PluginInfo.g.cs with version -->
+  <Target Name="GeneratePluginInfo" BeforeTargets="CoreCompile" DependsOnTargets="SetModVersion;GetGitVersion">
+    <PropertyGroup>
+      <PluginInfoFile>$(IntermediateOutputPath)PluginInfo.g.cs</PluginInfoFile>
+      <PluginInfoLine1>namespace Sprint%3B</PluginInfoLine1>
+      <PluginInfoLine2>internal static partial class PluginInfo { public const string Version = "$(Version)"%3B }</PluginInfoLine2>
+    </PropertyGroup>
+    <WriteLinesToFile File="$(PluginInfoFile)" Lines="$(PluginInfoLine1)" Overwrite="true" />
+    <WriteLinesToFile File="$(PluginInfoFile)" Lines="$(PluginInfoLine2)" Overwrite="false" />
+    <ItemGroup>
+      <Compile Include="$(PluginInfoFile)" />
+    </ItemGroup>
+  </Target>
+
+  <!-- Game assembly references (copied via erenshor mod setup) -->
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>lib/Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>lib/UnityEngine.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>lib/UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule">
+      <HintPath>lib/UnityEngine.InputLegacyModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+</Project>

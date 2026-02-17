@@ -59,6 +59,12 @@ MODS = {
         "dll_name": "JusticeForF7.dll",
         "thunderstore": "WoW_Much/JusticeForF7",
     },
+    "sprint": {
+        "dir": "src/mods/Sprint",
+        "name": "Sprint",
+        "dll_name": "Sprint.dll",
+        "thunderstore": "WoW_Much/Sprint",
+    },
 }
 
 # Required DLLs to copy from game
@@ -66,6 +72,7 @@ REQUIRED_DLLS = [
     "Assembly-CSharp.dll",
     "UnityEngine.dll",
     "UnityEngine.CoreModule.dll",
+    "UnityEngine.InputLegacyModule.dll",
     "UnityEngine.UIModule.dll",
     "UnityEngine.UI.dll",
     "Unity.TextMeshPro.dll",
