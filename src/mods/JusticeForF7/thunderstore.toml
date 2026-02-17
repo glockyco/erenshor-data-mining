@@ -16,6 +16,7 @@ BepInEx-BepInExPack = "5.4.2304"
 [build]
 icon = "./thunderstore/icon.png"
 readme = "./thunderstore/README.md"
+changelog = "./thunderstore/CHANGELOG.md"
 outdir = "./thunderstore/build"
 
 [[build.copy]]
