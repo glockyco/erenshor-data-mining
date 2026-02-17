@@ -105,6 +105,8 @@ public sealed class Plugin : BaseUnityPlugin
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        // Reset patch state to re-sync with new scene's canvas state
+        TypeTextPatch.ResetState();
         _hider?.OnSceneLoaded();
     }
 

@@ -13,7 +13,17 @@ internal static class TypeTextPatch
     /// <summary>Injected by Plugin before patching.</summary>
     public static WorldUIHider? Hider { get; set; }
 
-    private static bool _lastCanvasEnabled = true;
+    private static bool? _lastCanvasEnabled = null;
+
+    /// <summary>
+    /// Resets the cached canvas state. Called on scene load to re-sync with
+    /// the new scene's canvas state, matching the game's behavior of not
+    /// persisting F7 state across scenes.
+    /// </summary>
+    public static void ResetState()
+    {
+        _lastCanvasEnabled = null;
+    }
 
     [HarmonyPostfix]
     public static void Postfix()
@@ -27,7 +37,14 @@ internal static class TypeTextPatch
 
         bool currentEnabled = canvas.enabled;
 
-        if (currentEnabled == _lastCanvasEnabled)
+        // First run: initialize without triggering state change
+        if (_lastCanvasEnabled == null)
+        {
+            _lastCanvasEnabled = currentEnabled;
+            return;
+        }
+
+        if (currentEnabled == _lastCanvasEnabled.Value)
         {
             // No state change, but run periodic re-scan tick if hidden
             Hider.Tick();
