@@ -72,6 +72,20 @@ Outputs:
 - DLLs in `src/maps/static/mods/`
 - Metadata at `src/maps/static/mods-metadata.json`
 
+### Publish to Thunderstore
+```bash
+uv run erenshor mod thunderstore --mod mod-id       # Build and upload
+uv run erenshor mod thunderstore --mod mod-id --dry-run  # Test without uploading
+```
+
+Requirements:
+- `dotnet tool install -g tcli`
+- `TCLI_AUTH_TOKEN` in `.env`
+- `thunderstore.toml` config in mod directory
+- `thunderstore/README.md` and `thunderstore/icon.png`
+
+Version auto-increments if releasing multiple times same day (YYYY.MDD.R format).
+
 ### Validate Metadata (runs automatically in pre-commit + CI)
 ```bash
 uv run python3 scripts/validate-mods-metadata.py
