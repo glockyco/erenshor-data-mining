@@ -22,6 +22,7 @@ internal sealed class BrowserRenderer : IDisposable
     private readonly RawImage _rawImage;
     private int _width;
     private int _height;
+    private byte[] _pixelBuffer = Array.Empty<byte>();
     private bool _disposed;
 
     internal BrowserRenderer(RawImage rawImage, int width, int height)
@@ -54,12 +55,16 @@ internal sealed class BrowserRenderer : IDisposable
 
         int byteCount = fullWidth * fullHeight * 4;
 
+        // Reuse the buffer to avoid per-frame GC pressure (~6.7 MB at 90% of 1080p).
+        // Only reallocate when the surface size changes, which is rare.
+        if (_pixelBuffer.Length != byteCount)
+            _pixelBuffer = new byte[byteCount];
+
         // Copy the pixel buffer out of unmanaged memory immediately.
         // pBGRA is only valid until the next SteamAPI.RunCallbacks() call.
-        var bytes = new byte[byteCount];
-        Marshal.Copy(param.pBGRA, bytes, 0, byteCount);
+        Marshal.Copy(param.pBGRA, _pixelBuffer, 0, byteCount);
 
-        _texture.LoadRawTextureData(bytes);
+        _texture.LoadRawTextureData(_pixelBuffer);
         _texture.Apply(updateMipmaps: false, makeNoLongerReadable: false);
     }
 

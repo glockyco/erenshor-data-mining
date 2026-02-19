@@ -22,6 +22,7 @@ internal sealed class BrowserManager : IDisposable
     private HHTMLBrowser _browser;
     private bool _browserReady;
     private bool _initialized;
+    private bool _visible = true;
     private bool _disposed;
 
     // Steamworks callback registrations — must be kept alive (not GC'd)
@@ -76,6 +77,18 @@ internal sealed class BrowserManager : IDisposable
         CreateBrowser(width, height, url);
 
         return true;
+    }
+
+    /// <summary>
+    /// Pause or resume Chromium rendering. When hidden, SetBackgroundMode(true)
+    /// tells the Steam browser to stop generating paint callbacks, saving CPU/GPU.
+    /// </summary>
+    internal void SetVisible(bool visible)
+    {
+        _visible = visible;
+        if (!_browserReady)
+            return;
+        SteamHTMLSurface.SetBackgroundMode(_browser, !visible);
     }
 
     /// <summary>
@@ -154,8 +167,8 @@ internal sealed class BrowserManager : IDisposable
 
     private void OnNeedsPaint(HTML_NeedsPaint_t param)
     {
-        // Only process paint for our browser handle
-        if (param.unBrowserHandle != _browser)
+        // Skip paint when hidden or for a different browser handle
+        if (!_visible || param.unBrowserHandle != _browser)
             return;
 
         // Invoke the renderer's paint handler immediately — pBGRA is only valid

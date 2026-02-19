@@ -184,6 +184,7 @@ internal sealed class MapOverlay : MonoBehaviour
     private void SetVisible(bool visible)
     {
         _visible = visible;
+        _browser?.SetVisible(visible);
 
         if (_canvas != null)
             _canvas.gameObject.SetActive(visible);
