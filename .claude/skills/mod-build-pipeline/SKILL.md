@@ -82,9 +82,26 @@ Requirements:
 - `dotnet tool install -g tcli`
 - `TCLI_AUTH_TOKEN` in `.env`
 - `thunderstore.toml` config in mod directory
-- `thunderstore/README.md` and `thunderstore/icon.png`
+- `thunderstore/README.md`, `thunderstore/CHANGELOG.md`, and `thunderstore/icon.png`
 
 Version auto-increments if releasing multiple times same day (YYYY.MDD.R format).
+
+**Two distinct build modes — ILRepack vs. no ILRepack**:
+
+| Build path | ILRepack | Output | Used for |
+|------------|----------|--------|---------|
+| `mod build` / `mod deploy` / `mod publish` | Yes | Single merged DLL | Local testing, website download |
+| `mod thunderstore` | No (`-p:SkipILRepack=true`) | Separate DLLs | Thunderstore (reviewers require separate DLLs) |
+
+The `thunderstore.toml` `[[build.copy]]` sections list each DLL individually
+(`InteractiveMapCompanion.dll`, `Fleck.dll`, `Newtonsoft.Json.dll`) because the
+Thunderstore build uses the non-merged output. The `ILRepack.targets` file skips
+all merge steps when `SkipILRepack=true` is set.
+
+When adding a new NuGet dependency to a mod that has Thunderstore support:
+- The dependency is automatically included in the ILRepack-merged website DLL
+- Add it explicitly to `thunderstore.toml` `[[build.copy]]` so it's included in
+  the Thunderstore package too
 
 ### Validate Metadata (runs automatically in pre-commit + CI)
 ```bash

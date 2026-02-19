@@ -2,6 +2,7 @@ using BepInEx;
 using BepInEx.Logging;
 using InteractiveMapCompanion.Config;
 using InteractiveMapCompanion.Entities;
+using InteractiveMapCompanion.Overlay;
 using InteractiveMapCompanion.Server;
 using InteractiveMapCompanion.State;
 using UnityEngine.SceneManagement;
@@ -50,6 +51,10 @@ public sealed class Plugin : BaseUnityPlugin
 
         var currentScene = SceneManager.GetActiveScene().name;
         _broadcastLoop.OnSceneLoaded(currentScene);
+
+        var overlay = gameObject.AddComponent<MapOverlay>();
+        overlay.Config = _config;
+        overlay.Log = Log;
 
         Log.LogInfo($"{PluginInfo.Name} v{PluginInfo.Version} loaded");
     }

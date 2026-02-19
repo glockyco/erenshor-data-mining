@@ -1,0 +1,228 @@
+using BepInEx.Logging;
+using Steamworks;
+
+namespace InteractiveMapCompanion.Overlay;
+
+/// <summary>
+/// Manages the Steam HTML Surface browser lifecycle: init, create, load, destroy.
+///
+/// The browser renders offscreen via Chromium (CEF) embedded in the Steam client.
+/// Pixel data is delivered via the HTML_NeedsPaint_t callback and consumed by
+/// BrowserRenderer. All mandatory dialog callbacks are stubbed to prevent hangs.
+///
+/// Threading: all Steam API calls must happen on the Unity main thread.
+/// SteamAPI.RunCallbacks() is called by the game's SteamManager.Update() — we
+/// do not need to pump it ourselves.
+/// </summary>
+internal sealed class BrowserManager : IDisposable
+{
+    private readonly ManualLogSource _log;
+    private readonly Action<HTML_NeedsPaint_t> _onPaint;
+
+    private HHTMLBrowser _browser;
+    private bool _browserReady;
+    private bool _initialized;
+    private bool _disposed;
+
+    // Steamworks callback registrations — must be kept alive (not GC'd)
+    private Callback<HTML_NeedsPaint_t>? _paintCallback;
+    private Callback<HTML_StartRequest_t>? _startRequestCallback;
+    private Callback<HTML_JSAlert_t>? _jsAlertCallback;
+    private Callback<HTML_JSConfirm_t>? _jsConfirmCallback;
+    private Callback<HTML_FileOpenDialog_t>? _fileOpenDialogCallback;
+    private CallResult<HTML_BrowserReady_t>? _browserReadyResult;
+
+    internal BrowserManager(ManualLogSource log, Action<HTML_NeedsPaint_t> onPaint)
+    {
+        _log = log;
+        _onPaint = onPaint;
+    }
+
+    /// <summary>
+    /// Whether the browser has been created and is ready to render.
+    /// </summary>
+    internal bool IsReady => _browserReady;
+
+    /// <summary>
+    /// The Steam HTML Surface browser handle. Only valid when IsReady is true.
+    /// </summary>
+    internal HHTMLBrowser BrowserHandle => _browser;
+
+    /// <summary>
+    /// Initialise Steam HTML Surface and begin creating the browser.
+    /// Call once from the Unity main thread after Steam is confirmed running.
+    /// Returns false if initialisation fails (overlay will be disabled).
+    /// </summary>
+    internal bool Initialize(int width, int height, string url)
+    {
+        if (_initialized)
+            return true;
+
+        if (!SteamAPI.IsSteamRunning())
+        {
+            _log.LogWarning("[Overlay] Steam is not running — map overlay disabled.");
+            return false;
+        }
+
+        if (!SteamHTMLSurface.Init())
+        {
+            _log.LogWarning("[Overlay] SteamHTMLSurface.Init() failed — map overlay disabled.");
+            return false;
+        }
+
+        _initialized = true;
+
+        RegisterCallbacks();
+        CreateBrowser(width, height, url);
+
+        return true;
+    }
+
+    /// <summary>
+    /// Resize the browser surface. Safe to call before the browser is ready;
+    /// the new size will be applied once it's created.
+    /// </summary>
+    internal void SetSize(int width, int height)
+    {
+        if (!_browserReady)
+            return;
+
+        SteamHTMLSurface.SetSize(_browser, (uint)width, (uint)height);
+    }
+
+    /// <summary>
+    /// Navigate the browser to a new URL.
+    /// </summary>
+    internal void LoadUrl(string url)
+    {
+        if (!_browserReady)
+            return;
+
+        SteamHTMLSurface.LoadURL(_browser, url, null);
+    }
+
+    private void RegisterCallbacks()
+    {
+        // Paint: the browser has new pixel data for us
+        _paintCallback = Callback<HTML_NeedsPaint_t>.Create(OnNeedsPaint);
+
+        // StartRequest: MUST respond with AllowStartRequest or browser hangs
+        _startRequestCallback = Callback<HTML_StartRequest_t>.Create(OnStartRequest);
+
+        // JS dialogs: MUST respond or browser hangs
+        _jsAlertCallback = Callback<HTML_JSAlert_t>.Create(OnJSAlert);
+        _jsConfirmCallback = Callback<HTML_JSConfirm_t>.Create(OnJSConfirm);
+
+        // File dialog: MUST respond or browser hangs
+        _fileOpenDialogCallback = Callback<HTML_FileOpenDialog_t>.Create(OnFileOpenDialog);
+    }
+
+    private void CreateBrowser(int width, int height, string url)
+    {
+        var call = SteamHTMLSurface.CreateBrowser(null, null);
+        _browserReadyResult = CallResult<HTML_BrowserReady_t>.Create(
+            (param, ioFailure) => OnBrowserReady(param, ioFailure, width, height, url)
+        );
+        _browserReadyResult.Set(call);
+        _log.LogInfo("[Overlay] Browser creation requested, waiting for ready callback...");
+    }
+
+    private void OnBrowserReady(
+        HTML_BrowserReady_t param,
+        bool ioFailure,
+        int width,
+        int height,
+        string url
+    )
+    {
+        if (ioFailure)
+        {
+            _log.LogWarning(
+                "[Overlay] Browser creation failed (IO failure) — map overlay disabled."
+            );
+            return;
+        }
+
+        _browser = param.unBrowserHandle;
+        _browserReady = true;
+
+        SteamHTMLSurface.SetSize(_browser, (uint)width, (uint)height);
+        SteamHTMLSurface.LoadURL(_browser, url, null);
+
+        _log.LogInfo($"[Overlay] Browser ready (handle={_browser}), loading {url}");
+    }
+
+    private void OnNeedsPaint(HTML_NeedsPaint_t param)
+    {
+        // Only process paint for our browser handle
+        if (param.unBrowserHandle != _browser)
+            return;
+
+        // Invoke the renderer's paint handler immediately — pBGRA is only valid
+        // until the next SteamAPI.RunCallbacks() call.
+        _onPaint(param);
+    }
+
+    private void OnStartRequest(HTML_StartRequest_t param)
+    {
+        if (param.unBrowserHandle != _browser)
+            return;
+
+        // Allow all navigation — the map website may redirect internally
+        SteamHTMLSurface.AllowStartRequest(_browser, true);
+    }
+
+    private void OnJSAlert(HTML_JSAlert_t param)
+    {
+        if (param.unBrowserHandle != _browser)
+            return;
+
+        _log.LogDebug($"[Overlay] JS alert: {param.pchMessage}");
+        SteamHTMLSurface.JSDialogResponse(_browser, true);
+    }
+
+    private void OnJSConfirm(HTML_JSConfirm_t param)
+    {
+        if (param.unBrowserHandle != _browser)
+            return;
+
+        _log.LogDebug($"[Overlay] JS confirm: {param.pchMessage}");
+        SteamHTMLSurface.JSDialogResponse(_browser, true);
+    }
+
+    private void OnFileOpenDialog(HTML_FileOpenDialog_t param)
+    {
+        if (param.unBrowserHandle != _browser)
+            return;
+
+        // The map website has no file upload UI — dismiss immediately with no selection
+        SteamHTMLSurface.FileLoadDialogResponse(_browser, IntPtr.Zero);
+    }
+
+    public void Dispose()
+    {
+        if (_disposed)
+            return;
+
+        _disposed = true;
+
+        if (_browserReady)
+        {
+            SteamHTMLSurface.RemoveBrowser(_browser);
+            _browserReady = false;
+        }
+
+        if (_initialized)
+        {
+            SteamHTMLSurface.Shutdown();
+            _initialized = false;
+        }
+
+        _paintCallback?.Dispose();
+        _startRequestCallback?.Dispose();
+        _jsAlertCallback?.Dispose();
+        _jsConfirmCallback?.Dispose();
+        _fileOpenDialogCallback?.Dispose();
+        _browserReadyResult?.Dispose();
+    }
+}

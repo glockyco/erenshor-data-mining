@@ -76,6 +76,7 @@ REQUIRED_DLLS = [
     "UnityEngine.UIModule.dll",
     "UnityEngine.UI.dll",
     "Unity.TextMeshPro.dll",
+    "com.rlabrecque.steamworks.net.dll",
 ]
 
 

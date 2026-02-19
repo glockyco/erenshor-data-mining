@@ -1,4 +1,5 @@
 using BepInEx.Configuration;
+using UnityEngine;
 
 namespace InteractiveMapCompanion.Config;
 
@@ -25,6 +26,15 @@ public class ModConfig
     public ConfigEntry<bool> EnableBidirectional { get; }
     public ConfigEntry<LogLevel> WebSocketLogLevel { get; }
     public ConfigEntry<LogLevel> ModLogLevel { get; }
+
+    // Overlay settings
+    public ConfigEntry<bool> EnableOverlay { get; }
+    public ConfigEntry<KeyCode> ToggleKey { get; }
+    public ConfigEntry<float> AnchorX { get; }
+    public ConfigEntry<float> AnchorY { get; }
+    public ConfigEntry<int> OverlayWidth { get; }
+    public ConfigEntry<int> OverlayHeight { get; }
+    public ConfigEntry<bool> ResetToDefaults { get; }
 
     public ModConfig(ConfigFile config)
     {
@@ -75,6 +85,55 @@ public class ModConfig
             "ModLogLevel",
             LogLevel.Info,
             "Log level for the mod itself. Debug shows detailed diagnostics, Info shows important events (recommended)."
+        );
+
+        EnableOverlay = config.Bind(
+            "Overlay",
+            "EnableOverlay",
+            true,
+            "Show the interactive map as an in-game overlay panel (requires Steam)"
+        );
+
+        ToggleKey = config.Bind(
+            "Overlay",
+            "ToggleKey",
+            KeyCode.M,
+            "Key to show/hide the in-game map overlay"
+        );
+
+        AnchorX = config.Bind(
+            "Overlay",
+            "AnchorX",
+            -1f,
+            "Normalized horizontal anchor for the overlay panel (0 = left edge, 1 = right edge). -1 = auto (centred, computed on first run)"
+        );
+
+        AnchorY = config.Bind(
+            "Overlay",
+            "AnchorY",
+            -1f,
+            "Normalized vertical anchor for the overlay panel (0 = bottom, 1 = top). -1 = auto (centred, computed on first run)"
+        );
+
+        OverlayWidth = config.Bind(
+            "Overlay",
+            "Width",
+            0,
+            "Width of the in-game map overlay in pixels. 0 = auto (90% of screen width, computed on first run)"
+        );
+
+        OverlayHeight = config.Bind(
+            "Overlay",
+            "Height",
+            0,
+            "Height of the in-game map overlay in pixels. 0 = auto (90% of screen height, computed on first run)"
+        );
+
+        ResetToDefaults = config.Bind(
+            "Overlay",
+            "ResetToDefaults",
+            false,
+            "Set to true to reset size and position to auto-computed defaults on next game launch. Resets itself to false automatically."
         );
     }
 

@@ -11,6 +11,7 @@ mods:
     features:
       - "Live entity tracking (player, NPCs, enemies, pets)"
       - "Auto-Follow Player mode"
+      - "In-game map overlay (press M, configurable)"
     dll_name: "InteractiveMapCompanion.dll"
     gif_url: "/world-map-companion.mp4"
 
