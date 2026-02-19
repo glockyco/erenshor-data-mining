@@ -83,8 +83,8 @@ internal sealed class MapOverlay : MonoBehaviour
         // Resolve sentinel width/height (0 = auto) from current screen dimensions
         if (Config.OverlayWidth.Value <= 0)
         {
-            Config.OverlayWidth.Value = Mathf.RoundToInt(Screen.width * 0.9f);
-            Config.OverlayHeight.Value = Mathf.RoundToInt(Screen.height * 0.9f);
+            Config.OverlayWidth.Value = Mathf.RoundToInt(Screen.width * 0.8f);
+            Config.OverlayHeight.Value = Mathf.RoundToInt(Screen.height * 0.8f);
             Log.LogInfo(
                 $"[Overlay] Auto-sized to {Config.OverlayWidth.Value}x{Config.OverlayHeight.Value} (screen: {Screen.width}x{Screen.height})"
             );
