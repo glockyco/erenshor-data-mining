@@ -51,7 +51,7 @@ internal sealed class InputForwarder
     {
         bool mouseOver = IsMouseOverPanel(out Vector2 browserPos);
 
-        ForwardMouseMove(browser, browserPos);
+        ForwardMouseMove(browser, browserPos, mouseOver);
         ForwardMouseButtons(browser, mouseOver);
         ForwardMouseWheel(browser, mouseOver);
         ForwardKeyboard(browser);
@@ -89,8 +89,13 @@ internal sealed class InputForwarder
         return false;
     }
 
-    private static void ForwardMouseMove(HHTMLBrowser browser, Vector2 browserPos)
+    private static void ForwardMouseMove(HHTMLBrowser browser, Vector2 browserPos, bool mouseOver)
     {
+        // Only send mouse position when the cursor is inside the panel. Sending
+        // it unconditionally every frame can trigger drag/selection behaviour in
+        // the browser when combined with stale button-down state.
+        if (!mouseOver)
+            return;
         SteamHTMLSurface.MouseMove(browser, (int)browserPos.x, (int)browserPos.y);
     }
 
@@ -159,6 +164,17 @@ internal sealed class InputForwarder
                 SteamHTMLSurface.KeyChar(browser, c, EHTMLKeyModifiers.k_eHTMLKeyModifier_None);
             }
         }
+    }
+
+    /// <summary>
+    /// Send MouseUp for all buttons to clear any stale press state the browser
+    /// may have accumulated while the overlay was hidden. Call this whenever the
+    /// overlay becomes visible, before the user has a chance to interact.
+    /// </summary>
+    internal void ResetMouseState(HHTMLBrowser browser)
+    {
+        foreach (var button in ButtonMap)
+            SteamHTMLSurface.MouseUp(browser, button);
     }
 
     /// <summary>

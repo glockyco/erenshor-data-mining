@@ -189,8 +189,18 @@ internal sealed class MapOverlay : MonoBehaviour
         if (_canvas != null)
             _canvas.gameObject.SetActive(visible);
 
-        if (!visible)
+        if (visible)
+        {
+            // Clear any stale mouse-button state the browser accumulated while
+            // hidden. Without this, CEF may think a button is still held down
+            // and interpret the first mouse move as a drag/text-selection.
+            if (_browser != null && _browser.IsReady)
+                _input?.ResetMouseState(_browser.BrowserHandle);
+        }
+        else
+        {
             _input?.ClearFocus();
+        }
 
         Log.LogDebug($"[Overlay] {(visible ? "Shown" : "Hidden")}.");
     }
