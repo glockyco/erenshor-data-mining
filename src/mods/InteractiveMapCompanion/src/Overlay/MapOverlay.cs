@@ -36,6 +36,7 @@ internal sealed class MapOverlay : MonoBehaviour
 
     private bool _visible;
     private bool _ready;
+    private KeyCode _suppressedKey = KeyCode.None;
 
     private void Start()
     {
@@ -60,6 +61,10 @@ internal sealed class MapOverlay : MonoBehaviour
             BuildUI();
             StartBrowser();
             _ready = true;
+
+            // Dispose the browser before Unity's component teardown order causes
+            // a race with the game's SteamAPI.Shutdown() in SteamManager.OnDestroy.
+            Application.quitting += OnApplicationQuitting;
         }
         catch (Exception ex)
         {
@@ -172,13 +177,60 @@ internal sealed class MapOverlay : MonoBehaviour
         if (!_ready || _browser == null)
             return;
 
+        // Upload any pending pixel data to the GPU. This is decoupled from
+        // OnPaint (which only does the Marshal.Copy) so the GPU upload doesn't
+        // block the Steam callback and back-pressure CEF's paint rate.
+        _renderer?.Update();
+
         if (Input.GetKeyDown(Config.ToggleKey.Value))
+        {
             SetVisible(!_visible);
+
+            // When our toggle key is the same as the game's map key, blank out
+            // InputManager.Map for the rest of this frame so that Minimap.Update
+            // and PlayerControl.Update don't also react to the keypress. We
+            // restore it in LateUpdate(), which runs after all Update() calls.
+            if (Config.ToggleKey.Value == InputManager.Map)
+            {
+                _suppressedKey = InputManager.Map;
+                InputManager.Map = KeyCode.None;
+            }
+        }
 
         if (!_visible || !_browser.IsReady)
             return;
 
         _input?.Tick(_browser.BrowserHandle);
+    }
+
+    private void LateUpdate()
+    {
+        // Restore the game's map key binding after it was blanked in Update().
+        if (_suppressedKey != KeyCode.None)
+        {
+            InputManager.Map = _suppressedKey;
+            _suppressedKey = KeyCode.None;
+        }
+    }
+
+    private void OnApplicationFocus(bool hasFocus)
+    {
+        // When the game loses OS focus (alt-tab, Windows key, etc.) while a
+        // mouse button is held, Unity never fires GetMouseButtonUp because the
+        // OS consumed the event. Without intervention CEF stays in button-down
+        // state permanently, interpreting all subsequent mouse moves as drags.
+        if (!hasFocus && _ready && _visible && _browser?.IsReady == true)
+            _input?.ResetMouseState(_browser.BrowserHandle);
+    }
+
+    private void OnApplicationQuitting()
+    {
+        // Dispose the browser eagerly before Unity's component teardown order
+        // causes SteamHTMLSurface.RemoveBrowser to race with the game's own
+        // SteamAPI.Shutdown() call in SteamManager.OnDestroy.
+        Application.quitting -= OnApplicationQuitting;
+        _browser?.Dispose();
+        _browser = null;
     }
 
     private void SetVisible(bool visible)
@@ -189,24 +241,21 @@ internal sealed class MapOverlay : MonoBehaviour
         if (_canvas != null)
             _canvas.gameObject.SetActive(visible);
 
-        if (visible)
-        {
-            // Clear any stale mouse-button state the browser accumulated while
-            // hidden. Without this, CEF may think a button is still held down
-            // and interpret the first mouse move as a drag/text-selection.
-            if (_browser != null && _browser.IsReady)
-                _input?.ResetMouseState(_browser.BrowserHandle);
-        }
-        else
-        {
-            _input?.ClearFocus();
-        }
+        // Clear any stale mouse-button state and keyboard focus on both show and
+        // hide. On show: CEF may have accumulated stale state while hidden. On
+        // hide: releases held buttons so the game gets keyboard back.
+        if (_browser != null && _browser.IsReady)
+            _input?.ResetMouseState(_browser.BrowserHandle);
 
         Log.LogDebug($"[Overlay] {(visible ? "Shown" : "Hidden")}.");
     }
 
     private void OnDestroy()
     {
+        // Safety: unsubscribe in case OnDestroy runs without OnApplicationQuitting
+        // having fired (e.g. the component is destroyed mid-session, not on quit).
+        Application.quitting -= OnApplicationQuitting;
+
         _browser?.Dispose();
         _renderer?.Dispose();
 

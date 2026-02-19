@@ -11,8 +11,13 @@ namespace InteractiveMapCompanion.Overlay;
 /// uses top-left origin. We transform via the panel's screen-space rect.
 ///
 /// Input capture: when the overlay is visible and the cursor is over the panel,
-/// we consume mouse button events so they don't reach the game. Keyboard input
-/// is forwarded when the overlay is focused (after a click inside it).
+/// we forward mouse button events to CEF. Keyboard input is forwarded when the
+/// overlay is focused (after a click inside it).
+///
+/// Drag tracking: MouseMove continues to flow to CEF even when the cursor leaves
+/// the panel during a drag, clamped to browser bounds. This ensures MouseUp is
+/// always preceded by a MouseMove in the same frame, which some CEF builds require
+/// to correctly process the release.
 /// </summary>
 internal sealed class InputForwarder
 {
@@ -20,6 +25,24 @@ internal sealed class InputForwarder
     private int _browserWidth;
     private int _browserHeight;
     private bool _focused;
+
+    // Tracks which buttons we sent MouseDown for, so every MouseDown has a
+    // matching MouseUp even if the cursor left the panel between press and
+    // release (e.g. panning the map).
+    private readonly bool[] _buttonsDown = new bool[3];
+
+    // True when at least one tracked button is currently held down. Used to
+    // keep MouseMove flowing to CEF during drags that exit the panel boundary.
+    private bool AnyButtonDown
+    {
+        get
+        {
+            foreach (bool b in _buttonsDown)
+                if (b)
+                    return true;
+            return false;
+        }
+    }
 
     // Unity mouse button indices → Steam EHTMLMouseButton
     private static readonly EHTMLMouseButton[] ButtonMap =
@@ -44,10 +67,8 @@ internal sealed class InputForwarder
 
     /// <summary>
     /// Call every frame when the overlay is visible and the browser is ready.
-    /// Returns true if the mouse is currently over the panel (caller can use
-    /// this to suppress game input handling).
     /// </summary>
-    internal bool Tick(HHTMLBrowser browser)
+    internal void Tick(HHTMLBrowser browser)
     {
         bool mouseOver = IsMouseOverPanel(out Vector2 browserPos);
 
@@ -55,13 +76,10 @@ internal sealed class InputForwarder
         ForwardMouseButtons(browser, mouseOver);
         ForwardMouseWheel(browser, mouseOver);
         ForwardKeyboard(browser);
-
-        return mouseOver;
     }
 
     private bool IsMouseOverPanel(out Vector2 browserPos)
     {
-        // RectTransformUtility converts screen point to local rect point
         if (
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 _panelRect,
@@ -89,14 +107,17 @@ internal sealed class InputForwarder
         return false;
     }
 
-    private static void ForwardMouseMove(HHTMLBrowser browser, Vector2 browserPos, bool mouseOver)
+    private void ForwardMouseMove(HHTMLBrowser browser, Vector2 browserPos, bool mouseOver)
     {
-        // Only send mouse position when the cursor is inside the panel. Sending
-        // it unconditionally every frame can trigger drag/selection behaviour in
-        // the browser when combined with stale button-down state.
-        if (!mouseOver)
+        // Continue sending MouseMove while a button is held even if the cursor
+        // has left the panel, clamping to browser bounds. This ensures MouseUp
+        // is always preceded by MouseMove in the same frame.
+        if (!mouseOver && !AnyButtonDown)
             return;
-        SteamHTMLSurface.MouseMove(browser, (int)browserPos.x, (int)browserPos.y);
+
+        int x = (int)Mathf.Clamp(browserPos.x, 0f, _browserWidth - 1);
+        int y = (int)Mathf.Clamp(browserPos.y, 0f, _browserHeight - 1);
+        SteamHTMLSurface.MouseMove(browser, x, y);
     }
 
     private void ForwardMouseButtons(HHTMLBrowser browser, bool mouseOver)
@@ -106,21 +127,23 @@ internal sealed class InputForwarder
             if (Input.GetMouseButtonDown(i))
             {
                 if (mouseOver)
+                {
                     _focused = true;
-
-                if (_focused)
                     SteamHTMLSurface.MouseDown(browser, ButtonMap[i]);
+                    _buttonsDown[i] = true;
+                }
+                else
+                {
+                    _focused = false;
+                }
             }
-            else if (Input.GetMouseButtonUp(i))
+
+            if (Input.GetMouseButtonUp(i) && _buttonsDown[i])
             {
-                if (_focused)
-                    SteamHTMLSurface.MouseUp(browser, ButtonMap[i]);
+                SteamHTMLSurface.MouseUp(browser, ButtonMap[i]);
+                _buttonsDown[i] = false;
             }
         }
-
-        // Lose focus when the user clicks outside the panel
-        if (Input.GetMouseButtonDown(0) && !mouseOver)
-            _focused = false;
     }
 
     private static void ForwardMouseWheel(HHTMLBrowser browser, bool mouseOver)
@@ -131,8 +154,11 @@ internal sealed class InputForwarder
         float scroll = Input.mouseScrollDelta.y;
         if (scroll != 0f)
         {
-            // Steam expects delta in "ticks" — 120 per notch is the Windows standard
-            SteamHTMLSurface.MouseWheel(browser, (int)(scroll * 120f));
+            // Clamp to ±3 notches per frame to prevent touchpad inertia from
+            // scrolling the map multiple zoom steps in a single frame. 120 per
+            // notch matches the WM_MOUSEWHEEL WHEEL_DELTA convention CEF expects.
+            int delta = (int)(Mathf.Clamp(scroll, -3f, 3f) * 120f);
+            SteamHTMLSurface.MouseWheel(browser, delta);
         }
     }
 
@@ -141,12 +167,10 @@ internal sealed class InputForwarder
         if (!_focused)
             return;
 
-        // Forward printable characters via KeyChar
         foreach (char c in Input.inputString)
         {
             if (c == '\b')
             {
-                // Backspace — send as key down/up with no char
                 SteamHTMLSurface.KeyDown(
                     browser,
                     (uint)KeyCode.Backspace,
@@ -167,23 +191,21 @@ internal sealed class InputForwarder
     }
 
     /// <summary>
-    /// Send MouseUp for all buttons to clear any stale press state the browser
-    /// may have accumulated while the overlay was hidden. Call this whenever the
-    /// overlay becomes visible, before the user has a chance to interact.
+    /// Send MouseUp for all buttons we actually pressed and clear focus. Call
+    /// when the overlay is shown or hidden, or when the application loses OS
+    /// focus (prevents stuck button state after alt-tab).
     /// </summary>
     internal void ResetMouseState(HHTMLBrowser browser)
     {
-        foreach (var button in ButtonMap)
-            SteamHTMLSurface.MouseUp(browser, button);
+        for (int i = 0; i < ButtonMap.Length; i++)
+        {
+            if (_buttonsDown[i])
+            {
+                SteamHTMLSurface.MouseUp(browser, ButtonMap[i]);
+                _buttonsDown[i] = false;
+            }
+        }
+
+        _focused = false;
     }
-
-    /// <summary>
-    /// Whether the overlay currently has keyboard focus (user clicked inside it).
-    /// </summary>
-    internal bool HasFocus => _focused;
-
-    /// <summary>
-    /// Forcibly clear focus (e.g. when the overlay is hidden).
-    /// </summary>
-    internal void ClearFocus() => _focused = false;
 }

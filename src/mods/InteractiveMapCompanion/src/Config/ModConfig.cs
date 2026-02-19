@@ -119,7 +119,7 @@ public class ModConfig
             "Overlay",
             "Width",
             0,
-            "Width of the in-game map overlay in pixels. 0 = auto (90% of screen width, computed on first run)"
+            "Width of the in-game map overlay in pixels. 0 = auto (80% of screen width, computed on first run)"
         );
 
         OverlayHeight = config.Bind(

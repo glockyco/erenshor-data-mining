@@ -31,7 +31,6 @@ internal sealed class BrowserManager : IDisposable
     private Callback<HTML_JSAlert_t>? _jsAlertCallback;
     private Callback<HTML_JSConfirm_t>? _jsConfirmCallback;
     private Callback<HTML_FileOpenDialog_t>? _fileOpenDialogCallback;
-    private Callback<HTML_FinishedRequest_t>? _finishedRequestCallback;
     private CallResult<HTML_BrowserReady_t>? _browserReadyResult;
 
     internal BrowserManager(ManualLogSource log, Action<HTML_NeedsPaint_t> onPaint)
@@ -129,9 +128,6 @@ internal sealed class BrowserManager : IDisposable
 
         // File dialog: MUST respond or browser hangs
         _fileOpenDialogCallback = Callback<HTML_FileOpenDialog_t>.Create(OnFileOpenDialog);
-
-        // Page load complete: inject JS to prevent the page from self-throttling
-        _finishedRequestCallback = Callback<HTML_FinishedRequest_t>.Create(OnFinishedRequest);
     }
 
     private void CreateBrowser(int width, int height, string url)
@@ -165,9 +161,11 @@ internal sealed class BrowserManager : IDisposable
 
         SteamHTMLSurface.SetSize(_browser, (uint)width, (uint)height);
         SteamHTMLSurface.LoadURL(_browser, url, null);
-        // Explicitly disable background mode. CEF may start throttled by default;
-        // without this call the browser can paint at ~1 fps even when visible.
-        SteamHTMLSurface.SetBackgroundMode(_browser, false);
+        // Apply the current visibility state. CEF may start throttled by default;
+        // passing false explicitly ensures the browser paints at full rate when
+        // visible. Use _visible so a SetVisible(false) call that arrived while
+        // the browser was being created is respected.
+        SteamHTMLSurface.SetBackgroundMode(_browser, !_visible);
 
         _log.LogInfo($"[Overlay] Browser ready (handle={_browser}), loading {url}");
     }
@@ -188,8 +186,21 @@ internal sealed class BrowserManager : IDisposable
         if (param.unBrowserHandle != _browser)
             return;
 
-        // Allow all navigation — the map website may redirect internally
-        SteamHTMLSurface.AllowStartRequest(_browser, true);
+        // HTML_StartRequest_t fires only for full document navigations, not for
+        // SvelteKit's client-side pushState/replaceState routing. Allow only
+        // requests to the map host; deny everything else (external links, etc.)
+        // so the overlay cannot be navigated away from the map.
+        bool allowed =
+            param.pchURL is { } url
+            && url.StartsWith(
+                "https://erenshor-maps.wowmuch1.workers.dev/",
+                StringComparison.Ordinal
+            );
+
+        if (!allowed)
+            _log.LogDebug($"[Overlay] Blocked navigation to: {param.pchURL}");
+
+        SteamHTMLSurface.AllowStartRequest(_browser, allowed);
     }
 
     private void OnJSAlert(HTML_JSAlert_t param)
@@ -219,31 +230,23 @@ internal sealed class BrowserManager : IDisposable
         SteamHTMLSurface.FileLoadDialogResponse(_browser, IntPtr.Zero);
     }
 
-    private void OnFinishedRequest(HTML_FinishedRequest_t param)
-    {
-        if (param.unBrowserHandle != _browser)
-            return;
-
-        // CEF in offscreen rendering mode reports document.hidden = true, which
-        // causes pages that use visibilitychange (e.g. Leaflet, requestAnimationFrame
-        // loops) to throttle or pause their render timers. Override the property so
-        // the page always sees itself as visible and runs at full frame rate.
-        SteamHTMLSurface.ExecuteJavascript(
-            _browser,
-            "Object.defineProperty(document,'hidden',{get:()=>false,configurable:true});"
-                + "Object.defineProperty(document,'visibilityState',{get:()=>'visible',configurable:true});"
-                + "document.dispatchEvent(new Event('visibilitychange'));"
-        );
-
-        _log.LogDebug($"[Overlay] Page finished loading — injected visibility override.");
-    }
-
     public void Dispose()
     {
         if (_disposed)
             return;
 
         _disposed = true;
+
+        // Dispose callbacks first to unregister them from Steamworks.NET's
+        // dispatch table before tearing down the Steam API. This eliminates the
+        // window where a callback (e.g. HTML_NeedsPaint_t) could fire against an
+        // already-torn-down API.
+        _paintCallback?.Dispose();
+        _startRequestCallback?.Dispose();
+        _jsAlertCallback?.Dispose();
+        _jsConfirmCallback?.Dispose();
+        _fileOpenDialogCallback?.Dispose();
+        _browserReadyResult?.Dispose();
 
         if (_browserReady)
         {
@@ -256,13 +259,5 @@ internal sealed class BrowserManager : IDisposable
             SteamHTMLSurface.Shutdown();
             _initialized = false;
         }
-
-        _paintCallback?.Dispose();
-        _startRequestCallback?.Dispose();
-        _jsAlertCallback?.Dispose();
-        _jsConfirmCallback?.Dispose();
-        _fileOpenDialogCallback?.Dispose();
-        _finishedRequestCallback?.Dispose();
-        _browserReadyResult?.Dispose();
     }
 }
