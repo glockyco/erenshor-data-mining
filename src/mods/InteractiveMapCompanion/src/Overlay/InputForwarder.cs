@@ -129,7 +129,12 @@ internal sealed class InputForwarder
                 if (mouseOver)
                 {
                     _focused = true;
-                    SteamHTMLSurface.MouseDown(browser, ButtonMap[i]);
+                    // Guard against sending a second MouseDown without a
+                    // matching MouseUp. This can happen when the input system
+                    // is wrapped (e.g. UniverseLib) and fires GetMouseButtonDown
+                    // twice for a single physical click.
+                    if (!_buttonsDown[i])
+                        SteamHTMLSurface.MouseDown(browser, ButtonMap[i]);
                     _buttonsDown[i] = true;
                 }
                 else

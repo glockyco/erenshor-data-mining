@@ -82,7 +82,10 @@ internal sealed class BrowserRenderer : IDisposable
 
         _textureDirty = false;
         _texture.LoadRawTextureData(_pixelBuffer);
-        _texture.Apply(updateMipmaps: false, makeNoLongerReadable: false);
+        // makeNoLongerReadable: true releases Unity's CPU-side copy of the
+        // texture data. We never call GetPixels() on _texture — _pixelBuffer
+        // is our managed copy — so keeping the CPU copy alive wastes memory.
+        _texture.Apply(updateMipmaps: false, makeNoLongerReadable: true);
     }
 
     private void CreateTexture(int width, int height)
