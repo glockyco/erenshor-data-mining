@@ -126,7 +126,7 @@ public class ModConfig
             "Overlay",
             "Height",
             0,
-            "Height of the in-game map overlay in pixels. 0 = auto (90% of screen height, computed on first run)"
+            "Height of the in-game map overlay in pixels. 0 = auto (80% of screen height, computed on first run)"
         );
 
         ResetToDefaults = config.Bind(
