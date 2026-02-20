@@ -59,12 +59,6 @@ internal sealed class BrowserManager : IDisposable
         if (_initialized)
             return true;
 
-        if (!SteamAPI.IsSteamRunning())
-        {
-            _log.LogWarning("[Overlay] Steam is not running — map overlay disabled.");
-            return false;
-        }
-
         if (!SteamHTMLSurface.Init())
         {
             _log.LogWarning("[Overlay] SteamHTMLSurface.Init() failed — map overlay disabled.");
@@ -156,6 +150,15 @@ internal sealed class BrowserManager : IDisposable
             return;
         }
 
+        // Guard against Dispose() being called in the async window between
+        // CreateBrowser and this callback firing. If we're already disposed,
+        // release the handle Steam just gave us and bail out.
+        if (_disposed)
+        {
+            SteamHTMLSurface.RemoveBrowser(param.unBrowserHandle);
+            return;
+        }
+
         _browser = param.unBrowserHandle;
         _browserReady = true;
 
@@ -183,51 +186,51 @@ internal sealed class BrowserManager : IDisposable
 
     private void OnStartRequest(HTML_StartRequest_t param)
     {
-        if (param.unBrowserHandle != _browser)
-            return;
-
         // HTML_StartRequest_t fires only for full document navigations, not for
         // SvelteKit's client-side pushState/replaceState routing. Allow only
         // requests to the map host; deny everything else (external links, etc.)
         // so the overlay cannot be navigated away from the map.
+        //
+        // AllowStartRequest MUST be called for every callback regardless of
+        // which browser fired it, or that browser will hang indefinitely.
+        bool ours = param.unBrowserHandle == _browser;
         bool allowed =
-            param.pchURL is { } url
+            ours
+            && param.pchURL is { } url
             && url.StartsWith(
                 "https://erenshor-maps.wowmuch1.workers.dev/",
                 StringComparison.Ordinal
             );
 
-        if (!allowed)
+        if (ours && !allowed)
             _log.LogDebug($"[Overlay] Blocked navigation to: {param.pchURL}");
 
-        SteamHTMLSurface.AllowStartRequest(_browser, allowed);
+        SteamHTMLSurface.AllowStartRequest(param.unBrowserHandle, allowed);
     }
 
     private void OnJSAlert(HTML_JSAlert_t param)
     {
-        if (param.unBrowserHandle != _browser)
-            return;
+        // JSDialogResponse MUST be called for every callback or the browser hangs.
+        if (param.unBrowserHandle == _browser)
+            _log.LogDebug($"[Overlay] JS alert: {param.pchMessage}");
 
-        _log.LogDebug($"[Overlay] JS alert: {param.pchMessage}");
-        SteamHTMLSurface.JSDialogResponse(_browser, true);
+        SteamHTMLSurface.JSDialogResponse(param.unBrowserHandle, true);
     }
 
     private void OnJSConfirm(HTML_JSConfirm_t param)
     {
-        if (param.unBrowserHandle != _browser)
-            return;
+        // JSDialogResponse MUST be called for every callback or the browser hangs.
+        if (param.unBrowserHandle == _browser)
+            _log.LogDebug($"[Overlay] JS confirm: {param.pchMessage}");
 
-        _log.LogDebug($"[Overlay] JS confirm: {param.pchMessage}");
-        SteamHTMLSurface.JSDialogResponse(_browser, true);
+        SteamHTMLSurface.JSDialogResponse(param.unBrowserHandle, true);
     }
 
     private void OnFileOpenDialog(HTML_FileOpenDialog_t param)
     {
-        if (param.unBrowserHandle != _browser)
-            return;
-
-        // The map website has no file upload UI — dismiss immediately with no selection
-        SteamHTMLSurface.FileLoadDialogResponse(_browser, IntPtr.Zero);
+        // FileLoadDialogResponse MUST be called for every callback or the browser hangs.
+        // The map website has no file upload UI — dismiss immediately with no selection.
+        SteamHTMLSurface.FileLoadDialogResponse(param.unBrowserHandle, IntPtr.Zero);
     }
 
     public void Dispose()
