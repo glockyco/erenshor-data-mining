@@ -52,17 +52,17 @@ internal sealed class InputForwarder
         EHTMLMouseButton.eHTMLMouseButton_Middle,
     ];
 
+    // Windows virtual key code for Backspace. Unity's KeyCode.Backspace == 8
+    // coincidentally matches VK_BACK, but KeyCode values are not Windows VK
+    // codes in general — use the explicit constant to make the intent clear
+    // and to guard against breakage if additional special keys are ever added.
+    private const uint VK_BACK = 0x08;
+
     internal InputForwarder(RectTransform panelRect, int browserWidth, int browserHeight)
     {
         _panelRect = panelRect;
         _browserWidth = browserWidth;
         _browserHeight = browserHeight;
-    }
-
-    internal void UpdateSize(int width, int height)
-    {
-        _browserWidth = width;
-        _browserHeight = height;
     }
 
     /// <summary>
@@ -173,15 +173,11 @@ internal sealed class InputForwarder
             {
                 SteamHTMLSurface.KeyDown(
                     browser,
-                    (uint)KeyCode.Backspace,
+                    VK_BACK,
                     EHTMLKeyModifiers.k_eHTMLKeyModifier_None,
                     false
                 );
-                SteamHTMLSurface.KeyUp(
-                    browser,
-                    (uint)KeyCode.Backspace,
-                    EHTMLKeyModifiers.k_eHTMLKeyModifier_None
-                );
+                SteamHTMLSurface.KeyUp(browser, VK_BACK, EHTMLKeyModifiers.k_eHTMLKeyModifier_None);
             }
             else if (c != '\0')
             {
