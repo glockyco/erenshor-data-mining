@@ -60,6 +60,14 @@ internal sealed class MapOverlay : MonoBehaviour
         {
             BuildUI();
             StartBrowser();
+
+            // Only mark ready if browser initialisation actually succeeded.
+            // StartBrowser() logs a warning and leaves _browser null on failure
+            // (e.g. SteamHTMLSurface.Init() returns false); setting _ready in
+            // that case would cause Update() to tick with a null _browser.
+            if (_browser == null)
+                return;
+
             _ready = true;
 
             // Dispose the browser before Unity's component teardown order causes
@@ -215,11 +223,18 @@ internal sealed class MapOverlay : MonoBehaviour
 
     private void OnApplicationFocus(bool hasFocus)
     {
-        // When the game loses OS focus (alt-tab, Windows key, etc.) while a
-        // mouse button is held, Unity never fires GetMouseButtonUp because the
-        // OS consumed the event. Without intervention CEF stays in button-down
-        // state permanently, interpreting all subsequent mouse moves as drags.
-        if (!hasFocus && _ready && _visible && _browser?.IsReady == true)
+        if (!_ready || _browser?.IsReady != true)
+            return;
+
+        // On focus loss while a button is held, Unity never fires
+        // GetMouseButtonUp because the OS consumed the event. Reset immediately
+        // so CEF doesn't stay in permanent button-down (drag) state.
+        //
+        // On focus regain, reset again while the overlay is visible. If the
+        // focus loss happened while IsReady was false (browser still creating),
+        // the loss-side reset was skipped, so CEF may have accumulated stale
+        // state in the interim.
+        if (!hasFocus || _visible)
             _input?.ResetMouseState(_browser.BrowserHandle);
     }
 
