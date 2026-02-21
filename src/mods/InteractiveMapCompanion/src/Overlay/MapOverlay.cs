@@ -190,7 +190,11 @@ internal sealed class MapOverlay : MonoBehaviour
         // block the Steam callback and back-pressure CEF's paint rate.
         _renderer?.Update();
 
-        if (Input.GetKeyDown(Config.ToggleKey.Value))
+        // GameData.PlayerTyping is true whenever the player has a text input
+        // field open: the chat input box, the auction house search field, the
+        // bank rename tab field, or the guild name field. Suppress the toggle
+        // while typing so the keypress reaches the input field instead.
+        if (Input.GetKeyDown(Config.ToggleKey.Value) && !GameData.PlayerTyping)
         {
             SetVisible(!_visible);
 
