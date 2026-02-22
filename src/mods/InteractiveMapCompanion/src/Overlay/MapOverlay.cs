@@ -164,7 +164,7 @@ internal sealed class MapOverlay : MonoBehaviour
         int width = Config.OverlayWidth.Value;
         int height = Config.OverlayHeight.Value;
 
-        _renderer = new BrowserRenderer(_rawImage, width, height);
+        _renderer = new BrowserRenderer(Log, _rawImage, width, height);
         _browser = new BrowserManager(Log, _renderer.OnPaint);
 
         bool ok = _browser.Initialize(
@@ -186,9 +186,10 @@ internal sealed class MapOverlay : MonoBehaviour
             return;
 
         // Upload any pending pixel data to the GPU. This is decoupled from
-        // OnPaint (which only does the Marshal.Copy) so the GPU upload doesn't
-        // block the Steam callback and back-pressure CEF's paint rate.
+        // OnPaint so the GPU upload doesn't block the Steam callback and
+        // back-pressure CEF's paint rate.
         _renderer?.Update();
+        _renderer?.LogDiagnostics(Time.deltaTime);
 
         // GameData.PlayerTyping is true whenever the player has a text input
         // field open: the chat input box, the auction house search field, the
