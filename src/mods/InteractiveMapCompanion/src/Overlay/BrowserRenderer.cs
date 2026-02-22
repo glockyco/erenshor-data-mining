@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using Steamworks;
 using UnityEngine;
 using UnityEngine.UI;
@@ -22,7 +21,6 @@ internal sealed class BrowserRenderer : IDisposable
     private readonly RawImage _rawImage;
     private int _width;
     private int _height;
-    private byte[] _pixelBuffer = Array.Empty<byte>();
     private bool _textureDirty;
     private bool _disposed;
 
@@ -36,8 +34,9 @@ internal sealed class BrowserRenderer : IDisposable
 
     /// <summary>
     /// Called by BrowserManager when the browser has new pixel data.
-    /// pBGRA is only valid for the duration of this call, so we copy it
-    /// immediately into _pixelBuffer and defer the GPU upload to Update().
+    /// pBGRA is only valid for the duration of this call, so we load it
+    /// into the texture's CPU-side staging buffer immediately and defer the
+    /// GPU upload to Update().
     /// </summary>
     internal void OnPaint(HTML_NeedsPaint_t param)
     {
@@ -55,18 +54,16 @@ internal sealed class BrowserRenderer : IDisposable
         if (_texture == null)
             return;
 
-        int byteCount = fullWidth * fullHeight * 4;
-
-        // Reuse the buffer to avoid per-frame GC pressure (~6.7 MB at 90% of 1080p).
-        // Only reallocate when the surface size changes, which is rare.
-        if (_pixelBuffer.Length != byteCount)
-            _pixelBuffer = new byte[byteCount];
-
-        // Copy pixel data out of unmanaged memory immediately — pBGRA is only
-        // valid until the next SteamAPI.RunCallbacks() call. The GPU upload
-        // (LoadRawTextureData + Apply) is deferred to Update() so it doesn't
-        // block the Steam callback and back-pressure CEF's paint rate.
-        Marshal.Copy(param.pBGRA, _pixelBuffer, 0, byteCount);
+        // Load pixel data directly from the unmanaged pointer into Unity's
+        // internal CPU-side staging buffer in a single copy. This avoids the
+        // two-copy pipeline (unmanaged → byte[] → staging buffer) that the
+        // byte[] overload of LoadRawTextureData requires.
+        //
+        // pBGRA is only valid for the duration of this callback, but
+        // LoadRawTextureData copies it immediately, so it is safe to use here.
+        // The GPU upload (Apply) is deferred to Update() so it doesn't block
+        // the Steam callback and back-pressure CEF's paint rate.
+        _texture.LoadRawTextureData(param.pBGRA, fullWidth * fullHeight * 4);
         _textureDirty = true;
     }
 
@@ -81,7 +78,6 @@ internal sealed class BrowserRenderer : IDisposable
             return;
 
         _textureDirty = false;
-        _texture.LoadRawTextureData(_pixelBuffer);
         _texture.Apply(updateMipmaps: false, makeNoLongerReadable: false);
     }
 
