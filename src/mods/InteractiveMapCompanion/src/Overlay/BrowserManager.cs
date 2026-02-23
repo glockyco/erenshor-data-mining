@@ -24,6 +24,7 @@ internal sealed class BrowserManager : IDisposable
     private bool _initialized;
     private bool _visible = true;
     private bool _disposed;
+    private bool _appIsQuitting;
 
     // Steamworks callback registrations — must be kept alive (not GC'd)
     private Callback<HTML_NeedsPaint_t>? _paintCallback;
@@ -43,6 +44,13 @@ internal sealed class BrowserManager : IDisposable
     /// Whether the browser has been created and is ready to render.
     /// </summary>
     internal bool IsReady => _browserReady;
+
+    /// <summary>
+    /// Signal that the application is quitting. Steam is about to be shut down
+    /// by SteamManager, so RemoveBrowser and SteamHTMLSurface.Shutdown must not
+    /// be called when Dispose() runs shortly after.
+    /// </summary>
+    internal void NotifyAppIsQuitting() => _appIsQuitting = true;
 
     /// <summary>
     /// The Steam HTML Surface browser handle. Only valid when IsReady is true.
@@ -251,16 +259,23 @@ internal sealed class BrowserManager : IDisposable
         _fileOpenDialogCallback?.Dispose();
         _browserReadyResult?.Dispose();
 
-        if (_browserReady)
+        // Skip Steam teardown when the application is quitting: SteamManager will
+        // call SteamAPI.Shutdown() as part of its own OnDestroy, which tears down
+        // the HTML surface along with everything else. Calling RemoveBrowser or
+        // SteamHTMLSurface.Shutdown after that point would throw.
+        if (!_appIsQuitting)
         {
-            SteamHTMLSurface.RemoveBrowser(_browser);
-            _browserReady = false;
-        }
+            if (_browserReady)
+            {
+                SteamHTMLSurface.RemoveBrowser(_browser);
+                _browserReady = false;
+            }
 
-        if (_initialized)
-        {
-            SteamHTMLSurface.Shutdown();
-            _initialized = false;
+            if (_initialized)
+            {
+                SteamHTMLSurface.Shutdown();
+                _initialized = false;
+            }
         }
     }
 }

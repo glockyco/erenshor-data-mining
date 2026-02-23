@@ -75,10 +75,6 @@ internal sealed class MapOverlay : MonoBehaviour
                 return;
 
             _ready = true;
-
-            // Dispose the browser before Unity's component teardown order causes
-            // a race with the game's SteamAPI.Shutdown() in SteamManager.OnDestroy.
-            Application.quitting += OnApplicationQuitting;
         }
         catch (Exception ex)
         {
@@ -255,14 +251,12 @@ internal sealed class MapOverlay : MonoBehaviour
             _input?.ResetMouseState(_browser.BrowserHandle);
     }
 
-    private void OnApplicationQuitting()
+    private void OnApplicationQuit()
     {
-        // Dispose the browser eagerly before Unity's component teardown order
-        // causes SteamHTMLSurface.RemoveBrowser to race with the game's own
-        // SteamAPI.Shutdown() call in SteamManager.OnDestroy.
-        Application.quitting -= OnApplicationQuitting;
-        _browser?.Dispose();
-        _browser = null;
+        // Signal BrowserManager before SteamManager.OnDestroy calls
+        // SteamAPI.Shutdown(), so Dispose() knows to skip the Steam teardown
+        // calls (RemoveBrowser, SteamHTMLSurface.Shutdown) that would throw.
+        _browser?.NotifyAppIsQuitting();
     }
 
     private void SetVisible(bool visible)
@@ -284,10 +278,6 @@ internal sealed class MapOverlay : MonoBehaviour
 
     private void OnDestroy()
     {
-        // Safety: unsubscribe in case OnDestroy runs without OnApplicationQuitting
-        // having fired (e.g. the component is destroyed mid-session, not on quit).
-        Application.quitting -= OnApplicationQuitting;
-
         // Clear the static suppression flag so it isn't left set if this
         // component is torn down while a frame is mid-flight.
         MapKeyPatches.SuppressMapKey = false;
