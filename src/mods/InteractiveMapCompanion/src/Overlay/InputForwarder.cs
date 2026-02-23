@@ -44,19 +44,14 @@ internal sealed class InputForwarder
         }
     }
 
-    // Unity mouse button indices → Steam EHTMLMouseButton
+    // Unity mouse button indices → Steam EHTMLMouseButton (buttons 0–2 only;
+    // buttons 3 and 4 are the side buttons handled separately as GoBack/GoForward)
     private static readonly EHTMLMouseButton[] ButtonMap =
     [
         EHTMLMouseButton.eHTMLMouseButton_Left,
         EHTMLMouseButton.eHTMLMouseButton_Right,
         EHTMLMouseButton.eHTMLMouseButton_Middle,
     ];
-
-    // Windows virtual key code for Backspace. Unity's KeyCode.Backspace == 8
-    // coincidentally matches VK_BACK, but KeyCode values are not Windows VK
-    // codes in general — use the explicit constant to make the intent clear
-    // and to guard against breakage if additional special keys are ever added.
-    private const uint VK_BACK = 0x08;
 
     internal InputForwarder(RectTransform panelRect, int browserWidth, int browserHeight)
     {
@@ -149,6 +144,14 @@ internal sealed class InputForwarder
                 _buttonsDown[i] = false;
             }
         }
+
+        // Side mouse buttons: back (button 3) and forward (button 4).
+        // These are not draggable — forward them as instant navigation commands.
+        if (mouseOver && Input.GetMouseButtonDown(3))
+            SteamHTMLSurface.GoBack(browser);
+
+        if (mouseOver && Input.GetMouseButtonDown(4))
+            SteamHTMLSurface.GoForward(browser);
     }
 
     private static void ForwardMouseWheel(HHTMLBrowser browser, bool mouseOver)
@@ -172,22 +175,26 @@ internal sealed class InputForwarder
         if (!_focused)
             return;
 
+        // Alt+Left / Alt+Right → browser back / forward (Windows convention).
+        // Cmd+Left / Cmd+Right → browser back / forward (macOS convention).
+        // Both call GoBack/GoForward directly to avoid VK translation issues
+        // through CrossOver and Wine.
+        bool altDown =
+            Input.GetKey(KeyCode.LeftAlt)
+            || Input.GetKey(KeyCode.RightAlt)
+            || Input.GetKey(KeyCode.LeftMeta)
+            || Input.GetKey(KeyCode.RightMeta);
+        if (altDown && Input.GetKeyDown(KeyCode.LeftArrow))
+            SteamHTMLSurface.GoBack(browser);
+        if (altDown && Input.GetKeyDown(KeyCode.RightArrow))
+            SteamHTMLSurface.GoForward(browser);
+
+        // Printable characters via Input.inputString, which handles IME composition,
+        // dead keys, and platform differences. Skip \b (backspace) and \0 (null).
         foreach (char c in Input.inputString)
         {
-            if (c == '\b')
-            {
-                SteamHTMLSurface.KeyDown(
-                    browser,
-                    VK_BACK,
-                    EHTMLKeyModifiers.k_eHTMLKeyModifier_None,
-                    false
-                );
-                SteamHTMLSurface.KeyUp(browser, VK_BACK, EHTMLKeyModifiers.k_eHTMLKeyModifier_None);
-            }
-            else if (c != '\0')
-            {
+            if (c != '\b' && c != '\0')
                 SteamHTMLSurface.KeyChar(browser, c, EHTMLKeyModifiers.k_eHTMLKeyModifier_None);
-            }
         }
     }
 
