@@ -2,6 +2,7 @@ using BepInEx.Logging;
 using InteractiveMapCompanion.Config;
 using InteractiveMapCompanion.Patches;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace InteractiveMapCompanion.Overlay;
@@ -198,11 +199,17 @@ internal sealed class MapOverlay : MonoBehaviour
 
         // GameData.PlayerTyping is true whenever the player has a text input
         // field open: the chat input box, the auction house search field, the
-        // bank rename tab field, the guild name field, or the character name
-        // field on the character select screen (maintained by
-        // CharSelectManagerPatch). Suppress the toggle while typing so the
-        // keypress reaches the input field instead.
-        if (Input.GetKeyDown(Config.ToggleKey.Value) && !GameData.PlayerTyping)
+        // bank rename tab field, or the guild name field. CharSelectManagerPatch
+        // also sets it for the character name field, but runs at execution
+        // order 0 — after this Update() at -100. Poll the EventSystem directly
+        // here so the check is always current-frame-accurate regardless of
+        // script execution order. EventSystem selection is set by Unity's input
+        // phase before any Update() runs.
+        bool charNameFocused =
+            GameData.InCharSelect
+            && EventSystem.current?.currentSelectedGameObject?.name == "InputField (TMP)";
+
+        if (Input.GetKeyDown(Config.ToggleKey.Value) && !GameData.PlayerTyping && !charNameFocused)
         {
             SetVisible(!_visible);
 
