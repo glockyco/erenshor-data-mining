@@ -20,7 +20,7 @@ import subprocess
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NotRequired, TypedDict
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
@@ -32,6 +32,15 @@ from rich.panel import Panel
 if TYPE_CHECKING:
     from ..context import CLIContext
 
+
+class ModInfo(TypedDict):
+    dir: str
+    name: str
+    dll_name: str
+    thunderstore: NotRequired[str]
+    bepinex_dlls: NotRequired[list[str]]
+
+
 app = typer.Typer(
     name="mod",
     help="Build and deploy companion mods",
@@ -41,12 +50,14 @@ app = typer.Typer(
 console = Console()
 
 # Mod registry - all companion mods in the project
-MODS = {
+MODS: dict[str, ModInfo] = {
     "interactive-map-companion": {
         "dir": "src/mods/InteractiveMapCompanion",
         "name": "Interactive Map Companion",
         "dll_name": "InteractiveMapCompanion.dll",
         "thunderstore": "WoW_Much/InteractiveMapCompanion",
+        # Harmony ships with BepInEx, not with the game — copy from BepInEx/core/
+        "bepinex_dlls": ["0Harmony.dll"],
     },
     "interactive-maps-companion": {
         "dir": "src/mods/InteractiveMapsCompanion",
@@ -267,12 +278,14 @@ def setup(ctx: typer.Context) -> None:
     console.print(f"[dim]Source: {managed_dir}[/dim]")
     console.print()
 
+    bepinex_core_dir = game_path / "BepInEx" / "core"
+
     # Copy DLLs to all mod lib directories
-    for mod_id in MODS:
+    for mod_id, mod_info in MODS.items():
         lib_dir = _get_mod_lib_dir(cli_ctx, mod_id)
         lib_dir.mkdir(parents=True, exist_ok=True)
 
-        console.print(f"[bold]{MODS[mod_id]['name']}[/bold]")
+        console.print(f"[bold]{mod_info['name']}[/bold]")
 
         missing = []
         for dll_name in REQUIRED_DLLS:
@@ -284,6 +297,16 @@ def setup(ctx: typer.Context) -> None:
             else:
                 shutil.copy2(source, target)
                 console.print(f"  [green]✓[/green] {dll_name}")
+
+        for dll_name in mod_info.get("bepinex_dlls", []):
+            source = bepinex_core_dir / dll_name
+            target = lib_dir / dll_name
+            if not source.exists():
+                missing.append(dll_name)
+                console.print(f"  [red]✗[/red] {dll_name} (not found in BepInEx/core)")
+            else:
+                shutil.copy2(source, target)
+                console.print(f"  [green]✓[/green] {dll_name} (from BepInEx)")
 
         if missing:
             console.print(f"[red]Error: Missing DLLs: {', '.join(missing)}[/red]")
@@ -550,7 +573,7 @@ def thunderstore(
     # Build and publish each mod
     for mod_id in eligible:
         mod_config = MODS[mod_id]
-        ts_id = mod_config["thunderstore"]
+        ts_id = mod_config.get("thunderstore", "")  # presence guaranteed by eligible filter
         namespace, name = ts_id.split("/")
         mod_dir = _get_mod_dir(cli_ctx, mod_id)
 

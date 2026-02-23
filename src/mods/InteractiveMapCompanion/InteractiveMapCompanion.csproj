@@ -28,7 +28,6 @@
   <ItemGroup>
     <!-- BepInEx -->
     <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all" />
-    <PackageReference Include="HarmonyX" Version="2.*" PrivateAssets="all" />
 
     <!-- JSON serialization -->
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
@@ -103,6 +102,11 @@
     </Reference>
     <Reference Include="com.rlabrecque.steamworks.net">
       <HintPath>lib/com.rlabrecque.steamworks.net.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <!-- Harmony — compile against the exact version BepInEx ships at runtime -->
+    <Reference Include="0Harmony">
+      <HintPath>lib/0Harmony.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
