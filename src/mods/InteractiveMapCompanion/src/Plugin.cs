@@ -1,8 +1,10 @@
 using BepInEx;
 using BepInEx.Logging;
+using HarmonyLib;
 using InteractiveMapCompanion.Config;
 using InteractiveMapCompanion.Entities;
 using InteractiveMapCompanion.Overlay;
+using InteractiveMapCompanion.Patches;
 using InteractiveMapCompanion.Server;
 using InteractiveMapCompanion.State;
 using UnityEngine.SceneManagement;
@@ -18,6 +20,7 @@ public sealed class Plugin : BaseUnityPlugin
 {
     internal static ManualLogSource Log { get; private set; } = null!;
 
+    private Harmony? _harmony;
     private ModConfig? _config;
     private IWebSocketServer? _server;
     private IBroadcastLoop? _broadcastLoop;
@@ -56,6 +59,9 @@ public sealed class Plugin : BaseUnityPlugin
         overlay.Config = _config;
         overlay.Log = Log;
 
+        _harmony = new Harmony(PluginInfo.GUID);
+        _harmony.PatchAll();
+
         Log.LogInfo($"{PluginInfo.Name} v{PluginInfo.Version} loaded");
     }
 
@@ -67,11 +73,22 @@ public sealed class Plugin : BaseUnityPlugin
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         _broadcastLoop?.OnSceneLoaded(scene.name);
+
+        // If the player entered the game world while the character name field
+        // was focused, CharSelectManager is about to be destroyed and its
+        // Update() patch will never run again. Clear PlayerTyping here so the
+        // flag isn't stuck true for the rest of the session.
+        if (scene.name != "LoadScene" && CharSelectManagerPatch._weSetPlayerTyping)
+        {
+            GameData.PlayerTyping = false;
+            CharSelectManagerPatch._weSetPlayerTyping = false;
+        }
     }
 
     private void OnDestroy()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
+        _harmony?.UnpatchSelf();
         _server?.Stop();
     }
 }

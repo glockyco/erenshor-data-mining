@@ -28,6 +28,7 @@
   <ItemGroup>
     <!-- BepInEx -->
     <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all" />
+    <PackageReference Include="HarmonyX" Version="2.*" PrivateAssets="all" />
 
     <!-- JSON serialization -->
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />

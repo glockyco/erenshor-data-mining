@@ -2,7 +2,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
   <!-- ============================================== -->
-  <!-- STEP 1: Copy BepInEx for type resolution -->
+  <!-- STEP 1: Copy BepInEx/Harmony for type resolution -->
   <!-- ============================================== -->
   <Target Name="CopyReferenceAssemblies" BeforeTargets="ILRepackMod"
           Condition="'$(SkipILRepack)' != 'true'">
@@ -12,12 +12,16 @@
       <NuGetPackagesPath Condition="'$(NuGetPackagesPath)' == '' AND '$(OS)' == 'Windows_NT'">$(USERPROFILE)\.nuget\packages</NuGetPackagesPath>
       <NuGetPackagesPath Condition="'$(NuGetPackagesPath)' == ''">$(HOME)/.nuget/packages</NuGetPackagesPath>
 
+      <!-- Construct paths to reference assemblies -->
       <BepInExSource>$(NuGetPackagesPath)/bepinex.baselib/5.4.20/lib/netstandard2.0/BepInEx.dll</BepInExSource>
+      <HarmonySource>$(NuGetPackagesPath)/harmonyx/2.16.0/lib/netstandard2.0/0Harmony.dll</HarmonySource>
     </PropertyGroup>
 
+    <!-- Copy to output for ILRepack type resolution (not merged — BepInEx provides at runtime) -->
     <Copy SourceFiles="$(BepInExSource)" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(HarmonySource)" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="true" />
 
-    <Message Text="Copied BepInEx.dll for ILRepack type resolution" Importance="normal" />
+    <Message Text="Copied reference assemblies for ILRepack type resolution" Importance="normal" />
   </Target>
 
   <!-- ============================================== -->
@@ -33,7 +37,8 @@
            other framework forwarding assemblies are intentionally excluded —
            merging them embeds type-forward references that cause
            AssemblyResolutionException on runtimes that don't ship those
-           assemblies (e.g. custom mod loaders). -->
+           assemblies (e.g. custom mod loaders). BepInEx-provided assemblies
+           (BepInEx.dll, 0Harmony.dll) are excluded — they are reference-only. -->
       <MergeAssemblies Include="$(OutputPath)Fleck.dll" />
       <MergeAssemblies Include="$(OutputPath)Newtonsoft.Json.dll" />
     </ItemGroup>
