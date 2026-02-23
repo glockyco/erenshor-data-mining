@@ -1,5 +1,6 @@
 using BepInEx.Logging;
 using InteractiveMapCompanion.Config;
+using InteractiveMapCompanion.Patches;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -20,7 +21,12 @@ namespace InteractiveMapCompanion.Overlay;
 /// The overlay canvas is a separate GameObject marked DontDestroyOnLoad so
 /// it persists across scene transitions. It is hidden during loads and
 /// re-shown when the browser is ready.
+///
+/// [DefaultExecutionOrder(-100)] ensures this MonoBehaviour's Update() runs
+/// before Minimap and PlayerControl (both at default order 0). This makes the
+/// SuppressMapKey flag visible to those components in the same frame.
 /// </summary>
+[DefaultExecutionOrder(-100)]
 internal sealed class MapOverlay : MonoBehaviour
 {
     // Set by Plugin.Awake() before Start() runs
@@ -36,7 +42,6 @@ internal sealed class MapOverlay : MonoBehaviour
 
     private bool _visible;
     private bool _ready;
-    private KeyCode _suppressedKey = KeyCode.None;
 
     private void Start()
     {
@@ -193,21 +198,22 @@ internal sealed class MapOverlay : MonoBehaviour
 
         // GameData.PlayerTyping is true whenever the player has a text input
         // field open: the chat input box, the auction house search field, the
-        // bank rename tab field, or the guild name field. Suppress the toggle
-        // while typing so the keypress reaches the input field instead.
+        // bank rename tab field, the guild name field, or the character name
+        // field on the character select screen (maintained by
+        // CharSelectManagerPatch). Suppress the toggle while typing so the
+        // keypress reaches the input field instead.
         if (Input.GetKeyDown(Config.ToggleKey.Value) && !GameData.PlayerTyping)
         {
             SetVisible(!_visible);
 
-            // When our toggle key is the same as the game's map key, blank out
-            // InputManager.Map for the rest of this frame so that Minimap.Update
-            // and PlayerControl.Update don't also react to the keypress. We
-            // restore it in LateUpdate(), which runs after all Update() calls.
+            // When our toggle key is the same as the game's map key, signal
+            // the Harmony patches in MapKeyPatches to suppress the game's own
+            // map-key handlers (HotkeyManager.OpenCloseMap via PlayerControl,
+            // and the minimap zoom toggle in Minimap.Update) for this frame.
+            // [DefaultExecutionOrder(-100)] guarantees this Update() runs
+            // before those MonoBehaviours read the flag.
             if (Config.ToggleKey.Value == InputManager.Map)
-            {
-                _suppressedKey = InputManager.Map;
-                InputManager.Map = KeyCode.None;
-            }
+                MapKeyPatches.SuppressMapKey = true;
         }
 
         if (!_visible || !_browser.IsReady)
@@ -218,12 +224,11 @@ internal sealed class MapOverlay : MonoBehaviour
 
     private void LateUpdate()
     {
-        // Restore the game's map key binding after it was blanked in Update().
-        if (_suppressedKey != KeyCode.None)
-        {
-            InputManager.Map = _suppressedKey;
-            _suppressedKey = KeyCode.None;
-        }
+        // Clear the suppression flag after all Update() calls have run.
+        // LateUpdate() is always guaranteed to execute after the Update() phase,
+        // so Minimap and PlayerControl will have already read (and acted on) the
+        // flag by the time we clear it here.
+        MapKeyPatches.SuppressMapKey = false;
     }
 
     private void OnApplicationFocus(bool hasFocus)
@@ -275,6 +280,10 @@ internal sealed class MapOverlay : MonoBehaviour
         // Safety: unsubscribe in case OnDestroy runs without OnApplicationQuitting
         // having fired (e.g. the component is destroyed mid-session, not on quit).
         Application.quitting -= OnApplicationQuitting;
+
+        // Clear the static suppression flag so it isn't left set if this
+        // component is torn down while a frame is mid-flight.
+        MapKeyPatches.SuppressMapKey = false;
 
         _browser?.Dispose();
         _renderer?.Dispose();
