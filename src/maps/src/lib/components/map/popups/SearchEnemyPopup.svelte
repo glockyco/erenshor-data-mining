@@ -131,11 +131,6 @@
                                         >
                                         <span>·</span>
                                     {/if}
-                                    <span
-                                        >{marker.characters.length}
-                                        {marker.characters.length === 1 ? 'char' : 'chars'}</span
-                                    >
-                                    <span>·</span>
                                     <span>{formatRespawnTime(marker.spawnDelay)} respawn</span>
                                     {#if marker.isNightSpawn}
                                         <span
