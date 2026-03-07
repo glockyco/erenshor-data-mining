@@ -8,9 +8,9 @@
     } from '$lib/types/world-map';
     import type { Selection } from '$lib/types/selection';
     import { getSelectionBorderColor } from '$lib/types/selection';
+    import type { SearchIndex } from '$lib/map/search';
     import PopupContainer from './PopupContainer.svelte';
-    import EnemyPopupContent from './popups/EnemyPopupContent.svelte';
-    import NpcPopupContent from './popups/NpcPopupContent.svelte';
+    import SpawnPointPopupContent from './popups/SpawnPointPopupContent.svelte';
     import ZoneLinePopupContent from './popups/ZoneLinePopupContent.svelte';
     import MiningNodePopupContent from './popups/MiningNodePopupContent.svelte';
     import WaterPopupContent from './popups/WaterPopupContent.svelte';
@@ -20,15 +20,30 @@
     import LiveSimPlayerPopupContent from './popups/LiveSimPlayerPopupContent.svelte';
     import LivePetPopupContent from './popups/LivePetPopupContent.svelte';
     import LiveNpcPopupContent from './popups/LiveNpcPopupContent.svelte';
+    import SearchEnemyPopup from './popups/SearchEnemyPopup.svelte';
+    import SearchNpcPopup from './popups/SearchNpcPopup.svelte';
 
     interface Props {
         selection: Selection;
         zoneName: string;
+        searchIndex: SearchIndex | null;
         onClose: () => void;
         onFocus: () => void;
+        onHoverSpawn: (stableKey: string | null) => void;
+        onFocusSpawn: (stableKey: string) => void;
+        onFocusAll: () => void;
     }
 
-    let { selection, zoneName, onClose, onFocus }: Props = $props();
+    let {
+        selection,
+        zoneName,
+        searchIndex,
+        onClose,
+        onFocus,
+        onHoverSpawn,
+        onFocusSpawn,
+        onFocusAll
+    }: Props = $props();
 
     // Get display title based on selection type
     function getTitle(): string {
@@ -42,12 +57,23 @@
             return selection.zone.name;
         }
 
+        if (selection.type === 'search') {
+            const r = selection.result;
+            switch (r.type) {
+                case 'enemy':
+                    return r.name;
+                case 'npc':
+                    return r.name;
+                case 'zone':
+                    return r.name;
+            }
+        }
+
         const marker = selection.marker;
         switch (marker.category) {
             case 'enemy':
-                return 'Spawn Point';
             case 'npc':
-                return (marker as WorldNpc).name;
+                return 'Spawn Point';
             case 'zone-line':
                 return 'Zone Connection';
             case 'mining-node':
@@ -85,19 +111,19 @@
 
             switch (entity.entityType) {
                 case 'player':
-                    return ['Player', level].filter(Boolean).join(' • ');
+                    return ['Player', level].filter(Boolean).join(' \u2022 ');
                 case 'simplayer':
-                    return ['SimPlayer', level].filter(Boolean).join(' • ');
+                    return ['SimPlayer', level].filter(Boolean).join(' \u2022 ');
                 case 'pet':
-                    return ['Pet', level].filter(Boolean).join(' • ');
+                    return ['Pet', level].filter(Boolean).join(' \u2022 ');
                 case 'npc_friendly':
-                    return ['Friendly NPC', level].filter(Boolean).join(' • ');
+                    return ['Friendly NPC', level].filter(Boolean).join(' \u2022 ');
                 case 'npc_enemy': {
                     const parts = ['Enemy', level];
                     if (entity.rarity && entity.rarity !== 'common') {
                         parts.push(entity.rarity.charAt(0).toUpperCase() + entity.rarity.slice(1));
                     }
-                    return parts.filter(Boolean).join(' • ');
+                    return parts.filter(Boolean).join(' \u2022 ');
                 }
                 default:
                     return 'Live Entity';
@@ -108,10 +134,34 @@
             return 'Zone';
         }
 
+        if (selection.type === 'search') {
+            const r = selection.result;
+            switch (r.type) {
+                case 'enemy': {
+                    const parts: string[] = ['Enemy'];
+                    if (r.isUnique) parts.push('Unique');
+                    else if (r.isRare) parts.push('Rare');
+                    parts.push(`${r.spawnCount} spawn${r.spawnCount !== 1 ? 's' : ''}`);
+                    parts.push(`${r.zoneCount} zone${r.zoneCount !== 1 ? 's' : ''}`);
+                    return parts.join(' \u2022 ');
+                }
+                case 'npc': {
+                    const parts: string[] = ['NPC'];
+                    if (r.isVendor) parts.push('Vendor');
+                    parts.push(`${r.spawnCount} location${r.spawnCount !== 1 ? 's' : ''}`);
+                    parts.push(`${r.zoneCount} zone${r.zoneCount !== 1 ? 's' : ''}`);
+                    return parts.join(' \u2022 ');
+                }
+                case 'zone':
+                    return 'Zone';
+            }
+        }
+
         const marker = selection.marker;
         switch (marker.category) {
-            case 'enemy': {
-                const m = marker as WorldEnemy;
+            case 'enemy':
+            case 'npc': {
+                const m = marker as WorldEnemy | WorldNpc;
                 const uniques = m.characters.filter((c) => c.isUnique).length;
                 const rares = m.characters.filter((c) => c.isRare && !c.isUnique).length;
                 const commons = m.characters.filter((c) => !c.isRare && !c.isUnique).length;
@@ -121,8 +171,6 @@
                 if (commons > 0) parts.push(`${commons} common`);
                 return parts.length > 0 ? parts.join(', ') : 'Empty';
             }
-            case 'npc':
-                return 'NPC';
             case 'zone-line':
             case 'teleport':
                 return 'Travel';
@@ -143,7 +191,6 @@
         }
     }
 
-    // Get border color based on selection type
     function getBorderColorClass(): string {
         if (!selection) return 'border-l-gray-500';
         return getSelectionBorderColor(selection);
@@ -152,12 +199,53 @@
     const title = $derived(getTitle());
     const categoryLabel = $derived(getCategoryLabel());
     const borderColorClass = $derived(getBorderColorClass());
+
+    // Get search result markers for popups
+    const searchEnemyMarkers = $derived.by(() => {
+        if (selection?.type !== 'search' || selection.result.type !== 'enemy' || !searchIndex)
+            return [];
+        return searchIndex.enemyProvider.getMarkers(selection.result.name);
+    });
+
+    const searchNpcMarkers = $derived.by(() => {
+        if (selection?.type !== 'search' || selection.result.type !== 'npc' || !searchIndex)
+            return [];
+        return searchIndex.npcProvider.getMarkers(selection.result.name);
+    });
 </script>
 
 {#if !selection}
     <!-- Nothing -->
 {:else if selection.type === 'zone'}
     <ZonePopup zone={selection.zone} {onClose} {onFocus} />
+{:else if selection.type === 'search'}
+    {@const result = selection.result}
+    <PopupContainer
+        {title}
+        subtitle={categoryLabel}
+        {borderColorClass}
+        showFocus={false}
+        {onClose}
+        {onFocus}
+    >
+        {#if result.type === 'enemy'}
+            <SearchEnemyPopup
+                name={result.name}
+                markers={searchEnemyMarkers}
+                {onHoverSpawn}
+                {onFocusSpawn}
+                {onFocusAll}
+            />
+        {:else if result.type === 'npc'}
+            <SearchNpcPopup
+                name={result.name}
+                markers={searchNpcMarkers}
+                {onHoverSpawn}
+                {onFocusSpawn}
+                {onFocusAll}
+            />
+        {/if}
+    </PopupContainer>
 {:else if selection.type === 'live'}
     <PopupContainer {title} subtitle={categoryLabel} {borderColorClass} {onClose} {onFocus}>
         {#if selection.entity.entityType === 'player'}
@@ -176,13 +264,9 @@
 {:else}
     {@const marker = selection.marker}
     <PopupContainer {title} subtitle={categoryLabel} {borderColorClass} {onClose} {onFocus}>
-        {#if marker.category === 'enemy'}
+        {#if marker.category === 'enemy' || marker.category === 'npc'}
             {#key marker.stableKey}
-                <EnemyPopupContent {marker} />
-            {/key}
-        {:else if marker.category === 'npc'}
-            {#key marker.stableKey}
-                <NpcPopupContent {marker} />
+                <SpawnPointPopupContent marker={marker as WorldEnemy | WorldNpc} />
             {/key}
         {:else if marker.category === 'zone-line'}
             <ZoneLinePopupContent marker={marker as WorldZoneLine} />

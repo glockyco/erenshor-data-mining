@@ -8,6 +8,7 @@
 
     // Lucide icons
     import Home from '@lucide/svelte/icons/home';
+    import Search from '@lucide/svelte/icons/search';
     import PanelLeftClose from '@lucide/svelte/icons/panel-left-close';
     import PanelLeftOpen from '@lucide/svelte/icons/panel-left-open';
     import Skull from '@lucide/svelte/icons/skull';
@@ -37,6 +38,7 @@
         onLiveModeChange: (enabled: boolean) => void;
         autoFollowEnabled: boolean;
         onAutoFollowChange: (enabled: boolean) => void;
+        onSearchOpen: () => void;
     }
 
     let {
@@ -51,7 +53,8 @@
         connectionState,
         onLiveModeChange,
         autoFollowEnabled,
-        onAutoFollowChange
+        onAutoFollowChange,
+        onSearchOpen
     }: Props = $props();
 
     function rgbToHex(rgb: readonly [number, number, number]): string {
@@ -179,6 +182,23 @@
     {#if !collapsed}
         <!-- Scrollable content -->
         <div class="flex-1 overflow-y-auto">
+            <!-- Search button -->
+            <div class="px-3 pt-3 pb-1">
+                <button
+                    type="button"
+                    onclick={onSearchOpen}
+                    class="flex w-full items-center gap-2 rounded-md bg-zinc-700/50 px-3 py-2
+                           text-sm text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200
+                           transition-colors cursor-pointer"
+                >
+                    <Search class="h-4 w-4 shrink-0" />
+                    <span class="flex-1 text-left">Search...</span>
+                    <kbd class="rounded bg-zinc-800 px-1.5 py-0.5 text-xs text-zinc-500"
+                        >&#8984;K</kbd
+                    >
+                </button>
+            </div>
+
             <!-- Enemies -->
             <SidebarSection title="Enemies">
                 <LevelFilter
@@ -485,6 +505,16 @@
             >
                 <Home class="h-4 w-4" />
             </a>
+
+            <!-- Search button -->
+            <button
+                type="button"
+                onclick={onSearchOpen}
+                class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md text-zinc-400 transition-colors hover:bg-zinc-700 hover:text-white"
+                title="Search (⌘K)"
+            >
+                <Search class="h-4 w-4" />
+            </button>
 
             <div class="w-8 border-t border-zinc-700"></div>
 

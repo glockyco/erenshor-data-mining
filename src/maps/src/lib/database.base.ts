@@ -15,6 +15,7 @@ import type {
     SpawnCharacter,
     TeleportMarker,
     TreasureLocMarker,
+    VendorItem,
     WaterMarker,
     WishingWellMarker,
     ZoneLineMarker
@@ -94,122 +95,41 @@ export class RepositoryBase {
         return markers;
     }
 
-    async getCharacterMarkers(mapName: string): Promise<(NpcMarker | EnemyMarker)[]> {
-        if (!this.db) throw new Error('DB not initialized');
-
-        const stmt = this.db.prepare(
-            `
-			SELECT
-				c.StableKey,
-				c.X AS PositionX,
-				c.Y AS PositionY,
-				c.Z AS PositionZ,
-				c.NPCName,
-				c.Level,
-				c.IsEnabled,
-				c.IsVendor,
-				c.HasDialog,
-				c.IsCommon,
-				c.IsRare,
-				c.IsUnique,
-				c.IsFriendly,
-				c.Invulnerable
-			FROM Characters c
-			WHERE c.Scene = ?
-		`,
-            [mapName]
-        );
-
-        const markers: (NpcMarker | EnemyMarker)[] = [];
-
-        while (stmt.step()) {
-            const row = stmt.getAsObject();
-            const stableKey = row.StableKey as string;
-            const coordinates = {
-                x: row.PositionX as number,
-                y: row.PositionY as number,
-                z: row.PositionZ as number
-            };
-            const level = (row.Level as number) ?? 1;
-            const isFriendly = row.IsFriendly;
-            if (isFriendly) {
-                markers.push(
-                    this.getNpcMarker(
-                        stableKey,
-                        coordinates,
-                        row.NPCName as string,
-                        level,
-                        null,
-                        !!row.IsEnabled,
-                        !!row.IsVendor,
-                        !!row.HasDialog,
-                        false
-                    )
-                );
-            } else {
-                markers.push(
-                    this.getEnemyMarker(
-                        stableKey,
-                        [
-                            {
-                                name: row.NPCName as string,
-                                stableKey,
-                                level,
-                                spawnChance: 100,
-                                isCommon: !!row.IsCommon,
-                                isRare: !!row.IsRare,
-                                isUnique: !!row.IsUnique,
-                                isFriendly: !!row.IsFriendly,
-                                isInvulnerable: !!row.Invulnerable
-                            }
-                        ],
-                        coordinates,
-                        { x: coordinates.x, y: coordinates.z },
-                        null,
-                        !!row.IsEnabled,
-                        false
-                    )
-                );
-            }
-        }
-        stmt.free();
-        return markers;
-    }
-
     getNpcMarker(
         stableKey: string,
+        characters: SpawnCharacter[],
         coordinates: { x: number; y: number; z: number },
-        npcName: string,
-        level: number,
+        position: { x: number; y: number },
         spawnDelay: number | null,
         isEnabled: boolean,
-        isVendor: boolean,
-        hasDialog: boolean,
         isNightSpawn: boolean,
         movement: MovementData | null = null
     ): NpcMarker {
+        const sortedCharacters = characters.slice().sort((a, b) => b.spawnChance - a.spawnChance);
+
+        const characterLines =
+            '<br><br>' +
+            sortedCharacters
+                .map((character) => {
+                    return `<a href='https://erenshor.wiki.gg/wiki/${encodeURIComponent(character.name)}'>${character.name}</a>`;
+                })
+                .join('<br>');
+
         const positionText = `NPC @ ${formatCoordinates(coordinates.x, coordinates.y, coordinates.z)}`;
-        const npcLink = `<br><br><a href='https://erenshor.wiki.gg/wiki/${encodeURIComponent(npcName)}'>${npcName}</a>`;
         const disabledInfo = isEnabled ? '' : '<br><br>This NPC is (initially) disabled.';
         const respawnInfo = this.getRespawnInfo(spawnDelay, isNightSpawn);
 
-        const popupText = `${positionText}${npcLink}${disabledInfo}${respawnInfo}`.trim();
+        const popupText = `${positionText}${characterLines}${disabledInfo}${respawnInfo}`.trim();
 
         return {
             stableKey: stableKey,
             category: 'npc',
-            name: npcName,
-            level,
+            characters: sortedCharacters,
             spawnDelay,
             isNightSpawn,
-            position: {
-                x: coordinates.x,
-                y: coordinates.z
-            },
+            position: position,
             popup: popupText.trim(),
             isEnabled: isEnabled,
-            isVendor,
-            hasDialog,
             movement
         };
     }
@@ -540,19 +460,7 @@ export class RepositoryBase {
                 wanderRange: number | null;
                 loopPatrol: boolean;
                 patrolPath: string | null;
-                characters: {
-                    name: string;
-                    stableKey: string;
-                    level: number;
-                    spawnChance: number;
-                    isCommon: boolean;
-                    isRare: boolean;
-                    isUnique: boolean;
-                    isFriendly: boolean;
-                    isInvulnerable: boolean;
-                    isVendor: boolean;
-                    hasDialog: boolean;
-                }[];
+                characters: SpawnCharacter[];
             }
         >();
 
@@ -610,19 +518,16 @@ export class RepositoryBase {
             characters
         } of spawnPointMap.values()) {
             const movement = buildMovementData(wanderRange, loopPatrol, patrolPath);
-            const isNpc = characters.length == 1 && characters[0].isFriendly;
+            const isNpc = characters.every((c) => c.isFriendly);
             if (isNpc) {
-                const npc = characters[0];
                 markers.push(
                     this.getNpcMarker(
                         stableKey,
+                        characters,
                         coordinates,
-                        npc.name,
-                        npc.level,
+                        position,
                         spawnDelay,
                         isEnabled,
-                        npc.isVendor,
-                        npc.hasDialog,
                         isNightSpawn,
                         movement
                     )
@@ -1108,12 +1013,12 @@ export class RepositoryBase {
         return drops;
     }
 
-    async getVendorItems(stableKey: string): Promise<string[]> {
+    async getVendorItems(stableKey: string): Promise<VendorItem[]> {
         if (!this.db) throw new Error('DB not initialized');
 
         const stmt = this.db.prepare(
             `
-            SELECT i.ItemName
+            SELECT i.ItemName, i.ItemValue
             FROM CharacterVendorItems cvi
             JOIN Items i ON i.StableKey = cvi.ItemStableKey
             WHERE cvi.CharacterStableKey = ?
@@ -1122,11 +1027,14 @@ export class RepositoryBase {
             [stableKey]
         );
 
-        const items: string[] = [];
+        const items: VendorItem[] = [];
 
         while (stmt.step()) {
             const row = stmt.getAsObject();
-            items.push(row.ItemName as string);
+            items.push({
+                name: row.ItemName as string,
+                price: (row.ItemValue as number) ?? 0
+            });
         }
         stmt.free();
         return items;

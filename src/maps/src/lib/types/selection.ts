@@ -1,21 +1,32 @@
 import type { AnyWorldMarker, ZoneWorldPosition, ZoneConfig } from './world-map';
 import type { EntityData } from '$lib/map/live/types';
+import type { SearchResult } from '$lib/map/search';
+import type { SearchIndex } from '$lib/map/search';
 import { transformEntityToWorld } from '$lib/map/coordinate-transform';
 import { MARKER_BORDER_COLORS } from '$lib/map/config';
 
+// =============================================================================
+// Selection Type
+// =============================================================================
+
 /**
  * Discriminated union for all selectable entities on the map.
- * Unifies static markers, live entities, and zones under one type system.
+ * Unifies static markers, live entities, zones, and search results.
  */
 export type Selection =
     | { type: 'marker'; marker: AnyWorldMarker }
     | { type: 'live'; entity: EntityData; zone: string }
     | { type: 'zone'; zone: ZoneWorldPosition }
+    | { type: 'search'; result: SearchResult }
     | null;
+
+// =============================================================================
+// Selection Helpers
+// =============================================================================
 
 /**
  * Get world position from any selection type.
- * Returns null if selection doesn't have a valid position.
+ * Returns null for search selections (they have multiple positions).
  *
  * @param liveEntities - Current live entities array (used to look up fresh position data)
  */
@@ -30,7 +41,6 @@ export function getSelectionPosition(
 
     switch (selection.type) {
         case 'marker': {
-            // Markers already have worldPosition, just apply zone override if needed
             const override = overrides[selection.marker.zone];
             if (override) {
                 const [x, y] = selection.marker.worldPosition;
@@ -41,7 +51,6 @@ export function getSelectionPosition(
             return selection.marker.worldPosition;
         }
         case 'live': {
-            // Look up current entity data (selection.entity may be stale snapshot)
             const currentEntity = liveEntities?.find((e) => e.id === selection.entity.id);
             if (!currentEntity) return null;
             return transformEntityToWorld(
@@ -55,6 +64,9 @@ export function getSelectionPosition(
             const bounds = selection.zone.bounds;
             return [(bounds.minX + bounds.maxX) / 2, (bounds.minY + bounds.maxY) / 2];
         }
+        case 'search':
+            // Search selections have multiple positions; no single position
+            return null;
     }
 }
 
@@ -71,6 +83,9 @@ export function getSelectionZone(selection: Selection): string | null {
             return selection.zone;
         case 'zone':
             return selection.zone.key;
+        case 'search':
+            // Search results span multiple zones
+            return null;
     }
 }
 
@@ -87,11 +102,25 @@ export function getSelectionBorderColor(selection: Selection): string {
             return getLiveEntityBorderColor(selection.entity);
         case 'zone':
             return 'border-l-purple-500';
+        case 'search':
+            return getSearchBorderColor(selection.result);
+    }
+}
+
+function getSearchBorderColor(result: SearchResult): string {
+    switch (result.type) {
+        case 'enemy':
+            if (result.isUnique) return 'border-l-violet-700';
+            if (result.isRare) return 'border-l-rose-600';
+            return 'border-l-amber-600';
+        case 'npc':
+            return 'border-l-sky-500';
+        case 'zone':
+            return 'border-l-purple-500';
     }
 }
 
 function getMarkerBorderColor(marker: AnyWorldMarker): string {
-    // Special handling for enemy markers (need to check rarity)
     if (marker.category === 'enemy') {
         const chars = marker.characters;
         if (chars.length === 0) return 'border-l-gray-500';
@@ -102,10 +131,8 @@ function getMarkerBorderColor(marker: AnyWorldMarker): string {
         return 'border-l-amber-600';
     }
 
-    // For all other markers, use the centralized color mapping
     const borderColor = MARKER_BORDER_COLORS[marker.category];
     if (borderColor) {
-        // Already has border-l- prefix (popups and tooltips expect border-l-{color})
         return borderColor;
     }
 
@@ -128,5 +155,126 @@ function getLiveEntityBorderColor(entity: EntityData): string {
             return 'border-l-orange-500';
         default:
             return 'border-l-gray-400';
+    }
+}
+
+// =============================================================================
+// URL Serialization
+// =============================================================================
+
+/**
+ * Serialize a selection to a URL-safe string.
+ *
+ * Format: `type:value`
+ * - `marker:<stableKey>`
+ * - `zone:<zoneKey>`
+ * - `enemy:<name>`
+ * - `npc:<name>`
+ * - Live selections are not serializable (ephemeral).
+ */
+export function serializeSelection(selection: Selection): string | null {
+    if (!selection) return null;
+
+    switch (selection.type) {
+        case 'marker':
+            return `marker:${selection.marker.stableKey}`;
+        case 'zone':
+            return `zone:${selection.zone.key}`;
+        case 'search': {
+            const r = selection.result;
+            switch (r.type) {
+                case 'enemy':
+                    return `enemy:${r.name}`;
+                case 'npc':
+                    return `npc:${r.name}`;
+                case 'zone':
+                    // Zone search results serialize as regular zone selections
+                    return `zone:${r.key}`;
+            }
+            break;
+        }
+        case 'live':
+            return null;
+    }
+    return null;
+}
+
+/**
+ * Data needed to deserialize a selection from a URL string.
+ */
+export interface DeserializeContext {
+    findMarkerByStableKey: (stableKey: string) => AnyWorldMarker | null;
+    findZoneByKey: (key: string) => ZoneWorldPosition | null;
+    searchIndex: SearchIndex;
+}
+
+/**
+ * Deserialize a selection from a URL string.
+ * Returns null if the string is invalid or the referenced entity doesn't exist.
+ */
+export function deserializeSelection(raw: string, ctx: DeserializeContext): Selection {
+    const colonIdx = raw.indexOf(':');
+    if (colonIdx === -1) return null;
+
+    const prefix = raw.slice(0, colonIdx);
+    const value = raw.slice(colonIdx + 1);
+
+    switch (prefix) {
+        case 'marker': {
+            const marker = ctx.findMarkerByStableKey(value);
+            if (!marker) {
+                console.warn(`Selection restore: marker not found: ${value}`);
+                return null;
+            }
+            return { type: 'marker', marker };
+        }
+        case 'zone': {
+            const zone = ctx.findZoneByKey(value);
+            if (!zone) {
+                console.warn(`Selection restore: zone not found: ${value}`);
+                return null;
+            }
+            return { type: 'zone', zone };
+        }
+        case 'enemy': {
+            const markers = ctx.searchIndex.enemyProvider.getMarkers(value);
+            if (markers.length === 0) {
+                console.warn(`Selection restore: enemy not found: ${value}`);
+                return null;
+            }
+            const zones = new Set(markers.map((m) => m.zone));
+            return {
+                type: 'search',
+                result: {
+                    type: 'enemy',
+                    name: value,
+                    isRare: markers.some((m) => m.isRare),
+                    isUnique: markers.some((m) => m.isUnique),
+                    spawnCount: markers.length,
+                    zoneCount: zones.size
+                }
+            };
+        }
+        case 'npc': {
+            const markers = ctx.searchIndex.npcProvider.getMarkers(value);
+            if (markers.length === 0) {
+                console.warn(`Selection restore: NPC not found: ${value}`);
+                return null;
+            }
+            const zones = new Set(markers.map((m) => m.zone));
+            return {
+                type: 'search',
+                result: {
+                    type: 'npc',
+                    name: value,
+                    isVendor: markers.some((m) => m.characters.some((c) => c.isVendor)),
+                    spawnCount: markers.length,
+                    zoneCount: zones.size
+                }
+            };
+        }
+        default:
+            console.warn(`Selection restore: unknown prefix: ${prefix}`);
+            return null;
     }
 }

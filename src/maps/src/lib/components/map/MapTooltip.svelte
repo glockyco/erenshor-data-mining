@@ -40,7 +40,7 @@
     // Get border color based on selection type
     function getBorderColorClass(): string {
         if (!selection) return 'border-l-gray-500';
-        if (selection.type === 'live' || selection.type === 'zone') {
+        if (selection.type === 'live' || selection.type === 'zone' || selection.type === 'search') {
             return getSelectionBorderColor(selection);
         }
         const marker = selection.marker;
@@ -131,13 +131,24 @@
 
     // Get NPC tooltip content
     function getNpcContent(m: WorldNpc): TooltipContent {
+        const chars = m.characters;
+        if (chars.length === 0) {
+            return { name: 'Empty Spawn', detail: '' };
+        }
+
+        const first = chars[0];
         const night = m.isNightSpawn ? '🌙 23:00-7:00' : '';
-        const parts = ['NPC', night].filter(Boolean);
-        return {
-            name: m.name,
-            detail: parts.join(' • '),
-            warning: !m.isEnabled ? '(Initially) Disabled' : undefined
-        };
+        const respawn = formatRespawnTime(m.spawnDelay);
+        const warning = !m.isEnabled ? '(Initially) Disabled' : undefined;
+
+        if (chars.length === 1) {
+            const parts = ['NPC', night, respawn].filter(Boolean);
+            return { name: first.name, detail: parts.join(' • '), warning };
+        }
+
+        const others = chars.length - 1;
+        const parts = ['NPC', `+${others} more`, night, respawn].filter(Boolean);
+        return { name: first.name, detail: parts.join(' • '), warning };
     }
 
     // Get zone line tooltip content
@@ -237,6 +248,10 @@
 
         if (selection.type === 'zone') {
             return { name: selection.zone.name, detail: 'Zone' };
+        }
+
+        if (selection.type === 'search') {
+            return { name: '', detail: '' };
         }
 
         const marker = selection.marker;

@@ -1,14 +1,17 @@
 /**
  * URL state management for shareable map links.
  *
- * Uses explicit urlManager object pattern with:
- * - pushSelection() - adds to browser history (back/forward works)
- * - syncViewState() - debounced replace (no history spam during pan/zoom)
- * - syncPreferences() - immediate replace for layers/zone focus
- * - Passive mode - prevents URL updates during popstate restoration
+ * Uses a unified `sel` param for all selection types:
+ * - `sel=marker:<stableKey>` — clicked a specific spawn point / marker
+ * - `sel=zone:<zoneKey>` — clicked or searched a zone
+ * - `sel=enemy:<name>` — searched an enemy name (all spawn locations)
+ * - `sel=npc:<name>` — searched an NPC name (all spawn locations)
  *
- * Key pattern: All sync methods take COMPLETE UrlStateParams (no optionals).
- * This eliminates merging bugs - the caller is responsible for providing full state.
+ * URL manager pattern:
+ * - pushSelection() — adds to browser history (back/forward works)
+ * - syncViewState() — debounced replace (no history spam during pan/zoom)
+ * - syncPreferences() — immediate replace for layers/zone focus
+ * - Passive mode — prevents URL updates during popstate restoration
  */
 
 import { browser } from '$app/environment';
@@ -20,22 +23,13 @@ import { DEFAULT_LAYER_VISIBILITY, type LayerVisibility } from '$lib/types/world
 // ============================================================================
 
 /**
- * Selection state for URL tracking and deduplication.
- */
-export interface SelectionState {
-    marker: string | null;
-    selectedZoneKey: string | null;
-}
-
-/**
  * Complete state needed to build a URL.
- * All fields required - no optionals, no partial updates.
+ * All fields required — no optionals, no partial updates.
  */
 export interface UrlStateParams {
     viewState: { x: number; y: number; zoom: number };
     layers: LayerVisibility;
-    marker: string | null;
-    selectedZoneKey: string | null;
+    sel: string | null;
     focusedZoneId: string | null;
     debug: boolean;
     levelFilter: [number, number];
@@ -50,8 +44,7 @@ export interface ParsedUrlState {
     y: number;
     zoom: number;
     layers: string | null;
-    marker: string | null;
-    selectedZone: string | null;
+    sel: string | null;
     zone: string | null;
     debug: boolean;
     levelFilter: [number, number] | null;
@@ -70,7 +63,7 @@ const VIEW_SYNC_DEBOUNCE_MS = 150;
 // Module State
 // ============================================================================
 
-let lastSelection: SelectionState = { marker: null, selectedZoneKey: null };
+let lastSel: string | null = null;
 let isPassiveMode = false;
 let viewSyncTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -115,9 +108,6 @@ const LAYER_KEYS_REVERSE: Record<string, keyof LayerVisibility> = Object.fromEnt
     Object.entries(LAYER_KEYS).map(([k, v]) => [v, k as keyof LayerVisibility])
 );
 
-/**
- * Check if layer visibility matches defaults.
- */
 function layersMatchDefaults(layers: LayerVisibility): boolean {
     for (const key of Object.keys(DEFAULT_LAYER_VISIBILITY) as (keyof LayerVisibility)[]) {
         if (layers[key] !== DEFAULT_LAYER_VISIBILITY[key]) {
@@ -127,11 +117,6 @@ function layersMatchDefaults(layers: LayerVisibility): boolean {
     return true;
 }
 
-/**
- * Serialize layer visibility to URL string.
- * Only includes layers that differ from defaults.
- * Returns null if all layers match defaults.
- */
 function serializeLayers(layers: LayerVisibility): string | null {
     if (layersMatchDefaults(layers)) {
         return null;
@@ -155,7 +140,6 @@ function serializeLayers(layers: LayerVisibility): string | null {
         return null;
     }
 
-    // List disabled layers with "-" prefix
     if (disabledDefaults.length > 0) {
         return disabledDefaults.map((k) => `-${k}`).join(',');
     }
@@ -163,9 +147,6 @@ function serializeLayers(layers: LayerVisibility): string | null {
     return enabledNonDefaults.join(',');
 }
 
-/**
- * Parse layer visibility from URL string.
- */
 function parseLayers(layerStr: string | null): LayerVisibility {
     if (!layerStr) {
         return { ...DEFAULT_LAYER_VISIBILITY };
@@ -199,23 +180,17 @@ function parseLayers(layerStr: string | null): LayerVisibility {
 /**
  * Get normalized URL search string.
  * Fixes HTML entity encoding from forum posts where & becomes &amp;
- * (e.g., Steam discussion forums HTML-encode URLs, breaking query params).
- * Also cleans up the browser URL bar to prevent propagating the issue when re-sharing.
  */
 export function getNormalizedSearch(): string {
     let search = window.location.search;
     if (search.includes('&amp;')) {
         search = search.replaceAll('&amp;', '&');
-        // Clean up browser URL bar so re-sharing works correctly
         const cleanUrl = window.location.pathname + search + window.location.hash;
         window.history.replaceState(null, '', cleanUrl);
     }
     return search;
 }
 
-/**
- * Cancel any pending debounced view sync.
- */
 function cancelViewSync(): void {
     if (viewSyncTimer) {
         clearTimeout(viewSyncTimer);
@@ -230,16 +205,7 @@ function cancelViewSync(): void {
 export function buildUrl(params: UrlStateParams): string {
     const searchParams = new URLSearchParams();
 
-    const {
-        viewState,
-        layers,
-        marker,
-        selectedZoneKey,
-        focusedZoneId,
-        debug,
-        levelFilter,
-        levelRange
-    } = params;
+    const { viewState, layers, sel, focusedZoneId, debug, levelFilter, levelRange } = params;
 
     // View state (omit if defaults)
     if (Math.abs(viewState.x - DEFAULT_X) > 0.1) {
@@ -252,14 +218,9 @@ export function buildUrl(params: UrlStateParams): string {
         searchParams.set('z', viewState.zoom.toFixed(2));
     }
 
-    // Marker selection
-    if (marker) {
-        searchParams.set('marker', marker);
-    }
-
-    // Zone selection (popup)
-    if (selectedZoneKey) {
-        searchParams.set('selzone', selectedZoneKey);
+    // Unified selection
+    if (sel) {
+        searchParams.set('sel', sel);
     }
 
     // Zone focus (filtering)
@@ -297,13 +258,11 @@ export function parseUrlState(): ParsedUrlState | null {
 
     const params = new URLSearchParams(getNormalizedSearch());
 
-    // Check if any map params exist
     const hasMapParams =
         params.has('x') ||
         params.has('y') ||
         params.has('z') ||
-        params.has('marker') ||
-        params.has('selzone') ||
+        params.has('sel') ||
         params.has('zone') ||
         params.has('layers') ||
         params.has('lvl') ||
@@ -313,7 +272,6 @@ export function parseUrlState(): ParsedUrlState | null {
         return null;
     }
 
-    // Parse level filter if present
     let levelFilter: [number, number] | null = null;
     const lvl = params.get('lvl');
     if (lvl) {
@@ -328,8 +286,7 @@ export function parseUrlState(): ParsedUrlState | null {
         y: parseFloat(params.get('y') ?? String(DEFAULT_Y)),
         zoom: parseFloat(params.get('z') ?? String(DEFAULT_ZOOM)),
         layers: params.get('layers'),
-        marker: params.get('marker'),
-        selectedZone: params.get('selzone'),
+        sel: params.get('sel'),
         zone: params.get('zone'),
         debug: params.get('debug') === 'true',
         levelFilter
@@ -338,7 +295,6 @@ export function parseUrlState(): ParsedUrlState | null {
 
 /**
  * Parse layer visibility from URL string.
- * Returns default visibility if no layers param.
  */
 export function parseLayerVisibility(layerStr: string | null): LayerVisibility {
     return parseLayers(layerStr);
@@ -358,44 +314,33 @@ export function parseLayerVisibility(layerStr: string | null): LayerVisibility {
  * | Toggle layer        | syncPreferences | Replace (immediate)              |
  * | Change zone focus   | syncPreferences | Replace (immediate)              |
  * | Click marker        | pushSelection   | Push (back/forward works)        |
+ * | Search selection    | pushSelection   | Push (back/forward works)        |
  * | Close popup         | pushSelection   | Push (can go back to selection)  |
  * | Browser back/forward| Passive mode    | Restore state, no URL update     |
  */
 export const urlManager = {
-    /**
-     * Enter passive mode. Use try/finally to ensure exit.
-     * While passive, no URL updates are made.
-     */
     enterPassiveMode(): void {
         isPassiveMode = true;
         cancelViewSync();
     },
 
-    /**
-     * Exit passive mode.
-     */
     exitPassiveMode(): void {
         isPassiveMode = false;
     },
 
-    /**
-     * Check if currently in passive mode.
-     */
     isPassive(): boolean {
         return isPassiveMode;
     },
 
     /**
      * Sync internal tracking after URL restore.
-     * Prevents duplicate history entries when user clicks same marker/zone again.
      */
-    setLastSelection(marker: string | null, selectedZoneKey: string | null = null): void {
-        lastSelection = { marker, selectedZoneKey };
+    setLastSel(sel: string | null): void {
+        lastSel = sel;
     },
 
     /**
      * Debounced view state sync (pan/zoom).
-     * Uses replaceState - no history entry.
      */
     syncViewState(params: UrlStateParams): void {
         if (!browser || isPassiveMode) return;
@@ -409,7 +354,6 @@ export const urlManager = {
 
     /**
      * Immediate preference sync (layers, zone focus).
-     * Uses replaceState - no history entry.
      */
     syncPreferences(params: UrlStateParams): void {
         if (!browser || isPassiveMode) return;
@@ -420,20 +364,19 @@ export const urlManager = {
 
     /**
      * Push selection change to history.
-     * Deduplicates to prevent duplicate entries when clicking same marker/zone.
+     * Deduplicates to prevent duplicate entries.
      */
     pushSelection(params: UrlStateParams): void {
         if (!browser || isPassiveMode) return;
 
-        const { marker, selectedZoneKey } = params;
+        const { sel } = params;
 
-        // Deduplicate
-        if (marker === lastSelection.marker && selectedZoneKey === lastSelection.selectedZoneKey) {
+        if (sel === lastSel) {
             return;
         }
 
         cancelViewSync();
         pushState(buildUrl(params), {});
-        lastSelection = { marker, selectedZoneKey };
+        lastSel = sel;
     }
 };

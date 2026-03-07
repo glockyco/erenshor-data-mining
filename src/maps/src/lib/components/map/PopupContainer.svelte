@@ -7,6 +7,7 @@
         title: string;
         subtitle: string;
         borderColorClass?: string;
+        showFocus?: boolean;
         onClose: () => void;
         onFocus: () => void;
         children: Snippet;
@@ -17,6 +18,7 @@
         title,
         subtitle,
         borderColorClass = 'border-l-zinc-500',
+        showFocus = true,
         onClose,
         onFocus,
         children,
@@ -25,9 +27,9 @@
 </script>
 
 <div
-    class="fixed right-4 top-4 z-40 w-80 max-h-[calc(100vh-2rem)] overflow-hidden
-           rounded-lg border-l-4 {borderColorClass} border-r-zinc-700 border-t-zinc-700 border-b-zinc-700
-           bg-zinc-900/95 shadow-xl backdrop-blur flex flex-col"
+    class="fixed right-0 top-0 z-40 h-full w-80 overflow-hidden
+           border-l-4 {borderColorClass} border-zinc-700
+           bg-zinc-800/95 shadow-xl backdrop-blur flex flex-col"
 >
     <!-- Header -->
     <div class="flex items-start justify-between border-b border-zinc-700 px-4 py-3 shrink-0">
@@ -36,14 +38,16 @@
             <div class="text-xs text-zinc-400">{subtitle}</div>
         </div>
         <div class="flex gap-1 shrink-0">
-            <button
-                type="button"
-                onclick={onFocus}
-                class="rounded p-1.5 text-zinc-400 hover:bg-zinc-700 hover:text-white transition-colors"
-                title="Focus on map"
-            >
-                <Crosshair class="h-4 w-4" />
-            </button>
+            {#if showFocus}
+                <button
+                    type="button"
+                    onclick={onFocus}
+                    class="rounded p-1.5 text-zinc-400 hover:bg-zinc-700 hover:text-white transition-colors"
+                    title="Focus on map"
+                >
+                    <Crosshair class="h-4 w-4" />
+                </button>
+            {/if}
             <button
                 type="button"
                 onclick={onClose}

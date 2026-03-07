@@ -198,7 +198,6 @@
 
             const [
                 achievementMarkers,
-                characterMarkers,
                 doorMarkers,
                 forgeMarkers,
                 itemBagMarkers,
@@ -212,7 +211,6 @@
                 zoneLineMarkers
             ] = await Promise.all([
                 repository.getAchievementTriggerMarkers(currentMapName),
-                repository.getCharacterMarkers(currentMapName),
                 repository.getDoorMarkers(currentMapName),
                 repository.getForgeMarkers(currentMapName),
                 repository.getItemBagMarkers(currentMapName),
@@ -258,7 +256,6 @@
                 ...teleportMarkers,
                 ...wishingWellMarkers,
                 ...doorMarkers,
-                ...characterMarkers,
                 ...miningNodeMarkers,
                 ...treasureLocMarkers,
                 ...itemBagMarkers,

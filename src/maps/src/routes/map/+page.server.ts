@@ -141,6 +141,8 @@ export async function load() {
     const zoneLines: WorldZoneLine[] = [];
 
     for (const zoneKey of zoneKeys) {
+        const displayName = zoneConfigs[zoneKey].zoneName;
+
         // Load spawn points (split by category and rarity for layer ordering)
         const zoneSpawnPoints = await repo.getSpawnPointMarkers(zoneKey);
         for (const marker of zoneSpawnPoints) {
@@ -166,6 +168,7 @@ export async function load() {
                 npcs.push({
                     ...marker,
                     zone: zoneKey,
+                    zoneName: displayName,
                     worldPosition: worldPos,
                     worldPatrolWaypoints
                 } as WorldNpc);
@@ -178,50 +181,9 @@ export async function load() {
                 const enemyMarker = {
                     ...marker,
                     zone: zoneKey,
+                    zoneName: displayName,
                     worldPosition: worldPos,
                     worldPatrolWaypoints,
-                    levelMin: allInvulnerable ? -Infinity : Math.min(...levels),
-                    levelMax: allInvulnerable ? Infinity : Math.max(...levels)
-                } as WorldEnemy;
-                if (enemyMarker.isUnique) {
-                    enemiesUnique.push(enemyMarker);
-                } else if (enemyMarker.isRare) {
-                    enemiesRare.push(enemyMarker);
-                } else {
-                    enemiesCommon.push(enemyMarker);
-                }
-            }
-        }
-
-        // Load NPCs and non-spawn enemies (directly placed, no patrol data)
-        const zoneNpcsAndEnemies = await repo.getCharacterMarkers(zoneKey);
-        for (const marker of zoneNpcsAndEnemies) {
-            const worldPos = transformToWorldOrThrow(
-                marker.position.x,
-                marker.position.y,
-                zoneKey,
-                zoneConfigs,
-                zonePositions
-            );
-            // Sort into appropriate array based on category and rarity
-            if (marker.category === 'npc') {
-                npcs.push({
-                    ...marker,
-                    zone: zoneKey,
-                    worldPosition: worldPos,
-                    worldPatrolWaypoints: null
-                } as WorldNpc);
-            } else {
-                // Compute level range from non-invulnerable characters
-                // Invulnerable enemies get -Infinity/Infinity so they always pass the filter
-                const vulnerableChars = marker.characters.filter((c) => !c.isInvulnerable);
-                const levels = vulnerableChars.map((c) => c.level);
-                const allInvulnerable = vulnerableChars.length === 0;
-                const enemyMarker = {
-                    ...marker,
-                    zone: zoneKey,
-                    worldPosition: worldPos,
-                    worldPatrolWaypoints: null,
                     levelMin: allInvulnerable ? -Infinity : Math.min(...levels),
                     levelMax: allInvulnerable ? Infinity : Math.max(...levels)
                 } as WorldEnemy;
@@ -272,6 +234,7 @@ export async function load() {
             zoneLines.push({
                 ...marker,
                 zone: zoneKey,
+                zoneName: displayName,
                 worldPosition: worldPos,
                 destinationWorldPosition: destinationWorldPos,
                 destinationEnemyInfo: destEnemyInfo
@@ -291,6 +254,7 @@ export async function load() {
             forges.push({
                 ...marker,
                 zone: zoneKey,
+                zoneName: displayName,
                 worldPosition: worldPos
             });
         }
@@ -308,6 +272,7 @@ export async function load() {
             wishingWells.push({
                 ...marker,
                 zone: zoneKey,
+                zoneName: displayName,
                 worldPosition: worldPos
             });
         }
@@ -325,6 +290,7 @@ export async function load() {
             achievementTriggers.push({
                 ...marker,
                 zone: zoneKey,
+                zoneName: displayName,
                 worldPosition: worldPos
             });
         }
@@ -342,6 +308,7 @@ export async function load() {
             doors.push({
                 ...marker,
                 zone: zoneKey,
+                zoneName: displayName,
                 worldPosition: worldPos
             });
         }
@@ -359,6 +326,7 @@ export async function load() {
             itemBags.push({
                 ...marker,
                 zone: zoneKey,
+                zoneName: displayName,
                 worldPosition: worldPos
             });
         }
@@ -376,6 +344,7 @@ export async function load() {
             miningNodes.push({
                 ...marker,
                 zone: zoneKey,
+                zoneName: displayName,
                 worldPosition: worldPos
             });
         }
@@ -393,6 +362,7 @@ export async function load() {
             secretPassages.push({
                 ...marker,
                 zone: zoneKey,
+                zoneName: displayName,
                 worldPosition: worldPos
             });
         }
@@ -410,6 +380,7 @@ export async function load() {
             teleports.push({
                 ...marker,
                 zone: zoneKey,
+                zoneName: displayName,
                 worldPosition: worldPos
             });
         }
@@ -427,6 +398,7 @@ export async function load() {
             treasureLocs.push({
                 ...marker,
                 zone: zoneKey,
+                zoneName: displayName,
                 worldPosition: worldPos
             });
         }
@@ -480,6 +452,7 @@ export async function load() {
             water.push({
                 ...marker,
                 zone: zoneKey,
+                zoneName: displayName,
                 worldPosition: worldPos,
                 worldPolygon
             });
@@ -503,6 +476,14 @@ export async function load() {
     // Fallback if no vulnerable enemies found
     if (!isFinite(enemyLevelMin)) enemyLevelMin = 1;
     if (!isFinite(enemyLevelMax)) enemyLevelMax = 100;
+
+    // Sort disabled markers first so enabled ones render on top (deck.gl draws in array order)
+    const enabledLast = (a: { isEnabled: boolean }, b: { isEnabled: boolean }) =>
+        Number(a.isEnabled) - Number(b.isEnabled);
+    npcs.sort(enabledLast);
+    enemiesCommon.sort(enabledLast);
+    enemiesRare.sort(enabledLast);
+    enemiesUnique.sort(enabledLast);
 
     return {
         markers: {

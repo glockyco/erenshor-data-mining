@@ -92,8 +92,11 @@ function getViewportBounds(viewport: {
 }): { minX: number; maxX: number; minY: number; maxY: number } {
     // OrthographicView provides getBounds() method
     if (viewport.getBounds) {
-        const [minX, minY, maxX, maxY] = viewport.getBounds();
-        return { minX, minY, maxX, maxY };
+        const bounds = viewport.getBounds();
+        if (bounds) {
+            const [minX, minY, maxX, maxY] = bounds;
+            return { minX, minY, maxX, maxY };
+        }
     }
 
     // Fallback: calculate from viewport properties

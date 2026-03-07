@@ -1,33 +1,35 @@
 <script lang="ts">
     import { SvelteMap } from 'svelte/reactivity';
-    import type { WorldEnemy, SpawnCharacter } from '$lib/types/world-map';
-    import type { CharacterDrop } from '$lib/map-markers';
+    import type { WorldEnemy, WorldNpc, SpawnCharacter } from '$lib/types/world-map';
+    import type { CharacterDrop, VendorItem } from '$lib/map-markers';
     import { Repository } from '$lib/database.default';
     import WikiLink from '$lib/components/map/WikiLink.svelte';
 
     interface Props {
-        marker: WorldEnemy;
+        marker: WorldEnemy | WorldNpc;
     }
 
     let { marker }: Props = $props();
 
     let characterDrops = new SvelteMap<string, CharacterDrop[]>();
-    let isLoadingDrops = $state(true);
+    let characterVendorItems = new SvelteMap<string, VendorItem[]>();
+    let isLoading = $state(true);
     let loadError = $state<string | null>(null);
 
-    // Load drops when component mounts
+    // Load drops and vendor items when component mounts
     $effect(() => {
         if (marker.characters.length > 0) {
-            loadDrops();
+            loadData();
         } else {
-            isLoadingDrops = false;
+            isLoading = false;
         }
     });
 
-    async function loadDrops() {
-        isLoadingDrops = true;
+    async function loadData() {
+        isLoading = true;
         loadError = null;
         characterDrops.clear();
+        characterVendorItems.clear();
         try {
             const repo = new Repository();
             await repo.init();
@@ -35,14 +37,19 @@
             for (const char of marker.characters) {
                 const drops = await repo.getDropsForCharacter(char.stableKey);
                 characterDrops.set(char.stableKey, drops);
+
+                if (char.isVendor) {
+                    const items = await repo.getVendorItems(char.stableKey);
+                    characterVendorItems.set(char.stableKey, items);
+                }
             }
 
             repo.close();
         } catch (err) {
-            console.error('Failed to load drops:', err);
+            console.error('Failed to load spawn point data:', err);
             loadError = err instanceof Error ? err.message : 'Failed to load';
         } finally {
-            isLoadingDrops = false;
+            isLoading = false;
         }
     }
 
@@ -63,6 +70,11 @@
     // Format spawn chance (0-100 range from database)
     function formatSpawnChance(chance: number): string {
         return `${chance.toFixed(1)}%`;
+    }
+
+    // Format vendor item price
+    function formatPrice(price: number): string {
+        return price.toLocaleString();
     }
 
     // Get rarity badge color
@@ -148,8 +160,34 @@
                     </div>
                 </div>
 
+                <!-- Vendor Items -->
+                {#if isLoading && char.isVendor}
+                    <div class="mt-2 text-xs text-zinc-500">Loading items...</div>
+                {:else if characterVendorItems.has(char.stableKey)}
+                    {@const items = characterVendorItems.get(char.stableKey) || []}
+                    {#if items.length > 0}
+                        <div class="mt-2 border-t border-zinc-700 pt-2">
+                            <div class="text-xs text-zinc-500 uppercase tracking-wide mb-1">
+                                Sells
+                            </div>
+                            <div class="space-y-0.5">
+                                {#each items as item, i (i)}
+                                    <div class="flex justify-between text-xs">
+                                        <span class="text-zinc-300 truncate min-w-0"
+                                            >{item.name}</span
+                                        >
+                                        <span class="text-zinc-500 shrink-0 ml-2">
+                                            {formatPrice(item.price)}
+                                        </span>
+                                    </div>
+                                {/each}
+                            </div>
+                        </div>
+                    {/if}
+                {/if}
+
                 <!-- Drops -->
-                {#if isLoadingDrops}
+                {#if isLoading}
                     <div class="mt-2 text-xs text-zinc-500">Loading drops...</div>
                 {:else if loadError}
                     <div class="mt-2 text-xs text-red-400">Error: {loadError}</div>

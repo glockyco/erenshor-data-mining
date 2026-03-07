@@ -34,6 +34,7 @@ export type { SpawnCharacter, MovementData } from '$lib/map-markers';
  */
 export interface WorldPositioning {
     zone: string;
+    zoneName: string;
     worldPosition: [number, number];
 }
 

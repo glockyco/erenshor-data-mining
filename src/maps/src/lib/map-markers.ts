@@ -4,7 +4,7 @@ export type BaseMarker = {
     popup?: string;
 };
 
-// Character info for spawn points (enemies that can spawn at a location)
+// Character info for spawn points (characters that can spawn at a location)
 export type SpawnCharacter = {
     name: string;
     stableKey: string;
@@ -15,6 +15,8 @@ export type SpawnCharacter = {
     isUnique: boolean;
     isFriendly: boolean;
     isInvulnerable: boolean;
+    isVendor: boolean;
+    hasDialog: boolean;
 };
 
 // Movement data for patrol paths and wander ranges
@@ -36,6 +38,12 @@ export type CharacterDrop = {
     dropProbability: number;
 };
 
+// Vendor item info (for popups)
+export type VendorItem = {
+    name: string;
+    price: number;
+};
+
 export type AchievementTriggerMarker = BaseMarker & {
     category: 'achievement-trigger';
     achievementName: string;
@@ -43,11 +51,8 @@ export type AchievementTriggerMarker = BaseMarker & {
 
 export type NpcMarker = BaseMarker & {
     category: 'npc';
-    name: string;
-    level: number;
+    characters: SpawnCharacter[];
     isEnabled: boolean;
-    isVendor: boolean;
-    hasDialog: boolean;
     spawnDelay: number | null;
     isNightSpawn: boolean;
     movement: MovementData | null;

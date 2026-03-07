@@ -10,7 +10,13 @@
         MOVEMENT_COLORS,
         SIDEBAR_WIDTH
     } from '$lib/map/config';
-    import { flyTo, flyToBounds } from '$lib/map/flyto';
+    import {
+        flyTo,
+        flyToBounds,
+        computeBoundsView,
+        computePointView,
+        type ComputedView
+    } from '$lib/map/flyto';
     import {
         createZoneTileset2D,
         getTileWorldCorners,
@@ -46,7 +52,8 @@
         urlManager,
         parseUrlState,
         parseLayerVisibility,
-        getNormalizedSearch
+        getNormalizedSearch,
+        type UrlStateParams
     } from '$lib/map/url-state';
     import {
         DEFAULT_LAYER_VISIBILITY,
@@ -57,10 +64,17 @@
         type WorldNpc
     } from '$lib/types/world-map';
     import type { Selection } from '$lib/types/selection';
-    import { getSelectionPosition, getSelectionZone } from '$lib/types/selection';
+    import {
+        getSelectionPosition,
+        getSelectionZone,
+        serializeSelection,
+        deserializeSelection
+    } from '$lib/types/selection';
+    import { buildSearchIndex, resolveHighlight, type SearchResult } from '$lib/map/search';
     import MapSidebar from '$lib/components/map/MapSidebar.svelte';
     import MapTooltip from '$lib/components/map/MapTooltip.svelte';
     import MapPopup from '$lib/components/map/MapPopup.svelte';
+    import MapSearch from '$lib/components/map/MapSearch.svelte';
     import type { PageData } from './$types';
 
     let { data }: { data: PageData } = $props();
@@ -98,6 +112,22 @@
 
     // Selection state (for popups)
     let selection = $state<Selection>(null);
+
+    // Search state
+    let searchOpen = $state(false);
+    let searchHighlightPositions = $state<{ position: [number, number]; stableKey: string }[]>([]);
+    let hoveredSpawnKey = $state<string | null>(null);
+
+    // Search index (built once from static data)
+    const searchIndex = $derived(
+        buildSearchIndex(
+            data.markers.enemiesCommon,
+            data.markers.enemiesRare,
+            data.markers.enemiesUnique,
+            data.markers.npcs,
+            data.zones
+        )
+    );
 
     // Desktop detection (tooltips only on desktop)
     let isDesktop = $state(false);
@@ -146,30 +176,21 @@
     /**
      * Build complete URL params from current state.
      * Called by all URL sync operations.
-     * Only static markers and zones are persisted (live entities are ephemeral).
      */
-    function buildUrlParams() {
-        let marker: string | null = null;
-        let selectedZoneKey: string | null = null;
-
-        // Only persist markers and zones to URL (not ephemeral live entities)
-        if (selection?.type === 'marker') {
-            marker = selection.marker.stableKey;
-        } else if (selection?.type === 'zone') {
-            selectedZoneKey = selection.zone.key;
-        }
-
+    function buildUrlParams(): UrlStateParams {
         return {
             viewState: currentViewState,
             layers: layerVisibility,
-            marker,
-            selectedZoneKey,
+            sel: serializeSelection(selection),
             focusedZoneId: focusedZone,
             debug: isDebugMode,
             levelFilter,
             levelRange: data.levelRange
         };
     }
+
+    /** In-flight highlight resolution promise (for awaiting by callers) */
+    let highlightReady: Promise<void> = Promise.resolve();
 
     /**
      * Apply selection state. Single point for all selection changes.
@@ -178,9 +199,34 @@
      */
     function applySelection(newSelection: Selection, skipUrlUpdate = false): void {
         selection = newSelection;
+        hoveredSpawnKey = null;
+
+        // Resolve search highlights
+        if (newSelection?.type === 'search') {
+            highlightReady = resolveAndApplyHighlight(newSelection.result);
+        } else {
+            searchHighlightPositions = [];
+            highlightReady = Promise.resolve();
+        }
 
         if (!skipUrlUpdate) {
             urlManager.pushSelection(buildUrlParams());
+        }
+        updateLayers();
+    }
+
+    /**
+     * Resolve a search result to map highlight positions.
+     */
+    async function resolveAndApplyHighlight(result: SearchResult): Promise<void> {
+        const highlight = await resolveHighlight(result, searchIndex);
+        if (highlight.type === 'positions') {
+            searchHighlightPositions = highlight.positions.map((pos, i) => ({
+                position: pos,
+                stableKey: highlight.stableKeys[i]
+            }));
+        } else {
+            searchHighlightPositions = [];
         }
         updateLayers();
     }
@@ -192,15 +238,97 @@
         applySelection(null);
     }
 
+    /**
+     * Handle search result selection from command palette.
+     * Zone results become zone selections; enemy/npc become search selections.
+     */
+    async function handleSearchSelect(result: SearchResult): Promise<void> {
+        if (result.type === 'zone') {
+            const zone = findZoneByKey(result.key);
+            if (zone) {
+                applySelection({ type: 'zone', zone });
+                focusSelection({ type: 'zone', zone });
+            }
+        } else {
+            applySelection({ type: 'search', result });
+            // Wait for highlights to resolve before flying.
+            // Pass POPUP_WIDTH explicitly since the popup just opened but
+            // flyPadding.right hasn't updated yet in the current tick.
+            await highlightReady;
+            handleFocusAll(POPUP_WIDTH);
+        }
+    }
+
+    /**
+     * Hover a specific spawn point in the search popup.
+     */
+    function handleHoverSpawn(stableKey: string | null): void {
+        hoveredSpawnKey = stableKey;
+        updateLayers();
+    }
+
+    /**
+     * Focus (fly to) a specific spawn point from the search popup.
+     */
+    function handleFocusSpawn(stableKey: string): void {
+        const marker = findMarkerByStableKey(stableKey);
+        if (!marker) return;
+        const position = getSelectionPosition(
+            { type: 'marker', marker },
+            data.zones,
+            data.zoneConfigs,
+            debugStore.overrides,
+            liveState.entities
+        );
+        if (position) {
+            flyTo(deckInstance, position[0], position[1], {
+                zoom: 0,
+                rightPadding: flyPadding.right
+            });
+        }
+    }
+
+    /**
+     * Focus all spawn points — fit bounds around all search highlight positions.
+     * Accepts optional padding override for when the popup is about to open
+     * but flyPadding hasn't updated yet.
+     */
+    function handleFocusAll(rightPaddingOverride?: number): void {
+        if (searchHighlightPositions.length === 0) return;
+
+        const positions = searchHighlightPositions.map((p) => p.position);
+        let minX = Infinity,
+            minY = Infinity,
+            maxX = -Infinity,
+            maxY = -Infinity;
+        for (const [x, y] of positions) {
+            minX = Math.min(minX, x);
+            minY = Math.min(minY, y);
+            maxX = Math.max(maxX, x);
+            maxY = Math.max(maxY, y);
+        }
+        flyToBounds(
+            deckInstance,
+            { minX, minY, maxX, maxY },
+            {
+                leftPadding: flyPadding.left,
+                rightPadding: rightPaddingOverride ?? flyPadding.right
+            }
+        );
+    }
+
     // Focus on selection (fly to position or bounds)
     function focusSelection(sel: Selection): void {
         if (!sel) return;
 
         if (sel.type === 'zone') {
-            // Fly to zone bounds
-            flyToBounds(deckInstance, sel.zone.bounds);
+            flyToBounds(deckInstance, sel.zone.bounds, {
+                leftPadding: flyPadding.left,
+                rightPadding: flyPadding.right
+            });
+        } else if (sel.type === 'search') {
+            handleFocusAll();
         } else {
-            // Fly to position for markers and live entities
             const position = getSelectionPosition(
                 sel,
                 data.zones,
@@ -209,9 +337,68 @@
                 liveState.entities
             );
             if (position) {
-                flyTo(deckInstance, position[0], position[1], { zoom: 0 });
+                flyTo(deckInstance, position[0], position[1], {
+                    zoom: 0,
+                    rightPadding: flyPadding.right
+                });
             }
         }
+    }
+
+    /**
+     * Compute the initial view for a URL-restored selection.
+     * Returns null if there's no selection or no valid position,
+     * in which case the caller should fall back to the world overview.
+     */
+    function computeInitialSelectionView(
+        viewportWidth: number,
+        viewportHeight: number,
+        sidebarWidth: number
+    ): ComputedView | null {
+        if (!selection) return null;
+
+        if (selection.type === 'search' && searchHighlightPositions.length > 0) {
+            const positions = searchHighlightPositions.map((p) => p.position);
+            let minX = Infinity,
+                minY = Infinity,
+                maxX = -Infinity,
+                maxY = -Infinity;
+            for (const [x, y] of positions) {
+                minX = Math.min(minX, x);
+                minY = Math.min(minY, y);
+                maxX = Math.max(maxX, x);
+                maxY = Math.max(maxY, y);
+            }
+            return computeBoundsView({ minX, minY, maxX, maxY }, viewportWidth, viewportHeight, {
+                leftPadding: sidebarWidth,
+                rightPadding: POPUP_WIDTH
+            });
+        }
+
+        if (selection.type === 'zone') {
+            return computeBoundsView(selection.zone.bounds, viewportWidth, viewportHeight, {
+                leftPadding: sidebarWidth,
+                rightPadding: POPUP_WIDTH
+            });
+        }
+
+        if (selection.type === 'marker') {
+            const position = getSelectionPosition(
+                selection,
+                data.zones,
+                data.zoneConfigs,
+                debugStore.overrides,
+                liveState.entities
+            );
+            if (position) {
+                return computePointView(position[0], position[1], {
+                    zoom: 0,
+                    rightPadding: POPUP_WIDTH
+                });
+            }
+        }
+
+        return null;
     }
 
     // Load sidebar state from localStorage
@@ -307,16 +494,26 @@
         }
     });
 
-    // Update deck.gl view padding when sidebar is toggled
+    // Popup sidebar width (matches PopupContainer w-80 = 320px)
+    const POPUP_WIDTH = 320;
+
+    // Padding for flyTo/flyToBounds — accounts for obscured areas
+    const flyPadding = $derived({
+        left: sidebarCollapsed ? SIDEBAR_WIDTH.collapsed : SIDEBAR_WIDTH.expanded,
+        right: selection !== null ? POPUP_WIDTH : 0
+    });
+
+    // Update deck.gl view padding when sidebar toggles
     $effect(() => {
         // IMPORTANT: Access sidebarCollapsed outside the guard to ensure Svelte 5
-        // tracks it as a dependency. If accessed only inside a conditional that's
-        // false on first run, the dependency won't be established.
+        // tracks it as a dependency.
         const collapsed = sidebarCollapsed;
 
         if (!deckInstance || !deckModules) return;
 
-        // Update view padding to account for sidebar width
+        // Only left sidebar uses persistent view padding (always visible).
+        // Right popup is just an overlay — flyTo/flyToBounds account for it
+        // per-operation to avoid shifting the viewport center on open/close.
         deckInstance.setProps({
             views: new deckModules.OrthographicView({
                 padding: {
@@ -380,14 +577,27 @@
 
     // Keyboard shortcuts
     function handleKeydown(event: KeyboardEvent) {
-        // Ignore if typing in an input
-        if (event.target instanceof HTMLInputElement || event.target instanceof HTMLSelectElement) {
+        // Ctrl/Cmd+K opens search (always, even in inputs)
+        if (event.key === 'k' && (event.metaKey || event.ctrlKey)) {
+            event.preventDefault();
+            searchOpen = true;
             return;
         }
 
-        // ESC closes popup
-        if (event.key === 'Escape' && selection) {
-            closeSelection();
+        // ESC closes search first, then popup
+        if (event.key === 'Escape') {
+            if (searchOpen) {
+                searchOpen = false;
+                return;
+            }
+            if (selection) {
+                closeSelection();
+                return;
+            }
+        }
+
+        // Ignore if typing in an input
+        if (event.target instanceof HTMLInputElement || event.target instanceof HTMLSelectElement) {
             return;
         }
 
@@ -476,29 +686,19 @@
                     });
                 }
 
-                // Restore selection (marker or zone)
-                if (urlState.marker) {
-                    const marker = findMarkerByStableKey(urlState.marker);
-                    if (marker) {
-                        applySelection({ type: 'marker', marker }, true);
-                    } else {
-                        console.warn(`Marker not found: ${urlState.marker}`);
-                        applySelection(null, true);
-                    }
-                } else if (urlState.selectedZone) {
-                    const zone = findZoneByKey(urlState.selectedZone);
-                    if (zone) {
-                        applySelection({ type: 'zone', zone }, true);
-                    } else {
-                        console.warn(`Zone not found: ${urlState.selectedZone}`);
-                        applySelection(null, true);
-                    }
+                // Restore selection from unified `sel` param
+                if (urlState.sel) {
+                    const restored = deserializeSelection(urlState.sel, {
+                        findMarkerByStableKey,
+                        findZoneByKey,
+                        searchIndex
+                    });
+                    applySelection(restored, true);
                 } else {
                     applySelection(null, true);
                 }
 
-                // Sync deduplication tracking
-                urlManager.setLastSelection(urlState.marker, urlState.selectedZone);
+                urlManager.setLastSel(urlState.sel);
             } else {
                 // No URL state - use defaults
                 isDebugMode = false;
@@ -616,28 +816,6 @@
     // Track whether URL has explicit view state (x, y, z params)
     let hasUrlViewState = false;
 
-    // Calculate zoom level to fit bounds in viewport
-    function calculateFitZoom(
-        bounds: { minX: number; minY: number; maxX: number; maxY: number },
-        viewportWidth: number,
-        viewportHeight: number,
-        padding: number = 50
-    ): number {
-        const boundsWidth = bounds.maxX - bounds.minX;
-        const boundsHeight = bounds.maxY - bounds.minY;
-
-        // Account for padding
-        const availableWidth = viewportWidth - padding * 2;
-        const availableHeight = viewportHeight - padding * 2;
-
-        // Calculate zoom to fit (deck.gl zoom is log2 scale)
-        const zoomX = Math.log2(availableWidth / boundsWidth);
-        const zoomY = Math.log2(availableHeight / boundsHeight);
-
-        // Use the smaller zoom to ensure both dimensions fit
-        return Math.min(zoomX, zoomY);
-    }
-
     // Initialize deck.gl when component mounts
     $effect(() => {
         if (!browser || !container) return;
@@ -670,20 +848,17 @@
                     };
                 }
 
-                // Restore selection from URL (marker or zone)
-                if (urlState.marker) {
-                    const marker = findMarkerByStableKey(urlState.marker);
-                    if (marker) {
-                        applySelection({ type: 'marker', marker }, true);
-                    }
-                } else if (urlState.selectedZone) {
-                    const zone = findZoneByKey(urlState.selectedZone);
-                    if (zone) {
-                        applySelection({ type: 'zone', zone }, true);
-                    }
+                // Restore selection from unified `sel` param
+                if (urlState.sel) {
+                    const restored = deserializeSelection(urlState.sel, {
+                        findMarkerByStableKey,
+                        findZoneByKey,
+                        searchIndex
+                    });
+                    applySelection(restored, true);
                 }
 
-                urlManager.setLastSelection(urlState.marker, urlState.selectedZone);
+                urlManager.setLastSel(urlState.sel);
             }
         } finally {
             urlManager.exitPassiveMode();
@@ -747,35 +922,42 @@
                 initialY = currentViewState.y;
                 initialZoom = currentViewState.zoom;
             } else {
-                // Fit to world map bounds (show full map)
-                // Use backdrop bounds as the authoritative world extent
-                const backdropSettings = debugStore.backdrop;
-                const backdropWidth = BACKDROP_WIDTH * backdropSettings.scale;
-                const backdropHeight = BACKDROP_HEIGHT * backdropSettings.scale;
-
-                const worldBounds = {
-                    minX: backdropSettings.x - backdropWidth / 2,
-                    maxX: backdropSettings.x + backdropWidth / 2,
-                    minY: backdropSettings.y - backdropHeight / 2,
-                    maxY: backdropSettings.y + backdropHeight / 2
-                };
-
-                initialX = backdropSettings.x;
-                initialY = backdropSettings.y;
-                initialZoom = calculateFitZoom(
-                    worldBounds,
+                // No explicit view coordinates — compute initial view from
+                // the restored selection, or fall back to full world map.
+                const sidebarWidth = sidebarCollapsed
+                    ? SIDEBAR_WIDTH.collapsed
+                    : SIDEBAR_WIDTH.expanded;
+                const selectionView = computeInitialSelectionView(
                     container.clientWidth,
                     container.clientHeight,
-                    40 // padding
+                    sidebarWidth
                 );
 
-                // Clamp to allowed zoom range
-                initialZoom = Math.max(
-                    INITIAL_VIEW_STATE.minZoom,
-                    Math.min(INITIAL_VIEW_STATE.maxZoom, initialZoom)
-                );
+                if (selectionView) {
+                    initialX = selectionView.x;
+                    initialY = selectionView.y;
+                    initialZoom = selectionView.zoom;
+                } else {
+                    // No selection — fit to world map bounds
+                    const backdropSettings = debugStore.backdrop;
+                    const backdropWidth = BACKDROP_WIDTH * backdropSettings.scale;
+                    const backdropHeight = BACKDROP_HEIGHT * backdropSettings.scale;
+                    const view = computeBoundsView(
+                        {
+                            minX: backdropSettings.x - backdropWidth / 2,
+                            maxX: backdropSettings.x + backdropWidth / 2,
+                            minY: backdropSettings.y - backdropHeight / 2,
+                            maxY: backdropSettings.y + backdropHeight / 2
+                        },
+                        container.clientWidth,
+                        container.clientHeight,
+                        { leftPadding: sidebarWidth }
+                    );
+                    initialX = view.x;
+                    initialY = view.y;
+                    initialZoom = view.zoom;
+                }
 
-                // Update current view state to match
                 currentViewState = { x: initialX, y: initialY, zoom: initialZoom };
             }
 
@@ -1576,6 +1758,59 @@
             });
         }
 
+        // === SEARCH HIGHLIGHT LAYERS ===
+
+        // All spawn positions for a search result (amber rings)
+        const searchHighlightAllLayer =
+            searchHighlightPositions.length > 0
+                ? new ScatterplotLayer({
+                      id: 'search-highlight-all',
+                      data: searchHighlightPositions,
+                      getPosition: (d: { position: [number, number] }) => d.position,
+                      getFillColor: HIGHLIGHT_COLORS.fill,
+                      getLineColor: HIGHLIGHT_COLORS.ring,
+                      getRadius: highlightSize.base,
+                      radiusUnits: 'pixels',
+                      radiusMinPixels: highlightSize.min,
+                      radiusMaxPixels: highlightSize.max,
+                      stroked: true,
+                      lineWidthUnits: 'pixels',
+                      lineWidthMinPixels: 2,
+                      lineWidthMaxPixels: 3,
+                      pickable: false,
+                      updateTriggers: {
+                          getPosition: [searchHighlightPositions]
+                      }
+                  })
+                : null;
+
+        // Single hovered spawn point (brighter ring)
+        const hoveredHighlightData = hoveredSpawnKey
+            ? searchHighlightPositions.filter((p) => p.stableKey === hoveredSpawnKey)
+            : [];
+        const searchHighlightHoverLayer =
+            hoveredHighlightData.length > 0
+                ? new ScatterplotLayer({
+                      id: 'search-highlight-hover',
+                      data: hoveredHighlightData,
+                      getPosition: (d: { position: [number, number] }) => d.position,
+                      getFillColor: HIGHLIGHT_COLORS.primaryFill,
+                      getLineColor: HIGHLIGHT_COLORS.primaryRing,
+                      getRadius: highlightSize.base,
+                      radiusUnits: 'pixels',
+                      radiusMinPixels: highlightSize.min,
+                      radiusMaxPixels: highlightSize.max,
+                      stroked: true,
+                      lineWidthUnits: 'pixels',
+                      lineWidthMinPixels: 3,
+                      lineWidthMaxPixels: 4,
+                      pickable: false,
+                      updateTriggers: {
+                          getPosition: [hoveredSpawnKey, searchHighlightPositions]
+                      }
+                  })
+                : null;
+
         // === LAYER ORDER (filtered by visibility) ===
         const vis = layerVisibility;
         return [
@@ -1625,6 +1860,9 @@
             patrolSpawnLineLayer,
             patrolPathLayer,
             patrolWaypointsLayer,
+            // Search highlights (above movement, below single-point selection)
+            searchHighlightAllLayer,
+            searchHighlightHoverLayer,
             // Selection highlights (on top of everything)
             zoneSelectionLayer,
             pointSelectionLayer
@@ -1655,6 +1893,7 @@
         onLiveModeChange={handleLiveModeChange}
         {autoFollowEnabled}
         onAutoFollowChange={handleAutoFollowChange}
+        onSearchOpen={() => (searchOpen = true)}
     />
 
     <!-- Map container -->
@@ -1695,17 +1934,29 @@
         />
     {/if}
 
-    <!-- Popup (selected marker, live entity, or zone) -->
+    <!-- Popup (selected marker, live entity, zone, or search result) -->
     {#if selection}
         {@const zoneKey = getSelectionZone(selection)}
         {@const zoneName = zoneKey ? getZoneName(zoneKey) : 'Unknown'}
         <MapPopup
             {selection}
             {zoneName}
+            {searchIndex}
             onClose={closeSelection}
             onFocus={() => focusSelection(selection)}
+            onHoverSpawn={handleHoverSpawn}
+            onFocusSpawn={handleFocusSpawn}
+            onFocusAll={handleFocusAll}
         />
     {/if}
+
+    <!-- Search command palette -->
+    <MapSearch
+        bind:open={searchOpen}
+        index={searchIndex.entries}
+        onselect={handleSearchSelect}
+        onclose={() => {}}
+    />
 
     <!-- Debug mode panel -->
     {#if debugStore.enabled}

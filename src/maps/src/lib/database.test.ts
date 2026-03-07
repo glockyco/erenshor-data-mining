@@ -20,13 +20,6 @@ describe('Repository', () => {
         expect(markers.length).toBeGreaterThan(0);
         expect(markers[0].category).toBe('achievement-trigger');
     });
-    it('gets character markers (npcs and enemies)', async () => {
-        const zone = 'Azure';
-        const markers = await db.getCharacterMarkers(zone);
-        expect(Array.isArray(markers)).toBe(true);
-        expect(markers.length).toBeGreaterThan(0);
-        expect(['npc', 'enemy']).toContain(markers[0].category);
-    });
     it('gets door markers', async () => {
         const zone = 'Tutorial';
         const markers = await db.getDoorMarkers(zone);
