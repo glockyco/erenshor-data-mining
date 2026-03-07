@@ -117,6 +117,7 @@
 
     // Search state
     let searchOpen = $state(false);
+    let searchInitialQuery = $state('');
     let searchHighlightPositions = $state<{ position: [number, number]; stableKey: string }[]>([]);
     let hoveredSpawnKey = $state<string | null>(null);
 
@@ -272,6 +273,16 @@
     }
 
     /**
+     * Close the popup and open search with a pre-filled query.
+     * Used by the "not found" popup to let users search for alternatives.
+     */
+    function handleSearchAlternative(query: string): void {
+        closeSelection();
+        searchInitialQuery = query;
+        searchOpen = true;
+    }
+
+    /**
      * Hover a specific spawn point in the search popup.
      */
     function handleHoverSpawn(stableKey: string | null): void {
@@ -368,6 +379,9 @@
         sidebarWidth: number
     ): ComputedView | null {
         if (!selection) return null;
+
+        // Not-found selections have no position to fly to
+        if (selection.type === 'search-not-found') return null;
 
         if (selection.type === 'search' && searchHighlightPositions.length > 0) {
             const positions = searchHighlightPositions.map((p) => p.position);
@@ -1979,6 +1993,7 @@
                 onHoverSpawn={handleHoverSpawn}
                 onFocusSpawn={handleFocusSpawn}
                 onFocusAll={handleFocusAll}
+                onSearchAlternative={handleSearchAlternative}
             />
         {:else}
             <Drawer.Root bind:open={mobilePopupOpen} shouldScaleBackground={false}>
@@ -2003,6 +2018,10 @@
                             onHoverSpawn={handleHoverSpawn}
                             onFocusSpawn={handleFocusSpawn}
                             onFocusAll={handleFocusAll}
+                            onSearchAlternative={(query) => {
+                                mobilePopupOpen = false;
+                                handleSearchAlternative(query);
+                            }}
                         />
                     </div>
                 </Drawer.Content>
@@ -2028,6 +2047,7 @@
     <MapSearch
         bind:open={searchOpen}
         {isDesktop}
+        bind:initialQuery={searchInitialQuery}
         index={searchIndex.entries}
         onselect={handleSearchSelect}
         onclose={() => {}}

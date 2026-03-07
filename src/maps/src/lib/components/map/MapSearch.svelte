@@ -9,12 +9,20 @@
     interface Props {
         open: boolean;
         isDesktop: boolean;
+        initialQuery?: string;
         index: IndexEntry[];
         onselect: (result: SearchResult) => void;
         onclose: () => void;
     }
 
-    let { open = $bindable(), isDesktop, index, onselect, onclose }: Props = $props();
+    let {
+        open = $bindable(),
+        isDesktop,
+        initialQuery = $bindable(''),
+        index,
+        onselect,
+        onclose
+    }: Props = $props();
 
     let query = $state('');
     let results = $state<SearchResult[]>([]);
@@ -36,9 +44,14 @@
         }
     });
 
-    // Reset when dialog closes
+    // Seed query from initialQuery when opening, reset when closing
     $effect(() => {
-        if (!open) {
+        if (open) {
+            if (initialQuery) {
+                query = initialQuery;
+                initialQuery = '';
+            }
+        } else {
             query = '';
             results = [];
         }

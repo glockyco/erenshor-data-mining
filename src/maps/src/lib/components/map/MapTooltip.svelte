@@ -40,7 +40,7 @@
     // Get border color based on selection type
     function getBorderColorClass(): string {
         if (!selection) return 'border-l-gray-500';
-        if (selection.type === 'live' || selection.type === 'zone' || selection.type === 'search') {
+        if (selection.type !== 'marker') {
             return getSelectionBorderColor(selection);
         }
         const marker = selection.marker;
@@ -251,6 +251,10 @@
         }
 
         if (selection.type === 'search') {
+            return { name: '', detail: '' };
+        }
+
+        if (selection.type === 'search-not-found') {
             return { name: '', detail: '' };
         }
 

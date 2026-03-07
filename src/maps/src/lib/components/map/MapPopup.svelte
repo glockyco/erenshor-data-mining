@@ -22,6 +22,7 @@
     import LiveNpcPopupContent from './popups/LiveNpcPopupContent.svelte';
     import SearchEnemyPopup from './popups/SearchEnemyPopup.svelte';
     import SearchNpcPopup from './popups/SearchNpcPopup.svelte';
+    import SearchNotFoundContent from './popups/SearchNotFoundContent.svelte';
 
     interface Props {
         selection: Selection;
@@ -33,6 +34,7 @@
         onHoverSpawn: (stableKey: string | null) => void;
         onFocusSpawn: (stableKey: string) => void;
         onFocusAll: () => void;
+        onSearchAlternative: (query: string) => void;
     }
 
     let {
@@ -44,7 +46,8 @@
         onFocus,
         onHoverSpawn,
         onFocusSpawn,
-        onFocusAll
+        onFocusAll,
+        onSearchAlternative
     }: Props = $props();
 
     // Get display title based on selection type
@@ -57,6 +60,10 @@
 
         if (selection.type === 'zone') {
             return selection.zone.name;
+        }
+
+        if (selection.type === 'search-not-found') {
+            return selection.name;
         }
 
         if (selection.type === 'search') {
@@ -134,6 +141,10 @@
 
         if (selection.type === 'zone') {
             return 'Zone';
+        }
+
+        if (selection.type === 'search-not-found') {
+            return 'Not Found';
         }
 
         if (selection.type === 'search') {
@@ -248,6 +259,22 @@
                 {onFocusAll}
             />
         {/if}
+    </PopupContainer>
+{:else if selection.type === 'search-not-found'}
+    <PopupContainer
+        {title}
+        subtitle={categoryLabel}
+        {borderColorClass}
+        showFocus={false}
+        {mode}
+        {onClose}
+        {onFocus}
+    >
+        <SearchNotFoundContent
+            searchType={selection.searchType}
+            name={selection.name}
+            {onSearchAlternative}
+        />
     </PopupContainer>
 {:else if selection.type === 'live'}
     <PopupContainer {title} subtitle={categoryLabel} {borderColorClass} {mode} {onClose} {onFocus}>

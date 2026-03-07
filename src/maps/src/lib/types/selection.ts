@@ -18,6 +18,7 @@ export type Selection =
     | { type: 'live'; entity: EntityData; zone: string }
     | { type: 'zone'; zone: ZoneWorldPosition }
     | { type: 'search'; result: SearchResult }
+    | { type: 'search-not-found'; searchType: 'enemy' | 'npc' | 'zone'; name: string }
     | null;
 
 // =============================================================================
@@ -67,6 +68,8 @@ export function getSelectionPosition(
         case 'search':
             // Search selections have multiple positions; no single position
             return null;
+        case 'search-not-found':
+            return null;
     }
 }
 
@@ -86,6 +89,8 @@ export function getSelectionZone(selection: Selection): string | null {
         case 'search':
             // Search results span multiple zones
             return null;
+        case 'search-not-found':
+            return null;
     }
 }
 
@@ -104,6 +109,8 @@ export function getSelectionBorderColor(selection: Selection): string {
             return 'border-l-purple-500';
         case 'search':
             return getSearchBorderColor(selection.result);
+        case 'search-not-found':
+            return 'border-l-zinc-500';
     }
 }
 
@@ -193,6 +200,11 @@ export function serializeSelection(selection: Selection): string | null {
             }
             break;
         }
+        case 'search-not-found': {
+            const s = selection;
+            if (s.searchType === 'zone') return `zone:${s.name}`;
+            return `${s.searchType}:${s.name}`;
+        }
         case 'live':
             return null;
     }
@@ -231,16 +243,14 @@ export function deserializeSelection(raw: string, ctx: DeserializeContext): Sele
         case 'zone': {
             const zone = ctx.findZoneByKey(value);
             if (!zone) {
-                console.warn(`Selection restore: zone not found: ${value}`);
-                return null;
+                return { type: 'search-not-found', searchType: 'zone', name: value };
             }
             return { type: 'zone', zone };
         }
         case 'enemy': {
             const markers = ctx.searchIndex.enemyProvider.getMarkers(value);
             if (markers.length === 0) {
-                console.warn(`Selection restore: enemy not found: ${value}`);
-                return null;
+                return { type: 'search-not-found', searchType: 'enemy', name: value };
             }
             const zones = new Set(markers.map((m) => m.zone));
             return {
@@ -258,8 +268,7 @@ export function deserializeSelection(raw: string, ctx: DeserializeContext): Sele
         case 'npc': {
             const markers = ctx.searchIndex.npcProvider.getMarkers(value);
             if (markers.length === 0) {
-                console.warn(`Selection restore: NPC not found: ${value}`);
-                return null;
+                return { type: 'search-not-found', searchType: 'npc', name: value };
             }
             const zones = new Set(markers.map((m) => m.zone));
             return {
