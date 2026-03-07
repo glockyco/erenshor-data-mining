@@ -5,6 +5,21 @@
     "updated_at": "2026-01-30T15:37:29.593783+00:00"
   },
   "rules": {
+    "character:verdant energy": {
+      "wiki_page_name": "Verdant Energy",
+      "display_name": "Verdant Energy",
+      "image_name": "Verdant Energy"
+    },
+    "character:celestial energy:soluna:124.17:103.55:655.93": {
+      "wiki_page_name": "Verdant Energy",
+      "display_name": "Verdant Energy",
+      "image_name": "Verdant Energy"
+    },
+    "character:vithean energy:vitheosend:458.45:14.75:323.47": {
+      "wiki_page_name": "Verdant Energy",
+      "display_name": "Verdant Energy",
+      "image_name": "Verdant Energy"
+    },
     "character:1 - memory of defeat": {
       "wiki_page_name": "A Protected Memory",
       "display_name": "A Protected Memory",
