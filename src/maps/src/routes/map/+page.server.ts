@@ -173,19 +173,15 @@ export async function load() {
                     worldPatrolWaypoints
                 } as WorldNpc);
             } else {
-                // Compute level range from non-invulnerable characters
-                // Invulnerable enemies get -Infinity/Infinity so they always pass the filter
-                const vulnerableChars = marker.characters.filter((c) => !c.isInvulnerable);
-                const levels = vulnerableChars.map((c) => c.level);
-                const allInvulnerable = vulnerableChars.length === 0;
+                const levels = marker.characters.map((c) => c.level);
                 const enemyMarker = {
                     ...marker,
                     zone: zoneKey,
                     zoneName: displayName,
                     worldPosition: worldPos,
                     worldPatrolWaypoints,
-                    levelMin: allInvulnerable ? -Infinity : Math.min(...levels),
-                    levelMax: allInvulnerable ? Infinity : Math.max(...levels)
+                    levelMin: Math.min(...levels),
+                    levelMax: Math.max(...levels)
                 } as WorldEnemy;
                 if (enemyMarker.isUnique) {
                     enemiesUnique.push(enemyMarker);
@@ -460,22 +456,35 @@ export async function load() {
     }
 
     // Compute overall enemy level range for filter bounds
-    // Skip invulnerable enemies (they have -Infinity/Infinity levels)
+    // Compute level range from non-invulnerable characters only, so that
+    // placeholder levels (e.g. level 99 on invulnerable guards) do not
+    // distort the slider bounds.
     let enemyLevelMin = Infinity;
     let enemyLevelMax = -Infinity;
     for (const enemies of [enemiesCommon, enemiesRare, enemiesUnique]) {
         for (const enemy of enemies) {
-            if (isFinite(enemy.levelMin)) {
-                enemyLevelMin = Math.min(enemyLevelMin, enemy.levelMin);
-            }
-            if (isFinite(enemy.levelMax)) {
-                enemyLevelMax = Math.max(enemyLevelMax, enemy.levelMax);
-            }
+            const hasVulnerable = enemy.characters.some((c) => !c.isInvulnerable);
+            if (!hasVulnerable) continue;
+            enemyLevelMin = Math.min(enemyLevelMin, enemy.levelMin);
+            enemyLevelMax = Math.max(enemyLevelMax, enemy.levelMax);
         }
     }
     // Fallback if no vulnerable enemies found
     if (!isFinite(enemyLevelMin)) enemyLevelMin = 1;
     if (!isFinite(enemyLevelMax)) enemyLevelMax = 100;
+
+    // Clamp invulnerable characters' levels to enemyLevelMax for filtering
+    // purposes, so they always pass the DataFilterExtension regardless of
+    // slider position. levelMin/levelMax on WorldEnemy are filter-only;
+    // character.level is the source of truth for display.
+    for (const enemies of [enemiesCommon, enemiesRare, enemiesUnique]) {
+        for (const enemy of enemies) {
+            const allInvulnerable = enemy.characters.every((c) => c.isInvulnerable);
+            if (!allInvulnerable) continue;
+            enemy.levelMin = Math.min(enemy.levelMin, enemyLevelMax);
+            enemy.levelMax = Math.min(enemy.levelMax, enemyLevelMax);
+        }
+    }
 
     // Sort disabled markers first so enabled ones render on top (deck.gl draws in array order)
     const enabledLast = (a: { isEnabled: boolean }, b: { isEnabled: boolean }) =>
