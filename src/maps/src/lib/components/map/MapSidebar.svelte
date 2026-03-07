@@ -106,22 +106,27 @@
             key: 'spawnPointsUnique',
             icon: Skull,
             color: colors.spawnPointsUnique,
-            label: 'Unique Enemies'
+            label: 'Unique Enemy Spawn Points'
         },
         {
             key: 'spawnPointsRare',
             icon: Skull,
             color: colors.spawnPointsRare,
-            label: 'Rare Enemies'
+            label: 'Rare Enemy Spawn Points'
         },
-        { key: 'spawnPoints', icon: Skull, color: colors.spawnPoints, label: 'Common Enemies' }
+        {
+            key: 'spawnPoints',
+            icon: Skull,
+            color: colors.spawnPoints,
+            label: 'Common Enemy Spawn Points'
+        }
     ];
 
     const npcToggle: QuickToggle = {
         key: 'characters',
         icon: User,
         color: colors.characters,
-        label: 'NPCs'
+        label: 'NPC Spawn Points'
     };
 
     const interactableToggles: QuickToggle[] = [
@@ -178,8 +183,8 @@
         </button>
     </div>
 
-    <!-- Enemies -->
-    <SidebarSection title="Enemies">
+    <!-- Enemy Spawn Points -->
+    <SidebarSection title="Enemy Spawn Points">
         <LevelFilter
             label="Level"
             min={levelRange.min}
@@ -207,8 +212,8 @@
         />
     </SidebarSection>
 
-    <!-- NPCs -->
-    <SidebarSection title="NPCs">
+    <!-- NPC Spawn Points -->
+    <SidebarSection title="NPC Spawn Points">
         <LayerToggle
             label="NPCs"
             checked={visibility.characters}
