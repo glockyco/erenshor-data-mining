@@ -30,7 +30,14 @@
         return min === max ? `Level ${min}` : `Level ${min}–${max}`;
     });
 
-    // Group markers by zone, sorted by spawn count descending
+    function getSpawnChance(marker: WorldEnemy): number | null {
+        const char = marker.characters.find((c) => c.name === name);
+        if (!char) return null;
+        return char.spawnChance;
+    }
+
+    // Group markers by zone, sorted by spawn count descending, then by spawn
+    // chance descending within each zone
     const groupedByZone = $derived.by(() => {
         const groups = new SvelteMap<string, WorldEnemy[]>();
         for (const marker of markers) {
@@ -41,7 +48,17 @@
                 groups.set(marker.zone, [marker]);
             }
         }
-        return [...groups.entries()].sort((a, b) => b[1].length - a[1].length);
+        return [...groups.entries()]
+            .sort((a, b) => b[1].length - a[1].length)
+            .map(
+                ([zone, zoneMarkers]) =>
+                    [
+                        zone,
+                        [...zoneMarkers].sort(
+                            (a, b) => (getSpawnChance(b) ?? 0) - (getSpawnChance(a) ?? 0)
+                        )
+                    ] as [string, WorldEnemy[]]
+            );
     });
 
     const zoneCount = $derived(new Set(markers.map((m) => m.zone)).size);
@@ -52,12 +69,6 @@
         if (minutes < 1) return `~${seconds}s`;
         if (minutes === 1) return '~1 min';
         return `~${minutes} min`;
-    }
-
-    function getSpawnChance(marker: WorldEnemy): number | null {
-        const char = marker.characters.find((c) => c.name === name);
-        if (!char) return null;
-        return char.spawnChance;
     }
 
     function formatSpawnChance(chance: number): string {
