@@ -235,14 +235,15 @@
 {#if isDesktop}
     {#if open}
         <!-- Desktop: Backdrop -->
-        <!-- svelte-ignore a11y_no_static_element_interactions a11y_click_events_have_key_events -->
-        <div
+        <button
+            type="button"
             class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
+            aria-label="Close search"
             onclick={() => {
                 open = false;
                 onclose();
             }}
-        ></div>
+        ></button>
 
         <!-- Desktop: Command palette -->
         <div
