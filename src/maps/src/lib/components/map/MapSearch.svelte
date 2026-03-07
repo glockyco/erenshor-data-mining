@@ -122,7 +122,7 @@
                 const target = mutation.target as HTMLElement;
                 if (target.getAttribute('aria-selected') !== 'true') continue;
 
-                const list = node.querySelector('[data-slot="command-list"]');
+                const list = node.querySelector('[data-command-list]');
                 if (list && !isFullyVisible(target, list as HTMLElement)) {
                     target.scrollIntoView({ block: 'nearest' });
                 }
