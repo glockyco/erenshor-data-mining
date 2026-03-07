@@ -45,15 +45,16 @@ export class EnemySearchProvider implements SearchProvider {
 
         for (const [name, markers] of this.enemyByName) {
             const zones = new Set(markers.map((m) => m.zone));
-            // Derive effective rarity from character-level flags. A character
-            // with any common spawn is always shown as common regardless of
-            // whether it also appears at rare/unique spawn points.
+            // Each SpawnCharacter already carries the globally-correct
+            // effectiveRarity (derived from Characters.IsRare/IsCommon/IsUnique,
+            // which are pre-computed global aggregates in the DB). Simple
+            // precedence: unique > rare > common.
             const chars = markers.flatMap((m) => m.characters.filter((c) => c.name === name));
-            const effectiveRarity = chars.some((c) => c.effectiveRarity === Rarity.common)
-                ? Rarity.common
-                : chars.some((c) => c.effectiveRarity === Rarity.unique)
-                  ? Rarity.unique
-                  : Rarity.rare;
+            const effectiveRarity = chars.some((c) => c.effectiveRarity === Rarity.unique)
+                ? Rarity.unique
+                : chars.some((c) => c.effectiveRarity === Rarity.rare)
+                  ? Rarity.rare
+                  : Rarity.common;
 
             entries.push({
                 searchText: name.toLowerCase(),

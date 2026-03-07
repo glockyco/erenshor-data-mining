@@ -435,9 +435,9 @@ export class RepositoryBase {
 				c.HasDialog,
 				c.Invulnerable,
 				sum(spc.SpawnChance) AS SpawnChance,
-				max(spc.IsCommon) AS IsCommon,
-				max(spc.IsRare) AS IsRare,
-				min(c.IsUnique) AS IsUnique,
+			c.IsCommon,
+			c.IsRare,
+			c.IsUnique,
 				min(c.IsFriendly) AS IsFriendly
 			FROM SpawnPoints sp
 			JOIN SpawnPointCharacters spc ON spc.SpawnPointStableKey = sp.StableKey

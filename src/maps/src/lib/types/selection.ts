@@ -255,11 +255,11 @@ export function deserializeSelection(raw: string, ctx: DeserializeContext): Sele
             }
             const zones = new Set(markers.map((m) => m.zone));
             const chars = markers.flatMap((m) => m.characters.filter((c) => c.name === value));
-            const effectiveRarity = chars.some((c) => c.effectiveRarity === Rarity.common)
-                ? Rarity.common
-                : chars.some((c) => c.effectiveRarity === Rarity.unique)
-                  ? Rarity.unique
-                  : Rarity.rare;
+            const effectiveRarity = chars.some((c) => c.effectiveRarity === Rarity.unique)
+                ? Rarity.unique
+                : chars.some((c) => c.effectiveRarity === Rarity.rare)
+                  ? Rarity.rare
+                  : Rarity.common;
             return {
                 type: 'search',
                 result: {

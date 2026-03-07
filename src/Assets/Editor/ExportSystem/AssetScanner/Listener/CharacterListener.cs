@@ -143,6 +143,12 @@ public class CharacterListener : IAssetScanListener<Character>
                 FROM Characters c
                 JOIN SpawnPointCharacters spc ON spc.CharacterStableKey = c.StableKey
                 WHERE spc.IsRare AND spc.SpawnChance > 0
+                  AND NOT EXISTS (
+                      SELECT 1 FROM SpawnPointCharacters spc2
+                      WHERE spc2.CharacterStableKey = c.StableKey
+                        AND spc2.IsCommon = 1
+                        AND spc2.SpawnChance > 0
+                  )
             );
         ");
 
