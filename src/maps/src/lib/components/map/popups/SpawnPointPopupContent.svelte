@@ -1,6 +1,7 @@
 <script lang="ts">
     import { SvelteMap } from 'svelte/reactivity';
     import type { WorldEnemy, WorldNpc, SpawnCharacter } from '$lib/types/world-map';
+    import { Rarity } from '$lib/map-markers';
     import type { CharacterDrop, VendorItem } from '$lib/map-markers';
     import { Repository } from '$lib/database.default';
     import WikiLink from '$lib/components/map/WikiLink.svelte';
@@ -79,25 +80,21 @@
 
     // Get rarity badge color
     function getRarityClass(char: SpawnCharacter): string {
-        if (char.isUnique) return 'bg-zinc-700 text-zinc-200';
-        if (char.isRare) return 'bg-red-900/50 text-red-300';
+        if (char.effectiveRarity === Rarity.unique) return 'bg-zinc-700 text-zinc-200';
+        if (char.effectiveRarity === Rarity.rare) return 'bg-red-900/50 text-red-300';
         return 'bg-blue-900/50 text-blue-300';
     }
 
     // Get rarity label
     function getRarityLabel(char: SpawnCharacter): string {
-        if (char.isUnique) return 'Unique';
-        if (char.isRare) return 'Rare';
+        if (char.effectiveRarity === Rarity.unique) return 'Unique';
+        if (char.effectiveRarity === Rarity.rare) return 'Rare';
         return 'Common';
     }
 
     // Sort characters by rarity (unique > rare > common)
     const sortedCharacters = $derived(
-        [...marker.characters].sort((a, b) => {
-            if (a.isUnique !== b.isUnique) return a.isUnique ? -1 : 1;
-            if (a.isRare !== b.isRare) return a.isRare ? -1 : 1;
-            return 0;
-        })
+        [...marker.characters].sort((a, b) => a.effectiveRarity - b.effectiveRarity)
     );
 </script>
 

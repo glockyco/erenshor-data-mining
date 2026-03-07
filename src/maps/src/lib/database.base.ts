@@ -1,5 +1,6 @@
 import type { Database, SqlJsStatic } from 'sql.js/dist/sql-wasm.js';
 
+import { Rarity } from './map-markers';
 import type {
     AchievementTriggerMarker,
     CharacterDrop,
@@ -496,6 +497,11 @@ export class RepositoryBase {
                 isCommon: !!row.IsCommon,
                 isRare: !!row.IsRare,
                 isUnique: !!row.IsUnique,
+                effectiveRarity: row.IsUnique
+                    ? Rarity.unique
+                    : !!row.IsRare && !row.IsCommon
+                      ? Rarity.rare
+                      : Rarity.common,
                 isFriendly: !!row.IsFriendly,
                 isInvulnerable: !!row.Invulnerable,
                 isVendor: !!row.IsVendor,

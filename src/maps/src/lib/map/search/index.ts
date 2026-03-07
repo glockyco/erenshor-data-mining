@@ -128,9 +128,7 @@ function sortCategories(byCategory: Map<string, SearchResult[]>): void {
             results.sort((a, b) => {
                 const ae = a as EnemySearchResult;
                 const be = b as EnemySearchResult;
-                const rarityA = ae.isUnique ? 0 : ae.isRare ? 1 : 2;
-                const rarityB = be.isUnique ? 0 : be.isRare ? 1 : 2;
-                return rarityA - rarityB || ae.name.localeCompare(be.name);
+                return ae.effectiveRarity - be.effectiveRarity || ae.name.localeCompare(be.name);
             });
         } else {
             results.sort((a, b) => {

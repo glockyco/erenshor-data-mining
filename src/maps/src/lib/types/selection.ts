@@ -1,3 +1,4 @@
+import { Rarity } from '$lib/map-markers';
 import type { AnyWorldMarker, ZoneWorldPosition, ZoneConfig } from './world-map';
 import type { EntityData } from '$lib/map/live/types';
 import type { SearchResult } from '$lib/map/search';
@@ -117,8 +118,8 @@ export function getSelectionBorderColor(selection: Selection): string {
 function getSearchBorderColor(result: SearchResult): string {
     switch (result.type) {
         case 'enemy':
-            if (result.isUnique) return 'border-l-violet-700';
-            if (result.isRare) return 'border-l-rose-600';
+            if (result.effectiveRarity === Rarity.unique) return 'border-l-violet-700';
+            if (result.effectiveRarity === Rarity.rare) return 'border-l-rose-600';
             return 'border-l-amber-600';
         case 'npc':
             return 'border-l-sky-500';
@@ -131,8 +132,8 @@ function getMarkerBorderColor(marker: AnyWorldMarker): string {
     if (marker.category === 'enemy') {
         const chars = marker.characters;
         if (chars.length === 0) return 'border-l-gray-500';
-        const hasUnique = chars.some((c) => c.isUnique);
-        const hasRare = chars.some((c) => c.isRare);
+        const hasUnique = chars.some((c) => c.effectiveRarity === Rarity.unique);
+        const hasRare = chars.some((c) => c.effectiveRarity === Rarity.rare);
         if (hasUnique) return 'border-l-violet-700';
         if (hasRare) return 'border-l-rose-600';
         return 'border-l-amber-600';
@@ -253,13 +254,18 @@ export function deserializeSelection(raw: string, ctx: DeserializeContext): Sele
                 return { type: 'search-not-found', searchType: 'enemy', name: value };
             }
             const zones = new Set(markers.map((m) => m.zone));
+            const chars = markers.flatMap((m) => m.characters.filter((c) => c.name === value));
+            const effectiveRarity = chars.some((c) => c.effectiveRarity === Rarity.common)
+                ? Rarity.common
+                : chars.some((c) => c.effectiveRarity === Rarity.unique)
+                  ? Rarity.unique
+                  : Rarity.rare;
             return {
                 type: 'search',
                 result: {
                     type: 'enemy',
                     name: value,
-                    isRare: markers.some((m) => m.isRare),
-                    isUnique: markers.some((m) => m.isUnique),
+                    effectiveRarity,
                     spawnCount: markers.length,
                     zoneCount: zones.size
                 }

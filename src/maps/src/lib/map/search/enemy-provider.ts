@@ -5,14 +5,9 @@
  * represents ALL spawn points across all zones where that character can appear.
  */
 
+import { Rarity } from '$lib/map-markers';
 import type { WorldEnemy } from '$lib/types/world-map';
-import type {
-    SearchProvider,
-    IndexEntry,
-    ResolvedHighlight,
-    SearchResult,
-    EnemySearchResult
-} from './types';
+import type { SearchProvider, IndexEntry, ResolvedHighlight, SearchResult } from './types';
 
 export class EnemySearchProvider implements SearchProvider {
     readonly categoryLabel = 'Enemies';
@@ -50,16 +45,22 @@ export class EnemySearchProvider implements SearchProvider {
 
         for (const [name, markers] of this.enemyByName) {
             const zones = new Set(markers.map((m) => m.zone));
-            const hasRare = markers.some((m) => m.isRare);
-            const hasUnique = markers.some((m) => m.isUnique);
+            // Derive effective rarity from character-level flags. A character
+            // with any common spawn is always shown as common regardless of
+            // whether it also appears at rare/unique spawn points.
+            const chars = markers.flatMap((m) => m.characters.filter((c) => c.name === name));
+            const effectiveRarity = chars.some((c) => c.effectiveRarity === Rarity.common)
+                ? Rarity.common
+                : chars.some((c) => c.effectiveRarity === Rarity.unique)
+                  ? Rarity.unique
+                  : Rarity.rare;
 
             entries.push({
                 searchText: name.toLowerCase(),
                 result: {
                     type: 'enemy',
                     name,
-                    isRare: hasRare,
-                    isUnique: hasUnique,
+                    effectiveRarity,
                     spawnCount: markers.length,
                     zoneCount: zones.size
                 }
@@ -72,7 +73,7 @@ export class EnemySearchProvider implements SearchProvider {
     resolveHighlight(result: SearchResult): ResolvedHighlight {
         if (result.type !== 'enemy') return { type: 'none' };
 
-        const markers = this.enemyByName.get((result as EnemySearchResult).name);
+        const markers = this.enemyByName.get(result.name);
         if (!markers || markers.length === 0) return { type: 'none' };
 
         return {

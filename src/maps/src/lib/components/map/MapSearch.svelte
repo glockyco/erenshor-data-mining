@@ -1,6 +1,7 @@
 <script lang="ts">
     import { Command } from 'bits-ui';
     import { searchMarkers, type SearchResult, type IndexEntry } from '$lib/map/search';
+    import { Rarity } from '$lib/map-markers';
     import * as Drawer from '$lib/components/ui/drawer';
     import Skull from '@lucide/svelte/icons/skull';
     import User from '@lucide/svelte/icons/user';
@@ -94,8 +95,8 @@
         switch (result.type) {
             case 'enemy': {
                 const parts: string[] = [];
-                if (result.isUnique) parts.push('Unique');
-                else if (result.isRare) parts.push('Rare');
+                if (result.effectiveRarity === Rarity.unique) parts.push('Unique');
+                else if (result.effectiveRarity === Rarity.rare) parts.push('Rare');
                 parts.push(`${result.spawnCount} spawn${result.spawnCount !== 1 ? 's' : ''}`);
                 parts.push(`${result.zoneCount} zone${result.zoneCount !== 1 ? 's' : ''}`);
                 return parts.join(' · ');

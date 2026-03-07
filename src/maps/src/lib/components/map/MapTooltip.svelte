@@ -13,6 +13,7 @@
     import type { EntityData } from '$lib/map/live/types';
     import { getSelectionBorderColor } from '$lib/types/selection';
     import { calculateTooltipPosition } from '$lib/utils/tooltip';
+    import { Rarity } from '$lib/map-markers';
 
     interface Props {
         selection: Selection;
@@ -98,14 +99,15 @@
         }
 
         // Sort by rarity: unique > rare > common
-        const sorted = [...chars].sort((a, b) => {
-            if (a.isUnique !== b.isUnique) return a.isUnique ? -1 : 1;
-            if (a.isRare !== b.isRare) return a.isRare ? -1 : 1;
-            return 0;
-        });
+        const sorted = [...chars].sort((a, b) => a.effectiveRarity - b.effectiveRarity);
 
         const rarest = sorted[0];
-        const rarestRarity = rarest.isUnique ? 'Unique' : rarest.isRare ? 'Rare' : '';
+        const rarestRarity =
+            rarest.effectiveRarity === Rarity.unique
+                ? 'Unique'
+                : rarest.effectiveRarity === Rarity.rare
+                  ? 'Rare'
+                  : '';
         const respawn = formatRespawnTime(m.spawnDelay);
         const night = m.isNightSpawn ? '🌙 23:00-7:00' : '';
         const warning = !m.isEnabled ? '(Initially) Disabled' : undefined;

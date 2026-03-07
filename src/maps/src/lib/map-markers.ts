@@ -1,3 +1,17 @@
+/**
+ * Ordered rarity tiers. Lower value = rarer.
+ * Sort ascending to get rarest-first order.
+ * Use named constants (Rarity.unique, Rarity.rare, Rarity.common) for
+ * comparisons rather than raw numbers.
+ */
+export const Rarity = {
+    unique: 0,
+    rare: 1,
+    common: 2
+} as const;
+
+export type Rarity = (typeof Rarity)[keyof typeof Rarity];
+
 export type BaseMarker = {
     stableKey: string;
     position: { x: number; y: number };
@@ -13,6 +27,13 @@ export type SpawnCharacter = {
     isCommon: boolean;
     isRare: boolean;
     isUnique: boolean;
+    /**
+     * Effective rarity derived from isCommon/isRare/isUnique.
+     * A character is rare only when isRare && !isCommon — isCommon wins over
+     * isRare when both are set. Use this instead of reading the raw flags
+     * directly so that the rule is applied consistently everywhere.
+     */
+    effectiveRarity: Rarity;
     isFriendly: boolean;
     isInvulnerable: boolean;
     isVendor: boolean;

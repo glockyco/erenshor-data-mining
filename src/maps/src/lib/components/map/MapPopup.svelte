@@ -23,6 +23,7 @@
     import SearchEnemyPopup from './popups/SearchEnemyPopup.svelte';
     import SearchNpcPopup from './popups/SearchNpcPopup.svelte';
     import SearchNotFoundContent from './popups/SearchNotFoundContent.svelte';
+    import { Rarity } from '$lib/map-markers';
 
     interface Props {
         selection: Selection;
@@ -152,8 +153,8 @@
             switch (r.type) {
                 case 'enemy': {
                     const parts: string[] = ['Enemy'];
-                    if (r.isUnique) parts.push('Unique');
-                    else if (r.isRare) parts.push('Rare');
+                    if (r.effectiveRarity === Rarity.unique) parts.push('Unique');
+                    else if (r.effectiveRarity === Rarity.rare) parts.push('Rare');
                     parts.push(`${r.spawnCount} spawn${r.spawnCount !== 1 ? 's' : ''}`);
                     parts.push(`${r.zoneCount} zone${r.zoneCount !== 1 ? 's' : ''}`);
                     return parts.join(' \u2022 ');
@@ -175,9 +176,13 @@
             case 'enemy':
             case 'npc': {
                 const m = marker as WorldEnemy | WorldNpc;
-                const uniques = m.characters.filter((c) => c.isUnique).length;
-                const rares = m.characters.filter((c) => c.isRare && !c.isUnique).length;
-                const commons = m.characters.filter((c) => !c.isRare && !c.isUnique).length;
+                const uniques = m.characters.filter(
+                    (c) => c.effectiveRarity === Rarity.unique
+                ).length;
+                const rares = m.characters.filter((c) => c.effectiveRarity === Rarity.rare).length;
+                const commons = m.characters.filter(
+                    (c) => c.effectiveRarity === Rarity.common
+                ).length;
                 const parts: string[] = [];
                 if (uniques > 0) parts.push(`${uniques} unique`);
                 if (rares > 0) parts.push(`${rares} rare`);
