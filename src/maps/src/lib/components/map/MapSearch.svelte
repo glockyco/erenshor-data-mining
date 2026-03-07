@@ -2,17 +2,28 @@
     import { Command } from 'bits-ui';
     import { searchMarkers, type SearchResult, type IndexEntry } from '$lib/map/search';
     import { Rarity } from '$lib/map-markers';
+    import type { EntityData } from '$lib/map/live/types';
     import * as Drawer from '$lib/components/ui/drawer';
     import Skull from '@lucide/svelte/icons/skull';
     import User from '@lucide/svelte/icons/user';
     import MapIcon from '@lucide/svelte/icons/map';
+    import Radio from '@lucide/svelte/icons/radio';
+
+    // Live-only result type, separate from the static SearchResult union
+    type LiveSearchResult = { kind: 'live'; entity: EntityData; zone: string };
+
+    // Combined item for the rendered list
+    type AnyResult = { kind: 'static'; result: SearchResult } | LiveSearchResult;
 
     interface Props {
         open: boolean;
         isDesktop: boolean;
         initialQuery?: string;
         index: IndexEntry[];
+        liveEntities: EntityData[];
+        liveZone: string | null;
         onselect: (result: SearchResult) => void;
+        onliveselect: (entity: EntityData, zone: string) => void;
         onclose: () => void;
     }
 
@@ -21,12 +32,16 @@
         isDesktop,
         initialQuery = $bindable(''),
         index,
+        liveEntities,
+        liveZone,
         onselect,
+        onliveselect,
         onclose
     }: Props = $props();
 
     let query = $state('');
-    let results = $state<SearchResult[]>([]);
+    let staticResults = $state<SearchResult[]>([]);
+    let liveResults = $state<LiveSearchResult[]>([]);
     let loading = $state(false);
 
     // Debounced search
@@ -36,11 +51,13 @@
         if (query.length >= 2) {
             loading = true;
             searchTimeout = setTimeout(() => {
-                results = searchMarkers(query, index);
+                staticResults = searchMarkers(query, index);
+                liveResults = searchLiveEntities(query);
                 loading = false;
             }, 150);
         } else {
-            results = [];
+            staticResults = [];
+            liveResults = [];
             loading = false;
         }
     });
@@ -54,44 +71,65 @@
             }
         } else {
             query = '';
-            results = [];
+            staticResults = [];
+            liveResults = [];
         }
     });
 
-    function handleSelect(result: SearchResult) {
-        onselect(result);
+    /**
+     * Search live entities by name. Prefix matches first, then substring.
+     * Capped at 5 results — live entities are transient and highly contextual.
+     */
+    function searchLiveEntities(q: string): LiveSearchResult[] {
+        if (!liveZone || liveEntities.length === 0) return [];
+        const lower = q.toLowerCase().trim();
+        const zone = liveZone;
+        const prefix: LiveSearchResult[] = [];
+        const substring: LiveSearchResult[] = [];
+        for (const entity of liveEntities) {
+            const nameLower = entity.name.toLowerCase();
+            if (nameLower.startsWith(lower)) {
+                prefix.push({ kind: 'live', entity, zone });
+            } else if (nameLower.includes(lower)) {
+                substring.push({ kind: 'live', entity, zone });
+            }
+        }
+        return [...prefix, ...substring].slice(0, 5);
+    }
+
+    function handleSelect(item: AnyResult) {
+        if (item.kind === 'live') {
+            onliveselect(item.entity, item.zone);
+        } else {
+            onselect(item.result);
+        }
         open = false;
     }
 
-    // Category display config
+    // Category display config for static results
     const categoryLabels: Record<SearchResult['type'], string> = {
-        enemy: 'Enemies',
-        npc: 'NPCs',
+        enemy: 'Enemy Spawn Points',
+        npc: 'NPC Spawn Points',
         zone: 'Zones'
     };
 
-    const categoryOrder: SearchResult['type'][] = ['enemy', 'npc', 'zone'];
+    const staticCategoryOrder: SearchResult['type'][] = ['enemy', 'npc', 'zone'];
 
-    function groupByCategory(items: SearchResult[]): [SearchResult['type'], SearchResult[]][] {
+    function groupStaticByCategory(
+        items: SearchResult[]
+    ): [SearchResult['type'], SearchResult[]][] {
         const groups: Partial<Record<SearchResult['type'], SearchResult[]>> = {};
         for (const item of items) {
             (groups[item.type] ??= []).push(item);
         }
-        return categoryOrder.filter((cat) => groups[cat]).map((cat) => [cat, groups[cat]!]);
+        return staticCategoryOrder.filter((cat) => groups[cat]).map((cat) => [cat, groups[cat]!]);
     }
 
-    function getResultLabel(result: SearchResult): string {
-        switch (result.type) {
-            case 'enemy':
-                return result.name;
-            case 'npc':
-                return result.name;
-            case 'zone':
-                return result.name;
-        }
+    function getStaticResultLabel(result: SearchResult): string {
+        return result.name;
     }
 
-    function getResultSublabel(result: SearchResult): string {
+    function getStaticResultSublabel(result: SearchResult): string {
         switch (result.type) {
             case 'enemy': {
                 const parts: string[] = [];
@@ -113,7 +151,7 @@
         }
     }
 
-    function getResultValue(result: SearchResult): string {
+    function getStaticResultValue(result: SearchResult): string {
         switch (result.type) {
             case 'enemy':
                 return `enemy-${result.name}`;
@@ -122,6 +160,39 @@
             case 'zone':
                 return `zone-${result.key}`;
         }
+    }
+
+    /** Human-readable label for an entity type. */
+    function getLiveEntityTypeLabel(entity: EntityData): string {
+        switch (entity.entityType) {
+            case 'player':
+                return 'Player';
+            case 'simplayer':
+                return 'SimPlayer';
+            case 'pet':
+                return 'Pet';
+            case 'npc_friendly':
+                return 'Friendly NPC';
+            case 'npc_enemy':
+                return 'Enemy';
+        }
+    }
+
+    /** Sub-label for a live entity result. */
+    function getLiveResultSublabel(entity: EntityData): string {
+        const parts: string[] = [getLiveEntityTypeLabel(entity)];
+        if (entity.level != null) parts.push(`Lv ${entity.level}`);
+        // Rarity only meaningful for npc_enemy
+        if (entity.entityType === 'npc_enemy' && entity.rarity) {
+            const rarityLabel =
+                entity.rarity === 'boss' ? 'Boss' : entity.rarity === 'rare' ? 'Rare' : 'Common';
+            parts.push(rarityLabel);
+        }
+        // Class for player / simplayer
+        if (entity.characterClass) parts.push(entity.characterClass);
+        // Owner for pets
+        if (entity.owner) parts.push(`owned by ${entity.owner}`);
+        return parts.join(' · ');
     }
 
     // Scroll fix for bits-ui Command
@@ -153,6 +224,8 @@
 
         return { destroy: () => observer.disconnect() };
     }
+
+    const hasResults = $derived(staticResults.length > 0 || liveResults.length > 0);
 </script>
 
 {#snippet searchContent()}
@@ -187,14 +260,45 @@
                         Type at least 2 characters to search
                     </div>
                 </Command.Empty>
-            {:else if results.length === 0}
+            {:else if !hasResults}
                 <Command.Empty>
                     <div class="py-6 text-center text-sm text-zinc-500">
                         No results found for "{query}"
                     </div>
                 </Command.Empty>
             {:else}
-                {#each groupByCategory(results) as [category, items] (category)}
+                <!-- Live entities first -->
+                {#if liveResults.length > 0}
+                    <Command.Group>
+                        <Command.GroupHeading
+                            class="px-2 py-1.5 text-xs font-semibold text-zinc-500 uppercase tracking-wide"
+                        >
+                            Live Entities
+                        </Command.GroupHeading>
+                        <Command.GroupItems>
+                            {#each liveResults as item (item.entity.id)}
+                                <Command.Item
+                                    value={`live-${item.entity.id}`}
+                                    onSelect={() => handleSelect(item)}
+                                    class="flex items-center gap-3 rounded-lg px-2 py-2
+                                           text-sm text-zinc-300 cursor-pointer
+                                           aria-selected:bg-zinc-700 aria-selected:text-white"
+                                >
+                                    <Radio class="h-4 w-4 shrink-0 text-lime-400" />
+                                    <div class="min-w-0 flex-1">
+                                        <div class="truncate">{item.entity.name}</div>
+                                        <div class="text-xs text-zinc-500 truncate">
+                                            {getLiveResultSublabel(item.entity)}
+                                        </div>
+                                    </div>
+                                </Command.Item>
+                            {/each}
+                        </Command.GroupItems>
+                    </Command.Group>
+                {/if}
+
+                <!-- Static results grouped by category -->
+                {#each groupStaticByCategory(staticResults) as [category, items] (category)}
                     <Command.Group>
                         <Command.GroupHeading
                             class="px-2 py-1.5 text-xs font-semibold text-zinc-500 uppercase tracking-wide"
@@ -202,10 +306,10 @@
                             {categoryLabels[category]}
                         </Command.GroupHeading>
                         <Command.GroupItems>
-                            {#each items as result (getResultValue(result))}
+                            {#each items as result (getStaticResultValue(result))}
                                 <Command.Item
-                                    value={getResultValue(result)}
-                                    onSelect={() => handleSelect(result)}
+                                    value={getStaticResultValue(result)}
+                                    onSelect={() => handleSelect({ kind: 'static', result })}
                                     class="flex items-center gap-3 rounded-lg px-2 py-2
                                            text-sm text-zinc-300 cursor-pointer
                                            aria-selected:bg-zinc-700 aria-selected:text-white"
@@ -218,9 +322,9 @@
                                         <MapIcon class="h-4 w-4 shrink-0 text-purple-500" />
                                     {/if}
                                     <div class="min-w-0 flex-1">
-                                        <div class="truncate">{getResultLabel(result)}</div>
+                                        <div class="truncate">{getStaticResultLabel(result)}</div>
                                         <div class="text-xs text-zinc-500 truncate">
-                                            {getResultSublabel(result)}
+                                            {getStaticResultSublabel(result)}
                                         </div>
                                     </div>
                                 </Command.Item>

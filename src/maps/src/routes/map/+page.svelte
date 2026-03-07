@@ -311,6 +311,16 @@
     }
 
     /**
+     * Handle live entity selection from the search command palette.
+     * Selects the live marker directly and flies to it — same as clicking the marker.
+     */
+    function handleLiveSearchSelect(entity: EntityData, zone: string): void {
+        const sel: Selection = { type: 'live', entity, zone };
+        applySelection(sel);
+        focusSelection(sel);
+    }
+
+    /**
      * Close the popup and open search with a pre-filled query.
      * Used by the "not found" popup to let users search for alternatives.
      */
@@ -2087,7 +2097,10 @@
         {isDesktop}
         bind:initialQuery={searchInitialQuery}
         index={searchIndex.entries}
+        liveEntities={liveState.entities}
+        liveZone={liveState.zone}
         onselect={handleSearchSelect}
+        onliveselect={handleLiveSearchSelect}
         onclose={() => {}}
     />
 
