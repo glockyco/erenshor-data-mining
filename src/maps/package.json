@@ -45,6 +45,7 @@
         "tailwindcss": "^4.1.11",
         "typescript": "^5.0.0",
         "typescript-eslint": "^8.20.0",
+        "vaul-svelte": "1.0.0-next.7",
         "vite": "^6.2.6",
         "vitest": "^3.2.3",
         "wrangler": "^4.59.2"

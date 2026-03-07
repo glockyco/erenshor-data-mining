@@ -5,13 +5,14 @@
 
     interface Props {
         zone: ZoneWorldPosition;
+        mode?: 'panel' | 'drawer';
         onClose: () => void;
         onFocus: () => void;
     }
 
-    let { zone, onClose, onFocus }: Props = $props();
+    let { zone, mode = 'panel', onClose, onFocus }: Props = $props();
 </script>
 
-<PopupContainer title={zone.name} subtitle="Zone" {onClose} {onFocus}>
+<PopupContainer title={zone.name} subtitle="Zone" {mode} {onClose} {onFocus}>
     <ZonePopupContent {zone} />
 </PopupContainer>

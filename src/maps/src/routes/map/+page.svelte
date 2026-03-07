@@ -71,10 +71,12 @@
         deserializeSelection
     } from '$lib/types/selection';
     import { buildSearchIndex, resolveHighlight, type SearchResult } from '$lib/map/search';
+    import * as Drawer from '$lib/components/ui/drawer';
     import MapSidebar from '$lib/components/map/MapSidebar.svelte';
     import MapTooltip from '$lib/components/map/MapTooltip.svelte';
     import MapPopup from '$lib/components/map/MapPopup.svelte';
     import MapSearch from '$lib/components/map/MapSearch.svelte';
+    import Eye from '@lucide/svelte/icons/eye';
     import type { PageData } from './$types';
 
     let { data }: { data: PageData } = $props();
@@ -129,7 +131,7 @@
         )
     );
 
-    // Desktop detection (tooltips only on desktop)
+    // Desktop detection (layout, tooltips, drawers)
     let isDesktop = $state(false);
     $effect(() => {
         if (!browser) return;
@@ -139,6 +141,10 @@
         mediaQuery.addEventListener('change', handler);
         return () => mediaQuery.removeEventListener('change', handler);
     });
+
+    // Mobile popup drawer state (separate from selection so drawer can be
+    // dismissed without clearing selection — highlights stay on the map)
+    let mobilePopupOpen = $state(false);
 
     // Get zone display name from zone key
     function getZoneName(zoneKey: string): string {
@@ -209,6 +215,11 @@
             highlightReady = Promise.resolve();
         }
 
+        // Auto-open/close mobile popup drawer
+        if (!isDesktop) {
+            mobilePopupOpen = newSelection !== null;
+        }
+
         if (!skipUrlUpdate) {
             urlManager.pushSelection(buildUrlParams());
         }
@@ -252,10 +263,11 @@
         } else {
             applySelection({ type: 'search', result });
             // Wait for highlights to resolve before flying.
-            // Pass POPUP_WIDTH explicitly since the popup just opened but
-            // flyPadding.right hasn't updated yet in the current tick.
+            // On desktop, pass POPUP_WIDTH explicitly since the popup just opened
+            // but flyPadding.right hasn't updated yet in the current tick.
+            // On mobile, popup is a drawer overlay so no right padding needed.
             await highlightReady;
-            handleFocusAll(POPUP_WIDTH);
+            handleFocusAll(isDesktop ? POPUP_WIDTH : 0);
         }
     }
 
@@ -497,27 +509,39 @@
     // Popup sidebar width (matches PopupContainer w-80 = 320px)
     const POPUP_WIDTH = 320;
 
-    // Padding for flyTo/flyToBounds — accounts for obscured areas
-    const flyPadding = $derived({
-        left: sidebarCollapsed ? SIDEBAR_WIDTH.collapsed : SIDEBAR_WIDTH.expanded,
-        right: selection !== null ? POPUP_WIDTH : 0
-    });
+    // Padding for flyTo/flyToBounds — accounts for obscured areas.
+    // On mobile, sidebar and popup are drawers/overlays, so no padding needed.
+    const flyPadding = $derived(
+        isDesktop
+            ? {
+                  left: sidebarCollapsed ? SIDEBAR_WIDTH.collapsed : SIDEBAR_WIDTH.expanded,
+                  right: selection !== null ? POPUP_WIDTH : 0
+              }
+            : { left: 0, right: 0 }
+    );
 
-    // Update deck.gl view padding when sidebar toggles
+    // Update deck.gl view padding when sidebar toggles or screen size changes
     $effect(() => {
-        // IMPORTANT: Access sidebarCollapsed outside the guard to ensure Svelte 5
-        // tracks it as a dependency.
+        // IMPORTANT: Access sidebarCollapsed and isDesktop outside the guard to
+        // ensure Svelte 5 tracks them as dependencies.
         const collapsed = sidebarCollapsed;
+        const desktop = isDesktop;
 
         if (!deckInstance || !deckModules) return;
 
-        // Only left sidebar uses persistent view padding (always visible).
+        // On mobile, sidebar is a drawer overlay — no persistent view padding.
+        // On desktop, left sidebar uses persistent view padding (always visible).
         // Right popup is just an overlay — flyTo/flyToBounds account for it
         // per-operation to avoid shifting the viewport center on open/close.
+        const leftPadding = desktop
+            ? collapsed
+                ? SIDEBAR_WIDTH.collapsed
+                : SIDEBAR_WIDTH.expanded
+            : 0;
         deckInstance.setProps({
             views: new deckModules.OrthographicView({
                 padding: {
-                    left: collapsed ? SIDEBAR_WIDTH.collapsed : SIDEBAR_WIDTH.expanded,
+                    left: leftPadding,
                     right: 0,
                     top: 0,
                     bottom: 0
@@ -924,9 +948,11 @@
             } else {
                 // No explicit view coordinates — compute initial view from
                 // the restored selection, or fall back to full world map.
-                const sidebarWidth = sidebarCollapsed
-                    ? SIDEBAR_WIDTH.collapsed
-                    : SIDEBAR_WIDTH.expanded;
+                const sidebarWidth = isDesktop
+                    ? sidebarCollapsed
+                        ? SIDEBAR_WIDTH.collapsed
+                        : SIDEBAR_WIDTH.expanded
+                    : 0;
                 const selectionView = computeInitialSelectionView(
                     container.clientWidth,
                     container.clientHeight,
@@ -969,7 +995,11 @@
                 parent: container,
                 views: new deckModules.OrthographicView({
                     padding: {
-                        left: sidebarCollapsed ? SIDEBAR_WIDTH.collapsed : SIDEBAR_WIDTH.expanded,
+                        left: isDesktop
+                            ? sidebarCollapsed
+                                ? SIDEBAR_WIDTH.collapsed
+                                : SIDEBAR_WIDTH.expanded
+                            : 0,
                         right: 0,
                         top: 0,
                         bottom: 0
@@ -1883,6 +1913,7 @@
     <MapSidebar
         visibility={layerVisibility}
         collapsed={sidebarCollapsed}
+        {isDesktop}
         onVisibilityChange={handleLayerVisibilityChange}
         onToggleCollapse={toggleSidebar}
         levelRange={data.levelRange}
@@ -1938,21 +1969,65 @@
     {#if selection}
         {@const zoneKey = getSelectionZone(selection)}
         {@const zoneName = zoneKey ? getZoneName(zoneKey) : 'Unknown'}
-        <MapPopup
-            {selection}
-            {zoneName}
-            {searchIndex}
-            onClose={closeSelection}
-            onFocus={() => focusSelection(selection)}
-            onHoverSpawn={handleHoverSpawn}
-            onFocusSpawn={handleFocusSpawn}
-            onFocusAll={handleFocusAll}
-        />
+        {#if isDesktop}
+            <MapPopup
+                {selection}
+                {zoneName}
+                {searchIndex}
+                onClose={closeSelection}
+                onFocus={() => focusSelection(selection)}
+                onHoverSpawn={handleHoverSpawn}
+                onFocusSpawn={handleFocusSpawn}
+                onFocusAll={handleFocusAll}
+            />
+        {:else}
+            <Drawer.Root bind:open={mobilePopupOpen} shouldScaleBackground={false}>
+                <Drawer.Content>
+                    <Drawer.Header class="sr-only">
+                        <Drawer.Title>Details</Drawer.Title>
+                    </Drawer.Header>
+                    <div class="overflow-y-auto pb-4">
+                        <MapPopup
+                            {selection}
+                            {zoneName}
+                            {searchIndex}
+                            mode="drawer"
+                            onClose={() => {
+                                mobilePopupOpen = false;
+                                closeSelection();
+                            }}
+                            onFocus={() => {
+                                mobilePopupOpen = false;
+                                focusSelection(selection);
+                            }}
+                            onHoverSpawn={handleHoverSpawn}
+                            onFocusSpawn={handleFocusSpawn}
+                            onFocusAll={handleFocusAll}
+                        />
+                    </div>
+                </Drawer.Content>
+            </Drawer.Root>
+        {/if}
+    {/if}
+
+    <!-- Mobile: floating button to reopen popup when drawer was dismissed -->
+    {#if !isDesktop && selection && !mobilePopupOpen}
+        <button
+            type="button"
+            onclick={() => (mobilePopupOpen = true)}
+            class="fixed bottom-4 right-4 z-20 flex h-12 w-12 cursor-pointer items-center
+                   justify-center rounded-full bg-zinc-800/95 shadow-lg backdrop-blur
+                   text-zinc-300 hover:text-white transition-colors"
+            title="Show details"
+        >
+            <Eye class="h-5 w-5" />
+        </button>
     {/if}
 
     <!-- Search command palette -->
     <MapSearch
         bind:open={searchOpen}
+        {isDesktop}
         index={searchIndex.entries}
         onselect={handleSearchSelect}
         onclose={() => {}}

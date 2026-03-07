@@ -27,6 +27,7 @@
         selection: Selection;
         zoneName: string;
         searchIndex: SearchIndex | null;
+        mode?: 'panel' | 'drawer';
         onClose: () => void;
         onFocus: () => void;
         onHoverSpawn: (stableKey: string | null) => void;
@@ -38,6 +39,7 @@
         selection,
         zoneName,
         searchIndex,
+        mode = 'panel',
         onClose,
         onFocus,
         onHoverSpawn,
@@ -217,7 +219,7 @@
 {#if !selection}
     <!-- Nothing -->
 {:else if selection.type === 'zone'}
-    <ZonePopup zone={selection.zone} {onClose} {onFocus} />
+    <ZonePopup zone={selection.zone} {mode} {onClose} {onFocus} />
 {:else if selection.type === 'search'}
     {@const result = selection.result}
     <PopupContainer
@@ -225,6 +227,7 @@
         subtitle={categoryLabel}
         {borderColorClass}
         showFocus={false}
+        {mode}
         {onClose}
         {onFocus}
     >
@@ -247,7 +250,7 @@
         {/if}
     </PopupContainer>
 {:else if selection.type === 'live'}
-    <PopupContainer {title} subtitle={categoryLabel} {borderColorClass} {onClose} {onFocus}>
+    <PopupContainer {title} subtitle={categoryLabel} {borderColorClass} {mode} {onClose} {onFocus}>
         {#if selection.entity.entityType === 'player'}
             <LivePlayerPopupContent entity={selection.entity} />
         {:else if selection.entity.entityType === 'simplayer'}
@@ -263,7 +266,7 @@
     </PopupContainer>
 {:else}
     {@const marker = selection.marker}
-    <PopupContainer {title} subtitle={categoryLabel} {borderColorClass} {onClose} {onFocus}>
+    <PopupContainer {title} subtitle={categoryLabel} {borderColorClass} {mode} {onClose} {onFocus}>
         {#if marker.category === 'enemy' || marker.category === 'npc'}
             {#key marker.stableKey}
                 <SpawnPointPopupContent marker={marker as WorldEnemy | WorldNpc} />

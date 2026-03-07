@@ -8,6 +8,7 @@
         subtitle: string;
         borderColorClass?: string;
         showFocus?: boolean;
+        mode?: 'panel' | 'drawer';
         onClose: () => void;
         onFocus: () => void;
         children: Snippet;
@@ -19,6 +20,7 @@
         subtitle,
         borderColorClass = 'border-l-zinc-500',
         showFocus = true,
+        mode = 'panel',
         onClose,
         onFocus,
         children,
@@ -26,11 +28,7 @@
     }: Props = $props();
 </script>
 
-<div
-    class="fixed right-0 top-0 z-40 h-full w-80 overflow-hidden
-           border-l-4 {borderColorClass} border-zinc-700
-           bg-zinc-800/95 shadow-xl backdrop-blur flex flex-col"
->
+{#snippet popupContent()}
     <!-- Header -->
     <div class="flex items-start justify-between border-b border-zinc-700 px-4 py-3 shrink-0">
         <div class="min-w-0 flex-1 pr-2">
@@ -70,4 +68,18 @@
             {@render footer()}
         </div>
     {/if}
-</div>
+{/snippet}
+
+{#if mode === 'panel'}
+    <div
+        class="fixed right-0 top-0 z-40 h-full w-80 overflow-hidden
+               border-l-4 {borderColorClass} border-zinc-700
+               bg-zinc-800/95 shadow-xl backdrop-blur flex flex-col"
+    >
+        {@render popupContent()}
+    </div>
+{:else}
+    <div class="flex flex-col">
+        {@render popupContent()}
+    </div>
+{/if}
