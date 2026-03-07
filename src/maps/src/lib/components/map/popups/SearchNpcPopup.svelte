@@ -59,8 +59,6 @@
             );
     });
 
-    const zoneCount = $derived(new Set(markers.map((m) => m.zone)).size);
-
     function formatRespawnTime(seconds: number | null): string {
         if (seconds === null || seconds === 0) return 'zone re-entry';
         const minutes = Math.round(seconds / 60);
@@ -72,12 +70,8 @@
 
 <div class="space-y-4">
     <!-- Summary -->
-    <div class="space-y-1">
+    <div class="flex items-center justify-between">
         <div class="text-sm text-zinc-300">{levelRange}</div>
-        <div class="text-xs text-zinc-400">
-            {markers.length} location{markers.length !== 1 ? 's' : ''} across
-            {zoneCount} zone{zoneCount !== 1 ? 's' : ''}
-        </div>
         <WikiLink {name} />
     </div>
 
