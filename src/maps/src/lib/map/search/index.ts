@@ -6,7 +6,15 @@
  */
 
 import type { WorldEnemy, WorldNpc, ZoneWorldPosition } from '$lib/types/world-map';
-import type { SearchProvider, IndexEntry, SearchResult, ResolvedHighlight } from './types';
+import type {
+    SearchProvider,
+    IndexEntry,
+    SearchResult,
+    ResolvedHighlight,
+    EnemySearchResult,
+    NpcSearchResult,
+    ZoneSearchResult
+} from './types';
 import { EnemySearchProvider } from './enemy-provider';
 import { NpcSearchProvider } from './npc-provider';
 import { ZoneSearchProvider } from './zone-provider';
@@ -93,6 +101,10 @@ export function searchMarkers(query: string, index: IndexEntry[], limit = 20): S
         }
     }
 
+    // Sort results within each category before interleaving
+    sortCategories(prefixByCategory);
+    sortCategories(substringByCategory);
+
     // Round-robin interleave within each priority tier
     const results: SearchResult[] = [];
     interleave(prefixByCategory, results, limit);
@@ -101,6 +113,33 @@ export function searchMarkers(query: string, index: IndexEntry[], limit = 20): S
     }
 
     return results;
+}
+
+/**
+ * Sort results within each category bucket.
+ *
+ * Enemies: unique > rare > common, then alphabetically by name.
+ * NPCs: alphabetically by name.
+ * Zones: alphabetically by name.
+ */
+function sortCategories(byCategory: Map<string, SearchResult[]>): void {
+    for (const [cat, results] of byCategory) {
+        if (cat === 'enemy') {
+            results.sort((a, b) => {
+                const ae = a as EnemySearchResult;
+                const be = b as EnemySearchResult;
+                const rarityA = ae.isUnique ? 0 : ae.isRare ? 1 : 2;
+                const rarityB = be.isUnique ? 0 : be.isRare ? 1 : 2;
+                return rarityA - rarityB || ae.name.localeCompare(be.name);
+            });
+        } else {
+            results.sort((a, b) => {
+                const na = (a as NpcSearchResult | ZoneSearchResult).name;
+                const nb = (b as NpcSearchResult | ZoneSearchResult).name;
+                return na.localeCompare(nb);
+            });
+        }
+    }
 }
 
 /**
