@@ -134,6 +134,44 @@
 
     // Desktop detection (layout, tooltips, drawers)
     let isDesktop = $state(false);
+    // Debug hook: exposes internal state for Playwright / devtools inspection.
+    // Only active in dev mode (import.meta.env.DEV); zero cost in production.
+    $effect(() => {
+        if (!browser || !import.meta.env.DEV) return;
+        (window as unknown as Record<string, unknown>).__mapDebug = {
+            get markers() {
+                return data.markers;
+            },
+            get zones() {
+                return data.zones;
+            },
+            get levelFilter() {
+                return levelFilter;
+            },
+            get levelRange() {
+                return data.levelRange;
+            },
+            get layerVisibility() {
+                return layerVisibility;
+            },
+            get searchHighlightPositions() {
+                return searchHighlightPositions;
+            },
+            findEnemy: (name: string) =>
+                (
+                    [
+                        ...data.markers.enemiesCommon,
+                        ...data.markers.enemiesRare,
+                        ...data.markers.enemiesUnique
+                    ] as WorldEnemy[]
+                ).filter((m) => m.characters.some((c) => c.name === name)),
+            findNpc: (name: string) =>
+                (data.markers.npcs as WorldNpc[]).filter((m) =>
+                    m.characters.some((c) => c.name === name)
+                )
+        };
+    });
+
     $effect(() => {
         if (!browser) return;
         const mediaQuery = window.matchMedia('(min-width: 768px)');
