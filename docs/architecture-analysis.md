@@ -591,63 +591,60 @@ The `golden capture` command:
    `tests/golden/sheets/`
 3. Runs the map spawn-points SQL against the current DB, writes to
    `tests/golden/map/spawn-points.csv`
+4. Computes SHA-256 hashes of all captured files and writes three hash manifests:
+   `tests/golden/wiki-hashes.json`, `tests/golden/sheets-hashes.json`,
+   `tests/golden/map-hashes.json`
+
+Golden files are committed to the repository so that CI can run regression
+tests without local databases or prior capture runs. The initial commit is
+large (2,436 wiki pages + 23 CSVs) but subsequent changes are small diffs.
 
 ### Comparison strategy
 
-Golden files are the expected output. After each code change, the regression
-test generates fresh output and diffs against them. The test fails on any
-unexpected difference. Intentional differences (bug fixes) must be committed
-to the golden files with an explicit annotation.
+The regression test uses hash-based comparison for performance: it hashes
+freshly generated output and compares against the stored manifests. On any
+hash mismatch it reads the specific file to produce a human-readable diff.
+The full files are kept on disk as the diff-readable reference.
 
-The diff is line-level for sheets and map CSVs, and full-text for wiki pages.
+The golden files ARE the expected output. If a change is intentional (a bug
+fix), the golden files are updated in the same commit as the code change. The
+commit message explains the intentional change. There is no whitelist of
+"known diffs" in test code — every diff is either an intentional update to
+golden or a regression to fix.
+
 Row ordering must be deterministic: all SQL queries use explicit `ORDER BY`,
 and wiki pages are sorted by title.
 
-### Intentional differences (bug fixes committed to golden)
-
-These known improvements will be reflected in the golden files before Phase 1
-regression tests run. Each is explicitly updated in golden and annotated:
-
-| Change | Why it differs from original |
-|--------|------------------------------|
-| `is_unique = 1` for Braxonian Planar Guard (Fire) and (Ice) | `IsUnique` now grouped by `display_name`, not `NPCName` |
-| SimPlayer rows absent from sheets golden | Correctly excluded in clean DB |
-| Excluded entity rows absent from sheets golden | Correctly excluded in clean DB |
-
-All other differences from original output are regressions.
-
-### Unacceptable differences (regressions)
+### What counts as a regression
 
 - Any entity present in golden but missing from new output
-- Any entity absent from golden but present in new output (unless it is a
-  known SimPlayer or excluded entity — those should disappear)
+- Any entity absent from golden but present in new output
 - Any field value change (name, level, stat, coordinate, probability, etc.)
 - Any spawn point missing or added
-- Any wiki page title change not matching a known mapping.json override
+- Any wiki page title change
 - Any loot drop, vendor item, spell, or faction relationship missing or added
 
 ### Automated regression test
 
 ```python
-# tests/integration/test_golden.py
-def test_sheets_golden(sheets_engine, golden_sheets_dir):
-    formatter = SheetsFormatter(sheets_engine, queries_dir)
-    for query_name in ALL_QUERIES:
-        actual = formatter.format_sheet(query_name)
-        golden = read_golden_csv(golden_sheets_dir / f"{query_name}.csv")
-        assert actual == golden, f"Regression in {query_name}"
+# tests/integration/test_golden.py — hash-based, no whitelist
+def test_wiki_golden():
+    hashes = load_hash_manifest("tests/golden/wiki-hashes.json")
+    for filename, expected_hash in hashes.items():
+        actual = hash_file(WIKI_GENERATED_DIR / filename)
+        assert actual == expected_hash, diff(GOLDEN_WIKI_DIR / filename,
+                                             WIKI_GENERATED_DIR / filename)
 
-def test_wiki_golden(clean_db_path, golden_wiki_dir):
-    pages = {p.title: p.content for p in generate_wiki_pages(clean_db_path)}
-    for wiki_file in golden_wiki_dir.glob("*.wiki"):
-        title = wiki_file.stem
-        assert title in pages, f"Missing wiki page: {title}"
-        assert pages[title] == wiki_file.read_text(), f"Regression in {title}"
+def test_sheets_golden(golden_sheets_engine):
+    hashes = load_hash_manifest("tests/golden/sheets-hashes.json")
+    for sheet_name, expected_hash in hashes.items():
+        actual_csv = format_as_csv(formatter.format_sheet(sheet_name))
+        assert sha256(actual_csv) == expected_hash, diff(...)
 
-def test_map_golden(clean_db_path, golden_map_dir):
-    actual = run_spawn_points_query(clean_db_path)
-    golden = read_golden_csv(golden_map_dir / "spawn-points.csv")
-    assert actual == golden, "Regression in map spawn-points"
+def test_map_golden():
+    hashes = load_hash_manifest("tests/golden/map-hashes.json")
+    actual_csv = run_spawn_points_query_as_csv(DB_PATH)
+    assert sha256(actual_csv) == hashes["spawn-points.csv"], diff(...)
 ```
 
 ### `extract build` is independently runnable
@@ -684,12 +681,16 @@ Steps:
    all sheet query results, and the map spawn-points query output.
    Commit golden files to `tests/golden/`.
 
-2. **Rename raw DB path.**
-   `extract export` writes to `variants/{v}/erenshor-{v}-raw.sqlite`
-   instead of `variants/{v}/erenshor-{v}.sqlite`. This frees the canonical
-   path for the clean DB.
+2. **Add `database_raw` config field.**
+   Add `database_raw` to `VariantConfig` in `schema.py` and to `config.toml`
+   for all three variants. `extract export` writes to `database_raw`; all
+   consumers read from `database` (the clean DB). The raw path is an
+   intermediate artifact, not a consumer-facing path.
 
-3. **Write the Layer 2 processor** (`src/erenshor/application/processor/`).
+3. **Update `extract export` to write to `database_raw`.**
+   Pass `database_raw` to Unity as `dbPath` instead of `database`.
+
+4. **Write the Layer 2 processor** (`src/erenshor/application/processor/`).
    - `build.py` — top-level orchestrator
    - `mapping.py` — loads and applies `mapping.json`
    - `characters.py` — filter, dedup, `is_unique` computation
@@ -698,36 +699,54 @@ Steps:
    All entity types processed: characters, items, spells, skills, stances,
    quests, factions, zones.
 
-4. **Add `extract build` CLI command.**
-   Reads `erenshor-{v}-raw.sqlite`, writes `erenshor-{v}.sqlite`.
-   Standalone: does not require a fresh `extract export`.
-   Add `build` to `extract full` pipeline.
+5. **Add `extract build` CLI command.**
+   Reads `database_raw`, writes `database`. Standalone: does not require
+   a fresh `extract export`.
 
-5. **Delete registry, enrichers, domain enriched data.**
+6. **Delete registry, enrichers, domain enriched data, and CLI commands.**
    `registry/`, `application/enrichers/`, `domain/enriched_data/` — all
-   deleted. Their tests deleted too. No transitional compatibility shim.
+   deleted. `src/erenshor/cli/commands/registry.py` deleted. Registry health
+   section removed from `doctor` command. Their tests deleted too. No
+   transitional compatibility shim.
 
-6. **Rewrite wiki pipeline to read from clean DB.**
-   Remove `RegistryResolver` from `wiki.py`. Remove enricher instantiation
-   from `entities.py`. Delete `_deduplicate_characters()`. Simplify
-   repository queries (no COALESCE, no exclusion filters). All name/page
-   resolution becomes direct attribute access on clean DB rows.
+7. **Decompose `_create_wiki_service()` in `wiki.py`.**
+   The factory currently wires `RegistryResolver` for all three wiki commands
+   (fetch, generate, deploy). Remove the registry from all three. `fetch`
+   and `deploy` do not need it; `generate` reads from the clean DB directly.
 
-7. **Rewrite all 23 sheets SQL queries.**
-   snake_case column names throughout. Remove COALESCE. Remove SimPlayer/
-   exclusion WHERE clauses. Fix `?marker=` → `?sel=marker:`. Use
-   `display_name` where appropriate.
+8. **Rewrite wiki pipeline to read from clean DB.**
+   Remove enricher instantiation from `entities.py`. Delete
+   `_deduplicate_characters()`. Simplify repository queries (no COALESCE,
+   no exclusion filters). All name/page resolution becomes direct attribute
+   access on clean DB rows.
 
-8. **Update golden files for intentional bug fixes.**
-   Update golden rows for Braxonian Planar Guards (`is_unique` fix),
-   SimPlayer rows (removed), excluded entity rows (removed). Document each.
+9. **Update `database_has_items` precondition.**
+   After Phase 1 the clean DB has snake_case table names. Change the check
+   from `Items` (PascalCase) to `items` (snake_case).
 
-9. **Run regression tests.** All golden diffs should show only the
-   intentional changes from step 8. Zero unexpected diffs.
+10. **Rewrite all 23 sheets SQL queries.**
+    snake_case column names throughout. Remove COALESCE. Remove SimPlayer/
+    exclusion WHERE clauses. Fix `?marker=` → `?sel=marker:`. Use
+    `display_name` where appropriate.
 
-**Done when**: Regression tests pass with only documented intentional diffs.
-The registry does not exist. The enrichers do not exist. All consumers read
-the clean DB.
+11. **Update `image_processor.py`.**
+    `SELECT StableKey, ItemName, ItemIconName FROM Items` must be rewritten
+    for the snake_case clean DB schema.
+
+12. **Update `scripts/` directory.**
+    `validate_database.py`, `compare_variants.py`, `zone_discrepancy_report.py`
+    all use PascalCase table/column names directly. Update for snake_case clean
+    DB schema.
+
+13. **Update golden files and run regression tests.**
+    Update golden rows for Braxonian Planar Guards (`is_unique` fix),
+    SimPlayer rows (removed), excluded entity rows (removed). Commit updated
+    golden files. Run regression tests — zero unexpected diffs.
+
+**Done when**: Regression tests pass. The registry does not exist. The
+enrichers do not exist. All consumers read the clean DB. `extract full` is
+deleted (replaced by running `download`, `rip`, `export`, and `build`
+individually).
 
 ### Phase 2: C# rewrite (Layer 1 → JSON)
 
@@ -791,26 +810,36 @@ pages include working map links.
 
 ### Phase 1: To be deleted
 
-| Component | Lines |
-|-----------|-------|
-| `registry/` Python package (6 files) | ~800 |
-| `application/enrichers/` (5 files) | ~400 |
-| `domain/enriched_data/` (5 files) | ~150 |
-| `_deduplicate_characters()` in `entities.py` | ~100 |
-| `tests/unit/registry/` (3 test files) | ~300 |
-| `tests/unit/application/services/test_character_enricher.py` | ~100 |
-| `tests/unit/application/services/test_item_enricher.py` | ~100 |
+| Component | Lines | Notes |
+|-----------|-------|-------|
+| `registry/` Python package (6 files) | ~800 | |
+| `application/enrichers/` (5 files) | ~400 | |
+| `domain/enriched_data/` (5 files) | ~150 | |
+| `_deduplicate_characters()` in `entities.py` | ~100 | |
+| `cli/commands/registry.py` | ~200 | Registry CLI command group |
+| `cli/commands/extract.py` `full` command | ~70 | Replaced by running steps individually |
+| Registry health section in `doctor` command | ~40 | `main.py` lines 387–424 |
+| `tests/unit/registry/` (3 test files) | ~300 | |
+| `tests/unit/application/services/test_character_enricher.py` | ~100 | |
+| `tests/unit/application/services/test_item_enricher.py` | ~100 | |
 
-### Phase 1: To be simplified
+### Phase 1: To be simplified / updated
 
 | Component | Change |
 |-----------|--------|
-| `extract.py` | Add `build` subcommand; rename raw DB output path |
-| `wiki.py` | Remove `RegistryResolver`; wire to clean DB |
+| `extract.py` | Add `build` subcommand; update `export` to use `database_raw` |
+| `schema.py` `VariantConfig` | Add `database_raw` field and `resolved_database_raw()` method |
+| `config.toml` | Add `database_raw` for all three variants |
+| `wiki.py` | Decompose `_create_wiki_service()`; remove `RegistryResolver` from all three wiki commands |
 | `generators/pages/entities.py` | Remove enrichers, remove `_deduplicate_characters()` |
 | `generators/sections/character.py` | Direct attribute access instead of resolver calls |
+| `preconditions/checks/database.py` | Update `database_has_items` to check `items` (snake_case) |
 | All 11 Python repositories | Queries rewritten for snake_case clean DB schema |
 | All 23 sheets SQL files | snake_case columns, no COALESCE, fix map URL format |
+| `application/services/image_processor.py` | Update SQL for snake_case clean DB |
+| `scripts/validate_database.py` | Update SQL for snake_case clean DB |
+| `scripts/compare_variants.py` | Update SQL for snake_case clean DB |
+| `scripts/zone_discrepancy_report.py` | Update SQL for snake_case clean DB |
 
 ### Phase 2: To be created
 
@@ -891,11 +920,39 @@ frequently than game data. Coupling `build` to `export` would negate this.
 ## 12. What Does Not Change
 
 - `mapping.json` format
-- `config.toml` structure (map URL can be added as a new optional field)
 - The three-variant pipeline (main, playtest, demo)
 - Jinja2 templates and field preservation system
 - MediaWiki API client and deploy service
 - Google Sheets API client and deploy service
-- SvelteKit map app structure and components
+- SvelteKit map app structure and components (Phase 3 updates TypeScript only)
 - BepInEx mod pipeline
-- All tests unrelated to the registry or enrichers
+
+## 13. CI and Testing
+
+### Golden files are committed to the repository
+
+The golden files (`tests/golden/`) must be committed before the pipeline
+rewrite begins. This is not primarily about enabling CI — it is about
+preservation. Once the registry and enrichers are deleted, the pre-rewrite
+output can never be regenerated. The golden files are the only record of what
+the pipeline produced before the rewrite, and they must exist in the
+repository before that code is removed.
+
+A secondary benefit: any developer with a local database can run the
+regression tests immediately without needing to re-run `golden capture`.
+
+### Golden files are not a permanent freeze
+
+The golden files will be updated deliberately throughout the rewrite as
+intentional output changes are made (bug fixes, name corrections, SimPlayer
+removal). Each update is a commit that shows exactly which outputs changed
+and why. The files are a living record of expected output, not a snapshot
+of the original buggy state.
+
+### CI does not run golden regression tests
+
+The golden tests require a local variant database, which is not available
+in CI. They will always skip in CI. This is an accepted limitation — the
+golden tests are a local developer tool for the duration of the rewrite.
+CI continues to run unit tests and the existing integration tests that use
+committed fixture databases.
