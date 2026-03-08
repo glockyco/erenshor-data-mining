@@ -64,6 +64,7 @@ def minimal_config(tmp_path: Path) -> Config:
                 unity_project="variants/main/unity",
                 editor_scripts="src/Assets/Editor",
                 game_files="variants/main/game",
+                database_raw="variants/main/erenshor-main-raw.sqlite",
                 database="variants/main/erenshor-main.sqlite",
                 logs="variants/main/logs",
                 backups="variants/main/backups",

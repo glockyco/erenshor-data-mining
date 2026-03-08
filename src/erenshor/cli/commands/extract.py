@@ -197,17 +197,17 @@ def export(ctx: typer.Context) -> None:
     cli_ctx: CLIContext = ctx.obj
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
     unity_project_dir = variant_config.resolved_unity_project(cli_ctx.repo_root)
-    database_path = variant_config.resolved_database(cli_ctx.repo_root)
+    database_path = variant_config.resolved_database_raw(cli_ctx.repo_root)
     logs_dir = variant_config.resolved_logs(cli_ctx.repo_root)
 
     if cli_ctx.dry_run:
-        logger.info(f"[Dry-run] Would export data to SQLite: unity={unity_project_dir}, db={database_path}")
+        logger.info(f"[Dry-run] Would export data to SQLite: unity={unity_project_dir}, raw_db={database_path}")
         return
 
     try:
-        # Clean up old database before export
+        # Clean up old raw database before export
         if database_path.exists():
-            logger.info(f"Removing old database: {database_path}")
+            logger.info(f"Removing old raw database: {database_path}")
             database_path.unlink()
 
         logger.info(f"Exporting game data: variant={cli_ctx.variant}")
@@ -246,8 +246,8 @@ def export(ctx: typer.Context) -> None:
             },
         )
 
-        logger.info(f"Data export complete: db={database_path}, log={log_file}")
-        logger.info("Database ready! Use 'erenshor sheets deploy' or 'erenshor wiki update' to publish data")
+        logger.info(f"Raw data exported: raw_db={database_path}, log={log_file}")
+        logger.info("Run 'erenshor extract build' to produce the clean database")
 
         # Create backup for cross-version analysis
         _create_backup_after_export(cli_ctx, variant_config, database_path)

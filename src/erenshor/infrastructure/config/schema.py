@@ -454,8 +454,11 @@ class VariantConfig(BaseModel):
     game_files: str = Field(
         description="Path to downloaded game files from Steam",
     )
+    database_raw: str = Field(
+        description="Path to raw SQLite database written directly by Unity export",
+    )
     database: str = Field(
-        description="Path to SQLite database for this variant",
+        description="Path to clean SQLite database produced by the Python processor",
     )
     logs: str = Field(
         description="Directory for variant-specific logs",
@@ -497,8 +500,14 @@ class VariantConfig(BaseModel):
 
         return resolve_path(self.game_files, repo_root)
 
+    def resolved_database_raw(self, repo_root: Path) -> Path:
+        """Get resolved raw database file path (Unity export target)."""
+        from .paths import resolve_path
+
+        return resolve_path(self.database_raw, repo_root)
+
     def resolved_database(self, repo_root: Path) -> Path:
-        """Get resolved database file path."""
+        """Get resolved clean database file path (Python processor output)."""
         from .paths import resolve_path
 
         return resolve_path(self.database, repo_root)

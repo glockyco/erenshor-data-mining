@@ -500,9 +500,11 @@ class TestVariantConfig:
             "unity_project",
             "editor_scripts",
             "game_files",
+            "database_raw",
             "database",
             "logs",
             "backups",
+            "wiki",
         }
 
         error_fields = {str(e["loc"][0]) for e in errors}
@@ -517,6 +519,7 @@ class TestVariantConfig:
             unity_project="$REPO_ROOT/variants/main/unity",
             editor_scripts="$REPO_ROOT/src/Assets/Editor",
             game_files="$REPO_ROOT/variants/main/game",
+            database_raw="$REPO_ROOT/variants/main/erenshor-raw.sqlite",
             database="$REPO_ROOT/variants/main/erenshor.sqlite",
             logs="$REPO_ROOT/variants/main/logs",
             backups="$REPO_ROOT/variants/main/backups",
@@ -538,6 +541,7 @@ class TestVariantConfig:
             unity_project="/path/to/unity",
             editor_scripts="/path/to/scripts",
             game_files="/path/to/game",
+            database_raw="/path/to/raw.sqlite",
             database="/path/to/db.sqlite",
             logs="/path/to/logs",
             backups="/path/to/backups",
@@ -553,6 +557,7 @@ class TestVariantConfig:
             unity_project="$REPO_ROOT/unity",
             editor_scripts="$REPO_ROOT/scripts",
             game_files="$REPO_ROOT/game",
+            database_raw="$REPO_ROOT/raw.sqlite",
             database="$REPO_ROOT/db.sqlite",
             logs="$REPO_ROOT/logs",
             backups="$REPO_ROOT/backups",
@@ -563,6 +568,7 @@ class TestVariantConfig:
         assert config.resolved_unity_project(tmp_path) == tmp_path / "unity"
         assert config.resolved_editor_scripts(tmp_path) == tmp_path / "scripts"
         assert config.resolved_game_files(tmp_path) == tmp_path / "game"
+        assert config.resolved_database_raw(tmp_path) == tmp_path / "raw.sqlite"
         assert config.resolved_database(tmp_path) == tmp_path / "db.sqlite"
         assert config.resolved_logs(tmp_path) == tmp_path / "logs"
         assert config.resolved_backups(tmp_path) == tmp_path / "backups"
@@ -592,6 +598,7 @@ class TestConfig:
                     unity_project="/path/to/unity",
                     editor_scripts="/path/to/scripts",
                     game_files="/path/to/game",
+                    database_raw="/path/to/raw.sqlite",
                     database="/path/to/db.sqlite",
                     logs="/path/to/logs",
                     backups="/path/to/backups",
@@ -632,6 +639,7 @@ class TestConfig:
                     unity_project="/main/unity",
                     editor_scripts="/scripts",
                     game_files="/main/game",
+                    database_raw="/main/raw.sqlite",
                     database="/main/db.sqlite",
                     logs="/main/logs",
                     backups="/main/backups",
@@ -643,6 +651,7 @@ class TestConfig:
                     unity_project="/playtest/unity",
                     editor_scripts="/scripts",
                     game_files="/playtest/game",
+                    database_raw="/playtest/raw.sqlite",
                     database="/playtest/db.sqlite",
                     logs="/playtest/logs",
                     backups="/playtest/backups",
