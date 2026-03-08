@@ -25,6 +25,11 @@ class Character(BaseEntity):
     object_name: str | None = Field(default=None, description="Stable object identifier")
     npc_name: str | None = Field(default=None, description="Display name")
 
+    # Canonical wiki names (populated by the Layer 2 processor)
+    display_name: str | None = Field(default=None, description="Canonical display name for wiki")
+    wiki_page_name: str | None = Field(default=None, description="Canonical wiki page title")
+    image_name: str | None = Field(default=None, description="Image filename stem (without .png)")
+
     # Coordinate data (embedded in Characters table)
     scene: str | None = Field(default=None, description="Scene name")
     x: float | None = Field(default=None, description="X coordinate")
@@ -34,6 +39,12 @@ class Character(BaseEntity):
     # Faction
     my_world_faction_stable_key: str | None = Field(
         default=None, description="World faction stable key (e.g., 'faction:good')"
+    )
+    my_world_faction_display_name: str | None = Field(
+        default=None, description="World faction display name (from JOIN on factions table)"
+    )
+    my_world_faction_wiki_page_name: str | None = Field(
+        default=None, description="World faction wiki page name; None when faction is excluded"
     )
     my_faction: str | None = Field(default=None, description="Faction")
     aggro_range: float | None = Field(default=None, description="Aggro detection range")
@@ -163,6 +174,3 @@ class Character(BaseEntity):
 
     # Vendor data
     vendor_desc: str | None = Field(default=None, description="Vendor description")
-    items_for_sale: str | None = Field(default=None, description="Vendor inventory IDs")
-    # LEGACY! Use junction table (ItemsForSale) instead of items_for_sale.
-    # Example items_for_sale: "The Fall of Rockshade Hold, Strange Beasts of Erenshor, The Birth of Port Azure"
