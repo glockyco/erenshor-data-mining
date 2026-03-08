@@ -779,10 +779,17 @@ Steps (✓ = complete):
    objects and call `str(link)` — no lookup at generation time.
 
    Specific changes:
-   - `CharacterSpawnInfo`: add `zone_display_name: str` and
-     `zone_wiki_page_name: str` (populated by JOIN in `spawn_points.py`).
-   - `LootDropInfo`: add `item_display_name: str` and
-     `item_wiki_page_name: str` (populated by JOIN in `loot_tables.py`).
+   - `CharacterSpawnInfo`: converted from Pydantic `BaseModel` to
+     `@dataclass(frozen=True)`; add `zone_link: ZoneLink` (a pre-built
+     `StandardLink` constructed from JOIN columns `zone_display_name`
+     and `zone_wiki_page_name`). Pydantic `model_validate(dict(row))`
+     is replaced by explicit keyword-argument construction in the
+     repository — the right pattern when a field cannot be populated
+     directly from a raw DB row.
+   - `LootDropInfo`: same conversion from Pydantic to
+     `@dataclass(frozen=True)`; add `item_link: ItemLink` (pre-built
+     from JOIN columns). Drop `item_name` and `item_stable_key` raw
+     fields — all callers now use `item_link` directly.
    - `FactionModifier`: add `faction_display_name: str` and
      `faction_wiki_page_name: str | None` (populated by JOIN in
      `characters.py`).
@@ -793,10 +800,21 @@ Steps (✓ = complete):
      `spells.py`).
    - `SourceInfo`: rewrite all fields from raw stable keys to pre-built link
      objects (`vendors: list[CharacterLink]`, `drops: list[tuple[CharacterLink,
-     float]]`, `quest_rewards: list[QuestLink]`, `craft_sources: list[ItemLink]`,
-     etc.). Constructed in `EntityPageGenerator` from direct repo calls.
-   - `ProcInfo`: add `proc_link: AbilityLink` (replaces `stable_key` lookup
-     in section generator).
+     float]]`, `quest_rewards: list[QuestLink]`, `quest_requirements:
+     list[QuestLink]`, `craft_sources: list[ItemLink]`, `craft_recipe:
+     list[tuple[ItemLink, int]]`, `component_for: list[ItemLink]`,
+     `crafting_results: list[tuple[ItemLink, int]]`, `recipe_ingredients:
+     list[tuple[ItemLink, int]]`, `item_drops: list[tuple[ItemLink, float]]`).
+     Constructed in `EntityPageGenerator` from direct repo calls; repository
+     source query methods return `WikiLink` objects directly via JOINs on
+     `display_name` and `wiki_page_name`. All legacy PascalCase dict keys
+     in crafting queries (`MaterialItemStableKey`, `RewardItemStableKey`,
+     etc.) are eliminated — `get_crafting_recipe` is rewritten to return
+     typed dataclasses with snake_case fields.
+   - `ProcInfo`: drop `stable_key: str`; add `proc_link: AbilityLink`
+     (pre-built at assembly time from `spell.wiki_page_name`,
+     `spell.display_name`, `spell.image_name`). The `spell` entity is
+     retained — it is needed for full tooltip display (40+ fields).
    - `EnrichedCharacterData.spells`: change from `list[str]` (stable keys) to
      `list[AbilityLink]` (pre-built in `EntityPageGenerator`).
    - `EnrichedSpellData`: change `items_with_effect`, `teaching_items` from
@@ -1021,10 +1039,10 @@ pages include working map links.
 | `cli/commands/images.py` | Remove `RegistryResolver` |
 | `application/services/image_processor.py` | Remove resolver; query clean DB snake_case columns directly |
 | `preconditions/checks/database.py` | Update `database_has_items` to check `items` (snake_case) |
-| `domain/value_objects/spawn.py` `CharacterSpawnInfo` | Add `zone_display_name: str`, `zone_wiki_page_name: str` |
-| `domain/value_objects/loot.py` `LootDropInfo` | Add `item_display_name: str`, `item_wiki_page_name: str` |
-| `domain/value_objects/proc_info.py` `ProcInfo` | Add `proc_link: AbilityLink` (replaces stable_key lookup) |
-| `domain/value_objects/source_info.py` `SourceInfo` | Rewrite all fields from raw stable keys to pre-built `WikiLink` objects |
+| `domain/value_objects/spawn.py` `CharacterSpawnInfo` | Convert to `@dataclass(frozen=True)`; add `zone_link: ZoneLink`; drop Pydantic `model_validate` — repos construct explicitly |
+| `domain/value_objects/loot.py` `LootDropInfo` | Convert to `@dataclass(frozen=True)`; add `item_link: ItemLink`; drop `item_name`/`item_stable_key` raw fields |
+| `domain/value_objects/proc_info.py` `ProcInfo` | Drop `stable_key: str`; add `proc_link: AbilityLink` |
+| `domain/value_objects/source_info.py` `SourceInfo` | Rewrite all fields from raw stable keys to pre-built `WikiLink` objects; crafting methods return typed snake_case dataclasses |
 | `domain/entities/character.py` | Add `my_world_faction_display_name: str \| None`, `my_world_faction_wiki_page_name: str \| None` |
 | `domain/entities/spell.py` | Add `add_proc_link: AbilityLink \| None`, `status_effect_link: AbilityLink \| None` |
 | `infrastructure/database/repositories/characters.py` | JOIN factions for faction display/wiki fields; JOIN for `FactionModifier` display names |
