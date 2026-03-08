@@ -1,40 +1,29 @@
 """Value objects for spawn system."""
 
-from pydantic import BaseModel, Field
+from dataclasses import dataclass
+
+from erenshor.domain.value_objects.wiki_link import ZoneLink
 
 __all__ = ["CharacterSpawnInfo"]
 
 
-class CharacterSpawnInfo(BaseModel):
+@dataclass(frozen=True)
+class CharacterSpawnInfo:
     """Spawn point information for a character.
 
     Represents one spawn point location where a character can appear.
     Characters can have multiple spawn points.
 
-    Example:
-        >>> spawn = CharacterSpawnInfo(
-        ...     zone_stable_key="zone:azure",
-        ...     base_respawn=120.0,
-        ...     x=10.5,
-        ...     y=5.2,
-        ...     z=100.3,
-        ...     spawn_chance=100.0,
-        ...     is_rare=False,
-        ...     is_unique=False
-        ... )
+    The zone_link is a pre-built ZoneLink constructed by the repository
+    from JOIN columns. Section generators call str(zone_link) to render it.
     """
 
-    zone_stable_key: str = Field(description="Zone stable key (format: 'zone:scene_name')")
-    base_respawn: float | None = Field(
-        default=None,
-        description="Respawn time in seconds for 5-player group (NULL for directly-placed NPCs)",
-    )
-    x: float | None = Field(default=None, description="X coordinate")
-    y: float | None = Field(default=None, description="Y coordinate")
-    z: float | None = Field(default=None, description="Z coordinate")
-    spawn_chance: float = Field(description="Spawn chance percentage (0-100)")
-    is_rare: bool = Field(description="Is rare spawn")
-    is_unique: bool = Field(description="Is unique/boss spawn")
-    level_mod: int = Field(default=0, description="Level modifier applied at spawn")
-
-    model_config = {"frozen": True}  # Immutable value object
+    zone_link: ZoneLink
+    base_respawn: float | None
+    x: float | None
+    y: float | None
+    z: float | None
+    spawn_chance: float
+    is_rare: bool
+    is_unique: bool
+    level_mod: int = 0

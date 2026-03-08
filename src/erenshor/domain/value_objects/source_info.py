@@ -1,6 +1,8 @@
 """Item source information value object."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+
+from erenshor.domain.value_objects.wiki_link import CharacterLink, ItemLink, QuestLink
 
 __all__ = ["SourceInfo"]
 
@@ -9,26 +11,31 @@ __all__ = ["SourceInfo"]
 class SourceInfo:
     """All source information for an item.
 
-    Raw data from repositories (just stable keys and minimal metadata).
-    Template generators format this into wiki links via registry resolver.
+    All fields carry pre-built WikiLink objects populated by repository JOINs.
+    Section generators iterate link lists and call str(link) — no resolver
+    or lookup at generation time.
     """
 
     # Vendors
-    vendors: list[str]  # Character stable keys
+    vendors: list[CharacterLink] = field(default_factory=list)
 
-    # Drops
-    drops: list[tuple[str, float]]  # (character_stable_key, drop_probability)
+    # Drops from characters
+    drops: list[tuple[CharacterLink, float]] = field(default_factory=list)
 
     # Quests
-    quest_rewards: list[str]  # Quest stable keys that reward this item
-    quest_requirements: list[str]  # Quest stable keys that require this item
+    quest_rewards: list[QuestLink] = field(default_factory=list)
+    quest_requirements: list[QuestLink] = field(default_factory=list)
 
     # Crafting
-    craft_sources: list[str]  # Item stable keys (molds) that produce this item
-    craft_recipe: list[tuple[str, int]]  # Recipe to craft this item: mold + ingredients (item_stable_key, quantity)
-    component_for: list[str]  # Item stable keys that require this as component
-    crafting_results: list[tuple[str, int]]  # What this mold produces: (item_stable_key, quantity)
-    recipe_ingredients: list[tuple[str, int]]  # What this mold needs: (item_stable_key, quantity)
+    craft_sources: list[ItemLink] = field(default_factory=list)
+    # Full recipe to craft this item: mold link + ingredient links with quantities
+    craft_recipe: list[tuple[ItemLink, int]] = field(default_factory=list)
+    # Items that require this item as a crafting component
+    component_for: list[ItemLink] = field(default_factory=list)
+    # What this mold produces: (result_link, quantity)
+    crafting_results: list[tuple[ItemLink, int]] = field(default_factory=list)
+    # What this mold needs as ingredients: (ingredient_link, quantity)
+    recipe_ingredients: list[tuple[ItemLink, int]] = field(default_factory=list)
 
     # Item drops (for consumables like fossils that produce random items)
-    item_drops: list[tuple[str, float]]  # (dropped_item_stable_key, drop_probability)
+    item_drops: list[tuple[ItemLink, float]] = field(default_factory=list)
