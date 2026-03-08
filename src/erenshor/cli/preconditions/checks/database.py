@@ -95,7 +95,7 @@ def database_has_items(context: dict[str, Any]) -> PreconditionResult:
     """Check if database contains items.
 
     This check verifies that the database has been populated with
-    data by checking if the Item table has rows.
+    data by checking if the items table has rows.
 
     Args:
         context: Check context containing 'database_path' key.
@@ -114,24 +114,27 @@ def database_has_items(context: dict[str, Any]) -> PreconditionResult:
             detail=f"Missing: {db_path}",
         )
 
-    # Check if Item table has data
+    # Check if items table has data
     try:
         conn = sqlite3.connect(str(db_path))
         cursor = conn.cursor()
 
-        # Check if Items table exists
-        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='Items'")
+        # Check if items table exists (snake_case clean DB schema)
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='items'")
         if not cursor.fetchone():
             conn.close()
             return PreconditionResult(
                 passed=False,
                 check_name="database_has_items",
-                message="Database has no Items table",
-                detail="Database may be empty or from old export\nRun 'erenshor extract export' to populate",
+                message="Database has no items table",
+                detail=(
+                    "Database may be empty or not yet built\n"
+                    "Run 'erenshor extract export' then 'erenshor extract build'"
+                ),
             )
 
         # Count items
-        cursor.execute("SELECT COUNT(*) FROM Items")
+        cursor.execute("SELECT COUNT(*) FROM items")
         count = cursor.fetchone()[0]
         conn.close()
 
@@ -140,7 +143,9 @@ def database_has_items(context: dict[str, Any]) -> PreconditionResult:
                 passed=False,
                 check_name="database_has_items",
                 message="Database is empty (no items found)",
-                detail="Run 'erenshor extract export' to populate database with game data",
+                detail=(
+                    "Run 'erenshor extract export' then 'erenshor extract build' to populate database with game data"
+                ),
             )
 
         return PreconditionResult(
@@ -163,3 +168,37 @@ def database_has_items(context: dict[str, Any]) -> PreconditionResult:
             message="Failed to check database content",
             detail=f"Unexpected error: {e}",
         )
+
+
+def raw_database_exists(context: dict[str, Any]) -> PreconditionResult:
+    """Check if the raw SQLite database file exists.
+
+    The raw database is written by ``extract export`` to the
+    ``database_raw`` path.  It must exist before ``extract build``
+    can run.
+
+    Args:
+        context: Check context containing 'database_raw_path' key.
+
+    Returns:
+        PreconditionResult indicating success or failure.
+    """
+    db_path = Path(context["database_raw_path"])
+
+    if not db_path.exists():
+        return PreconditionResult(
+            passed=False,
+            check_name="raw_database_exists",
+            message="Raw database not found",
+            detail=(
+                f"Missing: {db_path}\n"
+                "Run 'erenshor extract export' to generate it, or copy an "
+                "existing export to this path."
+            ),
+        )
+
+    return PreconditionResult(
+        passed=True,
+        check_name="raw_database_exists",
+        message=f"Raw database exists: {db_path.name}",
+    )

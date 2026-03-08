@@ -3,7 +3,8 @@
 This module provides commands for managing the data extraction pipeline:
 - Downloading game files from Steam via SteamCMD
 - Extracting Unity projects via AssetRipper
-- Exporting game data to SQLite via Unity batch mode
+- Exporting game data to raw SQLite via Unity batch mode
+- Building the clean database from the raw export
 """
 
 from __future__ import annotations
@@ -16,8 +17,10 @@ import typer
 from loguru import logger
 from rich.console import Console
 
+from erenshor.application.processor.build import build as build_clean_db
 from erenshor.application.services.backup_service import BackupService
 from erenshor.cli.preconditions import require_preconditions
+from erenshor.cli.preconditions.checks.database import raw_database_exists
 from erenshor.cli.preconditions.checks.steam import game_files_exist, steam_credentials_exist
 from erenshor.cli.preconditions.checks.unity import editor_scripts_linked, unity_project_exists, unity_version_matches
 from erenshor.infrastructure.assetripper.assetripper import AssetRipper
@@ -255,6 +258,45 @@ def export(ctx: typer.Context) -> None:
     except Exception as e:
         console.print(f"[red]Error during export: {e}[/red]")
         logger.exception("Unity export failed")
+        raise typer.Exit(1) from e
+
+
+@app.command()
+@require_preconditions(raw_database_exists)
+def build(ctx: typer.Context) -> None:
+    """Build the clean database from the raw export.
+
+    Reads the raw SQLite database produced by 'extract export', applies
+    mapping.json overrides, filters excluded entities and SimPlayers,
+    deduplicates identical characters, recomputes IsUnique per display
+    name group, and writes the clean database consumed by wiki, sheets,
+    and map.
+
+    Does not require a fresh 'extract export' — changing build logic and
+    re-running 'extract build' takes seconds, not hours.
+    """
+    cli_ctx: CLIContext = ctx.obj
+    variant_config = cli_ctx.config.variants[cli_ctx.variant]
+    raw_db_path = variant_config.resolved_database_raw(cli_ctx.repo_root)
+    clean_db_path = variant_config.resolved_database(cli_ctx.repo_root)
+    mapping_json_path = cli_ctx.repo_root / "mapping.json"
+
+    if cli_ctx.dry_run:
+        logger.info(
+            f"[Dry-run] Would build clean DB: raw={raw_db_path}, clean={clean_db_path}, mapping={mapping_json_path}"
+        )
+        return
+
+    try:
+        build_clean_db(
+            raw_db_path=raw_db_path,
+            clean_db_path=clean_db_path,
+            mapping_json_path=mapping_json_path,
+        )
+        logger.info("Next: Run 'erenshor wiki generate' or 'erenshor sheets deploy'")
+    except Exception as e:
+        console.print(f"[red]Error during build: {e}[/red]")
+        logger.exception("Clean DB build failed")
         raise typer.Exit(1) from e
 
 

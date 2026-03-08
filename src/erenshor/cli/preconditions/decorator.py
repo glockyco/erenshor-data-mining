@@ -142,6 +142,7 @@ def _build_check_context(cli_ctx: CLIContext) -> dict[str, Any]:
         "variant": cli_ctx.variant,
         "repo_root": cli_ctx.repo_root,
         "database_path": variant_config.resolved_database(cli_ctx.repo_root),
+        "database_raw_path": variant_config.resolved_database_raw(cli_ctx.repo_root),
         "unity_project": variant_config.resolved_unity_project(cli_ctx.repo_root),
         "game_dir": variant_config.resolved_game_files(cli_ctx.repo_root),
         "logs_dir": variant_config.resolved_logs(cli_ctx.repo_root),

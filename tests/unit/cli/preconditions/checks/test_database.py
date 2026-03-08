@@ -3,7 +3,12 @@
 import sqlite3
 from pathlib import Path
 
-from erenshor.cli.preconditions.checks.database import database_exists, database_has_items, database_valid
+from erenshor.cli.preconditions.checks.database import (
+    database_exists,
+    database_has_items,
+    database_valid,
+    raw_database_exists,
+)
 
 
 def test_database_exists_when_file_exists(tmp_path: Path):
@@ -73,14 +78,14 @@ def test_database_valid_with_corrupted_file(tmp_path: Path):
 
 
 def test_database_has_items_with_populated_database(tmp_path: Path):
-    """Test database_has_items passes when Items table has data."""
+    """Test database_has_items passes when items table has data."""
     db_path = tmp_path / "test.sqlite"
 
-    # Create database with items
+    # Create database with items (snake_case clean DB schema)
     conn = sqlite3.connect(str(db_path))
-    conn.execute("CREATE TABLE Items (id INTEGER PRIMARY KEY, name TEXT)")
-    conn.execute("INSERT INTO Items (id, name) VALUES (1, 'Test Item')")
-    conn.execute("INSERT INTO Items (id, name) VALUES (2, 'Another Item')")
+    conn.execute("CREATE TABLE items (id INTEGER PRIMARY KEY, name TEXT)")
+    conn.execute("INSERT INTO items (id, name) VALUES (1, 'Test Item')")
+    conn.execute("INSERT INTO items (id, name) VALUES (2, 'Another Item')")
     conn.commit()
     conn.close()
 
@@ -92,12 +97,12 @@ def test_database_has_items_with_populated_database(tmp_path: Path):
 
 
 def test_database_has_items_with_empty_table(tmp_path: Path):
-    """Test database_has_items fails when Items table is empty."""
+    """Test database_has_items fails when items table is empty."""
     db_path = tmp_path / "test.sqlite"
 
-    # Create database with empty Items table
+    # Create database with empty items table
     conn = sqlite3.connect(str(db_path))
-    conn.execute("CREATE TABLE Items (id INTEGER PRIMARY KEY, name TEXT)")
+    conn.execute("CREATE TABLE items (id INTEGER PRIMARY KEY, name TEXT)")
     conn.commit()
     conn.close()
 
@@ -109,12 +114,12 @@ def test_database_has_items_with_empty_table(tmp_path: Path):
 
 
 def test_database_has_items_with_missing_table(tmp_path: Path):
-    """Test database_has_items fails when Item table doesn't exist."""
+    """Test database_has_items fails when items table doesn't exist."""
     db_path = tmp_path / "test.sqlite"
 
-    # Create database without Item table
+    # Create database without items table
     conn = sqlite3.connect(str(db_path))
-    conn.execute("CREATE TABLE OtherTable (id INTEGER PRIMARY KEY)")
+    conn.execute("CREATE TABLE other_table (id INTEGER PRIMARY KEY)")
     conn.commit()
     conn.close()
 
@@ -134,3 +139,27 @@ def test_database_has_items_with_missing_file(tmp_path: Path):
 
     assert result.passed is False
     assert "not found" in result.message.lower()
+
+
+def test_raw_database_exists_when_file_exists(tmp_path: Path):
+    """Test raw_database_exists passes when raw database file exists."""
+    db_path = tmp_path / "erenshor-main-raw.sqlite"
+    db_path.touch()
+
+    context = {"database_raw_path": db_path}
+    result = raw_database_exists(context)
+
+    assert result.passed is True
+    assert "exists" in result.message.lower()
+
+
+def test_raw_database_exists_when_file_missing(tmp_path: Path):
+    """Test raw_database_exists fails when raw database file is missing."""
+    db_path = tmp_path / "erenshor-main-raw.sqlite"
+
+    context = {"database_raw_path": db_path}
+    result = raw_database_exists(context)
+
+    assert result.passed is False
+    assert "not found" in result.message.lower()
+    assert str(db_path) in result.detail
