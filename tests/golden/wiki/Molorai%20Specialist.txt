@@ -1,0 +1,75 @@
+{{Enemy
+|name=Molorai Specialist
+|image=[[File:Molorai Specialist.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
+|factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
+|zones=[[The Duskenlight Coast]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Hardened Copper Sword}} (57.4%)<br>{{ItemLink|Citrine Stone}} (32.7%)<br>{{ItemLink|Water}} (32.7%)<br>{{ItemLink|Ancient Pottery Shard}} (13.1%)<br>{{ItemLink|Diamond}} (13.1%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Battle Chain}} (13.1%)
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=24700
+|mana=300
+|ac=330
+|strength=400
+|endurance=400
+|dexterity=650
+|agility=200
+|intelligence=150
+|wisdom=95
+|charisma=100
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells={{AbilityLink|Death's Embrace}}<br>{{AbilityLink|Expose Weakness}}
+}}
+
+{{Enemy
+|name=Molorai Specialist
+|image=[[File:Molorai Specialist.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
+|factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
+|zones=[[The Duskenlight Coast]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Hardened Copper Sword}} (57.4%)<br>{{ItemLink|Citrine Stone}} (32.7%)<br>{{ItemLink|Water}} (32.7%)<br>{{ItemLink|Luminstone}} (6.8%)<br>{{ItemLink|Molorai Battle Chain}} (6.8%)<br>{{ItemLink|Star Stone}} (6.8%)<br>{{ItemLink|Eldoth Writings: The Braxonian}} (6.3%)<ref>If the player is already holding {{ItemLink|Eldoth Writings: The Braxonian}} in their inventory, another will not drop.</ref><br>{{ItemLink|Eldoth Writings: The Braxonian Pt 2}} (6.3%)<ref>If the player is already holding {{ItemLink|Eldoth Writings: The Braxonian Pt 2}} in their inventory, another will not drop.</ref><br>{{ItemLink|Eldoth Writings: The Wisp}} (6.3%)<ref>If the player is already holding {{ItemLink|Eldoth Writings: The Wisp}} in their inventory, another will not drop.</ref>
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=24700
+|mana=300
+|ac=330
+|strength=400
+|endurance=400
+|dexterity=650
+|agility=200
+|intelligence=150
+|wisdom=95
+|charisma=100
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells={{AbilityLink|Death's Embrace}}<br>{{AbilityLink|Expose Weakness}}
+}}
+
+[[Category:Braxonian Desert]]
+[[Category:Enemies]]
+[[Category:The Duskenlight Coast]]

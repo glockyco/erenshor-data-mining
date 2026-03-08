@@ -1,0 +1,37 @@
+{{Enemy
+|name=Fernalla's Guardian Golem
+|image=[[File:Fernalla's Guardian Golem.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=-100 [[Fernalla's Children]]
+|zones=
+|coordinates=
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=25
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1560
+|mana=0
+|ac=375
+|strength=32
+|endurance=100
+|dexterity=55
+|agility=32
+|intelligence=32
+|wisdom=32
+|charisma=32
+|magic=12-30
+|poison=12-30
+|elemental=12-30
+|void=12-30
+|spells=
+}}
+
+[[Category:Enemies]]

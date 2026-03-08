@@ -1,0 +1,59 @@
+{{Enemy
+|name=Freed Spirit of Raval
+|image=[[File:Freed Spirit of Raval.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=
+|zones=[[Soluna's Landing]]
+|coordinates=
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=45
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=0
+|levelvariancemax=0
+|xpmultiplier=1.0
+|health=93600
+|mana=5000
+|ac=675
+|strength=9
+|endurance=45
+|dexterity=45
+|agility=1
+|intelligence=5
+|wisdom=1
+|charisma=1
+|magic=22-54
+|poison=22-54
+|elemental=22-54
+|void=22-54
+|spells={{AbilityLink|Minor Protection}}
+}}
+Freed Spirit of Raval will appear in the graveyard behind the big building in the canyon once you defeat [[Raval, The First Paladin]]
+
+Greeting message:
+{| class="wikitable"
+|I am freed from that body... the <span style="color: #15e300;">[insanity]</span> it endured... it's all gone. Thank you.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[insanity]</span>
+|When Astra came, Soluna fled. She left us here trapped by that beast. We could not sustain, and Astra's <span style="color: #15e300;">[presence]</span> permeated the air, our minds were no match for it.
+|-
+|<span style="color: #15e300;">[presence]</span> 
+|Astra has remained here, building power to pursue Soluna to her own plane of existance. I fear I may never rest peacefully until (s)he is gone.<br><br><i>This begins {{QuestLink|link=Raval's Last Wish}}</i>
+|-
+|}
+
+When handed [[Heart of Astra]]:
+{| class="wikitable"
+|You... you've done it? I cannot believe it. Your power must be immeasurable! It is a shame that the Solunarian Guard will never know how much pain they've caused us by standing idly by at the Shrine. Perhaps *you* can find the answers to the questions that have tortured us for so long. Here... take this. If you can find a way to use it, you may learn secrets that will change the world forever...
+|}
+
+[[Category:Characters]]
+[[Category:Soluna's Landing]]

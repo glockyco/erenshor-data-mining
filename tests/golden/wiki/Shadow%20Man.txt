@@ -1,0 +1,41 @@
+{{Enemy
+|name=Shadow Man
+|image=[[File:Shadow Man.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Rare]]
+|faction=[[The Followers of Evil]]
+|factionChange=-10 [[The Children of Sivakaya]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]
+|zones=[[Silkengrass Meadowlands]]
+|coordinates=
+|spawnchance=10%
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (57.4%)<br>{{ItemLink|Star Stone}} (57.4%)<br>{{ItemLink|Aether's Blessing}} (20.5%)<br>{{ItemLink|Aetherial Hood}} (12.1%)<br>{{ItemLink|Rune of Silkengrass}} (6.7%)<ref>If the player is already holding {{ItemLink|Rune of Silkengrass}} in their inventory, another will not drop.</ref>
+|level=19
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=16250
+|mana=0
+|ac=285
+|strength=31
+|endurance=25
+|dexterity=155
+|agility=100
+|intelligence=100
+|wisdom=100
+|charisma=100
+|magic=10-23
+|poison=10-23
+|elemental=10-23
+|void=10-23
+|spells=
+}}
+Sometimes spawns instead of a [[Lesser Shadowman]].
+==Notes==
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Silkengrass Meadowlands]]

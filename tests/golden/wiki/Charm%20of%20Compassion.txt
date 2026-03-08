@@ -1,0 +1,43 @@
+{{Item
+|title=Charm of Compassion
+|type=
+|vendorsource=
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=1x {{ItemLink|Mold: Charm of Compassion}}<br>1x {{ItemLink|Chunk of Copper Ore}}<br>1x {{ItemLink|Chunk of Living Ruby}}<br>1x {{ItemLink|Chunk of Living Sapphire}}<br>1x {{ItemLink|Chunk of Citrine Sandsilver}}
+|componentfor=
+|buy=25000
+|sell=16250
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/Charm
+|image=Charm of Compassion.png
+|name=Charm of Compassion
+|tier=0
+|strscaling=
+|endscaling=
+|dexscaling=
+|agiscaling=
+|intscaling=
+|wisscaling=2
+|chascaling=2
+|resistscaling=
+|mitigationscaling=
+|arcanist=True
+|duelist=True
+|druid=True
+|paladin=True
+|reaver=True
+|stormcaller=True
+}}
+
+ 
+{{Hatnote | Note: This effect is currently unimplemented.}}
+
+[[Category:Charms]]

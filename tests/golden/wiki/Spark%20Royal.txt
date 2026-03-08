@@ -1,0 +1,60 @@
+{{Enemy
+|name=Spark Royal
+|image=[[File:Spark Royal.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Lost Cellar]]
+|coordinates=252.9 x 150.3 x 62.7
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Exoskeletal Spaulders}}<br>{{ItemLink|Royal Carapace}}
+|droprates={{ItemLink|Exoskeletal Spaulders}} (50.0%)<br>{{ItemLink|Royal Carapace}} (50.0%)<br>{{ItemLink|Droplet of Lava}} (5.2%)
+|level=14
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=3.0
+|health=9750
+|mana=0
+|ac=210
+|strength=350
+|endurance=200
+|dexterity=350
+|agility=100
+|intelligence=100
+|wisdom=100
+|charisma=33
+|magic=7-17
+|poison=7-17
+|elemental=7-17
+|void=7-17
+|spells=
+}}
+
+''{{main|Enemies}}''
+
+=Location=
+{{PAGENAME}} is located in the [[Lost Cellar]]. After entering the dungeon, go straight and take a right at the fork. {{PAGENAME}} can be found in the dead end only slightly further down the path.
+
+=Appearance=
+{{PAGENAME}} is a large insect with a blue body and purple legs. It has two large horns and mandibles, as well as a brown exoskeleton running along its back. It is guarded by two [[Spark Soldier|Spark Soldiers]].
+
+=Behavior=
+{{PAGENAME}} waits in a dead end towards the beginning of the cave. It will attack players if they get too close.
+
+===Spells & Abilities===
+{{PAGENAME}} does not use any spells or abilities.
+
+===Strategy===
+Although {{PAGENAME}} should not pose much of a threat to an adequately leveled and geared party, combined with its guards a [[Paladin]] might find themselves overwhelmed. {{AbilityLink|Dazzle}} or {{AbilityLink|Sunburst}} can momentarily take them out of the fight while they are killed or the party focuses on taking out the {{PAGENAME}}.
+
+=Notes=
+*Although its stats are primarily geared towards magic users, [[Royal Carapace]] is an excellent and reliable early upgrade for shield-using Paladins.
+*Because of its close proximity to the [[Spark Queen]], both bosses can quickly and easily be farmed simultaneously.
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Lost Cellar]]

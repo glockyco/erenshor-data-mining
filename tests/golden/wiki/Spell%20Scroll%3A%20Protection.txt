@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Protection
+|type=
+|vendorsource=
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=1225
+|sell=796
+|taughtspell={{AbilityLink|Protection}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Protection.png
+|name=Spell Scroll: Protection
+|arcanist_level=10
+|druid_level=10
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=100
+|spell_type=Beneficial
+|spell_desc=Gives an increase to armor and endurance.
+}}
+
+[[Category:Ability Books]]

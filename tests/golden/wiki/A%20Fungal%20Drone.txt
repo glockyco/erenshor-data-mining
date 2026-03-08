@@ -1,0 +1,39 @@
+{{Enemy
+|name=A Fungal Drone
+|image=[[File:A Fungal Drone.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Rottenfoot]]<br>[[The Elderstone Mines]]
+|coordinates=
+|spawnchance=
+|respawn=12 minutes (Rottenfoot)<br>4-12 minutes (The Elderstone Mines)
+|guaranteeddrops=
+|droprates={{ItemLink|Luminstone}} (87.1%)<br>{{ItemLink|A Twisted Spider Leg}} (20.4%)<br>{{ItemLink|A Fanged Caveskimmer}} (11.5%)<br>{{ItemLink|Fungal Spore}} (11.5%)
+|level=17
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=7800
+|mana=0
+|ac=255
+|strength=5
+|endurance=65
+|dexterity=75
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=8-20
+|poison=8-20
+|elemental=8-20
+|void=8-20
+|spells=
+}}
+
+[[Category:Enemies]]
+[[Category:Rottenfoot]]
+[[Category:The Elderstone Mines]]

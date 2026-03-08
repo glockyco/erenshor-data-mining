@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Blessed Quiver
+|type=[[Ability Books|Spell Scroll]]
+|vendorsource=
+|source=[[Elwio the Traitor]] (63.3%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=30000
+|sell=19500
+|taughtspell={{AbilityLink|Blessed Quiver}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Blessed Quiver.png
+|name=Spell Scroll: Blessed Quiver
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=34
+|reaver_level=
+|mana_cost=1800
+|spell_type=Beneficial
+|spell_desc=Gives a 25% chance to proc spell: Arcstorm (750 dmg) on each arrow
+}}
+
+[[Category:Ability Books]]

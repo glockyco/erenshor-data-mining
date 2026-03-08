@@ -1,0 +1,38 @@
+{{Enemy
+|name=Stoneman Knight
+|image=[[File:Stoneman Knight.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Rockshade Hold]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Polished Stone}} (82.4%)<br>{{ItemLink|Old Journal Pg. 1}} (1.1%)<ref>If the player is already holding {{ItemLink|Old Journal Pg. 1}} in their inventory, another will not drop.</ref><br>{{ItemLink|Old Journal Pg. 2}} (1.1%)<ref>If the player is already holding {{ItemLink|Old Journal Pg. 2}} in their inventory, another will not drop.</ref><br>{{ItemLink|Old Journal Pg. 3}} (1.1%)<ref>If the player is already holding {{ItemLink|Old Journal Pg. 3}} in their inventory, another will not drop.</ref><br>{{ItemLink|Old Journal Pg. 4}} (1.1%)<ref>If the player is already holding {{ItemLink|Old Journal Pg. 4}} in their inventory, another will not drop.</ref><br>{{ItemLink|Pulsating Stone}} (1.1%)<ref>If the player is already holding {{ItemLink|Pulsating Stone}} in their inventory, another will not drop.</ref><br>{{ItemLink|Rockshade Key}} (1.1%)<ref>If the player is already holding {{ItemLink|Rockshade Key}} in their inventory, another will not drop.</ref><br>{{ItemLink|Blueprint: Stone Auction}} (0.3%)<br>{{ItemLink|Blueprint: Stone Bank}} (0.3%)<br>{{ItemLink|Blueprint: Stone Dining}} (0.3%)<br>{{ItemLink|Blueprint: Stone Fountain}} (0.3%)<br>{{ItemLink|Blueprint: Stone Training Room}} (0.3%)<br>{{ItemLink|Blueprint: Stone Vendor}} (0.3%)
+|level=24
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=21450
+|mana=300
+|ac=360
+|strength=600
+|endurance=500
+|dexterity=650
+|agility=85
+|intelligence=155
+|wisdom=155
+|charisma=155
+|magic=12-29
+|poison=12-29
+|elemental=12-29
+|void=12-29
+|spells=
+}}
+
+[[Category:Enemies]]
+[[Category:Rockshade Hold]]

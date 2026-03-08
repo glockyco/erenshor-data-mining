@@ -1,0 +1,38 @@
+{{Enemy
+|name=Botanist
+|image=[[File:Botanist.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Azynthi's Garden|Azynthi's Garden (Dimensional Rift)]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Twisted Branch}} (7.7%)<ref>If Botanist has {{ItemLink|Twisted Branch}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Living Chainmail Jacket}} (6.9%)<br>{{ItemLink|Living Chainmail Leggings}} (6.9%)
+|level=35
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=52000
+|mana=2000
+|ac=525
+|strength=700
+|endurance=700
+|dexterity=700
+|agility=500
+|intelligence=200
+|wisdom=200
+|charisma=100
+|magic=18-42
+|poison=18-42
+|elemental=18-42
+|void=18-42
+|spells={{AbilityLink|Arterial Decay}}<br>{{AbilityLink|Biting Vines}}<br>{{AbilityLink|Morbidity's Grasp}}<br>{{AbilityLink|Soul Tap}}<br>{{AbilityLink|Tangle}}
+}}
+
+[[Category:Azynthi's Garden]]
+[[Category:Enemies]]

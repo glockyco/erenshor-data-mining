@@ -1,0 +1,41 @@
+{{Enemy
+|name=Fenton the Blighted
+|image=[[File:Fenton the Blighted.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Torchbearers of Brax]]
+|zones=[[The Blight]]
+|coordinates=114.7 x 56.3 x 584.0
+|spawnchance=50%
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Blighted Silk Wraps}}<br>{{ItemLink|Soul Echo}}
+|droprates={{ItemLink|Scribbles of a Mad Priest}} (100.0%)<ref>If the player is already holding {{ItemLink|Scribbles of a Mad Priest}} in their inventory, another will not drop.</ref><br>{{ItemLink|Blighted Silk Wraps}} (75.0%)<br>{{ItemLink|Soul Echo}} (25.0%)<br>{{ItemLink|Diamond}} (20.4%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ancient Pottery Shard}} (11.5%)<br>{{ItemLink|Blight Crystals}} (11.5%)
+|level=31
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=3.0
+|health=41060
+|mana=2500
+|ac=465
+|strength=600
+|endurance=500
+|dexterity=600
+|agility=100
+|intelligence=155
+|wisdom=100
+|charisma=100
+|magic=16-37
+|poison=16-37
+|elemental=16-37
+|void=16-37
+|spells={{AbilityLink|Brax's Fury}}<br>{{AbilityLink|Ice Spear}}<br>{{AbilityLink|Immolation}}<br>{{AbilityLink|Regrowth}}<br>{{AbilityLink|Winter's Bite}}
+}}
+Fenton the Blighted is an occasional spawn that can be found in [[The Blight]] at a shrine surrounded by his [[Blighted Priest]]'s and [[Braxon Fanatic]]'s, where a [[Blighted Priest]] may spawn instead.
+=Notes=
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:The Blight]]

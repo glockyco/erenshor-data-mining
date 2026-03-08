@@ -1,0 +1,55 @@
+{{Enemy
+|name=Damien Torno
+|image=[[File:Damien Torno.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Agents of The Wisp]]
+|factionChange=-50 [[The Agents of The Wisp]]
+|zones=[[Faerie's Brake]]
+|coordinates=310.6 x 27.7 x 147.9
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Luminstone}} (21.2%)<br>{{ItemLink|Star Stone}} (21.2%)
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=28600
+|mana=155
+|ac=330
+|strength=15
+|endurance=65
+|dexterity=65
+|agility=15
+|intelligence=15
+|wisdom=5
+|charisma=15
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells={{AbilityLink|Brax's Rage}}<br>{{AbilityLink|Brax's Touch}}<br>{{AbilityLink|Hardened Skin}}<br>{{AbilityLink|Magic Bolt}}<br>{{AbilityLink|Minor Lightning}}<br>{{AbilityLink|Minor Protection}}<br>{{AbilityLink|Minor Regeneration}}<br>{{AbilityLink|Vampiric Touch}}
+}}
+
+Damien is an NPC located in [[Faerie's Brake]].
+
+<br>
+Greeting message:
+{| class="wikitable"
+|You should not be here. Your <span style="color: #15e300;">[favors]</span> to the Wisp do not grant you favor with me.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[favors]</span>
+Word spreads. You found Wyland. For all I know, it's you that sent him to the spirit world to begin with.
+|-
+|<span style="color: #15e300;">[brotherhood]</span>
+Do not dabble in the things you don't wish to dive into. This land is in trouble. The invaders here will be removed.
+|}
+
+[[Category:Characters]]
+[[Category:Faerie's Brake]]

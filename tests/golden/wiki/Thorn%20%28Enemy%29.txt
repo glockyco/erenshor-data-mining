@@ -1,0 +1,39 @@
+{{Enemy
+|name=Thorn
+|image=[[File:Thorn Boss.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Loomingwood Forest]]
+|coordinates=147.1 x 33.0 x 747.9
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Blue Leaf Cape}}<br>{{ItemLink|Thorned Knuckle Gloves}}
+|droprates={{ItemLink|Blue Leaf Cape}} (50.0%)<br>{{ItemLink|Thorned Knuckle Gloves}} (50.0%)<br>{{ItemLink|Loomingwood Branch}} (13.5%)<br>{{ItemLink|Blueprint: Loomingwood Market}} (0.3%)<br>{{ItemLink|Blueprint: Loomingwood Shrine}} (0.3%)
+|level=26
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=4.0
+|health=18200
+|mana=0
+|ac=390
+|strength=100
+|endurance=40
+|dexterity=165
+|agility=100
+|intelligence=100
+|wisdom=100
+|charisma=100
+|magic=13-31
+|poison=13-31
+|elemental=13-31
+|void=13-31
+|spells={{AbilityLink|Morbidity's Grasp}}
+}}
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Loomingwood Forest]]

@@ -1,0 +1,49 @@
+{{Enemy
+|name=Rylith Orthia
+|image=[[File:Rylith Orthia.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Erenshor]]
+|factionChange=-15 [[The Blades of Vitheo]]<br>-15 [[The Citizens of Erenshor]]<br>-15 [[The Citizens of Port Azure]]
+|zones=[[The Duskenlight Coast]]
+|coordinates=1118.9 x 70.0 x 592.3
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=6
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1300
+|mana=0
+|ac=90
+|strength=125
+|endurance=5
+|dexterity=125
+|agility=5
+|intelligence=5
+|wisdom=5
+|charisma=5
+|magic=3-7
+|poison=3-7
+|elemental=3-7
+|void=3-7
+|spells=
+}}
+Rylith is located between two broken down shacks in the [[Duskenlight Coast]]
+
+Greeting message:
+{| class="wikitable"
+|Those men on the hill... they're trying to get into the jaws.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[jaws]</span>
+The Jaws of Sivakaya... that ancient temple with the skullstone entrance. Nobody's been able to open it for a lifetime. They think they're going to figure it out... Who knows what that'll unleash!
+
+[[Category:Characters]]
+[[Category:The Duskenlight Coast]]

@@ -1,0 +1,45 @@
+{{Enemy
+|name=The Gardener of Loomingwood
+|image=[[File:The Gardener of Loomingwood.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Loomingwood Forest]]
+|coordinates=185.9 x 46.1 x 842.4
+|spawnchance=
+|respawn=7 minutes
+|guaranteeddrops={{ItemLink|Decay}}<br>{{ItemLink|Looming Reaper}}<br>{{ItemLink|Rootwoven Wraps}}
+|droprates={{ItemLink|Loomingwood Branch}} (100.0%)<br>{{ItemLink|Rootwoven Wraps}} (50.0%)<br>{{ItemLink|Decay}} (25.0%)<br>{{ItemLink|Looming Reaper}} (25.0%)<ref>If The Gardener of Loomingwood has {{ItemLink|Looming Reaper}} equipped, it is guaranteed to drop.</ref>
+|level=30
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=4.0
+|health=37050
+|mana=2000
+|ac=450
+|strength=45
+|endurance=145
+|dexterity=110
+|agility=55
+|intelligence=200
+|wisdom=200
+|charisma=100
+|magic=15-36
+|poison=15-36
+|elemental=15-36
+|void=15-36
+|spells={{AbilityLink|Arterial Decay}}<br>{{AbilityLink|Biting Vines}}<br>{{AbilityLink|Morbidity's Grasp}}<br>{{AbilityLink|Soul Tap}}<br>{{AbilityLink|Tangle}}
+}}
+
+Located in a cubby surrounded by [[Devoratrix]].
+
+Beware when fighting The Gardener of Loomingwood, upon gaining her aggression all the [[Devoratrix]] in the area will begin to attack you as well.
+
+=Notes=
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Loomingwood Forest]]

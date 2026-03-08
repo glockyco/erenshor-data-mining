@@ -1,0 +1,38 @@
+{{Enemy
+|name=A Faerie Windchild
+|image=[[File:A Faerie Windchild.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Skyfolk]]
+|factionChange=-5 [[The Skyfolk]]
+|zones=[[Ripper's Keep]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (14.3%)<br>{{ItemLink|Luminstone}} (14.3%)<br>{{ItemLink|Seafruit}} (10.1%)<br>{{ItemLink|Bag of Faerie Dust}} (4.5%)<ref>If the player is already holding {{ItemLink|Bag of Faerie Dust}} in their inventory, another will not drop.</ref><br>{{ItemLink|Diamond}} (4.5%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Charmed Belt}} (2.0%)<br>{{ItemLink|Intact Faerie Wing}} (2.0%)<br>{{ItemLink|Skyfolk Band}} (2.0%)<br>{{ItemLink|Twinkling Pendant}} (2.0%)<br>{{ItemLink|Wingwoven Cape}} (2.0%)
+|level=28
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=32500
+|mana=0
+|ac=420
+|strength=150
+|endurance=150
+|dexterity=225
+|agility=100
+|intelligence=300
+|wisdom=100
+|charisma=100
+|magic=14-34
+|poison=14-34
+|elemental=14-34
+|void=14-34
+|spells=
+}}
+
+[[Category:Enemies]]
+[[Category:Ripper's Keep]]

@@ -1,0 +1,38 @@
+{{Enemy
+|name=Ancient Knight
+|image=[[File:Ancient Knight.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Soluna's Landing]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Ancient Bone}} (87.1%)<br>{{ItemLink|Lost Faith}} (22.1%)<br>{{ItemLink|Aetheria}} (13.4%)<ref>If the player is already holding {{ItemLink|Aetheria}} in their inventory, another will not drop.</ref><br>{{ItemLink|Moonglow Amulet}} (4.1%)<br>{{ItemLink|Wardens of the North}} (2.3%)<br>{{ItemLink|Stone Statue: Soluna}} (1.4%)
+|level=30
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=37050
+|mana=0
+|ac=450
+|strength=500
+|endurance=400
+|dexterity=500
+|agility=400
+|intelligence=95
+|wisdom=95
+|charisma=75
+|magic=15-36
+|poison=15-36
+|elemental=15-36
+|void=15-36
+|spells={{AbilityLink|Glare of Soluna}}<br>{{AbilityLink|Spectrum}}<br>{{AbilityLink|Supreme Healing}}<br>{{AbilityLink|Theft of Vigor}}<br>{{AbilityLink|Voidblast}}
+}}
+
+[[Category:Enemies]]
+[[Category:Soluna's Landing]]

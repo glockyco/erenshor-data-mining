@@ -1,0 +1,33 @@
+{{Item
+|title=Skill Book: Victor's Pride
+|type=[[Ability Books|Skill Book]]
+|vendorsource=[[Ludo Luxo]]
+|source=
+|othersource=[[Duelist]] starting gear
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=25
+|sell=16
+|taughtspell=
+|taughtskill={{AbilityLink|Victor's Pride}}
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SkillBook
+|image=Skill Book: Victor's Pride.png
+|name=Skill Book: Victor's Pride
+|duelist_level=1
+|druid_level=
+|arcanist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|skill_type=Innate
+|skill_desc=Felling an enemy gives a burst of power and regeneration.
+|simplayers_autolearn=True
+}}
+
+[[Category:Ability Books]]

@@ -1,0 +1,73 @@
+{{Item
+|title=Seaspice
+|type=[[Consumables|Consumable]], [[Crafting]], [[Quest Items|Quest Item]]
+|vendorsource=[[Cully Edwarse]]<br>[[Saya Seawatcher]]<br>[[Shantee Swingblade]]<br>[[Summoned: Pocket Vendor]]
+|source=[[Ghost of Wyland Sercher]] (100.0%)<br>[[Lost Soul]] (100.0%)<br>[[Sylvan Giant Runt]] (86.3%)<br>[[The Lost Sea Giant King]] (66.1%)<br>[[Cerynth Duskveil]] (59.4%)<br>[[Elizah Vernor]] (59.4%)<br>[[Molorai Brewmistress]] (59.4%)<br>[[Myrre Morrigane]] (59.4%)<br>[[Rose Crystalshade]] (59.4%)<br>[[Thella Steepleton]] (59.4%)<br>[[Plaxitheris]] (19.4%)<br>[[Priel Consort]] (4.3%)<br>[[Priel Deceiver]] (4.3%)<br>[[Priel Enforcer]] (4.3%)<br>[[Priel Gifted]] (4.3%)<br>[[Priel Grimwatch]] (4.3%)<br>[[Priel Purist]] (4.3%)<br>[[Priel Soldier]] (4.3%)<br>[[Priel Swiftblade]] (4.3%)<br>[[A Lost Sea Giant]] (4.0%)
+|othersource=
+|questsource=
+|relatedquest={{QuestLink|A Magical Sword in Port Azure}}<br>{{QuestLink|A Trade in Ripper's Keep}}<br>{{QuestLink|Percy's Seaspice}}
+|craftsource=
+|componentfor={{ItemLink|Mold: Charm of the Jester}}
+|buy=500
+|sell=325
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/Consumable
+|image=Seaspice.png
+|name=Seaspice
+|description=Just the smell alone is invigorating.
+|disposable=True
+|effect_spell_icon=Spiced Fury.png
+|effect_spell_name=[[Spiced Fury]]
+|effect_spell_level=1
+|effect_spell_duration_ticks=30
+|effect_spell_type=Beneficial
+|effect_spell_line=Global_Haste
+|effect_target_damage=
+|effect_target_healing=
+|effect_shielding_amt=
+|effect_damage_type=Physical
+|effect_cast_time=0.0
+|effect_cooldown=
+|effect_spell_range=30.0
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=15.0
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+|effect_xp_bonus=
+}}
+
+[[Category:Consumables]]
+[[Category:Crafting]]
+[[Category:Quest Items]]

@@ -1,0 +1,77 @@
+{{spoiler}}
+
+{{Enemy
+|name=Eldoth Molorai
+|image=[[File:Eldoth Molorai.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Azynthi's Garden]]
+|coordinates=623.1 x 109.4 x 496.8
+|spawnchance=
+|respawn=42 minutes
+|guaranteeddrops={{ItemLink|Eldoth's Finery}}<br>{{ItemLink|Eldoth's Heirloom Ring}}<br>{{ItemLink|Sivakaya's Touch}}
+|droprates={{ItemLink|Eldoth's Journal Entry}} (100.0%)<ref>If the player is already holding {{ItemLink|Eldoth's Journal Entry}} in their inventory, another will not drop.</ref><br>{{ItemLink|Skull-Shaped Candleholder}} (100.0%)<br>{{ItemLink|Evacuate Soul}} (94.0%)<br>{{ItemLink|Eldoth's Heirloom Ring}} (50.0%)<br>{{ItemLink|Eldoth's Finery}} (25.0%)<br>{{ItemLink|Sivakaya's Touch}} (25.0%)<br>{{ItemLink|Temporal Shard}} (7.7%)
+|level=43
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=0
+|levelvariancemax=0
+|xpmultiplier=5.0
+|health=390000
+|mana=0
+|ac=645
+|strength=800
+|endurance=800
+|dexterity=800
+|agility=800
+|intelligence=800
+|wisdom=800
+|charisma=800
+|magic=22-52
+|poison=22-52
+|elemental=22-52
+|void=22-52
+|spells=
+}}
+
+''{{Main|Enemies}}''
+=Location=
+{{PAGENAME}} is found on the top floor of the building in the middle of [[Azynthi's Garden]]. His room is hidden behind a bookcase, which requires the {{ItemLink|Intricate Key}} to open. This key is dropped by the [[Molorai Eldermistress]], who can be found on the balcony on the opposite side of the building.
+
+=Appearance=
+{{PAGENAME}} is a tall man in finery and a large top hat. He wears brown boots and a red and black cape, which is clasped around his neck with a gold chain. Although it is unconfirmed, it is quite likely that {{PAGENAME}} (and many of his followers) are vampiric in nature, further evidenced by his sharp teeth and innate lifesteal.
+
+=Behavior=
+{{PAGENAME}} hides in his secret library and will attack players when they enter. As players explore the Garden, {{PAGENAME}} will also shout various messages, encouraging his supporters and taunting the player.
+
+===Spells & Abilities===
+Innate:
+*{{AbilityLink|Blood Feast}}
+
+===Strategy===
+Fighting {{PAGENAME}} at full strength is incredibly difficult and not recommended. Instead, players should seek out and destroy the four [[Flicker of Souls]] scattered throughout Azynthi's Garden before challenging him:
+*Near the front steps of the castle.
+*Inside a mausoleum in the graveyard.
+*In a seemingly inaccessible section of the hedge maze.
+*Sealed inside a room on the first floor of the castle.
+Each of the Flickers are immune to damage until given a {{ItemLink|Riftsnare Gem}}. These can be found by defeating [[Enemies#List of Bosses|Bosses]] in the Dimensional Rift version of Azynthi's Garden, reached by completing {{QuestLink|The Riftstone}} and acquiring the {{ItemLink|Azynthian Riftstone}}:
+*[[Grounds Keeper]] in the hedge maze, in front of the statue of [[Sivakaya]].
+*[[Vos Ashlyn]] in the graveyard.
+*[[Exalted Firebone]], on the second floor of the castle in the middle room.
+*[[Oracle Miress]], in the room to the left when facing Exalted Firebone.
+*[[Oracle Tretha]], on the balcony on the top floor of the castle.
+Each Flicker of Souls destroyed weakens {{PAGENAME}}, up to a maximum of four times. Players will need to work quickly, however, as they will respawn 50 minutes (27 minutes and 30 seconds if in a party of three or four) after they've been destroyed and subsequently grant {{PAGENAME}} his power back.<br><br>
+
+When fighting {{PAGENAME}}, be aware of his innate lifesteal: if your DPS is not high enough to counteract his healing, you will need to [[Item Quality|upgrade]] your gear or gain additional levels before challenging him again. Even after being weakened, {{PAGENAME}} still hits hard, but does not use any special skills or abilities. With enough damage and a tank able to withstand his hits, {{PAGENAME}} will eventually fall.
+
+=Notes=
+*Players will need to neutralize the Flickers of Souls each time they challenge {{PAGENAME}} if they wish to weaken him again.
+*There is currently a known bug causing {{PAGENAME}} to not grant any Experience or his related Steam Achievement when he is defeated after being fully weakened. This can be bypassed by only killing three of the four [[Flicker of Souls]]. Note that this will, however, cause {{PAGENAME}} to be more difficult.
+*{{PAGENAME}} may occasionally sense players through the walls, floor, or ceiling of his room and attack without provocation.
+*If {{PAGENAME}} is respawned via a {{ItemLink|Time Stone}}, all [[Flicker of Souls]] will respawn as well and must be destroyed to weaken him again.
+
+[[Category:Azynthi's Garden]]
+[[Category:Bosses]]
+[[Category:Enemies]]

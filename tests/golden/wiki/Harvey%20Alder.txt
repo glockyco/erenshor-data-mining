@@ -1,0 +1,56 @@
+{{Enemy
+|name=Harvey Alder
+|image=[[File:Harvey Alder.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Port Azure]]
+|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
+|zones=[[Port Azure]]
+|coordinates=154.8 x 34.1 x 255.2
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=3250
+|mana=100
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+
+Harvey can be found in one of the rooms in the Azure Arms
+
+Greeting message:
+{| class="wikitable"
+| What are you doing up here? You lose your life's work to the <span style="color: #15e300;">[Sivakayans]</span> too?
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[Sivakayans]</span>
+|Awful bunch. I used to have a shop, a home... there was a gorgeous waterfall right out my bedroom window. Port Azure pulled back the guards to defend the city and left us all alone. We had no choice but to leave.
+|}
+
+Giving him [[Samuel's Note (Item)|Samuel's Note]] to complete {{QuestLink|link=Samuel's Note}}
+{| class="wikitable"
+|Ah, Samuel is a good friend. Thank you for bringing this to me. I don't have much, but take this as a token of my gratitude... and welcome to Port Azure.
+|}
+
+[[Category:Characters]]
+[[Category:Port Azure]]

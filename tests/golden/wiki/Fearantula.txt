@@ -1,0 +1,43 @@
+{{Enemy
+|name=Fearantula
+|image=[[File:Fearantula.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Shivering Step]]
+|coordinates=598.2 x 72.1 x 450.6
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Augmenting Ring}}<br>{{ItemLink|Shadowmaker}}<br>{{ItemLink|Widow's Wraps}}
+|droprates={{ItemLink|Blue Burnstone}} (100.0%)<ref>If the player is already holding {{ItemLink|Blue Burnstone}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ancient Bone}} (61.2%)<br>{{ItemLink|Luminstone}} (61.2%)<br>{{ItemLink|Sea Glass}} (61.2%)<br>{{ItemLink|Augmenting Ring}} (33.3%)<br>{{ItemLink|Shadowmaker}} (33.3%)<br>{{ItemLink|Widow's Wraps}} (33.3%)
+|level=23
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=37050
+|mana=0
+|ac=345
+|strength=24
+|endurance=45
+|dexterity=85
+|agility=30
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=12-28
+|poison=12-28
+|elemental=12-28
+|void=12-28
+|spells=
+}}
+
+Fearantula can be found where the large tree is located or where the small town is on [[Stowaway's Step]].
+
+=Notes=
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Shivering Step]]

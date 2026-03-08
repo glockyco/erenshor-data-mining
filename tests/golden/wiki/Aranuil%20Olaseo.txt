@@ -1,0 +1,51 @@
+{{Enemy
+|name=Aranuil Olaseo
+|image=[[File:Aranuil Olaseo.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=+3 [[The Citizens of Erenshor]]<br>+3 [[The Citizens of Stowaway's Step]]
+|zones=[[Rottenfoot]]
+|coordinates=234.1 x 23.9 x 439.9
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Daggerhart Ancestral Coin}} (100.0%)<ref>If the player is already holding {{ItemLink|Daggerhart Ancestral Coin}} in their inventory, another will not drop.</ref><br>{{ItemLink|Islander Bandit Armwrap}} (19.6%)<br>{{ItemLink|Brackwood Mace}} (13.2%)<ref>If Aranuil Olaseo has {{ItemLink|Brackwood Mace}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Light Plate Breastplate}} (3.4%)<br>{{ItemLink|Spell Scroll: Brax's Touch}} (3.4%)<br>{{ItemLink|Spell Scroll: Magic Bolt}} (3.4%)<br>{{ItemLink|Spell Scroll: Minor Healing}} (3.4%)<br>{{ItemLink|Spell Scroll: Minor Lightning}} (3.4%)<br>{{ItemLink|Spell Scroll: Minor Regen}} (3.4%)<br>{{ItemLink|Spell Scroll: Tangle}} (3.4%)
+|level=14
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=260
+|mana=0
+|ac=210
+|strength=18
+|endurance=6
+|dexterity=22
+|agility=5
+|intelligence=5
+|wisdom=5
+|charisma=5
+|magic=7-17
+|poison=7-17
+|elemental=7-17
+|void=7-17
+|spells=
+}}
+
+Aranuil is located in [[Rottenfoot]] near the entrance by a hut.
+
+Greeting message:
+{| class="wikitable"
+|Not many folks are tough enough for the swamp. Port Azure doesn't support us here. We're on our own past this point. Some of us like it that way.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[swamp]</span>
+If the rottenfoots don't get ya, the wildlife probably will. There's rumors of some pretty fantastic beasts out there... not to mention Sivakayans.
+|}
+
+[[Category:Characters]]
+[[Category:Rottenfoot]]

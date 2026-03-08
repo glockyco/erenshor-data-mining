@@ -1,0 +1,50 @@
+{{Enemy
+|name=Vera Pricher
+|image=[[File:Vera Pricher.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[Fernalla's Children]]
+|factionChange=-20 [[Fernalla's Children]]
+|zones=[[Port Azure]]
+|coordinates=347.4 x 37.2 x 452.7
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates=
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=4550
+|mana=300
+|ac=330
+|strength=35
+|endurance=35
+|dexterity=35
+|agility=35
+|intelligence=35
+|wisdom=35
+|charisma=35
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells=
+}}
+Vera is an NPC located in the outskirts of [[Port Azure]] by a shrine. This NPC will refuse to talk to you if you are any class other than Druid.
+
+Greeting message only for Druids:
+{| class="wikitable"
+|I've stumbled upon something notable about The Willow in my studies of Fernallan Lore. Would you like me to <span style="color: #15e300;">[share]</span> it with you?
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[yes]</span>, <span style="color: #15e300;">[share]</span> and <span style="color: #15e300;">[notable]</span>
+The Willow is everywhere, and the branches could be anywhere. However, I've learned that the Goblin tribes in the Fernallan meadows might hold more clues! If you find anything, bring it back to me. One day we'll wield it's branches...
+|}
+
+[[Category:Characters]]
+[[Category:Port Azure]]

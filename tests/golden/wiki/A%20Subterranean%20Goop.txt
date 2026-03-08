@@ -1,0 +1,38 @@
+{{Enemy
+|name=A Subterranean Goop
+|image=[[File:A Subterranean Goop.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[The Elderstone Mines]]
+|coordinates=
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Fungal Spore}} (22.1%)<br>{{ItemLink|Slime Coated Helm}} (7.6%)<br>{{ItemLink|Hardened Slime Ring}} (1.6%)<br>{{ItemLink|Spell Scroll: Antidote}} (1.6%)<br>{{ItemLink|Spell Scroll: Biting Vines}} (1.6%)<br>{{ItemLink|Spell Scroll: Brax's Rage}} (1.6%)<br>{{ItemLink|Spell Scroll: Burning Chains}} (1.6%)<br>{{ItemLink|Spell Scroll: Moonburst}} (1.6%)<br>{{ItemLink|Spell Scroll: Summon Cursed Fawn}} (1.6%)<br>{{ItemLink|Spell Scroll: Toxicity}} (1.6%)<br>{{ItemLink|Worn Shovel}} (1.6%)<ref>If the player is already holding {{ItemLink|Worn Shovel}} in their inventory, another will not drop.</ref>
+|level=17
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=10400
+|mana=0
+|ac=255
+|strength=18
+|endurance=45
+|dexterity=75
+|agility=35
+|intelligence=25
+|wisdom=15
+|charisma=3
+|magic=8-20
+|poison=8-20
+|elemental=8-20
+|void=8-20
+|spells=
+}}
+
+[[Category:Enemies]]
+[[Category:The Elderstone Mines]]

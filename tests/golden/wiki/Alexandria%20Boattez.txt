@@ -1,0 +1,49 @@
+{{Enemy
+|name=Alexandria Boattez
+|image=[[File:Alexandria Boattez.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=
+|zones=[[The Duskenlight Coast]]
+|coordinates=858.1 x 145.7 x 251.1
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=6
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1690
+|mana=0
+|ac=90
+|strength=3
+|endurance=5
+|dexterity=5
+|agility=5
+|intelligence=5
+|wisdom=5
+|charisma=5
+|magic=3-7
+|poison=3-7
+|elemental=3-7
+|void=3-7
+|spells=
+}}
+
+Greeting message:
+{| class="wikitable"
+|Pretty sure I'm moving back to the city soon. The <span style="color: #15e300;">[Molorai]</span> aren't the most pleasant bunch to be around.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[Molorai]</span>
+|They just descended on this place a few days ago. Seem hellbent on getting into the ruins. Saw some walkin' around behind that old school down there to, like they know something about it we don't.
+|}
+
+[[Category:Characters]]
+[[Category:The Duskenlight Coast]]

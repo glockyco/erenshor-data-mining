@@ -1,0 +1,106 @@
+{{Enemy
+|name=Juctin Mysia
+|image=[[File:Juctin Mysia.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Agents of The Wisp]]
+|factionChange=-50 [[The Agents of The Wisp]]
+|zones=[[Loomingwood Forest]]
+|coordinates=340.8 x 29.5 x 457.5
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Luminstone}} (21.2%)<br>{{ItemLink|Star Stone}} (21.2%)
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=28600
+|mana=155
+|ac=330
+|strength=15
+|endurance=65
+|dexterity=65
+|agility=15
+|intelligence=15
+|wisdom=5
+|charisma=15
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells={{AbilityLink|Brax's Fury}}<br>{{AbilityLink|Ice Spear}}<br>{{AbilityLink|Immolation}}<br>{{AbilityLink|Magic Bolt}}
+}}
+Juctin Mysia is a spell merchant located inside one of the large buildings in Wardhaven in [[Loomingwood]]
+
+Greeting message:
+{| class="wikitable"
+|Sivakaya can be restored. Her armies are not acting on her <span style="color: #15e300;">[will]</span>, I am convinced of that.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[will]</span>
+|They're power hungry, lead by someone else. Sivakaya has not been seen or heard from in ages. Something is harnessing her energy.
+|}
+
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Spell Scroll: Summon Dire Wolf}}
+|[[Ability Books|Spell Scroll]]
+|6500
+|-
+|{{ItemLink|Spell Scroll: Supreme Healing}}
+|[[Ability Books|Spell Scroll]]
+|4500
+|-
+|{{ItemLink|Spell Scroll: Ice Spear}}
+|[[Ability Books|Spell Scroll]]
+|3000
+|-
+|{{ItemLink|Spell Scroll: Immolation}}
+|[[Ability Books|Spell Scroll]]
+|2100
+|-
+|{{ItemLink|Spell Scroll: Winter's Bite}}
+|[[Ability Books|Spell Scroll]]
+|4550
+|-
+|{{ItemLink|Spell Scroll: Vithean Frenzy}}
+|[[Ability Books|Spell Scroll]]
+|8700
+|-
+|{{ItemLink|Spell Scroll: Funeral Pyre}}
+|[[Ability Books|Spell Scroll]]
+|5500
+|-
+|{{ItemLink|Spell Scroll: Group Revitalize}}
+|[[Ability Books|Spell Scroll]]
+|9500
+|-
+|{{ItemLink|Spell Scroll: Dooming Undertow}}
+|[[Ability Books|Spell Scroll]]
+|29000
+|-
+|{{ItemLink|Spell Scroll: Vithean Gale}}
+|[[Ability Books|Spell Scroll]]
+|72500
+|-
+|{{ItemLink|Spell Scroll: Internal Rot}}
+|[[Ability Books|Spell Scroll]]
+|22500
+|-
+|{{ItemLink|Spell Scroll: Vitheo's Wrath}}
+|[[Ability Books|Spell Scroll]]
+|27000
+|}
+
+[[Category:Characters]]
+[[Category:Loomingwood Forest]]
+[[Category:Vendors]]

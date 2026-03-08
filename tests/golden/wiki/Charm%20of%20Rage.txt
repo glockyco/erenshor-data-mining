@@ -1,0 +1,40 @@
+{{Item
+|title=Charm of Rage
+|type=
+|vendorsource=
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=1x {{ItemLink|Mold: Charm of Rage}}<br>1x {{ItemLink|Sivakayan Ore}}<br>1x {{ItemLink|Nagalok Claw}}<br>1x {{ItemLink|Elderstone Shard}}<br>1x {{ItemLink|Queen's Fang}}
+|componentfor=
+|buy=25000
+|sell=16250
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/Charm
+|image=Charm of Rage.png
+|name=Charm of Rage
+|tier=0
+|strscaling=4
+|endscaling=
+|dexscaling=
+|agiscaling=
+|intscaling=
+|wisscaling=
+|chascaling=
+|resistscaling=
+|mitigationscaling=
+|arcanist=True
+|duelist=True
+|druid=True
+|paladin=True
+|reaver=True
+|stormcaller=True
+}}
+
+[[Category:Charms]]

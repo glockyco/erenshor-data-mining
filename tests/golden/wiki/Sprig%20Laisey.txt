@@ -1,0 +1,50 @@
+{{Enemy
+|name=Sprig Laisey
+|image=[[File:Sprig Laisey.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[Fernalla's Children]]
+|factionChange=-25 [[The Citizens of Erenshor]]<br>-25 [[The Citizens of Port Azure]]<br>-25 [[The Solunarian Brotherhood]]
+|zones=[[The Duskenlight Coast]]
+|coordinates=1509.8 x 64.0 x 682.7
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Bear Bone Club}} (13.5%)<ref>If Sprig Laisey has {{ItemLink|Bear Bone Club}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Sea Glass}} (7.4%)<br>{{ItemLink|Star Stone}} (7.4%)
+|level=20
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=25350
+|mana=300
+|ac=300
+|strength=29
+|endurance=95
+|dexterity=120
+|agility=85
+|intelligence=35
+|wisdom=95
+|charisma=75
+|magic=10-24
+|poison=10-24
+|elemental=10-24
+|void=10-24
+|spells={{AbilityLink|Death's Embrace}}<br>{{AbilityLink|Expose Weakness}}
+}}
+
+Greeting message:
+{| class="wikitable"
+|Port Azure has preserved the <span style="color: #15e300;">[willow]</span> there, thanks to the Fernallan Sisters. We druids of Fernalla are not as welcome within its walls.
+|}
+s
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[willow]</span>
+|It grows right in the Port Azure square. The city was built around it. It's good to respect the gods. Fernalla's blessings have fallen upon the city for their piety.
+|}
+
+[[Category:Characters]]
+[[Category:The Duskenlight Coast]]

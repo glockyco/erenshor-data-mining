@@ -1,0 +1,45 @@
+{{Enemy
+|name=Davidson Malarky
+|image=[[File:Davidson Malarky.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Port Azure]]
+|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
+|zones=[[Stowaway's Step]]
+|coordinates=553.1 x 63.7 x 515.1
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1040
+|mana=100
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+
+Davidson is located in [[Wickliff]] on [[Stowaway's Step]].
+
+Greeting message:
+{| class="wikitable"
+|'Bout time Wickliff got a proper Inn and Pub. Won't be nothin' like that famed 'Goldshire' as far as fun times tend to go, but you can betcha it'll be somethin' special!
+|}
+
+[[Category:Characters]]
+[[Category:Stowaway's Step]]

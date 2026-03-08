@@ -1,0 +1,75 @@
+{{Item
+|title=Ancient Coal
+|type=[[Crafting]], [[Quest Items|Quest Item]]
+|vendorsource=
+|source=[[Gloopa|Gloopa (Quarter)]] (74.5%)<br>[[Astra, Rogue of the Stars]] (41.8%)<br>[[Candlekeeper]] (40.4%)<br>[[Statue of Brax]] (34.2%)<br>[[Slumbering Queen]] (28.4%)<br>[[Braxon Prospect]] (1.2%)<br>[[Braxonian Ascended]] (1.2%)<br>[[Braxonian Tempest]] (1.2%)
+|othersource=[[Mining]]
+|questsource=
+|relatedquest={{QuestLink|link=The Duskenlight Ritual (Quest){{!}}The Duskenlight Ritual}}<br>{{QuestLink|The Revival Plains Ritual}}
+|craftsource=
+|componentfor={{ItemLink|Mold: Arcanist's Charm}}
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+Used in crafting [[Item Quality|Blessed items]] from molds as well as for certain quests.
+
+{{Item/General
+|image=Ancient Coal.png
+|name=Ancient Coal
+|description=A level 2 fuel source
+|value=
+|stack_size=
+|disposable=
+|effect_style=
+|effect_spell_icon=
+|effect_spell_name=
+|effect_spell_level=
+|effect_spell_duration_ticks=
+|effect_spell_type=
+|effect_spell_line=
+|effect_target_damage=
+|effect_target_healing=
+|effect_damage_type=
+|effect_cast_time=
+|effect_cooldown=
+|effect_spell_range=
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+}}
+
+[[Category:Crafting]]
+[[Category:Items]]
+[[Category:Quest Items]]

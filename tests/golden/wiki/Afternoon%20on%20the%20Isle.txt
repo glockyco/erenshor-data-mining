@@ -1,0 +1,83 @@
+{{Item
+|title=Afternoon on the Isle
+|type=[[Quest Items|Quest Item]]
+|vendorsource=
+|source=
+|othersource=
+|questsource=
+|relatedquest={{QuestLink|link=The Mystery of Bellwain Island}}
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+'''{{PAGENAME}}''' is a [[:Category:Notes|Note]] in [[Erenshor]]. 
+
+=Location=
+{{PAGENAME}} is a note found on [[Bellwain Island]] as part of the quest {{QuestLink|The Mystery of Bellwain Island}}.
+
+=Description=
+{{PAGENAME}} is a poem with clues on what color to light the torches surrounding the statue.
+
+{{Item/General
+|image=Afternoon on the Isle.png
+|name=Afternoon on the Isle
+|description=In decidedly feminine handwriting:<br><br>The Day Ages:<br>2pm brings snow-like seedlings drifting on the breeze<br>And then come more, carried with carefree ease<br>At 4, the sea thrashes, stretching high for the sky
+|value=
+|stack_size=
+|disposable=
+|effect_style=
+|effect_spell_icon=
+|effect_spell_name=
+|effect_spell_level=
+|effect_spell_duration_ticks=
+|effect_spell_type=
+|effect_spell_line=
+|effect_target_damage=
+|effect_target_healing=
+|effect_damage_type=
+|effect_cast_time=
+|effect_cooldown=
+|effect_spell_range=
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+}}
+
+This note is less direct than others in the quest and requires some extrapolation: the torch at 2 o'clock should be lit white, corresponding with the "snow-like seedlings." As more come next, 3 o'clock should also be white. Finally, the 4'clock torch should be lit blue, hinted at by the color of the sea.
+
+[[Category:Items]]
+[[Category:Notes]]
+[[Category:Quest Items]]

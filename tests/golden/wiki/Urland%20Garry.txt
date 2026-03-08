@@ -1,0 +1,49 @@
+{{Enemy
+|name=Urland Garry
+|image=[[File:Urland Garry.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Erenshor]]
+|factionChange=-10 [[The Citizens of Erenshor]]<br>-10 [[The Citizens of Port Azure]]
+|zones=[[Vitheo's Watch]]
+|coordinates=114.9 x 40.4 x 121.9
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1300
+|mana=0
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=0
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+
+Greeting message:
+{| class="wikitable"
+|Oi, what brings an adventurer out this way? Not much to be had here anymore except <span style="color: #15e300;">[trouble]</span>.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[trouble]</span>
+|Lots of trouble! There's Molarai in the old beach fort, the beach is swarmin' with crocs, and those giant ghosts in the ruins... no thank you!
+|}
+
+[[Category:Characters]]
+[[Category:Vitheo's Watch]]

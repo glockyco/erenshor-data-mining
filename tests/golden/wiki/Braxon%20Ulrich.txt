@@ -1,0 +1,45 @@
+{{Enemy
+|name=Braxon Ulrich
+|image=[[File:Braxon Ulrich.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Port Azure]]
+|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]<br>-20 [[The Torchbearers of Brax]]
+|zones=[[Port Azure]]
+|coordinates=120.9 x 26.3 x 305.1
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=3250
+|mana=100
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+
+Ulrich is an NPC located in [[Port Azure]] behind the church-like building of [[The Solunarian Brotherhood]].
+
+Greeting message:
+{| class="wikitable"
+|May Brax smile upon us all on this day!
+|}
+
+[[Category:Characters]]
+[[Category:Port Azure]]

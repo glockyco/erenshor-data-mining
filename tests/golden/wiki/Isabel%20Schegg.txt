@@ -1,0 +1,51 @@
+{{Enemy
+|name=Isabel Schegg
+|image=[[File:Isabel Schegg.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Port Azure]]
+|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
+|zones=[[Stowaway's Step]]
+|coordinates=555.7 x 63.9 x 500.3
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=260
+|mana=100
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+Isabel is located in [[Wickliff]] on [[Stowaway's Step]]. She mentions [[Garrey Ambrose]] has caught some treasures, this is a clue connected to acquiring the {{ItemLink|Stowaway Step Lighthouse Key}}.
+
+Greeting message:
+{| class="wikitable"
+|Gotta get these beams up next. This place looks small to me, but the folks around here aren't that plentiful and travelers hardly ever walk up the hill. Should be fine, I s'pose. Would rather be <span style="color: #15e300;">[fishing]</span> though.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[fishing]</span>
+|My pal [[Garrey Ambrose|Garrey's]] always down in the port fishing. Catches all kinds of stuff, crazy stuff. He loves to talk about it, if ya ask him. Call's 'em his treasures and won't refer to them any other way.
+
+|}
+
+[[Category:Characters]]
+[[Category:Stowaway's Step]]

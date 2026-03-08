@@ -1,0 +1,73 @@
+{{Item
+|title=Eldoth Writings: The Braxonian Pt 2
+|type=[[Lore Items|Lore]]
+|vendorsource=
+|source=[[Molorai Anointed]] (6.3%)<br>[[Molorai Bloodwarden]] (6.3%)<br>[[Molorai Nightmistress]] (6.3%)<br>[[Molorai Outrider]] (6.3%)<br>[[Molorai Specialist]] (6.3%)<br>[[Molorai Truthseeker]] (6.3%)<br>[[Molorai Outrider]] (6.0%)<br>[[Molorai Archaeologist]] (3.9%)<br>[[Molorai Archaeologist]] (3.4%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/General
+|image=Eldoth Writings: The Braxonian Pt 2.png
+|name=Eldoth Writings: The Braxonian Pt 2
+|description=It is imperative that we remain in close proximity to the unfolding discoveries. Let the echoes of untainted history be our compass, and only when it becomes apparent that the Braxons are on the verge of unlocking the buried truths, shall you, my brethren, step forth. Interfere with the subtlety of shadows, for we must ensure that the power concealed within this ancient civilization is harnessed for our ascendancy alone.
+|value=
+|stack_size=
+|disposable=
+|effect_style=
+|effect_spell_icon=
+|effect_spell_name=
+|effect_spell_level=
+|effect_spell_duration_ticks=
+|effect_spell_type=
+|effect_spell_line=
+|effect_target_damage=
+|effect_target_healing=
+|effect_damage_type=
+|effect_cast_time=
+|effect_cooldown=
+|effect_spell_range=
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+}}
+
+[[Category:Items]]
+[[Category:Lore Items]]

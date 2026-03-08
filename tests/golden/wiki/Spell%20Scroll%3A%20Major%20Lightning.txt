@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Major Lightning
+|type=[[Ability Books|Spell Scroll]]
+|vendorsource=
+|source=[[Priel Gifted]] (2.4%)<br>[[Priel Grimwatch]] (2.4%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=6000
+|sell=3900
+|taughtspell={{AbilityLink|Major Lightning}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Major Lightning.png
+|name=Spell Scroll: Major Lightning
+|arcanist_level=
+|druid_level=25
+|duelist_level=
+|paladin_level=
+|stormcaller_level=25
+|reaver_level=
+|mana_cost=200
+|spell_type=AE
+|spell_desc=1200 Magical damage on target, secondary damage on nearby targets.
+}}
+
+[[Category:Ability Books]]

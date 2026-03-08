@@ -1,0 +1,49 @@
+{{Enemy
+|name=Gary Truoe
+|image=[[File:Gary Truoe.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Port Azure]]
+|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
+|zones=[[Blacksalt Strand]]
+|coordinates=185.9 x 46.2 x 511.4
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=19500
+|mana=100
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+
+Greeting message:
+{| class="wikitable"
+|The Strand is not a place to linger. The <span style="color: #15e300;">[blighted]</span> sand washes up more and more each day.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[blighted]</span>
+The currents bring the blight her, bit by bit. It attacts unpleasant things to the coast. It's been that way forever, I guess. Just didn't know it before I settled here.
+|}
+
+[[Category:Blacksalt Strand]]
+[[Category:Characters]]

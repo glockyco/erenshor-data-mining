@@ -1,0 +1,102 @@
+{{Enemy
+|name=Treven Pines
+|image=[[File:Treven Pines.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Stowaway's Step]]
+|factionChange=-25 [[The Citizens of Stowaway's Step]]
+|zones=[[Stowaway's Step]]
+|coordinates=384.8 x 58.5 x 394.5
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=461
+|mana=0
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=0
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+Treven Pines is a [[Vendors|vendor]] on [[Stowaway's Step]], living just down the road of [[Wickliff]] by the Bandit Cave.
+
+Greeting message:
+{| class="wikitable"
+|Oi, welcome to the island traveller. If you need supplies, I have them. If you're passin' through, well, you may be here a while still. Remember that I'm here and do yourself a favor and avoid the <span style="color: #15e300;">[ritual]</span>. Looks like they started it up again. 
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[ritual]</span>, <span style="color: #15e300;">[smoke]</span> and <span style="color: #15e300;">[dark]</span>
+There's no tellin' what it's for. We stopped askin' and they do their thing and leave us alone. Just bugs me... we don't know where they even come from. Must be some hidden place on the island. 
+|}
+
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Cloth Shirt}}
+|[[Armor]]
+|4
+|-
+|{{ItemLink|Rusty Shortsword}}
+|[[Weapons|Sword]]
+|12
+|-
+|{{ItemLink|Rusty Greatsword}}
+|[[Weapons|Sword]]
+|66
+|-
+|{{ItemLink|Old Buckler}}
+|[[Armor|Shield]]
+|32
+|-
+|{{ItemLink|Bread}}
+|[[Consumables|Food]]
+|2
+|-
+|{{ItemLink|Water}}
+|[[Status Effects|Drink]]
+|1
+|-
+|{{ItemLink|Spell Scroll: Brax's Touch}}
+|[[Ability Books|Spell Scroll]]
+|60
+|-
+|{{ItemLink|Tattered Leather Tunic}}
+|[[Armor]]
+|6
+|-
+|{{ItemLink|Spell Scroll: Lunar Madness}}
+|[[ability Books|Spell Scroll]]
+|100
+|-
+|{{ItemLink|Belt Lamp}}
+|[[:Category:Cosmetic Items|Cosmetic]]
+|225
+|-
+|{{ItemLink|Spell Scroll: Storm Bolt}}
+|[[ability Books|Spell Scroll]]
+|50
+|}
+
+[[Category:Characters]]
+[[Category:Stowaway's Step]]
+[[Category:Vendors]]

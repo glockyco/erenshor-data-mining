@@ -1,0 +1,128 @@
+{{Enemy
+|name=Watchlight
+|image=[[File:Watchlight.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=
+|zones=[[Stowaway's Step]]
+|coordinates=
+|spawnchance=
+|respawn=2-6 minutes
+|guaranteeddrops=
+|droprates=
+|level=25
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=3250
+|mana=0
+|ac=375
+|strength=3
+|endurance=3
+|dexterity=3
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=12-30
+|poison=12-30
+|elemental=12-30
+|void=12-30
+|spells=
+}}
+
+{{Enemy
+|name=Watchlight
+|image=[[File:Watchlight.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=
+|zones=[[Azynthi's Garden]]
+|coordinates=797.6 x 46.4 x 562.7
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Azynthian Riftstone}} (100.0%)<ref>If the player is already holding {{ItemLink|Azynthian Riftstone}} in their inventory, another will not drop.</ref>
+|level=25
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=3250
+|mana=0
+|ac=375
+|strength=3
+|endurance=3
+|dexterity=3
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=12-30
+|poison=12-30
+|elemental=12-30
+|void=12-30
+|spells=
+}}
+
+There are 4 Watchlight's in Stowaway's Step. They are used in a binding spell to keep [[Aragath Swellsteer]] imprisoned. The player can choose to help [[The Necromancers of the Island Tomb]] to finish off Aragath ({{QuestLink|link=Destroying Aragath}}) or choose to help Aragath by using the necromancers soul stones on the watchlight's to sever their grasp ({{QuestLink|link=Aragath's Imprisonment}}). 
+
+==[[Stalzo|<span style="color:orange;">Stalzo's Watchlight</span>]]== 
+Located beside [[Plaxitheris]] but a little further back:
+
+Greeting message:
+{| class="wikitable"
+|... *it does not speak*
+|}
+
+If you say <span style="color: #15e300;">[Stalzo]</span> to this watchlight it responds with:
+{| class="wikitable"
+|... *the light dims briefly, and you hear a soft sign from within.
+|}
+
+==[[Leah|<span style="color:orange;">Leah's Watchlight</span>]]==
+Located a little behind [[Rattlewrists]] on the left surrounded by rocks:
+
+Greeting message:
+{| class="wikitable"
+|...
+|}
+
+If you say <span style="color: #15e300;">[Leah]</span> to this Watchlight it responds with:
+{| class="wikitable"
+|... *the light dims briefly, and you hear a soft sign from within.
+|}
+
+==[[Posta|<span style="color:orange;">Posta's Watchlight</span>]]==
+Located beside the entrance of the [[Island Tomb]]:
+
+Greeting message:
+{| class="wikitable"
+|... *it does not speak*
+|}
+
+If you say <span style="color: #15e300;">[Posta]</span> to this Watchlight it responds with:
+{| class="wikitable"
+|... *the light dims briefly, and you hear a soft sign from within.
+|}
+
+==[[Revid|<span style="color:orange;">Revid's Watchlight</span>]]==
+Located on the roof of the registration building at the docks:
+
+Greeting message:
+{| class="wikitable"
+|... *it does not speak*
+|}
+
+If you say <span style="color: #15e300;">[Revid]</span> to this Watchlight it responds with:
+{| class="wikitable"
+|... *the light dims briefly, and you hear a soft sign from within.
+|}
+
+[[Category:Characters]]
+[[Category:Stowaway's Step]]

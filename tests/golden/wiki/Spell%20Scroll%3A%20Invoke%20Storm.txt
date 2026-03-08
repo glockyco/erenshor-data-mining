@@ -1,0 +1,34 @@
+{{Item
+|title=Spell Scroll: Invoke Storm
+|type=[[Ability Books|Spell Scroll]]
+|vendorsource=
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=35
+|sell=23
+|taughtspell={{AbilityLink|Invoke Storm}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+Currently <span style="color: #FFFF00;">unobtainable</span> as of the 12-16-23 - Braxonian Patch
+
+{{Item/SpellScroll
+|image=Spell Scroll: Invoke Storm.png
+|name=Spell Scroll: Invoke Storm
+|arcanist_level=
+|druid_level=8
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=100
+|spell_type=Misc
+|spell_desc=Call a thunderstorm to your location (outdoor, open areas only)
+}}
+
+[[Category:Ability Books]]

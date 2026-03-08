@@ -1,0 +1,40 @@
+{{Enemy
+|name=Shiverman
+|image=[[File:Shiverman.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=+2 [[Fernalla's Children]]<br>+2 [[The Torchbearers of Brax]]
+|zones=
+|coordinates=
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Death's Decay}} (59.2%)<ref>If the player is already holding {{ItemLink|Death's Decay}} in their inventory, another will not drop.</ref><br>{{ItemLink|Thief of Breath}} (59.2%)<ref>If the player is already holding {{ItemLink|Thief of Breath}} in their inventory, another will not drop.</ref><br>{{ItemLink|Blight Crystals}} (12.9%)<br>{{ItemLink|Ancient Pottery Shard}} (10.1%)<br>{{ItemLink|Eternal Ice}} (3.0%)<br>{{ItemLink|Diamond}} (1.4%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Citrine Stone}} (0.7%)<br>{{ItemLink|Concentration Band}} (0.7%)<br>{{ItemLink|Demon Claw}} (0.7%)<br>{{ItemLink|Freeing Stone}} (0.7%)<br>{{ItemLink|Luminstone}} (0.7%)<br>{{ItemLink|Polished Stone}} (0.7%)<br>{{ItemLink|Ruby}} (0.7%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Shadowmaker}} (0.7%)
+|level=19
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=23400
+|mana=0
+|ac=285
+|strength=600
+|endurance=500
+|dexterity=600
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=10-23
+|poison=10-23
+|elemental=10-23
+|void=10-23
+|spells=
+}}
+
+Shiverman is the first enemy you will encounter after receiving a [[Shivering Torch]] from [[Kio the Light Keeper]]. They spawn as individuals or as groups across the island.
+
+[[Category:Enemies]]
+[[Category:Shivering Step]]

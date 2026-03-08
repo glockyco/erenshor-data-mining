@@ -1,0 +1,49 @@
+{{Enemy
+|name=Odd Statue
+|image=[[File:Odd Statue.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=
+|factionChange=
+|zones=[[Mysterious Portal|Mysterious Portal (3)]]
+|coordinates=325.6 x 1.3 x 739.4
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=5
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=6
+|mana=0
+|ac=75
+|strength=3
+|endurance=3
+|dexterity=3
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=2-6
+|poison=2-6
+|elemental=2-6
+|void=2-6
+|spells=
+}}
+
+Greeting message:
+{| class="wikitable"
+|...*It does not respond*
+|}
+
+When Handing it [[Catnip]]
+{| class="wikitable"
+|Well! This is delightful! What a strange dream you've wandered into, wouldn't you say? It is not my dream, nor is it yours. It is the dream of all of us! The creeping dark is leaking from the land. You should wake up. Go and see the Conductor!
+<i>This accepts and completes  {{QuestLink|link=Catnip for a statue}}
+|}
+
+[[Category:Characters]]
+[[Category:Mysterious Portal]]

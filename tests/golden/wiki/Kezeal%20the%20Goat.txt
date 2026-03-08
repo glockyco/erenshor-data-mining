@@ -1,0 +1,54 @@
+{{Enemy
+|name=Kezeal the Goat
+|image=[[File:Kezeal the Goat.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Port Azure]]
+|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Stowaway's Step]]
+|zones=[[Stowaway's Step]]
+|coordinates=615.2 x 73.9 x 461.3
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=260
+|mana=100
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+Kezeal is a renowned bargain hunter, fisherman, miner and avid mountain climber, he has probably seen more angles of Erenshor than all of us combined. He holds the title of the wealthiest person in all of Erenshor.
+
+Greeting message:
+{| class="wikitable"
+|Just bought this place. Saved up for years. Never sold a thing til there was a deal! Climbed all over the world looking for deals, you see! Spent whole nights fishing and mining! Now I'm rich!
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[goat]</span>
+|Never met a mountain or statue I couldn't climb. Been all over this island. Fell into caves. Fell into the ocean. Fell off cliffs bigger than you can imagine. It was all worth it!
+|}
+
+ *<i>Trivia:
+ This NPC is an homage to the player Kezeal. His house was originally in the demo "for sale" for 2M gold     which the developer thought wasn't possible so the house could not actually be bought. Kezeal legitimately  raised the 2 million gold in the demo and as a result he "bought" the house.
+ </i>
+
+[[Category:Characters]]
+[[Category:Stowaway's Step]]

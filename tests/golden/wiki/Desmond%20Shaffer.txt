@@ -1,0 +1,51 @@
+{{Enemy
+|name=Desmond Shaffer
+|image=[[File:Desmond Shaffer.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Stowaway's Step]]
+|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
+|zones=[[Stowaway's Step]]
+|coordinates=676.6 x 24.0 x 387.8
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=3250
+|mana=100
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+
+Desmond is located just outside the [[Docks]] beyond the gate on [[Stowaway's Step]].
+
+Greeting message:
+{| class="wikitable"
+|Adventure awaits out there. I just have to find a way off this island. I heard a <span style="color: #15e300;">[rumour]</span>... nevermind. Don't wanna get anyone in trouble.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[rumour]</span>
+Just nevermind.
+|}
+
+[[Category:Characters]]
+[[Category:Stowaway's Step]]

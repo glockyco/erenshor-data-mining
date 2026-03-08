@@ -1,0 +1,38 @@
+{{Enemy
+|name=Drowned Corpse
+|image=[[File:Drowned Corpse.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=-10 [[The Children of Sivakaya]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]
+|zones=[[Malaroth's Nesting Grounds]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Ancient Bone}} (87.6%)<br>{{ItemLink|Boatman's Armband}} (5.4%)<br>{{ItemLink|Pirate's Hair Tie}} (5.4%)<br>{{ItemLink|Light Plate Breastplate}} (1.3%)<br>{{ItemLink|Light Plate Greaves}} (1.3%)<br>{{ItemLink|Tattered Leather Boots}} (1.3%)<br>{{ItemLink|Tattered Leather Gloves}} (1.3%)<br>{{ItemLink|Tattered Leather Leggings}} (1.3%)<br>{{ItemLink|Tattered Leather Skullcap}} (1.3%)<br>{{ItemLink|Tattered Leather Sleeves}} (1.3%)<br>{{ItemLink|Tattered Leather Tunic}} (1.3%)
+|level=18
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=11440
+|mana=0
+|ac=270
+|strength=24
+|endurance=55
+|dexterity=200
+|agility=25
+|intelligence=25
+|wisdom=25
+|charisma=8
+|magic=9-22
+|poison=9-22
+|elemental=9-22
+|void=9-22
+|spells=
+}}
+
+[[Category:Enemies]]
+[[Category:Malaroth's Nesting Grounds]]

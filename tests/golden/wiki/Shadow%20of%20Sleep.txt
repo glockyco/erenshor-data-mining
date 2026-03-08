@@ -1,0 +1,38 @@
+{{Enemy
+|name=Shadow of Sleep
+|image=[[File:Shadow of Sleep.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Shivering Step]]
+|coordinates=
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Luminstone}} (52.4%)<br>{{ItemLink|Ancient Bone}} (51.4%)<br>{{ItemLink|Ghoul Scab}} (51.4%)<br>{{ItemLink|Death's Decay}} (14.0%)<ref>If the player is already holding {{ItemLink|Death's Decay}} in their inventory, another will not drop.</ref><br>{{ItemLink|Thief of Breath}} (14.0%)<ref>If the player is already holding {{ItemLink|Thief of Breath}} in their inventory, another will not drop.</ref><br>{{ItemLink|Shivering Ring}} (9.4%)<br>{{ItemLink|Diamond}} (3.4%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Citrine Stone}} (1.7%)<br>{{ItemLink|Concentration Band}} (1.7%)<br>{{ItemLink|Demon Claw}} (1.7%)<br>{{ItemLink|Freeing Stone}} (1.7%)<br>{{ItemLink|Polished Stone}} (1.7%)<br>{{ItemLink|Ruby}} (1.7%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Shadowmaker}} (1.7%)
+|level=19
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=26000
+|mana=0
+|ac=285
+|strength=24
+|endurance=45
+|dexterity=85
+|agility=30
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=10-23
+|poison=10-23
+|elemental=10-23
+|void=10-23
+|spells={{AbilityLink|Soul Tap}}
+}}
+
+[[Category:Enemies]]
+[[Category:Shivering Step]]

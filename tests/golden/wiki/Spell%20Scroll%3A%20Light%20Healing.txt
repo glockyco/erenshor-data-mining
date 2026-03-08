@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Light Healing
+|type=[[:Category:Ability Books|Spell Scroll]]
+|vendorsource=[[Tiver Banes]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=1000
+|sell=650
+|taughtspell={{AbilityLink|Light Healing}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Light Healing.png
+|name=Spell Scroll: Light Healing
+|arcanist_level=
+|druid_level=10
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=80
+|spell_type=Heal
+|spell_desc=Heals base 100 damage
+}}
+
+[[Category:Ability Books]]

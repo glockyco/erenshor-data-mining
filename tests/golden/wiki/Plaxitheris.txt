@@ -1,0 +1,59 @@
+{{Enemy
+|name=Plaxitheris
+|image=[[File:Plaxitheris.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Stowaway's Step]]
+|coordinates=319.1 x 77.0 x 582.7
+|spawnchance=
+|respawn=7 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Eye of Plaxitheris}} (100.0%)<br>{{ItemLink|Mold: A Ghostly Key}} (100.0%)<br>{{ItemLink|Brackfruit Juice}} (19.4%)<br>{{ItemLink|Bread}} (19.4%)<br>{{ItemLink|Light Plate Breastplate}} (19.4%)<br>{{ItemLink|Light Plate Greaves}} (19.4%)<br>{{ItemLink|Luminstone}} (19.4%)<br>{{ItemLink|Seafruit}} (19.4%)<br>{{ItemLink|Seaspice}} (19.4%)<br>{{ItemLink|Star Stone}} (19.4%)<br>{{ItemLink|Tattered Leather Boots}} (19.4%)<br>{{ItemLink|Tattered Leather Gloves}} (19.4%)<br>{{ItemLink|Tattered Leather Leggings}} (19.4%)<br>{{ItemLink|Tattered Leather Skullcap}} (19.4%)<br>{{ItemLink|Tattered Leather Sleeves}} (19.4%)<br>{{ItemLink|Tattered Leather Tunic}} (19.4%)<br>{{ItemLink|A Moongill}} (17.0%)<br>{{ItemLink|Old Torn Cape}} (8.8%)<br>{{ItemLink|Spell Scroll: Antidote}} (8.8%)<br>{{ItemLink|Spell Scroll: Dazzle}} (8.8%)<br>{{ItemLink|Spell Scroll: Magic Bolt}} (8.8%)<br>{{ItemLink|Spell Scroll: Minor Healing}} (8.8%)<br>{{ItemLink|Spell Scroll: Minor Lightning}} (8.8%)<br>{{ItemLink|Spell Scroll: Tangle}} (8.8%)<br>{{ItemLink|Spell Scroll: Weak Poison}} (8.8%)
+|level=7
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=0
+|levelvariancemax=0
+|xpmultiplier=1.0
+|health=3900
+|mana=0
+|ac=105
+|strength=10
+|endurance=50
+|dexterity=65
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=4-8
+|poison=4-8
+|elemental=4-8
+|void=4-8
+|spells=
+}}
+
+''{{main|Enemies}}''
+
+=Location=
+{{PAGENAME}} can be found atop a hill on the northern cliffs of [[Stowaway's Step]], past [[Treven Pines|Treven Pines']] shop and through the stone archway.
+
+=Appearance=
+{{PAGENAME}} is a [[Mature Malaroth]] that has somehow ended up on Stowaway's Step. It has sharp teeth, two large horns, and spikes protruding from nearly everywhere on its body.
+
+=Behavior=
+{{PAGENAME}} waits atop a rock on top of the hill. His detection range is rather large, and he will attack players should they get too close.
+
+===Spells & Abilities===
+{{PAGENAME}} does not use any spells or abilities.
+
+===Strategy===
+{{PAGENAME}} has strong physical attacks and can easily take down an underleveled or undergeared tank faster than they can be healed. Make sure your [[Paladin]] is well-equipped before attempting to take on {{PAGENAME}}, or consider backing them up with multiple party members assisting with healing.
+
+=Notes=
+*{{PAGENAME}} drops A Moongill, which can be used to complete {{QuestLink|Wally's Moongill}} if the player does not wish to spend time trying to [[Fishing|Fish]] for it.
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Stowaway's Step]]

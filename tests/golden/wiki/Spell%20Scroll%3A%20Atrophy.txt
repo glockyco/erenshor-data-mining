@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Atrophy
+|type=
+|vendorsource=[[Grant Haxoway]]<br>[[Xander Zaxtrough]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=300
+|sell=195
+|taughtspell={{AbilityLink|Atrophy}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Atrophy.png
+|name=Spell Scroll: Atrophy
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=8
+|mana_cost=155
+|spell_type=StatusEffect
+|spell_desc=Slow your target's movement speed by weakening their muscles
+}}
+
+[[Category:Ability Books]]

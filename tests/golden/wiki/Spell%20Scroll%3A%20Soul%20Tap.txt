@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Soul Tap
+|type=[[:Category:Ability Books|Spell Scroll]]
+|vendorsource=[[Grant Haxoway]]
+|source=[[Acceptor]] (3.1%)<br>[[Ecclesiarch]] (2.0%)<br>[[Prioress]] (2.0%)<br>[[Acolyte]] (1.7%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=1125
+|sell=731
+|taughtspell={{AbilityLink|Soul Tap}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Soul Tap.png
+|name=Spell Scroll: Soul Tap
+|arcanist_level=
+|druid_level=15
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=15
+|mana_cost=300
+|spell_type=Damage
+|spell_desc=Steal life from your target, and heal yourself for an equal amount.
+}}
+
+[[Category:Ability Books]]

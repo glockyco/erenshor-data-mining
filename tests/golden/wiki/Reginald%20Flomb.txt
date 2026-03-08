@@ -1,0 +1,49 @@
+{{Enemy
+|name=Reginald Flomb
+|image=[[File:Reginald Flomb.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Stowaway's Step]]
+|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
+|zones=[[Silkengrass Meadowlands]]
+|coordinates=663.1 x 41.3 x 228.6
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=260
+|mana=100
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+Reginald is in the main town area in the [[Silkengrass Meadowlands]] inside one of the homes.
+
+Greeting message:
+{| class="wikitable"
+|Tough livin' out here these days. Thankfully, Ripper's men stayed behind. Port Azure is a city of cowards!
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[Ripper]</span>
+He's a hero. Took an entire keep from the Sivakayans, made a home there. He keeps men out this way too. Port Azure lost a lot of its forces to him when they wrote us off for dead.
+
+[[Category:Characters]]
+[[Category:Silkengrass Meadowlands]]

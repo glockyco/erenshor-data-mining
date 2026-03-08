@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Brax's Fury
+|type=[[Ability Books]]
+|vendorsource=[[Edwin Ansegg]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=4100
+|sell=2665
+|taughtspell={{AbilityLink|Brax's Fury}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Brax's Fury.png
+|name=Spell Scroll: Brax's Fury
+|arcanist_level=24
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=300
+|spell_type=Damage
+|spell_desc=Deals 1550 elemental based damage to a target.
+}}
+
+[[Category:Ability Books]]

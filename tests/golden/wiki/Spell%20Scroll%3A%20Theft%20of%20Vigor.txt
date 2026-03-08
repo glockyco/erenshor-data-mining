@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Theft of Vigor
+|type=[[Ability Books]]
+|vendorsource=[[Leyor M'Chante]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=3250
+|sell=2112
+|taughtspell={{AbilityLink|Theft of Vigor}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Theft of Vigor.png
+|name=Spell Scroll: Theft of Vigor
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=15
+|stormcaller_level=
+|reaver_level=
+|mana_cost=95
+|spell_type=StatusEffect
+|spell_desc=Steal attack speed from a target and give it to yourself.
+}}
+
+[[Category:Ability Books]]

@@ -1,0 +1,59 @@
+{{Enemy
+|name=Zashlyn Bloodbane
+|image=[[File:Zashlyn Bloodbane.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=+2 [[The Azure Guard]]<br>-10 [[The Children of Sivakaya]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]
+|zones=[[The Bonepits]]
+|coordinates=153.1 x 74.3 x 276.5
+|spawnchance=
+|respawn=3 minutes
+|guaranteeddrops={{ItemLink|Adept Wand}}<br>{{ItemLink|Embalmed Bracer}}<br>{{ItemLink|Neophyte Necklace}}
+|droprates={{ItemLink|Neophyte Necklace}} (39.0%)<br>{{ItemLink|Embalmed Bracer}} (37.2%)<br>{{ItemLink|Adept Wand}} (33.3%)<br>{{ItemLink|Cloth Gloves}} (29.1%)<br>{{ItemLink|Cloth Hood}} (29.1%)<br>{{ItemLink|Cloth Pants}} (29.1%)<br>{{ItemLink|Cloth Shirt}} (29.1%)<br>{{ItemLink|Cloth Shoes}} (29.1%)<br>{{ItemLink|Cloth Sleeves}} (29.1%)<br>{{ItemLink|Star Stone}} (20.1%)<br>{{ItemLink|Graveweed Leaf}} (8.4%)<ref>If the player is already holding {{ItemLink|Graveweed Leaf}} in their inventory, another will not drop.</ref><br>{{ItemLink|Satin Cloak}} (5.8%)
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=3.0
+|health=1632
+|mana=50
+|ac=120
+|strength=12
+|endurance=22
+|dexterity=30
+|agility=5
+|intelligence=15
+|wisdom=5
+|charisma=15
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells={{AbilityLink|Magic Bolt}}<br>{{AbilityLink|Minor Protection}}<br>{{AbilityLink|Weak Poison}}
+}}
+
+''{{Main|Enemies}}''
+=Location=
+{{PAGENAME}} can be found in [[The Bone Pits]]. After entering, go straight ahead into the ruins and turn left. {{PAGENAME}} will be in the center of the garden-like room.
+
+=Appearance=
+{{PAGENAME}} is a necromancer with a long grey beard. He wears green robes.
+
+=Behavior=
+{{PAGENAME}}s waits in the middle of the ruins, and will attack players if they get too close.
+
+===Spells & Abilities===
+Offensive:
+*{{AbilityLink|Weak Poison}}
+*{{AbilityLink|Magic Bolt}}
+
+===Strategy===
+{{PAGENAME}} is very similar to [[Woe]] in the [[Island Tomb]] on [[Stowaway's Step]]. A [[Paladin]] or [[Duelist]] can interrupt {{PAGENAME}} while he is casting with a well-timed {{AbilityLink|Kick}}.
+
+=Notes=
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:The Bonepits]]

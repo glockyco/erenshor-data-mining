@@ -1,0 +1,53 @@
+{{Enemy
+|name=Liam Kilfa
+|image=[[File:Liam Kilfa.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Agents of The Wisp]]
+|factionChange=
+|zones=[[The Duskenlight Coast]]
+|coordinates=364.2 x 65.3 x 343.2
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Arcanist Cap}} (20.4%)<ref>If Liam Kilfa has {{ItemLink|Arcanist Cap}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Luminstone}} (11.5%)<br>{{ItemLink|Star Stone}} (11.5%)
+|level=31
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=4550
+|mana=155
+|ac=465
+|strength=32
+|endurance=55
+|dexterity=88
+|agility=85
+|intelligence=55
+|wisdom=55
+|charisma=3
+|magic=16-37
+|poison=16-37
+|elemental=16-37
+|void=16-37
+|spells={{AbilityLink|Brax's Rage}}<br>{{AbilityLink|Brax's Touch}}<br>{{AbilityLink|Hardened Skin}}<br>{{AbilityLink|Magic Bolt}}<br>{{AbilityLink|Minor Lightning}}<br>{{AbilityLink|Minor Protection}}<br>{{AbilityLink|Minor Regeneration}}<br>{{AbilityLink|Vampiric Touch}}
+}}
+Liam is located near the well in the [[Duskenlight Coast]]
+
+Greeting message:
+{| class="wikitable"
+|Leave me alone. I came here to make my own way, and I don't need trouble that all you folks drag along in your wake.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[trouble]</span>
+|Just go. You have nothing I want.
+|}
+
+When handed [[Note to Liam]] for {{QuestLink|link=Liam's Note}}
+[[File:Screenshot 2025-04-26 154452.png|left|frame|After finishing you will receive "The Duskenlight Ritual", will also lead into the quest "The Duskenlight Ritual".]]
+
+[[Category:Characters]]
+[[Category:The Duskenlight Coast]]

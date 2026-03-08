@@ -1,0 +1,38 @@
+{{Enemy
+|name=Lullaby Fiend
+|image=[[File:Lullaby Fiend.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=-2 [[The Nightmare Collective]]
+|zones=[[Mysterious Portal|Mysterious Portal (1)]]
+|coordinates=
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Ancient Bone}} (59.7%)<br>{{ItemLink|Luminstone}} (59.7%)<br>{{ItemLink|Sea Glass}} (59.7%)<br>{{ItemLink|Remnants of a Daydream}} (5.2%)<br>{{ItemLink|Remnants of a Nightmare}} (5.2%)
+|level=15
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=5850
+|mana=0
+|ac=225
+|strength=24
+|endurance=45
+|dexterity=85
+|agility=30
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=8-18
+|poison=8-18
+|elemental=8-18
+|void=8-18
+|spells=
+}}
+
+[[Category:Enemies]]
+[[Category:Mysterious Portal]]

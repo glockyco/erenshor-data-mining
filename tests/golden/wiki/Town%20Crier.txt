@@ -1,0 +1,45 @@
+{{Enemy
+|name=Town Crier
+|image=[[File:Town Crier.png|thumb]]
+|imagecaption=The town crier in Wickliff, Stowaway's Step
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Stowaway's Step]]
+|factionChange=-20 [[The Citizens of Port Azure]]<br>-20 [[The Citizens of Stowaway's Step]]
+|zones=[[Port Azure]]<br>[[Stowaway's Step]]
+|coordinates=
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=3250
+|mana=100
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+The Town Crier is a special NPC located in various towns/cities in the game. On a daily basis he shouts out Patron's who subscribe to Patreon as a thank you for their contribution to the development team and game, this only happens if you're in the same zone as them.
+
+Greeting message:
+{| class="wikitable"
+|Oh, hi there. I'm just here to announce the latest news. Right now I'm recognizing the folks who have contributed to help the development of our fine island!
+|}
+
+[[Category:Characters]]
+[[Category:Port Azure]]
+[[Category:Stowaway's Step]]

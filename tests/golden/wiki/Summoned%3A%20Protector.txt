@@ -1,0 +1,38 @@
+{{Enemy
+|name=Summoned: Protector
+|image=[[File:Summoned: Protector.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Children of Sivakaya]]
+|factionChange=-2 [[The Children of Sivakaya]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Solunarian Brotherhood]]
+|zones=[[Jaws of Sivakaya]]
+|coordinates=
+|spawnchance=
+|respawn=5-13 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|The Faceless}} (20.4%)
+|level=36
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=2.0
+|health=123500
+|mana=1000
+|ac=540
+|strength=650
+|endurance=800
+|dexterity=800
+|agility=500
+|intelligence=500
+|wisdom=300
+|charisma=400
+|magic=18-43
+|poison=18-43
+|elemental=18-43
+|void=18-43
+|spells={{AbilityLink|Death's Embrace II}}<br>{{AbilityLink|Major Lightning}}<br>{{AbilityLink|Supreme Healing}}
+}}
+
+[[Category:Enemies]]
+[[Category:Jaws of Sivakaya]]

@@ -1,0 +1,39 @@
+{{Enemy
+|name=A Rock Minion
+|image=[[File:A Rock Minion.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=
+|coordinates=
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Rock}} (95.1%)
+|level=17
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1300
+|mana=0
+|ac=255
+|strength=17
+|endurance=2
+|dexterity=75
+|agility=32
+|intelligence=32
+|wisdom=32
+|charisma=32
+|magic=8-20
+|poison=8-20
+|elemental=8-20
+|void=8-20
+|spells=
+}}
+The Rock Minion is an enemy created by [[Gruhglor]] during the world boss fight. He spawns [[A Rock Minion]] under several conditions, every 30% of the bosses HP lost he will spawn two, every 10 seconds during the fight he will spawn one. They are quite squishy and it is recommended If your team cannot tank them, to very quickly take care of them as and when they appear.
+
+[[Category:Enemies]]
+[[Category:Fernalla's Revival Plains]]

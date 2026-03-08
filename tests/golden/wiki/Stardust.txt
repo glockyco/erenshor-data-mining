@@ -1,0 +1,42 @@
+{{Enemy
+|name=Stardust
+|image=[[File:Stardust.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Good]]
+|factionChange=
+|zones=[[Soluna's Landing]]
+|coordinates=
+|spawnchance=
+|respawn=46 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Diamond}} (14.8%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Stardust (Item)|image=Stardust Item.png|text=Stardust}} (8.7%)<br>{{ItemLink|Celestial Spike}} (4.9%)
+|level=25
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=50700
+|mana=0
+|ac=375
+|strength=3
+|endurance=3
+|dexterity=3
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=12-30
+|poison=12-30
+|elemental=12-30
+|void=12-30
+|spells=
+}}
+
+Trade {{ItemLink|Lost Faith}} with them to make them vulnerable to damage. Killing all [[Stardust]] in the crater will cause [[Astra, Rogue of the Stars]] to appear.
+
+=Notes=
+
+[[Category:Characters]]
+[[Category:Soluna's Landing]]

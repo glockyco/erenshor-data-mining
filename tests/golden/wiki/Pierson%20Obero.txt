@@ -1,0 +1,51 @@
+{{Enemy
+|name=Pierson Obero
+|image=[[File:Pierson Obero.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[Fernalla's Children]]
+|factionChange=-10 [[Fernalla's Children]]
+|zones=[[Faerie's Brake]]
+|coordinates=185.4 x 19.2 x 397.5
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates=
+|level=15
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=520
+|mana=0
+|ac=225
+|strength=35
+|endurance=35
+|dexterity=35
+|agility=35
+|intelligence=35
+|wisdom=35
+|charisma=35
+|magic=8-18
+|poison=8-18
+|elemental=8-18
+|void=8-18
+|spells={{AbilityLink|Brax's Rage}}<br>{{AbilityLink|Minor Regeneration}}<br>{{AbilityLink|Theft of Life}}
+}}
+Pierson is an NPC located in [[Faerie's Brake]].
+
+Greeting message:
+{| class="wikitable"
+|Fernalla's blessing to you. Do you <span style="color: #15e300;">[bring]</span> new <span style="color: #15e300;">[news]</span>?
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[bring]</span>, <span style="color: #15e300;">[news]</span> and <span style="color: #15e300;">[share]</span>
+Pray, if you bring new news then <span style="color: #15e300;">[share]</span> it generously, lest we remain lost.
+
+|}
+
+[[Category:Characters]]
+[[Category:Faerie's Brake]]

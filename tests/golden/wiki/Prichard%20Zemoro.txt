@@ -1,0 +1,59 @@
+{{Enemy
+|name=Prichard Zemoro
+|image=[[File:Prichard Zemoro.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=
+|zones=[[Port Azure]]
+|coordinates=185.4 x 12.9 x 175.8
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=17
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=32500
+|mana=0
+|ac=255
+|strength=35
+|endurance=35
+|dexterity=35
+|agility=55
+|intelligence=55
+|wisdom=75
+|charisma=55
+|magic=8-20
+|poison=8-20
+|elemental=8-20
+|void=8-20
+|spells=
+}}
+Prichard is an NPC located in [[Port Azure]] in a building down in the slums.
+
+Greeting message:
+{| class="wikitable"
+|Ho there! You bring a <span style="color: #15e300;">[map]</span>? An Elixir?
+|}
+
+Prichard gives the quest {{QuestLink|Maps for Prichard}}, where players can exchange a [[Treasure Map]] and an [[Elixir of Enlightenment II]] for a [[Sivakrux]].
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[coins]</span>
+Siva-whatevers. I have piles of 'em. I trade one for a map and elixir. Don't negotiate neither. Bring 'em if you got extras.
+|-
+|<span style="color: #15e300;">[elixir]</span>
+Those funny little potions you get over from the oddities folks. I'm on their second-to-least strongest one. Anything more is just too much for this head of mine.
+|-
+|<span style="color: #15e300;">[map]</span>
+You wanderin' around lost? E'ryone knows you bring me maps and Elixirs, I give you one of those junk coins I got out of a chest.
+|-
+|}
+
+[[Category:Characters]]
+[[Category:Port Azure]]

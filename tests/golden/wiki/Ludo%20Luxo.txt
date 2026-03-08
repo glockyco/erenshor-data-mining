@@ -1,0 +1,111 @@
+{{Enemy
+|name=Ludo Luxo
+|image=[[File:Ludo Luxo.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Blades of Vitheo]]
+|factionChange=-15 [[The Blades of Vitheo]]<br>-15 [[The Citizens of Erenshor]]<br>-15 [[The Citizens of Port Azure]]
+|zones=[[Hidden Hills]]
+|coordinates=7.9 x -2.9 x -35.9
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates=
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1632
+|mana=0
+|ac=330
+|strength=125
+|endurance=5
+|dexterity=125
+|agility=5
+|intelligence=5
+|wisdom=5
+|charisma=5
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells=
+}}
+Ludo is an NPC in [[Hidden Hills]]. He is a Vendor for [[Windblade|Windblades]] and quest giver for {{QuestLink | link=A Sivakayan Horn for Ludo Luxo}}
+
+Greeting message:
+{| class="wikitable"
+|Hey there. Welcome to our little corner of [[Erenshor]]. I've got some skill books and some spells for sale, if you're still learning. If you want a <span style="color: #15e300;">[task]</span> to do, I've got one of those I could use a hand with too.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[task]</span>, <span style="color: #15e300;">[quest]</span> and <span style="color: #15e300;">[help]</span>
+|If you have time, head down the road and into that cave in the cliffside. They call it [[The Bone Pits|The Bonepits]]. There are these awful things called [[A Lesser Avatar of Sivakaya|Avatars of Sivakaya]] deep in there. They're good for one thing - their horns make great sharpening stones... but they break easy. Bring me one of their horns intact, and i'll make it worth your while. <br><br><i>This begins {{QuestLink | link=A Sivakayan Horn for Ludo Luxo}}</i>
+|}
+
+After giving him the [[Sivakayan Horn]] for {{QuestLink | link=A Sivakayan Horn for Ludo Luxo}}:
+{| class="wikitable"
+|Ah, I'll have the sharpest weapons of the Brackish Coast now. And for you, I gift you balance. Wear them with skill, friend!
+|}
+
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Skill Book: Blood Feast|image=SkillBookPurple.png}}
+|[[Ability Books|Skill Book]]
+|55
+|-
+|{{ItemLink|Skill Book: Dodge|image=SkillBookPurple.png}}
+|[[Ability Books|Skill Book]]
+|55
+|-
+|{{ItemLink|Skill Book: Dual Wield|image=SkillBookSword.png}}
+|[[Ability Books|Skill Book]]
+|100
+|-
+|{{ItemLink|Skill Book: Double Attack|image=SkillBookSword.png}}
+|[[Ability Books|Skill Book]]
+|100
+|-
+|{{ItemLink|Skill Book: Kick|image=SkillBookPurple.png}}
+|[[Ability Books|Skill Book]]
+|75
+|-
+|{{ItemLink|Skill Book: Victor's Pride|image=SkillBookPurple.png}}
+|[[Ability Books|Skill Book]]
+|25
+|-
+|{{ItemLink|Skill Book: Backstab}}
+|[[Ability Books|Skill Book]]
+|1000
+|-
+|{{ItemLink|Polished Longsword}}
+|[[Weapons#|Sword]]
+|25
+|-
+|{{ItemLink|Light Plate Breastplate}}
+|[[Armor#Chest|Chest Armor]]
+|75
+|-
+|{{ItemLink|Light Plate Greaves}}
+|[[Armor#Leg|Leg Armor]]
+|55
+|-
+|{{ItemLink|Spell Scroll: Ocean's Lull}}
+||[[Ability Books|Spell Scroll]]
+|1400
+|-
+|{{ItemLink|Spell Scroll: Vithean Breeze}}
+||[[Ability Books|Spell Scroll]]
+|100
+|}
+
+[[Category:Characters]]
+[[Category:Hidden Hills]]
+[[Category:Vendors]]

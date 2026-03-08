@@ -1,0 +1,52 @@
+{{Enemy
+|name=Varran Juctor
+|image=[[File:Varran Juctor.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Blades of Vitheo]]
+|factionChange=-15 [[The Blades of Vitheo]]<br>-15 [[The Citizens of Erenshor]]<br>-15 [[The Citizens of Port Azure]]
+|zones=[[Fernalla's Revival Plains]]
+|coordinates=371.3 x 41.1 x 538.1
+|spawnchance=
+|respawn=6 minutes
+|guaranteeddrops=
+|droprates=
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1632
+|mana=0
+|ac=330
+|strength=125
+|endurance=5
+|dexterity=125
+|agility=5
+|intelligence=5
+|wisdom=5
+|charisma=5
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells=
+}}
+
+Greeting message:
+{| class="wikitable"
+|Can you believe it? Goodsoil... and these creepy things roaming around just behind us too! What is happening to this <span style="color: #15e300;">[place]</span>.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[place]</span>
+|Behind us here? That's where they say Fernalla fell - looks like some sort of necromancy at work now though, those druid corpses crawled out of the ground not too long ago. Say, if you're going to <span style="color: #15e300;">[dispose]</span> of them...
+|-
+|<span style="color: #15e300;">[dispose]</span>
+|Some of 'em got those neat little bead necklaces - I think I could sell those. Bring me them if you find them and I'll save ya a trip back to Azure to sell 'em.<br><br><i>This begins the quest [[Druid Beads for Varran]]</i>
+|}
+
+[[Category:Characters]]
+[[Category:Fernalla's Revival Plains]]

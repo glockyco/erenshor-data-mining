@@ -1,0 +1,33 @@
+{{Item
+|title=Skill Book: Dodge III
+|type=[[Ability Books|Skill Book]]
+|vendorsource=[[Oscar VanEllis]]<br>[[Roreli Gilmare]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=3500
+|sell=2275
+|taughtspell=
+|taughtskill={{AbilityLink|Dodge III}}
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SkillBook
+|image=Skill Book: Dodge III.png
+|name=Skill Book: Dodge III
+|duelist_level=24
+|druid_level=30
+|arcanist_level=
+|paladin_level=
+|stormcaller_level=24
+|reaver_level=
+|skill_type=Innate
+|skill_desc=You gain a small innate chance to dodge incoming attacks.
+|simplayers_autolearn=True
+}}
+
+[[Category:Ability Books]]

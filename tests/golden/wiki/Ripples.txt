@@ -1,0 +1,39 @@
+{{Enemy
+|name=Ripples
+|image=[[File:Ripples.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Abyssal Lake]]
+|coordinates=58.3 x 65.0 x 301.8
+|spawnchance=66%
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Amulet of Birdsong}}<br>{{ItemLink|Whispers of Wind}}
+|droprates={{ItemLink|Amulet of Birdsong}} (50.0%)<br>{{ItemLink|Whispers of Wind}} (50.0%)
+|level=31
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=3.0
+|health=55250
+|mana=0
+|ac=465
+|strength=355
+|endurance=255
+|dexterity=500
+|agility=155
+|intelligence=100
+|wisdom=100
+|charisma=25
+|magic=16-37
+|poison=16-37
+|elemental=16-37
+|void=16-37
+|spells=
+}}
+
+[[Category:Abyssal Lake]]
+[[Category:Bosses]]
+[[Category:Enemies]]

@@ -1,0 +1,43 @@
+{{Enemy
+|name=Savannah Priel
+|image=[[File:Savannah Priel (Character).png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[Savannah Priel]]
+|factionChange=-350 [[Savannah Priel]]<br>+20 [[The Citizens of Erenshor]]<br>+20 [[The Citizens of Port Azure]]
+|zones=[[Prielian Cascade]]
+|coordinates=490.6 x 45.5 x 532.8
+|spawnchance=
+|respawn=11 minutes
+|guaranteeddrops={{ItemLink|Charged Sword}}<br>{{ItemLink|Eroded Bangle}}
+|droprates={{ItemLink|Savannah's Musings}} (100.0%)<br>{{ItemLink|Charged Sword}} (50.0%)<ref>If Savannah Priel has {{ItemLink|Charged Sword}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Eroded Bangle}} (50.0%)<br>{{ItemLink|Sea Glass}} (19.6%)<br>{{ItemLink|Star Stone}} (19.6%)
+|level=39
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=6.0
+|health=195000
+|mana=2000
+|ac=585
+|strength=755
+|endurance=755
+|dexterity=755
+|agility=155
+|intelligence=155
+|wisdom=155
+|charisma=155
+|magic=20-47
+|poison=20-47
+|elemental=20-47
+|void=20-47
+|spells={{AbilityLink|Arterial Decay}}<br>{{AbilityLink|Forest's Reckoning}}
+}}
+
+To find {{PAGENAME}}, just keep following the path up through the mountain. Located at the end in a house with 4 others.
+
+=Notes=
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Prielian Cascade]]

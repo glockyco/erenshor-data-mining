@@ -1,0 +1,68 @@
+{{Enemy
+|name=Neziroth Daggerhart
+|image=[[File:Neziroth Daggerhart.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Stowaway's Step]]
+|factionChange=-25 [[The Citizens of Stowaway's Step]]
+|zones=[[Stowaway's Step]]
+|coordinates=497.1 x 68.7 x 677.6
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=15
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=520
+|mana=0
+|ac=225
+|strength=35
+|endurance=35
+|dexterity=35
+|agility=35
+|intelligence=35
+|wisdom=35
+|charisma=35
+|magic=8-18
+|poison=8-18
+|elemental=8-18
+|void=8-18
+|spells=
+}}
+He's is located at the Statue of Vitheo on [[Stowaway's Step]]. Neziroth is the quest giver for {{QuestLink|link=Daggerhart Ancestral Coin (Quest){{!}}Daggerhart Ancestral Coin}}
+
+Greeting message:
+{| class="wikitable"
+| Used to be quite the adventurer... now i'm washed up. Old injuries, ya know. Couldn't even protect my grandfather's lucky <span style="color: #15e300;">[coin]</span> from those <span style="color: #15e300;">[bandits]</span>.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[coin]</span> or <span style="color: #15e300;">[protect]</span>
+|Bandits got it. They're somewhere on the island... Told me I could have it back for 300 gold. I don't have 300 gold and I don't have the oomph to fight 'em anymore either.<br><br><i>This begins the quest {{QuestLink|link=Daggerhart Ancestral Coin (Quest){{!}}Daggerhart Ancestral Coin}}</i>
+|-
+|<span style="color: #15e300;">[where]</span> or <span style="color: #15e300;">[bandits]</span>
+|Don't know where they hide out. It's a small island... can't be that hard to find, if you've got the gumption.
+|}
+
+Giving him his [[Daggerhart Ancestral Coin]] for the quest {{QuestLink|link=Daggerhart Ancestral Coin (Quest){{!}}Daggerhart Ancestral Coin}}:
+{| class="wikitable"
+|You found it? My gosh! I don't have much to give, but here - take this. I can no longer put it to good use... or sell it if you'd like.
+|}
+
+Giving him a [[Daggerhart Ancestral Coin]] after having completed the quest:
+{| class="wikitable"
+|What's this? A Duplicate? This is definitely fake!
+|}
+
+If you say <span style="color: #FFFF00;">[coin]</span> or <span style="color: #FFFF00;">[protect]</span> to him again after finishing {{QuestLink|questlink=Daggerhart Ancestral Coin (Quest){{!}}Daggerhart Ancestral Coin}}:
+{| class="wikitable"
+|You really showed those <span style="color: #15e300;">[bandits]</span>!
+|}
+
+[[Category:Characters]]
+[[Category:Stowaway's Step]]

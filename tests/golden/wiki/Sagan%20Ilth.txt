@@ -1,0 +1,41 @@
+{{Enemy
+|name=Sagan Ilth
+|image=[[File:Sagan Ilth.png|thumb]]
+|imagecaption="Molorai do not stand down!"
+|type=[[Enemies|Boss]]
+|faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
+|factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
+|zones=[[Vitheo's Watch]]
+|coordinates=310.9 x 27.9 x 78.9
+|spawnchance=25%
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Arcanist Cap}} (13.4%)<ref>If Sagan Ilth has {{ItemLink|Arcanist Cap}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Luminstone}} (11.5%)<br>{{ItemLink|Star Stone}} (11.5%)<br>{{ItemLink|Magus Shield}} (7.6%)<ref>If Sagan Ilth has {{ItemLink|Magus Shield}} equipped, it is guaranteed to drop.</ref>
+|level=11
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=3.0
+|health=2600
+|mana=155
+|ac=165
+|strength=15
+|endurance=50
+|dexterity=30
+|agility=25
+|intelligence=35
+|wisdom=3
+|charisma=3
+|magic=6-13
+|poison=6-13
+|elemental=6-13
+|void=6-13
+|spells={{AbilityLink|Brax's Touch}}<br>{{AbilityLink|Ethereal Rending}}<br>{{AbilityLink|Minor Lightning}}<br>{{AbilityLink|Minor Protection}}<br>{{AbilityLink|Minor Regeneration}}<br>{{AbilityLink|Vampiric Touch}}
+}}
+Sagan can cast {{AbilityLink|Brax's Touch}}, {{AbilityLink|Minor Lightning}} and {{AbilityLink|Ethereal Rending}}.
+=Notes=
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Vitheo's Watch]]

@@ -1,0 +1,59 @@
+{{Enemy
+|name=Arcane Headmaster
+|image=[[File:Arcane Headmaster.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Ancients]]
+|factionChange=
+|zones=[[The Duskenlight Coast]]
+|coordinates=516.0 x 80.2 x 530.9
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Elder's Slippers}}<br>{{ItemLink|Lover's Locket}}
+|droprates={{ItemLink|Elder's Slippers}} (50.0%)<br>{{ItemLink|Lover's Locket}} (50.0%)
+|level=28
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=46800
+|mana=0
+|ac=420
+|strength=150
+|endurance=150
+|dexterity=365
+|agility=100
+|intelligence=300
+|wisdom=100
+|charisma=100
+|magic=14-34
+|poison=14-34
+|elemental=14-34
+|void=14-34
+|spells={{AbilityLink|Brax's Fury}}<br>{{AbilityLink|Ice Spear}}
+}}
+
+This character is aggressive unless you are wearing a [[Pupil's Pin]]. Located at 516.0 x 80.2 x 530.9 - only appears at night along with the other Ghosts at the school.
+
+Greeting message (with [[Pupil's Pin]] equipped)
+
+{| class="wikitable"
+|You... are not like <span style="color: #15e300;">[us]</span>.... We are... no more?
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[us]</span>
+|I sense our <span style="color: #15e300;">[time]</span> has long past. I sense you do not belong, yet here you are.
+|-
+|<span style="color: #15e300;">[time]</span>
+|Brax and Siva - the creators... the lovers... I feel tragedy. Who has been made to suffer so greatly?
+|-
+|<span style="color: #15e300;">[Sivakaya]</span>
+|She has been warped and hurt! I can see it. By... Azynthi? Her star pupil? Now he hides amongst your kind! If you find him, you must gain power to defeat him! Here, bring this to one who knows its worth, and who mourns her loss. They will know what to do with it.<br><br><i>This begins {{QuestLink|link=The Loss Stone}}</i>
+|-
+|}
+
+[[Category:Characters]]
+[[Category:The Duskenlight Coast]]

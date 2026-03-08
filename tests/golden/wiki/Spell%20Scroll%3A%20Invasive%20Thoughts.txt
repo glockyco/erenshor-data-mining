@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Invasive Thoughts
+|type=[[Ability Books|Spell Scroll]]
+|vendorsource=[[Aldoa Manday]]<br>[[Nylith Valorro]]<br>[[Ophelia Luminee]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=95
+|sell=62
+|taughtspell={{AbilityLink|Invasive Thoughts}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Invasive Thoughts.png
+|name=Spell Scroll: Invasive Thoughts
+|arcanist_level=5
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=125
+|spell_type=StatusEffect
+|spell_desc=Charm an NPC (up to level 7) to do your bidding for a short time.
+}}
+
+[[Category:Ability Books]]

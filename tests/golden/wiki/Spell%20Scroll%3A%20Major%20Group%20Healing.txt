@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Major Group Healing
+|type=[[Ability Books|Spell Scroll]]
+|vendorsource=
+|source=[[Priel Malarist]] (3.9%)<br>[[Priel Purist]] (2.4%)<br>[[Priel Consort]] (1.6%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=12550
+|sell=8157
+|taughtspell={{AbilityLink|Major Group Heal}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Major Group Healing.png
+|name=Spell Scroll: Major Group Healing
+|arcanist_level=
+|druid_level=30
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=755
+|spell_type=Heal
+|spell_desc=Heal nearby group members for a large amount.
+}}
+
+[[Category:Ability Books]]

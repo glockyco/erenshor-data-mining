@@ -1,0 +1,57 @@
+{{Enemy
+|name=Rumors
+|image=[[File:Rumors.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=
+|zones=[[Shivering Step]]
+|coordinates=714.2 x 21.2 x 468.8
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Vithean Brick}} (7.7%)<ref>If the player is already holding {{ItemLink|Vithean Brick}} in their inventory, another will not drop.</ref>
+|level=31
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=24050
+|mana=300
+|ac=465
+|strength=400
+|endurance=455
+|dexterity=400
+|agility=35
+|intelligence=35
+|wisdom=95
+|charisma=75
+|magic=16-37
+|poison=16-37
+|elemental=16-37
+|void=16-37
+|spells=
+}}
+
+Rumors can be found near the dock area of [[Shivering Step]]
+
+Greeting message:
+{| class="wikitable"
+|I'm Tired. I'm having <span style="color: #15e300;">[nightmares]</span>.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[nightmares]</span>
+About great <span style="color: #15e300;">[bridges]</span> across the sky. About underwater <span style="color: #15e300;">[caves]</span>, full of walking dreams.
+|-
+|<span style="color: #15e300;">[bridges]</span> 
+Immeasurably beautiful, and guarded by two demons - one made of stone, and one made of fear.
+|-
+|<span style="color: #15e300;">[caves]</span> 
+I see a beast, ancient and foggy, mouth full of fangs. It's wet, and I'm tired of swimming.
+|-
+
+[[Category:Characters]]
+[[Category:Shivering Step]]

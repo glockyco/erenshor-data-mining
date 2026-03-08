@@ -1,0 +1,56 @@
+{{Enemy
+|name=Sean Figarello
+|image=[[File:Sean Figarello.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Stowaway's Step]]
+|factionChange=-25 [[The Citizens of Stowaway's Step]]<br>-25 [[The Solunarian Brotherhood]]
+|zones=[[Stowaway's Step]]
+|coordinates=605.5 x 72.2 x 464.4
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=25
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=4550
+|mana=200
+|ac=375
+|strength=55
+|endurance=55
+|dexterity=55
+|agility=55
+|intelligence=55
+|wisdom=55
+|charisma=55
+|magic=12-30
+|poison=12-30
+|elemental=12-30
+|void=12-30
+|spells={{AbilityLink|Minor Healing}}
+}}
+Sean is located in [[Wickliff]] on [[Stowaway's Step]] and is selling a house.
+
+Greeting message:
+{| class="wikitable"
+|This house just sold. You just missed the deal of a lifetime, let me tell you! Guy moving in is a bit of a character. He had a lot of stuff. 
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[how]</span>, <span style="color: #15e300;">[much]</span>, <span style="color: #15e300;">[cost]</span> or <span style="color: #15e300;">[pay]</span>
+It was 1.25 million gold. A fair price, for the size!
+|-
+|<span style="color: #15e300;">[yes]</span> or <span style="color: #15e300;">[buy]</span>
+Someone beat ya to it. Sorry!
+|-
+|<span style="color: #15e300;">[fuck]</span>, <span style="color: #15e300;">[no]</span>, <span style="color: #15e300;">[crazy]</span> or <span style="color: #15e300;">[expensive]</span>
+Sorry to hear that you feel that way.
+|}
+
+[[Category:Characters]]
+[[Category:Stowaway's Step]]

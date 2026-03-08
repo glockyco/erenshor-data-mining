@@ -1,0 +1,39 @@
+{{Enemy
+|name=Aeiros, Soldier of Sivakaya
+|image=[[File:Aeiros, Soldier of Sivakaya.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Jaws of Sivakaya]]
+|coordinates=1443.3 x -19.5 x 110.1
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Creationist's Legwrap}}<br>{{ItemLink|Horn of Aeiros}}
+|droprates={{ItemLink|Creationist's Legwrap}} (50.0%)<br>{{ItemLink|Horn of Aeiros}} (50.0%)<br>{{ItemLink|Chapters of Descent, Passage 5}} (2.8%)<ref>If the player is already holding {{ItemLink|Chapters of Descent, Passage 5}} in their inventory, another will not drop.</ref><br>{{ItemLink|Chapters of Descent, Passage 6}} (2.8%)<ref>If the player is already holding {{ItemLink|Chapters of Descent, Passage 6}} in their inventory, another will not drop.</ref><br>{{ItemLink|Chapters of Descent, Passage 7}} (2.8%)<ref>If the player is already holding {{ItemLink|Chapters of Descent, Passage 7}} in their inventory, another will not drop.</ref><br>{{ItemLink|Chapters of Descent, Passage 8}} (2.8%)<ref>If the player is already holding {{ItemLink|Chapters of Descent, Passage 8}} in their inventory, another will not drop.</ref><br>{{ItemLink|The Faceless}} (2.8%)
+|level=39
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=0
+|levelvariancemax=0
+|xpmultiplier=4.0
+|health=195000
+|mana=0
+|ac=585
+|strength=655
+|endurance=655
+|dexterity=850
+|agility=700
+|intelligence=500
+|wisdom=500
+|charisma=500
+|magic=20-47
+|poison=20-47
+|elemental=20-47
+|void=20-47
+|spells=
+}}
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Jaws of Sivakaya]]

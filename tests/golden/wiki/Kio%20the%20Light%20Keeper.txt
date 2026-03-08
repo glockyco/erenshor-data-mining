@@ -1,0 +1,113 @@
+{{Enemy
+|name=Kio the Light Keeper
+|image=[[File:Kio the Light Keeper.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Stowaway's Step]]
+|factionChange=-25 [[The Citizens of Stowaway's Step]]
+|zones=[[Stowaway's Step]]
+|coordinates=799.3 x 20.1 x 585.9
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=260
+|mana=100
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+
+He's on the [[Docks]] on [[Stowaway's Step]]. Kio is required for {{QuestLink|Kio's Papers}}.
+
+<big>Stowaway's Step Dialogue</big>
+
+Greeting message:
+{| class="wikitable"
+|When you stare at the sea too long, it can start to peer back... it's full of <span style="color: #15e300;">[eyes]</span>. So many <span style="color: #15e300;">[eyes]</span>...
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[eyes]</span>
+|The sea warps their eyes... their eyes... do not let them gaze upon you!
+|-
+|<span style="color: #15e300;">[occuphage]</span>
+|Do not look at him! Do not let him see your eyes!
+|-
+|<span style="color: #15e300;">[weird]</span>, <span style="color: #15e300;">[crazy]</span>, <span style="color: #15e300;">[nuts]</span> and <span style="color: #15e300;">[strange]</span>  
+|I wish it was that simple...
+|}
+
+Giving {{ItemLink|Kio's Leave Order}} to Kio during {{QuestLink|Kio's Papers}}:
+{| class="wikitable"
+|I...am so happy. I will leave this place at once... it's cursed here! You'll see! All of you will see! Take this wretched key and be away with you!
+|}
+Giving {{ItemLink|Kio's Leave Order}} to Kio after finishing {{QuestLink|Kio's Papers}}:
+{| class="wikitable"
+|You've done this to me already! Why rub it in?
+|}
+
+<big>Shivering Step Dialogue</big>
+
+Greeting message:
+{| class="wikitable"
+|A torch to carry! You'll scare the frights! You'll need to see, in this light!<br><br>
+<i>Kio will then give the player a {{ItemLink|Shivering Torch}} which they will then need to equip in their offhand. The lighting will change to be very dark once you have the it.<br><br>You will then get a new quest {{QuestLink|Find The Hider}}</i>
+|}
+
+{{Enemy
+|name=Kio the Light Keeper
+|image=[[File:Kio the Light Keeper.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Stowaway's Step]]
+|factionChange=
+|zones=[[Shivering Step]]
+|coordinates=799.3 x 20.1 x 585.9
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=35
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=65000
+|mana=100
+|ac=525
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=18-42
+|poison=18-42
+|elemental=18-42
+|void=18-42
+|spells=
+}}
+
+[[Category:Characters]]
+[[Category:Shivering Step]]
+[[Category:Stowaway's Step]]

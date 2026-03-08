@@ -1,0 +1,110 @@
+{{Enemy
+|name=Amethi Plazzo
+|image=[[File:Amethi Plazzo.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Stowaway's Step]]
+|factionChange=+2 [[The Agents of The Wisp]]<br>+2 [[The Children of Sivakaya]]
+|zones=[[Stowaway's Step]]
+|coordinates=575.4 x 73.0 x 549.9
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=25
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=4550
+|mana=0
+|ac=375
+|strength=25
+|endurance=25
+|dexterity=25
+|agility=25
+|intelligence=25
+|wisdom=25
+|charisma=25
+|magic=12-30
+|poison=12-30
+|elemental=12-30
+|void=12-30
+|spells=
+}}
+
+Amethi Plazzo is a [[Vendors|vendor]] in [[Stowaway's Step]], living in a building just a bit away from the main square before the Forest area.
+
+Greeting message:
+{| class="wikitable"
+|Ah, now you've met the only person not trying to leave this place. Did my time as an adventurer.  Did it all, really. Now this quiet life is the life for me. Even sellin' some of my old stuff.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[adventurer]</span>
+|I've done it all. Seen it all. Slayed it all. I don't do the merc stuff anymore, but I do odd jobs.  I've even worked the docks. 
+|-
+|<span style="color: #15e300;">[slayed]</span>
+|Only beast I've met and never bested was old Plax. He's a tough old guy. Eats anything in sight... not even just adventurers. Who knows what treasures he might have. 
+|}
+
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Skill Book: Kick}}
+|[[Ability Books|Skill Book]]
+|90
+|-
+|{{ItemLink|Skill Book: Dodge}}
+|[[Ability Books|Skill Book]]
+|66
+|-
+|{{ItemLink|Skill Book: Blood Feast}}
+|[[Ability Books|Skill Book]]
+|66
+|-
+|{{ItemLink|Priel Knife}}
+|[[Weapons|Knife]]
+|4
+|-
+|{{ItemLink|Skill Book: Shield Bash}}
+|[[Ability Books|Skill Book]]
+|120
+|-
+|{{ItemLink|Spell Scroll: Minor Healing}}
+|[[Ability Books|Spell Scroll]]
+|72
+|-
+|{{ItemLink|Spell Scroll: Magic Bolt}}
+|[[Ability Books|Spell Scroll]]
+|60
+|-
+|{{ItemLink|Basic Pick}}
+|[[Weapons#Primary or Secondary|Primary or Secondary]]
+|120
+|-
+|{{ItemLink|Mold: Copper Sceptre}}
+|[[Crafting|Mold]]
+|0
+|-
+|{{ItemLink|Mold: Copper Sword}}
+|[[Crafting|Mold]]
+|0
+|-
+|{{ItemLink|Fishing Pole}}
+|[[Fishing Pole]]
+|5
+|-
+|{{ItemLink|Spell Scroll: Moon Bolt}}
+|[[Ability Books|Spell Scroll]]
+|65
+|}
+
+[[Category:Characters]]
+[[Category:Stowaway's Step]]
+[[Category:Vendors]]

@@ -1,0 +1,74 @@
+{{Item
+|title=Aged Interrogation Note
+|type=[[Quest Items|Quest Item]]
+|vendorsource=
+|source=[[Tortured Prisoner]] (14.1%)
+|othersource=
+|questsource=
+|relatedquest={{QuestLink|Intel from the Lost Cellar}}
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+Hand to [[Foreman Hauck]] to complete {{QuestLink|link=Intel from the Lost Cellar}}
+
+{{Item/General
+|image=Aged Interrogation Note.png
+|name=Aged Interrogation Note
+|description=Much of this document is faded, though names are mentioned that you do not immediately recognize. One bit is readable:<br><br>"...the wisp will remain vigilant in its quest to restore her, for she is the true Goddess of creation. The demons waving her banner are not her true children, for they... " <br><br>it fades out but ends in the line "... embrace of death."
+|value=
+|stack_size=
+|disposable=
+|effect_style=
+|effect_spell_icon=
+|effect_spell_name=
+|effect_spell_level=
+|effect_spell_duration_ticks=
+|effect_spell_type=
+|effect_spell_line=
+|effect_target_damage=
+|effect_target_healing=
+|effect_damage_type=
+|effect_cast_time=
+|effect_cooldown=
+|effect_spell_range=
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+}}
+
+[[Category:Items]]
+[[Category:Quest Items]]

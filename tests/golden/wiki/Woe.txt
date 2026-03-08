@@ -1,0 +1,64 @@
+{{Enemy
+|name=Woe
+|image=[[File:Woe.png|thumb]]
+|imagecaption=Woe wielding the Idol of Sivakaya in his left hand.
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=-10 [[The Children of Sivakaya]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]
+|zones=[[Island Tomb]]
+|coordinates=67.0 x -2.9 x 132.4
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Broken Key Blade}} (100.0%)<ref>If the player is already holding {{ItemLink|Broken Key Blade}} in their inventory, another will not drop.</ref><br>{{ItemLink|Cloth Gloves}} (12.4%)<br>{{ItemLink|Cloth Hood}} (12.4%)<br>{{ItemLink|Cloth Shoes}} (12.4%)<br>{{ItemLink|Cloth Sleeves}} (12.4%)<br>{{ItemLink|Burial Cloth Wristwrap}} (4.7%)<br>{{ItemLink|Cloth Pants}} (2.7%)<br>{{ItemLink|Cloth Shirt}} (2.7%)<br>{{ItemLink|Neophyte Necklace}} (2.7%)<br>{{ItemLink|Idol of Sivakaya}} (2.6%)<ref>If Woe has {{ItemLink|Idol of Sivakaya}} equipped, it is guaranteed to drop.</ref>
+|level=4
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=2.0
+|health=1170
+|mana=50
+|ac=60
+|strength=7
+|endurance=45
+|dexterity=55
+|agility=3
+|intelligence=15
+|wisdom=15
+|charisma=0
+|magic=2-5
+|poison=2-5
+|elemental=2-5
+|void=2-5
+|spells={{AbilityLink|Brax's Touch}}<br>{{AbilityLink|Minor Protection}}<br>{{AbilityLink|Weak Poison}}
+}}
+
+''{{main|Enemies}}''
+
+<!--
+=Location=
+{{PAGENAME}} is found in the [[Island Tomb]] on [[Stowaway's Step]]. After entering the dungeon, go straight until a path splits to the right. Take it, and then immediately turn left. Through the door, turn right and continue to the back of the Tomb where you will find {{PAGENAME}} standing in front of a large stone throne.
+-->
+=Appearance=
+{{PAGENAME}} is a white-haired necromancer and follower and apparent member of [[The Children of Sivakaya]]. He wears a brown robe and can occasionally be seen holding an [[Idol of Sivakaya]].
+
+=Behavior=
+{{PAGENAME}} waits near a throne at the back of the tomb. He will attack players if they get too close, or if he or a nearby [[A Sorrowful Spirit|Sorrowful Spirits]] are attacked or [[Lunar Madness|provoked]].
+
+===Spells & Abilities===
+Buffs:
+*{{AbilityLink|Minor Protection}}
+Offensive:
+*{{AbilityLink|Brax's Touch}}
+*{{AbilityLink|Weak Poison}}
+
+===Strategy===
+With careful positioning, it is possible to attract the attention of the nearby Sorrowful Spirits so that they can be killed before attempting to fight {{PAGENAME}}. Although he is not particularly strong, his spells can still do a modest amount of damage. A [[Paladin]] or [[Duelist]] can interrupt {{PAGENAME}} while he is casting with a well-timed {{AbilityLink|Kick}}.
+
+=Notes=
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Island Tomb]]
+[[Category:Stowaway's Step]]

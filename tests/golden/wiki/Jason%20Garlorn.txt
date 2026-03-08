@@ -1,0 +1,49 @@
+{{Enemy
+|name=Jason Garlorn
+|image=[[File:Jason Garlorn.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Erenshor]]
+|factionChange=-10 [[The Citizens of Erenshor]]<br>-10 [[The Citizens of Port Azure]]
+|zones=[[Silkengrass Meadowlands]]
+|coordinates=275.4 x 32.5 x 470.5
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1300
+|mana=0
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=0
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+Jason can be found in a small cabin near the river in the [[Silkengrass Meadowlands]]
+
+Greeting message:
+{| class="wikitable"
+|Made my way out here before all the <span style="color: #15e300;">[trouble]</span> started. Not leavin' now. I'm not buggin' anyone, I expect nobody will bug me.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[trouble]</span>
+Sivakayans were just a whisper when I moved out here. Now, they're all over this place. And that cave up on the l edge there... don't even think about going in. You won't come out.
+
+[[Category:Characters]]
+[[Category:Silkengrass Meadowlands]]

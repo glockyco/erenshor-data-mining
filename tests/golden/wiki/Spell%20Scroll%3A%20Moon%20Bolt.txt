@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Moon Bolt
+|type=[[Ability Books]]
+|vendorsource=[[Amethi Plazzo]]<br>[[Javo Follay]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=65
+|sell=42
+|taughtspell={{AbilityLink|Moon Bolt}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Moon Bolt.png
+|name=Spell Scroll: Moon Bolt
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=2
+|stormcaller_level=
+|reaver_level=
+|mana_cost=20
+|spell_type=Damage
+|spell_desc=Deals 10 magic damage and interrupts your target's casts
+}}
+
+[[Category:Ability Books]]

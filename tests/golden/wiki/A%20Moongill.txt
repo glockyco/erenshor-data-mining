@@ -1,0 +1,73 @@
+{{Item
+|title=A Moongill
+|type=[[Consumables|Consumable]], [[Quest Items|Quest Item]]
+|vendorsource=
+|source=[[Wardwarped Alpha]] (21.2%)<br>[[Frenzy]] (17.8%)<br>[[Grappler]] (17.8%)<br>[[Spinesnap Gorilla]] (17.8%)<br>[[Plaxitheris]] (17.0%)<br>[[Wardwarped Gorilla]] (14.5%)
+|othersource=[[Fishing]]
+|questsource=
+|relatedquest={{QuestLink |questlink=Wally's Moongill}}<br>{{QuestLink|Malaroth Food}}<br>{{QuestLink|Wally's Moongill}}
+|craftsource=
+|componentfor=
+|buy=25
+|sell=16
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+A fish that can be caught between 10PM-6AM. Required for {{QuestLink |questlink=Wally's Moongill}}. It can be found in bodies of water in [[Stowaway's Step]], [[Vitheo's Watch]] and [[Port Azure]].
+
+{{Item/Consumable
+|image=A Moongill.png
+|name=A Moongill
+|description=A Common Nocturnal Sea Fish
+|disposable=True
+|effect_spell_icon=Nourished.png
+|effect_spell_name=[[Nourished]]
+|effect_spell_level=1
+|effect_spell_duration_ticks=166
+|effect_spell_type=Beneficial
+|effect_spell_line=Generic
+|effect_target_damage=
+|effect_target_healing=
+|effect_shielding_amt=
+|effect_damage_type=Magic
+|effect_cast_time=0.0
+|effect_cooldown=
+|effect_spell_range=5.0
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=25
+|effect_ac=
+|effect_mana=25
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=1.0
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+|effect_xp_bonus=
+}}
+
+[[Category:Consumables]]
+[[Category:Fishing]]

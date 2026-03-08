@@ -1,0 +1,83 @@
+{{Item
+|title=Detective Books
+|type=[[Quest Items|Quest Item]]
+|vendorsource=
+|source=
+|othersource=
+|questsource=
+|relatedquest={{QuestLink|link=The Mystery of Bellwain Island}}
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+'''{{PAGENAME}}''' is a [[:Category:Notes|Note]] in [[Erenshor]]. 
+
+=Location=
+This note can be found on [[Bellwain Island]] as part of the quest {{QuestLink|The Mystery of Bellwain Island}}.
+
+=Description=
+{{PAGENAME}} hints at an item hidden on the roof.
+
+{{Item/General
+|image=Detective Books.png
+|name=Detective Books
+|description=Bellsie loved her detective novels. Loved to talk about how she could be an investigator and how good she'd be at it. Things like "hide in plain sight" and "they never look up, so hide things up high!"<br><br>She even went on a tangent about how the roof would be the best place to hide your most valuable items. Nobody ever robs a roof.
+|value=
+|stack_size=
+|disposable=
+|effect_style=
+|effect_spell_icon=
+|effect_spell_name=
+|effect_spell_level=
+|effect_spell_duration_ticks=
+|effect_spell_type=
+|effect_spell_line=
+|effect_target_damage=
+|effect_target_healing=
+|effect_damage_type=
+|effect_cast_time=
+|effect_cooldown=
+|effect_spell_range=
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+}}
+
+Using the hint, climb the crates on the back patio and jump onto the awning over the door. The {{ItemLink|Bellwain Bedroom Key}} can be found in a bag next to the chimney.
+
+[[Category:Items]]
+[[Category:Notes]]
+[[Category:Quest Items]]

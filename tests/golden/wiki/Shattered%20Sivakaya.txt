@@ -1,0 +1,38 @@
+{{Enemy
+|name=Shattered Sivakaya
+|image=[[File:Shattered Sivakaya.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=
+|zones=[[Secluded Sanctuary]]
+|coordinates=-85.9 x 0.9 x -41.6
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=50
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1040000
+|mana=0
+|ac=750
+|strength=355
+|endurance=355
+|dexterity=355
+|agility=355
+|intelligence=355
+|wisdom=355
+|charisma=355
+|magic=25-60
+|poison=25-60
+|elemental=25-60
+|void=25-60
+|spells=
+}}
+
+[[Category:Characters]]
+[[Category:Secluded Sanctuary]]

@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Magical Skin
+|type=[[Ability Books]]
+|vendorsource=
+|source=[[Acceptor]] (3.1%)<br>[[Ecclesiarch]] (2.0%)<br>[[Prioress]] (2.0%)<br>[[Acolyte]] (1.7%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=1255
+|sell=816
+|taughtspell={{AbilityLink|Magical Skin}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Magical Skin.png
+|name=Spell Scroll: Magical Skin
+|arcanist_level=15
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=300
+|spell_type=Beneficial
+|spell_desc=A short-duration shield that absorbs up to 400 points of incoming damage
+}}
+
+[[Category:Ability Books]]

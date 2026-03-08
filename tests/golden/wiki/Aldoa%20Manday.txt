@@ -1,0 +1,105 @@
+{{Enemy
+|name=Aldoa Manday
+|image=[[File:Aldoa Manday.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Stowaway's Step]]
+|factionChange=-20 [[The Citizens of Stowaway's Step]]
+|zones=[[Stowaway's Step]]
+|coordinates=508.8 x 67.8 x 537.9
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=15
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=2600
+|mana=0
+|ac=225
+|strength=35
+|endurance=35
+|dexterity=35
+|agility=35
+|intelligence=35
+|wisdom=35
+|charisma=35
+|magic=8-18
+|poison=8-18
+|elemental=8-18
+|void=8-18
+|spells=
+}}
+
+Greeting message:
+{| class="wikitable"
+|The watchlights... have you seen them at night? They're all over the island. What do you think they're for? 
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[watchlights]</span> 
+|They've been here for ages. They seem harmless, but it's unnerving!
+|}
+
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Spell Scroll: Dazzle}}
+|[[Ability Books|Spell Book]]
+|50
+|-
+|{{ItemLink|Spell Scroll: Invasive Thoughts}}
+|[[Ability Books|Spell Book]]
+|95
+|-
+|{{ItemLink|Spell Scroll: Burning Chains}}
+|[[Ability Books|Spell Book]]
+|150
+|-
+|{{ItemLink|Spell Scroll: Jolt}}
+|[[Ability Books|Spell Book]]
+|250
+|-
+|{{ItemLink|Spell Scroll: Summon Decayed Fawn}}
+|[[Ability Books|Spell Book]]
+|100
+|-
+|{{ItemLink|Spell Scroll: Biting Vines}}
+|[[Ability Books|Spell Book]]
+|66
+|-
+|{{ItemLink|Spell Scroll: Tangle}}
+|[[Ability Books|Spell Book]]
+|200
+|-
+|{{ItemLink|Spell Scroll: Death's Embrace}}
+|[[Ability Books|Spell Book]]
+|200
+|-
+|{{ItemLink|Spell Scroll: Vithean Breeze}}
+|[[Ability Books|Spell Book]]
+|100
+|-
+|{{ItemLink|Spell Scroll: Ice Bolt}}
+|[[Ability Books|Spell Book]]
+|100
+|-
+|{{ItemLink|Skill Book: Execute}}
+|[[Ability Books|Skill Book]]
+|1100
+|-
+|{{ItemLink|Spell Scroll: Static Invocation}}
+|[[Ability Books|Spell Book]]
+|125
+|}
+
+[[Category:Characters]]
+[[Category:Stowaway's Step]]
+[[Category:Vendors]]

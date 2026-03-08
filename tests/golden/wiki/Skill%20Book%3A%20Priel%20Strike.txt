@@ -1,0 +1,33 @@
+{{Item
+|title=Skill Book: Priel Strike
+|type=[[Ability Books|Skill Book]]
+|vendorsource=[[Roreli Gilmare]]
+|source=[[Priel Soldier]] (3.9%)<br>[[Priel Soldier]] (2.4%)<br>[[Priel Swiftblade]] (2.4%)<br>[[Priel Consort]] (1.6%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=7500
+|sell=4875
+|taughtspell=
+|taughtskill={{AbilityLink|Priel Strike}}
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SkillBook
+|image=Skill Book: Priel Strike.png
+|name=Skill Book: Priel Strike
+|duelist_level=28
+|druid_level=
+|arcanist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|skill_type=Attack
+|skill_desc=Deal major damage to a target and interrupt spells
+|simplayers_autolearn=True
+}}
+
+[[Category:Ability Books]]

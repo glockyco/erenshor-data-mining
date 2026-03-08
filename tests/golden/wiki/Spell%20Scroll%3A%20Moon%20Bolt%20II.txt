@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Moon Bolt II
+|type=[[Ability Books]]
+|vendorsource=[[Leyor M'Chante]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=3500
+|sell=2275
+|taughtspell={{AbilityLink|Moon Bolt II}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Moon Bolt II.png
+|name=Spell Scroll: Moon Bolt II
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=19
+|stormcaller_level=
+|reaver_level=
+|mana_cost=120
+|spell_type=Damage
+|spell_desc=Deals 700 magic damage and interrupts your target's casts
+}}
+
+[[Category:Ability Books]]

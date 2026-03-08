@@ -1,0 +1,54 @@
+{{Enemy
+|name=Vithean Elemental
+|image=[[File:Vithean Elemental.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Malaroth's Nesting Grounds]]<br>[[The Duskenlight Coast]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Vithean Ore}} (20.4%)
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1560
+|mana=0
+|ac=120
+|strength=150
+|endurance=150
+|dexterity=150
+|agility=10
+|intelligence=100
+|wisdom=5
+|charisma=5
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells={{AbilityLink|Expose Weakness}}
+}}
+''{{Main|Enemies}}''
+=Location=
+{{PAGENAME}}s can be found exclusively on the beaches of [[Duskenlight Coast]].
+
+=Appearance=
+{{PAGENAME}}s are blue spheres of water. They are the elemental embodiment of both air and sea, given form.
+
+=Behavior=
+{{PAGENAME}}s bounce across the sand until sensing a target to attack. Alone they do not pose much of a threat, but their close proximity to each other means that players may end up fighting multiple at once if they aren't careful.
+
+===Spells & Abilities===
+{{PAGENAME}} does not use any spells or abilities.
+
+=Notes=
+*{{PAGENAME}} can rarely be replaced with the [[Greater Vithean Elemental]].
+
+[[Category:Enemies]]
+[[Category:Malaroth's Nesting Grounds]]
+[[Category:The Duskenlight Coast]]

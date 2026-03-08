@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Ball Lightning
+|type=[[Ability Books|Spell Scroll]]
+|vendorsource=[[Elizabeth DeWitt]]<br>[[Windlae Oldseer]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=1800
+|sell=1170
+|taughtspell={{AbilityLink|Ball Lightning}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Ball Lightning.png
+|name=Spell Scroll: Ball Lightning
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=10
+|reaver_level=
+|mana_cost=125
+|spell_type=Damage
+|spell_desc=Deals 275 magic damage to your target.
+}}
+
+[[Category:Ability Books]]

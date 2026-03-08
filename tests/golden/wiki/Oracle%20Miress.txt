@@ -1,0 +1,43 @@
+{{Enemy
+|name=Oracle Miress
+|image=[[File:Oracle Miress.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Azynthi's Garden|Azynthi's Garden (Dimensional Rift)]]
+|coordinates=590.5 x 103.8 x 467.7
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Azynthian Cape}}<br>{{ItemLink|Azynthian Dagger}}<br>{{ItemLink|Spell Scroll: Infernis}}
+|droprates={{ItemLink|Riftsnare Gem}} (100.0%)<br>{{ItemLink|Azynthian Cape}} (33.3%)<br>{{ItemLink|Azynthian Dagger}} (33.3%)<ref>If Oracle Miress has {{ItemLink|Azynthian Dagger}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Spell Scroll: Infernis}} (33.3%)<br>{{ItemLink|Vampire Fang}} (20.4%)<br>{{ItemLink|Bread}} (2.6%)<br>{{ItemLink|Cloth Gloves}} (2.6%)<br>{{ItemLink|Cloth Pants}} (2.6%)<br>{{ItemLink|Cloth Shirt}} (2.6%)<br>{{ItemLink|Cloth Shoes}} (2.6%)<br>{{ItemLink|Cloth Sleeves}} (2.6%)<br>{{ItemLink|Luminstone}} (2.6%)<br>{{ItemLink|Star Stone}} (2.6%)<br>{{ItemLink|Water}} (2.6%)
+|level=38
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=5.0
+|health=94328
+|mana=5000
+|ac=570
+|strength=300
+|endurance=300
+|dexterity=300
+|agility=300
+|intelligence=300
+|wisdom=300
+|charisma=300
+|magic=19-46
+|poison=19-46
+|elemental=19-46
+|void=19-46
+|spells=
+}}
+
+In the curator's room on the 1st floor of the keep.
+
+=Notes=
+
+[[Category:Azynthi's Garden]]
+[[Category:Bosses]]
+[[Category:Enemies]]

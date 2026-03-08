@@ -1,0 +1,33 @@
+{{Item
+|title=Skill Book: Melee Proficiency
+|type=
+|vendorsource=[[Roreli Gilmare]]<br>[[Sven Feartines]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=225
+|sell=146
+|taughtspell=
+|taughtskill={{AbilityLink|Melee Proficiency}}
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SkillBook
+|image=Skill Book: Melee Proficiency.png
+|name=Skill Book: Melee Proficiency
+|duelist_level=8
+|druid_level=
+|arcanist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|skill_type=Innate
+|skill_desc=Passive Skill: You have a higher chance of scoring a critical hit and less chance to miss completely.
+|simplayers_autolearn=True
+}}
+
+[[Category:Ability Books]]

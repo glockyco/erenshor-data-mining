@@ -1,0 +1,67 @@
+{{Enemy
+|name=Rattlewrists
+|image=[[File:Rattlewrists.png|thumb]]
+|imagecaption="Rattlewrists rattles towards you!"
+|type=[[Enemies|Enemy]]
+|faction=[[The Children of Sivakaya]]
+|factionChange=-5 [[The Children of Sivakaya]]<br>+5 [[The Citizens of Stowaway's Step]]
+|zones=[[Stowaway's Step]]
+|coordinates=570.2 x 41.3 x 356.6
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Ancient Bone}} (100.0%)<br>{{ItemLink|Tattered Leather Boots}} (100.0%)<br>{{ItemLink|Water}} (100.0%)
+|level=1
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=22
+|mana=0
+|ac=15
+|strength=1
+|endurance=1
+|dexterity=10
+|agility=1
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=0-1
+|poison=0-1
+|elemental=0-1
+|void=0-1
+|spells=
+}}
+'''{{PAGENAME}}''' is an [[Enemies|enemy]] in [[Erenshor]].
+=Location=
+{{PAGENAME}} can be found exclusively on the path up from the [[Docks]] to the rest of [[Stowaway's Step]].
+
+=Appearance=
+{{PAGENAME}} is a skeleton wearing tattered rags. He has manacles attached to his wrists, which possibly explains how he earned his nickname.
+
+=Behavior=
+{{PAGENAME}} stands on the path leading to [[Treven Pines|Treven Pines']] shop.<ref>There is a chance {{PAGENAME}} will already have been defeated by a [[Simulated Players|Simulated Player]] when the player discovers it, though its corpse will still be available for looting should this occur.</ref> It will attack players when they approach it. {{PAGENAME}} is likely the second [[Enemies|enemy]] players will encounter, and the second part of the combat tutorial. Upon moving up the hill towards {{PAGENAME}}, a tutorial window will pop up encouraging players to make sure they've learned their starting [[Ability Books|abilities]]:
+
+{| class="wikitable" style=width:38em
+|+Spells and Skills
+|align="center" |
+If there are [[Ability Books|spell books or skill books]] in your [[inventory]], <span style="color: #01d900;">RIGHT CLICK on them to consume them and learn their abilities.</span> Then open up your SPELL BOOK and SKILL BOOK with <span style="color: #01d900;">'B'</span> to make hotkeys for abilities that you want to use.
+|}
+
+After defeating {{PAGENAME}} and moving up the hill, another tutorial pop-up will also teach players about looting:
+
+{| class="wikitable" style=width:38em
+|+Get Paid!
+|align="center" |
+When you win a battle, make sure you <span style="color: #01d900;">RIGHT CLICK</span> on the fallen enemy to take his loot!
+|}
+
+===Spells and Abilities===
+{{PAGENAME}} does not use any spells or abilities.
+
+=Notes=
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Stowaway's Step]]

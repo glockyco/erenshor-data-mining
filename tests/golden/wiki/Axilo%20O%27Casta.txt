@@ -1,0 +1,54 @@
+{{Enemy
+|name=Axilo O'Casta
+|image=[[File:Axilo O'Casta.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Agents of The Wisp]]
+|factionChange=-50 [[The Agents of The Wisp]]
+|zones=[[Fernalla's Revival Plains]]
+|coordinates=330.6 x 44.8 x 745.6
+|spawnchance=
+|respawn=3 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Luminstone}} (21.2%)<br>{{ItemLink|Star Stone}} (21.2%)
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=28600
+|mana=155
+|ac=330
+|strength=15
+|endurance=65
+|dexterity=65
+|agility=15
+|intelligence=15
+|wisdom=5
+|charisma=15
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells={{AbilityLink|Brax's Rage}}<br>{{AbilityLink|Brax's Touch}}<br>{{AbilityLink|Magic Bolt}}<br>{{AbilityLink|Minor Lightning}}
+}}
+
+==[[Port Azure|<span style="color:orange;">in Port Azure</span>]]:==
+Greeting message:
+{| class="wikitable"
+|Shame about Goodsoil. The <span style="color: #15e300;">[others]</span> will be concerned.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[others]</span>
+|You're known to The Wisp, after what you did on Stowaway's Step. Come see us in <span style="color: #15e300;">[Loomingwood]</span>
+|-
+|<span style="color: #15e300;">[Loomingwood]</span>
+|It's to the north, not an easy walk and once you're there, don't stray from the road. We've warded it against the Sivakayans, but the wards have attracted some other things.
+|}
+
+[[Category:Characters]]
+[[Category:Fernalla's Revival Plains]]
+[[Category:Port Azure]]

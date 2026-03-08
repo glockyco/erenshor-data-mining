@@ -1,0 +1,39 @@
+{{Enemy
+|name=Molorai Mason
+|image=[[File:Molorai Mason.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
+|factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
+|zones=[[Azynthi's Garden]]
+|coordinates=594.1 x 98.0 x 477.1
+|spawnchance=70%
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Mason's Pick}}<br>{{ItemLink|Salt Encrusted Boots}}
+|droprates={{ItemLink|Old Work Order}} (100.0%)<ref>If the player is already holding {{ItemLink|Old Work Order}} in their inventory, another will not drop.</ref><br>{{ItemLink|Salt Encrusted Boots}} (66.7%)<br>{{ItemLink|Citrine Stone}} (57.4%)<br>{{ItemLink|Water}} (57.4%)<br>{{ItemLink|Mason's Pick}} (33.3%)<br>{{ItemLink|Ancient Pottery Shard}} (6.8%)<br>{{ItemLink|Diamond}} (6.8%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Battle Chain}} (6.8%)<br>{{ItemLink|Vampire Fang}} (4.5%)<br>{{ItemLink|Azynthian Scripture 1}} (4.0%)<ref>If the player is already holding {{ItemLink|Azynthian Scripture 1}} in their inventory, another will not drop.</ref><br>{{ItemLink|Azynthian Scripture 2}} (4.0%)<ref>If the player is already holding {{ItemLink|Azynthian Scripture 2}} in their inventory, another will not drop.</ref><br>{{ItemLink|Azynthian Scripture 3}} (4.0%)<ref>If the player is already holding {{ItemLink|Azynthian Scripture 3}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Sigil}} (2.2%)
+|level=32
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=2.0
+|health=49400
+|mana=2500
+|ac=480
+|strength=550
+|endurance=450
+|dexterity=755
+|agility=350
+|intelligence=175
+|wisdom=100
+|charisma=100
+|magic=16-38
+|poison=16-38
+|elemental=16-38
+|void=16-38
+|spells={{AbilityLink|Death's Embrace}}<br>{{AbilityLink|Expose Weakness}}
+}}
+
+[[Category:Azynthi's Garden]]
+[[Category:Bosses]]
+[[Category:Enemies]]

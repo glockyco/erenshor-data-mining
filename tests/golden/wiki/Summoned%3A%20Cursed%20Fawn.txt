@@ -1,0 +1,37 @@
+{{Enemy
+|name=Summoned: Cursed Fawn
+|image=[[File:Summoned: Cursed Fawn.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=
+|factionChange=
+|zones=
+|coordinates=
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=11
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1300
+|mana=100
+|ac=165
+|strength=13
+|endurance=35
+|dexterity=200
+|agility=35
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=6-13
+|poison=6-13
+|elemental=6-13
+|void=6-13
+|spells=
+}}
+
+[[Category:Characters]]

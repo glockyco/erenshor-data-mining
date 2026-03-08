@@ -1,0 +1,91 @@
+{{Enemy
+|name=Cerbantias Flameward
+|image=[[File:Cerbantias Flameward.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Torchbearers of Brax]]
+|factionChange=-20 [[The Citizens of Port Azure]]<br>-20 [[The Torchbearers of Brax]]
+|zones=[[Port Azure]]
+|coordinates=23.4 x 27.4 x 337.3
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Arcanist Cap}} (20.4%)<ref>If Cerbantias Flameward has {{ItemLink|Arcanist Cap}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Luminstone}} (11.5%)<br>{{ItemLink|Star Stone}} (11.5%)
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=4550
+|mana=155
+|ac=330
+|strength=3
+|endurance=3
+|dexterity=3
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells={{AbilityLink|Brax's Rage}}<br>{{AbilityLink|Brax's Touch}}<br>{{AbilityLink|Hardened Skin}}<br>{{AbilityLink|Magic Bolt}}<br>{{AbilityLink|Minor Lightning}}<br>{{AbilityLink|Minor Protection}}<br>{{AbilityLink|Minor Regeneration}}<br>{{AbilityLink|Vampiric Touch}}
+}}
+
+Cerbantias is an NPC located by the [[Port Azure]] Lighthouse. This NPC will refuse to talk to you if you are any class other than Arcanist.
+He is the quest giver for {{QuestLink|link=Accessing the Ethereal Planes}}.
+
+Greeting message only for Arcanists:
+{| class="wikitable"
+|For brax, brother. You've found us! The brotherhood of <span style="color: #15e300;">[Braxtons]</span> has given us quarter, and it is from here we will <span style="color: #15e300;">[launch]</span> our <span style="color: #15e300;">[expeditions]</span>!
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[Braxtons]</span> and <span style="color: #15e300;">[brotherhood]</span>
+|They follow the ways of Brax just as we Arcanists do. They just do it for less... material reasons. They still offer a lot of knowledge that we all can still benefit from.
+|-
+|<span style="color: #15e300;">[launch]</span>
+|There are artifacts in other worlds that were not meant for human hands, and by the gods we'll prove we can manage them! Our <span style="color: #15e300;">[hunt]</span> began centuries ago and we are close now!
+|-
+|<span style="color: #15e300;">[hunt]</span> or <span style="color: #15e300;">[expeditions!]</span>
+|The keys to the ethereal planes are not easy to find, but rumours of their existences do grace the winds. We must be diligent.<br><br><i>This begins {{QuestLink|link=Accessing the Ethereal Planes}}</i>
+|}
+
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Spell Scroll: Coma}}
+|[[Ability Books|Spell Book]]
+|32000
+|-
+|{{ItemLink|Spell Scroll: Magical Skin II}}
+|[[Ability Books|Spell Book]]
+|24555
+|-
+|{{ItemLink|Spell Scroll: Immolation}}
+|[[Ability Books|Spell Book]]
+|2100
+|-
+|{{ItemLink|Spell Scroll: Sleep}}
+|[[Ability Books|Spell Book]]
+|2000
+|-
+|{{ItemLink|Spell Scroll: Meditative Trance}}
+|[[Ability Books|Spell Book]]
+|1100
+|-
+|{{ItemLink|Spell Scroll: Ice Shock}}
+|[[Ability Books|Spell Book]]
+|1850
+|-
+|}
+
+[[Category:Characters]]
+[[Category:Port Azure]]
+[[Category:Vendors]]

@@ -1,0 +1,75 @@
+{{Item
+|title=Chapters of Descent, Passage 1
+|type=[[Lore Items|Lore]], [[Quest Items|Quest Item]]
+|vendorsource=
+|source=[[Prioress]] (6.8%)<br>[[Acolyte]] (6.0%)
+|othersource=
+|questsource=
+|relatedquest={{QuestLink|link=The Mathers' Demise{{!}}The Mather's Demise, Part 2}}<br>{{QuestLink|The Mathers' Demise}}
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+Required for the quest {{QuestLink|link=The Mathers' Demise{{!}}The Mather's Demise Part 2}}
+
+{{Item/General
+|image=Chapters of Descent, Passage 1.png
+|name=Chapters of Descent, Passage 1
+|description=Our resplendent Goddess of War was not always veiled in shadow, nor did her heart once beat with the wicked cadence of necromantic sorcery. It is an unspoken truth, a silence that echoes through our ancient hallways.<br><br>The wisp's malevolent touch, like a ghostly hand upon the pages of our Codex, has cast aspersions upon the very essence of our goddess, obscuring the truths that lay concealed in the labyrinthine corridors of her past and then rewrote her motives...
+|value=
+|stack_size=
+|disposable=
+|effect_style=
+|effect_spell_icon=
+|effect_spell_name=
+|effect_spell_level=
+|effect_spell_duration_ticks=
+|effect_spell_type=
+|effect_spell_line=
+|effect_target_damage=
+|effect_target_healing=
+|effect_damage_type=
+|effect_cast_time=
+|effect_cooldown=
+|effect_spell_range=
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+}}
+
+[[Category:Items]]
+[[Category:Lore Items]]
+[[Category:Quest Items]]

@@ -1,0 +1,34 @@
+{{Item
+|title=Spell Scroll: Mana Charge
+|type=[[Ability Books]]
+|vendorsource=
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=150
+|sell=98
+|taughtspell={{AbilityLink|Mana Charge}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+This item is no longer obtainable
+
+{{Item/SpellScroll
+|image=Spell Scroll: Mana Charge.png
+|name=Spell Scroll: Mana Charge
+|arcanist_level=-1
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=200
+|spell_type=Beneficial
+|spell_desc=Provides consistent mana regeneration.
+}}
+
+[[Category:Ability Books]]

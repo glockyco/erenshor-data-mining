@@ -1,0 +1,41 @@
+{{Enemy
+|name=Chazza Priel
+|image=[[File:Chazza Priel.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[Savannah Priel]]
+|factionChange=-35 [[Savannah Priel]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Solunarian Brotherhood]]
+|zones=[[Windwashed Pass]]
+|coordinates=837.5 x 91.8 x 242.2
+|spawnchance=66%
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Dueling Armguards}}<br>{{ItemLink|Strategist's Ring}}
+|droprates={{ItemLink|Priel Note|text=Priel Note (1)}} (100.0%)<ref>If the player is already holding {{ItemLink|Priel Note|text=Priel Note (1)}} in their inventory, another will not drop.</ref><br>{{ItemLink|Dueling Armguards}} (50.0%)<br>{{ItemLink|Strategist's Ring}} (50.0%)<br>{{ItemLink|Bear Bone Club}} (8.7%)<ref>If Chazza Priel has {{ItemLink|Bear Bone Club}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Sea Glass}} (7.4%)<br>{{ItemLink|Star Stone}} (7.4%)<br>{{ItemLink|Priel Standard}} (4.9%)<ref>If Chazza Priel has {{ItemLink|Priel Standard}} equipped, it is guaranteed to drop.</ref>
+|level=20
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=3.0
+|health=31200
+|mana=300
+|ac=300
+|strength=500
+|endurance=500
+|dexterity=500
+|agility=400
+|intelligence=300
+|wisdom=200
+|charisma=400
+|magic=10-24
+|poison=10-24
+|elemental=10-24
+|void=10-24
+|spells={{AbilityLink|Death's Embrace}}<br>{{AbilityLink|Expose Weakness}}
+}}
+Chazza can be found in the Priel camp in the Windwashed pass.
+=Notes=
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Windwashed Pass]]

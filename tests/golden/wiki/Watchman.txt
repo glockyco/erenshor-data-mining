@@ -1,0 +1,37 @@
+{{Enemy
+|name=Watchman
+|image=[[File:Watchman.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=
+|zones=
+|coordinates=
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Cloth Gloves}} (15.8%)<br>{{ItemLink|Cloth Hood}} (15.8%)<br>{{ItemLink|Cloth Shoes}} (15.8%)<br>{{ItemLink|Cloth Sleeves}} (15.8%)
+|level=1
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=130
+|mana=100
+|ac=15
+|strength=5
+|endurance=6
+|dexterity=6
+|agility=6
+|intelligence=6
+|wisdom=6
+|charisma=6
+|magic=0-1
+|poison=0-1
+|elemental=0-1
+|void=0-1
+|spells=
+}}
+
+[[Category:Characters]]

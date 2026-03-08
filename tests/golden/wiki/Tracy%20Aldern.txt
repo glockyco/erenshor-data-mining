@@ -1,0 +1,55 @@
+{{Enemy
+|name=Tracy Aldern
+|image=[[File:Tracy Aldern.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Stowaway's Step]]
+|factionChange=-20 [[The Citizens of Port Azure]]<br>-20 [[The Citizens of Stowaway's Step]]
+|zones=[[Stowaway's Step]]
+|coordinates=590.9 x 72.0 x 432.9
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=3250
+|mana=100
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+Tracey is located in [[Wickliff]] on [[Stowaway's Step]].
+
+Greeting message:
+{| class="wikitable"
+|This place isn't so bad. None of us expected to live here when we arrived... but when they stopped all immigration to <span style="color: #15e300;">[Erenshor]</span> we really had no choice.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[Erenshor]</span> and <span style="color: #15e300;">[immigration]</span>
+
+There's a war coming to Erenshor. The <span style="color: #15e300;">[Sivakaya]</span>n's aren't afraid anymore, and they're causing trouble all over.
+|-
+|<span style="color: #15e300;">[Sivakaya]</span>
+
+Sivakayans? They're just the folks who worship the Goddess of War - Sivakaya. Battle is in their souls and their targets are anyone outside of their own circle.
+|}
+
+[[Category:Characters]]
+[[Category:Stowaway's Step]]

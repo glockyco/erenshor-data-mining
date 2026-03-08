@@ -1,0 +1,82 @@
+{{Ability
+|title=Nourished
+|image=[[File:Nourished.png|thumb]]
+|imagecaption=You feel full.
+|description=Increase Hitpoints, Run Speed, and Mana Regen.
+|type=Beneficial
+|line=Generic
+|classes=
+|required_level=1
+|manacost=
+|aggro=
+|is_taunt=
+|casttime=Instant
+|cooldown=
+|duration=498 seconds
+|duration_in_ticks=166
+|has_unstable_duration=
+|is_instant_effect=
+|is_reap_and_renew=
+|is_sim_usable=True
+|range=
+|max_level_target=
+|is_self_only=True
+|is_group_effect=
+|is_applied_to_caster=
+|effects=
+|damage_type=
+|resist_modifier=
+|target_damage=
+|target_healing=
+|caster_healing=
+|shield_amount=
+|pet_to_summon=
+|status_effect=
+|add_proc=
+|add_proc_chance=
+|has_lifetap=
+|lifesteal=
+|damage_shield=
+|percent_mana_restoration=
+|bleed_damage_percent=
+|special_descriptor=
+|hp=25
+|ac=
+|mana=25
+|str=
+|dex=
+|end=
+|agi=
+|wis=
+|int=
+|cha=
+|mr=
+|er=
+|vr=
+|pr=
+|haste=
+|resonance=
+|movement_speed=1.0
+|atk_roll_modifier=
+|xp_bonus=
+|is_root=
+|is_stun=
+|is_charm=
+|is_broken_on_damage=
+|is_fear=
+|inflict_on_self=
+|itemswitheffect={{ItemLink|A Beaktooth}}<br>{{ItemLink|A Burgundy Skipper}}<br>{{ItemLink|A Fanged Caveskimmer}}<br>{{ItemLink|A Fingerbiter}}<br>{{ItemLink|A Frowny Clowny}}<br>{{ItemLink|A Husselfish}}<br>{{ItemLink|A Moongill}}<br>{{ItemLink|A Sleepyhead}}<br>{{ItemLink|A Stonemouth Bass}}<br>{{ItemLink|An Octorunner}}<br>{{ItemLink|Bread}}<br>{{ItemLink|Breaded Island Fin}}<br>{{ItemLink|Infused Bracelet}}<br>{{ItemLink|Island Fin}}<br>{{ItemLink|Tamer's Pack}}
+|source=
+|used_by=
+}}
+
+'''{{PAGENAME}}''' is a beneficial [[Status Effects|Status Effect]] obtained through a wide variety of [[Consumables|Consumable]] items.
+
+=Effect=
+{{PAGENAME}} has the following effects:
+*Increases Hit Points by '''+25'''
+*Increases Mana by '''+25'''
+*Increases Movement Speed by '''+1'''
+
+=Notes=
+*[[Bread]] is a universal common drop from all enemies, making it an easy way to keep this buff active.

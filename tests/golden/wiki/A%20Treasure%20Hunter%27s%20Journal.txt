@@ -1,0 +1,94 @@
+{{Item
+|title=A Treasure Hunter's Journal
+|type=[[Quest Items|Quest Item]]
+|vendorsource=
+|source=
+|othersource=
+|questsource={{QuestLink|link=The Lost Soul{{!}}The Lost Soul Pt. 2}}
+|relatedquest={{QuestLink|link=The Lost Soul{{!}}The Lost Soul Pt. 3}}
+|craftsource=
+|componentfor=
+|buy=355
+|sell=231
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+Benjamin's Journal
+
+Entry 1:
+
+I have caught wind of the ultimate prize - a blessing more than a treasure even!
+
+It holds secrets that no mortal should have any right to know, it holds the location of a place that can bestow the touch of a God upon any ordinary item!
+
+A tribute is needed, or so I would guess, but the tribute is the least of my concerns. I am after the instructions. 
+
+Entry 2:
+
+It would seem that the pieces I need are on this very land. There more proof to justify my search than there is to condemn it. I shall meander with purpose, I think.
+
+Entry 3:
+
+I have been through many of the chasms in this place. Through moldy dungeons and man-made pits of filth and for my efforts I have found nothing.
+
+I have narrowed my area of interest down however - a place called Abyssal Lake holds great interest, though I know not who dwells within. If that fails, I believe the skyfolk may have my answer.
+
+{{Item/General
+|image=A Treasure Hunter's Journal.png
+|name=A Treasure Hunter's Journal
+|description=The musings of a fallen treasure hunter<br><br>(Right Click to Read)
+|value=355
+|stack_size=
+|disposable=
+|effect_style=
+|effect_spell_icon=
+|effect_spell_name=
+|effect_spell_level=
+|effect_spell_duration_ticks=
+|effect_spell_type=
+|effect_spell_line=
+|effect_target_damage=
+|effect_target_healing=
+|effect_damage_type=
+|effect_cast_time=
+|effect_cooldown=
+|effect_spell_range=
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+}}
+
+[[Category:Books]]
+[[Category:Items]]
+[[Category:Quest Items]]

@@ -1,0 +1,74 @@
+{{Item
+|title=Planar Stone
+|type=[[Crafting]]
+|vendorsource=
+|source=[[Lost Treasure (30+)]] (9.4%)
+|othersource=0.067% (1 in 1.500) drop chance from any enemy level 31+
+|questsource=
+|relatedquest=
+|craftsource=1x {{ItemLink|Resolving Fluid}}<br>8x {{ItemLink|Planar Stone Shards}}
+|componentfor=
+|buy=1000000
+|sell=650000
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+Used as a fuel for {{ItemLink|Mold: An Otherworldly Box|image=Mold An Otherworldly Box.png}} to upgrade a [[File:Blue_Sparkle.gif|30px|link=Item Quality#Blue Sparkling Item]][[Item Quality#Blue Sparkling Item|Blue Blessed Item]] into a [[File:Purple_Sparkle.gif|30px|link=Item Quality#Purple Sparkling Item]][[Item Quality#Purple Sparkling Item|Purple Blessed Item]]
+
+{{Item/General
+|image=Planar Stone.png
+|name=Planar Stone
+|description=An extremely rare and strange stone, rumored to come from the planes of the Gods.
+|value=1000000
+|stack_size=
+|disposable=
+|effect_style=
+|effect_spell_icon=
+|effect_spell_name=
+|effect_spell_level=
+|effect_spell_duration_ticks=
+|effect_spell_type=
+|effect_spell_line=
+|effect_target_damage=
+|effect_target_healing=
+|effect_damage_type=
+|effect_cast_time=
+|effect_cooldown=
+|effect_spell_range=
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+}}
+
+[[Category:Crafting]]
+[[Category:Items]]

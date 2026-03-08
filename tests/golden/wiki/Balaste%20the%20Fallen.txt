@@ -1,0 +1,42 @@
+{{Enemy
+|name=Balaste the Fallen
+|image=[[File:Balaste the Fallen.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=+2 [[The Blades of Vitheo]]
+|zones=[[Vitheo's Rest]]
+|coordinates=489.4 x -11.4 x 492.6
+|spawnchance=99%
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Intricate Sleeves}}<br>{{ItemLink|Virophan Leather Slippers}}
+|droprates={{ItemLink|Memory of Balaste}} (100.0%)<ref>If the player is already holding {{ItemLink|Memory of Balaste}} in their inventory, another will not drop.</ref><br>{{ItemLink|The Traitor's Hall}} (100.0%)<ref>If the player is already holding {{ItemLink|The Traitor's Hall}} in their inventory, another will not drop.</ref><br>{{ItemLink|Intricate Sleeves}} (66.7%)<br>{{ItemLink|Virophan Leather Slippers}} (33.3%)
+|level=26
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=3.0
+|health=37050
+|mana=300
+|ac=390
+|strength=300
+|endurance=400
+|dexterity=400
+|agility=250
+|intelligence=250
+|wisdom=95
+|charisma=75
+|magic=13-31
+|poison=13-31
+|elemental=13-31
+|void=13-31
+|spells=
+}}
+Balaste the Fallen can be found in the first wing of [[Vitheo's Rest]].
+
+=Notes=
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Vitheo's Rest]]

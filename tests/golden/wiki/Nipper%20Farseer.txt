@@ -1,0 +1,38 @@
+{{Enemy
+|name=Nipper Farseer
+|image=[[File:Nipper Farseer.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Abyssal Lake]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Coral}} (3.5%)<br>{{ItemLink|Diamond}} (3.5%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Spell Scroll: Death's Embrace II}} (3.5%)<br>{{ItemLink|Star Stone}} (3.5%)
+|level=28
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=27300
+|mana=0
+|ac=420
+|strength=355
+|endurance=255
+|dexterity=500
+|agility=155
+|intelligence=300
+|wisdom=200
+|charisma=125
+|magic=14-34
+|poison=14-34
+|elemental=14-34
+|void=14-34
+|spells={{AbilityLink|Arterial Decay}}<br>{{AbilityLink|Devour}}
+}}
+
+[[Category:Abyssal Lake]]
+[[Category:Enemies]]

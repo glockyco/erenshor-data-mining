@@ -1,0 +1,39 @@
+{{Enemy
+|name=Granitus
+|image=[[File:Granitus.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Windwashed Pass]]
+|coordinates=960.4 x 55.5 x 396.9
+|spawnchance=
+|respawn=7 minutes
+|guaranteeddrops={{ItemLink|Cratermakers}}<br>{{ItemLink|Gem of Echoes}}<br>{{ItemLink|Granite Belt}}<br>{{ItemLink|Resonating Crystal}}<br>{{ItemLink|Stone Sword}}
+|droprates={{ItemLink|Stone Giant's Blood}} (100.0%)<br>{{ItemLink|Rock}} (85.1%)<br>{{ItemLink|Cratermakers}} (20.0%)<br>{{ItemLink|Gem of Echoes}} (20.0%)<br>{{ItemLink|Granite Belt}} (20.0%)<br>{{ItemLink|Resonating Crystal}} (20.0%)<br>{{ItemLink|Stone Sword}} (20.0%)
+|level=30
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=6.0
+|health=71500
+|mana=2000
+|ac=450
+|strength=550
+|endurance=400
+|dexterity=550
+|agility=225
+|intelligence=200
+|wisdom=200
+|charisma=100
+|magic=15-36
+|poison=15-36
+|elemental=15-36
+|void=15-36
+|spells=
+}}
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Windwashed Pass]]

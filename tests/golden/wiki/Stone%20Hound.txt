@@ -1,0 +1,38 @@
+{{Enemy
+|name=Stone Hound
+|image=[[File:Stone Hound.png|thumb]]
+|imagecaption=Never take his loyalty for granite
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Rockshade Hold]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Pulsating Stone}} (86.5%)<ref>If the player is already holding {{ItemLink|Pulsating Stone}} in their inventory, another will not drop.</ref>
+|level=23
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=14300
+|mana=0
+|ac=345
+|strength=38
+|endurance=125
+|dexterity=175
+|agility=165
+|intelligence=5
+|wisdom=0
+|charisma=155
+|magic=12-28
+|poison=12-28
+|elemental=12-28
+|void=12-28
+|spells=
+}}
+
+[[Category:Enemies]]
+[[Category:Rockshade Hold]]

@@ -1,0 +1,38 @@
+{{Enemy
+|name=Sivakayan Unhallowed
+|image=[[File:Sivakayan Unhallowed.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Children of Sivakaya]]
+|factionChange=-2 [[The Children of Sivakaya]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Solunarian Brotherhood]]
+|zones=[[Vitheo's Rest]]
+|coordinates=
+|spawnchance=
+|respawn=11 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Sivakayan Ore}} (12.1%)<br>{{ItemLink|Sea Glass}} (10.2%)<br>{{ItemLink|Star Stone}} (10.2%)<br>{{ItemLink|Sivakayan Axe}} (1.4%)<ref>If Sivakayan Unhallowed has {{ItemLink|Sivakayan Axe}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Sivakayan Bracer}} (1.4%)<br>{{ItemLink|Sivakayan Legplate}} (1.4%)<br>{{ItemLink|Sivakayan Plate}} (1.4%)<br>{{ItemLink|Sivakayan Straightsword}} (1.4%)<ref>If Sivakayan Unhallowed has {{ItemLink|Sivakayan Straightsword}} equipped, it is guaranteed to drop.</ref>
+|level=37
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=3.0
+|health=175500
+|mana=0
+|ac=555
+|strength=655
+|endurance=655
+|dexterity=800
+|agility=700
+|intelligence=500
+|wisdom=500
+|charisma=500
+|magic=18-44
+|poison=18-44
+|elemental=18-44
+|void=18-44
+|spells=
+}}
+
+[[Category:Enemies]]
+[[Category:Vitheo's Rest]]

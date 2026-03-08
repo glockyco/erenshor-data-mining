@@ -1,0 +1,40 @@
+{{Item
+|title=Charm of Vanity
+|type=
+|vendorsource=
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=1x {{ItemLink|Mold: Charm of Vanity}}<br>1x {{ItemLink|Sea Glass}}<br>1x {{ItemLink|Ivory Tusk}}<br>1x {{ItemLink|Swirlstone Amulet}}<br>1x {{ItemLink|Chunk of Living Sapphire}}
+|componentfor=
+|buy=6000
+|sell=3900
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/Charm
+|image=Charm of Vanity.png
+|name=Charm of Vanity
+|tier=0
+|strscaling=
+|endscaling=
+|dexscaling=
+|agiscaling=
+|intscaling=
+|wisscaling=
+|chascaling=4
+|resistscaling=
+|mitigationscaling=
+|arcanist=True
+|duelist=True
+|druid=True
+|paladin=True
+|reaver=True
+|stormcaller=True
+}}
+
+[[Category:Charms]]

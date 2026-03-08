@@ -1,0 +1,39 @@
+{{Enemy
+|name=Plunkey
+|image=[[File:Plunkey.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Rottenfoot]]
+|coordinates=81.1 x 24.1 x 97.6
+|spawnchance=85%
+|respawn=4 minutes
+|guaranteeddrops={{ItemLink|Aged Prism}}<br>{{ItemLink|Reed Trousers}}
+|droprates={{ItemLink|Reed Trousers}} (66.7%)<br>{{ItemLink|Aged Prism}} (33.3%)
+|level=16
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=4.0
+|health=11440
+|mana=0
+|ac=240
+|strength=28
+|endurance=35
+|dexterity=125
+|agility=25
+|intelligence=55
+|wisdom=25
+|charisma=25
+|magic=8-19
+|poison=8-19
+|elemental=8-19
+|void=8-19
+|spells={{AbilityLink|Biting Vines}}<br>{{AbilityLink|Soul Tap}}<br>{{AbilityLink|Tangle}}
+}}
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Rottenfoot]]

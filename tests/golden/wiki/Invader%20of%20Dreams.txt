@@ -1,0 +1,61 @@
+{{Enemy
+|name=Invader of Dreams
+|image=[[File:Invader of Dreams.png|thumb]]
+|imagecaption="Do not seek us, or else we will seek you."
+|type=[[Enemies|Boss]]
+|faction=[[The Nightmare Collective]]
+|factionChange=
+|zones=[[Mysterious Portal|Mysterious Portal (2)]]
+|coordinates=343.5 x 0.5 x 405.9
+|spawnchance=
+|respawn=Instanced
+|guaranteeddrops={{ItemLink|Dreamborn Gloves}}<br>{{ItemLink|Linen Bedpants}}<br>{{ItemLink|Memories of Snow}}<br>{{ItemLink|Vaporous Armguard}}
+|droprates={{ItemLink|Unborn Phobia}} (100.0%)<ref>If the player is already holding {{ItemLink|Unborn Phobia}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ancient Bone}} (51.4%)<br>{{ItemLink|Luminstone}} (51.4%)<br>{{ItemLink|Sea Glass}} (51.4%)<br>{{ItemLink|Remnants of a Daydream}} (27.3%)<br>{{ItemLink|Remnants of a Nightmare}} (27.3%)<br>{{ItemLink|Dreamborn Gloves}} (25.0%)<br>{{ItemLink|Linen Bedpants}} (25.0%)<br>{{ItemLink|Memories of Snow}} (25.0%)<br>{{ItemLink|Vaporous Armguard}} (25.0%)
+|level=24
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=3.0
+|health=52000
+|mana=0
+|ac=360
+|strength=55
+|endurance=45
+|dexterity=100
+|agility=55
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=12-29
+|poison=12-29
+|elemental=12-29
+|void=12-29
+|spells=
+}}
+
+''{{main|Enemies}}''
+
+=Location=
+{{PAGENAME}} can be found at the end of the second [[Mysterious Portal]] in [[Fernalla's Revival Plains]]. Accessing the portal requires completing {{QuestLink|The Fernallan Ritual}}.
+
+=Appearance=
+{{PAGENAME}} is a large ethereal demon with glowing red eyes. It is semi-transparent, and has two large wings growing out of its back.
+
+=Behavior=
+{{PAGENAME}} waits at the end of the path in the second Mysterious Portal, waiting for anyone brave enough to invade its realm. It will attack if players get too close.
+
+===Spells & Abilities===
+{{PAGENAME}} does not use any spells or abilities.
+
+===Strategy===
+{{PAGENAME}} will summon an orb of [[Malignant Thoughts]] upon reaching 66% health, which continuously spawns in [[Nightmarian Knight|Nightmarian Knights]], [[Nightmarian Arcanist|Nightmarian Arcanists]], and [[Nightmarian Hound|Nightmarian Hounds]] until it is defeated. This portal should be targeted and destroyed as quickly as possible before the party gets swarmed by additional enemies.<br>
+
+At 33% health, two more Malignant Thoughts are formed. Just like before, these should immediately be taken out to avoid too many additional enemies entering the fight.
+
+=Notes=
+*{{PAGENAME}} is an instanced boss, meaning you can leave the zone and he will immediately respawn.
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Mysterious Portal]]

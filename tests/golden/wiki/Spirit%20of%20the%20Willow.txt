@@ -1,0 +1,53 @@
+{{Enemy
+|name=Spirit of the Willow
+|image=[[File:Spirit of the Willow.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=
+|zones=[[Fernalla's Revival Plains]]
+|coordinates=420.9 x 41.1 x 407.7
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=35
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=32500
+|mana=0
+|ac=525
+|strength=3
+|endurance=3
+|dexterity=3
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=18-42
+|poison=18-42
+|elemental=18-42
+|void=18-42
+|spells=
+}}
+
+The Spirit of the Willow is an NPC in [[Fernalla's Revival Plains]] that allows players to respec their [[Proficiencies|proficiency]] points. When players approach, they will receive a message "A sensation of free will washes over you..." indicating they are able to respec their proficiency points.
+
+Greeting message:
+{| class="wikitable"
+|"A place of <span style="color: #15e300;">[rebirth]</span> invites reinvention. Quiet your confusion, set right your wrongs, and stand as yourself.
+
+(At this place, you may respec your proficiencies, and those of your friends - open your inventory or theirs)"
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[rebirth]</span>
+|Fernalla took her true form in this very spot, and left behind The Willow in her wake. Her gift to all of us is the opportunity to find our own truths.
+|}
+
+[[Category:Characters]]
+[[Category:Fernalla's Revival Plains]]

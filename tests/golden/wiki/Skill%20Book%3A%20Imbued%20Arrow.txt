@@ -1,0 +1,33 @@
+{{Item
+|title=Skill Book: Imbued Arrow
+|type=[[Ability Books|Skill Book]]
+|vendorsource=
+|source=
+|othersource=[[Stormcaller]] starting gear
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=75
+|sell=49
+|taughtspell=
+|taughtskill={{AbilityLink|Imbued Arrow}}
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SkillBook
+|image=Skill Book: Imbued Arrow.png
+|name=Skill Book: Imbued Arrow
+|duelist_level=
+|druid_level=
+|arcanist_level=
+|paladin_level=
+|stormcaller_level=1
+|reaver_level=
+|skill_type=Ranged
+|skill_desc=Fires an arrow, if fired while casting a spell, the spell instantly completes but gains a 3x penalty to cooldown and the arrow will have a 100% chance to also proc that spell
+|simplayers_autolearn=True
+}}
+
+[[Category:Ability Books]]

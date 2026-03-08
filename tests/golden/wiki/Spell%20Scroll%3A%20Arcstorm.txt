@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Arcstorm
+|type=[[Ability Books|Spell Scroll]]
+|vendorsource=[[Elizabeth DeWitt]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=3000
+|sell=1950
+|taughtspell={{AbilityLink|Arcstorm}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Arcstorm.png
+|name=Spell Scroll: Arcstorm
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=19
+|reaver_level=
+|mana_cost=225
+|spell_type=Damage
+|spell_desc=Deals 650 magic damage to your target
+}}
+
+[[Category:Ability Books]]

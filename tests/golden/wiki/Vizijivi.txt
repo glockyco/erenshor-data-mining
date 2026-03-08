@@ -1,0 +1,40 @@
+{{Enemy
+|name=Vizijivi
+|image=[[File:Vizijivi.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Malaroth's Nesting Grounds]]
+|coordinates=149.7 x 33.2 x 886.7
+|spawnchance=66%
+|respawn=7 minutes
+|guaranteeddrops={{ItemLink|Digested Gloves}}<br>{{ItemLink|Malaroth Hide Hood}}
+|droprates={{ItemLink|Digested Gloves}} (50.0%)<br>{{ItemLink|Malaroth Hide Hood}} (50.0%)<br>{{ItemLink|Malaroth Hide}} (22.1%)<br>{{ItemLink|Ivory Tusk}} (20.4%)
+|level=21
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=3.0
+|health=24050
+|mana=300
+|ac=315
+|strength=400
+|endurance=400
+|dexterity=650
+|agility=200
+|intelligence=150
+|wisdom=95
+|charisma=100
+|magic=10-25
+|poison=10-25
+|elemental=10-25
+|void=10-25
+|spells=
+}}
+Vizijivi can be found in one of the rock canyons in [[Malaroth's Nesting Grounds]].
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Malaroth's Nesting Grounds]]

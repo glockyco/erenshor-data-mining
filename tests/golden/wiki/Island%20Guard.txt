@@ -1,0 +1,39 @@
+{{Enemy
+|name=Island Guard
+|image=[[File:Island Guard.png|thumb]]
+|imagecaption="Welcome to Stowaway's Step. Please remain civil.
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Stowaway's Step]]
+|factionChange=-100 [[The Citizens of Stowaway's Step]]
+|zones=[[Stowaway's Step]]
+|coordinates=
+|spawnchance=
+|respawn=4-6 minutes
+|guaranteeddrops=
+|droprates=
+|level=25
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=2600
+|mana=0
+|ac=375
+|strength=155
+|endurance=155
+|dexterity=155
+|agility=155
+|intelligence=155
+|wisdom=155
+|charisma=155
+|magic=12-30
+|poison=12-30
+|elemental=12-30
+|void=12-30
+|spells=
+}}
+The Island Guard protect [[Stowaway's Step]] There are plenty of them and they are very powerful.
+
+[[Category:Characters]]
+[[Category:Stowaway's Step]]

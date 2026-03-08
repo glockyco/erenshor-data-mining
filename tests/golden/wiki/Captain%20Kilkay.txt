@@ -1,0 +1,67 @@
+{{Enemy
+|name=Captain Kilkay
+|image=[[File:Captain Kilkay.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Azure Guard]]
+|factionChange=+10 [[Ripper DeMerth]]<br>-500 [[The Azure Guard]]
+|zones=[[Port Azure]]
+|coordinates=230.4 x 31.6 x 245.3
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Ear of Kilkay}} (100.0%)<ref>If the player is already holding {{ItemLink|Ear of Kilkay}} in their inventory, another will not drop.</ref><br>{{ItemLink|Executioner of Azure}} (100.0%)<br>{{ItemLink|Spell Scroll: Vithean Frenzy}} (63.3%)
+|level=38
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=4.0
+|health=130000
+|mana=0
+|ac=570
+|strength=55
+|endurance=155
+|dexterity=155
+|agility=155
+|intelligence=155
+|wisdom=155
+|charisma=155
+|magic=19-46
+|poison=19-46
+|elemental=19-46
+|void=19-46
+|spells=
+}}
+
+Captain Kilkay is an NPC located in [[Port Azure]]. He is the leader of [[The Azure Guard]] which controls [[Port Azure]].
+
+Greeting message:
+{| class="wikitable"
+|You're new here. Keep in the light. <span style="color: #15e300;">[Sivakayans]</span> are lurking somewhere and <span style="color: #15e300;">[Ripper's]</span> on the prowl in the North.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[Sivakayans]</span>
+|If it ain't them it's the Molorai or the Priel crew. They're both small potatoes though. Sivakayans are our threat right now. If you catch wind of anything, let me know.<br>
+<i>This beings the quest {{QuestLink|link=Secure Port Azure}}</i>
+|-
+|<span style="color: #15e300;">[Ripper's]</span>
+|A Traitor. Defied orders and defected with a legion of troops. Not to be trusted. For any person who slays Ripper, I have a reward.
+<br>
+<i>This beings the quest {{QuestLink|link=A Bounty on Ripper DeMerth}}</i>
+|}
+
+When handed [[Mavik Easton's Note]] for {{QuestLink|link=Mavik's Note}}
+{| class="wikitable"
+|Ripper is a traitor to Erenshor who will be dealt with right along with the Sivakayans. In cat.. tell ya what: wipe them out and bring me back their Insignia badges, and I'll make it worth your while for every one of 'em
+|}
+
+When handed a [[Ripper Insignia Badge]] for the repeatable quest {{QuestLink|link=Ripper's Insignia Badges}}
+{| class="wikitable"
+|Ah Yes. a fine one! Here you go!
+|}
+
+[[Category:Characters]]
+[[Category:Port Azure]]

@@ -1,0 +1,47 @@
+{{Enemy
+|name=The Hider
+|image=[[File:The Hider.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=
+|zones=[[Shivering Step]]
+|coordinates=668.7 x 45.2 x 549.8
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=30
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=41600
+|mana=1000
+|ac=450
+|strength=450
+|endurance=265
+|dexterity=675
+|agility=200
+|intelligence=166
+|wisdom=155
+|charisma=200
+|magic=15-36
+|poison=15-36
+|elemental=15-36
+|void=15-36
+|spells=
+}}
+
+The Hider can be found in the Shivering Step if you go straight from the entrance portal and take a slight left near some old ruins. A sound cue will play when you are near him.
+
+Greeting message:
+{| class="wikitable"
+|Oh well... the game is over. Inconsequential, isn't it? Your prize - but do not tell Kio! He likes the island in this light!
+|}
+
+Upon speaking to him you will complete the quest [[Find The Hider]] and he will give you the item [[Instructions for Warmth]]. A ghostly roar will also echo across the island.
+
+[[Category:Characters]]
+[[Category:Shivering Step]]

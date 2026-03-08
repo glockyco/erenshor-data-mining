@@ -1,0 +1,38 @@
+{{Enemy
+|name=Molorai Ancille
+|image=[[File:Molorai Ancille.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
+|factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
+|zones=[[Azynthi's Garden]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (57.4%)<br>{{ItemLink|Water}} (57.4%)<br>{{ItemLink|Vampire Fang}} (7.4%)<br>{{ItemLink|Ancient Pottery Shard}} (6.8%)<br>{{ItemLink|Diamond}} (6.8%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Battle Chain}} (6.8%)<br>{{ItemLink|Azynthian Scripture 1}} (3.0%)<ref>If the player is already holding {{ItemLink|Azynthian Scripture 1}} in their inventory, another will not drop.</ref><br>{{ItemLink|Azynthian Scripture 2}} (3.0%)<ref>If the player is already holding {{ItemLink|Azynthian Scripture 2}} in their inventory, another will not drop.</ref><br>{{ItemLink|Azynthian Scripture 3}} (3.0%)<ref>If the player is already holding {{ItemLink|Azynthian Scripture 3}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Sigil}} (1.5%)<br>{{ItemLink|Blueprint: Azynthian Dining}} (0.3%)<br>{{ItemLink|Blueprint: Azynthian Livingroom}} (0.3%)<br>{{ItemLink|Blueprint: Azynthian Rest}} (0.3%)
+|level=32
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=49400
+|mana=2500
+|ac=480
+|strength=550
+|endurance=450
+|dexterity=755
+|agility=350
+|intelligence=225
+|wisdom=100
+|charisma=100
+|magic=16-38
+|poison=16-38
+|elemental=16-38
+|void=16-38
+|spells={{AbilityLink|Death's Embrace}}<br>{{AbilityLink|Expose Weakness}}
+}}
+
+[[Category:Azynthi's Garden]]
+[[Category:Enemies]]

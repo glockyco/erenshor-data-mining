@@ -1,0 +1,90 @@
+{{Item
+|title=The Fall of Rockshade Hold
+|type=[[Lore Items|Lore]]
+|vendorsource=[[Rory Gilmare]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=355
+|sell=231
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/General
+|image=The Fall of Rockshade Hold.png
+|name=The Fall of Rockshade Hold
+|description=A brief history of Rockshade Hold, written by an unknown author.<br><br>(Right Click to Read)
+|value=355
+|stack_size=
+|disposable=
+|effect_style=
+|effect_spell_icon=
+|effect_spell_name=
+|effect_spell_level=
+|effect_spell_duration_ticks=
+|effect_spell_type=
+|effect_spell_line=
+|effect_target_damage=
+|effect_target_healing=
+|effect_damage_type=
+|effect_cast_time=
+|effect_cooldown=
+|effect_spell_range=
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+}}
+
+The Fall of Rockshade Hold
+
+Once a haven of silent scholars, Rockshade Hold now lies in ruin, its grandeur eroded and its purpose forever twisted. The once-proud stone buildings crumble under the weight of time, while their unfortunate inhabitants—now cursed stone men—stand frozen in unyielding immortality.
+
+When the heavens unleashed their wrath upon the north, a storm of magic and stone was cast into the skies, raining transformative destruction across Erenshor. Rockshade Hold bore the brunt of this upheaval, absorbing an overwhelming surge of ethereal material. The flesh of its monks, unprepared for such relentless magic, succumbed to its power.
+
+Their transformation was slow but inevitable. Skin turned to stone, joints stiffened, and bodies became entombed in otherworldly rock. For some, the fiery chasms birthed by the impact offered merciful ends, consuming them before the curse could take hold. Yet, for those who sought refuge, survival became their cruelest fate—a self-preservation so complete that it denied them even the mercy of death.
+
+These brothers, once devoted to chronicling the origins of Erenshor and the divine bond between Brax and Sivakaya, found their dedication grotesquely immortalized. No longer able to write, learn, or reason, they stand as statues—monuments to the history they so diligently studied. Bound by the enduring magic of Soluna’s Landing, they are trapped in this realm, their stony forms a haunting reminder of their lost humanity.
+
+Among the chaos, the invading magic gave rise to a monstrous being—a colossus of flame and fury. It roared its dominion over Rockshade Hold, demanding fealty from its unintended creations. The stone men, desperate for release, begged their molten master for mercy. But the giant, unyielding and vengeful, saw only servants in its creations. It demanded flesh as fuel, and so the stone men, once gentle historians, became unwilling hunters in service to their tormentor.
+
+In their despair, the stone men turned their gaze to another. Their fading logic clung to a glimmer of hope—a name whispered in shadows and etched in trembling hands: Azynthi. To this enigmatic figure, they ascribed words of desperate reverence: hope, praise, sacrifice.
+
+But beware the stone men of Rockshade Hold. They are no longer the scholars they once were, but hollow creatures, consumed by hatred and cursed with eternity. Their limbs, once graceful in the art of preservation, now move with heavy malice, driven by a rage born of suffering. They are history’s guardians no longer; they are its monsters.
+
+[[Category:Books]]
+[[Category:Items]]
+[[Category:Lore Items]]

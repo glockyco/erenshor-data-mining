@@ -1,0 +1,38 @@
+{{Enemy
+|name=Rottenfoot Witchdoctor
+|image=[[File:Rottenfoot Witchdoctor.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=+1 [[The Blades of Vitheo]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]
+|zones=[[Rottenfoot]]
+|coordinates=
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Seaweed}} (57.4%)<br>{{ItemLink|Coral}} (32.7%)<br>{{ItemLink|Sea Glass}} (32.7%)<br>{{ItemLink|A Husselfish}} (7.8%)<br>{{ItemLink|A Worm Eel}} (7.8%)<br>{{ItemLink|Rottenfoot Sash}} (7.8%)<br>{{ItemLink|Petrified Club}} (3.9%)<ref>If Rottenfoot Witchdoctor has {{ItemLink|Petrified Club}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Runewoven Bracer}} (3.9%)<br>{{ItemLink|Muck Ball}} (3.5%)<br>{{ItemLink|Spell Scroll: Expose Weakness}} (3.5%)<br>{{ItemLink|Spell Scroll: Winter's Bite}} (3.5%)<br>{{ItemLink|Swampy Loincloth}} (3.5%)
+|level=16
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=6240
+|mana=0
+|ac=240
+|strength=18
+|endurance=50
+|dexterity=65
+|agility=35
+|intelligence=35
+|wisdom=15
+|charisma=3
+|magic=8-19
+|poison=8-19
+|elemental=8-19
+|void=8-19
+|spells={{AbilityLink|Death's Embrace}}<br>{{AbilityLink|Group Heal}}<br>{{AbilityLink|Minor Protection}}<br>{{AbilityLink|Minor Regeneration}}<br>{{AbilityLink|Theft of Life}}<br>{{AbilityLink|Toxicity}}<br>{{AbilityLink|Vitheo's Blessing of the Sea}}
+}}
+
+[[Category:Enemies]]
+[[Category:Rottenfoot]]

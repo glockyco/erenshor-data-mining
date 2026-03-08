@@ -1,0 +1,45 @@
+{{Enemy
+|name=Aquilamar Duelist
+|image=[[File:Aquilamar Duelist.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[Aquilimar Guild]]
+|factionChange=-10 [[Aquilimar Guild]]
+|zones=[[Port Azure]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates=
+|level=35
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=58500
+|mana=0
+|ac=525
+|strength=155
+|endurance=155
+|dexterity=155
+|agility=155
+|intelligence=35
+|wisdom=35
+|charisma=35
+|magic=18-42
+|poison=18-42
+|elemental=18-42
+|void=18-42
+|spells={{AbilityLink|Death's Embrace II}}<br>{{AbilityLink|Spectrum}}<br>{{AbilityLink|Tangle}}
+}}
+
+Aggressive if {{QuestLink | link=A Hidden Cause}}has not been completed.
+
+Greeting message:
+{| class="wikitable"
+|The importance of this place cannot be overstated.
+|}
+
+[[Category:Characters]]
+[[Category:Port Azure]]

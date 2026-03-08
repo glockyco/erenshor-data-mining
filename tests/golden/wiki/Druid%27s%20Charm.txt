@@ -1,0 +1,40 @@
+{{Item
+|title=Druid's Charm
+|type=
+|vendorsource=
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=1x {{ItemLink|Mold: Druid's Charm}}<br>1x {{ItemLink|Bloom}}<br>1x {{ItemLink|Chunk of Copper Ore}}<br>1x {{ItemLink|Bog Hoop}}<br>1x {{ItemLink|Citrine Stone}}
+|componentfor=
+|buy=6000
+|sell=3900
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/Charm
+|image=Druid's Charm.png
+|name=Druid's Charm
+|tier=0
+|strscaling=
+|endscaling=
+|dexscaling=
+|agiscaling=
+|intscaling=
+|wisscaling=3
+|chascaling=3
+|resistscaling=
+|mitigationscaling=
+|arcanist=True
+|duelist=True
+|druid=True
+|paladin=True
+|reaver=True
+|stormcaller=True
+}}
+
+[[Category:Charms]]

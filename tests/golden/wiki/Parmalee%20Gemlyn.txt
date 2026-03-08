@@ -1,0 +1,103 @@
+{{Enemy
+|name=Parmalee Gemlyn
+|image=[[File:Parmalee Gemlyn.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Port Azure]]
+|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
+|zones=[[Port Azure]]
+|coordinates=260.6 x 26.0 x 190.6
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=4550
+|mana=100
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+Parmalee Gemlyn is located in the [[Port Azure]] market.
+
+Greeting message:
+{| class="wikitable"
+|Rings and Jewels! Finest in the land.
+|}
+
+For giving her the [[Unsocketed Ring]] for the {{QuestLink|link=Repairing Orion's Ring}}:
+{| class="wikitable"
+|What an incredible ring! The band... it's Elderstone. And I've never seen a gem quite like that one. I could repair it, sure. I'd need an Elderstone shard and... something to act as a conduit between gemstone and band. A bit of Citrine Sandsilver would work!<br><br><i>This begins {{QuestLink|link=Repairing Orion's Ring, Part 2}}:</i>
+|}
+
+If you give her a second [[Unsocketed Ring]]:
+{| class="wikitable"
+|We're square.
+|}
+
+For giving her the 3 items required for {{QuestLink|link=Repairing Orion's Ring, Part 2}}:
+{| class="wikitable"
+|It's SPLENDID! The stone... it's blooming like a flower. It's taking energy from the Elderstone and... oh! Look inside! It's like a miniature storm!
+|}
+
+If you give her a second lot of ingredients to make the [[Tempestalia, Ring of Storms]]:
+{| class="wikitable"
+|I can't do that again... it was too much for me.
+|}
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Green Emerald Ring}}
+|[[Armor#Rings|Ring]]
+|45
+|-
+|{{ItemLink|Fiery Sapphire Ring}}
+|[[Armor#Rings|Ring]]
+|45
+|-
+|{{ItemLink|Golden Luminstone Ring}}
+|[[Armor#Rings|Ring]]
+|45
+|-
+|{{ItemLink|Clouded Diamond Ring}}
+|[[Armor#Rings|Ring]]
+|45
+|-
+|{{ItemLink|Fluorite Amulet}}
+|[[Armor#Necklaces|Necklace]]
+|650
+|-
+|{{ItemLink|Elderstone Shard}}
+|[[Crafting]], [[Quest Items]]
+|500
+|-
+|{{ItemLink|Diamond}}
+|[[Crafting]]
+|1000
+|-
+|{{ItemLink|Belt Lamp}}
+|[[:Category:Cosmetic Items|Cosmetic]]
+|225
+|}
+
+[[Category:Characters]]
+[[Category:Port Azure]]
+[[Category:Vendors]]

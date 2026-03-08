@@ -1,0 +1,58 @@
+{{Enemy
+|name=Abyssal Lord
+|image=[[File:Abyssal Lord.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Abyssal Lake]]
+|coordinates=584.4 x 59.3 x 319.8
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Fungal Staff}}<br>{{ItemLink|Lichencoat}}
+|droprates={{ItemLink|Fungal Spore}} (86.5%)<br>{{ItemLink|Fungal Staff}} (50.0%)<br>{{ItemLink|Lichencoat}} (50.0%)
+|level=31
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=4.0
+|health=110500
+|mana=1500
+|ac=465
+|strength=400
+|endurance=255
+|dexterity=375
+|agility=255
+|intelligence=225
+|wisdom=125
+|charisma=125
+|magic=16-37
+|poison=16-37
+|elemental=16-37
+|void=16-37
+|spells=
+}}
+
+''{{main|Enemies}}''
+
+=Location=
+{{PAGENAME}} can be found in the southeast corner of [[Abyssal Lake]], in a cave behind the grove of mushrooms growing in the water.
+
+=Appearance=
+{{PAGENAME}} is a large orange and black mushroom.
+
+=Behavior=
+{{PAGENAME}} roams the back of the cave, and will attack players if they get too close. Its detection range is quite large, so players should be careful not to draw its attention while fighting the [[Abyssal Fungus Warrior|Abyssal Fungus Warriors]] and [[Abyssal Fungus Protector|Abyssal Fungus Protectors]] guarding the path leading to it.
+
+===Spells & Abilities===
+*While fighting {{PAGENAME}}, large clouds of poisonous green gas will regularly appear around the cave, regularly damaging players inside it for '''600''' damage per tick.
+
+===Strategy===
+{{PAGENAME}} requires players to stay on their toes and regularly move around the cave to avoid standing in the poisonous gas it emits. While [[Simulated Players|Sim Player]] tanks will automatically move to avoid this gas, if the player is set as the party's main tank they will need to be the one to relocate to avoid the rest of the party taking damage.
+
+=Notes=
+
+[[Category:Abyssal Lake]]
+[[Category:Bosses]]
+[[Category:Enemies]]

@@ -1,0 +1,73 @@
+{{Item
+|title=Ancient Bone
+|type=[[:Category:Items|General]]
+|vendorsource=[[Enterprising Spirit]]
+|source=[[Rattlewrists]] (100.0%)<br>[[The Abomination]] (95.1%)<br>[[Bassalt Vallano]] (89.5%)<br>[[A Brittle Skeleton]] (89.3%)<br>[[Risen Pilgrim]] (89.3%)<br>[[A Skeleton Soldier]] (88.6%)<br>[[A Sturdy Skeleton]] (87.6%)<br>[[Drowned Corpse]] (87.6%)<br>[[Gort]] (87.6%)<br>[[Summoned Fallen Warrior]] (87.6%)<br>[[The Corpse of Brice Mathers]] (87.6%)<br>[[The Corpse of Cyndreela Mathers]] (87.6%)<br>[[A Skeleton Captain]] (87.1%)<br>[[Ancient Celestarian]] (87.1%)<br>[[Ancient Corpse]] (87.1%)<br>[[Ancient Guard]] (87.1%)<br>[[Ancient Knight]] (87.1%)<br>[[Raval, The First Paladin]] (87.1%)<br>[[Wiggleribs]] (87.1%)<br>[[Exalted Firebone]] (81.2%)<br>[[Fearantula]] (61.2%)<br>[[Nightmare]] (61.2%)<br>[[Lullaby Fiend]] (59.7%)<br>[[Night Terror]] (59.7%)<br>[[Waking Nightmare]] (59.7%)<br>[[Giant Skeleton]] (53.3%)<br>[[Shadow of Brax]] (53.3%)<br>[[Shadow of Fernalla]] (53.3%)<br>[[Shadow of Soluna]] (53.3%)<br>[[Shadow of Vitheo]] (53.3%)<br>[[Dream Invader]] (51.4%)<br>[[Invader of Dreams]] (51.4%)<br>[[Shadow of Sleep]] (51.4%)<br>[[Tortured Prisoner]] (48.7%)<br>[[Crypt Keeper]] (46.7%)<br>[[Daggerlegs]] (46.7%)<br>[[Fright]] (46.7%)<br>[[Mourning]] (41.0%)<br>[[Seed of Blight]] (12.7%)<br>[[Asp]] (9.1%)<br>[[A Protected Memory]] (7.6%)<br>[[A Restless Spirit]] (7.6%)<br>[[Neophyte Necromancer]] (3.5%)<br>[[A Sorrowful Spirit]] (2.8%)<br>[[An Enraged Spirit]] (2.8%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=6
+|sell=4
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+An item that is found killing various Undead enemies.
+
+{{Item/General
+|image=Ancient Bone.png
+|name=Ancient Bone
+|description=It's brittle and cracked and more yellow than you'd have imagined.
+|value=6
+|stack_size=
+|disposable=
+|effect_style=
+|effect_spell_icon=
+|effect_spell_name=
+|effect_spell_level=
+|effect_spell_duration_ticks=
+|effect_spell_type=
+|effect_spell_line=
+|effect_target_damage=
+|effect_target_healing=
+|effect_damage_type=
+|effect_cast_time=
+|effect_cooldown=
+|effect_spell_range=
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+}}
+
+[[Category:Items]]

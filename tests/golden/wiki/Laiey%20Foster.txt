@@ -1,0 +1,44 @@
+{{Enemy
+|name=Laiey Foster
+|image=[[File:Laiey Foster.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Port Azure]]
+|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
+|zones=[[Port Azure]]
+|coordinates=263.0 x 31.0 x 283.0
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=3250
+|mana=100
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+Laiey is an NPC in [[Port Azure]] by the Gallows.
+
+Greeting message:
+{| class="wikitable"
+|It's all so vulgar. I don't care if they're suspected Sivakayan agents or Molorai or anyone else. Hanging is wrong. We need to go back to burning them like civilized humans.
+|}
+
+[[Category:Characters]]
+[[Category:Port Azure]]

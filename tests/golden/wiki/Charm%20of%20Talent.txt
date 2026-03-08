@@ -1,0 +1,40 @@
+{{Item
+|title=Charm of Talent
+|type=
+|vendorsource=
+|source=[[Lost Treasure (30+)]] (12.8%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=25000
+|sell=16250
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/Charm
+|image=Charm of Talent.png
+|name=Charm of Talent
+|tier=0
+|strscaling=2
+|endscaling=2
+|dexscaling=2
+|agiscaling=2
+|intscaling=2
+|wisscaling=2
+|chascaling=2
+|resistscaling=
+|mitigationscaling=
+|arcanist=True
+|duelist=True
+|druid=True
+|paladin=True
+|reaver=True
+|stormcaller=True
+}}
+
+[[Category:Charms]]

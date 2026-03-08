@@ -1,0 +1,34 @@
+{{Item
+|title=Spell Scroll: Death's Embrace
+|type=[[Ability Books]]<br>[[Crafting]]
+|vendorsource=[[Aldoa Manday]]<br>[[Ophelia Luminee]]<br>[[Sven Feartines]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor={{ItemLink|Mold: Soldier's Charm}}
+|buy=200
+|sell=130
+|taughtspell={{AbilityLink|Death's Embrace}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Death's Embrace.png
+|name=Spell Scroll: Death's Embrace
+|arcanist_level=
+|druid_level=
+|duelist_level=6
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=75
+|spell_type=StatusEffect
+|spell_desc=Weaken a target, while slowly draining its life and healing the caster.
+}}
+
+[[Category:Ability Books]]
+[[Category:Crafting]]

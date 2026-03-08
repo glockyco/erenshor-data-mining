@@ -1,0 +1,38 @@
+{{Enemy
+|name=Ta'Dah, Sorcerer of Ripper
+|image=[[File:Ta'Dah, Sorcerer of Ripper.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[Ripper DeMerth]]
+|factionChange=
+|zones=[[Ripper's Keep]]
+|coordinates=525.5 x 108.9 x 596.6
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates=
+|level=40
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=292500
+|mana=9000
+|ac=600
+|strength=400
+|endurance=400
+|dexterity=400
+|agility=400
+|intelligence=400
+|wisdom=400
+|charisma=400
+|magic=20-48
+|poison=20-48
+|elemental=20-48
+|void=20-48
+|spells={{AbilityLink|Devour}}<br>{{AbilityLink|Extinction Bloom}}<br>{{AbilityLink|Tenebris}}
+}}
+
+[[Category:Characters]]
+[[Category:Ripper's Keep]]

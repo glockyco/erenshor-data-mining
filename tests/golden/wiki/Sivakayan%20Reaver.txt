@@ -1,0 +1,77 @@
+{{Enemy
+|name=Sivakayan Reaver
+|image=[[File:Sivakayan Reaver.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Children of Sivakaya]]
+|factionChange=+2 [[The Agents of The Wisp]]<br>+2 [[The Azure Guard]]<br>-2 [[The Children of Sivakaya]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
+|zones=[[Ripper's Keep]]<br>[[Silkengrass Meadowlands]]<br>[[Windwashed Pass]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes (Ripper's Keep)<br>4 minutes (Silkengrass Meadowlands)<br>4 minutes (Windwashed Pass)
+|guaranteeddrops=
+|droprates={{ItemLink|Sea Glass}} (10.2%)<br>{{ItemLink|Star Stone}} (10.2%)<br>{{ItemLink|Sivakayan Ore}} (3.0%)<br>{{ItemLink|Spell Scroll: Enfeeble}} (3.0%)<br>{{ItemLink|Spell Scroll: Mutual Torment}} (3.0%)<br>{{ItemLink|Spell Scroll: Void Rend}} (3.0%)<br>{{ItemLink|Sivakayan Axe}} (1.4%)<ref>If Sivakayan Reaver has {{ItemLink|Sivakayan Axe}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Sivakayan Bracer}} (1.4%)<br>{{ItemLink|Sivakayan Legplate}} (1.4%)<br>{{ItemLink|Sivakayan Plate}} (1.4%)<br>{{ItemLink|Sivakayan Straightsword}} (1.4%)<ref>If Sivakayan Reaver has {{ItemLink|Sivakayan Straightsword}} equipped, it is guaranteed to drop.</ref>
+|level=26
+|levelmodmin=0
+|levelmodmax=2
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=26000
+|mana=0
+|ac=390
+|strength=45
+|endurance=135
+|dexterity=185
+|agility=85
+|intelligence=95
+|wisdom=45
+|charisma=35
+|magic=13-31
+|poison=13-31
+|elemental=13-31
+|void=13-31
+|spells={{AbilityLink|Moonburst}}<br>{{AbilityLink|Theft of Life}}<br>{{AbilityLink|Void Rend}}
+}}
+
+{{Enemy
+|name=Sivakayan Reaver
+|image=[[File:Sivakayan Reaver.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Children of Sivakaya]]
+|factionChange=+2 [[The Agents of The Wisp]]<br>+2 [[The Azure Guard]]<br>-2 [[The Children of Sivakaya]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
+|zones=[[Rottenfoot]]
+|coordinates=
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Sea Glass}} (10.2%)<br>{{ItemLink|Star Stone}} (10.2%)<br>{{ItemLink|Sivakayan Ore}} (3.0%)<br>{{ItemLink|Spell Scroll: Enfeeble}} (3.0%)<br>{{ItemLink|Spell Scroll: Mutual Torment}} (3.0%)<br>{{ItemLink|Spell Scroll: Void Rend}} (3.0%)<br>{{ItemLink|Sivakayan Axe}} (1.4%)<ref>If Sivakayan Reaver has {{ItemLink|Sivakayan Axe}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Sivakayan Bracer}} (1.4%)<br>{{ItemLink|Sivakayan Legplate}} (1.4%)<br>{{ItemLink|Sivakayan Plate}} (1.4%)<br>{{ItemLink|Sivakayan Straightsword}} (1.4%)<ref>If Sivakayan Reaver has {{ItemLink|Sivakayan Straightsword}} equipped, it is guaranteed to drop.</ref>
+|level=26
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=19500
+|mana=0
+|ac=390
+|strength=45
+|endurance=135
+|dexterity=185
+|agility=85
+|intelligence=95
+|wisdom=45
+|charisma=35
+|magic=13-31
+|poison=13-31
+|elemental=13-31
+|void=13-31
+|spells={{AbilityLink|Moonburst}}<br>{{AbilityLink|Theft of Life}}<br>{{AbilityLink|Void Rend}}
+}}
+
+[[Category:Enemies]]
+[[Category:Ripper's Keep]]
+[[Category:Rottenfoot]]
+[[Category:Silkengrass Meadowlands]]
+[[Category:Windwashed Pass]]

@@ -1,0 +1,40 @@
+{{Item
+|title=Charm of the Stone
+|type=
+|vendorsource=
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=1x {{ItemLink|Mold: Charm of Stone}}<br>1x {{ItemLink|Pulsating Stone}}<br>1x {{ItemLink|Polished Stone}}<br>1x {{ItemLink|Ruby}}<br>1x {{ItemLink|Chunk of Obsidian}}
+|componentfor=
+|buy=25000
+|sell=16250
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/Charm
+|image=Charm of the Stone.png
+|name=Charm of the Stone
+|tier=0
+|strscaling=
+|endscaling=4
+|dexscaling=
+|agiscaling=
+|intscaling=
+|wisscaling=
+|chascaling=
+|resistscaling=
+|mitigationscaling=
+|arcanist=True
+|duelist=True
+|druid=True
+|paladin=True
+|reaver=True
+|stormcaller=True
+}}
+
+[[Category:Charms]]

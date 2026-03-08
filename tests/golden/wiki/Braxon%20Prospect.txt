@@ -1,0 +1,38 @@
+{{Enemy
+|name=Braxon Prospect
+|image=[[File:Braxon Prospect.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Torchbearers of Brax]]
+|zones=[[Fallen Braxonia]]
+|coordinates=
+|spawnchance=
+|respawn=8 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Polished Stone}} (11.5%)<br>{{ItemLink|Water}} (11.5%)<br>{{ItemLink|Diamond}} (6.8%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Spark of the First Flame}} (6.8%)<ref>If the player is already holding {{ItemLink|Spark of the First Flame}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ancient Coal}} (1.2%)<br>{{ItemLink|Braxonian Bracelet}} (0.8%)<br>{{ItemLink|Braxonian Gloves}} (0.8%)<br>{{ItemLink|Braxonian Mitts}} (0.8%)<br>{{ItemLink|Braxonian Wristlet}} (0.8%)<br>{{ItemLink|Braxonian Breeches}} (0.4%)<br>{{ItemLink|Braxonian Leather Boots}} (0.4%)<br>{{ItemLink|Braxonian Leather Sleeves}} (0.4%)<br>{{ItemLink|Braxonian Leather Tunic}} (0.4%)<br>{{ItemLink|Braxonian Linens}} (0.4%)<br>{{ItemLink|Braxonian Royal Armband}} (0.4%)<br>{{ItemLink|Braxonian Royal Shoes}} (0.4%)<br>{{ItemLink|Braxonian Royal Tunic}} (0.4%)
+|level=29
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=34450
+|mana=1000
+|ac=435
+|strength=500
+|endurance=500
+|dexterity=600
+|agility=300
+|intelligence=300
+|wisdom=100
+|charisma=200
+|magic=14-35
+|poison=14-35
+|elemental=14-35
+|void=14-35
+|spells={{AbilityLink|Brax's Rage}}<br>{{AbilityLink|Burning Chains}}<br>{{AbilityLink|Regrowth}}
+}}
+
+[[Category:Enemies]]
+[[Category:Fallen Braxonia]]

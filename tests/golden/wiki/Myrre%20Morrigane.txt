@@ -1,0 +1,57 @@
+{{Enemy
+|name=Myrre Morrigane
+|image=[[File:Myrre Morrigane.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
+|zones=[[Port Azure]]
+|coordinates=164.3 x 26.9 x 271.1
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (59.4%)<br>{{ItemLink|Seafruit}} (59.4%)<br>{{ItemLink|Seaspice}} (59.4%)<br>{{ItemLink|Molorai Allegiant Ring}} (56.5%)
+|level=31
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=42315
+|mana=55
+|ac=465
+|strength=455
+|endurance=455
+|dexterity=565
+|agility=900
+|intelligence=600
+|wisdom=400
+|charisma=300
+|magic=16-37
+|poison=16-37
+|elemental=16-37
+|void=16-37
+|spells={{AbilityLink|Biting Vines}}<br>{{AbilityLink|Jolt}}<br>{{AbilityLink|Magic Bolt}}<br>{{AbilityLink|Minor Protection}}<br>{{AbilityLink|Minor Regeneration}}<br>{{AbilityLink|Theft of Life}}<br>{{AbilityLink|Weak Poison}}
+}}
+Greeting message:
+{| class="wikitable"
+| I am Myrre, I am an emissary of <span style="color: #15e300;">[Eldoth]</span> Molorai. Do you have <span style="color: #15e300;">[business]</span>?
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[Eldoth]</span>
+He is the Savior of Erenshor. He will prevent port <span style="color: #15e300;">[Azure]</span> from destroying this land. He <span style="color: #15e300;">[knows]</span> things that you do not.
+|-
+|<span style="color: #15e300;">[Azure]</span>
+port <span style="color: #15e300;">[Azure]</span> is a disease upon this land, spreading like a fungus and destroying the divinity that has been preserved here.
+|-
+|<span style="color: #15e300;">[knows]</span>
+Erenshor is a land of the Gods. You and your kind have no right to any of it. <span style="color: #15e300;">[Eldoth]</span> will protect it.
+|-
+|<span style="color: #15e300;">[business]</span>
+<span style="color: #15e300;">[Eldoth]</span> is no longer welcome in Port <span style="color: #15e300;">[Azure]</span>, they have exiled him in their greed and blindness. I am here on his behalf, listening for whispers of artifact exchanges so that we might intervene. You may not conduct trades without the approval of <span style="color: #15e300;">[Eldoth]</span>.
+|}
+
+[[Category:Characters]]
+[[Category:Port Azure]]

@@ -1,0 +1,64 @@
+{{Enemy
+|name=A Deepling Orator
+|image=[[File:A Deepling Orator.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[The Elderstone Mines]]
+|coordinates=-259.4 x -57.6 x 245.3
+|spawnchance=95%
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Honor Strip}} (43.4%)<br>{{ItemLink|The Gift of Eloquence}} (43.4%)<br>{{ItemLink|Reptilian Scales}} (5.3%)<br>{{ItemLink|Serpentine Blood}} (5.3%)<br>{{ItemLink|Star Stone}} (5.3%)<br>{{ItemLink|Spell Scroll: Call of the Void}} (1.9%)<br>{{ItemLink|Spell Scroll: Concuss}} (1.9%)<br>{{ItemLink|Spell Scroll: Ice Spear}} (1.9%)<br>{{ItemLink|Spell Scroll: Immolation}} (1.9%)<br>{{ItemLink|Spell Scroll: Sleep}} (1.9%)<br>{{ItemLink|Elderstone Shard}} (1.8%)<ref>If the player is already holding {{ItemLink|Elderstone Shard}} in their inventory, another will not drop.</ref><br>{{ItemLink|Fungus Covered Armband}} (1.8%)<br>{{ItemLink|Runed Gloves}} (1.8%)
+|level=18
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=5.0
+|health=20150
+|mana=100
+|ac=270
+|strength=29
+|endurance=55
+|dexterity=125
+|agility=40
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=9-22
+|poison=9-22
+|elemental=9-22
+|void=9-22
+|spells={{AbilityLink|Brax's Rage}}<br>{{AbilityLink|Jolt}}<br>{{AbilityLink|Minor Regeneration}}<br>{{AbilityLink|Moonburst}}
+}}
+
+''{{main|Enemies}}''
+
+=Location=
+{{PAGENAME}} has a '''95% chance''' to spawn in the [[Elderstone Mines]] on the path between the cliff overlooking the lake and the dead-end where [[Ravager, The First Infected]] can be found.
+
+=Appearance=
+{{PAGENAME}} is a serpentine enemy wearing bangles on each wrist and a belt. It is larger than the other Deeplings, with dark blue hands and scales. Its belly is white.
+
+=Behavior=
+{{PAGENAME}} roams the mines and will attack players if they get too close.
+
+===Spells & Abilities===
+Defensive:
+*{{AbilityLink|Minor Regeneration}}
+
+Offensive:
+*{{AbilityLink|Moonburst}}
+*{{AbilityLink|Ethereal Rending}}
+*{{AbilityLink|Jolt}}
+
+=Strategy=
+{{PAGENAME}} uses a wide variety of offensive spells, so raising your Magic and Elemental Resists can greatly negate its damage. Be wary of adds joining the fight; players can either clear out nearby enemies before engaging {{PAGENAME}}, or else use crowd control like {{AbilityLink|Dazzle}} or {{AbilityLink|Sunburst}} to stun them.
+
+=Notes=
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:The Elderstone Mines]]

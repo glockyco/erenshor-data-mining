@@ -1,0 +1,39 @@
+{{Enemy
+|name=Summoned Fallen Warrior
+|image=[[File:Summoned Fallen Warrior.png|thumb]]
+|imagecaption=
+|type=[[:Category:Pets|Pet]]
+|faction=
+|factionChange=-10 [[The Children of Sivakaya]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]
+|zones=
+|coordinates=
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Ancient Bone}} (87.6%)<br>{{ItemLink|Copper Sword}} (10.8%)<ref>If Summoned Fallen Warrior has {{ItemLink|Copper Sword}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Light Plate Breastplate}} (1.3%)<br>{{ItemLink|Light Plate Greaves}} (1.3%)<br>{{ItemLink|Tattered Leather Boots}} (1.3%)<br>{{ItemLink|Tattered Leather Gloves}} (1.3%)<br>{{ItemLink|Tattered Leather Leggings}} (1.3%)<br>{{ItemLink|Tattered Leather Skullcap}} (1.3%)<br>{{ItemLink|Tattered Leather Sleeves}} (1.3%)<br>{{ItemLink|Tattered Leather Tunic}} (1.3%)
+|level=23
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=5200
+|mana=100
+|ac=345
+|strength=30
+|endurance=100
+|dexterity=275
+|agility=20
+|intelligence=120
+|wisdom=45
+|charisma=3
+|magic=12-28
+|poison=12-28
+|elemental=12-28
+|void=12-28
+|spells=
+}}
+
+Summoned with the spell [[Summon Fallen Skeleton]]
+
+[[Category:Characters]]

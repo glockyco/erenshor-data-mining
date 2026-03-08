@@ -1,0 +1,56 @@
+{{Enemy
+|name=A Brown Bear Cub
+|image=[[File:A Brown Bear Cub.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Faerie's Brake]]<br>[[Fernalla's Revival Plains]]<br>[[Island Tomb]]<br>[[Stowaway's Step]]<br>[[The Duskenlight Coast]]
+|coordinates=
+|spawnchance=
+|respawn=2-4 minutes (Faerie's Brake)<br>5 minutes (Fernalla's Revival Plains)<br>6 minutes (Island Tomb)<br>4 minutes (Stowaway's Step)<br>5 minutes (The Duskenlight Coast)
+|guaranteeddrops=
+|droprates={{ItemLink|Bear Meat}} (39.3%)
+|level=4
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=195
+|mana=0
+|ac=60
+|strength=1
+|endurance=9
+|dexterity=35
+|agility=8
+|intelligence=2
+|wisdom=2
+|charisma=2
+|magic=2-5
+|poison=2-5
+|elemental=2-5
+|void=2-5
+|spells=
+}}
+'''{{PAGENAME}}''' is an [[Enemies|enemy]] in [[Erenshor]].
+=Location=
+{{PAGENAME}} are common throughout southern [[Erenshor]] and can be found in [[Fernalla's Revival Plains]],<ref>There is a '''1% chance''' for {{PAGENAME}} to be replaced by the [[Sylvan Giant]] in Fernalla's Revival Plains.</ref> [[Duskenlight Coast]],<ref>There is a '''1% chance''' for {{PAGENAME}} to be replaced by the [[Dusken Giant]] in Duskenlight Coast.</ref> [[Faerie's Brake]], and on [[Stowaway's Step]]. {{PAGENAME}} can also be found in a small cave connected to the [[Island Tomb]].
+
+=Appearance=
+{{PAGENAME}} is a small adolescent bear with brown fur.
+
+=Behavior=
+{{PAGENAME}} will roam through grasslands and meadows until it senses a player to attack. Being a cub, it is quite weak.
+
+===Spells & Abilities===
+{{PAGENAME}} does not use any spells or abilities.
+
+=Notes=
+
+[[Category:Enemies]]
+[[Category:Faerie's Brake]]
+[[Category:Fernalla's Revival Plains]]
+[[Category:Island Tomb]]
+[[Category:Stowaway's Step]]
+[[Category:The Duskenlight Coast]]

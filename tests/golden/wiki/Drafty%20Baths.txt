@@ -1,0 +1,83 @@
+{{Item
+|title=Drafty Baths
+|type=[[Quest Items|Quest Item]]
+|vendorsource=
+|source=
+|othersource=
+|questsource=
+|relatedquest={{QuestLink|link=The Mystery of Bellwain Island}}
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+'''{{PAGENAME}}''' is a [[:Category:Notes|Note]] in [[Erenshor]]. 
+
+=Location=
+This note can be found on [[Bellwain Island]] as part of the quest {{QuestLink|The Mystery of Bellwain Island}}.
+
+=Description=
+{{PAGENAME}} describes a mysterious draft coming from the walls in the bathroom.
+
+{{Item/General
+|image=Drafty Baths.png
+|name=Drafty Baths
+|description=Bellsie alwas said that the bathtub is in a dreadfully drafty spot. She said the walls held nothing back, and implored me to move the source to another room, however, it was architecturally impossible to do that.<br><br>Warming up by the fire after a bath is not the worst, after all.
+|value=
+|stack_size=
+|disposable=
+|effect_style=
+|effect_spell_icon=
+|effect_spell_name=
+|effect_spell_level=
+|effect_spell_duration_ticks=
+|effect_spell_type=
+|effect_spell_line=
+|effect_target_damage=
+|effect_target_healing=
+|effect_damage_type=
+|effect_cast_time=
+|effect_cooldown=
+|effect_spell_range=
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+}}
+
+The note refers to a hidden wall between the sink and the bathtub; click on the wall to open it, revealing a staircase leading to the estate's attic.
+
+[[Category:Items]]
+[[Category:Notes]]
+[[Category:Quest Items]]

@@ -1,0 +1,57 @@
+{{Enemy
+|name=A Grass Spider
+|image=[[File:A Grass Spider.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Faerie's Brake]]<br>[[Hidden Hills]]<br>[[Stowaway's Step]]<br>[[Vitheo's Watch]]<br>[[Willowwatch Ridge]]
+|coordinates=
+|spawnchance=11-23% (Faerie's Brake)<br>33-100% (Hidden Hills)<br>17-100% (Stowaway's Step)<br>33% (Vitheo's Watch)<br>25% (Willowwatch Ridge)
+|respawn=2-4 minutes (Faerie's Brake)<br>2-3 minutes (Hidden Hills)<br>3-4 minutes (Stowaway's Step)<br>4-6 minutes (Vitheo's Watch)<br>4 minutes (Willowwatch Ridge)
+|guaranteeddrops=
+|droprates={{ItemLink|Ruined Grass Spider Carapace}} (25.1%)<br>{{ItemLink|Pristine Grass Spider Carapace}} (3.2%)
+|level=1
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=72
+|mana=0
+|ac=15
+|strength=1
+|endurance=1
+|dexterity=45
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=0-1
+|poison=0-1
+|elemental=0-1
+|void=0-1
+|spells=
+}}
+
+'''{{PAGENAME}}''' is an [[Enemies|enemy]] in [[Erenshor]].
+=Location=
+{{PAGENAME}} is a common pest and can be found throughout southern Erenshor, including [[Hidden Hills]], [[Vitheo's Watch]], [[Faerie's Brake]]<ref>{{PAGENAME}} often has a chance to spawn instead of another enemy. If this happens, {{PAGENAME}}'s base respawn time will be based on the original enemy.</ref>, and on [[Stowaway's Step]].
+
+=Appearance=
+{{PAGENAME}} has black appendages and multiple eyes. Its green body and black legs help it blend in with the grass, hence its name.
+
+=Behavior=
+{{PAGENAME}} will roam through grasslands and meadows until it senses a player to attack. They are quite weak, being akin to slimes in many other games.
+
+===Spells & Abilities===
+{{PAGENAME}} does not use any spells or abilities.
+
+=Notes=
+
+[[Category:Enemies]]
+[[Category:Faerie's Brake]]
+[[Category:Hidden Hills]]
+[[Category:Stowaway's Step]]
+[[Category:Vitheo's Watch]]
+[[Category:Willowwatch Ridge]]

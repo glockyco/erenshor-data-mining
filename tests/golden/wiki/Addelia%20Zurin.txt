@@ -1,0 +1,54 @@
+{{Enemy
+|name=Addelia Zurin
+|image=[[File:Addelia Zurin.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Stowaway's Step]]
+|factionChange=-15 [[The Citizens of Erenshor]]
+|zones=[[Fernalla's Revival Plains]]<br>[[The Duskenlight Coast]]
+|coordinates=
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates=
+|level=15
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=2600
+|mana=0
+|ac=225
+|strength=35
+|endurance=35
+|dexterity=35
+|agility=35
+|intelligence=35
+|wisdom=35
+|charisma=35
+|magic=8-18
+|poison=8-18
+|elemental=8-18
+|void=8-18
+|spells=
+}}
+Addelia is an NPC located in Restful Valley in [[Fernalla's Revival Plains]].
+
+Greeting message:
+{| class="wikitable"
+|We can fight if we have to. We've taken care of the occasional wandering Rottenfoot. How much worse could the Sivakayans be?
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[Vitheo]</span>
+Vitheo is Lord of Air and Sea. His skill with all weapons is legendary, and those who follow him long to be as effective with a weapon as he, though none ever will be.
+|-
+|<span style="color: #15e300;">[yarren]</span>
+Yarren? Yeah, he's around here somewhere. Haven't seen him in a day or so.
+|}
+
+[[Category:Characters]]
+[[Category:Fernalla's Revival Plains]]
+[[Category:The Duskenlight Coast]]

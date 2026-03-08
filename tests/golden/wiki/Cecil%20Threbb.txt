@@ -1,0 +1,56 @@
+{{Enemy
+|name=Cecil Threbb
+|image=[[File:Cecil Threbb.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Erenshor]]
+|factionChange=+1 [[The Children of Sivakaya]]<br>-20 [[The Citizens of Erenshor]]
+|zones=[[Faerie's Brake]]
+|coordinates=229.9 x 19.1 x 168.0
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates=
+|level=6
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1690
+|mana=0
+|ac=90
+|strength=5
+|endurance=5
+|dexterity=5
+|agility=5
+|intelligence=5
+|wisdom=5
+|charisma=5
+|magic=3-7
+|poison=3-7
+|elemental=3-7
+|void=3-7
+|spells=
+}}
+
+Cecil is an NPC located in [[Faerie's Brake]].<br><br>
+
+Hand him 4 treasure map pieces to complete the repeatable quest {{QuestLink|link=Repairing Treasure Maps}}
+
+Greeting message:
+{| class="wikitable"
+|I'm afraid I can't be much help to you. I'm just a <span style="color: #15e300;">[writer]</span>. I could give you <span style="color: #15e300;">[directions]</span>. I suppose, If you wanted me to.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[directions]</span>
+|Port Azure is just down the road past the next house. Across the pond along the road, that's Fernalla's Revival Plains. If you take a right before you get to town, you'll find Vitheo's Watch and an old abandoned Fort called Krakengard.
+|-
+|<span style="color: #15e300;">[writer]</span>
+|Wow, I don't get asked to elaborate on that very often! I write about lost treasures. I study maps, can usually put 'em together and find their secrets pretty quickly.
+|}
+
+[[Category:Characters]]
+[[Category:Faerie's Brake]]

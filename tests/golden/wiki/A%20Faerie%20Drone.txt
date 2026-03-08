@@ -1,0 +1,42 @@
+{{Enemy
+|name=A Faerie Drone
+|image=[[File:A Faerie Drone.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Skyfolk]]
+|factionChange=-5 [[The Skyfolk]]
+|zones=[[Faerie's Brake]]
+|coordinates=
+|spawnchance=11-100%
+|respawn=2-4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (14.3%)<br>{{ItemLink|Luminstone}} (14.3%)<br>{{ItemLink|Seafruit}} (10.1%)<br>{{ItemLink|Bag of Faerie Dust}} (8.8%)<ref>If the player is already holding {{ItemLink|Bag of Faerie Dust}} in their inventory, another will not drop.</ref><br>{{ItemLink|Demon's Crest}} (4.5%)<br>{{ItemLink|Recurve Bow}} (4.5%)<br>{{ItemLink|Intact Faerie Wing}} (1.3%)
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=3250
+|mana=0
+|ac=120
+|strength=125
+|endurance=100
+|dexterity=165
+|agility=10
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells={{AbilityLink|Biting Vines}}<br>{{AbilityLink|Brax's Touch}}<br>{{AbilityLink|Flight of Foot}}<br>{{AbilityLink|Magic Bolt}}<br>{{AbilityLink|Vampiric Touch}}<br>{{AbilityLink|Weak Poison}}
+}}
+
+Faerie Drones are small, magic enemies that spawn in [[Faerie's Brake]]. Due to their small hitbox they prove difficult to target and attack, so it is recommended to use the TAB targeting system. Faerie Drones can drop a [[Bag of Faerie Dust]], required for the quest "[[Faerie Dust for Nylith Valarro]]."
+
+=Notes=
+
+[[Category:Enemies]]
+[[Category:Faerie's Brake]]

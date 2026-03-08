@@ -1,0 +1,39 @@
+{{Enemy
+|name=Braxonian Weapon Master
+|image=[[File:Braxonian Weapon Master.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Fallen Braxonia]]
+|coordinates=413.4 x 75.0 x 488.4
+|spawnchance=66%
+|respawn=8 minutes
+|guaranteeddrops={{ItemLink|Braxonian Cape}}<br>{{ItemLink|Soulshiver}}
+|droprates={{ItemLink|Braxonian Cape}} (66.7%)<br>{{ItemLink|Soulshiver}} (33.3%)<br>{{ItemLink|Braxonian Bracer}} (2.4%)<br>{{ItemLink|Braxonian Gauntlets}} (1.6%)<br>{{ItemLink|Braxonian Plate Boots}} (1.6%)<br>{{ItemLink|Braxonian Greaves}} (0.8%)<br>{{ItemLink|Braxonian Plate}} (0.8%)<br>{{ItemLink|Braxonian Spaulders}} (0.8%)
+|level=34
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=5.0
+|health=162500
+|mana=0
+|ac=510
+|strength=500
+|endurance=500
+|dexterity=600
+|agility=300
+|intelligence=300
+|wisdom=225
+|charisma=200
+|magic=17-41
+|poison=17-41
+|elemental=17-41
+|void=17-41
+|spells=
+}}
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Fallen Braxonia]]

@@ -1,0 +1,57 @@
+{{Enemy
+|name=A Young Wolf
+|image=[[File:A Young Wolf.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Faerie's Brake]]<br>[[Hidden Hills]]<br>[[Stowaway's Step]]<br>[[Vitheo's Watch]]<br>[[Willowwatch Ridge]]
+|coordinates=
+|spawnchance=
+|respawn=2-4 minutes (Faerie's Brake)<br>1-2 minutes (Hidden Hills)<br>4 minutes (Stowaway's Step)<br>4-6 minutes (Vitheo's Watch)<br>4 minutes (Willowwatch Ridge)
+|guaranteeddrops=
+|droprates={{ItemLink|Wolf Meat}} (86.5%)
+|level=2
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=130
+|mana=0
+|ac=30
+|strength=3
+|endurance=1
+|dexterity=45
+|agility=3
+|intelligence=5
+|wisdom=0
+|charisma=0
+|magic=1-2
+|poison=1-2
+|elemental=1-2
+|void=1-2
+|spells=
+}}
+'''{{PAGENAME}}''' is an [[Enemies|enemy]] in [[Erenshor]].
+=Location=
+{{PAGENAME}} are common throughout southern Erenshor and can be found in [[Hidden Hills]], [[Vitheo's Watch]], [[Faerie's Brake]], [[Willowwatch Ridge]] and on [[Stowaway's Step]].
+
+=Appearance=
+{{PAGENAME}} is a small pup with grey and white fur.
+
+=Behavior=
+{{PAGENAME}} will roam through grasslands and meadows until it senses a player to attack. Being adolescents, they are quite weak.
+
+===Spells & Abilities===
+{{PAGENAME}} does not use any spells or abilities.
+
+=Notes=
+*There is a small chance for {{PAGENAME}} to be replaced by an [[Alpha Wolf]] in both Hidden Hills and Faerie's Brake.
+
+[[Category:Enemies]]
+[[Category:Faerie's Brake]]
+[[Category:Hidden Hills]]
+[[Category:Stowaway's Step]]
+[[Category:Vitheo's Watch]]
+[[Category:Willowwatch Ridge]]

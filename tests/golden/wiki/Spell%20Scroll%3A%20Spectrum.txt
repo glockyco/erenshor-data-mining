@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Spectrum
+|type=[[Ability Books]]
+|vendorsource=[[Leyor M'Chante]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=8550
+|sell=5558
+|taughtspell={{AbilityLink|Spectrum}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Spectrum.png
+|name=Spell Scroll: Spectrum
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=22
+|stormcaller_level=
+|reaver_level=
+|mana_cost=80
+|spell_type=StatusEffect
+|spell_desc=Lower target's resists
+}}
+
+[[Category:Ability Books]]

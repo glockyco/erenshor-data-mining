@@ -1,0 +1,33 @@
+{{Item
+|title=Skill Book: Dodge II
+|type=[[Ability Books|Skill Book]]
+|vendorsource=[[Roreli Gilmare]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=1100
+|sell=715
+|taughtspell=
+|taughtskill={{AbilityLink|Dodge II}}
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SkillBook
+|image=Skill Book: Dodge II.png
+|name=Skill Book: Dodge II
+|duelist_level=8
+|druid_level=16
+|arcanist_level=16
+|paladin_level=12
+|stormcaller_level=12
+|reaver_level=
+|skill_type=Innate
+|skill_desc=You gain a small innate chance to dodge incoming attacks.
+|simplayers_autolearn=True
+}}
+
+[[Category:Ability Books]]

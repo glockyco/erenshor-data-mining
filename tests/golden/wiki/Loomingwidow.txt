@@ -1,0 +1,38 @@
+{{Enemy
+|name=Loomingwidow
+|image=[[File:Loomingwidow.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Loomingwood Forest]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Ruined Grass Spider Carapace}} (27.7%)<br>{{ItemLink|Blueprint: Loomingwood Market}} (0.3%)<br>{{ItemLink|Blueprint: Loomingwood Shrine}} (0.3%)
+|level=19
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=17225
+|mana=0
+|ac=285
+|strength=45
+|endurance=100
+|dexterity=165
+|agility=100
+|intelligence=100
+|wisdom=100
+|charisma=100
+|magic=10-23
+|poison=10-23
+|elemental=10-23
+|void=10-23
+|spells=
+}}
+
+[[Category:Enemies]]
+[[Category:Loomingwood Forest]]

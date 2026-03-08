@@ -1,0 +1,37 @@
+{{Enemy
+|name=Queen Evadne
+|image=[[File:Queen Evadne.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=
+|factionChange=
+|zones=
+|coordinates=
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=24
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=21450
+|mana=2000
+|ac=360
+|strength=650
+|endurance=500
+|dexterity=650
+|agility=500
+|intelligence=85
+|wisdom=85
+|charisma=85
+|magic=12-29
+|poison=12-29
+|elemental=12-29
+|void=12-29
+|spells=
+}}
+
+[[Category:Characters]]

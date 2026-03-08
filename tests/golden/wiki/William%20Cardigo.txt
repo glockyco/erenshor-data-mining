@@ -1,0 +1,57 @@
+{{Enemy
+|name=William Cardigo
+|image=[[File:William Cardigo.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Erenshor]]
+|factionChange=-50 [[Ripper DeMerth]]<br>+5 [[The Azure Guard]]<br>+5 [[The Citizens of Port Azure]]
+|zones=[[Willowwatch Ridge]]
+|coordinates=314.2 x 73.2 x 598.0
+|spawnchance=
+|respawn=6 minutes
+|guaranteeddrops=
+|droprates=
+|level=33
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=51415
+|mana=2000
+|ac=495
+|strength=35
+|endurance=150
+|dexterity=455
+|agility=155
+|intelligence=155
+|wisdom=155
+|charisma=155
+|magic=16-40
+|poison=16-40
+|elemental=16-40
+|void=16-40
+|spells=
+}}
+
+William Cardigo is a questgiver for {{QuestLink|Clearing the Bonepits}}
+
+Greeting message:
+{| class="wikitable"
+| Those <span style="color: #15e300;">[undead]</span> just keep pouring out of that place. They're not hard to dispatch, the one's we're seeing at least. What if something bigger comes out though?
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[undead]</span>
+|They call it The Bonepits. It's the fastest way to the Hidden Hills settlement. We pass through now and again for supplies. I've got half a mind to raid that place and <span style="color: #15e300;">[clear]</span> it out for good.
+|-
+|<span style="color: #15e300;">[clear]</span>
+|You take that job, that's on you. I imagine somewhere deep down in there is a... a leader? I don't even know what you'll find. Heard rumors of a giant <span style="color: #15e300;">[demon]</span> who glows red though.
+|-
+|<span style="color: #15e300;">[demon]</span>
+|Bring me proof of whatever it is you slay. I've got somethin' here for ya if you do.<br><br><i>This begins the quest {{QuestLink|Clearing the Bonepits}}.
+|}
+
+[[Category:Characters]]
+[[Category:Willowwatch Ridge]]

@@ -1,0 +1,44 @@
+{{Enemy
+|name=Liam Olvaro
+|image=[[File:Liam Olvaro.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=-55 [[The Citizens of Erenshor]]
+|zones=[[Windwashed Pass]]
+|coordinates=349.7 x 32.4 x 251.4
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Notes of a Hermit}} (100.0%)
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=3250
+|mana=100
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+Liam is located near one of the campsites in the [[Windwashed Pass]]
+
+Greeting message:
+{| class="wikitable"
+|The walk here isn't bad. Just up the Duskenlight Coast and watch out for the wildlife. The fishing is worth it.
+|}
+
+[[Category:Characters]]
+[[Category:Windwashed Pass]]

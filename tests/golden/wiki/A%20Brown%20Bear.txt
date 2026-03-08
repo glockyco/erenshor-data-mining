@@ -1,0 +1,54 @@
+{{Enemy
+|name=A Brown Bear
+|image=[[File:A Brown Bear.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Fernalla's Revival Plains]]<br>[[The Duskenlight Coast]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Bear Meat}} (39.3%)
+|level=7
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=851
+|mana=0
+|ac=105
+|strength=11
+|endurance=9
+|dexterity=35
+|agility=8
+|intelligence=2
+|wisdom=2
+|charisma=2
+|magic=4-8
+|poison=4-8
+|elemental=4-8
+|void=4-8
+|spells=
+}}
+''{{Main|Enemies}}''
+=Location=
+{{PAGENAME}} can be found on [[Fernalla's Revival Plains]] and [[Duskenlight Coast]].
+
+=Appearance=
+{{PAGENAME}} is a large bear with brown fur.
+
+=Behavior=
+{{PAGENAME}} is the adult version of [[A Brown Bear Cub]]. It will attack low-leveled players if they get too close.
+
+===Spells & Abilities===
+{{PAGENAME}} does not use any spells or abilities.
+
+=Notes=
+*There is a small chance for {{PAGENAME}} to be replaced by the [[Sylvan Giant]] on Fernalla's Revival Plains, and the [[Dusken Giant]] in Duskenlight Coast.
+
+[[Category:Enemies]]
+[[Category:Fernalla's Revival Plains]]
+[[Category:The Duskenlight Coast]]

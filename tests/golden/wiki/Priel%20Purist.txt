@@ -1,0 +1,38 @@
+{{Enemy
+|name=Priel Purist
+|image=[[File:Priel Purist.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[Savannah Priel]]
+|factionChange=-2 [[Savannah Priel]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Solunarian Brotherhood]]
+|zones=[[Prielian Cascade]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Sea Glass}} (7.4%)<br>{{ItemLink|Star Stone}} (7.4%)<br>{{ItemLink|Seaspice}} (4.3%)<br>{{ItemLink|Water}} (4.3%)<br>{{ItemLink|Priel Officer's Ring}} (2.4%)<br>{{ItemLink|Spell Scroll: Major Group Healing}} (2.4%)
+|level=30
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=26000
+|mana=300
+|ac=450
+|strength=400
+|endurance=355
+|dexterity=565
+|agility=400
+|intelligence=350
+|wisdom=95
+|charisma=75
+|magic=15-36
+|poison=15-36
+|elemental=15-36
+|void=15-36
+|spells={{AbilityLink|The Wild's Fang}}
+}}
+
+[[Category:Enemies]]
+[[Category:Prielian Cascade]]

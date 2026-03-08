@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Tenebris
+|type=[[Ability Books]]
+|vendorsource=
+|source=[[Vos Ashlyn]] (50.0%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=20000
+|sell=13000
+|taughtspell={{AbilityLink|Tenebris}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Tenebris.png
+|name=Spell Scroll: Tenebris
+|arcanist_level=32
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=1000
+|spell_type=Damage
+|spell_desc=Deals 4500 magic damage to your target.
+}}
+
+[[Category:Ability Books]]

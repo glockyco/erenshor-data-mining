@@ -1,0 +1,89 @@
+{{Enemy
+|name=Innkeeper Ryvan
+|image=[[File:Innkeeper Ryvan.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=
+|zones=[[Port Azure]]
+|coordinates=167.7 x 26.8 x 247.8
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=461
+|mana=0
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=0
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+Ryvan is the innkeeper of the Azure Arms in [[Port Azure]].
+
+Greeting message:
+{| class="wikitable"
+|'Ello there. <span style="color: #15e300;">[Welcome]</span> to the Azure Arms.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[welcome]</span>
+|Haven't seen you before, and i know ya didn't come off a boat. I learned not to ask questions though. No <span style="color: #15e300;">[rooms]</span> right now, either way.
+|-
+|<span style="color: #15e300;">[rooms]</span>
+|Full house. With everyone moving back to the city, this place is in high demand.
+|}
+
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Rusty Shortsword}}
+|[[Weapons|Weapon]]
+|10
+|-
+|{{ItemLink|Rusty Hatchet}}
+|[[Weapons|Weapon]]
+|8
+|-
+|{{ItemLink|Bread}}
+|[[Status Effects|Food]]
+|2
+|-
+|{{ItemLink|Water}}
+|[[Consumables|Drink]]
+|1
+|-
+|{{ItemLink|Vithean Brew}}
+|[[Consumables|Drink]]
+|11
+|-
+|{{ItemLink|Brackfruit Juice}}
+|[[Status Effects|Consumable]]
+|5
+|-
+|{{ItemLink|Azure Mead}}
+|[[Consumables|Drink]]
+|12
+|}
+
+[[Category:Characters]]
+[[Category:Port Azure]]
+[[Category:Vendors]]

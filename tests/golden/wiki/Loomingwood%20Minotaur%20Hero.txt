@@ -1,0 +1,39 @@
+{{Enemy
+|name=Loomingwood Minotaur Hero
+|image=[[File:Loomingwood Minotaur Hero.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Loomingwood Forest]]
+|coordinates=900.7 x 29.5 x 613.1
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Hero Bracer}}<br>{{ItemLink|Minoaxe}}<br>{{ItemLink|Stonelined Plate}}
+|droprates={{ItemLink|Minoaxe}} (50.0%)<ref>If Loomingwood Minotaur Hero has {{ItemLink|Minoaxe}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Hero Bracer}} (35.1%)<br>{{ItemLink|Stonelined Plate}} (25.0%)<br>{{ItemLink|Blueprint: Loomingwood Market}} (0.3%)<br>{{ItemLink|Blueprint: Loomingwood Shrine}} (0.3%)
+|level=26
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=4.0
+|health=23985
+|mana=1500
+|ac=390
+|strength=45
+|endurance=125
+|dexterity=195
+|agility=95
+|intelligence=95
+|wisdom=95
+|charisma=75
+|magic=13-31
+|poison=13-31
+|elemental=13-31
+|void=13-31
+|spells=
+}}
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Loomingwood Forest]]

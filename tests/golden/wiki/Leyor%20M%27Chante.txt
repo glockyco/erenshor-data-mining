@@ -1,0 +1,101 @@
+{{Enemy
+|name=Leyor M'Chante
+|image=[[File:Leyor M'Chante.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Solunarian Brotherhood]]
+|factionChange=-20 [[The Citizens of Port Azure]]<br>-20 [[The Solunarian Brotherhood]]
+|zones=[[Port Azure]]
+|coordinates=160.0 x 31.9 x 311.0
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates=
+|level=25
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=4550
+|mana=200
+|ac=375
+|strength=55
+|endurance=55
+|dexterity=55
+|agility=55
+|intelligence=55
+|wisdom=55
+|charisma=55
+|magic=12-30
+|poison=12-30
+|elemental=12-30
+|void=12-30
+|spells={{AbilityLink|Minor Healing}}<br>{{AbilityLink|Minor Regeneration}}<br>{{AbilityLink|Soluna's Solar Blessing}}<br>{{AbilityLink|Soluna's Solar Invigoration}}
+}}
+Leyor is an NPC located in the church-like building in [[Port Azure]]. And is the Quest giver for {{QuestLink|link=Soluna's Flameblade}} (Paladin Quest).
+This NPC will refuse to talk to you if you are any class other than Paladin.
+
+Greeting message only for Paladins:
+{| class="wikitable"
+|Another Paladin is always welcome here. Take comfort in this place, it was the first building raised in Port Azure. Praise Soluna! Have you found your <span style="color: #15e300;">[destiny]</span> yet?
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[destiny]</span>
+|Your destiny is for you alone to determine. For some, it's power and for others it's fortune. For me, it's Soluna's <span style="color: #15e300;">[Celestial]</span> <span style="color: #15e300;">[Blade].
+|-
+|<span style="color: #15e300;">[Celestial], [Blade]</span> 
+|The very sword Soluna bestowed upon her avatar here in these lands and now lost to time, it's nothing short of fabled. Where to look - that's another question that I do not have the answer to.<br><br><i>This begins {{QuestLink|link=Soluna's Flameblade}}</i>
+|-
+|<span style="color: #15e300;">[hi]</span>
+| :) :) :) :) :) :) :)
+|}
+
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Spell Scroll: Sunburst}}
+|[[Ability Books|Spell Scroll]]
+|1255
+|-
+|{{ItemLink|Spell Scroll: Moonburst}}
+|[[Ability Books|Spell Scroll]]
+|1655
+|-
+|{{ItemLink|Spell Scroll: Theft of Vigor}}
+|[[Ability Books|Spell Scroll]]
+|3250
+|-
+|{{ItemLink|Spell Scroll: Glimpse of Truth}}
+|[[Ability Books|Spell Scroll]]
+|2500
+|-
+|{{ItemLink|Spell Scroll: Glare of Soluna}}
+|[[Ability Books|Spell Scroll]]
+|155
+|-
+|{{ItemLink|Spell Scroll: Spectrum}}
+|[[Ability Books|Spell Scroll]]
+|8550
+|-
+|{{ItemLink|Spell Scroll: Celestial Pull}}
+|[[Ability Books|Spell Scroll]]
+|16500
+|-
+|{{ItemLink|Spell Scroll: Impending Doom}}
+|[[Ability Books|Spell Scroll]]
+|16500
+|-
+|{{ItemLink|Spell Scroll: Moon Bolt II}}
+|[[Ability Books|Spell Scroll]]
+|3500
+|}
+
+[[Category:Characters]]
+[[Category:Port Azure]]
+[[Category:Vendors]]

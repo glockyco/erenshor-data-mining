@@ -1,0 +1,45 @@
+{{Enemy
+|name=Braxon Bastion
+|image=[[File:Braxon Bastion.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Port Azure]]
+|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]<br>-20 [[The Torchbearers of Brax]]
+|zones=[[Braxonian Desert]]
+|coordinates=186.3 x 44.0 x 980.5
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=18
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=3250
+|mana=100
+|ac=270
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=9-22
+|poison=9-22
+|elemental=9-22
+|void=9-22
+|spells=
+}}
+
+Bastion is located at the archaeologist dig site in the [[Braxonian Desert]].
+
+Greeting message:
+{| class="wikitable"
+|Brax chose to sacrifice his own people when he scorched this desert onto the land. The desert holds back the blight, and the sacrifice was necessary.
+|}
+
+[[Category:Braxonian Desert]]
+[[Category:Characters]]

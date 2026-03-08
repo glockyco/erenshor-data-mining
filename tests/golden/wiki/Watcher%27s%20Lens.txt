@@ -1,0 +1,121 @@
+{{spoiler}}
+
+{{Item
+|title=Watcher's Lens
+|type=[[Quest Items|Quest Item]]
+|vendorsource=
+|source=
+|othersource=
+|questsource={{QuestLink|Willow Seeds}}
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+==Functionality==
+
+{{Item/General
+|image=Watcher's Lens.png
+|name=Watcher's Lens
+|description=A clear lens that is supposed to let you see hidden beings - specifically Shrouded Sivakayans - in the world. They are said to roam nearly everywhere on occassion.<br><br>Put it into a <span style="color: #15e300;">cosmetic</span> slot in your inventory to activate.
+|value=
+|stack_size=
+|disposable=
+|effect_style=
+|effect_spell_icon=
+|effect_spell_name=
+|effect_spell_level=
+|effect_spell_duration_ticks=
+|effect_spell_type=
+|effect_spell_line=
+|effect_target_damage=
+|effect_target_healing=
+|effect_damage_type=
+|effect_cast_time=
+|effect_cooldown=
+|effect_spell_range=
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+}}
+
+After completing {{QuestLink|Willow Soil}}, the player will receive the Watcher's Lens. By placing the lens in a [[Cosmetic Items|cosmetic slot]], the player will have a chance of encountering one of five different kinds of Sivakayan Spectres.
+
+===Activation Conditions===
+When entering a zone, the game will make a check for the following conditions:
+* The Watcher's Lens is equipped in a cosmetic slot
+* The zone is eligible for a Sivakayan Spectre to spawn
+* No Spectre has spawned recently
+* A 1 in 10 roll succeeds
+
+If all conditions are satisfied, a Spectre is placed at a random spawn point in the zone. The Spectre then wanders the zone, patrolling along all spawn points.
+
+====Notes====
+* If the lens is not equipped when zoning, no Spectre will spawn in the zone even if it is equipped immediately. Players will need to leave and re-enter the zone with the lens equipped for another spawn chance.
+* "Recently" means that the zone is not among the last five zones in which a Spectre has spawned. Completely restarting the game (exiting to desktop) will reset this like any other spawn logic.
+* The respawn time modifier setting on the [[Server Admin Panel]] does not affect Spectre spawn rates.
+* Spectres spawn as neutral and will not attack the player on sight, which allows the player to control engagements and ignore difficult ones. They show up as white dots on the [[Minimap]].
+
+===Eligible Zones===
+Sivakayan Spectres can spawn in any zone (including dungeons) '''EXCEPT''' the following:
+
+* [[Port Azure]]
+** Guild Reliquary can spawn Spectres
+* [[Stowaway's Step]]
+* [[Island Tomb]]
+* [[Bellwain Island]]
+* [[Shivering Step]]
+* [[Shivering Tomb]]
+
+===List of Spectres===
+
+Which Spectre is spawned is random:
+
+* [[Sivakayan Shadow]] (Level 24) - 2/9 chance (~22.2%)
+* [[Shrouded Sivakayan]] (Level 28) - 2/9 chance (~22.2%)
+* [[Sivakayan High Shadow]] (Level 33) - 2/9 chance (~22.2%)
+* [[Sivakayan Doomshade]] (Level 36) - 2/9 chance (~22.2%)
+* [[Sivakayan Voidmaster]] (Level 39) - 1/9 chance (~11.1%)
+
+Any level Spectre can spawn in any zone aside from the exceptions listed above, meaning players can be in for a surprise when running around low level zones.
+
+===Farming Strategy===
+Because of the specific spawn logic, players will want to focus on smaller zones such as [[Hidden Hills]] and [[Faerie's Brake]] that can be traversed quickly. Upon entering the zone, players will want to perform a general search, attempting to hit all enemy spawn points while searching for a Spectre. If none are located, the player should move onto another small zone and try again. Once a Spectre has been located, that zone should be excluded from future searches until at least five Spectres have been found in other zones. Alternatively, players can stick to a small zone (such as [[Hidden Hills]]) and simply quit the game repeatedly until a Spectre spawns.
+
+Because of the low spawn rate and unique drops, players should expect it to take a considerable amount of time to farm specific drops. For that reason, Spectre drops should be considered special bonus items to enhance various builds rather than attempting to incorporate them into "best in slot" gear sets.
+
+[[Category:Items]]

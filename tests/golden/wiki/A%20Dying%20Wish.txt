@@ -1,0 +1,131 @@
+{{Enemy
+|name=A Dying Wish
+|image=[[File:A Dying Wish.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=
+|zones=[[Blooming Sepulcher]]
+|coordinates=
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=25
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=3250
+|mana=0
+|ac=375
+|strength=3
+|endurance=3
+|dexterity=3
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=12-30
+|poison=12-30
+|elemental=12-30
+|void=12-30
+|spells=
+}}
+
+{{Enemy
+|name=A Dying Wish
+|image=[[File:A Dying Wish.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=
+|zones=
+|coordinates=
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=32
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=3250
+|mana=0
+|ac=480
+|strength=3
+|endurance=3
+|dexterity=3
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=16-38
+|poison=16-38
+|elemental=16-38
+|void=16-38
+|spells=
+}}
+
+A Dying Wish spawns when a [[A Protected Memory]] is killed. There are three possible Dying Wishes, each used in a step of the "A Dying Wish" quest chain.
+
+===First Dying Memory===
+Greeting message:
+{| class="wikitable"
+|Child, I am a memory of Fernalla's final <span style="color: #15e300;">[wish]</span>. You have proven yourself worthy of the task I will ask of you. Please, listen to me.
+|}
+
+Prompts:
+{| class="wikitable"
+|-
+|<span style="color: #15e300;">[wish]</span>
+|In my defeat at the hands of Sivakaya, her shadow found its way into me and clung to all that I am. It calls to me still, pulling me toward her endless dark. Towards her. In my last breaths, I used what light remained to give one final command, but I fear it has failed. I cannot find <span style="color: #15e300;">[peace]</span>.
+|-
+|<span style="color: #15e300;">[peace]</span>
+|Help me find rest, child of the living world. Help me find <span style="color: #15e300;">[peace]</span>. Together, we may gather the scattered fragments of my last moments and mend what has been broken. Tell me, have you found the resting place of my Dear Brother <span style="color: #15e300;">[Vitheo]</span>?
+|-
+|<span style="color: #15e300;">[Vitheo]</span>
+|He is interred near the sea, where Port Azure now stands. Beneath the city's streets. Though my nightmares have hinted there is no rest there at all. In his tomb's entry chamber, there is a guardian. Bring me a memory of his burial from it, and we might proceed.<br>
+<i>This begins {{QuestLink|A Dying Wish, Part 1}}</i>
+|}
+
+===Second Dying Memory===
+Greeting message:
+{| class="wikitable"
+|My dear child, please... you have found the resting place of my brother <span style="color: #15e300;">[Vitheo]</span>. I feel his presence, faint as the tide against a distant shore, yet I cannot remember why it calls to me so.
+|}
+
+Prompts:
+{| class="wikitable"
+|-
+|<span style="color: #15e300;">[Vitheo]</span>
+|<span style="color: #15e300;">[Balaste]</span>, his dearest friend <span style="color: #15e300;">[Balaste]</span>, was to watch over him and then to be laid to rest near him. I remember asking so much of him in my final moments... though I do not know if he kept his vigil.
+|-
+|<span style="color: #15e300;">[Balaste]</span>
+|Please, seek his remains. See if you can feel what I no longer remember... a memory of what transpired there. Bring it to me, so that I may know the truth. *A key materializes in your hand*<br>
+<i>This begins {{QuestLink|A Dying Wish, Part 2}} and provides {{ItemLink|Shrines Key}}</i>
+|}
+
+===Third Dying Memory===
+Greeting message:
+{| class="wikitable"
+|<span style="color: #15e300;">[Elwio]</span>... I feel great regret for him. I cannot recall why but it was to protect Vitheo from Sivakaya's darkness, for Vitheo was her son... She would have never let him out of her dark grip.
+|}
+
+Prompts:
+{| class="wikitable"
+|-
+|<span style="color: #15e300;">[Elwio]</span>
+|<span style="color: #15e300;">[Elwio]</span> did a great favor for Vitheo and for me. I must recall it, I must know why I feel such <span style="color: #15e300;"[sadness]</span>, so that I can try to heal and free the strength to lift this darkness off of me. Please, find <span style="color: #15e300;">[Elwio]</span>. *A key materializes in your hand*<br>
+<i>This begins {{QuestLink|A Dying Wish, Part 3}} and provides {{ItemLink|Key to Traitor's Halls}}</i>
+|-
+|<span style="color: #15e300;">[sadness]</span>
+|Please, <span style="color: #15e300;">[Elwio]</span> may hold the memories I cannot recall any longer. If you can find him, help him to rest and see what feelings you can recall on his behalf.
+<i>This begins {{QuestLink|A Dying Wish, Part 3}}</i>
+|}
+
+[[Category:Blooming Sepulcher]]
+[[Category:Characters]]

@@ -1,0 +1,38 @@
+{{Enemy
+|name=Nightmarian Arcanist
+|image=[[File:Nightmarian Arcanist.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Nightmare Collective]]
+|factionChange=
+|zones=[[Mysterious Portal|Mysterious Portal (2)]]
+|coordinates=
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Remnants of a Daydream}} (17.8%)<br>{{ItemLink|Remnants of a Nightmare}} (17.8%)<br>{{ItemLink|Sleeper's Pin}} (7.6%)<ref>If Nightmarian Arcanist has {{ItemLink|Sleeper's Pin}} equipped, it is guaranteed to drop.</ref>
+|level=20
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=6110
+|mana=0
+|ac=300
+|strength=38
+|endurance=125
+|dexterity=175
+|agility=165
+|intelligence=5
+|wisdom=0
+|charisma=155
+|magic=10-24
+|poison=10-24
+|elemental=10-24
+|void=10-24
+|spells={{AbilityLink|Brax's Rage}}<br>{{AbilityLink|Burning Chains}}
+}}
+
+[[Category:Enemies]]
+[[Category:Mysterious Portal]]

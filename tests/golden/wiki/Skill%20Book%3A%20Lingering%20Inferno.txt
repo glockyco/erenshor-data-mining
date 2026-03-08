@@ -1,0 +1,33 @@
+{{Item
+|title=Skill Book: Lingering Inferno
+|type=[[Ability Books|Skill Book]]
+|vendorsource=
+|source=[[Grand Arcanist of Sivakaya]] (100.0%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=55000
+|sell=35750
+|taughtspell=
+|taughtskill={{AbilityLink|Lingering Inferno}}
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SkillBook
+|image=Skill Book: Lingering Inferno.png
+|name=Skill Book: Lingering Inferno
+|duelist_level=
+|druid_level=
+|arcanist_level=35
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|skill_type=Innate
+|skill_desc=Passive Skill: If a spell is a critical hit, it also applies a high damage DOT effect
+|simplayers_autolearn=
+}}
+
+[[Category:Ability Books]]

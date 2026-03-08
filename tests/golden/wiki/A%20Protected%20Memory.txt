@@ -1,0 +1,110 @@
+{{Enemy
+|name=A Protected Memory
+|image=[[File:A Protected Memory.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Stowaway's Step]]
+|zones=[[Blooming Sepulcher]]
+|coordinates=179.5 x 371.2 x 613.3
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Bark Shield}}<br>{{ItemLink|Leaf Bracelet}}<br>{{ItemLink|Lifeloop}}
+|droprates={{ItemLink|Leaf Bracelet}} (50.0%)<br>{{ItemLink|Bark Shield}} (25.0%)<br>{{ItemLink|Lifeloop}} (25.0%)<br>{{ItemLink|Aetheria}} (12.4%)<ref>If the player is already holding {{ItemLink|Aetheria}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ancient Bone}} (7.6%)<br>{{ItemLink|Golden Luminstone Ring}} (7.6%)<br>{{ItemLink|Luminstone}} (7.6%)<br>{{ItemLink|Star Stone}} (7.6%)<br>{{ItemLink|Cloth Gloves}} (2.6%)<br>{{ItemLink|Cloth Hood}} (2.6%)<br>{{ItemLink|Cloth Pants}} (2.6%)<br>{{ItemLink|Cloth Shirt}} (2.6%)<br>{{ItemLink|Cloth Shoes}} (2.6%)<br>{{ItemLink|Cloth Sleeves}} (2.6%)
+|level=21
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=3.0
+|health=17550
+|mana=0
+|ac=315
+|strength=7
+|endurance=5
+|dexterity=45
+|agility=0
+|intelligence=0
+|wisdom=0
+|charisma=0
+|magic=10-25
+|poison=10-25
+|elemental=10-25
+|void=10-25
+|spells={{AbilityLink|Lesser Lightning}}
+}}
+
+{{Enemy
+|name=A Protected Memory
+|image=[[File:A Protected Memory.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Stowaway's Step]]
+|zones=[[Blooming Sepulcher]]
+|coordinates=533.6 x 355.4 x 764.1
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Battlemage Sleeves}}<br>{{ItemLink|Belt of Ages}}<br>{{ItemLink|Windblown Boots}}
+|droprates={{ItemLink|Battlemage Sleeves}} (50.0%)<br>{{ItemLink|Belt of Ages}} (25.0%)<br>{{ItemLink|Windblown Boots}} (25.0%)<br>{{ItemLink|Aetheria}} (12.4%)<ref>If the player is already holding {{ItemLink|Aetheria}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ancient Bone}} (7.6%)<br>{{ItemLink|Golden Luminstone Ring}} (7.6%)<br>{{ItemLink|Luminstone}} (7.6%)<br>{{ItemLink|Star Stone}} (7.6%)<br>{{ItemLink|Cloth Gloves}} (2.6%)<br>{{ItemLink|Cloth Hood}} (2.6%)<br>{{ItemLink|Cloth Pants}} (2.6%)<br>{{ItemLink|Cloth Shirt}} (2.6%)<br>{{ItemLink|Cloth Shoes}} (2.6%)<br>{{ItemLink|Cloth Sleeves}} (2.6%)
+|level=24
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=3.0
+|health=31850
+|mana=1500
+|ac=360
+|strength=7
+|endurance=5
+|dexterity=45
+|agility=0
+|intelligence=0
+|wisdom=0
+|charisma=0
+|magic=12-29
+|poison=12-29
+|elemental=12-29
+|void=12-29
+|spells=
+}}
+
+{{Enemy
+|name=A Protected Memory
+|image=[[File:A Protected Memory.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Stowaway's Step]]
+|zones=[[Blooming Sepulcher]]
+|coordinates=785.2 x 319.5 x 378.5
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Deathgiver}}<br>{{ItemLink|Lifewind}}<br>{{ItemLink|Treewoven Leggings}}
+|droprates={{ItemLink|Lifewind}} (50.0%)<br>{{ItemLink|Deathgiver}} (25.0%)<br>{{ItemLink|Treewoven Leggings}} (25.0%)<br>{{ItemLink|Aetheria}} (12.4%)<ref>If the player is already holding {{ItemLink|Aetheria}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ancient Bone}} (7.6%)<br>{{ItemLink|Golden Luminstone Ring}} (7.6%)<br>{{ItemLink|Luminstone}} (7.6%)<br>{{ItemLink|Star Stone}} (7.6%)<br>{{ItemLink|Cloth Gloves}} (2.6%)<br>{{ItemLink|Cloth Hood}} (2.6%)<br>{{ItemLink|Cloth Pants}} (2.6%)<br>{{ItemLink|Cloth Shirt}} (2.6%)<br>{{ItemLink|Cloth Shoes}} (2.6%)<br>{{ItemLink|Cloth Sleeves}} (2.6%)
+|level=30
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=3.0
+|health=58500
+|mana=5000
+|ac=450
+|strength=7
+|endurance=5
+|dexterity=45
+|agility=0
+|intelligence=0
+|wisdom=0
+|charisma=0
+|magic=15-36
+|poison=15-36
+|elemental=15-36
+|void=15-36
+|spells=
+}}
+
+[[Category:Blooming Sepulcher]]
+[[Category:Enemies]]

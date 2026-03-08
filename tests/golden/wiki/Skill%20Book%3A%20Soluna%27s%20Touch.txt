@@ -1,0 +1,33 @@
+{{Item
+|title=Skill Book: Soluna's Touch
+|type=[[Ability Books|Skill Book]]
+|vendorsource=
+|source=[[High Paladin of Sivakaya]] (100.0%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=55000
+|sell=35750
+|taughtspell=
+|taughtskill={{AbilityLink|Soluna's Touch|image=Soluna's Touch (Skill).png}}
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SkillBook
+|image=Skill Book: Soluna's Touch.png
+|name=Skill Book: Soluna's Touch
+|duelist_level=
+|druid_level=
+|arcanist_level=
+|paladin_level=35
+|stormcaller_level=
+|reaver_level=
+|skill_type=Innate
+|skill_desc=Passive Skill:  Chance to proc additional magic damage on each swing.
+|simplayers_autolearn=
+}}
+
+[[Category:Ability Books]]

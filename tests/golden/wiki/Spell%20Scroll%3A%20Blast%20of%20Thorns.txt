@@ -1,0 +1,35 @@
+{{Item
+|title=Spell Scroll: Blast of Thorns
+|type=[[:Category:Ability Books|Spell Scroll]], [[Crafting]]
+|vendorsource=[[Alyssia Fearnon]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=750
+|sell=487
+|taughtspell={{AbilityLink|Blast of Thorns}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+Found in Hidden Hills.
+
+{{Item/SpellScroll
+|image=Spell Scroll: Blast of Thorns.png
+|name=Spell Scroll: Blast of Thorns
+|arcanist_level=
+|druid_level=8
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=85
+|spell_type=Damage
+|spell_desc=Deals 200 poison based damage to a target.
+}}
+
+[[Category:Ability Books]]

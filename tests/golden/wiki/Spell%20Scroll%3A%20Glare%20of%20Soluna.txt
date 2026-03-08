@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Glare of Soluna
+|type=[[Ability Books]]
+|vendorsource=[[Akaran Black]]<br>[[Leyor M'Chante]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=155
+|sell=101
+|taughtspell={{AbilityLink|Glare of Soluna}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Glare of Soluna.png
+|name=Spell Scroll: Glare of Soluna
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=5
+|stormcaller_level=
+|reaver_level=
+|mana_cost=18
+|spell_type=StatusEffect
+|spell_desc=Target receives a 20% attack roll penalty.
+}}
+
+[[Category:Ability Books]]

@@ -1,0 +1,59 @@
+{{Enemy
+|name=Spectral King's Guard
+|image=[[File:Spectral King's Guard.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Lost Cellar]]
+|coordinates=316.6 x 148.2 x 406.7
+|spawnchance=
+|respawn=8 minutes
+|guaranteeddrops={{ItemLink|Aged Plate}}<br>{{ItemLink|Aged Plate Mask}}<br>{{ItemLink|Merosavillian Bow}}<br>{{ItemLink|Sash of the Lost Guard}}
+|droprates={{ItemLink|Aged Plate}} (25.8%)<br>{{ItemLink|Aged Plate Mask}} (25.0%)<br>{{ItemLink|Merosavillian Bow}} (25.0%)<br>{{ItemLink|Sash of the Lost Guard}} (25.0%)<br>{{ItemLink|Tarnished Halberd}} (13.4%)<br>{{ItemLink|Aged Plate Bracer}} (2.2%)<br>{{ItemLink|Aged Plate Sleeves}} (2.2%)<br>{{ItemLink|Aged Plate Boots}} (1.1%)<br>{{ItemLink|Aged Plate Greaves}} (1.1%)
+|level=20
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=4.0
+|health=12350
+|mana=0
+|ac=300
+|strength=155
+|endurance=155
+|dexterity=155
+|agility=155
+|intelligence=155
+|wisdom=155
+|charisma=155
+|magic=10-24
+|poison=10-24
+|elemental=10-24
+|void=10-24
+|spells=
+}}
+
+''{{main|Enemies}}''
+
+=Location=
+{{PAGENAME}} is located at the end of the [[Lost Cellar]], up a flight of stairs and at the end of the hallway. Although there are two paths through the caves players may take to reach him, the left may be easier as it requires fewer fights against groups of multiple [[Spectral High Guard|Spectral High Guards]].
+
+=Appearance=
+{{PAGENAME}} is an apparition wearing black and brown armor and wielding a large halberd. Although there is no head or face inside his helmet, two eyes can be seen looking out from it.
+
+=Behavior=
+{{PAGENAME}} waits at the end of the Lost Cellar in front of a pair of giant double doors. He will attack players if they get too close, or if him or his [[Spectral Castle Guard|Spectral Castle Guards]] are [[Lunar Madness|provoked]].
+
+===Spells & Abilities===
+{{PAGENAME}} does not use any spells or abilities.
+
+===Strategy===
+Although he does not use any abilities, {{PAGENAME}} can hit hard and also has two guards to assist him. {{AbilityLink|Dazzle}} or {{AbilityLink|Sunburst}} can be used to [[Status Effects|stun]] both him and his guards, allowing players to take out each enemy one at a time.
+
+=Notes=
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Lost Cellar]]
+[[Category:Port Azure]]

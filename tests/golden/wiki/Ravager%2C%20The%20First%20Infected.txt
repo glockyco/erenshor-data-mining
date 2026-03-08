@@ -1,0 +1,62 @@
+{{Enemy
+|name=Ravager, The First Infected
+|image=[[File:Ravager, The First Infected.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[The Elderstone Mines]]
+|coordinates=-773.2 x -52.0 x 377.6
+|spawnchance=
+|respawn=9 minutes
+|guaranteeddrops={{ItemLink|Fungal Bouquet}}<br>{{ItemLink|Fungal Edge}}<br>{{ItemLink|Fungal Spore}}<br>{{ItemLink|Fungus Covered Armband}}<br>{{ItemLink|Silver Plated Leggings}}
+|droprates={{ItemLink|Pg. 5: Faded Entry}} (100.0%)<ref>If the player is already holding {{ItemLink|Pg. 5: Faded Entry}} in their inventory, another will not drop.</ref><br>{{ItemLink|Fungal Bouquet}} (45.8%)<br>{{ItemLink|Fungal Edge}} (45.8%)<br>{{ItemLink|Fungal Spore}} (45.8%)<br>{{ItemLink|Fungus Covered Armband}} (45.8%)<br>{{ItemLink|Silver Plated Leggings}} (45.8%)<br>{{ItemLink|Elderstone Shard}} (7.7%)<ref>If the player is already holding {{ItemLink|Elderstone Shard}} in their inventory, another will not drop.</ref>
+|level=21
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=5.0
+|health=62400
+|mana=0
+|ac=315
+|strength=29
+|endurance=66
+|dexterity=300
+|agility=35
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=10-25
+|poison=10-25
+|elemental=10-25
+|void=10-25
+|spells={{AbilityLink|Hardened Skin}}<br>{{AbilityLink|Jolt}}<br>{{AbilityLink|Minor Lightning}}
+}}
+''{{main|Enemies}}''
+
+=Location=
+{{PAGENAME}} can be found in a dead-end of the [[Elderstone Mines]] surrounded by several glowing mushrooms. When entering the mines from [[Blacksalt Strand]], following the path down into the caves and turn right, then left. Ravager will be at the end of the path.
+
+=Appearance=
+{{PAGENAME}} is a larger version of the [[A Fungus Ravaged Brute|Fungus Ravaged Brutes]], with red and pink pustules covering its body and several gashes sewn together by roots.
+
+=Behavior=
+{{PAGENAME}} roams his alcove and will attack players if they get too close.
+
+===Spells & Abilities===
+Defensive:
+*{{AbilityLink|Hardened Skin}}
+
+Offensive:
+*{{AbilityLink|Minor Lightning}}
+*{{AbilityLink|Jolt}}
+
+=Strategy=
+{{PAGENAME}} is a relatively straightforward fight, as he has no guards or minions players need to worry about. Ravager uses several offensive spells, though they can be mitigated through resists or interrupted with a well-timed {{AbilityLink|Kick}}.
+
+=Notes=
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:The Elderstone Mines]]

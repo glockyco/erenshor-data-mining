@@ -1,0 +1,96 @@
+{{Enemy
+|name=Alyssia Fearnon
+|image=[[File:Alyssia Fearnon.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[Fernalla's Children]]
+|factionChange=-20 [[Fernalla's Children]]<br>-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
+|zones=[[Hidden Hills]]
+|coordinates=-11.2 x -2.9 x -28.2
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates=
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=8450
+|mana=225
+|ac=330
+|strength=35
+|endurance=35
+|dexterity=35
+|agility=35
+|intelligence=35
+|wisdom=35
+|charisma=35
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells={{AbilityLink|Brax's Rage}}<br>{{AbilityLink|Theft of Life}}
+}}
+
+Alyssia is a vendor in [[Hidden Hills]], she is a Druid Merchant. She is the quest giver for {{QuestLink | link=A Skeleton Eye for Alyssia Fearnon}}.
+
+Greeting message (Druids Only):
+{| class="wikitable"
+|Welcome to our little settlement. We're all fellow adventurers here. Take a look at what i've got for sale... I'm sure it would be useful for you. I could also use a <span style="color: #15e300;">[favor]</span>
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[favor]</span>
+|There's a place just down the road tucked into the cliffside called [[The Bone Pits|'The Bonepits']]. It's full of skeletons and probably some necromancers. I need a [[Skeleton Eye|skeleton eye]]... it's rare to find one on a dead skeleton, but they do exist. Bring me one, and I've got something in it for you in return.<br><br><i>This begins the quest {{QuestLink | link=A Skeleton Eye for Alyssia Fearnon}}</i>
+|}
+
+If you give her a [[Skeleton Eye]] for {{QuestLink | link=A Skeleton Eye for Alyssia Fearnon}}:
+{| class="wikitable"
+|Wonderful! Thank you! I can use this to create a new spell I think. As a thanks, take this belt - you can put it to good use or just sell it if you like.
+|}
+
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Spell Scroll: Brax's Touch}}
+|[[Ability Books|Spell Scroll]]
+|50
+|-
+|{{ItemLink|Spell Scroll: Biting Vines}}
+|[[Ability Books|Spell Scroll]]
+|66
+|-
+|{{ItemLink|Spell Scroll: Minor Lightning}}
+|[[Ability Books|Spell Scroll]]
+|60
+|-
+|{{ItemLink|Spell Scroll: Summon Decayed Fawn}}
+|[[Ability Books|Spell Scroll]]
+|100
+|-
+|{{ItemLink|Spell Scroll: Weak Poison}}
+|[[Ability Books|Spell Scroll]]
+|50
+|-
+|{{ItemLink|Spell Scroll: Theft of Life}}
+|[[Ability Books|Spell Scroll]]
+|100
+|-
+|{{ItemLink|Spell Scroll: Blast of Thorns}}
+|[[Ability Books|Spell Scroll]]
+|750
+|-
+|{{ItemLink|Light Plate Breastplate}}
+|[[Armor#Chest|Chest armor]]
+|75
+|}
+
+[[Category:Characters]]
+[[Category:Hidden Hills]]
+[[Category:Vendors]]

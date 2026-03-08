@@ -1,0 +1,51 @@
+{{Enemy
+|name=Charlotte Darmask
+|image=[[File:Charlotte Darmask.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[Fernalla's Children]]
+|factionChange=-10 [[Fernalla's Children]]<br>-10 [[The Citizens of Erenshor]]
+|zones=[[Fernalla's Revival Plains]]
+|coordinates=312.4 x 31.3 x 329.1
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates=
+|level=25
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=5200
+|mana=250
+|ac=375
+|strength=32
+|endurance=32
+|dexterity=32
+|agility=32
+|intelligence=32
+|wisdom=32
+|charisma=32
+|magic=12-30
+|poison=12-30
+|elemental=12-30
+|void=12-30
+|spells={{AbilityLink|Biting Vines}}<br>{{AbilityLink|Brax's Rage}}<br>{{AbilityLink|Flight of Foot}}<br>{{AbilityLink|Jolt}}<br>{{AbilityLink|Minor Lightning}}<br>{{AbilityLink|Minor Protection}}<br>{{AbilityLink|Minor Regeneration}}
+}}
+
+Charlotte is an NPC located at the Shrine of Fernalla in [[Fernalla's Revival Plains]].
+
+Greeting message:
+{| class="wikitable"
+|She who gives life must also bring death, it is the way of nature and of <span style="color: #15e300;">[Fernalla]</span>. Her wrath has recently been felt here.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[Fernalla]</span>
+This place is Fernalla's Revival Plains. Long ago, when Fernalla ascended to her Godly position, she did so right in this field. Her followers built her a gate to an alter plane, and she passed through to rule from atop the Great Willow where she can see all and know everything.
+|}
+
+[[Category:Characters]]
+[[Category:Fernalla's Revival Plains]]

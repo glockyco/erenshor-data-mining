@@ -1,0 +1,61 @@
+{{Enemy
+|name=A Hermit
+|image=[[File:A Hermit.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=-55 [[The Citizens of Erenshor]]
+|zones=[[Fernalla's Revival Plains]]
+|coordinates=621.0 x 28.8 x 149.2
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Notes of a Hermit}} (100.0%)
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=3250
+|mana=100
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+
+The Hermit is an NPC located in a sneaky area in-between two mountains to the east of the gate between [[Fernalla's Revival Plains]] and [[Faerie's Brake]]. He is the quest giver for {{QuestLink | link=A Hermit's Request}}.
+
+Greeting message:
+{| class="wikitable"
+|I saw it, it's true, and I wrote it down, and now they took it, and I NEED IT! I have to tell someone...
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[they]</span>
+|They took it! My toolbox. It's not tools though, it's not. It's everything else. The highwaymen... across the field they went, one has it...<br><br><i>This begins {{QuestLink | link=A Hermit's Request}}</i>
+|}
+
+For handing him the [[Ornate Toolbox]] to complete {{QuestLink | link=A Hermit's Request}}.
+{| class="wikitable"
+|Praise all, the lock has stood firm!  *The Hermit produces a key and unlocks the box, before handing you its contents.*  He says: "See that this finds its way." 
+|}
+
+For handing him a second [[Ornate Toolbox]]:
+{| class="wikitable"
+|What sorcery is this... that is not mine! I have mine here!
+|}
+
+[[Category:Characters]]
+[[Category:Fernalla's Revival Plains]]

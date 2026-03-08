@@ -1,0 +1,62 @@
+{{Enemy
+|name=Fredrick Templestone
+|image=[[File:Fredrick Templestone.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Stowaway's Step]]
+|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
+|zones=[[Port Azure]]
+|coordinates=233.3 x 27.6 x 332.1
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=260
+|mana=100
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+Located in the first house to the left of the gate.
+
+Hand him [[Wolf Meat]] for the repeatable quest {{QuestLink | questlink=Wolf Meat for Fredrick}} or [[Bear Meat]] for the repeatable quest {{QuestLink | questlink=Bear Meat for Fredrick}}
+
+Greeting message:
+{| class="wikitable"
+|Everyone's afraid lately. The Sivakayans are being spotted all over the place, so I hear. Hard to get out and get anything I <span style="color: #15e300;">[need]</span> lately.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[need]</span>
+|I help cook for the guards. Keep 'em fed. That way they'll protect us I hope. On that note, I could use wolf meat and bear meat. As much of each as you can bring, I'll pay what I can. Can't get out to my own recently.
+|}
+
+When handed [[Wolf Meat]] 
+{| class="wikitable"
+|Ah fantastic! This will be a fantastic steak for the guards!
+|}
+
+When handed [[Bear Meat]]
+{| class="wikitable"
+|Ah fantastic! The guards will be thrilled!
+|}
+
+[[Category:Characters]]
+[[Category:Port Azure]]

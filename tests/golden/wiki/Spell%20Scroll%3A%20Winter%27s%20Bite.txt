@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Winter's Bite
+|type=[[Ability Books]]
+|vendorsource=[[Juctin Mysia]]
+|source=[[Rottenfoot Swampwalker]] (4.6%)<br>[[Apha, Priest of Brax]] (3.7%)<br>[[Upha, Priest of Brax]] (3.7%)<br>[[Rottenfoot Swampwalker]] (3.5%)<br>[[Rottenfoot Witchdoctor]] (3.5%)<br>[[Tek-Nu Dah]] (3.5%)<br>[[Braxon Fanatic]] (2.8%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=4550
+|sell=2958
+|taughtspell={{AbilityLink|Winter's Bite}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Winter's Bite.png
+|name=Spell Scroll: Winter's Bite
+|arcanist_level=14
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=200
+|spell_type=Damage
+|spell_desc=Deals 900 elemental based damage to a target.
+}}
+
+[[Category:Ability Books]]

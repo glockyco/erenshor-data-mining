@@ -1,0 +1,43 @@
+{{Enemy
+|name=Julianna Priel
+|image=[[File:Julianna Priel.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[Savannah Priel]]
+|factionChange=-35 [[Savannah Priel]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Solunarian Brotherhood]]
+|zones=[[Prielian Cascade]]
+|coordinates=102.9 x 0.8 x 338.6
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Gifted Sleeves}}<br>{{ItemLink|Priel Steel Armguards}}
+|droprates={{ItemLink|Gifted Sleeves}} (50.0%)<br>{{ItemLink|Priel Steel Armguards}} (50.0%)<br>{{ItemLink|Bear Bone Club}} (8.7%)<br>{{ItemLink|Sea Glass}} (7.4%)<br>{{ItemLink|Star Stone}} (7.4%)<br>{{ItemLink|Priel Standard}} (4.9%)<ref>If Julianna Priel has {{ItemLink|Priel Standard}} equipped, it is guaranteed to drop.</ref>
+|level=28
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=3.0
+|health=54600
+|mana=300
+|ac=420
+|strength=800
+|endurance=355
+|dexterity=565
+|agility=400
+|intelligence=350
+|wisdom=95
+|charisma=75
+|magic=14-34
+|poison=14-34
+|elemental=14-34
+|void=14-34
+|spells={{AbilityLink|Devour}}<br>{{AbilityLink|Group Revitalize}}<br>{{AbilityLink|Melting Bones}}
+}}
+
+Found in a cave to the left of the entrance to the zone.
+
+=Notes=
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Prielian Cascade]]

@@ -1,0 +1,37 @@
+{{Enemy
+|name=Summoned Skeleton
+|image=[[File:Summoned Skeleton.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=
+|factionChange=
+|zones=
+|coordinates=
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=35
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=13000
+|mana=0
+|ac=525
+|strength=425
+|endurance=225
+|dexterity=425
+|agility=165
+|intelligence=5
+|wisdom=0
+|charisma=155
+|magic=18-42
+|poison=18-42
+|elemental=18-42
+|void=18-42
+|spells=
+}}
+
+[[Category:Characters]]

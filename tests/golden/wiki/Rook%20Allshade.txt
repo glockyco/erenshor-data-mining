@@ -1,0 +1,70 @@
+{{Enemy
+|name=Rook Allshade
+|image=[[File:Rook Allshade.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=-15 [[The Citizens of Erenshor]]<br>-15 [[The Citizens of Port Azure]]<br>-15 [[The Solunarian Brotherhood]]
+|zones=[[Braxonian Desert]]
+|coordinates=369.2 x 5.5 x 1287.9
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Luminstone}} (19.6%)<br>{{ItemLink|Star Stone}} (19.6%)
+|level=16
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=10400
+|mana=155
+|ac=240
+|strength=24
+|endurance=45
+|dexterity=115
+|agility=10
+|intelligence=85
+|wisdom=85
+|charisma=75
+|magic=8-19
+|poison=8-19
+|elemental=8-19
+|void=8-19
+|spells={{AbilityLink|Brax's Touch}}<br>{{AbilityLink|Burning Chains}}<br>{{AbilityLink|Ethereal Rending}}
+}}
+
+Rook Allshade is a [[Vendors|vendor]] selling [[Braxonian Fossil|fossils]] near the willow tree by the [[Silkengrass Meadowlands]] entrance in the [[Braxonian Desert]].
+
+Greeting message:
+{| class="wikitable"
+|Old Rook knows the truth! All these rocks they dig up got secrets in 'em, bet your britches on it. Not sellin 'em for less than a million gold each. Take it or leave it.
+|}
+
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Price
+|-
+|{{ItemLink|Braxonian Fossil}}
+|1,000,000
+|-
+|{{ItemLink|Braxonian Fossil}}
+|1,000,000
+|-
+|{{ItemLink|Braxonian Fossil}}
+|1,000,000
+|-
+|{{ItemLink|Braxonian Fossil}}
+|1,000,000
+|-
+|{{ItemLink|Braxonian Fossil}}
+|1,000,000
+|-
+|{{ItemLink|Braxonian Fossil}}
+|1,000,000
+|}
+
+[[Category:Braxonian Desert]]
+[[Category:Characters]]
+[[Category:Vendors]]

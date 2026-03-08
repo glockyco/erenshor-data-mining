@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Arterial Collapse
+|type=[[:Category:Ability Books|Spell Scroll]]
+|vendorsource=[[Aspen Dechaffe]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=3500
+|sell=2275
+|taughtspell={{AbilityLink|Arterial Decay}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Arterial Collapse.png
+|name=Spell Scroll: Arterial Collapse
+|arcanist_level=
+|druid_level=23
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=400
+|spell_type=StatusEffect
+|spell_desc=A high damage (360 / tick), short duration void spell.
+}}
+
+[[Category:Ability Books]]

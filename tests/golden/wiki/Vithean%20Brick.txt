@@ -1,0 +1,72 @@
+{{Item
+|title=Vithean Brick
+|type=[[Quest Items|Quest Item]]
+|vendorsource=
+|source=[[Cackles]] (7.7%)<br>[[Crankles]] (7.7%)<br>[[Founder]] (7.7%)<br>[[Jack]] (7.7%)<br>[[Rumors]] (7.7%)<br>[[Skelunker]] (7.7%)<br>[[Sockets]] (7.7%)<br>[[Vithean Remains]] (7.7%)<br>[[Vithean Blademaster]] (7.3%)<br>[[Vithean Elite]] (7.3%)
+|othersource=
+|questsource=
+|relatedquest={{QuestLink|A Portal to Vitheo's Rest}}
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/General
+|image=Vithean Brick.png
+|name=Vithean Brick
+|description=Stones from Vitheo's Rest, likely used during construction of the tomb.
+|value=
+|stack_size=
+|disposable=
+|effect_style=
+|effect_spell_icon=
+|effect_spell_name=
+|effect_spell_level=
+|effect_spell_duration_ticks=
+|effect_spell_type=
+|effect_spell_line=
+|effect_target_damage=
+|effect_target_healing=
+|effect_damage_type=
+|effect_cast_time=
+|effect_cooldown=
+|effect_spell_range=
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+}}
+
+[[Category:Items]]

@@ -1,0 +1,54 @@
+{{Enemy
+|name=Malthor Sageleaf
+|image=[[File:Malthor Sageleaf.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Agents of The Wisp]]
+|factionChange=
+|zones=[[Port Azure]]
+|coordinates=165.4 x 34.1 x 244.6
+|spawnchance=
+|respawn=11 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Arcanist Cap}} (20.4%)<ref>If Malthor Sageleaf has {{ItemLink|Arcanist Cap}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Luminstone}} (11.5%)<br>{{ItemLink|Star Stone}} (11.5%)
+|level=31
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=4550
+|mana=155
+|ac=465
+|strength=32
+|endurance=55
+|dexterity=88
+|agility=85
+|intelligence=55
+|wisdom=55
+|charisma=3
+|magic=16-37
+|poison=16-37
+|elemental=16-37
+|void=16-37
+|spells={{AbilityLink|Brax's Rage}}<br>{{AbilityLink|Brax's Touch}}<br>{{AbilityLink|Hardened Skin}}<br>{{AbilityLink|Magic Bolt}}<br>{{AbilityLink|Minor Lightning}}<br>{{AbilityLink|Minor Protection}}<br>{{AbilityLink|Minor Regeneration}}<br>{{AbilityLink|Vampiric Touch}}
+}}
+Malthor is supposedly a member of [[The Agents of The Wisp]] and is located in a house in the residential pit of [[Port Azure]] only at night.
+
+Greeting message for Arcanist:
+{| class="wikitable"
+|Some meetings are not for all ears. You'd be best off if you excused yourself.
+|}
+Greeting message for other classes:
+{| class="wikitable"
+|By mercy of the wisp, you may leave.
+|}
+
+Prompt:
+{| class="wikitable"
+|<span style="color: #15e300;">[wisp]</span>
+By the will of the wisp, we shall know only greatness.
+|}
+
+[[Category:Characters]]
+[[Category:Port Azure]]

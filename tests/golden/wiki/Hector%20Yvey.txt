@@ -1,0 +1,50 @@
+{{Enemy
+|name=Hector Yvey
+|image=[[File:Hector Yvey.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[Ripper DeMerth]]
+|factionChange=-50 [[Ripper DeMerth]]<br>+10 [[The Azure Guard]]
+|zones=[[Silkengrass Meadowlands]]
+|coordinates=648.4 x 36.8 x 274.3
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Ripper Insignia Badge}} (20.5%)<br>{{ItemLink|Ripparian Soldier Helm}} (12.1%)<br>{{ItemLink|Ripparian Greaves}} (3.4%)<br>{{ItemLink|Ripparian Plate}} (3.4%)
+|level=30
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=28600
+|mana=2000
+|ac=450
+|strength=35
+|endurance=150
+|dexterity=195
+|agility=155
+|intelligence=155
+|wisdom=155
+|charisma=155
+|magic=15-36
+|poison=15-36
+|elemental=15-36
+|void=15-36
+|spells=
+}}
+Hector can be found at the Ripper camp outside the main town in the [[Silkengrass Meadowlands]]
+
+Greeting message:
+{| class="wikitable"
+|Howdy stranger. What brings you all this way up north? You a <span style="color: #15e300;">[pilgrim]</span>?
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[pilgrim]</span>
+You already have the item!
+|}
+
+[[Category:Characters]]
+[[Category:Silkengrass Meadowlands]]

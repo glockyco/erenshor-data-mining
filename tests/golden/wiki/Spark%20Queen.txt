@@ -1,0 +1,59 @@
+{{Enemy
+|name=Spark Queen
+|image=[[File:Spark Queen.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Lost Cellar]]
+|coordinates=382.4 x 150.0 x 104.2
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Insect Shell Ring}}<br>{{ItemLink|Stinging Bracer}}
+|droprates={{ItemLink|Insect Shell Ring}} (50.0%)<br>{{ItemLink|Stinging Bracer}} (50.0%)<br>{{ItemLink|Droplet of Lava}} (5.2%)
+|level=17
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=3.0
+|health=10400
+|mana=0
+|ac=255
+|strength=350
+|endurance=200
+|dexterity=350
+|agility=100
+|intelligence=100
+|wisdom=100
+|charisma=33
+|magic=8-20
+|poison=8-20
+|elemental=8-20
+|void=8-20
+|spells=
+}}
+
+''{{main|Enemies}}''
+
+=Location=
+{{PAGENAME}} is located in the [[Lost Cellar]]. After entering the dungeon, simply go straight. {{PAGENAME}} can be found atop a small hill before the path slopes down towards the Cellars.
+
+=Appearance=
+{{PAGENAME}} is a large insect with brown legs and red wings. It has two large horns and mandibles, as well as a brown exoskeleton running along its back.
+
+=Behavior=
+{{PAGENAME}} waits atop its mound at the end of the cave. It will attack players if they get too close, or if the nearby [[Spark Soldier|Spark Soldiers]] are [[Lunar Madness|provoked]].
+
+===Spells & Abilities===
+{{PAGENAME}} does not use any spells or abilities.
+
+===Strategy===
+{{PAGENAME}} should only be slightly more difficult than the normal insects players have faced leading up to it. It is also possible to pull the attention of the nearby insects if they wander far enough away, avoiding alerting the {{PAGENAME}}. {{AbilityLink|Dazzle}} or {{AbilityLink|Sunburst}} can also be used to help remove them from the fight.
+
+=Notes=
+*Because of its close proximity to the [[Spark Royal]], both bosses can quickly and easily be farmed simultaneously.
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Lost Cellar]]

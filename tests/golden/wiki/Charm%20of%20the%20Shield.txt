@@ -1,0 +1,42 @@
+{{Item
+|title=Charm of the Shield
+|type=
+|vendorsource=
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=25000
+|sell=16250
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/Charm
+|image=Charm of the Shield.png
+|name=Charm of the Shield
+|tier=0
+|strscaling=
+|endscaling=
+|dexscaling=
+|agiscaling=
+|intscaling=
+|wisscaling=
+|chascaling=
+|resistscaling=
+|mitigationscaling=4
+|arcanist=True
+|duelist=True
+|druid=True
+|paladin=True
+|reaver=True
+|stormcaller=True
+}}
+
+ Effect does not work.
+
+[[Category:Charms]]

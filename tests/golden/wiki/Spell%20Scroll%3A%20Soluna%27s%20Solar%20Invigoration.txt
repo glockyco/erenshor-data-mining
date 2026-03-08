@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Soluna's Solar Invigoration
+|type=
+|vendorsource=
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=75
+|sell=49
+|taughtspell={{AbilityLink|Soluna's Solar Invigoration}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Soluna's Solar Invigoration.png
+|name=Spell Scroll: Soluna's Solar Invigoration
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=-1
+|stormcaller_level=
+|reaver_level=
+|mana_cost=30
+|spell_type=Beneficial
+|spell_desc=Increase attack speed and move speed.
+}}
+
+[[Category:Ability Books]]

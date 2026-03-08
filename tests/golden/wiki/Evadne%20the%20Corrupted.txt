@@ -1,0 +1,45 @@
+{{Enemy
+|name=Evadne the Corrupted
+|image=[[File:Evadne the Corrupted.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Braxonian Desert]]
+|coordinates=981.7 x 80.4 x 585.2
+|spawnchance=
+|respawn=11 minutes
+|guaranteeddrops={{ItemLink|Blaze Fiend (Game Piece)|image=Blaze Fiend.png|text=Blaze Fiend}}<br>{{ItemLink|Chunk of Citrine Sandsilver}}<br>{{ItemLink|Flame of the Redemption}}<br>{{ItemLink|Jhalmathir, Helm of Generals}}<br>{{ItemLink|Pyrelink Pantaloons}}
+|droprates={{ItemLink|Ancient Braxonian Key}} (100.0%)<ref>If the player is already holding {{ItemLink|Ancient Braxonian Key}} in their inventory, another will not drop.</ref><br>{{ItemLink|Brashell}} (100.0%)<ref>If the player is already holding {{ItemLink|Brashell}} in their inventory, another will not drop.</ref><br>{{ItemLink|Blaze Fiend (Game Piece)|image=Blaze Fiend.png|text=Blaze Fiend}} (29.2%)<ref>If the player is already holding {{ItemLink|Blaze Fiend (Game Piece)|image=Blaze Fiend.png|text=Blaze Fiend}} in their inventory, another will not drop.</ref><br>{{ItemLink|Chunk of Citrine Sandsilver}} (29.2%)<br>{{ItemLink|Flame of the Redemption}} (29.2%)<br>{{ItemLink|Jhalmathir, Helm of Generals}} (29.2%)<br>{{ItemLink|Pyrelink Pantaloons}} (29.2%)
+|level=25
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=5.0
+|health=26000
+|mana=2000
+|ac=375
+|strength=650
+|endurance=500
+|dexterity=650
+|agility=500
+|intelligence=85
+|wisdom=85
+|charisma=85
+|magic=12-30
+|poison=12-30
+|elemental=12-30
+|void=12-30
+|spells={{AbilityLink|Ice Spear}}<br>{{AbilityLink|Immolation}}
+}}
+
+Located in the rocky northern mountains which is reached by a gigantic slope in the central area of the [[Braxonian Desert]]. 
+
+To Kill Evadne you need the [[Tempestalia, Ring of Storms]] from the quest chain {{QuestLink|link=Orion Mycon's Lost Ring}}. The effect from the ring allows you to put out the brazier making her vulnerable.
+
+=Notes=
+
+[[Category:Bosses]]
+[[Category:Braxonian Desert]]
+[[Category:Enemies]]

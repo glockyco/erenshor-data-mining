@@ -1,0 +1,39 @@
+{{Enemy
+|name=Nipper King
+|image=[[File:Nipper King.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Abyssal Lake]]
+|coordinates=263.2 x 85.5 x 352.6
+|spawnchance=50%
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Fungal Wrapped Bracer}}<br>{{ItemLink|Terra Crown}}
+|droprates={{ItemLink|Fungal Wrapped Bracer}} (66.7%)<br>{{ItemLink|Terra Crown}} (33.3%)<br>{{ItemLink|Spell Scroll: Death's Embrace II}} (14.8%)<br>{{ItemLink|Coral}} (6.8%)<br>{{ItemLink|Diamond}} (6.8%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref>
+|level=32
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=4.0
+|health=93600
+|mana=0
+|ac=480
+|strength=355
+|endurance=255
+|dexterity=500
+|agility=155
+|intelligence=100
+|wisdom=100
+|charisma=25
+|magic=16-38
+|poison=16-38
+|elemental=16-38
+|void=16-38
+|spells=
+}}
+
+[[Category:Abyssal Lake]]
+[[Category:Bosses]]
+[[Category:Enemies]]

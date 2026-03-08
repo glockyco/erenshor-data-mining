@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Void Surge
+|type=
+|vendorsource=[[Grant Haxoway]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=1500
+|sell=975
+|taughtspell={{AbilityLink|Void Surge}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Void Surge.png
+|name=Spell Scroll: Void Surge
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=12
+|mana_cost=150
+|spell_type=Damage
+|spell_desc=Deals 300 void damage to your target.
+}}
+
+[[Category:Ability Books]]

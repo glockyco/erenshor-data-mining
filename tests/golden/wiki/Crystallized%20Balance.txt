@@ -1,0 +1,71 @@
+{{Item
+|title=Crystallized Balance
+|type=[[Consumables|Consumable]]
+|vendorsource=
+|source=[[Braxonian Fossil]] (10.5%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=1000000
+|sell=650000
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/Consumable
+|image=Crystallized Balance.png
+|name=Crystallized Balance
+|description=The spirits of Erenshor enjoy balance, and releasing this energy into the air may cause them to revisit their opinions of the guilds of Erenshor.
+|disposable=True
+|effect_spell_icon=Restore Balance.png
+|effect_spell_name=[[Restore Balance]]
+|effect_spell_level=30
+|effect_spell_duration_ticks=
+|effect_spell_type=Misc
+|effect_spell_line=Generic
+|effect_target_damage=
+|effect_target_healing=
+|effect_shielding_amt=
+|effect_damage_type=Magic
+|effect_cast_time=0.0
+|effect_cooldown=
+|effect_spell_range=30.0
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=Each Guild on Erenshor will have its Guild Rank lowered towards a more neutral state.
+|effect_xp_bonus=
+}}
+
+[[Category:Consumables]]

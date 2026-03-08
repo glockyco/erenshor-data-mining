@@ -1,0 +1,42 @@
+{{Enemy
+|name=Fright
+|image=[[File:Fright.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Shivering Step]]<br>[[Shivering Tomb|Shivering Tomb (2)]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Luminstone}} (48.0%)<br>{{ItemLink|Ancient Bone}} (46.7%)<br>{{ItemLink|Sea Glass}} (46.7%)<br>{{ItemLink|Diamond}} (3.4%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Citrine Stone}} (1.7%)<br>{{ItemLink|Concentration Band}} (1.7%)<br>{{ItemLink|Demon Claw}} (1.7%)<br>{{ItemLink|Freeing Stone}} (1.7%)<br>{{ItemLink|Polished Stone}} (1.7%)<br>{{ItemLink|Ruby}} (1.7%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Shadowmaker}} (1.7%)
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=18850
+|mana=0
+|ac=330
+|strength=24
+|endurance=45
+|dexterity=85
+|agility=30
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells=
+}}
+
+Fright are invisible until you get closer to them. They are found all throughout [[Shivering Step]].
+
+[[Category:Enemies]]
+[[Category:Island Tomb]]
+[[Category:Shivering Step]]
+[[Category:Shivering Tomb]]

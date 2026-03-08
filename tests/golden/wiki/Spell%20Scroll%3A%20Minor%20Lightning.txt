@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Minor Lightning
+|type=[[Ability Books|Spell Scroll]]
+|vendorsource=[[Alyssia Fearnon]]
+|source=[[Plaxitheris]] (8.8%)<br>[[Vevillo Polter]] (3.9%)<br>[[Aranuil Olaseo]] (3.4%)<br>[[Odyss Repman]] (3.4%)<br>[[Islander Bandit]] (1.1%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=60
+|sell=39
+|taughtspell={{AbilityLink|Minor Lightning}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Minor Lightning.png
+|name=Spell Scroll: Minor Lightning
+|arcanist_level=
+|druid_level=6
+|duelist_level=
+|paladin_level=
+|stormcaller_level=6
+|reaver_level=
+|mana_cost=30
+|spell_type=AE
+|spell_desc=85 Magical damage on target, secondary damage on nearby targets.
+}}
+
+[[Category:Ability Books]]

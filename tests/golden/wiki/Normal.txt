@@ -1,0 +1,18 @@
+{{Stance
+|title=Normal
+|image=[[File:Stance: Normal.png|thumb]]
+|description=A normal combat stance with no penalties or bonuses.
+|switch_message=shifts into a normal combat stance
+|max_hp_mod=1.0
+|damage_mod=1.0
+|damage_taken_mod=1.0
+|proc_rate_mod=1.0
+|aggro_gen_mod=1.0
+|spell_damage_mod=1.0
+|self_damage_per_attack=
+|self_damage_per_cast=
+|lifesteal_amount=
+|resonance_amount=1.0
+|stop_regen=
+|activated_by={{AbilityLink|Stance: Normal}}
+}}

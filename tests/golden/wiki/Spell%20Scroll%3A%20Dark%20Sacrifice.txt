@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Dark Sacrifice
+|type=
+|vendorsource=
+|source=[[Orinthar]] (1.0%)<br>[[Vextral]] (1.0%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=650
+|sell=422
+|taughtspell={{AbilityLink|Dark Sacrifice}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Dark Sacrifice.png
+|name=Spell Scroll: Dark Sacrifice
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=35
+|mana_cost=
+|spell_type=Heal
+|spell_desc=Convert 1200 life into 850 mana
+}}
+
+[[Category:Ability Books]]

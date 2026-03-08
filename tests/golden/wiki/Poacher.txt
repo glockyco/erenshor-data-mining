@@ -1,0 +1,49 @@
+{{Enemy
+|name=Poacher
+|image=[[File:Poacher.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Port Azure]]
+|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
+|zones=[[Rottenfoot]]
+|coordinates=
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=5330
+|mana=100
+|ac=330
+|strength=95
+|endurance=95
+|dexterity=150
+|agility=95
+|intelligence=95
+|wisdom=95
+|charisma=65
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells=
+}}
+
+Greeting message:
+{| class="wikitable"
+|Croc season. We need their tails. Got any?<br><br>
+<i>This begins {{QuestLink|link=Croc Tails for the Poachers}}</i>
+|}
+
+When handed a [[Croc Tail]]
+{| class="wikitable"
+|These are great ones! Keep 'em Coming!
+|}
+
+[[Category:Characters]]
+[[Category:Rottenfoot]]

@@ -1,0 +1,38 @@
+{{Enemy
+|name=Reliquary Guard
+|image=[[File:Reliquary Guard.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Azure Guard]]
+|factionChange=+10 [[Ripper DeMerth]]<br>-50 [[The Azure Guard]]
+|zones=[[Port Azure]]
+|coordinates=279.0 x 26.3 x 147.3
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Reliquary Key}} (100.0%)<ref>If the player is already holding {{ItemLink|Reliquary Key}} in their inventory, another will not drop.</ref>
+|level=14
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=28600
+|mana=0
+|ac=210
+|strength=155
+|endurance=155
+|dexterity=155
+|agility=155
+|intelligence=155
+|wisdom=155
+|charisma=155
+|magic=7-17
+|poison=7-17
+|elemental=7-17
+|void=7-17
+|spells=
+}}
+
+[[Category:Characters]]
+[[Category:Port Azure]]

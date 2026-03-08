@@ -1,0 +1,81 @@
+{{Item
+|title=Bellwain Attic Key
+|type=[[Keys|Key]], [[Quest Items|Quest Item]]
+|vendorsource=
+|source=
+|othersource=
+|questsource=
+|relatedquest={{QuestLink|link=The Mystery of Bellwain Isle}}
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+'''{{PAGENAME}}''' is a [[Quest Items|Quest Item]] in [[Erenshor]].
+
+=Location=
+{{PAGENAME}} is found in a cave at the back of the island as part of the quest {{QuestLink|link=The Mystery of Bellwain Island}}. Its location is hinted at by the note {{ItemLink|Eroding Rockwall|image=Marching Orders.png}}.
+
+=Description=
+{{PAGENAME}} is used to open the door in the attic of the house on [[Bellwain Island]].
+
+{{Item/General
+|image=Bellwain Attic Key.png
+|name=Bellwain Attic Key
+|description=A key to the Bellwain Estate's attic
+|value=
+|stack_size=
+|disposable=
+|effect_style=
+|effect_spell_icon=
+|effect_spell_name=
+|effect_spell_level=
+|effect_spell_duration_ticks=
+|effect_spell_type=
+|effect_spell_line=
+|effect_target_damage=
+|effect_target_healing=
+|effect_damage_type=
+|effect_cast_time=
+|effect_cooldown=
+|effect_spell_range=
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+}}
+
+[[Category:Items]]
+[[Category:Keys]]
+[[Category:Quest Items]]

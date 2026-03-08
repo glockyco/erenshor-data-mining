@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Forest's Reckoning
+|type=[[:Category:Ability Books|Spell Scroll]]
+|vendorsource=[[Tiver Banes]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=35000
+|sell=22750
+|taughtspell={{AbilityLink|Forest's Reckoning}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Forest's Reckoning.png
+|name=Spell Scroll: Forest's Reckoning
+|arcanist_level=
+|druid_level=20
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=625
+|spell_type=Damage
+|spell_desc=Deals 1200 poison based damage to a target.
+}}
+
+[[Category:Ability Books]]

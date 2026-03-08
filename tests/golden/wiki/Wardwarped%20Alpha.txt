@@ -1,0 +1,54 @@
+{{Enemy
+|name=Wardwarped Alpha
+|image=[[File:Wardwarped Alpha.png|thumb]]
+|imagecaption=
+|type=[[Enemies#List of Bosses|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Loomingwood Forest]]
+|coordinates=827.2 x 51.0 x 246.6
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Fury Helm}}<br>{{ItemLink|Warded Brace}}<br>{{ItemLink|Wardwarped Cape}}
+|droprates={{ItemLink|Fury Helm}} (33.3%)<br>{{ItemLink|Warded Brace}} (33.3%)<br>{{ItemLink|Wardwarped Cape}} (33.3%)<br>{{ItemLink|A Moongill}} (21.2%)<br>{{ItemLink|A Sleepyhead}} (21.2%)
+|level=37
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=3.0
+|health=260000
+|mana=0
+|ac=555
+|strength=655
+|endurance=655
+|dexterity=800
+|agility=700
+|intelligence=500
+|wisdom=500
+|charisma=500
+|magic=18-44
+|poison=18-44
+|elemental=18-44
+|void=18-44
+|spells=
+}}
+
+''{{main|Enemies}}''
+
+=Location=
+
+Coordinates: X:827 Y:50, Z:247 (use /loc for coordinates in chat)
+=Appearance=
+
+=Behavior=
+
+===Spells & Abilities===
+
+===Strategy===
+
+=Notes=
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Loomingwood Forest]]

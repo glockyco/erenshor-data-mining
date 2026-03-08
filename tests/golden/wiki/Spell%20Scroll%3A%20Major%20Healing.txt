@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Major Healing
+|type=[[Ability Books|Spell Scroll]]
+|vendorsource=[[Aspen Dechaffe]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=1600
+|sell=1040
+|taughtspell={{AbilityLink|Major Healing}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Major Healing.png
+|name=Spell Scroll: Major Healing
+|arcanist_level=
+|druid_level=21
+|duelist_level=
+|paladin_level=21
+|stormcaller_level=
+|reaver_level=
+|mana_cost=250
+|spell_type=Heal
+|spell_desc=Heals base 750 damage
+}}
+
+[[Category:Ability Books]]

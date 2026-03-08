@@ -1,0 +1,38 @@
+{{Enemy
+|name=Wild Ancestral Dog
+|image=[[File:Wild Ancestral Dog.png|thumb]]
+|imagecaption=A bit ruff around the edges
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Azynthi's Garden]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Spell Scroll: Gift of Vitae}}<br>{{ItemLink|Warhound Collar}}
+|droprates={{ItemLink|Wolf Meat}} (95.1%)<br>{{ItemLink|Spell Scroll: Gift of Vitae}} (50.0%)<br>{{ItemLink|Warhound Collar}} (50.0%)
+|level=32
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=53300
+|mana=0
+|ac=480
+|strength=900
+|endurance=900
+|dexterity=900
+|agility=200
+|intelligence=900
+|wisdom=5
+|charisma=900
+|magic=16-38
+|poison=16-38
+|elemental=16-38
+|void=16-38
+|spells=
+}}
+
+[[Category:Azynthi's Garden]]
+[[Category:Enemies]]

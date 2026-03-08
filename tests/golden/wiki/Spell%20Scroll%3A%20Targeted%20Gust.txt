@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Targeted Gust
+|type=[[Ability Books|Spell Scroll]]
+|vendorsource=[[Windlae Oldseer]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=325
+|sell=211
+|taughtspell={{AbilityLink|Targeted Gust}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Targeted Gust.png
+|name=Spell Scroll: Targeted Gust
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=7
+|reaver_level=
+|mana_cost=100
+|spell_type=StatusEffect
+|spell_desc=Slow a target's movement speed
+}}
+
+[[Category:Ability Books]]

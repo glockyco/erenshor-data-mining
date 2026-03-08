@@ -1,0 +1,88 @@
+{{Item
+|title=Strange Beasts of Erenshor
+|type=[[Lore Items|Lore]]
+|vendorsource=[[Rory Gilmare]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=355
+|sell=231
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/General
+|image=Strange Beasts of Erenshor.png
+|name=Strange Beasts of Erenshor
+|description=A recent book, talking about some of the rarer creatures found in Erenshor<br><br>(Right Click to Read)
+|value=355
+|stack_size=
+|disposable=
+|effect_style=
+|effect_spell_icon=
+|effect_spell_name=
+|effect_spell_level=
+|effect_spell_duration_ticks=
+|effect_spell_type=
+|effect_spell_line=
+|effect_target_damage=
+|effect_target_healing=
+|effect_damage_type=
+|effect_cast_time=
+|effect_cooldown=
+|effect_spell_range=
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+}}
+
+Strange Beasts of Erenshor
+
+The lands of Erenshor are vast, diverse, and brimming with life. From the towering peaks of the Sivakayan Spine to the wind-swept plains of Fernalla’s Revival Plains, countless creatures roam. Some are known to the denizens of the land, while others remain hidden, as if cloaked by the very gods who shaped this world.
+
+In the Duskenlight forests, tales speak of Giant Men who tread softly but leave imprints the size of shields. Meanwhile, Silkengrass Meadow has seen fleeting appearances of the Albino Kodiak, a spectral predator whispered to bring luck or doom, depending on the intent of the observer.
+
+Yet, not all beasts that haunt Erenshor's whispers have been seen by mortal eyes. Ancient texts, etched in the forgotten halls of Brax's old libraries, hint at a beast that roams The Brake under the pale moonlight. This creature, described as 'a demon of flesh and shadow,' is said to linger near the swampy heart of the woods, where the waters churn unnaturally.
+
+Travelers passing near the region are warned to tread lightly, for the beast is as dangerous as it is rare. Should one encounter it, the only prudent course is to flee, for courage is no match for its primal fury.
+
+While some dismiss these tales as mere folklore, the history of Erenshor has proven time and again that truth and legend often share a blurred line. The land hides its secrets well, burying them in ancient ruins and forgotten groves. Who is to say what might lie beyond the veil of common knowledge?
+
+To those who dare to wander with open eyes and a curious heart, Erenshor offers discoveries unseen by others. And should luck—or perhaps the gods—favor your journey, you might find yourself face to face with one of its many wonders. Whether you survive the encounter, however, is a tale only time will tell.
+
+[[Category:Books]]
+[[Category:Items]]
+[[Category:Lore Items]]

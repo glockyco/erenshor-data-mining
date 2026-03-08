@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Crushing Current
+|type=
+|vendorsource=
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=29000
+|sell=18850
+|taughtspell={{AbilityLink|Crushing Current}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Crushing Current.png
+|name=Spell Scroll: Crushing Current
+|arcanist_level=
+|druid_level=
+|duelist_level=34
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=850
+|spell_type=StatusEffect
+|spell_desc=Slow target's attack speed by 60%
+}}
+
+[[Category:Ability Books]]

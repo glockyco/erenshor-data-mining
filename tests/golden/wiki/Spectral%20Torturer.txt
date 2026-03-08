@@ -1,0 +1,59 @@
+{{Enemy
+|name=Spectral Torturer
+|image=[[File:Spectral Torturer.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Lost Cellar]]
+|coordinates=269.5 x 133.0 x 271.1
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Distinguished Cape}}<br>{{ItemLink|Songmaker}}<br>{{ItemLink|Workworn Bracer}}
+|droprates={{ItemLink|Pg. 4: Faded Entry}} (100.0%)<ref>If the player is already holding {{ItemLink|Pg. 4: Faded Entry}} in their inventory, another will not drop.</ref><br>{{ItemLink|Distinguished Cape}} (33.3%)<br>{{ItemLink|Songmaker}} (33.3%)<ref>If Spectral Torturer has {{ItemLink|Songmaker}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Workworn Bracer}} (33.3%)
+|level=18
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=4.0
+|health=13000
+|mana=0
+|ac=270
+|strength=155
+|endurance=155
+|dexterity=155
+|agility=155
+|intelligence=155
+|wisdom=155
+|charisma=155
+|magic=9-22
+|poison=9-22
+|elemental=9-22
+|void=9-22
+|spells=
+}}
+
+''{{main|Enemies}}''
+
+=Location=
+{{PAGENAME}} is located in the prison area of the [[Lost Cellar]]. From the dungeon entrance, take a left and make your way through the caves until you reach a large room with several [[Spectral High Guard|Spectral High Guards]].
+
+=Appearance=
+{{PAGENAME}} is an apparition wearing black and brown armor and gloves. He wears a hood, though neither his head nor face are visible.
+
+=Behavior=
+{{PAGENAME}} waits his prison within the Lost Cellar, facing a torture rack. He will attack players if they get too close, or if he or his guards are [[Lunar Madness|provoked]].
+
+===Spells & Abilities===
+{{PAGENAME}} does not use any spells or abilities.
+
+===Strategy===
+The main threat of the fight against {{PAGENAME}} are the Spectral High Guards. It is strongly advised to clear out the guards who roam the cellar, as well as those nearby who might be hiding behind pillars, before fighting {{PAGENAME}}. {{AbilityLink|Dazzle}} or {{AbilityLink|Sunburst}} can be used to [[Status Effects|stun]] both him and his guards, allowing players to take out each enemy one at a time.
+
+=Notes=
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Lost Cellar]]
+[[Category:Port Azure]]

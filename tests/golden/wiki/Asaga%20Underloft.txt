@@ -1,0 +1,84 @@
+{{Enemy
+|name=Asaga Underloft
+|image=[[File:Asaga Underloft.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Port Azure]]
+|factionChange=+2 [[The Agents of The Wisp]]<br>-20 [[The Blades of Vitheo]]<br>+2 [[The Children of Sivakaya]]<br>-20 [[The Citizens of Port Azure]]
+|zones=[[Port Azure]]
+|coordinates=184.8 x 26.3 x 349.1
+|spawnchance=
+|respawn=6 minutes
+|guaranteeddrops=
+|droprates=
+|level=15
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=4550
+|mana=0
+|ac=225
+|strength=35
+|endurance=35
+|dexterity=35
+|agility=35
+|intelligence=35
+|wisdom=35
+|charisma=35
+|magic=8-18
+|poison=8-18
+|elemental=8-18
+|void=8-18
+|spells=
+}}
+
+Asaga is located in a small market to the west just past the [[Port Azure]] gates.
+
+Greeting message:
+{| class="wikitable"
+|Ah, got some rare wares here ya know. See if anything tickles ya.
+|}
+
+Upon giving Asaga the [[Small Engraved Compass]] to complete {{QuestLink|link=Underloft's Compass}}
+{| class="wikitable"
+|I... I haven't seen this in over a year. It belonged to my father. He's... he's missing. He claimed to have unlocked the secret of the Dusken Portal and was working on the Fernallan one next. He was obsessed, convinced they held mysteries too profound for the waking world to comprehend. Please, if you find him... bring him back! Here--take this. It's his latest research.<br><br>
+<i>You will be given [[The Fernallan Ritual]] which can be read to start {{QuestLink|link=The Revival Plains Ritual}}</i>
+|}
+
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Cold Steel Helm}}
+|[[Armor|Head]]
+|30
+|-
+|{{ItemLink|Shivering Leather Skullcap}}
+|[[Armor|Head]]
+|3
+|-
+|{{ItemLink|Gourd Carver}}
+|[[Weapons|Primary or Secondary]]
+|55
+|-
+|{{ItemLink|Rottenfoot Ring}}
+|[[Armor|Ring]]
+|150
+|-
+|{{ItemLink|Charred Boots}}
+|[[Armor|Foot]]
+|125
+|-
+|{{ItemLink|Mummy Wraps}}
+|[[Armor|Hands]]
+|45
+|-
+|}
+
+[[Category:Characters]]
+[[Category:Port Azure]]
+[[Category:Vendors]]

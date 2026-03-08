@@ -1,0 +1,38 @@
+{{Enemy
+|name=Sivakayan Templar
+|image=[[File:Sivakayan Templar.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Children of Sivakaya]]
+|factionChange=+2 [[The Agents of The Wisp]]<br>+2 [[The Azure Guard]]<br>-2 [[The Children of Sivakaya]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
+|zones=[[Abyssal Lake]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Sivakayan Ore}} (12.1%)<br>{{ItemLink|Sea Glass}} (10.2%)<br>{{ItemLink|Star Stone}} (10.2%)<br>{{ItemLink|Sivakayan Bracer}} (1.4%)<br>{{ItemLink|Sivakayan Legplate}} (1.4%)<br>{{ItemLink|Sivakayan Plate}} (1.4%)<br>{{ItemLink|Sivakayan Sceptre}} (1.4%)<ref>If Sivakayan Templar has {{ItemLink|Sivakayan Sceptre}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Sivakayan Shield}} (1.4%)<ref>If Sivakayan Templar has {{ItemLink|Sivakayan Shield}} equipped, it is guaranteed to drop.</ref>
+|level=28
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=31200
+|mana=0
+|ac=420
+|strength=300
+|endurance=135
+|dexterity=400
+|agility=45
+|intelligence=85
+|wisdom=85
+|charisma=35
+|magic=14-34
+|poison=14-34
+|elemental=14-34
+|void=14-34
+|spells={{AbilityLink|Soul Tap}}<br>{{AbilityLink|Supreme Healing}}
+}}
+
+[[Category:Abyssal Lake]]
+[[Category:Enemies]]

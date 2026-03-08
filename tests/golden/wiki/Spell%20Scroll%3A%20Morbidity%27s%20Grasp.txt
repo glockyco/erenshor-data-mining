@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Morbidity's Grasp
+|type=[[Ability Books]]
+|vendorsource=[[Alexander Farland]]<br>[[Aspen Dechaffe]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=2500
+|sell=1625
+|taughtspell={{AbilityLink|Morbidity's Grasp}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Morbidity's Grasp.png
+|name=Spell Scroll: Morbidity's Grasp
+|arcanist_level=
+|druid_level=16
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=250
+|spell_type=StatusEffect
+|spell_desc=A high damage (300 / tick), short duration void spell.
+}}
+
+[[Category:Ability Books]]

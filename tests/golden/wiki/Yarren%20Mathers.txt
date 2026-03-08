@@ -1,0 +1,72 @@
+{{Enemy
+|name=Yarren Mathers
+|image=[[File:Yarren Mathers.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=
+|zones=[[Vitheo's Watch]]
+|coordinates=415.2 x 12.6 x 129.4
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Bear Bone Club}} (100.0%)
+|level=6
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1560
+|mana=0
+|ac=90
+|strength=5
+|endurance=5
+|dexterity=5
+|agility=5
+|intelligence=5
+|wisdom=5
+|charisma=5
+|magic=3-7
+|poison=3-7
+|elemental=3-7
+|void=3-7
+|spells=
+}}
+Yarren is an NPC located on the beach at his campsite at night. He is part of the quest {{QuestLink|The Mathers' Demise}}. And giving him the {{ItemLink|The Mathers Note}} triggers the 2nd part of the quest.
+
+Greeting message:
+{| class="wikitable"
+|You're not who I'm looking for.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[looking]</span>
+|Eldoth.
+|-
+|<span style="color: #15e300;">[Eldoth]</span>
+|Have you seen him? It's imperative that I know where he is. 
+|-
+|<span style="color: #15e300;">[Brice]</span>
+|Brice...? What about him? Did he give you a message for me? 
+|}
+
+When you give him {{ItemLink|The Mathers Note}}:
+{| class="wikitable"
+|Oh no... this was Brice's worst fear! We believe Eldoth is involved with The Wisp and that he is behind something far more sinister than I have time to explain. Brice gave me this key for safe keeping. He was afraid Eldoth's men would come for it. He discovered an old Sivakayan church buried in the hills of Blacksalt and this key is the only one in existence. See what's in there... and bring any tomes you find back to me. For Brice...
+|}
+
+If you give him another {{ItemLink|The Mathers Note}}:
+{| class="wikitable"
+|You have the key... if you've lost it I don't know what to tell you. I do not have another. 
+|}
+
+If you give him parts 1-4 of the <span style="color: #FFFF00;">{{ItemLink|Chapters of Descent, Passage 1|image=Chapters_of_Descent.png|link=The Mathers' Demise|text=Passages of Descent}}</span>:
+{| class="wikitable"
+|Oh my, this is alarming! These are the pages Eldoth must have been after when he killed Brice for the church key! Eldoth is trying to uncover information about Sivakaya or The Wisp... but why? If you discover anything more, show me!
+<i>This begins the quest [[The Mathers' Demise|The Mather's Demise Part 3]].</i>
+|}
+
+[[Category:Characters]]
+[[Category:Vitheo's Watch]]

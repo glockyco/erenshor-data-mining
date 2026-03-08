@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Group Revitalize
+|type=[[Ability Books|Spell Scroll]]
+|vendorsource=[[Juctin Mysia]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=9500
+|sell=6175
+|taughtspell={{AbilityLink|Group Revitalize}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Group Revitalize.png
+|name=Spell Scroll: Group Revitalize
+|arcanist_level=
+|druid_level=22
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=900
+|spell_type=Heal
+|spell_desc=Heal nearby group members for a large amount.
+}}
+
+[[Category:Ability Books]]

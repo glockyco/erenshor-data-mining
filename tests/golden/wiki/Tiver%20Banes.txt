@@ -1,0 +1,100 @@
+{{Enemy
+|name=Tiver Banes
+|image=[[File:Tiver Banes.png|thumb]]
+|imagecaption=
+|type=[[Vendors|Druid Merchant]]
+|faction=[[Fernalla's Children]]
+|factionChange=-30 [[Fernalla's Children]]<br>+2 [[The Agents of The Wisp]]<br>+2 [[The Children of Sivakaya]]
+|zones=[[Port Azure]]
+|coordinates=354.5 x 37.0 x 444.4
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates=
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=4550
+|mana=300
+|ac=330
+|strength=35
+|endurance=35
+|dexterity=35
+|agility=35
+|intelligence=35
+|wisdom=35
+|charisma=35
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells=
+}}
+Tiver is an NPC located in the outskirts of [[Port Azure]] by a shrine. This NPC will refuse to talk to you if you are any class other than [[Druid]].
+
+Greeting message only for Druids:
+{| class="wikitable"
+|Fernalla's grace to you, traveller. I have some things that may aid you in our cause. Please, buy whatever would benefit you.
+|}
+
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Spell Scroll: Biting Vines}}
+|[[Ability Books|Spell Scroll]]
+|66
+|-
+|{{ItemLink|Living Chainmail Leggings}}
+|[[Armor#Leg|Leg Armor]]
+|855
+|-
+|{{ItemLink|Spell Scroll: Summon Cursed Fawn}}
+|[[Ability Books|Spell Scroll]]
+|300
+|-
+|{{ItemLink|Spell Scroll: Tangle}}
+|[[Ability Books|Spell Scroll]]
+|200
+|-
+|{{ItemLink|Bloom}}
+|[[Auras|Aura]]
+|1500
+|-
+|{{ItemLink|Spell Scroll: Toxicity}}
+|[[Ability Books|Spell Scroll]]
+|850
+|-
+|{{ItemLink|Spell Scroll: Summon Forest Spirit}}
+|[[Ability Books|Spell Scroll]]
+|1125
+|-
+|{{ItemLink|Skill Book: Arcane Recovery}}
+|[[Ability Books|Skill Book]]
+|2355
+|-
+|{{ItemLink|Spell Scroll: The Wild's Grasp}}
+|[[Ability Books|Spell Scroll]]
+|10000
+|-
+|{{ItemLink|Spell Scroll: Forest's Reckoning}}
+|[[Ability Books|Spell Scroll]]
+|3500
+|-
+|{{ItemLink|Spell Scroll: Light Healing}}
+|[[Ability Books|Spell Scroll]]
+|1000
+|-
+|{{ItemLink|Spell Scroll: Meditative Trance}}
+|[[Ability Books|Spell Book]]
+|1100
+|}
+
+[[Category:Characters]]
+[[Category:Port Azure]]
+[[Category:Vendors]]

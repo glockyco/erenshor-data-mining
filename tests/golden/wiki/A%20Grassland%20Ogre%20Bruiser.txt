@@ -1,0 +1,38 @@
+{{Enemy
+|name=A Grassland Ogre Bruiser
+|image=[[File:A Grassland Ogre Bruiser.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=+3 [[The Citizens of Erenshor]]<br>+3 [[The Citizens of Port Azure]]
+|zones=[[Underspine Hollow]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Ogrespice Leaf}} (19.6%)<br>{{ItemLink|Seaweed}} (16.3%)<br>{{ItemLink|Spidersmasher}} (3.4%)<ref>If A Grassland Ogre Bruiser has {{ItemLink|Spidersmasher}} equipped, it is guaranteed to drop.</ref>
+|level=13
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=5720
+|mana=0
+|ac=195
+|strength=225
+|endurance=255
+|dexterity=100
+|agility=250
+|intelligence=100
+|wisdom=3
+|charisma=3
+|magic=6-16
+|poison=6-16
+|elemental=6-16
+|void=6-16
+|spells=
+}}
+
+[[Category:Enemies]]
+[[Category:Underspine Hollow]]

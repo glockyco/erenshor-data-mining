@@ -1,0 +1,10190 @@
+Armor in [[Erenshor]] increases your defense which increases the chances the opponent is going to miss you with their attacks.
+
+There are multiple tiers of armor with lower defense armors being available for everyone but the higher defense armors being available to Paladin and Duelist.
+
+{| class="wikitable datatable compact hover" style="font-size: 14px; text-align: center;"
+!Armor
+!Slot
+!class="numeric"|Level
+!class="numeric"|HP
+!class="numeric"|Mana
+!class="numeric"|AC
+!class="numeric"|Str
+!class="numeric"|End
+!class="numeric"|Dex
+!class="numeric"|Agi
+!class="numeric"|Int
+!class="numeric"|Wis
+!class="numeric"|Cha
+!class="numeric"|Res
+!class="numeric"|MR
+!class="numeric"|PR
+!class="numeric"|ER
+!class="numeric"|VR
+!Notes
+![[Classes]]
+|-
+|style="text-align: left;"|{{ItemLink|Age-Old Armlet}}
+|Arm
+|37
+|145
+|100
+|65
+|15
+|15
+|25
+|15
+|5
+|5
+|5
+|
+|
+|
+|3
+|
+|
+|[[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Aged Plate Sleeves}}
+|Arm
+|6
+|25
+|20
+|20
+|5
+|
+|5
+|
+|
+|
+|
+|
+|1
+|1
+|1
+|1
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Ancient Guardian Sleeve}}
+|Arm
+|19
+|100
+|
+|100
+|5
+|
+|5
+|
+|
+|
+|
+|
+|1
+|1
+|1
+|2
+|
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Archer's Vambrace}}
+|Arm
+|8
+|15
+|
+|
+|
+|2
+|6
+|
+|
+|
+|
+|
+|
+|
+|1
+|
+|
+|[[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Armband of Generals}}
+|Arm
+|37
+|180
+|120
+|70
+|20
+|10
+|5
+|
+|
+|
+|10
+|1
+|2
+|2
+|2
+|3
+|
+|[[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Armbands of Order}}
+|Arm
+|36
+|185
+|150
+|25
+|5
+|5
+|20
+|20
+|5
+|5
+|5
+|2
+|2
+|
+|2
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Armguards of Presence}}
+|Arm
+|39
+|200
+|200
+|20
+|15
+|10
+|15
+|
+|15
+|5
+|10
+|1
+|2
+|2
+|
+|5
+|Worn: {{AbilityLink|Possession}}
+|[[Paladin]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Azure Plate Vambraces}}
+|Arm
+|6
+|25
+|
+|15
+|
+|
+|
+|
+|
+|
+|
+|
+|1
+|1
+|1
+|1
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Azynthian Armguards}}
+|Arm
+|30
+|75
+|30
+|55
+|20
+|
+|20
+|
+|
+|5
+|5
+|1
+|
+|
+|
+|
+|
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Battlemage Sleeves}}
+|Arm
+|24
+|35
+|95
+|8
+|12
+|
+|
+|
+|12
+|
+|
+|
+|4
+|
+|1
+|
+|
+|[[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Boatman's Armband}}
+|Arm
+|18
+|35
+|20
+|15
+|5
+|2
+|8
+|5
+|
+|
+|10
+|
+|1
+|
+|1
+|
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Bonebanded Armguard}}
+|Arm
+|39
+|100
+|200
+|30
+|
+|12
+|12
+|
+|25
+|5
+|10
+|2
+|3
+|3
+|
+|3
+|
+|[[Arcanist]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Braxonian Leather Sleeves}}
+|Arm
+|31
+|45
+|65
+|40
+|15
+|5
+|15
+|10
+|
+|10
+|
+|
+|2
+|
+|2
+|
+|
+|[[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Braxonian Royal Armband}}
+|Arm
+|31
+|35
+|100
+|10
+|5
+|5
+|5
+|5
+|15
+|10
+|
+|1
+|
+|2
+|2
+|
+|
+|[[Arcanist]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Braxonian Spaulders}}
+|Arm
+|31
+|65
+|25
+|45
+|15
+|
+|10
+|10
+|
+|
+|
+|
+|2
+|
+|2
+|
+|
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Charred Sleeves}}
+|Arm
+|25
+|95
+|65
+|20
+|10
+|
+|10
+|2
+|
+|2
+|2
+|1
+|1
+|1
+|2
+|
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Chewed Armwraps}}
+|Arm
+|22
+|50
+|80
+|12
+|12
+|
+|5
+|5
+|
+|
+|
+|
+|
+|1
+|
+|2
+|
+|[[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Cloth Sleeves}}
+|Arm
+|1
+|
+|
+|2
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Crested Spaulders}}
+|Arm
+|36
+|135
+|100
+|85
+|12
+|12
+|12
+|
+|
+|5
+|5
+|1
+|3
+|
+|3
+|3
+|
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Daggersilk Sleeves}}
+|Arm
+|5
+|
+|
+|3
+|
+|
+|
+|
+|2
+|2
+|
+|1
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Desert Silk Sleeves}}
+|Arm
+|18
+|
+|60
+|10
+|5
+|5
+|8
+|5
+|5
+|5
+|3
+|
+|2
+|
+|2
+|
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Dreamy Sleeves}}
+|Arm
+|35
+|125
+|100
+|45
+|5
+|5
+|10
+|5
+|15
+|10
+|5
+|
+|
+|
+|
+|4
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Dueling Armguards}}
+|Arm
+|22
+|65
+|65
+|15
+|5
+|
+|10
+|10
+|
+|
+|
+|
+|2
+|1
+|1
+|1
+|
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Etched Armlet}}
+|Arm
+|8
+|25
+|
+|
+|3
+|3
+|3
+|
+|
+|
+|
+|
+|
+|1
+|
+|
+|
+|[[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Exoskeletal Spaulders}}
+|Arm
+|18
+|20
+|50
+|15
+|4
+|5
+|4
+|5
+|5
+|5
+|
+|
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Faerie Sleeves}}
+|Arm
+|8
+|20
+|50
+|
+|
+|
+|
+|
+|5
+|5
+|5
+|
+|1
+|1
+|1
+|
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Feathery Vambraces}}
+|Arm
+|31
+|25
+|125
+|10
+|
+|10
+|10
+|15
+|
+|10
+|10
+|
+|
+|1
+|
+|
+|
+|[[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Flaming Vambraces}}
+|Arm
+|19
+|
+|
+|25
+|20
+|
+|5
+|5
+|
+|
+|
+|
+|
+|1
+|4
+|1
+|
+|[[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Fungus Covered Armband}}
+|Arm
+|17
+|50
+|55
+|5
+|5
+|
+|5
+|
+|8
+|8
+|
+|
+|1
+|3
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Gifted Sleeves}}
+|Arm
+|25
+|75
+|40
+|5
+|5
+|4
+|
+|
+|20
+|15
+|10
+|1
+|
+|5
+|
+|2
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Intricate Sleeves}}
+|Arm
+|24
+|25
+|75
+|8
+|
+|
+|8
+|5
+|12
+|12
+|7
+|1
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Islander Bandit Armwrap}}
+|Arm
+|2
+|10
+|
+|3
+|2
+|
+|2
+|
+|
+|
+|
+|
+|
+|1
+|1
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Petitioner's Vambraces}}
+|Arm
+|99
+|25
+|
+|1
+|
+|
+|
+|
+|
+|
+|
+|
+|1
+|1
+|1
+|1
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Polished Steel Armguards}}
+|Arm
+|12
+|
+|
+|18
+|4
+|4
+|2
+|2
+|
+|
+|
+|
+|5
+|1
+|1
+|1
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Priel Steel Armguards}}
+|Arm
+|28
+|125
+|
+|10
+|15
+|8
+|15
+|8
+|
+|
+|
+|
+|1
+|
+|1
+|
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Shivering Leather Sleeves}}
+|Arm
+|5
+|
+|
+|5
+|2
+|
+|2
+|
+|
+|2
+|
+|
+|
+|
+|
+|
+|
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Solunarian Armguard}}
+|Arm
+|10
+|25
+|
+|10
+|8
+|3
+|3
+|
+|
+|
+|
+|
+|2
+|1
+|1
+|1
+|
+|[[Paladin]]
+|-
+|style="text-align: left;"|{{ItemLink|Tattered Leather Sleeves}}
+|Arm
+|1
+|
+|
+|3
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Vaporous Armguard}}
+|Arm
+|24
+|45
+|
+|55
+|10
+|4
+|15
+|5
+|
+|5
+|
+|
+|
+|
+|
+|15
+|
+|[[Paladin]], [[Reaver]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Vinewrapped Vambracers}}
+|Arm
+|9
+|30
+|15
+|12
+|
+|
+|
+|
+|4
+|4
+|2
+|
+|2
+|3
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Abyssal Shell}}
+|Back
+|28
+|300
+|100
+|60
+|
+|
+|
+|
+|
+|
+|
+|2
+|
+|2
+|
+|2
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Arboreal Cape}}
+|Back
+|30
+|200
+|200
+|45
+|
+|
+|10
+|10
+|10
+|10
+|
+|
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Assassin's Bane}}
+|Back
+|33
+|
+|200
+|75
+|8
+|8
+|
+|
+|8
+|8
+|
+|1
+|
+|
+|
+|
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Azynthian Cape}}
+|Back
+|35
+|225
+|300
+|40
+|5
+|
+|
+|10
+|20
+|20
+|10
+|
+|
+|
+|
+|4
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Backplate}}
+|Back
+|11
+|15
+|10
+|10
+|5
+|5
+|
+|
+|5
+|
+|
+|1
+|
+|
+|
+|
+|
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Blue Leaf Cape}}
+|Back
+|27
+|100
+|100
+|40
+|10
+|10
+|15
+|
+|
+|
+|
+|
+|3
+|
+|
+|2
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Braxonian Cape}}
+|Back
+|32
+|150
+|150
+|25
+|15
+|
+|8
+|8
+|20
+|8
+|5
+|
+|
+|
+|5
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Call To Arms}}
+|Back
+|12
+|
+|35
+|15
+|
+|2
+|2
+|
+|4
+|4
+|
+|
+|1
+|1
+|1
+|1
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Cape of the Sands}}
+|Back
+|17
+|
+|
+|25
+|
+|
+|
+|
+|
+|
+|
+|
+|6
+|8
+|8
+|6
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Correcting Cape}}
+|Back
+|99
+|
+|
+|1
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Distinguished Cape}}
+|Back
+|19
+|55
+|
+|25
+|8
+|5
+|3
+|
+|
+|3
+|
+|
+|1
+|
+|1
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Dreamthread Wings}}
+|Back
+|23
+|45
+|40
+|10
+|
+|2
+|2
+|
+|5
+|12
+|5
+|
+|
+|
+|
+|2
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Feathered Cape}}
+|Back
+|26
+|175
+|100
+|25
+|
+|
+|
+|
+|8
+|8
+|4
+|
+|3
+|3
+|3
+|3
+|Worn: {{AbilityLink|Vitheo's Blessing of the Wind}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Flowing Cloak}}
+|Back
+|26
+|75
+|75
+|15
+|8
+|
+|
+|
+|8
+|8
+|8
+|1
+|
+|
+|
+|
+|Worn: {{AbilityLink|Vitheo's Blessing of the Wind}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Fungal Scab Cape}}
+|Back
+|15
+|
+|
+|
+|4
+|4
+|
+|
+|2
+|2
+|
+|
+|2
+|
+|1
+|2
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Gambler's Cape}}
+|Back
+|13
+|
+|
+|10
+|5
+|
+|
+|5
+|2
+|2
+|10
+|
+|
+|
+|2
+|2
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Honor Strip}}
+|Back
+|19
+|45
+|
+|15
+|7
+|7
+|7
+|
+|
+|
+|
+|
+|
+|3
+|
+|
+|
+|[[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Layer Cape}}
+|Back
+|19
+|25
+|
+|10
+|
+|
+|5
+|
+|10
+|5
+|10
+|
+|2
+|
+|2
+|2
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Lifewind}}
+|Back
+|30
+|300
+|
+|15
+|
+|15
+|
+|
+|10
+|
+|
+|2
+|
+|
+|
+|
+|Worn: {{AbilityLink|Vitheo's Blessing of the Wind}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Lightkeeper's Cape}}
+|Back
+|6
+|10
+|10
+|5
+|
+|
+|
+|
+|
+|
+|5
+|1
+|
+|
+|
+|
+|
+|[[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Lost Cape}}
+|Back
+|20
+|100
+|100
+|20
+|5
+|5
+|5
+|
+|5
+|5
+|5
+|2
+|
+|
+|
+|
+|Worn: {{AbilityLink|Minor Protection}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Night Wave}}
+|Back
+|30
+|
+|355
+|15
+|
+|
+|
+|
+|10
+|10
+|10
+|2
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Nightbane}}
+|Back
+|33
+|200
+|200
+|25
+|10
+|
+|12
+|12
+|5
+|20
+|5
+|3
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Old Torn Cape}}
+|Back
+|4
+|
+|
+|5
+|
+|
+|
+|
+|
+|
+|
+|
+|2
+|2
+|2
+|2
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Plaguewind}}
+|Back
+|38
+|200
+|300
+|25
+|25
+|
+|15
+|15
+|5
+|5
+|
+|3
+|
+|
+|
+|
+|Worn: {{AbilityLink|Vampirism}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Priel Standard}}
+|Back
+|6
+|10
+|15
+|10
+|
+|
+|1
+|1
+|1
+|1
+|5
+|
+|1
+|1
+|1
+|1
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Red Leaf Cape}}
+|Back
+|27
+|75
+|125
+|20
+|
+|
+|10
+|
+|15
+|15
+|
+|1
+|
+|2
+|2
+|1
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Ritual Cape}}
+|Back
+|24
+|95
+|95
+|15
+|8
+|8
+|8
+|
+|
+|
+|
+|
+|2
+|2
+|2
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Satin Cloak}}
+|Back
+|6
+|5
+|
+|3
+|
+|
+|
+|2
+|2
+|2
+|
+|
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Seawashed Cloak}}
+|Back
+|17
+|30
+|
+|10
+|5
+|5
+|
+|5
+|
+|
+|
+|
+|
+|
+|3
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Shadowclasp}}
+|Back
+|39
+|335
+|335
+|35
+|20
+|
+|
+|5
+|20
+|
+|10
+|1
+|
+|
+|
+|4
+|Worn: {{AbilityLink|Dark Haste II}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Sivakayan Wings}}
+|Back
+|37
+|155
+|200
+|35
+|25
+|15
+|25
+|
+|5
+|5
+|5
+|
+|5
+|
+|1
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Tamer's Pack}}
+|Back
+|24
+|200
+|200
+|15
+|10
+|10
+|
+|
+|
+|
+|5
+|
+|
+|1
+|1
+|
+|Worn: {{AbilityLink|Nourished}}
+|[[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Verdant Embrace}}
+|Back
+|39
+|255
+|255
+|5
+|20
+|
+|5
+|5
+|20
+|10
+|
+|3
+|
+|
+|
+|10
+|Worn: {{AbilityLink|Mana Charge II}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Wardwarped Cape}}
+|Back
+|37
+|180
+|100
+|25
+|5
+|5
+|15
+|5
+|20
+|20
+|5
+|1
+|4
+|
+|
+|4
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Wingwoven Cape}}
+|Back
+|33
+|250
+|200
+|15
+|
+|
+|12
+|20
+|12
+|12
+|
+|3
+|3
+|
+|3
+|3
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|A Twisted Spider Leg}}
+|Bracer
+|16
+|40
+|
+|10
+|6
+|
+|3
+|
+|6
+|2
+|2
+|1
+|
+|5
+|
+|2
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Aged Plate Bracer}}
+|Bracer
+|7
+|
+|
+|18
+|
+|
+|4
+|
+|
+|
+|2
+|
+|2
+|1
+|2
+|
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Ancient Guardian Bracer}}
+|Bracer
+|21
+|
+|
+|40
+|
+|
+|
+|
+|
+|
+|
+|
+|1
+|1
+|2
+|1
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Azure Plate Bracer}}
+|Bracer
+|7
+|
+|
+|12
+|
+|
+|
+|
+|
+|
+|
+|
+|3
+|3
+|3
+|3
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Blessed Braxonian Bracelet}}
+|Bracer
+|30
+|25
+|50
+|15
+|4
+|
+|
+|4
+|12
+|4
+|8
+|1
+|
+|
+|3
+|
+|Worn: {{AbilityLink|Blessing of Brax}}
+|[[Arcanist]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Blessed Braxonian Bracer}}
+|Bracer
+|30
+|50
+|50
+|45
+|12
+|4
+|8
+|
+|
+|4
+|
+|1
+|
+|
+|3
+|
+|Worn: {{AbilityLink|Blessing of Brax}}
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Blessed Braxonian Wristlet}}
+|Bracer
+|30
+|15
+|20
+|25
+|4
+|4
+|12
+|4
+|
+|8
+|4
+|2
+|
+|
+|3
+|
+|Worn: {{AbilityLink|Blessing of Brax}}
+|[[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Blighted Silk Wraps}}
+|Bracer
+|28
+|100
+|75
+|30
+|
+|
+|6
+|4
+|6
+|4
+|
+|1
+|2
+|1
+|2
+|4
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Bracelet of the Vessel}}
+|Bracer
+|39
+|125
+|200
+|30
+|9
+|3
+|9
+|3
+|13
+|13
+|9
+|3
+|3
+|
+|2
+|5
+|{{AbilityLink|Mana Flood}}, 10% on cast
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Braxonian Bracelet}}
+|Bracer
+|30
+|25
+|50
+|15
+|4
+|
+|
+|4
+|8
+|4
+|8
+|1
+|
+|
+|2
+|
+|
+|[[Arcanist]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Braxonian Bracer}}
+|Bracer
+|30
+|50
+|50
+|45
+|8
+|4
+|8
+|
+|
+|4
+|
+|1
+|
+|
+|15
+|
+|
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Braxonian Wristlet}}
+|Bracer
+|30
+|15
+|20
+|25
+|4
+|4
+|8
+|4
+|
+|8
+|4
+|2
+|
+|
+|3
+|
+|
+|[[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Bronzed Solunarian Bracer}}
+|Bracer
+|8
+|
+|25
+|10
+|3
+|
+|3
+|
+|
+|
+|
+|
+|2
+|2
+|2
+|2
+|
+|[[Paladin]]
+|-
+|style="text-align: left;"|{{ItemLink|Burial Cloth Wristwrap}}
+|Bracer
+|4
+|10
+|10
+|
+|
+|
+|2
+|
+|4
+|
+|
+|
+|1
+|
+|1
+|3
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Chitin Bracer}}
+|Bracer
+|22
+|65
+|65
+|10
+|
+|
+|
+|
+|7
+|10
+|
+|2
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Cracked Wristguard}}
+|Bracer
+|7
+|
+|
+|6
+|1
+|
+|
+|1
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Crafted Bracer}}
+|Bracer
+|16
+|5
+|10
+|10
+|2
+|2
+|6
+|
+|
+|
+|
+|
+|5
+|
+|
+|2
+|
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Earthen Bracer}}
+|Bracer
+|7
+|50
+|50
+|18
+|
+|
+|
+|
+|
+|
+|
+|
+|5
+|5
+|5
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Embalmed Bracer}}
+|Bracer
+|6
+|25
+|20
+|
+|
+|
+|3
+|
+|5
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Eroded Bangle}}
+|Bracer
+|28
+|45
+|40
+|5
+|
+|2
+|2
+|
+|8
+|12
+|
+|1
+|2
+|
+|
+|2
+|{{AbilityLink|Tenebris}}, 3% on cast
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Exploding Brace}}
+|Bracer
+|28
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|2
+|
+|
+|
+|
+|{{AbilityLink|Tenebris}}, 2% on cast
+|[[Arcanist]], [[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Fungal Wrapped Bracer}}
+|Bracer
+|28
+|
+|
+|5
+|
+|
+|
+|
+|3
+|3
+|
+|8
+|
+|2
+|
+|2
+|
+|[[Druid]]
+|-
+|style="text-align: left;"|{{ItemLink|Gardener's Wrist Wrap}}
+|Bracer
+|38
+|100
+|135
+|25
+|8
+|4
+|4
+|5
+|8
+|12
+|8
+|1
+|2
+|6
+|2
+|2
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Guiding Presence}}
+|Bracer
+|40
+|140
+|190
+|30
+|11
+|5
+|5
+|
+|11
+|11
+|5
+|3
+|5
+|
+|
+|12
+|{{AbilityLink|Fernalla's Presence}}, 4% on cast
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Hero Bracer}}
+|Bracer
+|22
+|
+|
+|18
+|12
+|
+|
+|
+|
+|
+|
+|
+|3
+|
+|
+|
+|
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Hollowed Crustacean Leg}}
+|Bracer
+|11
+|25
+|
+|15
+|4
+|2
+|2
+|
+|
+|
+|
+|
+|1
+|1
+|2
+|
+|
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Igniting Brace}}
+|Bracer
+|20
+|20
+|20
+|5
+|2
+|
+|2
+|
+|2
+|
+|2
+|
+|2
+|
+|
+|
+|{{AbilityLink|Brax's Rage}}, 5% on cast
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Infused Bracelet}}
+|Bracer
+|6
+|10
+|10
+|
+|2
+|
+|
+|2
+|
+|
+|2
+|
+|
+|4
+|
+|4
+|On click: {{AbilityLink|Nourished}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Leaf Bracelet}}
+|Bracer
+|19
+|
+|25
+|9
+|5
+|
+|
+|
+|7
+|
+|
+|1
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Mirrored Bracer}}
+|Bracer
+|33
+|150
+|150
+|25
+|7
+|7
+|7
+|7
+|7
+|7
+|12
+|3
+|6
+|2
+|2
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Moonstone Bangle}}
+|Bracer
+|25
+|75
+|40
+|5
+|
+|
+|
+|
+|5
+|5
+|5
+|1
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Obsidian Bracer}}
+|Bracer
+|13
+|
+|15
+|13
+|4
+|2
+|2
+|
+|
+|2
+|2
+|
+|
+|
+|
+|
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Officer's Bracer}}
+|Bracer
+|25
+|115
+|60
+|65
+|9
+|4
+|9
+|5
+|
+|
+|
+|1
+|
+|
+|
+|5
+|
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Perfect Links}}
+|Bracer
+|30
+|45
+|45
+|15
+|
+|2
+|2
+|7
+|
+|12
+|12
+|2
+|
+|
+|
+|3
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Protector's Bracer}}
+|Bracer
+|24
+|65
+|20
+|5
+|
+|8
+|2
+|
+|
+|4
+|2
+|
+|2
+|
+|
+|
+|{{AbilityLink|Group Heal}}, 8% on cast
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Pull of Insomnia}}
+|Bracer
+|11
+|15
+|15
+|10
+|5
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|Worn: {{AbilityLink|Minor Regeneration}}
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Pull of Sleep}}
+|Bracer
+|11
+|15
+|15
+|10
+|
+|
+|
+|
+|4
+|4
+|
+|
+|
+|
+|
+|
+|Worn: {{AbilityLink|Minor Protection}}
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Resonating Brace}}
+|Bracer
+|39
+|25
+|25
+|10
+|2
+|2
+|2
+|
+|2
+|2
+|2
+|8
+|
+|
+|
+|5
+|{{AbilityLink|Focus}}, 10% on cast
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Runewoven Bracer}}
+|Bracer
+|8
+|
+|15
+|5
+|
+|
+|
+|
+|5
+|
+|
+|1
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Salt Soaked Cuff}}
+|Bracer
+|11
+|
+|80
+|5
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|4
+|
+|
+|On click: {{AbilityLink|Antidote}}
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Searing Wristwrap}}
+|Bracer
+|17
+|
+|25
+|9
+|2
+|2
+|5
+|
+|
+|5
+|
+|1
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Seaslimed Bracelet}}
+|Bracer
+|6
+|10
+|10
+|
+|
+|
+|2
+|
+|2
+|2
+|
+|
+|
+|4
+|
+|4
+|On click: {{AbilityLink|Hydrated}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Shackle of Bidding}}
+|Bracer
+|25
+|25
+|20
+|15
+|2
+|2
+|2
+|2
+|2
+|2
+|2
+|1
+|2
+|2
+|2
+|2
+|On click: {{AbilityLink|Summon Fallen Skeleton}}
+|[[Arcanist]], [[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Shadowmaker}}
+|Bracer
+|20
+|45
+|25
+|5
+|5
+|
+|5
+|
+|
+|
+|5
+|
+|3
+|
+|
+|3
+|Worn: {{AbilityLink|Hint of Shadow}}
+|[[Arcanist]], [[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Sivakayan Bracer}}
+|Bracer
+|21
+|
+|
+|25
+|7
+|
+|7
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Spelunker's Brace}}
+|Bracer
+|17
+|
+|15
+|3
+|
+|3
+|9
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Stinging Bracer}}
+|Bracer
+|16
+|5
+|5
+|5
+|
+|
+|
+|
+|5
+|5
+|5
+|
+|3
+|
+|
+|3
+|{{AbilityLink|Stun}}, 10% on cast
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Warded Brace}}
+|Bracer
+|35
+|55
+|55
+|5
+|
+|
+|
+|
+|11
+|11
+|7
+|1
+|
+|
+|
+|
+|{{AbilityLink|Mana Flood}}, 20% on cast
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Wolfguard}}
+|Bracer
+|6
+|30
+|
+|
+|2
+|2
+|2
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Workworn Bracer}}
+|Bracer
+|20
+|50
+|50
+|15
+|3
+|3
+|3
+|3
+|3
+|3
+|3
+|1
+|2
+|2
+|2
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Wrath Wrap}}
+|Bracer
+|24
+|15
+|
+|10
+|8
+|
+|
+|
+|8
+|
+|
+|
+|
+|
+|
+|3
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Xasxi Bone Bracer}}
+|Bracer
+|22
+|
+|
+|18
+|15
+|
+|
+|
+|
+|
+|
+|
+|2
+|2
+|2
+|1
+|
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Abyssal Plate}}
+|Chest
+|38
+|400
+|200
+|175
+|25
+|30
+|20
+|15
+|
+|
+|
+|4
+|3
+|3
+|3
+|6
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Aged Plate}}
+|Chest
+|18
+|25
+|25
+|35
+|7
+|7
+|10
+|7
+|
+|
+|
+|1
+|
+|
+|
+|
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Ancient Guardian Plate}}
+|Chest
+|20
+|100
+|
+|155
+|
+|
+|
+|
+|
+|
+|
+|
+|2
+|2
+|2
+|2
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Ascendant's Embrace}}
+|Chest
+|35
+|350
+|200
+|155
+|20
+|25
+|15
+|15
+|5
+|5
+|10
+|3
+|4
+|4
+|4
+|4
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Azure Plate Chestguard}}
+|Chest
+|7
+|
+|
+|35
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Battleworn Plate}}
+|Chest
+|20
+|40
+|25
+|45
+|8
+|8
+|3
+|
+|3
+|3
+|
+|
+|2
+|1
+|1
+|1
+|
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Blightsteel Plate}}
+|Chest
+|28
+|190
+|100
+|85
+|15
+|8
+|8
+|4
+|
+|
+|
+|1
+|1
+|2
+|1
+|3
+|
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Bloodstained Plate}}
+|Chest
+|30
+|175
+|100
+|80
+|15
+|
+|15
+|5
+|5
+|10
+|5
+|
+|1
+|1
+|1
+|5
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Braxonian Leather Tunic}}
+|Chest
+|32
+|200
+|150
+|95
+|10
+|10
+|20
+|20
+|
+|10
+|5
+|
+|2
+|2
+|5
+|2
+|
+|[[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Braxonian Plate}}
+|Chest
+|32
+|265
+|150
+|145
+|20
+|15
+|10
+|10
+|
+|10
+|5
+|
+|2
+|2
+|4
+|2
+|
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Braxonian Royal Tunic}}
+|Chest
+|32
+|150
+|150
+|35
+|
+|
+|
+|
+|20
+|20
+|20
+|3
+|5
+|5
+|7
+|5
+|
+|[[Arcanist]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Braxonian Wrap}}
+|Chest
+|19
+|20
+|85
+|10
+|
+|
+|
+|
+|7
+|7
+|7
+|1
+|1
+|1
+|1
+|
+|
+|[[Arcanist]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Bronzed Solunarian Plate}}
+|Chest
+|10
+|35
+|35
+|30
+|6
+|3
+|2
+|
+|
+|
+|
+|
+|1
+|1
+|1
+|1
+|
+|[[Paladin]]
+|-
+|style="text-align: left;"|{{ItemLink|Chitin Protector}}
+|Chest
+|25
+|100
+|100
+|35
+|
+|10
+|5
+|5
+|
+|10
+|10
+|
+|
+|2
+|
+|
+|
+|[[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Cloth Shirt}}
+|Chest
+|1
+|
+|
+|3
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Cold Steel Plate}}
+|Chest
+|6
+|10
+|5
+|19
+|2
+|2
+|2
+|
+|
+|
+|
+|
+|2
+|2
+|2
+|2
+|
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Daggersilk Shirt}}
+|Chest
+|5
+|
+|10
+|5
+|
+|
+|
+|
+|2
+|2
+|
+|1
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Drakescale Cuirass}}
+|Chest
+|28
+|150
+|85
+|100
+|15
+|10
+|10
+|
+|5
+|5
+|5
+|2
+|1
+|2
+|4
+|1
+|
+|[[Druid]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Eldoth's Finery}}
+|Chest
+|38
+|650
+|500
+|35
+|5
+|5
+|10
+|5
+|30
+|30
+|20
+|3
+|3
+|2
+|3
+|4
+|Worn: {{AbilityLink|Regeneration}}
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Funeral Garb}}
+|Chest
+|4
+|15
+|15
+|5
+|
+|
+|
+|
+|
+|2
+|2
+|
+|2
+|2
+|2
+|2
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Fungus Covered Tunic}}
+|Chest
+|18
+|40
+|30
+|30
+|5
+|5
+|10
+|10
+|
+|
+|
+|
+|3
+|5
+|3
+|2
+|Worn: {{AbilityLink|Minor Regeneration}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Game Master's Plate}}
+|Chest
+|99
+|
+|
+|1
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Golden Plate}}
+|Chest
+|32
+|300
+|150
+|160
+|25
+|25
+|15
+|10
+|
+|6
+|
+|2
+|2
+|2
+|2
+|3
+|
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Hardened Scale Jacket}}
+|Chest
+|24
+|100
+|40
+|45
+|10
+|5
+|10
+|5
+|
+|5
+|
+|
+|2
+|2
+|2
+|
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Ilyth's Coat}}
+|Chest
+|39
+|300
+|200
+|125
+|25
+|5
+|25
+|15
+|25
+|15
+|5
+|
+|5
+|5
+|
+|10
+|
+|[[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Kelp Crusted Shirt}}
+|Chest
+|5
+|
+|
+|6
+|2
+|2
+|2
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Lichencoat}}
+|Chest
+|30
+|200
+|125
+|70
+|5
+|5
+|8
+|8
+|15
+|15
+|15
+|2
+|
+|6
+|
+|4
+|Worn: {{AbilityLink|Regeneration}}
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Light Plate Breastplate}}
+|Chest
+|4
+|
+|
+|15
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Linked Chain Shirt}}
+|Chest
+|10
+|15
+|15
+|15
+|2
+|2
+|4
+|
+|
+|
+|
+|
+|1
+|1
+|1
+|1
+|
+|[[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Living Chainmail Jacket}}
+|Chest
+|12
+|40
+|50
+|20
+|
+|5
+|
+|5
+|4
+|4
+|
+|
+|1
+|2
+|1
+|2
+|
+|[[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Malaroth Scale Chestguard}}
+|Chest
+|28
+|135
+|100
+|70
+|5
+|5
+|15
+|15
+|5
+|10
+|5
+|
+|4
+|1
+|1
+|
+|
+|[[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Mirror Polished Plate}}
+|Chest
+|32
+|225
+|120
+|30
+|5
+|5
+|
+|
+|
+|
+|
+|2
+|10
+|10
+|10
+|10
+|
+|[[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Molorai Battle Chain}}
+|Chest
+|18
+|50
+|30
+|10
+|
+|
+|15
+|5
+|
+|5
+|5
+|
+|10
+|10
+|10
+|
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Muddy Jerkin}}
+|Chest
+|14
+|30
+|35
+|25
+|4
+|4
+|2
+|2
+|2
+|2
+|
+|
+|2
+|3
+|2
+|2
+|
+|[[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Oread Tunic}}
+|Chest
+|5
+|
+|20
+|7
+|2
+|2
+|2
+|
+|2
+|2
+|
+|
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Plumage}}
+|Chest
+|28
+|120
+|240
+|20
+|5
+|5
+|10
+|10
+|10
+|15
+|20
+|1
+|
+|3
+|
+|5
+|
+|[[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Preserved Cloth Coat}}
+|Chest
+|25
+|65
+|150
+|22
+|5
+|
+|5
+|
+|12
+|12
+|
+|
+|2
+|2
+|2
+|2
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Reaver Plate}}
+|Chest
+|10
+|35
+|40
+|25
+|8
+|
+|2
+|
+|
+|
+|
+|
+|2
+|
+|
+|2
+|
+|[[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Ripparian Plate}}
+|Chest
+|30
+|200
+|30
+|100
+|20
+|20
+|
+|
+|
+|
+|
+|
+|8
+|8
+|4
+|4
+|
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Rotten Chain Tunic}}
+|Chest
+|16
+|35
+|25
+|15
+|15
+|5
+|15
+|7
+|
+|
+|
+|
+|7
+|7
+|7
+|7
+|
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Rottenfoot Tribal Strap}}
+|Chest
+|14
+|45
+|35
+|18
+|5
+|
+|
+|
+|4
+|7
+|
+|
+|3
+|1
+|3
+|4
+|
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Shivering Leather Tunic}}
+|Chest
+|5
+|
+|
+|9
+|3
+|
+|3
+|
+|
+|3
+|
+|1
+|
+|
+|
+|
+|
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Sivakayan Ceremonial Garb}}
+|Chest
+|25
+|100
+|120
+|15
+|
+|
+|
+|
+|16
+|8
+|
+|1
+|2
+|
+|2
+|4
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Sivakayan Dresscoat}}
+|Chest
+|30
+|185
+|185
+|35
+|
+|5
+|5
+|
+|20
+|20
+|15
+|
+|
+|5
+|5
+|5
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Sivakayan Plate}}
+|Chest
+|28
+|100
+|30
+|75
+|12
+|12
+|
+|
+|
+|
+|
+|
+|5
+|2
+|4
+|5
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Sivakayan Tunic}}
+|Chest
+|8
+|35
+|40
+|20
+|
+|
+|
+|
+|
+|4
+|2
+|1
+|2
+|
+|2
+|4
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Spidersilk Shirt}}
+|Chest
+|13
+|40
+|35
+|25
+|
+|2
+|
+|
+|5
+|5
+|2
+|1
+|1
+|1
+|1
+|1
+|
+|[[Arcanist]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Stonelined Plate}}
+|Chest
+|28
+|50
+|
+|140
+|
+|5
+|
+|
+|
+|
+|
+|
+|3
+|3
+|3
+|
+|
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Tarnished Plate Armor}}
+|Chest
+|13
+|50
+|
+|50
+|5
+|5
+|
+|
+|
+|
+|
+|
+|4
+|
+|
+|
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Tattered Leather Tunic}}
+|Chest
+|1
+|
+|
+|5
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Tunic of Undying Faith}}
+|Chest
+|7
+|25
+|40
+|20
+|
+|
+|
+|
+|
+|4
+|4
+|
+|2
+|2
+|
+|4
+|
+|[[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Virophan Chestguard}}
+|Chest
+|25
+|125
+|35
+|65
+|7
+|7
+|10
+|10
+|
+|
+|
+|
+|5
+|3
+|2
+|
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Worn Dueling Plate}}
+|Chest
+|28
+|225
+|120
+|100
+|18
+|10
+|18
+|
+|
+|
+|
+|1
+|3
+|
+|1
+|1
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Wyrm Skin Protector}}
+|Chest
+|35
+|245
+|100
+|165
+|15
+|15
+|25
+|25
+|
+|8
+|8
+|
+|8
+|8
+|10
+|8
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Aged Plate Boots}}
+|Foot
+|18
+|15
+|15
+|19
+|4
+|4
+|2
+|4
+|
+|
+|
+|
+|1
+|
+|1
+|
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Ancient Guardian Boots}}
+|Foot
+|21
+|
+|
+|85
+|
+|
+|
+|
+|
+|
+|
+|
+|2
+|2
+|2
+|2
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Azure Plate Boots}}
+|Foot
+|6
+|
+|
+|15
+|2
+|2
+|
+|2
+|
+|
+|
+|
+|1
+|1
+|2
+|
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Balanced Boots}}
+|Foot
+|6
+|5
+|
+|10
+|1
+|3
+|1
+|2
+|
+|
+|
+|
+|2
+|1
+|2
+|
+|
+|[[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Blue Leather Boots}}
+|Foot
+|9
+|25
+|
+|10
+|2
+|4
+|
+|6
+|
+|
+|4
+|
+|1
+|1
+|1
+|5
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Boots of Grounding}}
+|Foot
+|11
+|15
+|20
+|13
+|
+|
+|
+|
+|4
+|4
+|
+|1
+|
+|
+|
+|3
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Braxonian Leather Boots}}
+|Foot
+|31
+|85
+|100
+|35
+|
+|4
+|10
+|10
+|4
+|4
+|4
+|1
+|2
+|1
+|4
+|1
+|
+|[[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Braxonian Plate Boots}}
+|Foot
+|31
+|125
+|75
+|50
+|10
+|10
+|8
+|8
+|
+|
+|
+|1
+|2
+|2
+|4
+|2
+|
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Braxonian Royal Shoes}}
+|Foot
+|31
+|50
+|100
+|15
+|
+|
+|
+|10
+|10
+|5
+|5
+|1
+|2
+|1
+|5
+|1
+|
+|[[Arcanist]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Charred Boots}}
+|Foot
+|5
+|
+|
+|11
+|2
+|3
+|
+|3
+|
+|
+|
+|
+|
+|
+|1
+|1
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Cloth Shoes}}
+|Foot
+|1
+|
+|
+|1
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Cratermakers}}
+|Foot
+|28
+|100
+|75
+|40
+|7
+|7
+|7
+|7
+|7
+|7
+|
+|1
+|2
+|1
+|2
+|3
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Daggersilk Shoes}}
+|Foot
+|1
+|
+|
+|2
+|
+|
+|
+|2
+|
+|
+|2
+|
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Devout Moccasins}}
+|Foot
+|16
+|10
+|50
+|10
+|
+|4
+|
+|2
+|4
+|2
+|2
+|
+|3
+|3
+|3
+|3
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Elder's Slippers}}
+|Foot
+|27
+|125
+|100
+|5
+|
+|
+|6
+|6
+|12
+|12
+|4
+|1
+|
+|5
+|5
+|
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Feathered Booties}}
+|Foot
+|19
+|
+|80
+|15
+|
+|
+|
+|10
+|
+|
+|10
+|
+|
+|2
+|
+|2
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Flamesoles}}
+|Foot
+|21
+|75
+|50
+|15
+|
+|8
+|
+|8
+|6
+|6
+|
+|1
+|
+|1
+|5
+|1
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Journeying Boots}}
+|Foot
+|14
+|
+|
+|3
+|5
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|Worn: {{AbilityLink|Flight of Foot 2}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Judicial Boots}}
+|Foot
+|6
+|
+|
+|1
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Molorai Battle Boots}}
+|Foot
+|9
+|15
+|
+|15
+|2
+|2
+|
+|4
+|
+|
+|2
+|
+|1
+|
+|1
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Molorai Warstomps}}
+|Foot
+|18
+|35
+|
+|30
+|4
+|6
+|
+|8
+|
+|
+|5
+|
+|2
+|4
+|2
+|4
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Obsidian Boots}}
+|Foot
+|23
+|40
+|
+|35
+|
+|
+|
+|
+|
+|
+|
+|
+|7
+|7
+|7
+|7
+|
+|[[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Pious Sandals}}
+|Foot
+|38
+|120
+|120
+|20
+|12
+|12
+|12
+|12
+|12
+|12
+|6
+|2
+|4
+|4
+|4
+|4
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Salt Encrusted Boots}}
+|Foot
+|28
+|100
+|35
+|55
+|8
+|8
+|5
+|
+|2
+|2
+|4
+|1
+|2
+|1
+|2
+|1
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Shadowstep Shoes}}
+|Foot
+|27
+|100
+|175
+|25
+|
+|
+|
+|10
+|10
+|14
+|
+|1
+|2
+|2
+|2
+|1
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Shivering Leather Boots}}
+|Foot
+|5
+|
+|
+|4
+|
+|3
+|
+|3
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Slimetreads}}
+|Foot
+|21
+|50
+|20
+|30
+|6
+|6
+|
+|6
+|
+|6
+|
+|
+|1
+|2
+|1
+|2
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Surestep}}
+|Foot
+|23
+|50
+|50
+|10
+|10
+|
+|10
+|
+|
+|
+|
+|1
+|1
+|2
+|2
+|1
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Tattered Leather Boots}}
+|Foot
+|1
+|
+|
+|2
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Thundermakers}}
+|Foot
+|36
+|200
+|100
+|70
+|15
+|15
+|10
+|10
+|
+|
+|
+|2
+|2
+|1
+|2
+|3
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Virophan Leather Slippers}}
+|Foot
+|21
+|35
+|35
+|25
+|4
+|4
+|6
+|6
+|2
+|2
+|6
+|
+|1
+|2
+|2
+|
+|
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Windblown Boots}}
+|Foot
+|24
+|35
+|35
+|10
+|7
+|2
+|4
+|4
+|
+|
+|
+|
+|
+|
+|5
+|
+|Worn: {{AbilityLink|Flight of Foot}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Wolfhide Boots}}
+|Foot
+|12
+|30
+|
+|21
+|
+|
+|2
+|6
+|
+|
+|
+|
+|1
+|
+|1
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Wyrm Stompers}}
+|Foot
+|35
+|225
+|120
+|50
+|10
+|20
+|5
+|20
+|
+|
+|
+|2
+|
+|
+|
+|8
+|On click: {{AbilityLink|Wyrm's Bane (Effect)|text=Wyrm's Bane}}
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Adorned Mitts}}
+|Hand
+|18
+|
+|25
+|5
+|
+|
+|
+|
+|10
+|8
+|
+|
+|
+|
+|
+|2
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Ancient Guardian Gloves}}
+|Hand
+|22
+|
+|
+|40
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Braxonian Gauntlets}}
+|Hand
+|30
+|100
+|90
+|40
+|20
+|10
+|5
+|
+|5
+|5
+|
+|1
+|
+|
+|3
+|
+|
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Braxonian Gloves}}
+|Hand
+|30
+|50
+|120
+|5
+|
+|
+|5
+|
+|15
+|10
+|10
+|2
+|
+|
+|3
+|
+|
+|[[Arcanist]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Braxonian Mitts}}
+|Hand
+|30
+|85
+|100
+|20
+|5
+|5
+|20
+|
+|5
+|10
+|
+|1
+|
+|
+|3
+|
+|
+|[[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Ceremonial Gloves}}
+|Hand
+|5
+|10
+|10
+|3
+|
+|
+|
+|
+|2
+|2
+|2
+|
+|1
+|
+|
+|1
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Channeling Gloves}}
+|Hand
+|7
+|20
+|20
+|9
+|
+|
+|
+|
+|3
+|3
+|3
+|2
+|1
+|1
+|1
+|
+|
+|[[Arcanist]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Chopping Gloves}}
+|Hand
+|11
+|
+|
+|25
+|
+|
+|
+|
+|
+|
+|
+|
+|2
+|2
+|2
+|2
+|
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Cloth Gloves}}
+|Hand
+|1
+|
+|
+|1
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Daggersilk Gloves}}
+|Hand
+|5
+|
+|
+|2
+|
+|
+|5
+|
+|
+|
+|
+|1
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Dainty Mitts}}
+|Hand
+|22
+|35
+|35
+|10
+|
+|7
+|
+|7
+|7
+|7
+|
+|2
+|
+|
+|
+|1
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Digested Gloves}}
+|Hand
+|22
+|30
+|45
+|5
+|
+|
+|
+|
+|12
+|12
+|
+|2
+|
+|
+|
+|3
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Dreamborn Gloves}}
+|Hand
+|22
+|35
+|35
+|10
+|5
+|
+|18
+|
+|
+|
+|5
+|2
+|
+|
+|
+|3
+|
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Frenzied Fistwraps}}
+|Hand
+|24
+|45
+|45
+|10
+|3
+|
+|
+|
+|3
+|
+|3
+|
+|
+|
+|
+|
+|Worn: {{AbilityLink|Flow}}
+|[[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Gator Gloves}}
+|Hand
+|18
+|25
+|25
+|15
+|4
+|4
+|4
+|2
+|
+|
+|
+|1
+|
+|
+|
+|
+|
+|[[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Giving Gloves}}
+|Hand
+|28
+|
+|255
+|25
+|
+|15
+|5
+|
+|5
+|15
+|5
+|1
+|2
+|
+|
+|2
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Gloves of Vitheo}}
+|Hand
+|39
+|185
+|125
+|30
+|15
+|10
+|20
+|5
+|5
+|5
+|15
+|3
+|3
+|3
+|3
+|3
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Grip of Darkness}}
+|Hand
+|33
+|50
+|50
+|50
+|5
+|5
+|5
+|
+|15
+|15
+|
+|2
+|2
+|
+|
+|2
+|Worn: {{AbilityLink|Embrace of Shadow}}
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Grips of Faith}}
+|Hand
+|30
+|100
+|100
+|65
+|25
+|
+|10
+|
+|
+|
+|
+|
+|2
+|2
+|
+|5
+|
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Meteorite Gauntlets}}
+|Hand
+|24
+|100
+|85
+|30
+|8
+|
+|8
+|
+|4
+|4
+|2
+|2
+|
+|
+|2
+|2
+|
+|[[Druid]], [[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Mummy Wraps}}
+|Hand
+|5
+|5
+|
+|4
+|2
+|
+|2
+|
+|2
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Nagalok Claw Gloves}}
+|Hand
+|15
+|40
+|20
+|5
+|
+|
+|7
+|
+|7
+|7
+|
+|
+|2
+|2
+|2
+|2
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Rootwoven Wraps}}
+|Hand
+|30
+|55
+|300
+|10
+|
+|
+|
+|
+|20
+|20
+|
+|2
+|3
+|
+|
+|1
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Rotten Hands}}
+|Hand
+|41
+|200
+|150
+|5
+|10
+|
+|10
+|
+|5
+|5
+|5
+|4
+|
+|
+|
+|6
+|Worn: {{AbilityLink|Gift of Rot}}
+|[[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Runed Gloves}}
+|Hand
+|18
+|55
+|55
+|15
+|8
+|
+|
+|
+|
+|8
+|
+|2
+|
+|
+|1
+|1
+|
+|[[Druid]], [[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Sailor's Work Gloves}}
+|Hand
+|7
+|
+|
+|10
+|2
+|2
+|2
+|
+|
+|
+|
+|
+|
+|
+|3
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Shadow Gloves}}
+|Hand
+|30
+|50
+|50
+|35
+|10
+|
+|15
+|
+|10
+|5
+|
+|1
+|
+|
+|
+|3
+|Worn: {{AbilityLink|Embrace of Shadow}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Sticky Gloves}}
+|Hand
+|11
+|15
+|10
+|10
+|3
+|5
+|3
+|
+|3
+|3
+|
+|
+|
+|3
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Tattered Leather Gloves}}
+|Hand
+|1
+|
+|
+|2
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Thorned Knuckle Gloves}}
+|Hand
+|26
+|55
+|50
+|20
+|
+|
+|
+|5
+|10
+|15
+|
+|1
+|
+|3
+|
+|
+|
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Widow's Wraps}}
+|Hand
+|24
+|100
+|85
+|30
+|8
+|
+|8
+|
+|4
+|4
+|2
+|2
+|
+|
+|2
+|2
+|On click: {{AbilityLink|Summon Widow}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Wizarding Mitts}}
+|Hand
+|7
+|20
+|20
+|9
+|
+|
+|
+|
+|3
+|3
+|3
+|1
+|1
+|1
+|1
+|1
+|
+|[[Arcanist]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Woodland Gauntlets}}
+|Hand
+|30
+|75
+|75
+|35
+|12
+|10
+|10
+|
+|5
+|5
+|
+|1
+|
+|3
+|
+|1
+|
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Aetherial Hood}}
+|Head
+|21
+|50
+|
+|10
+|10
+|
+|5
+|5
+|8
+|8
+|
+|
+|1
+|1
+|2
+|2
+|
+|[[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Aged Plate Mask}}
+|Head
+|17
+|32
+|
+|32
+|4
+|8
+|
+|
+|
+|8
+|
+|
+|2
+|
+|
+|
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Albino Bear Hood}}
+|Head
+|18
+|50
+|65
+|30
+|
+|
+|
+|
+|4
+|15
+|
+|3
+|3
+|
+|3
+|
+|
+|[[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Ancient Guardian Helm}}
+|Head
+|21
+|
+|
+|65
+|8
+|
+|
+|
+|
+|
+|
+|
+|2
+|2
+|2
+|
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Arcanist Cap}}
+|Head
+|7
+|
+|30
+|
+|
+|
+|
+|
+|5
+|5
+|
+|
+|5
+|
+|
+|
+|
+|[[Arcanist]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Ardant's Crown}}
+|Head
+|31
+|265
+|225
+|40
+|
+|
+|
+|5
+|20
+|10
+|20
+|2
+|3
+|
+|5
+|3
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Azynthian Mask}}
+|Head
+|41
+|200
+|225
+|15
+|
+|
+|
+|
+|20
+|20
+|20
+|3
+|
+|
+|
+|5
+|Worn: {{AbilityLink|Mana Charge III}}
+|[[Arcanist]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Bandit's Mask}}
+|Head
+|13
+|
+|25
+|3
+|
+|
+|
+|
+|3
+|3
+|4
+|
+|
+|
+|3
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Blessed Helm}}
+|Head
+|31
+|175
+|100
+|50
+|10
+|10
+|10
+|
+|
+|5
+|
+|1
+|2
+|
+|2
+|5
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Chewed Helmet}}
+|Head
+|17
+|40
+|20
+|50
+|5
+|5
+|
+|
+|
+|8
+|
+|1
+|
+|
+|
+|
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Cloth Hood}}
+|Head
+|1
+|
+|
+|2
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Cold Steel Helm}}
+|Head
+|6
+|3
+|
+|10
+|
+|
+|
+|
+|
+|2
+|2
+|
+|1
+|2
+|1
+|2
+|
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Daggersilk Hood}}
+|Head
+|1
+|
+|
+|3
+|
+|
+|
+|
+|2
+|2
+|
+|
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Diamond Helm}}
+|Head
+|33
+|100
+|65
+|50
+|16
+|10
+|8
+|
+|
+|
+|
+|1
+|6
+|
+|
+|
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Echoes}}
+|Head
+|30
+|80
+|40
+|50
+|12
+|12
+|12
+|
+|
+|
+|
+|1
+|
+|
+|
+|5
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Eternal Diadem}}
+|Head
+|31
+|225
+|250
+|5
+|
+|
+|
+|5
+|15
+|20
+|15
+|1
+|3
+|3
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Explorer's Cap}}
+|Head
+|15
+|65
+|50
+|10
+|
+|
+|
+|
+|10
+|5
+|
+|
+|2
+|2
+|2
+|2
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Fernallan Knight's Helm}}
+|Head
+|9
+|135
+|135
+|25
+|8
+|5
+|
+|
+|
+|12
+|
+|1
+|1
+|
+|
+|2
+|
+|[[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Funeral Shroud}}
+|Head
+|5
+|
+|15
+|3
+|
+|
+|
+|
+|3
+|3
+|2
+|
+|
+|3
+|2
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Fury Helm}}
+|Head
+|35
+|300
+|50
+|100
+|20
+|20
+|
+|
+|
+|10
+|5
+|1
+|
+|4
+|
+|4
+|Worn: {{AbilityLink|Contagious Rage}}
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Helm of the Deep}}
+|Head
+|17
+|40
+|
+|40
+|4
+|6
+|2
+|2
+|
+|
+|
+|
+|5
+|4
+|3
+|3
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Jackal Hood}}
+|Head
+|27
+|125
+|30
+|
+|10
+|
+|15
+|
+|5
+|5
+|
+|1
+|2
+|2
+|5
+|3
+|
+|[[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Jellycrown}}
+|Head
+|13
+|
+|50
+|10
+|
+|
+|
+|
+|12
+|
+|
+|1
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Jhalmathir, Helm of Generals}}
+|Head
+|21
+|65
+|
+|30
+|8
+|5
+|5
+|5
+|
+|5
+|
+|
+|3
+|3
+|
+|1
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Knight's Helm}}
+|Head
+|17
+|25
+|
+|22
+|5
+|5
+|5
+|
+|
+|
+|
+|
+|2
+|1
+|1
+|1
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Lost Wizarding Hat}}
+|Head
+|25
+|150
+|250
+|
+|
+|
+|
+|
+|20
+|
+|10
+|2
+|5
+|3
+|3
+|3
+|
+|[[Arcanist]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Malaroth Hide Hood}}
+|Head
+|21
+|30
+|80
+|10
+|5
+|5
+|5
+|5
+|8
+|8
+|
+|1
+|3
+|3
+|3
+|3
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Mask of Spies}}
+|Head
+|33
+|220
+|80
+|20
+|8
+|8
+|15
+|5
+|5
+|5
+|15
+|1
+|10
+|
+|10
+|
+|
+|[[Arcanist]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Monarch's Mask}}
+|Head
+|39
+|400
+|150
+|115
+|22
+|22
+|22
+|
+|
+|10
+|10
+|2
+|
+|
+|3
+|2
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Pirate's Hair Tie}}
+|Head
+|19
+|65
+|50
+|15
+|
+|
+|
+|6
+|5
+|5
+|
+|2
+|
+|
+|2
+|2
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Plague Mask}}
+|Head
+|31
+|300
+|250
+|25
+|10
+|
+|10
+|
+|10
+|10
+|
+|3
+|
+|5
+|
+|5
+|On click: {{AbilityLink|Arterial Decay}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Ring of the Sea Giant King}}
+|Head
+|8
+|20
+|20
+|13
+|3
+|3
+|
+|
+|
+|
+|3
+|
+|1
+|1
+|1
+|1
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Ripparian Soldier Helm}}
+|Head
+|30
+|125
+|100
+|40
+|15
+|10
+|
+|
+|
+|
+|
+|
+|2
+|
+|
+|2
+|
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Rottenfoot Cap}}
+|Head
+|12
+|25
+|
+|10
+|
+|
+|4
+|4
+|
+|
+|
+|
+|1
+|4
+|4
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Rotting Sivakayan Helm}}
+|Head
+|9
+|15
+|
+|10
+|2
+|5
+|
+|
+|
+|3
+|
+|
+|1
+|
+|
+|2
+|
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Seafarer's Hood}}
+|Head
+|28
+|70
+|100
+|15
+|
+|20
+|
+|20
+|
+|
+|10
+|3
+|1
+|1
+|4
+|
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Shadow Helm}}
+|Head
+|21
+|80
+|
+|38
+|10
+|7
+|
+|7
+|
+|5
+|
+|1
+|2
+|2
+|
+|8
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Shivering Leather Skullcap}}
+|Head
+|5
+|
+|
+|4
+|
+|
+|2
+|
+|2
+|2
+|
+|
+|
+|
+|
+|
+|
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Shroud of Barriers}}
+|Head
+|12
+|15
+|20
+|10
+|
+|
+|
+|
+|
+|10
+|
+|1
+|
+|
+|
+|2
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Siraethe's Prayercrest}}
+|Head
+|39
+|250
+|300
+|15
+|
+|
+|
+|
+|25
+|25
+|25
+|2
+|
+|
+|
+|5
+|Worn: {{AbilityLink|Mana Charge II}}
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Sivakayan Cloth Band}}
+|Head
+|21
+|45
+|
+|10
+|
+|
+|
+|
+|18
+|
+|
+|
+|4
+|4
+|4
+|4
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Sivakayan Tricorner}}
+|Head
+|39
+|200
+|200
+|15
+|10
+|
+|30
+|
+|10
+|5
+|5
+|3
+|4
+|
+|
+|4
+|Worn: {{AbilityLink|Embrace of Shadow}}
+|[[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Slime Coated Helm}}
+|Head
+|19
+|30
+|
+|20
+|6
+|4
+|4
+|2
+|
+|5
+|
+|
+|1
+|4
+|1
+|1
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Spiderskin Shroud}}
+|Head
+|25
+|125
+|250
+|
+|10
+|
+|
+|
+|5
+|10
+|
+|1
+|
+|8
+|
+|8
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Spinesnap Hide Hood}}
+|Head
+|30
+|240
+|200
+|25
+|
+|
+|
+|15
+|10
+|15
+|10
+|1
+|
+|
+|5
+|2
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Tattered Leather Skullcap}}
+|Head
+|1
+|
+|
+|3
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Terra Crown}}
+|Head
+|31
+|45
+|100
+|10
+|
+|
+|
+|
+|
+|
+|35
+|5
+|5
+|5
+|5
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Virophan Helm}}
+|Head
+|33
+|125
+|100
+|80
+|13
+|13
+|13
+|13
+|4
+|4
+|4
+|
+|2
+|3
+|5
+|
+|
+|[[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Wisdom of the Forest}}
+|Head
+|28
+|85
+|65
+|15
+|
+|
+|
+|
+|
+|20
+|
+|2
+|
+|
+|
+|
+|
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Aged Plate Greaves}}
+|Leg
+|18
+|30
+|30
+|35
+|4
+|4
+|4
+|4
+|
+|
+|
+|1
+|2
+|
+|4
+|3
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Ancient Guardian Legplates}}
+|Leg
+|21
+|
+|
+|125
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|4
+|4
+|
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Azure Plate Greaves}}
+|Leg
+|7
+|
+|
+|22
+|
+|
+|
+|
+|
+|
+|
+|
+|1
+|2
+|2
+|
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Blightsteel Greaves}}
+|Leg
+|28
+|50
+|50
+|50
+|12
+|12
+|5
+|5
+|
+|
+|
+|
+|2
+|2
+|2
+|4
+|
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Braxonian Breeches}}
+|Leg
+|31
+|85
+|120
+|50
+|5
+|
+|10
+|5
+|5
+|10
+|5
+|
+|1
+|1
+|3
+|1
+|
+|[[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Braxonian Greaves}}
+|Leg
+|31
+|100
+|100
+|75
+|15
+|15
+|
+|10
+|
+|5
+|
+|
+|2
+|2
+|4
+|
+|
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Braxonian Linens}}
+|Leg
+|31
+|50
+|150
+|20
+|
+|10
+|
+|10
+|15
+|10
+|
+|1
+|2
+|2
+|4
+|
+|
+|[[Arcanist]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Bronzed Solunarian Greaves}}
+|Leg
+|8
+|25
+|
+|25
+|
+|5
+|
+|5
+|
+|
+|
+|
+|
+|2
+|2
+|
+|
+|[[Paladin]]
+|-
+|style="text-align: left;"|{{ItemLink|Cavesilk Trousers}}
+|Leg
+|17
+|25
+|50
+|5
+|3
+|3
+|
+|8
+|4
+|4
+|10
+|1
+|4
+|2
+|2
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Cloth Pants}}
+|Leg
+|1
+|
+|
+|2
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Cobwebbed Breeches}}
+|Leg
+|28
+|125
+|100
+|15
+|
+|10
+|
+|10
+|5
+|15
+|5
+|2
+|
+|2
+|2
+|
+|
+|[[Druid]]
+|-
+|style="text-align: left;"|{{ItemLink|Cold Steel Greaves}}
+|Leg
+|6
+|5
+|
+|13
+|
+|3
+|
+|3
+|
+|
+|
+|1
+|
+|
+|
+|
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Compression Wraps}}
+|Leg
+|3
+|5
+|5
+|5
+|
+|
+|
+|4
+|
+|4
+|4
+|
+|2
+|2
+|2
+|2
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Creationist's Legwrap}}
+|Leg
+|38
+|130
+|225
+|40
+|10
+|10
+|15
+|10
+|15
+|15
+|5
+|1
+|1
+|3
+|1
+|3
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Daggersilk Trousers}}
+|Leg
+|5
+|
+|5
+|2
+|
+|
+|
+|
+|3
+|2
+|
+|
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Dusty Chain Leggings}}
+|Leg
+|6
+|15
+|
+|10
+|
+|3
+|
+|3
+|
+|
+|
+|
+|
+|5
+|
+|5
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Highwayman Pants}}
+|Leg
+|13
+|25
+|10
+|20
+|
+|3
+|
+|3
+|3
+|2
+|5
+|
+|
+|10
+|
+|10
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Illusionist Trousers}}
+|Leg
+|33
+|65
+|200
+|10
+|5
+|
+|5
+|10
+|15
+|15
+|10
+|1
+|3
+|1
+|3
+|5
+|
+|[[Arcanist]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Leggings of Undying Faith}}
+|Leg
+|6
+|25
+|25
+|10
+|
+|
+|
+|2
+|
+|2
+|2
+|
+|2
+|1
+|2
+|1
+|
+|[[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Light Plate Greaves}}
+|Leg
+|3
+|
+|
+|10
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Linen Bedpants}}
+|Leg
+|24
+|75
+|75
+|10
+|
+|
+|
+|10
+|8
+|8
+|4
+|
+|8
+|
+|8
+|
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Liturgical Pantaloons}}
+|Leg
+|16
+|15
+|
+|18
+|
+|6
+|
+|12
+|
+|
+|5
+|1
+|2
+|
+|
+|4
+|
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Living Chainmail Leggings}}
+|Leg
+|11
+|20
+|25
+|15
+|4
+|
+|
+|4
+|
+|4
+|
+|
+|3
+|1
+|2
+|2
+|
+|[[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Naturewalker's Breeches}}
+|Leg
+|33
+|150
+|200
+|10
+|15
+|
+|15
+|
+|15
+|15
+|
+|2
+|1
+|5
+|5
+|4
+|Worn: {{AbilityLink|Mana Charge}}
+|[[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Nightstalker Fur Leggings}}
+|Leg
+|24
+|85
+|40
+|20
+|8
+|
+|8
+|12
+|
+|
+|4
+|
+|1
+|3
+|1
+|3
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Pillars of Pyroclast}}
+|Leg
+|26
+|100
+|50
+|50
+|8
+|8
+|8
+|8
+|
+|8
+|
+|
+|2
+|1
+|5
+|1
+|
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Pyrelink Pantaloons}}
+|Leg
+|21
+|65
+|100
+|30
+|5
+|
+|
+|5
+|
+|15
+|8
+|1
+|2
+|
+|2
+|5
+|
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Reed Trousers}}
+|Leg
+|18
+|10
+|
+|10
+|4
+|4
+|
+|4
+|4
+|4
+|
+|1
+|
+|5
+|
+|
+|
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Resolving Greaves}}
+|Leg
+|99
+|
+|
+|1
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Ripparian Greaves}}
+|Leg
+|30
+|65
+|35
+|65
+|8
+|8
+|8
+|8
+|
+|
+|
+|
+|4
+|
+|2
+|5
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Shivering Leather Leggings}}
+|Leg
+|5
+|
+|
+|5
+|
+|3
+|
+|
+|
+|
+|
+|
+|2
+|
+|2
+|
+|
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Silver Plated Leggings}}
+|Leg
+|18
+|
+|35
+|35
+|10
+|
+|10
+|
+|
+|
+|
+|
+|4
+|2
+|2
+|2
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Sivakayan Breeches}}
+|Leg
+|24
+|
+|35
+|15
+|
+|5
+|
+|10
+|10
+|10
+|
+|1
+|10
+|5
+|10
+|5
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Sivakayan Legplate}}
+|Leg
+|28
+|
+|20
+|55
+|10
+|4
+|4
+|10
+|5
+|5
+|
+|
+|10
+|5
+|10
+|5
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Spritely Leggings}}
+|Leg
+|11
+|50
+|50
+|15
+|
+|
+|2
+|5
+|
+|4
+|2
+|
+|
+|
+|
+|5
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Starched Wool Leggings}}
+|Leg
+|28
+|70
+|120
+|15
+|
+|5
+|10
+|10
+|10
+|
+|
+|1
+|
+|2
+|2
+|
+|
+|[[Arcanist]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Statuesque Greaves}}
+|Leg
+|38
+|200
+|100
+|75
+|15
+|15
+|5
+|15
+|5
+|15
+|10
+|2
+|
+|4
+|
+|4
+|Worn: {{AbilityLink|Flight of Foot}}
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Tarnished Greaves}}
+|Leg
+|7
+|
+|
+|35
+|
+|
+|
+|
+|
+|
+|
+|
+|6
+|6
+|6
+|6
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Tattered Leather Leggings}}
+|Leg
+|1
+|
+|
+|3
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Treewoven Leggings}}
+|Leg
+|31
+|65
+|135
+|10
+|12
+|
+|
+|
+|
+|12
+|
+|1
+|1
+|4
+|1
+|
+|
+|[[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|A Grassland Sap Necklace}}
+|Neck
+|9
+|
+|20
+|
+|
+|
+|
+|
+|4
+|4
+|
+|
+|
+|
+|
+|
+|On click: {{AbilityLink|Tangle}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Aether's Blessing}}
+|Neck
+|19
+|
+|
+|
+|
+|
+|
+|12
+|
+|
+|
+|1
+|
+|
+|
+|
+|Worn: {{AbilityLink|Flight of Foot}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Amulet of Azure}}
+|Neck
+|38
+|250
+|250
+|25
+|15
+|15
+|15
+|12
+|12
+|12
+|12
+|2
+|3
+|4
+|4
+|6
+|Worn: {{AbilityLink|Soluna's Solar Blessing}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Amulet of Birdsong}}
+|Neck
+|28
+|
+|
+|
+|
+|
+|10
+|10
+|
+|
+|10
+|1
+|
+|
+|
+|
+|On click: {{AbilityLink|Spirit of the Flock}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Blackened Iron Amulet}}
+|Neck
+|11
+|50
+|
+|5
+|3
+|5
+|7
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Brute's Chain Collar}}
+|Neck
+|18
+|
+|
+|10
+|12
+|8
+|
+|
+|5
+|5
+|
+|
+|
+|
+|1
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Chain of Protection}}
+|Neck
+|25
+|100
+|
+|10
+|
+|
+|
+|
+|
+|
+|
+|1
+|8
+|8
+|8
+|6
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Collar of the Huntress}}
+|Neck
+|22
+|
+|
+|
+|
+|
+|15
+|
+|
+|
+|
+|1
+|
+|
+|
+|
+|Worn: {{AbilityLink|Nightstalker's Finesse}}
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Crest of Braxonia}}
+|Neck
+|31
+|50
+|50
+|
+|
+|
+|
+|
+|
+|
+|
+|8
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Decayed Amulet}}
+|Neck
+|7
+|25
+|15
+|
+|3
+|3
+|3
+|3
+|3
+|3
+|3
+|
+|2
+|2
+|2
+|2
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Demon's Crest}}
+|Neck
+|10
+|20
+|20
+|
+|2
+|2
+|2
+|2
+|2
+|2
+|
+|
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Fiery Revival}}
+|Neck
+|25
+|200
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|1
+|
+|
+|
+|
+|Worn: {{AbilityLink|Regeneration}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Flamelicked Gorget}}
+|Neck
+|18
+|125
+|
+|35
+|5
+|
+|5
+|
+|5
+|5
+|5
+|
+|2
+|2
+|2
+|2
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Fluorite Amulet}}
+|Neck
+|5
+|50
+|
+|5
+|5
+|2
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Forest Pendant}}
+|Neck
+|18
+|150
+|50
+|30
+|4
+|4
+|
+|
+|8
+|8
+|5
+|
+|
+|3
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Frozen Mana Charm}}
+|Neck
+|34
+|300
+|600
+|
+|
+|10
+|
+|10
+|10
+|10
+|
+|3
+|4
+|
+|3
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Lover's Locket}}
+|Neck
+|26
+|
+|
+|
+|
+|
+|
+|
+|15
+|
+|25
+|3
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Malaroth Tag}}
+|Neck
+|35
+|125
+|125
+|35
+|30
+|30
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|On click: {{AbilityLink|Summon Loyal Malaroth}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Molorai Sigil}}
+|Neck
+|34
+|100
+|55
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|12
+|12
+|12
+|12
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Moonglow Amulet}}
+|Neck
+|26
+|100
+|250
+|5
+|
+|
+|
+|
+|
+|
+|
+|3
+|
+|
+|
+|4
+|Worn: {{AbilityLink|Nightstalker's Finesse}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Nature's Promise}}
+|Neck
+|36
+|425
+|100
+|
+|
+|
+|
+|
+|14
+|20
+|
+|3
+|
+|
+|
+|12
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Neophyte Necklace}}
+|Neck
+|3
+|
+|15
+|
+|
+|
+|
+|
+|2
+|2
+|2
+|
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Pendant of Petrified Wood}}
+|Neck
+|13
+|75
+|
+|
+|
+|
+|
+|
+|
+|
+|6
+|
+|
+|
+|
+|
+|Worn: {{AbilityLink|Minor Regeneration}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Plain Necklace}}
+|Neck
+|1
+|3
+|
+|1
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Pteriaped Claw Necklace}}
+|Neck
+|22
+|150
+|150
+|20
+|
+|
+|
+|
+|
+|
+|20
+|
+|5
+|5
+|5
+|5
+|Worn: {{AbilityLink|Nightstalker's Finesse}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Ripparian Pendant}}
+|Neck
+|38
+|155
+|300
+|45
+|12
+|12
+|12
+|12
+|15
+|15
+|15
+|4
+|4
+|4
+|4
+|4
+|Worn: {{AbilityLink|Mana Charge}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Scarab Necklace}}
+|Neck
+|14
+|10
+|25
+|5
+|4
+|
+|4
+|
+|4
+|4
+|
+|
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Seafarer's Pendant}}
+|Neck
+|8
+|10
+|10
+|4
+|2
+|
+|2
+|
+|2
+|
+|
+|
+|
+|
+|5
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Seastone Prism}}
+|Neck
+|18
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|15
+|1
+|4
+|4
+|6
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Soul Echo}}
+|Neck
+|28
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|8
+|
+|
+|
+|
+|Worn: {{AbilityLink|Mana Charge II}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Swirlstone Amulet}}
+|Neck
+|12
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|7
+|7
+|7
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Temporal Shard}}
+|Neck
+|38
+|300
+|300
+|25
+|15
+|15
+|15
+|15
+|15
+|15
+|15
+|3
+|10
+|
+|10
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|The Gift of Eloquence}}
+|Neck
+|19
+|65
+|35
+|5
+|
+|
+|
+|
+|5
+|5
+|5
+|
+|2
+|2
+|2
+|2
+|Worn: {{AbilityLink|Mana Charge}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Trembling Chain}}
+|Neck
+|25
+|255
+|255
+|
+|
+|
+|
+|
+|
+|15
+|10
+|3
+|
+|
+|
+|5
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Twinkling Pendant}}
+|Neck
+|31
+|400
+|200
+|
+|
+|
+|
+|
+|15
+|15
+|
+|4
+|7
+|
+|
+|
+|On click: {{AbilityLink|Sleep}}
+|[[Arcanist]], [[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Warped Choker}}
+|Neck
+|35
+|225
+|225
+|25
+|25
+|
+|5
+|
+|25
+|
+|15
+|3
+|
+|
+|
+|
+|Worn: {{AbilityLink|Blessing of Brax}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Worn Wolf Collar}}
+|Neck
+|3
+|15
+|
+|8
+|3
+|3
+|2
+|2
+|
+|
+|
+|
+|
+|3
+|1
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Aged Ring of Barriers}}
+|Ring
+|25
+|75
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|3
+|3
+|3
+|5
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Angler's Ring}}
+|Ring
+|6
+|25
+|
+|25
+|
+|
+|2
+|2
+|
+|
+|5
+|
+|
+|
+|2
+|
+|
+|
+|-
+|style="text-align: left;"|{{ItemLink|Augmenting Ring}}
+|Ring
+|24
+|55
+|55
+|5
+|
+|
+|
+|
+|
+|
+|
+|1
+|8
+|8
+|8
+|
+|Worn: {{AbilityLink|Mana Charge}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Birdbone Band}}
+|Ring
+|22
+|50
+|50
+|10
+|
+|
+|
+|
+|
+|
+|
+|2
+|
+|
+|
+|
+|Worn: {{AbilityLink|Windblessed}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Bladeturner}}
+|Ring
+|34
+|50
+|50
+|100
+|12
+|12
+|8
+|
+|
+|
+|
+|3
+|
+|
+|
+|5
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Bog Hoop}}
+|Ring
+|15
+|25
+|20
+|5
+|
+|5
+|
+|
+|
+|
+|
+|1
+|2
+|6
+|6
+|2
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Ceremonial Ring}}
+|Ring
+|14
+|100
+|
+|
+|
+|
+|
+|
+|
+|
+|5
+|
+|
+|
+|
+|
+|On click: {{AbilityLink|Sivakaya's Dismay}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Clouded Diamond Ring}}
+|Ring
+|7
+|5
+|
+|3
+|
+|
+|
+|
+|
+|
+|5
+|
+|10
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Concentration Band}}
+|Ring
+|25
+|
+|100
+|5
+|
+|
+|
+|
+|5
+|5
+|
+|2
+|
+|
+|
+|
+|Worn: {{AbilityLink|Mana Charge}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Dancer's Ring}}
+|Ring
+|34
+|100
+|50
+|50
+|15
+|5
+|5
+|15
+|
+|
+|
+|1
+|
+|
+|
+|
+|Worn: {{AbilityLink|Flight of Foot}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Decayed Ring}}
+|Ring
+|8
+|15
+|10
+|5
+|2
+|
+|2
+|1
+|2
+|2
+|
+|
+|3
+|3
+|3
+|3
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Elderstone Ring}}
+|Ring
+|17
+|100
+|20
+|3
+|
+|
+|
+|
+|
+|
+|
+|
+|10
+|10
+|10
+|10
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Eldoth's Heirloom Ring}}
+|Ring
+|40
+|100
+|100
+|20
+|10
+|5
+|10
+|5
+|15
+|25
+|10
+|3
+|
+|
+|
+|5
+|Worn: {{AbilityLink|Embrace of Shadow}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Fiery Sapphire Ring}}
+|Ring
+|6
+|5
+|
+|3
+|
+|
+|
+|
+|
+|
+|5
+|
+|
+|
+|10
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Fire Emerald Band}}
+|Ring
+|16
+|100
+|100
+|10
+|5
+|
+|5
+|5
+|
+|
+|
+|
+|
+|
+|6
+|
+|Worn: {{AbilityLink|Minor Regeneration}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Flawless Diamond Ring}}
+|Ring
+|21
+|5
+|
+|3
+|
+|
+|
+|
+|
+|
+|10
+|
+|18
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Flawless Emerald Ring}}
+|Ring
+|21
+|5
+|
+|3
+|
+|
+|
+|
+|
+|
+|10
+|
+|
+|18
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Flawless Sapphire Ring}}
+|Ring
+|21
+|5
+|
+|3
+|
+|
+|
+|
+|
+|
+|10
+|
+|
+|
+|18
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Freeing Stone}}
+|Ring
+|24
+|25
+|25
+|5
+|3
+|
+|3
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|Worn: {{AbilityLink|Flow}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Frozen Lava Ring}}
+|Ring
+|31
+|25
+|25
+|25
+|7
+|7
+|
+|10
+|
+|10
+|10
+|
+|
+|
+|6
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Gapped Ring}}
+|Ring
+|14
+|45
+|30
+|
+|
+|3
+|
+|3
+|
+|
+|3
+|
+|3
+|
+|3
+|3
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Golden Luminstone Ring}}
+|Ring
+|3
+|15
+|
+|3
+|
+|2
+|
+|
+|
+|
+|2
+|
+|2
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Green Emerald Ring}}
+|Ring
+|6
+|5
+|
+|3
+|
+|
+|
+|
+|
+|
+|5
+|
+|
+|10
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Hardened Slime Ring}}
+|Ring
+|16
+|55
+|35
+|10
+|
+|
+|
+|3
+|5
+|
+|
+|
+|
+|4
+|
+|4
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Hilltop Ring}}
+|Ring
+|6
+|15
+|15
+|
+|2
+|1
+|
+|
+|2
+|2
+|
+|
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Insect Shell Ring}}
+|Ring
+|18
+|
+|
+|
+|
+|
+|
+|
+|3
+|3
+|7
+|3
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Inspiration}}
+|Ring
+|17
+|
+|85
+|5
+|
+|
+|
+|2
+|2
+|
+|
+|
+|2
+|2
+|2
+|2
+|Worn: {{AbilityLink|Mana Charge}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Jackalbone Loop}}
+|Ring
+|22
+|165
+|180
+|20
+|
+|5
+|5
+|5
+|5
+|5
+|
+|
+|
+|
+|
+|6
+|Worn: {{AbilityLink|Nightstalker's Finesse}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Lifeloop}}
+|Ring
+|19
+|185
+|20
+|1
+|12
+|
+|
+|
+|
+|
+|
+|1
+|2
+|2
+|2
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Living Ruby Ring}}
+|Ring
+|24
+|45
+|45
+|45
+|15
+|
+|8
+|8
+|
+|
+|
+|
+|
+|
+|6
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Living Sapphire Ring}}
+|Ring
+|24
+|45
+|45
+|45
+|
+|
+|
+|
+|15
+|
+|15
+|
+|6
+|
+|
+|6
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Molorai Allegiant Ring}}
+|Ring
+|33
+|25
+|40
+|20
+|6
+|6
+|6
+|6
+|6
+|6
+|6
+|1
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Monarch's Ring}}
+|Ring
+|39
+|200
+|200
+|25
+|5
+|15
+|5
+|
+|25
+|25
+|10
+|2
+|
+|3
+|3
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Ocean Aged Ring}}
+|Ring
+|24
+|150
+|135
+|10
+|5
+|2
+|5
+|5
+|6
+|2
+|2
+|1
+|3
+|
+|3
+|
+|Worn: {{AbilityLink|Protection}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Phoenix Loop}}
+|Ring
+|24
+|50
+|50
+|5
+|
+|
+|
+|
+|
+|12
+|5
+|1
+|
+|4
+|
+|
+|On click: {{AbilityLink|Major Healing}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Priel Insignia Ring}}
+|Ring
+|4
+|
+|
+|
+|2
+|
+|2
+|
+|
+|
+|
+|
+|1
+|
+|1
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Priel Officer's Ring}}
+|Ring
+|18
+|145
+|75
+|
+|3
+|3
+|5
+|
+|5
+|
+|
+|
+|3
+|
+|2
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Pristine Ceremonial Ring}}
+|Ring
+|14
+|200
+|20
+|15
+|3
+|3
+|3
+|3
+|3
+|3
+|3
+|
+|3
+|3
+|3
+|15
+|On click: {{AbilityLink|Sivakaya's Dismay}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Ring of Clarity}}
+|Ring
+|11
+|
+|25
+|5
+|
+|
+|
+|
+|
+|
+|
+|1
+|
+|
+|
+|
+|Worn: {{AbilityLink|Mana Charge}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Ring of Echoes}}
+|Ring
+|35
+|5
+|5
+|5
+|
+|
+|5
+|5
+|5
+|5
+|
+|5
+|
+|
+|
+|
+|Worn: {{AbilityLink|Mana Charge II}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Ring of Magic Bolt}}
+|Ring
+|5
+|
+|5
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|On click: {{AbilityLink|Magic Bolt}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Ring of Repeated Thoughts}}
+|Ring
+|31
+|300
+|300
+|
+|
+|
+|
+|
+|
+|
+|15
+|4
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Ring of the Ascended}}
+|Ring
+|39
+|100
+|100
+|50
+|10
+|10
+|25
+|10
+|8
+|8
+|4
+|3
+|
+|
+|
+|3
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Ring of the Deceiver}}
+|Ring
+|39
+|85
+|85
+|50
+|8
+|8
+|25
+|10
+|25
+|10
+|5
+|4
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Ring of The Mystics}}
+|Ring
+|14
+|25
+|25
+|5
+|
+|
+|
+|
+|
+|6
+|
+|1
+|
+|
+|
+|
+|On click: {{AbilityLink|Healing}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Ring of the Old}}
+|Ring
+|28
+|60
+|85
+|
+|8
+|8
+|8
+|5
+|8
+|8
+|8
+|3
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Ring of the Pious}}
+|Ring
+|39
+|85
+|85
+|50
+|25
+|10
+|5
+|5
+|10
+|25
+|10
+|2
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Ring of the Sky}}
+|Ring
+|7
+|
+|
+|
+|3
+|3
+|3
+|
+|
+|
+|
+|1
+|5
+|
+|3
+|
+|On click: {{AbilityLink|Tangle}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Ring of Visions}}
+|Ring
+|29
+|45
+|45
+|5
+|5
+|5
+|
+|
+|10
+|10
+|
+|
+|4
+|
+|4
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Rottenfoot Ring}}
+|Ring
+|13
+|25
+|25
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|3
+|
+|3
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Shielded Ring}}
+|Ring
+|17
+|30
+|
+|30
+|
+|5
+|5
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Shivering Ring}}
+|Ring
+|6
+|100
+|50
+|5
+|3
+|
+|3
+|
+|5
+|5
+|
+|
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Simple Engagement Ring}}
+|Ring
+|24
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|6
+|
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Sivakaya's Touch}}
+|Ring
+|39
+|135
+|135
+|66
+|15
+|15
+|15
+|15
+|15
+|15
+|15
+|2
+|
+|
+|
+|5
+|Worn: {{AbilityLink|Sivakaya's Touch (Effect)|text=Sivakaya's Touch}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Skyfolk Band}}
+|Ring
+|33
+|55
+|100
+|
+|5
+|5
+|5
+|5
+|12
+|15
+|12
+|1
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Slumberbloom Ring}}
+|Ring
+|25
+|25
+|
+|
+|3
+|
+|
+|
+|3
+|3
+|5
+|1
+|
+|
+|
+|1
+|On click: {{AbilityLink|Sleep}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Solar Forged Ring}}
+|Ring
+|31
+|550
+|100
+|
+|10
+|
+|
+|
+|
+|
+|15
+|
+|
+|
+|
+|6
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Strategist's Ring}}
+|Ring
+|22
+|100
+|50
+|15
+|
+|
+|
+|3
+|5
+|5
+|8
+|
+|2
+|2
+|2
+|4
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Swirlstone Ring}}
+|Ring
+|11
+|
+|
+|
+|
+|
+|
+|
+|2
+|2
+|
+|
+|3
+|3
+|3
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Tempestalia, Ring of Storms}}
+|Ring
+|20
+|55
+|55
+|10
+|
+|
+|
+|
+|
+|5
+|5
+|
+|3
+|
+|3
+|
+|On click: {{AbilityLink|Invoke Storm}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Toxin Warped Band}}
+|Ring
+|15
+|
+|
+|
+|3
+|
+|3
+|
+|3
+|
+|3
+|
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Unsocketed Ring}}
+|Ring
+|
+|1
+|
+|
+|1
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Vessel's Band}}
+|Ring
+|39
+|300
+|200
+|40
+|25
+|12
+|12
+|5
+|25
+|15
+|5
+|3
+|
+|
+|
+|4
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Vithean Sea Salt Ring}}
+|Ring
+|12
+|20
+|20
+|5
+|2
+|2
+|
+|2
+|3
+|2
+|
+|
+|5
+|5
+|5
+|5
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Voidbloom Ring}}
+|Ring
+|16
+|30
+|30
+|
+|
+|8
+|3
+|
+|3
+|3
+|3
+|
+|
+|
+|
+|3
+|On click: {{AbilityLink|Soul Tap}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Waldorf Family Ring}}
+|Ring
+|2
+|25
+|
+|
+|2
+|
+|
+|
+|2
+|
+|3
+|
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Wild Colossus Ring}}
+|Ring
+|22
+|100
+|100
+|5
+|20
+|5
+|
+|
+|
+|
+|
+|
+|2
+|4
+|2
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Wisdom Band}}
+|Ring
+|22
+|100
+|100
+|5
+|
+|
+|
+|
+|5
+|10
+|
+|
+|5
+|5
+|5
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Beast Harness}}
+|Waist
+|2
+|8
+|10
+|8
+|2
+|2
+|2
+|
+|
+|
+|2
+|
+|2
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Belt of Ages}}
+|Waist
+|25
+|195
+|195
+|20
+|7
+|
+|
+|
+|
+|14
+|
+|1
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Bonestudded Belt}}
+|Waist
+|5
+|20
+|25
+|5
+|
+|
+|
+|
+|5
+|5
+|
+|
+|
+|
+|
+|1
+|
+|[[Druid]]
+|-
+|style="text-align: left;"|{{ItemLink|Braided Belt}}
+|Waist
+|2
+|5
+|
+|2
+|1
+|1
+|
+|
+|
+|
+|
+|
+|2
+|
+|2
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Braxonian Sash}}
+|Waist
+|17
+|200
+|
+|35
+|
+|10
+|
+|
+|5
+|5
+|
+|1
+|
+|
+|2
+|
+|
+|[[Arcanist]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Breezeworn Sash}}
+|Waist
+|6
+|15
+|25
+|5
+|
+|
+|
+|
+|5
+|
+|
+|1
+|
+|
+|4
+|
+|
+|[[Arcanist]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Centering Cord}}
+|Waist
+|34
+|350
+|300
+|40
+|15
+|
+|10
+|
+|15
+|15
+|5
+|4
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Charmed Belt}}
+|Waist
+|31
+|200
+|255
+|15
+|
+|10
+|
+|15
+|5
+|5
+|20
+|3
+|5
+|5
+|5
+|5
+|Worn: {{AbilityLink|Protection}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Coiling Belt}}
+|Waist
+|28
+|225
+|150
+|
+|10
+|10
+|10
+|
+|
+|
+|
+|
+|3
+|3
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Empath's Cord}}
+|Waist
+|28
+|100
+|100
+|5
+|
+|
+|
+|
+|
+|25
+|
+|2
+|
+|
+|
+|
+|Worn: {{AbilityLink|Flow}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Exalted Belt}}
+|Waist
+|34
+|150
+|200
+|
+|10
+|10
+|10
+|10
+|5
+|25
+|25
+|6
+|
+|
+|
+|
+|Worn: {{AbilityLink|Protection}}
+|[[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Famish}}
+|Waist
+|30
+|155
+|100
+|20
+|10
+|10
+|5
+|10
+|
+|
+|5
+|1
+|
+|
+|
+|
+|Worn: {{AbilityLink|Vampirism}}
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Flowing Blight Silk Sash}}
+|Waist
+|28
+|125
+|125
+|5
+|5
+|5
+|5
+|5
+|5
+|5
+|
+|
+|2
+|2
+|2
+|2
+|Worn: {{AbilityLink|Flow}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Gem Adorned Belt}}
+|Waist
+|28
+|250
+|200
+|15
+|
+|
+|15
+|15
+|
+|
+|
+|2
+|3
+|3
+|3
+|3
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Ghostly Sash}}
+|Waist
+|23
+|100
+|500
+|10
+|
+|
+|
+|
+|
+|
+|
+|3
+|
+|
+|
+|4
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Granite Belt}}
+|Waist
+|28
+|355
+|150
+|25
+|20
+|15
+|5
+|
+|7
+|7
+|
+|
+|1
+|
+|2
+|
+|
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Gut Cord}}
+|Waist
+|25
+|650
+|
+|20
+|7
+|
+|7
+|
+|7
+|7
+|
+|
+|
+|4
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Lost Girdle}}
+|Waist
+|20
+|110
+|20
+|30
+|6
+|6
+|
+|
+|
+|
+|
+|
+|
+|
+|3
+|5
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Malaroth Sinew Cord}}
+|Waist
+|23
+|75
+|75
+|20
+|3
+|3
+|
+|
+|4
+|4
+|
+|1
+|5
+|5
+|5
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Metal Girdle}}
+|Waist
+|2
+|10
+|
+|5
+|
+|
+|2
+|
+|
+|
+|2
+|
+|
+|
+|
+|3
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Molorai Utility Belt}}
+|Waist
+|13
+|20
+|20
+|14
+|3
+|
+|3
+|3
+|
+|
+|
+|
+|2
+|
+|2
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Ogreskin Cord}}
+|Waist
+|11
+|15
+|15
+|12
+|
+|
+|
+|3
+|3
+|3
+|
+|
+|2
+|2
+|2
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Polished Steel Belt}}
+|Waist
+|33
+|120
+|80
+|25
+|3
+|3
+|
+|
+|
+|
+|
+|
+|9
+|9
+|9
+|2
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Prismatic Warcord}}
+|Waist
+|20
+|125
+|125
+|25
+|5
+|8
+|5
+|5
+|
+|
+|
+|
+|
+|
+|4
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Reinforced Scale Belt}}
+|Waist
+|17
+|45
+|
+|35
+|
+|
+|
+|
+|
+|
+|
+|
+|7
+|7
+|7
+|
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Rottenfoot Sash}}
+|Waist
+|10
+|5
+|15
+|
+|
+|
+|4
+|
+|4
+|
+|
+|
+|1
+|3
+|1
+|
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Royal Waistband}}
+|Waist
+|31
+|400
+|200
+|35
+|
+|
+|
+|10
+|10
+|10
+|
+|
+|10
+|10
+|10
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Sableheart's Harness}}
+|Waist
+|31
+|500
+|250
+|35
+|8
+|8
+|8
+|8
+|
+|
+|
+|5
+|
+|
+|
+|
+|On click: {{AbilityLink|Devour}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Sailor's Belt}}
+|Waist
+|9
+|
+|
+|12
+|
+|
+|
+|
+|
+|
+|
+|
+|2
+|3
+|3
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Sash of the Lost Guard}}
+|Waist
+|19
+|55
+|100
+|35
+|
+|
+|
+|8
+|4
+|4
+|4
+|1
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Spectral Silk Belt}}
+|Waist
+|19
+|100
+|150
+|10
+|5
+|
+|
+|8
+|
+|
+|
+|1
+|1
+|1
+|1
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Stabilizing Belt}}
+|Waist
+|24
+|200
+|
+|40
+|5
+|5
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Stalwart Belt}}
+|Waist
+|5
+|25
+|
+|6
+|5
+|3
+|
+|
+|
+|
+|
+|
+|
+|3
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Steadfast Girdle}}
+|Waist
+|31
+|450
+|200
+|25
+|5
+|12
+|12
+|5
+|
+|
+|
+|
+|
+|3
+|3
+|
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Stilling Cord}}
+|Waist
+|33
+|395
+|220
+|10
+|
+|
+|12
+|
+|12
+|12
+|
+|1
+|5
+|5
+|5
+|5
+|Worn: {{AbilityLink|Embrace of Shadow}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Swampy Loincloth}}
+|Waist
+|35
+|35
+|10
+|10
+|3
+|3
+|3
+|
+|
+|
+|&minus;10
+|
+|
+|5
+|
+|10
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Sylvan Cord}}
+|Waist
+|6
+|10
+|20
+|5
+|
+|
+|
+|
+|1
+|3
+|
+|
+|
+|4
+|
+|
+|
+|[[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Tarnished Steel Belt}}
+|Waist
+|20
+|100
+|20
+|15
+|
+|
+|
+|
+|
+|
+|
+|
+|6
+|6
+|6
+|2
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Toxic Strap}}
+|Waist
+|18
+|50
+|
+|10
+|
+|
+|10
+|
+|
+|
+|
+|
+|
+|3
+|
+|2
+|Worn: {{AbilityLink|Slime Flow}}
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Twilight Belt}}
+|Waist
+|15
+|180
+|120
+|15
+|
+|
+|4
+|
+|3
+|3
+|
+|1
+|
+|
+|
+|3
+|
+|[[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Woven Stone Belt}}
+|Waist
+|24
+|150
+|
+|100
+|7
+|10
+|7
+|
+|
+|
+|
+|1
+|
+|
+|
+|
+|
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|}

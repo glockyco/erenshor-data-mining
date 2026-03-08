@@ -1,0 +1,38 @@
+{{Enemy
+|name=Sivakayan Boneraiser
+|image=[[File:Sivakayan Boneraiser.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Children of Sivakaya]]
+|factionChange=
+|zones=[[Silkengrass Meadowlands]]
+|coordinates=
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates=
+|level=25
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=22750
+|mana=3000
+|ac=375
+|strength=30
+|endurance=105
+|dexterity=165
+|agility=100
+|intelligence=180
+|wisdom=100
+|charisma=100
+|magic=12-30
+|poison=12-30
+|elemental=12-30
+|void=12-30
+|spells=
+}}
+
+[[Category:Enemies]]
+[[Category:Silkengrass Meadowlands]]

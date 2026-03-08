@@ -1,0 +1,60 @@
+{{Enemy
+|name=Gruhglor
+|image=[[File:Gruhglor.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Fernalla's Revival Plains]]
+|coordinates=804.7 x 27.0 x 1058.9
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Blackened Iron Amulet}}<br>{{ItemLink|Crafted Bracer}}<br>{{ItemLink|Knight's Helm}}<br>{{ItemLink|Ogreskin Cord}}<br>{{ItemLink|Rotten Chain Tunic}}<br>{{ItemLink|Woebringer - Halberd of Stone}}
+|droprates={{ItemLink|Stone Giant's Blood}} (87.1%)<br>{{ItemLink|Blackened Iron Amulet}} (19.5%)<br>{{ItemLink|Crafted Bracer}} (19.5%)<br>{{ItemLink|Knight's Helm}} (19.5%)<br>{{ItemLink|Ogreskin Cord}} (19.5%)<br>{{ItemLink|Rotten Chain Tunic}} (19.5%)<br>{{ItemLink|Woebringer - Halberd of Stone}} (19.5%)<br>{{ItemLink|Distant Thunder}} (3.1%)<br>{{ItemLink|End of Life}} (3.1%)<br>{{ItemLink|Freedom of the Sky}} (3.1%)<br>{{ItemLink|Glow of Eternity}} (3.1%)<br>{{ItemLink|Rising Moon}} (3.1%)<br>{{ItemLink|Wilt}} (3.1%)
+|level=17
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=5.0
+|health=20800
+|mana=0
+|ac=255
+|strength=28
+|endurance=100
+|dexterity=100
+|agility=32
+|intelligence=32
+|wisdom=32
+|charisma=32
+|magic=8-20
+|poison=8-20
+|elemental=8-20
+|void=8-20
+|spells=
+}}
+
+'''{{PAGENAME}}''' is a [[Enemies#List of Bosses|Boss]] in [[Erenshor]].
+
+=Location=
+{{PAGENAME}} is found on a plateau in northern [[Fernalla's Revival Plains]] near the entrance to [[Rottenfoot]].
+
+=Appearance=
+{{PAGENAME}} is a large golem made of brown and grey stones. He is also covered in several wreaths of vines and moss.
+
+=Behavior=
+{{PAGENAME}} roams the plateau above the encampment of [[A Rottenfoot Warrior|Rottenfoot Warriors]] and [[Rottenfoot Swampwalker|Rottenfoot Swampwalkers]] and will attack players if they get too close.
+
+===Spells & Abilities===
+{{PAGENAME}} does not use any spells or abilities.
+
+===Strategy===
+{{PAGENAME}} is likely one of the first bosses players will encounter with a summoning mechanic: when he reaches 60% and 20% health, he will spawn two [[A Rock Minion|Rock Minions]] nearby. These additional enemies should be taken out or stunned quickly, as they will reduce the ability of the party's [[Paladin]] to effectively tank.
+
+{{PAGENAME}} is one of two bosses that drop the level 3 class-specific [[Auras|Aura]] items, making him well worth farming.<ref>[[Goliath]] can also drop these items at a slightly higher rate, but is a higher level and more difficult fight.</ref>
+
+=Notes=
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Fernalla's Revival Plains]]

@@ -1,0 +1,58 @@
+{{Enemy
+|name=Dusken Giant
+|image=[[File:Dusken Giant.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Rare]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[The Duskenlight Coast]]
+|coordinates=
+|spawnchance=1%
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Dusken Shield}}<br>{{ItemLink|Dusken Staff}}
+|droprates={{ItemLink|Dusken Giant's Blood}} (86.5%)<br>{{ItemLink|Dusken Shield}} (66.7%)<br>{{ItemLink|Dusken Staff}} (33.3%)
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=31850
+|mana=2000
+|ac=330
+|strength=40
+|endurance=145
+|dexterity=100
+|agility=165
+|intelligence=200
+|wisdom=200
+|charisma=100
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells={{AbilityLink|Biting Vines}}<br>{{AbilityLink|Tangle}}
+}}
+''{{Main|Enemies}}''
+=Location=
+{{PAGENAME}} is a '''rare''' enemy with a '''1% chance''' to replace [[A Brown Bear Cub|Brown Bear Cubs]], [[A Brown Bear|Brown Bears]], [[Spectral Bear|Spectral Bears]], and [[Dryad Spirit|Dryad Spirits]] in the southern section of [[Duskenlight Coast]], with the exception of those in the eastern corner where [[Massia the Fallen]] spawns. There are 20 possible spawn points for the {{PAGENAME}}, for a total '''18.2% chance''' to spawn him when entering the [[Zones|Zone]].
+
+=Appearance=
+{{PAGENAME}} is a large demi-human creature with light blue skin and a white beard. He wears a sash across his chest, a horned helmet on his head, and a green and brown kilt. As the name implies, {{PAGENAME}} is massive and can easily be spotted from afar when entering the zone.
+
+=Behavior=
+{{PAGENAME}}s roam the landscape until sensing a target to attack. Not only are they aggressive to players, but they will also attack other enemies in their immediate vicinity.
+
+===Spells & Abilities===
+Offensive:
+*{{AbilityLink|Tangle}}
+
+===Strategy===
+Finding {{PAGENAME}} is half the battle, and may require players clearing out low-level spawns multiple times, or else repeatedly reloading the zone in an attempt to force him to spawn. When fighting {{PAGENAME}}, make sure to stay close to him; he can use [[Tangle]] to lock a target in place for several seconds, which may end up keeping a member of your party out of attack range.
+
+=Notes=
+*It is possible for multiple {{PAGENAME}}s to be present at the same time.
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:The Duskenlight Coast]]

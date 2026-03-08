@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Mutual Torment
+|type=
+|vendorsource=
+|source=[[Sivakayan Reaver]] (3.0%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=25000
+|sell=16250
+|taughtspell={{AbilityLink|Mutual Torment}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Mutual Torment.png
+|name=Spell Scroll: Mutual Torment
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=27
+|mana_cost=655
+|spell_type=Damage
+|spell_desc=Deals base 900 scaling void damage to your target, and 900 true damage to yourself
+}}
+
+[[Category:Ability Books]]

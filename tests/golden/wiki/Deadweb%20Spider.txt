@@ -1,0 +1,38 @@
+{{Enemy
+|name=Deadweb Spider
+|image=[[File:Deadweb Spider.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Azynthi's Garden|Azynthi's Garden (Dimensional Rift)]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates=
+|level=34
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=41470
+|mana=0
+|ac=510
+|strength=45
+|endurance=100
+|dexterity=300
+|agility=85
+|intelligence=100
+|wisdom=100
+|charisma=100
+|magic=17-41
+|poison=17-41
+|elemental=17-41
+|void=17-41
+|spells=
+}}
+
+[[Category:Azynthi's Garden]]
+[[Category:Enemies]]

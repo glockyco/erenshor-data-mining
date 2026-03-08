@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Summon Dire Wolf
+|type=[[:Category:Ability Books|Spell Scroll]]
+|vendorsource=[[Juctin Mysia]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=6500
+|sell=4225
+|taughtspell={{AbilityLink|Summon Dire Wolf}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Summon Dire Wolf.png
+|name=Spell Scroll: Summon Dire Wolf
+|arcanist_level=
+|druid_level=26
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=500
+|spell_type=Pet
+|spell_desc=Summon a magical companion to fight along side you.
+}}
+
+[[Category:Ability Books]]

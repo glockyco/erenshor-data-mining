@@ -1,0 +1,43 @@
+{{Item
+|title=Pupil's Pin
+|type=
+|vendorsource=
+|source=[[Historian of Braxonia]] (100.0%)
+|othersource=
+|questsource=
+|relatedquest={{QuestLink|link=The Loss Stone}}
+|craftsource=
+|componentfor=
+|buy=6000
+|sell=3900
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+Wearing this charm stops the ghosts at the siva-braxonian school in [[Duskenlight Coast]] from attacking you.
+
+{{Item/Charm
+|image=Pupil's Pin.png
+|name=Pupil's Pin
+|tier=0
+|strscaling=
+|endscaling=
+|dexscaling=
+|agiscaling=
+|intscaling=1
+|wisscaling=1
+|chascaling=
+|resistscaling=
+|mitigationscaling=
+|arcanist=True
+|duelist=True
+|druid=True
+|paladin=True
+|reaver=True
+|stormcaller=True
+}}
+
+[[Category:Charms]]
+[[Category:Quest Items]]

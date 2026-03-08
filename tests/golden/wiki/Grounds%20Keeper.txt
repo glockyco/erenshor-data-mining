@@ -1,0 +1,43 @@
+{{Enemy
+|name=Grounds Keeper
+|image=[[File:Grounds Keeper.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Azynthi's Garden|Azynthi's Garden (Dimensional Rift)]]
+|coordinates=511.1 x 90.9 x 582.0
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Bramblecull}}<br>{{ItemLink|Gardener's Wrist Wrap}}
+|droprates={{ItemLink|Riftsnare Gem}} (100.0%)<br>{{ItemLink|Gardener's Wrist Wrap}} (66.7%)<br>{{ItemLink|Bramblecull}} (33.3%)<ref>If Grounds Keeper has {{ItemLink|Bramblecull}} equipped, it is guaranteed to drop.</ref>
+|level=35
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=3.0
+|health=101400
+|mana=2000
+|ac=525
+|strength=800
+|endurance=800
+|dexterity=800
+|agility=800
+|intelligence=200
+|wisdom=200
+|charisma=100
+|magic=18-42
+|poison=18-42
+|elemental=18-42
+|void=18-42
+|spells={{AbilityLink|Cull the Unfit}}<br>{{AbilityLink|Devour}}
+}}
+
+In the hedge maze by the statue
+
+=Notes=
+
+[[Category:Azynthi's Garden]]
+[[Category:Bosses]]
+[[Category:Enemies]]

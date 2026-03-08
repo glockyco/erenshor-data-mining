@@ -1,0 +1,44 @@
+{{Enemy
+|name=Jerrod Tunsillo
+|image=[[File:Jerrod Tunsillo.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[Fernalla's Children]]
+|factionChange=-10 [[Fernalla's Children]]
+|zones=[[Soluna's Landing]]
+|coordinates=264.0 x 100.9 x 432.6
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=15
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=520
+|mana=0
+|ac=225
+|strength=35
+|endurance=35
+|dexterity=35
+|agility=35
+|intelligence=35
+|wisdom=35
+|charisma=35
+|magic=8-18
+|poison=8-18
+|elemental=8-18
+|void=8-18
+|spells=
+}}
+Jerrod Tunsillo is located in one of the buildings in the small town in [[Soluna's Landing]]
+
+Greeting message:
+{| class="wikitable"
+|I've heard whispers of a hidden crack in the rocks to the east that leads to a hidden valley... the source was a drunkard, and as unreliable as any I've overheard before.
+|}
+
+[[Category:Characters]]
+[[Category:Soluna's Landing]]

@@ -1,0 +1,82 @@
+{{Ability
+|title=Hydrated
+|image=[[File:Hydrated.png|thumb]]
+|imagecaption=You feel less thirsty.
+|description=Satisfies thirst, increases stats and attack speed.
+|type=Beneficial
+|line=Generic
+|classes=
+|required_level=1
+|manacost=
+|aggro=
+|is_taunt=
+|casttime=Instant
+|cooldown=
+|duration=498 seconds
+|duration_in_ticks=166
+|has_unstable_duration=
+|is_instant_effect=
+|is_reap_and_renew=
+|is_sim_usable=True
+|range=
+|max_level_target=
+|is_self_only=True
+|is_group_effect=
+|is_applied_to_caster=
+|effects=
+|damage_type=
+|resist_modifier=
+|target_damage=
+|target_healing=
+|caster_healing=
+|shield_amount=
+|pet_to_summon=
+|status_effect=
+|add_proc=
+|add_proc_chance=
+|has_lifetap=
+|lifesteal=
+|damage_shield=
+|percent_mana_restoration=
+|bleed_damage_percent=
+|special_descriptor=
+|hp=
+|ac=
+|mana=
+|str=5
+|dex=5
+|end=5
+|agi=5
+|wis=5
+|int=5
+|cha=
+|mr=
+|er=
+|vr=
+|pr=
+|haste=3.0
+|resonance=
+|movement_speed=
+|atk_roll_modifier=1
+|xp_bonus=
+|is_root=
+|is_stun=
+|is_charm=
+|is_broken_on_damage=
+|is_fear=
+|inflict_on_self=
+|itemswitheffect={{ItemLink|Azure Mead}}<br>{{ItemLink|Seaslimed Bracelet}}<br>{{ItemLink|Vithean Brew}}<br>{{ItemLink|Water}}
+|source=
+|used_by=
+}}
+
+'''{{PAGENAME}}''' is a support ability obtained by consuming [[Water]] or using a [[Seaslimed Bracelet]].
+
+=Effect=
+{{PAGENAME}} has the following effects:
+*Increases Strength, Dexterity, Endurance, Agility, Wisdom, and Intelligence by '''+5'''
+*Provides a '''3%''' increase to the user's attack speed.
+*Increases attack rolls by '''+1'''
+
+=Notes=
+*Neither Charisma nor Resonance are affected by this buff.

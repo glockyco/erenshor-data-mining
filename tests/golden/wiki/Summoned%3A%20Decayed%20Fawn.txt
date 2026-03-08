@@ -1,0 +1,37 @@
+{{Enemy
+|name=Summoned: Decayed Fawn
+|image=[[File:Summoned: Decayed Fawn.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=
+|factionChange=
+|zones=
+|coordinates=
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=4
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=390
+|mana=100
+|ac=60
+|strength=5
+|endurance=22
+|dexterity=35
+|agility=7
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=2-5
+|poison=2-5
+|elemental=2-5
+|void=2-5
+|spells=
+}}
+
+[[Category:Characters]]

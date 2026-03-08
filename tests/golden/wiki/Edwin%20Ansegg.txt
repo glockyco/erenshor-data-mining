@@ -1,0 +1,96 @@
+{{Enemy
+|name=Edwin Ansegg
+|image=[[File:Edwin Ansegg.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Torchbearers of Brax]]
+|factionChange=-20 [[The Citizens of Port Azure]]<br>-20 [[The Torchbearers of Brax]]
+|zones=[[Port Azure]]
+|coordinates=11.5 x 27.3 x 340.0
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Arcanist Cap}} (20.4%)<ref>If Edwin Ansegg has {{ItemLink|Arcanist Cap}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Luminstone}} (11.5%)<br>{{ItemLink|Star Stone}} (11.5%)
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=4550
+|mana=155
+|ac=330
+|strength=3
+|endurance=3
+|dexterity=3
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells={{AbilityLink|Brax's Rage}}<br>{{AbilityLink|Brax's Touch}}<br>{{AbilityLink|Hardened Skin}}<br>{{AbilityLink|Magic Bolt}}<br>{{AbilityLink|Minor Lightning}}<br>{{AbilityLink|Minor Protection}}<br>{{AbilityLink|Minor Regeneration}}<br>{{AbilityLink|Vampiric Touch}}
+}}
+Nylith is located by the [[Port Azure]] Lighthouse. He is a Vendor for [[Arcanist|Arcanists]].
+
+Greeting message only for Arcanists:
+{| class="wikitable"
+|Need something'? I've got spells and some artifacts for sale.
+|}
+
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Spell Scroll: Jolt}}
+|[[Ability Books|Spell Book]]
+|225
+|-
+|{{ItemLink|Spell Scroll: Ethereal Rending}}
+|[[Ability Books|Spell Book]]
+|175
+|-
+|{{ItemLink|Spell Scroll: Brax's Rage}}
+|[[Ability Books|Spell Book]]
+|600
+|-
+|{{ItemLink|Wizarding Mitts}}
+|[[Armor#Hand|Hand Armor]]
+|350
+|-
+|{{ItemLink|Spidersilk Shirt}}
+|[[Armor#Chest|Chest Armor]]
+|1000
+|-
+|{{ItemLink|Essence of Flame}}
+|[[Auras|Aura]]
+|1500
+|-
+|{{ItemLink|Skill Book: Arcane Proficiency}}
+|[[Ability Books|Skill Book]]
+|650
+|-
+|{{ItemLink|Spell Scroll: Ice Spear}}
+|[[Ability Books|Spell Book]]
+|3000
+|-
+|{{ItemLink|Spell Scroll: Brax's Fury}}
+|[[Ability Books|Spell Book]]
+|4100
+|-
+|{{ItemLink|Spell Scroll: Aetherstorm}}
+|[[Ability Books|Spell Book]]
+|8500
+|-
+|{{ItemLink|Skill Book: Arcane Recovery}}
+|[[Ability Books|Skill Book]]
+|2355
+|}
+
+[[Category:Characters]]
+[[Category:Port Azure]]
+[[Category:Vendors]]

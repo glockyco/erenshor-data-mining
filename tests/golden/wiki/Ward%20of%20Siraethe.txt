@@ -1,0 +1,37 @@
+{{Enemy
+|name=Ward of Siraethe
+|image=[[File:Ward of Siraethe.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=
+|coordinates=
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=5
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=13000
+|mana=0
+|ac=75
+|strength=3
+|endurance=3
+|dexterity=3
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=2-6
+|poison=2-6
+|elemental=2-6
+|void=2-6
+|spells=
+}}
+
+[[Category:Enemies]]

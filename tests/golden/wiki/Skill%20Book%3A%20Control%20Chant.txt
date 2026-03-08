@@ -1,0 +1,33 @@
+{{Item
+|title=Skill Book: Control Chant
+|type=[[Ability Books|Skill Book]]
+|vendorsource=[[Nylith Valorro]]
+|source=
+|othersource=[[Arcanist]] starting gear
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=185
+|sell=120
+|taughtspell=
+|taughtskill={{AbilityLink|Chant Control}}
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SkillBook
+|image=Skill Book: Control Chant.png
+|name=Skill Book: Control Chant
+|duelist_level=
+|druid_level=
+|arcanist_level=1
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|skill_type=Other
+|skill_desc=Activate any time during the channeling of a DAMAGE SPELL to control your chant. Activate again to immediately end the spell. Damage is scaled by how far along the channel was. Going over 100% increases damage further, but adds a cooldown penalty.
+|simplayers_autolearn=True
+}}
+
+[[Category:Ability Books]]

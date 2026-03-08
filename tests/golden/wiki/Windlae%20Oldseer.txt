@@ -1,0 +1,106 @@
+{{Enemy
+|name=Windlae Oldseer
+|image=[[File:Windlae Oldseer.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Stowaway's Step]]
+|factionChange=-15 [[The Citizens of Erenshor]]
+|zones=[[Hidden Hills]]
+|coordinates=-9.3 x -2.9 x -12.0
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates=
+|level=15
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=19500
+|mana=0
+|ac=225
+|strength=35
+|endurance=35
+|dexterity=35
+|agility=35
+|intelligence=35
+|wisdom=35
+|charisma=35
+|magic=8-18
+|poison=8-18
+|elemental=8-18
+|void=8-18
+|spells=
+}}
+Windlae is an NPC in [[Hidden Hills]]. She is a Vendor for [[Stormcaller|Stormcallers]] and quest giver for {{QuestLink|Grizzlepaw's Chain}}.
+
+Greeting message:
+{| class="wikitable"
+|Ah, welcome to the settlement. Looking for a way to <span style="color: #15e300;">[test]</span>
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[test]</span>
+|There's an old bear in the Brake - Grizzlepaw. Wedged in his teeth, there is an old <span style="color: #15e300;">[chain]</span> from a pendant. Bring it to me, and I'll pay handsomly.
+|-
+|<span style="color: #15e300;">[chain]</span>
+|Belonged to a friend of mine, I suspect. Haven't seen it myself, but have heard enough tales to believe it's true.
+|}
+
+If you give her [[Weathered Chain]] for the quest {{QuestLink|Grizzlepaw's Chain}}:
+{| class="wikitable"
+|Ah, so it is true then. Tragedy has befallen my friend but at least revenge has been taken. Thank you for your services, please take this as a token of my appreciation. 
+|}
+
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Spell Scroll: Ball Lightning}}
+|[[:Category:Ability Books|Spell Book]]
+|1800
+|-
+|{{ItemLink|Spell Scroll: Focus Target}}
+|[[:Category:Ability Books|Spell Book]]
+|1400
+|-
+|{{ItemLink|Spell Scroll: Static Invocation}}
+|[[:Category:Ability Books|Spell Book]]
+|125
+|-
+|{{ItemLink|Spell Scroll: Targeted Gust}}
+|[[:Category:Ability Books|Spell Book]]
+|325
+|-
+|{{ItemLink|Skill Book: Precision}}
+|[[:Category:Ability Books|Skill Book]]
+|2500
+|-
+|{{ItemLink|Skill Book: Flaming Arrow}}
+|[[:Category:Ability Books|Skill Book]]
+|1100
+|-
+|{{ItemLink|Skill Book: Execute}}
+|[[:Category:Ability Books|Skill Book]]
+|1100
+|-
+|{{ItemLink|Skill Book: Blunted Arrow}}
+|[[:Category:Ability Books|Skill Book]]
+|225
+|-
+|{{ItemLink|Skill Book: Execute}}
+|[[:Category:Ability Books|Skill Book]]
+|1100
+|-
+|{{ItemLink|Rotwood Bow}}
+||[[Weapons#|Bow]]
+|225
+|}
+
+[[Category:Characters]]
+[[Category:Hidden Hills]]
+[[Category:Vendors]]

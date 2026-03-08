@@ -1,0 +1,39 @@
+{{Enemy
+|name=Rosle of the Spirits
+|image=[[File:Rosle of the Spirits.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=+3 [[The Citizens of Erenshor]]<br>+3 [[The Citizens of Port Azure]]
+|zones=[[Underspine Hollow]]
+|coordinates=131.7 x 85.8 x 276.3
+|spawnchance=66%
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Mudmold Shield}}<br>{{ItemLink|Ring of The Mystics}}
+|droprates={{ItemLink|Ring of The Mystics}} (66.7%)<br>{{ItemLink|Mudmold Shield}} (33.3%)
+|level=15
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=4.0
+|health=8190
+|mana=0
+|ac=225
+|strength=20
+|endurance=45
+|dexterity=85
+|agility=30
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=8-18
+|poison=8-18
+|elemental=8-18
+|void=8-18
+|spells={{AbilityLink|Minor Lightning}}<br>{{AbilityLink|Morbidity's Grasp}}<br>{{AbilityLink|Toxicity}}
+}}
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Underspine Hollow]]

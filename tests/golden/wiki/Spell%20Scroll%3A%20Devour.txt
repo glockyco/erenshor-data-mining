@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Devour
+|type=[[:Category:Ability Books|Spell Scroll]]
+|vendorsource=
+|source=[[Darkwarden Awxa]] (87.1%)<br>[[Darkwarden Ealdred]] (87.1%)<br>[[Darkwarden Ilyth]] (87.1%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=10000
+|sell=6500
+|taughtspell={{AbilityLink|Devour}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Devour.png
+|name=Spell Scroll: Devour
+|arcanist_level=
+|druid_level=29
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=29
+|mana_cost=900
+|spell_type=Damage
+|spell_desc=Steal life from your target, and heal yourself for an equal amount.
+}}
+
+[[Category:Ability Books]]

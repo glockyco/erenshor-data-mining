@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Sunburst
+|type=[[Ability Books]]
+|vendorsource=[[Leyor M'Chante]]
+|source=[[Molorai Captain Sigrid]] (12.7%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=1255
+|sell=816
+|taughtspell={{AbilityLink|Sunburst}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Sunburst.png
+|name=Spell Scroll: Sunburst
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=11
+|stormcaller_level=
+|reaver_level=
+|mana_cost=120
+|spell_type=PBAE
+|spell_desc=Stuns all enemies in immediate vicinity.
+}}
+
+[[Category:Ability Books]]

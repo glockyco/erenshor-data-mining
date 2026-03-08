@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Celestial Pull II
+|type=
+|vendorsource=[[Leyor M'Chante]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=16500
+|sell=10725
+|taughtspell={{AbilityLink|Celestial Pull II}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Celestial Pull II.png
+|name=Spell Scroll: Celestial Pull II
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=33
+|stormcaller_level=
+|reaver_level=
+|mana_cost=500
+|spell_type=PBAE
+|spell_desc=(Taunt) PBAE Taunt Spell
+}}
+
+[[Category:Ability Books]]

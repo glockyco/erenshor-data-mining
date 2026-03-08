@@ -1,0 +1,40 @@
+{{Enemy
+|name=Xasxi
+|image=[[File:Xasxi.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Malaroth's Nesting Grounds]]
+|coordinates=582.1 x 30.1 x 924.8
+|spawnchance=33%
+|respawn=7 minutes
+|guaranteeddrops={{ItemLink|Wild Colossus Ring}}<br>{{ItemLink|Xasxi Bone Bracer}}
+|droprates={{ItemLink|Xasxi Bone Bracer}} (66.7%)<br>{{ItemLink|Wild Colossus Ring}} (33.3%)<br>{{ItemLink|Malaroth Hide}} (22.1%)<br>{{ItemLink|Ivory Tusk}} (20.4%)
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=3.0
+|health=24700
+|mana=300
+|ac=330
+|strength=400
+|endurance=400
+|dexterity=650
+|agility=200
+|intelligence=150
+|wisdom=95
+|charisma=100
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells=
+}}
+{{PAGENAME}} can be found in one of the rock canyons in [[Malaroth's Nesting Grounds]].
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Malaroth's Nesting Grounds]]

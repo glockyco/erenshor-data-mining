@@ -1,0 +1,61 @@
+{{Enemy
+|name=Sylvan Giant
+|image=[[File:Sylvan Giant.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Rare]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Fernalla's Revival Plains]]<br>[[Silkengrass Meadowlands]]
+|coordinates=
+|spawnchance=1% (Fernalla's Revival Plains)<br>25% (Silkengrass Meadowlands)
+|respawn=5 minutes (Fernalla's Revival Plains)<br>4 minutes (Silkengrass Meadowlands)
+|guaranteeddrops={{ItemLink|Arboreal Cape}}<br>{{ItemLink|Woodland Gauntlets}}
+|droprates={{ItemLink|Sylvan Giant's Blood}} (86.5%)<br>{{ItemLink|Arboreal Cape}} (50.0%)<br>{{ItemLink|Woodland Gauntlets}} (50.0%)
+|level=32
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=2.0
+|health=65000
+|mana=2000
+|ac=480
+|strength=50
+|endurance=145
+|dexterity=225
+|agility=165
+|intelligence=200
+|wisdom=200
+|charisma=100
+|magic=16-38
+|poison=16-38
+|elemental=16-38
+|void=16-38
+|spells={{AbilityLink|Biting Vines}}<br>{{AbilityLink|Tangle}}
+}}
+''{{Main|Enemies}}''
+=Location=
+{{PAGENAME}} is a '''rare''' enemy with a '''1% chance''' to replace [[A Brown Bear Cub|Brown Bear Cubs]], [[A Brown Bear|Brown Bears]], [[Spectral Bear|Spectral Bears]], and [[Dryad Spirit|Dryad Spirits]] in the western part of [[Fernalla's Revival Plains]]. There are 13 possible spawn locations for the {{PAGENAME}} in Fernalla's Revival Plains, for a '''12.2%''' total chance to spawn each time you enter the [[Zones|Zone]].<br><br>{{PAGENAME}} can also spawn in [[Silkengrass Meadowlands]] at a '''25% chance''' at a single point in front of the shrine where [[Edgar Taether]] can be found.
+
+=Appearance=
+{{PAGENAME}} is a large demi-human with light skin and a grey beard. He wears a sash across his chest, a horned helmet on his head, and a green and brown kilt. As the name implies, {{PAGENAME}} is massive and can easily be spotted from afar when entering the zone.
+
+=Behavior=
+{{PAGENAME}}s roam the landscape until sensing a target to attack. Not only are they aggressive to players, but they will also attack other enemies in their immediate vicinity.
+
+===Spells & Abilities===
+Offensive:
+*{{AbilityLink|Tangle}}
+*{{AbilityLink|Biting Vines}}
+
+===Strategy===
+Finding {{PAGENAME}} is half the battle, and may require players clearing out low-level spawns multiple times, or else repeatedly reloading the zone in an attempt to force him to spawn. Despite his high level, {{PAGENAME}} only uses low-level spells and can easily be tanked by a well-geared [[Paladin]] at a much lower level, allowing players to take him on relatively early.
+
+=Notes=
+*It is possible for multiple {{PAGENAME}}s to be present at the same time.
+*Because {{PAGENAME}} is aggressive and will fight other enemies in the same zone, it is possible for him to be killed without any effort by the player. This is most likely to occur if a {{PAGENAME}} spawns near the [[Spectre|Spectres]] in Fernalla's Revival Plains. While players will not receive any experience, they can still loot his corpse to receive high-end gear very early in the game.
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Fernalla's Revival Plains]]
+[[Category:Silkengrass Meadowlands]]

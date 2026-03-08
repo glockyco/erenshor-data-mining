@@ -1,0 +1,45 @@
+{{Enemy
+|name=Braxon Manfred
+|image=[[File:Braxon Manfred.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Port Azure]]
+|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]<br>-20 [[The Torchbearers of Brax]]
+|zones=[[Braxonian Desert]]
+|coordinates=191.6 x 43.6 x 972.0
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=18
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=3250
+|mana=100
+|ac=270
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=9-22
+|poison=9-22
+|elemental=9-22
+|void=9-22
+|spells=
+}}
+
+Manfred is located at the archaeologist dig site in the [[Braxonian Desert]]
+
+Greeting message:
+{| class="wikitable"
+|An entire ancient civilization was buried under the sand. We are working to uncover its secrets.
+|}
+
+[[Category:Braxonian Desert]]
+[[Category:Characters]]

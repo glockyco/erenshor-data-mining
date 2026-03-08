@@ -1,0 +1,54 @@
+{{Enemy
+|name=Chance Barlow
+|image=[[File:Chance Barlow.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Agents of The Wisp]]
+|factionChange=
+|zones=[[Stowaway's Step]]
+|coordinates=432.9 x 9.4 x 811.4
+|spawnchance=
+|respawn=1 second
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Arcanist Cap}} (20.4%)<ref>If Chance Barlow has {{ItemLink|Arcanist Cap}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Luminstone}} (11.5%)<br>{{ItemLink|Star Stone}} (11.5%)
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=28600
+|mana=155
+|ac=330
+|strength=65
+|endurance=65
+|dexterity=3
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells={{AbilityLink|Brax's Rage}}<br>{{AbilityLink|Brax's Touch}}<br>{{AbilityLink|Hardened Skin}}<br>{{AbilityLink|Magic Bolt}}<br>{{AbilityLink|Minor Lightning}}<br>{{AbilityLink|Minor Protection}}<br>{{AbilityLink|Minor Regeneration}}<br>{{AbilityLink|Vampiric Touch}}
+}}
+
+Chance is the NPC on the sandbar beneath the statue of Vitheo ready to take you to the mainland should you complete {{QuestLink | link=Whispers of Wyland}} and receive {{QuestLink | link=A Way To Erenshor}}.
+
+Greeting message:
+{| class="wikitable"
+|So you're the one who's tagging along? Fine. Not a word of what you've seen though, or else you'll be a topic we revisit. Are you <span style="color: #15e300;">[ready]</span> to <span style="color: #15e300;">[go]</span>?
+|}
+
+Prompts:
+{| class="wikitable"
+|If you say <span style="color: #15e300;">[ready]</span> or <span style="color: #15e300;">[go]</span>
+|Good. The ship is coming soon. Jump in one of these boats and we'll row out to meet it. We'll drop you away from the city so we don't raise suspicion around you. Then we're square.<br><br>
+|-
+|<span style="color: #15e300;">[yes]</span>
+|Go to the boats and we'll leave.
+|}
+
+[[Category:Characters]]
+[[Category:Stowaway's Step]]

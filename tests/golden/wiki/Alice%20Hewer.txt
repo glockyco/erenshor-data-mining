@@ -1,0 +1,69 @@
+{{Enemy
+|name=Alice Hewer
+|image=[[File:Alice Hewer.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Stowaway's Step]]
+|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
+|zones=[[Stowaway's Step]]
+|coordinates=747.2 x 18.5 x 440.4
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=3250
+|mana=100
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+
+Alice Hewer is the quest giver for {{QuestLink|Alice Hewer's Necklace}}. She's on the [[Docks]] on [[Stowaway's Step]]. To complete this quest kill [[A Brackish Croc Whelp]] and return the [[Plain Necklace]] to her.
+
+Greeting message:
+{| class="wikitable"
+|[[A Brackish Croc Whelp|A croc]] jumped right out of the water and I got so scared I dropped my <span style="color: #15e300;">[necklace]</span>... and he ATE IT! He went off towards the <span style="color: #15e300;">[lighthouse]</span>... if you get it back I'll be so grateful!
+|}
+
+Greeting message after completing {{QuestLink|Alice Hewer's Necklace}}:
+{| class="wikitable"
+|Thanks again!
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[necklace]</span> and <span style="color: #15e300;">[croc]</span>
+|He ate my necklace and ran off...
+|-
+|<span style="color: #15e300;">[lighthouse]</span> and <span style="color: #15e300;">[where]</span>
+|It's right over there... the lighthouse is just past the office.
+|}
+
+Giving her the {{ItemLink|Plain Necklace}} for {{QuestLink|Alice Hewer's Necklace}}:
+{| class="wikitable"
+|Thank you! Here, take this as a token of my appreciation!
+|}
+
+Giving her another {{ItemLink|Plain Necklace}} after completing {{QuestLink|Alice Hewer's Necklace}}:
+{| class="wikitable"
+|You've already given me my necklace back. This one's not mine... wierd that you found two!
+|}
+
+[[Category:Characters]]
+[[Category:Stowaway's Step]]

@@ -1,0 +1,75 @@
+{{Item
+|title=Port Azure Lighthouse Key
+|type=[[Keys|Key]]
+|vendorsource=
+|source=
+|othersource=
+|questsource={{QuestLink|Ripper's Questline}}<br>{{QuestLink|Sivakayans in Port Azure}}<br>{{QuestLink|link=Ripper's Questline{{!}}Ripper's Questline (1)}}
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+Used to get into the Port Azure Lighthouse. Inside the lighthouse and behind a hidden wall is a hole you can drop down to reach a secluded part of [[Vitheo's Rest]] where you can fight [[Darkwarden Ilyth]].
+
+{{Item/General
+|image=Port Azure Lighthouse Key.png
+|name=Port Azure Lighthouse Key
+|description=An old tarnished key to the Port Azure lighthouse.
+|value=
+|stack_size=
+|disposable=
+|effect_style=
+|effect_spell_icon=
+|effect_spell_name=
+|effect_spell_level=
+|effect_spell_duration_ticks=
+|effect_spell_type=
+|effect_spell_line=
+|effect_target_damage=
+|effect_target_healing=
+|effect_damage_type=
+|effect_cast_time=
+|effect_cooldown=
+|effect_spell_range=
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+}}
+
+[[Category:Items]]
+[[Category:Keys]]

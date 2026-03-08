@@ -1,0 +1,74 @@
+{{Item
+|title=Faded Journal Entry
+|type=[[Quest Items|Quest Item]]
+|vendorsource=
+|source=[[Raval, The First Paladin]] (100.0%)
+|othersource=
+|questsource=
+|relatedquest={{QuestLink|Note to Soluna}}
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+Give to give to [[Valao the Holy]] to recieve and complete {{QuestLink|link=Note to Soluna}}.
+
+{{Item/General
+|image=Faded Journal Entry.png
+|name=Faded Journal Entry
+|description=Each day we pray for Soluna's return to free us from the beast that lurks beyond the canyon. The beast has crumbled and disguised itself as stardust, but it might reform at any moment... and I fear for our sanity in this place. <br><br>Whatever the beast's reason for pursuing Soluna here, I hope that reason takes it away again soon. We are no match for it, and her guardians will not leave the shrine. <br><br>We asked not for this gift. Our brothers dare not approach for fear of it being forced upon them too, and I worry our restoration is no longer possible.
+|value=
+|stack_size=
+|disposable=
+|effect_style=
+|effect_spell_icon=
+|effect_spell_name=
+|effect_spell_level=
+|effect_spell_duration_ticks=
+|effect_spell_type=
+|effect_spell_line=
+|effect_target_damage=
+|effect_target_healing=
+|effect_damage_type=
+|effect_cast_time=
+|effect_cooldown=
+|effect_spell_range=
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+}}
+
+[[Category:Items]]
+[[Category:Quest Items]]

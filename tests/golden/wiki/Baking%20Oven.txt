@@ -1,0 +1,64 @@
+{{Enemy
+|name=Baking Oven
+|image=[[File:Baking Oven.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=
+|factionChange=
+|zones=[[Bellwain Island]]<br>[[Port Azure]]<br>[[Prielian Cascade]]
+|coordinates=
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=35
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1300
+|mana=0
+|ac=525
+|strength=3
+|endurance=3
+|dexterity=3
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=18-42
+|poison=18-42
+|elemental=18-42
+|void=18-42
+|spells=
+}}
+
+{| class="wikitable"
+|+ Locations
+|-
+! Zone !! Location
+|-
+| [[Prielian Cascade]] || In the house on the second level of the zone
+|-
+| [[Port Azure]] || Inside the backroom of the inn in the market
+|-
+| [[Bellwain Island]] || In the kitchen of the house immediately to the right of the front door
+|}
+
+To craft an item, trade the requisite items with it
+
+{| class="wikitable"
+|+ Recipes
+|-
+! Item !! Ingredients
+|-
+| {{ItemLink|Malaroth Feed}} || 1x {{ItemLink|An Octorunner}}, 1x {{ItemLink|A Frowny Clowny}}, 1x {{ItemLink|Azure Mead}}
+|-
+| {{ItemLink|Odd Malaroth Feed}} || 1x {{ItemLink|An Octorunner}}, 1x {{ItemLink|A Frowny Clowny}}, 1x {{ItemLink|Azure Mead}}, 1x {{ItemLink|A Moongill}}
+|}
+
+[[Category:Bellwain Island]]
+[[Category:Characters]]
+[[Category:Port Azure]]
+[[Category:Prielian Cascade]]

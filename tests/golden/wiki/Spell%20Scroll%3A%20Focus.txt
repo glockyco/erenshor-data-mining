@@ -1,0 +1,35 @@
+Currently <span style="color: #FFFF00;">unobtainable</span>
+
+{{Item
+|title=Spell Scroll: Focus
+|type=[[Ability Books]]
+|vendorsource=
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=450
+|sell=292
+|taughtspell={{AbilityLink|Focus}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Focus.png
+|name=Spell Scroll: Focus
+|arcanist_level=-1
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=100
+|spell_type=Beneficial
+|spell_desc=Increase intelligence substantially for a brief time
+}}
+
+[[Category:Ability Books]]

@@ -1,0 +1,38 @@
+{{Enemy
+|name=Spinesnap Gorilla
+|image=[[File:Spinesnap Gorilla.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Mysterious Portal|Mysterious Portal (3)]]
+|coordinates=
+|spawnchance=
+|respawn=1 minutes and 40 seconds
+|guaranteeddrops=
+|droprates={{ItemLink|A Moongill}} (17.8%)<br>{{ItemLink|A Sleepyhead}} (17.8%)<br>{{ItemLink|Spinesnap Hide Hood}} (7.6%)
+|level=30
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=44850
+|mana=0
+|ac=450
+|strength=500
+|endurance=500
+|dexterity=600
+|agility=300
+|intelligence=300
+|wisdom=225
+|charisma=200
+|magic=15-36
+|poison=15-36
+|elemental=15-36
+|void=15-36
+|spells=
+}}
+
+[[Category:Enemies]]
+[[Category:Mysterious Portal]]

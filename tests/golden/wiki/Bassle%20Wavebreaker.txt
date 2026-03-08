@@ -1,0 +1,52 @@
+{{Enemy
+|name=Bassle Wavebreaker
+|image=[[File:Bassle Wavebreaker.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=
+|zones=[[Blacksalt Strand]]
+|coordinates=68.1 x 12.1 x 195.5
+|spawnchance=
+|respawn=6 minutes 40 seconds
+|guaranteeddrops=
+|droprates={{ItemLink|Hardened Copper Sword}} (68.1%)<br>{{ItemLink|Citrine Stone}} (40.4%)<br>{{ItemLink|Water}} (40.4%)
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=24700
+|mana=300
+|ac=330
+|strength=400
+|endurance=400
+|dexterity=650
+|agility=200
+|intelligence=150
+|wisdom=95
+|charisma=100
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells={{AbilityLink|Death's Embrace}}<br>{{AbilityLink|Expose Weakness}}
+}}
+
+Gordon is located in [[Blacksalt Strand]] on the shore opposite the boat. He only appears during the night.
+
+Greeting message (if {{QuestLink|link=The Angler's Ring}} is completed):
+{| class="wikitable"
+|Oi, who are you? You the one i'm <span style="color: #15e300;">[taking]</span>
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[taking]</span>
+|Yeah. Ok. Get in the boat. Say nothin' to noone.
+<i>This begins and Completes {{QuestLink|link=Meet The Fisherman}}</i>
+|}
+
+[[Category:Blacksalt Strand]]
+[[Category:Characters]]

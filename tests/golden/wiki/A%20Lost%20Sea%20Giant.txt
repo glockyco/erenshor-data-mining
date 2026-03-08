@@ -1,0 +1,88 @@
+{{Enemy
+|name=A Lost Sea Giant
+|image=[[File:A Lost Sea Giant.png|thumb]]
+|imagecaption=
+|type=[[Enemies#List of Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Vitheo's Watch]]
+|coordinates=
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Ghostly Giant's Blood}} (87.1%)<br>{{ItemLink|Sea Glass}} (24.5%)<br>{{ItemLink|Seafruit}} (4.0%)<br>{{ItemLink|Seaspice}} (4.0%)<br>{{ItemLink|Aetheria}} (3.4%)<ref>If the player is already holding {{ItemLink|Aetheria}} in their inventory, another will not drop.</ref><br>{{ItemLink|Twilight Shield}} (3.4%)
+|level=11
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=5850
+|mana=0
+|ac=165
+|strength=155
+|endurance=100
+|dexterity=225
+|agility=20
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=6-13
+|poison=6-13
+|elemental=6-13
+|void=6-13
+|spells=
+}}
+'''{{main|Enemies}}''
+=Location=
+{{PAGENAME}} can be found on the eastern cape of [[Vitheo's Watch]], near the ruins.
+
+=Appearance=
+{{PAGENAME}} is a ghostly blue apparition. {{PAGENAME}} can be male or female, with the female variants being three levels higher than that of the males. There is a '''50%''' chance for each variant to spawn.
+
+=Behavior=
+{{PAGENAME}} roams the ruins on the coast. It will attack players if they get too close, or if it or a nearby Lost Sea Giant are provoked.
+
+===Spells & Abilities===
+{{PAGENAME}} does not use any spells or abilities.
+
+=Notes=
+
+{{Enemy
+|name=A Lost Sea Giant
+|image=[[File:A Lost Sea Giant.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Vitheo's Watch]]
+|coordinates=
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Ghostly Giant's Blood}} (93.5%)<br>{{ItemLink|Sea Glass}} (28.2%)<br>{{ItemLink|Twilight Shield}} (13.7%)<ref>If A Lost Sea Giant has {{ItemLink|Twilight Shield}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Sea Giant's Cutlass}} (8.9%)<ref>If A Lost Sea Giant has {{ItemLink|Sea Giant's Cutlass}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Aetheria}} (5.1%)<ref>If the player is already holding {{ItemLink|Aetheria}} in their inventory, another will not drop.</ref>
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=5850
+|mana=0
+|ac=120
+|strength=155
+|endurance=100
+|dexterity=225
+|agility=20
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+
+[[Category:Enemies]]
+[[Category:Vitheo's Watch]]

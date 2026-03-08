@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Vithean Wind
+|type=[[Ability Books]]
+|vendorsource=[[Edwin Ansegg]]<br>[[Pierson Windwash]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=4800
+|sell=3120
+|taughtspell={{AbilityLink|Vithean Wind}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Vithean Wind.png
+|name=Spell Scroll: Vithean Wind
+|arcanist_level=
+|druid_level=
+|duelist_level=17
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=155
+|spell_type=AE
+|spell_desc=Briefly dazzles all nearby targets
+}}
+
+[[Category:Ability Books]]

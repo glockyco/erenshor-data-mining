@@ -1,0 +1,72 @@
+{{Item
+|title=Rune of Winds
+|type=[[Quest Items|Quest Item]]
+|vendorsource=
+|source=
+|othersource=
+|questsource={{QuestLink|Portal of Windwashed}}<br>{{QuestLink|The Scent of Brashell}}
+|relatedquest={{QuestLink|Portal of Windwashed}}
+|craftsource=
+|componentfor=
+|buy=5000
+|sell=3250
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/General
+|image=Rune of Winds.png
+|name=Rune of Winds
+|description=A gift from the Braxonians
+|value=5000
+|stack_size=
+|disposable=
+|effect_style=Activatable
+|effect_spell_icon=Portal to Windwashed.png
+|effect_spell_name=[[Portal to Windwashed]]
+|effect_spell_level=25
+|effect_spell_duration_ticks=
+|effect_spell_type=Misc
+|effect_spell_line=Generic
+|effect_target_damage=
+|effect_target_healing=
+|effect_damage_type=Physical
+|effect_cast_time=4.5
+|effect_cooldown=
+|effect_spell_range=
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+}}
+
+[[Category:Items]]

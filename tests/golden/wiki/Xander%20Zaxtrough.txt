@@ -1,0 +1,55 @@
+{{Enemy
+|name=Xander Zaxtrough
+|image=[[File:Xander Zaxtrough.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=-10 [[The Citizens of Erenshor]]<br>-10 [[The Citizens of Port Azure]]
+|zones=[[Hidden Hills]]
+|coordinates=93.4 x 0.6 x 10.0
+|spawnchance=
+|respawn=3 minutes
+|guaranteeddrops=
+|droprates=
+|level=15
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=520
+|mana=0
+|ac=225
+|strength=35
+|endurance=35
+|dexterity=35
+|agility=35
+|intelligence=35
+|wisdom=35
+|charisma=35
+|magic=8-18
+|poison=8-18
+|elemental=8-18
+|void=8-18
+|spells=
+}}
+Xander is an NPC in [[Hidden Hills]]. He is a bounty hunter. He is located southwest of the town in Hidden Hills. Standing next to [[Trevor Ulchand]]. 
+
+Greeting message:
+{| class="wikitable"
+|Well met, I'm Xander, and I'm a bounty hunter. We're here to <span style="color: #15e300;">[work]</span>, so if you don't have info, stand aside.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[work]</span>
+|Lookin' for a missing person. I suspect the <span style="color: #15e300;">[Molorai]</span> have him over in the Krakengard prison. He's apparently in a line of <span style="color: #15e300;">[work]</span> that's right up their alley. The prison is hidden... but they say that you can hear the wind blow through it when you're close.<br>
+<i>This starts {{QuestLink | link=A Missing Person}}.</i>
+|-
+|<span style="color: #15e300;">[Molorai]</span>
+|They're a group that took interest in Erenshor early on. They do call this place the Land of the Gods, afterall. Most all religious writings refer to this place. Old Eldoth <span style="color: #15e300;">[Molorai]</span>'s interested in that sort of thing.
+|}
+
+[[Category:Characters]]
+[[Category:Hidden Hills]]
+[[Category:Vendors]]

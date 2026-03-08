@@ -1,0 +1,42 @@
+{{Enemy
+|name=Molorai Chef
+|image=[[File:Molorai Chef.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
+|factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Azure Guard]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
+|zones=[[Old Krakengard]]
+|coordinates=364.7 x -9.6 x 126.0
+|spawnchance=33%
+|respawn=8 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Chopping Gloves}} (13.4%)<br>{{ItemLink|Luminstone}} (11.5%)<br>{{ItemLink|Star Stone}} (11.5%)<br>{{ItemLink|Molorai Manifesto, Pg. 1}} (1.6%)<ref>If the player is already holding {{ItemLink|Molorai Manifesto, Pg. 1}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Manifesto, Pg. 2}} (1.6%)<ref>If the player is already holding {{ItemLink|Molorai Manifesto, Pg. 2}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Manifesto, Pg. 3}} (1.6%)<ref>If the player is already holding {{ItemLink|Molorai Manifesto, Pg. 3}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Manifesto, Pg. 4}} (1.6%)<ref>If the player is already holding {{ItemLink|Molorai Manifesto, Pg. 4}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Manifesto, Pg. 5}} (1.6%)<ref>If the player is already holding {{ItemLink|Molorai Manifesto, Pg. 5}} in their inventory, another will not drop.</ref>
+|level=12
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=2.0
+|health=2412
+|mana=55
+|ac=180
+|strength=175
+|endurance=100
+|dexterity=255
+|agility=75
+|intelligence=55
+|wisdom=3
+|charisma=35
+|magic=6-14
+|poison=6-14
+|elemental=6-14
+|void=6-14
+|spells={{AbilityLink|Biting Vines}}<br>{{AbilityLink|Magic Bolt}}<br>{{AbilityLink|Minor Protection}}<br>{{AbilityLink|Minor Regeneration}}<br>{{AbilityLink|Theft of Life}}<br>{{AbilityLink|Weak Poison}}
+}}
+The Chef can use [[Biting Vines]], [[Theft of Life]], [[Weak Poison]] and [[Magic Bolt]].
+=Notes=
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Old Krakengard]]
+[[Category:Vitheo's Watch]]

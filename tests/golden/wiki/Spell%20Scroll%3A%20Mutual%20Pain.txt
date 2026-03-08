@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Mutual Pain
+|type=
+|vendorsource=[[Grant Haxoway]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=1200
+|sell=780
+|taughtspell={{AbilityLink|Mutual Pain}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Mutual Pain.png
+|name=Spell Scroll: Mutual Pain
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=17
+|mana_cost=300
+|spell_type=Damage
+|spell_desc=Deals base 450 scaling void damage to your target, and 450 true damage to yourself
+}}
+
+[[Category:Ability Books]]

@@ -1,0 +1,45 @@
+{{Enemy
+|name=Clinton Vars
+|image=[[File:Clinton Vars.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Port Azure]]
+|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
+|zones=[[Windwashed Pass]]
+|coordinates=346.8 x 32.3 x 258.8
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=3250
+|mana=100
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+
+Clinton is located near one of the campsites in the [[Windwashed Pass]]
+
+Greeting message:
+{| class="wikitable"
+|Peaceful out here. The wildlife doesn't come top the shoreline. Gets me away from the politics of Port Azure.
+|}
+
+[[Category:Characters]]
+[[Category:Windwashed Pass]]

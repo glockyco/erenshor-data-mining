@@ -1,0 +1,38 @@
+{{Enemy
+|name=Hooded Stone Serpent
+|image=[[File:Hooded Stone Serpent.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Rockshade Hold]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates=
+|level=18
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=17550
+|mana=1000
+|ac=270
+|strength=455
+|endurance=455
+|dexterity=455
+|agility=100
+|intelligence=155
+|wisdom=100
+|charisma=100
+|magic=9-22
+|poison=9-22
+|elemental=9-22
+|void=9-22
+|spells=
+}}
+
+[[Category:Enemies]]
+[[Category:Rockshade Hold]]

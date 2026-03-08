@@ -1,0 +1,41 @@
+{{Enemy
+|name=Sivakayan Voidmaster
+|image=[[File:Sivakayan Voidmaster.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=
+|coordinates=
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Sivakayan Encrypted Plans}} (100.0%)<ref>If the player is already holding {{ItemLink|Sivakayan Encrypted Plans}} in their inventory, another will not drop.</ref><br>{{ItemLink|Warped Choker}} (9.0%)<br>{{ItemLink|Ruby}} (4.9%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Abyssal Plate}} (4.5%)<br>{{ItemLink|Citrine Stone}} (2.5%)<br>{{ItemLink|Diamond}} (2.5%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Sea Glass}} (2.5%)<br>{{ItemLink|Sivakayan Wand}} (2.5%)
+|level=39
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=162500
+|mana=0
+|ac=585
+|strength=655
+|endurance=655
+|dexterity=850
+|agility=700
+|intelligence=500
+|wisdom=500
+|charisma=500
+|magic=20-47
+|poison=20-47
+|elemental=20-47
+|void=20-47
+|spells=
+}}
+
+The {{PAGENAME}} is one of five Sivakayan Spectres that can randomly spawn in a zone when the {{ItemLink|Watcher's Lens}} is equipped in a [[Cosmetic Items|cosmetic item]] slot.
+
+== Notes ==
+
+[[Category:Enemies]]

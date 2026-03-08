@@ -1,0 +1,61 @@
+{{Enemy
+|name=Customs Guard
+|image=[[File:Customs Guard.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Stowaway's Step]]
+|factionChange=-100 [[The Citizens of Stowaway's Step]]
+|zones=[[Stowaway's Step]]
+|coordinates=778.5 x 21.3 x 473.0
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates=
+|level=25
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=32500
+|mana=0
+|ac=375
+|strength=155
+|endurance=155
+|dexterity=155
+|agility=155
+|intelligence=155
+|wisdom=155
+|charisma=155
+|magic=12-30
+|poison=12-30
+|elemental=12-30
+|void=12-30
+|spells=
+}}
+
+The Customs Guard is the first NPC you'll meet on entry to [[Stowaway's Step]] he gives the quest {{QuestLink|Stowaway Registration}} upon talking to him.
+
+Greeting message:
+{| class="wikitable"
+|Welcome to Stowaway's Step, stranger. Please go check in at the <span style="color: #15e300;">[office]</span> up ahead. Here is your dock pass. Give it to the agent inside. Do not lose it!
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[office]</span>
+|Yes, the big building just to the right of the dock here. See Wendyl inside with your papers to register.
+|}
+
+If you <span style="color: #15e300;">hail</span> him again after recieving the {{ItemLink|Dock Pass}}:
+{| class="wikitable"
+|You already have the item!
+|}
+
+If you <span style="color: #15e300;">hail</span> him again after completing {{QuestLink|Stowaway Registration}}
+{| class="wikitable"
+|You've already registered... get off my docks.
+|}
+
+[[Category:Characters]]
+[[Category:Stowaway's Step]]

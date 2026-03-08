@@ -1,0 +1,54 @@
+{{Enemy
+|name=Braxon Jaylan
+|image=[[File:Braxon Jaylan.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Port Azure]]
+|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]<br>-20 [[The Torchbearers of Brax]]
+|zones=[[Braxonian Desert]]
+|coordinates=109.9 x 22.6 x 586.9
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=18
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=3250
+|mana=100
+|ac=270
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=9-22
+|poison=9-22
+|elemental=9-22
+|void=9-22
+|spells=
+}}
+
+Manfred is located at the archaeologist dig site in the [[Braxonian Desert]]
+
+Greeting message:
+{| class="wikitable"
+|The ground has been hardened into stone in many places, we are having trouble <span style="color: #15e300;">[excavating]</span> the city.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[excavating]</span>
+All we have to do is find one opening, one window or rooftop hatch, and we may gain <span style="color: #15e300;">[entry]</span> to centuries of history!
+|-
+|<span style="color: #15e300;">[entry]</span>
+In old Braxonian, it's called 'Evadne' so it would seem - as that word is written in every text that references the entrance to Braxonia.
+|}
+
+[[Category:Braxonian Desert]]
+[[Category:Characters]]

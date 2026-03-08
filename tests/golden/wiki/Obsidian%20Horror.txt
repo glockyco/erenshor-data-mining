@@ -1,0 +1,38 @@
+{{Enemy
+|name=Obsidian Horror
+|image=[[File:Obsidian Horror.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=+2 [[Fernalla's Children]]<br>+2 [[The Torchbearers of Brax]]
+|zones=[[The Blight]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Diamond}} (20.4%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ancient Pottery Shard}} (11.5%)<br>{{ItemLink|Blight Crystals}} (11.5%)
+|level=27
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=25415
+|mana=2500
+|ac=405
+|strength=600
+|endurance=500
+|dexterity=600
+|agility=100
+|intelligence=225
+|wisdom=100
+|charisma=100
+|magic=14-32
+|poison=14-32
+|elemental=14-32
+|void=14-32
+|spells=
+}}
+
+[[Category:Enemies]]
+[[Category:The Blight]]

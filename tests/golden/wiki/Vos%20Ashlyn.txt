@@ -1,0 +1,41 @@
+{{Enemy
+|name=Vos Ashlyn
+|image=[[File:Vos Ashlyn.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Azynthi's Garden|Azynthi's Garden (Dimensional Rift)]]
+|coordinates=535.7 x 67.4 x 270.6
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Spell Scroll: Annihilate}}<br>{{ItemLink|Spell Scroll: Tenebris}}
+|droprates={{ItemLink|Riftsnare Gem}} (100.0%)<br>{{ItemLink|Spell Scroll: Annihilate}} (50.0%)<br>{{ItemLink|Spell Scroll: Tenebris}} (50.0%)<br>{{ItemLink|Cloth Gloves}} (15.8%)<br>{{ItemLink|Cloth Hood}} (15.8%)<br>{{ItemLink|Cloth Shoes}} (15.8%)<br>{{ItemLink|Cloth Sleeves}} (15.8%)
+|level=38
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=78000
+|mana=3500
+|ac=570
+|strength=650
+|endurance=650
+|dexterity=650
+|agility=145
+|intelligence=305
+|wisdom=205
+|charisma=200
+|magic=19-46
+|poison=19-46
+|elemental=19-46
+|void=19-46
+|spells={{AbilityLink|Aetherstorm}}<br>{{AbilityLink|Devour}}<br>{{AbilityLink|Infernis}}
+}}
+
+In the graveyard
+
+[[Category:Azynthi's Garden]]
+[[Category:Bosses]]
+[[Category:Enemies]]

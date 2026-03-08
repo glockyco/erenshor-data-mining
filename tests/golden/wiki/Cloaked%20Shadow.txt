@@ -1,0 +1,38 @@
+{{Enemy
+|name=Cloaked Shadow
+|image=[[File:Cloaked Shadow.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Mysterious Portal|Mysterious Portal (3)]]
+|coordinates=
+|spawnchance=
+|respawn=1 minute 40 seconds
+|guaranteeddrops=
+|droprates={{ItemLink|Cloth Gloves}} (36.8%)<br>{{ItemLink|Cloth Hood}} (36.8%)<br>{{ItemLink|Cloth Shoes}} (36.8%)<br>{{ItemLink|Cloth Sleeves}} (36.8%)<br>{{ItemLink|Brackfruit Juice}} (13.4%)<br>{{ItemLink|Stirrer of Sleep}} (5.2%)<ref>If Cloaked Shadow has {{ItemLink|Stirrer of Sleep}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Elixir of Enlightenment I}} (2.6%)
+|level=32
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=39000
+|mana=0
+|ac=480
+|strength=500
+|endurance=500
+|dexterity=600
+|agility=300
+|intelligence=300
+|wisdom=225
+|charisma=200
+|magic=16-38
+|poison=16-38
+|elemental=16-38
+|void=16-38
+|spells={{AbilityLink|Aetherstorm}}<br>{{AbilityLink|Devour}}<br>{{AbilityLink|Minor Protection}}
+}}
+
+[[Category:Enemies]]
+[[Category:Mysterious Portal]]

@@ -1,0 +1,38 @@
+{{Enemy
+|name=Vithean Blademaster
+|image=[[File:Vithean Blademaster.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=+2 [[The Blades of Vitheo]]
+|zones=[[Vitheo's Rest]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Spectral Dagger}} (13.1%)<br>{{ItemLink|Vithean Brick}} (7.3%)<ref>If the player is already holding {{ItemLink|Vithean Brick}} in their inventory, another will not drop.</ref>
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=16900
+|mana=300
+|ac=330
+|strength=400
+|endurance=455
+|dexterity=600
+|agility=35
+|intelligence=35
+|wisdom=95
+|charisma=75
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells=
+}}
+
+[[Category:Enemies]]
+[[Category:Vitheo's Rest]]

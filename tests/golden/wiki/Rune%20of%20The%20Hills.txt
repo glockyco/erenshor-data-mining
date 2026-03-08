@@ -1,0 +1,74 @@
+{{Item
+|title=Rune of The Hills
+|type=[[Teleportation]]<br>[[Quest Items|Quest Item]]
+|vendorsource=
+|source=
+|othersource=
+|questsource={{QuestLink|link=Willow Soil (Quest){{!}}Willow Soil}}<br>{{QuestLink|Portal of Hidden Hills}}
+|relatedquest={{QuestLink|Portal of Hidden Hills}}
+|craftsource=
+|componentfor=
+|buy=5000
+|sell=3250
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+A reward for completing {{QuestLink|link=Willow Soil}}. It can teleport the user to the [[Hidden Hills]] teleport pad.
+
+{{Item/General
+|image=Rune of The Hills.png
+|name=Rune of The Hills
+|description=
+|value=5000
+|stack_size=
+|disposable=
+|effect_style=Activatable
+|effect_spell_icon=Portal to Hidden.png
+|effect_spell_name=[[Portal to Hidden]]
+|effect_spell_level=25
+|effect_spell_duration_ticks=
+|effect_spell_type=Misc
+|effect_spell_line=Generic
+|effect_target_damage=
+|effect_target_healing=
+|effect_damage_type=Physical
+|effect_cast_time=4.5
+|effect_cooldown=
+|effect_spell_range=
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+}}
+
+[[Category:Items]]
+[[Category:Teleportation]]

@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Intrusive Ideas
+|type=[[Ability Books|Spell Scroll]]
+|vendorsource=
+|source=[[Molorai Archmage]] (13.4%)<br>[[Molorai Archmage]] (13.1%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=1800
+|sell=1170
+|taughtspell={{AbilityLink|Intrusive Ideas}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Intrusive Ideas.png
+|name=Spell Scroll: Intrusive Ideas
+|arcanist_level=11
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=450
+|spell_type=StatusEffect
+|spell_desc=Charm an NPC (up to level 12) to do your bidding for a short time.
+}}
+
+[[Category:Ability Books]]

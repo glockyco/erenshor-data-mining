@@ -1,0 +1,54 @@
+{{Enemy
+|name=Braxon Kylith
+|image=[[File:Braxon Kylith.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Port Azure]]
+|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]<br>-20 [[The Torchbearers of Brax]]
+|zones=[[Braxonian Desert]]
+|coordinates=108.5 x 22.4 x 578.8
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=18
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=3250
+|mana=100
+|ac=270
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=9-22
+|poison=9-22
+|elemental=9-22
+|void=9-22
+|spells=
+}}
+
+Manfred is located at the archaeologist dig site in the [[Braxonian Desert]]
+
+Greeting message:
+{| class="wikitable"
+|This place is incredible! There's no doubt that fallen |<span style="color: #15e300;">[Braxonia]</span> lies beneath our feet... the question is: how much of it is still there?
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[Braxonia]</span>
+The prized city of Brax, it's said that he graced it with his own presence and blessed it with a portal to his own plane of existence. When the <span style="color: #15e300;">[corruption]</span> came, he had to bury it in sand and fire to save the rest of the world.
+|-
+|<span style="color: #15e300;">[corruption]</span>
+Not a lot is known yet... Sivakaya fell in this place, and the spire of <span style="color: #15e300;">[corruption]</span> rose from the sands. The remnants of that event still walk the sands here, tread with care.
+|}
+
+[[Category:Braxonian Desert]]
+[[Category:Characters]]

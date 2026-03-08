@@ -1,0 +1,68 @@
+{{Enemy
+|name=Wishlan the Savior
+|image=[[File:Wishlan the Savior.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=
+|zones=[[The Blight]]
+|coordinates=416.6 x 43.3 x 172.7
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Polished Stone}} (84.7%)<br>{{ItemLink|Pulsating Stone}} (5.2%)<ref>If the player is already holding {{ItemLink|Pulsating Stone}} in their inventory, another will not drop.</ref>
+|level=18
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=9750
+|mana=3200
+|ac=270
+|strength=600
+|endurance=500
+|dexterity=650
+|agility=85
+|intelligence=155
+|wisdom=155
+|charisma=155
+|magic=9-22
+|poison=9-22
+|elemental=9-22
+|void=9-22
+|spells={{AbilityLink|Brax's Fury}}<br>{{AbilityLink|Ice Spear}}<br>{{AbilityLink|Winter's Bite}}
+}}
+Location: 418, 173. North Eastern Part of The Blight, just North of the Boatman.
+
+Greeting message:
+{| class="wikitable"
+|It is <span style="color: #15e300;">[hopeless]</span>.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[hopeless]</span>
+|Our way of life ended with Soluna's impact. The materials flung into the air rained directly upon our home. We were a brotherhood of historians, and now we are locked <span style="color: #15e300;">[forever]</span> in history.
+|-
+|<span style="color: #15e300;">[forever]</span>
+|Our skin turned to stone, our mortality was removed by the magic, and my brothers were driven to insanity by the years of unchanging pain. Soluna did not save us. Brax did not save us. <span style="color: #15e300;">[Azynthi]</span> was our last hope, so we ventured to the spire to find him. He did not answer our calls
+|-
+|<span style="color: #15e300;">[Azynthi]</span>
+|Our cure likely does not exist. A softening spell is unheard of. It would need to be created somehow. Without it, there is no sense in returning home. Being awy, we seem to have at least maintained our sanity.
+|}
+
+When handed [[Wishlan's Hope]]
+{| class="wikitable"
+|They had so much faith in me... and I was not able to help. I am glad to know they remembered my true intentions. Take this as my thanks, but before you go, please remove one and hand it to me - I lack the dexterity.
+<br><i>This begins and completes {{QuestLink|link=Wishlan's Hope (Quest){{!}}Wishlan's Hope}}</i>
+|}
+
+When handed [[Offering Stone]]
+{| class="wikitable"
+|They're beautiful, aren't they? I cannot recall why I carried this bag, but it may aid you. If you cross paths one day with Soluna I hope you find the power to convince her to undo our curse. I have one final gift for you, my eyes can no longer focus on it.
+<br><i>This begins and completes {{QuestLink|link=Wishlan's Hope (Quest){{!}}Wishlan's Hope Pt. 2}}</i>
+|}
+
+[[Category:Characters]]
+[[Category:The Blight]]

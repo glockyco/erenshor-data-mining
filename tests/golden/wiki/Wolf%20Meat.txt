@@ -1,0 +1,73 @@
+{{Item
+|title=Wolf Meat
+|type=[[Quest Items|Quest Item]]
+|vendorsource=
+|source=[[Molorai Attack Dog]] (95.1%)<br>[[Wild Ancestral Dog]] (95.1%)<br>[[Fungal Wolf]] (94.9%)<br>[[Stalking Wolf]] (94.9%)<br>[[Alpha Wolf]] (87.1%)<br>[[Ancient Canine]] (87.1%)<br>[[A Young Wolf]] (86.5%)<br>[[Dire Wolf]] (86.5%)<br>[[Giant Watchdog]] (86.5%)<br>[[Summoned Azynthian Warhound]] (86.5%)<br>[[Summoned Dire Wolf]] (86.5%)<br>[[Dire Huntress]] (74.5%)
+|othersource=
+|questsource=
+|relatedquest={{QuestLink|link=The Duskenlight Ritual (Quest){{!}}The Duskenlight Ritual}}<br>{{QuestLink|Wolf Meat for Fredrick}}
+|craftsource=
+|componentfor=
+|buy=5
+|sell=3
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/General
+|image=Wolf Meat.png
+|name=Wolf Meat
+|description=Not exactly a local delicacy.
+|value=5
+|stack_size=
+|disposable=
+|effect_style=
+|effect_spell_icon=
+|effect_spell_name=
+|effect_spell_level=
+|effect_spell_duration_ticks=
+|effect_spell_type=
+|effect_spell_line=
+|effect_target_damage=
+|effect_target_healing=
+|effect_damage_type=
+|effect_cast_time=
+|effect_cooldown=
+|effect_spell_range=
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+}}
+
+[[Category:Items]]
+[[Category:Quest Items]]

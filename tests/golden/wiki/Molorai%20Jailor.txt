@@ -1,0 +1,39 @@
+{{Enemy
+|name=Molorai Jailor
+|image=[[File:Molorai Jailor.png|thumb]]
+|imagecaption="You'll never forget the day you messed with the Molarai Militia!"
+|type=[[Enemies|Boss]]
+|faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
+|factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Azure Guard]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
+|zones=[[Old Krakengard]]
+|coordinates=279.8 x -9.6 x 62.6
+|spawnchance=33%
+|respawn=8 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|The Interrogator}} (20.4%)<br>{{ItemLink|Luminstone}} (11.5%)<br>{{ItemLink|Molorai Manifesto, Pg. 3}} (5.8%)<ref>If the player is already holding {{ItemLink|Molorai Manifesto, Pg. 3}} in their inventory, another will not drop.</ref><br>{{ItemLink|Star Stone}} (5.8%)
+|level=12
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=5.0
+|health=2275
+|mana=55
+|ac=180
+|strength=175
+|endurance=100
+|dexterity=255
+|agility=75
+|intelligence=55
+|wisdom=3
+|charisma=35
+|magic=6-14
+|poison=6-14
+|elemental=6-14
+|void=6-14
+|spells=
+}}
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Old Krakengard]]

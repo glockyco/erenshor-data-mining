@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Minor Regen
+|type=
+|vendorsource=
+|source=[[Aranuil Olaseo]] (3.4%)<br>[[Odyss Repman]] (3.4%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=20
+|sell=13
+|taughtspell={{AbilityLink|Minor Regeneration}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Minor Regen.png
+|name=Spell Scroll: Minor Regen
+|arcanist_level=
+|druid_level=-1
+|duelist_level=-1
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=10
+|spell_type=Beneficial
+|spell_desc=Increase life regeneration.
+}}
+
+[[Category:Ability Books]]

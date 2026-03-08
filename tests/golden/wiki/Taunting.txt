@@ -1,0 +1,18 @@
+{{Stance
+|title=Taunting
+|image=[[File:Stance: Taunting.png|thumb]]
+|description=All of your actions generate substantially more aggro. Your focus on this stance prevents natural health regeneration.
+|switch_message=shifts into an taunting combat stance
+|max_hp_mod=1.0
+|damage_mod=1.0
+|damage_taken_mod=1.0
+|proc_rate_mod=1.0
+|aggro_gen_mod=10.0
+|spell_damage_mod=1.0
+|self_damage_per_attack=
+|self_damage_per_cast=
+|lifesteal_amount=
+|resonance_amount=1.0
+|stop_regen=1
+|activated_by={{AbilityLink|Stance: Taunting}}
+}}

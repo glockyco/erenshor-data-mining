@@ -1,0 +1,53 @@
+{{Enemy
+|name=Hadden Passican
+|image=[[File:Hadden Passican.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Blades of Vitheo]]
+|factionChange=-15 [[The Blades of Vitheo]]<br>-15 [[The Citizens of Erenshor]]<br>-15 [[The Citizens of Port Azure]]
+|zones=[[Fernalla's Revival Plains]]
+|coordinates=367.4 x 41.1 x 537.6
+|spawnchance=
+|respawn=6 minutes
+|guaranteeddrops=
+|droprates=
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1632
+|mana=0
+|ac=330
+|strength=125
+|endurance=5
+|dexterity=125
+|agility=5
+|intelligence=5
+|wisdom=5
+|charisma=5
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells=
+}}
+
+Greeting message:
+{| class="wikitable"
+|We were on our way to bring some supplies to Goodsoil but... well, not anymore. I can't bring it back to Port Azure and I definitely can't get it to <span style="color: #15e300;">[Ripper's]</span> keep myself.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[Ripper's]</span>
+|It's way up north and not an easy trek. Say... would you like to take this package for me? Bring me back the receipt? Leena should be more than obliged to accept it. It'd save her a trip down here.<br><br><i>This begins {{QuestLink|link=Hadden's Supplies}}</i>
+|-
+|<span style="color: #15e300;">[Ripper's]</span> (after {{QuestLink|link=Hadden's Supplies}} completed)
+|I appreciate your help.
+|}
+location: (X: 367), (Y:41) (Z:537)
+
+[[Category:Characters]]
+[[Category:Fernalla's Revival Plains]]

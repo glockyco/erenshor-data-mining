@@ -1,0 +1,39 @@
+{{Enemy
+|name=Tek-Nu Dah
+|image=[[File:Tek-Nu Dah.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=+1 [[The Blades of Vitheo]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]
+|zones=[[Rottenfoot]]
+|coordinates=580.2 x 65.3 x 456.5
+|spawnchance=75%
+|respawn=4 minutes
+|guaranteeddrops={{ItemLink|Petrified Club}}<br>{{ItemLink|Runewoven Bracer}}
+|droprates={{ItemLink|Petrified Club}} (51.9%)<ref>If Tek-Nu Dah has {{ItemLink|Petrified Club}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Runewoven Bracer}} (51.9%)<br>{{ItemLink|Coral}} (41.8%)<br>{{ItemLink|Sea Glass}} (41.8%)<br>{{ItemLink|Seaweed}} (41.8%)<br>{{ItemLink|A Husselfish}} (15.1%)<br>{{ItemLink|A Worm Eel}} (7.8%)<br>{{ItemLink|Muck Ball}} (3.5%)<br>{{ItemLink|Spell Scroll: Expose Weakness}} (3.5%)<br>{{ItemLink|Spell Scroll: Winter's Bite}} (3.5%)<br>{{ItemLink|Swampy Loincloth}} (3.5%)
+|level=15
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=4.0
+|health=8840
+|mana=0
+|ac=225
+|strength=22
+|endurance=50
+|dexterity=135
+|agility=35
+|intelligence=35
+|wisdom=15
+|charisma=3
+|magic=8-18
+|poison=8-18
+|elemental=8-18
+|void=8-18
+|spells=
+}}
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Rottenfoot]]

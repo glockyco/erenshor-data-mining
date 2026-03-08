@@ -1,0 +1,33 @@
+{{Item
+|title=Skill Book: Dual Wield
+|type=[[Ability Books|Skill Book]]
+|vendorsource=[[Ludo Luxo]]<br>[[Sven Feartines]]
+|source=[[Islander Bandit]] (1.1%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=100
+|sell=65
+|taughtspell=
+|taughtskill={{AbilityLink|Dual Wield}}
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SkillBook
+|image=Skill Book: Dual Wield.png
+|name=Skill Book: Dual Wield
+|duelist_level=2
+|druid_level=
+|arcanist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|skill_type=Innate
+|skill_desc=Allows 1-handed weapons that are equipped in Secondary Hand to have a chance to swing during combat.
+|simplayers_autolearn=True
+}}
+
+[[Category:Ability Books]]

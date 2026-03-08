@@ -1,0 +1,39 @@
+{{Enemy
+|name=Molorai Curator
+|image=[[File:Molorai Curator.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
+|factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
+|zones=[[Azynthi's Garden]]
+|coordinates=591.6 x 103.8 x 468.5
+|spawnchance=50%
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Garg Wand}} (100.0%)<ref>If Molorai Curator has {{ItemLink|Garg Wand}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Citrine Stone}} (57.4%)<br>{{ItemLink|Water}} (57.4%)<br>{{ItemLink|Ancient Pottery Shard}} (6.8%)<br>{{ItemLink|Molorai Battle Chain}} (6.8%)<br>{{ItemLink|Vampire Fang}} (6.8%)<br>{{ItemLink|Azynthian Blade}} (6.7%)<ref>If Molorai Curator has {{ItemLink|Azynthian Blade}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Azynthian Scripture 1}} (4.0%)<ref>If the player is already holding {{ItemLink|Azynthian Scripture 1}} in their inventory, another will not drop.</ref><br>{{ItemLink|Azynthian Scripture 2}} (4.0%)<ref>If the player is already holding {{ItemLink|Azynthian Scripture 2}} in their inventory, another will not drop.</ref><br>{{ItemLink|Azynthian Scripture 3}} (4.0%)<ref>If the player is already holding {{ItemLink|Azynthian Scripture 3}} in their inventory, another will not drop.</ref>
+|level=34
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=2.0
+|health=63123
+|mana=2500
+|ac=510
+|strength=550
+|endurance=450
+|dexterity=755
+|agility=350
+|intelligence=225
+|wisdom=100
+|charisma=100
+|magic=17-41
+|poison=17-41
+|elemental=17-41
+|void=17-41
+|spells={{AbilityLink|Death's Embrace}}<br>{{AbilityLink|Expose Weakness}}
+}}
+
+[[Category:Azynthi's Garden]]
+[[Category:Bosses]]
+[[Category:Enemies]]

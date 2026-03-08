@@ -1,0 +1,74 @@
+{{Item
+|title=The Mathers Note
+|type=[[Quest Items|Quest Item]]
+|vendorsource=
+|source=[[The Corpse of Brice Mathers]] (100.0%)
+|othersource=
+|questsource=
+|relatedquest={{QuestLink|The Mathers' Demise}}
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+Required in the quest {{QuestLink | link=The Mathers' Demise}}.
+
+{{Item/General
+|image=The Mathers Note.png
+|name=The Mathers Note
+|description=I fear for our safety. I fear that our time is nearing its end. <br><br>There have been cloaked figures lurking on the beach at night, after dark. I wonder if they know what knowledge I possess... and how they plan to extract it from me. I can only wonder what Eldoth has asked of them...<br><br>If you find this letter after my demise, see my Brother Yarren in Goodsoil. I've given something of great interest to him for safe keeping. Ask for him - he's often toiling away out of sight.
+|value=
+|stack_size=
+|disposable=
+|effect_style=
+|effect_spell_icon=
+|effect_spell_name=
+|effect_spell_level=
+|effect_spell_duration_ticks=
+|effect_spell_type=
+|effect_spell_line=
+|effect_target_damage=
+|effect_target_healing=
+|effect_damage_type=
+|effect_cast_time=
+|effect_cooldown=
+|effect_spell_range=
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+}}
+
+[[Category:Items]]
+[[Category:Quest Items]]

@@ -1,0 +1,52 @@
+{{Enemy
+|name=Ward of Piety
+|image=[[File:Ward of Piety.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Jaws of Sivakaya]]
+|coordinates=1461.7 x -18.3 x 109.8
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=99
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=260000
+|mana=2000
+|ac=1485
+|strength=2000
+|endurance=2000
+|dexterity=2000
+|agility=2000
+|intelligence=2000
+|wisdom=2000
+|charisma=2000
+|magic=50-119
+|poison=50-119
+|elemental=50-119
+|void=50-119
+|spells=
+}}
+
+Ward of Piety is found behind [[Aeiros, Soldier of Sivakaya]]. If you do not tell it the passphrase and attempt to walk further into the dungeon, 3 invincible Wards of Piety appear and kill you.<br><br>
+
+Greeting message:
+{| class="wikitable"
+|Do not pass unless you are deemed worthy. You will die.
+|}
+<br>
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[Azynthi]</span>
+|<span style="color: #15e300;">[Azynthi]</span>...
+<i>This gives and completes the quest {{QuestLink|link=A Pious Guest}} and the wards will no longer attack you if you pass.</i>
+|}
+
+[[Category:Enemies]]
+[[Category:Jaws of Sivakaya]]

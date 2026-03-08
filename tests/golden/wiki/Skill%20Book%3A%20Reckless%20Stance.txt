@@ -1,0 +1,33 @@
+{{Item
+|title=Skill Book: Reckless Stance
+|type=
+|vendorsource=[[Grant Haxoway]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=8500
+|sell=5525
+|taughtspell=
+|taughtskill={{AbilityLink|Stance: Reckless}}
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SkillBook
+|image=Skill Book: Reckless Stance.png
+|name=Skill Book: Reckless Stance
+|duelist_level=
+|druid_level=
+|arcanist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=10
+|skill_type=Utility
+|skill_desc=Deal 100% more melee damage, but take 100% more damage from all incoming sources.   This stance does 4% of your max HP in damage to you each time you swing your sword.
+|simplayers_autolearn=True
+}}
+
+[[Category:Ability Books]]

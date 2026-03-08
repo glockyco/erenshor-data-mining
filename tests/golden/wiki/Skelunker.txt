@@ -1,0 +1,51 @@
+{{Enemy
+|name=Skelunker
+|image=[[File:Skelunker.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=
+|zones=[[Shivering Step]]
+|coordinates=433.0 x 14.2 x 299.2
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Vithean Brick}} (7.7%)<ref>If the player is already holding {{ItemLink|Vithean Brick}} in their inventory, another will not drop.</ref>
+|level=31
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=24050
+|mana=300
+|ac=465
+|strength=400
+|endurance=455
+|dexterity=400
+|agility=35
+|intelligence=35
+|wisdom=95
+|charisma=75
+|magic=16-37
+|poison=16-37
+|elemental=16-37
+|void=16-37
+|spells=
+}}
+
+Skelunker can be found near the cave area of [[Shivering Step]]
+
+Greeting message:
+{| class="wikitable"
+|Had a dream about a <span style="color: #15e300;">[cave]</span> here... a bear made of dead dreams lived in it, and I was soaked... freezing.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[cave]</span>
+Such a vivid dream, so I came to see. But there's nothing here. Funny though, I remember being so wet...
+|-
+
+[[Category:Characters]]
+[[Category:Shivering Step]]

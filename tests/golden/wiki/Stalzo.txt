@@ -1,0 +1,66 @@
+{{Enemy
+|name=Stalzo
+|image=[[File:Stalzo.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Necromancers of the Island Tomb]]
+|factionChange=-1000 [[The Necromancers of the Island Tomb]]
+|zones=[[Island Tomb]]
+|coordinates=165.0 x -8.9 x 166.8
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Soul Gem (Stalzo)}} (100.0%)<ref>If the player is already holding {{ItemLink|Soul Gem (Stalzo)}} in their inventory, another will not drop.</ref><br>{{ItemLink|Bread}} (78.2%)<br>{{ItemLink|Water}} (78.2%)
+|level=4
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1300
+|mana=0
+|ac=60
+|strength=6
+|endurance=12
+|dexterity=15
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=2-5
+|poison=2-5
+|elemental=2-5
+|void=2-5
+|spells=
+}}
+
+Stalzo is located in the secret room behind the stone throne found in the [[Island Tomb]] behind [https://erenshor.wiki.gg/wiki/Woe Woe.]
+
+Stalzo is the quest giver for {{QuestLink|link=Destroying Aragath}}.
+
+Greeting message:
+{| class="wikitable"
+|It's been centuries since we've been graced with a living presence...*
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color:#15e300;">[Aragath]</span>.
+|Aragath...
+|-
+|<span style="color:#15e300;">[Soul]</span> or <span style="color:#15e300;">[Gem]</span>
+|You will be pleased with how effective this will be...<br><br><i>This begins {{QuestLink|link=Destroying Aragath}}</i>
+|}
+
+If you say <span style="color: #15e300;">[Soul]</span> or <span style="color: #15e300;">[Gem]</span> to Stalzo after he you have the gem he says
+{| class="wikitable"
+|You already have the item!
+|}
+
+If you say <span style="color: #15e300;">[Soul]</span> or <span style="color: #15e300;">[Gem]</span> after completing {{QuestLink|link=Destroying Aragath}}:
+{| class="wikitable"
+|I do not need anything else from you. Thank you for your help. 
+|}
+
+[[Category:Characters]]
+[[Category:Island Tomb]]

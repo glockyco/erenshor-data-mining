@@ -1,0 +1,58 @@
+{{Enemy
+|name=Goliath
+|image=[[File:Goliath.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Blacksalt Strand]]
+|coordinates=436.8 x 69.8 x 446.9
+|spawnchance=
+|respawn=11 minutes
+|guaranteeddrops={{ItemLink|Battleworn Plate}}<br>{{ItemLink|Brute's Chain Collar}}<br>{{ItemLink|Crested Shield}}<br>{{ItemLink|Explorer's Cap}}<br>{{ItemLink|Layer Cape}}
+|droprates={{ItemLink|Battleworn Plate}} (20.0%)<br>{{ItemLink|Brute's Chain Collar}} (20.0%)<br>{{ItemLink|Crested Shield}} (20.0%)<br>{{ItemLink|Explorer's Cap}} (20.0%)<br>{{ItemLink|Layer Cape}} (20.0%)<br>{{ItemLink|Distant Thunder}} (3.4%)<br>{{ItemLink|End of Life}} (3.4%)<br>{{ItemLink|Freedom of the Sky}} (3.4%)<br>{{ItemLink|Glow of Eternity}} (3.4%)<br>{{ItemLink|Rising Moon}} (3.4%)<br>{{ItemLink|Wilt}} (3.4%)
+|level=20
+|levelmodmin=1
+|levelmodmax=1
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=6.0
+|health=16250
+|mana=0
+|ac=300
+|strength=40
+|endurance=400
+|dexterity=130
+|agility=35
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=10-24
+|poison=10-24
+|elemental=10-24
+|void=10-24
+|spells=
+}}
+
+'''{{PAGENAME}}''' is a [[Enemies#List of Bosses|Boss]] in [[Erenshor]].
+
+=Location=
+{{PAGENAME}} is found in [[Blacksalt Strand]], patrolling the mountains between the entrances to the [[Braxonian Desert]] and [[Elderstone Mines]].
+
+=Appearance=
+{{PAGENAME}} is a large ape. It is a much bigger version of [[A Seaside Gorilla|Seaside Gorilla]] with brown fur and orange eyes.
+
+=Behavior=
+{{PAGENAME}} roams the mountains and will attack players or NPCs in its vicinity.
+
+===Spells & Abilities===
+{{PAGENAME}} does not use any spells or abilities.
+
+===Strategy===
+Players wandering into Blacksalt Strand for the first time may be underleveled for a fight with {{PAGENAME}}, making him a dangerous foe to encounter due to his durability and high attack strength. Because he will aggro onto nearby NPCs, players can get the nearby [[Azure Guard]] to assist in the battle by dragging the boss near him. He is one of two bosses that drop the level 3 class-specific [[Auras|Aura]] items, making him well worth farming.<ref>[[Gruhglor]] can also drop these items, though at a slightly lower rate.</ref>
+
+=Notes=
+
+[[Category:Blacksalt Strand]]
+[[Category:Bosses]]
+[[Category:Enemies]]

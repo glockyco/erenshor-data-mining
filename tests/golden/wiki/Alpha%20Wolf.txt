@@ -1,0 +1,59 @@
+{{Enemy
+|name=Alpha Wolf
+|image=[[File:Alpha Wolf.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Rare]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Faerie's Brake]]<br>[[Hidden Hills]]
+|coordinates=
+|spawnchance=12% (Faerie's Brake)<br>25% (Hidden Hills)
+|respawn=4 minutes (Faerie's Brake)<br>1 minute (Hidden Hills)
+|guaranteeddrops=
+|droprates={{ItemLink|Wolf Meat}} (87.1%)<br>{{ItemLink|Worn Wolf Collar}} (39.3%)
+|level=6
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=5.0
+|health=110
+|mana=0
+|ac=90
+|strength=10
+|endurance=12
+|dexterity=32
+|agility=12
+|intelligence=5
+|wisdom=5
+|charisma=5
+|magic=3-7
+|poison=3-7
+|elemental=3-7
+|void=3-7
+|spells=
+}}
+
+''{{main|Enemies}}''
+
+=Location=
+{{PAGENAME}} is a '''rare''' enemy, replacing [[A Young Wolf]] in [[Hidden Hills]] at a '''25%''' chance and in [[Faerie's Brake]] at a '''12%''' chance.
+
+=Appearance=
+{{PAGENAME}} is a grey wolf, but is slightly larger than the younger wolf cubs.
+
+=Behavior=
+{{PAGENAME}} roams amongst its pack, protecting the wolf cubs. It will attack players if they get too close, or if it or a nearby enemy are [[Lunar Madness|provoked]].
+
+===Spells & Abilities===
+{{PAGENAME}} does not use any spells or abilities.
+
+===Strategy===
+{{PAGENAME}} is, oddly enough, weaker than the younger wolf cubs. It has less HP and AC than the younger varieties, and shouldn't be an issue for a character of any level to take down.
+
+=Notes=
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Faerie's Brake]]
+[[Category:Hidden Hills]]

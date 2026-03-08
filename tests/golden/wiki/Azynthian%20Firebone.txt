@@ -1,0 +1,38 @@
+{{Enemy
+|name=Azynthian Firebone
+|image=[[File:Azynthian Firebone.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Azynthi's Garden|Azynthi's Garden (Dimensional Rift)]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Ghostly Bone}} (91.9%)<br>{{ItemLink|Diamond}} (9.6%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Aetheria}} (4.6%)<ref>If the player is already holding {{ItemLink|Aetheria}} in their inventory, another will not drop.</ref><br>{{ItemLink|Luminstone}} (4.6%)<br>{{ItemLink|Spell Scroll: Necrosis}} (2.6%)
+|level=34
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=50050
+|mana=0
+|ac=510
+|strength=500
+|endurance=155
+|dexterity=700
+|agility=155
+|intelligence=225
+|wisdom=225
+|charisma=155
+|magic=17-41
+|poison=17-41
+|elemental=17-41
+|void=17-41
+|spells=
+}}
+
+[[Category:Azynthi's Garden]]
+[[Category:Enemies]]

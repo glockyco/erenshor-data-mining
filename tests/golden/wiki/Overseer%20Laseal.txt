@@ -1,0 +1,41 @@
+{{Enemy
+|name=Overseer Laseal
+|image=[[File:Overseer Laseal.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
+|factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
+|zones=[[The Duskenlight Coast]]
+|coordinates=1011.6 x 149.4 x 223.6
+|spawnchance=50%
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Molorai Parrying Dagger}}<br>{{ItemLink|Molorai Warstomps}}
+|droprates={{ItemLink|Eldoth Writings: The Jaws}} (100.0%)<ref>If the player is already holding {{ItemLink|Eldoth Writings: The Jaws}} in their inventory, another will not drop.</ref><br>{{ItemLink|Citrine Stone}} (91.9%)<br>{{ItemLink|Molorai Warstomps}} (55.3%)<br>{{ItemLink|Molorai Parrying Dagger}} (50.0%)<br>{{ItemLink|Molorai Battle Chain}} (10.6%)
+|level=18
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=4.0
+|health=14300
+|mana=155
+|ac=270
+|strength=32
+|endurance=125
+|dexterity=110
+|agility=100
+|intelligence=85
+|wisdom=85
+|charisma=75
+|magic=9-22
+|poison=9-22
+|elemental=9-22
+|void=9-22
+|spells={{AbilityLink|Brax's Touch}}<br>{{AbilityLink|Burning Chains}}<br>{{AbilityLink|Ethereal Rending}}
+}}
+Overseer Laseal is located in the Molorai camp in the [[Duskenlight Coast]]. She has a chance to spawn in one of the tents in place of another monster.
+=Notes=
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:The Duskenlight Coast]]

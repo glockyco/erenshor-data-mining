@@ -1,0 +1,38 @@
+{{Enemy
+|name=Gargoth
+|image=[[File:Gargoth.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=+2 [[Fernalla's Children]]<br>+2 [[The Torchbearers of Brax]]
+|zones=[[Azynthi's Garden|Azynthi's Garden (Dimensional Rift)]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Diamond}} (14.1%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref>
+|level=35
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=45500
+|mana=2500
+|ac=525
+|strength=125
+|endurance=125
+|dexterity=135
+|agility=100
+|intelligence=225
+|wisdom=100
+|charisma=100
+|magic=18-42
+|poison=18-42
+|elemental=18-42
+|void=18-42
+|spells=
+}}
+
+[[Category:Azynthi's Garden]]
+[[Category:Enemies]]

@@ -1,0 +1,38 @@
+{{Enemy
+|name=A Grassland Ogre Sorcerer
+|image=[[File:A Grassland Ogre Sorcerer.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=+3 [[The Citizens of Erenshor]]<br>+3 [[The Citizens of Port Azure]]
+|zones=[[Underspine Hollow]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates=
+|level=13
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=5460
+|mana=0
+|ac=195
+|strength=325
+|endurance=255
+|dexterity=100
+|agility=250
+|intelligence=100
+|wisdom=3
+|charisma=3
+|magic=6-16
+|poison=6-16
+|elemental=6-16
+|void=6-16
+|spells={{AbilityLink|Ball Lightning}}<br>{{AbilityLink|Burning Chains}}<br>{{AbilityLink|Jolt}}
+}}
+
+[[Category:Enemies]]
+[[Category:Underspine Hollow]]

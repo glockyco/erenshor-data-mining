@@ -1,0 +1,61 @@
+{{Enemy
+|name=Malor Mara
+|image=[[File:Malor Mara.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[Fernalla's Children]]
+|factionChange=
+|zones=[[The Duskenlight Coast]]
+|coordinates=1504.0 x 64.0 x 656.9
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Arcanist Cap}} (20.4%)<ref>If Malor Mara has {{ItemLink|Arcanist Cap}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Luminstone}} (11.5%)<br>{{ItemLink|Star Stone}} (11.5%)
+|level=25
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=28600
+|mana=155
+|ac=375
+|strength=65
+|endurance=65
+|dexterity=3
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=12-30
+|poison=12-30
+|elemental=12-30
+|void=12-30
+|spells={{AbilityLink|Brax's Rage}}<br>{{AbilityLink|Brax's Touch}}<br>{{AbilityLink|Magic Bolt}}<br>{{AbilityLink|Minor Lightning}}
+}}
+
+Greeting message:
+{| class="wikitable"
+|We will remain on this land, it is our <span style="color: #15e300;">[sacred]</span> right.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[sacred]</span>
+|Fernalla <span style="color: #15e300;">[ascended]</span> frpom Erenshor, and we, her children, shall serve her from this place.
+|-
+|<span style="color: #15e300;">[ascended]</span>
+|When a hero perishes, they might ascend to become a God or Goddess, as Fernalla did in the war against Sivakaya. Her <span style="color: #15e300;">[willows]</span> will stand here eternally, and so shall we.
+|-
+|<span style="color: #15e300;">[willows]</span>
+|They spawned from Fernalla herself, as she rose to her Plane of the Great Willow. She sowed the seeds herself, gifting us her eternal presence. The very <span style="color: #15e300;">[gate]</span> through which she stepped is still standing!
+|-
+|<span style="color: #15e300;">[gate]</span>
+|It's in the Revival Plains, quite a sight to see! Legend has it that the one who approaches the <span style="color: #15e300;">[gate]</span> with a <span style="color: #15e300;">[worthy]</span> gift will gain entry!<br><br><i>This starts {{QuestLink|link=A Gift for Fernalla}}</i>
+|-
+|<span style="color: #15e300;">[worthy]</span>
+|We cannot say, something otherworldly - perhaps something from her brother or her father - both of whom I'm sure she misses dearly. We have tried every worldly thing, to no avail.
+|}
+
+[[Category:Characters]]
+[[Category:The Duskenlight Coast]]

@@ -1,0 +1,103 @@
+{{Enemy
+|name=Akaran Black
+|image=[[File:Akaran Black.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Solunarian Brotherhood]]
+|factionChange=-20 [[The Citizens of Port Azure]]<br>-20 [[The Solunarian Brotherhood]]
+|zones=[[Port Azure]]
+|coordinates=166.8 x 31.8 x 321.2
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates=
+|level=20
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=4550
+|mana=200
+|ac=300
+|strength=55
+|endurance=55
+|dexterity=55
+|agility=55
+|intelligence=55
+|wisdom=55
+|charisma=55
+|magic=10-24
+|poison=10-24
+|elemental=10-24
+|void=10-24
+|spells={{AbilityLink|Minor Healing}}<br>{{AbilityLink|Minor Regeneration}}<br>{{AbilityLink|Soluna's Solar Blessing}}<br>{{AbilityLink|Soluna's Solar Invigoration}}
+}}
+
+Akaran is a Paladin Vendor located in the church-like building in [[Port Azure]]. This NPC will refuse to talk to you if you are any class other than Paladin.
+
+Greeting message only for Paladins:
+{| class="wikitable"
+|Name's Akaran, but they call me <span style="color: #15e300;">[Mule]</span> 'round here. Means I got stuff to sell. You need some gear?
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[Mule]</span>
+|It's because I've always got the goods, pal.
+|}
+
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Bronzed Solunian Greaves}}
+|[[Armor#Leg|Leg Armor]]
+|800
+|-
+|{{ItemLink|Bronzed Solunian Plate}}
+|[[Armor#Chest|Chest armor]]
+|1000
+|-
+|{{ItemLink|Bronzed Solunian Bracer}}
+|[[Armor#Wrist|Wrist armor]]
+|355
+|-
+|{{ItemLink|Skill Book: Stunning Strike}}
+|[[Ability Books|Skill Book]]
+|225
+|-
+|{{ItemLink|Steel Long Sword}}
+|[[Weapons#Swords|Sword]]
+|55
+|-
+|{{ItemLink|Heavy Bladed Mace}}
+|[[Weapons#Maces|Mace]]
+|300
+|-
+|{{ItemLink|Spell Scroll: Glare of Soluna}}
+|[[Ability Books|Spell Scroll]]
+|155
+|-
+|{{ItemLink|Skill Book: Block}}
+|[[Ability Books|Skill Book]]
+|555
+|-
+|{{ItemLink|Morning Glow}}
+|[[Auras|Aura]]
+|1500
+|-
+|{{ItemLink|Skill Book: Cleave}}
+|[[Ability Books|Skill Book]]
+|1100
+|-
+|{{ItemLink|Skill Book: Celestial Smite}}
+|[[Ability Books|Skill Book]]
+|18500
+|}
+
+[[Category:Characters]]
+[[Category:Port Azure]]
+[[Category:Vendors]]

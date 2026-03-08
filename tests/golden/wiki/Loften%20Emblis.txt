@@ -1,0 +1,50 @@
+{{Enemy
+|name=Loften Emblis
+|image=[[File:Loften Emblis.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Agents of The Wisp]]
+|factionChange=
+|zones=[[Silkengrass Meadowlands]]
+|coordinates=1031.9 x 96.1 x 983.7
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Luminstone}} (21.2%)<br>{{ItemLink|Star Stone}} (21.2%)
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=26000
+|mana=155
+|ac=330
+|strength=1
+|endurance=3
+|dexterity=3
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells={{AbilityLink|Arterial Decay}}<br>{{AbilityLink|Burning Chains}}<br>{{AbilityLink|Ice Spear}}<br>{{AbilityLink|Soul Tap}}
+}}
+Loften is located near a burning brazier in the [[Silkengrass Meadowlands]]
+
+Greeting message:
+{| class="wikitable"
+|The wards we make hold back the Sivakayan hoardes so that we might <span style="color: #15e300;">[work]</span>. The Loomingwood is well protected... but the wards tend to attract things that can be more dangerous than a single Sivakayan. Stay within the wardlight if you go there.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[work]</span>
+We perform these rituals to draw power from the land, searching for places where Sivakaya may have tread.. where we might summon her home and restore her.
+|}
+
+[[Category:Characters]]
+[[Category:Silkengrass Meadowlands]]

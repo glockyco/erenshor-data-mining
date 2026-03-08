@@ -1,0 +1,57 @@
+{{Enemy
+|name=Valrae Cleary
+|image=[[File:Valrae Cleary.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Blades of Vitheo]]
+|factionChange=-10 [[The Blades of Vitheo]]<br>-10 [[The Citizens of Erenshor]]
+|zones=[[Faerie's Brake]]
+|coordinates=98.5 x 16.3 x 187.5
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates=
+|level=15
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1300
+|mana=0
+|ac=225
+|strength=35
+|endurance=35
+|dexterity=35
+|agility=35
+|intelligence=35
+|wisdom=35
+|charisma=35
+|magic=8-18
+|poison=8-18
+|elemental=8-18
+|void=8-18
+|spells=
+}}
+Valrae is an NPC located in [[Faerie's Brake]].<br><br>
+Greeting message:
+{| class="wikitable"
+|Not often we see passerby. Stick to the roads through the forest. Those who stray will find <span style="color: #15e300;">[trouble]</span>.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[trouble]</span>
+|Ah, you're one of the sort who's in the market for <span style="color: #15e300;">[trouble]</span>, aren't a? Well you could do me a favor over in <span style="color: #15e300;">[Krakenguard]</span> to the south of here, or you could head north and try your luck in <span style="color: #15e300;">[Underspine]</span> Hollow.
+|-
+|<span style="color: #15e300;">[Krakenguard]</span>
+|If you go to <span style="color: #15e300;">[Krakenguard]</span>, bring me the tower and bunk keys if you find extras. I've always wanted to explore that place.<br>
+<i>This begins {{QuestLink|link=Keys for Valrae}}</i>
+|-
+|<span style="color: #15e300;">[Underspine]</span>
+|There's a dwelling over in the Revival Plains called <span style="color: #15e300;">[Underspine]</span> Hollow. Full of Ogres and they love their Ogrespice. Bring me a few leaves... let's say 4? That'll do me for a while.<br>
+<i>This begins {{QuestLink|link=Ogre Spice for Valrae}}</i>
+|}
+
+[[Category:Characters]]
+[[Category:Faerie's Brake]]

@@ -1,0 +1,39 @@
+{{Enemy
+|name=Sivakayan Emissary
+|image=[[File:Sivakayan Emissary.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Children of Sivakaya]]
+|factionChange=
+|zones=[[Azynthi's Garden]]
+|coordinates=612.3 x 109.3 x 470.4
+|spawnchance=67%
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Mask of Spies}}<br>{{ItemLink|Sivakayan Dresscoat}}
+|droprates={{ItemLink|Sivakayan Diplomacy}} (100.0%)<ref>If the player is already holding {{ItemLink|Sivakayan Diplomacy}} in their inventory, another will not drop.</ref><br>{{ItemLink|Mask of Spies}} (50.0%)<br>{{ItemLink|Sivakayan Dresscoat}} (50.0%)
+|level=32
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=2.0
+|health=43550
+|mana=2500
+|ac=480
+|strength=450
+|endurance=450
+|dexterity=670
+|agility=150
+|intelligence=200
+|wisdom=200
+|charisma=200
+|magic=16-38
+|poison=16-38
+|elemental=16-38
+|void=16-38
+|spells={{AbilityLink|Devour}}<br>{{AbilityLink|Melting Bones}}
+}}
+
+[[Category:Azynthi's Garden]]
+[[Category:Bosses]]
+[[Category:Enemies]]

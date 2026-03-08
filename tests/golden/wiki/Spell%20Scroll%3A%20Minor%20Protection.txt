@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Minor Protection
+|type=
+|vendorsource=[[Samuel Thatcher]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=25
+|sell=16
+|taughtspell={{AbilityLink|Minor Protection}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Minor Protection.png
+|name=Spell Scroll: Minor Protection
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=10
+|spell_type=Beneficial
+|spell_desc=Gives a small increase to armor.
+}}
+
+[[Category:Ability Books]]

@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Impending Doom
+|type=[[Ability Books]]
+|vendorsource=[[Leyor M'Chante]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=16500
+|sell=10725
+|taughtspell={{AbilityLink|Impending Doom}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Impending Doom.png
+|name=Spell Scroll: Impending Doom
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=25
+|stormcaller_level=
+|reaver_level=
+|mana_cost=125
+|spell_type=Damage
+|spell_desc=(Taunt) Target becomes furious with the caster of this spell.
+}}
+
+[[Category:Ability Books]]

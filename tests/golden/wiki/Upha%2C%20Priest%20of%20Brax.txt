@@ -1,0 +1,43 @@
+{{Enemy
+|name=Upha, Priest of Brax
+|image=[[File:Upha, Priest of Brax.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Torchbearers of Brax]]
+|zones=[[Braxonian Desert]]
+|coordinates=264.9 x 22.7 x 300.2
+|spawnchance=75%
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Scribbles of a Mad Priest}} (100.0%)<ref>If the player is already holding {{ItemLink|Scribbles of a Mad Priest}} in their inventory, another will not drop.</ref><br>{{ItemLink|Tempest Stone}} (100.0%)<ref>If the player is already holding {{ItemLink|Tempest Stone}} in their inventory, another will not drop.</ref><br>{{ItemLink|Braxonian Sash}} (67.9%)<br>{{ItemLink|Desert Silk Sleeves}} (67.9%)<br>{{ItemLink|Braxonian Wrap}} (25.4%)<br>{{ItemLink|Blaze Fiend (Game Piece)|image=Blaze Fiend.png|text=Blaze Fiend}} (4.2%)<ref>If the player is already holding {{ItemLink|Blaze Fiend (Game Piece)|image=Blaze Fiend.png|text=Blaze Fiend}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ember Acolyte (Game Piece)|text=Ember Acolyte}} (4.2%)<ref>If the player is already holding {{ItemLink|Ember Acolyte (Game Piece)|text=Ember Acolyte}} in their inventory, another will not drop.</ref><br>{{ItemLink|Spell Scroll: Call of the Void}} (3.7%)<br>{{ItemLink|Spell Scroll: Ice Spear}} (3.7%)<br>{{ItemLink|Spell Scroll: Immolation}} (3.7%)<br>{{ItemLink|Spell Scroll: Winter's Bite}} (3.7%)
+|level=21
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=21450
+|mana=1000
+|ac=315
+|strength=650
+|endurance=500
+|dexterity=650
+|agility=500
+|intelligence=155
+|wisdom=100
+|charisma=100
+|magic=10-25
+|poison=10-25
+|elemental=10-25
+|void=10-25
+|spells=
+}}
+Drops items necessary for {{QuestLink|link=Orion Mycon's Lost Ring}}.
+
+Spawns in a small town located on the Eastern shore in Braxonian Desert.
+=Notes=
+
+[[Category:Bosses]]
+[[Category:Braxonian Desert]]
+[[Category:Enemies]]

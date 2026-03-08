@@ -1,0 +1,75 @@
+{{Item
+|title=Aetheria
+|type=[[Quest Items|Quest Item]], [[Crafting]]
+|vendorsource=
+|source=[[Ancient Educator]] (20.4%)<br>[[The Lost Sea Giant King]] (14.7%)<br>[[Ancient Corpse]] (13.4%)<br>[[Ancient Guard]] (13.4%)<br>[[Ancient Knight]] (13.4%)<br>[[A Protected Memory]] (12.4%)<br>[[A Restless Spirit]] (12.4%)<br>[[An Enraged Spirit]] (12.4%)<br>[[Headless]] (12.1%)<br>[[Mourning]] (10.0%)<br>[[Seed of Blight]] (8.3%)<br>[[Rotting Mummy]] (8.0%)<br>[[Ancient Celestarian]] (6.8%)<br>[[A Lost Sea Giant]] (5.1%)<br>[[A Sorrowful Spirit]] (5.1%)<br>[[Spectre]] (4.7%)<br>[[Azynthian Firebone]] (4.6%)<br>[[Azynthian Icebone]] (4.6%)<br>[[Greater Azynthian Firebone]] (4.6%)<br>[[Greater Azynthian Icebone]] (4.6%)<br>[[Sivakayan Devoted]] (4.3%)<br>[[Sivakayan Faithbound]] (4.3%)<br>[[Blight Eater]] (3.5%)<br>[[A Lost Sea Giant]] (3.4%)
+|othersource=
+|questsource=
+|relatedquest={{QuestLink|Aetheria for Saya Seawatcher}}
+|craftsource=
+|componentfor={{ItemLink|Mold: A Ghostly Key}}<br>{{ItemLink|Mold: Copper Sceptre}}
+|buy=100
+|sell=65
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+Required for {{QuestLink |Aetheria for Saya Seawatcher}}. Also used in crafting.
+
+{{Item/General
+|image=Aetheria.png
+|name=Aetheria
+|description=A rare commodity used by artisans around Erenshor. It's very valuable!
+|value=100
+|stack_size=
+|disposable=
+|effect_style=
+|effect_spell_icon=
+|effect_spell_name=
+|effect_spell_level=
+|effect_spell_duration_ticks=
+|effect_spell_type=
+|effect_spell_line=
+|effect_target_damage=
+|effect_target_healing=
+|effect_damage_type=
+|effect_cast_time=
+|effect_cooldown=
+|effect_spell_range=
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+}}
+
+[[Category:Crafting]]
+[[Category:Items]]
+[[Category:Quest Items]]

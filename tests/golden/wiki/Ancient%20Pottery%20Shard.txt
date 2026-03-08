@@ -1,0 +1,73 @@
+{{Item
+|title=Ancient Pottery Shard
+|type=[[:Category:Items|General]]
+|vendorsource=
+|source=[[Blight Demon]] (21.2%)<br>[[Blighted Jackal]] (14.5%)<br>[[Sentinel]] (14.2%)<br>[[Molorai Specialist]] (13.1%)<br>[[Ancient Sentinel]] (11.5%)<br>[[Blighted Priest]] (11.5%)<br>[[Doomwalker]] (11.5%)<br>[[Fenton the Blighted]] (11.5%)<br>[[Harbinger of Corruption]] (11.5%)<br>[[Lupine Horror]] (11.5%)<br>[[Lurker]] (11.5%)<br>[[Noctua]] (11.5%)<br>[[Obsidian Horror]] (11.5%)<br>[[Parzgil]] (11.5%)<br>[[Molorai Outrider]] (10.2%)<br>[[Molorai Truthseeker]] (10.2%)<br>[[Shiverman]] (10.1%)<br>[[Molorai Ancille]] (6.8%)<br>[[Molorai Anointed]] (6.8%)<br>[[Molorai Bloodwarden]] (6.8%)<br>[[Molorai Curator]] (6.8%)<br>[[Molorai Dockmaster]] (6.8%)<br>[[Molorai Eldermistress]] (6.8%)<br>[[Molorai Mason]] (6.8%)<br>[[Molorai Truthseeker]] (6.8%)<br>[[Molorai Nightmistress]] (5.1%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=1
+|sell=1
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+An item found from many enemies located in the [[The Blight]]
+
+{{Item/General
+|image=Ancient Pottery Shard.png
+|name=Ancient Pottery Shard
+|description=From a time long past
+|value=1
+|stack_size=
+|disposable=
+|effect_style=
+|effect_spell_icon=
+|effect_spell_name=
+|effect_spell_level=
+|effect_spell_duration_ticks=
+|effect_spell_type=
+|effect_spell_line=
+|effect_target_damage=
+|effect_target_healing=
+|effect_damage_type=
+|effect_cast_time=
+|effect_cooldown=
+|effect_spell_range=
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+}}
+
+[[Category:Items]]

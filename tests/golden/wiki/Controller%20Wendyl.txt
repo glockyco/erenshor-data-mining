@@ -1,0 +1,62 @@
+{{Enemy
+|name=Controller Wendyl
+|image=[[File:Controller Wendyl.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Stowaway's Step]]
+|factionChange=
+|zones=[[Stowaway's Step]]
+|coordinates=705.3 x 21.3 x 506.2
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1560
+|mana=100
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+
+He's on the [[Docks]] on [[Stowaway's Step]]. He is the NPC who you need to talk to during {{QuestLink | questlink=Stowaway Registration}}.
+
+Greeting message:
+{| class="wikitable"
+|Welcome to Stowaway's Step. If you're here to turn in dock papers, please do it now. If you don't have them, go back to the docks and get them. If you've already turned them in, move along. I can't keep track of everyone! And please... don't ask about going to <span style="color: #15e300;">[Erenshor]</span>. You can't.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[passage]</span>, <span style="color: #15e300;">[Erenshor]</span> and <span style="color: #15e300;">[Mainland]</span>
+|Not happenin' pal. The mainland has enough of it's own problems right now without us funneling new adventurers in to stir up all the sleeping dungeons and caves hunting for treasure. If you hear of anyone offering to get you there, you come and tell me.  
+|-
+|<span style="color: #15e300;">[registered]</span>
+|Yeah, you're registered. You can head up the hill into Wickliff. Go see Smith up at the gate. He'll get you a key to get through.
+|-
+|<span style="color: #15e300;">[lighthouse]</span>
+|Old Kio's on his way out. Nobody's been in that lighthouse since he took over. Lost his mind doing that job. It's sad. I've got an extra key in case he doesn't.. cooperate.
+|}
+
+If you hand him the {{ItemLink|Dock Pass}} after completing {{QuestLink | questlink=Stowaway Registration}}:
+{| class="wikitable"
+|You've already registered...
+|}
+
+[[Category:Characters]]
+[[Category:Stowaway's Step]]

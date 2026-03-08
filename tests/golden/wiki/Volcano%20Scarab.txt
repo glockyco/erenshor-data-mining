@@ -1,0 +1,38 @@
+{{Enemy
+|name=Volcano Scarab
+|image=[[File:Volcano Scarab.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Rockshade Hold]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Droplet of Lava}} (5.2%)
+|level=23
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=5200
+|mana=0
+|ac=345
+|strength=90
+|endurance=80
+|dexterity=145
+|agility=100
+|intelligence=100
+|wisdom=100
+|charisma=33
+|magic=12-28
+|poison=12-28
+|elemental=12-28
+|void=12-28
+|spells=
+}}
+
+[[Category:Enemies]]
+[[Category:Rockshade Hold]]

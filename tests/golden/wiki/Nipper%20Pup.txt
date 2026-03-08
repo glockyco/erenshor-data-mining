@@ -1,0 +1,38 @@
+{{Enemy
+|name=Nipper Pup
+|image=[[File:Nipper Pup.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Rottenfoot]]
+|coordinates=
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Swamproot}} (74.5%)<br>{{ItemLink|Reptilian Scales}} (28.3%)
+|level=15
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=5200
+|mana=0
+|ac=225
+|strength=18
+|endurance=35
+|dexterity=55
+|agility=25
+|intelligence=25
+|wisdom=25
+|charisma=25
+|magic=8-18
+|poison=8-18
+|elemental=8-18
+|void=8-18
+|spells=
+}}
+
+[[Category:Enemies]]
+[[Category:Rottenfoot]]

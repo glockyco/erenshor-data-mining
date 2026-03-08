@@ -1,0 +1,50 @@
+{{Enemy
+|name=Acolyte of Azynthi
+|image=[[File:Acolyte of Azynthi.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=
+|coordinates=
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Stolen Memories}} (100.0%)<ref>If the player is already holding {{ItemLink|Stolen Memories}} in their inventory, another will not drop.</ref>
+|level=45
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=201500
+|mana=10000
+|ac=675
+|strength=1000
+|endurance=1000
+|dexterity=1000
+|agility=1000
+|intelligence=1000
+|wisdom=1000
+|charisma=1000
+|magic=22-54
+|poison=22-54
+|elemental=22-54
+|void=22-54
+|spells={{AbilityLink|Annihilate}}<br>{{AbilityLink|Grip of Azynthi}}<br>{{AbilityLink|Tenebris}}
+}}
+
+Once [[Eldoth Molorai (Character)|Eldoth Molorai]] has been defeated, type in chat:
+<pre>
+/shout Azynthi
+</pre>
+whilst in [[Azynthi's Garden]]. This will permanently unlock the ability to summon {{PAGENAME}}.
+
+He can then be fought by simply typing <span style="color: #15e300;">[Azynthi]</span> while next to [[A Strange Hermit]].
+
+The Acolyte of Azynthi does constant AoE damage and summons [[Greater Azynthian Icebone]] and [[Greater Azynthian Firebone]] in pairs during combat.
+
+=Notes=
+
+[[Category:Azynthi's Garden]]
+[[Category:Enemies]]

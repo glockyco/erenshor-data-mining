@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Regrowth
+|type=[[Ability Books]]
+|vendorsource=[[Alexander Farland]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=800
+|sell=520
+|taughtspell={{AbilityLink|Regrowth}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Regrowth.png
+|name=Spell Scroll: Regrowth
+|arcanist_level=
+|druid_level=11
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=150
+|spell_type=Heal
+|spell_desc=Heal 45 damage per tick, over time
+}}
+
+[[Category:Ability Books]]

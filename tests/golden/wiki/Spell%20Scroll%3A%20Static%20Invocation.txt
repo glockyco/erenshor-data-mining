@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Static Invocation
+|type=[[Ability Books|Spell Scroll]]
+|vendorsource=[[Aldoa Manday]]<br>[[Ophelia Luminee]]<br>[[Samuel Thatcher]]<br>[[Windlae Oldseer]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=125
+|sell=81
+|taughtspell={{AbilityLink|Static Invocation}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Static Invocation.png
+|name=Spell Scroll: Static Invocation
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=4
+|reaver_level=
+|mana_cost=75
+|spell_type=StatusEffect
+|spell_desc=Fills your target with surging electricity, deals 18 damage / tick
+}}
+
+[[Category:Ability Books]]

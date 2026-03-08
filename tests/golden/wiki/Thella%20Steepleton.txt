@@ -1,0 +1,44 @@
+{{Enemy
+|name=Thella Steepleton
+|image=[[File:Thella Steepleton.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Port Azure]]
+|factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
+|zones=[[Port Azure]]
+|coordinates=242.5 x 28.0 x 315.6
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (59.4%)<br>{{ItemLink|Seafruit}} (59.4%)<br>{{ItemLink|Seaspice}} (59.4%)<br>{{ItemLink|Luminstone}} (12.3%)<br>{{ItemLink|Ruby}} (12.3%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Star Stone}} (12.3%)<br>{{ItemLink|Argo's Grimoire}} (8.6%)<br>{{ItemLink|Pathfinder's Staff}} (8.6%)<ref>If Thella Steepleton has {{ItemLink|Pathfinder's Staff}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Swirlstone Amulet}} (8.6%)<br>{{ItemLink|Vinewrapped Vambracers}} (8.6%)
+|level=10
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1300
+|mana=55
+|ac=150
+|strength=15
+|endurance=25
+|dexterity=25
+|agility=25
+|intelligence=55
+|wisdom=3
+|charisma=3
+|magic=5-12
+|poison=5-12
+|elemental=5-12
+|void=5-12
+|spells={{AbilityLink|Biting Vines}}<br>{{AbilityLink|Jolt}}<br>{{AbilityLink|Magic Bolt}}<br>{{AbilityLink|Theft of Life}}<br>{{AbilityLink|Weak Poison}}
+}}
+Thella is an NPC located in [[Port Azure]]. She functions as Port Azure's [[Auction House|auction broker]]. You are able to buy items from other sim players through her.
+
+Greeting message:
+{| class="wikitable"
+|Oi, I'm the broker here in Port Azure. Got buyin' or sellin' to do? I'm your best way to do it.
+|}
+
+[[Category:Characters]]
+[[Category:Port Azure]]

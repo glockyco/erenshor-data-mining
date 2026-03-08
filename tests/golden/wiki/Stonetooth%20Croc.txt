@@ -1,0 +1,38 @@
+{{Enemy
+|name=Stonetooth Croc
+|image=[[File:Stonetooth Croc.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Blooming Sepulcher]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Croc Tail}} (28.3%)
+|level=33
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=52000
+|mana=0
+|ac=495
+|strength=24
+|endurance=20
+|dexterity=95
+|agility=20
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=16-40
+|poison=16-40
+|elemental=16-40
+|void=16-40
+|spells=
+}}
+
+[[Category:Blooming Sepulcher]]
+[[Category:Enemies]]

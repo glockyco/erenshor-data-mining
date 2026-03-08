@@ -1,0 +1,31 @@
+{{Item
+|title=Resolving Fluid
+|type=[[Crafting|Mold]]
+|vendorsource=[[Braxon Lolo]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=7000
+|sell=4550
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+[[Planar Stone Shards]] are obtained randomly from mobs or by combining [[Item Quality|Blessed Items]] with an [[Inert Diamond]]
+
+{{Item/Mold
+|image=Resolving Fluid.png
+|name=Resolving Fluid
+|description=A bubbling vial of fluid that evaporates upon touch
+|ingredients=8x {{ItemLink|Planar Stone Shards}}
+|rewards={{ItemLink|Planar Stone}}
+|station=
+}}
+
+[[Category:Crafting]]
+[[Category:Molds]]

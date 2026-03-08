@@ -1,0 +1,40 @@
+{{Enemy
+|name=Shelled Monstrosity
+|image=[[File:Shelled Monstrosity.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Rockshade Hold]]
+|coordinates=418.4 x 86.1 x 870.1
+|spawnchance=80%
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Chitin Bracer}}<br>{{ItemLink|Chitin Protector}}
+|droprates={{ItemLink|Chitin Bracer}} (66.7%)<br>{{ItemLink|Chitin Protector}} (33.3%)<br>{{ItemLink|Droplet of Lava}} (5.2%)
+|level=24
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=2.0
+|health=21450
+|mana=0
+|ac=360
+|strength=550
+|endurance=400
+|dexterity=550
+|agility=100
+|intelligence=100
+|wisdom=100
+|charisma=33
+|magic=12-29
+|poison=12-29
+|elemental=12-29
+|void=12-29
+|spells=
+}}
+Sometimes spawns in place of a [[Volcano Scarab]].
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Rockshade Hold]]

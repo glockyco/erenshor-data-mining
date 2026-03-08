@@ -1,0 +1,38 @@
+{{Enemy
+|name=Karsith
+|image=[[File:Karsith.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Jaws of Sivakaya]]
+|coordinates=
+|spawnchance=
+|respawn=5-13 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Chapters of Descent, Passage 5}} (2.8%)<ref>If the player is already holding {{ItemLink|Chapters of Descent, Passage 5}} in their inventory, another will not drop.</ref><br>{{ItemLink|Chapters of Descent, Passage 6}} (2.8%)<ref>If the player is already holding {{ItemLink|Chapters of Descent, Passage 6}} in their inventory, another will not drop.</ref><br>{{ItemLink|Chapters of Descent, Passage 7}} (2.8%)<ref>If the player is already holding {{ItemLink|Chapters of Descent, Passage 7}} in their inventory, another will not drop.</ref><br>{{ItemLink|Chapters of Descent, Passage 8}} (2.8%)<ref>If the player is already holding {{ItemLink|Chapters of Descent, Passage 8}} in their inventory, another will not drop.</ref><br>{{ItemLink|The Faceless}} (2.8%)<br>{{ItemLink|Bastion}} (2.6%)<br>{{ItemLink|Grips of Faith}} (2.6%)<br>{{ItemLink|Pious Sandals}} (2.6%)
+|level=34
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=52000
+|mana=0
+|ac=510
+|strength=600
+|endurance=475
+|dexterity=750
+|agility=455
+|intelligence=400
+|wisdom=300
+|charisma=300
+|magic=17-41
+|poison=17-41
+|elemental=17-41
+|void=17-41
+|spells={{AbilityLink|Aetherstorm}}<br>{{AbilityLink|Infernis}}
+}}
+
+[[Category:Enemies]]
+[[Category:Jaws of Sivakaya]]

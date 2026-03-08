@@ -1,0 +1,51 @@
+{{Enemy
+|name=Supply Sergeant Tipp
+|image=[[File:Supply Sergeant Tipp.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Port Azure]]
+|factionChange=-35 [[The Citizens of Erenshor]]<br>-35 [[The Citizens of Port Azure]]
+|zones=[[Port Azure]]
+|coordinates=268.5 x 26.3 x 118.1
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates=
+|level=25
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=4550
+|mana=0
+|ac=375
+|strength=155
+|endurance=155
+|dexterity=155
+|agility=155
+|intelligence=155
+|wisdom=155
+|charisma=155
+|magic=12-30
+|poison=12-30
+|elemental=12-30
+|void=12-30
+|spells=
+}}
+Supply Sergeant Tipp is an NPC located in [[Port Azure]]. He is located near the east gate. Tipp is the questgiver for {{QuestLink | link=Sivakayan Ore for Tipp}}
+
+Greeting message:
+{| class="wikitable"
+|You can't have anything. It's for the guards. Unless you do me a <span style="color: #15e300;">[favor]</span>. Then we can talk.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[favor]</span>
+|I need Sivakayan ore. Bring me 4 chunks and I'll get you something worth your while for it. It's hard to come by. You'll find a bit of it on their soldiers from time to time. I'm trying to figure out how to replicate their weapons... those things never go dull.
+<br><i>This begins {{QuestLink | link=Sivakayan Ore for Tipp}}</i>
+|}
+
+[[Category:Characters]]
+[[Category:Port Azure]]

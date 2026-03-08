@@ -1,0 +1,43 @@
+{{Enemy
+|name=The Abomination
+|image=[[File:The Abomination.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=+15 [[The Blades of Vitheo]]
+|zones=[[Vitheo's Rest]]
+|coordinates=286.5 x 0.6 x 175.7
+|spawnchance=
+|respawn=
+|guaranteeddrops={{ItemLink|Bloodstained Plate}}<br>{{ItemLink|Steadfast Girdle}}
+|droprates={{ItemLink|Key to Vitheo's Tomb}} (100.0%)<ref>If the player is already holding {{ItemLink|Key to Vitheo's Tomb}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ancient Bone}} (95.1%)<br>{{ItemLink|Bloodstained Plate}} (50.0%)<br>{{ItemLink|Steadfast Girdle}} (50.0%)
+|level=38
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=104000
+|mana=0
+|ac=570
+|strength=200
+|endurance=200
+|dexterity=175
+|agility=150
+|intelligence=5
+|wisdom=5
+|charisma=5
+|magic=19-46
+|poison=19-46
+|elemental=19-46
+|void=19-46
+|spells=
+}}
+
+Lighting both braziers in the Traitor's Halls by obtaining and following the [[Dark Flame Recipe]] and [[Life Flame Recipe]] will cause The Abomination to stand from his throne.
+
+=Notes=
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Vitheo's Rest]]

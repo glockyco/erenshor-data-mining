@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Ocean's Lull
+|type=[[Ability Books]]
+|vendorsource=[[Ludo Luxo]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=1400
+|sell=910
+|taughtspell={{AbilityLink|Ocean's Lull}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Ocean's Lull.png
+|name=Spell Scroll: Ocean's Lull
+|arcanist_level=
+|druid_level=
+|duelist_level=6
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=75
+|spell_type=StatusEffect
+|spell_desc=Slow target's attack speed by 8%
+}}
+
+[[Category:Ability Books]]

@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Ionize
+|type=[[Ability Books|Spell Scroll]]
+|vendorsource=[[Elizabeth DeWitt]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=5000
+|sell=3250
+|taughtspell={{AbilityLink|Ionize}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Ionize.png
+|name=Spell Scroll: Ionize
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=24
+|reaver_level=
+|mana_cost=850
+|spell_type=StatusEffect
+|spell_desc=Deals 460 damage / tick
+}}
+
+[[Category:Ability Books]]

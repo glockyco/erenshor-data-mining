@@ -1,0 +1,39 @@
+{{Enemy
+|name=Undertoes
+|image=[[File:Undertoes.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Abyssal Lake]]
+|coordinates=161.5 x 66.6 x 270.9
+|spawnchance=50%
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Abyssal Shell}}<br>{{ItemLink|Runed Shield}}
+|droprates={{ItemLink|Abyssal Shell}} (66.7%)<br>{{ItemLink|Runed Shield}} (33.3%)
+|level=31
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=3.0
+|health=55250
+|mana=0
+|ac=465
+|strength=210
+|endurance=15
+|dexterity=255
+|agility=155
+|intelligence=100
+|wisdom=100
+|charisma=25
+|magic=16-37
+|poison=16-37
+|elemental=16-37
+|void=16-37
+|spells={{AbilityLink|Arterial Decay}}<br>{{AbilityLink|Tangle}}
+}}
+
+[[Category:Abyssal Lake]]
+[[Category:Bosses]]
+[[Category:Enemies]]

@@ -1,0 +1,94 @@
+{{Enemy
+|name=Saya Seawatcher
+|image=[[File:Saya Seawatcher.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Erenshor]]
+|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
+|zones=[[Vitheo's Watch]]
+|coordinates=250.3 x 36.7 x 314.5
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates=
+|level=6
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=162
+|mana=0
+|ac=90
+|strength=3
+|endurance=5
+|dexterity=5
+|agility=5
+|intelligence=5
+|wisdom=5
+|charisma=5
+|magic=3-7
+|poison=3-7
+|elemental=3-7
+|void=3-7
+|spells=
+}}
+Saya is an NPC located in [[Vitheo's Watch]]. She is the quest giver for {{QuestLink |questlink=Aetheria for Saya Seawatcher}}
+
+Greeting message:
+{| class="wikitable"
+|Well met. You buyin'? Typically I just get business from the <span style="color: #15e300;">[Militia]</span>
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[Militia]</span>
+|They're not the most pleasant bunch, probably won't welcome you if you pop around. I keep 'em fed and they clear out the Sea Giant Ghosts every now and again and keep me stocked in <span style="color: #15e300;">[aetheria]</span>. Business is business, you know.
+|-
+|<span style="color: #15e300;">[aetheria]</span>
+|Any ghost can leave it behind once you dispatch him, but it's rare. I pay well for it and for an adventurer like you, I've got something a little more unique than gold if you find any.<br><br><i>This begins {{QuestLink |questlink=Aetheria for Saya Seawatcher}}</i>
+|}
+
+If you give her {{ItemLink|Aetheria}}:
+{| class="wikitable"
+|You've found some? Color me surprised, it's hard to come by. Here, take this as payment. If you can't use it, I'll buy it back for a handsome price.<br><br><i>This completes {{QuestLink |questlink=Aetheria for Saya Seawatcher}}</i>
+|}
+
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Seaspice}}
+|[[Consumables]]
+|500
+|-
+|{{ItemLink|Sailor's Work Gloves}}
+|[[Armor#Hand|Hand Armor]]
+|245
+|-
+|{{ItemLink|Sailor's Belt}}
+|[[Armor#Waist|Waist Armor]]
+|700
+|-
+|{{ItemLink|Brackfruit Juice}}
+|[[Consumables]]
+|5
+|-
+|{{ItemLink|Bread}}
+|[[Consumables]]
+|2
+|-
+|{{ItemLink|Water}}
+|[[Consumables]]
+|1
+|-
+|{{ItemLink|Basic Pick}}
+|[[Weapons#Primary or Secondary|Primary or Secondary]]
+|100
+|}
+
+[[Category:Characters]]
+[[Category:Vendors]]
+[[Category:Vitheo's Watch]]

@@ -1,0 +1,43 @@
+{{Enemy
+|name=Elwio the Traitor
+|image=[[File:Elwio the Traitor.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Vitheo's Rest]]
+|coordinates=247.1 x 0.6 x 107.5
+|spawnchance=99%
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Traitor's Steel}}<br>{{ItemLink|Virophan Helm}}
+|droprates={{ItemLink|Memory of Elwio}} (100.0%)<ref>If the player is already holding {{ItemLink|Memory of Elwio}} in their inventory, another will not drop.</ref><br>{{ItemLink|Rekindling The Flame}} (100.0%)<ref>If the player is already holding {{ItemLink|Rekindling The Flame}} in their inventory, another will not drop.</ref><br>{{ItemLink|Virophan Helm}} (66.7%)<br>{{ItemLink|Spell Scroll: Blessed Quiver}} (63.3%)<br>{{ItemLink|Traitor's Steel}} (33.3%)<ref>If Elwio the Traitor has {{ItemLink|Traitor's Steel}} equipped, it is guaranteed to drop.</ref>
+|level=33
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=3.0
+|health=52000
+|mana=0
+|ac=495
+|strength=185
+|endurance=155
+|dexterity=185
+|agility=125
+|intelligence=225
+|wisdom=225
+|charisma=155
+|magic=16-40
+|poison=16-40
+|elemental=16-40
+|void=16-40
+|spells=
+}}
+Elwio the Traitor can be found in the second wing of [[Vitheo's Rest]], he guards the Lifeflame Brazier.
+
+This boss is not always guaranteed to spawn. Sometimes a [[Cursed Vithean Conspirer]], [[Cursed Vithean Traitor]] or [[Vithean Betrayer]] will appear in front of the Brazier instead.
+=Notes=
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Vitheo's Rest]]

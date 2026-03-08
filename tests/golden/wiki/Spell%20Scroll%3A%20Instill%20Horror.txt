@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Instill Horror
+|type=
+|vendorsource=[[Grant Haxoway]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=2200
+|sell=1430
+|taughtspell={{AbilityLink|Instill Horror}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Instill Horror.png
+|name=Spell Scroll: Instill Horror
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=11
+|mana_cost=200
+|spell_type=StatusEffect
+|spell_desc=Causes your target to disengage from combat and run away. Effective on up to level 20 targets.
+}}
+
+[[Category:Ability Books]]

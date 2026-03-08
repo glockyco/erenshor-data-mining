@@ -1,0 +1,54 @@
+{{Enemy
+|name=Dusty McPhenn
+|image=[[File:Dusty McPhenn.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[Ripper DeMerth]]
+|factionChange=-20 [[Ripper DeMerth]]
+|zones=[[Ripper's Keep]]
+|coordinates=732.0 x 43.6 x 169.4
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=20
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=4550
+|mana=200
+|ac=300
+|strength=55
+|endurance=55
+|dexterity=55
+|agility=55
+|intelligence=55
+|wisdom=55
+|charisma=55
+|magic=10-24
+|poison=10-24
+|elemental=10-24
+|void=10-24
+|spells={{AbilityLink|Minor Healing}}
+}}
+
+Greeting message: (If you are not a [[Paladin]])
+{| class="wikitable"
+|Not a Paladin? Why are you in here?
+|}
+
+Greeting message:
+{| class="wikitable"
+|This isn't how I expected a life on Erenshor to go... I didn't intend to be a <span style="color: #15e300;">[rebel]</span>. But here I am
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[rebel]</span>:
+...is it really being a <span style="color: #15e300;">[rebel]</span> though, if you had no other choice except to die? Port Azure put us all in a tough spot. My friends are there...
+|}
+
+[[Category:Characters]]
+[[Category:Ripper's Keep]]

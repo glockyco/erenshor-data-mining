@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Ice Bolt
+|type=[[Ability Books|Spell Scroll]]
+|vendorsource=[[Aldoa Manday]]<br>[[Nylith Valorro]]<br>[[Ophelia Luminee]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=100
+|sell=65
+|taughtspell={{AbilityLink|Ice Bolt}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Ice Bolt.png
+|name=Spell Scroll: Ice Bolt
+|arcanist_level=2
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=25
+|spell_type=Damage
+|spell_desc=Deals 45 magic damage to your target.
+}}
+
+[[Category:Ability Books]]

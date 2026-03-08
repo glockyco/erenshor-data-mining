@@ -1,0 +1,74 @@
+{{Item
+|title=Star Stone
+|type=[[Crafting]]
+|vendorsource=
+|source=[[Stoneman Diamondine]] (84.7%)<br>[[Lesser Shadowman]] (68.1%)<br>[[Mourning]] (67.9%)<br>[[A Lesser Avatar of Sivakaya]] (57.4%)<br>[[Aetherfiend]] (57.4%)<br>[[Shadow Man]] (57.4%)<br>[[Blight Eater]] (56.7%)<br>[[Ghost of Wyland Sercher]] (41.7%)<br>[[Lost Soul]] (41.7%)<br>[[Axilo O'Casta]] (21.2%)<br>[[Boshi Polok]] (21.2%)<br>[[Damien Torno]] (21.2%)<br>[[Edgar Taether]] (21.2%)<br>[[Gasper Bulksh]] (21.2%)<br>[[Illuminator]] (21.2%)<br>[[Juctin Mysia]] (21.2%)<br>[[Katia Marado]] (21.2%)<br>[[Larviso Poltir]] (21.2%)<br>[[Loften Emblis]] (21.2%)<br>[[Nashen Glazier]] (21.2%)<br>[[Neia Tarmath]] (21.2%)<br>[[Servash Polaro]] (21.2%)<br>[[Torado Zortia]] (21.2%)<br>[[Uther Oledes]] (21.2%)<br>[[Virvil Destova]] (21.2%)<br>[[Wardkeeper Rossi]] (21.2%)<br>[[Zashlyn Bloodbane]] (20.1%)<br>[[Grant Haxoway]] (19.6%)<br>[[Jazmyn Challa]] (19.6%)<br>[[Molorai Archaeologist]] (19.6%)<br>[[Rook Allshade]] (19.6%)<br>[[Savannah Priel (Character)|Savannah Priel]] (19.6%)<br>[[Shantee Swingblade]] (19.6%)<br>[[Zane Theavale]] (19.6%)<br>[[Plaxitheris]] (19.4%)<br>[[Molorai Archaeologist]] (19.2%)<br>[[Priel Soldier]] (17.8%)<br>[[Tiallia Priel]] (16.3%)<br>[[Elizah Vernor]] (12.3%)<br>[[Molorai Brewmistress]] (12.3%)<br>[[Thella Steepleton]] (12.3%)<br>[[A Deepling Lunarite]] (12.1%)<br>[[A Deepling Verdite]] (12.1%)<br>[[A Grassland Ogre Mystic]] (11.7%)<br>[[Alexander Farland]] (11.5%)<br>[[Arbant Sparrow]] (11.5%)<br>[[Cerbantias Flameward]] (11.5%)<br>[[Chance Barlow]] (11.5%)<br>[[Edwin Ansegg]] (11.5%)<br>[[Faun Vulak]] (11.5%)<br>[[Garrey Ambrose]] (11.5%)<br>[[Lexant Crowsilk]] (11.5%)<br>[[Liam Kilfa]] (11.5%)<br>[[Lucian Revald]] (11.5%)<br>[[Malor Mara]] (11.5%)<br>[[Malthor Sageleaf]] (11.5%)<br>[[Molorai Chef]] (11.5%)<br>[[Molorai Militia Arcanist]] (11.5%)<br>[[Molorai Militia Druid]] (11.5%)<br>[[Molorai Militia Warrior]] (11.5%)<br>[[Navidson Zampano]] (11.5%)<br>[[Nylith Valorro]] (11.5%)<br>[[Revan Gavault]] (11.5%)<br>[[Sagan Ilth]] (11.5%)<br>[[Staggy Garth]] (11.5%)<br>[[Molorai Captain Sigrid]] (10.9%)<br>[[Molorai Acquirer]] (10.8%)<br>[[Gherist Morthario]] (10.5%)<br>[[Darkwarden Ilyth]] (10.2%)<br>[[Sivakayan Bodyguard]] (10.2%)<br>[[Sivakayan Cleric]] (10.2%)<br>[[Sivakayan Legionnaire]] (10.2%)<br>[[Sivakayan Raider]] (10.2%)<br>[[Sivakayan Reaver]] (10.2%)<br>[[Sivakayan Spymaster]] (10.2%)<br>[[Sivakayan Templar]] (10.2%)<br>[[Sivakayan Unhallowed]] (10.2%)<br>[[Priel Tamer]] (10.1%)<br>[[A Deepling Crimsonite]] (7.8%)<br>[[A Nagalok]] (7.8%)<br>[[Molorai Archmage]] (7.8%)<br>[[Molorai Spiritist]] (7.8%)<br>[[Spike]] (7.8%)<br>[[A Protected Memory]] (7.6%)<br>[[A Restless Spirit]] (7.6%)<br>[[Molorai Archmage]] (7.6%)<br>[[A Grassland Ogre Shaman]] (7.4%)<br>[[Addison Priel]] (7.4%)<br>[[Chazza Priel]] (7.4%)<br>[[Elysia Thistlewick]] (7.4%)<br>[[Fallen Fernalla (NPC)|Fallen Fernalla]] (7.4%)<br>[[Fallen Fernalla]] (7.4%)<br>[[Julianna Priel]] (7.4%)<br>[[Priel Consort]] (7.4%)<br>[[Priel Deceiver]] (7.4%)<br>[[Priel Enforcer]] (7.4%)<br>[[Priel Gifted]] (7.4%)<br>[[Priel Grimwatch]] (7.4%)<br>[[Priel Purist]] (7.4%)<br>[[Priel Soldier]] (7.4%)<br>[[Priel Swiftblade]] (7.4%)<br>[[Sprig Laisey]] (7.4%)<br>[[Darkwarden Awxa]] (6.8%)<br>[[Darkwarden Ealdred]] (6.8%)<br>[[Molorai Anointed]] (6.8%)<br>[[Molorai Bloodwarden]] (6.8%)<br>[[Molorai Nightmistress]] (6.8%)<br>[[Molorai Outrider]] (6.8%)<br>[[Molorai Specialist]] (6.8%)<br>[[Molorai Truthseeker]] (6.8%)<br>[[Bassalt Vallano]] (6.2%)<br>[[Molorai Jailor]] (5.8%)<br>[[Priel Malarist]] (5.8%)<br>[[A Deepling Orator]] (5.3%)<br>[[Ghoul]] (5.0%)<br>[[Priel Lieutenant Bovo]] (4.9%)<br>[[Priel Lieutenant Laflin]] (4.9%)<br>[[Priel Lieutenant Lance]] (4.9%)<br>[[Shambler]] (4.2%)<br>[[A Skeleton Soldier]] (3.9%)<br>[[Molorai Archaeologist]] (3.9%)<br>[[Nipper Diremaw]] (3.5%)<br>[[Nipper Farseer]] (3.5%)<br>[[Nipper Whiptail]] (3.5%)<br>[[A Skeleton Captain]] (3.4%)<br>[[Molorai Archaeologist]] (3.4%)<br>[[Acceptor]] (3.1%)<br>[[A Highwayman Marauder]] (3.0%)<br>[[A Highwayman Raider]] (3.0%)<br>[[A Sorrowful Spirit]] (2.8%)<br>[[An Enraged Spirit]] (2.8%)<br>[[Oracle Miress]] (2.6%)<br>[[Oracle Tretha]] (2.6%)<br>[[Abyssal Fungus Protector]] (2.1%)<br>[[Gasper]] (2.0%)<br>[[Ecclesiarch]] (2.0%)<br>[[Prioress]] (2.0%)<br>[[Acolyte]] (1.7%)<br>[[Abyssal Fungus Protector]] (1.4%)<br>[[Abyssal Fungus Warrior]] (1.4%)<br>[[Ancient Guard]] (0.2%)<br>[[Braxonian High Guard]] (0.2%)<br>[[Risen Druid]] (0.2%)<br>[[Vithean Immortal]] (0.2%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor={{ItemLink|Mold: Duelist's Charm}}
+|buy=3
+|sell=2
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+An item which is dropped from almost every enemy in the game.
+
+{{Item/General
+|image=Star Stone.png
+|name=Star Stone
+|description=Not good for much, but you could sell it.
+|value=3
+|stack_size=
+|disposable=
+|effect_style=
+|effect_spell_icon=
+|effect_spell_name=
+|effect_spell_level=
+|effect_spell_duration_ticks=
+|effect_spell_type=
+|effect_spell_line=
+|effect_target_damage=
+|effect_target_healing=
+|effect_damage_type=
+|effect_cast_time=
+|effect_cooldown=
+|effect_spell_range=
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+}}
+
+[[Category:Crafting]]
+[[Category:Items]]

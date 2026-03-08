@@ -1,0 +1,38 @@
+{{Enemy
+|name=Greater Fawn
+|image=[[File:Greater Fawn.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Blooming Sepulcher]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Bread}} (57.4%)<br>{{ItemLink|Water}} (57.4%)<br>{{ItemLink|Decayed Druid Beads}} (22.3%)<br>{{ItemLink|Ruby}} (17.8%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Nature's Promise}} (1.7%)<br>{{ItemLink|Wisp Garden}} (1.0%)
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=35750
+|mana=0
+|ac=330
+|strength=45
+|endurance=135
+|dexterity=185
+|agility=85
+|intelligence=95
+|wisdom=45
+|charisma=35
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells={{AbilityLink|Biting Vines}}<br>{{AbilityLink|Tangle}}<br>{{AbilityLink|Theft of Life}}
+}}
+
+[[Category:Blooming Sepulcher]]
+[[Category:Enemies]]

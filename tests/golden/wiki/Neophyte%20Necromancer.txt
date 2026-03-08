@@ -1,0 +1,38 @@
+{{Enemy
+|name=Neophyte Necromancer
+|image=[[File:Neophyte Necromancer.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=-10 [[The Children of Sivakaya]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]
+|zones=[[The Bonepits]]
+|coordinates=
+|spawnchance=20-100%
+|respawn=3 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Cloth Gloves}} (32.7%)<br>{{ItemLink|Cloth Hood}} (32.7%)<br>{{ItemLink|Cloth Shoes}} (32.7%)<br>{{ItemLink|Cloth Sleeves}} (32.7%)<br>{{ItemLink|Graveweed Leaf}} (10.6%)<ref>If the player is already holding {{ItemLink|Graveweed Leaf}} in their inventory, another will not drop.</ref><br>{{ItemLink|Adept Wand}} (5.8%)<br>{{ItemLink|Cloth Pants}} (5.8%)<br>{{ItemLink|Cloth Shirt}} (5.8%)<br>{{ItemLink|Neophyte Necklace}} (5.8%)<br>{{ItemLink|Idol of Sivakaya}} (3.9%)<ref>If Neophyte Necromancer has {{ItemLink|Idol of Sivakaya}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Ancient Bone}} (3.5%)<br>{{ItemLink|Necromancer's Ritual Book}} (3.5%)<ref>If the player is already holding {{ItemLink|Necromancer's Ritual Book}} in their inventory, another will not drop.</ref>
+|level=7
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=520
+|mana=50
+|ac=105
+|strength=12
+|endurance=25
+|dexterity=30
+|agility=4
+|intelligence=15
+|wisdom=15
+|charisma=0
+|magic=4-8
+|poison=4-8
+|elemental=4-8
+|void=4-8
+|spells={{AbilityLink|Minor Protection}}<br>{{AbilityLink|Weak Poison}}
+}}
+
+[[Category:Enemies]]
+[[Category:The Bonepits]]

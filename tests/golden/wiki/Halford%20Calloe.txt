@@ -1,0 +1,49 @@
+{{Enemy
+|name=Halford Calloe
+|image=[[File:Halford Calloe.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Port Azure]]
+|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
+|zones=[[Soluna's Landing]]
+|coordinates=226.9 x 101.4 x 430.0
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=2600
+|mana=100
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+Halford Calloe is located in the church in the small town in [[Soluna's Landing]]
+
+Greeting message:
+{| class="wikitable"
+|Welcome, my Child. Take this place in, for its power outweighs any IU've ever felt. Visit the shrine and statue while you're here. The <span style="color: #15e300;">[guardians]</span> will not bother you.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[guardians]</span>
+Beings who rival only time in their age, they descended with Soluna and remained here as a sign of her presence.
+
+[[Category:Characters]]
+[[Category:Soluna's Landing]]

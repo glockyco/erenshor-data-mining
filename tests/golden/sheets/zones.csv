@@ -1,0 +1,44 @@
+Zone:SceneName,Zone:ZoneName,Zone:IsDungeon,Zone:Achievement,Zone:CompleteQuestOnEnter,Zone:CompleteSecondQuestOnEnter,Zone:AssignQuestOnEnter,Atlas:Index,Atlas:Id,Atlas:ZoneName,Atlas:LevelRangeLow,Atlas:LevelRangeHigh,Atlas:Dungeon,Atlas:NeighboringZones,Atlas:ResourceName
+Abyssal,Abyssal Lake,1,,,,,0,30038184,Abyssal,28,35,1,"zone:ripper, zone:silkengrass",Abyssal
+Azure,Port Azure,0,AZURE,,,,1,8552090,Azure,1,50,0,"zone:brake, zone:saltedstrand",Azure
+Azynthi,Azynthi's Garden,0,,quest:riftstone,,,,,,,,,,
+AzynthiClear,Azynthi's Garden,0,,,,,2,24120023,AzynthiClear,33,35,1,zone:blight,AzynthiClear
+Blight,The Blight,0,,,,,3,8177100,Blight,25,35,1,zone:braxonian,Blight
+BloomingSepulcher,Blooming Sepulcher,0,,,,,,,,,,,,
+Bonepits,The Bonepits,1,,,,,4,2991903,Bonepits,6,11,1,zone:hidden,Bonepits
+Brake,Faerie's Brake,0,,,,,5,9771291,Brake,3,24,0,"zone:azure, zone:fernallafield, zone:hidden, zone:vitheo",Brake
+Braxonia,Fallen Braxonia,1,,,,,6,19436700,Braxonia,29,35,1,zone:braxonian,Braxonia
+Braxonian,Braxonian Desert,0,,,,,7,39742795,Braxonian,14,35,0,"zone:saltedstrand, zone:silkengrass",Braxonian
+Detention,Prison,0,JAIL,,,,,,,,,,,
+DuskenPortal,Mysterious Portal,0,,,,,,,,,,,,
+Duskenlight,The Duskenlight Coast,0,,,,,8,12839366,Duskenlight,9,25,0,"zone:hidden, zone:windwashed",Duskenlight
+Elderstone,The Elderstone Mines,1,,,,,9,27466208,Elderstone,16,24,1,zone:saltedstrand,Elderstone
+FernallaField,Fernalla's Revival Plains,0,,,,,10,1943040,FernallaField,6,18,0,"zone:brake, zone:rottenfoot, zone:underspine",FernallaField
+FernallaPortal,Mysterious Portal,0,,,,,,,,,,,,
+Hidden,Hidden Hills,0,MAINLAND,quest:leavestowaway,quest:a way to erenshor,,11,10866900,Hidden,3,12,0,"zone:bonepits, zone:brake, zone:duskenlight",Hidden
+Jaws,Jaws of Sivakaya,1,,,,,,,,,,,,
+Krakengard,Old Krakengard,1,,,,,12,5997610,Krakengard,9,14,1,zone:vitheo,Krakengard
+Loomingwood,Loomingwood Forest,0,,,,,13,8252080,Loomingwood,14,35,0,"zone:malaroth, zone:silkengrass",Loomingwood
+Malaroth,Malaroth's Nesting Grounds,0,,,,,14,43006113,Malaroth,20,26,0,"zone:loomingwood, zone:windwashed",Malaroth
+PrielPlateau,Prielian Cascade,0,,,,,15,24879309,PrielPlateau,28,35,1,zone:windwashed,Prielian
+Reliquary,Reliquary Hall,0,RELIQUARYCLAIMED,,,,,,,,,,,
+Ripper,Ripper's Keep,0,,,,,16,62537328,Ripper,4,35,0,zone:loomingwood,Ripper
+RipperPortal,Mysterious Portal,0,,,,,,,,,,,,
+Rockshade,Rockshade Hold,0,,,,,17,31802342,Rockshade,21,29,1,zone:windwashed,Rockshade
+Rottenfoot,Rottenfoot,0,,,,,18,30504410,Rottenfoot,11,25,0,"zone:elderstone, zone:fernallafield, zone:silkengrass",Rottenfoot
+SaltedStrand,Blacksalt Strand,0,,,,,19,40669440,SaltedStrand,10,24,0,"zone:azure, zone:braxonian, zone:elderstone",SaltedStrand
+ShiveringStep,Shivering Step,0,,,,,,,,,,,,
+ShiveringTomb,Island Tomb,1,,,,,,,,,,,,
+ShiveringTomb2,Island Tomb,1,,quest:islandtomb,,,,,,,,,,
+Silkengrass,Silkengrass Meadowlands,0,,,,,20,70562570,Silkengrass,14,35,0,"zone:braxonian, zone:loomingwood, zone:rottenfoot",Silkengrass
+Soluna,Soluna's Landing,0,,,,,21,21537168,Soluna,24,35,0,"zone:loomingwood, zone:malaroth",Soluna
+Stowaway,Stowaway's Step,0,,,,quest:leavestowaway,22,34865370,Stowaway,1,5,0,"zone:hidden, zone:tutorial",Stowaway
+StowawayPortal,Secluded Sanctuary ,0,,,,,,,,,,,,
+SummerEvent,Bellwain Island,0,,,,,,,,,,,,
+Tutorial,Island Tomb,1,,quest:islandtomb,,,,,,,,,,
+Undercity,Lost Cellar,0,,,,,23,10295028,Undercity,20,28,1,zone:azure,Undercity
+Underspine,Underspine Hollow,1,,,,,24,54799680,Underspine,11,18,1,zone:fernallafield,Underspine
+Vitheo,Vitheo's Watch,0,,,,,25,1172028,Vitheo,6,11,0,"zone:brake, zone:krakengard",Vitheo
+VitheosEnd,Vitheo's Rest,1,VITHEOSREST,,,,26,31122688,VitheosEnd,20,35,1,zone:azure,VitheosEnd
+Willowwatch,Willowwatch Ridge,0,,,,,27,13937300,Willowwatch,1,12,0,"zone:bonepits, zone:fernallafield, zone:underspine",Willowwatch
+Windwashed,Windwashed Pass,0,,,,,28,30620970,Windwashed,18,35,0,"zone:duskenlight, zone:silkengrass",Windwashed

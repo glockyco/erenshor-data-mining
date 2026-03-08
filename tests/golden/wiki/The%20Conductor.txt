@@ -1,0 +1,58 @@
+{{Enemy
+|name=The Conductor
+|image=[[File:The Conductor.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=
+|factionChange=
+|zones=[[Mysterious Portal|Mysterious Portal (3)]]
+|coordinates=281.5 x 0.5 x 315.4
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=5
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=144444
+|mana=0
+|ac=75
+|strength=3
+|endurance=3
+|dexterity=3
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=2-6
+|poison=2-6
+|elemental=2-6
+|void=2-6
+|spells=
+}}
+
+Greeting message:
+{| class="wikitable"
+|Incredible place, isn't it? You've been <span style="color: #15e300;">[here]</span> before.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[here]</span>
+|Yes! Inside the <span style="color: #15e300;">[Dreams]</span>!
+|-
+|<span style="color: #15e300;">[Dreams]</span>
+|Oh, pity you. You don't know with what you meddle. No worry, toddly off and play some more. I have a surprise from you to wake us up! Bring me proof of your victory.
+|}
+
+When handed a [[Small Cat Statue]]:
+{| class="wikitable"
+|Why color me impressed, you've done it! Fantastic! I will give you a trinket to remember this night by.
+<i>This grants and completes {{QuestLink | link=A Cat for a Deer}}.</i>
+|}
+
+[[Category:Characters]]
+[[Category:Mysterious Portal]]

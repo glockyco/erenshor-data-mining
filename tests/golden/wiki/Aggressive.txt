@@ -1,0 +1,18 @@
+{{Stance
+|title=Aggressive
+|image=[[File:Stance: Aggressive.png|thumb]]
+|description=Gain a 40% increase to physical damage dealt, but take 40% more incoming damage from all sources.<br><br>Your focus on offense stops all natural health regeneration.
+|switch_message=shifts into an aggressive combat stance
+|max_hp_mod=1.0
+|damage_mod=1.4
+|damage_taken_mod=1.4
+|proc_rate_mod=1.0
+|aggro_gen_mod=1.0
+|spell_damage_mod=1.0
+|self_damage_per_attack=
+|self_damage_per_cast=
+|lifesteal_amount=
+|resonance_amount=1.0
+|stop_regen=1
+|activated_by={{AbilityLink|Stance: Aggressive}}
+}}

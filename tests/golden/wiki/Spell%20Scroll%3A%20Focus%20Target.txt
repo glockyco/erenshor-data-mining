@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Focus Target
+|type=[[Ability Books|Spell Scroll]]
+|vendorsource=[[Windlae Oldseer]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=1400
+|sell=910
+|taughtspell={{AbilityLink|Focus Target}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Focus Target.png
+|name=Spell Scroll: Focus Target
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=13
+|reaver_level=
+|mana_cost=200
+|spell_type=StatusEffect
+|spell_desc=Archers get a major attack roll boost while attacking this target
+}}
+
+[[Category:Ability Books]]

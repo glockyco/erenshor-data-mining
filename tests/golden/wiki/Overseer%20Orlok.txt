@@ -1,0 +1,68 @@
+{{Enemy
+|name=Overseer Orlok
+|image=[[File:Overseer Orlok.png|thumb]]
+|imagecaption="You are an invader here, and we do not stand for that sort of behaviour!"
+|type=[[Enemies|Boss]]
+|faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
+|factionChange=-10 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+10 [[The Azure Guard]]<br>+10 [[The Citizens of Erenshor]]<br>+10 [[The Citizens of Port Azure]]<br>+10 [[The Solunarian Brotherhood]]
+|zones=[[Old Krakengard]]
+|coordinates=352.2 x 9.8 x 304.0
+|spawnchance=
+|respawn=8 minutes
+|guaranteeddrops={{ItemLink|Anointed Sword}}<br>{{ItemLink|Call To Arms}}<br>{{ItemLink|Whipsword}}
+|droprates={{ItemLink|A Note from Eldoth}} (100.0%)<ref>If the player is already holding {{ItemLink|A Note from Eldoth}} in their inventory, another will not drop.</ref><br>{{ItemLink|Call To Arms}} (51.6%)<br>{{ItemLink|Anointed Sword}} (25.0%)<ref>If Overseer Orlok has {{ItemLink|Anointed Sword}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Whipsword}} (25.0%)<br>{{ItemLink|Molorai Manifesto, Pg. 1}} (4.7%)<ref>If the player is already holding {{ItemLink|Molorai Manifesto, Pg. 1}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Manifesto, Pg. 2}} (4.7%)<ref>If the player is already holding {{ItemLink|Molorai Manifesto, Pg. 2}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Manifesto, Pg. 3}} (4.7%)<ref>If the player is already holding {{ItemLink|Molorai Manifesto, Pg. 3}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Manifesto, Pg. 4}} (4.7%)<ref>If the player is already holding {{ItemLink|Molorai Manifesto, Pg. 4}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Manifesto, Pg. 5}} (4.7%)<ref>If the player is already holding {{ItemLink|Molorai Manifesto, Pg. 5}} in their inventory, another will not drop.</ref><br>{{ItemLink|Argo's Grimoire}} (3.2%)<br>{{ItemLink|Bandit's Mask}} (3.2%)<br>{{ItemLink|Boots of Grounding}} (3.2%)<br>{{ItemLink|Polished Steel Armguards}} (3.2%)<br>{{ItemLink|Ruby}} (3.2%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Sailor's Work Gloves}} (3.2%)<br>{{ItemLink|Vithean Sea Salt Ring}} (3.2%)
+|level=15
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=0
+|levelvariancemax=0
+|xpmultiplier=8.0
+|health=7800
+|mana=155
+|ac=225
+|strength=20
+|endurance=65
+|dexterity=75
+|agility=20
+|intelligence=35
+|wisdom=40
+|charisma=40
+|magic=8-18
+|poison=8-18
+|elemental=8-18
+|void=8-18
+|spells={{AbilityLink|Death's Embrace}}<br>{{AbilityLink|Ethereal Rending}}<br>{{AbilityLink|Magic Bolt}}
+}}
+
+{{PAGENAME}} is a [[Enemies#List of Bosses|Boss]] in [[Erenshor]].
+
+<!--
+=Location=
+{{PAGENAME}} is located at the top of [[Old Krakengard]]. After entering the dungeon, go straight, turn left, and climb the stairs. Reaching {{PAGENAME}} requires the {{ItemLink|Krakengard Tower Key}}, which can be obtained by defeating [[Molorai Captain Sigrid]] in the fort's bunk area.
+-->
+=Appearance=
+{{PAGENAME}} is a tall man in green and red armor with a banner on his back. He is flanked by two [[Molorai Bodyguard|Molorai Bodyguards]].
+
+=Behavior=
+{{PAGENAME}} waits in the tower at the top of the fort. Although he will not attack as soon as players open the door, players should still be cautious when entering the hallway as {{PAGENAME}} and his guards may attack from around the corner.
+
+===Spells & Abilities===
+Buffs:
+*{{AbilityLink|Minor Protection}}
+*{{AbilityLink|Regeneration}}
+*{{AbilityLink|Vitheo's Blessing of the Sea}}
+*{{AbilityLink|Vitheo's Blessing of the Wind}}
+Offensive:
+*{{AbilityLink|Magic Bolt}}
+*{{AbilityLink|Ethereal Rending}}
+
+===Strategy===
+This fight is considerably more difficult than that with Sigrid, so players may wish to gain a few more levels before challenging {{PAGENAME}}.<br>
+
+{{PAGENAME}} will continually [[Status Effects|buff]] himself while idle, but will no longer cast these spells once combat begins and they will quickly wear off. While {{PAGENAME}} alone can already overwhelm an underprepared party, his bodyguards can be lethal at lower levels if they are not quickly stunned with {{AbilityLink|Dazzle}} or {{AbilityLink|Sunburst}}.
+
+=Notes=
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Old Krakengard]]

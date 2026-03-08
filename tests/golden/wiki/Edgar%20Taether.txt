@@ -1,0 +1,53 @@
+{{Enemy
+|name=Edgar Taether
+|image=[[File:Edgar Taether.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Agents of The Wisp]]
+|factionChange=
+|zones=[[Silkengrass Meadowlands]]
+|coordinates=1050.9 x 97.3 x 1006.7
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Luminstone}} (21.2%)<br>{{ItemLink|Star Stone}} (21.2%)
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=26000
+|mana=155
+|ac=330
+|strength=1
+|endurance=3
+|dexterity=3
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells={{AbilityLink|Arterial Decay}}<br>{{AbilityLink|Burning Chains}}<br>{{AbilityLink|Ice Spear}}<br>{{AbilityLink|Soul Tap}}
+}}
+
+Greeting message:
+{| class="wikitable"
+|This is the last remaining Shrine to Sivakaya's form as it was before she fell. The Sivakayan <span style="color: #15e300;">[warhorde]</span> has defiled the rest. This place must be <span style="color: #15e300;">[protected]</span>.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[warhorde]</span>
+|Aimless brutes acting under a false banner. They do not serve Sivakaya, they use her power for destruction and fool themselves that it is in her honor. Why would she wish destruction on the world she helped create?
+|-
+|<span style="color: #15e300;">[protected]</span> 
+|Just accross the patch they have defiled another Shrine. Silkengrass must have been an important place for Sivakaya and so for that reason it is important to us. I'll make you a deal - if you help us protect this place, I will pay handsomly. Bring me Sivakayan Swords and Axes or even Sceptres as proof of your work.<br>
+<i>This begins {{QuestLink|link=Disarming the Sivakayans}}</i>
+|}
+
+[[Category:Characters]]
+[[Category:Silkengrass Meadowlands]]

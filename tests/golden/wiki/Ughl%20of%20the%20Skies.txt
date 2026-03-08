@@ -1,0 +1,39 @@
+{{Enemy
+|name=Ughl of the Skies
+|image=[[File:Ughl of the Skies.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=+3 [[The Citizens of Erenshor]]<br>+3 [[The Citizens of Port Azure]]
+|zones=[[Underspine Hollow]]
+|coordinates=451.5 x 79.7 x 307.0
+|spawnchance=66%
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Channeling Gloves}}<br>{{ItemLink|Gapped Ring}}
+|droprates={{ItemLink|Channeling Gloves}} (50.0%)<br>{{ItemLink|Gapped Ring}} (50.0%)
+|level=15
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=4.0
+|health=8515
+|mana=0
+|ac=225
+|strength=20
+|endurance=45
+|dexterity=85
+|agility=30
+|intelligence=65
+|wisdom=3
+|charisma=3
+|magic=8-18
+|poison=8-18
+|elemental=8-18
+|void=8-18
+|spells={{AbilityLink|Brax's Rage}}<br>{{AbilityLink|Burning Chains}}
+}}
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Underspine Hollow]]

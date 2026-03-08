@@ -1,0 +1,59 @@
+{{Enemy
+|name=A Memory of Sivakaya
+|image=[[File:A Memory of Sivakaya.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=
+|zones=[[Jaws of Sivakaya]]
+|coordinates=
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=99
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=129999
+|mana=0
+|ac=1485
+|strength=3
+|endurance=3
+|dexterity=3
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=50-119
+|poison=50-119
+|elemental=50-119
+|void=50-119
+|spells=
+}}
+
+A Memory of Sivakaya appears in two different places in the dungeon if the player has the [[Nighthollow Candle]] in their inventory.
+# The Alcove near the entrance to the dungeon
+# The floating platform in the centre of [[Aeiros, Soldier of Sivakaya|Aieros]]'s room
+
+==== Alcove ====
+When summoned:
+{| class="wikitable"
+|... *a memory can be felt in the air and a low voice echoes through your mind* - "The guardian has awoken, let her gaze upon you*<br><br>
+<i> This accepts and completes {{QuestLink | link=The Guardian Awakens}}</i>
+|}
+Greeting message:
+{| class="wikitable"
+|Let her gaze upon you.
+|}
+<br>
+==== Floating Platform ====
+Greeting message:
+{| class="wikitable"
+|... *a memory can be felt in the air and a low voice echoes through your mind* - "Only the truly pious shall pass. He who speaks the name of the one who gifted Sivakaya her ascension may pass unharmed."
+|}
+
+[[Category:Characters]]
+[[Category:Jaws of Sivakaya]]

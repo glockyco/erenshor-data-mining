@@ -1,0 +1,52 @@
+{{Enemy
+|name=Uther Oledes
+|image=[[File:Uther Oledes.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Agents of The Wisp]]
+|factionChange=
+|zones=[[Silkengrass Meadowlands]]
+|coordinates=657.5 x 86.7 x 1318.6
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Luminstone}} (21.2%)<br>{{ItemLink|Star Stone}} (21.2%)
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=26000
+|mana=155
+|ac=330
+|strength=1
+|endurance=3
+|dexterity=3
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells={{AbilityLink|Brax's Rage}}<br>{{AbilityLink|Brax's Touch}}<br>{{AbilityLink|Magic Bolt}}<br>{{AbilityLink|Minor Lightning}}
+}}
+Uther is located in a pink house outside the entrance to [[Loomingwood]] in [[Silkengrass Meadowlands]]
+
+Greeting message:
+{| class="wikitable"
+|If you've travelled this far, you just may be worth paying attention to. Going into the <span style="color: #15e300;">[Loomingwood]</span>?
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[Loomingwood]</span>
+Quite a place now, it is. We were able to create wards that keep the Sivakayans out. It's our last sanctuary until we can <span style="color: #15e300;">[restore]</span> things again.
+|-
+|<span style="color: #15e300;">[restore]</span>
+Sivakaya is a Fallen God, but one day she may rise again. We work towards that each and every day. Her warped followers are lost, but she may not be. Not yet.
+
+[[Category:Characters]]
+[[Category:Silkengrass Meadowlands]]

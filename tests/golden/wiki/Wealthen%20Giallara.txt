@@ -1,0 +1,45 @@
+{{Enemy
+|name=Wealthen Giallara
+|image=[[File:Wealthen Giallara.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Erenshor]]
+|factionChange=-15 [[The Blades of Vitheo]]<br>-15 [[The Citizens of Erenshor]]<br>-15 [[The Citizens of Port Azure]]
+|zones=[[Willowwatch Ridge]]
+|coordinates=569.0 x 49.5 x 336.6
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates=
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=4550
+|mana=0
+|ac=330
+|strength=125
+|endurance=5
+|dexterity=125
+|agility=5
+|intelligence=5
+|wisdom=5
+|charisma=5
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells=
+}}
+
+Wealthen Giallara is a Banker in Willowwatch Ridge.
+
+Greeting message:
+{| class="wikitable"
+| Looks like I'm stranded here for now. Might as well open up for business, I figure! Got any banking to do?
+|}
+
+[[Category:Characters]]
+[[Category:Willowwatch Ridge]]

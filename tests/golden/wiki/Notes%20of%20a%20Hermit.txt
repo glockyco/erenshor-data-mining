@@ -1,0 +1,74 @@
+{{Item
+|title=Notes of a Hermit
+|type=[[Quest Items|Quest Item]]
+|vendorsource=
+|source=[[A Hermit]] (100.0%)<br>[[Bommer Olvaro]] (100.0%)<br>[[Liam Olvaro]] (100.0%)
+|othersource=
+|questsource={{QuestLink|A Hermit's Request}}
+|relatedquest={{QuestLink|A Note for C. Pillot}}
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+Reading it grants the quest {{QuestLink | link=A Note for C. Pillot}} and is required to complete it.
+
+{{Item/General
+|image=Notes of a Hermit.png
+|name=Notes of a Hermit
+|description="My Dear Friend C. Pillot,<br><br>My concerns grow. Sivakayans have made the first move as we've all feared they would. If Fernalla remains able, she may be weighing options. This land cannot sustain a battle between Gods - we must seek the advice of The Wisp. We must make them see us. <br><br>You have the key to their attention. It's time to bring it to existence."
+|value=
+|stack_size=
+|disposable=
+|effect_style=
+|effect_spell_icon=
+|effect_spell_name=
+|effect_spell_level=
+|effect_spell_duration_ticks=
+|effect_spell_type=
+|effect_spell_line=
+|effect_target_damage=
+|effect_target_healing=
+|effect_damage_type=
+|effect_cast_time=
+|effect_cooldown=
+|effect_spell_range=
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+}}
+
+[[Category:Items]]
+[[Category:Quest Items]]

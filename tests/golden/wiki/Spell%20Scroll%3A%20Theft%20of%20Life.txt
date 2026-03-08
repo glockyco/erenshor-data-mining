@@ -1,0 +1,34 @@
+{{Item
+|title=Spell Scroll: Theft of Life
+|type=[[:Category:Ability Books|Spell Scroll]], [[Crafting]]
+|vendorsource=[[Aillee Desten]]<br>[[Alyssia Fearnon]]<br>[[Zane Theavale]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor={{ItemLink|Mold: Soldier's Charm}}
+|buy=100
+|sell=65
+|taughtspell={{AbilityLink|Theft of Life}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Theft of Life.png
+|name=Spell Scroll: Theft of Life
+|arcanist_level=
+|druid_level=2
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=2
+|mana_cost=50
+|spell_type=Damage
+|spell_desc=Steal life from your target, and heal yourself for an equal amount.
+}}
+
+[[Category:Ability Books]]
+[[Category:Crafting]]

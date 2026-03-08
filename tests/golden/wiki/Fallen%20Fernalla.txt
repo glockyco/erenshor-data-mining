@@ -1,0 +1,104 @@
+{{Spoiler}}
+
+{{Enemy
+|name=Fallen Fernalla
+|image=[[File:Fallen Fernalla.png|thumb]]
+|imagecaption=Phase Three Version
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=+35 [[Fernalla's Children]]<br>+35 [[The Blades of Vitheo]]<br>-100 [[The Children of Sivakaya]]<br>+35 [[The Torchbearers of Brax]]
+|zones=[[Blooming Sepulcher]]
+|coordinates=689.0 x 259.7 x 870.1
+|spawnchance=
+|respawn=
+|guaranteeddrops={{ItemLink|Guiding Presence}}<br>{{ItemLink|Nature's Will}}<br>{{ItemLink|Verdant Embrace}}
+|droprates={{ItemLink|Inert Rune of Fernalla}} (100.0%)<ref>If the player is already holding {{ItemLink|Inert Rune of Fernalla}} in their inventory, another will not drop.</ref><br>{{ItemLink|Guiding Presence}} (35.6%)<br>{{ItemLink|Nature's Will}} (35.6%)<br>{{ItemLink|Verdant Embrace}} (35.6%)<br>{{ItemLink|Sea Glass}} (7.4%)<br>{{ItemLink|Star Stone}} (7.4%)<br>{{ItemLink|Reaper of Regrowth}} (3.4%)
+|level=40
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=4.0
+|health=357500
+|mana=300
+|ac=600
+|strength=800
+|endurance=355
+|dexterity=565
+|agility=400
+|intelligence=350
+|wisdom=95
+|charisma=75
+|magic=20-48
+|poison=20-48
+|elemental=20-48
+|void=20-48
+|spells=
+}}
+
+{{Enemy
+|name=Fallen Fernalla
+|image=[[File:Fallen Fernalla.png|thumb]]
+|imagecaption=Phase One Version
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Blooming Sepulcher]]
+|coordinates=689.0 x 259.7 x 870.1
+|spawnchance=
+|respawn=15 minutes
+|guaranteeddrops={{ItemLink|Guiding Presence}}<br>{{ItemLink|Nature's Will}}<br>{{ItemLink|Reaper of Regrowth}}<br>{{ItemLink|Verdant Embrace}}
+|droprates={{ItemLink|Guiding Presence}} (27.5%)<br>{{ItemLink|Nature's Will}} (27.5%)<br>{{ItemLink|Reaper of Regrowth}} (27.5%)<br>{{ItemLink|Verdant Embrace}} (27.5%)<br>{{ItemLink|Sea Glass}} (7.4%)<br>{{ItemLink|Star Stone}} (7.4%)
+|level=39
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=4.0
+|health=292500
+|mana=300
+|ac=585
+|strength=800
+|endurance=355
+|dexterity=565
+|agility=400
+|intelligence=350
+|wisdom=95
+|charisma=75
+|magic=20-47
+|poison=20-47
+|elemental=20-47
+|void=20-47
+|spells={{AbilityLink|Group Revitalize}}
+}}
+
+For information about the quest NPC in [[Blooming Sepulcher]], see [[Fallen Fernalla (NPC)]].
+
+==Fallen Fernalla==
+Fallen Fernalla is the final boss in the [[Blooming Sepulcher]]. She becomes available upon completion of {{QuestLink|A Dying Wish}}.
+
+==Fight Mechanics==
+The fight with Fallen Fernalla is mechanically complex and players should expect a challenge regardless of level.
+
+<div class="mw-collapsible mw-collapsed">
+<h3>
+<span class="toccolours">Fight Mechanics (Spoiler)</span>
+<div class="mw-collapsible-toggle-placeholder"></div>
+</h3>
+<div class="mw-collapsible-content">
+<h4>Phase 1</h4>
+When Fallen Fernalla first spawns, she will be around level 39. Upon pulling her, a ring of fire will spawn around the arena so players should begin the fight in the middle. The ring causes approximately 10K damage and should be avoided at all costs. When players first get her to low health, she will pause and cast a large area effect on the ground that causes significant damage and should be avoided. [[Simulated Players]] will automatically move out of the area on their own. She will also regenerate to full health again and the battle will continue. As her health gets low again, she will cast a additional large area effect on the ground, which also needs to be avoided, however she will not regenerate a second time.
+
+<h4>Phase 2</h4>
+After players have reduced her to 0% health a second time, Fernalla will despawn and ten waves of [[Fawn of Fernalla]] will spawn and attack the player one after another. They spawn at random around the arena and aggro quickly, but are lower level compared to Fernalla herself and should not pose a challenge.
+
+<h4>Phase 3</h4>
+When all [[Fawn of Fernalla|fawns]] have been defeated, Fernalla will reappear at level 40 and resume attacking the player. During this phase, she will damage the party with unavoidable void damage, making this fight a race to kill her before the healer(s) are overwhelmed.
+
+Upon defeat, she will utter the phrase "You... you have freed my body from the darkness! Thank you... the Darkness remains though... Sivakaya has my very being in her clutches..." and the player will be awarded with the "Goodbye, Fallen Fernalla" achievement.
+</div>
+</div>
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:blooming Sepulcher]]

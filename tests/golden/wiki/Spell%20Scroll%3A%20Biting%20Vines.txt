@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Biting Vines
+|type=[[:Category:Ability Books|Spell Scroll]]
+|vendorsource=[[Aldoa Manday]]<br>[[Alyssia Fearnon]]<br>[[Ophelia Luminee]]<br>[[Tiver Banes]]
+|source=[[Gloopa|Gloopa (Quarter)]] (1.8%)<br>[[A Subterranean Goop]] (1.6%)<br>[[A Subterranean Magmite]] (1.6%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=66
+|sell=43
+|taughtspell={{AbilityLink|Biting Vines}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Biting Vines.png
+|name=Spell Scroll: Biting Vines
+|arcanist_level=
+|druid_level=5
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=55
+|spell_type=StatusEffect
+|spell_desc=Wrap your target in venomous vines that slow movement and deal damage (7 / tick) over time.
+}}
+
+[[Category:Ability Books]]

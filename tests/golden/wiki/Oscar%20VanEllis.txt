@@ -1,0 +1,93 @@
+{{Enemy
+|name=Oscar VanEllis
+|image=[[File:Oscar VanEllis.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[Ripper DeMerth]]
+|factionChange=-20 [[Ripper DeMerth]]
+|zones=[[Ripper's Keep]]
+|coordinates=755.4 x 43.6 x 193.6
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=2600
+|mana=100
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+
+Greeting message:
+{| class="wikitable"
+|We've worked hard to establish this place. I think <span style="color: #15e300;">[Ripper]</span>'s looking to go to war with Port Azure, I just hope that war doesn't get dragged back here.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[Ripper]</span>:
+Not sure what we'd have done without <span style="color: #15e300;">[Ripper]</span>. I'm just waiting to be conscripted into service, but it hasn't happened yet.
+|}
+
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Bread}}
+|[[Status_Effects#Buffs|Consumable]]
+|2
+|-
+|{{ItemLink|Water}}
+|[[Consumables|Drink]]
+|2
+|-
+|{{ItemLink|Fishing Pole}}
+|[[Fishing Pole]]
+|5
+|-
+|{{ItemLink|Ripparian Axe}}
+|[[Weapons#|Axe]]
+|3299
+|-
+|{{ItemLink|Skill Book: Dodge IV}}
+|[[Ability Books|Skill Book]]
+|10000
+|-
+|{{ItemLink|Skill Book: Dodge III}}
+|[[Ability Books|Skill Book]]
+|3500
+|-
+|{{ItemLink|Skill Book: Block IV}}
+|[[Ability Books|Skill Book]]
+|12500
+|-
+|{{ItemLink|Skill Book: Block III}}
+|[[Ability Books|Skill Book]]
+|3500
+|-
+|{{ItemLink|Coal}}
+|[[Crafting]]
+|0
+|}
+
+[[Category:Characters]]
+[[Category:Ripper's Keep]]
+[[Category:Vendors]]

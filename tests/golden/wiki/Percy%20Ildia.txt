@@ -1,0 +1,62 @@
+{{Enemy
+|name=Percy Ildia
+|image=[[File:Percy Ildia.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Port Azure]]
+|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
+|zones=[[Stowaway's Step]]
+|coordinates=693.2 x 20.7 x 504.8
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=3250
+|mana=100
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+Percy Ildia is located on the [[Docks]] on [[Stowaway's Step]] behind the registration office. 
+
+Greeting message:
+{| class="wikitable"
+|Whaddayya Want?
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[Erenshor]</span>,<span style="color: #15e300;">[mainland]</span>,<span style="color: #15e300;">[off]</span> or <span style="color: #15e300;">[escape]</span>
+|You wanna go to Erenshor? I'm your guy. You gotta do me a favor first though. I need to know you're legit.
+|-
+|<span style="color: #15e300;">[do]</span>,<span style="color: #15e300;">[favor]</span>,<span style="color: #15e300;">[what]</span> or <span style="color: #15e300;">[need]</span>,
+|I know a guy who can get you to <span style="color: #15e300;">[Erenshor]</span>. First, bring me some Sea Spice. Love the stuff. Hooked on it even. I'll get you whatever you need after that.<br><br><i>This begins the quest {{QuestLink |link=Percy's Seaspice}}</i>
+|}
+
+If you give him {{ItemLink|Seaspice}}:
+{| class="wikitable"
+|Yes! Thank you! ...oh, erm... here - take this note to that Captain lady on the dock who's getting ready to leave. She owes me a favor, and she'll get you to Erenshor. Nice doin' business with ya!
+|}
+After completing {{QuestLink |link=Percy's Seaspice}} and then saying <span style="color: #15e300;">[what]</span> to him again:
+{| class="wikitable"
+|You're not that gullible, are ya?
+|}
+
+[[Category:Characters]]
+[[Category:Stowaway's Step]]

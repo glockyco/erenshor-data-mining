@@ -1,0 +1,39 @@
+{{Enemy
+|name=Obba of the Warkind
+|image=[[File:Obba of the Warkind.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=+3 [[The Citizens of Erenshor]]<br>+3 [[The Citizens of Port Azure]]
+|zones=[[Underspine Hollow]]
+|coordinates=110.4 x 85.5 x 149.3
+|spawnchance=66%
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Etched Armlet}}<br>{{ItemLink|Wolfhide Boots}}
+|droprates={{ItemLink|Etched Armlet}} (66.7%)<br>{{ItemLink|Wolfhide Boots}} (33.3%)<br>{{ItemLink|Ogrespice Leaf}} (3.8%)<br>{{ItemLink|Spidersmasher}} (3.8%)<ref>If Obba of the Warkind has {{ItemLink|Spidersmasher}} equipped, it is guaranteed to drop.</ref>
+|level=15
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=4.0
+|health=9360
+|mana=0
+|ac=225
+|strength=325
+|endurance=255
+|dexterity=355
+|agility=250
+|intelligence=100
+|wisdom=3
+|charisma=3
+|magic=8-18
+|poison=8-18
+|elemental=8-18
+|void=8-18
+|spells=
+}}
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Underspine Hollow]]

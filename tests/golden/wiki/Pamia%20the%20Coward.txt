@@ -1,0 +1,40 @@
+{{Enemy
+|name=Pamia the Coward
+|image=[[File:Pamia the Coward.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=+2 [[The Blades of Vitheo]]
+|zones=[[Vitheo's Rest]]
+|coordinates=310.1 x -28.9 x 402.3
+|spawnchance=99%
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Crystallized Tactics}}<br>{{ItemLink|Ocean Aged Ring}}
+|droprates={{ItemLink|Ocean Aged Ring}} (66.7%)<br>{{ItemLink|Crystallized Tactics}} (33.3%)
+|level=25
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=41600
+|mana=300
+|ac=375
+|strength=335
+|endurance=350
+|dexterity=425
+|agility=35
+|intelligence=35
+|wisdom=95
+|charisma=75
+|magic=12-30
+|poison=12-30
+|elemental=12-30
+|void=12-30
+|spells=
+}}
+Pamia the Coward can be found in the first wing of [[Vitheo's Rest]].
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Vitheo's Rest]]

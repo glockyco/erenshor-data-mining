@@ -1,0 +1,40 @@
+{{Item
+|title=Charm of Age
+|type=
+|vendorsource=
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=1x {{ItemLink|Mold: Charm of Age}}<br>1x {{ItemLink|Chunk of Citrine Sandsilver}}<br>1x {{ItemLink|Polished Stone}}<br>1x {{ItemLink|Coral}}<br>1x {{ItemLink|Diamond}}
+|componentfor=
+|buy=25000
+|sell=16250
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/Charm
+|image=Charm of Age.png
+|name=Charm of Age
+|tier=0
+|strscaling=
+|endscaling=
+|dexscaling=
+|agiscaling=
+|intscaling=
+|wisscaling=4
+|chascaling=
+|resistscaling=
+|mitigationscaling=
+|arcanist=True
+|duelist=True
+|druid=True
+|paladin=True
+|reaver=True
+|stormcaller=True
+}}
+
+[[Category:Charms]]

@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Weight of the Sea
+|type=[[Ability Books]]
+|vendorsource=[[Pierson Windwash]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=10000
+|sell=6500
+|taughtspell={{AbilityLink|Weight of the Sea}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Weight of the Sea.png
+|name=Spell Scroll: Weight of the Sea
+|arcanist_level=
+|druid_level=
+|duelist_level=15
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=175
+|spell_type=StatusEffect
+|spell_desc=Slow target's attack speed by 15%
+}}
+
+[[Category:Ability Books]]

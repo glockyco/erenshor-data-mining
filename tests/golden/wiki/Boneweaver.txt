@@ -1,0 +1,40 @@
+{{Enemy
+|name=Boneweaver
+|image=[[File:Boneweaver.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Loomingwood Forest]]
+|coordinates=372.8 x 27.4 x 181.9
+|spawnchance=66%
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Boneweaver's Leg}}<br>{{ItemLink|Spectral Silk Belt}}
+|droprates={{ItemLink|Spectral Silk Belt}} (66.7%)<br>{{ItemLink|Boneweaver's Leg}} (33.3%)
+|level=19
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=4.0
+|health=20150
+|mana=0
+|ac=285
+|strength=45
+|endurance=100
+|dexterity=100
+|agility=85
+|intelligence=100
+|wisdom=100
+|charisma=100
+|magic=10-23
+|poison=10-23
+|elemental=10-23
+|void=10-23
+|spells=
+}}
+Boneweaver can be found next to the tree near the [[Loomingwidow]] area in [[Loomingwood]].
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Loomingwood Forest]]

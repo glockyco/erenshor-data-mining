@@ -1,0 +1,55 @@
+{{Enemy
+|name=Gasper Bulksh
+|image=[[File:Gasper Bulksh.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Huntsmen]]
+|factionChange=-50 [[The Huntsmen]]
+|zones=[[Silkengrass Meadowlands]]
+|coordinates=1043.7 x 29.3 x 341.2
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Luminstone}} (21.2%)<br>{{ItemLink|Star Stone}} (21.2%)
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=28600
+|mana=155
+|ac=330
+|strength=15
+|endurance=65
+|dexterity=65
+|agility=15
+|intelligence=15
+|wisdom=5
+|charisma=15
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells={{AbilityLink|Brax's Rage}}<br>{{AbilityLink|Brax's Touch}}<br>{{AbilityLink|Magic Bolt}}<br>{{AbilityLink|Minor Lightning}}
+}}
+Gasper is located near the burnt ruins in the [[Silkengrass Meadowlands]]
+
+Greeting message:
+{| class="wikitable"
+|A shame. It's a shame. Your budding presence is all <span style="color: #15e300;">[wilted]</span> away.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[wilted]</span>
+The Sivakayans are trying to take back the land. The wardrums will descend on Port Azure soon enough if nothing is done. The <span style="color: #15e300;">[Wisp]</span> alone cannot stop them.
+|-
+|<span style="color: #15e300;">[Wisp]</span>
+We're no concern of yours. Nor are you to us. You want friends? Some of your own are here too. <span style="color: #15e300;">[Defectors]</span>, I believe.
+|-
+|<span style="color: #15e300;">[Defectors]</span>
+They answer to someone called 'Ripper'. Go ask them, not me. They're clinging to those last few houses up the hill just to the west there.
+
+[[Category:Characters]]
+[[Category:Silkengrass Meadowlands]]

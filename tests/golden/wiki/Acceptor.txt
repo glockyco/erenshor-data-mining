@@ -1,0 +1,41 @@
+{{Enemy
+|name=Acceptor
+|image=[[File:Acceptor.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Blacksalt Strand]]
+|coordinates=740.2 x 25.4 x 338.1
+|spawnchance=20%
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Chapters of Descent, Passage 3}} (100.0%)<ref>If the player is already holding {{ItemLink|Chapters of Descent, Passage 3}} in their inventory, another will not drop.</ref><br>{{ItemLink|Blackflame Torch}} (3.9%)<ref>If Acceptor has {{ItemLink|Blackflame Torch}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Sivakayan Tunic}} (3.9%)<br>{{ItemLink|Bread}} (3.1%)<br>{{ItemLink|Cloth Gloves}} (3.1%)<br>{{ItemLink|Cloth Pants}} (3.1%)<br>{{ItemLink|Cloth Shirt}} (3.1%)<br>{{ItemLink|Cloth Shoes}} (3.1%)<br>{{ItemLink|Cloth Sleeves}} (3.1%)<br>{{ItemLink|Luminstone}} (3.1%)<br>{{ItemLink|Spell Scroll: Healing}} (3.1%)<br>{{ItemLink|Spell Scroll: Magical Skin}} (3.1%)<br>{{ItemLink|Spell Scroll: Soul Tap}} (3.1%)<br>{{ItemLink|Star Stone}} (3.1%)<br>{{ItemLink|Water}} (3.1%)
+|level=18
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=2.0
+|health=9360
+|mana=500
+|ac=270
+|strength=29
+|endurance=65
+|dexterity=75
+|agility=35
+|intelligence=55
+|wisdom=15
+|charisma=3
+|magic=9-22
+|poison=9-22
+|elemental=9-22
+|void=9-22
+|spells=
+}}
+Rare spawn inside the Church in front of the Statue of Sivakaya
+=Notes=
+
+[[Category:Blacksalt Strand]]
+[[Category:Bosses]]
+[[Category:Enemies]]

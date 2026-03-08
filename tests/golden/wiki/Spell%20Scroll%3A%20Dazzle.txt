@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Dazzle
+|type=[[Ability Books|Spell Scroll]]
+|vendorsource=[[Aldoa Manday]]<br>[[Nylith Valorro]]<br>[[Ophelia Luminee]]
+|source=[[Plaxitheris]] (8.8%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=50
+|sell=32
+|taughtspell={{AbilityLink|Dazzle}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Dazzle.png
+|name=Spell Scroll: Dazzle
+|arcanist_level=1
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=10
+|spell_type=StatusEffect
+|spell_desc=Renders your target helpless. Any damage breaks this effect.
+}}
+
+[[Category:Ability Books]]

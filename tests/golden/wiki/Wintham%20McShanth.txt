@@ -1,0 +1,100 @@
+{{Enemy
+|name=Wintham McShanth
+|image=[[File:Wintham McShanth.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Port Azure]]
+|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
+|zones=[[Fernalla's Revival Plains]]
+|coordinates=1260.0 x -12.4 x 572.9
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=2600
+|mana=100
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+Wintham is an NPC located in [[Port Azure]] beside the Church as you head to the Port Azure Lighthouse. He is also found in [[Fernalla's Revival Plains]] in Restful Valley.
+
+==[[Port Azure|<span style="color:orange;">in Port Azure</span>]]:==
+Greeting message:
+{| class="wikitable"
+|"This town holds secrets, lots of 'em. The kind that are best not found. Stay out of the <span style="color: #15e300;">[shadows]</span>. That's my advice."
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[shadows]</span>
+"There's dark corners here. All around. Under your feet, even. Seen 'em with my own eyes. Lucky, I guess, that I'm still here. If you listen close in the right places, you can hear... their presence." 
+|}
+
+==[[Fernalla's Revival Plains|<span style="color:orange;">in Fernalla's Revival Plains</span>]]:==
+Greeting message:
+{| class="wikitable"
+|"Welcome to our little town. We're calling it Restful Valley. There's no trouble here so don't you go bringing any."
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[Yarren]</span>
+"He passes through every now and again. Says the folks at Goodsoil are part of the problem."
+|}
+
+{{Enemy
+|name=Wintham McShanth
+|image=[[File:Wintham McShanth.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Port Azure]]
+|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
+|zones=[[Port Azure]]
+|coordinates=146.4 x 26.3 x 348.9
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=3250
+|mana=100
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+
+[[Category:Characters]]
+[[Category:Fernalla's Revival Plains]]
+[[Category:Port Azure]]

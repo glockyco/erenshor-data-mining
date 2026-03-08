@@ -1,0 +1,39 @@
+{{Enemy
+|name=Reliquary Fiend
+|image=[[File:Reliquary Fiend.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Reliquary Hall]]
+|coordinates=275.1 x 0.2 x 331.2
+|spawnchance=
+|respawn=6 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Spectral Sword}} (20.4%)<ref>If Reliquary Fiend has {{ItemLink|Spectral Sword}} equipped, it is guaranteed to drop.</ref>
+|level=16
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=2.0
+|health=55250
+|mana=0
+|ac=240
+|strength=29
+|endurance=66
+|dexterity=300
+|agility=35
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=8-19
+|poison=8-19
+|elemental=8-19
+|void=8-19
+|spells=
+}}
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Reliquary Hall]]

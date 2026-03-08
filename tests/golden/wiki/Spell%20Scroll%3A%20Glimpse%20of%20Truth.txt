@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Glimpse of Truth
+|type=[[Ability Books]]
+|vendorsource=[[Leyor M'Chante]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=2500
+|sell=1625
+|taughtspell={{AbilityLink|Glimpse of Truth}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Glimpse of Truth.png
+|name=Spell Scroll: Glimpse of Truth
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=15
+|stormcaller_level=
+|reaver_level=
+|mana_cost=45
+|spell_type=Damage
+|spell_desc=(Taunt) Target becomes furious with the caster of this spell.
+}}
+
+[[Category:Ability Books]]

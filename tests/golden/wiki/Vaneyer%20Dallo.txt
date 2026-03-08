@@ -1,0 +1,53 @@
+{{Enemy
+|name=Vaneyer Dallo
+|image=[[File:Vaneyer Dallo.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Port Azure]]
+|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
+|zones=[[Fernalla's Revival Plains]]
+|coordinates=1253.3 x -12.4 x 587.9
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=2600
+|mana=100
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+Vaneyer is an NPC located in Restful Valley in [[Fernalla's Revival Plains]].
+
+Greeting message:
+{| class="wikitable"
+|Port Azure's got its nose in everyone's business. Poke the Sivakayans and they poke back. That's why we're out here alone. That's not our fight. There's more to what's going on than you know.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[know]</span>
+Look around ya. Ruins everywhere. Port Azure folk weren't the first ones to this land. We're on someone else's turf now, and I'm not sure we're exactly welcome. 
+|-
+|<span style="color: #15e300;">[yarren]</span>
+Yarren keeps prattling on about the Molorai and some conspiracy. Spends his nights on the beach over by Krakengard, says he's waiting for Eldoth to pass though. 
+|}
+
+[[Category:Characters]]
+[[Category:Fernalla's Revival Plains]]

@@ -1,0 +1,70 @@
+{{Enemy
+|name=Kylie Clark
+|image=[[File:Kylie Clark.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[Fernalla's Children]]
+|factionChange=-20 [[Fernalla's Children]]
+|zones=[[The Duskenlight Coast]]
+|coordinates=703.5 x 72.9 x 627.0
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=6
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=520
+|mana=225
+|ac=90
+|strength=35
+|endurance=35
+|dexterity=35
+|agility=35
+|intelligence=35
+|wisdom=35
+|charisma=35
+|magic=3-7
+|poison=3-7
+|elemental=3-7
+|void=3-7
+|spells={{AbilityLink|Brax's Rage}}<br>{{AbilityLink|Theft of Life}}
+}}
+Kylie is located near a small campsite along side [[Boshi Polok]] in the [[Duskenlight Coast]]
+
+Greeting message:
+{| class="wikitable"
+|This place... I come here to feel the power of it.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[power]</span>
+It's one of the rare places two Gods have touched. Fernalla's willow, and Sivakaya's temple standing guard against one another... like a timeless duel.
+|}
+
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Seafruit}}
+|[[Consumables]]
+|120
+|-
+|{{ItemLink|Bread}}
+|[[Consumables]]
+|2
+|-
+|{{ItemLink|Water}}
+|[[Consumables]]
+|1
+|}
+
+[[Category:Characters]]
+[[Category:The Duskenlight Coast]]
+[[Category:Vendors]]

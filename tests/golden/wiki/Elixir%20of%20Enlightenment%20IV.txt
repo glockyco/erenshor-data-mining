@@ -1,0 +1,71 @@
+{{Item
+|title=Elixir of Enlightenment IV
+|type=[[Consumables|Consumable]]
+|vendorsource=[[Elysia Thistlewick]]
+|source=[[Lost Treasure (1-10)]] (11.6%)<br>[[Lost Treasure (20-30)]] (10.8%)<br>[[Braxonian Fossil]] (10.5%)<br>[[Lost Treasure (10-20)]] (7.2%)
+|othersource=
+|questsource={{QuestLink|link=The Mathers' Demise{{!}}The Mather's Demise, Part 3}}<br>{{QuestLink|The Mathers' Demise}}
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=400000
+|sell=260000
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/Consumable
+|image=Elixir of Enlightenment IV.png
+|name=Elixir of Enlightenment IV
+|description=
+|disposable=True
+|effect_spell_icon=Enlightened Path IV.png
+|effect_spell_name=[[Enlightened Path IV]]
+|effect_spell_level=30
+|effect_spell_duration_ticks=1000
+|effect_spell_type=Beneficial
+|effect_spell_line=XPBonus
+|effect_target_damage=
+|effect_target_healing=
+|effect_shielding_amt=
+|effect_damage_type=Magic
+|effect_cast_time=0.3
+|effect_cooldown=
+|effect_spell_range=30.0
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=15
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+|effect_xp_bonus=100
+}}
+
+[[Category:Consumables]]

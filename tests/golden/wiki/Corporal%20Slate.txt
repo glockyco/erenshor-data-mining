@@ -1,0 +1,64 @@
+{{Enemy
+|name=Corporal Slate
+|image=[[File:Corporal Slate.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Stowaway's Step]]
+|factionChange=
+|zones=[[Stowaway's Step]]
+|coordinates=683.2 x 29.6 x 425.5
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates=
+|level=25
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=32500
+|mana=0
+|ac=375
+|strength=155
+|endurance=155
+|dexterity=155
+|agility=155
+|intelligence=155
+|wisdom=155
+|charisma=155
+|magic=12-30
+|poison=12-30
+|elemental=12-30
+|void=12-30
+|spells=
+}}
+
+He's on the [[Docks]] on [[Stowaway's Step]]. The Corporal is necessary in the quest {{QuestLink | link=Stowaway Registration}} and {{QuestLink | link=Kio's Papers}}.
+
+Greeting message:
+{| class="wikitable"
+|Whatcha want?
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[registered]</span>
+|And what? You want your own key to this door? Got no more on me. You wanna take care of a <span style="color: #15e300;">[problem]</span> for me? Doin' it comes with it's own key.
+|-
+|<span style="color: #15e300;">[problem]</span>
+|It's a big problem. Kio - that guy down at the Lighthouse there - he's gone kinda nutty. Stared at one too many hermit crabs or somethin'. He's gotta go back home. I have his deportation papers. Go and deliver 'em and collect his gate key. It's all yours.<br>
+<i>This begins {{QuestLink |link=Kio's Papers}}</i>
+|}
+
+If you say <span style="color: #15e300;">[registered]</span> to him again after finishing {{QuestLink | link=Kio's Papers}}:
+{| class="wikitable"
+|is that problem taken care of?
+|}
+If you say <span style="color: #15e300;">[problem]</span> to him again after finishing {{QuestLink | link=Kio's Papers}}:
+{| class="wikitable"
+|I thought you already took care of this! Here, take another copy.
+|}
+
+[[Category:Characters]]
+[[Category:Stowaway's Step]]

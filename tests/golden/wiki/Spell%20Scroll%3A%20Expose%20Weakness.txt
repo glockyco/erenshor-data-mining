@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Expose Weakness
+|type=[[Ability Books]]
+|vendorsource=
+|source=[[Rottenfoot Swampwalker]] (4.6%)<br>[[Rottenfoot Swampwalker]] (3.5%)<br>[[Rottenfoot Witchdoctor]] (3.5%)<br>[[Tek-Nu Dah]] (3.5%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=200
+|sell=130
+|taughtspell={{AbilityLink|Expose Weakness}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Expose Weakness.png
+|name=Spell Scroll: Expose Weakness
+|arcanist_level=
+|druid_level=
+|duelist_level=12
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=100
+|spell_type=StatusEffect
+|spell_desc=Lower a targets defenses.
+}}
+
+[[Category:Ability Books]]

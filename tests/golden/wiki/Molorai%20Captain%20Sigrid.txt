@@ -1,0 +1,59 @@
+''{{main|Enemies}}''
+
+{{Enemy
+|name=Molorai Captain Sigrid
+|image=[[File:Molorai Captain Sigrid.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
+|factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Azure Guard]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
+|zones=[[Old Krakengard]]
+|coordinates=570.2 x 10.1 x 252.1
+|spawnchance=
+|respawn=8 minutes
+|guaranteeddrops={{ItemLink|Obsidian Bracer}}<br>{{ItemLink|Vithean Sea Salt Ring}}
+|droprates={{ItemLink|Krakengard Tower Key}} (100.0%)<ref>If the player is already holding {{ItemLink|Krakengard Tower Key}} in their inventory, another will not drop.</ref><br>{{ItemLink|Pg. 2: Faded Entry}} (100.0%)<ref>If the player is already holding {{ItemLink|Pg. 2: Faded Entry}} in their inventory, another will not drop.</ref><br>{{ItemLink|Citrine Stone}} (98.3%)<br>{{ItemLink|Obsidian Bracer}} (55.4%)<br>{{ItemLink|Vithean Sea Salt Ring}} (55.4%)<br>{{ItemLink|Spell Scroll: Moonburst}} (12.7%)<br>{{ItemLink|Spell Scroll: Sunburst}} (12.7%)<br>{{ItemLink|Linked Chain Shirt}} (10.9%)<br>{{ItemLink|Star Stone}} (10.9%)<br>{{ItemLink|Molorai Manifesto, Pg. 1}} (2.9%)<ref>If the player is already holding {{ItemLink|Molorai Manifesto, Pg. 1}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Manifesto, Pg. 2}} (2.9%)<ref>If the player is already holding {{ItemLink|Molorai Manifesto, Pg. 2}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Manifesto, Pg. 3}} (2.9%)<ref>If the player is already holding {{ItemLink|Molorai Manifesto, Pg. 3}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Manifesto, Pg. 4}} (2.9%)<ref>If the player is already holding {{ItemLink|Molorai Manifesto, Pg. 4}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Manifesto, Pg. 5}} (2.9%)<ref>If the player is already holding {{ItemLink|Molorai Manifesto, Pg. 5}} in their inventory, another will not drop.</ref>
+|level=11
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=4.0
+|health=5200
+|mana=55
+|ac=165
+|strength=175
+|endurance=100
+|dexterity=255
+|agility=75
+|intelligence=25
+|wisdom=25
+|charisma=3
+|magic=6-13
+|poison=6-13
+|elemental=6-13
+|void=6-13
+|spells=
+}}
+
+<!--
+=Location=
+{{PAGENAME}} is found in the back of the bunk area of [[Old Krakengard]], which is accessed by going up the stairs to the right upon first entering the dungeon. Accessing {{PAGENAME}} requires the {{ItemLink|Krakengard Bunk Key}}, which can be obtained from the [[Molorai Brewmistress]] in the fort's basement.
+-->
+=Appearance=
+{{PAGENAME}} is a bearded man in black armor with a red scar under his right eye. He is flanked by two [[Molorai Attack Dog|Molorai Attack Dogs]].
+
+=Behavior=
+{{PAGENAME}} waits in his room at the back of the bunk area of the fort. Although he will not attack as soon as players open the door, he will become aggressive if players get too close or [[Lunar Madness|Provoke]] him or his dogs.
+
+===Spells & Abilities===
+{{PAGENAME}} does not use any spells or abilities.
+
+===Strategy===
+{{PAGENAME}} should not pose much of a threat for players who have managed to make it through the fort to him. To make the fight even easier, his dogs can be quickly dispatched once the fight begins or stunned using {{AbilityLink|Dazzle}}.
+
+=Notes=
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Old Krakengard]]

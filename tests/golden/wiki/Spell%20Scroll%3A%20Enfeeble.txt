@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Enfeeble
+|type=
+|vendorsource=[[Grant Haxoway]]
+|source=[[Sivakayan Reaver]] (3.0%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=26500
+|sell=17225
+|taughtspell={{AbilityLink|Enfeeble}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Enfeeble.png
+|name=Spell Scroll: Enfeeble
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=22
+|mana_cost=200
+|spell_type=StatusEffect
+|spell_desc=Slow your target's movement speed by weakening their muscles
+}}
+
+[[Category:Ability Books]]

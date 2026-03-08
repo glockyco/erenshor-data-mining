@@ -1,0 +1,40 @@
+{{Item
+|title=Sorcerer's Charm
+|type=
+|vendorsource=
+|source=[[Braxonian Fossil]] (5.3%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=6000
+|sell=3900
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/Charm
+|image=Sorcerer's Charm.png
+|name=Sorcerer's Charm
+|tier=0
+|strscaling=
+|endscaling=
+|dexscaling=
+|agiscaling=
+|intscaling=6
+|wisscaling=
+|chascaling=2
+|resistscaling=
+|mitigationscaling=
+|arcanist=True
+|duelist=True
+|druid=True
+|paladin=True
+|reaver=True
+|stormcaller=True
+}}
+
+[[Category:Charms]]

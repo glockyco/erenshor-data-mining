@@ -1,0 +1,48 @@
+{{Enemy
+|name=Thomson Rhett
+|image=[[File:Thomson Rhett.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Solunarian Brotherhood]]
+|factionChange=-25 [[The Citizens of Port Azure]]<br>-25 [[The Solunarian Brotherhood]]
+|zones=[[Fernalla's Revival Plains]]
+|coordinates=481.0 x 46.8 x 1060.1
+|spawnchance=
+|respawn=6 minutes
+|guaranteeddrops=
+|droprates=
+|level=25
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=2600
+|mana=200
+|ac=375
+|strength=55
+|endurance=55
+|dexterity=55
+|agility=55
+|intelligence=55
+|wisdom=55
+|charisma=55
+|magic=12-30
+|poison=12-30
+|elemental=12-30
+|void=12-30
+|spells={{AbilityLink|Minor Healing}}<br>{{AbilityLink|Minor Regeneration}}<br>{{AbilityLink|Soluna's Solar Blessing}}<br>{{AbilityLink|Soluna's Solar Invigoration}}
+}}
+Thomson is an NPC located in [[Fernalla's Revival Plains]] in an isolated house. He is traumatised by the Sivakayans' uprising and wants to find refuge ASAP.
+
+Greeting message if you are a Paladin?:
+{| class="wikitable"
+|Those Sivakayans must have marched right by my door. I didn't hear a thing... I can't stay here anymore after this - what if they came here??
+|}
+Greeting message for everyone else:
+{| class="wikitable"
+|My apologies, traveller, but I don't have time for you right now.
+|}
+
+[[Category:Characters]]
+[[Category:Fernalla's Revival Plains]]

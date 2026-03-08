@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Vitheo's Blessing of the Sea
+|type=
+|vendorsource=
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=35
+|sell=23
+|taughtspell={{AbilityLink|Vitheo's Blessing of the Sea}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Vitheo's Blessing of the Sea.png
+|name=Spell Scroll: Vitheo's Blessing of the Sea
+|arcanist_level=
+|druid_level=
+|duelist_level=-1
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=60
+|spell_type=Beneficial
+|spell_desc=Increase character strength and dexterity.
+}}
+
+[[Category:Ability Books]]

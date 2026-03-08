@@ -1,0 +1,38 @@
+{{Enemy
+|name=Ancient Celestarian
+|image=[[File:Ancient Celestarian.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Soluna's Landing]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Ancient Bone}} (87.1%)<br>{{ItemLink|Lost Faith}} (22.1%)<br>{{ItemLink|Wardens of the North}} (7.8%)<br>{{ItemLink|Aetheria}} (6.8%)<ref>If the player is already holding {{ItemLink|Aetheria}} in their inventory, another will not drop.</ref><br>{{ItemLink|Moonglow Amulet}} (5.4%)<br>{{ItemLink|Stone Statue: Soluna}} (1.4%)
+|level=27
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=23140
+|mana=0
+|ac=405
+|strength=26
+|endurance=75
+|dexterity=125
+|agility=55
+|intelligence=95
+|wisdom=95
+|charisma=75
+|magic=14-32
+|poison=14-32
+|elemental=14-32
+|void=14-32
+|spells={{AbilityLink|Glare of Soluna}}<br>{{AbilityLink|Spectrum}}<br>{{AbilityLink|Supreme Healing}}<br>{{AbilityLink|Theft of Vigor}}<br>{{AbilityLink|Voidblast}}
+}}
+
+[[Category:Enemies]]
+[[Category:Soluna's Landing]]

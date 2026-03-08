@@ -1,0 +1,55 @@
+{{Enemy
+|name=Chazz Pillot
+|image=[[File:Chazz Pillot.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Port Azure]]
+|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
+|zones=[[Port Azure]]
+|coordinates=203.5 x 26.0 x 213.2
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Mold: A Strange Figurine}} (100.0%)
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=3250
+|mana=100
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+
+Chazz is an NPC located in [[Port Azure]] between the market and docks.
+
+Greeting message:
+{| class="wikitable"
+|You don't have time for me. Get on with ya.
+|}
+
+Giving him [[Notes of a Hermit|<span style="color:yellow">[Notes of a Hermit]</span>]] to finish [[A Note for C. Pillot|<span style="color:yellow">A Note for C. Pillot</span>]]:
+{| class="wikitable"
+|Edgar gave this to you? If he says it's true, it is. My family has held this piece for centuries, but it's time to forge it... and maybe we gain the attention of The Wisp once and for all.
+|}
+
+Giving him another [[Notes of a Hermit|<span style="color:yellow">[Notes of a Hermit]</span>]]:
+{| class="wikitable"
+|We've already been though this.
+|}
+
+[[Category:Characters]]
+[[Category:Port Azure]]

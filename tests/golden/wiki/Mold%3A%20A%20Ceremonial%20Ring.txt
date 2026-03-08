@@ -1,0 +1,30 @@
+{{Item
+|title=Mold: A Ceremonial Ring
+|type=[[Crafting|Mold]]
+|vendorsource=
+|source=
+|othersource=[[Fishing]]
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+This Mold can be found in [[Fernalla's Revival Plains]] by fishing, it can be fished at any time of the day. To craft the normal {{ItemLink|Ceremonial Ring}} you need to use {{ItemLink|Coal}} as a fuel source, but if you want to craft the {{ItemLink|Pristine Ceremonial Ring}} you need to use {{ItemLink|Ancient Coal}} as a fuel source.
+
+{{Item/Mold
+|image=Mold: A Ceremonial Ring.png
+|name=Mold: A Ceremonial Ring
+|description=Recipes must be exact - use CNTRL + CLICK to separate stacks.<br><br>One-time usable in a forge.
+|ingredients=1x {{ItemLink|Chunk of Copper Ore}}<br>1x {{ItemLink|Sivakayan Horn}}<br>1x {{ItemLink|Luminstone}}<br>1x {{ItemLink|Sivakrux}}
+|rewards={{ItemLink|Ceremonial Ring}}
+|station=
+}}
+
+[[Category:Crafting]]
+[[Category:Molds]]

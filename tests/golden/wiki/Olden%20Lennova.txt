@@ -1,0 +1,44 @@
+{{Enemy
+|name=Olden Lennova
+|image=[[File:Olden Lennova.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Solunarian Brotherhood]]
+|factionChange=-25 [[The Citizens of Port Azure]]<br>-25 [[The Solunarian Brotherhood]]
+|zones=[[Malaroth's Nesting Grounds]]
+|coordinates=490.9 x 26.9 x 274.3
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=15
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=16250
+|mana=200
+|ac=225
+|strength=55
+|endurance=55
+|dexterity=55
+|agility=55
+|intelligence=55
+|wisdom=55
+|charisma=55
+|magic=8-18
+|poison=8-18
+|elemental=8-18
+|void=8-18
+|spells={{AbilityLink|Minor Healing}}<br>{{AbilityLink|Minor Regeneration}}<br>{{AbilityLink|Soluna's Solar Blessing}}<br>{{AbilityLink|Soluna's Solar Invigoration}}
+}}
+Olden Lennova is located in a small camp set up located in [[Malaroth's Nesting Grounds]]
+
+Greeting message:
+{| class="wikitable"
+|I stopped here for a rest before continuing on my pilgrimage. The journey along the coast was breathtaking... but tiresome.
+|}
+
+[[Category:Characters]]
+[[Category:Malaroth's Nesting Grounds]]

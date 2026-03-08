@@ -1,0 +1,38 @@
+{{Enemy
+|name=Acolyte
+|image=[[File:Acolyte.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Blacksalt Strand]]
+|coordinates=
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Bread}} (58.4%)<br>{{ItemLink|Luminstone}} (58.4%)<br>{{ItemLink|Shielded Ring}} (6.7%)<br>{{ItemLink|Chapters of Descent, Passage 1}} (6.0%)<ref>If the player is already holding {{ItemLink|Chapters of Descent, Passage 1}} in their inventory, another will not drop.</ref><br>{{ItemLink|Chapters of Descent, Passage 2}} (6.0%)<ref>If the player is already holding {{ItemLink|Chapters of Descent, Passage 2}} in their inventory, another will not drop.</ref><br>{{ItemLink|Cloth Gloves}} (1.7%)<br>{{ItemLink|Cloth Pants}} (1.7%)<br>{{ItemLink|Cloth Shirt}} (1.7%)<br>{{ItemLink|Cloth Shoes}} (1.7%)<br>{{ItemLink|Cloth Sleeves}} (1.7%)<br>{{ItemLink|Spell Scroll: Healing}} (1.7%)<br>{{ItemLink|Spell Scroll: Magical Skin}} (1.7%)<br>{{ItemLink|Spell Scroll: Soul Tap}} (1.7%)<br>{{ItemLink|Star Stone}} (1.7%)<br>{{ItemLink|Water}} (1.7%)
+|level=16
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=9230
+|mana=500
+|ac=240
+|strength=25
+|endurance=65
+|dexterity=75
+|agility=35
+|intelligence=55
+|wisdom=15
+|charisma=3
+|magic=8-19
+|poison=8-19
+|elemental=8-19
+|void=8-19
+|spells=
+}}
+
+[[Category:Blacksalt Strand]]
+[[Category:Enemies]]

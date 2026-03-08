@@ -1,0 +1,33 @@
+{{Item
+|title=Skill Book: Stunning Strike
+|type=[[Ability Books|Skill Book]]
+|vendorsource=[[Aillee Desten]]<br>[[Akaran Black]]<br>[[Benson Gamble]]
+|source=[[Islander Bandit]] (1.1%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=225
+|sell=146
+|taughtspell=
+|taughtskill={{AbilityLink|Stunning Strike}}
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SkillBook
+|image=Skill Book: Stunning Strike.png
+|name=Skill Book: Stunning Strike
+|duelist_level=
+|druid_level=
+|arcanist_level=
+|paladin_level=7
+|stormcaller_level=
+|reaver_level=4
+|skill_type=Attack
+|skill_desc=Execute an attack so powerful, it momentarily stuns your opponent.
+|simplayers_autolearn=True
+}}
+
+[[Category:Ability Books]]

@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Atonic Howl
+|type=
+|vendorsource=[[Shantee Swingblade]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=1800
+|sell=1170
+|taughtspell={{AbilityLink|Atonic Howl}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Atonic Howl.png
+|name=Spell Scroll: Atonic Howl
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=15
+|mana_cost=130
+|spell_type=PBAE
+|spell_desc=Massively slows all targets attack speed in a small radius of the caster. Any damage to the target will remove the effect.
+}}
+
+[[Category:Ability Books]]

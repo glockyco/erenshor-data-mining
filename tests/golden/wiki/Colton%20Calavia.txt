@@ -1,0 +1,45 @@
+{{Enemy
+|name=Colton Calavia
+|image=[[File:Colton Calavia.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Solunarian Brotherhood]]
+|factionChange=-20 [[The Citizens of Port Azure]]<br>-20 [[The Solunarian Brotherhood]]
+|zones=[[Malaroth's Nesting Grounds]]
+|coordinates=460.5 x 25.2 x 271.7
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=20
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=24050
+|mana=200
+|ac=300
+|strength=55
+|endurance=55
+|dexterity=55
+|agility=55
+|intelligence=55
+|wisdom=55
+|charisma=55
+|magic=10-24
+|poison=10-24
+|elemental=10-24
+|void=10-24
+|spells={{AbilityLink|Minor Healing}}<br>{{AbilityLink|Minor Regeneration}}<br>{{AbilityLink|Soluna's Solar Blessing}}<br>{{AbilityLink|Soluna's Solar Invigoration}}
+}}
+
+Colton Calavia is located in a small camp set up located in [[Malaroth's Nesting Grounds]]
+
+Greeting message:
+{| class="wikitable"
+|Surprising to see someone like you make The Pilgrimage...
+|}
+
+[[Category:Characters]]
+[[Category:Malaroth's Nesting Grounds]]

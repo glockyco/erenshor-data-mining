@@ -1,0 +1,30 @@
+{{Item
+|title=Mold: Nighthollow Wax
+|type=[[Crafting|Mold]]
+|vendorsource=
+|source=[[Candlekeeper]] (100.0%)
+|othersource=
+|questsource=
+|relatedquest={{QuestLink | link=Recovering the Nighthollow Candle}}
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+<span style="color: #e6080d;">Important:</span> Fuel type does not affect the outcome of this item so you should only use {{ItemLink|Coal}} when crafting it.
+
+{{Item/Mold
+|image=Mold: Nighthollow Wax.png
+|name=Mold: Nighthollow Wax
+|description=Recipes must be exact - use CNTRL + CLICK to separate stacks.<br><br>One-time usable in a forge.
+|ingredients=1x {{ItemLink|Dusken Giant's Blood}}<br>1x {{ItemLink|Ghostly Giant's Blood}}<br>1x {{ItemLink|Sylvan Giant's Blood}}<br>1x {{ItemLink|Stone Giant's Blood}}<br>1x {{ItemLink|Vampire Fang}}
+|rewards={{ItemLink|Nighthollow Wax}}
+|station=
+}}
+
+[[Category:Crafting]]
+[[Category:Molds]]

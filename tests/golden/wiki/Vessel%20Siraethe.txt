@@ -1,0 +1,43 @@
+{{Enemy
+|name=Vessel Siraethe
+|image=[[File:Vessel Siraethe.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Jaws of Sivakaya]]
+|coordinates=1581.6 x -19.8 x 109.6
+|spawnchance=
+|respawn=13 minutes
+|guaranteeddrops={{ItemLink|Ascended Remains}}<br>{{ItemLink|Bracelet of the Vessel}}<br>{{ItemLink|Siraethe's Prayercrest}}<br>{{ItemLink|Thryne, Sledge of Creation}}<br>{{ItemLink|Vessel's Band}}
+|droprates={{ItemLink|A Remnant of Sivakaya}} (100.0%)<ref>If the player is already holding {{ItemLink|A Remnant of Sivakaya}} in their inventory, another will not drop.</ref><br>{{ItemLink|Sableheart's Key}} (100.0%)<ref>If the player is already holding {{ItemLink|Sableheart's Key}} in their inventory, another will not drop.</ref><br>{{ItemLink|The Faceless}} (87.1%)<br>{{ItemLink|Ascended Remains}} (28.8%)<br>{{ItemLink|Bracelet of the Vessel}} (28.8%)<br>{{ItemLink|Thryne, Sledge of Creation}} (28.8%)<br>{{ItemLink|Vessel's Band}} (28.8%)<br>{{ItemLink|Siraethe's Prayercrest}} (20.0%)
+|level=40
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=0
+|levelvariancemax=0
+|xpmultiplier=4.0
+|health=305500
+|mana=18000
+|ac=600
+|strength=800
+|endurance=1000
+|dexterity=880
+|agility=400
+|intelligence=400
+|wisdom=500
+|charisma=400
+|magic=20-48
+|poison=20-48
+|elemental=20-48
+|void=20-48
+|spells=
+}}
+
+Periodically summons wards which heal her - These must be destroyed
+
+=Notes=
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Jaws of Sivakaya]]

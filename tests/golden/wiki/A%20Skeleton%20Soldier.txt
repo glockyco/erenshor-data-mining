@@ -1,0 +1,40 @@
+{{Enemy
+|name=A Skeleton Soldier
+|image=[[File:A Skeleton Soldier.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=+2 [[The Azure Guard]]<br>-10 [[The Children of Sivakaya]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]
+|zones=[[Faerie's Brake]]<br>[[The Bonepits]]<br>[[Vitheo's Watch]]
+|coordinates=
+|spawnchance=30% (Faerie's Brake)<br>33-100% (The Bonepits)<br>33-100% (Vitheo's Watch)
+|respawn=3 minutes (Faerie's Brake)<br>3 minutes (The Bonepits)<br>4-6 minutes (Vitheo's Watch)
+|guaranteeddrops=
+|droprates={{ItemLink|Ancient Bone}} (88.6%)<br>{{ItemLink|Polished Longsword}} (3.9%)<ref>If A Skeleton Soldier has {{ItemLink|Polished Longsword}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Star Stone}} (3.9%)<br>{{ItemLink|Skeleton Eye}} (3.9%)<ref>If the player is already holding {{ItemLink|Skeleton Eye}} in their inventory, another will not drop.</ref><br>{{ItemLink|Rotting Cudgel}} (3.5%)<br>{{ItemLink|Rotwood Bow}} (3.5%)
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1040
+|mana=0
+|ac=120
+|strength=10
+|endurance=12
+|dexterity=60
+|agility=8
+|intelligence=5
+|wisdom=5
+|charisma=5
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+
+[[Category:Enemies]]
+[[Category:Faerie's Brake]]
+[[Category:The Bonepits]]
+[[Category:Vitheo's Watch]]

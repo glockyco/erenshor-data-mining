@@ -1,0 +1,33 @@
+{{Item
+|title=Skill Book: Kick
+|type=[[Ability Books|Skill Book]]
+|vendorsource=[[Aillee Desten]]<br>[[Amethi Plazzo]]<br>[[Benson Gamble]]<br>[[Javo Follay]]<br>[[Ludo Luxo]]<br>[[Sven Feartines]]<br>[[Zane Theavale]]
+|source=[[Islander Bandit]] (1.1%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=75
+|sell=49
+|taughtspell=
+|taughtskill={{AbilityLink|Kick}}
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SkillBook
+|image=Skill Book: Kick.png
+|name=Skill Book: Kick
+|duelist_level=3
+|druid_level=
+|arcanist_level=
+|paladin_level=1
+|stormcaller_level=5
+|reaver_level=2
+|skill_type=Attack
+|skill_desc=Kick an enemy. Interrupts target's spells.
+|simplayers_autolearn=True
+}}
+
+[[Category:Ability Books]]

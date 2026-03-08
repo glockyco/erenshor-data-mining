@@ -1,0 +1,39 @@
+{{Enemy
+|name=Morian the Ascended
+|image=[[File:Morian the Ascended.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Children of Sivakaya]]
+|factionChange=
+|zones=[[Silkengrass Meadowlands]]
+|coordinates=636.8 x 90.3 x 639.5
+|spawnchance=50%
+|respawn=4 minutes
+|guaranteeddrops={{ItemLink|Ephermalia, Blade of Waning}}<br>{{ItemLink|Shackle of Bidding}}
+|droprates={{ItemLink|Brackfruit Juice}} (100.0%)<br>{{ItemLink|Shackle of Bidding}} (66.7%)<br>{{ItemLink|Ephermalia, Blade of Waning}} (33.3%)
+|level=28
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=3.0
+|health=37700
+|mana=3000
+|ac=420
+|strength=36
+|endurance=105
+|dexterity=185
+|agility=100
+|intelligence=180
+|wisdom=100
+|charisma=100
+|magic=14-34
+|poison=14-34
+|elemental=14-34
+|void=14-34
+|spells=
+}}
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Silkengrass Meadowlands]]

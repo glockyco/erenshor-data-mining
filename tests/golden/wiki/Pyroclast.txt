@@ -1,0 +1,43 @@
+{{Enemy
+|name=Pyroclast
+|image=[[File:Pyroclast.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Rockshade Hold]]
+|coordinates=261.3 x 81.7 x 694.4
+|spawnchance=
+|respawn=12 minutes
+|guaranteeddrops={{ItemLink|Fiery Revival}}<br>{{ItemLink|Phoenix Loop}}<br>{{ItemLink|Pillars of Pyroclast}}
+|droprates={{ItemLink|Pg. 6: Faded Entry}} (100.0%)<ref>If the player is already holding {{ItemLink|Pg. 6: Faded Entry}} in their inventory, another will not drop.</ref><br>{{ItemLink|Diamond}} (36.7%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Fiery Revival}} (33.3%)<br>{{ItemLink|Phoenix Loop}} (33.3%)<br>{{ItemLink|Pillars of Pyroclast}} (33.3%)
+|level=27
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=6.0
+|health=51350
+|mana=300
+|ac=405
+|strength=27
+|endurance=95
+|dexterity=145
+|agility=5
+|intelligence=35
+|wisdom=95
+|charisma=0
+|magic=14-32
+|poison=14-32
+|elemental=14-32
+|void=14-32
+|spells=
+}}
+
+Summons 2 [[A Lava Spirit]]s at 66% and 33%.
+
+=Notes=
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Rockshade Hold]]

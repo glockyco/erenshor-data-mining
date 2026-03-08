@@ -1,0 +1,49 @@
+{{Enemy
+|name=Vanther Quansy
+|image=[[File:Vanther Quansy.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Solunarian Brotherhood]]
+|factionChange=-20 [[The Citizens of Port Azure]]<br>-20 [[The Solunarian Brotherhood]]
+|zones=[[The Duskenlight Coast]]
+|coordinates=870.3 x 145.8 x 285.0
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=20
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=4550
+|mana=200
+|ac=300
+|strength=55
+|endurance=55
+|dexterity=55
+|agility=55
+|intelligence=55
+|wisdom=55
+|charisma=55
+|magic=10-24
+|poison=10-24
+|elemental=10-24
+|void=10-24
+|spells={{AbilityLink|Minor Healing}}
+}}
+
+Greeting message:
+{| class="wikitable"
+|Settlin' here seemed like a good idea before all the stirrings took place. The <span style="color: #15e300;">[skull]</span> monument was no big deal, 'cept now folks are here tryin' to wake it up.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[skull]</span>
+|Sivakayan ruins, so I hear. Been in there myself, nothin' to see. Just empty space and a weird feelin'.
+|}
+
+[[Category:Characters]]
+[[Category:The Duskenlight Coast]]

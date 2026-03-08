@@ -1,0 +1,53 @@
+{{Enemy
+|name=A Fungus Ravaged Brute
+|image=[[File:A Fungus Ravaged Brute.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Rare]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[The Elderstone Mines]]
+|coordinates=
+|spawnchance=25%
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Spelunker's Brace}} (13.4%)<br>{{ItemLink|Elderstone Shard}} (7.7%)<ref>If the player is already holding {{ItemLink|Elderstone Shard}} in their inventory, another will not drop.</ref>
+|level=19
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=14625
+|mana=0
+|ac=285
+|strength=25
+|endurance=66
+|dexterity=120
+|agility=25
+|intelligence=25
+|wisdom=25
+|charisma=25
+|magic=10-23
+|poison=10-23
+|elemental=10-23
+|void=10-23
+|spells=
+}}
+''{{main|Enemies}}''
+
+=Location=
+{{PAGENAME}} has a '''25% chance''' to replace [[A Deepling Brute]] along the path to [[Ravager, The First Infected]] in the [[Elderstone Mines]].
+
+=Appearance=
+{{PAGENAME}} is dark green with red and pink pustules dotting its body. It also has several large gashes along its body, seemingly stitched together with roots.
+
+=Behavior=
+{{PAGENAME}} stands guard in the caves and will attack players if they get too close. It is physically slightly stronger than the Deepling Brutes it replaces, but is otherwise rather unremarkable.
+
+===Spells & Abilities===
+{{PAGENAME}} does not use any spells or abilities.
+
+=Notes=
+
+[[Category:Enemies]]
+[[Category:The Elderstone Mines]]

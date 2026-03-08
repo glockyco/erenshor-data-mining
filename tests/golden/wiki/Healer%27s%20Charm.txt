@@ -1,0 +1,40 @@
+{{Item
+|title=Healer's Charm
+|type=
+|vendorsource=
+|source=[[Braxonian Fossil]] (5.3%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=6000
+|sell=3900
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/Charm
+|image=Healer's Charm.png
+|name=Healer's Charm
+|tier=0
+|strscaling=
+|endscaling=
+|dexscaling=
+|agiscaling=
+|intscaling=2
+|wisscaling=6
+|chascaling=
+|resistscaling=
+|mitigationscaling=
+|arcanist=True
+|duelist=True
+|druid=True
+|paladin=True
+|reaver=True
+|stormcaller=True
+}}
+
+[[Category:Charms]]

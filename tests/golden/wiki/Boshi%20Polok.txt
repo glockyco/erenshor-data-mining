@@ -1,0 +1,50 @@
+{{Enemy
+|name=Boshi Polok
+|image=[[File:Boshi Polok.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=-10 [[Fernalla's Children]]<br>-10 [[The Citizens of Erenshor]]
+|zones=[[The Duskenlight Coast]]
+|coordinates=710.3 x 72.4 x 629.9
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Luminstone}} (21.2%)<br>{{ItemLink|Star Stone}} (21.2%)
+|level=6
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=3250
+|mana=155
+|ac=90
+|strength=1
+|endurance=3
+|dexterity=3
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=3-7
+|poison=3-7
+|elemental=3-7
+|void=3-7
+|spells={{AbilityLink|Brax's Rage}}<br>{{AbilityLink|Ethereal Rending}}<br>{{AbilityLink|Hardened Skin}}<br>{{AbilityLink|Minor Lightning}}<br>{{AbilityLink|Minor Protection}}<br>{{AbilityLink|Minor Regeneration}}<br>{{AbilityLink|Theft of Life}}<br>{{AbilityLink|Vampiric Touch}}
+}}
+
+Liam is located near the small campsite alongside [[Kylie Clark]] in the [[Duskenlight Coast]]
+
+Greeting message:
+{| class="wikitable"
+|That army marched through here not long ago... right to the hilltop they went. Tents on their backs, like they plan to stay a while.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[army]</span>
+Don't know who they were. Definitely marched with purpose though.
+
+[[Category:Characters]]
+[[Category:The Duskenlight Coast]]

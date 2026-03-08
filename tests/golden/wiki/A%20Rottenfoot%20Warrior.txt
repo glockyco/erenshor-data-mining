@@ -1,0 +1,38 @@
+{{Enemy
+|name=A Rottenfoot Warrior
+|image=[[File:A Rottenfoot Warrior.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=+1 [[The Blades of Vitheo]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]
+|zones=[[Fernalla's Revival Plains]]
+|coordinates=
+|spawnchance=
+|respawn=4-5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Coral}} (51.4%)<br>{{ItemLink|Sea Glass}} (51.4%)<br>{{ItemLink|Seaweed}} (51.4%)<br>{{ItemLink|A Husselfish}} (15.7%)<br>{{ItemLink|A Worm Eel}} (15.7%)<br>{{ItemLink|Rottenfoot Sash}} (15.7%)<br>{{ItemLink|Petrified Club}} (5.1%)<ref>If A Rottenfoot Warrior has {{ItemLink|Petrified Club}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Runewoven Bracer}} (5.1%)
+|level=10
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=3120
+|mana=0
+|ac=150
+|strength=18
+|endurance=65
+|dexterity=55
+|agility=35
+|intelligence=35
+|wisdom=15
+|charisma=3
+|magic=5-12
+|poison=5-12
+|elemental=5-12
+|void=5-12
+|spells={{AbilityLink|Death's Embrace}}<br>{{AbilityLink|Minor Healing}}<br>{{AbilityLink|Minor Protection}}<br>{{AbilityLink|Minor Regeneration}}<br>{{AbilityLink|Theft of Life}}<br>{{AbilityLink|Vitheo's Blessing of the Sea}}
+}}
+
+[[Category:Enemies]]
+[[Category:Fernalla's Revival Plains]]

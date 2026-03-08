@@ -1,0 +1,55 @@
+{{Enemy
+|name=Tristan Warton
+|image=[[File:Tristan Warton.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Port Azure]]
+|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
+|zones=[[Port Azure]]
+|coordinates=248.2 x 26.3 x 350.0
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=3250
+|mana=100
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+Tristan is a shady looking NPC located just inside the main gates of [[Port Azure]] down a little alley in-between a house and the rampart. He is the quest giver for {{QuestLink | link=A Magical Sword in Port Azure}}.
+
+Greeting message:
+{| class="wikitable"
+|You know anything bout <span style="color: #15e300;">[swords]</span>? I've come into possession of a few that are real special. I might pass one of 'em over to you, for a favor... 
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[swords]</span>
+|Color me surprised. I figured you wouldn't have the time to bother. I need some sea spice - love the stuff, hate huntin' round to get it. You can find it here and there. Bring me a couple sea spices - two should do me for a while. And for my wife, bring me a ruby. A real one, no fakes. Then I'll pass you the sword. It's a nice one, let me tell ya!<br><br><i>This begins the quest {{QuestLink | link=A Magical Sword in Port Azure}}</i>
+|}
+
+If you give him one [[Ruby]] and two [[Seaspice]] for {{QuestLink | link=A Magical Sword in Port Azure}}:
+{| class="wikitable"
+|You found it all? Well, deal's a deal. Here's your sword. Hope you can use it better than I would've!
+|}
+
+[[Category:Characters]]
+[[Category:Port Azure]]

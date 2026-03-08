@@ -1,0 +1,38 @@
+{{Enemy
+|name=A Lesser Avatar of Sivakaya
+|image=[[File:A Lesser Avatar of Sivakaya.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=+2 [[The Azure Guard]]<br>-10 [[The Children of Sivakaya]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]
+|zones=[[The Bonepits]]
+|coordinates=
+|spawnchance=
+|respawn=3 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (57.4%)<br>{{ItemLink|Star Stone}} (57.4%)<br>{{ItemLink|Steel Long Sword}} (20.5%)<br>{{ItemLink|Old Torn Cape}} (9.4%)<br>{{ItemLink|Sivakayan Horn}} (9.4%)<ref>If the player is already holding {{ItemLink|Sivakayan Horn}} in their inventory, another will not drop.</ref>
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1300
+|mana=0
+|ac=120
+|strength=11
+|endurance=25
+|dexterity=50
+|agility=11
+|intelligence=11
+|wisdom=11
+|charisma=11
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+
+[[Category:Enemies]]
+[[Category:The Bonepits]]

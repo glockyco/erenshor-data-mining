@@ -1,0 +1,93 @@
+{{Enemy
+|name=Alexander Farland
+|image=[[File:Alexander Farland.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[Fernalla's Children]]
+|factionChange=-10 [[Fernalla's Children]]<br>-10 [[The Citizens of Erenshor]]
+|zones=[[Fernalla's Revival Plains]]
+|coordinates=310.2 x 30.9 x 323.5
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Arcanist Cap}} (20.4%)<ref>If Alexander Farland has {{ItemLink|Arcanist Cap}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Luminstone}} (11.5%)<br>{{ItemLink|Star Stone}} (11.5%)
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=2405
+|mana=155
+|ac=330
+|strength=1
+|endurance=3
+|dexterity=3
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells={{AbilityLink|Brax's Rage}}<br>{{AbilityLink|Ethereal Rending}}<br>{{AbilityLink|Hardened Skin}}<br>{{AbilityLink|Minor Lightning}}<br>{{AbilityLink|Minor Protection}}<br>{{AbilityLink|Minor Regeneration}}<br>{{AbilityLink|Theft of Life}}<br>{{AbilityLink|Vampiric Touch}}
+}}
+
+Alexander is a Vendor located at the Shrine of Fernalla in [[Fernalla's Revival Plains]].
+
+Greeting message:
+{| class="wikitable"
+|Fernalla did not emerge from the gate during the raid of Goodsoil...  Everybody expected her to return. Maybe they were truly unbelievers.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[goodsoil]</span>
+|Goodsoil? Surely you've seen the plume of smoke in the distance. That was Goodsoil.<br><br><i>This begins {{QuestLink|link=The Tragedy at Goodsoil}}</i>
+|-
+|<span style="color: #15e300;">[gate]</span>
+|The gate is just over the hill. It's said that there's a spirit of the willow that can open it if you know how to ask. It would never speak to non-believers.
+|-
+|<span style="color: #15e300;">[cleansed]</span> and <span style="color: #15e300;">[non-believers]</span>
+|Only those who embrace the gift of life and the necessity of death are true believers. You'll find some who worship Fernalla only for her gifts, while denying that all gifts must one day be returned. True believers - and especially druids - embrace all parts of nature. 
+|}
+
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Spell Scroll: Healing}}
+|[[Ability Books|Spell Scroll]]
+|1225
+|-
+|{{ItemLink|Spell Scroll: Summon Wretched Fawn}}
+|[[Ability Books|Spell Scroll]]
+|2500
+|-
+|{{ItemLink|Spell Scroll: Morbidity's Grasp}}
+|[[Ability Books|Spell Scroll]]
+|2500
+|-
+|{{ItemLink|Spell Scroll: Group Healing}}
+|[[Ability Books|Spell Scroll]]
+|60
+|-
+|{{ItemLink|Spell Scroll: Regrowth}}
+|[[Ability Books|Spell Scroll]]
+|800
+|-
+|{{ItemLink|Water}}
+|[[Consumables|Drink]]
+|1
+|-
+|{{ItemLink|Bread}}
+|[[Status Effects|Food]]
+|2
+|}
+
+[[Category:Characters]]
+[[Category:Fernalla's Revival Plains]]
+[[Category:Vendors]]

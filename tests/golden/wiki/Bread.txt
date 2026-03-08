@@ -1,0 +1,72 @@
+{{Item
+|title=Bread
+|type=[[Consumables|Consumable]], [[Quest Items|Quest Item]]
+|vendorsource=[[Alexander Farland]]<br>[[Annaleigh Hephan]]<br>[[Benny Bommby]]<br>[[Cully Edwarse]]<br>[[Gus Highrest]]<br>[[Innkeeper Ryvan]]<br>[[Kylie Clark]]<br>[[Oscar VanEllis]]<br>[[Saya Seawatcher]]<br>[[Summoned: Pocket Vendor]]<br>[[Treven Pines]]
+|source=[[Headless]] (87.1%)<br>[[Sylvan Giant Runt]] (86.3%)<br>[[Leah]] (78.2%)<br>[[Posta]] (78.2%)<br>[[Revid]] (78.2%)<br>[[Stalzo]] (78.2%)<br>[[Ghost of Wyland Sercher]] (71.7%)<br>[[Lost Soul]] (71.7%)<br>[[Astorim]] (63.2%)<br>[[Acolyte]] (58.4%)<br>[[Greater Fawn]] (57.4%)<br>[[Risen Druid]] (57.4%)<br>[[Vinx]] (57.4%)<br>[[Autmis the Lost]] (43.4%)<br>[[Captive Miner]] (31.6%)<br>[[Warded Shadow]] (30.3%)<br>[[Plaxitheris]] (19.4%)<br>[[Wild Ogre]] (14.8%)<br>[[A Highwayman Marauder]] (12.7%)<br>[[A Highwayman Raider]] (12.7%)<br>[[Prince Ardant]] (11.5%)<br>[[A Grassland Ogre Chieftan]] (6.8%)<br>[[Ghoul]] (5.0%)<br>[[Shambler]] (4.2%)<br>[[Acceptor]] (3.1%)<br>[[Oracle Miress]] (2.6%)<br>[[Oracle Tretha]] (2.6%)<br>[[Gasper]] (2.0%)<br>[[Ecclesiarch]] (2.0%)<br>[[Prioress]] (2.0%)
+|othersource=
+|questsource=
+|relatedquest={{QuestLink|The Lunchbag}}<br>{{QuestLink|The Mystery of Bellwain Island}}
+|craftsource=
+|componentfor=
+|buy=2
+|sell=1
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+A consumable which can be dropped as a [[Enemies#Global_Drops|global drop]] from most enemies in the game.
+
+{{Item/Consumable
+|image=Bread.png
+|name=Bread
+|description=Satisfies your hunger.
+|disposable=True
+|effect_spell_icon=Nourished.png
+|effect_spell_name=[[Nourished]]
+|effect_spell_level=1
+|effect_spell_duration_ticks=166
+|effect_spell_type=Beneficial
+|effect_spell_line=Generic
+|effect_target_damage=
+|effect_target_healing=
+|effect_shielding_amt=
+|effect_damage_type=Magic
+|effect_cast_time=0.0
+|effect_cooldown=
+|effect_spell_range=5.0
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=25
+|effect_ac=
+|effect_mana=25
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=1.0
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+|effect_xp_bonus=
+}}
+
+[[Category:Consumables]]

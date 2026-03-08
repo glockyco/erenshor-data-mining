@@ -1,0 +1,78 @@
+{{Enemy
+|name=Stoneman
+|image=[[File:Stoneman.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Rockshade Hold]]<br>[[Windwashed Pass]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Polished Stone}} (82.4%)<br>{{ItemLink|Diamond}} (3.2%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ruby}} (3.2%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Blueprint: Stone Auction}} (0.3%)<br>{{ItemLink|Blueprint: Stone Bank}} (0.3%)<br>{{ItemLink|Blueprint: Stone Dining}} (0.3%)<br>{{ItemLink|Blueprint: Stone Fountain}} (0.3%)<br>{{ItemLink|Blueprint: Stone Training Room}} (0.3%)<br>{{ItemLink|Blueprint: Stone Vendor}} (0.3%)
+|level=19
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=13000
+|mana=3200
+|ac=285
+|strength=250
+|endurance=450
+|dexterity=450
+|agility=100
+|intelligence=300
+|wisdom=500
+|charisma=50
+|magic=10-23
+|poison=10-23
+|elemental=10-23
+|void=10-23
+|spells={{AbilityLink|Brax's Rage}}<br>{{AbilityLink|Ice Shock}}
+}}
+{{Enemy
+|name=Stoneman
+|image=[[File:Stoneman.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Rockshade Hold]]<br>[[Windwashed Pass]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Polished Stone}} (85.7%)<br>{{ItemLink|Blueprint: Stone Auction}} (0.3%)<br>{{ItemLink|Blueprint: Stone Bank}} (0.3%)<br>{{ItemLink|Blueprint: Stone Dining}} (0.3%)<br>{{ItemLink|Blueprint: Stone Fountain}} (0.3%)<br>{{ItemLink|Blueprint: Stone Training Room}} (0.3%)<br>{{ItemLink|Blueprint: Stone Vendor}} (0.3%)<br>{{ItemLink|Stone Sword}} (0.3%)<ref>If Stoneman has {{ItemLink|Stone Sword}} equipped, it is guaranteed to drop.</ref>
+|level=19
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=15600
+|mana=300
+|ac=285
+|strength=250
+|endurance=450
+|dexterity=450
+|agility=100
+|intelligence=300
+|wisdom=500
+|charisma=325
+|magic=10-23
+|poison=10-23
+|elemental=10-23
+|void=10-23
+|spells=
+}}
+
+There are two variants of Stonemen. The first is the solid rock variant which uses melee, the magma variant uses magic.
+
+=Notes=
+
+[[Category:Enemies]]
+[[Category:Rockshade Hold]]
+[[Category:Windwashed Pass]]

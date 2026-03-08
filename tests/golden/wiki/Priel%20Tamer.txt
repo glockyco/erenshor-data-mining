@@ -1,0 +1,40 @@
+{{Enemy
+|name=Priel Tamer
+|image=[[File:Priel Tamer.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Rare]]
+|faction=[[Savannah Priel]]
+|factionChange=-2 [[Savannah Priel]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Solunarian Brotherhood]]
+|zones=[[Malaroth's Nesting Grounds]]
+|coordinates=
+|spawnchance=4-10%
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Malaroth Feed}} (90.3%)<ref>If the player is already holding {{ItemLink|Malaroth Feed}} in their inventory, another will not drop.</ref><br>{{ItemLink|Sea Glass}} (10.1%)<br>{{ItemLink|Star Stone}} (10.1%)<br>{{ItemLink|Priel Officer's Ring}} (3.4%)<br>{{ItemLink|Tamer's Pack}} (3.4%)
+|level=21
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=2.0
+|health=14300
+|mana=300
+|ac=315
+|strength=28
+|endurance=95
+|dexterity=145
+|agility=85
+|intelligence=35
+|wisdom=95
+|charisma=75
+|magic=10-25
+|poison=10-25
+|elemental=10-25
+|void=10-25
+|spells={{AbilityLink|Arterial Decay}}<br>{{AbilityLink|Morbidity's Grasp}}<br>{{AbilityLink|Soul Tap}}
+}}
+Rare spawn in the Priel camp with the Capture Molorath
+=Notes=
+
+[[Category:Enemies]]
+[[Category:Malaroth's Nesting Grounds]]

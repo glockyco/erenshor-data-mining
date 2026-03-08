@@ -1,0 +1,73 @@
+{{Item
+|title=Sea Glass
+|type=[[Crafting]]
+|vendorsource=[[Enterprising Spirit]]
+|source=[[Old Brackey]] (91.9%)<br>[[Fearantula]] (61.2%)<br>[[Nightmare]] (61.2%)<br>[[Lullaby Fiend]] (59.7%)<br>[[Night Terror]] (59.7%)<br>[[Waking Nightmare]] (59.7%)<br>[[A Rottenfoot Warrior]] (51.4%)<br>[[A Rottenfoot Witchdoctor]] (51.4%)<br>[[A Seafiend]] (51.4%)<br>[[A Seafiend Manalord]] (51.4%)<br>[[A Seafiend Manathite]] (51.4%)<br>[[A Seafiend Worker]] (51.4%)<br>[[Algaeth Bilgeback]] (51.4%)<br>[[Dream Invader]] (51.4%)<br>[[Invader of Dreams]] (51.4%)<br>[[Crypt Keeper]] (46.7%)<br>[[Daggerlegs]] (46.7%)<br>[[Fright]] (46.7%)<br>[[Sand Mummy]] (46.7%)<br>[[Scorched Skeleton]] (46.7%)<br>[[Rottenfoot Swampwalker]] (41.8%)<br>[[Tek-Nu Dah]] (41.8%)<br>[[The Lost Sea Giant King]] (39.3%)<br>[[Failed Cremation]] (32.7%)<br>[[Rottenfoot Mauler]] (32.7%)<br>[[Rottenfoot Witchdoctor]] (32.7%)<br>[[A Lost Sea Giant]] (28.2%)<br>[[A Lost Sea Giant]] (24.5%)<br>[[Grant Haxoway]] (19.6%)<br>[[Jazmyn Challa]] (19.6%)<br>[[Savannah Priel (Character)|Savannah Priel]] (19.6%)<br>[[Shantee Swingblade]] (19.6%)<br>[[Zane Theavale]] (19.6%)<br>[[Priel Soldier]] (17.8%)<br>[[Rotting Mummy]] (16.5%)<br>[[Tiallia Priel]] (16.3%)<br>[[Gherist Morthario]] (10.5%)<br>[[Darkwarden Ilyth]] (10.2%)<br>[[Sivakayan Bodyguard]] (10.2%)<br>[[Sivakayan Cleric]] (10.2%)<br>[[Sivakayan Legionnaire]] (10.2%)<br>[[Sivakayan Raider]] (10.2%)<br>[[Sivakayan Reaver]] (10.2%)<br>[[Sivakayan Spymaster]] (10.2%)<br>[[Sivakayan Templar]] (10.2%)<br>[[Sivakayan Unhallowed]] (10.2%)<br>[[Priel Tamer]] (10.1%)<br>[[A Nagalok]] (7.8%)<br>[[Spike]] (7.8%)<br>[[Addison Priel]] (7.4%)<br>[[Chazza Priel]] (7.4%)<br>[[Elysia Thistlewick]] (7.4%)<br>[[Fallen Fernalla (NPC)|Fallen Fernalla]] (7.4%)<br>[[Fallen Fernalla]] (7.4%)<br>[[Julianna Priel]] (7.4%)<br>[[Priel Consort]] (7.4%)<br>[[Priel Deceiver]] (7.4%)<br>[[Priel Enforcer]] (7.4%)<br>[[Priel Gifted]] (7.4%)<br>[[Priel Grimwatch]] (7.4%)<br>[[Priel Purist]] (7.4%)<br>[[Priel Soldier]] (7.4%)<br>[[Priel Swiftblade]] (7.4%)<br>[[Sprig Laisey]] (7.4%)<br>[[Cursed Vithean Conspirer]] (7.2%)<br>[[Darkwarden Awxa]] (6.8%)<br>[[Darkwarden Ealdred]] (6.8%)<br>[[Priel Malarist]] (5.8%)<br>[[Priel Lieutenant Bovo]] (4.9%)<br>[[Priel Lieutenant Laflin]] (4.9%)<br>[[Priel Lieutenant Lance]] (4.9%)<br>[[Shrouded Sivakayan]] (2.5%)<br>[[Sivakayan Doomshade]] (2.5%)<br>[[Sivakayan High Shadow]] (2.5%)<br>[[Sivakayan Shadow]] (2.5%)<br>[[Sivakayan Voidmaster]] (2.5%)<br>[[Sivakayan Devoted]] (2.1%)<br>[[Sivakayan Faithbound]] (2.1%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor={{ItemLink|Mold: Angler's Ring}}<br>{{ItemLink|Mold: Charm of Vanity}}
+|buy=35
+|sell=23
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/General
+|image=Sea Glass.png
+|name=Sea Glass
+|description=A piece of some ancient glassware, worn smooth from endless waves.
+|value=35
+|stack_size=
+|disposable=True
+|effect_style=
+|effect_spell_icon=
+|effect_spell_name=
+|effect_spell_level=
+|effect_spell_duration_ticks=
+|effect_spell_type=
+|effect_spell_line=
+|effect_target_damage=
+|effect_target_healing=
+|effect_damage_type=
+|effect_cast_time=
+|effect_cooldown=
+|effect_spell_range=
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+}}
+
+[[Category:Crafting]]
+[[Category:Items]]

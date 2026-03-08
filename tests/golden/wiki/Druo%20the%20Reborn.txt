@@ -1,0 +1,39 @@
+{{Enemy
+|name=Druo the Reborn
+|image=[[File:Druo the Reborn.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=+3 [[The Citizens of Erenshor]]<br>+3 [[The Citizens of Port Azure]]
+|zones=[[Underspine Hollow]]
+|coordinates=252.5 x 63.2 x 669.9
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Muddy Jerkin}}<br>{{ItemLink|Ogrespice Bundle}}<br>{{ItemLink|Tarnished Greaves}}<br>{{ItemLink|Tarnished Plate Armor}}
+|droprates={{ItemLink|Pg. 3: Faded Entry}} (100.0%)<ref>If the player is already holding {{ItemLink|Pg. 3: Faded Entry}} in their inventory, another will not drop.</ref><br>{{ItemLink|Earthen Bracer}} (43.4%)<br>{{ItemLink|Fungal Spore}} (43.4%)<br>{{ItemLink|Muddy Jerkin}} (27.5%)<br>{{ItemLink|Ogrespice Bundle}} (27.5%)<br>{{ItemLink|Tarnished Greaves}} (27.5%)<br>{{ItemLink|Tarnished Plate Armor}} (27.5%)<br>{{ItemLink|Fungal Scab Cape}} (14.8%)
+|level=15
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=6.0
+|health=12350
+|mana=0
+|ac=225
+|strength=325
+|endurance=255
+|dexterity=355
+|agility=250
+|intelligence=100
+|wisdom=3
+|charisma=3
+|magic=8-18
+|poison=8-18
+|elemental=8-18
+|void=8-18
+|spells=
+}}
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Underspine Hollow]]

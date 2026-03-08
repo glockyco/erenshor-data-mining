@@ -1,0 +1,38 @@
+{{Enemy
+|name=Living Meteorite
+|image=[[File:Living Meteorite.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Soluna's Landing]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Rock}} (99.5%)<br>{{ItemLink|Slab of Meteorite}} (14.6%)<br>{{ItemLink|Meteorite Gauntlets}} (13.1%)
+|level=26
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=27300
+|mana=300
+|ac=390
+|strength=615
+|endurance=525
+|dexterity=455
+|agility=325
+|intelligence=400
+|wisdom=400
+|charisma=400
+|magic=13-31
+|poison=13-31
+|elemental=13-31
+|void=13-31
+|spells=
+}}
+
+[[Category:Enemies]]
+[[Category:Soluna's Landing]]

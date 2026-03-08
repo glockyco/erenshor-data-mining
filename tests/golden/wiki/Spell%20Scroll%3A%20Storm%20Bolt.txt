@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Storm Bolt
+|type=[[Ability Books|Spell Scroll]]
+|vendorsource=[[Gus Highrest]]<br>[[Treven Pines]]
+|source=
+|othersource=[[Stormcaller]] (starter gear)
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=50
+|sell=32
+|taughtspell={{AbilityLink|Storm Bolt}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Storm Bolt.png
+|name=Spell Scroll: Storm Bolt
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=1
+|reaver_level=
+|mana_cost=33
+|spell_type=Damage
+|spell_desc=Deals 25 magic damage to your target.
+}}
+
+[[Category:Ability Books]]

@@ -1,0 +1,74 @@
+{{Item
+|title=A Worm Eel
+|type=[[Consumables|Consumable]]
+|vendorsource=
+|source=[[A Rottenfoot Witchdoctor]] (22.9%)<br>[[A Rottenfoot Warrior]] (15.7%)<br>[[A Seafiend]] (14.9%)<br>[[A Seafiend Manalord]] (14.9%)<br>[[A Seafiend Manathite]] (14.9%)<br>[[A Seafiend Worker]] (14.9%)<br>[[Algaeth Bilgeback]] (14.9%)<br>[[A Nagalok]] (7.8%)<br>[[An Immature Nagalok]] (7.8%)<br>[[Blunga]] (7.8%)<br>[[Juvenile Nagalok]] (7.8%)<br>[[Occuphage, Eater of Eyes]] (7.8%)<br>[[Rottenfoot Swampwalker]] (7.8%)<br>[[Rottenfoot Witchdoctor]] (7.8%)<br>[[Spike]] (7.8%)<br>[[Tek-Nu Dah]] (7.8%)<br>[[Rottenfoot Mauler]] (5.8%)
+|othersource=[[Fishing]]
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=10
+|sell=6
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+A night time fish that can be caught between 10PM-6AM. It can be found in bodies of water in [[Stowaway's Step]], [[Vitheo's Watch]] and [[Port Azure]].
+
+{{Item/Consumable
+|image=A Worm Eel.png
+|name=A Worm Eel
+|description=A Poisonous Sea Fish
+|disposable=True
+|effect_spell_icon=Weak Poison.png
+|effect_spell_name=[[Weak Poison]]
+|effect_spell_level=1
+|effect_spell_duration_ticks=8
+|effect_spell_type=StatusEffect
+|effect_spell_line=Dru_Poison_DOT
+|effect_target_damage=8
+|effect_target_healing=
+|effect_shielding_amt=
+|effect_damage_type=Poison
+|effect_cast_time=1.5
+|effect_cooldown=2.0
+|effect_spell_range=30.0
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=50
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+|effect_xp_bonus=
+}}
+
+[[Category:Consumables]]
+[[Category:Fishing]]
+[[Category:Items]]

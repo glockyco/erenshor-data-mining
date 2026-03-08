@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Summon Decayed Fawn
+|type=[[:Category:Ability Books|Spell Scroll]]
+|vendorsource=[[Aldoa Manday]]<br>[[Alyssia Fearnon]]<br>[[Ophelia Luminee]]
+|source=[[A Sorrowful Spirit]] (2.8%)<br>[[Islander Bandit]] (1.1%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=100
+|sell=65
+|taughtspell={{AbilityLink|Summon Decayed Fawn}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Summon Decayed Fawn.png
+|name=Spell Scroll: Summon Decayed Fawn
+|arcanist_level=
+|druid_level=4
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=60
+|spell_type=Pet
+|spell_desc=Summon a companion to fight alongside you.
+}}
+
+[[Category:Ability Books]]

@@ -1,0 +1,65 @@
+For information about the boss in [[Blooming Sepulcher]], see [[Fallen Fernalla]].
+
+{{Enemy
+|name=Fallen Fernalla
+|image=[[File:Fallen Fernalla NPC.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=
+|zones=[[Blooming Sepulcher]]
+|coordinates=788.3 x 255.0 x 837.3
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Bear Bone Club}} (8.7%)<br>{{ItemLink|Sea Glass}} (7.4%)<br>{{ItemLink|Star Stone}} (7.4%)<br>{{ItemLink|Priel Standard}} (4.2%)<ref>If Fallen Fernalla has {{ItemLink|Priel Standard}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Wisp Garden}} (0.6%)
+|level=28
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=3.0
+|health=42250
+|mana=300
+|ac=420
+|strength=800
+|endurance=355
+|dexterity=565
+|agility=400
+|intelligence=350
+|wisdom=95
+|charisma=75
+|magic=14-34
+|poison=14-34
+|elemental=14-34
+|void=14-34
+|spells={{AbilityLink|Group Revitalize}}
+}}
+
+==Fallen Fernalla (NPC)==
+Fallen Fernalla offers the final step of the "A Dying Wish" quest chain, {{QuestLink|A Dying Wish, Part 4}}.
+
+Greeting message:
+{| class="wikitable"
+|Child, you have my deepest gratitude for all you have done... yet there is still more to be faced. My body stands before you as a remnant of what it once was. Hollow and riddled with unnatural darkness and guilt. <span style="color: #15e300;">[Vitheo]</span> cannot rest, nor can I.<br>
+<i>This will start {{QuestLink|A Dying Wish, Part 4}}</i>
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[Vitheo]</span>
+|<span style="color: #15e300;">[Vitheo]</span> was spared the darkness that Sivakaya was able to wrap around me, but he still does not rest, held suspended by some necromancy, some attempt to pull him to her. She tries to reach his <span style="color: #15e300;">[ascended]</span> being and take it for herself as she has done with me.
+|-
+|<span style="color: #15e300;">[ascended]</span>
+|<span style="color: #15e300;">[Vitheo]</span> has graduated this realm, more powerful than ever, as have I. But Sivakaya has claws in my <span style="color: #15e300;">[ascended]</span> form. We must put <span style="color: #15e300;">[Vitheo]</span> to rest before she gets his too, if she hasn't already. The key to his sanctum his held by a great <span style="color: #15e300;">[abomination]</span> - placed there to protect <span style="color: #15e300;">[Vitheo]</span> from those believed to be traitors - it is the only key. You must take it.
+|-
+|<span style="color: #15e300;">[abomination]</span>
+|Within the traitor's halls, you will find two braziers.  You must <span style="color: #15e300;">[light]</span> them both, for only then will the <span style="color: #15e300;">[abomination]</span> awaken. It holds the only key to <span style="color: #15e300;">[Vitheo]</span>'s sanctum... and I have the last remaining component for the life flame to ignite it. I bestow it upon you, please use it wisely.<br>
+<i>This will provide {{ItemLink|Gift of Fernalla}} for {{QuestLink|The Life Flame}}</i>
+|-
+|<span style="color: #15e300;">[light]</span>
+|You will find the recipes for the flames among those who once followed <span style="color: #15e300;">[Vitheo]</span>. But to kindle the flame of Life, you will need this gift from me for I have the only remaining one. Please, child... do what you must to put <span style="color: #15e300;">[Vitheo]</span> to rest. Free him from Sivakaya's grasp. And may he find it in his heart to forgive me for the burden I placed upon him.
+|}
+
+[[Category:Blooming Sepulcher]]
+[[Category:Characters]]

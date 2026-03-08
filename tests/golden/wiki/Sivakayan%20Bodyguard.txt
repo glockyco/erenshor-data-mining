@@ -1,0 +1,38 @@
+{{Enemy
+|name=Sivakayan Bodyguard
+|image=[[File:Sivakayan Bodyguard.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Children of Sivakaya]]
+|factionChange=-2 [[The Children of Sivakaya]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Solunarian Brotherhood]]
+|zones=[[Azynthi's Garden]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Sivakayan Ore}} (12.1%)<br>{{ItemLink|Sea Glass}} (10.2%)<br>{{ItemLink|Star Stone}} (10.2%)<br>{{ItemLink|Sivakayan Bracer}} (1.4%)<br>{{ItemLink|Sivakayan Legplate}} (1.4%)<br>{{ItemLink|Sivakayan Plate}} (1.4%)<br>{{ItemLink|Sivakayan Sceptre}} (1.4%)<ref>If Sivakayan Bodyguard has {{ItemLink|Sivakayan Sceptre}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Sivakayan Shield}} (1.4%)<ref>If Sivakayan Bodyguard has {{ItemLink|Sivakayan Shield}} equipped, it is guaranteed to drop.</ref>
+|level=32
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=52000
+|mana=0
+|ac=480
+|strength=30
+|endurance=135
+|dexterity=110
+|agility=45
+|intelligence=85
+|wisdom=85
+|charisma=35
+|magic=16-38
+|poison=16-38
+|elemental=16-38
+|void=16-38
+|spells={{AbilityLink|Healing}}<br>{{AbilityLink|Soul Tap}}
+}}
+
+[[Category:Azynthi's Garden]]
+[[Category:Enemies]]

@@ -1,0 +1,49 @@
+{{Enemy
+|name=Spiro Calsatto
+|image=[[File:Spiro Calsatto.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Port Azure]]
+|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
+|zones=[[Willowwatch Ridge]]
+|coordinates=521.8 x 52.0 x 472.8
+|spawnchance=
+|respawn=6 minutes
+|guaranteeddrops=
+|droprates=
+|level=12
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=13000
+|mana=100
+|ac=180
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=6-14
+|poison=6-14
+|elemental=6-14
+|void=6-14
+|spells=
+}}
+
+Greeting message:
+{| class="wikitable"
+|Like everywhere else in Erenshor, here there are no houses to be had for the <span style="color: #15e300;">[displaced]</span> here in Willowwatch. Are you one of the unfortunate? Best of luck to ya if you are.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[displaced]</span>
+|So many little towns and villages have fled to Port Azure for safety. We had our own little garrison of guards here too, we gave them quarter, but now they have departed on orders back to the city.
+|}
+
+[[Category:Characters]]
+[[Category:Willowwatch Ridge]]

@@ -1,0 +1,38 @@
+{{Enemy
+|name=Constructed Faithful
+|image=[[File:Constructed Faithful.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=+2 [[Fernalla's Children]]<br>+2 [[The Torchbearers of Brax]]
+|zones=[[Jaws of Sivakaya]]
+|coordinates=
+|spawnchance=
+|respawn=5-13 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Diamond}} (13.5%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Bastion}} (4.9%)<br>{{ItemLink|Grips of Faith}} (4.9%)<br>{{ItemLink|Pious Sandals}} (4.9%)
+|level=38
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=162500
+|mana=0
+|ac=570
+|strength=455
+|endurance=555
+|dexterity=800
+|agility=300
+|intelligence=450
+|wisdom=225
+|charisma=155
+|magic=19-46
+|poison=19-46
+|elemental=19-46
+|void=19-46
+|spells=
+}}
+
+[[Category:Enemies]]
+[[Category:Jaws of Sivakaya]]

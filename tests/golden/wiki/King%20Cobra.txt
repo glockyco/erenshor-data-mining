@@ -1,0 +1,40 @@
+{{Enemy
+|name=King Cobra
+|image=[[File:King Cobra.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Rare]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Silkengrass Meadowlands]]
+|coordinates=
+|spawnchance=2-75%
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Toxin Warped Band}} (15.3%)
+|level=18
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=3.0
+|health=17550
+|mana=1000
+|ac=270
+|strength=31
+|endurance=80
+|dexterity=165
+|agility=100
+|intelligence=155
+|wisdom=100
+|charisma=100
+|magic=9-22
+|poison=9-22
+|elemental=9-22
+|void=9-22
+|spells=
+}}
+The King Cobra has a chance to spawn in place of the [[Silk Cobra]].
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Silkengrass Meadowlands]]

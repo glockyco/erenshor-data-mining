@@ -1,0 +1,39 @@
+{{Enemy
+|name=Vinx
+|image=[[File:Vinx.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Blooming Sepulcher]]
+|coordinates=875.3 x 318.8 x 301.6
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Bombastic Wand}}<br>{{ItemLink|Fungal Greatsword}}<br>{{ItemLink|Fungal Longsword}}
+|droprates={{ItemLink|Bread}} (57.4%)<br>{{ItemLink|Water}} (57.4%)<br>{{ItemLink|Fungal Longsword}} (50.0%)<br>{{ItemLink|Bombastic Wand}} (25.0%)<br>{{ItemLink|Fungal Greatsword}} (25.0%)<br>{{ItemLink|Ruby}} (17.0%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Decayed Druid Beads}} (7.9%)<br>{{ItemLink|Cloth Hood}} (3.9%)<br>{{ItemLink|Cloth Pants}} (3.9%)<br>{{ItemLink|Cloth Shirt}} (3.9%)<br>{{ItemLink|Cloth Sleeves}} (3.9%)<br>{{ItemLink|Nature's Promise}} (1.4%)<br>{{ItemLink|Stone Statue: Fernalla}} (1.4%)<br>{{ItemLink|Diamond}} (0.5%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Golden Statue: Fernalla}} (0.5%)
+|level=29
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=3.0
+|health=53300
+|mana=0
+|ac=435
+|strength=45
+|endurance=135
+|dexterity=185
+|agility=85
+|intelligence=95
+|wisdom=45
+|charisma=35
+|magic=14-35
+|poison=14-35
+|elemental=14-35
+|void=14-35
+|spells={{AbilityLink|Devour}}<br>{{AbilityLink|Lightning}}
+}}
+
+[[Category:Blooming Sepulcher]]
+[[Category:Bosses]]
+[[Category:Enemies]]

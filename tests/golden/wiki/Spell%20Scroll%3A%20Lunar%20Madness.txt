@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Lunar Madness
+|type=[[Ability Books]]
+|vendorsource=[[Benson Gamble]]<br>[[Gus Highrest]]<br>[[Treven Pines]]
+|source=[[An Enraged Spirit]] (2.8%)<br>[[Islander Bandit]] (1.1%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=100
+|sell=65
+|taughtspell={{AbilityLink|Lunar Madness}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Lunar Madness.png
+|name=Spell Scroll: Lunar Madness
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=1
+|stormcaller_level=
+|reaver_level=
+|mana_cost=5
+|spell_type=Damage
+|spell_desc=(Taunt) Target becomes furious with the caster of this spell.
+}}
+
+[[Category:Ability Books]]

@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Greater Regrowth
+|type=[[Ability Books|Spell Scroll]]
+|vendorsource=[[Aspen Dechaffe]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=1600
+|sell=1040
+|taughtspell={{AbilityLink|Greater Regrowth}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Greater Regrowth.png
+|name=Spell Scroll: Greater Regrowth
+|arcanist_level=
+|druid_level=18
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=300
+|spell_type=Heal
+|spell_desc=Heal 110 damage per tick, over time
+}}
+
+[[Category:Ability Books]]

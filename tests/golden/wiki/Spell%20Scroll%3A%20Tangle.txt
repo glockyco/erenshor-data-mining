@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Tangle
+|type=[[Ability Books]]
+|vendorsource=[[Aldoa Manday]]<br>[[Ophelia Luminee]]<br>[[Tiver Banes]]
+|source=[[Plaxitheris]] (8.8%)<br>[[Vevillo Polter]] (3.9%)<br>[[Aranuil Olaseo]] (3.4%)<br>[[Odyss Repman]] (3.4%)<br>[[Islander Bandit]] (1.1%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=200
+|sell=130
+|taughtspell={{AbilityLink|Tangle}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Tangle.png
+|name=Spell Scroll: Tangle
+|arcanist_level=
+|druid_level=8
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=50
+|spell_type=StatusEffect
+|spell_desc=Immobilize a target for a short time.
+}}
+
+[[Category:Ability Books]]

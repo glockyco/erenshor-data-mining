@@ -1,0 +1,33 @@
+{{Item
+|title=Skill Book: Double Attack
+|type=[[Ability Books|Skill Book]]
+|vendorsource=[[Benson Gamble]]<br>[[Ludo Luxo]]<br>[[Sven Feartines]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=100
+|sell=65
+|taughtspell=
+|taughtskill={{AbilityLink|Double Attack}}
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SkillBook
+|image=Skill Book: Double Attack.png
+|name=Skill Book: Double Attack
+|duelist_level=13
+|druid_level=
+|arcanist_level=
+|paladin_level=6
+|stormcaller_level=10
+|reaver_level=8
+|skill_type=Innate
+|skill_desc=Gain a chance to attack twice in the same round.
+|simplayers_autolearn=True
+}}
+
+[[Category:Ability Books]]

@@ -1,0 +1,38 @@
+{{Enemy
+|name=Aetherfiend
+|image=[[File:Aetherfiend.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=-10 [[The Children of Sivakaya]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]
+|zones=[[Loomingwood Forest]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (57.4%)<br>{{ItemLink|Star Stone}} (57.4%)<br>{{ItemLink|Aether's Blessing}} (20.5%)<br>{{ItemLink|Aetherial Hood}} (12.1%)<br>{{ItemLink|Rune of Silkengrass}} (5.9%)<ref>If the player is already holding {{ItemLink|Rune of Silkengrass}} in their inventory, another will not drop.</ref><br>{{ItemLink|Blueprint: Loomingwood Market}} (0.4%)<br>{{ItemLink|Blueprint: Loomingwood Shrine}} (0.4%)
+|level=27
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=50050
+|mana=0
+|ac=405
+|strength=550
+|endurance=550
+|dexterity=550
+|agility=550
+|intelligence=550
+|wisdom=550
+|charisma=550
+|magic=14-32
+|poison=14-32
+|elemental=14-32
+|void=14-32
+|spells=
+}}
+
+[[Category:Enemies]]
+[[Category:Loomingwood Forest]]

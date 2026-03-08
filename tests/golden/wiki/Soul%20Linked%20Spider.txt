@@ -1,0 +1,146 @@
+{{Enemy
+|name=Soul Linked Spider
+|image=[[File:Soul Linked Spider.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Shivering Tomb|Shivering Tomb (2)]]
+|coordinates=-92.2 x -68.7 x 93.8
+|spawnchance=
+|respawn=
+|guaranteeddrops={{ItemLink|Chain of Protection}}<br>{{ItemLink|Spiderskin Shroud}}
+|droprates={{ItemLink|Chain of Protection}} (50.0%)<br>{{ItemLink|Spiderskin Shroud}} (50.0%)
+|level=24
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=2.0
+|health=31200
+|mana=0
+|ac=360
+|strength=45
+|endurance=100
+|dexterity=100
+|agility=85
+|intelligence=100
+|wisdom=100
+|charisma=100
+|magic=12-29
+|poison=12-29
+|elemental=12-29
+|void=12-29
+|spells=
+}}
+
+{{Enemy
+|name=Soul Linked Spider
+|image=[[File:Soul Linked Spider.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Shivering Tomb|Shivering Tomb (2)]]
+|coordinates=-92.2 x -68.7 x 123.0
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Chain of Protection}} (2.6%)<br>{{ItemLink|Spiderskin Shroud}} (2.6%)
+|level=24
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=2.0
+|health=31200
+|mana=0
+|ac=360
+|strength=45
+|endurance=100
+|dexterity=100
+|agility=85
+|intelligence=100
+|wisdom=100
+|charisma=100
+|magic=12-29
+|poison=12-29
+|elemental=12-29
+|void=12-29
+|spells=
+}}
+
+{{Enemy
+|name=Soul Linked Spider
+|image=[[File:Soul Linked Spider.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Shivering Tomb|Shivering Tomb (2)]]
+|coordinates=-63.5 x -68.7 x 93.8
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Shadowed Key}} (100.0%)<br>{{ItemLink|Concentration Band}} (2.6%)<br>{{ItemLink|Freeing Stone}} (2.6%)
+|level=24
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=2.0
+|health=31200
+|mana=0
+|ac=360
+|strength=45
+|endurance=100
+|dexterity=100
+|agility=85
+|intelligence=100
+|wisdom=100
+|charisma=100
+|magic=12-29
+|poison=12-29
+|elemental=12-29
+|void=12-29
+|spells=
+}}
+
+{{Enemy
+|name=Soul Linked Spider
+|image=[[File:Soul Linked Spider.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Shivering Tomb|Shivering Tomb (2)]]
+|coordinates=-63.5 x -68.7 x 123.3
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Concentration Band}} (4.5%)<br>{{ItemLink|Freeing Stone}} (4.5%)<br>{{ItemLink|Chain of Protection}} (2.5%)<br>{{ItemLink|Spiderskin Shroud}} (2.5%)
+|level=24
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=2.0
+|health=31200
+|mana=0
+|ac=360
+|strength=45
+|endurance=100
+|dexterity=100
+|agility=85
+|intelligence=100
+|wisdom=100
+|charisma=100
+|magic=12-29
+|poison=12-29
+|elemental=12-29
+|void=12-29
+|spells=
+}}
+
+[[Category:Enemies]]
+[[Category:Shivering Tomb]]

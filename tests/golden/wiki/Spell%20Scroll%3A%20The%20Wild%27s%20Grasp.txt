@@ -1,0 +1,35 @@
+{{Item
+|title=Spell Scroll: The Wild's Grasp
+|type=
+|vendorsource=[[Tiver Banes]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=10000
+|sell=6500
+|taughtspell={{AbilityLink|The Wild's Fang}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+[[Tiver Banes]] can be located in the druid circle outside of [[Port Azure]]
+
+{{Item/SpellScroll
+|image=Spell Scroll: The Wild's Grasp.png
+|name=Spell Scroll: The Wild's Grasp
+|arcanist_level=
+|druid_level=16
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=400
+|spell_type=Damage
+|spell_desc=Deals 900 poison based damage to a target.
+}}
+
+[[Category:Ability Books]]

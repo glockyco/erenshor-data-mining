@@ -1,0 +1,40 @@
+{{Enemy
+|name=A Highwayman Marauder
+|image=[[File:A Highwayman Marauder.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Rare]]
+|faction=[[Savannah Priel]]
+|factionChange=-3 [[Savannah Priel]]<br>+3 [[The Azure Guard]]<br>+3 [[The Citizens of Erenshor]]<br>+3 [[The Citizens of Port Azure]]<br>+3 [[The Solunarian Brotherhood]]
+|zones=[[Fernalla's Revival Plains]]
+|coordinates=
+|spawnchance=3%
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Bread}} (12.7%)<br>{{ItemLink|Water}} (12.7%)<br>{{ItemLink|Bloodletter}} (8.3%)<ref>If A Highwayman Marauder has {{ItemLink|Bloodletter}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Gambler's Cape}} (3.0%)<br>{{ItemLink|Highwayman Pants}} (3.0%)<br>{{ItemLink|Luminstone}} (3.0%)<br>{{ItemLink|Star Stone}} (3.0%)<br>{{ItemLink|Sticky Gloves}} (3.0%)
+|level=15
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=8060
+|mana=0
+|ac=225
+|strength=15
+|endurance=40
+|dexterity=65
+|agility=35
+|intelligence=35
+|wisdom=35
+|charisma=35
+|magic=8-18
+|poison=8-18
+|elemental=8-18
+|void=8-18
+|spells=
+}}
+Sometimes spawns instead of a regular [[A Highwayman Raider]]
+=Notes=
+
+[[Category:Enemies]]
+[[Category:Fernalla's Revival Plains]]

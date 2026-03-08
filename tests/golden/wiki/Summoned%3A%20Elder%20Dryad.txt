@@ -1,0 +1,37 @@
+{{Enemy
+|name=Summoned: Elder Dryad
+|image=[[File:Summoned: Elder Dryad.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=
+|factionChange=
+|zones=
+|coordinates=
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=35
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=10205
+|mana=3000
+|ac=525
+|strength=700
+|endurance=700
+|dexterity=700
+|agility=165
+|intelligence=700
+|wisdom=700
+|charisma=700
+|magic=18-42
+|poison=18-42
+|elemental=18-42
+|void=18-42
+|spells={{AbilityLink|Devour}}<br>{{AbilityLink|Group Heal}}<br>{{AbilityLink|Jolt}}<br>{{AbilityLink|Major Healing}}<br>{{AbilityLink|Tangle}}
+}}
+
+[[Category:Characters]]

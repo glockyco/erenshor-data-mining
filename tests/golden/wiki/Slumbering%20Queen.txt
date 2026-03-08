@@ -1,0 +1,59 @@
+{{Enemy
+|name=Slumbering Queen
+|image=[[File:Slumbering Queen.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Good]]
+|factionChange=
+|zones=[[The Elderstone Mines]]
+|coordinates=-210.2 x -143.9 x 968.0
+|spawnchance=
+|respawn=19 minutes
+|guaranteeddrops={{ItemLink|Cavesilk Trousers}}<br>{{ItemLink|Elderstone Ring}}<br>{{ItemLink|Queen's Fang}}
+|droprates={{ItemLink|Cavesilk Trousers}} (52.3%)<br>{{ItemLink|Elderstone Ring}} (52.3%)<br>{{ItemLink|Queen's Fang}} (52.3%)<br>{{ItemLink|A Fanged Caveskimmer}} (28.4%)<br>{{ItemLink|A Twisted Spider Leg}} (28.4%)<br>{{ItemLink|Ancient Coal}} (28.4%)
+|level=21
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=5.0
+|health=21450
+|mana=0
+|ac=315
+|strength=300
+|endurance=400
+|dexterity=500
+|agility=400
+|intelligence=300
+|wisdom=3
+|charisma=3
+|magic=10-25
+|poison=10-25
+|elemental=10-25
+|void=10-25
+|spells=
+}}
+
+''{{main|Enemies}}''
+
+=Location=
+{{PAGENAME}} is located in the [[Elderstone Mines]], on the hill in the center of the glowing mushroom room near the [[Rottenfoot]] entrance. From the [[Blacksalt Strand]] entrance, head down the slope and turn right after the gap in the cave wall, then turn right again at the end of the path. Follow the cave to eventually reach the room with the {{PAGENAME}}.
+
+=Appearance=
+{{PAGENAME}} is a large red spider with black streaks running across its legs and back.
+
+=Behavior=
+{{PAGENAME}} sleeps on its mound in the center of the room. It will not attack players until it is woken up by being attacked or hit with a spell. Upon being woken up, nearby [[A Fungal Drone|Fungal Drones]] will also attack the party.
+
+===Spells & Abilities===
+{{PAGENAME}} does not use any spells or abilities.
+
+===Strategy===
+The main danger of fighting the {{PAGENAME}} are her nearby Fungal Drones, who will swarm to her aid when she is attacked. They should either be dealt with individually before fighting her, or players should be prepared with crowd control abilities like {{AbilityLink|Dazzle}} and {{AbilityLink|Sunburst}} to keep them from overwhelming the party.
+
+=Notes=
+*Farming {{PAGENAME}} is an easy way to acquire [[Ancient Coal]], which can be used in [[Crafting]] to make [[Item Quality|upgraded]] equipment.
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:The Elderstone Mines]]

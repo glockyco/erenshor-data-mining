@@ -1,0 +1,45 @@
+{{Enemy
+|name=Ripper Soldier
+|image=[[File:Ripper Soldier.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[Ripper DeMerth]]
+|factionChange=-35 [[Ripper DeMerth]]<br>+5 [[The Azure Guard]]<br>-35 [[The Citizens of Erenshor]]<br>+5 [[The Citizens of Port Azure]]
+|zones=[[Ripper's Keep]]<br>[[Silkengrass Meadowlands]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes (Ripper's Keep)<br>4 minutes (Silkengrass Meadowlands)
+|guaranteeddrops=
+|droprates={{ItemLink|Ripper Insignia Badge}} (20.5%)<br>{{ItemLink|Ripparian Axe}} (12.1%)<ref>If Ripper Soldier has {{ItemLink|Ripparian Axe}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Ripparian Greaves}} (2.2%)<br>{{ItemLink|Ripparian Plate}} (2.2%)<br>{{ItemLink|Ripparian Soldier Helm}} (2.2%)
+|level=27
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=35620
+|mana=2000
+|ac=405
+|strength=33
+|endurance=150
+|dexterity=195
+|agility=155
+|intelligence=155
+|wisdom=155
+|charisma=155
+|magic=14-32
+|poison=14-32
+|elemental=14-32
+|void=14-32
+|spells=
+}}
+Ripper Soldiers can be found at Ripper camps through out the [[Silkengrass Meadowlands]] and at [[Ripper's Keep]]
+
+Greeting message:
+{| class="wikitable"
+|For Ripper.
+|}
+
+[[Category:Characters]]
+[[Category:Ripper's Keep]]
+[[Category:Silkengrass Meadowlands]]

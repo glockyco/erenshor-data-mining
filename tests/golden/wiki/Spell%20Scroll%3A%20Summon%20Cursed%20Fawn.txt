@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Summon Cursed Fawn
+|type=[[:Category:Ability Books|Spell Scroll]]
+|vendorsource=[[Tiver Banes]]
+|source=[[An Enraged Spirit]] (2.8%)<br>[[Gloopa|Gloopa (Quarter)]] (1.8%)<br>[[A Subterranean Goop]] (1.6%)<br>[[A Subterranean Magmite]] (1.6%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=300
+|sell=195
+|taughtspell={{AbilityLink|Summon Cursed Fawn}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Summon Cursed Fawn.png
+|name=Spell Scroll: Summon Cursed Fawn
+|arcanist_level=
+|druid_level=9
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=200
+|spell_type=Pet
+|spell_desc=Summon a powerful companion to fight along side you.
+}}
+
+[[Category:Ability Books]]

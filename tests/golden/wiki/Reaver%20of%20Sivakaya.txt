@@ -1,0 +1,37 @@
+{{Enemy
+|name=Reaver of Sivakaya
+|image=[[File:Reaver of Sivakaya.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Children of Sivakaya]]
+|factionChange=+5 [[The Azure Guard]]<br>-2 [[The Children of Sivakaya]]<br>+5 [[The Citizens of Erenshor]]<br>+5 [[The Citizens of Port Azure]]<br>+5 [[The Solunarian Brotherhood]]
+|zones=
+|coordinates=
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Skill Book: Void Slice}} (100.0%)<br>{{ItemLink|Armband of Generals}} (10.8%)<br>{{ItemLink|Sivakayan Wings}} (10.8%)<br>{{ItemLink|Reaver's Steel}} (6.8%)<ref>If Reaver of Sivakaya has {{ItemLink|Reaver's Steel}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Ring of the Pious}} (4.0%)<br>{{ItemLink|Sivakayan Bracer}} (1.7%)<br>{{ItemLink|Sivakayan Legplate}} (1.7%)<br>{{ItemLink|Sivakayan Plate}} (1.7%)<br>{{ItemLink|Sivakayan Shield}} (1.7%)<ref>If Reaver of Sivakaya has {{ItemLink|Sivakayan Shield}} equipped, it is guaranteed to drop.</ref>
+|level=38
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=5.0
+|health=130000
+|mana=4000
+|ac=570
+|strength=650
+|endurance=650
+|dexterity=650
+|agility=650
+|intelligence=400
+|wisdom=400
+|charisma=650
+|magic=19-46
+|poison=19-46
+|elemental=19-46
+|void=19-46
+|spells={{AbilityLink|Suffocate}}<br>{{AbilityLink|Void Surge}}
+}}
+
+[[Category:Enemies]]

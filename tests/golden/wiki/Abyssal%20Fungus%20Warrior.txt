@@ -1,0 +1,38 @@
+{{Enemy
+|name=Abyssal Fungus Warrior
+|image=[[File:Abyssal Fungus Warrior.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Abyssal Lake]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Fungal Spore}} (83.7%)<br>{{ItemLink|Intact Fungal Cap}} (2.1%)<br>{{ItemLink|Star Stone}} (1.4%)<br>{{ItemLink|Diamond}} (0.7%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Fungal Staff}} (0.7%)<br>{{ItemLink|Luminstone}} (0.7%)
+|level=28
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=41600
+|mana=1500
+|ac=420
+|strength=400
+|endurance=255
+|dexterity=375
+|agility=255
+|intelligence=225
+|wisdom=125
+|charisma=125
+|magic=14-34
+|poison=14-34
+|elemental=14-34
+|void=14-34
+|spells=
+}}
+
+[[Category:Abyssal Lake]]
+[[Category:Enemies]]

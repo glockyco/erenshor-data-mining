@@ -1,0 +1,38 @@
+{{Enemy
+|name=Coiling Dusker
+|image=[[File:Coiling Dusker.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Mysterious Portal|Mysterious Portal (3)]]
+|coordinates=
+|spawnchance=
+|respawn=1 minute 40 seconds
+|guaranteeddrops=
+|droprates={{ItemLink|Reptilian Scales}} (33.5%)<br>{{ItemLink|Coiling Belt}} (7.6%)
+|level=32
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=39000
+|mana=0
+|ac=480
+|strength=500
+|endurance=500
+|dexterity=600
+|agility=300
+|intelligence=300
+|wisdom=225
+|charisma=200
+|magic=16-38
+|poison=16-38
+|elemental=16-38
+|void=16-38
+|spells=
+}}
+
+[[Category:Enemies]]
+[[Category:Mysterious Portal]]

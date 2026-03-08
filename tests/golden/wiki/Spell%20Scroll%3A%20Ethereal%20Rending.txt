@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Ethereal Rending
+|type=[[Ability Books|Spell Scroll]]
+|vendorsource=[[Edwin Ansegg]]<br>[[Nylith Valorro]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=255
+|sell=166
+|taughtspell={{AbilityLink|Ethereal Rending}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Ethereal Rending.png
+|name=Spell Scroll: Ethereal Rending
+|arcanist_level=6
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=50
+|spell_type=Damage
+|spell_desc=Deal 185 damage to a single target.
+}}
+
+[[Category:Ability Books]]

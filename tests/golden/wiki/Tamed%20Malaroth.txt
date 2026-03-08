@@ -1,0 +1,38 @@
+{{Enemy
+|name=Tamed Malaroth
+|image=[[File:Tamed Malaroth.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[Savannah Priel]]
+|factionChange=
+|zones=[[Prielian Cascade]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Malaroth Hide}} (22.1%)<br>{{ItemLink|Ivory Tusk}} (20.4%)
+|level=28
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=0
+|levelvariancemax=0
+|xpmultiplier=1.0
+|health=33800
+|mana=0
+|ac=420
+|strength=355
+|endurance=255
+|dexterity=500
+|agility=155
+|intelligence=100
+|wisdom=100
+|charisma=25
+|magic=14-34
+|poison=14-34
+|elemental=14-34
+|void=14-34
+|spells=
+}}
+
+[[Category:Enemies]]
+[[Category:Prielian Cascade]]

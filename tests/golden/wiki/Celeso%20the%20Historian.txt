@@ -1,0 +1,58 @@
+{{Enemy
+|name=Celeso the Historian
+|image=[[File:Celeso the Historian.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[Ripper DeMerth]]
+|factionChange=-50 [[Ripper DeMerth]]<br>+5 [[The Azure Guard]]<br>+5 [[The Citizens of Port Azure]]
+|zones=[[Ripper's Keep]]
+|coordinates=488.5 x 79.9 x 515.0
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Ripper Insignia Badge}} (20.5%)<br>{{ItemLink|Crested Spaulders}} (4.0%)<br>{{ItemLink|Officer's Bracer}} (4.0%)<br>{{ItemLink|Ripparian Axe}} (4.0%)<br>{{ItemLink|Ripparian Greaves}} (3.4%)<br>{{ItemLink|Ripparian Plate}} (3.4%)
+|level=33
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=51415
+|mana=2000
+|ac=495
+|strength=35
+|endurance=150
+|dexterity=455
+|agility=155
+|intelligence=155
+|wisdom=155
+|charisma=155
+|magic=16-40
+|poison=16-40
+|elemental=16-40
+|void=16-40
+|spells=
+}}
+
+Greeting message:
+{| class="wikitable"
+|Odd, the <span style="color: #15e300;">[portraits]</span> on the wall here do not depict Sivakaya...
+|}
+
+<span style="color: #15e300;">[portraits]</span>:
+{| class="wikitable"
+|I can only imagine that the male is <span style="color: #15e300;">[Azynthi]</span>, but who is she?
+|}
+
+<span style="color: #15e300;">[Azynthi]</span>:
+{| class="wikitable"
+|It seems as though these Sivakayan soldiers may have<span style="color: #15e300;">[allegiance]</span> to someone besides Sivakaya.
+|}
+
+<span style="color: #15e300;">[allegiance]</span>:
+{| class="wikitable"
+|<span style="color: #15e300;">[Azynthi]</span> may have somehow taken Sivakaya's power and now he's puppeting her, to direct her followers to his own legions.
+|}
+
+[[Category:Characters]]
+[[Category:Ripper's Keep]]

@@ -1,0 +1,112 @@
+{{Item
+|title=The Faceless
+|type=[[:Category:Items|Summoning Item]]
+|vendorsource=
+|source=[[Vessel Siraethe]] (87.1%)<br>[[Summoned: Protector]] (20.4%)<br>[[Aeiros, Soldier of Sivakaya]] (2.8%)<br>[[Balthom, Soldier of Sivakaya]] (2.8%)<br>[[Astorim]] (2.8%)<br>[[Karsith]] (2.8%)<br>[[Orinthar]] (2.8%)<br>[[Vextral]] (2.8%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/General
+|image=The Faceless.png
+|name=The Faceless
+|description=Seemingly a piece to a lost game...
+|value=
+|stack_size=
+|disposable=
+|effect_style=
+|effect_spell_icon=
+|effect_spell_name=
+|effect_spell_level=
+|effect_spell_duration_ticks=
+|effect_spell_type=
+|effect_spell_line=
+|effect_target_damage=
+|effect_target_healing=
+|effect_damage_type=
+|effect_cast_time=
+|effect_cooldown=
+|effect_spell_range=
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+}}
+
+Used to randomly summon one of the following enemies at the chess board in the [[Braxonian Desert]].<br>
+Each enemy drops the level 35 skill book for their respective class.
+
+{| class="wikitable sortable"
+! Enemy
+! Class
+! Skill Book
+! Skill
+|-
+| [[Assassin of Sivakaya]]
+| [[Windblade]]
+| {{ItemLink|Skill Book: Crippling Blow}}
+| {{AbilityLink|Crippling Blow}}
+|-
+| [[Bowmistress of Sivakaya]]
+| [[Stormcaller]]
+| {{ItemLink|Skill Book: Trick Shot}}
+| {{AbilityLink|Trick Shot}}
+|-
+| [[Grand Arcanist of Sivakaya]]
+| [[Arcanist]]
+| {{ItemLink|Skill Book: Lingering Inferno}}
+| {{AbilityLink|Lingering Inferno}}
+|-
+| [[High Paladin of Sivakaya]]
+| [[Paladin]]
+| {{ItemLink|Skill Book: Soluna's Touch}}
+| {{AbilityLink|Soluna's Touch}}
+|-
+| [[High Priestess of Sivakaya]]
+| [[Druid]]
+| {{ItemLink|Skill Book: Reap and Renew}}
+| {{AbilityLink|Reap and Renew}}
+|-
+| [[Reaver of Sivakaya]]
+| [[Reaver]]
+| {{ItemLink|Skill Book: Void Slice}}
+| {{AbilityLink|Void Slice}}
+|}
+
+[[Category:Items]]

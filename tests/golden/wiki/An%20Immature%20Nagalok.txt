@@ -1,0 +1,69 @@
+{{Enemy
+|name=An Immature Nagalok
+|image=[[File:An Immature Nagalok.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Brackish Coast Nagaloks]]
+|factionChange=+1 [[The Blades of Vitheo]]<br>-10 [[The Brackish Coast Nagaloks]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]
+|zones=[[Blacksalt Strand]]<br>[[The Duskenlight Coast]]
+|coordinates=
+|spawnchance=
+|respawn=4 minutes (Blacksalt Strand)<br>5 minutes (The Duskenlight Coast)
+|guaranteeddrops=
+|droprates={{ItemLink|Seaweed}} (15.1%)<br>{{ItemLink|Nagalok Claw}} (10.6%)<br>{{ItemLink|Reptilian Scales}} (10.6%)<br>{{ItemLink|A Worm Eel}} (7.8%)
+|level=14
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=3640
+|mana=100
+|ac=210
+|strength=25
+|endurance=50
+|dexterity=50
+|agility=50
+|intelligence=2
+|wisdom=3
+|charisma=3
+|magic=7-17
+|poison=7-17
+|elemental=7-17
+|void=7-17
+|spells=
+}}
+{{Enemy
+|name={{PAGENAME}}
+|image=
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Brackish Coast Nagaloks]]
+|factionChange=+1 [[The Citizens of Port Azure]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Blades of Vitheo]]<br>-10 [[The Brackish Coast Nagaloks]]
+|zones=[[Blacksalt Strand]]<br>[[Duskenlight Coast]]
+|coordinates=
+|spawnchance=
+|respawn=6 minutes and 40 seconds (Blacksalt Strand)<br>9 minutes and 10 seconds (Duskenlight Coast)
+|guaranteeddrops=
+|droprates={{ItemLink|Seaweed}} (15.1%)<br>{{ItemLink|Nagalok Claw}} (10.1%)<br>{{ItemLink|Reptilian Scales}} (10.1%)<br>{{ItemLink|A Worm Eel}} (7.8%)
+|level=14
+|experience=56
+|health=2,200
+|mana=100
+|ac=5
+|strength=100
+|endurance=50
+|dexterity=100
+|agility=50
+|intelligence=2
+|wisdom=3
+|charisma=3
+|magic=0
+|poison=0
+|elemental=0
+|void=0
+}}
+
+[[Category:Blacksalt Strand]]
+[[Category:Enemies]]
+[[Category:The Duskenlight Coast]]

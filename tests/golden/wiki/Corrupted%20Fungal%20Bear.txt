@@ -1,0 +1,38 @@
+{{Enemy
+|name=Corrupted Fungal Bear
+|image=[[File:Corrupted Fungal Bear.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Blooming Sepulcher]]
+|coordinates=
+|spawnchance=2-33%
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Centering Cord}}<br>{{ItemLink|Naturewalker's Breeches}}
+|droprates={{ItemLink|Centering Cord}} (66.7%)<br>{{ItemLink|Naturewalker's Breeches}} (33.3%)<br>{{ItemLink|Wisp Garden}} (1.0%)
+|level=34
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=3.0
+|health=65000
+|mana=0
+|ac=510
+|strength=45
+|endurance=135
+|dexterity=185
+|agility=85
+|intelligence=95
+|wisdom=45
+|charisma=35
+|magic=17-41
+|poison=17-41
+|elemental=17-41
+|void=17-41
+|spells=
+}}
+
+[[Category:Blooming Sepulcher]]
+[[Category:Enemies]]

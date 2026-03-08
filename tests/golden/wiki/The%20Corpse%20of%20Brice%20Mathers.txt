@@ -1,0 +1,43 @@
+{{Enemy
+|name=The Corpse of Brice Mathers
+|image=[[File:The Corpse of Brice Mathers.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=-10 [[The Children of Sivakaya]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]
+|zones=[[Blacksalt Strand]]
+|coordinates=459.4 x 17.2 x 96.3
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|The Mathers Note}} (100.0%)<ref>If the player is already holding {{ItemLink|The Mathers Note}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ancient Bone}} (87.6%)<br>{{ItemLink|Copper Sword}} (10.8%)<ref>If The Corpse of Brice Mathers has {{ItemLink|Copper Sword}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Light Plate Breastplate}} (1.3%)<br>{{ItemLink|Light Plate Greaves}} (1.3%)<br>{{ItemLink|Tattered Leather Boots}} (1.3%)<br>{{ItemLink|Tattered Leather Gloves}} (1.3%)<br>{{ItemLink|Tattered Leather Leggings}} (1.3%)<br>{{ItemLink|Tattered Leather Skullcap}} (1.3%)<br>{{ItemLink|Tattered Leather Sleeves}} (1.3%)<br>{{ItemLink|Tattered Leather Tunic}} (1.3%)
+|level=18
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=2.0
+|health=13000
+|mana=0
+|ac=270
+|strength=255
+|endurance=300
+|dexterity=400
+|agility=400
+|intelligence=300
+|wisdom=25
+|charisma=8
+|magic=9-22
+|poison=9-22
+|elemental=9-22
+|void=9-22
+|spells=
+}}
+
+He drops [[The Mathers Note]], a quest item that activates {{QuestLink | link=The Mathers' Demise}}.
+
+=Notes=
+
+[[Category:Blacksalt Strand]]
+[[Category:Bosses]]
+[[Category:Enemies]]

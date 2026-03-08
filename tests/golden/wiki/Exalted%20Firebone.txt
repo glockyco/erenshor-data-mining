@@ -1,0 +1,40 @@
+{{Enemy
+|name=Exalted Firebone
+|image=[[File:Exalted Firebone.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Azynthi's Garden|Azynthi's Garden (Dimensional Rift)]]
+|coordinates=569.6 x 103.8 x 482.6
+|spawnchance=75%
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Exalted Belt}}<br>{{ItemLink|Golden Plate}}
+|droprates={{ItemLink|Ancient Bone}} (81.2%)<br>{{ItemLink|Exalted Belt}} (66.7%)<br>{{ItemLink|Golden Plate}} (33.3%)<br>{{ItemLink|Riftsnare Gem}} (14.1%)
+|level=37
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=4.0
+|health=110500
+|mana=0
+|ac=555
+|strength=700
+|endurance=155
+|dexterity=700
+|agility=700
+|intelligence=700
+|wisdom=225
+|charisma=155
+|magic=18-44
+|poison=18-44
+|elemental=18-44
+|void=18-44
+|spells=
+}}
+In the meeting room on the 1st floor of the keep.
+
+[[Category:Azynthi's Garden]]
+[[Category:Bosses]]
+[[Category:Enemies]]

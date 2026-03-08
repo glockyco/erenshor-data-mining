@@ -1,0 +1,59 @@
+{{Enemy
+|name=Occuphage, Eater of Eyes
+|image=[[File:Occuphage, Eater of Eyes.png|thumb]]
+|imagecaption="Feed me..."
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=
+|zones=[[Island Tomb]]<br>[[Shivering Tomb|Shivering Tomb (1)]]<br>[[Shivering Tomb|Shivering Tomb (2)]]
+|coordinates=
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Seaweed}} (15.1%)<br>{{ItemLink|Nagalok Claw}} (10.6%)<br>{{ItemLink|Reptilian Scales}} (10.6%)<br>{{ItemLink|A Worm Eel}} (7.8%)
+|level=99
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=520
+|mana=100
+|ac=1485
+|strength=99
+|endurance=99
+|dexterity=2
+|agility=2
+|intelligence=2
+|wisdom=3
+|charisma=3
+|magic=50-119
+|poison=50-119
+|elemental=50-119
+|void=50-119
+|spells=
+}}
+Occuphage, Eater of Eyes is an NPC located inside the Lighthouse on the [[Docks|Docks (Stowaway's Step)]]. After entering using the [[Stowaway Step Lighthouse Key]] you should walk down the steps to the drop-off point and fall down, here you will be transitioned into a secret section of the [[Island Tomb]] beside Occuphage. 
+
+It can also be handed [[Eye of Plaxitheris]] for the repeatable quest {{QuestLink | questlink=Seaslimed Bracelet (Quest){{!}}Seaslimed Bracelet}}
+
+Greeting message:
+{| class="wikitable"
+|Feed me..
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[eye]</span>
+|Yesssss....
+|}
+
+After giving him an [[Eye of Plaxitheris]]:
+{| class="wikitable"
+|
+Yess.... YESSS.... a reward!
+|}
+
+[[Category:Characters]]
+[[Category:Island Tomb]]
+[[Category:Shivering Tomb]]

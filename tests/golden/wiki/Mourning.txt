@@ -1,0 +1,60 @@
+{{Enemy
+|name=Mourning
+|image=[[File:Mourning.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Island Tomb]]
+|coordinates=62.3 x -2.8 x -50.9
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Broken Key Bow}} (100.0%)<ref>If the player is already holding {{ItemLink|Broken Key Bow}} in their inventory, another will not drop.</ref><br>{{ItemLink|Star Stone}} (67.9%)<br>{{ItemLink|Ancient Bone}} (41.0%)<br>{{ItemLink|Weak Wand}} (41.0%)<br>{{ItemLink|Funeral Garb}} (10.1%)<br>{{ItemLink|Funeral Shroud}} (10.1%)<br>{{ItemLink|Rusty Dagger}} (10.1%)<br>{{ItemLink|Aetheria}} (10.0%)<ref>If the player is already holding {{ItemLink|Aetheria}} in their inventory, another will not drop.</ref><br>{{ItemLink|Cloth Gloves}} (3.0%)<br>{{ItemLink|Cloth Hood}} (3.0%)<br>{{ItemLink|Cloth Pants}} (3.0%)<br>{{ItemLink|Cloth Shirt}} (3.0%)<br>{{ItemLink|Cloth Shoes}} (3.0%)<br>{{ItemLink|Cloth Sleeves}} (3.0%)
+|level=4
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1300
+|mana=300
+|ac=60
+|strength=5
+|endurance=32
+|dexterity=55
+|agility=0
+|intelligence=3
+|wisdom=0
+|charisma=0
+|magic=2-5
+|poison=2-5
+|elemental=2-5
+|void=2-5
+|spells={{AbilityLink|Hardened Skin}}
+}}
+
+''{{main|Enemies}}''
+
+<!--
+=Location=
+{{PAGENAME}} is found in the [[Island Tomb]] on [[Stowaway's Step]]. After entering the dungeon, simply go straight through the tomb without making any turns. {{PAGENAME}} can be found in the room at the end.
+-->
+=Appearance=
+{{PAGENAME}} is a faceless floating specter in brown robes and a brown belt. Although he has no feet, legs, or face, skeletal hands still stick out from the robe. He is similar in appearance to the [[A Sorrowful Spirit|Sorrowful Spirits]] that also occupy the tomb, though slightly larger.
+
+=Behavior=
+{{PAGENAME}} waits in a back storage room of the tomb. He will attack players if they get too close, or if he or the nearby [[An Enraged Spirit|Enraged Spirit]] are attacked or [[Lunar Madness|provoked]].
+
+===Spells & Abilities===
+Buffs:
+*{{AbilityLink|Hardened Skin}}
+
+===Strategy===
+{{PAGENAME}} will likely be one of the first bosses players encounter. As such, he does not have any particularly noteworthy skills, though he will buff himself to absorb a modest amount of damage. If players are struggling to defeat him, they may want to form a [[Simulated Players|party]] or consider gaining a few levels through weaker enemies or by completing [[Quests]] in Stowaway's Step.
+
+=Notes=
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Island Tomb]]

@@ -1,0 +1,77 @@
+{{Enemy
+|name=Alexandria Fadden
+|image=[[File:Alexandria Fadden.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Stowaway's Step]]
+|factionChange=-10 [[The Blades of Vitheo]]<br>-10 [[The Citizens of Stowaway's Step]]
+|zones=[[Willowwatch Ridge]]
+|coordinates=582.5 x 49.5 x 337.2
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates=
+|level=15
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1300
+|mana=0
+|ac=225
+|strength=35
+|endurance=35
+|dexterity=35
+|agility=35
+|intelligence=35
+|wisdom=35
+|charisma=35
+|magic=8-18
+|poison=8-18
+|elemental=8-18
+|void=8-18
+|spells=
+}}
+
+Greeting message:
+{| class="wikitable"
+| Have you found your aura yet? These gems will help. Even those <span style="color: #15e300;">[near]</span> you will enjoy the benefits. Be sure to select one that you feel a connection with. 
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[near]</span>
+|Yes! Companions who share your adventures will all benefit from the power of your aura, and you'll also benefit from theirs. Take one, try it!
+|}
+
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Spark of Light}}
+|[[Auras|Aura]]
+|5
+|-
+|{{ItemLink|Sprout}}
+|[[Auras|Aura]]
+|5
+|-
+|{{ItemLink|Dawn's Light}}
+|[[Auras|Aura]]
+|5
+|-
+|{{ItemLink|Scent of the Sea}}
+|[[Auras|Aura]]
+|5
+|-
+|{{ItemLink|Rolling Clouds}}
+|[[Auras|Aura]]
+|5
+|}
+
+[[Category:Characters]]
+[[Category:Vendors]]
+[[Category:Willowwatch Ridge]]

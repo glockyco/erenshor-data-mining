@@ -1,0 +1,67 @@
+{{Enemy
+|name=Apostalo Ostagla
+|image=[[File:Apostalo Ostagla.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Solunarian Brotherhood]]
+|factionChange=-20 [[The Citizens of Port Azure]]<br>-20 [[The Solunarian Brotherhood]]
+|zones=[[Azynthi's Garden|Azynthi's Garden (Dimensional Rift)]]
+|coordinates=733.8 x 94.1 x 494.5
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=20
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=26000
+|mana=200
+|ac=300
+|strength=55
+|endurance=55
+|dexterity=55
+|agility=55
+|intelligence=55
+|wisdom=55
+|charisma=55
+|magic=10-24
+|poison=10-24
+|elemental=10-24
+|void=10-24
+|spells={{AbilityLink|Minor Healing}}
+}}
+
+Located within the tower. To find him, enter the ruined tower in [[Azynthi's Garden]] and use the [[Azynthian Riftstone]] to enter the dimensional rift.
+
+Greeting message:
+{| class="wikitable"
+|How did you enter this place? <span style="color: #15e300;">[Azynthi]</span> has sealed me here... and cursed me to stay. I cannot leave even if this place crumbles.
+|}
+
+<span style="color: #15e300;">[Azynthi]</span>
+{| class="wikitable"
+|He is everywhere, he is ascending. He stole the power of Sivakaya and grows with each moment into something truly <span style="color: #15e300;">[terrifying]</span>.
+|}
+
+<span style="color: #15e300;">[terrifying]</span>
+{| class="wikitable"
+|He feeds on all who are here. My knowledge... he has taken it. I am one of the first Paladins. I escaped Astra, and I have seen Soluna's Celestial Blade. <span style="color: #15e300;">[Azynthi]</span> has taken all but remnants of the <span style="color: #15e300;">[memory]</span> from me.
+|}
+
+<span style="color: #15e300;">[memory]</span>
+{| class="wikitable"
+|If you can restore me, even if I cannot leave this place, I will bestow my knowledge upon you once I regain it.
+|}
+
+When handed [[Stolen Memories]]
+{| class="wikitable"
+|Yes! Oh, you've done it! I remember! It's all coming back to me! (TO BE CONTINUED)
+|-
+|Begins the quest [[Soluna's Celestial Blade - Part 3]]
+|}
+
+[[Category:Azynthi's Garden]]
+[[Category:Characters]]

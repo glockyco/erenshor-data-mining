@@ -1,0 +1,45 @@
+{{Enemy
+|name=Kio the Darkbringer
+|image=[[File:Kio the Darkbringer.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Shivering Step]]
+|coordinates=781.4 x 34.6 x 654.8
+|spawnchance=
+|respawn=14 minutes
+|guaranteeddrops={{ItemLink|Igniting Brace}}<br>{{ItemLink|Lamplighter's Pole}}
+|droprates={{ItemLink|Awaken the Angel}} (100.0%)<ref>If the player is already holding {{ItemLink|Awaken the Angel}} in their inventory, another will not drop.</ref><br>{{ItemLink|Dockhouse Key}} (100.0%)<ref>If the player is already holding {{ItemLink|Dockhouse Key}} in their inventory, another will not drop.</ref><br>{{ItemLink|Cloth Gloves}} (64.4%)<br>{{ItemLink|Cloth Hood}} (64.4%)<br>{{ItemLink|Cloth Shoes}} (64.4%)<br>{{ItemLink|Cloth Sleeves}} (64.4%)<br>{{ItemLink|Igniting Brace}} (50.0%)<br>{{ItemLink|Lamplighter's Pole}} (50.0%)
+|level=24
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=32500
+|mana=100
+|ac=360
+|strength=45
+|endurance=26
+|dexterity=55
+|agility=25
+|intelligence=25
+|wisdom=6
+|charisma=6
+|magic=12-29
+|poison=12-29
+|elemental=12-29
+|void=12-29
+|spells=
+}}
+
+Kio the Darkbringer will only appear when you change the lighthouse flame from red to blue using the {{ItemLink|Blue Burnstone}}.
+
+Kio the Darkbringer has a unique mechanic when the blue light from the lighthouse touches him he begins to heal.
+
+=Notes=
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Shivering Step]]

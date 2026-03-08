@@ -1,0 +1,72 @@
+{{Item
+|title=Bottomless Elixir
+|type=[[Quest Items|Quest Item]], [[Consumables|Potion]]
+|vendorsource=
+|source=
+|othersource=
+|questsource={{QuestLink|Aetheria for Saya Seawatcher}}
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=400
+|sell=260
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/General
+|image=Bottomless Elixir.png
+|name=Bottomless Elixir
+|description=A swig of this potion magically cures minor wounds and bruises and for some reason, it never gets less full.
+|value=400
+|stack_size=
+|disposable=
+|effect_style=Activatable
+|effect_spell_icon=Minor Healing.png
+|effect_spell_name=[[Minor Healing]]
+|effect_spell_level=3
+|effect_spell_duration_ticks=
+|effect_spell_type=Heal
+|effect_spell_line=Healing
+|effect_target_damage=
+|effect_target_healing=
+|effect_damage_type=Physical
+|effect_cast_time=1.0
+|effect_cooldown=3.0
+|effect_spell_range=60.0
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=45
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+}}
+
+[[Category:Items]]

@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Immolation
+|type=[[Ability Books|Spell Scroll]]
+|vendorsource=[[Cerbantias Flameward]]<br>[[Juctin Mysia]]
+|source=[[Blight Eater]] (4.6%)<br>[[Apha, Priest of Brax]] (3.7%)<br>[[Upha, Priest of Brax]] (3.7%)<br>[[A Deepling Crimsonite]] (2.8%)<br>[[Braxon Fanatic]] (2.8%)<br>[[A Deepling Orator]] (1.9%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=2100
+|sell=1365
+|taughtspell={{AbilityLink|Immolation}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Immolation.png
+|name=Spell Scroll: Immolation
+|arcanist_level=19
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=300
+|spell_type=StatusEffect
+|spell_desc=Slow targets movement and cause (450 / tick) damage over time.
+}}
+
+[[Category:Ability Books]]

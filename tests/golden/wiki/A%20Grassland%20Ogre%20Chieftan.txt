@@ -1,0 +1,38 @@
+{{Enemy
+|name=A Grassland Ogre Chieftan
+|image=[[File:A Grassland Ogre Chieftan.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=+3 [[The Citizens of Erenshor]]<br>+3 [[The Citizens of Port Azure]]
+|zones=[[Fernalla's Revival Plains]]
+|coordinates=
+|spawnchance=15-100%
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|A Grassland Sap Necklace}} (9.4%)<br>{{ItemLink|Ogre Tooth Club}} (9.4%)<ref>If A Grassland Ogre Chieftan has {{ItemLink|Ogre Tooth Club}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Bread}} (6.8%)<br>{{ItemLink|Citrine Stone}} (6.8%)<br>{{ItemLink|Water}} (6.8%)
+|level=10
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=3510
+|mana=0
+|ac=150
+|strength=28
+|endurance=45
+|dexterity=45
+|agility=30
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=5-12
+|poison=5-12
+|elemental=5-12
+|void=5-12
+|spells={{AbilityLink|Biting Vines}}<br>{{AbilityLink|Death's Embrace}}<br>{{AbilityLink|Ethereal Rending}}<br>{{AbilityLink|Flight of Foot}}<br>{{AbilityLink|Hardened Skin}}
+}}
+
+[[Category:Enemies]]
+[[Category:Fernalla's Revival Plains]]

@@ -1,0 +1,62 @@
+{{Enemy
+|name=Molorai Militia Arcanist
+|image=[[File:Molorai Militia Arcanist.png|thumb]]
+|imagecaption=A {{PAGENAME}} wearing the Arcanist Cap.
+|type=[[Enemies|Enemy]]
+|faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
+|factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Azure Guard]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
+|zones=[[Old Krakengard]]<br>[[Vitheo's Watch]]
+|coordinates=
+|spawnchance=
+|respawn=8 minutes (Old Krakengard)<br>4 minutes (Vitheo's Watch)
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Arcanist Cap}} (20.4%)<ref>If Molorai Militia Arcanist has {{ItemLink|Arcanist Cap}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Luminstone}} (11.5%)<br>{{ItemLink|Star Stone}} (11.5%)
+|level=9
+|levelmodmin=0
+|levelmodmax=2
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1690
+|mana=155
+|ac=135
+|strength=175
+|endurance=100
+|dexterity=255
+|agility=75
+|intelligence=5
+|wisdom=3
+|charisma=3
+|magic=4-11
+|poison=4-11
+|elemental=4-11
+|void=4-11
+|spells={{AbilityLink|Brax's Touch}}<br>{{AbilityLink|Ice Bolt}}<br>{{AbilityLink|Minor Lightning}}
+}}
+
+''{{main|Enemies}}''
+
+=Location=
+{{PAGENAME}} can be found throughout [[Old Krakengard]] and outside the dungeon in [[Vitheo's Watch]].
+
+=Appearance=
+{{PAGENAME}}s are spellcasters wearing a green and yellow tunic, gloves, and boots. They can occasionally be seen wearing an [[Arcanist Cap]].
+
+=Behavior=
+{{PAGENAME}} stand guard and patrol various points in and outside of Old Krakengard. They will attack players if they get too close, or if they or other nearby militia members are [[Lunar Madness|provoked]]. {{PAGENAME}}s keep themselves [[Status Effects|buffed]] when idle, but will only cast offensive spells when in combat.
+
+===Spells & Abilities===
+Defensive:
+*{{AbilityLink|Minor Protection}}
+*{{AbilityLink|Blood Feast}}
+
+Offensive:
+*{{AbilityLink|Brax's Touch}}
+*{{AbilityLink|Ethereal Rending}}
+
+=Notes=
+*Some {{PAGENAME}}s can occasionally be found in Old Krakengard with a base level that is two levels higher.
+
+[[Category:Enemies]]
+[[Category:Old Krakengard]]
+[[Category:Vitheo's Watch]]

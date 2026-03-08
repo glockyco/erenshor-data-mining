@@ -1,0 +1,45 @@
+{{Enemy
+|name=Prestigio Valusha
+|image=[[File:Prestigio Valusha.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=-15 [[The Blades of Vitheo]]<br>-15 [[The Citizens of Erenshor]]<br>-15 [[The Citizens of Port Azure]]
+|zones=[[Port Azure]]
+|coordinates=221.2 x 26.0 x 193.5
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates=
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=4550
+|mana=0
+|ac=330
+|strength=125
+|endurance=5
+|dexterity=125
+|agility=5
+|intelligence=5
+|wisdom=5
+|charisma=5
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells=
+}}
+Prestigio is an NPC located in [[Port Azure]]. He functions as a bank and he has storage space for up to 3136 items/stacks of items, with a tab at the top of the interface letting you swap through the 98 available tabs.  It is possible for all characters on your account to access this storage making transferring items from 1 character to another possible.
+
+Greeting message:
+{| class="wikitable"
+|Welcome! This is my bank wagon. I can store anything you need. Even give it to your pals, by your request of course.
+|}
+
+[[Category:Bank]]
+[[Category:Characters]]
+[[Category:Port Azure]]

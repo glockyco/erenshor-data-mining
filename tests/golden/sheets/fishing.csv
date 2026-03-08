@@ -1,0 +1,130 @@
+WaterStableKey,ZoneName,PositionX,PositionY,PositionZ,ItemName,DayFishableChance (%),NightFishableChance (%)
+water:azure:-277.92:-4.80:-9.61,Port Azure,-277.92,-4.8,-9.61,An Octorunner,39.12,36.94
+water:azure:-277.92:-4.80:-9.61,Port Azure,-277.92,-4.8,-9.61,A Husselfish,16.76,15.83
+water:azure:-277.92:-4.80:-9.61,Port Azure,-277.92,-4.8,-9.61,Seaweed,16.76,15.83
+water:azure:-277.92:-4.80:-9.61,Port Azure,-277.92,-4.8,-9.61,A Stonemouth Bass,11.18,10.56
+water:azure:-277.92:-4.80:-9.61,Port Azure,-277.92,-4.8,-9.61,A Beaktooth,5.59,5.28
+water:azure:-277.92:-4.80:-9.61,Port Azure,-277.92,-4.8,-9.61,Cloth Shoes,5.59,5.28
+water:azure:-277.92:-4.80:-9.61,Port Azure,-277.92,-4.8,-9.61,,1.25,1.25
+water:azure:-277.92:-4.80:-9.61,Port Azure,-277.92,-4.8,-9.61,A Moongill,,5.28
+water:azynthi:474.03:-2.70:469.17,Azynthi's Garden,474.03,-2.7,469.17,,,
+water:azynthi:474.03:-3.50:469.17,Azynthi's Garden,474.03,-3.5,469.17,,,
+water:azynthi:551.00:-7.00:435.00,Azynthi's Garden,551.0,-7.0,435.0,,,
+water:azynthiclear:474.03:-2.70:469.17,Azynthi's Garden,474.03,-2.7,469.17,,,
+water:azynthiclear:551.00:-3.60:435.00,Azynthi's Garden,551.0,-3.6,435.0,,,
+water:bloomingsepulcher:692.52:250.75:500.81,Blooming Sepulcher,692.52,250.75,500.81,A Fanged Caveskimmer,31.67,31.67
+water:bloomingsepulcher:692.52:250.75:500.81,Blooming Sepulcher,692.52,250.75,500.81,A Frowny Clowny,31.67,31.67
+water:bloomingsepulcher:692.52:250.75:500.81,Blooming Sepulcher,692.52,250.75,500.81,A Sleepyhead,31.67,31.67
+water:bloomingsepulcher:692.52:250.75:500.81,Blooming Sepulcher,692.52,250.75,500.81,,1.25,1.25
+water:brake:287.10:7.50:247.80,Faerie's Brake,287.1,7.5,247.8,A Frowny Clowny,35.63,25.33
+water:brake:287.10:7.50:247.80,Faerie's Brake,287.1,7.5,247.8,Seaweed,17.81,31.67
+water:brake:287.10:7.50:247.80,Faerie's Brake,287.1,7.5,247.8,A Husselfish,17.81,6.33
+water:brake:287.10:7.50:247.80,Faerie's Brake,287.1,7.5,247.8,A Stonemouth Bass,11.88,6.33
+water:brake:287.10:7.50:247.80,Faerie's Brake,287.1,7.5,247.8,A Burgundy Skipper,5.94,19.0
+water:brake:287.10:7.50:247.80,Faerie's Brake,287.1,7.5,247.8,Torn Treasure Map (Top Right),5.94,6.33
+water:brake:287.10:7.50:247.80,Faerie's Brake,287.1,7.5,247.8,,1.25,1.25
+water:braxonian:211.40:13.90:38.00,Braxonian Desert,211.4,13.9,38.0,An Octorunner,31.67,47.5
+water:braxonian:211.40:13.90:38.00,Braxonian Desert,211.4,13.9,38.0,A Burgundy Skipper,31.67,
+water:braxonian:211.40:13.90:38.00,Braxonian Desert,211.4,13.9,38.0,A Frowny Clowny,31.67,
+water:braxonian:211.40:13.90:38.00,Braxonian Desert,211.4,13.9,38.0,,1.25,1.25
+water:braxonian:211.40:13.90:38.00,Braxonian Desert,211.4,13.9,38.0,A Moongill,,23.75
+water:braxonian:211.40:13.90:38.00,Braxonian Desert,211.4,13.9,38.0,A Worm Eel,,23.75
+water:braxonian:423.25:44.20:950.76,Braxonian Desert,423.25,44.2,950.76,A Frowny Clowny,47.5,47.5
+water:braxonian:423.25:44.20:950.76,Braxonian Desert,423.25,44.2,950.76,A Stonemouth Bass,47.5,47.5
+water:braxonian:423.25:44.20:950.76,Braxonian Desert,423.25,44.2,950.76,,1.25,1.25
+water:duskenlight:731.00:34.70:725.00,The Duskenlight Coast,731.0,34.7,725.0,A Frowny Clowny,31.67,19.0
+water:duskenlight:731.00:34.70:725.00,The Duskenlight Coast,731.0,34.7,725.0,A Stonemouth Bass,31.67,19.0
+water:duskenlight:731.00:34.70:725.00,The Duskenlight Coast,731.0,34.7,725.0,An Octorunner,31.67,19.0
+water:duskenlight:731.00:34.70:725.00,The Duskenlight Coast,731.0,34.7,725.0,,1.25,1.25
+water:duskenlight:731.00:34.70:725.00,The Duskenlight Coast,731.0,34.7,725.0,A Moongill,,19.0
+water:duskenlight:731.00:34.70:725.00,The Duskenlight Coast,731.0,34.7,725.0,A Worm Eel,,19.0
+water:elderstone:-79.11:-124.10:122.99,The Elderstone Mines,-79.11,-124.1,122.99,A Fanged Caveskimmer,63.33,31.67
+water:elderstone:-79.11:-124.10:122.99,The Elderstone Mines,-79.11,-124.1,122.99,A Worm Eel,31.67,63.33
+water:elderstone:-79.11:-124.10:122.99,The Elderstone Mines,-79.11,-124.1,122.99,,1.25,1.25
+water:fernallafield:1117.00:-1.50:1153.20,Fernalla's Revival Plains,1117.0,-1.5,1153.2,A Worm Eel,89.41,78.24
+water:fernallafield:1117.00:-1.50:1153.20,Fernalla's Revival Plains,1117.0,-1.5,1153.2,Mold: A Ceremonial Ring,5.59,5.59
+water:fernallafield:1117.00:-1.50:1153.20,Fernalla's Revival Plains,1117.0,-1.5,1153.2,,1.25,1.25
+water:fernallafield:1117.00:-1.50:1153.20,Fernalla's Revival Plains,1117.0,-1.5,1153.2,A Beaktooth,,11.18
+water:hidden:203.76:-4.73:196.42,Hidden Hills,203.76,-4.72,196.42,,,
+water:malaroth:1230.70:-184.50:575.30,Malaroth's Nesting Grounds,1230.7,-184.5,575.3,A Fingerbiter,31.67,47.5
+water:malaroth:1230.70:-184.50:575.30,Malaroth's Nesting Grounds,1230.7,-184.5,575.3,A Husselfish,31.67,
+water:malaroth:1230.70:-184.50:575.30,Malaroth's Nesting Grounds,1230.7,-184.5,575.3,An Octorunner,31.67,
+water:malaroth:1230.70:-184.50:575.30,Malaroth's Nesting Grounds,1230.7,-184.5,575.3,,1.25,1.25
+water:malaroth:1230.70:-184.50:575.30,Malaroth's Nesting Grounds,1230.7,-184.5,575.3,A Moongill,,47.5
+water:ripper:237.20:28.40:468.80,Ripper's Keep,237.2,28.4,468.8,A Burgundy Skipper,38.0,
+water:ripper:237.20:28.40:468.80,Ripper's Keep,237.2,28.4,468.8,A Fingerbiter,19.0,23.75
+water:ripper:237.20:28.40:468.80,Ripper's Keep,237.2,28.4,468.8,A Frowny Clowny,19.0,
+water:ripper:237.20:28.40:468.80,Ripper's Keep,237.2,28.4,468.8,A Stonemouth Bass,19.0,
+water:ripper:237.20:28.40:468.80,Ripper's Keep,237.2,28.4,468.8,,1.25,1.25
+water:ripper:237.20:28.40:468.80,Ripper's Keep,237.2,28.4,468.8,A Beaktooth,,23.75
+water:ripper:237.20:28.40:468.80,Ripper's Keep,237.2,28.4,468.8,A Moongill,,23.75
+water:ripper:237.20:28.40:468.80,Ripper's Keep,237.2,28.4,468.8,A Worm Eel,,23.75
+water:rottenfoot:407.00:-27.30:465.40,Rottenfoot,407.0,-27.3,465.4,A Worm Eel,95.0,95.0
+water:rottenfoot:407.00:-27.30:465.40,Rottenfoot,407.0,-27.3,465.4,,1.25,1.25
+water:saltedstrand:-7351.00:-53.00:-7277.75,Blacksalt Strand,-7351.0,-53.0,-7277.75,A Stonemouth Bass,23.75,47.5
+water:saltedstrand:-7351.00:-53.00:-7277.75,Blacksalt Strand,-7351.0,-53.0,-7277.75,A Burgundy Skipper,23.75,
+water:saltedstrand:-7351.00:-53.00:-7277.75,Blacksalt Strand,-7351.0,-53.0,-7277.75,A Frowny Clowny,23.75,
+water:saltedstrand:-7351.00:-53.00:-7277.75,Blacksalt Strand,-7351.0,-53.0,-7277.75,An Octorunner,23.75,
+water:saltedstrand:-7351.00:-53.00:-7277.75,Blacksalt Strand,-7351.0,-53.0,-7277.75,,1.25,1.25
+water:saltedstrand:-7351.00:-53.00:-7277.75,Blacksalt Strand,-7351.0,-53.0,-7277.75,A Worm Eel,,31.67
+water:saltedstrand:-7351.00:-53.00:-7277.75,Blacksalt Strand,-7351.0,-53.0,-7277.75,A Moongill,,15.83
+water:shiveringstep:652.00:-7.73:444.61,Shivering Step,652.0,-7.73,444.61,Seaweed,31.67,21.92
+water:shiveringstep:652.00:-7.73:444.61,Shivering Step,652.0,-7.73,444.61,A Husselfish,23.75,29.23
+water:shiveringstep:652.00:-7.73:444.61,Shivering Step,652.0,-7.73,444.61,A Frowny Clowny,15.83,7.31
+water:shiveringstep:652.00:-7.73:444.61,Shivering Step,652.0,-7.73,444.61,A Stonemouth Bass,15.83,7.31
+water:shiveringstep:652.00:-7.73:444.61,Shivering Step,652.0,-7.73,444.61,Guide to Sight,7.92,7.31
+water:shiveringstep:652.00:-7.73:444.61,Shivering Step,652.0,-7.73,444.61,,1.25,1.25
+water:shiveringstep:652.00:-7.73:444.61,Shivering Step,652.0,-7.73,444.61,A Burgundy Skipper,,7.31
+water:shiveringstep:652.00:-7.73:444.61,Shivering Step,652.0,-7.73,444.61,A Moongill,,7.31
+water:shiveringstep:652.00:-7.73:444.61,Shivering Step,652.0,-7.73,444.61,A Worm Eel,,7.31
+water:silkengrass:648.60:17.10:445.80,Silkengrass Meadowlands,648.6,17.1,445.8,A Worm Eel,31.67,47.5
+water:silkengrass:648.60:17.10:445.80,Silkengrass Meadowlands,648.6,17.1,445.8,A Stonemouth Bass,31.67,
+water:silkengrass:648.60:17.10:445.80,Silkengrass Meadowlands,648.6,17.1,445.8,Sea Glass,31.67,
+water:silkengrass:648.60:17.10:445.80,Silkengrass Meadowlands,648.6,17.1,445.8,,1.25,1.25
+water:silkengrass:648.60:17.10:445.80,Silkengrass Meadowlands,648.6,17.1,445.8,A Frowny Clowny,,47.5
+water:soluna:-16.70:44.60:197.00,Soluna's Landing,-16.7,44.6,197.0,,,
+water:stowaway:652.00:-7.73:444.61,Stowaway's Step,652.0,-7.73,444.61,A Husselfish,28.5,31.67
+water:stowaway:652.00:-7.73:444.61,Stowaway's Step,652.0,-7.73,444.61,Seaweed,28.5,23.75
+water:stowaway:652.00:-7.73:444.61,Stowaway's Step,652.0,-7.73,444.61,A Frowny Clowny,19.0,7.92
+water:stowaway:652.00:-7.73:444.61,Stowaway's Step,652.0,-7.73,444.61,A Stonemouth Bass,19.0,7.92
+water:stowaway:652.00:-7.73:444.61,Stowaway's Step,652.0,-7.73,444.61,,1.25,1.25
+water:stowaway:652.00:-7.73:444.61,Stowaway's Step,652.0,-7.73,444.61,A Burgundy Skipper,,7.92
+water:stowaway:652.00:-7.73:444.61,Stowaway's Step,652.0,-7.73,444.61,A Moongill,,7.92
+water:stowaway:652.00:-7.73:444.61,Stowaway's Step,652.0,-7.73,444.61,A Worm Eel,,7.92
+water:summerevent:106.43:-4.00:140.28,Bellwain Island,106.43,-4.0,140.28,Island Fin,39.9,39.9
+water:summerevent:106.43:-4.00:140.28,Bellwain Island,106.43,-4.0,140.28,A Fingerbiter,26.6,26.6
+water:summerevent:106.43:-4.00:140.28,Bellwain Island,106.43,-4.0,140.28,A Frowny Clowny,19.0,19.0
+water:summerevent:106.43:-4.00:140.28,Bellwain Island,106.43,-4.0,140.28,A Burgundy Skipper,5.7,5.7
+water:summerevent:106.43:-4.00:140.28,Bellwain Island,106.43,-4.0,140.28,A Stonemouth Bass,1.9,1.9
+water:summerevent:106.43:-4.00:140.28,Bellwain Island,106.43,-4.0,140.28,Sivakrux,1.9,1.9
+water:summerevent:106.43:-4.00:140.28,Bellwain Island,106.43,-4.0,140.28,,1.25,1.25
+water:summerevent:98.30:-289.00:-27.89,Bellwain Island,98.3,-289.0,-27.89,A Burgundy Skipper,23.75,19.0
+water:summerevent:98.30:-289.00:-27.89,Bellwain Island,98.3,-289.0,-27.89,A Fingerbiter,23.75,19.0
+water:summerevent:98.30:-289.00:-27.89,Bellwain Island,98.3,-289.0,-27.89,A Stonemouth Bass,23.75,19.0
+water:summerevent:98.30:-289.00:-27.89,Bellwain Island,98.3,-289.0,-27.89,Island Fin,23.75,19.0
+water:summerevent:98.30:-289.00:-27.89,Bellwain Island,98.3,-289.0,-27.89,,1.25,1.25
+water:summerevent:98.30:-289.00:-27.89,Bellwain Island,98.3,-289.0,-27.89,A Moongill,,19.0
+water:vitheo:1071.70:-13.30:264.10,Vitheo's Watch,1071.7,-13.3,264.1,Seaweed,23.75,13.57
+water:vitheo:1071.70:-13.30:264.10,Vitheo's Watch,1071.7,-13.3,264.1,Seafruit,15.83,13.57
+water:vitheo:1071.70:-13.30:264.10,Vitheo's Watch,1071.7,-13.3,264.1,A Beaktooth,15.83,
+water:vitheo:1071.70:-13.30:264.10,Vitheo's Watch,1071.7,-13.3,264.1,A Burgundy Skipper,7.92,13.57
+water:vitheo:1071.70:-13.30:264.10,Vitheo's Watch,1071.7,-13.3,264.1,A Stonemouth Bass,7.92,13.57
+water:vitheo:1071.70:-13.30:264.10,Vitheo's Watch,1071.7,-13.3,264.1,Tattered Leather Boots,7.92,13.57
+water:vitheo:1071.70:-13.30:264.10,Vitheo's Watch,1071.7,-13.3,264.1,A Frowny Clowny,7.92,
+water:vitheo:1071.70:-13.30:264.10,Vitheo's Watch,1071.7,-13.3,264.1,An Octorunner,7.92,
+water:vitheo:1071.70:-13.30:264.10,Vitheo's Watch,1071.7,-13.3,264.1,,1.25,1.25
+water:vitheo:1071.70:-13.30:264.10,Vitheo's Watch,1071.7,-13.3,264.1,A Moongill,,13.57
+water:vitheo:1071.70:-13.30:264.10,Vitheo's Watch,1071.7,-13.3,264.1,A Worm Eel,,13.57
+water:willowwatch:426.27:20.40:365.04,Willowwatch Ridge,426.27,20.4,365.04,A Frowny Clowny,23.75,23.75
+water:willowwatch:426.27:20.40:365.04,Willowwatch Ridge,426.27,20.4,365.04,A Husselfish,23.75,23.75
+water:willowwatch:426.27:20.40:365.04,Willowwatch Ridge,426.27,20.4,365.04,A Sleepyhead,23.75,23.75
+water:willowwatch:426.27:20.40:365.04,Willowwatch Ridge,426.27,20.4,365.04,A Stonemouth Bass,23.75,23.75
+water:willowwatch:426.27:20.40:365.04,Willowwatch Ridge,426.27,20.4,365.04,,1.25,1.25
+water:windwashed:195.61:7.80:348.29,Windwashed Pass,195.61,7.8,348.29,A Fingerbiter,19.0,13.57
+water:windwashed:195.61:7.80:348.29,Windwashed Pass,195.61,7.8,348.29,A Frowny Clowny,19.0,13.57
+water:windwashed:195.61:7.80:348.29,Windwashed Pass,195.61,7.8,348.29,A Sleepyhead,19.0,13.57
+water:windwashed:195.61:7.80:348.29,Windwashed Pass,195.61,7.8,348.29,A Stonemouth Bass,19.0,13.57
+water:windwashed:195.61:7.80:348.29,Windwashed Pass,195.61,7.8,348.29,An Octorunner,19.0,13.57
+water:windwashed:195.61:7.80:348.29,Windwashed Pass,195.61,7.8,348.29,,1.25,1.25
+water:windwashed:195.61:7.80:348.29,Windwashed Pass,195.61,7.8,348.29,A Moongill,,13.57
+water:windwashed:195.61:7.80:348.29,Windwashed Pass,195.61,7.8,348.29,A Worm Eel,,13.57

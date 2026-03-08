@@ -1,0 +1,78 @@
+{{Enemy
+|name=Torado Zortia
+|image=[[File:Torado Zortia.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Agents of The Wisp]]
+|factionChange=-50 [[The Agents of The Wisp]]
+|zones=[[Loomingwood Forest]]
+|coordinates=356.4 x 26.9 x 444.4
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Luminstone}} (21.2%)<br>{{ItemLink|Star Stone}} (21.2%)
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=28600
+|mana=155
+|ac=330
+|strength=15
+|endurance=65
+|dexterity=65
+|agility=15
+|intelligence=15
+|wisdom=5
+|charisma=15
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells={{AbilityLink|Brax's Fury}}<br>{{AbilityLink|Ice Spear}}<br>{{AbilityLink|Immolation}}<br>{{AbilityLink|Magic Bolt}}
+}}
+Torado Zortia an archery merchant located in Wardhaven outside one of the large buildings in [[Loomingwood]]
+
+Greeting message:
+{| class="wikitable"
+|Not many of us left here. The <span style="color: #15e300;">[excursions]</span> have taken their toll.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[excursions]</span>
+|We must venture out to complete our mission. Some don't return or are held away. Sivakaya's soul has been shattered across the land. It is imperative that we restore her... though, it seems each day that she's more lost than before. Could use some help here locally, if you're looking for <span style="color: #15e300;">[work]</span>?
+|-
+|<span style="color: #15e300;">[work]</span>
+|A few rarities to collect in the area that we use for our rituals. I need a pin Pteriaped feather, a Devoratrix thorn, and - this is a tough one - an intact faerie wing.<br>
+<i>This begins {{QuestLink|link=Ritual Components}}</i>
+|}
+
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Skill Book: Arterial Razor}}
+|[[:Category:Ability Books|Skill Book]]
+|26550
+|-
+|{{ItemLink|Skill Book: Envenomed Arrow}}
+|[[:Category:Ability Books|Skill Book]]
+|20000
+|-
+|{{ItemLink|Spell Scroll: Targeted Windstorm}}
+|[[:Category:Ability Books|Spell Book]]
+|6000
+|-
+|{{ItemLink|Executioner's Bow}}
+||[[Weapons#|Bow]]
+|300
+|}
+
+[[Category:Characters]]
+[[Category:Loomingwood Forest]]
+[[Category:Vendors]]

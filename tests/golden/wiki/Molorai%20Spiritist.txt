@@ -1,0 +1,41 @@
+{{Enemy
+|name=Molorai Spiritist
+|image=[[File:Molorai Spiritist.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
+|factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Azure Guard]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
+|zones=[[Old Krakengard]]
+|coordinates=287.6 x 0.2 x 223.9
+|spawnchance=50%
+|respawn=8 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Spell Scroll: Group Healing}} (100.0%)<br>{{ItemLink|Citrine Stone}} (41.8%)<br>{{ItemLink|Living Chainmail Leggings}} (41.8%)<br>{{ItemLink|Shivering Leather Tunic}} (41.8%)<br>{{ItemLink|Bandit's Mask}} (7.8%)<br>{{ItemLink|Luminstone}} (7.8%)<br>{{ItemLink|Star Stone}} (7.8%)<br>{{ItemLink|Molorai Manifesto, Pg. 1}} (1.9%)<ref>If the player is already holding {{ItemLink|Molorai Manifesto, Pg. 1}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Manifesto, Pg. 2}} (1.9%)<ref>If the player is already holding {{ItemLink|Molorai Manifesto, Pg. 2}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Manifesto, Pg. 3}} (1.9%)<ref>If the player is already holding {{ItemLink|Molorai Manifesto, Pg. 3}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Manifesto, Pg. 4}} (1.9%)<ref>If the player is already holding {{ItemLink|Molorai Manifesto, Pg. 4}} in their inventory, another will not drop.</ref>
+|level=12
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=2.0
+|health=3900
+|mana=55
+|ac=180
+|strength=175
+|endurance=100
+|dexterity=255
+|agility=75
+|intelligence=55
+|wisdom=3
+|charisma=35
+|magic=6-14
+|poison=6-14
+|elemental=6-14
+|void=6-14
+|spells={{AbilityLink|Biting Vines}}<br>{{AbilityLink|Minor Lightning}}<br>{{AbilityLink|Minor Protection}}<br>{{AbilityLink|Minor Regeneration}}<br>{{AbilityLink|Theft of Life}}
+}}
+There is a spawn for the Spiritist upstairs in the bunk quarters in the room to the right upon entering.
+=Notes=
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Old Krakengard]]

@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Necrosis
+|type=
+|vendorsource=
+|source=[[Azynthian Firebone]] (2.6%)<br>[[Azynthian Icebone]] (2.6%)<br>[[Greater Azynthian Firebone]] (2.6%)<br>[[Greater Azynthian Icebone]] (2.6%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=25000
+|sell=16250
+|taughtspell={{AbilityLink|Necrosis}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Necrosis.png
+|name=Spell Scroll: Necrosis
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=30
+|mana_cost=500
+|spell_type=StatusEffect
+|spell_desc=Do 2000 void damage per tick for 3 ticks.
+}}
+
+[[Category:Ability Books]]

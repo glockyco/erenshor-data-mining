@@ -1,0 +1,85 @@
+{{Item
+|title=Relaxation
+|type=[[Quest Items|Quest Item]]
+|vendorsource=
+|source=
+|othersource=
+|questsource=
+|relatedquest={{QuestLink|link=The Mystery of Bellwain Island}}
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+'''{{PAGENAME}}''' is a [[:Category:Notes|Note]] in [[Erenshor]]. 
+
+=Location=
+This note can be found on [[Bellwain Island]] as part of the quest {{QuestLink|The Mystery of Bellwain Island}}.
+
+=Description=
+{{PAGENAME}} talks about how Bellwain would leave Bellsie's drink on her seat near the campfire.
+
+{{Item/General
+|image=Relaxation.png
+|name=Relaxation
+|description=Bellsie always came here to "wash off the smoke" after our drinks at the pergola campfire. <br><br>Thing is, she always would forget her drink and made me come back to the bar to get it for her. I'd leave it on her chair if she was off in the gardens.<br><br>Truly a nuisance in the moment, but a task I miss dearly now.
+|value=
+|stack_size=
+|disposable=
+|effect_style=
+|effect_spell_icon=
+|effect_spell_name=
+|effect_spell_level=
+|effect_spell_duration_ticks=
+|effect_spell_type=
+|effect_spell_line=
+|effect_target_damage=
+|effect_target_healing=
+|effect_damage_type=
+|effect_cast_time=
+|effect_cooldown=
+|effect_spell_range=
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+}}
+
+Using the clues give, find {{ItemLink|Bellsie's Wine}}<ref>The hidden location of {{ItemLink|Bellsie's Wine}} is hinted at in the note {{ItemLink|The Stash|image=Marching Orders.png}}.</ref> and deliver it to the empty seat near the campfire behind the pergola to find {{ItemLink|Afternoon on the Isle|image=Drafty Baths.png}}.
+
+=Notes=
+
+[[Category:Items]]
+[[Category:Notes]]
+[[Category:Quest Items]]

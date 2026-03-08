@@ -1,0 +1,52 @@
+{{Enemy
+|name=Risen Pilgrim
+|image=[[File:Risen Pilgrim.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=-10 [[The Children of Sivakaya]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]
+|zones=[[Silkengrass Meadowlands]]
+|coordinates=
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Ancient Bone}} (89.3%)<br>{{ItemLink|Rusty Shortsword}} (5.9%)<br>{{ItemLink|Tattered Leather Leggings}} (3.1%)<br>{{ItemLink|Simple Engagement Ring}} (1.9%)<br>{{ItemLink|Tattered Leather Boots}} (1.2%)<br>{{ItemLink|Tattered Leather Gloves}} (1.2%)<br>{{ItemLink|Tattered Leather Skullcap}} (1.2%)<br>{{ItemLink|Tattered Leather Sleeves}} (1.2%)<br>{{ItemLink|Tattered Leather Tunic}} (1.2%)
+|level=4
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=84
+|mana=0
+|ac=60
+|strength=6
+|endurance=1
+|dexterity=5
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=2-5
+|poison=2-5
+|elemental=2-5
+|void=2-5
+|spells=
+}}
+'''{{PAGENAME}}''' is an [[Enemies|enemy]] in [[Erenshor]].
+=Location=
+{{PAGENAME}} is a special variant of [[A Brittle Skeleton]] found throughout [[Silkengrass Meadowlands]].
+
+=Appearance=
+{{PAGENAME}} is a small skeleton wearing tattered grey pants, a torn blue shirt, and manacles on both wrists.
+
+=Behavior=
+{{PAGENAME}} is a reanimated corpse with little intelligence or strength. They will roam the area until finding an adventurer to attack, but are hardly dangerous unless encountered in large numbers.
+
+===Spells & Abilities===
+{{PAGENAME}} does not use any spells or abilities.
+
+=Notes=
+
+[[Category:Enemies]]
+[[Category:Silkengrass Meadowlands]]

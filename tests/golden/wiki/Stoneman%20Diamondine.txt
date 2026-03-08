@@ -1,0 +1,44 @@
+{{Enemy
+|name=Stoneman Diamondine
+|image=[[File:Stoneman Diamondine.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Windwashed Pass]]
+|coordinates=944.5 x 71.5 x 590.1
+|spawnchance=33%
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Diamondine Shield}}<br>{{ItemLink|Mirror Polished Plate}}
+|droprates={{ItemLink|Star Stone}} (84.7%)<br>{{ItemLink|Diamondine Shield}} (66.7%)<ref>If Stoneman Diamondine has {{ItemLink|Diamondine Shield}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Mirror Polished Plate}} (33.3%)<br>{{ItemLink|Diamondine Mace}} (5.2%)<ref>If Stoneman Diamondine has {{ItemLink|Diamondine Mace}} equipped, it is guaranteed to drop.</ref>
+|level=19
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=19500
+|mana=3200
+|ac=285
+|strength=250
+|endurance=450
+|dexterity=450
+|agility=100
+|intelligence=300
+|wisdom=500
+|charisma=325
+|magic=10-23
+|poison=10-23
+|elemental=10-23
+|void=10-23
+|spells={{AbilityLink|Diamond Burst}}<br>{{AbilityLink|Winter's Bite}}
+}}
+He can be found on the Northern end of the zone between two large tusks protruding from the ground.
+
+Shares spawn point with regular Stonemen, meaning a regular [[Stoneman]] could spawn in its place.
+
+==Notes==
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Windwashed Pass]]

@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Instill Terror
+|type=
+|vendorsource=[[Grant Haxoway]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=15000
+|sell=9750
+|taughtspell={{AbilityLink|Instill Terror}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Instill Terror.png
+|name=Spell Scroll: Instill Terror
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=19
+|mana_cost=350
+|spell_type=StatusEffect
+|spell_desc=Causes your target to disengage from combat and run away. Effective on up to level 30 targets.
+}}
+
+[[Category:Ability Books]]

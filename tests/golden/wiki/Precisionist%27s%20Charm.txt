@@ -1,0 +1,40 @@
+{{Item
+|title=Precisionist's Charm
+|type=
+|vendorsource=
+|source=[[Braxonian Fossil]] (5.3%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=6000
+|sell=3900
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/Charm
+|image=Precisionist's Charm.png
+|name=Precisionist's Charm
+|tier=0
+|strscaling=
+|endscaling=
+|dexscaling=6
+|agiscaling=2
+|intscaling=
+|wisscaling=
+|chascaling=
+|resistscaling=
+|mitigationscaling=
+|arcanist=True
+|duelist=True
+|druid=True
+|paladin=True
+|reaver=True
+|stormcaller=True
+}}
+
+[[Category:Charms]]

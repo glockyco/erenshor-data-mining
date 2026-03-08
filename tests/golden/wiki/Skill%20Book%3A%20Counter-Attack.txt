@@ -1,0 +1,33 @@
+{{Item
+|title=Skill Book: Counter-Attack
+|type=
+|vendorsource=[[Aillee Desten]]<br>[[Grant Haxoway]]<br>[[Xander Zaxtrough]]<br>[[Zane Theavale]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=1350
+|sell=877
+|taughtspell=
+|taughtskill={{AbilityLink|Counter-Attack}}
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SkillBook
+|image=Skill Book: Counter-Attack.png
+|name=Skill Book: Counter-Attack
+|duelist_level=
+|druid_level=
+|arcanist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=12
+|skill_type=Innate
+|skill_desc=Any time an enemy misses you with a physical attack, gain a small chance to reset your attack cooldown timer to 0
+|simplayers_autolearn=True
+}}
+
+[[Category:Ability Books]]

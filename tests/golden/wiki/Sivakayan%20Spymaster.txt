@@ -1,0 +1,42 @@
+{{Enemy
+|name=Sivakayan Spymaster
+|image=[[File:Sivakayan Spymaster.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Children of Sivakaya]]
+|factionChange=+2 [[The Agents of The Wisp]]<br>+2 [[The Azure Guard]]<br>-2 [[The Children of Sivakaya]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
+|zones=[[Ripper's Keep]]
+|coordinates=781.6 x 52.5 x 582.0
+|spawnchance=55%
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Mask of Spies}}<br>{{ItemLink|Shadow Gloves}}
+|droprates={{ItemLink|Sivakayan Intel}} (100.0%)<ref>If the player is already holding {{ItemLink|Sivakayan Intel}} in their inventory, another will not drop.</ref><br>{{ItemLink|Shadow Gloves}} (66.7%)<br>{{ItemLink|Mask of Spies}} (33.3%)<br>{{ItemLink|Sivakayan Ore}} (12.1%)<br>{{ItemLink|Sea Glass}} (10.2%)<br>{{ItemLink|Star Stone}} (10.2%)<br>{{ItemLink|Sivakayan Axe}} (1.4%)<ref>If Sivakayan Spymaster has {{ItemLink|Sivakayan Axe}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Sivakayan Bracer}} (1.4%)<br>{{ItemLink|Sivakayan Legplate}} (1.4%)<br>{{ItemLink|Sivakayan Plate}} (1.4%)<br>{{ItemLink|Sivakayan Straightsword}} (1.4%)<ref>If Sivakayan Spymaster has {{ItemLink|Sivakayan Straightsword}} equipped, it is guaranteed to drop.</ref>
+|level=29
+|levelmodmin=2
+|levelmodmax=2
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=27560
+|mana=0
+|ac=435
+|strength=45
+|endurance=135
+|dexterity=185
+|agility=85
+|intelligence=95
+|wisdom=45
+|charisma=35
+|magic=14-35
+|poison=14-35
+|elemental=14-35
+|void=14-35
+|spells={{AbilityLink|Moonburst}}<br>{{AbilityLink|Theft of Life}}
+}}
+
+Rarely spawns in the Sivakayan camp near Ripper's Keep.
+==Notes==
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Ripper's Keep]]

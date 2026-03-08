@@ -1,0 +1,40 @@
+{{Enemy
+|name=Ragewhip
+|image=[[File:Ragewhip.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Rottenfoot]]
+|coordinates=296.1 x 23.0 x 847.8
+|spawnchance=50%
+|respawn=4 minutes
+|guaranteeddrops={{ItemLink|Jellycrown}}<br>{{ItemLink|Jellystick}}
+|droprates={{ItemLink|Jellycrown}} (50.0%)<br>{{ItemLink|Jellystick}} (50.0%)<br>{{ItemLink|Swamproot}} (28.3%)
+|level=15
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=19500
+|mana=0
+|ac=225
+|strength=22
+|endurance=25
+|dexterity=100
+|agility=32
+|intelligence=50
+|wisdom=20
+|charisma=15
+|magic=8-18
+|poison=8-18
+|elemental=8-18
+|void=8-18
+|spells=
+}}
+This Boss slowly increases in size and damage for every 10% HP that is lost.
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Rottenfoot]]

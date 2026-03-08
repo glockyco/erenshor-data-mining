@@ -1,0 +1,66 @@
+{{Enemy
+|name=Orion Mycon
+|image=[[File:Orion Mycon.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[Fernalla's Children]]
+|factionChange=-30 [[Fernalla's Children]]<br>+2 [[The Agents of The Wisp]]<br>+2 [[The Children of Sivakaya]]
+|zones=[[Port Azure]]
+|coordinates=343.6 x 37.3 x 446.4
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates=
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=4550
+|mana=300
+|ac=330
+|strength=35
+|endurance=35
+|dexterity=35
+|agility=35
+|intelligence=35
+|wisdom=35
+|charisma=35
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells=
+}}
+Orion is an NPC located in the outskirts of [[Port Azure]] by a shrine. And is the Quest giver for {{QuestLink|link=The Great Willow's Branch}} (Druid Quest).
+This NPC will refuse to talk to you if you are any class other than Druid.
+
+Greeting message only for Druids:
+{| class="wikitable"
+|Fellow child, Fernalla bless you. Step into our circle and stay a while. Our <span style="color: #15e300;">[cause]</span> and <span style="color: #15e300;">[crusade]</span> continues.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[cause]</span>
+|Lots of trouble! There's Molarai in the old beach fort, the beach is swarmin' with crocs, and those giant ghosts in the ruins... no thank 
+|-
+|<span style="color: #15e300;">[crusade]</span>
+|Fernalla willing, we'll recover the fallen branch of Fernalla's <span style="color: #15e300;">[willow]</span>, and our chosen one will wield it in our name.
+|-
+|<span style="color: #15e300;">[willow]</span>, <span style="color: #15e300;">[chosen]</span> and <span style="color: #15e300;">[one]</span>
+|A tree so large it can't be seen by human eyes. A tree so lush it cannot be felt by human hands. Its branches fall from the heavens and land with such impact that a human does not hear. The one who holds the branches, sees all and becomes everything.<br><br><i>This begins the quest {{QuestLink|link=The Great Willow's Branch}}.</i>
+|}
+
+For handing him the [[Tempest Stone]] for {{QuestLink|link=Orion Mycon's Lost Ring}}
+{| class="wikitable"
+|Where did you find this...? It was stolen from me in the night. I was able to fight off the intruder before he did me harm, but he was able to unsocket the gem from this Elderstone band. I have no need for the ring any longer nor the trouble it has brought. You can keep it. *He fits the gem loosely into the slot and hands it back to you* Might even be fixable by a jeweler.<br><br><i>This begins the quest {{QuestLink|link=Repairing Orion's Ring}}.</i>
+|}
+If you hand him another [[Tempest Stone]]:
+{| class="wikitable"
+|This one's not real.
+|}
+
+[[Category:Characters]]
+[[Category:Port Azure]]

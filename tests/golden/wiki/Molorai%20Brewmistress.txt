@@ -1,0 +1,44 @@
+{{Enemy
+|name=Molorai Brewmistress
+|image=[[File:Molorai Brewmistress.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
+|factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Azure Guard]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
+|zones=[[Old Krakengard]]
+|coordinates=337.6 x -9.6 x -27.6
+|spawnchance=
+|respawn=8 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Krakengard Bunk Key}} (100.0%)<ref>If the player is already holding {{ItemLink|Krakengard Bunk Key}} in their inventory, another will not drop.</ref><br>{{ItemLink|Citrine Stone}} (59.4%)<br>{{ItemLink|Seafruit}} (59.4%)<br>{{ItemLink|Seaspice}} (59.4%)<br>{{ItemLink|Luminstone}} (12.3%)<br>{{ItemLink|Ruby}} (12.3%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Star Stone}} (12.3%)<br>{{ItemLink|Argo's Grimoire}} (10.9%)<br>{{ItemLink|Swirlstone Amulet}} (10.9%)<br>{{ItemLink|Molorai Manifesto, Pg. 1}} (2.5%)<ref>If the player is already holding {{ItemLink|Molorai Manifesto, Pg. 1}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Manifesto, Pg. 2}} (2.5%)<ref>If the player is already holding {{ItemLink|Molorai Manifesto, Pg. 2}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Manifesto, Pg. 3}} (2.5%)<ref>If the player is already holding {{ItemLink|Molorai Manifesto, Pg. 3}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Manifesto, Pg. 4}} (2.5%)<ref>If the player is already holding {{ItemLink|Molorai Manifesto, Pg. 4}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Manifesto, Pg. 5}} (2.5%)<ref>If the player is already holding {{ItemLink|Molorai Manifesto, Pg. 5}} in their inventory, another will not drop.</ref>
+|level=10
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=2.0
+|health=2860
+|mana=55
+|ac=150
+|strength=175
+|endurance=100
+|dexterity=255
+|agility=75
+|intelligence=55
+|wisdom=3
+|charisma=3
+|magic=5-12
+|poison=5-12
+|elemental=5-12
+|void=5-12
+|spells={{AbilityLink|Biting Vines}}<br>{{AbilityLink|Jolt}}<br>{{AbilityLink|Magic Bolt}}<br>{{AbilityLink|Minor Protection}}<br>{{AbilityLink|Minor Regeneration}}<br>{{AbilityLink|Theft of Life}}<br>{{AbilityLink|Weak Poison}}
+}}
+
+The Brewmistress can use [[Biting Vines]], [[Weak Poison]], [[Theft of Life]], [[Magic Bolt]] and [[Jolt]].
+
+=Notes=
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Old Krakengard]]
+[[Category:Vitheo's Watch]]

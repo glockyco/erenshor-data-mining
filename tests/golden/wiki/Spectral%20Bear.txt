@@ -1,0 +1,54 @@
+{{Enemy
+|name=Spectral Bear
+|image=[[File:Spectral Bear.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Fernalla's Revival Plains]]<br>[[The Duskenlight Coast]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Essence of Nature}} (28.3%)
+|level=9
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=2080
+|mana=0
+|ac=135
+|strength=13
+|endurance=40
+|dexterity=35
+|agility=35
+|intelligence=35
+|wisdom=35
+|charisma=35
+|magic=4-11
+|poison=4-11
+|elemental=4-11
+|void=4-11
+|spells=
+}}
+''{{Main|Enemies}}''
+=Location=
+{{PAGENAME}}s can be found on [[Fernalla's Revival Plains]] and [[Duskenlight Coast]].
+
+=Appearance=
+{{PAGENAME}} is a large green ethereal bear. It is semi-transparent.
+
+=Behavior=
+{{PAGENAME}} is the ghostly form of [[A Brown Bear]]. It will attack low-leveled players if they get too close.
+
+===Spells & Abilities===
+{{PAGENAME}} does not use any spells or abilities.
+
+=Notes=
+*There is a small chance for {{PAGENAME}} to be replaced by the [[Sylvan Giant]] on Fernalla's Revival Plains, and the [[Dusken Giant]] in Duskenlight Coast.
+
+[[Category:Enemies]]
+[[Category:Fernalla's Revival Plains]]
+[[Category:The Duskenlight Coast]]

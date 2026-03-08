@@ -1,0 +1,75 @@
+{{Item
+|title=Sivakayan Ore
+|type=[[Quest Items|Quest Item]], [[Crafting]]
+|vendorsource=
+|source=[[Candlekeeper]] (40.4%)<br>[[Darkwarden Awxa]] (12.1%)<br>[[Darkwarden Ealdred]] (12.1%)<br>[[Darkwarden Ilyth]] (12.1%)<br>[[Sivakayan Bodyguard]] (12.1%)<br>[[Sivakayan Cleric]] (12.1%)<br>[[Sivakayan Legionnaire]] (12.1%)<br>[[Sivakayan Raider]] (12.1%)<br>[[Sivakayan Spymaster]] (12.1%)<br>[[Sivakayan Templar]] (12.1%)<br>[[Sivakayan Unhallowed]] (12.1%)<br>[[Sivakayan Reaver]] (3.0%)
+|othersource=
+|questsource=
+|relatedquest={{QuestLink|Sivakayan Ore for Tipp}}
+|craftsource=
+|componentfor={{ItemLink|Mold: A Strange Figurine}}<br>{{ItemLink|Mold: Charm of Rage}}
+|buy=150
+|sell=98
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+An item used in the quest {{QuestLink | link=Sivakayan Ore for Tipp}}. Also used in crafting recipes.
+
+{{Item/General
+|image=Sivakayan Ore.png
+|name=Sivakayan Ore
+|description=It's black and warm to the touch.
+|value=150
+|stack_size=
+|disposable=
+|effect_style=
+|effect_spell_icon=
+|effect_spell_name=
+|effect_spell_level=
+|effect_spell_duration_ticks=
+|effect_spell_type=
+|effect_spell_line=
+|effect_target_damage=
+|effect_target_healing=
+|effect_damage_type=
+|effect_cast_time=
+|effect_cooldown=
+|effect_spell_range=
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+}}
+
+[[Category:Crafting]]
+[[Category:Items]]
+[[Category:Quest Items]]

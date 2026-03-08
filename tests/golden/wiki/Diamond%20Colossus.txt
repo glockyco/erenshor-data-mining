@@ -1,0 +1,41 @@
+{{Enemy
+|name=Diamond Colossus
+|image=[[File:Diamond Colossus.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Rockshade Hold]]
+|coordinates=872.7 x 100.8 x 681.6
+|spawnchance=20%
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Dainty Mitts}}<br>{{ItemLink|Preserved Cloth Coat}}
+|droprates={{ItemLink|Polished Stone}} (88.2%)<br>{{ItemLink|Dainty Mitts}} (50.0%)<br>{{ItemLink|Preserved Cloth Coat}} (50.0%)<br>{{ItemLink|Diamond}} (15.7%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Pulsating Stone}} (15.7%)<ref>If the player is already holding {{ItemLink|Pulsating Stone}} in their inventory, another will not drop.</ref><br>{{ItemLink|Blueprint: Stone Auction}} (0.5%)<br>{{ItemLink|Blueprint: Stone Bank}} (0.5%)<br>{{ItemLink|Blueprint: Stone Dining}} (0.5%)<br>{{ItemLink|Blueprint: Stone Fountain}} (0.5%)<br>{{ItemLink|Blueprint: Stone Training Room}} (0.5%)<br>{{ItemLink|Blueprint: Stone Vendor}} (0.5%)
+|level=28
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=3.0
+|health=46800
+|mana=300
+|ac=420
+|strength=600
+|endurance=500
+|dexterity=650
+|agility=85
+|intelligence=155
+|wisdom=155
+|charisma=155
+|magic=14-34
+|poison=14-34
+|elemental=14-34
+|void=14-34
+|spells={{AbilityLink|Diamond Burst}}<br>{{AbilityLink|Quake}}
+}}
+
+Rarely spawns in place of the [[Stoneman Colossus]].
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Rockshade Hold]]

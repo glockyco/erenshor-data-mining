@@ -1,0 +1,42 @@
+{{Enemy
+|name=Crypt Keeper
+|image=[[File:Crypt Keeper.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=
+|zones=[[Stowaway's Step]]
+|coordinates=592.4 x 39.9 x 669.2
+|spawnchance=
+|respawn=9 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Shivering Key (Halloween Event)}} (100.0%)<ref>If the player is already holding {{ItemLink|Shivering Key (Halloween Event)}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ancient Bone}} (46.7%)<br>{{ItemLink|Luminstone}} (46.7%)<br>{{ItemLink|Sea Glass}} (46.7%)<br>{{ItemLink|Shivering Leather Boots}} (6.8%)<br>{{ItemLink|Shivering Leather Skullcap}} (6.8%)<br>{{ItemLink|Shivering Leather Sleeves}} (6.8%)
+|level=18
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=19500
+|mana=0
+|ac=270
+|strength=24
+|endurance=45
+|dexterity=85
+|agility=30
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=9-22
+|poison=9-22
+|elemental=9-22
+|void=9-22
+|spells=
+}}
+
+The Crypt Keeper can be found in [[Stowaway's Step]] near the Mausoleum on the island.
+
+[[Category:Bosses]]
+[[Category:Characters]]
+[[Category:Shivering Step]]
+[[Category:Stowaway's Step]]

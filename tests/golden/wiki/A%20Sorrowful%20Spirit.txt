@@ -1,0 +1,60 @@
+{{Enemy
+|name=A Sorrowful Spirit
+|image=[[File:A Sorrowful Spirit.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Stowaway's Step]]
+|zones=[[Island Tomb]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Golden Luminstone Ring}} (5.6%)<br>{{ItemLink|Aetheria}} (5.1%)<ref>If the player is already holding {{ItemLink|Aetheria}} in their inventory, another will not drop.</ref><br>{{ItemLink|Compression Wraps}} (5.1%)<br>{{ItemLink|Cloth Gloves}} (3.0%)<br>{{ItemLink|Cloth Hood}} (3.0%)<br>{{ItemLink|Cloth Pants}} (3.0%)<br>{{ItemLink|Cloth Shirt}} (3.0%)<br>{{ItemLink|Cloth Shoes}} (3.0%)<br>{{ItemLink|Cloth Sleeves}} (3.0%)<br>{{ItemLink|Ancient Bone}} (2.8%)<br>{{ItemLink|Luminstone}} (2.8%)<br>{{ItemLink|Rusty Dagger}} (2.8%)<br>{{ItemLink|Spell Scroll: Brax's Touch}} (2.8%)<br>{{ItemLink|Spell Scroll: Hardened Skin}} (2.8%)<br>{{ItemLink|Spell Scroll: Magic Bolt}} (2.8%)<br>{{ItemLink|Spell Scroll: Minor Healing}} (2.8%)<br>{{ItemLink|Spell Scroll: Summon Decayed Fawn}} (2.8%)<br>{{ItemLink|Star Stone}} (2.8%)
+|level=4
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=910
+|mana=300
+|ac=60
+|strength=2
+|endurance=6
+|dexterity=55
+|agility=3
+|intelligence=5
+|wisdom=0
+|charisma=0
+|magic=2-5
+|poison=2-5
+|elemental=2-5
+|void=2-5
+|spells={{AbilityLink|Brax's Touch}}<br>{{AbilityLink|Minor Protection}}<br>{{AbilityLink|Weak Poison}}
+}}
+
+'''{{PAGENAME}}''' is an [[Enemies|enemy]] in [[Erenshor]].
+
+=Location=
+{{PAGENAME}} can be found in the deeper parts of the [[Island Tomb]]<ref>Sorrowful Spirits in the corridors surrounding [[Failed Cremation]] can rarely be replaced by a [[Rotting Mummy]].</ref> on [[Stowaway's Step]].
+
+=Appearance=
+{{PAGENAME}} is a small floating spirit in brown robes. While it has no head or legs, it does have two skeletal arms and hands extending from its robes.
+
+=Behavior=
+{{PAGENAME}} roams the tomb and will attack players if they get too close. They are physically weak, preferring to cast spells that both [[Status Effects|buff]] themselves and harm the player's party.
+
+===Spells & Abilities===
+Defensive:
+*{{AbilityLink|Minor Protection}}
+
+Offensive:
+*{{AbilityLink|Brax's Touch}}
+*{{AbilityLink|Weak Poison}}
+
+=Notes=
+
+[[Category:Enemies]]
+[[Category:Island Tomb]]
+[[Category:Stowaway's Step]]

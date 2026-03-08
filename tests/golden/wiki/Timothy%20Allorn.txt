@@ -1,0 +1,56 @@
+{{Enemy
+|name=Timothy Allorn
+|image=[[File:Timothy Allorn.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Stowaway's Step]]
+|factionChange=-20 [[The Citizens of Port Azure]]<br>-20 [[The Citizens of Stowaway's Step]]
+|zones=[[Stowaway's Step]]
+|coordinates=545.2 x 72.1 x 442.8
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=3250
+|mana=100
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+Timothy Allorn is an NPC at the first house when arriving at [[Wickliff]] following the road.
+
+Greeting message:
+{| class="wikitable"
+|Stowaway's Step is home now. Like it or not. <span style="color: #15e300;">[Erenshor]</span>'s out of reach for most of us. I just wish that <span style="color: #15e300;">[ritual]</span> wouldn't happen so often.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[Erenshor]</span> or <span style="color: #15e300;">[mainland]</span>
+
+You ain't gettin' there without knowin' someone who can take ya
+|-
+|<span style="color: #15e300;">[ritual]</span>, <span style="color: #15e300;">[dark]</span> or <span style="color: #15e300;">[smoke]</span>
+
+We just don't know. They won't talk to us. The guards have confronted them, but they do not speak.
+
+|}
+
+[[Category:Characters]]
+[[Category:Stowaway's Step]]

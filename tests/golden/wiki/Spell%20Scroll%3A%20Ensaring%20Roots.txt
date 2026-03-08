@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Ensaring Roots
+|type=
+|vendorsource=[[Alexander Farland]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=14500
+|sell=9425
+|taughtspell={{AbilityLink|Ensaring Roots}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Ensaring Roots.png
+|name=Spell Scroll: Ensaring Roots
+|arcanist_level=
+|druid_level=21
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=255
+|spell_type=StatusEffect
+|spell_desc=Wrap your target in venomous vines that slow movement and deal damage (200 / tick) over time.
+}}
+
+[[Category:Ability Books]]

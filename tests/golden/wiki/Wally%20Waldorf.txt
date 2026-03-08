@@ -1,0 +1,65 @@
+{{Enemy
+|name=Wally Waldorf
+|image=[[File:Wally Waldorf.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Stowaway's Step]]
+|factionChange=
+|zones=[[Stowaway's Step]]
+|coordinates=573.5 x 70.5 x 545.1
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=6
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1300
+|mana=0
+|ac=90
+|strength=5
+|endurance=5
+|dexterity=5
+|agility=5
+|intelligence=5
+|wisdom=5
+|charisma=5
+|magic=3-7
+|poison=3-7
+|elemental=3-7
+|void=3-7
+|spells=
+}}
+Wally Waldorf is an NPC who is located on [[Stowaway's Step]].
+
+He is the quest giver for {{QuestLink|link=Wally's Moongill}}.
+
+Greeting message:
+{| class="wikitable"
+|Woe is me! I must have a <span style="color: #15e300;">[Moongill]</span>! I crave a <span style="color: #15e300;">[Moongill]</span>! But the shop has none for sale and I don't know how to fish!
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[Moongill]</span>
+|I need someone who knows how to fish to catch me one! There's an old dusty 'how-to' book for sale in there, but who has time for that? To make it worse, they only come out at night! I'll give you a fancy reward if you catch me one...<br><br><i>This begins {{QuestLink|link=Wally's Moongill}}</i>
+|-
+|<span style="color: #15e300;">[teach]</span>
+|You stop with that nonsense, there's a book inside if you want to learn, but I don't!  
+|}
+
+Giving him [[A Moongill]] for {{QuestLink|link=Wally's Moongill}}:
+{| class="wikitable"
+|Oh My Heavens! Vitheo's blessings! Fernalla's Blessings! Here, take this - I have no need for it!
+|}
+
+Giving him another [[A Moongill|Moongill]] after completing {{QuestLink|link=Wally's Moongill}}:
+{| class="wikitable"
+|I already have all I can eat!
+|}
+
+[[Category:Characters]]
+[[Category:Stowaway's Step]]

@@ -1,0 +1,52 @@
+{{Enemy
+|name=Servash Polaro
+|image=[[File:Servash Polaro.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Huntsmen]]
+|factionChange=-50 [[The Huntsmen]]
+|zones=[[Silkengrass Meadowlands]]
+|coordinates=1046.0 x 29.3 x 345.0
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Luminstone}} (21.2%)<br>{{ItemLink|Star Stone}} (21.2%)
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=28600
+|mana=155
+|ac=330
+|strength=15
+|endurance=65
+|dexterity=65
+|agility=15
+|intelligence=15
+|wisdom=5
+|charisma=15
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells={{AbilityLink|Brax's Rage}}<br>{{AbilityLink|Brax's Touch}}<br>{{AbilityLink|Magic Bolt}}<br>{{AbilityLink|Minor Lightning}}
+}}
+Servash is located near the burnt ruins in the [[Silkengrass Meadowlands]]
+
+Greeting message:
+{| class="wikitable"
+|It astounds me how quickly Port Azure <span style="color: #15e300;">[abandoned]</span> this place.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[abandoned]</span>
+Turned tail and ran home at the first whisper of Sivakayans. They don't even know the <span style="color: #15e300;">[truth]</span>.
+|-
+|<span style="color: #15e300;">[truth]</span>
+There is more to Sivakaya than you know. Her power grows and her corruption with it. If she is not stopped, more than just Erenshor will fall to her hand.
+
+[[Category:Characters]]
+[[Category:Silkengrass Meadowlands]]

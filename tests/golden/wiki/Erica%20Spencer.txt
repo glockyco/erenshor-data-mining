@@ -1,0 +1,53 @@
+{{Enemy
+|name=Erica Spencer
+|image=[[File:Erica Spencer.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Stowaway's Step]]
+|factionChange=-15 [[The Citizens of Erenshor]]
+|zones=[[Fernalla's Revival Plains]]
+|coordinates=1243.0 x -12.4 x 570.3
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates=
+|level=15
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=2600
+|mana=0
+|ac=225
+|strength=35
+|endurance=35
+|dexterity=35
+|agility=35
+|intelligence=35
+|wisdom=35
+|charisma=35
+|magic=8-18
+|poison=8-18
+|elemental=8-18
+|void=8-18
+|spells=
+}}
+Erica is an NPC located in Restful Valley in [[Fernalla's Revival Plains]].
+
+Greeting message:
+{| class="wikitable"
+|We make our own way out here. We stay off the map. Sivakayans be cursed, this is our home. We won't leave.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[map]</span>
+Goodsoil tried to establish itself as a town. Registered for trade with Port Azure and everything. Not us. We're just living off the land and minding our own.
+|-
+|<span style="color: #15e300;">[Yarren]</span>
+Yarren? Yeah, he was just getting ready to move here from Goodsoil when the raid happened. I don't know where he ended up...
+|}
+
+[[Category:Characters]]
+[[Category:Fernalla's Revival Plains]]

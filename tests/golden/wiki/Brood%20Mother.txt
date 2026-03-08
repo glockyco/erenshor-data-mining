@@ -1,0 +1,41 @@
+{{Enemy
+|name=Brood Mother
+|image=[[File:Brood Mother.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[Savannah Priel]]
+|factionChange=
+|zones=[[Prielian Cascade]]
+|coordinates=108.9 x 17.6 x 532.7
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Gem Adorned Belt}}<br>{{ItemLink|Malaroth Scale Chestguard}}
+|droprates={{ItemLink|Gem Adorned Belt}} (66.7%)<br>{{ItemLink|Malaroth Scale Chestguard}} (33.3%)<br>{{ItemLink|Malaroth Hide}} (22.1%)<br>{{ItemLink|Ivory Tusk}} (20.4%)
+|level=31
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=0
+|levelvariancemax=0
+|xpmultiplier=3.0
+|health=72800
+|mana=0
+|ac=465
+|strength=555
+|endurance=555
+|dexterity=555
+|agility=555
+|intelligence=100
+|wisdom=100
+|charisma=25
+|magic=16-37
+|poison=16-37
+|elemental=16-37
+|void=16-37
+|spells=
+}}
+
+Found in the cave to the third level. Take a left half way up the path.
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Prielian Cascade]]

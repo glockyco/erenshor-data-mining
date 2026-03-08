@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Ice Shock
+|type=[[Ability Books|Spell Scroll]]
+|vendorsource=[[Cerbantias Flameward]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=1850
+|sell=1202
+|taughtspell={{AbilityLink|Ice Shock}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Ice Shock.png
+|name=Spell Scroll: Ice Shock
+|arcanist_level=16
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=150
+|spell_type=Damage
+|spell_desc=Deals 700 elemental based damage to a target.
+}}
+
+[[Category:Ability Books]]

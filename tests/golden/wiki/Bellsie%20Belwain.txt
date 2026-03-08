@@ -1,0 +1,38 @@
+{{Enemy
+|name=Bellsie Belwain
+|image=[[File:Bellsie Belwain.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=
+|zones=[[Bellwain Island]]
+|coordinates=158.9 x 10.8 x 158.0
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=15
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=8710
+|mana=0
+|ac=225
+|strength=35
+|endurance=35
+|dexterity=25
+|agility=25
+|intelligence=50
+|wisdom=50
+|charisma=60
+|magic=8-18
+|poison=8-18
+|elemental=8-18
+|void=8-18
+|spells=
+}}
+
+[[Category:Bellwain Island]]
+[[Category:Characters]]

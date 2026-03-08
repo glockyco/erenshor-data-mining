@@ -1,0 +1,52 @@
+{{Enemy
+|name=Leo McLaney
+|image=[[File:Leo McLaney.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Stowaway's Step]]
+|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
+|zones=[[Stowaway's Step]]
+|coordinates=655.3 x 29.0 x 417.3
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=260
+|mana=100
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+Leo is located just outside the gate leaving the [[Docks]] on [[Stowaway's Step]].
+
+Greeting message:
+{| class="wikitable"
+|Careful good old <span style="color: #15e300;">[Rattlewrists]</span> is out again. That pesky skeleton... we just can't be rid of him. You can throw him in the sea and he just shows up again later on that same day. Don't be afraid to smack him around, he's pretty harmless.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[Rattlewrists]</span>
+
+He's a local celebrity at this point. He tips over pretty easy, and you look strong. Just bop him one.
+
+|}
+
+[[Category:Characters]]
+[[Category:Stowaway's Step]]

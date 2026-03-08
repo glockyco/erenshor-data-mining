@@ -1,0 +1,57 @@
+{{Enemy
+|name=Outgrown Terror
+|image=[[File:Outgrown Terror.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=
+|zones=[[Shivering Step]]
+|coordinates=528.0 x 77.1 x 682.2
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=25
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=19500
+|mana=2500
+|ac=375
+|strength=600
+|endurance=500
+|dexterity=600
+|agility=100
+|intelligence=550
+|wisdom=100
+|charisma=100
+|magic=12-30
+|poison=12-30
+|elemental=12-30
+|void=12-30
+|spells=
+}}
+
+Outgrown Terror can be found on the tail of the Gargoyle statue in the [[Shivering Step]]. The Gargoyle statue can be found where the Statue of Vitheo is located in [[Stowaway's Step]]
+
+The Outgrown Terror will give the player a [[Shivering Step Lighthouse Key]] if the player says the name 'Sned' to it.
+
+Greeting message:
+{| class="wikitable"
+|... *It stares intently*
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[Sned]</span>
+|... *It blinks sadly. A small key materializes in your hand*
+|-
+|}
+
+ *<i>Trivia:
+ "Sned" is an active member of the Erenshor community and a major contributor to the Erenshor wiki! </i>
+
+[[Category:Characters]]
+[[Category:Shivering Step]]

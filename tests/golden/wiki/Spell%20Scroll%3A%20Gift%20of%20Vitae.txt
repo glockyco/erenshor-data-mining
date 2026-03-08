@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Gift of Vitae
+|type=[[:Category:Ability Books|Spell Scroll]]
+|vendorsource=
+|source=[[Wild Ancestral Dog]] (50.0%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=25000
+|sell=16250
+|taughtspell={{AbilityLink|Gift of Vitae}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Gift of Vitae.png
+|name=Spell Scroll: Gift of Vitae
+|arcanist_level=
+|druid_level=27
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=800
+|spell_type=Heal
+|spell_desc=Heal base 1500 damage.
+}}
+
+[[Category:Ability Books]]

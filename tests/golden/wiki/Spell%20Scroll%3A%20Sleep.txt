@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Sleep
+|type=[[Ability Books]]
+|vendorsource=[[Cerbantias Flameward]]
+|source=[[A Deepling Crimsonite]] (2.8%)<br>[[Braxon Fanatic]] (2.8%)<br>[[A Deepling Orator]] (1.9%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=2000
+|sell=1300
+|taughtspell={{AbilityLink|Sleep}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Sleep.png
+|name=Spell Scroll: Sleep
+|arcanist_level=17
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=100
+|spell_type=StatusEffect
+|spell_desc=Renders your target helpless. Any damage breaks this effect.
+}}
+
+[[Category:Ability Books]]

@@ -1,0 +1,38 @@
+{{Enemy
+|name=A Seafiend Manathite
+|image=[[File:A Seafiend Manathite.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=+1 [[The Blades of Vitheo]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]
+|zones=[[Windwashed Pass]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Coral}} (51.4%)<br>{{ItemLink|Sea Glass}} (51.4%)<br>{{ItemLink|Seaweed}} (51.4%)<br>{{ItemLink|Rusty Dagger}} (17.3%)<br>{{ItemLink|A Husselfish}} (14.9%)<br>{{ItemLink|A Worm Eel}} (14.9%)<br>{{ItemLink|Whispers of the Sea}} (10.0%)
+|level=16
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=11700
+|mana=100
+|ac=240
+|strength=25
+|endurance=125
+|dexterity=200
+|agility=22
+|intelligence=2
+|wisdom=3
+|charisma=3
+|magic=8-19
+|poison=8-19
+|elemental=8-19
+|void=8-19
+|spells={{AbilityLink|Burning Chains}}<br>{{AbilityLink|Minor Healing}}<br>{{AbilityLink|Winter's Bite}}
+}}
+
+[[Category:Enemies]]
+[[Category:Windwashed Pass]]

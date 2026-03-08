@@ -1,0 +1,69 @@
+{{Item
+|title=Ancient Presence
+|type=[[Auras]]
+|vendorsource=
+|source=[[Lost Treasure (30+)]] (12.8%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=15000
+|sell=9750
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/Aura
+|image=Ancient Presence.png
+|name=Ancient Presence
+|description=
+|aura_spell_icon=Aura: Ancient Presence.png
+|aura_spell_name=[[Aura: Ancient Presence]]
+|aura_spell_level=16
+|aura_spell_duration_ticks=2
+|aura_spell_type=Beneficial
+|aura_spell_line=Aura_DamageShield
+|aura_target_damage=
+|aura_target_healing=
+|aura_shielding_amt=
+|aura_damage_type=Physical
+|aura_cast_time=1.0
+|aura_cooldown=
+|aura_spell_range=30.0
+|aura_lifetap=
+|aura_group_effect=
+|aura_stun_target=
+|aura_charm_target=
+|aura_root_target=
+|aura_taunt_spell=
+|aura_aggro=
+|aura_status_effect_name=
+|aura_hp=500
+|aura_ac=
+|aura_mana=
+|aura_str=10
+|aura_dex=10
+|aura_end=10
+|aura_agi=10
+|aura_wis=10
+|aura_int=10
+|aura_cha=10
+|aura_mr=
+|aura_er=
+|aura_pr=
+|aura_vr=
+|aura_movement_speed=
+|aura_damage_shield=40
+|aura_haste=
+|aura_percent_lifesteal=
+|aura_atk_roll_modifier=
+|aura_resonate_chance=
+|aura_add_proc_name=
+|aura_add_proc_chance=
+|aura_special_descriptor=
+}}
+
+[[Category:Auras]]

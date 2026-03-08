@@ -1,0 +1,39 @@
+{{Enemy
+|name=Stoneman Colossus
+|image=[[File:Stoneman Colossus.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Rockshade Hold]]
+|coordinates=872.7 x 100.8 x 681.6
+|spawnchance=80%
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Charred Sleeves}}<br>{{ItemLink|Diamond Claymore}}
+|droprates={{ItemLink|Polished Stone}} (94.7%)<br>{{ItemLink|Charred Sleeves}} (66.7%)<br>{{ItemLink|Diamond Claymore}} (33.3%)<br>{{ItemLink|Blueprint: Stone Auction}} (0.5%)<br>{{ItemLink|Blueprint: Stone Bank}} (0.5%)<br>{{ItemLink|Blueprint: Stone Dining}} (0.5%)<br>{{ItemLink|Blueprint: Stone Fountain}} (0.5%)<br>{{ItemLink|Blueprint: Stone Training Room}} (0.5%)<br>{{ItemLink|Blueprint: Stone Vendor}} (0.5%)
+|level=27
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=3.0
+|health=46800
+|mana=300
+|ac=405
+|strength=600
+|endurance=500
+|dexterity=650
+|agility=85
+|intelligence=155
+|wisdom=155
+|charisma=155
+|magic=14-32
+|poison=14-32
+|elemental=14-32
+|void=14-32
+|spells=
+}}
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Rockshade Hold]]

@@ -1,0 +1,38 @@
+{{Enemy
+|name=Sivakayan Legionnaire
+|image=[[File:Sivakayan Legionnaire.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Children of Sivakaya]]
+|factionChange=-2 [[The Children of Sivakaya]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Solunarian Brotherhood]]
+|zones=[[Abyssal Lake]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Sivakayan Ore}} (12.1%)<br>{{ItemLink|Sea Glass}} (10.2%)<br>{{ItemLink|Star Stone}} (10.2%)<br>{{ItemLink|Sivakayan Axe}} (1.4%)<ref>If Sivakayan Legionnaire has {{ItemLink|Sivakayan Axe}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Sivakayan Bracer}} (1.4%)<br>{{ItemLink|Sivakayan Legplate}} (1.4%)<br>{{ItemLink|Sivakayan Plate}} (1.4%)<br>{{ItemLink|Sivakayan Straightsword}} (1.4%)<ref>If Sivakayan Legionnaire has {{ItemLink|Sivakayan Straightsword}} equipped, it is guaranteed to drop.</ref>
+|level=27
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=35750
+|mana=0
+|ac=405
+|strength=45
+|endurance=135
+|dexterity=185
+|agility=85
+|intelligence=95
+|wisdom=45
+|charisma=35
+|magic=14-32
+|poison=14-32
+|elemental=14-32
+|void=14-32
+|spells={{AbilityLink|Moonburst}}<br>{{AbilityLink|Theft of Life}}
+}}
+
+[[Category:Abyssal Lake]]
+[[Category:Enemies]]

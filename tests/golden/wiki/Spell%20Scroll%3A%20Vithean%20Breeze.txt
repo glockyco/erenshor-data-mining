@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Vithean Breeze
+|type=[[Ability Books]]
+|vendorsource=[[Aldoa Manday]]<br>[[Ludo Luxo]]<br>[[Ophelia Luminee]]<br>[[Pierson Windwash]]<br>[[Samuel Thatcher]]<br>[[Yale Harvey]]
+|source=
+|othersource=[[Duelist]] starting gear
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=100
+|sell=65
+|taughtspell={{AbilityLink|Vithean Breeze}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Vithean Breeze.png
+|name=Spell Scroll: Vithean Breeze
+|arcanist_level=
+|druid_level=
+|duelist_level=1
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=35
+|spell_type=AE
+|spell_desc=Briefly stuns all nearby targets
+}}
+
+[[Category:Ability Books]]

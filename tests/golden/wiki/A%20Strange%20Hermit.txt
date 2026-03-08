@@ -1,0 +1,60 @@
+{{Enemy
+|name=A Strange Hermit
+|image=[[File:A Strange Hermit.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
+|zones=[[Azynthi's Garden]]
+|coordinates=798.6 x 45.2 x 575.3
+|spawnchance=
+|respawn=42 minutes
+|guaranteeddrops=
+|droprates=
+|level=15
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=15600
+|mana=100
+|ac=225
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=8-18
+|poison=8-18
+|elemental=8-18
+|void=8-18
+|spells=
+}}
+
+Greeting message:
+{| class="wikitable"
+|Heh.. another one.
+|}
+
+{| class="wikitable"
+|<span style="color: #15e300;">[Azynthi]</span>
+|Heh.. . his power flows through this place. Replaced by another but never absent.
+|-
+|<span style="color: #15e300;">[Molorai]</span>
+|A swine. A demon. A trickster.
+|-
+|<span style="color: #15e300;">[Umbran]</span>
+|<span style="color: #15e300;">[Umbran]</span>....? Yes... I remember. Yes... you are one of us. The remnants. You will help to remove the demon. To restore the garden. Bring the riftsnare. Pull the souls into our realm.<br><br><i>This begins the quest {{QuestLink|link=The Riftstone}}</i>
+|-
+|/Shout <span style="color: #15e300;">[Azynthi]</span> while [[Eldoth Molorai (Character)|Eldoth Molorai]] is defeated:
+|Yes.... Yes.... I hear it now. Come, speak it to me!
+|-
+|<span style="color: #15e300;">[Azynthi]</span> (after shouting "Azynthi!" with [[Eldoth Molorai (Character)|Eldoth Molorai]] defeated)
+|[[Acolyte of Azynthi]] appears and slays the old hermit.
+|}
+
+[[Category:Azynthi's Garden]]
+[[Category:Characters]]

@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Infernis
+|type=[[Ability Books]]
+|vendorsource=
+|source=[[Oracle Miress]] (33.3%)<br>[[Oracle Tretha]] (33.3%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=20000
+|sell=13000
+|taughtspell={{AbilityLink|Infernis}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Infernis.png
+|name=Spell Scroll: Infernis
+|arcanist_level=34
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=1400
+|spell_type=StatusEffect
+|spell_desc=Slow targets movement, attack, and cause (1400 / tick) damage over time.
+}}
+
+[[Category:Ability Books]]

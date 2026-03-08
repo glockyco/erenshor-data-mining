@@ -1,0 +1,43 @@
+{{Enemy
+|name=Teodor Smart
+|image=[[File:Teodor Smart.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[Ripper DeMerth]]
+|factionChange=-25 [[Ripper DeMerth]]
+|zones=[[Ripper's Keep]]
+|coordinates=691.2 x 43.6 x 182.0
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=7
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=2600
+|mana=200
+|ac=105
+|strength=55
+|endurance=55
+|dexterity=55
+|agility=55
+|intelligence=55
+|wisdom=55
+|charisma=55
+|magic=4-8
+|poison=4-8
+|elemental=4-8
+|void=4-8
+|spells={{AbilityLink|Minor Healing}}
+}}
+
+Greeting message:
+{| class="wikitable"
+|We're building a new home here. Ripper will protect us. Port Azure isn't safe... there's something amiss there.
+|}
+
+[[Category:Characters]]
+[[Category:Ripper's Keep]]

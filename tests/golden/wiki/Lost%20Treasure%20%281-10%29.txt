@@ -1,0 +1,54 @@
+{{Enemy
+|name=Lost Treasure (1-10)
+|image=[[File:Lost Treasure.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Treasure Hunting]]
+|coordinates=
+|spawnchance=
+|respawn=
+|guaranteeddrops={{ItemLink|Elixir of Enlightenment II}}<br>{{ItemLink|Inert Diamond}}<br>{{ItemLink|Lost Cape}}<br>{{ItemLink|Lost Girdle}}<br>{{ItemLink|Sivakrux}}<br>{{ItemLink|Wisdom Band}}
+|droprates={{ItemLink|Inert Diamond}} (84.4%)<br>{{ItemLink|Sivakrux}} (84.4%)<br>{{ItemLink|Elixir of Enlightenment I}} (81.3%)<br>{{ItemLink|Planar Stone Shards}} (18.9%)<br>{{ItemLink|Elixir of Enlightenment II}} (16.7%)<br>{{ItemLink|Lost Cape}} (16.7%)<br>{{ItemLink|Lost Girdle}} (16.7%)<br>{{ItemLink|Wisdom Band}} (16.7%)<br>{{ItemLink|Elixir of Enlightenment III}} (11.6%)<br>{{ItemLink|Elixir of Enlightenment IV}} (11.6%)<br>{{ItemLink|Time Stone}} (11.6%)<ref>If the player is already holding {{ItemLink|Time Stone}} in their inventory, another will not drop.</ref>
+|level=1
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=12999998
+|mana=0
+|ac=15
+|strength=3
+|endurance=3
+|dexterity=3
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=0-1
+|poison=0-1
+|elemental=0-1
+|void=0-1
+|spells=
+}}
+=Location=
+Giving the four pieces of a {{ItemLink|Torn Treasure Map (Top Right)|image=Torn Treasure Map.png|text=Torn Treasure Map}} to [[Cecil Threbb]] rewards players with a {{ItemLink|Treasure Map}}, allowing them to go on a [[Treasure Hunting|Treasure Hunt]]. Using this map between levels '''1 - 10''' will reveal the location of a Lost Treasure in one of the following locations:
+*[[Hidden Hills]]
+*[[Faerie's Brake]]
+*[[Fernalla's Revival Plains]]
+
+=Appearance=
+The location where the Lost Treasure is buried appears as a pile of leaves and dirt with a golden aura.
+
+=Behavior=
+Interacting with the dirt will reveal a chest. Attacking the chest will spawn a wave of enemies which scale with the player's level. There are '''2 to 5 waves''' in total. They will consist of any combination of '''3 to 5''' of the following enemies:
+*[[Ancient Skeleton]]
+*[[Ancient Demon]]
+*[[Ancient Horror]]
+Once the final wave has been defeated, attacking the chest once more will open it, allowing you to loot the contents inside.
+
+=Notes=
+
+[[Category:Enemies]]

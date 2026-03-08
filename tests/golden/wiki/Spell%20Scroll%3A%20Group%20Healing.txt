@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Group Healing
+|type=
+|vendorsource=[[Alexander Farland]]<br>[[Aspen Dechaffe]]
+|source=[[Molorai Spiritist]] (100.0%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=1255
+|sell=816
+|taughtspell={{AbilityLink|Group Heal}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Group Healing.png
+|name=Spell Scroll: Group Healing
+|arcanist_level=
+|druid_level=11
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=200
+|spell_type=Heal
+|spell_desc=Heal nearby group members for base 85 damage.
+}}
+
+[[Category:Ability Books]]

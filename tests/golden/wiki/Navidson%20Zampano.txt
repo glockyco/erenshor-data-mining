@@ -1,0 +1,49 @@
+{{Enemy
+|name=Navidson Zampano
+|image=[[File:Navidson Zampano.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Agents of The Wisp]]
+|factionChange=
+|zones=[[Silkengrass Meadowlands]]
+|coordinates=1042.6 x 29.3 x 344.2
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Arcanist Cap}} (20.4%)<ref>If Navidson Zampano has {{ItemLink|Arcanist Cap}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Luminstone}} (11.5%)<br>{{ItemLink|Star Stone}} (11.5%)
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=28600
+|mana=155
+|ac=330
+|strength=65
+|endurance=65
+|dexterity=3
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells={{AbilityLink|Brax's Rage}}<br>{{AbilityLink|Brax's Touch}}<br>{{AbilityLink|Magic Bolt}}<br>{{AbilityLink|Minor Lightning}}
+}}
+Navidson is located near the burnt ruins in the [[Silkengrass Meadowlands]]
+
+Greeting message:
+{| class="wikitable"
+|Well there, stranger. You're a long way from home. Your kind doesn't <span style="color: #15e300;">[fare]</span> well away from the city.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[fare]</span>
+There's Sivakayans about. Among other things.
+
+[[Category:Characters]]
+[[Category:Silkengrass Meadowlands]]

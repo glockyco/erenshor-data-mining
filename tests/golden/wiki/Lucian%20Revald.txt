@@ -1,0 +1,96 @@
+{{Enemy
+|name=Lucian Revald
+|image=[[File:Lucian Revald.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Agents of The Wisp]]
+|factionChange=
+|zones=[[Stowaway's Step]]
+|coordinates=432.2 x 69.9 x 532.0
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Arcanist Cap}} (20.4%)<ref>If Lucian Revald has {{ItemLink|Arcanist Cap}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Luminstone}} (11.5%)<br>{{ItemLink|Star Stone}} (11.5%)
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=26000
+|mana=155
+|ac=330
+|strength=1
+|endurance=3
+|dexterity=3
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells={{AbilityLink|Brax's Rage}}<br>{{AbilityLink|Brax's Touch}}<br>{{AbilityLink|Magic Bolt}}<br>{{AbilityLink|Minor Lightning}}
+}}
+Lucian is located at the altar on [[Stowaway's Step]]
+
+Greeting message:
+{| class="wikitable"
+|Begone. *Lucian's eyes never leave the searing flames before him*.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[Hawthorne]</span>
+|... Hawthorne? Who are you? Where did you learn that word? If you've found something, then give it to me now and we'll talk about... about what you know.
+|-
+|<span style="color: #15e300;">[Wyland]</span>
+|Have you seen him?
+|}
+
+If you hand him the [[Torn Note]] for {{QuestLink | link=Whispers of Wyland}}: 
+{| class="wikitable"
+|You've found a spectre of Wyland? Thankfully you've put it to rest. We are in your debt. If you want passage off of this island, come with us. Leap off the rocks under the statue of Vitheo with his sword and swim to the sandbar. We'll meet you there, along with our ship. Speak not of this conversation or you'll put us all in danger.<br><br><i>This begins {{QuestLink | link=A Way To Erenshor}}</i>
+|}
+Giving him another [[Torn Note]] after finishing {{QuestLink | link=Whispers of Wyland}}:
+{| class="wikitable"
+|We're square.
+|}
+<BR>
+<b>WARNING - SPOILERS BELOW!</b><br>
+The following conversations occur much further on in the game's story.
+<BR><BR><BR><BR><BR><BR>
+
+Greeting message:
+{| class="wikitable"
+|You're back... I've heard that you have been <span style="color: #15e300;">[busy]</span>
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[busy]</span>
+|We're close here. I trust you're here to help?
+|-
+|<span style="color: #15e300;">[loss stone]</span>
+|A gem forged in sadness - I would look for this in places that Brax and Sivakaya may have once shared.
+|-
+|<span style="color: #15e300;">[remnant]</span>
+|A piece of her. She was shattered on Erenshor, there must be <span style="color: #15e300;">[remnant]</span>s. Likely amongst her followers
+|-
+|<span style="color: #15e300;">[brain], [dementia]</span>
+|You will know its host when you see it. It'll be twisted and aggressive - it will not be one of her followers, we have learned that with certainty. While they show symptoms, the <span style="color: #15e300;">[dementia]</span> does not seem to take hold of them.
+|-
+|<span style="color: #15e300;">[nightmare]</span>
+|The most obscure of items, I would doubt you would find it on this plane. Perhaps the answer lies within a dream...
+|-
+|}
+
+If you hand him the [[Loss Stone]] or any other items required for the ritual 
+{| class="wikitable"
+|You have something interesting here... with the right artifacts we could give ourselves the best chance. The scripture lists some... fabled... items - and you have one already! It calls for A Loss Stone, A Remnant of Sivakaya Herself, A Brain warped by her Dementia, and a Nightmare Crystal. Can you search for these things? Feel free to ask me about any of them for more details.
+<i>This begins the quest {{QuestLink | link=Completing The Ritual}}</i>
+|}
+
+[[Category:Characters]]
+[[Category:Stowaway's Step]]

@@ -1,0 +1,40 @@
+{{Item
+|title=Duelist's Charm
+|type=
+|vendorsource=
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=1x {{ItemLink|Mold: Duelist's Charm}}<br>1x {{ItemLink|Idol of Sivakaya}}<br>1x {{ItemLink|Chunk of Citrine Sandsilver}}<br>1x {{ItemLink|Ogrespice Leaf}}<br>1x {{ItemLink|Star Stone}}
+|componentfor=
+|buy=6000
+|sell=3900
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/Charm
+|image=Duelist's Charm.png
+|name=Duelist's Charm
+|tier=0
+|strscaling=
+|endscaling=
+|dexscaling=3
+|agiscaling=3
+|intscaling=
+|wisscaling=
+|chascaling=
+|resistscaling=
+|mitigationscaling=
+|arcanist=True
+|duelist=True
+|druid=True
+|paladin=True
+|reaver=True
+|stormcaller=True
+}}
+
+[[Category:Charms]]

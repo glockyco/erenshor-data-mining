@@ -1,0 +1,38 @@
+{{Enemy
+|name=Fungal Wolf
+|image=[[File:Fungal Wolf.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Blooming Sepulcher]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Wolf Meat}} (94.9%)<br>{{ItemLink|Wisp Garden}} (1.0%)
+|level=27
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=22750
+|mana=0
+|ac=405
+|strength=45
+|endurance=135
+|dexterity=185
+|agility=85
+|intelligence=95
+|wisdom=45
+|charisma=35
+|magic=14-32
+|poison=14-32
+|elemental=14-32
+|void=14-32
+|spells=
+}}
+
+[[Category:Blooming Sepulcher]]
+[[Category:Enemies]]

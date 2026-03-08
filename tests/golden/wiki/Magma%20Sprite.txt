@@ -1,0 +1,38 @@
+{{Enemy
+|name=Magma Sprite
+|image=[[File:Magma Sprite.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Rare]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Windwashed Pass]]
+|coordinates=
+|spawnchance=5%
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Rock}} (99.3%)<br>{{ItemLink|Diamond}} (36.7%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref>
+|level=18
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=13000
+|mana=300
+|ac=270
+|strength=800
+|endurance=800
+|dexterity=800
+|agility=5
+|intelligence=35
+|wisdom=95
+|charisma=0
+|magic=9-22
+|poison=9-22
+|elemental=9-22
+|void=9-22
+|spells=
+}}
+
+[[Category:Enemies]]
+[[Category:Windwashed Pass]]

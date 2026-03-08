@@ -1,0 +1,42 @@
+{{Enemy
+|name=Winkles
+|image=[[File:Winkles.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Rare]]
+|faction=[[The Skyfolk]]
+|factionChange=-5 [[The Skyfolk]]
+|zones=[[Ripper's Keep]]
+|coordinates=
+|spawnchance=3%
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Charmed Belt}}<br>{{ItemLink|Skyfolk Band}}<br>{{ItemLink|Twinkling Pendant}}<br>{{ItemLink|Wingwoven Cape}}
+|droprates={{ItemLink|Skyfolk Band}} (51.0%)<br>{{ItemLink|Charmed Belt}} (18.4%)<br>{{ItemLink|Twinkling Pendant}} (18.4%)<br>{{ItemLink|Wingwoven Cape}} (18.4%)<br>{{ItemLink|Citrine Stone}} (15.7%)<br>{{ItemLink|Luminstone}} (15.7%)<br>{{ItemLink|Seafruit}} (15.7%)<br>{{ItemLink|Bag of Faerie Dust}} (2.0%)<ref>If the player is already holding {{ItemLink|Bag of Faerie Dust}} in their inventory, another will not drop.</ref>
+|level=33
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=4.0
+|health=54795
+|mana=0
+|ac=495
+|strength=150
+|endurance=150
+|dexterity=150
+|agility=100
+|intelligence=300
+|wisdom=100
+|charisma=100
+|magic=16-40
+|poison=16-40
+|elemental=16-40
+|void=16-40
+|spells={{AbilityLink|Aetherstorm}}<br>{{AbilityLink|Arterial Decay}}<br>{{AbilityLink|Soul Tap}}<br>{{AbilityLink|Sunburst (Lux)|text=Sunburst}}<br>{{AbilityLink|Winter's Bite}}
+}}
+
+{{PAGENAME}} is a rare spawn in the western part of Rippers Keep. Look for the faerie camps around the pond. Winkles may replace a faerie in one of these camps; therefore, the best practice to get Winkles to spawn is to kill all the faeries, freeing up the spawn points for a chance for Winkles to spawn.
+
+==Notes==
+
+[[Category:Enemies]]
+[[Category:Ripper's Keep]]

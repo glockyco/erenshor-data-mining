@@ -1,0 +1,72 @@
+{{Item
+|title=Muck Ball
+|type=[[Consumables|Consumable]]
+|vendorsource=
+|source=[[Lurk]] (20.4%)<br>[[Rotbelly Croc]] (13.5%)<br>[[Rottenfoot Swampwalker]] (7.8%)<br>[[Rottenfoot Mauler]] (4.6%)<br>[[Rottenfoot Swampwalker]] (3.5%)<br>[[Rottenfoot Witchdoctor]] (3.5%)<br>[[Tek-Nu Dah]] (3.5%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=5
+|sell=3
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/Consumable
+|image=Muck Ball.png
+|name=Muck Ball
+|description=Favored by the Nippers of Rottenfoot
+|disposable=True
+|effect_spell_icon=Marsh Rot.png
+|effect_spell_name=[[Marsh Rot]]
+|effect_spell_level=9
+|effect_spell_duration_ticks=9
+|effect_spell_type=StatusEffect
+|effect_spell_line=Global_Poison_DOT
+|effect_target_damage=18
+|effect_target_healing=
+|effect_shielding_amt=
+|effect_damage_type=Poison
+|effect_cast_time=1.0
+|effect_cooldown=
+|effect_spell_range=30.0
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=60
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+|effect_xp_bonus=
+}}
+
+[[Category:Consumables]]
+[[Category:Items]]

@@ -1,0 +1,40 @@
+{{Item
+|title=Arcanist's Charm
+|type=
+|vendorsource=
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=1x {{ItemLink|Mold: Arcanist's Charm}}<br>1x {{ItemLink|Ancient Coal}}<br>1x {{ItemLink|Chunk of Citrine Sandsilver}}<br>1x {{ItemLink|Braxonian Ore}}<br>1x {{ItemLink|Luminstone}}
+|componentfor=
+|buy=6000
+|sell=3900
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/Charm
+|image=Arcanist's Charm.png
+|name=Arcanist's Charm
+|tier=0
+|strscaling=
+|endscaling=
+|dexscaling=
+|agiscaling=
+|intscaling=3
+|wisscaling=
+|chascaling=3
+|resistscaling=
+|mitigationscaling=
+|arcanist=True
+|duelist=True
+|druid=True
+|paladin=True
+|reaver=True
+|stormcaller=True
+}}
+
+[[Category:Charms]]

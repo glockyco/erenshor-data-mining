@@ -1,0 +1,39 @@
+{{Enemy
+|name=A Grassland Ogre Elder
+|image=[[File:A Grassland Ogre Elder.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=+3 [[The Citizens of Erenshor]]<br>+3 [[The Citizens of Port Azure]]
+|zones=[[Fernalla's Revival Plains]]<br>[[Underspine Hollow]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Brackfruit Juice}} (76.6%)<br>{{ItemLink|Water}} (76.6%)<br>{{ItemLink|Ogre Tooth Club}} (10.1%)<ref>If A Grassland Ogre Elder has {{ItemLink|Ogre Tooth Club}} equipped, it is guaranteed to drop.</ref>
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=2600
+|mana=0
+|ac=120
+|strength=25
+|endurance=45
+|dexterity=43
+|agility=30
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+
+[[Category:Enemies]]
+[[Category:Fernalla's Revival Plains]]
+[[Category:Underspine Hollow]]

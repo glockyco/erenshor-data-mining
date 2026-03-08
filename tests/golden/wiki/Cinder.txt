@@ -1,0 +1,39 @@
+{{Enemy
+|name=Cinder
+|image=[[File:Cinder.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Rockshade Hold]]
+|coordinates=810.0 x 115.3 x 642.9
+|spawnchance=90%
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Chunk of Living Stone}}<br>{{ItemLink|Distant Thunder}}<br>{{ItemLink|Ritual Cape}}<br>{{ItemLink|Woven Stone Belt}}
+|droprates={{ItemLink|Wishlan's Hope}} (100.0%)<ref>If the player is already holding {{ItemLink|Wishlan's Hope}} in their inventory, another will not drop.</ref><br>{{ItemLink|Chunk of Obsidian}} (84.7%)<br>{{ItemLink|Woven Stone Belt}} (40.0%)<br>{{ItemLink|Chunk of Living Stone}} (20.0%)<br>{{ItemLink|Distant Thunder}} (20.0%)<br>{{ItemLink|Ritual Cape}} (20.0%)<br>{{ItemLink|Stone Sword}} (1.7%)<ref>If Cinder has {{ItemLink|Stone Sword}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Blueprint: Stone Auction}} (0.9%)<br>{{ItemLink|Blueprint: Stone Bank}} (0.9%)<br>{{ItemLink|Blueprint: Stone Dining}} (0.9%)<br>{{ItemLink|Blueprint: Stone Fountain}} (0.9%)
+|level=24
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=3.0
+|health=21450
+|mana=300
+|ac=360
+|strength=500
+|endurance=400
+|dexterity=700
+|agility=85
+|intelligence=35
+|wisdom=95
+|charisma=75
+|magic=12-29
+|poison=12-29
+|elemental=12-29
+|void=12-29
+|spells=
+}}
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Rockshade Hold]]

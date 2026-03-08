@@ -1,0 +1,44 @@
+{{Enemy
+|name=Sergeant D'Vinn
+|image=[[File:Sergeant D'Vinn.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Stowaway's Step]]
+|factionChange=
+|zones=[[Stowaway's Step]]
+|coordinates=553.4 x 68.5 x 571.3
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=25
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=32500
+|mana=0
+|ac=375
+|strength=155
+|endurance=155
+|dexterity=155
+|agility=155
+|intelligence=155
+|wisdom=155
+|charisma=155
+|magic=12-30
+|poison=12-30
+|elemental=12-30
+|void=12-30
+|spells=
+}}
+The Sergeant is located in the Forest on [[Stowaway's Step]].
+
+Greeting message:
+{| class="wikitable"
+|Careful down in the Forest. It's a rough place... ugh... being a guard is awful. I want to be something more... maybe an emissary... or, no... an ambassador!
+|}
+
+[[Category:Characters]]
+[[Category:Stowaway's Step]]

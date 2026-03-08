@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Quest for Suffering
+|type=
+|vendorsource=[[Grant Haxoway]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=8500
+|sell=5525
+|taughtspell={{AbilityLink|Quest for Suffering}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Quest for Suffering.png
+|name=Spell Scroll: Quest for Suffering
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=16
+|mana_cost=450
+|spell_type=Beneficial
+|spell_desc=For every 10% of missing life, you gain 4% haste. This effect is applied after all other haste sources are counted. The haste cap does not apply.
+}}
+
+[[Category:Ability Books]]

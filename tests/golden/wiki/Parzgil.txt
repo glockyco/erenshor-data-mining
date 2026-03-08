@@ -1,0 +1,40 @@
+{{Enemy
+|name=Parzgil
+|image=[[File:Parzgil.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=+10 [[Fernalla's Children]]<br>+10 [[The Torchbearers of Brax]]
+|zones=[[The Blight]]
+|coordinates=378.6 x 42.1 x 611.7
+|spawnchance=75%
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Flowing Blight Silk Sash}}<br>{{ItemLink|Lamentation}}
+|droprates={{ItemLink|Blightwood Slab}} (100.0%)<br>{{ItemLink|Lamentation}} (66.7%)<br>{{ItemLink|Flowing Blight Silk Sash}} (33.3%)<br>{{ItemLink|Diamond}} (20.4%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ancient Pottery Shard}} (11.5%)<br>{{ItemLink|Blight Crystals}} (11.5%)
+|level=33
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=4.0
+|health=47450
+|mana=2500
+|ac=495
+|strength=600
+|endurance=500
+|dexterity=600
+|agility=100
+|intelligence=225
+|wisdom=100
+|charisma=100
+|magic=16-40
+|poison=16-40
+|elemental=16-40
+|void=16-40
+|spells=
+}}
+Parzgil can be found at the large monument in the center of [[The Blight]]. He is one of the strongest demons in the zone.
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:The Blight]]

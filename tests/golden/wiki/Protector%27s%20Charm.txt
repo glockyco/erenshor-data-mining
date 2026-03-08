@@ -1,0 +1,40 @@
+{{Item
+|title=Protector's Charm
+|type=
+|vendorsource=
+|source=[[Braxonian Fossil]] (5.3%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=6000
+|sell=3900
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/Charm
+|image=Protector's Charm.png
+|name=Protector's Charm
+|tier=0
+|strscaling=
+|endscaling=6
+|dexscaling=
+|agiscaling=2
+|intscaling=
+|wisscaling=
+|chascaling=
+|resistscaling=
+|mitigationscaling=
+|arcanist=True
+|duelist=True
+|druid=True
+|paladin=True
+|reaver=True
+|stormcaller=True
+}}
+
+[[Category:Charms]]

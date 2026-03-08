@@ -1,0 +1,49 @@
+{{Enemy
+|name=Illian Asboth
+|image=[[File:Illian Asboth.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[Fernalla's Children]]
+|factionChange=-2 [[The Agents of The Wisp]]<br>-2 [[The Solunarian Brotherhood]]
+|zones=[[Soluna's Landing]]
+|coordinates=217.5 x 74.4 x 251.3
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=4550
+|mana=300
+|ac=330
+|strength=35
+|endurance=35
+|dexterity=35
+|agility=35
+|intelligence=35
+|wisdom=35
+|charisma=35
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells=
+}}
+Illian Asboth is located near the tower and teleporter pad in [[Soluna's Landing]]
+
+Greeting message:
+{| class="wikitable"
+|You're not the average <span style="color: #15e300;">[pilgrim]</span>. Beware the stardust floating about the crater. It's not what it seems. It feeds on the hope of unsuspecting explorers... it grants not wishes.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[pilgrim]</span>
+Many make the trek to see this place. It's one of the few in Erenshor where you can witness actual proof of the Gods.
+
+[[Category:Characters]]
+[[Category:Soluna's Landing]]

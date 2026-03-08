@@ -1,0 +1,52 @@
+{{Enemy
+|name=Vik Sorenson
+|image=[[File:Vik Sorenson.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Port Azure]]
+|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
+|zones=[[Port Azure]]
+|coordinates=155.0 x 27.1 x 217.6
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=2600
+|mana=100
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+
+Greeting message:
+{| class="wikitable"
+|There are no <span style="color: #15e300;">[ships]</span> due in today. Or tomorrow. Next one is from <span style="color: #15e300;">[Merosavilla]</span> with reinforcements. We're not sure when.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[ships]</span>
+Ports are closed. Anyone headed this way gets dropped and left on Stowaway's Step.
+|-
+|<span style="color: #15e300;">[Merosavilla]</span>
+Long ways off, it seems like. Where home used to be for a lot of these folks.
+|}
+
+[[Category:Characters]]
+[[Category:Port Azure]]

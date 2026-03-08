@@ -1,0 +1,61 @@
+{{Enemy
+|name=Garrey Ambrose
+|image=[[File:Garrey Ambrose.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Stowaway's Step]]
+|factionChange=-10 [[Fernalla's Children]]<br>-10 [[The Citizens of Erenshor]]
+|zones=[[Stowaway's Step]]
+|coordinates=729.7 x 21.4 x 508.0
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Arcanist Cap}} (20.4%)<ref>If Garrey Ambrose has {{ItemLink|Arcanist Cap}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Luminstone}} (11.5%)<br>{{ItemLink|Star Stone}} (11.5%)
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=3250
+|mana=155
+|ac=330
+|strength=1
+|endurance=3
+|dexterity=3
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells={{AbilityLink|Brax's Rage}}<br>{{AbilityLink|Ethereal Rending}}<br>{{AbilityLink|Minor Lightning}}<br>{{AbilityLink|Theft of Life}}
+}}
+Garrey is a fisherman located on the [[Docks]] on [[Stowaway's Step]]. He is the [[:Category:Characters|friend]] who [[Isabel Schegg]] mentions finds treasure while fishing, one of which is the {{ItemLink|Stowaway Step Lighthouse Key}}.
+
+Greeting message:
+{| class="wikitable"
+|This is a great fishing spot. Hoping to get something soon! They sell poles up the road at the shop, if you're interested.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[treasures]</span>
+|Got this old key. If you want it you can have it. I was just going to throw it back - doesn't look like any of the house keys 'round here.
+|-
+|<span style="color: #15e300;">[catch]</span>,<span style="color: #15e300;">[caught]</span> and <span style="color: #15e300;">[crazy]</span>
+|Haven't caught much. Got a few frownies, some old treasures, and a very used pair of boots.
+|-
+|<span style="color: #15e300;">[Moongill]</span>
+|A moongill? No. I haven't caught one of those. Just this old key. Not sure what it's to.
+|}
+
+If you say <span style="color: #15e300;">[treasures]</span> again with the {{ItemLink|Stowaway Step Lighthouse Key}} in your posession:
+{| class="wikitable"
+|You already have the item!
+|}
+
+[[Category:Characters]]
+[[Category:Stowaway's Step]]

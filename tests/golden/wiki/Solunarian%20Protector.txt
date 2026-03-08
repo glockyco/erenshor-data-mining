@@ -1,0 +1,49 @@
+{{Enemy
+|name=Solunarian Protector
+|image=[[File:Solunarian Protector.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=-15 [[The Solunarian Brotherhood]]
+|zones=[[Malaroth's Nesting Grounds]]<br>[[Soluna's Landing]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates=
+|level=37
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=62400
+|mana=0
+|ac=555
+|strength=255
+|endurance=255
+|dexterity=255
+|agility=255
+|intelligence=255
+|wisdom=255
+|charisma=255
+|magic=18-44
+|poison=18-44
+|elemental=18-44
+|void=18-44
+|spells=
+}}
+
+Greeting message: (If you are not a [[Paladin]])
+{| class="wikitable"
+|Defilers are not welcome.
+|}
+
+Greeting message: 
+{| class="wikitable"
+|Welcome, Child of Soluna.
+|}
+
+[[Category:Characters]]
+[[Category:Malaroth's Nesting Grounds]]
+[[Category:Soluna's Landing]]

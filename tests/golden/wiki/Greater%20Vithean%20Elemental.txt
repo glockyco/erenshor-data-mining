@@ -1,0 +1,57 @@
+{{Enemy
+|name=Greater Vithean Elemental
+|image=[[File:Greater Vithean Elemental.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Rare]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[The Duskenlight Coast]]
+|coordinates=
+|spawnchance=3%
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Blade of the Sea}}<br>{{ItemLink|Seastring}}<br>{{ItemLink|Wand of Air}}
+|droprates={{ItemLink|Blade of the Sea}} (33.3%)<br>{{ItemLink|Seastring}} (33.3%)<br>{{ItemLink|Wand of Air}} (33.3%)
+|level=10
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=4.0
+|health=3900
+|mana=0
+|ac=150
+|strength=150
+|endurance=150
+|dexterity=150
+|agility=10
+|intelligence=100
+|wisdom=5
+|charisma=5
+|magic=5-12
+|poison=5-12
+|elemental=5-12
+|void=5-12
+|spells={{AbilityLink|Expose Weakness}}
+}}
+''{{Main|Enemies}}''
+=Location=
+{{PAGENAME}}s is a '''rare''' enemy with a '''3% chance''' to replace a [[Vithean Elemental]] on the beaches of [[Duskenlight Coast]]. Of these normal enemies, only ten have the ability to spawn the {{PAGENAME}} in their place, so players should check the entire beach.
+
+=Appearance=
+{{PAGENAME}}s are large blue spheres of water. They are the elemental embodiment of both air and sea, given form. Being the "Greater" variety of the regular Vithean Elemental they are slightly larger in size, although the difference might be difficult to spot from afar.
+
+=Behavior=
+{{PAGENAME}}s bounce across the sand until sensing a target to attack. Alone they do not pose much of a threat, but their close proximity to other Vithean Elementals means that players may end up fighting multiple enemies at once.
+
+===Spells & Abilities===
+{{PAGENAME}} does not use any spells or abilities.
+
+===Strategy===
+Finding {{PAGENAME}} is half the battle, and may require players clearing out the entire beach of Vithean Elementals multiple times, or else repeatedly changing [[Zones]] in an attempt to force it to spawn. When fighting {{PAGENAME}}, be careful not to attract the attention of the other surrounding enemies, or else keep them stunned using {{AbilityLink|Dazzle}} or {{AbilityLink|Sunburst}}.
+
+=Notes=
+*It is possible for multiple {{PAGENAME}}s to be present at the same time.
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:The Duskenlight Coast]]

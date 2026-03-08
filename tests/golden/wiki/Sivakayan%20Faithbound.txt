@@ -1,0 +1,38 @@
+{{Enemy
+|name=Sivakayan Faithbound
+|image=[[File:Sivakayan Faithbound.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Children of Sivakaya]]
+|factionChange=
+|zones=[[Abyssal Lake]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Aetheria}} (4.3%)<ref>If the player is already holding {{ItemLink|Aetheria}} in their inventory, another will not drop.</ref><br>{{ItemLink|Sivakayan Boat Pass}} (4.3%)<ref>If the player is already holding {{ItemLink|Sivakayan Boat Pass}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ruby}} (4.2%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Sivakayan Breeches}} (2.4%)<br>{{ItemLink|Spell Scroll: Twisting Mind}} (2.4%)<br>{{ItemLink|Citrine Stone}} (2.1%)<br>{{ItemLink|Diamond}} (2.1%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ogrespice Leaf}} (2.1%)<br>{{ItemLink|Sea Glass}} (2.1%)<br>{{ItemLink|Sivakayan Wand}} (2.1%)
+|level=28
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=29250
+|mana=3000
+|ac=420
+|strength=300
+|endurance=105
+|dexterity=400
+|agility=100
+|intelligence=180
+|wisdom=100
+|charisma=100
+|magic=14-34
+|poison=14-34
+|elemental=14-34
+|void=14-34
+|spells={{AbilityLink|Aetherstorm}}<br>{{AbilityLink|Winter's Bite}}
+}}
+
+[[Category:Abyssal Lake]]
+[[Category:Enemies]]

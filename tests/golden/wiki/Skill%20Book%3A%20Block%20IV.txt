@@ -1,0 +1,33 @@
+{{Item
+|title=Skill Book: Block IV
+|type=[[Ability Books|Skill Book]]
+|vendorsource=[[Oscar VanEllis]]<br>[[Roreli Gilmare]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=12500
+|sell=8125
+|taughtspell=
+|taughtskill={{AbilityLink|Block IV}}
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SkillBook
+|image=Skill Book: Block IV.png
+|name=Skill Book: Block IV
+|duelist_level=
+|druid_level=
+|arcanist_level=
+|paladin_level=30
+|stormcaller_level=
+|reaver_level=
+|skill_type=Innate
+|skill_desc=You gain a small innate chance to block incoming attacks. Can proc shield ability. Requires a shield.
+|simplayers_autolearn=True
+}}
+
+[[Category:Ability Books]]

@@ -1,0 +1,38 @@
+{{Enemy
+|name=Shadow of Vitheo
+|image=[[File:Shadow of Vitheo.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=
+|coordinates=
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Ancient Bone}} (53.3%)<br>{{ItemLink|Water}} (53.3%)
+|level=40
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=260000
+|mana=20000
+|ac=600
+|strength=1255
+|endurance=500
+|dexterity=800
+|agility=850
+|intelligence=155
+|wisdom=155
+|charisma=155
+|magic=20-48
+|poison=20-48
+|elemental=20-48
+|void=20-48
+|spells=
+}}
+
+[[Category:Bosses]]
+[[Category:Enemies]]

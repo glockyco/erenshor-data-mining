@@ -1,0 +1,74 @@
+{{Item
+|title=Citrine Stone
+|type=[[Crafting]]
+|vendorsource=
+|source=[[Molorai Captain Sigrid]] (98.3%)<br>[[Overseer Laseal]] (91.9%)<br>[[Alexander Farland]] (87.1%)<br>[[Arbant Sparrow]] (87.1%)<br>[[Axilo O'Casta]] (87.1%)<br>[[Boshi Polok]] (87.1%)<br>[[Cerbantias Flameward]] (87.1%)<br>[[Chance Barlow]] (87.1%)<br>[[Damien Torno]] (87.1%)<br>[[Edgar Taether]] (87.1%)<br>[[Edwin Ansegg]] (87.1%)<br>[[Faun Vulak]] (87.1%)<br>[[Garrey Ambrose]] (87.1%)<br>[[Gasper Bulksh]] (87.1%)<br>[[Illuminator]] (87.1%)<br>[[Juctin Mysia]] (87.1%)<br>[[Katia Marado]] (87.1%)<br>[[Larviso Poltir]] (87.1%)<br>[[Lexant Crowsilk]] (87.1%)<br>[[Liam Kilfa]] (87.1%)<br>[[Loften Emblis]] (87.1%)<br>[[Lucian Revald]] (87.1%)<br>[[Malor Mara]] (87.1%)<br>[[Malthor Sageleaf]] (87.1%)<br>[[Molorai Archaeologist]] (87.1%)<br>[[Molorai Archmage]] (87.1%)<br>[[Molorai Bodyguard]] (87.1%)<br>[[Molorai Chef]] (87.1%)<br>[[Molorai Jailor]] (87.1%)<br>[[Molorai Militia Arcanist]] (87.1%)<br>[[Molorai Militia Druid]] (87.1%)<br>[[Molorai Militia Warrior]] (87.1%)<br>[[Molorai Veteran]] (87.1%)<br>[[Nashen Glazier]] (87.1%)<br>[[Navidson Zampano]] (87.1%)<br>[[Neia Tarmath]] (87.1%)<br>[[Nylith Valorro]] (87.1%)<br>[[Overseer Refleigh]] (87.1%)<br>[[Revan Gavault]] (87.1%)<br>[[Rook Allshade]] (87.1%)<br>[[Sagan Ilth]] (87.1%)<br>[[Servash Polaro]] (87.1%)<br>[[Staggy Garth]] (87.1%)<br>[[Torado Zortia]] (87.1%)<br>[[Uther Oledes]] (87.1%)<br>[[Virvil Destova]] (87.1%)<br>[[Wardkeeper Rossi]] (87.1%)<br>[[Ghost of Wyland Sercher]] (71.7%)<br>[[Lost Soul]] (71.7%)<br>[[Lesser Shadowman]] (68.1%)<br>[[Cerynth Duskveil]] (59.4%)<br>[[Elizah Vernor]] (59.4%)<br>[[Molorai Brewmistress]] (59.4%)<br>[[Myrre Morrigane]] (59.4%)<br>[[Rose Crystalshade]] (59.4%)<br>[[Thella Steepleton]] (59.4%)<br>[[A Lesser Avatar of Sivakaya]] (57.4%)<br>[[Aetherfiend]] (57.4%)<br>[[Molorai Acquirer]] (57.4%)<br>[[Molorai Ancille]] (57.4%)<br>[[Molorai Bloodwarden]] (57.4%)<br>[[Molorai Curator]] (57.4%)<br>[[Molorai Dockmaster]] (57.4%)<br>[[Molorai Eldermistress]] (57.4%)<br>[[Molorai Mason]] (57.4%)<br>[[Molorai Nightmistress]] (57.4%)<br>[[Molorai Outrider]] (57.4%)<br>[[Molorai Truthseeker]] (57.4%)<br>[[Shadow Man]] (57.4%)<br>[[Molorai Spiritist]] (41.8%)<br>[[Bassle Wavebreaker]] (40.4%)<br>[[Cagnus Marlsen]] (40.4%)<br>[[Molorai Anointed]] (32.7%)<br>[[Molorai Specialist]] (32.7%)<br>[[Winkles]] (15.7%)<br>[[A Faerie Drone]] (14.3%)<br>[[A Faerie Enchantress]] (14.3%)<br>[[A Faerie Foliagian]] (14.3%)<br>[[A Faerie Windchild]] (14.3%)<br>[[A Grassland Ogre Chieftan]] (6.8%)<br>[[Shrouded Sivakayan]] (2.5%)<br>[[Sivakayan Doomshade]] (2.5%)<br>[[Sivakayan High Shadow]] (2.5%)<br>[[Sivakayan Shadow]] (2.5%)<br>[[Sivakayan Voidmaster]] (2.5%)<br>[[Sivakayan Devoted]] (2.1%)<br>[[Sivakayan Faithbound]] (2.1%)<br>[[Gasper]] (1.9%)<br>[[Shadow of Sleep]] (1.7%)<br>[[Daggerlegs]] (1.7%)<br>[[Fright]] (1.7%)<br>[[Shiverman]] (0.7%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor={{ItemLink|Mold: Druid's Charm}}
+|buy=10
+|sell=6
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+A item which can be dropped as a [[Enemies#Global_Drops|global drop]] from most enemies in the game.
+
+{{Item/General
+|image=Citrine Stone.png
+|name=Citrine Stone
+|description=It's pretty! Sell it.
+|value=10
+|stack_size=
+|disposable=
+|effect_style=
+|effect_spell_icon=
+|effect_spell_name=
+|effect_spell_level=
+|effect_spell_duration_ticks=
+|effect_spell_type=
+|effect_spell_line=
+|effect_target_damage=
+|effect_target_healing=
+|effect_damage_type=
+|effect_cast_time=
+|effect_cooldown=
+|effect_spell_range=
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+}}
+
+[[Category:Crafting]]
+[[Category:Items]]

@@ -1,0 +1,107 @@
+{{Enemy
+|name=Ophelia Luminee
+|image=[[File:Ophelia Luminee.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Stowaway's Step]]
+|factionChange=-20 [[The Citizens of Stowaway's Step]]
+|zones=[[Willowwatch Ridge]]
+|coordinates=578.9 x 50.0 x 351.4
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates=
+|level=15
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=2600
+|mana=0
+|ac=225
+|strength=35
+|endurance=35
+|dexterity=35
+|agility=35
+|intelligence=35
+|wisdom=35
+|charisma=35
+|magic=8-18
+|poison=8-18
+|elemental=8-18
+|void=8-18
+|spells=
+}}
+
+Ophelia Luminee is an NPC in [[Willowwatch Ridge]]. She is a vendor that sells scrolls and books.
+
+Greeting message:
+{| class="wikitable"
+|This is the best I can do for myself for the time being. It's not much but it feels safe. I have some spells I acquired in a <span style="color: #15e300;">[trade]</span>. If you want to buy them, it would help me more than you know.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[trade]</span>
+|Happened across a trader who was in need of food. Had bags and bags full of spells and told me I'd get more value for these once I found a buyer. That'll get me closer to finding a true home, so I figured it was worth the risk.
+|}
+
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Spell Scroll: Dazzle}}
+|[[:Category:Ability Books|Spell Book]]
+|50
+|-
+|{{ItemLink|Spell Scroll: Invasive Thoughts}}
+|[[:Category:Ability Books|Spell Book]]
+|95
+|-
+|{{ItemLink|Spell Scroll: Burning Chains}}
+|[[:Category:Ability Books|Spell Book]]
+|150
+|-
+|{{ItemLink|Spell Scroll: Jolt}}
+|[[:Category:Ability Books|Spell Book]]
+|225
+|-
+|{{ItemLink|Spell Scroll: Summon Decayed Fawn}}
+|[[:Category:Ability Books|Spell Book]]
+|100
+|-
+|{{ItemLink|Spell Scroll: Biting Vines}}
+|[[:Category:Ability Books|Spell Book]]
+|66
+|-
+|{{ItemLink|Spell Scroll: Tangle}}
+|[[:Category:Ability Books|Spell Book]]
+|1100
+|-
+|{{ItemLink|Spell Scroll: Death's Embrace}}
+|[[:Category:Ability Books|Spell Book]]
+|200
+|-
+|{{ItemLink|Spell Scroll: Vithean Breeze}}
+|[[:Category:Ability Books|Spell Book]]
+|100
+|-
+|{{ItemLink|Spell Scroll: Ice Bolt}}
+|[[:Category:Ability Books|Spell Book]]
+|100
+|-
+|{{ItemLink|Skill Book: Execute}}
+|[[:Category:Ability Books|Skill Book]]
+|1100
+|-
+|{{ItemLink| Spell Scroll: Static Invocation}}
+|[[:Category:Ability Books|Spell Book]]
+|125
+|}
+
+[[Category:Characters]]
+[[Category:Vendors]]
+[[Category:Willowwatch Ridge]]

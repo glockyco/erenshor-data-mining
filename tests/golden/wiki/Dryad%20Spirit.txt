@@ -1,0 +1,39 @@
+{{Enemy
+|name=Dryad Spirit
+|image=[[File:Dryad Spirit.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Fernalla's Revival Plains]]<br>[[The Duskenlight Coast]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Essence of Nature}} (28.3%)
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1300
+|mana=0
+|ac=120
+|strength=12
+|endurance=55
+|dexterity=30
+|agility=10
+|intelligence=5
+|wisdom=5
+|charisma=5
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells={{AbilityLink|Brax's Touch}}<br>{{AbilityLink|Weak Poison}}
+}}
+
+[[Category:Enemies]]
+[[Category:Fernalla's Revival Plains]]
+[[Category:The Duskenlight Coast]]

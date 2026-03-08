@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Call of the Void
+|type=[[Ability Books|Spell Scroll]]
+|vendorsource=
+|source=[[Blight Eater]] (4.6%)<br>[[Apha, Priest of Brax]] (3.7%)<br>[[Upha, Priest of Brax]] (3.7%)<br>[[A Deepling Crimsonite]] (2.8%)<br>[[Braxon Fanatic]] (2.8%)<br>[[A Deepling Orator]] (1.9%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=1900
+|sell=1235
+|taughtspell={{AbilityLink|Call of the Void}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Call of the Void.png
+|name=Spell Scroll: Call of the Void
+|arcanist_level=20
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=800
+|spell_type=StatusEffect
+|spell_desc=Charm an NPC (up to level 22) to do your bidding for a short time.
+}}
+
+[[Category:Ability Books]]

@@ -1,0 +1,62 @@
+{{Enemy
+|name=Ghost of Wyland Sercher
+|image=[[File:Ghost of Wyland Sercher.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Children of Sivakaya]]
+|factionChange=+1 [[The Agents of The Wisp]]
+|zones=[[Island Tomb]]
+|coordinates=138.6 x -2.9 x -20.5
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Ring of Magic Bolt}} (100.0%)<br>{{ItemLink|Seaspice}} (100.0%)<br>{{ItemLink|Torn Note}} (100.0%)<ref>If the player is already holding {{ItemLink|Torn Note}} in their inventory, another will not drop.</ref><br>{{ItemLink|Bread}} (71.7%)<br>{{ItemLink|Citrine Stone}} (71.7%)<br>{{ItemLink|Water}} (71.7%)<br>{{ItemLink|Luminstone}} (41.7%)<br>{{ItemLink|Star Stone}} (41.7%)
+|level=4
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=0
+|levelvariancemax=0
+|xpmultiplier=1.0
+|health=1560
+|mana=155
+|ac=60
+|strength=9
+|endurance=45
+|dexterity=45
+|agility=1
+|intelligence=5
+|wisdom=1
+|charisma=1
+|magic=2-5
+|poison=2-5
+|elemental=2-5
+|void=2-5
+|spells={{AbilityLink|Magic Bolt}}<br>{{AbilityLink|Minor Lightning}}<br>{{AbilityLink|Minor Protection}}<br>{{AbilityLink|Tangle}}
+}}
+
+''{{main|Enemies}}''
+
+<!--
+=Location=
+{{PAGENAME}} is found in the [[Island Tomb]] on [[Stowaway's Step]], behind a locked door at the back of the tomb. After entering the dungeon, go straight through the tomb without making any turns. Eventually, there will be a door on your left. Go through it and straight ahead, keeping an eye out for a locked door on your right. {{PAGENAME}} can be found in the room behind this door, though the {{ItemLink|Ghostly Key}} is required to reach him.
+-->
+=Appearance=
+{{PAGENAME}} is a glowing blue spirit wearing tattered brown clothes. There is a red glow from under his hood and mask, where only two white eyes are visible.
+
+=Behavior=
+{{PAGENAME}} waits in a back storage room of the tomb. Although he will not attack players the moment they open the door, his detection range is quite large and he may be notice the player's party even before they've entered the room.
+
+===Spells & Abilities===
+Offensive:
+*{{AbilityLink|Magic Bolt}}
+*{{AbilityLink|Minor Lightning}}
+*{{AbilityLink|Tangle}}
+
+===Strategy===
+{{PAGENAME}} will likely be the final boss players encounter before leaving [[Stowaway's Step]]. Although his health is not very high, his AC is a step up from anything players have fought before, making him slightly more difficult to hit. He has several spells in his arsenal, including Minor Lighting. This is an AoE spell that can damage the entire party, though it is fairly weak. A [[Paladin]] or [[Duelist]] can interrupt {{PAGENAME}} while he is casting with a well-timed {{AbilityLink|Kick}}.
+
+=Notes=
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Island Tomb]]

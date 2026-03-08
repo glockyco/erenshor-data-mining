@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Dark Ritual
+|type=
+|vendorsource=[[Shantee Swingblade]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=1200
+|sell=780
+|taughtspell={{AbilityLink|Dark Ritual}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Dark Ritual.png
+|name=Spell Scroll: Dark Ritual
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=10
+|mana_cost=
+|spell_type=Heal
+|spell_desc=Convert 120 life into 100 mana
+}}
+
+[[Category:Ability Books]]

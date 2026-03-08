@@ -1,0 +1,74 @@
+{{Item
+|title=Ealdred's Journal
+|type=[[Quest Items|Quest Item]]
+|vendorsource=
+|source=[[Darkwarden Ealdred]] (100.0%)
+|othersource=
+|questsource=
+|relatedquest={{QuestLink|Secure Port Azure}}<br>{{QuestLink|Sivakayan Intel for Kilkay}}<br>{{QuestLink|link=Sivakayan Intel for Kilkay{{!}}Sivakayan Intel for Kilkay (3)}}
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+Can be handed to [[Captain Kilkay]] to begin and complete the quest {{QuestLink|link=Sivakayan Intel for Kilkay{{!}}Secure Port Azure}}
+
+{{Item/General
+|image=Ealdred's Journal.png
+|name=Ealdred's Journal
+|description=One entry stands out: <br><br>"Eldoth makes promises to reconnect us to our Goddess, yet never does he deliver. He delivers intel to us on Port Azure, however, his intel on Goodsoil was false. He is intensifying our campaign for his own benefit. If we are to take Azure, we cannot do it at his beck and whim. I have sent word north to the elders with my concerns."
+|value=
+|stack_size=
+|disposable=
+|effect_style=
+|effect_spell_icon=
+|effect_spell_name=
+|effect_spell_level=
+|effect_spell_duration_ticks=
+|effect_spell_type=
+|effect_spell_line=
+|effect_target_damage=
+|effect_target_healing=
+|effect_damage_type=
+|effect_cast_time=
+|effect_cooldown=
+|effect_spell_range=
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+}}
+
+[[Category:Items]]
+[[Category:Quest Items]]

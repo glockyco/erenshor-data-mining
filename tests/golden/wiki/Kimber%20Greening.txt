@@ -1,0 +1,49 @@
+{{Enemy
+|name=Kimber Greening
+|image=[[File:Kimber Greening.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Port Azure]]
+|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
+|zones=[[Port Azure]]
+|coordinates=154.6 x 34.1 x 251.8
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=3250
+|mana=100
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+
+Greeting message:
+{| class="wikitable"
+|never thought I'd be living in an <span style="color: #15e300;">[inn]</span>. I came to Erenshor for a new start, not for this.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[inn]</span>
+Port Azure left us on our own. I lived in a beautiful place called the Silkengrass Meadow. Then the Sivakayans came.
+|}
+
+[[Category:Characters]]
+[[Category:Port Azure]]

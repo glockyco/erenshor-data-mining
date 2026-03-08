@@ -1,0 +1,45 @@
+{{Enemy
+|name=Goldie Retalio
+|image=[[File:Goldie Retalio.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[Ripper DeMerth]]
+|factionChange=-20 [[Ripper DeMerth]]
+|zones=[[Ripper's Keep]]
+|coordinates=752.7 x 43.6 x 203.3
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=2600
+|mana=100
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+
+Goldie functions as an [[Auction House|auction broker]]. She allows you to access the auction house, even if you are no longer friendly with the factions of [[Port Azure]].
+
+Greeting message:
+{| class="wikitable"
+|Getting goods into this area is no trouble at all. There's smugglers running all the time.
+|}
+
+[[Category:Characters]]
+[[Category:Ripper's Keep]]

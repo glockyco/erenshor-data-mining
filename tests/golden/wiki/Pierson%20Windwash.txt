@@ -1,0 +1,84 @@
+{{Enemy
+|name=Pierson Windwash
+|image=[[File:Pierson Windwash.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Blades of Vitheo]]
+|factionChange=+2 [[The Agents of The Wisp]]<br>-20 [[The Blades of Vitheo]]<br>+2 [[The Children of Sivakaya]]<br>-20 [[The Citizens of Port Azure]]
+|zones=[[Port Azure]]
+|coordinates=289.0 x 13.5 x 330.9
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates=
+|level=15
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=4550
+|mana=0
+|ac=225
+|strength=35
+|endurance=35
+|dexterity=35
+|agility=35
+|intelligence=35
+|wisdom=35
+|charisma=35
+|magic=8-18
+|poison=8-18
+|elemental=8-18
+|void=8-18
+|spells=
+}}
+Pierson is an NPC in [[Port Azure]]. This NPC will refuse to talk to you if you are any class other than [[Duelist]].
+
+Greeting message if you are a Duelist:
+{| class="wikitable"
+|Pierson Windwash at your service. I've collected quite a variety of goods here, if you're in the market.
+|}
+
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Copper Sword}}
+|[[Weapons#Swords|Sword]]
+|125
+|-
+|{{ItemLink|Molorai Axe}}
+|[[Weapons#Axes|Axe]]
+|400
+|-
+|{{ItemLink|Steel Long Sword}}
+|[[Weapons#Swords|Sword]]
+|55
+|-
+|{{ItemLink|Dusty Chain Leggings}}
+|[[Armor#Leg|Leg Armor]]
+|35
+|-
+|{{ItemLink|Force of the Sea}}
+|[[Auras|Aura]]
+|1000
+|-
+|{{ItemLink|Spell Scroll: Weight of the Sea}}
+||[[Ability Books|Spell Scroll]]
+|10000
+|-
+|{{ItemLink|Spell Scroll: Vithean Wind}}
+||[[Ability Books|Spell Scroll]]
+|4800
+|-
+|{{ItemLink|Spell Scroll: Vithean Breeze}}
+||[[Ability Books|Spell Scroll]]
+|100
+|}
+
+[[Category:Characters]]
+[[Category:Port Azure]]
+[[Category:Vendors]]

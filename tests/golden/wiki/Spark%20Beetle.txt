@@ -1,0 +1,39 @@
+{{Enemy
+|name=Spark Beetle
+|image=[[File:Spark Beetle.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Lost Cellar]]<br>[[Port Azure]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Flint Carapace}} (11.7%)<br>{{ItemLink|Luminstone}} (11.7%)<br>{{ItemLink|Droplet of Lava}} (4.9%)
+|level=11
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=2600
+|mana=0
+|ac=165
+|strength=350
+|endurance=200
+|dexterity=150
+|agility=100
+|intelligence=100
+|wisdom=100
+|charisma=33
+|magic=6-13
+|poison=6-13
+|elemental=6-13
+|void=6-13
+|spells=
+}}
+
+[[Category:Enemies]]
+[[Category:Lost Cellar]]
+[[Category:Port Azure]]

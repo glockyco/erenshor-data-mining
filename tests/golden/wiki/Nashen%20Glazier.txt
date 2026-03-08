@@ -1,0 +1,50 @@
+{{Enemy
+|name=Nashen Glazier
+|image=[[File:Nashen Glazier.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Agents of The Wisp]]
+|factionChange=-50 [[The Agents of The Wisp]]
+|zones=[[Loomingwood Forest]]
+|coordinates=319.2 x 26.9 x 447.2
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Luminstone}} (21.2%)<br>{{ItemLink|Star Stone}} (21.2%)
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=28600
+|mana=155
+|ac=330
+|strength=15
+|endurance=65
+|dexterity=65
+|agility=15
+|intelligence=15
+|wisdom=5
+|charisma=15
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells={{AbilityLink|Brax's Fury}}<br>{{AbilityLink|Ice Spear}}<br>{{AbilityLink|Immolation}}<br>{{AbilityLink|Magic Bolt}}
+}}
+Nashen Glazier is the first person you'll meet in Wardhaven in [[Loomingwood]]
+
+Greeting message:
+{| class="wikitable"
+|Welcome to <span style="color: #15e300;">[Wardhaven]</span>. These woods are safe from Sivakayans. Here is where we can craft our plans in peace. Bless the ward!
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[Wardhaven]</span>
+You may have noted in the gates along the path. Sivakayans cannot cross them - their unnatural dark magic is torn apart by the natural energy of those gates.
+|}
+
+[[Category:Characters]]
+[[Category:Loomingwood Forest]]

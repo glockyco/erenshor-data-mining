@@ -1,0 +1,33 @@
+{{Item
+|title=Skill Book: Aggressive Stance
+|type=
+|vendorsource=[[Aillee Desten]]<br>[[Xander Zaxtrough]]<br>[[Zane Theavale]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=100
+|sell=65
+|taughtspell=
+|taughtskill={{AbilityLink|Stance: Aggressive}}
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SkillBook
+|image=Skill Book: Aggressive Stance.png
+|name=Skill Book: Aggressive Stance
+|duelist_level=
+|druid_level=
+|arcanist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=1
+|skill_type=Utility
+|skill_desc=Gain a 50% increase to physical damage dealt, but take 50% more incoming damage from all sources.  Your focus on offense stops all natural health regeneration.
+|simplayers_autolearn=True
+}}
+
+[[Category:Ability Books]]

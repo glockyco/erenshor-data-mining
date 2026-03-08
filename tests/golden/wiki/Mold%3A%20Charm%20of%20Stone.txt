@@ -1,0 +1,30 @@
+{{Item
+|title=Mold: Charm of Stone
+|type=[[Crafting|Mold]]
+|vendorsource=
+|source=
+|othersource=0.05% drop chance as a [[Enemies#Global_Drops|global drop]] from any enemy
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+<span style="color: #e6080d;">Important:</span> [[File:Blue_Sparkle.gif|30px|link=Item Quality#Blue Blessed Items]][[Item Quality#Blue Blessed Items|Blessed charms]] do not do anything, so you only use {{ItemLink|Coal}} when crafting them.
+
+{{Item/Mold
+|image=Mold: Charm of Stone.png
+|name=Mold: Charm of Stone
+|description=Recipes must be exact - use CNTRL + CLICK to separate stacks.<br><br>One-time usable in a forge. <br><br>*Fuel quality does not affect the outcome of this recipe
+|ingredients=1x {{ItemLink|Pulsating Stone}}<br>1x {{ItemLink|Polished Stone}}<br>1x {{ItemLink|Ruby}}<br>1x {{ItemLink|Chunk of Obsidian}}
+|rewards={{ItemLink|Charm of the Stone}}
+|station=
+}}
+
+[[Category:Crafting]]
+[[Category:Molds]]

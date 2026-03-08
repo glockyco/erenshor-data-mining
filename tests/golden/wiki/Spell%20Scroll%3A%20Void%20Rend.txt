@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Void Rend
+|type=
+|vendorsource=[[Grant Haxoway]]
+|source=[[Sivakayan Reaver]] (3.0%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=14500
+|sell=9425
+|taughtspell={{AbilityLink|Void Rend}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Void Rend.png
+|name=Spell Scroll: Void Rend
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=24
+|mana_cost=350
+|spell_type=Damage
+|spell_desc=Deals 800 void damage to your target.
+}}
+
+[[Category:Ability Books]]

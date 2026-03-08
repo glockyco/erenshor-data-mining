@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Hardened Skin
+|type=[[Ability Books]]
+|vendorsource=[[Nylith Valorro]]
+|source=[[A Sorrowful Spirit]] (2.8%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=55
+|sell=36
+|taughtspell={{AbilityLink|Hardened Skin}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Hardened Skin.png
+|name=Spell Scroll: Hardened Skin
+|arcanist_level=3
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=20
+|spell_type=Beneficial
+|spell_desc=A short-duration shield that absorbs up to 200 points of incoming damage
+}}
+
+[[Category:Ability Books]]

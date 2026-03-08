@@ -1,0 +1,57 @@
+{{Enemy
+|name=A Mature Grass Spider
+|image=[[File:A Mature Grass Spider.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Azynthi's Garden]]<br>[[Blacksalt Strand]]<br>[[Fernalla's Revival Plains]]<br>[[Malaroth's Nesting Grounds]]<br>[[Ripper's Keep]]<br>[[Vitheo's Watch]]
+|coordinates=
+|spawnchance=
+|respawn=6 minutes (Azynthi's Garden)<br>2 minutes (Blacksalt Strand)<br>5 minutes (Fernalla's Revival Plains)<br>5 minutes (Malaroth's Nesting Grounds)<br>5 minutes (Ripper's Keep)<br>4 minutes (Vitheo's Watch)
+|guaranteeddrops=
+|droprates={{ItemLink|Ruined Grass Spider Carapace}} (14.8%)<br>{{ItemLink|Pristine Grass Spider Carapace}} (13.5%)
+|level=4
+|levelmodmin=0
+|levelmodmax=1
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=390
+|mana=0
+|ac=60
+|strength=3
+|endurance=6
+|dexterity=45
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=2-5
+|poison=2-5
+|elemental=2-5
+|void=2-5
+|spells=
+}}
+'''{{PAGENAME}}''' is an [[Enemies|enemy]] in [[Erenshor]].
+=Location=
+{{PAGENAME}} is a common pest and can be found throughout most of northern [[Erenshor]], including [[Fernalla's Revival Plains]], [[Blacksalt Strand]],<ref>{{PAGENAME}} may be replaced by [[A Seaside Gorilla]] or [[A Grizzly Bear]] in Blacksalt Strand.</ref> [[Ripper's Keep]], [[Malaroth's Nesting Grounds]], and [[Azynthi's Garden]]. It can also be found on the fields of [[Vitheo's Watch]].
+
+=Appearance=
+{{PAGENAME}} has black appendages, a green body, and multiple eyes. It is the larger adult version of [[A Grass Spider]].
+
+=Behavior=
+{{PAGENAME}} will roam through grasslands and meadows until it senses a target to attack. Although they are larger than their younger brood, they are still quite weak and shouldn't pose much of a challenge to players by the time they reach the zones {{PAGENAME}} can be found in.
+
+===Spells & Abilities===
+{{PAGENAME}} does not use any spells or abilities.
+
+=Notes=
+
+[[Category:Azynthi's Garden]]
+[[Category:Blacksalt Strand]]
+[[Category:Enemies]]
+[[Category:Fernalla's Revival Plains]]
+[[Category:Malaroth's Nesting Grounds]]
+[[Category:Ripper's Keep]]
+[[Category:Vitheo's Watch]]

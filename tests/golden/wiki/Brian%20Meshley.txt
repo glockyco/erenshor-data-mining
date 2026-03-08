@@ -1,0 +1,77 @@
+{{Enemy
+|name=Brian Meshley
+|image=[[File:Brian Meshley.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Port Azure]]
+|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
+|zones=[[Port Azure]]
+|coordinates=236.4 x 26.3 x 188.8
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=4550
+|mana=100
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+
+Brian is located in the [[Port Azure]] market.
+
+Greeting message:
+{| class="wikitable"
+|Weapons for sale. Need any?
+|}
+
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Standard Halberd}}
+|[[Weapons#Axes|Axe]]
+|400
+|-
+|{{ItemLink|Bear Bone Club}}
+|[[Weapons#Clubs|Club]]
+|200
+|-
+|{{ItemLink|Copper Sword}}
+|[[Weapons#Swords|Sword]]
+|125
+|-
+|{{ItemLink|Rusty Dagger}}
+|[[Weapons#Dagger|Dagger]]
+|7
+|-
+|{{ItemLink|Basic Pick}}
+|[[Weapons#Primary or Secondary|Primary or Secondary]]
+|100
+|-
+|{{ItemLink|Mold: Copper Sword}}
+|[[Crafting]]
+|0
+|}
+
+[[Category:Characters]]
+[[Category:Port Azure]]
+[[Category:Vendors]]

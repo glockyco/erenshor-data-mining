@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Dark Pact
+|type=
+|vendorsource=[[Shantee Swingblade]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=18500
+|sell=12025
+|taughtspell={{AbilityLink|Dark Pact}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Dark Pact.png
+|name=Spell Scroll: Dark Pact
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=20
+|mana_cost=
+|spell_type=Heal
+|spell_desc=Convert 400 life into 320 mana
+}}
+
+[[Category:Ability Books]]

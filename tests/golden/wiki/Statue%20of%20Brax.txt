@@ -1,0 +1,62 @@
+{{Enemy
+|name=Statue of Brax
+|image=[[File:Statue of Brax.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Fallen Braxonia]]
+|coordinates=659.8 x 2.4 x 487.8
+|spawnchance=
+|respawn=12 minutes
+|guaranteeddrops={{ItemLink|Perfect Links}}<br>{{ItemLink|Petrified Wood Cane}}
+|droprates={{ItemLink|Braxonian Ore}} (100.0%)<br>{{ItemLink|Perfect Links}} (50.0%)<br>{{ItemLink|Petrified Wood Cane}} (50.0%)<br>{{ItemLink|Ancient Coal}} (34.2%)<br>{{ItemLink|Braxonian Bracelet}} (24.0%)<br>{{ItemLink|Braxonian Gloves}} (24.0%)<br>{{ItemLink|Braxonian Mitts}} (24.0%)<br>{{ItemLink|Braxonian Wristlet}} (24.0%)<br>{{ItemLink|Braxonian Breeches}} (12.6%)<br>{{ItemLink|Braxonian Leather Boots}} (12.6%)<br>{{ItemLink|Braxonian Leather Sleeves}} (12.6%)<br>{{ItemLink|Braxonian Leather Tunic}} (12.6%)<br>{{ItemLink|Braxonian Linens}} (12.6%)<br>{{ItemLink|Braxonian Royal Armband}} (12.6%)<br>{{ItemLink|Braxonian Royal Shoes}} (12.6%)<br>{{ItemLink|Braxonian Royal Tunic}} (12.6%)<br>{{ItemLink|Golden Statue: Brax}} (1.3%)
+|level=36
+|levelmodmin=2
+|levelmodmax=2
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=5.0
+|health=162500
+|mana=0
+|ac=540
+|strength=650
+|endurance=500
+|dexterity=650
+|agility=500
+|intelligence=225
+|wisdom=225
+|charisma=155
+|magic=18-43
+|poison=18-43
+|elemental=18-43
+|void=18-43
+|spells={{AbilityLink|Brax's Fury}}<br>{{AbilityLink|Funeral Pyre}}
+}}
+''{{Main|Enemies}}''
+=Location=
+{{PAGENAME}} can be found on the lowest level of [[Fallen Braxonia]]. After making your way through the maze of ruined buildings, follow the path until you reach an opening to the left. Make your way down this path, past all the [[Braxonian High Guard|Braxonian High Guards]], to find {{PAGENAME}} at the dead end.
+
+=Appearance=
+As his name suggests, {{PAGENAME}} is a large living statue carved to look like Brax. It is many times larger than the player but otherwise appears human, though it lacks any defining facial features.
+
+=Behavior=
+{{PAGENAME}} waits on a pedestal in the deepest reaches of Fallen Braxonia, flanked by two Braxonian High Guards. {{PAGENAME}}'s detection range is quite low, allowing his guards to be pulled away and fought should players wish before engaging the boss.
+
+===Spells & Abilities===
+Offensive:
+*{{AbilityLink|Funeral Pyre}}
+
+===Strategy===
+Making your way to {{PAGENAME}} is half the battle, with several large groups of Braxonian High Guards blocking the path. Most of these can be cleared in groups of two through careful positioning, though there is also one group of three.<br>
+
+Upon reaching the boss, it is also possible to pull each individual guard away from {{PAGENAME}}, where they can be dealt with individually.<br>
+
+{{PAGENAME}} hits hard, and can easily one-shot even a decently geared [[Arcanist]]. If the party is running low on health and needs to reset, he is susceptible to {{AbilityLink|Dazzle}}.
+
+=Notes=
+*{{PAGENAME}} is the only source of [[Braxonian Ore]] in the game.
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Fallen Braxonia]]

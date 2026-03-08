@@ -1,0 +1,73 @@
+{{Item
+|title=Pg. 3: Faded Entry
+|type=[[Quest Items|Quest Item]]
+|vendorsource=
+|source=[[Druo the Reborn]] (100.0%)
+|othersource=
+|questsource=
+|relatedquest={{QuestLink|link=The Lost Soul{{!}}The Lost Soul Pt. 1}}
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/General
+|image=Pg. 3: Faded Entry.png
+|name=Pg. 3: Faded Entry
+|description=A Treasure Hunter's Journal Entry<br><br>When you think you've met the most dense being, it will be an ogre. Never before have I seen such brute-driven stupidity. <br><br>A simple bit of concealing foliage, and I was free to roam. I unearthed nothing except maddening babbling and ill-located latrines. <br><br>I've heard a rumor of an excavation under Port Azure... I will investigate there next.
+|value=
+|stack_size=
+|disposable=
+|effect_style=
+|effect_spell_icon=
+|effect_spell_name=
+|effect_spell_level=
+|effect_spell_duration_ticks=
+|effect_spell_type=
+|effect_spell_line=
+|effect_target_damage=
+|effect_target_healing=
+|effect_damage_type=
+|effect_cast_time=
+|effect_cooldown=
+|effect_spell_range=
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+}}
+
+[[Category:Items]]
+[[Category:Quest Items]]

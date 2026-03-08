@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Targeted Windstorm
+|type=[[Ability Books|Spell Scroll]]
+|vendorsource=[[Elizabeth DeWitt]]<br>[[Torado Zortia]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=6000
+|sell=3900
+|taughtspell={{AbilityLink|Targeted Windstorm}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Targeted Windstorm.png
+|name=Spell Scroll: Targeted Windstorm
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=25
+|reaver_level=
+|mana_cost=500
+|spell_type=StatusEffect
+|spell_desc=Slow a target's movement speed
+}}
+
+[[Category:Ability Books]]

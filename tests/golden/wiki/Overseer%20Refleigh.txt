@@ -1,0 +1,39 @@
+{{Enemy
+|name=Overseer Refleigh
+|image=[[File:Overseer Refleigh.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
+|factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
+|zones=[[Braxonian Desert]]
+|coordinates=678.7 x 46.7 x 866.5
+|spawnchance=95%
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Eldoth Writings: The Wisp}} (100.0%)<ref>If the player is already holding {{ItemLink|Eldoth Writings: The Wisp}} in their inventory, another will not drop.</ref><br>{{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Cape of the Sands}} (14.5%)<br>{{ItemLink|Molorai Battle Chain}} (14.5%)<br>{{ItemLink|Searing Wristwrap}} (14.5%)
+|level=21
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=2.0
+|health=12870
+|mana=155
+|ac=315
+|strength=650
+|endurance=500
+|dexterity=650
+|agility=500
+|intelligence=85
+|wisdom=85
+|charisma=75
+|magic=10-25
+|poison=10-25
+|elemental=10-25
+|void=10-25
+|spells={{AbilityLink|Brax's Rage}}<br>{{AbilityLink|Hardened Skin}}<br>{{AbilityLink|Minor Protection}}<br>{{AbilityLink|Minor Regeneration}}<br>{{AbilityLink|Vampiric Touch}}<br>{{AbilityLink|Winter's Bite}}
+}}
+
+[[Category:Bosses]]
+[[Category:Braxonian Desert]]
+[[Category:Enemies]]

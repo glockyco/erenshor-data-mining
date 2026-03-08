@@ -1,0 +1,39 @@
+{{Enemy
+|name=Shambler
+|image=[[File:Shambler.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Mysterious Portal]] (3)
+|coordinates=
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Ghoul Scab}} (87.1%)<br>{{ItemLink|Bloodletter}} (7.6%)<br>{{ItemLink|Bread}} (4.2%)<br>{{ItemLink|Cloth Gloves}} (4.2%)<br>{{ItemLink|Cloth Pants}} (4.2%)<br>{{ItemLink|Cloth Shirt}} (4.2%)<br>{{ItemLink|Cloth Shoes}} (4.2%)<br>{{ItemLink|Cloth Sleeves}} (4.2%)<br>{{ItemLink|Luminstone}} (4.2%)<br>{{ItemLink|Star Stone}} (4.2%)<br>{{ItemLink|Water}} (4.2%)
+|level=29
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=38415
+|mana=1000
+|ac=435
+|strength=450
+|endurance=265
+|dexterity=675
+|agility=200
+|intelligence=166
+|wisdom=155
+|charisma=200
+|magic=14-35
+|poison=14-35
+|elemental=14-35
+|void=14-35
+|spells=
+}}
+''{{Main|Enemies}}''
+
+[[Category: Mysterious Portal]]
+[[Category:Enemies]]

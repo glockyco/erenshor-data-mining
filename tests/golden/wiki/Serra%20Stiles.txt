@@ -1,0 +1,60 @@
+{{Enemy
+|name=Serra Stiles
+|image=[[File:Serra Stiles.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Port Azure]]
+|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
+|zones=[[The Elderstone Mines]]
+|coordinates=121.1 x 0.8 x 636.1
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=3250
+|mana=100
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+Serra is located inside The [[Elderstone Mines]] in the miner's lodging area. She is the quest giver for {{QuestLink | link=Serra Stiles Shovel}}.
+
+Greeting message:
+{| class="wikitable"
+|I... I left my shovel. It's a family heirloom. One of those slime-things slithered over it and it was gone! 
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[shovel]</span>
+|If you find it, can I have it back? I know it's not important, but... but it meant a lot to me.<br><br><i>This begins {{QuestLink | link=Serra Stiles Shovel}}</i>
+|}
+
+When you hand Serra the [[Worn Shovel]] for the quest {{QuestLink | link=Serra Stiles Shovel}}:
+{| class="wikitable"
+|Oh my! You've found it! Here... one tool in exchange for another. I hope this comes in handy!
+|}
+
+If you give her another [[Worn Shovel]]:
+{| class="wikitable"
+|This is someone else's I think. I have mine already.
+|}
+
+[[Category:Characters]]
+[[Category:The Elderstone Mines]]

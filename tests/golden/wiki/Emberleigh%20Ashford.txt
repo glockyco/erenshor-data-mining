@@ -1,0 +1,49 @@
+{{Enemy
+|name=Emberleigh Ashford
+|image=[[File:Emberleigh Ashford.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Port Azure]]
+|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
+|zones=[[Willowwatch Ridge]]
+|coordinates=502.7 x 52.0 x 447.1
+|spawnchance=
+|respawn=6 minutes
+|guaranteeddrops=
+|droprates=
+|level=15
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=4550
+|mana=225
+|ac=225
+|strength=35
+|endurance=35
+|dexterity=35
+|agility=35
+|intelligence=35
+|wisdom=35
+|charisma=35
+|magic=8-18
+|poison=8-18
+|elemental=8-18
+|void=8-18
+|spells={{AbilityLink|Brax's Rage}}<br>{{AbilityLink|Theft of Life}}
+}}
+
+Greeting message:
+{| class="wikitable"
+| Hello there traveler. What brings you to <span style="color: #15e300;">[Willowwatch]</span>?
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[Willowwatch]</span>
+|Our little corner of Erenshor. We're tucked away pretty safeley up here, and if you look over the clifftops to the East you can just make out Fernalla's Willow over in the Revival Plains. Lots of folks have been passin' through looking for shelter, but we cannot afford more to care for.
+|}
+
+[[Category:Characters]]
+[[Category:Willowwatch Ridge]]

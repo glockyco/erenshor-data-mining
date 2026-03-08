@@ -1,0 +1,60 @@
+{{Enemy
+|name=Valao the Holy
+|image=[[File:Valao the Holy.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=-15 [[The Solunarian Brotherhood]]
+|zones=[[Soluna's Landing]]
+|coordinates=154.0 x 101.5 x 656.0
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates=
+|level=39
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=68250
+|mana=0
+|ac=585
+|strength=255
+|endurance=255
+|dexterity=255
+|agility=255
+|intelligence=255
+|wisdom=255
+|charisma=255
+|magic=20-47
+|poison=20-47
+|elemental=20-47
+|void=20-47
+|spells=
+}}
+Valao the Holy is located at the Solunarian holy place in [[Soluna's Landing]]
+
+Greeting message: (If you are not a [[Paladin]])
+{| class="wikitable"
+|Defilers are not welcome.
+|}
+
+Greeting message:
+{| class="wikitable"
+|This Shrine belongs to Soluna. One day, she'll repossess the <span style="color: #15e300;">[statue]</span> and grace us again with her presence.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[statue]</span>:
+|Soluna takes on many forms, for your world she chose that one. Her very existence is like that of the universe - shapeless, timeless, and all encompassing.
+|}
+
+Upon giving Valao the [[Faded Journal Entry]]
+{| class="wikitable"
+|You meddle in things you do not understand. Raval was sacrificed to preserve Soluna herself. If he is not honored to have enjoyed that opportunity, he is no Paladin, and you having dispatched him was a favor to Soluna. Our gratitude is with you.<br><br><i>You will then complete {{QuestLink|link=Note to Soluna}} and he will give you [[Rune of Soluna's Landing]]</i>
+|}
+
+[[Category:Characters]]
+[[Category:Soluna's Landing]]

@@ -1,0 +1,56 @@
+{{Enemy
+|name=Victor Goldview
+|image=[[File:Victor Goldview.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Port Azure]]
+|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
+|zones=[[Fernalla's Revival Plains]]
+|coordinates=168.9 x 37.8 x 577.9
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=3250
+|mana=100
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+Victor is an NPC located at the refugee camp in [[Fernalla's Revival Plains]]. He is a survivor of the attack on Goodsoil.
+
+Greeting message:
+{| class="wikitable"
+|It was awful... <span style="color: #15e300;">[they]</span> came from everywhere... I bet it was those <span style="color: #15e300;">[apologists]</span> from Restful Valley... their houses aren't burned. Why do you think that is?
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[they]</span> and <span style="color: #15e300;">[who]</span>
+Sivakayans... it had to be. Armor as black as night...
+|-
+|<span style="color: #15e300;">[apologists]</span>
+Went and formed their own little town. Said that Port Azure has no right to spread out like this. They said the Sivakayans aren't that bad - hah! Look at our town!
+|-
+|<span style="color: #15e300;">[Yarren]</span>
+Yarren? Haven't seen him since the raid. I hope he's ok.
+|}
+
+[[Category:Characters]]
+[[Category:Fernalla's Revival Plains]]

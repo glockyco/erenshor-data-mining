@@ -1,0 +1,98 @@
+{{Enemy
+|name=Sven Feartines
+|image=[[File:Sven Feartines.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Blades of Vitheo]]
+|factionChange=+2 [[The Agents of The Wisp]]<br>-20 [[The Blades of Vitheo]]<br>+2 [[The Children of Sivakaya]]<br>-20 [[The Citizens of Port Azure]]
+|zones=[[Port Azure]]
+|coordinates=282.1 x 13.5 x 339.2
+|spawnchance=
+|respawn=3 minutes
+|guaranteeddrops=
+|droprates=
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=4550
+|mana=0
+|ac=330
+|strength=125
+|endurance=5
+|dexterity=125
+|agility=5
+|intelligence=5
+|wisdom=5
+|charisma=5
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells={{AbilityLink|Minor Protection}}<br>{{AbilityLink|Minor Regeneration}}<br>{{AbilityLink|Vampiric Touch}}
+}}
+Sven is an NPC located in [[Port Azure]]. This NPC will refuse to talk to you if you are any class other than [[Duelist]].
+
+Greeting message only for [[Duelist]]:
+{| class="wikitable"
+|The Duelists of Erenshor are all welcome in this place. We work together towards common <span style="color: #15e300;">[goals]</span>.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[goals]</span>
+We hunt for lost treasures. Armors. Weapons. You name it. We follow clues and we find them. We always find them.
+|}
+
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Skill Book: Blood Feast}}
+|[[Ability Books|Skill Book]]
+|55
+|-
+|{{ItemLink|Skill Book: Dodge}}
+|[[Ability Books|Skill Book]]
+|55
+|-
+|{{ItemLink|Skill Book: Dual Wield}}
+|[[Ability Books|Skill Book]]
+|100
+|-
+|{{ItemLink|Skill Book: Double Attack}}
+|[[Ability Books|Skill Book]]
+|100
+|-
+|{{ItemLink|Skill Book: Kick}}
+|[[Ability Books|Skill Book]]
+|75
+|-
+|{{ItemLink|Skill Book: Melee Proficiency}}
+|[[Ability Books|Skill Book]]
+|225
+|-
+|{{ItemLink|Spell Scroll: Death's Embrace}}
+|[[Ability Books|Spell Scroll]]
+|200
+|-
+|{{ItemLink|Polished Longsword}}
+|[[Weapons|Sword]]
+|25
+|-
+|{{ItemLink|Light Plate Breastplate}}
+|[[Armor#Chest|Chest Armor]]
+|75
+|-
+|{{ItemLink|Light Plate Greaves}}
+|[[Armor#Leg|Leg Armor]]
+|55
+|}
+
+[[Category:Characters]]
+[[Category:Port Azure]]
+[[Category:Vendors]]

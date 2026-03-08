@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Healing
+|type=[[Ability Books|Spell Scroll]]
+|vendorsource=[[Alexander Farland]]
+|source=[[Acceptor]] (3.1%)<br>[[Gasper]] (2.0%)<br>[[Ecclesiarch]] (2.0%)<br>[[Prioress]] (2.0%)<br>[[Acolyte]] (1.7%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=1225
+|sell=796
+|taughtspell={{AbilityLink|Healing}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Healing.png
+|name=Spell Scroll: Healing
+|arcanist_level=
+|druid_level=16
+|duelist_level=
+|paladin_level=16
+|stormcaller_level=
+|reaver_level=
+|mana_cost=110
+|spell_type=Heal
+|spell_desc=Heals base 300 damage
+}}
+
+[[Category:Ability Books]]

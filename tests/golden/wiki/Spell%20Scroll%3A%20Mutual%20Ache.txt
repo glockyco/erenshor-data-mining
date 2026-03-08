@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Mutual Ache
+|type=
+|vendorsource=[[Aillee Desten]]<br>[[Xander Zaxtrough]]<br>[[Zane Theavale]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=220
+|sell=143
+|taughtspell={{AbilityLink|Mutual Ache}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Mutual Ache.png
+|name=Spell Scroll: Mutual Ache
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=5
+|mana_cost=75
+|spell_type=Damage
+|spell_desc=Deals base 50 scaling void damage to your target, and 50 true damage to yourself
+}}
+
+[[Category:Ability Books]]

@@ -1,0 +1,23 @@
+FactionDBIndex,StableKey,FactionName,FactionDesc,DefaultValue,REFNAME,ResourceName
+0,faction:ancientschool,The Ancients,The Ancients,0.0,AncientSchool,Ancient School
+1,faction:aquilimar,Aquilimar,Aquilimar Guild,-200.0,Aquilimar,Aquilamars
+2,faction:azurecitizens,Citizens of Port Azure,The Citizens of Port Azure,100.0,AzureCitizens,AzureCitizens
+3,faction:azureguard,The Azure Guard,The Azure Guard,100.0,AZUREGUARD,AzureGuard
+4,faction:brax,Torchbearers of Brax,the Torchbearers of Brax,250.0,Brax,Brax
+5,faction:nightmarecollective,The Nightmare Collective,The Nightmare Collective,-200.0,NightmareCollective,Dreamers
+6,faction:molarai,Eldoth Molorai,Eldoth Molorai,-300.0,Molarai,Eldoth Molarai
+7,faction:fernalla,Fernalla's Children,Fernalla's Children,250.0,Fernalla,Fernalla
+8,faction:evil,Generic Evil,The Followers of Evil,-300.0,EVIL,Generic Evil
+9,faction:good,Generic Good,The Followers of Good,400.0,GOOD,Generic Good
+10,faction:islandnecro,Mysterious Necromancers,The Necromancers of the Island Tomb,1.0,IslandNecro,Mysterious Necromancers
+11,faction:nagalok,Brackish Coast Nagaloks,The Brackish Coast Nagaloks,-20.0,Nagalok,Nagaloks
+12,faction:erenshorcitizens,People of Erenshor,The Citizens of Erenshor,250.0,ErenshorCitizens,People of Erenshor
+13,faction:priel,Savannah Priel,Savannah Priel,-200.0,Priel,Priel
+14,faction:ripper,Ripper DeMerth,Ripper DeMerth,40.0,RIPPER,Ripper
+15,faction:sivakayans,Followers Of Sivakaya,The Children of Sivakaya,-250.0,Sivakayans,Sivakaya
+16,faction:skyfolk,Skyfolk,The Skyfolk,-10.0,Skyfolk,Skyfolk
+17,faction:solunarians,The Solunarian Brotherhood,The Solunarian Brotherhood,200.0,Solunarians,Soluna
+18,faction:stowaway,The Citizens of Stowaway's Step,The Citizens of Stowaway's Step,300.0,Stowaway,Stowaway
+19,faction:huntsmen,The Huntsmen,The Huntsmen,15.0,Huntsmen,The Huntsmen
+20,faction:vitheo,The Blades of Vitheo,The Blades of Vitheo,250.0,Vitheo,Vitheo
+21,faction:wispagent,The Agents of The Wisp,The Agents of The Wisp,25.0,WispAgent,WispAgent

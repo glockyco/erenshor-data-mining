@@ -1,0 +1,4615 @@
+[[Weapons]] in [[Erenshor]] let you decide how you deal physical damage.
+
+There are multiple types of weapons with different damage and delay.
+
+Weapons divide into four main categories - Primary which are equipped in the Main Hand, Secondary which are equipped in the Off Hand, Primary - 2-Handed which are equipped in the main hand and take up both hand slots, and Primary or Secondary which can be equipped in either hand.
+
+{| class="wikitable datatable compact hover" style="font-size: 14px; text-align: center;"
+!Weapon
+!Slot
+!Type
+!class="numeric"|Level
+!class="numeric"|Damage
+!class="numeric"|Delay
+!class="numeric"|HP
+!class="numeric"|Mana
+!class="numeric"|AC
+!class="numeric"|Str
+!class="numeric"|End
+!class="numeric"|Dex
+!class="numeric"|Agi
+!class="numeric"|Int
+!class="numeric"|Wis
+!class="numeric"|Cha
+!class="numeric"|Res
+!class="numeric"|MR
+!class="numeric"|PR
+!class="numeric"|ER
+!class="numeric"|VR
+!Notes
+![[Classes]]
+|-
+|style="text-align: left;"|{{ItemLink|Anointed Sword}}
+|Primary
+|1H Melee
+|14
+|25
+|2
+|20
+|15
+|
+|5
+|5
+|
+|
+|5
+|5
+|
+|
+|
+|
+|
+|
+|{{AbilityLink|Glare of Soluna}}, 8% on attack
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Azynthian Blade}}
+|Primary
+|1H Melee
+|33
+|32
+|1.8
+|250
+|200
+|50
+|8
+|8
+|8
+|
+|8
+|8
+|
+|1
+|
+|
+|
+|
+|{{AbilityLink|Soul Tap}}, 75% on attack
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Blackbone Axe}}
+|Primary
+|1H Melee
+|38
+|44
+|2
+|250
+|400
+|35
+|10
+|10
+|5
+|
+|
+|10
+|
+|3
+|
+|
+|
+|1
+|{{AbilityLink|Focus Pain}}, 33% on attack
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Bramblecull}}
+|Primary
+|1H Melee
+|38
+|34
+|2
+|185
+|65
+|45
+|10
+|10
+|8
+|5
+|
+|12
+|5
+|3
+|
+|
+|
+|
+|{{AbilityLink|Tangle}}, 10% on attack
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Diamondine Mace}}
+|Primary
+|1H Melee
+|18
+|15
+|3
+|45
+|
+|
+|5
+|5
+|5
+|
+|5
+|
+|
+|
+|
+|
+|
+|
+|{{AbilityLink|Ice Spear}}, 90% on attack
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Dreamslayer}}
+|Primary
+|1H Melee
+|22
+|30
+|1.9
+|45
+|35
+|10
+|4
+|4
+|3
+|
+|
+|
+|
+|
+|
+|
+|
+|2
+|{{AbilityLink|Vampirism}}, 4% on attack
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Dusken Staff}}
+|Primary
+|1H Melee
+|22
+|31
+|2
+|
+|
+|
+|6
+|
+|4
+|
+|6
+|6
+|
+|1
+|
+|5
+|
+|
+|
+|[[Arcanist]], [[Paladin]], [[Reaver]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Eon, Blade of Time}}
+|Primary
+|1H Melee
+|40
+|42
+|1.8
+|550
+|250
+|50
+|15
+|10
+|10
+|
+|10
+|10
+|
+|3
+|6
+|
+|2
+|6
+|{{AbilityLink|Group Revitalize}}, 20% on attack
+|[[Paladin]]
+|-
+|style="text-align: left;"|{{ItemLink|Executioner of Azure}}
+|Primary
+|1H Melee
+|36
+|40
+|3
+|275
+|150
+|15
+|10
+|10
+|10
+|
+|
+|
+|
+|
+|
+|
+|
+|6
+|{{AbilityLink|Theft of Vigor}}, 10% on attack
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Fishing Pole}}
+|Primary
+|1H Melee
+|
+|3
+|6
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Frostmaker}}
+|Primary
+|1H Melee
+|33
+|35
+|2.9
+|225
+|100
+|
+|8
+|8
+|5
+|5
+|
+|5
+|
+|
+|
+|
+|
+|
+|{{AbilityLink|Winter's Bite}}, 65% on attack
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Fungal Edge}}
+|Primary
+|1H Melee
+|20
+|28
+|1.95
+|10
+|
+|
+|6
+|8
+|2
+|
+|
+|
+|
+|
+|
+|5
+|
+|
+|
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Lamentation}}
+|Primary
+|1H Melee
+|28
+|28
+|2
+|100
+|45
+|
+|12
+|12
+|6
+|
+|
+|
+|5
+|1
+|
+|
+|
+|
+|
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Mino Hatchet}}
+|Primary
+|1H Melee
+|24
+|13
+|1.15
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|5
+|
+|
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Minoaxe}}
+|Primary
+|1H Melee
+|20
+|24
+|3
+|10
+|
+|
+|4
+|10
+|4
+|
+|
+|
+|
+|
+|
+|4
+|
+|
+|
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Ogre Tooth Club}}
+|Primary
+|1H Melee
+|9
+|15
+|2
+|60
+|
+|
+|2
+|
+|
+|
+|6
+|6
+|3
+|
+|2
+|2
+|
+|4
+|{{AbilityLink|Dazzle}}, 15% on attack
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Ripparian Axe}}
+|Primary
+|1H Melee
+|36
+|30
+|1.85
+|65
+|
+|
+|7
+|7
+|7
+|7
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Sivakayan Axe}}
+|Primary
+|1H Melee
+|24
+|33
+|2
+|35
+|
+|
+|5
+|5
+|5
+|5
+|
+|
+|
+|
+|
+|5
+|
+|
+|{{AbilityLink|Soul Tap}}, 5% on attack
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Unholy Bonesaw}}
+|Primary
+|1H Melee
+|24
+|29
+|1.8
+|35
+|
+|
+|6
+|6
+|4
+|5
+|
+|
+|
+|
+|
+|
+|
+|5
+|{{AbilityLink|Focus Pain}}, 5% on attack
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|World Builder}}
+|Primary
+|1H Melee
+|28
+|33
+|2.1
+|95
+|65
+|
+|10
+|10
+|10
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|{{AbilityLink|Focus Pain}}, 15% on attack
+|[[Druid]], [[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Arc, Crescent of the Void}}
+|Primary
+|Bow
+|40
+|43
+|1.25
+|600
+|450
+|
+|35
+|
+|40
+|20
+|55
+|
+|
+|1
+|
+|
+|
+|
+|{{AbilityLink|Fury of the Sky}}, 10% on attack
+|[[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Braxonian Bow}}
+|Primary
+|Bow
+|28
+|33
+|1.2
+|125
+|125
+|
+|15
+|
+|18
+|18
+|5
+|
+|
+|
+|
+|
+|3
+|
+|{{AbilityLink|Brax's Touch}}, 12% on attack
+|[[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Carved Bow}}
+|Primary
+|Bow
+|4
+|14
+|1
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Deathgiver}}
+|Primary
+|Bow
+|30
+|34
+|1.1
+|155
+|200
+|
+|30
+|
+|15
+|15
+|10
+|
+|
+|1
+|
+|
+|
+|3
+|{{AbilityLink|Cull the Unfit}}, 4% on attack
+|[[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Executioner's Bow}}
+|Primary
+|Bow
+|8
+|29
+|1.4
+|
+|
+|
+|2
+|1
+|2
+|
+|1
+|1
+|1
+|
+|
+|
+|
+|
+|
+|[[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Humanbone}}
+|Primary
+|Bow
+|14
+|28
+|1
+|40
+|
+|
+|6
+|
+|3
+|3
+|3
+|
+|
+|
+|
+|3
+|
+|
+|{{AbilityLink|Theft of Life}}, 5% on attack
+|[[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Icy Bow}}
+|Primary
+|Bow
+|35
+|6
+|1.8
+|150
+|150
+|
+|
+|
+|
+|
+|40
+|
+|
+|3
+|3
+|
+|
+|5
+|{{AbilityLink|Ice Shock}}, 99% on attack
+|[[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Merosavillian Bow}}
+|Primary
+|Bow
+|21
+|30
+|1
+|40
+|
+|
+|4
+|
+|6
+|4
+|4
+|
+|
+|
+|3
+|
+|
+|
+|{{AbilityLink|Vithean Breeze}}, 5% on attack
+|[[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Molorai Bow}}
+|Primary
+|Bow
+|14
+|23
+|1.15
+|
+|
+|
+|3
+|
+|6
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Necromantic Bow}}
+|Primary
+|Bow
+|31
+|35
+|1.5
+|185
+|155
+|
+|20
+|
+|25
+|25
+|15
+|
+|
+|
+|
+|
+|
+|3
+|{{AbilityLink|Devour}}, 9% on attack
+|[[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Oldenbow}}
+|Primary
+|Bow
+|34
+|38
+|1.4
+|225
+|200
+|
+|25
+|
+|30
+|15
+|20
+|
+|
+|1
+|
+|
+|
+|
+|{{AbilityLink|Ice Spear}}, 8% on attack
+|[[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Recurve Bow}}
+|Primary
+|Bow
+|11
+|25
+|1.2
+|
+|
+|
+|2
+|
+|2
+|
+|
+|
+|2
+|
+|
+|
+|
+|
+|
+|[[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Rotwood Bow}}
+|Primary
+|Bow
+|6
+|18
+|1
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Seastring}}
+|Primary
+|Bow
+|14
+|26
+|1.33
+|25
+|
+|
+|3
+|
+|5
+|
+|5
+|
+|
+|
+|
+|
+|3
+|
+|
+|[[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Siva Bow}}
+|Primary
+|Bow
+|34
+|40
+|1.3
+|200
+|155
+|
+|20
+|
+|30
+|20
+|25
+|
+|
+|1
+|3
+|
+|
+|5
+|{{AbilityLink|Devour}}, 3% on attack
+|[[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Spectral Bow}}
+|Primary
+|Bow
+|24
+|31
+|1.15
+|40
+|
+|
+|6
+|
+|7
+|4
+|7
+|
+|
+|
+|4
+|
+|
+|
+|{{AbilityLink|Jolt}}, 5% on attack
+|[[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Traveler's Bow}}
+|Primary
+|Bow
+|2
+|10
+|1
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Whitewood}}
+|Primary
+|Bow
+|7
+|21
+|1
+|
+|
+|
+|2
+|
+|2
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Awaken}}
+|Primary - 2-Handed
+|2H Melee
+|16
+|24
+|2
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|{{AbilityLink|Soul Tap}}, 15% on attack
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Diamond Claymore}}
+|Primary - 2-Handed
+|2H Melee
+|25
+|37
+|2.2
+|55
+|
+|
+|25
+|15
+|15
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|{{AbilityLink|Diamond Burst}}, 25% on attack
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Fungal Greatsword}}
+|Primary - 2-Handed
+|2H Melee
+|30
+|33
+|1.5
+|225
+|100
+|25
+|20
+|15
+|15
+|
+|5
+|
+|
+|
+|
+|6
+|
+|
+|{{AbilityLink|Forest's Reckoning}}, 25% on attack
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Fungal Staff}}
+|Primary - 2-Handed
+|2H Melee
+|29
+|33
+|2
+|75
+|
+|
+|5
+|5
+|
+|
+|10
+|10
+|
+|
+|
+|
+|
+|
+|{{AbilityLink|Cave Lung}}, 20% on attack
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Heavy Bladed Mace}}
+|Primary - 2-Handed
+|2H Melee
+|8
+|19
+|2
+|15
+|
+|
+|5
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Lamplighter's Pole}}
+|Primary - 2-Handed
+|2H Melee
+|25
+|25
+|1.2
+|120
+|120
+|
+|
+|
+|
+|
+|20
+|20
+|10
+|2
+|
+|
+|
+|
+|{{AbilityLink|Brax's Rage}}, 20% on attack
+|[[Arcanist]], [[Druid]]
+|-
+|style="text-align: left;"|{{ItemLink|Molten Axe}}
+|Primary - 2-Handed
+|2H Melee
+|39
+|35
+|1.1
+|250
+|250
+|
+|25
+|25
+|5
+|
+|
+|10
+|
+|3
+|
+|
+|10
+|
+|{{AbilityLink|Magma Coat}}, 8% on attack
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Monarch's Blade}}
+|Primary - 2-Handed
+|2H Melee
+|39
+|33
+|1.2
+|300
+|200
+|
+|40
+|10
+|
+|
+|
+|10
+|5
+|2
+|6
+|
+|6
+|
+|{{AbilityLink|Brax's Fury}}, 10% on attack
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Mooncutter}}
+|Primary - 2-Handed
+|2H Melee
+|24
+|33
+|2
+|50
+|50
+|
+|8
+|4
+|4
+|
+|
+|
+|
+|1
+|2
+|
+|
+|
+|{{AbilityLink|Concuss}}, 4% on attack
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Nightfall}}
+|Primary - 2-Handed
+|2H Melee
+|6
+|13
+|2.2
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|{{AbilityLink|Theft of Life}}, 3% on attack
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Old Halberd}}
+|Primary - 2-Handed
+|2H Melee
+|6
+|24
+|4.1
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Parallax, Key to the Void}}
+|Primary - 2-Handed
+|2H Melee
+|40
+|35
+|1
+|655
+|300
+|100
+|35
+|15
+|30
+|5
+|25
+|15
+|
+|5
+|5
+|
+|5
+|10
+|{{AbilityLink|Sever}}, 10% on attack
+|[[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Reaver's Steel}}
+|Primary - 2-Handed
+|2H Melee
+|39
+|35
+|1
+|245
+|200
+|
+|35
+|15
+|15
+|
+|
+|
+|10
+|2
+|2
+|
+|2
+|6
+|{{AbilityLink|Void Surge}}, 33% on attack
+|[[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Rusty Greatsword}}
+|Primary - 2-Handed
+|2H Melee
+|3
+|10
+|2.4
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Sea Giant's Cutlass}}
+|Primary - 2-Handed
+|2H Melee
+|8
+|20
+|2
+|
+|
+|
+|5
+|5
+|5
+|
+|
+|
+|
+|
+|
+|
+|5
+|
+|
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Smoldering Blade}}
+|Primary - 2-Handed
+|2H Melee
+|25
+|33
+|2.3
+|25
+|
+|
+|20
+|20
+|
+|
+|
+|5
+|
+|
+|
+|
+|
+|
+|{{AbilityLink|Brax's Rage}}, 33% on attack
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Soulshiver}}
+|Primary - 2-Handed
+|2H Melee
+|31
+|31
+|1.4
+|255
+|100
+|
+|25
+|20
+|10
+|
+|
+|
+|
+|
+|
+|
+|6
+|
+|{{AbilityLink|Winter's Bite}}, 20% on attack
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Spidersmasher}}
+|Primary - 2-Handed
+|2H Melee
+|13
+|25
+|2.5
+|
+|
+|
+|10
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|5
+|
+|
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Standard Halberd}}
+|Primary - 2-Handed
+|2H Melee
+|6
+|20
+|4.25
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Tarnished Halberd}}
+|Primary - 2-Handed
+|2H Melee
+|17
+|28
+|2.6
+|25
+|
+|
+|12
+|12
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|{{AbilityLink|Concuss}}, 10% on attack
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Thryne, Sledge of Creation}}
+|Primary - 2-Handed
+|2H Melee
+|39
+|36
+|1.2
+|600
+|250
+|50
+|30
+|20
+|20
+|5
+|5
+|15
+|
+|5
+|10
+|
+|10
+|
+|{{AbilityLink|Magical Skin II}}, 3% on attack
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Woebringer - Halberd of Stone}}
+|Primary - 2-Handed
+|2H Melee
+|17
+|28
+|2.5
+|25
+|
+|
+|10
+|10
+|5
+|
+|
+|
+|
+|
+|
+|
+|4
+|
+|
+|[[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Pathfinder's Staff}}
+|Primary - 2-Handed
+|2H Staff
+|9
+|15
+|5
+|40
+|30
+|
+|
+|
+|
+|
+|10
+|14
+|10
+|1
+|5
+|5
+|5
+|5
+|
+|[[Druid]]
+|-
+|style="text-align: left;"|{{ItemLink|Stirrer of Sleep}}
+|Primary - 2-Handed
+|2H Staff
+|28
+|30
+|3
+|300
+|355
+|40
+|20
+|10
+|
+|
+|20
+|20
+|
+|6
+|
+|
+|
+|
+|{{AbilityLink|Tenebris}}, 3% on attack
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Argo's Grimoire}}
+|Primary or Secondary
+|
+|10
+|
+|
+|25
+|35
+|
+|
+|
+|
+|
+|4
+|4
+|4
+|1
+|2
+|2
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Ascended Remains}}
+|Primary or Secondary
+|
+|37
+|1
+|5
+|300
+|200
+|
+|
+|
+|
+|
+|15
+|15
+|15
+|2
+|
+|
+|
+|8
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Braxonian Testament}}
+|Primary or Secondary
+|
+|31
+|
+|
+|
+|350
+|
+|
+|
+|
+|
+|8
+|20
+|10
+|1
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Celestial Spike}}
+|Primary or Secondary
+|
+|25
+|
+|
+|85
+|100
+|5
+|
+|4
+|4
+|
+|10
+|10
+|
+|1
+|
+|
+|
+|3
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Idol of Sivakaya}}
+|Primary or Secondary
+|
+|5
+|
+|
+|
+|20
+|
+|
+|
+|
+|
+|4
+|4
+|4
+|
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Pearlescent Kelp Totem}}
+|Primary or Secondary
+|
+|17
+|
+|
+|
+|75
+|
+|
+|
+|
+|
+|9
+|9
+|5
+|1
+|4
+|
+|4
+|
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Priest's Stein}}
+|Primary or Secondary
+|
+|18
+|1
+|5
+|35
+|35
+|5
+|
+|
+|
+|
+|4
+|15
+|2
+|1
+|
+|
+|
+|
+|{{AbilityLink|Group Heal}}, 4% on attack
+|[[Druid]]
+|-
+|style="text-align: left;"|{{ItemLink|Siva-Braxonian Teachings}}
+|Primary or Secondary
+|
+|32
+|
+|
+|155
+|155
+|5
+|5
+|5
+|
+|
+|25
+|25
+|5
+|2
+|
+|
+|5
+|5
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Tome of Necromancy}}
+|Primary or Secondary
+|
+|39
+|
+|
+|225
+|225
+|
+|5
+|5
+|
+|
+|30
+|20
+|20
+|4
+|
+|
+|
+|12
+|On click: {{AbilityLink|Summon Skeleton}}
+|[[Arcanist]]
+|-
+|style="text-align: left;"|{{ItemLink|Ulor's Encyclopedia}}
+|Primary or Secondary
+|
+|36
+|
+|
+|200
+|200
+|5
+|5
+|5
+|
+|
+|20
+|15
+|15
+|3
+|4
+|4
+|4
+|4
+|On click: {{AbilityLink|Sleep}}
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Apotheosis}}
+|Primary or Secondary
+|1H Dagger
+|38
+|20
+|1.1
+|225
+|125
+|25
+|6
+|6
+|10
+|10
+|5
+|5
+|10
+|3
+|
+|
+|
+|
+|{{AbilityLink|Vithean Revenge}}, 2% on attack
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Asp's Fang}}
+|Primary or Secondary
+|1H Dagger
+|29
+|18
+|1.5
+|
+|
+|
+|15
+|5
+|10
+|5
+|5
+|
+|1
+|1
+|
+|
+|
+|
+|{{AbilityLink|Venom of the Asp}}, 10% on attack
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Azynthian Dagger}}
+|Primary or Secondary
+|1H Dagger
+|35
+|20
+|1.5
+|150
+|200
+|5
+|
+|
+|8
+|
+|10
+|10
+|
+|1
+|
+|
+|
+|
+|{{AbilityLink|Soul Tap}}, 4% on attack
+|[[Arcanist]], [[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Ebonshade}}
+|Primary or Secondary
+|1H Dagger
+|19
+|18
+|2
+|
+|
+|
+|3
+|3
+|6
+|
+|
+|
+|2
+|1
+|
+|
+|
+|
+|{{AbilityLink|Death's Embrace}}, 10% on attack
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Ephermalia, Blade of Waning}}
+|Primary or Secondary
+|1H Dagger
+|28
+|14
+|1.1
+|
+|
+|
+|10
+|
+|5
+|2
+|2
+|2
+|2
+|
+|
+|
+|
+|3
+|{{AbilityLink|Dark Haste}}, 10% on attack
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Horn of Aeiros}}
+|Primary or Secondary
+|1H Dagger
+|39
+|21
+|1.3
+|275
+|150
+|30
+|5
+|5
+|10
+|
+|15
+|5
+|5
+|3
+|
+|
+|
+|
+|{{AbilityLink|Devour}}, 3% on attack
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Lux, Carver of Stars}}
+|Primary or Secondary
+|1H Dagger
+|40
+|18
+|1.1
+|300
+|200
+|
+|
+|10
+|15
+|10
+|
+|
+|10
+|3
+|6
+|
+|6
+|
+|{{AbilityLink|Sunburst (Lux)|text=Sunburst}}, 8% on attack
+|[[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Messenger}}
+|Primary or Secondary
+|1H Dagger
+|36
+|8
+|1.1
+|100
+|225
+|
+|
+|
+|15
+|
+|15
+|
+|
+|1
+|
+|
+|
+|
+|{{AbilityLink|Brax's Touch}}, 70% on attack
+|[[Arcanist]], [[Druid]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Oslind's Eviscerator}}
+|Primary or Secondary
+|1H Dagger
+|31
+|17
+|1.3
+|
+|
+|
+|4
+|
+|12
+|5
+|
+|
+|4
+|5
+|
+|
+|3
+|3
+|{{AbilityLink|Soul Tap}}, 10% on attack
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Priel Knife}}
+|Primary or Secondary
+|1H Dagger
+|4
+|6
+|1.2
+|
+|
+|
+|
+|
+|2
+|
+|
+|
+|2
+|
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Queen's Fang}}
+|Primary or Secondary
+|1H Dagger
+|19
+|10
+|1
+|
+|
+|
+|
+|
+|10
+|
+|6
+|6
+|2
+|
+|
+|
+|
+|
+|{{AbilityLink|Queen's Bite}}, 10% on attack
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Rusty Dagger}}
+|Primary or Secondary
+|1H Dagger
+|1
+|4
+|1
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|The Interrogator}}
+|Primary or Secondary
+|1H Dagger
+|12
+|30
+|6
+|
+|
+|
+|2
+|
+|4
+|
+|4
+|2
+|5
+|
+|
+|
+|
+|
+|{{AbilityLink|Magic Bolt}}, 35% on attack
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Thorned Branch}}
+|Primary or Secondary
+|1H Dagger
+|19
+|12
+|1
+|
+|
+|
+|8
+|
+|4
+|
+|8
+|
+|
+|
+|
+|
+|
+|
+|{{AbilityLink|Blast of Thorns}}, 10% on attack
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Acolyte's Cudgel}}
+|Primary or Secondary
+|1H Melee
+|18
+|12
+|1.6
+|
+|
+|
+|
+|5
+|2
+|
+|
+|
+|
+|
+|
+|
+|
+|3
+|{{AbilityLink|Dark Haste}}, 5% on attack
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Basic Pick}}
+|Primary or Secondary
+|1H Melee
+|2
+|1
+|2
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Bear Bone Club}}
+|Primary or Secondary
+|1H Melee
+|6
+|12
+|1.7
+|
+|
+|
+|
+|
+|
+|
+|2
+|2
+|
+|
+|5
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Blackflame Torch}}
+|Primary or Secondary
+|1H Melee
+|18
+|3
+|1.3
+|
+|50
+|
+|
+|
+|
+|
+|6
+|
+|
+|1
+|3
+|3
+|3
+|3
+|
+|[[Arcanist]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Blade of the Sea}}
+|Primary or Secondary
+|1H Melee
+|12
+|15
+|1.65
+|
+|
+|
+|2
+|
+|2
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|{{AbilityLink|Vitheo's Blessing of the Sea}}, 5% on attack
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Bloodletter}}
+|Primary or Secondary
+|1H Melee
+|13
+|21
+|2.1
+|
+|
+|
+|3
+|3
+|3
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Brackwood Mace}}
+|Primary or Secondary
+|1H Melee
+|3
+|6
+|1.3
+|10
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Braxonian Mace}}
+|Primary or Secondary
+|1H Melee
+|30
+|15
+|1.1
+|
+|
+|
+|
+|
+|8
+|
+|8
+|
+|
+|1
+|
+|
+|
+|9
+|{{AbilityLink|Brax's Rage}}, 8% on attack
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Ceto}}
+|Primary or Secondary
+|1H Melee
+|29
+|20
+|1.5
+|175
+|175
+|
+|10
+|10
+|8
+|
+|
+|
+|
+|
+|
+|
+|6
+|
+|Worn: {{AbilityLink|Ocean's Kiss}}
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Charged Sword}}
+|Primary or Secondary
+|1H Melee
+|35
+|18
+|1.3
+|145
+|145
+|
+|8
+|8
+|10
+|5
+|5
+|5
+|5
+|1
+|
+|
+|
+|
+|{{AbilityLink|Major Lightning}}, 7% on attack
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Cinder of Birth}}
+|Primary or Secondary
+|1H Melee
+|20
+|10
+|1
+|55
+|250
+|
+|
+|
+|
+|
+|10
+|10
+|
+|2
+|
+|
+|2
+|
+|{{AbilityLink|Brax's Rage}}, 10% on attack
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Copper Sword}}
+|Primary or Secondary
+|1H Melee
+|1
+|8
+|1.5
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Cryptid Claws}}
+|Primary or Secondary
+|1H Melee
+|36
+|22
+|1.3
+|275
+|175
+|
+|8
+|8
+|15
+|
+|
+|8
+|8
+|2
+|
+|
+|
+|
+|{{AbilityLink|Beast's Clutch}}, 5% on attack
+|[[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Crystallized Tactics}}
+|Primary or Secondary
+|1H Melee
+|24
+|
+|
+|100
+|145
+|10
+|
+|
+|
+|
+|12
+|12
+|12
+|1
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Deciding Blade}}
+|Primary or Secondary
+|1H Melee
+|99
+|20
+|1
+|
+|
+|
+|
+|
+|7
+|
+|10
+|
+|10
+|1
+|5
+|
+|
+|5
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Demon Claw}}
+|Primary or Secondary
+|1H Melee
+|25
+|15
+|1.1
+|
+|
+|
+|3
+|
+|3
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|{{AbilityLink|Grip of Grief}}, 2% on attack
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Diamond Claw}}
+|Primary or Secondary
+|1H Melee
+|25
+|13
+|1
+|
+|
+|
+|5
+|
+|7
+|
+|3
+|3
+|
+|1
+|
+|
+|
+|
+|{{AbilityLink|Diamond Burst}}, 4% on attack
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Diamond Edged Sword}}
+|Primary or Secondary
+|1H Melee
+|30
+|15
+|1
+|
+|
+|
+|10
+|
+|10
+|
+|5
+|
+|4
+|1
+|5
+|
+|
+|
+|{{AbilityLink|Diamond Burst}}, 5% on attack
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|End's Bane}}
+|Primary or Secondary
+|1H Melee
+|24
+|12
+|1.25
+|
+|
+|
+|10
+|
+|8
+|
+|
+|8
+|
+|
+|
+|
+|
+|4
+|{{AbilityLink|Group Heal}}, 5% on attack
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Esen}}
+|Primary or Secondary
+|1H Melee
+|37
+|20
+|1.5
+|175
+|175
+|
+|5
+|
+|
+|10
+|5
+|10
+|10
+|
+|6
+|
+|
+|
+|{{AbilityLink|Aetherstorm}}, 5% on attack
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Fungal Longsword}}
+|Primary or Secondary
+|1H Melee
+|30
+|14
+|1.05
+|
+|
+|
+|6
+|
+|4
+|
+|8
+|
+|4
+|1
+|
+|6
+|
+|
+|{{AbilityLink|Blast of Thorns}}, 10% on attack
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Glowing Blue Stone}}
+|Primary or Secondary
+|1H Melee
+|31
+|10
+|2
+|500
+|200
+|5
+|
+|
+|
+|
+|10
+|10
+|7
+|3
+|3
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Gourd Carver}}
+|Primary or Secondary
+|1H Melee
+|6
+|6
+|1.2
+|
+|
+|
+|3
+|
+|3
+|
+|
+|
+|3
+|
+|
+|
+|
+|1
+|{{AbilityLink|Magic Bolt}}, 8% on attack
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Hardened Copper Sword}}
+|Primary or Secondary
+|1H Melee
+|1
+|10
+|1.5
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Jellystick}}
+|Primary or Secondary
+|1H Melee
+|14
+|20
+|2.3
+|
+|
+|
+|
+|
+|6
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|{{AbilityLink|Marsh Rot}}, 10% on attack
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Journeyman's Pick}}
+|Primary or Secondary
+|1H Melee
+|
+|1
+|1.8
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Lamplighter's Spark}}
+|Primary or Secondary
+|1H Melee
+|6
+|1
+|3
+|25
+|25
+|
+|
+|
+|
+|
+|5
+|5
+|5
+|1
+|
+|
+|1
+|
+|{{AbilityLink|Ethereal Rending}}, 2% on attack
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Looming Reaper}}
+|Primary or Secondary
+|1H Melee
+|30
+|13
+|1
+|200
+|200
+|
+|
+|
+|
+|
+|5
+|20
+|5
+|4
+|3
+|6
+|3
+|
+|
+|[[Druid]]
+|-
+|style="text-align: left;"|{{ItemLink|Mason's Pick}}
+|Primary or Secondary
+|1H Melee
+|
+|1
+|1.8
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Memories of Snow}}
+|Primary or Secondary
+|1H Melee
+|25
+|1
+|3
+|
+|
+|
+|
+|
+|
+|
+|25
+|
+|5
+|1
+|
+|
+|
+|
+|{{AbilityLink|Ice Spear}}, 20% on attack
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Mithril Short Sword}}
+|Primary or Secondary
+|1H Melee
+|30
+|16
+|1.1
+|
+|
+|
+|
+|
+|7
+|
+|10
+|
+|10
+|1
+|5
+|
+|
+|5
+|{{AbilityLink|Mithril Shards}}, 5% on attack
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Molorai Axe}}
+|Primary or Secondary
+|1H Melee
+|7
+|13
+|2
+|
+|
+|
+|5
+|2
+|2
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Molorai Broadsword}}
+|Primary or Secondary
+|1H Melee
+|16
+|11
+|1.1
+|
+|
+|10
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Nighthollow Candle}}
+|Primary or Secondary
+|1H Melee
+|100
+|1
+|15
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Petrified Club}}
+|Primary or Secondary
+|1H Melee
+|9
+|13
+|1.85
+|
+|
+|
+|5
+|
+|2
+|
+|
+|4
+|
+|
+|
+|
+|
+|
+|{{AbilityLink|Magic Bolt}}, 15% on attack
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Petrified Wood Cane}}
+|Primary or Secondary
+|1H Melee
+|33
+|15
+|1
+|245
+|245
+|35
+|
+|
+|3
+|8
+|8
+|12
+|4
+|3
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Polished Longsword}}
+|Primary or Secondary
+|1H Melee
+|6
+|10
+|1.35
+|
+|
+|10
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Razor Waveblade}}
+|Primary or Secondary
+|1H Melee
+|13
+|17
+|2.1
+|
+|
+|
+|
+|
+|8
+|2
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Reaper of Regrowth}}
+|Primary or Secondary
+|1H Melee
+|40
+|17
+|2
+|100
+|100
+|
+|
+|
+|
+|
+|10
+|15
+|10
+|5
+|
+|
+|
+|
+|{{AbilityLink|Time Stone (Effect)|text=Time Stone}}, 1% on attack
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Resonating Crystal}}
+|Primary or Secondary
+|1H Melee
+|28
+|10
+|2
+|300
+|100
+|
+|
+|
+|
+|
+|5
+|5
+|5
+|3
+|
+|
+|
+|10
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Rotting Cudgel}}
+|Primary or Secondary
+|1H Melee
+|6
+|8
+|1
+|5
+|
+|
+|
+|
+|3
+|
+|
+|3
+|
+|
+|
+|
+|
+|9
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Runed Molorai Axe}}
+|Primary or Secondary
+|1H Melee
+|7
+|14
+|2
+|
+|
+|
+|5
+|2
+|2
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|{{AbilityLink|Magic Bolt}}, 15% on attack
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Rusty Hatchet}}
+|Primary or Secondary
+|1H Melee
+|1
+|5
+|1.25
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Rusty Shortsword}}
+|Primary or Secondary
+|1H Melee
+|1
+|5
+|1.25
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Scorched Walking Stick}}
+|Primary or Secondary
+|1H Melee
+|18
+|3
+|2
+|
+|100
+|
+|3
+|
+|
+|
+|6
+|4
+|
+|
+|2
+|
+|3
+|
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Short Sword of Viropha}}
+|Primary or Secondary
+|1H Melee
+|12
+|14
+|1.8
+|
+|
+|
+|5
+|
+|5
+|
+|
+|
+|
+|
+|
+|
+|
+|4
+|{{AbilityLink|Theft of Life}}, 5% on attack
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Sivakayan Hookblade}}
+|Primary or Secondary
+|1H Melee
+|18
+|18
+|2
+|
+|
+|
+|5
+|3
+|6
+|
+|
+|
+|
+|
+|
+|
+|
+|6
+|{{AbilityLink|Void Touch}}, 5% on attack
+|[[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Sivakayan Straightsword}}
+|Primary or Secondary
+|1H Melee
+|24
+|15
+|1.4
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|4
+|{{AbilityLink|Theft of Life}}, 20% on attack
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Sleeper's Pin}}
+|Primary or Secondary
+|1H Melee
+|21
+|15
+|1.3
+|25
+|25
+|
+|
+|
+|4
+|
+|4
+|4
+|5
+|1
+|
+|
+|
+|
+|{{AbilityLink|Predator's Grace}}, 4% on attack
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Songmaker}}
+|Primary or Secondary
+|1H Melee
+|18
+|15
+|1.4
+|80
+|
+|
+|6
+|
+|3
+|
+|
+|
+|7
+|
+|
+|
+|
+|9
+|{{AbilityLink|Theft of Life}}, 15% on attack
+|[[Arcanist]], [[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Spectral Dagger}}
+|Primary or Secondary
+|1H Melee
+|15
+|12
+|1
+|
+|
+|
+|2
+|2
+|2
+|
+|
+|
+|
+|1
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Spectral Sword}}
+|Primary or Secondary
+|1H Melee
+|22
+|14
+|1.25
+|10
+|
+|
+|10
+|2
+|5
+|
+|
+|
+|
+|1
+|
+|
+|
+|
+|
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Steel Long Sword}}
+|Primary or Secondary
+|1H Melee
+|4
+|12
+|2.15
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|[[Paladin]], [[Reaver]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Stone Sword}}
+|Primary or Secondary
+|1H Melee
+|26
+|25
+|1.6
+|
+|
+|
+|2
+|4
+|5
+|
+|4
+|8
+|
+|
+|
+|
+|
+|4
+|
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Thorn}}
+|Primary or Secondary
+|1H Melee
+|10
+|8
+|1
+|
+|
+|
+|
+|
+|
+|3
+|
+|6
+|2
+|
+|2
+|2
+|2
+|1
+|{{AbilityLink|Biting Vines}}, 15% on attack
+|[[Druid]]
+|-
+|style="text-align: left;"|{{ItemLink|Traitor's Steel}}
+|Primary or Secondary
+|1H Melee
+|33
+|16
+|1.3
+|50
+|
+|
+|
+|
+|6
+|8
+|8
+|10
+|4
+|
+|
+|
+|
+|9
+|{{AbilityLink|Melting Bones}}, 10% on attack
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Twisted Branch}}
+|Primary or Secondary
+|1H Melee
+|33
+|24
+|3
+|125
+|300
+|
+|7
+|4
+|4
+|
+|10
+|14
+|
+|4
+|
+|
+|
+|
+|{{AbilityLink|Blight}}, 20% on attack
+|[[Druid]]
+|-
+|style="text-align: left;"|{{ItemLink|Whipsword}}
+|Primary or Secondary
+|1H Melee
+|14
+|12
+|2
+|15
+|10
+|
+|
+|
+|5
+|
+|5
+|
+|
+|
+|
+|
+|
+|
+|{{AbilityLink|Concuss}}, 1% on attack
+|[[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Wyrm Bone}}
+|Primary or Secondary
+|1H Melee
+|27
+|18
+|1.3
+|
+|
+|
+|
+|10
+|10
+|
+|5
+|10
+|
+|1
+|
+|
+|
+|
+|{{AbilityLink|Concuss}}, 3% on attack
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Adept Wand}}
+|Primary or Secondary
+|Wand
+|8
+|6
+|2
+|
+|
+|
+|
+|
+|
+|
+|3
+|3
+|5
+|
+|
+|
+|
+|
+|{{AbilityLink|Brax's Touch}}, 5% on cast
+|[[Arcanist]], [[Druid]]
+|-
+|style="text-align: left;"|{{ItemLink|Bombastic Wand}}
+|Primary or Secondary
+|Wand
+|30
+|33
+|5.5
+|85
+|85
+|
+|
+|
+|
+|
+|12
+|12
+|4
+|1
+|
+|
+|
+|
+|{{AbilityLink|The Wild's Fang}}, 25% on cast
+|[[Arcanist]], [[Druid]]
+|-
+|style="text-align: left;"|{{ItemLink|Boneweaver's Leg}}
+|Primary or Secondary
+|Wand
+|19
+|12
+|1
+|200
+|200
+|
+|
+|
+|
+|
+|6
+|6
+|
+|2
+|
+|2
+|
+|
+|{{AbilityLink|Melting Bones}}, 12% on cast
+|[[Arcanist]], [[Druid]]
+|-
+|style="text-align: left;"|{{ItemLink|Brax's Candle}}
+|Primary or Secondary
+|Wand
+|29
+|16
+|2
+|100
+|55
+|
+|
+|
+|
+|
+|10
+|8
+|10
+|1
+|
+|
+|
+|
+|{{AbilityLink|Brax's Rage}}, 10% on cast
+|[[Arcanist]]
+|-
+|style="text-align: left;"|{{ItemLink|Copper Sceptre}}
+|Primary or Secondary
+|Wand
+|
+|6
+|1
+|
+|15
+|
+|
+|
+|
+|
+|5
+|3
+|5
+|
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]]
+|-
+|style="text-align: left;"|{{ItemLink|Corruptor}}
+|Primary or Secondary
+|Wand
+|40
+|40
+|2
+|400
+|255
+|25
+|
+|
+|
+|5
+|40
+|5
+|25
+|5
+|
+|
+|
+|
+|{{AbilityLink|Corrupt}}, 20% on cast
+|[[Arcanist]], [[Druid]]
+|-
+|style="text-align: left;"|{{ItemLink|Dreamy Wand}}
+|Primary or Secondary
+|Wand
+|22
+|17
+|2
+|155
+|175
+|
+|
+|
+|
+|
+|8
+|8
+|
+|1
+|
+|
+|
+|4
+|{{AbilityLink|Mithril Shards}}, 5% on cast
+|[[Arcanist]], [[Druid]]
+|-
+|style="text-align: left;"|{{ItemLink|Eternox, Remnant of the Void}}
+|Primary or Secondary
+|Wand
+|40
+|30
+|2
+|440
+|300
+|45
+|5
+|
+|
+|5
+|10
+|25
+|10
+|7
+|6
+|
+|6
+|
+|On click: {{AbilityLink|Healing Bloom}}
+|[[Druid]]
+|-
+|style="text-align: left;"|{{ItemLink|Eyestalk Wand}}
+|Primary or Secondary
+|Wand
+|12
+|8
+|2
+|30
+|30
+|
+|
+|
+|
+|
+|5
+|5
+|
+|
+|
+|
+|
+|2
+|{{AbilityLink|Theft of Life}}, 10% on cast
+|[[Arcanist]], [[Druid]]
+|-
+|style="text-align: left;"|{{ItemLink|Fernallan Sceptre}}
+|Primary or Secondary
+|Wand
+|24
+|8
+|1.1
+|25
+|70
+|
+|
+|
+|
+|
+|12
+|6
+|8
+|
+|
+|
+|
+|
+|{{AbilityLink|Biting Vines}}, 5% on cast
+|[[Arcanist]], [[Druid]]
+|-
+|style="text-align: left;"|{{ItemLink|Fungal Bouquet}}
+|Primary or Secondary
+|Wand
+|18
+|14
+|2
+|15
+|65
+|
+|
+|
+|
+|
+|8
+|10
+|5
+|1
+|
+|2
+|
+|
+|{{AbilityLink|Toxicity}}, 15% on cast
+|[[Arcanist]], [[Druid]]
+|-
+|style="text-align: left;"|{{ItemLink|Garg Wand}}
+|Primary or Secondary
+|Wand
+|33
+|28
+|3
+|50
+|200
+|
+|
+|
+|
+|
+|12
+|12
+|12
+|5
+|
+|
+|
+|
+|{{AbilityLink|Magic Bolt}}, 55% on cast
+|[[Arcanist]], [[Druid]]
+|-
+|style="text-align: left;"|{{ItemLink|Hardened Sceptre}}
+|Primary or Secondary
+|Wand
+|13
+|8
+|2
+|30
+|45
+|
+|
+|5
+|
+|
+|6
+|6
+|4
+|
+|5
+|
+|5
+|4
+|{{AbilityLink|Ethereal Rending}}, 2% on cast
+|[[Arcanist]], [[Druid]]
+|-
+|style="text-align: left;"|{{ItemLink|Ogrespice Bundle}}
+|Primary or Secondary
+|Wand
+|14
+|6
+|2
+|45
+|20
+|10
+|
+|
+|
+|
+|10
+|5
+|5
+|
+|
+|
+|
+|3
+|{{AbilityLink|Sleep}}, 75% on cast
+|[[Arcanist]], [[Druid]]
+|-
+|style="text-align: left;"|{{ItemLink|Singularity, Vessel of Creation}}
+|Primary or Secondary
+|Wand
+|40
+|33
+|2
+|500
+|355
+|100
+|
+|
+|
+|5
+|25
+|10
+|10
+|6
+|6
+|
+|6
+|
+|{{AbilityLink|Aetherstorm}}, 33% on cast
+|[[Arcanist]]
+|-
+|style="text-align: left;"|{{ItemLink|Sivakayan Sceptre}}
+|Primary or Secondary
+|Wand
+|24
+|6
+|1
+|50
+|50
+|
+|
+|
+|
+|
+|8
+|10
+|8
+|
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]]
+|-
+|style="text-align: left;"|{{ItemLink|Sivakayan Wand}}
+|Primary or Secondary
+|Wand
+|25
+|19
+|2
+|100
+|100
+|
+|
+|
+|
+|
+|11
+|11
+|9
+|1
+|5
+|
+|5
+|3
+|{{AbilityLink|Focus Pain}}, 1% on cast
+|[[Arcanist]], [[Druid]]
+|-
+|style="text-align: left;"|{{ItemLink|Spectral Sceptre}}
+|Primary or Secondary
+|Wand
+|15
+|14
+|1.5
+|15
+|
+|
+|
+|3
+|3
+|
+|7
+|7
+|
+|1
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]]
+|-
+|style="text-align: left;"|{{ItemLink|Unusual Copper Sceptre}}
+|Primary or Secondary
+|Wand
+|
+|6
+|1
+|
+|20
+|
+|
+|
+|
+|
+|6
+|4
+|7
+|
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]]
+|-
+|style="text-align: left;"|{{ItemLink|Volcanic Sceptre}}
+|Primary or Secondary
+|Wand
+|26
+|7
+|1
+|65
+|50
+|
+|
+|
+|
+|
+|12
+|10
+|8
+|1
+|
+|
+|15
+|
+|{{AbilityLink|Brax's Rage}}, 12% on cast
+|[[Arcanist]], [[Druid]]
+|-
+|style="text-align: left;"|{{ItemLink|Wand of Air}}
+|Primary or Secondary
+|Wand
+|12
+|15
+|2
+|30
+|30
+|
+|
+|
+|
+|
+|7
+|3
+|2
+|
+|3
+|
+|
+|
+|{{AbilityLink|Magic Bolt}}, 25% on cast
+|[[Arcanist]], [[Druid]]
+|-
+|style="text-align: left;"|{{ItemLink|Weak Wand}}
+|Primary or Secondary
+|Wand
+|3
+|4
+|2
+|
+|
+|
+|
+|
+|
+|
+|3
+|3
+|5
+|
+|
+|
+|
+|
+|{{AbilityLink|Magic Bolt}}, 5% on cast
+|[[Arcanist]], [[Druid]]
+|-
+|style="text-align: left;"|{{ItemLink|Molorai Parrying Dagger}}
+|Secondary
+|1H Melee
+|18
+|20
+|2
+|100
+|
+|50
+|8
+|
+|4
+|6
+|
+|
+|
+|
+|
+|
+|
+|4
+|
+|[[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Shivering Torch}}
+|Secondary
+|1H Melee
+|50
+|8
+|1
+|5
+|5
+|5
+|2
+|
+|
+|
+|2
+|2
+|
+|1
+|
+|
+|
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Bark Shield}}
+|Secondary
+|Shield
+|19
+|
+|
+|125
+|200
+|40
+|
+|
+|
+|
+|18
+|4
+|
+|1
+|1
+|2
+|
+|
+|{{AbilityLink|Blast of Thorns}}, 75% on bash
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Bastion}}
+|Secondary
+|Shield
+|36
+|
+|
+|150
+|150
+|120
+|15
+|8
+|8
+|
+|20
+|15
+|5
+|3
+|3
+|
+|3
+|
+|{{AbilityLink|Death Stare}}, 99% on bash
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Braxonian Shield}}
+|Secondary
+|Shield
+|18
+|
+|
+|30
+|65
+|20
+|
+|
+|
+|
+|8
+|8
+|
+|1
+|1
+|
+|2
+|
+|{{AbilityLink|Brax's Rage}}, 75% on bash
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Crested Shield}}
+|Secondary
+|Shield
+|14
+|
+|
+|
+|
+|35
+|3
+|3
+|
+|
+|4
+|4
+|
+|
+|
+|
+|
+|2
+|{{AbilityLink|Stun}}, 75% on bash
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Cursed Hide Shield}}
+|Secondary
+|Shield
+|38
+|
+|
+|85
+|85
+|155
+|10
+|5
+|5
+|
+|10
+|20
+|5
+|2
+|2
+|
+|2
+|4
+|{{AbilityLink|Devour}}, 99% on bash
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Diamondine Shield}}
+|Secondary
+|Shield
+|18
+|
+|
+|100
+|155
+|45
+|
+|10
+|
+|
+|10
+|
+|10
+|
+|1
+|1
+|2
+|1
+|{{AbilityLink|Diamond Burst}}, 75% on bash
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Dusken Shield}}
+|Secondary
+|Shield
+|18
+|
+|
+|100
+|
+|25
+|5
+|10
+|10
+|10
+|
+|
+|
+|
+|3
+|1
+|1
+|
+|
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Erandian Avenger}}
+|Secondary
+|Shield
+|29
+|
+|
+|155
+|50
+|75
+|15
+|5
+|
+|5
+|5
+|15
+|5
+|1
+|2
+|
+|
+|2
+|{{AbilityLink|Impending Doom}}, 75% on bash
+|[[Druid]], [[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Griefwarden}}
+|Secondary
+|Shield
+|38
+|
+|
+|100
+|85
+|150
+|25
+|10
+|5
+|5
+|15
+|15
+|15
+|1
+|2
+|
+|2
+|3
+|{{AbilityLink|Grip of Grief}}, 66% on bash
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Hopewarden}}
+|Secondary
+|Shield
+|35
+|
+|
+|200
+|100
+|100
+|20
+|15
+|15
+|
+|20
+|10
+|10
+|1
+|2
+|
+|2
+|3
+|{{AbilityLink|Group Revitalize}}, 66% on bash
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Magus Shield}}
+|Secondary
+|Shield
+|11
+|
+|
+|
+|10
+|25
+|
+|
+|
+|
+|8
+|8
+|8
+|1
+|3
+|3
+|3
+|3
+|{{AbilityLink|Ethereal Rending}}, 75% on bash
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Mudmold Shield}}
+|Secondary
+|Shield
+|14
+|
+|
+|50
+|50
+|30
+|
+|4
+|
+|
+|4
+|15
+|
+|
+|3
+|5
+|3
+|
+|{{AbilityLink|Stun}}, 75% on bash
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Nature's Will}}
+|Secondary
+|Shield
+|41
+|
+|
+|200
+|200
+|150
+|10
+|10
+|5
+|5
+|25
+|25
+|15
+|2
+|2
+|
+|2
+|3
+|{{AbilityLink|Extinction Bloom}}, 50% on bash
+|[[Druid]]
+|-
+|style="text-align: left;"|{{ItemLink|Old Buckler}}
+|Secondary
+|Shield
+|2
+|
+|
+|
+|
+|5
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|{{AbilityLink|Stun}}, 75% on bash
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Provoker}}
+|Secondary
+|Shield
+|26
+|
+|
+|120
+|
+|70
+|8
+|8
+|
+|
+|4
+|4
+|12
+|1
+|
+|
+|
+|8
+|{{AbilityLink|Glimpse of Truth}}, 75% on bash
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Rotting Metal Shield}}
+|Secondary
+|Shield
+|7
+|
+|
+|
+|
+|20
+|3
+|3
+|
+|
+|2
+|2
+|2
+|
+|
+|
+|
+|1
+|{{AbilityLink|Stun}}, 75% on bash
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Royal Carapace}}
+|Secondary
+|Shield
+|18
+|
+|
+|150
+|100
+|30
+|
+|
+|
+|
+|10
+|10
+|5
+|2
+|2
+|1
+|2
+|
+|{{AbilityLink|Concuss}}, 75% on bash
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Runed Shield}}
+|Secondary
+|Shield
+|28
+|
+|
+|100
+|100
+|100
+|8
+|8
+|8
+|
+|12
+|12
+|12
+|2
+|5
+|
+|5
+|
+|
+|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|-
+|style="text-align: left;"|{{ItemLink|Sivakayan Shield}}
+|Secondary
+|Shield
+|24
+|
+|
+|200
+|
+|55
+|9
+|9
+|
+|
+|
+|9
+|
+|
+|3
+|
+|
+|
+|{{AbilityLink|Devour}}, 75% on bash
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Slab of Meteorite}}
+|Secondary
+|Shield
+|26
+|
+|
+|125
+|
+|65
+|10
+|10
+|
+|
+|10
+|10
+|5
+|2
+|4
+|
+|4
+|
+|{{AbilityLink|Aetherstorm}}, 75% on bash
+|[[Druid]], [[Paladin]], [[Reaver]]
+|-
+|style="text-align: left;"|{{ItemLink|Twilight Shield}}
+|Secondary
+|Shield
+|7
+|
+|
+|
+|
+|17
+|3
+|2
+|
+|
+|2
+|2
+|
+|
+|
+|
+|
+|
+|{{AbilityLink|Theft of Life}}, 45% on bash
+|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|-
+|style="text-align: left;"|{{ItemLink|Volcanic Shield}}
+|Secondary
+|Shield
+|26
+|
+|
+|150
+|150
+|45
+|12
+|
+|
+|
+|9
+|9
+|
+|2
+|2
+|2
+|3
+|
+|{{AbilityLink|Brax's Fury}}, 20% on bash
+|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]]
+|}

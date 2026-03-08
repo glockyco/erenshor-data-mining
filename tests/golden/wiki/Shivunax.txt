@@ -1,0 +1,41 @@
+{{Enemy
+|name=Shivunax
+|image=[[File:Shivunax.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Malaroth's Nesting Grounds]]
+|coordinates=
+|spawnchance=
+|respawn=
+|guaranteeddrops={{ItemLink|Hardened Scale Jacket}}<br>{{ItemLink|Malaroth Sinew Cord}}
+|droprates={{ItemLink|Malaroth Sinew Cord}} (66.7%)<br>{{ItemLink|Hardened Scale Jacket}} (33.3%)<br>{{ItemLink|Malaroth Hide}} (22.1%)<br>{{ItemLink|Ivory Tusk}} (20.4%)
+|level=26
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=3.0
+|health=41600
+|mana=300
+|ac=390
+|strength=400
+|endurance=400
+|dexterity=650
+|agility=200
+|intelligence=150
+|wisdom=95
+|charisma=100
+|magic=13-31
+|poison=13-31
+|elemental=13-31
+|void=13-31
+|spells=
+}}
+
+Shivunax can only be summoned if the player brings [[Malaroth Feed]] to the feeding bowl located in [[Malaroth's Nesting Grounds]]
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Malaroth's Nesting Grounds]]

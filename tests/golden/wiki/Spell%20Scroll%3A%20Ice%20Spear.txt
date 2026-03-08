@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Ice Spear
+|type=[[Ability Books|Spell Scroll]]
+|vendorsource=[[Edwin Ansegg]]<br>[[Juctin Mysia]]
+|source=[[Blight Eater]] (4.6%)<br>[[Apha, Priest of Brax]] (3.7%)<br>[[Upha, Priest of Brax]] (3.7%)<br>[[A Deepling Crimsonite]] (2.8%)<br>[[Braxon Fanatic]] (2.8%)<br>[[A Deepling Orator]] (1.9%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=3000
+|sell=1950
+|taughtspell={{AbilityLink|Ice Spear}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Ice Spear.png
+|name=Spell Scroll: Ice Spear
+|arcanist_level=21
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=250
+|spell_type=Damage
+|spell_desc=Deals 1100 elemental based damage to a target.
+}}
+
+[[Category:Ability Books]]

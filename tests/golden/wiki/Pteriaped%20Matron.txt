@@ -1,0 +1,77 @@
+{{Enemy
+|name=Pteriaped Matron
+|image=[[File:Pteriaped Matron.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Rare]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Loomingwood Forest]]
+|coordinates=
+|spawnchance=2-40%
+|respawn=5-6 minutes
+|guaranteeddrops={{ItemLink|Birdbone Band}}<br>{{ItemLink|Pteriaped Claw Necklace}}
+|droprates={{ItemLink|Birdbone Band}} (66.7%)<br>{{ItemLink|Green Pteriaped Feather}} (35.2%)<br>{{ItemLink|Pteriaped Claw Necklace}} (33.3%)<br>{{ItemLink|Luminstone}} (2.3%)<br>{{ItemLink|Pink Pteriaped Feather}} (2.3%)<br>{{ItemLink|Blueprint: Loomingwood Market}} (0.5%)<br>{{ItemLink|Blueprint: Loomingwood Shrine}} (0.5%)
+|level=25
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=32500
+|mana=0
+|ac=375
+|strength=40
+|endurance=40
+|dexterity=175
+|agility=100
+|intelligence=100
+|wisdom=100
+|charisma=100
+|magic=12-30
+|poison=12-30
+|elemental=12-30
+|void=12-30
+|spells=
+}}
+{{Enemy
+|name=Pteriaped Matron
+|image=[[File:Pteriaped Matron.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Rare]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Loomingwood Forest]]
+|coordinates=
+|spawnchance=2-40%
+|respawn=5-6 minutes
+|guaranteeddrops={{ItemLink|Feathered Booties}}<br>{{ItemLink|Feathered Cape}}
+|droprates={{ItemLink|Feathered Booties}} (66.7%)<br>{{ItemLink|Green Pteriaped Feather}} (35.2%)<br>{{ItemLink|Feathered Cape}} (33.3%)<br>{{ItemLink|Luminstone}} (2.3%)<br>{{ItemLink|Pink Pteriaped Feather}} (2.3%)<br>{{ItemLink|Blueprint: Loomingwood Market}} (0.5%)<br>{{ItemLink|Blueprint: Loomingwood Shrine}} (0.5%)
+|level=24
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=22750
+|mana=0
+|ac=360
+|strength=37
+|endurance=40
+|dexterity=135
+|agility=100
+|intelligence=100
+|wisdom=100
+|charisma=100
+|magic=12-29
+|poison=12-29
+|elemental=12-29
+|void=12-29
+|spells=
+}}
+There are several variants of the Pteriadped Matron. Each will drop different things. The dark blue one will drop the [[Pteriaped Claw Necklace]] and the [[Birdbone Band]]. The red one will drop [[Feathered Booties]] and the [[Feathered Cape]].
+
+They will sometimes spawn instead of a [[Pteriaped Chick]]
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Loomingwood Forest]]

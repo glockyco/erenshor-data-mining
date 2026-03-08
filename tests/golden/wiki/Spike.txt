@@ -1,0 +1,62 @@
+{{Enemy
+|name=Spike
+|image=[[File:Spike.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Brackish Coast Nagaloks]]
+|factionChange=+1 [[The Blades of Vitheo]]<br>-10 [[The Brackish Coast Nagaloks]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]
+|zones=[[The Duskenlight Coast]]
+|coordinates=1521.7 x 50.0 x 132.5
+|spawnchance=50%
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Helm of the Deep}}<br>{{ItemLink|Seawashed Cloak}}
+|droprates={{ItemLink|Helm of the Deep}} (66.7%)<br>{{ItemLink|Seawashed Cloak}} (33.3%)<br>{{ItemLink|Nagalok Claw}} (10.6%)<br>{{ItemLink|Reptilian Scales}} (10.6%)<br>{{ItemLink|A Worm Eel}} (7.8%)<br>{{ItemLink|Sea Glass}} (7.8%)<br>{{ItemLink|Star Stone}} (7.8%)
+|level=18
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=4.0
+|health=23400
+|mana=0
+|ac=270
+|strength=28
+|endurance=100
+|dexterity=400
+|agility=32
+|intelligence=32
+|wisdom=32
+|charisma=32
+|magic=9-22
+|poison=9-22
+|elemental=9-22
+|void=9-22
+|spells=
+}}
+''{{Main|Enemies}}''
+=Location=
+{{PAGENAME}} has a '''50% chance''' to replace the center [[A Nagalok|Nagalok]] against the giant rune at the back of the Nagalok Den in northeast [[Duskenlight Coast]].
+
+=Appearance=
+{{PAGENAME}} is a large purple Nagalok with massive blue spikes protruding from its back, head, and arms.
+
+=Behavior=
+{{PAGENAME}} waits in the back of the cave. It will attack players if they get too close, or if it or the nearby Nagaloks are attacked or provoked.
+
+===Spells & Abilities===
+{{PAGENAME}} does not use any spells or abilities.
+
+===Strategy===
+{{PAGENAME}} is much more durable and hits much harder than the other Nagaloks in the cave. Players can either take out the two Nagaloks near him quickly, or stun them using {{AbilityLink|Dazzle}} or {{AbilityLink|Sunburst}} to help the party's tank more effectively block {{PAGENAME}}'s attacks.
+
+=Notes=
+*[[Helm of the Deep]] is an excellent mid-game [[Armor|Helmet]] for a tank [[Paladin]], making {{PAGENAME}} quite worth seeking out.
+
+=Gallery=
+<gallery mode="traditional" width="80px" height="80px">
+File:SpikeLocation.png|The runestone where Spike can be found.
+</gallery>
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:The Duskenlight Coast]]

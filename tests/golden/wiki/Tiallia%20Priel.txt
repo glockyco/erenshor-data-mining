@@ -1,0 +1,42 @@
+{{Enemy
+|name=Tiallia Priel
+|image=[[File:Tiallia Priel.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[Savannah Priel]]
+|factionChange=-35 [[Savannah Priel]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Solunarian Brotherhood]]
+|zones=[[Malaroth's Nesting Grounds]]
+|coordinates=968.8 x 56.7 x 344.0
+|spawnchance=75%
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|End's Bane}}<br>{{ItemLink|Nightstalker Fur Leggings}}
+|droprates={{ItemLink|Priel Note|text=Priel Note (2)}} (100.0%)<ref>If the player is already holding {{ItemLink|Priel Note|text=Priel Note (2)}} in their inventory, another will not drop.</ref><br>{{ItemLink|Nightstalker Fur Leggings}} (75.0%)<br>{{ItemLink|End's Bane}} (25.0%)<ref>If Tiallia Priel has {{ItemLink|End's Bane}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Sea Glass}} (16.3%)<br>{{ItemLink|Star Stone}} (16.3%)<br>{{ItemLink|Priel Standard}} (6.7%)<ref>If Tiallia Priel has {{ItemLink|Priel Standard}} equipped, it is guaranteed to drop.</ref>
+|level=24
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=4.0
+|health=24700
+|mana=300
+|ac=360
+|strength=29
+|endurance=95
+|dexterity=120
+|agility=85
+|intelligence=35
+|wisdom=95
+|charisma=75
+|magic=12-29
+|poison=12-29
+|elemental=12-29
+|void=12-29
+|spells={{AbilityLink|Death's Embrace}}<br>{{AbilityLink|Expose Weakness}}
+}}
+Tiallia Priel can be found in the small Priel camp in [[Malaroth's Nesting Grounds]].
+
+==Notes==
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Malaroth's Nesting Grounds]]

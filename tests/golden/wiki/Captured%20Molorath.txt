@@ -1,0 +1,38 @@
+{{Enemy
+|name=Captured Molorath
+|image=[[File:Captured Molorath.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=
+|zones=[[Malaroth's Nesting Grounds]]
+|coordinates=971.4 x 56.9 x 365.2
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Malaroth Hide}} (22.1%)<br>{{ItemLink|Ivory Tusk}} (20.4%)
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=16250
+|mana=300
+|ac=330
+|strength=400
+|endurance=400
+|dexterity=650
+|agility=200
+|intelligence=150
+|wisdom=95
+|charisma=100
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells=
+}}
+
+[[Category:Characters]]
+[[Category:Malaroth's Nesting Grounds]]

@@ -1,0 +1,43 @@
+{{Enemy
+|name=Nazura the Traitor
+|image=[[File:Nazura the Traitor.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Vitheo's Rest]]
+|coordinates=331.0 x 0.6 x 123.3
+|spawnchance=75%
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Bladeturner}}<br>{{ItemLink|Frozen Mana Charm}}
+|droprates={{ItemLink|The Recipe for Flame}} (100.0%)<ref>If the player is already holding {{ItemLink|The Recipe for Flame}} in their inventory, another will not drop.</ref><br>{{ItemLink|Frozen Mana Charm}} (66.7%)<br>{{ItemLink|Bladeturner}} (33.3%)
+|level=34
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=3.0
+|health=55250
+|mana=0
+|ac=510
+|strength=220
+|endurance=600
+|dexterity=600
+|agility=155
+|intelligence=225
+|wisdom=225
+|charisma=155
+|magic=17-41
+|poison=17-41
+|elemental=17-41
+|void=17-41
+|spells=
+}}
+Nazura the Traitor can be found in the second wing of [[Vitheo's Rest]], he guards the Blackflame Brazier.<br><br>
+
+This boss is not always guaranteed to spawn. Sometimes a [[Cursed Vithean Conspirer]], [[Cursed Vithean Traitor]] or [[Vithean Betrayer]] will appear in front of the Brazier instead.
+=Notes=
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Vitheo's Rest]]

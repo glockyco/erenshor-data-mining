@@ -1,0 +1,39 @@
+{{Enemy
+|name=Lurk
+|image=[[File:Lurk.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Rottenfoot]]
+|coordinates=97.7 x 23.0 x 304.6
+|spawnchance=
+|respawn=7 minutes
+|guaranteeddrops={{ItemLink|Chewed Helmet}}<br>{{ItemLink|Gator Gloves}}
+|droprates={{ItemLink|Gator Gloves}} (66.7%)<br>{{ItemLink|Chewed Helmet}} (33.3%)<br>{{ItemLink|Muck Ball}} (20.4%)
+|level=19
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=4.0
+|health=11440
+|mana=0
+|ac=285
+|strength=24
+|endurance=20
+|dexterity=135
+|agility=20
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=10-23
+|poison=10-23
+|elemental=10-23
+|void=10-23
+|spells=
+}}
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Rottenfoot]]

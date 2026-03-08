@@ -1,0 +1,49 @@
+{{Enemy
+|name=Garrison Victoza
+|image=[[File:Garrison Victoza.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Stowaway's Step]]
+|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
+|zones=[[Silkengrass Meadowlands]]
+|coordinates=682.4 x 40.4 x 182.5
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=260
+|mana=100
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+Garrison is in the main town area in the [[Silkengrass Meadowlands]]
+
+Greeting message:
+{| class="wikitable"
+|Port Azure left us. I hope Ripper takes out that whole city one day.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[Ripper]</span>
+If it weren't for Ripper, we'd be undead servants to Sivakaya.
+
+[[Category:Characters]]
+[[Category:Silkengrass Meadowlands]]

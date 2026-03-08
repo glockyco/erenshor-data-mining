@@ -1,0 +1,38 @@
+{{Enemy
+|name=Braxonian High Guard
+|image=[[File:Braxonian High Guard.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Fallen Braxonia]]
+|coordinates=
+|spawnchance=
+|respawn=8 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Diamond}} (15.3%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Spark of the First Flame}} (7.8%)<ref>If the player is already holding {{ItemLink|Spark of the First Flame}} in their inventory, another will not drop.</ref><br>{{ItemLink|Braxonian Bow}} (4.6%)<br>{{ItemLink|Braxonian Mace}} (4.6%)<ref>If Braxonian High Guard has {{ItemLink|Braxonian Mace}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Kingsman (Game Piece)|text=Kingsman}} (4.6%)<ref>If the player is already holding {{ItemLink|Kingsman (Game Piece)|text=Kingsman}} in their inventory, another will not drop.</ref><br>{{ItemLink|Braxonian Bracer}} (1.9%)<br>{{ItemLink|Braxonian Gauntlets}} (1.2%)<br>{{ItemLink|Braxonian Plate Boots}} (1.2%)<br>{{ItemLink|Braxonian Greaves}} (0.6%)<br>{{ItemLink|Braxonian Plate}} (0.6%)<br>{{ItemLink|Braxonian Spaulders}} (0.6%)<br>{{ItemLink|Stone Statue: Brax}} (0.6%)<br>{{ItemLink|Golden Statue: Brax}} (0.2%)<br>{{ItemLink|Ruby}} (0.2%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Star Stone}} (0.2%)
+|level=31
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=49400
+|mana=0
+|ac=465
+|strength=500
+|endurance=500
+|dexterity=600
+|agility=300
+|intelligence=300
+|wisdom=225
+|charisma=200
+|magic=16-37
+|poison=16-37
+|elemental=16-37
+|void=16-37
+|spells=
+}}
+
+[[Category:Enemies]]
+[[Category:Fallen Braxonia]]

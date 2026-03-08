@@ -1,0 +1,33 @@
+{{Item
+|title=Skill Book: Execute
+|type=[[Ability Books|Skill Book]]
+|vendorsource=[[Aldoa Manday]]<br>[[Ophelia Luminee]]<br>[[Windlae Oldseer]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=1100
+|sell=715
+|taughtspell=
+|taughtskill={{AbilityLink|Execute}}
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SkillBook
+|image=Skill Book: Execute.png
+|name=Skill Book: Execute
+|duelist_level=
+|druid_level=
+|arcanist_level=
+|paladin_level=
+|stormcaller_level=6
+|reaver_level=
+|skill_type=Ranged
+|skill_desc=Fire a normal arrow, if target is less than 10% life, arrow does 8x damage
+|simplayers_autolearn=True
+}}
+
+[[Category:Ability Books]]

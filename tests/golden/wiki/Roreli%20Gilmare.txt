@@ -1,0 +1,98 @@
+{{Enemy
+|name=Roreli Gilmare
+|image=[[File:Roreli Gilmare.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Port Azure]]
+|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
+|zones=[[Port Azure]]
+|coordinates=143.8 x 26.3 x 342.8
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=3250
+|mana=100
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+Located in the [[Port Azure]] market.
+
+Greeting message:
+{| class="wikitable"
+|Got some instructional <span style="color: #15e300;">[books]</span> for sale here.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[books]</span>
+|They're to help ya learn. Nothin' special.
+|}
+
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Skill Book: Dodge II}}
+|[[Ability Books|Skill Book]]
+|1100
+|-
+|{{ItemLink|Skill Book: Dodge III}}
+|[[Ability Books|Skill Book]]
+|3500
+|-
+|{{ItemLink|Skill Book: Dodge IV}}
+|[[Ability Books|Skill Book]]
+|10000
+|-
+|{{ItemLink|Skill Book: Block II}}
+|[[Ability Books|Skill Book]]
+|1255
+|-
+|{{ItemLink|Skill Book: Block III}}
+|[[Ability Books|Skill Book]]
+|3500
+|-
+|{{ItemLink|Skill Book: Block IV}}
+|[[Ability Books|Skill Book]]
+|12500
+|-
+|{{ItemLink|Skill Book: Backstab}}
+|[[Ability Books|Skill Book]]
+|500
+|-
+|{{ItemLink|Skill Book: Priel Strike}}
+|[[Ability Books|Skill Book]]
+|7500
+|-
+|{{ItemLink|Skill Book: Arcane Recovery}}
+|[[Ability Books|Skill Book]]
+|2355
+|-
+|{{ItemLink|Skill Book: Melee Proficiency}}
+|[[Ability Books|Skill Book]]
+|225
+|}
+
+[[Category:Characters]]
+[[Category:Port Azure]]
+[[Category:Vendors]]

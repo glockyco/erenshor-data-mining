@@ -1,0 +1,53 @@
+{{Enemy
+|name=A Deepling Brute
+|image=[[File:A Deepling Brute.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[The Elderstone Mines]]
+|coordinates=
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Reinforced Scale Belt}} (10.2%)<br>{{ItemLink|Ruby}} (6.5%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Elderstone Shard}} (3.7%)<ref>If the player is already holding {{ItemLink|Elderstone Shard}} in their inventory, another will not drop.</ref>
+|level=19
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=12350
+|mana=0
+|ac=285
+|strength=300
+|endurance=325
+|dexterity=325
+|agility=40
+|intelligence=25
+|wisdom=25
+|charisma=25
+|magic=10-23
+|poison=10-23
+|elemental=10-23
+|void=10-23
+|spells=
+}}
+''{{main|Enemies}}''
+
+=Location=
+{{PAGENAME}} can be found in the [[Elderstone Mines]], along the path to [[Ravager, The First Infected]].<ref>{{PAGENAME}} can rarely be replaced with [[A Fungus Ravaged Brute]].</ref> Additionally, a single Deepling Brute spawns past the lake near [[Gloopa]].
+
+=Appearance=
+{{PAGENAME}} is humanoid in appearance, wearing fur-lined sleeves, brown boots, and a green and brown kilt. 
+
+=Behavior=
+{{PAGENAME}} stands guard in the mines and will attack players if they get too close.
+
+===Spells & Abilities===
+{{PAGENAME}} does not use any spells or abilities.
+
+=Notes=
+
+[[Category:Enemies]]
+[[Category:The Elderstone Mines]]

@@ -1,0 +1,55 @@
+{{Enemy
+|name=Albixt Munger
+|image=[[File:Albixt Munger.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Stowaway's Step]]
+|factionChange=
+|zones=[[Silkengrass Meadowlands]]
+|coordinates=649.3 x 40.4 x 225.0
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1560
+|mana=100
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+
+Albixt is in the main town area in the [[Silkengrass Meadowlands]] inside one of the homes.
+
+Greeting message:
+{| class="wikitable"
+|We're trying to make our way here. It's not easy. At least we've got Ripper. <span style="color: #15e300;">[Lost]</span> most everything else.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[Ripper]</span>
+|If anyone says anything bad about Ripper, don't believe them. You'll hear all sorts of lies in Port Azure.
+|-
+|<span style="color: #15e300;">[Lost]</span>
+|It's all gone for me. My wife is missing. Has been for some time now. I'm terrified that she's been raised from the dead by the Sivakayans. If you find her... if she has her ring... please bring it to me so I know she's at rest finally.<br>
+<i>This begins {{QuestLink|link=Albixt's Engagement Ring}}</i>
+|}
+
+[[Category:Characters]]
+[[Category:Silkengrass Meadowlands]]

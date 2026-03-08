@@ -1,0 +1,40 @@
+{{Enemy
+|name=Sapphire Fiend
+|image=[[File:Sapphire Fiend.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Rare]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Rockshade Hold]]
+|coordinates=
+|spawnchance=2-48%
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Rock}} (99.3%)<br>{{ItemLink|Chunk of Living Sapphire}} (17.4%)<ref>If the player is already holding {{ItemLink|Chunk of Living Sapphire}} in their inventory, another will not drop.</ref><br>{{ItemLink|Diamond}} (14.8%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Living Sapphire Ring}} (9.0%)
+|level=28
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=46800
+|mana=300
+|ac=420
+|strength=600
+|endurance=500
+|dexterity=600
+|agility=300
+|intelligence=35
+|wisdom=95
+|charisma=75
+|magic=14-34
+|poison=14-34
+|elemental=14-34
+|void=14-34
+|spells=
+}}
+Sometimes spawns in place of a [[Rock Fiend]].
+=Notes=
+
+[[Category:Enemies]]
+[[Category:Rockshade Hold]]

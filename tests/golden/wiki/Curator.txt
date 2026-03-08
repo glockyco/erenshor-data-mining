@@ -1,0 +1,47 @@
+{{Enemy
+|name=Curator
+|image=[[File:Curator.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=
+|zones=[[Shivering Step]]
+|coordinates=781.4 x 34.5 x 653.3
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Cloth Gloves}} (15.8%)<br>{{ItemLink|Cloth Hood}} (15.8%)<br>{{ItemLink|Cloth Shoes}} (15.8%)<br>{{ItemLink|Cloth Sleeves}} (15.8%)
+|level=1
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=130
+|mana=100
+|ac=15
+|strength=5
+|endurance=6
+|dexterity=6
+|agility=6
+|intelligence=6
+|wisdom=6
+|charisma=6
+|magic=0-1
+|poison=0-1
+|elemental=0-1
+|void=0-1
+|spells=
+}}
+
+The Curator can be found in the [[Shivering Step]] near the [[Island Tomb]] entrance
+
+Once you speak to the [[Curator]], [[Harbinger]], [[Gatekeeper]], and [[Bridgekeeper]], [[Kio the Light Keeper]] will shout in the chat 'Ah, it's starting soon! Come and get your torches!'
+
+Greeting message:
+{| class="wikitable"
+|The grass does need a good trim, doesn't it. Could be anything hiding in there. He likes to hide in there. Won't let me trim it. Says it's nice in this light.<br><br><i>This starts and completes {{QuestLink|link=The Curator}}</i>
+|}
+
+[[Category:Characters]]
+[[Category:Shivering Step]]

@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Invisibility
+|type=
+|vendorsource=[[Edwin Ansegg]]<br>[[Nylith Valorro]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=1000
+|sell=650
+|taughtspell={{AbilityLink|Invisibility}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Invisibility.png
+|name=Spell Scroll: Invisibility
+|arcanist_level=9
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=10
+|spell_type=Beneficial
+|spell_desc=Your target or group becomes invisible, able to freely move without detection around most beings. Beware - some will see through the guise! (Use (c)onsider to gauge threat)
+}}
+
+[[Category:Ability Books]]

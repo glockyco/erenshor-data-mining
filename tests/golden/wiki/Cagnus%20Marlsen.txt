@@ -1,0 +1,54 @@
+{{Enemy
+|name=Cagnus Marlsen
+|image=[[File:Cagnus Marlsen.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=
+|zones=[[Willowwatch Ridge]]
+|coordinates=520.5 x 52.0 x 421.2
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Hardened Copper Sword}} (68.1%)<br>{{ItemLink|Citrine Stone}} (40.4%)<br>{{ItemLink|Water}} (40.4%)
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=24700
+|mana=300
+|ac=330
+|strength=400
+|endurance=400
+|dexterity=650
+|agility=200
+|intelligence=150
+|wisdom=95
+|charisma=100
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells={{AbilityLink|Death's Embrace}}<br>{{AbilityLink|Expose Weakness}}
+}}
+
+{{PAGENAME}} is an NPC in [[Willowwatch Ridge]]. He is the quest giver for {{QuestLink | link=Willow Soil (Quest)}}.
+
+Greeting message:
+{| class="wikitable"
+| Can't get nothin' to grow up on these rocks. This moss is everywhere but nothing else. Wish I could get to that <span style="color: #15e300;">[shrine]</span> and try there...
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[shrine]</span>
+|Legends has it Fernalla's orphaned followers took soil from beneath a Willow and tried to plant one here. Didn't work, 'cause i don't see no Willow. I bet the soil is good though. Look at the weeds growin' in it. That tiny giant decided he was gonna live there though. Can't get close to 'im.
+|-
+|<span style="color: #15e300;">[giant]</span>
+|Never seen one so small but no doubt it's some sorta giant offspring. Been that size for years, so I'm told. Dangerous as any of 'em. If someone removes 'im and shows me proof so I don't get snuck up on by 'im later on, I'll make it worth their while.<br><br><i>This begins the quest {{QuestLink | link=Willow Soil (Quest)}}.
+|}
+
+[[Category:Characters]]
+[[Category:Willowwatch Ridge]]

@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Mutual Doom
+|type=
+|vendorsource=
+|source=[[Raval, The First Paladin]] (100.0%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=25000
+|sell=16250
+|taughtspell={{AbilityLink|Mutual Doom}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Mutual Doom.png
+|name=Spell Scroll: Mutual Doom
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=34
+|mana_cost=800
+|spell_type=Damage
+|spell_desc=Deals base 1500 scaling void damage to your target, and 1500 true damage to yourself
+}}
+
+[[Category:Ability Books]]

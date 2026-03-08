@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Dooming Undertow
+|type=[[Ability Books]]
+|vendorsource=[[Juctin Mysia]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=19000
+|sell=12350
+|taughtspell={{AbilityLink|Dooming Undertow}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Dooming Undertow.png
+|name=Spell Scroll: Dooming Undertow
+|arcanist_level=
+|druid_level=
+|duelist_level=25
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=600
+|spell_type=StatusEffect
+|spell_desc=Slow target's attack speed by 27%
+}}
+
+[[Category:Ability Books]]

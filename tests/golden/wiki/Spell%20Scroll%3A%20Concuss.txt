@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Concuss
+|type=[[Ability Books|Spell Scroll]]
+|vendorsource=[[Aspen Dechaffe]]
+|source=[[Blight Eater]] (4.6%)<br>[[A Deepling Crimsonite]] (2.8%)<br>[[A Deepling Orator]] (1.9%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=1225
+|sell=796
+|taughtspell={{AbilityLink|Concuss}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Concuss.png
+|name=Spell Scroll: Concuss
+|arcanist_level=17
+|druid_level=17
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=200
+|spell_type=Damage
+|spell_desc=Deal 500 magic damage and leave a target momentarily stunned.
+}}
+
+[[Category:Ability Books]]

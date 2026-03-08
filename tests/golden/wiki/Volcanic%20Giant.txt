@@ -1,0 +1,59 @@
+{{Enemy
+|name=Volcanic Giant
+|image=[[File:Volcanic Giant.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Rockshade Hold]]
+|coordinates=434.8 x 122.9 x 418.4
+|spawnchance=
+|respawn=14 minutes
+|guaranteeddrops={{ItemLink|Sage's Trinket}}<br>{{ItemLink|Volcanic Sceptre}}<br>{{ItemLink|Volcanic Shield}}
+|droprates={{ItemLink|Volcanic Sceptre}} (50.0%)<br>{{ItemLink|Sage's Trinket}} (25.0%)<br>{{ItemLink|Volcanic Shield}} (25.0%)<br>{{ItemLink|Chunk of Obsidian}} (13.7%)<br>{{ItemLink|Droplet of Lava}} (13.7%)<br>{{ItemLink|Cloth Gloves}} (5.1%)<br>{{ItemLink|Cloth Hood}} (5.1%)<br>{{ItemLink|Cloth Pants}} (5.1%)<br>{{ItemLink|Cloth Shirt}} (5.1%)<br>{{ItemLink|Cloth Shoes}} (5.1%)<br>{{ItemLink|Cloth Sleeves}} (5.1%)
+|level=27
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=45500
+|mana=1000
+|ac=405
+|strength=85
+|endurance=85
+|dexterity=145
+|agility=85
+|intelligence=85
+|wisdom=95
+|charisma=95
+|magic=14-32
+|poison=14-32
+|elemental=14-32
+|void=14-32
+|spells={{AbilityLink|Brax's Rage}}<br>{{AbilityLink|Burning Chains}}
+}}
+
+''{{main|Enemies}}''
+
+=Location=
+{{PAGENAME}} can be found in the central crater of the volcano in [[Rockshade Hold]].
+
+=Appearance=
+{{PAGENAME}} is an orange ethereal giant wearing a helmet and armor.
+
+=Behavior=
+{{PAGENAME}} roams the volcano's crater and will attack players if they get too close. His detection radius is incredibly small, however, which means players will likely need to engage {{PAGENAME}} in order to draw him out of the crater.
+
+===Spells & Abilities===
+Offensive:
+*{{AbilityLink|Brax's Rage}}
+
+===Strategy===
+Fighting {{PAGENAME}} in the volcano's crater causes constant ticks of '''175''' damage from the heat. Players can pull {{PAGENAME}} out of the crater to avoid this damage if they wish, although it should not be enough damage to matter too much at the level {{PAGENAME}} should be fought.
+
+=Notes=
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Rockshade Hold]]

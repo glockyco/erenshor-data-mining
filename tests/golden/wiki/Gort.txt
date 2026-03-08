@@ -1,0 +1,41 @@
+{{Enemy
+|name=Gort
+|image=[[File:Gort.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=+2 [[The Azure Guard]]<br>-10 [[The Children of Sivakaya]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]
+|zones=[[Hidden Hills]]
+|coordinates=153.9 x 10.3 x -135.0
+|spawnchance=66%
+|respawn=1 minute
+|guaranteeddrops={{ItemLink|Cracked Wristguard}}<br>{{ItemLink|Metal Girdle}}
+|droprates={{ItemLink|Ancient Bone}} (87.6%)<br>{{ItemLink|Cracked Wristguard}} (50.0%)<br>{{ItemLink|Metal Girdle}} (50.0%)<br>{{ItemLink|Copper Sword}} (10.8%)<ref>If Gort has {{ItemLink|Copper Sword}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Light Plate Breastplate}} (1.3%)<br>{{ItemLink|Light Plate Greaves}} (1.3%)<br>{{ItemLink|Tattered Leather Boots}} (1.3%)<br>{{ItemLink|Tattered Leather Gloves}} (1.3%)<br>{{ItemLink|Tattered Leather Leggings}} (1.3%)<br>{{ItemLink|Tattered Leather Skullcap}} (1.3%)<br>{{ItemLink|Tattered Leather Sleeves}} (1.3%)<br>{{ItemLink|Tattered Leather Tunic}} (1.3%)
+|level=7
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=5.0
+|health=650
+|mana=0
+|ac=105
+|strength=11
+|endurance=15
+|dexterity=55
+|agility=8
+|intelligence=8
+|wisdom=8
+|charisma=8
+|magic=4-8
+|poison=4-8
+|elemental=4-8
+|void=4-8
+|spells=
+}}
+Gort can be found in the [[Hidden Hills]] as a rare spawn near some ruins by the entrance to [[Duskenlight Coast]]
+=Notes=
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Hidden Hills]]

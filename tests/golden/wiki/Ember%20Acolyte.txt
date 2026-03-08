@@ -1,0 +1,40 @@
+{{Enemy
+|name=Ember Acolyte
+|image=[[File:Ember Acolyte.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Braxonian Desert]]
+|coordinates=
+|spawnchance=
+|respawn=
+|guaranteeddrops={{ItemLink|Flamelicked Gorget}}<br>{{ItemLink|Flamesoles}}<br>{{ItemLink|Prismatic Warcord}}
+|droprates={{ItemLink|Flamelicked Gorget}} (33.3%)<br>{{ItemLink|Flamesoles}} (33.3%)<br>{{ItemLink|Prismatic Warcord}} (33.3%)
+|level=21
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=22100
+|mana=0
+|ac=315
+|strength=650
+|endurance=500
+|dexterity=650
+|agility=500
+|intelligence=165
+|wisdom=125
+|charisma=100
+|magic=10-25
+|poison=10-25
+|elemental=10-25
+|void=10-25
+|spells={{AbilityLink|Winter's Bite}}
+}}
+
+Summoned by bringing [[Ember Acolyte (Game Piece)]] to the [[Braxonian Game Board]].
+
+[[Category:Braxonian Desert]]
+[[Category:Enemies]]

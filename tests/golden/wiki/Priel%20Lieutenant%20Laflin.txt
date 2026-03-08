@@ -1,0 +1,39 @@
+{{Enemy
+|name=Priel Lieutenant Laflin
+|image=[[File:Priel Lieutenant Laflin.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[Savannah Priel]]
+|factionChange=-2 [[Savannah Priel]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Solunarian Brotherhood]]
+|zones=[[Willowwatch Ridge]]
+|coordinates=438.4 x 51.0 x 862.9
+|spawnchance=50%
+|respawn=2 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Bear Bone Club}} (8.7%)<ref>If Priel Lieutenant Laflin has {{ItemLink|Bear Bone Club}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Sea Glass}} (4.9%)<br>{{ItemLink|Star Stone}} (4.9%)<br>{{ItemLink|Whitewood}} (4.9%)<br>{{ItemLink|Priel Standard}} (4.9%)<ref>If Priel Lieutenant Laflin has {{ItemLink|Priel Standard}} equipped, it is guaranteed to drop.</ref>
+|level=7
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1430
+|mana=0
+|ac=105
+|strength=11
+|endurance=45
+|dexterity=35
+|agility=15
+|intelligence=5
+|wisdom=5
+|charisma=5
+|magic=4-8
+|poison=4-8
+|elemental=4-8
+|void=4-8
+|spells={{AbilityLink|Theft of Life}}
+}}
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Willowwatch Ridge]]

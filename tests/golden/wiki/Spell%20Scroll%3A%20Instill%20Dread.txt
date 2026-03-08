@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Instill Dread
+|type=
+|vendorsource=
+|source=[[Darkwarden Awxa]] (6.8%)<br>[[Darkwarden Ealdred]] (6.8%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=45000
+|sell=29250
+|taughtspell={{AbilityLink|Instill Dread}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Instill Dread.png
+|name=Spell Scroll: Instill Dread
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=29
+|mana_cost=500
+|spell_type=StatusEffect
+|spell_desc=Causes your target to disengage from combat and run away. Effective on up to level 35 targets.
+}}
+
+[[Category:Ability Books]]

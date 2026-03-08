@@ -1,0 +1,33 @@
+{{Item
+|title=Skill Book: Trick Shot
+|type=[[Ability Books|Skill Book]]
+|vendorsource=
+|source=[[Bowmistress of Sivakaya]] (100.0%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=55000
+|sell=35750
+|taughtspell=
+|taughtskill={{AbilityLink|Trick Shot}}
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SkillBook
+|image=Skill Book: Trick Shot.png
+|name=Skill Book: Trick Shot
+|duelist_level=
+|druid_level=
+|arcanist_level=
+|paladin_level=
+|stormcaller_level=35
+|reaver_level=
+|skill_type=Innate
+|skill_desc=Passive Skill: During combat, Stormcaller gains a small chance to spawn a "target", which they can attack and destroy to reset all cooldowns.
+|simplayers_autolearn=
+}}
+
+[[Category:Ability Books]]

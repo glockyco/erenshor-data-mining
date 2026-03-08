@@ -1,0 +1,85 @@
+{{Enemy
+|name=Samuel Thatcher
+|image=[[File:Samuel Thatcher.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Erenshor]]
+|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
+|zones=[[Hidden Hills]]
+|coordinates=3.1 x -3.0 x -10.8
+|spawnchance=
+|respawn=2 minutes
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=461
+|mana=0
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=0
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+Samuel is an NPC in [[Hidden Hills]]. He is a Vendor.
+
+Greeting message:
+{| class="wikitable"
+|Ah, welcome to our <span style="color: #15e300;">[home]</span>. We don't get many strangers around here. Some of these folks may not take too kindly to ya. Don't take it personal. I've got some things, if you need anything.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[home]</span>
+|Our little settlement, after everyone fled back to Port <span style="color: #15e300;">[Azure]</span> there was no room for us. We're far enough from trouble hout here and many of us are capable in a fight.
+|-
+|<span style="color: #15e300;">[Azure]</span>
+|Port <span style="color: #15e300;">[Azure]</span>? Just a small walk to the east. If you're headed that way, can you take this <span style="color: #15e300;">[note]</span> to my good friend there?
+|-
+|<span style="color: #15e300;">[note]</span>
+|His name is Harvey Alder. Probably staying at the |<span style="color: #15e300;">[Azure]</span> Arms for lack of any other place to go.<br>
+<i>This begins the quest {{QuestLink|link=Samuel's Note}}</i>
+|}
+
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Light Plate Breastplate}}
+|[[Armor#Chest_Armor|Chest Armor]]
+|75
+|-
+|{{ItemLink|Rusty Shortsword}}
+|[[Weapons|Sword]]
+|10
+|-
+|{{ItemLink|Rusty Hatchet}}
+|[[Weapons|Axe]]
+|8
+|-
+|{{ItemLink|Ring of Magic Bolt}}
+|[[Armor#Rings|Ring]]
+|20
+|-
+|{{ItemLink|Spell Scroll: Vithean Breeze|image=SpellScrollPurple.png}}
+|[[:Category:Ability Books|Spell Book]]
+|100
+|}
+
+[[Category:Characters]]
+[[Category:Hidden Hills]]
+[[Category:Vendors]]

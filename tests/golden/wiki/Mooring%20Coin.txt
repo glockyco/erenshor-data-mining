@@ -1,0 +1,80 @@
+{{Item
+|title=Mooring Coin
+|type=[[Teleportation]]
+|vendorsource=
+|source=
+|othersource=
+|questsource={{QuestLink|link=The Mystery of Bellwain Island}}
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+'''{{PAGENAME}}''' is a [[Teleportation|Teleportation Item]] in [[Erenshor]].
+
+=Location=
+{{PAGENAME}} is the reward given for completing {{QuestLink|link=The Mystery of Bellwain Island}}. It can be found in Bellwain's Master Bedroom after obtaining {{ItemLink|Bellwain's Master Key}}.
+
+=Description=
+{{PAGENAME}} teleports the user back to the last [[Wishing Well]] the player saved at. It can either be right clicked to use it from the inventory, or it can be placed into a hotkey slot and used by pressing the corresponding key.
+
+{{Item/General
+|image=Mooring Coin.png
+|name=Mooring Coin
+|description=No matter how far you drift, one toss and you're pulled back to your anchor.
+|value=
+|stack_size=
+|disposable=
+|effect_style=Activatable
+|effect_spell_icon=Returning Wish.png
+|effect_spell_name=[[Returning Wish]]
+|effect_spell_level=25
+|effect_spell_duration_ticks=
+|effect_spell_type=Misc
+|effect_spell_line=Generic
+|effect_target_damage=
+|effect_target_healing=
+|effect_damage_type=Physical
+|effect_cast_time=2.7
+|effect_cooldown=
+|effect_spell_range=
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+}}
+
+[[Category:Items]]
+[[Category:Teleportation]]

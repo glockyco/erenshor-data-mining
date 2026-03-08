@@ -1,0 +1,105 @@
+{{Enemy
+|name=Javo Follay
+|image=[[File:Javo Follay.png|thumb]]
+|imagecaption=
+|type=[[Vendors|Adventurer Merchant]]
+|faction=[[The Solunarian Brotherhood]]
+|factionChange=-20 [[The Citizens of Port Azure]]<br>-20 [[The Solunarian Brotherhood]]
+|zones=[[Willowwatch Ridge]]
+|coordinates=495.0 x 52.4 x 445.0
+|spawnchance=
+|respawn=6 minutes
+|guaranteeddrops=
+|droprates=
+|level=20
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=4550
+|mana=200
+|ac=300
+|strength=55
+|endurance=55
+|dexterity=55
+|agility=55
+|intelligence=55
+|wisdom=55
+|charisma=55
+|magic=10-24
+|poison=10-24
+|elemental=10-24
+|void=10-24
+|spells={{AbilityLink|Minor Healing}}
+}}
+
+Greeting message:
+{| class="wikitable"
+| Got a few things left for sale until the next <span style="color: #15e300;">[caravan]</span> comes through, if anything helps you, you're a welcome customer.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[caravan]</span>
+|Deliveries are sparse now. Azure has closed the port, and that means what's here on Erenshor is all there is to be had. Not enough folks are willing to venture out to gather supplies, so we're pretty well rationed now.
+|}
+
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Skill Book: Kick}}
+|[[Ability Books|Skill Book]]
+|75
+|-
+|{{ItemLink|Skill Book: Dodge}}
+|[[Ability Books|Skill Book]]
+|55
+|-
+|{{ItemLink|Skill Book: Blood Feast}}
+|[[Ability Books|Skill Book]]
+|55
+|-
+|{{ItemLink|Priel Knife}}
+|[[Weapons|Knife]]
+|3
+|-
+|{{ItemLink|Skill Book: Shield Bash}}
+|[[Ability Books|Skill Book]]
+|100
+|-
+|{{ItemLink|Spell Scroll: Minor Healing}}
+|[[Ability Books|Spell Scroll]]
+|60
+|-
+|{{ItemLink|Spell Scroll: Magic Bolt}}
+|[[Ability Books|Spell Scroll]]
+|50
+|-
+|{{ItemLink|Basic Pick}}
+|[[Weapons#Primary or Secondary|Primary or Secondary]]
+|100
+|-
+|{{ItemLink|Mold: Copper Sceptre}}
+|[[Crafting|Mold]]
+|0
+|-
+|{{ItemLink|Mold: Copper Sword}}
+|[[Crafting|Mold]]
+|0
+|-
+|{{ItemLink|Fishing Pole}}
+|[[Fishing]]
+|5
+|-
+|{{ItemLink|Spell Scroll: Moon Bolt}}
+|[[Ability Books|Spell Scroll]]
+|65
+|}
+
+[[Category:Characters]]
+[[Category:Vendors]]
+[[Category:Willowwatch Ridge]]

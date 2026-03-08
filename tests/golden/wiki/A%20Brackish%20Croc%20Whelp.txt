@@ -1,0 +1,61 @@
+{{Enemy
+|name=A Brackish Croc Whelp
+|image=[[File:A Brackish Croc Whelp.png|thumb]]
+|imagecaption="{{PAGENAME}} toddles angrily towards you."
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Stowaway's Step]]
+|coordinates=753.2 x 20.7 x 573.0
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Plain Necklace}} (100.0%)
+|level=1
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=20
+|mana=0
+|ac=15
+|strength=0
+|endurance=0
+|dexterity=0
+|agility=0
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=0-1
+|poison=0-1
+|elemental=0-1
+|void=0-1
+|spells=
+}}
+'''{{PAGENAME}}''' is an [[Enemies|enemy]] in [[Erenshor]].
+=Location=
+{{PAGENAME}} can be found exclusively outside of the lighthouse in [[Stowaway's Step]].
+
+=Appearance=
+{{PAGENAME}} is a small black-scaled crocodile. It is the smallest of all the croc variants.
+
+=Behavior=
+{{PAGENAME}} roams the path on the way from the registration office to the lighthouse. It will attack players when they approach it. {{PAGENAME}} is the first [[Enemies|enemy]] players will encounter, and they will be prompted with a short tutorial upon approaching it.
+
+{| class="wikitable" style=width:38em
+|+Combat
+|align="center" |
+<span style="color: #e20200;">A Small Croc</span> has wandered into the path ahead. Make sure you've equipped your weapon in your inventory. LEFT CLICK him to target him, and press Q to begin attacking. <span style="color: #01d900;">You can RIGHT CLICK or press 'C' with an NPC targeted</span> to get a hint about how well you might fare in combat against it and whether it might attack you on sight.
+|}
+
+===Spells and Abilities===
+{{PAGENAME}} does not use any spells or abilities.
+
+=Notes=
+
+The necklace {{PAGENAME}} drops can be given to [[Alice Hewer]] to complete {{QuestLink|Alice Hewer's Necklace}}.
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Stowaway's Step]]

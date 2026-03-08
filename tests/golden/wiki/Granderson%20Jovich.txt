@@ -1,0 +1,54 @@
+{{Enemy
+|name=Granderson Jovich
+|image=[[File:Granderson Jovich.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Solunarian Brotherhood]]
+|factionChange=-20 [[The Citizens of Port Azure]]<br>-20 [[The Solunarian Brotherhood]]
+|zones=[[Soluna's Landing]]
+|coordinates=252.7 x 100.0 x 413.2
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=20
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=4550
+|mana=200
+|ac=300
+|strength=55
+|endurance=55
+|dexterity=55
+|agility=55
+|intelligence=55
+|wisdom=55
+|charisma=55
+|magic=10-24
+|poison=10-24
+|elemental=10-24
+|void=10-24
+|spells={{AbilityLink|Minor Healing}}
+}}
+Granderson Jovich is located in the small town in [[Soluna's Landing]]
+
+Greeting message if you are not a Paladin:
+{| class="wikitable"
+|Not a Paladin? Why are you here?
+|}
+
+Greeting message if you are a Paladin:
+{| class="wikitable"
+|Welcome to our little town. This <span style="color: #15e300;">[place]</span> is a destination for all Paladins, and we aim to make a permanent home here for our people.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[place]</span>
+This is the very <span style="color: #15e300;">[place]</span> where Soluna appeared on our plane. The power she left behind here can be sensed by anyone, but for a Paladin, it's... everything.
+
+[[Category:Characters]]
+[[Category:Soluna's Landing]]

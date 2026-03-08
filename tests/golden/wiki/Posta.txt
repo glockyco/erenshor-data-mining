@@ -1,0 +1,60 @@
+{{Enemy
+|name=Posta
+|image=[[File:Posta's Body.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Necromancers of the Island Tomb]]
+|factionChange=-1000 [[The Necromancers of the Island Tomb]]
+|zones=[[Island Tomb]]
+|coordinates=161.5 x -8.9 x 166.8
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Soul Gem (Posta)}} (100.0%)<ref>If the player is already holding {{ItemLink|Soul Gem (Posta)}} in their inventory, another will not drop.</ref><br>{{ItemLink|Bread}} (78.2%)<br>{{ItemLink|Water}} (78.2%)
+|level=4
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=650
+|mana=0
+|ac=60
+|strength=6
+|endurance=12
+|dexterity=15
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=2-5
+|poison=2-5
+|elemental=2-5
+|void=2-5
+|spells={{AbilityLink|Weak Poison}}
+}}
+
+Posta is located in the secret room behind the stone throne found in the [[Island Tomb]] behind [[Woe]].
+
+Greeting message:
+{| class="wikitable"
+|We have given all of ourselves.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[Aragath]</span>
+|We hold him imprisoned... forever...
+|-
+|<span style="color: #15e300;">[imprisoned]</span>
+|Has he asked you to free him from us? You musn't. He is not what he says...
+|-
+|<span style="color: #15e300;">[says]</span>
+|A demon... our own summoning of which we've lost control... we lured it here long ago, before humans settled the island. We restrain his true form. If you destroy us, our watchlights... he will be freed, and you will be his. Leave us be... or dispatch of him yourself.
+|-
+|<span style="color: #15e300;">[dispatch]</span>
+|Ask Stalzo for the Empty Soul Stone. If you hand it to Aragath, it will absorb his life power and weaken him enough for you to destroy him. He will no longer be a danger to this world and we will be able to leave this place forever. 
+|}
+
+[[Category:Characters]]
+[[Category:Island Tomb]]

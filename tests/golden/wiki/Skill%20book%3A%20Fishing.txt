@@ -1,0 +1,33 @@
+{{Item
+|title=Skill book: Fishing
+|type=
+|vendorsource=
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=10
+|sell=6
+|taughtspell=
+|taughtskill=Fishing
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SkillBook
+|image=Skill book: Fishing.png
+|name=Skill book: Fishing
+|duelist_level=1
+|druid_level=1
+|arcanist_level=1
+|paladin_level=1
+|stormcaller_level=
+|reaver_level=
+|skill_type=Other
+|skill_desc=Requires a fishing pole in primary slot. Stand facing water and use skill. No bait necessary.
+|simplayers_autolearn=True
+}}
+
+[[Category:Ability Books]]

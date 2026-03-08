@@ -1,0 +1,46 @@
+{{Enemy
+|name=Lost Soul
+|image=[[File:Lost Soul.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=
+|zones=[[Malaroth's Nesting Grounds]]
+|coordinates=1111.1 x 19.0 x 514.6
+|spawnchance=
+|respawn=6 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Seaspice}} (100.0%)<br>{{ItemLink|Bread}} (71.7%)<br>{{ItemLink|Citrine Stone}} (71.7%)<br>{{ItemLink|Water}} (71.7%)<br>{{ItemLink|Luminstone}} (41.7%)<br>{{ItemLink|Star Stone}} (41.7%)
+|level=4
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=0
+|levelvariancemax=0
+|xpmultiplier=1.0
+|health=15600
+|mana=155
+|ac=60
+|strength=9
+|endurance=45
+|dexterity=45
+|agility=1
+|intelligence=5
+|wisdom=1
+|charisma=1
+|magic=2-5
+|poison=2-5
+|elemental=2-5
+|void=2-5
+|spells={{AbilityLink|Magic Bolt}}<br>{{AbilityLink|Minor Lightning}}<br>{{AbilityLink|Minor Protection}}<br>{{AbilityLink|Tangle}}
+}}
+
+{{PAGENAME}} appears on the coast at night. Giving him some items that remind him of his identity will begin {{QuestLink|questlink=The Lost Soul}}
+<br><br>
+
+Greeting message:
+{| class="wikitable"
+| I cannot recall my purpose nor how I came to be here, but I am drawn to this place. I think I shall stay.
+|}
+
+[[Category:Characters]]
+[[Category:Malaroth's Nesting Grounds]]

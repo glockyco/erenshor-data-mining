@@ -1,0 +1,40 @@
+{{Item
+|title=Adventure Charm
+|type=
+|vendorsource=
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=2500
+|sell=1625
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/Charm
+|image=Adventure Charm.png
+|name=Adventure Charm
+|tier=0
+|strscaling=
+|endscaling=1
+|dexscaling=1
+|agiscaling=
+|intscaling=1
+|wisscaling=1
+|chascaling=
+|resistscaling=
+|mitigationscaling=
+|arcanist=True
+|duelist=True
+|druid=True
+|paladin=True
+|reaver=True
+|stormcaller=True
+}}
+
+[[Category:Charms]]

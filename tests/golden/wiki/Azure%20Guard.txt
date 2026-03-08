@@ -1,0 +1,152 @@
+{{Enemy
+|name=Azure Guard
+|image=[[File:Azure Guard.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Azure Guard]]
+|factionChange=+10 [[Ripper DeMerth]]<br>-50 [[The Azure Guard]]
+|zones=[[Port Azure]]
+|coordinates=
+|spawnchance=
+|respawn=4-6 minutes
+|guaranteeddrops=
+|droprates=
+|level=32
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=34450
+|mana=0
+|ac=480
+|strength=155
+|endurance=155
+|dexterity=155
+|agility=155
+|intelligence=155
+|wisdom=155
+|charisma=155
+|magic=16-38
+|poison=16-38
+|elemental=16-38
+|void=16-38
+|spells=
+}}
+
+The Azure Guard is the military protection of [[Port Azure]].
+
+==[[Port Azure|<span style="color:orange;">in Port Azure</span>]]:== 
+Greeting message from all the guards in Port Azure:
+{| class="wikitable"
+|"Do not cause trouble, citizen. The Azure Guard is entitled to your life."
+|}
+
+==[[Fernalla's Revival Plains|<span style="color:orange;">in Fernalla's Revival Plains</span>]]:== 
+The guard beside Lieutenant Ulrik's Greeting message:
+{| class="wikitable"
+|"What a <span style="color: #15e300;">[tragedy]</span>..."
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[tragedy]</span> and <span style="color: #15e300;">[goodsoil]</span>
+"The entire town has been destroyed by... by who knows what..."
+|-
+|<span style="color: #15e300;">[Yarren]</span>
+"Who?"
+|}
+
+The Guard Beside the refugees in [[Fernalla's Revival Plains]] Greeting message:
+{| class="wikitable"
+|"These folks have been through enough. Do not stir trouble."
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[goodsoil]</span>, <span style="color: #15e300;">[tragedy]</span>, <span style="color: #15e300;">[folks]</span>, <span style="color: #15e300;">[camp]</span> and <span style="color: #15e300;">[Yarren]</span>
+"I'm not authorized to answer any questions."
+|}
+
+==[[Blacksalt Strand|<span style="color:orange;">in Blacksalt Strand</span>]]:== 
+The Guard by the watchtower:
+{| class="wikitable"
+|"This is the territory of Port Azure. You are subject to the city laws beyond if you head into town. Just so you know... the laws are not for your protection - they are for the protection of the city."
+|}
+
+{{Enemy
+|name=Azure Guard
+|image=[[File:Azure Guard.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Azure Guard]]
+|factionChange=+10 [[Ripper DeMerth]]<br>-50 [[The Azure Guard]]
+|zones=[[Fernalla's Revival Plains]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates=
+|level=25
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=4550
+|mana=0
+|ac=375
+|strength=155
+|endurance=155
+|dexterity=155
+|agility=155
+|intelligence=155
+|wisdom=155
+|charisma=155
+|magic=12-30
+|poison=12-30
+|elemental=12-30
+|void=12-30
+|spells=
+}}
+
+{{Enemy
+|name=Azure Guard
+|image=[[File:Azure Guard.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Port Azure]]
+|factionChange=+10 [[Ripper DeMerth]]<br>-50 [[The Azure Guard]]
+|zones=[[Blacksalt Strand]]<br>[[Fernalla's Revival Plains]]
+|coordinates=
+|spawnchance=
+|respawn=6 minutes
+|guaranteeddrops=
+|droprates=
+|level=12
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1950
+|mana=0
+|ac=180
+|strength=36
+|endurance=155
+|dexterity=100
+|agility=155
+|intelligence=155
+|wisdom=155
+|charisma=155
+|magic=6-14
+|poison=6-14
+|elemental=6-14
+|void=6-14
+|spells=
+}}
+
+[[Category:Blacksalt Strand]]
+[[Category:Characters]]
+[[Category:Fernalla's Revival Plains]]
+[[Category:Port Azure]]

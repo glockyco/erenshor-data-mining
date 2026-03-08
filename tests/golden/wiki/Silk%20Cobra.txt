@@ -1,0 +1,38 @@
+{{Enemy
+|name=Silk Cobra
+|image=[[File:Silk Cobra.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Silkengrass Meadowlands]]
+|coordinates=
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates=
+|level=15
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=3900
+|mana=1000
+|ac=225
+|strength=29
+|endurance=80
+|dexterity=165
+|agility=100
+|intelligence=155
+|wisdom=100
+|charisma=100
+|magic=8-18
+|poison=8-18
+|elemental=8-18
+|void=8-18
+|spells=
+}}
+
+[[Category:Enemies]]
+[[Category:Silkengrass Meadowlands]]

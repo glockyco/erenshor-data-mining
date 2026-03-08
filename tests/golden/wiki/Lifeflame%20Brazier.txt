@@ -1,0 +1,38 @@
+{{Enemy
+|name=Lifeflame Brazier
+|image=[[File:Lifeflame Brazier.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=
+|factionChange=
+|zones=[[Vitheo's Rest]]
+|coordinates=246.8 x 0.5 x 101.2
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=99
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=129999
+|mana=999
+|ac=1485
+|strength=3
+|endurance=3
+|dexterity=3
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=50-119
+|poison=50-119
+|elemental=50-119
+|void=50-119
+|spells=
+}}
+
+[[Category:Characters]]
+[[Category:Vitheo's Rest]]

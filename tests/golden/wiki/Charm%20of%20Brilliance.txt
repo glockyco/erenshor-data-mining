@@ -1,0 +1,45 @@
+{{Item
+|title=Charm of Brilliance
+|type=
+|vendorsource=
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=1x {{ItemLink|Mold: Charm of Brilliance}}<br>1x {{ItemLink|Chunk of Citrine Sandsilver}}<br>1x {{ItemLink|Flint Carapace}}<br>1x {{ItemLink|Droplet of Lava}}<br>1x {{ItemLink|Luminstone}}
+|componentfor=
+|buy=25000
+|sell=16250
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{| style="width:50%;"
+| style="width:25%; vertical-align:top;" |
+{{Item/Charm
+|image=Charm of Brilliance.png
+|name=Charm of Brilliance
+|tier=0
+|strscaling=
+|endscaling=
+|dexscaling=
+|agiscaling=
+|intscaling=4
+|wisscaling=
+|chascaling=
+|resistscaling=
+|mitigationscaling=
+|arcanist=True
+|duelist=True
+|druid=True
+|paladin=True
+|reaver=True
+|stormcaller=True
+}}
+|}
+
+<!--[[File:CharmBrill shiny.png|left|thumb|Shiny / Rare variant]]-->
+
+[[Category:Charms]]

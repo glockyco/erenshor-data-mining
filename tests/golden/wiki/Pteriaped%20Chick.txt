@@ -1,0 +1,38 @@
+{{Enemy
+|name=Pteriaped Chick
+|image=[[File:Pteriaped Chick.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Loomingwood Forest]]
+|coordinates=
+|spawnchance=
+|respawn=5-6 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Green Pteriaped Feather}} (35.2%)<br>{{ItemLink|Luminstone}} (2.3%)<br>{{ItemLink|Pink Pteriaped Feather}} (2.3%)<br>{{ItemLink|Blueprint: Loomingwood Market}} (0.5%)<br>{{ItemLink|Blueprint: Loomingwood Shrine}} (0.5%)
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=18850
+|mana=0
+|ac=330
+|strength=37
+|endurance=40
+|dexterity=135
+|agility=100
+|intelligence=100
+|wisdom=100
+|charisma=100
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells=
+}}
+
+[[Category:Enemies]]
+[[Category:Loomingwood Forest]]

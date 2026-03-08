@@ -1,0 +1,54 @@
+{{Enemy
+|name=Rose Crystalshade
+|image=[[File:Rose Crystalshade.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
+|zones=[[Braxonian Desert]]
+|coordinates=642.2 x 57.7 x 629.0
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (59.4%)<br>{{ItemLink|Seafruit}} (59.4%)<br>{{ItemLink|Seaspice}} (59.4%)<br>{{ItemLink|Molorai Allegiant Ring}} (56.5%)
+|level=31
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=42315
+|mana=55
+|ac=465
+|strength=455
+|endurance=455
+|dexterity=565
+|agility=900
+|intelligence=600
+|wisdom=400
+|charisma=300
+|magic=16-37
+|poison=16-37
+|elemental=16-37
+|void=16-37
+|spells={{AbilityLink|Biting Vines}}<br>{{AbilityLink|Jolt}}<br>{{AbilityLink|Magic Bolt}}<br>{{AbilityLink|Theft of Life}}<br>{{AbilityLink|Weak Poison}}
+}}
+Greeting message:
+{| class="wikitable"
+| I am Rose, emissary for <span style="color: #15e300;">[Eldoth]</span> Molorai. You may conduct anay official business through me. Do not venture beyond this <span style="color: #15e300;">[point]</span>, by order of <span style="color: #15e300;">[Eldoth]</span>.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[Eldoth]</span>
+<span style="color: #15e300;">[Eldoth]</span> is working to protect the <span style="color: #15e300;">[history]</span> of this land so that he might restore it in a way for all to enjoy.
+|-
+|<span style="color: #15e300;">[history]</span>
+The Gods will return to Erenshor through our leader. None will stand in the way of that. It is for the best.
+|-
+|<span style="color: #15e300;">[point]</span>
+The Molorai are investigating a potential place of interest atop this ridge. You will be met with force, as our soldiers have been education, and they understand that any outsider is a threat to the Molorai mission.
+|}
+
+[[Category:Braxonian Desert]]
+[[Category:Characters]]

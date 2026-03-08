@@ -1,0 +1,39 @@
+{{Enemy
+|name=Molorai Bodyguard
+|image=[[File:Molorai Bodyguard.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
+|factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Azure Guard]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
+|zones=[[Old Krakengard]]
+|coordinates=
+|spawnchance=
+|respawn=8 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Molorai Axe}} (17.8%)<ref>If Molorai Bodyguard has {{ItemLink|Molorai Axe}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Luminstone}} (7.8%)<br>{{ItemLink|Molorai Battle Boots}} (7.8%)<br>{{ItemLink|Razor Waveblade}} (5.4%)<ref>If Molorai Bodyguard has {{ItemLink|Razor Waveblade}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Rusty Dagger}} (5.4%)
+|level=14
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=0
+|levelvariancemax=0
+|xpmultiplier=1.0
+|health=2860
+|mana=55
+|ac=210
+|strength=175
+|endurance=100
+|dexterity=255
+|agility=75
+|intelligence=15
+|wisdom=15
+|charisma=35
+|magic=7-17
+|poison=7-17
+|elemental=7-17
+|void=7-17
+|spells=
+}}
+
+[[Category:Enemies]]
+[[Category:Old Krakengard]]
+[[Category:Vitheo's Watch]]

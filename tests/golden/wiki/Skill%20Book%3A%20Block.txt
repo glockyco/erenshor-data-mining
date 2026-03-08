@@ -1,0 +1,33 @@
+{{Item
+|title=Skill Book: Block
+|type=[[Ability Books|Skill Book]]
+|vendorsource=[[Akaran Black]]
+|source=[[Islander Bandit]] (1.1%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=555
+|sell=361
+|taughtspell=
+|taughtskill={{AbilityLink|Block}}
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SkillBook
+|image=Skill Book: Block.png
+|name=Skill Book: Block
+|duelist_level=
+|druid_level=15
+|arcanist_level=15
+|paladin_level=8
+|stormcaller_level=
+|reaver_level=8
+|skill_type=Innate
+|skill_desc=You gain a small innate chance to block incoming attacks. Can proc shield ability. Requires a shield.
+|simplayers_autolearn=True
+}}
+
+[[Category:Ability Books]]

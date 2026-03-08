@@ -1,0 +1,75 @@
+This item can be turned in for {{QuestLink | link=A Magical Sword in Port Azure}}
+{{Item
+|title=Ruby
+|type=[[Quest Items|Quest Item]], [[Crafting]]
+|vendorsource=
+|source=[[Astra, Rogue of the Stars]] (41.8%)<br>[[Headless]] (20.5%)<br>[[Bloom Preserver]] (17.8%)<br>[[Greater Fawn]] (17.8%)<br>[[Vinx]] (17.0%)<br>[[Fawn of Fernalla]] (14.2%)<br>[[Autmis the Lost]] (13.5%)<br>[[Elizah Vernor]] (12.3%)<br>[[Molorai Brewmistress]] (12.3%)<br>[[Thella Steepleton]] (12.3%)<br>[[Risen Druid]] (10.8%)<br>[[Maple]] (6.9%)<br>[[Risen Hierophant]] (6.9%)<br>[[Elder Guardian]] (6.8%)<br>[[Molorai Veteran]] (6.8%)<br>[[A Deepling Brute]] (6.5%)<br>[[Shrouded Sivakayan]] (4.9%)<br>[[Sivakayan Doomshade]] (4.9%)<br>[[Sivakayan High Shadow]] (4.9%)<br>[[Sivakayan Shadow]] (4.9%)<br>[[Sivakayan Voidmaster]] (4.9%)<br>[[Wild Ogre]] (4.5%)<br>[[Sivakayan Devoted]] (4.2%)<br>[[Sivakayan Faithbound]] (4.2%)<br>[[Tinkles]] (4.0%)<br>[[Stoneman]] (3.2%)<br>[[Overseer Orlok]] (3.2%)<br>[[Gasper]] (1.9%)<br>[[Shadow of Sleep]] (1.7%)<br>[[Daggerlegs]] (1.7%)<br>[[Fright]] (1.7%)<br>[[Stoneman Magi]] (1.1%)<br>[[Shiverman]] (0.7%)<br>[[Ancient Guard]] (0.2%)<br>[[Braxonian High Guard]] (0.2%)<br>[[Vithean Immortal]] (0.2%)
+|othersource=
+|questsource=
+|relatedquest={{QuestLink|A Magical Sword in Port Azure}}
+|craftsource=
+|componentfor={{ItemLink|Mold: Charm of Stone}}
+|buy=500
+|sell=325
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/General
+|image=Ruby.png
+|name=Ruby
+|description=Just an every day Ruby. Coincidently, it's shaped like a heart.
+|value=500
+|stack_size=
+|disposable=
+|effect_style=
+|effect_spell_icon=
+|effect_spell_name=
+|effect_spell_level=
+|effect_spell_duration_ticks=
+|effect_spell_type=
+|effect_spell_line=
+|effect_target_damage=
+|effect_target_healing=
+|effect_damage_type=
+|effect_cast_time=
+|effect_cooldown=
+|effect_spell_range=
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+}}
+
+[[Category:Crafting]]
+[[Category:Items]]
+[[Category:Quest Items]]

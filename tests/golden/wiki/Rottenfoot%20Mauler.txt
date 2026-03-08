@@ -1,0 +1,38 @@
+{{Enemy
+|name=Rottenfoot Mauler
+|image=[[File:Rottenfoot Mauler.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=+1 [[The Blades of Vitheo]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]
+|zones=[[Rottenfoot]]
+|coordinates=
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Coral}} (32.7%)<br>{{ItemLink|Rottenfoot Sash}} (32.7%)<br>{{ItemLink|Sea Glass}} (32.7%)<br>{{ItemLink|Seaweed}} (32.7%)<br>{{ItemLink|A Husselfish}} (5.8%)<br>{{ItemLink|A Worm Eel}} (5.8%)<br>{{ItemLink|Rottenfoot Ring}} (5.8%)<br>{{ItemLink|Rottenfoot Tribal Strap}} (5.8%)<br>{{ItemLink|Muck Ball}} (4.6%)<br>{{ItemLink|Rottenfoot Cap}} (4.6%)<br>{{ItemLink|Swampy Loincloth}} (4.6%)<br>{{ItemLink|Petrified Club}} (3.9%)<ref>If Rottenfoot Mauler has {{ItemLink|Petrified Club}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Runewoven Bracer}} (3.9%)
+|level=15
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=4225
+|mana=0
+|ac=225
+|strength=25
+|endurance=65
+|dexterity=110
+|agility=35
+|intelligence=35
+|wisdom=15
+|charisma=3
+|magic=8-18
+|poison=8-18
+|elemental=8-18
+|void=8-18
+|spells={{AbilityLink|Death's Embrace}}<br>{{AbilityLink|Minor Healing}}<br>{{AbilityLink|Minor Protection}}<br>{{AbilityLink|Minor Regeneration}}<br>{{AbilityLink|Theft of Life}}<br>{{AbilityLink|Vitheo's Blessing of the Sea}}
+}}
+
+[[Category:Enemies]]
+[[Category:Rottenfoot]]

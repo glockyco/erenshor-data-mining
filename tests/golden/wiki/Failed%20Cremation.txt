@@ -1,0 +1,60 @@
+{{Enemy
+|name=Failed Cremation
+|image=[[File:Failed Cremation.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Island Tomb]]
+|coordinates=109.1 x -8.9 x 157.0
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Coal}} (100.0%)<br>{{ItemLink|Ceremonial Gloves}} (48.6%)<br>{{ItemLink|Charred Boots}} (48.6%)<br>{{ItemLink|Luminstone}} (32.7%)<br>{{ItemLink|Sea Glass}} (32.7%)
+|level=6
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1300
+|mana=0
+|ac=90
+|strength=12
+|endurance=50
+|dexterity=65
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=3-7
+|poison=3-7
+|elemental=3-7
+|void=3-7
+|spells={{AbilityLink|Theft of Life}}
+}}
+
+''{{main|Enemies}}''
+
+<!--
+=Location=
+{{PAGENAME}} is found in the [[Island Tomb]] on [[Stowaway's Step]]. From the dungeon entrance, go straight until there is an opening to your right. Take it, go down the stairs, and through the hallway. From here you can either go left or right; both sides connect on the other side, where a third path leads to {{PAGENAME}}.
+-->
+=Appearance=
+{{PAGENAME}} is a skeleton, likely reanimated by the [[Woe|necromancers]] in the tomb who failed to control him.
+
+=Behavior=
+{{PAGENAME}} waits in a back room of the tomb. He has no detection range, meaning players will not attract his attention unless they initiate the fight or get immediately next to him.
+
+===Spells & Abilities===
+Offensive:
+*{{AbilityLink|Theft of Life}}
+
+===Strategy===
+{{PAGENAME}} is the second most difficult boss in the tomb, though he still does not pose much of a challenge. His AC is relatively high compared to most other enemies in the dungeon, making him slightly more difficult to hit. Additionally, Theft of Life can heal back some of {{PAGENAME}}'s health, though a [[Paladin]] or [[Duelist]] can interrupt {{PAGENAME}} while he is casting with a well-timed {{AbilityLink|Kick}}.
+
+=Notes=
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Island Tomb]]

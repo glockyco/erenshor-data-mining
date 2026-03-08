@@ -1,0 +1,33 @@
+{{Item
+|title=Skill Book: Celestial Smite
+|type=[[Ability Books|Skill Book]]
+|vendorsource=[[Akaran Black]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=18500
+|sell=12025
+|taughtspell=
+|taughtskill={{AbilityLink|Celestial Smite}}
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SkillBook
+|image=Skill Book: Celestial Smite.png
+|name=Skill Book: Celestial Smite
+|duelist_level=
+|druid_level=
+|arcanist_level=
+|paladin_level=28
+|stormcaller_level=
+|reaver_level=
+|skill_type=Attack
+|skill_desc=Channel the power of Soluna into your attack (2H Weapon Required)
+|simplayers_autolearn=True
+}}
+
+[[Category:Ability Books]]

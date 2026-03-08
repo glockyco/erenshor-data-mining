@@ -1,0 +1,59 @@
+{{Enemy
+|name=Captain Genevieve Voldance
+|image=[[File:Captain Genevieve Voldance.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=
+|zones=[[Stowaway's Step]]
+|coordinates=839.0 x 10.0 x 444.2
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=6
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1690
+|mana=0
+|ac=90
+|strength=3
+|endurance=5
+|dexterity=5
+|agility=5
+|intelligence=5
+|wisdom=5
+|charisma=5
+|magic=3-7
+|poison=3-7
+|elemental=3-7
+|void=3-7
+|spells=
+}}
+
+She is a ship captain currently on the [[Docks]] on [[Stowaway's Step]] and is a part of {{QuestLink|Percy's Seaspice}}.
+
+Greeting message:
+{| class="wikitable"
+|Preppin' to depart. Not to <span style="color: #15e300;">[Erenshor]</span> though - those ports are all closed. I'm headed back home to <span style="color: #15e300;">[Merosavilla]</span> for a little rest.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[Erenshor]</span> and <span style="color: #15e300;">[Mainland]</span>
+|No can do. It'd take quite a tidy sum for me to risk my ship on a trip to Erenshor
+|-
+|<span style="color: #15e300;">[Merosavilla]</span>
+|Merosavilla? That's where my home is. Nice place - lots of mountains. You should visit it someday. If I were going going back to Ashenvale, I'd offer you a trip back since you didn't make it to Erenshor. You'll find your way I'm sure.
+|}
+
+Giving her {{ItemLink|A Rolled Note}}:
+{| class="wikitable"
+|What's this...? *She unrolls the note* "...Passage to Erenshor by order of Percy?" Hahaha! He's out of his mind. I don't owe him a thing. Sorry pal, no can do.
+|}
+
+[[Category:Characters]]
+[[Category:Stowaway's Step]]

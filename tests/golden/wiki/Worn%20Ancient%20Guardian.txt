@@ -1,0 +1,40 @@
+{{Enemy
+|name=Worn Ancient Guardian
+|image=[[File:Worn Ancient Guardian.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Faerie's Brake]]<br>[[The Duskenlight Coast]]<br>[[Windwashed Pass]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Rock}} (34.1%)<br>{{ItemLink|Diamond}} (11.2%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ancient Golem Stone}} (5.7%)<ref>If the player is already holding {{ItemLink|Ancient Golem Stone}} in their inventory, another will not drop.</ref><br>{{ItemLink|Luminstone}} (5.7%)<br>{{ItemLink|Aged Ring of Barriers}} (1.6%)<br>{{ItemLink|Ancient Guardian Boots}} (1.6%)<br>{{ItemLink|Ancient Guardian Bracer}} (1.6%)<br>{{ItemLink|Ancient Guardian Gloves}} (1.6%)<br>{{ItemLink|Ancient Guardian Helm}} (1.6%)<br>{{ItemLink|Ancient Guardian Legplates}} (1.6%)<br>{{ItemLink|Ancient Guardian Plate}} (1.6%)<br>{{ItemLink|Ancient Guardian Sleeve}} (1.6%)
+|level=20
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=19500
+|mana=0
+|ac=300
+|strength=29
+|endurance=66
+|dexterity=300
+|agility=35
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=10-24
+|poison=10-24
+|elemental=10-24
+|void=10-24
+|spells={{AbilityLink|Lightning}}
+}}
+
+[[Category:Enemies]]
+[[Category:Faerie's Brake]]
+[[Category:The Duskenlight Coast]]
+[[Category:Windwashed Pass]]

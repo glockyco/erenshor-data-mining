@@ -1,0 +1,38 @@
+{{Enemy
+|name=Sentinel
+|image=[[File:Sentinel.png|thumb]]
+|imagecaption=Eye see you..
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=+2 [[Fernalla's Children]]<br>+2 [[The Torchbearers of Brax]]
+|zones=[[The Blight]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Ancient Pottery Shard}} (14.2%)<br>{{ItemLink|Blight Crystals}} (14.2%)
+|level=25
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=19500
+|mana=2500
+|ac=375
+|strength=600
+|endurance=500
+|dexterity=600
+|agility=100
+|intelligence=550
+|wisdom=100
+|charisma=100
+|magic=12-30
+|poison=12-30
+|elemental=12-30
+|void=12-30
+|spells={{AbilityLink|Death Stare}}<br>{{AbilityLink|Morbidity's Grasp}}
+}}
+
+[[Category:Enemies]]
+[[Category:The Blight]]

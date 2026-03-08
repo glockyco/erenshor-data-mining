@@ -1,0 +1,73 @@
+{{Item
+|title=Decayed Druid Beads
+|type=[[Quest Items|Quest Item]]
+|vendorsource=
+|source=[[Elder Guardian]] (32.9%)<br>[[Bloom Preserver]] (22.3%)<br>[[Greater Fawn]] (22.3%)<br>[[Fawn of Fernalla]] (14.2%)<br>[[Maple]] (11.7%)<br>[[Risen Hierophant]] (10.8%)<br>[[Risen Druid]] (10.6%)<br>[[Vinx]] (7.9%)<br>[[Frenzy]] (5.6%)<br>[[Grappler]] (5.6%)<br>[[Fernallan Guardian]] (3.5%)
+|othersource=
+|questsource=
+|relatedquest={{QuestLink|Druid Beads for Varran}}
+|craftsource=
+|componentfor=
+|buy=12
+|sell=8
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+Hand to [[Varran Juctor]] to complete the repeatable quest [[Druid Beads for Varran]]
+
+{{Item/General
+|image=Decayed Druid Beads.png
+|name=Decayed Druid Beads
+|description=They nearly crumble in your hands and are unwearable. They seem relatively worthless
+|value=12
+|stack_size=
+|disposable=
+|effect_style=
+|effect_spell_icon=
+|effect_spell_name=
+|effect_spell_level=
+|effect_spell_duration_ticks=
+|effect_spell_type=
+|effect_spell_line=
+|effect_target_damage=
+|effect_target_healing=
+|effect_damage_type=
+|effect_cast_time=
+|effect_cooldown=
+|effect_spell_range=
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+}}
+
+[[Category:Items]]

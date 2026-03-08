@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Void Bolt
+|type=
+|vendorsource=[[Aillee Desten]]<br>[[Xander Zaxtrough]]<br>[[Zane Theavale]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=100
+|sell=65
+|taughtspell={{AbilityLink|Void Bolt}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Void Bolt.png
+|name=Spell Scroll: Void Bolt
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=2
+|mana_cost=25
+|spell_type=Damage
+|spell_desc=Deals 25 void damage to your target.
+}}
+
+[[Category:Ability Books]]

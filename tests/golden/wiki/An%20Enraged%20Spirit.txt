@@ -1,0 +1,59 @@
+{{Enemy
+|name=An Enraged Spirit
+|image=[[File:An Enraged Spirit.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Stowaway's Step]]
+|zones=[[Island Tomb]]
+|coordinates=
+|spawnchance=
+|respawn=4-5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Aetheria}} (12.4%)<ref>If the player is already holding {{ItemLink|Aetheria}} in their inventory, another will not drop.</ref><br>{{ItemLink|Golden Luminstone Ring}} (5.6%)<br>{{ItemLink|Ancient Bone}} (2.8%)<br>{{ItemLink|Luminstone}} (2.8%)<br>{{ItemLink|Rusty Dagger}} (2.8%)<br>{{ItemLink|Spell Scroll: Brax's Touch}} (2.8%)<br>{{ItemLink|Spell Scroll: Lunar Madness}} (2.8%)<br>{{ItemLink|Spell Scroll: Magic Bolt}} (2.8%)<br>{{ItemLink|Spell Scroll: Minor Healing}} (2.8%)<br>{{ItemLink|Spell Scroll: Summon Cursed Fawn}} (2.8%)<br>{{ItemLink|Star Stone}} (2.8%)<br>{{ItemLink|Cloth Gloves}} (2.6%)<br>{{ItemLink|Cloth Hood}} (2.6%)<br>{{ItemLink|Cloth Pants}} (2.6%)<br>{{ItemLink|Cloth Shirt}} (2.6%)<br>{{ItemLink|Cloth Shoes}} (2.6%)<br>{{ItemLink|Cloth Sleeves}} (2.6%)
+|level=3
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=864
+|mana=100
+|ac=45
+|strength=7
+|endurance=10
+|dexterity=45
+|agility=1
+|intelligence=4
+|wisdom=0
+|charisma=0
+|magic=2-4
+|poison=2-4
+|elemental=2-4
+|void=2-4
+|spells={{AbilityLink|Magic Bolt}}<br>{{AbilityLink|Minor Protection}}
+}}
+
+'''{{PAGENAME}}''' is an [[Enemies|enemy]] in [[Erenshor]].
+
+=Location=
+{{PAGENAME}} can be found throughout the [[Island Tomb]] on [[Stowaway's Step]].
+
+=Appearance=
+{{PAGENAME}} is a floating red ghost resembling a woman. It is semi-transparent and wears an ethereal flowing dress.
+
+=Behavior=
+{{PAGENAME}} stand at various points in the tomb and will attack players if they get too close. They can often be found around corners and behind doors, waiting to ambush unsuspecting adventurers.
+
+===Spells & Abilities===
+Defensive:
+*{{AbilityLink|Minor Protection}}
+
+Offensive:
+*{{AbilityLink|Magic Bolt}}
+
+=Notes=
+
+[[Category:Enemies]]
+[[Category:Island Tomb]]
+[[Category:Stowaway's Step]]

@@ -1,0 +1,29 @@
+{{Item
+|title=Mold: A Ghostly Key
+|type=[[Crafting|Mold]]
+|vendorsource=
+|source=[[Plaxitheris]] (100.0%)
+|othersource=
+|questsource=
+|relatedquest={{QuestLink |questlink=Whispers of Wyland}}
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/Mold
+|image=Mold: A Ghostly Key.png
+|name=Mold: A Ghostly Key
+|description=Recipes must be exact - use CNTRL + CLICK to separate stacks.<br><br>One-time usable in a forge. <br><br>*Fuel quality does not affect the outcome of this recipe
+|ingredients=1x {{ItemLink|Aetheria}}<br>1x {{ItemLink|Chunk of Iron Ore}}<br>1x {{ItemLink|Broken Key Blade}}<br>1x {{ItemLink|Broken Key Bow}}
+|rewards={{ItemLink|Ghostly Key}}
+|station=
+}}
+
+[[Category:Crafting]]
+[[Category:Molds]]

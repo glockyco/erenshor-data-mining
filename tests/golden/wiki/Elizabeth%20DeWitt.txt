@@ -1,0 +1,81 @@
+{{Enemy
+|name=Elizabeth DeWitt
+|image=[[File:Elizabeth DeWitt.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=
+|zones=[[Port Azure]]
+|coordinates=343.3 x 26.7 x 91.9
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates=
+|level=25
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=19500
+|mana=0
+|ac=375
+|strength=200
+|endurance=200
+|dexterity=200
+|agility=200
+|intelligence=200
+|wisdom=200
+|charisma=200
+|magic=12-30
+|poison=12-30
+|elemental=12-30
+|void=12-30
+|spells=
+}}
+
+Elizabeth Dewitt is an NPC in [[Port Azure]]. She is a Vendor for [[Stormcaller|Stormcallers]].
+
+Greeting message:
+{| class="wikitable"
+|Hey there! Looking for any spells or skillbooks? I've got 'em! We're hoping to find more here too - I heard that The Wisp's soldiers are incredible with bows. Wouldn't know myself, but if they do and we can swap some knowledge with them, that'd be fantastic!
+|}
+
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Spell Scroll: Arcstorm}}
+|[[:Category:Ability Books|Spell Book]]
+|3000
+|-
+|{{ItemLink|Spell Scroll: Ball Lightning}}
+|[[:Category:Ability Books|Spell Book]]
+|1800
+|-
+|{{ItemLink|Spell Scroll: Ionize}}
+|[[:Category:Ability Books|Spell Book]]
+|5000
+|-
+|{{ItemLink|Spell Scroll: Targeted Windstorm}}
+|[[:Category:Ability Books|Spell Book]]
+|6000
+|-
+|{{ItemLink|Spell Scroll: Vitheo's Wrath}}
+|[[:Category:Ability Books|Spell Book]]
+|27000
+|-
+|{{ItemLink|Skill Book: Skycaller Arrow}}
+|[[:Category:Ability Books|Skill Book]]
+|1350
+|-
+|{{ItemLink|Falling Rain}}
+||[[Auras]]
+|1500
+|}
+
+[[Category:Characters]]
+[[Category:Port Azure]]
+[[Category:Vendors]]

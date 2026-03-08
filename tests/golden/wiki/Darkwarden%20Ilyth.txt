@@ -1,0 +1,43 @@
+{{Enemy
+|name=Darkwarden Ilyth
+|image=[[File:Darkwarden Ilyth.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Children of Sivakaya]]
+|factionChange=-2 [[The Children of Sivakaya]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Solunarian Brotherhood]]
+|zones=[[Vitheo's Rest]]
+|coordinates=172.4 x 25.5 x 368.9
+|spawnchance=
+|respawn=15 minutes
+|guaranteeddrops={{ItemLink|Ilyth's Coat}}<br>{{ItemLink|Tome of Necromancy}}
+|droprates={{ItemLink|Note from Eldoth}} (100.0%)<ref>If the player is already holding {{ItemLink|Note from Eldoth}} in their inventory, another will not drop.</ref><br>{{ItemLink|Spell Scroll: Devour}} (87.1%)<br>{{ItemLink|Ilyth's Coat}} (50.0%)<br>{{ItemLink|Tome of Necromancy}} (50.0%)<br>{{ItemLink|Sivakayan Ore}} (12.1%)<br>{{ItemLink|Sea Glass}} (10.2%)<br>{{ItemLink|Star Stone}} (10.2%)<br>{{ItemLink|Sivakayan Axe}} (1.4%)<ref>If Darkwarden Ilyth has {{ItemLink|Sivakayan Axe}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Sivakayan Bracer}} (1.4%)<br>{{ItemLink|Sivakayan Legplate}} (1.4%)<br>{{ItemLink|Sivakayan Plate}} (1.4%)<br>{{ItemLink|Sivakayan Straightsword}} (1.4%)<ref>If Darkwarden Ilyth has {{ItemLink|Sivakayan Straightsword}} equipped, it is guaranteed to drop.</ref>
+|level=39
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=3.0
+|health=318500
+|mana=0
+|ac=585
+|strength=655
+|endurance=655
+|dexterity=800
+|agility=700
+|intelligence=500
+|wisdom=500
+|charisma=500
+|magic=20-47
+|poison=20-47
+|elemental=20-47
+|void=20-47
+|spells=
+}}
+
+Can be found in a secluded part of [[Vitheo's Rest]] after obtaining {{ItemLink|Port Azure Lighthouse Key}}.
+
+==Notes==
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Vitheo's Rest]]

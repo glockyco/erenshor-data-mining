@@ -1,0 +1,38 @@
+{{Enemy
+|name=Priel Consort
+|image=[[File:Priel Consort.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[Savannah Priel]]
+|factionChange=-2 [[Savannah Priel]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Solunarian Brotherhood]]
+|zones=[[Prielian Cascade]]
+|coordinates=
+|spawnchance=
+|respawn=11 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Sea Glass}} (7.4%)<br>{{ItemLink|Star Stone}} (7.4%)<br>{{ItemLink|Seaspice}} (4.3%)<br>{{ItemLink|Water}} (4.3%)<br>{{ItemLink|Priel Officer's Ring}} (1.6%)<br>{{ItemLink|Skill Book: Priel Strike}} (1.6%)<br>{{ItemLink|Spell Scroll: Major Group Healing}} (1.6%)
+|level=35
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=43550
+|mana=300
+|ac=525
+|strength=400
+|endurance=355
+|dexterity=775
+|agility=400
+|intelligence=350
+|wisdom=95
+|charisma=75
+|magic=18-42
+|poison=18-42
+|elemental=18-42
+|void=18-42
+|spells=
+}}
+
+[[Category:Enemies]]
+[[Category:Prielian Cascade]]

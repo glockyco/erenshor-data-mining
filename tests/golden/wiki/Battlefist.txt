@@ -1,0 +1,39 @@
+{{Enemy
+|name=Battlefist
+|image=[[File:Battlefist.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=+3 [[The Citizens of Erenshor]]<br>+3 [[The Citizens of Port Azure]]
+|zones=[[Willowwatch Ridge]]
+|coordinates=868.1 x 22.1 x 621.8
+|spawnchance=
+|respawn=6 minutes
+|guaranteeddrops={{ItemLink|Gourd Carver}}<br>{{ItemLink|Spidersmasher}}<br>{{ItemLink|Wolfguard}}
+|droprates={{ItemLink|Gourd Carver}} (33.3%)<br>{{ItemLink|Spidersmasher}} (33.3%)<ref>If Battlefist has {{ItemLink|Spidersmasher}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Wolfguard}} (33.3%)
+|level=6
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1105
+|mana=0
+|ac=90
+|strength=20
+|endurance=45
+|dexterity=30
+|agility=30
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=3-7
+|poison=3-7
+|elemental=3-7
+|void=3-7
+|spells=
+}}
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Willowwatch Ridge]]

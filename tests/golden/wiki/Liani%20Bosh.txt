@@ -1,0 +1,52 @@
+{{Enemy
+|name=Liani Bosh
+|image=[[File:Liani Bosh.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Port Azure]]
+|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
+|zones=[[Port Azure]]
+|coordinates=135.6 x 31.8 x 303.9
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=3250
+|mana=100
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+
+{{PAGENAME}} can be found behind the Solunarian Church<br><br>
+
+Greeting message:
+{| class="wikitable"
+| We're going to find a way back to Stowaway's Step. Want to <span style="color: #15e300;">[help]</span>? From there, we think we can find our way back home.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[help]</span>
+|There's a fishing boat that sometimes stops on the beach in Blacksalt Strand. We've both seen it. If we can make a ring that enchants our fishing skill, we can use it to buy a ride back. Here's a template, if you can find the parts..<br><br>
+<i>[[Mold: Angler's Ring]] is added to your inventory if it is not present</i>
+|}
+
+[[Category:Characters]]
+[[Category:Port Azure]]

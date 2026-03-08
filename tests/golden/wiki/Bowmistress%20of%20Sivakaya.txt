@@ -1,0 +1,39 @@
+{{Enemy
+|name=Bowmistress of Sivakaya
+|image=[[File:Bowmistress of Sivakaya.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Children of Sivakaya]]
+|factionChange=+5 [[The Azure Guard]]<br>-2 [[The Children of Sivakaya]]<br>+5 [[The Citizens of Erenshor]]<br>+5 [[The Citizens of Port Azure]]<br>+5 [[The Solunarian Brotherhood]]
+|zones=
+|coordinates=
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Skill Book: Trick Shot}} (100.0%)<br>{{ItemLink|Siva Bow}} (7.1%)<br>{{ItemLink|Armband of Generals}} (5.4%)<br>{{ItemLink|Resonating Brace}} (5.4%)<br>{{ItemLink|Ring of the Deceiver}} (5.4%)<br>{{ItemLink|Ring of the Pious}} (5.4%)<br>{{ItemLink|Sivakayan Wings}} (5.4%)<br>{{ItemLink|Sivakayan Bracer}} (1.7%)<br>{{ItemLink|Sivakayan Legplate}} (1.7%)<br>{{ItemLink|Sivakayan Plate}} (1.7%)
+|level=38
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=5.0
+|health=130000
+|mana=4000
+|ac=570
+|strength=650
+|endurance=650
+|dexterity=650
+|agility=650
+|intelligence=400
+|wisdom=400
+|charisma=650
+|magic=19-46
+|poison=19-46
+|elemental=19-46
+|void=19-46
+|spells={{AbilityLink|Healing}}
+}}
+
+To summon Bowmistress of Sivakaya you must bring a {{ItemLink|The Faceless}} to the [[Braxonian Game Board]].
+
+[[Category:Enemies]]

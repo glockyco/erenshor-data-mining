@@ -1,0 +1,107 @@
+{{Enemy
+|name=Nylith Valorro
+|image=[[File:Nylith Valorro.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Torchbearers of Brax]]
+|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Torchbearers of Brax]]
+|zones=[[Hidden Hills]]
+|coordinates=11.8 x -2.9 x -14.4
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Arcanist Cap}} (20.4%)<ref>If Nylith Valorro has {{ItemLink|Arcanist Cap}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Luminstone}} (11.5%)<br>{{ItemLink|Star Stone}} (11.5%)
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=240
+|mana=155
+|ac=330
+|strength=18
+|endurance=66
+|dexterity=66
+|agility=66
+|intelligence=66
+|wisdom=3
+|charisma=3
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells={{AbilityLink|Brax's Rage}}<br>{{AbilityLink|Brax's Touch}}<br>{{AbilityLink|Magic Bolt}}<br>{{AbilityLink|Minor Lightning}}
+}}
+Nylith is an NPC in [[Hidden Hills]]. He is a Vendor for [[Arcanist|Arcanists]] and quest giver for {{QuestLink |questlink=Faerie Dust for Nylith Valarro}}.
+
+Greeting message:
+{| class="wikitable"
+|If you're learning the ways of the wizard, I have some spells you may need. Buy 'em or don't, doesn't bother me any. Need a <span style="color: #15e300;">[job]</span> to do? Got one of them too.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[job]</span>, <span style="color: #15e300;">[help]</span> and <span style="color: #15e300;">[quest]</span>
+|If you head over into [[Faerie's Brake]], and you can track down one of those nasty little Faeries, kill it. If it has any [[Bag of Faerie Dust|Faerie dust]], bring it to me. I've got something for you if you do.<br><br><i>This begins {{QuestLink |questlink=Faerie Dust for Nylith Valarro}}</i>
+|}
+
+If you give him a {{ItemLink|Bag of Faerie Dust}} for the quest {{QuestLink |questlink=Faerie Dust for Nylith Valarro}}:
+{| class="wikitable"
+|That's the stuff, pal! Here, take this sash. It'll serve you well.
+|}
+
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Spell Scroll: Brax's Touch}}
+|[[:Category:Ability Books|Spell Book]]
+|50
+|-
+|{{ItemLink|Spell Scroll: Invasive Thoughts}}
+|[[:Category:Ability Books|Spell Book]]
+|95
+|-
+|{{ItemLink|Spell Scroll: Ethereal Rending}}
+|[[:Category:Ability Books|Spell Book]]
+|175
+|-
+|{{ItemLink|Spell Scroll: Dazzle}}
+|[[:Category:Ability Books|Spell Book]]
+|50
+|-
+|{{ItemLink|Spell Scroll: Hardened Skin}}
+|[[:Category:Ability Books|Spell Book]]
+|55
+|-
+|{{ItemLink|Spell Scroll: Burning Chains}}
+|[[:Category:Ability Books|Spell Book]]
+|150
+|-
+|{{ItemLink|Spell Scroll: Ice Bolt}}
+|[[:Category:Ability Books|Spell Book]]
+|50
+|-
+|{{ItemLink|Cloth Shirt}}
+|[[Armor#Chest_Armor|Chest Armor]]
+|3
+|-
+|{{ItemLink|Cloth Pants}}
+|[[Armor#Leg_Armor|Leg Armor]]
+|3
+|-
+|{{ItemLink|Cloth Shoes}}
+|[[Armor#Foot_Armor|Foot Armor]]
+|2
+|-
+|{{ItemLink|Skill Book: Control Chant}}
+|[[:Category:Ability Books|Skill Book]]
+|185
+|}
+
+[[Category:Characters]]
+[[Category:Hidden Hills]]
+[[Category:Vendors]]

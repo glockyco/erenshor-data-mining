@@ -1,0 +1,74 @@
+{{Item
+|title=A Strange Figurine
+|type=[[:Category:Items|Summoning Item]], [[Quest Items|Quest Item]]
+|vendorsource=
+|source=
+|othersource=
+|questsource=
+|relatedquest={{QuestLink | link=Recovering the Nighthollow Candle}}
+|craftsource=1x {{ItemLink|Mold: A Strange Figurine}}<br>1x {{ItemLink|Sivakayan Ore}}<br>1x {{ItemLink|Braxonian Ore}}<br>1x {{ItemLink|Remnants of a Daydream}}<br>1x {{ItemLink|Remnants of a Nightmare}}
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+Used to summon [[Candlekeeper]] at the chess board in the [[Braxonian Desert]]. Once it is consumed it turns back into [[Mold: A Strange Figurine]].
+
+{{Item/General
+|image=A Strange Figurine.png
+|name=A Strange Figurine
+|description=A small statuette with a worn felt bottom as though its been slid to and fro. <br><br>The top is worn where it has been gripped, despite having just been forged anew.
+|value=
+|stack_size=
+|disposable=
+|effect_style=
+|effect_spell_icon=
+|effect_spell_name=
+|effect_spell_level=
+|effect_spell_duration_ticks=
+|effect_spell_type=
+|effect_spell_line=
+|effect_target_damage=
+|effect_target_healing=
+|effect_damage_type=
+|effect_cast_time=
+|effect_cooldown=
+|effect_spell_range=
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+}}
+
+[[Category:Items]]
+[[Category:Quest Items]]

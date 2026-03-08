@@ -1,0 +1,63 @@
+{{Enemy
+|name=Captain Ovid
+|image=[[File:Captain Ovid.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[Ripper DeMerth]]
+|factionChange=-50 [[Ripper DeMerth]]<br>+5 [[The Azure Guard]]<br>+5 [[The Citizens of Port Azure]]
+|zones=[[Ripper's Keep]]
+|coordinates=526.6 x 108.9 x 615.9
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Ripper Insignia Badge}} (20.5%)<br>{{ItemLink|Crested Spaulders}} (4.0%)<br>{{ItemLink|Officer's Bracer}} (4.0%)<br>{{ItemLink|Ripparian Axe}} (4.0%)<br>{{ItemLink|Ripparian Greaves}} (3.4%)<br>{{ItemLink|Ripparian Plate}} (3.4%)
+|level=36
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=65000
+|mana=2000
+|ac=540
+|strength=35
+|endurance=150
+|dexterity=455
+|agility=155
+|intelligence=155
+|wisdom=155
+|charisma=155
+|magic=18-43
+|poison=18-43
+|elemental=18-43
+|void=18-43
+|spells=
+}}
+
+Greeting message:
+{| class="wikitable"
+|You looking for <span style="color: #15e300;">[Ripper]</span>?
+|}
+
+<span style="color: #15e300;">[Keep]</span>:
+{| class="wikitable"
+|Home away from home now. We've made our <span style="color: #15e300;">[choice]</span>. 
+|}
+
+<span style="color: #15e300;">[Ripper]</span>:
+{| class="wikitable"
+|Go Upstairs. If you're looking to <span style="color: #15e300;">[join]</span> up, <span style="color: #15e300;">[Ripper]</span>.'s who you need.
+|}
+
+<span style="color: #15e300;">[join]</span>:
+{| class="wikitable"
+|We need all the help we can get. Between Port Azure and Kilkay... and I'm sure the Sivakayan's aren't happy that we took their keep... we don't have many friends up here.
+|}
+
+<span style="color: #15e300;">[Sivakayans]</span>:
+{| class="wikitable"
+|Must have been 3 dozen of them in here when we arrived. Quite a fight, it was. We didn't lose a single man. They turned tail and ran off.
+|}
+
+[[Category:Characters]]
+[[Category:Ripper's Keep]]

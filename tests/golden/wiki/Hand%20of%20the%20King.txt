@@ -1,0 +1,42 @@
+{{Enemy
+|name=Hand of the King
+|image=[[File:Hand of the King.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Braxonian Desert]]
+|coordinates=
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Diamond}} (81.2%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Monarch of Flame (Game Piece)|image=Monarch of Flame.png|text=Monarch of Flame}} (5.1%)<ref>If the player is already holding {{ItemLink|Monarch of Flame (Game Piece)|image=Monarch of Flame.png|text=Monarch of Flame}} in their inventory, another will not drop.</ref><br>{{ItemLink|Blessed Braxonian Bracelet}} (3.0%)<br>{{ItemLink|Blessed Braxonian Bracer}} (3.0%)<br>{{ItemLink|Blessed Braxonian Wristlet}} (3.0%)
+|level=34
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=58500
+|mana=0
+|ac=510
+|strength=650
+|endurance=500
+|dexterity=1000
+|agility=500
+|intelligence=225
+|wisdom=225
+|charisma=155
+|magic=17-41
+|poison=17-41
+|elemental=17-41
+|void=17-41
+|spells=
+}}
+
+Summoned during the fight with [[Monarch of the Flame]]
+
+=Notes=
+
+[[Category:Braxonian Desert]]
+[[Category:Enemies]]

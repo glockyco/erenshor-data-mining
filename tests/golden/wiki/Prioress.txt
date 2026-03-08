@@ -1,0 +1,38 @@
+{{Enemy
+|name=Prioress
+|image=[[File:Prioress.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Blacksalt Strand]]
+|coordinates=
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Adorned Mitts}} (7.6%)<br>{{ItemLink|Chapters of Descent, Passage 1}} (6.8%)<ref>If the player is already holding {{ItemLink|Chapters of Descent, Passage 1}} in their inventory, another will not drop.</ref><br>{{ItemLink|Chapters of Descent, Passage 2}} (6.8%)<ref>If the player is already holding {{ItemLink|Chapters of Descent, Passage 2}} in their inventory, another will not drop.</ref><br>{{ItemLink|Bread}} (2.0%)<br>{{ItemLink|Cloth Gloves}} (2.0%)<br>{{ItemLink|Cloth Pants}} (2.0%)<br>{{ItemLink|Cloth Shirt}} (2.0%)<br>{{ItemLink|Cloth Shoes}} (2.0%)<br>{{ItemLink|Cloth Sleeves}} (2.0%)<br>{{ItemLink|Luminstone}} (2.0%)<br>{{ItemLink|Spell Scroll: Healing}} (2.0%)<br>{{ItemLink|Spell Scroll: Magical Skin}} (2.0%)<br>{{ItemLink|Spell Scroll: Soul Tap}} (2.0%)<br>{{ItemLink|Star Stone}} (2.0%)<br>{{ItemLink|Water}} (2.0%)
+|level=16
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=8450
+|mana=500
+|ac=240
+|strength=21
+|endurance=50
+|dexterity=75
+|agility=35
+|intelligence=75
+|wisdom=15
+|charisma=3
+|magic=8-19
+|poison=8-19
+|elemental=8-19
+|void=8-19
+|spells={{AbilityLink|Brax's Rage}}<br>{{AbilityLink|Ethereal Rending}}
+}}
+
+[[Category:Blacksalt Strand]]
+[[Category:Enemies]]

@@ -1,0 +1,74 @@
+{{Enemy
+|name=Braxon Lolo
+|image=[[File:Braxon Lolo.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Port Azure]]
+|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]<br>-20 [[The Torchbearers of Brax]]
+|zones=[[Port Azure]]
+|coordinates=13.4 x 27.3 x 327.7
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=3250
+|mana=100
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=15
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+
+Greeting message:
+{| class="wikitable"
+|There are strange ores to be found in this place called <span style="color: #15e300;">[Planar]</span> Stones. Have you seen any? A whole one is exceedingly rare!
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[Planar]</span>
+|Their origin is not known, but there is nothing else like them. Somehow, they're tied to a <span style="color: #15e300;">[blessing]</span> of the Gods, but we cannot figure out exactly how.
+|-
+|<span style="color: #15e300;">[blessing]</span>
+|If you find an item that carries a <span style="color: #15e300;">[blessing]</span>, it'll have a certain.. sparkle to it. I believe that i can <span style="color: #15e300;">[strip]</span> its magic though! I've only seen it done once.
+|-
+|<span style="color: #15e300;">[strip]</span>
+|All we need is a blessed item, and we can use an Inert Diamond in place of a mold. Then we apply heat and the diamond will vibrate and it will crumble, but its <span style="color: #15e300;">[shards]</span> will change... they will absorb the magic from the item, leaving the physical item intact even!
+|-
+|<span style="color: #15e300;">[shards]</span>
+|They're special thjings. With a magical resolving fluid in place of a mold, and if we combine 8 of the shard pieces with heat, I have reason to believe we can create a full and intact <span style="color: #15e300;">[Planar]</span> Stone!
+|}
+
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Resolving Fluid}}
+|[[Crafting]]
+|7000
+|-
+|{{ItemLink|Resolving Fluid}}
+|[[Crafting]]
+|7000
+|}
+
+[[Category:Characters]]
+[[Category:Port Azure]]
+[[Category:Vendors]]

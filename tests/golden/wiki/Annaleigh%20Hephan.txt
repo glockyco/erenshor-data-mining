@@ -1,0 +1,79 @@
+{{Enemy
+|name=Annaleigh Hephan
+|image=[[File:Annaleigh Hephan.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[Fernalla's Children]]
+|factionChange=-20 [[Fernalla's Children]]
+|zones=[[Blacksalt Strand]]
+|coordinates=279.7 x 57.6 x 181.6
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates=
+|level=15
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=520
+|mana=225
+|ac=225
+|strength=35
+|endurance=35
+|dexterity=35
+|agility=35
+|intelligence=35
+|wisdom=35
+|charisma=35
+|magic=8-18
+|poison=8-18
+|elemental=8-18
+|void=8-18
+|spells={{AbilityLink|Brax's Rage}}<br>{{AbilityLink|Theft of Life}}
+}}
+
+Annaleigh lives in [[Blacksalt Strand]] by a windmill on the hill. She is the quest giver for {{QuestLink | link=Annaleigh's Nagalok Claws}}.
+
+Greeting message:
+{| class="wikitable"
+|Heya! What brings ya to The Strand? Quite a place, it is. Claimed my little corner here. Self sufficient, I am! And an inventor too!
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[inventor]</span>
+|I can make anything outta anything! Know what I'm most interested in though? Some of those Nagalok claws. Ugly monsters, them. Moved in up the hill a while back and leave me alone mostly, but I betcha I could make a thing or two from those claws. Bring me a few - say... 5? You can keep whatever it is I whip up.<br><br><i>This begins {{QuestLink | link=Annaleigh's Nagalok Claws}}</i>
+|-
+|<span style="color: #15e300;">[nagalok]</span>
+|Those ugly things right up the hill there by the rune stones. Go mix it up with a few and bring me their claws. They're aggressive though... watch it!
+|}
+
+After giving her 5x [[Nagalok Claw]] to complete {{QuestLink | link=Annaleigh's Nagalok Claws}}:
+{| class="wikitable"
+|Well would ya look at that! Added a little bit of seaweed and got something pretty fine!
+|}
+
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Seafruit}}
+|[[Status_Effects|Consumable]]
+|120
+|-
+|{{ItemLink|Bread}}
+|[[Status Effects|Food]]
+|2
+|-
+|{{ItemLink|Water}}
+|[[Consumables|Drink]]
+|1
+|}
+
+[[Category:Blacksalt Strand]]
+[[Category:Characters]]
+[[Category:Vendors]]

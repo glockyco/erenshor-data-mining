@@ -1,0 +1,58 @@
+{{Enemy
+|name=Monarch of the Flame
+|image=[[File:Monarch of the Flame.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Braxonian Desert]]
+|coordinates=
+|spawnchance=
+|respawn=
+|guaranteeddrops={{ItemLink|Monarch's Blade}}<br>{{ItemLink|Monarch's Mask}}<br>{{ItemLink|Monarch's Ring}}
+|droprates={{ItemLink|Black Flame}} (100.0%)<ref>If the player is already holding {{ItemLink|Black Flame}} in their inventory, another will not drop.</ref><br>{{ItemLink|Monarch's Blade}} (33.3%)<br>{{ItemLink|Monarch's Mask}} (33.3%)<br>{{ItemLink|Monarch's Ring}} (33.3%)
+|level=40
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=5.0
+|health=364000
+|mana=20000
+|ac=600
+|strength=500
+|endurance=500
+|dexterity=1000
+|agility=500
+|intelligence=155
+|wisdom=155
+|charisma=155
+|magic=20-48
+|poison=20-48
+|elemental=20-48
+|void=20-48
+|spells=
+}}
+
+''{{Main|Enemies}}''
+=Location=
+{{PAGENAME}} is summoned by bringing a {{ItemLink|Monarch of Flame (Game Piece)|text=Monarch of Flame}} to the [[Braxonian Game Board]], located in the northwest corner of the [[Braxonian Desert]].
+
+=Appearance=
+{{PAGENAME}} is a red skeletal figure cloaked in flames. He wears red armor, including bracers, greaves, and a spiked helmet.
+
+=Behavior=
+{{PAGENAME}} appears when his game piece is brought to the game board, but will not attack until players have engaged him in combat. For every '''8%''' of health lost, he will summon a [[Hand of the King]] to join the fight.
+
+===Spells & Abilities===
+{{PAGENAME}} does not use any spells or abilities.
+
+===Strategy===
+Players should be very careful not to underestimate the guards {{PAGENAME}} summons, as they can quickly overwhelm the party if too many are brought into the fight and not disposed of. Players should make sure they are set as the Main Assist, and immediately change targets once a Hand of the King is summoned to ensure all [[Simulated Players]] attack the guard, rather than potentially summon another by continuing to damage {{PAGENAME}}. Continue whittling down {{PAGENAME}} in this way little by little, and he will eventually fall.
+
+=Notes=
+*Hand of the King is a basic copy of [[Kingsman]], although it has about half the health. They can drop all of the equipment Kingsman can at a much lower rate, and may also potentially drop another Monarch of Flame game piece, allowing players to potentially fight {{PAGENAME}} several times in a row.
+
+[[Category:Bosses]]
+[[Category:Braxonian Desert]]
+[[Category:Enemies]]

@@ -1,0 +1,43 @@
+{{Enemy
+|name=Stoneman Seeker
+|image=[[File:Stoneman Seeker.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=
+|zones=[[The Blight]]
+|coordinates=
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Polished Stone}} (84.7%)<br>{{ItemLink|Pulsating Stone}} (5.2%)<ref>If the player is already holding {{ItemLink|Pulsating Stone}} in their inventory, another will not drop.</ref>
+|level=18
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=9750
+|mana=3200
+|ac=270
+|strength=600
+|endurance=500
+|dexterity=650
+|agility=85
+|intelligence=155
+|wisdom=155
+|charisma=155
+|magic=9-22
+|poison=9-22
+|elemental=9-22
+|void=9-22
+|spells={{AbilityLink|Brax's Fury}}<br>{{AbilityLink|Ice Spear}}<br>{{AbilityLink|Winter's Bite}}
+}}
+
+Greeting message:
+{| class="wikitable"
+|We are lost. We are doomed. Azynthi will not help us.
+|}
+
+[[Category:Characters]]
+[[Category:The Blight]]

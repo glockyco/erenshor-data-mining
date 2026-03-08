@@ -1,0 +1,50 @@
+{{Enemy
+|name=Wardkeeper Rossi
+|image=[[File:Wardkeeper Rossi.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Agents of The Wisp]]
+|factionChange=-50 [[The Agents of The Wisp]]
+|zones=[[Loomingwood Forest]]
+|coordinates=507.4 x 27.0 x 875.5
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Luminstone}} (21.2%)<br>{{ItemLink|Star Stone}} (21.2%)
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=28600
+|mana=155
+|ac=330
+|strength=15
+|endurance=65
+|dexterity=65
+|agility=15
+|intelligence=15
+|wisdom=5
+|charisma=15
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells={{AbilityLink|Brax's Fury}}<br>{{AbilityLink|Ice Spear}}<br>{{AbilityLink|Immolation}}<br>{{AbilityLink|Magic Bolt}}
+}}
+Wardkeeper Rossi is located at the beginning of the path when you enter [[Loomingwood]] from [[Silkengrass Meadowlands]]
+
+Greeting message:
+{| class="wikitable"
+|The Loomingwood is no place to wander. Our wards protect this place from Sivakayans, but they attract what some might consider to be... far <span style="color: #15e300;">[worse]</span>.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[worse]</span>
+Beyond the road, things which are attracted to our magic wander beneath the canopy, but they do not venture close. We do not fare well away from the path.
+|}
+
+[[Category:Characters]]
+[[Category:Loomingwood Forest]]

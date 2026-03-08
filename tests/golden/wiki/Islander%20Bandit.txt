@@ -1,0 +1,91 @@
+{{Enemy
+|name=Islander Bandit
+|image=[[File:Islander Bandit.png|thumb]]
+|imagecaption="Don't trifle with us!"
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Stowaway's Step]]
+|zones=[[Stowaway's Step]]
+|coordinates=
+|spawnchance=
+|respawn=3 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Brackwood Mace}} (5.1%)<ref>If Islander Bandit has {{ItemLink|Brackwood Mace}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Luminstone}} (5.1%)<br>{{ItemLink|Carved Bow}} (3.9%)<br>{{ItemLink|Cloth Pants}} (3.9%)<br>{{ItemLink|Cloth Shirt}} (3.9%)<br>{{ItemLink|Cloth Sleeves}} (3.9%)<br>{{ItemLink|Tattered Leather Leggings}} (3.9%)<br>{{ItemLink|Tattered Leather Sleeves}} (3.9%)<br>{{ItemLink|Tattered Leather Tunic}} (3.9%)<br>{{ItemLink|Weak Wand}} (3.9%)<br>{{ItemLink|Light Plate Breastplate}} (1.1%)<br>{{ItemLink|Priel Knife}} (1.1%)<br>{{ItemLink|Skill Book: Block}} (1.1%)<br>{{ItemLink|Skill Book: Blood Feast}} (1.1%)<br>{{ItemLink|Skill Book: Dodge}} (1.1%)<br>{{ItemLink|Skill Book: Dual Wield}} (1.1%)<br>{{ItemLink|Skill Book: Kick}} (1.1%)<br>{{ItemLink|Skill Book: Shield Bash}} (1.1%)<br>{{ItemLink|Skill Book: Stunning Strike}} (1.1%)<br>{{ItemLink|Spell Scroll: Brax's Touch}} (1.1%)<br>{{ItemLink|Spell Scroll: Lunar Madness}} (1.1%)<br>{{ItemLink|Spell Scroll: Magic Bolt}} (1.1%)<br>{{ItemLink|Spell Scroll: Minor Healing}} (1.1%)<br>{{ItemLink|Spell Scroll: Minor Lightning}} (1.1%)<br>{{ItemLink|Spell Scroll: Summon Decayed Fawn}} (1.1%)<br>{{ItemLink|Spell Scroll: Tangle}} (1.1%)
+|level=2
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=260
+|mana=0
+|ac=30
+|strength=6
+|endurance=5
+|dexterity=44
+|agility=2
+|intelligence=5
+|wisdom=5
+|charisma=5
+|magic=1-2
+|poison=1-2
+|elemental=1-2
+|void=1-2
+|spells=
+}}
+
+'''{{PAGENAME}}''' is an [[Enemies|enemy]] in [[Erenshor]].
+
+=Location=
+{{PAGENAME}}s are found in the Bandit's Lair on [[Stowaway's Step]]. The cave entrance can be found near [[Treven Pines|Treven Pines']] shop.
+
+=Appearance=
+{{PAGENAME}}s are bandits wearing grey and red clothes, shoes, and gloves. They can occasionally be seen holding a [[Brackwood Mace]].
+
+=Behavior=
+{{PAGENAME}}s roam throughout their lair and will attack players if they get too close. There are several varieties of bandits, though the only one that has the ability to cast [[Ability Books|spells]] is the female bandit with hair.
+
+===Spells & Abilities===
+Offensive:
+*{{AbilityLink|Magic Bolt}}
+
+=Notes=
+
+{{Enemy
+|name=Islander Bandit
+|image=[[File:Islander Bandit.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Stowaway's Step]]
+|zones=[[Stowaway's Step]]
+|coordinates=
+|spawnchance=
+|respawn=3 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Brackwood Mace}} (5.1%)<ref>If Islander Bandit has {{ItemLink|Brackwood Mace}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Luminstone}} (5.1%)<br>{{ItemLink|Carved Bow}} (3.9%)<br>{{ItemLink|Cloth Pants}} (3.9%)<br>{{ItemLink|Cloth Shirt}} (3.9%)<br>{{ItemLink|Cloth Sleeves}} (3.9%)<br>{{ItemLink|Tattered Leather Leggings}} (3.9%)<br>{{ItemLink|Tattered Leather Sleeves}} (3.9%)<br>{{ItemLink|Tattered Leather Tunic}} (3.9%)<br>{{ItemLink|Weak Wand}} (3.9%)<br>{{ItemLink|Light Plate Breastplate}} (1.1%)<br>{{ItemLink|Priel Knife}} (1.1%)<br>{{ItemLink|Skill Book: Block}} (1.1%)<br>{{ItemLink|Skill Book: Blood Feast}} (1.1%)<br>{{ItemLink|Skill Book: Dodge}} (1.1%)<br>{{ItemLink|Skill Book: Dual Wield}} (1.1%)<br>{{ItemLink|Skill Book: Kick}} (1.1%)<br>{{ItemLink|Skill Book: Shield Bash}} (1.1%)<br>{{ItemLink|Skill Book: Stunning Strike}} (1.1%)<br>{{ItemLink|Spell Scroll: Brax's Touch}} (1.1%)<br>{{ItemLink|Spell Scroll: Lunar Madness}} (1.1%)<br>{{ItemLink|Spell Scroll: Magic Bolt}} (1.1%)<br>{{ItemLink|Spell Scroll: Minor Healing}} (1.1%)<br>{{ItemLink|Spell Scroll: Minor Lightning}} (1.1%)<br>{{ItemLink|Spell Scroll: Summon Decayed Fawn}} (1.1%)<br>{{ItemLink|Spell Scroll: Tangle}} (1.1%)
+|level=2
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=260
+|mana=0
+|ac=30
+|strength=6
+|endurance=5
+|dexterity=44
+|agility=2
+|intelligence=5
+|wisdom=5
+|charisma=5
+|magic=1-2
+|poison=1-2
+|elemental=1-2
+|void=1-2
+|spells={{AbilityLink|Magic Bolt}}
+}}
+
+[[Category:Enemies]]
+[[Category:Stowaway's Step]]

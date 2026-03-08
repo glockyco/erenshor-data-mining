@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Brax's Touch
+|type=[[Ability Books|Spell Scroll]]
+|vendorsource=[[Gus Highrest]]<br>[[Nylith Valorro]]<br>[[Treven Pines]]
+|source=[[Vevillo Polter]] (3.9%)<br>[[Aranuil Olaseo]] (3.4%)<br>[[Odyss Repman]] (3.4%)<br>[[A Sorrowful Spirit]] (2.8%)<br>[[An Enraged Spirit]] (2.8%)<br>[[Islander Bandit]] (1.1%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=50
+|sell=32
+|taughtspell={{AbilityLink|Brax's Touch}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Brax's Touch.png
+|name=Spell Scroll: Brax's Touch
+|arcanist_level=4
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=50
+|spell_type=Damage
+|spell_desc=Deals 100 elemental based damage to a target.
+}}
+
+[[Category:Ability Books]]

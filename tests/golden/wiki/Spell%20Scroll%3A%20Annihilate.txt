@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Annihilate
+|type=[[:Category:Ability Books|Spell Scroll]]
+|vendorsource=
+|source=[[Vos Ashlyn]] (50.0%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=25000
+|sell=16250
+|taughtspell={{AbilityLink|Annihilate}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Annihilate.png
+|name=Spell Scroll: Annihilate
+|arcanist_level=
+|druid_level=30
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=600
+|spell_type=StatusEffect
+|spell_desc=A high damage (1100 / tick), short duration void-based spell.
+}}
+
+[[Category:Ability Books]]

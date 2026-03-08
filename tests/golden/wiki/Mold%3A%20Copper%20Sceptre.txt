@@ -1,0 +1,29 @@
+{{Item
+|title=Mold: Copper Sceptre
+|type=[[Crafting|Mold]]
+|vendorsource=[[Amethi Plazzo]]<br>[[Javo Follay]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/Mold
+|image=Mold: Copper Sceptre.png
+|name=Mold: Copper Sceptre
+|description=Recipes must be exact - use CNTRL + CLICK to separate stacks.<br><br>One-time usable in a forge.
+|ingredients=1x {{ItemLink|Chunk of Copper Ore}}<br>2x {{ItemLink|Chunk of Iron Ore}}<br>1x {{ItemLink|Aetheria}}
+|rewards={{ItemLink|Copper Sceptre}}
+|station=
+}}
+
+[[Category:Crafting]]
+[[Category:Molds]]

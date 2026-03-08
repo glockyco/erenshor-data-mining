@@ -1,0 +1,69 @@
+{{Item
+|title=End of Life
+|type=
+|vendorsource=
+|source=[[Goliath]] (3.4%)<br>[[Gruhglor]] (3.1%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=2500
+|sell=1625
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/Aura
+|image=End of Life.png
+|name=End of Life
+|description=
+|aura_spell_icon=Aura: Rising Shadows III.png
+|aura_spell_name=[[Aura: Rising Shadows III]]
+|aura_spell_level=1
+|aura_spell_duration_ticks=2
+|aura_spell_type=Beneficial
+|aura_spell_line=Aura_Reaver
+|aura_target_damage=
+|aura_target_healing=
+|aura_shielding_amt=
+|aura_damage_type=Physical
+|aura_cast_time=1.0
+|aura_cooldown=
+|aura_spell_range=30.0
+|aura_lifetap=
+|aura_group_effect=
+|aura_stun_target=
+|aura_charm_target=
+|aura_root_target=
+|aura_taunt_spell=
+|aura_aggro=
+|aura_status_effect_name=
+|aura_hp=
+|aura_ac=
+|aura_mana=
+|aura_str=
+|aura_dex=
+|aura_end=
+|aura_agi=
+|aura_wis=
+|aura_int=
+|aura_cha=
+|aura_mr=
+|aura_er=
+|aura_pr=
+|aura_vr=
+|aura_movement_speed=
+|aura_damage_shield=
+|aura_haste=
+|aura_percent_lifesteal=
+|aura_atk_roll_modifier=
+|aura_resonate_chance=
+|aura_add_proc_name={{AbilityLink|Void Surge}}
+|aura_add_proc_chance=3
+|aura_special_descriptor=Party gets a 3% chance on-hit to proc Void Surge
+}}
+
+[[Category:Auras]]

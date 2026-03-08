@@ -1,0 +1,39 @@
+{{Enemy
+|name=Agsha of the Soil
+|image=[[File:Agsha of the Soil.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=+3 [[The Citizens of Erenshor]]<br>+3 [[The Citizens of Port Azure]]
+|zones=[[Underspine Hollow]]
+|coordinates=158.4 x 86.5 x 307.9
+|spawnchance=66%
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Ogrespice Bundle}}<br>{{ItemLink|Ring of The Mystics}}
+|droprates={{ItemLink|Ogrespice Bundle}} (66.7%)<br>{{ItemLink|Ring of The Mystics}} (33.3%)
+|level=15
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=4.0
+|health=10400
+|mana=0
+|ac=225
+|strength=325
+|endurance=255
+|dexterity=355
+|agility=250
+|intelligence=100
+|wisdom=3
+|charisma=3
+|magic=8-18
+|poison=8-18
+|elemental=8-18
+|void=8-18
+|spells={{AbilityLink|Biting Vines}}<br>{{AbilityLink|Soul Tap}}<br>{{AbilityLink|Tangle}}<br>{{AbilityLink|Toxicity}}
+}}
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Underspine Hollow]]

@@ -1,0 +1,39 @@
+{{Enemy
+|name=Blunga
+|image=[[File:Blunga.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Brackish Coast Nagaloks]]
+|factionChange=+1 [[The Blades of Vitheo]]<br>-10 [[The Brackish Coast Nagaloks]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]
+|zones=[[Willowwatch Ridge]]
+|coordinates=96.1 x 59.7 x 609.7
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Infused Bracelet}}<br>{{ItemLink|Kelp Crusted Shirt}}
+|droprates={{ItemLink|Kelp Crusted Shirt}} (83.3%)<br>{{ItemLink|Reptilian Scales}} (20.4%)<br>{{ItemLink|Infused Bracelet}} (16.7%)<br>{{ItemLink|Seaweed}} (15.1%)<br>{{ItemLink|A Worm Eel}} (7.8%)
+|level=5
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1040
+|mana=100
+|ac=75
+|strength=100
+|endurance=50
+|dexterity=100
+|agility=50
+|intelligence=2
+|wisdom=3
+|charisma=3
+|magic=2-6
+|poison=2-6
+|elemental=2-6
+|void=2-6
+|spells=
+}}
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Willowwatch Ridge]]

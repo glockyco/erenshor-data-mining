@@ -1,0 +1,33 @@
+{{Item
+|title=Skill Book: Block II
+|type=[[Ability Books|Skill Book]]
+|vendorsource=[[Roreli Gilmare]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=1255
+|sell=816
+|taughtspell=
+|taughtskill={{AbilityLink|Block II}}
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SkillBook
+|image=Skill Book: Block II.png
+|name=Skill Book: Block II
+|duelist_level=
+|druid_level=20
+|arcanist_level=20
+|paladin_level=15
+|stormcaller_level=
+|reaver_level=15
+|skill_type=Innate
+|skill_desc=You gain a small innate chance to block incoming attacks. Can proc shield ability. Requires a shield.
+|simplayers_autolearn=True
+}}
+
+[[Category:Ability Books]]

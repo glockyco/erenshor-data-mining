@@ -1,0 +1,38 @@
+{{Enemy
+|name=Risen Druid
+|image=[[File:Risen Druid.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Fernalla's Revival Plains]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Bread}} (57.4%)<br>{{ItemLink|Water}} (57.4%)<br>{{ItemLink|Ruby}} (10.8%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Decayed Druid Beads}} (10.6%)<br>{{ItemLink|Cloth Hood}} (3.9%)<br>{{ItemLink|Cloth Pants}} (3.9%)<br>{{ItemLink|Cloth Shirt}} (3.9%)<br>{{ItemLink|Cloth Sleeves}} (3.9%)<br>{{ItemLink|Decayed Amulet}} (3.4%)<br>{{ItemLink|Decayed Ring}} (3.4%)<br>{{ItemLink|Stone Statue: Fernalla}} (0.3%)<br>{{ItemLink|Diamond}} (0.2%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Golden Statue: Fernalla}} (0.2%)<br>{{ItemLink|Star Stone}} (0.2%)
+|level=14
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=4232
+|mana=0
+|ac=210
+|strength=125
+|endurance=125
+|dexterity=125
+|agility=200
+|intelligence=100
+|wisdom=100
+|charisma=45
+|magic=7-17
+|poison=7-17
+|elemental=7-17
+|void=7-17
+|spells={{AbilityLink|Biting Vines}}<br>{{AbilityLink|Tangle}}<br>{{AbilityLink|Theft of Life}}
+}}
+
+[[Category:Enemies]]
+[[Category:Fernalla's Revival Plains]]

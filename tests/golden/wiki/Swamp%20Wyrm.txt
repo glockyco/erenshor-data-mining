@@ -1,0 +1,41 @@
+{{Enemy
+|name=Swamp Wyrm
+|image=[[File:Swamp Wyrm.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Rottenfoot]]
+|coordinates=348.9 x 23.0 x 134.5
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops={{ItemLink|Gut Cord}}<br>{{ItemLink|Wyrm Bone}}<br>{{ItemLink|Wyrm Skin Protector}}
+|droprates={{ItemLink|Gut Cord}} (50.0%)<br>{{ItemLink|Wyrm Bone}} (25.0%)<br>{{ItemLink|Wyrm Skin Protector}} (25.0%)
+|level=34
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=8.0
+|health=81250
+|mana=0
+|ac=510
+|strength=500
+|endurance=155
+|dexterity=700
+|agility=155
+|intelligence=225
+|wisdom=225
+|charisma=155
+|magic=17-41
+|poison=17-41
+|elemental=17-41
+|void=17-41
+|spells=
+}}
+
+The Swamp Wyrm can be killed with {{ItemLink|Wyrm's Bane}} if you are low level and dying to it, though this will prevent you from getting loot and experience.
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Rottenfoot]]

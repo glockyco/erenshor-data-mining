@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Vitheo's Wrath
+|type=[[Ability Books|Spell Scroll]]
+|vendorsource=[[Elizabeth DeWitt]]<br>[[Juctin Mysia]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=27000
+|sell=17550
+|taughtspell={{AbilityLink|Vitheo's Wrath}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Vitheo's Wrath.png
+|name=Spell Scroll: Vitheo's Wrath
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=33
+|reaver_level=
+|mana_cost=900
+|spell_type=Damage
+|spell_desc=Deals 1255 magic damage to your target.
+}}
+
+[[Category:Ability Books]]

@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Minor Healing
+|type=[[Ability Books|Spell Scroll]]
+|vendorsource=[[Amethi Plazzo]]<br>[[Benson Gamble]]<br>[[Javo Follay]]
+|source=[[Plaxitheris]] (8.8%)<br>[[Vevillo Polter]] (3.9%)<br>[[Aranuil Olaseo]] (3.4%)<br>[[Odyss Repman]] (3.4%)<br>[[A Sorrowful Spirit]] (2.8%)<br>[[An Enraged Spirit]] (2.8%)<br>[[Islander Bandit]] (1.1%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=60
+|sell=39
+|taughtspell={{AbilityLink|Minor Healing}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Minor Healing.png
+|name=Spell Scroll: Minor Healing
+|arcanist_level=
+|druid_level=3
+|duelist_level=
+|paladin_level=3
+|stormcaller_level=
+|reaver_level=
+|mana_cost=35
+|spell_type=Heal
+|spell_desc=Heals base 45 damage.
+}}
+
+[[Category:Ability Books]]

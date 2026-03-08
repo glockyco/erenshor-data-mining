@@ -1,0 +1,58 @@
+{{Enemy
+|name=Lazalith, Soldier of Sivakaya
+|image=[[File:Lazalith, Soldier of Sivakaya.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Blacksalt Strand]]
+|coordinates=815.4 x 24.8 x 338.0
+|spawnchance=
+|respawn=6 minutes
+|guaranteeddrops={{ItemLink|Liturgical Pantaloons}}<br>{{ItemLink|Sivakayan Hookblade}}<br>{{ItemLink|Voidbloom Ring}}
+|droprates={{ItemLink|Chapters of Descent, Passage 4}} (100.0%)<ref>If the player is already holding {{ItemLink|Chapters of Descent, Passage 4}} in their inventory, another will not drop.</ref><br>{{ItemLink|Liturgical Pantaloons}} (33.3%)<br>{{ItemLink|Sivakayan Hookblade}} (33.3%)<ref>If Lazalith, Soldier of Sivakaya has {{ItemLink|Sivakayan Hookblade}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Voidbloom Ring}} (33.3%)<br>{{ItemLink|Inspiration}} (14.1%)
+|level=20
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=4.0
+|health=18850
+|mana=0
+|ac=300
+|strength=28
+|endurance=300
+|dexterity=130
+|agility=35
+|intelligence=100
+|wisdom=3
+|charisma=3
+|magic=10-24
+|poison=10-24
+|elemental=10-24
+|void=10-24
+|spells=
+}}
+
+'''{{PAGENAME}}''' is a [[Enemies#List of Bosses|Boss]] in [[Erenshor]].
+
+=Location=
+{{PAGENAME}} can be found in a secret courtyard behind the hidden church in [[Blacksalt Strand]]. Accessing the church requires the {{ItemLink|Old Church Key}} from completing {{QuestLink|The Mathers' Demise}}. Once inside, head straight down the hallway and click the wall the statue of [[Sivakaya]] faces to reveal the passage to Lazalith.
+
+=Appearance=
+Lazalith is a demon with large horns, blue and yellow armor, and an emaciated, skeletal body.
+
+=Behavior=
+{{PAGENAME}} waits in the courtyard behind the church and will attack players if they get too close.
+
+===Spells & Abilities===
+{{PAGENAME}} does not use any spells or abilities.
+
+===Strategy===
+Lazalith isn't particularly noteworthy as it doesn't use any special abilities and has relatively low strength, although its durability can make the fight take longer than usual. Defeating Lazalith is required in order to complete {{QuestLink|The Mathers' Demise, Part 2}}.
+
+=Notes=
+
+[[Category:Blacksalt Strand]]
+[[Category:Bosses]]
+[[Category:Enemies]]

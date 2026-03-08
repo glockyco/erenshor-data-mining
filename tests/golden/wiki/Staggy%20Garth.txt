@@ -1,0 +1,57 @@
+{{Enemy
+|name=Staggy Garth
+|image=[[File:Staggy Garth.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=
+|zones=[[Stowaway's Step]]
+|coordinates=256.9 x 69.9 x 529.9
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Arcanist Cap}} (20.4%)<ref>If Staggy Garth has {{ItemLink|Arcanist Cap}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Luminstone}} (11.5%)<br>{{ItemLink|Star Stone}} (11.5%)
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=240
+|mana=155
+|ac=330
+|strength=1
+|endurance=3
+|dexterity=3
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells={{AbilityLink|Brax's Rage}}<br>{{AbilityLink|Brax's Touch}}<br>{{AbilityLink|Magic Bolt}}<br>{{AbilityLink|Minor Lightning}}<br>{{AbilityLink|Minor Protection}}
+}}
+Staggy Garth is an NPC on [[Stowaway's Step]] on the cliffs to the left on the rock by [[Plaxitheris]], above and to the side of the bandit cave on that path that leads to the Ruins.
+
+Greeting message:
+{| class="wikitable"
+|What're you doing way out here? <span style="color: #15e300;">[Lost]</span> like the rest of us? Headed to the <span style="color: #15e300;">[ruins]</span>?
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[Lost]</span>
+
+In the right light you can see the beaches of Erenshor off in the distance. Too foggy today, but it's out there. I've seen a ship come back and forth in the night - unmarked, too. No idea who's sailing it, but there's something going on...
+|}
+
+{| class="wikitable"
+|<span style="color: #15e300;">[Ruins]</span>
+
+Just down the path there. The old fortress. Wouldn't go down there at night if I were you. Odd place, that.
+|}
+
+[[Category:Characters]]
+[[Category:Stowaway's Step]]

@@ -1,0 +1,59 @@
+''{{main|Enemies}}''
+
+{{Enemy
+|name=An Apparition of Sivakaya
+|image=[[File:An Apparition of Sivakaya.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=-10 [[The Children of Sivakaya]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]
+|zones=[[The Bonepits]]
+|coordinates=244.4 x 43.2 x 279.5
+|spawnchance=
+|respawn=11 minutes
+|guaranteeddrops={{ItemLink|Decayed Amulet}}<br>{{ItemLink|Decayed Ring}}<br>{{ItemLink|Leggings of Undying Faith}}<br>{{ItemLink|Rotting Sivakayan Helm}}<br>{{ItemLink|Tunic of Undying Faith}}
+|droprates={{ItemLink|Ritual Stone}} (100.0%)<ref>If the player is already holding {{ItemLink|Ritual Stone}} in their inventory, another will not drop.</ref><br>{{ItemLink|Old Torn Cape}} (26.2%)<br>{{ItemLink|Decayed Amulet}} (25.0%)<br>{{ItemLink|Decayed Ring}} (25.0%)<br>{{ItemLink|Leggings of Undying Faith}} (25.0%)<br>{{ItemLink|Rotting Sivakayan Helm}} (25.0%)<br>{{ItemLink|Tunic of Undying Faith}} (25.0%)
+|level=9
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=5.0
+|health=3900
+|mana=0
+|ac=135
+|strength=14
+|endurance=60
+|dexterity=40
+|agility=11
+|intelligence=11
+|wisdom=11
+|charisma=11
+|magic=4-11
+|poison=4-11
+|elemental=4-11
+|void=4-11
+|spells=
+}}
+
+=Location=
+{{PAGENAME}} is found in the deepest part of [[The Bone Pits]] in front of the statue of [[Sivakaya]].
+
+=Appearance=
+{{PAGENAME}} is a large red demon, with limbs that appear to float in the air independent of each other.
+
+=Behavior=
+{{PAGENAME}} will not move until it spots a player to attack or is [[Lunar Madness|provoked]]. Upon {{PAGENAME}} targeting a player, the surrounding [[Neophyte Necromancer|Neophyte Necromancers]] will also become aggressive and swarm the party.
+
+===Spells & Abilities===
+{{PAGENAME}} does not use any spells or abilities.
+
+===Strategy===
+An [[Arcanist|Arcanist's]] {{AbilityLink|Dazzle}} can help with crowd control. Additionally, it is possible to preemptively defeat Neophyte Necromancers without drawing the attention of {{PAGENAME}} if they wander far enough away from the altar.
+
+=Notes=
+*It is possible to receive two pieces of the same equipment upon defeating {{PAGENAME}}.
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:The Bonepits]]

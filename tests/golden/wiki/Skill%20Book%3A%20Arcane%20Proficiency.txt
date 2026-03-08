@@ -1,0 +1,33 @@
+{{Item
+|title=Skill Book: Arcane Proficiency
+|type=[[Ability Books]]
+|vendorsource=[[Edwin Ansegg]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=650
+|sell=422
+|taughtspell=
+|taughtskill={{AbilityLink|Arcane Proficiency}}
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SkillBook
+|image=Skill Book: Arcane Proficiency.png
+|name=Skill Book: Arcane Proficiency
+|duelist_level=
+|druid_level=
+|arcanist_level=8
+|paladin_level=
+|stormcaller_level=16
+|reaver_level=
+|skill_type=Innate
+|skill_desc=Passive Skill: Your spells have a chance to land with a critical hit
+|simplayers_autolearn=True
+}}
+
+[[Category:Ability Books]]

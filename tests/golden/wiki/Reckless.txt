@@ -1,0 +1,18 @@
+{{Stance
+|title=Reckless
+|image=[[File:Stance: Reckless.png|thumb]]
+|description=Increase all melee damage dealt and damage taken by 100%<br><br>This stance does 4% of your max HP in damage to you each time you swing your sword.
+|switch_message=shifts into an reckless combat stance
+|max_hp_mod=1.0
+|damage_mod=2.0
+|damage_taken_mod=2.0
+|proc_rate_mod=1.0
+|aggro_gen_mod=1.0
+|spell_damage_mod=1.0
+|self_damage_per_attack=4.0
+|self_damage_per_cast=
+|lifesteal_amount=
+|resonance_amount=1.0
+|stop_regen=
+|activated_by={{AbilityLink|Stance: Reckless}}
+}}

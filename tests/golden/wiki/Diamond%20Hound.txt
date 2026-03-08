@@ -1,0 +1,42 @@
+{{Enemy
+|name=Diamond Hound
+|image=[[File:Diamond Hound.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Rockshade Hold]]
+|coordinates=
+|spawnchance=7-80%
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Diamond}} (84.3%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Diamond Claw}} (7.2%)
+|level=23
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=22750
+|mana=0
+|ac=345
+|strength=38
+|endurance=125
+|dexterity=175
+|agility=165
+|intelligence=5
+|wisdom=0
+|charisma=155
+|magic=12-28
+|poison=12-28
+|elemental=12-28
+|void=12-28
+|spells=
+}}
+
+Sometimes spawns instead of a [[Stone Hound]].
+
+=Notes=
+
+[[Category:Enemies]]
+[[Category:Rockshade Hold]]

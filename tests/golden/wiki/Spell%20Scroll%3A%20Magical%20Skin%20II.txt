@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Magical Skin II
+|type=[[Ability Books]]
+|vendorsource=[[Cerbantias Flameward]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=24555
+|sell=15961
+|taughtspell={{AbilityLink|Magical Skin II}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Magical Skin II.png
+|name=Spell Scroll: Magical Skin II
+|arcanist_level=32
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=700
+|spell_type=Beneficial
+|spell_desc=A long-duration shield that absorbs up to 2000 points of incoming damage
+}}
+
+[[Category:Ability Books]]

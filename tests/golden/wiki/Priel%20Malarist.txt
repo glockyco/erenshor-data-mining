@@ -1,0 +1,38 @@
+{{Enemy
+|name=Priel Malarist
+|image=[[File:Priel Malarist.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[Savannah Priel]]
+|factionChange=-2 [[Savannah Priel]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Solunarian Brotherhood]]
+|zones=[[Prielian Cascade]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|The Malaroth Process}} (13.1%)<ref>If the player is already holding {{ItemLink|The Malaroth Process}} in their inventory, another will not drop.</ref><br>{{ItemLink|Azure Mead}} (8.5%)<br>{{ItemLink|Sea Glass}} (5.8%)<br>{{ItemLink|Star Stone}} (5.8%)<br>{{ItemLink|Priel Officer's Ring}} (3.9%)<br>{{ItemLink|Spell Scroll: Major Group Healing}} (3.9%)<br>{{ItemLink|A Frowny Clowny}} (1.7%)<br>{{ItemLink|An Octorunner}} (1.7%)
+|level=30
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=39000
+|mana=300
+|ac=450
+|strength=450
+|endurance=450
+|dexterity=450
+|agility=85
+|intelligence=35
+|wisdom=95
+|charisma=450
+|magic=15-36
+|poison=15-36
+|elemental=15-36
+|void=15-36
+|spells={{AbilityLink|Arterial Decay}}<br>{{AbilityLink|Morbidity's Grasp}}<br>{{AbilityLink|Soul Tap}}
+}}
+
+[[Category:Enemies]]
+[[Category:Prielian Cascade]]

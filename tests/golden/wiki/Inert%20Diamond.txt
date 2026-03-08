@@ -1,0 +1,77 @@
+{{Item
+|title=Inert Diamond
+|type=[[Crafting|Mold]]
+|vendorsource=
+|source=[[Lost Treasure (1-10)]] (84.4%)<br>[[Lost Treasure (10-20)]] (65.2%)<br>[[Lost Treasure (30+)]] (56.6%)
+|othersource=all level 21+ enemies (0.8%)
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=4500
+|sell=2925
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+Strips all [[Item Quality|Blessing]]s from an item.
+
+Can be dropped as a [[Enemies#Global_Drops|global drop]] from all level 21+ enemies.
+
+{{Item/General
+|image=Inert Diamond.png
+|name=Inert Diamond
+|description=Some sort of diamond, but something is amiss.
+|value=4500
+|stack_size=
+|disposable=
+|effect_style=
+|effect_spell_icon=
+|effect_spell_name=
+|effect_spell_level=
+|effect_spell_duration_ticks=
+|effect_spell_type=
+|effect_spell_line=
+|effect_target_damage=
+|effect_target_healing=
+|effect_damage_type=
+|effect_cast_time=
+|effect_cooldown=
+|effect_spell_range=
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+}}
+
+[[Category:Crafting]]
+[[Category:Items]]

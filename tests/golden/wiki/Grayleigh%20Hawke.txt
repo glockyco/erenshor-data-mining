@@ -1,0 +1,44 @@
+{{Enemy
+|name=Grayleigh Hawke
+|image=[[File:Grayleigh Hawke.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Blades of Vitheo]]
+|factionChange=+2 [[The Agents of The Wisp]]<br>-20 [[The Blades of Vitheo]]<br>+2 [[The Children of Sivakaya]]<br>-20 [[The Citizens of Port Azure]]
+|zones=[[Port Azure]]
+|coordinates=285.7 x 17.1 x 321.6
+|spawnchance=
+|respawn=3 minutes
+|guaranteeddrops=
+|droprates=
+|level=25
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=4550
+|mana=0
+|ac=375
+|strength=25
+|endurance=25
+|dexterity=25
+|agility=25
+|intelligence=25
+|wisdom=25
+|charisma=25
+|magic=12-30
+|poison=12-30
+|elemental=12-30
+|void=12-30
+|spells={{AbilityLink|Minor Protection}}<br>{{AbilityLink|Vitheo's Blessing of the Sea}}<br>{{AbilityLink|Vitheo's Blessing of the Wind}}
+}}
+Grayleigh is an NPC located in [[Port Azure]] by a shrine. This NPC will refuse to talk to you if you are any class other than Duelist.
+
+Greeting message only for Duelists:
+{| class="wikitable"
+|Well met traveller. Make yourself at home here. We have armors and weapon for sale among other rarities. May the wind of Vitheo guide thee ever forward.
+|}
+
+[[Category:Characters]]
+[[Category:Port Azure]]

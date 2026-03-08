@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Death's Embrace II
+|type=[[Ability Books]]
+|vendorsource=
+|source=[[Nipper King]] (14.8%)<br>[[Nipper Diremaw]] (3.5%)<br>[[Nipper Farseer]] (3.5%)<br>[[Nipper Whiptail]] (3.5%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=17500
+|sell=11375
+|taughtspell={{AbilityLink|Death's Embrace II}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Death's Embrace II.png
+|name=Spell Scroll: Death's Embrace II
+|arcanist_level=
+|druid_level=
+|duelist_level=28
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=400
+|spell_type=StatusEffect
+|spell_desc=Weaken a target, while slowly draining its life.
+}}
+
+[[Category:Ability Books]]

@@ -1,0 +1,76 @@
+{{Enemy
+|name=Sivakayan Cleric
+|image=[[File:Sivakayan Cleric.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Children of Sivakaya]]
+|factionChange=-2 [[The Children of Sivakaya]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Solunarian Brotherhood]]
+|zones=[[Ripper's Keep]]<br>[[Silkengrass Meadowlands]]<br>[[Windwashed Pass]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes (Ripper's Keep)<br>4 minutes (Silkengrass Meadowlands)<br>4 minutes (Windwashed Pass)
+|guaranteeddrops=
+|droprates={{ItemLink|Sivakayan Ore}} (12.1%)<br>{{ItemLink|Sea Glass}} (10.2%)<br>{{ItemLink|Star Stone}} (10.2%)<br>{{ItemLink|Sivakayan Bracer}} (1.4%)<br>{{ItemLink|Sivakayan Legplate}} (1.4%)<br>{{ItemLink|Sivakayan Plate}} (1.4%)<br>{{ItemLink|Sivakayan Sceptre}} (1.4%)<ref>If Sivakayan Cleric has {{ItemLink|Sivakayan Sceptre}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Sivakayan Shield}} (1.4%)<ref>If Sivakayan Cleric has {{ItemLink|Sivakayan Shield}} equipped, it is guaranteed to drop.</ref>
+|level=26
+|levelmodmin=0
+|levelmodmax=2
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=23400
+|mana=0
+|ac=390
+|strength=30
+|endurance=135
+|dexterity=110
+|agility=45
+|intelligence=85
+|wisdom=85
+|charisma=35
+|magic=13-31
+|poison=13-31
+|elemental=13-31
+|void=13-31
+|spells={{AbilityLink|Healing}}<br>{{AbilityLink|Soul Tap}}
+}}
+{{Enemy
+|name=Sivakayan Cleric
+|image=[[File:Sivakayan Cleric.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Children of Sivakaya]]
+|factionChange=+5 [[The Azure Guard]]<br>-2 [[The Children of Sivakaya]]<br>+5 [[The Citizens of Erenshor]]<br>+5 [[The Citizens of Port Azure]]<br>+5 [[The Solunarian Brotherhood]]
+|zones=[[Rottenfoot]]<br>[[Silkengrass Meadowlands]]
+|coordinates=
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Sivakayan Ore}} (12.1%)<br>{{ItemLink|Sea Glass}} (10.2%)<br>{{ItemLink|Star Stone}} (10.2%)<br>{{ItemLink|Sivakayan Bracer}} (1.4%)<br>{{ItemLink|Sivakayan Legplate}} (1.4%)<br>{{ItemLink|Sivakayan Plate}} (1.4%)<br>{{ItemLink|Sivakayan Sceptre}} (1.4%)<ref>If Sivakayan Cleric has {{ItemLink|Sivakayan Sceptre}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Sivakayan Shield}} (1.4%)<ref>If Sivakayan Cleric has {{ItemLink|Sivakayan Shield}} equipped, it is guaranteed to drop.</ref>
+|level=26
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=19500
+|mana=0
+|ac=390
+|strength=30
+|endurance=135
+|dexterity=110
+|agility=45
+|intelligence=85
+|wisdom=85
+|charisma=35
+|magic=13-31
+|poison=13-31
+|elemental=13-31
+|void=13-31
+|spells={{AbilityLink|Healing}}<br>{{AbilityLink|Soul Tap}}
+}}
+
+[[Category:Enemies]]
+[[Category:Ripper's Keep]]
+[[Category:Rottenfoot]]
+[[Category:Silkengrass Meadowlands]]
+[[Category:Windwashed Pass]]

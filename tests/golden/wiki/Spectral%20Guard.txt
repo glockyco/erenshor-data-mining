@@ -1,0 +1,38 @@
+{{Enemy
+|name=Spectral Guard
+|image=[[File:Spectral Guard.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Lost Cellar]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Tarnished Halberd}} (6.9%)<br>{{ItemLink|Tarnished Steel Belt}} (6.9%)<br>{{ItemLink|Aged Plate Bracer}} (3.1%)<br>{{ItemLink|Aged Plate Sleeves}} (3.1%)<br>{{ItemLink|Aged Plate Boots}} (1.6%)
+|level=16
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=7150
+|mana=0
+|ac=240
+|strength=155
+|endurance=155
+|dexterity=155
+|agility=155
+|intelligence=155
+|wisdom=155
+|charisma=155
+|magic=8-19
+|poison=8-19
+|elemental=8-19
+|void=8-19
+|spells=
+}}
+
+[[Category:Enemies]]
+[[Category:Lost Cellar]]

@@ -1,0 +1,97 @@
+{{Enemy
+|name=Gus Highrest
+|image=[[File:Gus Highrest.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Stowaway's Step]]
+|factionChange=-25 [[The Citizens of Stowaway's Step]]
+|zones=[[Willowwatch Ridge]]
+|coordinates=586.1 x 49.7 x 320.9
+|spawnchance=
+|respawn=6 minutes
+|guaranteeddrops=
+|droprates=
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=461
+|mana=0
+|ac=120
+|strength=15
+|endurance=15
+|dexterity=15
+|agility=15
+|intelligence=15
+|wisdom=15
+|charisma=0
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+
+Greeting message:
+{| class="wikitable"
+| Ah, not often I see a new face around here. Travel is sparse, only folks who stop in these days want a free bed for as long as I can give it. It's a <span style="color: #15e300;">[dire]</span> state that a lot of folks are in these days. So much for a new life on Erenshor.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[dire]</span>
+|Aye, lost their homes... or too afraid to stay in 'em. Their dream of adventure and fortune has turned to a nightmare of uncertainty. I didn't come up with that - one of 'em said it the other day. Sad state, he was in.
+|}
+
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Bread}}
+|[[Consumables|Food]]
+|2
+|-
+|{{ItemLink|Water}}
+|[[Status Effects|Drink]]
+|1
+|-
+|{{ItemLink|Rusty Shortsword}}
+|[[Weapons|Sword]]
+|10
+|-
+|{{ItemLink|Old Buckler}}
+|[[Armor|Shield]]
+|27
+|-
+|{{ItemLink|Tattered Leather Tunic}}
+|[[Armor]]
+|5
+|-
+|{{ItemLink|Cloth Shirt}}
+|[[Armor]]
+|3
+|-
+|{{ItemLink|Spell Scroll: Brax's Touch}}
+|[[Ability Books|Spell Scroll]]
+|50
+|-
+|{{ItemLink|Spell Scroll: Lunar Madness}}
+|[[ability Books|Spell Scroll]]
+|100
+|-
+|{{ItemLink|Belt Lamp}}
+|[[:Category:Cosmetic Items|Cosmetic]]
+|225
+|-
+|{{ItemLink|Spell Scroll: Storm Bolt}}
+|[[ability Books|Spell Scroll]]
+|50
+|}
+
+[[Category:Characters]]
+[[Category:Vendors]]
+[[Category:Willowwatch Ridge]]

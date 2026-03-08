@@ -1,0 +1,38 @@
+{{Enemy
+|name=Rotting Guardian
+|image=[[File:Rotting Guardian.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Blooming Sepulcher]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Essence of Nature}} (14.8%)<br>{{ItemLink|Diamond}} (10.8%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Messenger}} (0.7%)<ref>If Rotting Guardian has {{ItemLink|Messenger}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Nature's Promise}} (0.7%)<br>{{ItemLink|Stone Statue: Fernalla}} (0.7%)<br>{{ItemLink|Wisp Garden}} (0.6%)
+|level=33
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=58500
+|mana=5000
+|ac=495
+|strength=45
+|endurance=135
+|dexterity=185
+|agility=85
+|intelligence=95
+|wisdom=45
+|charisma=35
+|magic=16-40
+|poison=16-40
+|elemental=16-40
+|void=16-40
+|spells={{AbilityLink|Annihilate}}<br>{{AbilityLink|Cull the Unfit}}
+}}
+
+[[Category:Blooming Sepulcher]]
+[[Category:Enemies]]

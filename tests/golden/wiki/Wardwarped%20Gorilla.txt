@@ -1,0 +1,48 @@
+{{Enemy
+|name=Wardwarped Gorilla
+|image=[[File:Wardwarped Gorilla.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Loomingwood Forest]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|A Moongill}} (14.5%)<br>{{ItemLink|A Sleepyhead}} (14.5%)<br>{{ItemLink|Spell Scroll: Summon Brute}} (14.5%)
+|level=34
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=65000
+|mana=0
+|ac=510
+|strength=600
+|endurance=475
+|dexterity=750
+|agility=455
+|intelligence=400
+|wisdom=300
+|charisma=300
+|magic=17-41
+|poison=17-41
+|elemental=17-41
+|void=17-41
+|spells=
+}}
+''{{Main|Enemies}}''
+=Location=
+
+=Appearance=
+
+=Behavior=
+
+===Spells & Abilities===
+
+=Notes=
+
+[[Category:Enemies]]
+[[Category:Loomingwood Forest]]

@@ -1,0 +1,69 @@
+{{Enemy
+|name=Fungal Bear
+|image=[[File:Fungal Bear.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Blooming Sepulcher]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Bear Meat}} (95.5%)<br>{{ItemLink|Wisp Garden}} (0.5%)
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=35750
+|mana=0
+|ac=330
+|strength=45
+|endurance=135
+|dexterity=185
+|agility=85
+|intelligence=95
+|wisdom=45
+|charisma=35
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells=
+}}
+
+{{Enemy
+|name=Fungal Bear
+|image=[[File:Fungal Bear.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Blooming Sepulcher]]
+|coordinates=
+|spawnchance=
+|respawn=9 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Bear Meat}} (95.5%)
+|level=22
+|experience=88-198
+|health=27500
+|mana=0
+|ac=625
+|strength=45
+|endurance=135
+|dexterity=185
+|agility=85
+|intelligence=95
+|wisdom=45
+|charisma=35
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+}}
+
+[[Category:Blooming Sepulcher]]
+[[Category:Enemies]]

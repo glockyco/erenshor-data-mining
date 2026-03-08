@@ -1,0 +1,39 @@
+{{Enemy
+|name=A Skeleton Captain
+|image=[[File:A Skeleton Captain.png|thumb]]
+|imagecaption="How I've longed for battle!"
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=+2 [[The Azure Guard]]<br>-10 [[The Children of Sivakaya]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]
+|zones=[[The Bonepits]]
+|coordinates=36.5 x 68.6 x 434.9
+|spawnchance=
+|respawn=3 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Pg. 1: Faded Entry}} (100.0%)<ref>If the player is already holding {{ItemLink|Pg. 1: Faded Entry}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ancient Bone}} (87.1%)<br>{{ItemLink|Nightfall}} (9.7%)<br>{{ItemLink|Rotting Metal Shield}} (9.7%)<ref>If A Skeleton Captain has {{ItemLink|Rotting Metal Shield}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Skeleton Eye}} (6.3%)<ref>If the player is already holding {{ItemLink|Skeleton Eye}} in their inventory, another will not drop.</ref><br>{{ItemLink|Light Plate Breastplate}} (3.4%)<br>{{ItemLink|Light Plate Greaves}} (3.4%)<br>{{ItemLink|Polished Longsword}} (3.4%)<ref>If A Skeleton Captain has {{ItemLink|Polished Longsword}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Star Stone}} (3.4%)
+|level=8
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1170
+|mana=0
+|ac=120
+|strength=12
+|endurance=55
+|dexterity=35
+|agility=10
+|intelligence=5
+|wisdom=5
+|charisma=5
+|magic=4-10
+|poison=4-10
+|elemental=4-10
+|void=4-10
+|spells=
+}}
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:The Bonepits]]

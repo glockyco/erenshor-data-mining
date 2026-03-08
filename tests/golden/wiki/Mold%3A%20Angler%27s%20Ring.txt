@@ -1,0 +1,35 @@
+{{Item
+|title=Mold: Angler's Ring
+|type=[[Crafting|Mold]], [[Quest Items|Quest Item]]
+|vendorsource=
+|source=
+|othersource=[[Liani Bosh]]
+|questsource=
+|relatedquest={{QuestLink|link=The Angler's Ring}}
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+Obtained from [[Liani Bosh]] with the prompt <span style="color: #15e300;">[help]</span>. 
+
+Note: Using the prompt <span style="color: #15e300;">[help]</span> will give you the mold if you don't already have it, even if the related quest is completed.
+
+<span style="color: red;">Note: Using Ancient Coal with this mold produces a blessed item but this cannot be used to complete the quest!</span>
+
+{{Item/Mold
+|image=Mold: Angler's Ring.png
+|name=Mold: Angler's Ring
+|description=Recipes must be exact - use CNTRL + CLICK to separate stacks.<br><br>One-time usable in a forge. <br><br>*Fuel quality does not affect the outcome of this recipe
+|ingredients=1x {{ItemLink|Luminstone}}<br>1x {{ItemLink|Vithean Ore}}<br>1x {{ItemLink|Sea Glass}}<br>1x {{ItemLink|Whispers of the Sea}}
+|rewards={{ItemLink|Angler's Ring}}
+|station=
+}}
+
+[[Category:Crafting]]
+[[Category:Molds]]
+[[Category:Quest Items]]

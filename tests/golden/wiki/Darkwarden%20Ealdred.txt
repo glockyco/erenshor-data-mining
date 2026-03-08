@@ -1,0 +1,39 @@
+{{Enemy
+|name=Darkwarden Ealdred
+|image=[[File:Darkwarden Ealdred.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Children of Sivakaya]]
+|factionChange=-2 [[The Children of Sivakaya]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Solunarian Brotherhood]]
+|zones=[[Abyssal Lake]]
+|coordinates=229.9 x 65.0 x 37.6
+|spawnchance=66%
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Famish}}<br>{{ItemLink|Sivakayan Dresscoat}}
+|droprates={{ItemLink|Ealdred's Journal}} (100.0%)<ref>If the player is already holding {{ItemLink|Ealdred's Journal}} in their inventory, another will not drop.</ref><br>{{ItemLink|Pg. 7: Faded Entry}} (100.0%)<ref>If the player is already holding {{ItemLink|Pg. 7: Faded Entry}} in their inventory, another will not drop.</ref><br>{{ItemLink|Spell Scroll: Devour}} (87.1%)<br>{{ItemLink|Sivakayan Dresscoat}} (66.7%)<br>{{ItemLink|Famish}} (33.3%)<br>{{ItemLink|Sivakayan Ore}} (12.1%)<br>{{ItemLink|Sea Glass}} (6.8%)<br>{{ItemLink|Spell Scroll: Instill Dread}} (6.8%)<br>{{ItemLink|Star Stone}} (6.8%)<br>{{ItemLink|Sivakayan Axe}} (1.4%)<ref>If Darkwarden Ealdred has {{ItemLink|Sivakayan Axe}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Sivakayan Bracer}} (1.4%)<br>{{ItemLink|Sivakayan Legplate}} (1.4%)<br>{{ItemLink|Sivakayan Plate}} (1.4%)<br>{{ItemLink|Sivakayan Straightsword}} (1.4%)<ref>If Darkwarden Ealdred has {{ItemLink|Sivakayan Straightsword}} equipped, it is guaranteed to drop.</ref>
+|level=32
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=3.0
+|health=78000
+|mana=0
+|ac=480
+|strength=155
+|endurance=135
+|dexterity=245
+|agility=85
+|intelligence=165
+|wisdom=125
+|charisma=225
+|magic=16-38
+|poison=16-38
+|elemental=16-38
+|void=16-38
+|spells={{AbilityLink|Devour}}
+}}
+
+[[Category:Abyssal Lake]]
+[[Category:Bosses]]
+[[Category:Enemies]]

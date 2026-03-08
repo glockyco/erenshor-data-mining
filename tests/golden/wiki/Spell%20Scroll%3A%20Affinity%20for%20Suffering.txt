@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Affinity for Suffering
+|type=
+|vendorsource=[[Aillee Desten]]<br>[[Xander Zaxtrough]]<br>[[Zane Theavale]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=100
+|sell=65
+|taughtspell={{AbilityLink|Affinity for Suffering}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Affinity for Suffering.png
+|name=Spell Scroll: Affinity for Suffering
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=1
+|mana_cost=20
+|spell_type=Beneficial
+|spell_desc=For every 10% of missing life, you gain 2% haste. This effect is applied after all other haste sources are counted. The haste cap does not apply.
+}}
+
+[[Category:Ability Books]]

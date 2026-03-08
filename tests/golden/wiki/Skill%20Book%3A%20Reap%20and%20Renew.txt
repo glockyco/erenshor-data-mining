@@ -1,0 +1,33 @@
+{{Item
+|title=Skill Book: Reap and Renew
+|type=[[Ability Books]]
+|vendorsource=
+|source=[[High Priestess of Sivakaya]] (100.0%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=55000
+|sell=35750
+|taughtspell=
+|taughtskill={{AbilityLink|Reap and Renew}}
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SkillBook
+|image=Skill Book: Reap and Renew.png
+|name=Skill Book: Reap and Renew
+|duelist_level=
+|druid_level=35
+|arcanist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|skill_type=Innate
+|skill_desc=Passive Skill: Your DOT spells will heal your target's target each tick for 50% of damage dealt.
+|simplayers_autolearn=
+}}
+
+[[Category:Ability Books]]

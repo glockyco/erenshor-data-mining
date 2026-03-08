@@ -1,0 +1,39 @@
+{{Enemy
+|name=Summoned: Brute
+|image=[[File:Summoned: Brute.png|thumb]]
+|imagecaption=You're in dire straits if this pet grabs your face
+|type=[[:Category:Pets|Pet]]
+|faction=
+|factionChange=
+|zones=
+|coordinates=
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=35
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=6.0
+|health=16250
+|mana=0
+|ac=525
+|strength=425
+|endurance=225
+|dexterity=425
+|agility=165
+|intelligence=5
+|wisdom=0
+|charisma=155
+|magic=18-42
+|poison=18-42
+|elemental=18-42
+|void=18-42
+|spells=
+}}
+
+Summoned with the spell [[Summon Brute]]
+
+[[Category:Characters]]

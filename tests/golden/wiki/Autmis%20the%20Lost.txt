@@ -1,0 +1,39 @@
+{{Enemy
+|name=Autmis the Lost
+|image=[[File:Autmis the Lost.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Willowwatch Ridge]]
+|coordinates=571.6 x 130.6 x 686.1
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Hilltop Ring}}<br>{{ItemLink|Oread Tunic}}
+|droprates={{ItemLink|Autmis' Note}} (100.0%)<ref>If the player is already holding {{ItemLink|Autmis' Note}} in their inventory, another will not drop.</ref><br>{{ItemLink|Hilltop Ring}} (53.7%)<br>{{ItemLink|Oread Tunic}} (53.7%)<br>{{ItemLink|Bread}} (43.4%)<br>{{ItemLink|Luminstone}} (43.4%)<br>{{ItemLink|Ruby}} (13.5%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref>
+|level=7
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1820
+|mana=0
+|ac=105
+|strength=12
+|endurance=55
+|dexterity=30
+|agility=10
+|intelligence=5
+|wisdom=5
+|charisma=5
+|magic=4-8
+|poison=4-8
+|elemental=4-8
+|void=4-8
+|spells={{AbilityLink|Brax's Touch}}<br>{{AbilityLink|Weak Poison}}
+}}
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Willowwatch Ridge]]

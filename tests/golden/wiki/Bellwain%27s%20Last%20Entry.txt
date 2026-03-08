@@ -1,0 +1,83 @@
+{{Item
+|title=Bellwain's Last Entry
+|type=[[Quest Items|Quest Item]]
+|vendorsource=
+|source=
+|othersource=
+|questsource=
+|relatedquest={{QuestLink|link=The Mystery of Bellwain Island}}
+|craftsource=
+|componentfor=
+|buy=
+|sell=
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+'''{{PAGENAME}}''' is a [[:Category:Notes|Note]] in [[Erenshor]]. 
+
+=Location=
+{{PAGENAME}} is the final note found on [[Bellwain Island]] as part of the quest {{QuestLink|The Mystery of Bellwain Island}}.
+
+=Description=
+{{PAGENAME}} describes Bellwain's departure from the island.
+
+{{Item/General
+|image=Bellwain's Last Entry.png
+|name=Bellwain's Last Entry
+|description=This is not a place to be alone. It is with age and sorrow that I leave tomorrow for one final voyage to the sea. I will not return to this place, for nothing holds me here. I've given back the materials, and now I give myself back to this world. <br><br>I can only hope to be reunited with Bellsie one day, but alas, I do not deserve such a kind fate. <br><br>Returning home can't always be the same gift that it was the day before.
+|value=
+|stack_size=
+|disposable=
+|effect_style=
+|effect_spell_icon=
+|effect_spell_name=
+|effect_spell_level=
+|effect_spell_duration_ticks=
+|effect_spell_type=
+|effect_spell_line=
+|effect_target_damage=
+|effect_target_healing=
+|effect_damage_type=
+|effect_cast_time=
+|effect_cooldown=
+|effect_spell_range=
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+}}
+
+It does not offer any clues, but rather serves as the final chapter of the story.
+
+[[Category:Items]]
+[[Category:Notes]]
+[[Category:Quest Items]]

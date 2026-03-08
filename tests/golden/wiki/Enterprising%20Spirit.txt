@@ -1,0 +1,80 @@
+{{Enemy
+|name=Enterprising Spirit
+|image=[[File:Enterprising Spirit.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Followers of Good]]
+|factionChange=
+|zones=[[Shivering Step]]
+|coordinates=701.4 x 24.8 x 440.0
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=35
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=45500
+|mana=0
+|ac=525
+|strength=0
+|endurance=0
+|dexterity=0
+|agility=0
+|intelligence=0
+|wisdom=0
+|charisma=0
+|magic=18-42
+|poison=18-42
+|elemental=18-42
+|void=18-42
+|spells=
+}}
+
+Enterprising Spirit can be located in the [[Shivering Step]] where the Aura merchant is on [[Stowaway's Step]]
+
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Coral}}
+|[[Crafting]]
+|15
+|-
+|{{ItemLink|Eternal Ice}}
+|[[Quest Items]]
+|5
+|-
+|{{ItemLink|Ghoul Scab}}
+|[[Crafting]]
+|1
+|-
+|{{ItemLink|Rotting Meat}}
+|[[Crafting]]
+|5
+|-
+|{{ItemLink|Ancient Bone}}
+|[[Crafting]]
+|6
+|-
+|{{ItemLink|Sea Glass}}
+|[[Crafting]]
+|35
+|-
+|{{ItemLink|Serpentine Blood}}
+|[[Crafting]]
+|33
+|-
+|{{ItemLink|Fishing Pole}}
+|[[Fishing Pole]]
+|5
+|}
+
+[[Category:Characters]]
+[[Category:Shivering Step]]
+[[Category:Vendors]]

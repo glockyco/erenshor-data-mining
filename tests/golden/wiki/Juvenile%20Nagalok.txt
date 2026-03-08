@@ -1,0 +1,38 @@
+{{Enemy
+|name=Juvenile Nagalok
+|image=[[File:Juvenile Nagalok.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Brackish Coast Nagaloks]]
+|factionChange=+1 [[The Blades of Vitheo]]<br>-10 [[The Brackish Coast Nagaloks]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]
+|zones=[[Willowwatch Ridge]]
+|coordinates=
+|spawnchance=
+|respawn=6 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Reptilian Scales}} (20.4%)<br>{{ItemLink|Seaweed}} (15.1%)<br>{{ItemLink|A Worm Eel}} (7.8%)
+|level=4
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=650
+|mana=100
+|ac=60
+|strength=100
+|endurance=50
+|dexterity=100
+|agility=50
+|intelligence=2
+|wisdom=3
+|charisma=3
+|magic=2-5
+|poison=2-5
+|elemental=2-5
+|void=2-5
+|spells=
+}}
+
+[[Category:Enemies]]
+[[Category:Willowwatch Ridge]]

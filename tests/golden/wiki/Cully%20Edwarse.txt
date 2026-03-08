@@ -1,0 +1,73 @@
+{{Enemy
+|name=Cully Edwarse
+|image=[[File:Cully Edwarse.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Erenshor]]
+|factionChange=+1 [[The Children of Sivakaya]]<br>-20 [[The Citizens of Erenshor]]
+|zones=[[Port Azure]]
+|coordinates=232.3 x 26.1 x 218.4
+|spawnchance=
+|respawn=6 minutes
+|guaranteeddrops=
+|droprates=
+|level=6
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=851
+|mana=0
+|ac=90
+|strength=5
+|endurance=5
+|dexterity=5
+|agility=5
+|intelligence=5
+|wisdom=5
+|charisma=5
+|magic=3-7
+|poison=3-7
+|elemental=3-7
+|void=3-7
+|spells=
+}}
+
+Cully is located in the [[Port Azure]] market.
+
+Greeting message:
+{| class="wikitable"
+|Fresh food for sale here, buy some!
+|}
+
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Brackfruit Juice}}
+|[[Status_Effects#Buffs|Consumable]]
+|5
+|-
+|{{ItemLink|Bread}}
+|[[Status Effects|Food]]
+|2
+|-
+|{{ItemLink|Seafruit}}
+|[[Status_Effects|Consumable]]
+|120
+|-
+|{{ItemLink|Water}}
+|[[Consumables|Drink]]
+|1
+|-
+|{{ItemLink|Seaspice}}
+|[[Status_Effects#Buffs|Consumable]]
+|500
+|}
+
+[[Category:Characters]]
+[[Category:Port Azure]]
+[[Category:Vendors]]

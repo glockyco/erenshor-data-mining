@@ -1,0 +1,50 @@
+{{Enemy
+|name=Beth Constantine
+|image=[[File:Beth Constantine.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Citizens of Erenshor]]
+|factionChange=-15 [[The Citizens of Erenshor]]
+|zones=[[Soluna's Landing]]
+|coordinates=243.1 x 100.0 x 421.1
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=15
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=520
+|mana=0
+|ac=225
+|strength=35
+|endurance=35
+|dexterity=35
+|agility=35
+|intelligence=35
+|wisdom=35
+|charisma=35
+|magic=8-18
+|poison=8-18
+|elemental=8-18
+|void=8-18
+|spells=
+}}
+
+Beth Constantine is located in the small town in [[Soluna's Landing]]
+
+Greeting message:
+{| class="wikitable"
+|All are welcome here, but for any civilian who doesn't follow <span style="color: #15e300;">[Soluna]</span>, the journey isn't exactly worth while.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[Soluna]</span>
+This is the place she landed to gift the world Paladins long ago. She then walked to that hilltop, and re-ascended to her plane. Her guardians remain behind, protecting this holy place from... from something. I dread to know what.
+
+[[Category:Characters]]
+[[Category:Soluna's Landing]]

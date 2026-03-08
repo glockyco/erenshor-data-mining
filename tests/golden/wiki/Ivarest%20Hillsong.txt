@@ -1,0 +1,53 @@
+{{Enemy
+|name=Ivarest Hillsong
+|image=[[File:Ivarest Hillsong.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[Fernalla's Children]]
+|factionChange=-30 [[Fernalla's Children]]<br>+2 [[The Agents of The Wisp]]<br>+2 [[The Children of Sivakaya]]
+|zones=[[The Duskenlight Coast]]
+|coordinates=994.0 x 62.8 x 625.3
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=17550
+|mana=300
+|ac=330
+|strength=35
+|endurance=35
+|dexterity=155
+|agility=35
+|intelligence=35
+|wisdom=35
+|charisma=35
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells=
+}}
+Ivarest is located near the large willow try surrounded in ruins in the [[Duskenlight Coast]]
+
+Greeting message:
+{| class="wikitable"
+|Where the <span style="color: #15e300;">[willow]</span> stands, so shall stand a child of Fernalla. There are <span style="color: #15e300;">[others]</span> from who we must protect the trees.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[willow]</span>
+This willow stands in the eyeline of the Sivakayan statue atop the hill. Fernalla put this tree here as a sign of power. It's one of her most important willow's.
+|-
+|<span style="color: #15e300;">[others]</span>
+Molorai. Wherever there are ruins, the Molorai are never far away. They're after something on the hilltop near the Sivakayan Ruins.
+|}
+
+[[Category:Characters]]
+[[Category:The Duskenlight Coast]]

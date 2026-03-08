@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Instill Fear
+|type=
+|vendorsource=[[Xander Zaxtrough]]
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=850
+|sell=552
+|taughtspell={{AbilityLink|Instill Fear}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Instill Fear.png
+|name=Spell Scroll: Instill Fear
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=
+|stormcaller_level=
+|reaver_level=6
+|mana_cost=100
+|spell_type=StatusEffect
+|spell_desc=Causes your target to disengage from combat and run away. Effective on up to level 12 targets.
+}}
+
+[[Category:Ability Books]]

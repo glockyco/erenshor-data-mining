@@ -1,0 +1,82 @@
+{{Enemy
+|name=Sivakayan Raider
+|image=[[File:Sivakayan Raider.png|thumb]]
+|imagecaption="For Sivakaya!"
+|type=[[Enemies|Enemy]]
+|faction=[[The Children of Sivakaya]]
+|factionChange=+2 [[The Agents of The Wisp]]<br>+2 [[The Azure Guard]]<br>-2 [[The Children of Sivakaya]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
+|zones=[[Ripper's Keep]]<br>[[Silkengrass Meadowlands]]<br>[[Windwashed Pass]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes (Ripper's Keep)<br>4 minutes (Silkengrass Meadowlands)<br>4 minutes (Windwashed Pass)
+|guaranteeddrops=
+|droprates={{ItemLink|Sivakayan Ore}} (12.1%)<br>{{ItemLink|Sea Glass}} (10.2%)<br>{{ItemLink|Star Stone}} (10.2%)<br>{{ItemLink|Sivakayan Straightsword}} (2.7%)<ref>If Sivakayan Raider has {{ItemLink|Sivakayan Straightsword}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Sivakayan Bracer}} (1.4%)<br>{{ItemLink|Sivakayan Legplate}} (1.4%)<br>{{ItemLink|Sivakayan Plate}} (1.4%)
+|level=26
+|levelmodmin=0
+|levelmodmax=2
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=25350
+|mana=0
+|ac=390
+|strength=45
+|endurance=135
+|dexterity=185
+|agility=85
+|intelligence=95
+|wisdom=45
+|charisma=35
+|magic=13-31
+|poison=13-31
+|elemental=13-31
+|void=13-31
+|spells={{AbilityLink|Moonburst}}<br>{{AbilityLink|Theft of Life}}
+}}
+
+{{Enemy
+|name=Sivakayan Raider
+|image=[[File:Sivakayan Raider.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Children of Sivakaya]]
+|factionChange=+2 [[The Agents of The Wisp]]<br>+2 [[The Azure Guard]]<br>-3 [[The Children of Sivakaya]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
+|zones=[[Faerie's Brake]]<br>[[Rottenfoot]]
+|coordinates=
+|spawnchance=
+|respawn=11 minutes (Faerie's Brake)<br>4 minutes (Rottenfoot)
+|guaranteeddrops=
+|droprates={{ItemLink|Sivakayan Ore}} (12.1%)<br>{{ItemLink|Sea Glass}} (10.2%)<br>{{ItemLink|Star Stone}} (10.2%)<br>{{ItemLink|Sivakayan Straightsword}} (2.7%)<ref>If Sivakayan Raider has {{ItemLink|Sivakayan Straightsword}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Sivakayan Bracer}} (1.4%)<br>{{ItemLink|Sivakayan Legplate}} (1.4%)<br>{{ItemLink|Sivakayan Plate}} (1.4%)
+|level=26
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=19500
+|mana=0
+|ac=390
+|strength=45
+|endurance=135
+|dexterity=185
+|agility=85
+|intelligence=95
+|wisdom=45
+|charisma=35
+|magic=13-31
+|poison=13-31
+|elemental=13-31
+|void=13-31
+|spells={{AbilityLink|Moonburst}}<br>{{AbilityLink|Theft of Life}}
+}}
+
+The Sivakayan Raiders are extremely powerful, and will attack players on sight, they can often be seen at camps in [[Rottenfoot]] or 1 can be found wandering around the pond in [[Faerie's Brake]].The Raider can cast [[Moonburst]] and [[Theft of Life]].drop.
+
+=Notes=
+
+[[Category:Enemies]]
+[[Category:Faerie's Brake]]
+[[Category:Ripper's Keep]]
+[[Category:Rottenfoot]]
+[[Category:Silkengrass Meadowlands]]
+[[Category:Windwashed Pass]]

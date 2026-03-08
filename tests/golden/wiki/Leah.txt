@@ -1,0 +1,51 @@
+{{Enemy
+|name=Leah
+|image=[[File:Leah Body.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[The Necromancers of the Island Tomb]]
+|factionChange=-1000 [[The Necromancers of the Island Tomb]]
+|zones=[[Island Tomb]]
+|coordinates=166.2 x -8.9 x 164.1
+|spawnchance=
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Soul Gem (Leah)}} (100.0%)<ref>If the player is already holding {{ItemLink|Soul Gem (Leah)}} in their inventory, another will not drop.</ref><br>{{ItemLink|Bread}} (78.2%)<br>{{ItemLink|Water}} (78.2%)
+|level=4
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1105
+|mana=0
+|ac=60
+|strength=6
+|endurance=12
+|dexterity=17
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=2-5
+|poison=2-5
+|elemental=2-5
+|void=2-5
+|spells={{AbilityLink|Magic Bolt}}
+}}
+
+Leah is located in the secret room behind the stone throne found in the [[Island Tomb]] behind [[Woe]].
+
+Greeting message:
+{| class="wikitable"
+|Do not disturb things you do not understand.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color:#15e300;">[Aragath]</span>
+|He must never leave...
+|}
+
+[[Category:Characters]]
+[[Category:Island Tomb]]

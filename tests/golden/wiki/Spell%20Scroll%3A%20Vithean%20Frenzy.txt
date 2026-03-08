@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Vithean Frenzy
+|type=[[Ability Books]]
+|vendorsource=[[Juctin Mysia]]
+|source=[[Ripper DeMerth (Character)|Ripper DeMerth]] (87.1%)<br>[[Captain Kilkay]] (63.3%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=8700
+|sell=5655
+|taughtspell={{AbilityLink|Vithean Frenzy}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Vithean Frenzy.png
+|name=Spell Scroll: Vithean Frenzy
+|arcanist_level=
+|druid_level=
+|duelist_level=25
+|paladin_level=
+|stormcaller_level=
+|reaver_level=
+|mana_cost=300
+|spell_type=Beneficial
+|spell_desc=A large stat buff and bonus chance to hit
+}}
+
+[[Category:Ability Books]]

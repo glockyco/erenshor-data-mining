@@ -1,0 +1,77 @@
+{{Item
+|title=Sivakrux
+|type=[[Crafting]], [[Quest Items|Quest Item]]
+|vendorsource=
+|source=[[Lost Treasure (1-10)]] (84.4%)<br>[[Lost Treasure (20-30)]] (76.4%)<br>[[Lost Treasure (10-20)]] (74.5%)<br>[[Lost Treasure (30+)]] (56.6%)<br>[[Braxonian Fossil]] (21.1%)
+|othersource=0.1% drop chance as a [[Enemies#Global_Drops|global drop]] from any enemy level 16+<br>1.9% catch chance from [[Fishing#Bellwain_Island_Fishing_Loot|Fishing]] in the pond on [[Bellwain Island]].
+|questsource={{QuestLink|Clearing the Bonepits}}<br>{{QuestLink|Maps for Prichard}}
+|relatedquest={{QuestLink|A Key to Vitheo's Rest}}<br>{{QuestLink|The Ripper Ritual}}
+|craftsource=
+|componentfor={{ItemLink|Mold: A Ceremonial Ring}}
+|buy=20000
+|sell=13000
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+This item has a 0.1% chance to drop from any enemy in the level 16 and above.
+
+Can be used to create [[File:Blue_Sparkle.gif|30px|link=Item Quality]][[Item Quality|Blessed Items]] at the [[Braxonian Flame Well]]
+
+{{Item/General
+|image=Sivakrux.png
+|name=Sivakrux
+|description=An ancient currency, lost to time.
+|value=20000
+|stack_size=
+|disposable=
+|effect_style=
+|effect_spell_icon=
+|effect_spell_name=
+|effect_spell_level=
+|effect_spell_duration_ticks=
+|effect_spell_type=
+|effect_spell_line=
+|effect_target_damage=
+|effect_target_healing=
+|effect_damage_type=
+|effect_cast_time=
+|effect_cooldown=
+|effect_spell_range=
+|effect_lifetap=
+|effect_group_effect=
+|effect_stun_target=
+|effect_charm_target=
+|effect_root_target=
+|effect_taunt_spell=
+|effect_aggro=
+|effect_status_effect_name=
+|effect_hp=
+|effect_ac=
+|effect_mana=
+|effect_str=
+|effect_dex=
+|effect_end=
+|effect_agi=
+|effect_wis=
+|effect_int=
+|effect_cha=
+|effect_mr=
+|effect_er=
+|effect_pr=
+|effect_vr=
+|effect_movement_speed=
+|effect_damage_shield=
+|effect_haste=
+|effect_percent_lifesteal=
+|effect_atk_roll_modifier=
+|effect_resonate_chance=
+|effect_add_proc_name=
+|effect_add_proc_chance=
+|effect_special_descriptor=
+}}
+
+[[Category:Crafting]]
+[[Category:Items]]
+[[Category:Quest Items]]

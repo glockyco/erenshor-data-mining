@@ -1,0 +1,39 @@
+{{Enemy
+|name=Frenzy
+|image=[[File:Frenzy.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Blooming Sepulcher]]
+|coordinates=389.0 x 354.7 x 207.6
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops={{ItemLink|Frenzied Fistwraps}}<br>{{ItemLink|Wrath Wrap}}
+|droprates={{ItemLink|Frenzied Fistwraps}} (66.7%)<br>{{ItemLink|Wrath Wrap}} (33.3%)<br>{{ItemLink|A Moongill}} (17.8%)<br>{{ItemLink|A Sleepyhead}} (17.8%)<br>{{ItemLink|Decayed Druid Beads}} (5.6%)<br>{{ItemLink|Nature's Promise}} (1.1%)<br>{{ItemLink|Wisp Garden}} (1.0%)
+|level=24
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=3.0
+|health=44200
+|mana=0
+|ac=360
+|strength=45
+|endurance=135
+|dexterity=185
+|agility=85
+|intelligence=95
+|wisdom=45
+|charisma=35
+|magic=12-29
+|poison=12-29
+|elemental=12-29
+|void=12-29
+|spells=
+}}
+
+[[Category:Blooming Sepulcher]]
+[[Category:Bosses]]
+[[Category:Enemies]]

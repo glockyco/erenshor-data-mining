@@ -1,0 +1,86 @@
+{{Enemy
+|name=Aspen Dechaffe
+|image=[[File:Aspen Dechaffe.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[Fernalla's Children]]
+|factionChange=-30 [[Fernalla's Children]]<br>+2 [[The Agents of The Wisp]]<br>+2 [[The Children of Sivakaya]]
+|zones=[[Braxonian Desert]]
+|coordinates=332.2 x 6.9 x 1281.8
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=22
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=4550
+|mana=300
+|ac=330
+|strength=650
+|endurance=500
+|dexterity=650
+|agility=500
+|intelligence=35
+|wisdom=35
+|charisma=35
+|magic=11-26
+|poison=11-26
+|elemental=11-26
+|void=11-26
+|spells=
+}}
+
+Aspen Dechaffe is located by a great willow tree at the western side of the [[Braxonian Desert]].
+
+Greeting message for Druid's only:
+{| class="wikitable"
+|A willow still grows here, and here, I will stand vigil for Fernalla. This place is not what it once was.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[spire]</span>
+At the crest of that hill you'll begin to see it. It does not waver and from it, the blight eminates through all living things. The corpses of the people caught in Brax's holy fire are walking about, and the forest beyond the spire is full of even worse things. 
+|-
+|<span style="color: #15e300;">[was]</span>
+Brax burned this desert into the land to stop the blight. This is the place where Sivakaya accepted her gift of necromancy. On that day a Goddess was corrupted, and the energy materialized itself into that dreadful spire. 
+|}
+
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+|-
+|[[Spell Scroll: Arterial Collapse]]
+|[[Ability Books|Spell Scroll]]
+|3500
+|-
+|[[Spell Scroll: Concuss]]
+|[[Ability Books|Spell Scroll]]
+|1225
+|-
+|[[Spell Scroll: Major Healing]]
+|[[Ability Books|Spell Scroll]]
+|1600
+|-
+|[[Spell Scroll: Greater Regrowth]]
+|[[Ability Books|Spell Scroll]]
+|1600
+|-
+|[[Spell Scroll: Morbidity's Grasp]]
+|[[Ability Books|Spell Scroll]]
+|2500
+|-
+|[[Spell Scroll: Group Healing]]
+|[[Ability Books|Spell Scroll]]
+|60
+|}
+
+[[Category:Braxonian Desert]]
+[[Category:Characters]]
+[[Category:Vendors]]

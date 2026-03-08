@@ -1,0 +1,41 @@
+{{Enemy
+|name=Warded Shadow
+|image=[[File:Warded Shadow.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Boss]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Shivering Tomb|Shivering Tomb (2)]]
+|coordinates=-77.0 x -68.4 x 284.9
+|spawnchance=
+|respawn=
+|guaranteeddrops={{ItemLink|Protector's Bracer}}<br>{{ItemLink|Shadow Helm}}<br>{{ItemLink|Trembling Chain}}
+|droprates={{ItemLink|Captured Light}} (100.0%)<ref>If the player is already holding {{ItemLink|Captured Light}} in their inventory, another will not drop.</ref><br>{{ItemLink|Thief of Breath}} (53.8%)<ref>If the player is already holding {{ItemLink|Thief of Breath}} in their inventory, another will not drop.</ref><br>{{ItemLink|Protector's Bracer}} (38.1%)<br>{{ItemLink|Shadow Helm}} (38.1%)<br>{{ItemLink|Trembling Chain}} (38.1%)<br>{{ItemLink|Bread}} (30.3%)<br>{{ItemLink|Death's Decay}} (30.3%)<ref>If the player is already holding {{ItemLink|Death's Decay}} in their inventory, another will not drop.</ref><br>{{ItemLink|Diamond}} (30.3%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref>
+|level=26
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=78000
+|mana=0
+|ac=390
+|strength=38
+|endurance=125
+|dexterity=175
+|agility=165
+|intelligence=5
+|wisdom=0
+|charisma=155
+|magic=13-31
+|poison=13-31
+|elemental=13-31
+|void=13-31
+|spells={{AbilityLink|Immolation}}
+}}
+To defeat the Warded Shadow, first defeat the two Phantom's Ward on either side of it.  While attacking the Phantom's Ward, one of the purple blobs that spawn will have particles above it, defeat those to continue attacking the Phantom's Wards.  Once both are down, the Warded Shadow can be defeated.
+
+[[Category:Bosses]]
+[[Category:Enemies]]
+[[Category:Island Tomb]]
+[[Category:Shivering Tomb]]

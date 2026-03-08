@@ -1,0 +1,33 @@
+{{Item
+|title=Spell Scroll: Moonburst
+|type=[[Ability Books]]
+|vendorsource=[[Leyor M'Chante]]
+|source=[[Molorai Captain Sigrid]] (12.7%)<br>[[Gloopa|Gloopa (Quarter)]] (1.8%)<br>[[A Subterranean Goop]] (1.6%)<br>[[A Subterranean Magmite]] (1.6%)
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=
+|componentfor=
+|buy=1655
+|sell=1076
+|taughtspell={{AbilityLink|Moonburst}}
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/SpellScroll
+|image=Spell Scroll: Moonburst.png
+|name=Spell Scroll: Moonburst
+|arcanist_level=
+|druid_level=
+|duelist_level=
+|paladin_level=10
+|stormcaller_level=
+|reaver_level=
+|mana_cost=60
+|spell_type=PBAE
+|spell_desc=Deals 100 damage to enemies in your immediate vicinity.
+}}
+
+[[Category:Ability Books]]

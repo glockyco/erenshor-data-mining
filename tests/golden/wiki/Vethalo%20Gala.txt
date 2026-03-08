@@ -1,0 +1,58 @@
+{{Enemy
+|name=Vethalo Gala
+|image=[[File:Vethalo Gala.png|thumb]]
+|imagecaption=
+|type=[[:Category:Characters|NPC]]
+|faction=[[Aquilimar Guild]]
+|factionChange=-10 [[Aquilimar Guild]]
+|zones=[[Port Azure]]
+|coordinates=146.2 x 11.7 x 312.7
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Key to Vitheo's Rest}} (100.0%)<ref>If the player is already holding {{ItemLink|Key to Vitheo's Rest}} in their inventory, another will not drop.</ref><br>{{ItemLink|Short Sword of Viropha}} (10.1%)
+|level=15
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=3380
+|mana=0
+|ac=225
+|strength=35
+|endurance=35
+|dexterity=35
+|agility=35
+|intelligence=35
+|wisdom=35
+|charisma=35
+|magic=8-18
+|poison=8-18
+|elemental=8-18
+|void=8-18
+|spells=
+}}
+Aggressive if {{QuestLink | link=A Hidden Cause}} has not been completed.
+
+Trade him a [[Sivakrux]] to complete {{QuestLink | link=A Key to Vitheo's Rest}}
+
+Greeting message:
+{| class="wikitable"
+|We've uncovered a tomb. We believe it to be the resting place of Vitheo's worldly form. Our expeditions have not been successful, so maybe you can<span style="color: #15e300;">[help]</span> us.
+|}
+
+Prompts:
+{| class="wikitable"
+|<span style="color: #15e300;">[help]</span>
+|I believe the artifacts we could <span style="color: #15e300;">[extract]</span> are worth the risks of bringing in strangers like you. We've sent scouts out into Erenshor looking for capable warriors to send to us. One of them must have taken a liking to you.
+|-
+|<span style="color: #15e300;">[extract]</span>
+|Want to have a go at it? I've got an extra key. I'll trade ya. I'm a collector of rarities, after all. How about a <span style="color: #15e300;">[Sivakrux]</span>?
+|-
+|<span style="color: #15e300;">[Sivakrux]</span>
+|You haven't run into one yet? Folks find them every now and again in the oddest places. belly of a wolf, clutched by a skeleton, in the folds of a Giant... could be anywhere.
+|}
+
+[[Category:Characters]]
+[[Category:Port Azure]]

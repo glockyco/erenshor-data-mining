@@ -1,0 +1,40 @@
+{{Item
+|title=Soldier's Charm
+|type=
+|vendorsource=
+|source=
+|othersource=
+|questsource=
+|relatedquest=
+|craftsource=1x {{ItemLink|Mold: Soldier's Charm}}<br>1x {{ItemLink|Ghoul Scab}}<br>1x {{ItemLink|Spell Scroll: Death's Embrace}}<br>1x {{ItemLink|Pendant of Petrified Wood}}<br>1x {{ItemLink|Spell Scroll: Theft of Life}}
+|componentfor=
+|buy=6000
+|sell=3900
+|taughtspell=
+|taughtskill=
+|guaranteeddrops=
+|droprates=
+}}
+
+{{Item/Charm
+|image=Soldier's Charm.png
+|name=Soldier's Charm
+|tier=0
+|strscaling=3
+|endscaling=3
+|dexscaling=
+|agiscaling=
+|intscaling=
+|wisscaling=
+|chascaling=
+|resistscaling=
+|mitigationscaling=
+|arcanist=True
+|duelist=True
+|druid=True
+|paladin=True
+|reaver=True
+|stormcaller=True
+}}
+
+[[Category:Charms]]

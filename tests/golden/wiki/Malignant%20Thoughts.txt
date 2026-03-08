@@ -1,0 +1,89 @@
+{{Enemy
+|name=Malignant Thoughts
+|image=[[File:Malignant Thoughts.png|thumb]]
+|imagecaption=
+|type=[[Enemies#List of Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Mysterious Portal|Mysterious Portal (2)]]
+|coordinates=326.8 x 1.9 x 530.4
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=5
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=2600
+|mana=0
+|ac=75
+|strength=3
+|endurance=3
+|dexterity=3
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=2-6
+|poison=2-6
+|elemental=2-6
+|void=2-6
+|spells=
+}}
+''{{Main|Enemies}}''
+=Location=
+{{PAGENAME}} are unique to the second [[Mysterious Portal]]. One is found on the path through the dungeon, while three more are summoned during the fight with the [[Invader of Dreams]].
+
+=Appearance=
+{{PAGENAME}} is a floating purple orb.
+
+=Behavior=
+{{PAGENAME}} are stationary and do not attack the player, though they can and should be attacked and destroyed themselves. They will summon either a [[Nightmarian Knight]], [[Nightmarian Arcanist]], or [[Nightmarian Hound]] five times in quick succession, as well as two more times at much longer interval. After seven enemies have been summoned, {{PAGENAME}} becomes inactive.
+
+===Spells & Abilities===
+{{PAGENAME}} does not use any spells or abilities.
+
+=Notes=
+*Although they will eventually stop summoning new enemies, it's still a good idea to take out {{PAGENAME}} as quickly as possible to avoid the party being overwhelmed.
+
+{{Enemy
+|name=Malignant Thoughts
+|image=[[File:Malignant Thoughts.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=
+|coordinates=
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=5
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=6500
+|mana=0
+|ac=75
+|strength=3
+|endurance=3
+|dexterity=3
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=2-6
+|poison=2-6
+|elemental=2-6
+|void=2-6
+|spells=
+}}
+
+[[Category:Enemies]]
+[[Category:Mysterious Portal]]
