@@ -1,17 +1,12 @@
 # ============================================================================
 # Default Behavior
-# ============================================================================
 # Normalize line endings to LF on commit and checkout (modern best practice)
 * text=auto eol=lf
-# ============================================================================
 # Shell Scripts - CRITICAL: Must use LF
-# ============================================================================
 # Unix shell scripts MUST have LF endings or they will fail to execute
 *.sh text eol=lf
 cli/bin/erenshor text eol=lf
-# ============================================================================
 # Source Code - Text Files
-# ============================================================================
 # C# files
 *.cs text diff=csharp
 *.csx text diff=csharp
@@ -56,9 +51,7 @@ cli/bin/erenshor text eol=lf
 *.mask text
 *.physicMaterial text
 *.physicsMaterial2D text
-# ============================================================================
 # Binary Files - Explicitly Mark as Binary
-# ============================================================================
 # Images
 *.png binary
 *.jpg binary
@@ -129,9 +122,7 @@ cli/bin/erenshor text eol=lf
 *.rar binary
 # Other Unity binaries
 *.unitypackage binary
-# ============================================================================
 # Special Cases
-# ============================================================================
 # Windows batch files should use CRLF
 *.bat text eol=crlf
 *.cmd text eol=crlf
@@ -143,3 +134,4 @@ Makefile text eol=lf
 .gitattributes text
 .gitmodules text
 .gitkeep text
+src/maps/static/zone-maps-companion.gif filter=lfs diff=lfs merge=lfs -text
