@@ -709,7 +709,7 @@ Steps (✓ = complete):
    After the next `extract export` this is no longer needed — Unity will
    write directly to `database_raw`.
 
-4. **Write the Layer 2 processor** (`src/erenshor/application/processor/`).
+4. ✓ **Write the Layer 2 processor** (`src/erenshor/application/processor/`).
    - `build.py` — top-level orchestrator
    - `mapping.py` — loads and applies `mapping.json`
    - `characters.py` — filter, dedup, `is_unique` computation
@@ -738,20 +738,23 @@ Steps (✓ = complete):
    Reads `database_raw`, writes `database`. Standalone: does not require
    a fresh `extract export`. Fails fast if `database_raw` does not exist,
    with a clear message pointing to `extract export` or the manual copy
-   described in step 3.
+   described in step 3. Also update `database_has_items` precondition to
+   check `items` (snake_case) instead of `Items` — the clean DB uses
+   snake_case table names throughout.
 
-6. **Delete registry, enrichers, domain enriched data, and CLI commands.**
+6. **Decompose `_create_wiki_service()` in `wiki.py`.**
+   The factory currently wires `RegistryResolver` for all three wiki
+   commands (fetch, generate, deploy). Remove the registry from all three.
+   `fetch` and `deploy` do not need it; `generate` reads from the clean DB
+   directly. This step must precede step 7: `wiki.py` imports from
+   `registry/`, so the package cannot be deleted while that import exists.
+
+7. **Delete registry, enrichers, domain enriched data, and CLI commands.**
    `registry/`, `application/enrichers/`, `domain/enriched_data/` — all
    deleted. `src/erenshor/cli/commands/registry.py` deleted (this file
    still exists on disk despite being removed from the CLI router in
    step 2 — it must be deleted here). Their tests deleted too. No
    transitional compatibility shim.
-
-7. **Decompose `_create_wiki_service()` in `wiki.py`.**
-   The factory currently wires `RegistryResolver` for all three wiki
-   commands (fetch, generate, deploy). Remove the registry from all three.
-   `fetch` and `deploy` do not need it; `generate` reads from the clean DB
-   directly.
 
 8. **Rewrite wiki pipeline to read from clean DB.**
    Remove enricher instantiation from `entities.py`. Delete
@@ -763,28 +766,30 @@ Steps (✓ = complete):
    all become direct column reads. Remove `pascal_to_snake()` conversion
    from all repositories.
 
-9. **Update `database_has_items` precondition.**
-   After Phase 1 the clean DB has snake_case table names. Change the check
-   from `Items` (PascalCase) to `items` (snake_case).
+9. **Rewrite all 23 sheets SQL queries, `image_processor.py`, and scripts.**
+   snake_case column names throughout. Remove COALESCE. Remove SimPlayer/
+   exclusion WHERE clauses. Fix `?marker=` → `?sel=marker:`. Use
+   `display_name` where appropriate. Update `image_processor.py` SQL
+   (`SELECT StableKey, ItemName, ItemIconName FROM Items` → snake_case
+   clean DB schema). Update `scripts/validate_database.py`,
+   `scripts/compare_variants.py`, and `scripts/zone_discrepancy_report.py`
+   for snake_case clean DB schema. All three concerns ship in one commit
+   since they share the same schema change.
 
-10. **Rewrite all 23 sheets SQL queries.**
-    snake_case column names throughout. Remove COALESCE. Remove SimPlayer/
-    exclusion WHERE clauses. Fix `?marker=` → `?sel=marker:`. Use
-    `display_name` where appropriate.
+   Sequencing note: sheets SQL is done before wiki pipeline (step 8) so
+   that simpler mechanical changes precede the more complex generator
+   rewrite. Steps 8 and 9 are independent and can be done in either order.
 
-11. **Update `image_processor.py`.**
-    `SELECT StableKey, ItemName, ItemIconName FROM Items` must be rewritten
-    for the snake_case clean DB schema.
-
-12. **Update `scripts/` directory.**
-    `validate_database.py`, `compare_variants.py`, `zone_discrepancy_report.py`
-    all use PascalCase table/column names directly. Update for snake_case
-    clean DB schema.
-
-13. **Update golden files and run regression tests.**
-    Update golden rows for Braxonian Planar Guards (`is_unique` fix),
-    SimPlayer rows (removed), excluded entity rows (removed). Commit updated
-    golden files. Run regression tests — zero unexpected diffs.
+10. **Update golden files and run regression tests.**
+    After steps 5–9 are committed, run `extract build` locally to populate
+    the clean DB, then run `wiki generate` and all sheet queries and compare
+    against the golden baselines. Before updating any golden file, evaluate
+    every diff: unexpected diffs indicate an implementation bug and must be
+    fixed; only intentional changes (IsUnique fix for Braxonian Planar
+    Guards, SimPlayer rows removed, excluded entity rows removed) are
+    applied to the golden files. Commit updated golden files with an
+    explanation of each intentional change. Run regression tests — zero
+    unexpected diffs.
 
 **Done when**: Regression tests pass. The registry does not exist. The
 enrichers do not exist. All consumers read the clean DB. `extract full` is
