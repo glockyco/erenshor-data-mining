@@ -3,225 +3,191 @@
 from loguru import logger
 
 from erenshor.domain.entities.spell import Spell
+from erenshor.domain.value_objects.wiki_link import AbilityLink
 from erenshor.infrastructure.database.repository import BaseRepository, RepositoryError
 
-from ._case_utils import pascal_to_snake
+# All spell scalar columns, prefixed for JOIN queries.
+# The str/end/int columns match Spell field aliases.
+_SPELL_COLUMNS = """
+    s.stable_key,
+    s.spell_name,
+    s.display_name,
+    s.wiki_page_name,
+    s.image_name,
+    s.spell_desc,
+    s.special_descriptor,
+    s.type,
+    s.line,
+    s.required_level,
+    s.mana_cost,
+    s.sim_usable,
+    s.aggro,
+    s.spell_charge_time,
+    s.cooldown,
+    s.spell_duration_in_ticks,
+    s.unstable_duration,
+    s.instant_effect,
+    s.spell_range,
+    s.self_only,
+    s.max_level_target,
+    s.group_effect,
+    s.can_hit_players,
+    s.apply_to_caster,
+    s.inflict_on_self,
+    s.target_damage,
+    s.target_healing,
+    s.caster_healing,
+    s.shielding_amt,
+    s.lifetap,
+    s.damage_type,
+    s.resist_modifier,
+    s.add_proc_stable_key,
+    s.add_proc_chance,
+    s.hp,
+    s.ac,
+    s.mana,
+    s.percent_mana_restoration,
+    s.movement_speed,
+    s.str,
+    s.dex,
+    s.end,
+    s.agi,
+    s.wis,
+    s.int,
+    s.cha,
+    s.mr,
+    s.er,
+    s.pr,
+    s.vr,
+    s.damage_shield,
+    s.haste,
+    s.percent_lifesteal,
+    s.atk_roll_modifier,
+    s.bleed_damage_percent,
+    s.root_target,
+    s.stun_target,
+    s.charm_target,
+    s.fear_target,
+    s.crowd_control_spell,
+    s.break_on_damage,
+    s.break_on_any_action,
+    s.taunt_spell,
+    s.pet_to_summon_stable_key,
+    s.status_effect_to_apply_stable_key,
+    s.reap_and_renew,
+    s.resonate_chance,
+    s.xp_bonus,
+    s.automate_attack,
+    s.worn_effect,
+    s.spell_charge_fx_index,
+    s.spell_resolve_fx_index,
+    s.spell_icon_name,
+    s.shake_dur,
+    s.shake_amp,
+    s.color_r,
+    s.color_g,
+    s.color_b,
+    s.color_a,
+    s.status_effect_message_on_player,
+    s.status_effect_message_on_npc,
+    -- add_proc link columns (from self-JOIN)
+    ap.display_name  AS add_proc_display_name,
+    ap.wiki_page_name AS add_proc_wiki_page_name,
+    ap.image_name    AS add_proc_image_name,
+    -- status_effect link columns (from self-JOIN)
+    se.display_name  AS status_effect_display_name,
+    se.wiki_page_name AS status_effect_wiki_page_name,
+    se.image_name    AS status_effect_image_name
+""".strip()
+
+_SPELL_JOINS = """
+    LEFT JOIN spells ap ON ap.stable_key = s.add_proc_stable_key
+    LEFT JOIN spells se ON se.stable_key = s.status_effect_to_apply_stable_key
+"""
+
+
+def _spell_from_row(row: object) -> Spell:
+    """Build a Spell entity from a joined query row, populating pre-built link fields."""
+    d = dict(row)  # type: ignore[call-overload]
+
+    # Extract and remove link columns from dict before Pydantic validation
+    add_proc_display = d.pop("add_proc_display_name", None)
+    add_proc_wiki = d.pop("add_proc_wiki_page_name", None)
+    add_proc_image = d.pop("add_proc_image_name", None)
+    se_display = d.pop("status_effect_display_name", None)
+    se_wiki = d.pop("status_effect_wiki_page_name", None)
+    se_image = d.pop("status_effect_image_name", None)
+
+    spell = Spell.model_validate(d)
+
+    if add_proc_display is not None:
+        spell.add_proc_link = AbilityLink(
+            page_title=str(add_proc_wiki) if add_proc_wiki else None,
+            display_name=str(add_proc_display),
+            image_name=str(add_proc_image) if add_proc_image else None,
+        )
+
+    if se_display is not None:
+        spell.status_effect_link = AbilityLink(
+            page_title=str(se_wiki) if se_wiki else None,
+            display_name=str(se_display),
+            image_name=str(se_image) if se_image else None,
+        )
+
+    return spell
 
 
 class SpellRepository(BaseRepository[Spell]):
     """Repository for spell-specific database queries.
 
-    Add specialized query methods here as needed for wiki generation,
-    Google Sheets export, or other pipeline features.
-
-    All queries should use raw SQL via self._execute_raw().
+    All queries target the clean snake_case database written by ``extract build``.
     """
 
     def get_spells_for_wiki_generation(self) -> list[Spell]:
         """Get all spells for wiki page generation.
 
-        Returns all spells with basic fields populated.
-
-        Filters out spells with blank/missing names (data quality issue).
-
-        Used by: Spell page generators (damage spells, buffs, debuffs, etc.)
+        The clean DB already excludes blank-named spells. add_proc_link and
+        status_effect_link are populated via self-JOINs so section generators
+        never need a resolver.
 
         Returns:
-            List of Spell entities with basic fields populated.
+            List of Spell entities ordered by display_name.
 
         Raises:
             RepositoryError: If query execution fails.
         """
-        query = """
-            SELECT
-                StableKey,
-                SpellDBIndex,
-                Id,
-                SpellName,
-                SpellDesc,
-                SpecialDescriptor,
-                Type,
-                Line,
-                RequiredLevel,
-                ManaCost,
-                SimUsable,
-                Aggro,
-                SpellChargeTime,
-                Cooldown,
-                SpellDurationInTicks,
-                UnstableDuration,
-                InstantEffect,
-                SpellRange,
-                SelfOnly,
-                MaxLevelTarget,
-                GroupEffect,
-                CanHitPlayers,
-                ApplyToCaster,
-                TargetDamage,
-                TargetHealing,
-                CasterHealing,
-                ShieldingAmt,
-                Lifetap,
-                DamageType,
-                ResistModifier,
-                AddProcStableKey,
-                AddProcChance,
-                HP,
-                AC,
-                Mana,
-                PercentManaRestoration,
-                MovementSpeed,
-                Str,
-                Dex,
-                "End",
-                Agi,
-                Wis,
-                Int,
-                Cha,
-                MR,
-                ER,
-                PR,
-                VR,
-                DamageShield,
-                Haste,
-                PercentLifesteal,
-                AtkRollModifier,
-                BleedDamagePercent,
-                RootTarget,
-                StunTarget,
-                CharmTarget,
-                CrowdControlSpell,
-                BreakOnDamage,
-                BreakOnAnyAction,
-                TauntSpell,
-                PetToSummonStableKey,
-                StatusEffectToApplyStableKey,
-                ReapAndRenew,
-                ResonateChance,
-                XPBonus,
-                AutomateAttack,
-                WornEffect,
-                SpellChargeFXIndex,
-                SpellResolveFXIndex,
-                SpellIconName,
-                ShakeDur,
-                ShakeAmp,
-                ColorR,
-                ColorG,
-                ColorB,
-                ColorA,
-                StatusEffectMessageOnPlayer,
-                StatusEffectMessageOnNPC
-            FROM Spells
-            WHERE COALESCE(SpellName, '') != ''
-              AND COALESCE(StableKey, '') != ''
-            ORDER BY SpellName COLLATE NOCASE
+        query = f"""
+            SELECT {_SPELL_COLUMNS}
+            FROM spells s
+            {_SPELL_JOINS}
+            ORDER BY s.display_name COLLATE NOCASE
         """
 
         try:
             rows = self._execute_raw(query, ())
-            spells = [self._row_to_spell(row) for row in rows]
+            spells = [_spell_from_row(row) for row in rows]
             logger.debug(f"Retrieved {len(spells)} spells for wiki generation")
             return spells
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve spells for wiki: {e}") from e
 
     def get_spell_by_stable_key(self, stable_key: str) -> Spell | None:
-        """Get single spell by stable key with all fields.
-
-        Used by: Item enrichment (items reference spells via stable keys)
+        """Get single spell by stable key.
 
         Args:
             stable_key: Spell stable key (format: 'spell:resource_name')
 
         Returns:
-            Spell entity if found with all fields populated, None otherwise.
+            Spell entity if found, None otherwise.
 
         Raises:
             RepositoryError: If query execution fails.
         """
-        query = """
-            SELECT
-                StableKey,
-                SpellDBIndex,
-                Id,
-                SpellName,
-                SpellDesc,
-                SpecialDescriptor,
-                Type,
-                Line,
-                RequiredLevel,
-                ManaCost,
-                SimUsable,
-                Aggro,
-                SpellChargeTime,
-                Cooldown,
-                SpellDurationInTicks,
-                UnstableDuration,
-                InstantEffect,
-                SpellRange,
-                SelfOnly,
-                MaxLevelTarget,
-                GroupEffect,
-                CanHitPlayers,
-                ApplyToCaster,
-                TargetDamage,
-                TargetHealing,
-                CasterHealing,
-                ShieldingAmt,
-                Lifetap,
-                DamageType,
-                ResistModifier,
-                AddProcStableKey,
-                AddProcChance,
-                HP,
-                AC,
-                Mana,
-                PercentManaRestoration,
-                MovementSpeed,
-                Str,
-                Dex,
-                "End",
-                Agi,
-                Wis,
-                Int,
-                Cha,
-                MR,
-                ER,
-                PR,
-                VR,
-                DamageShield,
-                Haste,
-                PercentLifesteal,
-                AtkRollModifier,
-                BleedDamagePercent,
-                RootTarget,
-                StunTarget,
-                CharmTarget,
-                CrowdControlSpell,
-                BreakOnDamage,
-                BreakOnAnyAction,
-                TauntSpell,
-                PetToSummonStableKey,
-                StatusEffectToApplyStableKey,
-                ReapAndRenew,
-                ResonateChance,
-                XPBonus,
-                AutomateAttack,
-                WornEffect,
-                SpellChargeFXIndex,
-                SpellResolveFXIndex,
-                SpellIconName,
-                ShakeDur,
-                ShakeAmp,
-                ColorR,
-                ColorG,
-                ColorB,
-                ColorA,
-                StatusEffectMessageOnPlayer,
-                StatusEffectMessageOnNPC
-            FROM Spells
-            WHERE StableKey = ?
+        query = f"""
+            SELECT {_SPELL_COLUMNS}
+            FROM spells s
+            {_SPELL_JOINS}
+            WHERE s.stable_key = ?
             LIMIT 1
         """
 
@@ -229,93 +195,82 @@ class SpellRepository(BaseRepository[Spell]):
             rows = self._execute_raw(query, (stable_key,))
             if not rows:
                 return None
-            return self._row_to_spell(rows[0])
+            return _spell_from_row(rows[0])
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve spell by stable_key={stable_key}: {e}") from e
 
     def get_spell_classes(self, stable_key: str) -> list[str]:
-        """Get class restrictions for a spell from SpellClasses junction table.
+        """Get class restrictions for a spell.
 
         Args:
             stable_key: Spell stable key (format: 'spell:resource_name')
 
         Returns:
-            List of class names that can use this spell (e.g., ["Arcanist", "Duelist"]).
-            Empty list means no class restrictions (item effects, enemy abilities, etc.).
+            List of class names that can use this spell.
 
         Raises:
             RepositoryError: If query execution fails
         """
         query = """
-            SELECT ClassName
-            FROM SpellClasses
-            WHERE SpellStableKey = ?
-            ORDER BY ClassName
+            SELECT class_name
+            FROM spell_classes
+            WHERE spell_stable_key = ?
+            ORDER BY class_name
         """
 
         try:
             rows = self._execute_raw(query, (stable_key,))
-            classes = [row["ClassName"] for row in rows]
+            classes = [str(row["class_name"]) for row in rows]
             logger.debug(f"Retrieved {len(classes)} class restrictions for spell {stable_key}")
             return classes
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve spell classes for {stable_key}: {e}") from e
 
-    def get_spells_used_by_character(self, character_stable_key: str) -> list[str]:
+    def get_spells_used_by_character(self, character_stable_key: str) -> list[AbilityLink]:
         """Get spells used by a character (NPC/enemy).
 
-        Queries all character-spell junction tables (attack, buff, heal, group heal, CC, taunt).
-
-        Used by: Character enrichment for "spells" field
+        Returns pre-built AbilityLink objects so section generators can render
+        spell links without a resolver.
 
         Args:
             character_stable_key: Character stable key (format: 'character:resource_name')
 
         Returns:
-            List of spell stable keys used by this character (sorted alphabetically,
-            deduplicated if character uses spell in multiple ways)
+            List of AbilityLink objects (sorted alphabetically, deduplicated).
 
         Raises:
             RepositoryError: If query execution fails
         """
         query = """
-            SELECT DISTINCT SpellStableKey
-            FROM (
-                SELECT SpellStableKey FROM CharacterAttackSpells WHERE CharacterStableKey = ?
+            SELECT DISTINCT s.display_name, s.wiki_page_name, s.image_name
+            FROM spells s
+            WHERE s.stable_key IN (
+                SELECT spell_stable_key FROM character_attack_spells WHERE character_stable_key = ?
                 UNION
-                SELECT SpellStableKey FROM CharacterBuffSpells WHERE CharacterStableKey = ?
+                SELECT spell_stable_key FROM character_buff_spells WHERE character_stable_key = ?
                 UNION
-                SELECT SpellStableKey FROM CharacterHealSpells WHERE CharacterStableKey = ?
+                SELECT spell_stable_key FROM character_heal_spells WHERE character_stable_key = ?
                 UNION
-                SELECT SpellStableKey FROM CharacterGroupHealSpells WHERE CharacterStableKey = ?
+                SELECT spell_stable_key FROM character_group_heal_spells WHERE character_stable_key = ?
                 UNION
-                SELECT SpellStableKey FROM CharacterCCSpells WHERE CharacterStableKey = ?
+                SELECT spell_stable_key FROM character_cc_spells WHERE character_stable_key = ?
                 UNION
-                SELECT SpellStableKey FROM CharacterTauntSpells WHERE CharacterStableKey = ?
+                SELECT spell_stable_key FROM character_taunt_spells WHERE character_stable_key = ?
             )
-            ORDER BY SpellStableKey COLLATE NOCASE
+            ORDER BY s.display_name COLLATE NOCASE
         """
 
         try:
-            # Pass character_stable_key 6 times (once for each UNION query)
             rows = self._execute_raw(query, (character_stable_key,) * 6)
-            spell_keys = [str(row["SpellStableKey"]) for row in rows]
-            logger.debug(f"Found {len(spell_keys)} spells used by character '{character_stable_key}'")
-            return spell_keys
+            links = [
+                AbilityLink(
+                    page_title=str(row["wiki_page_name"]) if row["wiki_page_name"] else None,
+                    display_name=str(row["display_name"]),
+                    image_name=str(row["image_name"]) if row["image_name"] else None,
+                )
+                for row in rows
+            ]
+            logger.debug(f"Found {len(links)} spells used by character '{character_stable_key}'")
+            return links
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve spells used by character '{character_stable_key}': {e}") from e
-
-    def _row_to_spell(self, row: dict[str, object]) -> Spell:
-        """Convert database row to Spell entity.
-
-        Args:
-            row: sqlite3.Row object with Spell columns.
-
-        Returns:
-            Spell domain entity.
-        """
-        # Convert PascalCase column names to snake_case field names
-        data = {pascal_to_snake(key): value for key, value in dict(row).items()}
-
-        # Pydantic will handle validation and type conversion
-        return Spell.model_validate(data)

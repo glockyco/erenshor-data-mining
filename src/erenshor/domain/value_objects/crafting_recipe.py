@@ -1,29 +1,20 @@
-"""Crafting recipe value object."""
+"""Crafting recipe value objects."""
 
-from typing import TypedDict
+from dataclasses import dataclass, field
 
-
-class CraftingMaterial(TypedDict):
-    """Material required for crafting recipe."""
-
-    MaterialItemStableKey: str
-    MaterialQuantity: int
-    MaterialSlot: int
+from erenshor.domain.value_objects.wiki_link import ItemLink
 
 
-class CraftingReward(TypedDict):
-    """Reward produced by crafting recipe."""
+@dataclass(frozen=True)
+class CraftingRecipe:
+    """Complete crafting recipe for a mold item.
 
-    RewardItemStableKey: str
-    RewardQuantity: int
-    RewardSlot: int
+    materials is ordered by material_slot ascending.
+    results is ordered by reward_slot ascending.
 
-
-class CraftingRecipe(TypedDict):
-    """Crafting recipe with materials and rewards.
-
-    Structure returned by ItemRepository.get_crafting_recipe().
+    All item references are pre-built ItemLink objects — section generators
+    call str(link) directly without resolver lookup.
     """
 
-    materials: list[CraftingMaterial]
-    rewards: list[CraftingReward]
+    materials: list[tuple[ItemLink, int]] = field(default_factory=list)
+    results: list[tuple[ItemLink, int]] = field(default_factory=list)

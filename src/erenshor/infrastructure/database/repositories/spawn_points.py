@@ -4,14 +4,12 @@ from loguru import logger
 
 from erenshor.domain.entities.spawn_point import SpawnPoint
 from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
+from erenshor.domain.value_objects.wiki_link import ZoneLink
 from erenshor.infrastructure.database.repository import BaseRepository, RepositoryError
 
 
 class SpawnPointRepository(BaseRepository[SpawnPoint]):
     """Repository for spawn-point-specific database queries.
-
-    Add specialized query methods here as needed for wiki generation,
-    Google Sheets export, or other pipeline features.
 
     All queries should use raw SQL via self._execute_raw().
     """
@@ -20,11 +18,8 @@ class SpawnPointRepository(BaseRepository[SpawnPoint]):
         """Get all spawn point locations for a character.
 
         Returns spawn information including coordinates, zone names, respawn times,
-        and spawn chances.
-
-        All characters (both prefab and non-prefab) now have SpawnPoint records.
-        Non-prefab characters have virtual spawn points with IsDirectlyPlaced=1,
-        created during the export process.
+        and spawn chances. The zone_link on each result is pre-built from the zones
+        JOIN — section generators call str(spawn.zone_link) directly.
 
         Args:
             character_stable_key: Character stable key
@@ -35,47 +30,28 @@ class SpawnPointRepository(BaseRepository[SpawnPoint]):
 
         Raises:
             RepositoryError: If query execution fails.
-
-        Example:
-            >>> # Prefab character (e.g., wolf - spawns in multiple locations)
-            >>> repo.get_spawn_info_for_character("character:Wolf")
-            [CharacterSpawnInfo(...), CharacterSpawnInfo(...)]
-
-            >>> # Non-prefab character (e.g., unique NPC - one fixed location)
-            >>> repo.get_spawn_info_for_character("character:Blacksmith")
-            [CharacterSpawnInfo(...)]
-        """
-        return self._get_spawn_info(character_stable_key)
-
-    def _get_spawn_info(self, character_stable_key: str) -> list[CharacterSpawnInfo]:
-        """Get spawn info for any character via SpawnPoints table.
-
-        All characters (prefab and non-prefab) have SpawnPoint records.
-        Non-prefab characters have virtual spawn points with IsDirectlyPlaced=1.
-
-        Coordinates are always included. Downstream formatters decide whether
-        to display them (e.g., only when there is exactly one spawn point).
         """
         query = """
             SELECT
-                za.StableKey AS zone_stable_key,
-                sp.SpawnDelay4 AS base_respawn,
-                sp.X AS x,
-                sp.Y AS y,
-                sp.Z AS z,
-                spc.SpawnChance AS spawn_chance,
-                COALESCE(spc.IsRare, 0) AS is_rare,
-                COALESCE(c.IsUnique, 0) AS is_unique,
-                COALESCE(sp.LevelMod, 0) AS level_mod
-            FROM SpawnPoints sp
-            JOIN SpawnPointCharacters spc ON spc.SpawnPointStableKey = sp.StableKey
-            JOIN Characters c ON c.StableKey = spc.CharacterStableKey
-            LEFT JOIN Zones za ON za.SceneName = sp.Scene
-            WHERE spc.CharacterStableKey = ?
-              AND COALESCE(spc.SpawnChance, 0) > 0
-              AND sp.Scene IS NOT NULL
-              AND sp.IsEnabled = 1
-            ORDER BY za.StableKey COLLATE NOCASE
+                cs.zone_stable_key,
+                z.display_name      AS zone_display_name,
+                z.wiki_page_name    AS zone_wiki_page_name,
+                cs.spawn_delay_4    AS base_respawn,
+                cs.x,
+                cs.y,
+                cs.z,
+                cs.spawn_chance,
+                COALESCE(cs.is_rare, 0)  AS is_rare,
+                COALESCE(c.is_unique, 0) AS is_unique,
+                COALESCE(cs.level_mod, 0) AS level_mod
+            FROM character_spawns cs
+            JOIN characters c ON c.stable_key = cs.character_stable_key
+            LEFT JOIN zones z ON z.stable_key = cs.zone_stable_key
+            WHERE cs.character_stable_key = ?
+              AND COALESCE(cs.spawn_chance, 0) > 0
+              AND cs.zone_stable_key IS NOT NULL
+              AND COALESCE(cs.is_enabled, 1) = 1
+            ORDER BY cs.zone_stable_key COLLATE NOCASE
         """
 
         try:
@@ -84,9 +60,28 @@ class SpawnPointRepository(BaseRepository[SpawnPoint]):
             if not rows:
                 return []
 
-            spawn_infos = [CharacterSpawnInfo.model_validate(dict(row)) for row in rows]
-            logger.debug(f"Retrieved {len(spawn_infos)} spawn point(s) for {character_stable_key}")
+            spawn_infos = []
+            for row in rows:
+                zone_display = (
+                    str(row["zone_display_name"]) if row["zone_display_name"] else str(row["zone_stable_key"])
+                )
+                zone_wiki = str(row["zone_wiki_page_name"]) if row["zone_wiki_page_name"] else None
+                zone_link = ZoneLink(page_title=zone_wiki, display_name=zone_display)
+                spawn_infos.append(
+                    CharacterSpawnInfo(
+                        zone_link=zone_link,
+                        base_respawn=float(row["base_respawn"]) if row["base_respawn"] is not None else None,
+                        x=float(row["x"]) if row["x"] is not None else None,
+                        y=float(row["y"]) if row["y"] is not None else None,
+                        z=float(row["z"]) if row["z"] is not None else None,
+                        spawn_chance=float(row["spawn_chance"]),
+                        is_rare=bool(row["is_rare"]),
+                        is_unique=bool(row["is_unique"]),
+                        level_mod=int(row["level_mod"]),
+                    )
+                )
 
+            logger.debug(f"Retrieved {len(spawn_infos)} spawn point(s) for {character_stable_key}")
             return spawn_infos
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve spawn info for {character_stable_key}: {e}") from e

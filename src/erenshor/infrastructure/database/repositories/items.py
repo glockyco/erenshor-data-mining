@@ -4,139 +4,135 @@ from loguru import logger
 
 from erenshor.domain.entities.item import Item
 from erenshor.domain.entities.item_stats import ItemStats
-from erenshor.domain.value_objects.crafting_recipe import CraftingMaterial, CraftingRecipe, CraftingReward
+from erenshor.domain.value_objects.crafting_recipe import CraftingRecipe
+from erenshor.domain.value_objects.wiki_link import ItemLink
 from erenshor.infrastructure.database.repository import BaseRepository, RepositoryError
-from erenshor.infrastructure.database.row_types import ItemStatsRow
 
-from ._case_utils import pascal_to_snake
+
+def _item_link_from_row(row: object, prefix: str = "") -> ItemLink:
+    """Build an ItemLink from a row, with optional column prefix."""
+    d = dict(row)  # type: ignore[call-overload]
+    pn = f"{prefix}display_name"
+    pw = f"{prefix}wiki_page_name"
+    pi = f"{prefix}image_name"
+    return ItemLink(
+        page_title=str(d[pw]) if d.get(pw) else None,
+        display_name=str(d[pn]),
+        image_name=str(d[pi]) if d.get(pi) else None,
+    )
 
 
 class ItemRepository(BaseRepository[Item]):
     """Repository for item-specific database queries.
 
-    Add specialized query methods here as needed for wiki generation,
-    Google Sheets export, or other pipeline features.
-
-    All queries should use raw SQL via self._execute_raw().
+    All queries target the clean snake_case database written by ``extract build``.
     """
 
     def get_items_for_wiki_generation(self) -> list[Item]:
         """Get all items for wiki page generation.
 
-        Returns all items with basic fields populated. Does NOT include:
-        - Quality stats (use get_item_stats separately)
-        - Class restrictions (use junction table query)
-        - Crafting recipes (use junction table query)
-
-        These relationships should be enriched separately after retrieval.
-
-        Filters out items with blank/missing names (data quality issue).
-
-        Used by: Item page generators (weapons, armor, consumables, etc.)
+        The clean DB already excludes blank-named items.
 
         Returns:
-            List of Item entities with basic fields populated.
+            List of Item entities ordered by item_name.
 
         Raises:
             RepositoryError: If query execution fails.
         """
         query = """
             SELECT
-                StableKey,
-                ItemDBIndex,
-                Id,
-                ItemName,
-                ResourceName,
-                Lore,
-                RequiredSlot,
-                ThisWeaponType,
-                ItemLevel,
-                WeaponDly,
-                Shield,
-                WeaponProcChance,
-                WeaponProcOnHitStableKey,
-                IsWand,
-                WandRange,
-                WandProcChance,
-                WandEffectStableKey,
-                WandBoltColorR,
-                WandBoltColorG,
-                WandBoltColorB,
-                WandBoltColorA,
-                WandBoltSpeed,
-                WandAttackSoundName,
-                IsBow,
-                BowEffectStableKey,
-                BowProcChance,
-                BowRange,
-                BowArrowSpeed,
-                BowAttackSoundName,
-                ItemEffectOnClickStableKey,
-                ItemSkillUseStableKey,
-                TeachSpellStableKey,
-                TeachSkillStableKey,
-                AuraStableKey,
-                WornEffectStableKey,
-                SpellCastTime,
-                AssignQuestOnReadStableKey,
-                CompleteOnReadStableKey,
-                Template,
-                TemplateIngredientIds,
-                TemplateRewardIds,
-                ItemValue,
-                SellValue,
-                Stackable,
-                Disposable,
-                "Unique",
-                Relic,
-                NoTradeNoDestroy,
-                BookTitle,
-                Mining,
-                FuelSource,
-                FuelLevel,
-                SimPlayersCantGet,
-                AttackSoundName,
-                ItemIconName,
-                EquipmentToActivate,
-                HideHairWhenEquipped,
-                HideHeadWhenEquipped
-            FROM Items
-            WHERE COALESCE(ItemName, '') != ''
-              AND COALESCE(ResourceName, '') != ''
-            ORDER BY ItemName COLLATE NOCASE
+                stable_key,
+                item_name,
+                display_name,
+                wiki_page_name,
+                image_name,
+                lore,
+                required_slot,
+                this_weapon_type,
+                item_level,
+                weapon_dly,
+                shield,
+                weapon_proc_chance,
+                weapon_proc_on_hit_stable_key,
+                is_wand,
+                wand_range,
+                wand_proc_chance,
+                wand_effect_stable_key,
+                wand_bolt_color_r,
+                wand_bolt_color_g,
+                wand_bolt_color_b,
+                wand_bolt_color_a,
+                wand_bolt_speed,
+                wand_attack_sound_name,
+                is_bow,
+                bow_effect_stable_key,
+                bow_proc_chance,
+                bow_range,
+                bow_arrow_speed,
+                bow_attack_sound_name,
+                item_effect_on_click_stable_key,
+                item_skill_use_stable_key,
+                teach_spell_stable_key,
+                teach_skill_stable_key,
+                aura_stable_key,
+                worn_effect_stable_key,
+                spell_cast_time,
+                assign_quest_on_read_stable_key,
+                complete_on_read_stable_key,
+                template,
+                template_ingredient_ids,
+                template_reward_ids,
+                item_value,
+                sell_value,
+                stackable,
+                disposable,
+                is_unique,
+                relic,
+                no_trade_no_destroy,
+                book_title,
+                mining,
+                fuel_source,
+                fuel_level,
+                sim_players_cant_get,
+                attack_sound_name,
+                item_icon_name,
+                equipment_to_activate,
+                hide_hair_when_equipped,
+                hide_head_when_equipped
+            FROM items
+            ORDER BY item_name COLLATE NOCASE
         """
 
         try:
             rows = self._execute_raw(query, ())
-            items = [self._row_to_item(row) for row in rows]
+            items = [Item.model_validate(dict(row)) for row in rows]
             logger.debug(f"Retrieved {len(items)} items for wiki generation")
             return items
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve items for wiki: {e}") from e
 
     def get_item_classes(self, stable_key: str) -> list[str]:
-        """Get class restrictions for an item from ItemClasses junction table.
+        """Get class restrictions for an item.
 
         Args:
             stable_key: Item stable key (format: 'item:resource_name')
 
         Returns:
-            List of class names that can equip this item (e.g., ["Paladin", "Duelist"]).
-            Empty list means NO classes can equip (likely a data error).
+            List of class names that can equip this item.
 
         Raises:
             RepositoryError: If query execution fails
         """
         query = """
-            SELECT ClassName
-            FROM ItemClasses
-            WHERE ItemStableKey = ?
-            ORDER BY ClassName
+            SELECT class_name
+            FROM item_classes
+            WHERE item_stable_key = ?
+            ORDER BY class_name
         """
 
         try:
             rows = self._execute_raw(query, (stable_key,))
-            classes = [row["ClassName"] for row in rows]
+            classes = [str(row["class_name"]) for row in rows]
             logger.debug(f"Retrieved {len(classes)} class restrictions for item {stable_key}")
             return classes
         except Exception as e:
@@ -145,53 +141,48 @@ class ItemRepository(BaseRepository[Item]):
     def get_item_stats(self, stable_key: str) -> list[ItemStats]:
         """Get all quality variants for an item.
 
-        Returns stats for Normal, Blessed, and Godly quality levels (if they exist).
-        Most equipment has 3 variants, but some items (consumables, quest items, etc.)
-        have no stats at all.
-
         Args:
             stable_key: Item stable key (format: 'item:resource_name')
 
         Returns:
             List of ItemStats entities ordered by quality (Normal, Blessed, Godly).
-            Empty list if item has no stats.
 
         Raises:
             RepositoryError: If query execution fails
         """
         query = """
             SELECT
-                ItemStableKey,
-                Quality,
-                WeaponDmg,
-                HP,
-                AC,
-                Mana,
-                Str,
-                "End",
-                Dex,
-                Agi,
-                "Int",
-                Wis,
-                Cha,
-                Res,
-                MR,
-                ER,
-                PR,
-                VR,
-                StrScaling,
-                EndScaling,
-                DexScaling,
-                AgiScaling,
-                IntScaling,
-                WisScaling,
-                ChaScaling,
-                ResistScaling,
-                MitigationScaling
-            FROM ItemStats
-            WHERE ItemStableKey = ?
+                item_stable_key,
+                quality,
+                weapon_dmg,
+                hp,
+                ac,
+                mana,
+                str,
+                end,
+                dex,
+                agi,
+                int,
+                wis,
+                cha,
+                res,
+                mr,
+                er,
+                pr,
+                vr,
+                str_scaling,
+                end_scaling,
+                dex_scaling,
+                agi_scaling,
+                int_scaling,
+                wis_scaling,
+                cha_scaling,
+                resist_scaling,
+                mitigation_scaling
+            FROM item_stats
+            WHERE item_stable_key = ?
             ORDER BY
-                CASE Quality
+                CASE quality
                     WHEN 'Normal' THEN 1
                     WHEN 'Blessed' THEN 2
                     WHEN 'Godly' THEN 3
@@ -201,110 +192,111 @@ class ItemRepository(BaseRepository[Item]):
 
         try:
             rows = self._execute_raw(query, (stable_key,))
-            stats = [self._row_to_item_stats(row) for row in rows]
+            stats = [ItemStats.model_validate(dict(row)) for row in rows]
             logger.debug(f"Retrieved {len(stats)} stat variants for item '{stable_key}'")
             return stats
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve stats for item '{stable_key}': {e}") from e
 
-    def get_items_producing_item(self, item_stable_key: str) -> list[str]:
+    def get_items_producing_item(self, item_stable_key: str) -> list[ItemLink]:
         """Get items (molds) that produce the given item via crafting.
 
-        Uses CraftingRewards table to find molds that produce this item.
-
-        Used by: Item source enrichment
+        Returns pre-built ItemLink objects sorted by display name.
 
         Args:
             item_stable_key: Item stable key (format: 'item:resource_name')
 
         Returns:
-            List of item stable keys
+            List of ItemLink objects for molds that produce this item.
 
         Raises:
             RepositoryError: If query execution fails
         """
         query = """
-            SELECT DISTINCT i.StableKey
-            FROM Items i
-            JOIN CraftingRewards cr ON i.StableKey = cr.RecipeItemStableKey
-            WHERE cr.RewardItemStableKey = ?
-            ORDER BY i.StableKey
+            SELECT DISTINCT i.display_name, i.wiki_page_name, i.image_name
+            FROM items i
+            JOIN crafting_rewards cr ON i.stable_key = cr.recipe_item_stable_key
+            WHERE cr.reward_item_stable_key = ?
+            ORDER BY i.display_name COLLATE NOCASE
         """
 
         try:
             rows = self._execute_raw(query, (item_stable_key,))
-            logger.debug(f"Found {len(rows)} items producing '{item_stable_key}'")
-            return [str(row["StableKey"]) for row in rows]
+            links = [_item_link_from_row(row) for row in rows]
+            logger.debug(f"Found {len(links)} items producing '{item_stable_key}'")
+            return links
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve items producing '{item_stable_key}': {e}") from e
 
-    def get_items_requiring_item(self, item_stable_key: str) -> list[str]:
+    def get_items_requiring_item(self, item_stable_key: str) -> list[ItemLink]:
         """Get items (molds) that require the given item as a crafting component.
 
-        Uses CraftingRecipes table to find molds requiring this item.
-
-        Used by: Item source enrichment
+        Returns pre-built ItemLink objects sorted by display name.
 
         Args:
             item_stable_key: Item stable key (format: 'item:resource_name')
 
         Returns:
-            List of item stable keys
+            List of ItemLink objects for molds requiring this item.
 
         Raises:
             RepositoryError: If query execution fails
         """
         query = """
-            SELECT DISTINCT i.StableKey
-            FROM Items i
-            JOIN CraftingRecipes cr ON i.StableKey = cr.RecipeItemStableKey
-            WHERE cr.MaterialItemStableKey = ?
-            ORDER BY i.StableKey
+            SELECT DISTINCT i.display_name, i.wiki_page_name, i.image_name
+            FROM items i
+            JOIN crafting_recipes cr ON i.stable_key = cr.recipe_item_stable_key
+            WHERE cr.material_item_stable_key = ?
+            ORDER BY i.display_name COLLATE NOCASE
         """
 
         try:
             rows = self._execute_raw(query, (item_stable_key,))
-            logger.debug(f"Found {len(rows)} items requiring '{item_stable_key}'")
-            return [str(row["StableKey"]) for row in rows]
+            links = [_item_link_from_row(row) for row in rows]
+            logger.debug(f"Found {len(links)} items requiring '{item_stable_key}'")
+            return links
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve items requiring '{item_stable_key}': {e}") from e
 
     def get_crafting_recipe(self, item_stable_key: str) -> CraftingRecipe | None:
         """Get complete crafting recipe for a mold item.
 
-        Retrieves materials and rewards for the given crafting recipe.
-
-        Used by: Item source enrichment (for mold items)
+        Returns a CraftingRecipe with pre-built ItemLink objects for all materials
+        and results, ordered by slot number.
 
         Args:
             item_stable_key: Item stable key (format: 'item:resource_name')
 
         Returns:
-            Dict with 'materials' and 'rewards' lists, or None if no recipe exists.
-            Materials: List of dicts with MaterialItemStableKey, MaterialQuantity, MaterialSlot
-            Rewards: List of dicts with RewardItemStableKey, RewardQuantity, RewardSlot
+            CraftingRecipe with materials and results, or None if no recipe exists.
 
         Raises:
             RepositoryError: If query execution fails
         """
         materials_query = """
             SELECT
-                MaterialItemStableKey,
-                MaterialQuantity,
-                MaterialSlot
-            FROM CraftingRecipes
-            WHERE RecipeItemStableKey = ?
-            ORDER BY MaterialSlot
+                cr.material_quantity,
+                cr.material_slot,
+                i.display_name,
+                i.wiki_page_name,
+                i.image_name
+            FROM crafting_recipes cr
+            JOIN items i ON i.stable_key = cr.material_item_stable_key
+            WHERE cr.recipe_item_stable_key = ?
+            ORDER BY cr.material_slot
         """
 
         rewards_query = """
             SELECT
-                RewardItemStableKey,
-                RewardQuantity,
-                RewardSlot
-            FROM CraftingRewards
-            WHERE RecipeItemStableKey = ?
-            ORDER BY RewardSlot
+                cr.reward_quantity,
+                cr.reward_slot,
+                i.display_name,
+                i.wiki_page_name,
+                i.image_name
+            FROM crafting_rewards cr
+            JOIN items i ON i.stable_key = cr.reward_item_stable_key
+            WHERE cr.recipe_item_stable_key = ?
+            ORDER BY cr.reward_slot
         """
 
         try:
@@ -314,222 +306,194 @@ class ItemRepository(BaseRepository[Item]):
             if not materials_rows and not rewards_rows:
                 return None
 
-            materials: list[CraftingMaterial] = [
-                {
-                    "MaterialItemStableKey": str(row["MaterialItemStableKey"]),
-                    "MaterialQuantity": int(row["MaterialQuantity"]),
-                    "MaterialSlot": int(row["MaterialSlot"]),
-                }
-                for row in materials_rows
-            ]
-
-            rewards: list[CraftingReward] = [
-                {
-                    "RewardItemStableKey": str(row["RewardItemStableKey"]),
-                    "RewardQuantity": int(row["RewardQuantity"]),
-                    "RewardSlot": int(row["RewardSlot"]),
-                }
-                for row in rewards_rows
-            ]
+            materials = [(_item_link_from_row(row), int(row["material_quantity"])) for row in materials_rows]
+            results = [(_item_link_from_row(row), int(row["reward_quantity"])) for row in rewards_rows]
 
             logger.debug(
-                f"Retrieved recipe for '{item_stable_key}': {len(materials)} materials, {len(rewards)} rewards"
+                f"Retrieved recipe for '{item_stable_key}': {len(materials)} materials, {len(results)} results"
             )
-            return {"materials": materials, "rewards": rewards}
+            return CraftingRecipe(materials=materials, results=results)
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve recipe for '{item_stable_key}': {e}") from e
 
-    def get_items_that_teach_spell(self, spell_stable_key: str) -> list[str]:
-        """Get items (spell scrolls, skill books) that teach the given spell.
+    def get_items_that_teach_spell(self, spell_stable_key: str) -> list[ItemLink]:
+        """Get items (spell scrolls) that teach the given spell.
+
+        Returns pre-built ItemLink objects sorted by display name.
 
         Args:
             spell_stable_key: Spell stable key
 
         Returns:
-            List of item stable keys.
+            List of ItemLink objects for items that teach this spell.
 
         Raises:
             RepositoryError: If query execution fails
         """
         query = """
-            SELECT StableKey
-            FROM Items
-            WHERE TeachSpellStableKey = ?
+            SELECT display_name, wiki_page_name, image_name
+            FROM items
+            WHERE teach_spell_stable_key = ?
+            ORDER BY display_name COLLATE NOCASE
         """
 
         try:
             rows = self._execute_raw(query, (spell_stable_key,))
-            result = [row["StableKey"] for row in rows]
-            logger.debug(f"Found {len(result)} items that teach spell '{spell_stable_key}'")
-            return result
+            links = [_item_link_from_row(row) for row in rows]
+            logger.debug(f"Found {len(links)} items that teach spell '{spell_stable_key}'")
+            return links
         except Exception as e:
             raise RepositoryError(f"Failed to get teaching items for spell '{spell_stable_key}': {e}") from e
 
-    def get_items_with_spell_effect(self, spell_stable_key: str) -> list[str]:
+    def get_items_with_spell_effect(self, spell_stable_key: str) -> list[ItemLink]:
         """Get items that grant the given spell/skill as an effect.
 
-        Searches across all ability effect columns:
-        - WeaponProcOnHitStableKey: Weapon procs
-        - WandEffectStableKey: Wand effects
-        - BowEffectStableKey: Bow procs
-        - ItemEffectOnClickStableKey: Click effects (clickable items)
-        - ItemSkillUseStableKey: Skill use effects
-        - AuraStableKey: Passive auras
-        - WornEffectStableKey: Worn effects (armor, jewelry)
-
-        Note: TeachSpellStableKey/TeachSkillStableKey are handled separately by get_items_that_teach_spell.
+        Returns pre-built ItemLink objects sorted by display name.
 
         Args:
             spell_stable_key: Spell stable key
 
         Returns:
-            List of item stable keys.
+            List of ItemLink objects for items with this spell as an effect.
 
         Raises:
             RepositoryError: If query execution fails
         """
         query = """
-            SELECT StableKey
-            FROM Items
+            SELECT display_name, wiki_page_name, image_name
+            FROM items
             WHERE
-                WeaponProcOnHitStableKey = ? OR
-                WandEffectStableKey = ? OR
-                BowEffectStableKey = ? OR
-                ItemEffectOnClickStableKey = ? OR
-                ItemSkillUseStableKey = ? OR
-                AuraStableKey = ? OR
-                WornEffectStableKey = ?
+                weapon_proc_on_hit_stable_key = ? OR
+                wand_effect_stable_key = ? OR
+                bow_effect_stable_key = ? OR
+                item_effect_on_click_stable_key = ? OR
+                item_skill_use_stable_key = ? OR
+                aura_stable_key = ? OR
+                worn_effect_stable_key = ?
+            ORDER BY display_name COLLATE NOCASE
         """
 
         try:
-            # Pass the stable key 7 times (one for each column)
-            params = (spell_stable_key,) * 7
-            rows = self._execute_raw(query, params)
-            result = [str(row["StableKey"]) for row in rows]
-            logger.debug(f"Found {len(result)} items with ability effect '{spell_stable_key}'")
-            return result
+            rows = self._execute_raw(query, (spell_stable_key,) * 7)
+            links = [_item_link_from_row(row) for row in rows]
+            logger.debug(f"Found {len(links)} items with ability effect '{spell_stable_key}'")
+            return links
         except Exception as e:
             raise RepositoryError(f"Failed to get items with ability effect '{spell_stable_key}': {e}") from e
 
-    def get_items_that_teach_skill(self, skill_stable_key: str) -> list[str]:
+    def get_items_that_teach_skill(self, skill_stable_key: str) -> list[ItemLink]:
         """Get items (skill books) that teach the given skill.
 
-        Searches Items.TeachSkillStableKey column for exact match.
-
-        Used by: Skill source enrichment
+        Returns pre-built ItemLink objects sorted by display name.
 
         Args:
             skill_stable_key: Skill stable key
 
         Returns:
-            List of item stable keys.
+            List of ItemLink objects for items that teach this skill.
 
         Raises:
             RepositoryError: If query execution fails
         """
         query = """
-            SELECT StableKey
-            FROM Items
-            WHERE TeachSkillStableKey = ?
+            SELECT display_name, wiki_page_name, image_name
+            FROM items
+            WHERE teach_skill_stable_key = ?
+            ORDER BY display_name COLLATE NOCASE
         """
 
         try:
             rows = self._execute_raw(query, (skill_stable_key,))
-            result = [row["StableKey"] for row in rows]
-            logger.debug(f"Found {len(result)} items that teach skill '{skill_stable_key}'")
-            return result
+            links = [_item_link_from_row(row) for row in rows]
+            logger.debug(f"Found {len(links)} items that teach skill '{skill_stable_key}'")
+            return links
         except Exception as e:
             raise RepositoryError(f"Failed to get teaching items for skill '{skill_stable_key}': {e}") from e
 
-    def get_items_with_skill_effect(self, skill_stable_key: str) -> list[str]:
+    def get_items_with_skill_effect(self, skill_stable_key: str) -> list[ItemLink]:
         """Get items that grant the given skill as an effect.
 
-        Searches the ItemSkillUseStableKey column for skills granted as item effects.
-        This is different from TeachSkillStableKey (which permanently teaches the skill).
-
-        Used by: Skill source enrichment
+        Returns pre-built ItemLink objects sorted by display name.
 
         Args:
             skill_stable_key: Skill stable key
 
         Returns:
-            List of item stable keys.
+            List of ItemLink objects for items with this skill as an effect.
 
         Raises:
             RepositoryError: If query execution fails
         """
         query = """
-            SELECT StableKey
-            FROM Items
-            WHERE ItemSkillUseStableKey = ?
+            SELECT display_name, wiki_page_name, image_name
+            FROM items
+            WHERE item_skill_use_stable_key = ?
+            ORDER BY display_name COLLATE NOCASE
         """
 
         try:
             rows = self._execute_raw(query, (skill_stable_key,))
-            result = [str(row["StableKey"]) for row in rows]
-            logger.debug(f"Found {len(result)} items with skill effect '{skill_stable_key}'")
-            return result
+            links = [_item_link_from_row(row) for row in rows]
+            logger.debug(f"Found {len(links)} items with skill effect '{skill_stable_key}'")
+            return links
         except Exception as e:
             raise RepositoryError(f"Failed to get items with skill effect '{skill_stable_key}': {e}") from e
 
-    def get_item_drops(self, source_item_stable_key: str) -> list[tuple[str, float]]:
+    def get_item_drops(self, source_item_stable_key: str) -> list[tuple[ItemLink, float]]:
         """Get items that can drop from using this item (e.g., fossil).
 
-        Used by: Item enrichment for consumables that produce random items.
+        Returns pre-built ItemLink objects with drop probabilities.
 
         Args:
-            source_item_stable_key: Item stable key of the source item (e.g., fossil)
+            source_item_stable_key: Item stable key of the source item
 
         Returns:
-            List of (dropped_item_stable_key, drop_probability) tuples,
-            sorted by probability descending.
+            List of (ItemLink, drop_probability) tuples sorted by probability descending.
 
         Raises:
             RepositoryError: If query execution fails
         """
         query = """
-            SELECT DroppedItemStableKey, DropProbability
-            FROM ItemDrops
-            WHERE SourceItemStableKey = ?
-            ORDER BY DropProbability DESC
+            SELECT i.display_name, i.wiki_page_name, i.image_name, id.drop_probability
+            FROM item_drops id
+            JOIN items i ON i.stable_key = id.dropped_item_stable_key
+            WHERE id.source_item_stable_key = ?
+            ORDER BY id.drop_probability DESC, i.display_name COLLATE NOCASE
         """
 
         try:
             rows = self._execute_raw(query, (source_item_stable_key,))
-            result = [(str(row["DroppedItemStableKey"]), float(row["DropProbability"])) for row in rows]
+            result = [(_item_link_from_row(row), float(row["drop_probability"])) for row in rows]
             logger.debug(f"Found {len(result)} item drops for '{source_item_stable_key}'")
             return result
         except Exception as e:
             raise RepositoryError(f"Failed to get item drops for '{source_item_stable_key}': {e}") from e
 
-    def get_item_sources(self, item_stable_key: str) -> list[tuple[str, float]]:
-        """Get items that can drop this item (e.g., fossils).
+    def get_item_sources(self, item_stable_key: str) -> list[tuple[ItemLink, float]]:
+        """Get items that can drop this item (e.g., fossils that produce this item).
 
-        Reverse lookup of get_item_drops - finds source items that produce
-        this item when used.
-
-        Used by: Item source enrichment (drop sources)
+        Returns pre-built ItemLink objects with drop probabilities.
 
         Args:
             item_stable_key: Item stable key of the dropped item
 
         Returns:
-            List of (source_item_stable_key, drop_probability) tuples,
-            sorted by probability descending.
+            List of (ItemLink, drop_probability) tuples sorted by probability descending.
 
         Raises:
             RepositoryError: If query execution fails
         """
         query = """
-            SELECT SourceItemStableKey, DropProbability
-            FROM ItemDrops
-            WHERE DroppedItemStableKey = ?
-            ORDER BY DropProbability DESC
+            SELECT i.display_name, i.wiki_page_name, i.image_name, id.drop_probability
+            FROM item_drops id
+            JOIN items i ON i.stable_key = id.source_item_stable_key
+            WHERE id.dropped_item_stable_key = ?
+            ORDER BY id.drop_probability DESC, i.display_name COLLATE NOCASE
         """
 
         try:
             rows = self._execute_raw(query, (item_stable_key,))
-            result = [(str(row["SourceItemStableKey"]), float(row["DropProbability"])) for row in rows]
+            result = [(_item_link_from_row(row), float(row["drop_probability"])) for row in rows]
             logger.debug(f"Found {len(result)} item sources for '{item_stable_key}'")
             return result
         except Exception as e:
@@ -537,18 +501,6 @@ class ItemRepository(BaseRepository[Item]):
 
     def is_item_obtainable(self, item_stable_key: str) -> bool:
         """Check if an item is obtainable in the game through any means.
-
-        An item is considered obtainable if it can be acquired via:
-        - Drops from characters (LootDrops.ItemStableKey)
-        - Purchase from vendors (CharacterVendorItems.ItemStableKey)
-        - Quest rewards (QuestVariants.ItemOnCompleteStableKey)
-        - Quest dialog rewards (CharacterDialogs.GiveItemStableKey)
-        - Fishing (WaterFishables.ItemStableKey)
-        - Mining (MiningNodeItems.ItemStableKey)
-        - Crafting recipes (CraftingRewards.ItemStableKey)
-        - World item bags (ItemBags.ItemStableKey)
-
-        Used by: Spell classes obtainability check (only show classes if spell is obtainable)
 
         Args:
             item_stable_key: Item stable key (format: 'item:resource_name')
@@ -559,90 +511,24 @@ class ItemRepository(BaseRepository[Item]):
         Raises:
             RepositoryError: If critical query failure occurs
         """
-        # Check all acquisition methods in a single query using EXISTS
-        obtainability_query = """
+        query = """
             SELECT 1 WHERE EXISTS (
-                -- Drops from characters (with positive drop rate)
-                SELECT 1 FROM LootDrops
-                WHERE ItemStableKey = ? AND COALESCE(DropProbability, 0.0) > 0.0
+                SELECT 1 FROM loot_drops
+                WHERE item_stable_key = ? AND drop_probability > 0.0
             ) OR EXISTS (
-                -- Purchase from vendors
-                SELECT 1 FROM CharacterVendorItems WHERE ItemStableKey = ?
+                SELECT 1 FROM character_vendor_items WHERE item_stable_key = ?
             ) OR EXISTS (
-                -- Quest rewards
-                SELECT 1 FROM QuestVariants WHERE ItemOnCompleteStableKey = ?
+                SELECT 1 FROM quest_variants WHERE item_on_complete_stable_key = ?
             ) OR EXISTS (
-                -- Quest dialog rewards
-                SELECT 1 FROM CharacterDialogs WHERE GiveItemStableKey = ?
+                SELECT 1 FROM character_dialogs WHERE give_item_stable_key = ?
             ) OR EXISTS (
-                -- Fishing
-                SELECT 1 FROM WaterFishables WHERE ItemStableKey = ?
+                SELECT 1 FROM water_fishables WHERE item_stable_key = ?
             ) OR EXISTS (
-                -- Mining
-                SELECT 1 FROM MiningNodeItems WHERE ItemStableKey = ?
+                SELECT 1 FROM mining_node_items WHERE item_stable_key = ?
             ) OR EXISTS (
-                -- Crafting
-                SELECT 1 FROM CraftingRewards WHERE RewardItemStableKey = ?
+                SELECT 1 FROM crafting_rewards WHERE reward_item_stable_key = ?
             ) OR EXISTS (
-                -- World item bags
-                SELECT 1 FROM ItemBags WHERE ItemStableKey = ?
+                SELECT 1 FROM item_bags WHERE item_stable_key = ?
             )
         """
-        return bool(self._execute_raw(obtainability_query, (item_stable_key,) * 8))
-
-    def _row_to_item_stats(self, row: ItemStatsRow) -> ItemStats:
-        """Convert database row to ItemStats entity.
-
-        Args:
-            row: Database row with ItemStats columns
-
-        Returns:
-            ItemStats entity
-        """
-        # Use model_validate with data dict (Pydantic handles aliases)
-        return ItemStats.model_validate(
-            {
-                "item_stable_key": row["ItemStableKey"],
-                "quality": row["Quality"],
-                "weapon_dmg": row["WeaponDmg"],
-                "hp": row["HP"],
-                "ac": row["AC"],
-                "mana": row["Mana"],
-                "str": row["Str"],  # Pydantic alias handles this
-                "end": row["End"],  # Pydantic alias handles this
-                "dex": row["Dex"],
-                "agi": row["Agi"],
-                "int": row["Int"],  # Pydantic alias handles this
-                "wis": row["Wis"],
-                "cha": row["Cha"],
-                "res": row["Res"],
-                "mr": row["MR"],
-                "er": row["ER"],
-                "pr": row["PR"],
-                "vr": row["VR"],
-                "str_scaling": row["StrScaling"],
-                "end_scaling": row["EndScaling"],
-                "dex_scaling": row["DexScaling"],
-                "agi_scaling": row["AgiScaling"],
-                "int_scaling": row["IntScaling"],
-                "wis_scaling": row["WisScaling"],
-                "cha_scaling": row["ChaScaling"],
-                "resist_scaling": row["ResistScaling"],
-                "mitigation_scaling": row["MitigationScaling"],
-            }
-        )
-
-    def _row_to_item(self, row: dict[str, object]) -> Item:
-        """Convert database row to Item entity.
-
-        Args:
-            row: sqlite3.Row object with Item columns.
-
-        Returns:
-            Item domain entity.
-        """
-        # Convert row to dict and transform PascalCase keys to snake_case
-        data = {pascal_to_snake(key): value for key, value in dict(row).items()}
-
-        # Pydantic will handle validation and type conversion
-        return Item.model_validate(data)
+        return bool(self._execute_raw(query, (item_stable_key,) * 8))
