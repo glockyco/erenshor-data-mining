@@ -674,21 +674,40 @@ deduplication code are deleted. Golden regression tests pass.
 deleted in the same phase that introduces the clean DB — there is no
 transitional state where both exist.
 
-Steps:
+Steps (✓ = complete):
 
-1. **Capture golden outputs** (before any code changes).
+1. ✓ **Capture golden outputs** (before any code changes).
    Run `wiki generate`, then `golden capture` to snapshot all wiki pages,
    all sheet query results, and the map spawn-points query output.
-   Commit golden files to `tests/golden/`.
+   Committed to `tests/golden/`: 2,436 wiki pages, 23 sheet CSVs, 7,904
+   map rows. Also fixed five bugs in the golden command and test harness
+   (`None`→`""` for NULL, `GROUP_CONCAT(... ORDER BY ...)` aggregate
+   syntax, atomic wiki capture, `pytest.skip` for missing golden dirs,
+   `golden_sheets_engine` fixture rename, no KNOWN_DIFFS whitelist).
 
-2. **Add `database_raw` config field.**
-   Add `database_raw` to `VariantConfig` in `schema.py` and to `config.toml`
-   for all three variants. `extract export` writes to `database_raw`; all
-   consumers read from `database` (the clean DB). The raw path is an
-   intermediate artifact, not a consumer-facing path.
+2. ✓ **Add `database_raw` config field.**
+   Added `database_raw` to `VariantConfig` in `schema.py` and to
+   `config.toml` for all three variants. `extract export` writes to
+   `database_raw`; all consumers read from `database` (the clean DB).
+   The raw path is an intermediate artifact, not a consumer-facing path.
+   Also removed `doctor`, `extract full`, and `registry` CLI commands from
+   the router, help text, `README.md`, `TROUBLESHOOTING.md`, and the
+   `debugging` skill. Note: `cli/commands/registry.py` still exists on disk
+   — it is removed as part of step 6.
 
-3. **Update `extract export` to write to `database_raw`.**
+3. ✓ **Update `extract export` to write to `database_raw`.**
    Pass `database_raw` to Unity as `dbPath` instead of `database`.
+
+   **Bootstrap note**: The existing `variants/{v}/erenshor-{v}.sqlite` is
+   the raw DB — it predates this separation and lives at the `database` path
+   rather than `database_raw`. Before running `extract build` for the first
+   time (without a fresh `extract export`), copy it manually:
+   ```
+   cp variants/main/erenshor-main.sqlite \
+      variants/main/erenshor-main-raw.sqlite
+   ```
+   After the next `extract export` this is no longer needed — Unity will
+   write directly to `database_raw`.
 
 4. **Write the Layer 2 processor** (`src/erenshor/application/processor/`).
    - `build.py` — top-level orchestrator
@@ -696,29 +715,53 @@ Steps:
    - `characters.py` — filter, dedup, `is_unique` computation
    - `entities.py` — generic processor for other entity types
    - `writer.py` — writes clean SQLite with snake_case schema
-   All entity types processed: characters, items, spells, skills, stances,
-   quests, factions, zones.
+
+   All entity types processed in dependency order: zones → factions →
+   items → spells → skills → stances → quests → characters.
+
+   The `character_deduplication` table is included in the clean DB schema,
+   mapping each merged raw stable key to its canonical stable key. No
+   current consumer reads it; it exists for diagnostics and future use.
+
+   Deduplication identity: two characters are duplicates if all scalar
+   fields, all type flags, and all relationship sets (spells, loot, vendor
+   items, dialogs) match after mapping is applied. Spawn locations are NOT
+   part of identity — they are merged into the canonical record.
+
+   `is_unique` computation: count total spawn points per `display_name`
+   group across all canonical characters. A character is unique if its
+   group has exactly one spawn point in the world. This replaces the C#
+   bug where grouping by `NPCName` misclassified renamed characters (e.g.,
+   Braxonian Planar Guards).
 
 5. **Add `extract build` CLI command.**
    Reads `database_raw`, writes `database`. Standalone: does not require
-   a fresh `extract export`.
+   a fresh `extract export`. Fails fast if `database_raw` does not exist,
+   with a clear message pointing to `extract export` or the manual copy
+   described in step 3.
 
 6. **Delete registry, enrichers, domain enriched data, and CLI commands.**
    `registry/`, `application/enrichers/`, `domain/enriched_data/` — all
-   deleted. `src/erenshor/cli/commands/registry.py` deleted. Registry health
-   section removed from `doctor` command. Their tests deleted too. No
+   deleted. `src/erenshor/cli/commands/registry.py` deleted (this file
+   still exists on disk despite being removed from the CLI router in
+   step 2 — it must be deleted here). Their tests deleted too. No
    transitional compatibility shim.
 
 7. **Decompose `_create_wiki_service()` in `wiki.py`.**
-   The factory currently wires `RegistryResolver` for all three wiki commands
-   (fetch, generate, deploy). Remove the registry from all three. `fetch`
-   and `deploy` do not need it; `generate` reads from the clean DB directly.
+   The factory currently wires `RegistryResolver` for all three wiki
+   commands (fetch, generate, deploy). Remove the registry from all three.
+   `fetch` and `deploy` do not need it; `generate` reads from the clean DB
+   directly.
 
 8. **Rewrite wiki pipeline to read from clean DB.**
    Remove enricher instantiation from `entities.py`. Delete
    `_deduplicate_characters()`. Simplify repository queries (no COALESCE,
-   no exclusion filters). All name/page resolution becomes direct attribute
-   access on clean DB rows.
+   no exclusion filters — the clean DB has no nulls or excluded entities).
+   All name/page resolution becomes direct attribute access on clean DB rows
+   (`character.display_name`, `character.wiki_page_name`, etc.). The
+   `sections/character.py` generator makes 13 distinct resolver calls that
+   all become direct column reads. Remove `pascal_to_snake()` conversion
+   from all repositories.
 
 9. **Update `database_has_items` precondition.**
    After Phase 1 the clean DB has snake_case table names. Change the check
@@ -735,8 +778,8 @@ Steps:
 
 12. **Update `scripts/` directory.**
     `validate_database.py`, `compare_variants.py`, `zone_discrepancy_report.py`
-    all use PascalCase table/column names directly. Update for snake_case clean
-    DB schema.
+    all use PascalCase table/column names directly. Update for snake_case
+    clean DB schema.
 
 13. **Update golden files and run regression tests.**
     Update golden rows for Braxonian Planar Guards (`is_unique` fix),
