@@ -81,12 +81,12 @@ def get_counts(db_path: Path) -> dict[str, int]:
 
     counts = {}
     tables = [
-        ("Items", "Items"),
-        ("Spells", "Spells"),
-        ("Skills", "Skills"),
-        ("Characters", "Characters"),
-        ("Quests", "Quests"),
-        ("Zones", "Zones"),
+        ("Items", "items"),
+        ("Spells", "spells"),
+        ("Skills", "skills"),
+        ("Characters", "characters"),
+        ("Quests", "quests"),
+        ("Zones", "zones"),
     ]
 
     for name, table in tables:
@@ -106,13 +106,13 @@ def compare_items(base_db: Path, new_db: Path) -> list[dict[str, Any]]:
 
     cursor.execute("""
         SELECT
-            ItemName,
-            RequiredSlot,
-            ItemLevel,
-            Lore
-        FROM Items
-        WHERE ResourceName NOT IN (SELECT ResourceName FROM base.Items)
-        ORDER BY RequiredSlot, ItemLevel, ItemName
+            display_name,
+            required_slot,
+            item_level,
+            lore
+        FROM items
+        WHERE resource_name NOT IN (SELECT resource_name FROM base.items)
+        ORDER BY required_slot, item_level, display_name
     """)
 
     results = []
@@ -145,12 +145,12 @@ def compare_spells(base_db: Path, new_db: Path) -> list[dict[str, Any]]:
 
     cursor.execute("""
         SELECT
-            SpellName,
-            Type,
-            SpellDesc
-        FROM Spells
-        WHERE ResourceName NOT IN (SELECT ResourceName FROM base.Spells)
-        ORDER BY Type, SpellName
+            display_name,
+            type,
+            spell_desc
+        FROM spells
+        WHERE resource_name NOT IN (SELECT resource_name FROM base.spells)
+        ORDER BY type, display_name
     """)
 
     results = []
@@ -181,20 +181,19 @@ def compare_characters(base_db: Path, new_db: Path) -> list[dict[str, Any]]:
 
     cursor.execute("""
         SELECT
-            ch.NPCName,
-            ch.Level,
-            ch.IsNPC,
-            ch.IsVendor,
-            ch.EffectiveHP,
-            ch.StableKey,
-            COALESCE(z_spawn.ZoneName, z_char.ZoneName) as ZoneName
-        FROM Characters ch
-        LEFT JOIN SpawnPointCharacters spc ON spc.CharacterStableKey = ch.StableKey
-        LEFT JOIN SpawnPoints sp ON sp.StableKey = spc.SpawnPointStableKey
-        LEFT JOIN Zones z_spawn ON z_spawn.SceneName = sp.Scene
-        LEFT JOIN Zones z_char ON z_char.SceneName = ch.Scene
-        WHERE ch.ObjectName NOT IN (SELECT ObjectName FROM base.Characters)
-        ORDER BY ch.IsNPC DESC, ch.Level, ch.NPCName
+            ch.display_name,
+            ch.level,
+            ch.is_npc,
+            ch.is_vendor,
+            ch.effective_hp,
+            ch.stable_key,
+            z.zone_name
+        FROM characters ch
+        LEFT JOIN character_spawns cs ON cs.character_stable_key = ch.stable_key
+        LEFT JOIN zones z ON z.stable_key = cs.zone_stable_key
+        WHERE ch.object_name NOT IN (SELECT object_name FROM base.characters)
+        GROUP BY ch.stable_key
+        ORDER BY ch.is_npc DESC, ch.level, ch.display_name
     """)
 
     results = []
@@ -223,14 +222,14 @@ def compare_quests(base_db: Path, new_db: Path) -> list[dict[str, Any]]:
 
     cursor.execute("""
         SELECT
-            qv.QuestName,
-            qv.XPonComplete,
-            qv.GoldOnComplete,
-            SUBSTR(qv.QuestDesc, 1, 150) as DescPreview
-        FROM Quests q
-        LEFT JOIN QuestVariants qv ON qv.QuestStableKey = q.StableKey
-        WHERE q.DBName NOT IN (SELECT DBName FROM base.Quests)
-        ORDER BY qv.QuestName
+            qv.quest_name,
+            qv.xp_on_complete,
+            qv.gold_on_complete,
+            SUBSTR(qv.quest_desc, 1, 150) as desc_preview
+        FROM quests q
+        LEFT JOIN quest_variants qv ON qv.quest_stable_key = q.stable_key
+        WHERE q.db_name NOT IN (SELECT db_name FROM base.quests)
+        ORDER BY qv.quest_name
     """)
 
     results = []
@@ -262,11 +261,11 @@ def compare_zones(base_db: Path, new_db: Path) -> list[dict[str, Any]]:
 
     cursor.execute("""
         SELECT
-            ZoneName,
-            SceneName
-        FROM Zones
-        WHERE SceneName NOT IN (SELECT SceneName FROM base.Zones)
-        ORDER BY ZoneName
+            zone_name,
+            scene_name
+        FROM zones
+        WHERE scene_name NOT IN (SELECT scene_name FROM base.zones)
+        ORDER BY zone_name
     """)
 
     results = []

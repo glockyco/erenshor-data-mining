@@ -1,6 +1,6 @@
 SELECT
-    BookTitle,
-    PageNumber,
-    PageContent
-FROM Books
-ORDER BY BookTitle, PageNumber;
+    book_title,
+    page_number,
+    page_content
+FROM books
+ORDER BY book_title, page_number;

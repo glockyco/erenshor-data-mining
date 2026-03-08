@@ -1,18 +1,18 @@
 SELECT * FROM
 (
     SELECT
-        w.StableKey AS WaterStableKey,
-        za.ZoneName,
-        ROUND(w.X, 2) AS PositionX,
-        ROUND(w.Y, 2) AS PositionY,
-        ROUND(w.Z, 2) AS PositionZ,
-        i.ItemName,
-        MAX(CASE WHEN wf.Type = 'DayFishable' THEN ROUND(wf.DropChance, 2) END) AS 'DayFishableChance (%)',
-        MAX(CASE WHEN wf.Type = 'NightFishable' THEN ROUND(wf.DropChance, 2) END) AS 'NightFishableChance (%)'
-    FROM Waters w
-    LEFT JOIN WaterFishables wf ON w.StableKey = wf.WaterStableKey
-    LEFT JOIN Items i ON i.StableKey = wf.ItemStableKey
-    JOIN Zones za ON za.SceneName = w.Scene
-    GROUP BY w.StableKey, za.ZoneName, w.X, w.Y, w.Z, i.ItemName
+        w.stable_key AS water_stable_key,
+        z.zone_name,
+        ROUND(w.x, 2) AS position_x,
+        ROUND(w.y, 2) AS position_y,
+        ROUND(w.z, 2) AS position_z,
+        i.display_name,
+        MAX(CASE WHEN wf.type = 'DayFishable' THEN ROUND(wf.drop_chance, 2) END) AS 'DayFishableChance (%)',
+        MAX(CASE WHEN wf.type = 'NightFishable' THEN ROUND(wf.drop_chance, 2) END) AS 'NightFishableChance (%)'
+    FROM waters w
+    LEFT JOIN water_fishables wf ON w.stable_key = wf.water_stable_key
+    LEFT JOIN items i ON i.stable_key = wf.item_stable_key
+    JOIN zones z ON z.scene_name = w.scene
+    GROUP BY w.stable_key, z.zone_name, w.x, w.y, w.z, i.display_name
 )
-ORDER BY WaterStableKey, ZoneName, "DayFishableChance (%)" DESC, "NightFishableChance (%)" DESC, ItemName;
+ORDER BY water_stable_key, zone_name, "DayFishableChance (%)" DESC, "NightFishableChance (%)" DESC, display_name;

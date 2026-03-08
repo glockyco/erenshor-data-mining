@@ -1,14 +1,14 @@
 SELECT
-    za.SceneName,
-    za.ZoneName,
-    ROUND(tl.X, 2) AS PositionX,
-    ROUND(tl.Y, 2) AS PositionY,
-    ROUND(tl.Z, 2) AS PositionZ,
-    th.IsPickableAlways,
-    th.IsPickableGreater20,
-    th.IsPickableGreater30,
-    'https://erenshor-maps.wowmuch1.workers.dev/map?marker=' || tl.StableKey AS MapLink
-FROM TreasureHunting th
-JOIN TreasureLocations tl ON tl.Scene = th.ZoneName
-JOIN Zones za ON za.SceneName = th.ZoneName
-ORDER BY th.IsPickableAlways DESC, th.IsPickableGreater20 DESC, th.IsPickableGreater30;
+    z.scene_name,
+    z.zone_name,
+    ROUND(tl.x, 2) AS position_x,
+    ROUND(tl.y, 2) AS position_y,
+    ROUND(tl.z, 2) AS position_z,
+    th.is_pickable_always,
+    th.is_pickable_greater_20,
+    th.is_pickable_greater_30,
+    'https://erenshor-maps.wowmuch1.workers.dev/map?sel=marker:' || tl.stable_key AS map_link
+FROM treasure_hunting th
+JOIN treasure_locations tl ON tl.scene = th.zone_name
+JOIN zones z ON z.scene_name = th.zone_name
+ORDER BY th.is_pickable_always DESC, th.is_pickable_greater_20 DESC, th.is_pickable_greater_30;

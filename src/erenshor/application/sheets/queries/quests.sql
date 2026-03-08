@@ -1,87 +1,87 @@
 -- Consolidated quest information
 SELECT
-    qv.QuestDBIndex,
-    q.StableKey,
-    qv.QuestName,
-    qv.QuestDesc,
+    qv.quest_db_index,
+    q.stable_key,
+    qv.quest_name,
+    qv.quest_desc,
     COALESCE(
-        (SELECT GROUP_CONCAT(DISTINCT Method) FROM QuestCompletionSources WHERE QuestStableKey = q.StableKey),
+        (SELECT GROUP_CONCAT(DISTINCT method) FROM quest_completion_sources WHERE quest_stable_key = q.stable_key),
         'unknown'
-    ) AS CompletionMethods,
+    ) AS completion_methods,
 
     -- Rewards
-    qv.XPonComplete,
-    qv.GoldOnComplete,
-    reward_item.ItemName AS RewardItem,
-    next_quest_variant.QuestName AS NextQuest,
-    unlock_item.ItemName AS UnlockItemForVendor,
+    qv.xp_on_complete,
+    qv.gold_on_complete,
+    reward_item.display_name AS reward_item,
+    next_quest_variant.quest_name AS next_quest,
+    unlock_item.display_name AS unlock_item_for_vendor,
 
     -- NPC Relationships (aggregated)
-    (SELECT GROUP_CONCAT(DISTINCT c.NPCName)
-     FROM QuestCharacterRoles qcr
-     JOIN Characters c ON c.StableKey = qcr.CharacterStableKey
-     WHERE qcr.QuestStableKey = q.StableKey AND qcr.Role = 'giver'
-    ) AS GiverNPCs,
-    (SELECT GROUP_CONCAT(DISTINCT c.NPCName)
-     FROM QuestCharacterRoles qcr
-     JOIN Characters c ON c.StableKey = qcr.CharacterStableKey
-     WHERE qcr.QuestStableKey = q.StableKey AND qcr.Role = 'completer'
-    ) AS CompleterNPCs,
-    (SELECT GROUP_CONCAT(DISTINCT c.NPCName)
-     FROM QuestCharacterRoles qcr
-     JOIN Characters c ON c.StableKey = qcr.CharacterStableKey
-     WHERE qcr.QuestStableKey = q.StableKey AND qcr.Role = 'item_turnin'
-    ) AS ItemTurninNPCs,
+    (SELECT GROUP_CONCAT(DISTINCT c.display_name)
+     FROM quest_character_roles qcr
+     JOIN characters c ON c.stable_key = qcr.character_stable_key
+     WHERE qcr.quest_stable_key = q.stable_key AND qcr.role = 'giver'
+    ) AS giver_npcs,
+    (SELECT GROUP_CONCAT(DISTINCT c.display_name)
+     FROM quest_character_roles qcr
+     JOIN characters c ON c.stable_key = qcr.character_stable_key
+     WHERE qcr.quest_stable_key = q.stable_key AND qcr.role = 'completer'
+    ) AS completer_npcs,
+    (SELECT GROUP_CONCAT(DISTINCT c.display_name)
+     FROM quest_character_roles qcr
+     JOIN characters c ON c.stable_key = qcr.character_stable_key
+     WHERE qcr.quest_stable_key = q.stable_key AND qcr.role = 'item_turnin'
+    ) AS item_turnin_npcs,
 
     -- Required Items (aggregated)
-    (SELECT GROUP_CONCAT(DISTINCT i.ItemName)
-     FROM QuestRequiredItems qri
-     JOIN Items i ON i.StableKey = qri.ItemStableKey
-     WHERE qri.QuestVariantResourceName = qv.ResourceName
-    ) AS RequiredItems,
+    (SELECT GROUP_CONCAT(DISTINCT i.display_name)
+     FROM quest_required_items qri
+     JOIN items i ON i.stable_key = qri.item_stable_key
+     WHERE qri.quest_variant_resource_name = qv.resource_name
+    ) AS required_items,
 
     -- Faction Impacts (aggregated with modifier)
-    (SELECT GROUP_CONCAT(DISTINCT f.FactionName || ' (' || qfa.ModifierValue || ')')
-     FROM QuestFactionAffects qfa
-     JOIN Factions f ON f.StableKey = qfa.FactionStableKey
-     WHERE qfa.QuestVariantResourceName = qv.ResourceName
-    ) AS FactionAffects,
+    (SELECT GROUP_CONCAT(DISTINCT f.faction_name || ' (' || qfa.modifier_value || ')')
+     FROM quest_faction_affects qfa
+     JOIN factions f ON f.stable_key = qfa.faction_stable_key
+     WHERE qfa.quest_variant_resource_name = qv.resource_name
+    ) AS faction_affects,
 
     -- Quest Chains - this quest completes other quests
-    (SELECT GROUP_CONCAT(DISTINCT completed_qv.QuestName)
-     FROM QuestCompleteOtherQuests qcoq
-     JOIN QuestVariants completed_qv ON completed_qv.QuestStableKey = qcoq.CompletedQuestStableKey
-     WHERE qcoq.QuestVariantResourceName = qv.ResourceName
-    ) AS CompletesQuests,
+    (SELECT GROUP_CONCAT(DISTINCT completed_qv.quest_name)
+     FROM quest_complete_other_quests qcoq
+     JOIN quest_variants completed_qv ON completed_qv.quest_stable_key = qcoq.completed_quest_stable_key
+     WHERE qcoq.quest_variant_resource_name = qv.resource_name
+    ) AS completes_quests,
 
     -- Quest Chains - quests that complete this quest
-    (SELECT GROUP_CONCAT(DISTINCT completing_qv.QuestName)
-     FROM QuestCompleteOtherQuests qcoq
-     JOIN QuestVariants completing_qv ON completing_qv.ResourceName = qcoq.QuestVariantResourceName
-     WHERE qcoq.CompletedQuestStableKey = q.StableKey
-    ) AS CompletedByQuests,
+    (SELECT GROUP_CONCAT(DISTINCT completing_qv.quest_name)
+     FROM quest_complete_other_quests qcoq
+     JOIN quest_variants completing_qv ON completing_qv.resource_name = qcoq.quest_variant_resource_name
+     WHERE qcoq.completed_quest_stable_key = q.stable_key
+    ) AS completed_by_quests,
 
     -- Flags
-    qv.Repeatable,
-    qv.DisableQuest,
-    qv.KillTurnInHolder,
-    qv.DestroyTurnInHolder,
-    qv.DropInvulnOnHolder,
-    qv.OncePerSpawnInstance,
-    qv.AssignThisQuestOnPartialComplete,
+    qv.repeatable,
+    qv.disable_quest,
+    qv.kill_turn_in_holder,
+    qv.destroy_turn_in_holder,
+    qv.drop_invuln_on_holder,
+    qv.once_per_spawn_instance,
+    qv.assign_this_quest_on_partial_complete,
 
     -- Achievements
-    qv.SetAchievementOnGet,
-    qv.SetAchievementOnFinish,
+    qv.set_achievement_on_get,
+    qv.set_achievement_on_finish,
 
     -- Dialog
-    qv.DialogOnSuccess,
-    qv.DialogOnPartialSuccess,
-    qv.DisableText
+    qv.dialog_on_success,
+    qv.dialog_on_partial_success,
+    qv.disable_text
 
-FROM Quests q
-LEFT JOIN QuestVariants qv ON qv.QuestStableKey = q.StableKey
-LEFT JOIN Items reward_item ON reward_item.StableKey = qv.ItemOnCompleteStableKey
-LEFT JOIN Items unlock_item ON unlock_item.StableKey = qv.UnlockItemForVendorStableKey
-LEFT JOIN QuestVariants next_quest_variant ON next_quest_variant.QuestStableKey = qv.AssignNewQuestOnCompleteStableKey
-ORDER BY qv.QuestDBIndex;
+FROM quests q
+LEFT JOIN quest_variants qv ON qv.quest_stable_key = q.stable_key
+LEFT JOIN items reward_item ON reward_item.stable_key = qv.item_on_complete_stable_key
+LEFT JOIN items unlock_item ON unlock_item.stable_key = qv.unlock_item_for_vendor_stable_key
+LEFT JOIN quest_variants next_quest_variant ON next_quest_variant.quest_stable_key = qv.assign_new_quest_on_complete_stable_key
+ORDER BY qv.quest_db_index;

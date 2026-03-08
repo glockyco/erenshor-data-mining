@@ -1,12 +1,12 @@
 SELECT
-    i.StableKey AS ItemStableKey,
-    i.ItemName,
-    za.ZoneName,
-    ROUND(ib.X, 2) AS PositionX,
-    ROUND(ib.Y, 2) AS PositionY,
-    ROUND(ib.Z, 2) AS PositionZ,
-    'https://erenshor-maps.wowmuch1.workers.dev/map?marker=' || ib.StableKey AS MapLink
-FROM ItemBags ib
-JOIN Items i ON i.StableKey = ib.ItemStableKey
-JOIN Zones za ON za.SceneName = ib.Scene
-ORDER by ib.Scene, ItemName;
+    i.stable_key AS item_stable_key,
+    i.display_name,
+    z.zone_name,
+    ROUND(ib.x, 2) AS position_x,
+    ROUND(ib.y, 2) AS position_y,
+    ROUND(ib.z, 2) AS position_z,
+    'https://erenshor-maps.wowmuch1.workers.dev/map?sel=marker:' || ib.stable_key AS map_link
+FROM item_bags ib
+JOIN items i ON i.stable_key = ib.item_stable_key
+JOIN zones z ON z.scene_name = ib.scene
+ORDER BY ib.scene, i.display_name;

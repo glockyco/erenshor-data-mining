@@ -1,11 +1,11 @@
 SELECT
-    za.SceneName,
-    za.ZoneName,
-    ROUND(at.X, 2) AS PositionX,
-    ROUND(at.Y, 2) AS PositionY,
-    ROUND(at.Z, 2) AS PositionZ,
-    AchievementName,
-    'https://erenshor-maps.wowmuch1.workers.dev/map?marker=' || at.StableKey AS MapLink
-FROM AchievementTriggers at
-JOIN Zones za ON za.SceneName = at.Scene
-ORDER BY za.ZoneName;
+    z.scene_name,
+    z.zone_name,
+    ROUND(at.x, 2) AS position_x,
+    ROUND(at.y, 2) AS position_y,
+    ROUND(at.z, 2) AS position_z,
+    at.achievement_name,
+    'https://erenshor-maps.wowmuch1.workers.dev/map?sel=marker:' || at.stable_key AS map_link
+FROM achievement_triggers at
+JOIN zones z ON z.scene_name = at.scene
+ORDER BY z.zone_name;

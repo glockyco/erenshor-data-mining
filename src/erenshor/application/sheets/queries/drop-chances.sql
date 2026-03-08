@@ -1,60 +1,60 @@
 -- Drop chances from characters and items (fossils, etc.)
 WITH
     -- Item drops from consumables (e.g., Braxonian Fossil)
-    item_drops AS (
+    consumable_drops AS (
         SELECT
-            'Item' AS SourceType,
-            src.ItemName AS Source,
-            dropped.ItemName AS DroppedItem,
-            ROUND(id.DropProbability, 2) AS DropChance,
-            NULL AS ExpectedPerDrop,
-            NULL AS DropCountDistribution,
-            id.IsGuaranteed,
-            0 AS IsUnique,
-            0 AS IsVisible,
-            src.ResourceName AS SourcePrefabResource,
-            dropped.ResourceName AS ItemResourceName
-        FROM ItemDrops id
-        JOIN Items src ON id.SourceItemStableKey = src.StableKey
-        JOIN Items dropped ON id.DroppedItemStableKey = dropped.StableKey
+            'Item' AS source_type,
+            src.display_name AS source,
+            dropped.display_name AS dropped_item,
+            ROUND(id.drop_probability, 2) AS drop_chance,
+            NULL AS expected_per_drop,
+            NULL AS drop_count_distribution,
+            id.is_guaranteed,
+            0 AS is_unique,
+            0 AS is_visible,
+            src.resource_name AS source_prefab_resource,
+            dropped.resource_name AS item_resource_name
+        FROM item_drops id
+        JOIN items src ON id.source_item_stable_key = src.stable_key
+        JOIN items dropped ON id.dropped_item_stable_key = dropped.stable_key
     ),
     -- Character drops
     character_drops AS (
         SELECT
-            'Character' AS SourceType,
-            c.NPCName AS Source,
-            i.ItemName AS DroppedItem,
-            ROUND(ld.DropProbability, 2) AS DropChance,
-            ROUND(ld.ExpectedPerKill, 4) AS ExpectedPerDrop,
-            ld.DropCountDistribution,
-            ld.IsGuaranteed,
-            ld.IsUnique,
-            ld.IsVisible,
-            c.ObjectName AS SourcePrefabResource,
-            i.ResourceName AS ItemResourceName
-        FROM Characters c
-        LEFT JOIN LootDrops ld ON c.StableKey = ld.CharacterStableKey
-        INNER JOIN Items i ON ld.ItemStableKey = i.StableKey
+            'Character' AS source_type,
+            c.display_name AS source,
+            i.display_name AS dropped_item,
+            ROUND(ld.drop_probability, 2) AS drop_chance,
+            ROUND(ld.expected_per_kill, 4) AS expected_per_drop,
+            ld.drop_count_distribution,
+            ld.is_guaranteed,
+            ld.is_unique,
+            ld.is_visible,
+            c.object_name AS source_prefab_resource,
+            i.resource_name AS item_resource_name
+        FROM characters c
+        LEFT JOIN loot_drops ld ON c.stable_key = ld.character_stable_key
+        INNER JOIN items i ON ld.item_stable_key = i.stable_key
     ),
     combined AS (
-        SELECT * FROM item_drops
+        SELECT * FROM consumable_drops
         UNION ALL
         SELECT * FROM character_drops
     )
 SELECT
-    SourceType AS 'Source Type',
-    Source,
-    DroppedItem AS 'Dropped Item',
-    DropChance AS 'Drop Chance (%)',
-    ExpectedPerDrop AS 'Expected Per Drop',
-    DropCountDistribution,
-    IsGuaranteed,
-    IsUnique,
-    IsVisible,
-    SourcePrefabResource AS 'Source Prefab/Resource',
-    ItemResourceName AS 'Item Resource Name'
+    source_type AS 'Source Type',
+    source AS 'Source',
+    dropped_item AS 'Dropped Item',
+    drop_chance AS 'Drop Chance (%)',
+    expected_per_drop AS 'Expected Per Drop',
+    drop_count_distribution AS 'Drop Count Distribution',
+    is_guaranteed AS 'Is Guaranteed',
+    is_unique AS 'Is Unique',
+    is_visible AS 'Is Visible',
+    source_prefab_resource AS 'Source Prefab/Resource',
+    item_resource_name AS 'Item Resource Name'
 FROM combined
 ORDER BY
-    CASE SourceType WHEN 'Item' THEN 0 ELSE 1 END,
-    Source,
-    DropChance DESC;
+    CASE source_type WHEN 'Item' THEN 0 ELSE 1 END,
+    source,
+    drop_chance DESC;

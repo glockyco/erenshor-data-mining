@@ -33,12 +33,12 @@ def check_duplicate_ids(db_path: Path, variant: str) -> list[dict]:
 
     # Check Items
     cursor.execute("""
-        SELECT Id, COUNT(*) as Count, GROUP_CONCAT(ResourceName, ', ') as Resources
-        FROM Items
-        WHERE Id IS NOT NULL AND Id != ''
-        GROUP BY Id
+        SELECT id, COUNT(*) as count, GROUP_CONCAT(resource_name, ', ') as resources
+        FROM items
+        WHERE id IS NOT NULL AND id != ''
+        GROUP BY id
         HAVING COUNT(*) > 1
-        ORDER BY Count DESC, Id
+        ORDER BY count DESC, id
     """)
     for row in cursor.fetchall():
         issues.append(
@@ -55,12 +55,12 @@ def check_duplicate_ids(db_path: Path, variant: str) -> list[dict]:
 
     # Check Spells
     cursor.execute("""
-        SELECT Id, COUNT(*) as Count, GROUP_CONCAT(ResourceName, ', ') as Resources
-        FROM Spells
-        WHERE Id IS NOT NULL AND Id != ''
-        GROUP BY Id
+        SELECT id, COUNT(*) as count, GROUP_CONCAT(resource_name, ', ') as resources
+        FROM spells
+        WHERE id IS NOT NULL AND id != ''
+        GROUP BY id
         HAVING COUNT(*) > 1
-        ORDER BY Count DESC, Id
+        ORDER BY count DESC, id
     """)
     for row in cursor.fetchall():
         issues.append(
@@ -77,12 +77,12 @@ def check_duplicate_ids(db_path: Path, variant: str) -> list[dict]:
 
     # Check Skills
     cursor.execute("""
-        SELECT Id, COUNT(*) as Count, GROUP_CONCAT(ResourceName, ', ') as Resources
-        FROM Skills
-        WHERE Id IS NOT NULL AND Id != ''
-        GROUP BY Id
+        SELECT id, COUNT(*) as count, GROUP_CONCAT(resource_name, ', ') as resources
+        FROM skills
+        WHERE id IS NOT NULL AND id != ''
+        GROUP BY id
         HAVING COUNT(*) > 1
-        ORDER BY Count DESC, Id
+        ORDER BY count DESC, id
     """)
     for row in cursor.fetchall():
         issues.append(
@@ -97,37 +97,14 @@ def check_duplicate_ids(db_path: Path, variant: str) -> list[dict]:
             }
         )
 
-    # Check Characters (by Id, not Guid)
+    # Check Quests (via quest_variants which holds the db index)
     cursor.execute("""
-        SELECT Id, COUNT(*) as Count, GROUP_CONCAT(ObjectName, ', ') as Objects
-        FROM Characters
-        WHERE Id IS NOT NULL AND Id != ''
-        GROUP BY Id
+        SELECT quest_db_index, COUNT(*) as count, GROUP_CONCAT(quest_name, ', ') as names
+        FROM quest_variants
+        WHERE quest_db_index IS NOT NULL
+        GROUP BY quest_db_index
         HAVING COUNT(*) > 1
-        ORDER BY Count DESC, Id
-        LIMIT 10
-    """)
-    for row in cursor.fetchall():
-        issues.append(
-            {
-                "variant": variant,
-                "type": "Characters",
-                "severity": "WARNING",
-                "id": row[0],
-                "count": row[1],
-                "resources": row[2],
-                "message": f"Duplicate Character ID {row[0]} found in {row[1]} characters: {row[2]}",
-            }
-        )
-
-    # Check Quests
-    cursor.execute("""
-        SELECT QuestDBIndex, COUNT(*) as Count, GROUP_CONCAT(QuestName, ', ') as Names
-        FROM Quests
-        WHERE QuestDBIndex IS NOT NULL
-        GROUP BY QuestDBIndex
-        HAVING COUNT(*) > 1
-        ORDER BY Count DESC, QuestDBIndex
+        ORDER BY count DESC, quest_db_index
         LIMIT 10
     """)
     for row in cursor.fetchall():
@@ -156,7 +133,7 @@ def check_missing_resource_names(db_path: Path, variant: str) -> list[dict]:
 
     # Check Items
     cursor.execute("""
-        SELECT COUNT(*) FROM Items WHERE ResourceName IS NULL OR ResourceName = ''
+        SELECT COUNT(*) FROM items WHERE resource_name IS NULL OR resource_name = ''
     """)
     count = cursor.fetchone()[0]
     if count > 0:
@@ -165,13 +142,13 @@ def check_missing_resource_names(db_path: Path, variant: str) -> list[dict]:
                 "variant": variant,
                 "type": "Items",
                 "severity": "WARNING",
-                "message": f"{count} items have missing ResourceName",
+                "message": f"{count} items have missing resource_name",
             }
         )
 
     # Check Spells
     cursor.execute("""
-        SELECT COUNT(*) FROM Spells WHERE ResourceName IS NULL OR ResourceName = ''
+        SELECT COUNT(*) FROM spells WHERE resource_name IS NULL OR resource_name = ''
     """)
     count = cursor.fetchone()[0]
     if count > 0:
@@ -180,13 +157,13 @@ def check_missing_resource_names(db_path: Path, variant: str) -> list[dict]:
                 "variant": variant,
                 "type": "Spells",
                 "severity": "WARNING",
-                "message": f"{count} spells have missing ResourceName",
+                "message": f"{count} spells have missing resource_name",
             }
         )
 
     # Check Skills
     cursor.execute("""
-        SELECT COUNT(*) FROM Skills WHERE ResourceName IS NULL OR ResourceName = ''
+        SELECT COUNT(*) FROM skills WHERE resource_name IS NULL OR resource_name = ''
     """)
     count = cursor.fetchone()[0]
     if count > 0:
@@ -195,7 +172,7 @@ def check_missing_resource_names(db_path: Path, variant: str) -> list[dict]:
                 "variant": variant,
                 "type": "Skills",
                 "severity": "WARNING",
-                "message": f"{count} skills have missing ResourceName",
+                "message": f"{count} skills have missing resource_name",
             }
         )
 
