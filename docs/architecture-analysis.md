@@ -3,10 +3,10 @@
 ## Purpose
 
 This document defines the target architecture for the Erenshor data pipeline
-and how to get there safely. It supersedes the provisional analysis that
-hedged toward partial fixes. The direction is the full three-layer rewrite
-described in `docs/PRD-data-pipeline-rewrite.md`, with no compromises for
-backward compatibility.
+and how to get there safely. It is the canonical specification for the
+three-layer pipeline rewrite. `docs/PRD-data-pipeline-rewrite.md` is the
+earlier problem statement that motivated this work; this document supersedes
+it on all implementation decisions.
 
 The display name unification problem (wiki↔map links, `IsUnique` misclassifi-
 cation, sheets showing raw game names) is not a feature gap — it is a symptom
@@ -116,9 +116,7 @@ nulls and duplicates. None of this is centralised or consistent.
 
 ## 2. Target Architecture: Three-Layer Pipeline
 
-This is the architecture the codebase converges to. It is described in full
-in `docs/PRD-data-pipeline-rewrite.md`. This document adds precision on the
-migration strategy, validation, and the C# rewrite scope.
+This is the architecture the codebase converges to.
 
 ### Overview
 
