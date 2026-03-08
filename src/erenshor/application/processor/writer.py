@@ -355,7 +355,7 @@ CREATE TABLE items (
     sell_value                      INTEGER,
     stackable                       INTEGER,
     disposable                      INTEGER,
-    unique_item                     INTEGER,
+    is_unique                       INTEGER,
     relic                           INTEGER,
     no_trade_no_destroy             INTEGER,
     book_title                      TEXT,
@@ -966,7 +966,8 @@ CREATE TABLE character_quest_manager_quests (
 CREATE VIEW coordinates AS
     SELECT stable_key, scene, x, y, z, 'Character'   AS category FROM characters WHERE scene IS NOT NULL
     UNION ALL
-    SELECT stable_key, scene, x, y, z, 'SpawnPoint'  AS category FROM character_spawns WHERE scene IS NOT NULL AND spawn_point_stable_key IS NOT NULL
+    SELECT stable_key, scene, x, y, z, 'SpawnPoint'  AS category FROM character_spawns
+        WHERE scene IS NOT NULL AND spawn_point_stable_key IS NOT NULL
     UNION ALL
     SELECT stable_key, scene, x, y, z, 'Door'        AS category FROM doors
     UNION ALL

@@ -36,13 +36,15 @@ from __future__ import annotations
 
 import sqlite3
 from collections import defaultdict
+from collections.abc import Callable
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING, cast
 
 from loguru import logger
 
-from .mapping import MappingOverride
-from .writer import Writer
-
+if TYPE_CHECKING:
+    from .mapping import MappingOverride
+    from .writer import Writer
 
 # ---------------------------------------------------------------------------
 # Data structures
@@ -185,7 +187,7 @@ _FLAG_FIELDS = [
 ]
 
 
-def _dedup_key(d: _CharData) -> tuple:
+def _dedup_key(d: _CharData) -> tuple[object, ...]:
     raw = d.char.raw
     stats = tuple(raw.get(f) for f in _STAT_FIELDS)
     flags = tuple(raw.get(f) for f in _FLAG_FIELDS)
@@ -226,9 +228,7 @@ def _is_better_survivor(candidate: _CharData, current: _CharData) -> bool:
         return True
     if not c_unique and s_unique:
         return False
-    if c_rare and not s_rare:
-        return True
-    return False
+    return bool(c_rare and not s_rare)
 
 
 # ---------------------------------------------------------------------------
@@ -236,10 +236,10 @@ def _is_better_survivor(candidate: _CharData, current: _CharData) -> bool:
 # ---------------------------------------------------------------------------
 
 
-def _load_rows(conn: sqlite3.Connection, sql: str, params: tuple = ()) -> list[dict[str, object]]:
+def _load_rows(conn: sqlite3.Connection, sql: str, params: tuple[object, ...] = ()) -> list[dict[str, object]]:
     cur = conn.execute(sql, params)
     cols = [d[0] for d in cur.description]
-    return [dict(zip(cols, row)) for row in cur.fetchall()]
+    return [dict(zip(cols, row, strict=False)) for row in cur.fetchall()]
 
 
 def _load_junction_set(
@@ -402,28 +402,28 @@ def process_characters(
                 spawn_point_stable_key=str(r["SpawnPointStableKey"]),
                 zone_stable_key=zone_by_scene.get(str(scene)) if scene else None,
                 scene=str(scene) if scene else None,
-                x=r.get("X"),  # type: ignore[arg-type]
-                y=r.get("Y"),  # type: ignore[arg-type]
-                z=r.get("Z"),  # type: ignore[arg-type]
-                is_enabled=r.get("IsEnabled"),  # type: ignore[arg-type]
-                is_directly_placed=int(r.get("IsDirectlyPlaced") or 0),
-                rare_npc_chance=r.get("RareNPCChance"),  # type: ignore[arg-type]
-                level_mod=r.get("LevelMod"),  # type: ignore[arg-type]
-                spawn_delay_1=r.get("SpawnDelay1"),  # type: ignore[arg-type]
-                spawn_delay_2=r.get("SpawnDelay2"),  # type: ignore[arg-type]
-                spawn_delay_3=r.get("SpawnDelay3"),  # type: ignore[arg-type]
-                spawn_delay_4=r.get("SpawnDelay4"),  # type: ignore[arg-type]
-                staggerable=r.get("Staggerable"),  # type: ignore[arg-type]
-                stagger_mod=r.get("StaggerMod"),  # type: ignore[arg-type]
-                night_spawn=r.get("NightSpawn"),  # type: ignore[arg-type]
-                patrol_points=r.get("PatrolPoints"),  # type: ignore[arg-type]
-                loop_patrol=r.get("LoopPatrol"),  # type: ignore[arg-type]
-                random_wander_range=r.get("RandomWanderRange"),  # type: ignore[arg-type]
-                spawn_upon_quest_complete_stable_key=r.get("SpawnUponQuestCompleteStableKey"),  # type: ignore[arg-type]
-                protector_stable_key=r.get("ProtectorStableKey"),  # type: ignore[arg-type]
-                spawn_chance=float(r.get("SpawnChance") or 0.0),
-                is_common=r.get("IsCommon"),  # type: ignore[arg-type]
-                is_rare=r.get("IsRare"),  # type: ignore[arg-type]
+                x=cast("float | None", r.get("X")),
+                y=cast("float | None", r.get("Y")),
+                z=cast("float | None", r.get("Z")),
+                is_enabled=cast("int | None", r.get("IsEnabled")),
+                is_directly_placed=int(cast("int", r.get("IsDirectlyPlaced") or 0)),
+                rare_npc_chance=cast("int | None", r.get("RareNPCChance")),
+                level_mod=cast("int | None", r.get("LevelMod")),
+                spawn_delay_1=cast("float | None", r.get("SpawnDelay1")),
+                spawn_delay_2=cast("float | None", r.get("SpawnDelay2")),
+                spawn_delay_3=cast("float | None", r.get("SpawnDelay3")),
+                spawn_delay_4=cast("float | None", r.get("SpawnDelay4")),
+                staggerable=cast("int | None", r.get("Staggerable")),
+                stagger_mod=cast("float | None", r.get("StaggerMod")),
+                night_spawn=cast("int | None", r.get("NightSpawn")),
+                patrol_points=cast("str | None", r.get("PatrolPoints")),
+                loop_patrol=cast("int | None", r.get("LoopPatrol")),
+                random_wander_range=cast("float | None", r.get("RandomWanderRange")),
+                spawn_upon_quest_complete_stable_key=cast("str | None", r.get("SpawnUponQuestCompleteStableKey")),
+                protector_stable_key=cast("str | None", r.get("ProtectorStableKey")),
+                spawn_chance=float(cast("float", r.get("SpawnChance") or 0.0)),
+                is_common=cast("int | None", r.get("IsCommon")),
+                is_rare=cast("int | None", r.get("IsRare")),
             )
         )
 
@@ -454,7 +454,7 @@ def process_characters(
     tmp_loot: dict[str, set[tuple[str, float]]] = defaultdict(set)
     for r in loot_rows:
         ck = str(r["CharacterStableKey"])
-        prob = float(r["DropProbability"]) if r["DropProbability"] is not None else 0.0
+        prob = float(cast("float", r["DropProbability"])) if r["DropProbability"] is not None else 0.0
         tmp_loot[ck].add((str(r["ItemStableKey"]), prob))
     loot_by_char = {k: frozenset(v) for k, v in tmp_loot.items()}
 
@@ -513,7 +513,7 @@ def process_characters(
     # Step 5: Deduplicate
     # ------------------------------------------------------------------
     # Group by dedup key; elect canonical; collect merged records
-    groups: dict[tuple, _CharData] = {}
+    groups: dict[tuple[object, ...], _CharData] = {}
     merged_records: list[tuple[str, str, str]] = []  # (canonical_sk, merged_sk, merged_object_name)
 
     for d in char_data:
@@ -725,7 +725,7 @@ def process_characters(
     # Step 8: Write junction tables (filtered to canonical keys)
     # ------------------------------------------------------------------
 
-    def _write_spell_junction(table: str, raw_table: str, insert_fn) -> None:
+    def _write_spell_junction(table: str, raw_table: str, insert_fn: Callable[[list[dict[str, object]]], int]) -> None:
         rows = _load_rows(raw, f"SELECT CharacterStableKey, SpellStableKey FROM {raw_table}")
         rows = [r for r in rows if r["CharacterStableKey"] in canonical_keys]
         insert_fn(
@@ -905,10 +905,10 @@ def process_characters(
 
     # SpawnPointPatrolPoints — filtered to spawn points used by surviving characters
     surviving_sp_keys: set[str] = set()
-    for s in spawn_out:
-        sp = s.get("spawn_point_stable_key")
+    for spawn_row in spawn_out:
+        sp = cast("str | None", spawn_row.get("spawn_point_stable_key"))
         if sp is not None:
-            surviving_sp_keys.add(str(sp))
+            surviving_sp_keys.add(sp)
 
     pp_rows = _load_rows(raw, "SELECT * FROM SpawnPointPatrolPoints")
     pp_rows = [r for r in pp_rows if r["SpawnPointStableKey"] in surviving_sp_keys]

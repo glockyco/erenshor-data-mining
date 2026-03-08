@@ -20,15 +20,15 @@ Characters are handled separately in characters.py.
 
 from __future__ import annotations
 
-import sqlite3
 import re
-from pathlib import Path
+import sqlite3
+from typing import TYPE_CHECKING
 
 from loguru import logger
 
-from .mapping import MappingOverride
-from .writer import Writer
-
+if TYPE_CHECKING:
+    from .mapping import MappingOverride
+    from .writer import Writer
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -52,10 +52,10 @@ def _snake(name: str) -> str:
     return s.lower()
 
 
-def _rows(conn: sqlite3.Connection, sql: str, params: tuple = ()) -> list[dict[str, object]]:
+def _rows(conn: sqlite3.Connection, sql: str, params: tuple[object, ...] = ()) -> list[dict[str, object]]:
     cur = conn.execute(sql, params)
     cols = [d[0] for d in cur.description]
-    return [dict(zip(cols, row)) for row in cur.fetchall()]
+    return [dict(zip(cols, row, strict=False)) for row in cur.fetchall()]
 
 
 def _apply_mapping(
@@ -95,8 +95,8 @@ def _apply_mapping(
 def _rename_cols(rows: list[dict[str, object]], renames: dict[str, str] | None = None) -> list[dict[str, object]]:
     """Rename all keys from PascalCase to snake_case.
 
-    Optionally applies additional specific renames (e.g. 'Unique' → 'unique_item'
-    to avoid SQL reserved word collision).
+    Optionally applies additional specific renames (e.g. 'Unique' → 'is_unique'
+    to avoid SQL reserved word collision and follow boolean naming convention).
     """
     renames = renames or {}
     result = []
@@ -237,7 +237,7 @@ def process_zones(
 
     rows = _rename_cols(rows)
     writer.insert_zones(rows)
-    return {r["stable_key"] for r in rows}  # type: ignore[return-value]
+    return {str(r["stable_key"]) for r in rows}
 
 
 # ---------------------------------------------------------------------------
@@ -263,7 +263,7 @@ def process_factions(
 
     rows = _rename_cols(rows)
     writer.insert_factions(rows)
-    return {r["stable_key"] for r in rows}  # type: ignore[return-value]
+    return {str(r["stable_key"]) for r in rows}
 
 
 # ---------------------------------------------------------------------------
@@ -283,10 +283,10 @@ def process_items(
     rows = _apply_mapping(rows, "StableKey", "ItemName", mapping)
     logger.info(f"Items: {len(rows)} after exclusion")
 
-    # 'Unique' is a SQL reserved word — rename to unique_item
-    rows = _rename_cols(rows, {"Unique": "unique_item"})
+    # 'Unique' is a SQL reserved word — rename to is_unique (boolean 0/1)
+    rows = _rename_cols(rows, {"Unique": "is_unique"})
     writer.insert_items(rows)
-    valid = {r["stable_key"] for r in rows}  # type: ignore[misc]
+    valid = {str(r["stable_key"]) for r in rows}
 
     # ItemStats — no exclusion (stats aren't entities)
     stat_rows = _rows(raw, "SELECT * FROM ItemStats")
@@ -371,7 +371,7 @@ def process_spells(
 
     rows = _rename_cols(rows)
     writer.insert_spells(rows)
-    valid = {r["stable_key"] for r in rows}  # type: ignore[misc]
+    valid = {str(r["stable_key"]) for r in rows}
 
     cls_rows = _rows(raw, "SELECT * FROM SpellClasses")
     cls_rows = _filter_junction(cls_rows, "SpellStableKey", valid)
@@ -407,7 +407,7 @@ def process_skills(
     # Require2H has a digit that breaks generic snake_case conversion.
     rows = _rename_cols(rows, {"Require2H": "require_2h"})
     writer.insert_skills(rows)
-    return {r["stable_key"] for r in rows}  # type: ignore[return-value]
+    return {str(r["stable_key"]) for r in rows}
 
 
 # ---------------------------------------------------------------------------
@@ -430,7 +430,7 @@ def process_stances(
 
     rows = _rename_cols(rows)
     writer.insert_stances(rows)
-    return {r["stable_key"] for r in rows}  # type: ignore[return-value]
+    return {str(r["stable_key"]) for r in rows}
 
 
 # ---------------------------------------------------------------------------
@@ -464,7 +464,7 @@ def process_quests(
     quest_rows = _apply_mapping(quest_rows, "StableKey", "QuestName", mapping)
     logger.info(f"Quests: {len(quest_rows)} after exclusion")
 
-    valid = {r["StableKey"] for r in quest_rows}
+    valid = {str(r["StableKey"]) for r in quest_rows}
 
     # Write quests (drop QuestName — it came from the join, not the Quests table)
     quest_out = []
@@ -511,7 +511,7 @@ def process_quests(
         },
     )
     writer.insert_quest_variants(variant_rows)
-    valid_variant_names = {r["resource_name"] for r in variant_rows}  # type: ignore[misc]
+    valid_variant_names = {str(r["resource_name"]) for r in variant_rows}
 
     # QuestRequiredItems
     req_rows = _rows(raw, "SELECT * FROM QuestRequiredItems")
