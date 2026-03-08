@@ -207,13 +207,14 @@ simplified — they are deleted.
 | Component | Current role | Fate |
 |-----------|-------------|------|
 | `registry.db` | Wiki-only name/page lookup | **Deleted.** Clean DB has `display_name` and `wiki_page_name` columns. |
-| `RegistryResolver` class | Resolves stable_key → display name, page title, links | **Deleted.** Replaced by direct SQL queries on the clean DB. |
+| `RegistryResolver` class | Resolves stable_key → display name, page title, links | **Deleted.** `display_name`, `wiki_page_name`, `image_name` are columns on every clean DB entity. Wiki link objects are constructed directly from those columns — no runtime lookup service. |
 | `registry/operations.py` | Builds registry from NPCName + mapping.json | **Deleted.** Logic moves to Layer 2 Python processor. |
 | `registry/resolver.py` | Runtime lookup for wiki generators | **Deleted.** |
 | `registry/schema.py` | SQLModel entity table | **Deleted.** |
-| `application/enrichers/` | Augments Character/Item/etc. with related data | **Deleted.** The clean DB schema makes enrichment unnecessary (JOINs provide the data directly). |
-| `CharacterEnricher`, `ItemEnricher`, etc. | Per-entity enrichment services | **Deleted.** |
-| `EnrichedCharacterData` | Enrichment result object | **Deleted.** |
+| `application/enrichers/` | Augments Character/Item/etc. with related data via resolver lookups | **Deleted.** `EntityPageGenerator` assembles multi-entity data inline from direct repo calls. Enricher *classes* gone; enriched data *shapes* survive as local dataclasses. |
+| `CharacterEnricher`, `ItemEnricher`, etc. | Per-entity enrichment service classes | **Deleted.** |
+| `domain/enriched_data/` | Enrichment result DTOs | **Deleted.** Replaced by local dataclasses in `generators/pages/entities.py` assembled inline without resolver. |
+| `SourceInfo` stable-key lists | Raw stable keys in `vendors`, `drops`, `quest_rewards`, etc. | **Replaced.** `SourceInfo` fields carry pre-built `WikiLink` objects (`CharacterLink`, `ItemLink`, `QuestLink`, etc.) populated via DB JOINs at query time. Section generators iterate link objects and call `str(link)` — no lookup at generation time. |
 | `_deduplicate_characters()` in `entities.py` | In-memory dedup during page generation | **Deleted.** Deduplication happens in Layer 2. |
 | C# `Database/` record types (60+ files) | SQLite schema C# side | **Deleted.** JSON serialisation replaces them. |
 | C# `IsUnique`, `IsCommon`, `IsRare` SQL UPDATEs in `CharacterListener` | Rarity classification | **Deleted.** Moved to Layer 2 Python. |
@@ -488,17 +489,32 @@ The wiki pipeline loses its most complex components:
 - **Delete**: `application/enrichers/` package (5 files)
 - **Delete**: `domain/enriched_data/` package (5 files)
 - **Delete**: `_deduplicate_characters()` in `generators/pages/entities.py`
-- **Simplify**: `generators/pages/entities.py` — page generation becomes a
-  simple loop: load entities from DB → generate template → apply field
-  preservation → yield page
-- **Simplify**: `generators/sections/character.py` — all name/page resolution
-  becomes direct attribute access (`character.display_name`,
-  `character.wiki_page_name`) instead of `resolver.resolve_display_name(key)`
-- **Simplify**: `infrastructure/database/repositories/characters.py` — the
-  query no longer needs COALESCE or complex filtering; clean DB has no nulls
-  or excluded entities
+- **Simplify**: `generators/pages/entities.py` — no enricher classes, no
+  deduplication. Instead: load entities from DB → assemble multi-entity data
+  inline via direct repo calls → pass data packages to section generators →
+  yield page. Multi-entity data (spawn infos, loot drops, spell links, source
+  info) assembled as local dataclasses defined in `entities.py`.
+- **Simplify**: section generators (`character.py`, `item.py`, `spell.py`,
+  `skill.py`, `stance.py`) — no resolver, no enricher imports. All name/page
+  resolution becomes direct attribute access on entity fields (`entity.display_name`,
+  `entity.wiki_page_name`, `entity.image_name`). Cross-entity links (`ItemLink`,
+  `AbilityLink`, `CharacterLink`, etc.) are pre-built at query time and passed
+  in as data; section generators just call `str(link)`.
+- **Simplify**: `infrastructure/database/repositories/` — all queries use
+  snake_case clean DB schema. No COALESCE, no exclusion filters, no
+  `pascal_to_snake`. Repositories JOIN related tables and return pre-built
+  `WikiLink` objects where links are needed (e.g., spawn repo JOINs zones and
+  populates `zone_display_name`/`zone_wiki_page_name` on `CharacterSpawnInfo`;
+  item source queries return `CharacterLink`/`ItemLink`/`QuestLink` objects
+  ready for section generators to render).
+- **Keep unchanged**: `WikiLink` value objects (`ItemLink`, `AbilityLink`,
+  `StandardLink`, `QuestLink`) — these are the link rendering layer. They are
+  still constructed and rendered the same way; only the construction site moves
+  from resolver methods to direct instantiation from entity columns.
 - **Keep unchanged**: Jinja2 templates, field preservation, MediaWiki client,
-  deploy service, fetch service
+  deploy service. Fetch service loses `registry_resolver` param; the one
+  reverse-lookup (`get_stable_keys_for_page`) is replaced by an inline SQL
+  UNION across entity tables queried by `wiki_page_name`.
 
 ### Sheets
 
@@ -754,27 +770,39 @@ Steps (✓ = complete):
      and one test import from `registry.item_classifier`; all import sites are
      updated. This unblocks deletion of the registry package.
 
-   **Wiki factory (`cli/commands/wiki.py`):**
-   - Remove `RegistryResolver` import and instantiation from
-     `_create_wiki_service()`. The factory no longer builds or passes a resolver.
+   **Value objects and domain entities — carry pre-built links from DB JOINs:**
 
-   **Service layer (wiki_service.py, generate_service.py, fetch_service.py):**
-   - Remove `registry_resolver` parameter from all three constructors and
-     all call sites.
+   The resolver's link methods (`item_link`, `ability_link`, `faction_link`,
+   etc.) are removed along with the resolver. Their replacement is not a
+   service but data: repositories JOIN related tables and populate link fields
+   directly on value objects. Section generators receive pre-built `WikiLink`
+   objects and call `str(link)` — no lookup at generation time.
 
-   **Generator context (`generators/context.py`):**
-   - Remove `resolver: RegistryResolver` field from `GeneratorContext`.
-
-   **Section generators (character, item, spell, skill, stance, categories):**
-   - Remove all `RegistryResolver` imports (runtime and TYPE_CHECKING).
-   - `CharacterSectionGenerator`: replace all resolver calls with direct
-     attribute access on clean DB entities (`character.display_name`,
-     `character.wiki_page_name`, `character.image_name`). Faction and zone
-     display names come from the entity's `display_name` column; links are
-     constructed directly from stable keys without resolver lookup.
-   - `CategoryGenerator`: zone page titles for character categories come
-     from `zone.wiki_page_name` via the zone repository rather than the
-     resolver. Remove `self._resolver`.
+   Specific changes:
+   - `CharacterSpawnInfo`: add `zone_display_name: str` and
+     `zone_wiki_page_name: str` (populated by JOIN in `spawn_points.py`).
+   - `LootDropInfo`: add `item_display_name: str` and
+     `item_wiki_page_name: str` (populated by JOIN in `loot_tables.py`).
+   - `FactionModifier`: add `faction_display_name: str` and
+     `faction_wiki_page_name: str | None` (populated by JOIN in
+     `characters.py`).
+   - `Character` entity: add `my_world_faction_display_name: str | None` and
+     `my_world_faction_wiki_page_name: str | None` (populated by JOIN on load).
+   - `Spell` entity: add `add_proc_link: AbilityLink | None` and
+     `status_effect_link: AbilityLink | None` (pre-built from JOINs in
+     `spells.py`).
+   - `SourceInfo`: rewrite all fields from raw stable keys to pre-built link
+     objects (`vendors: list[CharacterLink]`, `drops: list[tuple[CharacterLink,
+     float]]`, `quest_rewards: list[QuestLink]`, `craft_sources: list[ItemLink]`,
+     etc.). Constructed in `EntityPageGenerator` from direct repo calls.
+   - `ProcInfo`: add `proc_link: AbilityLink` (replaces `stable_key` lookup
+     in section generator).
+   - `EnrichedCharacterData.spells`: change from `list[str]` (stable keys) to
+     `list[AbilityLink]` (pre-built in `EntityPageGenerator`).
+   - `EnrichedSpellData`: change `items_with_effect`, `teaching_items` from
+     `list[str]` to `list[ItemLink]`; `used_by_characters` from `list[str]`
+     to `list[CharacterLink]`; add `pet_to_summon: CharacterLink | None`,
+     `status_effect: AbilityLink | None`, `add_proc: AbilityLink | None`.
 
    **Entity page generator (`generators/pages/entities.py`):**
    - Remove all enricher imports and instantiation.
@@ -782,8 +810,37 @@ Steps (✓ = complete):
      processor; the clean DB contains only canonical characters.
    - Grouping by page title: replace `resolver.resolve_page_title(key)`
      with `entity.wiki_page_name` (a direct column on clean DB entities).
-   - All `EnrichedXxxData` types replaced with direct clean DB entities.
-     Section generators accept plain entities, not enriched wrappers.
+   - Assemble `EnrichedCharacterData`, `EnrichedItemData`, `EnrichedSpellData`,
+     etc. **inline** via direct repo calls. These data shapes survive — only the
+     enricher *classes* are deleted. The shapes move to local dataclasses
+     defined at the top of `entities.py` (not in `domain/enriched_data/`).
+   - All link objects in assembled data are pre-built from entity columns
+     (`ItemLink(page_title=item.wiki_page_name, display_name=item.display_name,
+     image_name=item.image_name)`). No resolver calls anywhere.
+
+   **Section generators (character, item, spell, skill, stance, categories):**
+   - Remove all `RegistryResolver` imports (runtime and TYPE_CHECKING).
+   - Remove resolver from constructors: `__init__(self)` with no resolver param.
+   - Replace all resolver calls with direct attribute access or pre-built link
+     objects from the data passed in. `_format_*` methods iterate link objects
+     and call `str(link)` — trivially simple.
+   - `CategoryGenerator`: use `info.zone_wiki_page_name` from
+     `CharacterSpawnInfo` (already populated by JOIN in spawn repo).
+
+   **Wiki factory (`cli/commands/wiki.py`):**
+   - Remove `RegistryResolver` import and instantiation from
+     `_create_wiki_service()`. The factory no longer builds or passes a resolver.
+
+   **Service layer (wiki_service.py, generate_service.py, fetch_service.py):**
+   - Remove `registry_resolver` parameter from all three constructors and
+     all call sites.
+   - `fetch_service.py`: replace `resolver.get_stable_keys_for_page(page_title)`
+     with an inline SQL UNION across entity tables (`characters`, `items`,
+     `spells`, `skills`, `stances`, `zones`, `factions`, `quests`) querying
+     `wiki_page_name = ?`. No new repository class needed — one place, inline.
+
+   **Generator context (`generators/context.py`):**
+   - Remove `resolver: RegistryResolver` field from `GeneratorContext`.
 
    **Helpers (`services/helpers.py`):**
    - Remove `RegistryResolver`. `group_entities_by_page_title` uses
@@ -796,8 +853,9 @@ Steps (✓ = complete):
      conversion — clean DB columns already match snake_case Pydantic field names,
      so `model_validate(dict(row))` works directly.
    - Delete `_case_utils.py` (no longer needed by any consumer).
-   - Also update the cross-entity queries used by enrichers (vendors, droppers,
-     spell users) to use snake_case table/column names.
+   - Source/cross-entity query methods (vendors, droppers, spell users, etc.)
+     return pre-built `WikiLink` objects via JOINs on `display_name` and
+     `wiki_page_name` columns — not raw stable keys.
 
    **images.py and image_processor.py:**
    - Remove `RegistryResolver` from `cli/commands/images.py` and
@@ -946,24 +1004,35 @@ pages include working map links.
 | `config.toml` | Add `database_raw` for all three variants |
 | `wiki.py` | Remove `RegistryResolver` from `_create_wiki_service()` |
 | `generators/context.py` | Remove `resolver` field |
-| `generators/pages/entities.py` | Remove enrichers, remove `_deduplicate_characters()`, group by `wiki_page_name` |
-| `generators/sections/character.py` | Direct attribute access instead of resolver calls |
-| `generators/sections/categories.py` | Use `wiki_page_name` from zone repo; import `ItemKind` from `domain.entities.item_kind` |
-| `generators/sections/item.py` | Import `ItemKind` from `domain.entities.item_kind` |
-| `generators/sections/spell.py` | Remove `RegistryResolver` TYPE_CHECKING import |
-| `generators/sections/skill.py` | Remove `RegistryResolver` TYPE_CHECKING import |
-| `generators/sections/stance.py` | Remove `RegistryResolver` TYPE_CHECKING import |
+| `generators/pages/entities.py` | Remove enrichers, remove `_deduplicate_characters()`; assemble enriched data inline via direct repo calls; group by `entity.wiki_page_name`; define local enriched dataclasses |
+| `generators/sections/character.py` | Remove resolver; use `entity.display_name`, `entity.wiki_page_name`, `entity.image_name`; use pre-built link objects from spawn/loot/spell data |
+| `generators/sections/item.py` | Remove resolver; use pre-built `WikiLink` objects from `SourceInfo`, `ProcInfo`; import `ItemKind` from `domain.entities.item_kind` |
+| `generators/sections/spell.py` | Remove resolver; use entity columns and pre-built link objects from `EnrichedSpellData` |
+| `generators/sections/skill.py` | Remove resolver TYPE_CHECKING import |
+| `generators/sections/stance.py` | Remove resolver; use pre-built `AbilityLink` list for activated_by skills |
+| `generators/sections/categories.py` | Remove resolver; use `info.zone_wiki_page_name` from `CharacterSpawnInfo`; import `ItemKind` from `domain.entities.item_kind` |
 | `generators/pages/armor_overview.py` | Import `classify_item_kind` from `domain.entities.item_kind` |
 | `generators/pages/weapons_overview.py` | Import `classify_item_kind` from `domain.entities.item_kind` |
 | `generators/item_type_display.py` | Import `ItemKind` from `domain.entities.item_kind` |
 | `services/wiki_service.py` | Remove `registry_resolver` parameter |
 | `services/generate_service.py` | Remove `registry_resolver` parameter |
-| `services/fetch_service.py` | Remove `registry_resolver` parameter; replace resolver calls |
+| `services/fetch_service.py` | Remove `registry_resolver` parameter; replace `get_stable_keys_for_page` with inline SQL UNION across entity tables by `wiki_page_name` |
 | `services/helpers.py` | Remove `RegistryResolver`; use `entity.wiki_page_name` directly |
 | `cli/commands/images.py` | Remove `RegistryResolver` |
-| `application/services/image_processor.py` | Remove resolver; query clean DB snake_case columns |
+| `application/services/image_processor.py` | Remove resolver; query clean DB snake_case columns directly |
 | `preconditions/checks/database.py` | Update `database_has_items` to check `items` (snake_case) |
-| All 9 entity repositories | Queries rewritten for snake_case clean DB; remove `pascal_to_snake` |
+| `domain/value_objects/spawn.py` `CharacterSpawnInfo` | Add `zone_display_name: str`, `zone_wiki_page_name: str` |
+| `domain/value_objects/loot.py` `LootDropInfo` | Add `item_display_name: str`, `item_wiki_page_name: str` |
+| `domain/value_objects/proc_info.py` `ProcInfo` | Add `proc_link: AbilityLink` (replaces stable_key lookup) |
+| `domain/value_objects/source_info.py` `SourceInfo` | Rewrite all fields from raw stable keys to pre-built `WikiLink` objects |
+| `domain/entities/character.py` | Add `my_world_faction_display_name: str \| None`, `my_world_faction_wiki_page_name: str \| None` |
+| `domain/entities/spell.py` | Add `add_proc_link: AbilityLink \| None`, `status_effect_link: AbilityLink \| None` |
+| `infrastructure/database/repositories/characters.py` | JOIN factions for faction display/wiki fields; JOIN for `FactionModifier` display names |
+| `infrastructure/database/repositories/spawn_points.py` | JOIN zones, populate `zone_display_name`, `zone_wiki_page_name` on `CharacterSpawnInfo` |
+| `infrastructure/database/repositories/loot_tables.py` | JOIN items, populate `item_display_name`, `item_wiki_page_name` on `LootDropInfo` |
+| `infrastructure/database/repositories/spells.py` | JOIN spells for `add_proc_link`, `status_effect_link` pre-built on `Spell` entity |
+| `infrastructure/database/repositories/items.py` | Source queries return pre-built `WikiLink` objects via JOINs on display/wiki columns |
+| All other entity repositories | Queries rewritten for snake_case clean DB; remove `pascal_to_snake` |
 | All 23 sheets SQL files | snake_case columns, no COALESCE, fix map URL format |
 | `scripts/validate_database.py` | Update SQL for snake_case clean DB |
 | `scripts/compare_variants.py` | Update SQL for snake_case clean DB |
