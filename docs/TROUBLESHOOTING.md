@@ -7,7 +7,6 @@ Comprehensive guide for diagnosing and resolving common issues in the Erenshor d
 Run these commands first to identify issues:
 
 ```bash
-erenshor doctor                  # System health check
 erenshor status                  # Pipeline status
 erenshor status --all-variants   # Multi-variant status
 ```
@@ -266,13 +265,7 @@ ls -la .erenshor/logs/
 ls -la variants/main/logs/
 ```
 
-### 2. Run Doctor
-
-```bash
-erenshor doctor
-```
-
-### 3. Check Status
+### 2. Check Status
 
 ```bash
 erenshor status --all-variants

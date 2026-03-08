@@ -37,7 +37,6 @@ ls .erenshor/logs/
 
 **Health check**:
 ```bash
-uv run erenshor doctor    # System health check
 uv run erenshor status    # Current status
 uv run erenshor config show  # View configuration
 ```

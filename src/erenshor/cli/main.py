@@ -22,7 +22,7 @@ from erenshor.infrastructure.config import ConfigLoadError, get_repo_root, load_
 from erenshor.infrastructure.logging import setup_logging
 from erenshor.infrastructure.logging.setup import LoggingSetupError
 
-from .commands import backup, extract, images, maps, mod, registry, sheets, wiki
+from .commands import backup, extract, golden, images, maps, mod, sheets, wiki
 from .context import CLIContext
 
 console = Console()
@@ -44,7 +44,7 @@ app.add_typer(maps.app, name="maps")
 app.add_typer(images.app, name="images")
 app.add_typer(backup.app, name="backup")
 app.add_typer(mod.app, name="mod")
-app.add_typer(registry.app, name="registry")
+app.add_typer(golden.app, name="golden")
 
 
 @app.callback()
@@ -255,192 +255,6 @@ def status(
 
     console.print(tools_table)
     console.print()
-
-
-@app.command()
-def doctor(
-    ctx: typer.Context,
-) -> None:
-    """Run system health check.
-
-    Performs comprehensive system health checks including:
-    - Unity installation and version
-    - Database connectivity and schema validation
-    - Configuration file validity
-    - Required tools availability (SteamCMD, AssetRipper)
-    - Credential validation
-    """
-    cli_ctx: CLIContext = ctx.obj
-
-    console.print()
-    console.print(
-        Panel.fit(
-            "[bold cyan]System Health Check[/bold cyan]",
-            border_style="cyan",
-        )
-    )
-    console.print()
-
-    all_checks_passed = True
-
-    # Check 1: Configuration files
-    console.print("[bold]Configuration Files:[/bold]")
-    config_file = cli_ctx.repo_root / "config.toml"
-    if config_file.exists():
-        console.print("  [green]\u2713[/green] config.toml exists")
-    else:
-        console.print("  [red]\u2717[/red] config.toml not found")
-        all_checks_passed = False
-
-    local_config = cli_ctx.config.global_.paths.resolved_config_local(cli_ctx.repo_root)
-    if local_config.exists():
-        console.print(f"  [green]\u2713[/green] config.local.toml exists at {local_config}")
-    else:
-        console.print("  [dim]\u2022[/dim] config.local.toml not found (optional)")
-
-    console.print()
-
-    # Check 2: Log directories
-    console.print("[bold]Log Directories:[/bold]")
-    global_logs = cli_ctx.config.global_.paths.resolved_logs(cli_ctx.repo_root)
-    if global_logs.exists():
-        if global_logs.is_dir():
-            console.print(f"  [green]\u2713[/green] Global logs directory exists at {global_logs}")
-        else:
-            console.print(f"  [red]\u2717[/red] Global logs path exists but is not a directory: {global_logs}")
-            all_checks_passed = False
-    else:
-        # Try to create it
-        try:
-            global_logs.mkdir(parents=True, exist_ok=True)
-            console.print(f"  [green]\u2713[/green] Created global logs directory at {global_logs}")
-        except Exception as e:
-            console.print(f"  [red]\u2717[/red] Cannot create global logs directory: {e}")
-            all_checks_passed = False
-
-    variant_config = cli_ctx.config.variants[cli_ctx.variant]
-    variant_logs = variant_config.resolved_logs(cli_ctx.repo_root)
-    if variant_logs.exists():
-        if variant_logs.is_dir():
-            console.print(f"  [green]\u2713[/green] Variant logs directory exists at {variant_logs}")
-        else:
-            console.print(f"  [red]\u2717[/red] Variant logs path exists but is not a directory: {variant_logs}")
-            all_checks_passed = False
-    else:
-        console.print(
-            f"  [yellow]\u26a0[/yellow] Variant logs directory not found (will be created when needed): {variant_logs}"
-        )
-
-    console.print()
-
-    # Check 3: Unity installation
-    console.print("[bold]Unity Installation:[/bold]")
-    unity_path = cli_ctx.config.global_.unity.resolved_path(cli_ctx.repo_root, validate=False)
-    if unity_path.exists():
-        console.print(f"  [green]\u2713[/green] Unity found at {unity_path}")
-        console.print(f"  [dim]  Version: {cli_ctx.config.global_.unity.version}[/dim]")
-    else:
-        console.print(f"  [red]\u2717[/red] Unity not found at {unity_path}")
-        console.print(f"  [dim]  Expected version: {cli_ctx.config.global_.unity.version}[/dim]")
-        all_checks_passed = False
-
-    console.print()
-
-    # Check 4: AssetRipper
-    console.print("[bold]AssetRipper:[/bold]")
-    assetripper_path = cli_ctx.config.global_.assetripper.resolved_path(cli_ctx.repo_root, validate=False)
-    if assetripper_path.exists():
-        console.print(f"  [green]\u2713[/green] AssetRipper found at {assetripper_path}")
-    else:
-        console.print(f"  [yellow]\u26a0[/yellow] AssetRipper not found at {assetripper_path}")
-        console.print("  [dim]  AssetRipper is only needed for extracting Unity projects from game files[/dim]")
-
-    console.print()
-
-    # Check 5: Database
-    console.print(f"[bold]Database (variant: {cli_ctx.variant}):[/bold]")
-    db_path = variant_config.resolved_database(cli_ctx.repo_root)
-    if db_path.exists():
-        console.print(f"  [green]\u2713[/green] Database found at {db_path}")
-        size_bytes = db_path.stat().st_size
-        size_mb = size_bytes / (1024 * 1024)
-        console.print(f"  [dim]  Size: {size_mb:.2f} MB[/dim]")
-    else:
-        console.print(f"  [yellow]\u26a0[/yellow] Database not found at {db_path}")
-        console.print("  [dim]  Database will be created during export[/dim]")
-
-    console.print()
-
-    # Check 6: Google Sheets credentials
-    console.print("[bold]Google Sheets Credentials:[/bold]")
-    credentials_file = cli_ctx.config.global_.google_sheets.resolved_credentials_file(cli_ctx.repo_root, validate=False)
-    if credentials_file.exists():
-        console.print(f"  [green]\u2713[/green] Credentials file found at {credentials_file}")
-    else:
-        console.print(f"  [yellow]\u26a0[/yellow] Credentials file not found at {credentials_file}")
-        console.print("  [dim]  Google Sheets credentials are only needed for sheets deployment[/dim]")
-
-    console.print()
-
-    # Check 7: Registry health
-    console.print("[bold]Registry Health:[/bold]")
-    wiki_dir = variant_config.resolved_wiki(cli_ctx.repo_root)
-    registry_db_path = wiki_dir / "registry.db"
-
-    if registry_db_path.exists():
-        from sqlmodel import Session, create_engine
-
-        from erenshor.registry.operations import count_entities_by_type, find_conflicts, validate_conflicts
-
-        mapping_json_path = cli_ctx.repo_root / "mapping.json"
-
-        engine = create_engine(f"sqlite:///{registry_db_path}")
-        with Session(engine) as session:
-            try:
-                counts = count_entities_by_type(session)
-                conflicts = find_conflicts(session)
-                _resolved, unresolved = validate_conflicts(session, mapping_json_path)
-
-                total_entities = sum(counts.values())
-
-                if not conflicts:
-                    console.print(f"  [green]✓[/green] Registry healthy ({total_entities} entities, 0 conflicts)")
-                elif not unresolved:
-                    console.print(
-                        f"  [green]✓[/green] Registry healthy ({total_entities} entities, "
-                        f"{len(conflicts)} conflicts all resolved)"
-                    )
-                else:
-                    console.print(f"  [red]✗[/red] {len(unresolved)} unresolved conflicts (of {len(conflicts)} total)")
-                    console.print("  [dim]  Run 'erenshor registry conflicts' for details[/dim]")
-                    all_checks_passed = False
-            except Exception as e:
-                console.print(f"  [red]✗[/red] Registry validation failed: {e}")
-                all_checks_passed = False
-    else:
-        console.print("  [yellow]⚠[/yellow] Registry database not found")
-        console.print("  [dim]  Run 'erenshor registry rebuild' to create it[/dim]")
-
-    console.print()
-
-    # Summary
-    if all_checks_passed:
-        console.print(
-            Panel(
-                "[bold green]All critical checks passed![/bold green]\nYour system is ready to run the pipeline.",
-                border_style="green",
-            )
-        )
-        console.print()
-    else:
-        console.print(
-            Panel(
-                "[bold red]Some checks failed![/bold red]\nPlease fix the issues above before running the pipeline.",
-                border_style="red",
-            )
-        )
-        console.print()
-        raise typer.Exit(1)
 
 
 # Config command group

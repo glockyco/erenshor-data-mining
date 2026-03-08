@@ -47,14 +47,16 @@ cp config.toml .erenshor/config.local.toml
 # Edit .erenshor/config.local.toml with your tool paths
 
 # Verify installation
-uv run erenshor doctor
+uv run erenshor status
 ```
 
 ### First Run
 
 ```bash
-# Run full extraction pipeline
-uv run erenshor extract full
+# Run extraction pipeline (download → rip → export)
+uv run erenshor extract download
+uv run erenshor extract rip
+uv run erenshor extract export
 
 # Expected output: variants/main/erenshor-main.sqlite (50MB+ database)
 
@@ -118,8 +120,10 @@ Each variant maintains separate game downloads, Unity projects, databases, sprea
 **Full Pipeline Update (After Game Patch)**
 
 ```bash
-# Run complete extraction pipeline (download → rip → export)
-uv run erenshor extract full
+# Run extraction pipeline
+uv run erenshor extract download
+uv run erenshor extract rip
+uv run erenshor extract export
 
 # Fetch existing wiki pages, generate new content, and deploy
 uv run erenshor wiki fetch
@@ -142,7 +146,9 @@ uv run erenshor extract export      # Export to SQLite
 
 ```bash
 # Update playtest variant
-uv run erenshor extract full --variant playtest
+uv run erenshor --variant playtest extract download
+uv run erenshor --variant playtest extract rip
+uv run erenshor --variant playtest extract export
 
 # Check status
 uv run erenshor status
@@ -172,11 +178,9 @@ uv run erenshor sheets deploy --all-sheets --dry-run
 # System
 uv run erenshor version             # Show version
 uv run erenshor status              # Show status
-uv run erenshor doctor              # Health check
 uv run erenshor config show         # View configuration
 
 # Extraction (download → rip → export)
-uv run erenshor extract full        # Complete pipeline
 uv run erenshor extract download    # Download from Steam
 uv run erenshor extract rip         # Extract Unity project
 uv run erenshor extract export      # Export to SQLite
