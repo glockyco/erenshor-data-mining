@@ -742,46 +742,105 @@ Steps (✓ = complete):
    check `items` (snake_case) instead of `Items` — the clean DB uses
    snake_case table names throughout.
 
-6. **Decompose `_create_wiki_service()` in `wiki.py`.**
-   The factory currently wires `RegistryResolver` for all three wiki
-   commands (fetch, generate, deploy). Remove the registry from all three.
-   `fetch` and `deploy` do not need it; `generate` reads from the clean DB
-   directly. This step must precede step 7: `wiki.py` imports from
-   `registry/`, so the package cannot be deleted while that import exists.
+6. **Rewrite wiki pipeline and delete registry/enrichers in one sweep.**
+   Steps 6–8 from the original plan are merged into a single commit because
+   `RegistryResolver` is threaded through every section generator, not just
+   the factory; there is no valid intermediate state where the factory is
+   decoupled but the generators still use the resolver.
 
-7. **Delete registry, enrichers, domain enriched data, and CLI commands.**
-   `registry/`, `application/enrichers/`, `domain/enriched_data/` — all
-   deleted. `src/erenshor/cli/commands/registry.py` deleted (this file
-   still exists on disk despite being removed from the CLI router in
-   step 2 — it must be deleted here). Their tests deleted too. No
-   transitional compatibility shim.
+   **Prerequisites within this step (done first, as part of the same commit):**
+   - Move `ItemKind` and `classify_item_kind` from `registry/item_classifier.py`
+     to `src/erenshor/domain/entities/item_kind.py`. Five wiki generator files
+     and one test import from `registry.item_classifier`; all import sites are
+     updated. This unblocks deletion of the registry package.
 
-8. **Rewrite wiki pipeline to read from clean DB.**
-   Remove enricher instantiation from `entities.py`. Delete
-   `_deduplicate_characters()`. Simplify repository queries (no COALESCE,
-   no exclusion filters — the clean DB has no nulls or excluded entities).
-   All name/page resolution becomes direct attribute access on clean DB rows
-   (`character.display_name`, `character.wiki_page_name`, etc.). The
-   `sections/character.py` generator makes 13 distinct resolver calls that
-   all become direct column reads. Remove `pascal_to_snake()` conversion
-   from all repositories.
+   **Wiki factory (`cli/commands/wiki.py`):**
+   - Remove `RegistryResolver` import and instantiation from
+     `_create_wiki_service()`. The factory no longer builds or passes a resolver.
 
-9. **Rewrite all 23 sheets SQL queries, `image_processor.py`, and scripts.**
+   **Service layer (wiki_service.py, generate_service.py, fetch_service.py):**
+   - Remove `registry_resolver` parameter from all three constructors and
+     all call sites.
+
+   **Generator context (`generators/context.py`):**
+   - Remove `resolver: RegistryResolver` field from `GeneratorContext`.
+
+   **Section generators (character, item, spell, skill, stance, categories):**
+   - Remove all `RegistryResolver` imports (runtime and TYPE_CHECKING).
+   - `CharacterSectionGenerator`: replace all resolver calls with direct
+     attribute access on clean DB entities (`character.display_name`,
+     `character.wiki_page_name`, `character.image_name`). Faction and zone
+     display names come from the entity's `display_name` column; links are
+     constructed directly from stable keys without resolver lookup.
+   - `CategoryGenerator`: zone page titles for character categories come
+     from `zone.wiki_page_name` via the zone repository rather than the
+     resolver. Remove `self._resolver`.
+
+   **Entity page generator (`generators/pages/entities.py`):**
+   - Remove all enricher imports and instantiation.
+   - Remove `_deduplicate_characters()` — deduplication is done in the
+     processor; the clean DB contains only canonical characters.
+   - Grouping by page title: replace `resolver.resolve_page_title(key)`
+     with `entity.wiki_page_name` (a direct column on clean DB entities).
+   - All `EnrichedXxxData` types replaced with direct clean DB entities.
+     Section generators accept plain entities, not enriched wrappers.
+
+   **Helpers (`services/helpers.py`):**
+   - Remove `RegistryResolver`. `group_entities_by_page_title` uses
+     `entity.wiki_page_name` directly instead of resolver lookup.
+
+   **Repositories (all 9 entity repos + `_case_utils.py`):**
+   - Rewrite all query methods for snake_case clean DB schema: table names
+     and column names lowercase. Remove `COALESCE`, SimPlayer/blank-name
+     filters (clean DB already filtered). Remove `_row_to_xxx` + `pascal_to_snake`
+     conversion — clean DB columns already match snake_case Pydantic field names,
+     so `model_validate(dict(row))` works directly.
+   - Delete `_case_utils.py` (no longer needed by any consumer).
+   - Also update the cross-entity queries used by enrichers (vendors, droppers,
+     spell users) to use snake_case table/column names.
+
+   **images.py and image_processor.py:**
+   - Remove `RegistryResolver` from `cli/commands/images.py` and
+     `application/services/image_processor.py`. The processor's
+     `discover_images()` currently queries PascalCase raw DB columns and uses
+     the resolver for `entity_name` and `image_name`. Rewrite to query the
+     clean DB (`items`, `spells`, `skills` tables, snake_case columns) and read
+     `wiki_page_name` and `image_name` directly — no resolver needed.
+
+   **Delete entirely:**
+   - `src/erenshor/registry/` (5 remaining files after `item_classifier.py` moved)
+   - `src/erenshor/application/enrichers/` (5 files)
+   - `src/erenshor/domain/enriched_data/` (5 files)
+   - `src/erenshor/cli/commands/registry.py`
+   - `src/erenshor/infrastructure/database/repositories/_case_utils.py`
+   - `tests/unit/registry/` (3 test files + `conftest.py`)
+   - `tests/unit/application/services/test_character_enricher.py`
+   - `tests/unit/application/services/test_item_enricher.py`
+
+   **Update tests:**
+   - `tests/unit/application/generators/conftest.py`: remove `mock_resolver`
+     fixture; generators no longer accept a resolver.
+   - `tests/unit/application/services/test_wiki_service.py`: remove
+     `mock_registry_resolver` fixture and its usage.
+   - Generator tests that import `ItemKind` from `registry.item_classifier`:
+     update import path to `domain.entities.item_kind`.
+
+   **Commit message**: `refactor(wiki): rewrite pipeline for clean DB, delete registry and enrichers`
+
+7. **Rewrite all 23 sheets SQL queries, `image_processor.py`, and scripts.**
    snake_case column names throughout. Remove COALESCE. Remove SimPlayer/
    exclusion WHERE clauses. Fix `?marker=` → `?sel=marker:`. Use
-   `display_name` where appropriate. Update `image_processor.py` SQL
-   (`SELECT StableKey, ItemName, ItemIconName FROM Items` → snake_case
-   clean DB schema). Update `scripts/validate_database.py`,
+   `display_name` where appropriate. Update `scripts/validate_database.py`,
    `scripts/compare_variants.py`, and `scripts/zone_discrepancy_report.py`
-   for snake_case clean DB schema. All three concerns ship in one commit
-   since they share the same schema change.
+   for snake_case clean DB schema. All concerns ship in one commit since
+   they share the same schema change.
 
-   Sequencing note: sheets SQL is done before wiki pipeline (step 8) so
-   that simpler mechanical changes precede the more complex generator
-   rewrite. Steps 8 and 9 are independent and can be done in either order.
+   Note: `image_processor.py` SQL is updated as part of step 6 (where the
+   `RegistryResolver` dependency is also removed). Step 7 covers only the
+   sheets SQL and scripts.
 
-10. **Update golden files and run regression tests.**
-    After steps 5–9 are committed, run `extract build` locally to populate
+8. **Update golden files and run regression tests.**
+    After steps 5–7 are committed, run `extract build` locally to populate
     the clean DB, then run `wiki generate` and all sheet queries and compare
     against the golden baselines. Before updating any golden file, evaluate
     every diff: unexpected diffs indicate an implementation bug and must be
@@ -860,16 +919,23 @@ pages include working map links.
 
 | Component | Lines | Notes |
 |-----------|-------|-------|
-| `registry/` Python package (6 files) | ~800 | |
+| `registry/` Python package (5 files) | ~750 | `item_classifier.py` moved, not deleted |
 | `application/enrichers/` (5 files) | ~400 | |
 | `domain/enriched_data/` (5 files) | ~150 | |
 | `_deduplicate_characters()` in `entities.py` | ~100 | |
 | `cli/commands/registry.py` | ~200 | Registry CLI command group |
 | `cli/commands/extract.py` `full` command | ~70 | Replaced by running steps individually |
 | Registry health section in `doctor` command | ~40 | `main.py` lines 387–424 |
-| `tests/unit/registry/` (3 test files) | ~300 | |
+| `infrastructure/database/repositories/_case_utils.py` | ~50 | No longer needed after snake_case clean DB |
+| `tests/unit/registry/` (3 test files + conftest) | ~300 | |
 | `tests/unit/application/services/test_character_enricher.py` | ~100 | |
 | `tests/unit/application/services/test_item_enricher.py` | ~100 | |
+
+### Phase 1: To be created
+
+| Component | Purpose |
+|-----------|---------|
+| `domain/entities/item_kind.py` | `ItemKind` + `classify_item_kind` moved from `registry/item_classifier.py` |
 
 ### Phase 1: To be simplified / updated
 
@@ -878,13 +944,27 @@ pages include working map links.
 | `extract.py` | Add `build` subcommand; update `export` to use `database_raw` |
 | `schema.py` `VariantConfig` | Add `database_raw` field and `resolved_database_raw()` method |
 | `config.toml` | Add `database_raw` for all three variants |
-| `wiki.py` | Decompose `_create_wiki_service()`; remove `RegistryResolver` from all three wiki commands |
-| `generators/pages/entities.py` | Remove enrichers, remove `_deduplicate_characters()` |
+| `wiki.py` | Remove `RegistryResolver` from `_create_wiki_service()` |
+| `generators/context.py` | Remove `resolver` field |
+| `generators/pages/entities.py` | Remove enrichers, remove `_deduplicate_characters()`, group by `wiki_page_name` |
 | `generators/sections/character.py` | Direct attribute access instead of resolver calls |
+| `generators/sections/categories.py` | Use `wiki_page_name` from zone repo; import `ItemKind` from `domain.entities.item_kind` |
+| `generators/sections/item.py` | Import `ItemKind` from `domain.entities.item_kind` |
+| `generators/sections/spell.py` | Remove `RegistryResolver` TYPE_CHECKING import |
+| `generators/sections/skill.py` | Remove `RegistryResolver` TYPE_CHECKING import |
+| `generators/sections/stance.py` | Remove `RegistryResolver` TYPE_CHECKING import |
+| `generators/pages/armor_overview.py` | Import `classify_item_kind` from `domain.entities.item_kind` |
+| `generators/pages/weapons_overview.py` | Import `classify_item_kind` from `domain.entities.item_kind` |
+| `generators/item_type_display.py` | Import `ItemKind` from `domain.entities.item_kind` |
+| `services/wiki_service.py` | Remove `registry_resolver` parameter |
+| `services/generate_service.py` | Remove `registry_resolver` parameter |
+| `services/fetch_service.py` | Remove `registry_resolver` parameter; replace resolver calls |
+| `services/helpers.py` | Remove `RegistryResolver`; use `entity.wiki_page_name` directly |
+| `cli/commands/images.py` | Remove `RegistryResolver` |
+| `application/services/image_processor.py` | Remove resolver; query clean DB snake_case columns |
 | `preconditions/checks/database.py` | Update `database_has_items` to check `items` (snake_case) |
-| All 11 Python repositories | Queries rewritten for snake_case clean DB schema |
+| All 9 entity repositories | Queries rewritten for snake_case clean DB; remove `pascal_to_snake` |
 | All 23 sheets SQL files | snake_case columns, no COALESCE, fix map URL format |
-| `application/services/image_processor.py` | Update SQL for snake_case clean DB |
 | `scripts/validate_database.py` | Update SQL for snake_case clean DB |
 | `scripts/compare_variants.py` | Update SQL for snake_case clean DB |
 | `scripts/zone_discrepancy_report.py` | Update SQL for snake_case clean DB |
