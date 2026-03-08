@@ -316,6 +316,90 @@ class ItemRepository(BaseRepository[Item]):
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve recipe for '{item_stable_key}': {e}") from e
 
+    def get_obtainable_items_that_teach_spell(self, spell_stable_key: str) -> list[ItemLink]:
+        """Get items (spell scrolls) that teach the given spell and are obtainable.
+
+        An item is obtainable if it can be acquired through at least one in-game
+        method (drop, vendor, quest reward, dialog reward, etc.).
+
+        Returns pre-built ItemLink objects sorted by display name.
+
+        Args:
+            spell_stable_key: Spell stable key
+
+        Returns:
+            List of ItemLink objects for obtainable items that teach this spell.
+
+        Raises:
+            RepositoryError: If query execution fails
+        """
+        query = """
+            SELECT i.display_name, i.wiki_page_name, i.image_name
+            FROM items i
+            WHERE i.teach_spell_stable_key = ?
+              AND (
+                EXISTS (SELECT 1 FROM loot_drops WHERE item_stable_key = i.stable_key AND drop_probability > 0.0)
+                OR EXISTS (SELECT 1 FROM character_vendor_items WHERE item_stable_key = i.stable_key)
+                OR EXISTS (SELECT 1 FROM quest_variants WHERE item_on_complete_stable_key = i.stable_key)
+                OR EXISTS (SELECT 1 FROM character_dialogs WHERE give_item_stable_key = i.stable_key)
+                OR EXISTS (SELECT 1 FROM water_fishables WHERE item_stable_key = i.stable_key)
+                OR EXISTS (SELECT 1 FROM mining_node_items WHERE item_stable_key = i.stable_key)
+                OR EXISTS (SELECT 1 FROM crafting_rewards WHERE reward_item_stable_key = i.stable_key)
+                OR EXISTS (SELECT 1 FROM item_bags WHERE item_stable_key = i.stable_key)
+              )
+            ORDER BY i.display_name COLLATE NOCASE
+        """
+
+        try:
+            rows = self._execute_raw(query, (spell_stable_key,))
+            links = [_item_link_from_row(row) for row in rows]
+            logger.debug(f"Found {len(links)} obtainable items that teach spell '{spell_stable_key}'")
+            return links
+        except Exception as e:
+            raise RepositoryError(f"Failed to get obtainable teaching items for spell '{spell_stable_key}': {e}") from e
+
+    def get_obtainable_items_that_teach_skill(self, skill_stable_key: str) -> list[ItemLink]:
+        """Get items (skill books) that teach the given skill and are obtainable.
+
+        An item is obtainable if it can be acquired through at least one in-game
+        method (drop, vendor, quest reward, dialog reward, etc.).
+
+        Returns pre-built ItemLink objects sorted by display name.
+
+        Args:
+            skill_stable_key: Skill stable key
+
+        Returns:
+            List of ItemLink objects for obtainable items that teach this skill.
+
+        Raises:
+            RepositoryError: If query execution fails
+        """
+        query = """
+            SELECT i.display_name, i.wiki_page_name, i.image_name
+            FROM items i
+            WHERE i.teach_skill_stable_key = ?
+              AND (
+                EXISTS (SELECT 1 FROM loot_drops WHERE item_stable_key = i.stable_key AND drop_probability > 0.0)
+                OR EXISTS (SELECT 1 FROM character_vendor_items WHERE item_stable_key = i.stable_key)
+                OR EXISTS (SELECT 1 FROM quest_variants WHERE item_on_complete_stable_key = i.stable_key)
+                OR EXISTS (SELECT 1 FROM character_dialogs WHERE give_item_stable_key = i.stable_key)
+                OR EXISTS (SELECT 1 FROM water_fishables WHERE item_stable_key = i.stable_key)
+                OR EXISTS (SELECT 1 FROM mining_node_items WHERE item_stable_key = i.stable_key)
+                OR EXISTS (SELECT 1 FROM crafting_rewards WHERE reward_item_stable_key = i.stable_key)
+                OR EXISTS (SELECT 1 FROM item_bags WHERE item_stable_key = i.stable_key)
+              )
+            ORDER BY i.display_name COLLATE NOCASE
+        """
+
+        try:
+            rows = self._execute_raw(query, (skill_stable_key,))
+            links = [_item_link_from_row(row) for row in rows]
+            logger.debug(f"Found {len(links)} obtainable items that teach skill '{skill_stable_key}'")
+            return links
+        except Exception as e:
+            raise RepositoryError(f"Failed to get obtainable teaching items for skill '{skill_stable_key}': {e}") from e
+
     def get_items_that_teach_spell(self, spell_stable_key: str) -> list[ItemLink]:
         """Get items (spell scrolls) that teach the given spell.
 

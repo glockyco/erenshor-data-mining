@@ -42,7 +42,6 @@ from erenshor.infrastructure.database.repositories.spawn_points import SpawnPoin
 from erenshor.infrastructure.database.repositories.spells import SpellRepository
 from erenshor.infrastructure.database.repositories.stances import StanceRepository
 from erenshor.infrastructure.wiki.client import MediaWikiClient
-from erenshor.registry.resolver import RegistryResolver
 
 app = typer.Typer(
     name="wiki",
@@ -119,12 +118,6 @@ def _create_wiki_service(cli_ctx: CLIContext) -> WikiService:
     loot_repo = LootTableRepository(db_connection)
     quest_repo = QuestRepository(db_connection)
 
-    # Create registry resolver
-    wiki_dir = variant_config.resolved_wiki(cli_ctx.repo_root)
-    registry_db_path = wiki_dir / "registry.db"
-    mapping_json_path = cli_ctx.repo_root / "mapping.json"
-    resolver = RegistryResolver(registry_db_path, game_db_path=db_path, mapping_json_path=mapping_json_path)
-
     # Create wiki client
     wiki_config = cli_ctx.config.global_.mediawiki
     wiki_client = MediaWikiClient(
@@ -153,7 +146,6 @@ def _create_wiki_service(cli_ctx: CLIContext) -> WikiService:
         spawn_repo=spawn_repo,
         loot_repo=loot_repo,
         quest_repo=quest_repo,
-        registry_resolver=resolver,
         class_display=class_display,
     )
 

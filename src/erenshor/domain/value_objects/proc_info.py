@@ -5,10 +5,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from erenshor.domain.value_objects.wiki_link import AbilityLink
-
 if TYPE_CHECKING:
     from erenshor.domain.entities.spell import Spell
+    from erenshor.domain.value_objects.wiki_link import AbilityLink
 
 __all__ = ["ProcInfo"]
 

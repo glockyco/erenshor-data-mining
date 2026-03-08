@@ -4,7 +4,7 @@ from loguru import logger
 
 from erenshor.domain.entities.character import Character
 from erenshor.domain.value_objects.faction import FactionModifier
-from erenshor.domain.value_objects.wiki_link import CharacterLink, FactionLink
+from erenshor.domain.value_objects.wiki_link import CharacterLink
 from erenshor.infrastructure.database.repository import BaseRepository, RepositoryError
 
 
@@ -205,6 +205,40 @@ class CharacterRepository(BaseRepository[Character]):
             return result
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve faction modifiers: {e}") from e
+
+    def get_character_link(self, stable_key: str) -> CharacterLink | None:
+        """Get a pre-built CharacterLink for a single character by stable key.
+
+        Used for cross-entity links (e.g., pet_to_summon on spells) where the
+        section generator needs a ready-to-render link object.
+
+        Args:
+            stable_key: Character stable key
+
+        Returns:
+            CharacterLink if found, None if character doesn't exist or is excluded.
+
+        Raises:
+            RepositoryError: If query execution fails
+        """
+        query = """
+            SELECT display_name, wiki_page_name
+            FROM characters
+            WHERE stable_key = ?
+            LIMIT 1
+        """
+
+        try:
+            rows = self._execute_raw(query, (stable_key,))
+            if not rows:
+                return None
+            row = rows[0]
+            return CharacterLink(
+                page_title=str(row["wiki_page_name"]) if row["wiki_page_name"] else None,
+                display_name=str(row["display_name"]),
+            )
+        except Exception as e:
+            raise RepositoryError(f"Failed to retrieve character link for '{stable_key}': {e}") from e
 
     def get_vendors_selling_item(self, item_stable_key: str) -> list[CharacterLink]:
         """Get characters (vendors) that sell the given item.

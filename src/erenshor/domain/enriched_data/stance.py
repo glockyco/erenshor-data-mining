@@ -1,6 +1,7 @@
 """Enriched stance data DTO."""
 
 from erenshor.domain.entities.stance import Stance
+from erenshor.domain.value_objects.wiki_link import AbilityLink
 
 __all__ = ["EnrichedStanceData"]
 
@@ -15,13 +16,13 @@ class EnrichedStanceData:
     def __init__(
         self,
         stance: Stance,
-        activated_by_skills: list[str],
+        activated_by_skills: list[AbilityLink],
     ) -> None:
         """Initialize enriched stance data.
 
         Args:
             stance: Stance entity
-            activated_by_skills: Skill stable keys that activate this stance
+            activated_by_skills: Pre-built AbilityLink objects for skills that activate this stance
         """
         self.stance = stance
         self.activated_by_skills = activated_by_skills

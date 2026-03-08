@@ -14,7 +14,8 @@ from erenshor.application.wiki.generators.base import GeneratedPage, PageMetadat
 from erenshor.application.wiki.generators.pages.overview_base import (
     OverviewPageGeneratorBase,
 )
-from erenshor.registry.item_classifier import classify_item_kind
+from erenshor.domain.entities.item_kind import classify_item_kind
+from erenshor.domain.value_objects.wiki_link import AbilityLink, ItemLink
 
 if TYPE_CHECKING:
     from erenshor.domain.entities.item import Item
@@ -111,7 +112,7 @@ class WeaponsOverviewPageGenerator(OverviewPageGeneratorBase):
             key=lambda w: (
                 self._slot_label(w).casefold(),
                 self._type_label(w, weapon_stats).casefold(),
-                (self.context.resolver.resolve_page_title(w.stable_key) or "").casefold(),
+                (w.wiki_page_name or "").casefold(),
             ),
         )
 
@@ -232,7 +233,13 @@ class WeaponsOverviewPageGenerator(OverviewPageGeneratorBase):
             class_names: List of class names that can equip this weapon
         """
         # Item link
-        name = str(self.context.resolver.item_link(weapon.stable_key))
+        name = str(
+            ItemLink(
+                page_title=weapon.wiki_page_name,
+                display_name=weapon.display_name or weapon.item_name or "",
+                image_name=weapon.image_name,
+            )
+        )
 
         # Slot and type
         slot = self._slot_label(weapon)
@@ -304,28 +311,41 @@ class WeaponsOverviewPageGenerator(OverviewPageGeneratorBase):
 
         # Weapon proc
         if weapon.weapon_proc_on_hit_stable_key and weapon.weapon_proc_chance:
-            spell_link = str(self.context.resolver.ability_link(weapon.weapon_proc_on_hit_stable_key))
+            spell_link = self._ability_link(weapon.weapon_proc_on_hit_stable_key)
             trigger = "on bash" if weapon.shield else "on attack"
             notes_parts.append(f"{spell_link}, {int(weapon.weapon_proc_chance)}% {trigger}")
 
         # Wand effect
         if weapon.wand_effect_stable_key and weapon.wand_proc_chance:
-            spell_link = str(self.context.resolver.ability_link(weapon.wand_effect_stable_key))
+            spell_link = self._ability_link(weapon.wand_effect_stable_key)
             notes_parts.append(f"{spell_link}, {int(weapon.wand_proc_chance)}% on cast")
 
         # Bow effect
         if weapon.bow_effect_stable_key and weapon.bow_proc_chance:
-            spell_link = str(self.context.resolver.ability_link(weapon.bow_effect_stable_key))
+            spell_link = self._ability_link(weapon.bow_effect_stable_key)
             notes_parts.append(f"{spell_link}, {int(weapon.bow_proc_chance)}% on attack")
 
         # Worn effect
         if weapon.worn_effect_stable_key:
-            spell_link = str(self.context.resolver.ability_link(weapon.worn_effect_stable_key))
+            spell_link = self._ability_link(weapon.worn_effect_stable_key)
             notes_parts.append(f"Worn: {spell_link}")
 
         # Click effect
         if weapon.item_effect_on_click_stable_key:
-            spell_link = str(self.context.resolver.ability_link(weapon.item_effect_on_click_stable_key))
+            spell_link = self._ability_link(weapon.item_effect_on_click_stable_key)
             notes_parts.append(f"On click: {spell_link}")
 
         return "<br>".join(notes_parts)
+
+    def _ability_link(self, stable_key: str) -> str:
+        """Build an AbilityLink string from a spell stable key."""
+        spell = self.context.spell_repo.get_spell_by_stable_key(stable_key)
+        if spell is None:
+            return stable_key
+        return str(
+            AbilityLink(
+                page_title=spell.wiki_page_name,
+                display_name=spell.display_name or spell.spell_name or "",
+                image_name=spell.image_name,
+            )
+        )

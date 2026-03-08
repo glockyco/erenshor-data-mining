@@ -19,6 +19,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, ClassVar
 
+from erenshor.domain.entities.item_kind import ItemKind, classify_item_kind
+
 if TYPE_CHECKING:
     from erenshor.domain.enriched_data.character import EnrichedCharacterData
     from erenshor.domain.enriched_data.item import EnrichedItemData
@@ -26,13 +28,8 @@ if TYPE_CHECKING:
     from erenshor.domain.enriched_data.spell import EnrichedSpellData
     from erenshor.domain.enriched_data.stance import EnrichedStanceData
     from erenshor.domain.entities.item import Item
-    from erenshor.registry.resolver import RegistryResolver
 
 __all__ = ["CategoryGenerator", "ItemKind", "classify_item_kind"]
-
-
-# Import from existing classifier
-from erenshor.registry.item_classifier import ItemKind, classify_item_kind
 
 
 class CategoryGenerator:
@@ -43,8 +40,7 @@ class CategoryGenerator:
     without the [[Category:...]] wrapper, which is added during page generation.
 
     Examples:
-        >>> resolver = RegistryResolver(...)
-        >>> generator = CategoryGenerator(resolver)
+        >>> generator = CategoryGenerator()
         >>> item = Item(required_slot="Primary", ...)
         >>> categories = generator.generate_item_categories(item)
         >>> categories
@@ -56,26 +52,14 @@ class CategoryGenerator:
         ['Molds', 'Crafting']
     """
 
-    def __init__(self, resolver: RegistryResolver) -> None:
-        """Initialize CategoryGenerator with registry resolver.
-
-        Args:
-            resolver: Registry resolver for display name lookups
-        """
-        self._resolver = resolver
+    def __init__(self) -> None:
+        pass
 
     def generate_categories(
         self,
         enriched: EnrichedItemData | EnrichedCharacterData | EnrichedSpellData | EnrichedSkillData | EnrichedStanceData,
     ) -> list[str]:
-        """Generate category list for any enriched entity.
-
-        Args:
-            enriched: Enriched entity data
-
-        Returns:
-            List of category names
-        """
+        """Generate category list for any enriched entity."""
         from erenshor.domain.enriched_data.character import EnrichedCharacterData
         from erenshor.domain.enriched_data.item import EnrichedItemData
         from erenshor.domain.enriched_data.skill import EnrichedSkillData
@@ -109,32 +93,10 @@ class CategoryGenerator:
         Determines categories based on:
         1. Item kind (weapon, armor, consumable, etc.) → primary category
         2. Item properties → secondary categories
-
-        Args:
-            enriched: Enriched item data
-
-        Returns:
-            List of category names (without [[Category:...]] wrapper)
-            Always includes at least one category (primary from item kind)
-
-        Examples:
-            Weapon:
-                >>> generate_item_categories(enriched_weapon)
-                ['Weapons']
-
-            Mold (multi-category):
-                >>> generate_item_categories(enriched_mold)
-                ['Molds', 'Crafting']
-
-            Quest Item (cross-cutting category):
-                >>> generate_item_categories(enriched_quest_item)
-                ['Items', 'Quest Items']
         """
-
         item = enriched.item
         categories: list[str] = []
 
-        # Determine item kind using existing classifier
         kind = classify_item_kind(
             required_slot=item.required_slot,
             teach_spell=item.teach_spell_stable_key,
@@ -144,36 +106,19 @@ class CategoryGenerator:
             disposable=bool(item.disposable) if item.disposable is not None else None,
         )
 
-        # Add primary category from item kind
         primary_category = self.ITEM_KIND_TO_CATEGORY.get(kind, "Items")
         categories.append(primary_category)
 
-        # Add secondary categories based on properties
-
-        # Quest Items - items that interact with quests
         if self._is_quest_item(item):
             categories.append("Quest Items")
 
-        # Crafting - molds are crafting templates
-        # Note: template=1 means this is a crafting mold/template
         if item.template == 1 and "Crafting" not in categories:
             categories.append("Crafting")
 
         return categories
 
     def _is_quest_item(self, item: Item) -> bool:
-        """Check if item is a quest item.
-
-        Quest items are items that:
-        - Assign a quest when read (quest starter items)
-        - Complete a quest when read (quest completion items)
-
-        Args:
-            item: Item to check
-
-        Returns:
-            True if item has quest interactions
-        """
+        """Check if item is a quest item."""
         return bool(
             (item.assign_quest_on_read_stable_key and item.assign_quest_on_read_stable_key.strip())
             or (item.complete_on_read_stable_key and item.complete_on_read_stable_key.strip())
@@ -183,71 +128,32 @@ class CategoryGenerator:
         """Generate category tags for a character.
 
         Determines categories based on:
-        1. Spawn locations → zone categories
+        1. Spawn locations → zone categories (via pre-built zone_link on CharacterSpawnInfo)
         2. Character type (Enemy/Rare/Boss) → type category
         3. Vendor status → Vendor category
-
-        Args:
-            enriched: Enriched character data with spawn info
-
-        Returns:
-            List of category names (without [[Category:...]] wrapper)
-
-        Examples:
-            Boss in Port Azure:
-                >>> categories
-                ['Port Azure', 'Bosses']
-
-            Vendor NPC in multiple zones:
-                >>> categories
-                ['Fernalla's Revival Plains', 'Port Azure', 'Vendors']
         """
         categories: list[str] = []
 
-        # Add zone categories from spawn locations
+        # Zone categories from spawn locations — zone_link.page_title is pre-built
         zone_page_titles = sorted(
-            {
-                title
-                for info in enriched.spawn_infos
-                if (title := self._resolver.resolve_page_title(info.zone_stable_key)) is not None
-            }
+            {info.zone_link.page_title for info in enriched.spawn_infos if info.zone_link.page_title is not None}
         )
         categories.extend(zone_page_titles)
 
-        # Add type category
         character = enriched.character
         if character.is_friendly:
             categories.append("Characters")
         else:
             categories.append("Enemies")
 
-            # Add Bosses category for unique enemies
             if character.is_unique:
                 categories.append("Bosses")
 
-        # Add Vendor category
         if character.is_vendor:
             categories.append("Vendors")
 
         return categories
 
     def format_category_tags(self, categories: list[str]) -> str:
-        """Format category names as MediaWiki category tags.
-
-        Converts category names to full MediaWiki syntax with [[Category:...]] wrapper.
-        Categories are joined with newlines for proper wiki formatting.
-
-        Args:
-            categories: List of category names (e.g., ["Weapons", "Quest Items"])
-
-        Returns:
-            Formatted wikitext with category tags, one per line
-
-        Examples:
-            >>> format_category_tags(["Weapons"])
-            '[[Category:Weapons]]'
-
-            >>> format_category_tags(["Molds", "Crafting"])
-            '[[Category:Molds]]\\n[[Category:Crafting]]'
-        """
+        """Format category names as MediaWiki category tags."""
         return "\n".join(f"[[Category:{cat}]]" for cat in categories)

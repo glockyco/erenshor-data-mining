@@ -6,14 +6,11 @@ including damage spells, buffs, debuffs, heals, and crowd control effects.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 from pydantic import Field
 
-from .base import BaseEntity
+from erenshor.domain.value_objects.wiki_link import AbilityLink  # noqa: TC001
 
-if TYPE_CHECKING:
-    from erenshor.domain.value_objects.wiki_link import AbilityLink
+from .base import BaseEntity
 
 
 class Spell(BaseEntity):

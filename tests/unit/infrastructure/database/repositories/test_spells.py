@@ -50,8 +50,8 @@ def test_get_spells_for_wiki_generation_sorted_by_name(spell_repo: SpellReposito
     spells = spell_repo.get_spells_for_wiki_generation()
 
     if len(spells) >= 2:
-        spell_names = [s.spell_name.lower() if s.spell_name else "" for s in spells]
-        assert spell_names == sorted(spell_names), "Spells should be sorted by name"
+        display_names = [s.display_name.lower() if s.display_name else "" for s in spells]
+        assert display_names == sorted(display_names), "Spells should be sorted by display_name"
 
 
 def test_spell_entities_have_required_fields(spell_repo: SpellRepository):

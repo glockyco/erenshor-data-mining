@@ -3,53 +3,8 @@
 from loguru import logger
 
 from erenshor.domain.entities.skill import Skill
+from erenshor.domain.value_objects.wiki_link import AbilityLink
 from erenshor.infrastructure.database.repository import BaseRepository, RepositoryError
-
-from ._case_utils import pascal_to_snake
-
-_SKILL_COLUMNS = """
-    StableKey,
-    SkillDBIndex,
-    Id,
-    ResourceName,
-    SkillName,
-    SkillDesc,
-    TypeOfSkill,
-    Cooldown,
-    DuelistRequiredLevel,
-    PaladinRequiredLevel,
-    ArcanistRequiredLevel,
-    DruidRequiredLevel,
-    StormcallerRequiredLevel,
-    ReaverRequiredLevel,
-    RequireBehind,
-    Require2H,
-    RequireDW,
-    RequireBow,
-    RequireShield,
-    SimPlayersAutolearn,
-    StanceToUseStableKey,
-    AESkill,
-    Interrupt,
-    SpawnOnUseStableKey,
-    EffectToApplyStableKey,
-    AffectPlayer,
-    AffectTarget,
-    SkillRange,
-    SkillPower,
-    PercentDmg,
-    DamageType,
-    ScaleOffWeapon,
-    ProcWeap,
-    ProcShield,
-    GuaranteeProc,
-    AutomateAttack,
-    CastOnTargetStableKey,
-    SkillAnimName,
-    SkillIconName,
-    PlayerUses,
-    NPCUses
-""".strip()
 
 
 class SkillRepository(BaseRepository[Skill]):
@@ -66,8 +21,6 @@ class SkillRepository(BaseRepository[Skill]):
 
         Returns all skills with basic fields populated.
 
-        Filters out skills with blank/missing names (data quality issue).
-
         Used by: Skill page generators (combat skills, abilities, etc.)
 
         Returns:
@@ -76,17 +29,15 @@ class SkillRepository(BaseRepository[Skill]):
         Raises:
             RepositoryError: If query execution fails.
         """
-        query = f"""
-            SELECT {_SKILL_COLUMNS}
-            FROM Skills
-            WHERE COALESCE(SkillName, '') != ''
-              AND COALESCE(ResourceName, '') != ''
-            ORDER BY SkillName COLLATE NOCASE
+        query = """
+            SELECT *
+            FROM skills
+            ORDER BY display_name COLLATE NOCASE
         """
 
         try:
             rows = self._execute_raw(query, ())
-            skills = [self._row_to_skill(row) for row in rows]
+            skills = [Skill.model_validate(dict(row)) for row in rows]
             logger.debug(f"Retrieved {len(skills)} skills for wiki generation")
             return skills
         except Exception as e:
@@ -104,10 +55,10 @@ class SkillRepository(BaseRepository[Skill]):
         Raises:
             RepositoryError: If query execution fails.
         """
-        query = f"""
-            SELECT {_SKILL_COLUMNS}
-            FROM Skills
-            WHERE StableKey = ?
+        query = """
+            SELECT *
+            FROM skills
+            WHERE stable_key = ?
         """
 
         try:
@@ -115,26 +66,11 @@ class SkillRepository(BaseRepository[Skill]):
             if not rows:
                 logger.debug(f"Skill not found: {stable_key}")
                 return None
-            return self._row_to_skill(rows[0])
+            return Skill.model_validate(dict(rows[0]))
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve skill {stable_key}: {e}") from e
 
-    def _row_to_skill(self, row: dict[str, object]) -> Skill:
-        """Convert database row to Skill entity.
-
-        Args:
-            row: sqlite3.Row object with Skill columns.
-
-        Returns:
-            Skill domain entity.
-        """
-        # Convert row to dict and transform PascalCase keys to snake_case
-        data = {pascal_to_snake(key): value for key, value in dict(row).items()}
-
-        # Pydantic will handle validation and type conversion
-        return Skill.model_validate(data)
-
-    def get_skills_using_stance(self, stance_stable_key: str) -> list[Skill]:
+    def get_skills_using_stance(self, stance_stable_key: str) -> list[AbilityLink]:
         """Get all skills that activate a specific stance.
 
         Used for bidirectional linking on stance wiki pages.
@@ -143,22 +79,30 @@ class SkillRepository(BaseRepository[Skill]):
             stance_stable_key: Stance stable key (e.g., "stance:Aggressive")
 
         Returns:
-            List of Skill entities that activate this stance.
+            List of AbilityLink objects for skills that activate this stance,
+            sorted by display name.
 
         Raises:
             RepositoryError: If query execution fails.
         """
-        query = f"""
-            SELECT {_SKILL_COLUMNS}
-            FROM Skills
-            WHERE StanceToUseStableKey = ?
-            ORDER BY SkillName COLLATE NOCASE
+        query = """
+            SELECT display_name, wiki_page_name, image_name
+            FROM skills
+            WHERE stance_to_use_stable_key = ?
+            ORDER BY display_name COLLATE NOCASE
         """
 
         try:
             rows = self._execute_raw(query, (stance_stable_key,))
-            skills = [self._row_to_skill(row) for row in rows]
-            logger.debug(f"Retrieved {len(skills)} skills using stance {stance_stable_key}")
-            return skills
+            links = [
+                AbilityLink(
+                    page_title=str(row["wiki_page_name"]) if row["wiki_page_name"] else None,
+                    display_name=str(row["display_name"]),
+                    image_name=str(row["image_name"]) if row["image_name"] else None,
+                )
+                for row in rows
+            ]
+            logger.debug(f"Retrieved {len(links)} skills using stance {stance_stable_key}")
+            return links
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve skills for stance {stance_stable_key}: {e}") from e

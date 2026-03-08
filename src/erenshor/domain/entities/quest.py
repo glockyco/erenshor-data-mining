@@ -21,6 +21,11 @@ class Quest(BaseEntity):
     # Primary keys and identifiers
     stable_key: str = Field(description="Stable key from database (primary key)")
 
+    # Canonical wiki names (populated by the Layer 2 processor)
+    display_name: str | None = Field(default=None, description="Canonical display name for wiki")
+    wiki_page_name: str | None = Field(default=None, description="Canonical wiki page title")
+    image_name: str | None = Field(default=None, description="Image filename stem (without .png)")
+
     # Display fields
     quest_name: str | None = Field(default=None, description="Display name")
     quest_desc: str | None = Field(default=None, description="Quest description")

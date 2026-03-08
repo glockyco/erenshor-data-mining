@@ -30,7 +30,6 @@ def generate_service():
         spawn_repo=None,  # type: ignore
         loot_repo=None,  # type: ignore
         quest_repo=None,  # type: ignore
-        registry_resolver=None,  # type: ignore
         class_display=Mock(),
     )
 

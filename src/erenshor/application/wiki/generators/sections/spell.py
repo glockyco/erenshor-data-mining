@@ -18,7 +18,6 @@ from erenshor.application.wiki.generators.sections.base import SectionGeneratorB
 if TYPE_CHECKING:
     from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
     from erenshor.domain.enriched_data.spell import EnrichedSpellData
-    from erenshor.registry.resolver import RegistryResolver
 
 # Game constants for cast time calculation
 GAME_TICKS_PER_SECOND = 60  # Game runs at 60 ticks per second
@@ -30,23 +29,15 @@ class SpellSectionGenerator(SectionGeneratorBase):
     Generates {{Ability}} template wikitext for a single spell entity.
 
     Multi-entity page assembly is handled by PageGenerator classes, not here.
-
-    Example:
-        >>> resolver = RegistryResolver(...)
-        >>> generator = SpellSectionGenerator(resolver)
-        >>> spell = Spell(...)  # From repository
-        >>> wikitext = generator.generate_template(spell, page_title="Fireball")
     """
 
-    def __init__(self, resolver: RegistryResolver, class_display: ClassDisplayNameService) -> None:
+    def __init__(self, class_display: ClassDisplayNameService) -> None:
         """Initialize spell template generator.
 
         Args:
-            resolver: Registry resolver for links and display names
             class_display: Service for mapping class names to display names
         """
         super().__init__()
-        self._resolver = resolver
         self._class_display = class_display
 
     def generate_template(
@@ -54,30 +45,12 @@ class SpellSectionGenerator(SectionGeneratorBase):
         enriched: EnrichedSpellData,
         page_title: str,
     ) -> str:
-        """Generate {{Ability}} template wikitext for a single spell.
-
-        Args:
-            enriched: Enriched spell data with classes
-            page_title: Wiki page title (from registry)
-
-        Returns:
-            Template wikitext for single spell (infobox + categories)
-
-        Example:
-            >>> enriched = EnrichedSpellData(spell=spell, classes=["Arcanist"])
-            >>> wikitext = generator.generate_template(enriched, "Fireball")
-        """
+        """Generate {{Ability}} template wikitext for a single spell."""
         spell = enriched.spell
         logger.debug(f"Generating template for spell: {spell.spell_name}")
 
-        # Build template context
         context = self._build_spell_template_context(enriched, page_title)
-
-        # Render template
         template_wikitext = self.render_template("ability.jinja2", context)
-
-        # TODO: Add category tags when CategoryGenerator supports spells
-
         return self.normalize_wikitext(template_wikitext)
 
     def _build_spell_template_context(
@@ -85,23 +58,10 @@ class SpellSectionGenerator(SectionGeneratorBase):
         enriched: EnrichedSpellData,
         page_title: str,
     ) -> dict[str, str]:
-        """Build context for {{Ability}} template from Spell entity.
-
-        Converts Spell entity to template context dict. The {{Ability}} template
-        has many fields, most of which are optional.
-
-        Args:
-            enriched: Enriched spell data
-            page_title: Wiki page title
-            resolver: Registry resolver for image name overrides
-
-        Returns:
-            Template context dict with all {{Ability}} template fields
-        """
+        """Build context for {{Ability}} template from Spell entity."""
         spell = enriched.spell
 
         def bool_str(value: int | None) -> str:
-            """Convert int boolean to 'True' or empty string."""
             return "True" if value else ""
 
         # Calculate duration from ticks (if available)
@@ -113,39 +73,30 @@ class SpellSectionGenerator(SectionGeneratorBase):
         # Format class restrictions with level: [[DisplayName]] (level)
         classes_list = []
         if enriched.classes and spell.required_level and spell.required_level > 0:
-            # Map internal class names to display names (already sorted)
             display_names = self._class_display.map_class_list(enriched.classes)
             for display_name in display_names:
                 classes_list.append(f"[[{display_name}]] ({spell.required_level})")
         classes = "<br>".join(classes_list)
 
-        # Format cast time: convert ticks to seconds, treat 0 and <0.05s as "Instant"
         cast_time_str = self._format_cast_time(spell.spell_charge_time)
 
-        # Resolve image name from registry (with overrides)
-        image_name = self._resolver.resolve_image_name(spell.stable_key)
-        image = f"{image_name}.png"
+        image = f"{spell.image_name}.png" if spell.image_name else ""
 
-        # Resolve references to links
-        pet_to_summon = ""
-        if spell.pet_to_summon_stable_key:
-            pet_to_summon = str(self._resolver.character_link(spell.pet_to_summon_stable_key))
+        # Pre-built links on the Spell entity and enriched DTO
+        pet_to_summon = str(enriched.pet_to_summon) if enriched.pet_to_summon else ""
+        status_effect = str(spell.status_effect_link) if spell.status_effect_link else ""
+        add_proc = str(spell.add_proc_link) if spell.add_proc_link else ""
 
-        status_effect = ""
-        if spell.status_effect_to_apply_stable_key:
-            status_effect = str(self._resolver.ability_link(spell.status_effect_to_apply_stable_key))
-
-        add_proc = ""
-        if spell.add_proc_stable_key:
-            add_proc = str(self._resolver.ability_link(spell.add_proc_stable_key))
-
-        # Format imagecaption from status effect message
         imagecaption = ""
         if spell.status_effect_message_on_player:
             imagecaption = f"You {spell.status_effect_message_on_player}"
 
-        # Get display name from resolver (respects mapping.json overrides)
-        display_name = self._resolver.resolve_display_name(spell.stable_key)
+        display_name = spell.display_name or spell.spell_name or page_title
+
+        # Items with effect and teaching items are already ItemLink objects
+        itemswitheffect = self._format_wiki_links(enriched.items_with_effect)
+        source = self._format_wiki_links(enriched.teaching_items)
+        used_by = self._format_wiki_links(enriched.used_by_characters)
 
         context: dict[str, str] = {
             "title": display_name,
@@ -217,153 +168,46 @@ class SpellSectionGenerator(SectionGeneratorBase):
             "is_fear": bool_str(spell.fear_target),
             "inflict_on_self": bool_str(spell.inflict_on_self),
             # Sources
-            "itemswitheffect": self._format_item_links(enriched.items_with_effect),
-            "source": self._format_item_links(enriched.teaching_items),
-            "used_by": self._format_character_links(enriched.used_by_characters),
+            "itemswitheffect": itemswitheffect,
+            "source": source,
+            "used_by": used_by,
         }
 
         return context
 
     def _format_cast_time(self, spell_charge_time: float | None) -> str:
-        """Format spell cast time in ticks to human-readable string.
-
-        Args:
-            spell_charge_time: Spell charge time in game ticks (60 ticks/second)
-
-        Returns:
-            Formatted cast time string:
-            - "Instant" for None or 0
-            - "X.X seconds" for all other values
-
-        Examples:
-            >>> self._format_cast_time(None)
-            'Instant'
-            >>> self._format_cast_time(0)
-            'Instant'
-            >>> self._format_cast_time(2)  # 2 ticks = 0.033s
-            '0.0 seconds'
-            >>> self._format_cast_time(60)  # 60 ticks = 1.0s
-            '1.0 seconds'
-            >>> self._format_cast_time(180)  # 180 ticks = 3.0s
-            '3.0 seconds'
-        """
+        """Format spell cast time in ticks to human-readable string."""
         if spell_charge_time is None or spell_charge_time == 0:
             return "Instant"
 
-        # Convert ticks to seconds
         seconds = spell_charge_time / GAME_TICKS_PER_SECOND
 
-        # Treat very small cast times (< 0.05s) as "Instant"
         if seconds < 0.05:
             return "Instant"
 
-        # Format as "X.X seconds"
         return f"{seconds:.1f} seconds"
 
     def _format_duration(self, duration_in_ticks: int) -> str:
-        """Format spell duration from ticks to human-readable string.
-
-        Args:
-            duration_in_ticks: Duration in game ticks (3 seconds per tick)
-
-        Returns:
-            Formatted duration string in seconds
-
-        Examples:
-            >>> self._format_duration(1)
-            '3 seconds'
-            >>> self._format_duration(2)
-            '6 seconds'
-            >>> self._format_duration(10)
-            '30 seconds'
-        """
-        # Game uses 3 seconds per duration tick (not the same as cast time ticks)
+        """Format spell duration from ticks to human-readable string."""
         seconds = duration_in_ticks * 3
         return f"{seconds} seconds"
 
     def _format_cooldown(self, cooldown: float | None) -> str:
-        """Format spell cooldown to human-readable string.
-
-        Args:
-            cooldown: Cooldown in seconds (already in seconds, not ticks)
-
-        Returns:
-            Formatted cooldown string:
-            - Empty string for None or 0
-            - "X seconds" for positive values (as integer)
-
-        Examples:
-            >>> self._format_cooldown(None)
-            ''
-            >>> self._format_cooldown(0)
-            ''
-            >>> self._format_cooldown(9.0)
-            '9 seconds'
-            >>> self._format_cooldown(3.0)
-            '3 seconds'
-        """
+        """Format spell cooldown to human-readable string."""
         if cooldown is None or cooldown == 0:
             return ""
 
-        # Convert to integer and add " seconds" suffix
         return f"{int(cooldown)} seconds"
 
-    def _format_item_links(
-        self,
-        items: list[str],
-    ) -> str:
-        """Format list of items as {{ItemLink}} templates separated by <br>.
+    def _format_wiki_links(self, links: list) -> str:  # type: ignore[type-arg]
+        """Format a list of WikiLink objects as wikitext separated by <br>.
 
-        Args:
-            items: List of item stable keys
-
-        Returns:
-            Formatted string like "{{ItemLink|Item1}}<br>{{ItemLink|Item2}}"
-            sorted alphabetically by display name, or empty string if no items
-
-        Examples:
-            >>> items = ["item:water"]
-            >>> self._format_item_links(items)
-            '{{ItemLink|Water}}'
+        Filters out links with no page_title (excluded entities), sorts by display
+        name, and joins with <br>.
         """
-        if not items:
+        if not links:
             return ""
 
-        # Create link objects and filter out excluded items (page_title=None)
-        links = [self._resolver.item_link(key) for key in items]
-        links = [link for link in links if link.page_title is not None]
-
-        # Sort by display name (WikiLink.__lt__ handles this)
-        links.sort()
-
-        return "<br>".join(str(link) for link in links)
-
-    def _format_character_links(
-        self,
-        characters: list[str],
-    ) -> str:
-        """Format list of characters as [[Character]] links separated by <br>.
-
-        Args:
-            characters: List of character stable keys
-
-        Returns:
-            Formatted string like "[[Character1]]<br>[[Character2]]"
-            sorted alphabetically by display name, or empty string if no characters
-
-        Examples:
-            >>> characters = ["character:goblin"]
-            >>> self._format_character_links(characters)
-            '[[Goblin]]'
-        """
-        if not characters:
-            return ""
-
-        # Create link objects and filter out excluded characters (page_title=None)
-        links = [self._resolver.character_link(key) for key in characters]
-        links = [link for link in links if link.page_title is not None]
-
-        # Sort by display name (WikiLink.__lt__ handles this)
-        links.sort()
-
-        return "<br>".join(str(link) for link in links)
+        visible = [link for link in links if link.page_title is not None]
+        visible.sort()
+        return "<br>".join(str(link) for link in visible)

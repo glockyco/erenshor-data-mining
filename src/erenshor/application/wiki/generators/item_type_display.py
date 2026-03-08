@@ -5,7 +5,7 @@ Crafting, Summoning Item) based on item properties and related entities.
 """
 
 from erenshor.domain.entities.item import Item
-from erenshor.registry.item_classifier import ItemKind
+from erenshor.domain.entities.item_kind import ItemKind
 
 
 def build_item_types(

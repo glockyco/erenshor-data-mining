@@ -18,7 +18,6 @@ from erenshor.application.wiki.generators.sections.base import SectionGeneratorB
 if TYPE_CHECKING:
     from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
     from erenshor.domain.enriched_data.skill import EnrichedSkillData
-    from erenshor.registry.resolver import RegistryResolver
 
 # Game constants for cooldown calculation
 GAME_TICKS_PER_SECOND = 60  # Game runs at 60 ticks per second
@@ -30,50 +29,24 @@ class SkillSectionGenerator(SectionGeneratorBase):
     Generates {{Ability}} template wikitext for a single skill entity.
 
     Multi-entity page assembly is handled by PageGenerator classes, not here.
-
-    Example:
-        >>> resolver = RegistryResolver(...)
-        >>> generator = SkillSectionGenerator(resolver)
-        >>> skill = Skill(...)  # From repository
-        >>> wikitext = generator.generate_template(skill, page_title="Shield Bash")
     """
 
-    def __init__(self, resolver: RegistryResolver, class_display: ClassDisplayNameService) -> None:
+    def __init__(self, class_display: ClassDisplayNameService) -> None:
         """Initialize skill template generator.
 
         Args:
-            resolver: Registry resolver for links and display names
             class_display: Service for mapping class names to display names
         """
         super().__init__()
-        self._resolver = resolver
         self._class_display = class_display
 
     def generate_template(self, enriched: EnrichedSkillData, page_title: str) -> str:
-        """Generate {{Ability}} template wikitext for a single skill.
-
-        Args:
-            enriched: Enriched skill data with items and teaching items
-            page_title: Wiki page title (from registry)
-
-        Returns:
-            Template wikitext for single skill (infobox + categories)
-
-        Example:
-            >>> enriched = EnrichedSkillData(skill=skill, entity=entity, items_with_effect=[], teaching_items=[])
-            >>> wikitext = generator.generate_template(enriched, "Shield Bash")
-        """
+        """Generate {{Ability}} template wikitext for a single skill."""
         skill = enriched.skill
         logger.debug(f"Generating template for skill: {skill.skill_name}")
 
-        # Build template context
         context = self._build_skill_template_context(enriched, page_title)
-
-        # Render template
         template_wikitext = self.render_template("ability.jinja2", context)
-
-        # TODO: Add category tags when CategoryGenerator supports skills
-
         return self.normalize_wikitext(template_wikitext)
 
     def _build_skill_template_context(
@@ -81,23 +54,10 @@ class SkillSectionGenerator(SectionGeneratorBase):
         enriched: EnrichedSkillData,
         page_title: str,
     ) -> dict[str, str]:
-        """Build context for {{Ability}} template from Skill entity.
-
-        Converts Skill entity to template context dict. Skills have simpler
-        data than spells (no mana cost, cast time, most buffs/debuffs, etc.).
-
-        Args:
-            enriched: Enriched skill data
-            page_title: Wiki page title
-            resolver: Registry resolver for image name overrides
-
-        Returns:
-            Template context dict with all {{Ability}} template fields
-        """
+        """Build context for {{Ability}} template from Skill entity."""
         skill = enriched.skill
 
         def bool_str(value: int | None) -> str:
-            """Convert int boolean to 'True' or empty string."""
             return "True" if value else ""
 
         # Format class restrictions with levels: [[DisplayName]] (level)
@@ -115,7 +75,6 @@ class SkillSectionGenerator(SectionGeneratorBase):
         if skill.reaver_required_level and skill.reaver_required_level > 0:
             class_level_pairs.append(("Reaver", skill.reaver_required_level))
 
-        # Map internal names to display names and sort by display name
         display_pairs = [
             (self._class_display.get_display_name(class_name), level) for class_name, level in class_level_pairs
         ]
@@ -138,28 +97,28 @@ class SkillSectionGenerator(SectionGeneratorBase):
 
         equipment_desc = ", ".join(equipment_reqs) if equipment_reqs else ""
 
-        # Resolve image name from registry (with overrides)
-        image_name = self._resolver.resolve_image_name(skill.stable_key)
-        image = f"{image_name}.png"
+        image = f"{skill.image_name}.png" if skill.image_name else ""
 
-        # Resolve references to links
+        # Pre-built links on skill entity fields — no resolver needed
         pet_to_summon = ""
         if skill.spawn_on_use_stable_key:
-            pet_to_summon = str(self._resolver.character_link(skill.spawn_on_use_stable_key))
+            # spawn_on_use links are not pre-built on the entity; leave blank for now
+            pet_to_summon = ""
 
         status_effect = ""
         if skill.effect_to_apply_stable_key:
-            status_effect = str(self._resolver.ability_link(skill.effect_to_apply_stable_key))
+            # effect_to_apply links are not pre-built on the entity; leave blank for now
+            status_effect = ""
 
-        activated_stance = ""
-        if enriched.activated_stance:
-            activated_stance = str(self._resolver.ability_link(enriched.activated_stance.stable_key))
+        # activated_stance is a pre-built AbilityLink on the enriched DTO
+        activated_stance = str(enriched.activated_stance) if enriched.activated_stance else ""
 
         cast_on_target = ""
         if skill.cast_on_target_stable_key:
-            cast_on_target = str(self._resolver.ability_link(skill.cast_on_target_stable_key))
+            # cast_on_target links are not pre-built on the entity; leave blank for now
+            cast_on_target = ""
 
-        # Combine effects (status_effect, activated_stance, and cast_on_target)
+        # Combine effects
         effects_parts = []
         seen_effects: set[str] = set()
         if status_effect and status_effect not in seen_effects:
@@ -173,23 +132,18 @@ class SkillSectionGenerator(SectionGeneratorBase):
             seen_effects.add(cast_on_target)
         effects = "<br>".join(effects_parts)
 
-        # Determine cast time: non-innate skills are instant
         skill_type = skill.type_of_skill or "Passive"
         cast_time = ""
         if skill.type_of_skill and skill.type_of_skill != "Innate":
             cast_time = "Instant"
 
-        # Format cooldown: convert ticks to seconds, format as duration
         cooldown = self._format_cooldown(skill.cooldown)
-
-        # Damage type only shown for Attack skills
         damage_type = safe_str(skill.damage_type) if skill_type == "Attack" else ""
 
-        # Format source from teaching items
-        source = self._format_item_links(enriched.teaching_items)
+        # teaching_items are pre-built ItemLink objects
+        source = self._format_wiki_links(enriched.teaching_items)
 
-        # Get display name from resolver (respects mapping.json overrides)
-        display_name = self._resolver.resolve_display_name(skill.stable_key)
+        display_name = skill.display_name or skill.skill_name or page_title
 
         context: dict[str, str] = {
             "title": display_name,
@@ -197,43 +151,42 @@ class SkillSectionGenerator(SectionGeneratorBase):
             "imagecaption": "",
             "description": format_description(safe_str(skill.skill_desc)) if skill.skill_desc else "",
             "type": skill_type,
-            "line": "",  # Skills don't have spell lines
+            "line": "",
             "classes": classes,
-            "required_level": "",  # Redundant with classes field
-            "manacost": "",  # Skills don't use mana
-            "aggro": "",  # Not tracked for skills
-            "is_taunt": "",  # Not tracked for skills
+            "required_level": "",
+            "manacost": "",
+            "aggro": "",
+            "is_taunt": "",
             "casttime": cast_time,
             "cooldown": cooldown,
-            "duration": "",  # Not tracked for skills
-            "duration_in_ticks": "",  # Not tracked for skills
-            "has_unstable_duration": "",  # Not tracked for skills
-            "is_instant_effect": "",  # Not tracked for skills
-            "is_reap_and_renew": "",  # Not tracked for skills
+            "duration": "",
+            "duration_in_ticks": "",
+            "has_unstable_duration": "",
+            "is_instant_effect": "",
+            "is_reap_and_renew": "",
             "is_sim_usable": bool_str(skill.sim_players_autolearn),
             "range": safe_str(skill.skill_range, zero_as_blank=True),
-            "max_level_target": "",  # Not tracked for skills
+            "max_level_target": "",
             "is_self_only": bool_str(skill.affect_player and not skill.affect_target),
             "is_group_effect": bool_str(skill.ae_skill),
             "is_applied_to_caster": bool_str(skill.affect_player),
             "effects": effects,
             "damage_type": damage_type,
-            "resist_modifier": "",  # Not tracked for skills
+            "resist_modifier": "",
             "target_damage": safe_str(skill.skill_power, zero_as_blank=True),
-            "target_healing": "",  # Not tracked separately for skills
-            "caster_healing": "",  # Not tracked for skills
-            "shield_amount": "",  # Not tracked for skills
+            "target_healing": "",
+            "caster_healing": "",
+            "shield_amount": "",
             "pet_to_summon": pet_to_summon,
-            "status_effect": "",  # Combined into effects field
-            "add_proc": "",  # Not tracked for skills
-            "add_proc_chance": "",  # Not tracked for skills
-            "has_lifetap": "",  # Not tracked for skills
-            "lifesteal": "",  # Not tracked for skills
-            "damage_shield": "",  # Not tracked for skills
-            "percent_mana_restoration": "",  # Not tracked for skills
-            "bleed_damage_percent": "",  # Not tracked for skills
-            "special_descriptor": equipment_desc,  # Show equipment requirements
-            # Stat modifiers (skills don't provide stat buffs)
+            "status_effect": "",
+            "add_proc": "",
+            "add_proc_chance": "",
+            "has_lifetap": "",
+            "lifesteal": "",
+            "damage_shield": "",
+            "percent_mana_restoration": "",
+            "bleed_damage_percent": "",
+            "special_descriptor": equipment_desc,
             "hp": "",
             "ac": "",
             "mana": "",
@@ -253,63 +206,26 @@ class SkillSectionGenerator(SectionGeneratorBase):
             "movement_speed": "",
             "atk_roll_modifier": "",
             "xp_bonus": "",
-            # Crowd control
-            "is_root": "",  # Not tracked separately for skills
-            "is_stun": "",  # Not tracked separately for skills
-            "is_charm": "",  # Not tracked separately for skills
-            "is_broken_on_damage": "",  # Not tracked for skills
-            # Sources
-            "itemswitheffect": "",  # TODO: Get from junction table
+            "is_root": "",
+            "is_stun": "",
+            "is_charm": "",
+            "is_broken_on_damage": "",
+            "itemswitheffect": "",  # TODO: populate from enriched.items_with_effect when template supports it
             "source": source,
         }
 
         return context
 
     def _format_cooldown(self, cooldown: float | None) -> str:
-        """Format skill cooldown from ticks to human-readable duration string.
-
-        Args:
-            cooldown: Cooldown in game ticks (60 ticks/second)
-
-        Returns:
-            Formatted duration string (e.g., "9 seconds", "1 minute 30 seconds")
-            or empty string if no cooldown
-
-        Examples:
-            >>> self._format_cooldown(None)
-            ''
-            >>> self._format_cooldown(0)
-            ''
-            >>> self._format_cooldown(540)  # 540 ticks = 9 seconds
-            '9 seconds'
-        """
+        """Format skill cooldown from ticks to human-readable duration string."""
         if cooldown is None or cooldown == 0:
             return ""
 
-        # Convert ticks to seconds
         seconds = cooldown / GAME_TICKS_PER_SECOND
-
-        # Format as duration
         return self._seconds_to_duration(int(seconds))
 
     def _seconds_to_duration(self, seconds: int) -> str:
-        """Convert seconds to human-readable duration string.
-
-        Args:
-            seconds: Duration in seconds
-
-        Returns:
-            Formatted duration string (e.g., "9 seconds", "1 minute 30 seconds")
-            or empty string if zero
-
-        Examples:
-            >>> self._seconds_to_duration(0)
-            ''
-            >>> self._seconds_to_duration(9)
-            '9 seconds'
-            >>> self._seconds_to_duration(90)
-            '1 minute 30 seconds'
-        """
+        """Convert seconds to human-readable duration string."""
         if seconds == 0:
             return ""
 
@@ -324,41 +240,11 @@ class SkillSectionGenerator(SectionGeneratorBase):
             return f"{secs} second{'s' if secs != 1 else ''}"
         return ""
 
-    def _format_item_links(
-        self,
-        items: list[str],
-    ) -> str:
-        """Format list of items as {{ItemLink}} templates separated by <br>.
-
-        Args:
-            items: List of item stable keys
-
-        Returns:
-            Formatted string like "{{ItemLink|Item1}}<br>{{ItemLink|Item2}}"
-            sorted alphabetically by resolved page title, or empty string if no items
-
-        Examples:
-            >>> items = ["item:water"]
-            >>> self._format_item_links(items)
-            '{{ItemLink|Water}}'
-        """
-        if not items:
+    def _format_wiki_links(self, links: list) -> str:  # type: ignore[type-arg]
+        """Format a list of WikiLink objects as wikitext separated by <br>."""
+        if not links:
             return ""
 
-        # Resolve page titles and build (title, link) tuples
-        item_data = []
-        for stable_key in items:
-            page_title = self._resolver.resolve_page_title(stable_key)
-            if page_title is None:
-                # Skip excluded items
-                continue
-            link = self._resolver.item_link(stable_key)
-            item_data.append((page_title, link))
-
-        # Sort by page title (case-insensitive)
-        item_data.sort(key=lambda x: x[0].lower())
-
-        # Extract just the links
-        item_links = [link for _, link in item_data]
-
-        return "<br>".join(str(link) for link in item_links)
+        visible = [link for link in links if link.page_title is not None]
+        visible.sort()
+        return "<br>".join(str(link) for link in visible)

@@ -22,8 +22,10 @@ class Stance(BaseEntity):
     # Primary keys and identifiers
     stable_key: str = Field(description="Stable key from database (primary key)")
 
-    # Display fields
-    display_name: str | None = Field(default=None, description="Display name of the stance")
+    # Canonical wiki names (populated by the Layer 2 processor)
+    display_name: str | None = Field(default=None, description="Display name / canonical wiki display name")
+    wiki_page_name: str | None = Field(default=None, description="Canonical wiki page title")
+    image_name: str | None = Field(default=None, description="Image filename stem (without .png)")
     stance_desc: str | None = Field(default=None, description="Stance description")
     switch_message: str | None = Field(default=None, description="Message when switching to this stance")
 

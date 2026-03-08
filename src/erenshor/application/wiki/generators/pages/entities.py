@@ -1,21 +1,16 @@
 """Entity page generator.
 
-Generates wiki pages for all game entities (items, characters, spells, skills).
-Handles multi-entity pages where multiple entities share the same page title.
+Generates wiki pages for all game entities (items, characters, spells, skills, stances).
+Handles multi-entity pages where multiple entities share the same wiki_page_name.
 """
 
 from __future__ import annotations
 
-from collections.abc import Iterator, Sequence
+from collections.abc import Iterator
 from typing import TYPE_CHECKING
 
 from loguru import logger
 
-from erenshor.application.enrichers.character_enricher import CharacterEnricher
-from erenshor.application.enrichers.item_enricher import ItemEnricher
-from erenshor.application.enrichers.skill_enricher import SkillEnricher
-from erenshor.application.enrichers.spell_enricher import SpellEnricher
-from erenshor.application.enrichers.stance_enricher import StanceEnricher
 from erenshor.application.wiki.generators.base import GeneratedPage, PageGenerator, PageMetadata
 from erenshor.application.wiki.generators.sections.categories import CategoryGenerator
 from erenshor.application.wiki.generators.sections.character import CharacterSectionGenerator
@@ -29,78 +24,36 @@ from erenshor.domain.enriched_data.skill import EnrichedSkillData
 from erenshor.domain.enriched_data.spell import EnrichedSpellData
 from erenshor.domain.enriched_data.stance import EnrichedStanceData
 from erenshor.domain.entities import Character, Item, Skill, Spell, Stance
+from erenshor.domain.value_objects.proc_info import ProcInfo
+from erenshor.domain.value_objects.source_info import SourceInfo
+from erenshor.domain.value_objects.wiki_link import AbilityLink, ItemLink, WikiLink
 
 if TYPE_CHECKING:
     from erenshor.application.wiki.generators.context import GeneratorContext
+
+AnyEnriched = EnrichedItemData | EnrichedCharacterData | EnrichedSpellData | EnrichedSkillData | EnrichedStanceData
 
 
 class EntityPageGenerator(PageGenerator):
     """Generates wiki pages for all game entities.
 
-    This generator handles all entity types (items, characters, spells, skills, stances)
-    and correctly handles multi-entity pages where multiple entities share
-    the same page title.
-
-    For example, a page might contain:
-    - Multiple spell tiers (Fireball I, Fireball II, Fireball III)
-    - Both a skill and spell (Aura: Blessing of Stone)
-    - Multiple item variants
-
-    The generator groups entities by page title and generates templates for
-    ALL entities on each page.
+    Groups entities by wiki_page_name and generates one page per unique title.
+    Each page contains templates for ALL entities sharing that wiki_page_name.
+    Data is assembled inline from direct repository calls — no enricher classes.
     """
 
     def __init__(self, context: GeneratorContext) -> None:
-        """Initialize entity page generator.
-
-        Args:
-            context: Shared context with repositories and resolver
-        """
+        self.item_generator = ItemSectionGenerator(context.class_display)
+        self.character_generator = CharacterSectionGenerator()
+        self.spell_generator = SpellSectionGenerator(context.class_display)
+        self.skill_generator = SkillSectionGenerator(context.class_display)
+        self.stance_generator = StanceSectionGenerator()
+        self.category_generator = CategoryGenerator()
         super().__init__(context)
 
-        # Initialize enrichers
-        self.item_enricher = ItemEnricher(
-            item_repo=context.item_repo,
-            spell_repo=context.spell_repo,
-            skill_repo=context.skill_repo,
-            character_repo=context.character_repo,
-            quest_repo=context.quest_repo,
-        )
-        self.character_enricher = CharacterEnricher(
-            spawn_repo=context.spawn_repo,
-            loot_repo=context.loot_repo,
-            spell_repo=context.spell_repo,
-        )
-        self.spell_enricher = SpellEnricher(
-            spell_repo=context.spell_repo,
-            item_repo=context.item_repo,
-            character_repo=context.character_repo,
-        )
-        self.skill_enricher = SkillEnricher(
-            item_repo=context.item_repo,
-            stance_repo=context.stance_repo,
-        )
-        self.stance_enricher = StanceEnricher(
-            skill_repo=context.skill_repo,
-        )
-
-        # Initialize section generators
-        self.item_generator = ItemSectionGenerator(context.resolver, context.class_display)
-        self.character_generator = CharacterSectionGenerator(context.resolver)
-        self.spell_generator = SpellSectionGenerator(context.resolver, context.class_display)
-        self.skill_generator = SkillSectionGenerator(context.resolver, context.class_display)
-        self.stance_generator = StanceSectionGenerator(context.resolver)
-        self.category_generator = CategoryGenerator(context.resolver)
-
-        # Cache for entities (populated by _load_entities, reused by both fetch and generate)
         self._cached_entities: list[Item | Character | Spell | Skill | Stance] | None = None
 
     def _load_entities(self) -> list[Item | Character | Spell | Skill | Stance]:
-        """Load all entities from repositories.
-
-        Returns:
-            List of all entities for wiki generation
-        """
         if self._cached_entities is not None:
             return self._cached_entities
 
@@ -115,22 +68,9 @@ class EntityPageGenerator(PageGenerator):
         return all_entities
 
     def get_pages_to_fetch(self) -> list[str]:
-        """Return all entity page titles to fetch from wiki.
-
-        Fetches entities from all repositories and deduplicates page titles
-        to handle multi-entity pages.
-
-        Returns:
-            Unique list of wiki page titles for all entities
-        """
         all_entities = self._load_entities()
 
-        # Resolve page titles and deduplicate (filter out None for excluded entities)
-        page_titles = [
-            title
-            for title in {self.context.resolver.resolve_page_title(entity.stable_key) for entity in all_entities}
-            if title is not None
-        ]
+        page_titles = list({entity.wiki_page_name for entity in all_entities if entity.wiki_page_name is not None})
 
         items_count = sum(1 for e in all_entities if isinstance(e, Item))
         characters_count = sum(1 for e in all_entities if isinstance(e, Character))
@@ -147,22 +87,14 @@ class EntityPageGenerator(PageGenerator):
         return page_titles
 
     def generate_pages(self) -> Iterator[GeneratedPage]:
-        """Generate complete wiki pages for all entities.
-
-        Groups entities by page title and generates one page per unique title.
-        Each page contains templates for ALL entities sharing that page title.
-
-        Yields:
-            GeneratedPage objects with entity content and metadata
-        """
         all_entities = self._load_entities()
 
-        # Group entities by page title (filter out excluded entities where page_title is None)
+        # Group entities by wiki_page_name (all entities in clean DB have one)
         page_groups: dict[str, list[Item | Character | Spell | Skill | Stance]] = {}
         for entity in all_entities:
-            page_title = self.context.resolver.resolve_page_title(entity.stable_key)
+            page_title = entity.wiki_page_name
             if page_title is None:
-                logger.debug(f"Skipping excluded entity: {entity.stable_key}")
+                logger.debug(f"Skipping entity with no wiki_page_name: {entity.stable_key}")
                 continue
             if page_title not in page_groups:
                 page_groups[page_title] = []
@@ -171,25 +103,21 @@ class EntityPageGenerator(PageGenerator):
         logger.info(f"Generating {len(page_groups)} pages from {len(all_entities)} entities")
 
         for page_title, entities in page_groups.items():
-            # Enrich all entities first
-            enriched_entities: list[
-                EnrichedItemData | EnrichedCharacterData | EnrichedSpellData | EnrichedSkillData | EnrichedStanceData
-            ] = []
+            # Assemble enriched data inline for each entity
+            enriched_entities: list[AnyEnriched] = []
             for entity in entities:
                 if isinstance(entity, Item):
-                    enriched_entities.append(self.item_enricher.enrich(entity))
+                    enriched_entities.append(self._assemble_item(entity))
                 elif isinstance(entity, Character):
-                    enriched_entities.append(self.character_enricher.enrich(entity))
+                    enriched_entities.append(self._assemble_character(entity))
                 elif isinstance(entity, Spell):
-                    enriched_entities.append(self.spell_enricher.enrich(entity))
+                    enriched_entities.append(self._assemble_spell(entity))
                 elif isinstance(entity, Skill):
-                    enriched_entities.append(self.skill_enricher.enrich(entity))
+                    enriched_entities.append(self._assemble_skill(entity))
                 elif isinstance(entity, Stance):
-                    enriched_entities.append(self.stance_enricher.enrich(entity))
+                    enriched_entities.append(self._assemble_stance(entity))
                 else:
                     logger.warning(f"Unknown entity type: {type(entity)}")
-
-            enriched_entities = self._deduplicate_characters(enriched_entities)
 
             # Generate templates for each enriched entity
             templates = []
@@ -206,23 +134,17 @@ class EntityPageGenerator(PageGenerator):
                     template = self.stance_generator.generate_template(enriched, page_title)
                 else:
                     continue
-
                 templates.append(template)
 
-            # Combine all entity templates (use horizontal rule separator for multi-entity pages)
-            if len(templates) > 1:
-                entity_content = "\n\n----\n\n".join(templates)
-            else:
-                entity_content = templates[0] if templates else ""
+            entity_content = (
+                "\n\n----\n\n".join(templates) if len(templates) > 1 else (templates[0] if templates else "")
+            )
 
-            # Generate category tags from first enriched entity
             categories = self.category_generator.generate_categories(enriched_entities[0])
             category_wikitext = self.category_generator.format_category_tags(categories)
 
-            # Combine sections
             full_content = f"{entity_content}\n\n{category_wikitext}".strip()
 
-            # Extract stable keys from all entities on this page
             stable_keys = [entity.stable_key for entity in entities]
 
             yield GeneratedPage(
@@ -237,109 +159,202 @@ class EntityPageGenerator(PageGenerator):
 
         logger.info(f"EntityPageGenerator: Generated {len(page_groups)} pages")
 
-    @staticmethod
-    def _build_character_dedup_key(
-        enriched: EnrichedCharacterData,
-        display_name: str,
-    ) -> tuple[str, int | None, int | None, tuple[tuple[str | None, float], ...], tuple[str, ...]]:
-        """Build a hashable key for deduplicating identical characters.
+    # -------------------------------------------------------------------------
+    # Inline assembly — replaces enricher classes
+    # -------------------------------------------------------------------------
 
-        Two characters are considered identical if they have the same display
-        name, level, effective HP, loot table, and spell list. The display
-        name comes from the registry resolver and determines the rendered
-        infobox name — characters with different display names always produce
-        different template output and must never be merged.
-
-        Other stats (mana, AC, str, dex, etc.) are derived from level and
-        guaranteed identical when level + HP match.
-
-        Args:
-            enriched: Enriched character data to build key from
-            display_name: Registry-resolved display name for this character
-
-        Returns:
-            Hashable tuple suitable as a dict key
-        """
-        loot_key = tuple(sorted((d.item_stable_key, d.drop_probability) for d in enriched.loot_drops))
-        spell_key = tuple(sorted(enriched.spells))
-        return (
-            display_name,
-            enriched.character.level,
-            enriched.character.effective_hp,
-            loot_key,
-            spell_key,
+    def _assemble_character(self, character: Character) -> EnrichedCharacterData:
+        spawn_infos = self.context.spawn_repo.get_spawn_info_for_character(character.stable_key)
+        loot_drops = self.context.loot_repo.get_loot_for_character(character.stable_key)
+        spells = self.context.spell_repo.get_spells_used_by_character(character.stable_key)
+        return EnrichedCharacterData(
+            character=character,
+            spawn_infos=spawn_infos,
+            loot_drops=loot_drops,
+            spells=spells,
         )
 
-    def _deduplicate_characters(
-        self,
-        enriched_entities: Sequence[
-            EnrichedItemData | EnrichedCharacterData | EnrichedSpellData | EnrichedSkillData | EnrichedStanceData
-        ],
-    ) -> list[EnrichedItemData | EnrichedCharacterData | EnrichedSpellData | EnrichedSkillData | EnrichedStanceData]:
-        """Remove duplicate character infoboxes, merging their spawn info.
+    def _assemble_item(self, item: Item) -> EnrichedItemData:
+        stats = self.context.item_repo.get_item_stats(item.stable_key)
+        classes = self.context.item_repo.get_item_classes(item.stable_key)
+        proc = self._extract_proc(item)
+        sources = self._assemble_source_info(item)
 
-        Multiple Character entities can share the same NPCName (prefab copies,
-        placed instances, disabled variants). When they have identical stats,
-        loot, and spells, only one is kept and spawn_infos from all duplicates
-        are merged into it.
+        aura_spell = None
+        if item.aura_stable_key:
+            aura_spell = self.context.spell_repo.get_spell_by_stable_key(item.aura_stable_key)
 
-        When duplicates differ in rare/unique flags, the entity with rare or
-        unique status is preferred as the survivor. This ensures character-level
-        flags like ``is_rare`` remain accurate after merging, regardless of
-        input ordering.
+        taught_spell = None
+        taught_spell_classes: list[str] = []
+        if item.teach_spell_stable_key:
+            taught_spell = self.context.spell_repo.get_spell_by_stable_key(item.teach_spell_stable_key)
+            taught_spell_classes = self.context.spell_repo.get_spell_classes(item.teach_spell_stable_key)
 
-        Non-character entities pass through unchanged.
+        taught_skill = None
+        if item.teach_skill_stable_key:
+            taught_skill = self.context.skill_repo.get_skill_by_stable_key(item.teach_skill_stable_key)
 
-        Args:
-            enriched_entities: Mixed list of enriched entities for one page
+        return EnrichedItemData(
+            item=item,
+            stats=stats,
+            classes=classes,
+            proc=proc,
+            sources=sources,
+            aura_spell=aura_spell,
+            taught_spell=taught_spell,
+            taught_spell_classes=taught_spell_classes,
+            taught_skill=taught_skill,
+        )
 
-        Returns:
-            Filtered list with duplicate characters removed
-        """
-        result: list[
-            EnrichedItemData | EnrichedCharacterData | EnrichedSpellData | EnrichedSkillData | EnrichedStanceData
-        ] = []
-        seen_characters: dict[
-            tuple[str, int | None, int | None, tuple[tuple[str | None, float], ...], tuple[str, ...]],
-            EnrichedCharacterData,
-        ] = {}
-        duplicate_count = 0
+    def _extract_proc(self, item: Item) -> ProcInfo | None:
+        """Extract proc information from item fields, returning a ProcInfo with pre-built link."""
+        is_weapon_slot = item.required_slot in ("Primary", "Secondary", "PrimaryOrSecondary")
 
-        for enriched in enriched_entities:
-            if not isinstance(enriched, EnrichedCharacterData):
-                result.append(enriched)
-                continue
+        def _make_proc(stable_key: str, chance: str, style: str) -> ProcInfo | None:
+            spell = self.context.spell_repo.get_spell_by_stable_key(stable_key)
+            if spell is None:
+                return None
+            proc_link = AbilityLink(
+                page_title=spell.wiki_page_name,
+                display_name=spell.display_name or spell.spell_name or "",
+                image_name=spell.image_name,
+            )
+            return ProcInfo(
+                proc_link=proc_link,
+                description=spell.spell_desc or "",
+                proc_chance=chance,
+                proc_style=style,
+                spell=spell,
+            )
 
-            display_name = self.context.resolver.resolve_display_name(enriched.character.stable_key)
-            key = self._build_character_dedup_key(enriched, display_name)
-            if key not in seen_characters:
-                seen_characters[key] = enriched
-                result.append(enriched)
-                continue
+        if item.weapon_proc_on_hit_stable_key and (item.weapon_proc_chance or 0) > 0:
+            style = "Bash" if item.shield else "Attack" if is_weapon_slot else "Cast"
+            chance = str(int(item.weapon_proc_chance)) if item.weapon_proc_chance is not None else "0"
+            return _make_proc(item.weapon_proc_on_hit_stable_key, chance, style)
 
-            existing = seen_characters[key]
-            duplicate_count += 1
+        if item.wand_effect_stable_key and (item.wand_proc_chance or 0) > 0:
+            chance = str(int(item.wand_proc_chance)) if item.wand_proc_chance is not None else "0"
+            return _make_proc(item.wand_effect_stable_key, chance, "Attack")
 
-            if self._should_replace_survivor(existing, enriched):
-                enriched.spawn_infos.extend(existing.spawn_infos)
-                seen_characters[key] = enriched
-                idx = result.index(existing)
-                result[idx] = enriched
-            else:
-                existing.spawn_infos.extend(enriched.spawn_infos)
+        if item.bow_effect_stable_key and (item.bow_proc_chance or 0) > 0:
+            chance = str(int(item.bow_proc_chance)) if item.bow_proc_chance is not None else "0"
+            return _make_proc(item.bow_effect_stable_key, chance, "Attack")
 
-        if duplicate_count > 0:
-            logger.debug(f"Deduplicated {duplicate_count} character entities")
+        if item.worn_effect_stable_key:
+            return _make_proc(item.worn_effect_stable_key, "", "Worn")
 
-        return result
+        if item.item_effect_on_click_stable_key:
+            return _make_proc(item.item_effect_on_click_stable_key, "", "Activatable")
 
-    @staticmethod
-    def _should_replace_survivor(existing: EnrichedCharacterData, candidate: EnrichedCharacterData) -> bool:
-        """Decide whether a duplicate should replace the current survivor.
+        return None
 
-        Prefers entities with rare or unique character-level flags, so the
-        surviving Character object retains the most descriptive metadata.
-        """
-        existing_special = bool(existing.character.is_rare) or bool(existing.character.is_unique)
-        candidate_special = bool(candidate.character.is_rare) or bool(candidate.character.is_unique)
-        return candidate_special and not existing_special
+    def _assemble_source_info(self, item: Item) -> SourceInfo:
+        vendors = self.context.character_repo.get_vendors_selling_item(item.stable_key)
+
+        char_drops = self.context.character_repo.get_characters_dropping_item(item.stable_key)
+        item_sources = self.context.item_repo.get_item_sources(item.stable_key)
+        drops: list[tuple[WikiLink, float]] = [*char_drops, *item_sources]
+
+        quest_rewards = self.context.quest_repo.get_quests_rewarding_item(item.stable_key)
+        quest_requirements = self.context.quest_repo.get_quests_requiring_item(item.stable_key)
+
+        craft_sources_links = self.context.item_repo.get_items_producing_item(item.stable_key)
+        component_for = self.context.item_repo.get_items_requiring_item(item.stable_key)
+
+        # Build craft_recipe from the first mold's recipe.
+        # Query the first mold's stable key directly from crafting_rewards.
+        craft_recipe: list[tuple[ItemLink, int]] = []
+        if craft_sources_links:
+            first_mold_rows = self._execute_raw_direct(
+                """
+                SELECT cr.recipe_item_stable_key
+                FROM crafting_rewards cr
+                WHERE cr.reward_item_stable_key = ?
+                LIMIT 1
+                """,
+                (item.stable_key,),
+            )
+            if first_mold_rows:
+                mold_stable_key = str(first_mold_rows[0]["recipe_item_stable_key"])
+                recipe = self.context.item_repo.get_crafting_recipe(mold_stable_key)
+                if recipe:
+                    # Mold itself (1x)
+                    craft_recipe.append((craft_sources_links[0], 1))
+                    craft_recipe.extend(recipe.materials)
+
+        crafting_results: list[tuple[ItemLink, int]] = []
+        recipe_ingredients: list[tuple[ItemLink, int]] = []
+        own_recipe = self.context.item_repo.get_crafting_recipe(item.stable_key)
+        if own_recipe:
+            crafting_results = own_recipe.results
+            recipe_ingredients = own_recipe.materials
+
+        item_drops = self.context.item_repo.get_item_drops(item.stable_key)
+
+        return SourceInfo(
+            vendors=vendors,
+            drops=drops,
+            quest_rewards=quest_rewards,
+            quest_requirements=quest_requirements,
+            craft_sources=craft_sources_links,
+            craft_recipe=craft_recipe,
+            component_for=component_for,
+            crafting_results=crafting_results,
+            recipe_ingredients=recipe_ingredients,
+            item_drops=item_drops,
+        )
+
+    def _execute_raw_direct(self, query: str, params: tuple) -> list:  # type: ignore[type-arg]
+        """Execute a raw query via the item repository's connection (convenience helper)."""
+        return self.context.item_repo._execute_raw(query, params)
+
+    def _assemble_spell(self, spell: Spell) -> EnrichedSpellData:
+        obtainable_teaching_items = self.context.item_repo.get_obtainable_items_that_teach_spell(spell.stable_key)
+
+        classes: list[str] = []
+        if obtainable_teaching_items:
+            classes = self.context.spell_repo.get_spell_classes(spell.stable_key)
+
+        items_with_effect = self.context.item_repo.get_items_with_spell_effect(spell.stable_key)
+        used_by_characters = self.context.character_repo.get_characters_using_spell(spell.stable_key)
+
+        pet_to_summon = None
+        if spell.pet_to_summon_stable_key:
+            pet_to_summon = self.context.character_repo.get_character_link(spell.pet_to_summon_stable_key)
+
+        return EnrichedSpellData(
+            spell=spell,
+            classes=classes,
+            items_with_effect=items_with_effect,
+            teaching_items=obtainable_teaching_items,
+            used_by_characters=used_by_characters,
+            pet_to_summon=pet_to_summon,
+        )
+
+    def _assemble_skill(self, skill: Skill) -> EnrichedSkillData:
+        obtainable_teaching_items = self.context.item_repo.get_obtainable_items_that_teach_skill(skill.stable_key)
+        items_with_effect = self.context.item_repo.get_items_with_skill_effect(skill.stable_key)
+
+        activated_stance: AbilityLink | None = None
+        if skill.stance_to_use_stable_key:
+            stance = self.context.stance_repo.get_by_stable_key(skill.stance_to_use_stable_key)
+            if stance is not None:
+                activated_stance = AbilityLink(
+                    page_title=stance.wiki_page_name,
+                    display_name=stance.display_name or "",
+                    image_name=stance.image_name,
+                )
+
+        return EnrichedSkillData(
+            skill=skill,
+            items_with_effect=items_with_effect,
+            teaching_items=obtainable_teaching_items,
+            activated_stance=activated_stance,
+        )
+
+    def _assemble_stance(self, stance: Stance) -> EnrichedStanceData:
+        activated_by_skills = self.context.skill_repo.get_skills_using_stance(stance.stable_key)
+        return EnrichedStanceData(
+            stance=stance,
+            activated_by_skills=activated_by_skills,
+        )

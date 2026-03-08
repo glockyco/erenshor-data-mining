@@ -5,8 +5,6 @@ from loguru import logger
 from erenshor.domain.entities.stance import Stance
 from erenshor.infrastructure.database.repository import BaseRepository, RepositoryError
 
-from ._case_utils import pascal_to_snake
-
 
 class StanceRepository(BaseRepository[Stance]):
     """Repository for stance-specific database queries.
@@ -31,32 +29,14 @@ class StanceRepository(BaseRepository[Stance]):
             RepositoryError: If query execution fails.
         """
         query = """
-            SELECT
-                StableKey,
-                StanceDBIndex,
-                Id,
-                DisplayName,
-                MaxHPMod,
-                DamageMod,
-                ProcRateMod,
-                DamageTakenMod,
-                SelfDamagePerAttack,
-                AggroGenMod,
-                SpellDamageMod,
-                SelfDamagePerCast,
-                LifestealAmount,
-                ResonanceAmount,
-                StopRegen,
-                SwitchMessage,
-                StanceDesc,
-                ResourceName
-            FROM Stances
-            ORDER BY DisplayName COLLATE NOCASE
+            SELECT *
+            FROM stances
+            ORDER BY display_name COLLATE NOCASE
         """
 
         try:
             rows = self._execute_raw(query, ())
-            stances = [self._row_to_stance(row) for row in rows]
+            stances = [Stance.model_validate(dict(row)) for row in rows]
             logger.debug(f"Retrieved {len(stances)} stances")
             return stances
         except Exception as e:
@@ -75,27 +55,9 @@ class StanceRepository(BaseRepository[Stance]):
             RepositoryError: If query execution fails.
         """
         query = """
-            SELECT
-                StableKey,
-                StanceDBIndex,
-                Id,
-                DisplayName,
-                MaxHPMod,
-                DamageMod,
-                ProcRateMod,
-                DamageTakenMod,
-                SelfDamagePerAttack,
-                AggroGenMod,
-                SpellDamageMod,
-                SelfDamagePerCast,
-                LifestealAmount,
-                ResonanceAmount,
-                StopRegen,
-                SwitchMessage,
-                StanceDesc,
-                ResourceName
-            FROM Stances
-            WHERE StableKey = ?
+            SELECT *
+            FROM stances
+            WHERE stable_key = ?
         """
 
         try:
@@ -103,21 +65,6 @@ class StanceRepository(BaseRepository[Stance]):
             if not rows:
                 logger.debug(f"Stance not found: {stable_key}")
                 return None
-            return self._row_to_stance(rows[0])
+            return Stance.model_validate(dict(rows[0]))
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve stance {stable_key}: {e}") from e
-
-    def _row_to_stance(self, row: dict[str, object]) -> Stance:
-        """Convert database row to Stance entity.
-
-        Args:
-            row: sqlite3.Row object with Stance columns.
-
-        Returns:
-            Stance domain entity.
-        """
-        # Convert row to dict and transform PascalCase keys to snake_case
-        data = {pascal_to_snake(key): value for key, value in dict(row).items()}
-
-        # Pydantic will handle validation and type conversion
-        return Stance.model_validate(data)

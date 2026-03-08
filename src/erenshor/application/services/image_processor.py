@@ -23,7 +23,6 @@ from PIL import Image
 
 if TYPE_CHECKING:
     from erenshor.domain.entities.image import ImageInfo, ProcessingResult
-    from erenshor.registry.resolver import RegistryResolver
 
 __all__ = ["ImageProcessor"]
 
@@ -45,7 +44,6 @@ class ImageProcessor:
         self,
         texture_dir: Path,
         output_dir: Path,
-        resolver: RegistryResolver,
         game_db_path: Path,
     ):
         """Initialize image processor.
@@ -53,26 +51,24 @@ class ImageProcessor:
         Args:
             texture_dir: Directory with source PNG files (from Unity)
             output_dir: Directory to write processed images
-            resolver: Registry resolver for entity lookups
-            game_db_path: Path to game database for icon file names
+            game_db_path: Path to the clean game database (snake_case columns)
         """
         self.texture_dir = texture_dir
         self.output_dir = output_dir
-        self.resolver = resolver
         self.game_db_path = game_db_path
 
     def discover_images(self) -> Iterator[ImageInfo]:
         """Discover all images from game database.
 
-        Queries the game database directly for icon file names (ItemIconName,
-        SpellIconName, SkillIconName) and uses registry for entity names.
+        Queries the clean game database for icon file names and image_name.
+        Only entities with a non-null wiki_page_name (i.e. not excluded) and a
+        non-null image_name are yielded.
 
         Yields:
-            ImageInfo for each entity with an icon (excluding excluded entities)
+            ImageInfo for each entity with an icon
         """
         import sqlite3
 
-        # Connect to game database
         conn = sqlite3.connect(self.game_db_path)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
@@ -80,23 +76,16 @@ class ImageProcessor:
         try:
             # Items
             cursor.execute(
-                "SELECT StableKey, ItemName, ItemIconName FROM Items "
-                "WHERE ItemIconName IS NOT NULL AND ItemIconName != ''"
+                "SELECT stable_key, item_name, item_icon_name, wiki_page_name, image_name "
+                "FROM items "
+                "WHERE item_icon_name IS NOT NULL AND item_icon_name != '' "
+                "AND wiki_page_name IS NOT NULL AND image_name IS NOT NULL"
             )
             for row in cursor.fetchall():
-                stable_key = row["StableKey"]
-                icon_name = row["ItemIconName"]
-
-                # Check if excluded in registry and resolve names
-                try:
-                    entity_name = self.resolver.resolve_page_title(stable_key)
-                    image_name = self.resolver.resolve_image_name(stable_key)
-                except ValueError:
-                    continue
-
-                if entity_name is None or image_name is None:
-                    continue
-
+                stable_key = row["stable_key"]
+                icon_name = row["item_icon_name"]
+                entity_name = row["wiki_page_name"]
+                image_name = row["image_name"]
                 source_path = self.texture_dir / f"{icon_name}.png"
 
                 from erenshor.domain.entities.image import ImageInfo
@@ -112,22 +101,16 @@ class ImageProcessor:
 
             # Spells
             cursor.execute(
-                "SELECT StableKey, SpellName, SpellIconName FROM Spells "
-                "WHERE SpellIconName IS NOT NULL AND SpellIconName != ''"
+                "SELECT stable_key, spell_name, spell_icon_name, wiki_page_name, image_name "
+                "FROM spells "
+                "WHERE spell_icon_name IS NOT NULL AND spell_icon_name != '' "
+                "AND wiki_page_name IS NOT NULL AND image_name IS NOT NULL"
             )
             for row in cursor.fetchall():
-                stable_key = row["StableKey"]
-                icon_name = row["SpellIconName"]
-
-                try:
-                    entity_name = self.resolver.resolve_page_title(stable_key)
-                    image_name = self.resolver.resolve_image_name(stable_key)
-                except ValueError:
-                    continue
-
-                if entity_name is None or image_name is None:
-                    continue
-
+                stable_key = row["stable_key"]
+                icon_name = row["spell_icon_name"]
+                entity_name = row["wiki_page_name"]
+                image_name = row["image_name"]
                 source_path = self.texture_dir / f"{icon_name}.png"
 
                 from erenshor.domain.entities.image import ImageInfo
@@ -143,22 +126,16 @@ class ImageProcessor:
 
             # Skills
             cursor.execute(
-                "SELECT StableKey, SkillName, SkillIconName FROM Skills "
-                "WHERE SkillIconName IS NOT NULL AND SkillIconName != ''"
+                "SELECT stable_key, skill_name, skill_icon_name, wiki_page_name, image_name "
+                "FROM skills "
+                "WHERE skill_icon_name IS NOT NULL AND skill_icon_name != '' "
+                "AND wiki_page_name IS NOT NULL AND image_name IS NOT NULL"
             )
             for row in cursor.fetchall():
-                stable_key = row["StableKey"]
-                icon_name = row["SkillIconName"]
-
-                try:
-                    entity_name = self.resolver.resolve_page_title(stable_key)
-                    image_name = self.resolver.resolve_image_name(stable_key)
-                except ValueError:
-                    continue
-
-                if entity_name is None or image_name is None:
-                    continue
-
+                stable_key = row["stable_key"]
+                icon_name = row["skill_icon_name"]
+                entity_name = row["wiki_page_name"]
+                image_name = row["image_name"]
                 source_path = self.texture_dir / f"{icon_name}.png"
 
                 from erenshor.domain.entities.image import ImageInfo
@@ -236,63 +213,26 @@ class ImageProcessor:
         )
 
     def _get_filename(self, image_info: ImageInfo) -> str:
-        """Get output filename using stable key format.
-
-        Files are stored using stable key format with @ separator:
-        "{entity_type}@{resource_name}.png" (e.g., "item@gen - kgti.png")
-
-        This matches the stable_key format but uses @ instead of :
-        since colons can be problematic on some filesystems.
-
-        Args:
-            image_info: Image information
-
-        Returns:
-            Filename with stable key format (e.g., "item@gen - kgti.png")
-        """
-        # Convert stable_key to filename (replace : with @)
-        # stable_key format: "item:gen - kgti" → filename: "item@gen - kgti.png"
+        """Get output filename using stable key format."""
         filename_base = image_info.stable_key.replace(":", "@", 1)
-
-        # Sanitize for filesystem (replace path separators)
         filename_base = filename_base.replace("/", "_").replace("\\", "_")
-
         return f"{filename_base}.png"
 
     @staticmethod
     def _sha256_file(file_path: Path) -> str:
-        """Calculate SHA256 hash of a file.
-
-        Args:
-            file_path: Path to file.
-
-        Returns:
-            Hex string of SHA256 hash.
-        """
+        """Calculate SHA256 hash of a file."""
         sha256_hash = hashlib.sha256()
         with file_path.open("rb") as f:
-            # Read file in chunks for memory efficiency
             for byte_block in iter(lambda: f.read(4096), b""):
                 sha256_hash.update(byte_block)
         return sha256_hash.hexdigest()
 
     def _resize_and_pad(self, image: Image.Image, size: tuple[int, int]) -> Image.Image:
-        """Resize image to fit within size, preserving aspect ratio.
-
-        Args:
-            image: Source image
-            size: Target size (width, height)
-
-        Returns:
-            Resized and padded image
-        """
-        # Resize preserving aspect ratio
+        """Resize image to fit within size, preserving aspect ratio."""
         image.thumbnail(size, Image.Resampling.LANCZOS)
 
-        # Create transparent background
         new_image = Image.new("RGBA", size, (0, 0, 0, 0))
 
-        # Center the image
         left = (size[0] - image.width) // 2
         top = (size[1] - image.height) // 2
         new_image.paste(image, (left, top), image)
@@ -300,24 +240,14 @@ class ImageProcessor:
         return new_image
 
     def _overlay_on_background(self, icon: Image.Image, size: tuple[int, int]) -> Image.Image:
-        """Overlay icon on background image (for items).
-
-        Args:
-            icon: Resized and padded icon
-            size: Target size (width, height)
-
-        Returns:
-            Icon overlaid on background
-        """
+        """Overlay icon on background image (for items)."""
         background_path = Path(self.BACKGROUND_IMAGE_PATH)
         if not background_path.exists():
-            # Fallback: return icon without background
             return icon
 
         with Image.open(background_path) as bg_img:
             bg = bg_img.convert("RGBA")
             bg = bg.resize(size, Image.Resampling.LANCZOS)
-            # Center the icon on the background
             left = (size[0] - icon.width) // 2
             top = (size[1] - icon.height) // 2
             bg.paste(icon, (left, top), icon)
@@ -330,25 +260,12 @@ class ImageProcessor:
         border_color: tuple[int, int, int, int],
         border_size: int,
     ) -> Image.Image:
-        """Resize image and add border around it.
-
-        Args:
-            image: Source image
-            size: Target size (width, height)
-            border_color: RGBA color for border
-            border_size: Border width in pixels
-
-        Returns:
-            Resized, padded, and bordered image
-        """
-        # Calculate inner size (leaving room for border)
+        """Resize image and add border around it."""
         inner_width = size[0] - 2 * border_size
         inner_height = size[1] - 2 * border_size
 
-        # Resize to inner size
         inner_image = self._resize_and_pad(image, (inner_width, inner_height))
 
-        # Create image with border
         bordered_image = Image.new("RGBA", size, border_color)
         bordered_image.paste(inner_image, (border_size, border_size), inner_image)
 

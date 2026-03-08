@@ -17,7 +17,6 @@ from erenshor.application.wiki.generators.sections.base import SectionGeneratorB
 
 if TYPE_CHECKING:
     from erenshor.domain.enriched_data.stance import EnrichedStanceData
-    from erenshor.registry.resolver import RegistryResolver
 
 
 class StanceSectionGenerator(SectionGeneratorBase):
@@ -26,53 +25,22 @@ class StanceSectionGenerator(SectionGeneratorBase):
     Generates {{Stance}} template wikitext for a single stance entity.
 
     Multi-entity page assembly is handled by PageGenerator classes, not here.
-
-    Example:
-        >>> resolver = RegistryResolver(...)
-        >>> generator = StanceSectionGenerator(resolver)
-        >>> stance = Stance(...)  # From repository
-        >>> enriched = enrich(stance)
-        >>> wikitext = generator.generate_template(enriched, page_title="Aggressive")
     """
 
-    def __init__(self, resolver: RegistryResolver) -> None:
-        """Initialize stance template generator.
-
-        Args:
-            resolver: Registry resolver for links and display names
-        """
+    def __init__(self) -> None:
         super().__init__()
-        self._resolver = resolver
 
     def generate_template(
         self,
         enriched: EnrichedStanceData,
         page_title: str,
     ) -> str:
-        """Generate {{Stance}} template wikitext for a single stance.
-
-        Args:
-            enriched: Enriched stance data with activating skills
-            page_title: Wiki page title (from registry)
-
-        Returns:
-            Template wikitext for single stance (infobox + categories)
-
-        Example:
-            >>> enriched = EnrichedStanceData(stance=stance, activated_by_skills=["skill:stance - aggressive"])
-            >>> wikitext = generator.generate_template(enriched, "Aggressive")
-        """
+        """Generate {{Stance}} template wikitext for a single stance."""
         stance = enriched.stance
         logger.debug(f"Generating template for stance: {stance.display_name}")
 
-        # Build template context
         context = self._build_stance_template_context(enriched, page_title)
-
-        # Render template
         template_wikitext = self.render_template("stance.jinja2", context)
-
-        # TODO: Add category tags when CategoryGenerator supports stances
-
         return self.normalize_wikitext(template_wikitext)
 
     def _build_stance_template_context(
@@ -80,29 +48,14 @@ class StanceSectionGenerator(SectionGeneratorBase):
         enriched: EnrichedStanceData,
         page_title: str,
     ) -> dict[str, str]:
-        """Build context for {{Stance}} template from Stance entity.
-
-        Converts Stance entity to template context dict. All fields are passed
-        as raw values - formatting is handled by MediaWiki templates, not here.
-
-        Args:
-            enriched: Enriched stance data
-            page_title: Wiki page title
-
-        Returns:
-            Template context dict with all {{Stance}} template fields
-        """
+        """Build context for {{Stance}} template from Stance entity."""
         stance = enriched.stance
 
-        # Resolve image name from registry (with overrides)
-        image_name = self._resolver.resolve_image_name(stance.stable_key)
-        image = f"{image_name}.png"
+        image = f"{stance.image_name}.png" if stance.image_name else ""
+        display_name = stance.display_name or page_title
 
-        # Get display name from resolver (respects mapping.json overrides)
-        display_name = self._resolver.resolve_display_name(stance.stable_key)
-
-        # Format activated_by skills as ability links
-        activated_by = self._format_skill_links(enriched.activated_by_skills)
+        # activated_by_skills are pre-built AbilityLink objects
+        activated_by = self._format_wiki_links(enriched.activated_by_skills)
 
         context: dict[str, str] = {
             "title": display_name,
@@ -124,38 +77,17 @@ class StanceSectionGenerator(SectionGeneratorBase):
             "resonance_amount": safe_str(stance.resonance_amount, zero_as_blank=True),
             # Stop regen - RAW VALUE (0 or 1)
             "stop_regen": safe_str(stance.stop_regen, zero_as_blank=True),
-            # Skill links - FORMATTED using resolver
+            # Skill links - pre-built WikiLink objects
             "activated_by": activated_by,
         }
 
         return context
 
-    def _format_skill_links(
-        self,
-        skill_stable_keys: list[str],
-    ) -> str:
-        """Format list of skill stable keys as {{AbilityLink}} templates separated by <br>.
-
-        Args:
-            skill_stable_keys: List of skill stable keys (not names)
-
-        Returns:
-            Formatted string like "{{AbilityLink|Skill1}}<br>{{AbilityLink|Skill2}}"
-            sorted alphabetically by display name, or empty string if no skills
-
-        Examples:
-            >>> keys = ["skill:stance - aggressive", "skill:stance - defensive"]
-            >>> self._format_skill_links(keys)
-            '{{AbilityLink|Stance: Aggressive}}<br>{{AbilityLink|Stance: Defensive}}'
-        """
-        if not skill_stable_keys:
+    def _format_wiki_links(self, links: list) -> str:  # type: ignore[type-arg]
+        """Format a list of WikiLink objects as wikitext separated by <br>."""
+        if not links:
             return ""
 
-        # Create link objects and filter out excluded skills (page_title=None)
-        links = [self._resolver.ability_link(key) for key in skill_stable_keys]
-        links = [link for link in links if link.page_title is not None]
-
-        # Sort by display name (WikiLink.__lt__ handles this)
-        links.sort()
-
-        return "<br>".join(str(link) for link in links)
+        visible = [link for link in links if link.page_title is not None]
+        visible.sort()
+        return "<br>".join(str(link) for link in visible)

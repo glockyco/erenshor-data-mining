@@ -23,7 +23,6 @@ from erenshor.application.services.image_comparator import ImageComparator
 from erenshor.application.services.image_processor import ImageProcessor
 from erenshor.application.services.image_registry import ImageRegistry
 from erenshor.infrastructure.wiki.filename_sanitizer import needs_redirect, sanitize_wiki_filename
-from erenshor.registry.resolver import RegistryResolver
 
 if TYPE_CHECKING:
     from erenshor.cli.context import CLIContext
@@ -79,13 +78,7 @@ def process(
         console.print("Run 'erenshor extract rip' first to extract Unity assets")
         raise typer.Exit(1)
 
-    # Load registry resolver
-    console.print("[dim]Loading registry...[/dim]")
-    wiki_dir = variant_config.resolved_wiki(cli_ctx.repo_root)
-    wiki_registry_db_path = wiki_dir / "registry.db"
     db_path = variant_config.resolved_database(cli_ctx.repo_root)
-    mapping_json_path = cli_ctx.repo_root / "mapping.json"
-    resolver = RegistryResolver(wiki_registry_db_path, game_db_path=db_path, mapping_json_path=mapping_json_path)
 
     # Initialize registry
     registry = ImageRegistry(registry_db_path)
@@ -94,7 +87,6 @@ def process(
     processor = ImageProcessor(
         texture_dir=texture_dir,
         output_dir=current_dir,
-        resolver=resolver,
         game_db_path=db_path,
     )
 

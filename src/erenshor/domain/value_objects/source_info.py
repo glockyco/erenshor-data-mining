@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass, field
 
-from erenshor.domain.value_objects.wiki_link import CharacterLink, ItemLink, QuestLink
+from erenshor.domain.value_objects.wiki_link import CharacterLink, ItemLink, QuestLink, WikiLink
 
 __all__ = ["SourceInfo"]
 
@@ -19,8 +19,8 @@ class SourceInfo:
     # Vendors
     vendors: list[CharacterLink] = field(default_factory=list)
 
-    # Drops from characters
-    drops: list[tuple[CharacterLink, float]] = field(default_factory=list)
+    # Drops from characters and items (e.g., fossils)
+    drops: list[tuple[WikiLink, float]] = field(default_factory=list)
 
     # Quests
     quest_rewards: list[QuestLink] = field(default_factory=list)

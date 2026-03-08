@@ -22,6 +22,11 @@ class Item(BaseEntity):
     # Primary keys and identifiers
     stable_key: str = Field(description="Stable key from database (primary key)")
 
+    # Canonical wiki names (populated by the Layer 2 processor)
+    display_name: str | None = Field(default=None, description="Canonical display name for wiki")
+    wiki_page_name: str | None = Field(default=None, description="Canonical wiki page title")
+    image_name: str | None = Field(default=None, description="Image filename stem (without .png)")
+
     # Display fields
     item_name: str | None = Field(default=None, description="Display name shown in game")
     lore: str | None = Field(default=None, description="Item lore/flavor text")
@@ -90,7 +95,7 @@ class Item(BaseEntity):
     # Item flags
     stackable: int | None = Field(default=None, description="Can stack (boolean)")
     disposable: int | None = Field(default=None, description="Item is CONSUMED when clicked (boolean)")
-    unique: int | None = Field(
+    is_unique: int | None = Field(
         default=None,
         description="If true, item won't drop again if already in player's inventory (boolean)",
     )

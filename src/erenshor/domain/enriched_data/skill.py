@@ -1,7 +1,7 @@
 """Enriched skill data DTO."""
 
 from erenshor.domain.entities.skill import Skill
-from erenshor.domain.entities.stance import Stance
+from erenshor.domain.value_objects.wiki_link import AbilityLink, ItemLink
 
 __all__ = ["EnrichedSkillData"]
 
@@ -16,17 +16,17 @@ class EnrichedSkillData:
     def __init__(
         self,
         skill: Skill,
-        items_with_effect: list[str],
-        teaching_items: list[str],
-        activated_stance: Stance | None = None,
+        items_with_effect: list[ItemLink],
+        teaching_items: list[ItemLink],
+        activated_stance: AbilityLink | None = None,
     ) -> None:
         """Initialize enriched skill data.
 
         Args:
             skill: Skill entity
-            items_with_effect: Item stable keys that grant this skill as an effect
-            teaching_items: Item stable keys that teach this skill
-            activated_stance: Stance activated by this skill (if any)
+            items_with_effect: Pre-built ItemLink objects for items that grant this skill
+            teaching_items: Pre-built ItemLink objects for items that teach this skill
+            activated_stance: Pre-built AbilityLink for the stance this skill activates (if any)
         """
         self.skill = skill
         self.items_with_effect = items_with_effect

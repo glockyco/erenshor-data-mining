@@ -18,9 +18,10 @@ from erenshor.application.wiki.generators.formatting import safe_str
 from erenshor.application.wiki.generators.sections.base import SectionGeneratorBase
 from erenshor.domain.enriched_data.character import EnrichedCharacterData
 from erenshor.domain.entities.character import Character
+from erenshor.domain.value_objects.faction import FactionModifier
 from erenshor.domain.value_objects.loot import LootDropInfo
 from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
-from erenshor.registry.resolver import RegistryResolver
+from erenshor.domain.value_objects.wiki_link import AbilityLink, FactionLink, StandardLink
 
 WIKITEXT_LINE_SEPARATOR = "<br>"
 
@@ -28,58 +29,32 @@ WIKITEXT_LINE_SEPARATOR = "<br>"
 class CharacterSectionGenerator(SectionGeneratorBase):
     """Generator for character wiki sections.
 
-    Generates {{Character}} template wikitext for a SINGLE character entity
-    with appropriate category tags.
+    Generates {{Character}} template wikitext for a SINGLE character entity.
+    All name/page resolution uses pre-built link objects and direct entity
+    attribute access — no resolver.
 
     Multi-entity page assembly is handled by PageGenerator classes, not here.
-
-    Example:
-        >>> resolver = RegistryResolver(...)
-        >>> category_generator = CategoryGenerator(resolver)
-        >>> generator = CharacterSectionGenerator(resolver, category_generator)
-        >>> enriched_data = enricher.enrich(character)
-        >>> wikitext = generator.generate_template(enriched_data, "Goblin Scout")
     """
 
-    def __init__(self, resolver: RegistryResolver) -> None:
-        """Initialize character section generator.
-
-        Args:
-            resolver: Registry resolver for links and display names
-        """
+    def __init__(self) -> None:
         super().__init__()
-        self._resolver = resolver
 
     def generate_template(
         self,
         enriched: EnrichedCharacterData,
         page_title: str,
     ) -> str:
-        """Generate template wikitext for a single character.
-
-        Args:
-            enriched: Enriched character data with spawn/loot/faction data
-            page_title: Wiki page title
-
-        Returns:
-            Template wikitext for single character (infobox + categories)
-
-        Example:
-            >>> enriched = enricher.enrich(character)
-            >>> wikitext = generator.generate_template(enriched, "Goblin Scout")
-        """
+        """Generate template wikitext for a single character."""
         logger.debug(f"Generating template for character: {enriched.character.npc_name}")
 
         character = enriched.character
 
-        # Resolve display name and image from registry
-        display_name = self._resolver.resolve_display_name(character.stable_key)
-        image_name = self._resolver.resolve_image_name(character.stable_key)
+        display_name = character.display_name or character.npc_name or ""
+        image_name = character.image_name or display_name
 
-        # Format all fields
         enemy_type = self._format_enemy_type(character, enriched.spawn_infos)
         faction = self._format_faction(character)
-        faction_change = self._format_faction_modifiers(character)
+        faction_change = self._format_faction_modifiers(character.faction_modifiers or [])
         zones = self._format_zones(enriched.spawn_infos)
         coordinates = self._format_coordinates(enriched.spawn_infos)
         spawn_chance = self._format_spawn_chance(enriched.spawn_infos)
@@ -87,19 +62,16 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         guaranteed_drops, drop_rates = self._format_loot_drops(enriched.loot_drops, display_name)
         spells = self._format_ability_links(enriched.spells)
 
-        # Calculate level modifier range from spawn points
         level_mod_min, level_mod_max = self._calculate_level_mod_range(enriched.spawn_infos)
 
-        # Random variance: -1 to +1 for regular NPCs, 0 for GroupEncounter
         is_group_encounter = bool(character.group_encounter)
         variance_min = 0 if is_group_encounter else -1
         variance_max = 0 if is_group_encounter else 1
 
-        # Build template context
         context = self._build_character_template_context(
             character=character,
             display_name=display_name,
-            image_name=image_name or "",
+            image_name=image_name,
             enemy_type=enemy_type,
             faction=faction,
             faction_change=faction_change,
@@ -135,55 +107,53 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         return "[[Enemies|Enemy]]"
 
     def _format_faction(self, character: Character) -> str:
-        """Format faction field using MyWorldFactionStableKey or MyFaction."""
+        """Format faction field using pre-built link fields on the character entity."""
         if character.my_world_faction_stable_key:
-            return str(self._resolver.faction_link(character.my_world_faction_stable_key))
+            # Use pre-populated display/wiki fields from the JOIN in the repository
+            display = character.my_world_faction_display_name or character.my_world_faction_stable_key
+            wiki = character.my_world_faction_wiki_page_name
+            link = FactionLink(page_title=wiki, display_name=display)
+            return str(link)
 
         if character.my_faction in ("Villager", "GoodHuman", "GoodGuard", "OtherGood", "PreyAnimal"):
-            return str(self._resolver.faction_link("faction:good"))
+            return str(FactionLink(page_title="Good", display_name="Good"))
 
         if character.my_faction and character.my_faction not in ("Player", "PC", "DEBUG"):
-            return str(self._resolver.faction_link("faction:evil"))
+            return str(FactionLink(page_title="Evil", display_name="Evil"))
 
         return ""
 
-    def _format_faction_modifiers(self, character: Character) -> str:
-        """Format faction modifiers with display names."""
-        if not character.faction_modifiers:
-            return ""
-
-        nonzero_mods = [m for m in character.faction_modifiers if m.modifier_value != 0]
+    def _format_faction_modifiers(self, faction_modifiers: list[FactionModifier]) -> str:
+        """Format faction modifiers using pre-built display/wiki fields."""
+        nonzero_mods = [m for m in faction_modifiers if m.modifier_value != 0]
         if not nonzero_mods:
             return ""
 
         entries: list[tuple[str, str]] = []
         for mod in nonzero_mods:
-            display_name = self._resolver.resolve_display_name(mod.faction_stable_key)
+            display = mod.faction_display_name
+            wiki = mod.faction_wiki_page_name
+            link = FactionLink(page_title=wiki, display_name=display)
             sign = "+" if mod.modifier_value > 0 else ""
-            faction_link = self._resolver.faction_link(mod.faction_stable_key)
-            formatted = f"{sign}{mod.modifier_value} {faction_link}"
-            entries.append((display_name, formatted))
+            formatted = f"{sign}{mod.modifier_value} {link}"
+            entries.append((display, formatted))
 
         entries.sort(key=lambda x: x[0])
         return WIKITEXT_LINE_SEPARATOR.join(line for _, line in entries)
 
     def _format_zones(self, spawn_infos: list[CharacterSpawnInfo]) -> str:
-        """Format zone list for wiki template."""
+        """Format zone list using pre-built zone_link on each spawn info."""
         if not spawn_infos:
             return ""
 
-        # Get unique zone stable keys
-        zone_stable_keys = {info.zone_stable_key for info in spawn_infos}
+        seen: dict[str, StandardLink] = {}
+        for info in spawn_infos:
+            key = info.zone_link.display_name
+            if key not in seen:
+                seen[key] = info.zone_link
 
-        # Build (display_name, link) tuples and sort by display name
-        zone_data = []
-        for stable_key in zone_stable_keys:
-            display_name = self._resolver.resolve_display_name(stable_key)
-            link = self._resolver.zone_link(stable_key)
-            zone_data.append((display_name, link))
-
-        zone_data.sort(key=lambda x: x[0].lower())
-        return WIKITEXT_LINE_SEPARATOR.join(str(link) for _, link in zone_data)
+        zone_links = sorted(seen.values(), key=lambda lnk: lnk.display_name.lower())
+        return WIKITEXT_LINE_SEPARATOR.join(str(link) for link in zone_links)
 
     def _format_coordinates(self, spawn_infos: list[CharacterSpawnInfo]) -> str:
         """Format coordinates for wiki template."""
@@ -197,13 +167,7 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         return f"{spawn.x:.1f} x {spawn.y:.1f} x {spawn.z:.1f}"
 
     def _format_spawn_chance(self, spawn_infos: list[CharacterSpawnInfo]) -> str:
-        """Format spawn chance for wiki template.
-
-        Rare/unique status is derived from the spawn infos themselves, not from
-        the character entity. This is resilient to character deduplication which
-        may keep a non-rare entity as the survivor while merging spawn infos
-        from a rare variant.
-        """
+        """Format spawn chance for wiki template using zone_link.display_name."""
         if not spawn_infos:
             return ""
 
@@ -217,16 +181,13 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         if all(c == 100.0 for c in chances):
             return ""
 
-        # Group spawn chances by zone
         chances_by_zone: dict[str, list[float]] = {}
         for info in spawn_infos:
-            zone_display = self._resolver.resolve_display_name(info.zone_stable_key)
+            zone_display = info.zone_link.display_name
             chances_by_zone.setdefault(zone_display, []).append(info.spawn_chance)
 
-        # Get unique zones sorted alphabetically
         zones_sorted = sorted(chances_by_zone.keys())
 
-        # Format spawn chances with zone names if multiple zones
         formatted_chances: list[str] = []
         for zone in zones_sorted:
             zone_chances = chances_by_zone[zone]
@@ -238,7 +199,6 @@ class CharacterSectionGenerator(SectionGeneratorBase):
             else:
                 display = f"{round(min_chance)}-{round(max_chance)}%"
 
-            # Include zone name only if character spawns in multiple zones
             if len(zones_sorted) > 1:
                 formatted_chances.append(f"{display} ({zone})")
             else:
@@ -247,30 +207,21 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         return WIKITEXT_LINE_SEPARATOR.join(formatted_chances)
 
     def _format_respawn(self, spawn_infos: list[CharacterSpawnInfo]) -> str:
-        """Format respawn time for wiki template.
-
-        Rounds to nearest minute for readability. Shows ranges if respawn times
-        differ within a zone. Directly-placed NPCs (base_respawn=None) are
-        excluded since they don't use the spawn system.
-        """
-        # Directly-placed NPCs have no respawn time
+        """Format respawn time using zone_link.display_name."""
         spawn_infos = [s for s in spawn_infos if s.base_respawn is not None]
 
         if not spawn_infos:
             return ""
 
-        # Group respawn times by zone and round to nearest minute
         respawns_by_zone: dict[str, list[int]] = {}
         for spawn in spawn_infos:
-            zone_display = self._resolver.resolve_display_name(spawn.zone_stable_key)
+            zone_display = spawn.zone_link.display_name
             base_respawn = spawn.base_respawn or 0.0
-            # Round to nearest minute
             minutes = round(base_respawn / 60.0)
             respawns_by_zone.setdefault(zone_display, []).append(minutes)
 
         zones_sorted = sorted(respawns_by_zone.keys())
 
-        # Format respawn times with ranges if they differ within a zone
         respawn_strs: list[tuple[str, str]] = []
         for zone in zones_sorted:
             zone_minutes = respawns_by_zone[zone]
@@ -284,28 +235,17 @@ class CharacterSectionGenerator(SectionGeneratorBase):
 
             respawn_strs.append((zone, time_str))
 
-        # Single zone - no zone name needed
         if len(respawn_strs) == 1:
             return respawn_strs[0][1]
 
-        # All zones have same time - no zone names needed
         unique_times = {time_str for _, time_str in respawn_strs}
         if len(unique_times) == 1:
             return respawn_strs[0][1]
 
-        # Multiple zones with different times - show zone names
         formatted = [f"{time_str} ({zone})" for zone, time_str in respawn_strs]
         return WIKITEXT_LINE_SEPARATOR.join(formatted)
 
     def _minutes_to_duration(self, minutes: int) -> str:
-        """Convert minutes to human-readable duration.
-
-        Args:
-            minutes: Number of minutes (already rounded)
-
-        Returns:
-            Human-readable duration string (e.g., "7 minutes", "1 minute")
-        """
         if minutes <= 0:
             return ""
         if minutes == 1:
@@ -317,7 +257,7 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         loot_drops: list[LootDropInfo],
         character_display_name: str,
     ) -> tuple[str, str]:
-        """Format loot drops for wiki template."""
+        """Format loot drops using pre-built item_link on each LootDropInfo."""
         if not loot_drops:
             return ("", "")
 
@@ -325,14 +265,13 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         all_entries: list[tuple[tuple[float, str], str]] = []
 
         for drop in loot_drops:
-            if not drop.item_stable_key:
-                raise ValueError(f"Invalid loot drop for {character_display_name}: missing item_stable_key")
+            item_link = drop.item_link
+            if item_link.page_title is None:
+                continue  # Excluded item — skip
             if drop.drop_probability <= 0:
-                continue  # Zero probability drops are valid (disabled drops)
+                continue
 
-            item_link = self._resolver.item_link(drop.item_stable_key)
-            display_name = self._resolver.resolve_display_name(drop.item_stable_key)
-
+            display_name = item_link.display_name
             probability_text = f"{drop.drop_probability:.1f}%"
             entry_with_pct = f"{item_link} ({probability_text})"
 
@@ -378,17 +317,8 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         self,
         spawn_infos: list[CharacterSpawnInfo],
     ) -> tuple[int, int]:
-        """Calculate min and max level modifiers from spawn points.
-
-        Args:
-            spawn_infos: List of spawn point info with level_mod values
-
-        Returns:
-            Tuple of (min_level_mod, max_level_mod)
-        """
         if not spawn_infos:
             return (0, 0)
-
         level_mods = [info.level_mod for info in spawn_infos]
         return (min(level_mods), max(level_mods))
 
@@ -413,7 +343,6 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         variance_max: int,
     ) -> dict[str, str]:
         """Build context for {{Character}} template."""
-        # XP multiplier (boss_xp_multiplier, default 1.0)
         xp_multiplier = character.boss_xp_multiplier if character.boss_xp_multiplier else 1.0
         if xp_multiplier == 0.0:
             xp_multiplier = 1.0
@@ -427,7 +356,7 @@ class CharacterSectionGenerator(SectionGeneratorBase):
             max_r = max_val or 0
             return f"{min_r}-{max_r}" if min_r != max_r else str(min_r)
 
-        context: dict[str, str] = {
+        return {
             "name": display_name,
             "image": f"{image_name}.png",
             "imagecaption": "",
@@ -483,34 +412,10 @@ class CharacterSectionGenerator(SectionGeneratorBase):
             "spells": spells,
         }
 
-        return context
-
-    def _format_ability_links(
-        self,
-        spells: list[str],
-    ) -> str:
-        """Format list of spells as {{AbilityLink}} templates separated by <br>.
-
-        Args:
-            spells: List of spell stable keys
-
-        Returns:
-            Formatted string like "{{AbilityLink|Spell1}}<br>{{AbilityLink|Spell2}}"
-            sorted alphabetically by display name, or empty string if no spells
-
-        Examples:
-            >>> spells = ["spell:fireball"]
-            >>> self._format_ability_links(spells)
-            '{{AbilityLink|Fireball}}'
-        """
+    def _format_ability_links(self, spells: list[AbilityLink]) -> str:
+        """Format pre-built AbilityLink objects as <br>-separated wikitext."""
         if not spells:
             return ""
-
-        # Create link objects and filter out excluded spells (page_title=None)
-        links = [self._resolver.ability_link(key) for key in spells]
-        links = [link for link in links if link.page_title is not None]
-
-        # Sort by display name (WikiLink.__lt__ handles this)
-        links.sort()
-
-        return "<br>".join(str(link) for link in links)
+        visible = [link for link in spells if link.page_title is not None]
+        visible.sort()
+        return "<br>".join(str(link) for link in visible)

@@ -4,69 +4,7 @@ This module contains common functionality used across WikiFetchService,
 WikiGenerateService, and WikiDeployService to avoid duplication.
 """
 
-from collections import defaultdict
-
-from loguru import logger
 from rich.console import Console
-
-from erenshor.application.wiki.services.page import WikiPage
-from erenshor.domain.entities import Character, Item, Skill, Spell
-from erenshor.registry.resolver import RegistryResolver
-
-
-def group_entities_by_page_title(
-    entities: list[Item | Character | Spell | Skill],
-    registry_resolver: RegistryResolver,
-) -> list[WikiPage]:
-    """Group entities by resolved page title.
-
-    Args:
-        entities: List of all entities to group.
-        registry_resolver: Resolver for page titles from registry.
-
-    Returns:
-        List of WikiPage objects.
-    """
-    groups: dict[str, list[Item | Character | Spell | Skill]] = defaultdict(list)
-
-    for entity in entities:
-        # Get entity's display name based on type
-        if isinstance(entity, Item):
-            entity_name = entity.item_name
-        elif isinstance(entity, Character):
-            entity_name = entity.npc_name
-        elif isinstance(entity, Spell):
-            entity_name = entity.spell_name
-        elif isinstance(entity, Skill):
-            entity_name = entity.skill_name
-        else:
-            logger.warning(f"Unknown entity type: {type(entity)}")
-            continue
-
-        if not entity_name:
-            raise ValueError(f"Entity {entity.stable_key} has no name")
-
-        # Resolve page title via registry
-        page_title = registry_resolver.resolve_page_title(entity.stable_key)
-
-        # Skip excluded entities (None means excluded)
-        if page_title is None:
-            continue
-
-        groups[page_title].append(entity)
-
-    # Convert to WikiPage objects
-    pages = [
-        WikiPage(
-            title=page_title,
-            stable_keys=[e.stable_key for e in group_entities],
-            entities=group_entities,
-        )
-        for page_title, group_entities in groups.items()
-    ]
-
-    logger.debug(f"Grouped {len(entities)} entities into {len(pages)} pages")
-    return pages
 
 
 def display_operation_summary(

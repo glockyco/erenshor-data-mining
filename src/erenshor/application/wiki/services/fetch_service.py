@@ -4,27 +4,33 @@ This service handles fetching wiki pages from MediaWiki with smart cache invalid
 based on recent changes timestamps.
 """
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from loguru import logger
 from rich.console import Console
 from rich.progress import track
 
 from erenshor.application.wiki.generators.context import GeneratorContext
 from erenshor.application.wiki.generators.registry import get_generators_by_name
-from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
 from erenshor.application.wiki.services.helpers import display_operation_summary
 from erenshor.application.wiki.services.page import OperationResult
-from erenshor.application.wiki.services.storage import WikiStorage
-from erenshor.infrastructure.database.repositories.characters import CharacterRepository
-from erenshor.infrastructure.database.repositories.factions import FactionRepository
-from erenshor.infrastructure.database.repositories.items import ItemRepository
-from erenshor.infrastructure.database.repositories.loot_tables import LootTableRepository
-from erenshor.infrastructure.database.repositories.quests import QuestRepository
-from erenshor.infrastructure.database.repositories.skills import SkillRepository
-from erenshor.infrastructure.database.repositories.spawn_points import SpawnPointRepository
-from erenshor.infrastructure.database.repositories.spells import SpellRepository
-from erenshor.infrastructure.database.repositories.stances import StanceRepository
 from erenshor.infrastructure.wiki.client import MediaWikiAPIError, MediaWikiClient
-from erenshor.registry.resolver import RegistryResolver
+
+if TYPE_CHECKING:
+    from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
+    from erenshor.application.wiki.services.storage import WikiStorage
+    from erenshor.domain.entities import Character, Item, Skill, Spell, Stance
+    from erenshor.infrastructure.database.repositories.characters import CharacterRepository
+    from erenshor.infrastructure.database.repositories.factions import FactionRepository
+    from erenshor.infrastructure.database.repositories.items import ItemRepository
+    from erenshor.infrastructure.database.repositories.loot_tables import LootTableRepository
+    from erenshor.infrastructure.database.repositories.quests import QuestRepository
+    from erenshor.infrastructure.database.repositories.skills import SkillRepository
+    from erenshor.infrastructure.database.repositories.spawn_points import SpawnPointRepository
+    from erenshor.infrastructure.database.repositories.spells import SpellRepository
+    from erenshor.infrastructure.database.repositories.stances import StanceRepository
 
 
 class WikiFetchService:
@@ -43,7 +49,6 @@ class WikiFetchService:
         spawn_repo: SpawnPointRepository,
         loot_repo: LootTableRepository,
         quest_repo: QuestRepository,
-        registry_resolver: RegistryResolver,
         class_display: ClassDisplayNameService,
         console: Console | None = None,
     ) -> None:
@@ -61,7 +66,6 @@ class WikiFetchService:
             spawn_repo: Repository for spawn point data.
             loot_repo: Repository for loot table data.
             quest_repo: Repository for quest data.
-            registry_resolver: Resolver for page titles from registry.
             class_display: Service for mapping class names to display names.
             console: Rich console for output (optional).
         """
@@ -80,12 +84,37 @@ class WikiFetchService:
             spawn_repo=spawn_repo,
             loot_repo=loot_repo,
             quest_repo=quest_repo,
-            resolver=registry_resolver,
             storage=storage,
             class_display=class_display,
         )
 
         logger.debug("WikiFetchService initialized")
+
+    def _build_page_title_index(self) -> dict[str, list[str]]:
+        """Build a mapping of wiki_page_name → [stable_keys] from all entities.
+
+        Loads all entities from repositories and groups their stable_keys by
+        wiki_page_name, mirroring what EntityPageGenerator does for generation.
+        """
+
+        index: dict[str, list[str]] = {}
+
+        all_entities: list[Character | Item | Spell | Skill | Stance] = []
+        all_entities.extend(self._context.item_repo.get_items_for_wiki_generation())
+        all_entities.extend(self._context.character_repo.get_characters_for_wiki_generation())
+        all_entities.extend(self._context.spell_repo.get_spells_for_wiki_generation())
+        all_entities.extend(self._context.skill_repo.get_skills_for_wiki_generation())
+        all_entities.extend(self._context.stance_repo.get_all())
+
+        for entity in all_entities:
+            page_title = entity.wiki_page_name
+            if page_title is None:
+                continue
+            if page_title not in index:
+                index[page_title] = []
+            index[page_title].append(entity.stable_key)
+
+        return index
 
     def fetch_all(
         self,
@@ -154,16 +183,7 @@ class WikiFetchService:
         dry_run: bool,
         force_refetch: bool = False,
     ) -> OperationResult:
-        """Fetch pages from MediaWiki (bulk operation).
-
-        Args:
-            page_titles_list: List of page titles to fetch.
-            dry_run: If True, skip actual fetching.
-            force_refetch: If True, re-fetch even if already cached.
-
-        Returns:
-            OperationResult with statistics and warnings/errors.
-        """
+        """Fetch pages from MediaWiki (bulk operation)."""
         total = len(page_titles_list)
         succeeded = 0
         failed = 0
@@ -200,33 +220,26 @@ class WikiFetchService:
             metadata = self._storage.get_metadata_by_title(page_title)
 
             if force_refetch:
-                # Force refetch: fetch everything
                 pages_to_fetch_titles.append(page_title)
             elif not metadata:
-                # Page not cached: fetch it
                 logger.debug(f"Fetching uncached page: {page_title}")
                 pages_to_fetch_titles.append(page_title)
             elif not metadata.fetched_at:
-                # Page generated locally but never fetched from wiki: fetch it
                 logger.debug(f"Fetching never-fetched page: {page_title}")
                 pages_to_fetch_titles.append(page_title)
             else:
-                # Page has been fetched before: compare timestamps
                 wiki_modified_at = recent_changes.get(page_title)
 
                 if not wiki_modified_at:
-                    # Page not in recent changes: definitely not modified recently, skip
                     logger.debug(f"Skipping unmodified page: {page_title}")
                     skipped += 1
                 elif wiki_modified_at > metadata.fetched_at:
-                    # Wiki version is newer than our cached version: re-fetch
                     logger.debug(
                         f"Re-fetching modified page: {page_title} "
                         f"(wiki: {wiki_modified_at}, cached: {metadata.fetched_at})"
                     )
                     pages_to_fetch_titles.append(page_title)
                 else:
-                    # Our cached version is up-to-date: skip
                     logger.debug(
                         f"Skipping up-to-date page: {page_title} "
                         f"(wiki: {wiki_modified_at}, cached: {metadata.fetched_at})"
@@ -243,6 +256,9 @@ class WikiFetchService:
                 fetched_pages = self._wiki_client.get_pages(pages_to_fetch_titles)
                 self._console.print(f"[dim]Fetched {len(fetched_pages)} pages[/dim]\n")
 
+                # Build page_title → stable_keys index once for metadata
+                page_index = self._build_page_title_index()
+
                 # Save fetched pages to storage
                 for page_title in track(
                     pages_to_fetch_titles,
@@ -253,11 +269,9 @@ class WikiFetchService:
                         content = fetched_pages.get(page_title)
 
                         if content:
-                            # Derive stable_keys and entity_names from registry
-                            stable_keys = self._context.resolver.get_stable_keys_for_page(page_title)
-                            entity_names = [self._context.resolver.resolve_display_name(key) for key in stable_keys]
+                            stable_keys = page_index.get(page_title, [])
+                            entity_names = [sk.split(":", 1)[-1] for sk in stable_keys]
 
-                            # Save fetched content
                             self._storage.save_fetched_by_title(
                                 page_title,
                                 stable_keys,
@@ -266,7 +280,6 @@ class WikiFetchService:
                             )
                             succeeded += 1
                         else:
-                            # Page doesn't exist yet - skip
                             skipped += 1
 
                     except Exception as e:
@@ -288,7 +301,6 @@ class WikiFetchService:
                     errors=[error_msg],
                 )
         else:
-            # Dry run - just count
             succeeded = total
 
         # Display summary

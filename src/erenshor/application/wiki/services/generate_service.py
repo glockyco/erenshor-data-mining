@@ -29,7 +29,6 @@ if TYPE_CHECKING:
     from erenshor.infrastructure.database.repositories.spawn_points import SpawnPointRepository
     from erenshor.infrastructure.database.repositories.spells import SpellRepository
     from erenshor.infrastructure.database.repositories.stances import StanceRepository
-    from erenshor.registry.resolver import RegistryResolver
 
 from erenshor.application.wiki.generators.context import GeneratorContext
 from erenshor.application.wiki.generators.field_preservation import FieldPreservationHandler
@@ -54,7 +53,6 @@ class WikiGenerateService:
         spawn_repo: SpawnPointRepository,
         loot_repo: LootTableRepository,
         quest_repo: QuestRepository,
-        registry_resolver: RegistryResolver,
         class_display: ClassDisplayNameService,
         console: Console | None = None,
     ) -> None:
@@ -71,7 +69,6 @@ class WikiGenerateService:
             spawn_repo: Repository for spawn point data.
             loot_repo: Repository for loot table data.
             quest_repo: Repository for quest data.
-            registry_resolver: Resolver for page titles from registry.
             class_display: Service for mapping class names to display names.
             console: Rich console for output (optional).
         """
@@ -89,7 +86,6 @@ class WikiGenerateService:
             spawn_repo=spawn_repo,
             loot_repo=loot_repo,
             quest_repo=quest_repo,
-            resolver=registry_resolver,
             storage=storage,
             class_display=class_display,
         )

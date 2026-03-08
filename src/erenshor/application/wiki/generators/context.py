@@ -1,8 +1,7 @@
 """Generator context for sharing dependencies across wiki generators.
 
 This module defines GeneratorContext, which provides all generators with
-access to repositories, resolvers, and storage without passing them
-individually.
+access to repositories and storage without passing them individually.
 """
 
 from __future__ import annotations
@@ -22,15 +21,14 @@ if TYPE_CHECKING:
     from erenshor.infrastructure.database.repositories.spawn_points import SpawnPointRepository
     from erenshor.infrastructure.database.repositories.spells import SpellRepository
     from erenshor.infrastructure.database.repositories.stances import StanceRepository
-    from erenshor.registry.resolver import RegistryResolver
 
 
 @dataclass
 class GeneratorContext:
     """Shared context for all wiki generators.
 
-    Provides access to all repositories, registry resolver, and storage
-    needed for wiki page generation.
+    Provides access to all repositories and storage needed for wiki page generation.
+    All link resolution is done at query time inside repositories — no registry resolver.
 
     Attributes:
         item_repo: Repository for item entities
@@ -42,7 +40,6 @@ class GeneratorContext:
         spawn_repo: Repository for spawn point data
         loot_repo: Repository for loot table data
         quest_repo: Repository for quest data
-        resolver: Registry resolver for page titles and links
         storage: Wiki storage for reading fetched pages
         class_display: Service for mapping class names to display names
     """
@@ -56,6 +53,5 @@ class GeneratorContext:
     spawn_repo: SpawnPointRepository
     loot_repo: LootTableRepository
     quest_repo: QuestRepository
-    resolver: RegistryResolver
     storage: WikiStorage
     class_display: ClassDisplayNameService

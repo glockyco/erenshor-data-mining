@@ -57,7 +57,6 @@ from erenshor.infrastructure.database.repositories.spawn_points import SpawnPoin
 from erenshor.infrastructure.database.repositories.spells import SpellRepository
 from erenshor.infrastructure.database.repositories.stances import StanceRepository
 from erenshor.infrastructure.wiki.client import MediaWikiClient
-from erenshor.registry.resolver import RegistryResolver
 
 
 class WikiServiceError(Exception):
@@ -108,7 +107,6 @@ class WikiService:
         spawn_repo: SpawnPointRepository,
         loot_repo: LootTableRepository,
         quest_repo: QuestRepository,
-        registry_resolver: RegistryResolver,
         class_display: ClassDisplayNameService,
         console: Console | None = None,
     ) -> None:
@@ -126,7 +124,6 @@ class WikiService:
             spawn_repo: Repository for spawn point data.
             loot_repo: Repository for loot table data.
             quest_repo: Repository for quest data.
-            registry_resolver: Registry resolver for page title resolution.
             class_display: Service for mapping class names to display names.
             console: Rich console for output (optional).
         """
@@ -145,7 +142,6 @@ class WikiService:
             spawn_repo=spawn_repo,
             loot_repo=loot_repo,
             quest_repo=quest_repo,
-            registry_resolver=registry_resolver,
             class_display=class_display,
             console=console,
         )
@@ -161,7 +157,6 @@ class WikiService:
             spawn_repo=spawn_repo,
             loot_repo=loot_repo,
             quest_repo=quest_repo,
-            registry_resolver=registry_resolver,
             class_display=class_display,
             console=console,
         )
