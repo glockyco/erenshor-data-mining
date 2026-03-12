@@ -156,15 +156,20 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         return WIKITEXT_LINE_SEPARATOR.join(str(link) for link in zone_links)
 
     def _format_coordinates(self, spawn_infos: list[CharacterSpawnInfo]) -> str:
-        """Format coordinates for wiki template."""
-        if len(spawn_infos) != 1:
+        """Format coordinates for wiki template.
+
+        Only shown when all spawns resolve to a single unique location.
+        """
+        unique_coords: set[tuple[float, float, float]] = set()
+        for info in spawn_infos:
+            if info.x is not None and info.y is not None and info.z is not None:
+                unique_coords.add((info.x, info.y, info.z))
+
+        if len(unique_coords) != 1:
             return ""
 
-        spawn = spawn_infos[0]
-        if spawn.x is None or spawn.y is None or spawn.z is None:
-            return ""
-
-        return f"{spawn.x:.1f} x {spawn.y:.1f} x {spawn.z:.1f}"
+        x, y, z = next(iter(unique_coords))
+        return f"{x:.1f} x {y:.1f} x {z:.1f}"
 
     def _format_spawn_chance(self, spawn_infos: list[CharacterSpawnInfo]) -> str:
         """Format spawn chance for wiki template using zone_link.display_name."""
