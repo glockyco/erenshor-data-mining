@@ -147,8 +147,8 @@ export const DEFAULT_LAYER_VISIBILITY: LayerVisibility = {
 
 export interface ZoneEnemyInfo {
     levelRange: { min: number; max: number } | null;
-    uniques: { name: string; level: number }[];
-    rares: { name: string; level: number }[];
+    uniques: { name: string; wikiPageName: string | null; level: number }[];
+    rares: { name: string; wikiPageName: string | null; level: number }[];
 }
 
 export interface LevelRange {

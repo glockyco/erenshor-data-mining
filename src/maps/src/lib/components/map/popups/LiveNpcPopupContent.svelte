@@ -64,7 +64,7 @@
         {:else}
             <div></div>
         {/if}
-        <WikiLink name={entity.name} />
+        <WikiLink pageName={entity.name} />
     </div>
 
     <!-- Drops -->
@@ -81,7 +81,7 @@
                             <span class="text-zinc-500"
                                 >{formatDropChance(drop.dropProbability)}</span
                             >
-                            <WikiLink name={drop.itemName} />
+                            <WikiLink pageName={drop.itemName} />
                         </div>
                     </div>
                 {/each}

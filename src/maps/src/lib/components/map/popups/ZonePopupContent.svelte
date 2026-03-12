@@ -40,7 +40,7 @@
                         <span class="text-zinc-300 truncate min-w-0">{enemy.name}</span>
                         <div class="flex items-center gap-2 shrink-0">
                             <span class="text-zinc-500">Lv. {enemy.level}</span>
-                            <WikiLink name={enemy.name} />
+                            <WikiLink pageName={enemy.wikiPageName} />
                         </div>
                     </div>
                 {/each}
@@ -58,7 +58,7 @@
                         <span class="text-zinc-300 truncate min-w-0">{enemy.name}</span>
                         <div class="flex items-center gap-2 shrink-0">
                             <span class="text-zinc-500">Lv. {enemy.level}</span>
-                            <WikiLink name={enemy.name} />
+                            <WikiLink pageName={enemy.wikiPageName} />
                         </div>
                     </div>
                 {/each}

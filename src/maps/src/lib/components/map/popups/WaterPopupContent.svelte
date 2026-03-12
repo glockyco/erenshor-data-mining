@@ -41,7 +41,7 @@
                                 <span class="text-zinc-500"
                                     >{formatDropChance(item.dropChance)}</span
                                 >
-                                <WikiLink name={item.name} />
+                                <WikiLink pageName={item.wikiPageName} />
                             </div>
                         </div>
                     {/each}
@@ -65,7 +65,7 @@
                                 <span class="text-zinc-500"
                                     >{formatDropChance(item.dropChance)}</span
                                 >
-                                <WikiLink name={item.name} />
+                                <WikiLink pageName={item.wikiPageName} />
                             </div>
                         </div>
                     {/each}
@@ -86,7 +86,7 @@
                                 <span class="text-zinc-500"
                                     >{formatDropChance(item.dropChance)}</span
                                 >
-                                <WikiLink name={item.name} />
+                                <WikiLink pageName={item.wikiPageName} />
                             </div>
                         </div>
                     {/each}

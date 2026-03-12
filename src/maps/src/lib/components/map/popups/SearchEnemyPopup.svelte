@@ -72,6 +72,14 @@
     function formatSpawnChance(chance: number): string {
         return `${Math.round(chance)}%`;
     }
+
+    const wikiPageName = $derived.by(() => {
+        for (const marker of markers) {
+            const match = marker.characters.find((c) => c.name === name && c.wikiPageName);
+            if (match?.wikiPageName) return match.wikiPageName;
+        }
+        return null;
+    });
 </script>
 
 <div class="space-y-4">
@@ -82,7 +90,7 @@
         {:else}
             <div></div>
         {/if}
-        <WikiLink {name} />
+        <WikiLink pageName={wikiPageName} />
     </div>
 
     <!-- Focus all button -->

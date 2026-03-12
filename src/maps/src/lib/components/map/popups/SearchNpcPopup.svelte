@@ -66,13 +66,21 @@
         if (minutes === 1) return '~1 min';
         return `~${minutes} min`;
     }
+
+    const wikiPageName = $derived.by(() => {
+        for (const marker of markers) {
+            const match = marker.characters.find((c) => c.name === name && c.wikiPageName);
+            if (match?.wikiPageName) return match.wikiPageName;
+        }
+        return null;
+    });
 </script>
 
 <div class="space-y-4">
     <!-- Summary -->
     <div class="flex items-center justify-between">
         <div class="text-sm text-zinc-300">{levelRange}</div>
-        <WikiLink {name} />
+        <WikiLink pageName={wikiPageName} />
     </div>
 
     <!-- Focus all button -->

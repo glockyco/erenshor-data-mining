@@ -21,6 +21,7 @@ export type BaseMarker = {
 // Character info for spawn points (characters that can spawn at a location)
 export type SpawnCharacter = {
     name: string;
+    wikiPageName: string | null;
     stableKey: string;
     level: number;
     spawnChance: number;
@@ -50,6 +51,7 @@ export type MovementData = {
 // Item drop info for mining nodes
 export type MiningNodeItem = {
     name: string;
+    wikiPageName: string | null;
     dropChance: number;
 };
 
@@ -82,6 +84,7 @@ export type NpcMarker = BaseMarker & {
 export type DoorMarker = BaseMarker & {
     category: 'door';
     keyItemName: string;
+    keyItemWikiPageName: string | null;
 };
 
 export type ForgeMarker = BaseMarker & {
@@ -91,6 +94,7 @@ export type ForgeMarker = BaseMarker & {
 export type ItemBagMarker = BaseMarker & {
     category: 'item-bag';
     itemName: string;
+    itemWikiPageName: string | null;
     respawnTimer: number;
     respawns: boolean;
 };
@@ -120,6 +124,7 @@ export type EnemyMarker = BaseMarker & {
 export type TeleportMarker = BaseMarker & {
     category: 'teleport';
     teleportItemName: string;
+    teleportItemWikiPageName: string | null;
 };
 
 export type TreasureLocMarker = BaseMarker & {
@@ -130,8 +135,8 @@ export type WaterMarker = BaseMarker & {
     category: 'water';
     width: number;
     height: number;
-    daytimeItems: { name: string; dropChance: number }[];
-    nighttimeItems: { name: string; dropChance: number }[];
+    daytimeItems: { name: string; wikiPageName: string | null; dropChance: number }[];
+    nighttimeItems: { name: string; wikiPageName: string | null; dropChance: number }[];
 };
 
 export type WishingWellMarker = BaseMarker & {

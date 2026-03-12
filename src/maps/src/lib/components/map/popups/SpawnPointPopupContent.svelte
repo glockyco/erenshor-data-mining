@@ -153,7 +153,7 @@
                         <span class="rounded px-1.5 py-0.5 text-xs {getRarityClass(char)}">
                             {getRarityLabel(char)}
                         </span>
-                        <WikiLink name={char.name} />
+                        <WikiLink pageName={char.wikiPageName} />
                     </div>
                 </div>
 

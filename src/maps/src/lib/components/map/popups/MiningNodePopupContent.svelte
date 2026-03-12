@@ -32,7 +32,7 @@
                         <span class="text-zinc-300 truncate min-w-0">{item.name}</span>
                         <div class="flex items-center gap-2 shrink-0">
                             <span class="text-zinc-500">{formatDropChance(item.dropChance)}</span>
-                            <WikiLink name={item.name} />
+                            <WikiLink pageName={item.wikiPageName} />
                         </div>
                     </div>
                 {/each}

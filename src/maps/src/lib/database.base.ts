@@ -26,6 +26,11 @@ function formatCoordinates(x: number, y: number, z: number): string {
     return `(X: ${x.toFixed(2)}, Y: ${y.toFixed(2)}, Z: ${z.toFixed(2)})`;
 }
 
+function formatWikiLink(label: string, pageName: string | null): string {
+    if (!pageName) return label;
+    return `<a href='https://erenshor.wiki.gg/wiki/${encodeURIComponent(pageName)}'>${label}</a>`;
+}
+
 // Parse patrol path string "x1,z1;x2,z2;..." into local coordinate pairs [x, z]
 // Note: z becomes y on the 2D map (game Y is height, ignored)
 function parsePatrolPath(patrolPath: string | null): [number, number][] | null {
@@ -64,15 +69,15 @@ export class RepositoryBase {
 
         const stmt = this.db.prepare(
             `
-			SELECT
-				at.StableKey,
-				at.X AS PositionX,
-				at.Y AS PositionY,
-				at.Z AS PositionZ,
-				at.AchievementName
-			FROM AchievementTriggers at
-			WHERE at.Scene = ?
-		`,
+            SELECT
+                at.stable_key AS StableKey,
+                at.x AS PositionX,
+                at.y AS PositionY,
+                at.z AS PositionZ,
+                at.achievement_name AS AchievementName
+            FROM achievement_triggers at
+            WHERE at.scene = ?
+        `,
             [mapName]
         );
 
@@ -112,7 +117,7 @@ export class RepositoryBase {
             '<br><br>' +
             sortedCharacters
                 .map((character) => {
-                    return `<a href='https://erenshor.wiki.gg/wiki/${encodeURIComponent(character.name)}'>${character.name}</a>`;
+                    return formatWikiLink(character.name, character.wikiPageName);
                 })
                 .join('<br>');
 
@@ -140,16 +145,17 @@ export class RepositoryBase {
 
         const stmt = this.db.prepare(
             `
-			SELECT
-				d.StableKey,
-				d.X AS PositionX,
-				d.Y AS PositionY,
-				d.Z AS PositionZ,
-				i.ItemName
-			FROM Doors d
-			JOIN Items i ON d.KeyItemStableKey = i.StableKey
-			WHERE d.Scene = ? AND d.KeyItemStableKey IS NOT NULL AND i.ItemName != ''
-		`,
+            SELECT
+                d.stable_key AS StableKey,
+                d.x AS PositionX,
+                d.y AS PositionY,
+                d.z AS PositionZ,
+                i.display_name AS ItemName,
+                i.wiki_page_name AS ItemWikiPageName
+            FROM doors d
+            JOIN items i ON d.key_item_stable_key = i.stable_key
+            WHERE d.scene = ? AND d.key_item_stable_key IS NOT NULL AND i.display_name != ''
+        `,
             [mapName]
         );
 
@@ -158,9 +164,10 @@ export class RepositoryBase {
         while (stmt.step()) {
             const row = stmt.getAsObject();
             const keyItemName = row.ItemName as string;
+            const keyItemWikiPageName = row.ItemWikiPageName as string | null;
 
             const positionText = `Locked Door @ ${formatCoordinates(row.PositionX as number, row.PositionY as number, row.PositionZ as number)}`;
-            const keyText = `<br><br>Requires <a href="https://erenshor.wiki.gg/wiki/${encodeURIComponent(keyItemName)}">${keyItemName}</a> to unlock.`;
+            const keyText = `<br><br>Requires ${formatWikiLink(keyItemName, keyItemWikiPageName)} to unlock.`;
 
             const popupText = `${positionText}${keyText}`;
 
@@ -168,6 +175,7 @@ export class RepositoryBase {
                 stableKey: row.StableKey as string,
                 category: 'door',
                 keyItemName,
+                keyItemWikiPageName,
                 position: {
                     x: row.PositionX as number,
                     y: row.PositionZ as number
@@ -184,14 +192,14 @@ export class RepositoryBase {
 
         const stmt = this.db.prepare(
             `
-			SELECT
-				f.StableKey,
-				f.X AS PositionX,
-				f.Y AS PositionY,
-				f.Z AS PositionZ
-			FROM Forges f
-			WHERE f.Scene = ?
-		`,
+            SELECT
+                f.stable_key AS StableKey,
+                f.x AS PositionX,
+                f.y AS PositionY,
+                f.z AS PositionZ
+            FROM forges f
+            WHERE f.scene = ?
+        `,
             [mapName]
         );
 
@@ -224,18 +232,19 @@ export class RepositoryBase {
 
         const stmt = this.db.prepare(
             `
-			SELECT
-				ib.StableKey,
-				ib.X AS PositionX,
-				ib.Y AS PositionY,
-				ib.Z AS PositionZ,
-				i.ItemName,
-				ib.Respawns,
-				ib.RespawnTimer
-			FROM ItemBags ib
-			JOIN Items i ON i.StableKey = ib.ItemStableKey
-			WHERE ib.Scene = ?
-		`,
+            SELECT
+                ib.stable_key AS StableKey,
+                ib.x AS PositionX,
+                ib.y AS PositionY,
+                ib.z AS PositionZ,
+                i.display_name AS ItemName,
+                i.wiki_page_name AS ItemWikiPageName,
+                ib.respawns AS Respawns,
+                ib.respawn_timer AS RespawnTimer
+            FROM item_bags ib
+            JOIN items i ON i.stable_key = ib.item_stable_key
+            WHERE ib.scene = ?
+        `,
             [mapName]
         );
 
@@ -245,10 +254,11 @@ export class RepositoryBase {
             const row = stmt.getAsObject();
             const itemName = row.ItemName as string;
             const respawnTimer = row.RespawnTimer as number;
+            const itemWikiPageName = row.ItemWikiPageName as string | null;
             const respawns = !!row.Respawns;
 
             const positionText = `Item Bag @ ${formatCoordinates(row.PositionX as number, row.PositionY as number, row.PositionZ as number)}`;
-            const itemText = `<br><br>Contains <a href="https://erenshor.wiki.gg/wiki/${encodeURIComponent(itemName)}">${itemName}</a>.`;
+            const itemText = `<br><br>Contains ${formatWikiLink(itemName, itemWikiPageName)}.`;
 
             const respawnText =
                 respawnTimer > 0
@@ -261,6 +271,7 @@ export class RepositoryBase {
                 stableKey: row.StableKey as string,
                 category: 'item-bag',
                 itemName,
+                itemWikiPageName,
                 respawnTimer,
                 respawns,
                 position: {
@@ -279,19 +290,20 @@ export class RepositoryBase {
 
         const stmt = this.db.prepare(
             `
-			SELECT
-				m.StableKey,
-				m.X AS PositionX,
-				m.Y AS PositionY,
-				m.Z AS PositionZ,
-				m.RespawnTime,
-				i.ItemName,
-				mi.DropChance
-			FROM MiningNodes m
-			JOIN MiningNodeItems mi ON mi.MiningNodeStableKey = m.StableKey
-			JOIN Items i ON i.StableKey = mi.ItemStableKey
-			WHERE m.Scene = ?
-		`,
+            SELECT
+                m.stable_key AS StableKey,
+                m.x AS PositionX,
+                m.y AS PositionY,
+                m.z AS PositionZ,
+                m.respawn_time AS RespawnTime,
+                i.display_name AS ItemName,
+                i.wiki_page_name AS ItemWikiPageName,
+                mi.drop_chance AS DropChance
+            FROM mining_nodes m
+            JOIN mining_node_items mi ON mi.mining_node_stable_key = m.stable_key
+            JOIN items i ON i.stable_key = mi.item_stable_key
+            WHERE m.scene = ?
+        `,
             [mapName]
         );
 
@@ -328,6 +340,7 @@ export class RepositoryBase {
             }
             nodeMap.get(stableKey)!.items.push({
                 name: row.ItemName as string,
+                wikiPageName: row.ItemWikiPageName as string | null,
                 dropChance: row.DropChance as number
             });
         }
@@ -341,7 +354,7 @@ export class RepositoryBase {
             const itemLines = sortedItems
                 .map(
                     (item) =>
-                        `<a href='https://erenshor.wiki.gg/wiki/${item.name}'>${item.name}</a> (${Number(item.dropChance).toFixed(1)}%)`
+                        `${formatWikiLink(item.name, item.wikiPageName)} (${Number(item.dropChance).toFixed(1)}%)`
                 )
                 .join('<br>');
 
@@ -373,13 +386,13 @@ export class RepositoryBase {
         const stmt = this.db.prepare(
             `
         SELECT
-            sp.StableKey,
-            sp.X AS PositionX,
-            sp.Y AS PositionY,
-            sp.Z AS PositionZ,
-            sp.Type AS Type
-        FROM SecretPassages sp
-        WHERE sp.Scene = ? AND (sp.ObjectName NOT LIKE '%nav%' OR sp.ObjectName IS NULL)
+            sp.stable_key AS StableKey,
+            sp.x AS PositionX,
+            sp.y AS PositionY,
+            sp.z AS PositionZ,
+            sp.type AS Type
+        FROM secret_passages sp
+        WHERE sp.scene = ? AND (sp.object_name NOT LIKE '%nav%' OR sp.object_name IS NULL)
     `,
             [mapName]
         );
@@ -436,6 +449,7 @@ export class RepositoryBase {
                  WHERE pp.spawn_point_stable_key = cs.spawn_point_stable_key
                  ORDER BY pp.sequence_index)     AS PatrolPath,
                 rep.display_name                AS NPCName,
+                rep.wiki_page_name              AS WikiPageName,
                 rep.stable_key                  AS CharacterStableKey,
                 rep.level                       AS Level,
                 rep.is_vendor                   AS IsVendor,
@@ -499,6 +513,7 @@ export class RepositoryBase {
             }
             spawnPointMap.get(stableKey)!.characters.push({
                 name: row.NPCName as string,
+                wikiPageName: row.WikiPageName as string | null,
                 stableKey: row.CharacterStableKey as string,
                 level: (row.Level as number) ?? 1,
                 spawnChance: row.SpawnChance as number,
@@ -584,7 +599,7 @@ export class RepositoryBase {
                     if (character.isUnique) tag += ' (Unique)';
                     else if (character.isRare && !character.isCommon) tag += ' (Rare)';
 
-                    return `<a href='https://erenshor.wiki.gg/wiki/${character.name}'>${character.name}</a> (${Number(character.spawnChance).toFixed(1)}%)${tag}`;
+                    return `${formatWikiLink(character.name, character.wikiPageName)} (${Number(character.spawnChance).toFixed(1)}%)${tag}`;
                 })
                 .join('<br>');
 
@@ -628,16 +643,17 @@ export class RepositoryBase {
 
         const stmt = this.db.prepare(
             `
-			SELECT
-				t.StableKey,
-				t.X AS PositionX,
-				t.Y AS PositionY,
-				t.Z AS PositionZ,
-				i.ItemName
-			FROM Teleports t
-			JOIN Items i ON i.StableKey = t.TeleportItemStableKey
-			WHERE t.Scene = ?
-		`,
+            SELECT
+                t.stable_key AS StableKey,
+                t.x AS PositionX,
+                t.y AS PositionY,
+                t.z AS PositionZ,
+                i.display_name AS ItemName,
+                i.wiki_page_name AS ItemWikiPageName
+            FROM teleports t
+            JOIN items i ON i.stable_key = t.teleport_item_stable_key
+            WHERE t.scene = ?
+        `,
             [mapName]
         );
 
@@ -646,9 +662,10 @@ export class RepositoryBase {
         while (stmt.step()) {
             const row = stmt.getAsObject();
             const teleportItemName = row.ItemName as string;
+            const teleportItemWikiPageName = row.ItemWikiPageName as string | null;
 
             const positionText = `Teleport Destination @ ${formatCoordinates(row.PositionX as number, row.PositionY as number, row.PositionZ as number)}`;
-            const teleportText = `<br><br>Use <a href="https://erenshor.wiki.gg/wiki/${encodeURIComponent(teleportItemName)}">${teleportItemName}</a> to teleport here.`;
+            const teleportText = `<br><br>Use ${formatWikiLink(teleportItemName, teleportItemWikiPageName)} to teleport here.`;
 
             const popupText = `${positionText}${teleportText}`;
 
@@ -656,6 +673,7 @@ export class RepositoryBase {
                 stableKey: row.StableKey as string,
                 category: 'teleport',
                 teleportItemName,
+                teleportItemWikiPageName,
                 position: {
                     x: row.PositionX as number,
                     y: row.PositionZ as number
@@ -672,14 +690,14 @@ export class RepositoryBase {
 
         const stmt = this.db.prepare(
             `
-			SELECT
-				tl.StableKey,
-				tl.X AS PositionX,
-				tl.Y AS PositionY,
-				tl.Z AS PositionZ
-			FROM TreasureLocations tl
-			WHERE tl.Scene = ?
-		`,
+            SELECT
+                tl.stable_key AS StableKey,
+                tl.x AS PositionX,
+                tl.y AS PositionY,
+                tl.z AS PositionZ
+            FROM treasure_locations tl
+            WHERE tl.scene = ?
+        `,
             [mapName]
         );
 
@@ -712,21 +730,22 @@ export class RepositoryBase {
 
         const stmt = this.db.prepare(
             `
-			SELECT
-				w.StableKey,
-				w.X AS PositionX,
-				w.Y AS PositionY,
-				w.Z AS PositionZ,
-				w.Width,
-				w.Depth,
-				wf.Type,
-				i.ItemName,
-				wf.DropChance
-			FROM Waters w
-			JOIN WaterFishables wf ON wf.WaterStableKey = w.StableKey
-			JOIN Items i ON i.StableKey = wf.ItemStableKey
-			WHERE w.Scene = ?
-		`,
+            SELECT
+                w.stable_key AS StableKey,
+                w.x AS PositionX,
+                w.y AS PositionY,
+                w.z AS PositionZ,
+                w.width AS Width,
+                w.depth AS Depth,
+                wf.type AS Type,
+                i.display_name AS ItemName,
+                i.wiki_page_name AS ItemWikiPageName,
+                wf.drop_chance AS DropChance
+            FROM waters w
+            JOIN water_fishables wf ON wf.water_stable_key = w.stable_key
+            JOIN items i ON i.stable_key = wf.item_stable_key
+            WHERE w.scene = ?
+        `,
             [mapName]
         );
 
@@ -739,8 +758,8 @@ export class RepositoryBase {
                 coordinates: { x: number; y: number; z: number };
                 width: number;
                 height: number;
-                daytimeItems: { name: string; dropChance: number }[];
-                nighttimeItems: { name: string; dropChance: number }[];
+                daytimeItems: { name: string; wikiPageName: string | null; dropChance: number }[];
+                nighttimeItems: { name: string; wikiPageName: string | null; dropChance: number }[];
             }
         >();
 
@@ -768,6 +787,7 @@ export class RepositoryBase {
 
             const itemInfo = {
                 name: row.ItemName as string,
+                wikiPageName: row.ItemWikiPageName as string | null,
                 dropChance: row.DropChance as number
             };
 
@@ -803,14 +823,14 @@ export class RepositoryBase {
             const daytimeItemLines = sortedDaytimeItems
                 .map(
                     (item) =>
-                        `<a href='https://erenshor.wiki.gg/wiki/${item.name}'>${item.name}</a> (${Number(item.dropChance).toFixed(1)}%)`
+                        `${formatWikiLink(item.name, item.wikiPageName)} (${Number(item.dropChance).toFixed(1)}%)`
                 )
                 .join('<br>');
 
             const nighttimeItemLines = sortedNighttimeItems
                 .map(
                     (item) =>
-                        `<a href='https://erenshor.wiki.gg/wiki/${item.name}'>${item.name}</a> (${Number(item.dropChance).toFixed(1)}%)`
+                        `${formatWikiLink(item.name, item.wikiPageName)} (${Number(item.dropChance).toFixed(1)}%)`
                 )
                 .join('<br>');
 
@@ -837,14 +857,14 @@ export class RepositoryBase {
 
         const stmt = this.db.prepare(
             `
-			SELECT
-				ww.StableKey,
-				ww.X AS PositionX,
-				ww.Y AS PositionY,
-				ww.Z AS PositionZ
-			FROM WishingWells ww
-			WHERE ww.Scene = ?
-		`,
+            SELECT
+                ww.stable_key AS StableKey,
+                ww.x AS PositionX,
+                ww.y AS PositionY,
+                ww.z AS PositionZ
+            FROM wishing_wells ww
+            WHERE ww.scene = ?
+        `,
             [mapName]
         );
 
@@ -877,24 +897,25 @@ export class RepositoryBase {
 
         const stmt = this.db.prepare(
             `
-			SELECT
-				zl.StableKey,
-				zl.X AS PositionX,
-				zl.Y AS PositionY,
-				zl.Z AS PositionZ,
-				zl.IsEnabled,
-				zl.LandingPositionX,
-				zl.LandingPositionY,
-				zl.LandingPositionZ,
-				z.SceneName AS DestinationZone,
-				z.ZoneName,
-				zae.LevelRangeLow,
-				zae.LevelRangeHigh
-			FROM ZoneLines zl
-		 	JOIN Zones z ON z.StableKey = zl.DestinationZoneStableKey
-		 	LEFT JOIN ZoneAtlasEntries zae ON zae.ZoneName = z.SceneName
-			WHERE zl.Scene = ?
-		`,
+            SELECT
+                zl.stable_key AS StableKey,
+                zl.x AS PositionX,
+                zl.y AS PositionY,
+                zl.z AS PositionZ,
+                zl.is_enabled AS IsEnabled,
+                zl.landing_position_x AS LandingPositionX,
+                zl.landing_position_y AS LandingPositionY,
+                zl.landing_position_z AS LandingPositionZ,
+                z.scene_name AS DestinationZone,
+                z.display_name AS ZoneName,
+                z.is_map_visible AS IsMapVisible,
+                zae.level_range_low AS LevelRangeLow,
+                zae.level_range_high AS LevelRangeHigh
+            FROM zone_lines zl
+            JOIN zones z ON z.stable_key = zl.destination_zone_stable_key
+            LEFT JOIN zone_atlas_entries zae ON zae.zone_name = z.scene_name
+            WHERE zl.scene = ?
+        `,
             [mapName]
         );
 
@@ -910,10 +931,17 @@ export class RepositoryBase {
                     ? ` (Level: ${row.LevelRangeLow}-${row.LevelRangeHigh})`
                     : '';
 
+            const isMapVisible = !!row.IsMapVisible;
+
             // Remove links for ShiveringTomb zones and show consistent name
             const destinationZone = row.DestinationZone as string;
             let zoneLink: string;
-            if (destinationZone === 'ShiveringTomb' || destinationZone === 'ShiveringTomb2') {
+            if (!isMapVisible) {
+                zoneLink = row.ZoneName as string;
+            } else if (
+                destinationZone === 'ShiveringTomb' ||
+                destinationZone === 'ShiveringTomb2'
+            ) {
                 zoneLink = 'Shivering Tomb';
             } else {
                 zoneLink = `<a href='/${destinationZone}'>${row.ZoneName}</a>`;
@@ -963,10 +991,10 @@ export class RepositoryBase {
 
         const stmt = this.db.prepare(
             `
-			SELECT NorthBearing
-			FROM Zones
-			WHERE SceneName = ?
-		`,
+            SELECT north_bearing AS NorthBearing
+            FROM zones
+            WHERE scene_name = ?
+        `,
             [mapName]
         );
 
@@ -983,8 +1011,8 @@ export class RepositoryBase {
         if (!this.db) throw new Error('DB not initialized');
 
         const stmt = this.db.prepare(`
-			SELECT SceneName, NorthBearing
-			FROM Zones
+			SELECT scene_name AS SceneName, north_bearing AS NorthBearing
+			FROM zones
 		`);
 
         const bearings: Record<string, number> = {};
@@ -1003,12 +1031,12 @@ export class RepositoryBase {
         const stmt = this.db.prepare(
             `
             SELECT
-                i.ItemName AS itemName,
-                ld.DropProbability AS dropProbability
-            FROM LootDrops ld
-            JOIN Items i ON i.StableKey = ld.ItemStableKey
-            WHERE ld.CharacterStableKey = ?
-            ORDER BY ld.DropProbability DESC
+                i.display_name AS itemName,
+                ld.drop_probability AS dropProbability
+            FROM loot_drops ld
+            JOIN items i ON i.stable_key = ld.item_stable_key
+            WHERE ld.character_stable_key = ?
+            ORDER BY ld.drop_probability DESC
             LIMIT 10
         `,
             [stableKey]
@@ -1032,11 +1060,11 @@ export class RepositoryBase {
 
         const stmt = this.db.prepare(
             `
-            SELECT i.ItemName, i.ItemValue
-            FROM CharacterVendorItems cvi
-            JOIN Items i ON i.StableKey = cvi.ItemStableKey
-            WHERE cvi.CharacterStableKey = ?
-            ORDER BY i.ItemName
+            SELECT i.display_name AS ItemName, i.item_value AS ItemValue
+            FROM character_vendor_items cvi
+            JOIN items i ON i.stable_key = cvi.item_stable_key
+            WHERE cvi.character_stable_key = ?
+            ORDER BY i.display_name
             `,
             [stableKey]
         );
@@ -1088,8 +1116,8 @@ export class RepositoryBase {
 
     async getZoneEnemyInfo(zoneName: string): Promise<{
         levelRange: { min: number; max: number } | null;
-        uniques: { name: string; level: number }[];
-        rares: { name: string; level: number }[];
+        uniques: { name: string; wikiPageName: string | null; level: number }[];
+        rares: { name: string; wikiPageName: string | null; level: number }[];
     }> {
         if (!this.db) throw new Error('DB not initialized');
 
@@ -1154,7 +1182,7 @@ export class RepositoryBase {
                 FROM rep_groups rg
                 JOIN zone_groups zg ON zg.group_key = rg.group_key
             )
-            SELECT c.display_name AS NPCName, c.level AS Level
+            SELECT c.display_name AS NPCName, c.wiki_page_name AS WikiPageName, c.level AS Level
             FROM characters c
             WHERE c.stable_key IN (SELECT rep_stable_key FROM zone_reps)
               AND c.is_friendly = 0
@@ -1164,10 +1192,14 @@ export class RepositoryBase {
             [zoneName]
         );
 
-        const uniques: { name: string; level: number }[] = [];
+        const uniques: { name: string; wikiPageName: string | null; level: number }[] = [];
         while (uniqueStmt.step()) {
             const row = uniqueStmt.getAsObject();
-            uniques.push({ name: row.NPCName as string, level: row.Level as number });
+            uniques.push({
+                name: row.NPCName as string,
+                wikiPageName: row.WikiPageName as string | null,
+                level: row.Level as number
+            });
         }
         uniqueStmt.free();
 
@@ -1192,7 +1224,7 @@ export class RepositoryBase {
                 FROM rep_groups rg
                 JOIN zone_groups zg ON zg.group_key = rg.group_key
             )
-            SELECT c.display_name AS NPCName, c.level AS Level
+            SELECT c.display_name AS NPCName, c.wiki_page_name AS WikiPageName, c.level AS Level
             FROM characters c
             WHERE c.stable_key IN (SELECT rep_stable_key FROM zone_reps)
               AND c.is_friendly = 0
@@ -1203,10 +1235,14 @@ export class RepositoryBase {
             [zoneName]
         );
 
-        const rares: { name: string; level: number }[] = [];
+        const rares: { name: string; wikiPageName: string | null; level: number }[] = [];
         while (rareStmt.step()) {
             const row = rareStmt.getAsObject();
-            rares.push({ name: row.NPCName as string, level: row.Level as number });
+            rares.push({
+                name: row.NPCName as string,
+                wikiPageName: row.WikiPageName as string | null,
+                level: row.Level as number
+            });
         }
         rareStmt.free();
 
