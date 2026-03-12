@@ -17,14 +17,16 @@ Processing steps (in order):
 
 Deduplication identity includes:
 - display_name (post-mapping)
-- level and all base/effective stat fields
+- wiki-displayed stats only (level, effective HP/AC/resists, mana,
+  primary stats, xp multiplier)
 - frozenset of (item_stable_key, drop_probability) loot pairs
 - frozenset of attack skill stable keys
 - boolean type flags (excluding IsVendor)
 
-Quest assignments, dialog, spells, and vendor items are NOT part of
-identity — they are instance-specific. Spawn locations and spells are
-merged across the dedup group at query time.
+Non-displayed stats (attack damage, run speed, XP ranges, etc.),
+quest assignments, dialog, spells, and vendor items are NOT part of
+identity. Spawn locations and spells are merged across the dedup
+group at query time.
 """
 
 from __future__ import annotations
@@ -119,12 +121,13 @@ class _CharData:
 # ---------------------------------------------------------------------------
 
 _STAT_FIELDS = [
+    # Only fields that appear in wiki output. Non-displayed fields
+    # (attack damage, XP ranges, run speed, etc.) are excluded so
+    # prefabs that differ only in hidden stats get merged.
     "Level",
-    "BaseXpMin",
-    "BaseXpMax",
     "BossXpMultiplier",
-    "BaseHP",
-    "BaseAC",
+    "EffectiveHP",
+    "EffectiveAC",
     "BaseMana",
     "BaseStr",
     "BaseEnd",
@@ -133,19 +136,6 @@ _STAT_FIELDS = [
     "BaseInt",
     "BaseWis",
     "BaseCha",
-    "BaseRes",
-    "BaseMR",
-    "BaseER",
-    "BasePR",
-    "BaseVR",
-    "RunSpeed",
-    "BaseLifeSteal",
-    "BaseMHAtkDelay",
-    "BaseOHAtkDelay",
-    "EffectiveHP",
-    "EffectiveAC",
-    "EffectiveBaseAtkDmg",
-    "EffectiveAttackAbility",
     "EffectiveMinMR",
     "EffectiveMaxMR",
     "EffectiveMinER",
@@ -154,16 +144,6 @@ _STAT_FIELDS = [
     "EffectiveMaxPR",
     "EffectiveMinVR",
     "EffectiveMaxVR",
-    "BaseAtkDmg",
-    "OHAtkDmg",
-    "MinAtkDmg",
-    "DamageRangeMin",
-    "DamageRangeMax",
-    "DamageMult",
-    "ArmorPenMult",
-    "PowerAttackBaseDmg",
-    "PowerAttackFreq",
-    "HealTolerance",
 ]
 
 _FLAG_FIELDS = [
