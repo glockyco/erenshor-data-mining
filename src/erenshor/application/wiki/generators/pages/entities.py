@@ -103,6 +103,8 @@ class EntityPageGenerator(PageGenerator):
         logger.info(f"Generating {len(page_groups)} pages from {len(all_entities)} entities")
 
         for page_title, entities in page_groups.items():
+            entities.sort(key=self._entity_sort_key)
+
             # Assemble enriched data inline for each entity
             enriched_entities: list[AnyEnriched] = []
             for entity in entities:
@@ -158,6 +160,19 @@ class EntityPageGenerator(PageGenerator):
             )
 
         logger.info(f"EntityPageGenerator: Generated {len(page_groups)} pages")
+
+    @staticmethod
+    def _entity_sort_key(entity: Item | Character | Spell | Skill | Stance) -> tuple[str, int, str]:
+        """Sort key for ordering entities within a multi-entity page.
+
+        Characters sort by zone (ascending), level (descending), then
+        stable_key for determinism. Other entity types sort by stable_key only.
+        """
+        if isinstance(entity, Character):
+            zone = entity.scene or ""
+            level = -(entity.level or 0)
+            return (zone, level, entity.stable_key)
+        return ("", 0, entity.stable_key)
 
     # -------------------------------------------------------------------------
     # Inline assembly — replaces enricher classes
