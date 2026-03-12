@@ -21,11 +21,11 @@ Deduplication identity includes:
 - frozenset of spell stable keys (across all six spell junction tables)
 - frozenset of (item_stable_key, drop_probability) loot pairs
 - frozenset of vendor item stable keys
-- frozenset of quest stable keys from quest manager quests
-- frozenset of dialog quest stable keys (assign + complete quest pairs)
 - all boolean type flags
 
-Spawn locations are NOT part of identity — they are merged per dedup group.
+Quest assignments and dialog are NOT part of identity — they are
+instance-specific. Spawn locations are also excluded and merged per
+dedup group.
 """
 
 from __future__ import annotations
@@ -202,8 +202,6 @@ def _dedup_key(d: _CharData) -> tuple[object, ...]:
         d.attack_skill_keys,
         d.loot,
         d.vendor_item_keys,
-        d.quest_manager_quest_keys,
-        d.dialog_quest_keys,
     )
 
 
@@ -274,9 +272,7 @@ def process_characters(
         override = mapping.get(sk)
         if override is not None:
             display_name = override["display_name"].strip()
-            wiki_page_name = (
-                override["wiki_page_name"].strip() if override["wiki_page_name"] is not None else None
-            )
+            wiki_page_name = override["wiki_page_name"].strip() if override["wiki_page_name"] is not None else None
             image_name = override["image_name"].strip()
             is_wiki_generated = int(override["is_wiki_generated"])
             is_map_visible = int(override["is_map_visible"])
@@ -524,9 +520,7 @@ def process_characters(
             m.char.raw["IsUnique"] = is_unique
             m.char.raw["IsRare"] = is_rare
 
-    logger.info(
-        f"Characters: {unique_group_count} unique groups, {rare_group_count} rare groups after recomputation"
-    )
+    logger.info(f"Characters: {unique_group_count} unique groups, {rare_group_count} rare groups after recomputation")
 
     # ------------------------------------------------------------------
     # Step 6: Write characters
