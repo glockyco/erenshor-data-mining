@@ -100,6 +100,7 @@ class ItemRepository(BaseRepository[Item]):
                 hide_hair_when_equipped,
                 hide_head_when_equipped
             FROM items
+            WHERE COALESCE(wiki_page_name, '') != ''
             ORDER BY item_name COLLATE NOCASE
         """
 
