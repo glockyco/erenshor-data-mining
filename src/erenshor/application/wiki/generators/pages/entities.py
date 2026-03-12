@@ -142,7 +142,10 @@ class EntityPageGenerator(PageGenerator):
                 "\n\n----\n\n".join(templates) if len(templates) > 1 else (templates[0] if templates else "")
             )
 
-            categories = self.category_generator.generate_categories(enriched_entities[0])
+            all_categories: list[str] = []
+            for enriched in enriched_entities:
+                all_categories.extend(self.category_generator.generate_categories(enriched))
+            categories = list(dict.fromkeys(all_categories))
             category_wikitext = self.category_generator.format_category_tags(categories)
 
             full_content = f"{entity_content}\n\n{category_wikitext}".strip()

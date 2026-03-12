@@ -84,5 +84,6 @@ Prompts:
 |spells=
 }}
 
+[[Category:Characters]]
 [[Category:Enemies]]
 [[Category:Jaws of Sivakaya]]
