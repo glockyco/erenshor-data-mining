@@ -55,9 +55,9 @@ class ClassDisplayNameService:
                 doesn't have it yet) or the Classes table is empty.
         """
         query = """
-            SELECT ClassName, DisplayName
-            FROM Classes
-            WHERE ClassName != 'Default'
+            SELECT class_name, display_name
+            FROM classes
+            WHERE class_name != 'Default'
         """
         try:
             with self._db.connect() as conn:
@@ -68,7 +68,7 @@ class ClassDisplayNameService:
                 f"Failed to load class display names. This variant may not have the DisplayName column yet. Error: {e}"
             ) from e
 
-        mapping = {row["ClassName"]: row["DisplayName"] for row in rows}
+        mapping = {row["class_name"]: row["display_name"] or row["class_name"] for row in rows}
         if not mapping:
             raise ValueError("Classes table is empty")
         return mapping
