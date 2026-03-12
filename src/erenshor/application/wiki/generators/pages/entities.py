@@ -345,11 +345,38 @@ class EntityPageGenerator(PageGenerator):
                     image_name=stance.image_name,
                 )
 
+        effect_to_apply: AbilityLink | None = None
+        if skill.effect_to_apply_stable_key:
+            spell = self.context.spell_repo.get_spell_by_stable_key(skill.effect_to_apply_stable_key)
+            if spell is not None:
+                effect_to_apply = AbilityLink(
+                    page_title=spell.wiki_page_name,
+                    display_name=spell.display_name or spell.spell_name or "",
+                    image_name=spell.image_name,
+                )
+
+        cast_on_target: AbilityLink | None = None
+        if skill.cast_on_target_stable_key:
+            spell = self.context.spell_repo.get_spell_by_stable_key(skill.cast_on_target_stable_key)
+            if spell is not None:
+                cast_on_target = AbilityLink(
+                    page_title=spell.wiki_page_name,
+                    display_name=spell.display_name or spell.spell_name or "",
+                    image_name=spell.image_name,
+                )
+
+        spawn_on_use = None
+        if skill.spawn_on_use_stable_key:
+            spawn_on_use = self.context.character_repo.get_character_link(skill.spawn_on_use_stable_key)
+
         return EnrichedSkillData(
             skill=skill,
             items_with_effect=items_with_effect,
             teaching_items=obtainable_teaching_items,
             activated_stance=activated_stance,
+            effect_to_apply=effect_to_apply,
+            cast_on_target=cast_on_target,
+            spawn_on_use=spawn_on_use,
         )
 
     def _assemble_stance(self, stance: Stance) -> EnrichedStanceData:

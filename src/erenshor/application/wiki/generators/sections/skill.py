@@ -99,24 +99,11 @@ class SkillSectionGenerator(SectionGeneratorBase):
 
         image = f"{skill.image_name}.png" if skill.image_name else ""
 
-        # Pre-built links on skill entity fields — no resolver needed
-        pet_to_summon = ""
-        if skill.spawn_on_use_stable_key:
-            # spawn_on_use links are not pre-built on the entity; leave blank for now
-            pet_to_summon = ""
-
-        status_effect = ""
-        if skill.effect_to_apply_stable_key:
-            # effect_to_apply links are not pre-built on the entity; leave blank for now
-            status_effect = ""
-
-        # activated_stance is a pre-built AbilityLink on the enriched DTO
+        # Pre-built links from enriched DTO
+        pet_to_summon = str(enriched.spawn_on_use) if enriched.spawn_on_use else ""
+        status_effect = str(enriched.effect_to_apply) if enriched.effect_to_apply else ""
         activated_stance = str(enriched.activated_stance) if enriched.activated_stance else ""
-
-        cast_on_target = ""
-        if skill.cast_on_target_stable_key:
-            # cast_on_target links are not pre-built on the entity; leave blank for now
-            cast_on_target = ""
+        cast_on_target = str(enriched.cast_on_target) if enriched.cast_on_target else ""
 
         # Combine effects
         effects_parts = []
