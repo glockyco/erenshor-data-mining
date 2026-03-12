@@ -48,6 +48,13 @@ DB_PATH = REPO_ROOT / "variants" / "main" / "erenshor-main.sqlite"
 # ---------------------------------------------------------------------------
 
 _MAP_SPAWN_POINTS_SQL = """
+WITH rep_groups AS (
+    SELECT d.group_key, MIN(c.stable_key) AS rep_stable_key
+    FROM character_deduplications d
+    JOIN characters c ON c.stable_key = d.member_stable_key
+    WHERE c.is_map_visible = 1
+    GROUP BY d.group_key
+)
 SELECT
     cs.scene                        AS Scene,
     cs.spawn_point_stable_key       AS StableKey,
@@ -64,23 +71,25 @@ SELECT
         FROM spawn_point_patrol_points pp
         WHERE pp.spawn_point_stable_key = cs.spawn_point_stable_key
     )                               AS PatrolPath,
-    c.display_name                  AS NPCName,
-    c.stable_key                    AS CharacterStableKey,
-    c.level                         AS Level,
-    c.is_vendor                     AS IsVendor,
-    c.has_dialog                    AS HasDialog,
-    c.invulnerable                  AS Invulnerable,
+    rep.display_name                AS NPCName,
+    rep.stable_key                  AS CharacterStableKey,
+    rep.level                       AS Level,
+    rep.is_vendor                   AS IsVendor,
+    rep.has_dialog                  AS HasDialog,
+    rep.invulnerable                AS Invulnerable,
     sum(cs.spawn_chance)            AS SpawnChance,
-    c.is_common                     AS IsCommon,
-    c.is_rare                       AS IsRare,
-    c.is_unique                     AS IsUnique,
-    min(c.is_friendly)              AS IsFriendly
-FROM character_spawns cs
-JOIN characters c ON c.stable_key = cs.character_stable_key
+    rep.is_common                   AS IsCommon,
+    rep.is_rare                     AS IsRare,
+    rep.is_unique                   AS IsUnique,
+    min(rep.is_friendly)            AS IsFriendly
+FROM rep_groups rg
+JOIN characters rep ON rep.stable_key = rg.rep_stable_key
+JOIN character_deduplications d ON d.group_key = rg.group_key
+JOIN character_spawns cs ON cs.character_stable_key = d.member_stable_key
 WHERE cs.spawn_chance > 0
   AND cs.spawn_point_stable_key IS NOT NULL
-GROUP BY cs.spawn_point_stable_key, c.stable_key
-ORDER BY cs.scene, cs.spawn_point_stable_key, c.stable_key
+GROUP BY cs.spawn_point_stable_key, rep.stable_key
+ORDER BY cs.scene, cs.spawn_point_stable_key, rep.stable_key
 """
 
 # ---------------------------------------------------------------------------

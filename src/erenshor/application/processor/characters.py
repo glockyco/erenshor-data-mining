@@ -7,17 +7,13 @@ Processing steps (in order):
 1. Load all Characters rows from the raw DB, excluding SimPlayers, the
    Player object, and blank ObjectName rows.
 2. Apply mapping overrides (display_name, wiki_page_name, image_name).
-3. Filter excluded entities (wiki_page_name is None).
+3. Attach is_wiki_generated / is_map_visible flags (no exclusion).
 4. Load all junction data (spawns, spells, loot, dialogs, etc.) into memory.
-5. Cascade-filter junction rows to the surviving character set.
-6. Deduplicate: group by identity key (all scalar fields + relationship sets).
-   For each group, elect one canonical record; record the others in
-   character_deduplication.  Merge spawn locations from all group members
-   into the canonical record.
-7. Compute is_unique per display_name group: a character is unique if the
-   total number of spawn locations across all characters with the same
-   display_name is exactly 1.
-8. Write characters, spawns, deduplication records, and all junction tables.
+5. Deduplicate all characters: group by identity key (all scalar fields +
+   relationship sets). Compute stable dedup groups and write
+   character_deduplications membership rows.
+6. Recompute is_unique and is_rare per group using all merged spawns.
+7. Write characters, spawns, and all junction tables.
 
 Deduplication identity includes:
 - display_name (post-mapping)
@@ -29,7 +25,7 @@ Deduplication identity includes:
 - frozenset of dialog quest stable keys (assign + complete quest pairs)
 - all boolean type flags
 
-Spawn locations are NOT part of identity — they are merged into the canonical.
+Spawn locations are NOT part of identity — they are merged per dedup group.
 """
 
 from __future__ import annotations
@@ -61,8 +57,10 @@ class _CharRow:
     # Resolved display fields
     stable_key: str
     display_name: str
-    wiki_page_name: str
+    wiki_page_name: str | None
     image_name: str
+    is_wiki_generated: int
+    is_map_visible: int
 
 
 @dataclass
@@ -209,28 +207,6 @@ def _dedup_key(d: _CharData) -> tuple[object, ...]:
     )
 
 
-def _is_better_survivor(candidate: _CharData, current: _CharData) -> bool:
-    """Return True if candidate should replace current as canonical.
-
-    Prefer is_unique, then is_rare, then either over neither.
-    This matches the _should_replace_survivor logic in the existing wiki
-    EntityPageGenerator._deduplicate_characters().
-    """
-    raw_c = candidate.char.raw
-    raw_s = current.char.raw
-
-    c_unique = bool(raw_c.get("IsUnique"))
-    s_unique = bool(raw_s.get("IsUnique"))
-    c_rare = bool(raw_c.get("IsRare"))
-    s_rare = bool(raw_s.get("IsRare"))
-
-    if c_unique and not s_unique:
-        return True
-    if not c_unique and s_unique:
-        return False
-    return bool(c_rare and not s_rare)
-
-
 # ---------------------------------------------------------------------------
 # Load helpers
 # ---------------------------------------------------------------------------
@@ -278,7 +254,7 @@ def process_characters(
     """Full character processing pipeline. Writes to writer."""
 
     # ------------------------------------------------------------------
-    # Step 1: Load characters, apply mapping, filter excluded
+    # Step 1: Load characters, apply mapping, attach flags
     # ------------------------------------------------------------------
     char_rows = _load_rows(
         raw,
@@ -292,22 +268,24 @@ def process_characters(
     logger.info(f"Characters: {len(char_rows)} after initial filter (SimPlayer/Player/blank)")
 
     chars: list[_CharRow] = []
-    excluded_count = 0
     for row in char_rows:
         sk = str(row["StableKey"])
         npc_name = str(row["NPCName"]) if row["NPCName"] is not None else ""
         override = mapping.get(sk)
         if override is not None:
-            if override["wiki_page_name"] is None:
-                excluded_count += 1
-                continue
             display_name = override["display_name"].strip()
-            wiki_page_name = override["wiki_page_name"].strip()
+            wiki_page_name = (
+                override["wiki_page_name"].strip() if override["wiki_page_name"] is not None else None
+            )
             image_name = override["image_name"].strip()
+            is_wiki_generated = int(override["is_wiki_generated"])
+            is_map_visible = int(override["is_map_visible"])
         else:
             display_name = npc_name.strip()
             wiki_page_name = npc_name.strip()
             image_name = npc_name.strip()
+            is_wiki_generated = 1
+            is_map_visible = 1
         chars.append(
             _CharRow(
                 raw=row,
@@ -315,11 +293,13 @@ def process_characters(
                 display_name=display_name,
                 wiki_page_name=wiki_page_name,
                 image_name=image_name,
+                is_wiki_generated=is_wiki_generated,
+                is_map_visible=is_map_visible,
             )
         )
 
-    logger.info(f"Characters: {len(chars)} after mapping/exclusion ({excluded_count} excluded)")
-    valid_keys: set[str] = {c.stable_key for c in chars}
+    logger.info(f"Characters: {len(chars)} after mapping")
+    all_keys: set[str] = {c.stable_key for c in chars}
 
     # ------------------------------------------------------------------
     # Step 2: Load spawn data
@@ -331,7 +311,7 @@ def process_characters(
     direct_spawn_by_char: dict[str, _SpawnRow] = {}
     for row in char_rows:
         sk = str(row["StableKey"])
-        if sk not in valid_keys:
+        if sk not in all_keys:
             continue
         scene = row.get("Scene")
         if scene is not None:
@@ -388,8 +368,8 @@ def process_characters(
         FROM SpawnPoints sp
         JOIN SpawnPointCharacters spc ON sp.StableKey = spc.SpawnPointStableKey
         WHERE spc.CharacterStableKey IN ({})
-    """.format(",".join("?" * len(valid_keys))),
-        tuple(valid_keys),
+    """.format(",".join("?" * len(all_keys))),
+        tuple(all_keys),
     )
 
     # Group spawn rows by character
@@ -447,8 +427,8 @@ def process_characters(
         SELECT CharacterStableKey, ItemStableKey, DropProbability
         FROM LootDrops
         WHERE CharacterStableKey IN ({})
-    """.format(",".join("?" * len(valid_keys))),
-        tuple(valid_keys),
+    """.format(",".join("?" * len(all_keys))),
+        tuple(all_keys),
     )
     loot_by_char: dict[str, frozenset[tuple[str, float]]] = defaultdict(frozenset)
     tmp_loot: dict[str, set[tuple[str, float]]] = defaultdict(set)
@@ -465,8 +445,8 @@ def process_characters(
         SELECT CharacterStableKey, AssignQuestStableKey, CompleteQuestStableKey
         FROM CharacterDialogs
         WHERE CharacterStableKey IN ({})
-    """.format(",".join("?" * len(valid_keys))),
-        tuple(valid_keys),
+    """.format(",".join("?" * len(all_keys))),
+        tuple(all_keys),
     )
     tmp_dialog: dict[str, set[tuple[str | None, str | None]]] = defaultdict(set)
     for r in dialog_rows:
@@ -510,63 +490,46 @@ def process_characters(
         )
 
     # ------------------------------------------------------------------
-    # Step 5: Deduplicate
+    # Step 5: Deduplicate (group membership only)
     # ------------------------------------------------------------------
-    # Group by dedup key; elect canonical; collect merged records
-    groups: dict[tuple[object, ...], _CharData] = {}
-    merged_records: list[tuple[str, str, str]] = []  # (canonical_sk, merged_sk, merged_object_name)
-
+    groups: dict[tuple[object, ...], list[_CharData]] = defaultdict(list)
     for d in char_data:
-        key = _dedup_key(d)
-        if key not in groups:
-            groups[key] = d
-        else:
-            current = groups[key]
-            if _is_better_survivor(d, current):
-                # Demote old canonical to merged
-                merged_records.append(
-                    (
-                        d.char.stable_key,
-                        current.char.stable_key,
-                        str(current.char.raw.get("ObjectName") or ""),
-                    )
-                )
-                # Absorb current's spawns into the new canonical
-                d.spawns.extend(current.spawns)
-                groups[key] = d
-            else:
-                # Demote new record to merged, absorb its spawns
-                merged_records.append(
-                    (
-                        current.char.stable_key,
-                        d.char.stable_key,
-                        str(d.char.raw.get("ObjectName") or ""),
-                    )
-                )
-                current.spawns.extend(d.spawns)
+        groups[_dedup_key(d)].append(d)
 
-    canonical_data = list(groups.values())
-    canonical_keys = {d.char.stable_key for d in canonical_data}
+    logger.info(f"Characters: {len(groups)} dedup groups from {len(char_data)} characters")
+
+    dedup_rows: list[dict[str, object]] = []
+    unique_group_count = 0
+    rare_group_count = 0
+    for members in groups.values():
+        group_key = min(m.char.stable_key for m in members)
+        for m in members:
+            dedup_rows.append({"group_key": group_key, "member_stable_key": m.char.stable_key})
+
+        # Recompute is_unique / is_rare based on all group spawns.
+        # Note: this may need revisiting if map visibility excludes some spawns.
+        group_spawns = [s for m in members for s in m.spawns]
+        total_spawns = len(group_spawns)
+        is_unique = 1 if total_spawns == 1 else 0
+        any_common = any(bool(s.is_common) for s in group_spawns)
+        any_rare = any(bool(s.is_rare) for s in group_spawns)
+        is_rare = 1 if any_rare and not any_common else 0
+
+        if is_unique:
+            unique_group_count += 1
+        if is_rare:
+            rare_group_count += 1
+
+        for m in members:
+            m.char.raw["IsUnique"] = is_unique
+            m.char.raw["IsRare"] = is_rare
+
     logger.info(
-        f"Characters: {len(canonical_data)} canonical after dedup ({len(char_data) - len(canonical_data)} merged)"
+        f"Characters: {unique_group_count} unique groups, {rare_group_count} rare groups after recomputation"
     )
 
     # ------------------------------------------------------------------
-    # Step 6: Compute is_unique per display_name group
-    # ------------------------------------------------------------------
-    spawn_count_by_display_name: dict[str, int] = defaultdict(int)
-    for d in canonical_data:
-        spawn_count_by_display_name[d.char.display_name] += len(d.spawns)
-
-    for d in canonical_data:
-        total = spawn_count_by_display_name[d.char.display_name]
-        d.char.raw["IsUnique"] = 1 if total == 1 else 0
-
-    unique_count = sum(1 for d in canonical_data if d.char.raw.get("IsUnique"))
-    logger.info(f"Characters: {unique_count} unique after is_unique recomputation")
-
-    # ------------------------------------------------------------------
-    # Step 7: Write characters
+    # Step 6: Write characters
     # ------------------------------------------------------------------
 
     def _char_row(d: _CharData) -> dict[str, object]:
@@ -578,6 +541,8 @@ def process_characters(
             "display_name": d.char.display_name,
             "wiki_page_name": d.char.wiki_page_name,
             "image_name": d.char.image_name,
+            "is_wiki_generated": d.char.is_wiki_generated,
+            "is_map_visible": d.char.is_map_visible,
             "scene": r.get("Scene"),
             "x": r.get("X"),
             "y": r.get("Y"),
@@ -674,19 +639,12 @@ def process_characters(
             "quest_manager_sim_usable": r.get("QuestManagerSimUsable"),
         }
 
-    writer.insert_characters([_char_row(d) for d in canonical_data])
-
-    # character_deduplication
-    writer.insert_character_deduplication(
-        [
-            {"canonical_stable_key": canon, "merged_stable_key": merged, "merged_object_name": obj_name}
-            for canon, merged, obj_name in merged_records
-        ]
-    )
+    writer.insert_characters([_char_row(d) for d in char_data])
+    writer.insert_character_deduplications(dedup_rows)
 
     # character_spawns
     spawn_out: list[dict[str, object]] = []
-    for d in canonical_data:
+    for d in char_data:
         for s in d.spawns:
             spawn_out.append(
                 {
@@ -722,12 +680,12 @@ def process_characters(
     logger.info(f"Characters: wrote {len(spawn_out)} spawn rows")
 
     # ------------------------------------------------------------------
-    # Step 8: Write junction tables (filtered to canonical keys)
+    # Step 7: Write junction tables (filtered to all keys)
     # ------------------------------------------------------------------
 
     def _write_spell_junction(table: str, raw_table: str, insert_fn: Callable[[list[dict[str, object]]], int]) -> None:
         rows = _load_rows(raw, f"SELECT CharacterStableKey, SpellStableKey FROM {raw_table}")
-        rows = [r for r in rows if r["CharacterStableKey"] in canonical_keys]
+        rows = [r for r in rows if r["CharacterStableKey"] in all_keys]
         insert_fn(
             [
                 {
@@ -749,7 +707,7 @@ def process_characters(
 
     # Attack skills
     skill_rows = _load_rows(raw, "SELECT CharacterStableKey, SkillStableKey FROM CharacterAttackSkills")
-    skill_rows = [r for r in skill_rows if r["CharacterStableKey"] in canonical_keys]
+    skill_rows = [r for r in skill_rows if r["CharacterStableKey"] in all_keys]
     writer.insert_character_attack_skills(
         [
             {
@@ -762,7 +720,7 @@ def process_characters(
 
     # Vendor items
     vi_rows = _load_rows(raw, "SELECT CharacterStableKey, ItemStableKey FROM CharacterVendorItems")
-    vi_rows = [r for r in vi_rows if r["CharacterStableKey"] in canonical_keys]
+    vi_rows = [r for r in vi_rows if r["CharacterStableKey"] in all_keys]
     writer.insert_character_vendor_items(
         [
             {
@@ -775,7 +733,7 @@ def process_characters(
 
     # Aggressive factions
     af_rows = _load_rows(raw, "SELECT CharacterStableKey, FactionName FROM CharacterAggressiveFactions")
-    af_rows = [r for r in af_rows if r["CharacterStableKey"] in canonical_keys]
+    af_rows = [r for r in af_rows if r["CharacterStableKey"] in all_keys]
     writer.insert_character_aggressive_factions(
         [
             {
@@ -788,7 +746,7 @@ def process_characters(
 
     # Allied factions
     all_rows = _load_rows(raw, "SELECT CharacterStableKey, FactionName FROM CharacterAlliedFactions")
-    all_rows = [r for r in all_rows if r["CharacterStableKey"] in canonical_keys]
+    all_rows = [r for r in all_rows if r["CharacterStableKey"] in all_keys]
     writer.insert_character_allied_factions(
         [
             {
@@ -803,7 +761,7 @@ def process_characters(
     fm_rows = _load_rows(
         raw, "SELECT CharacterStableKey, FactionStableKey, ModifierValue FROM CharacterFactionModifiers"
     )
-    fm_rows = [r for r in fm_rows if r["CharacterStableKey"] in canonical_keys]
+    fm_rows = [r for r in fm_rows if r["CharacterStableKey"] in all_keys]
     writer.insert_character_faction_modifiers(
         [
             {
@@ -817,7 +775,7 @@ def process_characters(
 
     # Death shouts
     ds_rows = _load_rows(raw, "SELECT CharacterStableKey, SequenceIndex, ShoutText FROM CharacterDeathShouts")
-    ds_rows = [r for r in ds_rows if r["CharacterStableKey"] in canonical_keys]
+    ds_rows = [r for r in ds_rows if r["CharacterStableKey"] in all_keys]
     writer.insert_character_death_shouts(
         [
             {
@@ -831,7 +789,7 @@ def process_characters(
 
     # Vendor quest unlocks
     vqu_rows = _load_rows(raw, "SELECT CharacterStableKey, QuestStableKey FROM CharacterVendorQuestUnlocks")
-    vqu_rows = [r for r in vqu_rows if r["CharacterStableKey"] in canonical_keys]
+    vqu_rows = [r for r in vqu_rows if r["CharacterStableKey"] in all_keys]
     writer.insert_character_vendor_quest_unlocks(
         [
             {
@@ -844,7 +802,7 @@ def process_characters(
 
     # Quest manager quests
     qm_rows = _load_rows(raw, "SELECT CharacterStableKey, QuestStableKey FROM CharacterQuestManagerQuests")
-    qm_rows = [r for r in qm_rows if r["CharacterStableKey"] in canonical_keys]
+    qm_rows = [r for r in qm_rows if r["CharacterStableKey"] in all_keys]
     writer.insert_character_quest_manager_quests(
         [
             {
@@ -857,7 +815,7 @@ def process_characters(
 
     # Loot drops
     ld_rows = _load_rows(raw, "SELECT * FROM LootDrops")
-    ld_rows = [r for r in ld_rows if r["CharacterStableKey"] in canonical_keys]
+    ld_rows = [r for r in ld_rows if r["CharacterStableKey"] in all_keys]
     writer.insert_loot_drops(
         [
             {
@@ -883,7 +841,7 @@ def process_characters(
 
     # Dialogs (full dialog rows, not just quest keys)
     all_dialog_rows = _load_rows(raw, "SELECT * FROM CharacterDialogs")
-    all_dialog_rows = [r for r in all_dialog_rows if r["CharacterStableKey"] in canonical_keys]
+    all_dialog_rows = [r for r in all_dialog_rows if r["CharacterStableKey"] in all_keys]
     writer.insert_character_dialogs(
         [
             {
@@ -938,4 +896,4 @@ def process_characters(
         ]
     )
 
-    logger.info(f"Characters: processing complete ({len(canonical_data)} characters written)")
+    logger.info(f"Characters: processing complete ({len(char_data)} characters written)")

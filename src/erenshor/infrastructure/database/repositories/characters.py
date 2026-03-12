@@ -28,6 +28,13 @@ class CharacterRepository(BaseRepository[Character]):
             RepositoryError: If query execution fails.
         """
         query = """
+            WITH reps AS (
+                SELECT d.group_key, MIN(c.stable_key) AS rep_stable_key
+                FROM character_deduplications d
+                JOIN characters c ON c.stable_key = d.member_stable_key
+                WHERE c.is_wiki_generated = 1
+                GROUP BY d.group_key
+            )
             SELECT
                 c.stable_key,
                 c.object_name,
@@ -126,7 +133,8 @@ class CharacterRepository(BaseRepository[Character]):
                 c.spawn_emote,
                 c.guild_name,
                 c.vendor_desc
-            FROM characters c
+            FROM reps r
+            JOIN characters c ON c.stable_key = r.rep_stable_key
             LEFT JOIN factions f ON f.stable_key = c.my_world_faction_stable_key
             ORDER BY c.display_name COLLATE NOCASE
         """
@@ -222,9 +230,22 @@ class CharacterRepository(BaseRepository[Character]):
             RepositoryError: If query execution fails
         """
         query = """
-            SELECT display_name, wiki_page_name
-            FROM characters
-            WHERE stable_key = ?
+            WITH target_group AS (
+                SELECT group_key
+                FROM character_deduplications
+                WHERE member_stable_key = ?
+                LIMIT 1
+            ),
+            rep AS (
+                SELECT MIN(c.stable_key) AS rep_stable_key
+                FROM character_deduplications d
+                JOIN characters c ON c.stable_key = d.member_stable_key
+                WHERE d.group_key = (SELECT group_key FROM target_group)
+                  AND c.is_wiki_generated = 1
+            )
+            SELECT c.display_name, c.wiki_page_name
+            FROM characters c
+            WHERE c.stable_key = (SELECT rep_stable_key FROM rep)
             LIMIT 1
         """
 
@@ -256,12 +277,23 @@ class CharacterRepository(BaseRepository[Character]):
             RepositoryError: If query execution fails
         """
         query = """
-            SELECT DISTINCT
-                c.display_name,
-                c.wiki_page_name
-            FROM characters c
-            JOIN character_vendor_items cvi ON c.stable_key = cvi.character_stable_key
-            WHERE cvi.item_stable_key = ?
+            WITH vendor_groups AS (
+                SELECT DISTINCT d.group_key
+                FROM character_deduplications d
+                JOIN character_vendor_items cvi ON cvi.character_stable_key = d.member_stable_key
+                WHERE cvi.item_stable_key = ?
+            ),
+            reps AS (
+                SELECT vg.group_key, MIN(c.stable_key) AS rep_stable_key
+                FROM vendor_groups vg
+                JOIN character_deduplications d ON d.group_key = vg.group_key
+                JOIN characters c ON c.stable_key = d.member_stable_key
+                WHERE c.is_wiki_generated = 1
+                GROUP BY vg.group_key
+            )
+            SELECT c.display_name, c.wiki_page_name
+            FROM reps r
+            JOIN characters c ON c.stable_key = r.rep_stable_key
             ORDER BY c.display_name COLLATE NOCASE
         """
 
@@ -295,14 +327,25 @@ class CharacterRepository(BaseRepository[Character]):
             RepositoryError: If query execution fails
         """
         query = """
-            SELECT DISTINCT
-                c.display_name,
-                c.wiki_page_name,
-                ld.drop_probability
-            FROM characters c
-            JOIN loot_drops ld ON c.stable_key = ld.character_stable_key
-            WHERE ld.item_stable_key = ?
-                AND ld.drop_probability > 0.0
+            WITH drop_groups AS (
+                SELECT d.group_key, MAX(ld.drop_probability) AS drop_probability
+                FROM character_deduplications d
+                JOIN loot_drops ld ON ld.character_stable_key = d.member_stable_key
+                WHERE ld.item_stable_key = ?
+                  AND ld.drop_probability > 0.0
+                GROUP BY d.group_key
+            ),
+            reps AS (
+                SELECT dg.group_key, dg.drop_probability, MIN(c.stable_key) AS rep_stable_key
+                FROM drop_groups dg
+                JOIN character_deduplications d ON d.group_key = dg.group_key
+                JOIN characters c ON c.stable_key = d.member_stable_key
+                WHERE c.is_wiki_generated = 1
+                GROUP BY dg.group_key, dg.drop_probability
+            )
+            SELECT c.display_name, c.wiki_page_name, r.drop_probability
+            FROM reps r
+            JOIN characters c ON c.stable_key = r.rep_stable_key
             ORDER BY c.display_name COLLATE NOCASE
         """
 
@@ -338,21 +381,34 @@ class CharacterRepository(BaseRepository[Character]):
             RepositoryError: If query execution fails
         """
         query = """
-            SELECT DISTINCT c.display_name, c.wiki_page_name
-            FROM characters c
-            WHERE c.stable_key IN (
-                SELECT character_stable_key FROM character_attack_spells WHERE spell_stable_key = ?
-                UNION
-                SELECT character_stable_key FROM character_buff_spells WHERE spell_stable_key = ?
-                UNION
-                SELECT character_stable_key FROM character_heal_spells WHERE spell_stable_key = ?
-                UNION
-                SELECT character_stable_key FROM character_group_heal_spells WHERE spell_stable_key = ?
-                UNION
-                SELECT character_stable_key FROM character_cc_spells WHERE spell_stable_key = ?
-                UNION
-                SELECT character_stable_key FROM character_taunt_spells WHERE spell_stable_key = ?
+            WITH spell_groups AS (
+                SELECT DISTINCT d.group_key
+                FROM character_deduplications d
+                JOIN (
+                    SELECT character_stable_key FROM character_attack_spells WHERE spell_stable_key = ?
+                    UNION
+                    SELECT character_stable_key FROM character_buff_spells WHERE spell_stable_key = ?
+                    UNION
+                    SELECT character_stable_key FROM character_heal_spells WHERE spell_stable_key = ?
+                    UNION
+                    SELECT character_stable_key FROM character_group_heal_spells WHERE spell_stable_key = ?
+                    UNION
+                    SELECT character_stable_key FROM character_cc_spells WHERE spell_stable_key = ?
+                    UNION
+                    SELECT character_stable_key FROM character_taunt_spells WHERE spell_stable_key = ?
+                ) s ON s.character_stable_key = d.member_stable_key
+            ),
+            reps AS (
+                SELECT sg.group_key, MIN(c.stable_key) AS rep_stable_key
+                FROM spell_groups sg
+                JOIN character_deduplications d ON d.group_key = sg.group_key
+                JOIN characters c ON c.stable_key = d.member_stable_key
+                WHERE c.is_wiki_generated = 1
+                GROUP BY sg.group_key
             )
+            SELECT c.display_name, c.wiki_page_name
+            FROM reps r
+            JOIN characters c ON c.stable_key = r.rep_stable_key
             ORDER BY c.display_name COLLATE NOCASE
         """
 

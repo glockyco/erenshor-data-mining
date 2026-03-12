@@ -5,7 +5,7 @@ their supporting tables.  Each processor function follows the same pattern:
 
 1. Read all rows from the raw DB (PascalCase columns).
 2. Apply mapping overrides (display_name, wiki_page_name, image_name).
-3. Filter out excluded entities (wiki_page_name is None after mapping).
+3. Attach is_wiki_generated / is_map_visible flags (no row exclusion).
 4. Rename columns to snake_case.
 5. Write to the clean DB via the Writer.
 
@@ -64,31 +64,31 @@ def _apply_mapping(
     name_col: str,
     mapping: dict[str, MappingOverride],
 ) -> list[dict[str, object]]:
-    """Apply mapping overrides and filter excluded entities.
+    """Apply mapping overrides.
 
-    Adds display_name, wiki_page_name, image_name to each row.
-    Rows with wiki_page_name=None (excluded) are dropped.
+    Adds display_name, wiki_page_name, image_name, is_wiki_generated, and
+    is_map_visible to each row. wiki_page_name may be None (no wiki page).
     """
     result = []
-    excluded = 0
     for row in rows:
         sk = str(row[stable_key_col])
         default_name = str(row[name_col]) if row[name_col] is not None else ""
         override = mapping.get(sk)
         if override is not None:
-            if override["wiki_page_name"] is None:
-                excluded += 1
-                continue
             row["display_name"] = override["display_name"].strip()
-            row["wiki_page_name"] = override["wiki_page_name"].strip()
+            row["wiki_page_name"] = (
+                override["wiki_page_name"].strip() if override["wiki_page_name"] is not None else None
+            )
             row["image_name"] = override["image_name"].strip()
+            row["is_wiki_generated"] = int(override["is_wiki_generated"])
+            row["is_map_visible"] = int(override["is_map_visible"])
         else:
             row["display_name"] = default_name.strip()
             row["wiki_page_name"] = default_name.strip()
             row["image_name"] = default_name.strip()
+            row["is_wiki_generated"] = 1
+            row["is_map_visible"] = 1
         result.append(row)
-    if excluded:
-        logger.debug(f"Excluded {excluded} entities via mapping")
     return result
 
 
@@ -233,7 +233,7 @@ def process_zones(
     logger.info(f"Zones: {len(rows)} raw")
 
     rows = _apply_mapping(rows, "StableKey", "ZoneName", mapping)
-    logger.info(f"Zones: {len(rows)} after exclusion")
+    logger.info(f"Zones: {len(rows)} after mapping")
 
     rows = _rename_cols(rows)
     writer.insert_zones(rows)
@@ -259,7 +259,7 @@ def process_factions(
     logger.info(f"Factions: {len(rows)} raw")
 
     rows = _apply_mapping(rows, "StableKey", "FactionDesc", mapping)
-    logger.info(f"Factions: {len(rows)} after exclusion")
+    logger.info(f"Factions: {len(rows)} after mapping")
 
     rows = _rename_cols(rows)
     writer.insert_factions(rows)
@@ -277,11 +277,11 @@ def process_items(
     mapping: dict[str, MappingOverride],
 ) -> set[str]:
     """Process Items and related tables. Returns set of included stable keys."""
-    rows = _rows(raw, "SELECT * FROM Items WHERE COALESCE(ItemName, '') != '' AND COALESCE(ResourceName, '') != ''")
+    rows = _rows(raw, "SELECT * FROM Items WHERE COALESCE(ResourceName, '') != ''")
     logger.info(f"Items: {len(rows)} raw")
 
     rows = _apply_mapping(rows, "StableKey", "ItemName", mapping)
-    logger.info(f"Items: {len(rows)} after exclusion")
+    logger.info(f"Items: {len(rows)} after mapping")
 
     # 'Unique' is a SQL reserved word — rename to is_unique (boolean 0/1)
     rows = _rename_cols(rows, {"Unique": "is_unique"})
@@ -367,7 +367,7 @@ def process_spells(
     logger.info(f"Spells: {len(rows)} raw")
 
     rows = _apply_mapping(rows, "StableKey", "SpellName", mapping)
-    logger.info(f"Spells: {len(rows)} after exclusion")
+    logger.info(f"Spells: {len(rows)} after mapping")
 
     rows = _rename_cols(rows)
     writer.insert_spells(rows)
@@ -402,7 +402,7 @@ def process_skills(
     logger.info(f"Skills: {len(rows)} raw")
 
     rows = _apply_mapping(rows, "StableKey", "SkillName", mapping)
-    logger.info(f"Skills: {len(rows)} after exclusion")
+    logger.info(f"Skills: {len(rows)} after mapping")
 
     # Require2H has a digit that breaks generic snake_case conversion.
     rows = _rename_cols(rows, {"Require2H": "require_2h"})
@@ -426,7 +426,7 @@ def process_stances(
 
     # DisplayName is the natural name for stances
     rows = _apply_mapping(rows, "StableKey", "DisplayName", mapping)
-    logger.info(f"Stances: {len(rows)} after exclusion")
+    logger.info(f"Stances: {len(rows)} after mapping")
 
     rows = _rename_cols(rows)
     writer.insert_stances(rows)
@@ -462,7 +462,7 @@ def process_quests(
     logger.info(f"Quests: {len(quest_rows)} raw")
 
     quest_rows = _apply_mapping(quest_rows, "StableKey", "QuestName", mapping)
-    logger.info(f"Quests: {len(quest_rows)} after exclusion")
+    logger.info(f"Quests: {len(quest_rows)} after mapping")
 
     valid = {str(r["StableKey"]) for r in quest_rows}
 

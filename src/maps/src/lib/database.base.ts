@@ -414,37 +414,45 @@ export class RepositoryBase {
 
         const stmt = this.db.prepare(
             `
-			SELECT
-				sp.StableKey,
-				sp.X AS PositionX,
-				sp.Y AS PositionY,
-				sp.Z AS PositionZ,
-				sp.SpawnDelay4 AS SpawnDelay,
-				sp.IsEnabled AS IsEnabled,
-				sp.NightSpawn AS IsNightSpawn,
-				sp.RandomWanderRange AS WanderRange,
-				sp.LoopPatrol AS LoopPatrol,
-				(SELECT GROUP_CONCAT(pp.X || ',' || pp.Z, ';')
-				 FROM SpawnPointPatrolPoints pp
-				 WHERE pp.SpawnPointStableKey = sp.StableKey
-				 ORDER BY pp.SequenceIndex) AS PatrolPath,
-				c.NPCName,
-				c.StableKey AS CharacterStableKey,
-				c.Level,
-				c.IsVendor,
-				c.HasDialog,
-				c.Invulnerable,
-				sum(spc.SpawnChance) AS SpawnChance,
-			c.IsCommon,
-			c.IsRare,
-			c.IsUnique,
-				min(c.IsFriendly) AS IsFriendly
-			FROM SpawnPoints sp
-			JOIN SpawnPointCharacters spc ON spc.SpawnPointStableKey = sp.StableKey
-			JOIN Characters c ON c.StableKey = spc.CharacterStableKey
-			WHERE sp.Scene = ? AND spc.SpawnChance > 0
-			GROUP BY sp.StableKey, c.StableKey
-		`,
+            WITH rep_groups AS (
+                SELECT d.group_key, MIN(c.stable_key) AS rep_stable_key
+                FROM character_deduplications d
+                JOIN characters c ON c.stable_key = d.member_stable_key
+                WHERE c.is_map_visible = 1
+                GROUP BY d.group_key
+            )
+            SELECT
+                cs.spawn_point_stable_key       AS StableKey,
+                cs.x                            AS PositionX,
+                cs.y                            AS PositionY,
+                cs.z                            AS PositionZ,
+                cs.spawn_delay_4                AS SpawnDelay,
+                cs.is_enabled                   AS IsEnabled,
+                cs.night_spawn                  AS IsNightSpawn,
+                cs.random_wander_range          AS WanderRange,
+                cs.loop_patrol                  AS LoopPatrol,
+                (SELECT GROUP_CONCAT(pp.x || ',' || pp.z, ';')
+                 FROM spawn_point_patrol_points pp
+                 WHERE pp.spawn_point_stable_key = cs.spawn_point_stable_key
+                 ORDER BY pp.sequence_index)     AS PatrolPath,
+                rep.display_name                AS NPCName,
+                rep.stable_key                  AS CharacterStableKey,
+                rep.level                       AS Level,
+                rep.is_vendor                   AS IsVendor,
+                rep.has_dialog                  AS HasDialog,
+                rep.invulnerable                AS Invulnerable,
+                sum(cs.spawn_chance)            AS SpawnChance,
+                rep.is_common                   AS IsCommon,
+                rep.is_rare                     AS IsRare,
+                rep.is_unique                   AS IsUnique,
+                min(rep.is_friendly)            AS IsFriendly
+            FROM rep_groups rg
+            JOIN characters rep ON rep.stable_key = rg.rep_stable_key
+            JOIN character_deduplications d ON d.group_key = rg.group_key
+            JOIN character_spawns cs ON cs.character_stable_key = d.member_stable_key
+            WHERE cs.scene = ? AND cs.spawn_chance > 0 AND cs.spawn_point_stable_key IS NOT NULL
+            GROUP BY cs.spawn_point_stable_key, rep.stable_key
+        `,
             [mapName]
         );
 
@@ -1049,9 +1057,24 @@ export class RepositoryBase {
     async getCharacterByName(name: string): Promise<{ stableKey: string } | null> {
         if (!this.db) throw new Error('DB not initialized');
 
-        const stmt = this.db.prepare(`SELECT StableKey FROM Characters WHERE NPCName = ? LIMIT 1`, [
-            name
-        ]);
+        const stmt = this.db.prepare(
+            `
+            WITH reps AS (
+                SELECT d.group_key, MIN(c.stable_key) AS rep_stable_key
+                FROM character_deduplications d
+                JOIN characters c ON c.stable_key = d.member_stable_key
+                WHERE c.is_map_visible = 1
+                GROUP BY d.group_key
+            )
+            SELECT c.stable_key AS StableKey
+            FROM reps r
+            JOIN characters c ON c.stable_key = r.rep_stable_key
+            WHERE c.display_name = ?
+            ORDER BY c.stable_key
+            LIMIT 1
+            `,
+            [name]
+        );
 
         if (stmt.step()) {
             const row = stmt.getAsObject();
@@ -1073,22 +1096,30 @@ export class RepositoryBase {
         // Query level range from both directly placed and spawn point enemies
         const levelStmt = this.db.prepare(
             `
-            SELECT MIN(Level) as MinLevel, MAX(Level) as MaxLevel
-            FROM (
-                SELECT c.Level
-                FROM Characters c
-                WHERE c.Scene = ? AND c.IsFriendly = 0
-
-                UNION ALL
-
-                SELECT c.Level
-                FROM SpawnPointCharacters spc
-                JOIN Characters c ON c.StableKey = spc.CharacterStableKey
-                JOIN SpawnPoints sp ON sp.StableKey = spc.SpawnPointStableKey
-                WHERE sp.Scene = ? AND c.IsFriendly = 0
+            WITH rep_groups AS (
+                SELECT d.group_key, MIN(c.stable_key) AS rep_stable_key
+                FROM character_deduplications d
+                JOIN characters c ON c.stable_key = d.member_stable_key
+                WHERE c.is_map_visible = 1
+                GROUP BY d.group_key
+            ),
+            zone_groups AS (
+                SELECT DISTINCT d.group_key
+                FROM character_deduplications d
+                JOIN character_spawns cs ON cs.character_stable_key = d.member_stable_key
+                WHERE cs.scene = ?
+            ),
+            zone_reps AS (
+                SELECT rg.rep_stable_key
+                FROM rep_groups rg
+                JOIN zone_groups zg ON zg.group_key = rg.group_key
             )
+            SELECT MIN(c.level) as MinLevel, MAX(c.level) as MaxLevel
+            FROM characters c
+            WHERE c.stable_key IN (SELECT rep_stable_key FROM zone_reps)
+              AND c.is_friendly = 0
             `,
-            [zoneName, zoneName]
+            [zoneName]
         );
 
         let levelRange: { min: number; max: number } | null = null;
@@ -1105,23 +1136,32 @@ export class RepositoryBase {
         // Query unique enemies
         const uniqueStmt = this.db.prepare(
             `
-            SELECT DISTINCT c.NPCName, c.Level
-            FROM (
-                SELECT c.StableKey, c.NPCName, c.Level
-                FROM Characters c
-                WHERE c.Scene = ? AND c.IsFriendly = 0 AND c.IsUnique = 1
-
-                UNION
-
-                SELECT c.StableKey, c.NPCName, c.Level
-                FROM SpawnPointCharacters spc
-                JOIN Characters c ON c.StableKey = spc.CharacterStableKey
-                JOIN SpawnPoints sp ON sp.StableKey = spc.SpawnPointStableKey
-                WHERE sp.Scene = ? AND c.IsFriendly = 0 AND c.IsUnique = 1
-            ) c
-            ORDER BY c.Level, c.NPCName
+            WITH rep_groups AS (
+                SELECT d.group_key, MIN(c.stable_key) AS rep_stable_key
+                FROM character_deduplications d
+                JOIN characters c ON c.stable_key = d.member_stable_key
+                WHERE c.is_map_visible = 1
+                GROUP BY d.group_key
+            ),
+            zone_groups AS (
+                SELECT DISTINCT d.group_key
+                FROM character_deduplications d
+                JOIN character_spawns cs ON cs.character_stable_key = d.member_stable_key
+                WHERE cs.scene = ?
+            ),
+            zone_reps AS (
+                SELECT rg.rep_stable_key
+                FROM rep_groups rg
+                JOIN zone_groups zg ON zg.group_key = rg.group_key
+            )
+            SELECT c.display_name AS NPCName, c.level AS Level
+            FROM characters c
+            WHERE c.stable_key IN (SELECT rep_stable_key FROM zone_reps)
+              AND c.is_friendly = 0
+              AND c.is_unique = 1
+            ORDER BY c.level, c.display_name
             `,
-            [zoneName, zoneName]
+            [zoneName]
         );
 
         const uniques: { name: string; level: number }[] = [];
@@ -1134,23 +1174,33 @@ export class RepositoryBase {
         // Query rare enemies (exclude uniques)
         const rareStmt = this.db.prepare(
             `
-            SELECT DISTINCT c.NPCName, c.Level
-            FROM (
-                SELECT c.StableKey, c.NPCName, c.Level
-                FROM Characters c
-                WHERE c.Scene = ? AND c.IsFriendly = 0 AND c.IsRare = 1 AND c.IsUnique = 0
-
-                UNION
-
-                SELECT c.StableKey, c.NPCName, c.Level
-                FROM SpawnPointCharacters spc
-                JOIN Characters c ON c.StableKey = spc.CharacterStableKey
-                JOIN SpawnPoints sp ON sp.StableKey = spc.SpawnPointStableKey
-                WHERE sp.Scene = ? AND c.IsFriendly = 0 AND c.IsRare = 1 AND c.IsUnique = 0
-            ) c
-            ORDER BY c.Level, c.NPCName
+            WITH rep_groups AS (
+                SELECT d.group_key, MIN(c.stable_key) AS rep_stable_key
+                FROM character_deduplications d
+                JOIN characters c ON c.stable_key = d.member_stable_key
+                WHERE c.is_map_visible = 1
+                GROUP BY d.group_key
+            ),
+            zone_groups AS (
+                SELECT DISTINCT d.group_key
+                FROM character_deduplications d
+                JOIN character_spawns cs ON cs.character_stable_key = d.member_stable_key
+                WHERE cs.scene = ?
+            ),
+            zone_reps AS (
+                SELECT rg.rep_stable_key
+                FROM rep_groups rg
+                JOIN zone_groups zg ON zg.group_key = rg.group_key
+            )
+            SELECT c.display_name AS NPCName, c.level AS Level
+            FROM characters c
+            WHERE c.stable_key IN (SELECT rep_stable_key FROM zone_reps)
+              AND c.is_friendly = 0
+              AND c.is_rare = 1
+              AND c.is_unique = 0
+            ORDER BY c.level, c.display_name
             `,
-            [zoneName, zoneName]
+            [zoneName]
         );
 
         const rares: { name: string; level: number }[] = [];

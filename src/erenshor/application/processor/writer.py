@@ -1,9 +1,9 @@
 """Clean SQLite writer for the Layer 2 processor.
 
 Creates the clean database with a snake_case schema that mirrors the raw
-Unity export but adds display_name, wiki_page_name, and image_name columns
-and removes all rows that should not be visible to consumers (SimPlayers,
-excluded entities, etc.).
+Unity export but adds display_name, wiki_page_name, image_name, and
+explicit visibility flags for consumers (wiki/map filters run at query
+time, not by dropping rows during processing).
 
 The Writer is the only place in the codebase that defines the clean DB
 schema.  All consumers (wiki, sheets, map) read from this schema.
@@ -11,10 +11,10 @@ schema.  All consumers (wiki, sheets, map) read from this schema.
 Design rules:
 - Every table name is the snake_case equivalent of the raw PascalCase name.
 - Every column name is snake_case.
-- The ``characters`` table gains three new columns not present in the raw DB:
-  ``display_name``, ``wiki_page_name``, and ``image_name``.
-- A new ``character_deduplication`` table records which raw stable keys were
-  merged into which canonical stable key.
+- The ``characters`` table gains new columns not present in the raw DB:
+  ``display_name``, ``wiki_page_name``, ``image_name``,
+  ``is_wiki_generated``, and ``is_map_visible``.
+- ``character_deduplications`` stores dedup group membership.
 - All other tables are structural copies of the raw schema with renamed
   columns only.
 - PRAGMA foreign_keys is ON during writes.
@@ -260,8 +260,10 @@ CREATE TABLE zones (
     scene_name                              TEXT,
     zone_name                               TEXT NOT NULL,
     display_name                            TEXT NOT NULL,
-    wiki_page_name                          TEXT NOT NULL,
+    wiki_page_name                          TEXT,
     image_name                              TEXT NOT NULL,
+    is_wiki_generated                       INTEGER NOT NULL DEFAULT 1,
+    is_map_visible                          INTEGER NOT NULL DEFAULT 1,
     is_dungeon                              INTEGER,
     achievement                             TEXT,
     complete_quest_on_enter_stable_key      TEXT,
@@ -296,8 +298,10 @@ CREATE TABLE factions (
     faction_name    TEXT,
     faction_desc    TEXT,
     display_name    TEXT NOT NULL,
-    wiki_page_name  TEXT NOT NULL,
+    wiki_page_name  TEXT,
     image_name      TEXT NOT NULL,
+    is_wiki_generated INTEGER NOT NULL DEFAULT 1,
+    is_map_visible  INTEGER NOT NULL DEFAULT 1,
     default_value   REAL,
     refname         TEXT,
     resource_name   TEXT
@@ -313,8 +317,10 @@ CREATE TABLE items (
     id                              TEXT,
     item_name                       TEXT,
     display_name                    TEXT NOT NULL,
-    wiki_page_name                  TEXT NOT NULL,
+    wiki_page_name                  TEXT,
     image_name                      TEXT NOT NULL,
+    is_wiki_generated               INTEGER NOT NULL DEFAULT 1,
+    is_map_visible                  INTEGER NOT NULL DEFAULT 1,
     lore                            TEXT,
     required_slot                   TEXT,
     this_weapon_type                TEXT,
@@ -443,8 +449,10 @@ CREATE TABLE spells (
     id                                  TEXT,
     spell_name                          TEXT,
     display_name                        TEXT NOT NULL,
-    wiki_page_name                      TEXT NOT NULL,
+    wiki_page_name                      TEXT,
     image_name                          TEXT NOT NULL,
+    is_wiki_generated                   INTEGER NOT NULL DEFAULT 1,
+    is_map_visible                      INTEGER NOT NULL DEFAULT 1,
     spell_desc                          TEXT,
     special_descriptor                  TEXT,
     type                                TEXT,
@@ -540,8 +548,10 @@ CREATE TABLE skills (
     id                          TEXT,
     skill_name                  TEXT,
     display_name                TEXT NOT NULL,
-    wiki_page_name              TEXT NOT NULL,
+    wiki_page_name              TEXT,
     image_name                  TEXT NOT NULL,
+    is_wiki_generated           INTEGER NOT NULL DEFAULT 1,
+    is_map_visible              INTEGER NOT NULL DEFAULT 1,
     skill_desc                  TEXT,
     type_of_skill               TEXT,
     cooldown                    REAL,
@@ -590,8 +600,10 @@ CREATE TABLE stances (
     stance_db_index         INTEGER,
     id                      TEXT,
     display_name            TEXT NOT NULL,
-    wiki_page_name          TEXT NOT NULL,
+    wiki_page_name          TEXT,
     image_name              TEXT NOT NULL,
+    is_wiki_generated       INTEGER NOT NULL DEFAULT 1,
+    is_map_visible          INTEGER NOT NULL DEFAULT 1,
     max_hp_mod              REAL,
     damage_mod              REAL,
     proc_rate_mod           REAL,
@@ -616,8 +628,10 @@ CREATE TABLE quests (
     stable_key      TEXT PRIMARY KEY NOT NULL,
     db_name         TEXT,
     display_name    TEXT NOT NULL,
-    wiki_page_name  TEXT NOT NULL,
-    image_name      TEXT NOT NULL
+    wiki_page_name  TEXT,
+    image_name      TEXT NOT NULL,
+    is_wiki_generated INTEGER NOT NULL DEFAULT 1,
+    is_map_visible  INTEGER NOT NULL DEFAULT 1
 );
 
 CREATE TABLE quest_variants (
@@ -690,8 +704,10 @@ CREATE TABLE characters (
     object_name                 TEXT,
     npc_name                    TEXT,
     display_name                TEXT NOT NULL,
-    wiki_page_name              TEXT NOT NULL,
+    wiki_page_name              TEXT,
     image_name                  TEXT NOT NULL,
+    is_wiki_generated           INTEGER NOT NULL DEFAULT 1,
+    is_map_visible              INTEGER NOT NULL DEFAULT 1,
     scene                       TEXT,
     x                           REAL,
     y                           REAL,
@@ -788,10 +804,9 @@ CREATE TABLE characters (
     quest_manager_sim_usable    INTEGER
 );
 
-CREATE TABLE character_deduplication (
-    canonical_stable_key    TEXT NOT NULL,
-    merged_stable_key       TEXT PRIMARY KEY NOT NULL,
-    merged_object_name      TEXT
+CREATE TABLE character_deduplications (
+    group_key           TEXT NOT NULL,
+    member_stable_key   TEXT PRIMARY KEY NOT NULL
 );
 
 CREATE TABLE character_spawns (
@@ -1174,8 +1189,8 @@ class Writer:
     def insert_characters(self, rows: list[dict[str, object]]) -> int:
         return self._insert("characters", rows)
 
-    def insert_character_deduplication(self, rows: list[dict[str, object]]) -> int:
-        return self._insert("character_deduplication", rows)
+    def insert_character_deduplications(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("character_deduplications", rows)
 
     def insert_character_spawns(self, rows: list[dict[str, object]]) -> int:
         return self._insert("character_spawns", rows)
