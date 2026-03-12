@@ -2,11 +2,11 @@
 |name=Malignant Thoughts
 |image=[[File:Malignant Thoughts.png|thumb]]
 |imagecaption=
-|type=[[Enemies#List of Enemies|Enemy]]
+|type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=
-|zones=[[Mysterious Portal|Mysterious Portal (2)]]
-|coordinates=326.8 x 1.9 x 530.4
+|zones=
+|coordinates=
 |spawnchance=
 |respawn=
 |guaranteeddrops=
