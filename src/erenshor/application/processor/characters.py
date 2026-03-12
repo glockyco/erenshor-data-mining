@@ -147,19 +147,8 @@ _STAT_FIELDS = [
 ]
 
 _FLAG_FIELDS = [
+    # Only IsFriendly affects wiki output (NPC vs Enemy type label).
     "IsFriendly",
-    "IsNPC",
-    "IsMiningNode",
-    "HasStats",
-    "HasDialog",
-    "HasModifyFaction",
-    "Invulnerable",
-    "DestroyOnDeath",
-    "AggroRegardlessOfLevel",
-    "Mobile",
-    "GroupEncounter",
-    "TreasureChest",
-    "DoNotLeaveCorpse",
 ]
 
 

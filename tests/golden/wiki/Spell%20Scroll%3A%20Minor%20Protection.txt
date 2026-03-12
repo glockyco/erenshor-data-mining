@@ -1,7 +1,7 @@
 {{Item
 |title=Spell Scroll: Minor Protection
 |type=
-|vendorsource=
+|vendorsource=[[Samuel Thatcher]]
 |source=
 |othersource=
 |questsource=

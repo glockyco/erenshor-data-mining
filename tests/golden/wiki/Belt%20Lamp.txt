@@ -1,7 +1,7 @@
 {{Item
 |title=Belt Lamp
 |type=
-|vendorsource=[[Gus Highrest]]<br>[[Parmalee Gemlyn]]<br>[[Treven Pines]]
+|vendorsource=[[Gus Highrest]]<br>[[Parmalee Gemlyn]]<br>[[Samuel Thatcher]]<br>[[Treven Pines]]
 |source=
 |othersource=
 |questsource=

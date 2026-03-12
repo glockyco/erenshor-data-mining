@@ -1,7 +1,7 @@
 {{Item
 |title=Skill Book: Blunted Arrow
 |type=[[Ability Books|Skill Book]]
-|vendorsource=[[Windlae Oldseer]]
+|vendorsource=[[Samuel Thatcher]]<br>[[Windlae Oldseer]]
 |source=
 |othersource=
 |questsource=

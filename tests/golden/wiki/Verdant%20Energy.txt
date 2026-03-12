@@ -5,7 +5,7 @@
 |type=[[:Category:Characters|NPC]]
 |faction=
 |factionChange=
-|zones=[[Fernalla's Revival Plains]]<br>[[Soluna's Landing]]
+|zones=[[Fernalla's Revival Plains]]<br>[[Soluna's Landing]]<br>[[Vitheo's Rest]]
 |coordinates=
 |spawnchance=
 |respawn=5 minutes
@@ -49,42 +49,7 @@ Fernalla... *its humming intensifies momentarily*
 ... *its humming pauses briefly then resumes*
 |}
 
-{{Enemy
-|name=Verdant Energy
-|image=[[File:Verdant Energy.png|thumb]]
-|imagecaption=
-|type=[[:Category:Characters|NPC]]
-|faction=[[The Followers of Good]]
-|factionChange=
-|zones=[[Vitheo's Rest]]
-|coordinates=458.5 x 14.8 x 323.5
-|spawnchance=
-|respawn=
-|guaranteeddrops=
-|droprates=
-|level=1
-|levelmodmin=0
-|levelmodmax=0
-|levelvariancemin=-1
-|levelvariancemax=1
-|xpmultiplier=1.0
-|health=41600
-|mana=0
-|ac=15
-|strength=3
-|endurance=3
-|dexterity=3
-|agility=3
-|intelligence=3
-|wisdom=3
-|charisma=3
-|magic=0-1
-|poison=0-1
-|elemental=0-1
-|void=0-1
-|spells=
-}}
-
 [[Category:Characters]]
 [[Category:Fernalla's Revival Plains]]
 [[Category:Soluna's Landing]]
+[[Category:Vitheo's Rest]]
