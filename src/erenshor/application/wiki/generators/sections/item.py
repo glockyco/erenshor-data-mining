@@ -23,6 +23,7 @@ from erenshor.application.wiki.generators.formatting import format_description, 
 from erenshor.application.wiki.generators.item_type_display import build_item_types
 from erenshor.application.wiki.generators.sections.base import SectionGeneratorBase
 from erenshor.domain.entities.item_kind import ItemKind, classify_item_kind
+from erenshor.domain.value_objects.wiki_link import AbilityLink
 from erenshor.shared.game_constants import LONG_NAME_FONT_SIZE, LONG_NAME_THRESHOLD
 
 if TYPE_CHECKING:
@@ -342,23 +343,25 @@ class ItemSectionGenerator(SectionGeneratorBase):
         taughtspell = ""
         if item.teach_spell_stable_key and enriched.taught_spell:
             sp = enriched.taught_spell
-            wiki = sp.wiki_page_name
-            disp = sp.display_name or sp.spell_name or ""
-            if wiki:
-                taughtspell = f"[[{wiki}|{disp}]]" if disp != wiki else f"[[{wiki}]]"
-            else:
-                taughtspell = disp
+            taughtspell = str(
+                AbilityLink(
+                    page_title=sp.wiki_page_name,
+                    display_name=sp.display_name or sp.spell_name or "",
+                    image_name=sp.image_name,
+                )
+            )
 
         # Taught skill link
         taughtskill = ""
         if item.teach_skill_stable_key and enriched.taught_skill:
             sk = enriched.taught_skill
-            wiki = sk.wiki_page_name
-            disp = sk.display_name or sk.skill_name or ""
-            if wiki:
-                taughtskill = f"[[{wiki}|{disp}]]" if disp != wiki else f"[[{wiki}]]"
-            else:
-                taughtskill = disp
+            taughtskill = str(
+                AbilityLink(
+                    page_title=sk.wiki_page_name,
+                    display_name=sk.display_name or sk.skill_name or "",
+                    image_name=sk.image_name,
+                )
+            )
 
         guaranteed_drops = self._format_guaranteed_drops(enriched)
         drop_rates = self._format_drop_rates(enriched)
