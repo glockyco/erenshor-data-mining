@@ -5,7 +5,7 @@ from loguru import logger
 from erenshor.domain.entities.item import Item
 from erenshor.domain.entities.item_stats import ItemStats
 from erenshor.domain.value_objects.crafting_recipe import CraftingRecipe
-from erenshor.domain.value_objects.wiki_link import ItemLink
+from erenshor.domain.value_objects.wiki_link import ItemLink, StandardLink
 from erenshor.infrastructure.database.repository import BaseRepository, RepositoryError
 
 
@@ -553,22 +553,23 @@ class ItemRepository(BaseRepository[Item]):
         except Exception as e:
             raise RepositoryError(f"Failed to get item drops for '{source_item_stable_key}': {e}") from e
 
-    def get_item_sources(self, item_stable_key: str) -> list[tuple[ItemLink, float]]:
+    def get_item_sources(self, item_stable_key: str) -> list[tuple[StandardLink, float]]:
         """Get items that can drop this item (e.g., fossils that produce this item).
 
-        Returns pre-built ItemLink objects with drop probabilities.
+        Returns StandardLink objects (not ItemLink) because these appear in the
+        |source= field of the {{Item}} infobox where [[links]] are expected.
 
         Args:
             item_stable_key: Item stable key of the dropped item
 
         Returns:
-            List of (ItemLink, drop_probability) tuples sorted by probability descending.
+            List of (StandardLink, drop_probability) tuples sorted by probability descending.
 
         Raises:
             RepositoryError: If query execution fails
         """
         query = """
-            SELECT i.display_name, i.wiki_page_name, i.image_name, id.drop_probability
+            SELECT i.display_name, i.wiki_page_name, id.drop_probability
             FROM item_drops id
             JOIN items i ON i.stable_key = id.source_item_stable_key
             WHERE id.dropped_item_stable_key = ?
@@ -577,7 +578,16 @@ class ItemRepository(BaseRepository[Item]):
 
         try:
             rows = self._execute_raw(query, (item_stable_key,))
-            result = [(_item_link_from_row(row), float(row["drop_probability"])) for row in rows]
+            result = [
+                (
+                    StandardLink(
+                        page_title=str(row["wiki_page_name"]) if row["wiki_page_name"] else None,
+                        display_name=str(row["display_name"]),
+                    ),
+                    float(row["drop_probability"]),
+                )
+                for row in rows
+            ]
             logger.debug(f"Found {len(result)} item sources for '{item_stable_key}'")
             return result
         except Exception as e:
