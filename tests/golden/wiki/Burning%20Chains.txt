@@ -67,5 +67,5 @@
 |inflict_on_self=
 |itemswitheffect=
 |source={{ItemLink|Spell Scroll: Burning Chains}}
-|used_by=[[A Grassland Ogre Sorcerer]]<br>[[A Grassland Ogre Thaumaturge]]<br>[[A Lava Spirit]]<br>[[A Seafiend Manathite]]<br>[[Braxon Fanatic]]<br>[[Braxon Prospect]]<br>[[Edgar Taether]]<br>[[Illuminator]]<br>[[Loften Emblis]]<br>[[Molorai Archaeologist]]<br>[[Molorai Archaeologist]]<br>[[Molorai Archaeologist]]<br>[[Molorai Archaeologist]]<br>[[Molorai Archmage]]<br>[[Molorai Archmage]]<br>[[Molorai Archmage]]<br>[[Nightmarian Arcanist]]<br>[[Nightmarian Arcanist]]<br>[[Nightmarian Arcanist]]<br>[[Nipper Diremaw]]<br>[[Nipper Manatooth]]<br>[[Overseer Laseal]]<br>[[Rook Allshade]]<br>[[Tinkles]]<br>[[Ughl of the Skies]]<br>[[Virvil Destova]]<br>[[Volcanic Giant]]
+|used_by=[[A Grassland Ogre Sorcerer]]<br>[[A Grassland Ogre Thaumaturge]]<br>[[A Lava Spirit]]<br>[[A Seafiend Manathite]]<br>[[Braxon Fanatic]]<br>[[Braxon Prospect]]<br>[[Edgar Taether]]<br>[[Illuminator]]<br>[[Loften Emblis]]<br>[[Molorai Archaeologist]]<br>[[Molorai Archaeologist]]<br>[[Molorai Archaeologist]]<br>[[Molorai Archaeologist]]<br>[[Molorai Archmage]]<br>[[Molorai Archmage]]<br>[[Nightmarian Arcanist]]<br>[[Nipper Diremaw]]<br>[[Nipper Manatooth]]<br>[[Overseer Laseal]]<br>[[Rook Allshade]]<br>[[Tinkles]]<br>[[Ughl of the Skies]]<br>[[Virvil Destova]]<br>[[Volcanic Giant]]
 }}

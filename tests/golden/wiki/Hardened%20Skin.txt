@@ -67,5 +67,5 @@
 |inflict_on_self=
 |itemswitheffect=
 |source={{ItemLink|Spell Scroll: Hardened Skin}}
-|used_by=[[A Grassland Ogre Chieftan]]<br>[[Alexander Farland]]<br>[[Arbant Sparrow]]<br>[[Boshi Polok]]<br>[[Cerbantias Flameward]]<br>[[Cerbantias Flameward]]<br>[[Chance Barlow]]<br>[[Damien Torno]]<br>[[Edwin Ansegg]]<br>[[Edwin Ansegg]]<br>[[Faun Vulak]]<br>[[Lexant Crowsilk]]<br>[[Liam Kilfa]]<br>[[Malthor Sageleaf]]<br>[[Molorai Archmage]]<br>[[Molorai Archmage]]<br>[[Mourning]]<br>[[Overseer Refleigh]]<br>[[Ravager, The First Infected]]
+|used_by=[[A Grassland Ogre Chieftan]]<br>[[Alexander Farland]]<br>[[Arbant Sparrow]]<br>[[Boshi Polok]]<br>[[Cerbantias Flameward]]<br>[[Chance Barlow]]<br>[[Damien Torno]]<br>[[Edwin Ansegg]]<br>[[Faun Vulak]]<br>[[Lexant Crowsilk]]<br>[[Liam Kilfa]]<br>[[Malthor Sageleaf]]<br>[[Molorai Archmage]]<br>[[Mourning]]<br>[[Overseer Refleigh]]<br>[[Ravager, The First Infected]]
 }}

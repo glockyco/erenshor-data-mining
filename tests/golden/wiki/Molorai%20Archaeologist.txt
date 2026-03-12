@@ -1,36 +1,36 @@
 {{Enemy
 |name=Molorai Archaeologist
-|image=[[File:Molorai Archaeologist.png|thumb]]
+|image=[[File:Molorai Archaeologist Dusken.png|thumb]]
 |imagecaption=
 |type=[[Enemies|Rare]]
 |faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
 |factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
-|zones=[[Braxonian Desert]]
-|coordinates=
-|spawnchance=12-16%
-|respawn=4 minutes
+|zones=[[The Duskenlight Coast]]
+|coordinates=571.7 x 54.1 x 527.4
+|spawnchance=
+|respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Desert Silk Sleeves}} (12.1%)<br>{{ItemLink|Cape of the Sands}} (3.4%)<br>{{ItemLink|Eldoth Writings: The Braxonian}} (3.4%)<ref>If the player is already holding {{ItemLink|Eldoth Writings: The Braxonian}} in their inventory, another will not drop.</ref><br>{{ItemLink|Eldoth Writings: The Braxonian Pt 2}} (3.4%)<ref>If the player is already holding {{ItemLink|Eldoth Writings: The Braxonian Pt 2}} in their inventory, another will not drop.</ref><br>{{ItemLink|Eldoth Writings: The Wisp}} (3.4%)<ref>If the player is already holding {{ItemLink|Eldoth Writings: The Wisp}} in their inventory, another will not drop.</ref><br>{{ItemLink|Luminstone}} (3.4%)<br>{{ItemLink|Star Stone}} (3.4%)<br>{{ItemLink|Blaze Fiend (Game Piece)|image=Blaze Fiend.png|text=Blaze Fiend}} (3.0%)<ref>If the player is already holding {{ItemLink|Blaze Fiend (Game Piece)|image=Blaze Fiend.png|text=Blaze Fiend}} in their inventory, another will not drop.</ref><br>{{ItemLink|Torn Treasure Map (Top Left)}} (3.0%)<br>{{ItemLink|Blueprint: Game Room}} (0.8%)
-|level=16
+|droprates={{ItemLink|Recovered Text}} (100.0%)<ref>If the player is already holding {{ItemLink|Recovered Text}} in their inventory, another will not drop.</ref><br>{{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Luminstone}} (19.6%)<br>{{ItemLink|Star Stone}} (19.6%)
+|level=24
 |levelmodmin=0
 |levelmodmax=0
 |levelvariancemin=-1
 |levelvariancemax=1
-|xpmultiplier=1.0
-|health=10400
-|mana=155
-|ac=240
-|strength=650
-|endurance=500
-|dexterity=500
-|agility=500
-|intelligence=85
-|wisdom=85
-|charisma=75
-|magic=8-19
-|poison=8-19
-|elemental=8-19
-|void=8-19
+|xpmultiplier=4.0
+|health=29250
+|mana=300
+|ac=360
+|strength=400
+|endurance=400
+|dexterity=650
+|agility=200
+|intelligence=150
+|wisdom=95
+|charisma=100
+|magic=12-29
+|poison=12-29
+|elemental=12-29
+|void=12-29
 |spells={{AbilityLink|Brax's Touch}}<br>{{AbilityLink|Burning Chains}}<br>{{AbilityLink|Ethereal Rending}}
 }}
 {{Enemy
@@ -71,13 +71,49 @@
 
 {{Enemy
 |name=Molorai Archaeologist
+|image=[[File:Molorai Archaeologist.png|thumb]]
+|imagecaption=
+|type=[[Enemies|Enemy]]
+|faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
+|factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
+|zones=[[Braxonian Desert]]
+|coordinates=
+|spawnchance=12-16%
+|respawn=4 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Desert Silk Sleeves}} (12.1%)<br>{{ItemLink|Cape of the Sands}} (3.4%)<br>{{ItemLink|Eldoth Writings: The Braxonian}} (3.4%)<ref>If the player is already holding {{ItemLink|Eldoth Writings: The Braxonian}} in their inventory, another will not drop.</ref><br>{{ItemLink|Eldoth Writings: The Braxonian Pt 2}} (3.4%)<ref>If the player is already holding {{ItemLink|Eldoth Writings: The Braxonian Pt 2}} in their inventory, another will not drop.</ref><br>{{ItemLink|Eldoth Writings: The Wisp}} (3.4%)<ref>If the player is already holding {{ItemLink|Eldoth Writings: The Wisp}} in their inventory, another will not drop.</ref><br>{{ItemLink|Luminstone}} (3.4%)<br>{{ItemLink|Star Stone}} (3.4%)<br>{{ItemLink|Blaze Fiend (Game Piece)|image=Blaze Fiend.png|text=Blaze Fiend}} (3.0%)<ref>If the player is already holding {{ItemLink|Blaze Fiend (Game Piece)|image=Blaze Fiend.png|text=Blaze Fiend}} in their inventory, another will not drop.</ref><br>{{ItemLink|Torn Treasure Map (Top Left)}} (3.0%)<br>{{ItemLink|Blueprint: Game Room}} (0.8%)
+|level=16
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=10400
+|mana=155
+|ac=240
+|strength=650
+|endurance=500
+|dexterity=500
+|agility=500
+|intelligence=85
+|wisdom=85
+|charisma=75
+|magic=8-19
+|poison=8-19
+|elemental=8-19
+|void=8-19
+|spells={{AbilityLink|Brax's Touch}}<br>{{AbilityLink|Burning Chains}}<br>{{AbilityLink|Ethereal Rending}}
+}}
+
+{{Enemy
+|name=Molorai Archaeologist
 |image=[[File:Molorai Archaeologist Dusken.png|thumb]]
 |imagecaption=
 |type=[[Enemies|Enemy]]
 |faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
 |factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
 |zones=[[The Duskenlight Coast]]
-|coordinates=
+|coordinates=571.7 x 54.1 x 527.4
 |spawnchance=
 |respawn=5 minutes
 |guaranteeddrops=
@@ -105,41 +141,7 @@
 |spells={{AbilityLink|Brax's Touch}}<br>{{AbilityLink|Burning Chains}}<br>{{AbilityLink|Ethereal Rending}}
 }}
 
-{{Enemy
-|name=Molorai Archaeologist
-|image=[[File:Molorai Archaeologist Dusken.png|thumb]]
-|imagecaption=
-|type=[[Enemies|Enemy]]
-|faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
-|factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
-|zones=[[The Duskenlight Coast]]
-|coordinates=571.7 x 54.1 x 527.4
-|spawnchance=
-|respawn=5 minutes
-|guaranteeddrops=
-|droprates={{ItemLink|Recovered Text}} (100.0%)<ref>If the player is already holding {{ItemLink|Recovered Text}} in their inventory, another will not drop.</ref><br>{{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Luminstone}} (19.6%)<br>{{ItemLink|Star Stone}} (19.6%)
-|level=24
-|levelmodmin=0
-|levelmodmax=0
-|levelvariancemin=-1
-|levelvariancemax=1
-|xpmultiplier=4.0
-|health=29250
-|mana=300
-|ac=360
-|strength=400
-|endurance=400
-|dexterity=650
-|agility=200
-|intelligence=150
-|wisdom=95
-|charisma=100
-|magic=12-29
-|poison=12-29
-|elemental=12-29
-|void=12-29
-|spells={{AbilityLink|Brax's Touch}}<br>{{AbilityLink|Burning Chains}}<br>{{AbilityLink|Ethereal Rending}}
-}}
-
+[[Category:Bosses]]
 [[Category:Braxonian Desert]]
 [[Category:Enemies]]
+[[Category:The Duskenlight Coast]]

@@ -1,7 +1,7 @@
 {{Item
 |title=Malaroth Feed
 |type=[[Quest Items|Quest Item]], [[:Category:Items|Summoning Item]]
-|vendorsource=
+|vendorsource=[[Summoned: Pocket Vendor]]
 |source=[[Priel Tamer]] (90.3%)
 |othersource=[[Baking Oven]]
 |questsource={{QuestLink|Malaroth Food}}

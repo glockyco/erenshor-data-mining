@@ -10,7 +10,7 @@
 |spawnchance=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Hardened Copper Sword}} (57.4%)<br>{{ItemLink|Citrine Stone}} (32.7%)<br>{{ItemLink|Water}} (32.7%)<br>{{ItemLink|Ancient Pottery Shard}} (13.1%)<br>{{ItemLink|Diamond}} (13.1%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Battle Chain}} (13.1%)
+|droprates={{ItemLink|Hardened Copper Sword}} (57.4%)<br>{{ItemLink|Citrine Stone}} (32.7%)<br>{{ItemLink|Water}} (32.7%)<br>{{ItemLink|Luminstone}} (6.8%)<br>{{ItemLink|Molorai Battle Chain}} (6.8%)<br>{{ItemLink|Star Stone}} (6.8%)<br>{{ItemLink|Eldoth Writings: The Braxonian}} (6.3%)<ref>If the player is already holding {{ItemLink|Eldoth Writings: The Braxonian}} in their inventory, another will not drop.</ref><br>{{ItemLink|Eldoth Writings: The Braxonian Pt 2}} (6.3%)<ref>If the player is already holding {{ItemLink|Eldoth Writings: The Braxonian Pt 2}} in their inventory, another will not drop.</ref><br>{{ItemLink|Eldoth Writings: The Wisp}} (6.3%)<ref>If the player is already holding {{ItemLink|Eldoth Writings: The Wisp}} in their inventory, another will not drop.</ref>
 |level=22
 |levelmodmin=0
 |levelmodmax=0
@@ -46,7 +46,7 @@
 |spawnchance=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Hardened Copper Sword}} (57.4%)<br>{{ItemLink|Citrine Stone}} (32.7%)<br>{{ItemLink|Water}} (32.7%)<br>{{ItemLink|Luminstone}} (6.8%)<br>{{ItemLink|Molorai Battle Chain}} (6.8%)<br>{{ItemLink|Star Stone}} (6.8%)<br>{{ItemLink|Eldoth Writings: The Braxonian}} (6.3%)<ref>If the player is already holding {{ItemLink|Eldoth Writings: The Braxonian}} in their inventory, another will not drop.</ref><br>{{ItemLink|Eldoth Writings: The Braxonian Pt 2}} (6.3%)<ref>If the player is already holding {{ItemLink|Eldoth Writings: The Braxonian Pt 2}} in their inventory, another will not drop.</ref><br>{{ItemLink|Eldoth Writings: The Wisp}} (6.3%)<ref>If the player is already holding {{ItemLink|Eldoth Writings: The Wisp}} in their inventory, another will not drop.</ref>
+|droprates={{ItemLink|Hardened Copper Sword}} (57.4%)<br>{{ItemLink|Citrine Stone}} (32.7%)<br>{{ItemLink|Water}} (32.7%)<br>{{ItemLink|Ancient Pottery Shard}} (13.1%)<br>{{ItemLink|Diamond}} (13.1%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Battle Chain}} (13.1%)
 |level=22
 |levelmodmin=0
 |levelmodmax=0

@@ -67,5 +67,5 @@
 |inflict_on_self=
 |itemswitheffect={{ItemLink|A Worm Eel}}
 |source={{ItemLink|Spell Scroll: Weak Poison}}
-|used_by=[[A Faerie Drone]]<br>[[A Sorrowful Spirit]]<br>[[Arabetha Songshade]]<br>[[Autmis the Lost]]<br>[[Boatman]]<br>[[Boatman]]<br>[[Cerynth Duskveil]]<br>[[Corrupted Oread]]<br>[[Dryad Spirit]]<br>[[Elizah Vernor]]<br>[[Fernallan Guardian]]<br>[[Molorai Brewmistress]]<br>[[Molorai Chef]]<br>[[Molorai Militia Druid]]<br>[[Molorai Militia Druid]]<br>[[Myrre Morrigane]]<br>[[Neophyte Necromancer]]<br>[[Posta]]<br>[[Rose Crystalshade]]<br>[[Thella Steepleton]]<br>[[Thella Steepleton]]<br>[[Woe]]<br>[[Zashlyn Bloodbane]]
+|used_by=[[A Faerie Drone]]<br>[[A Sorrowful Spirit]]<br>[[Arabetha Songshade]]<br>[[Autmis the Lost]]<br>[[Boatman]]<br>[[Cerynth Duskveil]]<br>[[Corrupted Oread]]<br>[[Dryad Spirit]]<br>[[Elizah Vernor]]<br>[[Fernallan Guardian]]<br>[[Molorai Brewmistress]]<br>[[Molorai Chef]]<br>[[Molorai Militia Druid]]<br>[[Myrre Morrigane]]<br>[[Neophyte Necromancer]]<br>[[Posta]]<br>[[Rose Crystalshade]]<br>[[Thella Steepleton]]<br>[[Woe]]<br>[[Zashlyn Bloodbane]]
 }}

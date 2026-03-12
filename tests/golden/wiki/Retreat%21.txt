@@ -63,7 +63,7 @@
 |is_stun=
 |is_charm=
 |is_broken_on_damage=
-|is_fear=
+|is_fear=True
 |inflict_on_self=
 |itemswitheffect=
 |source=

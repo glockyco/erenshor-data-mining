@@ -67,5 +67,5 @@
 |inflict_on_self=
 |itemswitheffect={{ItemLink|Hardened Sceptre}}<br>{{ItemLink|Lamplighter's Spark}}<br>{{ItemLink|Magus Shield}}
 |source={{ItemLink|Spell Scroll: Ethereal Rending}}
-|used_by=[[A Deepling Lunarite]]<br>[[A Grassland Ogre Chieftan]]<br>[[A Rottenfoot Witchdoctor]]<br>[[Alexander Farland]]<br>[[Boshi Polok]]<br>[[Diva]]<br>[[Ecclesiarch]]<br>[[Garrey Ambrose]]<br>[[Molorai Archaeologist]]<br>[[Molorai Archaeologist]]<br>[[Molorai Archaeologist]]<br>[[Molorai Archaeologist]]<br>[[Molorai Archmage]]<br>[[Molorai Archmage]]<br>[[Molorai Archmage]]<br>[[Overseer Laseal]]<br>[[Overseer Orlok]]<br>[[Prioress]]<br>[[Rook Allshade]]<br>[[Sagan Ilth]]<br>[[The Corpse of Cyndreela Mathers]]
+|used_by=[[A Deepling Lunarite]]<br>[[A Grassland Ogre Chieftan]]<br>[[A Rottenfoot Witchdoctor]]<br>[[Alexander Farland]]<br>[[Boshi Polok]]<br>[[Diva]]<br>[[Ecclesiarch]]<br>[[Garrey Ambrose]]<br>[[Molorai Archaeologist]]<br>[[Molorai Archaeologist]]<br>[[Molorai Archaeologist]]<br>[[Molorai Archaeologist]]<br>[[Molorai Archmage]]<br>[[Molorai Archmage]]<br>[[Overseer Laseal]]<br>[[Overseer Orlok]]<br>[[Prioress]]<br>[[Rook Allshade]]<br>[[Sagan Ilth]]<br>[[The Corpse of Cyndreela Mathers]]
 }}

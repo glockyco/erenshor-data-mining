@@ -67,5 +67,5 @@
 |inflict_on_self=
 |itemswitheffect=
 |source={{ItemLink|Spell Scroll: Supreme Healing}}
-|used_by=[[Ancient Celestarian]]<br>[[Ancient Knight]]<br>[[Headless]]<br>[[High Paladin of Sivakaya]]<br>[[Sivakayan Templar]]<br>[[Summoned: Protector]]<br>[[Summoned: Protector]]
+|used_by=[[Ancient Celestarian]]<br>[[Ancient Knight]]<br>[[Headless]]<br>[[High Paladin of Sivakaya]]<br>[[Sivakayan Templar]]<br>[[Summoned: Protector]]
 }}

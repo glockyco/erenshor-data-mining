@@ -1,7 +1,7 @@
 {{Item
 |title=Spell Scroll: Static Invocation
 |type=[[Ability Books|Spell Scroll]]
-|vendorsource=[[Aldoa Manday]]<br>[[Ophelia Luminee]]<br>[[Samuel Thatcher]]<br>[[Windlae Oldseer]]
+|vendorsource=[[Aldoa Manday]]<br>[[Ophelia Luminee]]<br>[[Windlae Oldseer]]
 |source=
 |othersource=
 |questsource=

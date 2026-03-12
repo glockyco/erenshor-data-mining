@@ -67,5 +67,5 @@
 |inflict_on_self=
 |itemswitheffect=
 |source=
-|used_by=[[A Faerie Drone]]<br>[[Alexander Farland]]<br>[[Arbant Sparrow]]<br>[[Boshi Polok]]<br>[[Cerbantias Flameward]]<br>[[Cerbantias Flameward]]<br>[[Chance Barlow]]<br>[[Damien Torno]]<br>[[Edwin Ansegg]]<br>[[Edwin Ansegg]]<br>[[Faun Vulak]]<br>[[Lexant Crowsilk]]<br>[[Liam Kilfa]]<br>[[Malthor Sageleaf]]<br>[[Molorai Archmage]]<br>[[Molorai Archmage]]<br>[[Overseer Refleigh]]<br>[[Sagan Ilth]]<br>[[Sven Feartines]]<br>[[Tinkles]]
+|used_by=[[A Faerie Drone]]<br>[[Alexander Farland]]<br>[[Arbant Sparrow]]<br>[[Boshi Polok]]<br>[[Cerbantias Flameward]]<br>[[Chance Barlow]]<br>[[Damien Torno]]<br>[[Edwin Ansegg]]<br>[[Faun Vulak]]<br>[[Lexant Crowsilk]]<br>[[Liam Kilfa]]<br>[[Malthor Sageleaf]]<br>[[Molorai Archmage]]<br>[[Overseer Refleigh]]<br>[[Sagan Ilth]]<br>[[Sven Feartines]]<br>[[Tinkles]]
 }}

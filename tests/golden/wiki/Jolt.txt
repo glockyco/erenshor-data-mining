@@ -67,5 +67,5 @@
 |inflict_on_self=
 |itemswitheffect={{ItemLink|Spectral Bow}}
 |source={{ItemLink|Spell Scroll: Jolt}}
-|used_by=[[A Deepling Orator]]<br>[[A Grassland Ogre Sorcerer]]<br>[[A Grassland Ogre Thaumaturge]]<br>[[Arabetha Songshade]]<br>[[Baetil]]<br>[[Cerynth Duskveil]]<br>[[Charlotte Darmask]]<br>[[Ecclesiarch]]<br>[[Elizah Vernor]]<br>[[Gasper]]<br>[[Molorai Archmage]]<br>[[Molorai Brewmistress]]<br>[[Myrre Morrigane]]<br>[[Ravager, The First Infected]]<br>[[Rose Crystalshade]]<br>[[Rottenfoot Swampwalker]]<br>[[Summoned: Elder Dryad]]<br>[[Thella Steepleton]]<br>[[Thella Steepleton]]
+|used_by=[[A Deepling Orator]]<br>[[A Grassland Ogre Sorcerer]]<br>[[A Grassland Ogre Thaumaturge]]<br>[[Arabetha Songshade]]<br>[[Cerynth Duskveil]]<br>[[Charlotte Darmask]]<br>[[Ecclesiarch]]<br>[[Elizah Vernor]]<br>[[Gasper]]<br>[[Molorai Archmage]]<br>[[Molorai Brewmistress]]<br>[[Myrre Morrigane]]<br>[[Ravager, The First Infected]]<br>[[Rose Crystalshade]]<br>[[Rottenfoot Swampwalker]]<br>[[Summoned: Elder Dryad]]<br>[[Thella Steepleton]]
 }}

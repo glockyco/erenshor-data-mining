@@ -30,7 +30,7 @@
 |target_healing=
 |caster_healing=
 |shield_amount=
-|pet_to_summon=Summoned: Pocket Bank
+|pet_to_summon=[[Summoned: Pocket Bank]]
 |status_effect=
 |add_proc=
 |add_proc_chance=

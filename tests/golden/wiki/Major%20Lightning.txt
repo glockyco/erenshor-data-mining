@@ -67,5 +67,5 @@
 |inflict_on_self=
 |itemswitheffect={{ItemLink|Charged Sword}}
 |source={{ItemLink|Spell Scroll: Major Lightning}}
-|used_by=[[Risen Hierophant]]<br>[[Summoned: Protector]]<br>[[Summoned: Protector]]
+|used_by=[[Risen Hierophant]]<br>[[Summoned: Protector]]
 }}

@@ -67,5 +67,5 @@
 |inflict_on_self=
 |itemswitheffect=
 |source={{ItemLink|Spell Scroll: Ice Bolt}}
-|used_by=[[Molorai Militia Arcanist]]<br>[[Molorai Militia Arcanist]]
+|used_by=[[Molorai Militia Arcanist]]
 }}

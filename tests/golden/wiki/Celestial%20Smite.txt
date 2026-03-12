@@ -39,7 +39,7 @@
 |damage_shield=
 |percent_mana_restoration=
 |bleed_damage_percent=
-|special_descriptor=
+|special_descriptor=Two-handed weapon
 |hp=
 |ac=
 |mana=

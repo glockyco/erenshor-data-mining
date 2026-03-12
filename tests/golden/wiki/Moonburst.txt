@@ -67,5 +67,5 @@
 |inflict_on_self=
 |itemswitheffect=
 |source={{ItemLink|Spell Scroll: Moonburst}}
-|used_by=[[A Deepling Lunarite]]<br>[[A Deepling Orator]]<br>[[Rottenfoot Swampwalker]]<br>[[Sivakayan Legionnaire]]<br>[[Sivakayan Raider]]<br>[[Sivakayan Raider]]<br>[[Sivakayan Reaver]]<br>[[Sivakayan Reaver]]<br>[[Sivakayan Reaver]]<br>[[Sivakayan Reaver]]<br>[[Sivakayan Spymaster]]
+|used_by=[[A Deepling Lunarite]]<br>[[A Deepling Orator]]<br>[[Rottenfoot Swampwalker]]<br>[[Sivakayan Legionnaire]]<br>[[Sivakayan Raider]]<br>[[Sivakayan Raider]]<br>[[Sivakayan Reaver]]<br>[[Sivakayan Reaver]]<br>[[Sivakayan Spymaster]]
 }}

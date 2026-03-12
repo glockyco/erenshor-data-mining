@@ -67,5 +67,5 @@
 |inflict_on_self=
 |itemswitheffect={{ItemLink|Blade of the Sea}}<br>{{ItemLink|Seafruit}}
 |source=
-|used_by=[[A Rottenfoot Warrior]]<br>[[A Rottenfoot Witchdoctor]]<br>[[A Seafiend]]<br>[[Aragath Swellsteer]]<br>[[Grayleigh Hawke]]<br>[[Grayleigh Hawke]]<br>[[Grayleigh Hawke]]<br>[[Rottenfoot Mauler]]<br>[[Rottenfoot Swampwalker]]<br>[[Rottenfoot Witchdoctor]]
+|used_by=[[A Rottenfoot Warrior]]<br>[[A Rottenfoot Witchdoctor]]<br>[[A Seafiend]]<br>[[Aragath Swellsteer]]<br>[[Grayleigh Hawke]]<br>[[Rottenfoot Mauler]]<br>[[Rottenfoot Swampwalker]]<br>[[Rottenfoot Witchdoctor]]
 }}

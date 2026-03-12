@@ -67,5 +67,5 @@
 |inflict_on_self=
 |itemswitheffect={{ItemLink|Eon, Blade of Time}}<br>{{ItemLink|Hopewarden}}
 |source={{ItemLink|Spell Scroll: Group Revitalize}}
-|used_by=[[Addison Priel]]<br>[[Fallen Fernalla (NPC)|Fallen Fernalla]]<br>[[Fallen Fernalla (NPC)|Fallen Fernalla]]<br>[[Fallen Fernalla]]<br>[[Julianna Priel]]
+|used_by=[[Addison Priel]]<br>[[Fallen Fernalla (NPC)|Fallen Fernalla]]<br>[[Fallen Fernalla]]<br>[[Julianna Priel]]
 }}

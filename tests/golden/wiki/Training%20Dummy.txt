@@ -37,8 +37,8 @@
 The training dummy is located on the top floor of the [[Solunarian Brotherhood]]'s church in Port azure. It is a DPS checker so you can test different builds and will record your DPS for 60 seconds on your first attack. It has a small cooldown.
 
 {{Enemy
-|name=Training Dummy
-|image=[[File:Training Dummy.png|thumb]]
+|name=Training Dummy (800 AC)
+|image=[[File:Training Dummy (800 AC).png|thumb]]
 |imagecaption=
 |type=[[:Category:Characters|NPC]]
 |faction=
@@ -57,7 +57,7 @@ The training dummy is located on the top floor of the [[Solunarian Brotherhood]]
 |xpmultiplier=2.0
 |health=12999998
 |mana=0
-|ac=15
+|ac=800
 |strength=0
 |endurance=999999
 |dexterity=0
@@ -109,8 +109,8 @@ The training dummy is located on the top floor of the [[Solunarian Brotherhood]]
 }}
 
 {{Enemy
-|name=Training Dummy (800 AC)
-|image=[[File:Training Dummy (800 AC).png|thumb]]
+|name=Training Dummy
+|image=[[File:Training Dummy.png|thumb]]
 |imagecaption=
 |type=[[:Category:Characters|NPC]]
 |faction=
@@ -129,7 +129,7 @@ The training dummy is located on the top floor of the [[Solunarian Brotherhood]]
 |xpmultiplier=2.0
 |health=12999998
 |mana=0
-|ac=800
+|ac=15
 |strength=0
 |endurance=999999
 |dexterity=0

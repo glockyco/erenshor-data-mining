@@ -17,7 +17,7 @@
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=1.0
-|health=2600
+|health=6500
 |mana=0
 |ac=75
 |strength=3
@@ -56,8 +56,8 @@
 |type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=
-|zones=
-|coordinates=
+|zones=[[Mysterious Portal|Mysterious Portal (2)]]
+|coordinates=326.8 x 1.9 x 530.4
 |spawnchance=
 |respawn=
 |guaranteeddrops=
@@ -68,7 +68,7 @@
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=1.0
-|health=6500
+|health=2600
 |mana=0
 |ac=75
 |strength=3

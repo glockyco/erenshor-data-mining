@@ -1,7 +1,7 @@
 {{Item
 |title=An Octorunner
 |type=[[Consumables|Consumable]], [[Quest Items|Quest Item]]
-|vendorsource=
+|vendorsource=[[Summoned: Pocket Vendor]]
 |source=[[Priel Malarist]] (1.7%)
 |othersource=
 |questsource=

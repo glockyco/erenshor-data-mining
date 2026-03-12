@@ -1,5 +1,5 @@
 {{Enemy
-|name=Gloopa (Half)
+|name=Gloopa
 |image=[[File:Gloopa.png|thumb]]
 |imagecaption=
 |type=[[Enemies|Boss]]
@@ -17,12 +17,12 @@
 |levelvariancemin=-1
 |levelvariancemax=1
 |xpmultiplier=1.0
-|health=11050
+|health=26000
 |mana=0
 |ac=315
-|strength=18
+|strength=24
 |endurance=45
-|dexterity=90
+|dexterity=150
 |agility=35
 |intelligence=25
 |wisdom=15
@@ -35,7 +35,7 @@
 }}
 
 {{Enemy
-|name=Gloopa (Quarter)
+|name=Gloopa (Half)
 |image=[[File:Gloopa.png|thumb]]
 |imagecaption=
 |type=[[Enemies|Boss]]
@@ -45,20 +45,20 @@
 |coordinates=
 |spawnchance=
 |respawn=26 minutes and 6 seconds
-|guaranteeddrops={{ItemLink|Hardened Slime Ring}}<br>{{ItemLink|Slimetreads}}<br>{{ItemLink|Toxic Strap}}
-|droprates={{ItemLink|Ancient Coal}} (74.5%)<br>{{ItemLink|Hardened Slime Ring}} (38.5%)<br>{{ItemLink|Slimetreads}} (38.5%)<br>{{ItemLink|Toxic Strap}} (38.5%)<br>{{ItemLink|Slime Coated Helm}} (4.9%)
+|guaranteeddrops=
+|droprates=
 |level=21
 |levelmodmin=0
 |levelmodmax=0
 |levelvariancemin=-1
 |levelvariancemax=1
-|xpmultiplier=5.0
-|health=3250
+|xpmultiplier=1.0
+|health=11050
 |mana=0
 |ac=315
-|strength=14
+|strength=18
 |endurance=45
-|dexterity=85
+|dexterity=90
 |agility=35
 |intelligence=25
 |wisdom=15
@@ -107,7 +107,7 @@
 }}
 
 {{Enemy
-|name=Gloopa
+|name=Gloopa (Quarter)
 |image=[[File:Gloopa.png|thumb]]
 |imagecaption=
 |type=[[Enemies|Boss]]
@@ -117,20 +117,20 @@
 |coordinates=98.1 x -54.2 x -725.0
 |spawnchance=
 |respawn=15 minutes
-|guaranteeddrops=
-|droprates=
+|guaranteeddrops={{ItemLink|Hardened Slime Ring}}<br>{{ItemLink|Slimetreads}}<br>{{ItemLink|Toxic Strap}}
+|droprates={{ItemLink|Ancient Coal}} (74.5%)<br>{{ItemLink|Hardened Slime Ring}} (38.5%)<br>{{ItemLink|Slimetreads}} (38.5%)<br>{{ItemLink|Toxic Strap}} (38.5%)<br>{{ItemLink|Slime Coated Helm}} (4.9%)
 |level=21
 |levelmodmin=0
 |levelmodmax=0
 |levelvariancemin=-1
 |levelvariancemax=1
-|xpmultiplier=1.0
-|health=26000
+|xpmultiplier=5.0
+|health=3250
 |mana=0
 |ac=315
-|strength=24
+|strength=14
 |endurance=45
-|dexterity=150
+|dexterity=85
 |agility=35
 |intelligence=25
 |wisdom=15
@@ -167,3 +167,4 @@ While each iteration of {{PAGENAME}} gets progressively weaker, it is still reco
 
 [[Category:Bosses]]
 [[Category:Enemies]]
+[[Category:The Elderstone Mines]]

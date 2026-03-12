@@ -7,7 +7,7 @@
 |questsource=
 |relatedquest=
 |craftsource=
-|componentfor={{ItemLink|Mold: A Ceremonial Ring}}<br>{{ItemLink|Mold: Copper Sceptre}}<br>{{ItemLink|Mold: Copper Sword}}<br>{{ItemLink|Mold: Charm of Compassion}}<br>{{ItemLink|Mold: Druid's Charm}}
+|componentfor={{ItemLink|Mold: A Ceremonial Ring}}<br>{{ItemLink|Mold: Charm of Compassion}}<br>{{ItemLink|Mold: Copper Sceptre}}<br>{{ItemLink|Mold: Copper Sword}}<br>{{ItemLink|Mold: Druid's Charm}}
 |buy=5
 |sell=3
 |taughtspell=

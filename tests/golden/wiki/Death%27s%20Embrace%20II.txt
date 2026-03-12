@@ -67,7 +67,7 @@
 |inflict_on_self=
 |itemswitheffect=
 |source={{ItemLink|Spell Scroll: Death's Embrace II}}
-|used_by=[[A Seafiend Manalord]]<br>[[Algaeth Bilgeback]]<br>[[Aquilamar Blade]]<br>[[Aquilamar Duelist]]<br>[[Aquilamar Protector]]<br>[[Aquilamar Rake]]<br>[[Headless]]<br>[[Summoned: Protector]]<br>[[Summoned: Protector]]
+|used_by=[[A Seafiend Manalord]]<br>[[Algaeth Bilgeback]]<br>[[Aquilamar Blade]]<br>[[Aquilamar Duelist]]<br>[[Aquilamar Protector]]<br>[[Aquilamar Rake]]<br>[[Headless]]<br>[[Summoned: Protector]]
 }}
 
 {{Ability

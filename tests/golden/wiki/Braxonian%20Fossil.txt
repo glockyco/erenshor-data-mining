@@ -13,7 +13,7 @@
 |taughtspell=
 |taughtskill=
 |guaranteeddrops={{ItemLink|Crystallized Balance}}<br>{{ItemLink|Elixir of Enlightenment IV}}<br>{{ItemLink|Healer's Charm}}<br>{{ItemLink|Planar Stone Shards}}<br>{{ItemLink|Precisionist's Charm}}<br>{{ItemLink|Protector's Charm}}<br>{{ItemLink|Sivakrux}}<br>{{ItemLink|Sorcerer's Charm}}<br>{{ItemLink|Time Stone}}<br>{{ItemLink|Treasure Map}}<br>{{ItemLink|Warlord's Charm}}
-|droprates={{ItemLink|Sivakrux}} (21%)<br>{{ItemLink|Time Stone}} (16%)<br>{{ItemLink|Elixir of Enlightenment IV}} (11%)<br>{{ItemLink|Crystallized Balance}} (11%)<br>{{ItemLink|Treasure Map}} (11%)<br>{{ItemLink|Healer's Charm}} (5%)<br>{{ItemLink|Precisionist's Charm}} (5%)<br>{{ItemLink|Protector's Charm}} (5%)<br>{{ItemLink|Sorcerer's Charm}} (5%)<br>{{ItemLink|Warlord's Charm}} (5%)<br>{{ItemLink|Planar Stone Shards}} (5%)
+|droprates={{ItemLink|Sivakrux}} (21%)<br>{{ItemLink|Time Stone}} (16%)<br>{{ItemLink|Crystallized Balance}} (11%)<br>{{ItemLink|Elixir of Enlightenment IV}} (11%)<br>{{ItemLink|Treasure Map}} (11%)<br>{{ItemLink|Healer's Charm}} (5%)<br>{{ItemLink|Planar Stone Shards}} (5%)<br>{{ItemLink|Precisionist's Charm}} (5%)<br>{{ItemLink|Protector's Charm}} (5%)<br>{{ItemLink|Sorcerer's Charm}} (5%)<br>{{ItemLink|Warlord's Charm}} (5%)
 }}
 
 Obtained for 1,000,000 gold from [[Rook Allshade]] in the [[Braxonian Desert]]

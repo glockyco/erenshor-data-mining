@@ -67,5 +67,5 @@
 |inflict_on_self=
 |itemswitheffect={{ItemLink|Frostmaker}}<br>{{ItemLink|Soulshiver}}
 |source={{ItemLink|Spell Scroll: Winter's Bite}}
-|used_by=[[A Faerie Enchantress]]<br>[[A Seafiend Manathite]]<br>[[Ancient Educator]]<br>[[Ancient Educator]]<br>[[Braxonian Ascended]]<br>[[Ember Acolyte]]<br>[[Fenton the Blighted]]<br>[[Overseer Refleigh]]<br>[[Shrouded Sivakayan]]<br>[[Sivakayan Faithbound]]<br>[[Sivakayan High Shadow]]<br>[[Sivakayan Shadow]]<br>[[Stoneman Diamondine]]<br>[[Stoneman Seeker]]<br>[[Stoneman Seeker]]<br>[[Stoneman Seeker]]<br>[[Stoneman Seeker]]<br>[[Summoned: Forest Spirit]]<br>[[Winkles]]<br>[[Wishlan the Savior]]
+|used_by=[[A Faerie Enchantress]]<br>[[A Seafiend Manathite]]<br>[[Ancient Educator]]<br>[[Braxonian Ascended]]<br>[[Ember Acolyte]]<br>[[Fenton the Blighted]]<br>[[Overseer Refleigh]]<br>[[Shrouded Sivakayan]]<br>[[Sivakayan Faithbound]]<br>[[Sivakayan High Shadow]]<br>[[Sivakayan Shadow]]<br>[[Stoneman Diamondine]]<br>[[Stoneman Seeker]]<br>[[Summoned: Forest Spirit]]<br>[[Winkles]]<br>[[Wishlan the Savior]]
 }}

@@ -67,5 +67,5 @@
 |inflict_on_self=
 |itemswitheffect={{ItemLink|Bottomless Elixir}}
 |source={{ItemLink|Spell Scroll: Minor Healing}}
-|used_by=[[A Deepling Verdite]]<br>[[A Rottenfoot Warrior]]<br>[[A Seafiend]]<br>[[A Seafiend Manalord]]<br>[[A Seafiend Manathite]]<br>[[Akaran Black]]<br>[[Akaran Black]]<br>[[Algaeth Bilgeback]]<br>[[Apostalo Ostagla]]<br>[[Colton Calavia]]<br>[[Colton Calavia]]<br>[[Dusty McPhenn]]<br>[[Foreman Hauck]]<br>[[Granderson Jovich]]<br>[[Granderson Jovich]]<br>[[Javo Follay]]<br>[[Leyor M'Chante]]<br>[[Leyor M'Chante]]<br>[[Olden Lennova]]<br>[[Rottenfoot Mauler]]<br>[[Rottenfoot Swampwalker]]<br>[[Sean Figarello]]<br>[[Teodor Smart]]<br>[[Thomson Rhett]]<br>[[Vanther Quansy]]
+|used_by=[[A Deepling Verdite]]<br>[[A Rottenfoot Warrior]]<br>[[A Seafiend]]<br>[[A Seafiend Manalord]]<br>[[A Seafiend Manathite]]<br>[[Akaran Black]]<br>[[Algaeth Bilgeback]]<br>[[Apostalo Ostagla]]<br>[[Colton Calavia]]<br>[[Dusty McPhenn]]<br>[[Foreman Hauck]]<br>[[Granderson Jovich]]<br>[[Javo Follay]]<br>[[Leyor M'Chante]]<br>[[Olden Lennova]]<br>[[Rottenfoot Mauler]]<br>[[Rottenfoot Swampwalker]]<br>[[Sean Figarello]]<br>[[Teodor Smart]]<br>[[Thomson Rhett]]<br>[[Vanther Quansy]]
 }}

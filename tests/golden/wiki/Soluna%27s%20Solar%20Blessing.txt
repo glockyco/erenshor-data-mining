@@ -67,5 +67,5 @@
 |inflict_on_self=
 |itemswitheffect={{ItemLink|Amulet of Azure}}
 |source=
-|used_by=[[Akaran Black]]<br>[[Akaran Black]]<br>[[Behox]]<br>[[Colton Calavia]]<br>[[Colton Calavia]]<br>[[Foreman Hauck]]<br>[[GM-Burgee]]<br>[[Leyor M'Chante]]<br>[[Leyor M'Chante]]<br>[[Olden Lennova]]<br>[[Thomson Rhett]]
+|used_by=[[Akaran Black]]<br>[[Colton Calavia]]<br>[[Foreman Hauck]]<br>[[Leyor M'Chante]]<br>[[Olden Lennova]]<br>[[Sean Figarello]]<br>[[Thomson Rhett]]
 }}

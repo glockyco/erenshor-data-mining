@@ -31,7 +31,7 @@
 |poison=1-2
 |elemental=1-2
 |void=1-2
-|spells=
+|spells={{AbilityLink|Magic Bolt}}
 }}
 
 '''{{PAGENAME}}''' is an [[Enemies|enemy]] in [[Erenshor]].

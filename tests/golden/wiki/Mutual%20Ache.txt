@@ -64,7 +64,7 @@
 |is_charm=
 |is_broken_on_damage=
 |is_fear=
-|inflict_on_self=
+|inflict_on_self=True
 |itemswitheffect=
 |source={{ItemLink|Spell Scroll: Mutual Ache}}
 |used_by=

@@ -67,5 +67,5 @@
 |inflict_on_self=
 |itemswitheffect=
 |source={{ItemLink|Spell Scroll: Void Rend}}
-|used_by=[[Sivakayan Reaver]]<br>[[Sivakayan Reaver]]<br>[[Sivakayan Reaver]]<br>[[Sivakayan Reaver]]
+|used_by=[[Sivakayan Reaver]]<br>[[Sivakayan Reaver]]
 }}

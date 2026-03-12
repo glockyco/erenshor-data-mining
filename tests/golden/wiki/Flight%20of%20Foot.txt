@@ -67,5 +67,5 @@
 |inflict_on_self=
 |itemswitheffect={{ItemLink|Aether's Blessing}}<br>{{ItemLink|Dancer's Ring}}<br>{{ItemLink|Statuesque Greaves}}<br>{{ItemLink|Windblown Boots}}
 |source=
-|used_by=[[A Faerie Drone]]<br>[[A Grassland Ogre Chieftan]]<br>[[Baetil]]<br>[[Charlotte Darmask]]<br>[[Tinkles]]
+|used_by=[[A Faerie Drone]]<br>[[A Grassland Ogre Chieftan]]<br>[[Charlotte Darmask]]<br>[[Tinkles]]
 }}

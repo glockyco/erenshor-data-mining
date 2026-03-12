@@ -1,7 +1,7 @@
 {{Item
 |title=Aetheria
 |type=[[Quest Items|Quest Item]], [[Crafting]]
-|vendorsource=
+|vendorsource=[[Summoned: Pocket Vendor]]
 |source=[[Ancient Educator]] (20.4%)<br>[[The Lost Sea Giant King]] (14.7%)<br>[[Ancient Corpse]] (13.4%)<br>[[Ancient Guard]] (13.4%)<br>[[Ancient Knight]] (13.4%)<br>[[A Protected Memory]] (12.4%)<br>[[A Restless Spirit]] (12.4%)<br>[[An Enraged Spirit]] (12.4%)<br>[[Headless]] (12.1%)<br>[[Mourning]] (10.0%)<br>[[Seed of Blight]] (8.3%)<br>[[Rotting Mummy]] (8.0%)<br>[[Ancient Celestarian]] (6.8%)<br>[[A Lost Sea Giant]] (5.1%)<br>[[A Sorrowful Spirit]] (5.1%)<br>[[Spectre]] (4.7%)<br>[[Azynthian Firebone]] (4.6%)<br>[[Azynthian Icebone]] (4.6%)<br>[[Greater Azynthian Firebone]] (4.6%)<br>[[Greater Azynthian Icebone]] (4.6%)<br>[[Sivakayan Devoted]] (4.3%)<br>[[Sivakayan Faithbound]] (4.3%)<br>[[Blight Eater]] (3.5%)<br>[[A Lost Sea Giant]] (3.4%)
 |othersource=
 |questsource=

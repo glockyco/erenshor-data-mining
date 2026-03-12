@@ -67,5 +67,5 @@
 |inflict_on_self=
 |itemswitheffect={{ItemLink|Feathered Cape}}<br>{{ItemLink|Flowing Cloak}}<br>{{ItemLink|Lifewind}}
 |source=
-|used_by=[[Aragath Swellsteer]]<br>[[Grayleigh Hawke]]<br>[[Grayleigh Hawke]]<br>[[Grayleigh Hawke]]
+|used_by=[[Aragath Swellsteer]]<br>[[Grayleigh Hawke]]
 }}

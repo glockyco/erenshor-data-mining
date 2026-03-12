@@ -70,5 +70,6 @@
 |spells={{AbilityLink|Brax's Touch}}<br>{{AbilityLink|Burning Chains}}<br>{{AbilityLink|Ethereal Rending}}<br>{{AbilityLink|Hardened Skin}}<br>{{AbilityLink|Minor Protection}}<br>{{AbilityLink|Minor Regeneration}}<br>{{AbilityLink|Vampiric Touch}}
 }}
 
+[[Category:Bosses]]
 [[Category:Enemies]]
 [[Category:Old Krakengard]]
