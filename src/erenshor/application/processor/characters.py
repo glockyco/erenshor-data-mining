@@ -325,7 +325,7 @@ def process_characters(
                 random_wander_range=None,
                 spawn_upon_quest_complete_stable_key=None,
                 protector_stable_key=None,
-                spawn_chance=1.0,
+                spawn_chance=100.0,
                 is_common=None,
                 is_rare=None,
             )
