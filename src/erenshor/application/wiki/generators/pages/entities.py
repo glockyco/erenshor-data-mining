@@ -161,18 +161,21 @@ class EntityPageGenerator(PageGenerator):
 
         logger.info(f"EntityPageGenerator: Generated {len(page_groups)} pages")
 
-    @staticmethod
-    def _entity_sort_key(entity: Item | Character | Spell | Skill | Stance) -> tuple[str, int, str]:
+    def _entity_sort_key(self, entity: Item | Character | Spell | Skill | Stance) -> tuple[int, str, int, str]:
         """Sort key for ordering entities within a multi-entity page.
 
-        Characters sort by zone (ascending), level (descending), then
-        stable_key for determinism. Other entity types sort by stable_key only.
+        Spells with class restrictions sort before those without (the
+        player-castable version is the "primary" spell). Characters sort
+        by zone then level descending. All ties break on stable_key.
         """
+        if isinstance(entity, Spell):
+            has_classes = 0 if self.context.spell_repo.get_spell_classes(entity.stable_key) else 1
+            return (has_classes, "", 0, entity.stable_key)
         if isinstance(entity, Character):
             zone = entity.scene or ""
             level = -(entity.level or 0)
-            return (zone, level, entity.stable_key)
-        return ("", 0, entity.stable_key)
+            return (0, zone, level, entity.stable_key)
+        return (0, "", 0, entity.stable_key)
 
     # -------------------------------------------------------------------------
     # Inline assembly — replaces enricher classes
