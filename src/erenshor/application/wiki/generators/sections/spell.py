@@ -84,11 +84,11 @@ class SpellSectionGenerator(SectionGeneratorBase):
         image = f"{spell.image_name}.png" if spell.image_name else ""
 
         # Pre-built links on the Spell entity and enriched DTO.
-        # The entity carries StandardLink (for item tooltip templates), so
-        # convert to AbilityLink for the {{Ability}} page template.
+        # status_effect_link is StandardLink, convert to AbilityLink for the
+        # {{Ability}} page template. add_proc_link is already AbilityLink.
         pet_to_summon = str(enriched.pet_to_summon) if enriched.pet_to_summon else ""
         status_effect = str(self._to_ability_link(spell.status_effect_link)) if spell.status_effect_link else ""
-        add_proc = str(self._to_ability_link(spell.add_proc_link)) if spell.add_proc_link else ""
+        add_proc = str(spell.add_proc_link) if spell.add_proc_link else ""
 
         imagecaption = ""
         if spell.status_effect_message_on_player:

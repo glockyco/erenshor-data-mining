@@ -113,10 +113,10 @@ def _spell_from_row(row: object) -> Spell:
     # Extract and remove link columns from dict before Pydantic validation
     add_proc_display = d.pop("add_proc_display_name", None)
     add_proc_wiki = d.pop("add_proc_wiki_page_name", None)
-    add_proc_image = d.pop("add_proc_image_name", None)
+    d.pop("add_proc_image_name", None)
     se_display = d.pop("status_effect_display_name", None)
     se_wiki = d.pop("status_effect_wiki_page_name", None)
-    se_image = d.pop("status_effect_image_name", None)
+    d.pop("status_effect_image_name", None)
 
     spell = Spell.model_validate(d)
 
