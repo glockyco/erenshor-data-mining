@@ -15,14 +15,14 @@ class SpawnPointRepository(BaseRepository[SpawnPoint]):
     """
 
     def get_spawn_info_for_character(self, character_stable_key: str) -> list[CharacterSpawnInfo]:
-        """Get all spawn point locations for a character.
+        """Get all spawn point locations for a character's dedup group.
 
-        Returns spawn information including coordinates, zone names, respawn times,
-        and spawn chances. The zone_link on each result is pre-built from the zones
-        JOIN — section generators call str(spawn.zone_link) directly.
+        Aggregates spawns across ALL members of the character's dedup group,
+        not just the representative. This ensures placed instances that were
+        deduped into the same group contribute their spawn locations.
 
         Args:
-            character_stable_key: Character stable key
+            character_stable_key: Character stable key (typically the group representative)
 
         Returns:
             List of CharacterSpawnInfo objects for all spawn locations.
@@ -47,7 +47,15 @@ class SpawnPointRepository(BaseRepository[SpawnPoint]):
             FROM character_spawns cs
             JOIN characters c ON c.stable_key = cs.character_stable_key
             LEFT JOIN zones z ON z.stable_key = cs.zone_stable_key
-            WHERE cs.character_stable_key = ?
+            WHERE cs.character_stable_key IN (
+                SELECT d.member_stable_key
+                FROM character_deduplications d
+                WHERE d.group_key = (
+                    SELECT d2.group_key
+                    FROM character_deduplications d2
+                    WHERE d2.member_stable_key = ?
+                )
+            )
               AND COALESCE(cs.spawn_chance, 0) > 0
               AND cs.zone_stable_key IS NOT NULL
               AND COALESCE(cs.is_enabled, 1) = 1
