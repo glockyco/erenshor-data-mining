@@ -121,7 +121,7 @@ def _spell_from_row(row: object) -> Spell:
     spell = Spell.model_validate(d)
 
     if add_proc_display is not None:
-        spell.add_proc_link = StandardLink(
+        spell.add_proc_link = AbilityLink(
             page_title=str(add_proc_wiki) if add_proc_wiki else None,
             display_name=str(add_proc_display),
         )

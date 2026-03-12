@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from pydantic import Field
 
-from erenshor.domain.value_objects.wiki_link import StandardLink  # noqa: TC001
+from erenshor.domain.value_objects.wiki_link import AbilityLink, StandardLink  # noqa: TC001
 
 from .base import BaseEntity
 
@@ -78,7 +78,7 @@ class Spell(BaseEntity):
     add_proc_chance: int | None = Field(default=None, description="Proc chance percentage (0-100)")
     # Pre-built link populated by the repository via self-JOIN on spells table.
     # None when add_proc_stable_key is NULL or the referenced spell is excluded.
-    add_proc_link: StandardLink | None = Field(default=None, description="Pre-built link to add-proc spell")
+    add_proc_link: AbilityLink | None = Field(default=None, description="Pre-built link to add-proc spell")
 
     # Stat modifications
     hp: int | None = Field(default=None, description="Health modifier")
