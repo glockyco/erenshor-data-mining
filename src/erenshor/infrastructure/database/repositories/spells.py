@@ -243,17 +243,29 @@ class SpellRepository(BaseRepository[Spell]):
             SELECT DISTINCT s.display_name, s.wiki_page_name, s.image_name
             FROM spells s
             WHERE s.stable_key IN (
-                SELECT spell_stable_key FROM character_attack_spells WHERE character_stable_key = ?
+                SELECT spell_stable_key FROM character_attack_spells cas
+                JOIN character_deduplications d ON d.member_stable_key = cas.character_stable_key
+                WHERE d.group_key = (SELECT group_key FROM character_deduplications WHERE member_stable_key = ?)
                 UNION
-                SELECT spell_stable_key FROM character_buff_spells WHERE character_stable_key = ?
+                SELECT spell_stable_key FROM character_buff_spells cbs
+                JOIN character_deduplications d ON d.member_stable_key = cbs.character_stable_key
+                WHERE d.group_key = (SELECT group_key FROM character_deduplications WHERE member_stable_key = ?)
                 UNION
-                SELECT spell_stable_key FROM character_heal_spells WHERE character_stable_key = ?
+                SELECT spell_stable_key FROM character_heal_spells chs
+                JOIN character_deduplications d ON d.member_stable_key = chs.character_stable_key
+                WHERE d.group_key = (SELECT group_key FROM character_deduplications WHERE member_stable_key = ?)
                 UNION
-                SELECT spell_stable_key FROM character_group_heal_spells WHERE character_stable_key = ?
+                SELECT spell_stable_key FROM character_group_heal_spells cghs
+                JOIN character_deduplications d ON d.member_stable_key = cghs.character_stable_key
+                WHERE d.group_key = (SELECT group_key FROM character_deduplications WHERE member_stable_key = ?)
                 UNION
-                SELECT spell_stable_key FROM character_cc_spells WHERE character_stable_key = ?
+                SELECT spell_stable_key FROM character_cc_spells ccs
+                JOIN character_deduplications d ON d.member_stable_key = ccs.character_stable_key
+                WHERE d.group_key = (SELECT group_key FROM character_deduplications WHERE member_stable_key = ?)
                 UNION
-                SELECT spell_stable_key FROM character_taunt_spells WHERE character_stable_key = ?
+                SELECT spell_stable_key FROM character_taunt_spells cts
+                JOIN character_deduplications d ON d.member_stable_key = cts.character_stable_key
+                WHERE d.group_key = (SELECT group_key FROM character_deduplications WHERE member_stable_key = ?)
             )
             ORDER BY s.display_name COLLATE NOCASE
         """

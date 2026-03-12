@@ -18,14 +18,13 @@ Processing steps (in order):
 Deduplication identity includes:
 - display_name (post-mapping)
 - level and all base/effective stat fields
-- frozenset of spell stable keys (across all six spell junction tables)
 - frozenset of (item_stable_key, drop_probability) loot pairs
-- frozenset of vendor item stable keys
-- all boolean type flags
+- frozenset of attack skill stable keys
+- boolean type flags (excluding IsVendor)
 
-Quest assignments and dialog are NOT part of identity — they are
-instance-specific. Spawn locations are also excluded and merged per
-dedup group.
+Quest assignments, dialog, spells, and vendor items are NOT part of
+identity — they are instance-specific. Spawn locations and spells are
+merged across the dedup group at query time.
 """
 
 from __future__ import annotations
@@ -170,7 +169,6 @@ _STAT_FIELDS = [
 _FLAG_FIELDS = [
     "IsFriendly",
     "IsNPC",
-    "IsVendor",
     "IsMiningNode",
     "HasStats",
     "HasDialog",
@@ -193,15 +191,8 @@ def _dedup_key(d: _CharData) -> tuple[object, ...]:
         d.char.display_name,
         stats,
         flags,
-        d.attack_spell_keys,
-        d.buff_spell_keys,
-        d.heal_spell_keys,
-        d.group_heal_spell_keys,
-        d.cc_spell_keys,
-        d.taunt_spell_keys,
         d.attack_skill_keys,
         d.loot,
-        d.vendor_item_keys,
     )
 
 
