@@ -3,7 +3,7 @@
 from loguru import logger
 
 from erenshor.domain.entities.spell import Spell
-from erenshor.domain.value_objects.wiki_link import AbilityLink
+from erenshor.domain.value_objects.wiki_link import AbilityLink, StandardLink
 from erenshor.infrastructure.database.repository import BaseRepository, RepositoryError
 
 # All spell scalar columns, prefixed for JOIN queries.
@@ -121,17 +121,15 @@ def _spell_from_row(row: object) -> Spell:
     spell = Spell.model_validate(d)
 
     if add_proc_display is not None:
-        spell.add_proc_link = AbilityLink(
+        spell.add_proc_link = StandardLink(
             page_title=str(add_proc_wiki) if add_proc_wiki else None,
             display_name=str(add_proc_display),
-            image_name=str(add_proc_image) if add_proc_image else None,
         )
 
     if se_display is not None:
-        spell.status_effect_link = AbilityLink(
+        spell.status_effect_link = StandardLink(
             page_title=str(se_wiki) if se_wiki else None,
             display_name=str(se_display),
-            image_name=str(se_image) if se_image else None,
         )
 
     return spell
