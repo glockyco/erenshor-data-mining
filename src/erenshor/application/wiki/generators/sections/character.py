@@ -116,10 +116,10 @@ class CharacterSectionGenerator(SectionGeneratorBase):
             return str(link)
 
         if character.my_faction in ("Villager", "GoodHuman", "GoodGuard", "OtherGood", "PreyAnimal"):
-            return str(FactionLink(page_title="Good", display_name="Good"))
+            return str(FactionLink(page_title="The Followers of Good", display_name="The Followers of Good"))
 
         if character.my_faction and character.my_faction not in ("Player", "PC", "DEBUG"):
-            return str(FactionLink(page_title="Evil", display_name="Evil"))
+            return str(FactionLink(page_title="The Followers of Evil", display_name="The Followers of Evil"))
 
         return ""
 
