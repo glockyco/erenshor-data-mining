@@ -5,7 +5,7 @@ SELECT
     ROUND(at.y, 2) AS position_y,
     ROUND(at.z, 2) AS position_z,
     at.achievement_name,
-    'https://erenshor-maps.wowmuch1.workers.dev/map?sel=marker:' || at.stable_key AS map_link
+    'https://erenshor-maps.wowmuch1.workers.dev/map?marker=' || at.stable_key AS MapLink
 FROM achievement_triggers at
 JOIN zones z ON z.scene_name = at.scene
 ORDER BY z.zone_name;

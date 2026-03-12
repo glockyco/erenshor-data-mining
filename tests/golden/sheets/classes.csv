@@ -1,4 +1,4 @@
-ClassName,DisplayName,MitigationBonus,StrBenefit,EndBenefit,DexBenefit,AgiBenefit,IntBenefit,WisBenefit,ChaBenefit,AggroMod,ResourceName
+class_name,display_name,mitigation_bonus,str_benefit,end_benefit,dex_benefit,agi_benefit,int_benefit,wis_benefit,cha_benefit,aggro_mod,resource_name
 Arcanist,Arcanist,1.0,3,10,3,3,14,9,10,1.600000023841858,Arcanist
 Default,Default,1.0,25,10,10,10,10,10,0,1.0,DefaultNPC
 Druid,Druid,1.0,5,10,5,10,7,10,5,1.0,Druid

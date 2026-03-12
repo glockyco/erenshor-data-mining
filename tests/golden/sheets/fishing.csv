@@ -1,4 +1,4 @@
-WaterStableKey,ZoneName,PositionX,PositionY,PositionZ,ItemName,DayFishableChance (%),NightFishableChance (%)
+water_stable_key,zone_name,position_x,position_y,position_z,display_name,DayFishableChance (%),NightFishableChance (%)
 water:azure:-277.92:-4.80:-9.61,Port Azure,-277.92,-4.8,-9.61,An Octorunner,39.12,36.94
 water:azure:-277.92:-4.80:-9.61,Port Azure,-277.92,-4.8,-9.61,A Husselfish,16.76,15.83
 water:azure:-277.92:-4.80:-9.61,Port Azure,-277.92,-4.8,-9.61,Seaweed,16.76,15.83

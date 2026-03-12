@@ -1,4 +1,4 @@
-MiningNodeStableKey,ZoneName,PositionX,PositionY,PositionZ,RespawnTime,ItemName,DropChance (%)
+mining_node_stable_key,zone_name,position_x,position_y,position_z,respawn_time,display_name,DropChance (%)
 mining:braxonian:225.31:47.61:1074.53,Braxonian Desert,225.31,47.61,1074.53,3600.0,Rock,56.67
 mining:braxonian:225.31:47.61:1074.53,Braxonian Desert,225.31,47.61,1074.53,3600.0,Chunk of Citrine Sandsilver,21.0
 mining:braxonian:225.31:47.61:1074.53,Braxonian Desert,225.31,47.61,1074.53,3600.0,Coal,18.33

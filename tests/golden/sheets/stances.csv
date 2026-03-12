@@ -1,13 +1,13 @@
-StableKey,DisplayName,StanceDesc,MaxHPMod,DamageMod,SpellDamageMod,DamageTakenMod,ProcRateMod,AggroGenMod,LifestealAmount,ResonanceAmount,SelfDamagePerAttack,SelfDamagePerCast,StopRegen,SwitchMessage,ResourceName
+stable_key,display_name,stance_desc,max_hp_mod,damage_mod,spell_damage_mod,damage_taken_mod,proc_rate_mod,aggro_gen_mod,lifesteal_amount,resonance_amount,self_damage_per_attack,self_damage_per_cast,stop_regen,switch_message,resource_name
 stance:aggressive,Aggressive,"Gain a 40% increase to physical damage dealt, but take 40% more incoming damage from all sources.
 
 Your focus on offense stops all natural health regeneration.",1.0,1.399999976158142,1.0,1.399999976158142,1.0,1.0,1.0,1.0,0.0,0.0,1,shifts into an aggressive combat stance,Aggressive
 stance:defensive,Defensive,"Deal 33% less physical damage, and take 33% less incoming damage.
 
 Your focus on defense stops all natural health regeneration.",1.0,0.6600000262260437,1.0,0.800000011920929,1.0,1.0,1.0,1.0,0.0,0.0,1,shifts into a defensive combat stance,Defensive
+stance:normal,Normal,A normal combat stance with no penalties or bonuses.,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,0.0,0,shifts into a normal combat stance,Normal
 stance:reckless,Reckless,"Increase all melee damage dealt and damage taken by 100%
 
 This stance does 4% of your max HP in damage to you each time you swing your sword. 
 ",1.0,2.0,1.0,2.0,1.0,1.0,1.0,1.0,4.0,0.0,0,shifts into an reckless combat stance,Reckless
 stance:taunting,Taunting,All of your actions generate substantially more aggro. Your focus on this stance prevents natural health regeneration.,1.0,1.0,1.0,1.0,1.0,15.0,1.0,1.0,0.0,0.0,1,shifts into an taunting combat stance,Taunting
-stance:normal,normal,A normal combat stance with no penalties or bonuses.,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,0.0,0,shifts into a normal combat stance,Normal

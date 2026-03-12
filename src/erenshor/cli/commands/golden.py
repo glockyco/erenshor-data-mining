@@ -49,38 +49,38 @@ console = Console()
 # Uses GROUP_CONCAT aggregate ORDER BY syntax for deterministic patrol paths.
 _MAP_SPAWN_POINTS_SQL = """
 SELECT
-    sp.Scene,
-    sp.StableKey,
-    sp.X AS PositionX,
-    sp.Y AS PositionY,
-    sp.Z AS PositionZ,
-    sp.SpawnDelay4 AS SpawnDelay,
-    sp.IsEnabled,
-    sp.NightSpawn AS IsNightSpawn,
-    sp.RandomWanderRange AS WanderRange,
-    sp.LoopPatrol,
+    cs.scene                        AS Scene,
+    cs.spawn_point_stable_key       AS StableKey,
+    cs.x                            AS PositionX,
+    cs.y                            AS PositionY,
+    cs.z                            AS PositionZ,
+    cs.spawn_delay_4                AS SpawnDelay,
+    cs.is_enabled                   AS IsEnabled,
+    cs.night_spawn                  AS IsNightSpawn,
+    cs.random_wander_range          AS WanderRange,
+    cs.loop_patrol                  AS LoopPatrol,
     (
-        SELECT GROUP_CONCAT(pp.X || ',' || pp.Z, ';' ORDER BY pp.SequenceIndex)
-        FROM SpawnPointPatrolPoints pp
-        WHERE pp.SpawnPointStableKey = sp.StableKey
-    ) AS PatrolPath,
-    c.NPCName,
-    c.StableKey AS CharacterStableKey,
-    c.Level,
-    c.IsVendor,
-    c.HasDialog,
-    c.Invulnerable,
-    sum(spc.SpawnChance) AS SpawnChance,
-    c.IsCommon,
-    c.IsRare,
-    c.IsUnique,
-    min(c.IsFriendly) AS IsFriendly
-FROM SpawnPoints sp
-JOIN SpawnPointCharacters spc ON spc.SpawnPointStableKey = sp.StableKey
-JOIN Characters c ON c.StableKey = spc.CharacterStableKey
-WHERE spc.SpawnChance > 0
-GROUP BY sp.StableKey, c.StableKey
-ORDER BY sp.Scene, sp.StableKey, c.StableKey
+        SELECT GROUP_CONCAT(pp.x || ',' || pp.z, ';' ORDER BY pp.sequence_index)
+        FROM spawn_point_patrol_points pp
+        WHERE pp.spawn_point_stable_key = cs.spawn_point_stable_key
+    )                               AS PatrolPath,
+    c.display_name                  AS NPCName,
+    c.stable_key                    AS CharacterStableKey,
+    c.level                         AS Level,
+    c.is_vendor                     AS IsVendor,
+    c.has_dialog                    AS HasDialog,
+    c.invulnerable                  AS Invulnerable,
+    sum(cs.spawn_chance)            AS SpawnChance,
+    c.is_common                     AS IsCommon,
+    c.is_rare                       AS IsRare,
+    c.is_unique                     AS IsUnique,
+    min(c.is_friendly)              AS IsFriendly
+FROM character_spawns cs
+JOIN characters c ON c.stable_key = cs.character_stable_key
+WHERE cs.spawn_chance > 0
+  AND cs.spawn_point_stable_key IS NOT NULL
+GROUP BY cs.spawn_point_stable_key, c.stable_key
+ORDER BY cs.scene, cs.spawn_point_stable_key, c.stable_key
 """
 
 

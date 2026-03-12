@@ -1,4 +1,4 @@
-SceneName,ZoneName,PositionX,PositionY,PositionZ,MapLink
+scene_name,zone_name,position_x,position_y,position_z,MapLink
 AzynthiClear,Azynthi's Garden,800.63,44.94,622.42,https://erenshor-maps.wowmuch1.workers.dev/map?marker=well:azynthiclear:800.63:44.94:622.42
 AzynthiClear,Azynthi's Garden,800.63,45.39,622.42,https://erenshor-maps.wowmuch1.workers.dev/map?marker=well:azynthiclear:800.63:45.39:622.42
 SummerEvent,Bellwain Island,84.21,-1.67,165.54,https://erenshor-maps.wowmuch1.workers.dev/map?marker=well:summerevent:84.21:-1.67:165.54

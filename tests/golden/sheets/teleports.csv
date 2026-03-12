@@ -1,4 +1,4 @@
-TeleportItemStableKey,TeleportItemName,ZoneName,PositionX,PositionY,PositionZ,MapLink
+teleport_item_stable_key,teleport_item_name,zone_name,position_x,position_y,position_z,MapLink
 item:gen - box of portals,Box of Portals,Reliquary Hall,275.0,1.82,309.0,https://erenshor-maps.wowmuch1.workers.dev/map?marker=teleport:reliquary:275.00:1.82:309.00
 item:gen - rune of ripper's keep,Rune of Ripper's Keep,Ripper's Keep,572.0,54.4,293.0,https://erenshor-maps.wowmuch1.workers.dev/map?marker=teleport:ripper:572.00:54.40:293.00
 item:gen - rune of sands,Rune of Sands,Braxonian Desert,382.6,49.3,878.0,https://erenshor-maps.wowmuch1.workers.dev/map?marker=teleport:braxonian:382.60:49.30:878.00

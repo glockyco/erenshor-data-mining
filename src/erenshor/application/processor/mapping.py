@@ -11,17 +11,20 @@ mapping.json schema (version 2.0):
         "metadata": { ... },
         "rules": {
             "<stable_key>": {
-                "wiki_page_name": "<string or null>",
-                "display_name": "<string>",
-                "image_name":   "<string>"
+                "wiki_page_name":   "<string or null>",
+                "display_name":     "<string>",
+                "image_name":       "<string>",
+                "is_wiki_generated": 0 or 1,
+                "is_map_visible":    0 or 1
             },
             ...
         }
     }
 
-A null wiki_page_name means the entity is excluded from the clean DB
-entirely.  display_name and image_name are always present for
-non-excluded entities; excluded entities may omit them.
+wiki_page_name may be null, meaning no wiki page exists for this entity.
+display_name and image_name must always be non-null strings — the
+is_wiki_generated and is_map_visible flags are the exclusion mechanism.
+is_wiki_generated and is_map_visible default to 1 when absent.
 """
 
 from __future__ import annotations
@@ -35,8 +38,10 @@ from loguru import logger
 
 class MappingOverride(TypedDict):
     display_name: str
-    wiki_page_name: str | None  # None → excluded
+    wiki_page_name: str | None
     image_name: str
+    is_wiki_generated: int
+    is_map_visible: int
 
 
 def load_mapping(path: Path) -> dict[str, MappingOverride]:
@@ -84,27 +89,20 @@ def load_mapping(path: Path) -> dict[str, MappingOverride]:
         wiki_page_name: str | None = rule.get("wiki_page_name")
         display_name: str | None = rule.get("display_name")
         image_name: str | None = rule.get("image_name")
-        excluded = "wiki_page_name" in rule and wiki_page_name is None
 
-        if not excluded:
-            if display_name is None:
-                errors.append(f"{stable_key}: non-excluded rule missing 'display_name'")
-                continue
-            if image_name is None:
-                errors.append(f"{stable_key}: non-excluded rule missing 'image_name'")
-                continue
-            if wiki_page_name is None:
-                # wiki_page_name key absent entirely; treat as excluded? No —
-                # the operations.py logic requires the key to be present and
-                # null to mean excluded.  Absent key means no override.
-                # But if display_name is provided we expect wiki_page_name too.
-                errors.append(f"{stable_key}: non-excluded rule missing 'wiki_page_name'")
-                continue
+        if display_name is None:
+            errors.append(f"{stable_key}: rule missing 'display_name'")
+            continue
+        if image_name is None:
+            errors.append(f"{stable_key}: rule missing 'image_name'")
+            continue
 
         result[stable_key] = MappingOverride(
-            display_name=display_name if display_name is not None else "",
+            display_name=display_name,
             wiki_page_name=wiki_page_name,
-            image_name=image_name if image_name is not None else "",
+            image_name=image_name,
+            is_wiki_generated=int(rule.get("is_wiki_generated", 1)),
+            is_map_visible=int(rule.get("is_map_visible", 1)),
         )
 
     if errors:

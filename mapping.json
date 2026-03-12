@@ -38,7 +38,9 @@
     "character:a bank rift": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Bank",
-      "image_name": "Summoned: Pocket Bank"
+      "image_name": "Summoned: Pocket Bank",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a hermit": {
       "wiki_page_name": "A Hermit",
@@ -64,7 +66,9 @@
       "display_name": "A Highwayman Raider",
       "image_name": "A Highwayman Raider",
       "mapping_type": "custom",
-      "reason": null
+      "reason": null,
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a highwayman raider (2)": {
       "wiki_page_name": "A Highwayman Raider",
@@ -86,77 +90,107 @@
     "character:a rift (1):reliquary:270.97:1.44:336.08": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Auctions",
-      "image_name": "Summoned: Pocket Auctions"
+      "image_name": "Summoned: Pocket Auctions",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift (1):reliquary:270.97:1.44:347.83": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Auctions",
-      "image_name": "Summoned: Pocket Auctions"
+      "image_name": "Summoned: Pocket Auctions",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift (1):reliquary:270.97:1.44:358.58": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Auctions",
-      "image_name": "Summoned: Pocket Auctions"
+      "image_name": "Summoned: Pocket Auctions",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift (1):reliquary:279.50:1.44:330.61": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Auctions",
-      "image_name": "Summoned: Pocket Auctions"
+      "image_name": "Summoned: Pocket Auctions",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift (1):reliquary:279.50:1.44:341.61": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Auctions",
-      "image_name": "Summoned: Pocket Auctions"
+      "image_name": "Summoned: Pocket Auctions",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift (1):reliquary:279.50:1.44:352.61": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Auctions",
-      "image_name": "Summoned: Pocket Auctions"
+      "image_name": "Summoned: Pocket Auctions",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift (1):reliquary:279.50:1.44:363.86": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Auctions",
-      "image_name": "Summoned: Pocket Auctions"
+      "image_name": "Summoned: Pocket Auctions",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift ah:reliquary:268.28:1.44:358.95": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Auctions",
-      "image_name": "Summoned: Pocket Auctions"
+      "image_name": "Summoned: Pocket Auctions",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift ah:reliquary:268.41:1.44:325.00": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Auctions",
-      "image_name": "Summoned: Pocket Auctions"
+      "image_name": "Summoned: Pocket Auctions",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift ah:reliquary:268.53:1.44:336.75": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Auctions",
-      "image_name": "Summoned: Pocket Auctions"
+      "image_name": "Summoned: Pocket Auctions",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift ah:reliquary:268.53:1.44:348.00": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Auctions",
-      "image_name": "Summoned: Pocket Auctions"
+      "image_name": "Summoned: Pocket Auctions",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift ah:reliquary:280.29:1.44:327.51": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Auctions",
-      "image_name": "Summoned: Pocket Auctions"
+      "image_name": "Summoned: Pocket Auctions",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift ah:reliquary:280.54:1.44:338.01": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Auctions",
-      "image_name": "Summoned: Pocket Auctions"
+      "image_name": "Summoned: Pocket Auctions",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift ah:reliquary:280.54:1.44:349.26": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Auctions",
-      "image_name": "Summoned: Pocket Auctions"
+      "image_name": "Summoned: Pocket Auctions",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift ah:reliquary:280.54:1.44:363.26": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Auctions",
-      "image_name": "Summoned: Pocket Auctions"
+      "image_name": "Summoned: Pocket Auctions",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift vendor:reliquary:268.28:1.44:349.00": {
       "wiki_page_name": "Summoned: Pocket Vendor",
@@ -166,82 +200,114 @@
     "character:a rift vendor:reliquary:269.02:1.44:338.50": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Vendor",
-      "image_name": "Summoned: Pocket Vendor"
+      "image_name": "Summoned: Pocket Vendor",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift vendor:reliquary:269.02:1.44:352.00": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Vendor",
-      "image_name": "Summoned: Pocket Vendor"
+      "image_name": "Summoned: Pocket Vendor",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift vendor:reliquary:269.77:1.44:328.25": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Vendor",
-      "image_name": "Summoned: Pocket Vendor"
+      "image_name": "Summoned: Pocket Vendor",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift vendor:reliquary:269.77:1.44:328.25:1": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Vendor",
-      "image_name": "Summoned: Pocket Vendor"
+      "image_name": "Summoned: Pocket Vendor",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift vendor:reliquary:270.03:1.44:340.50": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Vendor",
-      "image_name": "Summoned: Pocket Vendor"
+      "image_name": "Summoned: Pocket Vendor",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift vendor:reliquary:270.03:1.44:362.70": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Vendor",
-      "image_name": "Summoned: Pocket Vendor"
+      "image_name": "Summoned: Pocket Vendor",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift vendor:reliquary:271.77:1.44:360.59": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Vendor",
-      "image_name": "Summoned: Pocket Vendor"
+      "image_name": "Summoned: Pocket Vendor",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift vendor:reliquary:278.36:1.44:328.00": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Vendor",
-      "image_name": "Summoned: Pocket Vendor"
+      "image_name": "Summoned: Pocket Vendor",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift vendor:reliquary:278.53:1.44:338.00": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Vendor",
-      "image_name": "Summoned: Pocket Vendor"
+      "image_name": "Summoned: Pocket Vendor",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift vendor:reliquary:280.03:1.44:352.75": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Vendor",
-      "image_name": "Summoned: Pocket Vendor"
+      "image_name": "Summoned: Pocket Vendor",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift vendor:reliquary:280.03:1.44:361.83": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Vendor",
-      "image_name": "Summoned: Pocket Vendor"
+      "image_name": "Summoned: Pocket Vendor",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift vendor:reliquary:280.36:1.44:360.34": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Vendor",
-      "image_name": "Summoned: Pocket Vendor"
+      "image_name": "Summoned: Pocket Vendor",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift vendor:reliquary:280.78:1.44:331.00": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Vendor",
-      "image_name": "Summoned: Pocket Vendor"
+      "image_name": "Summoned: Pocket Vendor",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift vendor:reliquary:281.11:1.44:336.59": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Vendor",
-      "image_name": "Summoned: Pocket Vendor"
+      "image_name": "Summoned: Pocket Vendor",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift vendor:reliquary:281.11:1.44:350.09": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Vendor",
-      "image_name": "Summoned: Pocket Vendor"
+      "image_name": "Summoned: Pocket Vendor",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift:reliquary:268.02:1.44:337.12": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Auctions",
-      "image_name": "Summoned: Pocket Auctions"
+      "image_name": "Summoned: Pocket Auctions",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift:reliquary:268.28:1.44:363.05": {
       "wiki_page_name": "Summoned: Pocket Bank",
@@ -251,147 +317,205 @@
     "character:a rift:reliquary:268.44:1.44:338.83": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Bank",
-      "image_name": "Summoned: Pocket Bank"
+      "image_name": "Summoned: Pocket Bank",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift:reliquary:268.44:1.44:349.79": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Bank",
-      "image_name": "Summoned: Pocket Bank"
+      "image_name": "Summoned: Pocket Bank",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift:reliquary:268.71:1.44:325.41": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Bank",
-      "image_name": "Summoned: Pocket Bank"
+      "image_name": "Summoned: Pocket Bank",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift:reliquary:269.12:1.44:352.69": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Auctions",
-      "image_name": "Summoned: Pocket Auctions"
+      "image_name": "Summoned: Pocket Auctions",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift:reliquary:269.73:1.44:363.25": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Bank",
-      "image_name": "Summoned: Pocket Bank"
+      "image_name": "Summoned: Pocket Bank",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift:reliquary:269.85:1.44:338.01": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Bank",
-      "image_name": "Summoned: Pocket Bank"
+      "image_name": "Summoned: Pocket Bank",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift:reliquary:269.91:1.44:325.00": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Bank",
-      "image_name": "Summoned: Pocket Bank"
+      "image_name": "Summoned: Pocket Bank",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift:reliquary:270.35:1.44:349.94": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Bank",
-      "image_name": "Summoned: Pocket Bank"
+      "image_name": "Summoned: Pocket Bank",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift:reliquary:270.46:1.44:325.91": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Auctions",
-      "image_name": "Summoned: Pocket Auctions"
+      "image_name": "Summoned: Pocket Auctions",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift:reliquary:270.55:1.44:362.19": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Auctions",
-      "image_name": "Summoned: Pocket Auctions"
+      "image_name": "Summoned: Pocket Auctions",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift:reliquary:271.25:1.44:330.61": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Bank",
-      "image_name": "Summoned: Pocket Bank"
+      "image_name": "Summoned: Pocket Bank",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift:reliquary:271.25:1.44:341.61": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Bank",
-      "image_name": "Summoned: Pocket Bank"
+      "image_name": "Summoned: Pocket Bank",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift:reliquary:271.25:1.44:353.36": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Bank",
-      "image_name": "Summoned: Pocket Bank"
+      "image_name": "Summoned: Pocket Bank",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift:reliquary:271.25:1.44:364.11": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Bank",
-      "image_name": "Summoned: Pocket Bank"
+      "image_name": "Summoned: Pocket Bank",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift:reliquary:278.94:1.44:350.87": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Auctions",
-      "image_name": "Summoned: Pocket Auctions"
+      "image_name": "Summoned: Pocket Auctions",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift:reliquary:279.19:1.44:338.98": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Auctions",
-      "image_name": "Summoned: Pocket Auctions"
+      "image_name": "Summoned: Pocket Auctions",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift:reliquary:279.22:1.44:325.08": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Bank",
-      "image_name": "Summoned: Pocket Bank"
+      "image_name": "Summoned: Pocket Bank",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift:reliquary:279.22:1.44:336.08": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Bank",
-      "image_name": "Summoned: Pocket Bank"
+      "image_name": "Summoned: Pocket Bank",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift:reliquary:279.22:1.44:347.08": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Bank",
-      "image_name": "Summoned: Pocket Bank"
+      "image_name": "Summoned: Pocket Bank",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift:reliquary:279.22:1.44:358.33": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Bank",
-      "image_name": "Summoned: Pocket Bank"
+      "image_name": "Summoned: Pocket Bank",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift:reliquary:279.78:1.44:325.00": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Bank",
-      "image_name": "Summoned: Pocket Bank"
+      "image_name": "Summoned: Pocket Bank",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift:reliquary:280.00:1.44:360.10": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Auctions",
-      "image_name": "Summoned: Pocket Auctions"
+      "image_name": "Summoned: Pocket Auctions",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift:reliquary:280.03:1.44:351.00": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Bank",
-      "image_name": "Summoned: Pocket Bank"
+      "image_name": "Summoned: Pocket Bank",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift:reliquary:281.03:1.44:339.25": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Bank",
-      "image_name": "Summoned: Pocket Bank"
+      "image_name": "Summoned: Pocket Bank",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift:reliquary:281.67:1.44:325.41": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Bank",
-      "image_name": "Summoned: Pocket Bank"
+      "image_name": "Summoned: Pocket Bank",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift:reliquary:281.78:1.44:338.99": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Bank",
-      "image_name": "Summoned: Pocket Bank"
+      "image_name": "Summoned: Pocket Bank",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift:reliquary:281.78:1.44:349.96": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Bank",
-      "image_name": "Summoned: Pocket Bank"
+      "image_name": "Summoned: Pocket Bank",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift:reliquary:281.78:1.44:361.46": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Bank",
-      "image_name": "Summoned: Pocket Bank"
+      "image_name": "Summoned: Pocket Bank",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rift:reliquary:283.14:1.44:327.40": {
       "wiki_page_name": null,
       "display_name": "Summoned: Pocket Auctions",
-      "image_name": "Summoned: Pocket Auctions"
+      "image_name": "Summoned: Pocket Auctions",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:a rottenfoot goblin female": {
       "wiki_page_name": "Rottenfoot Swampwalker",
@@ -506,7 +630,9 @@
     "character:algaeth bilgeflow": {
       "wiki_page_name": null,
       "display_name": "A Seafiend Manalord",
-      "image_name": "A Seafiend Manalord"
+      "image_name": "A Seafiend Manalord",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:alice hewer": {
       "wiki_page_name": "Bella Macmonalle",
@@ -530,29 +656,37 @@
     },
     "character:ancient demon": {
       "wiki_page_name": null,
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Ancient Demon",
+      "image_name": "Ancient Demon",
       "mapping_type": "excluded",
-      "reason": "Excluded from wiki"
+      "reason": "Excluded from wiki",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:ancient horror": {
       "wiki_page_name": null,
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Ancient Horror",
+      "image_name": "Ancient Horror",
       "mapping_type": "excluded",
-      "reason": "Excluded from wiki"
+      "reason": "Excluded from wiki",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:ancient skeleton": {
       "wiki_page_name": null,
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Ancient Skeleton",
+      "image_name": "Ancient Skeleton",
       "mapping_type": "excluded",
-      "reason": "Excluded from wiki"
+      "reason": "Excluded from wiki",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:annabelle swisher": {
       "wiki_page_name": null,
       "display_name": "Valrae Cleary",
-      "image_name": "Valrae Cleary"
+      "image_name": "Valrae Cleary",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:aqualimar blade": {
       "wiki_page_name": "Aquilamar Blade",
@@ -692,7 +826,9 @@
     "character:beth constantine": {
       "wiki_page_name": null,
       "display_name": "Valrae Cleary",
-      "image_name": "Valrae Cleary"
+      "image_name": "Valrae Cleary",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:boatman": {
       "wiki_page_name": "Boatman",
@@ -725,12 +861,16 @@
       "display_name": "A Brackish Croc",
       "image_name": "A Brackish Croc",
       "mapping_type": "custom",
-      "reason": null
+      "reason": null,
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:brackish crocodile whelp": {
       "wiki_page_name": null,
       "display_name": "A Brackish Croc",
-      "image_name": "A Brackish Croc"
+      "image_name": "A Brackish Croc",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:braxonian educator": {
       "wiki_page_name": "Ancient Educator",
@@ -742,7 +882,9 @@
     "character:braxonian educator:1": {
       "wiki_page_name": null,
       "display_name": "Historian of Braxonia",
-      "image_name": "Historian of Braxonia"
+      "image_name": "Historian of Braxonia",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:braxonian historian": {
       "wiki_page_name": "Historian of Braxonia",
@@ -792,7 +934,9 @@
     "character:captain genevieve voldance": {
       "wiki_page_name": null,
       "display_name": "Saya Seawatcher",
-      "image_name": "Saya Seawatcher"
+      "image_name": "Saya Seawatcher",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:carl spencer": {
       "wiki_page_name": "Wintham McShanth",
@@ -840,7 +984,9 @@
     "character:character_peasant_white": {
       "wiki_page_name": null,
       "display_name": "TOWNSPERSON",
-      "image_name": "TOWNSPERSON"
+      "image_name": "TOWNSPERSON",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:character_peasant_white:prielplateau:73.57:0.05:343.45": {
       "wiki_page_name": "Captive Miner",
@@ -857,7 +1003,9 @@
     "character:cirreus alxanth": {
       "wiki_page_name": null,
       "display_name": "Vethalo Gala",
-      "image_name": "Vethalo Gala"
+      "image_name": "Vethalo Gala",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:cirreus alxanth:1": {
       "wiki_page_name": "Cirreus Alxanth",
@@ -991,22 +1139,28 @@
     },
     "character:figure": {
       "wiki_page_name": null,
-      "display_name": null,
-      "image_name": null
+      "display_name": "Azynthi, Corruptor of Gods",
+      "image_name": "Azynthi, Corruptor of Gods",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:figure:duskenportal:466.17:-84.90:224.75": {
       "wiki_page_name": null,
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Azynthi, Corruptor of Gods",
+      "image_name": "Azynthi, Corruptor of Gods",
       "mapping_type": "custom",
-      "reason": null
+      "reason": null,
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:figure:fernallaportal:363.30:138.30:181.60": {
       "wiki_page_name": null,
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Azynthi, Corruptor of Gods",
+      "image_name": "Azynthi, Corruptor of Gods",
       "mapping_type": "custom",
-      "reason": null
+      "reason": null,
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:final fernalla 1": {
       "wiki_page_name": "Fallen Fernalla",
@@ -1021,42 +1175,58 @@
     "character:flamewell:reliquary:268.49:-0.17:327.55": {
       "wiki_page_name": null,
       "display_name": "Braxonian Flame Well",
-      "image_name": "Braxonian Flame Well"
+      "image_name": "Braxonian Flame Well",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:flamewell:reliquary:268.49:-0.17:339.30": {
       "wiki_page_name": null,
       "display_name": "Braxonian Flame Well",
-      "image_name": "Braxonian Flame Well"
+      "image_name": "Braxonian Flame Well",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:flamewell:reliquary:268.49:-0.17:350.80": {
       "wiki_page_name": null,
       "display_name": "Braxonian Flame Well",
-      "image_name": "Braxonian Flame Well"
+      "image_name": "Braxonian Flame Well",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:flamewell:reliquary:268.49:-0.17:361.80": {
       "wiki_page_name": null,
       "display_name": "Braxonian Flame Well",
-      "image_name": "Braxonian Flame Well"
+      "image_name": "Braxonian Flame Well",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:flamewell:reliquary:281.45:-0.17:327.41": {
       "wiki_page_name": null,
       "display_name": "Braxonian Flame Well",
-      "image_name": "Braxonian Flame Well"
+      "image_name": "Braxonian Flame Well",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:flamewell:reliquary:281.45:-0.17:339.16": {
       "wiki_page_name": null,
       "display_name": "Braxonian Flame Well",
-      "image_name": "Braxonian Flame Well"
+      "image_name": "Braxonian Flame Well",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:flamewell:reliquary:281.45:-0.17:350.66": {
       "wiki_page_name": null,
       "display_name": "Braxonian Flame Well",
-      "image_name": "Braxonian Flame Well"
+      "image_name": "Braxonian Flame Well",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:flamewell:reliquary:281.45:-0.17:361.80": {
       "wiki_page_name": null,
       "display_name": "Braxonian Flame Well",
-      "image_name": "Braxonian Flame Well"
+      "image_name": "Braxonian Flame Well",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:fungal protecter": {
       "wiki_page_name": "Abyssal Fungus Protector",
@@ -1075,7 +1245,9 @@
     "character:garrey ambrose": {
       "wiki_page_name": null,
       "display_name": "Alexander Farland",
-      "image_name": "Alexander Farland"
+      "image_name": "Alexander Farland",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:gatekeeper": {
       "wiki_page_name": "Watchman",
@@ -1106,10 +1278,12 @@
     },
     "character:golden spirit": {
       "wiki_page_name": null,
-      "display_name": null,
-      "image_name": null,
+      "display_name": "A Golden Spirit",
+      "image_name": "A Golden Spirit",
       "mapping_type": "exclude",
-      "reason": "Exclude from wiki"
+      "reason": "Exclude from wiki",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:grady thornox": {
       "wiki_page_name": "Grady Thornox",
@@ -1146,12 +1320,16 @@
     "character:grounds manager": {
       "wiki_page_name": null,
       "display_name": "Botanist",
-      "image_name": "Botanist"
+      "image_name": "Botanist",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:haileigh serenie": {
       "wiki_page_name": null,
       "display_name": "Saya Seawatcher",
-      "image_name": "Saya Seawatcher"
+      "image_name": "Saya Seawatcher",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:haileigh serenie:1": {
       "wiki_page_name": "Heileigh Serenie",
@@ -1210,7 +1388,9 @@
     "character:island guard": {
       "wiki_page_name": null,
       "display_name": "Island Guard",
-      "image_name": "Island Guard"
+      "image_name": "Island Guard",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:island guard new": {
       "wiki_page_name": "Island Guard",
@@ -1260,7 +1440,9 @@
     "character:julianna priel": {
       "wiki_page_name": null,
       "display_name": "Julianna Priel",
-      "image_name": "Julianna Priel"
+      "image_name": "Julianna Priel",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:julianna priel 1": {
       "wiki_page_name": "Julianna Priel",
@@ -1315,7 +1497,9 @@
     "character:leo mclaney": {
       "wiki_page_name": null,
       "display_name": "Leo McLaney",
-      "image_name": "Leo McLaney"
+      "image_name": "Leo McLaney",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:leo mclaney:1": {
       "wiki_page_name": "Leo McLaney",
@@ -1388,7 +1572,9 @@
     "character:lucian revald": {
       "wiki_page_name": null,
       "display_name": "Nylith Valorro",
-      "image_name": "Nylith Valorro"
+      "image_name": "Nylith Valorro",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:lucian revald:stowaway:432.19:69.90:532.04": {
       "wiki_page_name": "Lucian Revald",
@@ -1788,7 +1974,9 @@
     "character:neziroth daggerhart": {
       "wiki_page_name": null,
       "display_name": "Trevor Ulchand",
-      "image_name": "Trevor Ulchand"
+      "image_name": "Trevor Ulchand",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:nightmarian arcanist": {
       "wiki_page_name": "Nightmarian Arcanist",
@@ -1861,22 +2049,30 @@
     "character:nightmarian rake": {
       "wiki_page_name": null,
       "display_name": "Aquilamar Rake",
-      "image_name": "Aquilamar Rake"
+      "image_name": "Aquilamar Rake",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:nightmarian rake 1": {
       "wiki_page_name": null,
       "display_name": "Aquilamar Duelist",
-      "image_name": "Aquilamar Duelist"
+      "image_name": "Aquilamar Duelist",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:nightmarian rake 2": {
       "wiki_page_name": null,
       "display_name": "Aquilamar Blade",
-      "image_name": "Aquilamar Blade"
+      "image_name": "Aquilamar Blade",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:nightmarian rake 3": {
       "wiki_page_name": null,
       "display_name": "Aquilamar Protector",
-      "image_name": "Aquilamar Protector"
+      "image_name": "Aquilamar Protector",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:nylith valorro": {
       "wiki_page_name": "Nylith Valorro",
@@ -1886,7 +2082,9 @@
     "character:olden lennova": {
       "wiki_page_name": null,
       "display_name": "Thomson Rhett",
-      "image_name": "Thomson Rhett"
+      "image_name": "Thomson Rhett",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:orion mycon": {
       "wiki_page_name": "Orion Mycon",
@@ -2001,7 +2199,9 @@
     "character:reaver of sivakaya": {
       "wiki_page_name": null,
       "display_name": "Reaver of Sivakaya",
-      "image_name": "Reaver of Sivakaya"
+      "image_name": "Reaver of Sivakaya",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:reaver of sivakaya bkp": {
       "wiki_page_name": "Reaver of Sivakaya",
@@ -2071,7 +2271,9 @@
     "character:sean figarello": {
       "wiki_page_name": null,
       "display_name": "Sean Figarello",
-      "image_name": "Sean Figarello"
+      "image_name": "Sean Figarello",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:sean figarello:stowaway:605.45:72.16:464.40": {
       "wiki_page_name": "Sean Figarello",
@@ -2081,7 +2283,9 @@
     "character:sergeant d'vin": {
       "wiki_page_name": null,
       "display_name": "Island Guard",
-      "image_name": "Island Guard"
+      "image_name": "Island Guard",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:shady fisherman (1):summerevent:80.10:-5.17:6.41": {
       "wiki_page_name": "Shady Fisherman",
@@ -2175,127 +2379,177 @@
     "character:simplayer": {
       "wiki_page_name": null,
       "display_name": "Reynold",
-      "image_name": "Reynold"
+      "image_name": "Reynold",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:simplayer 104": {
       "wiki_page_name": null,
       "display_name": "Seraphina",
-      "image_name": "Seraphina"
+      "image_name": "Seraphina",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:simplayer 132": {
       "wiki_page_name": null,
       "display_name": "Seraphina",
-      "image_name": "Seraphina"
+      "image_name": "Seraphina",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:simplayer 133": {
       "wiki_page_name": null,
       "display_name": "Seraphina",
-      "image_name": "Seraphina"
+      "image_name": "Seraphina",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:simplayer 134": {
       "wiki_page_name": null,
       "display_name": "Seraphina",
-      "image_name": "Seraphina"
+      "image_name": "Seraphina",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:simplayer 135": {
       "wiki_page_name": null,
       "display_name": "Seraphina",
-      "image_name": "Seraphina"
+      "image_name": "Seraphina",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:simplayer 136": {
       "wiki_page_name": null,
       "display_name": "Seraphina",
-      "image_name": "Seraphina"
+      "image_name": "Seraphina",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:simplayer 137": {
       "wiki_page_name": null,
       "display_name": "Seraphina",
-      "image_name": "Seraphina"
+      "image_name": "Seraphina",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:simplayer 138": {
       "wiki_page_name": null,
       "display_name": "Seraphina",
-      "image_name": "Seraphina"
+      "image_name": "Seraphina",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:simplayer 139": {
       "wiki_page_name": null,
       "display_name": "Seraphina",
-      "image_name": "Seraphina"
+      "image_name": "Seraphina",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:simplayer 140": {
       "wiki_page_name": null,
       "display_name": "Seraphina",
-      "image_name": "Seraphina"
+      "image_name": "Seraphina",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:simplayer 141": {
       "wiki_page_name": null,
       "display_name": "Seraphina",
-      "image_name": "Seraphina"
+      "image_name": "Seraphina",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:simplayer 142": {
       "wiki_page_name": null,
       "display_name": "Seraphina",
-      "image_name": "Seraphina"
+      "image_name": "Seraphina",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:simplayer 143": {
       "wiki_page_name": null,
       "display_name": "Seraphina",
-      "image_name": "Seraphina"
+      "image_name": "Seraphina",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:simplayer 144": {
       "wiki_page_name": null,
       "display_name": "Seraphina",
-      "image_name": "Seraphina"
+      "image_name": "Seraphina",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:simplayer 145": {
       "wiki_page_name": null,
       "display_name": "Seraphina",
-      "image_name": "Seraphina"
+      "image_name": "Seraphina",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:simplayer 146": {
       "wiki_page_name": null,
       "display_name": "Seraphina",
-      "image_name": "Seraphina"
+      "image_name": "Seraphina",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:simplayer 147": {
       "wiki_page_name": null,
       "display_name": "Seraphina",
-      "image_name": "Seraphina"
+      "image_name": "Seraphina",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:simplayer 148": {
       "wiki_page_name": null,
       "display_name": "Seraphina",
-      "image_name": "Seraphina"
+      "image_name": "Seraphina",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:simplayer 149": {
       "wiki_page_name": null,
       "display_name": "Seraphina",
-      "image_name": "Seraphina"
+      "image_name": "Seraphina",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:simplayer 150": {
       "wiki_page_name": null,
       "display_name": "Seraphina",
-      "image_name": "Seraphina"
+      "image_name": "Seraphina",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:simplayer 151": {
       "wiki_page_name": null,
       "display_name": "Seraphina",
-      "image_name": "Seraphina"
+      "image_name": "Seraphina",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:simplayer 51": {
       "wiki_page_name": null,
       "display_name": "Fugs",
-      "image_name": "Fugs"
+      "image_name": "Fugs",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:simplayer 97": {
       "wiki_page_name": null,
       "display_name": "Reynold",
-      "image_name": "Reynold"
+      "image_name": "Reynold",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:sir rattleywrists": {
       "wiki_page_name": null,
       "display_name": "A Brittle Skeleton",
-      "image_name": "A Brittle Skeleton"
+      "image_name": "A Brittle Skeleton",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:sivakayan cleric": {
       "wiki_page_name": "Sivakayan Cleric",
@@ -2358,17 +2612,23 @@
     "character:skeleton captain 1": {
       "wiki_page_name": null,
       "display_name": "A Skeleton Captain",
-      "image_name": "A Skeleton Captain"
+      "image_name": "A Skeleton Captain",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:sm_chr_bartender_01": {
       "wiki_page_name": null,
       "display_name": "TOWNSPERSON",
-      "image_name": "TOWNSPERSON"
+      "image_name": "TOWNSPERSON",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:sm_chr_peasant_female_01": {
       "wiki_page_name": null,
       "display_name": "TOWNSPERSON",
-      "image_name": "TOWNSPERSON"
+      "image_name": "TOWNSPERSON",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:sm_prop_brazier_01 (1):duskenlight:485.82:65.42:397.38": {
       "wiki_page_name": "Ceremonial Brazier",
@@ -2399,37 +2659,51 @@
     "character:sm_prop_dummy_archery_01 (2):reliquary:268.68:0.17:338.76": {
       "wiki_page_name": null,
       "display_name": "Training Dummy (800 AC)",
-      "image_name": "Training Dummy (800 AC)"
+      "image_name": "Training Dummy (800 AC)",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:sm_prop_dummy_archery_01 (3):reliquary:268.68:0.17:350.01": {
       "wiki_page_name": null,
       "display_name": "Training Dummy (800 AC)",
-      "image_name": "Training Dummy (800 AC)"
+      "image_name": "Training Dummy (800 AC)",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:sm_prop_dummy_archery_01 (4):reliquary:268.46:0.17:361.09": {
       "wiki_page_name": null,
       "display_name": "Training Dummy (800 AC)",
-      "image_name": "Training Dummy (800 AC)"
+      "image_name": "Training Dummy (800 AC)",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:sm_prop_dummy_archery_01 (5):reliquary:280.36:0.17:328.76": {
       "wiki_page_name": null,
       "display_name": "Training Dummy (800 AC)",
-      "image_name": "Training Dummy (800 AC)"
+      "image_name": "Training Dummy (800 AC)",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:sm_prop_dummy_archery_01 (6):reliquary:280.86:0.17:340.76": {
       "wiki_page_name": null,
       "display_name": "Training Dummy (800 AC)",
-      "image_name": "Training Dummy (800 AC)"
+      "image_name": "Training Dummy (800 AC)",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:sm_prop_dummy_archery_01 (7):reliquary:281.04:0.17:352.51": {
       "wiki_page_name": null,
       "display_name": "Training Dummy (800 AC)",
-      "image_name": "Training Dummy (800 AC)"
+      "image_name": "Training Dummy (800 AC)",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:sm_prop_dummy_archery_01 (8):reliquary:280.40:0.17:361.97": {
       "wiki_page_name": null,
       "display_name": "Training Dummy (800 AC)",
-      "image_name": "Training Dummy (800 AC)"
+      "image_name": "Training Dummy (800 AC)",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:sm_prop_dummy_archery_01:azure:168.89:41.79:309.30": {
       "wiki_page_name": "Training Dummy",
@@ -2449,72 +2723,100 @@
     "character:sm_prop_dummy_archery_01:reliquary:268.68:0.17:335.76": {
       "wiki_page_name": null,
       "display_name": "Training Dummy (400 AC)",
-      "image_name": "Training Dummy (400 AC)"
+      "image_name": "Training Dummy (400 AC)",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:sm_prop_dummy_archery_01:reliquary:268.68:0.17:339.01": {
       "wiki_page_name": null,
       "display_name": "Training Dummy",
-      "image_name": "Training Dummy"
+      "image_name": "Training Dummy",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:sm_prop_dummy_archery_01:reliquary:268.68:0.17:347.01": {
       "wiki_page_name": null,
       "display_name": "Training Dummy (400 AC)",
-      "image_name": "Training Dummy (400 AC)"
+      "image_name": "Training Dummy (400 AC)",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:sm_prop_dummy_archery_01:reliquary:268.68:0.17:350.26": {
       "wiki_page_name": null,
       "display_name": "Training Dummy",
-      "image_name": "Training Dummy"
+      "image_name": "Training Dummy",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:sm_prop_dummy_archery_01:reliquary:269.08:0.17:326.22": {
       "wiki_page_name": null,
       "display_name": "Training Dummy (400 AC)",
-      "image_name": "Training Dummy (400 AC)"
+      "image_name": "Training Dummy (400 AC)",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:sm_prop_dummy_archery_01:reliquary:269.08:0.17:329.47": {
       "wiki_page_name": null,
       "display_name": "Training Dummy",
-      "image_name": "Training Dummy"
+      "image_name": "Training Dummy",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:sm_prop_dummy_archery_01:reliquary:280.36:0.17:325.76": {
       "wiki_page_name": null,
       "display_name": "Training Dummy (400 AC)",
-      "image_name": "Training Dummy (400 AC)"
+      "image_name": "Training Dummy (400 AC)",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:sm_prop_dummy_archery_01:reliquary:280.36:0.17:329.01": {
       "wiki_page_name": null,
       "display_name": "Training Dummy",
-      "image_name": "Training Dummy"
+      "image_name": "Training Dummy",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:sm_prop_dummy_archery_01:reliquary:280.40:0.17:358.97": {
       "wiki_page_name": null,
       "display_name": "Training Dummy (400 AC)",
-      "image_name": "Training Dummy (400 AC)"
+      "image_name": "Training Dummy (400 AC)",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:sm_prop_dummy_archery_01:reliquary:280.40:0.17:359.22": {
       "wiki_page_name": null,
       "display_name": "Training Dummy",
-      "image_name": "Training Dummy"
+      "image_name": "Training Dummy",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:sm_prop_dummy_archery_01:reliquary:280.86:0.17:337.76": {
       "wiki_page_name": null,
       "display_name": "Training Dummy (400 AC)",
-      "image_name": "Training Dummy (400 AC)"
+      "image_name": "Training Dummy (400 AC)",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:sm_prop_dummy_archery_01:reliquary:280.86:0.17:341.01": {
       "wiki_page_name": null,
       "display_name": "Training Dummy",
-      "image_name": "Training Dummy"
+      "image_name": "Training Dummy",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:sm_prop_dummy_archery_01:reliquary:281.04:0.17:349.51": {
       "wiki_page_name": null,
       "display_name": "Training Dummy (400 AC)",
-      "image_name": "Training Dummy (400 AC)"
+      "image_name": "Training Dummy (400 AC)",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:sm_prop_dummy_archery_01:reliquary:281.04:0.17:352.76": {
       "wiki_page_name": null,
       "display_name": "Training Dummy",
-      "image_name": "Training Dummy"
+      "image_name": "Training Dummy",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:sm_prop_furnace_01:prielplateau:205.24:15.59:215.02": {
       "wiki_page_name": "Baking Oven",
@@ -2639,12 +2941,16 @@
     "character:template": {
       "wiki_page_name": null,
       "display_name": "Fugs",
-      "image_name": "Fugs"
+      "image_name": "Fugs",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:testdummy": {
       "wiki_page_name": null,
       "display_name": "Samuel Thatcher",
-      "image_name": "Samuel Thatcher"
+      "image_name": "Samuel Thatcher",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:thella steepleton": {
       "wiki_page_name": "Thella Steepleton",
@@ -2669,7 +2975,9 @@
     "character:timothy allorn": {
       "wiki_page_name": null,
       "display_name": "A Hermit",
-      "image_name": "A Hermit"
+      "image_name": "A Hermit",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:tinknight_lp (1):malaroth:671.57:89.88:79.40": {
       "wiki_page_name": "Solunarian Protector",
@@ -2775,7 +3083,9 @@
     "character:wally waldorf": {
       "wiki_page_name": null,
       "display_name": "Cecil Threbb",
-      "image_name": "Cecil Threbb"
+      "image_name": "Cecil Threbb",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:ward of sivakaya (1):jaws:1478.96:-18.28:109.78": {
       "wiki_page_name": "Ward of Piety",
@@ -2846,7 +3156,9 @@
     "character:worn ancient guardian": {
       "wiki_page_name": null,
       "display_name": "Ravager, The First Infected",
-      "image_name": "Ravager, The First Infected"
+      "image_name": "Ravager, The First Infected",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:yale harvey": {
       "wiki_page_name": "Yale Harvey",
@@ -2861,7 +3173,9 @@
     "character:zachary yelmee": {
       "wiki_page_name": null,
       "display_name": "Chazz Pillot",
-      "image_name": "Chazz Pillot"
+      "image_name": "Chazz Pillot",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "faction:brax": {
       "wiki_page_name": "The Torchbearers of Brax",
@@ -2893,10 +3207,12 @@
     },
     "item:empty": {
       "wiki_page_name": null,
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Empty",
+      "image_name": "Empty",
       "mapping_type": "exclude",
-      "reason": "Internal placeholder item that should not appear in wiki"
+      "reason": "Internal placeholder item that should not appear in wiki",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "item:gen - braxonian portal shard - fire": {
       "wiki_page_name": "Braxonian Portal Shard (Fire)",
@@ -2935,17 +3251,21 @@
     },
     "item:gen - gt": {
       "wiki_page_name": null,
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Scraps of paper",
+      "image_name": "Scraps of paper",
       "mapping_type": "exclude",
-      "reason": "Unobtainable"
+      "reason": "Unobtainable",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "item:gen - kgti": {
       "wiki_page_name": null,
-      "display_name": null,
-      "image_name": null,
+      "display_name": "A Golden Ticket (2)",
+      "image_name": "A Golden Ticket",
       "mapping_type": "exclude",
-      "reason": "Golden ticket items should not appear in wiki"
+      "reason": "Golden ticket items should not appear in wiki",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "item:gen - offering stone": {
       "wiki_page_name": "Offering Stone",
@@ -3010,10 +3330,12 @@
     },
     "item:gen - st 1": {
       "wiki_page_name": null,
-      "display_name": null,
-      "image_name": null,
+      "display_name": "A Golden Ticket (1)",
+      "image_name": "A Golden Ticket",
       "mapping_type": "exclude",
-      "reason": "Golden ticket items should not appear in wiki"
+      "reason": "Golden ticket items should not appear in wiki",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "item:gen - time stone": {
       "wiki_page_name": "Time Stone",
@@ -3032,82 +3354,114 @@
     "item:gen - mask - baboon": {
       "wiki_page_name": null,
       "display_name": "Mask: Baboon",
-      "image_name": "Mask: Baboon"
+      "image_name": "Mask: Baboon",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "item:gen - mask - badger": {
       "wiki_page_name": null,
       "display_name": "Mask: Badger",
-      "image_name": "Mask: Badger"
+      "image_name": "Mask: Badger",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "item:gen - mask - eyemask": {
       "wiki_page_name": null,
       "display_name": "Mask: Bandit",
-      "image_name": "Mask: Bandit"
+      "image_name": "Mask: Bandit",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "item:gen - mask - cat": {
       "wiki_page_name": null,
       "display_name": "Mask: Cat",
-      "image_name": "Mask: Cat"
+      "image_name": "Mask: Cat",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "item:gen - mask - herocat": {
       "wiki_page_name": null,
       "display_name": "Mask: Cat Hero",
-      "image_name": "Mask: Cat Hero"
+      "image_name": "Mask: Cat Hero",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "item:gen - mask - demon": {
       "wiki_page_name": null,
       "display_name": "Mask: Demon",
-      "image_name": "Mask: Demon"
+      "image_name": "Mask: Demon",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "item:gen - mask - dog": {
       "wiki_page_name": null,
       "display_name": "Mask: Dog",
-      "image_name": "Mask: Dog"
+      "image_name": "Mask: Dog",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "item:gen - mask - eldoth": {
       "wiki_page_name": null,
       "display_name": "Mask: Eldoth",
-      "image_name": "Mask: Eldoth"
+      "image_name": "Mask: Eldoth",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "item:gen - mask - fox": {
       "wiki_page_name": null,
       "display_name": "Mask: Fox",
-      "image_name": "Mask: Fox"
+      "image_name": "Mask: Fox",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "item:gen - mask - herofull": {
       "wiki_page_name": null,
       "display_name": "Mask: Green Hero",
-      "image_name": "Mask: Green Hero"
+      "image_name": "Mask: Green Hero",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "item:gen - mask - happy pumpkin": {
       "wiki_page_name": null,
       "display_name": "Mask: Happy Pumpkin",
-      "image_name": "Mask: Happy Pumpkin"
+      "image_name": "Mask: Happy Pumpkin",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "item:gen - mask - lion": {
       "wiki_page_name": null,
       "display_name": "Mask: Lion",
-      "image_name": "Mask: Lion"
+      "image_name": "Mask: Lion",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "item:gen - mask - monster": {
       "wiki_page_name": null,
       "display_name": "Mask: Monster",
-      "image_name": "Mask: Monster"
+      "image_name": "Mask: Monster",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "item:gen - mask - snowleopard": {
       "wiki_page_name": null,
       "display_name": "Mask: Snow Leopard",
-      "image_name": "Mask: Snow Leopard"
+      "image_name": "Mask: Snow Leopard",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "item:gen - mask - scary pumpkin": {
       "wiki_page_name": null,
       "display_name": "Mask: Spooky Pumpkin",
-      "image_name": "Mask: Spooky Pumpkin"
+      "image_name": "Mask: Spooky Pumpkin",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "item:gen - mask - stone": {
       "wiki_page_name": null,
       "display_name": "Mask: Stoneman",
-      "image_name": "Mask: Stoneman"
+      "image_name": "Mask: Stoneman",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "item:ore - stardust": {
       "wiki_page_name": "Stardust (Item)",
@@ -3258,24 +3612,30 @@
     },
     "item:spell scroll - meditate": {
       "wiki_page_name": null,
-      "display_name": null,
+      "display_name": "Spell Scroll: Meditative Trance (1)",
       "image_name": "Spell Scroll: Meditative Trance (1)",
       "mapping_type": "custom",
-      "reason": null
+      "reason": null,
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "item:spell scroll - meditate dru": {
       "wiki_page_name": null,
-      "display_name": null,
+      "display_name": "Spell Scroll: Meditative Trance (2)",
       "image_name": "Spell Scroll: Meditative Trance (2)",
       "mapping_type": "custom",
-      "reason": null
+      "reason": null,
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "item:spell scroll - predator's grace": {
       "wiki_page_name": null,
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Spell Scroll: Predator's Grace",
+      "image_name": "Spell Scroll: Predator's Grace",
       "mapping_type": "custom",
-      "reason": null
+      "reason": null,
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "item:weap - 10 - thorn": {
       "wiki_page_name": "Thorn",
@@ -3293,10 +3653,12 @@
     },
     "quest:bellwainletters2": {
       "wiki_page_name": null,
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Bellwain's Lost Letters",
+      "image_name": "Bellwain's Lost Letters",
       "mapping_type": "exclude",
-      "reason": "Quest should not appear in wiki"
+      "reason": "Quest should not appear in wiki",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "quest:braxscript": {
       "wiki_page_name": "Braxonian Scripture (Quest)",
@@ -3319,10 +3681,12 @@
     },
     "quest:clearingthebonepits": {
       "wiki_page_name": null,
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Clearing the Bonepits",
+      "image_name": "Clearing the Bonepits",
       "mapping_type": "exclude",
-      "reason": "Quest is not currently obtainable"
+      "reason": "Quest is not currently obtainable",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "quest:daggerhart ancestral coin": {
       "wiki_page_name": "Daggerhart Ancestral Coin (Quest)",
@@ -3426,31 +3790,39 @@
     },
     "quest:soulgemleah": {
       "wiki_page_name": null,
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Capture Leah's Soul",
+      "image_name": "Capture Leah's Soul",
       "mapping_type": "exclude",
-      "reason": "Soul gem quest should not appear in wiki"
+      "reason": "Soul gem quest should not appear in wiki",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "quest:soulgemposta": {
       "wiki_page_name": null,
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Capture Posta's Soul",
+      "image_name": "Capture Posta's Soul",
       "mapping_type": "exclude",
-      "reason": "Soul gem quest should not appear in wiki"
+      "reason": "Soul gem quest should not appear in wiki",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "quest:soulgemrevid": {
       "wiki_page_name": null,
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Capture Revid's Soul",
+      "image_name": "Capture Revid's Soul",
       "mapping_type": "exclude",
-      "reason": "Soul gem quest should not appear in wiki"
+      "reason": "Soul gem quest should not appear in wiki",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "quest:soulgemstalzo": {
       "wiki_page_name": null,
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Capture Stalzo's Soul",
+      "image_name": "Capture Stalzo's Soul",
       "mapping_type": "exclude",
-      "reason": "Soul gem quest should not appear in wiki"
+      "reason": "Soul gem quest should not appear in wiki",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "quest:theduskenlightritual": {
       "wiki_page_name": "The Duskenlight Ritual (Quest)",
@@ -3529,10 +3901,12 @@
     },
     "skill:fishing": {
       "wiki_page_name": null,
-      "display_name": null,
-      "image_name": null,
+      "display_name": "Fishing",
+      "image_name": "Fishing",
       "mapping_type": "exclude",
-      "reason": "Fishing ability should not appear in wiki"
+      "reason": "Fishing ability should not appear in wiki",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "skill:lingering inferno": {
       "wiki_page_name": "Lingering Inferno",

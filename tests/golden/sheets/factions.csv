@@ -1,4 +1,4 @@
-FactionDBIndex,StableKey,FactionName,FactionDesc,DefaultValue,REFNAME,ResourceName
+faction_db_index,stable_key,faction_name,faction_desc,default_value,refname,resource_name
 0,faction:ancientschool,The Ancients,The Ancients,0.0,AncientSchool,Ancient School
 1,faction:aquilimar,Aquilimar,Aquilimar Guild,-200.0,Aquilimar,Aquilamars
 2,faction:azurecitizens,Citizens of Port Azure,The Citizens of Port Azure,100.0,AzureCitizens,AzureCitizens
