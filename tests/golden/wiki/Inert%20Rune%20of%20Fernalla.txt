@@ -69,4 +69,6 @@
 |effect_special_descriptor=
 }}
 
+Give this item and [[Eldrich Crystal]] to [[Verdant Energy]] near the large gate in [[Fernalla's Revival Plains]] to receive [[Rune of The Willow]].
+
 [[Category:Items]]

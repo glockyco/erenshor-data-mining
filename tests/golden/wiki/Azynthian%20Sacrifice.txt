@@ -5,7 +5,7 @@
 |type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=
-|zones=
+|zones=[[Secluded Sanctuary]]
 |coordinates=
 |spawnchance=
 |respawn=

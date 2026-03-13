@@ -8,7 +8,7 @@
 |zones=[[Blacksalt Strand]]
 |coordinates=68.1 x 12.1 x 195.5
 |spawnchance=
-|respawn=6 minutes 40 seconds
+|respawn=4 minutes
 |guaranteeddrops=
 |droprates={{ItemLink|Hardened Copper Sword}} (68.1%)<br>{{ItemLink|Citrine Stone}} (40.4%)<br>{{ItemLink|Water}} (40.4%)
 |level=22

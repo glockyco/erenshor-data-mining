@@ -1,7 +1,7 @@
 scene_name,zone_name,position_x,position_y,position_z,achievement_name,MapLink
-SaltedStrand,Blacksalt Strand,673.32,27.47,337.99,CHURCH,https://erenshor-maps.wowmuch1.workers.dev/map?marker=achievement:saltedstrand:673.32:27.47:337.99
-Braxonian,Braxonian Desert,580.59,221.49,335.67,CLIMB,https://erenshor-maps.wowmuch1.workers.dev/map?marker=achievement:braxonian:580.59:221.49:335.67
-Azure,Port Azure,174.21,59.03,264.57,CLIMB,https://erenshor-maps.wowmuch1.workers.dev/map?marker=achievement:azure:174.21:59.03:264.57
-Stowaway,Stowaway's Step,514.57,102.14,685.83,CLIMB,https://erenshor-maps.wowmuch1.workers.dev/map?marker=achievement:stowaway:514.57:102.14:685.83
-Duskenlight,The Duskenlight Coast,939.58,295.33,152.97,CLIMB,https://erenshor-maps.wowmuch1.workers.dev/map?marker=achievement:duskenlight:939.58:295.33:152.97
-Duskenlight,The Duskenlight Coast,1085.78,284.76,91.77,CLIMB,https://erenshor-maps.wowmuch1.workers.dev/map?marker=achievement:duskenlight:1085.78:284.76:91.77
+SaltedStrand,Blacksalt Strand,673.32,27.47,337.99,CHURCH,https://erenshor-maps.wowmuch1.workers.dev/map?sel=marker:achievement:saltedstrand:673.32:27.47:337.99
+Braxonian,Braxonian Desert,580.59,221.49,335.67,CLIMB,https://erenshor-maps.wowmuch1.workers.dev/map?sel=marker:achievement:braxonian:580.59:221.49:335.67
+Azure,Port Azure,174.21,59.03,264.57,CLIMB,https://erenshor-maps.wowmuch1.workers.dev/map?sel=marker:achievement:azure:174.21:59.03:264.57
+Stowaway,Stowaway's Step,514.57,102.14,685.83,CLIMB,https://erenshor-maps.wowmuch1.workers.dev/map?sel=marker:achievement:stowaway:514.57:102.14:685.83
+Duskenlight,The Duskenlight Coast,939.58,295.33,152.97,CLIMB,https://erenshor-maps.wowmuch1.workers.dev/map?sel=marker:achievement:duskenlight:939.58:295.33:152.97
+Duskenlight,The Duskenlight Coast,1085.78,284.76,91.77,CLIMB,https://erenshor-maps.wowmuch1.workers.dev/map?sel=marker:achievement:duskenlight:1085.78:284.76:91.77

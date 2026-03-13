@@ -8,7 +8,7 @@
 |zones=[[Shivering Step]]
 |coordinates=508.9 x 64.8 x 997.4
 |spawnchance=
-|respawn=20 minutes
+|respawn=11 minutes
 |guaranteeddrops={{ItemLink|Hallows Eve}}<br>{{ItemLink|Provoker}}
 |droprates={{ItemLink|Provoker}} (66.7%)<br>{{ItemLink|Hallows Eve}} (33.3%)<br>{{ItemLink|Diamond}} (14.1%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref>
 |level=23

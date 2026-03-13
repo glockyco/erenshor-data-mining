@@ -69,4 +69,7 @@
 |effect_special_descriptor=
 }}
 
+Acquired by giving an [[Eldrich Crystal]] and [[Inert Rune of Brax]] to [[Elemental Energy]] near the [[Braxonian Planar Guard (Fire)]] and [[Braxonian Planar Guard (Ice)]] in [[Fallen Braxonia]].
+
 [[Category:Items]]
+[[Category:Teleportation]]

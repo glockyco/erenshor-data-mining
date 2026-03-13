@@ -8,7 +8,7 @@
 |zones=[[Blooming Sepulcher]]
 |coordinates=
 |spawnchance=
-|respawn=
+|respawn=4 minutes
 |guaranteeddrops=
 |droprates={{ItemLink|Decayed Druid Beads}} (14.2%)<br>{{ItemLink|Ruby}} (14.2%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Cloth Hood}} (3.9%)<br>{{ItemLink|Cloth Pants}} (3.9%)<br>{{ItemLink|Cloth Shirt}} (3.9%)<br>{{ItemLink|Cloth Sleeves}} (3.9%)
 |level=35

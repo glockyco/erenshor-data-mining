@@ -18,9 +18,9 @@
 |is_instant_effect=True
 |is_reap_and_renew=
 |is_sim_usable=True
-|range=60
+|range=
 |max_level_target=
-|is_self_only=
+|is_self_only=True
 |is_group_effect=True
 |is_applied_to_caster=
 |effects=

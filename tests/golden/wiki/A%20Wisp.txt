@@ -5,10 +5,10 @@
 |type=[[:Category:Characters|NPC]]
 |faction=[[The Followers of Good]]
 |factionChange=
-|zones=
+|zones=[[Reliquary Hall]]
 |coordinates=
 |spawnchance=
-|respawn=
+|respawn=5 minutes
 |guaranteeddrops=
 |droprates=
 |level=25
@@ -35,3 +35,4 @@
 }}
 
 [[Category:Characters]]
+[[Category:Reliquary Hall]]

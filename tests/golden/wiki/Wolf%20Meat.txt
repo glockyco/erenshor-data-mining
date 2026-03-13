@@ -2,7 +2,7 @@
 |title=Wolf Meat
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Molorai Attack Dog]] (95.1%)<br>[[Wild Ancestral Dog]] (95.1%)<br>[[Fungal Wolf]] (94.9%)<br>[[Stalking Wolf]] (94.9%)<br>[[Alpha Wolf]] (87.1%)<br>[[Ancient Canine]] (87.1%)<br>[[A Young Wolf]] (86.5%)<br>[[Dire Wolf]] (86.5%)<br>[[Giant Watchdog]] (86.5%)<br>[[Summoned Azynthian Warhound]] (86.5%)<br>[[Summoned Dire Wolf]] (86.5%)<br>[[Dire Huntress]] (74.5%)
+|source=[[Molorai Attack Dog]] (95.1%)<br>[[Wild Ancestral Dog]] (95.1%)<br>[[Fungal Wolf]] (94.9%)<br>[[Stalking Wolf]] (94.9%)<br>[[Alpha Wolf]] (87.1%)<br>[[A Young Wolf]] (86.5%)<br>[[Dire Wolf]] (86.5%)<br>[[Giant Watchdog]] (86.5%)<br>[[Summoned Azynthian Warhound]] (86.5%)<br>[[Summoned Dire Wolf]] (86.5%)<br>[[Dire Huntress]] (74.5%)
 |othersource=
 |questsource=
 |relatedquest={{QuestLink|link=The Duskenlight Ritual (Quest){{!}}The Duskenlight Ritual}}<br>{{QuestLink|Wolf Meat for Fredrick}}

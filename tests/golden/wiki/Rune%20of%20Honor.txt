@@ -69,4 +69,7 @@
 |effect_special_descriptor=
 }}
 
+Acquired by giving an [[Eldrich Crystal]] and [[Inert Rune of Vitheo]] to [[Verdant Energy]] near [[Apparition of Vitheo]] in [[Vitheo's Rest]].
+
 [[Category:Items]]
+[[Category:Teleportation]]

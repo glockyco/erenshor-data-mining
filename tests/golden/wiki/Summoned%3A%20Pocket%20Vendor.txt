@@ -5,8 +5,8 @@
 |type=[[:Category:Characters|NPC]]
 |faction=[[The Followers of Good]]
 |factionChange=
-|zones=
-|coordinates=
+|zones=[[Reliquary Hall]]
+|coordinates=268.3 x 1.4 x 349.0
 |spawnchance=
 |respawn=
 |guaranteeddrops=
@@ -35,4 +35,5 @@
 }}
 
 [[Category:Characters]]
+[[Category:Reliquary Hall]]
 [[Category:Vendors]]

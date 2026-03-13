@@ -5,7 +5,7 @@
 |type=[[Enemies|Enemy]]
 |faction=[[The Followers of Evil]]
 |factionChange=
-|zones=[[Mysterious Portal]] (3)
+|zones=[[Mysterious Portal|Mysterious Portal (3)]]
 |coordinates=
 |spawnchance=
 |respawn=
@@ -37,3 +37,4 @@
 
 [[Category: Mysterious Portal]]
 [[Category:Enemies]]
+[[Category:Mysterious Portal]]

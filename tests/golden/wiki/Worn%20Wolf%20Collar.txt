@@ -2,7 +2,7 @@
 |title=Worn Wolf Collar
 |type=
 |vendorsource=
-|source=[[Alpha Wolf]] (39.3%)<br>[[Ancient Canine]] (39.3%)
+|source=[[Alpha Wolf]] (39.3%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -31,7 +31,7 @@
 |poison=12-30
 |elemental=12-30
 |void=12-30
-|spells={{AbilityLink|Minor Healing}}<br>{{AbilityLink|Minor Regeneration}}<br>{{AbilityLink|Soluna's Solar Blessing}}<br>{{AbilityLink|Soluna's Solar Invigoration}}
+|spells={{AbilityLink|Minor Healing}}
 }}
 Sean is located in [[Wickliff]] on [[Stowaway's Step]] and is selling a house.
 

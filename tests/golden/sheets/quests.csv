@@ -296,7 +296,7 @@ Yarren has asked you to search for more pages from the Chapters of Descent.",ite
 1 Faerie Dust
 1 Remnant of a Day Dream
 1 Remnant of a Nightmare",item_turnin,25,0,,,,,,Ceremonial Brazier,"Bag of Faerie Dust,Remnants of a Daydream,Remnants of a Nightmare,Ancient Coal",,,,0,0,0,0,0,0,0,,FERNALLAPORTAL,"... *The Flame ignites before you, and the gateway begins to glow*",... *The flame sputters.*,
-160,quest:riftstone,The Riftstone,"The odd Hermit has given you a Riftstone and instructed you to find ""The Riftsnares"" to ""Pull the four souls into this realm and destroy them.""",zone,25,25,,,,A Strange Hermit,,,,People of Erenshor (0),,,0,1,0,0,0,0,0,,,,,The riftsnares...
+160,quest:riftstone,The Riftstone,"The odd Hermit has given you a Riftstone and instructed you to find ""The Riftsnares"" to ""Pull the four souls into this realm and destroy them.""",zone,0,0,,,,A Strange Hermit,,,,,,,1,1,0,0,0,0,0,,,,,The riftsnares...
 161,quest:theripperritual,The Ripper Ritual,"The Ceremonial Flame at Ripper's Keep requires:
 
 1 Sivakrux

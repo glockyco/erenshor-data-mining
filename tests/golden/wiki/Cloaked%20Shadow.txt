@@ -8,7 +8,7 @@
 |zones=[[Mysterious Portal|Mysterious Portal (3)]]
 |coordinates=
 |spawnchance=
-|respawn=1 minute 40 seconds
+|respawn=1 minute
 |guaranteeddrops=
 |droprates={{ItemLink|Cloth Gloves}} (36.8%)<br>{{ItemLink|Cloth Hood}} (36.8%)<br>{{ItemLink|Cloth Shoes}} (36.8%)<br>{{ItemLink|Cloth Sleeves}} (36.8%)<br>{{ItemLink|Brackfruit Juice}} (13.4%)<br>{{ItemLink|Stirrer of Sleep}} (5.2%)<ref>If Cloaked Shadow has {{ItemLink|Stirrer of Sleep}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Elixir of Enlightenment I}} (2.6%)
 |level=32

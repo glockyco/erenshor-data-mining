@@ -68,5 +68,7 @@
 |effect_add_proc_chance=
 |effect_special_descriptor=
 }}
+Acquired by giving an [[Eldrich Crystal]] and [[Inert Rune of Soluna]] to [[Verdant Energy]] at the Solunarian Temple near [[Valao the Holy]] in [[Soluna's Landing]].
 
 [[Category:Items]]
+[[Category:Teleportation]]

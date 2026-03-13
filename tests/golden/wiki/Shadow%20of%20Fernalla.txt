@@ -5,10 +5,10 @@
 |type=[[Enemies|Boss]]
 |faction=[[The Followers of Evil]]
 |factionChange=
-|zones=
-|coordinates=
+|zones=[[Secluded Sanctuary]]
+|coordinates=-97.9 x 1.5 x -104.0
 |spawnchance=
-|respawn=
+|respawn=116 minutes
 |guaranteeddrops=
 |droprates={{ItemLink|Ancient Bone}} (53.3%)<br>{{ItemLink|Water}} (53.3%)
 |level=40
@@ -36,3 +36,4 @@
 
 [[Category:Bosses]]
 [[Category:Enemies]]
+[[Category:Secluded Sanctuary]]

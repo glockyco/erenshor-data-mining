@@ -69,4 +69,7 @@
 |effect_special_descriptor=
 }}
 
+Acquired by giving an [[Eldrich Crystal]] and [[Inert Rune of Fernalla]] to [[Verdant Energy]] near the large gate in [[Fernalla's Revival Plains]].
+
 [[Category:Items]]
+[[Category:Teleportation]]

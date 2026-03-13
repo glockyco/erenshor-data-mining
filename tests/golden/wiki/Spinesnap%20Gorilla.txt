@@ -8,7 +8,7 @@
 |zones=[[Mysterious Portal|Mysterious Portal (3)]]
 |coordinates=
 |spawnchance=
-|respawn=1 minutes and 40 seconds
+|respawn=1 minute
 |guaranteeddrops=
 |droprates={{ItemLink|A Moongill}} (17.8%)<br>{{ItemLink|A Sleepyhead}} (17.8%)<br>{{ItemLink|Spinesnap Hide Hood}} (7.6%)
 |level=30
