@@ -54,6 +54,18 @@ Three game variants with separate pipelines:
 - **playtest** (App ID 3090030): Beta testing
 - **demo** (App ID 2522260): Free demo
 
+**Variant directories** (`variants/{variant}/`) are .gitignored but essential
+for data mining work:
+- `variants/{variant}/game/` — downloaded game installation
+- `variants/{variant}/unity/ExportedProject/Assets/Scripts/` — decompiled
+  C# game scripts (critical for understanding game mechanics, writing
+  export scripts, and verifying data mining correctness)
+- `variants/{variant}/unity/ExportedProject/Assets/` — all AssetRipper
+  exported game assets (prefabs, scenes, scriptable objects, etc.)
+
+These directories must be read frequently even though they are not tracked
+in git. Run `extract download` and `extract rip` to populate them.
+
 ## Essential Commands
 
 ```bash
