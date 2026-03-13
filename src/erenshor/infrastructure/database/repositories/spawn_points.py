@@ -44,7 +44,7 @@ class SpawnPointRepository(BaseRepository[SpawnPoint]):
                 COALESCE(cs.is_rare, 0)  AS is_rare,
                 COALESCE(c.is_unique, 0) AS is_unique,
                 COALESCE(cs.level_mod, 0) AS level_mod
-            FROM character_spawns cs
+            FROM wiki_character_spawns cs
             JOIN characters c ON c.stable_key = cs.character_stable_key
             LEFT JOIN zones z ON z.stable_key = cs.zone_stable_key
             WHERE cs.character_stable_key IN (

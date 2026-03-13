@@ -70,7 +70,7 @@ def build(
     logger.info(f"Output: {clean_db_path}")
 
     # Load mapping.json once; all processors share it.
-    mapping = load_mapping(mapping_json_path)
+    mapping, spawn_mapping = load_mapping(mapping_json_path)
 
     # Open raw DB (read-only).
     raw = sqlite3.connect(f"file:{raw_db_path}?mode=ro", uri=True)
@@ -105,7 +105,7 @@ def build(
         process_quests(raw, writer, mapping)
 
         logger.info("Processing characters...")
-        process_characters(raw, writer, mapping)
+        process_characters(raw, writer, mapping, spawn_mapping)
 
         logger.info("Finalising clean DB (VACUUM + ANALYZE)...")
         writer.finalize()

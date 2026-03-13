@@ -462,7 +462,7 @@ export class RepositoryBase {
             FROM rep_groups rg
             JOIN characters rep ON rep.stable_key = rg.rep_stable_key
             JOIN character_deduplications d ON d.group_key = rg.group_key AND d.is_map_visible = 1
-            JOIN character_spawns cs ON cs.character_stable_key = d.member_stable_key
+            JOIN map_character_spawns cs ON cs.character_stable_key = d.member_stable_key
             WHERE cs.scene = ? AND cs.spawn_chance > 0 AND cs.spawn_point_stable_key IS NOT NULL
             GROUP BY cs.spawn_point_stable_key, rep.stable_key
         `,
@@ -1131,7 +1131,7 @@ export class RepositoryBase {
             zone_groups AS (
                 SELECT DISTINCT d.group_key
                 FROM character_deduplications d
-                JOIN character_spawns cs ON cs.character_stable_key = d.member_stable_key
+                JOIN map_character_spawns cs ON cs.character_stable_key = d.member_stable_key
                 WHERE cs.scene = ? AND d.is_map_visible = 1
             ),
             zone_reps AS (
@@ -1170,7 +1170,7 @@ export class RepositoryBase {
             zone_groups AS (
                 SELECT DISTINCT d.group_key
                 FROM character_deduplications d
-                JOIN character_spawns cs ON cs.character_stable_key = d.member_stable_key
+                JOIN map_character_spawns cs ON cs.character_stable_key = d.member_stable_key
                 WHERE cs.scene = ? AND d.is_map_visible = 1
             ),
             zone_reps AS (
@@ -1211,7 +1211,7 @@ export class RepositoryBase {
             zone_groups AS (
                 SELECT DISTINCT d.group_key
                 FROM character_deduplications d
-                JOIN character_spawns cs ON cs.character_stable_key = d.member_stable_key
+                JOIN map_character_spawns cs ON cs.character_stable_key = d.member_stable_key
                 WHERE cs.scene = ? AND d.is_map_visible = 1
             ),
             zone_reps AS (

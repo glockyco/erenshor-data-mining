@@ -838,6 +838,8 @@ CREATE TABLE character_spawns (
     spawn_chance            REAL,
     is_common               INTEGER,
     is_rare                 INTEGER,
+    is_wiki_generated       INTEGER,
+    is_map_visible          INTEGER,
     PRIMARY KEY (character_stable_key, spawn_point_stable_key, is_directly_placed)
 );
 
@@ -1007,6 +1009,22 @@ CREATE VIEW coordinates AS
     SELECT stable_key, scene, x, y, z, 'WishingWell' AS category FROM wishing_wells
     UNION ALL
     SELECT stable_key, scene, x, y, z, 'TreasureLocation' AS category FROM treasure_locations;
+
+-- -------------------------------------------------------------------------
+-- Filtered spawn views
+--
+-- Use these views instead of character_spawns directly whenever filtering
+-- by visibility is needed. The COALESCE ensures NULL (= inherit from
+-- character-level) defaults to visible.
+-- -------------------------------------------------------------------------
+
+CREATE VIEW wiki_character_spawns AS
+    SELECT * FROM character_spawns
+    WHERE COALESCE(is_wiki_generated, 1) = 1;
+
+CREATE VIEW map_character_spawns AS
+    SELECT * FROM character_spawns
+    WHERE COALESCE(is_map_visible, 1) = 1;
 """
 
 

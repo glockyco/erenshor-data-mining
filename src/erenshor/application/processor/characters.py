@@ -40,7 +40,7 @@ from typing import TYPE_CHECKING, cast
 from loguru import logger
 
 if TYPE_CHECKING:
-    from .mapping import MappingOverride
+    from .mapping import MappingOverride, SpawnMappingOverride
     from .writer import Writer
 
 # ---------------------------------------------------------------------------
@@ -94,6 +94,8 @@ class _SpawnRow:
     spawn_chance: float
     is_common: int | None
     is_rare: int | None
+    is_wiki_generated: int | None
+    is_map_visible: int | None
 
 
 @dataclass
@@ -208,6 +210,7 @@ def process_characters(
     raw: sqlite3.Connection,
     writer: Writer,
     mapping: dict[str, MappingOverride],
+    spawn_mapping: dict[str, SpawnMappingOverride] | None = None,
 ) -> None:
     """Full character processing pipeline. Writes to writer."""
 
@@ -297,6 +300,8 @@ def process_characters(
                 spawn_chance=100.0,
                 is_common=None,
                 is_rare=None,
+                is_wiki_generated=None,
+                is_map_visible=None,
             )
 
     # Load spawn-point based spawns
@@ -330,12 +335,15 @@ def process_characters(
 
     # Group spawn rows by character
     spawn_rows_by_char: dict[str, list[_SpawnRow]] = defaultdict(list)
+    _spawn_mapping = spawn_mapping or {}
     for r in sp_rows:
         sk = str(r["CharacterStableKey"])
         scene = r.get("SpScene")
+        spk = str(r["SpawnPointStableKey"])
+        spawn_override = _spawn_mapping.get(spk)
         spawn_rows_by_char[sk].append(
             _SpawnRow(
-                spawn_point_stable_key=str(r["SpawnPointStableKey"]),
+                spawn_point_stable_key=spk,
                 zone_stable_key=zone_by_scene.get(str(scene)) if scene else None,
                 scene=str(scene) if scene else None,
                 x=cast("float | None", r.get("X")),
@@ -360,6 +368,8 @@ def process_characters(
                 spawn_chance=float(cast("float", r.get("SpawnChance") or 0.0)),
                 is_common=cast("int | None", r.get("IsCommon")),
                 is_rare=cast("int | None", r.get("IsRare")),
+                is_wiki_generated=spawn_override["is_wiki_generated"] if spawn_override else None,
+                is_map_visible=spawn_override["is_map_visible"] if spawn_override else None,
             )
         )
 
@@ -635,6 +645,8 @@ def process_characters(
                     "spawn_chance": s.spawn_chance,
                     "is_common": s.is_common,
                     "is_rare": s.is_rare,
+                    "is_wiki_generated": s.is_wiki_generated,
+                    "is_map_visible": s.is_map_visible,
                 }
             )
     writer.insert_character_spawns(spawn_out)
