@@ -122,10 +122,12 @@ def _capture_wiki(generated_dir: Path, golden_wiki_dir: Path, dry_run: bool) -> 
     return len(txt_files)
 
 
-def _capture_sheets(db_path: Path, queries_dir: Path, golden_sheets_dir: Path, dry_run: bool) -> int:
+def _capture_sheets(
+    db_path: Path, queries_dir: Path, golden_sheets_dir: Path, dry_run: bool, *, map_base_url: str
+) -> int:
     """Run all sheet queries and write CSVs to golden/sheets/."""
     engine = create_engine(f"sqlite:///{db_path}")
-    formatter = SheetsFormatter(engine=engine, queries_dir=queries_dir)
+    formatter = SheetsFormatter(engine=engine, queries_dir=queries_dir, map_base_url=map_base_url)
     sheet_names = formatter.get_sheet_names()
 
     if not dry_run:
@@ -245,7 +247,8 @@ def capture(
     console.print(f"  Source:      {db_path}")
     console.print(f"  Destination: {golden_sheets_dir}")
     try:
-        count = _capture_sheets(db_path, queries_dir, golden_sheets_dir, dry_run)
+        map_base_url = variant_config.maps.base_url
+        count = _capture_sheets(db_path, queries_dir, golden_sheets_dir, dry_run, map_base_url=map_base_url)
         status = "[dim](dry run)[/dim]" if dry_run else "[green]done[/green]"
         console.print(f"  {status} — {count} queries")
     except Exception as e:

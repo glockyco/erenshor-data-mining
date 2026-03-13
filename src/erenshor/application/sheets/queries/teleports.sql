@@ -5,7 +5,7 @@ SELECT
     ROUND(t.x, 2) AS position_x,
     ROUND(t.y, 2) AS position_y,
     ROUND(t.z, 2) AS position_z,
-    'https://erenshor-maps.wowmuch1.workers.dev/map?marker=' || t.stable_key AS MapLink
+    map_marker_url(t.stable_key) AS MapLink
 FROM teleports t
 JOIN zones z ON z.scene_name = t.scene
 JOIN items i ON i.stable_key = t.teleport_item_stable_key

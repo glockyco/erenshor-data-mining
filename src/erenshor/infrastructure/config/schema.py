@@ -398,6 +398,10 @@ class MapsConfig(BaseModel):
         default="erenshor-maps",
         description="Cloudflare Pages project name for deployment",
     )
+    base_url: str = Field(
+        default="https://erenshor-maps.wowmuch1.workers.dev",
+        description="Public base URL of the deployed maps website",
+    )
 
     def resolved_source_dir(self, repo_root: Path) -> Path:
         """Get resolved maps source directory path."""

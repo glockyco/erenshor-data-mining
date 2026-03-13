@@ -28,7 +28,7 @@ SELECT
     (SELECT GROUP_CONCAT(quest_stable_key, ', ')
      FROM spawn_point_stop_quests spsq
      WHERE spsq.spawn_point_stable_key = cs.spawn_point_stable_key) AS stop_if_quest_complete_stable_keys,
-    'https://erenshor-maps.wowmuch1.workers.dev/map?marker=' || cs.spawn_point_stable_key AS MapLink
+    map_marker_url(cs.spawn_point_stable_key) AS MapLink
 FROM
     character_spawns cs
     JOIN characters c ON c.stable_key = cs.character_stable_key

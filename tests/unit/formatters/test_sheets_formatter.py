@@ -64,7 +64,7 @@ def test_sheets_formatter_get_sheet_names():
     engine = create_engine("sqlite:///:memory:")
     queries_dir = Path("src/erenshor/application/sheets/queries")
 
-    formatter = SheetsFormatter(engine, queries_dir)
+    formatter = SheetsFormatter(engine, queries_dir, map_base_url="https://example.com")
     sheet_names = formatter.get_sheet_names()
 
     # Should have 23 sheets
@@ -85,7 +85,7 @@ def test_sheets_formatter_validates_missing_file():
     engine = create_engine("sqlite:///:memory:")
     queries_dir = Path("src/erenshor/application/formatters/sheets/queries")
 
-    formatter = SheetsFormatter(engine, queries_dir)
+    formatter = SheetsFormatter(engine, queries_dir, map_base_url="https://example.com")
 
     with pytest.raises(ValueError, match=r"Query file 'nonexistent\.sql' not found"):
         formatter.format_sheet("nonexistent")

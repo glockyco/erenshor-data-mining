@@ -17,7 +17,7 @@ Example:
     >>> from erenshor.infrastructure.publishers.sheets import GoogleSheetsPublisher
     >>>
     >>> # Initialize service with dependencies
-    >>> formatter = SheetsFormatter(engine=engine, queries_dir=queries_dir)
+    >>> formatter = SheetsFormatter(engine=engine, queries_dir=queries_dir, map_base_url=url)
     >>> publisher = GoogleSheetsPublisher(credentials_file=creds_path)
     >>> service = SheetsService(
     ...     formatter=formatter,

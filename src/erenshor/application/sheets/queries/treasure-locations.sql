@@ -7,7 +7,7 @@ SELECT
     th.is_pickable_always,
     th.is_pickable_greater_20,
     th.is_pickable_greater_30,
-    'https://erenshor-maps.wowmuch1.workers.dev/map?marker=' || tl.stable_key AS MapLink
+    map_marker_url(tl.stable_key) AS MapLink
 FROM treasure_hunting th
 JOIN treasure_locations tl ON tl.scene = th.zone_name
 JOIN zones z ON z.scene_name = th.zone_name

@@ -9,7 +9,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from sqlalchemy import text
+from sqlalchemy import event, text
 
 if TYPE_CHECKING:
     from sqlalchemy.engine import Engine
@@ -34,15 +34,27 @@ class SheetsFormatter:
     - Strings → preserved as-is
     """
 
-    def __init__(self, engine: Engine, queries_dir: Path):
+    def __init__(self, engine: Engine, queries_dir: Path, *, map_base_url: str):
         """Initialize formatter.
 
         Args:
             engine: SQLAlchemy database engine
             queries_dir: Path to directory containing .sql query files
+            map_base_url: Public base URL of the maps website
         """
         self.engine = engine
         self.queries_dir = queries_dir
+        self._register_sql_functions(map_base_url)
+
+    def _register_sql_functions(self, map_base_url: str) -> None:
+        """Register custom SQLite functions available to all sheet queries."""
+
+        def map_marker_url(stable_key: str) -> str:
+            return f"{map_base_url}/map?sel=marker:{stable_key}"
+
+        @event.listens_for(self.engine, "connect")
+        def _on_connect(dbapi_connection: Any, _connection_record: Any) -> None:
+            dbapi_connection.create_function("map_marker_url", 1, map_marker_url)
 
     def get_sheet_names(self) -> list[str]:
         """Get list of all available sheet names.

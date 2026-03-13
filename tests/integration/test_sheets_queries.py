@@ -51,7 +51,7 @@ ALL_QUERIES = [
     "zones",
 ]
 
-# Queries that have MapLink column with new ?marker= format
+# Queries that have MapLink column with ?sel=marker: format
 MAPLINK_QUERIES = {
     "achievement-triggers",
     "item-bags",
@@ -101,12 +101,12 @@ class TestSheetsQueries:
             assert isinstance(rows, list)
 
     @pytest.mark.parametrize("query_name", list(MAPLINK_QUERIES))
-    def test_maplink_uses_new_format(self, sheets_engine: Engine, query_name: str):
-        """Verify MapLink URLs use new ?marker= format instead of old ?coordinateId=.
+    def test_maplink_uses_sel_marker_format(self, sheets_engine: Engine, query_name: str):
+        """Verify MapLink URLs use ?sel=marker: format for the world map route.
 
-        After the stable keys migration, all MapLink URLs should use:
-        - New format: ?marker=<stableKey>
-        - NOT old format: ?coordinateId=<number>
+        All MapLink URLs should use the canonical world map URL format:
+        - Correct: ?sel=marker:<stableKey>
+        - NOT old: ?marker=<stableKey> or ?coordinateId=<number>
 
         Args:
             sheets_engine: SQLAlchemy engine for exported database
@@ -119,20 +119,13 @@ class TestSheetsQueries:
             result = conn.execute(text(query))
             columns = list(result.keys())
 
-            # Verify MapLink column exists
             assert "MapLink" in columns, f"{query_name} missing MapLink column"
 
             maplink_idx = columns.index("MapLink")
             for row in result:
                 url = row[maplink_idx]
-                if url:  # May be NULL for some rows
-                    # Should use new ?marker= format
-                    assert "?marker=" in url, f"{query_name}: Expected ?marker= in MapLink URL: {url}"
-
-                    # Should NOT use old ?coordinateId= format
-                    assert "?coordinateId=" not in url, (
-                        f"{query_name}: Found old ?coordinateId= format in MapLink URL: {url}"
-                    )
+                if url:
+                    assert "?sel=marker:" in url, f"{query_name}: Expected ?sel=marker: in MapLink URL: {url}"
 
     def test_all_query_files_exist(self):
         """Verify all expected query files exist in the queries directory.

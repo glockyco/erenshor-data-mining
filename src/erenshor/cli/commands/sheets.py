@@ -59,7 +59,8 @@ def _create_sheets_service(cli_ctx: CLIContext) -> SheetsService:
     queries_dir = Path(erenshor.application.sheets.__file__).parent / "queries"
 
     # Create formatter
-    formatter = SheetsFormatter(engine=engine, queries_dir=queries_dir)
+    map_base_url = variant_config.maps.base_url
+    formatter = SheetsFormatter(engine=engine, queries_dir=queries_dir, map_base_url=map_base_url)
 
     # Create publisher
     sheets_config = cli_ctx.config.global_.google_sheets

@@ -5,7 +5,7 @@ SELECT
     ROUND(sp.y, 2) AS position_y,
     ROUND(sp.z, 2) AS position_z,
     sp.type,
-    'https://erenshor-maps.wowmuch1.workers.dev/map?marker=' || sp.stable_key AS MapLink
+    map_marker_url(sp.stable_key) AS MapLink
 FROM secret_passages sp
 JOIN zones z ON z.scene_name = sp.scene
 WHERE sp.object_name NOT LIKE '%nav%' OR sp.object_name IS NULL

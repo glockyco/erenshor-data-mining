@@ -61,7 +61,7 @@ def queries_dir(tmp_path: Path) -> Path:
 @pytest.fixture
 def formatter(test_db, queries_dir: Path) -> SheetsFormatter:
     """Create a formatter instance."""
-    return SheetsFormatter(test_db, queries_dir)
+    return SheetsFormatter(test_db, queries_dir, map_base_url="https://example.com")
 
 
 class TestSheetsFormatterInit:
@@ -69,7 +69,7 @@ class TestSheetsFormatterInit:
 
     def test_init_creates_formatter(self, test_db, queries_dir: Path) -> None:
         """Test that formatter can be initialized."""
-        formatter = SheetsFormatter(test_db, queries_dir)
+        formatter = SheetsFormatter(test_db, queries_dir, map_base_url="https://example.com")
 
         assert formatter.engine == test_db
         assert formatter.queries_dir == queries_dir
@@ -98,7 +98,7 @@ class TestSheetsFormatterGetSheetNames:
         empty_dir = tmp_path / "empty_queries"
         empty_dir.mkdir()
 
-        formatter = SheetsFormatter(test_db, empty_dir)
+        formatter = SheetsFormatter(test_db, empty_dir, map_base_url="https://example.com")
         sheet_names = formatter.get_sheet_names()
 
         assert sheet_names == []
@@ -107,7 +107,7 @@ class TestSheetsFormatterGetSheetNames:
         """Test that get_sheet_names returns empty list for nonexistent directory."""
         nonexistent_dir = tmp_path / "nonexistent"
 
-        formatter = SheetsFormatter(test_db, nonexistent_dir)
+        formatter = SheetsFormatter(test_db, nonexistent_dir, map_base_url="https://example.com")
         sheet_names = formatter.get_sheet_names()
 
         assert sheet_names == []
@@ -219,7 +219,7 @@ class TestSheetsFormatterGetRowCount:
         # Create query that returns no rows
         (queries_dir / "empty_result.sql").write_text("SELECT * FROM items WHERE 1=0")
 
-        formatter = SheetsFormatter(test_db, queries_dir)
+        formatter = SheetsFormatter(test_db, queries_dir, map_base_url="https://example.com")
         count = formatter.get_row_count("empty_result")
 
         assert count == 0
@@ -290,7 +290,7 @@ class TestSheetsFormatterIntegrationWithRealQueries:
         # Create in-memory database (won't have data, just testing file loading)
         engine = create_engine("sqlite:///:memory:")
 
-        formatter = SheetsFormatter(engine, queries_dir)
+        formatter = SheetsFormatter(engine, queries_dir, map_base_url="https://example.com")
         sheet_names = formatter.get_sheet_names()
 
         # Should have 21 query files (as per test_sheets_formatter.py)

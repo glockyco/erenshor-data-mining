@@ -122,9 +122,20 @@ def _skip_if_missing(path: Path, description: str) -> None:
 def golden_sheets_engine():
     """SQLAlchemy engine connected to the main variant database."""
     _skip_if_missing(DB_PATH, "Main variant database")
-    from sqlalchemy import create_engine
+    from typing import Any
+
+    from sqlalchemy import create_engine, event
 
     engine = create_engine(f"sqlite:///{DB_PATH}")
+
+    @event.listens_for(engine, "connect")
+    def _on_connect(dbapi_connection: Any, _connection_record: Any) -> None:
+        dbapi_connection.create_function(
+            "map_marker_url",
+            1,
+            lambda key: f"https://erenshor-maps.wowmuch1.workers.dev/map?sel=marker:{key}",
+        )
+
     yield engine
     engine.dispose()
 
@@ -223,7 +234,11 @@ class TestSheetsGolden:
 
         from erenshor.application.sheets.formatter import SheetsFormatter
 
-        formatter = SheetsFormatter(engine=golden_sheets_engine, queries_dir=QUERIES_DIR)
+        formatter = SheetsFormatter(
+            engine=golden_sheets_engine,
+            queries_dir=QUERIES_DIR,
+            map_base_url="https://erenshor-maps.wowmuch1.workers.dev",
+        )
         sheet_names = formatter.get_sheet_names()
 
         regressions: list[str] = []
@@ -251,7 +266,11 @@ class TestSheetsGolden:
 
         from erenshor.application.sheets.formatter import SheetsFormatter
 
-        formatter = SheetsFormatter(engine=golden_sheets_engine, queries_dir=QUERIES_DIR)
+        formatter = SheetsFormatter(
+            engine=golden_sheets_engine,
+            queries_dir=QUERIES_DIR,
+            map_base_url="https://erenshor-maps.wowmuch1.workers.dev",
+        )
         current_sheets = set(formatter.get_sheet_names())
         golden_sheets = {f.stem for f in GOLDEN_SHEETS_DIR.glob("*.csv")}
 

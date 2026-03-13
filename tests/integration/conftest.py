@@ -51,14 +51,28 @@ def exported_db() -> Path:
 def sheets_engine(exported_db: Path) -> Generator[Engine]:
     """Create SQLAlchemy engine for sheets query tests.
 
+    Registers the same custom SQL functions that SheetsFormatter provides
+    so queries can be executed directly against the engine in tests.
+
     Args:
         exported_db: Path to exported database
 
     Yields:
         Engine: SQLAlchemy engine connected to exported database
     """
-    from sqlalchemy import create_engine
+    from typing import Any
+
+    from sqlalchemy import create_engine, event
 
     engine = create_engine(f"sqlite:///{exported_db}")
+
+    @event.listens_for(engine, "connect")
+    def _on_connect(dbapi_connection: Any, _connection_record: Any) -> None:
+        dbapi_connection.create_function(
+            "map_marker_url",
+            1,
+            lambda key: f"https://erenshor-maps.wowmuch1.workers.dev/map?sel=marker:{key}",
+        )
+
     yield engine
     engine.dispose()
