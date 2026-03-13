@@ -46,7 +46,7 @@ graph TD
 Components:
 - **src/erenshor/**: Python CLI for data extraction and deployment
 - **src/Assets/Editor/**: Unity Editor scripts for SQLite export
-- **src/maps/**: SvelteKit interactive map website (Cloudflare Pages)
+- **src/maps/**: SvelteKit interactive map website (Cloudflare Workers)
 - **src/mods/**: BepInEx companion mods for real-time features
 
 Three game variants with separate pipelines:
@@ -81,7 +81,7 @@ uv run pre-commit run --all-files   # Run linters
 **New game version** (full pipeline):
 `extract download` → `extract rip` → `extract export` → `extract build`
 → `wiki fetch` → `wiki generate` → `golden capture` → review diffs →
-`sheets deploy` → `maps build` → `maps deploy` → `wiki deploy`
+`sheets deploy --all-sheets` → `maps build` → `maps deploy` → `wiki deploy`
 
 **Rebuild after changing build logic** (fast, no re-export needed):
 `extract build` re-reads the raw DB without re-exporting, then follow
