@@ -33,9 +33,9 @@ app = typer.Typer(
 console = Console()
 
 
-def _check_npm_available() -> bool:
-    """Check if npm is available in PATH."""
-    return shutil.which("npm") is not None
+def _check_pnpm_available() -> bool:
+    """Check if pnpm is available in PATH."""
+    return shutil.which("pnpm") is not None
 
 
 def _check_node_modules(maps_dir: Path) -> bool:
@@ -95,11 +95,11 @@ def dev(
     """
     cli_ctx: CLIContext = ctx.obj
 
-    # Check npm availability
-    if not _check_npm_available():
-        console.print("[red]Error: npm not found in PATH[/red]")
-        console.print("\nPlease install Node.js and npm:")
-        console.print("  https://nodejs.org/")
+    # Check pnpm availability
+    if not _check_pnpm_available():
+        console.print("[red]Error: pnpm not found in PATH[/red]")
+        console.print("\nPlease install pnpm:")
+        console.print("  https://pnpm.io/installation")
         raise typer.Exit(1)
 
     # Get paths
@@ -119,7 +119,7 @@ def dev(
         console.print("[yellow]Warning: node_modules not found[/yellow]")
         console.print("\nPlease install dependencies first:")
         console.print(f"  cd {maps_dir}")
-        console.print("  npm install")
+        console.print("  pnpm install")
         raise typer.Exit(1)
 
     # Check database exists
@@ -173,7 +173,7 @@ def dev(
         env["PORT"] = str(port)
 
         result = subprocess.run(
-            ["npm", "run", "dev", "--", "--port", str(port)],
+            ["pnpm", "run", "dev", "--", "--port", str(port)],
             cwd=maps_dir,
             env=env,
             check=False,
@@ -213,11 +213,11 @@ def preview(
     """
     cli_ctx: CLIContext = ctx.obj
 
-    # Check npm availability
-    if not _check_npm_available():
-        console.print("[red]Error: npm not found in PATH[/red]")
-        console.print("\nPlease install Node.js and npm:")
-        console.print("  https://nodejs.org/")
+    # Check pnpm availability
+    if not _check_pnpm_available():
+        console.print("[red]Error: pnpm not found in PATH[/red]")
+        console.print("\nPlease install pnpm:")
+        console.print("  https://pnpm.io/installation")
         raise typer.Exit(1)
 
     # Get paths
@@ -259,7 +259,7 @@ def preview(
         env["PORT"] = str(port)
 
         result = subprocess.run(
-            ["npm", "run", "preview", "--", "--port", str(port)],
+            ["pnpm", "run", "preview", "--", "--port", str(port)],
             cwd=maps_dir,
             env=env,
             check=False,
@@ -294,11 +294,11 @@ def build(
     """
     cli_ctx: CLIContext = ctx.obj
 
-    # Check npm availability
-    if not _check_npm_available():
-        console.print("[red]Error: npm not found in PATH[/red]")
-        console.print("\nPlease install Node.js and npm:")
-        console.print("  https://nodejs.org/")
+    # Check pnpm availability
+    if not _check_pnpm_available():
+        console.print("[red]Error: pnpm not found in PATH[/red]")
+        console.print("\nPlease install pnpm:")
+        console.print("  https://pnpm.io/installation")
         raise typer.Exit(1)
 
     # Get paths
@@ -319,7 +319,7 @@ def build(
         console.print("[yellow]Warning: node_modules not found[/yellow]")
         console.print("\nPlease install dependencies first:")
         console.print(f"  cd {maps_dir}")
-        console.print("  npm install")
+        console.print("  pnpm install")
         raise typer.Exit(1)
 
     # Check database exists
@@ -339,9 +339,11 @@ def build(
     # Ensure maps db directory exists
     maps_db_dir.mkdir(parents=True, exist_ok=True)
 
-    # Copy database
+    # Copy database, replacing any existing symlink (e.g. left by `maps dev`)
     try:
         logger.info(f"Copying database: {db_path} -> {maps_db_path}")
+        if maps_db_path.is_symlink():
+            maps_db_path.unlink()
         shutil.copy2(db_path, maps_db_path)
         console.print(f"[green]Database copied to {maps_db_path}[/green]")
     except Exception as e:
@@ -363,9 +365,9 @@ def build(
 
     # Run build
     try:
-        logger.info("Running npm run build")
+        logger.info("Running pnpm run build")
         result = subprocess.run(
-            ["npm", "run", "build"],
+            ["pnpm", "run", "build"],
             cwd=maps_dir,
             check=False,
         )
@@ -380,7 +382,7 @@ def build(
         console.print()
         console.print("Next steps:")
         console.print(f"  erenshor maps preview --variant {cli_ctx.variant}  # Preview locally")
-        console.print(f"  erenshor maps deploy --variant {cli_ctx.variant}   # Deploy to Cloudflare Pages")
+        console.print(f"  erenshor maps deploy --variant {cli_ctx.variant}   # Deploy to Cloudflare")
         console.print()
 
     except KeyboardInterrupt:
@@ -395,32 +397,24 @@ def build(
 def deploy(
     ctx: typer.Context,
 ) -> None:
-    """Deploy to Cloudflare Pages.
+    """Deploy to Cloudflare.
 
-    Deploys built site to Cloudflare Pages. Requires valid
-    Cloudflare credentials and configured project. Automatically
-    builds before deployment if needed.
+    Deploys built site to Cloudflare using wrangler. Requires valid
+    Cloudflare credentials. Build must exist before deploying.
     """
     cli_ctx: CLIContext = ctx.obj
 
-    # Check npm/npx availability
-    if not _check_npm_available():
-        console.print("[red]Error: npm not found in PATH[/red]")
-        console.print("\nPlease install Node.js and npm:")
-        console.print("  https://nodejs.org/")
-        raise typer.Exit(1)
-
-    if not shutil.which("npx"):
-        console.print("[red]Error: npx not found in PATH[/red]")
-        console.print("\nPlease install Node.js and npm:")
-        console.print("  https://nodejs.org/")
+    # Check pnpm availability
+    if not _check_pnpm_available():
+        console.print("[red]Error: pnpm not found in PATH[/red]")
+        console.print("\nPlease install pnpm:")
+        console.print("  https://pnpm.io/installation")
         raise typer.Exit(1)
 
     # Get paths
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
     maps_dir = variant_config.maps.resolved_source_dir(cli_ctx.repo_root)
     build_dir = variant_config.maps.resolved_build_dir(cli_ctx.repo_root)
-    deploy_target = variant_config.maps.deploy_target
 
     # Check maps directory
     if not maps_dir.exists():
@@ -438,10 +432,7 @@ def deploy(
     console.print()
     console.print(
         Panel.fit(
-            f"[bold cyan]Deploying to Cloudflare Pages[/bold cyan]\n"
-            f"Variant: {cli_ctx.variant}\n"
-            f"Build: {build_dir}\n"
-            f"Project: {deploy_target}",
+            f"[bold cyan]Deploying to Cloudflare[/bold cyan]\nVariant: {cli_ctx.variant}\nBuild: {build_dir}",
             border_style="cyan",
         )
     )
@@ -449,15 +440,15 @@ def deploy(
 
     if cli_ctx.dry_run:
         console.print("[yellow]DRY RUN: Would deploy with:[/yellow]")
-        console.print(f"  npx wrangler pages deploy {build_dir} --project-name {deploy_target}")
+        console.print(f"  pnpm run deploy  (in {maps_dir})")
         console.print()
         return
 
     # Run deployment
     try:
-        logger.info(f"Deploying to Cloudflare Pages: {deploy_target}")
+        logger.info("Deploying to Cloudflare via pnpm run deploy")
         result = subprocess.run(
-            ["npx", "wrangler", "pages", "deploy", str(build_dir), "--project-name", deploy_target],
+            ["pnpm", "run", "deploy"],
             cwd=maps_dir,
             check=False,
         )
@@ -468,8 +459,6 @@ def deploy(
 
         console.print()
         console.print("[green]Deployment completed successfully![/green]")
-        console.print()
-        console.print(f"[dim]Project: {deploy_target}[/dim]")
         console.print("[dim]Check deployment status at: https://dash.cloudflare.com/[/dim]")
         console.print()
 
