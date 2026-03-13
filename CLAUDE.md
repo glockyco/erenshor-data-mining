@@ -81,7 +81,7 @@ uv run pre-commit run --all-files   # Run linters
 **New game version** (full pipeline):
 `extract download` → `extract rip` → `extract export` → `extract build`
 → `wiki fetch` → `wiki generate` → `golden capture` → review diffs →
-`sheets deploy --all-sheets` → `maps build` → `maps deploy` → `wiki deploy`
+`sheets deploy --all-sheets` → `maps build --force` → `maps deploy` → `wiki deploy`
 
 **Rebuild after changing build logic** (fast, no re-export needed):
 `extract build` re-reads the raw DB without re-exporting, then follow
@@ -99,7 +99,7 @@ unintended data changes. Commit the updated goldens after review.
 `images process` → `images compare` → `images report` → `images upload`
 
 **Maps deployment**:
-`maps build` → `maps deploy`
+`maps build --force` → `maps deploy`
 
 **Mod development**:
 `mod setup` (copy game DLLs, needed once after download) → `mod build`
