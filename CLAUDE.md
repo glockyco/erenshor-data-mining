@@ -80,13 +80,20 @@ uv run pre-commit run --all-files   # Run linters
 
 **New game version** (full pipeline):
 `extract download` → `extract rip` → `extract export` → `extract build`
-→ deploy via wiki/sheets/maps workflows below
+→ `wiki fetch` → `wiki generate` → `golden capture` → review diffs →
+`sheets deploy` → `maps build` → `maps deploy` → `wiki deploy`
 
 **Rebuild after changing build logic** (fast, no re-export needed):
-`extract build` re-reads the raw DB without re-exporting
+`extract build` re-reads the raw DB without re-exporting, then follow
+the deploy steps above from `wiki generate` onwards.
 
 **Wiki update**:
-`wiki fetch` → `wiki generate` → `wiki deploy`
+`wiki fetch` → `wiki generate` → `golden capture` → review diffs →
+`wiki deploy`
+
+Always run `golden capture` before deploying and review every diff.
+Golden files in `tests/golden/` are the source of truth for detecting
+unintended data changes. Commit the updated goldens after review.
 
 **Image update**:
 `images process` → `images compare` → `images report` → `images upload`
