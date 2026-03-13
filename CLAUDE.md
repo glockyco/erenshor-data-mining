@@ -179,6 +179,9 @@ Exported SQLite databases are stored per-variant:
 The `src/mods/` directory contains BepInEx companion mods:
 
 - **InteractiveMapCompanion**: Real-time entity tracking for the interactive map
+- **InteractiveMapsCompanion** (legacy): Broadcasts player position. Must be
+  kept working when data structures or DB schema change, but should not receive
+  new features. New map features go in InteractiveMapCompanion.
 - **JusticeForF7**: Extends F7 screenshot mode to hide world-space UI elements
 - **Sprint**: Configurable sprint key with multiplicative speed boost
 
