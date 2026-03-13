@@ -272,8 +272,8 @@ def build(ctx: typer.Context) -> None:
     name group, and writes the clean database consumed by wiki, sheets,
     and map.
 
-    Does not require a fresh 'extract export' — changing build logic and
-    re-running 'extract build' takes seconds, not hours.
+    Does not require a fresh 'extract export' — re-running 'extract build'
+    after changing build logic is much faster than a full re-export.
     """
     cli_ctx: CLIContext = ctx.obj
     variant_config = cli_ctx.config.variants[cli_ctx.variant]

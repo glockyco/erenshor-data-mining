@@ -69,18 +69,35 @@ in git. Run `extract download` and `extract rip` to populate them.
 ## Essential Commands
 
 ```bash
-uv run erenshor extract download    # Download game files from Steam
-uv run erenshor extract rip         # Extract Unity project via AssetRipper
-uv run erenshor extract export      # Export data to SQLite via Unity
-uv run erenshor sheets deploy       # Deploy to Google Sheets
-uv run erenshor wiki deploy         # Deploy to MediaWiki
-uv run erenshor --variant playtest extract download  # Use different variant
-uv run erenshor mod setup           # Copy game DLLs for mod compilation
-uv run erenshor mod build           # Build companion mod
-uv run erenshor mod deploy          # Build and copy mod to BepInEx plugins
+uv run erenshor --help              # All command groups
+uv run erenshor <group> --help      # Subcommands for any group
+uv run erenshor --variant playtest <command>  # Use different variant
 uv run pytest                       # Run tests
 uv run pre-commit run --all-files   # Run linters
 ```
+
+### Common Workflows
+
+**New game version** (full pipeline):
+`extract download` → `extract rip` → `extract export` → `extract build`
+→ deploy via wiki/sheets/maps workflows below
+
+**Rebuild after changing build logic** (fast, no re-export needed):
+`extract build` re-reads the raw DB without re-exporting
+
+**Wiki update**:
+`wiki fetch` → `wiki generate` → `wiki deploy`
+
+**Image update**:
+`images process` → `images compare` → `images report` → `images upload`
+
+**Maps deployment**:
+`maps build` → `maps deploy`
+
+**Mod development**:
+`mod setup` (copy game DLLs, needed once after download) → `mod build`
+→ `mod deploy` (local testing) or `mod publish` (stage for website) or
+`mod thunderstore` (publish to Thunderstore)
 
 ## Development Guidelines
 
