@@ -29,10 +29,9 @@ class CharacterRepository(BaseRepository[Character]):
         """
         query = """
             WITH reps AS (
-                SELECT d.group_key, MIN(c.stable_key) AS rep_stable_key
+                SELECT d.group_key, MIN(d.member_stable_key) AS rep_stable_key
                 FROM character_deduplications d
-                JOIN characters c ON c.stable_key = d.member_stable_key
-                WHERE c.is_wiki_generated = 1
+                WHERE d.is_wiki_generated = 1
                 GROUP BY d.group_key
             )
             SELECT
@@ -237,11 +236,10 @@ class CharacterRepository(BaseRepository[Character]):
                 LIMIT 1
             ),
             rep AS (
-                SELECT MIN(c.stable_key) AS rep_stable_key
+                SELECT MIN(d.member_stable_key) AS rep_stable_key
                 FROM character_deduplications d
-                JOIN characters c ON c.stable_key = d.member_stable_key
                 WHERE d.group_key = (SELECT group_key FROM target_group)
-                  AND c.is_wiki_generated = 1
+                  AND d.is_wiki_generated = 1
             )
             SELECT c.display_name, c.wiki_page_name
             FROM characters c
@@ -284,11 +282,10 @@ class CharacterRepository(BaseRepository[Character]):
                 WHERE cvi.item_stable_key = ?
             ),
             reps AS (
-                SELECT vg.group_key, MIN(c.stable_key) AS rep_stable_key
+                SELECT vg.group_key, MIN(d.member_stable_key) AS rep_stable_key
                 FROM vendor_groups vg
                 JOIN character_deduplications d ON d.group_key = vg.group_key
-                JOIN characters c ON c.stable_key = d.member_stable_key
-                WHERE c.is_wiki_generated = 1
+                WHERE d.is_wiki_generated = 1
                 GROUP BY vg.group_key
             )
             SELECT c.display_name, c.wiki_page_name
@@ -336,11 +333,10 @@ class CharacterRepository(BaseRepository[Character]):
                 GROUP BY d.group_key
             ),
             reps AS (
-                SELECT dg.group_key, dg.drop_probability, MIN(c.stable_key) AS rep_stable_key
+                SELECT dg.group_key, dg.drop_probability, MIN(d.member_stable_key) AS rep_stable_key
                 FROM drop_groups dg
                 JOIN character_deduplications d ON d.group_key = dg.group_key
-                JOIN characters c ON c.stable_key = d.member_stable_key
-                WHERE c.is_wiki_generated = 1
+                WHERE d.is_wiki_generated = 1
                 GROUP BY dg.group_key, dg.drop_probability
             )
             SELECT c.display_name, c.wiki_page_name, r.drop_probability
@@ -399,11 +395,10 @@ class CharacterRepository(BaseRepository[Character]):
                 ) s ON s.character_stable_key = d.member_stable_key
             ),
             reps AS (
-                SELECT sg.group_key, MIN(c.stable_key) AS rep_stable_key
+                SELECT sg.group_key, MIN(d.member_stable_key) AS rep_stable_key
                 FROM spell_groups sg
                 JOIN character_deduplications d ON d.group_key = sg.group_key
-                JOIN characters c ON c.stable_key = d.member_stable_key
-                WHERE c.is_wiki_generated = 1
+                WHERE d.is_wiki_generated = 1
                 GROUP BY sg.group_key
             )
             SELECT c.display_name, c.wiki_page_name

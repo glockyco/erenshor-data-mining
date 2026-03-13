@@ -428,10 +428,9 @@ export class RepositoryBase {
         const stmt = this.db.prepare(
             `
             WITH rep_groups AS (
-                SELECT d.group_key, MIN(c.stable_key) AS rep_stable_key
+                SELECT d.group_key, MIN(d.member_stable_key) AS rep_stable_key
                 FROM character_deduplications d
-                JOIN characters c ON c.stable_key = d.member_stable_key
-                WHERE c.is_map_visible = 1
+                WHERE d.is_map_visible = 1
                 GROUP BY d.group_key
             )
             SELECT
@@ -462,7 +461,7 @@ export class RepositoryBase {
                 min(rep.is_friendly)            AS IsFriendly
             FROM rep_groups rg
             JOIN characters rep ON rep.stable_key = rg.rep_stable_key
-            JOIN character_deduplications d ON d.group_key = rg.group_key
+            JOIN character_deduplications d ON d.group_key = rg.group_key AND d.is_map_visible = 1
             JOIN character_spawns cs ON cs.character_stable_key = d.member_stable_key
             WHERE cs.scene = ? AND cs.spawn_chance > 0 AND cs.spawn_point_stable_key IS NOT NULL
             GROUP BY cs.spawn_point_stable_key, rep.stable_key
@@ -1088,10 +1087,9 @@ export class RepositoryBase {
         const stmt = this.db.prepare(
             `
             WITH reps AS (
-                SELECT d.group_key, MIN(c.stable_key) AS rep_stable_key
+                SELECT d.group_key, MIN(d.member_stable_key) AS rep_stable_key
                 FROM character_deduplications d
-                JOIN characters c ON c.stable_key = d.member_stable_key
-                WHERE c.is_map_visible = 1
+                WHERE d.is_map_visible = 1
                 GROUP BY d.group_key
             )
             SELECT c.stable_key AS StableKey
@@ -1125,17 +1123,16 @@ export class RepositoryBase {
         const levelStmt = this.db.prepare(
             `
             WITH rep_groups AS (
-                SELECT d.group_key, MIN(c.stable_key) AS rep_stable_key
+                SELECT d.group_key, MIN(d.member_stable_key) AS rep_stable_key
                 FROM character_deduplications d
-                JOIN characters c ON c.stable_key = d.member_stable_key
-                WHERE c.is_map_visible = 1
+                WHERE d.is_map_visible = 1
                 GROUP BY d.group_key
             ),
             zone_groups AS (
                 SELECT DISTINCT d.group_key
                 FROM character_deduplications d
                 JOIN character_spawns cs ON cs.character_stable_key = d.member_stable_key
-                WHERE cs.scene = ?
+                WHERE cs.scene = ? AND d.is_map_visible = 1
             ),
             zone_reps AS (
                 SELECT rg.rep_stable_key
@@ -1165,17 +1162,16 @@ export class RepositoryBase {
         const uniqueStmt = this.db.prepare(
             `
             WITH rep_groups AS (
-                SELECT d.group_key, MIN(c.stable_key) AS rep_stable_key
+                SELECT d.group_key, MIN(d.member_stable_key) AS rep_stable_key
                 FROM character_deduplications d
-                JOIN characters c ON c.stable_key = d.member_stable_key
-                WHERE c.is_map_visible = 1
+                WHERE d.is_map_visible = 1
                 GROUP BY d.group_key
             ),
             zone_groups AS (
                 SELECT DISTINCT d.group_key
                 FROM character_deduplications d
                 JOIN character_spawns cs ON cs.character_stable_key = d.member_stable_key
-                WHERE cs.scene = ?
+                WHERE cs.scene = ? AND d.is_map_visible = 1
             ),
             zone_reps AS (
                 SELECT rg.rep_stable_key
@@ -1207,17 +1203,16 @@ export class RepositoryBase {
         const rareStmt = this.db.prepare(
             `
             WITH rep_groups AS (
-                SELECT d.group_key, MIN(c.stable_key) AS rep_stable_key
+                SELECT d.group_key, MIN(d.member_stable_key) AS rep_stable_key
                 FROM character_deduplications d
-                JOIN characters c ON c.stable_key = d.member_stable_key
-                WHERE c.is_map_visible = 1
+                WHERE d.is_map_visible = 1
                 GROUP BY d.group_key
             ),
             zone_groups AS (
                 SELECT DISTINCT d.group_key
                 FROM character_deduplications d
                 JOIN character_spawns cs ON cs.character_stable_key = d.member_stable_key
-                WHERE cs.scene = ?
+                WHERE cs.scene = ? AND d.is_map_visible = 1
             ),
             zone_reps AS (
                 SELECT rg.rep_stable_key

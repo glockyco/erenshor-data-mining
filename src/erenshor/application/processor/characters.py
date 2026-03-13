@@ -460,7 +460,14 @@ def process_characters(
     for members in groups.values():
         group_key = min(m.char.stable_key for m in members)
         for m in members:
-            dedup_rows.append({"group_key": group_key, "member_stable_key": m.char.stable_key})
+            dedup_rows.append(
+                {
+                    "group_key": group_key,
+                    "member_stable_key": m.char.stable_key,
+                    "is_wiki_generated": m.char.is_wiki_generated,
+                    "is_map_visible": m.char.is_map_visible,
+                }
+            )
 
         # Recompute is_unique / is_rare based on all group spawns.
         # Note: this may need revisiting if map visibility excludes some spawns.

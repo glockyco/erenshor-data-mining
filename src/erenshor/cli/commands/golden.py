@@ -49,10 +49,9 @@ console = Console()
 # Uses GROUP_CONCAT aggregate ORDER BY syntax for deterministic patrol paths.
 _MAP_SPAWN_POINTS_SQL = """
 WITH rep_groups AS (
-    SELECT d.group_key, MIN(c.stable_key) AS rep_stable_key
+    SELECT d.group_key, MIN(d.member_stable_key) AS rep_stable_key
     FROM character_deduplications d
-    JOIN characters c ON c.stable_key = d.member_stable_key
-    WHERE c.is_map_visible = 1
+    WHERE d.is_map_visible = 1
     GROUP BY d.group_key
 )
 SELECT
@@ -84,7 +83,7 @@ SELECT
     min(rep.is_friendly)            AS IsFriendly
 FROM rep_groups rg
 JOIN characters rep ON rep.stable_key = rg.rep_stable_key
-JOIN character_deduplications d ON d.group_key = rg.group_key
+JOIN character_deduplications d ON d.group_key = rg.group_key AND d.is_map_visible = 1
 JOIN character_spawns cs ON cs.character_stable_key = d.member_stable_key
 WHERE cs.spawn_chance > 0
   AND cs.spawn_point_stable_key IS NOT NULL

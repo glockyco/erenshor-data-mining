@@ -806,7 +806,9 @@ CREATE TABLE characters (
 
 CREATE TABLE character_deduplications (
     group_key           TEXT NOT NULL,
-    member_stable_key   TEXT PRIMARY KEY NOT NULL
+    member_stable_key   TEXT PRIMARY KEY NOT NULL,
+    is_wiki_generated   INTEGER NOT NULL DEFAULT 1,
+    is_map_visible      INTEGER NOT NULL DEFAULT 1
 );
 
 CREATE TABLE character_spawns (

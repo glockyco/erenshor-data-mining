@@ -55,10 +55,10 @@ class SpawnPointRepository(BaseRepository[SpawnPoint]):
                     FROM character_deduplications d2
                     WHERE d2.member_stable_key = ?
                 )
+                AND d.is_wiki_generated = 1
             )
               AND COALESCE(cs.spawn_chance, 0) > 0
               AND cs.zone_stable_key IS NOT NULL
-              AND COALESCE(cs.is_enabled, 1) = 1
             ORDER BY cs.zone_stable_key COLLATE NOCASE
         """
 
