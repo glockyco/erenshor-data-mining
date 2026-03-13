@@ -25,21 +25,7 @@ tracks all development work including data mining, wiki, maps, and mods.
 
 ## Architecture
 
-```mermaid
-graph TD
-    S[SteamCMD] --> A[AssetRipper]
-    A --> U[Unity Batch]
-    U --> R[(Raw DB)]
-    U --> I[Images]
-    R --> B[Build]
-    B --> C[(Clean DB)]
-    C --> W[Wiki]
-    C --> Sh[Sheets]
-    C --> M[Map Website]
-    I --> W
-    Mod[BepInEx Mod] -->|WebSocket| M
-    Mod -->|Overlay| G[In-Game Map]
-```
+See [README.md](README.md) for the full architecture diagram and component overview.
 
 **Entry point**: `uv run erenshor`
 

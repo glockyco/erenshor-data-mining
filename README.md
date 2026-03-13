@@ -1,224 +1,103 @@
 # Erenshor Data Mining & Wiki Publishing Pipeline
 
-[![Python](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
-[![Unity](https://img.shields.io/badge/unity-2021.3.45f2-black.svg)](https://unity.com/)
-
-Data mining pipeline for Erenshor (single-player MMORPG). Downloads game files from Steam, extracts Unity assets, exports to SQLite, and publishes to MediaWiki and Google Sheets.
-
-**Pipeline**: SteamCMD → Game Files → AssetRipper → Unity Project → Unity Export Scripts → SQLite → Python Services → MediaWiki/Google Sheets
+Data mining pipeline for [Erenshor](https://store.steampowered.com/app/2382520/Erenshor/), a single-player RPG designed to capture the feel of an MMORPG. Downloads game files from Steam, extracts Unity assets, exports to SQLite, and publishes to MediaWiki and Google Sheets. Includes an interactive map website and BepInEx companion mods for real-time game integration.
 
 ---
 
-## Table of Contents
+## Prerequisites
 
--   [Quick Start](#quick-start)
--   [Architecture](#architecture)
--   [Usage](#usage)
--   [Configuration](#configuration)
--   [Development](#development)
--   [Reference](#reference)
+- **Unity 2021.3.45f2** (exact version required)
+- **Python 3.13+**
+- **SteamCMD**
+- **AssetRipper**
+- **uv** (Python package manager)
+- **Steam account** with Erenshor ownership
+- **8 GB+ RAM** and **20 GB+ disk space** per variant
 
 ---
 
 ## Quick Start
 
-### Prerequisites
-
--   **Unity 2021.3.45f2** (exact version required)
--   **Python 3.13+**
--   **SteamCMD**
--   **AssetRipper**
--   **uv** (Python package manager)
--   **Steam Account** with Erenshor ownership
--   **8GB+ RAM** and **20GB+ disk space** per variant
-
-### Installation
-
 ```bash
-# Clone repository
+# Clone and install
 git clone https://github.com/glockyco/erenshor-data-mining.git
 cd erenshor-data-mining
-
-# Install dependencies
 uv sync --dev
 
-# Configure tools and credentials
+# Configure local settings (tool paths, Steam credentials)
 cp config.toml .erenshor/config.local.toml
-# Edit .erenshor/config.local.toml with your tool paths
+# Edit .erenshor/config.local.toml — see Configuration below
 
-# Verify installation
-uv run erenshor status
+# Run the extraction pipeline
+uv run erenshor extract download   # Download game from Steam
+uv run erenshor extract rip        # Extract Unity project via AssetRipper
+uv run erenshor extract export     # Export assets to SQLite
+uv run erenshor extract build      # Build clean database from raw export
 ```
 
-### First Run
-
-```bash
-# Run extraction pipeline (download → rip → export)
-uv run erenshor extract download
-uv run erenshor extract rip
-uv run erenshor extract export
-
-# Expected output: variants/main/erenshor-main.sqlite (50MB+ database)
-
-# Deploy to Google Sheets (optional)
-uv run erenshor sheets deploy --all-sheets
-```
+Expected output: `variants/main/erenshor-main.sqlite` (~50 MB).
 
 ---
 
 ## Architecture
 
+### Components
+
+- **Python CLI** (`src/erenshor/`): orchestrates the entire pipeline via `uv run erenshor`
+- **Unity export scripts** (`src/Assets/Editor/`): C# scripts that scan game assets and write to SQLite
+- **Interactive map** (`src/maps/`): SvelteKit website deployed to Cloudflare Workers; shows live player position and entity locations when the InteractiveMapCompanion mod is installed
+- **Companion mods** (`src/mods/`): BepInEx mods that run inside the game
+  - *InteractiveMapCompanion*: streams entity positions to the map website via WebSocket
+  - *Sprint*: configurable sprint key with speed boost
+  - *JusticeForF7*: extends F7 screenshot mode to hide world-space UI
+  - *InteractiveMapsCompanion*: legacy position broadcast mod; maintained but no new features
+
 ### Pipeline
 
-**SteamCMD** → **Game Files** → **AssetRipper** → **Unity Project** → **Unity Editor Scripts (C#)** → **SQLite** → **Python Services** → **MediaWiki / Google Sheets**
-
-The Python CLI (`uv run erenshor`) built with Typer orchestrates the entire pipeline: downloading games via SteamCMD, extracting Unity projects via AssetRipper, running Unity exports in batch mode, formatting data, and deploying to MediaWiki and Google Sheets.
-
-### Data Flow
-
-**Extract Layer** (Game → Unity → SQLite)
-
--   SteamCMD downloads game files from Steam
--   AssetRipper extracts Unity project from game files
--   Unity Editor scripts scan assets and export to SQLite
--   Custom listeners for each entity type (items, characters, spells, quests, etc.)
--   Location: `src/Assets/Editor/ExportSystem/`
-
-**Transform Layer** (SQLite → Content)
-
--   Python services read entities from database
--   Template generators create MediaWiki markup with field preservation
--   SQL formatters generate spreadsheet-ready data
--   Registry resolver maps entity IDs to wiki page titles
--   Location: `src/erenshor/application/`
-
-**Deploy Layer** (Content → Destinations)
-
--   MediaWiki client manages three-stage workflow (fetch, generate, deploy)
--   Google Sheets publisher uploads formatted data via API v4
--   Cloudflare static hosting for interactive maps
--   Location: `src/erenshor/infrastructure/`
-
-### Multi-Variant Support
-
-Three game variants with separate pipelines:
-
-| Variant      | App ID  | Description            |
-| ------------ | ------- | ---------------------- |
-| **main**     | 2382520 | Production release     |
-| **playtest** | 3090030 | Beta/alpha testing     |
-| **demo**     | 2522260 | Free demo version      |
-
-Each variant maintains separate game downloads, Unity projects, databases, spreadsheets, and logs.
+```mermaid
+graph TD
+    S[SteamCMD] --> A[AssetRipper]
+    A --> U[Unity Batch]
+    U --> R[(Raw DB)]
+    U --> I[Images]
+    R --> B[Build]
+    B --> C[(Clean DB)]
+    C --> W[Wiki]
+    C --> Sh[Sheets]
+    C --> M[Map Website]
+    I --> W
+    Mod[InteractiveMapCompanion] -->|WebSocket| M
+    Mod -->|Overlay| G[In-Game Map]
+```
 
 ---
 
-## Usage
+## Variants
 
-### Common Workflows
+Three game variants run through separate pipelines:
 
-**Full Pipeline Update (After Game Patch)**
+| Variant      | App ID  | Description        |
+| ------------ | ------- | ------------------ |
+| **main**     | 2382520 | Production release |
+| **playtest** | 3090030 | Beta testing       |
+| **demo**     | 2522260 | Free demo          |
 
-```bash
-# Run extraction pipeline
-uv run erenshor extract download
-uv run erenshor extract rip
-uv run erenshor extract export
-
-# Fetch existing wiki pages, generate new content, and deploy
-uv run erenshor wiki fetch
-uv run erenshor wiki generate
-uv run erenshor wiki deploy
-
-# Deploy to Google Sheets
-uv run erenshor sheets deploy --all-sheets
-```
-
-**Individual Extraction Steps**
+Target a specific variant with `--variant`:
 
 ```bash
-uv run erenshor extract download    # Download from Steam
-uv run erenshor extract rip         # Extract Unity project
-uv run erenshor extract export      # Export to SQLite
-```
-
-**Managing Multiple Variants**
-
-```bash
-# Update playtest variant
 uv run erenshor --variant playtest extract download
-uv run erenshor --variant playtest extract rip
-uv run erenshor --variant playtest extract export
-
-# Check status
-uv run erenshor status
 ```
-
-**Google Sheets Deployment**
-
-```bash
-# List available sheets
-uv run erenshor sheets list
-
-# Deploy all sheets
-uv run erenshor sheets deploy --all-sheets
-
-# Deploy specific sheets
-uv run erenshor sheets deploy --sheets items characters
-
-# Preview without uploading
-uv run erenshor sheets deploy --all-sheets --dry-run
-```
-
-**Available Sheets**: achievement-triggers, ascensions, books, character-dialogs, characters, classes, drop-chances, factions, fishing, item-bags, items, mining-nodes, quests, secret-passages, skills, spawn-points, spells, teleports, treasure-locations, wishing-wells, zones
-
-### CLI Commands
-
-```bash
-# System
-uv run erenshor version             # Show version
-uv run erenshor status              # Show status
-uv run erenshor config show         # View configuration
-
-# Extraction (download → rip → export)
-uv run erenshor extract download    # Download from Steam
-uv run erenshor extract rip         # Extract Unity project
-uv run erenshor extract export      # Export to SQLite
-
-# Wiki (three-stage workflow)
-uv run erenshor wiki fetch          # Fetch existing pages from MediaWiki
-uv run erenshor wiki generate       # Generate new pages locally
-uv run erenshor wiki deploy         # Deploy generated pages to MediaWiki
-
-# Google Sheets
-uv run erenshor sheets list         # List available sheets
-uv run erenshor sheets deploy       # Deploy to Google Sheets
-
-# Interactive Maps
-uv run erenshor maps dev            # Start dev server with live reloading
-uv run erenshor maps preview        # Preview built site locally
-uv run erenshor maps build          # Build for production
-uv run erenshor maps deploy         # Deploy to Cloudflare Pages
-
-# Backup & Testing
-uv run erenshor backup list         # List backups
-uv run erenshor test                # Run all tests
-uv run erenshor test unit           # Run unit tests only
-uv run erenshor test integration    # Run integration tests only
-```
-
-See **[CLAUDE.md](CLAUDE.md)** for detailed documentation.
 
 ---
 
 ## Configuration
 
-Two-layer TOML configuration system:
+Two-layer TOML configuration:
 
-1. `config.toml` - Project defaults (tracked in git)
-2. `.erenshor/config.local.toml` - Local overrides (NOT tracked)
+1. `config.toml` — project defaults, tracked in git
+2. `.erenshor/config.local.toml` — local overrides, **not** tracked
 
-**Example `config.toml`:**
+**`config.toml` (project defaults):**
 
 ```toml
 [global.unity]
@@ -236,7 +115,7 @@ app_id = "2382520"
 database = "$REPO_ROOT/variants/main/erenshor-main.sqlite"
 ```
 
-**Example `.erenshor/config.local.toml`:**
+**`.erenshor/config.local.toml` (your overrides):**
 
 ```toml
 [global.steam]
@@ -247,250 +126,81 @@ bot_username = "YourUsername@BotName"
 bot_password = "your_bot_password"
 
 [variants.playtest]
-enabled = true  # Enable playtest variant
+enabled = true
 ```
 
-**Setting Up Credentials:**
+### MediaWiki bot credentials
 
-**MediaWiki Bot Credentials:**
-
-1. Log in to wiki account
+1. Log in to the wiki account
 2. Go to `Special:BotPasswords`
-3. Create bot password with "Edit existing pages" grant
-4. Add to `.erenshor/config.local.toml`
+3. Create a bot password with the "Edit existing pages" grant
+4. Add `bot_username` and `bot_password` to `.erenshor/config.local.toml`
 
-**Google Sheets Credentials:**
+### Google Sheets credentials
 
 1. Go to [Google Cloud Console](https://console.cloud.google.com)
-2. Create project and enable Google Sheets API
-3. Create service account with "Editor" role
-4. Download JSON key file to `~/.config/erenshor/google-credentials.json`
-5. Share spreadsheets with service account email
+2. Create a project and enable the Google Sheets API
+3. Create a service account with "Editor" role
+4. Download the JSON key file to `~/.config/erenshor/google-credentials.json`
+5. Share each spreadsheet with the service account email
+
+---
+
+## CLI Overview
+
+All commands are run via `uv run erenshor <group> <subcommand>`. Use `--help` on any group or subcommand for flags and options.
+
+| Group      | Subcommands                                         | Purpose                              |
+| ---------- | --------------------------------------------------- | ------------------------------------ |
+| `extract`  | `download`, `rip`, `export`, `build`, `ide-setup`   | Game → Unity → SQLite pipeline       |
+| `wiki`     | `fetch`, `generate`, `deploy`                       | MediaWiki three-stage publish        |
+| `sheets`   | `list`, `deploy`                                    | Google Sheets publish                |
+| `images`   | `process`, `compare`, `report`, `upload`            | Game image processing and upload     |
+| `maps`     | `dev`, `preview`, `build`, `deploy`                 | Interactive map website              |
+| `mod`      | `setup`, `build`, `deploy`, `publish`, `thunderstore`, `launch` | BepInEx mod pipeline    |
+| `golden`   | `capture`                                           | Snapshot expected output for diffing |
+| `backup`   | `list`                                              | List database backups                |
+| `config`   | `show`                                              | Inspect resolved configuration       |
+| `test`     | *(bare)*, `unit`, `integration`                     | Run test suite                       |
+| `docs`     | `generate`                                          | Generate documentation               |
+| `version`  | —                                                   | Show version                         |
+| `status`   | —                                                   | Show tool paths and database state   |
+
+---
+
+## Common Issues
+
+Run `uv run erenshor status` first — it verifies tool paths (Unity, AssetRipper) and database presence in one shot.
+
+**Log locations:**
+- Global: `.erenshor/logs/`
+- Per-variant: `variants/{variant}/logs/`
+- Unity export output: `variants/{variant}/logs/export_*.log`
+
 
 ---
 
 ## Development
 
-### Setup
-
 ```bash
-# Clone repository
-git clone https://github.com/glockyco/erenshor-data-mining.git
-cd erenshor-data-mining
-
-# Install dependencies
+# Install dev dependencies
 uv sync --dev
 
-# Install pre-commit hooks
+# Install pre-commit hooks (run once, and again if .pre-commit-config.yaml changes)
 uv run pre-commit install
 
-# Verify pre-commit setup
-uv run pre-commit run --all-files
+# Tests
+uv run pytest                    # All tests
+uv run pytest --cov              # With coverage
+uv run pytest -m integration     # Integration tests only
 
-# Verify tests
-uv run pytest
+# Code quality
+uv run ruff format src/ tests/   # Format
+uv run ruff check src/ tests/    # Lint
+uv run mypy src/                 # Type check
+uv run pre-commit run --all-files  # All hooks
 ```
 
-**Important**: If you modify `.pre-commit-config.yaml`, run `uv run pre-commit install` again to update the hooks!
-
-### Testing
-
-```bash
-# Run all tests
-uv run pytest
-
-# With coverage
-uv run pytest --cov
-
-# Integration tests only
-uv run pytest -m integration
-
-# Watch mode
-uv run pytest-watch
-
-# Specific test
-uv run pytest tests/test_wiki_generator.py::test_item_generation
-```
-
-**Pre-commit hooks** automatically format code and block commits with unfixable violations. **CI** verifies formatting and runs the full test suite.
-
-**Philosophy**:
-- Pre-commit: Auto-fix what can be fixed (Python imports, C# formatting), fail on violations that need manual fixes
-- CI: Verify everything is correct, run full test suite
-
-Never use `git commit --no-verify` as it bypasses formatting checks that CI will catch anyway.
-
-### Code Quality
-
-```bash
-# Format code
-uv run ruff format src/ tests/
-
-# Lint code
-uv run ruff check src/ tests/
-
-# Type checking
-uv run mypy src/
-
-# Run all pre-commit hooks
-uv run pre-commit run --all-files
-```
-
-### Adding New Content Types
-
-**1. Unity Export (if new entity type)**
-
-Create listener in `src/Assets/Editor/ExportSystem/AssetScanner/Listener/`:
-
-```csharp
-public class MyEntityListener : IAssetListener
-{
-    public void OnAsset(Object asset, Repository repository)
-    {
-        if (asset is MyScriptableObject myEntity)
-        {
-            var record = new MyEntityRecord { Id = myEntity.Id, Name = myEntity.Name };
-            repository.Insert(record);
-        }
-    }
-}
-```
-
-Register in `ExportBatch.cs`:
-
-```csharp
-scanner.RegisterListener(new MyEntityListener());
-```
-
-**2. Python Wiki Generation**
-
-Create generator in `src/erenshor/application/generators/`:
-
-```python
-class MyEntityGenerator(WikiGenerator):
-    def generate(self) -> Iterator[WikiPage]:
-        entities = self.repository.get_all_my_entities()
-        for entity in entities:
-            content = self.render_template("my_entity.jinja2", entity=entity)
-            yield WikiPage(title=entity.name, content=content)
-```
-
-**3. Wire Up CLI Command**
-
-Add command in `src/erenshor/cli/commands/wiki.py`:
-
-```python
-@app.command()
-def update_my_entities():
-    """Update MyEntity wiki pages."""
-    generator = MyEntityGenerator(...)
-    for page in generator.generate():
-        save_page(page)
-```
-
-### Continuous Integration
-
-GitHub Actions runs on every push and PR:
-
--   Ruff linting and formatting
--   MyPy type checking
--   Gitleaks secret scanning
--   Full pytest suite with coverage
-
-View results: [GitHub Actions](https://github.com/glockyco/erenshor-data-mining/actions)
-
-### Git Workflow
-
-Use [conventional commits](https://www.conventionalcommits.org/):
-
-```bash
-git checkout -b feature/my-new-feature
-git add .
-git commit -m "feat: add new content type"
-git push origin feature/my-new-feature
-```
-
-Commit types: `feat:`, `fix:`, `docs:`, `style:`, `refactor:`, `perf:`, `test:`, `build:`, `ci:`, `chore:`, `revert:`
+CI runs on every push and PR: Ruff, MyPy, Gitleaks secret scanning, and the full pytest suite. View results at [GitHub Actions](https://github.com/glockyco/erenshor-data-mining/actions).
 
 ---
-
-## Reference
-
-### Project Structure
-
-```
-erenshor/
-├── src/
-│   ├── erenshor/                 # Python package
-│   │   ├── cli/                  # Typer CLI (commands, preconditions, context)
-│   │   ├── application/          # Services, generators, formatters
-│   │   │   ├── generators/       # Wiki template generators
-│   │   │   ├── formatters/       # Google Sheets formatters
-│   │   │   │   └── sheets/queries/  # SQL query files
-│   │   │   └── services/         # Business logic (wiki, sheets, backup)
-│   │   ├── domain/               # Entities and value objects
-│   │   ├── infrastructure/       # External integrations
-│   │   │   ├── assetripper/      # AssetRipper automation
-│   │   │   ├── steam/            # SteamCMD integration
-│   │   │   ├── unity/            # Unity batch mode executor
-│   │   │   ├── wiki/             # MediaWiki client
-│   │   │   ├── publishers/       # Google Sheets publisher
-│   │   │   ├── database/         # SQLite repositories
-│   │   │   └── config/           # Configuration loader
-│   │   ├── registry/             # Entity-to-page resolver
-│   │   └── shared/               # Shared utilities
-│   └── Assets/Editor/            # Unity C# export scripts
-│       ├── ExportSystem/         # Asset scanner and listeners
-│       ├── Database/             # SQLite record models
-│       └── ExportBatch.cs        # Batch mode entry point
-├── variants/                     # Working directories (NOT tracked)
-│   ├── main/                     # Main game variant
-│   │   ├── game/                 # Downloaded from Steam
-│   │   ├── unity/                # Unity project from AssetRipper
-│   │   ├── wiki/                 # Wiki fetch/generate/deploy cache
-│   │   ├── logs/                 # Variant-specific logs
-│   │   └── erenshor-main.sqlite  # Exported database
-│   ├── playtest/                 # Playtest variant
-│   └── demo/                     # Demo variant
-├── tests/                        # Python test suite
-├── docs/                         # Documentation
-├── registry.db                   # Entity-to-page mapping database
-├── config.toml                   # Project configuration
-├── pyproject.toml                # Python dependencies and CLI entry point
-└── .erenshor/                    # Local state and overrides (NOT tracked)
-    ├── config.local.toml         # User configuration overrides
-    ├── state.json                # Pipeline state tracking
-    └── logs/                     # Global logs
-```
-
-### Key Files
-
-| File                                 | Purpose                                       |
-| ------------------------------------ | --------------------------------------------- |
-| `config.toml`                        | Project configuration (tracked in git)        |
-| `.erenshor/config.local.toml`        | Local overrides (NOT tracked)                 |
-| `registry.db`                        | Entity-to-page mapping database               |
-| `variants/main/erenshor-main.sqlite` | Main game database (50MB+)                    |
-| `src/Assets/Editor/`                 | Unity C# export scripts                       |
-| `src/erenshor/`                      | Python package (CLI, services, infrastructure)|
-| `pyproject.toml`                     | Python dependencies and CLI entry point       |
-
-### Troubleshooting
-
-**Quick Diagnostics:**
-
-```bash
-uv run erenshor doctor       # System health check
-uv run erenshor status       # Pipeline status
-```
-
-**Common Issues:**
-
--   Unity export failures → Check Unity version, symlinks, logs in `variants/{variant}/logs/`
--   Wiki upload errors → Verify credentials, test API access
--   Google Sheets permissions → Ensure service account has Editor access
--   Database missing → Re-run export, check backups
--   SteamCMD auth fails → Verify Steam credentials and game ownership
--   Python import errors → Run `uv sync --dev` to reinstall dependencies
-
-See **[docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)** for detailed solutions.
