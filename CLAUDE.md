@@ -25,10 +25,20 @@ tracks all development work including data mining, wiki, maps, and mods.
 
 ## Architecture
 
-```
-Python CLI (Typer) → Unity batch mode → SQLite → Wiki/Sheets/Maps
-                                              ↓
-                   BepInEx Mod → WebSocket → Interactive Map (live mode)
+```mermaid
+graph TD
+    S[SteamCMD] --> A[AssetRipper]
+    A --> U[Unity Batch]
+    U --> R[(Raw DB)]
+    U --> I[Images]
+    R --> B[Build]
+    B --> C[(Clean DB)]
+    C --> W[Wiki]
+    C --> Sh[Sheets]
+    C --> M[Map Website]
+    I --> W
+    Mod[BepInEx Mod] -->|WebSocket| M
+    Mod -->|Overlay| G[In-Game Map]
 ```
 
 **Entry point**: `uv run erenshor`
