@@ -1838,7 +1838,9 @@
     "character:molorai enlightened (1)": {
       "wiki_page_name": "Molorai Outrider",
       "display_name": "Molorai Outrider",
-      "image_name": "Molorai Outrider"
+      "image_name": "Molorai Outrider",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0
     },
     "character:molorai enllightened m": {
       "wiki_page_name": "Molorai Truthseeker",
