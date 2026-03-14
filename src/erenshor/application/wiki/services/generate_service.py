@@ -235,7 +235,7 @@ class WikiGenerateService:
                         final_content = self._preservation_handler.merge_templates(
                             old_wikitext=migrated_content,
                             new_wikitext=page_content,
-                            template_names=["Item", "Enemy", "Ability"],
+                            template_names=["Item", "Character", "Ability"],
                         )
 
                         # Replace fancy tables (weapons, armor, charms)

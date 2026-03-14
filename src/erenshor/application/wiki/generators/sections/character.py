@@ -52,7 +52,7 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         display_name = character.display_name or character.npc_name or ""
         image_name = character.image_name or display_name
 
-        enemy_type = self._format_enemy_type(character, enriched.spawn_infos)
+        enemy_type = self._format_enemy_type(character)
         faction = self._format_faction(character)
         faction_change = self._format_faction_modifiers(character.faction_modifiers or [])
         zones = self._format_zones(enriched.spawn_infos)
@@ -91,20 +91,24 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         template_wikitext = self.render_template("character.jinja2", context)
         return self.normalize_wikitext(template_wikitext)
 
-    def _format_enemy_type(self, character: Character, spawn_infos: list[CharacterSpawnInfo]) -> str:
-        """Classify character as Boss/Rare/Enemy/NPC for template display."""
+    def _format_enemy_type(self, character: Character) -> str:
+        """Classify character for the {{Character}} template type field.
+
+        Uses character-level flags, consistent with the map's effectiveRarity logic:
+          - is_friendly → NPC
+          - is_unique   → Boss
+          - is_rare and not is_common → Rare  (is_common overrides is_rare)
+          - else        → Enemy
+
+        Returns a plain string; the {{Character}} template handles display formatting.
+        """
         if character.is_friendly:
-            return "[[:Category:Characters|NPC]]"
+            return "NPC"
         if character.is_unique:
-            return "[[Enemies|Boss]]"
-        if spawn_infos:
-            all_rare = all(info.is_rare for info in spawn_infos)
-            all_unique = all(info.is_unique for info in spawn_infos)
-            if all_unique:
-                return "[[Enemies|Boss]]"
-            if all_rare:
-                return "[[Enemies|Rare]]"
-        return "[[Enemies|Enemy]]"
+            return "Boss"
+        if character.is_rare and not character.is_common:
+            return "Rare"
+        return "Enemy"
 
     def _format_faction(self, character: Character) -> str:
         """Format faction field using pre-built link fields on the character entity."""

@@ -240,7 +240,7 @@ DEFAULT_PRESERVATION_RULES: dict[str, dict[str, str]] = {
     "Fancy-weapon": {},
     "Fancy-armor": {},
     "Fancy-charm": {},
-    "Enemy": {
+    "Character": {
         # Manual edit fields only
         "imagecaption": "preserve",  # Custom image captions
         "type": "prefer_manual",  # NPC/Enemy/Boss classification (some manual, some DB)

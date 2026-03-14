@@ -32,22 +32,22 @@ Example:
 Template Mappings:
 ------------------
 Legacy -> Active:
-- {{Character}} -> {{Enemy}}
-- {{Pet}} -> {{Enemy}}
+- {{Enemy}} -> {{Character}}
+- {{Pet}} -> {{Character}}
 - {{Consumable}} -> {{Item}}
 - {{Weapon}} -> {{Item}}  (non-stat info)
 - {{Armor}} -> {{Item}}   (non-stat info)
 - {{Auras}} -> {{Item}}
 
 Removed Entirely:
-- {{Enemy Stats}} - Now included within {{Enemy}} template (consolidated)
+- {{Enemy Stats}} - Now included within {{Character}} template (consolidated)
 
 Not Migrated (Active Templates):
 - {{Item}}
 - {{Item/Weapon}}
 - {{Item/Armor}}
 - {{Item/Charm}}
-- {{Enemy}}
+- {{Character}}
 - {{Ability}}
 - {{Mold}}
 - {{Ability Books}}
@@ -80,10 +80,10 @@ class LegacyTemplateRemover:
 
     Example:
         >>> remover = LegacyTemplateRemover()
-        >>> wikitext = "{{Character|name=Goblin|level=5}}"
+        >>> wikitext = "{{Enemy|name=Goblin|level=5}}"
         >>> result = remover.remove_legacy_templates(wikitext)
         >>> print(result)
-        {{Enemy|name=Goblin|level=5}}
+        {{Character|name=Goblin|level=5}}
     """
 
     # Legacy template name -> Active template name mappings
@@ -91,9 +91,10 @@ class LegacyTemplateRemover:
     # These templates exist on old wiki pages but should be replaced with
     # their modern equivalents.
     LEGACY_MAPPINGS: ClassVar[dict[str, str]] = {
-        # Character templates -> Enemy
-        "Character": "Enemy",
-        "Pet": "Enemy",
+        # Character templates — Enemy is the legacy name, Character is active
+        # (Prior to this rename, Character was the legacy name for Enemy; now inverted.)
+        "Enemy": "Character",
+        "Pet": "Character",
         # Item type templates -> Item
         "Consumable": "Item",
         "Weapon": "Item",  # Non-stat info (source, vendors, etc.)
@@ -137,10 +138,10 @@ class LegacyTemplateRemover:
         Example:
             >>> remover = LegacyTemplateRemover()
             >>> # Multiple templates on same page
-            >>> wikitext = "{{Character|name=Goblin}} and {{Consumable|name=Potion}}"
+            >>> wikitext = "{{Enemy|name=Goblin}} and {{Consumable|name=Potion}}"
             >>> result = remover.remove_legacy_templates(wikitext)
             >>> print(result)
-            {{Enemy|name=Goblin}} and {{Item|name=Potion}}
+            {{Character|name=Goblin}} and {{Item|name=Potion}}
 
             >>> # Template to remove
             >>> wikitext = "{{Enemy Stats|hp=100}}"
