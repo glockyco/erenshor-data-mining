@@ -11,6 +11,12 @@
     "lint:fix": "pnpm --filter erenshor-maps lint:fix",
     "format": "pnpm --filter erenshor-maps format"
   },
+  "lint-staged": {
+    "*.py": [
+      "uv run ruff format",
+      "uv run ruff check --fix"
+    ]
+  },
   "devDependencies": {
     "husky": "^9.1.7",
     "lint-staged": "^16.2.6"
