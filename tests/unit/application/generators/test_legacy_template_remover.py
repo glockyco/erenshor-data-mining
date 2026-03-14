@@ -126,7 +126,11 @@ class TestLegacyTemplateRemover:
 
     def test_mixed_legacy_and_active_templates(self, remover: LegacyTemplateRemover) -> None:
         """Test page with both legacy and active templates."""
-        wikitext = "{{Item|name=Active Item}}\n{{Consumable|name=Legacy Consumable}}\n{{Character|name=Active Character}}"
+        wikitext = (
+            "{{Item|name=Active Item}}\n"
+            "{{Consumable|name=Legacy Consumable}}\n"
+            "{{Character|name=Active Character}}"
+        )
         result = remover.remove_legacy_templates(wikitext)
 
         # Legacy template should be replaced
