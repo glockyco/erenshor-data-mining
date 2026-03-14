@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Dream Invader
 |image=[[File:Dream Invader.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Nightmare Collective]]
 |factionChange=
 |zones=

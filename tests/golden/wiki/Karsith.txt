@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Karsith
 |image=[[File:Karsith.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Jaws of Sivakaya]]

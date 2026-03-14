@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Silk Cobra
 |image=[[File:Silk Cobra.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Silkengrass Meadowlands]]

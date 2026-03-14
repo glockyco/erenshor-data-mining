@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Lost Treasure (10-20)
 |image=[[File:Lost Treasure.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Treasure Hunting]]

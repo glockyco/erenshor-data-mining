@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Gloopa
 |image=[[File:Gloopa.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[The Elderstone Mines]]
@@ -34,11 +34,11 @@
 |spells=
 }}
 
-{{Enemy
+{{Character
 |name=Gloopa (Half)
 |image=[[File:Gloopa.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Elderstone Mines]]
@@ -70,11 +70,11 @@
 |spells=
 }}
 
-{{Enemy
+{{Character
 |name=Gloopa (Quarter)
 |image=[[File:Gloopa.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=
@@ -106,11 +106,11 @@
 |spells=
 }}
 
-{{Enemy
+{{Character
 |name=Gloopa (Quarter)
 |image=[[File:Gloopa.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[The Elderstone Mines]]

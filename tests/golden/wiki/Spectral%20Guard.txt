@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Spectral Guard
 |image=[[File:Spectral Guard.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Lost Cellar]]

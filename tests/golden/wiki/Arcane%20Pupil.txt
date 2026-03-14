@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Arcane Pupil
 |image=[[File:Arcane Pupil.png|thumb]]
 |imagecaption=
-|type=[[:Category:Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Ancients]]
 |factionChange=
 |zones=[[The Duskenlight Coast]]

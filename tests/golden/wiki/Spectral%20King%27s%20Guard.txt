@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Spectral King's Guard
 |image=[[File:Spectral King's Guard.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Lost Cellar]]

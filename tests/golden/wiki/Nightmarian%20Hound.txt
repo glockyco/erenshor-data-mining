@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Nightmarian Hound
 |image=[[File:Nightmarian Hound.png|thumb]]
 |imagecaption=Training these dogs is an absolute nightmare
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Nightmare Collective]]
 |factionChange=
 |zones=[[Mysterious Portal|Mysterious Portal (2)]]

@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Reliquary Ward
 |image=[[File:Reliquary Ward.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Reliquary Hall]]

@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Abyssal Lord
 |image=[[File:Abyssal Lord.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Abyssal Lake]]

@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Swamp Wyrm
 |image=[[File:Swamp Wyrm.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rottenfoot]]

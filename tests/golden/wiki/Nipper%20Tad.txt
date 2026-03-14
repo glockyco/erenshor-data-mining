@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Nipper Tad
 |image=[[File:Nipper Tad.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Willowwatch Ridge]]

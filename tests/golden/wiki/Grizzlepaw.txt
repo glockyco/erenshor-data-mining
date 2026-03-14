@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Grizzlepaw
 |image=[[File:Grizzlepaw.png|thumb]]
 |imagecaption=A very heavy boi
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Faerie's Brake]]

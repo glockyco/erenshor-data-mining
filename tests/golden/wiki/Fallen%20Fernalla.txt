@@ -1,10 +1,10 @@
 {{Spoiler}}
 
-{{Enemy
+{{Character
 |name=Fallen Fernalla
 |image=[[File:Fallen Fernalla.png|thumb]]
 |imagecaption=Phase Three Version
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=+35 [[Fernalla's Children]]<br>+35 [[The Blades of Vitheo]]<br>-100 [[The Children of Sivakaya]]<br>+35 [[The Torchbearers of Brax]]
 |zones=[[Blooming Sepulcher]]
@@ -36,11 +36,11 @@
 |spells=
 }}
 
-{{Enemy
+{{Character
 |name=Fallen Fernalla
 |image=[[File:Fallen Fernalla.png|thumb]]
 |imagecaption=Phase One Version
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Blooming Sepulcher]]

@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Aeiros, Soldier of Sivakaya
 |image=[[File:Aeiros, Soldier of Sivakaya.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Jaws of Sivakaya]]

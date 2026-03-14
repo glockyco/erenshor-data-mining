@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Cursed Vithean Traitor
 |image=[[File:Cursed Vithean Traitor.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Vitheo's Rest]]

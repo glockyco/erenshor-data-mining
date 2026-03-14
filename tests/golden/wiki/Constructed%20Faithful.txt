@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Constructed Faithful
 |image=[[File:Constructed Faithful.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=+2 [[Fernalla's Children]]<br>+2 [[The Torchbearers of Brax]]
 |zones=[[Jaws of Sivakaya]]

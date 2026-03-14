@@ -1,10 +1,10 @@
 {{spoiler}}
 
-{{Enemy
+{{Character
 |name=Eldoth Molorai
 |image=[[File:Eldoth Molorai.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Azynthi's Garden]]

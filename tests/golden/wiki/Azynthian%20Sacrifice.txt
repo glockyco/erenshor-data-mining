@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Azynthian Sacrifice
 |image=[[File:Azynthian Sacrifice.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Secluded Sanctuary]]

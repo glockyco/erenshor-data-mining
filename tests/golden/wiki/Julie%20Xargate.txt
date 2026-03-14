@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Julie Xargate
 |image=[[File:Julie Xargate.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Citizens of Port Azure]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[Port Azure]]

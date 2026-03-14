@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Sand Mummy
 |image=[[File:Sand Mummy.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Braxonian Desert]]

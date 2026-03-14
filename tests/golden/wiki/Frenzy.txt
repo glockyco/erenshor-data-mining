@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Frenzy
 |image=[[File:Frenzy.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Blooming Sepulcher]]

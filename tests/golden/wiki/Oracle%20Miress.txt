@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Oracle Miress
 |image=[[File:Oracle Miress.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Azynthi's Garden|Azynthi's Garden (Dimensional Rift)]]

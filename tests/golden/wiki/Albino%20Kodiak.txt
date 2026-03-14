@@ -1,9 +1,9 @@
 The Albino Kodiak can spawn in place of the regular Kodiak in the [[Silkengrass Meadowlands]].
-{{Enemy
+{{Character
 |name=Albino Kodiak
 |image=[[File:Albino Kodiak.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Rare]]
+|type=Rare
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Silkengrass Meadowlands]]

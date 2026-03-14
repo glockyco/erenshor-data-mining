@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Alpha Wolf
 |image=[[File:Alpha Wolf.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Rare]]
+|type=Rare
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Faerie's Brake]]<br>[[Hidden Hills]]

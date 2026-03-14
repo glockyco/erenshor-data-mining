@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Kio the Light Keeper
 |image=[[File:Kio the Light Keeper.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Citizens of Stowaway's Step]]
 |factionChange=-25 [[The Citizens of Stowaway's Step]]
 |zones=[[Stowaway's Step]]
@@ -72,11 +72,11 @@ Greeting message:
 <i>Kio will then give the player a {{ItemLink|Shivering Torch}} which they will then need to equip in their offhand. The lighting will change to be very dark once you have the it.<br><br>You will then get a new quest {{QuestLink|Find The Hider}}</i>
 |}
 
-{{Enemy
+{{Character
 |name=Kio the Light Keeper
 |image=[[File:Kio the Light Keeper.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Citizens of Stowaway's Step]]
 |factionChange=
 |zones=[[Shivering Step]]

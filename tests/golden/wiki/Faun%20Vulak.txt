@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Faun Vulak
 |image=[[File:Faun Vulak.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[Fernalla's Children]]
 |factionChange=
 |zones=[[The Duskenlight Coast]]

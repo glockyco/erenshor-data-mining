@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Garrey Ambrose
 |image=[[File:Garrey Ambrose.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Citizens of Stowaway's Step]]
 |factionChange=-10 [[Fernalla's Children]]<br>-10 [[The Citizens of Erenshor]]
 |zones=[[Stowaway's Step]]

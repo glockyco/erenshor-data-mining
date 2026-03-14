@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Beth Constantine
 |image=[[File:Beth Constantine.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Citizens of Erenshor]]
 |factionChange=-15 [[The Citizens of Erenshor]]
 |zones=[[Soluna's Landing]]

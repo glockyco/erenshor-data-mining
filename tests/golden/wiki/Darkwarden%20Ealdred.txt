@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Darkwarden Ealdred
 |image=[[File:Darkwarden Ealdred.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Children of Sivakaya]]
 |factionChange=-2 [[The Children of Sivakaya]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Solunarian Brotherhood]]
 |zones=[[Abyssal Lake]]

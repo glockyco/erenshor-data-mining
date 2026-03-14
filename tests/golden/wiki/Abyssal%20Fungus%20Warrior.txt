@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Abyssal Fungus Warrior
 |image=[[File:Abyssal Fungus Warrior.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Abyssal Lake]]

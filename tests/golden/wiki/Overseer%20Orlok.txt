@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Overseer Orlok
 |image=[[File:Overseer Orlok.png|thumb]]
 |imagecaption="You are an invader here, and we do not stand for that sort of behaviour!"
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
 |factionChange=-10 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+10 [[The Azure Guard]]<br>+10 [[The Citizens of Erenshor]]<br>+10 [[The Citizens of Port Azure]]<br>+10 [[The Solunarian Brotherhood]]
 |zones=[[Old Krakengard]]

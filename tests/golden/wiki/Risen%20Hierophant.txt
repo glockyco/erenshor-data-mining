@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Risen Hierophant
 |image=[[File:Risen Hierophant.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Blooming Sepulcher]]

@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Rattlewrists
 |image=[[File:Rattlewrists.png|thumb]]
 |imagecaption="Rattlewrists rattles towards you!"
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Children of Sivakaya]]
 |factionChange=-5 [[The Children of Sivakaya]]<br>+5 [[The Citizens of Stowaway's Step]]
 |zones=[[Stowaway's Step]]

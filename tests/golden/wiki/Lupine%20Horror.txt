@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Lupine Horror
 |image=[[File:Lupine Horror.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Rare]]
+|type=Rare
 |faction=[[The Followers of Evil]]
 |factionChange=+2 [[Fernalla's Children]]<br>+2 [[The Torchbearers of Brax]]
 |zones=[[The Blight]]

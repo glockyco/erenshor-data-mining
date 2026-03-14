@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Summoned Dire Wolf
 |image=[[File:Summoned Dire Wolf.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=
 |factionChange=
 |zones=

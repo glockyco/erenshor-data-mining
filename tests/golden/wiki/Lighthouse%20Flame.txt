@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Lighthouse Flame
 |image=[[File:Lighthouse Flame.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=
 |factionChange=
 |zones=[[Shivering Step]]

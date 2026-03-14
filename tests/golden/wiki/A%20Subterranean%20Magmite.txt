@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=A Subterranean Magmite
 |image=[[File:A Subterranean Magmite.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[The Elderstone Mines]]

@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Aquilamar Duelist
 |image=[[File:Aquilamar Duelist.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[Aquilimar Guild]]
 |factionChange=-10 [[Aquilimar Guild]]
 |zones=[[Port Azure]]

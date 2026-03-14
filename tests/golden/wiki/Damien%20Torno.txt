@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Damien Torno
 |image=[[File:Damien Torno.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Agents of The Wisp]]
 |factionChange=-50 [[The Agents of The Wisp]]
 |zones=[[Faerie's Brake]]

@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=A Highwayman Raider
 |image=[[File:A Highwayman Raider.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[Savannah Priel]]
 |factionChange=-3 [[Savannah Priel]]<br>+3 [[The Azure Guard]]<br>+3 [[The Citizens of Erenshor]]<br>+3 [[The Citizens of Port Azure]]<br>+3 [[The Solunarian Brotherhood]]
 |zones=[[Fernalla's Revival Plains]]
@@ -34,11 +34,11 @@
 |spells=
 }}
 
-{{Enemy
+{{Character
 |name=A Highwayman Raider
 |image=[[File:A Highwayman Raider.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[Savannah Priel]]
 |factionChange=-3 [[Savannah Priel]]<br>+3 [[The Azure Guard]]<br>+3 [[The Citizens of Erenshor]]<br>+3 [[The Citizens of Port Azure]]<br>+3 [[The Solunarian Brotherhood]]
 |zones=[[Fernalla's Revival Plains]]
@@ -70,11 +70,11 @@
 |spells=
 }}
 
-{{Enemy
+{{Character
 |name=A Highwayman Raider
 |image=[[File:A Highwayman Raider.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[Savannah Priel]]
 |factionChange=-3 [[Savannah Priel]]<br>+3 [[The Azure Guard]]<br>+3 [[The Citizens of Erenshor]]<br>+3 [[The Citizens of Port Azure]]<br>+3 [[The Solunarian Brotherhood]]
 |zones=[[Fernalla's Revival Plains]]

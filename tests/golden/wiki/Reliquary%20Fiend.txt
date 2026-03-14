@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Reliquary Fiend
 |image=[[File:Reliquary Fiend.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Reliquary Hall]]

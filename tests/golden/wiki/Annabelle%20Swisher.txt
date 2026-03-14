@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Annabelle Swisher
 |image=[[File:Annabelle Swisher.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Citizens of Stowaway's Step]]
 |factionChange=-15 [[The Citizens of Erenshor]]
 |zones=[[Stowaway's Step]]

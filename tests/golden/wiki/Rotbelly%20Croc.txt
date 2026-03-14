@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Rotbelly Croc
 |image=[[File:Rotbelly Croc.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rottenfoot]]

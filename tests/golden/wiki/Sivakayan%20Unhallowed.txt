@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Sivakayan Unhallowed
 |image=[[File:Sivakayan Unhallowed.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Children of Sivakaya]]
 |factionChange=-2 [[The Children of Sivakaya]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Solunarian Brotherhood]]
 |zones=[[Vitheo's Rest]]

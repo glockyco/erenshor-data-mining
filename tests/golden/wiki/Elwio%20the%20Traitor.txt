@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Elwio the Traitor
 |image=[[File:Elwio the Traitor.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Vitheo's Rest]]

@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Drowned Corpse
 |image=[[File:Drowned Corpse.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=-10 [[The Children of Sivakaya]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]
 |zones=[[Malaroth's Nesting Grounds]]

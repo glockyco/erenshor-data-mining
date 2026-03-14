@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Apparition of Vitheo
 |image=[[File:Apparition of Vitheo.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Vitheo's Rest]]

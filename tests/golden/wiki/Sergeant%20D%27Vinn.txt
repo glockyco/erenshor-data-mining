@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Sergeant D'Vinn
 |image=[[File:Sergeant D'Vinn.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Citizens of Stowaway's Step]]
 |factionChange=
 |zones=[[Stowaway's Step]]

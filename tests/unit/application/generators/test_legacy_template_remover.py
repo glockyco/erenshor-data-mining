@@ -17,22 +17,22 @@ class TestLegacyTemplateRemover:
     # Basic Template Replacement Tests
     # -------------------------------------------------------------------------
 
-    def test_replace_character_with_enemy(self, remover: LegacyTemplateRemover) -> None:
-        """Test replacing {{Character}} with {{Enemy}}."""
-        wikitext = "{{Character|name=Goblin|level=5}}"
+    def test_replace_enemy_with_character(self, remover: LegacyTemplateRemover) -> None:
+        """Test replacing {{Enemy}} with {{Character}}."""
+        wikitext = "{{Enemy|name=Goblin|level=5}}"
         result = remover.remove_legacy_templates(wikitext)
 
-        assert "{{Enemy" in result
-        assert "{{Character" not in result
+        assert "{{Character" in result
+        assert "{{Enemy" not in result
         assert "|name=Goblin" in result
         assert "|level=5" in result
 
-    def test_replace_pet_with_enemy(self, remover: LegacyTemplateRemover) -> None:
-        """Test replacing {{Pet}} with {{Enemy}}."""
+    def test_replace_pet_with_character(self, remover: LegacyTemplateRemover) -> None:
+        """Test replacing {{Pet}} with {{Character}}."""
         wikitext = "{{Pet|name=Wolf Companion|type=Pet}}"
         result = remover.remove_legacy_templates(wikitext)
 
-        assert "{{Enemy" in result
+        assert "{{Character" in result
         assert "{{Pet" not in result
         assert "|name=Wolf Companion" in result
         assert "|type=Pet" in result
@@ -104,16 +104,16 @@ class TestLegacyTemplateRemover:
 
     def test_multiple_legacy_templates_on_same_page(self, remover: LegacyTemplateRemover) -> None:
         """Test handling multiple legacy templates on same page."""
-        wikitext = "{{Character|name=Goblin|level=5}}\n{{Consumable|name=Potion}}\n{{Pet|name=Wolf}}"
+        wikitext = "{{Enemy|name=Goblin|level=5}}\n{{Consumable|name=Potion}}\n{{Pet|name=Wolf}}"
         result = remover.remove_legacy_templates(wikitext)
 
         # All legacy templates should be replaced
-        assert "{{Character" not in result
+        assert "{{Enemy" not in result
         assert "{{Consumable" not in result
         assert "{{Pet" not in result
 
-        # Should have 2 Enemy templates (Character + Pet) and 1 Item (Consumable)
-        assert result.count("{{Enemy") == 2
+        # Should have 2 Character templates (Enemy + Pet) and 1 Item (Consumable)
+        assert result.count("{{Character") == 2
         assert result.count("{{Item") == 1
 
     def test_multiple_instances_of_same_legacy_template(self, remover: LegacyTemplateRemover) -> None:
@@ -126,7 +126,7 @@ class TestLegacyTemplateRemover:
 
     def test_mixed_legacy_and_active_templates(self, remover: LegacyTemplateRemover) -> None:
         """Test page with both legacy and active templates."""
-        wikitext = "{{Item|name=Active Item}}\n{{Consumable|name=Legacy Consumable}}\n{{Enemy|name=Active Enemy}}"
+        wikitext = "{{Item|name=Active Item}}\n{{Consumable|name=Legacy Consumable}}\n{{Character|name=Active Character}}"
         result = remover.remove_legacy_templates(wikitext)
 
         # Legacy template should be replaced
@@ -134,7 +134,7 @@ class TestLegacyTemplateRemover:
 
         # Active templates should remain unchanged
         assert result.count("{{Item") == 2  # Original + replaced Consumable
-        assert result.count("{{Enemy") == 1  # Original only
+        assert result.count("{{Character") == 1  # Original only
 
     # -------------------------------------------------------------------------
     # Active Template Preservation Tests
@@ -148,9 +148,9 @@ class TestLegacyTemplateRemover:
         # Should remain exactly the same
         assert result == wikitext
 
-    def test_preserve_active_enemy_template(self, remover: LegacyTemplateRemover) -> None:
-        """Test that {{Enemy}} template is not modified."""
-        wikitext = "{{Enemy|name=Dragon|level=20}}"
+    def test_preserve_active_character_template(self, remover: LegacyTemplateRemover) -> None:
+        """Test that {{Character}} template is not modified."""
+        wikitext = "{{Character|name=Dragon|level=20}}"
         result = remover.remove_legacy_templates(wikitext)
 
         # Should remain exactly the same
@@ -162,10 +162,10 @@ class TestLegacyTemplateRemover:
 
     def test_preserve_all_parameters(self, remover: LegacyTemplateRemover) -> None:
         """Test that all template parameters are preserved during replacement."""
-        wikitext = "{{Character|name=Goblin|level=5|health=100|mana=50|faction=Enemy|type=Boss}}"
+        wikitext = "{{Enemy|name=Goblin|level=5|health=100|mana=50|faction=Enemy|type=Boss}}"
         result = remover.remove_legacy_templates(wikitext)
 
-        assert "{{Enemy" in result
+        assert "{{Character" in result
         assert "|name=Goblin" in result
         assert "|level=5" in result
         assert "|health=100" in result
@@ -192,10 +192,10 @@ class TestLegacyTemplateRemover:
 
     def test_preserve_empty_parameters(self, remover: LegacyTemplateRemover) -> None:
         """Test handling of empty parameter values."""
-        wikitext = "{{Character|name=Goblin|description=|faction=}}"
+        wikitext = "{{Enemy|name=Goblin|description=|faction=}}"
         result = remover.remove_legacy_templates(wikitext)
 
-        assert "{{Enemy" in result
+        assert "{{Character" in result
         assert "|name=Goblin" in result
         # Empty params should be preserved
         assert "|description=" in result
@@ -238,14 +238,14 @@ class TestLegacyTemplateRemover:
 
     def test_wikitext_with_only_active_templates(self, remover: LegacyTemplateRemover) -> None:
         """Test wikitext that only contains active templates."""
-        wikitext = "{{Item|name=Sword}} and {{Enemy|name=Goblin}}"
+        wikitext = "{{Item|name=Sword}} and {{Character|name=Goblin}}"
         result = remover.remove_legacy_templates(wikitext)
         assert result == wikitext
 
     def test_malformed_template_syntax(self, remover: LegacyTemplateRemover) -> None:
         """Test handling of malformed template syntax."""
         # Unclosed template
-        wikitext = "{{Character|name=Goblin"
+        wikitext = "{{Enemy|name=Goblin"
         result = remover.remove_legacy_templates(wikitext)
         # Should not crash, may return original or partially processed
         assert result is not None
@@ -253,21 +253,21 @@ class TestLegacyTemplateRemover:
     def test_case_insensitive_template_names(self, remover: LegacyTemplateRemover) -> None:
         """Test that template name matching is case-insensitive."""
         # MediaWiki template names are case-insensitive
-        wikitext = "{{character|name=Goblin}} {{CHARACTER|name=Orc}} {{ChArAcTeR|name=Troll}}"
+        wikitext = "{{enemy|name=Goblin}} {{ENEMY|name=Orc}} {{eNeMy|name=Troll}}"
         result = remover.remove_legacy_templates(wikitext)
 
         # All should be replaced regardless of case
-        assert "{{character" not in result.lower()
-        assert result.count("{{Enemy") == 3
+        assert "{{enemy" not in result.lower()
+        assert result.count("{{Character") == 3
 
     def test_template_with_whitespace_in_name(self, remover: LegacyTemplateRemover) -> None:
         """Test handling templates with whitespace in names."""
-        wikitext = "{{ Character |name=Goblin}}"
+        wikitext = "{{ Enemy |name=Goblin}}"
         result = remover.remove_legacy_templates(wikitext)
 
         # Template parser should handle whitespace
-        assert "{{Enemy" in result
-        assert "Character" not in result
+        assert "{{Character" in result
+        assert "Enemy" not in result
 
     # -------------------------------------------------------------------------
     # has_legacy_templates() Tests
@@ -275,12 +275,12 @@ class TestLegacyTemplateRemover:
 
     def test_has_legacy_templates_returns_true_for_legacy(self, remover: LegacyTemplateRemover) -> None:
         """Test has_legacy_templates() returns True for legacy templates."""
-        wikitext = "{{Character|name=Goblin}}"
+        wikitext = "{{Enemy|name=Goblin}}"
         assert remover.has_legacy_templates(wikitext) is True
 
     def test_has_legacy_templates_returns_false_for_active(self, remover: LegacyTemplateRemover) -> None:
         """Test has_legacy_templates() returns False for active templates."""
-        wikitext = "{{Item|name=Sword}} and {{Enemy|name=Goblin}}"
+        wikitext = "{{Item|name=Sword}} and {{Character|name=Goblin}}"
         assert remover.has_legacy_templates(wikitext) is False
 
     def test_has_legacy_templates_returns_true_for_removal(self, remover: LegacyTemplateRemover) -> None:
@@ -295,7 +295,7 @@ class TestLegacyTemplateRemover:
 
     def test_has_legacy_templates_mixed_templates(self, remover: LegacyTemplateRemover) -> None:
         """Test has_legacy_templates() with mixed legacy and active templates."""
-        wikitext = "{{Item|name=Sword}} {{Character|name=Goblin}}"
+        wikitext = "{{Item|name=Sword}} {{Enemy|name=Goblin}}"
         assert remover.has_legacy_templates(wikitext) is True
 
     # -------------------------------------------------------------------------
@@ -304,10 +304,10 @@ class TestLegacyTemplateRemover:
 
     def test_get_legacy_template_summary_single_template(self, remover: LegacyTemplateRemover) -> None:
         """Test get_legacy_template_summary() with single legacy template."""
-        wikitext = "{{Character|name=Goblin}}"
+        wikitext = "{{Enemy|name=Goblin}}"
         summary = remover.get_legacy_template_summary(wikitext)
 
-        assert summary == {"Character": 1}
+        assert summary == {"Enemy": 1}
 
     def test_get_legacy_template_summary_multiple_same_template(self, remover: LegacyTemplateRemover) -> None:
         """Test get_legacy_template_summary() with multiple instances of same template."""
@@ -318,10 +318,10 @@ class TestLegacyTemplateRemover:
 
     def test_get_legacy_template_summary_multiple_different_templates(self, remover: LegacyTemplateRemover) -> None:
         """Test get_legacy_template_summary() with multiple different templates."""
-        wikitext = "{{Character|name=Goblin}} {{Consumable|name=Potion}} {{Pet|name=Wolf}}"
+        wikitext = "{{Enemy|name=Goblin}} {{Consumable|name=Potion}} {{Pet|name=Wolf}}"
         summary = remover.get_legacy_template_summary(wikitext)
 
-        assert summary == {"Character": 1, "Consumable": 1, "Pet": 1}
+        assert summary == {"Enemy": 1, "Consumable": 1, "Pet": 1}
 
     def test_get_legacy_template_summary_template_to_remove(self, remover: LegacyTemplateRemover) -> None:
         """Test get_legacy_template_summary() includes templates to remove."""
@@ -337,7 +337,7 @@ class TestLegacyTemplateRemover:
 
     def test_get_legacy_template_summary_no_legacy_templates(self, remover: LegacyTemplateRemover) -> None:
         """Test get_legacy_template_summary() with no legacy templates."""
-        wikitext = "{{Item|name=Sword}} {{Enemy|name=Goblin}}"
+        wikitext = "{{Item|name=Sword}} {{Character|name=Goblin}}"
         summary = remover.get_legacy_template_summary(wikitext)
 
         assert summary == {}
@@ -347,9 +347,9 @@ class TestLegacyTemplateRemover:
     # -------------------------------------------------------------------------
 
     def test_character_page_with_enemy_stats_removal(self, remover: LegacyTemplateRemover) -> None:
-        """Test character page replacing {{Character}} and removing {{Enemy Stats}}."""
+        """Test character page replacing {{Enemy}} and removing {{Enemy Stats}}."""
         wikitext = """
-{{Character|name=Goblin Warrior|level=5|faction=Goblin Clan}}
+{{Enemy|name=Goblin Warrior|level=5|faction=Goblin Clan}}
 
 {{Enemy Stats|hp=100|damage=50}}
 
@@ -357,9 +357,9 @@ Some description text here.
 """
         result = remover.remove_legacy_templates(wikitext)
 
-        # {{Character}} should become {{Enemy}}
-        assert "{{Enemy" in result
-        assert "{{Character" not in result
+        # {{Enemy}} should become {{Character}}
+        assert "{{Character" in result
+        assert "{{Enemy" not in result
 
         # {{Enemy Stats}} should be removed
         assert "{{Enemy Stats" not in result

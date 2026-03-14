@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Cloaked Shadow
 |image=[[File:Cloaked Shadow.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Mysterious Portal|Mysterious Portal (3)]]

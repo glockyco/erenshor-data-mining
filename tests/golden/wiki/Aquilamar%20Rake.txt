@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Aquilamar Rake
 |image=[[File:Aquilamar Rake.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[Aquilimar Guild]]
 |factionChange=-10 [[Aquilimar Guild]]
 |zones=[[Port Azure]]

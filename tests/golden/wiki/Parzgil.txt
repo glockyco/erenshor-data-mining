@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Parzgil
 |image=[[File:Parzgil.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=+10 [[Fernalla's Children]]<br>+10 [[The Torchbearers of Brax]]
 |zones=[[The Blight]]

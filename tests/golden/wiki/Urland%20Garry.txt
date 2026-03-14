@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Urland Garry
 |image=[[File:Urland Garry.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Citizens of Erenshor]]
 |factionChange=-10 [[The Citizens of Erenshor]]<br>-10 [[The Citizens of Port Azure]]
 |zones=[[Vitheo's Watch]]

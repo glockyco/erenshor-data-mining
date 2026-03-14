@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Sivakayan Voidmaster
 |image=[[File:Sivakayan Voidmaster.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=

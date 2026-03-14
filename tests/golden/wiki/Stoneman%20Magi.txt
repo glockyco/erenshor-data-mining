@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Stoneman Magi
 |image=[[File:Stoneman Magi.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rockshade Hold]]

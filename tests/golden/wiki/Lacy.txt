@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Lacy
 |image=[[File:Lacy.png|thumb]]
 |imagecaption=Not as Lacy as she looks!
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[Savannah Priel]]
 |factionChange=
 |zones=[[Prielian Cascade]]

@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Corrupted Fungal Bear
 |image=[[File:Corrupted Fungal Bear.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Blooming Sepulcher]]

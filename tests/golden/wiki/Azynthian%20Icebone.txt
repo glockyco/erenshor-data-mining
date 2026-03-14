@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Azynthian Icebone
 |image=[[File:Azynthian Icebone.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Azynthi's Garden|Azynthi's Garden (Dimensional Rift)]]

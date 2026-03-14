@@ -1,9 +1,9 @@
 Invisible until it attacks you.
-{{Enemy
+{{Character
 |name=Waking Nightmare
 |image=[[File:Waking Nightmare.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=-2 [[The Nightmare Collective]]
 |zones=[[Mysterious Portal|Mysterious Portal (1)]]

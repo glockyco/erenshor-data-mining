@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Orinthar
 |image=[[File:Orinthar.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Jaws of Sivakaya]]

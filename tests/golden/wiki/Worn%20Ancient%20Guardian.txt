@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Worn Ancient Guardian
 |image=[[File:Worn Ancient Guardian.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Faerie's Brake]]<br>[[The Duskenlight Coast]]<br>[[Windwashed Pass]]

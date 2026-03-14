@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Ghost of Wyland Sercher
 |image=[[File:Ghost of Wyland Sercher.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Children of Sivakaya]]
 |factionChange=+1 [[The Agents of The Wisp]]
 |zones=[[Island Tomb]]

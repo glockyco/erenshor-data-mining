@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Town Crier
 |image=[[File:Town Crier.png|thumb]]
 |imagecaption=The town crier in Wickliff, Stowaway's Step
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Citizens of Port Azure]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[Port Azure]]<br>[[Stowaway's Step]]

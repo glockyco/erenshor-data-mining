@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Invader of Dreams
 |image=[[File:Invader of Dreams.png|thumb]]
 |imagecaption="Do not seek us, or else we will seek you."
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Nightmare Collective]]
 |factionChange=
 |zones=[[Mysterious Portal|Mysterious Portal (2)]]

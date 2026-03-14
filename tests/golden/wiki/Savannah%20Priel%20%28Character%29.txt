@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Savannah Priel
 |image=[[File:Savannah Priel (Character).png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[Savannah Priel]]
 |factionChange=-350 [[Savannah Priel]]<br>+20 [[The Citizens of Erenshor]]<br>+20 [[The Citizens of Port Azure]]
 |zones=[[Prielian Cascade]]

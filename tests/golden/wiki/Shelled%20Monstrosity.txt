@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Shelled Monstrosity
 |image=[[File:Shelled Monstrosity.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rockshade Hold]]

@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Occuphage, Eater of Eyes
 |image=[[File:Occuphage, Eater of Eyes.png|thumb]]
 |imagecaption="Feed me..."
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Followers of Good]]
 |factionChange=
 |zones=[[Island Tomb]]<br>[[Shivering Tomb|Shivering Tomb (1)]]<br>[[Shivering Tomb|Shivering Tomb (2)]]

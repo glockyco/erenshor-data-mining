@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Molorai Outrider
 |image=[[File:Molorai Outrider.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
 |factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
 |zones=[[Azynthi's Garden]]
@@ -33,11 +33,11 @@
 |void=16-37
 |spells={{AbilityLink|Aetherstorm}}<br>{{AbilityLink|Arterial Decay}}<br>{{AbilityLink|Ice Spear}}
 }}
-{{Enemy
+{{Character
 |name=Molorai Outrider
 |image=[[File:Molorai Outrider.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
 |factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
 |zones=[[Azynthi's Garden]]
@@ -69,11 +69,11 @@
 |spells={{AbilityLink|Death's Embrace}}<br>{{AbilityLink|Expose Weakness}}
 }}
 
-{{Enemy
+{{Character
 |name=Molorai Outrider
 |image=[[File:Molorai Outrider.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
 |factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
 |zones=[[Braxonian Desert]]
@@ -105,11 +105,11 @@
 |spells={{AbilityLink|Death's Embrace}}<br>{{AbilityLink|Expose Weakness}}
 }}
 
-{{Enemy
+{{Character
 |name=Molorai Outrider
 |image=[[File:Molorai Outrider.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
 |factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
 |zones=[[The Duskenlight Coast]]

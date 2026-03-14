@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Goldie Retalio
 |image=[[File:Goldie Retalio.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[Ripper DeMerth]]
 |factionChange=-20 [[Ripper DeMerth]]
 |zones=[[Ripper's Keep]]

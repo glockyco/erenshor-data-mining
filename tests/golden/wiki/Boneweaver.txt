@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Boneweaver
 |image=[[File:Boneweaver.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Loomingwood Forest]]

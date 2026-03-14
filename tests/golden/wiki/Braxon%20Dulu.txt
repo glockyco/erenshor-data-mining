@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Braxon Dulu
 |image=[[File:Braxon Dulu.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Citizens of Port Azure]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]<br>-20 [[The Torchbearers of Brax]]
 |zones=[[Braxonian Desert]]

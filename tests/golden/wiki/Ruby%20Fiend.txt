@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Ruby Fiend
 |image=[[File:Ruby Fiend.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Rare]]
+|type=Rare
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rockshade Hold]]

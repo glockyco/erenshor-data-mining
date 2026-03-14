@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Training Dummy
 |image=[[File:Training Dummy.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Training Dummy]]
+|type=NPC
 |faction=
 |factionChange=
 |zones=[[Port Azure]]
@@ -36,11 +36,11 @@
 
 The training dummy is located on the top floor of the [[Solunarian Brotherhood]]'s church in Port azure. It is a DPS checker so you can test different builds and will record your DPS for 60 seconds on your first attack. It has a small cooldown.
 
-{{Enemy
+{{Character
 |name=Training Dummy (800 AC)
 |image=[[File:Training Dummy (800 AC).png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=
 |factionChange=
 |zones=[[Reliquary Hall]]
@@ -72,11 +72,11 @@ The training dummy is located on the top floor of the [[Solunarian Brotherhood]]
 |spells=
 }}
 
-{{Enemy
+{{Character
 |name=Training Dummy (400 AC)
 |image=[[File:Training Dummy (400 AC).png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=
 |factionChange=
 |zones=[[Reliquary Hall]]
@@ -108,11 +108,11 @@ The training dummy is located on the top floor of the [[Solunarian Brotherhood]]
 |spells=
 }}
 
-{{Enemy
+{{Character
 |name=Training Dummy
 |image=[[File:Training Dummy.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=
 |factionChange=
 |zones=[[Reliquary Hall]]

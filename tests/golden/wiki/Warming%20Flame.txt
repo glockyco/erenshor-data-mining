@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Warming Flame
 |image=[[File:Warming Flame.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=
 |factionChange=
 |zones=[[Shivering Step]]

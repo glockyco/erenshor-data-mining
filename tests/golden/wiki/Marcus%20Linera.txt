@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Marcus Linera
 |image=[[File:Marcus Linera.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=
 |factionChange=
 |zones=[[Soluna's Landing]]

@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=A Brackish Croc Whelp
 |image=[[File:A Brackish Croc Whelp.png|thumb]]
 |imagecaption="{{PAGENAME}} toddles angrily towards you."
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Stowaway's Step]]

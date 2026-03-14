@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Diamond Hound
 |image=[[File:Diamond Hound.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rockshade Hold]]

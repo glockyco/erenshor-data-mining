@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Miner Murphy
 |image=[[File:Miner Murphy.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Citizens of Port Azure]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[The Elderstone Mines]]

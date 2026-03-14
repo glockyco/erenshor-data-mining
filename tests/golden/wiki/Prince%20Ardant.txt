@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Prince Ardant
 |image=[[File:Prince Ardant.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Fallen Braxonia]]

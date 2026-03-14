@@ -255,7 +255,7 @@ class TestTemplateGeneratorBase:
 
         result = generator.render_template("character.jinja2", context)
 
-        assert "{{Enemy" in result
+        assert "{{Character" in result
         assert "|name=Test Goblin" in result
         assert "|level=5" in result
         assert "|levelmodmin=0" in result

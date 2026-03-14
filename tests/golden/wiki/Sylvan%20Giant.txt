@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Sylvan Giant
 |image=[[File:Sylvan Giant.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Rare]]
+|type=Rare
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Fernalla's Revival Plains]]<br>[[Silkengrass Meadowlands]]

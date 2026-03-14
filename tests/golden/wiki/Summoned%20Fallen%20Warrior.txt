@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Summoned Fallen Warrior
 |image=[[File:Summoned Fallen Warrior.png|thumb]]
 |imagecaption=
-|type=[[:Category:Pets|Pet]]
+|type=NPC
 |faction=
 |factionChange=-10 [[The Children of Sivakaya]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]
 |zones=

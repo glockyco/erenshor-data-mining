@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Elysia Thistlewick
 |image=[[File:Elysia Thistlewick.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Followers of Good]]
 |factionChange=-25 [[The Citizens of Erenshor]]<br>-25 [[The Citizens of Port Azure]]<br>-25 [[The Solunarian Brotherhood]]
 |zones=[[Port Azure]]

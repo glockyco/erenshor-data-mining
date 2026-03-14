@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Torado Zortia
 |image=[[File:Torado Zortia.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Agents of The Wisp]]
 |factionChange=-50 [[The Agents of The Wisp]]
 |zones=[[Loomingwood Forest]]

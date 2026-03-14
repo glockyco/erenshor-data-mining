@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Priel Soldier
 |image=[[File:Priel Soldier.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[Savannah Priel]]
 |factionChange=-2 [[Savannah Priel]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Solunarian Brotherhood]]
 |zones=[[Prielian Cascade]]
@@ -34,11 +34,11 @@
 |spells=
 }}
 
-{{Enemy
+{{Character
 |name=Priel Soldier
 |image=[[File:Priel Soldier.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[Savannah Priel]]
 |factionChange=-2 [[Savannah Priel]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Solunarian Brotherhood]]
 |zones=[[Prielian Cascade]]

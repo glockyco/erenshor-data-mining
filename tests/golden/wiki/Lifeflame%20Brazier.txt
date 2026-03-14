@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Lifeflame Brazier
 |image=[[File:Lifeflame Brazier.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=
 |factionChange=
 |zones=[[Vitheo's Rest]]

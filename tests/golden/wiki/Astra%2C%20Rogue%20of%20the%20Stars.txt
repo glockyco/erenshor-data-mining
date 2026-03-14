@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Astra, Rogue of the Stars
 |image=[[File:Astra, Rogue of the Stars.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Soluna's Landing]]

@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Failed Experiment
 |image=[[File:Failed Experiment.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Rare]]
+|type=Rare
 |faction=[[Savannah Priel]]
 |factionChange=
 |zones=[[Prielian Cascade]]

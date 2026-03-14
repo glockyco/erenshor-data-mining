@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Summoned: Elder Dryad
 |image=[[File:Summoned: Elder Dryad.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=
 |factionChange=
 |zones=

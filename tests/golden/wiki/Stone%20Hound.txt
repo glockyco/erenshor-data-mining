@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Stone Hound
 |image=[[File:Stone Hound.png|thumb]]
 |imagecaption=Never take his loyalty for granite
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rockshade Hold]]

@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=A Grassland Ogre Bruiser
 |image=[[File:A Grassland Ogre Bruiser.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=+3 [[The Citizens of Erenshor]]<br>+3 [[The Citizens of Port Azure]]
 |zones=[[Underspine Hollow]]

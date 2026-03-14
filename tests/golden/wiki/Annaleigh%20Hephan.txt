@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Annaleigh Hephan
 |image=[[File:Annaleigh Hephan.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[Fernalla's Children]]
 |factionChange=-20 [[Fernalla's Children]]
 |zones=[[Blacksalt Strand]]

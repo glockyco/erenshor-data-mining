@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Sven Feartines
 |image=[[File:Sven Feartines.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Blades of Vitheo]]
 |factionChange=+2 [[The Agents of The Wisp]]<br>-20 [[The Blades of Vitheo]]<br>+2 [[The Children of Sivakaya]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[Port Azure]]

@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Ta'Dah, Sorcerer of Ripper
 |image=[[File:Ta'Dah, Sorcerer of Ripper.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[Ripper DeMerth]]
 |factionChange=
 |zones=[[Ripper's Keep]]

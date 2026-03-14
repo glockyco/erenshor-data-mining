@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Spark Beetle
 |image=[[File:Spark Beetle.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Lost Cellar]]<br>[[Port Azure]]

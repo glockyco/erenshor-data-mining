@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Alyssia Fearnon
 |image=[[File:Alyssia Fearnon.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[Fernalla's Children]]
 |factionChange=-20 [[Fernalla's Children]]<br>-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[Hidden Hills]]

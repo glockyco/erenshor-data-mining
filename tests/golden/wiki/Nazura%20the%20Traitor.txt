@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Nazura the Traitor
 |image=[[File:Nazura the Traitor.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Vitheo's Rest]]

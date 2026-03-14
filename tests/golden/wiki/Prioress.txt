@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Prioress
 |image=[[File:Prioress.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Blacksalt Strand]]

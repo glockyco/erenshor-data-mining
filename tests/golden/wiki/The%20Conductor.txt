@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=The Conductor
 |image=[[File:The Conductor.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=
 |factionChange=
 |zones=[[Mysterious Portal|Mysterious Portal (3)]]

@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Tamed Malaroth
 |image=[[File:Tamed Malaroth.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[Savannah Priel]]
 |factionChange=
 |zones=[[Prielian Cascade]]

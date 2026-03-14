@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Summoned: Brute
 |image=[[File:Summoned: Brute.png|thumb]]
 |imagecaption=You're in dire straits if this pet grabs your face
-|type=[[:Category:Pets|Pet]]
+|type=NPC
 |faction=
 |factionChange=
 |zones=

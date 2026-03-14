@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Acolyte of Azynthi
 |image=[[File:Acolyte of Azynthi.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=

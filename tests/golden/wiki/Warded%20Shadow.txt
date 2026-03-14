@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Warded Shadow
 |image=[[File:Warded Shadow.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Shivering Tomb|Shivering Tomb (2)]]

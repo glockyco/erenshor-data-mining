@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Staggy Garth
 |image=[[File:Staggy Garth.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Followers of Good]]
 |factionChange=
 |zones=[[Stowaway's Step]]

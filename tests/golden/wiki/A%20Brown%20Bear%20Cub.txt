@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=A Brown Bear Cub
 |image=[[File:A Brown Bear Cub.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Faerie's Brake]]<br>[[Fernalla's Revival Plains]]<br>[[Island Tomb]]<br>[[Stowaway's Step]]<br>[[The Duskenlight Coast]]

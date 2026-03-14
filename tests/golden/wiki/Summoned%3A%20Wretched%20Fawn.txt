@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Summoned: Wretched Fawn
 |image=[[File:Summoned: Wretched Fawn.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=
 |factionChange=
 |zones=

@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Tiallia Priel
 |image=[[File:Tiallia Priel.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[Savannah Priel]]
 |factionChange=-35 [[Savannah Priel]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Solunarian Brotherhood]]
 |zones=[[Malaroth's Nesting Grounds]]

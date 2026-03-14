@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Garrison Victoza
 |image=[[File:Garrison Victoza.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Citizens of Stowaway's Step]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[Silkengrass Meadowlands]]

@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Braxonian Weapon Master
 |image=[[File:Braxonian Weapon Master.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Fallen Braxonia]]

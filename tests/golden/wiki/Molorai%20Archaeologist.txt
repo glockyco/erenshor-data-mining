@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Molorai Archaeologist
 |image=[[File:Molorai Archaeologist Dusken.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Rare]]
+|type=Rare
 |faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
 |factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
 |zones=[[The Duskenlight Coast]]
@@ -33,11 +33,11 @@
 |void=12-29
 |spells={{AbilityLink|Brax's Touch}}<br>{{AbilityLink|Burning Chains}}<br>{{AbilityLink|Ethereal Rending}}
 }}
-{{Enemy
+{{Character
 |name=Molorai Archaeologist
 |image=[[File:Molorai Archaeologist.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
 |factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
 |zones=[[Braxonian Desert]]
@@ -69,11 +69,11 @@
 |spells={{AbilityLink|Brax's Touch}}<br>{{AbilityLink|Burning Chains}}<br>{{AbilityLink|Ethereal Rending}}
 }}
 
-{{Enemy
+{{Character
 |name=Molorai Archaeologist
 |image=[[File:Molorai Archaeologist.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
 |factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
 |zones=[[Braxonian Desert]]
@@ -105,11 +105,11 @@
 |spells={{AbilityLink|Brax's Touch}}<br>{{AbilityLink|Burning Chains}}<br>{{AbilityLink|Ethereal Rending}}
 }}
 
-{{Enemy
+{{Character
 |name=Molorai Archaeologist
 |image=[[File:Molorai Archaeologist Dusken.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
 |factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
 |zones=[[The Duskenlight Coast]]

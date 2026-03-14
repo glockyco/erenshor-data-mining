@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Ancient Educator
 |image=[[File:Ancient Educator.png|thumb]]
 |imagecaption=
-|type=[[:Category:Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Ancients]]
 |factionChange=
 |zones=[[The Duskenlight Coast]]

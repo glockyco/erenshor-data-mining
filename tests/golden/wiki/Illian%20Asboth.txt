@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Illian Asboth
 |image=[[File:Illian Asboth.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[Fernalla's Children]]
 |factionChange=-2 [[The Agents of The Wisp]]<br>-2 [[The Solunarian Brotherhood]]
 |zones=[[Soluna's Landing]]

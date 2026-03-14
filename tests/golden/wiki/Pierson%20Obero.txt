@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Pierson Obero
 |image=[[File:Pierson Obero.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[Fernalla's Children]]
 |factionChange=-10 [[Fernalla's Children]]
 |zones=[[Faerie's Brake]]

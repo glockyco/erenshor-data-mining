@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Verdant Energy
 |image=[[File:Verdant Energy.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=
 |factionChange=
 |zones=[[Fernalla's Revival Plains]]<br>[[Soluna's Landing]]<br>[[Vitheo's Rest]]

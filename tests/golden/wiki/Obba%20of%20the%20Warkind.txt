@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Obba of the Warkind
 |image=[[File:Obba of the Warkind.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=+3 [[The Citizens of Erenshor]]<br>+3 [[The Citizens of Port Azure]]
 |zones=[[Underspine Hollow]]

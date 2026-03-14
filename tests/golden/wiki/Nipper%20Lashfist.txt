@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Nipper Lashfist
 |image=[[File:Nipper Lashfist.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rottenfoot]]

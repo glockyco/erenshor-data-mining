@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=An Enraged Spirit
 |image=[[File:An Enraged Spirit.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Stowaway's Step]]
 |zones=[[Island Tomb]]

@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=A Rock Minion
 |image=[[File:A Rock Minion.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=

@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Pteriaped Chick
 |image=[[File:Pteriaped Chick.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Loomingwood Forest]]

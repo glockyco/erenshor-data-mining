@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Summoned: Forest Spirit
 |image=[[File:Summoned: Forest Spirit.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=
 |factionChange=
 |zones=

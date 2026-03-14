@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Seed of Blight
 |image=[[File:Seed of Blight.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Rare]]
+|type=Rare
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Braxonian Desert]]

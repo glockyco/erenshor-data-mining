@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Sivakayan Raider
 |image=[[File:Sivakayan Raider.png|thumb]]
 |imagecaption="For Sivakaya!"
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Children of Sivakaya]]
 |factionChange=+2 [[The Agents of The Wisp]]<br>+2 [[The Azure Guard]]<br>-2 [[The Children of Sivakaya]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
 |zones=[[Ripper's Keep]]<br>[[Silkengrass Meadowlands]]<br>[[Windwashed Pass]]
@@ -34,11 +34,11 @@
 |spells={{AbilityLink|Moonburst}}<br>{{AbilityLink|Theft of Life}}
 }}
 
-{{Enemy
+{{Character
 |name=Sivakayan Raider
 |image=[[File:Sivakayan Raider.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Children of Sivakaya]]
 |factionChange=+2 [[The Agents of The Wisp]]<br>+2 [[The Azure Guard]]<br>-3 [[The Children of Sivakaya]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
 |zones=[[Faerie's Brake]]<br>[[Rottenfoot]]

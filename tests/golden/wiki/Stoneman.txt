@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Stoneman
 |image=[[File:Stoneman.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rockshade Hold]]<br>[[Windwashed Pass]]
@@ -33,11 +33,11 @@
 |void=10-23
 |spells={{AbilityLink|Brax's Rage}}<br>{{AbilityLink|Ice Shock}}
 }}
-{{Enemy
+{{Character
 |name=Stoneman
 |image=[[File:Stoneman.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rockshade Hold]]<br>[[Windwashed Pass]]

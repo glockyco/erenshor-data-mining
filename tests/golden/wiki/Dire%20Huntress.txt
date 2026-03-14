@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Dire Huntress
 |image=[[File:Dire Huntress.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Rare]]
+|type=Rare
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Silkengrass Meadowlands]]

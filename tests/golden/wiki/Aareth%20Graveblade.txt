@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Aareth Graveblade
 |image=[[File:Aareth Graveblade.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[Aquilimar Guild]]
 |factionChange=-10 [[Aquilimar Guild]]
 |zones=[[Port Azure]]

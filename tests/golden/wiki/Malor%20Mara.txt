@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Malor Mara
 |image=[[File:Malor Mara.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[Fernalla's Children]]
 |factionChange=
 |zones=[[The Duskenlight Coast]]

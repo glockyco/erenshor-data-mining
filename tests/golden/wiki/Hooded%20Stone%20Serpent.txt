@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Hooded Stone Serpent
 |image=[[File:Hooded Stone Serpent.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rockshade Hold]]

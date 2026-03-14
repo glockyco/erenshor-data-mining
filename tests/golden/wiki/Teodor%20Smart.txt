@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Teodor Smart
 |image=[[File:Teodor Smart.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[Ripper DeMerth]]
 |factionChange=-25 [[Ripper DeMerth]]
 |zones=[[Ripper's Keep]]

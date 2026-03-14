@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=A Brown Bear
 |image=[[File:A Brown Bear.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Fernalla's Revival Plains]]<br>[[The Duskenlight Coast]]

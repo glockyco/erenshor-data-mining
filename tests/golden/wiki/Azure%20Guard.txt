@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Azure Guard
 |image=[[File:Azure Guard.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Azure Guard]]
 |factionChange=+10 [[Ripper DeMerth]]<br>-50 [[The Azure Guard]]
 |zones=[[Port Azure]]
@@ -74,11 +74,11 @@ The Guard by the watchtower:
 |"This is the territory of Port Azure. You are subject to the city laws beyond if you head into town. Just so you know... the laws are not for your protection - they are for the protection of the city."
 |}
 
-{{Enemy
+{{Character
 |name=Azure Guard
 |image=[[File:Azure Guard.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Azure Guard]]
 |factionChange=+10 [[Ripper DeMerth]]<br>-50 [[The Azure Guard]]
 |zones=[[Fernalla's Revival Plains]]
@@ -110,11 +110,11 @@ The Guard by the watchtower:
 |spells=
 }}
 
-{{Enemy
+{{Character
 |name=Azure Guard
 |image=[[File:Azure Guard.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Citizens of Port Azure]]
 |factionChange=+10 [[Ripper DeMerth]]<br>-50 [[The Azure Guard]]
 |zones=[[Blacksalt Strand]]<br>[[Fernalla's Revival Plains]]

@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=A Skeleton Soldier
 |image=[[File:A Skeleton Soldier.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=+2 [[The Azure Guard]]<br>-10 [[The Children of Sivakaya]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]
 |zones=[[Faerie's Brake]]<br>[[The Bonepits]]<br>[[Vitheo's Watch]]

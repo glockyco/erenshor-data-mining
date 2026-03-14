@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Ward of Piety
 |image=[[File:Ward of Piety.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Jaws of Sivakaya]]
@@ -48,11 +48,11 @@ Prompts:
 <i>This gives and completes the quest {{QuestLink|link=A Pious Guest}} and the wards will no longer attack you if you pass.</i>
 |}
 
-{{Enemy
+{{Character
 |name=Ward of Piety
 |image=[[File:Ward of Piety.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Followers of Good]]
 |factionChange=
 |zones=[[Jaws of Sivakaya]]

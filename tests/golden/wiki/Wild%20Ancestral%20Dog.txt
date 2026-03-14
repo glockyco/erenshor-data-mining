@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Wild Ancestral Dog
 |image=[[File:Wild Ancestral Dog.png|thumb]]
 |imagecaption=A bit ruff around the edges
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Azynthi's Garden]]

@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Spectral Bear
 |image=[[File:Spectral Bear.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Fernalla's Revival Plains]]<br>[[The Duskenlight Coast]]

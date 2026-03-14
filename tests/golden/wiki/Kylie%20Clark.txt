@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Kylie Clark
 |image=[[File:Kylie Clark.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[Fernalla's Children]]
 |factionChange=-20 [[Fernalla's Children]]
 |zones=[[The Duskenlight Coast]]

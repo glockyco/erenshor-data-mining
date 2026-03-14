@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=A Deepling Orator
 |image=[[File:A Deepling Orator.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[The Elderstone Mines]]

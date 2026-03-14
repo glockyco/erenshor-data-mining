@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Slumbering Queen
 |image=[[File:Slumbering Queen.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Good]]
 |factionChange=
 |zones=[[The Elderstone Mines]]

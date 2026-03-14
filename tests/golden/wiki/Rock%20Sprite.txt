@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Rock Sprite
 |image=[[File:Rock Sprite.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Rare]]
+|type=Rare
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Windwashed Pass]]

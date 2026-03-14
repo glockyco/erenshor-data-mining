@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Pteriaped Matron
 |image=[[File:Pteriaped Matron.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Rare]]
+|type=Rare
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Loomingwood Forest]]
@@ -33,11 +33,11 @@
 |void=12-30
 |spells=
 }}
-{{Enemy
+{{Character
 |name=Pteriaped Matron
 |image=[[File:Pteriaped Matron.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Rare]]
+|type=Rare
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Loomingwood Forest]]

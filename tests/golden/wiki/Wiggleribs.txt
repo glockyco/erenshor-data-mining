@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Wiggleribs
 |image=[[File:Wiggleribs.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=+2 [[The Azure Guard]]<br>-10 [[The Children of Sivakaya]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]
 |zones=[[Willowwatch Ridge]]

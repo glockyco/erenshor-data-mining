@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Queen Evadne
 |image=[[File:Queen Evadne.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=
 |factionChange=
 |zones=

@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Islander Bandit
 |image=[[File:Islander Bandit.png|thumb]]
 |imagecaption="Don't trifle with us!"
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Stowaway's Step]]
 |zones=[[Stowaway's Step]]
@@ -51,11 +51,11 @@ Offensive:
 
 =Notes=
 
-{{Enemy
+{{Character
 |name=Islander Bandit
 |image=[[File:Islander Bandit.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Stowaway's Step]]
 |zones=[[Stowaway's Step]]

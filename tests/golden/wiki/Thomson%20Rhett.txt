@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Thomson Rhett
 |image=[[File:Thomson Rhett.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Solunarian Brotherhood]]
 |factionChange=-25 [[The Citizens of Port Azure]]<br>-25 [[The Solunarian Brotherhood]]
 |zones=[[Fernalla's Revival Plains]]

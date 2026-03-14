@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Greater Azynthian Icebone
 |image=[[File:Greater Azynthian Icebone.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Rare]]
+|type=Rare
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Azynthi's Garden|Azynthi's Garden (Dimensional Rift)]]

@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=A Young Wolf
 |image=[[File:A Young Wolf.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Faerie's Brake]]<br>[[Hidden Hills]]<br>[[Stowaway's Step]]<br>[[Vitheo's Watch]]<br>[[Willowwatch Ridge]]

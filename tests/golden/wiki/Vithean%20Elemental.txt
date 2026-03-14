@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Vithean Elemental
 |image=[[File:Vithean Elemental.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Malaroth's Nesting Grounds]]<br>[[The Duskenlight Coast]]

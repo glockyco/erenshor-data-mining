@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Asaga Underloft
 |image=[[File:Asaga Underloft.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Citizens of Port Azure]]
 |factionChange=+2 [[The Agents of The Wisp]]<br>-20 [[The Blades of Vitheo]]<br>+2 [[The Children of Sivakaya]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[Port Azure]]

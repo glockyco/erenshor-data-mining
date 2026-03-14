@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=King Cobra
 |image=[[File:King Cobra.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Rare]]
+|type=Rare
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Silkengrass Meadowlands]]

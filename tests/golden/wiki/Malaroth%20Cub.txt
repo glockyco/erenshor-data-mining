@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Malaroth Cub
 |image=[[File:Malaroth Cub.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Malaroth's Nesting Grounds]]

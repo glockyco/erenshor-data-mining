@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Abyssal Fungus Protector
 |image=[[File:Abyssal Fungus Protector.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Abyssal Lake]]
@@ -34,11 +34,11 @@
 |spells=
 }}
 
-{{Enemy
+{{Character
 |name=Abyssal Fungus Protector
 |image=[[File:Abyssal Fungus Protector.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Abyssal Lake]]

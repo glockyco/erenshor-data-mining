@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Addelia Zurin
 |image=[[File:Addelia Zurin.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Citizens of Stowaway's Step]]
 |factionChange=-15 [[The Citizens of Erenshor]]
 |zones=[[Fernalla's Revival Plains]]<br>[[The Duskenlight Coast]]

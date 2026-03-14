@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Blunga
 |image=[[File:Blunga.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Brackish Coast Nagaloks]]
 |factionChange=+1 [[The Blades of Vitheo]]<br>-10 [[The Brackish Coast Nagaloks]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]
 |zones=[[Willowwatch Ridge]]

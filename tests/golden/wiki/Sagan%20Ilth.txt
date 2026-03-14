@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Sagan Ilth
 |image=[[File:Sagan Ilth.png|thumb]]
 |imagecaption="Molorai do not stand down!"
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
 |factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
 |zones=[[Vitheo's Watch]]

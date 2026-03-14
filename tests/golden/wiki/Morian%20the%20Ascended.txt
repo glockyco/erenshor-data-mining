@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Morian the Ascended
 |image=[[File:Morian the Ascended.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Children of Sivakaya]]
 |factionChange=
 |zones=[[Silkengrass Meadowlands]]

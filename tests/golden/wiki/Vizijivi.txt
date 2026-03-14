@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Vizijivi
 |image=[[File:Vizijivi.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Malaroth's Nesting Grounds]]

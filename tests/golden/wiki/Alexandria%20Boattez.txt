@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Alexandria Boattez
 |image=[[File:Alexandria Boattez.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Followers of Good]]
 |factionChange=
 |zones=[[The Duskenlight Coast]]

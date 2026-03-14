@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Ripper DeMerth
 |image=[[File:Ripper DeMerth.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[Ripper DeMerth]]
 |factionChange=-400 [[Ripper DeMerth]]<br>+25 [[The Azure Guard]]<br>-35 [[The Citizens of Erenshor]]<br>+25 [[The Citizens of Port Azure]]
 |zones=[[Ripper's Keep]]

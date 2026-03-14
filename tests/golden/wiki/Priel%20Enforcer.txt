@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Priel Enforcer
 |image=[[File:Priel Enforcer.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[Savannah Priel]]
 |factionChange=-2 [[Savannah Priel]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Solunarian Brotherhood]]
 |zones=[[Malaroth's Nesting Grounds]]<br>[[Windwashed Pass]]
@@ -34,11 +34,11 @@
 |spells=
 }}
 
-{{Enemy
+{{Character
 |name=Priel Enforcer
 |image=[[File:Priel Enforcer.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[Savannah Priel]]
 |factionChange=-2 [[Savannah Priel]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Solunarian Brotherhood]]
 |zones=[[Malaroth's Nesting Grounds]]<br>[[Windwashed Pass]]

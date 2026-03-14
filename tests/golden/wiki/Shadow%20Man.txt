@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Shadow Man
 |image=[[File:Shadow Man.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Rare]]
+|type=Rare
 |faction=[[The Followers of Evil]]
 |factionChange=-10 [[The Children of Sivakaya]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]
 |zones=[[Silkengrass Meadowlands]]

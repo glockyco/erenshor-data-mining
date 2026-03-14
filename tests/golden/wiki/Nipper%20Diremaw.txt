@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Nipper Diremaw
 |image=[[File:Nipper Diremaw.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Abyssal Lake]]

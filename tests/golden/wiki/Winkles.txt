@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Winkles
 |image=[[File:Winkles.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Rare]]
+|type=Rare
 |faction=[[The Skyfolk]]
 |factionChange=-5 [[The Skyfolk]]
 |zones=[[Ripper's Keep]]

@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Nipper Whiptail
 |image=[[File:Nipper Whiptail.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Abyssal Lake]]

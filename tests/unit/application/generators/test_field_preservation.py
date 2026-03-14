@@ -707,11 +707,11 @@ class TestTemplateFormatting:
         ]
         assert field_names == expected_order
 
-    def test_merge_templates_with_enemy_template_preserves_manual_fields(self) -> None:
-        """merge_templates should preserve Enemy template manual edit fields only."""
+    def test_merge_templates_with_character_template_preserves_manual_fields(self) -> None:
+        """merge_templates should preserve Character template manual edit fields only."""
         handler = FieldPreservationHandler()
 
-        old_wikitext = """{{Enemy
+        old_wikitext = """{{Character
 |name=Goblin Scout
 |type=[[:Category:Characters|Enemy]]
 |imagecaption=A fearsome goblin
@@ -722,7 +722,7 @@ class TestTemplateFormatting:
 |health=100
 }}"""
 
-        new_wikitext = """{{Enemy
+        new_wikitext = """{{Character
 |name=Goblin Scout
 |image=[[File:Goblin Scout.png|thumb]]
 |imagecaption=
@@ -753,7 +753,7 @@ class TestTemplateFormatting:
 |void=0
 }}"""
 
-        result = handler.merge_templates(old_wikitext, new_wikitext, ["Enemy"])
+        result = handler.merge_templates(old_wikitext, new_wikitext, ["Character"])
 
         # Manual edit fields should be preserved
         assert "A fearsome goblin" in result  # imagecaption (preserve)

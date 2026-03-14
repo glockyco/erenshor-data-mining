@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Priel Gifted
 |image=[[File:Priel Gifted.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[Savannah Priel]]
 |factionChange=-2 [[Savannah Priel]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Solunarian Brotherhood]]
 |zones=[[Prielian Cascade]]

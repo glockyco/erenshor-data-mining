@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Vanther Quansy
 |image=[[File:Vanther Quansy.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Solunarian Brotherhood]]
 |factionChange=-20 [[The Citizens of Port Azure]]<br>-20 [[The Solunarian Brotherhood]]
 |zones=[[The Duskenlight Coast]]

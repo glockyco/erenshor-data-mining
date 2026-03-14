@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Summoned Azynthian Warhound
 |image=[[File:Summoned Azynthian Warhound.png|thumb]]
 |imagecaption=Ruff and ready
-|type=[[:Category:Pets|Pet]]
+|type=NPC
 |faction=
 |factionChange=
 |zones=

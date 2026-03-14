@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Nightmarian Knight
 |image=[[File:Nightmarian Knight.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Nightmare Collective]]
 |factionChange=
 |zones=[[Mysterious Portal|Mysterious Portal (2)]]

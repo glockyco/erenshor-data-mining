@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Kio the Darkbringer
 |image=[[File:Kio the Darkbringer.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Shivering Step]]

@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Wally Waldorf
 |image=[[File:Wally Waldorf.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Citizens of Stowaway's Step]]
 |factionChange=
 |zones=[[Stowaway's Step]]

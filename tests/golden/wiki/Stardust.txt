@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Stardust
 |image=[[File:Stardust.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Good]]
 |factionChange=
 |zones=[[Soluna's Landing]]

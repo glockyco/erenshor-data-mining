@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Rottenfoot Swampwalker
 |image=[[File:Rottenfoot Swampwalker.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=+1 [[The Blades of Vitheo]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]
 |zones=[[Fernalla's Revival Plains]]<br>[[Rottenfoot]]
@@ -34,11 +34,11 @@
 |spells={{AbilityLink|Death's Embrace}}<br>{{AbilityLink|Jolt}}<br>{{AbilityLink|Minor Healing}}<br>{{AbilityLink|Minor Protection}}<br>{{AbilityLink|Minor Regeneration}}<br>{{AbilityLink|Moonburst}}<br>{{AbilityLink|Theft of Life}}<br>{{AbilityLink|Vitheo's Blessing of the Sea}}
 }}
 
-{{Enemy
+{{Character
 |name=Rottenfoot Swampwalker
 |image=[[File:Rottenfoot Swampwalker.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=+1 [[The Blades of Vitheo]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]
 |zones=[[Fernalla's Revival Plains]]<br>[[Rottenfoot]]

@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Javo Follay
 |image=[[File:Javo Follay.png|thumb]]
 |imagecaption=
-|type=[[Vendors|Adventurer Merchant]]
+|type=NPC
 |faction=[[The Solunarian Brotherhood]]
 |factionChange=-20 [[The Citizens of Port Azure]]<br>-20 [[The Solunarian Brotherhood]]
 |zones=[[Willowwatch Ridge]]

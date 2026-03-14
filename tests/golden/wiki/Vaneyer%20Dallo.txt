@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Vaneyer Dallo
 |image=[[File:Vaneyer Dallo.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Citizens of Port Azure]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[Fernalla's Revival Plains]]

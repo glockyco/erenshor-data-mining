@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Elder Guardian
 |image=[[File:Elder Guardian.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Blooming Sepulcher]]

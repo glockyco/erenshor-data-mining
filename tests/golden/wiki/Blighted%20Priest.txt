@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Blighted Priest
 |image=[[File:Blighted Priest.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Torchbearers of Brax]]
 |zones=[[The Blight]]

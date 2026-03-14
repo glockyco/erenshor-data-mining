@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Vessel Siraethe
 |image=[[File:Vessel Siraethe.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Jaws of Sivakaya]]

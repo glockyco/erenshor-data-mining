@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=A Faerie Enchantress
 |image=[[File:A Faerie Enchantress.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Skyfolk]]
 |factionChange=-5 [[The Skyfolk]]
 |zones=[[Ripper's Keep]]

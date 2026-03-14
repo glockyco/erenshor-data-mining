@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Malignant Thoughts
 |image=[[File:Malignant Thoughts.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Mysterious Portal|Mysterious Portal (2)]]
@@ -49,11 +49,11 @@
 =Notes=
 *Although they will eventually stop summoning new enemies, it's still a good idea to take out {{PAGENAME}} as quickly as possible to avoid the party being overwhelmed.
 
-{{Enemy
+{{Character
 |name=Malignant Thoughts
 |image=[[File:Malignant Thoughts.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Mysterious Portal|Mysterious Portal (2)]]

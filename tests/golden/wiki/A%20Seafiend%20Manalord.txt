@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=A Seafiend Manalord
 |image=[[File:A Seafiend Manalord.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=+1 [[The Blades of Vitheo]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]
 |zones=[[Windwashed Pass]]

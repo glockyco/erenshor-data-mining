@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Diamond Colossus
 |image=[[File:Diamond Colossus.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rockshade Hold]]

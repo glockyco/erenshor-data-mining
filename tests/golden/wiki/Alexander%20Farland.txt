@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Alexander Farland
 |image=[[File:Alexander Farland.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[Fernalla's Children]]
 |factionChange=-10 [[Fernalla's Children]]<br>-10 [[The Citizens of Erenshor]]
 |zones=[[Fernalla's Revival Plains]]

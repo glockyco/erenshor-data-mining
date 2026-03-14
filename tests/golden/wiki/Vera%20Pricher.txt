@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Vera Pricher
 |image=[[File:Vera Pricher.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[Fernalla's Children]]
 |factionChange=-20 [[Fernalla's Children]]
 |zones=[[Port Azure]]

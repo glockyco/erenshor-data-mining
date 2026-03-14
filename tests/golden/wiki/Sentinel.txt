@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Sentinel
 |image=[[File:Sentinel.png|thumb]]
 |imagecaption=Eye see you..
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=+2 [[Fernalla's Children]]<br>+2 [[The Torchbearers of Brax]]
 |zones=[[The Blight]]

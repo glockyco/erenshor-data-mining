@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Greater Vithean Elemental
 |image=[[File:Greater Vithean Elemental.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Rare]]
+|type=Rare
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[The Duskenlight Coast]]

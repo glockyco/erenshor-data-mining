@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Phantom's Ward
 |image=[[File:Phantom's Ward.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Shivering Tomb|Shivering Tomb (2)]]

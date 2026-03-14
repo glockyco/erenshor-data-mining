@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=High Paladin of Sivakaya
 |image=[[File:High Paladin of Sivakaya.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Children of Sivakaya]]
 |factionChange=+5 [[The Azure Guard]]<br>-2 [[The Children of Sivakaya]]<br>+5 [[The Citizens of Erenshor]]<br>+5 [[The Citizens of Port Azure]]<br>+5 [[The Solunarian Brotherhood]]
 |zones=[[Braxonian Desert]]

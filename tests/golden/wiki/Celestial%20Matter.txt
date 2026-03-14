@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Celestial Matter
 |image=[[File:Celestial Matter.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Soluna's Landing]]

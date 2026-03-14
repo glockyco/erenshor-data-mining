@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Catnip (Enemy)
 |image=[[File:Catnip (Enemy).png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Good]]
 |factionChange=
 |zones=[[Mysterious Portal|Mysterious Portal (3)]]

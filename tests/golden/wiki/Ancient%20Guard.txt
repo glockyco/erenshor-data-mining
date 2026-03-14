@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Ancient Guard
 |image=[[File:Ancient Guard.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Soluna's Landing]]

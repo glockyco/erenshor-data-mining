@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Loyal Malaroth
 |image=[[File:Loyal Malaroth.png|thumb]]
 |imagecaption=As loyal as it is cuddly!
-|type=[[:Category:Pets|Pet]]
+|type=NPC
 |faction=
 |factionChange=
 |zones=

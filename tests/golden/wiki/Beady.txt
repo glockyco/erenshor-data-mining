@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Beady
 |image=[[File:Beady.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rottenfoot]]

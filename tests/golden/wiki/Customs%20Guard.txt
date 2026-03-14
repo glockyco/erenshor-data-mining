@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Customs Guard
 |image=[[File:Customs Guard.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Citizens of Stowaway's Step]]
 |factionChange=-100 [[The Citizens of Stowaway's Step]]
 |zones=[[Stowaway's Step]]

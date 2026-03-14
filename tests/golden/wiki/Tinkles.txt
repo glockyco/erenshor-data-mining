@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Tinkles
 |image=[[File:Tinkles.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Boss]]
+|type=Boss
 |faction=[[The Skyfolk]]
 |factionChange=-5 [[The Skyfolk]]
 |zones=[[Faerie's Brake]]

@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Hector Yvey
 |image=[[File:Hector Yvey.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[Ripper DeMerth]]
 |factionChange=-50 [[Ripper DeMerth]]<br>+10 [[The Azure Guard]]
 |zones=[[Silkengrass Meadowlands]]

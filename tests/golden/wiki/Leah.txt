@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Leah
 |image=[[File:Leah Body.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Necromancers of the Island Tomb]]
 |factionChange=-1000 [[The Necromancers of the Island Tomb]]
 |zones=[[Island Tomb]]

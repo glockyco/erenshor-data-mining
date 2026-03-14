@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Mavik Estonia
 |image=[[File:Mavik Estonia.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[Ripper DeMerth]]
 |factionChange=-35 [[The Citizens of Erenshor]]<br>-35 [[The Citizens of Port Azure]]
 |zones=[[Silkengrass Meadowlands]]

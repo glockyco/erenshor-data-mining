@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Rotting Royal Hound
 |image=[[File:Rotting Royal Hound.png|thumb]]
 |imagecaption=He's having a ruff day.
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=+2 [[Fernalla's Children]]<br>+2 [[The Torchbearers of Brax]]
 |zones=[[Lost Cellar]]

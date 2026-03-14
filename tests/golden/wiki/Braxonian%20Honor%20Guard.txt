@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Braxonian Honor Guard
 |image=[[File:Braxonian Honor Guard.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Fallen Braxonia]]

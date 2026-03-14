@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Wardwarped Gorilla
 |image=[[File:Wardwarped Gorilla.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Loomingwood Forest]]

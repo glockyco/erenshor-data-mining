@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=A Lost Sea Giant
 |image=[[File:A Lost Sea Giant.png|thumb]]
 |imagecaption=
-|type=[[Enemies#List of Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Vitheo's Watch]]
@@ -48,11 +48,11 @@
 
 =Notes=
 
-{{Enemy
+{{Character
 |name=A Lost Sea Giant
 |image=[[File:A Lost Sea Giant.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Vitheo's Watch]]

@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Sivakayan Faithbound
 |image=[[File:Sivakayan Faithbound.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Children of Sivakaya]]
 |factionChange=
 |zones=[[Abyssal Lake]]

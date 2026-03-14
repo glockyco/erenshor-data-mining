@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Ancient Spectre
 |image=[[File:Ancient Spectre.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Rare]]
+|type=Rare
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Fernalla's Revival Plains]]

@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Arbant Sparrow
 |image=[[File:Arbant Sparrow.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Agents of The Wisp]]
 |factionChange=
 |zones=[[Port Azure]]

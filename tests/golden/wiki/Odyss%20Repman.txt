@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Odyss Repman
 |image=[[File:Odyss Repman.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Followers of Good]]
 |factionChange=+3 [[The Citizens of Erenshor]]<br>+3 [[The Citizens of Stowaway's Step]]
 |zones=[[The Duskenlight Coast]]

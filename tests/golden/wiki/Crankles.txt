@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Crankles
 |image=[[File:Crankles.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Followers of Good]]
 |factionChange=
 |zones=[[Shivering Step]]

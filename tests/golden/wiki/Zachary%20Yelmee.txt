@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Zachary Yelmee
 |image=[[File:Zachary Yelmee.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Citizens of Stowaway's Step]]
 |factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
 |zones=[[Stowaway's Step]]

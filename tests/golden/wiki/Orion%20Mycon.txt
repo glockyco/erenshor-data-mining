@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Orion Mycon
 |image=[[File:Orion Mycon.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[Fernalla's Children]]
 |factionChange=-30 [[Fernalla's Children]]<br>+2 [[The Agents of The Wisp]]<br>+2 [[The Children of Sivakaya]]
 |zones=[[Port Azure]]

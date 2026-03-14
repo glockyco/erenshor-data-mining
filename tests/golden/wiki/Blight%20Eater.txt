@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Blight Eater
 |image=[[File:Blight Eater.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Braxonian Desert]]

@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Holy Corpse
 |image=[[File:Holy Corpse.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=+2 [[The Blades of Vitheo]]
 |zones=

@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=A Fungal Drone
 |image=[[File:A Fungal Drone.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rottenfoot]]<br>[[The Elderstone Mines]]

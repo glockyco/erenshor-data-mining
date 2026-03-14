@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Shrouded Sivakayan
 |image=[[File:Shrouded Sivakayan.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=

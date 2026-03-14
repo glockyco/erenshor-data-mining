@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Sapphire Fiend
 |image=[[File:Sapphire Fiend.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Rare]]
+|type=Rare
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Rockshade Hold]]

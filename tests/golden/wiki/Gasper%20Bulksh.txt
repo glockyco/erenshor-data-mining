@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Gasper Bulksh
 |image=[[File:Gasper Bulksh.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Huntsmen]]
 |factionChange=-50 [[The Huntsmen]]
 |zones=[[Silkengrass Meadowlands]]

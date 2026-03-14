@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Zane Theavale
 |image=[[File:Zane Theavale.png|thumb]]
 |imagecaption=
-|type=[[:Category:Characters|NPC]]
+|type=NPC
 |faction=[[The Followers of Good]]
 |factionChange=
 |zones=[[Stowaway's Step]]

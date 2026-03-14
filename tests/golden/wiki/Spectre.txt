@@ -1,8 +1,8 @@
-{{Enemy
+{{Character
 |name=Spectre
 |image=[[File:Spectre.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Fernalla's Revival Plains]]
@@ -36,11 +36,11 @@
 
 If a spectre is holding a sword, it will drop a [[Spectral Sword]]
 
-{{Enemy
+{{Character
 |name=Spectre
 |image=[[File:Spectre.png|thumb]]
 |imagecaption=
-|type=[[Enemies|Enemy]]
+|type=Enemy
 |faction=[[The Followers of Evil]]
 |factionChange=
 |zones=[[Fernalla's Revival Plains]]
