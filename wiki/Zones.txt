@@ -4,11 +4,11 @@ If you've just finished [[Stowaway's Step]] and [[Island Tomb]] (both available 
 
 ==Outdoor Zones==
 {| class="wikitable sortable"
-! Zone !! style="text-align:right" | Levels !! style="text-align:right" | Median level !! Map !! Notes
+! Zone !! style="text-align:right" | Levels !! style="text-align:right" | Median Level !! Map !! Notes
 |-
 | [[Port Azure]] || style="text-align:right" | 1–35 || style="text-align:right" | 11 || {{MapLink|zone=Azure}} ||
 |-
-| [[Reliquary Hall]] || style="text-align:right" | 16–35 || style="text-align:right" | 5 || — ||
+| [[Reliquary Hall]] || style="text-align:right" | 16–35 || style="text-align:right" | 16 || — ||
 |-
 | [[Stowaway's Step]] || style="text-align:right" | 1–6 || style="text-align:right" | 2 || {{MapLink|zone=Stowaway}} || <span style="color: #15e300;">''Available in the demo''</span>
 |-
@@ -24,13 +24,11 @@ If you've just finished [[Stowaway's Step]] and [[Island Tomb]] (both available 
 |-
 | [[The Duskenlight Coast]] || style="text-align:right" | 7–19 || style="text-align:right" | 14 || {{MapLink|zone=Duskenlight}} ||
 |-
-| [[Rottenfoot]] || style="text-align:right" | 12–20 || style="text-align:right" | 15 || {{MapLink|zone=Rottenfoot}} ||
-|-
 | [[Blacksalt Strand]] || style="text-align:right" | 14–21 || style="text-align:right" | 14 || {{MapLink|zone=SaltedStrand}} ||
 |-
-| [[Braxonian Desert]] || style="text-align:right" | 16–25 || style="text-align:right" | 17 || {{MapLink|zone=Braxonian}} ||
+| [[Rottenfoot]] || style="text-align:right" | 12–20 || style="text-align:right" | 15 || {{MapLink|zone=Rottenfoot}} ||
 |-
-| [[Loomingwood Forest]] || style="text-align:right" | 18–26 || style="text-align:right" | 24 || {{MapLink|zone=Loomingwood}} ||
+| [[Braxonian Desert]] || style="text-align:right" | 16–25 || style="text-align:right" | 17 || {{MapLink|zone=Braxonian}} ||
 |-
 | [[Silkengrass Meadowlands]] || style="text-align:right" | 10–30 || style="text-align:right" | 18 || {{MapLink|zone=Silkengrass}} ||
 |-
@@ -38,9 +36,11 @@ If you've just finished [[Stowaway's Step]] and [[Island Tomb]] (both available 
 |-
 | [[Malaroth's Nesting Grounds]] || style="text-align:right" | 20–30 || style="text-align:right" | 19 || {{MapLink|zone=Malaroth}} ||
 |-
-| [[Soluna's Landing]] || style="text-align:right" | 25–33 || style="text-align:right" | 26 || {{MapLink|zone=Soluna}} ||
+| [[Loomingwood Forest]] || style="text-align:right" | 18–26 || style="text-align:right" | 24 || {{MapLink|zone=Loomingwood}} ||
 |-
 | [[The Blight]] || style="text-align:right" | 26–33 || style="text-align:right" | 25 || {{MapLink|zone=Blight}} ||
+|-
+| [[Soluna's Landing]] || style="text-align:right" | 25–33 || style="text-align:right" | 26 || {{MapLink|zone=Soluna}} ||
 |-
 | [[Ripper's Keep]] || style="text-align:right" | 28–33 || style="text-align:right" | 28 || {{MapLink|zone=Ripper}} ||
 |-
@@ -49,7 +49,7 @@ If you've just finished [[Stowaway's Step]] and [[Island Tomb]] (both available 
 
 ==Dungeons==
 {| class="wikitable sortable"
-! Zone !! style="text-align:right" | Levels !! style="text-align:right" | Median level !! Map !! Notes
+! Zone !! style="text-align:right" | Levels !! style="text-align:right" | Median Level !! Map !! Notes
 |-
 | [[Island Tomb]] || style="text-align:right" | 3–7 || style="text-align:right" | 4 || {{MapLink|zone=Tutorial}} || <span style="color: #15e300;">''Available in the demo''</span>
 |-
@@ -59,9 +59,9 @@ If you've just finished [[Stowaway's Step]] and [[Island Tomb]] (both available 
 |-
 | [[Underspine Hollow]] || style="text-align:right" | 10–16 || style="text-align:right" | 12 || {{MapLink|zone=Underspine}} ||
 |-
-| [[Lost Cellar]] || style="text-align:right" | 13–20 || style="text-align:right" | 17 || {{MapLink|zone=Undercity}} ||
+| [[Mysterious Portal]] (@ [[The Duskenlight Coast]]) || style="text-align:right" | 14–15 || style="text-align:right" | 14 || {{MapLink|zone=DuskenPortal}} ||
 |-
-| [[Mysterious Portal]] (@ [[The Duskenlight Coast]]) || style="text-align:right" | 14–15 || style="text-align:right" | 21 || {{MapLink|zone=DuskenPortal}} ||
+| [[Lost Cellar]] || style="text-align:right" | 13–20 || style="text-align:right" | 17 || {{MapLink|zone=Undercity}} ||
 |-
 | [[The Elderstone Mines]] || style="text-align:right" | 16–21 || style="text-align:right" | 17 || {{MapLink|zone=Elderstone}} ||
 |-
@@ -77,20 +77,20 @@ If you've just finished [[Stowaway's Step]] and [[Island Tomb]] (both available 
 |-
 | [[Fallen Braxonia]] || style="text-align:right" | 28–33 || style="text-align:right" | 29 || {{MapLink|zone=Braxonia}} ||
 |-
-| [[Mysterious Portal]] (@ [[Ripper's Keep]]) || style="text-align:right" | 28–35 || style="text-align:right" | 21 || {{MapLink|zone=RipperPortal}} ||
-|-
 | [[Prielian Cascade]] || style="text-align:right" | 28–35 || style="text-align:right" | 30 || {{MapLink|zone=PrielPlateau}} ||
+|-
+| [[Mysterious Portal]] (@ [[Ripper's Keep]]) || style="text-align:right" | 28–35 || style="text-align:right" | 32 || {{MapLink|zone=RipperPortal}} ||
 |-
 | [[Jaws of Sivakaya]] || style="text-align:right" | 30–35 || style="text-align:right" | 34 || {{MapLink|zone=Jaws}} ||
 |-
-| [[Secluded Sanctuary]] || style="text-align:right" | 35 || style="text-align:right" | — || — ||
+| [[Secluded Sanctuary]] || style="text-align:right" | 35 || style="text-align:right" | 40 || — ||
 |-
 | [[Prison]] || style="text-align:right" | — || style="text-align:right" | — || — ||
 |}
 
 ==Event Zones==
 {| class="wikitable sortable"
-! Zone !! style="text-align:right" | Levels !! style="text-align:right" | Median level !! Map !! Notes
+! Zone !! style="text-align:right" | Levels !! style="text-align:right" | Median Level !! Map !! Notes
 |-
 | [[Bellwain Island]] || style="text-align:right" | 1–35 || style="text-align:right" | — || {{MapLink|zone=SummerEvent}} ||
 |-
