@@ -6,97 +6,97 @@ If you've just finished [[Stowaway's Step]] and [[Island Tomb]] (both available 
 {| class="wikitable sortable"
 ! Zone !! style="text-align:right" | Levels !! style="text-align:right" | Median level !! Map !! Notes
 |-
-| [[Port Azure]] || 1–35 || 11 || {{MapLink|zone=Azure}} ||
+| [[Port Azure]] || style="text-align:right" | 1–35 || style="text-align:right" | 11 || {{MapLink|zone=Azure}} ||
 |-
-| [[Reliquary Hall]] || 16–35 || 5 || — ||
+| [[Reliquary Hall]] || style="text-align:right" | 16–35 || style="text-align:right" | 5 || — ||
 |-
-| [[Stowaway's Step]] || 1–6 || 2 || {{MapLink|zone=Stowaway}} || <span style="color: #15e300;">''Available in the demo''</span>
+| [[Stowaway's Step]] || style="text-align:right" | 1–6 || style="text-align:right" | 2 || {{MapLink|zone=Stowaway}} || <span style="color: #15e300;">''Available in the demo''</span>
 |-
-| [[Willowwatch Ridge]] || 1–8 || 4 || {{MapLink|zone=Willowwatch}} ||
+| [[Willowwatch Ridge]] || style="text-align:right" | 1–8 || style="text-align:right" | 4 || {{MapLink|zone=Willowwatch}} ||
 |-
-| [[Hidden Hills]] || 4–8 || 4 || {{MapLink|zone=Hidden}} ||
+| [[Hidden Hills]] || style="text-align:right" | 4–8 || style="text-align:right" | 4 || {{MapLink|zone=Hidden}} ||
 |-
-| [[Faerie's Brake]] || 3–10 || 4 || {{MapLink|zone=Brake}} ||
+| [[Faerie's Brake]] || style="text-align:right" | 3–10 || style="text-align:right" | 4 || {{MapLink|zone=Brake}} ||
 |-
-| [[Vitheo's Watch]] || 4–10 || 9 || {{MapLink|zone=Vitheo}} ||
+| [[Vitheo's Watch]] || style="text-align:right" | 4–10 || style="text-align:right" | 9 || {{MapLink|zone=Vitheo}} ||
 |-
-| [[Fernalla's Revival Plains]] || 6–18 || 13 || {{MapLink|zone=FernallaField}} ||
+| [[Fernalla's Revival Plains]] || style="text-align:right" | 6–18 || style="text-align:right" | 13 || {{MapLink|zone=FernallaField}} ||
 |-
-| [[The Duskenlight Coast]] || 7–19 || 14 || {{MapLink|zone=Duskenlight}} ||
+| [[The Duskenlight Coast]] || style="text-align:right" | 7–19 || style="text-align:right" | 14 || {{MapLink|zone=Duskenlight}} ||
 |-
-| [[Rottenfoot]] || 12–20 || 15 || {{MapLink|zone=Rottenfoot}} ||
+| [[Rottenfoot]] || style="text-align:right" | 12–20 || style="text-align:right" | 15 || {{MapLink|zone=Rottenfoot}} ||
 |-
-| [[Blacksalt Strand]] || 14–21 || 14 || {{MapLink|zone=SaltedStrand}} ||
+| [[Blacksalt Strand]] || style="text-align:right" | 14–21 || style="text-align:right" | 14 || {{MapLink|zone=SaltedStrand}} ||
 |-
-| [[Braxonian Desert]] || 16–25 || 17 || {{MapLink|zone=Braxonian}} ||
+| [[Braxonian Desert]] || style="text-align:right" | 16–25 || style="text-align:right" | 17 || {{MapLink|zone=Braxonian}} ||
 |-
-| [[Loomingwood Forest]] || 18–26 || 24 || {{MapLink|zone=Loomingwood}} ||
+| [[Loomingwood Forest]] || style="text-align:right" | 18–26 || style="text-align:right" | 24 || {{MapLink|zone=Loomingwood}} ||
 |-
-| [[Silkengrass Meadowlands]] || 10–30 || 18 || {{MapLink|zone=Silkengrass}} ||
+| [[Silkengrass Meadowlands]] || style="text-align:right" | 10–30 || style="text-align:right" | 18 || {{MapLink|zone=Silkengrass}} ||
 |-
-| [[Windwashed Pass]] || 15–30 || 18 || {{MapLink|zone=Windwashed}} ||
+| [[Windwashed Pass]] || style="text-align:right" | 15–30 || style="text-align:right" | 18 || {{MapLink|zone=Windwashed}} ||
 |-
-| [[Malaroth's Nesting Grounds]] || 20–30 || 19 || {{MapLink|zone=Malaroth}} ||
+| [[Malaroth's Nesting Grounds]] || style="text-align:right" | 20–30 || style="text-align:right" | 19 || {{MapLink|zone=Malaroth}} ||
 |-
-| [[Soluna's Landing]] || 25–33 || 26 || {{MapLink|zone=Soluna}} ||
+| [[Soluna's Landing]] || style="text-align:right" | 25–33 || style="text-align:right" | 26 || {{MapLink|zone=Soluna}} ||
 |-
-| [[The Blight]] || 26–33 || 25 || {{MapLink|zone=Blight}} ||
+| [[The Blight]] || style="text-align:right" | 26–33 || style="text-align:right" | 25 || {{MapLink|zone=Blight}} ||
 |-
-| [[Ripper's Keep]] || 28–33 || 28 || {{MapLink|zone=Ripper}} ||
+| [[Ripper's Keep]] || style="text-align:right" | 28–33 || style="text-align:right" | 28 || {{MapLink|zone=Ripper}} ||
 |-
-| [[Azynthi's Garden]] || 30–35 || 31 || {{MapLink|zone=AzynthiClear}} ||
+| [[Azynthi's Garden]] || style="text-align:right" | 30–35 || style="text-align:right" | 31 || {{MapLink|zone=AzynthiClear}} ||
 |}
 
 ==Dungeons==
 {| class="wikitable sortable"
 ! Zone !! style="text-align:right" | Levels !! style="text-align:right" | Median level !! Map !! Notes
 |-
-| [[Island Tomb]] || 3–7 || 4 || {{MapLink|zone=Tutorial}} || <span style="color: #15e300;">''Available in the demo''</span>
+| [[Island Tomb]] || style="text-align:right" | 3–7 || style="text-align:right" | 4 || {{MapLink|zone=Tutorial}} || <span style="color: #15e300;">''Available in the demo''</span>
 |-
-| [[The Bonepits]] || 4–9 || 7 || {{MapLink|zone=Bonepits}} ||
+| [[The Bonepits]] || style="text-align:right" | 4–9 || style="text-align:right" | 7 || {{MapLink|zone=Bonepits}} ||
 |-
-| [[Old Krakengard]] || 8–13 || 11 || {{MapLink|zone=Krakengard}} ||
+| [[Old Krakengard]] || style="text-align:right" | 8–13 || style="text-align:right" | 11 || {{MapLink|zone=Krakengard}} ||
 |-
-| [[Underspine Hollow]] || 10–16 || 12 || {{MapLink|zone=Underspine}} ||
+| [[Underspine Hollow]] || style="text-align:right" | 10–16 || style="text-align:right" | 12 || {{MapLink|zone=Underspine}} ||
 |-
-| [[Lost Cellar]] || 13–20 || 17 || {{MapLink|zone=Undercity}} ||
+| [[Lost Cellar]] || style="text-align:right" | 13–20 || style="text-align:right" | 17 || {{MapLink|zone=Undercity}} ||
 |-
-| [[Mysterious Portal]] (@ [[The Duskenlight Coast]]) || 14–15 || 21 || {{MapLink|zone=DuskenPortal}} ||
+| [[Mysterious Portal]] (@ [[The Duskenlight Coast]]) || style="text-align:right" | 14–15 || style="text-align:right" | 21 || {{MapLink|zone=DuskenPortal}} ||
 |-
-| [[The Elderstone Mines]] || 16–21 || 17 || {{MapLink|zone=Elderstone}} ||
+| [[The Elderstone Mines]] || style="text-align:right" | 16–21 || style="text-align:right" | 17 || {{MapLink|zone=Elderstone}} ||
 |-
-| [[Mysterious Portal]] (@ [[Fernalla's Revival Plains]]) || 21–24 || 21 || {{MapLink|zone=FernallaPortal}} ||
+| [[Mysterious Portal]] (@ [[Fernalla's Revival Plains]]) || style="text-align:right" | 21–24 || style="text-align:right" | 21 || {{MapLink|zone=FernallaPortal}} ||
 |-
-| [[Rockshade Hold]] || 22–26 || 24 || {{MapLink|zone=Rockshade}} ||
+| [[Rockshade Hold]] || style="text-align:right" | 22–26 || style="text-align:right" | 24 || {{MapLink|zone=Rockshade}} ||
 |-
-| [[Blooming Sepulcher]] || 18–35 || 22 || {{MapLink|zone=BloomingSepulcher}} ||
+| [[Blooming Sepulcher]] || style="text-align:right" | 18–35 || style="text-align:right" | 22 || {{MapLink|zone=BloomingSepulcher}} ||
 |-
-| [[Vitheo's Rest]] || 22–35 || 23 || {{MapLink|zone=VitheosEnd}} ||
+| [[Vitheo's Rest]] || style="text-align:right" | 22–35 || style="text-align:right" | 23 || {{MapLink|zone=VitheosEnd}} ||
 |-
-| [[Abyssal Lake]] || 24–33 || 28 || {{MapLink|zone=Abyssal}} ||
+| [[Abyssal Lake]] || style="text-align:right" | 24–33 || style="text-align:right" | 28 || {{MapLink|zone=Abyssal}} ||
 |-
-| [[Fallen Braxonia]] || 28–33 || 29 || {{MapLink|zone=Braxonia}} ||
+| [[Fallen Braxonia]] || style="text-align:right" | 28–33 || style="text-align:right" | 29 || {{MapLink|zone=Braxonia}} ||
 |-
-| [[Mysterious Portal]] (@ [[Ripper's Keep]]) || 28–35 || 21 || {{MapLink|zone=RipperPortal}} ||
+| [[Mysterious Portal]] (@ [[Ripper's Keep]]) || style="text-align:right" | 28–35 || style="text-align:right" | 21 || {{MapLink|zone=RipperPortal}} ||
 |-
-| [[Prielian Cascade]] || 28–35 || 30 || {{MapLink|zone=PrielPlateau}} ||
+| [[Prielian Cascade]] || style="text-align:right" | 28–35 || style="text-align:right" | 30 || {{MapLink|zone=PrielPlateau}} ||
 |-
-| [[Jaws of Sivakaya]] || 30–35 || 34 || {{MapLink|zone=Jaws}} ||
+| [[Jaws of Sivakaya]] || style="text-align:right" | 30–35 || style="text-align:right" | 34 || {{MapLink|zone=Jaws}} ||
 |-
-| [[Secluded Sanctuary]] || 35 || — || — ||
+| [[Secluded Sanctuary]] || style="text-align:right" | 35 || style="text-align:right" | — || — ||
 |-
-| [[Prison]] || — || — || — ||
+| [[Prison]] || style="text-align:right" | — || style="text-align:right" | — || — ||
 |}
 
 ==Event Zones==
 {| class="wikitable sortable"
 ! Zone !! style="text-align:right" | Levels !! style="text-align:right" | Median level !! Map !! Notes
 |-
-| [[Bellwain Island]] || 1–35 || — || {{MapLink|zone=SummerEvent}} ||
+| [[Bellwain Island]] || style="text-align:right" | 1–35 || style="text-align:right" | — || {{MapLink|zone=SummerEvent}} ||
 |-
-| [[Shivering Step]] || 19–24 || 21 || {{MapLink|zone=ShiveringStep}} ||
+| [[Shivering Step]] || style="text-align:right" | 19–24 || style="text-align:right" | 21 || {{MapLink|zone=ShiveringStep}} ||
 |-
-| [[Shivering Tomb]] || 19–24 || 24 || — ||
+| [[Shivering Tomb]] || style="text-align:right" | 19–24 || style="text-align:right" | 24 || — ||
 |}
 
 ==Planes==
