@@ -1,0 +1,11 @@
+Place this template at the bottom of any zone page to show the full zones navigation box.
+
+==Usage==
+<pre>{{Zone Navbox}}</pre>
+
+==Example==
+The following is how the navbox appears at the bottom of [[Hidden Hills]]:
+
+{{Zone Navbox}}
+
+[[Category:Template documentation]]

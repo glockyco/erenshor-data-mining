@@ -68,11 +68,25 @@ class WikiDeployService:
         namespaces = {"Template", "Category", "Module", "Help", "File", "User", "Project"}
 
         def _stem_to_title(stem: str) -> str:
-            """Convert filename stem to wiki page title."""
-            parts = stem.split("_", 1)
+            """Convert filename stem to wiki page title.
+
+            Encoding rules:
+              - Single underscores become spaces
+              - Double underscores (__) become a subpage slash (/)
+              - Namespace prefix (e.g. Template_) is split off and followed by a colon
+
+            Examples:
+              Template_MapLink           -> Template:MapLink
+              Template_Zone_Navbox__doc  -> Template:Zone Navbox/doc
+              Hidden_Hills               -> Hidden Hills
+            """
+            # Resolve subpage separator before splitting on namespace,
+            # so Template_Zone_Navbox__doc splits correctly.
+            stem_with_slash = stem.replace("__", "/")
+            parts = stem_with_slash.split("_", 1)
             if len(parts) == 2 and parts[0] in namespaces:
                 return f"{parts[0]}:{parts[1].replace('_', ' ')}"
-            return stem.replace("_", " ")
+            return stem_with_slash.replace("_", " ")
 
         if not source_dir.exists():
             return OperationResult(
