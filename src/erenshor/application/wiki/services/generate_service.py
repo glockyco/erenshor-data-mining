@@ -166,7 +166,19 @@ class WikiGenerateService:
         if file_pairs and not dry_run:
             self._write_file_pages(file_pairs)
 
-        # Process and save standard pages through the preservation/normalization pipeline
+        # Process and save standard pages through the preservation/normalization pipeline.
+        # If there are no standard pages (e.g. zones-only run), return success directly
+        # rather than letting _process_generated_pages emit a misleading warning.
+        if not standard_pages:
+            file_count = len(file_pairs)
+            return OperationResult(
+                total=file_count,
+                succeeded=file_count,
+                failed=0,
+                skipped=0,
+                warnings=[],
+                errors=[],
+            )
         return self._process_generated_pages(standard_pages, dry_run)
 
     def _write_file_pages(
