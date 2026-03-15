@@ -1,14 +1,7 @@
 """Zone entity model.
 
-This module defines the Zone domain entity representing in-game zones and areas.
-
-Zones are defined by Zones and ZoneAtlasEntries tables. The Coordinates
-table (which this entity originally represented) contains spatial positions for
-various game entities but does not define zones themselves. ZoneLines show
-connections between zones.
-
-Note: This entity may need refactoring to properly represent actual zones
-rather than coordinates. Currently it stores minimal zone identification data.
+Zones are geographic areas in the game world, defined by the Zones table in the clean
+database. ZoneLines define connections between zones.
 """
 
 from pydantic import Field
@@ -17,28 +10,38 @@ from .base import BaseEntity
 
 
 class Zone(BaseEntity):
-    """Domain entity representing an in-game zone or area.
+    """Domain entity representing an in-game zone.
 
-    Zones are geographic areas/regions in the game world. They are properly
-    defined by Zones (zone metadata) and ZoneAtlasEntries (map data).
-    ZoneLines define connections between zones.
+    Maps to the zones table in the clean database (built by extract build).
+    wiki_page_name is populated by the build pipeline's mapping system and may
+    be None for zones excluded from the wiki.
 
-    This entity currently uses the Scene field as the stable identifier.
+    Boolean columns from SQLite are stored as integers (0/1) to match strict
+    Pydantic validation — do not change to bool.
     """
 
     # Primary key
-    stable_key: str = Field(description="Stable key from database (primary key)")
+    stable_key: str = Field(description="Stable key: 'zone:{scene_name}'")
 
     # Zone identification
-    scene: str | None = Field(default=None, description="Scene/zone name")
+    scene_name: str = Field(description="Unity scene name; doubles as interactive map key")
+    zone_name: str = Field(description="Raw display name from game data")
+    is_dungeon: int = Field(description="1 for dungeon zones, 0 for outdoor/event zones")
 
-    # Zone metadata references
-    zone_atlas_entry_id: str | None = Field(default=None, description="Reference to ZoneAtlasEntries.Id")
-    zone_announce_id: str | None = Field(default=None, description="Reference to Zones.SceneName")
+    # Build-pipeline mapping fields
+    display_name: str = Field(description="Display name (may be overridden by mapping)")
+    wiki_page_name: str | None = Field(default=None, description="Canonical wiki page title; None = excluded")
+    image_name: str = Field(description="Image filename for wiki pages")
+    is_wiki_generated: int = Field(description="1 if auto-generated wiki content exists")
+    is_map_visible: int = Field(description="1 if zone appears on the interactive map")
 
-    # Zone quest triggers
+    # Quest triggers
+    achievement: str = Field(default="", description="Achievement identifier on zone entry")
     complete_quest_on_enter_stable_key: str | None = Field(default=None, description="Quest completed on zone entry")
     complete_second_quest_on_enter_stable_key: str | None = Field(
         default=None, description="Second quest completed on zone entry"
     )
     assign_quest_on_enter_stable_key: str | None = Field(default=None, description="Quest assigned on zone entry")
+
+    # Navigation
+    north_bearing: float = Field(default=0.0, description="Compass north bearing in degrees")
