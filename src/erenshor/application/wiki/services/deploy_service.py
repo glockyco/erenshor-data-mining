@@ -5,6 +5,7 @@ error handling and progress tracking.
 """
 
 import time
+from pathlib import Path
 
 from loguru import logger
 from rich.console import Console
@@ -37,6 +38,127 @@ class WikiDeployService:
         self._console = console or Console()
 
         logger.debug("WikiDeployService initialized")
+
+    def deploy_from_dir(
+        self,
+        source_dir: Path,
+        dry_run: bool = False,
+    ) -> OperationResult:
+        """Deploy wiki pages from .txt files in a directory.
+
+        Reads all .txt files from source_dir and uploads each to the wiki.
+        The wiki page title is derived from the filename stem:
+        - If the stem starts with a recognized namespace prefix (Template, Category,
+          Module, Help, File, User, Project), the first underscore is replaced with
+          a colon and remaining underscores become spaces.
+        - Otherwise all underscores become spaces.
+
+        Examples:
+            Template_MapLink.txt  -> Template:MapLink
+            Template_Zone_Navbox.txt -> Template:Zone Navbox
+            Mysterious_Portal.txt -> Mysterious Portal
+
+        Args:
+            source_dir: Directory containing .txt files to deploy.
+            dry_run: If True, simulate without actually uploading.
+
+        Returns:
+            OperationResult with summary statistics.
+        """
+        namespaces = {"Template", "Category", "Module", "Help", "File", "User", "Project"}
+
+        def _stem_to_title(stem: str) -> str:
+            """Convert filename stem to wiki page title."""
+            parts = stem.split("_", 1)
+            if len(parts) == 2 and parts[0] in namespaces:
+                return f"{parts[0]}:{parts[1].replace('_', ' ')}"
+            return stem.replace("_", " ")
+
+        if not source_dir.exists():
+            return OperationResult(
+                total=0,
+                succeeded=0,
+                failed=0,
+                skipped=0,
+                warnings=[f"Source directory does not exist: {source_dir}"],
+                errors=[],
+            )
+
+        txt_files = sorted(source_dir.glob("*.txt"))
+        if not txt_files:
+            return OperationResult(
+                total=0,
+                succeeded=0,
+                failed=0,
+                skipped=0,
+                warnings=[f"No .txt files found in {source_dir}"],
+                errors=[],
+            )
+
+        total = len(txt_files)
+        succeeded = 0
+        failed = 0
+        warnings: list[str] = []
+        errors: list[str] = []
+
+        logger.info(f"Deploying {total} pages from {source_dir} (dry_run={dry_run})")
+        self._console.print(f"\n[bold]Deploying {total} wiki pages from {source_dir}...[/bold]\n")
+
+        if not dry_run:
+            try:
+                self._wiki_client.login()
+            except Exception as e:
+                error_msg = f"Failed to login to wiki: {e}"
+                logger.error(error_msg)
+                return OperationResult(
+                    total=total,
+                    succeeded=0,
+                    failed=total,
+                    skipped=0,
+                    warnings=[],
+                    errors=[error_msg],
+                )
+
+        for txt_file in track(txt_files, description="Deploying pages", total=total):
+            title = _stem_to_title(txt_file.stem)
+            try:
+                content = txt_file.read_text(encoding="utf-8")
+                if not dry_run:
+                    self._wiki_client.edit_page(
+                        title=title,
+                        content=content,
+                        summary="Manual wiki update",
+                    )
+                    time.sleep(2.0)  # rate limit: 30 uploads per minute
+                succeeded += 1
+                logger.debug(f"Deployed '{title}' from {txt_file.name}")
+            except Exception as e:
+                error_msg = f"Failed to deploy '{title}': {e}"
+                logger.error(error_msg)
+                errors.append(error_msg)
+                self._console.print(f"[red]✗[/red] {error_msg}")
+                failed += 1
+
+        display_operation_summary(
+            console=self._console,
+            operation="Deploy from dir",
+            total=total,
+            succeeded=succeeded,
+            failed=failed,
+            skipped=0,
+            warnings=warnings,
+            errors=errors,
+            dry_run=dry_run,
+        )
+
+        return OperationResult(
+            total=total,
+            succeeded=succeeded,
+            failed=failed,
+            skipped=0,
+            warnings=warnings,
+            errors=errors,
+        )
 
     def deploy_all(
         self,

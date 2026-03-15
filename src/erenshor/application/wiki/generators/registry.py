@@ -7,7 +7,8 @@ enables selective generation via CLI flags.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from loguru import logger
@@ -33,11 +34,19 @@ class GeneratorRegistration:
         name: Unique identifier for CLI selection (e.g., "items", "weapons_overview")
         generator_class: PageGenerator class to instantiate
         description: Human-readable description for CLI help text
+        auto_deploy: If False, pages are excluded from the default `wiki deploy` run.
+            Use for generators that write to a separate output_dir rather than
+            the standard wiki storage.
+        output_dir: If set, generated pages are written as plain .txt files to this
+            directory instead of the standard WikiStorage. The generator is
+            responsible for its own field preservation in this case.
     """
 
     name: str
     generator_class: type[PageGenerator]
     description: str
+    auto_deploy: bool = True
+    output_dir: Path | None = field(default=None)
 
 
 # Global registry of all wiki page generators
@@ -63,8 +72,8 @@ WIKI_GENERATORS: list[GeneratorRegistration] = [
 def get_generators_by_name(
     context: GeneratorContext,
     generator_names: list[str] | None = None,
-) -> list[PageGenerator]:
-    """Get generator instances filtered by name.
+) -> list[tuple[GeneratorRegistration, PageGenerator]]:
+    """Get (registration, generator_instance) pairs filtered by name.
 
     Args:
         context: Shared context for all generators
@@ -72,24 +81,29 @@ def get_generators_by_name(
                         If None, return all registered generators.
 
     Returns:
-        List of instantiated PageGenerator objects
+        List of (GeneratorRegistration, PageGenerator) pairs
 
     Raises:
         ValueError: If any requested generator name is not found in registry
 
     Example:
         ```python
-        # Get all generators
-        generators = get_generators_by_name(context)
+        # Get all generators with their registrations
+        pairs = get_generators_by_name(context)
+        for reg, gen in pairs:
+            pages = list(gen.generate_pages())
+            if reg.output_dir:
+                # Write to separate directory
+                ...
 
         # Get specific generators
-        generators = get_generators_by_name(context, ["items", "weapons_overview"])
+        pairs = get_generators_by_name(context, ["items", "weapons_overview"])
         ```
     """
     # If no filter, return all generators
     if generator_names is None:
         logger.debug(f"Instantiating all {len(WIKI_GENERATORS)} registered generators")
-        return [registration.generator_class(context) for registration in WIKI_GENERATORS]
+        return [(reg, reg.generator_class(context)) for reg in WIKI_GENERATORS]
 
     # Validate all requested names exist
     available_names = {reg.name for reg in WIKI_GENERATORS}
@@ -108,7 +122,7 @@ def get_generators_by_name(
         f"{', '.join(reg.name for reg in filtered_registrations)}"
     )
 
-    return [registration.generator_class(context) for registration in filtered_registrations]
+    return [(reg, reg.generator_class(context)) for reg in filtered_registrations]
 
 
 def detect_conflicts(pages: list[GeneratedPage]) -> dict[str, list[GeneratedPage]]:
@@ -126,7 +140,7 @@ def detect_conflicts(pages: list[GeneratedPage]) -> dict[str, list[GeneratedPage
 
     Example:
         ```python
-        pages = list(chain.from_iterable(gen.generate_pages() for gen in generators))
+        pages = list(chain.from_iterable(gen.generate_pages() for _, gen in pairs))
         conflicts = detect_conflicts(pages)
 
         if conflicts:
@@ -152,16 +166,17 @@ def detect_conflicts(pages: list[GeneratedPage]) -> dict[str, list[GeneratedPage
     return conflicts
 
 
-def list_generators() -> list[tuple[str, str]]:
-    """List all registered generators with descriptions.
+def list_generators() -> list[tuple[str, str, bool]]:
+    """List all registered generators with descriptions and deploy status.
 
     Returns:
-        List of (name, description) tuples for CLI display
+        List of (name, description, auto_deploy) tuples for CLI display
 
     Example:
         ```python
-        for name, description in list_generators():
-            print(f"  {name:20s} - {description}")
+        for name, description, auto_deploy in list_generators():
+            deploy_flag = "" if auto_deploy else " [manual deploy]"
+            print(f"  {name:20s} - {description}{deploy_flag}")
         ```
     """
-    return [(reg.name, reg.description) for reg in WIKI_GENERATORS]
+    return [(reg.name, reg.description, reg.auto_deploy) for reg in WIKI_GENERATORS]

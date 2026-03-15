@@ -38,6 +38,8 @@ Example:
     >>> service.deploy_all()
 """
 
+from pathlib import Path
+
 from loguru import logger
 from rich.console import Console
 
@@ -56,6 +58,7 @@ from erenshor.infrastructure.database.repositories.skills import SkillRepository
 from erenshor.infrastructure.database.repositories.spawn_points import SpawnPointRepository
 from erenshor.infrastructure.database.repositories.spells import SpellRepository
 from erenshor.infrastructure.database.repositories.stances import StanceRepository
+from erenshor.infrastructure.database.repositories.zones import ZoneRepository
 from erenshor.infrastructure.wiki.client import MediaWikiClient
 
 
@@ -107,7 +110,9 @@ class WikiService:
         spawn_repo: SpawnPointRepository,
         loot_repo: LootTableRepository,
         quest_repo: QuestRepository,
+        zone_repo: ZoneRepository,
         class_display: ClassDisplayNameService,
+        maps_base_url: str,
         console: Console | None = None,
     ) -> None:
         """Initialize wiki service.
@@ -143,6 +148,8 @@ class WikiService:
             loot_repo=loot_repo,
             quest_repo=quest_repo,
             class_display=class_display,
+            zone_repo=zone_repo,
+            maps_base_url=maps_base_url,
             console=console,
         )
 
@@ -158,6 +165,8 @@ class WikiService:
             loot_repo=loot_repo,
             quest_repo=quest_repo,
             class_display=class_display,
+            zone_repo=zone_repo,
+            maps_base_url=maps_base_url,
             console=console,
         )
 
@@ -175,6 +184,7 @@ class WikiService:
         limit: int | None = None,
         force_refetch: bool = False,
         page_titles: list[str] | None = None,
+        generator_names: list[str] | None = None,
     ) -> OperationResult:
         """Fetch wiki pages for all entities or specified page titles.
 
@@ -194,6 +204,7 @@ class WikiService:
             limit=limit,
             force_refetch=force_refetch,
             page_titles=page_titles,
+            generator_names=generator_names,
         )
 
     def generate_all(
@@ -201,6 +212,7 @@ class WikiService:
         dry_run: bool = False,
         limit: int | None = None,
         page_titles: list[str] | None = None,
+        generator_names: list[str] | None = None,
     ) -> OperationResult:
         """Generate wiki pages for all entities or specified page titles.
 
@@ -218,6 +230,7 @@ class WikiService:
             dry_run=dry_run,
             limit=limit,
             page_titles=page_titles,
+            generator_names=generator_names,
         )
 
     def deploy_all(
@@ -243,3 +256,14 @@ class WikiService:
             limit=limit,
             page_titles=page_titles,
         )
+
+    def deploy_from_dir(
+        self,
+        source_dir: Path,
+        dry_run: bool = False,
+    ) -> OperationResult:
+        """Deploy wiki pages from .txt files in a directory.
+
+        Delegates to WikiDeployService.deploy_from_dir.
+        """
+        return self._deploy_service.deploy_from_dir(source_dir=source_dir, dry_run=dry_run)

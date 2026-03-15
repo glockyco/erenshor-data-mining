@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     import mwparserfromhell.wikicode
 
     from erenshor.application.wiki.generators.base import GeneratedPage
+    from erenshor.application.wiki.generators.registry import GeneratorRegistration
     from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
     from erenshor.application.wiki.services.storage import WikiStorage
     from erenshor.infrastructure.database.repositories.characters import CharacterRepository
@@ -29,7 +30,7 @@ if TYPE_CHECKING:
     from erenshor.infrastructure.database.repositories.spawn_points import SpawnPointRepository
     from erenshor.infrastructure.database.repositories.spells import SpellRepository
     from erenshor.infrastructure.database.repositories.stances import StanceRepository
-
+    from erenshor.infrastructure.database.repositories.zones import ZoneRepository
 from erenshor.application.wiki.generators.context import GeneratorContext
 from erenshor.application.wiki.generators.field_preservation import FieldPreservationHandler
 from erenshor.application.wiki.generators.legacy_template_remover import LegacyTemplateRemover
@@ -53,25 +54,12 @@ class WikiGenerateService:
         spawn_repo: SpawnPointRepository,
         loot_repo: LootTableRepository,
         quest_repo: QuestRepository,
+        zone_repo: ZoneRepository,
         class_display: ClassDisplayNameService,
+        maps_base_url: str,
         console: Console | None = None,
     ) -> None:
-        """Initialize generate service.
-
-        Args:
-            storage: Storage for saving generated pages.
-            item_repo: Repository for item entities and related data.
-            character_repo: Repository for character entities.
-            spell_repo: Repository for spell entities.
-            skill_repo: Repository for skill entities.
-            stance_repo: Repository for stance entities.
-            faction_repo: Repository for faction data.
-            spawn_repo: Repository for spawn point data.
-            loot_repo: Repository for loot table data.
-            quest_repo: Repository for quest data.
-            class_display: Service for mapping class names to display names.
-            console: Rich console for output (optional).
-        """
+        """Initialize generate service."""
         self._storage = storage
         self._console = console or Console()
 
@@ -86,8 +74,10 @@ class WikiGenerateService:
             spawn_repo=spawn_repo,
             loot_repo=loot_repo,
             quest_repo=quest_repo,
+            zone_repo=zone_repo,
             storage=storage,
             class_display=class_display,
+            maps_base_url=maps_base_url,
         )
 
         # Handlers for preservation and normalization
@@ -127,46 +117,84 @@ class WikiGenerateService:
             f"generators={generator_names or 'all'})"
         )
 
-        # Get generators from registry
-        generators = get_generators_by_name(self._context, generator_names)
-        logger.debug(f"Using {len(generators)} generators")
+        # Get (registration, generator) pairs from registry
+        pairs = get_generators_by_name(self._context, generator_names)
+        logger.debug(f"Using {len(pairs)} generators")
 
-        # Collect generated pages from all generators
-        all_generated_pages = []
-        for generator in generators:
+        # Separate pages by destination: output_dir generators write directly to
+        # files (the generator handles its own field preservation); standard
+        # generators go through the service's preservation/normalization pipeline.
+        standard_pages: list[GeneratedPage] = []
+        file_pairs: list[tuple[GeneratorRegistration, GeneratedPage]] = []
+
+        for reg, generator in pairs:
             logger.debug(f"Running generator: {generator.__class__.__name__}")
             generated_pages = list(generator.generate_pages())
-            all_generated_pages.extend(generated_pages)
             logger.debug(f"  Generated {len(generated_pages)} pages")
+            if reg.output_dir is not None:
+                file_pairs.extend((reg, page) for page in generated_pages)
+            else:
+                standard_pages.extend(generated_pages)
 
-        logger.info(f"Total pages generated: {len(all_generated_pages)}")
+        logger.info(f"Total pages generated: {len(standard_pages)} standard, {len(file_pairs)} to output_dir")
 
-        # Remove stale metadata/files when doing a full (unfiltered) generation.
-        # Stale entries arise when page titles change (e.g., whitespace stripping)
-        # and the old entries linger, causing overwrites on MediaWiki.
+        # Remove stale storage entries on full unfiltered generation
+        # (output_dir generators are not in storage, so exclude their titles)
         if not page_titles and not limit and not generator_names:
-            valid_titles = {p.title for p in all_generated_pages}
+            valid_titles = {p.title for p in standard_pages}
             removed = self._storage.remove_stale_pages(valid_titles)
             if removed:
                 logger.info(f"Cleaned up {removed} stale pages")
 
-        # Filter by requested page titles if specified
+        # Filter standard pages by requested page titles
         if page_titles:
             page_titles_set = set(page_titles)
-            filtered_pages = [p for p in all_generated_pages if p.title in page_titles_set]
+            filtered = [p for p in standard_pages if p.title in page_titles_set]
             logger.info(
-                f"Filtered to {len(filtered_pages)} pages matching requested titles "
-                f"(out of {len(all_generated_pages)} total)"
+                f"Filtered to {len(filtered)} standard pages matching requested titles "
+                f"(out of {len(standard_pages)} total)"
             )
-            all_generated_pages = filtered_pages
+            standard_pages = filtered
+            file_pairs = [(r, p) for r, p in file_pairs if p.title in page_titles_set]
 
-        # Apply limit after filtering
+        # Apply limit to standard pages
         if limit:
-            all_generated_pages = all_generated_pages[:limit]
-            logger.info(f"Limited to {len(all_generated_pages)} pages")
+            standard_pages = standard_pages[:limit]
+            logger.info(f"Limited to {len(standard_pages)} standard pages")
 
-        # Process and save pages
-        return self._process_generated_pages(all_generated_pages, dry_run)
+        # Write output_dir pages as plain .txt files (skip in dry-run)
+        if file_pairs and not dry_run:
+            self._write_file_pages(file_pairs)
+
+        # Process and save standard pages through the preservation/normalization pipeline
+        return self._process_generated_pages(standard_pages, dry_run)
+
+    def _write_file_pages(
+        self,
+        file_pairs: list[tuple[GeneratorRegistration, GeneratedPage]],
+    ) -> None:
+        """Write output_dir pages as plain .txt files.
+
+        Generators with output_dir set handle their own field preservation and
+        normalization before yielding. This method just routes their output to
+        the configured directory, creating it if needed.
+
+        The filename convention: replace spaces with underscores and append .txt.
+        This matches MediaWiki's own URL-encoding convention.
+
+        Args:
+            file_pairs: (registration, page) pairs from output_dir generators.
+        """
+        for reg, page in file_pairs:
+            assert reg.output_dir is not None  # invariant: callers only pass output_dir pairs
+            output_dir = reg.output_dir
+            output_dir.mkdir(parents=True, exist_ok=True)
+            filename = page.title.replace(" ", "_") + ".txt"
+            dest = output_dir / filename
+            dest.write_text(page.content, encoding="utf-8")
+            logger.debug(f"Wrote {page.title!r} to {dest}")
+
+        logger.info(f"Wrote {len(file_pairs)} pages to output directories")
 
     def _process_generated_pages(
         self,

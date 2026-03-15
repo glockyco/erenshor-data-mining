@@ -31,6 +31,7 @@ if TYPE_CHECKING:
     from erenshor.infrastructure.database.repositories.spawn_points import SpawnPointRepository
     from erenshor.infrastructure.database.repositories.spells import SpellRepository
     from erenshor.infrastructure.database.repositories.stances import StanceRepository
+    from erenshor.infrastructure.database.repositories.zones import ZoneRepository
 
 
 class WikiFetchService:
@@ -49,7 +50,9 @@ class WikiFetchService:
         spawn_repo: SpawnPointRepository,
         loot_repo: LootTableRepository,
         quest_repo: QuestRepository,
+        zone_repo: ZoneRepository,
         class_display: ClassDisplayNameService,
+        maps_base_url: str,
         console: Console | None = None,
     ) -> None:
         """Initialize fetch service.
@@ -84,8 +87,10 @@ class WikiFetchService:
             spawn_repo=spawn_repo,
             loot_repo=loot_repo,
             quest_repo=quest_repo,
+            zone_repo=zone_repo,
             storage=storage,
             class_display=class_display,
+            maps_base_url=maps_base_url,
         )
 
         logger.debug("WikiFetchService initialized")
@@ -148,7 +153,8 @@ class WikiFetchService:
         )
 
         # Get generators from registry
-        generators = get_generators_by_name(self._context, generator_names)
+        pairs = get_generators_by_name(self._context, generator_names)
+        generators = [gen for _, gen in pairs]
         logger.debug(f"Using {len(generators)} generators")
 
         # Collect page titles to fetch from all generators

@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     from erenshor.infrastructure.database.repositories.spawn_points import SpawnPointRepository
     from erenshor.infrastructure.database.repositories.spells import SpellRepository
     from erenshor.infrastructure.database.repositories.stances import StanceRepository
+    from erenshor.infrastructure.database.repositories.zones import ZoneRepository
 
 
 @dataclass
@@ -40,8 +41,10 @@ class GeneratorContext:
         spawn_repo: Repository for spawn point data
         loot_repo: Repository for loot table data
         quest_repo: Repository for quest data
+        zone_repo: Repository for zone entities and connections
         storage: Wiki storage for reading fetched pages
         class_display: Service for mapping class names to display names
+        maps_base_url: Base URL for the interactive map website
     """
 
     item_repo: ItemRepository
@@ -53,5 +56,7 @@ class GeneratorContext:
     spawn_repo: SpawnPointRepository
     loot_repo: LootTableRepository
     quest_repo: QuestRepository
+    zone_repo: ZoneRepository
     storage: WikiStorage
     class_display: ClassDisplayNameService
+    maps_base_url: str

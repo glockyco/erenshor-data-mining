@@ -41,6 +41,7 @@ from erenshor.infrastructure.database.repositories.skills import SkillRepository
 from erenshor.infrastructure.database.repositories.spawn_points import SpawnPointRepository
 from erenshor.infrastructure.database.repositories.spells import SpellRepository
 from erenshor.infrastructure.database.repositories.stances import StanceRepository
+from erenshor.infrastructure.database.repositories.zones import ZoneRepository
 from erenshor.infrastructure.wiki.client import MediaWikiClient
 
 app = typer.Typer(
@@ -117,7 +118,7 @@ def _create_wiki_service(cli_ctx: CLIContext) -> WikiService:
     spawn_repo = SpawnPointRepository(db_connection)
     loot_repo = LootTableRepository(db_connection)
     quest_repo = QuestRepository(db_connection)
-
+    zone_repo = ZoneRepository(db_connection)
     # Create wiki client
     wiki_config = cli_ctx.config.global_.mediawiki
     wiki_client = MediaWikiClient(
@@ -134,6 +135,7 @@ def _create_wiki_service(cli_ctx: CLIContext) -> WikiService:
     class_display = ClassDisplayNameService(db_connection)
 
     # Create and return service
+    maps_base_url = variant_config.maps.base_url
     return WikiService(
         wiki_client=wiki_client,
         storage=storage,
@@ -146,7 +148,9 @@ def _create_wiki_service(cli_ctx: CLIContext) -> WikiService:
         spawn_repo=spawn_repo,
         loot_repo=loot_repo,
         quest_repo=quest_repo,
+        zone_repo=zone_repo,
         class_display=class_display,
+        maps_base_url=maps_base_url,
     )
 
 
@@ -174,6 +178,12 @@ def fetch(
         None,
         "--pages-file",
         help="File with page titles to fetch (one per line), or '-' for stdin. If not specified, fetches all pages.",
+    ),
+    generator: list[str] | None = typer.Option(
+        None,
+        "--generator",
+        "-g",
+        help="Generator names to run (e.g. --generator zones). Default: all.",
     ),
 ) -> None:
     """Fetch wiki pages from MediaWiki.
@@ -224,6 +234,7 @@ def fetch(
             limit=limit,
             force_refetch=force,
             page_titles=page_titles,
+            generator_names=generator,
         )
 
         # Show warnings and errors
@@ -260,6 +271,12 @@ def generate(
         help=(
             "File with page titles to generate (one per line), or '-' for stdin. If not specified, generates all pages."
         ),
+    ),
+    generator: list[str] | None = typer.Option(
+        None,
+        "--generator",
+        "-g",
+        help="Generator names to run (e.g. --generator zones --generator entities). Default: all.",
     ),
 ) -> None:
     """Generate wiki pages locally.
@@ -312,6 +329,7 @@ def generate(
             dry_run=cli_ctx.dry_run,
             limit=limit,
             page_titles=page_titles,
+            generator_names=generator,
         )
 
         # Show warnings and errors
@@ -351,6 +369,11 @@ def deploy(
         "--pages-file",
         help="File with page titles to deploy (one per line), or '-' for stdin. If not specified, deploys all pages.",
     ),
+    from_dir: str | None = typer.Option(
+        None,
+        "--from-dir",
+        help="Deploy .txt files from this directory instead of generated storage. Title derived from filename.",
+    ),
 ) -> None:
     """Deploy generated wiki pages to MediaWiki.
 
@@ -366,34 +389,40 @@ def deploy(
     """
     cli_ctx: CLIContext = ctx.obj
 
-    # Read page titles if specified
-    page_titles: list[str] | None = None
-    if pages_file:
-        page_titles = _read_page_titles(pages_file)
-        logger.info(f"Deploying {len(page_titles)} pages from {pages_file}")
-
-    console.print()
-    console.print(
-        Panel.fit(
-            f"[bold cyan]Deploying wiki pages[/bold cyan]\n"
-            f"Variant: {cli_ctx.variant}\n"
-            f"Dry-run: {cli_ctx.dry_run}\n"
-            f"Pages: {'from ' + pages_file if pages_file else 'all'}",
-            border_style="cyan",
-        )
-    )
-    console.print()
-
     try:
         # Create service
         service = _create_wiki_service(cli_ctx)
 
-        # Deploy pages (all or specified)
-        result = service.deploy_all(
-            dry_run=cli_ctx.dry_run,
-            limit=limit,
-            page_titles=page_titles,
-        )
+        if from_dir:
+            # Deploy from a directory of .txt files (zone pages, templates, etc.)
+            result = service.deploy_from_dir(
+                source_dir=Path(from_dir),
+                dry_run=cli_ctx.dry_run,
+            )
+        else:
+            # Deploy from generated storage (standard wiki deploy)
+            page_titles: list[str] | None = None
+            if pages_file:
+                page_titles = _read_page_titles(pages_file)
+                logger.info(f"Deploying {len(page_titles)} pages from {pages_file}")
+
+            console.print()
+            console.print(
+                Panel.fit(
+                    f"[bold cyan]Deploying wiki pages[/bold cyan]\n"
+                    f"Variant: {cli_ctx.variant}\n"
+                    f"Dry-run: {cli_ctx.dry_run}\n"
+                    f"Pages: {'from ' + pages_file if pages_file else 'all'}",
+                    border_style="cyan",
+                )
+            )
+            console.print()
+
+            result = service.deploy_all(
+                dry_run=cli_ctx.dry_run,
+                limit=limit,
+                page_titles=page_titles,
+            )
 
         # Show warnings and errors
         if result.has_warnings():
