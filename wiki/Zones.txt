@@ -6,11 +6,11 @@ If you've just finished [[Stowaway's Step]] and [[Island Tomb]] (both available 
 {| class="wikitable sortable"
 ! Zone !! Levels !! Median level !! Map !! Notes
 |-
-| [[Port Azure]] || 1–35 || 22 || {{MapLink|zone=Azure}} ||
+| [[Port Azure]] || 1–35 || 11 || {{MapLink|zone=Azure}} ||
 |-
 | [[Reliquary Hall]] || 16–35 || 5 || — ||
 |-
-| [[Stowaway's Step]] || 1–6 || 4 || {{MapLink|zone=Stowaway}} || <span style="color: #15e300;">''Available in the demo''</span>
+| [[Stowaway's Step]] || 1–6 || 2 || {{MapLink|zone=Stowaway}} || <span style="color: #15e300;">''Available in the demo''</span>
 |-
 | [[Willowwatch Ridge]] || 1–8 || 4 || {{MapLink|zone=Willowwatch}} ||
 |-
@@ -22,7 +22,7 @@ If you've just finished [[Stowaway's Step]] and [[Island Tomb]] (both available 
 |-
 | [[Fernalla's Revival Plains]] || 6–18 || 13 || {{MapLink|zone=FernallaField}} ||
 |-
-| [[The Duskenlight Coast]] || 7–19 || 17 || {{MapLink|zone=Duskenlight}} ||
+| [[The Duskenlight Coast]] || 7–19 || 14 || {{MapLink|zone=Duskenlight}} ||
 |-
 | [[Rottenfoot]] || 12–20 || 15 || {{MapLink|zone=Rottenfoot}} ||
 |-
@@ -30,15 +30,15 @@ If you've just finished [[Stowaway's Step]] and [[Island Tomb]] (both available 
 |-
 | [[Braxonian Desert]] || 16–25 || 17 || {{MapLink|zone=Braxonian}} ||
 |-
-| [[Loomingwood Forest]] || 18–26 || 23 || {{MapLink|zone=Loomingwood}} ||
+| [[Loomingwood Forest]] || 18–26 || 24 || {{MapLink|zone=Loomingwood}} ||
 |-
-| [[Silkengrass Meadowlands]] || 10–30 || 19 || {{MapLink|zone=Silkengrass}} ||
+| [[Silkengrass Meadowlands]] || 10–30 || 18 || {{MapLink|zone=Silkengrass}} ||
 |-
 | [[Windwashed Pass]] || 15–30 || 18 || {{MapLink|zone=Windwashed}} ||
 |-
 | [[Malaroth's Nesting Grounds]] || 20–30 || 19 || {{MapLink|zone=Malaroth}} ||
 |-
-| [[Soluna's Landing]] || 25–33 || 25 || {{MapLink|zone=Soluna}} ||
+| [[Soluna's Landing]] || 25–33 || 26 || {{MapLink|zone=Soluna}} ||
 |-
 | [[The Blight]] || 26–33 || 25 || {{MapLink|zone=Blight}} ||
 |-
@@ -61,11 +61,11 @@ If you've just finished [[Stowaway's Step]] and [[Island Tomb]] (both available 
 |-
 | [[Lost Cellar]] || 13–20 || 17 || {{MapLink|zone=Undercity}} ||
 |-
-| [[Mysterious Portal]] (@ [[The Duskenlight Coast]]) || 14–15 || 20 || {{MapLink|zone=DuskenPortal}} ||
+| [[Mysterious Portal]] (@ [[The Duskenlight Coast]]) || 14–15 || 21 || {{MapLink|zone=DuskenPortal}} ||
 |-
 | [[The Elderstone Mines]] || 16–21 || 17 || {{MapLink|zone=Elderstone}} ||
 |-
-| [[Mysterious Portal]] (@ [[Fernalla's Revival Plains]]) || 21–24 || 20 || {{MapLink|zone=FernallaPortal}} ||
+| [[Mysterious Portal]] (@ [[Fernalla's Revival Plains]]) || 21–24 || 21 || {{MapLink|zone=FernallaPortal}} ||
 |-
 | [[Rockshade Hold]] || 22–26 || 24 || {{MapLink|zone=Rockshade}} ||
 |-
@@ -77,7 +77,7 @@ If you've just finished [[Stowaway's Step]] and [[Island Tomb]] (both available 
 |-
 | [[Fallen Braxonia]] || 28–33 || 29 || {{MapLink|zone=Braxonia}} ||
 |-
-| [[Mysterious Portal]] (@ [[Ripper's Keep]]) || 28–35 || 20 || {{MapLink|zone=RipperPortal}} ||
+| [[Mysterious Portal]] (@ [[Ripper's Keep]]) || 28–35 || 21 || {{MapLink|zone=RipperPortal}} ||
 |-
 | [[Prielian Cascade]] || 28–35 || 30 || {{MapLink|zone=PrielPlateau}} ||
 |-
@@ -92,7 +92,7 @@ If you've just finished [[Stowaway's Step]] and [[Island Tomb]] (both available 
 {| class="wikitable sortable"
 ! Zone !! Levels !! Median level !! Map !! Notes
 |-
-| [[Bellwain Island]] || 1–35 || 25 || {{MapLink|zone=SummerEvent}} ||
+| [[Bellwain Island]] || 1–35 || — || {{MapLink|zone=SummerEvent}} ||
 |-
 | [[Shivering Step]] || 19–24 || 21 || {{MapLink|zone=ShiveringStep}} ||
 |-
