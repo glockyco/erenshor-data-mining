@@ -1,0 +1,3 @@
+{{#if:{{{zone|}}}|[https://erenshor-maps.wowmuch1.workers.dev/map?sel=zone%3A{{{zone}}} Map]|—}}<noinclude>
+[[Category:Templates]]
+</noinclude>

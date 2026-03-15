@@ -1,0 +1,108 @@
+[[Category:Zones]]
+{{PAGENAME}} are specific sections of the overall map of [[Erenshor]].
+All of the zones currently in the game are listed below.
+
+''Note: Only Stowaway's Step and Island Tomb are accessible in the Demo.''
+
+If you've just finished the demo, you start in [[Hidden Hills]]. From there
+you can reach [[The Bonepits]] or [[Faerie's Brake]], and then on to
+[[Port Azure]] — the main city, with a bank, auction house, and class vendors.
+
+{| class="wikitable sortable"
+! Zone !! Type !! Levels !! Map !! Notes
+|-
+| [[Port Azure]] || Outdoor || 1–35 || {{MapLink|zone=Azure}} ||
+|-
+| [[Reliquary Hall]] || Outdoor || 16–35 || — ||
+|-
+| [[Stowaway's Step]] || Outdoor || 1–6 || {{MapLink|zone=Stowaway}} || <span style="color: #15e300;">''Demo''</span>
+|-
+| [[Willowwatch Ridge]] || Outdoor || 1–8 || {{MapLink|zone=Willowwatch}} ||
+|-
+| [[Hidden Hills]] || Outdoor || 4–8 || {{MapLink|zone=Hidden}} ||
+|-
+| [[Faerie's Brake]] || Outdoor || 3–10 || {{MapLink|zone=Brake}} ||
+|-
+| [[Vitheo's Watch]] || Outdoor || 4–10 || {{MapLink|zone=Vitheo}} ||
+|-
+| [[Fernalla's Revival Plains]] || Outdoor || 6–18 || {{MapLink|zone=FernallaField}} ||
+|-
+| [[The Duskenlight Coast]] || Outdoor || 7–19 || {{MapLink|zone=Duskenlight}} ||
+|-
+| [[Rottenfoot]] || Outdoor || 12–20 || {{MapLink|zone=Rottenfoot}} ||
+|-
+| [[Blacksalt Strand]] || Outdoor || 14–21 || {{MapLink|zone=SaltedStrand}} ||
+|-
+| [[Braxonian Desert]] || Outdoor || 16–25 || {{MapLink|zone=Braxonian}} ||
+|-
+| [[Loomingwood Forest]] || Outdoor || 18–26 || {{MapLink|zone=Loomingwood}} ||
+|-
+| [[Silkengrass Meadowlands]] || Outdoor || 10–30 || {{MapLink|zone=Silkengrass}} ||
+|-
+| [[Windwashed Pass]] || Outdoor || 15–30 || {{MapLink|zone=Windwashed}} ||
+|-
+| [[Malaroth's Nesting Grounds]] || Outdoor || 20–30 || {{MapLink|zone=Malaroth}} ||
+|-
+| [[Soluna's Landing]] || Outdoor || 25–33 || {{MapLink|zone=Soluna}} ||
+|-
+| [[The Blight]] || Outdoor || 26–33 || {{MapLink|zone=Blight}} ||
+|-
+| [[Ripper's Keep]] || Outdoor || 28–33 || {{MapLink|zone=Ripper}} ||
+|-
+| [[Azynthi's Garden]] || Outdoor || 30–35 || {{MapLink|zone=AzynthiClear}} ||
+|-
+| [[Island Tomb]] || Dungeon || 3–7 || {{MapLink|zone=Tutorial}} || <span style="color: #15e300;">''Demo''</span>
+|-
+| [[The Bonepits]] || Dungeon || 4–9 || {{MapLink|zone=Bonepits}} ||
+|-
+| [[Old Krakengard]] || Dungeon || 8–13 || {{MapLink|zone=Krakengard}} ||
+|-
+| [[Underspine Hollow]] || Dungeon || 10–16 || {{MapLink|zone=Underspine}} ||
+|-
+| [[Lost Cellar]] || Dungeon || 13–20 || {{MapLink|zone=Undercity}} ||
+|-
+| [[Mysterious Portal]] (@ [[The Duskenlight Coast]]) || Dungeon || 14–15 || {{MapLink|zone=DuskenPortal}} || Quest unlock
+|-
+| [[Mysterious Portal]] (@ [[Fernalla's Revival Plains]]) || Dungeon || 21–24 || {{MapLink|zone=FernallaPortal}} || Quest unlock
+|-
+| [[Mysterious Portal]] (@ [[Ripper's Keep]]) || Dungeon || 28–35 || {{MapLink|zone=RipperPortal}} || Quest unlock
+|-
+| [[The Elderstone Mines]] || Dungeon || 16–21 || {{MapLink|zone=Elderstone}} ||
+|-
+| [[Blooming Sepulcher]] || Dungeon || 18–34 || {{MapLink|zone=BloomingSepulcher}} ||
+|-
+| [[Rockshade Hold]] || Dungeon || 22–26 || {{MapLink|zone=Rockshade}} ||
+|-
+| [[Abyssal Lake]] || Dungeon || 24–33 || {{MapLink|zone=Abyssal}} ||
+|-
+| [[Fallen Braxonia]] || Dungeon || 28–33 || {{MapLink|zone=Braxonia}} ||
+|-
+| [[Prielian Cascade]] || Dungeon || 28–35 || {{MapLink|zone=PrielPlateau}} ||
+|-
+| [[Vitheo's Rest]] || Dungeon || 22–35 || {{MapLink|zone=VitheosEnd}} ||
+|-
+| [[Jaws of Sivakaya]] || Dungeon || 30–35 || {{MapLink|zone=Jaws}} ||
+|-
+| [[Secluded Sanctuary]] || Dungeon || 35 || — ||
+|-
+| [[Prison]] || Dungeon || 35 || — ||
+|-
+| [[Bellwain Island]] || Event || 1–35 || {{MapLink|zone=SummerEvent}} ||
+|-
+| [[Shivering Step]] || Event || 19–24 || {{MapLink|zone=ShiveringStep}} ||
+|-
+| [[Shivering Tomb]] || Event || — || — ||
+|-
+| [[Vitheo's Plane of War]] || Plane || — || — || <span style="color: red;">''Unimplemented''</span>
+|-
+| [[Soluna's Celestial Plane]] || Plane || — || — || <span style="color: red;">''Unimplemented''</span>
+|-
+| [[Fernalla's Plane of the Willow]] || Plane || — || — || <span style="color: red;">''Unimplemented''</span>
+|-
+| [[Sivakaya's Plane of Destruction]] || Plane || — || — || <span style="color: red;">''Unimplemented''</span>
+|-
+| [[Brax's Elemental Plane]] || Plane || — || — || <span style="color: red;">''Unimplemented''</span>
+|}
+
+==World Map==
+[[File:MapRoutesv03-iii.png|center]]

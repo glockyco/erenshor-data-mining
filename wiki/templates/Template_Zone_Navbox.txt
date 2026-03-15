@@ -1,0 +1,20 @@
+<div class="navbox mw-collapsible mw-collapsed" style="border:1px solid #aaa; padding:4px; text-align:center; width:100%;">
+<div style="font-weight:bold; background:#eee; padding:2px;">[[Zones|Zones of Erenshor]]</div>
+{| style="width:100%;"
+|-
+! style="white-space:nowrap; padding-right:1em;" | Outdoor Zones
+| [[Port Azure]] · [[Reliquary Hall]] · [[Stowaway's Step]] · [[Willowwatch Ridge]] · [[Hidden Hills]] · [[Faerie's Brake]] · [[Vitheo's Watch]] · [[Fernalla's Revival Plains]] · [[The Duskenlight Coast]] · [[Rottenfoot]] · [[Blacksalt Strand]] · [[Braxonian Desert]] · [[Loomingwood Forest]] · [[Silkengrass Meadowlands]] · [[Windwashed Pass]] · [[Malaroth's Nesting Grounds]] · [[Soluna's Landing]] · [[The Blight]] · [[Ripper's Keep]] · [[Azynthi's Garden]]
+|-
+! Dungeons
+| [[Island Tomb]] · [[The Bonepits]] · [[Old Krakengard]] · [[Underspine Hollow]] · [[Lost Cellar]] · [[Mysterious Portal]] · [[The Elderstone Mines]] · [[Blooming Sepulcher]] · [[Rockshade Hold]] · [[Abyssal Lake]] · [[Fallen Braxonia]] · [[Prielian Cascade]] · [[Vitheo's Rest]] · [[Jaws of Sivakaya]] · [[Secluded Sanctuary]] · [[Prison]]
+|-
+! Event Zones
+| [[Bellwain Island]] · [[Shivering Step]] · [[Shivering Tomb]]
+|-
+! style="color:red;" | Planes <small>(unimplemented)</small>
+| [[Vitheo's Plane of War]] · [[Soluna's Celestial Plane]] · [[Fernalla's Plane of the Willow]] · [[Sivakaya's Plane of Destruction]] · [[Brax's Elemental Plane]]
+|}
+</div><noinclude>
+{{Documentation}}
+[[Category:Navigation templates]]
+</noinclude>
