@@ -1,0 +1,43 @@
+[[Category:Lost Cellar]]
+[[Category:Dungeons]]
+{{Zone
+|title=Lost Cellar
+|image=[[File:Lost Cellar.png|thumb]]
+|imagecaption=
+|type=Dungeon
+|level=13-20
+|maplink={{MapLink|zone=Undercity}}
+|connects=[[Port Azure]]
+}}
+The Lost Cellar is located to the left of the [[Port Azure]] front gate.
+
+{| class="wikitable"
+|+Lost Cellar
+!Enemies
+!Bosses
+|-
+|[[Spark Beetle]]
+|[[Spark Royal]]
+|-
+|[[Spark Soldier]]
+|[[Spark Queen]]
+|-
+|[[Rotting Royal Hound]]
+|[[Spectral Torturer]]
+|-
+|[[Spectral Guard]]
+|[[Spectral King's Guard]]
+|-
+|[[Spectral High Guard]]
+|
+|-
+|[[Spectral Castle Guard]]
+|
+|-
+|[[Tortured Prisoner]]
+|
+|}
+==Dungeon Map==
+[[File:LostCellarMap.jpg|center|700px]]
+
+{{Zone Navbox}}

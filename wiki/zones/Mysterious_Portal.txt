@@ -1,0 +1,75 @@
+[[Category:Mysterious Portal]]
+[[Category:Dungeons]]
+{{Zone
+|title=Mysterious Portal
+|image=[[File:MysteriousPortal.png|thumb]]
+|imagecaption=
+|type=Dungeon
+|level=14-15 (1)<br>21-24 (2)<br>28-35 (3)
+|maplink={{MapLink|zone=DuskenPortal}}
+|connects=[[Fernalla's Revival Plains]], [[Ripper's Keep]], [[The Duskenlight Coast]]
+}}
+The Dusken Mysterious Portal zone is opened after completing {{QuestLink|link=The Duskenlight Ritual (Quest){{!}}The Duskenlight Ritual}}
+
+{| class="wikitable"
+|+Mysterious Portal 1 (14-15)
+!Enemies
+!Bosses
+|-
+|[[Night Terror]]
+|[[Restless Thoughts]]
+|-
+|[[Waking Nightmare]]
+|
+|-
+|[[Lullaby Fiend]]
+|
+|}
+
+The Fernallan Mysterious Portal zone is opened after completing {{QuestLink|link=The Revival Plains Ritual}}
+
+{| class="wikitable"
+|+Mysterious Portal 2 (21-24)
+!Enemies
+!Bosses
+|-
+|[[Nightmarian Knight]]
+|[[Invader of Dreams]]
+|-
+|[[Nightmarian Arcanist]]
+|
+|-
+|[[Nightmarian Hound]]
+|
+|-
+|[[Malignant Thoughts]]
+|
+|}The Ripper's Keep Mysterious Portal zone is opened after completing {{QuestLink|link=The Ripper Ritual}}
+{| class="wikitable"
+|+Mysterious Portal 3 (28-35)
+!NPCs
+!Enemies
+!Bosses
+|-
+|[[Odd Statue]]
+|[[Catnip (Enemy)|Catnip]]
+|[[Hypnic]]
+|-
+|[[The Conductor]]
+|[[Cloaked Shadow]]
+|
+|-
+|
+|[[Coiling Dusker]]
+|
+|-
+|
+|[[Shambler]]
+|
+|-
+|
+|[[Spinesnap Gorilla]]
+|
+|}
+
+{{Zone Navbox}}

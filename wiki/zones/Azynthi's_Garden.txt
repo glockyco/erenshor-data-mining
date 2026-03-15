@@ -1,0 +1,107 @@
+[[Category:Azynthi's Garden]]
+{{Zone
+|title=Azynthi's Garden
+|image=[[File:Azynthis Garden.png|thumb]]
+|imagecaption=The home of the Corruptor of Gods
+|type=Zone
+|level=30-35
+|maplink={{MapLink|zone=Azynthi}}
+|connects=[[The Blight]]
+}}
+Azynthi's Garden is a zone located on an island on the east of [[Erenshor]] to access this zone you must take a ferry from a [[Boatman]] at [[The Blight]] docks.<br><br>
+Click here to see [[Quests#Azynthi's Garden|Quests]] for Azynthi's Garden.
+{| class="wikitable"
+|+Azynthi's Garden
+!NPCs
+!Enemies
+!Bosses
+|-
+|[[Boatman]]
+|[[Giant Watchdog]]
+|[[Molorai Acquirer]]
+|-
+|[[A Strange Hermit]]
+|[[Molorai Anointed]]
+|[[Molorai Dockmaster]]
+|-
+|[[Flicker of Souls]]
+|[[Molorai Truthseeker]]
+|[[Molorai Eldermistress]]
+|-
+|
+|[[Molorai Bloodwarden]]
+|[[Molorai Mason]]
+|-
+|
+|[[Molorai Outrider (Azynthi's Garden)|Molorai Outrider]]
+|[[Molorai Curator]]
+|-
+|
+|[[Molorai Nightmistress]]
+|[[Eldoth Molorai (Character)|Eldoth Molorai]]
+|-
+|
+|[[Molorai Ancille]]
+|[[Acolyte of Azynthi]]
+|-
+|
+|[[Sivakayan Bodyguard]]
+|
+|-
+|
+|[[Sivakayan Emissary]]
+|
+|-
+|
+|[[A Mature Grass Spider]]
+|
+|-
+|
+|[[Wild Ancestral Dog]]
+|
+|}
+
+{| class="wikitable"
+|+Azynthi's Garden Dimensional Rift
+!NPCs
+!Enemies
+!Bosses
+|-
+|[[Apostalo Ostagla]]
+|[[Deadweb Spider]]
+|[[Oracle Tretha]]
+|-
+|
+|[[Gargoth]]
+|[[Vos Ashlyn]]
+|-
+|
+|[[Azynthian Icebone]]
+|[[Grounds Keeper]]
+|-
+|
+|[[Azynthian Firebone]]
+|[[Exalted Firebone]]
+|-
+|
+|[[Ghoul]]
+|[[Oracle Miress]]
+|-
+|
+|[[Greater Azynthian Icebone]]
+|
+|-
+|
+|[[Greater Azynthian Firebone]]
+|
+|-
+|
+|[[Faceless Necromancer]]
+|
+|-
+|
+|[[Botanist]]
+|
+|}
+
+{{Zone Navbox}}

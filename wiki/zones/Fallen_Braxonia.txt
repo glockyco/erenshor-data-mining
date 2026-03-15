@@ -1,0 +1,48 @@
+[[Category:Fallen Braxonia]]
+[[Category:Braxonian Desert]]
+{{Zone
+|title=Fallen Braxonia
+|image=[[File:Fallen Braxonia.png|thumb]]
+|imagecaption=A place once prosperous fell to ruin.
+|type=Dungeon
+|level=28-33
+|maplink={{MapLink|zone=Braxonia}}
+|connects=[[Braxonian Desert]]
+}}
+Fallen Braxonia, another instanced dungeon this time located in the [[Braxonian Desert]]. Below is a list of all NPC's and Enemies in this Zone.
+{| class="wikitable"
+|+Fallen Braxonia
+!NPCs
+!Enemies
+!Bosses
+|-
+|[[Braxonian Flame Well]]
+|[[Braxonian Honor Guard]]
+|[[Prince Oslind]]
+|-
+|
+|[[Braxonian Tempest]]
+|[[Prince Ardant]]
+|-
+|
+|[[Braxonian Ascended]]
+|[[Braxonian Planar Guard (Ice)]]
+|-
+|
+|[[Braxon Prospect]]
+|[[Braxonian Planar Guard (Fire)]]
+|-
+|
+|[[Braxonian High Guard]]
+|[[Braxonian Weapon Master]]
+|-
+|
+|
+|[[Historian of Braxonia]]
+|-
+|
+|
+|[[Statue of Brax]]
+|}
+
+{{Zone Navbox}}

@@ -1,0 +1,92 @@
+[[Category:Shivering Step]]
+{{Zone
+|title=Shivering Step
+|image=[[File:Shivering Steps.png|thumb]]
+|imagecaption=
+|type=Zone
+|level=19-24
+|maplink={{MapLink|zone=ShiveringStep}}
+|connects=[[Hidden Hills]], [[Island Tomb]], [[Shivering Tomb]], [[Stowaway's Step]]
+}}
+To access Shivering Step you must enter through the mausoleum guarded by the [[Crypt Keeper]].
+
+A guide for all the quests found in Shivering Step can be found here - [[Shivering Step Walkthrough]]. Beware of spoilers!
+
+{| class="wikitable"
+|+Shivering Step
+!NPCs
+!Enemies
+!Bosses
+|-
+|[[The Hider]]
+|[[Daggerlegs]]
+|[[Kio the Darkbringer]]
+|-
+|[[Enterprising Spirit]]
+|[[Shadow of Sleep]]
+|[[Fearantula]]
+|-
+|[[Crankles]]
+|[[Fright]]
+|[[Ghost of Plaxitheris]]
+|-
+|[[Sockets]]
+|[[Gasper]]
+|[[Nightmare]]
+|-
+|[[Rumors]]
+|[[Shiverman]]
+|[[Dream]]
+|-
+|[[Cackles]]
+|
+|[[Mephallo]]
+|-
+|[[Founder]]
+|
+|
+|-
+|[[Jack]]
+|
+|
+|-
+|[[Skelunker]]
+|
+|
+|-
+|[[Outgrown Terror]]
+|
+|
+|-
+|[[Curator]]
+|
+|
+|-
+|[[Bridgekeeper]]
+|
+|
+|-
+|[[Harbinger]]
+|
+|
+|-
+|[[Gatekeeper]]
+|
+|
+|-
+|[[Kio the Light Keeper]]
+|
+|
+|}
+
+
+<center>This version of Shivering Step is the version you will find upon entering the zone for the first time.<center>
+[[File:Shivering Step Phase 1.png|1050x1050px|center]]
+<br>
+<center>This version of Shivering Step will activate upon recieving your [[Shivering Torch]] from [[Kio the Light Keeper]]<center>
+[[File:Shivering Step Phase 2.png|1050x1050px|center]]
+<br>
+<center>This version of Shivering Step will be available once you light the Warming Flame and use the [[Blue Burnstone]] to change the lighthouse flame to blue.<center>
+[[File:Shivering Step Phase 3.png|1050x1050px|center]]
+
+{{Zone Navbox}}

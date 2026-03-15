@@ -1,0 +1,57 @@
+{{Zone
+|title=Faerie's Brake
+|image=[[File:Faerie's Brake.jpg|thumb]]
+|imagecaption=
+|type=Zone
+|level=5-10
+|maplink={{MapLink|zone=Brake}}
+|connects=[[Fernalla's Revival Plains]], [[Hidden Hills]], [[Port Azure]], [[Vitheo's Watch]]
+}}
+Faerie's Brake is located on the southern region of [[Erenshor]]. Below is a list of all NPC's and enemies in this [[Zones|Zone]].
+
+Click here and see [[Quests#Faerie's Brake|Quests]] in Faerie's Brake.
+{| class="wikitable"
+|+Faerie's Brake
+!NPCs
+!Enemies
+!Bosses
+|-
+|[[Arabetha Songshade]]
+|[[A Brittle Skeleton]]
+|[[Alpha Wolf]]
+|-
+|[[Cecil Threbb]]
+|[[A Brown Bear Cub]] 
+|[[Bassalt Vallano]]
+|-
+|[[Damien Torno]]
+|[[A Faerie Drone]]
+|[[Grizzlepaw]]
+|-
+|[[Elizah Vernor]]
+|[[A Grass Spider]]
+|[[Tinkles]]
+|-
+|[[Peony Shalmo]]
+|[[A Sturdy Skeleton]]
+|
+|-
+|[[Pierson Obero]]
+|[[A Young Wolf]] 
+|
+|-
+|[[Valrae Cleary]]
+|[[Worn Ancient Guardian]]
+|
+|-
+|
+|[[Sivakayan Raider]]
+|
+|}
+
+[[Category:Faerie's Brake]]
+
+==Zone Map==
+[[File:FaeriesBrakeMap.jpg|700px|center]]
+
+{{Zone Navbox}}

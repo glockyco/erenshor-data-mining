@@ -1,0 +1,45 @@
+{{Zone
+|title=Secluded Sanctuary
+|image=
+|imagecaption=
+|type=Dungeon
+|level=35
+|maplink=
+|connects=[[Stowaway's Step]]
+}}
+
+Secluded Sanctuary is a mini-dungeon accessed from a portal in [[Stowaway's Step]] that appears upon completion of {{QuestLink|Completing the Ritual}}. It is required for raid unlocks, as {{ItemLink|Eldrich Crystal}} from [[Azynthian Keeper]] is needed to activate the {{ItemLink|Inert Rune of Brax}}, {{ItemLink|Inert Rune of Fernalla}}, {{ItemLink|Inert Rune of Soluna}}, and {{ItemLink|Inert Rune of Vitheo}}.
+
+When you first enter, the zone will be empty except for [[Shattered Sivakaya]]. After a brief conversation, she will permanently disappear from the zone and four boss NPCs, [[Shadow of Vitheo]], [[Shadow of Brax]], [[Shadow of Soluna]], and [[Shadow of Fernalla]] will spawn (all four must be fought simultaneously). Upon defeating all four of them, [[Azynthian Keeper]] will spawn. 
+
+All the "Shadow of ___" bosses will instantly respawn upon leaving and re-entering the zone.
+
+
+{| class="wikitable"
+|+
+!Enemies
+!Bosses
+!NPCs
+|-
+|[[Azynthian Sacrifice]]
+|[[Azynthian Keeper]]
+|[[Shattered Sivakaya]]
+|-
+|
+|[[Shadow of Brax]]
+|
+|-
+|
+|[[Shadow of Fernalla]]
+|
+|-
+|
+|[[Shadow of Soluna]]
+|
+|-
+|
+|[[Shadow of Vitheo]]
+|
+|}
+
+{{Zone Navbox}}

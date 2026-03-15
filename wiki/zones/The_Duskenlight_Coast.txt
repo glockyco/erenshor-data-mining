@@ -1,0 +1,82 @@
+[[Category:Duskenlight Coast]]
+{{Zone
+|title=The Duskenlight Coast
+|image=[[File:Duskenlight Coast.png|thumb]]
+|imagecaption=
+|type=Zone
+|level=7 - 19
+|maplink={{MapLink|zone=Duskenlight}}
+|connects=[[Hidden Hills]], [[Jaws of Sivakaya]], [[Mysterious Portal]], [[Windwashed Pass]]
+}}
+The Duskenlight Coast is located in the west of [[Erenshor]]. It is connected to the [[Hidden Hills]] and connects to the [[Windwashed Pass]].
+
+The entrance to the dungeon [[Jaws of Sivakaya]] lies within the giant skull which can be prominently seen throughout the zone.
+
+{| class="wikitable"
+|+Duskenlight Coast
+!NPCs
+!Enemies
+!Bosses
+|-
+|[[Addelia Zurin (Duskenlight Coast)|Addelia Zurin]]
+|[[A Brown Bear]]
+|[[Arcane Headmaster]]
+|-
+|[[Alexandria Boattez]]
+|[[A Brown Bear Cub]]
+|[[Dusken Giant]]
+|-
+|[[Boshi Polok]]
+|[[An Immature Nagalok]]
+|[[Greater Vithean Elemental]]
+|-
+|[[Braxon Michaen]]
+|[[Ancient Educator]]
+|[[Massia the Fallen]]
+|-
+|[[Braxon Mirre]]
+|[[Arcane Pupil]]
+|[[Overseer Laseal]]
+|-
+|[[Faun Vulak]]
+|[[A Nagalok]]
+|[[Spike]]
+|-
+|[[Felden Veldspar]]
+|[[Dryad Spirit]]
+|
+|-
+|[[Ivarest Hillsong]]
+|[[Molorai Archaeologist]]
+|
+|-
+|[[Kylie Clark]]
+|[[Molorai Outrider]]
+|
+|-
+|[[Liam Kilfa]]
+|[[Molorai Specialist]]
+|
+|-
+|[[Malor Mara]]
+|[[Spectral Bear]]
+|
+|-
+|[[Odyss Repman]]
+|[[Vithean Elemental]]
+|
+|-
+|[[Rylith Orthia]]
+|[[Worn Ancient Guardian]]
+|
+|-
+|[[Sprig Laisey]]
+|
+|
+|-
+|[[Vanther Quansy]]
+|
+|
+|}
+
+{{Zone Navbox}}

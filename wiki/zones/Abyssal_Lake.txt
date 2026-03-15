@@ -1,0 +1,52 @@
+[[Category:Abyssal Lake]]
+[[Category:Ripper's Keep]]
+[[Category:Silkengrass Meadowlands]]
+{{Zone
+|title=Abyssal Lake
+|image=[[File:Abyssal Lake.png|thumb]]
+|imagecaption=The water is so dark..
+|type=Dungeon
+|level=24-33
+|maplink={{MapLink|zone=Abyssal}}
+|connects=[[Ripper's Keep]], [[Silkengrass Meadowlands]]
+}}
+Abyssal Lake, another instanced dungeon this time located in a cave on the Eastern side of [[Ripper's Keep]]. Below is a list of all NPC's and Enemies in  this Zone.
+
+There is a secret entrance to this dungeon behind the waterfall in [[Silkengrass Meadowlands]]
+
+{| class="wikitable"
+|+Abyssal Lake
+!Enemies
+!Bosses
+|-
+|[[Sivakayan Templar]]
+|[[Darkwarden Awxa]]
+|-
+|[[Sivakayan Faithbound]]
+|[[Darkwarden Ealdred]]
+|-
+|[[Sivakayan Devoted]]
+|[[Undertoes]]
+|-
+|[[Sivakayan Legionnaire]]
+|[[Ripples]]
+|-
+|[[Nipper Diremaw]]
+|[[Abyssal Lord]]
+|-
+|[[Nipper Whiptail]]
+|[[Nipper King]]
+|-
+|[[Nipper Farseer]]
+|
+|-
+|[[Abyssal Fungus Warrior]]
+|
+|-
+|[[Abyssal Fungus Protector]]
+|
+|}
+==Dungeon Map==
+[[File:AbyssalLakeMap.jpg|center|700px]]
+
+{{Zone Navbox}}

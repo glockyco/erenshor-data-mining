@@ -1,0 +1,56 @@
+[[Category:Jaws of Sivakaya]]
+[[Category:Duskenlight Coast]]
+{{Zone
+|title=Jaws of Sivakaya
+|image=[[File:Jaws of Sivakaya.png|thumb]]
+|imagecaption=
+|type=Dungeon
+|level=30-35
+|maplink={{MapLink|zone=Jaws}}
+|connects=[[The Duskenlight Coast]]
+}}
+Jaws of Sivakaya is an endgame dungeon located in [[Duskenlight Coast]]
+
+{| class="wikitable"
+|+
+!NPCs
+!Enemies
+!Bosses
+|-
+|[[A Memory of Sivakaya]]
+|[[Orinthar]]
+|[[Balthom, Soldier of Sivakaya]]
+|-
+|[[Ward of Piety]]
+|[[Vextral]]
+|[[Aeiros, Soldier of Sivakaya]]
+|-
+|
+|[[Astorim]]
+|[[Vessel Siraethe]]
+|-
+|
+|[[Karsith]]
+|[[Sableheart, Steed of Sivakaya]]
+|-
+|
+|[[Summoned: Protector]]
+|
+|-
+|
+|[[Constructed Faithful]]
+|
+|}
+
+=== Unsealing the Jaws ===
+Unlike most dungeons, some prerequisites must be met in order unseal the dungeon to venture further inside.<br><br>Prerequisites:
+#Complete the quest {{QuestLink|A Hermit's Request}} in [[Fernalla's Revival Plains]] to obtain the [[Notes of a Hermit]] 
+#Read the [[Notes of a Hermit]] to obtain the quest {{QuestLink|A Note for C. Pillot}} . Hand them to [[Chazz Pillot]] to obtain [[Mold: A Strange Figurine]].
+<br><br>
+Unlocking steps:
+#Complete {{QuestLink|Recovering the Nighthollow Candle}} and {{QuestLink|Lighting the Nighthollow Candle}} . This questline is started in Loomingwood.
+#Having the [[Nighthollow Candle]] in your inventory will cause [[A Memory of Sivakaya]] to appear in the entrance area. Speaking to the memory completes the quest {{QuestLink|The Guardian Awakens}} .
+#In the next chamber, the statue of Sivakaya will begin to rotate. Whilst facing the statue, strafe around the room meeting it's gaze (it's eyes will glow). If successful, the quest {{QuestLink|She Sees You}} will complete and hidden door will open granting access to the rest of the dungeon.
+#To proceed past [[Aeiros, Soldier of Sivakaya]], players will need to complete {{QuestLink|A Pious Guest}} by saying <span style="color: #15e300;">[Azynthi]</span> to the [[Ward of Piety]]
+
+{{Zone Navbox}}

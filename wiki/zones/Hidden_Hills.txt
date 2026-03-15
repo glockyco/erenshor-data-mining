@@ -1,0 +1,62 @@
+[[Category:Hidden Hills]]
+{{Zone
+|title=Hidden Hills
+|image=[[File:Hidden Hills.png|thumb]]
+|imagecaption=
+|type=Zone
+|level=5-?
+|maplink={{MapLink|zone=Hidden}}
+|connects=[[Faerie's Brake]], [[The Bonepits]], [[The Duskenlight Coast]]
+}}
+The Hidden Hills is located on the southern coast of [[Erenshor]]. [[The Bone Pits]] is here. Below is a list of all NPC's and enemies in this Zone.
+
+<span style="color: red;">This Zone is not available in the demo</span>
+
+Click here and see [[Quests#Hidden Hills|Quests]] for Hidden Hills.
+{| class="wikitable"
+|+Hidden Hills
+!NPCs
+!Enemies
+!Bosses
+|-
+|[[Alyssia Fearnon]]
+|[[A Brittle Skeleton]]
+|[[Alpha Wolf]]
+|-
+|[[Benson Gamble]]
+|[[A Grass Spider]]
+|[[Priel Lieutenant Bovo]]
+|-
+|[[Brachette Leafwalker]]
+|[[A Priel Bandit Recruit]]
+|[[Priel Lieutenant Lance]]
+|-
+|[[Ludo Luxo]]
+|[[A Sturdy Skeleton]]
+|[[Gort]]
+|-
+|[[Nylith Valorro]]
+|[[A Young Wolf]]
+|
+|-
+|[[Samuel Thatcher]]
+|
+|
+|-
+|[[Trevor Ulchand]]
+|
+|
+|-
+||[[Windlae Oldseer]]
+|
+|
+|-
+|[[Xander Zaxtrough]]
+|
+|
+|}
+
+==Zone Map==
+[[File:the Hidden Hills.jpg|700px|center]]
+
+{{Zone Navbox}}

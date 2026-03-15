@@ -1,0 +1,61 @@
+[[Category:Prielian Cascade]]
+{{Zone
+|title=Prielian Cascade
+|image=[[File:{{PAGENAME}}.png|thumb]]
+|imagecaption=
+|type=Dungeon
+|level=26-33
+|maplink={{MapLink|zone=PrielPlateau}}
+|connects=[[Windwashed Pass]]
+}}
+{{PAGENAME}} is located through a cave to the south of [[Windwashed Pass]]
+
+{| class="wikitable"
+|+{{PAGENAME}}
+!NPCs
+!Enemies
+!Rares
+!Bosses
+|-
+|[[Baking Oven]]
+|[[Priel Consort]]
+|[[Failed Experiment]]
+|[[Addison Priel]]
+|-
+|[[Captive Miner]]
+|[[Priel Gifted]]
+|
+|[[Brood Mother]]
+|-
+|
+|[[Priel Grimwatch]]
+|
+|[[Julianna Priel]]
+|-
+|
+|[[Priel Malarist]]
+|
+|[[Lacy]]
+|-
+|
+|[[Priel Purist]]
+|
+|[[Savannah Priel (Character)|Savannah Priel]]
+|-
+|
+|[[Priel Soldier]]
+|
+|
+|-
+|
+|[[Priel Swiftblade]]
+|
+|
+|-
+|
+|[[Tamed Malaroth]]
+|
+|
+|}
+
+{{Zone Navbox}}

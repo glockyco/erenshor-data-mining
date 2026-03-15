@@ -1,0 +1,51 @@
+[[Category:Stowaway's Step]]
+[[Category:Island Tomb]]
+{{Zone
+|title=Island Tomb
+|image=[[File:Crypt.png|thumb]]
+|imagecaption=Spooky!
+|type=Dungeon
+|level=1-8
+|maplink={{MapLink|zone=Tutorial}}
+|connects=[[Stowaway's Step]]
+}}
+The Island Tomb is [[Stowaway's Step]]'s one and only instanced dungeon, although I doubt the residents are very happy about that, here there are many enemies to fight and a couple of bosses to slay. Below is a list of all NPC's and Enemies in this Zone.
+
+Click here to see [[Quests#Island Tomb|Quests]] in Island Tomb.
+{| class="wikitable"
+|+Island Tomb
+!Enemies
+!Bosses
+!NPCs
+|-
+|[[A Brittle Skeleton]]
+|[[Ghost of Wyland Sercher]]
+|[[Leah]]
+|-
+|[[A Brown Bear Cub]]
+|[[Mourning]]
+|[[Posta]]
+|-
+|[[A Restless Spirit]]
+|[[Woe]]
+|[[Revid]]
+|-
+|[[A Sorrowful Spirit]]
+|[[Failed Cremation]]
+|[[Stalzo]]
+|-
+|[[An Enraged Spirit]]
+|
+|
+|-
+|[[Rotting Mummy]]
+|
+|
+|}
+
+<!--
+==Dungeon Map==
+[[File:IslandTombMap.jpg|center|700px]]
+-->
+
+{{Zone Navbox}}

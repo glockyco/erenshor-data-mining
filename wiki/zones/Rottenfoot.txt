@@ -1,0 +1,65 @@
+{{Zone
+|title=Rottenfoot
+|image=[[File:Rottenfoot.png|thumb]]
+|imagecaption=
+|type=Zone
+|level=14-29
+|maplink={{MapLink|zone=Rottenfoot}}
+|connects=[[Fernalla's Revival Plains]], [[Silkengrass Meadowlands]], [[The Elderstone Mines]]
+}}
+Rottenfoot is a large swamp north of [[Fernalla's Revival Plains]]. Below is a list of all NPC's and enemies in this Zone.
+{| class="wikitable"
+!NPCs
+!Enemies
+!Bosses
+|-
+|[[Aranuil Olaseo]]
+|[[A Fungal Drone]]
+|[[Beady]]
+|-
+|[[Poacher]]
+|[[Nipper Lashfist]]
+|[[Gherist Morthario]]
+|-
+|
+|[[Nipper Manatooth]]
+|[[Lurk]]
+|-
+|
+|[[Nipper Pup]]
+|[[Plunkey]]
+|-
+|
+|[[Rotbelly Croc]]
+|[[Ragewhip]]
+|-
+|
+|[[Rottenfoot Mauler]]
+|[[Swamp Wyrm]]
+|-
+|
+|[[Rottenfoot Swampwalker]]
+|[[Tek-Nu Dah]]
+|-
+|
+|[[Rottenfoot Witchdoctor]]
+|
+|-
+|
+|[[Sivakayan Cleric]]
+|
+|-
+|
+|[[Sivakayan Raider]]
+|
+|-
+|
+|[[Sivakayan Reaver]]
+|
+|-
+|
+|[[Swamp Nettle]]
+|
+|}
+
+{{Zone Navbox}}

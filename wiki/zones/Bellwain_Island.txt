@@ -1,0 +1,14 @@
+{{Zone
+|title=Bellwain Island
+|image=
+|imagecaption=
+|type=Zone
+|level=Any
+|maplink={{MapLink|zone=SummerEvent}}
+|connects=[[Port Azure]]
+}}
+'''{{PAGENAME}}''' is an [[Zones#Event Zones|Event Zone]] in [[Erenshor]].
+
+This zone is a series of puzzles that rewards {{ItemLink|Mooring Coin}}. If you need it, a [[The Mystery of Bellwain Island|walkthrough]] is available.
+
+{{Zone Navbox}}

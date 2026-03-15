@@ -1,0 +1,79 @@
+[[Category:Vitheo's Rest]]
+[[Category:Port Azure]]
+{{Zone
+|title=Vitheo's Rest
+|image=[[File:Vitheos Rest.png|thumb]]
+|imagecaption=The resting place of a legendary combatant
+|type=Dungeon
+|level=22-35
+|maplink={{MapLink|zone=VitheosEnd}}
+|connects=[[Blooming Sepulcher]], [[Port Azure]]
+}}
+Vitheo's Rest is a multi level dungeon and the first you encounter. It contains three separate levels locked off by keys. Vitheo's Rest is located in [[Port Azure]] behind a hidden wall near the docks.
+
+To not get attacked by the Aquilamar you must say the passcode 'Shadowtide' to [[Styria Olafur]]
+
+To gain access to Vitheo's Rest you must either give [[Vethalo Gala]] a {{ItemLink|Sivakrux}} or alternatively you can kill [[Aareth Graveblade]] for a spare key.
+
+Access to the Shrines and Traitor's Halls requires completion of {{QuestLink|link=A Dying Wish (Quest)#Part_One{{!}}A Dying Wish, Pt. 1}} and {{QuestLink|link=A Dying Wish (Quest)#Part_Two{{!}}A Dying Wish, Pt. 2}}, respectively, and is progressed alongside unlocking new sections of the [[Blooming Sepulcher]] dungeon. Access to Vitheo's Tomb requires acquiring the {{ItemLink|Key to Vitheo's Tomb}} from [[The Abomination]] in the Traitor's Halls. 
+
+Spawning [[The Abomination]] in the Traitor's Halls requires completing {{QuestLink|The Life Flame}} and {{QuestLink|The Dark Flame}}, which in turn require acquiring the quest {{QuestLink|link=A Dying Wish (Quest)#Part_Four{{!}}A Dying Wish, Pt. 4}} in the [[Blooming Sepulcher]] dungeon. 
+
+The Under the Lighthouse section is accessed from a separate entrance, the Port Azure Lighthouse, after completion of {{QuestLink|Sivakayans in Port Azure}}.
+
+{| class="wikitable"
+|+Vitheo's Rest First Wing - The Shrines<br>(Level 21-24)
+!Enemies
+!Bosses
+|-
+|[[Vithean Remains]]
+|[[The Crypt Guardian]]
+|-
+|[[Vithean Elite]]
+|[[Balaste the Fallen]]
+|-
+|[[Vithean Blademaster]]
+|[[Oarik the Failure]]
+|-
+|
+|[[Pamia the Coward]]
+|}
+
+{| class="wikitable"
+|+Vitheo's Rest Second Wing - Traitor's Halls<br>(Level 30-38)
+!Enemies
+!Bosses
+|-
+|[[Cursed Vithean Conspirer]]
+|[[Nazura the Traitor]]
+|-
+|[[Vithean Betrayer]]
+|[[Elwio the Traitor]]
+|-
+|[[Cursed Vithean Traitor]]
+|[[The Abomination]]
+|}
+
+{| class="wikitable"
+|+Vitheo's Rest Third Wing - <br> Vitheo's Tomb<br> 
+(Level 34-38)
+!NPCs
+!Enemies
+!Bosses
+|-
+|[[Verdant Energy]]
+|[[Vithean Immortal]]
+|[[Apparition of Vitheo]]
+|}
+
+{| class="wikitable"
+|+Vitheo's Rest Hidden Wing - <br> Under the Lighthouse<br> 
+(Level 35+)
+!Enemies
+!Bosses
+|-
+|[[Sivakayan Unhallowed]]
+|[[Darkwarden Ilyth]]
+|}
+
+{{Zone Navbox}}

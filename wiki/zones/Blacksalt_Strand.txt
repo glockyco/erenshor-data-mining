@@ -1,0 +1,67 @@
+{{Zone
+|title=Blacksalt Strand
+|image=[[File:Blacksalt Strand.png|thumb]]
+|imagecaption=
+|type=Zone
+|level=4-21
+|maplink={{MapLink|zone=SaltedStrand}}
+|connects=[[Braxonian Desert]], [[Port Azure]], [[Stowaway's Step]], [[The Elderstone Mines]]
+}}
+Blacksalt Strand is an area just north of [[Port Azure]]. The [[Elderstone Mines]] is found here. Below is a list of all NPC's and enemies in this Zone.
+
+Click here to see [[Quests#Blacksalt Strand|Quests]] in Blacksalt Strand.
+{| class="wikitable"
+!NPCs
+!Enemies
+!Bosses
+|-
+|[[Annaleigh Hephan]]
+|[[A Brackish Croc]]
+|[[Acceptor]]
+|-
+|[[Azure Guard]]
+|[[A Grizzly Bear]]
+|[[Ecclesiarch]]
+|-
+|[[Bassle Wavebreaker]]
+|[[A Mature Grass Spider]]
+|[[Goliath]]
+|-
+|[[Felthir Jumbers]]
+|[[A Nagalok]]
+|[[Lazalith, Soldier of Sivakaya]]
+|-
+|[[Gary Truoe]]
+|[[A Seafiend]]
+|
+|-
+|[[Gordon Iverson]]
+|[[A Seaside Gorilla]]
+|
+|-
+|[[Myles Matheson]]
+|[[Acolyte]]
+|
+|-
+|[[Tobin Franklin]]
+|[[An Immature Nagalok]]
+|
+|-
+|
+|[[Prioress]]
+|
+|-
+|
+|[[Restless Corpse]]
+|
+|-
+|
+|[[The Corpse of  Brice Mathers]]
+|
+|-
+|
+|[[The Corpse of  Cyndreela Mathers]]
+|
+|}
+
+{{Zone Navbox}}

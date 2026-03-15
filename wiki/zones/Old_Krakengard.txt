@@ -1,0 +1,60 @@
+[[Category:Vitheo's Watch]]
+[[Category:Old Krakengard]]
+{{Zone
+|title=Old Krakengard
+|image=[[File:Old Krakengard.png|thumb]]
+|imagecaption=
+|type=Dungeon
+|level=8-16
+|maplink={{MapLink|zone=Krakengard}}
+|connects=[[Vitheo's Watch]]
+}}
+Old Krakengard is located in [[Vitheo's Watch]]. Below is a list of all NPC's and Enemies in this dungeon.
+{| class="wikitable"
+|+Old Krakengard
+!NPCs
+!Enemies
+!Rares
+!Bosses
+|-
+|[[Cirreus Alxanth]]
+|[[Molorai Archmage]]
+|[[Molorai Chef]]
+|[[Molorai Brewmistress]]
+|-
+|
+|[[Molorai Attack Dog]]
+|[[Molorai Jailor]]
+|[[Molorai Captain Sigrid]]
+|-
+|
+|[[Molorai Bodyguard]]
+|[[Molorai Spiritist]]
+|[[Overseer Orlok]]
+|-
+|
+|[[Molorai Militia Arcanist]]
+|
+|
+|-
+|
+|[[Molorai Militia Druid]]
+|
+|
+|-
+|
+|[[Molorai Militia Warrior]]
+|
+|
+|-
+|
+|[[Molorai Veteran]]
+|
+|
+|}
+<!--
+==Dungeon Map==
+[[File:OldKrakengardMap.jpg|center|700px]]
+-->
+
+{{Zone Navbox}}

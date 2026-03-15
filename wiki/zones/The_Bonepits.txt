@@ -1,0 +1,35 @@
+[[Category:Hidden Hills]]
+{{Zone
+|title=The Bonepits
+|image=[[File:The Bone Pits.png|thumb]]
+|imagecaption=Evil rituals are conducted here... probably.
+|type=Dungeon
+|level=3-9
+|maplink={{MapLink|zone=Bonepits}}
+|connects=[[Hidden Hills]], [[Willowwatch Ridge]]
+}}
+The Bone Pits, another instanced dungeon this time located in [[Hidden Hills]]. Below is a list of all NPC's and Enemies in  this Zone.
+{| class="wikitable"
+|+The Bone Pits
+!Enemies
+!Bosses
+|-
+|[[A Sturdy Skeleton]]
+|[[Zashlyn Bloodbane]]
+|-
+|[[Neophyte Necromancer]]
+|[[A Skeleton Captain]]
+|-
+|[[A Skeleton Soldier]]
+|[[An Apparition of Sivakaya]]
+|-
+|[[A Brittle Skeleton]]
+|
+|-
+|[[A Lesser Avatar of Sivakaya]]
+|
+|}
+==Dungeon Map==
+[[File:TheBonePitsMap.jpg|center|700px]]
+
+{{Zone Navbox}}

@@ -1,0 +1,52 @@
+[[Category:The Blight]]
+{{Zone
+|title=The Blight
+|image=[[File:The Blight.png|thumb]]
+|imagecaption=
+|type=Zone
+|level=26-33
+|maplink={{MapLink|zone=Blight}}
+|connects=[[Azynthi's Garden]], [[Braxonian Desert]]
+}}
+The Blight is a location in the East of [[Erenshor]]. It is connected to the [[Braxonian Desert]] and allows travel to [[Azynthi's Garden]]
+
+{| class="wikitable"
+|+The Blight
+!NPCs
+!Enemies
+!Bosses
+|-
+|[[Braxon Pliades]]
+|[[Sentinel]]
+|[[Parzgil]]
+|-
+|[[Boatman]]
+|[[Blighted Jackal]]
+|[[Harbinger of Corruption]]
+|-
+|[[Stoneman Seeker]]
+|[[Lurker]]
+|[[Fenton the Blighted]]
+|-
+|[[Wishlan the Savior]]
+|[[Obsidian Horror]]
+|[[Noctua]]
+|-
+|
+|[[Blight Demon]]
+|[[Lupine Horror]]
+|-
+|
+|[[Doomwalker]]
+|[[Blight Wyrm]]
+|-
+|
+|[[Braxon Fanatic]]
+|
+|-
+|
+|[[Blighted Priest]]
+|
+|}
+
+{{Zone Navbox}}

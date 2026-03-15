@@ -1,0 +1,70 @@
+[[Category:Windwashed Pass]]
+{{Zone
+|title=Windwashed Pass
+|image=[[File:Windwashed_Pass.png|thumb]]
+|imagecaption=
+|type=Zone
+|level=15-30
+|maplink={{MapLink|zone=Windwashed}}
+|connects=[[Malaroth's Nesting Grounds]], [[Prielian Cascade]], [[Rockshade Hold]], [[Silkengrass Meadowlands]], [[The Duskenlight Coast]]
+}}
+The Windwashed pass is located in the west of [[Erenshor]]. It is connected to the [[Duskenlight Coast]], [[Malaroth's Nesting Grounds]], [[Silkengrass Meadowlands]] and [[Prielian Cascade]].
+
+There is a dungeon here - [[Rockshade Hold]]
+
+{| class="wikitable"
+|+Windwashed Pass
+!NPCs
+!Enemies
+!Bosses
+|-
+|[[Bommer Olvaro]]
+|[[A Seafiend Manathite]]
+|[[Algaeth Bilgeback]]
+|-
+|[[Clinton Vars]]
+|[[A Seafiend Manalord]]
+|[[Chazza Priel]]
+|-
+|[[Liam Olvaro]]
+|[[A Seafiend Worker]]
+|[[Granitus]]
+|-
+|
+|[[Magma Sprite]]
+|[[Stoneman Diamondine]]
+|-
+|
+|[[Priel Deceiver]]
+|
+|-
+|
+|[[Priel Enforcer]]
+|
+|-
+|
+|[[Rock Sprite]]
+|
+|-
+|
+|[[Sivakayan Raider]]
+|
+|-
+|
+|[[Sivakayan Reaver]]
+|
+|-
+|
+|[[Sivakayan Cleric]]
+|
+|-
+|
+|[[Stoneman]]
+|
+|-
+|
+|[[Worn Ancient Guardian]]
+|
+|}
+
+{{Zone Navbox}}

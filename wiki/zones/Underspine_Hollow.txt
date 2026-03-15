@@ -1,0 +1,48 @@
+[[Category:Fernalla's Revival Plains]]
+[[Category:Underspine Hollow]]
+{{Zone
+|title=Underspine Hollow
+|image=[[File:Underspine Hollow.png|thumb]]
+|imagecaption=
+|type=Dungeon
+|level=
+|maplink={{MapLink|zone=Underspine}}
+|connects=[[Fernalla's Revival Plains]], [[Willowwatch Ridge]]
+}}
+The Underspine Hollow is a dungeon connected to [[Fernalla's Revival Plains]] in a cave. The only static boss spawn is Druo the Reborn - the others may be replaced with a normal ogre enemy<br><br>
+{| class="wikitable"
+|+Underspine Hollow
+!Enemies
+!Bosses
+|-
+|[[A Grassland Ogre Plaguebringer]]
+|[[Druo the Reborn]]
+|-
+|[[A Grassland Ogre Thaumaturge]]
+|[[Agsha of the Soil]]
+|-
+|[[A Grassland Ogre Sentinel]]
+|[[Rosle of the Spirits]]
+|-
+|[[A Grassland Ogre Shaman]]
+|[[Ughl of the Skies]]
+|-
+|[[A Grassland Ogre Worker]]
+|[[Obba of the Warkind]]
+|-
+|[[A Grassland Ogre Mystic]]
+|
+|-
+|[[A Grassland Ogre Bruiser]]
+|
+|-
+|[[A Grassland Ogre Sorcerer]]
+|
+|-
+|[[A Grassland Ogre Elder]]
+|
+|}
+==Dungeon Map==
+[[File:UnderspineHollowMap.jpg|center|700px]]
+
+{{Zone Navbox}}

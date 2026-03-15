@@ -1,0 +1,61 @@
+[[Category:Loomingwood]]
+{{Zone
+|title=Loomingwood Forest
+|image=[[File:Loomingwood.png|thumb]]
+|imagecaption=
+|type=Zone
+|level=18-26
+|maplink={{MapLink|zone=Loomingwood}}
+|connects=[[Malaroth's Nesting Grounds]], [[Ripper's Keep]], [[Silkengrass Meadowlands]], [[Soluna's Landing]]
+}}
+{{PAGENAME}} is an area connected to [[Silkengrass Meadowlands]], [[Malaroth's Nesting Grounds]] and [[Ripper's Keep]]
+
+{| class="wikitable"
+|+Loomingwood
+!NPCs
+!Enemies
+!Rares
+!Bosses
+|-
+|[[Juctin Mysia]]
+|[[Aetherfiend]]
+|[[Pteriaped Matron]]
+|[[Aviak]]
+|-
+|[[Katia Marado]]
+|[[Devoratrix]]
+|
+|[[Boneweaver]]
+|-
+|[[Larviso Poltir]]
+|[[Loomingwidow]]
+|
+|[[Diva]]
+|-
+|[[Nashen Glazier]]
+|[[Loomingwood Minotaur]]
+|
+|[[Loomingwood Minotaur Hero]]
+|-
+|[[Neia Tarmath]]
+|[[Loomingwood Minotaur Legionnaire]]
+|
+|[[The Gardener of Loomingwood]]
+|-
+|[[Torado Zortia]]
+|[[Loomingwood Minotaur Soldier]]
+|
+|[[Thorn (Enemy)|Thorn]]
+|-
+|[[Wardkeeper Rossi]]
+|[[Pteriaped Chick]]
+|
+|[[Wardwarped Alpha]]
+|-
+|
+|[[Wardwarped Gorilla]]
+|
+|
+|}
+
+{{Zone Navbox}}

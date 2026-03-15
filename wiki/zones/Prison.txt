@@ -1,0 +1,11 @@
+{{Zone
+|title=Prison
+|image=
+|imagecaption=
+|type=Zone
+|level=
+|maplink=
+|connects=
+}}
+
+{{Zone Navbox}}

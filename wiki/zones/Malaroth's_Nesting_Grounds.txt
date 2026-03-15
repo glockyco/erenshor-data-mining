@@ -1,0 +1,64 @@
+[[Category:Malaroth's Nesting Grounds]]
+{{Zone
+|title=Malaroth's Nesting Grounds
+|image=[[File:Nesting_Grounds.png|thumb]]
+|imagecaption=
+|type=Zone
+|level=20-30
+|maplink={{MapLink|zone=Malaroth}}
+|connects=[[Loomingwood Forest]], [[Soluna's Landing]], [[Windwashed Pass]]
+}}
+Malaroth's Nesting Grounds is located in the west of [[Erenshor]]. It is connected to [[Windwashed Pass]], [[Loomingwood]] and [[Soluna's Landing]].
+
+{| class="wikitable"
+|+Malaroth's Nesting Grounds
+!NPCs
+!Enemies
+!Bosses
+|-
+|[[Captured Malaroth]]
+|[[A Mature Grass Spider]]
+|[[Demented Malaroth]]
+|-
+|[[Colton Calavia]]
+|[[Drowned Corpse]]
+|[[Shivunax]]
+|-
+|[[Lost Soul]]
+|[[Loomingwood Minotaur]]
+|[[Tiallia Priel]]
+|-
+|[[Olden Lennova]]
+|[[Loomingwood Minotaur Legionnaire]]
+|[[Vizijivi]]
+|-
+|[[Solunarian Protector]]
+|[[Loomingwood Minotaur Soldier]]
+|[[Xasxi]]
+|-
+|
+|[[Malaroth Cub]]
+|
+|-
+|
+|[[Mature Malaroth]]
+|
+|-
+|
+|[[Priel Deceiver]]
+|
+|-
+|
+|[[Priel Enforcer]]
+|
+|-
+|
+|[[Priel Tamer]]
+|
+|-
+|
+|[[Vithean Elemental]]
+|
+|}
+
+{{Zone Navbox}}

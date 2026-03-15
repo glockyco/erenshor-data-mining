@@ -1,0 +1,72 @@
+[[Category:Soluna's Landing]]
+{{Zone
+|title=Soluna's Landing
+|image=[[File:Solunas Landing.png|thumb]]
+|imagecaption=
+|type=Zone
+|level=25-33
+|maplink={{MapLink|zone=Soluna}}
+|connects=[[Loomingwood Forest]], [[Malaroth's Nesting Grounds]]
+}}
+Soluna's Landing is located in the Northen part of [[Erenshor]]. It is connected to the [[Malaroth's Nesting Grounds]] as well as [[Loomingwood]]
+
+{| class="wikitable"
+|+Soluna's Landing
+!NPCs
+!Enemies
+!Bosses
+|-
+|[[Illian Asboth]]
+|[[Celestial Matter]]
+|[[Raval, The First Paladin]]
+|-
+|[[Valao the Holy]]
+|[[Living Meteorite]]
+|[[Astra, Rogue of the Stars]]
+|-
+|[[Solunarian Protector]]
+|[[Wild Ogre]]
+|
+|-
+|[[Granderson Jovich]]
+|[[Stardust]]
+|
+|-
+|[[Beth Constantine]]
+|[[Ancient Corpse]]
+|
+|-
+|[[Heileigh Serenie]]
+|[[Ancient Celestarian]]
+|
+|-
+|[[Halford Calloe]]
+|[[Ancient Guard]]
+|
+|-
+|[[Yale Harvey]]
+|[[Ancient Knight]]
+|
+|-
+|[[Jerrod Tunsillo]]
+|
+|
+|-
+|[[Marcus Linera]]
+|
+|
+|-
+|[[Natalia Linera]]
+|
+|
+|-
+|[[Freed Spirit of Raval]]
+|
+|
+|-
+|[[Verdant Energy]]
+|
+|
+|}
+
+{{Zone Navbox}}

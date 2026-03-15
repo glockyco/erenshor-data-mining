@@ -1,0 +1,70 @@
+[[Category:Willowwatch Ridge]]
+{{Zone
+|title=Willowwatch Ridge
+|image=[[File:{{PAGENAME}}.png|thumb]]
+|imagecaption=
+|type=Zone
+|level=1-8
+|maplink={{MapLink|zone=Willowwatch}}
+|connects=[[Fernalla's Revival Plains]], [[The Bonepits]], [[Underspine Hollow]]
+}}
+Willowwatch Ridge is an alternative starting zone without a tutorial and recommended for more experienced players.
+
+
+There are exits to [[Fernalla's Revival Plains]], [[The Bone Pits]] and [[Underspine Hollow]].
+
+<span style="color: red;">This Zone is not available in the demo</span>
+
+Click here and see [[Quests#Willowwatch_Ridge|Quests]] for {{PAGENAME}}
+{| class="wikitable"
+|+{{PAGENAME}}
+!NPCs
+!Enemies
+!Bosses
+|-
+|[[Alexandria Fadden]]
+|[[A Brittle Skeleton]]
+|[[Autmis the Lost]]
+|-
+|[[Cagnus Marlsen]]
+|[[A Grass Spider]]
+|[[Battlefist]]
+|-
+|[[Emberleigh Ashford]]
+|[[A Priel Bandit Recruit]]
+|[[Blunga]]
+|-
+|[[Gus Highrest]]
+|[[A Restless Spirit]]
+|[[Priel Lieutenant Laflin]]
+|-
+|[[Javo Follay]]
+|[[A Young Wolf]]
+|[[Sylvan Giant Runt]]
+|-
+|[[Ophelia Luminee]]
+|[[Corrupted Oread]]
+|[[Wiggleribs]]
+|-
+|[[Roan Glosing]]
+|[[Juvenile Nagalok]]
+|
+|-
+|[[Spiro Calsatto]]
+|[[Grassland Ogre Gatherer]]
+|
+|-
+|[[Watcher]]
+|[[Grassland Ogre Hunter]]
+|
+|-
+|[[Wealthen Giallara]]
+|[[Nipper Tad]]
+|
+|-
+|[[William Cardigo]]
+|
+|
+|}
+
+{{Zone Navbox}}
