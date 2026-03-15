@@ -1,4 +1,4 @@
-<div class="navbox mw-collapsible mw-collapsed" style="border:1px solid #aaa; padding:4px; text-align:center; width:100%;">
+<div class="navbox mw-collapsible" style="border:1px solid #aaa; padding:4px; text-align:center; width:100%;">
 <div style="font-weight:bold; background:#eee; padding:2px;">[[Zones|Zones of Erenshor]]</div>
 {| style="width:100%;"
 |-
