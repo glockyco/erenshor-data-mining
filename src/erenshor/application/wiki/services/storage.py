@@ -157,9 +157,17 @@ class WikiStorage:
 
     Example:
         >>> storage = WikiStorage(Path("variants/main/wiki"))
-        >>> storage.save_fetched("item:iron_sword", "Item:Iron Sword", content)
-        >>> content = storage.read_fetched("item:iron_sword")
-        >>> storage.save_generated("item:iron_sword", new_content)
+        >>> storage.save_fetched_by_title(
+        ...     page_title="Iron Sword",
+        ...     stable_keys=["item:iron sword"],
+        ...     content="{{Item|...}}"
+        ... )
+        >>> content = storage.read_fetched_by_title("Iron Sword")
+        >>> storage.save_generated_by_title(
+        ...     page_title="Iron Sword",
+        ...     stable_keys=["item:iron sword"],
+        ...     content="{{Item|...}}"
+        ... )
         >>> pages = storage.list_generated()
     """
 
