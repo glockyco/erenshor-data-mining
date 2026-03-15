@@ -259,7 +259,10 @@ DEFAULT_PRESERVATION_RULES: dict[str, dict[str, str]] = {
         "imagecaption": "prefer_manual",
         # Filled once by editors, intentionally blank in generated output
         "level": "prefer_manual",
-        # type, maplink, connects → default "override" (generated from DB)
+        # prefer_manual: the wiki's Dungeon/Zone classification is kept;
+        # wikilink values are normalised to plain text before merge reaches here.
+        "type": "prefer_manual",
+        # maplink, connects → default "override" (generated from DB)
     },
 }
 

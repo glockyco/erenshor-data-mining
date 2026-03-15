@@ -11,6 +11,7 @@ preservation so the manually-set |level= field survives regeneration.
 from __future__ import annotations
 
 import json
+import re
 from collections.abc import Iterator
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -105,6 +106,14 @@ class ZonePageGenerator(PageGenerator):
                     # Normalise {{Dungeon|...}} → {{Zone|...}} so dungeon pages are
                     # migrated to the unified template. Field names overlap in both.
                     normalized = existing.replace("{{Dungeon", "{{Zone")
+                    # Strip wikilinks from |type= (e.g. [[Zones#Dungeons|Dungeon]] → Dungeon)
+                    # so prefer_manual retains the classification in plain-text form,
+                    # which Template:Zone's #ifeq requires for category injection.
+                    normalized = re.sub(
+                        r"(\|type=)\[\[[^\]]*\|([^\]]+)\]\]",
+                        r"\1\2",
+                        normalized,
+                    )
                     content = self._preservation_handler.merge_templates(
                         old_wikitext=normalized,
                         new_wikitext=content,
