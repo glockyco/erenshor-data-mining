@@ -30,7 +30,9 @@ def generate_service():
         spawn_repo=None,  # type: ignore
         loot_repo=None,  # type: ignore
         quest_repo=None,  # type: ignore
+        zone_repo=None,  # type: ignore
         class_display=Mock(),
+        maps_base_url="https://example.com",
     )
 
 

@@ -75,26 +75,26 @@ class TestGetGeneratorsByName:
 
     def test_get_all_generators(self, mock_context, mock_registry):
         """Test getting all generators when no filter provided."""
-        generators = get_generators_by_name(mock_context)
+        pairs = get_generators_by_name(mock_context)
 
-        assert len(generators) == 2
-        assert isinstance(generators[0], MockItemGenerator)
-        assert isinstance(generators[1], MockCharacterGenerator)
+        assert len(pairs) == 2
+        assert isinstance(pairs[0][1], MockItemGenerator)
+        assert isinstance(pairs[1][1], MockCharacterGenerator)
 
     def test_get_filtered_generators(self, mock_context, mock_registry):
         """Test filtering generators by name."""
-        generators = get_generators_by_name(mock_context, ["items"])
+        pairs = get_generators_by_name(mock_context, ["items"])
 
-        assert len(generators) == 1
-        assert isinstance(generators[0], MockItemGenerator)
+        assert len(pairs) == 1
+        assert isinstance(pairs[0][1], MockItemGenerator)
 
     def test_get_multiple_filtered_generators(self, mock_context, mock_registry):
         """Test filtering multiple generators."""
-        generators = get_generators_by_name(mock_context, ["items", "characters"])
+        pairs = get_generators_by_name(mock_context, ["items", "characters"])
 
-        assert len(generators) == 2
-        assert isinstance(generators[0], MockItemGenerator)
-        assert isinstance(generators[1], MockCharacterGenerator)
+        assert len(pairs) == 2
+        assert isinstance(pairs[0][1], MockItemGenerator)
+        assert isinstance(pairs[1][1], MockCharacterGenerator)
 
     def test_invalid_generator_name(self, mock_context, mock_registry):
         """Test error when requesting unknown generator."""
@@ -181,8 +181,8 @@ class TestListGenerators:
         generators = list_generators()
 
         assert len(generators) == 2
-        assert generators[0] == ("items", "Item pages")
-        assert generators[1] == ("characters", "Character pages")
+        assert generators[0] == ("items", "Item pages", True)
+        assert generators[1] == ("characters", "Character pages", True)
 
     def test_empty_registry(self, monkeypatch):
         """Test listing when registry is empty."""

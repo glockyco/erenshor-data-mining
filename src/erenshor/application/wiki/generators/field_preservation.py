@@ -253,6 +253,11 @@ DEFAULT_PRESERVATION_RULES: dict[str, dict[str, str]] = {
     "Ability": {
         "image": "prefer_manual",  # Custom ability icons
     },
+    "Zone": {
+        # level is intentionally blank in generated output and filled manually once.
+        # preserve_manual keeps the editor's value across regenerations.
+        "level": "prefer_manual",
+    },
 }
 
 

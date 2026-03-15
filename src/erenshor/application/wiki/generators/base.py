@@ -12,7 +12,8 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections.abc import Iterator
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+from pathlib import Path
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from erenshor.application.wiki.generators.context import GeneratorContext
@@ -140,3 +141,29 @@ class PageGenerator(ABC):
                     )
             ```
         """
+
+    def _render_template(self, template_name: str, context: dict[str, Any]) -> str:
+        """Render a Jinja2 template from the generators/templates/ directory.
+
+        Uses the same template directory as SectionGeneratorBase. Page generators
+        that need Jinja2 rendering use this instead of inheriting from
+        SectionGeneratorBase (which is scoped to section-level generation).
+
+        Args:
+            template_name: Template filename (e.g., 'zone.jinja2')
+            context: Template context variables
+
+        Returns:
+            Rendered string
+        """
+        from jinja2 import Environment, FileSystemLoader
+
+        template_dir = Path(__file__).parent / "templates"
+        env = Environment(
+            loader=FileSystemLoader(str(template_dir)),
+            keep_trailing_newline=True,
+            trim_blocks=False,
+            lstrip_blocks=False,
+            autoescape=False,
+        )
+        return str(env.get_template(template_name).render(**context))

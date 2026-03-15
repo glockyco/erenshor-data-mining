@@ -20,6 +20,7 @@ from erenshor.application.wiki.generators.pages.entities import EntityPageGenera
 from erenshor.application.wiki.generators.pages.weapons_overview import (
     WeaponsOverviewPageGenerator,
 )
+from erenshor.application.wiki.generators.pages.zones import ZonePageGenerator
 
 if TYPE_CHECKING:
     from erenshor.application.wiki.generators.base import GeneratedPage, PageGenerator
@@ -65,6 +66,13 @@ WIKI_GENERATORS: list[GeneratorRegistration] = [
         name="armor_overview",
         generator_class=ArmorOverviewPageGenerator,
         description="Generate Armor overview page with sortable stats table",
+    ),
+    GeneratorRegistration(
+        name="zones",
+        generator_class=ZonePageGenerator,
+        description="Generate individual zone pages with connections and map links",
+        auto_deploy=False,
+        output_dir=Path("wiki/zones"),
     ),
 ]
 
