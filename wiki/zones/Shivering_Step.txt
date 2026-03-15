@@ -6,7 +6,7 @@
 |type=Zone
 |level=19-24
 |maplink={{MapLink|zone=ShiveringStep}}
-|connects=[[Hidden Hills]], [[Island Tomb]], [[Shivering Tomb]], [[Stowaway's Step]]
+|connects=[[Shivering Tomb]], [[Stowaway's Step]]
 }}
 To access Shivering Step you must enter through the mausoleum guarded by the [[Crypt Keeper]].
 

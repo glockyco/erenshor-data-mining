@@ -5,7 +5,7 @@
 |type=Dungeon
 |level=19-24
 |maplink=
-|connects=[[Shivering Step]], [[Stowaway's Step]]
+|connects=[[Shivering Step]]
 }}
 Shivering Tomb is the [[Shivering Step]] equivalent of the [[Island Tomb]]. Note that unlike the [[Island Tomb]], the two separate entrances lead to unconnected parts of the tomb. Thus, [[Dream]] and [[Warded Shadow]] are accessed through completely separate unconnected entrances. See [[Shivering Step Walkthrough]] for more information about accessing Shivering Tomb (Beware of spoilers!).
 {| class="wikitable"
