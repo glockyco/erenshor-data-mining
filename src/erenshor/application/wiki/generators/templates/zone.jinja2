@@ -1,11 +1,11 @@
 {{ "{{" }}Zone
 |title={{ wiki_name }}
+|image=
+|imagecaption=
 |type={% if zone_group[0].is_dungeon %}Dungeon{% else %}Zone{% endif %}
 |level=
 |maplink={% if map_scene %}{{ "{{" }}MapLink|zone={{ map_scene }}{{ "}}" }}{% endif %}
 |connects={% for c in connections %}[[{{ c }}]]{% if not loop.last %}, {% endif %}{% endfor %}
-|notablenpc=
-|notableenemy=
 {{ "}}" }}
 
 {{ "{{" }}Zone Navbox{{ "}}" }}

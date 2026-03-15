@@ -98,11 +98,18 @@ class ZonePageGenerator(PageGenerator):
             # This keeps |level= set by editors across regenerations.
             existing = self.context.storage.read_fetched_by_title(wiki_name)
             if existing:
-                content = self._preservation_handler.merge_templates(
-                    old_wikitext=existing,
-                    new_wikitext=content,
-                    template_names=["Zone"],
-                )
+                # Redirect pages have no template to merge against.
+                if existing.strip().startswith("#REDIRECT"):
+                    logger.debug(f"Skipping field preservation for redirect page: {wiki_name!r}")
+                else:
+                    # Normalise {{Dungeon|...}} → {{Zone|...}} so dungeon pages are
+                    # migrated to the unified template. Field names overlap in both.
+                    normalized = existing.replace("{{Dungeon", "{{Zone")
+                    content = self._preservation_handler.merge_templates(
+                        old_wikitext=normalized,
+                        new_wikitext=content,
+                        template_names=["Zone"],
+                    )
 
             logger.debug(f"Generated zone page: {wiki_name!r} (connections: {len(connections)}, map: {map_scene!r})")
 

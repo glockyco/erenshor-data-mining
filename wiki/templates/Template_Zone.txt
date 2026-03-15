@@ -1,13 +1,8 @@
 <includeonly><infobox type="Zone">
     <title source="title"/>
     <image source="image"><caption source="imagecaption"/></image>
-    <image source="map"><caption source="mapcaption"/></image>
     <data source="type"><label>Type</label></data>
     <data source="level"><label>Level</label></data>
-    <data source="zone"><label>Zone</label></data>
-    <data source="locations"><label>Locations</label></data>
     <data source="maplink"><label>Interactive Map</label></data>
     <data source="connects"><label>Connects to</label></data>
-    <data source="notablenpc"><label>Notable NPCs</label></data>
-    <data source="notableenemy"><label>Notable Enemies</label></data>
-</infobox>{{#ifeq: {{NAMESPACENUMBER}} | 0 | [[Category:Zones]]}}</includeonly><noinclude>{{Documentation}}</noinclude>
+</infobox>{{#ifeq: {{NAMESPACENUMBER}} | 0 | [[Category:Zones]]{{#ifeq: {{{type|}}} | Dungeon | [[Category:Dungeons]]}}}}</includeonly><noinclude>{{Documentation}}</noinclude>

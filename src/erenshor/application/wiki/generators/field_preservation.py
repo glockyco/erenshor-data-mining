@@ -254,9 +254,12 @@ DEFAULT_PRESERVATION_RULES: dict[str, dict[str, str]] = {
         "image": "prefer_manual",  # Custom ability icons
     },
     "Zone": {
-        # level is intentionally blank in generated output and filled manually once.
-        # preserve_manual keeps the editor's value across regenerations.
+        # Manually uploaded assets
+        "image": "prefer_manual",
+        "imagecaption": "prefer_manual",
+        # Filled once by editors, intentionally blank in generated output
         "level": "prefer_manual",
+        # type, maplink, connects → default "override" (generated from DB)
     },
 }
 
