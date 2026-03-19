@@ -1,5 +1,6 @@
-using System;
-using System.Text.Json;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 
 namespace MapTileCapture.Protocol;
 
@@ -9,13 +10,11 @@ namespace MapTileCapture.Protocol;
 /// </summary>
 public static class MessageSerializer
 {
-    private static readonly JsonSerializerOptions Options = new()
+    private static readonly JsonSerializerSettings Settings = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        WriteIndented = false,
-        // Serialize null values so Python receives explicit null for
-        // fields like northBearing rather than a missing key.
-        DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.Never,
+        ContractResolver = new CamelCasePropertyNamesContractResolver(),
+        NullValueHandling = NullValueHandling.Include,
+        Formatting = Formatting.None,
     };
 
     /// <summary>
@@ -33,14 +32,13 @@ public static class MessageSerializer
 
         try
         {
-            var envelope = JsonSerializer.Deserialize<MessageEnvelope>(json, Options);
-            if (envelope == null)
-                return null;
+            var obj = JObject.Parse(json);
+            var type = obj["type"]?.ToString();
 
-            return envelope.Type switch
+            return type switch
             {
-                "capture_zone" => JsonSerializer.Deserialize<CaptureZoneMessage>(json, Options),
-                "cancel_capture" => JsonSerializer.Deserialize<CancelCaptureMessage>(json, Options),
+                "capture_zone" => JsonConvert.DeserializeObject<CaptureZoneMessage>(json, Settings),
+                "cancel_capture" => JsonConvert.DeserializeObject<CancelCaptureMessage>(json, Settings),
                 _ => null,
             };
         }
@@ -54,5 +52,5 @@ public static class MessageSerializer
     /// Serialize an outbound message to JSON.
     /// </summary>
     public static string Serialize<T>(T message) =>
-        JsonSerializer.Serialize(message, Options);
+        JsonConvert.SerializeObject(message, Settings);
 }

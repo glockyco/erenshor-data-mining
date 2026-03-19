@@ -1,4 +1,5 @@
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace MapTileCapture.Protocol;
 
@@ -10,7 +11,7 @@ namespace MapTileCapture.Protocol;
 /// </summary>
 public sealed class MessageEnvelope
 {
-    [JsonPropertyName("type")]
+    [JsonProperty("type")]
     public string Type { get; set; } = "";
 }
 
@@ -21,16 +22,16 @@ public sealed class MessageEnvelope
 /// </summary>
 public sealed class Bounds
 {
-    [JsonPropertyName("minX")]
+    [JsonProperty("minX")]
     public float MinX { get; set; }
 
-    [JsonPropertyName("minZ")]
+    [JsonProperty("minZ")]
     public float MinZ { get; set; }
 
-    [JsonPropertyName("maxX")]
+    [JsonProperty("maxX")]
     public float MaxX { get; set; }
 
-    [JsonPropertyName("maxZ")]
+    [JsonProperty("maxZ")]
     public float MaxZ { get; set; }
 }
 
@@ -39,48 +40,47 @@ public sealed class Bounds
 /// </summary>
 public sealed class ChunkSpec
 {
-    [JsonPropertyName("index")]
+    [JsonProperty("index")]
     public int Index { get; set; }
 
-    [JsonPropertyName("centerX")]
+    [JsonProperty("centerX")]
     public float CenterX { get; set; }
 
-    [JsonPropertyName("centerZ")]
+    [JsonProperty("centerZ")]
     public float CenterZ { get; set; }
 
-    [JsonPropertyName("worldWidth")]
+    [JsonProperty("worldWidth")]
     public float WorldWidth { get; set; }
 
-    [JsonPropertyName("worldHeight")]
+    [JsonProperty("worldHeight")]
     public float WorldHeight { get; set; }
 
-    [JsonPropertyName("pixelWidth")]
+    [JsonProperty("pixelWidth")]
     public int PixelWidth { get; set; }
 
-    [JsonPropertyName("pixelHeight")]
+    [JsonProperty("pixelHeight")]
     public int PixelHeight { get; set; }
 
-    [JsonPropertyName("outputPath")]
+    [JsonProperty("outputPath")]
     public string OutputPath { get; set; } = "";
 }
 
 /// <summary>
 /// Rule for suppressing specific renderers during capture.
-/// <c>Value</c> is a <see cref="System.Text.Json.JsonElement"/> because
-/// it is polymorphic: a string for nameExact/nameContains rules, a float
-/// for positionAbove rules.
+/// <c>Value</c> is a <see cref="JToken"/> because it is polymorphic:
+/// a string for nameExact/nameContains rules, a float for positionAbove rules.
 /// </summary>
 public sealed class ExclusionRule
 {
-    [JsonPropertyName("ruleType")]
+    [JsonProperty("ruleType")]
     public string RuleType { get; set; } = "";
 
     /// <summary>
     /// String for name-based rules, float for position-based rules.
-    /// Kept as JsonElement to defer type resolution to the consumer.
+    /// Kept as JToken to defer type resolution to the consumer.
     /// </summary>
-    [JsonPropertyName("value")]
-    public System.Text.Json.JsonElement Value { get; set; }
+    [JsonProperty("value")]
+    public JToken? Value { get; set; }
 }
 
 // ── Inbound messages (Python → Mod) ─────────────────────────────────
@@ -90,31 +90,31 @@ public sealed class ExclusionRule
 /// </summary>
 public sealed class CaptureZoneMessage
 {
-    [JsonPropertyName("type")]
+    [JsonProperty("type")]
     public string Type { get; set; } = "capture_zone";
 
-    [JsonPropertyName("zone")]
+    [JsonProperty("zone")]
     public string Zone { get; set; } = "";
 
-    [JsonPropertyName("sceneName")]
+    [JsonProperty("sceneName")]
     public string SceneName { get; set; } = "";
 
-    [JsonPropertyName("variant")]
+    [JsonProperty("variant")]
     public string Variant { get; set; } = "";
 
-    [JsonPropertyName("hideRoofs")]
+    [JsonProperty("hideRoofs")]
     public bool HideRoofs { get; set; }
 
-    [JsonPropertyName("sceneLoadTimeoutSecs")]
+    [JsonProperty("sceneLoadTimeoutSecs")]
     public float SceneLoadTimeoutSecs { get; set; } = 30f;
 
-    [JsonPropertyName("stabilityFrames")]
+    [JsonProperty("stabilityFrames")]
     public int StabilityFrames { get; set; } = 10;
 
-    [JsonPropertyName("exclusionRules")]
+    [JsonProperty("exclusionRules")]
     public ExclusionRule[] ExclusionRules { get; set; } = System.Array.Empty<ExclusionRule>();
 
-    [JsonPropertyName("chunks")]
+    [JsonProperty("chunks")]
     public ChunkSpec[] Chunks { get; set; } = System.Array.Empty<ChunkSpec>();
 }
 
@@ -123,7 +123,7 @@ public sealed class CaptureZoneMessage
 /// </summary>
 public sealed class CancelCaptureMessage
 {
-    [JsonPropertyName("type")]
+    [JsonProperty("type")]
     public string Type { get; set; } = "cancel_capture";
 }
 
@@ -134,22 +134,22 @@ public sealed class CancelCaptureMessage
 /// </summary>
 public sealed class ChunkCompleteMessage
 {
-    [JsonPropertyName("type")]
+    [JsonProperty("type")]
     public string Type { get; } = "chunk_complete";
 
-    [JsonPropertyName("zone")]
+    [JsonProperty("zone")]
     public string Zone { get; set; } = "";
 
-    [JsonPropertyName("variant")]
+    [JsonProperty("variant")]
     public string Variant { get; set; } = "";
 
-    [JsonPropertyName("chunkIndex")]
+    [JsonProperty("chunkIndex")]
     public int ChunkIndex { get; set; }
 
-    [JsonPropertyName("path")]
+    [JsonProperty("path")]
     public string Path { get; set; } = "";
 
-    [JsonPropertyName("measuredBounds")]
+    [JsonProperty("measuredBounds")]
     public Bounds? MeasuredBounds { get; set; }
 }
 
@@ -158,25 +158,25 @@ public sealed class ChunkCompleteMessage
 /// </summary>
 public sealed class CaptureZoneCompleteMessage
 {
-    [JsonPropertyName("type")]
+    [JsonProperty("type")]
     public string Type { get; } = "capture_zone_complete";
 
-    [JsonPropertyName("zone")]
+    [JsonProperty("zone")]
     public string Zone { get; set; } = "";
 
-    [JsonPropertyName("variant")]
+    [JsonProperty("variant")]
     public string Variant { get; set; } = "";
 
-    [JsonPropertyName("roofObjectCount")]
+    [JsonProperty("roofObjectCount")]
     public int RoofObjectCount { get; set; }
 
     /// <summary>
     /// North bearing in degrees, or null if not determined.
     /// </summary>
-    [JsonPropertyName("northBearing")]
+    [JsonProperty("northBearing")]
     public float? NorthBearing { get; set; }
 
-    [JsonPropertyName("zoneBounds")]
+    [JsonProperty("zoneBounds")]
     public Bounds? ZoneBounds { get; set; }
 }
 
@@ -185,15 +185,15 @@ public sealed class CaptureZoneCompleteMessage
 /// </summary>
 public sealed class CaptureErrorMessage
 {
-    [JsonPropertyName("type")]
+    [JsonProperty("type")]
     public string Type { get; } = "capture_error";
 
-    [JsonPropertyName("zone")]
+    [JsonProperty("zone")]
     public string Zone { get; set; } = "";
 
-    [JsonPropertyName("variant")]
+    [JsonProperty("variant")]
     public string Variant { get; set; } = "";
 
-    [JsonPropertyName("reason")]
+    [JsonProperty("reason")]
     public string Reason { get; set; } = "";
 }

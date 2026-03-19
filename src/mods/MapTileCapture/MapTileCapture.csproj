@@ -30,7 +30,7 @@
     <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all" />
 
     <!-- JSON serialization -->
-    <PackageReference Include="System.Text.Json" Version="8.*" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 
     <!-- WebSocket server -->
     <PackageReference Include="Fleck" Version="1.*" />

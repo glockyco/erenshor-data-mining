@@ -56,6 +56,9 @@ internal static class ChunkRenderer
             mainCam.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
             mainCam.nearClipPlane = 0.1f;
             mainCam.farClipPlane = 2000f;
+            mainCam.useOcclusionCulling = false;
+            mainCam.clearFlags = CameraClearFlags.SolidColor;
+            mainCam.backgroundColor = new Color(0f, 0f, 0f, 0f);
             mainCam.targetTexture = rt;
 
             mainCam.Render();

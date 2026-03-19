@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using BepInEx.Logging;
 using MapTileCapture.Server;
 using UnityEngine;
@@ -17,10 +17,11 @@ internal sealed class CaptureController
 {
     private enum State { Idle, Loading, Stabilizing, Capturing }
 
-    private static readonly JsonSerializerOptions JsonOpts = new()
+    private static readonly JsonSerializerSettings JsonSettings = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver(),
+        NullValueHandling = NullValueHandling.Include,
+        Formatting = Formatting.None,
     };
 
     private readonly CaptureWebSocketServer _server;
@@ -55,16 +56,14 @@ internal sealed class CaptureController
     {
         try
         {
-            using var doc = JsonDocument.Parse(json);
-            var root = doc.RootElement;
+            var obj = JObject.Parse(json);
+            var messageType = obj["type"]?.ToString();
 
-            if (!root.TryGetProperty("type", out var typeProp))
+            if (messageType == null)
             {
                 _logger.LogWarning("Received message without 'type' field");
                 return;
             }
-
-            var messageType = typeProp.GetString();
 
             switch (messageType)
             {
@@ -95,7 +94,7 @@ internal sealed class CaptureController
             return;
         }
 
-        var request = JsonSerializer.Deserialize<CaptureZoneRequest>(json, JsonOpts);
+        var request = JsonConvert.DeserializeObject<CaptureZoneRequest>(json, JsonSettings);
         if (request == null)
         {
             SendError("unknown", "unknown", "Failed to deserialize capture_zone request");
@@ -119,6 +118,7 @@ internal sealed class CaptureController
     private IEnumerator CaptureCoroutine(CaptureZoneRequest request)
     {
         GeometrySuppressor? suppressor = null;
+        GameObject? tempCamGo = null;
 
         try
         {
@@ -183,13 +183,15 @@ internal sealed class CaptureController
             // Count roof objects before suppression
             int roofObjectCount = ZoneBoundsProbe.CountRoofObjects();
 
-            // Find main camera
+            // Get or create a camera for capture
             var mainCam = Camera.main;
             if (mainCam == null)
             {
-                SendError(request.Zone, request.Variant, "No main camera found in scene");
-                TransitionToIdle();
-                yield break;
+                _logger.LogInfo("No main camera in scene \u2014 creating temporary capture camera");
+                tempCamGo = new GameObject("MapTileCapture_Camera") { tag = "MainCamera" };
+                mainCam = tempCamGo.AddComponent<Camera>();
+                mainCam.cullingMask = ~0; // render everything
+                mainCam.enabled = false; // we call Render() manually
             }
 
             // Create suppressor — dispose guaranteed via finally
@@ -236,6 +238,8 @@ internal sealed class CaptureController
         finally
         {
             suppressor?.Dispose();
+            if (tempCamGo != null)
+                UnityEngine.Object.Destroy(tempCamGo);
             TransitionToIdle();
         }
     }
@@ -269,7 +273,7 @@ internal sealed class CaptureController
                 maxZ = measured.MaxZ,
             },
         };
-        _server.Send(JsonSerializer.Serialize(msg, JsonOpts));
+        _server.Send(JsonConvert.SerializeObject(msg, JsonSettings));
     }
 
     private void SendCaptureZoneComplete(
@@ -291,13 +295,13 @@ internal sealed class CaptureController
                 maxZ = zoneBounds.MaxZ,
             },
         };
-        _server.Send(JsonSerializer.Serialize(msg, JsonOpts));
+        _server.Send(JsonConvert.SerializeObject(msg, JsonSettings));
     }
 
     private void SendError(string zone, string variant, string reason)
     {
         var msg = new { type = "capture_error", zone, variant, reason };
-        _server.Send(JsonSerializer.Serialize(msg, JsonOpts));
+        _server.Send(JsonConvert.SerializeObject(msg, JsonSettings));
         _logger.LogError($"Capture error [{zone}/{variant}]: {reason}");
     }
 
@@ -305,28 +309,28 @@ internal sealed class CaptureController
 
     private sealed class CaptureZoneRequest
     {
-        [JsonPropertyName("zone")]
+        [JsonProperty("zone")]
         public string Zone { get; set; } = "";
 
-        [JsonPropertyName("sceneName")]
+        [JsonProperty("sceneName")]
         public string SceneName { get; set; } = "";
 
-        [JsonPropertyName("variant")]
+        [JsonProperty("variant")]
         public string Variant { get; set; } = "";
 
-        [JsonPropertyName("hideRoofs")]
+        [JsonProperty("hideRoofs")]
         public bool HideRoofs { get; set; }
 
-        [JsonPropertyName("sceneLoadTimeoutSecs")]
+        [JsonProperty("sceneLoadTimeoutSecs")]
         public float SceneLoadTimeoutSecs { get; set; }
 
-        [JsonPropertyName("stabilityFrames")]
+        [JsonProperty("stabilityFrames")]
         public int StabilityFrames { get; set; }
 
-        [JsonPropertyName("exclusionRules")]
+        [JsonProperty("exclusionRules")]
         public ExclusionRule[]? ExclusionRules { get; set; }
 
-        [JsonPropertyName("chunks")]
+        [JsonProperty("chunks")]
         public ChunkSpec[]? Chunks { get; set; }
     }
 }

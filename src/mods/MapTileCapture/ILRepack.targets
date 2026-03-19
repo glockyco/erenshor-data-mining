@@ -31,14 +31,9 @@
       <!-- Main assembly (always first) -->
       <MergeAssemblies Include="$(OutputPath)$(TargetName)$(TargetExt)" />
 
-      <!-- Explicit list of NuGet dependencies to merge. System.* shims and
-           other framework forwarding assemblies are intentionally excluded —
-           merging them embeds type-forward references that cause
-           AssemblyResolutionException on runtimes that don't ship those
-           assemblies (e.g. custom mod loaders). BepInEx-provided assemblies
-           (BepInEx.dll, 0Harmony.dll) are excluded — they are reference-only. -->
+      <!-- NuGet dependencies to merge into the single DLL -->
       <MergeAssemblies Include="$(OutputPath)Fleck.dll" />
-      <MergeAssemblies Include="$(OutputPath)System.Text.Json.dll" />
+      <MergeAssemblies Include="$(OutputPath)Newtonsoft.Json.dll" />
     </ItemGroup>
 
     <!-- Debug output: Show what we're merging -->

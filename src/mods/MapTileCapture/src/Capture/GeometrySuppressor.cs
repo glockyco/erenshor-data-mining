@@ -32,6 +32,12 @@ internal sealed class GeometrySuppressor : IDisposable
     private readonly int _origCullingMask;
     private readonly bool _hideRoofs;
 
+    // Lighting overrides for readable map tiles
+    private readonly UnityEngine.Rendering.AmbientMode _origAmbientMode;
+    private readonly Color _origAmbientLight;
+    private readonly float _origAmbientIntensity;
+    private readonly ShadowQuality _origShadows;
+
     private readonly Camera _camera;
 
     // WorldFogController
@@ -42,6 +48,7 @@ internal sealed class GeometrySuppressor : IDisposable
     private readonly List<(GameObject go, bool wasActive)> _deactivatedObjects = new();
     private readonly List<(Renderer renderer, bool wasEnabled)> _disabledRenderers = new();
     private readonly List<(Canvas canvas, bool wasEnabled)> _disabledCanvases = new();
+    private readonly List<(Light light, bool wasEnabled)> _disabledLights = new();
 
     public GeometrySuppressor(Camera camera, bool hideRoofs, ExclusionRule[]? exclusionRules)
     {
@@ -54,6 +61,17 @@ internal sealed class GeometrySuppressor : IDisposable
 
         _origFog = RenderSettings.fog;
         RenderSettings.fog = false;
+
+        // --- Lighting overrides for readable map tiles ---
+        _origAmbientMode = RenderSettings.ambientMode;
+        _origAmbientLight = RenderSettings.ambientLight;
+        _origAmbientIntensity = RenderSettings.ambientIntensity;
+        _origShadows = QualitySettings.shadows;
+
+        RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
+        RenderSettings.ambientLight = new Color(0.85f, 0.85f, 0.85f, 1f);
+        RenderSettings.ambientIntensity = 1.0f;
+        QualitySettings.shadows = ShadowQuality.Disable;
 
         _origLodBias = BitConverter.ToInt32(BitConverter.GetBytes(QualitySettings.lodBias), 0);
         QualitySettings.lodBias = float.MaxValue;
@@ -78,6 +96,21 @@ internal sealed class GeometrySuppressor : IDisposable
             _fogControllerGo = fogController.gameObject;
             _origFogControllerActive = _fogControllerGo.activeSelf;
             _fogControllerGo.SetActive(false);
+        }
+
+        // --- Disable all scene lights (flat ambient provides uniform illumination) ---
+        foreach (var light in UnityEngine.Object.FindObjectsOfType<Light>())
+        {
+            _disabledLights.Add((light, light.enabled));
+            light.enabled = false;
+        }
+
+        // --- SpawnPoints (visible gameplay markers, not map content) ---
+        foreach (var sp in UnityEngine.Object.FindObjectsOfType<SpawnPoint>())
+        {
+            var go = sp.gameObject;
+            _deactivatedObjects.Add((go, go.activeSelf));
+            go.SetActive(false);
         }
 
         // --- Characters (skip MiningNode/TreasureChest) ---
@@ -219,6 +252,14 @@ internal sealed class GeometrySuppressor : IDisposable
         if (_fogControllerGo != null)
             _fogControllerGo.SetActive(_origFogControllerActive);
 
+        // Lights
+        for (int i = _disabledLights.Count - 1; i >= 0; i--)
+        {
+            var (light, wasEnabled) = _disabledLights[i];
+            if (light != null)
+                light.enabled = wasEnabled;
+        }
+
         // Camera
         _camera.clearFlags = _origClearFlags;
         _camera.backgroundColor = _origBackgroundColor;
@@ -226,8 +267,12 @@ internal sealed class GeometrySuppressor : IDisposable
             _camera.cullingMask = _origCullingMask;
 
         // Global state
+        QualitySettings.shadows = _origShadows;
         QualitySettings.maximumLODLevel = _origMaxLodLevel;
         QualitySettings.lodBias = BitConverter.ToSingle(BitConverter.GetBytes(_origLodBias), 0);
+        RenderSettings.ambientMode = _origAmbientMode;
+        RenderSettings.ambientLight = _origAmbientLight;
+        RenderSettings.ambientIntensity = _origAmbientIntensity;
         RenderSettings.fog = _origFog;
         Time.timeScale = _origTimeScale;
     }
