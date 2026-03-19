@@ -6,39 +6,17 @@ Guidance for Claude Code when working with this repository.
 
 Data mining project for Erenshor, a single-player simulated MMORPG. Extracts
 game data via AssetRipper, exports to SQLite via Unity Editor scripts, deploys
-to MediaWiki, Google Sheets, and an interactive map website. Includes companion
-mods for real-time game integration.
+to MediaWiki, Google Sheets, and an interactive map website.
 
 **CRITICAL**: Only modify code in `src/Assets/Editor/`, `src/erenshor/`,
 `src/mods/`, and `src/maps/`. All other files are from the original game and
 MUST NOT be changed.
 
-**GitHub Project**: [Erenshor Data Mining](https://github.com/users/glockyco/projects/3/)
-tracks all development work including data mining, wiki, maps, and mods.
-
 ## Project Context
 
 - **Solo Developer**: Hobby project, single maintainer
-- **Zero Cost**: Free tools only (SteamCMD, AssetRipper, Unity Personal)
 - **Multi-Variant**: Handles main, playtest, and demo game versions
 - **Unity Constraints**: Non-Editor code belongs to game developer
-
-## Architecture
-
-See [README.md](README.md) for the full architecture diagram and component overview.
-
-**Entry point**: `uv run erenshor`
-
-Components:
-- **src/erenshor/**: Python CLI for data extraction and deployment
-- **src/Assets/Editor/**: Unity Editor scripts for SQLite export
-- **src/maps/**: SvelteKit interactive map website (Cloudflare Workers)
-- **src/mods/**: BepInEx companion mods for real-time features
-
-Three game variants with separate pipelines:
-- **main** (App ID 2382520): Production release
-- **playtest** (App ID 3090030): Beta testing
-- **demo** (App ID 2522260): Free demo
 
 **Variant directories** (`variants/{variant}/`) are .gitignored but essential
 for data mining work:
@@ -87,19 +65,9 @@ unintended data changes. Commit the updated goldens after review.
 **Maps deployment**:
 `maps build --force` → `maps deploy`
 
-**Mod development**:
-`mod setup` (copy game DLLs, needed once after download) → `mod build`
-→ `mod deploy` (local testing) or `mod publish` (stage for website) or
-`mod thunderstore` (publish to Thunderstore)
-
-## Development Guidelines
-
-1. Only modify `src/Assets/Editor/`, `src/erenshor/`, `src/mods/`, and `src/maps/`
-2. Use `uv` for Python dependencies
-3. Maintain Unity 2021.3.45f2 compatibility
-4. Test changes across all variants
-5. Type hints required for Python code
-6. Run pre-commit hooks before committing
+**Mod development**: See `mod-build-pipeline` skill.
+`mod setup` (copy game DLLs, needed once) → `mod build` → `mod deploy` (local)
+or `mod publish` (stage for website) or `mod thunderstore` (Thunderstore)
 
 ## Collaboration Expectations
 
@@ -162,33 +130,17 @@ CI runs on all pushes: linting (Ruff), type checking (MyPy), secret scanning
 
 ## Database Files
 
-Exported SQLite databases are stored per-variant:
-- `variants/main/erenshor-main.sqlite` - Production release data
-- `variants/playtest/erenshor-playtest.sqlite` - Beta/playtest data
-- `variants/demo/erenshor-demo.sqlite` - Demo version data
+Two databases per variant (both gitignored):
+- **Raw** (`erenshor-{variant}-raw.sqlite`): direct Unity export. Do not query.
+- **Clean** (`erenshor-{variant}.sqlite`): built by `extract build`. Query this one.
 
-## Mod Development
+Paths: `variants/main/erenshor-main.sqlite`, `variants/playtest/erenshor-playtest.sqlite`,
+`variants/demo/erenshor-demo.sqlite`
 
-The `src/mods/` directory contains BepInEx companion mods:
+## Wiki Content
 
-- **InteractiveMapCompanion**: Real-time entity tracking for the interactive map
-- **InteractiveMapsCompanion** (legacy): Broadcasts player position. Must be
-  kept working when data structures or DB schema change, but should not receive
-  new features. New map features go in InteractiveMapCompanion.
-- **JusticeForF7**: Extends F7 screenshot mode to hide world-space UI elements
-- **Sprint**: Configurable sprint key with multiplicative speed boost
-
-Map-related mods follow patterns from [erenshor-logs](https://github.com/glockyco/erenshor-logs):
-- Dependency injection for composition
-- Generic + adapter pattern for testability
-- Harmony patches with static property injection
-- Fleck for WebSocket server (InteractiveMapCompanion only)
-
-## Companion Mod Pipeline
-
-The mod build pipeline is fully automated: `setup` (copy DLLs) → `build` (compile,
-version from git) → `publish` (stage for website) → website build (includes mods).
-Version numbers use CalVer format (YYYY.M.D.{decimal_hash}) derived from git commit
-date/hash—never manually specified. Metadata is generated to both source and website
-locations, kept in sync by construction. Pre-commit hooks validate locally, CI
-validates on every push. See `mod-build-pipeline` skill for detailed workflows.
+`wiki/` at project root holds version-controlled wiki source files (not
+auto-generated, not variant-specific):
+- `wiki/Zones.txt` — zone index page (deploy via `wiki deploy --from-dir wiki/`)
+- `wiki/zones/` — generated individual zone pages (deploy via `wiki deploy --from-dir wiki/zones/`)
+- `wiki/templates/` — wiki template source files (deploy via `wiki deploy --from-dir wiki/templates/`)
