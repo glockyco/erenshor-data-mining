@@ -122,16 +122,15 @@ def tile(
         zone_cfg = config[zone_key]
         for variant in zone_cfg.get("captureVariants", ["clear"]):
             variant_state = state.get_variant_state(zone_key, variant)
-            if not variant_state:
-                logger.warning(f"No master for {zone_key}/{variant}, skipping")
+            if not variant_state or not variant_state.get("masterPath"):
+                logger.warning(f"No captured master for {zone_key}/{variant}, skipping")
                 continue
-            master_path = variant_state.get("masterPath")
-            if not master_path:
-                continue
-            master = cli_ctx.repo_root / master_path
+            master = cli_ctx.repo_root / variant_state["masterPath"]
             if not master.exists():
-                logger.warning(f"Master not found: {master}, skipping")
-                continue
+                console.print(f"[red]Error: master PNG missing: {master}[/red]")
+                console.print("  State says it exists but file is gone. Re-capture with:")
+                console.print(f"  uv run erenshor capture run --zones {zone_key} --variant {variant} --force")
+                raise typer.Exit(1)
 
             count = generate_tile_pyramid(master, zone_key, variant, zone_cfg, tiles_dir)
             total_tiles += count

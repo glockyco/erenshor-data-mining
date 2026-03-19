@@ -114,6 +114,7 @@ class CaptureOrchestrator:
                 # Update state
                 self.state.set_variant_state(zone_key, variant, {
                     "status": "ok",
+                    "masterPath": str(master_path),
                     "masterChecksum": _sha256(master_path),
                     "tileCount": count,
                 })
