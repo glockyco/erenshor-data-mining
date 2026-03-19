@@ -1,4 +1,4 @@
-import zoneCaptureConfig from '../../static/data/zone-capture-config.json';
+import zoneCaptureConfig from './data/zone-capture-config.json';
 
 export interface MapConfig {
     zoneName: string;

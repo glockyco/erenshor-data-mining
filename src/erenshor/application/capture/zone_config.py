@@ -6,7 +6,7 @@ from typing import Any
 
 from loguru import logger
 
-CONFIG_PATH = Path("src/maps/static/data/zone-capture-config.json")
+CONFIG_PATH = Path("src/maps/src/lib/data/zone-capture-config.json")
 
 
 def load_zone_config(repo_root: Path) -> dict[str, Any]:
