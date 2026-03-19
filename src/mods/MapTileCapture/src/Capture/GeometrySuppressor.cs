@@ -64,7 +64,13 @@ internal sealed class GeometrySuppressor : IDisposable
         _origFog = RenderSettings.fog;
         RenderSettings.fog = false;
 
-        // --- Lighting: create temporary sun + override ambient ---
+        // --- Camera ---
+        _origClearFlags = camera.clearFlags;
+        _origBackgroundColor = camera.backgroundColor;
+        _origCullingMask = camera.cullingMask;
+        if (hideRoofs)
+            camera.cullingMask &= ~(1 << LayerMask.NameToLayer("Roof"));
+
         // Scenes loaded directly via SceneManager.LoadScene lack a directional
         // light (the game's day/night system doesn't initialise). We create one
         // and set ambient to bright daylight so captures match the online tiles.
@@ -238,8 +244,7 @@ internal sealed class GeometrySuppressor : IDisposable
         // Camera
         _camera.clearFlags = _origClearFlags;
         _camera.backgroundColor = _origBackgroundColor;
-        if (_hideRoofs)
-            _camera.cullingMask = _origCullingMask;
+        _camera.cullingMask = _origCullingMask;
 
         // Global state
         QualitySettings.maximumLODLevel = _origMaxLodLevel;
