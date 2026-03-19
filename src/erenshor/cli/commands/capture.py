@@ -47,6 +47,11 @@ def run(
         "--force",
         help="Re-capture even if status is ok",
     ),
+    skip_crop: bool = typer.Option(
+        False,
+        "--skip-crop",
+        help="Skip interactive crop UI, tile full master image",
+    ),
 ) -> None:
     """Run the full capture pipeline.
 
@@ -78,7 +83,7 @@ def run(
 
     variants = [variant] if variant else None
     orch = CaptureOrchestrator(cli_ctx.repo_root, config, state)
-    asyncio.run(orch.run(selected, variants=variants, force=force))
+    asyncio.run(orch.run(selected, variants=variants, force=force, skip_crop=skip_crop))
 
     console.print("[bold green]Capture pipeline complete[/bold green]")
 

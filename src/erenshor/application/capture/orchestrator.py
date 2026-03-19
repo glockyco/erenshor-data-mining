@@ -56,12 +56,13 @@ class CaptureOrchestrator:
         zones: list[str],
         variants: list[str] | None,
         force: bool = False,
+        skip_crop: bool = False,
         out_dir: Path | None = None,
     ) -> None:
         """Capture, stitch, crop-if-needed, and tile every zone x variant."""
         await self.connect()
         try:
-            await self._run_inner(zones, variants, force, out_dir)
+            await self._run_inner(zones, variants, force, skip_crop, out_dir)
         finally:
             await self.close()
 
@@ -70,6 +71,7 @@ class CaptureOrchestrator:
         zones: list[str],
         variants: list[str] | None,
         force: bool,
+        skip_crop: bool,
         out_dir: Path | None,
     ) -> None:
         tile_out = out_dir or (self.repo_root / "src" / "maps" / "static" / "tiles")
@@ -94,8 +96,8 @@ class CaptureOrchestrator:
                     logger.error(f"Capture failed for {zone_key}/{variant}: {exc}")
                     continue
 
-                # Crop UI if no cropRect configured
-                if zc.get("cropRect") is None:
+                # Crop UI if no cropRect configured (and not skipped)
+                if not skip_crop and zc.get("cropRect") is None:
                     crop = serve_crop_ui(master_path, zone_key, zc, self.repo_root)
                     if crop:
                         zc["cropRect"] = crop
