@@ -279,7 +279,7 @@ internal sealed class GeometrySuppressor : IDisposable
         if (rule.NameExact != null && !string.Equals(goName, rule.NameExact, StringComparison.Ordinal))
             return false;
 
-        if (rule.NameContains != null && goName.IndexOf(rule.NameContains, StringComparison.Ordinal) < 0)
+        if (rule.NameContains != null && goName.IndexOf(rule.NameContains, StringComparison.OrdinalIgnoreCase) < 0)
             return false;
 
         if (rule.PositionAbove.HasValue && renderer.transform.position.y <= rule.PositionAbove.Value)

@@ -1363,6 +1363,9 @@
       },
       {
         "nameExact": "SM_Env_Rock_Cliff_03 (81)"
+      },
+      {
+        "nameContains": "tree_giant"
       }
     ]
   },
@@ -1480,6 +1483,9 @@
       },
       {
         "nameExact": "SM_Env_Tree_Large_02_LOD2 (1)"
+      },
+      {
+        "nameContains": "SM_Prop_Beam_03"
       }
     ]
   },
@@ -1514,6 +1520,9 @@
       },
       {
         "nameExact": "SM_Bld_Castle_Wall_Cut_02 (117)"
+      },
+      {
+        "nameContains": "roof"
       }
     ]
   },
