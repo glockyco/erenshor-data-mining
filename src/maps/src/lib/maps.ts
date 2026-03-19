@@ -1,3 +1,5 @@
+import zoneCaptureConfig from '../../static/data/zone-capture-config.json';
+
 export interface MapConfig {
     zoneName: string;
     tileUrl: string;
@@ -11,473 +13,85 @@ export interface MapConfig {
     originY: number;
 }
 
-export const MAPS: Record<string, MapConfig> = {
-    Abyssal: {
-        zoneName: 'Abyssal Lake',
-        tileUrl: '/tiles/Abyssal/{z}/{x}/{y}.webp',
-        baseTilesX: 3,
-        baseTilesY: 3,
-        tileSize: 256,
-        zoom: 0,
-        minZoom: -2,
-        maxZoom: 3,
-        originX: -40,
-        originY: -120
-    },
-    Azure: {
-        zoneName: 'Port Azure',
-        tileUrl: '/tiles/Azure/{z}/{x}/{y}.webp',
-        baseTilesX: 2,
-        baseTilesY: 3,
-        tileSize: 256,
-        zoom: 0,
-        minZoom: -2,
-        maxZoom: 3,
-        originX: -32,
-        originY: 0
-    },
-    Azynthi: {
-        zoneName: "Azynthi's Garden (Dimensional Rift)",
-        tileUrl: '/tiles/Azynthi/{z}/{x}/{y}.webp',
-        baseTilesX: 3,
-        baseTilesY: 3,
-        tileSize: 256,
-        zoom: 0,
-        minZoom: -2,
-        maxZoom: 3,
-        originX: 145,
-        originY: 130
-    },
-    AzynthiClear: {
-        zoneName: "Azynthi's Garden",
-        tileUrl: '/tiles/AzynthiClear/{z}/{x}/{y}.webp',
-        baseTilesX: 3,
-        baseTilesY: 3,
-        tileSize: 256,
-        zoom: 0,
-        minZoom: -2,
-        maxZoom: 3,
-        originX: 145,
-        originY: 130
-    },
-    Blight: {
-        zoneName: 'The Blight',
-        tileUrl: '/tiles/Blight/{z}/{x}/{y}.webp',
-        baseTilesX: 4,
-        baseTilesY: 4,
-        tileSize: 256,
-        zoom: 0,
-        minZoom: -2,
-        maxZoom: 2,
-        originX: 0,
-        originY: 0
-    },
-    BloomingSepulcher: {
-        zoneName: 'Blooming Sepulcher',
-        tileUrl: '/tiles/BloomingSepulcher/{z}/{x}/{y}.webp',
-        baseTilesX: 4,
-        baseTilesY: 4,
-        tileSize: 256,
-        zoom: 0,
-        minZoom: -2,
-        maxZoom: 2,
-        originX: 0,
-        originY: 0
-    },
-    Bonepits: {
-        zoneName: 'The Bonepits',
-        tileUrl: '/tiles/Bonepits/{z}/{x}/{y}.webp',
-        baseTilesX: 2,
-        baseTilesY: 2,
-        tileSize: 256,
-        zoom: 0,
-        minZoom: -1,
-        maxZoom: 3,
-        originX: -128,
-        originY: 64
-    },
-    Brake: {
-        zoneName: "Faerie's Brake",
-        tileUrl: '/tiles/Brake/{z}/{x}/{y}.webp',
-        baseTilesX: 2,
-        baseTilesY: 2,
-        tileSize: 256,
-        zoom: 0,
-        minZoom: -1,
-        maxZoom: 2,
-        originX: 0,
-        originY: 0
-    },
-    Braxonia: {
-        zoneName: 'Fallen Braxonia',
-        tileUrl: '/tiles/Braxonia/{z}/{x}/{y}.webp',
-        baseTilesX: 3,
-        baseTilesY: 3,
-        tileSize: 256,
-        zoom: 0,
-        minZoom: -2,
-        maxZoom: 3,
-        originX: 40,
-        originY: 80
-    },
-    Braxonian: {
-        zoneName: 'Braxonian Desert',
-        tileUrl: '/tiles/Braxonian/{z}/{x}/{y}.webp',
-        baseTilesX: 5,
-        baseTilesY: 6,
-        tileSize: 256,
-        zoom: 0,
-        minZoom: -3,
-        maxZoom: 2,
-        originX: -128,
-        originY: 0
-    },
-    Duskenlight: {
-        zoneName: 'The Duskenlight Coast',
-        tileUrl: '/tiles/Duskenlight/{z}/{x}/{y}.webp',
-        baseTilesX: 7,
-        baseTilesY: 4,
-        tileSize: 256,
-        zoom: 0,
-        minZoom: -3,
-        maxZoom: 2,
-        originX: 0,
-        originY: 0
-    },
-    DuskenPortal: {
-        zoneName: 'Mysterious Portal (The Duskenlight Coast)',
-        tileUrl: '/tiles/DuskenPortal/{z}/{x}/{y}.webp',
-        baseTilesX: 3,
-        baseTilesY: 2,
-        tileSize: 256,
-        zoom: 0,
-        minZoom: -2,
-        maxZoom: 3,
-        originX: -135,
-        originY: -55
-    },
-    Elderstone: {
-        zoneName: 'The Elderstone Mines',
-        tileUrl: '/tiles/Elderstone/{z}/{x}/{y}.webp',
-        baseTilesX: 7,
-        baseTilesY: 10,
-        tileSize: 256,
-        zoom: 0,
-        minZoom: -4,
-        maxZoom: 2,
-        originX: -1100,
-        originY: -1150
-    },
-    FernallaField: {
-        zoneName: "Fernalla's Revival Plains",
-        tileUrl: '/tiles/FernallaField/{z}/{x}/{y}.webp',
-        baseTilesX: 6,
-        baseTilesY: 6,
-        tileSize: 256,
-        zoom: 0,
-        minZoom: -3,
-        maxZoom: 2,
-        originX: 0,
-        originY: 0
-    },
-    FernallaPortal: {
-        zoneName: "Mysterious Portal (Fernalla's Revival Plains)",
-        tileUrl: '/tiles/FernallaPortal/{z}/{x}/{y}.webp',
-        baseTilesX: 2,
-        baseTilesY: 3,
-        tileSize: 256,
-        zoom: 0,
-        minZoom: -2,
-        maxZoom: 3,
-        originX: 0,
-        originY: 0
-    },
-    Hidden: {
-        zoneName: 'Hidden Hills',
-        tileUrl: '/tiles/Hidden/{z}/{x}/{y}.webp',
-        baseTilesX: 2,
-        baseTilesY: 2,
-        tileSize: 256,
-        zoom: 0,
-        minZoom: -1,
-        maxZoom: 3,
-        originX: -200,
-        originY: -300
-    },
-    Jaws: {
-        zoneName: 'Jaws of Sivakaya',
-        tileUrl: '/tiles/Jaws/{z}/{x}/{y}.webp',
-        baseTilesX: 3,
-        baseTilesY: 2,
-        tileSize: 256,
-        zoom: 0,
-        minZoom: -2,
-        maxZoom: 3,
-        originX: 1050,
-        originY: -150
-    },
-    Krakengard: {
-        zoneName: 'Old Krakengard',
-        tileUrl: '/tiles/Krakengard/{z}/{x}/{y}.webp',
-        baseTilesX: 2,
-        baseTilesY: 2,
-        tileSize: 256,
-        zoom: 0,
-        minZoom: -1,
-        maxZoom: 3,
-        originX: 200,
-        originY: -110
-    },
-    Loomingwood: {
-        zoneName: 'Loomingwood Forest',
-        tileUrl: '/tiles/Loomingwood/{z}/{x}/{y}.webp',
-        baseTilesX: 4,
-        baseTilesY: 4,
-        tileSize: 256,
-        zoom: 0,
-        minZoom: -2,
-        maxZoom: 2,
-        originX: 0,
-        originY: 0
-    },
-    Malaroth: {
-        zoneName: "Malaroth's Nesting Grounds",
-        tileUrl: '/tiles/Malaroth/{z}/{x}/{y}.webp',
-        baseTilesX: 5,
-        baseTilesY: 4,
-        tileSize: 256,
-        zoom: 0,
-        minZoom: -3,
-        maxZoom: 2,
-        originX: 0,
-        originY: 0
-    },
-    PrielPlateau: {
-        zoneName: 'Prielian Cascade',
-        tileUrl: '/tiles/PrielPlateau/{z}/{x}/{y}.webp',
-        baseTilesX: 3,
-        baseTilesY: 3,
-        tileSize: 256,
-        zoom: 0,
-        minZoom: -2,
-        maxZoom: 3,
-        originX: 0,
-        originY: 0
-    },
-    Ripper: {
-        zoneName: "Ripper's Keep",
-        tileUrl: '/tiles/Ripper/{z}/{x}/{y}.webp',
-        baseTilesX: 4,
-        baseTilesY: 3,
-        tileSize: 256,
-        zoom: 0,
-        minZoom: -2,
-        maxZoom: 2,
-        originX: 0,
-        originY: 0
-    },
-    RipperPortal: {
-        zoneName: "Mysterious Portal (Ripper's Keep)",
-        tileUrl: '/tiles/RipperPortal/{z}/{x}/{y}.webp',
-        baseTilesX: 4,
-        baseTilesY: 4,
-        tileSize: 256,
-        zoom: 0,
-        minZoom: -2,
-        maxZoom: 2,
-        originX: 0,
-        originY: 0
-    },
-    Rockshade: {
-        zoneName: 'Rockshade Hold',
-        tileUrl: '/tiles/Rockshade/{z}/{x}/{y}.webp',
-        baseTilesX: 4,
-        baseTilesY: 4,
-        tileSize: 256,
-        zoom: 0,
-        minZoom: -2,
-        maxZoom: 2,
-        originX: 0,
-        originY: 0
-    },
-    Rottenfoot: {
-        zoneName: 'Rottenfoot',
-        tileUrl: '/tiles/Rottenfoot/{z}/{x}/{y}.webp',
-        baseTilesX: 4,
-        baseTilesY: 4,
-        tileSize: 256,
-        zoom: 0,
-        minZoom: -2,
-        maxZoom: 2,
-        originX: 0,
-        originY: 0
-    },
-    SaltedStrand: {
-        zoneName: 'Blacksalt Strand',
-        tileUrl: '/tiles/SaltedStrand/{z}/{x}/{y}.webp',
-        baseTilesX: 4,
-        baseTilesY: 3,
-        tileSize: 256,
-        zoom: 0,
-        minZoom: -2,
-        maxZoom: 2,
-        originX: -64,
-        originY: 0
-    },
-    Silkengrass: {
-        zoneName: 'Silkengrass Meadowlands',
-        tileUrl: '/tiles/Silkengrass/{z}/{x}/{y}.webp',
-        baseTilesX: 5,
-        baseTilesY: 6,
-        tileSize: 256,
-        zoom: 0,
-        minZoom: -3,
-        maxZoom: 2,
-        originX: -32,
-        originY: 0
-    },
-    Soluna: {
-        zoneName: "Soluna's Landing",
-        tileUrl: '/tiles/Soluna/{z}/{x}/{y}.webp',
-        baseTilesX: 4,
-        baseTilesY: 4,
-        tileSize: 256,
-        zoom: 0,
-        minZoom: -2,
-        maxZoom: 2,
-        originX: 0,
-        originY: 0
-    },
-    Stowaway: {
-        zoneName: "Stowaway's Step",
-        tileUrl: '/tiles/Stowaway/{z}/{x}/{y}.webp',
-        baseTilesX: 3,
-        baseTilesY: 2,
-        tileSize: 256,
-        zoom: 0,
-        minZoom: -2,
-        maxZoom: 3,
-        originX: 135,
-        originY: 225
-    },
-    ShiveringStep: {
-        zoneName: 'Shivering Step',
-        tileUrl: '/tiles/ShiveringStep/{z}/{x}/{y}.webp',
-        baseTilesX: 3,
-        baseTilesY: 2,
-        tileSize: 256,
-        zoom: 0,
-        minZoom: -2,
-        maxZoom: 3,
-        originX: 135,
-        originY: 225
-    },
-    // ShiveringTomb2: {
-    // 	zoneName: 'Shivering Tomb (2)',
-    // 	tileUrl: '/tiles/ShiveringTomb2/{z}/{x}/{y}.webp',
-    // 	baseTilesX: 3,
-    // 	baseTilesY: 2,
-    // 	tileSize: 256,
-    // 	zoom: 0,
-    // 	minZoom: -2,
-    // 	maxZoom: 2,
-    // 	originX: -400,
-    // 	originY: -115,
-    // },
-    SummerEvent: {
-        zoneName: 'Bellwain Island',
-        tileUrl: '/tiles/SummerEvent/{z}/{x}/{y}.webp',
-        baseTilesX: 1,
-        baseTilesY: 2,
-        tileSize: 256,
-        zoom: 0,
-        minZoom: -1,
-        maxZoom: 3,
-        originX: 0,
-        originY: -110
-    },
-    Tutorial: {
-        zoneName: 'Island Tomb',
-        tileUrl: '/tiles/Tutorial/{z}/{x}/{y}.webp',
-        baseTilesX: 2,
-        baseTilesY: 2,
-        tileSize: 256,
-        zoom: 0,
-        minZoom: -1,
-        maxZoom: 3,
-        originX: -280,
-        originY: -200
-    },
-    Undercity: {
-        zoneName: 'Lost Cellar',
-        tileUrl: '/tiles/Undercity/{z}/{x}/{y}.webp',
-        baseTilesX: 2,
-        baseTilesY: 2,
-        tileSize: 256,
-        zoom: 0,
-        minZoom: -1,
-        maxZoom: 3,
-        originX: 0,
-        originY: 0
-    },
-    Underspine: {
-        zoneName: 'Underspine Hollow',
-        tileUrl: '/tiles/Underspine/{z}/{x}/{y}.webp',
-        baseTilesX: 3,
-        baseTilesY: 3,
-        tileSize: 256,
-        zoom: 0,
-        minZoom: -2,
-        maxZoom: 2,
-        originX: 0,
-        originY: -30
-    },
-    Vitheo: {
-        zoneName: "Vitheo's Watch",
-        tileUrl: '/tiles/Vitheo/{z}/{x}/{y}.webp',
-        baseTilesX: 2,
-        baseTilesY: 2,
-        tileSize: 256,
-        zoom: 0,
-        minZoom: -1,
-        maxZoom: 2,
-        originX: 0,
-        originY: 0
-    },
-    VitheosEnd: {
-        zoneName: "Vitheo's Rest",
-        tileUrl: '/tiles/VitheosEnd/{z}/{x}/{y}.webp',
-        baseTilesX: 2,
-        baseTilesY: 2,
-        tileSize: 256,
-        zoom: 0,
-        minZoom: -1,
-        maxZoom: 3,
-        originX: 64,
-        originY: 64
-    },
-    Windwashed: {
-        zoneName: 'Windwashed Pass',
-        tileUrl: '/tiles/Windwashed/{z}/{x}/{y}.webp',
-        baseTilesX: 4,
-        baseTilesY: 4,
-        tileSize: 256,
-        zoom: 0,
-        minZoom: -2,
-        maxZoom: 2,
-        originX: 190,
-        originY: -128
-    },
-    Willowwatch: {
-        zoneName: 'Willowwatch Ridge',
-        tileUrl: '/tiles/Willowwatch/{z}/{x}/{y}.webp',
-        baseTilesX: 4,
-        baseTilesY: 4,
-        tileSize: 256,
-        zoom: 0,
-        minZoom: -2,
-        maxZoom: 2,
-        originX: 0,
-        originY: 0
-    }
+/** Display names keyed by zone key. The capture config only has sceneName (== key). */
+const DISPLAY_NAMES: Record<string, string> = {
+    Abyssal: 'Abyssal Lake',
+    Azure: 'Port Azure',
+    Azynthi: "Azynthi's Garden (Dimensional Rift)",
+    AzynthiClear: "Azynthi's Garden",
+    Blight: 'The Blight',
+    BloomingSepulcher: 'Blooming Sepulcher',
+    Bonepits: 'The Bonepits',
+    Brake: "Faerie's Brake",
+    Braxonia: 'Fallen Braxonia',
+    Braxonian: 'Braxonian Desert',
+    Duskenlight: 'The Duskenlight Coast',
+    DuskenPortal: 'Mysterious Portal (The Duskenlight Coast)',
+    Elderstone: 'The Elderstone Mines',
+    FernallaField: "Fernalla's Revival Plains",
+    FernallaPortal: "Mysterious Portal (Fernalla's Revival Plains)",
+    Hidden: 'Hidden Hills',
+    Jaws: 'Jaws of Sivakaya',
+    Krakengard: 'Old Krakengard',
+    Loomingwood: 'Loomingwood Forest',
+    Malaroth: "Malaroth's Nesting Grounds",
+    PrielPlateau: 'Prielian Cascade',
+    Ripper: "Ripper's Keep",
+    RipperPortal: "Mysterious Portal (Ripper's Keep)",
+    Rockshade: 'Rockshade Hold',
+    Rottenfoot: 'Rottenfoot',
+    SaltedStrand: 'Blacksalt Strand',
+    Silkengrass: 'Silkengrass Meadowlands',
+    Soluna: "Soluna's Landing",
+    Stowaway: "Stowaway's Step",
+    ShiveringStep: 'Shivering Step',
+    SummerEvent: 'Bellwain Island',
+    Tutorial: 'Island Tomb',
+    Undercity: 'Lost Cellar',
+    Underspine: 'Underspine Hollow',
+    Vitheo: "Vitheo's Watch",
+    VitheosEnd: "Vitheo's Rest",
+    Windwashed: 'Windwashed Pass',
+    Willowwatch: 'Willowwatch Ridge'
 };
+
+function computeMinZoom(baseTilesX: number, baseTilesY: number): number {
+    const maxDim = Math.max(baseTilesX, baseTilesY);
+    return maxDim <= 1 ? 0 : -Math.ceil(Math.log2(maxDim));
+}
+
+type ZoneCaptureEntry = {
+    sceneName: string;
+    baseTilesX: number;
+    baseTilesY: number;
+    tileSize: number;
+    maxZoom: number;
+    originX: number;
+    originY: number;
+    northBearing: number | null;
+    captureVariants: string[];
+    cropRect: unknown;
+    exclusionRules: unknown[];
+};
+
+const config = zoneCaptureConfig as Record<string, ZoneCaptureEntry>;
+
+export const MAPS: Record<string, MapConfig> = Object.fromEntries(
+    Object.entries(config)
+        .filter(([key]) => key in DISPLAY_NAMES)
+        .map(([key, zone]) => [
+            key,
+            {
+                zoneName: DISPLAY_NAMES[key],
+                tileUrl: `/tiles/${key}/{z}/{x}/{y}.webp`,
+                baseTilesX: zone.baseTilesX,
+                baseTilesY: zone.baseTilesY,
+                tileSize: zone.tileSize,
+                zoom: 0,
+                minZoom: computeMinZoom(zone.baseTilesX, zone.baseTilesY),
+                maxZoom: zone.maxZoom,
+                originX: zone.originX,
+                originY: zone.originY
+            } satisfies MapConfig
+        ])
+);

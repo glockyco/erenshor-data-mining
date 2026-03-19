@@ -76,6 +76,11 @@ MODS: dict[str, ModInfo] = {
         "dll_name": "Sprint.dll",
         "thunderstore": "WoW_Much/Sprint",
     },
+    "map-tile-capture": {
+        "dir": "src/mods/MapTileCapture",
+        "name": "Map Tile Capture",
+        "dll_name": "MapTileCapture.dll",
+    },
 }
 
 # Required DLLs to copy from game

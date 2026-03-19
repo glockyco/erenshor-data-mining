@@ -16,6 +16,7 @@ async function findTiles(dir, tiles = []) {
             await findTiles(fullPath, tiles);
         } else if (entry.name.endsWith('.webp')) {
             // Convert to URL path: static/tiles/Zone/-1/0/-1.webp -> /tiles/Zone/-1/0/-1.webp
+            // Also handles: static/tiles/Zone/clear/-1/0/-1.webp -> /tiles/Zone/clear/-1/0/-1.webp
             tiles.push('/' + fullPath.replace(/^static\//, ''));
         }
     }
@@ -29,8 +30,8 @@ async function main() {
     // Group by zoom level
     const zoomLevels = {};
     for (const tile of allTiles) {
-        // Extract zoom level from path: /tiles/Zone/{zoom}/x/y.webp
-        const match = tile.match(/\/tiles\/[^/]+\/(-?\d+)\//);
+        // Extract zoom level from path: /tiles/Zone/{zoom}/x/y.webp or /tiles/Zone/{variant}/{zoom}/x/y.webp
+        const match = tile.match(/\/tiles\/[^/]+\/(?:(?:clear|open)\/)?(-?\d+)\//);
         if (match) {
             const zoom = match[1];
             if (PRECACHE_ZOOM_LEVELS.includes(zoom)) {
