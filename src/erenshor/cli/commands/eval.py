@@ -4,16 +4,10 @@ from __future__ import annotations
 
 import asyncio
 import json
-import sys
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 import typer
-from loguru import logger
 from rich.console import Console
-
-if TYPE_CHECKING:
-    from ..context import CLIContext
 
 app = typer.Typer(
     name="eval",
@@ -61,6 +55,38 @@ def reset(ctx: typer.Context) -> None:
     asyncio.run(_reset())
 
 
+
+@app.command()
+def complete(
+    ctx: typer.Context,
+    code: str = typer.Argument(..., help="Partial C# code to complete"),
+    cursor_pos: int = typer.Option(-1, "--cursor", help="Cursor position (-1 = end)"),
+    json_output: bool = typer.Option(False, "--json", help="Output raw JSON response"),
+) -> None:
+    """Get autocomplete suggestions for partial C# code."""
+    asyncio.run(_complete(code, cursor_pos=cursor_pos, json_output=json_output))
+
+
+@app.command()
+def watch(
+    ctx: typer.Context,
+    code: str = typer.Argument(..., help="C# expression to watch"),
+    interval: int = typer.Option(60, "--interval", help="Eval interval in frames"),
+    on_change: bool = typer.Option(False, "--on-change", help="Only print when value changes"),
+    limit: int = typer.Option(0, "--limit", help="Max deliveries (0 = unlimited)"),
+    timeout: int = typer.Option(10000, "--timeout", help="Per-eval timeout in ms"),
+    json_output: bool = typer.Option(False, "--json", help="Output raw JSON"),
+) -> None:
+    """Watch a C# expression, printing updates until Ctrl-C."""
+    asyncio.run(_watch(
+        code,
+        interval_frames=interval,
+        on_change=on_change,
+        limit=limit,
+        timeout_ms=timeout,
+        json_output=json_output,
+    ))
+
 # -- async implementations --
 
 
@@ -78,13 +104,19 @@ async def _run(code: str, *, json_output: bool, timeout_ms: int) -> None:
     except EvalConnectionError as exc:
         console.print(f"[red]{exc}[/red]", highlight=False)
         raise typer.Exit(code=1) from None
-    except asyncio.TimeoutError:
+    except TimeoutError:
         console.print("[red]Timed out waiting for eval response.[/red]")
         raise typer.Exit(code=1) from None
     except EvalError as exc:
         if json_output:
             # Even errors get raw JSON when --json is used.
-            print(json.dumps({"type": "eval_error", "error": str(exc), "error_kind": exc.error_kind, "stack_trace": exc.stack_trace}))
+            error_payload = {
+                "type": "eval_error",
+                "error": str(exc),
+                "error_kind": exc.error_kind,
+                "stack_trace": exc.stack_trace,
+            }
+            print(json.dumps(error_payload))
         else:
             console.print(f"[red]{exc}[/red]", highlight=False)
             if exc.stack_trace:
@@ -122,7 +154,7 @@ async def _reset() -> None:
     client = EvalClient()
     try:
         await client.connect()
-        resp = await client.reset()
+        await client.reset()
     except EvalConnectionError as exc:
         console.print(f"[red]{exc}[/red]", highlight=False)
         raise typer.Exit(code=1) from None
@@ -130,3 +162,77 @@ async def _reset() -> None:
         await client.close()
 
     console.print("[green]REPL state reset.[/green]")
+
+
+
+async def _complete(code: str, *, cursor_pos: int, json_output: bool) -> None:
+    from erenshor.application.eval.client import EvalClient, EvalConnectionError
+
+    client = EvalClient()
+    try:
+        await client.connect()
+        completions = await client.complete(code, cursor_pos=cursor_pos)
+    except EvalConnectionError as exc:
+        console.print(f"[red]{exc}[/red]", highlight=False)
+        raise typer.Exit(code=1) from None
+    except TimeoutError:
+        console.print("[red]Timed out waiting for completions.[/red]")
+        raise typer.Exit(code=1) from None
+    finally:
+        await client.close()
+
+    if json_output:
+        print(json.dumps({"completions": completions}))
+    elif completions:
+        for c in completions:
+            console.print(c, highlight=False)
+    else:
+        console.print("[dim]No completions.[/dim]")
+
+
+async def _watch(
+    code: str,
+    *,
+    interval_frames: int,
+    on_change: bool,
+    limit: int,
+    timeout_ms: int,
+    json_output: bool,
+) -> None:
+    from erenshor.application.eval.client import EvalClient, EvalConnectionError
+
+    client = EvalClient()
+    try:
+        await client.connect()
+        gen = client.subscribe(
+            code,
+            interval_frames=interval_frames,
+            on_change=on_change,
+            limit=limit,
+            timeout_ms=timeout_ms,
+        )
+        async for resp in gen:
+            if json_output:
+                print(json.dumps(resp), flush=True)
+            elif resp.get("type") == "subscribe_error":
+                console.print(
+                    f"[red]#{resp.get('seq', '?')} error: {resp.get('message', '?')}[/red]",
+                    highlight=False,
+                )
+            else:
+                value = resp.get("value", "")
+                seq = resp.get("seq", "?")
+                console.print(f"[dim]#{seq}[/dim] {value}", highlight=False)
+
+            if resp.get("final", False):
+                break
+    except EvalConnectionError as exc:
+        console.print(f"[red]{exc}[/red]", highlight=False)
+        raise typer.Exit(code=1) from None
+    except TimeoutError:
+        console.print("[red]Timed out waiting for subscription data.[/red]")
+        raise typer.Exit(code=1) from None
+    except KeyboardInterrupt:
+        console.print("\n[dim]Watch stopped.[/dim]")
+    finally:
+        await client.close()

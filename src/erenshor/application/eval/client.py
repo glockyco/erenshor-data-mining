@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import json
 import time
+from collections.abc import AsyncGenerator
 
 import websockets
 from loguru import logger
@@ -93,11 +94,78 @@ class EvalClient:
         return (time.perf_counter() - t0) * 1000
 
     async def cancel(self, eval_id: str) -> None:
-        """Cancel a running eval by its id."""
-        msg_id = self._next_id()
-        payload = {"type": "cancel", "id": msg_id, "eval_id": eval_id}
-        await self._request(payload, msg_id)
+        """Cancel a running eval or subscription by its id.
 
+        The cancel protocol uses the target's id as the message id.
+        """
+        payload = {"type": "cancel", "id": eval_id}
+        assert self._ws is not None, "call connect() first"
+        await self._ws.send(json.dumps(payload))
+        logger.debug("-> {}", payload)
+
+    async def complete(self, code: str, cursor_pos: int = -1) -> list[str]:
+        """Request autocomplete suggestions for *code* at *cursor_pos*.
+
+        Returns a list of completion strings. Does not execute code.
+        ``cursor_pos=-1`` means end of code (server default).
+        """
+        msg_id = self._next_id()
+        payload = {
+            "type": "complete",
+            "id": msg_id,
+            "code": code,
+            "cursorPos": cursor_pos,
+        }
+        resp = await self._request(payload, msg_id)
+        return resp.get("completions", [])
+
+    async def subscribe(
+        self,
+        code: str,
+        *,
+        interval_frames: int = 1,
+        on_change: bool = False,
+        limit: int = 0,
+        timeout_ms: int = 10000,
+    ) -> AsyncGenerator[dict]:
+        """Subscribe to repeated evaluation of *code*.
+
+        Yields dicts with keys: seq, hasValue, value, valueType, durationMs, final.
+        On error yields: seq, errorKind, message, final.
+        Stops when the server sends ``final: true`` or the generator is closed.
+        """
+        msg_id = self._next_id()
+        payload = {
+            "type": "subscribe",
+            "id": msg_id,
+            "code": code,
+            "intervalFrames": interval_frames,
+            "onChange": on_change,
+            "limit": limit,
+            "timeoutMs": timeout_ms,
+        }
+        assert self._ws is not None, "call connect() first"
+        await self._ws.send(json.dumps(payload))
+        logger.debug("-> {}", payload)
+
+        try:
+            while True:
+                raw = await asyncio.wait_for(
+                    self._ws.recv(), timeout=CLIENT_TIMEOUT_S
+                )
+                resp = json.loads(raw)
+                logger.debug("<- {}", resp)
+
+                if resp.get("id") != msg_id:
+                    continue  # Not ours; skip.
+
+                yield resp
+
+                if resp.get("final", False):
+                    return
+        except GeneratorExit:
+            # Generator was closed (e.g. Ctrl-C) — cancel the subscription.
+            await self.cancel(msg_id)
     # -- internals --
 
     def _next_id(self) -> str:
@@ -118,7 +186,7 @@ class EvalClient:
         while True:
             remaining = deadline - time.monotonic()
             if remaining <= 0:
-                raise asyncio.TimeoutError(
+                raise TimeoutError(
                     f"Timed out waiting for response to {payload['type']}"
                 )
 
