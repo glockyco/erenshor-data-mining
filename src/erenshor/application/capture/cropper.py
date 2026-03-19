@@ -62,8 +62,12 @@ def serve_crop_ui(
     webbrowser.open(url)
 
     try:
+        # Serve until crop is applied or user interrupts.
+        # After shutdown_event fires, process one more request so the
+        # HTTP 200 response is delivered before we close the socket.
         while not shutdown_event.is_set():
             server.handle_request()
+        server.handle_request()  # drain the response
     except KeyboardInterrupt:
         logger.warning("Crop UI interrupted")
     finally:
@@ -176,11 +180,22 @@ def _build_html(zone_key: str, b64_image: str, master_path: Path) -> str:
   document.getElementById('apply').addEventListener('click', function() {{
     const l = Math.min(sx, ex), t = Math.min(sy, ey);
     const rr = Math.max(sx, ex), b = Math.max(sy, ey);
+    const btn = document.getElementById('apply');
+    btn.disabled = true;
+    btn.textContent = 'Applying...';
     fetch(window.location.href, {{
       method: 'POST',
       headers: {{'Content-Type': 'application/json'}},
       body: JSON.stringify({{top: t, right: W - rr, bottom: H - b, left: l}})
-    }}).then(function() {{ document.title = 'Crop applied — close tab'; }});
+    }}).then(function(r) {{
+      if (r.ok) {{
+        btn.textContent = 'Applied \u2014 close this tab';
+        btn.style.background = '#666';
+      }}
+    }}).catch(function() {{
+      btn.textContent = 'Error \u2014 try again';
+      btn.disabled = false;
+    }});
   }});
 
   update();
