@@ -194,9 +194,9 @@ class EvalClient:
             if resp.get("id") == msg_id:
                 if resp.get("type") == "eval_error":
                     raise EvalError(
-                        message=resp.get("error", "unknown error"),
-                        error_kind=resp.get("error_kind", "unknown"),
-                        stack_trace=resp.get("stack_trace"),
+                        message=resp.get("message", "unknown error"),
+                        error_kind=resp.get("errorKind", "unknown"),
+                        stack_trace=resp.get("stackTrace"),
                     )
                 return resp
 
