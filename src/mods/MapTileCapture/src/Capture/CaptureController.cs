@@ -194,6 +194,18 @@ internal sealed class CaptureController
                 mainCam.enabled = false; // we call Render() manually
             }
 
+            // --- Diagnostic: dump lighting state ---
+            _logger.LogInfo($"RenderSettings: ambientMode={RenderSettings.ambientMode}, " +
+                $"ambientLight={RenderSettings.ambientLight}, " +
+                $"ambientIntensity={RenderSettings.ambientIntensity}, " +
+                $"ambientSkyColor={RenderSettings.ambientSkyColor}");
+            foreach (var light in UnityEngine.Object.FindObjectsOfType<Light>())
+            {
+                _logger.LogInfo($"Light: {light.name} type={light.type} enabled={light.enabled} " +
+                    $"intensity={light.intensity} color={light.color} " +
+                    $"rotation={light.transform.eulerAngles}");
+            }
+
             // Create suppressor — dispose guaranteed via finally
             suppressor = new GeometrySuppressor(
                 mainCam,
