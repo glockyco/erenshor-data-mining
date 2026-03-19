@@ -30,11 +30,7 @@ def stitch_chunks(
     # Determine master canvas size from chunk specs.
     # Chunks are laid out on a grid: index 0 is top-left, row-major.
     total_w = sum(s["pixelWidth"] for s in chunk_specs if s["index"] < _cols(chunk_specs))
-    total_h = sum(
-        s["pixelHeight"]
-        for i, s in enumerate(chunk_specs)
-        if i % _cols(chunk_specs) == 0
-    )
+    total_h = sum(s["pixelHeight"] for i, s in enumerate(chunk_specs) if i % _cols(chunk_specs) == 0)
 
     master = Image.new("RGBA", (total_w, total_h))
     cols = _cols(chunk_specs)

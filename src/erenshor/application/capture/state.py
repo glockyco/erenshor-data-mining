@@ -50,9 +50,7 @@ class CaptureState:
         zones = self._data.setdefault("zones", {})
         zones.setdefault(zone, {})[variant] = data
 
-    def should_skip(
-        self, zone: str, variant: str, master_path: Path, *, force: bool = False
-    ) -> bool:
+    def should_skip(self, zone: str, variant: str, master_path: Path, *, force: bool = False) -> bool:
         """Return True when the zone/variant is already captured and unchanged.
 
         Skips when all of:

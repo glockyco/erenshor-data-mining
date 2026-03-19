@@ -41,8 +41,7 @@ class CaptureOrchestrator:
             logger.info(f"Connected to MapTileCapture mod at {self.ws_url}")
         except (ConnectionRefusedError, OSError) as exc:
             raise ConnectionError(
-                f"Cannot connect to MapTileCapture mod at {self.ws_url}. "
-                "Is the game running with the mod loaded?"
+                f"Cannot connect to MapTileCapture mod at {self.ws_url}. Is the game running with the mod loaded?"
             ) from exc
 
     async def close(self) -> None:
@@ -106,18 +105,20 @@ class CaptureOrchestrator:
                         _apply_crop(master_path, crop)
 
                 # Tile generation
-                count = generate_tile_pyramid(
-                    master_path, zone_key, variant, zc, tile_out
-                )
+                count = generate_tile_pyramid(master_path, zone_key, variant, zc, tile_out)
                 logger.info(f"Tiled {zone_key}/{variant}: {count} tiles")
 
                 # Update state
-                self.state.set_variant_state(zone_key, variant, {
-                    "status": "ok",
-                    "masterPath": str(master_path),
-                    "masterChecksum": _sha256(master_path),
-                    "tileCount": count,
-                })
+                self.state.set_variant_state(
+                    zone_key,
+                    variant,
+                    {
+                        "status": "ok",
+                        "masterPath": str(master_path),
+                        "masterChecksum": _sha256(master_path),
+                        "tileCount": count,
+                    },
+                )
                 self.state.save(self.repo_root)
 
     # -- zone capture ---------------------------------------------------------
@@ -155,14 +156,11 @@ class CaptureOrchestrator:
             if msg_type == "chunk_complete":
                 path = _from_wine_path(resp["path"])
                 chunk_paths.append(path)
-                logger.debug(
-                    f"  chunk {resp['chunkIndex']} complete: {path}"
-                )
+                logger.debug(f"  chunk {resp['chunkIndex']} complete: {path}")
 
             elif msg_type == "capture_zone_complete":
                 logger.info(
-                    f"Zone {zone_key}/{variant} capture complete "
-                    f"(roofs hidden: {resp.get('roofObjectCount', 0)})"
+                    f"Zone {zone_key}/{variant} capture complete (roofs hidden: {resp.get('roofObjectCount', 0)})"
                 )
                 break
 
@@ -181,9 +179,7 @@ class _CaptureError(Exception):
 # -- chunk grid ---------------------------------------------------------------
 
 
-def _build_chunk_grid(
-    zc: dict[str, Any], output_dir: Path
-) -> list[dict[str, Any]]:
+def _build_chunk_grid(zc: dict[str, Any], output_dir: Path) -> list[dict[str, Any]]:
     """Compute the chunk grid for a zone capture.
 
     The master image is ``baseTilesX * 2^maxZoom * 256`` by
@@ -203,8 +199,8 @@ def _build_chunk_grid(
     world_h = base_y * tile_size
 
     # Total pixel extent at max zoom
-    master_px_w = base_x * (2 ** max_zoom) * TILE_SIZE
-    master_px_h = base_y * (2 ** max_zoom) * TILE_SIZE
+    master_px_w = base_x * (2**max_zoom) * TILE_SIZE
+    master_px_h = base_y * (2**max_zoom) * TILE_SIZE
 
     # Number of chunks needed (ceil division)
     cols = max(1, -(-master_px_w // MAX_CHUNK_PX))
@@ -231,17 +227,19 @@ def _build_chunk_grid(
             center_x = origin_x + col * chunk_world_w + cw / 2
             center_z = origin_y + row * chunk_world_h + ch / 2
 
-            chunks.append({
-                "index": idx,
-                "gridCols": cols,
-                "centerX": center_x,
-                "centerZ": center_z,
-                "worldWidth": cw,
-                "worldHeight": ch,
-                "pixelWidth": px_w,
-                "pixelHeight": px_h,
-                "outputPath": _wine_path(output_dir / f"chunk_{idx}.png"),
-            })
+            chunks.append(
+                {
+                    "index": idx,
+                    "gridCols": cols,
+                    "centerX": center_x,
+                    "centerZ": center_z,
+                    "worldWidth": cw,
+                    "worldHeight": ch,
+                    "pixelWidth": px_w,
+                    "pixelHeight": px_h,
+                    "outputPath": _wine_path(output_dir / f"chunk_{idx}.png"),
+                }
+            )
             idx += 1
 
     return chunks

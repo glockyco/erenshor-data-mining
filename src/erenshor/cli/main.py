@@ -22,7 +22,8 @@ from erenshor.infrastructure.config import ConfigLoadError, get_repo_root, load_
 from erenshor.infrastructure.logging import setup_logging
 from erenshor.infrastructure.logging.setup import LoggingSetupError
 
-from .commands import backup, capture, eval as eval_cmd, extract, golden, images, maps, mod, sheets, wiki
+from .commands import backup, capture, extract, golden, images, maps, mod, sheets, wiki
+from .commands import eval as eval_cmd
 from .context import CLIContext
 
 console = Console()

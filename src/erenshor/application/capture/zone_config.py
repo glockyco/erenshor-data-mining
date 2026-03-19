@@ -23,9 +23,7 @@ def save_zone_config(repo_root: Path, config: dict[str, Any]) -> None:
     logger.info(f"Wrote zone config: {path}")
 
 
-def get_zone_keys(
-    config: dict[str, Any], zones: list[str] | None = None
-) -> list[str]:
+def get_zone_keys(config: dict[str, Any], zones: list[str] | None = None) -> list[str]:
     """Return sorted zone keys, validating any explicit selection."""
     if zones:
         unknown = set(zones) - set(config.keys())

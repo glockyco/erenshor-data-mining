@@ -55,7 +55,6 @@ def reset(ctx: typer.Context) -> None:
     asyncio.run(_reset())
 
 
-
 @app.command()
 def complete(
     ctx: typer.Context,
@@ -78,14 +77,17 @@ def watch(
     json_output: bool = typer.Option(False, "--json", help="Output raw JSON"),
 ) -> None:
     """Watch a C# expression, printing updates until Ctrl-C."""
-    asyncio.run(_watch(
-        code,
-        interval_frames=interval,
-        on_change=on_change,
-        limit=limit,
-        timeout_ms=timeout,
-        json_output=json_output,
-    ))
+    asyncio.run(
+        _watch(
+            code,
+            interval_frames=interval,
+            on_change=on_change,
+            limit=limit,
+            timeout_ms=timeout,
+            json_output=json_output,
+        )
+    )
+
 
 # -- async implementations --
 
@@ -162,7 +164,6 @@ async def _reset() -> None:
         await client.close()
 
     console.print("[green]REPL state reset.[/green]")
-
 
 
 async def _complete(code: str, *, cursor_pos: int, json_output: bool) -> None:

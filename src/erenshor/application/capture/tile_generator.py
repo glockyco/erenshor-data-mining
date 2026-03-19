@@ -119,8 +119,5 @@ def generate_tile_pyramid(
         source_tiles_x = out_tiles_x
         source_tiles_y = out_tiles_y
 
-    logger.info(
-        f"Generated {total} tiles for {zone_key}/{variant} "
-        f"(zoom {min_zoom}..{max_zoom})"
-    )
+    logger.info(f"Generated {total} tiles for {zone_key}/{variant} (zoom {min_zoom}..{max_zoom})")
     return total

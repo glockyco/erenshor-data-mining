@@ -6,6 +6,7 @@ import asyncio
 import json
 import time
 from collections.abc import AsyncGenerator
+from typing import Any, cast
 
 import websockets
 from loguru import logger
@@ -32,13 +33,13 @@ class EvalClient:
 
     def __init__(self, url: str = DEFAULT_URL) -> None:
         self.url = url
-        self._ws: websockets.WebSocketClientProtocol | None = None
+        self._ws: websockets.ClientConnection | None = None
         self._counter = 0
-        self.handshake: dict | None = None
+        self.handshake: dict[str, Any] | None = None
 
     # -- lifecycle --
 
-    async def connect(self) -> dict:
+    async def connect(self) -> dict[str, Any]:
         """Open the WebSocket and consume the server handshake message."""
         try:
             self._ws = await asyncio.wait_for(
@@ -46,10 +47,9 @@ class EvalClient:
                 timeout=CLIENT_TIMEOUT_S,
             )
         except (OSError, ConnectionRefusedError) as exc:
-            raise EvalConnectionError(
-                "Game not running or HotRepl not loaded"
-            ) from exc
+            raise EvalConnectionError("Game not running or HotRepl not loaded") from exc
 
+        assert self._ws is not None, "call connect() first"
         raw = await asyncio.wait_for(self._ws.recv(), timeout=CLIENT_TIMEOUT_S)
         self.handshake = json.loads(raw)
         logger.debug("HotRepl handshake: {}", self.handshake)
@@ -62,7 +62,7 @@ class EvalClient:
 
     # -- commands --
 
-    async def eval(self, code: str, timeout_ms: int = 10000) -> dict:
+    async def eval(self, code: str, timeout_ms: int = 10000) -> dict[str, Any]:
         """Send code for evaluation; returns the full response dict.
 
         Raises EvalError on eval_error responses and asyncio.TimeoutError
@@ -79,7 +79,7 @@ class EvalClient:
         client_timeout = (timeout_ms / 1000) + 2.0
         return await self._request(payload, msg_id, timeout=client_timeout)
 
-    async def reset(self) -> dict:
+    async def reset(self) -> dict[str, Any]:
         """Reset the server-side REPL state."""
         msg_id = self._next_id()
         payload = {"type": "reset", "id": msg_id}
@@ -117,7 +117,7 @@ class EvalClient:
             "cursorPos": cursor_pos,
         }
         resp = await self._request(payload, msg_id)
-        return resp.get("completions", [])
+        return cast("list[str]", resp.get("completions", []))
 
     async def subscribe(
         self,
@@ -127,7 +127,7 @@ class EvalClient:
         on_change: bool = False,
         limit: int = 0,
         timeout_ms: int = 10000,
-    ) -> AsyncGenerator[dict]:
+    ) -> AsyncGenerator[dict[str, Any]]:
         """Subscribe to repeated evaluation of *code*.
 
         Yields dicts with keys: seq, hasValue, value, valueType, durationMs, final.
@@ -150,9 +150,7 @@ class EvalClient:
 
         try:
             while True:
-                raw = await asyncio.wait_for(
-                    self._ws.recv(), timeout=CLIENT_TIMEOUT_S
-                )
+                raw = await asyncio.wait_for(self._ws.recv(), timeout=CLIENT_TIMEOUT_S)
                 resp = json.loads(raw)
                 logger.debug("<- {}", resp)
 
@@ -166,6 +164,7 @@ class EvalClient:
         except GeneratorExit:
             # Generator was closed (e.g. Ctrl-C) — cancel the subscription.
             await self.cancel(msg_id)
+
     # -- internals --
 
     def _next_id(self) -> str:
@@ -173,8 +172,8 @@ class EvalClient:
         return f"cli-{self._counter}"
 
     async def _request(
-        self, payload: dict, msg_id: str, *, timeout: float = CLIENT_TIMEOUT_S
-    ) -> dict:
+        self, payload: dict[str, Any], msg_id: str, *, timeout: float = CLIENT_TIMEOUT_S
+    ) -> dict[str, Any]:
         """Send *payload* and wait for a response whose ``id`` matches *msg_id*."""
         assert self._ws is not None, "call connect() first"
 
@@ -186,12 +185,10 @@ class EvalClient:
         while True:
             remaining = deadline - time.monotonic()
             if remaining <= 0:
-                raise TimeoutError(
-                    f"Timed out waiting for response to {payload['type']}"
-                )
+                raise TimeoutError(f"Timed out waiting for response to {payload['type']}")
 
             raw = await asyncio.wait_for(self._ws.recv(), timeout=remaining)
-            resp = json.loads(raw)
+            resp: dict[str, Any] = json.loads(raw)
             logger.debug("<- {}", resp)
 
             if resp.get("id") == msg_id:
