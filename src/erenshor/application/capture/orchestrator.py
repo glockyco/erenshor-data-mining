@@ -59,6 +59,19 @@ class CaptureOrchestrator:
         out_dir: Path | None = None,
     ) -> None:
         """Capture, stitch, crop-if-needed, and tile every zone x variant."""
+        await self.connect()
+        try:
+            await self._run_inner(zones, variants, force, out_dir)
+        finally:
+            await self.close()
+
+    async def _run_inner(
+        self,
+        zones: list[str],
+        variants: list[str] | None,
+        force: bool,
+        out_dir: Path | None,
+    ) -> None:
         tile_out = out_dir or (self.repo_root / "src" / "maps" / "static" / "tiles")
         master_dir = self.repo_root / ".erenshor" / "masters"
         master_dir.mkdir(parents=True, exist_ok=True)
@@ -137,7 +150,7 @@ class CaptureOrchestrator:
             msg_type = resp.get("type")
 
             if msg_type == "chunk_complete":
-                path = Path(resp["path"])
+                path = _from_wine_path(resp["path"])
                 chunk_paths.append(path)
                 logger.debug(
                     f"  chunk {resp['chunkIndex']} complete: {path}"
@@ -170,45 +183,61 @@ def _build_chunk_grid(
 ) -> list[dict[str, Any]]:
     """Compute the chunk grid for a zone capture.
 
-    The master image dimensions are ``baseTilesX * 2^maxZoom * 256`` by
-    ``baseTilesY * 2^maxZoom * 256``.  If either dimension exceeds
-    ``MAX_CHUNK_PX`` the image is split into multiple chunks.
+    The master image is ``baseTilesX * 2^maxZoom * 256`` by
+    ``baseTilesY * 2^maxZoom * 256`` pixels.  The world area is
+    ``baseTilesX * tileSize`` by ``baseTilesY * tileSize`` units.
+    If a pixel dimension exceeds MAX_CHUNK_PX, the image is split.
     """
     max_zoom: int = zc["maxZoom"]
     base_x: int = zc["baseTilesX"]
     base_y: int = zc["baseTilesY"]
+    tile_size: int = zc.get("tileSize", TILE_SIZE)
     origin_x: float = zc.get("originX", 0)
     origin_y: float = zc.get("originY", 0)
 
-    master_w = base_x * (2**max_zoom) * TILE_SIZE
-    master_h = base_y * (2**max_zoom) * TILE_SIZE
+    # Total world extent
+    world_w = base_x * tile_size
+    world_h = base_y * tile_size
 
-    cols = max(1, -(-master_w // MAX_CHUNK_PX))  # ceil division
-    rows = max(1, -(-master_h // MAX_CHUNK_PX))
+    # Total pixel extent at max zoom
+    master_px_w = base_x * (2 ** max_zoom) * TILE_SIZE
+    master_px_h = base_y * (2 ** max_zoom) * TILE_SIZE
 
-    # World-space dimensions that each pixel covers
-    # We don't know world size here; the mod figures out camera placement.
-    # We just divide the pixel canvas evenly.
-    chunk_w = master_w // cols
-    chunk_h = master_h // rows
+    # Number of chunks needed (ceil division)
+    cols = max(1, -(-master_px_w // MAX_CHUNK_PX))
+    rows = max(1, -(-master_px_h // MAX_CHUNK_PX))
+
+    # World size per chunk
+    chunk_world_w = world_w / cols
+    chunk_world_h = world_h / rows
+
+    # Pixel size per chunk
+    chunk_px_w = master_px_w // cols
+    chunk_px_h = master_px_h // rows
 
     chunks: list[dict[str, Any]] = []
     idx = 0
     for row in range(rows):
         for col in range(cols):
-            px_w = chunk_w if col < cols - 1 else master_w - chunk_w * (cols - 1)
-            px_h = chunk_h if row < rows - 1 else master_h - chunk_h * (rows - 1)
+            # Last column/row absorbs rounding remainder
+            px_w = chunk_px_w if col < cols - 1 else master_px_w - chunk_px_w * (cols - 1)
+            px_h = chunk_px_h if row < rows - 1 else master_px_h - chunk_px_h * (rows - 1)
+            cw = chunk_world_w if col < cols - 1 else world_w - chunk_world_w * (cols - 1)
+            ch = chunk_world_h if row < rows - 1 else world_h - chunk_world_h * (rows - 1)
+
+            center_x = origin_x + col * chunk_world_w + cw / 2
+            center_z = origin_y + row * chunk_world_h + ch / 2
 
             chunks.append({
                 "index": idx,
                 "gridCols": cols,
-                "centerX": origin_x + (col + 0.5) * (px_w / master_w) * master_w / TILE_SIZE,
-                "centerZ": origin_y + (row + 0.5) * (px_h / master_h) * master_h / TILE_SIZE,
-                "worldWidth": px_w / TILE_SIZE,
-                "worldHeight": px_h / TILE_SIZE,
+                "centerX": center_x,
+                "centerZ": center_z,
+                "worldWidth": cw,
+                "worldHeight": ch,
                 "pixelWidth": px_w,
                 "pixelHeight": px_h,
-                "outputPath": str(output_dir / f"chunk_{idx}.png"),
+                "outputPath": _wine_path(output_dir / f"chunk_{idx}.png"),
             })
             idx += 1
 
@@ -227,3 +256,19 @@ def _apply_crop(master_path: Path, crop: dict[str, int]) -> None:
     cropped = img.crop((left, top, right, bottom))
     cropped.save(master_path, "PNG")
     logger.info(f"Cropped master to {cropped.width}x{cropped.height}")
+
+
+def _wine_path(p: Path) -> str:
+    """Convert a macOS absolute path to a Wine Z:\\ path for CrossOver."""
+    absolute = str(p.resolve())
+    # CrossOver/Wine maps Z:\ to the macOS root filesystem
+    return "Z:" + absolute.replace("/", "\\")
+
+
+def _from_wine_path(wine_path: str) -> Path:
+    """Convert a Wine Z:\\ path back to a macOS Path."""
+    # Strip Z: prefix and convert backslashes
+    if wine_path.startswith("Z:") or wine_path.startswith("z:"):
+        return Path(wine_path[2:].replace("\\", "/"))
+    # Already a POSIX path
+    return Path(wine_path)
