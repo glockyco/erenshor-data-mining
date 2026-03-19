@@ -12,7 +12,8 @@ CONFIG_PATH = Path("src/maps/src/lib/data/zone-capture-config.json")
 def load_zone_config(repo_root: Path) -> dict[str, Any]:
     """Load zone capture configuration from the repo."""
     path = repo_root / CONFIG_PATH
-    return json.loads(path.read_text())
+    result: dict[str, Any] = json.loads(path.read_text())
+    return result
 
 
 def save_zone_config(repo_root: Path, config: dict[str, Any]) -> None:

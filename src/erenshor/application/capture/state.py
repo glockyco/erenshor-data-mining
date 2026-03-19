@@ -42,7 +42,8 @@ class CaptureState:
 
     def get_variant_state(self, zone: str, variant: str) -> dict[str, Any] | None:
         """Return the state dict for a zone/variant, or None."""
-        return self._data.get("zones", {}).get(zone, {}).get(variant)
+        result: dict[str, Any] | None = self._data.get("zones", {}).get(zone, {}).get(variant)
+        return result
 
     def set_variant_state(self, zone: str, variant: str, data: dict[str, Any]) -> None:
         """Upsert state for a zone/variant."""
@@ -67,7 +68,7 @@ class CaptureState:
         stored = vs.get("masterChecksum")
         if not stored or not master_path.exists():
             return False
-        return _sha256(master_path) == stored
+        return str(_sha256(master_path)) == str(stored)
 
 
 def _sha256(path: Path) -> str:
