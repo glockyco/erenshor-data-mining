@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "server",
+  "dolt_database": "Erenshor",
+  "project_id": "9dd26d93-bf1a-4e4b-a19d-6cf4c0a30fb9"
+}
