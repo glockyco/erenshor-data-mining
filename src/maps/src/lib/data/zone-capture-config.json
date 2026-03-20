@@ -1,2080 +1,1966 @@
 {
-  "Abyssal": {
-    "sceneName": "Abyssal",
-    "baseTilesX": 3,
-    "baseTilesY": 3,
-    "tileSize": 256,
-    "maxZoom": 2,
-    "originX": -40,
-    "originY": -120,
-    "northBearing": null,
-    "captureVariants": [
-      "clear",
-      "open"
-    ],
-    "cropRect": {
-      "top": 0,
-      "right": 0,
-      "bottom": 0,
-      "left": 0
+    "Abyssal": {
+        "sceneName": "Abyssal",
+        "baseTilesX": 3,
+        "baseTilesY": 3,
+        "tileSize": 256,
+        "maxZoom": 2,
+        "originX": -40,
+        "originY": -120,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+        },
+        "exclusionRules": [
+            {
+                "nameExact": "SM_Rock_Tile_03 (10)"
+            },
+            {
+                "nameExact": "SM_Rock_Tile_03 (11)"
+            },
+            {
+                "nameExact": "SM_Rock_Tile_03 (18)"
+            },
+            {
+                "nameExact": "SM_Rock_Tile_03 (14)"
+            },
+            {
+                "nameExact": "SM_Rock_Tile_03 (9)"
+            },
+            {
+                "nameExact": "SM_Rock_Tile_03 (17)"
+            },
+            {
+                "nameExact": "SM_Rock_Pile_04 (3)"
+            },
+            {
+                "nameExact": "SM_Env_Cliff_Basalt_01 (129)"
+            },
+            {
+                "nameExact": "SM_Rock_Tile_03 (13)"
+            },
+            {
+                "nameExact": "SM_Rock_Tile_03 (12)"
+            },
+            {
+                "nameExact": "SM_Rock_Tile_03 (16)"
+            },
+            {
+                "nameExact": "SM_Rock_Tile_03 (15)"
+            },
+            {
+                "nameExact": "SM_Rock_Pile_04 (2)"
+            },
+            {
+                "nameExact": "SM_Rock_Pile_04"
+            },
+            {
+                "nameExact": "SM_Rock_Pile_04 (1)"
+            },
+            {
+                "nameExact": "SM_Rock_Tile_03 (6)"
+            },
+            {
+                "nameExact": "SM_Rock_Tile_03 (5)"
+            },
+            {
+                "nameExact": "SM_Rock_Tile_03 (4)"
+            },
+            {
+                "nameExact": "SM_Rock_Tile_03 (3)"
+            },
+            {
+                "nameExact": "SM_Rock_Tile_03"
+            },
+            {
+                "nameExact": "SM_Rock_Tile_03 (1)"
+            },
+            {
+                "nameExact": "SM_Rock_Tile_03 (2)"
+            },
+            {
+                "nameExact": "SM_Env_Rock_Cave_01"
+            }
+        ]
     },
-    "exclusionRules": [
-      {
-        "nameExact": "SM_Rock_Tile_03 (10)"
-      },
-      {
-        "nameExact": "SM_Rock_Tile_03 (11)"
-      },
-      {
-        "nameExact": "SM_Rock_Tile_03 (18)"
-      },
-      {
-        "nameExact": "SM_Rock_Tile_03 (14)"
-      },
-      {
-        "nameExact": "SM_Rock_Tile_03 (9)"
-      },
-      {
-        "nameExact": "SM_Rock_Tile_03 (17)"
-      },
-      {
-        "nameExact": "SM_Rock_Pile_04 (3)"
-      },
-      {
-        "nameExact": "SM_Env_Cliff_Basalt_01 (129)"
-      },
-      {
-        "nameExact": "SM_Rock_Tile_03 (13)"
-      },
-      {
-        "nameExact": "SM_Rock_Tile_03 (12)"
-      },
-      {
-        "nameExact": "SM_Rock_Tile_03 (16)"
-      },
-      {
-        "nameExact": "SM_Rock_Tile_03 (15)"
-      },
-      {
-        "nameExact": "SM_Rock_Pile_04 (2)"
-      },
-      {
-        "nameExact": "SM_Rock_Pile_04"
-      },
-      {
-        "nameExact": "SM_Rock_Pile_04 (1)"
-      },
-      {
-        "nameExact": "SM_Rock_Tile_03 (6)"
-      },
-      {
-        "nameExact": "SM_Rock_Tile_03 (5)"
-      },
-      {
-        "nameExact": "SM_Rock_Tile_03 (4)"
-      },
-      {
-        "nameExact": "SM_Rock_Tile_03 (3)"
-      },
-      {
-        "nameExact": "SM_Rock_Tile_03"
-      },
-      {
-        "nameExact": "SM_Rock_Tile_03 (1)"
-      },
-      {
-        "nameExact": "SM_Rock_Tile_03 (2)"
-      },
-      {
-        "nameExact": "SM_Env_Rock_Cave_01"
-      }
-    ]
-  },
-  "Azure": {
-    "sceneName": "Azure",
-    "baseTilesX": 2,
-    "baseTilesY": 3,
-    "tileSize": 256,
-    "maxZoom": 2,
-    "originX": -32,
-    "originY": 0,
-    "northBearing": null,
-    "captureVariants": [
-      "clear",
-      "open"
-    ],
-    "cropRect": {
-      "top": 0,
-      "right": 0,
-      "bottom": 0,
-      "left": 0
+    "Azure": {
+        "sceneName": "Azure",
+        "baseTilesX": 2,
+        "baseTilesY": 3,
+        "tileSize": 256,
+        "maxZoom": 2,
+        "originX": -32,
+        "originY": 0,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+        },
+        "exclusionRules": []
     },
-    "exclusionRules": []
-  },
-  "Azynthi": {
-    "sceneName": "Azynthi",
-    "baseTilesX": 3,
-    "baseTilesY": 3,
-    "tileSize": 256,
-    "maxZoom": 2,
-    "originX": 145,
-    "originY": 130,
-    "northBearing": null,
-    "captureVariants": [
-      "clear",
-      "open"
-    ],
-    "cropRect": {
-      "top": 0,
-      "right": 0,
-      "bottom": 0,
-      "left": 0
+    "Azynthi": {
+        "sceneName": "Azynthi",
+        "baseTilesX": 3,
+        "baseTilesY": 3,
+        "tileSize": 256,
+        "maxZoom": 2,
+        "originX": 145,
+        "originY": 130,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+        },
+        "exclusionRules": [
+            {
+                "nameExact": "SM_Tree_Generic_Giant_01_LOD_01 (1)"
+            }
+        ]
     },
-    "exclusionRules": [
-      {
-        "nameExact": "SM_Tree_Generic_Giant_01_LOD_01 (1)"
-      }
-    ]
-  },
-  "AzynthiClear": {
-    "sceneName": "AzynthiClear",
-    "baseTilesX": 3,
-    "baseTilesY": 3,
-    "tileSize": 256,
-    "maxZoom": 2,
-    "originX": 145,
-    "originY": 130,
-    "northBearing": null,
-    "captureVariants": [
-      "clear",
-      "open"
-    ],
-    "cropRect": {
-      "top": 0,
-      "right": 0,
-      "bottom": 0,
-      "left": 0
+    "AzynthiClear": {
+        "sceneName": "AzynthiClear",
+        "baseTilesX": 3,
+        "baseTilesY": 3,
+        "tileSize": 256,
+        "maxZoom": 2,
+        "originX": 145,
+        "originY": 130,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+        },
+        "exclusionRules": [
+            {
+                "nameExact": "SM_Tree_Generic_Giant_01_LOD_01 (1)"
+            }
+        ]
     },
-    "exclusionRules": [
-      {
-        "nameExact": "SM_Tree_Generic_Giant_01_LOD_01 (1)"
-      }
-    ]
-  },
-  "Blight": {
-    "sceneName": "Blight",
-    "baseTilesX": 4,
-    "baseTilesY": 4,
-    "tileSize": 256,
-    "maxZoom": 1,
-    "originX": 0,
-    "originY": 0,
-    "northBearing": null,
-    "captureVariants": [
-      "clear",
-      "open"
-    ],
-    "cropRect": {
-      "top": 0,
-      "right": 0,
-      "bottom": 0,
-      "left": 0
+    "Blight": {
+        "sceneName": "Blight",
+        "baseTilesX": 4,
+        "baseTilesY": 4,
+        "tileSize": 256,
+        "maxZoom": 1,
+        "originX": 0,
+        "originY": 0,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+        },
+        "exclusionRules": []
     },
-    "exclusionRules": []
-  },
-  "BloomingSepulcher": {
-    "sceneName": "BloomingSepulcher",
-    "baseTilesX": 4,
-    "baseTilesY": 4,
-    "tileSize": 256,
-    "maxZoom": 1,
-    "originX": 0,
-    "originY": 0,
-    "northBearing": null,
-    "captureVariants": [
-      "clear",
-      "open"
-    ],
-    "cropRect": {
-      "top": 0,
-      "right": 0,
-      "bottom": 0,
-      "left": 0
+    "BloomingSepulcher": {
+        "sceneName": "BloomingSepulcher",
+        "baseTilesX": 4,
+        "baseTilesY": 4,
+        "tileSize": 256,
+        "maxZoom": 1,
+        "originX": 0,
+        "originY": 0,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+        },
+        "exclusionRules": []
     },
-    "exclusionRules": []
-  },
-  "Bonepits": {
-    "sceneName": "Bonepits",
-    "baseTilesX": 2,
-    "baseTilesY": 2,
-    "tileSize": 256,
-    "maxZoom": 2,
-    "originX": -128,
-    "originY": 64,
-    "northBearing": null,
-    "captureVariants": [
-      "clear",
-      "open"
-    ],
-    "cropRect": {
-      "top": 0,
-      "right": 0,
-      "bottom": 0,
-      "left": 0
+    "Bonepits": {
+        "sceneName": "Bonepits",
+        "baseTilesX": 2,
+        "baseTilesY": 2,
+        "tileSize": 256,
+        "maxZoom": 2,
+        "originX": -128,
+        "originY": 64,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+        },
+        "exclusionRules": []
     },
-    "exclusionRules": []
-  },
-  "Brake": {
-    "sceneName": "Brake",
-    "baseTilesX": 2,
-    "baseTilesY": 2,
-    "tileSize": 256,
-    "maxZoom": 2,
-    "originX": 0,
-    "originY": 0,
-    "northBearing": null,
-    "captureVariants": [
-      "clear",
-      "open"
-    ],
-    "cropRect": {
-      "top": 0,
-      "right": 0,
-      "bottom": 0,
-      "left": 0
+    "Brake": {
+        "sceneName": "Brake",
+        "baseTilesX": 2,
+        "baseTilesY": 2,
+        "tileSize": 256,
+        "maxZoom": 2,
+        "originX": 0,
+        "originY": 0,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+        },
+        "exclusionRules": []
     },
-    "exclusionRules": []
-  },
-  "Braxonia": {
-    "sceneName": "Braxonia",
-    "baseTilesX": 3,
-    "baseTilesY": 3,
-    "tileSize": 256,
-    "maxZoom": 2,
-    "originX": 40,
-    "originY": 80,
-    "northBearing": null,
-    "captureVariants": [
-      "clear",
-      "open"
-    ],
-    "cropRect": {
-      "top": 0,
-      "right": 0,
-      "bottom": 0,
-      "left": 0
+    "Braxonia": {
+        "sceneName": "Braxonia",
+        "baseTilesX": 3,
+        "baseTilesY": 3,
+        "tileSize": 256,
+        "maxZoom": 2,
+        "originX": 40,
+        "originY": 80,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+        },
+        "exclusionRules": [
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (370)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (753)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (371)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (68)"
+            },
+            {
+                "nameExact": "SM_Prop_Light_Chandelier_02"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (248)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (250)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (249)"
+            },
+            {
+                "nameExact": "SM_Bld_House_Railing_Beam_01 (17)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (242)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (247)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (237)"
+            },
+            {
+                "nameExact": "SM_Bld_House_Railing_Beam_01 (16)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (462)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (463)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (464)"
+            },
+            {
+                "nameExact": "SM_Bld_Wall_Beam_01 (3)"
+            },
+            {
+                "nameExact": "SM_Bld_Wall_Beam_01 (4)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (245)"
+            },
+            {
+                "nameExact": "SM_Bld_House_Railing_Beam_01 (14)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (246)"
+            },
+            {
+                "nameExact": "SM_Bld_House_Railing_Beam_01 (15)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (679)"
+            },
+            {
+                "nameExact": "SM_Bld_House_Railing_Beam_01 (36)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (680)"
+            },
+            {
+                "nameExact": "SM_Bld_House_Railing_Beam_01 (35)"
+            },
+            {
+                "nameExact": "SM_Bld_House_Railing_Beam_01 (34)"
+            },
+            {
+                "nameExact": "SM_Bld_House_Railing_Beam_01 (33)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (752)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (751)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (287)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (309)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (286)"
+            },
+            {
+                "nameExact": "SM_Bld_House_Railing_Beam_01 (21)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (285)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (278)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (307)"
+            },
+            {
+                "nameExact": "SM_Bld_House_Railing_Beam_01 (20)"
+            },
+            {
+                "nameExact": "SM_Bld_House_Railing_Beam_01 (18)"
+            },
+            {
+                "nameExact": "SM_Bld_House_Railing_Beam_01 (19)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (284)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (308)"
+            },
+            {
+                "nameExact": "SM_Prop_Light_Chandelier_02 (1)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (487)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (488)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (489)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (490)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (491)"
+            },
+            {
+                "nameExact": "SM_Bld_Wall_Beam_01 (2)"
+            },
+            {
+                "nameExact": "SM_Bld_Wall_Beam_01 (1)"
+            },
+            {
+                "nameExact": "SM_Bld_Wall_Beam_01"
+            },
+            {
+                "nameExact": "SM_Prop_Light_Chandelier_02 (4)"
+            },
+            {
+                "nameExact": "SM_Prop_Light_Chandelier_02 (3)"
+            },
+            {
+                "nameExact": "SM_Prop_Light_Chandelier_02 (2)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_03 (319)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_03 (320)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_03 (321)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_03 (322)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_03 (323)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_03 (324)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_03 (325)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_03 (326)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_03 (327)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_03 (328)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_03 (329)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_03 (330)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (205)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (206)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (204)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (207)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (203)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (202)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (201)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (208)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (597)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (598)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (599)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (594)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (595)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (596)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (591)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (592)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (593)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (609)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (602)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (601)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (600)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (605)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (604)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (603)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (606)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (607)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (608)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (610)"
+            },
+            {
+                "nameExact": "SM_Bld_Wall_Beam_01 (42)"
+            },
+            {
+                "nameExact": "SM_Bld_Wall_Beam_01 (40)"
+            },
+            {
+                "nameExact": "SM_Bld_Wall_Beam_01 (38)"
+            },
+            {
+                "nameExact": "SM_Bld_Wall_Beam_01 (39)"
+            },
+            {
+                "nameExact": "SM_Bld_Wall_Beam_01 (37)"
+            },
+            {
+                "nameExact": "SM_Bld_Wall_Beam_01 (36)"
+            },
+            {
+                "nameExact": "SM_Bld_Wall_Beam_01 (41)"
+            },
+            {
+                "nameExact": "SM_Bld_Wall_Beam_01 (7)"
+            },
+            {
+                "nameExact": "SM_Bld_Wall_Beam_01 (35)"
+            },
+            {
+                "nameExact": "SM_Bld_Wall_Beam_01 (34)"
+            },
+            {
+                "nameExact": "SM_Bld_Wall_Beam_01 (33)"
+            },
+            {
+                "nameExact": "SM_Bld_Wall_Beam_01 (32)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (426)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (427)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (428)"
+            },
+            {
+                "nameExact": "SM_Bld_Wall_Beam_01 (5)"
+            },
+            {
+                "nameExact": "SM_Bld_Wall_Beam_01 (6)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_07 (91)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (293)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (311)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (310)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (292)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_07 (246)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_07 (202)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_07 (245)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_07 (196)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (545)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (544)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (562)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (563)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_07 (198)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_07 (244)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_07 (247)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_07 (195)"
+            },
+            {
+                "nameExact": "SM_Env_Rock_Flat_03 (6)"
+            },
+            {
+                "nameExact": "SM_Env_Rock_Flat_03 (11)"
+            },
+            {
+                "nameExact": "SM_Env_Rock_Flat_03 (5)"
+            },
+            {
+                "nameExact": "SM_Env_Rock_Flat_03 (4)"
+            },
+            {
+                "nameExact": "SM_Env_Rock_Flat_02 (6)"
+            },
+            {
+                "nameExact": "SM_Env_Rock_Flat_02 (4)"
+            },
+            {
+                "nameExact": "SM_Env_Rock_Flat_02 (3)"
+            },
+            {
+                "nameExact": "SM_Env_Rock_Flat_02 (1)"
+            },
+            {
+                "nameExact": "SM_Env_Rock_Flat_02 (5)"
+            },
+            {
+                "nameExact": "SM_Env_Rock_Flat_03 (7)"
+            },
+            {
+                "nameExact": "SM_Env_Rock_Flat_02 (2)"
+            },
+            {
+                "nameExact": "SM_Env_Rock_Flat_03 (8)"
+            },
+            {
+                "nameExact": "SM_Env_Rock_Flat_03 (2)"
+            },
+            {
+                "nameExact": "SM_Env_Rock_Flat_02"
+            },
+            {
+                "nameExact": "SM_Env_Rock_Flat_03 (9)"
+            },
+            {
+                "nameExact": "SM_Env_Rock_Flat_03 (1)"
+            },
+            {
+                "nameExact": "SM_Env_Rock_Flat_03"
+            },
+            {
+                "nameExact": "SM_Env_Rock_Flat_03 (3)"
+            },
+            {
+                "nameExact": "SM_Env_Rock_Flat_03 (10)"
+            },
+            {
+                "nameExact": "SM_Env_Rock_Pile_01"
+            },
+            {
+                "nameExact": "SM_Env_Rock_Pile_01 (1)"
+            },
+            {
+                "nameExact": "SM_Env_Rock_Pile_01 (2)"
+            },
+            {
+                "nameExact": "SM_Env_Rock_Cliff_03 (31)"
+            },
+            {
+                "nameContains": "SM_Env_Tiles_09"
+            },
+            {
+                "nameContains": "SM_Env_Wall_Curved_Roof_01"
+            }
+        ]
     },
-    "exclusionRules": [
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (370)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (753)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (371)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (68)"
-      },
-      {
-        "nameExact": "SM_Prop_Light_Chandelier_02"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (248)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (250)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (249)"
-      },
-      {
-        "nameExact": "SM_Bld_House_Railing_Beam_01 (17)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (242)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (247)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (237)"
-      },
-      {
-        "nameExact": "SM_Bld_House_Railing_Beam_01 (16)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (462)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (463)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (464)"
-      },
-      {
-        "nameExact": "SM_Bld_Wall_Beam_01 (3)"
-      },
-      {
-        "nameExact": "SM_Bld_Wall_Beam_01 (4)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (245)"
-      },
-      {
-        "nameExact": "SM_Bld_House_Railing_Beam_01 (14)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (246)"
-      },
-      {
-        "nameExact": "SM_Bld_House_Railing_Beam_01 (15)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (679)"
-      },
-      {
-        "nameExact": "SM_Bld_House_Railing_Beam_01 (36)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (680)"
-      },
-      {
-        "nameExact": "SM_Bld_House_Railing_Beam_01 (35)"
-      },
-      {
-        "nameExact": "SM_Bld_House_Railing_Beam_01 (34)"
-      },
-      {
-        "nameExact": "SM_Bld_House_Railing_Beam_01 (33)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (752)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (751)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (287)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (309)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (286)"
-      },
-      {
-        "nameExact": "SM_Bld_House_Railing_Beam_01 (21)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (285)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (278)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (307)"
-      },
-      {
-        "nameExact": "SM_Bld_House_Railing_Beam_01 (20)"
-      },
-      {
-        "nameExact": "SM_Bld_House_Railing_Beam_01 (18)"
-      },
-      {
-        "nameExact": "SM_Bld_House_Railing_Beam_01 (19)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (284)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (308)"
-      },
-      {
-        "nameExact": "SM_Prop_Light_Chandelier_02 (1)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (487)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (488)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (489)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (490)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (491)"
-      },
-      {
-        "nameExact": "SM_Bld_Wall_Beam_01 (2)"
-      },
-      {
-        "nameExact": "SM_Bld_Wall_Beam_01 (1)"
-      },
-      {
-        "nameExact": "SM_Bld_Wall_Beam_01"
-      },
-      {
-        "nameExact": "SM_Prop_Light_Chandelier_02 (4)"
-      },
-      {
-        "nameExact": "SM_Prop_Light_Chandelier_02 (3)"
-      },
-      {
-        "nameExact": "SM_Prop_Light_Chandelier_02 (2)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_03 (319)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_03 (320)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_03 (321)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_03 (322)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_03 (323)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_03 (324)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_03 (325)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_03 (326)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_03 (327)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_03 (328)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_03 (329)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_03 (330)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (205)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (206)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (204)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (207)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (203)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (202)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (201)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (208)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (597)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (598)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (599)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (594)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (595)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (596)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (591)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (592)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (593)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (609)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (602)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (601)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (600)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (605)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (604)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (603)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (606)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (607)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (608)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (610)"
-      },
-      {
-        "nameExact": "SM_Bld_Wall_Beam_01 (42)"
-      },
-      {
-        "nameExact": "SM_Bld_Wall_Beam_01 (40)"
-      },
-      {
-        "nameExact": "SM_Bld_Wall_Beam_01 (38)"
-      },
-      {
-        "nameExact": "SM_Bld_Wall_Beam_01 (39)"
-      },
-      {
-        "nameExact": "SM_Bld_Wall_Beam_01 (37)"
-      },
-      {
-        "nameExact": "SM_Bld_Wall_Beam_01 (36)"
-      },
-      {
-        "nameExact": "SM_Bld_Wall_Beam_01 (41)"
-      },
-      {
-        "nameExact": "SM_Bld_Wall_Beam_01 (7)"
-      },
-      {
-        "nameExact": "SM_Bld_Wall_Beam_01 (35)"
-      },
-      {
-        "nameExact": "SM_Bld_Wall_Beam_01 (34)"
-      },
-      {
-        "nameExact": "SM_Bld_Wall_Beam_01 (33)"
-      },
-      {
-        "nameExact": "SM_Bld_Wall_Beam_01 (32)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (426)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (427)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (428)"
-      },
-      {
-        "nameExact": "SM_Bld_Wall_Beam_01 (5)"
-      },
-      {
-        "nameExact": "SM_Bld_Wall_Beam_01 (6)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_07 (91)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (293)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (311)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (310)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (292)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_07 (246)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_07 (202)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_07 (245)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_07 (196)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (545)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (544)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (562)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (563)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_07 (198)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_07 (244)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_07 (247)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_07 (195)"
-      },
-      {
-        "nameExact": "SM_Env_Rock_Flat_03 (6)"
-      },
-      {
-        "nameExact": "SM_Env_Rock_Flat_03 (11)"
-      },
-      {
-        "nameExact": "SM_Env_Rock_Flat_03 (5)"
-      },
-      {
-        "nameExact": "SM_Env_Rock_Flat_03 (4)"
-      },
-      {
-        "nameExact": "SM_Env_Rock_Flat_02 (6)"
-      },
-      {
-        "nameExact": "SM_Env_Rock_Flat_02 (4)"
-      },
-      {
-        "nameExact": "SM_Env_Rock_Flat_02 (3)"
-      },
-      {
-        "nameExact": "SM_Env_Rock_Flat_02 (1)"
-      },
-      {
-        "nameExact": "SM_Env_Rock_Flat_02 (5)"
-      },
-      {
-        "nameExact": "SM_Env_Rock_Flat_03 (7)"
-      },
-      {
-        "nameExact": "SM_Env_Rock_Flat_02 (2)"
-      },
-      {
-        "nameExact": "SM_Env_Rock_Flat_03 (8)"
-      },
-      {
-        "nameExact": "SM_Env_Rock_Flat_03 (2)"
-      },
-      {
-        "nameExact": "SM_Env_Rock_Flat_02"
-      },
-      {
-        "nameExact": "SM_Env_Rock_Flat_03 (9)"
-      },
-      {
-        "nameExact": "SM_Env_Rock_Flat_03 (1)"
-      },
-      {
-        "nameExact": "SM_Env_Rock_Flat_03"
-      },
-      {
-        "nameExact": "SM_Env_Rock_Flat_03 (3)"
-      },
-      {
-        "nameExact": "SM_Env_Rock_Flat_03 (10)"
-      },
-      {
-        "nameExact": "SM_Env_Rock_Pile_01"
-      },
-      {
-        "nameExact": "SM_Env_Rock_Pile_01 (1)"
-      },
-      {
-        "nameExact": "SM_Env_Rock_Pile_01 (2)"
-      },
-      {
-        "nameExact": "SM_Env_Rock_Cliff_03 (31)"
-      },
-      {
-        "nameContains": "SM_Env_Tiles_09"
-      },
-      {
-        "nameContains": "SM_Env_Wall_Curved_Roof_01"
-      }
-    ]
-  },
-  "Braxonian": {
-    "sceneName": "Braxonian",
-    "baseTilesX": 5,
-    "baseTilesY": 6,
-    "tileSize": 256,
-    "maxZoom": 0,
-    "originX": -128,
-    "originY": 0,
-    "northBearing": null,
-    "captureVariants": [
-      "clear",
-      "open"
-    ],
-    "cropRect": {
-      "top": 0,
-      "right": 0,
-      "bottom": 0,
-      "left": 0
+    "Braxonian": {
+        "sceneName": "Braxonian",
+        "baseTilesX": 5,
+        "baseTilesY": 6,
+        "tileSize": 256,
+        "maxZoom": 0,
+        "originX": -128,
+        "originY": 0,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+        },
+        "exclusionRules": [
+            {
+                "nameExact": "SM_Env_Rock_Cliff_03 (51)"
+            },
+            {
+                "nameExact": "SM_Env_Rock_Cliff_03 (65)"
+            }
+        ]
     },
-    "exclusionRules": [
-      {
-        "nameExact": "SM_Env_Rock_Cliff_03 (51)"
-      },
-      {
-        "nameExact": "SM_Env_Rock_Cliff_03 (65)"
-      }
-    ]
-  },
-  "DuskenPortal": {
-    "sceneName": "DuskenPortal",
-    "baseTilesX": 3,
-    "baseTilesY": 2,
-    "tileSize": 256,
-    "maxZoom": 2,
-    "originX": -135,
-    "originY": -55,
-    "northBearing": null,
-    "captureVariants": [
-      "clear",
-      "open"
-    ],
-    "cropRect": {
-      "top": 0,
-      "right": 0,
-      "bottom": 0,
-      "left": 0
+    "DuskenPortal": {
+        "sceneName": "DuskenPortal",
+        "baseTilesX": 3,
+        "baseTilesY": 2,
+        "tileSize": 256,
+        "maxZoom": 2,
+        "originX": -135,
+        "originY": -55,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+        },
+        "exclusionRules": []
     },
-    "exclusionRules": []
-  },
-  "Duskenlight": {
-    "sceneName": "Duskenlight",
-    "baseTilesX": 7,
-    "baseTilesY": 4,
-    "tileSize": 256,
-    "maxZoom": 0,
-    "originX": 0,
-    "originY": 0,
-    "northBearing": null,
-    "captureVariants": [
-      "clear",
-      "open"
-    ],
-    "cropRect": {
-      "top": 0,
-      "right": 0,
-      "bottom": 0,
-      "left": 0
+    "Duskenlight": {
+        "sceneName": "Duskenlight",
+        "baseTilesX": 7,
+        "baseTilesY": 4,
+        "tileSize": 256,
+        "maxZoom": 0,
+        "originX": 0,
+        "originY": 0,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+        },
+        "exclusionRules": [
+            {
+                "nameExact": "SM_Env_Rock_Cliff_03 (58)"
+            }
+        ]
     },
-    "exclusionRules": [
-      {
-        "nameExact": "SM_Env_Rock_Cliff_03 (58)"
-      }
-    ]
-  },
-  "Elderstone": {
-    "sceneName": "Elderstone",
-    "baseTilesX": 7,
-    "baseTilesY": 10,
-    "tileSize": 256,
-    "maxZoom": 0,
-    "originX": -1100,
-    "originY": -1150,
-    "northBearing": null,
-    "captureVariants": [
-      "clear",
-      "open"
-    ],
-    "cropRect": {
-      "top": 0,
-      "right": 0,
-      "bottom": 0,
-      "left": 0
+    "Elderstone": {
+        "sceneName": "Elderstone",
+        "baseTilesX": 7,
+        "baseTilesY": 10,
+        "tileSize": 256,
+        "maxZoom": 0,
+        "originX": -1100,
+        "originY": -1150,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+        },
+        "exclusionRules": [
+            {
+                "nameExact": "TFF_Rock_Large_03A (9)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_03A (5)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_03A (3)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_01A (1)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_03A (4)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_06A (79)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_03A (6)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_03A (8)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_03A (7)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_03A (10)"
+            },
+            {
+                "nameExact": "SM_Env_Stalagmite_03 (13)"
+            },
+            {
+                "nameExact": "Rock_Large_03A (12)"
+            },
+            {
+                "nameExact": "SM_Env_Stalagmite_05 (4)"
+            },
+            {
+                "nameExact": "SM_Env_Stalagmite_05 (2)"
+            },
+            {
+                "nameExact": "SM_Env_Stalagmite_05 (7)"
+            },
+            {
+                "nameExact": "SM_Env_Stalagmite_05"
+            },
+            {
+                "nameExact": "SM_Env_Stalagmite_05 (5)"
+            },
+            {
+                "nameExact": "SM_Env_Stalagmite_05 (1)"
+            },
+            {
+                "nameExact": "SM_Env_Stalagmite_05 (3)"
+            },
+            {
+                "nameExact": "SM_Tree_Swamp_Stump_01 (2)"
+            },
+            {
+                "nameExact": "SM_Tree_Swamp_Stump_01"
+            },
+            {
+                "nameExact": "SM_Tree_Swamp_Stump_01 (1)"
+            },
+            {
+                "nameExact": "SM_Tree_Swamp_Stump_01 (3)"
+            },
+            {
+                "nameExact": "SM_Env_Stalagmite_05 (6)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_03A (13)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_01A"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_06A (80)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_06A (83)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_01A (4)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_01A (3)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_06A (23)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_01A (2)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_06A (98)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_06A (70)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_03A (12)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_03A (15)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_06A (88)"
+            }
+        ]
     },
-    "exclusionRules": [
-      {
-        "nameExact": "TFF_Rock_Large_03A (9)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_03A (5)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_03A (3)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_01A (1)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_03A (4)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_06A (79)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_03A (6)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_03A (8)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_03A (7)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_03A (10)"
-      },
-      {
-        "nameExact": "SM_Env_Stalagmite_03 (13)"
-      },
-      {
-        "nameExact": "Rock_Large_03A (12)"
-      },
-      {
-        "nameExact": "SM_Env_Stalagmite_05 (4)"
-      },
-      {
-        "nameExact": "SM_Env_Stalagmite_05 (2)"
-      },
-      {
-        "nameExact": "SM_Env_Stalagmite_05 (7)"
-      },
-      {
-        "nameExact": "SM_Env_Stalagmite_05"
-      },
-      {
-        "nameExact": "SM_Env_Stalagmite_05 (5)"
-      },
-      {
-        "nameExact": "SM_Env_Stalagmite_05 (1)"
-      },
-      {
-        "nameExact": "SM_Env_Stalagmite_05 (3)"
-      },
-      {
-        "nameExact": "SM_Tree_Swamp_Stump_01 (2)"
-      },
-      {
-        "nameExact": "SM_Tree_Swamp_Stump_01"
-      },
-      {
-        "nameExact": "SM_Tree_Swamp_Stump_01 (1)"
-      },
-      {
-        "nameExact": "SM_Tree_Swamp_Stump_01 (3)"
-      },
-      {
-        "nameExact": "SM_Env_Stalagmite_05 (6)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_03A (13)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_01A"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_06A (80)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_06A (83)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_01A (4)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_01A (3)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_06A (23)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_01A (2)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_06A (98)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_06A (70)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_03A (12)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_03A (15)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_06A (88)"
-      }
-    ]
-  },
-  "FernallaField": {
-    "sceneName": "FernallaField",
-    "baseTilesX": 6,
-    "baseTilesY": 6,
-    "tileSize": 256,
-    "maxZoom": 0,
-    "originX": 0,
-    "originY": 0,
-    "northBearing": null,
-    "captureVariants": [
-      "clear",
-      "open"
-    ],
-    "cropRect": {
-      "top": 0,
-      "right": 0,
-      "bottom": 0,
-      "left": 0
+    "FernallaField": {
+        "sceneName": "FernallaField",
+        "baseTilesX": 6,
+        "baseTilesY": 6,
+        "tileSize": 256,
+        "maxZoom": 0,
+        "originX": 0,
+        "originY": 0,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+        },
+        "exclusionRules": []
     },
-    "exclusionRules": []
-  },
-  "FernallaPortal": {
-    "sceneName": "FernallaPortal",
-    "baseTilesX": 2,
-    "baseTilesY": 3,
-    "tileSize": 256,
-    "maxZoom": 2,
-    "originX": 0,
-    "originY": 0,
-    "northBearing": null,
-    "captureVariants": [
-      "clear",
-      "open"
-    ],
-    "cropRect": {
-      "top": 0,
-      "right": 0,
-      "bottom": 0,
-      "left": 0
+    "FernallaPortal": {
+        "sceneName": "FernallaPortal",
+        "baseTilesX": 2,
+        "baseTilesY": 3,
+        "tileSize": 256,
+        "maxZoom": 2,
+        "originX": 0,
+        "originY": 0,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+        },
+        "exclusionRules": [
+            {
+                "nameExact": "SM_Env_Tree_Dead_04 (2)"
+            },
+            {
+                "nameExact": "SM_Env_Tree_Dead_03 (3)"
+            },
+            {
+                "nameExact": "SM_Env_Tree_Dead_04 (3)"
+            },
+            {
+                "nameExact": "SM_Env_Tree_Dead_04 (1)"
+            },
+            {
+                "nameExact": "SM_Env_Tree_Dead_04"
+            },
+            {
+                "nameExact": "SM_Env_Tree_Dead_03 (1)"
+            },
+            {
+                "nameExact": "SM_Env_Tree_Dead_03"
+            },
+            {
+                "nameExact": "SM_Env_Tree_Dead_03 (2)"
+            }
+        ]
     },
-    "exclusionRules": [
-      {
-        "nameExact": "SM_Env_Tree_Dead_04 (2)"
-      },
-      {
-        "nameExact": "SM_Env_Tree_Dead_03 (3)"
-      },
-      {
-        "nameExact": "SM_Env_Tree_Dead_04 (3)"
-      },
-      {
-        "nameExact": "SM_Env_Tree_Dead_04 (1)"
-      },
-      {
-        "nameExact": "SM_Env_Tree_Dead_04"
-      },
-      {
-        "nameExact": "SM_Env_Tree_Dead_03 (1)"
-      },
-      {
-        "nameExact": "SM_Env_Tree_Dead_03"
-      },
-      {
-        "nameExact": "SM_Env_Tree_Dead_03 (2)"
-      }
-    ]
-  },
-  "Hidden": {
-    "sceneName": "Hidden",
-    "baseTilesX": 2,
-    "baseTilesY": 2,
-    "tileSize": 256,
-    "maxZoom": 2,
-    "originX": -200,
-    "originY": -300,
-    "northBearing": null,
-    "captureVariants": [
-      "clear",
-      "open"
-    ],
-    "cropRect": {
-      "top": 0,
-      "right": 0,
-      "bottom": 0,
-      "left": 0
+    "Hidden": {
+        "sceneName": "Hidden",
+        "baseTilesX": 2,
+        "baseTilesY": 2,
+        "tileSize": 256,
+        "maxZoom": 2,
+        "originX": -200,
+        "originY": -300,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+        },
+        "exclusionRules": [
+            {
+                "nameExact": "rock4 (25)"
+            }
+        ]
     },
-    "exclusionRules": [
-      {
-        "nameExact": "rock4 (25)"
-      }
-    ]
-  },
-  "Jaws": {
-    "sceneName": "Jaws",
-    "baseTilesX": 3,
-    "baseTilesY": 2,
-    "tileSize": 256,
-    "maxZoom": 2,
-    "originX": 1050,
-    "originY": -150,
-    "northBearing": null,
-    "captureVariants": [
-      "clear",
-      "open"
-    ],
-    "cropRect": {
-      "top": 0,
-      "right": 0,
-      "bottom": 0,
-      "left": 0
+    "Jaws": {
+        "sceneName": "Jaws",
+        "baseTilesX": 3,
+        "baseTilesY": 2,
+        "tileSize": 256,
+        "maxZoom": 2,
+        "originX": 1050,
+        "originY": -150,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+        },
+        "exclusionRules": [
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (545)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (550)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (551)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (556)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (558)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (559)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (557)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (560)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (564)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (565)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (573)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (568)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (569)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (570)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (571)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (567)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (566)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (562)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (561)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (563)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (546)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (542)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (548)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (547)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (543)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (544)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (578)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (552)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (553)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (555)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (554)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_01 (542)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (579)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (580)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (581)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (582)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (583)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (585)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (584)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (587)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (588)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (594)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (595)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (596)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (597)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (465)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (466)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (461)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (470)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (471)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (474)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (572)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (304)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (303)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (352)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (351)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (363)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (364)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (349)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (350)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (361)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (362)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (394)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (395)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (396)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (398)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (397)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (399)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (400)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (131)"
+            },
+            {
+                "nameExact": "SM_Env_Tiles_Ornate_01 (138)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_01 (469)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_01 (470)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_01 (471)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_01 (472)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_01 (473)"
+            },
+            {
+                "nameContains": "SM_Env_Tiles_05"
+            },
+            {
+                "nameContains": "SM_Env_Tiles_07"
+            },
+            {
+                "nameContains": "SM_Bld_Wall_Beam_01"
+            }
+        ]
     },
-    "exclusionRules": [
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (545)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (550)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (551)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (556)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (558)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (559)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (557)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (560)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (564)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (565)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (573)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (568)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (569)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (570)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (571)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (567)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (566)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (562)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (561)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (563)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (546)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (542)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (548)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (547)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (543)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (544)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (578)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (552)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (553)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (555)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (554)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_01 (542)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (579)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (580)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (581)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (582)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (583)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (585)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (584)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (587)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (588)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (594)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (595)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (596)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (597)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (465)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (466)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (461)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (470)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (471)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (474)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (572)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (304)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (303)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (352)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (351)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (363)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (364)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (349)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (350)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (361)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (362)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (394)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (395)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (396)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (398)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (397)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (399)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (400)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (131)"
-      },
-      {
-        "nameExact": "SM_Env_Tiles_Ornate_01 (138)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_01 (469)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_01 (470)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_01 (471)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_01 (472)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_01 (473)"
-      },
-      {
-        "nameContains": "SM_Env_Tiles_05"
-      },
-      {
-        "nameContains": "SM_Env_Tiles_07"
-      },
-      {
-        "nameContains": "SM_Bld_Wall_Beam_01"
-      }
-    ]
-  },
-  "Krakengard": {
-    "sceneName": "Krakengard",
-    "baseTilesX": 2,
-    "baseTilesY": 2,
-    "tileSize": 256,
-    "maxZoom": 2,
-    "originX": 200,
-    "originY": -110,
-    "northBearing": null,
-    "captureVariants": [
-      "clear",
-      "open"
-    ],
-    "cropRect": {
-      "top": 0,
-      "right": 0,
-      "bottom": 0,
-      "left": 0
+    "Krakengard": {
+        "sceneName": "Krakengard",
+        "baseTilesX": 2,
+        "baseTilesY": 2,
+        "tileSize": 256,
+        "maxZoom": 2,
+        "originX": 200,
+        "originY": -110,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+        },
+        "exclusionRules": []
     },
-    "exclusionRules": []
-  },
-  "Loomingwood": {
-    "sceneName": "Loomingwood",
-    "baseTilesX": 4,
-    "baseTilesY": 4,
-    "tileSize": 256,
-    "maxZoom": 1,
-    "originX": 0,
-    "originY": 0,
-    "northBearing": null,
-    "captureVariants": [
-      "clear",
-      "open"
-    ],
-    "cropRect": {
-      "top": 0,
-      "right": 0,
-      "bottom": 0,
-      "left": 0
+    "Loomingwood": {
+        "sceneName": "Loomingwood",
+        "baseTilesX": 4,
+        "baseTilesY": 4,
+        "tileSize": 256,
+        "maxZoom": 1,
+        "originX": 0,
+        "originY": 0,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+        },
+        "exclusionRules": [
+            {
+                "nameExact": "SM_Env_Tree_Giant_01_LOD2 (35)"
+            },
+            {
+                "nameExact": "SM_Env_Tree_Giant_01_LOD2 (36)"
+            },
+            {
+                "nameExact": "SM_Env_Tree_Giant_01_LOD2 (37)"
+            },
+            {
+                "nameExact": "SM_Env_Tree_Giant_01_LOD2 (38)"
+            },
+            {
+                "nameExact": "SM_Env_Tree_Giant_01_LOD2 (39)"
+            },
+            {
+                "nameExact": "SM_Env_Rock_Cliff_03 (75)"
+            },
+            {
+                "nameExact": "SM_Env_Rock_Cliff_03 (70)"
+            },
+            {
+                "nameExact": "SM_Env_Rock_Cliff_03 (68)"
+            },
+            {
+                "nameExact": "SM_Env_Rock_Cliff_03 (71)"
+            },
+            {
+                "nameExact": "SM_Env_Rock_Cliff_03 (72)"
+            },
+            {
+                "nameExact": "SM_Env_Rock_Cliff_03 (69)"
+            },
+            {
+                "nameExact": "SM_Env_Rock_Cliff_03 (79)"
+            },
+            {
+                "nameExact": "SM_Env_Rock_Cliff_03 (81)"
+            },
+            {
+                "nameContains": "tree_giant"
+            }
+        ]
     },
-    "exclusionRules": [
-      {
-        "nameExact": "SM_Env_Tree_Giant_01_LOD2 (35)"
-      },
-      {
-        "nameExact": "SM_Env_Tree_Giant_01_LOD2 (36)"
-      },
-      {
-        "nameExact": "SM_Env_Tree_Giant_01_LOD2 (37)"
-      },
-      {
-        "nameExact": "SM_Env_Tree_Giant_01_LOD2 (38)"
-      },
-      {
-        "nameExact": "SM_Env_Tree_Giant_01_LOD2 (39)"
-      },
-      {
-        "nameExact": "SM_Env_Rock_Cliff_03 (75)"
-      },
-      {
-        "nameExact": "SM_Env_Rock_Cliff_03 (70)"
-      },
-      {
-        "nameExact": "SM_Env_Rock_Cliff_03 (68)"
-      },
-      {
-        "nameExact": "SM_Env_Rock_Cliff_03 (71)"
-      },
-      {
-        "nameExact": "SM_Env_Rock_Cliff_03 (72)"
-      },
-      {
-        "nameExact": "SM_Env_Rock_Cliff_03 (69)"
-      },
-      {
-        "nameExact": "SM_Env_Rock_Cliff_03 (79)"
-      },
-      {
-        "nameExact": "SM_Env_Rock_Cliff_03 (81)"
-      },
-      {
-        "nameContains": "tree_giant"
-      }
-    ]
-  },
-  "Malaroth": {
-    "sceneName": "Malaroth",
-    "baseTilesX": 5,
-    "baseTilesY": 4,
-    "tileSize": 256,
-    "maxZoom": 1,
-    "originX": 0,
-    "originY": 0,
-    "northBearing": null,
-    "captureVariants": [
-      "clear",
-      "open"
-    ],
-    "cropRect": {
-      "top": 0,
-      "right": 0,
-      "bottom": 0,
-      "left": 0
+    "Malaroth": {
+        "sceneName": "Malaroth",
+        "baseTilesX": 5,
+        "baseTilesY": 4,
+        "tileSize": 256,
+        "maxZoom": 1,
+        "originX": 0,
+        "originY": 0,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+        },
+        "exclusionRules": [
+            {
+                "nameExact": "SM_Env_Dirt_Cliff_06 (31)"
+            },
+            {
+                "nameExact": "SM_Env_Dirt_Cliff_06 (25)"
+            },
+            {
+                "nameExact": "SM_Env_Dirt_Cliff_06 (28)"
+            },
+            {
+                "nameExact": "SM_Env_Dirt_Cliff_06 (26)"
+            },
+            {
+                "nameExact": "SM_Env_Dirt_Cliff_06 (27)"
+            },
+            {
+                "nameExact": "SM_Env_Rock_Cliff_01 (23)"
+            },
+            {
+                "nameExact": "SM_Env_Dirt_Cliff_06 (30)"
+            }
+        ]
     },
-    "exclusionRules": [
-      {
-        "nameExact": "SM_Env_Dirt_Cliff_06 (31)"
-      },
-      {
-        "nameExact": "SM_Env_Dirt_Cliff_06 (25)"
-      },
-      {
-        "nameExact": "SM_Env_Dirt_Cliff_06 (28)"
-      },
-      {
-        "nameExact": "SM_Env_Dirt_Cliff_06 (26)"
-      },
-      {
-        "nameExact": "SM_Env_Dirt_Cliff_06 (27)"
-      },
-      {
-        "nameExact": "SM_Env_Rock_Cliff_01 (23)"
-      },
-      {
-        "nameExact": "SM_Env_Dirt_Cliff_06 (30)"
-      }
-    ]
-  },
-  "PrielPlateau": {
-    "sceneName": "PrielPlateau",
-    "baseTilesX": 3,
-    "baseTilesY": 3,
-    "tileSize": 256,
-    "maxZoom": 2,
-    "originX": 0,
-    "originY": 0,
-    "northBearing": null,
-    "captureVariants": [
-      "clear",
-      "open"
-    ],
-    "cropRect": {
-      "top": 0,
-      "right": 0,
-      "bottom": 0,
-      "left": 0
+    "PrielPlateau": {
+        "sceneName": "PrielPlateau",
+        "baseTilesX": 3,
+        "baseTilesY": 3,
+        "tileSize": 256,
+        "maxZoom": 2,
+        "originX": 0,
+        "originY": 0,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+        },
+        "exclusionRules": [
+            {
+                "nameExact": "TFF_Rock_Large_06A_LOD_1 (29)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_06A_LOD_1 (30)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_06A_LOD_1 (60)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_06A_LOD_1 (59)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_06A_LOD_1 (39)"
+            }
+        ]
     },
-    "exclusionRules": [
-      {
-        "nameExact": "TFF_Rock_Large_06A_LOD_1 (29)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_06A_LOD_1 (30)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_06A_LOD_1 (60)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_06A_LOD_1 (59)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_06A_LOD_1 (39)"
-      }
-    ]
-  },
-  "Ripper": {
-    "sceneName": "Ripper",
-    "baseTilesX": 4,
-    "baseTilesY": 3,
-    "tileSize": 256,
-    "maxZoom": 1,
-    "originX": 0,
-    "originY": 0,
-    "northBearing": null,
-    "captureVariants": [
-      "clear",
-      "open"
-    ],
-    "cropRect": {
-      "top": 0,
-      "right": 0,
-      "bottom": 0,
-      "left": 0
+    "Ripper": {
+        "sceneName": "Ripper",
+        "baseTilesX": 4,
+        "baseTilesY": 3,
+        "tileSize": 256,
+        "maxZoom": 1,
+        "originX": 0,
+        "originY": 0,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+        },
+        "exclusionRules": [
+            {
+                "nameExact": "SM_Env_Tree_Large_02_LOD2"
+            },
+            {
+                "nameExact": "SM_Env_Tree_Large_02_LOD2 (2)"
+            },
+            {
+                "nameExact": "SM_Env_Tree_Giant_02_LOD1 (1)"
+            },
+            {
+                "nameExact": "SM_Env_Tree_Giant_02_LOD1"
+            },
+            {
+                "nameExact": "SM_Env_Tree_Large_02_LOD2 (1)"
+            },
+            {
+                "nameContains": "SM_Prop_Beam_03"
+            }
+        ]
     },
-    "exclusionRules": [
-      {
-        "nameExact": "SM_Env_Tree_Large_02_LOD2"
-      },
-      {
-        "nameExact": "SM_Env_Tree_Large_02_LOD2 (2)"
-      },
-      {
-        "nameExact": "SM_Env_Tree_Giant_02_LOD1 (1)"
-      },
-      {
-        "nameExact": "SM_Env_Tree_Giant_02_LOD1"
-      },
-      {
-        "nameExact": "SM_Env_Tree_Large_02_LOD2 (1)"
-      },
-      {
-        "nameContains": "SM_Prop_Beam_03"
-      }
-    ]
-  },
-  "RipperPortal": {
-    "sceneName": "RipperPortal",
-    "baseTilesX": 4,
-    "baseTilesY": 4,
-    "tileSize": 256,
-    "maxZoom": 1,
-    "originX": 0,
-    "originY": 0,
-    "northBearing": null,
-    "captureVariants": [
-      "clear",
-      "open"
-    ],
-    "cropRect": {
-      "top": 0,
-      "right": 0,
-      "bottom": 0,
-      "left": 0
+    "RipperPortal": {
+        "sceneName": "RipperPortal",
+        "baseTilesX": 4,
+        "baseTilesY": 4,
+        "tileSize": 256,
+        "maxZoom": 1,
+        "originX": 0,
+        "originY": 0,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+        },
+        "exclusionRules": [
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (120)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (119)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (118)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_Cut_02 (117)"
+            },
+            {
+                "nameContains": "roof"
+            }
+        ]
     },
-    "exclusionRules": [
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (120)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (119)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (118)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_Cut_02 (117)"
-      },
-      {
-        "nameContains": "roof"
-      }
-    ]
-  },
-  "Rockshade": {
-    "sceneName": "Rockshade",
-    "baseTilesX": 4,
-    "baseTilesY": 4,
-    "tileSize": 256,
-    "maxZoom": 1,
-    "originX": 0,
-    "originY": 0,
-    "northBearing": null,
-    "captureVariants": [
-      "clear",
-      "open"
-    ],
-    "cropRect": {
-      "top": 0,
-      "right": 0,
-      "bottom": 0,
-      "left": 0
+    "Rockshade": {
+        "sceneName": "Rockshade",
+        "baseTilesX": 4,
+        "baseTilesY": 4,
+        "tileSize": 256,
+        "maxZoom": 1,
+        "originX": 0,
+        "originY": 0,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+        },
+        "exclusionRules": [
+            {
+                "nameContains": "Roof"
+            },
+            {
+                "nameContains": "Floor_Wood"
+            }
+        ]
     },
-    "exclusionRules": [
-      {
-        "nameContains": "Roof"
-      },
-      {
-        "nameContains": "Floor_Wood"
-      }
-    ]
-  },
-  "Rottenfoot": {
-    "sceneName": "Rottenfoot",
-    "baseTilesX": 4,
-    "baseTilesY": 4,
-    "tileSize": 256,
-    "maxZoom": 1,
-    "originX": 0,
-    "originY": 0,
-    "northBearing": null,
-    "captureVariants": [
-      "clear",
-      "open"
-    ],
-    "cropRect": {
-      "top": 0,
-      "right": 0,
-      "bottom": 0,
-      "left": 0
+    "Rottenfoot": {
+        "sceneName": "Rottenfoot",
+        "baseTilesX": 4,
+        "baseTilesY": 4,
+        "tileSize": 256,
+        "maxZoom": 1,
+        "originX": 0,
+        "originY": 0,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+        },
+        "exclusionRules": [
+            {
+                "nameExact": "SM_Env_Tree_Swamp_02_LOD2 (1)"
+            },
+            {
+                "nameExact": "SM_Env_Tree_Swamp_03_LOD1"
+            },
+            {
+                "nameExact": "SM_Env_Tree_Swamp_03_LOD1 (5)"
+            }
+        ]
     },
-    "exclusionRules": [
-      {
-        "nameExact": "SM_Env_Tree_Swamp_02_LOD2 (1)"
-      },
-      {
-        "nameExact": "SM_Env_Tree_Swamp_03_LOD1"
-      },
-      {
-        "nameExact": "SM_Env_Tree_Swamp_03_LOD1 (5)"
-      }
-    ]
-  },
-  "SaltedStrand": {
-    "sceneName": "SaltedStrand",
-    "baseTilesX": 4,
-    "baseTilesY": 3,
-    "tileSize": 256,
-    "maxZoom": 1,
-    "originX": -64,
-    "originY": 0,
-    "northBearing": null,
-    "captureVariants": [
-      "clear",
-      "open"
-    ],
-    "cropRect": {
-      "top": 0,
-      "right": 0,
-      "bottom": 0,
-      "left": 0
+    "SaltedStrand": {
+        "sceneName": "SaltedStrand",
+        "baseTilesX": 4,
+        "baseTilesY": 3,
+        "tileSize": 256,
+        "maxZoom": 1,
+        "originX": -64,
+        "originY": 0,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+        },
+        "exclusionRules": [
+            {
+                "nameExact": "TFF_Rock_Large_05A (3)"
+            }
+        ]
     },
-    "exclusionRules": [
-      {
-        "nameExact": "TFF_Rock_Large_05A (3)"
-      }
-    ]
-  },
-  "ShiveringStep": {
-    "sceneName": "ShiveringStep",
-    "baseTilesX": 3,
-    "baseTilesY": 2,
-    "tileSize": 256,
-    "maxZoom": 2,
-    "originX": 135,
-    "originY": 225,
-    "northBearing": null,
-    "captureVariants": [
-      "clear",
-      "open"
-    ],
-    "cropRect": {
-      "top": 0,
-      "right": 0,
-      "bottom": 0,
-      "left": 0
+    "ShiveringStep": {
+        "sceneName": "ShiveringStep",
+        "baseTilesX": 3,
+        "baseTilesY": 2,
+        "tileSize": 256,
+        "maxZoom": 2,
+        "originX": 135,
+        "originY": 225,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+        },
+        "exclusionRules": []
     },
-    "exclusionRules": []
-  },
-  "Silkengrass": {
-    "sceneName": "Silkengrass",
-    "baseTilesX": 5,
-    "baseTilesY": 6,
-    "tileSize": 256,
-    "maxZoom": 0,
-    "originX": -32,
-    "originY": 0,
-    "northBearing": null,
-    "captureVariants": [
-      "clear",
-      "open"
-    ],
-    "cropRect": {
-      "top": 0,
-      "right": 0,
-      "bottom": 0,
-      "left": 0
+    "Silkengrass": {
+        "sceneName": "Silkengrass",
+        "baseTilesX": 5,
+        "baseTilesY": 6,
+        "tileSize": 256,
+        "maxZoom": 0,
+        "originX": -32,
+        "originY": 0,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+        },
+        "exclusionRules": [
+            {
+                "nameExact": "SM_Env_Tree_Giant_02_LOD2"
+            }
+        ]
     },
-    "exclusionRules": [
-      {
-        "nameExact": "SM_Env_Tree_Giant_02_LOD2"
-      }
-    ]
-  },
-  "Soluna": {
-    "sceneName": "Soluna",
-    "baseTilesX": 4,
-    "baseTilesY": 4,
-    "tileSize": 256,
-    "maxZoom": 1,
-    "originX": 0,
-    "originY": 0,
-    "northBearing": null,
-    "captureVariants": [
-      "clear",
-      "open"
-    ],
-    "cropRect": {
-      "top": 0,
-      "right": 0,
-      "bottom": 0,
-      "left": 0
+    "Soluna": {
+        "sceneName": "Soluna",
+        "baseTilesX": 4,
+        "baseTilesY": 4,
+        "tileSize": 256,
+        "maxZoom": 1,
+        "originX": 0,
+        "originY": 0,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+        },
+        "exclusionRules": []
     },
-    "exclusionRules": []
-  },
-  "Stowaway": {
-    "sceneName": "Stowaway",
-    "baseTilesX": 3,
-    "baseTilesY": 2,
-    "tileSize": 256,
-    "maxZoom": 2,
-    "originX": 135,
-    "originY": 225,
-    "northBearing": null,
-    "captureVariants": [
-      "clear",
-      "open"
-    ],
-    "cropRect": {
-      "top": 0,
-      "right": 0,
-      "bottom": 0,
-      "left": 0
+    "Stowaway": {
+        "sceneName": "Stowaway",
+        "baseTilesX": 3,
+        "baseTilesY": 2,
+        "tileSize": 256,
+        "maxZoom": 2,
+        "originX": 135,
+        "originY": 225,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+        },
+        "exclusionRules": []
     },
-    "exclusionRules": []
-  },
-  "SummerEvent": {
-    "sceneName": "SummerEvent",
-    "baseTilesX": 1,
-    "baseTilesY": 2,
-    "tileSize": 256,
-    "maxZoom": 2,
-    "originX": 0,
-    "originY": -110,
-    "northBearing": null,
-    "captureVariants": [
-      "clear",
-      "open"
-    ],
-    "cropRect": {
-      "top": 0,
-      "right": 0,
-      "bottom": 0,
-      "left": 0
+    "SummerEvent": {
+        "sceneName": "SummerEvent",
+        "baseTilesX": 1,
+        "baseTilesY": 2,
+        "tileSize": 256,
+        "maxZoom": 2,
+        "originX": 0,
+        "originY": -110,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+        },
+        "exclusionRules": []
     },
-    "exclusionRules": []
-  },
-  "Tutorial": {
-    "sceneName": "Tutorial",
-    "baseTilesX": 2,
-    "baseTilesY": 2,
-    "tileSize": 256,
-    "maxZoom": 2,
-    "originX": -280,
-    "originY": -200,
-    "northBearing": null,
-    "captureVariants": [
-      "clear",
-      "open"
-    ],
-    "cropRect": {
-      "top": 0,
-      "right": 0,
-      "bottom": 0,
-      "left": 0
+    "Tutorial": {
+        "sceneName": "Tutorial",
+        "baseTilesX": 2,
+        "baseTilesY": 2,
+        "tileSize": 256,
+        "maxZoom": 2,
+        "originX": -280,
+        "originY": -200,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+        },
+        "exclusionRules": []
     },
-    "exclusionRules": []
-  },
-  "Undercity": {
-    "sceneName": "Undercity",
-    "baseTilesX": 2,
-    "baseTilesY": 2,
-    "tileSize": 256,
-    "maxZoom": 2,
-    "originX": 0,
-    "originY": 0,
-    "northBearing": null,
-    "captureVariants": [
-      "clear",
-      "open"
-    ],
-    "cropRect": {
-      "top": 0,
-      "right": 0,
-      "bottom": 0,
-      "left": 0
+    "Undercity": {
+        "sceneName": "Undercity",
+        "baseTilesX": 2,
+        "baseTilesY": 2,
+        "tileSize": 256,
+        "maxZoom": 2,
+        "originX": 0,
+        "originY": 0,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+        },
+        "exclusionRules": [
+            {
+                "nameExact": "TFF_Rock_Large_06A_LOD_1 (28)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_06A_LOD_1 (11)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_06A_LOD_1 (10)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_06A_LOD_1 (27)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_06A_LOD_1 (68)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_06A_LOD_1 (71)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_06A_LOD_1 (70)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_06A_LOD_1 (69)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_06A_LOD_1 (67)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_06A_LOD_1 (66)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_06A_LOD_1 (72)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_06A_LOD_1 (61)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_06A_LOD_1 (62)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_06A_LOD_1 (73)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_06A_LOD_1 (63)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_06A_LOD_1 (64)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_06A_LOD_1 (65)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_06A_LOD_1 (9)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_06A_LOD_1 (42)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_06A_LOD_1 (43)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_06A_LOD_1 (45)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_06A_LOD_1 (44)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_06A_LOD_1 (46)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_06A_LOD_1 (47)"
+            },
+            {
+                "nameExact": "SM_Env_Stalagmite_06 (3)"
+            },
+            {
+                "nameExact": "TFF_Rock_Large_06A_LOD_1 (74)"
+            },
+            {
+                "nameExact": "SM_Rock_CaveEntrance_02 (2)"
+            },
+            {
+                "nameExact": "SM_Rock_CaveEntrance_02"
+            },
+            {
+                "nameExact": "SM_Env_Stalagmite_06 (1)"
+            },
+            {
+                "nameExact": "SM_Env_Stalagmite_06 (2)"
+            },
+            {
+                "nameExact": "SM_Env_Stalagmite_01 (4)"
+            },
+            {
+                "nameExact": "SM_Env_Stalagmite_01 (3)"
+            },
+            {
+                "nameExact": "SM_Env_Stalagmite_06"
+            },
+            {
+                "nameExact": "SM_Env_Rock_Cliff_03 (1)"
+            },
+            {
+                "nameExact": "SM_Env_Rock_Cliff_03"
+            },
+            {
+                "nameExact": "SM_Env_Stalagmite_05"
+            },
+            {
+                "nameExact": "TFF_Rock_Large"
+            },
+            {
+                "nameExact": "SM_Rock_CaveEntrance_02 (1)"
+            },
+            {
+                "nameExact": "SM_Rock_CaveEntrance_02 (3)"
+            }
+        ]
     },
-    "exclusionRules": [
-      {
-        "nameExact": "TFF_Rock_Large_06A_LOD_1 (28)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_06A_LOD_1 (11)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_06A_LOD_1 (10)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_06A_LOD_1 (27)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_06A_LOD_1 (68)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_06A_LOD_1 (71)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_06A_LOD_1 (70)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_06A_LOD_1 (69)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_06A_LOD_1 (67)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_06A_LOD_1 (66)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_06A_LOD_1 (72)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_06A_LOD_1 (61)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_06A_LOD_1 (62)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_06A_LOD_1 (73)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_06A_LOD_1 (63)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_06A_LOD_1 (64)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_06A_LOD_1 (65)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_06A_LOD_1 (9)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_06A_LOD_1 (42)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_06A_LOD_1 (43)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_06A_LOD_1 (45)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_06A_LOD_1 (44)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_06A_LOD_1 (46)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_06A_LOD_1 (47)"
-      },
-      {
-        "nameExact": "SM_Env_Stalagmite_06 (3)"
-      },
-      {
-        "nameExact": "TFF_Rock_Large_06A_LOD_1 (74)"
-      },
-      {
-        "nameExact": "SM_Rock_CaveEntrance_02 (2)"
-      },
-      {
-        "nameExact": "SM_Rock_CaveEntrance_02"
-      },
-      {
-        "nameExact": "SM_Env_Stalagmite_06 (1)"
-      },
-      {
-        "nameExact": "SM_Env_Stalagmite_06 (2)"
-      },
-      {
-        "nameExact": "SM_Env_Stalagmite_01 (4)"
-      },
-      {
-        "nameExact": "SM_Env_Stalagmite_01 (3)"
-      },
-      {
-        "nameExact": "SM_Env_Stalagmite_06"
-      },
-      {
-        "nameExact": "SM_Env_Rock_Cliff_03 (1)"
-      },
-      {
-        "nameExact": "SM_Env_Rock_Cliff_03"
-      },
-      {
-        "nameExact": "SM_Env_Stalagmite_05"
-      },
-      {
-        "nameExact": "TFF_Rock_Large"
-      },
-      {
-        "nameExact": "SM_Rock_CaveEntrance_02 (1)"
-      },
-      {
-        "nameExact": "SM_Rock_CaveEntrance_02 (3)"
-      }
-    ]
-  },
-  "Underspine": {
-    "sceneName": "Underspine",
-    "baseTilesX": 3,
-    "baseTilesY": 3,
-    "tileSize": 256,
-    "maxZoom": 2,
-    "originX": 0,
-    "originY": -30,
-    "northBearing": null,
-    "captureVariants": [
-      "clear",
-      "open"
-    ],
-    "cropRect": {
-      "top": 0,
-      "right": 0,
-      "bottom": 0,
-      "left": 0
+    "Underspine": {
+        "sceneName": "Underspine",
+        "baseTilesX": 3,
+        "baseTilesY": 3,
+        "tileSize": 256,
+        "maxZoom": 2,
+        "originX": 0,
+        "originY": -30,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+        },
+        "exclusionRules": []
     },
-    "exclusionRules": []
-  },
-  "Vitheo": {
-    "sceneName": "Vitheo",
-    "baseTilesX": 2,
-    "baseTilesY": 2,
-    "tileSize": 256,
-    "maxZoom": 2,
-    "originX": 0,
-    "originY": 0,
-    "northBearing": null,
-    "captureVariants": [
-      "clear",
-      "open"
-    ],
-    "cropRect": {
-      "top": 0,
-      "right": 0,
-      "bottom": 0,
-      "left": 0
+    "Vitheo": {
+        "sceneName": "Vitheo",
+        "baseTilesX": 2,
+        "baseTilesY": 2,
+        "tileSize": 256,
+        "maxZoom": 2,
+        "originX": 0,
+        "originY": 0,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+        },
+        "exclusionRules": [
+            {
+                "nameExact": "TFF_Oak_Tree_01A (1)"
+            }
+        ]
     },
-    "exclusionRules": [
-      {
-        "nameExact": "TFF_Oak_Tree_01A (1)"
-      }
-    ]
-  },
-  "VitheosEnd": {
-    "sceneName": "VitheosEnd",
-    "baseTilesX": 2,
-    "baseTilesY": 2,
-    "tileSize": 256,
-    "maxZoom": 2,
-    "originX": 64,
-    "originY": 64,
-    "northBearing": null,
-    "captureVariants": [
-      "clear",
-      "open"
-    ],
-    "cropRect": {
-      "top": 0,
-      "right": 0,
-      "bottom": 0,
-      "left": 0
+    "VitheosEnd": {
+        "sceneName": "VitheosEnd",
+        "baseTilesX": 2,
+        "baseTilesY": 2,
+        "tileSize": 256,
+        "maxZoom": 2,
+        "originX": 64,
+        "originY": 64,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+        },
+        "exclusionRules": [
+            {
+                "nameExact": "SM_Bld_Castle_Wall_01 (184)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_01 (183)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_01 (182)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_01 (188)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_01 (187)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_01 (186)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_01 (185)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_01 (181)"
+            },
+            {
+                "nameExact": "SM_Bld_Beam_01"
+            },
+            {
+                "nameExact": "SM_Bld_Wall_Beam_01 (28)"
+            },
+            {
+                "nameExact": "SM_Bld_Wall_Beam_01 (27)"
+            },
+            {
+                "nameExact": "SM_Bld_Wall_Beam_01 (26)"
+            },
+            {
+                "nameExact": "SM_Bld_Wall_Beam_01 (25)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_01 (8)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_01 (9)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_01 (11)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_01 (10)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_01 (174)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_01 (175)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_01 (176)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_01 (177)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_01 (173)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_01 (178)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_01 (179)"
+            },
+            {
+                "nameExact": "SM_Bld_Castle_Wall_01 (180)"
+            },
+            {
+                "nameContains": "House_StoneArch"
+            }
+        ]
     },
-    "exclusionRules": [
-      {
-        "nameExact": "SM_Bld_Castle_Wall_01 (184)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_01 (183)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_01 (182)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_01 (188)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_01 (187)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_01 (186)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_01 (185)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_01 (181)"
-      },
-      {
-        "nameExact": "SM_Bld_Beam_01"
-      },
-      {
-        "nameExact": "SM_Bld_Wall_Beam_01 (28)"
-      },
-      {
-        "nameExact": "SM_Bld_Wall_Beam_01 (27)"
-      },
-      {
-        "nameExact": "SM_Bld_Wall_Beam_01 (26)"
-      },
-      {
-        "nameExact": "SM_Bld_Wall_Beam_01 (25)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_01 (8)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_01 (9)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_01 (11)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_01 (10)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_01 (174)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_01 (175)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_01 (176)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_01 (177)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_01 (173)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_01 (178)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_01 (179)"
-      },
-      {
-        "nameExact": "SM_Bld_Castle_Wall_01 (180)"
-      },
-      {
-        "nameContains": "House_StoneArch"
-      }
-    ]
-  },
-  "Willowwatch": {
-    "sceneName": "Willowwatch",
-    "baseTilesX": 4,
-    "baseTilesY": 4,
-    "tileSize": 256,
-    "maxZoom": 1,
-    "originX": 0,
-    "originY": 0,
-    "northBearing": null,
-    "captureVariants": [
-      "clear",
-      "open"
-    ],
-    "cropRect": {
-      "top": 0,
-      "right": 0,
-      "bottom": 0,
-      "left": 0
+    "Willowwatch": {
+        "sceneName": "Willowwatch",
+        "baseTilesX": 4,
+        "baseTilesY": 4,
+        "tileSize": 256,
+        "maxZoom": 1,
+        "originX": 0,
+        "originY": 0,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+        },
+        "exclusionRules": []
     },
-    "exclusionRules": []
-  },
-  "Windwashed": {
-    "sceneName": "Windwashed",
-    "baseTilesX": 4,
-    "baseTilesY": 4,
-    "tileSize": 256,
-    "maxZoom": 1,
-    "originX": 190,
-    "originY": -128,
-    "northBearing": null,
-    "captureVariants": [
-      "clear",
-      "open"
-    ],
-    "cropRect": {
-      "top": 0,
-      "right": 0,
-      "bottom": 0,
-      "left": 0
-    },
-    "exclusionRules": [
-      {
-        "nameExact": "SM_Env_Rock_Cliff_03 (68)"
-      },
-      {
-        "nameExact": "SM_Env_Rock_Cliff_03 (70)"
-      },
-      {
-        "nameExact": "SM_Env_Rock_Cliff_03 (69)"
-      }
-    ]
-  }
+    "Windwashed": {
+        "sceneName": "Windwashed",
+        "baseTilesX": 4,
+        "baseTilesY": 4,
+        "tileSize": 256,
+        "maxZoom": 1,
+        "originX": 190,
+        "originY": -128,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": {
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+        },
+        "exclusionRules": [
+            {
+                "nameExact": "SM_Env_Rock_Cliff_03 (68)"
+            },
+            {
+                "nameExact": "SM_Env_Rock_Cliff_03 (70)"
+            },
+            {
+                "nameExact": "SM_Env_Rock_Cliff_03 (69)"
+            }
+        ]
+    }
 }

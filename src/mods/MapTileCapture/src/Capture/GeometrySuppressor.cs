@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace MapTileCapture.Capture;
 
@@ -30,22 +31,12 @@ internal sealed class GeometrySuppressor : IDisposable
     private readonly CameraClearFlags _origClearFlags;
     private readonly Color _origBackgroundColor;
     private readonly int _origCullingMask;
-    private readonly bool _hideRoofs;
-
 
     private readonly Camera _camera;
 
-    // WorldFogController
-    private readonly GameObject? _fogControllerGo;
-    private readonly bool _origFogControllerActive;
-
-    // Temporary directional light (sun) — scenes lack one when loaded directly
-    private readonly GameObject? _tempSunGo;
-
-    // Ambient lighting overrides
-    private readonly UnityEngine.Rendering.AmbientMode _origAmbientMode;
-    private readonly Color _origAmbientLight;
-    private readonly float _origAmbientIntensity;
+    // Post-processing components to disable during capture
+    private readonly Behaviour? _ppLayer;
+    private readonly Behaviour? _vibrance;
 
     // Per-object snapshots
     private readonly List<(GameObject go, bool wasActive)> _deactivatedObjects = new();
@@ -55,7 +46,15 @@ internal sealed class GeometrySuppressor : IDisposable
     public GeometrySuppressor(Camera camera, bool hideRoofs, ExclusionRule[]? exclusionRules)
     {
         _camera = camera;
-        _hideRoofs = hideRoofs;
+
+        // --- Post-processing ---
+        // Disable PostProcessLayer and VibranceEffect for neutral map colors.
+        // These effects add warmth and saturation correct for gameplay but wrong
+        // for map tiles. String-based GetComponent avoids assembly-load issues.
+        _ppLayer = camera.GetComponent("PostProcessLayer") as Behaviour;
+        _vibrance = camera.GetComponent("VibranceEffect") as Behaviour;
+        if (_ppLayer != null) _ppLayer.enabled = false;
+        if (_vibrance != null) _vibrance.enabled = false;
 
         // --- Global state snapshots ---
         _origTimeScale = Time.timeScale;
@@ -68,27 +67,24 @@ internal sealed class GeometrySuppressor : IDisposable
         _origClearFlags = camera.clearFlags;
         _origBackgroundColor = camera.backgroundColor;
         _origCullingMask = camera.cullingMask;
+
+        // --- Roof-layer root GameObjects ---
+        // Deactivate root GameObjects on the Roof layer, matching the original
+        // TileScreenshotter. SetActive(false) kills the entire hierarchy, which
+        // also hides children on other layers (e.g. Default). A cullingMask
+        // approach would only hide renderers whose own layer is Roof, leaving
+        // children on Default visible — producing colored artifacts in captures.
         if (hideRoofs)
-            camera.cullingMask &= ~(1 << LayerMask.NameToLayer("Roof"));
-
-        // Scenes loaded directly via SceneManager.LoadScene lack a directional
-        // light (the game's day/night system doesn't initialise). We create one
-        // and set ambient to bright daylight so captures match the online tiles.
-        _origAmbientMode = RenderSettings.ambientMode;
-        _origAmbientLight = RenderSettings.ambientLight;
-        _origAmbientIntensity = RenderSettings.ambientIntensity;
-
-        RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
-        RenderSettings.ambientLight = new Color(0.6f, 0.6f, 0.6f, 1f);
-        RenderSettings.ambientIntensity = 1.0f;
-
-        _tempSunGo = new GameObject("MapTileCapture_Sun");
-        var sun = _tempSunGo.AddComponent<Light>();
-        sun.type = LightType.Directional;
-        sun.color = new Color(1f, 0.96f, 0.9f); // warm daylight
-        sun.intensity = 1.0f;
-        sun.shadows = LightShadows.None; // no shadows from above
-        _tempSunGo.transform.rotation = Quaternion.Euler(50f, -30f, 0f);
+        {
+            foreach (var rootGo in SceneManager.GetActiveScene().GetRootGameObjects())
+            {
+                if (rootGo.layer == LayerMask.NameToLayer("Roof") && rootGo.activeSelf)
+                {
+                    _deactivatedObjects.Add((rootGo, true));
+                    rootGo.SetActive(false);
+                }
+            }
+        }
 
         // --- SpawnPoints (visible gameplay markers, not map content) ---
         foreach (var sp in UnityEngine.Object.FindObjectsOfType<SpawnPoint>())
@@ -233,13 +229,9 @@ internal sealed class GeometrySuppressor : IDisposable
                 go.SetActive(wasActive);
         }
 
-        // WorldFogController
-        if (_fogControllerGo != null)
-            _fogControllerGo.SetActive(_origFogControllerActive);
-
-        // Temp sun
-        if (_tempSunGo != null)
-            UnityEngine.Object.Destroy(_tempSunGo);
+        // Post-processing
+        if (_ppLayer != null) _ppLayer.enabled = true;
+        if (_vibrance != null) _vibrance.enabled = true;
 
         // Camera
         _camera.clearFlags = _origClearFlags;
@@ -249,9 +241,6 @@ internal sealed class GeometrySuppressor : IDisposable
         // Global state
         QualitySettings.maximumLODLevel = _origMaxLodLevel;
         QualitySettings.lodBias = BitConverter.ToSingle(BitConverter.GetBytes(_origLodBias), 0);
-        RenderSettings.ambientMode = _origAmbientMode;
-        RenderSettings.ambientLight = _origAmbientLight;
-        RenderSettings.ambientIntensity = _origAmbientIntensity;
         RenderSettings.fog = _origFog;
         Time.timeScale = _origTimeScale;
     }

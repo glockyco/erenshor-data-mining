@@ -118,7 +118,6 @@ internal sealed class CaptureController
     private IEnumerator CaptureCoroutine(CaptureZoneRequest request)
     {
         GeometrySuppressor? suppressor = null;
-        GameObject? tempCamGo = null;
 
         try
         {
@@ -183,15 +182,16 @@ internal sealed class CaptureController
             // Count roof objects before suppression
             int roofObjectCount = ZoneBoundsProbe.CountRoofObjects();
 
-            // Get or create a camera for capture
-            var mainCam = Camera.main;
+            // Use the game's MainCam (lives in DontDestroyOnLoad after login).
+            // It carries the correct culling mask, depth texture mode, and
+            // PerfectCulling setup. A bare temp camera misses all of this.
+            var mainCam = GameObject.Find("MainCam")?.GetComponent<Camera>();
             if (mainCam == null)
             {
-                _logger.LogInfo("No main camera in scene \u2014 creating temporary capture camera");
-                tempCamGo = new GameObject("MapTileCapture_Camera") { tag = "MainCamera" };
-                mainCam = tempCamGo.AddComponent<Camera>();
-                mainCam.cullingMask = ~0; // render everything
-                mainCam.enabled = false; // we call Render() manually
+                SendError(request.Zone, request.Variant,
+                    "MainCam not found \u2014 the player must be logged in before capturing.");
+                TransitionToIdle();
+                yield break;
             }
 
             // --- Diagnostic: dump lighting state ---
@@ -250,8 +250,6 @@ internal sealed class CaptureController
         finally
         {
             suppressor?.Dispose();
-            if (tempCamGo != null)
-                UnityEngine.Object.Destroy(tempCamGo);
             TransitionToIdle();
         }
     }
