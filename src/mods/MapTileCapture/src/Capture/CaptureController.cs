@@ -176,6 +176,18 @@ internal sealed class CaptureController
                 yield return null;
             }
 
+            // --- Atmosphere initialization ---
+            // SceneChange only calls AtmosphereColors.ForceColors() for zones
+            // with a sun (usingSun = true). Cave/indoor zones skip it, leaving
+            // ambient light and fog distances from the previous zone. Force it
+            // unconditionally so every zone starts from its own atmosphere state.
+            var atmos = GameObject.Find("Sun")?.GetComponent("AtmosphereColors");
+            if (atmos != null)
+            {
+                atmos.SendMessage("ForceColors", SendMessageOptions.DontRequireReceiver);
+                _logger.LogInfo("Forced AtmosphereColors for zone.");
+            }
+
             // --- Capturing ---
             _state = State.Capturing;
 
