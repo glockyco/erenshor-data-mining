@@ -103,7 +103,6 @@ class CaptureOrchestrator:
                         zc["cropRect"] = crop
                         self.config[zone_key] = zc
                         save_zone_config(self.repo_root, self.config)
-                        _apply_crop(master_path, crop)
 
                 # Tile generation
                 count = generate_tile_pyramid(master_path, zone_key, variant, zc, tile_out)
@@ -248,20 +247,6 @@ def _build_chunk_grid(zc: dict[str, Any], output_dir: Path) -> list[dict[str, An
             idx += 1
 
     return chunks
-
-
-def _apply_crop(master_path: Path, crop: dict[str, int]) -> None:
-    """Crop the master image in place according to the crop rect."""
-    from PIL import Image
-
-    img = Image.open(master_path)
-    left = crop["left"]
-    top = crop["top"]
-    right = img.width - crop["right"]
-    bottom = img.height - crop["bottom"]
-    cropped = img.crop((left, top, right, bottom))
-    cropped.save(master_path, "PNG")
-    logger.info(f"Cropped master to {cropped.width}x{cropped.height}")
 
 
 def _wine_path(p: Path) -> str:
