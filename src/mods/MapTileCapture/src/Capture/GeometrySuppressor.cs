@@ -14,6 +14,8 @@ internal sealed class GeometrySuppressor : IDisposable
     // --- Snapshot storage ---
     private readonly float _origTimeScale;
     private readonly bool _origFog;
+    private readonly UnityEngine.Rendering.AmbientMode _origAmbientMode;
+    private readonly Color _origAmbientLight;
     private readonly CameraClearFlags _origClearFlags;
     private readonly Color _origBackgroundColor;
     private readonly int _origCullingMask;
@@ -24,12 +26,15 @@ internal sealed class GeometrySuppressor : IDisposable
     private readonly Behaviour? _ppLayer;
     private readonly Behaviour? _vibrance;
 
+    // Temporary capture light for indoor/no-sun zones (null for outdoor zones)
+    private readonly GameObject? _captureLight;
+
     // Per-object snapshots
     private readonly List<(GameObject go, bool wasActive)> _deactivatedObjects = new();
     private readonly List<(Renderer renderer, bool wasEnabled)> _disabledRenderers = new();
     private readonly List<(Canvas canvas, bool wasEnabled)> _disabledCanvases = new();
 
-    public GeometrySuppressor(Camera camera, bool hideRoofs, ExclusionRule[]? exclusionRules)
+    public GeometrySuppressor(Camera camera, bool hideRoofs, bool usingSun, ExclusionRule[]? exclusionRules)
     {
         _camera = camera;
 
@@ -48,6 +53,26 @@ internal sealed class GeometrySuppressor : IDisposable
 
         _origFog = RenderSettings.fog;
         RenderSettings.fog = false;
+
+        _origAmbientMode = RenderSettings.ambientMode;
+        _origAmbientLight = RenderSettings.ambientLight;
+        if (!usingSun)
+        {
+            // Indoor/cave zones have no sun. Their baked lightmaps are designed for
+            // torch-lit gameplay and produce near-black map tiles without real-time
+            // light contribution. Add a neutral overhead directional light and boost
+            // ambient so the geometry is legible without washing out baked detail.
+            RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
+            RenderSettings.ambientLight = Color.white * 0.6f;
+
+            _captureLight = new GameObject("__MapTileCapture_Light");
+            var lt = _captureLight.AddComponent<Light>();
+            lt.type = LightType.Directional;
+            lt.color = Color.white;
+            lt.intensity = 1.0f;
+            lt.shadows = LightShadows.None;
+            _captureLight.transform.eulerAngles = new Vector3(50f, -30f, 0f);
+        }
 
         // --- Camera ---
         _origClearFlags = camera.clearFlags;
@@ -224,7 +249,13 @@ internal sealed class GeometrySuppressor : IDisposable
         _camera.backgroundColor = _origBackgroundColor;
         _camera.cullingMask = _origCullingMask;
 
+        // Temporary capture light
+        if (_captureLight != null)
+            UnityEngine.Object.Destroy(_captureLight);
+
         // Global state
+        RenderSettings.ambientMode = _origAmbientMode;
+        RenderSettings.ambientLight = _origAmbientLight;
         RenderSettings.fog = _origFog;
         Time.timeScale = _origTimeScale;
     }

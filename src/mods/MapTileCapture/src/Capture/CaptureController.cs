@@ -242,6 +242,7 @@ internal sealed class CaptureController
             suppressor = new GeometrySuppressor(
                 mainCam,
                 request.HideRoofs,
+                request.UsingSun,
                 request.ExclusionRules
             );
 
