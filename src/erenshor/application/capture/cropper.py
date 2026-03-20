@@ -111,8 +111,12 @@ def _build_html(zone_key: str, b64_image: str, master_path: Path) -> str:
 <meta charset="utf-8">
 <title>Crop: {zone_key}</title>
 <style>
-  body {{ margin: 0; background: #1a1a1a; color: #eee; font-family: monospace; }}
+  body {{ margin: 0; background: #1a1a1a; color: #eee; font-family: monospace;
+          display: flex; justify-content: center; align-items: flex-start;
+          padding: 20px; box-sizing: border-box; min-height: 100vh; }}
   #container {{ position: relative; display: inline-block; }}
+  #img {{ display: block; max-width: calc(100vw - 40px); max-height: calc(100vh - 40px);
+           object-fit: contain; }}
   #overlay {{ position: absolute; border: 2px dashed #0f0; pointer-events: none; }}
   #readout {{ position: fixed; top: 10px; right: 10px; background: #333; padding: 10px;
               border-radius: 4px; z-index: 10; }}
