@@ -21,6 +21,12 @@ uv run erenshor eval run --json 'Camera.main.transform.position'
 
 # Reset REPL state (clear variables/definitions)
 uv run erenshor eval reset
+
+# Stream a value every frame (Ctrl-C to stop)
+uv run erenshor eval watch 'Camera.main.transform.position'
+
+# Autocomplete suggestions (does not execute code)
+uv run erenshor eval complete 'Camera.main.'
 ```
 
 ## Architecture
@@ -44,9 +50,10 @@ uv run erenshor eval run 'FindObjectsOfType<Camera>().Length'
 uv run erenshor eval run 'UnityEngine.Object.FindObjectsOfType<Camera>().Length'
 ```
 
-`using UnityEngine;` is pre-imported, so types like `Camera`, `Vector3`, `Renderer`,
-`LayerMask`, `SceneManager` work without qualification. Only static methods on
-`UnityEngine.Object` need the prefix.
+Several namespaces are pre-imported: `using UnityEngine;` covers most Unity types
+(`Camera`, `Vector3`, `Renderer`, `LayerMask`, etc.), while `SceneManager` comes
+from `using UnityEngine.SceneManagement;` which is pre-imported separately. Only
+static methods on `UnityEngine.Object` still need the full prefix.
 
 ## REPL State
 
@@ -63,7 +70,7 @@ Use `erenshor eval reset` to clear all state.
 
 Default timeout: 10 seconds. Configurable per-eval:
 ```bash
-uv run erenshor eval run --timeout 3000 'while(true){}'
+uv run erenshor eval run --timeout 3000 'while(true){}'  # value is in ms
 # => Error: Thread was being aborted. (after ~3s, game stays responsive)
 ```
 
@@ -119,4 +126,4 @@ cp src/HotRepl.BepInEx/bin/Debug/netstandard2.1/mcs.dll "$ERENSHOR_GAME_PATH/Bep
 |---|---|
 | `~/Projects/HotRepl/` | Standalone HotRepl project |
 | `src/erenshor/application/eval/client.py` | Python WebSocket client |
-| `src/erenshor/cli/commands/eval.py` | CLI commands (run, ping, reset) |
+| `src/erenshor/cli/commands/eval.py` | CLI commands (run, ping, reset, watch, complete) |
