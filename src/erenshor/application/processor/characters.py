@@ -544,6 +544,7 @@ def process_characters(
             "shout_on_death": r.get("ShoutOnDeath"),
             "quest_complete_on_death": r.get("QuestCompleteOnDeath"),
             "shout_trigger_quest_stable_key": r.get("ShoutTriggerQuestStableKey"),
+            "shout_trigger_keyword": r.get("ShoutTriggerKeyword"),
             "destroy_on_death": r.get("DestroyOnDeath"),
             "level": r.get("Level"),
             "base_xp_min": r.get("BaseXpMin"),

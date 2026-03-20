@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <!-- ============================================== -->
+  <!-- STEP 1: Copy BepInEx for type resolution -->
+  <!-- ============================================== -->
+  <Target Name="CopyReferenceAssemblies" BeforeTargets="ILRepackMod"
+          Condition="'$(SkipILRepack)' != 'true'">
+    <PropertyGroup>
+      <!-- Resolve NuGet package root (cross-platform) -->
+      <NuGetPackagesPath Condition="'$(NuGetPackageRoot)' != ''">$(NuGetPackageRoot)</NuGetPackagesPath>
+      <NuGetPackagesPath Condition="'$(NuGetPackagesPath)' == '' AND '$(OS)' == 'Windows_NT'">$(USERPROFILE)\.nuget\packages</NuGetPackagesPath>
+      <NuGetPackagesPath Condition="'$(NuGetPackagesPath)' == ''">$(HOME)/.nuget/packages</NuGetPackagesPath>
+
+      <BepInExSource>$(NuGetPackagesPath)/bepinex.baselib/5.4.20/lib/netstandard2.0/BepInEx.dll</BepInExSource>
+    </PropertyGroup>
+
+    <!-- Copy to output for ILRepack type resolution (not merged — BepInEx provides at runtime).
+         0Harmony.dll is in lib/ (copied from BepInEx install) and already on LibraryPath. -->
+    <Copy SourceFiles="$(BepInExSource)" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="true" />
+
+    <Message Text="Copied BepInEx.dll for ILRepack type resolution" Importance="normal" />
+  </Target>
+
+  <!-- ============================================== -->
+  <!-- STEP 2: Discover dependencies to merge -->
+  <!-- ============================================== -->
+  <Target Name="DiscoverDependencies" BeforeTargets="ILRepackMod" DependsOnTargets="CopyReferenceAssemblies"
+          Condition="'$(SkipILRepack)' != 'true'">
+    <ItemGroup>
+      <!-- Main assembly (always first) -->
+      <MergeAssemblies Include="$(OutputPath)$(TargetName)$(TargetExt)" />
+
+      <!-- Explicit list of NuGet dependencies to merge. System.* shims and
+           other framework forwarding assemblies are intentionally excluded —
+           merging them embeds type-forward references that cause
+           AssemblyResolutionException on runtimes that don't ship those
+           assemblies (e.g. custom mod loaders). BepInEx-provided assemblies
+           (BepInEx.dll, 0Harmony.dll) are excluded — they are reference-only. -->
+      <MergeAssemblies Include="$(OutputPath)Newtonsoft.Json.dll" />
+    </ItemGroup>
+
+    <!-- Debug output: Show what we're merging -->
+    <Message Text="╔════════════════════════════════════════════════════════════╗" Importance="high" />
+    <Message Text="║ ILRepack Merge Plan                                       ║" Importance="high" />
+    <Message Text="╠════════════════════════════════════════════════════════════╣" Importance="high" />
+    <Message Text="%(MergeAssemblies.Filename)%(MergeAssemblies.Extension)" Importance="high" />
+    <Message Text="╚════════════════════════════════════════════════════════════╝" Importance="high" />
+  </Target>
+
+  <!-- ============================================== -->
+  <!-- STEP 3: Run ILRepack to create single DLL -->
+  <!-- ============================================== -->
+  <Target Name="ILRepackMod" AfterTargets="Build" DependsOnTargets="DiscoverDependencies"
+          Condition="'$(SkipILRepack)' != 'true'">
+    <ILRepack
+      Parallel="true"
+      DebugInfo="true"
+      Internalize="true"
+      InputAssemblies="@(MergeAssemblies)"
+      LibraryPath="$(OutputPath);$(ProjectDir)lib"
+      TargetKind="Dll"
+      OutputFile="$(OutputPath)$(TargetName)$(TargetExt)"
+    />
+
+    <Message Text="✓ ILRepack: Successfully merged dependencies into $(TargetName)$(TargetExt)" Importance="high" />
+  </Target>
+
+  <!-- ============================================== -->
+  <!-- STEP 4: Clean up merged DLLs -->
+  <!-- ============================================== -->
+  <Target Name="CleanupAfterMerge" AfterTargets="ILRepackMod"
+          Condition="'$(SkipILRepack)' != 'true'">
+    <ItemGroup>
+      <!-- Keep only the final merged DLL and its companions -->
+      <KeepFiles Include="$(OutputPath)$(TargetName).dll" />
+      <KeepFiles Include="$(OutputPath)$(TargetName).pdb" />
+      <KeepFiles Include="$(OutputPath)$(TargetName).xml" />
+      <KeepFiles Include="$(OutputPath)$(TargetName).deps.json" />
+
+      <!-- Delete everything else -->
+      <AllFiles Include="$(OutputPath)*.*" />
+      <DeleteFiles Include="@(AllFiles)" Exclude="@(KeepFiles)" />
+    </ItemGroup>
+
+    <Delete Files="@(DeleteFiles)" />
+
+    <Message Text="✓ Cleaned up build output - single DLL ready for deployment" Importance="high" />
+  </Target>
+
+  <!-- ============================================== -->
+  <!-- When ILRepack is skipped, log it -->
+  <!-- ============================================== -->
+  <Target Name="SkipILRepackMessage" AfterTargets="Build"
+          Condition="'$(SkipILRepack)' == 'true'">
+    <Message Text="⊘ ILRepack skipped (SkipILRepack=true) — separate DLLs in output" Importance="high" />
+  </Target>
+
+</Project>

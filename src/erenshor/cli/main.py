@@ -22,7 +22,7 @@ from erenshor.infrastructure.config import ConfigLoadError, get_repo_root, load_
 from erenshor.infrastructure.logging import setup_logging
 from erenshor.infrastructure.logging.setup import LoggingSetupError
 
-from .commands import backup, capture, extract, golden, images, maps, mod, sheets, wiki
+from .commands import backup, capture, extract, golden, guide, images, maps, mod, sheets, wiki
 from .commands import eval as eval_cmd
 from .context import CLIContext
 
@@ -48,6 +48,7 @@ app.add_typer(mod.app, name="mod")
 app.add_typer(golden.app, name="golden")
 app.add_typer(capture.app, name="capture")
 app.add_typer(eval_cmd.app, name="eval")
+app.add_typer(guide.app, name="guide")
 
 
 @app.callback()

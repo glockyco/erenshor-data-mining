@@ -131,25 +131,32 @@ public class QuestListener : IAssetScanListener<Quest>
     private List<QuestRequiredItemRecord> CreateQuestRequiredItemRecords(Quest quest)
     {
         var records = new List<QuestRequiredItemRecord>();
-        var seenItemStableKeys = new HashSet<string>();
 
-        if (quest.RequiredItems != null && quest.RequiredItems.Count > 0)
+        if (quest.RequiredItems == null || quest.RequiredItems.Count == 0)
+            return records;
+
+        // Count occurrences of each item (duplicates represent quantity)
+        var itemCounts = new Dictionary<string, int>();
+        foreach (var item in quest.RequiredItems)
         {
-            foreach (var item in quest.RequiredItems)
+            if (item != null && !string.IsNullOrEmpty(item.name))
             {
-                if (item != null && !string.IsNullOrEmpty(item.name))
-                {
-                    var itemStableKey = StableKeyGenerator.ForItem(item);
-                    if (seenItemStableKeys.Add(itemStableKey))
-                    {
-                        records.Add(new QuestRequiredItemRecord
-                        {
-                            QuestVariantResourceName = quest.name,
-                            ItemStableKey = itemStableKey
-                        });
-                    }
-                }
+                var itemStableKey = StableKeyGenerator.ForItem(item);
+                if (itemCounts.ContainsKey(itemStableKey))
+                    itemCounts[itemStableKey]++;
+                else
+                    itemCounts[itemStableKey] = 1;
             }
+        }
+
+        foreach (var kvp in itemCounts)
+        {
+            records.Add(new QuestRequiredItemRecord
+            {
+                QuestVariantResourceName = quest.name,
+                ItemStableKey = kvp.Key,
+                Quantity = kvp.Value
+            });
         }
 
         return records;

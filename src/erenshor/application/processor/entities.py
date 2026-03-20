@@ -521,6 +521,7 @@ def process_quests(
         {
             "QuestVariantResourceName": "quest_variant_resource_name",
             "ItemStableKey": "item_stable_key",
+            "Quantity": "quantity",
         },
     )
     writer.insert_quest_required_items(req_rows)
@@ -577,6 +578,21 @@ def process_quests(
         },
     )
     writer.insert_quest_completion_sources(src_rows)
+
+    # QuestAcquisitionSources -- filtered by quest stable key
+    acq_rows = _rows(raw, "SELECT * FROM QuestAcquisitionSources")
+    acq_rows = _filter_junction(acq_rows, "QuestStableKey", valid)
+    acq_rows = _rename_cols(
+        acq_rows,
+        {
+            "QuestStableKey": "quest_stable_key",
+            "Method": "method",
+            "SourceType": "source_type",
+            "SourceStableKey": "source_stable_key",
+            "Note": "note",
+        },
+    )
+    writer.insert_quest_acquisition_sources(acq_rows)
 
     logger.info(f"Quests: wrote {len(valid)} quests + variant/junction tables")
     return valid

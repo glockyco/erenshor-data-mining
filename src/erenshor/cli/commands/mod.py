@@ -81,6 +81,12 @@ MODS: dict[str, ModInfo] = {
         "name": "Map Tile Capture",
         "dll_name": "MapTileCapture.dll",
     },
+    "adventure-guide": {
+        "dir": "src/mods/AdventureGuide",
+        "name": "Adventure Guide",
+        "dll_name": "AdventureGuide.dll",
+        "bepinex_dlls": ["0Harmony.dll"],
+    },
 }
 
 # Required DLLs to copy from game

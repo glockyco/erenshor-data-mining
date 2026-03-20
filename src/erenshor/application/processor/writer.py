@@ -662,6 +662,7 @@ CREATE TABLE quest_variants (
 CREATE TABLE quest_required_items (
     quest_variant_resource_name TEXT NOT NULL,
     item_stable_key             TEXT NOT NULL,
+    quantity                    INTEGER NOT NULL DEFAULT 1,
     PRIMARY KEY (quest_variant_resource_name, item_stable_key)
 );
 
@@ -694,6 +695,16 @@ CREATE TABLE quest_completion_sources (
 );
 CREATE INDEX quest_completion_sources_quest_idx
     ON quest_completion_sources (quest_stable_key);
+
+CREATE TABLE quest_acquisition_sources (
+    quest_stable_key    TEXT NOT NULL,
+    method              TEXT,
+    source_type         TEXT,
+    source_stable_key   TEXT,
+    note                TEXT
+);
+CREATE INDEX quest_acquisition_sources_quest_idx
+    ON quest_acquisition_sources (quest_stable_key);
 
 -- -------------------------------------------------------------------------
 -- Characters
@@ -735,6 +746,7 @@ CREATE TABLE characters (
     shout_on_death              TEXT,
     quest_complete_on_death     TEXT,
     shout_trigger_quest_stable_key TEXT,
+    shout_trigger_keyword       TEXT,
     destroy_on_death            INTEGER,
     level                       INTEGER,
     base_xp_min                 REAL,
@@ -1205,6 +1217,9 @@ class Writer:
 
     def insert_quest_completion_sources(self, rows: list[dict[str, object]]) -> int:
         return self._insert("quest_completion_sources", rows)
+
+    def insert_quest_acquisition_sources(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("quest_acquisition_sources", rows)
 
     def insert_characters(self, rows: list[dict[str, object]]) -> int:
         return self._insert("characters", rows)

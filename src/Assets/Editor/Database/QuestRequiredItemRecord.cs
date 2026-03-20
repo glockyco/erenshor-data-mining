@@ -14,4 +14,6 @@ public class QuestRequiredItemRecord
     [Indexed(Name = "QuestRequiredItems_Primary_IDX", Order = 2, Unique = true)]
     [ForeignKey(typeof(ItemRecord), "StableKey")]
     public string ItemStableKey { get; set; } = string.Empty;
+
+    public int Quantity { get; set; }
 }

@@ -46,6 +46,7 @@ public class CharacterRecord
     public string? QuestCompleteOnDeath { get; set; } = string.Empty;
     [ForeignKey(typeof(QuestRecord), "StableKey")]
     public string? ShoutTriggerQuestStableKey { get; set; } = string.Empty;
+    public string? ShoutTriggerKeyword { get; set; } = string.Empty;
     public bool DestroyOnDeath { get; set; }
 
     // Stats properties

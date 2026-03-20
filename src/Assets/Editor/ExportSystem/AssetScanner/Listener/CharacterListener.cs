@@ -173,6 +173,10 @@ public class CharacterListener : IAssetScanListener<Character>
         // Populate QuestCompletionSources from all exported tables
         // This must run after all other listeners have created their tables
         PopulateQuestCompletionSources();
+
+        // Populate QuestAcquisitionSources from all exported tables
+        // This must run after all other listeners have created their tables
+        PopulateQuestAcquisitionSources();
     }
 
     private void PopulateQuestCompletionSources()
@@ -228,12 +232,20 @@ public class CharacterListener : IAssetScanListener<Character>
             WHERE ShoutTriggerQuestStableKey IS NOT NULL AND ShoutTriggerQuestStableKey != ''
         ");
 
-        // 6. Scripted completions - hardcoded list with notes
+        // 6. Death - from Characters where QuestCompleteOnDeath is set
+        _db.Execute(@"
+            INSERT INTO QuestCompletionSources (QuestStableKey, Method, SourceType, SourceStableKey)
+            SELECT DISTINCT QuestCompleteOnDeath, 'death', 'character', StableKey
+            FROM Characters
+            WHERE QuestCompleteOnDeath IS NOT NULL AND QuestCompleteOnDeath != ''
+        ");
+
+        // 7. Scripted completions - hardcoded list with notes
         InsertScriptedCompletion("quest:bellwain", "AngelScript.cs - torch/beam puzzle");
         InsertScriptedCompletion("quest:jawsseen", "SivTorchLight.cs - gaze at torch 800 frames");
         InsertScriptedCompletion("quest:shiver-meetall", "ShiverEvent.cs - defeat 4 keepers");
 
-        // 7. Chain completions - quests only completed via QuestCompleteOtherQuests
+        // 8. Chain completions - quests only completed via QuestCompleteOtherQuests
         // Only insert if the quest has no other completion method
         _db.Execute(@"
             INSERT INTO QuestCompletionSources (QuestStableKey, Method, SourceType, SourceStableKey)
@@ -249,6 +261,72 @@ public class CharacterListener : IAssetScanListener<Character>
     private void InsertScriptedCompletion(string questStableKey, string note)
     {
         _db.Insert(new QuestCompletionSourceRecord
+        {
+            QuestStableKey = questStableKey,
+            Method = "scripted",
+            SourceType = "scripted",
+            SourceStableKey = null,
+            Note = note
+        });
+    }
+
+    private void PopulateQuestAcquisitionSources()
+    {
+        _db.CreateTable<QuestAcquisitionSourceRecord>();
+        _db.DeleteAll<QuestAcquisitionSourceRecord>();
+
+        // 1. Dialog - from CharacterDialogs where AssignQuestStableKey is set
+        _db.Execute(@"
+            INSERT INTO QuestAcquisitionSources (QuestStableKey, Method, SourceType, SourceStableKey)
+            SELECT DISTINCT AssignQuestStableKey, 'dialog', 'character', CharacterStableKey
+            FROM CharacterDialogs
+            WHERE AssignQuestStableKey IS NOT NULL AND AssignQuestStableKey != ''
+        ");
+
+        // 2. Item read - from Items where AssignQuestOnReadStableKey is set
+        _db.Execute(@"
+            INSERT INTO QuestAcquisitionSources (QuestStableKey, Method, SourceType, SourceStableKey)
+            SELECT DISTINCT AssignQuestOnReadStableKey, 'item_read', 'item', StableKey
+            FROM Items
+            WHERE AssignQuestOnReadStableKey IS NOT NULL AND AssignQuestOnReadStableKey != ''
+        ");
+
+        // 3. Zone entry - from Zones where AssignQuestOnEnterStableKey is set
+        _db.Execute(@"
+            INSERT INTO QuestAcquisitionSources (QuestStableKey, Method, SourceType, SourceStableKey)
+            SELECT DISTINCT AssignQuestOnEnterStableKey, 'zone_entry', 'zone', StableKey
+            FROM Zones
+            WHERE AssignQuestOnEnterStableKey IS NOT NULL AND AssignQuestOnEnterStableKey != ''
+        ");
+
+        // 4. Quest chain - from QuestVariants where AssignNewQuestOnCompleteStableKey is set
+        _db.Execute(@"
+            INSERT INTO QuestAcquisitionSources (QuestStableKey, Method, SourceType, SourceStableKey)
+            SELECT DISTINCT AssignNewQuestOnCompleteStableKey, 'quest_chain', 'quest', QuestStableKey
+            FROM QuestVariants
+            WHERE AssignNewQuestOnCompleteStableKey IS NOT NULL AND AssignNewQuestOnCompleteStableKey != ''
+        ");
+
+        // 5. Partial turn-in - quests that assign themselves on partial item delivery
+        // These quests have AssignThisQuestOnPartialComplete = 1 and are linked to NPCs via QuestManager
+        _db.Execute(@"
+            INSERT INTO QuestAcquisitionSources (QuestStableKey, Method, SourceType, SourceStableKey)
+            SELECT DISTINCT qv.QuestStableKey, 'partial_turnin', 'character', cqm.CharacterStableKey
+            FROM QuestVariants qv
+            JOIN CharacterQuestManagerQuests cqm ON cqm.QuestStableKey = qv.QuestStableKey
+            WHERE qv.AssignThisQuestOnPartialComplete = 1
+        ");
+
+        // 6. Scripted acquisitions - hardcoded list with notes
+        // These are quests assigned by direct GameData.AssignQuest() calls in event scripts
+        InsertScriptedAcquisition("quest:shiver-watchman", "ShiverEvent.cs - assigned when event begins");
+        InsertScriptedAcquisition("quest:shiver-hider", "ShiverEvent.cs - assigned during darkness phase");
+        InsertScriptedAcquisition("quest:shiver-torch", "ShiverEvent.cs - assigned after meeting keepers");
+    }
+
+    private void InsertScriptedAcquisition(string questStableKey, string note)
+    {
+        _db.Insert(new QuestAcquisitionSourceRecord
         {
             QuestStableKey = questStableKey,
             Method = "scripted",
@@ -403,7 +481,7 @@ public class CharacterListener : IAssetScanListener<Character>
             IsEnabled = character.isActiveAndEnabled,
             Invulnerable = character.Invulnerable,
             ShoutOnDeath = character.ShoutOnDeath != null ? string.Join(", ", character.ShoutOnDeath) : null,
-            QuestCompleteOnDeath = character.QuestCompleteOnDeath != null ? character.QuestCompleteOnDeath.DBName : null,
+            QuestCompleteOnDeath = character.QuestCompleteOnDeath != null ? StableKeyGenerator.ForQuest(character.QuestCompleteOnDeath) : null,
             DestroyOnDeath = character.DestroyOnDeath,
         };
 
@@ -580,6 +658,7 @@ public class CharacterListener : IAssetScanListener<Character>
         if (npcShoutListener?.TriggerQuest != null)
         {
             record.ShoutTriggerQuestStableKey = StableKeyGenerator.ForQuest(npcShoutListener.TriggerQuest);
+            record.ShoutTriggerKeyword = npcShoutListener.KeyWord;
         }
 
         return record;
