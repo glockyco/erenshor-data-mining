@@ -47,11 +47,6 @@ def run(
         "--force",
         help="Re-capture even if status is ok",
     ),
-    skip_crop: bool = typer.Option(
-        False,
-        "--skip-crop",
-        help="Skip interactive crop UI, tile full master image",
-    ),
 ) -> None:
     """Run the full capture pipeline.
 
@@ -83,7 +78,7 @@ def run(
 
     variants = [variant] if variant else None
     orch = CaptureOrchestrator(cli_ctx.repo_root, config, state)
-    asyncio.run(orch.run(selected, variants=variants, force=force, skip_crop=skip_crop))
+    asyncio.run(orch.run(selected, variants=variants, force=force))
 
     console.print("[bold green]Capture pipeline complete[/bold green]")
 
@@ -149,13 +144,20 @@ def crop(
         help="Zone name to crop (required)",
     ),
 ) -> None:
-    """Open interactive crop UI for a zone.
+    """Interactively adjust a zone's capture bounds by cropping the master PNG.
 
-    Launches a browser-based UI for adjusting the crop bounds
-    of a zone's master PNG before tiling.
+    Opens a browser UI where you drag to select the region of interest.
+    The selection is converted from master-pixel coordinates to world-space
+    bounds and written back to originX/Y and baseTilesX/Y in the zone config.
+    Tiles are regenerated immediately.
     """
+    import math
+
+    from PIL import Image
+
     from erenshor.application.capture.cropper import serve_crop_ui
     from erenshor.application.capture.state import CaptureState
+    from erenshor.application.capture.tile_generator import generate_tile_pyramid
     from erenshor.application.capture.zone_config import load_zone_config, save_zone_config
 
     cli_ctx: CLIContext = ctx.obj
@@ -166,7 +168,6 @@ def crop(
         console.print(f"Available zones: {', '.join(sorted(config.keys()))}")
         raise typer.Exit(1)
 
-    # Find master PNG from state
     state = CaptureState.load(cli_ctx.repo_root)
     variant_state = state.get_variant_state(zone, "clear")
     if not variant_state or not variant_state.get("masterPath"):
@@ -184,13 +185,57 @@ def crop(
     console.print(f"[bold cyan]Opening crop UI for zone: {zone}[/bold cyan]")
     console.print()
 
-    crop_rect = serve_crop_ui(master_path, zone, config[zone], cli_ctx.repo_root)
-    if crop_rect:
-        config[zone]["cropRect"] = crop_rect
-        save_zone_config(cli_ctx.repo_root, config)
-        console.print(f"[green]Crop saved: {crop_rect}[/green]")
-    else:
+    px = serve_crop_ui(master_path, zone, config[zone], cli_ctx.repo_root)
+    if not px:
         console.print("[yellow]Crop cancelled[/yellow]")
+        return
+
+    # Convert pixel margins to world-space bounds.
+    # Master pixel width = baseTilesX * 2^maxZoom * 256.
+    # One master pixel = 1 / 2^maxZoom world units (tileSize is always 256).
+    zc = config[zone]
+    max_zoom: int = zc["maxZoom"]
+    tile_size: int = zc.get("tileSize", 256)
+    base_x: int = zc["baseTilesX"]
+    base_y: int = zc["baseTilesY"]
+    origin_x: float = zc["originX"]
+    origin_y: float = zc["originY"]
+
+    wpp = 1.0 / (2**max_zoom)  # world units per master pixel
+
+    # image top = map north = high-Z edge; image bottom = south = originY side
+    new_min_x = origin_x + px["left"] * wpp
+    new_min_z = origin_y + px["bottom"] * wpp
+    new_max_x = (origin_x + base_x * tile_size) - px["right"] * wpp
+    new_max_z = (origin_y + base_y * tile_size) - px["top"] * wpp
+
+    new_tiles_x = max(1, math.ceil((new_max_x - new_min_x) / tile_size))
+    new_tiles_y = max(1, math.ceil((new_max_z - new_min_z) / tile_size))
+
+    zc["originX"] = round(new_min_x, 4)
+    zc["originY"] = round(new_min_z, 4)
+    zc["baseTilesX"] = new_tiles_x
+    zc["baseTilesY"] = new_tiles_y
+    config[zone] = zc
+    save_zone_config(cli_ctx.repo_root, config)
+
+    console.print(f"[green]Bounds updated: origin=({zc['originX']}, {zc['originY']}) ", end="")
+    console.print(f"tiles={new_tiles_x}x{new_tiles_y}[/green]")
+
+    # Crop the master in-place to match the new bounds so the master
+    # and config stay in sync. Tile generator scales the cropped master
+    # to fill the tile grid, so content fills tiles correctly.
+    with Image.open(master_path) as img:
+        w, h = img.size
+        box = (px["left"], px["top"], w - px["right"], h - px["bottom"])
+        cropped = img.crop(box)
+        cropped.save(master_path, "PNG")
+    console.print(f"[dim]Master cropped to {cropped.width}x{cropped.height}[/dim]")
+
+    console.print("[dim]Retiling...[/dim]")
+    tile_out = cli_ctx.repo_root / "src" / "maps" / "static" / "tiles"
+    count = generate_tile_pyramid(master_path, zone, "clear", zc, tile_out)
+    console.print(f"[green]Tiled {zone}/clear: {count} tiles[/green]")
 
 
 @app.command()

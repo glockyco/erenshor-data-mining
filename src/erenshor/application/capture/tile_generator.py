@@ -41,19 +41,6 @@ def generate_tile_pyramid(
 
     img = Image.open(master_path).convert("RGBA")
 
-    # Apply crop rect if set — trim dead space around the zone geometry.
-    # The master is kept at full resolution; the crop is applied in-memory only.
-    crop_rect = config.get("cropRect")
-    if crop_rect:
-        w, h = img.size
-        box = (
-            crop_rect["left"],
-            crop_rect["top"],
-            w - crop_rect["right"],
-            h - crop_rect["bottom"],
-        )
-        img = img.crop(box)
-
     zone_dir = out_dir / zone_key
     total = 0
 
