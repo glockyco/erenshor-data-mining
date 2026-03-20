@@ -51,7 +51,7 @@
                 <h3
                     class="text-white font-semibold text-lg mb-2 group-hover:text-purple-300 transition-colors duration-300 whitespace-pre-line"
                 >
-                    {mapConfig.zoneName.replace('(', '\n(')}
+                    {mapConfig.zoneName.replace(/\((?!\d+\))/, '\n(')}
                 </h3>
             </div>
 
