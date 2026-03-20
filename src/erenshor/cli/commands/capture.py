@@ -156,7 +156,7 @@ def crop(
     """
     from erenshor.application.capture.cropper import serve_crop_ui
     from erenshor.application.capture.state import CaptureState
-    from erenshor.application.capture.zone_config import load_zone_config
+    from erenshor.application.capture.zone_config import load_zone_config, save_zone_config
 
     cli_ctx: CLIContext = ctx.obj
     config = load_zone_config(cli_ctx.repo_root)
@@ -186,7 +186,9 @@ def crop(
 
     crop_rect = serve_crop_ui(master_path, zone, config[zone], cli_ctx.repo_root)
     if crop_rect:
-        console.print(f"[green]Crop applied: {crop_rect}[/green]")
+        config[zone]["cropRect"] = crop_rect
+        save_zone_config(cli_ctx.repo_root, config)
+        console.print(f"[green]Crop saved: {crop_rect}[/green]")
     else:
         console.print("[yellow]Crop cancelled[/yellow]")
 

@@ -744,7 +744,12 @@
         "originY": -100,
         "northBearing": null,
         "captureVariants": ["clear"],
-        "cropRect": null,
+        "cropRect": {
+            "top": 495,
+            "right": 432,
+            "bottom": 367,
+            "left": 372
+        },
         "exclusionRules": [],
         "usingSun": false
     },
@@ -1431,7 +1436,12 @@
         "originY": -80,
         "northBearing": null,
         "captureVariants": ["clear"],
-        "cropRect": null,
+        "cropRect": {
+            "top": 126,
+            "right": 610,
+            "bottom": 1409,
+            "left": 1156
+        },
         "exclusionRules": [],
         "usingSun": false
     },
@@ -1615,7 +1625,12 @@
         "originY": -100,
         "northBearing": null,
         "captureVariants": ["clear"],
-        "cropRect": null,
+        "cropRect": {
+            "top": 661,
+            "right": 504,
+            "bottom": 145,
+            "left": 129
+        },
         "exclusionRules": [],
         "usingSun": false
     },
@@ -1629,7 +1644,12 @@
         "originY": -100,
         "northBearing": null,
         "captureVariants": ["clear"],
-        "cropRect": null,
+        "cropRect": {
+            "top": 163,
+            "right": 49,
+            "bottom": 72,
+            "left": 3
+        },
         "exclusionRules": [],
         "usingSun": false
     },
@@ -1704,7 +1724,12 @@
         "originY": -200,
         "northBearing": null,
         "captureVariants": ["clear"],
-        "cropRect": null,
+        "cropRect": {
+            "top": 845,
+            "right": 588,
+            "bottom": 46,
+            "left": 302
+        },
         "exclusionRules": [],
         "usingSun": false
     },
