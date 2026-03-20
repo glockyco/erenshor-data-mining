@@ -25,10 +25,10 @@ public sealed class Plugin : BaseUnityPlugin
 
     // ── Camera background ────────────────────────────────────────────────────
     // Fill colour for empty areas of the capture (outside terrain bounds).
-    // Default is a warm earthy tan matching the Erenshor world map background.
-    public static float BackgroundR = 0.63f;
-    public static float BackgroundG = 0.53f;
-    public static float BackgroundB = 0.31f;
+    // Default is a dark olive-green matching the Erenshor world map background.
+    public static float BackgroundR = 0.39f;
+    public static float BackgroundG = 0.41f;
+    public static float BackgroundB = 0.27f;
 
     // ── Capture defaults ─────────────────────────────────────────────────────
     // Used when the Python request does not specify a value (i.e. field is 0).
