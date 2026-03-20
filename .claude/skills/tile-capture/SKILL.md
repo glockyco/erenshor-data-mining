@@ -18,7 +18,7 @@ Capture and generate map tiles for all Erenshor zones using the in-game MapTileC
    - `orchestrator.py` -- WebSocket client driving zone/variant capture sequence
    - `tile_generator.py` -- master PNG to tile pyramid (Pillow, downscale only)
    - `stitcher.py` -- concatenates chunks when master exceeds GPU RT limit (~4096px)
-   - `cropper.py` -- local HTTP server + browser UI for interactive crop selection
+   - `zone_config.py` -- reads/writes `zone-capture-config.json`
    - `zone_config.py` -- reads/writes `zone-capture-config.json`
    - `state.py` -- capture state tracking (`.erenshor/capture-state.json`, gitignored)
    - `budget.py` -- tile count estimation
@@ -36,7 +36,7 @@ uv run erenshor capture run
      -> sends capture_zone with chunk grid
      -> mod: loads scene, creates temp sun, suppresses geometry, renders chunks as PNG
      -> Python: stitches chunks -> master.png
-     -> Python: interactive crop (first capture only, if no cropRect in config)
+     -> Python: generates tile pyramid (all zoom levels, downscale only)
      -> Python: generates tile pyramid (all zoom levels, downscale only)
      -> writes tiles to static/tiles/{zone}/{z}/{x}/{y}.webp
 ```
@@ -98,18 +98,6 @@ uv run erenshor capture run --force
 uv run erenshor capture tile
 uv run erenshor capture tile --zones Abyssal
 
-# Interactive crop (opens browser UI)
-uv run erenshor capture crop --zone Abyssal
-
-# Status and budget
-uv run erenshor capture status
-uv run erenshor capture budget
-```
-
-To skip the crop UI during development, set a dummy cropRect in the zone config:
-```python
-config['ZoneName']['cropRect'] = {'top': 0, 'right': 0, 'bottom': 0, 'left': 0}
-```
 
 ## Key Files
 
@@ -188,16 +176,95 @@ uv run erenshor mod deploy --mod map-tile-capture
 The mod uses Newtonsoft.Json (not System.Text.Json -- the latter is incompatible
 with Unity's Mono runtime). ILRepack merges Fleck + Newtonsoft.Json into a single DLL.
 
+## Setting Bounds for a New Zone
+
+Use HotRepl to measure the actual geometry — do not guess. The key is to query
+scene-owned objects only (`scene.GetRootGameObjects()`) to exclude
+DontDestroyOnLoad objects that sit at the world origin and inflate the bounds.
+
+```bash
+# 1. Load the scene
+uv run erenshor eval run 'SceneManager.LoadScene("ZoneName");'
+sleep 4
+
+# 2. Get scene-owned renderer bounds
+uv run erenshor eval run '
+var scene = SceneManager.GetActiveScene();
+var bounds = new Bounds(); bool first = true; int n = 0;
+foreach (var go in scene.GetRootGameObjects())
+    foreach (var r in go.GetComponentsInChildren<MeshRenderer>()) {
+        var s = r.bounds.size;
+        if (s.x > 200 || s.z > 200) continue;
+        if (first) { bounds = r.bounds; first = false; } else bounds.Encapsulate(r.bounds);
+        n++;
+    }
+string.Format("n={0} minX={1:F2} maxX={2:F2} minZ={3:F2} maxZ={4:F2}",
+    n, bounds.min.x, bounds.max.x, bounds.min.z, bounds.max.z)
+'
+```
+
+If floating objects far from the accessible area inflate the bounds, filter
+to within 100 world units of the median instead:
+
+```bash
+uv run erenshor eval run '
+var scene = SceneManager.GetActiveScene();
+var pts = new System.Collections.Generic.List<Vector3>();
+foreach (var go in scene.GetRootGameObjects())
+    foreach (var r in go.GetComponentsInChildren<MeshRenderer>()) {
+        var s = r.bounds.size; if (s.x > 200 || s.z > 200) continue;
+        pts.Add(r.bounds.center);
+    }
+var xs = pts.ConvertAll(p => p.x); xs.Sort();
+var zs = pts.ConvertAll(p => p.z); zs.Sort();
+float mx = xs[xs.Count/2], mz = zs[zs.Count/2];
+var bounds = new Bounds(); bool first = true; int n = 0;
+foreach (var go in scene.GetRootGameObjects())
+    foreach (var r in go.GetComponentsInChildren<MeshRenderer>()) {
+        var s = r.bounds.size; if (s.x > 200 || s.z > 200) continue;
+        var c = r.bounds.center;
+        if (Mathf.Abs(c.x - mx) > 100 || Mathf.Abs(c.z - mz) > 100) continue;
+        if (first) { bounds = r.bounds; first = false; } else bounds.Encapsulate(r.bounds);
+        n++;
+    }
+string.Format("median=({0:F1},{1:F1}) n={2} minX={3:F2} maxX={4:F2} minZ={5:F2} maxZ={6:F2}",
+    mx, mz, n, bounds.min.x, bounds.max.x, bounds.min.z, bounds.max.z)
+'
+```
+
+### Computing the origin
+
+- `baseTilesX = ceil(content_width / 256)`, `baseTilesY = ceil(content_depth / 256)`
+- Add an extra tile if the fit is very tight (less than ~20% margin)
+- `centerX = (minX + maxX) / 2`, `centerZ = (minZ + maxZ) / 2`
+- `originX = centerX - baseTilesX * 128`
+- `originY = centerZ - baseTilesY * 128`
+
+Verify after capture:
+```bash
+uv run python -c "
+from PIL import Image; import numpy as np
+img = Image.open('.erenshor/masters/ZoneName_clear.png').convert('RGB')
+arr = np.array(img)
+bg = (99, 105, 69)  # olive-green background colour
+diff = np.abs(arr.astype(int) - bg).sum(axis=2)
+ys, xs = np.where(diff > 20)
+cx, cy = (xs.min()+xs.max())//2, (ys.min()+ys.max())//2
+print(f'content center ({cx},{cy}), image center ({img.width//2},{img.height//2})')
+"
+```
+
+Content center should be within ~50 px of image center.
+
 ## Adding a New Zone
 
 1. Add entry to `src/maps/src/lib/data/zone-capture-config.json`
 2. Add display name to `DISPLAY_NAMES` in `src/maps/src/lib/maps.ts`
-3. Run `uv run erenshor capture run --zones NewZone`
-4. Interactive crop UI opens automatically for first capture
-5. Tiles generated and deployed with `uv run erenshor maps build && uv run erenshor maps deploy`
+3. Determine bounds using HotRepl (see **Setting Bounds** above)
+4. Run `uv run erenshor capture run --zones NewZone`
+5. Deploy with `uv run erenshor maps build && uv run erenshor maps deploy`
 
 ## Known Issues
 
-- **Crop UI**: Apply button POST doesn't always land before browser closes. Workaround: set cropRect manually in zone-capture-config.json.
 - **Baked lightmap shadows**: Removing roofs leaves their baked shadows on floors. No fix short of rebaking lightmaps.
 - **Game NullReferenceExceptions**: Expected when loading scenes without a player. Game objects (NPCDialogManager, SpawnPoint, ZoneAnnounce) fail in Start(). Does not affect capture.
