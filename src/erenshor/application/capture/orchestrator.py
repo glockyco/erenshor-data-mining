@@ -91,6 +91,7 @@ class CaptureOrchestrator:
                 logger.info(f"Capturing {zone_key}/{variant}")
                 try:
                     await self._capture_zone(zone_key, variant, zc, master_path)
+                    logger.info(f"Master: {master_path}")
                 except _CaptureError as exc:
                     logger.error(f"Capture failed for {zone_key}/{variant}: {exc}")
                     continue

@@ -39,13 +39,17 @@
         "worldX": 4593.14268659021,
         "worldY": -5428.193324213285
     },
-    "Duskenlight": {
-        "worldX": -8564.540666604327,
-        "worldY": 1284.7525142847742
+    "Detention": {
+        "worldX": 0,
+        "worldY": 0
     },
     "DuskenPortal": {
         "worldX": -8824.996492390956,
         "worldY": 1656.363555610257
+    },
+    "Duskenlight": {
+        "worldX": -8564.540666604327,
+        "worldY": 1284.7525142847742
     },
     "Elderstone": {
         "worldX": 2372.976814771849,
@@ -83,6 +87,10 @@
         "worldX": -4941.940109449064,
         "worldY": -1470.9118327113865
     },
+    "Reliquary": {
+        "worldX": 0,
+        "worldY": 0
+    },
     "Ripper": {
         "worldX": -5263.681930264196,
         "worldY": -7178.031872967031
@@ -103,6 +111,18 @@
         "worldX": 3880.732050208827,
         "worldY": 738.3773260387356
     },
+    "ShiveringStep": {
+        "worldX": -7412.563267260943,
+        "worldY": 6767.400902607647
+    },
+    "ShiveringTomb": {
+        "worldX": 0,
+        "worldY": 0
+    },
+    "ShiveringTomb2": {
+        "worldX": 0,
+        "worldY": 0
+    },
     "Silkengrass": {
         "worldX": -1631.9948292840681,
         "worldY": -4738.621448157838
@@ -115,9 +135,9 @@
         "worldX": -8363.755214068558,
         "worldY": 6808.355823416162
     },
-    "ShiveringStep": {
-        "worldX": -7412.563267260943,
-        "worldY": 6767.400902607647
+    "StowawayPortal": {
+        "worldX": 0,
+        "worldY": 0
     },
     "SummerEvent": {
         "worldX": 6546.39860426938,
@@ -143,12 +163,12 @@
         "worldX": 1623.5724284368193,
         "worldY": 2463.4364118366475
     },
-    "Windwashed": {
-        "worldX": -4839.625485362725,
-        "worldY": -2980.558543888184
-    },
     "Willowwatch": {
         "worldX": -3211.086193999541,
         "worldY": 2120.693068861501
+    },
+    "Windwashed": {
+        "worldX": -4839.625485362725,
+        "worldY": -2980.558543888184
     }
 }
