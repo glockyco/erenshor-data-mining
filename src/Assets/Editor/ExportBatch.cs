@@ -488,8 +488,16 @@ public static class ExportBatch
             var y = character.Y!.Value;
             var z = character.Z!.Value;
 
-            // Generate spawn point stable key from coordinates
+            // Generate spawn point stable key from coordinates.
+            // If a real SpawnPoint component already exists at these exact coordinates,
+            // the character is managed by that SpawnPoint — skip it to avoid a phantom
+            // duplicate that inflates spawnPointCount and breaks IsUnique detection.
             var baseStableKey = StableKeyGenerator.ForSpawnPoint(scene, x, y, z);
+            if (existingSpawnPointKeys.Contains(baseStableKey))
+            {
+                Log(LogLevel.Verbose, logLevel, $"[EXPORT_SPAWN] Skipping {character.StableKey}: real SpawnPoint already exists at {baseStableKey}");
+                continue;
+            }
             var stableKey = keyTracker.GetUniqueKey(baseStableKey, character.StableKey);
 
             // Create virtual spawn point record

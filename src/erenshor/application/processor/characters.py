@@ -479,9 +479,12 @@ def process_characters(
                 }
             )
 
-        # Recompute is_unique / is_rare based on all group spawns.
-        # Note: this may need revisiting if map visibility excludes some spawns.
-        group_spawns = [s for m in members for s in m.spawns]
+        # Recompute is_unique / is_rare based on spawn-point rows only.
+        # Null-key direct-placement rows are excluded from map rendering
+        # (WHERE spawn_point_stable_key IS NOT NULL) so must not count here,
+        # or a character with one real spawn point + one null-key phantom
+        # would incorrectly appear as non-unique.
+        group_spawns = [s for m in members for s in m.spawns if s.spawn_point_stable_key is not None]
         total_spawns = len(group_spawns)
         is_unique = 1 if total_spawns == 1 else 0
         any_common = any(bool(s.is_common) for s in group_spawns)
