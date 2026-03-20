@@ -45,11 +45,11 @@ grep -i "Map Tile Capture\|capture\|error\|exception" "$ERENSHOR_GAME_PATH/BepIn
 ## CLI Commands
 
 ```bash
-uv run erenshor capture run [--zones A B] [--variant clear] [--force]
-uv run erenshor capture tile [--zones A B]   # re-tile from existing masters, no game needed
+uv run erenshor capture run [--zones A] [--zones B] [--variant clear] [--force]
+uv run erenshor capture tile [--zones A]    # re-tile from existing masters, no game needed
 uv run erenshor capture status
 uv run erenshor capture budget
-uv run erenshor maps thumbnails [--zones A B]  # regenerate zone-maps gallery images
+uv run erenshor maps thumbnails [--zones A]  # needs dev/preview server running (see below)
 ```
 
 ## Scene Lighting
@@ -113,16 +113,16 @@ history for the median-filter snippet.
 After capture, verify content is centered in the master:
 
 ```bash
-uv run python -c "
-from PIL import Image; import numpy as np
+uv run erenshor python -c "
+from PIL import Image
 img = Image.open('.erenshor/masters/ZoneName_clear.png').convert('RGB')
-arr = np.array(img)
-# Background is dark slate (0.06, 0.07, 0.10) -> approx (15, 18, 26)
-bg = (15, 18, 26)
-diff = np.abs(arr.astype(int) - bg).sum(axis=2)
-ys, xs = np.where(diff > 20)
-cx, cy = (xs.min()+xs.max())//2, (ys.min()+ys.max())//2
-print(f'content center ({cx},{cy}), image center ({img.width//2},{img.height//2})')
+w, h = img.size
+# Count non-background pixels using Pillow only (no numpy dependency)
+bg = (15, 18, 26)  # dark slate (0.06, 0.07, 0.10) * 255
+non_bg = [(x, y) for y in range(h) for x in range(w) if any(abs(img.getpixel((x,y))[i]-bg[i])>20 for i in range(3))]
+if non_bg:
+    xs, ys = zip(*non_bg)
+    print(f'content center ({(min(xs)+max(xs))//2},{(min(ys)+max(ys))//2}), image center ({w//2},{h//2})')
 "
 ```
 
@@ -133,7 +133,11 @@ Content center should be within ~50 px of image center.
 1. Add entry to `zone-capture-config.json` (use HotRepl bounds above)
 2. Add display name to `DISPLAY_NAMES` in `src/maps/src/lib/maps.ts`
 3. `uv run erenshor capture run --zones NewZone`
-4. `uv run erenshor maps thumbnails --zones NewZone`
+4. Start maps dev server, then generate thumbnails:
+   ```bash
+   uv run erenshor maps dev &  # default port 5173
+   uv run erenshor maps thumbnails --zones NewZone --url http://localhost:5173
+   ```
 5. Deploy: `uv run erenshor maps build && uv run erenshor maps deploy`
 
 ## Known Issues

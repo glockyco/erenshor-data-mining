@@ -7,6 +7,9 @@ For the full capture pipeline (Python orchestrator, tile generation, zone setup)
 ## Build & Deploy
 
 ```bash
+# First time only — copies game DLLs into lib/ (required for dotnet build)
+uv run erenshor mod setup --mod map-tile-capture
+
 # From repo root — always use these, not dotnet directly
 uv run erenshor mod build --mod map-tile-capture
 uv run erenshor mod deploy --mod map-tile-capture
