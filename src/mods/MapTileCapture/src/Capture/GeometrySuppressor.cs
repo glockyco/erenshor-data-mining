@@ -1,21 +1,9 @@
-using System;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using MapTileCapture.Protocol;
 
 namespace MapTileCapture.Capture;
-
-/// <summary>
-/// Rule for excluding specific renderers from the capture by name or position.
-/// Deserialized from the capture_zone message.
-/// </summary>
-public sealed class ExclusionRule
-{
-    public string? NameExact { get; set; }
-    public string? NameContains { get; set; }
-    public float? PositionAbove { get; set; }
-}
 
 /// <summary>
 /// Suppresses visual noise (characters, particles, UI, fog, etc.) for map tile captures.
@@ -26,8 +14,6 @@ internal sealed class GeometrySuppressor : IDisposable
     // --- Snapshot storage ---
     private readonly float _origTimeScale;
     private readonly bool _origFog;
-    private readonly int _origLodBias; // stored as raw bits to avoid float comparison issues
-    private readonly int _origMaxLodLevel;
     private readonly CameraClearFlags _origClearFlags;
     private readonly Color _origBackgroundColor;
     private readonly int _origCullingMask;
@@ -239,8 +225,6 @@ internal sealed class GeometrySuppressor : IDisposable
         _camera.cullingMask = _origCullingMask;
 
         // Global state
-        QualitySettings.maximumLODLevel = _origMaxLodLevel;
-        QualitySettings.lodBias = BitConverter.ToSingle(BitConverter.GetBytes(_origLodBias), 0);
         RenderSettings.fog = _origFog;
         Time.timeScale = _origTimeScale;
     }
