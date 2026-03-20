@@ -10,12 +10,12 @@ using UnityEngine.SceneManagement;
 namespace MapTileCapture.Capture;
 
 /// <summary>
-/// State machine that orchestrates zone captures: scene loading, stabilization,
-/// geometry suppression, chunk rendering, and result reporting.
+/// State machine that orchestrates zone captures: optional auto-login, scene loading,
+/// stabilization, geometry suppression, chunk rendering, and result reporting.
 /// </summary>
 internal sealed class CaptureController
 {
-    private enum State { Idle, Loading, Stabilizing, Capturing }
+    private enum State { Idle, LoggingIn, Loading, Stabilizing, Capturing }
 
     private static readonly JsonSerializerSettings JsonSettings = new()
     {
@@ -121,6 +121,24 @@ internal sealed class CaptureController
 
         try
         {
+            // --- Auto-login (if player is not yet in-world) ---
+            // MainCam lives in DontDestroyOnLoad after login. Its absence means
+            // we are still on the main menu or character select screen.
+            if (GameObject.Find("MainCam") == null)
+            {
+                _state = State.LoggingIn;
+                _logger.LogInfo("MainCam not found — attempting auto-login.");
+                yield return EnsureInWorldCoroutine();
+                if (GameObject.Find("MainCam") == null)
+                {
+                    SendError(request.Zone, request.Variant,
+                        "Auto-login failed: player not in-world after login attempt. " +
+                        "Check BepInEx log for details.");
+                    TransitionToIdle();
+                    yield break;
+                }
+            }
+
             // --- Loading ---
             _state = State.Loading;
             _logger.LogInfo($"Loading scene '{request.SceneName}' for zone '{request.Zone}'");
@@ -133,7 +151,23 @@ internal sealed class CaptureController
             }
 
             SceneManager.sceneLoaded += OnSceneLoaded;
-            SceneManager.LoadScene(request.SceneName);
+
+            // Use GameData.SceneChange.ChangeScene instead of raw SceneManager.LoadScene.
+            // ChangeScene sets GameData.usingSun, enables or disables the Sun light,
+            // and calls AtmosphereColors.ForceColors() for outdoor zones — all before
+            // the new scene loads, so ZoneAnnounce.Start() sees the correct state.
+            // This prevents atmosphere contamination between sequential zone captures.
+            if (GameData.SceneChange == null)
+            {
+                SceneManager.sceneLoaded -= OnSceneLoaded;
+                SendError(request.Zone, request.Variant,
+                    "GameData.SceneChange is null — player must be fully in-world before capturing.");
+                TransitionToIdle();
+                yield break;
+            }
+
+            GameData.SceneChange.ChangeScene(
+                request.SceneName, Vector3.zero, request.UsingSun, 0f);
 
             // Wait for scene to finish loading, with timeout
             float timeout = request.SceneLoadTimeoutSecs > 0 ? request.SceneLoadTimeoutSecs : 30f;
@@ -177,10 +211,10 @@ internal sealed class CaptureController
             }
 
             // --- Atmosphere initialization ---
-            // SceneChange only calls AtmosphereColors.ForceColors() for zones
-            // with a sun (usingSun = true). Cave/indoor zones skip it, leaving
-            // ambient light and fog distances from the previous zone. Force it
-            // unconditionally so every zone starts from its own atmosphere state.
+            // SceneChange calls AtmosphereColors.ForceColors() only for zones with
+            // usingSun=true. Indoor/cave zones inherit ambient light and fog from
+            // the previous zone. Force it unconditionally so every zone starts from
+            // its own atmosphere state regardless of load order.
             var atmos = GameObject.Find("Sun")?.GetComponent("AtmosphereColors");
             if (atmos != null)
             {
@@ -194,28 +228,14 @@ internal sealed class CaptureController
             // Count roof objects before suppression
             int roofObjectCount = ZoneBoundsProbe.CountRoofObjects();
 
-            // Use the game's MainCam (lives in DontDestroyOnLoad after login).
-            // It carries the correct culling mask, depth texture mode, and
-            // PerfectCulling setup. A bare temp camera misses all of this.
+            // MainCam carries the correct culling mask (12287), depth texture mode,
+            // and PerfectCulling setup baked for the logged-in player.
             var mainCam = GameObject.Find("MainCam")?.GetComponent<Camera>();
             if (mainCam == null)
             {
-                SendError(request.Zone, request.Variant,
-                    "MainCam not found \u2014 the player must be logged in before capturing.");
+                SendError(request.Zone, request.Variant, "MainCam disappeared unexpectedly mid-capture.");
                 TransitionToIdle();
                 yield break;
-            }
-
-            // --- Diagnostic: dump lighting state ---
-            _logger.LogInfo($"RenderSettings: ambientMode={RenderSettings.ambientMode}, " +
-                $"ambientLight={RenderSettings.ambientLight}, " +
-                $"ambientIntensity={RenderSettings.ambientIntensity}, " +
-                $"ambientSkyColor={RenderSettings.ambientSkyColor}");
-            foreach (var light in UnityEngine.Object.FindObjectsOfType<Light>())
-            {
-                _logger.LogInfo($"Light: {light.name} type={light.type} enabled={light.enabled} " +
-                    $"intensity={light.intensity} color={light.color} " +
-                    $"rotation={light.transform.eulerAngles}");
             }
 
             // Create suppressor — dispose guaranteed via finally
@@ -264,6 +284,97 @@ internal sealed class CaptureController
             suppressor?.Dispose();
             TransitionToIdle();
         }
+    }
+
+    /// <summary>
+    /// Drives the game through its login flow so captures can proceed without
+    /// requiring the player to manually navigate the menus.
+    ///
+    /// Handles two starting states:
+    ///   "Menu"      — clicks the Login button to load the character select screen
+    ///   "LoadScene" — selects character slot 0, waits for sim data, enters world
+    ///
+    /// On completion (success or timeout) the caller checks whether MainCam is
+    /// present to determine whether the login succeeded.
+    /// </summary>
+    private IEnumerator EnsureInWorldCoroutine()
+    {
+        string scene = SceneManager.GetActiveScene().name;
+        _logger.LogInfo($"EnsureInWorld: current scene = '{scene}'");
+
+        // From the main menu: load the character select screen.
+        // The Login button calls SceneManager.LoadScene("LoadScene") — replicate
+        // that directly rather than simulating a UI click.
+        if (scene == "Menu")
+        {
+            _logger.LogInfo("On Menu — loading character select screen.");
+            SceneManager.LoadScene("LoadScene");
+
+            float t = 0f;
+            while (SceneManager.GetActiveScene().name != "LoadScene")
+            {
+                t += Time.unscaledDeltaTime;
+                if (t > 30f) { _logger.LogError("Timed out waiting for LoadScene."); yield break; }
+                yield return null;
+            }
+
+            // Give MonoBehaviours two frames to run their Start() callbacks.
+            yield return null;
+            yield return null;
+        }
+
+        // On the character select screen: pick slot 0 and enter the world.
+        if (SceneManager.GetActiveScene().name == "LoadScene")
+        {
+            var charSelect = UnityEngine.Object.FindObjectOfType<CharSelectManager>();
+            if (charSelect == null)
+            {
+                _logger.LogError("CharSelectManager not found on LoadScene.");
+                yield break;
+            }
+
+            _logger.LogInfo("Selecting character slot 0.");
+            charSelect.SelectSlot(0);
+
+            // CharSelectManager.Update() enables EnterWorld only once
+            // LoadedSimplayers == true and the selected slot has a character name.
+            _logger.LogInfo("Waiting for character data to load...");
+            float t = 0f;
+            while (!(GameData.SimMngr?.LoadedSimplayers == true &&
+                     GameData.CurrentCharacterSlot?.CharName?.Length > 0))
+            {
+                t += Time.unscaledDeltaTime;
+                if (t > 60f) { _logger.LogError("Timed out waiting for character data."); yield break; }
+                yield return null;
+            }
+
+            if (GameData.CurrentCharacterSlot!.CharName.Length == 0)
+            {
+                _logger.LogError("Character slot 0 is empty — cannot enter world.");
+                yield break;
+            }
+
+            _logger.LogInfo($"Entering world as '{GameData.CurrentCharacterSlot.CharName}'.");
+            charSelect.EnterWorld.onClick.Invoke();
+        }
+
+        // Wait for the player to land in a game zone. MainCam appears in
+        // DontDestroyOnLoad once the world scene has loaded and the player spawned.
+        _logger.LogInfo("Waiting for MainCam...");
+        float inWorldTimeout = 60f;
+        float inWorldElapsed = 0f;
+        while (GameObject.Find("MainCam") == null)
+        {
+            inWorldElapsed += Time.unscaledDeltaTime;
+            if (inWorldElapsed > inWorldTimeout)
+            {
+                _logger.LogError("Timed out waiting for MainCam after login.");
+                yield break;
+            }
+            yield return null;
+        }
+
+        _logger.LogInfo("Player is in-world.");
     }
 
     private void TransitionToIdle()
@@ -327,7 +438,7 @@ internal sealed class CaptureController
         _logger.LogError($"Capture error [{zone}/{variant}]: {reason}");
     }
 
-    // --- Request DTOs ---
+    // --- Request DTO ---
 
     private sealed class CaptureZoneRequest
     {
@@ -342,6 +453,14 @@ internal sealed class CaptureController
 
         [JsonProperty("hideRoofs")]
         public bool HideRoofs { get; set; }
+
+        /// <summary>
+        /// Whether the destination zone uses a sun (outdoor zones: true, indoor/cave: false).
+        /// Passed to GameData.SceneChange.ChangeScene so the Sun light and AtmosphereColors
+        /// are configured correctly before the scene loads.
+        /// </summary>
+        [JsonProperty("usingSun")]
+        public bool UsingSun { get; set; } = true;
 
         [JsonProperty("sceneLoadTimeoutSecs")]
         public float SceneLoadTimeoutSecs { get; set; }
