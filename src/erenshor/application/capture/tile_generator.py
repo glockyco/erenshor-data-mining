@@ -53,9 +53,11 @@ def generate_tile_pyramid(
         target_w = num_x * TILE_SIZE
         target_h = num_y * TILE_SIZE
 
+        # Skip zoom levels where the master is smaller than the target —
+        # the crop UI guarantees the master exactly fills the grid at maxZoom,
+        # so lower zoom levels will always be downscales and never hit this.
         if target_w > img.width or target_h > img.height:
             continue
-
         scaled = img.resize((target_w, target_h), Image.LANCZOS)
 
         for tx in range(num_x):

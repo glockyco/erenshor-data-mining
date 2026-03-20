@@ -151,7 +151,6 @@ def crop(
     bounds and written back to originX/Y and baseTilesX/Y in the zone config.
     Tiles are regenerated immediately.
     """
-    import math
 
     from PIL import Image
 
@@ -190,45 +189,50 @@ def crop(
         console.print("[yellow]Crop cancelled[/yellow]")
         return
 
-    # Convert pixel margins to world-space bounds.
-    # Master pixel width = baseTilesX * 2^maxZoom * 256.
-    # One master pixel = 1 / 2^maxZoom world units (tileSize is always 256).
+    # sel: {x, y, tilesX, tilesY} — x/y is top-left of selection in master pixels,
+    # tilesX/tilesY is the number of tiles chosen by the user.
+    # The selection box size = tilesX * 2^maxZoom * 256 pixels exactly, so the
+    # cropped master fits the tile grid at maxZoom without any scaling.
+    sel = px
     zc = config[zone]
     max_zoom: int = zc["maxZoom"]
     tile_size: int = zc.get("tileSize", 256)
-    base_x: int = zc["baseTilesX"]
-    base_y: int = zc["baseTilesY"]
     origin_x: float = zc["originX"]
     origin_y: float = zc["originY"]
+    base_y: int = zc["baseTilesY"]
 
     wpp = 1.0 / (2**max_zoom)  # world units per master pixel
+    px_per_tile = tile_size * (2**max_zoom)  # master pixels per tile
 
-    # image top = map north = high-Z edge; image bottom = south = originY side
-    new_min_x = origin_x + px["left"] * wpp
-    new_min_z = origin_y + px["bottom"] * wpp
-    new_max_x = (origin_x + base_x * tile_size) - px["right"] * wpp
-    new_max_z = (origin_y + base_y * tile_size) - px["top"] * wpp
+    new_tiles_x: int = sel["tilesX"]
+    new_tiles_y: int = sel["tilesY"]
 
-    new_tiles_x = max(1, math.ceil((new_max_x - new_min_x) / tile_size))
-    new_tiles_y = max(1, math.ceil((new_max_z - new_min_z) / tile_size))
+    # sel["x"], sel["y"] is the top-left corner of the selection in master pixels.
+    # image top = map north = high-Z edge; image bottom = south = originY side.
+    new_origin_x = origin_x + sel["x"] * wpp
+    # y=0 in image = north = originY + base_y*tileSize; moving down increases y, decreases Z
+    new_origin_y = (origin_y + base_y * tile_size) - (sel["y"] + new_tiles_y * px_per_tile) * wpp
 
-    zc["originX"] = round(new_min_x, 4)
-    zc["originY"] = round(new_min_z, 4)
+    zc["originX"] = round(new_origin_x, 4)
+    zc["originY"] = round(new_origin_y, 4)
     zc["baseTilesX"] = new_tiles_x
     zc["baseTilesY"] = new_tiles_y
     config[zone] = zc
     save_zone_config(cli_ctx.repo_root, config)
 
-    console.print(f"[green]Bounds updated: origin=({zc['originX']}, {zc['originY']}) ", end="")
-    console.print(f"tiles={new_tiles_x}x{new_tiles_y}[/green]")
+    console.print(
+        f"[green]Bounds updated: origin=({zc['originX']}, {zc['originY']}) tiles={new_tiles_x}x{new_tiles_y}[/green]"
+    )
 
-    # Crop the master in-place to match the new bounds so the master
-    # and config stay in sync. Tile generator scales the cropped master
-    # to fill the tile grid, so content fills tiles correctly.
+    # Crop master in-place to the exact selection rectangle.
+    # The cropped master is new_tiles_x*px_per_tile x new_tiles_y*px_per_tile pixels —
+    # the exact size the tile generator expects at maxZoom. No scaling needed.
+    crop_x0 = sel["x"]
+    crop_y0 = sel["y"]
+    crop_x1 = crop_x0 + new_tiles_x * px_per_tile
+    crop_y1 = crop_y0 + new_tiles_y * px_per_tile
     with Image.open(master_path) as img:
-        w, h = img.size
-        box = (px["left"], px["top"], w - px["right"], h - px["bottom"])
-        cropped = img.crop(box)
+        cropped = img.crop((crop_x0, crop_y0, crop_x1, crop_y1))
         cropped.save(master_path, "PNG")
     console.print(f"[dim]Master cropped to {cropped.width}x{cropped.height}[/dim]")
 
