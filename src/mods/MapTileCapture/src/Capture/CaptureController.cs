@@ -170,7 +170,7 @@ internal sealed class CaptureController
                 request.SceneName, Vector3.zero, request.UsingSun, 0f);
 
             // Wait for scene to finish loading, with timeout
-            float timeout = request.SceneLoadTimeoutSecs > 0 ? request.SceneLoadTimeoutSecs : Plugin.DefaultSceneLoadTimeoutSecs.Value;
+            float timeout = request.SceneLoadTimeoutSecs > 0 ? request.SceneLoadTimeoutSecs : Plugin.DefaultSceneLoadTimeoutSecs;
             float elapsed = 0f;
             while (!sceneLoaded)
             {
@@ -197,7 +197,7 @@ internal sealed class CaptureController
 
             // --- Stabilizing ---
             _state = State.Stabilizing;
-            int frames = request.StabilityFrames > 0 ? request.StabilityFrames : Plugin.DefaultStabilityFrames.Value;
+            int frames = request.StabilityFrames > 0 ? request.StabilityFrames : Plugin.DefaultStabilityFrames;
             _logger.LogInfo($"Stabilizing for {frames} frames");
 
             for (int i = 0; i < frames; i++)

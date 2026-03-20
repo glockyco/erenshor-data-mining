@@ -63,21 +63,25 @@ internal sealed class GeometrySuppressor : IDisposable
             // light contribution. Add a neutral overhead directional light and boost
             // ambient so the geometry is legible without washing out baked detail.
             RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
-            RenderSettings.ambientLight = Color.white * Plugin.IndoorAmbientIntensity.Value;
+            RenderSettings.ambientLight = Color.white * Plugin.IndoorAmbientIntensity;
 
             _captureLight = new GameObject("__MapTileCapture_Light");
             var lt = _captureLight.AddComponent<Light>();
             lt.type = LightType.Directional;
             lt.color = Color.white;
-            lt.intensity = Plugin.IndoorDirectionalIntensity.Value;
+            lt.intensity = Plugin.IndoorDirectionalIntensity;
             lt.shadows = LightShadows.None;
-            _captureLight.transform.eulerAngles = new Vector3(Plugin.IndoorDirectionalPitch.Value, Plugin.IndoorDirectionalYaw.Value, 0f);
+            _captureLight.transform.eulerAngles = new Vector3(Plugin.IndoorDirectionalPitch, Plugin.IndoorDirectionalYaw, 0f);
         }
 
         // --- Camera ---
         _origClearFlags = camera.clearFlags;
         _origBackgroundColor = camera.backgroundColor;
         _origCullingMask = camera.cullingMask;
+        // Solid colour fill so empty areas outside terrain bounds show a neutral
+        // earthy tone matching the world map background rather than transparency.
+        camera.clearFlags = CameraClearFlags.SolidColor;
+        camera.backgroundColor = new Color(Plugin.BackgroundR, Plugin.BackgroundG, Plugin.BackgroundB);
 
         // --- Roof-layer root GameObjects ---
         // Deactivate root GameObjects on the Roof layer, matching the original
