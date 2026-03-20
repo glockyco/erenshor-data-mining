@@ -63,15 +63,15 @@ internal sealed class GeometrySuppressor : IDisposable
             // light contribution. Add a neutral overhead directional light and boost
             // ambient so the geometry is legible without washing out baked detail.
             RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
-            RenderSettings.ambientLight = Color.white * 0.6f;
+            RenderSettings.ambientLight = Color.white * Plugin.IndoorAmbientIntensity.Value;
 
             _captureLight = new GameObject("__MapTileCapture_Light");
             var lt = _captureLight.AddComponent<Light>();
             lt.type = LightType.Directional;
             lt.color = Color.white;
-            lt.intensity = 1.0f;
+            lt.intensity = Plugin.IndoorDirectionalIntensity.Value;
             lt.shadows = LightShadows.None;
-            _captureLight.transform.eulerAngles = new Vector3(50f, -30f, 0f);
+            _captureLight.transform.eulerAngles = new Vector3(Plugin.IndoorDirectionalPitch.Value, Plugin.IndoorDirectionalYaw.Value, 0f);
         }
 
         // --- Camera ---
