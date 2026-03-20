@@ -496,7 +496,10 @@
 
             map.addControl(new BackButtonControl());
 
-            // Update state
+            mapInstance = map;
+            // Expose for headless screenshot tooling only — not part of the public API.
+            if (typeof window !== 'undefined')
+                (window as Window & { __leafletMap?: typeof map }).__leafletMap = map;
             mapInstance = map;
             stableKeyToMarker = markerMap;
         });

@@ -17,7 +17,8 @@
         "format:check": "prettier --check .",
         "deploy": "wrangler deploy",
         "test": "vitest",
-        "test:ui": "vitest --ui"
+        "test:ui": "vitest --ui",
+        "thumbnails": "node scripts/generate-thumbnails.mjs"
     },
     "devDependencies": {
         "@eslint/compat": "^1.2.5",
@@ -39,6 +40,7 @@
         "lint-staged": "^16.2.7",
         "prettier": "^3.4.2",
         "prettier-plugin-svelte": "^3.3.3",
+        "sharp": "^0.34.5",
         "svelte": "^5.0.0",
         "svelte-check": "^4.0.0",
         "tailwind-merge": "^3.4.0",

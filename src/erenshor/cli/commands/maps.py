@@ -468,3 +468,66 @@ def deploy(
     except Exception as e:
         console.print(f"[red]Error during deployment: {e}[/red]")
         raise typer.Exit(1) from e
+
+
+@app.command()
+def thumbnails(
+    ctx: typer.Context,
+    zones: list[str] = typer.Option(
+        [],
+        "--zones",
+        help="Zone keys to screenshot (default: all zones)",
+    ),
+    url: str = typer.Option(
+        "http://localhost:5174",
+        "--url",
+        help="Base URL of the running maps dev/preview server",
+    ),
+) -> None:
+    """Generate zone thumbnail images for the zone-maps gallery.
+
+    Opens each zone map in a headless browser, fits the view to the full zone,
+    crops to the tile content area, and saves as a JPEG thumbnail.
+
+    Requires a dev or preview server running at --url (default: http://localhost:5174).
+    Run 'uv run erenshor maps dev' or 'uv run erenshor maps preview' first.
+    """
+    cli_ctx: CLIContext = ctx.obj
+    variant_config = cli_ctx.config.variants[cli_ctx.variant]
+    maps_dir = variant_config.maps.resolved_source_dir(cli_ctx.repo_root)
+
+    if not _check_pnpm_available():
+        console.print("[red]Error: pnpm not found in PATH[/red]")
+        raise typer.Exit(1)
+
+    if not _check_node_modules(maps_dir):
+        console.print("[yellow]Error: node_modules not found. Run pnpm install first.[/yellow]")
+        raise typer.Exit(1)
+
+    args = ["pnpm", "run", "thumbnails"]
+    for zone in zones:
+        args.append(zone)
+
+    env = os.environ.copy()
+    env["MAPS_URL"] = url
+
+    console.print(f"[bold cyan]Generating thumbnails[/bold cyan] ({url})")
+    if zones:
+        console.print(f"  Zones: {', '.join(zones)}")
+    else:
+        console.print("  Zones: all")
+    console.print()
+
+    try:
+        result = subprocess.run(args, cwd=maps_dir, env=env, check=False)
+        if result.returncode != 0:
+            console.print(f"[red]Thumbnail generation failed (exit {result.returncode})[/red]")
+            raise typer.Exit(result.returncode)
+        console.print()
+        console.print("[green]Thumbnails generated.[/green]")
+    except KeyboardInterrupt:
+        console.print("\n[yellow]Interrupted[/yellow]")
+        raise typer.Exit(1) from None
+    except Exception as e:
+        console.print(f"[red]Error: {e}[/red]")
+        raise typer.Exit(1) from e
