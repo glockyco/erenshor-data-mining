@@ -78,10 +78,6 @@ internal sealed class GeometrySuppressor : IDisposable
         _origClearFlags = camera.clearFlags;
         _origBackgroundColor = camera.backgroundColor;
         _origCullingMask = camera.cullingMask;
-        // Solid colour fill so empty areas outside terrain bounds show a neutral
-        // earthy tone matching the world map background rather than transparency.
-        camera.clearFlags = CameraClearFlags.SolidColor;
-        camera.backgroundColor = new Color(Plugin.BackgroundR, Plugin.BackgroundG, Plugin.BackgroundB);
 
         // --- Roof-layer root GameObjects ---
         // Deactivate root GameObjects on the Roof layer, matching the original

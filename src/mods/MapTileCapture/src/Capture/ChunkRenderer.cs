@@ -56,7 +56,7 @@ internal static class ChunkRenderer
             mainCam.farClipPlane = 2000f;
             mainCam.useOcclusionCulling = false;
             mainCam.clearFlags = CameraClearFlags.SolidColor;
-            mainCam.backgroundColor = new Color(0f, 0f, 0f, 0f);
+            mainCam.backgroundColor = new Color(Plugin.BackgroundR, Plugin.BackgroundG, Plugin.BackgroundB, 1f);
             mainCam.depthTextureMode = DepthTextureMode.Depth;
             mainCam.targetTexture = rt;
 
