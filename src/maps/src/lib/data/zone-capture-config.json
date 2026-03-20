@@ -85,7 +85,8 @@
             {
                 "nameExact": "SM_Env_Rock_Cave_01"
             }
-        ]
+        ],
+        "usingSun": false
     },
     "Azure": {
         "sceneName": "Azure",
@@ -103,7 +104,8 @@
             "bottom": 0,
             "left": 0
         },
-        "exclusionRules": []
+        "exclusionRules": [],
+        "usingSun": true
     },
     "Azynthi": {
         "sceneName": "Azynthi",
@@ -125,7 +127,8 @@
             {
                 "nameExact": "SM_Tree_Generic_Giant_01_LOD_01 (1)"
             }
-        ]
+        ],
+        "usingSun": false
     },
     "AzynthiClear": {
         "sceneName": "AzynthiClear",
@@ -147,7 +150,8 @@
             {
                 "nameExact": "SM_Tree_Generic_Giant_01_LOD_01 (1)"
             }
-        ]
+        ],
+        "usingSun": true
     },
     "Blight": {
         "sceneName": "Blight",
@@ -165,7 +169,8 @@
             "bottom": 0,
             "left": 0
         },
-        "exclusionRules": []
+        "exclusionRules": [],
+        "usingSun": false
     },
     "BloomingSepulcher": {
         "sceneName": "BloomingSepulcher",
@@ -183,7 +188,8 @@
             "bottom": 0,
             "left": 0
         },
-        "exclusionRules": []
+        "exclusionRules": [],
+        "usingSun": false
     },
     "Bonepits": {
         "sceneName": "Bonepits",
@@ -201,7 +207,8 @@
             "bottom": 0,
             "left": 0
         },
-        "exclusionRules": []
+        "exclusionRules": [],
+        "usingSun": false
     },
     "Brake": {
         "sceneName": "Brake",
@@ -219,7 +226,8 @@
             "bottom": 0,
             "left": 0
         },
-        "exclusionRules": []
+        "exclusionRules": [],
+        "usingSun": false
     },
     "Braxonia": {
         "sceneName": "Braxonia",
@@ -697,7 +705,8 @@
             {
                 "nameContains": "SM_Env_Wall_Curved_Roof_01"
             }
-        ]
+        ],
+        "usingSun": false
     },
     "Braxonian": {
         "sceneName": "Braxonian",
@@ -722,7 +731,8 @@
             {
                 "nameExact": "SM_Env_Rock_Cliff_03 (65)"
             }
-        ]
+        ],
+        "usingSun": true
     },
     "Detention": {
         "sceneName": "Detention",
@@ -735,7 +745,8 @@
         "northBearing": null,
         "captureVariants": ["clear"],
         "cropRect": null,
-        "exclusionRules": []
+        "exclusionRules": [],
+        "usingSun": false
     },
     "DuskenPortal": {
         "sceneName": "DuskenPortal",
@@ -753,7 +764,8 @@
             "bottom": 0,
             "left": 0
         },
-        "exclusionRules": []
+        "exclusionRules": [],
+        "usingSun": false
     },
     "Duskenlight": {
         "sceneName": "Duskenlight",
@@ -775,7 +787,8 @@
             {
                 "nameExact": "SM_Env_Rock_Cliff_03 (58)"
             }
-        ]
+        ],
+        "usingSun": true
     },
     "Elderstone": {
         "sceneName": "Elderstone",
@@ -905,7 +918,8 @@
             {
                 "nameExact": "TFF_Rock_Large_06A (88)"
             }
-        ]
+        ],
+        "usingSun": false
     },
     "FernallaField": {
         "sceneName": "FernallaField",
@@ -923,7 +937,8 @@
             "bottom": 0,
             "left": 0
         },
-        "exclusionRules": []
+        "exclusionRules": [],
+        "usingSun": true
     },
     "FernallaPortal": {
         "sceneName": "FernallaPortal",
@@ -966,7 +981,8 @@
             {
                 "nameExact": "SM_Env_Tree_Dead_03 (2)"
             }
-        ]
+        ],
+        "usingSun": false
     },
     "Hidden": {
         "sceneName": "Hidden",
@@ -988,7 +1004,8 @@
             {
                 "nameExact": "rock4 (25)"
             }
-        ]
+        ],
+        "usingSun": true
     },
     "Jaws": {
         "sceneName": "Jaws",
@@ -1244,7 +1261,8 @@
             {
                 "nameContains": "SM_Bld_Wall_Beam_01"
             }
-        ]
+        ],
+        "usingSun": false
     },
     "Krakengard": {
         "sceneName": "Krakengard",
@@ -1262,7 +1280,8 @@
             "bottom": 0,
             "left": 0
         },
-        "exclusionRules": []
+        "exclusionRules": [],
+        "usingSun": true
     },
     "Loomingwood": {
         "sceneName": "Loomingwood",
@@ -1323,7 +1342,8 @@
             {
                 "nameContains": "tree_giant"
             }
-        ]
+        ],
+        "usingSun": false
     },
     "Malaroth": {
         "sceneName": "Malaroth",
@@ -1363,7 +1383,8 @@
             {
                 "nameExact": "SM_Env_Dirt_Cliff_06 (30)"
             }
-        ]
+        ],
+        "usingSun": true
     },
     "PrielPlateau": {
         "sceneName": "PrielPlateau",
@@ -1397,7 +1418,8 @@
             {
                 "nameExact": "TFF_Rock_Large_06A_LOD_1 (39)"
             }
-        ]
+        ],
+        "usingSun": true
     },
     "Reliquary": {
         "sceneName": "Reliquary",
@@ -1410,7 +1432,8 @@
         "northBearing": null,
         "captureVariants": ["clear"],
         "cropRect": null,
-        "exclusionRules": []
+        "exclusionRules": [],
+        "usingSun": false
     },
     "Ripper": {
         "sceneName": "Ripper",
@@ -1447,7 +1470,8 @@
             {
                 "nameContains": "SM_Prop_Beam_03"
             }
-        ]
+        ],
+        "usingSun": true
     },
     "RipperPortal": {
         "sceneName": "RipperPortal",
@@ -1481,7 +1505,8 @@
             {
                 "nameContains": "roof"
             }
-        ]
+        ],
+        "usingSun": false
     },
     "Rockshade": {
         "sceneName": "Rockshade",
@@ -1506,7 +1531,8 @@
             {
                 "nameContains": "Floor_Wood"
             }
-        ]
+        ],
+        "usingSun": true
     },
     "Rottenfoot": {
         "sceneName": "Rottenfoot",
@@ -1534,7 +1560,8 @@
             {
                 "nameExact": "SM_Env_Tree_Swamp_03_LOD1 (5)"
             }
-        ]
+        ],
+        "usingSun": false
     },
     "SaltedStrand": {
         "sceneName": "SaltedStrand",
@@ -1556,7 +1583,8 @@
             {
                 "nameExact": "TFF_Rock_Large_05A (3)"
             }
-        ]
+        ],
+        "usingSun": true
     },
     "ShiveringStep": {
         "sceneName": "ShiveringStep",
@@ -1574,7 +1602,8 @@
             "bottom": 0,
             "left": 0
         },
-        "exclusionRules": []
+        "exclusionRules": [],
+        "usingSun": false
     },
     "ShiveringTomb": {
         "sceneName": "ShiveringTomb",
@@ -1587,7 +1616,8 @@
         "northBearing": null,
         "captureVariants": ["clear"],
         "cropRect": null,
-        "exclusionRules": []
+        "exclusionRules": [],
+        "usingSun": false
     },
     "ShiveringTomb2": {
         "sceneName": "ShiveringTomb2",
@@ -1600,7 +1630,8 @@
         "northBearing": null,
         "captureVariants": ["clear"],
         "cropRect": null,
-        "exclusionRules": []
+        "exclusionRules": [],
+        "usingSun": false
     },
     "Silkengrass": {
         "sceneName": "Silkengrass",
@@ -1622,7 +1653,8 @@
             {
                 "nameExact": "SM_Env_Tree_Giant_02_LOD2"
             }
-        ]
+        ],
+        "usingSun": true
     },
     "Soluna": {
         "sceneName": "Soluna",
@@ -1640,7 +1672,8 @@
             "bottom": 0,
             "left": 0
         },
-        "exclusionRules": []
+        "exclusionRules": [],
+        "usingSun": true
     },
     "Stowaway": {
         "sceneName": "Stowaway",
@@ -1658,7 +1691,8 @@
             "bottom": 0,
             "left": 0
         },
-        "exclusionRules": []
+        "exclusionRules": [],
+        "usingSun": true
     },
     "StowawayPortal": {
         "sceneName": "StowawayPortal",
@@ -1671,7 +1705,8 @@
         "northBearing": null,
         "captureVariants": ["clear"],
         "cropRect": null,
-        "exclusionRules": []
+        "exclusionRules": [],
+        "usingSun": false
     },
     "SummerEvent": {
         "sceneName": "SummerEvent",
@@ -1689,7 +1724,8 @@
             "bottom": 0,
             "left": 0
         },
-        "exclusionRules": []
+        "exclusionRules": [],
+        "usingSun": true
     },
     "Tutorial": {
         "sceneName": "Tutorial",
@@ -1707,7 +1743,8 @@
             "bottom": 0,
             "left": 0
         },
-        "exclusionRules": []
+        "exclusionRules": [],
+        "usingSun": false
     },
     "Undercity": {
         "sceneName": "Undercity",
@@ -1843,7 +1880,8 @@
             {
                 "nameExact": "SM_Rock_CaveEntrance_02 (3)"
             }
-        ]
+        ],
+        "usingSun": false
     },
     "Underspine": {
         "sceneName": "Underspine",
@@ -1861,7 +1899,8 @@
             "bottom": 0,
             "left": 0
         },
-        "exclusionRules": []
+        "exclusionRules": [],
+        "usingSun": true
     },
     "Vitheo": {
         "sceneName": "Vitheo",
@@ -1883,7 +1922,8 @@
             {
                 "nameExact": "TFF_Oak_Tree_01A (1)"
             }
-        ]
+        ],
+        "usingSun": true
     },
     "VitheosEnd": {
         "sceneName": "VitheosEnd",
@@ -1980,7 +2020,8 @@
             {
                 "nameContains": "House_StoneArch"
             }
-        ]
+        ],
+        "usingSun": false
     },
     "Willowwatch": {
         "sceneName": "Willowwatch",
@@ -1998,7 +2039,8 @@
             "bottom": 0,
             "left": 0
         },
-        "exclusionRules": []
+        "exclusionRules": [],
+        "usingSun": true
     },
     "Windwashed": {
         "sceneName": "Windwashed",
@@ -2026,6 +2068,7 @@
             {
                 "nameExact": "SM_Env_Rock_Cliff_03 (69)"
             }
-        ]
+        ],
+        "usingSun": true
     }
 }
