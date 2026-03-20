@@ -140,6 +140,10 @@ class CaptureOrchestrator:
             "sceneName": zc["sceneName"],
             "variant": variant,
             "hideRoofs": hide_roofs,
+            # usingSun tells the mod which flag to pass to GameData.SceneChange.ChangeScene,
+            # ensuring the Sun light and AtmosphereColors are correct before the scene loads.
+            # Default True (outdoor) so captures fail visibly rather than silently wrong.
+            "usingSun": zc.get("usingSun", True),
             "sceneLoadTimeoutSecs": 30,
             "stabilityFrames": 10,
             "exclusionRules": zc.get("exclusionRules", []),
