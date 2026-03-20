@@ -724,6 +724,19 @@
             }
         ]
     },
+    "Detention": {
+        "sceneName": "Detention",
+        "baseTilesX": 1,
+        "baseTilesY": 1,
+        "tileSize": 256,
+        "maxZoom": 2,
+        "originX": -128,
+        "originY": -100,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": null,
+        "exclusionRules": []
+    },
     "DuskenPortal": {
         "sceneName": "DuskenPortal",
         "baseTilesX": 3,
@@ -1386,6 +1399,19 @@
             }
         ]
     },
+    "Reliquary": {
+        "sceneName": "Reliquary",
+        "baseTilesX": 2,
+        "baseTilesY": 2,
+        "tileSize": 256,
+        "maxZoom": 2,
+        "originX": -50,
+        "originY": -80,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": null,
+        "exclusionRules": []
+    },
     "Ripper": {
         "sceneName": "Ripper",
         "baseTilesX": 4,
@@ -1550,6 +1576,32 @@
         },
         "exclusionRules": []
     },
+    "ShiveringTomb": {
+        "sceneName": "ShiveringTomb",
+        "baseTilesX": 2,
+        "baseTilesY": 2,
+        "tileSize": 256,
+        "maxZoom": 2,
+        "originX": -150,
+        "originY": -100,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": null,
+        "exclusionRules": []
+    },
+    "ShiveringTomb2": {
+        "sceneName": "ShiveringTomb2",
+        "baseTilesX": 2,
+        "baseTilesY": 2,
+        "tileSize": 256,
+        "maxZoom": 2,
+        "originX": -260,
+        "originY": -100,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": null,
+        "exclusionRules": []
+    },
     "Silkengrass": {
         "sceneName": "Silkengrass",
         "baseTilesX": 5,
@@ -1606,6 +1658,19 @@
             "bottom": 0,
             "left": 0
         },
+        "exclusionRules": []
+    },
+    "StowawayPortal": {
+        "sceneName": "StowawayPortal",
+        "baseTilesX": 2,
+        "baseTilesY": 2,
+        "tileSize": 256,
+        "maxZoom": 2,
+        "originX": -300,
+        "originY": -200,
+        "northBearing": null,
+        "captureVariants": ["clear"],
+        "cropRect": null,
         "exclusionRules": []
     },
     "SummerEvent": {
