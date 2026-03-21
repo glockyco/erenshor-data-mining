@@ -18,6 +18,7 @@ public sealed class GuideWindow
     private int _selectedTab; // 0=Active, 1=Completed, 2=All
     private Vector2 _listScroll;
     private Vector2 _detailScroll;
+    private bool _isDragging;
     private GUIStyle? _windowStyle;
     private GUIStyle? _headerStyle;
     private GUIStyle? _stepDoneStyle;
@@ -53,14 +54,34 @@ public sealed class GuideWindow
 
         InitStyles();
 
-        // Consume scroll and mouse events when cursor is over our window
+        // Track drag state: once a drag starts inside the window, keep
+        // IsMouseOver true until the mouse button is released. This prevents
+        // the cursor from outrunning the window rect during fast drags.
+        //
+        // Skip hit-testing when the cursor is locked (CursorLockMode.Locked).
+        // The game locks the cursor to screen center during camera drag,
+        // which would falsely register as "over the window" if the window
+        // overlaps the center.
+        bool cursorInRect = false;
+        if (Cursor.lockState != CursorLockMode.Locked)
+        {
+            var mousePos = Input.mousePosition;
+            var guiMouse = new Vector2(mousePos.x, Screen.height - mousePos.y);
+            cursorInRect = _windowRect.Contains(guiMouse);
+        }
+
+        if (cursorInRect && Input.GetMouseButton(0))
+            _isDragging = true;
+        if (!Input.GetMouseButton(0))
+            _isDragging = false;
+
+        IsMouseOver = cursorInRect || _isDragging;
+        // Consume scroll and right-click events when cursor is over our window
         // so they don't pass through to game camera controls.
-        IsMouseOver = _windowRect.Contains(Event.current.mousePosition);
         if (IsMouseOver)
         {
             if (Event.current.type == EventType.ScrollWheel)
                 Event.current.Use();
-            // Block right-click camera drag while over window
             if (Event.current.isMouse && Event.current.button == 1)
                 Event.current.Use();
         }
