@@ -10,7 +10,7 @@ public sealed class GuideConfig
 
     public GuideConfig(ConfigFile config)
     {
-        ToggleKey = config.Bind("General", "ToggleKey", KeyCode.G,
+        ToggleKey = config.Bind("General", "ToggleKey", KeyCode.L,
             "Key to toggle the Adventure Guide window");
         ReplaceQuestLog = config.Bind("General", "ReplaceQuestLog", false,
             "If true, pressing J opens Adventure Guide instead of the game's Quest Log");
