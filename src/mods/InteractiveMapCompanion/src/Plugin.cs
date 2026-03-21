@@ -9,6 +9,8 @@ using InteractiveMapCompanion.Server;
 using InteractiveMapCompanion.State;
 using UnityEngine.SceneManagement;
 
+// See .agent/skills/mod-development/SKILL.md for mod architecture patterns
+
 namespace InteractiveMapCompanion;
 
 /// <summary>

@@ -4,6 +4,8 @@ This module provides the Typer CLI application with global options,
 configuration loading, logging setup, and error handling.
 """
 
+# See .agent/skills/cli-commands/SKILL.md for CLI command patterns
+
 from __future__ import annotations
 
 import subprocess

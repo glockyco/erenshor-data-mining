@@ -10,6 +10,8 @@ using UnityEditor;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
+// See .agent/skills/unity-export-system/SKILL.md before modifying export listeners
+
 /// <summary>
 /// Batch mode entry point for Unity's asset export system.
 /// Enables headless export of game data to SQLite database via Unity CLI.

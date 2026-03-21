@@ -9,6 +9,8 @@ using AdventureGuide.UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+// See .agent/skills/mod-development/SKILL.md for mod architecture patterns
+
 namespace AdventureGuide;
 
 [BepInPlugin(PluginInfo.GUID, PluginInfo.Name, PluginInfo.Version)]
