@@ -143,6 +143,11 @@ def _get_bepinex_plugins_dir(game_path: Path) -> Path:
     return game_path / "BepInEx" / "plugins"
 
 
+def _get_bepinex_scripts_dir(game_path: Path) -> Path:
+    """Get the BepInEx scripts directory (for ScriptEngine hot reload)."""
+    return game_path / "BepInEx" / "scripts"
+
+
 def _get_mod_dir(cli_ctx: CLIContext, mod_id: str) -> Path:
     """Get the mod source directory."""
     if mod_id not in MODS:
@@ -329,6 +334,93 @@ def setup(ctx: typer.Context) -> None:
     console.print()
 
 
+@app.command(name="dev-setup")
+def dev_setup(ctx: typer.Context) -> None:
+    """Install development tools for mod hot reload and config editing.
+
+    Downloads and installs:
+    - ScriptEngine: press F6 in game to reload mods from BepInEx/scripts/
+    - ConfigurationManager: press F1 in game to edit mod config values
+
+    Also creates the BepInEx/scripts/ directory for hot reload.
+
+    Safe to run multiple times (idempotent). Requires BepInEx installed.
+    Run 'erenshor mod setup' first to copy game DLLs.
+    """
+    cli_ctx: CLIContext = ctx.obj
+
+    console.print()
+    console.print(Panel.fit("[bold cyan]Mod Dev Setup[/bold cyan]", border_style="cyan"))
+    console.print()
+
+    game_path = _get_game_path(cli_ctx)
+    if not game_path:
+        console.print("[red]Error: Game path not found[/red]")
+        console.print("Set ERENSHOR_GAME_PATH or run 'erenshor extract download' first.")
+        raise typer.Exit(1)
+
+    bepinex_dir = game_path / "BepInEx"
+    if not bepinex_dir.exists():
+        console.print(f"[red]Error: BepInEx not installed at {bepinex_dir}[/red]")
+        console.print("Install BepInEx to your game first.")
+        raise typer.Exit(1)
+
+    plugins_dir = _get_bepinex_plugins_dir(game_path)
+    plugins_dir.mkdir(parents=True, exist_ok=True)
+    scripts_dir = _get_bepinex_scripts_dir(game_path)
+    scripts_dir.mkdir(parents=True, exist_ok=True)
+
+    import tempfile
+    import zipfile
+
+    dev_tools = cli_ctx.config.global_.bepinex_dev_tools
+    if dev_tools is None:
+        console.print("[red]Error: [global.bepinex_dev_tools] not configured in config.toml[/red]")
+        raise typer.Exit(1)
+
+    tools = [
+        ("ScriptEngine", dev_tools.script_engine_url, "ScriptEngine.dll"),
+        ("ConfigurationManager", dev_tools.config_manager_url, "ConfigurationManager.dll"),
+    ]
+
+    for name, url, check_dll in tools:
+        # Check if already installed
+        if (plugins_dir / check_dll).exists():
+            console.print(f"  [dim]\u2713 {name} already installed[/dim]")
+            continue
+
+        console.print(f"  Downloading {name}...")
+        try:
+            req = Request(url, headers={"User-Agent": "erenshor-cli"})
+            with urlopen(req, timeout=30) as resp:
+                zip_data = resp.read()
+        except (HTTPError, URLError, TimeoutError) as e:
+            console.print(f"  [red]\u2717 Failed to download {name}: {e}[/red]")
+            continue
+
+        # Extract DLL(s) from zip into plugins/
+        with tempfile.TemporaryDirectory() as tmp:
+            zip_path = Path(tmp) / f"{name}.zip"
+            zip_path.write_bytes(zip_data)
+            with zipfile.ZipFile(zip_path) as zf:
+                for entry in zf.namelist():
+                    if entry.endswith(".dll"):
+                        dll_filename = Path(entry).name
+                        target = plugins_dir / dll_filename
+                        target.write_bytes(zf.read(entry))
+                        console.print(f"  [green]\u2713[/green] {dll_filename}")
+
+    console.print()
+    console.print("[green]Dev setup complete![/green]")
+    console.print()
+    console.print("[bold]Development workflow:[/bold]")
+    console.print("  1. [cyan]erenshor mod build --mod <id>[/cyan]")
+    console.print("  2. [cyan]erenshor mod deploy --mod <id> --scripts[/cyan]")
+    console.print("  3. Press [bold]F6[/bold] in game to hot reload")
+    console.print("  4. Press [bold]F1[/bold] in game to edit config values")
+    console.print()
+
+
 @app.command()
 def build(
     ctx: typer.Context,
@@ -357,13 +449,17 @@ def build(
 def deploy(
     ctx: typer.Context,
     mod: str | None = typer.Option(None, "--mod", help="Deploy specific mod (or all if not specified)"),
+    scripts: bool = typer.Option(
+        False, "--scripts", help="Deploy to BepInEx/scripts/ for hot reload (requires ScriptEngine)"
+    ),
 ) -> None:
-    """Build and deploy mods to BepInEx plugins.
+    """Build and deploy mods to BepInEx.
 
-    Builds mods and copies the output DLLs to the BepInEx plugins folder
-    in the game installation.
+    Copies the built DLL to the BepInEx plugins folder (default) or the
+    scripts folder (--scripts) for hot reload via ScriptEngine.
 
-    By default, deploys all mods. Use --mod to deploy a specific one.
+    Use --scripts during development: build, deploy, press F6 in game.
+    Use default for production: deploy to plugins, restart game.
     """
     cli_ctx: CLIContext = ctx.obj
 
@@ -382,17 +478,18 @@ def deploy(
         console.print("Set ERENSHOR_GAME_PATH environment variable.")
         raise typer.Exit(1)
 
-    plugins_dir = _get_bepinex_plugins_dir(game_path)
-    if not plugins_dir.parent.exists():
-        console.print(f"[red]Error: BepInEx not installed at {plugins_dir.parent}[/red]")
-        console.print("Install BepInEx to your game first.")
-        raise typer.Exit(1)
-
-    plugins_dir.mkdir(parents=True, exist_ok=True)
+    if scripts:
+        target_dir = _get_bepinex_scripts_dir(game_path)
+        target_dir.mkdir(parents=True, exist_ok=True)
+        deploy_label = "BepInEx/scripts (hot reload)"
+    else:
+        target_dir = _get_bepinex_plugins_dir(game_path)
+        target_dir.mkdir(parents=True, exist_ok=True)
+        deploy_label = "BepInEx/plugins"
 
     console.print()
-    console.print("[bold]Deploying to BepInEx...[/bold]")
-    console.print(f"[dim]Target: {plugins_dir}[/dim]")
+    console.print(f"[bold]Deploying to {deploy_label}...[/bold]")
+    console.print(f"[dim]Target: {target_dir}[/dim]")
     console.print()
 
     # Determine which mods to deploy
@@ -410,13 +507,18 @@ def deploy(
             console.print(f"[red]Error: Mod DLL not found: {mod_dll}[/red]")
             raise typer.Exit(1)
 
-        target = plugins_dir / dll_name
+        target = target_dir / dll_name
         shutil.copy2(mod_dll, target)
 
-        # Get file size for user feedback
-        size_bytes = mod_dll.stat().st_size
-        size_kb = size_bytes / 1024
-        console.print(f"  [green]✓[/green] {dll_name} ({size_kb:.1f} KB)")
+        # Also copy PDB for ScriptEngine debug symbols
+        if scripts:
+            pdb_name = dll_name.replace(".dll", ".pdb")
+            mod_pdb = output_dir / pdb_name
+            if mod_pdb.exists():
+                shutil.copy2(mod_pdb, target_dir / pdb_name)
+
+        size_kb = mod_dll.stat().st_size / 1024
+        console.print(f"  [green]\u2713[/green] {dll_name} ({size_kb:.1f} KB)")
 
     console.print()
     console.print("[green]Deploy complete![/green]")

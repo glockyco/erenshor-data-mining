@@ -54,6 +54,10 @@ retry_delay = 30
 [global.logging]
 level = "info"
 
+[global.bepinex_dev_tools]
+script_engine_url = "https://github.com/BepInEx/BepInEx.Debug/releases/download/r11.1/ScriptEngine_r11.1.zip"
+config_manager_url = "https://github.com/BepInEx/BepInEx.ConfigurationManager/releases/download/v18.4.1/BepInEx.ConfigurationManager_BepInEx5_v18.4.1.zip"
+
 [variants.main]
 enabled = true
 name = "Main Game"

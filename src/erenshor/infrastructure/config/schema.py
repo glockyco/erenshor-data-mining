@@ -301,6 +301,18 @@ class BehaviorConfig(BaseModel):
     )
 
 
+class BepInExDevToolsConfig(BaseModel):
+    """Download URLs for BepInEx development tools.
+
+    Used by `erenshor mod dev-setup` to install ScriptEngine (hot reload)
+    and ConfigurationManager (in-game config editing).
+    Values configured in config.toml under [global.bepinex_dev_tools].
+    """
+
+    script_engine_url: str = Field(description="ScriptEngine download URL (BepInEx.Debug release)")
+    config_manager_url: str = Field(description="ConfigurationManager download URL (BepInEx5 release)")
+
+
 class LoggingConfig(BaseModel):
     """Logging configuration for the pipeline.
 
@@ -355,6 +367,10 @@ class GlobalConfig(BaseModel):
     logging: LoggingConfig = Field(
         default_factory=LoggingConfig,
         description="Logging configuration",
+    )
+    bepinex_dev_tools: BepInExDevToolsConfig | None = Field(
+        default=None,
+        description="BepInEx development tool download URLs (configure in config.toml)",
     )
 
 
