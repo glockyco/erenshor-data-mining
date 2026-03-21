@@ -1,150 +1,140 @@
 # Agent Instructions
 
-This project uses **bd** (beads) for issue tracking. Run `bd onboard` to get started.
+## Project Overview
 
-## Quick Reference
+Data mining project for Erenshor (single-player simulated MMORPG). Extracts
+game data via AssetRipper + Unity Editor scripts, exports to SQLite, deploys
+to MediaWiki, Google Sheets, interactive maps, and in-game companion mods.
+Solo developer. Hobby project.
 
-```bash
-bd ready              # Find available work
-bd show <id>          # View issue details
-bd update <id> --claim  # Claim work atomically
-bd close <id>         # Complete work
-bd dolt push          # Push beads data to remote
-```
+**Only modify code in `src/Assets/Editor/`, `src/erenshor/`, `src/mods/`, and
+`src/maps/`.** All other files are from the original game and must not be changed.
 
-## Non-Interactive Shell Commands
+## Directory Map
 
-**ALWAYS use non-interactive flags** with file operations to avoid hanging on confirmation prompts.
+| Path | Contents |
+|------|----------|
+| `src/erenshor/` | Python CLI tool (Typer), pipeline logic, domain entities |
+| `src/Assets/Editor/` | C# Unity export scripts (listeners, records, scanner) |
+| `src/mods/` | BepInEx companion mods (C#) |
+| `src/maps/` | Interactive map website (SvelteKit) |
+| `variants/{variant}/` | Per-variant game files, Unity projects, databases (gitignored) |
+| `wiki/`, `wiki-templates/` | Wiki source files and templates |
+| `quest_guides/` | Quest guide JSON (auto-generated + manual curation) |
+| `.agent/skills/` | Agent skill files (domain-specific knowledge) |
+| `docs/` | Design documents, PRDs, architecture analysis |
 
-Shell commands like `cp`, `mv`, and `rm` may be aliased to include `-i` (interactive) mode on some systems, causing the agent to hang indefinitely waiting for y/n input.
-
-**Use these forms instead:**
-```bash
-# Force overwrite without prompting
-cp -f source dest           # NOT: cp source dest
-mv -f source dest           # NOT: mv source dest
-rm -f file                  # NOT: rm file
-
-# For recursive operations
-rm -rf directory            # NOT: rm -r directory
-cp -rf source dest          # NOT: cp -r source dest
-```
-
-**Other commands that may prompt:**
-- `scp` - use `-o BatchMode=yes` for non-interactive
-- `ssh` - use `-o BatchMode=yes` to fail instead of prompting
-- `apt-get` - use `-y` flag
-- `brew` - use `HOMEBREW_NO_AUTO_UPDATE=1` env var
-
-<!-- BEGIN BEADS INTEGRATION profile:full hash:d4f96305 -->
-## Issue Tracking with bd (beads)
-
-**IMPORTANT**: This project uses **bd (beads)** for ALL issue tracking. Do NOT use markdown TODOs, task lists, or other tracking methods.
-
-### Why bd?
-
-- Dependency-aware: Track blockers and relationships between issues
-- Git-friendly: Dolt-powered version control with native sync
-- Agent-optimized: JSON output, ready work detection, discovered-from links
-- Prevents duplicate tracking systems and confusion
-
-### Quick Start
-
-**Check for ready work:**
+## Essential Commands
 
 ```bash
-bd ready --json
+uv run erenshor --help                          # All command groups
+uv run erenshor extract export                  # Unity -> raw SQLite
+uv run erenshor extract build                   # Raw SQLite -> clean SQLite
+uv run erenshor guide generate                  # Generate quest guide JSON
+uv run erenshor mod setup                       # Copy game DLLs (first time)
+uv run erenshor mod dev-setup                   # Install ScriptEngine + ConfigManager (first time)
+uv run erenshor mod build --mod <id>            # Build a mod
+uv run erenshor mod deploy --mod <id> --scripts # Hot reload deploy (F6 in game)
+uv run erenshor mod deploy --mod <id>           # Production deploy (restart game)
+uv run pytest                                   # Run all tests
+uv run erenshor golden capture                  # Regenerate golden baselines after data changes
 ```
 
-**Create new issues:**
+## Working Principles
+
+- Take a holistic view. Every change considers the overall project architecture.
+- Be proactive. If you notice something that can be improved, bring it up and fix it.
+- Plan before implementing. List planned commits before writing code.
+- Read the relevant skill before touching a subsystem (see Skill Directory below).
+- If you change a workflow documented in a skill, update the skill in the same commit.
+- Verify with tests, not assumptions.
+
+## Work Decomposition
+
+Before starting multi-file work, list planned commits. Each commit is one
+logical change. Implement and commit sequentially. A commit that requires
+"and" to describe is two commits.
+
+## Commit Standards
+
+Conventional commits: `type(scope): description`
+- Types: feat, fix, refactor, style, docs, test, chore
+- Scopes: mod, map, cli, export, wiki, sheets, pipeline, guide, config
+- Body: prose paragraphs, not bullet lists. Explain why, not what.
+- Imperative mood. 80-char line wrap. No period on summary.
+- Full guidelines: read the `commit-guidelines` skill.
+
+## Code Quality
+
+1. **Fail fast**: no fallback functionality that hides errors.
+2. **No backward compatibility**: clean breaks when changing behavior.
+3. **Clean cuts**: remove old code entirely when refactoring.
+4. **Atomic commits**: one concept per commit.
+5. **Fix all errors**: don't ignore bugs discovered during work.
+6. **Verify every claim**: search the codebase, read files, confirm.
+
+## Critical Constraints
+
+- **Unity version**: must be exactly 2021.3.45f2
+- **Config layering**: `config.toml` (tracked) + `.erenshor/config.local.toml` (gitignored)
+- **Three variants**: main, playtest, demo -- separate databases, Unity projects, game files
+- **Use `resolved_*` methods** for config paths, not raw values (`$REPO_ROOT` unexpanded)
+- **Editor symlink**: exports require `variants/{variant}/unity/Assets/Editor` symlink
+- **Non-interactive shell**: always use `cp -f`, `mv -f`, `rm -rf` (aliases may prompt)
+
+## Testing
 
 ```bash
-bd create "Issue title" --description="Detailed context" -t bug|feature|task -p 0-4 --json
-bd create "Issue title" --description="What this issue is about" -p 1 --deps discovered-from:bd-123 --json
+uv run pytest                       # All tests (744+)
+uv run pytest -m integration        # Integration tests only
+uv run erenshor golden capture      # Regenerate golden baselines after data changes
 ```
 
-**Claim and update:**
+Always run `golden capture` before deploying and review diffs. Golden files
+in `tests/golden/` detect unintended data changes.
+
+## Skill Directory
+
+Read the relevant skill before working in its domain. Skills are in `.agent/skills/<name>/SKILL.md`.
+
+| Working on... | Read first | Path |
+|---|---|---|
+| Unity export code (`src/Assets/Editor/`) | unity-export-system | `.agent/skills/unity-export-system/SKILL.md` |
+| Companion mods (`src/mods/`) | mod-development | `.agent/skills/mod-development/SKILL.md` |
+| Mod build/deploy/publish | mod-pipeline | `.agent/skills/mod-pipeline/SKILL.md` |
+| Interactive map (`src/maps/`) | interactive-map | `.agent/skills/interactive-map/SKILL.md` |
+| Map tile capture | tile-capture | `.agent/skills/tile-capture/SKILL.md` |
+| Runtime eval / HotRepl | runtime-eval | `.agent/skills/runtime-eval/SKILL.md` |
+| Wiki templates | wiki-templates | `.agent/skills/wiki-templates/SKILL.md` |
+| Google Sheets queries | sheets-queries | `.agent/skills/sheets-queries/SKILL.md` |
+| CLI commands (`src/erenshor/cli/`) | cli-commands | `.agent/skills/cli-commands/SKILL.md` |
+| Writing commit messages | commit-guidelines | `.agent/skills/commit-guidelines/SKILL.md` |
+| Creating/updating skills | writing-skills | `.agent/skills/writing-skills/SKILL.md` |
+
+## Issue Tracking (bd)
+
+This project uses **bd** (beads) for issue tracking. No markdown TODOs or task lists.
 
 ```bash
-bd update <id> --claim --json
-bd update bd-42 --priority 1 --json
+bd ready                            # Find available work
+bd show <id>                        # View issue details
+bd update <id> --claim              # Claim work
+bd close <id> --reason "Done"       # Complete work
+bd create "Title" --description="..." -t task -p 2  # Create issue
+bd dolt push                        # Push beads data to remote
 ```
 
-**Complete work:**
+Link discovered work: `bd create "Found bug" -p 1 --deps discovered-from:<parent-id>`
+
+## Session Completion
+
+Work is NOT complete until `git push` succeeds.
 
 ```bash
-bd close bd-42 --reason "Completed" --json
+git pull --rebase
+bd dolt push
+git push
+git status    # Must show "up to date with origin"
 ```
 
-### Issue Types
-
-- `bug` - Something broken
-- `feature` - New functionality
-- `task` - Work item (tests, docs, refactoring)
-- `epic` - Large feature with subtasks
-- `chore` - Maintenance (dependencies, tooling)
-
-### Priorities
-
-- `0` - Critical (security, data loss, broken builds)
-- `1` - High (major features, important bugs)
-- `2` - Medium (default, nice-to-have)
-- `3` - Low (polish, optimization)
-- `4` - Backlog (future ideas)
-
-### Workflow for AI Agents
-
-1. **Check ready work**: `bd ready` shows unblocked issues
-2. **Claim your task atomically**: `bd update <id> --claim`
-3. **Work on it**: Implement, test, document
-4. **Discover new work?** Create linked issue:
-   - `bd create "Found bug" --description="Details about what was found" -p 1 --deps discovered-from:<parent-id>`
-5. **Complete**: `bd close <id> --reason "Done"`
-
-### Auto-Sync
-
-bd automatically syncs via Dolt:
-
-- Each write auto-commits to Dolt history
-- Use `bd dolt push`/`bd dolt pull` for remote sync
-- No manual export/import needed!
-
-### Important Rules
-
-- ✅ Use bd for ALL task tracking
-- ✅ Always use `--json` flag for programmatic use
-- ✅ Link discovered work with `discovered-from` dependencies
-- ✅ Check `bd ready` before asking "what should I work on?"
-- ❌ Do NOT create markdown TODO lists
-- ❌ Do NOT use external issue trackers
-- ❌ Do NOT duplicate tracking systems
-
-For more details, see README.md and docs/QUICKSTART.md.
-
-## Landing the Plane (Session Completion)
-
-**When ending a work session**, you MUST complete ALL steps below. Work is NOT complete until `git push` succeeds.
-
-**MANDATORY WORKFLOW:**
-
-1. **File issues for remaining work** - Create issues for anything that needs follow-up
-2. **Run quality gates** (if code changed) - Tests, linters, builds
-3. **Update issue status** - Close finished work, update in-progress items
-4. **PUSH TO REMOTE** - This is MANDATORY:
-   ```bash
-   git pull --rebase
-   bd dolt push
-   git push
-   git status  # MUST show "up to date with origin"
-   ```
-5. **Clean up** - Clear stashes, prune remote branches
-6. **Verify** - All changes committed AND pushed
-7. **Hand off** - Provide context for next session
-
-**CRITICAL RULES:**
-- Work is NOT complete until `git push` succeeds
-- NEVER stop before pushing - that leaves work stranded locally
-- NEVER say "ready to push when you are" - YOU must push
-- If push fails, resolve and retry until it succeeds
-
-<!-- END BEADS INTEGRATION -->
+Close finished issues, create issues for remaining work, push everything.
