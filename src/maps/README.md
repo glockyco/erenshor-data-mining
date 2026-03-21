@@ -1,38 +1,28 @@
-# sv
+# Erenshor Interactive Maps
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+Interactive map website for Erenshor. Displays zone maps with spawn points, NPCs, and live player position (via the InteractiveMapCompanion mod).
 
-## Creating a project
+Deployed to Cloudflare Workers.
 
-If you're seeing this, you've probably already done this step. Congrats!
+## Tech Stack
 
-```bash
-# create a new project in the current directory
-npx sv create
+- SvelteKit
+- deck.gl (map rendering)
+- Cloudflare Workers + D1 (hosting and data)
 
-# create a new project in my-app
-npx sv create my-app
-```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+## Development
 
 ```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+uv run erenshor maps dev            # Dev server at localhost:5173
+uv run erenshor maps preview        # Preview production build
+uv run erenshor maps build --force  # Production build
+uv run erenshor maps deploy         # Deploy to Cloudflare
 ```
 
-## Building
+Do not use `npm run dev` or `pnpm dev` directly -- the CLI handles database setup and environment configuration.
 
-To create a production version of your app:
+## Data Flow
 
-```bash
-npm run build
-```
+The clean database (`erenshor-main.sqlite`, built by `erenshor extract build`) is copied to `static/db/` during `maps build`. The map reads spawn points, characters, zones, and other entity data from this database.
 
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+Live entity positions come from the InteractiveMapCompanion BepInEx mod via WebSocket.
