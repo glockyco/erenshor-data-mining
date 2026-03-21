@@ -1,6 +1,6 @@
 ---
-name: bepinex-mod-development
-description: BepInEx mod development patterns. Use when working on InteractiveMapCompanion, adding hooks, or finding game methods.
+name: mod-development
+description: BepInEx mod development patterns, game class reference, WebSocket protocol. Use when writing or modifying companion mods in src/mods/.
 ---
 
 # BepInEx Mod Development
@@ -111,3 +111,16 @@ on background threads. Use thread-safe collections for shared state.
 
 Unit tests target `net9.0` while mod targets `netstandard2.1`. Use the
 generic + adapter pattern to test core logic without Unity runtime.
+
+## WebSocket Protocol (InteractiveMapCompanion)
+
+Quick reference. Full spec in `src/mods/InteractiveMapCompanion/docs/REQUIREMENTS.md`.
+
+- **Port**: 18585 (configurable), binds 0.0.0.0
+- **Format**: JSON with `type` field, camelCase naming
+- **Coordinates**: Zone-local Unity coords [x, y, z]
+
+**Server -> Client**: handshake, state, zone_change, spawn_death/spawn_respawn, marker_add/update/remove
+**Client -> Server**: set_waypoint/clear_waypoint, ping_location
+
+**Adding messages**: Add record in Protocol/Messages.cs, add to MessageSerializer switch, update REQUIREMENTS.md.
