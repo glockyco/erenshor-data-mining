@@ -128,3 +128,11 @@ Before committing a new skill:
 - [ ] Examples included where they add clarity
 - [ ] Length is appropriate (not too short, not exhaustive)
 - [ ] No duplicate information from existing docs or skills
+
+## Keeping Skills Fresh
+
+- **Reference patterns, not instance counts.** "All listeners implement `IAssetScanListener`" stays true. "There are 25 listeners" goes stale the next day. Reference directories and types, not enumerations.
+- **Update in the same commit.** If you change a workflow documented in a skill, update the skill in the same commit. Don't create a separate "docs" commit later — it will be forgotten.
+- **When renaming a skill**, grep for its old path in source files. Key entry points have skill pointers in comments (e.g., `// See .agent/skills/<name>/SKILL.md`).
+- **Skills document non-obvious knowledge.** Common programming knowledge and things derivable from reading code do not belong. The test: would an agent get this wrong without the skill? If no, don't add it.
+- **Cross-reference, don't duplicate.** If knowledge exists in another skill, point to it by name. If it exists in code comments, reference the file. Never maintain the same fact in two places.
