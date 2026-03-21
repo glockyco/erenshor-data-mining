@@ -96,6 +96,8 @@ entities and re-scan on `SceneManager.sceneLoaded`.
 **Threading** - Patches run on Unity's main thread. WebSocket operations go
 on background threads. Use thread-safe collections for shared state.
 
+**BepInEx config persistence** — config files use CRLF line endings. Changing the default key in code does not update existing `.cfg` files. Delete the config file to reset, or edit it directly (mind the `\r`).
+
 ## NuGet Dependencies
 
 ```xml
@@ -111,6 +113,38 @@ on background threads. Use thread-safe collections for shared state.
 
 Unit tests target `net9.0` while mod targets `netstandard2.1`. Use the
 generic + adapter pattern to test core logic without Unity runtime.
+
+## Game Input System
+
+- `EventSystem.IsPointerOverGameObject()` gates mouse input in `PlayerControl.cs` and `CameraController.cs`
+- IMGUI windows do NOT register with EventSystem. Patch it via Harmony postfix to return true when cursor is over the IMGUI window.
+- `Cursor.lockState = CursorLockMode.Locked` moves `Input.mousePosition` to screen center. Skip hit-testing when locked — the game locks cursor during camera drag.
+- Camera rotation (right-click): `CameraController.cs` ~line 297, checks `IsPointerOverGameObject`
+- Camera orbit (left-click): `CameraController.cs` ~line 339, checks `IsPointerOverGameObject`
+- Track drag state: latch `IsMouseOver = true` on mouse-down inside window rect, release on mouse-up. Prevents cursor from outrunning the window during fast drags.
+
+## IMGUI Development
+
+- Defer `GUIStyle` init to first `OnGUI` call — `GUI.skin` is not available in `Awake`
+- `GUI.DragWindow()` does not clamp to screen bounds. Clamp `_windowRect` after every `GUILayout.Window` call.
+- `Input.mousePosition` updates every frame. `Event.current.mousePosition` updates per IMGUI event. Use `Input.mousePosition` with Y-flip (`Screen.height - y`) for frame-accurate hit testing.
+- Use `GUILayout.Window` for draggable windows, `GUILayout.BeginScrollView` for scrollable panels.
+- Dark background: create `Texture2D(1,1)`, set pixel, apply. Assign to `GUIStyle.normal.background`.
+
+## Hot Reload Workflow
+
+- Run `erenshor mod dev-setup` once to install ScriptEngine + ConfigurationManager
+- `erenshor mod deploy --mod <id> --scripts` copies DLL + PDB to `BepInEx/scripts/`
+- Press F6 in game to reload. Press F1 for in-game config editor.
+- Mod must implement `OnDestroy()` that unpatches Harmony and removes event handlers.
+- Full cycle: `mod build --mod <id>` → `mod deploy --mod <id> --scripts` → F6
+
+## Runtime Debugging
+
+- Use `erenshor eval run '<C# expression>'` for live game inspection. See `runtime-eval` skill for full API.
+- `Resources.FindObjectsOfTypeAll(type)` finds DontDestroyOnLoad objects invisible to `FindObjectOfType`
+- Inspect private fields: `GetField("_name", BindingFlags.NonPublic | BindingFlags.Instance)`
+- After hot reload, multiple assemblies coexist (ScriptEngine appends timestamps). Use `.Last()` to get the active one when searching by assembly name.
 
 ## WebSocket Protocol (InteractiveMapCompanion)
 
