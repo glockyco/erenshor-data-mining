@@ -46,7 +46,7 @@ src/mods/InteractiveMapCompanion/
 │   ├── REQUIREMENTS.md
 │   └── ARCHITECTURE.md
 ├── src/
-│   ├── Plugin.cs              # Entry point, DI composition
+│   ├── Plugin.cs              # Entry point, manual wiring
 │   ├── PluginInfo.cs          # GUID, name, version
 │   ├── Config/
 │   │   └── ModConfig.cs       # BepInEx configuration
@@ -55,51 +55,59 @@ src/mods/InteractiveMapCompanion/
 │   │   ├── EntityTracker.cs   # Generic, testable
 │   │   ├── EntityTrackerAdapter.cs
 │   │   ├── EntityClassifier.cs
+│   │   ├── EntityExtractor.cs
+│   │   ├── EntityFinder.cs
 │   │   └── EntityData.cs
-│   ├── Spawns/
-│   │   ├── ISpawnTracker.cs
-│   │   ├── SpawnTracker.cs
-│   │   └── RespawnTimer.cs
-│   ├── Markers/
-│   │   ├── IMarkerAPI.cs      # Public interface
-│   │   ├── MarkerRegistry.cs
-│   │   └── MarkerDefinition.cs
+│   ├── Overlay/               # In-game map overlay (Steam HTML Surface)
+│   │   ├── MapOverlay.cs
+│   │   ├── BrowserManager.cs
+│   │   ├── BrowserRenderer.cs
+│   │   └── InputForwarder.cs
+│   ├── Patches/
+│   │   ├── CharSelectManagerPatch.cs
+│   │   └── MapKeyPatches.cs
 │   ├── Protocol/
 │   │   ├── Messages.cs        # Message types
-│   │   ├── MessageSerializer.cs
+│   │   ├── MessageSerializer.cs  # Newtonsoft.Json, camelCase
 │   │   └── ProtocolVersion.cs
 │   ├── Server/
 │   │   ├── IWebSocketServer.cs
-│   │   ├── WebSocketServer.cs
-│   │   └── ClientHandler.cs
-│   └── State/
-│       ├── IStateManager.cs
-│       └── StateManager.cs
+│   │   └── WebSocketServer.cs
+│   │   └── ClientHandler.cs   # (planned)
+│   ├── State/
+│   │   ├── IBroadcastLoop.cs  # Current implementation
+│   │   └── BroadcastLoop.cs   # (planned: StateManager)
+│   ├── Spawns/                # (planned)
+│   │   ├── ISpawnTracker.cs
+│   │   ├── SpawnTracker.cs
+│   │   └── RespawnTimer.cs
+│   └── Markers/               # (planned)
+│       ├── IMarkerAPI.cs      # Public interface
+│       ├── MarkerRegistry.cs
+│       └── MarkerDefinition.cs
 ├── lib/                       # Game DLLs (not committed)
-│   └── .gitkeep
 └── InteractiveMapCompanion.csproj
 ```
 
 ## Key Patterns
 
-### Dependency Injection
+### Manual Wiring
 
-All services configured in `Plugin.Awake()`:
+Components wired directly in `Plugin.Awake()` (DI framework was removed
+to reduce dependencies for Thunderstore packaging):
 
 ```csharp
-private ServiceProvider ConfigureServices()
-{
-    var services = new ServiceCollection();
+var finder = new EntityFinder();
+var classifier = new EntityClassifier();
+var extractor = new EntityExtractor();
+var tracker = new EntityTrackerAdapter(finder, classifier, extractor, _ => true);
 
-    services.AddSingleton<IEntityTracker, EntityTrackerAdapter>();
-    services.AddSingleton<ISpawnTracker, SpawnTracker>();
-    services.AddSingleton<IMarkerAPI, MarkerRegistry>();
-    services.AddSingleton<IStateManager, StateManager>();
-    services.AddSingleton<IWebSocketServer, WebSocketServer>();
-
-    return services.BuildServiceProvider();
-}
+_server = new WebSocketServer(_config, Log);
+_broadcastLoop = new BroadcastLoop(tracker, _server, _config, ...);
 ```
+
+Planned: reintroduce DI via `ServiceCollection` when StateManager,
+SpawnTracker, and MarkerAPI are implemented.
 
 ### Generic + Adapter Pattern
 
@@ -123,23 +131,12 @@ public class EntityTrackerAdapter : IEntityTracker
 
 ### State Management
 
-Central `StateManager` aggregates data from all sources:
+Currently implemented as `BroadcastLoop` which ticks on `Update()`,
+collects entity data from `EntityTracker`, and broadcasts via WebSocket.
 
-```csharp
-public class StateManager : IStateManager
-{
-    public GameState GetCurrentState()
-    {
-        return new GameState
-        {
-            Zone = _currentZone,
-            Entities = _entityTracker.GetEntities(),
-            RespawnTimers = _spawnTracker.GetActiveTimers(),
-            Markers = _markerRegistry.GetMarkers()
-        };
-    }
-}
-```
+Planned: refactor into `StateManager` that aggregates entities, spawn
+timers (SpawnTracker), and third-party markers (MarkerAPI) into a
+unified `GameState` object.
 
 ## Data Flow
 
