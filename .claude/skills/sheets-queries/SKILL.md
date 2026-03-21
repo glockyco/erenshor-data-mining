@@ -1,6 +1,6 @@
 ---
-name: adding-sheets-queries
-description: Add new Google Sheets queries to export data. Use when creating new spreadsheet tabs, SQL queries for sheets deployment, or adding data to Google Sheets.
+name: sheets-queries
+description: Google Sheets SQL queries and deployment. Use when adding or modifying sheets queries.
 ---
 
 # Adding New Google Sheets Queries

@@ -1,6 +1,6 @@
 ---
-name: debugging-map
-description: Debug interactive map issues using Playwright and the window.__mapDebug hook. Use when markers are missing, misplaced, or behaving unexpectedly.
+name: interactive-map
+description: Interactive map system architecture and debugging. Use when working on src/maps/ or troubleshooting map markers.
 ---
 
 # Debugging Map Issues

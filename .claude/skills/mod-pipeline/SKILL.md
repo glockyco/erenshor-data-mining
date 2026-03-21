@@ -1,6 +1,6 @@
 ---
-name: mod-build-pipeline
-description: Companion mod build pipeline. Use when working on mod deployment, versioning, metadata, or website integration.
+name: mod-pipeline
+description: Mod build, deploy, and publish lifecycle. Use when building, deploying, or publishing mods.
 ---
 
 # Companion Mod Build Pipeline

@@ -1,6 +1,6 @@
 ---
-name: adding-cli-commands
-description: Add new CLI commands to the erenshor tool. Use when creating new Typer commands, subcommands, or extending the command-line interface.
+name: cli-commands
+description: Typer CLI command patterns. Use when adding or modifying CLI commands in src/erenshor/cli/.
 ---
 
 # Adding New CLI Commands
