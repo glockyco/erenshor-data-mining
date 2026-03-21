@@ -47,15 +47,13 @@ public sealed class Plugin : BaseUnityPlugin
     private void Update()
     {
         if (_config == null || _window == null) return;
+        if (GameData.PlayerTyping) return;
 
         if (Input.GetKeyDown(_config.ToggleKey.Value))
             _window.Toggle();
 
-        // Optional: intercept J key for quest log replacement
         if (_config.ReplaceQuestLog.Value && Input.GetKeyDown(KeyCode.J))
-        {
             _window.Toggle();
-        }
     }
 
     private void OnGUI()
