@@ -51,6 +51,7 @@ Expected output: `variants/main/erenshor-main.sqlite` (~50 MB).
   - *Sprint*: configurable sprint key with speed boost
   - *JusticeForF7*: extends F7 screenshot mode to hide world-space UI
   - *InteractiveMapsCompanion*: legacy position broadcast mod; maintained but no new features
+  - *AdventureGuide*: in-game quest guide with step-by-step objectives, item tracking, and quest chain navigation
 
 ### Pipeline
 
@@ -68,6 +69,8 @@ graph TD
     I --> W
     Mod[InteractiveMapCompanion] -->|WebSocket| M
     Mod -->|Overlay| G[In-Game Map]
+    C --> QG[Quest Guide]
+    QG --> AG[AdventureGuide Mod]
 ```
 
 ---
@@ -157,9 +160,12 @@ All commands are run via `uv run erenshor <group> <subcommand>`. Use `--help` on
 | `sheets`   | `list`, `deploy`                                    | Google Sheets publish                |
 | `images`   | `process`, `compare`, `report`, `upload`            | Game image processing and upload     |
 | `maps`     | `dev`, `preview`, `build`, `deploy`                 | Interactive map website              |
-| `mod`      | `setup`, `build`, `deploy`, `publish`, `thunderstore`, `launch` | BepInEx mod pipeline    |
+| `mod`      | `setup`, `dev-setup`, `build`, `deploy`, `publish`, `thunderstore`, `launch` | BepInEx mod pipeline |
 | `golden`   | `capture`                                           | Snapshot expected output for diffing |
 | `backup`   | `list`                                              | List database backups                |
+| `capture`  | `tiles`, `screenshots`                              | Map tile capture pipeline            |
+| `eval`     | `run`, `ping`, `reset`, `watch`, `complete`          | Runtime C# REPL (HotRepl)            |
+| `guide`    | `generate`                                          | Quest guide generation               |
 | `config`   | `show`                                              | Inspect resolved configuration       |
 | `test`     | *(bare)*, `unit`, `integration`                     | Run test suite                       |
 | `docs`     | `generate`                                          | Generate documentation               |
