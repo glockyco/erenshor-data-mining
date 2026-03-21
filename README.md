@@ -69,8 +69,6 @@ graph TD
     I --> W
     Mod[InteractiveMapCompanion] -->|WebSocket| M
     Mod -->|Overlay| G[In-Game Map]
-    C --> QG[Quest Guide]
-    QG --> AG[AdventureGuide Mod]
 ```
 
 ---
