@@ -28,6 +28,9 @@ public sealed class GuideWindow
     private GUIStyle? _warnStyle;
     private bool _stylesInitialized;
 
+    /// <summary>True when the mouse cursor is inside the guide window.</summary>
+    public bool IsMouseOver { get; private set; }
+
     public bool Visible => _visible;
 
     public GuideWindow(GuideData data, QuestStateTracker state)
@@ -42,8 +45,26 @@ public sealed class GuideWindow
 
     public void Draw()
     {
-        if (!_visible) return;
+        if (!_visible)
+        {
+            IsMouseOver = false;
+            return;
+        }
+
         InitStyles();
+
+        // Consume scroll and mouse events when cursor is over our window
+        // so they don't pass through to game camera controls.
+        IsMouseOver = _windowRect.Contains(Event.current.mousePosition);
+        if (IsMouseOver)
+        {
+            if (Event.current.type == EventType.ScrollWheel)
+                Event.current.Use();
+            // Block right-click camera drag while over window
+            if (Event.current.isMouse && Event.current.button == 1)
+                Event.current.Use();
+        }
+
         _windowRect = GUILayout.Window(WindowId, _windowRect, DrawWindow, "Adventure Guide", _windowStyle);
         ClampToScreen();
     }
