@@ -45,6 +45,13 @@ public sealed class GuideWindow
         if (!_visible) return;
         InitStyles();
         _windowRect = GUILayout.Window(WindowId, _windowRect, DrawWindow, "Adventure Guide", _windowStyle);
+        ClampToScreen();
+    }
+
+    private void ClampToScreen()
+    {
+        _windowRect.x = Mathf.Clamp(_windowRect.x, 0, Screen.width - _windowRect.width);
+        _windowRect.y = Mathf.Clamp(_windowRect.y, 0, Screen.height - _windowRect.height);
     }
 
     private void InitStyles()
