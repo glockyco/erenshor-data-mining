@@ -43,6 +43,10 @@ public sealed class Plugin : BaseUnityPlugin
         _harmony = new Harmony(PluginInfo.GUID);
         _harmony.PatchAll();
 
+        // Sync from current game state (essential for hot reload — no scene
+        // load event fires, so without this the tracker starts empty)
+        _state.OnSceneChanged(SceneManager.GetActiveScene().name);
+
         Log.LogInfo($"{PluginInfo.Name} v{PluginInfo.Version} loaded ({_data.Count} quests)");
     }
 
