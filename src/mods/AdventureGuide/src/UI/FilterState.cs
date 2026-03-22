@@ -13,7 +13,6 @@ public enum QuestSortMode
     Alphabetical,
     ByZone,
     ByLevel,
-    ByProgress,
 }
 
 /// <summary>
