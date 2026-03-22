@@ -3,7 +3,7 @@ using BepInEx.Logging;
 using HarmonyLib;
 using AdventureGuide.Config;
 using AdventureGuide.Data;
-using AdventureGuide.ImGui;
+using AdventureGuide.Rendering;
 using AdventureGuide.Patches;
 using AdventureGuide.State;
 using AdventureGuide.UI;

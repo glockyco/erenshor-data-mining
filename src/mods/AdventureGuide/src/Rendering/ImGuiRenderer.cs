@@ -5,7 +5,7 @@ using ImGuiNET;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace AdventureGuide.ImGui;
+namespace AdventureGuide.Rendering;
 
 /// <summary>
 /// Self-contained Dear ImGui rendering backend for Unity, using CommandBuffer.
