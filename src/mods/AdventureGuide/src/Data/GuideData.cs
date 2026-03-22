@@ -25,14 +25,6 @@ public sealed class GuideData
     public IReadOnlyDictionary<string, List<SpawnPoint>> CharacterSpawns { get; private set; }
         = new Dictionary<string, List<SpawnPoint>>();
 
-    /// <summary>
-    /// Reverse index: lowercase character display name → stable keys that match.
-    /// Built once at load time from CharacterSpawns keys. Handles both
-    /// "character:name" and "character:name:scene:x:y:z" key formats.
-    /// </summary>
-    public IReadOnlyDictionary<string, List<string>> CharacterNameToKeys { get; private set; }
-        = new Dictionary<string, List<string>>();
-
     /// <summary>Zone transition points.</summary>
     public IReadOnlyList<ZoneLineEntry> ZoneLines { get; private set; }
         = Array.Empty<ZoneLineEntry>();
@@ -89,55 +81,12 @@ public sealed class GuideData
         data.ZoneLines = wrapper.ZoneLines ?? new List<ZoneLineEntry>();
         data.ChainGroups = wrapper.ChainGroups ?? new List<ChainGroupEntry>();
 
-        // Build reverse name → key index for navigation lookup
-        data.CharacterNameToKeys = BuildCharacterNameIndex(data.CharacterSpawns);
-
         log.LogInfo($"Loaded {data.Count} quest guide entries "
             + $"({data.ZoneLookup.Count} zones, "
             + $"{data.CharacterSpawns.Count} character spawns, "
             + $"{data.ZoneLines.Count} zone lines, "
             + $"{data.ChainGroups.Count} chain groups)");
         return data;
-    }
-
-    /// <summary>
-    /// Extract display name from a character_spawns key. Handles both
-    /// "character:name" and "character:name:scene:x:y:z" formats.
-    /// Returns the name portion lowercased.
-    /// </summary>
-    private static string? ExtractNameFromKey(string key)
-    {
-        int colonIdx = key.IndexOf(':');
-        if (colonIdx < 0) return null;
-        string rest = key.Substring(colonIdx + 1);
-        // Complex keys have additional colon-separated scene:x:y:z
-        // but the name itself may contain colons (unlikely for character names).
-        // The scene segment always starts with an uppercase letter (scene names
-        // are PascalCase). Character names are lowercase in keys.
-        // Simple heuristic: split on ':' and take segments until one parses as float.
-        var parts = rest.Split(':');
-        if (parts.Length <= 1) return rest;
-        // For complex keys like "character:name:SceneName:x:y:z", take just parts[0]
-        // since all character names in the data are single colon-separated.
-        return parts[0];
-    }
-
-    private static Dictionary<string, List<string>> BuildCharacterNameIndex(
-        IReadOnlyDictionary<string, List<SpawnPoint>> spawns)
-    {
-        var index = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
-        foreach (var key in spawns.Keys)
-        {
-            string? name = ExtractNameFromKey(key);
-            if (name == null) continue;
-            if (!index.TryGetValue(name, out var keys))
-            {
-                keys = new List<string>();
-                index[name] = keys;
-            }
-            keys.Add(key);
-        }
-        return index;
     }
 }
 

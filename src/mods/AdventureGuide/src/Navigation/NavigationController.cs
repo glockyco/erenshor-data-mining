@@ -177,21 +177,23 @@ public sealed class NavigationController
         if (item?.Sources == null || item.Sources.Count == 0)
             return false;
 
-        // Try drop/vendor sources — these are NPCs we can navigate to
+        // Try drop/vendor sources — these carry source_key for direct spawn lookup
         foreach (var src in item.Sources)
         {
-            if (src.Type is not "drop" and not "vendor" || src.Name == null)
+            if (src.Type is not "drop" and not "vendor") continue;
+            if (src.SourceKey == null) continue;
+
+            if (!_data.CharacterSpawns.TryGetValue(src.SourceKey, out var spawns) || spawns.Count == 0)
                 continue;
 
-            var spawn = FindSpawnByCharacterName(src.Name, currentScene);
-            if (spawn == null) continue;
-
+            var spawn = PickBestSpawn(spawns, currentScene);
             Target = MakeTarget(
                 NavigationTarget.Kind.Character,
                 new Vector3(spawn.X, spawn.Y, spawn.Z),
-                src.Name,
+                src.Name ?? src.SourceKey,
                 spawn.Scene,
-                quest.DBName, step.Order);
+                quest.DBName, step.Order,
+                src.SourceKey);
             return true;
         }
 
@@ -274,34 +276,6 @@ public sealed class NavigationController
         }
 
         return best ?? spawns[0];
-    }
-
-    /// <summary>
-    /// Find a spawn point for a character by display name using the
-    /// prebuilt CharacterNameToKeys reverse index.
-    /// </summary>
-    private Data.SpawnPoint? FindSpawnByCharacterName(string displayName, string currentScene)
-    {
-        if (!_data.CharacterNameToKeys.TryGetValue(displayName, out var keys))
-            return null;
-
-        foreach (var key in keys)
-        {
-            if (!_data.CharacterSpawns.TryGetValue(key, out var spawns) || spawns.Count == 0)
-                continue;
-
-            // Prefer current-zone spawn
-            foreach (var sp in spawns)
-            {
-                if (string.Equals(sp.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase))
-                    return sp;
-            }
-
-            // Any spawn is acceptable
-            return spawns[0];
-        }
-
-        return null;
     }
 
     // ── Zone line helpers ──────────────────────────────────────────

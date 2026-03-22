@@ -71,6 +71,7 @@ public sealed class ItemSource
     [JsonProperty("name")] public string? Name { get; set; }
     [JsonProperty("zone")] public string? Zone { get; set; }
     [JsonProperty("level")] public int? Level { get; set; }
+    [JsonProperty("source_key")] public string? SourceKey { get; set; }
     [JsonProperty("quest_key")] public string? QuestKey { get; set; }
     [JsonProperty("node_count")] public int? NodeCount { get; set; }
     [JsonProperty("spawn_count")] public int? SpawnCount { get; set; }

@@ -64,6 +64,7 @@ public sealed class Plugin : BaseUnityPlugin
         InventoryPatch.Tracker = _state;
         PointerOverUIPatch.Renderer = _imgui;
         SceneManager.sceneLoaded += OnSceneLoaded;
+        Camera.onPostRender += OnPostRender;
 
         _harmony = new Harmony(PluginInfo.GUID);
         _harmony.PatchAll();
@@ -109,8 +110,10 @@ public sealed class Plugin : BaseUnityPlugin
         _arrow?.DrawLabel();
     }
 
-    private void OnRenderObject()
+    private void OnPostRender(Camera cam)
     {
+        // Only render for the main camera to avoid duplicates
+        if (cam != Camera.main) return;
         _arrow?.RenderGL();
     }
 
@@ -122,6 +125,7 @@ public sealed class Plugin : BaseUnityPlugin
     private void OnDestroy()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
+        Camera.onPostRender -= OnPostRender;
         _harmony?.UnpatchSelf();
         _imgui?.Dispose();
         _arrow?.Dispose();

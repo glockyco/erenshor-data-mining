@@ -244,12 +244,12 @@ public sealed class QuestDetailPanel
             text += $"  \u00b7  {step.LevelEstimate.Factors[0].Name}";
         }
 
+        // [NAV] button first (fixed width), then step text
+        DrawNavButton(step, quest);
+
         ImGui.PushStyleColor(ImGuiCol.Text, color);
         ImGui.Text(text);
         ImGui.PopStyleColor();
-
-        // [NAV] button on same line
-        DrawNavButton(step, quest);
 
         // Drop/vendor sources and tips for collect steps
         DrawStepSources(step);
@@ -261,12 +261,10 @@ public sealed class QuestDetailPanel
 
         bool isActive = _nav.IsNavigating(quest.DBName, step.Order);
 
-        ImGui.SameLine();
         if (isActive)
             ImGui.PushStyleColor(ImGuiCol.Button, Theme.QuestActive);
 
-        string label = isActive ? "[NAV]" : "[NAV]";
-        if (ImGui.SmallButton($"{label}##{step.Order}"))
+        if (ImGui.SmallButton($"[NAV]##{step.Order}"))
         {
             if (isActive)
                 _nav.Clear();
@@ -286,6 +284,9 @@ public sealed class QuestDetailPanel
                 ImGui.Text($"Navigate to {step.TargetName ?? step.Description}");
             ImGui.EndTooltip();
         }
+
+        // Keep cursor on same line so the step text follows the button
+        ImGui.SameLine();
     }
 
     /// <summary>
