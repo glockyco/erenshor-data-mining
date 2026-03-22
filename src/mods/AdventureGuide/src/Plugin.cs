@@ -51,7 +51,7 @@ public sealed class Plugin : BaseUnityPlugin
         _config.ShowArrow.SettingChanged += (_, _) => _arrow.Enabled = _config.ShowArrow.Value;
 
         _window = new GuideWindow(_data, _state, _nav);
-        _imgui.OnLayout = _window.Draw;
+        _imgui.OnLayout = () => { _window.Draw(); _arrow!.Draw(); };
 
         // Wire DebugAPI for HotRepl inspection
         DebugAPI.Data = _data;
@@ -64,7 +64,6 @@ public sealed class Plugin : BaseUnityPlugin
         InventoryPatch.Tracker = _state;
         PointerOverUIPatch.Renderer = _imgui;
         SceneManager.sceneLoaded += OnSceneLoaded;
-        Camera.onPostRender += OnPostRender;
 
         _harmony = new Harmony(PluginInfo.GUID);
         _harmony.PatchAll();
@@ -107,16 +106,6 @@ public sealed class Plugin : BaseUnityPlugin
     private void OnGUI()
     {
         _imgui?.OnGUI();
-        _arrow?.DrawLabel();
-    }
-
-    private void OnPostRender(Camera cam)
-    {
-        // Game camera is named "MainCam" but not tagged "MainCamera",
-        // so Camera.main is null. Filter by name to avoid drawing on
-        // every camera (MapCam, UI Camera, etc.).
-        if (cam.name != "MainCam") return;
-        _arrow?.RenderGL(cam);
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -127,7 +116,6 @@ public sealed class Plugin : BaseUnityPlugin
     private void OnDestroy()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
-        Camera.onPostRender -= OnPostRender;
         _harmony?.UnpatchSelf();
         _imgui?.Dispose();
         _arrow?.Dispose();

@@ -1,15 +1,21 @@
+using AdventureGuide.Rendering;
+using AdventureGuide.UI;
 using UnityEngine;
+using V2 = AdventureGuide.Rendering.CimguiNative.Vec2;
 
 namespace AdventureGuide.Navigation;
 
 /// <summary>
 /// Renders a screen-space directional arrow pointing toward the navigation
-/// target. Uses GL immediate mode (not ImGui DrawList, which crashes after
-/// ILRepack due to Vector2 P/Invoke issues).
+/// target using ImGui's foreground draw list via raw cimgui P/Invoke.
+///
+/// Draws during the ImGui layout pass — no separate GL pipeline, no
+/// Camera.onPostRender, no GUI.Label. Everything goes through ImGui's
+/// existing CommandBuffer rendering path.
 ///
 /// When target is off-screen: arrow at screen edge pointing toward it.
-/// When target is on-screen: small diamond marker at target position.
-/// Distance shown as text via GUI.Label (rendered in OnGUI context).
+/// When target is on-screen: diamond marker at target position.
+/// Distance and name rendered as text via DrawList.AddText.
 /// </summary>
 public sealed class ArrowRenderer
 {
@@ -17,15 +23,14 @@ public sealed class ArrowRenderer
     private const float EdgeMargin = 40f;
     private const float MarkerSize = 8f;
     private const float ArrivalDistance = 3f;
+    private const float OutlineThickness = 1.5f;
 
-    private Material? _material;
+    private static readonly uint ColorArrow = Theme.Rgba(1.00f, 0.85f, 0.30f, 0.90f);
+    private static readonly uint ColorOutline = Theme.Rgba(0.10f, 0.10f, 0.10f, 0.80f);
+    private static readonly uint ColorText = Theme.Rgba(1.00f, 0.95f, 0.60f, 0.95f);
+
     private readonly NavigationController _nav;
     private bool _enabled = true;
-
-    // Cached screen info for the GUI.Label pass
-    private bool _shouldDrawLabel;
-    private Vector2 _labelScreenPos;
-    private string _labelText = "";
 
     public bool Enabled
     {
@@ -36,30 +41,27 @@ public sealed class ArrowRenderer
     public ArrowRenderer(NavigationController nav)
     {
         _nav = nav;
-        CreateMaterial();
     }
 
     /// <summary>
-    /// Call from Camera.onPostRender. Draws the arrow using GL immediate
-    /// mode in screen-space pixel coordinates. Receives the camera from the
-    /// callback because Camera.main is null in this game (camera is not tagged).
+    /// Call during the ImGui layout pass (OnLayout callback).
+    /// Draws the navigation arrow on the foreground draw list.
     /// </summary>
-    public void RenderGL(Camera cam)
+    public void Draw()
     {
         if (!_enabled || _nav.Target == null || _nav.Distance < ArrivalDistance)
-        {
-            _shouldDrawLabel = false;
             return;
-        }
 
-        if (_material == null || cam == null) return;
+        var drawList = CimguiNative.igGetForegroundDrawList_Nil();
+        if (drawList == System.IntPtr.Zero) return;
 
-        // Determine effective target position (zone line waypoint or direct target)
+        // Get game camera for world-to-screen projection.
+        // Camera.main is null (not tagged "MainCamera"), so use GameData.
+        var cam = GameData.GameCamPos?.GetComponent<Camera>();
+        if (cam == null) return;
+
         var effectiveTarget = _nav.ZoneLineWaypoint ?? _nav.Target;
-        var targetWorldPos = effectiveTarget.Position;
-
-        // Project target to screen space
-        var screenPos = cam.WorldToScreenPoint(targetWorldPos);
+        var screenPos = cam.WorldToScreenPoint(effectiveTarget.Position);
         bool isBehind = screenPos.z < 0;
         float sw = Screen.width;
         float sh = Screen.height;
@@ -71,106 +73,79 @@ public sealed class ArrowRenderer
             screenPos.y = sh - screenPos.y;
         }
 
-        // Convert to top-down Y (GL pixel matrix uses bottom-up, but we'll
-        // work in bottom-up and only flip for GUI.Label later)
+        // ImGui uses top-down Y (0 = top of screen)
+        float imguiY = sh - screenPos.y;
+
         bool onScreen = !isBehind
             && screenPos.x > EdgeMargin && screenPos.x < sw - EdgeMargin
-            && screenPos.y > EdgeMargin && screenPos.y < sh - EdgeMargin;
+            && imguiY > EdgeMargin && imguiY < sh - EdgeMargin;
 
-        GL.PushMatrix();
-        GL.LoadPixelMatrix();
-        _material.SetPass(0);
+        // Build label text
+        string distText = _nav.Distance >= 1000f
+            ? $"{_nav.Distance / 1000f:F1}km"
+            : $"{Mathf.RoundToInt(_nav.Distance)}m";
+        string label = $"{effectiveTarget.DisplayName}  {distText}";
+
+        var textSize = CimguiNative.CalcTextSize(label);
 
         if (onScreen)
         {
-            // Draw marker at target position
-            DrawDiamond(screenPos.x, screenPos.y, MarkerSize);
-            _labelScreenPos = new Vector2(screenPos.x, sh - screenPos.y + MarkerSize + 2f);
+            DrawDiamond(drawList, screenPos.x, imguiY, MarkerSize);
+            DrawCenteredText(drawList, screenPos.x, imguiY + MarkerSize + 4f, label, textSize, sw);
         }
         else
         {
-            // Clamp to screen edge and draw arrow
-            var center = new Vector2(sw * 0.5f, sh * 0.5f);
-            var dir = new Vector2(screenPos.x - center.x, screenPos.y - center.y);
-            if (dir.sqrMagnitude < 0.01f) dir = Vector2.up;
-            dir.Normalize();
+            // Clamp to screen edge
+            var centerX = sw * 0.5f;
+            var centerY = sh * 0.5f;
+            float dirX = screenPos.x - centerX;
+            float dirY = imguiY - centerY;
+            float dirLen = Mathf.Sqrt(dirX * dirX + dirY * dirY);
+            if (dirLen < 0.01f) { dirX = 0; dirY = -1; dirLen = 1; }
+            dirX /= dirLen;
+            dirY /= dirLen;
 
-            // Clamp to screen bounds. Margin accounts for arrow size so
-            // the tip doesn't extend past the screen edge.
+            // Margin accounts for arrow size so tip stays on screen
             float margin = EdgeMargin + ArrowSize;
             float halfW = sw * 0.5f - margin;
             float halfH = sh * 0.5f - margin;
 
-            float tX = dir.x != 0 ? Mathf.Abs(halfW / dir.x) : float.MaxValue;
-            float tY = dir.y != 0 ? Mathf.Abs(halfH / dir.y) : float.MaxValue;
+            float tX = dirX != 0 ? Mathf.Abs(halfW / dirX) : float.MaxValue;
+            float tY = dirY != 0 ? Mathf.Abs(halfH / dirY) : float.MaxValue;
             float t = Mathf.Min(tX, tY);
 
-            float ax = center.x + dir.x * t;
-            float ay = center.y + dir.y * t;
+            float ax = centerX + dirX * t;
+            float ay = centerY + dirY * t;
 
-            DrawArrow(ax, ay, dir);
-            _labelScreenPos = new Vector2(ax, sh - ay + ArrowSize + 2f);
+            DrawArrow(drawList, ax, ay, dirX, dirY);
+            DrawCenteredText(drawList, ax, ay + ArrowSize + 4f, label, textSize, sw);
         }
-
-        GL.PopMatrix();
-
-        // Prepare label for GUI pass
-        _shouldDrawLabel = true;
-        string distText = _nav.Distance >= 1000f
-            ? $"{_nav.Distance / 1000f:F1}km"
-            : $"{Mathf.RoundToInt(_nav.Distance)}m";
-        string targetName = effectiveTarget.DisplayName;
-        _labelText = _nav.ZoneLineWaypoint != null
-            ? $"{targetName}\n{distText}"
-            : $"{targetName}\n{distText}";
     }
 
-    /// <summary>
-    /// Call from OnGUI to draw the distance label. GL cannot render text,
-    /// so we use Unity's IMGUI for that one piece.
-    /// </summary>
-    public void DrawLabel()
+    // No resources to dispose — DrawList is owned by ImGui
+    public void Dispose() { }
+
+    /// <summary>Draw text centered horizontally on anchorX, clamped to screen width.</summary>
+    private static void DrawCenteredText(System.IntPtr dl, float anchorX, float y,
+        string text, CimguiNative.Vec2 textSize, float screenWidth)
     {
-        if (!_shouldDrawLabel || !_enabled) return;
-
-        var style = GUI.skin.label;
-        var prevAlignment = style.alignment;
-        var prevColor = style.normal.textColor;
-        var prevSize = style.fontSize;
-
-        style.alignment = TextAnchor.UpperCenter;
-        style.normal.textColor = new Color(1f, 0.95f, 0.6f, 0.95f);
-        style.fontSize = 13;
-
-        var size = style.CalcSize(new GUIContent(_labelText));
-        var rect = new Rect(
-            _labelScreenPos.x - size.x * 0.5f,
-            _labelScreenPos.y,
-            size.x,
-            size.y);
-        GUI.Label(rect, _labelText);
-
-        style.alignment = prevAlignment;
-        style.normal.textColor = prevColor;
-        style.fontSize = prevSize;
+        float x = anchorX - textSize.X * 0.5f;
+        // Clamp to screen bounds with small padding
+        const float pad = EdgeMargin;
+        if (x < pad) x = pad;
+        if (x + textSize.X > screenWidth - pad) x = screenWidth - pad - textSize.X;
+        CimguiNative.AddText(dl, x, y, ColorText, text);
     }
 
-    public void Dispose()
-    {
-        if (_material != null)
-            UnityEngine.Object.Destroy(_material);
-    }
+    // ── Drawing primitives ─────────────────────────────────────────
 
-    // ── GL drawing primitives ──────────────────────────────────────
-
-    private void DrawArrow(float x, float y, Vector2 dir)
+    private static void DrawArrow(System.IntPtr dl, float x, float y, float dirX, float dirY)
     {
-        // Arrow triangle pointing in direction of target
-        float angle = Mathf.Atan2(dir.y, dir.x);
+        float angle = Mathf.Atan2(dirY, dirX);
         float cos = Mathf.Cos(angle);
         float sin = Mathf.Sin(angle);
 
-        // Triangle vertices: tip, left base, right base
+        // Triangle: tip extends in direction, base is behind
         float tipX = x + cos * ArrowSize;
         float tipY = y + sin * ArrowSize;
 
@@ -180,66 +155,26 @@ public sealed class ArrowRenderer
         float baseX = x - cos * ArrowSize * 0.3f;
         float baseY = y - sin * ArrowSize * 0.3f;
 
-        // Filled triangle — warm gold color
-        GL.Begin(GL.TRIANGLES);
-        GL.Color(new Color(1f, 0.85f, 0.3f, 0.9f));
-        GL.Vertex3(tipX, tipY, 0);
-        GL.Vertex3(baseX + perpX, baseY + perpY, 0);
-        GL.Vertex3(baseX - perpX, baseY - perpY, 0);
-        GL.End();
+        var tip = new V2(tipX, tipY);
+        var left = new V2(baseX + perpX, baseY + perpY);
+        var right = new V2(baseX - perpX, baseY - perpY);
 
-        // Dark outline for contrast
-        GL.Begin(GL.LINES);
-        GL.Color(new Color(0.1f, 0.1f, 0.1f, 0.8f));
-        GL.Vertex3(tipX, tipY, 0);
-        GL.Vertex3(baseX + perpX, baseY + perpY, 0);
-        GL.Vertex3(baseX + perpX, baseY + perpY, 0);
-        GL.Vertex3(baseX - perpX, baseY - perpY, 0);
-        GL.Vertex3(baseX - perpX, baseY - perpY, 0);
-        GL.Vertex3(tipX, tipY, 0);
-        GL.End();
+        CimguiNative.ImDrawList_AddTriangleFilled(dl, tip, left, right, ColorArrow);
+        CimguiNative.ImDrawList_AddTriangle(dl, tip, left, right, ColorOutline, OutlineThickness);
     }
 
-    private void DrawDiamond(float x, float y, float size)
+    private static void DrawDiamond(System.IntPtr dl, float x, float y, float size)
     {
-        GL.Begin(GL.TRIANGLES);
-        GL.Color(new Color(1f, 0.85f, 0.3f, 0.9f));
-        // Top triangle
-        GL.Vertex3(x, y + size, 0);
-        GL.Vertex3(x - size, y, 0);
-        GL.Vertex3(x + size, y, 0);
-        // Bottom triangle
-        GL.Vertex3(x, y - size, 0);
-        GL.Vertex3(x + size, y, 0);
-        GL.Vertex3(x - size, y, 0);
-        GL.End();
+        var top = new V2(x, y - size);
+        var right = new V2(x + size, y);
+        var bottom = new V2(x, y + size);
+        var left = new V2(x - size, y);
 
-        // Outline
-        GL.Begin(GL.LINES);
-        GL.Color(new Color(0.1f, 0.1f, 0.1f, 0.8f));
-        GL.Vertex3(x, y + size, 0);
-        GL.Vertex3(x + size, y, 0);
-        GL.Vertex3(x + size, y, 0);
-        GL.Vertex3(x, y - size, 0);
-        GL.Vertex3(x, y - size, 0);
-        GL.Vertex3(x - size, y, 0);
-        GL.Vertex3(x - size, y, 0);
-        GL.Vertex3(x, y + size, 0);
-        GL.End();
-    }
-
-    private void CreateMaterial()
-    {
-        var shader = Shader.Find("Hidden/Internal-Colored");
-        if (shader == null) return;
-        _material = new Material(shader)
-        {
-            hideFlags = HideFlags.HideAndDontSave
-        };
-        _material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-        _material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-        _material.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
-        _material.SetInt("_ZWrite", 0);
-        _material.SetInt("_ZTest", (int)UnityEngine.Rendering.CompareFunction.Always);
+        CimguiNative.ImDrawList_AddQuadFilled(dl, top, right, bottom, left, ColorArrow);
+        // Outline via four lines for clean anti-aliased edges
+        CimguiNative.ImDrawList_AddLine(dl, top, right, ColorOutline, OutlineThickness);
+        CimguiNative.ImDrawList_AddLine(dl, right, bottom, ColorOutline, OutlineThickness);
+        CimguiNative.ImDrawList_AddLine(dl, bottom, left, ColorOutline, OutlineThickness);
+        CimguiNative.ImDrawList_AddLine(dl, left, top, ColorOutline, OutlineThickness);
     }
 }
