@@ -162,7 +162,8 @@ def _fetch_acquisition_sources(
         SELECT qas.quest_stable_key, qas.method, qas.source_type,
                qas.source_stable_key, qas.note,
                COALESCE(c.display_name, i.display_name, z.display_name,
-                        qv.quest_name) AS source_name
+                        qv.quest_name) AS source_name,
+               cd.keywords AS keyword
         FROM quest_acquisition_sources qas
         LEFT JOIN characters c
             ON c.stable_key = qas.source_stable_key AND qas.source_type = 'character'
@@ -172,7 +173,12 @@ def _fetch_acquisition_sources(
             ON z.stable_key = qas.source_stable_key AND qas.source_type = 'zone'
         LEFT JOIN quest_variants qv
             ON qv.quest_stable_key = qas.source_stable_key AND qas.source_type = 'quest'
+        LEFT JOIN character_dialogs cd
+            ON cd.character_stable_key = qas.source_stable_key
+            AND cd.assign_quest_stable_key = qas.quest_stable_key
+            AND cd.keywords IS NOT NULL AND cd.keywords != ''
         WHERE c.stable_key IS NULL OR c.is_map_visible = 1
+        GROUP BY qas.quest_stable_key, qas.source_stable_key
         """
     ).fetchall()
     result: dict[str, list[AcquisitionSource]] = {}
@@ -182,6 +188,7 @@ def _fetch_acquisition_sources(
             source_name=row["source_name"],
             source_type=row["source_type"],
             source_stable_key=row["source_stable_key"],
+            keyword=row["keyword"],
             note=row["note"],
         )
         result.setdefault(row["quest_stable_key"], []).append(src)
@@ -196,7 +203,8 @@ def _fetch_completion_sources(
         SELECT qcs.quest_stable_key, qcs.method, qcs.source_type,
                qcs.source_stable_key, qcs.note,
                COALESCE(c.display_name, i.display_name, z.display_name,
-                        qv.quest_name) AS source_name
+                        qv.quest_name) AS source_name,
+               cd.keywords AS keyword
         FROM quest_completion_sources qcs
         LEFT JOIN characters c
             ON c.stable_key = qcs.source_stable_key AND qcs.source_type = 'character'
@@ -206,7 +214,12 @@ def _fetch_completion_sources(
             ON z.stable_key = qcs.source_stable_key AND qcs.source_type = 'zone'
         LEFT JOIN quest_variants qv
             ON qv.quest_stable_key = qcs.source_stable_key AND qcs.source_type = 'quest'
+        LEFT JOIN character_dialogs cd
+            ON cd.character_stable_key = qcs.source_stable_key
+            AND cd.complete_quest_stable_key = qcs.quest_stable_key
+            AND cd.keywords IS NOT NULL AND cd.keywords != ''
         WHERE c.stable_key IS NULL OR c.is_map_visible = 1
+        GROUP BY qcs.quest_stable_key, qcs.source_stable_key
         """
     ).fetchall()
     result: dict[str, list[CompletionSource]] = {}
@@ -217,6 +230,7 @@ def _fetch_completion_sources(
             source_name=row["source_name"],
             source_type=row["source_type"],
             source_stable_key=row["source_stable_key"],
+            keyword=row["keyword"],
             note=row["note"],
         )
         # Deduplicate by (method, source_name) — same NPC may have

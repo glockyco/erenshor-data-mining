@@ -45,6 +45,7 @@ public sealed class AcquisitionSource
     [JsonProperty("source_name")] public string? SourceName { get; set; }
     [JsonProperty("source_type")] public string? SourceType { get; set; }
     [JsonProperty("zone_name")] public string? ZoneName { get; set; }
+    [JsonProperty("keyword")] public string? Keyword { get; set; }
     [JsonProperty("note")] public string? Note { get; set; }
 }
 

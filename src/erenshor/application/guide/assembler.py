@@ -411,6 +411,16 @@ def _generate_steps(
     return gen() if gen else []
 
 
+def _talk_description(npc_name: str, keyword: str | None = None) -> str:
+    """Build a step description for talking to an NPC.
+
+    When a keyword is required, the description tells the player what to say.
+    """
+    if keyword:
+        return f'Say "{keyword}" to {npc_name}.'
+    return f"Speak to {npc_name}."
+
+
 def _find_giver(acquisition: list[AcquisitionSource]) -> AcquisitionSource | None:
     """Find the primary quest giver (dialog NPC) from acquisition sources."""
     for acq in acquisition:
@@ -460,7 +470,7 @@ def _steps_fetch(
         steps.append(
             step(
                 "talk",
-                f"Speak to {giver.source_name}.",
+                _talk_description(giver.source_name, giver.keyword),
                 target_name=giver.source_name,
                 target_type="character",
             )
@@ -506,7 +516,7 @@ def _steps_kill(
         steps.append(
             step(
                 "talk",
-                f"Speak to {giver.source_name}.",
+                _talk_description(giver.source_name, giver.keyword),
                 target_name=giver.source_name,
                 target_type="character",
                 zone_name=giver.zone_name,
@@ -536,7 +546,7 @@ def _steps_dialog(
         steps.append(
             step(
                 "talk",
-                f"Speak to {giver.source_name}.",
+                _talk_description(giver.source_name, giver.keyword),
                 target_name=giver.source_name,
                 target_type="character",
                 zone_name=giver.zone_name,
@@ -550,7 +560,7 @@ def _steps_dialog(
             steps.append(
                 step(
                     "talk",
-                    f"Speak to {comp.source_name}.",
+                    _talk_description(comp.source_name, comp.keyword),
                     target_name=comp.source_name,
                     target_type="character",
                     zone_name=comp.zone_name,
@@ -569,7 +579,7 @@ def _steps_zone_trigger(
         steps.append(
             step(
                 "talk",
-                f"Speak to {giver.source_name}.",
+                _talk_description(giver.source_name, giver.keyword),
                 target_name=giver.source_name,
                 target_type="character",
                 zone_name=giver.zone_name,
@@ -600,7 +610,7 @@ def _steps_shout(
         steps.append(
             step(
                 "talk",
-                f"Speak to {giver.source_name}.",
+                _talk_description(giver.source_name, giver.keyword),
                 target_name=giver.source_name,
                 target_type="character",
                 zone_name=giver.zone_name,

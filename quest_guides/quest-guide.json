@@ -53539,14 +53539,15 @@
           "method": "dialog",
           "source_name": "Ripper DeMerth",
           "source_type": "character",
-          "source_stable_key": "character:ripper demerth"
+          "source_stable_key": "character:ripper demerth",
+          "keyword": "Kilkay"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Ripper DeMerth.",
+          "description": "Say \"Kilkay\" to Ripper DeMerth.",
           "target_name": "Ripper DeMerth",
           "target_type": "character",
           "optional": false,
@@ -53684,14 +53685,15 @@
           "method": "dialog",
           "source_name": "Captain Kilkay",
           "source_type": "character",
-          "source_stable_key": "character:guard captain azure"
+          "source_stable_key": "character:guard captain azure",
+          "keyword": "Ripper's"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Captain Kilkay.",
+          "description": "Say \"Ripper's\" to Captain Kilkay.",
           "target_name": "Captain Kilkay",
           "target_type": "character",
           "optional": false,
@@ -53926,14 +53928,15 @@
           "method": "dialog",
           "source_name": "A Dying Wish",
           "source_type": "character",
-          "source_stable_key": "character:fernalla's wish - 1"
+          "source_stable_key": "character:fernalla's wish - 1",
+          "keyword": "Vitheo"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to A Dying Wish.",
+          "description": "Say \"Vitheo\" to A Dying Wish.",
           "target_name": "A Dying Wish",
           "target_type": "character",
           "optional": false
@@ -54025,14 +54028,15 @@
           "method": "dialog",
           "source_name": "A Dying Wish",
           "source_type": "character",
-          "source_stable_key": "character:fernalla's wish - 2"
+          "source_stable_key": "character:fernalla's wish - 2",
+          "keyword": "Balaste"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to A Dying Wish.",
+          "description": "Say \"Balaste\" to A Dying Wish.",
           "target_name": "A Dying Wish",
           "target_type": "character",
           "optional": false
@@ -54124,14 +54128,15 @@
           "method": "dialog",
           "source_name": "A Dying Wish",
           "source_type": "character",
-          "source_stable_key": "character:fernalla's wish - 3"
+          "source_stable_key": "character:fernalla's wish - 3",
+          "keyword": "Elwio"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to A Dying Wish.",
+          "description": "Say \"Elwio\" to A Dying Wish.",
           "target_name": "A Dying Wish",
           "target_type": "character",
           "optional": false
@@ -54224,20 +54229,22 @@
           "method": "dialog",
           "source_name": "Fallen Fernalla",
           "source_type": "character",
-          "source_stable_key": "character:fallen fernalla 1"
+          "source_stable_key": "character:fallen fernalla 1",
+          "keyword": "abomination"
         },
         {
           "method": "dialog",
           "source_name": "Fallen Fernalla",
           "source_type": "character",
-          "source_stable_key": "character:fallen fernalla:bloomingsepulcher:788.35:254.99:837.27"
+          "source_stable_key": "character:fallen fernalla:bloomingsepulcher:788.35:254.99:837.27",
+          "keyword": "abomination"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Fallen Fernalla.",
+          "description": "Say \"abomination\" to Fallen Fernalla.",
           "target_name": "Fallen Fernalla",
           "target_type": "character",
           "optional": false,
@@ -54498,7 +54505,8 @@
           "method": "dialog",
           "source_name": "Malor Mara",
           "source_type": "character",
-          "source_stable_key": "character:malor maya:duskenlight:1503.96:64.02:656.88"
+          "source_stable_key": "character:malor maya:duskenlight:1503.96:64.02:656.88",
+          "keyword": "gate"
         }
       ],
       "rewards": {
@@ -54526,14 +54534,15 @@
           "method": "dialog",
           "source_name": "A Hermit",
           "source_type": "character",
-          "source_stable_key": "character:a hermit"
+          "source_stable_key": "character:a hermit",
+          "keyword": "they"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to A Hermit.",
+          "description": "Say \"they\" to A Hermit.",
           "target_name": "A Hermit",
           "target_type": "character",
           "optional": false,
@@ -54651,7 +54660,7 @@
         "factors": [
           {
             "source": "step_1",
-            "name": "Speak to A Hermit.",
+            "name": "Say \"they\" to A Hermit.",
             "level": 13
           }
         ]
@@ -54676,7 +54685,7 @@
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Styria Olafur.",
+          "description": "Say \"shadowtide, Shadowtide\" to Styria Olafur.",
           "target_name": "Styria Olafur",
           "target_type": "character",
           "optional": false,
@@ -54697,7 +54706,8 @@
           "method": "talk",
           "source_name": "Styria Olafur",
           "source_type": "character",
-          "source_stable_key": "character:styria olafur:azure:120.30:11.61:291.56"
+          "source_stable_key": "character:styria olafur:azure:120.30:11.61:291.56",
+          "keyword": "shadowtide, Shadowtide"
         }
       ],
       "rewards": {
@@ -54731,7 +54741,7 @@
         "factors": [
           {
             "source": "step_1",
-            "name": "Speak to Styria Olafur.",
+            "name": "Say \"shadowtide, Shadowtide\" to Styria Olafur.",
             "level": 11
           }
         ]
@@ -55226,14 +55236,15 @@
           "method": "dialog",
           "source_name": "Tristan Warton",
           "source_type": "character",
-          "source_stable_key": "character:tristan warton"
+          "source_stable_key": "character:tristan warton",
+          "keyword": "swords"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Tristan Warton.",
+          "description": "Say \"swords\" to Tristan Warton.",
           "target_name": "Tristan Warton",
           "target_type": "character",
           "optional": false,
@@ -56111,7 +56122,7 @@
         "factors": [
           {
             "source": "step_1",
-            "name": "Speak to Tristan Warton.",
+            "name": "Say \"swords\" to Tristan Warton.",
             "level": 11
           }
         ]
@@ -56129,14 +56140,15 @@
           "method": "dialog",
           "source_name": "Xander Zaxtrough",
           "source_type": "character",
-          "source_stable_key": "character:xander zaxtrough"
+          "source_stable_key": "character:xander zaxtrough",
+          "keyword": "work"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Xander Zaxtrough.",
+          "description": "Say \"work\" to Xander Zaxtrough.",
           "target_name": "Xander Zaxtrough",
           "target_type": "character",
           "optional": false,
@@ -56154,7 +56166,7 @@
         {
           "order": 2,
           "action": "talk",
-          "description": "Speak to Cirreus Alxanth.",
+          "description": "Say \"Open, open\" to Cirreus Alxanth.",
           "target_name": "Cirreus Alxanth",
           "target_type": "character",
           "optional": false,
@@ -56175,7 +56187,8 @@
           "method": "talk",
           "source_name": "Cirreus Alxanth",
           "source_type": "character",
-          "source_stable_key": "character:cirreus alxanth:1"
+          "source_stable_key": "character:cirreus alxanth:1",
+          "keyword": "Open, open"
         }
       ],
       "rewards": {
@@ -56205,7 +56218,7 @@
         "factors": [
           {
             "source": "step_2",
-            "name": "Speak to Cirreus Alxanth.",
+            "name": "Say \"Open, open\" to Cirreus Alxanth.",
             "level": 9
           }
         ]
@@ -56223,14 +56236,15 @@
           "method": "dialog",
           "source_name": "Trevor Ulchand",
           "source_type": "character",
-          "source_stable_key": "character:trevor ulchand"
+          "source_stable_key": "character:trevor ulchand",
+          "keyword": "jobs"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Trevor Ulchand.",
+          "description": "Say \"jobs\" to Trevor Ulchand.",
           "target_name": "Trevor Ulchand",
           "target_type": "character",
           "optional": false,
@@ -56520,7 +56534,7 @@
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Ward of Piety.",
+          "description": "Say \"azynthi, Azynthi\" to Ward of Piety.",
           "target_name": "Ward of Piety",
           "target_type": "character",
           "optional": false,
@@ -56541,7 +56555,8 @@
           "method": "talk",
           "source_name": "Ward of Piety",
           "source_type": "character",
-          "source_stable_key": "character:ward of sivakaya (5):jaws:1450.96:-18.28:97.03"
+          "source_stable_key": "character:ward of sivakaya (1):jaws:1478.96:-18.28:109.78",
+          "keyword": "azynthi, Azynthi"
         }
       ],
       "rewards": {
@@ -56562,7 +56577,7 @@
         "factors": [
           {
             "source": "step_1",
-            "name": "Speak to Ward of Piety.",
+            "name": "Say \"azynthi, Azynthi\" to Ward of Piety.",
             "level": 34
           }
         ]
@@ -56862,14 +56877,15 @@
           "method": "dialog",
           "source_name": "Ludo Luxo",
           "source_type": "character",
-          "source_stable_key": "character:ludo luxo"
+          "source_stable_key": "character:ludo luxo",
+          "keyword": "task, quest, help"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Ludo Luxo.",
+          "description": "Say \"task, quest, help\" to Ludo Luxo.",
           "target_name": "Ludo Luxo",
           "target_type": "character",
           "optional": false,
@@ -56997,14 +57013,15 @@
           "method": "dialog",
           "source_name": "Alyssia Fearnon",
           "source_type": "character",
-          "source_stable_key": "character:alyssa fearnon"
+          "source_stable_key": "character:alyssa fearnon",
+          "keyword": "favor"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Alyssia Fearnon.",
+          "description": "Say \"favor\" to Alyssia Fearnon.",
           "target_name": "Alyssia Fearnon",
           "target_type": "character",
           "optional": false,
@@ -57345,14 +57362,15 @@
           "method": "dialog",
           "source_name": "Jeremie Galyard",
           "source_type": "character",
-          "source_stable_key": "character:jeremie galyard"
+          "source_stable_key": "character:jeremie galyard",
+          "keyword": "Azynthi"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Jeremie Galyard.",
+          "description": "Say \"Azynthi\" to Jeremie Galyard.",
           "target_name": "Jeremie Galyard",
           "target_type": "character",
           "optional": false,
@@ -57848,7 +57866,7 @@
         "factors": [
           {
             "source": "step_1",
-            "name": "Speak to Jeremie Galyard.",
+            "name": "Say \"Azynthi\" to Jeremie Galyard.",
             "level": 28
           }
         ]
@@ -58023,7 +58041,8 @@
           "method": "talk",
           "source_name": "Chance Barlow",
           "source_type": "character",
-          "source_stable_key": "character:chance barlow"
+          "source_stable_key": "character:chance barlow",
+          "keyword": "ready, yes, go"
         },
         {
           "method": "zone",
@@ -58071,13 +58090,15 @@
           "method": "dialog",
           "source_name": "Cerbantias Flameward",
           "source_type": "character",
-          "source_stable_key": "character:cerbantias flameward combined"
+          "source_stable_key": "character:cerbantias flameward",
+          "keyword": "hunt"
         },
         {
           "method": "dialog",
           "source_name": "Cerbantias Flameward",
           "source_type": "character",
-          "source_stable_key": "character:cerbantias flameward"
+          "source_stable_key": "character:cerbantias flameward combined",
+          "keyword": "hunt"
         }
       ],
       "rewards": {
@@ -58105,14 +58126,15 @@
           "method": "dialog",
           "source_name": "Saya Seawatcher",
           "source_type": "character",
-          "source_stable_key": "character:saya seawatcher"
+          "source_stable_key": "character:saya seawatcher",
+          "keyword": "aetheria"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Saya Seawatcher.",
+          "description": "Say \"aetheria\" to Saya Seawatcher.",
           "target_name": "Saya Seawatcher",
           "target_type": "character",
           "optional": false,
@@ -58538,7 +58560,7 @@
         "factors": [
           {
             "source": "step_1",
-            "name": "Speak to Saya Seawatcher.",
+            "name": "Say \"aetheria\" to Saya Seawatcher.",
             "level": 9
           }
         ]
@@ -58556,14 +58578,15 @@
           "method": "dialog",
           "source_name": "Albixt Munger",
           "source_type": "character",
-          "source_stable_key": "character:albixt munger:silkengrass:649.35:40.43:225.03"
+          "source_stable_key": "character:albixt munger:silkengrass:649.35:40.43:225.03",
+          "keyword": "Lost"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Albixt Munger.",
+          "description": "Say \"Lost\" to Albixt Munger.",
           "target_name": "Albixt Munger",
           "target_type": "character",
           "optional": false,
@@ -58669,7 +58692,7 @@
         "factors": [
           {
             "source": "step_1",
-            "name": "Speak to Albixt Munger.",
+            "name": "Say \"Lost\" to Albixt Munger.",
             "level": 18
           }
         ]
@@ -58818,14 +58841,15 @@
           "method": "dialog",
           "source_name": "Annaleigh Hephan",
           "source_type": "character",
-          "source_stable_key": "character:annaleigh hephan"
+          "source_stable_key": "character:annaleigh hephan",
+          "keyword": "inventor"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Annaleigh Hephan.",
+          "description": "Say \"inventor\" to Annaleigh Hephan.",
           "target_name": "Annaleigh Hephan",
           "target_type": "character",
           "optional": false,
@@ -59018,7 +59042,7 @@
         "factors": [
           {
             "source": "step_1",
-            "name": "Speak to Annaleigh Hephan.",
+            "name": "Say \"inventor\" to Annaleigh Hephan.",
             "level": 14
           }
         ]
@@ -59036,7 +59060,8 @@
           "method": "dialog",
           "source_name": "Aragath Swellsteer",
           "source_type": "character",
-          "source_stable_key": "character:aragath swellsteer"
+          "source_stable_key": "character:aragath swellsteer",
+          "keyword": "four"
         }
       ],
       "prerequisites": [
@@ -59069,7 +59094,7 @@
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Aragath Swellsteer.",
+          "description": "Say \"four\" to Aragath Swellsteer.",
           "target_name": "Aragath Swellsteer",
           "target_type": "character",
           "optional": false,
@@ -60480,16 +60505,16 @@
       ],
       "completion": [
         {
-          "method": "read",
-          "source_name": "Box of Portals",
-          "source_type": "item",
-          "source_stable_key": "item:gen - box of portals"
-        },
-        {
           "method": "death",
           "source_name": "Reliquary Fiend",
           "source_type": "character",
           "source_stable_key": "character:reliquary fiend"
+        },
+        {
+          "method": "read",
+          "source_name": "Box of Portals",
+          "source_type": "item",
+          "source_stable_key": "item:gen - box of portals"
         }
       ],
       "rewards": {
@@ -60529,14 +60554,15 @@
           "method": "dialog",
           "source_name": "William Cardigo",
           "source_type": "character",
-          "source_stable_key": "character:william cardigo"
+          "source_stable_key": "character:william cardigo",
+          "keyword": "demon"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to William Cardigo.",
+          "description": "Say \"demon\" to William Cardigo.",
           "target_name": "William Cardigo",
           "target_type": "character",
           "optional": false,
@@ -63578,14 +63604,15 @@
           "method": "dialog",
           "source_name": "Neziroth Daggerhart",
           "source_type": "character",
-          "source_stable_key": "character:neziroth daggerhart:stowaway:497.09:68.71:677.59"
+          "source_stable_key": "character:neziroth daggerhart:stowaway:497.09:68.71:677.59",
+          "keyword": "coin, Protect"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Neziroth Daggerhart.",
+          "description": "Say \"coin, Protect\" to Neziroth Daggerhart.",
           "target_name": "Neziroth Daggerhart",
           "target_type": "character",
           "optional": false,
@@ -63846,14 +63873,15 @@
           "method": "dialog",
           "source_name": "Stalzo",
           "source_type": "character",
-          "source_stable_key": "character:stalzo"
+          "source_stable_key": "character:stalzo",
+          "keyword": "soul, gem"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Stalzo.",
+          "description": "Say \"soul, gem\" to Stalzo.",
           "target_name": "Stalzo",
           "target_type": "character",
           "optional": false,
@@ -63944,7 +63972,7 @@
         "factors": [
           {
             "source": "step_1",
-            "name": "Speak to Stalzo.",
+            "name": "Say \"soul, gem\" to Stalzo.",
             "level": 4
           }
         ]
@@ -63962,14 +63990,15 @@
           "method": "dialog",
           "source_name": "Edgar Taether",
           "source_type": "character",
-          "source_stable_key": "character:edgar taether:silkengrass:1050.92:97.34:1006.71"
+          "source_stable_key": "character:edgar taether:silkengrass:1050.92:97.34:1006.71",
+          "keyword": "protected"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Edgar Taether.",
+          "description": "Say \"protected\" to Edgar Taether.",
           "target_name": "Edgar Taether",
           "target_type": "character",
           "optional": false,
@@ -64199,14 +64228,15 @@
           "method": "dialog",
           "source_name": "Varran Juctor",
           "source_type": "character",
-          "source_stable_key": "character:varran juctor"
+          "source_stable_key": "character:varran juctor",
+          "keyword": "dispose"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Varran Juctor.",
+          "description": "Say \"dispose\" to Varran Juctor.",
           "target_name": "Varran Juctor",
           "target_type": "character",
           "optional": false,
@@ -64880,14 +64910,15 @@
           "method": "dialog",
           "source_name": "Benson Gamble",
           "source_type": "character",
-          "source_stable_key": "character:benson gamble"
+          "source_stable_key": "character:benson gamble",
+          "keyword": "prove"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Benson Gamble.",
+          "description": "Say \"prove\" to Benson Gamble.",
           "target_name": "Benson Gamble",
           "target_type": "character",
           "optional": false,
@@ -65046,14 +65077,15 @@
           "method": "dialog",
           "source_name": "Windlae Oldseer",
           "source_type": "character",
-          "source_stable_key": "character:windlae oldseer"
+          "source_stable_key": "character:windlae oldseer",
+          "keyword": "test"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Windlae Oldseer.",
+          "description": "Say \"test\" to Windlae Oldseer.",
           "target_name": "Windlae Oldseer",
           "target_type": "character",
           "optional": false,
@@ -65181,14 +65213,15 @@
           "method": "dialog",
           "source_name": "Hadden Passican",
           "source_type": "character",
-          "source_stable_key": "character:hadden passican"
+          "source_stable_key": "character:hadden passican",
+          "keyword": "Ripper's, ripper's"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Hadden Passican.",
+          "description": "Say \"Ripper's, ripper's\" to Hadden Passican.",
           "target_name": "Hadden Passican",
           "target_type": "character",
           "optional": false,
@@ -65439,7 +65472,7 @@
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Corporal Slate.",
+          "description": "Say \"registered\" to Corporal Slate.",
           "target_name": "Corporal Slate",
           "target_type": "character",
           "optional": false,
@@ -65460,7 +65493,8 @@
           "method": "talk",
           "source_name": "Corporal Slate",
           "source_type": "character",
-          "source_stable_key": "character:corporal smith"
+          "source_stable_key": "character:corporal smith",
+          "keyword": "registered"
         }
       ],
       "rewards": {
@@ -65487,7 +65521,7 @@
         "factors": [
           {
             "source": "step_1",
-            "name": "Speak to Corporal Slate.",
+            "name": "Say \"registered\" to Corporal Slate.",
             "level": 2
           }
         ]
@@ -65505,14 +65539,15 @@
           "method": "dialog",
           "source_name": "Foreman Hauck",
           "source_type": "character",
-          "source_stable_key": "character:foreman hauck"
+          "source_stable_key": "character:foreman hauck",
+          "keyword": "prisoners"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Foreman Hauck.",
+          "description": "Say \"prisoners\" to Foreman Hauck.",
           "target_name": "Foreman Hauck",
           "target_type": "character",
           "optional": false,
@@ -65636,14 +65671,15 @@
           "method": "dialog",
           "source_name": "Valrae Cleary",
           "source_type": "character",
-          "source_stable_key": "character:valrae cleary"
+          "source_stable_key": "character:valrae cleary",
+          "keyword": "Krakengard"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Valrae Cleary.",
+          "description": "Say \"Krakengard\" to Valrae Cleary.",
           "target_name": "Valrae Cleary",
           "target_type": "character",
           "optional": false,
@@ -65842,14 +65878,15 @@
           "method": "dialog",
           "source_name": "Corporal Slate",
           "source_type": "character",
-          "source_stable_key": "character:corporal smith"
+          "source_stable_key": "character:corporal smith",
+          "keyword": "problem"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Corporal Slate.",
+          "description": "Say \"problem\" to Corporal Slate.",
           "target_name": "Corporal Slate",
           "target_type": "character",
           "optional": false,
@@ -65939,7 +65976,7 @@
         "factors": [
           {
             "source": "step_1",
-            "name": "Speak to Corporal Slate.",
+            "name": "Say \"problem\" to Corporal Slate.",
             "level": 2
           }
         ]
@@ -66806,7 +66843,8 @@
           "method": "dialog",
           "source_name": "Prichard Zemoro",
           "source_type": "character",
-          "source_stable_key": "character:prichard zemora:azure:185.37:12.94:175.81"
+          "source_stable_key": "character:prichard zemora:azure:185.37:12.94:175.81",
+          "keyword": "map"
         }
       ],
       "prerequisites": [
@@ -66821,7 +66859,7 @@
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Prichard Zemoro.",
+          "description": "Say \"map\" to Prichard Zemoro.",
           "target_name": "Prichard Zemoro",
           "target_type": "character",
           "optional": false,
@@ -67007,14 +67045,15 @@
           "method": "dialog",
           "source_name": "Mavik Estonia",
           "source_type": "character",
-          "source_stable_key": "character:mavik eston"
+          "source_stable_key": "character:mavik eston",
+          "keyword": "Kilkay"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Mavik Estonia.",
+          "description": "Say \"Kilkay\" to Mavik Estonia.",
           "target_name": "Mavik Estonia",
           "target_type": "character",
           "optional": false,
@@ -67098,7 +67137,7 @@
         "factors": [
           {
             "source": "step_1",
-            "name": "Speak to Mavik Estonia.",
+            "name": "Say \"Kilkay\" to Mavik Estonia.",
             "level": 18
           }
         ]
@@ -67141,7 +67180,7 @@
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Bassle Wavebreaker.",
+          "description": "Say \"taking\" to Bassle Wavebreaker.",
           "target_name": "Bassle Wavebreaker",
           "target_type": "character",
           "optional": false,
@@ -67162,7 +67201,8 @@
           "method": "talk",
           "source_name": "Bassle Wavebreaker",
           "source_type": "character",
-          "source_stable_key": "character:bassle wavebreak"
+          "source_stable_key": "character:bassle wavebreak",
+          "keyword": "taking"
         }
       ],
       "rewards": {
@@ -67182,7 +67222,7 @@
         "factors": [
           {
             "source": "step_1",
-            "name": "Speak to Bassle Wavebreaker.",
+            "name": "Say \"taking\" to Bassle Wavebreaker.",
             "level": 14
           }
         ]
@@ -67304,14 +67344,15 @@
           "method": "dialog",
           "source_name": "Shady Fisherman",
           "source_type": "character",
-          "source_stable_key": "character:shady fisherman:azure:43.10:13.76:246.95"
+          "source_stable_key": "character:shady fisherman:azure:43.10:13.76:246.95",
+          "keyword": "catch"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Shady Fisherman.",
+          "description": "Say \"catch\" to Shady Fisherman.",
           "target_name": "Shady Fisherman",
           "target_type": "character",
           "optional": false,
@@ -67484,7 +67525,7 @@
         "factors": [
           {
             "source": "step_1",
-            "name": "Speak to Shady Fisherman.",
+            "name": "Say \"catch\" to Shady Fisherman.",
             "level": 11
           }
         ]
@@ -67502,14 +67543,15 @@
           "method": "dialog",
           "source_name": "Valrae Cleary",
           "source_type": "character",
-          "source_stable_key": "character:valrae cleary"
+          "source_stable_key": "character:valrae cleary",
+          "keyword": "Underspine"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Valrae Cleary.",
+          "description": "Say \"Underspine\" to Valrae Cleary.",
           "target_name": "Valrae Cleary",
           "target_type": "character",
           "optional": false,
@@ -68109,14 +68151,15 @@
           "method": "dialog",
           "source_name": "Percy Ildia",
           "source_type": "character",
-          "source_stable_key": "character:percy ildia:stowaway:693.19:20.67:504.85"
+          "source_stable_key": "character:percy ildia:stowaway:693.19:20.67:504.85",
+          "keyword": "Do, Favor, What, Need"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Percy Ildia.",
+          "description": "Say \"Do, Favor, What, Need\" to Percy Ildia.",
           "target_name": "Percy Ildia",
           "target_type": "character",
           "optional": false,
@@ -69193,14 +69236,15 @@
           "method": "dialog",
           "source_name": "Freed Spirit of Raval",
           "source_type": "character",
-          "source_stable_key": "character:freed spirit of raval"
+          "source_stable_key": "character:freed spirit of raval",
+          "keyword": "presence"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Freed Spirit of Raval.",
+          "description": "Say \"presence\" to Freed Spirit of Raval.",
           "target_name": "Freed Spirit of Raval",
           "target_type": "character",
           "optional": false
@@ -69301,14 +69345,15 @@
           "method": "dialog",
           "source_name": "Larviso Poltir",
           "source_type": "character",
-          "source_stable_key": "character:larviso poltir:loomingwood:323.78:29.25:429.23"
+          "source_stable_key": "character:larviso poltir:loomingwood:323.78:29.25:429.23",
+          "keyword": "Nighthollow"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Larviso Poltir.",
+          "description": "Say \"Nighthollow\" to Larviso Poltir.",
           "target_name": "Larviso Poltir",
           "target_type": "character",
           "optional": false,
@@ -70673,14 +70718,15 @@
           "method": "dialog",
           "source_name": "Torado Zortia",
           "source_type": "character",
-          "source_stable_key": "character:torado  zortia"
+          "source_stable_key": "character:torado  zortia",
+          "keyword": "work"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Torado Zortia.",
+          "description": "Say \"work\" to Torado Zortia.",
           "target_name": "Torado Zortia",
           "target_type": "character",
           "optional": false,
@@ -70914,7 +70960,7 @@
         "factors": [
           {
             "source": "step_1",
-            "name": "Speak to Torado Zortia.",
+            "name": "Say \"work\" to Torado Zortia.",
             "level": 24
           }
         ]
@@ -70932,14 +70978,15 @@
           "method": "dialog",
           "source_name": "Alitho Echeswer",
           "source_type": "character",
-          "source_stable_key": "character:alitho echeswer"
+          "source_stable_key": "character:alitho echeswer",
+          "keyword": "collector"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Alitho Echeswer.",
+          "description": "Say \"collector\" to Alitho Echeswer.",
           "target_name": "Alitho Echeswer",
           "target_type": "character",
           "optional": false,
@@ -71066,7 +71113,7 @@
         "factors": [
           {
             "source": "step_1",
-            "name": "Speak to Alitho Echeswer.",
+            "name": "Say \"collector\" to Alitho Echeswer.",
             "level": 11
           }
         ]
@@ -71084,14 +71131,15 @@
           "method": "dialog",
           "source_name": "Samuel Thatcher",
           "source_type": "character",
-          "source_stable_key": "character:shopkeeper samuel"
+          "source_stable_key": "character:shopkeeper samuel",
+          "keyword": "note"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Samuel Thatcher.",
+          "description": "Say \"note\" to Samuel Thatcher.",
           "target_name": "Samuel Thatcher",
           "target_type": "character",
           "optional": false,
@@ -71494,14 +71542,15 @@
           "method": "dialog",
           "source_name": "Serra Stiles",
           "source_type": "character",
-          "source_stable_key": "character:serra stiles:elderstone:121.10:0.79:636.06"
+          "source_stable_key": "character:serra stiles:elderstone:121.10:0.79:636.06",
+          "keyword": "shovel"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Serra Stiles.",
+          "description": "Say \"shovel\" to Serra Stiles.",
           "target_name": "Serra Stiles",
           "target_type": "character",
           "optional": false,
@@ -71619,7 +71668,7 @@
         "factors": [
           {
             "source": "step_1",
-            "name": "Speak to Serra Stiles.",
+            "name": "Say \"shovel\" to Serra Stiles.",
             "level": 17
           }
         ]
@@ -72053,14 +72102,15 @@
           "method": "dialog",
           "source_name": "Ripper DeMerth",
           "source_type": "character",
-          "source_stable_key": "character:ripper demerth"
+          "source_stable_key": "character:ripper demerth",
+          "keyword": "Sivakayans"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Ripper DeMerth.",
+          "description": "Say \"Sivakayans\" to Ripper DeMerth.",
           "target_name": "Ripper DeMerth",
           "target_type": "character",
           "optional": false,
@@ -72190,14 +72240,15 @@
           "method": "dialog",
           "source_name": "Supply Sergeant Tipp",
           "source_type": "character",
-          "source_stable_key": "character:supply sergeant tipp"
+          "source_stable_key": "character:supply sergeant tipp",
+          "keyword": "favor"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Supply Sergeant Tipp.",
+          "description": "Say \"favor\" to Supply Sergeant Tipp.",
           "target_name": "Supply Sergeant Tipp",
           "target_type": "character",
           "optional": false,
@@ -72538,14 +72589,15 @@
           "method": "dialog",
           "source_name": "Captain Kilkay",
           "source_type": "character",
-          "source_stable_key": "character:guard captain azure"
+          "source_stable_key": "character:guard captain azure",
+          "keyword": "Sivakayans"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Captain Kilkay.",
+          "description": "Say \"Sivakayans\" to Captain Kilkay.",
           "target_name": "Captain Kilkay",
           "target_type": "character",
           "optional": false,
@@ -72934,13 +72986,15 @@
           "method": "dialog",
           "source_name": "Leyor M'Chante",
           "source_type": "character",
-          "source_stable_key": "character:leyor m'chante bkp"
+          "source_stable_key": "character:leyor m'chante",
+          "keyword": "Celestial, Blade"
         },
         {
           "method": "dialog",
           "source_name": "Leyor M'Chante",
           "source_type": "character",
-          "source_stable_key": "character:leyor m'chante"
+          "source_stable_key": "character:leyor m'chante bkp",
+          "keyword": "Celestial, Blade"
         }
       ],
       "completion": [
@@ -73386,14 +73440,15 @@
           "method": "dialog",
           "source_name": "Ta'Dah, Sorcerer of Ripper",
           "source_type": "character",
-          "source_stable_key": "character:ripparian high sorcerer"
+          "source_stable_key": "character:ripparian high sorcerer",
+          "keyword": "convenient"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Ta'Dah, Sorcerer of Ripper.",
+          "description": "Say \"convenient\" to Ta'Dah, Sorcerer of Ripper.",
           "target_name": "Ta'Dah, Sorcerer of Ripper",
           "target_type": "character",
           "optional": false,
@@ -73523,7 +73578,7 @@
         "factors": [
           {
             "source": "step_1",
-            "name": "Speak to Ta'Dah, Sorcerer of Ripper.",
+            "name": "Say \"convenient\" to Ta'Dah, Sorcerer of Ripper.",
             "level": 28
           }
         ]
@@ -75525,14 +75580,15 @@
           "method": "dialog",
           "source_name": "Timothy Allorn",
           "source_type": "character",
-          "source_stable_key": "character:timothy allorn:stowaway:545.20:72.09:442.80"
+          "source_stable_key": "character:timothy allorn:stowaway:545.20:72.09:442.80",
+          "keyword": "tomb"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Timothy Allorn.",
+          "description": "Say \"tomb\" to Timothy Allorn.",
           "target_name": "Timothy Allorn",
           "target_type": "character",
           "optional": false,
@@ -75550,25 +75606,6 @@
         {
           "order": 2,
           "action": "travel",
-          "description": "Travel to Island Tomb.",
-          "target_name": "Island Tomb",
-          "target_type": "zone",
-          "zone_name": "Island Tomb",
-          "optional": false,
-          "level_estimate": {
-            "recommended": 4,
-            "factors": [
-              {
-                "source": "zone_median",
-                "name": "Island Tomb",
-                "level": 4
-              }
-            ]
-          }
-        },
-        {
-          "order": 3,
-          "action": "travel",
           "description": "Travel to Shivering Tomb (2).",
           "target_name": "Shivering Tomb (2)",
           "target_type": "zone",
@@ -75584,20 +75621,39 @@
               }
             ]
           }
+        },
+        {
+          "order": 3,
+          "action": "travel",
+          "description": "Travel to Island Tomb.",
+          "target_name": "Island Tomb",
+          "target_type": "zone",
+          "zone_name": "Island Tomb",
+          "optional": false,
+          "level_estimate": {
+            "recommended": 4,
+            "factors": [
+              {
+                "source": "zone_median",
+                "name": "Island Tomb",
+                "level": 4
+              }
+            ]
+          }
         }
       ],
       "completion": [
         {
           "method": "zone",
-          "source_name": "Island Tomb",
-          "source_type": "zone",
-          "source_stable_key": "zone:tutorial"
-        },
-        {
-          "method": "zone",
           "source_name": "Shivering Tomb (2)",
           "source_type": "zone",
           "source_stable_key": "zone:shiveringtomb2"
+        },
+        {
+          "method": "zone",
+          "source_name": "Island Tomb",
+          "source_type": "zone",
+          "source_stable_key": "zone:tutorial"
         }
       ],
       "rewards": {
@@ -75616,7 +75672,7 @@
         "recommended": 24,
         "factors": [
           {
-            "source": "step_3",
+            "source": "step_2",
             "name": "Travel to Shivering Tomb (2).",
             "level": 24
           }
@@ -76029,14 +76085,15 @@
           "method": "dialog",
           "source_name": "Arcane Headmaster",
           "source_type": "character",
-          "source_stable_key": "character:arcane headmaster"
+          "source_stable_key": "character:arcane headmaster",
+          "keyword": "sivakaya, Sivakaya"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Arcane Headmaster.",
+          "description": "Say \"sivakaya, Sivakaya\" to Arcane Headmaster.",
           "target_name": "Arcane Headmaster",
           "target_type": "character",
           "optional": false,
@@ -77412,7 +77469,7 @@
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Shady Fisherman.",
+          "description": "Say \"Bellwain, tale, tell\" to Shady Fisherman.",
           "target_name": "Shady Fisherman",
           "target_type": "character",
           "optional": false,
@@ -77433,7 +77490,8 @@
           "method": "talk",
           "source_name": "Shady Fisherman",
           "source_type": "character",
-          "source_stable_key": "character:shady fisherman:azure:43.10:13.76:246.95"
+          "source_stable_key": "character:shady fisherman:azure:43.10:13.76:246.95",
+          "keyword": "Bellwain, tale, tell"
         }
       ],
       "rewards": {
@@ -77461,7 +77519,7 @@
         "factors": [
           {
             "source": "step_1",
-            "name": "Speak to Shady Fisherman.",
+            "name": "Say \"Bellwain, tale, tell\" to Shady Fisherman.",
             "level": 11
           }
         ]
@@ -79380,14 +79438,15 @@
           "method": "dialog",
           "source_name": "Jazmyn Challa",
           "source_type": "character",
-          "source_stable_key": "character:jazmyn challa"
+          "source_stable_key": "character:jazmyn challa",
+          "keyword": "north"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Jazmyn Challa.",
+          "description": "Say \"north\" to Jazmyn Challa.",
           "target_name": "Jazmyn Challa",
           "target_type": "character",
           "optional": false,
@@ -80258,14 +80317,15 @@
           "method": "dialog",
           "source_name": "A Strange Hermit",
           "source_type": "character",
-          "source_stable_key": "character:a strange hermit"
+          "source_stable_key": "character:a strange hermit",
+          "keyword": "Umbran, umbran"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to A Strange Hermit.",
+          "description": "Say \"Umbran, umbran\" to A Strange Hermit.",
           "target_name": "A Strange Hermit",
           "target_type": "character",
           "optional": false,
@@ -80704,14 +80764,15 @@
           "method": "dialog",
           "source_name": "Braxon Elden",
           "source_type": "character",
-          "source_stable_key": "character:braxon elden:braxonian:99.99:33.79:993.06"
+          "source_stable_key": "character:braxon elden:braxonian:99.99:33.79:993.06",
+          "keyword": "tunnels"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Braxon Elden.",
+          "description": "Say \"tunnels\" to Braxon Elden.",
           "target_name": "Braxon Elden",
           "target_type": "character",
           "optional": false,
@@ -81078,7 +81139,7 @@
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Shattered Sivakaya.",
+          "description": "Say \"again\" to Shattered Sivakaya.",
           "target_name": "Shattered Sivakaya",
           "target_type": "character",
           "optional": false,
@@ -81099,7 +81160,8 @@
           "method": "talk",
           "source_name": "Shattered Sivakaya",
           "source_type": "character",
-          "source_stable_key": "character:shard of sivakaya:stowawayportal:-85.91:0.88:-41.61"
+          "source_stable_key": "character:shard of sivakaya:stowawayportal:-85.91:0.88:-41.61",
+          "keyword": "again"
         }
       ],
       "rewards": {
@@ -81119,7 +81181,7 @@
         "factors": [
           {
             "source": "step_1",
-            "name": "Speak to Shattered Sivakaya.",
+            "name": "Say \"again\" to Shattered Sivakaya.",
             "level": 40
           }
         ]
@@ -81163,13 +81225,15 @@
           "method": "dialog",
           "source_name": "Alexander Farland",
           "source_type": "character",
-          "source_stable_key": "character:alexander farland"
+          "source_stable_key": "character:alexander farland",
+          "keyword": "Goodsoil"
         },
         {
           "method": "dialog",
           "source_name": "Lieutenant Ulrik",
           "source_type": "character",
-          "source_stable_key": "character:azure guard lieutenant"
+          "source_stable_key": "character:azure guard lieutenant",
+          "keyword": "what, happened, goodsoil, tragedy, village"
         }
       ],
       "rewards": {
@@ -81300,14 +81364,15 @@
           "method": "dialog",
           "source_name": "Wally Waldorf",
           "source_type": "character",
-          "source_stable_key": "character:wally waldorf:stowaway:573.45:70.50:545.10"
+          "source_stable_key": "character:wally waldorf:stowaway:573.45:70.50:545.10",
+          "keyword": "Moongill"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Wally Waldorf.",
+          "description": "Say \"Moongill\" to Wally Waldorf.",
           "target_name": "Wally Waldorf",
           "target_type": "character",
           "optional": false,
@@ -81588,7 +81653,7 @@
         "factors": [
           {
             "source": "step_1",
-            "name": "Speak to Wally Waldorf.",
+            "name": "Say \"Moongill\" to Wally Waldorf.",
             "level": 2
           }
         ]
@@ -82494,14 +82559,15 @@
           "method": "dialog",
           "source_name": "Cagnus Marlsen",
           "source_type": "character",
-          "source_stable_key": "character:cagnus marlsen"
+          "source_stable_key": "character:cagnus marlsen",
+          "keyword": "giant"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Cagnus Marlsen.",
+          "description": "Say \"giant\" to Cagnus Marlsen.",
           "target_name": "Cagnus Marlsen",
           "target_type": "character",
           "optional": false,

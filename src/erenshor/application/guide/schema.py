@@ -153,6 +153,7 @@ class AcquisitionSource:
     source_type: str | None = None  # "character", "item", "zone", "quest"
     source_stable_key: str | None = None
     zone_name: str | None = None
+    keyword: str | None = None  # dialog keyword to say to the NPC
     note: str | None = None
 
 
