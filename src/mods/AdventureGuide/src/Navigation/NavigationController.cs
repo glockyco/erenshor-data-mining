@@ -1,6 +1,6 @@
 using AdventureGuide.Data;
 using UnityEngine;
-
+using UnityEngine.AI;
 namespace AdventureGuide.Navigation;
 
 /// <summary>
@@ -14,8 +14,13 @@ public sealed class NavigationController
     private readonly GuideData _data;
     private readonly EntityRegistry _entities;
 
-    // Cache to avoid per-frame zone line waypoint allocation
+    // Cache to avoid per-frame zone line waypoint allocation and reachability checks
     private ZoneLineEntry? _cachedZoneLine;
+    private Vector3 _lastCrossZoneCalcPos;
+    private const float CrossZoneRecalcDistance = 10f;
+
+    // Scratch path for reachability checks — avoids allocation per candidate
+    private readonly NavMeshPath _scratchPath = new();
 
     /// <summary>Currently active navigation target, or null if not navigating.</summary>
     public NavigationTarget? Target { get; private set; }
@@ -86,6 +91,7 @@ public sealed class NavigationController
         Target = null;
         ZoneLineWaypoint = null;
         _cachedZoneLine = null;
+        _lastCrossZoneCalcPos = Vector3.zero;
         Distance = 0f;
         Direction = Vector3.zero;
     }
@@ -237,69 +243,87 @@ public sealed class NavigationController
 
     private void UpdateCrossZoneRouting(string currentScene, Vector3 playerPos)
     {
-        var targetZoneKey = FindZoneKeyBySceneName(Target!.Scene);
+        // Only re-evaluate zone line selection when player moves significantly
+        // to avoid per-frame CalculatePath calls on all zone line candidates
+        bool needsRecalc = _cachedZoneLine == null
+            || Vector3.Distance(_lastCrossZoneCalcPos, playerPos) > CrossZoneRecalcDistance;
 
-        // Prefer a zone line leading directly to the target's zone
-        var directLine = targetZoneKey != null
-            ? FindClosestZoneLine(targetZoneKey, currentScene, playerPos)
-            : null;
-
-        // Fallback: closest zone line in the current scene (heuristic)
-        var bestLine = directLine ?? FindClosestZoneLineInScene(currentScene, playerPos);
-
-        if (bestLine != null)
+        if (needsRecalc)
         {
-            // Only rebuild ZoneLineWaypoint when the chosen zone line changes
-            if (_cachedZoneLine != bestLine)
+            _lastCrossZoneCalcPos = playerPos;
+            var targetZoneKey = FindZoneKeyBySceneName(Target!.Scene);
+
+            var directLine = targetZoneKey != null
+                ? FindClosestZoneLine(targetZoneKey, currentScene, playerPos)
+                : null;
+
+            var bestLine = directLine ?? FindClosestZoneLineInScene(currentScene, playerPos);
+
+            if (bestLine != _cachedZoneLine)
             {
                 _cachedZoneLine = bestLine;
-                ZoneLineWaypoint = MakeTarget(
-                    NavigationTarget.Kind.ZoneLine,
-                    new Vector3(bestLine.X, bestLine.Y, bestLine.Z),
-                    $"To {bestLine.DestinationDisplay}",
-                    currentScene,
-                    Target.QuestDBName, Target.StepOrder);
+                if (bestLine != null)
+                {
+                    ZoneLineWaypoint = MakeTarget(
+                        NavigationTarget.Kind.ZoneLine,
+                        new Vector3(bestLine.X, bestLine.Y, bestLine.Z),
+                        $"To {bestLine.DestinationDisplay}",
+                        currentScene,
+                        Target.QuestDBName, Target.StepOrder);
+                }
+                else
+                {
+                    ZoneLineWaypoint = null;
+                }
             }
+        }
 
-            UpdateDistanceAndDirection(ZoneLineWaypoint!.Position, playerPos);
-        }
+        if (ZoneLineWaypoint != null)
+            UpdateDistanceAndDirection(ZoneLineWaypoint.Position, playerPos);
         else
-        {
-            _cachedZoneLine = null;
-            ZoneLineWaypoint = null;
-            // No zone line found — point directly at the target
-            UpdateDistanceAndDirection(Target.Position, playerPos);
-        }
+            UpdateDistanceAndDirection(Target!.Position, playerPos);
     }
 
     // ── Spawn resolution ───────────────────────────────────────────
 
     /// <summary>
-    /// Pick the closest spawn in the current scene, or the first spawn overall.
+    /// Pick the best spawn in the current scene. Prefers reachable spawns
+    /// (connected via NavMesh) over merely close ones. Falls back to the
+    /// closest unreachable spawn if none are reachable.
     /// </summary>
     private Data.SpawnPoint PickBestSpawn(List<Data.SpawnPoint> spawns, string currentScene)
     {
         var playerPos = GetPlayerPosition();
-        Data.SpawnPoint? best = null;
-        float bestDist = float.MaxValue;
+        Data.SpawnPoint? bestReachable = null;
+        float bestReachDist = float.MaxValue;
+        Data.SpawnPoint? bestUnreachable = null;
+        float bestUnreachDist = float.MaxValue;
 
         foreach (var sp in spawns)
         {
             if (!string.Equals(sp.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase))
                 continue;
 
-            if (playerPos.HasValue)
+            if (!playerPos.HasValue)
             {
-                float dist = Vector3.Distance(playerPos.Value, new Vector3(sp.X, sp.Y, sp.Z));
-                if (dist < bestDist) { bestDist = dist; best = sp; }
+                bestReachable ??= sp;
+                continue;
+            }
+
+            var spPos = new Vector3(sp.X, sp.Y, sp.Z);
+            float dist = Vector3.Distance(playerPos.Value, spPos);
+
+            if (IsReachable(playerPos.Value, spPos))
+            {
+                if (dist < bestReachDist) { bestReachDist = dist; bestReachable = sp; }
             }
             else
             {
-                best ??= sp;
+                if (dist < bestUnreachDist) { bestUnreachDist = dist; bestUnreachable = sp; }
             }
         }
 
-        return best ?? spawns[0];
+        return bestReachable ?? bestUnreachable ?? spawns[0];
     }
 
     // ── Zone line helpers ──────────────────────────────────────────
@@ -307,8 +331,10 @@ public sealed class NavigationController
     private ZoneLineEntry? FindClosestZoneLine(
         string destinationZoneKey, string currentScene, Vector3 playerPos)
     {
-        ZoneLineEntry? best = null;
-        float bestDist = float.MaxValue;
+        ZoneLineEntry? bestReachable = null;
+        float bestReachDist = float.MaxValue;
+        ZoneLineEntry? bestUnreachable = null;
+        float bestUnreachDist = float.MaxValue;
 
         foreach (var zl in _data.ZoneLines)
         {
@@ -317,27 +343,48 @@ public sealed class NavigationController
             if (!string.Equals(zl.DestinationZoneKey, destinationZoneKey, System.StringComparison.OrdinalIgnoreCase))
                 continue;
 
-            float dist = Vector3.Distance(playerPos, new Vector3(zl.X, zl.Y, zl.Z));
-            if (dist < bestDist) { bestDist = dist; best = zl; }
+            var zlPos = new Vector3(zl.X, zl.Y, zl.Z);
+            float dist = Vector3.Distance(playerPos, zlPos);
+
+            if (IsReachable(playerPos, zlPos))
+            {
+                if (dist < bestReachDist) { bestReachDist = dist; bestReachable = zl; }
+            }
+            else
+            {
+                if (dist < bestUnreachDist) { bestUnreachDist = dist; bestUnreachable = zl; }
+            }
         }
 
-        return best;
+        return bestReachable ?? bestUnreachable;
     }
 
     private ZoneLineEntry? FindClosestZoneLineInScene(string currentScene, Vector3 playerPos)
     {
-        ZoneLineEntry? best = null;
-        float bestDist = float.MaxValue;
+        ZoneLineEntry? bestReachable = null;
+        float bestReachDist = float.MaxValue;
+        ZoneLineEntry? bestUnreachable = null;
+        float bestUnreachDist = float.MaxValue;
 
         foreach (var zl in _data.ZoneLines)
         {
             if (!string.Equals(zl.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase))
                 continue;
-            float dist = Vector3.Distance(playerPos, new Vector3(zl.X, zl.Y, zl.Z));
-            if (dist < bestDist) { bestDist = dist; best = zl; }
+
+            var zlPos = new Vector3(zl.X, zl.Y, zl.Z);
+            float dist = Vector3.Distance(playerPos, zlPos);
+
+            if (IsReachable(playerPos, zlPos))
+            {
+                if (dist < bestReachDist) { bestReachDist = dist; bestReachable = zl; }
+            }
+            else
+            {
+                if (dist < bestUnreachDist) { bestUnreachDist = dist; bestUnreachable = zl; }
+            }
         }
 
-        return best;
+        return bestReachable ?? bestUnreachable;
     }
 
     private bool HasZoneLineForDestination(string? zoneKey, string currentScene)
@@ -370,6 +417,25 @@ public sealed class NavigationController
         return null;
     }
 
+
+    // ── Reachability ────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Test whether a target position is reachable from the player via NavMesh.
+    /// Both positions are snapped to the NavMesh surface before testing.
+    /// Returns false if either position is off-mesh or the path is invalid.
+    /// </summary>
+    private bool IsReachable(Vector3 from, Vector3 to)
+    {
+        if (!NavMesh.SamplePosition(from, out var fromHit, 5f, NavMesh.AllAreas))
+            return false;
+        if (!NavMesh.SamplePosition(to, out var toHit, 5f, NavMesh.AllAreas))
+            return false;
+
+        _scratchPath.ClearCorners();
+        NavMesh.CalculatePath(fromHit.position, toHit.position, NavMesh.AllAreas, _scratchPath);
+        return _scratchPath.status != NavMeshPathStatus.PathInvalid;
+    }
 
     // ── Utilities ──────────────────────────────────────────────────
 
