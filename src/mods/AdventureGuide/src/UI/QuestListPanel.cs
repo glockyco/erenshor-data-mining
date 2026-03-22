@@ -1,4 +1,3 @@
-using System.Numerics;
 using AdventureGuide.Data;
 using AdventureGuide.State;
 using ImGuiNET;
@@ -14,11 +13,10 @@ public sealed class QuestListPanel
     private readonly QuestStateTracker _state;
     private readonly FilterState _filter;
 
-    // ImGui.InputText needs a mutable byte buffer; keep one to avoid per-frame allocation.
     private string _searchBuf = string.Empty;
 
-    private static readonly QuestFilterMode[] FilterModes =
-        [QuestFilterMode.Active, QuestFilterMode.Available, QuestFilterMode.Completed, QuestFilterMode.All];
+    private static readonly string[] FilterNames = { "Active", "Available", "Completed", "All" };
+    private int _filterIndex;
 
     public QuestListPanel(GuideData data, QuestStateTracker state, FilterState filter)
     {
@@ -29,57 +27,43 @@ public sealed class QuestListPanel
 
     public void Draw(float width)
     {
+        // Fixed header: filter row + search (not scrollable)
         DrawFilterRow();
-        DrawSearchBar(width);
+        DrawSearchBar();
 
         ImGui.Separator();
 
+        // Scrollable quest list fills remaining height
+        ImGui.BeginChild("##QuestScroll");
         DrawQuestList();
+        ImGui.EndChild();
     }
-
-    // ── Filter toggles ───────────────────────────────────────────────
 
     private void DrawFilterRow()
     {
-        var modes = FilterModes;
+        // Sync enum → index (in case FilterMode was changed externally)
+        _filterIndex = (int)_filter.FilterMode;
 
-        for (int i = 0; i < modes.Length; i++)
-        {
-            if (i > 0) ImGui.SameLine();
-
-            var mode = modes[i];
-            bool selected = _filter.FilterMode == mode;
-
-            if (selected)
-                ImGui.PushStyleColor(ImGuiCol.Button, Theme.Accent);
-
-            if (ImGui.Button(mode.ToString()))
-                _filter.FilterMode = mode;
-
-            if (selected)
-                ImGui.PopStyleColor();
-        }
+        ImGui.SetNextItemWidth(-1);
+        if (ImGui.Combo("##Filter", ref _filterIndex, FilterNames, FilterNames.Length))
+            _filter.FilterMode = (QuestFilterMode)_filterIndex;
 
         ImGui.Spacing();
     }
 
-    // ── Search bar ───────────────────────────────────────────────────
-
-    private void DrawSearchBar(float panelWidth)
+    private void DrawSearchBar()
     {
-        // Sync external mutations into the local buffer.
         if (_searchBuf != _filter.SearchText)
             _searchBuf = _filter.SearchText;
 
-        ImGui.SetNextItemWidth(panelWidth - Theme.WindowPadding * 2);
+        // Fill available width
+        ImGui.SetNextItemWidth(-1);
 
         if (ImGui.InputTextWithHint("##QuestSearch", "Search quests...", ref _searchBuf, 256))
             _filter.SearchText = _searchBuf;
 
         ImGui.Spacing();
     }
-
-    // ── Quest list ───────────────────────────────────────────────────
 
     private void DrawQuestList()
     {
@@ -124,14 +108,12 @@ public sealed class QuestListPanel
         bool isSelected = quest.DBName == _state.SelectedQuestDBName;
         uint textColor = GetQuestColor(quest);
 
-        // Highlight the selected quest with an accent background.
         if (isSelected)
             ImGui.PushStyleColor(ImGuiCol.Button, Theme.Accent);
 
         ImGui.PushStyleColor(ImGuiCol.Text, textColor);
 
-        // Full-width selectable button.
-        if (ImGui.Button(quest.DisplayName + "##" + quest.DBName, new Vector2(-1, 0)))
+        if (ImGui.Selectable(quest.DisplayName + "##" + quest.DBName, isSelected))
             _state.SelectedQuestDBName = quest.DBName;
 
         ImGui.PopStyleColor(isSelected ? 2 : 1);
