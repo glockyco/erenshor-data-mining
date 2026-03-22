@@ -11,18 +11,17 @@ namespace AdventureGuide.Navigation;
 /// The path is recalculated when the target changes or the player moves
 /// beyond a threshold from the last calculation point. Off by default.
 ///
-/// Visual style: animated scrolling dashes with soft edges and a subtle
-/// glow halo, giving a "GPS navigation" appearance. Two layered
-/// LineRenderers — a wider dim halo underneath and a bright dashed core
-/// on top. A procedural dash texture scrolls toward the destination.
+/// Visual style: dashes with soft edges and a subtle glow halo. Two
+/// layered LineRenderers — a wider dim halo underneath and a bright
+/// dashed core on top. Path corners are offset above the NavMesh
+/// surface to reduce ground clipping.
 /// </summary>
 public sealed class GroundPathRenderer
 {
     private const float RecalcDistance = 5f;
     private const float CoreWidth = 0.20f;
     private const float GlowWidth = 0.50f;
-    private const float PathYOffset = 0.15f;
-    private const float ScrollSpeed = 1.5f;
+    private const float PathYOffset = 0.40f;
     private const float TileScale = 1.5f; // dashes per world unit
 
     // Bright gold core, dimmer translucent glow
@@ -45,7 +44,6 @@ public sealed class GroundPathRenderer
     private LineRenderer? _core;
     private LineRenderer? _glow;
     private Material? _coreMat;
-    private float _scrollOffset;
 
     public bool Enabled
     {
@@ -104,7 +102,6 @@ public sealed class GroundPathRenderer
             ApplyToLineRenderers();
 
         SetLineVisible(true);
-        AnimateScroll();
     }
 
     public void Destroy()
@@ -177,16 +174,6 @@ public sealed class GroundPathRenderer
         if (_coreMat != null)
             _coreMat.mainTextureScale = new Vector2(pathLen * TileScale, 1f);
     }
-
-    private void AnimateScroll()
-    {
-        if (_coreMat == null) return;
-
-        // Scroll toward destination (negative direction along the path)
-        _scrollOffset -= Time.deltaTime * ScrollSpeed;
-        _coreMat.mainTextureOffset = new Vector2(_scrollOffset, 0f);
-    }
-
     // ── LineRenderer setup ────────────────────────────────────────
 
     private void EnsureLineRenderers()
