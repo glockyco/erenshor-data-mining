@@ -27,7 +27,7 @@
 
   <!-- Embedded resources -->
   <ItemGroup>
-    <EmbeddedResource Include="resources/quest-guide.json" LogicalName="AdventureGuide.quest-guide.json" />
+    <EmbeddedResource Include="../../../quest_guides/quest-guide.json" LogicalName="AdventureGuide.quest-guide.json" />
     <EmbeddedResource Include="resources/cimgui.dll" LogicalName="AdventureGuide.cimgui.dll" />
   </ItemGroup>
 
