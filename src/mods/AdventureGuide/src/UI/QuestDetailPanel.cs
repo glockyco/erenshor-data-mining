@@ -143,7 +143,7 @@ public sealed class QuestDetailPanel
             foreach (var step in quest.Steps)
             {
                 int? stepLvl = step.LevelEstimate?.Recommended;
-                string lvlStr = stepLvl.HasValue ? $"Lv {stepLvl,2}" : "  \u2014";
+                string lvlStr = stepLvl.HasValue ? $"Lv {stepLvl,2}" : "    ";
                 bool isDriving = questLvl.HasValue && stepLvl == questLvl;
                 string marker = isDriving ? " \u25c4" : "";
                 uint tipColor = isDriving ? Theme.TextPrimary : Theme.TextSecondary;
@@ -222,13 +222,12 @@ public sealed class QuestDetailPanel
         if (ImGui.IsItemHovered() && step.LevelEstimate?.Factors is { Count: > 0 } factors)
         {
             ImGui.BeginTooltip();
-            string header = step.Action is "collect" or "read"
-                ? "Lowest obtainability path"
-                : "Based on zone level";
-            ImGui.Text(header);
+            // Sort factors by level for the tooltip
+            var sorted = new List<LevelFactor>(factors);
+            sorted.Sort((a, b) => a.Level.CompareTo(b.Level));
             ImGui.Separator();
             int shown = 0;
-            foreach (var f in factors)
+            foreach (var f in sorted)
             {
                 if (shown >= 5) break;
                 string label = FactorSourceLabel(f.Source);
@@ -238,7 +237,8 @@ public sealed class QuestDetailPanel
                 shown++;
             }
             if (factors.Count > 5)
-                ImGui.Text($"  ...and {factors.Count - 5} more");
+            if (sorted.Count > 5)
+                ImGui.Text($"  ...and {sorted.Count - 5} more");
             ImGui.EndTooltip();
         }
 
