@@ -91,16 +91,31 @@ public static unsafe class CimguiNative
     [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
     private static extern void igCalcTextSize(Vec2* pOut, byte* text, byte* textEnd, byte wrapWidth, float maxWidth);
 
+    // ── Shared UTF-8 buffer ──────────────────────────────────────────
+    //
+    // Encoding.UTF8.GetBytes(string) allocates a new byte[] each call.
+    // We reuse a static buffer for the common case (labels, short text).
+    // The buffer grows as needed and is never shrunk.
+    private static byte[] _utf8Buf = new byte[256];
+
+    private static int WriteUtf8(string text)
+    {
+        int needed = System.Text.Encoding.UTF8.GetByteCount(text);
+        if (needed > _utf8Buf.Length)
+            _utf8Buf = new byte[needed * 2];
+        return System.Text.Encoding.UTF8.GetBytes(text, 0, text.Length, _utf8Buf, 0);
+    }
+
     /// <summary>Measure text size using ImGui's current font.</summary>
     public static Vec2 CalcTextSize(string text)
     {
         if (string.IsNullOrEmpty(text)) return new Vec2(0, 0);
 
-        var bytes = System.Text.Encoding.UTF8.GetBytes(text);
+        int len = WriteUtf8(text);
         Vec2 result;
-        fixed (byte* p = bytes)
+        fixed (byte* p = _utf8Buf)
         {
-            igCalcTextSize(&result, p, p + bytes.Length, 0, -1f);
+            igCalcTextSize(&result, p, p + len, 0, -1f);
         }
         return result;
     }
@@ -114,10 +129,10 @@ public static unsafe class CimguiNative
     {
         if (drawList == IntPtr.Zero || string.IsNullOrEmpty(text)) return;
 
-        var bytes = System.Text.Encoding.UTF8.GetBytes(text);
-        fixed (byte* p = bytes)
+        int len = WriteUtf8(text);
+        fixed (byte* p = _utf8Buf)
         {
-            ImDrawList_AddText_Vec2(drawList, new Vec2(x, y), color, p, p + bytes.Length);
+            ImDrawList_AddText_Vec2(drawList, new Vec2(x, y), color, p, p + len);
         }
     }
 }

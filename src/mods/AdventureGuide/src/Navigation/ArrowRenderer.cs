@@ -32,6 +32,12 @@ public sealed class ArrowRenderer
     private readonly NavigationController _nav;
     private bool _enabled = true;
 
+    // Cached label to avoid per-frame string interpolation + boxing
+    private string _cachedLabel = "";
+    private CimguiNative.Vec2 _cachedLabelSize;
+    private int _cachedDistInt = -1;
+    private string? _cachedTargetName;
+
     public bool Enabled
     {
         get => _enabled;
@@ -78,18 +84,20 @@ public sealed class ArrowRenderer
             && screenPos.x > EdgeMargin && screenPos.x < sw - EdgeMargin
             && imguiY > EdgeMargin && imguiY < sh - EdgeMargin;
 
-        // Build label text
-        string distText = _nav.Distance >= 1000f
-            ? $"{_nav.Distance / 1000f:F1}km"
-            : $"{Mathf.RoundToInt(_nav.Distance)}m";
-        string label = $"{effectiveTarget.DisplayName}  {distText}";
-
-        var textSize = CimguiNative.CalcTextSize(label);
+        // Rebuild label only when the visible distance or target name changes
+        int distInt = Mathf.RoundToInt(_nav.Distance);
+        if (distInt != _cachedDistInt || effectiveTarget.DisplayName != _cachedTargetName)
+        {
+            _cachedDistInt = distInt;
+            _cachedTargetName = effectiveTarget.DisplayName;
+            _cachedLabel = $"{effectiveTarget.DisplayName}  {distInt}m";
+            _cachedLabelSize = CimguiNative.CalcTextSize(_cachedLabel);
+        }
 
         if (onScreen)
         {
             DrawDiamond(drawList, screenPos.x, imguiY, MarkerSize);
-            DrawCenteredText(drawList, screenPos.x, imguiY + MarkerSize + 4f, label, textSize, sw);
+            DrawCenteredText(drawList, screenPos.x, imguiY + MarkerSize + 4f, _cachedLabel, _cachedLabelSize, sw);
         }
         else
         {
@@ -116,7 +124,7 @@ public sealed class ArrowRenderer
             float ay = centerY + dirY * t;
 
             DrawArrow(drawList, ax, ay, dirX, dirY);
-            DrawCenteredText(drawList, ax, ay + ArrowSize + 4f, label, textSize, sw);
+            DrawCenteredText(drawList, ax, ay + ArrowSize + 4f, _cachedLabel, _cachedLabelSize, sw);
         }
     }
 
