@@ -65,10 +65,10 @@ public sealed class QuestDetailPanel
                 ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
                 string? line = acq.Method switch
                 {
-                    "dialog" => $"Given by: {acq.SourceName}",
-                    "item_read" => $"Read: {acq.SourceName}",
-                    "zone_entry" => $"Enter: {acq.ZoneName}",
-                    "quest_chain" => $"Chain from: {acq.SourceName}",
+                    "dialog" when acq.SourceName != null => $"Given by: {acq.SourceName}",
+                    "item_read" when acq.SourceName != null => $"Read: {acq.SourceName}",
+                    "zone_entry" when acq.ZoneName != null => $"Enter: {acq.ZoneName}",
+                    "quest_chain" when acq.SourceName != null => $"Chain from: {acq.SourceName}",
                     _ => acq.SourceName != null ? $"From: {acq.SourceName}" : null,
                 };
                 if (line != null)
@@ -86,14 +86,16 @@ public sealed class QuestDetailPanel
         {
             foreach (var comp in quest.Completion)
             {
-                if (comp.SourceName == null) continue;
+                if (comp.SourceName == null && comp.ZoneName == null) continue;
                 ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
-                string turnIn = comp.Method switch
+                string? turnIn = comp.Method switch
                 {
-                    "item_turnin" or "dialog" => $"Turn in to: {comp.SourceName}",
-                    "zone" => $"Complete at: {comp.ZoneName}",
-                    _ => $"Complete: {comp.SourceName}",
+                    "item_turnin" or "dialog" when comp.SourceName != null => $"Turn in to: {comp.SourceName}",
+                    "zone" when comp.ZoneName != null => $"Complete at: {comp.ZoneName}",
+                    _ when comp.SourceName != null => $"Complete: {comp.SourceName}",
+                    _ => null,
                 };
+                if (turnIn == null) { ImGui.PopStyleColor(); continue; }
                 if (comp.ZoneName != null && comp.Method is "item_turnin" or "dialog")
                     turnIn += $" ({comp.ZoneName})";
                 ImGui.Text(turnIn);
