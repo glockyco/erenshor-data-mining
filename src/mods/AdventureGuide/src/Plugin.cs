@@ -25,6 +25,7 @@ public sealed class Plugin : BaseUnityPlugin
     private GuideConfig? _config;
     private GuideData? _data;
     private QuestStateTracker? _state;
+    private EntityRegistry? _entities;
     private NavigationController? _nav;
     private ArrowRenderer? _arrow;
     private ImGuiRenderer? _imgui;
@@ -45,7 +46,8 @@ public sealed class Plugin : BaseUnityPlugin
             return;
         }
 
-        _nav = new NavigationController(_data);
+        _entities = new EntityRegistry();
+        _nav = new NavigationController(_data, _entities);
         _arrow = new ArrowRenderer(_nav);
         _arrow.Enabled = _config.ShowArrow.Value;
         _config.ShowArrow.SettingChanged += (_, _) => _arrow.Enabled = _config.ShowArrow.Value;
@@ -62,6 +64,8 @@ public sealed class Plugin : BaseUnityPlugin
         QuestAssignPatch.Tracker = _state;
         QuestFinishPatch.Tracker = _state;
         InventoryPatch.Tracker = _state;
+        SpawnPatch.Registry = _entities;
+        DeathPatch.Registry = _entities;
         PointerOverUIPatch.Renderer = _imgui;
         SceneManager.sceneLoaded += OnSceneLoaded;
 
@@ -71,6 +75,7 @@ public sealed class Plugin : BaseUnityPlugin
         // Sync from current game state (essential for hot reload — no scene
         // load event fires, so without this the tracker starts empty)
         _state.OnSceneChanged(SceneManager.GetActiveScene().name);
+        _entities.SyncFromLiveNPCs();
 
         Log.LogInfo($"{PluginInfo.Name} v{PluginInfo.Version} loaded ({_data.Count} quests)");
     }
@@ -110,6 +115,7 @@ public sealed class Plugin : BaseUnityPlugin
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        _entities?.Clear();
         _state?.OnSceneChanged(scene.name);
     }
 
@@ -119,6 +125,7 @@ public sealed class Plugin : BaseUnityPlugin
         _harmony?.UnpatchSelf();
         _imgui?.Dispose();
         _arrow?.Dispose();
+        _entities?.Clear();
 
         DebugAPI.Data = null;
         DebugAPI.State = null;

@@ -5,12 +5,14 @@ namespace AdventureGuide.Navigation;
 
 /// <summary>
 /// Resolves quest steps to navigation targets and manages the active
-/// navigation state. Prefers live NPC positions when available, falls
-/// back to static spawn data from the guide JSON.
+/// navigation state. Uses EntityRegistry for O(1) live NPC lookups
+/// (closest alive NPC by display name), falling back to static spawn
+/// data from the guide JSON.
 /// </summary>
 public sealed class NavigationController
 {
     private readonly GuideData _data;
+    private readonly EntityRegistry _entities;
 
     /// <summary>Currently active navigation target, or null if not navigating.</summary>
     public NavigationTarget? Target { get; private set; }
@@ -27,9 +29,10 @@ public sealed class NavigationController
     /// </summary>
     public NavigationTarget? ZoneLineWaypoint { get; private set; }
 
-    public NavigationController(GuideData data)
+    public NavigationController(GuideData data, EntityRegistry entities)
     {
         _data = data;
+        _entities = entities;
     }
 
     /// <summary>
@@ -47,17 +50,21 @@ public sealed class NavigationController
         // Try to find a live NPC first (most accurate position)
         if (step.TargetType == "character")
         {
-            var livePos = FindLiveNPC(step.TargetName);
-            if (livePos.HasValue)
+            var playerPos = GetPlayerPosition();
+            if (playerPos.HasValue)
             {
-                Target = MakeTarget(
-                    NavigationTarget.Kind.Character,
-                    livePos.Value,
-                    step.TargetName ?? step.Description,
-                    currentScene,
-                    quest.DBName, step.Order,
-                    step.TargetKey);
-                return true;
+                var liveNpc = _entities.FindClosest(step.TargetName, playerPos.Value);
+                if (liveNpc != null)
+                {
+                    Target = MakeTarget(
+                        NavigationTarget.Kind.Character,
+                        liveNpc.transform.position,
+                        step.TargetName ?? step.Description,
+                        currentScene,
+                        quest.DBName, step.Order,
+                        step.TargetKey);
+                    return true;
+                }
             }
         }
 
@@ -100,14 +107,14 @@ public sealed class NavigationController
 
         ZoneLineWaypoint = null;
 
-        // Same zone: try to upgrade to live NPC position
+        // Same zone: upgrade to closest live NPC position
         if (Target.TargetKind == NavigationTarget.Kind.Character)
         {
-            var livePos = FindLiveNPC(Target.DisplayName);
-            if (livePos.HasValue)
+            var liveNpc = _entities.FindClosest(Target.DisplayName, playerPos.Value);
+            if (liveNpc != null)
             {
                 Target = MakeTarget(
-                    Target.TargetKind, livePos.Value,
+                    Target.TargetKind, liveNpc.transform.position,
                     Target.DisplayName, Target.Scene,
                     Target.QuestDBName, Target.StepOrder,
                     Target.TargetKey);
@@ -353,29 +360,6 @@ public sealed class NavigationController
         return null;
     }
 
-    // ── Live NPC lookup ────────────────────────────────────────────
-
-    /// <summary>
-    /// Scan NPCTable.LiveNPCs for a living NPC matching the display name.
-    /// Returns its current world position, or null if not found.
-    /// </summary>
-    private static Vector3? FindLiveNPC(string? displayName)
-    {
-        if (displayName == null || NPCTable.LiveNPCs == null)
-            return null;
-
-        foreach (var npc in NPCTable.LiveNPCs)
-        {
-            if (npc == null || npc.gameObject == null) continue;
-            if (!string.Equals(npc.NPCName, displayName, System.StringComparison.OrdinalIgnoreCase))
-                continue;
-            var character = npc.GetComponent<Character>();
-            if (character == null || !character.Alive) continue;
-            return npc.transform.position;
-        }
-
-        return null;
-    }
 
     // ── Utilities ──────────────────────────────────────────────────
 
