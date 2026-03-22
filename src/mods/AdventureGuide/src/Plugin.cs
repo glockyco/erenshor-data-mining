@@ -65,6 +65,9 @@ public sealed class Plugin : BaseUnityPlugin
         DebugAPI.Data = _data;
         DebugAPI.State = _state;
         DebugAPI.Filter = _window.Filter;
+        DebugAPI.Nav = _nav;
+        DebugAPI.Entities = _entities;
+        DebugAPI.GroundPath = _groundPath;
 
         // Inject dependencies into Harmony patches
         QuestAssignPatch.Tracker = _state;
@@ -152,5 +155,8 @@ public sealed class Plugin : BaseUnityPlugin
         DebugAPI.Data = null;
         DebugAPI.State = null;
         DebugAPI.Filter = null;
+        DebugAPI.Nav = null;
+        DebugAPI.Entities = null;
+        DebugAPI.GroundPath = null;
     }
 }

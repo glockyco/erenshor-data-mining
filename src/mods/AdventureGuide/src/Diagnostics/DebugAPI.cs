@@ -1,4 +1,5 @@
 using AdventureGuide.Data;
+using AdventureGuide.Navigation;
 using AdventureGuide.State;
 using AdventureGuide.UI;
 
@@ -7,12 +8,19 @@ namespace AdventureGuide.Diagnostics;
 /// <summary>
 /// Static API for runtime inspection via HotRepl.
 /// All methods return human-readable strings for eval output.
+///
+/// Prefer these methods over raw reflection when inspecting AdventureGuide
+/// from HotRepl. They avoid the cross-assembly type identity problems that
+/// ScriptEngine's timestamp-suffixed assemblies create.
 /// </summary>
 public static class DebugAPI
 {
     internal static GuideData? Data { get; set; }
     internal static QuestStateTracker? State { get; set; }
     internal static FilterState? Filter { get; set; }
+    internal static NavigationController? Nav { get; set; }
+    internal static EntityRegistry? Entities { get; set; }
+    internal static GroundPathRenderer? GroundPath { get; set; }
 
     /// <summary>Dump current mod state: zone, active/completed counts, filter state.</summary>
     public static string DumpState()
@@ -24,31 +32,96 @@ public static class DebugAPI
              + $"Completed quests: {State.CompletedQuests.Count}\n"
              + $"Selected: {State.SelectedQuestDBName ?? "(none)"}\n"
              + $"Filter: {Filter?.FilterMode ?? QuestFilterMode.Active}\n"
+             + $"Sort: {Filter?.SortMode ?? QuestSortMode.Alphabetical}\n"
              + $"Search: '{Filter?.SearchText ?? ""}'\n"
              + $"Zone filter: {Filter?.ZoneFilter ?? "(all)"}";
     }
 
-    /// <summary>Dump full details for a specific quest.</summary>
-    public static string DumpQuest(string dbName)
+    /// <summary>Dump navigation state: target, waypoint, distance, ground path.</summary>
+    public static string DumpNav()
+    {
+        if (Nav == null) return "NavigationController not initialized";
+        if (Nav.Target == null) return "No active navigation target";
+
+        var t = Nav.Target;
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine($"Target: {t.DisplayName}");
+        sb.AppendLine($"  Kind: {t.TargetKind}");
+        sb.AppendLine($"  Scene: {t.Scene}");
+        sb.AppendLine($"  Position: {t.Position}");
+        sb.AppendLine($"  TargetKey: {t.TargetKey ?? "(none)"}");
+        sb.AppendLine($"  Quest: {t.QuestDBName} step {t.StepOrder}");
+
+        var currentZone = State?.CurrentZone ?? "";
+        sb.AppendLine($"  CrossZone: {t.IsCrossZone(currentZone)}");
+        sb.AppendLine($"  Distance: {Nav.Distance:F1}");
+
+        if (Nav.ZoneLineWaypoint != null)
+        {
+            var zl = Nav.ZoneLineWaypoint;
+            sb.AppendLine($"ZoneLineWaypoint: {zl.DisplayName}");
+            sb.AppendLine($"  Scene: {zl.Scene}");
+            sb.AppendLine($"  Position: {zl.Position}");
+        }
+        else
+        {
+            sb.AppendLine("ZoneLineWaypoint: (none)");
+        }
+
+        if (GroundPath != null)
+            sb.AppendLine($"GroundPath: enabled={GroundPath.Enabled}");
+
+        return sb.ToString();
+    }
+
+    /// <summary>Dump entity registry state for a display name, or summary if null.</summary>
+    public static string DumpEntities(string? displayName = null)
+    {
+        if (Entities == null) return "EntityRegistry not initialized";
+
+        if (displayName != null)
+        {
+            int count = Entities.CountAlive(displayName);
+            return $"{displayName}: {count} alive";
+        }
+
+        return "Pass a display name to check: DumpEntities(\"NPC Name\")";
+    }
+
+    /// <summary>Dump full details for a specific quest by DB name or display name.</summary>
+    public static string DumpQuest(string name)
     {
         if (Data == null) return "Data not initialized";
 
-        var q = Data.GetByDBName(dbName);
-        if (q == null) return $"Quest '{dbName}' not found";
+        // Try DB name first, then search by display name
+        var q = Data.GetByDBName(name);
+        if (q == null)
+        {
+            foreach (var entry in Data.All)
+            {
+                if (string.Equals(entry.DisplayName, name, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    q = entry;
+                    break;
+                }
+            }
+        }
+        if (q == null) return $"Quest '{name}' not found (searched DB name and display name)";
 
         var lines = new System.Text.StringBuilder();
         lines.AppendLine($"DBName: {q.DBName}");
         lines.AppendLine($"Name: {q.DisplayName}");
         lines.AppendLine($"Type: {q.QuestType}");
         lines.AppendLine($"Zone: {q.ZoneContext}");
-        lines.AppendLine($"Active: {State?.IsActive(dbName)}");
-        lines.AppendLine($"Completed: {State?.IsCompleted(dbName)}");
+        lines.AppendLine($"Level: {q.LevelEstimate?.Recommended}");
+        lines.AppendLine($"Active: {State?.IsActive(q.DBName)}");
+        lines.AppendLine($"Completed: {State?.IsCompleted(q.DBName)}");
 
         if (q.Steps != null)
         {
             lines.AppendLine($"Steps ({q.Steps.Count}):");
             foreach (var s in q.Steps)
-                lines.AppendLine($"  {s.Order}. [{s.Action}] {s.Description}");
+                lines.AppendLine($"  {s.Order}. [{s.Action}] {s.Description} (target_key={s.TargetKey})");
         }
 
         if (q.Rewards != null)

@@ -1,3 +1,8 @@
+---
+name: runtime-eval
+description: Runtime C# evaluation via HotRepl WebSocket. Use when inspecting live game state, debugging mod behavior, or prototyping fixes without a build cycle.
+---
+
 # Runtime Eval (HotRepl)
 
 Execute C# code inside the running game over WebSocket. Inspect scene state, test
@@ -6,118 +11,119 @@ rendering changes, and prototype fixes without a build/deploy cycle.
 ## Quick Start
 
 ```bash
-# Check if game + HotRepl mod are running
-uv run erenshor eval ping
-
-# Evaluate C# expression
-uv run erenshor eval run '2 + 2'
-
-# Inspect game state
-uv run erenshor eval run 'SceneManager.GetActiveScene().name'
-uv run erenshor eval run 'UnityEngine.Object.FindObjectsOfType<Renderer>().Length'
-
-# JSON output for programmatic use
-uv run erenshor eval run --json 'Camera.main.transform.position'
-
-# Reset REPL state (clear variables/definitions)
-uv run erenshor eval reset
-
-# Stream a value every frame (Ctrl-C to stop)
-uv run erenshor eval watch 'Camera.main.transform.position'
-
-# Autocomplete suggestions (does not execute code)
-uv run erenshor eval complete 'Camera.main.'
+uv run erenshor eval ping                                    # Check connection
+uv run erenshor eval run 'SceneManager.GetActiveScene().name' # Evaluate expression
+uv run erenshor eval run --json 'GameData.PlayerControl.transform.position'
+uv run erenshor eval reset                                    # Clear REPL state
+uv run erenshor eval watch 'GameData.PlayerControl.transform.position'  # Stream
+uv run erenshor eval complete 'Camera.main.'                  # Autocomplete
 ```
 
-## Architecture
+## C# 7 Limitations
 
-HotRepl is a standalone project at `~/Projects/HotRepl`. The Erenshor CLI wraps its
-WebSocket protocol.
+The Mono compiler supports C# 7.x only. These **do not work**:
 
-- **HotRepl mod**: BepInEx plugin, WebSocket server on port 18590
-- **Mono.CSharp.Evaluator**: Compiles and executes C# 7 code at runtime
-- **REPL state persists**: Variables and types survive across eval calls
-- **Thread.Abort watchdog**: Infinite loops are killed after configurable timeout
+- `async`/`await`, nullable annotations, switch expressions, records, ranges
+- **Anonymous types** (`new { foo = 1 }`) — compiles to internal classes the
+  REPL's dynamic assembly can't emit. Use tuples or string concatenation instead.
 
-## Important: Unity API Access
+```bash
+# WRONG — anonymous type fails to compile
+uv run erenshor eval run 'objects.Select(o => new { o.name, o.tag }).ToArray()'
+
+# RIGHT — use string formatting
+uv run erenshor eval run 'objects.Select(o => o.name + " tag=" + o.tag).ToArray()'
+```
+
+## ScriptEngine Cross-Assembly Gotchas
+
+Hot-reloaded mods (deployed via `--scripts`, reloaded with F6) get timestamp-
+suffixed assembly names like `AdventureGuide-639098010137845420`. This creates
+**type identity mismatches** that break common reflection patterns:
+
+**`FindObjectsOfType<T>()` returns empty**: The generic type parameter `T` resolves
+from the REPL's assembly context, which differs from the ScriptEngine-loaded assembly.
+The runtime sees them as different types.
+
+```bash
+# WRONG — T resolves to wrong assembly, returns empty
+uv run erenshor eval run 'UnityEngine.Object.FindObjectsOfType<BepInEx.BaseUnityPlugin>().Length'
+# => 0
+
+# RIGHT — use typeof() string matching via Resources
+uv run erenshor eval run 'Resources.FindObjectsOfTypeAll(typeof(MonoBehaviour)).Where(o => o.GetType().FullName == "AdventureGuide.Plugin").Count()'
+# => 1
+```
+
+**Reflection with private fields**: After finding an object via string-based type
+matching, use the object's own `.GetType()` for reflection — never a separately
+loaded `Type`. The field/property metadata must come from the same assembly as the
+instance.
+
+```bash
+# Pattern: find object by string name, reflect through its own type
+uv run erenshor eval run '
+var ag = Resources.FindObjectsOfTypeAll(typeof(MonoBehaviour))
+    .First(o => o.GetType().FullName == "AdventureGuide.Plugin");
+var bf = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+var state = ag.GetType().GetField("_state", bf).GetValue(ag);
+state.GetType().GetProperty("CurrentZone").GetValue(state)
+'
+```
+
+## AdventureGuide DebugAPI
+
+For AdventureGuide inspection, **prefer DebugAPI over raw reflection**. DebugAPI
+methods are static, merged into the plugin assembly, and callable without cross-
+assembly gymnastics.
+
+```bash
+# Mod state overview
+uv run erenshor eval run 'AdventureGuide.Diagnostics.DebugAPI.DumpState()'
+
+# Quest details
+uv run erenshor eval run 'AdventureGuide.Diagnostics.DebugAPI.DumpQuest("TheQuestDBName")'
+
+# Navigation state (target, waypoint, ground path)
+uv run erenshor eval run 'AdventureGuide.Diagnostics.DebugAPI.DumpNav()'
+
+# Entity registry for a display name
+uv run erenshor eval run 'AdventureGuide.Diagnostics.DebugAPI.DumpEntities("A Highwayman Raider")'
+
+# All quests in current zone
+uv run erenshor eval run 'AdventureGuide.Diagnostics.DebugAPI.DumpZoneQuests()'
+```
+
+## Unity API Access
 
 Static Unity methods need the full `UnityEngine.Object.` prefix:
+
 ```bash
-# WRONG - FindObjectsOfType is not a global function
+# WRONG
 uv run erenshor eval run 'FindObjectsOfType<Camera>().Length'
 
 # RIGHT
 uv run erenshor eval run 'UnityEngine.Object.FindObjectsOfType<Camera>().Length'
 ```
 
-Several namespaces are pre-imported: `using UnityEngine;` covers most Unity types
-(`Camera`, `Vector3`, `Renderer`, `LayerMask`, etc.), while `SceneManager` comes
-from `using UnityEngine.SceneManagement;` which is pre-imported separately. Only
-static methods on `UnityEngine.Object` still need the full prefix.
+Pre-imported namespaces: `UnityEngine`, `UnityEngine.SceneManagement`, `System.Linq`.
 
 ## REPL State
 
-Variables persist across calls:
-```bash
-uv run erenshor eval run 'var renderers = UnityEngine.Object.FindObjectsOfType<Renderer>();'
-uv run erenshor eval run 'renderers.Length'
-uv run erenshor eval run 'renderers.Select(r => r.gameObject.name).Take(5).ToArray()'
-```
+Variables persist across calls. Use `eval reset` to clear.
 
-Use `erenshor eval reset` to clear all state.
+```bash
+uv run erenshor eval run 'var npcs = NPCTable.LiveNPCs;'
+uv run erenshor eval run 'npcs.Count'
+uv run erenshor eval run 'npcs.Select(n => n.NPCName).Distinct().OrderBy(x => x).ToArray()'
+```
 
 ## Timeout
 
-Default timeout: 10 seconds. Configurable per-eval:
-```bash
-uv run erenshor eval run --timeout 3000 'while(true){}'  # value is in ms
-# => Error: Thread was being aborted. (after ~3s, game stays responsive)
-```
-
-## C# 7 Limitation
-
-The Mono compiler supports C# 7.x only. No async/await, nullable annotations,
-switch expressions, records, or ranges. All REPL/debugging features (LINQ, lambdas,
-foreach, class definitions, generics) work fine.
-
-## Common Debugging Patterns
+Default: 10 seconds. Override per-call:
 
 ```bash
-# List all unique layers in scene
-uv run erenshor eval run 'UnityEngine.Object.FindObjectsOfType<Renderer>()
-    .Select(r => LayerMask.LayerToName(r.gameObject.layer))
-    .Distinct().OrderBy(x => x).ToArray()'
-
-# Find objects by name pattern
-uv run erenshor eval run 'UnityEngine.Object.FindObjectsOfType<Renderer>()
-    .Where(r => r.gameObject.name.Contains("Trigger"))
-    .Select(r => new { r.gameObject.name, layer = LayerMask.LayerToName(r.gameObject.layer) })
-    .ToArray()'
-
-# Check camera culling mask
-uv run erenshor eval run 'Camera.main?.cullingMask'
-
-# Inspect a specific object's components
-uv run erenshor eval run 'var obj = GameObject.Find("SomeObject");
-    obj?.GetComponents<Component>().Select(c => c.GetType().Name).ToArray()'
-
-# Modify rendering live
-uv run erenshor eval run 'RenderSettings.ambientLight = new Color(1f, 1f, 1f);'
-```
-
-## Deploying HotRepl
-
-HotRepl is deployed as two DLLs to BepInEx/plugins/:
-- `HotRepl.BepInEx.dll` (merged: Core + Fleck + Newtonsoft.Json)
-- `mcs.dll` (Mono C# compiler, shipped separately)
-
-```bash
-# Build from HotRepl project
-cd ~/Projects/HotRepl && dotnet build src/HotRepl.BepInEx/
-
-# Copy to game
-cp src/HotRepl.BepInEx/bin/Debug/netstandard2.1/HotRepl.BepInEx.dll "$ERENSHOR_GAME_PATH/BepInEx/plugins/"
-cp src/HotRepl.BepInEx/bin/Debug/netstandard2.1/mcs.dll "$ERENSHOR_GAME_PATH/BepInEx/plugins/"
+uv run erenshor eval run --timeout 3000 'while(true){}'  # ms, killed after ~3s
 ```
 
 ## Key Files
@@ -126,4 +132,5 @@ cp src/HotRepl.BepInEx/bin/Debug/netstandard2.1/mcs.dll "$ERENSHOR_GAME_PATH/Bep
 |---|---|
 | `~/Projects/HotRepl/` | Standalone HotRepl project |
 | `src/erenshor/application/eval/client.py` | Python WebSocket client |
-| `src/erenshor/cli/commands/eval.py` | CLI commands (run, ping, reset, watch, complete) |
+| `src/erenshor/cli/commands/eval.py` | CLI commands |
+| `src/mods/AdventureGuide/src/Diagnostics/DebugAPI.cs` | AdventureGuide inspection API |
