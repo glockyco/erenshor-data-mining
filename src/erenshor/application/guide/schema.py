@@ -1,15 +1,16 @@
-"""Quest guide data schema.
+"""Quest guide data schema (v3).
 
 These dataclasses define the quest guide JSON structure consumed by both
 the BepInEx mod (at runtime) and the manual curation layer (at author time).
 
 Design principles:
-- No provenance tracking in the output schema. Provenance is a pipeline
-  concern handled by the merge algorithm, not a runtime concern.
-- All fields nullable except identity fields. A null field means "no data
-  available" and the mod renders it accordingly.
-- Flat where possible. Nesting is reserved for genuinely composite data
-  (steps, drop sources) not for categorization.
+- All obtainability data lives in a single polymorphic ItemSource type.
+  Each source carries its own level inline. No parallel factor lists.
+- Sources are pre-sorted by level ascending (easiest first) and
+  pre-aggregated to zone granularity (mining/fishing/pickup).
+- Prerequisites are structured data with stable keys, not opaque strings.
+- Optional fields are None when absent. Present fields are always
+  serialized, including zero and false values.
 """
 
 from __future__ import annotations
@@ -75,7 +76,44 @@ class CompletionMethod(str, Enum):
 
 
 # ---------------------------------------------------------------------------
-# Sub-schemas
+# Obtainability
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class ItemSource:
+    """A single way to obtain an item, with inline level and count data.
+
+    Replaces the v2 DropSource, VendorSource, FishingSource, MiningSource,
+    BagSource, CraftingSource, and QuestRewardSource types. Each source
+    carries its own level so the UI doesn't need to join against a separate
+    factor list.
+
+    Sources are pre-sorted by level ascending (easiest first) and zone-level
+    sources (mining, fishing, pickup) are pre-aggregated per zone.
+    """
+
+    type: str  # "drop", "vendor", "fishing", "mining", "pickup", "crafting", "quest_reward"
+    name: str | None = None  # entity name (enemy, vendor, recipe item, quest name)
+    zone: str | None = None  # zone display name
+    level: int | None = None  # recommended level to use this source
+    quest_key: str | None = None  # for quest_reward: rewarding quest's stable_key
+    node_count: int | None = None  # for mining/fishing/pickup: nodes per zone
+    spawn_count: int | None = None  # for drop: enemy spawn points in this zone
+
+
+@dataclass
+class RequiredItemInfo:
+    """A required item with quantity and unified obtainability sources."""
+
+    item_name: str
+    item_stable_key: str
+    quantity: int = 1
+    sources: list[ItemSource] = field(default_factory=list)
+
+
+# ---------------------------------------------------------------------------
+# Quest structure
 # ---------------------------------------------------------------------------
 
 
@@ -93,41 +131,6 @@ class QuestStep:
     keyword: str | None = None  # for shout steps
     tips: list[str] = field(default_factory=list)
     level_estimate: LevelEstimate | None = None
-
-
-@dataclass
-class DropSource:
-    """Where a required item drops."""
-
-    character_name: str
-    character_stable_key: str
-    zone_name: str | None = None
-
-
-@dataclass
-class VendorSource:
-    """Where a required item can be purchased."""
-
-    character_name: str
-    character_stable_key: str
-    zone_name: str | None = None
-    requires_quest: str | None = None  # quest that unlocks this vendor stock
-
-
-@dataclass
-class RequiredItemInfo:
-    """A required item with quantity and known sources."""
-
-    item_name: str
-    item_stable_key: str
-    quantity: int
-    drop_sources: list[DropSource] = field(default_factory=list)
-    vendor_sources: list[VendorSource] = field(default_factory=list)
-    fishing_sources: list[FishingSource] = field(default_factory=list)
-    mining_sources: list[MiningSource] = field(default_factory=list)
-    bag_sources: list[BagSource] = field(default_factory=list)
-    crafting_sources: list[CraftingSource] = field(default_factory=list)
-    quest_reward_sources: list[QuestRewardSource] = field(default_factory=list)
 
 
 @dataclass
@@ -156,6 +159,21 @@ class CompletionSource:
 
 
 @dataclass
+class Prerequisite:
+    """A quest that must be completed before this one.
+
+    Covers both explicit prerequisites from the game data and implicit
+    prerequisites detected from item dependencies (when a required item
+    is obtainable ONLY as a reward from another quest).
+    """
+
+    type: str = "quest"  # currently always "quest"; extensible for future types
+    quest_key: str = ""  # stable_key of the prerequisite quest
+    quest_name: str = ""  # display name for rendering
+    item: str | None = None  # connecting item name (for implicit prerequisites)
+
+
+@dataclass
 class Rewards:
     """Quest completion rewards."""
 
@@ -175,23 +193,23 @@ class Rewards:
 class FactionEffect:
     """Faction reputation change on quest completion."""
 
-    faction_name: str
-    faction_stable_key: str
-    amount: int
+    faction_name: str = ""
+    faction_stable_key: str = ""
+    amount: int = 0
 
 
 @dataclass
 class ChainLink:
     """A link in a quest chain."""
 
-    quest_name: str
-    quest_stable_key: str
-    relationship: str  # "previous", "next", "also_completes", "completed_by"
+    quest_name: str = ""
+    quest_stable_key: str = ""
+    relationship: str = ""  # "previous", "next", "also_completes", "completed_by"
 
 
 @dataclass
 class QuestFlags:
-    """Behavioral flags that affect gameplay. Surfaced in the guide as warnings."""
+    """Behavioral flags that affect gameplay."""
 
     repeatable: bool = False
     disabled: bool = False
@@ -202,67 +220,58 @@ class QuestFlags:
     once_per_spawn_instance: bool = False
 
 
-@dataclass
-class FishingSource:
-    """Where a required item can be fished."""
-
-    water_stable_key: str
-    zone_name: str | None = None
-    drop_chance: float | None = None
+# ---------------------------------------------------------------------------
+# Level estimation
+# ---------------------------------------------------------------------------
 
 
 @dataclass
-class MiningSource:
-    """Where a required item can be mined."""
+class LevelFactor:
+    """A contributing factor to a level estimate.
 
-    node_stable_key: str
-    zone_name: str | None = None
-    drop_chance: float | None = None
+    For non-collect steps (talk, travel, shout, turn_in): the zone median.
+    For quest-level estimates: the driving step reference.
+    Not used for collect/read steps — their levels come from ItemSource.level.
+    """
 
-
-@dataclass
-class BagSource:
-    """Where a required item can be picked up from the world."""
-
-    zone_name: str | None = None
-    x: float | None = None
-    y: float | None = None
-    z: float | None = None
-    respawns: bool = False
+    source: str  # e.g. "zone_median", "step_3"
+    name: str | None = None
+    level: int = 0
 
 
 @dataclass
-class CraftingSource:
-    """Item can be crafted from a recipe."""
+class LevelEstimate:
+    """Recommended level for a quest or step.
 
-    recipe_item_name: str
-    recipe_item_stable_key: str
+    For steps: min(source.level) for collect/read, zone median for others.
+    For quests: max(step.level) across all steps.
+    """
+
+    recommended: int | None = None
+    factors: list[LevelFactor] = field(default_factory=list)
 
 
-@dataclass
-class QuestRewardSource:
-    """Item is rewarded by completing another quest."""
-
-    quest_name: str
-    quest_stable_key: str
+# ---------------------------------------------------------------------------
+# Lookup tables
+# ---------------------------------------------------------------------------
 
 
 @dataclass
 class SpawnPoint:
     """A character spawn location."""
 
-    scene: str
-    x: float
-    y: float
-    z: float
+    scene: str = ""
+    x: float = 0.0
+    y: float = 0.0
+    z: float = 0.0
 
 
 @dataclass
 class ZoneInfo:
     """Zone metadata for the lookup table."""
 
-    display_name: str
-    stable_key: str
+    display_name: str = ""
+    stable_key: str = ""
     level_min: int | None = None
     level_max: int | None = None
     level_median: int | None = None
@@ -272,68 +281,47 @@ class ZoneInfo:
 class ZoneLine:
     """A zone transition point."""
 
-    scene: str
-    x: float
-    y: float
-    z: float
-    destination_zone_key: str
-    destination_display: str
+    scene: str = ""
+    x: float = 0.0
+    y: float = 0.0
+    z: float = 0.0
+    destination_zone_key: str = ""
+    destination_display: str = ""
     landing_x: float | None = None
     landing_y: float | None = None
     landing_z: float | None = None
 
 
 @dataclass
-class LevelFactor:
-    """A contributing factor to the quest's recommended level."""
-
-    source: str  # 'zone_median', 'kill_target'
-    name: str | None = None
-    level: int = 0
-
-
-@dataclass
-class LevelEstimate:
-    """Quest difficulty estimation."""
-
-    recommended: int | None = None
-    factors: list[LevelFactor] = field(default_factory=list)
-
-
-@dataclass
 class ChainGroup:
     """A pre-computed quest chain."""
 
-    name: str
+    name: str = ""
     quests: list[str] = field(default_factory=list)  # ordered db_names
 
 
 # ---------------------------------------------------------------------------
-# Top-level quest guide entry
+# Top-level
 # ---------------------------------------------------------------------------
 
 
 @dataclass
 class QuestGuide:
-    """Complete guide entry for a single quest.
+    """Complete guide entry for a single quest."""
 
-    One of these exists per unique quest DBName. The BepInEx mod loads
-    a JSON array of these at startup.
-    """
-
-    # Identity -- always present
-    db_name: str
-    stable_key: str
-    display_name: str
+    # Identity — always present
+    db_name: str = ""
+    stable_key: str = ""
+    display_name: str = ""
     description: str | None = None
 
-    # Classification -- inferred
+    # Classification — inferred
     quest_type: str | None = None  # QuestType value
     zone_context: str | None = None  # primary zone, inferred from NPC locations
 
     # Structured data
     acquisition: list[AcquisitionSource] = field(default_factory=list)
-    prerequisites: list[str] = field(default_factory=list)  # human-readable strings
+    prerequisites: list[Prerequisite] = field(default_factory=list)
     steps: list[QuestStep] = field(default_factory=list)
     required_items: list[RequiredItemInfo] = field(default_factory=list)
     completion: list[CompletionSource] = field(default_factory=list)
@@ -342,7 +330,7 @@ class QuestGuide:
     flags: QuestFlags = field(default_factory=QuestFlags)
     level_estimate: LevelEstimate | None = None
 
-    # Manual curation fields -- nullable, only populated from manual layer
+    # Manual curation fields
     difficulty: str | None = None  # trivial|easy|moderate|hard|epic
     estimated_time: str | None = None
     tags: list[str] = field(default_factory=list)
@@ -352,9 +340,9 @@ class QuestGuide:
 class GuideOutput:
     """Complete guide output with lookup tables and quest entries."""
 
-    version: int = 2
-    zone_lookup: dict[str, ZoneInfo] = field(default_factory=dict)  # scene_name -> info
-    character_spawns: dict[str, list[SpawnPoint]] = field(default_factory=dict)  # stable_key -> spawns
+    version: int = 3
+    zone_lookup: dict[str, ZoneInfo] = field(default_factory=dict)
+    character_spawns: dict[str, list[SpawnPoint]] = field(default_factory=dict)
     zone_lines: list[ZoneLine] = field(default_factory=list)
     chain_groups: list[ChainGroup] = field(default_factory=list)
     quests: list[QuestGuide] = field(default_factory=list)
