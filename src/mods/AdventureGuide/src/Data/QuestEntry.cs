@@ -14,7 +14,7 @@ public sealed class QuestEntry
     [JsonProperty("estimated_time")] public string? EstimatedTime { get; set; }
     [JsonProperty("tags")] public List<string>? Tags { get; set; }
     [JsonProperty("acquisition")] public List<AcquisitionSource>? Acquisition { get; set; }
-    [JsonProperty("prerequisites")] public List<string>? Prerequisites { get; set; }
+    [JsonProperty("prerequisites")] public List<Prerequisite>? Prerequisites { get; set; }
     [JsonProperty("steps")] public List<QuestStep>? Steps { get; set; }
     [JsonProperty("required_items")] public List<RequiredItemInfo>? RequiredItems { get; set; }
     [JsonProperty("completion")] public List<CompletionSource>? Completion { get; set; }
@@ -57,66 +57,39 @@ public sealed class CompletionSource
     [JsonProperty("note")] public string? Note { get; set; }
 }
 
+/// <summary>
+/// Unified obtainability source with inline level and count data.
+/// Replaces DropSource, VendorSource, FishingSource, MiningSource,
+/// BagSource, CraftingSource, and QuestRewardSource.
+/// </summary>
+public sealed class ItemSource
+{
+    [JsonProperty("type")] public string Type { get; set; } = "";
+    [JsonProperty("name")] public string? Name { get; set; }
+    [JsonProperty("zone")] public string? Zone { get; set; }
+    [JsonProperty("level")] public int? Level { get; set; }
+    [JsonProperty("quest_key")] public string? QuestKey { get; set; }
+    [JsonProperty("node_count")] public int? NodeCount { get; set; }
+    [JsonProperty("spawn_count")] public int? SpawnCount { get; set; }
+}
+
 public sealed class RequiredItemInfo
 {
     [JsonProperty("item_name")] public string ItemName { get; set; } = "";
     [JsonProperty("item_stable_key")] public string ItemStableKey { get; set; } = "";
     [JsonProperty("quantity")] public int Quantity { get; set; } = 1;
-    [JsonProperty("drop_sources")] public List<DropSource>? DropSources { get; set; }
-    [JsonProperty("vendor_sources")] public List<VendorSource>? VendorSources { get; set; }
-    [JsonProperty("fishing_sources")] public List<FishingSource>? FishingSources { get; set; }
-    [JsonProperty("mining_sources")] public List<MiningSource>? MiningSources { get; set; }
-    [JsonProperty("bag_sources")] public List<BagSource>? BagSources { get; set; }
-    [JsonProperty("crafting_sources")] public List<CraftingSource>? CraftingSources { get; set; }
-    [JsonProperty("quest_reward_sources")] public List<QuestRewardSource>? QuestRewardSources { get; set; }
+    [JsonProperty("sources")] public List<ItemSource>? Sources { get; set; }
 }
 
-public sealed class DropSource
+/// <summary>
+/// Structured prerequisite with stable key for O(1) lookup and navigation.
+/// </summary>
+public sealed class Prerequisite
 {
-    [JsonProperty("character_name")] public string CharacterName { get; set; } = "";
-    [JsonProperty("zone_name")] public string? ZoneName { get; set; }
-}
-
-public sealed class VendorSource
-{
-    [JsonProperty("character_name")] public string CharacterName { get; set; } = "";
-    [JsonProperty("zone_name")] public string? ZoneName { get; set; }
-
-}
-
-public sealed class FishingSource
-{
-    [JsonProperty("water_stable_key")] public string WaterStableKey { get; set; } = "";
-    [JsonProperty("zone_name")] public string? ZoneName { get; set; }
-    [JsonProperty("drop_chance")] public float? DropChance { get; set; }
-}
-
-public sealed class MiningSource
-{
-    [JsonProperty("node_stable_key")] public string NodeStableKey { get; set; } = "";
-    [JsonProperty("zone_name")] public string? ZoneName { get; set; }
-    [JsonProperty("drop_chance")] public float? DropChance { get; set; }
-}
-
-public sealed class BagSource
-{
-    [JsonProperty("zone_name")] public string? ZoneName { get; set; }
-    [JsonProperty("x")] public float? X { get; set; }
-    [JsonProperty("y")] public float? Y { get; set; }
-    [JsonProperty("z")] public float? Z { get; set; }
-    [JsonProperty("respawns")] public bool Respawns { get; set; }
-}
-
-public sealed class CraftingSource
-{
-    [JsonProperty("recipe_item_name")] public string RecipeItemName { get; set; } = "";
-    [JsonProperty("recipe_item_stable_key")] public string RecipeItemStableKey { get; set; } = "";
-}
-
-public sealed class QuestRewardSource
-{
+    [JsonProperty("type")] public string Type { get; set; } = "quest";
+    [JsonProperty("quest_key")] public string QuestKey { get; set; } = "";
     [JsonProperty("quest_name")] public string QuestName { get; set; } = "";
-    [JsonProperty("quest_stable_key")] public string QuestStableKey { get; set; } = "";
+    [JsonProperty("item")] public string? Item { get; set; }
 }
 
 public sealed class LevelEstimate

@@ -232,7 +232,8 @@ public sealed class QuestDetailPanel
 
     /// <summary>
     /// Show obtainability sources sorted by level (easiest first), with levels
-    /// annotated inline. Collapses beyond 4 sources behind a TreeNode.
+    /// and counts inline. Sources arrive pre-sorted and pre-aggregated from
+    /// the pipeline. Collapses beyond 4 sources behind a TreeNode.
     /// </summary>
     private void DrawStepSources(QuestStep step)
     {
@@ -246,121 +247,31 @@ public sealed class QuestDetailPanel
         var item = quest?.RequiredItems?.Find(ri =>
             string.Equals(ri.ItemName, step.TargetName, StringComparison.OrdinalIgnoreCase));
 
-        if (item == null)
+        if (item?.Sources == null || item.Sources.Count == 0)
         {
             DrawTips(step);
             return;
         }
-
-        // Build factor lookup: "source:name" -> level
-        var levelByKey = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-        if (step.LevelEstimate?.Factors != null)
-            foreach (var f in step.LevelEstimate.Factors)
-                levelByKey[$"{f.Source}:{f.Name}"] = f.Level;
-
-        // Collect all sources into a unified list with labels and levels
-        var sources = new List<(string label, int? level)>();
-
-        if (item.DropSources != null)
-            foreach (var ds in item.DropSources)
-            {
-                var zone = ds.ZoneName != null ? $" ({ds.ZoneName})" : "";
-                levelByKey.TryGetValue($"enemy_level:{ds.CharacterName}", out int lv);
-                sources.Add(($"Drops from: {ds.CharacterName}{zone}", lv > 0 ? lv : null));
-            }
-
-        if (item.VendorSources != null)
-            foreach (var vs in item.VendorSources)
-            {
-                var zone = vs.ZoneName != null ? $" ({vs.ZoneName})" : "";
-                levelByKey.TryGetValue($"vendor_zone:{vs.CharacterName} ({vs.ZoneName})", out int lv);
-                sources.Add(($"Sold by: {vs.CharacterName}{zone}", lv > 0 ? lv : null));
-            }
-
-        // Fishing/mining/bag: deduplicate by zone (individual nodes aren't useful)
-        var seenZones = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-        if (item.FishingSources is { Count: > 0 })
-            foreach (var fs in item.FishingSources)
-            {
-                string key = $"fishing:{fs.ZoneName}";
-                if (!seenZones.Add(key)) continue;
-                var zone = fs.ZoneName != null ? $" ({fs.ZoneName})" : "";
-                levelByKey.TryGetValue($"fishing_zone:{fs.ZoneName}", out int lv);
-                sources.Add(($"Fishing{zone}", lv > 0 ? lv : null));
-            }
-
-        if (item.MiningSources is { Count: > 0 })
-            foreach (var ms in item.MiningSources)
-            {
-                string key = $"mining:{ms.ZoneName}";
-                if (!seenZones.Add(key)) continue;
-                var zone = ms.ZoneName != null ? $" ({ms.ZoneName})" : "";
-                levelByKey.TryGetValue($"mining_zone:{ms.ZoneName}", out int lv);
-                sources.Add(($"Mining{zone}", lv > 0 ? lv : null));
-            }
-
-        if (item.BagSources is { Count: > 0 })
-            foreach (var bs in item.BagSources)
-            {
-                string key = $"bag:{bs.ZoneName}";
-                if (!seenZones.Add(key)) continue;
-                var zone = bs.ZoneName != null ? $" ({bs.ZoneName})" : "";
-                levelByKey.TryGetValue($"pickup_zone:{bs.ZoneName}", out int lv);
-                sources.Add(($"Found in world{zone}", lv > 0 ? lv : null));
-            }
-
-        if (item.CraftingSources is { Count: > 0 })
-            foreach (var cs in item.CraftingSources)
-                sources.Add(($"Crafted from: {cs.RecipeItemName}", null));
-
-        if (item.QuestRewardSources is { Count: > 0 })
-            foreach (var qr in item.QuestRewardSources)
-                sources.Add(($"Quest reward: {qr.QuestName}", null));
-
-        if (sources.Count == 0)
-        {
-            DrawTips(step);
-            return;
-        }
-
-        // Sort by level ascending (null-level sources at end)
-        sources.Sort((a, b) =>
-        {
-            if (a.level == null && b.level == null) return 0;
-            if (a.level == null) return 1;
-            if (b.level == null) return -1;
-            return a.level.Value.CompareTo(b.level.Value);
-        });
 
         ImGui.Indent(Theme.IndentWidth);
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
 
         const int maxVisible = 4;
-        int visible = Math.Min(sources.Count, maxVisible);
+        int visible = Math.Min(item.Sources.Count, maxVisible);
 
         for (int i = 0; i < visible; i++)
-        {
-            var (label, level) = sources[i];
-            string line = level.HasValue ? $"{label}  \u00b7  Lv {level}" : label;
-            ImGui.Text(line);
-        }
+            DrawSource(item.Sources[i]);
 
-        // Collapse remaining behind a TreeNode
-        if (sources.Count > maxVisible)
+        if (item.Sources.Count > maxVisible)
         {
-            int remaining = sources.Count - maxVisible;
-            int minLv = sources[maxVisible].level ?? 0;
-            int maxLv = sources[^1].level ?? minLv;
+            int remaining = item.Sources.Count - maxVisible;
+            int minLv = item.Sources[maxVisible].Level ?? 0;
+            int maxLv = item.Sources[^1].Level ?? minLv;
             string range = minLv == maxLv ? $"Lv {minLv}" : $"Lv {minLv}-{maxLv}";
             if (ImGui.TreeNode($"{remaining} more sources ({range})##{step.Order}"))
             {
-                for (int i = maxVisible; i < sources.Count; i++)
-                {
-                    var (label, level) = sources[i];
-                    string line = level.HasValue ? $"{label}  \u00b7  Lv {level}" : label;
-                    ImGui.Text(line);
-                }
+                for (int i = maxVisible; i < item.Sources.Count; i++)
+                    DrawSource(item.Sources[i]);
                 ImGui.TreePop();
             }
         }
@@ -369,6 +280,24 @@ public sealed class QuestDetailPanel
         ImGui.Unindent(Theme.IndentWidth);
 
         DrawTips(step);
+    }
+
+    private static void DrawSource(ItemSource src)
+    {
+        string label = src.Type switch
+        {
+            "drop" => $"Drops from: {src.Name} ({src.Zone})",
+            "vendor" => $"Sold by: {src.Name} ({src.Zone})",
+            "fishing" => $"Fishing ({src.Zone})",
+            "mining" => $"Mining ({src.Zone})",
+            "pickup" => $"Found in world ({src.Zone})",
+            "crafting" => $"Crafted from: {src.Name}",
+            "quest_reward" => $"Quest reward: {src.Name}",
+            _ => src.Name ?? src.Type,
+        };
+        if (src.Level is int lv)
+            label += $"  \u00b7  Lv {lv}";
+        ImGui.Text(label);
     }
 
     private void DrawTips(QuestStep step)
@@ -517,38 +446,32 @@ public sealed class QuestDetailPanel
             return;
 
         ImGui.Indent(Theme.IndentWidth);
-        foreach (var prereqName in quest.Prerequisites)
+        foreach (var prereq in quest.Prerequisites)
         {
-            bool completed = IsPrerequisiteCompleted(prereqName);
+            bool completed = IsPrerequisiteCompleted(prereq);
             var color = completed ? Theme.QuestCompleted : Theme.TextPrimary;
             var prefix = completed ? "\u2713 " : "\u25cb ";
+            string label = prereq.Item != null
+                ? $"{prereq.QuestName} ({prereq.Item})"
+                : prereq.QuestName;
 
             ImGui.PushStyleColor(ImGuiCol.Text, color);
-            if (ImGui.Selectable($"{prefix}{prereqName}##prereq"))
+            if (ImGui.Selectable($"{prefix}{label}##prereq_{prereq.QuestKey}"))
             {
-                // Navigate to prerequisite quest
-                foreach (var entry in _data.All)
-                {
-                    if (string.Equals(entry.DisplayName, prereqName, StringComparison.OrdinalIgnoreCase))
-                    {
-                        _state.SelectedQuestDBName = entry.DBName;
-                        break;
-                    }
-                }
+                // Navigate to prerequisite quest via stable key (O(1) lookup)
+                var target = _data.GetByStableKey(prereq.QuestKey);
+                if (target != null)
+                    _state.SelectedQuestDBName = target.DBName;
             }
             ImGui.PopStyleColor();
         }
         ImGui.Unindent(Theme.IndentWidth);
     }
 
-    private bool IsPrerequisiteCompleted(string prereqName)
+    private bool IsPrerequisiteCompleted(Prerequisite prereq)
     {
-        foreach (var entry in _data.All)
-        {
-            if (string.Equals(entry.DisplayName, prereqName, StringComparison.OrdinalIgnoreCase))
-                return _state.IsCompleted(entry.DBName);
-        }
-        return false;
+        var quest = _data.GetByStableKey(prereq.QuestKey);
+        return quest != null && _state.IsCompleted(quest.DBName);
     }
 
     // ── Chain ────────────────────────────────────────────────────────
