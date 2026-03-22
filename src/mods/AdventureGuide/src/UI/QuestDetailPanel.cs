@@ -6,7 +6,7 @@ namespace AdventureGuide.UI;
 
 /// <summary>
 /// Renders the right-side quest detail view using Dear ImGui.
-/// Shows header, prerequisites, objectives, required items, rewards, chain links, and flag warnings.
+/// Sections ordered by importance: Header, Objectives, Rewards, Prerequisites, Chain.
 /// </summary>
 public sealed class QuestDetailPanel
 {
@@ -32,41 +32,70 @@ public sealed class QuestDetailPanel
         var quest = _data.GetByDBName(_state.SelectedQuestDBName);
         if (quest == null)
         {
-            ImGui.PushStyleColor(ImGuiCol.Text, Theme.Warning);
+            ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
             ImGui.TextWrapped("Quest not found in guide data.");
             ImGui.PopStyleColor();
             return;
         }
 
         DrawHeader(quest);
-        DrawPrerequisites(quest);
         DrawObjectives(quest);
-        DrawRequiredItems(quest);
         DrawRewards(quest);
+        DrawPrerequisites(quest);
         DrawChain(quest);
-        DrawFlags(quest);
-
-        ImGui.Spacing();
-        ImGui.Separator();
-        ImGui.Spacing();
-        DrawActionButtons(quest);
     }
+
+    // ── Header ──────────────────────────────────────────────────────
 
     private void DrawHeader(QuestEntry quest)
     {
-        // Quest name in header color, scaled up via a font size push if available.
-        // ImGui.NET doesn't have per-call font size; use color to distinguish.
+        // Quest name in header color
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.Header);
         ImGui.TextWrapped(quest.DisplayName);
         ImGui.PopStyleColor();
 
-        // Quest giver and zone
-        var giver = quest.Acquisition?.Find(a => a.Method == "dialog");
-        if (giver?.SourceName != null)
+        // All acquisition sources (not just dialog)
+        if (quest.Acquisition != null)
         {
-            ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
-            ImGui.Text($"Given by: {giver.SourceName}");
-            ImGui.PopStyleColor();
+            foreach (var acq in quest.Acquisition)
+            {
+                ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
+                string? line = acq.Method switch
+                {
+                    "dialog" => $"Given by: {acq.SourceName}",
+                    "item_read" => $"Read: {acq.SourceName}",
+                    "zone_entry" => $"Enter: {acq.ZoneName}",
+                    "quest_chain" => $"Chain from: {acq.SourceName}",
+                    _ => acq.SourceName != null ? $"From: {acq.SourceName}" : null,
+                };
+                if (line != null)
+                {
+                    if (acq.ZoneName != null && acq.Method == "dialog")
+                        line += $" ({acq.ZoneName})";
+                    ImGui.Text(line);
+                }
+                ImGui.PopStyleColor();
+            }
+        }
+
+        // Turn-in location
+        if (quest.Completion != null)
+        {
+            foreach (var comp in quest.Completion)
+            {
+                if (comp.SourceName == null) continue;
+                ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
+                string turnIn = comp.Method switch
+                {
+                    "item_turnin" or "dialog" => $"Turn in to: {comp.SourceName}",
+                    "zone" => $"Complete at: {comp.ZoneName}",
+                    _ => $"Complete: {comp.SourceName}",
+                };
+                if (comp.ZoneName != null && comp.Method is "item_turnin" or "dialog")
+                    turnIn += $" ({comp.ZoneName})";
+                ImGui.Text(turnIn);
+                ImGui.PopStyleColor();
+            }
         }
 
         if (quest.ZoneContext != null)
@@ -88,48 +117,13 @@ public sealed class QuestDetailPanel
         ImGui.Spacing();
     }
 
-    private void DrawPrerequisites(QuestEntry quest)
-    {
-        if (quest.Prerequisites == null || quest.Prerequisites.Count == 0)
-            return;
-
-        // Collapsed by default (no DefaultOpen flag)
-        if (!ImGui.CollapsingHeader("Prerequisites", ImGuiTreeNodeFlags.None))
-            return;
-
-        ImGui.Indent(Theme.IndentWidth);
-        foreach (var prereqName in quest.Prerequisites)
-        {
-            // Try to find this prerequisite in data to check completion.
-            // Prerequisites are stored as display names, so we search all entries.
-            bool completed = IsPrerequisiteCompleted(prereqName);
-            var color = completed ? Theme.QuestCompleted : Theme.TextPrimary;
-            var prefix = completed ? "\u2713 " : "\u25cb "; // ✓ or ○
-
-            ImGui.PushStyleColor(ImGuiCol.Text, color);
-            ImGui.Text($"{prefix}{prereqName}");
-            ImGui.PopStyleColor();
-        }
-        ImGui.Unindent(Theme.IndentWidth);
-    }
-
-    private bool IsPrerequisiteCompleted(string prereqName)
-    {
-        // Prerequisites are display names. Walk data to find a matching DBName.
-        foreach (var entry in _data.All)
-        {
-            if (string.Equals(entry.DisplayName, prereqName, StringComparison.OrdinalIgnoreCase))
-                return _state.IsCompleted(entry.DBName);
-        }
-        return false;
-    }
+    // ── Objectives ──────────────────────────────────────────────────
 
     private void DrawObjectives(QuestEntry quest)
     {
         if (quest.Steps == null || quest.Steps.Count == 0)
             return;
 
-        // Expanded by default
         if (!ImGui.CollapsingHeader("Objectives", ImGuiTreeNodeFlags.DefaultOpen))
             return;
 
@@ -141,26 +135,33 @@ public sealed class QuestDetailPanel
             var step = quest.Steps[i];
 
             if (i < currentStepIndex)
-                DrawCompletedStep(step);
+                DrawStep(step, StepState.Completed);
             else if (i == currentStepIndex)
-                DrawCurrentStep(step);
+                DrawStep(step, StepState.Current);
             else
-                DrawFutureStep(step);
+                DrawStep(step, StepState.Future);
         }
         ImGui.Unindent(Theme.IndentWidth);
     }
 
-    private void DrawCompletedStep(QuestStep step)
-    {
-        ImGui.PushStyleColor(ImGuiCol.Text, Theme.QuestCompleted);
-        ImGui.Text($"\u2713 {step.Order}. {step.Description}");
-        ImGui.PopStyleColor();
-    }
+    private enum StepState { Completed, Current, Future }
 
-    private void DrawCurrentStep(QuestStep step)
+    private void DrawStep(QuestStep step, StepState state)
     {
-        ImGui.PushStyleColor(ImGuiCol.Text, Theme.QuestActive);
-        string text = $">> {step.Order}. {step.Description}";
+        uint color = state switch
+        {
+            StepState.Completed => Theme.QuestCompleted,
+            StepState.Current => Theme.QuestActive,
+            _ => Theme.TextSecondary,
+        };
+        string prefix = state switch
+        {
+            StepState.Completed => "\u2713",
+            StepState.Current => ">>",
+            _ => "\u25cb",
+        };
+
+        string text = $"{prefix} {step.Order}. {step.Description}";
 
         // Collect steps: show have/need count
         if (step.Action == "collect" && step.TargetName != null && step.Quantity.HasValue)
@@ -169,98 +170,95 @@ public sealed class QuestDetailPanel
             text += $" ({have}/{step.Quantity})";
         }
 
+        ImGui.PushStyleColor(ImGuiCol.Text, color);
         ImGui.Text(text);
         ImGui.PopStyleColor();
 
-        DrawStepExtras(step);
-    }
-
-    private void DrawFutureStep(QuestStep step)
-    {
-        ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
-        string text = $"\u25cb {step.Order}. {step.Description}";
-
-        // Collect steps: show have/need count
-        if (step.Action == "collect" && step.TargetName != null && step.Quantity.HasValue)
-        {
-            int have = _state.CountItemInInventory(step.TargetName);
-            text += $" ({have}/{step.Quantity})";
-        }
-
-        ImGui.Text(text);
-        ImGui.PopStyleColor();
-
-        DrawStepExtras(step);
+        // Drop/vendor sources and tips for collect steps
+        DrawStepSources(step);
     }
 
     /// <summary>
-    /// Renders drop sources and tips indented below a step.
+    /// Show obtainability sources (drop, vendor, fishing, mining, etc.) and
+    /// tips indented below a step. Only for collect steps.
     /// </summary>
-    private void DrawStepExtras(QuestStep step)
+    private void DrawStepSources(QuestStep step)
     {
-        ImGui.Indent(Theme.IndentWidth);
-
-        // Show drop sources for collect steps by finding matching required items
-        if (step.Action == "collect" && step.TargetName != null)
+        if (step.Action != "collect" || step.TargetName == null)
         {
-            DrawDropSourcesForItem(step.TargetName);
+            DrawTips(step);
+            return;
         }
 
-        // Tips (collapsed by default)
-        if (step.Tips != null && step.Tips.Count > 0)
-        {
-            if (ImGui.TreeNode($"Tips##{step.Order}"))
-            {
-                ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
-                foreach (var tip in step.Tips)
-                    ImGui.TextWrapped(tip);
-                ImGui.PopStyleColor();
-                ImGui.TreePop();
-            }
-        }
-
-        ImGui.Unindent(Theme.IndentWidth);
-    }
-
-    /// <summary>
-    /// Find drop sources for an item by searching the quest's required items list.
-    /// We search the currently displayed quest rather than taking it as a parameter
-    /// to avoid threading the quest reference through every step helper.
-    /// </summary>
-    private void DrawDropSourcesForItem(string itemName)
-    {
+        // Find matching required item for full source info
         var quest = _data.GetByDBName(_state.SelectedQuestDBName!);
-        if (quest?.RequiredItems == null) return;
+        var item = quest?.RequiredItems?.Find(ri =>
+            string.Equals(ri.ItemName, step.TargetName, StringComparison.OrdinalIgnoreCase));
 
-        foreach (var item in quest.RequiredItems)
+        if (item == null)
         {
-            if (!string.Equals(item.ItemName, itemName, StringComparison.OrdinalIgnoreCase))
-                continue;
-
-            if (item.DropSources != null)
-            {
-                ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
-                foreach (var ds in item.DropSources)
-                {
-                    var zone = ds.ZoneName != null ? $" ({ds.ZoneName})" : "";
-                    ImGui.Text($"Drops from: {ds.CharacterName}{zone}");
-                }
-                ImGui.PopStyleColor();
-            }
-            break;
+            DrawTips(step);
+            return;
         }
+
+        ImGui.Indent(Theme.IndentWidth);
+        ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
+
+        if (item.DropSources != null)
+        {
+            foreach (var ds in item.DropSources)
+            {
+                var zone = ds.ZoneName != null ? $" ({ds.ZoneName})" : "";
+                ImGui.Text($"Drops from: {ds.CharacterName}{zone}");
+            }
+        }
+
+        if (item.VendorSources != null)
+        {
+            foreach (var vs in item.VendorSources)
+            {
+                var zone = vs.ZoneName != null ? $" ({vs.ZoneName})" : "";
+                ImGui.Text($"Sold by: {vs.CharacterName}{zone}");
+            }
+        }
+
+        // TODO: fishing, mining, item bags, crafting, quest rewards
+        // These sources need to be added to the data model first (Phase 3)
+
+        ImGui.PopStyleColor();
+        ImGui.Unindent(Theme.IndentWidth);
+
+        DrawTips(step);
+    }
+
+    private void DrawTips(QuestStep step)
+    {
+        if (step.Tips == null || step.Tips.Count == 0) return;
+
+        ImGui.Indent(Theme.IndentWidth);
+        if (ImGui.TreeNode($"Tips##{step.Order}"))
+        {
+            ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
+            foreach (var tip in step.Tips)
+                ImGui.TextWrapped(tip);
+            ImGui.PopStyleColor();
+            ImGui.TreePop();
+        }
+        ImGui.Unindent(Theme.IndentWidth);
     }
 
     /// <summary>
-    /// Walk steps to find the first incomplete one. Mirrors GuideWindow.DetermineCurrentStep.
+    /// Walk steps to find the first incomplete one. Conservative approach:
+    /// only advance past steps we can verify (collect with item count).
+    /// Non-verifiable steps (talk, kill, shout, turn_in) stop the pointer.
     /// </summary>
     private int DetermineCurrentStep(QuestEntry quest)
     {
         if (_state.IsCompleted(quest.DBName))
-            return quest.Steps!.Count; // all done
+            return quest.Steps!.Count;
 
         if (!_state.IsActive(quest.DBName))
-            return 0; // not started
+            return 0;
 
         for (int i = 0; i < quest.Steps!.Count; i++)
         {
@@ -270,67 +268,20 @@ public sealed class QuestDetailPanel
                 int have = _state.CountItemInInventory(step.TargetName);
                 if (have < step.Quantity.Value)
                     return i;
+                // have >= need: this collect step is done, continue to next
             }
-            else if (step.Action == "travel" && step.ZoneName != null)
+            else
             {
-                // Can't match scene name to zone display name without a lookup.
-                // Fall through — treated as complete so next step becomes current.
+                // Can't verify: treat as current (conservative)
+                return i;
             }
-            // talk, kill, shout, turn_in — can't detect completion, assume done
         }
 
-        // All detectable steps done — point to last step
+        // All verifiable steps done — point to last step
         return quest.Steps.Count - 1;
     }
 
-    private void DrawRequiredItems(QuestEntry quest)
-    {
-        if (quest.RequiredItems == null || quest.RequiredItems.Count == 0)
-            return;
-
-        if (!ImGui.CollapsingHeader("Required Items", ImGuiTreeNodeFlags.None))
-            return;
-
-        ImGui.Indent(Theme.IndentWidth);
-        foreach (var item in quest.RequiredItems)
-        {
-            int have = _state.CountItemInInventory(item.ItemName);
-            var color = have >= item.Quantity ? Theme.QuestCompleted : Theme.TextPrimary;
-
-            ImGui.PushStyleColor(ImGuiCol.Text, color);
-            ImGui.Text($"{item.ItemName} ({have}/{item.Quantity})");
-            ImGui.PopStyleColor();
-
-            // Drop sources
-            if (item.DropSources != null)
-            {
-                ImGui.Indent(Theme.IndentWidth);
-                ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
-                foreach (var ds in item.DropSources)
-                {
-                    var zone = ds.ZoneName != null ? $" ({ds.ZoneName})" : "";
-                    ImGui.Text($"Drops from: {ds.CharacterName}{zone}");
-                }
-                ImGui.PopStyleColor();
-                ImGui.Unindent(Theme.IndentWidth);
-            }
-
-            // Vendor sources
-            if (item.VendorSources != null)
-            {
-                ImGui.Indent(Theme.IndentWidth);
-                ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
-                foreach (var vs in item.VendorSources)
-                {
-                    var zone = vs.ZoneName != null ? $" ({vs.ZoneName})" : "";
-                    ImGui.Text($"Sold by: {vs.CharacterName}{zone}");
-                }
-                ImGui.PopStyleColor();
-                ImGui.Unindent(Theme.IndentWidth);
-            }
-        }
-        ImGui.Unindent(Theme.IndentWidth);
-    }
+    // ── Rewards ─────────────────────────────────────────────────────
 
     private void DrawRewards(QuestEntry quest)
     {
@@ -339,7 +290,8 @@ public sealed class QuestDetailPanel
         if (r.XP == 0 && r.Gold == 0 && r.ItemName == null && r.FactionEffects == null)
             return;
 
-        if (!ImGui.CollapsingHeader("Rewards", ImGuiTreeNodeFlags.None))
+        // Expanded by default — rewards are primary motivation
+        if (!ImGui.CollapsingHeader("Rewards", ImGuiTreeNodeFlags.DefaultOpen))
             return;
 
         ImGui.Indent(Theme.IndentWidth);
@@ -358,9 +310,74 @@ public sealed class QuestDetailPanel
                 ImGui.Text($"{fe.FactionName}: {sign}{fe.Amount}");
             }
         }
+        if (r.AlsoCompletes != null && r.AlsoCompletes.Count > 0)
+        {
+            ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
+            ImGui.Text($"Also completes: {string.Join(", ", r.AlsoCompletes)}");
+            ImGui.PopStyleColor();
+        }
 
         ImGui.Unindent(Theme.IndentWidth);
     }
+
+    // ── Prerequisites ───────────────────────────────────────────────
+
+    private void DrawPrerequisites(QuestEntry quest)
+    {
+        if (quest.Prerequisites == null || quest.Prerequisites.Count == 0)
+            return;
+
+        // Auto-expand when any prerequisite is incomplete
+        bool anyIncomplete = false;
+        foreach (var p in quest.Prerequisites)
+        {
+            if (!IsPrerequisiteCompleted(p))
+            {
+                anyIncomplete = true;
+                break;
+            }
+        }
+
+        var flags = anyIncomplete ? ImGuiTreeNodeFlags.DefaultOpen : ImGuiTreeNodeFlags.None;
+        if (!ImGui.CollapsingHeader("Prerequisites", flags))
+            return;
+
+        ImGui.Indent(Theme.IndentWidth);
+        foreach (var prereqName in quest.Prerequisites)
+        {
+            bool completed = IsPrerequisiteCompleted(prereqName);
+            var color = completed ? Theme.QuestCompleted : Theme.TextPrimary;
+            var prefix = completed ? "\u2713 " : "\u25cb ";
+
+            ImGui.PushStyleColor(ImGuiCol.Text, color);
+            if (ImGui.Selectable($"{prefix}{prereqName}##prereq"))
+            {
+                // Navigate to prerequisite quest
+                foreach (var entry in _data.All)
+                {
+                    if (string.Equals(entry.DisplayName, prereqName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        _state.SelectedQuestDBName = entry.DBName;
+                        break;
+                    }
+                }
+            }
+            ImGui.PopStyleColor();
+        }
+        ImGui.Unindent(Theme.IndentWidth);
+    }
+
+    private bool IsPrerequisiteCompleted(string prereqName)
+    {
+        foreach (var entry in _data.All)
+        {
+            if (string.Equals(entry.DisplayName, prereqName, StringComparison.OrdinalIgnoreCase))
+                return _state.IsCompleted(entry.DBName);
+        }
+        return false;
+    }
+
+    // ── Chain ────────────────────────────────────────────────────────
 
     private void DrawChain(QuestEntry quest)
     {
@@ -389,7 +406,6 @@ public sealed class QuestDetailPanel
             var color = isCompleted ? Theme.QuestCompleted : Theme.TextPrimary;
 
             ImGui.PushStyleColor(ImGuiCol.Text, color);
-            // Selectable acts as clickable text — navigates to the linked quest
             if (ImGui.Selectable($"{arrow}{link.QuestName}##{link.QuestStableKey}"))
             {
                 if (linkedQuest != null)
@@ -398,55 +414,5 @@ public sealed class QuestDetailPanel
             ImGui.PopStyleColor();
         }
         ImGui.Unindent(Theme.IndentWidth);
-    }
-
-    private void DrawFlags(QuestEntry quest)
-    {
-        var f = quest.Flags;
-        if (f == null) return;
-
-        bool hasWarnings = f.KillTurnInHolder || f.DestroyTurnInHolder || f.OncePerSpawnInstance;
-        if (!hasWarnings) return;
-
-        ImGui.Spacing();
-
-        if (f.KillTurnInHolder)
-        {
-            ImGui.PushStyleColor(ImGuiCol.Text, Theme.Warning);
-            ImGui.TextWrapped("\u26a0 Warning: Turning in this quest kills the NPC!");
-            ImGui.PopStyleColor();
-        }
-
-        if (f.DestroyTurnInHolder)
-        {
-            ImGui.PushStyleColor(ImGuiCol.Text, Theme.Warning);
-            ImGui.TextWrapped("\u26a0 Warning: Turning in this quest destroys the NPC!");
-            ImGui.PopStyleColor();
-        }
-
-        if (f.OncePerSpawnInstance)
-        {
-            ImGui.PushStyleColor(ImGuiCol.Text, Theme.Warning);
-            ImGui.TextWrapped("\u26a0 Note: Can only be turned in once per NPC spawn cycle.");
-            ImGui.PopStyleColor();
-        }
-    }
-
-    private static void DrawActionButtons(QuestEntry quest)
-    {
-        // Placeholder buttons — navigation system comes in Phase 4
-        if (ImGui.Button("Track"))
-        {
-            BepInEx.Logging.Logger.CreateLogSource("AdventureGuide")
-                .LogInfo($"[Track] {quest.DisplayName} ({quest.DBName})");
-        }
-
-        ImGui.SameLine();
-
-        if (ImGui.Button("Navigate"))
-        {
-            BepInEx.Logging.Logger.CreateLogSource("AdventureGuide")
-                .LogInfo($"[Navigate] {quest.DisplayName} ({quest.DBName})");
-        }
     }
 }

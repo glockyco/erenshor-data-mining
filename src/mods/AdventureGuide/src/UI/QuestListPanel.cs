@@ -5,7 +5,7 @@ using ImGuiNET;
 namespace AdventureGuide.UI;
 
 /// <summary>
-/// Renders the left panel: filter toggles, search bar, and scrollable quest list.
+/// Renders the left panel: filter dropdown, search bar, and scrollable quest list.
 /// </summary>
 public sealed class QuestListPanel
 {
@@ -27,7 +27,7 @@ public sealed class QuestListPanel
 
     public void Draw(float width)
     {
-        // Fixed header: filter row + search (not scrollable)
+        // Fixed header: filter + search (not scrollable)
         DrawFilterRow();
         DrawSearchBar();
 
@@ -35,13 +35,26 @@ public sealed class QuestListPanel
 
         // Scrollable quest list fills remaining height
         ImGui.BeginChild("##QuestScroll");
-        DrawQuestList();
+        int count = DrawQuestList();
+
+        // Empty state
+        if (count == 0)
+        {
+            ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
+            if (_data.Count == 0)
+                ImGui.TextWrapped("No quest data loaded.");
+            else if (!string.IsNullOrEmpty(_filter.SearchText))
+                ImGui.TextWrapped("No quests match your search.");
+            else
+                ImGui.TextWrapped("No quests in this category.");
+            ImGui.PopStyleColor();
+        }
+
         ImGui.EndChild();
     }
 
     private void DrawFilterRow()
     {
-        // Sync enum → index (in case FilterMode was changed externally)
         _filterIndex = (int)_filter.FilterMode;
 
         ImGui.SetNextItemWidth(-1);
@@ -56,7 +69,6 @@ public sealed class QuestListPanel
         if (_searchBuf != _filter.SearchText)
             _searchBuf = _filter.SearchText;
 
-        // Fill available width
         ImGui.SetNextItemWidth(-1);
 
         if (ImGui.InputTextWithHint("##QuestSearch", "Search quests...", ref _searchBuf, 256))
@@ -65,8 +77,10 @@ public sealed class QuestListPanel
         ImGui.Spacing();
     }
 
-    private void DrawQuestList()
+    /// <summary>Draw filtered quest list. Returns count of visible quests.</summary>
+    private int DrawQuestList()
     {
+        int count = 0;
         var all = _data.All;
 
         for (int i = 0; i < all.Count; i++)
@@ -79,8 +93,11 @@ public sealed class QuestListPanel
             if (!PassesSearch(quest))
                 continue;
 
-            DrawQuestButton(quest);
+            DrawQuestEntry(quest);
+            count++;
         }
+
+        return count;
     }
 
     private bool PassesFilter(QuestEntry quest)
@@ -95,15 +112,56 @@ public sealed class QuestListPanel
         };
     }
 
+    /// <summary>
+    /// Search matches against quest name, zone, NPC names, and item names.
+    /// </summary>
     private bool PassesSearch(QuestEntry quest)
     {
         if (string.IsNullOrEmpty(_filter.SearchText))
             return true;
 
-        return quest.DisplayName.Contains(_filter.SearchText, StringComparison.OrdinalIgnoreCase);
+        var term = _filter.SearchText;
+
+        if (quest.DisplayName.Contains(term, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (quest.ZoneContext != null &&
+            quest.ZoneContext.Contains(term, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (quest.Acquisition != null)
+        {
+            foreach (var acq in quest.Acquisition)
+            {
+                if (acq.SourceName != null &&
+                    acq.SourceName.Contains(term, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+        }
+
+        if (quest.RequiredItems != null)
+        {
+            foreach (var item in quest.RequiredItems)
+            {
+                if (item.ItemName.Contains(term, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+        }
+
+        if (quest.Steps != null)
+        {
+            foreach (var step in quest.Steps)
+            {
+                if (step.TargetName != null &&
+                    step.TargetName.Contains(term, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+        }
+
+        return false;
     }
 
-    private void DrawQuestButton(QuestEntry quest)
+    private void DrawQuestEntry(QuestEntry quest)
     {
         bool isSelected = quest.DBName == _state.SelectedQuestDBName;
         uint textColor = GetQuestColor(quest);
@@ -115,6 +173,19 @@ public sealed class QuestListPanel
 
         if (ImGui.Selectable(quest.DisplayName + "##" + quest.DBName, isSelected))
             _state.SelectedQuestDBName = quest.DBName;
+
+        // Tooltip on hover: zone + status
+        if (ImGui.IsItemHovered())
+        {
+            ImGui.BeginTooltip();
+            if (quest.ZoneContext != null)
+                ImGui.Text(quest.ZoneContext);
+            string status = _state.IsCompleted(quest.DBName) ? "Completed"
+                          : _state.IsActive(quest.DBName) ? "Active"
+                          : "Available";
+            ImGui.Text(status);
+            ImGui.EndTooltip();
+        }
 
         ImGui.PopStyleColor(isSelected ? 2 : 1);
     }
