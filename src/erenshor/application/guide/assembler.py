@@ -463,6 +463,7 @@ def _steps_fetch(
                     f"Obtain and read {acq.source_name}.",
                     target_name=acq.source_name,
                     target_type="item",
+                    target_key=acq.source_stable_key,
                     optional=is_optional,
                 )
             )
@@ -473,6 +474,7 @@ def _steps_fetch(
                 _talk_description(giver.source_name, giver.keyword),
                 target_name=giver.source_name,
                 target_type="character",
+                target_key=giver.source_stable_key,
             )
         )
 
@@ -488,6 +490,7 @@ def _steps_fetch(
                 desc + ".",
                 target_name=ri.item_name,
                 target_type="item",
+                target_key=ri.item_stable_key,
                 quantity=ri.quantity,
             )
         )
@@ -500,6 +503,7 @@ def _steps_fetch(
                 f"Turn in items to {turnin_npc.source_name}.",
                 target_name=turnin_npc.source_name,
                 target_type="character",
+                target_key=turnin_npc.source_stable_key,
                 zone_name=turnin_npc.zone_name or zone_context,
             )
         )
@@ -519,6 +523,7 @@ def _steps_kill(
                 _talk_description(giver.source_name, giver.keyword),
                 target_name=giver.source_name,
                 target_type="character",
+                target_key=giver.source_stable_key,
                 zone_name=giver.zone_name,
             )
         )
@@ -530,6 +535,7 @@ def _steps_kill(
                     f"Defeat {comp.source_name}.",
                     target_name=comp.source_name,
                     target_type="character",
+                    target_key=comp.source_stable_key,
                     zone_name=comp.zone_name,
                 )
             )
@@ -549,6 +555,7 @@ def _steps_dialog(
                 _talk_description(giver.source_name, giver.keyword),
                 target_name=giver.source_name,
                 target_type="character",
+                target_key=giver.source_stable_key,
                 zone_name=giver.zone_name,
             )
         )
@@ -563,6 +570,7 @@ def _steps_dialog(
                     _talk_description(comp.source_name, comp.keyword),
                     target_name=comp.source_name,
                     target_type="character",
+                    target_key=comp.source_stable_key,
                     zone_name=comp.zone_name,
                 )
             )
@@ -582,6 +590,7 @@ def _steps_zone_trigger(
                 _talk_description(giver.source_name, giver.keyword),
                 target_name=giver.source_name,
                 target_type="character",
+                target_key=giver.source_stable_key,
                 zone_name=giver.zone_name,
             )
         )
@@ -593,6 +602,7 @@ def _steps_zone_trigger(
                     f"Travel to {comp.source_name}.",
                     target_name=comp.source_name,
                     target_type="zone",
+                    target_key=comp.source_stable_key,
                     zone_name=comp.source_name,
                 )
             )
@@ -613,6 +623,7 @@ def _steps_shout(
                 _talk_description(giver.source_name, giver.keyword),
                 target_name=giver.source_name,
                 target_type="character",
+                target_key=giver.source_stable_key,
                 zone_name=giver.zone_name,
             )
         )
@@ -626,6 +637,7 @@ def _steps_shout(
                     desc,
                     target_name=comp.source_name,
                     target_type="character",
+                    target_key=comp.source_stable_key,
                     zone_name=comp.zone_name,
                     keyword=keyword or None,
                 )
@@ -649,6 +661,7 @@ def _steps_item_read(
                 f"Obtain and read {acq.source_name}.",
                 target_name=acq.source_name,
                 target_type="item",
+                target_key=acq.source_stable_key,
                 optional=is_optional,
             )
         )
@@ -665,6 +678,7 @@ def _steps_item_read(
                 f"Read {comp.source_name}.",
                 target_name=comp.source_name,
                 target_type="item",
+                target_key=comp.source_stable_key,
                 optional=comp_optional,
             )
         )

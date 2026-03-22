@@ -136,6 +136,7 @@ class QuestStep:
     description: str
     target_name: str | None = None  # NPC/item/zone name
     target_type: str | None = None  # "character", "item", "zone"
+    target_key: str | None = None  # stable key for spawn/entity lookup
     quantity: int | None = None  # for collect/kill steps
     zone_name: str | None = None  # where this step happens
     keyword: str | None = None  # for shout steps

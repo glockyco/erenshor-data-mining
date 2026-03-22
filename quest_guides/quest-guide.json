@@ -53550,6 +53550,7 @@
           "description": "Say \"Kilkay\" to Ripper DeMerth.",
           "target_name": "Ripper DeMerth",
           "target_type": "character",
+          "target_key": "character:ripper demerth",
           "optional": false,
           "level_estimate": {
             "recommended": 28,
@@ -53568,6 +53569,7 @@
           "description": "Collect Ear of Kilkay.",
           "target_name": "Ear of Kilkay",
           "target_type": "item",
+          "target_key": "item:gen - ear of kilkay",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -53587,6 +53589,7 @@
           "description": "Turn in items to Ripper DeMerth.",
           "target_name": "Ripper DeMerth",
           "target_type": "character",
+          "target_key": "character:ripper demerth",
           "zone_name": "Ripper's Keep",
           "optional": false,
           "level_estimate": {
@@ -53696,6 +53699,7 @@
           "description": "Say \"Ripper's\" to Captain Kilkay.",
           "target_name": "Captain Kilkay",
           "target_type": "character",
+          "target_key": "character:guard captain azure",
           "optional": false,
           "level_estimate": {
             "recommended": 11,
@@ -53714,6 +53718,7 @@
           "description": "Collect Ear of Ripper.",
           "target_name": "Ear of Ripper",
           "target_type": "item",
+          "target_key": "item:gen - ear of ripper",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -53733,6 +53738,7 @@
           "description": "Turn in items to Captain Kilkay.",
           "target_name": "Captain Kilkay",
           "target_type": "character",
+          "target_key": "character:guard captain azure",
           "zone_name": "Port Azure",
           "optional": false,
           "level_estimate": {
@@ -53833,6 +53839,7 @@
           "description": "Collect Small Cat Statue.",
           "target_name": "Small Cat Statue",
           "target_type": "item",
+          "target_key": "item:gen - a small cat statue",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -53852,6 +53859,7 @@
           "description": "Turn in items to The Conductor.",
           "target_name": "The Conductor",
           "target_type": "character",
+          "target_key": "character:deer:ripperportal:281.51:0.53:315.44",
           "zone_name": "Mysterious Portal (3)",
           "optional": false,
           "level_estimate": {
@@ -53939,6 +53947,7 @@
           "description": "Say \"Vitheo\" to A Dying Wish.",
           "target_name": "A Dying Wish",
           "target_type": "character",
+          "target_key": "character:fernalla's wish - 1",
           "optional": false
         },
         {
@@ -53947,6 +53956,7 @@
           "description": "Collect Memory of a Guardian.",
           "target_name": "Memory of a Guardian",
           "target_type": "item",
+          "target_key": "item:gen - memory of the guardian",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -53966,6 +53976,7 @@
           "description": "Turn in items to A Dying Wish.",
           "target_name": "A Dying Wish",
           "target_type": "character",
+          "target_key": "character:fernalla's wish - 1",
           "optional": false
         }
       ],
@@ -54039,6 +54050,7 @@
           "description": "Say \"Balaste\" to A Dying Wish.",
           "target_name": "A Dying Wish",
           "target_type": "character",
+          "target_key": "character:fernalla's wish - 2",
           "optional": false
         },
         {
@@ -54047,6 +54059,7 @@
           "description": "Collect Memory of Balaste.",
           "target_name": "Memory of Balaste",
           "target_type": "item",
+          "target_key": "item:gen - memory of balaste",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -54066,6 +54079,7 @@
           "description": "Turn in items to A Dying Wish.",
           "target_name": "A Dying Wish",
           "target_type": "character",
+          "target_key": "character:fernalla's wish - 2",
           "optional": false
         }
       ],
@@ -54139,6 +54153,7 @@
           "description": "Say \"Elwio\" to A Dying Wish.",
           "target_name": "A Dying Wish",
           "target_type": "character",
+          "target_key": "character:fernalla's wish - 3",
           "optional": false
         },
         {
@@ -54147,6 +54162,7 @@
           "description": "Collect Memory of Elwio.",
           "target_name": "Memory of Elwio",
           "target_type": "item",
+          "target_key": "item:gen - memory of elwio",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -54166,6 +54182,7 @@
           "description": "Turn in items to A Dying Wish.",
           "target_name": "A Dying Wish",
           "target_type": "character",
+          "target_key": "character:fernalla's wish - 3",
           "optional": false
         }
       ],
@@ -54247,6 +54264,7 @@
           "description": "Say \"abomination\" to Fallen Fernalla.",
           "target_name": "Fallen Fernalla",
           "target_type": "character",
+          "target_key": "character:fallen fernalla 1",
           "optional": false,
           "level_estimate": {
             "recommended": 27,
@@ -54265,6 +54283,7 @@
           "description": "Collect Memory of Vitheo.",
           "target_name": "Memory of Vitheo",
           "target_type": "item",
+          "target_key": "item:gen - memory of vitheo",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -54284,6 +54303,7 @@
           "description": "Turn in items to Fallen Fernalla.",
           "target_name": "Fallen Fernalla",
           "target_type": "character",
+          "target_key": "character:fallen fernalla:bloomingsepulcher:788.35:254.99:837.27",
           "zone_name": "Blooming Sepulcher",
           "optional": false,
           "level_estimate": {
@@ -54360,6 +54380,7 @@
           "description": "Collect Inert Rune of Fernalla.",
           "target_name": "Inert Rune of Fernalla",
           "target_type": "item",
+          "target_key": "item:gen - inert rune of fernalla",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -54379,6 +54400,7 @@
           "description": "Collect Eldrich Crystal.",
           "target_name": "Eldrich Crystal",
           "target_type": "item",
+          "target_key": "item:gen - eldrich crystal",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -54403,6 +54425,7 @@
           "description": "Turn in items to Verdant Energy.",
           "target_name": "Verdant Energy",
           "target_type": "character",
+          "target_key": "character:verdant energy",
           "zone_name": "Fernalla's Revival Plains",
           "optional": false,
           "level_estimate": {
@@ -54545,6 +54568,7 @@
           "description": "Say \"they\" to A Hermit.",
           "target_name": "A Hermit",
           "target_type": "character",
+          "target_key": "character:a hermit",
           "optional": false,
           "level_estimate": {
             "recommended": 13,
@@ -54563,6 +54587,7 @@
           "description": "Collect Ornate Toolbox.",
           "target_name": "Ornate Toolbox",
           "target_type": "item",
+          "target_key": "item:gen - an ornate toolbox",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -54582,6 +54607,7 @@
           "description": "Turn in items to A Hermit.",
           "target_name": "A Hermit",
           "target_type": "character",
+          "target_key": "character:a hermit",
           "zone_name": "Fernalla's Revival Plains",
           "optional": false,
           "level_estimate": {
@@ -54688,6 +54714,7 @@
           "description": "Say \"shadowtide, Shadowtide\" to Styria Olafur.",
           "target_name": "Styria Olafur",
           "target_type": "character",
+          "target_key": "character:styria olafur:azure:120.30:11.61:291.56",
           "optional": false,
           "level_estimate": {
             "recommended": 11,
@@ -54761,6 +54788,7 @@
           "description": "Collect Sivakrux.",
           "target_name": "Sivakrux",
           "target_type": "item",
+          "target_key": "item:gen - sivak",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -54805,6 +54833,7 @@
           "description": "Turn in items to Vethalo Gala.",
           "target_name": "Vethalo Gala",
           "target_type": "character",
+          "target_key": "character:vethalo gala",
           "zone_name": "Port Azure",
           "optional": false,
           "level_estimate": {
@@ -54920,6 +54949,7 @@
           "description": "Collect Braxonian Portal Shard (Fire).",
           "target_name": "Braxonian Portal Shard (Fire)",
           "target_type": "item",
+          "target_key": "item:gen - braxonian portal shard - fire",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -54939,6 +54969,7 @@
           "description": "Collect Braxonian Portal Shard (Ice).",
           "target_name": "Braxonian Portal Shard (Ice)",
           "target_type": "item",
+          "target_key": "item:gen - braxonian portal shard - ice",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -54958,6 +54989,7 @@
           "description": "Turn in items to Braxon Elden.",
           "target_name": "Braxon Elden",
           "target_type": "character",
+          "target_key": "character:braxon elden:braxonian:99.99:33.79:993.06",
           "zone_name": "Braxonian Desert",
           "optional": false,
           "level_estimate": {
@@ -55083,6 +55115,7 @@
           "description": "Collect Inert Rune of Brax.",
           "target_name": "Inert Rune of Brax",
           "target_type": "item",
+          "target_key": "item:gen - inert rune of brax",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -55102,6 +55135,7 @@
           "description": "Collect Eldrich Crystal.",
           "target_name": "Eldrich Crystal",
           "target_type": "item",
+          "target_key": "item:gen - eldrich crystal",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -55126,6 +55160,7 @@
           "description": "Turn in items to Elemental Energy.",
           "target_name": "Elemental Energy",
           "target_type": "character",
+          "target_key": "character:elemental energy:braxonia:325.47:27.02:264.04",
           "zone_name": "Fallen Braxonia",
           "optional": false,
           "level_estimate": {
@@ -55247,6 +55282,7 @@
           "description": "Say \"swords\" to Tristan Warton.",
           "target_name": "Tristan Warton",
           "target_type": "character",
+          "target_key": "character:tristan warton",
           "optional": false,
           "level_estimate": {
             "recommended": 11,
@@ -55265,6 +55301,7 @@
           "description": "Collect Ruby.",
           "target_name": "Ruby",
           "target_type": "item",
+          "target_key": "item:gen - ruby",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -55459,6 +55496,7 @@
           "description": "Collect 2x Seaspice.",
           "target_name": "Seaspice",
           "target_type": "item",
+          "target_key": "item:cons - seaspice",
           "quantity": 2,
           "optional": false,
           "level_estimate": {
@@ -55593,6 +55631,7 @@
           "description": "Turn in items to Tristan Warton.",
           "target_name": "Tristan Warton",
           "target_type": "character",
+          "target_key": "character:tristan warton",
           "zone_name": "Port Azure",
           "optional": false,
           "level_estimate": {
@@ -56151,6 +56190,7 @@
           "description": "Say \"work\" to Xander Zaxtrough.",
           "target_name": "Xander Zaxtrough",
           "target_type": "character",
+          "target_key": "character:xander zaxtrough",
           "optional": false,
           "level_estimate": {
             "recommended": 4,
@@ -56169,6 +56209,7 @@
           "description": "Say \"Open, open\" to Cirreus Alxanth.",
           "target_name": "Cirreus Alxanth",
           "target_type": "character",
+          "target_key": "character:cirreus alxanth:1",
           "optional": false,
           "level_estimate": {
             "recommended": 9,
@@ -56247,6 +56288,7 @@
           "description": "Say \"jobs\" to Trevor Ulchand.",
           "target_name": "Trevor Ulchand",
           "target_type": "character",
+          "target_key": "character:trevor ulchand",
           "optional": false,
           "level_estimate": {
             "recommended": 4,
@@ -56265,6 +56307,7 @@
           "description": "Collect Necromancer's Ritual Book.",
           "target_name": "Necromancer's Ritual Book",
           "target_type": "item",
+          "target_key": "item:gen - ritual book",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -56284,6 +56327,7 @@
           "description": "Turn in items to Trevor Ulchand.",
           "target_name": "Trevor Ulchand",
           "target_type": "character",
+          "target_key": "character:trevor ulchand",
           "zone_name": "Hidden Hills",
           "optional": false,
           "level_estimate": {
@@ -56371,6 +56415,7 @@
           "description": "Obtain and read Notes of a Hermit.",
           "target_name": "Notes of a Hermit",
           "target_type": "item",
+          "target_key": "item:gen - notes of a hermit",
           "optional": false,
           "level_estimate": {
             "recommended": 8,
@@ -56404,6 +56449,7 @@
           "description": "Collect Notes of a Hermit.",
           "target_name": "Notes of a Hermit",
           "target_type": "item",
+          "target_key": "item:gen - notes of a hermit",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -56438,6 +56484,7 @@
           "description": "Turn in items to Chazz Pillot.",
           "target_name": "Chazz Pillot",
           "target_type": "character",
+          "target_key": "character:chazz pillot",
           "zone_name": "Port Azure",
           "optional": false,
           "level_estimate": {
@@ -56537,6 +56584,7 @@
           "description": "Say \"azynthi, Azynthi\" to Ward of Piety.",
           "target_name": "Ward of Piety",
           "target_type": "character",
+          "target_key": "character:ward of sivakaya (1):jaws:1478.96:-18.28:109.78",
           "optional": false,
           "level_estimate": {
             "recommended": 34,
@@ -56605,6 +56653,7 @@
           "description": "Speak to Remnant.",
           "target_name": "Remnant",
           "target_type": "character",
+          "target_key": "character:a watchlight stalzo:bloomingsepulcher:243.72:375.26:848.65",
           "optional": false,
           "level_estimate": {
             "recommended": 27,
@@ -56623,6 +56672,7 @@
           "description": "Collect Vithean Brick.",
           "target_name": "Vithean Brick",
           "target_type": "item",
+          "target_key": "item:quest - vithean stones",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -56687,6 +56737,7 @@
           "description": "Turn in items to Remnant.",
           "target_name": "Remnant",
           "target_type": "character",
+          "target_key": "character:a watchlight stalzo:bloomingsepulcher:243.72:375.26:848.65",
           "zone_name": "Blooming Sepulcher",
           "optional": false,
           "level_estimate": {
@@ -56888,6 +56939,7 @@
           "description": "Say \"task, quest, help\" to Ludo Luxo.",
           "target_name": "Ludo Luxo",
           "target_type": "character",
+          "target_key": "character:ludo luxo",
           "optional": false,
           "level_estimate": {
             "recommended": 4,
@@ -56906,6 +56958,7 @@
           "description": "Collect Sivakayan Horn.",
           "target_name": "Sivakayan Horn",
           "target_type": "item",
+          "target_key": "item:gen - sivakayan horn",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -56925,6 +56978,7 @@
           "description": "Turn in items to Ludo Luxo.",
           "target_name": "Ludo Luxo",
           "target_type": "character",
+          "target_key": "character:ludo luxo",
           "zone_name": "Hidden Hills",
           "optional": false,
           "level_estimate": {
@@ -57024,6 +57078,7 @@
           "description": "Say \"favor\" to Alyssia Fearnon.",
           "target_name": "Alyssia Fearnon",
           "target_type": "character",
+          "target_key": "character:alyssa fearnon",
           "optional": false,
           "level_estimate": {
             "recommended": 4,
@@ -57042,6 +57097,7 @@
           "description": "Collect Skeleton Eye.",
           "target_name": "Skeleton Eye",
           "target_type": "item",
+          "target_key": "item:gen - skeleton eye",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -57076,6 +57132,7 @@
           "description": "Turn in items to Alyssia Fearnon.",
           "target_name": "Alyssia Fearnon",
           "target_type": "character",
+          "target_key": "character:alyssa fearnon",
           "zone_name": "Hidden Hills",
           "optional": false,
           "level_estimate": {
@@ -57216,6 +57273,7 @@
           "description": "Collect Inert Rune of Soluna.",
           "target_name": "Inert Rune of Soluna",
           "target_type": "item",
+          "target_key": "item:gen - inert rune of soluna",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -57235,6 +57293,7 @@
           "description": "Collect Eldrich Crystal.",
           "target_name": "Eldrich Crystal",
           "target_type": "item",
+          "target_key": "item:gen - eldrich crystal",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -57259,6 +57318,7 @@
           "description": "Turn in items to Verdant Energy.",
           "target_name": "Verdant Energy",
           "target_type": "character",
+          "target_key": "character:celestial energy:soluna:124.17:103.55:655.93",
           "zone_name": "Soluna's Landing",
           "optional": false,
           "level_estimate": {
@@ -57373,6 +57433,7 @@
           "description": "Say \"Azynthi\" to Jeremie Galyard.",
           "target_name": "Jeremie Galyard",
           "target_type": "character",
+          "target_key": "character:jeremie galyard",
           "optional": false,
           "level_estimate": {
             "recommended": 28,
@@ -57391,6 +57452,7 @@
           "description": "Collect 3x Azure Mead.",
           "target_name": "Azure Mead",
           "target_type": "item",
+          "target_key": "item:cons - azure mead",
           "quantity": 3,
           "optional": false,
           "level_estimate": {
@@ -57430,6 +57492,7 @@
           "description": "Collect Seaspice.",
           "target_name": "Seaspice",
           "target_type": "item",
+          "target_key": "item:cons - seaspice",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -57564,6 +57627,7 @@
           "description": "Turn in items to Jeremie Galyard.",
           "target_name": "Jeremie Galyard",
           "target_type": "character",
+          "target_key": "character:jeremie galyard",
           "zone_name": "Ripper's Keep",
           "optional": false,
           "level_estimate": {
@@ -57886,6 +57950,7 @@
           "description": "Collect Inert Rune of Vitheo.",
           "target_name": "Inert Rune of Vitheo",
           "target_type": "item",
+          "target_key": "item:gen - inert rune of vitheo",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -57905,6 +57970,7 @@
           "description": "Collect Eldrich Crystal.",
           "target_name": "Eldrich Crystal",
           "target_type": "item",
+          "target_key": "item:gen - eldrich crystal",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -57929,6 +57995,7 @@
           "description": "Turn in items to Verdant Energy.",
           "target_name": "Verdant Energy",
           "target_type": "character",
+          "target_key": "character:vithean energy:vitheosend:458.45:14.75:323.47",
           "zone_name": "Vitheo's Rest",
           "optional": false,
           "level_estimate": {
@@ -58137,6 +58204,7 @@
           "description": "Say \"aetheria\" to Saya Seawatcher.",
           "target_name": "Saya Seawatcher",
           "target_type": "character",
+          "target_key": "character:saya seawatcher",
           "optional": false,
           "level_estimate": {
             "recommended": 9,
@@ -58155,6 +58223,7 @@
           "description": "Collect Aetheria.",
           "target_name": "Aetheria",
           "target_type": "item",
+          "target_key": "item:gen - aetheria",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -58299,6 +58368,7 @@
           "description": "Turn in items to Saya Seawatcher.",
           "target_name": "Saya Seawatcher",
           "target_type": "character",
+          "target_key": "character:saya seawatcher",
           "zone_name": "Vitheo's Watch",
           "optional": false,
           "level_estimate": {
@@ -58589,6 +58659,7 @@
           "description": "Say \"Lost\" to Albixt Munger.",
           "target_name": "Albixt Munger",
           "target_type": "character",
+          "target_key": "character:albixt munger:silkengrass:649.35:40.43:225.03",
           "optional": false,
           "level_estimate": {
             "recommended": 18,
@@ -58607,6 +58678,7 @@
           "description": "Collect Simple Engagement Ring.",
           "target_name": "Simple Engagement Ring",
           "target_type": "item",
+          "target_key": "item:ring - 24 - simple engagement ring",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -58626,6 +58698,7 @@
           "description": "Turn in items to Albixt Munger.",
           "target_name": "Albixt Munger",
           "target_type": "character",
+          "target_key": "character:albixt munger:silkengrass:649.35:40.43:225.03",
           "zone_name": "Silkengrass Meadowlands",
           "optional": false,
           "level_estimate": {
@@ -58720,6 +58793,7 @@
           "description": "Speak to Alice Hewer.",
           "target_name": "Alice Hewer",
           "target_type": "character",
+          "target_key": "character:alice hewer:stowaway:747.15:18.45:440.38",
           "optional": false,
           "level_estimate": {
             "recommended": 2,
@@ -58738,6 +58812,7 @@
           "description": "Collect Plain Necklace.",
           "target_name": "Plain Necklace",
           "target_type": "item",
+          "target_key": "item:neck - 1 - plain necklace",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -58757,6 +58832,7 @@
           "description": "Turn in items to Alice Hewer.",
           "target_name": "Alice Hewer",
           "target_type": "character",
+          "target_key": "character:alice hewer:stowaway:747.15:18.45:440.38",
           "zone_name": "Stowaway's Step",
           "optional": false,
           "level_estimate": {
@@ -58852,6 +58928,7 @@
           "description": "Say \"inventor\" to Annaleigh Hephan.",
           "target_name": "Annaleigh Hephan",
           "target_type": "character",
+          "target_key": "character:annaleigh hephan",
           "optional": false,
           "level_estimate": {
             "recommended": 14,
@@ -58870,6 +58947,7 @@
           "description": "Collect 5x Nagalok Claw.",
           "target_name": "Nagalok Claw",
           "target_type": "item",
+          "target_key": "item:gen - nagalok claw",
           "quantity": 5,
           "optional": false,
           "level_estimate": {
@@ -58904,6 +58982,7 @@
           "description": "Turn in items to Annaleigh Hephan.",
           "target_name": "Annaleigh Hephan",
           "target_type": "character",
+          "target_key": "character:annaleigh hephan",
           "zone_name": "Blacksalt Strand",
           "optional": false,
           "level_estimate": {
@@ -59097,6 +59176,7 @@
           "description": "Say \"four\" to Aragath Swellsteer.",
           "target_name": "Aragath Swellsteer",
           "target_type": "character",
+          "target_key": "character:aragath swellsteer",
           "optional": false,
           "level_estimate": {
             "recommended": 2,
@@ -59115,6 +59195,7 @@
           "description": "Collect Charged Soul Gem (Posta).",
           "target_name": "Charged Soul Gem (Posta)",
           "target_type": "item",
+          "target_key": "item:quest - charged soul gem posta",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -59134,6 +59215,7 @@
           "description": "Collect Charged Soul Gem (Leah).",
           "target_name": "Charged Soul Gem (Leah)",
           "target_type": "item",
+          "target_key": "item:quest - charged soul gem leah",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -59153,6 +59235,7 @@
           "description": "Collect Charged Soul Gem (Revid).",
           "target_name": "Charged Soul Gem (Revid)",
           "target_type": "item",
+          "target_key": "item:quest - charged soul gem revid",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -59172,6 +59255,7 @@
           "description": "Collect Charged Soul Gem (Stalzo).",
           "target_name": "Charged Soul Gem (Stalzo)",
           "target_type": "item",
+          "target_key": "item:quest - charged soul gem stalzo",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -59191,6 +59275,7 @@
           "description": "Turn in items to Aragath Swellsteer.",
           "target_name": "Aragath Swellsteer",
           "target_type": "character",
+          "target_key": "character:aragath swellsteer",
           "zone_name": "Stowaway's Step",
           "optional": false,
           "level_estimate": {
@@ -59324,6 +59409,7 @@
           "description": "Shout \"Azynthi\" near A Strange Hermit.",
           "target_name": "A Strange Hermit",
           "target_type": "character",
+          "target_key": "character:a strange hermit",
           "keyword": "Azynthi",
           "optional": false,
           "level_estimate": {
@@ -59384,6 +59470,7 @@
           "description": "Collect Bear Meat.",
           "target_name": "Bear Meat",
           "target_type": "item",
+          "target_key": "item:gen - bear meat",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -59438,6 +59525,7 @@
           "description": "Turn in items to Fredrick Templestone.",
           "target_name": "Fredrick Templestone",
           "target_type": "character",
+          "target_key": "character:fredrick templestone:azure:233.34:27.55:332.06",
           "zone_name": "Port Azure",
           "optional": false,
           "level_estimate": {
@@ -59634,6 +59722,7 @@
           "description": "Collect A Collection of Notes.",
           "target_name": "A Collection of Notes",
           "target_type": "item",
+          "target_key": "item:quest - bellwain collection",
           "quantity": 1,
           "optional": false
         },
@@ -59643,6 +59732,7 @@
           "description": "Turn in items to Captain Bellwain.",
           "target_name": "Captain Bellwain",
           "target_type": "character",
+          "target_key": "character:character_pirate_captain_01:summerevent:158.72:10.83:156.29",
           "zone_name": "Bellwain Island",
           "optional": false
         }
@@ -59707,6 +59797,7 @@
           "description": "Collect Braxonian Scripture (2).",
           "target_name": "Braxonian Scripture (2)",
           "target_type": "item",
+          "target_key": "item:gen - braxonian scripture",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -59736,6 +59827,7 @@
           "description": "Collect Braxonian Scripture (1).",
           "target_name": "Braxonian Scripture (1)",
           "target_type": "item",
+          "target_key": "item:gen - braxonian scripture 1",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -59765,6 +59857,7 @@
           "description": "Turn in items to Braxon Elden.",
           "target_name": "Braxon Elden",
           "target_type": "character",
+          "target_key": "character:braxon elden:braxonian:99.99:33.79:993.06",
           "zone_name": "Braxonian Desert",
           "optional": false,
           "level_estimate": {
@@ -59894,6 +59987,7 @@
           "description": "Collect Soul Gem (Leah).",
           "target_name": "Soul Gem (Leah)",
           "target_type": "item",
+          "target_key": "item:quest - soul gem leah",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -59913,6 +60007,7 @@
           "description": "Turn in items to Watchlight.",
           "target_name": "Watchlight",
           "target_type": "character",
+          "target_key": "character:a watchlight leah",
           "zone_name": "Stowaway's Step",
           "optional": false,
           "level_estimate": {
@@ -59991,6 +60086,7 @@
           "description": "Collect Soul Gem (Posta).",
           "target_name": "Soul Gem (Posta)",
           "target_type": "item",
+          "target_key": "item:quest - soul gem posta",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -60010,6 +60106,7 @@
           "description": "Turn in items to Watchlight.",
           "target_name": "Watchlight",
           "target_type": "character",
+          "target_key": "character:a watchlight posta",
           "zone_name": "Stowaway's Step",
           "optional": false,
           "level_estimate": {
@@ -60088,6 +60185,7 @@
           "description": "Collect Soul Gem (Revid).",
           "target_name": "Soul Gem (Revid)",
           "target_type": "item",
+          "target_key": "item:quest - soul gem revid",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -60107,6 +60205,7 @@
           "description": "Turn in items to Watchlight.",
           "target_name": "Watchlight",
           "target_type": "character",
+          "target_key": "character:a watchlight revid",
           "zone_name": "Stowaway's Step",
           "optional": false,
           "level_estimate": {
@@ -60185,6 +60284,7 @@
           "description": "Collect Soul Gem (Stalzo).",
           "target_name": "Soul Gem (Stalzo)",
           "target_type": "item",
+          "target_key": "item:quest - soul gem stalzo",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -60204,6 +60304,7 @@
           "description": "Turn in items to Watchlight.",
           "target_name": "Watchlight",
           "target_type": "character",
+          "target_key": "character:a watchlight stalzo",
           "zone_name": "Stowaway's Step",
           "optional": false,
           "level_estimate": {
@@ -60282,6 +60383,7 @@
           "description": "Collect Catnip.",
           "target_name": "Catnip",
           "target_type": "item",
+          "target_key": "item:gen - catnip",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -60301,6 +60403,7 @@
           "description": "Turn in items to Odd Statue.",
           "target_name": "Odd Statue",
           "target_type": "character",
+          "target_key": "character:an odd statue:ripperportal:325.57:1.33:739.40",
           "zone_name": "Mysterious Portal (3)",
           "optional": false,
           "level_estimate": {
@@ -60399,6 +60502,7 @@
           "description": "Collect Blue Burnstone.",
           "target_name": "Blue Burnstone",
           "target_type": "item",
+          "target_key": "item:gen - blue burnstone",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -60418,6 +60522,7 @@
           "description": "Turn in items to Lighthouse Flame.",
           "target_name": "Lighthouse Flame",
           "target_type": "character",
+          "target_key": "character:sm_prop_furnace_01:shiveringstep:804.54:20.19:592.50",
           "zone_name": "Shivering Step",
           "optional": false,
           "level_estimate": {
@@ -60565,6 +60670,7 @@
           "description": "Say \"demon\" to William Cardigo.",
           "target_name": "William Cardigo",
           "target_type": "character",
+          "target_key": "character:william cardigo",
           "optional": false,
           "level_estimate": {
             "recommended": 4,
@@ -60583,6 +60689,7 @@
           "description": "Collect Ritual Stone.",
           "target_name": "Ritual Stone",
           "target_type": "item",
+          "target_key": "item:gen - ritual stone",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -60602,6 +60709,7 @@
           "description": "Turn in items to William Cardigo.",
           "target_name": "William Cardigo",
           "target_type": "character",
+          "target_key": "character:william cardigo",
           "zone_name": "Willowwatch Ridge",
           "optional": false,
           "level_estimate": {
@@ -60802,6 +60910,7 @@
           "description": "Collect Loss Stone.",
           "target_name": "Loss Stone",
           "target_type": "item",
+          "target_key": "item:quest - loss stone",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -60821,6 +60930,7 @@
           "description": "Collect A Remnant of Sivakaya.",
           "target_name": "A Remnant of Sivakaya",
           "target_type": "item",
+          "target_key": "item:gen - a remnant of sivakya",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -60840,6 +60950,7 @@
           "description": "Collect Demented Brain.",
           "target_name": "Demented Brain",
           "target_type": "item",
+          "target_key": "item:gen - demented brain",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -60859,6 +60970,7 @@
           "description": "Collect Nightmare Crystal.",
           "target_name": "Nightmare Crystal",
           "target_type": "item",
+          "target_key": "item:gen - nightmare crystal",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -60878,6 +60990,7 @@
           "description": "Turn in items to Lucian Revald.",
           "target_name": "Lucian Revald",
           "target_type": "character",
+          "target_key": "character:lucian revald:stowaway:432.19:69.90:532.04",
           "zone_name": "Stowaway's Step",
           "optional": false,
           "level_estimate": {
@@ -61011,6 +61124,7 @@
           "description": "Collect Blueprint: Azynthian Dining.",
           "target_name": "Blueprint: Azynthian Dining",
           "target_type": "item",
+          "target_key": "item:furniture - azynthi dining blueprint",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -61075,6 +61189,7 @@
           "description": "Turn in items to Breena Carpenter.",
           "target_name": "Breena Carpenter",
           "target_type": "character",
+          "target_key": "character:breena carpenter",
           "zone_name": "Port Azure",
           "optional": false,
           "level_estimate": {
@@ -61237,6 +61352,7 @@
           "description": "Collect Blueprint: Azynthian Livingroom.",
           "target_name": "Blueprint: Azynthian Livingroom",
           "target_type": "item",
+          "target_key": "item:furniture - azynthi living blueprint",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -61301,6 +61417,7 @@
           "description": "Turn in items to Breena Carpenter.",
           "target_name": "Breena Carpenter",
           "target_type": "character",
+          "target_key": "character:breena carpenter",
           "zone_name": "Port Azure",
           "optional": false,
           "level_estimate": {
@@ -61463,6 +61580,7 @@
           "description": "Collect Blueprint: Azynthian Rest.",
           "target_name": "Blueprint: Azynthian Rest",
           "target_type": "item",
+          "target_key": "item:furniture - azynthi coffin blueprint",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -61527,6 +61645,7 @@
           "description": "Turn in items to Breena Carpenter.",
           "target_name": "Breena Carpenter",
           "target_type": "character",
+          "target_key": "character:breena carpenter",
           "zone_name": "Port Azure",
           "optional": false,
           "level_estimate": {
@@ -61689,6 +61808,7 @@
           "description": "Collect Blueprint: Game Room.",
           "target_name": "Blueprint: Game Room",
           "target_type": "item",
+          "target_key": "item:furniture - molorai game room blueprint",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -61713,6 +61833,7 @@
           "description": "Turn in items to Breena Carpenter.",
           "target_name": "Breena Carpenter",
           "target_type": "character",
+          "target_key": "character:breena carpenter",
           "zone_name": "Port Azure",
           "optional": false,
           "level_estimate": {
@@ -61833,6 +61954,7 @@
           "description": "Collect Blueprint: Loomingwood Market.",
           "target_name": "Blueprint: Loomingwood Market",
           "target_type": "item",
+          "target_key": "item:furniture - loomingwood marketplace blueprint",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -61912,6 +62034,7 @@
           "description": "Turn in items to Breena Carpenter.",
           "target_name": "Breena Carpenter",
           "target_type": "character",
+          "target_key": "character:breena carpenter",
           "zone_name": "Port Azure",
           "optional": false,
           "level_estimate": {
@@ -62095,6 +62218,7 @@
           "description": "Collect Blueprint: Loomingwood Shrine.",
           "target_name": "Blueprint: Loomingwood Shrine",
           "target_type": "item",
+          "target_key": "item:furniture - loomingwood shrine blueprint",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -62174,6 +62298,7 @@
           "description": "Turn in items to Breena Carpenter.",
           "target_name": "Breena Carpenter",
           "target_type": "character",
+          "target_key": "character:breena carpenter",
           "zone_name": "Port Azure",
           "optional": false,
           "level_estimate": {
@@ -62357,6 +62482,7 @@
           "description": "Collect Blueprint: Stone Auction.",
           "target_name": "Blueprint: Stone Auction",
           "target_type": "item",
+          "target_key": "item:furniture - stone auction blueprint",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -62406,6 +62532,7 @@
           "description": "Turn in items to Breena Carpenter.",
           "target_name": "Breena Carpenter",
           "target_type": "character",
+          "target_key": "character:breena carpenter",
           "zone_name": "Port Azure",
           "optional": false,
           "level_estimate": {
@@ -62547,6 +62674,7 @@
           "description": "Collect Blueprint: Stone Bank.",
           "target_name": "Blueprint: Stone Bank",
           "target_type": "item",
+          "target_key": "item:furniture - stone bank blueprint",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -62596,6 +62724,7 @@
           "description": "Turn in items to Breena Carpenter.",
           "target_name": "Breena Carpenter",
           "target_type": "character",
+          "target_key": "character:breena carpenter",
           "zone_name": "Port Azure",
           "optional": false,
           "level_estimate": {
@@ -62737,6 +62866,7 @@
           "description": "Collect Blueprint: Stone Dining.",
           "target_name": "Blueprint: Stone Dining",
           "target_type": "item",
+          "target_key": "item:furniture - stone dining blueprint",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -62786,6 +62916,7 @@
           "description": "Turn in items to Breena Carpenter.",
           "target_name": "Breena Carpenter",
           "target_type": "character",
+          "target_key": "character:breena carpenter",
           "zone_name": "Port Azure",
           "optional": false,
           "level_estimate": {
@@ -62927,6 +63058,7 @@
           "description": "Collect Blueprint: Stone Fountain.",
           "target_name": "Blueprint: Stone Fountain",
           "target_type": "item",
+          "target_key": "item:furniture - stone fountain blueprint",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -62976,6 +63108,7 @@
           "description": "Turn in items to Breena Carpenter.",
           "target_name": "Breena Carpenter",
           "target_type": "character",
+          "target_key": "character:breena carpenter",
           "zone_name": "Port Azure",
           "optional": false,
           "level_estimate": {
@@ -63117,6 +63250,7 @@
           "description": "Collect Blueprint: Stone Training Room.",
           "target_name": "Blueprint: Stone Training Room",
           "target_type": "item",
+          "target_key": "item:furniture - stone training blueprint",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -63161,6 +63295,7 @@
           "description": "Turn in items to Breena Carpenter.",
           "target_name": "Breena Carpenter",
           "target_type": "character",
+          "target_key": "character:breena carpenter",
           "zone_name": "Port Azure",
           "optional": false,
           "level_estimate": {
@@ -63295,6 +63430,7 @@
           "description": "Collect Blueprint: Stone Vendor.",
           "target_name": "Blueprint: Stone Vendor",
           "target_type": "item",
+          "target_key": "item:furniture - stone vendor blueprint",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -63339,6 +63475,7 @@
           "description": "Turn in items to Breena Carpenter.",
           "target_name": "Breena Carpenter",
           "target_type": "character",
+          "target_key": "character:breena carpenter",
           "zone_name": "Port Azure",
           "optional": false,
           "level_estimate": {
@@ -63481,6 +63618,7 @@
           "description": "Speak to Poacher.",
           "target_name": "Poacher",
           "target_type": "character",
+          "target_key": "character:poacher (1):rottenfoot:497.72:31.00:355.23",
           "optional": false,
           "level_estimate": {
             "recommended": 15,
@@ -63499,6 +63637,7 @@
           "description": "Collect Croc Tail.",
           "target_name": "Croc Tail",
           "target_type": "item",
+          "target_key": "item:gen - croc tail",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -63523,6 +63662,7 @@
           "description": "Turn in items to Poacher.",
           "target_name": "Poacher",
           "target_type": "character",
+          "target_key": "character:poacher (1):rottenfoot:497.72:31.00:355.23",
           "zone_name": "Rottenfoot",
           "optional": false,
           "level_estimate": {
@@ -63615,6 +63755,7 @@
           "description": "Say \"coin, Protect\" to Neziroth Daggerhart.",
           "target_name": "Neziroth Daggerhart",
           "target_type": "character",
+          "target_key": "character:neziroth daggerhart:stowaway:497.09:68.71:677.59",
           "optional": false,
           "level_estimate": {
             "recommended": 2,
@@ -63633,6 +63774,7 @@
           "description": "Collect Daggerhart Ancestral Coin.",
           "target_name": "Daggerhart Ancestral Coin",
           "target_type": "item",
+          "target_key": "item:gen - ancestral coin",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -63662,6 +63804,7 @@
           "description": "Turn in items to Neziroth Daggerhart.",
           "target_name": "Neziroth Daggerhart",
           "target_type": "character",
+          "target_key": "character:neziroth daggerhart:stowaway:497.09:68.71:677.59",
           "zone_name": "Stowaway's Step",
           "optional": false,
           "level_estimate": {
@@ -63771,6 +63914,7 @@
           "description": "Collect Captured Light.",
           "target_name": "Captured Light",
           "target_type": "item",
+          "target_key": "item:gen - shard of light",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -63790,6 +63934,7 @@
           "description": "Turn in items to Kio the Light Keeper.",
           "target_name": "Kio the Light Keeper",
           "target_type": "character",
+          "target_key": "character:kio the lightkeeper",
           "optional": false,
           "level_estimate": {
             "recommended": 2,
@@ -63884,6 +64029,7 @@
           "description": "Say \"soul, gem\" to Stalzo.",
           "target_name": "Stalzo",
           "target_type": "character",
+          "target_key": "character:stalzo",
           "optional": false,
           "level_estimate": {
             "recommended": 4,
@@ -63902,6 +64048,7 @@
           "description": "Collect Empty Soul Gem.",
           "target_name": "Empty Soul Gem",
           "target_type": "item",
+          "target_key": "item:quest - empty soul gem",
           "quantity": 1,
           "optional": false
         },
@@ -63911,6 +64058,7 @@
           "description": "Turn in items to Aragath Swellsteer.",
           "target_name": "Aragath Swellsteer",
           "target_type": "character",
+          "target_key": "character:aragath swellsteer",
           "zone_name": "Island Tomb",
           "optional": false,
           "level_estimate": {
@@ -64001,6 +64149,7 @@
           "description": "Say \"protected\" to Edgar Taether.",
           "target_name": "Edgar Taether",
           "target_type": "character",
+          "target_key": "character:edgar taether:silkengrass:1050.92:97.34:1006.71",
           "optional": false,
           "level_estimate": {
             "recommended": 18,
@@ -64019,6 +64168,7 @@
           "description": "Collect Sivakayan Axe.",
           "target_name": "Sivakayan Axe",
           "target_type": "item",
+          "target_key": "item:weap - 24 - sivakayan axe",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -64068,6 +64218,7 @@
           "description": "Turn in items to Edgar Taether.",
           "target_name": "Edgar Taether",
           "target_type": "character",
+          "target_key": "character:edgar taether:silkengrass:1050.92:97.34:1006.71",
           "zone_name": "Silkengrass Meadowlands",
           "optional": false,
           "level_estimate": {
@@ -64239,6 +64390,7 @@
           "description": "Say \"dispose\" to Varran Juctor.",
           "target_name": "Varran Juctor",
           "target_type": "character",
+          "target_key": "character:varran juctor",
           "optional": false,
           "level_estimate": {
             "recommended": 13,
@@ -64257,6 +64409,7 @@
           "description": "Collect Decayed Druid Beads.",
           "target_name": "Decayed Druid Beads",
           "target_type": "item",
+          "target_key": "item:gen - decayed druid beads",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -64326,6 +64479,7 @@
           "description": "Turn in items to Varran Juctor.",
           "target_name": "Varran Juctor",
           "target_type": "character",
+          "target_key": "character:varran juctor",
           "zone_name": "Fernalla's Revival Plains",
           "optional": false,
           "level_estimate": {
@@ -64514,6 +64668,7 @@
           "description": "Speak to Nylith Valorro.",
           "target_name": "Nylith Valorro",
           "target_type": "character",
+          "target_key": "character:nylith valorro",
           "optional": false,
           "level_estimate": {
             "recommended": 4,
@@ -64532,6 +64687,7 @@
           "description": "Collect Bag of Faerie Dust.",
           "target_name": "Bag of Faerie Dust",
           "target_type": "item",
+          "target_key": "item:gen - faerie dust",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -64576,6 +64732,7 @@
           "description": "Turn in items to Nylith Valorro.",
           "target_name": "Nylith Valorro",
           "target_type": "character",
+          "target_key": "character:nylith valorro",
           "zone_name": "Hidden Hills",
           "optional": false,
           "level_estimate": {
@@ -64709,6 +64866,7 @@
           "description": "Speak to The Hider.",
           "target_name": "The Hider",
           "target_type": "character",
+          "target_key": "character:the hider:shiveringstep:668.70:45.25:549.83",
           "optional": false,
           "level_estimate": {
             "recommended": 21,
@@ -64769,6 +64927,7 @@
           "description": "Collect Riftsnare Gem.",
           "target_name": "Riftsnare Gem",
           "target_type": "item",
+          "target_key": "item:gen -  riftsnare gem",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -64808,6 +64967,7 @@
           "description": "Turn in items to Flicker of Souls.",
           "target_name": "Flicker of Souls",
           "target_type": "character",
+          "target_key": "character:flickering souls",
           "zone_name": "Azynthi's Garden",
           "optional": false,
           "level_estimate": {
@@ -64921,6 +65081,7 @@
           "description": "Say \"prove\" to Benson Gamble.",
           "target_name": "Benson Gamble",
           "target_type": "character",
+          "target_key": "character:benson gamble",
           "optional": false,
           "level_estimate": {
             "recommended": 4,
@@ -64939,6 +65100,7 @@
           "description": "Collect Graveweed Leaf.",
           "target_name": "Graveweed Leaf",
           "target_type": "item",
+          "target_key": "item:gen - graveweed leaf",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -64968,6 +65130,7 @@
           "description": "Turn in items to Benson Gamble.",
           "target_name": "Benson Gamble",
           "target_type": "character",
+          "target_key": "character:benson gamble",
           "zone_name": "Hidden Hills",
           "optional": false,
           "level_estimate": {
@@ -65088,6 +65251,7 @@
           "description": "Say \"test\" to Windlae Oldseer.",
           "target_name": "Windlae Oldseer",
           "target_type": "character",
+          "target_key": "character:windlae oldseer",
           "optional": false,
           "level_estimate": {
             "recommended": 4,
@@ -65106,6 +65270,7 @@
           "description": "Collect Weathered Chain.",
           "target_name": "Weathered Chain",
           "target_type": "item",
+          "target_key": "item:gen - weathered chain",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -65125,6 +65290,7 @@
           "description": "Turn in items to Windlae Oldseer.",
           "target_name": "Windlae Oldseer",
           "target_type": "character",
+          "target_key": "character:windlae oldseer",
           "zone_name": "Hidden Hills",
           "optional": false,
           "level_estimate": {
@@ -65224,6 +65390,7 @@
           "description": "Say \"Ripper's, ripper's\" to Hadden Passican.",
           "target_name": "Hadden Passican",
           "target_type": "character",
+          "target_key": "character:hadden passican",
           "optional": false,
           "level_estimate": {
             "recommended": 13,
@@ -65242,6 +65409,7 @@
           "description": "Collect Box of Supplies.",
           "target_name": "Box of Supplies",
           "target_type": "item",
+          "target_key": "item:gen - box of supplies",
           "quantity": 1,
           "optional": false
         },
@@ -65251,6 +65419,7 @@
           "description": "Turn in items to Leena Halsted.",
           "target_name": "Leena Halsted",
           "target_type": "character",
+          "target_key": "character:leena halsted",
           "zone_name": "Fernalla's Revival Plains",
           "optional": false,
           "level_estimate": {
@@ -65353,6 +65522,7 @@
           "description": "Collect Leena's Receipt.",
           "target_name": "Leena's Receipt",
           "target_type": "item",
+          "target_key": "item:gen - leena's receipt",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -65372,6 +65542,7 @@
           "description": "Turn in items to Hadden Passican.",
           "target_name": "Hadden Passican",
           "target_type": "character",
+          "target_key": "character:hadden passican",
           "zone_name": "Fernalla's Revival Plains",
           "optional": false,
           "level_estimate": {
@@ -65475,6 +65646,7 @@
           "description": "Say \"registered\" to Corporal Slate.",
           "target_name": "Corporal Slate",
           "target_type": "character",
+          "target_key": "character:corporal smith",
           "optional": false,
           "level_estimate": {
             "recommended": 2,
@@ -65550,6 +65722,7 @@
           "description": "Say \"prisoners\" to Foreman Hauck.",
           "target_name": "Foreman Hauck",
           "target_type": "character",
+          "target_key": "character:foreman hauck",
           "optional": false,
           "level_estimate": {
             "recommended": 11,
@@ -65568,6 +65741,7 @@
           "description": "Collect Aged Interrogation Note.",
           "target_name": "Aged Interrogation Note",
           "target_type": "item",
+          "target_key": "item:gen - aged interrogation note",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -65587,6 +65761,7 @@
           "description": "Turn in items to Foreman Hauck.",
           "target_name": "Foreman Hauck",
           "target_type": "character",
+          "target_key": "character:foreman hauck",
           "zone_name": "Port Azure",
           "optional": false,
           "level_estimate": {
@@ -65682,6 +65857,7 @@
           "description": "Say \"Krakengard\" to Valrae Cleary.",
           "target_name": "Valrae Cleary",
           "target_type": "character",
+          "target_key": "character:valrae cleary",
           "optional": false,
           "level_estimate": {
             "recommended": 4,
@@ -65700,6 +65876,7 @@
           "description": "Collect Krakengard Bunk Key.",
           "target_name": "Krakengard Bunk Key",
           "target_type": "item",
+          "target_key": "item:key - krarkengard bunk key",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -65719,6 +65896,7 @@
           "description": "Collect Krakengard Tower Key.",
           "target_name": "Krakengard Tower Key",
           "target_type": "item",
+          "target_key": "item:key - krakengard tower key",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -65738,6 +65916,7 @@
           "description": "Turn in items to Valrae Cleary.",
           "target_name": "Valrae Cleary",
           "target_type": "character",
+          "target_key": "character:valrae cleary",
           "zone_name": "Faerie's Brake",
           "optional": false,
           "level_estimate": {
@@ -65889,6 +66068,7 @@
           "description": "Say \"problem\" to Corporal Slate.",
           "target_name": "Corporal Slate",
           "target_type": "character",
+          "target_key": "character:corporal smith",
           "optional": false,
           "level_estimate": {
             "recommended": 2,
@@ -65907,6 +66087,7 @@
           "description": "Collect Kio's Leave Order.",
           "target_name": "Kio's Leave Order",
           "target_type": "item",
+          "target_key": "item:gen - deportation papers",
           "quantity": 1,
           "optional": false
         },
@@ -65916,6 +66097,7 @@
           "description": "Turn in items to Kio the Light Keeper.",
           "target_name": "Kio the Light Keeper",
           "target_type": "character",
+          "target_key": "character:kio the lightkeeper",
           "zone_name": "Stowaway's Step",
           "optional": false,
           "level_estimate": {
@@ -66004,6 +66186,7 @@
           "description": "Obtain and read Note to Liam.",
           "target_name": "Note to Liam",
           "target_type": "item",
+          "target_key": "item:gen - note to liam",
           "optional": false,
           "level_estimate": {
             "recommended": 10,
@@ -66022,6 +66205,7 @@
           "description": "Collect Note to Liam.",
           "target_name": "Note to Liam",
           "target_type": "item",
+          "target_key": "item:gen - note to liam",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -66041,6 +66225,7 @@
           "description": "Turn in items to Liam Kilfa.",
           "target_name": "Liam Kilfa",
           "target_type": "character",
+          "target_key": "character:liam kilfa:duskenlight:364.21:65.34:343.17",
           "zone_name": "The Duskenlight Coast",
           "optional": false,
           "level_estimate": {
@@ -66142,6 +66327,7 @@
           "description": "Collect Unlit Nighthollow Candle.",
           "target_name": "Unlit Nighthollow Candle",
           "target_type": "item",
+          "target_key": "item:hand - 100 - the nighthollow candle 1",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -66161,6 +66347,7 @@
           "description": "Turn in items to Braxonian Flame Well.",
           "target_name": "Braxonian Flame Well",
           "target_type": "character",
+          "target_key": "character:flamewell:braxonia:86.83:59.42:593.95",
           "zone_name": "Fallen Braxonia",
           "optional": false,
           "level_estimate": {
@@ -66256,6 +66443,7 @@
           "description": "Collect Lost Faith.",
           "target_name": "Lost Faith",
           "target_type": "item",
+          "target_key": "item:gen - lost faith",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -66295,6 +66483,7 @@
           "description": "Turn in items to Stardust.",
           "target_name": "Stardust",
           "target_type": "character",
+          "target_key": "character:stardust",
           "zone_name": "Soluna's Landing",
           "optional": false,
           "level_estimate": {
@@ -66406,6 +66595,7 @@
           "description": "Collect An Octorunner.",
           "target_name": "An Octorunner",
           "target_type": "item",
+          "target_key": "item:fish - octorunner",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -66460,6 +66650,7 @@
           "description": "Collect A Frowny Clowny.",
           "target_name": "A Frowny Clowny",
           "target_type": "item",
+          "target_key": "item:fish - a frowny clowny",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -66544,6 +66735,7 @@
           "description": "Collect Azure Mead.",
           "target_name": "Azure Mead",
           "target_type": "item",
+          "target_key": "item:cons - azure mead",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -66583,6 +66775,7 @@
           "description": "Turn in items to Baking Oven.",
           "target_name": "Baking Oven",
           "target_type": "character",
+          "target_key": "character:baking oven:azure:275.88:26.08:231.25",
           "zone_name": "Port Azure",
           "optional": false,
           "level_estimate": {
@@ -66862,6 +67055,7 @@
           "description": "Say \"map\" to Prichard Zemoro.",
           "target_name": "Prichard Zemoro",
           "target_type": "character",
+          "target_key": "character:prichard zemora:azure:185.37:12.94:175.81",
           "optional": false,
           "level_estimate": {
             "recommended": 11,
@@ -66880,6 +67074,7 @@
           "description": "Collect Treasure Map.",
           "target_name": "Treasure Map",
           "target_type": "item",
+          "target_key": "item:gen - treasure map",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -66899,6 +67094,7 @@
           "description": "Collect Elixir of Enlightenment II.",
           "target_name": "Elixir of Enlightenment II",
           "target_type": "item",
+          "target_key": "item:cons - enlightening potion ii",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -66933,6 +67129,7 @@
           "description": "Turn in items to Prichard Zemoro.",
           "target_name": "Prichard Zemoro",
           "target_type": "character",
+          "target_key": "character:prichard zemora:azure:185.37:12.94:175.81",
           "zone_name": "Port Azure",
           "optional": false,
           "level_estimate": {
@@ -67056,6 +67253,7 @@
           "description": "Say \"Kilkay\" to Mavik Estonia.",
           "target_name": "Mavik Estonia",
           "target_type": "character",
+          "target_key": "character:mavik eston",
           "optional": false,
           "level_estimate": {
             "recommended": 18,
@@ -67074,6 +67272,7 @@
           "description": "Collect Mavik Easton's Note.",
           "target_name": "Mavik Easton's Note",
           "target_type": "item",
+          "target_key": "item:gen - ripper's note to azure",
           "quantity": 1,
           "optional": false
         },
@@ -67083,6 +67282,7 @@
           "description": "Turn in items to Captain Kilkay.",
           "target_name": "Captain Kilkay",
           "target_type": "character",
+          "target_key": "character:guard captain azure",
           "zone_name": "Silkengrass Meadowlands",
           "optional": false,
           "level_estimate": {
@@ -67183,6 +67383,7 @@
           "description": "Say \"taking\" to Bassle Wavebreaker.",
           "target_name": "Bassle Wavebreaker",
           "target_type": "character",
+          "target_key": "character:bassle wavebreak",
           "optional": false,
           "level_estimate": {
             "recommended": 14,
@@ -67242,6 +67443,7 @@
           "description": "Collect Faded Journal Entry.",
           "target_name": "Faded Journal Entry",
           "target_type": "item",
+          "target_key": "item:gen - faded journal (soluna)",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -67261,6 +67463,7 @@
           "description": "Turn in items to Valao the Holy.",
           "target_name": "Valao the Holy",
           "target_type": "character",
+          "target_key": "character:solunarian holy guard",
           "zone_name": "Soluna's Landing",
           "optional": false,
           "level_estimate": {
@@ -67355,6 +67558,7 @@
           "description": "Say \"catch\" to Shady Fisherman.",
           "target_name": "Shady Fisherman",
           "target_type": "character",
+          "target_key": "character:shady fisherman:azure:43.10:13.76:246.95",
           "optional": false,
           "level_estimate": {
             "recommended": 11,
@@ -67373,6 +67577,7 @@
           "description": "Collect 4x An Octorunner.",
           "target_name": "An Octorunner",
           "target_type": "item",
+          "target_key": "item:fish - octorunner",
           "quantity": 4,
           "optional": false,
           "level_estimate": {
@@ -67427,6 +67632,7 @@
           "description": "Turn in items to Shady Fisherman.",
           "target_name": "Shady Fisherman",
           "target_type": "character",
+          "target_key": "character:shady fisherman:azure:43.10:13.76:246.95",
           "zone_name": "Port Azure",
           "optional": false,
           "level_estimate": {
@@ -67554,6 +67760,7 @@
           "description": "Say \"Underspine\" to Valrae Cleary.",
           "target_name": "Valrae Cleary",
           "target_type": "character",
+          "target_key": "character:valrae cleary",
           "optional": false,
           "level_estimate": {
             "recommended": 4,
@@ -67572,6 +67779,7 @@
           "description": "Collect 4x Ogrespice Leaf.",
           "target_name": "Ogrespice Leaf",
           "target_type": "item",
+          "target_key": "item:gen - ogrespice leaf",
           "quantity": 4,
           "optional": false,
           "level_estimate": {
@@ -67626,6 +67834,7 @@
           "description": "Turn in items to Valrae Cleary.",
           "target_name": "Valrae Cleary",
           "target_type": "character",
+          "target_key": "character:valrae cleary",
           "zone_name": "Faerie's Brake",
           "optional": false,
           "level_estimate": {
@@ -67769,6 +67978,7 @@
           "description": "Obtain and read Scribbles of a Mad Priest.",
           "target_name": "Scribbles of a Mad Priest",
           "target_type": "item",
+          "target_key": "item:gen - scribbles of a mad priest",
           "optional": false,
           "level_estimate": {
             "recommended": 21,
@@ -67787,6 +67997,7 @@
           "description": "Collect Tempest Stone.",
           "target_name": "Tempest Stone",
           "target_type": "item",
+          "target_key": "item:gen - tempest stone",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -67806,6 +68017,7 @@
           "description": "Collect Scribbles of a Mad Priest.",
           "target_name": "Scribbles of a Mad Priest",
           "target_type": "item",
+          "target_key": "item:gen - scribbles of a mad priest",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -67825,6 +68037,7 @@
           "description": "Turn in items to Orion Mycon.",
           "target_name": "Orion Mycon",
           "target_type": "character",
+          "target_key": "character:orion mycon",
           "zone_name": "Port Azure",
           "optional": false,
           "level_estimate": {
@@ -67944,6 +68157,7 @@
           "description": "Collect A Rolled Note.",
           "target_name": "A Rolled Note",
           "target_type": "item",
+          "target_key": "item:gen - a rolled note",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -67963,6 +68177,7 @@
           "description": "Turn in items to Captain Genevieve Voldance.",
           "target_name": "Captain Genevieve Voldance",
           "target_type": "character",
+          "target_key": "character:captain genevieve voldance:stowaway:838.98:9.98:444.23",
           "zone_name": "Stowaway's Step",
           "optional": false,
           "level_estimate": {
@@ -68045,6 +68260,7 @@
           "description": "Collect Sivakayan Boat Pass.",
           "target_name": "Sivakayan Boat Pass",
           "target_type": "item",
+          "target_key": "item:gen - the boatman",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -68069,6 +68285,7 @@
           "description": "Turn in items to Boatman.",
           "target_name": "Boatman",
           "target_type": "character",
+          "target_key": "character:boatman",
           "zone_name": "The Blight",
           "optional": false,
           "level_estimate": {
@@ -68162,6 +68379,7 @@
           "description": "Say \"Do, Favor, What, Need\" to Percy Ildia.",
           "target_name": "Percy Ildia",
           "target_type": "character",
+          "target_key": "character:percy ildia:stowaway:693.19:20.67:504.85",
           "optional": false,
           "level_estimate": {
             "recommended": 2,
@@ -68180,6 +68398,7 @@
           "description": "Collect Seaspice.",
           "target_name": "Seaspice",
           "target_type": "item",
+          "target_key": "item:cons - seaspice",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -68314,6 +68533,7 @@
           "description": "Turn in items to Percy Ildia.",
           "target_name": "Percy Ildia",
           "target_type": "character",
+          "target_key": "character:percy ildia:stowaway:693.19:20.67:504.85",
           "zone_name": "Stowaway's Step",
           "optional": false,
           "level_estimate": {
@@ -68602,6 +68822,7 @@
           "description": "Collect Rune of The Hills.",
           "target_name": "Rune of The Hills",
           "target_type": "item",
+          "target_key": "item:gen - rune of the hills",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -68621,6 +68842,7 @@
           "description": "Turn in items to Hidden Hills Receptacle.",
           "target_name": "Hidden Hills Receptacle",
           "target_type": "character",
+          "target_key": "character:receptacle-hidden:reliquary:291.14:1.06:328.61",
           "zone_name": "Reliquary Hall",
           "optional": false,
           "level_estimate": {
@@ -68707,6 +68929,7 @@
           "description": "Collect Rune of Ripper's Keep.",
           "target_name": "Rune of Ripper's Keep",
           "target_type": "item",
+          "target_key": "item:gen - rune of ripper's keep",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -68726,6 +68949,7 @@
           "description": "Turn in items to Ripparian Receptacle.",
           "target_name": "Ripparian Receptacle",
           "target_type": "character",
+          "target_key": "character:receptacle-ripper:reliquary:258.39:1.06:328.61",
           "zone_name": "Reliquary Hall",
           "optional": false,
           "level_estimate": {
@@ -68804,6 +69028,7 @@
           "description": "Collect Rune of Sands.",
           "target_name": "Rune of Sands",
           "target_type": "item",
+          "target_key": "item:gen - rune of sands",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -68828,6 +69053,7 @@
           "description": "Turn in items to Braxonian Receptacle.",
           "target_name": "Braxonian Receptacle",
           "target_type": "character",
+          "target_key": "character:receptacle-sand:reliquary:291.14:1.06:367.86",
           "zone_name": "Reliquary Hall",
           "optional": false,
           "level_estimate": {
@@ -68919,6 +69145,7 @@
           "description": "Collect Rune of Silkengrass.",
           "target_name": "Rune of Silkengrass",
           "target_type": "item",
+          "target_key": "item:gen - rune of silkengrass",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -68943,6 +69170,7 @@
           "description": "Turn in items to Silkengrass Receptacle.",
           "target_name": "Silkengrass Receptacle",
           "target_type": "character",
+          "target_key": "character:receptacle-silken:reliquary:291.14:1.06:348.36",
           "zone_name": "Reliquary Hall",
           "optional": false,
           "level_estimate": {
@@ -69037,6 +69265,7 @@
           "description": "Collect Rune of Soluna's Landing.",
           "target_name": "Rune of Soluna's Landing",
           "target_type": "item",
+          "target_key": "item:gen - rune of soluna's landing",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -69056,6 +69285,7 @@
           "description": "Turn in items to Solunarian Receptacle.",
           "target_name": "Solunarian Receptacle",
           "target_type": "character",
+          "target_key": "character:receptacle-soluna:reliquary:258.39:1.06:367.86",
           "zone_name": "Reliquary Hall",
           "optional": false,
           "level_estimate": {
@@ -69142,6 +69372,7 @@
           "description": "Collect Rune of Winds.",
           "target_name": "Rune of Winds",
           "target_type": "item",
+          "target_key": "item:gen - rune of winds",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -69161,6 +69392,7 @@
           "description": "Turn in items to Windwashed Receptacle.",
           "target_name": "Windwashed Receptacle",
           "target_type": "character",
+          "target_key": "character:receptacle-wind:reliquary:258.39:1.06:348.36",
           "zone_name": "Reliquary Hall",
           "optional": false,
           "level_estimate": {
@@ -69247,6 +69479,7 @@
           "description": "Say \"presence\" to Freed Spirit of Raval.",
           "target_name": "Freed Spirit of Raval",
           "target_type": "character",
+          "target_key": "character:freed spirit of raval",
           "optional": false
         },
         {
@@ -69255,6 +69488,7 @@
           "description": "Collect Heart of Astra.",
           "target_name": "Heart of Astra",
           "target_type": "item",
+          "target_key": "item:gen - heart of astra",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -69274,6 +69508,7 @@
           "description": "Turn in items to Freed Spirit of Raval.",
           "target_name": "Freed Spirit of Raval",
           "target_type": "character",
+          "target_key": "character:freed spirit of raval",
           "optional": false
         }
       ],
@@ -69356,6 +69591,7 @@
           "description": "Say \"Nighthollow\" to Larviso Poltir.",
           "target_name": "Larviso Poltir",
           "target_type": "character",
+          "target_key": "character:larviso poltir:loomingwood:323.78:29.25:429.23",
           "optional": false,
           "level_estimate": {
             "recommended": 24,
@@ -69374,6 +69610,7 @@
           "description": "Collect Skull-Shaped Candleholder.",
           "target_name": "Skull-Shaped Candleholder",
           "target_type": "item",
+          "target_key": "item:gen - nighthollow base",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -69393,6 +69630,7 @@
           "description": "Collect Nighthollow Wax.",
           "target_name": "Nighthollow Wax",
           "target_type": "item",
+          "target_key": "item:gen - nighthollow wax",
           "quantity": 1,
           "optional": false
         },
@@ -69402,6 +69640,7 @@
           "description": "Collect Nighthollow Wick.",
           "target_name": "Nighthollow Wick",
           "target_type": "item",
+          "target_key": "item:gen - nighthollow wick",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -69421,6 +69660,7 @@
           "description": "Turn in items to Larviso Poltir.",
           "target_name": "Larviso Poltir",
           "target_type": "character",
+          "target_key": "character:larviso poltir:loomingwood:323.78:29.25:429.23",
           "zone_name": "Loomingwood Forest",
           "optional": false,
           "level_estimate": {
@@ -69559,6 +69799,7 @@
           "description": "Collect Unsocketed Ring.",
           "target_name": "Unsocketed Ring",
           "target_type": "item",
+          "target_key": "item:ring - 0 - unsocketed ring",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -69578,6 +69819,7 @@
           "description": "Turn in items to Parmalee Gemlyn.",
           "target_name": "Parmalee Gemlyn",
           "target_type": "character",
+          "target_key": "character:parmalee gemlyn",
           "zone_name": "Port Azure",
           "optional": false,
           "level_estimate": {
@@ -69698,6 +69940,7 @@
           "description": "Collect Unsocketed Ring.",
           "target_name": "Unsocketed Ring",
           "target_type": "item",
+          "target_key": "item:ring - 0 - unsocketed ring",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -69722,6 +69965,7 @@
           "description": "Collect Elderstone Shard.",
           "target_name": "Elderstone Shard",
           "target_type": "item",
+          "target_key": "item:gen - elderstone shard",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -69776,6 +70020,7 @@
           "description": "Collect Chunk of Citrine Sandsilver.",
           "target_name": "Chunk of Citrine Sandsilver",
           "target_type": "item",
+          "target_key": "item:ore - citrine sandsilver",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -69805,6 +70050,7 @@
           "description": "Turn in items to Parmalee Gemlyn.",
           "target_name": "Parmalee Gemlyn",
           "target_type": "character",
+          "target_key": "character:parmalee gemlyn",
           "zone_name": "Port Azure",
           "optional": false,
           "level_estimate": {
@@ -69991,6 +70237,7 @@
           "description": "Collect Torn Treasure Map (Bottom Left).",
           "target_name": "Torn Treasure Map (Bottom Left)",
           "target_type": "item",
+          "target_key": "item:gen - torn map bottom left",
           "quantity": 1,
           "optional": false
         },
@@ -70000,6 +70247,7 @@
           "description": "Collect Torn Treasure Map (Bottom Right).",
           "target_name": "Torn Treasure Map (Bottom Right)",
           "target_type": "item",
+          "target_key": "item:gen - torn map bottom right",
           "quantity": 1,
           "optional": false
         },
@@ -70009,6 +70257,7 @@
           "description": "Collect Torn Treasure Map (Top Left).",
           "target_name": "Torn Treasure Map (Top Left)",
           "target_type": "item",
+          "target_key": "item:gen - torn map top left",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -70028,6 +70277,7 @@
           "description": "Collect Torn Treasure Map (Top Right).",
           "target_name": "Torn Treasure Map (Top Right)",
           "target_type": "item",
+          "target_key": "item:gen - torn map top right",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -70047,6 +70297,7 @@
           "description": "Turn in items to Cecil Threbb.",
           "target_name": "Cecil Threbb",
           "target_type": "character",
+          "target_key": "character:cecil threbb",
           "zone_name": "Faerie's Brake",
           "optional": false,
           "level_estimate": {
@@ -70151,6 +70402,7 @@
           "description": "Collect Ripper Insignia Badge.",
           "target_name": "Ripper Insignia Badge",
           "target_type": "item",
+          "target_key": "item:gen  - ripper insignia ring",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -70205,6 +70457,7 @@
           "description": "Turn in items to Captain Kilkay.",
           "target_name": "Captain Kilkay",
           "target_type": "character",
+          "target_key": "character:guard captain azure",
           "zone_name": "Port Azure",
           "optional": false,
           "level_estimate": {
@@ -70357,6 +70610,7 @@
           "description": "Collect Sivakayan Encrypted Plans.",
           "target_name": "Sivakayan Encrypted Plans",
           "target_type": "item",
+          "target_key": "item:gen - sivakayan codex encryption",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -70376,6 +70630,7 @@
           "description": "Collect Sivakayan Codex 1 of 4.",
           "target_name": "Sivakayan Codex 1 of 4",
           "target_type": "item",
+          "target_key": "item:gen - sivakayan codex shard 1",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -70395,6 +70650,7 @@
           "description": "Collect Sivakayan Codex 2 of 4.",
           "target_name": "Sivakayan Codex 2 of 4",
           "target_type": "item",
+          "target_key": "item:gen - sivakayan codex shard 2",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -70414,6 +70670,7 @@
           "description": "Collect Sivakayan Codex 3 of 4.",
           "target_name": "Sivakayan Codex 3 of 4",
           "target_type": "item",
+          "target_key": "item:gen - sivakayan codex shard 3",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -70433,6 +70690,7 @@
           "description": "Collect Sivakayan Codex 4 of 4.",
           "target_name": "Sivakayan Codex 4 of 4",
           "target_type": "item",
+          "target_key": "item:gen - sivakayan codex shard 4",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -70452,6 +70710,7 @@
           "description": "Turn in items to Ripper DeMerth.",
           "target_name": "Ripper DeMerth",
           "target_type": "character",
+          "target_key": "character:ripper demerth",
           "zone_name": "Ripper's Keep",
           "optional": false,
           "level_estimate": {
@@ -70609,6 +70868,7 @@
           "description": "Collect Note from Eldoth.",
           "target_name": "Note from Eldoth",
           "target_type": "item",
+          "target_key": "item:gen - ilyth's note",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -70628,6 +70888,7 @@
           "description": "Turn in items to Ripper DeMerth.",
           "target_name": "Ripper DeMerth",
           "target_type": "character",
+          "target_key": "character:ripper demerth",
           "zone_name": "Ripper's Keep",
           "optional": false,
           "level_estimate": {
@@ -70729,6 +70990,7 @@
           "description": "Say \"work\" to Torado Zortia.",
           "target_name": "Torado Zortia",
           "target_type": "character",
+          "target_key": "character:torado  zortia",
           "optional": false,
           "level_estimate": {
             "recommended": 24,
@@ -70747,6 +71009,7 @@
           "description": "Collect Pink Pteriaped Feather.",
           "target_name": "Pink Pteriaped Feather",
           "target_type": "item",
+          "target_key": "item:gen - pink pteriaped feather",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -70776,6 +71039,7 @@
           "description": "Collect Devoratrix Thorn.",
           "target_name": "Devoratrix Thorn",
           "target_type": "item",
+          "target_key": "item:gen - devoratrix thorn",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -70795,6 +71059,7 @@
           "description": "Collect Intact Faerie Wing.",
           "target_name": "Intact Faerie Wing",
           "target_type": "item",
+          "target_key": "item:gen - faerie wing",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -70829,6 +71094,7 @@
           "description": "Turn in items to Torado Zortia.",
           "target_name": "Torado Zortia",
           "target_type": "character",
+          "target_key": "character:torado  zortia",
           "zone_name": "Loomingwood Forest",
           "optional": false,
           "level_estimate": {
@@ -70989,6 +71255,7 @@
           "description": "Say \"collector\" to Alitho Echeswer.",
           "target_name": "Alitho Echeswer",
           "target_type": "character",
+          "target_key": "character:alitho echeswer",
           "optional": false,
           "level_estimate": {
             "recommended": 11,
@@ -71007,6 +71274,7 @@
           "description": "Collect Rottenfoot Sash.",
           "target_name": "Rottenfoot Sash",
           "target_type": "item",
+          "target_key": "item:belt - 10 - rottenfoot sash",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -71036,6 +71304,7 @@
           "description": "Turn in items to Alitho Echeswer.",
           "target_name": "Alitho Echeswer",
           "target_type": "character",
+          "target_key": "character:alitho echeswer",
           "zone_name": "Port Azure",
           "optional": false,
           "level_estimate": {
@@ -71142,6 +71411,7 @@
           "description": "Say \"note\" to Samuel Thatcher.",
           "target_name": "Samuel Thatcher",
           "target_type": "character",
+          "target_key": "character:shopkeeper samuel",
           "optional": false,
           "level_estimate": {
             "recommended": 4,
@@ -71160,6 +71430,7 @@
           "description": "Collect Samuel's Note.",
           "target_name": "Samuel's Note",
           "target_type": "item",
+          "target_key": "item:gen - samuel's note",
           "quantity": 1,
           "optional": false
         },
@@ -71169,6 +71440,7 @@
           "description": "Turn in items to Harvey Alder.",
           "target_name": "Harvey Alder",
           "target_type": "character",
+          "target_key": "character:sm_chr_bartender_01:azure:154.85:34.07:255.20",
           "zone_name": "Hidden Hills",
           "optional": false,
           "level_estimate": {
@@ -71249,6 +71521,7 @@
           "description": "Collect Eye of Plaxitheris.",
           "target_name": "Eye of Plaxitheris",
           "target_type": "item",
+          "target_key": "item:gen - plaxitheris eye",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -71268,6 +71541,7 @@
           "description": "Turn in items to Occuphage, Eater of Eyes.",
           "target_name": "Occuphage, Eater of Eyes",
           "target_type": "character",
+          "target_key": "character:lighthouse demon:shiveringtomb2:-64.96:22.36:149.11",
           "zone_name": "Shivering Tomb (2)",
           "optional": false,
           "level_estimate": {
@@ -71363,6 +71637,7 @@
           "description": "Collect Ealdred's Journal.",
           "target_name": "Ealdred's Journal",
           "target_type": "item",
+          "target_key": "item:gen - ealdred's journal",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -71382,6 +71657,7 @@
           "description": "Turn in items to Captain Kilkay.",
           "target_name": "Captain Kilkay",
           "target_type": "character",
+          "target_key": "character:guard captain azure",
           "zone_name": "Port Azure",
           "optional": false,
           "level_estimate": {
@@ -71470,6 +71746,7 @@
           "description": "Read Guide to Sight.",
           "target_name": "Guide to Sight",
           "target_type": "item",
+          "target_key": "item:gen - how to see",
           "optional": false,
           "level_estimate": {
             "recommended": 21,
@@ -71553,6 +71830,7 @@
           "description": "Say \"shovel\" to Serra Stiles.",
           "target_name": "Serra Stiles",
           "target_type": "character",
+          "target_key": "character:serra stiles:elderstone:121.10:0.79:636.06",
           "optional": false,
           "level_estimate": {
             "recommended": 17,
@@ -71571,6 +71849,7 @@
           "description": "Collect Worn Shovel.",
           "target_name": "Worn Shovel",
           "target_type": "item",
+          "target_key": "item:gen - a worn shovel",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -71595,6 +71874,7 @@
           "description": "Turn in items to Serra Stiles.",
           "target_name": "Serra Stiles",
           "target_type": "character",
+          "target_key": "character:serra stiles:elderstone:121.10:0.79:636.06",
           "zone_name": "The Elderstone Mines",
           "optional": false,
           "level_estimate": {
@@ -71717,6 +71997,7 @@
           "description": "Collect Captured Light.",
           "target_name": "Captured Light",
           "target_type": "item",
+          "target_key": "item:gen - shard of light",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -71736,6 +72017,7 @@
           "description": "Turn in items to Founder.",
           "target_name": "Founder",
           "target_type": "character",
+          "target_key": "character:founder:shiveringstep:705.22:21.11:506.71",
           "zone_name": "Shivering Step",
           "optional": false,
           "level_estimate": {
@@ -71823,6 +72105,7 @@
           "description": "Obtain and read Sivakayan Intel.",
           "target_name": "Sivakayan Intel",
           "target_type": "item",
+          "target_key": "item:gen - sivakayan intel",
           "optional": false,
           "level_estimate": {
             "recommended": 29,
@@ -71841,6 +72124,7 @@
           "description": "Collect Sivakayan Intel.",
           "target_name": "Sivakayan Intel",
           "target_type": "item",
+          "target_key": "item:gen - sivakayan intel",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -71860,6 +72144,7 @@
           "description": "Turn in items to Captain Kilkay.",
           "target_name": "Captain Kilkay",
           "target_type": "character",
+          "target_key": "character:guard captain azure",
           "zone_name": "Port Azure",
           "optional": false,
           "level_estimate": {
@@ -71952,6 +72237,7 @@
           "description": "Collect Marching Orders.",
           "target_name": "Marching Orders",
           "target_type": "item",
+          "target_key": "item:gen - marching orders",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -71971,6 +72257,7 @@
           "description": "Turn in items to Captain Kilkay.",
           "target_name": "Captain Kilkay",
           "target_type": "character",
+          "target_key": "character:guard captain azure",
           "zone_name": "Port Azure",
           "optional": false,
           "level_estimate": {
@@ -72113,6 +72400,7 @@
           "description": "Say \"Sivakayans\" to Ripper DeMerth.",
           "target_name": "Ripper DeMerth",
           "target_type": "character",
+          "target_key": "character:ripper demerth",
           "optional": false,
           "level_estimate": {
             "recommended": 28,
@@ -72131,6 +72419,7 @@
           "description": "Collect Sivakayan Intel.",
           "target_name": "Sivakayan Intel",
           "target_type": "item",
+          "target_key": "item:gen - sivakayan intel",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -72150,6 +72439,7 @@
           "description": "Turn in items to Ripper DeMerth.",
           "target_name": "Ripper DeMerth",
           "target_type": "character",
+          "target_key": "character:ripper demerth",
           "zone_name": "Ripper's Keep",
           "optional": false,
           "level_estimate": {
@@ -72251,6 +72541,7 @@
           "description": "Say \"favor\" to Supply Sergeant Tipp.",
           "target_name": "Supply Sergeant Tipp",
           "target_type": "character",
+          "target_key": "character:supply sergeant tipp",
           "optional": false,
           "level_estimate": {
             "recommended": 11,
@@ -72269,6 +72560,7 @@
           "description": "Collect 4x Sivakayan Ore.",
           "target_name": "Sivakayan Ore",
           "target_type": "item",
+          "target_key": "item:ore - sivakayan ore",
           "quantity": 4,
           "optional": false,
           "level_estimate": {
@@ -72343,6 +72635,7 @@
           "description": "Turn in items to Supply Sergeant Tipp.",
           "target_name": "Supply Sergeant Tipp",
           "target_type": "character",
+          "target_key": "character:supply sergeant tipp",
           "zone_name": "Port Azure",
           "optional": false,
           "level_estimate": {
@@ -72600,6 +72893,7 @@
           "description": "Say \"Sivakayans\" to Captain Kilkay.",
           "target_name": "Captain Kilkay",
           "target_type": "character",
+          "target_key": "character:guard captain azure",
           "optional": false,
           "level_estimate": {
             "recommended": 11,
@@ -72618,6 +72912,7 @@
           "description": "Collect Sivakayan Encrypted Plans.",
           "target_name": "Sivakayan Encrypted Plans",
           "target_type": "item",
+          "target_key": "item:gen - sivakayan codex encryption",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -72637,6 +72932,7 @@
           "description": "Collect Sivakayan Codex 1 of 4.",
           "target_name": "Sivakayan Codex 1 of 4",
           "target_type": "item",
+          "target_key": "item:gen - sivakayan codex shard 1",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -72656,6 +72952,7 @@
           "description": "Collect Sivakayan Codex 2 of 4.",
           "target_name": "Sivakayan Codex 2 of 4",
           "target_type": "item",
+          "target_key": "item:gen - sivakayan codex shard 2",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -72675,6 +72972,7 @@
           "description": "Collect Sivakayan Codex 3 of 4.",
           "target_name": "Sivakayan Codex 3 of 4",
           "target_type": "item",
+          "target_key": "item:gen - sivakayan codex shard 3",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -72694,6 +72992,7 @@
           "description": "Collect Sivakayan Codex 4 of 4.",
           "target_name": "Sivakayan Codex 4 of 4",
           "target_type": "item",
+          "target_key": "item:gen - sivakayan codex shard 4",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -72713,6 +73012,7 @@
           "description": "Turn in items to Captain Kilkay.",
           "target_name": "Captain Kilkay",
           "target_type": "character",
+          "target_key": "character:guard captain azure",
           "zone_name": "Port Azure",
           "optional": false,
           "level_estimate": {
@@ -72871,6 +73171,7 @@
           "description": "Collect Note from Eldoth.",
           "target_name": "Note from Eldoth",
           "target_type": "item",
+          "target_key": "item:gen - ilyth's note",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -72890,6 +73191,7 @@
           "description": "Turn in items to Captain Kilkay.",
           "target_name": "Captain Kilkay",
           "target_type": "character",
+          "target_key": "character:guard captain azure",
           "zone_name": "Port Azure",
           "optional": false,
           "level_estimate": {
@@ -73039,6 +73341,7 @@
           "description": "Collect Stolen Memories.",
           "target_name": "Stolen Memories",
           "target_type": "item",
+          "target_key": "item:gen - stolen memories",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -73058,6 +73361,7 @@
           "description": "Turn in items to Apostalo Ostagla.",
           "target_name": "Apostalo Ostagla",
           "target_type": "character",
+          "target_key": "character:apostalo ostagla:azynthi:733.75:94.12:494.53",
           "zone_name": "Azynthi's Garden (Dimensional Rift)",
           "optional": false,
           "level_estimate": {
@@ -73178,6 +73482,7 @@
           "description": "Read Awaken the Angel.",
           "target_name": "Awaken the Angel",
           "target_type": "item",
+          "target_key": "item:gen - awaken the angel",
           "optional": false,
           "level_estimate": {
             "recommended": 24,
@@ -73261,6 +73566,7 @@
           "description": "Speak to Customs Guard.",
           "target_name": "Customs Guard",
           "target_type": "character",
+          "target_key": "character:island guard customs",
           "optional": false,
           "level_estimate": {
             "recommended": 2,
@@ -73279,6 +73585,7 @@
           "description": "Collect Dock Pass.",
           "target_name": "Dock Pass",
           "target_type": "item",
+          "target_key": "item:gen  - stowaway dock pass",
           "quantity": 1,
           "optional": false
         },
@@ -73288,6 +73595,7 @@
           "description": "Turn in items to Controller Wendyl.",
           "target_name": "Controller Wendyl",
           "target_type": "character",
+          "target_key": "character:controller wendyl",
           "zone_name": "Stowaway's Step",
           "optional": false,
           "level_estimate": {
@@ -73383,6 +73691,7 @@
           "description": "Travel to Hidden Hills.",
           "target_name": "Hidden Hills",
           "target_type": "zone",
+          "target_key": "zone:hidden",
           "zone_name": "Hidden Hills",
           "optional": false,
           "level_estimate": {
@@ -73451,6 +73760,7 @@
           "description": "Say \"convenient\" to Ta'Dah, Sorcerer of Ripper.",
           "target_name": "Ta'Dah, Sorcerer of Ripper",
           "target_type": "character",
+          "target_key": "character:ripparian high sorcerer",
           "optional": false,
           "level_estimate": {
             "recommended": 28,
@@ -73469,6 +73779,7 @@
           "description": "Collect 3x Intact Fungal Cap.",
           "target_name": "Intact Fungal Cap",
           "target_type": "item",
+          "target_key": "item:gen - intact fungal cap",
           "quantity": 3,
           "optional": false,
           "level_estimate": {
@@ -73493,6 +73804,7 @@
           "description": "Turn in items to Ta'Dah, Sorcerer of Ripper.",
           "target_name": "Ta'Dah, Sorcerer of Ripper",
           "target_type": "character",
+          "target_key": "character:ripparian high sorcerer",
           "zone_name": "Ripper's Keep",
           "optional": false,
           "level_estimate": {
@@ -73598,6 +73910,7 @@
           "description": "Collect Siva-Braxon Teachings (1).",
           "target_name": "Siva-Braxon Teachings (1)",
           "target_type": "item",
+          "target_key": "item:gen - siva-braxon teachings",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -73622,6 +73935,7 @@
           "description": "Collect Siva-Braxon Teachings (2).",
           "target_name": "Siva-Braxon Teachings (2)",
           "target_type": "item",
+          "target_key": "item:gen - siva-braxon teachings 1",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -73646,6 +73960,7 @@
           "description": "Collect Siva-Braxon Teachings (3).",
           "target_name": "Siva-Braxon Teachings (3)",
           "target_type": "item",
+          "target_key": "item:gen - siva-braxon teachings 2",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -73670,6 +73985,7 @@
           "description": "Turn in items to Braxon Michaen.",
           "target_name": "Braxon Michaen",
           "target_type": "character",
+          "target_key": "character:braxon michaen",
           "zone_name": "The Duskenlight Coast",
           "optional": false,
           "level_estimate": {
@@ -73896,6 +74212,7 @@
           "description": "Collect Angler's Ring.",
           "target_name": "Angler's Ring",
           "target_type": "item",
+          "target_key": "item:ring - 6 - angler's ring",
           "quantity": 1,
           "optional": false
         },
@@ -73905,6 +74222,7 @@
           "description": "Turn in items to Liani Bosh.",
           "target_name": "Liani Bosh",
           "target_type": "character",
+          "target_key": "character:liani bosh:azure:135.62:31.82:303.95",
           "zone_name": "Port Azure",
           "optional": false,
           "level_estimate": {
@@ -73993,6 +74311,7 @@
           "description": "Speak to Bridgekeeper.",
           "target_name": "Bridgekeeper",
           "target_type": "character",
+          "target_key": "character:watchman:shiveringstep:508.96:68.49:659.72",
           "optional": false,
           "level_estimate": {
             "recommended": 21,
@@ -74051,6 +74370,7 @@
           "description": "Speak to Curator.",
           "target_name": "Curator",
           "target_type": "character",
+          "target_key": "character:curator:shiveringstep:781.37:34.52:653.28",
           "optional": false,
           "level_estimate": {
             "recommended": 21,
@@ -74117,6 +74437,7 @@
           "description": "Obtain and read Dark Flame Recipe.",
           "target_name": "Dark Flame Recipe",
           "target_type": "item",
+          "target_key": "item:gen - rekindling the flame 2",
           "optional": false,
           "level_estimate": {
             "recommended": 30,
@@ -74145,6 +74466,7 @@
           "description": "Collect Blightwood Slab.",
           "target_name": "Blightwood Slab",
           "target_type": "item",
+          "target_key": "item:gen - blightwood",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -74174,6 +74496,7 @@
           "description": "Collect 2x Blight Crystals.",
           "target_name": "Blight Crystals",
           "target_type": "item",
+          "target_key": "item:gen - blightsand",
           "quantity": 2,
           "optional": false,
           "level_estimate": {
@@ -74253,6 +74576,7 @@
           "description": "Collect Spark of the First Flame.",
           "target_name": "Spark of the First Flame",
           "target_type": "item",
+          "target_key": "item:gen - spark of the first flame",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -74287,6 +74611,7 @@
           "description": "Collect Dark Flame Recipe.",
           "target_name": "Dark Flame Recipe",
           "target_type": "item",
+          "target_key": "item:gen - rekindling the flame 2",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -74316,6 +74641,7 @@
           "description": "Turn in items to Dark Flame Brazier.",
           "target_name": "Dark Flame Brazier",
           "target_type": "character",
+          "target_key": "character:sm_prop_brazier_01 (1):vitheosend:329.05:0.52:105.67",
           "zone_name": "Vitheo's Rest",
           "optional": false,
           "level_estimate": {
@@ -74582,6 +74908,7 @@
           "description": "Obtain and read The Duskenlight Ritual.",
           "target_name": "The Duskenlight Ritual",
           "target_type": "item",
+          "target_key": "item:gen - the duskenlight ritual",
           "optional": false,
           "level_estimate": {
             "recommended": 14,
@@ -74600,6 +74927,7 @@
           "description": "Collect Elderstone Shard.",
           "target_name": "Elderstone Shard",
           "target_type": "item",
+          "target_key": "item:gen - elderstone shard",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -74654,6 +74982,7 @@
           "description": "Collect Ancient Coal.",
           "target_name": "Ancient Coal",
           "target_type": "item",
+          "target_key": "item:ore - ancient coal",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -74733,6 +75062,7 @@
           "description": "Collect Wolf Meat.",
           "target_name": "Wolf Meat",
           "target_type": "item",
+          "target_key": "item:gen - wolf meat",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -74802,6 +75132,7 @@
           "description": "Collect Pristine Grass Spider Carapace.",
           "target_name": "Pristine Grass Spider Carapace",
           "target_type": "item",
+          "target_key": "item:gen - pristine grass spider carapace",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -74826,6 +75157,7 @@
           "description": "Collect The Duskenlight Ritual.",
           "target_name": "The Duskenlight Ritual",
           "target_type": "item",
+          "target_key": "item:gen - the duskenlight ritual",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -74845,6 +75177,7 @@
           "description": "Turn in items to Ceremonial Brazier.",
           "target_name": "Ceremonial Brazier",
           "target_type": "character",
+          "target_key": "character:sm_prop_brazier_01 (1):duskenlight:485.82:65.42:397.38",
           "zone_name": "The Duskenlight Coast",
           "optional": false,
           "level_estimate": {
@@ -75299,6 +75632,7 @@
           "description": "Collect Eldrich Crystal.",
           "target_name": "Eldrich Crystal",
           "target_type": "item",
+          "target_key": "item:gen - eldrich crystal",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -75318,6 +75652,7 @@
           "description": "Turn in items to Braxon Elden.",
           "target_name": "Braxon Elden",
           "target_type": "character",
+          "target_key": "character:braxon elden:braxonian:99.99:33.79:993.06",
           "zone_name": "Braxonian Desert",
           "optional": false,
           "level_estimate": {
@@ -75408,6 +75743,7 @@
           "description": "Speak to Gatekeeper.",
           "target_name": "Gatekeeper",
           "target_type": "character",
+          "target_key": "character:gatekeeper:shiveringstep:672.15:29.53:421.14",
           "optional": false,
           "level_estimate": {
             "recommended": 21,
@@ -75466,6 +75802,7 @@
           "description": "Speak to A Memory of Sivakaya.",
           "target_name": "A Memory of Sivakaya",
           "target_type": "character",
+          "target_key": "character:memorystatue (1):jaws:1183.73:0.87:235.21",
           "optional": false,
           "level_estimate": {
             "recommended": 34,
@@ -75524,6 +75861,7 @@
           "description": "Speak to Harbinger.",
           "target_name": "Harbinger",
           "target_type": "character",
+          "target_key": "character:harbinger:shiveringstep:211.32:53.00:344.33",
           "optional": false,
           "level_estimate": {
             "recommended": 21,
@@ -75591,6 +75929,7 @@
           "description": "Say \"tomb\" to Timothy Allorn.",
           "target_name": "Timothy Allorn",
           "target_type": "character",
+          "target_key": "character:timothy allorn:stowaway:545.20:72.09:442.80",
           "optional": false,
           "level_estimate": {
             "recommended": 2,
@@ -75609,6 +75948,7 @@
           "description": "Travel to Shivering Tomb (2).",
           "target_name": "Shivering Tomb (2)",
           "target_type": "zone",
+          "target_key": "zone:shiveringtomb2",
           "zone_name": "Shivering Tomb (2)",
           "optional": false,
           "level_estimate": {
@@ -75628,6 +75968,7 @@
           "description": "Travel to Island Tomb.",
           "target_name": "Island Tomb",
           "target_type": "zone",
+          "target_key": "zone:tutorial",
           "zone_name": "Island Tomb",
           "optional": false,
           "level_estimate": {
@@ -75701,6 +76042,7 @@
           "description": "Obtain and read Life Flame Recipe.",
           "target_name": "Life Flame Recipe",
           "target_type": "item",
+          "target_key": "item:gen - rekindling the flame 3",
           "optional": false,
           "level_estimate": {
             "recommended": 30,
@@ -75729,6 +76071,7 @@
           "description": "Collect Loomingwood Branch.",
           "target_name": "Loomingwood Branch",
           "target_type": "item",
+          "target_key": "item:gen - loomingwood branch",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -75768,6 +76111,7 @@
           "description": "Collect Essence of Nature.",
           "target_name": "Essence of Nature",
           "target_type": "item",
+          "target_key": "item:gen - essence of nature",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -75812,6 +76156,7 @@
           "description": "Collect Gift of Fernalla.",
           "target_name": "Gift of Fernalla",
           "target_type": "item",
+          "target_key": "item:gen - gift of fernalla",
           "quantity": 1,
           "optional": false
         },
@@ -75821,6 +76166,7 @@
           "description": "Collect Droplet of the First Frost.",
           "target_name": "Droplet of the First Frost",
           "target_type": "item",
+          "target_key": "item:gen - droplet of the first frost",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -75840,6 +76186,7 @@
           "description": "Collect Life Flame Recipe.",
           "target_name": "Life Flame Recipe",
           "target_type": "item",
+          "target_key": "item:gen - rekindling the flame 3",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -75869,6 +76216,7 @@
           "description": "Turn in items to Lifeflame Brazier.",
           "target_name": "Lifeflame Brazier",
           "target_type": "character",
+          "target_key": "character:sm_prop_brazier_01:vitheosend:246.80:0.52:101.17",
           "zone_name": "Vitheo's Rest",
           "optional": false,
           "level_estimate": {
@@ -76096,6 +76444,7 @@
           "description": "Say \"sivakaya, Sivakaya\" to Arcane Headmaster.",
           "target_name": "Arcane Headmaster",
           "target_type": "character",
+          "target_key": "character:arcane headmaster",
           "optional": false,
           "level_estimate": {
             "recommended": 14,
@@ -76114,6 +76463,7 @@
           "description": "Collect Loss Stone.",
           "target_name": "Loss Stone",
           "target_type": "item",
+          "target_key": "item:quest - loss stone",
           "quantity": 1,
           "optional": false
         },
@@ -76123,6 +76473,7 @@
           "description": "Turn in items to Larviso Poltir.",
           "target_name": "Larviso Poltir",
           "target_type": "character",
+          "target_key": "character:larviso poltir:loomingwood:323.78:29.25:429.23",
           "zone_name": "The Duskenlight Coast",
           "optional": false,
           "level_estimate": {
@@ -76287,6 +76638,7 @@
           "description": "Collect Pg. 1: Faded Entry.",
           "target_name": "Pg. 1: Faded Entry",
           "target_type": "item",
+          "target_key": "item:gen - treasure hunter pg 1 (bonepits)",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -76306,6 +76658,7 @@
           "description": "Collect Pg. 2: Faded Entry.",
           "target_name": "Pg. 2: Faded Entry",
           "target_type": "item",
+          "target_key": "item:gen - treasure hunter pg 2 (krakengard)",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -76325,6 +76678,7 @@
           "description": "Collect Pg. 3: Faded Entry.",
           "target_name": "Pg. 3: Faded Entry",
           "target_type": "item",
+          "target_key": "item:gen - treasure hunter pg 3 (underspine)",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -76344,6 +76698,7 @@
           "description": "Collect Pg. 4: Faded Entry.",
           "target_name": "Pg. 4: Faded Entry",
           "target_type": "item",
+          "target_key": "item:gen - treasure hunter pg 4 (undercity)",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -76363,6 +76718,7 @@
           "description": "Collect Pg. 5: Faded Entry.",
           "target_name": "Pg. 5: Faded Entry",
           "target_type": "item",
+          "target_key": "item:gen - treasure hunter pg 5 (elderstone)",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -76382,6 +76738,7 @@
           "description": "Collect Pg. 6: Faded Entry.",
           "target_name": "Pg. 6: Faded Entry",
           "target_type": "item",
+          "target_key": "item:gen - treasure hunter pg 6 (rockshade)",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -76401,6 +76758,7 @@
           "description": "Collect Pg. 7: Faded Entry.",
           "target_name": "Pg. 7: Faded Entry",
           "target_type": "item",
+          "target_key": "item:gen - treasure hunter pg 7 (abyssal)",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -76420,6 +76778,7 @@
           "description": "Turn in items to Lost Soul.",
           "target_name": "Lost Soul",
           "target_type": "character",
+          "target_key": "character:lost soul",
           "zone_name": "Malaroth's Nesting Grounds",
           "optional": false,
           "level_estimate": {
@@ -76621,6 +76980,7 @@
           "description": "Collect Treasure Hunter's Pin.",
           "target_name": "Treasure Hunter's Pin",
           "target_type": "item",
+          "target_key": "item:gen - treasure hunter's pin",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -76640,6 +77000,7 @@
           "description": "Turn in items to Julie Xargate.",
           "target_name": "Julie Xargate",
           "target_type": "character",
+          "target_key": "character:julie xargate",
           "zone_name": "Port Azure",
           "optional": false,
           "level_estimate": {
@@ -76791,6 +77152,7 @@
           "description": "Collect Bread.",
           "target_name": "Bread",
           "target_type": "item",
+          "target_key": "item:cons - bread",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -77015,6 +77377,7 @@
           "description": "Turn in items to Shady Fisherman.",
           "target_name": "Shady Fisherman",
           "target_type": "character",
+          "target_key": "character:shady fisherman:azure:43.10:13.76:246.95",
           "zone_name": "Port Azure",
           "optional": false,
           "level_estimate": {
@@ -77472,6 +77835,7 @@
           "description": "Say \"Bellwain, tale, tell\" to Shady Fisherman.",
           "target_name": "Shady Fisherman",
           "target_type": "character",
+          "target_key": "character:shady fisherman:azure:43.10:13.76:246.95",
           "optional": false,
           "level_estimate": {
             "recommended": 11,
@@ -77547,6 +77911,7 @@
           "description": "Obtain and read The Mathers Note.",
           "target_name": "The Mathers Note",
           "target_type": "item",
+          "target_key": "item:gen - the mathers note",
           "optional": false,
           "level_estimate": {
             "recommended": 18,
@@ -77565,6 +77930,7 @@
           "description": "Collect The Mathers Note.",
           "target_name": "The Mathers Note",
           "target_type": "item",
+          "target_key": "item:gen - the mathers note",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -77584,6 +77950,7 @@
           "description": "Turn in items to Yarren Mathers.",
           "target_name": "Yarren Mathers",
           "target_type": "character",
+          "target_key": "character:yarren mathers",
           "zone_name": "Vitheo's Watch",
           "optional": false,
           "level_estimate": {
@@ -77687,6 +78054,7 @@
           "description": "Collect Chapters of Descent, Passage 1.",
           "target_name": "Chapters of Descent, Passage 1",
           "target_type": "item",
+          "target_key": "item:gen - cod - pg 1",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -77711,6 +78079,7 @@
           "description": "Collect Chapters of Descent, Passage 2.",
           "target_name": "Chapters of Descent, Passage 2",
           "target_type": "item",
+          "target_key": "item:gen - cod - pg 2",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -77735,6 +78104,7 @@
           "description": "Collect Chapters of Descent, Passage 3.",
           "target_name": "Chapters of Descent, Passage 3",
           "target_type": "item",
+          "target_key": "item:gen - cod - pg 3",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -77754,6 +78124,7 @@
           "description": "Collect Chapters of Descent, Passage 4.",
           "target_name": "Chapters of Descent, Passage 4",
           "target_type": "item",
+          "target_key": "item:gen - cod - pg 4",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -77778,6 +78149,7 @@
           "description": "Turn in items to Yarren Mathers.",
           "target_name": "Yarren Mathers",
           "target_type": "character",
+          "target_key": "character:yarren mathers",
           "zone_name": "Vitheo's Watch",
           "optional": false,
           "level_estimate": {
@@ -77950,6 +78322,7 @@
           "description": "Collect Chapters of Descent, Passage 5.",
           "target_name": "Chapters of Descent, Passage 5",
           "target_type": "item",
+          "target_key": "item:gen - cod - pg 5",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -77994,6 +78367,7 @@
           "description": "Collect Chapters of Descent, Passage 6.",
           "target_name": "Chapters of Descent, Passage 6",
           "target_type": "item",
+          "target_key": "item:gen - cod - pg 6",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -78038,6 +78412,7 @@
           "description": "Collect Chapters of Descent, Passage 7.",
           "target_name": "Chapters of Descent, Passage 7",
           "target_type": "item",
+          "target_key": "item:gen - cod - pg 7",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -78082,6 +78457,7 @@
           "description": "Collect Chapters of Descent, Passage 8.",
           "target_name": "Chapters of Descent, Passage 8",
           "target_type": "item",
+          "target_key": "item:gen - cod - pg 8",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -78126,6 +78502,7 @@
           "description": "Turn in items to Yarren Mathers.",
           "target_name": "Yarren Mathers",
           "target_type": "character",
+          "target_key": "character:yarren mathers",
           "zone_name": "Vitheo's Watch",
           "optional": false,
           "level_estimate": {
@@ -78397,6 +78774,7 @@
           "description": "Collect A Collection of Notes.",
           "target_name": "A Collection of Notes",
           "target_type": "item",
+          "target_key": "item:quest - bellwain collection",
           "quantity": 1,
           "optional": false
         },
@@ -78406,6 +78784,7 @@
           "description": "Turn in items to Bellsie Belwain.",
           "target_name": "Bellsie Belwain",
           "target_type": "character",
+          "target_key": "character:character_governors_daughter_01:summerevent:158.88:10.83:157.97",
           "zone_name": "Bellwain Island",
           "optional": false
         }
@@ -78471,6 +78850,7 @@
           "description": "Collect Island Fin.",
           "target_name": "Island Fin",
           "target_type": "item",
+          "target_key": "item:fish - island fin",
           "quantity": 1,
           "optional": false
         },
@@ -78480,6 +78860,7 @@
           "description": "Collect Bread.",
           "target_name": "Bread",
           "target_type": "item",
+          "target_key": "item:cons - bread",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -78704,6 +79085,7 @@
           "description": "Collect Brackfruit Juice.",
           "target_name": "Brackfruit Juice",
           "target_type": "item",
+          "target_key": "item:cons - brackfruit juice",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -78778,6 +79160,7 @@
           "description": "Collect Coal.",
           "target_name": "Coal",
           "target_type": "item",
+          "target_key": "item:ore - coal",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -78827,6 +79210,7 @@
           "description": "Turn in items to Baking Oven.",
           "target_name": "Baking Oven",
           "target_type": "character",
+          "target_key": "character:baking oven:azure:275.88:26.08:231.25",
           "zone_name": "Port Azure",
           "optional": false,
           "level_estimate": {
@@ -79449,6 +79833,7 @@
           "description": "Say \"north\" to Jazmyn Challa.",
           "target_name": "Jazmyn Challa",
           "target_type": "character",
+          "target_key": "character:jazmyn challa",
           "optional": false,
           "level_estimate": {
             "recommended": 11,
@@ -79467,6 +79852,7 @@
           "description": "Collect Wardens of the North.",
           "target_name": "Wardens of the North",
           "target_type": "item",
+          "target_key": "item:book - wardens of the north",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -79501,6 +79887,7 @@
           "description": "Turn in items to Jazmyn Challa.",
           "target_name": "Jazmyn Challa",
           "target_type": "character",
+          "target_key": "character:jazmyn challa",
           "zone_name": "Port Azure",
           "optional": false,
           "level_estimate": {
@@ -79617,6 +80004,7 @@
           "description": "Obtain and read The Fernallan Ritual.",
           "target_name": "The Fernallan Ritual",
           "target_type": "item",
+          "target_key": "item:gen - the fernallan ritual",
           "optional": false,
           "level_estimate": {
             "recommended": 15,
@@ -79635,6 +80023,7 @@
           "description": "Collect Bag of Faerie Dust.",
           "target_name": "Bag of Faerie Dust",
           "target_type": "item",
+          "target_key": "item:gen - faerie dust",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -79679,6 +80068,7 @@
           "description": "Collect Ancient Coal.",
           "target_name": "Ancient Coal",
           "target_type": "item",
+          "target_key": "item:ore - ancient coal",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -79758,6 +80148,7 @@
           "description": "Collect Remnants of a Daydream.",
           "target_name": "Remnants of a Daydream",
           "target_type": "item",
+          "target_key": "item:gen - remnants of a daydream",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -79817,6 +80208,7 @@
           "description": "Collect Remnants of a Nightmare.",
           "target_name": "Remnants of a Nightmare",
           "target_type": "item",
+          "target_key": "item:gen - remnants of a nightmare",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -79876,6 +80268,7 @@
           "description": "Collect The Fernallan Ritual.",
           "target_name": "The Fernallan Ritual",
           "target_type": "item",
+          "target_key": "item:gen - the fernallan ritual",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -79895,6 +80288,7 @@
           "description": "Turn in items to Ceremonial Brazier.",
           "target_name": "Ceremonial Brazier",
           "target_type": "character",
+          "target_key": "character:sm_prop_brazier_01 (1):fernallafield:119.30:31.99:422.96",
           "zone_name": "Fernalla's Revival Plains",
           "optional": false,
           "level_estimate": {
@@ -80328,6 +80722,7 @@
           "description": "Say \"Umbran, umbran\" to A Strange Hermit.",
           "target_name": "A Strange Hermit",
           "target_type": "character",
+          "target_key": "character:a strange hermit",
           "optional": false,
           "level_estimate": {
             "recommended": 30,
@@ -80346,6 +80741,7 @@
           "description": "Travel to Azynthi's Garden (Dimensional Rift).",
           "target_name": "Azynthi's Garden (Dimensional Rift)",
           "target_type": "zone",
+          "target_key": "zone:azynthi",
           "zone_name": "Azynthi's Garden (Dimensional Rift)",
           "optional": false,
           "level_estimate": {
@@ -80414,6 +80810,7 @@
           "description": "Obtain and read Unborn Phobia.",
           "target_name": "Unborn Phobia",
           "target_type": "item",
+          "target_key": "item:gen - unborn phobia",
           "optional": false,
           "level_estimate": {
             "recommended": 8,
@@ -80437,6 +80834,7 @@
           "description": "Collect Planar Stone Shards.",
           "target_name": "Planar Stone Shards",
           "target_type": "item",
+          "target_key": "item:ore - planar shard",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -80476,6 +80874,7 @@
           "description": "Collect Sivakrux.",
           "target_name": "Sivakrux",
           "target_type": "item",
+          "target_key": "item:gen - sivak",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -80520,6 +80919,7 @@
           "description": "Collect Unborn Phobia.",
           "target_name": "Unborn Phobia",
           "target_type": "item",
+          "target_key": "item:gen - unborn phobia",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -80544,6 +80944,7 @@
           "description": "Collect Ghostly Giant's Blood.",
           "target_name": "Ghostly Giant's Blood",
           "target_type": "item",
+          "target_key": "item:gen - ghostly giant's blood",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -80573,6 +80974,7 @@
           "description": "Turn in items to Ceremonial Brazier.",
           "target_name": "Ceremonial Brazier",
           "target_type": "character",
+          "target_key": "character:sm_prop_brazier_01 (1):ripper:130.15:62.11:294.67",
           "zone_name": "Ripper's Keep",
           "optional": false,
           "level_estimate": {
@@ -80775,6 +81177,7 @@
           "description": "Say \"tunnels\" to Braxon Elden.",
           "target_name": "Braxon Elden",
           "target_type": "character",
+          "target_key": "character:braxon elden:braxonian:99.99:33.79:993.06",
           "optional": false,
           "level_estimate": {
             "recommended": 17,
@@ -80793,6 +81196,7 @@
           "description": "Collect Brashell.",
           "target_name": "Brashell",
           "target_type": "item",
+          "target_key": "item:gen - brashell",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -80812,6 +81216,7 @@
           "description": "Turn in items to Braxon Elden.",
           "target_name": "Braxon Elden",
           "target_type": "character",
+          "target_key": "character:braxon elden:braxonian:99.99:33.79:993.06",
           "zone_name": "Braxonian Desert",
           "optional": false,
           "level_estimate": {
@@ -80906,6 +81311,7 @@
           "description": "Collect Secrets of Creation.",
           "target_name": "Secrets of Creation",
           "target_type": "item",
+          "target_key": "item:gen - cube of creation",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -80930,6 +81336,7 @@
           "description": "Turn in items to Larviso Poltir.",
           "target_name": "Larviso Poltir",
           "target_type": "character",
+          "target_key": "character:larviso poltir:loomingwood:323.78:29.25:429.23",
           "zone_name": "Loomingwood Forest",
           "optional": false,
           "level_estimate": {
@@ -81037,6 +81444,7 @@
           "description": "Collect Secrets of Creation.",
           "target_name": "Secrets of Creation",
           "target_type": "item",
+          "target_key": "item:gen - cube of creation",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -81056,6 +81464,7 @@
           "description": "Turn in items to Lucian Revald.",
           "target_name": "Lucian Revald",
           "target_type": "character",
+          "target_key": "character:lucian revald:stowaway:432.19:69.90:532.04",
           "zone_name": "Stowaway's Step",
           "optional": false,
           "level_estimate": {
@@ -81142,6 +81551,7 @@
           "description": "Say \"again\" to Shattered Sivakaya.",
           "target_name": "Shattered Sivakaya",
           "target_type": "character",
+          "target_key": "character:shard of sivakaya:stowawayportal:-85.91:0.88:-41.61",
           "optional": false,
           "level_estimate": {
             "recommended": 40,
@@ -81263,6 +81673,7 @@
           "description": "Collect Small Engraved Compass.",
           "target_name": "Small Engraved Compass",
           "target_type": "item",
+          "target_key": "item:gen - small engraved compass",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -81282,6 +81693,7 @@
           "description": "Turn in items to Asaga Underloft.",
           "target_name": "Asaga Underloft",
           "target_type": "character",
+          "target_key": "character:asaga underloft",
           "zone_name": "Port Azure",
           "optional": false,
           "level_estimate": {
@@ -81375,6 +81787,7 @@
           "description": "Say \"Moongill\" to Wally Waldorf.",
           "target_name": "Wally Waldorf",
           "target_type": "character",
+          "target_key": "character:wally waldorf:stowaway:573.45:70.50:545.10",
           "optional": false,
           "level_estimate": {
             "recommended": 2,
@@ -81393,6 +81806,7 @@
           "description": "Collect A Moongill.",
           "target_name": "A Moongill",
           "target_type": "item",
+          "target_key": "item:fish - moongill",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -81487,6 +81901,7 @@
           "description": "Turn in items to Wally Waldorf.",
           "target_name": "Wally Waldorf",
           "target_type": "character",
+          "target_key": "character:wally waldorf:stowaway:573.45:70.50:545.10",
           "zone_name": "Stowaway's Step",
           "optional": false,
           "level_estimate": {
@@ -81681,6 +82096,7 @@
           "description": "Speak to The Hider.",
           "target_name": "The Hider",
           "target_type": "character",
+          "target_key": "character:the hider:shiveringstep:668.70:45.25:549.83",
           "optional": false,
           "level_estimate": {
             "recommended": 21,
@@ -81699,6 +82115,7 @@
           "description": "Collect Ancient Fang.",
           "target_name": "Ancient Fang",
           "target_type": "item",
+          "target_key": "item:gen - ancient fang",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -81718,6 +82135,7 @@
           "description": "Collect Eternal Ice.",
           "target_name": "Eternal Ice",
           "target_type": "item",
+          "target_key": "item:gen - eternal ice",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -81742,6 +82160,7 @@
           "description": "Collect Thief of Breath.",
           "target_name": "Thief of Breath",
           "target_type": "item",
+          "target_key": "item:gen - thief of breath",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -81776,6 +82195,7 @@
           "description": "Collect Death's Decay.",
           "target_name": "Death's Decay",
           "target_type": "item",
+          "target_key": "item:gen - death's decay",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -81810,6 +82230,7 @@
           "description": "Collect Soul of a Ghostly Beast.",
           "target_name": "Soul of a Ghostly Beast",
           "target_type": "item",
+          "target_key": "item:gen - soul of a ghostly beast",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -81829,6 +82250,7 @@
           "description": "Turn in items to Warming Flame.",
           "target_name": "Warming Flame",
           "target_type": "character",
+          "target_key": "character:sm_prop_brazier_01 (1):shiveringstep:304.61:17.81:327.34",
           "zone_name": "Shivering Step",
           "optional": false,
           "level_estimate": {
@@ -82024,6 +82446,7 @@
           "description": "Read Torn Note.",
           "target_name": "Torn Note",
           "target_type": "item",
+          "target_key": "item:gen - a torn note",
           "optional": true,
           "level_estimate": {
             "recommended": 4,
@@ -82042,6 +82465,7 @@
           "description": "Read Marching Orders.",
           "target_name": "Marching Orders",
           "target_type": "item",
+          "target_key": "item:gen - marching orders",
           "optional": true,
           "level_estimate": {
             "recommended": 28,
@@ -82159,6 +82583,7 @@
           "description": "Obtain and read Torn Note.",
           "target_name": "Torn Note",
           "target_type": "item",
+          "target_key": "item:gen - a torn note",
           "optional": true,
           "level_estimate": {
             "recommended": 4,
@@ -82177,6 +82602,7 @@
           "description": "Obtain and read Marching Orders.",
           "target_name": "Marching Orders",
           "target_type": "item",
+          "target_key": "item:gen - marching orders",
           "optional": true,
           "level_estimate": {
             "recommended": 28,
@@ -82195,6 +82621,7 @@
           "description": "Collect Torn Note.",
           "target_name": "Torn Note",
           "target_type": "item",
+          "target_key": "item:gen - a torn note",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -82214,6 +82641,7 @@
           "description": "Turn in items to Lucian Revald.",
           "target_name": "Lucian Revald",
           "target_type": "character",
+          "target_key": "character:lucian revald:stowaway:432.19:69.90:532.04",
           "zone_name": "Stowaway's Step",
           "optional": false,
           "level_estimate": {
@@ -82325,6 +82753,7 @@
           "description": "Collect Azure Willow Seed.",
           "target_name": "Azure Willow Seed",
           "target_type": "item",
+          "target_key": "item:gen - willow seed azure",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -82344,6 +82773,7 @@
           "description": "Collect Braxonian Willow Seed.",
           "target_name": "Braxonian Willow Seed",
           "target_type": "item",
+          "target_key": "item:gen - willow seed braxonia",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -82363,6 +82793,7 @@
           "description": "Collect Duskenlight Willow Seed.",
           "target_name": "Duskenlight Willow Seed",
           "target_type": "item",
+          "target_key": "item:gen - willow seed dusken",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -82382,6 +82813,7 @@
           "description": "Collect Fernallan Willow Seed.",
           "target_name": "Fernallan Willow Seed",
           "target_type": "item",
+          "target_key": "item:gen - willow seed fernalla",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -82401,6 +82833,7 @@
           "description": "Collect Ripparian Willow Seed.",
           "target_name": "Ripparian Willow Seed",
           "target_type": "item",
+          "target_key": "item:gen - willow seed ripper",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -82420,6 +82853,7 @@
           "description": "Turn in items to Watcher.",
           "target_name": "Watcher",
           "target_type": "character",
+          "target_key": "character:watcher",
           "zone_name": "Willowwatch Ridge",
           "optional": false,
           "level_estimate": {
@@ -82570,6 +83004,7 @@
           "description": "Say \"giant\" to Cagnus Marlsen.",
           "target_name": "Cagnus Marlsen",
           "target_type": "character",
+          "target_key": "character:cagnus marlsen",
           "optional": false,
           "level_estimate": {
             "recommended": 4,
@@ -82588,6 +83023,7 @@
           "description": "Collect Willow Soil.",
           "target_name": "Willow Soil",
           "target_type": "item",
+          "target_key": "item:gen - bag of willow soil",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -82607,6 +83043,7 @@
           "description": "Turn in items to Cagnus Marlsen.",
           "target_name": "Cagnus Marlsen",
           "target_type": "character",
+          "target_key": "character:cagnus marlsen",
           "zone_name": "Willowwatch Ridge",
           "optional": false,
           "level_estimate": {
@@ -82698,6 +83135,7 @@
           "description": "Collect Wishlan's Hope.",
           "target_name": "Wishlan's Hope",
           "target_type": "item",
+          "target_key": "item:gen - wishlan's hope",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -82717,6 +83155,7 @@
           "description": "Turn in items to Wishlan the Savior.",
           "target_name": "Wishlan the Savior",
           "target_type": "character",
+          "target_key": "character:wishlan",
           "zone_name": "The Blight",
           "optional": false,
           "level_estimate": {
@@ -82796,6 +83235,7 @@
           "description": "Collect Offering Stone.",
           "target_name": "Offering Stone",
           "target_type": "item",
+          "target_key": "item:gen - offering stone",
           "quantity": 1,
           "optional": false
         },
@@ -82805,6 +83245,7 @@
           "description": "Turn in items to Wishlan the Savior.",
           "target_name": "Wishlan the Savior",
           "target_type": "character",
+          "target_key": "character:wishlan",
           "zone_name": "The Blight",
           "optional": false,
           "level_estimate": {
@@ -82875,6 +83316,7 @@
           "description": "Collect Wolf Meat.",
           "target_name": "Wolf Meat",
           "target_type": "item",
+          "target_key": "item:gen - wolf meat",
           "quantity": 1,
           "optional": false,
           "level_estimate": {
@@ -82944,6 +83386,7 @@
           "description": "Turn in items to Fredrick Templestone.",
           "target_name": "Fredrick Templestone",
           "target_type": "character",
+          "target_key": "character:fredrick templestone:azure:233.34:27.55:332.06",
           "zone_name": "Port Azure",
           "optional": false,
           "level_estimate": {
