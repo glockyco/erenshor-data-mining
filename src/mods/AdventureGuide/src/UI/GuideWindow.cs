@@ -58,8 +58,7 @@ public sealed class GuideWindow
 
         if (ImGui.Begin("Adventure Guide", ref _visible, ImGuiWindowFlags.NoCollapse))
         {
-            IsMouseOver = ImGui.IsWindowHovered(ImGuiHoveredFlags.RootAndChildWindows)
-                       || ImGui.IsAnyItemHovered();
+            IsMouseOver = ImGui.IsWindowHovered(ImGuiHoveredFlags.RootAndChildWindows);
 
             DrawTabBar();
         }

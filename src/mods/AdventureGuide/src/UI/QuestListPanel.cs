@@ -29,16 +29,12 @@ public sealed class QuestListPanel
 
     public void Draw(float width)
     {
-        ImGui.BeginChild("##QuestListPanel", new Vector2(width, 0), true);
-
         DrawFilterRow();
         DrawSearchBar(width);
 
         ImGui.Separator();
 
         DrawQuestList();
-
-        ImGui.EndChild();
     }
 
     // ── Filter toggles ───────────────────────────────────────────────
@@ -126,7 +122,7 @@ public sealed class QuestListPanel
     private void DrawQuestButton(QuestEntry quest)
     {
         bool isSelected = quest.DBName == _state.SelectedQuestDBName;
-        Vector4 textColor = GetQuestColor(quest);
+        uint textColor = GetQuestColor(quest);
 
         // Highlight the selected quest with an accent background.
         if (isSelected)
@@ -141,7 +137,7 @@ public sealed class QuestListPanel
         ImGui.PopStyleColor(isSelected ? 2 : 1);
     }
 
-    private Vector4 GetQuestColor(QuestEntry quest)
+    private uint GetQuestColor(QuestEntry quest)
     {
         if (_state.IsActive(quest.DBName))
             return Theme.QuestActive;

@@ -1,4 +1,3 @@
-using System.Numerics;
 using AdventureGuide.Data;
 using AdventureGuide.State;
 using ImGuiNET;
@@ -39,8 +38,6 @@ public sealed class QuestDetailPanel
             return;
         }
 
-        ImGui.BeginChild("##DetailScroll", Vector2.Zero, false, ImGuiWindowFlags.None);
-
         DrawHeader(quest);
         DrawPrerequisites(quest);
         DrawObjectives(quest);
@@ -53,8 +50,6 @@ public sealed class QuestDetailPanel
         ImGui.Separator();
         ImGui.Spacing();
         DrawActionButtons(quest);
-
-        ImGui.EndChild();
     }
 
     private void DrawHeader(QuestEntry quest)

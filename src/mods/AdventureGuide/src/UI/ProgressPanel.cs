@@ -105,7 +105,7 @@ public sealed class ProgressPanel
 
             any = true;
 
-            Vector4 color;
+            uint color;
             string suffix;
             if (_state.IsCompleted(quest.DBName))
             {
@@ -123,11 +123,17 @@ public sealed class ProgressPanel
                 suffix = "";
             }
 
-            ImGui.TextColored(color, quest.DisplayName + suffix);
+            ImGui.PushStyleColor(ImGuiCol.Text, color);
+            ImGui.Text(quest.DisplayName + suffix);
+            ImGui.PopStyleColor();
         }
 
         if (!any)
-            ImGui.TextColored(Theme.TextSecondary, "No repeatable quests in the guide.");
+        {
+            ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
+            ImGui.Text("No repeatable quests in the guide.");
+            ImGui.PopStyleColor();
+        }
     }
 
     /// <summary>

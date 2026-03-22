@@ -140,26 +140,33 @@ public sealed class ImGuiRenderer : IDisposable
         // Only render on Repaint
         if (current.type != EventType.Repaint) return;
 
-        // Update display size and delta time
-        var io = ImGuiNET.ImGui.GetIO();
-        io.DisplaySize = new System.Numerics.Vector2(Screen.width, Screen.height);
-        io.DeltaTime = Time.deltaTime > 0 ? Time.deltaTime : 1f / 60f;
+        try
+        {
+            // Update display size and delta time
+            var io = ImGuiNET.ImGui.GetIO();
+            io.DisplaySize = new System.Numerics.Vector2(Screen.width, Screen.height);
+            io.DeltaTime = Time.deltaTime > 0 ? Time.deltaTime : 1f / 60f;
 
-        // Forward input from Unity's Input API
-        UpdateInput(io);
+            // Forward input from Unity's Input API
+            UpdateInput(io);
 
-        // Frame
-        ImGuiNET.ImGui.NewFrame();
-        OnLayout?.Invoke();
-        ImGuiNET.ImGui.EndFrame();
+            // Frame
+            ImGuiNET.ImGui.NewFrame();
+            OnLayout?.Invoke();
+            ImGuiNET.ImGui.EndFrame();
 
-        // Check capture state
-        WantCaptureMouse = io.WantCaptureMouse;
-        WantCaptureKeyboard = io.WantCaptureKeyboard;
+            // Check capture state
+            WantCaptureMouse = io.WantCaptureMouse;
+            WantCaptureKeyboard = io.WantCaptureKeyboard;
 
-        // Render
-        ImGuiNET.ImGui.Render();
-        RenderDrawData();
+            // Render
+            ImGuiNET.ImGui.Render();
+            RenderDrawData();
+        }
+        catch (Exception ex)
+        {
+            _log.LogError($"ImGui render error: {ex}");
+        }
     }
 
     /// <summary>Register a Unity texture for use as ImGui texture ID.</summary>
