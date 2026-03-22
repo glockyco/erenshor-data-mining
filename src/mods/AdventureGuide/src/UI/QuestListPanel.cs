@@ -164,17 +164,32 @@ public sealed class QuestListPanel
     private void DrawQuestEntry(QuestEntry quest)
     {
         bool isSelected = quest.DBName == _state.SelectedQuestDBName;
-        uint textColor = GetQuestColor(quest);
+        uint statusColor = GetQuestColor(quest);
 
         if (isSelected)
             ImGui.PushStyleColor(ImGuiCol.Button, Theme.Accent);
 
-        ImGui.PushStyleColor(ImGuiCol.Text, textColor);
+        // Capture position before the Selectable for DrawList overlay
+        var pos = ImGui.GetCursorScreenPos();
 
-        if (ImGui.Selectable(quest.DisplayName + "##" + quest.DBName, isSelected))
+        // Invisible Selectable — all visible text rendered via DrawList
+        if (ImGui.Selectable("##" + quest.DBName, isSelected))
             _state.SelectedQuestDBName = quest.DBName;
 
-        // Tooltip on hover: zone + status
+        // Overlay level badge + quest name via DrawList for two-color rendering
+        var dl = ImGui.GetWindowDrawList();
+        float levelColWidth = ImGui.CalcTextSize("00  ").X;
+
+        if (quest.LevelEstimate?.Recommended is int lvl)
+        {
+            string lvlStr = lvl.ToString().PadLeft(2);
+            dl.AddText(pos, Theme.TextSecondary, lvlStr);
+        }
+
+        var namePos = new System.Numerics.Vector2(pos.X + levelColWidth, pos.Y);
+        dl.AddText(namePos, statusColor, quest.DisplayName);
+
+        // Tooltip on hover: zone + status + level
         if (ImGui.IsItemHovered())
         {
             ImGui.BeginTooltip();
@@ -184,10 +199,13 @@ public sealed class QuestListPanel
                           : _state.IsActive(quest.DBName) ? "Active"
                           : "Available";
             ImGui.Text(status);
+            if (quest.LevelEstimate?.Recommended is int tipLvl)
+                ImGui.Text($"Level {tipLvl}");
             ImGui.EndTooltip();
         }
 
-        ImGui.PopStyleColor(isSelected ? 2 : 1);
+        if (isSelected)
+            ImGui.PopStyleColor();
     }
 
     private uint GetQuestColor(QuestEntry quest)
