@@ -58,12 +58,7 @@ public sealed class Plugin : BaseUnityPlugin
         _config.ShowGroundPath.SettingChanged += OnShowGroundPathChanged;
 
         _window = new GuideWindow(_data, _state, _nav);
-        _imgui.OnLayout = () =>
-        {
-            _window.Draw();
-            _arrow!.Draw();
-            _groundPath!.Draw(_state?.CurrentZone ?? "");
-        };
+        _imgui.OnLayout = () => { _window.Draw(); _arrow!.Draw(); };
 
         // Wire DebugAPI for HotRepl inspection
         DebugAPI.Data = _data;
@@ -107,7 +102,9 @@ public sealed class Plugin : BaseUnityPlugin
         _wasCapturingKeyboard = imguiWantsKb;
 
         // Update navigation state each frame
-        _nav?.Update(_state?.CurrentZone ?? "");
+        var currentZone = _state?.CurrentZone ?? "";
+        _nav?.Update(currentZone);
+        _groundPath?.Update(currentZone);
 
         if (_config == null || _window == null) return;
         if (GameData.PlayerTyping) return;
@@ -148,6 +145,7 @@ public sealed class Plugin : BaseUnityPlugin
         _harmony?.UnpatchSelf();
         _imgui?.Dispose();
         _arrow?.Dispose();
+        _groundPath?.Destroy();
         _entities?.Clear();
 
         DebugAPI.Data = null;

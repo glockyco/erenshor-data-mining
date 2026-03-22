@@ -1,31 +1,28 @@
-using AdventureGuide.Rendering;
-using AdventureGuide.UI;
 using UnityEngine;
 using UnityEngine.AI;
-using V2 = AdventureGuide.Rendering.CimguiNative.Vec2;
 
 namespace AdventureGuide.Navigation;
 
 /// <summary>
 /// Renders a ground path from the player to the navigation target using
-/// NavMesh.CalculatePath for pathfinding and ImGui's background draw list
-/// for screen-space line rendering.
+/// NavMesh.CalculatePath for pathfinding and a Unity LineRenderer for
+/// world-space rendering with proper depth occlusion.
 ///
 /// The path is recalculated when the target changes or the player moves
 /// beyond a threshold from the last calculation point. Off by default.
 ///
-/// Renders during the ImGui layout pass alongside ArrowRenderer — no
-/// separate GL pipeline or Camera.onPostRender callback.
+/// The LineRenderer is created on a hidden child GameObject and destroyed
+/// on cleanup. It uses the built-in Sprites/Default shader for a simple
+/// colored line that participates in the depth buffer — geometry properly
+/// occludes the path.
 /// </summary>
 public sealed class GroundPathRenderer
 {
     private const float RecalcDistance = 5f;
-    private const float LineThickness = 2.5f;
-    private const float DotRadius = 3f;
-    private const float DotSpacing = 20f; // screen-space pixels between dots
+    private const float LineWidth = 0.15f;
+    private const float PathYOffset = 0.15f; // lift slightly above ground to avoid z-fighting
 
-    private static readonly uint ColorPath = Theme.Rgba(1.00f, 0.85f, 0.30f, 0.50f);
-    private static readonly uint ColorDot = Theme.Rgba(1.00f, 0.85f, 0.30f, 0.70f);
+    private static readonly Color PathColor = new(1.00f, 0.85f, 0.30f, 0.60f);
 
     private readonly NavigationController _nav;
     private readonly NavMeshPath _path = new();
@@ -38,10 +35,19 @@ public sealed class GroundPathRenderer
     private Vector3 _lastCalcTargetPos;
     private bool _pathValid;
 
+    // Unity LineRenderer on a hidden GameObject
+    private GameObject? _lineObj;
+    private LineRenderer? _line;
+
     public bool Enabled
     {
         get => _enabled;
-        set => _enabled = value;
+        set
+        {
+            _enabled = value;
+            if (_line != null)
+                _line.enabled = value && _pathValid;
+        }
     }
 
     public GroundPathRenderer(NavigationController nav)
@@ -50,23 +56,24 @@ public sealed class GroundPathRenderer
     }
 
     /// <summary>
-    /// Call during the ImGui layout pass. Calculates the NavMesh path if
-    /// needed, then projects path corners to screen space and draws them
-    /// on the background draw list.
+    /// Call each frame. Recalculates the NavMesh path if needed and
+    /// updates the LineRenderer positions.
     /// </summary>
-    public void Draw(string currentScene)
+    public void Update(string currentScene)
     {
         if (!_enabled || _nav.Target == null)
         {
             _pathValid = false;
+            SetLineVisible(false);
             return;
         }
 
-        var cam = CameraCache.Get();
-        if (cam == null) return;
-
         var playerPos = GameData.PlayerControl?.transform.position;
-        if (!playerPos.HasValue) return;
+        if (!playerPos.HasValue)
+        {
+            SetLineVisible(false);
+            return;
+        }
 
         var effectiveTarget = _nav.ZoneLineWaypoint ?? _nav.Target;
 
@@ -74,27 +81,44 @@ public sealed class GroundPathRenderer
         if (effectiveTarget.IsCrossZone(currentScene))
         {
             _pathValid = false;
+            SetLineVisible(false);
             return;
         }
 
-        RecalculateIfNeeded(playerPos.Value, effectiveTarget.Position);
+        bool recalculated = RecalculateIfNeeded(playerPos.Value, effectiveTarget.Position);
 
         if (!_pathValid || _cornerCount < 2)
+        {
+            SetLineVisible(false);
             return;
+        }
 
-        var drawList = CimguiNative.igGetBackgroundDrawList_Nil();
-        if (drawList == System.IntPtr.Zero) return;
+        if (recalculated)
+            ApplyToLineRenderer();
 
-        DrawPath(drawList, cam);
+        SetLineVisible(true);
     }
 
-    private void RecalculateIfNeeded(Vector3 playerPos, Vector3 targetPos)
+    public void Destroy()
+    {
+        if (_lineObj != null)
+        {
+            UnityEngine.Object.Destroy(_lineObj);
+            _lineObj = null;
+            _line = null;
+        }
+    }
+
+    /// <summary>
+    /// Returns true if the path was recalculated this frame.
+    /// </summary>
+    private bool RecalculateIfNeeded(Vector3 playerPos, Vector3 targetPos)
     {
         bool targetMoved = Vector3.Distance(_lastCalcTargetPos, targetPos) > 0.5f;
         bool playerMoved = Vector3.Distance(_lastCalcPlayerPos, playerPos) > RecalcDistance;
 
         if (_pathValid && !targetMoved && !playerMoved)
-            return;
+            return false;
 
         _lastCalcPlayerPos = playerPos;
         _lastCalcTargetPos = targetPos;
@@ -107,7 +131,7 @@ public sealed class GroundPathRenderer
         {
             _pathValid = false;
             _cornerCount = 0;
-            return;
+            return true;
         }
 
         // GetCornersNonAlloc avoids the Vector3[] allocation from .corners
@@ -118,57 +142,55 @@ public sealed class GroundPathRenderer
             _corners = new Vector3[_cornerCount * 2];
             _cornerCount = _path.GetCornersNonAlloc(_corners);
         }
+
+        return true;
     }
 
-    private void DrawPath(System.IntPtr drawList, Camera cam)
+    private void ApplyToLineRenderer()
     {
-        float sh = Screen.height;
+        EnsureLineRenderer();
+        if (_line == null) return;
 
-        for (int i = 0; i < _cornerCount - 1; i++)
+        _line.positionCount = _cornerCount;
+        for (int i = 0; i < _cornerCount; i++)
         {
-            var sp1 = cam.WorldToScreenPoint(_corners[i]);
-            var sp2 = cam.WorldToScreenPoint(_corners[i + 1]);
-
-            // Skip segments entirely behind camera
-            if (sp1.z < 0 && sp2.z < 0) continue;
-
-            // Skip segments where one endpoint is behind camera — projection
-            // is unreliable and produces wild screen coordinates
-            if (sp1.z < 0 || sp2.z < 0) continue;
-
-            // Convert to ImGui Y (top-down)
-            float y1 = sh - sp1.y;
-            float y2 = sh - sp2.y;
-
-            var p1 = new V2(sp1.x, y1);
-            var p2 = new V2(sp2.x, y2);
-
-            CimguiNative.ImDrawList_AddLine(drawList, p1, p2, ColorPath, LineThickness);
-
-            // Draw dots along the segment for better ground-path visibility
-            DrawDotsAlongSegment(drawList, p1, p2);
+            // Lift slightly above ground to prevent z-fighting with terrain
+            var pos = _corners[i];
+            pos.y += PathYOffset;
+            _line.SetPosition(i, pos);
         }
     }
 
-    /// <summary>
-    /// Evenly space small filled circles along a screen-space line segment.
-    /// Gives the path a dotted/breadcrumb appearance that reads better than
-    /// a solid line in 3D perspective projection.
-    /// </summary>
-    private static void DrawDotsAlongSegment(System.IntPtr drawList, V2 p1, V2 p2)
+    private void EnsureLineRenderer()
     {
-        float dx = p2.X - p1.X;
-        float dy = p2.Y - p1.Y;
-        float segLen = Mathf.Sqrt(dx * dx + dy * dy);
+        if (_line != null) return;
 
-        if (segLen < DotSpacing) return;
+        _lineObj = new GameObject("AdventureGuide_GroundPath");
+        UnityEngine.Object.DontDestroyOnLoad(_lineObj);
+        _lineObj.hideFlags = HideFlags.HideAndDontSave;
 
-        int dotCount = Mathf.FloorToInt(segLen / DotSpacing);
-        for (int d = 1; d <= dotCount; d++)
-        {
-            float t = d / (float)(dotCount + 1);
-            var dot = new V2(p1.X + dx * t, p1.Y + dy * t);
-            CimguiNative.ImDrawList_AddCircleFilled(drawList, dot, DotRadius, ColorDot, 6);
-        }
+        _line = _lineObj.AddComponent<LineRenderer>();
+        _line.useWorldSpace = true;
+        _line.startWidth = LineWidth;
+        _line.endWidth = LineWidth;
+        _line.numCornerVertices = 4;
+        _line.numCapVertices = 2;
+        _line.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        _line.receiveShadows = false;
+        _line.allowOcclusionWhenDynamic = false;
+
+        // Sprites/Default is a built-in shader that supports vertex colors
+        // and renders with proper depth testing
+        var mat = new Material(Shader.Find("Sprites/Default"));
+        mat.color = PathColor;
+        _line.material = mat;
+        _line.startColor = PathColor;
+        _line.endColor = PathColor;
+    }
+
+    private void SetLineVisible(bool visible)
+    {
+        if (_line != null)
+            _line.enabled = visible;
     }
 }
