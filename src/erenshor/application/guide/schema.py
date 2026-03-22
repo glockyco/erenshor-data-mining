@@ -92,6 +92,7 @@ class QuestStep:
     zone_name: str | None = None  # where this step happens
     keyword: str | None = None  # for shout steps
     tips: list[str] = field(default_factory=list)
+    level_estimate: LevelEstimate | None = None
 
 
 @dataclass

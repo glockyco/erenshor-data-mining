@@ -136,13 +136,17 @@ def _build_all_guides(conn: sqlite3.Connection, zone_lookup: dict[str, ZoneInfo]
     bag_map = _fetch_bag_sources(conn)
     crafting_map = _fetch_crafting_sources(conn)
     quest_reward_map = _fetch_quest_reward_sources(conn)
-    # Character levels for level estimation
+    # Character levels for level estimation (enemies only)
     char_levels = {
         row["stable_key"]: row["level"]
         for row in conn.execute(
             "SELECT stable_key, level FROM characters WHERE level > 0 AND is_friendly = 0"
         ).fetchall()
     }
+    # Character name → zone for step level estimation (all characters)
+    char_name_zones = _fetch_char_name_zones(conn)
+    # Reverse lookup: zone display_name → ZoneInfo
+    zone_by_display = {zi.display_name: zi for zi in zone_lookup.values()}
 
     guides: list[QuestGuide] = []
     for quest in quests:
@@ -177,7 +181,12 @@ def _build_all_guides(conn: sqlite3.Connection, zone_lookup: dict[str, ZoneInfo]
             quest_type, acquisition, completion, required_items, zone_context, quest_names, shout_keywords, sk
         )
 
-        level_estimate = _compute_level_estimate(sk, completion, zone_lookup, npc_zones, char_levels, zone_context)
+        # Per-step level estimates, then derive quest level as max of steps
+        for step in steps:
+            step.level_estimate = _compute_step_level(
+                step, required_items, zone_by_display, char_levels, char_name_zones
+            )
+        level_estimate = _compute_quest_level(steps)
 
         guide = QuestGuide(
             db_name=quest["db_name"],
@@ -454,6 +463,31 @@ def _fetch_npc_zones(conn: sqlite3.Connection) -> dict[str, str]:
         """
     ).fetchall()
     return {row["character_stable_key"]: row["display_name"] for row in rows}
+
+
+def _fetch_char_name_zones(conn: sqlite3.Connection) -> dict[str, list[str]]:
+    """Returns {character_display_name: [zone_display_names]}.
+
+    Maps character display names to all zones they spawn in. Used for
+    talk/turn_in/shout steps where we need the zone of a target NPC
+    referenced by display name. The caller picks the lowest-median zone.
+    """
+    tables = {r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()}
+    if "character_spawns" not in tables:
+        return {}
+    rows = conn.execute(
+        """
+        SELECT c.display_name, z.display_name AS zone_name
+        FROM character_spawns cs
+        JOIN characters c ON c.stable_key = cs.character_stable_key
+        JOIN zones z ON z.stable_key = cs.zone_stable_key
+        GROUP BY c.display_name, z.display_name
+        """
+    ).fetchall()
+    result: dict[str, list[str]] = {}
+    for row in rows:
+        result.setdefault(row["display_name"], []).append(row["zone_name"])
+    return result
 
 
 def _fetch_item_names(conn: sqlite3.Connection) -> dict[str, str]:
@@ -1160,49 +1194,147 @@ def _compute_chain_groups(conn: sqlite3.Connection) -> list[ChainGroup]:
     return groups
 
 
-def _compute_level_estimate(
-    quest_sk: str,
-    completion_sources: list[CompletionSource],
-    zone_lookup: dict[str, ZoneInfo],
-    npc_zones: dict[str, str],
-    character_levels: dict[str, int],
-    zone_context: str | None,
+def _compute_step_level(
+    step: QuestStep,
+    required_items: list[RequiredItemInfo],
+    zone_by_display: dict[str, ZoneInfo],
+    char_levels: dict[str, int],
+    char_name_zones: dict[str, list[str]],
 ) -> LevelEstimate | None:
-    """Estimate recommended level from kill targets, zone mob levels, or zone context.
+    """Estimate the recommended level for a single quest step.
 
-    Priority: kill target levels > zone median from kill target location > zone
-    context median. Returns None if no level data is available.
+    For collect/read steps: minimum across all obtainability paths
+    (enemy level for drops, zone median for vendors/fishing/mining/bags).
+    For talk/turn_in/shout: zone median where the target NPC lives.
+    For travel: zone median of the destination.
     """
     factors: list[LevelFactor] = []
-    for comp in completion_sources:
-        if comp.method != "death":
-            continue
-        # Kill target level
-        target_sk = comp.source_stable_key
-        if target_sk and target_sk in character_levels:
-            factors.append(LevelFactor(source="kill_target", name=comp.source_name, level=character_levels[target_sk]))
-        # Zone median where this kill target lives
-        if target_sk and target_sk in npc_zones:
-            zone_display = npc_zones[target_sk]
-            # Find the ZoneInfo by display_name (zone_lookup is keyed by scene_name)
-            for zi in zone_lookup.values():
-                if zi.display_name == zone_display:
-                    if zi.level_median is not None:
-                        factors.append(LevelFactor(source="zone_median", name=zi.display_name, level=zi.level_median))
-                    break
 
-    # Fallback: use zone context median when no kill-target-specific data exists
-    if not factors and zone_context:
-        for zi in zone_lookup.values():
-            if zi.display_name == zone_context:
-                if zi.level_median is not None:
-                    factors.append(LevelFactor(source="zone_context", name=zi.display_name, level=zi.level_median))
-                break
+    if step.action in ("talk", "turn_in", "shout"):
+        _add_npc_zone_factor(step.target_name, char_name_zones, zone_by_display, factors)
+
+    elif step.action == "travel":
+        zone_name = step.zone_name or step.target_name
+        if zone_name:
+            zi = zone_by_display.get(zone_name)
+            if zi and zi.level_median is not None:
+                factors.append(LevelFactor(source="zone_median", name=zone_name, level=zi.level_median))
+
+    elif step.action in ("collect", "read") and step.target_name:
+        item = next(
+            (ri for ri in required_items if ri.item_name.lower() == step.target_name.lower()),
+            None,
+        )
+        if item:
+            _add_obtainability_factors(item, zone_by_display, char_levels, factors)
 
     if not factors:
         return None
-    recommended = max(f.level for f in factors)
-    return LevelEstimate(recommended=recommended, factors=factors)
+    # Deduplicate factors by (source, name, level)
+    seen: set[tuple[str, str | None, int]] = set()
+    unique: list[LevelFactor] = []
+    for f in factors:
+        key = (f.source, f.name, f.level)
+        if key not in seen:
+            seen.add(key)
+            unique.append(f)
+    recommended = min(f.level for f in unique)
+    return LevelEstimate(recommended=recommended, factors=unique)
+
+
+def _compute_quest_level(steps: list[QuestStep]) -> LevelEstimate | None:
+    """Derive quest-level estimate as max of per-step levels.
+
+    Each step's recommended level is the easiest path through that step.
+    The quest level is the hardest step (you can't skip it).
+    Factors reference the controlling step for transparency.
+    """
+    step_levels: list[tuple[QuestStep, int]] = []
+    for step in steps:
+        if step.level_estimate and step.level_estimate.recommended is not None:
+            step_levels.append((step, step.level_estimate.recommended))
+    if not step_levels:
+        return None
+    max_step, max_level = max(step_levels, key=lambda t: t[1])
+    factors = [
+        LevelFactor(
+            source=f"step_{max_step.order}",
+            name=max_step.description,
+            level=max_level,
+        )
+    ]
+    return LevelEstimate(recommended=max_level, factors=factors)
+
+
+def _add_npc_zone_factor(
+    npc_name: str | None,
+    char_name_zones: dict[str, list[str]],
+    zone_by_display: dict[str, ZoneInfo],
+    factors: list[LevelFactor],
+) -> None:
+    """Add a zone median factor for an NPC referenced by display name.
+
+    When an NPC spawns in multiple zones, adds the zone with the lowest
+    median level (easiest zone to reach them in).
+    """
+    if not npc_name:
+        return
+    zones = char_name_zones.get(npc_name)
+    if not zones:
+        return
+    best_zi: ZoneInfo | None = None
+    for zone_name in zones:
+        zi = zone_by_display.get(zone_name)
+        if zi and zi.level_median is not None and (best_zi is None or zi.level_median < best_zi.level_median):
+            best_zi = zi
+    if best_zi and best_zi.level_median is not None:
+        factors.append(LevelFactor(source="zone_median", name=best_zi.display_name, level=best_zi.level_median))
+
+
+def _add_obtainability_factors(
+    item: RequiredItemInfo,
+    zone_by_display: dict[str, ZoneInfo],
+    char_levels: dict[str, int],
+    factors: list[LevelFactor],
+) -> None:
+    """Collect level factors from all obtainability sources for an item.
+
+    Drop sources use the enemy's actual level. All other sources use the
+    zone median of the source location. Each source becomes a factor so
+    the user can see all options.
+    """
+    for ds in item.drop_sources:
+        level = char_levels.get(ds.character_stable_key)
+        if level:
+            factors.append(LevelFactor(source="enemy_level", name=ds.character_name, level=level))
+
+    for vs in item.vendor_sources:
+        if vs.zone_name:
+            zi = zone_by_display.get(vs.zone_name)
+            if zi and zi.level_median is not None:
+                factors.append(
+                    LevelFactor(
+                        source="vendor_zone", name=f"{vs.character_name} ({vs.zone_name})", level=zi.level_median
+                    )
+                )
+
+    for fs in item.fishing_sources:
+        if fs.zone_name:
+            zi = zone_by_display.get(fs.zone_name)
+            if zi and zi.level_median is not None:
+                factors.append(LevelFactor(source="fishing_zone", name=fs.zone_name, level=zi.level_median))
+
+    for ms in item.mining_sources:
+        if ms.zone_name:
+            zi = zone_by_display.get(ms.zone_name)
+            if zi and zi.level_median is not None:
+                factors.append(LevelFactor(source="mining_zone", name=ms.zone_name, level=zi.level_median))
+
+    for bs in item.bag_sources:
+        if bs.zone_name:
+            zi = zone_by_display.get(bs.zone_name)
+            if zi and zi.level_median is not None:
+                factors.append(LevelFactor(source="pickup_zone", name=bs.zone_name, level=zi.level_median))
 
 
 # ---------------------------------------------------------------------------
