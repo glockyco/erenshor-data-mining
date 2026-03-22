@@ -15,7 +15,8 @@ repository layer) into a list of :class:`QuestGuide` entries.  Handles:
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any
 
 from .schema import (
     AcquisitionSource,
@@ -391,7 +392,7 @@ def _generate_steps(
     """Auto-generate quest steps based on quest type and available data."""
     order = 0
 
-    def step(action: str, description: str, **kwargs: object) -> QuestStep:
+    def step(action: str, description: str, **kwargs: Any) -> QuestStep:
         nonlocal order
         order += 1
         return QuestStep(order=order, action=action, description=description, **kwargs)
@@ -443,7 +444,7 @@ def _find_turnin_npc(completion: list[CompletionSource]) -> CompletionSource | N
 
 
 def _steps_fetch(
-    step,
+    step: Callable[..., QuestStep],
     giver: AcquisitionSource | None,
     required_items: list[RequiredItemInfo],
     completion: list[CompletionSource],
@@ -511,7 +512,7 @@ def _steps_fetch(
 
 
 def _steps_kill(
-    step,
+    step: Callable[..., QuestStep],
     giver: AcquisitionSource | None,
     completion: list[CompletionSource],
 ) -> list[QuestStep]:
@@ -543,7 +544,7 @@ def _steps_kill(
 
 
 def _steps_dialog(
-    step,
+    step: Callable[..., QuestStep],
     giver: AcquisitionSource | None,
     completion: list[CompletionSource],
 ) -> list[QuestStep]:
@@ -578,7 +579,7 @@ def _steps_dialog(
 
 
 def _steps_zone_trigger(
-    step,
+    step: Callable[..., QuestStep],
     giver: AcquisitionSource | None,
     completion: list[CompletionSource],
 ) -> list[QuestStep]:
@@ -610,7 +611,7 @@ def _steps_zone_trigger(
 
 
 def _steps_shout(
-    step,
+    step: Callable[..., QuestStep],
     giver: AcquisitionSource | None,
     completion: list[CompletionSource],
     shout_keywords: dict[str, str],
@@ -646,7 +647,7 @@ def _steps_shout(
 
 
 def _steps_item_read(
-    step,
+    step: Callable[..., QuestStep],
     acquisition: list[AcquisitionSource],
     completion: list[CompletionSource],
 ) -> list[QuestStep]:

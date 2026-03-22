@@ -9,15 +9,15 @@ Converts dataclass instances to dicts with clean omission rules:
 from __future__ import annotations
 
 from dataclasses import asdict
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, cast
 
 if TYPE_CHECKING:
     from .schema import QuestGuide
 
 
-def guides_to_json(guides: list[QuestGuide]) -> list[dict]:
+def guides_to_json(guides: list[QuestGuide]) -> list[dict[str, Any]]:
     """Convert QuestGuide list to JSON-serializable dicts."""
-    return [_clean(asdict(g)) for g in guides]
+    return [cast("dict[str, Any]", _clean(asdict(g))) for g in guides]
 
 
 def _clean(obj: object) -> object:

@@ -190,7 +190,11 @@ def _add_npc_zone_factor(
     best_zi = None
     for zone_display in zones:
         zi = ctx.zone_by_display.get(zone_display)
-        if zi and zi.level_median is not None and (best_zi is None or zi.level_median < best_zi.level_median):
+        if (
+            zi
+            and zi.level_median is not None
+            and (best_zi is None or best_zi.level_median is None or zi.level_median < best_zi.level_median)
+        ):
             best_zi = zi
 
     if best_zi and best_zi.level_median is not None:

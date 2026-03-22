@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from loguru import logger
 
@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 def merge_guides(
     auto_guides: list[QuestGuide],
     manual_dir: Path | None,
-) -> list[dict]:
+) -> list[dict[str, Any]]:
     """Merge auto-generated guides with manual overrides.
 
     Args:
@@ -68,7 +68,7 @@ def merge_guides(
     return list(auto_by_name.values())
 
 
-def _apply_overrides(auto: dict, manual: dict) -> None:
+def _apply_overrides(auto: dict[str, Any], manual: dict[str, Any]) -> None:
     """Apply manual overrides onto auto dict. Manual wins for all present fields."""
     for key, value in manual.items():
         if key.startswith("_") or key == "db_name":
@@ -81,7 +81,7 @@ def _apply_overrides(auto: dict, manual: dict) -> None:
 # ---------------------------------------------------------------------------
 
 
-def generate_curation_report(guides: list[dict]) -> str:
+def generate_curation_report(guides: list[dict[str, Any]]) -> str:
     """Generate a human-readable curation report.
 
     Identifies quests needing manual attention:
@@ -95,10 +95,10 @@ def generate_curation_report(guides: list[dict]) -> str:
     lines.append("")
 
     # Categorize
-    no_steps: list[dict] = []
-    no_acquisition: list[dict] = []
-    no_completion: list[dict] = []
-    no_zone: list[dict] = []
+    no_steps: list[dict[str, Any]] = []
+    no_acquisition: list[dict[str, Any]] = []
+    no_completion: list[dict[str, Any]] = []
+    no_zone: list[dict[str, Any]] = []
 
     for g in guides:
         if not g.get("steps"):

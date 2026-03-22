@@ -16,6 +16,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
 from statistics import median
+from typing import Any
 
 from .schema import (
     AcquisitionSource,
@@ -45,7 +46,7 @@ class QuestDataContext:
     acquisition: dict[str, list[AcquisitionSource]] = field(default_factory=dict)
     completion: dict[str, list[CompletionSource]] = field(default_factory=dict)
     item_sources: dict[str, list[ItemSource]] = field(default_factory=dict)
-    required_items_map: dict[str, list[dict]] = field(default_factory=dict)
+    required_items_map: dict[str, list[dict[str, Any]]] = field(default_factory=dict)
     faction_effects: dict[str, list[FactionEffect]] = field(default_factory=dict)
     chain_next: dict[str, str] = field(default_factory=dict)
     chain_prev: dict[str, list[str]] = field(default_factory=dict)
@@ -241,7 +242,7 @@ def _fetch_completion_sources(
     return result
 
 
-def _fetch_required_items(conn: sqlite3.Connection) -> dict[str, list[dict]]:
+def _fetch_required_items(conn: sqlite3.Connection) -> dict[str, list[dict[str, Any]]]:
     """Return ``{variant_resource_name: [{item_stable_key, quantity}]}``."""
     rows = conn.execute(
         """
@@ -249,7 +250,7 @@ def _fetch_required_items(conn: sqlite3.Connection) -> dict[str, list[dict]]:
         FROM quest_required_items qri
         """
     ).fetchall()
-    result: dict[str, list[dict]] = {}
+    result: dict[str, list[dict[str, Any]]] = {}
     for row in rows:
         result.setdefault(row["quest_variant_resource_name"], []).append(
             {"item_stable_key": row["item_stable_key"], "quantity": row["quantity"]}
@@ -448,7 +449,7 @@ def _fetch_zone_lookup(conn: sqlite3.Connection) -> dict[str, ZoneInfo]:
         WHERE c.is_friendly = 0 AND c.level > 0 AND c.is_map_visible = 1
         """
     ).fetchall()
-    zone_meta: dict[str, dict] = {}
+    zone_meta: dict[str, dict[str, str]] = {}
     zone_levels: dict[str, list[int]] = defaultdict(list)
     for row in rows:
         scene = row["scene_name"]
@@ -554,7 +555,7 @@ def _compute_chain_groups(conn: sqlite3.Connection) -> list[ChainGroup]:
     ).fetchall()
 
     next_map: dict[str, str] = {}
-    meta: dict[str, dict] = {}
+    meta: dict[str, dict[str, str]] = {}
     children: set[str] = set()
     for row in rows:
         sk = row["quest_stable_key"]
