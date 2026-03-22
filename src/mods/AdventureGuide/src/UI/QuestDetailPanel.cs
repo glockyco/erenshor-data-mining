@@ -67,7 +67,7 @@ public sealed class QuestDetailPanel
                 {
                     "dialog" when acq.SourceName != null => $"Given by: {acq.SourceName}",
                     "item_read" when acq.SourceName != null => $"Read: {acq.SourceName}",
-                    "zone_entry" when acq.ZoneName != null => $"Enter: {acq.ZoneName}",
+                    "zone_entry" when acq.SourceName != null => $"Enter: {acq.SourceName}",
                     "quest_chain" when acq.SourceName != null => $"Chain from: {acq.SourceName}",
                     _ => acq.SourceName != null ? $"From: {acq.SourceName}" : null,
                 };
@@ -91,7 +91,7 @@ public sealed class QuestDetailPanel
                 string? turnIn = comp.Method switch
                 {
                     "item_turnin" or "dialog" when comp.SourceName != null => $"Turn in to: {comp.SourceName}",
-                    "zone" when comp.ZoneName != null => $"Complete at: {comp.ZoneName}",
+                    "zone" when comp.SourceName != null => $"Complete at: {comp.SourceName}",
                     _ when comp.SourceName != null => $"Complete: {comp.SourceName}",
                     _ => null,
                 };
