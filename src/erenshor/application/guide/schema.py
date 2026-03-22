@@ -122,6 +122,11 @@ class RequiredItemInfo:
     quantity: int
     drop_sources: list[DropSource] = field(default_factory=list)
     vendor_sources: list[VendorSource] = field(default_factory=list)
+    fishing_sources: list[FishingSource] = field(default_factory=list)
+    mining_sources: list[MiningSource] = field(default_factory=list)
+    bag_sources: list[BagSource] = field(default_factory=list)
+    crafting_sources: list[CraftingSource] = field(default_factory=list)
+    quest_reward_sources: list[QuestRewardSource] = field(default_factory=list)
 
 
 @dataclass
@@ -196,6 +201,112 @@ class QuestFlags:
     once_per_spawn_instance: bool = False
 
 
+@dataclass
+class FishingSource:
+    """Where a required item can be fished."""
+
+    water_stable_key: str
+    zone_name: str | None = None
+    drop_chance: float | None = None
+
+
+@dataclass
+class MiningSource:
+    """Where a required item can be mined."""
+
+    node_stable_key: str
+    zone_name: str | None = None
+    drop_chance: float | None = None
+
+
+@dataclass
+class BagSource:
+    """Where a required item can be picked up from the world."""
+
+    zone_name: str | None = None
+    x: float | None = None
+    y: float | None = None
+    z: float | None = None
+    respawns: bool = False
+
+
+@dataclass
+class CraftingSource:
+    """Item can be crafted from a recipe."""
+
+    recipe_item_name: str
+    recipe_item_stable_key: str
+
+
+@dataclass
+class QuestRewardSource:
+    """Item is rewarded by completing another quest."""
+
+    quest_name: str
+    quest_stable_key: str
+
+
+@dataclass
+class SpawnPoint:
+    """A character spawn location."""
+
+    scene: str
+    x: float
+    y: float
+    z: float
+
+
+@dataclass
+class ZoneInfo:
+    """Zone metadata for the lookup table."""
+
+    display_name: str
+    stable_key: str
+    level_min: int | None = None
+    level_max: int | None = None
+    level_median: int | None = None
+
+
+@dataclass
+class ZoneLine:
+    """A zone transition point."""
+
+    scene: str
+    x: float
+    y: float
+    z: float
+    destination_zone_key: str
+    destination_display: str
+    landing_x: float | None = None
+    landing_y: float | None = None
+    landing_z: float | None = None
+
+
+@dataclass
+class LevelFactor:
+    """A contributing factor to the quest's recommended level."""
+
+    source: str  # 'zone_median', 'kill_target'
+    name: str | None = None
+    level: int = 0
+
+
+@dataclass
+class LevelEstimate:
+    """Quest difficulty estimation."""
+
+    recommended: int | None = None
+    factors: list[LevelFactor] = field(default_factory=list)
+
+
+@dataclass
+class ChainGroup:
+    """A pre-computed quest chain."""
+
+    name: str
+    quests: list[str] = field(default_factory=list)  # ordered db_names
+
+
 # ---------------------------------------------------------------------------
 # Top-level quest guide entry
 # ---------------------------------------------------------------------------
@@ -228,8 +339,21 @@ class QuestGuide:
     rewards: Rewards = field(default_factory=Rewards)
     chain: list[ChainLink] = field(default_factory=list)
     flags: QuestFlags = field(default_factory=QuestFlags)
+    level_estimate: LevelEstimate | None = None
 
     # Manual curation fields -- nullable, only populated from manual layer
     difficulty: str | None = None  # trivial|easy|moderate|hard|epic
     estimated_time: str | None = None
     tags: list[str] = field(default_factory=list)
+
+
+@dataclass
+class GuideOutput:
+    """Complete guide output with lookup tables and quest entries."""
+
+    version: int = 2
+    zone_lookup: dict[str, ZoneInfo] = field(default_factory=dict)  # scene_name -> info
+    character_spawns: dict[str, list[SpawnPoint]] = field(default_factory=dict)  # stable_key -> spawns
+    zone_lines: list[ZoneLine] = field(default_factory=list)
+    chain_groups: list[ChainGroup] = field(default_factory=list)
+    quests: list[QuestGuide] = field(default_factory=list)

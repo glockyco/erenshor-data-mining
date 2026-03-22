@@ -14,42 +14,71 @@ for every quest. Handles:
 from __future__ import annotations
 
 import sqlite3
+from collections import defaultdict
 from dataclasses import asdict
 from pathlib import Path
+from statistics import median
 
 from loguru import logger
 
 from .schema import (
     AcquisitionSource,
+    BagSource,
+    ChainGroup,
     ChainLink,
     CompletionSource,
+    CraftingSource,
     DropSource,
     FactionEffect,
+    FishingSource,
+    GuideOutput,
+    LevelEstimate,
+    LevelFactor,
+    MiningSource,
     QuestFlags,
     QuestGuide,
+    QuestRewardSource,
     QuestStep,
     QuestType,
     RequiredItemInfo,
     Rewards,
+    SpawnPoint,
     VendorSource,
+    ZoneInfo,
+    ZoneLine,
 )
 
 
-def generate(db_path: Path) -> list[QuestGuide]:
-    """Generate quest guide entries for all quests in the database.
+def generate(db_path: Path) -> GuideOutput:
+    """Generate quest guide with lookup tables for all quests in the database.
 
     Args:
         db_path: Path to the processed SQLite database.
 
     Returns:
-        List of QuestGuide entries, one per unique quest.
+        GuideOutput with lookup tables and quest entries.
     """
     conn = sqlite3.connect(str(db_path))
     conn.row_factory = sqlite3.Row
     try:
-        guides = _build_all_guides(conn)
+        # Build lookup tables
+        zone_lookup = _fetch_zone_lookup(conn)
+        character_spawns = _fetch_character_spawns(conn)
+        zone_lines = _fetch_zone_lines(conn)
+        chain_groups = _compute_chain_groups(conn)
+
+        # Build quest entries
+        guides = _build_all_guides(conn, zone_lookup)
         logger.info(f"Generated {len(guides)} quest guide entries")
-        return guides
+
+        return GuideOutput(
+            version=2,
+            zone_lookup=zone_lookup,
+            character_spawns=character_spawns,
+            zone_lines=zone_lines,
+            chain_groups=chain_groups,
+            quests=guides,
+        )
     finally:
         conn.close()
 
@@ -59,7 +88,7 @@ def generate(db_path: Path) -> list[QuestGuide]:
 # ---------------------------------------------------------------------------
 
 
-def _build_all_guides(conn: sqlite3.Connection) -> list[QuestGuide]:
+def _build_all_guides(conn: sqlite3.Connection, zone_lookup: dict[str, ZoneInfo]) -> list[QuestGuide]:
     """Build QuestGuide for every quest in the database."""
     quests = conn.execute(
         """
@@ -101,6 +130,19 @@ def _build_all_guides(conn: sqlite3.Connection) -> list[QuestGuide]:
     quest_names = {row["stable_key"]: row["display_name"] for row in quests}
     # Shout keywords
     shout_keywords = _fetch_shout_keywords(conn)
+    # Obtainability sources for required items
+    fishing_map = _fetch_fishing_sources(conn)
+    mining_map = _fetch_mining_sources(conn)
+    bag_map = _fetch_bag_sources(conn)
+    crafting_map = _fetch_crafting_sources(conn)
+    quest_reward_map = _fetch_quest_reward_sources(conn)
+    # Character levels for level estimation
+    char_levels = {
+        row["stable_key"]: row["level"]
+        for row in conn.execute(
+            "SELECT stable_key, level FROM characters WHERE level > 0 AND is_friendly = 0"
+        ).fetchall()
+    }
 
     guides: list[QuestGuide] = []
     for quest in quests:
@@ -110,7 +152,16 @@ def _build_all_guides(conn: sqlite3.Connection) -> list[QuestGuide]:
         acquisition = acquisition_map.get(sk, [])
         completion = completion_map.get(sk, [])
         required_items = _build_required_items(
-            variant_rn, required_items_map, drop_sources_map, vendor_sources_map, item_names
+            variant_rn,
+            required_items_map,
+            drop_sources_map,
+            vendor_sources_map,
+            item_names,
+            fishing_map,
+            mining_map,
+            bag_map,
+            crafting_map,
+            quest_reward_map,
         )
         rewards = _build_rewards(
             quest, chain_next_map, also_completes_map, faction_effects_map, item_names, quest_names
@@ -124,6 +175,8 @@ def _build_all_guides(conn: sqlite3.Connection) -> list[QuestGuide]:
         steps = _generate_steps(
             quest_type, acquisition, completion, required_items, zone_context, quest_names, shout_keywords, sk
         )
+
+        level_estimate = _compute_level_estimate(sk, completion, zone_lookup, npc_zones, char_levels)
 
         guide = QuestGuide(
             db_name=quest["db_name"],
@@ -140,6 +193,7 @@ def _build_all_guides(conn: sqlite3.Connection) -> list[QuestGuide]:
             rewards=rewards,
             chain=chain,
             flags=flags,
+            level_estimate=level_estimate,
         )
         guides.append(guide)
 
@@ -435,6 +489,11 @@ def _build_required_items(
     drop_sources_map: dict[str, list[DropSource]],
     vendor_sources_map: dict[str, list[VendorSource]],
     item_names: dict[str, str],
+    fishing_map: dict[str, list[FishingSource]],
+    mining_map: dict[str, list[MiningSource]],
+    bag_map: dict[str, list[BagSource]],
+    crafting_map: dict[str, list[CraftingSource]],
+    quest_reward_map: dict[str, list[QuestRewardSource]],
 ) -> list[RequiredItemInfo]:
     items = required_items_map.get(variant_rn, [])
     result = []
@@ -447,6 +506,11 @@ def _build_required_items(
                 quantity=item["quantity"],
                 drop_sources=drop_sources_map.get(isk, []),
                 vendor_sources=vendor_sources_map.get(isk, []),
+                fishing_sources=fishing_map.get(isk, []),
+                mining_sources=mining_map.get(isk, []),
+                bag_sources=bag_map.get(isk, []),
+                crafting_sources=crafting_map.get(isk, []),
+                quest_reward_sources=quest_reward_map.get(isk, []),
             )
         )
     return result
@@ -822,6 +886,291 @@ def _find_turnin_npc(completion: list[CompletionSource]) -> CompletionSource | N
         if comp.method == "item_turnin":
             return comp
     return None
+
+
+# ---------------------------------------------------------------------------
+# Lookup table fetchers
+# ---------------------------------------------------------------------------
+
+
+def _fetch_zone_lookup(conn: sqlite3.Connection) -> dict[str, ZoneInfo]:
+    """Build zone lookup keyed by scene_name with mob level statistics.
+
+    Only non-friendly characters with level > 0 contribute to level stats.
+    """
+    rows = conn.execute(
+        """
+        SELECT z.stable_key, z.scene_name, z.display_name, c.level
+        FROM zones z
+        JOIN character_spawns cs ON cs.zone_stable_key = z.stable_key
+        JOIN characters c ON cs.character_stable_key = c.stable_key
+        WHERE c.is_friendly = 0 AND c.level > 0
+        """
+    ).fetchall()
+    # Group levels by zone
+    zone_meta: dict[str, dict] = {}
+    zone_levels: dict[str, list[int]] = defaultdict(list)
+    for row in rows:
+        scene = row["scene_name"]
+        if scene not in zone_meta:
+            zone_meta[scene] = {"stable_key": row["stable_key"], "display_name": row["display_name"]}
+        zone_levels[scene].append(row["level"])
+    result: dict[str, ZoneInfo] = {}
+    for scene, levels in zone_levels.items():
+        meta = zone_meta[scene]
+        result[scene] = ZoneInfo(
+            stable_key=meta["stable_key"],
+            display_name=meta["display_name"],
+            level_min=min(levels),
+            level_max=max(levels),
+            level_median=int(median(levels)),
+        )
+    return result
+
+
+def _fetch_character_spawns(conn: sqlite3.Connection) -> dict[str, list[SpawnPoint]]:
+    """Return all character spawn points keyed by character_stable_key."""
+    rows = conn.execute(
+        """
+        SELECT character_stable_key, scene, x, y, z
+        FROM character_spawns
+        WHERE x IS NOT NULL
+        """
+    ).fetchall()
+    result: dict[str, list[SpawnPoint]] = {}
+    for row in rows:
+        sp = SpawnPoint(scene=row["scene"], x=row["x"], y=row["y"], z=row["z"])
+        result.setdefault(row["character_stable_key"], []).append(sp)
+    return result
+
+
+def _fetch_zone_lines(conn: sqlite3.Connection) -> list[ZoneLine]:
+    """Return all zone transition points with destination display names."""
+    rows = conn.execute(
+        """
+        SELECT zl.scene, zl.x, zl.y, zl.z,
+               zl.destination_zone_stable_key, z.display_name AS dest_display,
+               zl.landing_position_x, zl.landing_position_y, zl.landing_position_z
+        FROM zone_lines zl
+        LEFT JOIN zones z ON zl.destination_zone_stable_key = z.stable_key
+        """
+    ).fetchall()
+    return [
+        ZoneLine(
+            scene=row["scene"],
+            x=row["x"],
+            y=row["y"],
+            z=row["z"],
+            destination_zone_key=row["destination_zone_stable_key"] or "",
+            destination_display=row["dest_display"] or "",
+            landing_x=row["landing_position_x"],
+            landing_y=row["landing_position_y"],
+            landing_z=row["landing_position_z"],
+        )
+        for row in rows
+    ]
+
+
+def _fetch_fishing_sources(conn: sqlite3.Connection) -> dict[str, list[FishingSource]]:
+    """Return fishing sources keyed by item_stable_key."""
+    rows = conn.execute(
+        """
+        SELECT wf.item_stable_key, wf.water_stable_key, w.scene, wf.drop_chance,
+               z.display_name AS zone_name
+        FROM water_fishables wf
+        JOIN waters w ON wf.water_stable_key = w.stable_key
+        LEFT JOIN zones z ON z.scene_name = w.scene
+        """
+    ).fetchall()
+    result: dict[str, list[FishingSource]] = {}
+    for row in rows:
+        fs = FishingSource(
+            water_stable_key=row["water_stable_key"],
+            zone_name=row["zone_name"],
+            drop_chance=row["drop_chance"],
+        )
+        result.setdefault(row["item_stable_key"], []).append(fs)
+    return result
+
+
+def _fetch_mining_sources(conn: sqlite3.Connection) -> dict[str, list[MiningSource]]:
+    """Return mining sources keyed by item_stable_key."""
+    rows = conn.execute(
+        """
+        SELECT mni.item_stable_key, mni.mining_node_stable_key, mn.scene,
+               mni.drop_chance, z.display_name AS zone_name
+        FROM mining_node_items mni
+        JOIN mining_nodes mn ON mni.mining_node_stable_key = mn.stable_key
+        LEFT JOIN zones z ON z.scene_name = mn.scene
+        """
+    ).fetchall()
+    result: dict[str, list[MiningSource]] = {}
+    for row in rows:
+        ms = MiningSource(
+            node_stable_key=row["mining_node_stable_key"],
+            zone_name=row["zone_name"],
+            drop_chance=row["drop_chance"],
+        )
+        result.setdefault(row["item_stable_key"], []).append(ms)
+    return result
+
+
+def _fetch_bag_sources(conn: sqlite3.Connection) -> dict[str, list[BagSource]]:
+    """Return item bag (world pickup) sources keyed by item_stable_key."""
+    rows = conn.execute(
+        """
+        SELECT ib.item_stable_key, ib.scene, ib.x, ib.y, ib.z, ib.respawns,
+               z.display_name AS zone_name
+        FROM item_bags ib
+        LEFT JOIN zones z ON z.scene_name = ib.scene
+        WHERE ib.item_stable_key IS NOT NULL
+        """
+    ).fetchall()
+    result: dict[str, list[BagSource]] = {}
+    for row in rows:
+        bs = BagSource(
+            zone_name=row["zone_name"],
+            x=row["x"],
+            y=row["y"],
+            z=row["z"],
+            respawns=bool(row["respawns"]),
+        )
+        result.setdefault(row["item_stable_key"], []).append(bs)
+    return result
+
+
+def _fetch_crafting_sources(conn: sqlite3.Connection) -> dict[str, list[CraftingSource]]:
+    """Return crafting recipe sources keyed by reward_item_stable_key."""
+    rows = conn.execute(
+        """
+        SELECT cr.reward_item_stable_key, cr.recipe_item_stable_key,
+               i.display_name AS recipe_name
+        FROM crafting_rewards cr
+        JOIN items i ON cr.recipe_item_stable_key = i.stable_key
+        """
+    ).fetchall()
+    result: dict[str, list[CraftingSource]] = {}
+    for row in rows:
+        cs = CraftingSource(
+            recipe_item_name=row["recipe_name"],
+            recipe_item_stable_key=row["recipe_item_stable_key"],
+        )
+        result.setdefault(row["reward_item_stable_key"], []).append(cs)
+    return result
+
+
+def _fetch_quest_reward_sources(conn: sqlite3.Connection) -> dict[str, list[QuestRewardSource]]:
+    """Return quest reward sources keyed by item_stable_key."""
+    rows = conn.execute(
+        """
+        SELECT qv.item_on_complete_stable_key, q.display_name AS quest_name,
+               q.stable_key AS quest_stable_key
+        FROM quest_variants qv
+        JOIN quests q ON qv.quest_stable_key = q.stable_key
+        WHERE qv.item_on_complete_stable_key IS NOT NULL
+        """
+    ).fetchall()
+    result: dict[str, list[QuestRewardSource]] = {}
+    for row in rows:
+        qrs = QuestRewardSource(
+            quest_name=row["quest_name"],
+            quest_stable_key=row["quest_stable_key"],
+        )
+        result.setdefault(row["item_on_complete_stable_key"], []).append(qrs)
+    return result
+
+
+def _compute_chain_groups(conn: sqlite3.Connection) -> list[ChainGroup]:
+    """Walk assign_new_quest_on_complete chains and return ordered ChainGroups.
+
+    Finds root quests (no predecessor), walks each chain forward, and
+    produces a ChainGroup with quests ordered by chain position.
+    """
+    rows = conn.execute(
+        """
+        SELECT qv.quest_stable_key, qv.assign_new_quest_on_complete_stable_key,
+               q.display_name, q.db_name
+        FROM quest_variants qv
+        JOIN quests q ON qv.quest_stable_key = q.stable_key
+        WHERE qv.assign_new_quest_on_complete_stable_key IS NOT NULL
+          AND qv.assign_new_quest_on_complete_stable_key != ''
+        GROUP BY qv.quest_stable_key
+        HAVING MIN(qv.quest_db_index)
+        """
+    ).fetchall()
+    # Build adjacency: sk -> next_sk, and record metadata
+    next_map: dict[str, str] = {}
+    meta: dict[str, dict] = {}  # sk -> {display_name, db_name}
+    children: set[str] = set()
+    for row in rows:
+        sk = row["quest_stable_key"]
+        next_sk = row["assign_new_quest_on_complete_stable_key"]
+        next_map[sk] = next_sk
+        meta[sk] = {"display_name": row["display_name"], "db_name": row["db_name"]}
+        children.add(next_sk)
+    # We also need db_names for quests that are only children (end of chain)
+    # Fetch any missing metadata
+    missing = children - set(meta.keys())
+    if missing:
+        placeholders = ",".join("?" for _ in missing)
+        child_rows = conn.execute(
+            f"SELECT stable_key, display_name, db_name FROM quests WHERE stable_key IN ({placeholders})",
+            list(missing),
+        ).fetchall()
+        for row in child_rows:
+            meta[row["stable_key"]] = {"display_name": row["display_name"], "db_name": row["db_name"]}
+    # Roots: quests in next_map that are not children of any other quest
+    roots = [sk for sk in next_map if sk not in children]
+    groups: list[ChainGroup] = []
+    for root in roots:
+        db_names: list[str] = []
+        current: str | None = root
+        seen: set[str] = set()
+        while current and current not in seen:
+            seen.add(current)
+            if current in meta:
+                db_names.append(meta[current]["db_name"])
+            current = next_map.get(current)
+        # Append the final quest in the chain (it's a child, not in next_map)
+        if current and current in meta and current not in seen:
+            db_names.append(meta[current]["db_name"])
+        chain_name = meta[root]["display_name"] if root in meta else root
+        groups.append(ChainGroup(name=chain_name, quests=db_names))
+    return groups
+
+
+def _compute_level_estimate(
+    quest_sk: str,
+    completion_sources: list[CompletionSource],
+    zone_lookup: dict[str, ZoneInfo],
+    npc_zones: dict[str, str],
+    character_levels: dict[str, int],
+) -> LevelEstimate | None:
+    """Estimate recommended level from kill targets and zone mob levels.
+
+    Returns None if no level data is available.
+    """
+    factors: list[LevelFactor] = []
+    for comp in completion_sources:
+        if comp.method != "death":
+            continue
+        # Kill target level
+        target_sk = comp.source_stable_key
+        if target_sk and target_sk in character_levels:
+            factors.append(LevelFactor(source="kill_target", name=comp.source_name, level=character_levels[target_sk]))
+        # Zone median where this kill target lives
+        if target_sk and target_sk in npc_zones:
+            zone_display = npc_zones[target_sk]
+            # Find the ZoneInfo by display_name (zone_lookup is keyed by scene_name)
+            for zi in zone_lookup.values():
+                if zi.display_name == zone_display:
+                    if zi.level_median is not None:
+                        factors.append(LevelFactor(source="zone_median", name=zi.display_name, level=zi.level_median))
+                    break
+    if not factors:
+        return None
+    recommended = max(f.level for f in factors)
+    return LevelEstimate(recommended=recommended, factors=factors)
 
 
 # ---------------------------------------------------------------------------
