@@ -38,7 +38,7 @@ public sealed class Plugin : BaseUnityPlugin
         _data = GuideData.Load(Log);
         _state = new QuestStateTracker();
 
-        _imgui = new ImGuiRenderer(Log);
+        _imgui = new ImGuiRenderer(Log) { UiScale = _config.UiScale.Value };
         if (!_imgui.Init())
         {
             Log.LogError("ImGui.NET init failed — mod cannot render UI");

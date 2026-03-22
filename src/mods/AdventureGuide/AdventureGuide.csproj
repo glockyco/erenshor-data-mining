@@ -29,6 +29,7 @@
   <ItemGroup>
     <EmbeddedResource Include="../../../quest_guides/quest-guide.json" LogicalName="AdventureGuide.quest-guide.json" />
     <EmbeddedResource Include="resources/cimgui.dll" LogicalName="AdventureGuide.cimgui.dll" />
+    <EmbeddedResource Include="resources/Roboto-Regular.ttf" LogicalName="AdventureGuide.Roboto-Regular.ttf" />
   </ItemGroup>
 
   <!-- Version generation targets -->

@@ -109,9 +109,9 @@ public sealed class ImGuiRenderer : IDisposable
             // Build font atlas
             BuildFontAtlas();
 
-            // Scale for readability
+            // Scale UI elements and font together
             var style = ImGuiNET.ImGui.GetStyle();
-            style.ScaleAllSizes(1.25f);
+            style.ScaleAllSizes(_uiScale);
 
             // Create rendering material: UI/Default with alpha blending
             CreateMaterial();
@@ -206,10 +206,57 @@ public sealed class ImGuiRenderer : IDisposable
         }
     }
 
+    private const float BaseFontSize = 16f;
+    private float _uiScale = 1.0f;
+
+    /// <summary>Set before calling Init(). Scales font and UI element sizes.</summary>
+    public float UiScale { set => _uiScale = value; }
+
     private unsafe void BuildFontAtlas()
     {
         var io = ImGuiNET.ImGui.GetIO();
-        io.Fonts.AddFontDefault();
+
+        // Load Roboto from embedded resource instead of ImGui's default
+        // bitmap font (ProggyClean). Roboto matches the game's UI font.
+        var asm = Assembly.GetExecutingAssembly();
+        using var fontStream = asm.GetManifestResourceStream("AdventureGuide.Roboto-Regular.ttf");
+        if (fontStream != null)
+        {
+            var fontBytes = new byte[fontStream.Length];
+            fontStream.Read(fontBytes, 0, fontBytes.Length);
+
+            // ImGui takes ownership of this memory — allocate via ImGui's
+            // allocator so it can free it when the context is destroyed.
+            var fontPtr = ImGuiNET.ImGui.MemAlloc((uint)fontBytes.Length);
+            Marshal.Copy(fontBytes, 0, fontPtr, fontBytes.Length);
+
+            // Glyph ranges: Latin + the specific Unicode chars we use.
+            // Default range covers ASCII + Latin-1 Supplement (includes \u00b7 middle dot).
+            // We add checkmark (\u2713) and circle (\u25cb) explicitly.
+            var builder = new ImGuiNET.ImFontGlyphRangesBuilderPtr(
+                ImGuiNET.ImGuiNative.ImFontGlyphRangesBuilder_ImFontGlyphRangesBuilder());
+            builder.AddRanges(io.Fonts.GetGlyphRangesDefault());
+            builder.AddChar('\u2713');  // checkmark
+            builder.AddChar('\u25cb');  // circle
+            builder.BuildRanges(out ImGuiNET.ImVector ranges);
+
+            // Configure font: use cimgui's constructor to set proper defaults,
+            // then adjust oversampling for sharp sub-pixel rendering.
+            var configPtr = ImGuiNET.ImGuiNative.ImFontConfig_ImFontConfig();
+            configPtr->OversampleH = 2;
+            configPtr->OversampleV = 1;
+
+            io.Fonts.AddFontFromMemoryTTF(fontPtr, fontBytes.Length, BaseFontSize * _uiScale,
+                (ImGuiNET.ImFontConfigPtr)configPtr, ranges.Data);
+
+            builder.Destroy();
+        }
+        else
+        {
+            _log.LogWarning("Roboto-Regular.ttf not found in resources, using default font");
+            io.Fonts.AddFontDefault();
+        }
+
         io.Fonts.Build();
 
         io.Fonts.GetTexDataAsRGBA32(out byte* pixels, out int width, out int height, out int _);
