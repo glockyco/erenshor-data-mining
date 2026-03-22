@@ -48,7 +48,7 @@ public sealed class Plugin : BaseUnityPlugin
         }
 
         _entities = new EntityRegistry();
-        _nav = new NavigationController(_data, _entities);
+        _nav = new NavigationController(_data, _entities, _state);
         _arrow = new ArrowRenderer(_nav);
         _arrow.Enabled = _config.ShowArrow.Value;
         _config.ShowArrow.SettingChanged += OnShowArrowChanged;
@@ -75,6 +75,7 @@ public sealed class Plugin : BaseUnityPlugin
         QuestFinishPatch.Tracker = _state;
         QuestFinishPatch.Nav = _nav;
         InventoryPatch.Tracker = _state;
+        InventoryPatch.Nav = _nav;
         SpawnPatch.Registry = _entities;
         DeathPatch.Registry = _entities;
         PointerOverUIPatch.Renderer = _imgui;

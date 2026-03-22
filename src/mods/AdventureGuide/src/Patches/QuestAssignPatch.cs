@@ -14,6 +14,6 @@ internal static class QuestAssignPatch
     private static void Postfix(string _questName)
     {
         Tracker?.OnQuestAssigned(_questName);
-        Nav?.OnQuestAssigned(_questName, Tracker?.CurrentZone ?? "");
+        Nav?.OnGameStateChanged(Tracker?.CurrentZone ?? "");
     }
 }

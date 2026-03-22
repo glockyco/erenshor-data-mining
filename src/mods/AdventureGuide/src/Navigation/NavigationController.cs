@@ -1,6 +1,8 @@
 using AdventureGuide.Data;
+using AdventureGuide.State;
 using UnityEngine;
 using UnityEngine.AI;
+
 namespace AdventureGuide.Navigation;
 
 /// <summary>
@@ -13,7 +15,7 @@ public sealed class NavigationController
 {
     private readonly GuideData _data;
     private readonly EntityRegistry _entities;
-
+    private readonly QuestStateTracker _state;
     // Cache to avoid per-frame zone line waypoint allocation and reachability checks
     private ZoneLineEntry? _cachedZoneLine;
     private Vector3 _lastCrossZoneCalcPos;
@@ -37,10 +39,11 @@ public sealed class NavigationController
     /// </summary>
     public NavigationTarget? ZoneLineWaypoint { get; private set; }
 
-    public NavigationController(GuideData data, EntityRegistry entities)
+    public NavigationController(GuideData data, EntityRegistry entities, QuestStateTracker state)
     {
         _data = data;
         _entities = entities;
+        _state = state;
     }
 
     /// <summary>
@@ -97,50 +100,59 @@ public sealed class NavigationController
     }
 
     /// <summary>
-    /// Called when a quest is completed. Clears navigation if the completed
-    /// quest is the one currently being navigated.
+    /// Called when game state changes (quest assigned, quest completed,
+    /// inventory changed, NPC killed). Re-evaluates whether the current
+    /// nav step is still the active step and auto-advances if not.
     /// </summary>
-    public void OnQuestCompleted(string questDBName)
+    public void OnGameStateChanged(string currentScene)
     {
-        if (Target != null && Target.QuestDBName == questDBName)
-            Clear();
-    }
+        if (Target == null) return;
 
-    /// <summary>
-    /// Called when a quest is assigned. If we're navigating step 1 (the
-    /// acquisition step) of that quest, advance to the next navigable step.
-    /// </summary>
-    public void OnQuestAssigned(string questDBName, string currentScene)
-    {
-        if (Target == null || Target.QuestDBName != questDBName)
-            return;
-
-        // Only auto-advance from the acquisition step (step 1)
-        if (Target.StepOrder != 1)
-            return;
-
-        AdvanceToNextStep(questDBName, 1, currentScene);
-    }
-
-    /// <summary>
-    /// Try to navigate to the next step after the given step order.
-    /// Scans forward through the quest's steps for the first one with a target_key.
-    /// </summary>
-    private void AdvanceToNextStep(string questDBName, int completedStepOrder, string currentScene)
-    {
-        var quest = _data.GetByDBName(questDBName);
-        if (quest?.Steps == null) return;
-
-        foreach (var step in quest.Steps)
+        var quest = _data.GetByDBName(Target.QuestDBName);
+        if (quest?.Steps == null)
         {
-            if (step.Order <= completedStepOrder) continue;
-            if (step.TargetKey == null) continue;
-
-            NavigateTo(step, quest, currentScene);
+            Clear();
             return;
         }
 
-        // No more navigable steps — clear
+        // Quest completed — clear nav entirely
+        if (_state.IsCompleted(quest.DBName))
+        {
+            Clear();
+            return;
+        }
+
+        // Determine which step the player is currently on
+        int currentStepIdx = StepProgress.GetCurrentStepIndex(quest, _state);
+
+        // Find the index of the step we're navigating
+        int navStepIdx = -1;
+        for (int i = 0; i < quest.Steps.Count; i++)
+        {
+            if (quest.Steps[i].Order == Target.StepOrder)
+            {
+                navStepIdx = i;
+                break;
+            }
+        }
+
+        // Nav step is still the current step or ahead of it — nothing to do
+        if (navStepIdx < 0 || navStepIdx >= currentStepIdx)
+            return;
+
+        // Nav step is behind current step — advance to the first navigable
+        // step at or after the current step index
+        for (int i = currentStepIdx; i < quest.Steps.Count; i++)
+        {
+            var step = quest.Steps[i];
+            if (step.TargetKey != null)
+            {
+                NavigateTo(step, quest, currentScene);
+                return;
+            }
+        }
+
+        // No more navigable steps
         Clear();
     }
 

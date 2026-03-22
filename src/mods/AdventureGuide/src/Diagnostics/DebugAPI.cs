@@ -180,11 +180,9 @@ public static class DebugAPI
         bool wasActive = GameData.HasQuest.Remove(q.DBName);
         bool wasCompleted = GameData.CompletedQuests.Remove(q.DBName);
 
-        // Clear nav if we were navigating this quest
-        Nav?.OnQuestCompleted(q.DBName);
-
-        // Sync tracker cache
+        // Sync tracker cache, then let nav re-evaluate
         State.SyncFromGameData();
+        Nav?.OnGameStateChanged(State.CurrentZone);
 
         string prev = wasActive ? "active" : wasCompleted ? "completed" : "not in quest log";
         return $"Reset '{q.DisplayName}' (was {prev})";

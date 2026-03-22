@@ -14,6 +14,6 @@ internal static class QuestFinishPatch
     private static void Postfix(string _questName)
     {
         Tracker?.OnQuestCompleted(_questName);
-        Nav?.OnQuestCompleted(_questName);
+        Nav?.OnGameStateChanged(Tracker?.CurrentZone ?? "");
     }
 }
