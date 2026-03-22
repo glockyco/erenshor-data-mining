@@ -236,7 +236,7 @@ public sealed class QuestDetailPanel
     /// </summary>
     private void DrawStepSources(QuestStep step)
     {
-        if (step.Action != "collect" || step.TargetName == null)
+        if (step.Action is not "collect" and not "read" || step.TargetName == null)
         {
             DrawTips(step);
             return;
