@@ -59,7 +59,7 @@ def assemble_guides(ctx: QuestDataContext) -> list[QuestGuide]:
         completion = ctx.completion.get(sk, [])
 
         required_items = _build_required_items(variant_rn, sk, ctx)
-        _inject_trigger_items(sk, acquisition, required_items, ctx)
+        _inject_readable_items(sk, acquisition, completion, required_items, ctx)
         implicit_prereqs = _detect_implicit_prerequisites(sk, required_items, ctx)
 
         # Merge explicit + implicit prerequisites, dedup by quest_key
@@ -143,26 +143,40 @@ def _build_required_items(
     return result
 
 
-def _inject_trigger_items(
+def _inject_readable_items(
     quest_sk: str,
     acquisition: list[AcquisitionSource],
+    completion: list[CompletionSource],
     required_items: list[RequiredItemInfo],
     ctx: QuestDataContext,
 ) -> None:
-    """For item_read quests, add triggering items to *required_items*.
+    """Inject items the player must obtain and read into *required_items*.
 
-    When a quest has multiple item_read acquisition sources, they are
-    alternative triggers -- the player only needs one.  All are injected
-    with ``optional=True`` so the UI can show them as alternatives.
-    When there is exactly one trigger, it is not marked optional since
-    there is no alternative.
+    Covers two cases:
+    - item_read acquisition triggers (reading an item starts the quest)
+    - read completion sources (reading an item completes the quest)
+
+    When multiple readable items exist, they are alternatives (optional).
+    Mutates *required_items* in place.
     """
-    triggers = [a for a in acquisition if a.method == "item_read" and a.source_stable_key]
-    if not triggers:
+    # Collect all readable item stable keys from both acquisition and completion
+    readable: list[tuple[str, str]] = []  # (stable_key, display_name)
+    for acq in acquisition:
+        if acq.method == "item_read" and acq.source_stable_key:
+            readable.append((acq.source_stable_key, acq.source_name or acq.source_stable_key))
+    for comp in completion:
+        if (
+            comp.method == "read"
+            and comp.source_stable_key
+            and not any(sk == comp.source_stable_key for sk, _ in readable)
+        ):
+            readable.append((comp.source_stable_key, comp.source_name or comp.source_stable_key))
+
+    if not readable:
         return
-    is_optional = len(triggers) > 1
-    for acq in triggers:
-        isk = acq.source_stable_key
+
+    is_optional = len(readable) > 1
+    for isk, name in readable:
         if any(ri.item_stable_key == isk for ri in required_items):
             continue
         sources = [
@@ -170,7 +184,7 @@ def _inject_trigger_items(
         ]
         required_items.append(
             RequiredItemInfo(
-                item_name=ctx.item_names.get(isk, acq.source_name or isk),
+                item_name=ctx.item_names.get(isk, name),
                 item_stable_key=isk,
                 quantity=1,
                 optional=is_optional,

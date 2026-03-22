@@ -60470,6 +60470,14 @@
       "description": "A Guard in Port Azure has offered you the job of Reliquary Caretaker. All you have to do is go inside and make sure everything is in order. After that, you can do whatever you'd like with it. ",
       "quest_type": "hybrid",
       "zone_context": "Reliquary Hall",
+      "required_items": [
+        {
+          "item_name": "Box of Portals",
+          "item_stable_key": "item:gen - box of portals",
+          "quantity": 1,
+          "optional": false
+        }
+      ],
       "completion": [
         {
           "method": "read",
@@ -71414,7 +71422,33 @@
           "description": "Read Guide to Sight.",
           "target_name": "Guide to Sight",
           "target_type": "item",
-          "optional": false
+          "optional": false,
+          "level_estimate": {
+            "recommended": 21,
+            "factors": [
+              {
+                "source": "fishing",
+                "name": "Shivering Step",
+                "level": 21
+              }
+            ]
+          }
+        }
+      ],
+      "required_items": [
+        {
+          "item_name": "Guide to Sight",
+          "item_stable_key": "item:gen - how to see",
+          "quantity": 1,
+          "optional": false,
+          "sources": [
+            {
+              "type": "fishing",
+              "zone": "Shivering Step",
+              "level": 21,
+              "node_count": 2
+            }
+          ]
         }
       ],
       "completion": [
@@ -71436,6 +71470,16 @@
         "destroy_turn_in_holder": false,
         "drop_invuln_on_holder": false,
         "once_per_spawn_instance": false
+      },
+      "level_estimate": {
+        "recommended": 21,
+        "factors": [
+          {
+            "source": "step_1",
+            "name": "Read Guide to Sight.",
+            "level": 21
+          }
+        ]
       }
     },
     {
@@ -73080,7 +73124,34 @@
           "description": "Read Awaken the Angel.",
           "target_name": "Awaken the Angel",
           "target_type": "item",
-          "optional": false
+          "optional": false,
+          "level_estimate": {
+            "recommended": 24,
+            "factors": [
+              {
+                "source": "drop",
+                "name": "Kio the Darkbringer",
+                "level": 24
+              }
+            ]
+          }
+        }
+      ],
+      "required_items": [
+        {
+          "item_name": "Awaken the Angel",
+          "item_stable_key": "item:gen - awaken the angel",
+          "quantity": 1,
+          "optional": false,
+          "sources": [
+            {
+              "type": "drop",
+              "name": "Kio the Darkbringer",
+              "zone": "Shivering Step",
+              "level": 24,
+              "spawn_count": 1
+            }
+          ]
         }
       ],
       "completion": [
@@ -73102,6 +73173,16 @@
         "destroy_turn_in_holder": false,
         "drop_invuln_on_holder": false,
         "once_per_spawn_instance": false
+      },
+      "level_estimate": {
+        "recommended": 24,
+        "factors": [
+          {
+            "source": "step_1",
+            "name": "Read Awaken the Angel.",
+            "level": 24
+          }
+        ]
       }
     },
     {
@@ -81878,7 +81959,17 @@
           "description": "Read Torn Note.",
           "target_name": "Torn Note",
           "target_type": "item",
-          "optional": true
+          "optional": true,
+          "level_estimate": {
+            "recommended": 4,
+            "factors": [
+              {
+                "source": "drop",
+                "name": "Ghost of Wyland Sercher",
+                "level": 4
+              }
+            ]
+          }
         },
         {
           "order": 2,
@@ -81886,7 +81977,49 @@
           "description": "Read Marching Orders.",
           "target_name": "Marching Orders",
           "target_type": "item",
-          "optional": true
+          "optional": true,
+          "level_estimate": {
+            "recommended": 28,
+            "factors": [
+              {
+                "source": "drop",
+                "name": "Gherist Morthario",
+                "level": 28
+              }
+            ]
+          }
+        }
+      ],
+      "required_items": [
+        {
+          "item_name": "Torn Note",
+          "item_stable_key": "item:gen - a torn note",
+          "quantity": 1,
+          "optional": true,
+          "sources": [
+            {
+              "type": "drop",
+              "name": "Ghost of Wyland Sercher",
+              "zone": "Island Tomb",
+              "level": 4,
+              "spawn_count": 1
+            }
+          ]
+        },
+        {
+          "item_name": "Marching Orders",
+          "item_stable_key": "item:gen - marching orders",
+          "quantity": 1,
+          "optional": true,
+          "sources": [
+            {
+              "type": "drop",
+              "name": "Gherist Morthario",
+              "zone": "Rottenfoot",
+              "level": 28,
+              "spawn_count": 1
+            }
+          ]
         }
       ],
       "completion": [
@@ -81921,6 +82054,16 @@
         "destroy_turn_in_holder": false,
         "drop_invuln_on_holder": false,
         "once_per_spawn_instance": false
+      },
+      "level_estimate": {
+        "recommended": 4,
+        "factors": [
+          {
+            "source": "step_1",
+            "name": "Read Torn Note.",
+            "level": 4
+          }
+        ]
       }
     },
     {
