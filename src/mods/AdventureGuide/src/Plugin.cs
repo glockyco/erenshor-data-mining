@@ -63,6 +63,7 @@ public sealed class Plugin : BaseUnityPlugin
         // Inject dependencies into Harmony patches
         QuestAssignPatch.Tracker = _state;
         QuestFinishPatch.Tracker = _state;
+        QuestFinishPatch.Nav = _nav;
         InventoryPatch.Tracker = _state;
         SpawnPatch.Registry = _entities;
         DeathPatch.Registry = _entities;

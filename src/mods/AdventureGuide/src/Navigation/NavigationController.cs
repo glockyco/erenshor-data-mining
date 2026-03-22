@@ -87,6 +87,16 @@ public sealed class NavigationController
     }
 
     /// <summary>
+    /// Called when a quest is completed. Clears navigation if the completed
+    /// quest is the one currently being navigated.
+    /// </summary>
+    public void OnQuestCompleted(string questDBName)
+    {
+        if (Target != null && Target.QuestDBName == questDBName)
+            Clear();
+    }
+
+    /// <summary>
     /// Call each frame. Updates distance/direction to the active target.
     /// Upgrades to live NPC position when one becomes available.
     /// Routes through zone lines for cross-zone targets.
