@@ -128,19 +128,36 @@ def _compute_step_level(
 
 
 def _compute_quest_level(steps: list[QuestStep]) -> LevelEstimate | None:
-    """Quest level = max of per-step levels (hardest unavoidable step).
+    """Quest level = max of effective per-step levels.
 
-    A single factor references the driving step for transparency.
+    Required steps contribute their level directly. Consecutive optional
+    steps (alternatives) contribute the minimum of their group since the
+    player only needs to complete one.
     """
-    step_levels: list[tuple[QuestStep, int]] = []
-    for step in steps:
-        if step.level_estimate and step.level_estimate.recommended is not None:
-            step_levels.append((step, step.level_estimate.recommended))
+    effective: list[tuple[QuestStep, int]] = []
+    optional_group: list[tuple[QuestStep, int]] = []
 
-    if not step_levels:
+    def flush_optional() -> None:
+        if optional_group:
+            best = min(optional_group, key=lambda t: t[1])
+            effective.append(best)
+            optional_group.clear()
+
+    for step in steps:
+        if step.level_estimate is None or step.level_estimate.recommended is None:
+            continue
+        if step.optional:
+            optional_group.append((step, step.level_estimate.recommended))
+        else:
+            flush_optional()
+            effective.append((step, step.level_estimate.recommended))
+
+    flush_optional()
+
+    if not effective:
         return None
 
-    max_step, max_level = max(step_levels, key=lambda t: t[1])
+    max_step, max_level = max(effective, key=lambda t: t[1])
     return LevelEstimate(
         recommended=max_level,
         factors=[

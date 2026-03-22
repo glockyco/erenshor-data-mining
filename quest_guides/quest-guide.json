@@ -82093,12 +82093,12 @@
         "once_per_spawn_instance": false
       },
       "level_estimate": {
-        "recommended": 28,
+        "recommended": 4,
         "factors": [
           {
-            "source": "step_2",
-            "name": "Obtain and read Marching Orders.",
-            "level": 28
+            "source": "step_1",
+            "name": "Obtain and read Torn Note.",
+            "level": 4
           }
         ]
       }
