@@ -54,6 +54,9 @@ public sealed class QuestDetailPanel
         ImGui.TextWrapped(quest.DisplayName);
         ImGui.PopStyleColor();
 
+        // Level + zone on one line (replaces separate "Zone:" line)
+        DrawLevelZoneLine(quest);
+
         // All acquisition sources (not just dialog)
         if (quest.Acquisition != null)
         {
@@ -98,13 +101,6 @@ public sealed class QuestDetailPanel
             }
         }
 
-        if (quest.ZoneContext != null)
-        {
-            ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
-            ImGui.Text($"Zone: {quest.ZoneContext}");
-            ImGui.PopStyleColor();
-        }
-
         // Description
         if (quest.Description != null)
         {
@@ -115,6 +111,42 @@ public sealed class QuestDetailPanel
         ImGui.Spacing();
         ImGui.Separator();
         ImGui.Spacing();
+    }
+
+    private static void DrawLevelZoneLine(QuestEntry quest)
+    {
+        int? level = quest.LevelEstimate?.Recommended;
+        string? zone = quest.ZoneContext;
+
+        if (level == null && zone == null)
+            return;
+
+        ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
+
+        string meta = "";
+        if (level != null)
+            meta = $"Lv {level}";
+        if (level != null && zone != null)
+            meta += "  \u00b7  ";
+        if (zone != null)
+            meta += zone;
+
+        ImGui.Text(meta);
+
+        // Tooltip with level factor breakdown on hover
+        if (ImGui.IsItemHovered() && quest.LevelEstimate?.Factors is { Count: > 0 } factors)
+        {
+            ImGui.BeginTooltip();
+            ImGui.Text("Level sources:");
+            foreach (var f in factors)
+            {
+                string name = f.Name ?? f.Source;
+                ImGui.Text($"  {name}: Lv {f.Level}");
+            }
+            ImGui.EndTooltip();
+        }
+
+        ImGui.PopStyleColor();
     }
 
     // ── Objectives ──────────────────────────────────────────────────
