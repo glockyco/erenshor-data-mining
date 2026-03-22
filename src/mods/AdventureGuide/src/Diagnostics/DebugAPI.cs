@@ -152,4 +152,42 @@ public static class DebugAPI
 
         return lines.ToString();
     }
+
+    /// <summary>
+    /// Remove a quest from the player's active and completed lists so it
+    /// can be accepted again. Accepts DB name or display name. Syncs the
+    /// mod's cached state after modification.
+    /// </summary>
+    public static string ResetQuest(string name)
+    {
+        if (Data == null || State == null) return "Not initialized";
+
+        // Resolve to DB name
+        var q = Data.GetByDBName(name);
+        if (q == null)
+        {
+            foreach (var entry in Data.All)
+            {
+                if (string.Equals(entry.DisplayName, name, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    q = entry;
+                    break;
+                }
+            }
+        }
+        if (q == null) return $"Quest '{name}' not found";
+
+        bool wasActive = GameData.HasQuest.Remove(q.DBName);
+        bool wasCompleted = GameData.CompletedQuests.Remove(q.DBName);
+
+        // Clear nav if we were navigating this quest
+        Nav?.OnQuestCompleted(q.DBName);
+
+        // Sync tracker cache
+        State.SyncFromGameData();
+
+        string prev = wasActive ? "active" : wasCompleted ? "completed" : "not in quest log";
+        return $"Reset '{q.DisplayName}' (was {prev})";
+    }
+
 }
