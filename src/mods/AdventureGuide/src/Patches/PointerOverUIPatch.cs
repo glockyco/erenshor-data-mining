@@ -1,5 +1,4 @@
 using AdventureGuide.Rendering;
-using AdventureGuide.UI;
 using HarmonyLib;
 using UnityEngine.EventSystems;
 

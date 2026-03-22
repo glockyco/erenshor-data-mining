@@ -112,9 +112,11 @@ public sealed class Plugin : BaseUnityPlugin
 
     private void OnPostRender(Camera cam)
     {
-        // Only render for the main camera to avoid duplicates
-        if (cam != Camera.main) return;
-        _arrow?.RenderGL();
+        // Game camera is named "MainCam" but not tagged "MainCamera",
+        // so Camera.main is null. Filter by name to avoid drawing on
+        // every camera (MapCam, UI Camera, etc.).
+        if (cam.name != "MainCam") return;
+        _arrow?.RenderGL(cam);
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)

@@ -36,13 +36,15 @@ public sealed class ArrowRenderer
     public ArrowRenderer(NavigationController nav)
     {
         _nav = nav;
+        CreateMaterial();
     }
 
     /// <summary>
-    /// Call from OnRenderObject or Camera.onPostRender. Draws the arrow
-    /// using GL immediate mode in screen-space pixel coordinates.
+    /// Call from Camera.onPostRender. Draws the arrow using GL immediate
+    /// mode in screen-space pixel coordinates. Receives the camera from the
+    /// callback because Camera.main is null in this game (camera is not tagged).
     /// </summary>
-    public void RenderGL()
+    public void RenderGL(Camera cam)
     {
         if (!_enabled || _nav.Target == null || _nav.Distance < ArrivalDistance)
         {
@@ -50,11 +52,7 @@ public sealed class ArrowRenderer
             return;
         }
 
-        EnsureMaterial();
-        if (_material == null) return;
-
-        var cam = Camera.main;
-        if (cam == null) return;
+        if (_material == null || cam == null) return;
 
         // Determine effective target position (zone line waypoint or direct target)
         var effectiveTarget = _nav.ZoneLineWaypoint ?? _nav.Target;
@@ -228,10 +226,8 @@ public sealed class ArrowRenderer
         GL.End();
     }
 
-    private void EnsureMaterial()
+    private void CreateMaterial()
     {
-        if (_material != null) return;
-        // Unlit colored material for GL drawing
         var shader = Shader.Find("Hidden/Internal-Colored");
         if (shader == null) return;
         _material = new Material(shader)
