@@ -147,7 +147,7 @@ public sealed class QuestDetailPanel
                 int? stepLvl = step.LevelEstimate?.Recommended;
                 string lvlStr = stepLvl.HasValue ? $"Lv {stepLvl,2}" : "    ";
                 bool isDriving = questLvl.HasValue && stepLvl == questLvl;
-                string marker = isDriving ? " \u25c4" : "";
+                string marker = isDriving ? " <" : "";
                 uint tipColor = isDriving ? Theme.TextPrimary : Theme.TextSecondary;
                 ImGui.PushStyleColor(ImGuiCol.Text, tipColor);
                 ImGui.Text($"  {step.Order}. {step.Description}  {lvlStr}{marker}");
