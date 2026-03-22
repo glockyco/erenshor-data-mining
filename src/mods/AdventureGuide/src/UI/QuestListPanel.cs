@@ -14,6 +14,7 @@ public sealed class QuestListPanel
     private readonly FilterState _filter;
 
     private string _searchBuf = string.Empty;
+    private readonly List<QuestEntry> _sorted = new();
 
     private static readonly string[] FilterNames = { "Active", "Available", "Completed", "All" };
     private int _filterIndex;
@@ -27,8 +28,8 @@ public sealed class QuestListPanel
 
     public void Draw(float width)
     {
-        // Fixed header: filter + search (not scrollable)
-        DrawFilterRow();
+        // Fixed header: filter + sort + search (not scrollable)
+        DrawFilterRow(width);
         DrawSearchBar();
 
         ImGui.Separator();
@@ -53,15 +54,36 @@ public sealed class QuestListPanel
         ImGui.EndChild();
     }
 
-    private void DrawFilterRow()
+    private void DrawFilterRow(float width)
     {
         _filterIndex = (int)_filter.FilterMode;
 
-        ImGui.SetNextItemWidth(-1);
+        // Filter combo takes ~55% of panel width, sort buttons fill the rest
+        ImGui.SetNextItemWidth(width * 0.55f);
         if (ImGui.Combo("##Filter", ref _filterIndex, FilterNames, FilterNames.Length))
             _filter.FilterMode = (QuestFilterMode)_filterIndex;
 
+        ImGui.SameLine();
+        DrawSortButton("Az", QuestSortMode.Alphabetical);
+        ImGui.SameLine(0, 2);
+        DrawSortButton("Lv", QuestSortMode.ByLevel);
+        ImGui.SameLine(0, 2);
+        DrawSortButton("Zn", QuestSortMode.ByZone);
+
         ImGui.Spacing();
+    }
+
+    private void DrawSortButton(string label, QuestSortMode mode)
+    {
+        bool active = _filter.SortMode == mode;
+        if (active)
+            ImGui.PushStyleColor(ImGuiCol.Button, Theme.Accent);
+
+        if (ImGui.SmallButton(label + "##sort"))
+            _filter.SortMode = mode;
+
+        if (active)
+            ImGui.PopStyleColor();
     }
 
     private void DrawSearchBar()
@@ -77,27 +99,57 @@ public sealed class QuestListPanel
         ImGui.Spacing();
     }
 
-    /// <summary>Draw filtered quest list. Returns count of visible quests.</summary>
+    /// <summary>Draw filtered, sorted quest list. Returns count of visible quests.</summary>
     private int DrawQuestList()
     {
-        int count = 0;
+        _sorted.Clear();
         var all = _data.All;
 
         for (int i = 0; i < all.Count; i++)
         {
             var quest = all[i];
-
-            if (!PassesFilter(quest))
-                continue;
-
-            if (!PassesSearch(quest))
-                continue;
-
-            DrawQuestEntry(quest);
-            count++;
+            if (PassesFilter(quest) && PassesSearch(quest))
+                _sorted.Add(quest);
         }
 
-        return count;
+        _sorted.Sort(CompareQuests);
+
+        foreach (var quest in _sorted)
+            DrawQuestEntry(quest);
+
+        return _sorted.Count;
+    }
+
+    private int CompareQuests(QuestEntry a, QuestEntry b)
+    {
+        return _filter.SortMode switch
+        {
+            QuestSortMode.ByLevel => CompareLevels(a, b),
+            QuestSortMode.ByZone  => CompareZones(a, b),
+            _                     => string.Compare(a.DisplayName, b.DisplayName, StringComparison.OrdinalIgnoreCase),
+        };
+    }
+
+    private static int CompareLevels(QuestEntry a, QuestEntry b)
+    {
+        int? la = a.LevelEstimate?.Recommended;
+        int? lb = b.LevelEstimate?.Recommended;
+        if (la == null && lb == null)
+            return string.Compare(a.DisplayName, b.DisplayName, StringComparison.OrdinalIgnoreCase);
+        if (la == null) return 1;  // null sorts to end
+        if (lb == null) return -1;
+        int cmp = la.Value.CompareTo(lb.Value);
+        return cmp != 0 ? cmp : string.Compare(a.DisplayName, b.DisplayName, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static int CompareZones(QuestEntry a, QuestEntry b)
+    {
+        if (a.ZoneContext == null && b.ZoneContext == null)
+            return string.Compare(a.DisplayName, b.DisplayName, StringComparison.OrdinalIgnoreCase);
+        if (a.ZoneContext == null) return 1;  // null sorts to end
+        if (b.ZoneContext == null) return -1;
+        int cmp = string.Compare(a.ZoneContext, b.ZoneContext, StringComparison.OrdinalIgnoreCase);
+        return cmp != 0 ? cmp : string.Compare(a.DisplayName, b.DisplayName, StringComparison.OrdinalIgnoreCase);
     }
 
     private bool PassesFilter(QuestEntry quest)
