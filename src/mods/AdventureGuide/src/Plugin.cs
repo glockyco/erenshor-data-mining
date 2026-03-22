@@ -67,8 +67,21 @@ public sealed class Plugin : BaseUnityPlugin
         Log.LogInfo($"{PluginInfo.Name} v{PluginInfo.Version} loaded ({_data.Count} quests)");
     }
 
+    private bool _wasCapturingKeyboard;
+
     private void Update()
     {
+        // Set game's typing flag when ImGui has keyboard focus (e.g., search
+        // field). This prevents game keybinds from firing while typing. We
+        // only set it to true, never force it false — other game UI (chat,
+        // etc.) may also set it.
+        bool imguiWantsKb = _imgui?.WantCaptureKeyboard ?? false;
+        if (imguiWantsKb && !_wasCapturingKeyboard)
+            GameData.PlayerTyping = true;
+        else if (!imguiWantsKb && _wasCapturingKeyboard)
+            GameData.PlayerTyping = false;
+        _wasCapturingKeyboard = imguiWantsKb;
+
         if (_config == null || _window == null) return;
         if (GameData.PlayerTyping) return;
 
