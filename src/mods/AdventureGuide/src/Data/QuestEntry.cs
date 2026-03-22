@@ -21,6 +21,7 @@ public sealed class QuestEntry
     [JsonProperty("rewards")] public RewardInfo? Rewards { get; set; }
     [JsonProperty("chain")] public List<ChainLink>? Chain { get; set; }
     [JsonProperty("flags")] public QuestFlags? Flags { get; set; }
+    [JsonProperty("level_estimate")] public LevelEstimate? LevelEstimate { get; set; }
 }
 
 public sealed class QuestStep
@@ -62,6 +63,11 @@ public sealed class RequiredItemInfo
     [JsonProperty("quantity")] public int Quantity { get; set; } = 1;
     [JsonProperty("drop_sources")] public List<DropSource>? DropSources { get; set; }
     [JsonProperty("vendor_sources")] public List<VendorSource>? VendorSources { get; set; }
+    [JsonProperty("fishing_sources")] public List<FishingSource>? FishingSources { get; set; }
+    [JsonProperty("mining_sources")] public List<MiningSource>? MiningSources { get; set; }
+    [JsonProperty("bag_sources")] public List<BagSource>? BagSources { get; set; }
+    [JsonProperty("crafting_sources")] public List<CraftingSource>? CraftingSources { get; set; }
+    [JsonProperty("quest_reward_sources")] public List<QuestRewardSource>? QuestRewardSources { get; set; }
 }
 
 public sealed class DropSource
@@ -74,6 +80,55 @@ public sealed class VendorSource
 {
     [JsonProperty("character_name")] public string CharacterName { get; set; } = "";
     [JsonProperty("zone_name")] public string? ZoneName { get; set; }
+
+}
+
+public sealed class FishingSource
+{
+    [JsonProperty("water_stable_key")] public string WaterStableKey { get; set; } = "";
+    [JsonProperty("zone_name")] public string? ZoneName { get; set; }
+    [JsonProperty("drop_chance")] public float? DropChance { get; set; }
+}
+
+public sealed class MiningSource
+{
+    [JsonProperty("node_stable_key")] public string NodeStableKey { get; set; } = "";
+    [JsonProperty("zone_name")] public string? ZoneName { get; set; }
+    [JsonProperty("drop_chance")] public float? DropChance { get; set; }
+}
+
+public sealed class BagSource
+{
+    [JsonProperty("zone_name")] public string? ZoneName { get; set; }
+    [JsonProperty("x")] public float? X { get; set; }
+    [JsonProperty("y")] public float? Y { get; set; }
+    [JsonProperty("z")] public float? Z { get; set; }
+    [JsonProperty("respawns")] public bool Respawns { get; set; }
+}
+
+public sealed class CraftingSource
+{
+    [JsonProperty("recipe_item_name")] public string RecipeItemName { get; set; } = "";
+    [JsonProperty("recipe_item_stable_key")] public string RecipeItemStableKey { get; set; } = "";
+}
+
+public sealed class QuestRewardSource
+{
+    [JsonProperty("quest_name")] public string QuestName { get; set; } = "";
+    [JsonProperty("quest_stable_key")] public string QuestStableKey { get; set; } = "";
+}
+
+public sealed class LevelEstimate
+{
+    [JsonProperty("recommended")] public int? Recommended { get; set; }
+    [JsonProperty("factors")] public List<LevelFactor>? Factors { get; set; }
+}
+
+public sealed class LevelFactor
+{
+    [JsonProperty("source")] public string Source { get; set; } = "";
+    [JsonProperty("name")] public string? Name { get; set; }
+    [JsonProperty("level")] public int Level { get; set; }
 }
 
 public sealed class RewardInfo

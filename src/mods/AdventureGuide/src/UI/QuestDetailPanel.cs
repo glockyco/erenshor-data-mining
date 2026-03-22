@@ -222,8 +222,34 @@ public sealed class QuestDetailPanel
             }
         }
 
-        // TODO: fishing, mining, item bags, crafting, quest rewards
-        // These sources need to be added to the data model first (Phase 3)
+        if (item.FishingSources is { Count: > 0 })
+            foreach (var fs in item.FishingSources)
+            {
+                var zone = fs.ZoneName != null ? $" ({fs.ZoneName})" : "";
+                ImGui.Text($"Fishing{zone}");
+            }
+
+        if (item.MiningSources is { Count: > 0 })
+            foreach (var ms in item.MiningSources)
+            {
+                var zone = ms.ZoneName != null ? $" ({ms.ZoneName})" : "";
+                ImGui.Text($"Mining{zone}");
+            }
+
+        if (item.BagSources is { Count: > 0 })
+            foreach (var bs in item.BagSources)
+            {
+                var zone = bs.ZoneName != null ? $" ({bs.ZoneName})" : "";
+                ImGui.Text($"Found in world{zone}");
+            }
+
+        if (item.CraftingSources is { Count: > 0 })
+            foreach (var cs in item.CraftingSources)
+                ImGui.Text($"Crafted from: {cs.RecipeItemName}");
+
+        if (item.QuestRewardSources is { Count: > 0 })
+            foreach (var qr in item.QuestRewardSources)
+                ImGui.Text($"Quest reward: {qr.QuestName}");
 
         ImGui.PopStyleColor();
         ImGui.Unindent(Theme.IndentWidth);
