@@ -45,6 +45,7 @@ public sealed class AcquisitionSource
     [JsonProperty("method")] public string Method { get; set; } = "";
     [JsonProperty("source_name")] public string? SourceName { get; set; }
     [JsonProperty("source_type")] public string? SourceType { get; set; }
+    [JsonProperty("source_stable_key")] public string? SourceStableKey { get; set; }
     [JsonProperty("zone_name")] public string? ZoneName { get; set; }
     [JsonProperty("keyword")] public string? Keyword { get; set; }
     [JsonProperty("note")] public string? Note { get; set; }
@@ -55,6 +56,7 @@ public sealed class CompletionSource
     [JsonProperty("method")] public string Method { get; set; } = "";
     [JsonProperty("source_name")] public string? SourceName { get; set; }
     [JsonProperty("source_type")] public string? SourceType { get; set; }
+    [JsonProperty("source_stable_key")] public string? SourceStableKey { get; set; }
     [JsonProperty("zone_name")] public string? ZoneName { get; set; }
     [JsonProperty("keyword")] public string? Keyword { get; set; }
     [JsonProperty("note")] public string? Note { get; set; }
