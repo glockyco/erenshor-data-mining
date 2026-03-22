@@ -85,6 +85,7 @@ public sealed class NavigationController
     {
         Target = null;
         ZoneLineWaypoint = null;
+        _cachedZoneLine = null;
         Distance = 0f;
         Direction = Vector3.zero;
     }
