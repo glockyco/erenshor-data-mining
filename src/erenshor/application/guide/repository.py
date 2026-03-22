@@ -642,6 +642,7 @@ def _add_drop_sources(
     rows = conn.execute(
         """
         SELECT ld.item_stable_key,
+               c.stable_key AS character_key,
                c.display_name AS character_name,
                c.level,
                z.display_name AS zone_name,
@@ -662,6 +663,7 @@ def _add_drop_sources(
                 name=row["character_name"],
                 zone=row["zone_name"],
                 level=level,
+                source_key=row["character_key"],
                 spawn_count=row["spawn_count"] if row["zone_name"] else None,
             )
         )
@@ -676,6 +678,7 @@ def _add_vendor_sources(
     rows = conn.execute(
         """
         SELECT DISTINCT cvi.item_stable_key,
+               c.stable_key AS character_key,
                c.display_name AS character_name,
                z.display_name AS zone_name
         FROM character_vendor_items cvi
@@ -683,7 +686,7 @@ def _add_vendor_sources(
         LEFT JOIN character_spawns cs ON cs.character_stable_key = c.stable_key
         LEFT JOIN zones z ON z.stable_key = cs.zone_stable_key
         WHERE c.is_map_visible = 1
-        GROUP BY cvi.item_stable_key, c.display_name, z.display_name
+        GROUP BY cvi.item_stable_key, c.stable_key, z.display_name
         """
     ).fetchall()
     for row in rows:
@@ -695,6 +698,7 @@ def _add_vendor_sources(
                 name=row["character_name"],
                 zone=zone_name,
                 level=zi.level_median if zi else None,
+                source_key=row["character_key"],
             )
         )
 

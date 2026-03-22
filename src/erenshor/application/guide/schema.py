@@ -97,6 +97,7 @@ class ItemSource:
     name: str | None = None  # entity name (enemy, vendor, recipe item, quest name)
     zone: str | None = None  # zone display name
     level: int | None = None  # recommended level to use this source
+    source_key: str | None = None  # for drop/vendor: character stable_key for spawn lookup
     quest_key: str | None = None  # for quest_reward: rewarding quest's stable_key
     node_count: int | None = None  # for mining/fishing/pickup: nodes per zone
     spawn_count: int | None = None  # for drop: enemy spawn points in this zone
