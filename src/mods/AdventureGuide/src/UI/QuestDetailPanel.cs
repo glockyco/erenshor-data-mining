@@ -1,4 +1,5 @@
 using AdventureGuide.Data;
+using AdventureGuide.Navigation;
 using AdventureGuide.State;
 using ImGuiNET;
 
@@ -12,11 +13,13 @@ public sealed class QuestDetailPanel
 {
     private readonly GuideData _data;
     private readonly QuestStateTracker _state;
+    private readonly NavigationController _nav;
 
-    public QuestDetailPanel(GuideData data, QuestStateTracker state)
+    public QuestDetailPanel(GuideData data, QuestStateTracker state, NavigationController nav)
     {
         _data = data;
         _state = state;
+        _nav = nav;
     }
 
     public void Draw()
@@ -187,11 +190,11 @@ public sealed class QuestDetailPanel
             }
 
             if (i < currentStepIndex)
-                DrawStep(step, StepState.Completed);
+                DrawStep(step, StepState.Completed, quest);
             else if (i == currentStepIndex)
-                DrawStep(step, StepState.Current);
+                DrawStep(step, StepState.Current, quest);
             else
-                DrawStep(step, StepState.Future);
+                DrawStep(step, StepState.Future, quest);
 
             prevWasOptional = isOptional;
         }
@@ -201,7 +204,7 @@ public sealed class QuestDetailPanel
 
     private enum StepState { Completed, Current, Future }
 
-    private void DrawStep(QuestStep step, StepState state)
+    private void DrawStep(QuestStep step, StepState state, QuestEntry quest)
     {
         uint color = state switch
         {
@@ -245,8 +248,44 @@ public sealed class QuestDetailPanel
         ImGui.Text(text);
         ImGui.PopStyleColor();
 
+        // [NAV] button on same line
+        DrawNavButton(step, quest);
+
         // Drop/vendor sources and tips for collect steps
         DrawStepSources(step);
+    }
+
+    private void DrawNavButton(QuestStep step, QuestEntry quest)
+    {
+        if (step.TargetKey == null) return;
+
+        bool isActive = _nav.IsNavigating(quest.DBName, step.Order);
+
+        ImGui.SameLine();
+        if (isActive)
+            ImGui.PushStyleColor(ImGuiCol.Button, Theme.QuestActive);
+
+        string label = isActive ? "[NAV]" : "[NAV]";
+        if (ImGui.SmallButton($"{label}##{step.Order}"))
+        {
+            if (isActive)
+                _nav.Clear();
+            else
+                _nav.NavigateTo(step, quest, _state.CurrentZone);
+        }
+
+        if (isActive)
+            ImGui.PopStyleColor();
+
+        if (ImGui.IsItemHovered())
+        {
+            ImGui.BeginTooltip();
+            if (isActive)
+                ImGui.Text("Click to stop navigating");
+            else
+                ImGui.Text($"Navigate to {step.TargetName ?? step.Description}");
+            ImGui.EndTooltip();
+        }
     }
 
     /// <summary>

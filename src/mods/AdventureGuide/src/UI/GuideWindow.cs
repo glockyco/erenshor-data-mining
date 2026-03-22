@@ -1,5 +1,6 @@
 using System.Numerics;
 using AdventureGuide.Data;
+using AdventureGuide.Navigation;
 using AdventureGuide.State;
 using ImGuiNET;
 
@@ -25,12 +26,12 @@ public sealed class GuideWindow
 
     public FilterState Filter => _filter;
 
-    public GuideWindow(GuideData data, QuestStateTracker state)
+    public GuideWindow(GuideData data, QuestStateTracker state, NavigationController nav)
     {
         _data = data;
         _state = state;
         _listPanel = new QuestListPanel(data, state, _filter);
-        _detailPanel = new QuestDetailPanel(data, state);
+        _detailPanel = new QuestDetailPanel(data, state, nav);
         _progressPanel = new ProgressPanel(data, state);
     }
 

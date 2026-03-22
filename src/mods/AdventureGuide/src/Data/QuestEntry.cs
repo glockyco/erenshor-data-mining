@@ -31,6 +31,7 @@ public sealed class QuestStep
     [JsonProperty("description")] public string Description { get; set; } = "";
     [JsonProperty("target_name")] public string? TargetName { get; set; }
     [JsonProperty("target_type")] public string? TargetType { get; set; }
+    [JsonProperty("target_key")] public string? TargetKey { get; set; }
     [JsonProperty("quantity")] public int? Quantity { get; set; }
     [JsonProperty("zone_name")] public string? ZoneName { get; set; }
     [JsonProperty("keyword")] public string? Keyword { get; set; }

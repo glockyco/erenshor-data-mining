@@ -92,6 +92,10 @@
       <HintPath>lib/UnityEngine.UI.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="UnityEngine.AIModule">
+      <HintPath>lib/UnityEngine.AIModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="0Harmony">
       <HintPath>lib/0Harmony.dll</HintPath>
       <Private>false</Private>

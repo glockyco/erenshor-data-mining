@@ -4,6 +4,7 @@ using HarmonyLib;
 using AdventureGuide.Config;
 using AdventureGuide.Data;
 using AdventureGuide.Diagnostics;
+using AdventureGuide.Navigation;
 using AdventureGuide.Patches;
 using AdventureGuide.Rendering;
 using AdventureGuide.State;
@@ -24,6 +25,8 @@ public sealed class Plugin : BaseUnityPlugin
     private GuideConfig? _config;
     private GuideData? _data;
     private QuestStateTracker? _state;
+    private NavigationController? _nav;
+    private ArrowRenderer? _arrow;
     private ImGuiRenderer? _imgui;
     private GuideWindow? _window;
 
@@ -42,7 +45,12 @@ public sealed class Plugin : BaseUnityPlugin
             return;
         }
 
-        _window = new GuideWindow(_data, _state);
+        _nav = new NavigationController(_data);
+        _arrow = new ArrowRenderer(_nav);
+        _arrow.Enabled = _config.ShowArrow.Value;
+        _config.ShowArrow.SettingChanged += (_, _) => _arrow.Enabled = _config.ShowArrow.Value;
+
+        _window = new GuideWindow(_data, _state, _nav);
         _imgui.OnLayout = _window.Draw;
 
         // Wire DebugAPI for HotRepl inspection
@@ -82,6 +90,9 @@ public sealed class Plugin : BaseUnityPlugin
             GameData.PlayerTyping = false;
         _wasCapturingKeyboard = imguiWantsKb;
 
+        // Update navigation state each frame
+        _nav?.Update(_state?.CurrentZone ?? "");
+
         if (_config == null || _window == null) return;
         if (GameData.PlayerTyping) return;
 
@@ -95,6 +106,12 @@ public sealed class Plugin : BaseUnityPlugin
     private void OnGUI()
     {
         _imgui?.OnGUI();
+        _arrow?.DrawLabel();
+    }
+
+    private void OnRenderObject()
+    {
+        _arrow?.RenderGL();
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -107,6 +124,7 @@ public sealed class Plugin : BaseUnityPlugin
         SceneManager.sceneLoaded -= OnSceneLoaded;
         _harmony?.UnpatchSelf();
         _imgui?.Dispose();
+        _arrow?.Dispose();
 
         DebugAPI.Data = null;
         DebugAPI.State = null;
