@@ -51,12 +51,11 @@ public sealed class Plugin : BaseUnityPlugin
         _nav = new NavigationController(_data, _entities);
         _arrow = new ArrowRenderer(_nav);
         _arrow.Enabled = _config.ShowArrow.Value;
-        _config.ShowArrow.SettingChanged += (_, _) => _arrow.Enabled = _config.ShowArrow.Value;
+        _config.ShowArrow.SettingChanged += OnShowArrowChanged;
 
         _groundPath = new GroundPathRenderer(_nav);
         _groundPath.Enabled = _config.ShowGroundPath.Value;
-        _config.ShowGroundPath.SettingChanged += (_, _) =>
-            _groundPath.Enabled = _config.ShowGroundPath.Value;
+        _config.ShowGroundPath.SettingChanged += OnShowGroundPathChanged;
 
         _window = new GuideWindow(_data, _state, _nav);
         _imgui.OnLayout = () =>
@@ -132,9 +131,20 @@ public sealed class Plugin : BaseUnityPlugin
         _state?.OnSceneChanged(scene.name);
     }
 
+    private void OnShowArrowChanged(object sender, System.EventArgs e) =>
+        _arrow!.Enabled = _config!.ShowArrow.Value;
+
+    private void OnShowGroundPathChanged(object sender, System.EventArgs e) =>
+        _groundPath!.Enabled = _config!.ShowGroundPath.Value;
+
     private void OnDestroy()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
+        if (_config != null)
+        {
+            _config.ShowArrow.SettingChanged -= OnShowArrowChanged;
+            _config.ShowGroundPath.SettingChanged -= OnShowGroundPathChanged;
+        }
         _harmony?.UnpatchSelf();
         _imgui?.Dispose();
         _arrow?.Dispose();

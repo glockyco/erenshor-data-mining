@@ -7,11 +7,18 @@ namespace AdventureGuide.UI;
 
 /// <summary>
 /// Renders the Progress tab: overall completion, per-zone breakdown, and repeatable quests.
+/// Caches all computed data and rebuilds only when QuestStateTracker.IsDirty is true.
 /// </summary>
 public sealed class ProgressPanel
 {
     private readonly GuideData _data;
     private readonly QuestStateTracker _state;
+
+    // Cached progress data, rebuilt when state is dirty
+    private int _overallCompleted;
+    private int _overallTotal;
+    private List<(string zone, int completed, int total)> _zoneSorted = new();
+    private bool _hasCachedData;
 
     public ProgressPanel(GuideData data, QuestStateTracker state)
     {
@@ -21,6 +28,8 @@ public sealed class ProgressPanel
 
     public void Draw()
     {
+        RebuildIfDirty();
+
         DrawOverallCompletion();
         ImGui.Spacing();
         ImGui.Separator();
@@ -32,22 +41,15 @@ public sealed class ProgressPanel
         DrawRepeatableQuests();
     }
 
-    private void DrawOverallCompletion()
+    private void RebuildIfDirty()
     {
-        var (completed, total) = GetOverallCompletion();
-        float fraction = total > 0 ? (float)completed / total : 0f;
-        int pct = total > 0 ? (int)(fraction * 100f) : 0;
+        if (_hasCachedData && !_state.IsDirty)
+            return;
 
-        ImGui.Text("Overall Completion");
-        ImGui.ProgressBar(fraction, new Vector2(-1f, 0f), $"{completed}/{total} quests ({pct}%)");
-    }
+        _hasCachedData = true;
+        _overallCompleted = 0;
+        _overallTotal = 0;
 
-    private void DrawZoneCompletion()
-    {
-        ImGui.Text("Zone Completion");
-        ImGui.Spacing();
-
-        // Group non-repeatable quests by zone, compute completion, sort by % descending.
         var zones = new Dictionary<string, (int completed, int total)>(StringComparer.OrdinalIgnoreCase);
 
         foreach (var quest in _data.All)
@@ -55,23 +57,23 @@ public sealed class ProgressPanel
             if (IsRepeatable(quest))
                 continue;
 
+            _overallTotal++;
+            bool done = _state.IsCompleted(quest.DBName);
+            if (done) _overallCompleted++;
+
             string zone = quest.ZoneContext ?? "Unknown";
             if (!zones.TryGetValue(zone, out var counts))
                 counts = (0, 0);
-
             counts.total++;
-            if (_state.IsCompleted(quest.DBName))
-                counts.completed++;
-
+            if (done) counts.completed++;
             zones[zone] = counts;
         }
 
-        // Sort by completion percentage descending so finished zones float to top.
-        var sorted = new List<(string zone, int completed, int total)>(zones.Count);
+        _zoneSorted.Clear();
         foreach (var kvp in zones)
-            sorted.Add((kvp.Key, kvp.Value.completed, kvp.Value.total));
+            _zoneSorted.Add((kvp.Key, kvp.Value.completed, kvp.Value.total));
 
-        sorted.Sort((a, b) =>
+        _zoneSorted.Sort((a, b) =>
         {
             float pctA = a.total > 0 ? (float)a.completed / a.total : 0f;
             float pctB = b.total > 0 ? (float)b.completed / b.total : 0f;
@@ -79,8 +81,23 @@ public sealed class ProgressPanel
             if (cmp != 0) return cmp;
             return string.Compare(a.zone, b.zone, StringComparison.OrdinalIgnoreCase);
         });
+    }
 
-        foreach (var (zone, completed, total) in sorted)
+    private void DrawOverallCompletion()
+    {
+        float fraction = _overallTotal > 0 ? (float)_overallCompleted / _overallTotal : 0f;
+        int pct = _overallTotal > 0 ? (int)(fraction * 100f) : 0;
+
+        ImGui.Text("Overall Completion");
+        ImGui.ProgressBar(fraction, new Vector2(-1f, 0f), $"{_overallCompleted}/{_overallTotal} quests ({pct}%)");
+    }
+
+    private void DrawZoneCompletion()
+    {
+        ImGui.Text("Zone Completion");
+        ImGui.Spacing();
+
+        foreach (var (zone, completed, total) in _zoneSorted)
         {
             float fraction = total > 0 ? (float)completed / total : 0f;
             int pct = total > 0 ? (int)(fraction * 100f) : 0;
@@ -134,51 +151,6 @@ public sealed class ProgressPanel
             ImGui.Text("No repeatable quests in the guide.");
             ImGui.PopStyleColor();
         }
-    }
-
-    /// <summary>
-    /// Returns (completed, total) non-repeatable quests for the given zone.
-    /// </summary>
-    private (int completed, int total) GetZoneCompletion(string zone)
-    {
-        int completed = 0;
-        int total = 0;
-
-        foreach (var quest in _data.All)
-        {
-            if (IsRepeatable(quest))
-                continue;
-
-            if (!string.Equals(quest.ZoneContext, zone, StringComparison.OrdinalIgnoreCase))
-                continue;
-
-            total++;
-            if (_state.IsCompleted(quest.DBName))
-                completed++;
-        }
-
-        return (completed, total);
-    }
-
-    /// <summary>
-    /// Returns (completed, total) for all non-repeatable quests.
-    /// </summary>
-    private (int completed, int total) GetOverallCompletion()
-    {
-        int completed = 0;
-        int total = 0;
-
-        foreach (var quest in _data.All)
-        {
-            if (IsRepeatable(quest))
-                continue;
-
-            total++;
-            if (_state.IsCompleted(quest.DBName))
-                completed++;
-        }
-
-        return (completed, total);
     }
 
     private static bool IsRepeatable(QuestEntry quest) =>

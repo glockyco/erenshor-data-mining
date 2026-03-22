@@ -16,6 +16,9 @@ public sealed class QuestListPanel
     private string _searchBuf = string.Empty;
     private readonly List<QuestEntry> _sorted = new();
 
+    // Dirty-checking: skip re-filter/sort when nothing changed
+    private int _lastFilterVersion = -1;
+
     private static readonly string[] FilterNames = { "Active", "Available", "Completed", "All" };
     private int _filterIndex;
 
@@ -137,17 +140,24 @@ public sealed class QuestListPanel
     /// <summary>Draw filtered, sorted quest list. Returns count of visible quests.</summary>
     private int DrawQuestList()
     {
-        _sorted.Clear();
-        var all = _data.All;
-
-        for (int i = 0; i < all.Count; i++)
+        // Rebuild only when filter state or quest state changed
+        bool filterChanged = _filter.Version != _lastFilterVersion;
+        bool stateChanged = _state.IsDirty;
+        if (filterChanged || stateChanged)
         {
-            var quest = all[i];
-            if (PassesFilter(quest) && PassesSearch(quest))
-                _sorted.Add(quest);
-        }
+            _lastFilterVersion = _filter.Version;
+            _state.IsDirty = false;
 
-        _sorted.Sort(CompareQuests);
+            _sorted.Clear();
+            var all = _data.All;
+            for (int i = 0; i < all.Count; i++)
+            {
+                var quest = all[i];
+                if (PassesFilter(quest) && PassesSearch(quest))
+                    _sorted.Add(quest);
+            }
+            _sorted.Sort(CompareQuests);
+        }
 
         foreach (var quest in _sorted)
             DrawQuestEntry(quest);
