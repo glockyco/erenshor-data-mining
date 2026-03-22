@@ -287,43 +287,43 @@ public sealed class NavigationController
     // ── Spawn resolution ───────────────────────────────────────────
 
     /// <summary>
-    /// Pick the best spawn in the current scene. Prefers reachable spawns
-    /// (connected via NavMesh) over merely close ones. Falls back to the
-    /// closest unreachable spawn if none are reachable.
+    /// Pick the best spawn in the current scene. Prefers fully reachable
+    /// spawns (PathComplete), then partially reachable (PathPartial), then
+    /// the spatially closest as a last resort.
     /// </summary>
     private Data.SpawnPoint PickBestSpawn(List<Data.SpawnPoint> spawns, string currentScene)
     {
         var playerPos = GetPlayerPosition();
-        Data.SpawnPoint? bestReachable = null;
-        float bestReachDist = float.MaxValue;
-        Data.SpawnPoint? bestUnreachable = null;
-        float bestUnreachDist = float.MaxValue;
+        Data.SpawnPoint? bestComplete = null;  float bestCompDist = float.MaxValue;
+        Data.SpawnPoint? bestPartial = null;   float bestPartDist = float.MaxValue;
+        Data.SpawnPoint? bestFallback = null;   float bestFallDist = float.MaxValue;
 
         foreach (var sp in spawns)
         {
             if (!string.Equals(sp.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase))
                 continue;
 
-            if (!playerPos.HasValue)
-            {
-                bestReachable ??= sp;
-                continue;
-            }
+            if (!playerPos.HasValue) { bestComplete ??= sp; continue; }
 
             var spPos = new Vector3(sp.X, sp.Y, sp.Z);
             float dist = Vector3.Distance(playerPos.Value, spPos);
+            var reach = GetReachability(playerPos.Value, spPos);
 
-            if (IsReachable(playerPos.Value, spPos))
+            if (reach == NavMeshPathStatus.PathComplete)
             {
-                if (dist < bestReachDist) { bestReachDist = dist; bestReachable = sp; }
+                if (dist < bestCompDist) { bestCompDist = dist; bestComplete = sp; }
+            }
+            else if (reach == NavMeshPathStatus.PathPartial)
+            {
+                if (dist < bestPartDist) { bestPartDist = dist; bestPartial = sp; }
             }
             else
             {
-                if (dist < bestUnreachDist) { bestUnreachDist = dist; bestUnreachable = sp; }
+                if (dist < bestFallDist) { bestFallDist = dist; bestFallback = sp; }
             }
         }
 
-        return bestReachable ?? bestUnreachable ?? spawns[0];
+        return bestComplete ?? bestPartial ?? bestFallback ?? spawns[0];
     }
 
     // ── Zone line helpers ──────────────────────────────────────────
@@ -331,10 +331,9 @@ public sealed class NavigationController
     private ZoneLineEntry? FindClosestZoneLine(
         string destinationZoneKey, string currentScene, Vector3 playerPos)
     {
-        ZoneLineEntry? bestReachable = null;
-        float bestReachDist = float.MaxValue;
-        ZoneLineEntry? bestUnreachable = null;
-        float bestUnreachDist = float.MaxValue;
+        ZoneLineEntry? bestComplete = null;  float bestCompDist = float.MaxValue;
+        ZoneLineEntry? bestPartial = null;   float bestPartDist = float.MaxValue;
+        ZoneLineEntry? bestFallback = null;   float bestFallDist = float.MaxValue;
 
         foreach (var zl in _data.ZoneLines)
         {
@@ -345,26 +344,30 @@ public sealed class NavigationController
 
             var zlPos = new Vector3(zl.X, zl.Y, zl.Z);
             float dist = Vector3.Distance(playerPos, zlPos);
+            var reach = GetReachability(playerPos, zlPos);
 
-            if (IsReachable(playerPos, zlPos))
+            if (reach == NavMeshPathStatus.PathComplete)
             {
-                if (dist < bestReachDist) { bestReachDist = dist; bestReachable = zl; }
+                if (dist < bestCompDist) { bestCompDist = dist; bestComplete = zl; }
+            }
+            else if (reach == NavMeshPathStatus.PathPartial)
+            {
+                if (dist < bestPartDist) { bestPartDist = dist; bestPartial = zl; }
             }
             else
             {
-                if (dist < bestUnreachDist) { bestUnreachDist = dist; bestUnreachable = zl; }
+                if (dist < bestFallDist) { bestFallDist = dist; bestFallback = zl; }
             }
         }
 
-        return bestReachable ?? bestUnreachable;
+        return bestComplete ?? bestPartial ?? bestFallback;
     }
 
     private ZoneLineEntry? FindClosestZoneLineInScene(string currentScene, Vector3 playerPos)
     {
-        ZoneLineEntry? bestReachable = null;
-        float bestReachDist = float.MaxValue;
-        ZoneLineEntry? bestUnreachable = null;
-        float bestUnreachDist = float.MaxValue;
+        ZoneLineEntry? bestComplete = null;  float bestCompDist = float.MaxValue;
+        ZoneLineEntry? bestPartial = null;   float bestPartDist = float.MaxValue;
+        ZoneLineEntry? bestFallback = null;   float bestFallDist = float.MaxValue;
 
         foreach (var zl in _data.ZoneLines)
         {
@@ -373,18 +376,23 @@ public sealed class NavigationController
 
             var zlPos = new Vector3(zl.X, zl.Y, zl.Z);
             float dist = Vector3.Distance(playerPos, zlPos);
+            var reach = GetReachability(playerPos, zlPos);
 
-            if (IsReachable(playerPos, zlPos))
+            if (reach == NavMeshPathStatus.PathComplete)
             {
-                if (dist < bestReachDist) { bestReachDist = dist; bestReachable = zl; }
+                if (dist < bestCompDist) { bestCompDist = dist; bestComplete = zl; }
+            }
+            else if (reach == NavMeshPathStatus.PathPartial)
+            {
+                if (dist < bestPartDist) { bestPartDist = dist; bestPartial = zl; }
             }
             else
             {
-                if (dist < bestUnreachDist) { bestUnreachDist = dist; bestUnreachable = zl; }
+                if (dist < bestFallDist) { bestFallDist = dist; bestFallback = zl; }
             }
         }
 
-        return bestReachable ?? bestUnreachable;
+        return bestComplete ?? bestPartial ?? bestFallback;
     }
 
     private bool HasZoneLineForDestination(string? zoneKey, string currentScene)
@@ -421,20 +429,21 @@ public sealed class NavigationController
     // ── Reachability ────────────────────────────────────────────────────
 
     /// <summary>
-    /// Test whether a target position is reachable from the player via NavMesh.
-    /// Both positions are snapped to the NavMesh surface before testing.
-    /// Returns false if either position is off-mesh or the path is invalid.
+    /// Classify a target's reachability: Complete (fully connected path),
+    /// Partial (path exists but doesn't reach the exact point), or Invalid
+    /// (no NavMesh connection at all). Both positions are snapped to the
+    /// NavMesh surface before testing.
     /// </summary>
-    private bool IsReachable(Vector3 from, Vector3 to)
+    private NavMeshPathStatus GetReachability(Vector3 from, Vector3 to)
     {
         if (!NavMesh.SamplePosition(from, out var fromHit, 5f, NavMesh.AllAreas))
-            return false;
+            return NavMeshPathStatus.PathInvalid;
         if (!NavMesh.SamplePosition(to, out var toHit, 5f, NavMesh.AllAreas))
-            return false;
+            return NavMeshPathStatus.PathInvalid;
 
         _scratchPath.ClearCorners();
         NavMesh.CalculatePath(fromHit.position, toHit.position, NavMesh.AllAreas, _scratchPath);
-        return _scratchPath.status != NavMeshPathStatus.PathInvalid;
+        return _scratchPath.status;
     }
 
     // ── Utilities ──────────────────────────────────────────────────
