@@ -222,6 +222,10 @@ public sealed class QuestDetailPanel
         if (ImGui.IsItemHovered() && step.LevelEstimate?.Factors is { Count: > 0 } factors)
         {
             ImGui.BeginTooltip();
+            string header = step.Action is "collect" or "read"
+                ? "Sources by level"
+                : "Zone level";
+            ImGui.Text(header);
             // Sort factors by level for the tooltip
             var sorted = new List<LevelFactor>(factors);
             sorted.Sort((a, b) => a.Level.CompareTo(b.Level));
