@@ -192,7 +192,7 @@ public sealed class QuestDetailPanel
         {
             StepState.Completed => Theme.QuestCompleted,
             StepState.Current => Theme.QuestActive,
-            _ => Theme.TextSecondary,
+            _ => Theme.TextPrimary,
         };
         string prefix = state switch
         {
@@ -297,9 +297,14 @@ public sealed class QuestDetailPanel
                 sources.Add(($"Sold by: {vs.CharacterName}{zone}", lv > 0 ? lv : null));
             }
 
+        // Fishing/mining/bag: deduplicate by zone (individual nodes aren't useful)
+        var seenZones = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
         if (item.FishingSources is { Count: > 0 })
             foreach (var fs in item.FishingSources)
             {
+                string key = $"fishing:{fs.ZoneName}";
+                if (!seenZones.Add(key)) continue;
                 var zone = fs.ZoneName != null ? $" ({fs.ZoneName})" : "";
                 levelByKey.TryGetValue($"fishing_zone:{fs.ZoneName}", out int lv);
                 sources.Add(($"Fishing{zone}", lv > 0 ? lv : null));
@@ -308,6 +313,8 @@ public sealed class QuestDetailPanel
         if (item.MiningSources is { Count: > 0 })
             foreach (var ms in item.MiningSources)
             {
+                string key = $"mining:{ms.ZoneName}";
+                if (!seenZones.Add(key)) continue;
                 var zone = ms.ZoneName != null ? $" ({ms.ZoneName})" : "";
                 levelByKey.TryGetValue($"mining_zone:{ms.ZoneName}", out int lv);
                 sources.Add(($"Mining{zone}", lv > 0 ? lv : null));
@@ -316,6 +323,8 @@ public sealed class QuestDetailPanel
         if (item.BagSources is { Count: > 0 })
             foreach (var bs in item.BagSources)
             {
+                string key = $"bag:{bs.ZoneName}";
+                if (!seenZones.Add(key)) continue;
                 var zone = bs.ZoneName != null ? $" ({bs.ZoneName})" : "";
                 levelByKey.TryGetValue($"pickup_zone:{bs.ZoneName}", out int lv);
                 sources.Add(($"Found in world{zone}", lv > 0 ? lv : null));
@@ -363,7 +372,7 @@ public sealed class QuestDetailPanel
             int remaining = sources.Count - maxVisible;
             int minLv = sources[maxVisible].level ?? 0;
             int maxLv = sources[^1].level ?? minLv;
-            string range = minLv == maxLv ? $"Lv {minLv}" : $"Lv {minLv}\u2013{maxLv}";
+            string range = minLv == maxLv ? $"Lv {minLv}" : $"Lv {minLv}-{maxLv}";
             if (ImGui.TreeNode($"{remaining} more sources ({range})##{step.Order}"))
             {
                 for (int i = maxVisible; i < sources.Count; i++)
