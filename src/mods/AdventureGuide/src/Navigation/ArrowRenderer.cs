@@ -95,9 +95,11 @@ public sealed class ArrowRenderer
             if (dir.sqrMagnitude < 0.01f) dir = Vector2.up;
             dir.Normalize();
 
-            // Clamp to screen bounds with margin
-            float halfW = sw * 0.5f - EdgeMargin;
-            float halfH = sh * 0.5f - EdgeMargin;
+            // Clamp to screen bounds. Margin accounts for arrow size so
+            // the tip doesn't extend past the screen edge.
+            float margin = EdgeMargin + ArrowSize;
+            float halfW = sw * 0.5f - margin;
+            float halfH = sh * 0.5f - margin;
 
             float tX = dir.x != 0 ? Mathf.Abs(halfW / dir.x) : float.MaxValue;
             float tY = dir.y != 0 ? Mathf.Abs(halfH / dir.y) : float.MaxValue;
