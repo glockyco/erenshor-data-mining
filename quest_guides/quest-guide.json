@@ -43,19 +43,19 @@
       "level_max": 7,
       "level_median": 4
     },
-    "AzynthiClear": {
-      "display_name": "Azynthi's Garden",
-      "stable_key": "zone:azynthiclear",
-      "level_min": 4,
-      "level_max": 43,
-      "level_median": 30
-    },
     "Azynthi": {
       "display_name": "Azynthi's Garden (Dimensional Rift)",
       "stable_key": "zone:azynthi",
       "level_min": 34,
       "level_max": 38,
       "level_median": 34
+    },
+    "AzynthiClear": {
+      "display_name": "Azynthi's Garden",
+      "stable_key": "zone:azynthiclear",
+      "level_min": 4,
+      "level_max": 43,
+      "level_median": 30
     },
     "Duskenlight": {
       "display_name": "The Duskenlight Coast",
@@ -130,7 +130,7 @@
     "Elderstone": {
       "display_name": "The Elderstone Mines",
       "stable_key": "zone:elderstone",
-      "level_min": 13,
+      "level_min": 17,
       "level_max": 21,
       "level_median": 17
     },
@@ -274,19 +274,12 @@
       "level_max": 39,
       "level_median": 23
     },
-    "DuskenPortal": {
-      "display_name": "Mysterious Portal (1)",
-      "stable_key": "zone:duskenportal",
-      "level_min": 45,
-      "level_max": 45,
-      "level_median": 45
-    },
     "FernallaPortal": {
       "display_name": "Mysterious Portal (2)",
       "stable_key": "zone:fernallaportal",
       "level_min": 5,
-      "level_max": 45,
-      "level_median": 21
+      "level_max": 24,
+      "level_median": 20
     }
   },
   "_character_spawns": {
@@ -54582,13 +54575,6 @@
             {
               "type": "drop",
               "name": "A Highwayman Raider",
-              "zone": "The Elderstone Mines",
-              "level": 13,
-              "spawn_count": 2
-            },
-            {
-              "type": "drop",
-              "name": "A Highwayman Raider",
               "zone": "Fernalla's Revival Plains",
               "level": 13,
               "spawn_count": 18
@@ -56031,10 +56017,6 @@
             {
               "type": "vendor",
               "name": "Cully Edwarse"
-            },
-            {
-              "type": "vendor",
-              "name": "Saya Seawatcher"
             }
           ]
         }
@@ -57033,11 +57015,6 @@
             },
             {
               "type": "drop",
-              "name": "A Skeleton Captain",
-              "level": 8
-            },
-            {
-              "type": "drop",
               "name": "A Skeleton Soldier",
               "zone": "The Bonepits",
               "level": 8,
@@ -57740,10 +57717,6 @@
             {
               "type": "vendor",
               "name": "Cully Edwarse"
-            },
-            {
-              "type": "vendor",
-              "name": "Saya Seawatcher"
             }
           ]
         }
@@ -58092,11 +58065,6 @@
                 "level": 5
               },
               {
-                "source": "vendor",
-                "name": "Summoned: Pocket Vendor",
-                "level": 5
-              },
-              {
                 "source": "drop",
                 "name": "A Lost Sea Giant",
                 "level": 8
@@ -58270,12 +58238,6 @@
               "zone": "Island Tomb",
               "level": 5,
               "spawn_count": 7
-            },
-            {
-              "type": "vendor",
-              "name": "Summoned: Pocket Vendor",
-              "zone": "Reliquary Hall",
-              "level": 5
             },
             {
               "type": "drop",
@@ -59592,13 +59554,8 @@
           "target_type": "item",
           "quantity": 1,
           "level_estimate": {
-            "recommended": 31,
+            "recommended": 32,
             "factors": [
-              {
-                "source": "drop",
-                "name": "Historian of Braxonia",
-                "level": 31
-              },
               {
                 "source": "drop",
                 "name": "Prince Ardant",
@@ -59625,13 +59582,8 @@
           "target_type": "item",
           "quantity": 1,
           "level_estimate": {
-            "recommended": 31,
+            "recommended": 32,
             "factors": [
-              {
-                "source": "drop",
-                "name": "Historian of Braxonia",
-                "level": 31
-              },
               {
                 "source": "drop",
                 "name": "Prince Ardant",
@@ -59677,11 +59629,6 @@
           "sources": [
             {
               "type": "drop",
-              "name": "Historian of Braxonia",
-              "level": 31
-            },
-            {
-              "type": "drop",
               "name": "Prince Ardant",
               "zone": "Fallen Braxonia",
               "level": 32,
@@ -59708,11 +59655,6 @@
           "item_stable_key": "item:gen - braxonian scripture 1",
           "quantity": 1,
           "sources": [
-            {
-              "type": "drop",
-              "name": "Historian of Braxonia",
-              "level": 31
-            },
             {
               "type": "drop",
               "name": "Prince Ardant",
@@ -59768,12 +59710,12 @@
         "once_per_spawn_instance": false
       },
       "level_estimate": {
-        "recommended": 31,
+        "recommended": 32,
         "factors": [
           {
             "source": "step_1",
             "name": "Collect Braxonian Scripture (2).",
-            "level": 31
+            "level": 32
           }
         ]
       }
@@ -60566,11 +60508,6 @@
               "zone": "Vitheo's Watch",
               "level": 8,
               "spawn_count": 4
-            },
-            {
-              "type": "drop",
-              "name": "A Skeleton Captain",
-              "level": 8
             },
             {
               "type": "drop",
@@ -64746,11 +64683,6 @@
                 "source": "drop",
                 "name": "Boatman",
                 "level": 22
-              },
-              {
-                "source": "drop",
-                "name": "Botanist",
-                "level": 28
               }
             ]
           }
@@ -64807,11 +64739,6 @@
               "zone": "Azynthi's Garden",
               "level": 22,
               "spawn_count": 2
-            },
-            {
-              "type": "drop",
-              "name": "Botanist",
-              "level": 28
             }
           ]
         }
@@ -65922,12 +65849,12 @@
           "target_type": "character",
           "zone_name": "Fallen Braxonia",
           "level_estimate": {
-            "recommended": 5,
+            "recommended": 29,
             "factors": [
               {
                 "source": "zone_median",
-                "name": "Reliquary Hall",
-                "level": 5
+                "name": "Fallen Braxonia",
+                "level": 29
               }
             ]
           }
@@ -66162,13 +66089,8 @@
           "target_type": "item",
           "quantity": 1,
           "level_estimate": {
-            "recommended": 5,
+            "recommended": 9,
             "factors": [
-              {
-                "source": "vendor",
-                "name": "Summoned: Pocket Vendor",
-                "level": 5
-              },
               {
                 "source": "fishing",
                 "name": "Vitheo's Watch",
@@ -66358,12 +66280,6 @@
           "item_stable_key": "item:fish - octorunner",
           "quantity": 1,
           "sources": [
-            {
-              "type": "vendor",
-              "name": "Summoned: Pocket Vendor",
-              "zone": "Reliquary Hall",
-              "level": 5
-            },
             {
               "type": "fishing",
               "zone": "Vitheo's Watch",
@@ -67114,13 +67030,8 @@
           "target_type": "item",
           "quantity": 4,
           "level_estimate": {
-            "recommended": 5,
+            "recommended": 9,
             "factors": [
-              {
-                "source": "vendor",
-                "name": "Summoned: Pocket Vendor",
-                "level": 5
-              },
               {
                 "source": "fishing",
                 "name": "Vitheo's Watch",
@@ -67189,12 +67100,6 @@
           "item_stable_key": "item:fish - octorunner",
           "quantity": 4,
           "sources": [
-            {
-              "type": "vendor",
-              "name": "Summoned: Pocket Vendor",
-              "zone": "Reliquary Hall",
-              "level": 5
-            },
             {
               "type": "fishing",
               "zone": "Vitheo's Watch",
@@ -68258,10 +68163,6 @@
             {
               "type": "vendor",
               "name": "Cully Edwarse"
-            },
-            {
-              "type": "vendor",
-              "name": "Saya Seawatcher"
             }
           ]
         }
@@ -69588,11 +69489,6 @@
               "zone": "The Elderstone Mines",
               "level": 21,
               "spawn_count": 1
-            },
-            {
-              "type": "drop",
-              "name": "Ravager, The First Infected",
-              "level": 21
             }
           ]
         },
@@ -72607,11 +72503,6 @@
                 "source": "drop",
                 "name": "Acolyte of Azynthi",
                 "level": 45
-              },
-              {
-                "source": "drop",
-                "name": "Azynthi, Corruptor of Gods",
-                "level": 45
               }
             ]
           }
@@ -72645,25 +72536,6 @@
               "type": "drop",
               "name": "Acolyte of Azynthi",
               "level": 45
-            },
-            {
-              "type": "drop",
-              "name": "Azynthi, Corruptor of Gods",
-              "level": 45
-            },
-            {
-              "type": "drop",
-              "name": "Azynthi, Corruptor of Gods",
-              "zone": "Mysterious Portal (1)",
-              "level": 45,
-              "spawn_count": 2
-            },
-            {
-              "type": "drop",
-              "name": "Azynthi, Corruptor of Gods",
-              "zone": "Mysterious Portal (2)",
-              "level": 45,
-              "spawn_count": 2
             }
           ]
         }
@@ -74299,11 +74171,6 @@
                 "source": "drop",
                 "name": "Giant Watchdog",
                 "level": 33
-              },
-              {
-                "source": "drop",
-                "name": "Ancient Canine",
-                "level": 36
               }
             ]
           }
@@ -74428,11 +74295,6 @@
               "zone": "The Elderstone Mines",
               "level": 21,
               "spawn_count": 1
-            },
-            {
-              "type": "drop",
-              "name": "Ravager, The First Infected",
-              "level": 21
             }
           ]
         },
@@ -74659,13 +74521,6 @@
               "zone": "Azynthi's Garden",
               "level": 33,
               "spawn_count": 6
-            },
-            {
-              "type": "drop",
-              "name": "Ancient Canine",
-              "zone": "Azynthi's Garden",
-              "level": 36,
-              "spawn_count": 1
             }
           ]
         },
@@ -75325,13 +75180,8 @@
           "target_type": "item",
           "quantity": 1,
           "level_estimate": {
-            "recommended": 31,
+            "recommended": 33,
             "factors": [
-              {
-                "source": "drop",
-                "name": "Historian of Braxonia",
-                "level": 31
-              },
               {
                 "source": "drop",
                 "name": "Historian of Braxonia",
@@ -75506,11 +75356,6 @@
             {
               "type": "drop",
               "name": "Historian of Braxonia",
-              "level": 31
-            },
-            {
-              "type": "drop",
-              "name": "Historian of Braxonia",
               "zone": "Fallen Braxonia",
               "level": 33,
               "spawn_count": 1
@@ -75567,12 +75412,12 @@
         "once_per_spawn_instance": false
       },
       "level_estimate": {
-        "recommended": 31,
+        "recommended": 33,
         "factors": [
           {
             "source": "step_5",
             "name": "Collect Droplet of the First Frost.",
-            "level": 31
+            "level": 33
           }
         ]
       }
@@ -76654,13 +76499,6 @@
             {
               "type": "drop",
               "name": "A Highwayman Raider",
-              "zone": "The Elderstone Mines",
-              "level": 13,
-              "spawn_count": 2
-            },
-            {
-              "type": "drop",
-              "name": "A Highwayman Raider",
               "zone": "Fernalla's Revival Plains",
               "level": 13,
               "spawn_count": 18
@@ -76884,10 +76722,6 @@
             {
               "type": "vendor",
               "name": "Cully Edwarse"
-            },
-            {
-              "type": "vendor",
-              "name": "Saya Seawatcher"
             },
             {
               "type": "pickup",
@@ -78456,13 +78290,6 @@
             {
               "type": "drop",
               "name": "A Highwayman Raider",
-              "zone": "The Elderstone Mines",
-              "level": 13,
-              "spawn_count": 2
-            },
-            {
-              "type": "drop",
-              "name": "A Highwayman Raider",
               "zone": "Fernalla's Revival Plains",
               "level": 13,
               "spawn_count": 18
@@ -78688,10 +78515,6 @@
               "name": "Cully Edwarse"
             },
             {
-              "type": "vendor",
-              "name": "Saya Seawatcher"
-            },
-            {
               "type": "pickup",
               "zone": "Bellwain Island",
               "node_count": 1
@@ -78791,10 +78614,6 @@
             {
               "type": "vendor",
               "name": "Cully Edwarse"
-            },
-            {
-              "type": "vendor",
-              "name": "Saya Seawatcher"
             },
             {
               "type": "pickup",
@@ -82243,11 +82062,6 @@
                 "source": "drop",
                 "name": "Giant Watchdog",
                 "level": 33
-              },
-              {
-                "source": "drop",
-                "name": "Ancient Canine",
-                "level": 36
               }
             ]
           }
@@ -82408,13 +82222,6 @@
               "zone": "Azynthi's Garden",
               "level": 33,
               "spawn_count": 6
-            },
-            {
-              "type": "drop",
-              "name": "Ancient Canine",
-              "zone": "Azynthi's Garden",
-              "level": 36,
-              "spawn_count": 1
             }
           ]
         }

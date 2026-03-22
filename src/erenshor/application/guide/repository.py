@@ -364,7 +364,9 @@ def _fetch_npc_zones(conn: sqlite3.Connection) -> dict[str, str]:
         """
         SELECT cs.character_stable_key, z.display_name
         FROM character_spawns cs
+        JOIN characters c ON c.stable_key = cs.character_stable_key
         JOIN zones z ON z.stable_key = cs.zone_stable_key
+        WHERE c.is_map_visible = 1
         GROUP BY cs.character_stable_key
         """
     ).fetchall()
@@ -381,6 +383,7 @@ def _fetch_char_name_zones(conn: sqlite3.Connection) -> dict[str, list[str]]:
         FROM character_spawns cs
         JOIN characters c ON c.stable_key = cs.character_stable_key
         JOIN zones z ON z.stable_key = cs.zone_stable_key
+        WHERE c.is_map_visible = 1
         GROUP BY c.display_name, z.display_name
         """
     ).fetchall()
@@ -411,7 +414,9 @@ def _fetch_shout_keywords(conn: sqlite3.Connection) -> dict[str, str]:
 
 def _fetch_char_levels(conn: sqlite3.Connection) -> dict[str, int]:
     """Return ``{character_sk: level}`` for non-friendly characters with level > 0."""
-    rows = conn.execute("SELECT stable_key, level FROM characters WHERE level > 0 AND is_friendly = 0").fetchall()
+    rows = conn.execute(
+        "SELECT stable_key, level FROM characters WHERE level > 0 AND is_friendly = 0 AND is_map_visible = 1"
+    ).fetchall()
     return {row["stable_key"]: row["level"] for row in rows}
 
 
@@ -426,7 +431,7 @@ def _fetch_zone_lookup(conn: sqlite3.Connection) -> dict[str, ZoneInfo]:
         FROM zones z
         JOIN character_spawns cs ON cs.zone_stable_key = z.stable_key
         JOIN characters c ON cs.character_stable_key = c.stable_key
-        WHERE c.is_friendly = 0 AND c.level > 0
+        WHERE c.is_friendly = 0 AND c.level > 0 AND c.is_map_visible = 1
         """
     ).fetchall()
     zone_meta: dict[str, dict] = {}
@@ -631,6 +636,7 @@ def _add_drop_sources(
         JOIN characters c ON c.stable_key = ld.character_stable_key
         LEFT JOIN character_spawns cs ON cs.character_stable_key = c.stable_key
         LEFT JOIN zones z ON z.stable_key = cs.zone_stable_key
+        WHERE c.is_map_visible = 1
         GROUP BY ld.item_stable_key, c.stable_key, z.stable_key
         """
     ).fetchall()
@@ -662,6 +668,7 @@ def _add_vendor_sources(
         JOIN characters c ON c.stable_key = cvi.character_stable_key
         LEFT JOIN character_spawns cs ON cs.character_stable_key = c.stable_key
         LEFT JOIN zones z ON z.stable_key = cs.zone_stable_key
+        WHERE c.is_map_visible = 1
         GROUP BY cvi.item_stable_key, c.display_name, z.display_name
         """
     ).fetchall()
