@@ -8,6 +8,7 @@ public sealed class GuideConfig
     public ConfigEntry<KeyCode> ToggleKey { get; }
     public ConfigEntry<bool> ReplaceQuestLog { get; }
     public ConfigEntry<bool> ShowArrow { get; }
+    public ConfigEntry<bool> ShowGroundPath { get; }
     public ConfigEntry<float> UiScale { get; }
 
     public GuideConfig(ConfigFile config)
@@ -22,5 +23,7 @@ public sealed class GuideConfig
                 new AcceptableValueRange<float>(0.75f, 2.0f)));
         ShowArrow = config.Bind("Navigation", "ShowArrow", true,
             "Show directional arrow pointing toward navigation target");
+        ShowGroundPath = config.Bind("Navigation", "ShowGroundPath", false,
+            "Show ground path from player to navigation target (uses NavMesh pathfinding)");
     }
 }

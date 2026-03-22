@@ -28,6 +28,7 @@ public sealed class Plugin : BaseUnityPlugin
     private EntityRegistry? _entities;
     private NavigationController? _nav;
     private ArrowRenderer? _arrow;
+    private GroundPathRenderer? _groundPath;
     private ImGuiRenderer? _imgui;
     private GuideWindow? _window;
 
@@ -52,8 +53,13 @@ public sealed class Plugin : BaseUnityPlugin
         _arrow.Enabled = _config.ShowArrow.Value;
         _config.ShowArrow.SettingChanged += (_, _) => _arrow.Enabled = _config.ShowArrow.Value;
 
+        _groundPath = new GroundPathRenderer(_nav);
+        _groundPath.Enabled = _config.ShowGroundPath.Value;
+        _config.ShowGroundPath.SettingChanged += (_, _) =>
+            _groundPath.Enabled = _config.ShowGroundPath.Value;
+
         _window = new GuideWindow(_data, _state, _nav);
-        _imgui.OnLayout = () => { _window.Draw(); _arrow!.Draw(); };
+        _imgui.OnLayout = () => { _window.Draw(); _arrow!.Draw(); _groundPath!.Draw(); };
 
         // Wire DebugAPI for HotRepl inspection
         DebugAPI.Data = _data;
