@@ -133,15 +133,23 @@ public sealed class QuestDetailPanel
 
         ImGui.Text(meta);
 
-        // Tooltip with level factor breakdown on hover
-        if (ImGui.IsItemHovered() && quest.LevelEstimate?.Factors is { Count: > 0 } factors)
+        // Tooltip: show all steps with their levels, mark the driving step
+        if (ImGui.IsItemHovered() && quest.Steps is { Count: > 0 })
         {
             ImGui.BeginTooltip();
-            ImGui.Text("Level sources:");
-            foreach (var f in factors)
+            ImGui.Text("Quest level: hardest step");
+            ImGui.Separator();
+            int? questLvl = quest.LevelEstimate?.Recommended;
+            foreach (var step in quest.Steps)
             {
-                string name = f.Name ?? f.Source;
-                ImGui.Text($"  {name}: Lv {f.Level}");
+                int? stepLvl = step.LevelEstimate?.Recommended;
+                string lvlStr = stepLvl.HasValue ? $"Lv {stepLvl,2}" : "  \u2014";
+                bool isDriving = questLvl.HasValue && stepLvl == questLvl;
+                string marker = isDriving ? " \u25c4" : "";
+                uint tipColor = isDriving ? Theme.TextPrimary : Theme.TextSecondary;
+                ImGui.PushStyleColor(ImGuiCol.Text, tipColor);
+                ImGui.Text($"  {step.Order}. {step.Description}  {lvlStr}{marker}");
+                ImGui.PopStyleColor();
             }
             ImGui.EndTooltip();
         }
@@ -202,17 +210,45 @@ public sealed class QuestDetailPanel
             text += $" ({have}/{step.Quantity})";
         }
 
+        // Step-level suffix
+        if (step.LevelEstimate?.Recommended is int stepLvl)
+            text += $"  \u00b7  Lv {stepLvl}";
+
         ImGui.PushStyleColor(ImGuiCol.Text, color);
         ImGui.Text(text);
         ImGui.PopStyleColor();
+
+        // Step-level tooltip: factor breakdown on hover
+        if (ImGui.IsItemHovered() && step.LevelEstimate?.Factors is { Count: > 0 } factors)
+        {
+            ImGui.BeginTooltip();
+            string header = step.Action is "collect" or "read"
+                ? "Lowest obtainability path"
+                : "Based on zone level";
+            ImGui.Text(header);
+            ImGui.Separator();
+            int shown = 0;
+            foreach (var f in factors)
+            {
+                if (shown >= 5) break;
+                string label = FactorSourceLabel(f.Source);
+                ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
+                ImGui.Text($"  {label}: {f.Name}  Lv {f.Level}");
+                ImGui.PopStyleColor();
+                shown++;
+            }
+            if (factors.Count > 5)
+                ImGui.Text($"  ...and {factors.Count - 5} more");
+            ImGui.EndTooltip();
+        }
 
         // Drop/vendor sources and tips for collect steps
         DrawStepSources(step);
     }
 
     /// <summary>
-    /// Show obtainability sources (drop, vendor, fishing, mining, etc.) and
-    /// tips indented below a step. Only for collect steps.
+    /// Show obtainability sources sorted by level (easiest first), with levels
+    /// annotated inline. Collapses beyond 4 sources behind a TreeNode.
     /// </summary>
     private void DrawStepSources(QuestStep step)
     {
@@ -222,7 +258,6 @@ public sealed class QuestDetailPanel
             return;
         }
 
-        // Find matching required item for full source info
         var quest = _data.GetByDBName(_state.SelectedQuestDBName!);
         var item = quest?.RequiredItems?.Find(ri =>
             string.Equals(ri.ItemName, step.TargetName, StringComparison.OrdinalIgnoreCase));
@@ -233,61 +268,126 @@ public sealed class QuestDetailPanel
             return;
         }
 
-        ImGui.Indent(Theme.IndentWidth);
-        ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
+        // Build factor lookup: "source:name" -> level
+        var levelByKey = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        if (step.LevelEstimate?.Factors != null)
+            foreach (var f in step.LevelEstimate.Factors)
+                levelByKey[$"{f.Source}:{f.Name}"] = f.Level;
+
+        // Collect all sources into a unified list with labels and levels
+        var sources = new List<(string label, int? level)>();
 
         if (item.DropSources != null)
-        {
             foreach (var ds in item.DropSources)
             {
                 var zone = ds.ZoneName != null ? $" ({ds.ZoneName})" : "";
-                ImGui.Text($"Drops from: {ds.CharacterName}{zone}");
+                levelByKey.TryGetValue($"enemy_level:{ds.CharacterName}", out int lv);
+                sources.Add(($"Drops from: {ds.CharacterName}{zone}", lv > 0 ? lv : null));
             }
-        }
 
         if (item.VendorSources != null)
-        {
             foreach (var vs in item.VendorSources)
             {
                 var zone = vs.ZoneName != null ? $" ({vs.ZoneName})" : "";
-                ImGui.Text($"Sold by: {vs.CharacterName}{zone}");
+                levelByKey.TryGetValue($"vendor_zone:{vs.CharacterName} ({vs.ZoneName})", out int lv);
+                sources.Add(($"Sold by: {vs.CharacterName}{zone}", lv > 0 ? lv : null));
             }
-        }
 
         if (item.FishingSources is { Count: > 0 })
             foreach (var fs in item.FishingSources)
             {
                 var zone = fs.ZoneName != null ? $" ({fs.ZoneName})" : "";
-                ImGui.Text($"Fishing{zone}");
+                levelByKey.TryGetValue($"fishing_zone:{fs.ZoneName}", out int lv);
+                sources.Add(($"Fishing{zone}", lv > 0 ? lv : null));
             }
 
         if (item.MiningSources is { Count: > 0 })
             foreach (var ms in item.MiningSources)
             {
                 var zone = ms.ZoneName != null ? $" ({ms.ZoneName})" : "";
-                ImGui.Text($"Mining{zone}");
+                levelByKey.TryGetValue($"mining_zone:{ms.ZoneName}", out int lv);
+                sources.Add(($"Mining{zone}", lv > 0 ? lv : null));
             }
 
         if (item.BagSources is { Count: > 0 })
             foreach (var bs in item.BagSources)
             {
                 var zone = bs.ZoneName != null ? $" ({bs.ZoneName})" : "";
-                ImGui.Text($"Found in world{zone}");
+                levelByKey.TryGetValue($"pickup_zone:{bs.ZoneName}", out int lv);
+                sources.Add(($"Found in world{zone}", lv > 0 ? lv : null));
             }
 
         if (item.CraftingSources is { Count: > 0 })
             foreach (var cs in item.CraftingSources)
-                ImGui.Text($"Crafted from: {cs.RecipeItemName}");
+                sources.Add(($"Crafted from: {cs.RecipeItemName}", null));
 
         if (item.QuestRewardSources is { Count: > 0 })
             foreach (var qr in item.QuestRewardSources)
-                ImGui.Text($"Quest reward: {qr.QuestName}");
+                sources.Add(($"Quest reward: {qr.QuestName}", null));
+
+        if (sources.Count == 0)
+        {
+            DrawTips(step);
+            return;
+        }
+
+        // Sort by level ascending (null-level sources at end)
+        sources.Sort((a, b) =>
+        {
+            if (a.level == null && b.level == null) return 0;
+            if (a.level == null) return 1;
+            if (b.level == null) return -1;
+            return a.level.Value.CompareTo(b.level.Value);
+        });
+
+        ImGui.Indent(Theme.IndentWidth);
+        ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
+
+        const int maxVisible = 4;
+        int visible = Math.Min(sources.Count, maxVisible);
+
+        for (int i = 0; i < visible; i++)
+        {
+            var (label, level) = sources[i];
+            string line = level.HasValue ? $"{label}  \u00b7  Lv {level}" : label;
+            ImGui.Text(line);
+        }
+
+        // Collapse remaining behind a TreeNode
+        if (sources.Count > maxVisible)
+        {
+            int remaining = sources.Count - maxVisible;
+            int minLv = sources[maxVisible].level ?? 0;
+            int maxLv = sources[^1].level ?? minLv;
+            string range = minLv == maxLv ? $"Lv {minLv}" : $"Lv {minLv}\u2013{maxLv}";
+            if (ImGui.TreeNode($"{remaining} more sources ({range})##{step.Order}"))
+            {
+                for (int i = maxVisible; i < sources.Count; i++)
+                {
+                    var (label, level) = sources[i];
+                    string line = level.HasValue ? $"{label}  \u00b7  Lv {level}" : label;
+                    ImGui.Text(line);
+                }
+                ImGui.TreePop();
+            }
+        }
 
         ImGui.PopStyleColor();
         ImGui.Unindent(Theme.IndentWidth);
 
         DrawTips(step);
     }
+
+    private static string FactorSourceLabel(string source) => source switch
+    {
+        "enemy_level" => "Enemy",
+        "vendor_zone" => "Vendor",
+        "fishing_zone" => "Fishing",
+        "mining_zone" => "Mining",
+        "pickup_zone" => "Pickup",
+        "zone_median" => "Zone",
+        _ => source,
+    };
 
     private void DrawTips(QuestStep step)
     {
