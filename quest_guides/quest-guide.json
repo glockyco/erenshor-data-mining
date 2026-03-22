@@ -65668,7 +65668,17 @@
           "action": "read",
           "description": "Obtain and read Scribbles of a Mad Priest.",
           "target_name": "Scribbles of a Mad Priest",
-          "target_type": "item"
+          "target_type": "item",
+          "level_estimate": {
+            "recommended": 21,
+            "factors": [
+              {
+                "source": "enemy_level",
+                "name": "Upha, Priest of Brax",
+                "level": 21
+              }
+            ]
+          }
         },
         {
           "order": 2,
@@ -65690,6 +65700,24 @@
         },
         {
           "order": 3,
+          "action": "collect",
+          "description": "Collect Scribbles of a Mad Priest.",
+          "target_name": "Scribbles of a Mad Priest",
+          "target_type": "item",
+          "quantity": 1,
+          "level_estimate": {
+            "recommended": 21,
+            "factors": [
+              {
+                "source": "enemy_level",
+                "name": "Upha, Priest of Brax",
+                "level": 21
+              }
+            ]
+          }
+        },
+        {
+          "order": 4,
           "action": "turn_in",
           "description": "Turn in items to Orion Mycon.",
           "target_name": "Orion Mycon",
@@ -65711,6 +65739,18 @@
         {
           "item_name": "Tempest Stone",
           "item_stable_key": "item:gen - tempest stone",
+          "quantity": 1,
+          "drop_sources": [
+            {
+              "character_name": "Upha, Priest of Brax",
+              "character_stable_key": "character:priest of brax",
+              "zone_name": "Braxonian Desert"
+            }
+          ]
+        },
+        {
+          "item_name": "Scribbles of a Mad Priest",
+          "item_stable_key": "item:gen - scribbles of a mad priest",
           "quantity": 1,
           "drop_sources": [
             {
@@ -65750,8 +65790,8 @@
         "recommended": 21,
         "factors": [
           {
-            "source": "step_2",
-            "name": "Collect Tempest Stone.",
+            "source": "step_1",
+            "name": "Obtain and read Scribbles of a Mad Priest.",
             "level": 21
           }
         ]
@@ -71049,7 +71089,27 @@
           "action": "read",
           "description": "Obtain and read Dark Flame Recipe.",
           "target_name": "Dark Flame Recipe",
-          "target_type": "item"
+          "target_type": "item",
+          "level_estimate": {
+            "recommended": 30,
+            "factors": [
+              {
+                "source": "enemy_level",
+                "name": "Cursed Vithean Traitor",
+                "level": 30
+              },
+              {
+                "source": "enemy_level",
+                "name": "Cursed Vithean Conspirer",
+                "level": 31
+              },
+              {
+                "source": "enemy_level",
+                "name": "Vithean Betrayer",
+                "level": 32
+              }
+            ]
+          }
         },
         {
           "order": 2,
@@ -71192,6 +71252,34 @@
         },
         {
           "order": 5,
+          "action": "collect",
+          "description": "Collect Dark Flame Recipe.",
+          "target_name": "Dark Flame Recipe",
+          "target_type": "item",
+          "quantity": 1,
+          "level_estimate": {
+            "recommended": 30,
+            "factors": [
+              {
+                "source": "enemy_level",
+                "name": "Cursed Vithean Traitor",
+                "level": 30
+              },
+              {
+                "source": "enemy_level",
+                "name": "Cursed Vithean Conspirer",
+                "level": 31
+              },
+              {
+                "source": "enemy_level",
+                "name": "Vithean Betrayer",
+                "level": 32
+              }
+            ]
+          }
+        },
+        {
+          "order": 6,
           "action": "turn_in",
           "description": "Turn in items to Dark Flame Brazier.",
           "target_name": "Dark Flame Brazier",
@@ -71328,6 +71416,28 @@
               "zone_name": "Fallen Braxonia"
             }
           ]
+        },
+        {
+          "item_name": "Dark Flame Recipe",
+          "item_stable_key": "item:gen - rekindling the flame 2",
+          "quantity": 1,
+          "drop_sources": [
+            {
+              "character_name": "Cursed Vithean Traitor",
+              "character_stable_key": "character:vithean hydromancer",
+              "zone_name": "Vitheo's Rest"
+            },
+            {
+              "character_name": "Cursed Vithean Conspirer",
+              "character_stable_key": "character:vithean master",
+              "zone_name": "Vitheo's Rest"
+            },
+            {
+              "character_name": "Vithean Betrayer",
+              "character_stable_key": "character:vithean windblade",
+              "zone_name": "Vitheo's Rest"
+            }
+          ]
         }
       ],
       "completion": [
@@ -71342,12 +71452,12 @@
         "xp": 15
       },
       "level_estimate": {
-        "recommended": 29,
+        "recommended": 30,
         "factors": [
           {
-            "source": "step_4",
-            "name": "Collect Spark of the First Flame.",
-            "level": 29
+            "source": "step_1",
+            "name": "Obtain and read Dark Flame Recipe.",
+            "level": 30
           }
         ]
       }
@@ -71594,6 +71704,14 @@
         },
         {
           "order": 6,
+          "action": "collect",
+          "description": "Collect The Duskenlight Ritual.",
+          "target_name": "The Duskenlight Ritual",
+          "target_type": "item",
+          "quantity": 1
+        },
+        {
+          "order": 7,
           "action": "turn_in",
           "description": "Turn in items to Ceremonial Brazier.",
           "target_name": "Ceremonial Brazier",
@@ -72310,6 +72428,17 @@
               "zone_name": "Azynthi's Garden"
             }
           ]
+        },
+        {
+          "item_name": "The Duskenlight Ritual",
+          "item_stable_key": "item:gen - the duskenlight ritual",
+          "quantity": 1,
+          "quest_reward_sources": [
+            {
+              "quest_name": "Liam's Note",
+              "quest_stable_key": "quest:liamsnote"
+            }
+          ]
         }
       ],
       "completion": [
@@ -72330,7 +72459,7 @@
         "recommended": 13,
         "factors": [
           {
-            "source": "step_6",
+            "source": "step_7",
             "name": "Turn in items to Ceremonial Brazier.",
             "level": 13
           }
@@ -72697,7 +72826,27 @@
           "action": "read",
           "description": "Obtain and read Life Flame Recipe.",
           "target_name": "Life Flame Recipe",
-          "target_type": "item"
+          "target_type": "item",
+          "level_estimate": {
+            "recommended": 30,
+            "factors": [
+              {
+                "source": "enemy_level",
+                "name": "Cursed Vithean Traitor",
+                "level": 30
+              },
+              {
+                "source": "enemy_level",
+                "name": "Cursed Vithean Conspirer",
+                "level": 31
+              },
+              {
+                "source": "enemy_level",
+                "name": "Vithean Betrayer",
+                "level": 32
+              }
+            ]
+          }
         },
         {
           "order": 2,
@@ -72813,6 +72962,34 @@
         },
         {
           "order": 6,
+          "action": "collect",
+          "description": "Collect Life Flame Recipe.",
+          "target_name": "Life Flame Recipe",
+          "target_type": "item",
+          "quantity": 1,
+          "level_estimate": {
+            "recommended": 30,
+            "factors": [
+              {
+                "source": "enemy_level",
+                "name": "Cursed Vithean Traitor",
+                "level": 30
+              },
+              {
+                "source": "enemy_level",
+                "name": "Cursed Vithean Conspirer",
+                "level": 31
+              },
+              {
+                "source": "enemy_level",
+                "name": "Vithean Betrayer",
+                "level": 32
+              }
+            ]
+          }
+        },
+        {
+          "order": 7,
           "action": "turn_in",
           "description": "Turn in items to Lifeflame Brazier.",
           "target_name": "Lifeflame Brazier",
@@ -72918,6 +73095,28 @@
               "character_name": "Historian of Braxonia",
               "character_stable_key": "character:braxonian historian",
               "zone_name": "Fallen Braxonia"
+            }
+          ]
+        },
+        {
+          "item_name": "Life Flame Recipe",
+          "item_stable_key": "item:gen - rekindling the flame 3",
+          "quantity": 1,
+          "drop_sources": [
+            {
+              "character_name": "Cursed Vithean Traitor",
+              "character_stable_key": "character:vithean hydromancer",
+              "zone_name": "Vitheo's Rest"
+            },
+            {
+              "character_name": "Cursed Vithean Conspirer",
+              "character_stable_key": "character:vithean master",
+              "zone_name": "Vitheo's Rest"
+            },
+            {
+              "character_name": "Vithean Betrayer",
+              "character_stable_key": "character:vithean windblade",
+              "zone_name": "Vitheo's Rest"
             }
           ]
         }
@@ -76913,6 +77112,14 @@
         },
         {
           "order": 6,
+          "action": "collect",
+          "description": "Collect The Fernallan Ritual.",
+          "target_name": "The Fernallan Ritual",
+          "target_type": "item",
+          "quantity": 1
+        },
+        {
+          "order": 7,
           "action": "turn_in",
           "description": "Turn in items to Ceremonial Brazier.",
           "target_name": "Ceremonial Brazier",
@@ -77681,6 +77888,17 @@
               "character_stable_key": "character:portal spirit"
             }
           ]
+        },
+        {
+          "item_name": "The Fernallan Ritual",
+          "item_stable_key": "item:gen - the fernallan ritual",
+          "quantity": 1,
+          "quest_reward_sources": [
+            {
+              "quest_name": "Underloft's Compass",
+              "quest_stable_key": "quest:underloftcompass"
+            }
+          ]
         }
       ],
       "completion": [
@@ -77701,7 +77919,7 @@
         "recommended": 13,
         "factors": [
           {
-            "source": "step_6",
+            "source": "step_7",
             "name": "Turn in items to Ceremonial Brazier.",
             "level": 13
           }
@@ -79310,6 +79528,24 @@
         },
         {
           "order": 3,
+          "action": "collect",
+          "description": "Collect Marching Orders.",
+          "target_name": "Marching Orders",
+          "target_type": "item",
+          "quantity": 1,
+          "level_estimate": {
+            "recommended": 28,
+            "factors": [
+              {
+                "source": "enemy_level",
+                "name": "Gherist Morthario",
+                "level": 28
+              }
+            ]
+          }
+        },
+        {
+          "order": 4,
           "action": "turn_in",
           "description": "Turn in items to Lucian Revald.",
           "target_name": "Lucian Revald",
@@ -79337,6 +79573,18 @@
               "character_name": "Ghost of Wyland Sercher",
               "character_stable_key": "character:ghost of wylan sercher",
               "zone_name": "Island Tomb"
+            }
+          ]
+        },
+        {
+          "item_name": "Marching Orders",
+          "item_stable_key": "item:gen - marching orders",
+          "quantity": 1,
+          "drop_sources": [
+            {
+              "character_name": "Gherist Morthario",
+              "character_stable_key": "character:gherist morthario",
+              "zone_name": "Rottenfoot"
             }
           ]
         }
@@ -79375,12 +79623,12 @@
         "disabled_text": "We're square."
       },
       "level_estimate": {
-        "recommended": 4,
+        "recommended": 28,
         "factors": [
           {
-            "source": "step_1",
-            "name": "Obtain and read Torn Note.",
-            "level": 4
+            "source": "step_3",
+            "name": "Collect Marching Orders.",
+            "level": 28
           }
         ]
       }

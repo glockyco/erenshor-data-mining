@@ -168,6 +168,31 @@ def _build_all_guides(conn: sqlite3.Connection, zone_lookup: dict[str, ZoneInfo]
             quest_reward_map,
             exclude_quest_sk=sk,
         )
+
+        # For item_read quests, include the triggering item in required_items
+        # so its obtainability sources are available for step display and level
+        # estimation. The item is a quest trigger, not a completion objective,
+        # but the player still needs to obtain it.
+        for acq in acquisition:
+            if acq.method == "item_read" and acq.source_stable_key:
+                isk = acq.source_stable_key
+                if not any(ri.item_stable_key == isk for ri in required_items):
+                    required_items.append(
+                        RequiredItemInfo(
+                            item_name=item_names.get(isk, acq.source_name or isk),
+                            item_stable_key=isk,
+                            quantity=1,
+                            drop_sources=drop_sources_map.get(isk, []),
+                            vendor_sources=vendor_sources_map.get(isk, []),
+                            fishing_sources=fishing_map.get(isk, []),
+                            mining_sources=mining_map.get(isk, []),
+                            bag_sources=bag_map.get(isk, []),
+                            crafting_sources=crafting_map.get(isk, []),
+                            quest_reward_sources=[
+                                qr for qr in quest_reward_map.get(isk, []) if qr.quest_stable_key != sk
+                            ],
+                        )
+                    )
         rewards = _build_rewards(
             quest, chain_next_map, also_completes_map, faction_effects_map, item_names, quest_names
         )
