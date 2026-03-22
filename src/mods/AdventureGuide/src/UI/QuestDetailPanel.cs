@@ -277,6 +277,8 @@ public sealed class QuestDetailPanel
     /// Walk steps to find the first incomplete one. Conservative approach:
     /// only advance past steps we can verify (collect with item count).
     /// Non-verifiable steps (talk, kill, shout, turn_in) stop the pointer.
+    /// Exception: step 0 is auto-completed for active quests when it matches
+    /// the acquisition action (e.g. talk to quest giver, read trigger item).
     /// </summary>
     private int DetermineCurrentStep(QuestEntry quest)
     {
@@ -286,7 +288,12 @@ public sealed class QuestDetailPanel
         if (!_state.IsActive(quest.DBName))
             return 0;
 
-        for (int i = 0; i < quest.Steps!.Count; i++)
+        // Step 0 is the acquisition action for most quests (talk to giver,
+        // read trigger item, travel to trigger zone). If active, the player
+        // already performed it to accept the quest — skip it.
+        int start = IsAcquisitionStep(quest, quest.Steps![0]) ? 1 : 0;
+
+        for (int i = start; i < quest.Steps.Count; i++)
         {
             var step = quest.Steps[i];
             if (step.Action == "collect" && step.TargetName != null && step.Quantity.HasValue)
@@ -305,6 +312,33 @@ public sealed class QuestDetailPanel
 
         // All verifiable steps done — point to last step
         return quest.Steps.Count - 1;
+    }
+
+    /// <summary>
+    /// Returns true when step 0 represents the quest acquisition action
+    /// itself (talk to quest giver, read trigger item, enter trigger zone).
+    /// Matched by comparing the step action/target against acquisition sources.
+    /// </summary>
+    private static bool IsAcquisitionStep(QuestEntry quest, QuestStep step)
+    {
+        if (quest.Acquisition == null || quest.Acquisition.Count == 0)
+            return false;
+
+        foreach (var acq in quest.Acquisition)
+        {
+            if (step.Action == "talk" && acq.Method == "dialog"
+                && string.Equals(step.TargetName, acq.SourceName, StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            if (step.Action == "read" && acq.Method == "item_read"
+                && string.Equals(step.TargetName, acq.SourceName, StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            if (step.Action == "travel" && acq.Method == "zone_entry")
+                return true;
+        }
+
+        return false;
     }
 
     // ── Rewards ─────────────────────────────────────────────────────
