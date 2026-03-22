@@ -53549,6 +53549,7 @@
           "description": "Speak to Ripper DeMerth.",
           "target_name": "Ripper DeMerth",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -53567,6 +53568,7 @@
           "target_name": "Ear of Kilkay",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 38,
             "factors": [
@@ -53585,6 +53587,7 @@
           "target_name": "Ripper DeMerth",
           "target_type": "character",
           "zone_name": "Ripper's Keep",
+          "optional": false,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -53691,6 +53694,7 @@
           "description": "Speak to Captain Kilkay.",
           "target_name": "Captain Kilkay",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -53709,6 +53713,7 @@
           "target_name": "Ear of Ripper",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 38,
             "factors": [
@@ -53727,6 +53732,7 @@
           "target_name": "Captain Kilkay",
           "target_type": "character",
           "zone_name": "Port Azure",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -53826,6 +53832,7 @@
           "target_name": "Small Cat Statue",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 38,
             "factors": [
@@ -53844,6 +53851,7 @@
           "target_name": "The Conductor",
           "target_type": "character",
           "zone_name": "Mysterious Portal (3)",
+          "optional": false,
           "level_estimate": {
             "recommended": 32,
             "factors": [
@@ -53927,7 +53935,8 @@
           "action": "talk",
           "description": "Speak to A Dying Wish.",
           "target_name": "A Dying Wish",
-          "target_type": "character"
+          "target_type": "character",
+          "optional": false
         },
         {
           "order": 2,
@@ -53936,6 +53945,7 @@
           "target_name": "Memory of a Guardian",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 23,
             "factors": [
@@ -53952,7 +53962,8 @@
           "action": "turn_in",
           "description": "Turn in items to A Dying Wish.",
           "target_name": "A Dying Wish",
-          "target_type": "character"
+          "target_type": "character",
+          "optional": false
         }
       ],
       "required_items": [
@@ -54023,7 +54034,8 @@
           "action": "talk",
           "description": "Speak to A Dying Wish.",
           "target_name": "A Dying Wish",
-          "target_type": "character"
+          "target_type": "character",
+          "optional": false
         },
         {
           "order": 2,
@@ -54032,6 +54044,7 @@
           "target_name": "Memory of Balaste",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 26,
             "factors": [
@@ -54048,7 +54061,8 @@
           "action": "turn_in",
           "description": "Turn in items to A Dying Wish.",
           "target_name": "A Dying Wish",
-          "target_type": "character"
+          "target_type": "character",
+          "optional": false
         }
       ],
       "required_items": [
@@ -54119,7 +54133,8 @@
           "action": "talk",
           "description": "Speak to A Dying Wish.",
           "target_name": "A Dying Wish",
-          "target_type": "character"
+          "target_type": "character",
+          "optional": false
         },
         {
           "order": 2,
@@ -54128,6 +54143,7 @@
           "target_name": "Memory of Elwio",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 33,
             "factors": [
@@ -54144,7 +54160,8 @@
           "action": "turn_in",
           "description": "Turn in items to A Dying Wish.",
           "target_name": "A Dying Wish",
-          "target_type": "character"
+          "target_type": "character",
+          "optional": false
         }
       ],
       "required_items": [
@@ -54223,6 +54240,7 @@
           "description": "Speak to Fallen Fernalla.",
           "target_name": "Fallen Fernalla",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 27,
             "factors": [
@@ -54241,6 +54259,7 @@
           "target_name": "Memory of Vitheo",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 39,
             "factors": [
@@ -54259,6 +54278,7 @@
           "target_name": "Fallen Fernalla",
           "target_type": "character",
           "zone_name": "Blooming Sepulcher",
+          "optional": false,
           "level_estimate": {
             "recommended": 27,
             "factors": [
@@ -54334,6 +54354,7 @@
           "target_name": "Inert Rune of Fernalla",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 40,
             "factors": [
@@ -54352,6 +54373,7 @@
           "target_name": "Eldrich Crystal",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 41,
             "factors": [
@@ -54375,6 +54397,7 @@
           "target_name": "Verdant Energy",
           "target_type": "character",
           "zone_name": "Fernalla's Revival Plains",
+          "optional": false,
           "level_estimate": {
             "recommended": 13,
             "factors": [
@@ -54513,6 +54536,7 @@
           "description": "Speak to A Hermit.",
           "target_name": "A Hermit",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 13,
             "factors": [
@@ -54531,6 +54555,7 @@
           "target_name": "Ornate Toolbox",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 13,
             "factors": [
@@ -54549,6 +54574,7 @@
           "target_name": "A Hermit",
           "target_type": "character",
           "zone_name": "Fernalla's Revival Plains",
+          "optional": false,
           "level_estimate": {
             "recommended": 13,
             "factors": [
@@ -54653,6 +54679,7 @@
           "description": "Speak to Styria Olafur.",
           "target_name": "Styria Olafur",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -54725,6 +54752,7 @@
           "target_name": "Sivakrux",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 1,
             "factors": [
@@ -54768,6 +54796,7 @@
           "target_name": "Vethalo Gala",
           "target_type": "character",
           "zone_name": "Port Azure",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -54882,6 +54911,7 @@
           "target_name": "Braxonian Portal Shard (Fire)",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 36,
             "factors": [
@@ -54900,6 +54930,7 @@
           "target_name": "Braxonian Portal Shard (Ice)",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 37,
             "factors": [
@@ -54918,6 +54949,7 @@
           "target_name": "Braxon Elden",
           "target_type": "character",
           "zone_name": "Braxonian Desert",
+          "optional": false,
           "level_estimate": {
             "recommended": 17,
             "factors": [
@@ -55042,6 +55074,7 @@
           "target_name": "Inert Rune of Brax",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 37,
             "factors": [
@@ -55060,6 +55093,7 @@
           "target_name": "Eldrich Crystal",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 41,
             "factors": [
@@ -55083,6 +55117,7 @@
           "target_name": "Elemental Energy",
           "target_type": "character",
           "zone_name": "Fallen Braxonia",
+          "optional": false,
           "level_estimate": {
             "recommended": 29,
             "factors": [
@@ -55201,6 +55236,7 @@
           "description": "Speak to Tristan Warton.",
           "target_name": "Tristan Warton",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -55219,6 +55255,7 @@
           "target_name": "Ruby",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 7,
             "factors": [
@@ -55412,6 +55449,7 @@
           "target_name": "Seaspice",
           "target_type": "item",
           "quantity": 2,
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -55545,6 +55583,7 @@
           "target_name": "Tristan Warton",
           "target_type": "character",
           "zone_name": "Port Azure",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -56100,6 +56139,7 @@
           "description": "Speak to Xander Zaxtrough.",
           "target_name": "Xander Zaxtrough",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -56117,6 +56157,7 @@
           "description": "Speak to Cirreus Alxanth.",
           "target_name": "Cirreus Alxanth",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 9,
             "factors": [
@@ -56192,6 +56233,7 @@
           "description": "Speak to Trevor Ulchand.",
           "target_name": "Trevor Ulchand",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -56210,6 +56252,7 @@
           "target_name": "Necromancer's Ritual Book",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 7,
             "factors": [
@@ -56228,6 +56271,7 @@
           "target_name": "Trevor Ulchand",
           "target_type": "character",
           "zone_name": "Hidden Hills",
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -56313,6 +56357,7 @@
           "description": "Obtain and read Notes of a Hermit.",
           "target_name": "Notes of a Hermit",
           "target_type": "item",
+          "optional": false,
           "level_estimate": {
             "recommended": 8,
             "factors": [
@@ -56346,6 +56391,7 @@
           "target_name": "Notes of a Hermit",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 8,
             "factors": [
@@ -56379,6 +56425,7 @@
           "target_name": "Chazz Pillot",
           "target_type": "character",
           "zone_name": "Port Azure",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -56476,6 +56523,7 @@
           "description": "Speak to Ward of Piety.",
           "target_name": "Ward of Piety",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 34,
             "factors": [
@@ -56542,6 +56590,7 @@
           "description": "Speak to Remnant.",
           "target_name": "Remnant",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 27,
             "factors": [
@@ -56560,6 +56609,7 @@
           "target_name": "Vithean Brick",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 21,
             "factors": [
@@ -56623,6 +56673,7 @@
           "target_name": "Remnant",
           "target_type": "character",
           "zone_name": "Blooming Sepulcher",
+          "optional": false,
           "level_estimate": {
             "recommended": 27,
             "factors": [
@@ -56821,6 +56872,7 @@
           "description": "Speak to Ludo Luxo.",
           "target_name": "Ludo Luxo",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -56839,6 +56891,7 @@
           "target_name": "Sivakayan Horn",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 8,
             "factors": [
@@ -56857,6 +56910,7 @@
           "target_name": "Ludo Luxo",
           "target_type": "character",
           "zone_name": "Hidden Hills",
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -56953,6 +57007,7 @@
           "description": "Speak to Alyssia Fearnon.",
           "target_name": "Alyssia Fearnon",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -56971,6 +57026,7 @@
           "target_name": "Skeleton Eye",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 8,
             "factors": [
@@ -57004,6 +57060,7 @@
           "target_name": "Alyssia Fearnon",
           "target_type": "character",
           "zone_name": "Hidden Hills",
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -57143,6 +57200,7 @@
           "target_name": "Inert Rune of Soluna",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 40,
             "factors": [
@@ -57161,6 +57219,7 @@
           "target_name": "Eldrich Crystal",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 41,
             "factors": [
@@ -57184,6 +57243,7 @@
           "target_name": "Verdant Energy",
           "target_type": "character",
           "zone_name": "Soluna's Landing",
+          "optional": false,
           "level_estimate": {
             "recommended": 13,
             "factors": [
@@ -57295,6 +57355,7 @@
           "description": "Speak to Jeremie Galyard.",
           "target_name": "Jeremie Galyard",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -57313,6 +57374,7 @@
           "target_name": "Azure Mead",
           "target_type": "item",
           "quantity": 3,
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -57351,6 +57413,7 @@
           "target_name": "Seaspice",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -57484,6 +57547,7 @@
           "target_name": "Jeremie Galyard",
           "target_type": "character",
           "zone_name": "Ripper's Keep",
+          "optional": false,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -57805,6 +57869,7 @@
           "target_name": "Inert Rune of Vitheo",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 39,
             "factors": [
@@ -57823,6 +57888,7 @@
           "target_name": "Eldrich Crystal",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 41,
             "factors": [
@@ -57846,6 +57912,7 @@
           "target_name": "Verdant Energy",
           "target_type": "character",
           "zone_name": "Vitheo's Rest",
+          "optional": false,
           "level_estimate": {
             "recommended": 13,
             "factors": [
@@ -58048,6 +58115,7 @@
           "description": "Speak to Saya Seawatcher.",
           "target_name": "Saya Seawatcher",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 9,
             "factors": [
@@ -58066,6 +58134,7 @@
           "target_name": "Aetheria",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 3,
             "factors": [
@@ -58209,6 +58278,7 @@
           "target_name": "Saya Seawatcher",
           "target_type": "character",
           "zone_name": "Vitheo's Watch",
+          "optional": false,
           "level_estimate": {
             "recommended": 9,
             "factors": [
@@ -58496,6 +58566,7 @@
           "description": "Speak to Albixt Munger.",
           "target_name": "Albixt Munger",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 18,
             "factors": [
@@ -58514,6 +58585,7 @@
           "target_name": "Simple Engagement Ring",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -58532,6 +58604,7 @@
           "target_name": "Albixt Munger",
           "target_type": "character",
           "zone_name": "Silkengrass Meadowlands",
+          "optional": false,
           "level_estimate": {
             "recommended": 18,
             "factors": [
@@ -58624,6 +58697,7 @@
           "description": "Speak to Alice Hewer.",
           "target_name": "Alice Hewer",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -58642,6 +58716,7 @@
           "target_name": "Plain Necklace",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 1,
             "factors": [
@@ -58660,6 +58735,7 @@
           "target_name": "Alice Hewer",
           "target_type": "character",
           "zone_name": "Stowaway's Step",
+          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -58752,6 +58828,7 @@
           "description": "Speak to Annaleigh Hephan.",
           "target_name": "Annaleigh Hephan",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 14,
             "factors": [
@@ -58770,6 +58847,7 @@
           "target_name": "Nagalok Claw",
           "target_type": "item",
           "quantity": 5,
+          "optional": false,
           "level_estimate": {
             "recommended": 14,
             "factors": [
@@ -58803,6 +58881,7 @@
           "target_name": "Annaleigh Hephan",
           "target_type": "character",
           "zone_name": "Blacksalt Strand",
+          "optional": false,
           "level_estimate": {
             "recommended": 14,
             "factors": [
@@ -58993,6 +59072,7 @@
           "description": "Speak to Aragath Swellsteer.",
           "target_name": "Aragath Swellsteer",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -59011,6 +59091,7 @@
           "target_name": "Charged Soul Gem (Posta)",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -59029,6 +59110,7 @@
           "target_name": "Charged Soul Gem (Leah)",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -59047,6 +59129,7 @@
           "target_name": "Charged Soul Gem (Revid)",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -59065,6 +59148,7 @@
           "target_name": "Charged Soul Gem (Stalzo)",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -59083,6 +59167,7 @@
           "target_name": "Aragath Swellsteer",
           "target_type": "character",
           "zone_name": "Stowaway's Step",
+          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -59215,6 +59300,7 @@
           "target_name": "A Strange Hermit",
           "target_type": "character",
           "keyword": "Azynthi",
+          "optional": false,
           "level_estimate": {
             "recommended": 30,
             "factors": [
@@ -59274,6 +59360,7 @@
           "target_name": "Bear Meat",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -59327,6 +59414,7 @@
           "target_name": "Fredrick Templestone",
           "target_type": "character",
           "zone_name": "Port Azure",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -59521,7 +59609,8 @@
           "description": "Collect A Collection of Notes.",
           "target_name": "A Collection of Notes",
           "target_type": "item",
-          "quantity": 1
+          "quantity": 1,
+          "optional": false
         },
         {
           "order": 2,
@@ -59529,7 +59618,8 @@
           "description": "Turn in items to Captain Bellwain.",
           "target_name": "Captain Bellwain",
           "target_type": "character",
-          "zone_name": "Bellwain Island"
+          "zone_name": "Bellwain Island",
+          "optional": false
         }
       ],
       "required_items": [
@@ -59593,6 +59683,7 @@
           "target_name": "Braxonian Scripture (2)",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 32,
             "factors": [
@@ -59621,6 +59712,7 @@
           "target_name": "Braxonian Scripture (1)",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 32,
             "factors": [
@@ -59649,6 +59741,7 @@
           "target_name": "Braxon Elden",
           "target_type": "character",
           "zone_name": "Braxonian Desert",
+          "optional": false,
           "level_estimate": {
             "recommended": 17,
             "factors": [
@@ -59777,6 +59870,7 @@
           "target_name": "Soul Gem (Leah)",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -59795,6 +59889,7 @@
           "target_name": "Watchlight",
           "target_type": "character",
           "zone_name": "Stowaway's Step",
+          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -59872,6 +59967,7 @@
           "target_name": "Soul Gem (Posta)",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -59890,6 +59986,7 @@
           "target_name": "Watchlight",
           "target_type": "character",
           "zone_name": "Stowaway's Step",
+          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -59967,6 +60064,7 @@
           "target_name": "Soul Gem (Revid)",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -59985,6 +60083,7 @@
           "target_name": "Watchlight",
           "target_type": "character",
           "zone_name": "Stowaway's Step",
+          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -60062,6 +60161,7 @@
           "target_name": "Soul Gem (Stalzo)",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -60080,6 +60180,7 @@
           "target_name": "Watchlight",
           "target_type": "character",
           "zone_name": "Stowaway's Step",
+          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -60157,6 +60258,7 @@
           "target_name": "Catnip",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 5,
             "factors": [
@@ -60175,6 +60277,7 @@
           "target_name": "Odd Statue",
           "target_type": "character",
           "zone_name": "Mysterious Portal (3)",
+          "optional": false,
           "level_estimate": {
             "recommended": 32,
             "factors": [
@@ -60272,6 +60375,7 @@
           "target_name": "Blue Burnstone",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 23,
             "factors": [
@@ -60290,6 +60394,7 @@
           "target_name": "Lighthouse Flame",
           "target_type": "character",
           "zone_name": "Shivering Step",
+          "optional": false,
           "level_estimate": {
             "recommended": 21,
             "factors": [
@@ -60426,6 +60531,7 @@
           "description": "Speak to William Cardigo.",
           "target_name": "William Cardigo",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -60444,6 +60550,7 @@
           "target_name": "Ritual Stone",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 9,
             "factors": [
@@ -60462,6 +60569,7 @@
           "target_name": "William Cardigo",
           "target_type": "character",
           "zone_name": "Willowwatch Ridge",
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -60661,6 +60769,7 @@
           "target_name": "Loss Stone",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 24,
             "factors": [
@@ -60679,6 +60788,7 @@
           "target_name": "A Remnant of Sivakaya",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 40,
             "factors": [
@@ -60697,6 +60807,7 @@
           "target_name": "Demented Brain",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 40,
             "factors": [
@@ -60715,6 +60826,7 @@
           "target_name": "Nightmare Crystal",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 38,
             "factors": [
@@ -60733,6 +60845,7 @@
           "target_name": "Lucian Revald",
           "target_type": "character",
           "zone_name": "Stowaway's Step",
+          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -60865,6 +60978,7 @@
           "target_name": "Blueprint: Azynthian Dining",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 29,
             "factors": [
@@ -60928,6 +61042,7 @@
           "target_name": "Breena Carpenter",
           "target_type": "character",
           "zone_name": "Port Azure",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -61089,6 +61204,7 @@
           "target_name": "Blueprint: Azynthian Livingroom",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 29,
             "factors": [
@@ -61152,6 +61268,7 @@
           "target_name": "Breena Carpenter",
           "target_type": "character",
           "zone_name": "Port Azure",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -61313,6 +61430,7 @@
           "target_name": "Blueprint: Azynthian Rest",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 29,
             "factors": [
@@ -61376,6 +61494,7 @@
           "target_name": "Breena Carpenter",
           "target_type": "character",
           "zone_name": "Port Azure",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -61537,6 +61656,7 @@
           "target_name": "Blueprint: Game Room",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 16,
             "factors": [
@@ -61560,6 +61680,7 @@
           "target_name": "Breena Carpenter",
           "target_type": "character",
           "zone_name": "Port Azure",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -61679,6 +61800,7 @@
           "target_name": "Blueprint: Loomingwood Market",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 19,
             "factors": [
@@ -61757,6 +61879,7 @@
           "target_name": "Breena Carpenter",
           "target_type": "character",
           "zone_name": "Port Azure",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -61939,6 +62062,7 @@
           "target_name": "Blueprint: Loomingwood Shrine",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 19,
             "factors": [
@@ -62017,6 +62141,7 @@
           "target_name": "Breena Carpenter",
           "target_type": "character",
           "zone_name": "Port Azure",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -62199,6 +62324,7 @@
           "target_name": "Blueprint: Stone Auction",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 19,
             "factors": [
@@ -62247,6 +62373,7 @@
           "target_name": "Breena Carpenter",
           "target_type": "character",
           "zone_name": "Port Azure",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -62387,6 +62514,7 @@
           "target_name": "Blueprint: Stone Bank",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 19,
             "factors": [
@@ -62435,6 +62563,7 @@
           "target_name": "Breena Carpenter",
           "target_type": "character",
           "zone_name": "Port Azure",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -62575,6 +62704,7 @@
           "target_name": "Blueprint: Stone Dining",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 19,
             "factors": [
@@ -62623,6 +62753,7 @@
           "target_name": "Breena Carpenter",
           "target_type": "character",
           "zone_name": "Port Azure",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -62763,6 +62894,7 @@
           "target_name": "Blueprint: Stone Fountain",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 19,
             "factors": [
@@ -62811,6 +62943,7 @@
           "target_name": "Breena Carpenter",
           "target_type": "character",
           "zone_name": "Port Azure",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -62951,6 +63084,7 @@
           "target_name": "Blueprint: Stone Training Room",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 19,
             "factors": [
@@ -62994,6 +63128,7 @@
           "target_name": "Breena Carpenter",
           "target_type": "character",
           "zone_name": "Port Azure",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -63127,6 +63262,7 @@
           "target_name": "Blueprint: Stone Vendor",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 19,
             "factors": [
@@ -63170,6 +63306,7 @@
           "target_name": "Breena Carpenter",
           "target_type": "character",
           "zone_name": "Port Azure",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -63310,6 +63447,7 @@
           "description": "Speak to Poacher.",
           "target_name": "Poacher",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 15,
             "factors": [
@@ -63328,6 +63466,7 @@
           "target_name": "Croc Tail",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 14,
             "factors": [
@@ -63351,6 +63490,7 @@
           "target_name": "Poacher",
           "target_type": "character",
           "zone_name": "Rottenfoot",
+          "optional": false,
           "level_estimate": {
             "recommended": 15,
             "factors": [
@@ -63440,6 +63580,7 @@
           "description": "Speak to Neziroth Daggerhart.",
           "target_name": "Neziroth Daggerhart",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -63458,6 +63599,7 @@
           "target_name": "Daggerhart Ancestral Coin",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -63486,6 +63628,7 @@
           "target_name": "Neziroth Daggerhart",
           "target_type": "character",
           "zone_name": "Stowaway's Step",
+          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -63594,6 +63737,7 @@
           "target_name": "Captured Light",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 26,
             "factors": [
@@ -63611,6 +63755,7 @@
           "description": "Turn in items to Kio the Light Keeper.",
           "target_name": "Kio the Light Keeper",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -63703,6 +63848,7 @@
           "description": "Speak to Stalzo.",
           "target_name": "Stalzo",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -63720,7 +63866,8 @@
           "description": "Collect Empty Soul Gem.",
           "target_name": "Empty Soul Gem",
           "target_type": "item",
-          "quantity": 1
+          "quantity": 1,
+          "optional": false
         },
         {
           "order": 3,
@@ -63729,6 +63876,7 @@
           "target_name": "Aragath Swellsteer",
           "target_type": "character",
           "zone_name": "Island Tomb",
+          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -63816,6 +63964,7 @@
           "description": "Speak to Edgar Taether.",
           "target_name": "Edgar Taether",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 18,
             "factors": [
@@ -63834,6 +63983,7 @@
           "target_name": "Sivakayan Axe",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 26,
             "factors": [
@@ -63882,6 +64032,7 @@
           "target_name": "Edgar Taether",
           "target_type": "character",
           "zone_name": "Silkengrass Meadowlands",
+          "optional": false,
           "level_estimate": {
             "recommended": 18,
             "factors": [
@@ -64050,6 +64201,7 @@
           "description": "Speak to Varran Juctor.",
           "target_name": "Varran Juctor",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 13,
             "factors": [
@@ -64068,6 +64220,7 @@
           "target_name": "Decayed Druid Beads",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 14,
             "factors": [
@@ -64136,6 +64289,7 @@
           "target_name": "Varran Juctor",
           "target_type": "character",
           "zone_name": "Fernalla's Revival Plains",
+          "optional": false,
           "level_estimate": {
             "recommended": 13,
             "factors": [
@@ -64322,6 +64476,7 @@
           "description": "Speak to Nylith Valorro.",
           "target_name": "Nylith Valorro",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -64340,6 +64495,7 @@
           "target_name": "Bag of Faerie Dust",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 8,
             "factors": [
@@ -64383,6 +64539,7 @@
           "target_name": "Nylith Valorro",
           "target_type": "character",
           "zone_name": "Hidden Hills",
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -64514,6 +64671,7 @@
           "description": "Speak to The Hider.",
           "target_name": "The Hider",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 21,
             "factors": [
@@ -64574,6 +64732,7 @@
           "target_name": "Riftsnare Gem",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 35,
             "factors": [
@@ -64612,6 +64771,7 @@
           "target_name": "Flicker of Souls",
           "target_type": "character",
           "zone_name": "Azynthi's Garden",
+          "optional": false,
           "level_estimate": {
             "recommended": 30,
             "factors": [
@@ -64722,6 +64882,7 @@
           "description": "Speak to Benson Gamble.",
           "target_name": "Benson Gamble",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -64740,6 +64901,7 @@
           "target_name": "Graveweed Leaf",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 7,
             "factors": [
@@ -64768,6 +64930,7 @@
           "target_name": "Benson Gamble",
           "target_type": "character",
           "zone_name": "Hidden Hills",
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -64885,6 +65048,7 @@
           "description": "Speak to Windlae Oldseer.",
           "target_name": "Windlae Oldseer",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -64903,6 +65067,7 @@
           "target_name": "Weathered Chain",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 9,
             "factors": [
@@ -64921,6 +65086,7 @@
           "target_name": "Windlae Oldseer",
           "target_type": "character",
           "zone_name": "Hidden Hills",
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -65017,6 +65183,7 @@
           "description": "Speak to Hadden Passican.",
           "target_name": "Hadden Passican",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 13,
             "factors": [
@@ -65034,7 +65201,8 @@
           "description": "Collect Box of Supplies.",
           "target_name": "Box of Supplies",
           "target_type": "item",
-          "quantity": 1
+          "quantity": 1,
+          "optional": false
         },
         {
           "order": 3,
@@ -65043,6 +65211,7 @@
           "target_name": "Leena Halsted",
           "target_type": "character",
           "zone_name": "Fernalla's Revival Plains",
+          "optional": false,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -65144,6 +65313,7 @@
           "target_name": "Leena's Receipt",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -65162,6 +65332,7 @@
           "target_name": "Hadden Passican",
           "target_type": "character",
           "zone_name": "Fernalla's Revival Plains",
+          "optional": false,
           "level_estimate": {
             "recommended": 13,
             "factors": [
@@ -65263,6 +65434,7 @@
           "description": "Speak to Corporal Slate.",
           "target_name": "Corporal Slate",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -65335,6 +65507,7 @@
           "description": "Speak to Foreman Hauck.",
           "target_name": "Foreman Hauck",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -65353,6 +65526,7 @@
           "target_name": "Aged Interrogation Note",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 17,
             "factors": [
@@ -65371,6 +65545,7 @@
           "target_name": "Foreman Hauck",
           "target_type": "character",
           "zone_name": "Port Azure",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -65463,6 +65638,7 @@
           "description": "Speak to Valrae Cleary.",
           "target_name": "Valrae Cleary",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -65481,6 +65657,7 @@
           "target_name": "Krakengard Bunk Key",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 10,
             "factors": [
@@ -65499,6 +65676,7 @@
           "target_name": "Krakengard Tower Key",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -65517,6 +65695,7 @@
           "target_name": "Valrae Cleary",
           "target_type": "character",
           "zone_name": "Faerie's Brake",
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -65665,6 +65844,7 @@
           "description": "Speak to Corporal Slate.",
           "target_name": "Corporal Slate",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -65682,7 +65862,8 @@
           "description": "Collect Kio's Leave Order.",
           "target_name": "Kio's Leave Order",
           "target_type": "item",
-          "quantity": 1
+          "quantity": 1,
+          "optional": false
         },
         {
           "order": 3,
@@ -65691,6 +65872,7 @@
           "target_name": "Kio the Light Keeper",
           "target_type": "character",
           "zone_name": "Stowaway's Step",
+          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -65777,6 +65959,7 @@
           "description": "Obtain and read Note to Liam.",
           "target_name": "Note to Liam",
           "target_type": "item",
+          "optional": false,
           "level_estimate": {
             "recommended": 10,
             "factors": [
@@ -65795,6 +65978,7 @@
           "target_name": "Note to Liam",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 10,
             "factors": [
@@ -65813,6 +65997,7 @@
           "target_name": "Liam Kilfa",
           "target_type": "character",
           "zone_name": "The Duskenlight Coast",
+          "optional": false,
           "level_estimate": {
             "recommended": 14,
             "factors": [
@@ -65913,6 +66098,7 @@
           "target_name": "Unlit Nighthollow Candle",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 43,
             "factors": [
@@ -65931,6 +66117,7 @@
           "target_name": "Braxonian Flame Well",
           "target_type": "character",
           "zone_name": "Fallen Braxonia",
+          "optional": false,
           "level_estimate": {
             "recommended": 29,
             "factors": [
@@ -66025,6 +66212,7 @@
           "target_name": "Lost Faith",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 26,
             "factors": [
@@ -66063,6 +66251,7 @@
           "target_name": "Stardust",
           "target_type": "character",
           "zone_name": "Soluna's Landing",
+          "optional": false,
           "level_estimate": {
             "recommended": 26,
             "factors": [
@@ -66173,6 +66362,7 @@
           "target_name": "An Octorunner",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 9,
             "factors": [
@@ -66226,6 +66416,7 @@
           "target_name": "A Frowny Clowny",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -66309,6 +66500,7 @@
           "target_name": "Azure Mead",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -66347,6 +66539,7 @@
           "target_name": "Baking Oven",
           "target_type": "character",
           "zone_name": "Port Azure",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -66623,6 +66816,7 @@
           "description": "Speak to Prichard Zemoro.",
           "target_name": "Prichard Zemoro",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -66641,6 +66835,7 @@
           "target_name": "Treasure Map",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 16,
             "factors": [
@@ -66659,6 +66854,7 @@
           "target_name": "Elixir of Enlightenment II",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 1,
             "factors": [
@@ -66692,6 +66888,7 @@
           "target_name": "Prichard Zemoro",
           "target_type": "character",
           "zone_name": "Port Azure",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -66812,6 +67009,7 @@
           "description": "Speak to Mavik Estonia.",
           "target_name": "Mavik Estonia",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 18,
             "factors": [
@@ -66829,7 +67027,8 @@
           "description": "Collect Mavik Easton's Note.",
           "target_name": "Mavik Easton's Note",
           "target_type": "item",
-          "quantity": 1
+          "quantity": 1,
+          "optional": false
         },
         {
           "order": 3,
@@ -66838,6 +67037,7 @@
           "target_name": "Captain Kilkay",
           "target_type": "character",
           "zone_name": "Silkengrass Meadowlands",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -66936,6 +67136,7 @@
           "description": "Speak to Bassle Wavebreaker.",
           "target_name": "Bassle Wavebreaker",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 14,
             "factors": [
@@ -66994,6 +67195,7 @@
           "target_name": "Faded Journal Entry",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 32,
             "factors": [
@@ -67012,6 +67214,7 @@
           "target_name": "Valao the Holy",
           "target_type": "character",
           "zone_name": "Soluna's Landing",
+          "optional": false,
           "level_estimate": {
             "recommended": 26,
             "factors": [
@@ -67103,6 +67306,7 @@
           "description": "Speak to Shady Fisherman.",
           "target_name": "Shady Fisherman",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -67121,6 +67325,7 @@
           "target_name": "An Octorunner",
           "target_type": "item",
           "quantity": 4,
+          "optional": false,
           "level_estimate": {
             "recommended": 9,
             "factors": [
@@ -67174,6 +67379,7 @@
           "target_name": "Shady Fisherman",
           "target_type": "character",
           "zone_name": "Port Azure",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -67298,6 +67504,7 @@
           "description": "Speak to Valrae Cleary.",
           "target_name": "Valrae Cleary",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -67316,6 +67523,7 @@
           "target_name": "Ogrespice Leaf",
           "target_type": "item",
           "quantity": 4,
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -67369,6 +67577,7 @@
           "target_name": "Valrae Cleary",
           "target_type": "character",
           "zone_name": "Faerie's Brake",
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -67510,6 +67719,7 @@
           "description": "Obtain and read Scribbles of a Mad Priest.",
           "target_name": "Scribbles of a Mad Priest",
           "target_type": "item",
+          "optional": false,
           "level_estimate": {
             "recommended": 21,
             "factors": [
@@ -67528,6 +67738,7 @@
           "target_name": "Tempest Stone",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 21,
             "factors": [
@@ -67546,6 +67757,7 @@
           "target_name": "Scribbles of a Mad Priest",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 21,
             "factors": [
@@ -67564,6 +67776,7 @@
           "target_name": "Orion Mycon",
           "target_type": "character",
           "zone_name": "Port Azure",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -67682,6 +67895,7 @@
           "target_name": "A Rolled Note",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -67700,6 +67914,7 @@
           "target_name": "Captain Genevieve Voldance",
           "target_type": "character",
           "zone_name": "Stowaway's Step",
+          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -67781,6 +67996,7 @@
           "target_name": "Sivakayan Boat Pass",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 27,
             "factors": [
@@ -67804,6 +68020,7 @@
           "target_name": "Boatman",
           "target_type": "character",
           "zone_name": "The Blight",
+          "optional": false,
           "level_estimate": {
             "recommended": 25,
             "factors": [
@@ -67894,6 +68111,7 @@
           "description": "Speak to Percy Ildia.",
           "target_name": "Percy Ildia",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -67912,6 +68130,7 @@
           "target_name": "Seaspice",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -68045,6 +68264,7 @@
           "target_name": "Percy Ildia",
           "target_type": "character",
           "zone_name": "Stowaway's Step",
+          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -68332,6 +68552,7 @@
           "target_name": "Rune of The Hills",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 7,
             "factors": [
@@ -68350,6 +68571,7 @@
           "target_name": "Hidden Hills Receptacle",
           "target_type": "character",
           "zone_name": "Reliquary Hall",
+          "optional": false,
           "level_estimate": {
             "recommended": 5,
             "factors": [
@@ -68435,6 +68657,7 @@
           "target_name": "Rune of Ripper's Keep",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -68453,6 +68676,7 @@
           "target_name": "Ripparian Receptacle",
           "target_type": "character",
           "zone_name": "Reliquary Hall",
+          "optional": false,
           "level_estimate": {
             "recommended": 5,
             "factors": [
@@ -68530,6 +68754,7 @@
           "target_name": "Rune of Sands",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 16,
             "factors": [
@@ -68553,6 +68778,7 @@
           "target_name": "Braxonian Receptacle",
           "target_type": "character",
           "zone_name": "Reliquary Hall",
+          "optional": false,
           "level_estimate": {
             "recommended": 5,
             "factors": [
@@ -68643,6 +68869,7 @@
           "target_name": "Rune of Silkengrass",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 19,
             "factors": [
@@ -68666,6 +68893,7 @@
           "target_name": "Silkengrass Receptacle",
           "target_type": "character",
           "zone_name": "Reliquary Hall",
+          "optional": false,
           "level_estimate": {
             "recommended": 5,
             "factors": [
@@ -68759,6 +68987,7 @@
           "target_name": "Rune of Soluna's Landing",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 32,
             "factors": [
@@ -68777,6 +69006,7 @@
           "target_name": "Solunarian Receptacle",
           "target_type": "character",
           "zone_name": "Reliquary Hall",
+          "optional": false,
           "level_estimate": {
             "recommended": 5,
             "factors": [
@@ -68862,6 +69092,7 @@
           "target_name": "Rune of Winds",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 25,
             "factors": [
@@ -68880,6 +69111,7 @@
           "target_name": "Windwashed Receptacle",
           "target_type": "character",
           "zone_name": "Reliquary Hall",
+          "optional": false,
           "level_estimate": {
             "recommended": 5,
             "factors": [
@@ -68962,7 +69194,8 @@
           "action": "talk",
           "description": "Speak to Freed Spirit of Raval.",
           "target_name": "Freed Spirit of Raval",
-          "target_type": "character"
+          "target_type": "character",
+          "optional": false
         },
         {
           "order": 2,
@@ -68971,6 +69204,7 @@
           "target_name": "Heart of Astra",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 40,
             "factors": [
@@ -68987,7 +69221,8 @@
           "action": "turn_in",
           "description": "Turn in items to Freed Spirit of Raval.",
           "target_name": "Freed Spirit of Raval",
-          "target_type": "character"
+          "target_type": "character",
+          "optional": false
         }
       ],
       "required_items": [
@@ -69068,6 +69303,7 @@
           "description": "Speak to Larviso Poltir.",
           "target_name": "Larviso Poltir",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 24,
             "factors": [
@@ -69086,6 +69322,7 @@
           "target_name": "Skull-Shaped Candleholder",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 43,
             "factors": [
@@ -69103,7 +69340,8 @@
           "description": "Collect Nighthollow Wax.",
           "target_name": "Nighthollow Wax",
           "target_type": "item",
-          "quantity": 1
+          "quantity": 1,
+          "optional": false
         },
         {
           "order": 4,
@@ -69112,6 +69350,7 @@
           "target_name": "Nighthollow Wick",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 32,
             "factors": [
@@ -69130,6 +69369,7 @@
           "target_name": "Larviso Poltir",
           "target_type": "character",
           "zone_name": "Loomingwood Forest",
+          "optional": false,
           "level_estimate": {
             "recommended": 24,
             "factors": [
@@ -69267,6 +69507,7 @@
           "target_name": "Unsocketed Ring",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 21,
             "factors": [
@@ -69285,6 +69526,7 @@
           "target_name": "Parmalee Gemlyn",
           "target_type": "character",
           "zone_name": "Port Azure",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -69404,6 +69646,7 @@
           "target_name": "Unsocketed Ring",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -69427,6 +69670,7 @@
           "target_name": "Elderstone Shard",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -69480,6 +69724,7 @@
           "target_name": "Chunk of Citrine Sandsilver",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 17,
             "factors": [
@@ -69508,6 +69753,7 @@
           "target_name": "Parmalee Gemlyn",
           "target_type": "character",
           "zone_name": "Port Azure",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -69692,7 +69938,8 @@
           "description": "Collect Torn Treasure Map (Bottom Left).",
           "target_name": "Torn Treasure Map (Bottom Left)",
           "target_type": "item",
-          "quantity": 1
+          "quantity": 1,
+          "optional": false
         },
         {
           "order": 2,
@@ -69700,7 +69947,8 @@
           "description": "Collect Torn Treasure Map (Bottom Right).",
           "target_name": "Torn Treasure Map (Bottom Right)",
           "target_type": "item",
-          "quantity": 1
+          "quantity": 1,
+          "optional": false
         },
         {
           "order": 3,
@@ -69709,6 +69957,7 @@
           "target_name": "Torn Treasure Map (Top Left)",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 16,
             "factors": [
@@ -69727,6 +69976,7 @@
           "target_name": "Torn Treasure Map (Top Right)",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -69745,6 +69995,7 @@
           "target_name": "Cecil Threbb",
           "target_type": "character",
           "zone_name": "Faerie's Brake",
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -69848,6 +70099,7 @@
           "target_name": "Ripper Insignia Badge",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 27,
             "factors": [
@@ -69901,6 +70153,7 @@
           "target_name": "Captain Kilkay",
           "target_type": "character",
           "zone_name": "Port Azure",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -70052,6 +70305,7 @@
           "target_name": "Sivakayan Encrypted Plans",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 39,
             "factors": [
@@ -70070,6 +70324,7 @@
           "target_name": "Sivakayan Codex 1 of 4",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 24,
             "factors": [
@@ -70088,6 +70343,7 @@
           "target_name": "Sivakayan Codex 2 of 4",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -70106,6 +70362,7 @@
           "target_name": "Sivakayan Codex 3 of 4",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 33,
             "factors": [
@@ -70124,6 +70381,7 @@
           "target_name": "Sivakayan Codex 4 of 4",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 36,
             "factors": [
@@ -70142,6 +70400,7 @@
           "target_name": "Ripper DeMerth",
           "target_type": "character",
           "zone_name": "Ripper's Keep",
+          "optional": false,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -70298,6 +70557,7 @@
           "target_name": "Note from Eldoth",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 39,
             "factors": [
@@ -70316,6 +70576,7 @@
           "target_name": "Ripper DeMerth",
           "target_type": "character",
           "zone_name": "Ripper's Keep",
+          "optional": false,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -70414,6 +70675,7 @@
           "description": "Speak to Torado Zortia.",
           "target_name": "Torado Zortia",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 24,
             "factors": [
@@ -70432,6 +70694,7 @@
           "target_name": "Pink Pteriaped Feather",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 22,
             "factors": [
@@ -70460,6 +70723,7 @@
           "target_name": "Devoratrix Thorn",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 22,
             "factors": [
@@ -70478,6 +70742,7 @@
           "target_name": "Intact Faerie Wing",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 8,
             "factors": [
@@ -70511,6 +70776,7 @@
           "target_name": "Torado Zortia",
           "target_type": "character",
           "zone_name": "Loomingwood Forest",
+          "optional": false,
           "level_estimate": {
             "recommended": 24,
             "factors": [
@@ -70668,6 +70934,7 @@
           "description": "Speak to Alitho Echeswer.",
           "target_name": "Alitho Echeswer",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -70686,6 +70953,7 @@
           "target_name": "Rottenfoot Sash",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 10,
             "factors": [
@@ -70714,6 +70982,7 @@
           "target_name": "Alitho Echeswer",
           "target_type": "character",
           "zone_name": "Port Azure",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -70817,6 +71086,7 @@
           "description": "Speak to Samuel Thatcher.",
           "target_name": "Samuel Thatcher",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -70834,7 +71104,8 @@
           "description": "Collect Samuel's Note.",
           "target_name": "Samuel's Note",
           "target_type": "item",
-          "quantity": 1
+          "quantity": 1,
+          "optional": false
         },
         {
           "order": 3,
@@ -70843,6 +71114,7 @@
           "target_name": "Harvey Alder",
           "target_type": "character",
           "zone_name": "Hidden Hills",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -70922,6 +71194,7 @@
           "target_name": "Eye of Plaxitheris",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 7,
             "factors": [
@@ -70940,6 +71213,7 @@
           "target_name": "Occuphage, Eater of Eyes",
           "target_type": "character",
           "zone_name": "Shivering Tomb (2)",
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -71034,6 +71308,7 @@
           "target_name": "Ealdred's Journal",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 32,
             "factors": [
@@ -71052,6 +71327,7 @@
           "target_name": "Captain Kilkay",
           "target_type": "character",
           "zone_name": "Port Azure",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -71137,7 +71413,8 @@
           "action": "read",
           "description": "Read Guide to Sight.",
           "target_name": "Guide to Sight",
-          "target_type": "item"
+          "target_type": "item",
+          "optional": false
         }
       ],
       "completion": [
@@ -71183,6 +71460,7 @@
           "description": "Speak to Serra Stiles.",
           "target_name": "Serra Stiles",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 17,
             "factors": [
@@ -71201,6 +71479,7 @@
           "target_name": "Worn Shovel",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 17,
             "factors": [
@@ -71224,6 +71503,7 @@
           "target_name": "Serra Stiles",
           "target_type": "character",
           "zone_name": "The Elderstone Mines",
+          "optional": false,
           "level_estimate": {
             "recommended": 17,
             "factors": [
@@ -71345,6 +71625,7 @@
           "target_name": "Captured Light",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 26,
             "factors": [
@@ -71363,6 +71644,7 @@
           "target_name": "Founder",
           "target_type": "character",
           "zone_name": "Shivering Step",
+          "optional": false,
           "level_estimate": {
             "recommended": 21,
             "factors": [
@@ -71448,6 +71730,7 @@
           "description": "Obtain and read Sivakayan Intel.",
           "target_name": "Sivakayan Intel",
           "target_type": "item",
+          "optional": false,
           "level_estimate": {
             "recommended": 29,
             "factors": [
@@ -71466,6 +71749,7 @@
           "target_name": "Sivakayan Intel",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 29,
             "factors": [
@@ -71484,6 +71768,7 @@
           "target_name": "Captain Kilkay",
           "target_type": "character",
           "zone_name": "Port Azure",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -71575,6 +71860,7 @@
           "target_name": "Marching Orders",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -71593,6 +71879,7 @@
           "target_name": "Captain Kilkay",
           "target_type": "character",
           "zone_name": "Port Azure",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -71732,6 +72019,7 @@
           "description": "Speak to Ripper DeMerth.",
           "target_name": "Ripper DeMerth",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -71750,6 +72038,7 @@
           "target_name": "Sivakayan Intel",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 29,
             "factors": [
@@ -71768,6 +72057,7 @@
           "target_name": "Ripper DeMerth",
           "target_type": "character",
           "zone_name": "Ripper's Keep",
+          "optional": false,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -71866,6 +72156,7 @@
           "description": "Speak to Supply Sergeant Tipp.",
           "target_name": "Supply Sergeant Tipp",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -71884,6 +72175,7 @@
           "target_name": "Sivakayan Ore",
           "target_type": "item",
           "quantity": 4,
+          "optional": false,
           "level_estimate": {
             "recommended": 26,
             "factors": [
@@ -71957,6 +72249,7 @@
           "target_name": "Supply Sergeant Tipp",
           "target_type": "character",
           "zone_name": "Port Azure",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -72211,6 +72504,7 @@
           "description": "Speak to Captain Kilkay.",
           "target_name": "Captain Kilkay",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -72229,6 +72523,7 @@
           "target_name": "Sivakayan Encrypted Plans",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 39,
             "factors": [
@@ -72247,6 +72542,7 @@
           "target_name": "Sivakayan Codex 1 of 4",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 24,
             "factors": [
@@ -72265,6 +72561,7 @@
           "target_name": "Sivakayan Codex 2 of 4",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -72283,6 +72580,7 @@
           "target_name": "Sivakayan Codex 3 of 4",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 33,
             "factors": [
@@ -72301,6 +72599,7 @@
           "target_name": "Sivakayan Codex 4 of 4",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 36,
             "factors": [
@@ -72319,6 +72618,7 @@
           "target_name": "Captain Kilkay",
           "target_type": "character",
           "zone_name": "Port Azure",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -72476,6 +72776,7 @@
           "target_name": "Note from Eldoth",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 39,
             "factors": [
@@ -72494,6 +72795,7 @@
           "target_name": "Captain Kilkay",
           "target_type": "character",
           "zone_name": "Port Azure",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -72640,6 +72942,7 @@
           "target_name": "Stolen Memories",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 45,
             "factors": [
@@ -72658,6 +72961,7 @@
           "target_name": "Apostalo Ostagla",
           "target_type": "character",
           "zone_name": "Azynthi's Garden (Dimensional Rift)",
+          "optional": false,
           "level_estimate": {
             "recommended": 34,
             "factors": [
@@ -72775,7 +73079,8 @@
           "action": "read",
           "description": "Read Awaken the Angel.",
           "target_name": "Awaken the Angel",
-          "target_type": "item"
+          "target_type": "item",
+          "optional": false
         }
       ],
       "completion": [
@@ -72821,6 +73126,7 @@
           "description": "Speak to Customs Guard.",
           "target_name": "Customs Guard",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -72838,7 +73144,8 @@
           "description": "Collect Dock Pass.",
           "target_name": "Dock Pass",
           "target_type": "item",
-          "quantity": 1
+          "quantity": 1,
+          "optional": false
         },
         {
           "order": 3,
@@ -72847,6 +73154,7 @@
           "target_name": "Controller Wendyl",
           "target_type": "character",
           "zone_name": "Stowaway's Step",
+          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -72941,6 +73249,7 @@
           "target_name": "Hidden Hills",
           "target_type": "zone",
           "zone_name": "Hidden Hills",
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -73006,6 +73315,7 @@
           "description": "Speak to Ta'Dah, Sorcerer of Ripper.",
           "target_name": "Ta'Dah, Sorcerer of Ripper",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -73024,6 +73334,7 @@
           "target_name": "Intact Fungal Cap",
           "target_type": "item",
           "quantity": 3,
+          "optional": false,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -73047,6 +73358,7 @@
           "target_name": "Ta'Dah, Sorcerer of Ripper",
           "target_type": "character",
           "zone_name": "Ripper's Keep",
+          "optional": false,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -73151,6 +73463,7 @@
           "target_name": "Siva-Braxon Teachings (1)",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -73174,6 +73487,7 @@
           "target_name": "Siva-Braxon Teachings (2)",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -73197,6 +73511,7 @@
           "target_name": "Siva-Braxon Teachings (3)",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -73220,6 +73535,7 @@
           "target_name": "Braxon Michaen",
           "target_type": "character",
           "zone_name": "The Duskenlight Coast",
+          "optional": false,
           "level_estimate": {
             "recommended": 14,
             "factors": [
@@ -73444,7 +73760,8 @@
           "description": "Collect Angler's Ring.",
           "target_name": "Angler's Ring",
           "target_type": "item",
-          "quantity": 1
+          "quantity": 1,
+          "optional": false
         },
         {
           "order": 2,
@@ -73453,6 +73770,7 @@
           "target_name": "Liani Bosh",
           "target_type": "character",
           "zone_name": "Port Azure",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -73539,6 +73857,7 @@
           "description": "Speak to Bridgekeeper.",
           "target_name": "Bridgekeeper",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 21,
             "factors": [
@@ -73596,6 +73915,7 @@
           "description": "Speak to Curator.",
           "target_name": "Curator",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 21,
             "factors": [
@@ -73661,6 +73981,7 @@
           "description": "Obtain and read Dark Flame Recipe.",
           "target_name": "Dark Flame Recipe",
           "target_type": "item",
+          "optional": false,
           "level_estimate": {
             "recommended": 30,
             "factors": [
@@ -73689,6 +74010,7 @@
           "target_name": "Blightwood Slab",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 25,
             "factors": [
@@ -73717,6 +74039,7 @@
           "target_name": "Blight Crystals",
           "target_type": "item",
           "quantity": 2,
+          "optional": false,
           "level_estimate": {
             "recommended": 19,
             "factors": [
@@ -73795,6 +74118,7 @@
           "target_name": "Spark of the First Flame",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 29,
             "factors": [
@@ -73828,6 +74152,7 @@
           "target_name": "Dark Flame Recipe",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 30,
             "factors": [
@@ -73856,6 +74181,7 @@
           "target_name": "Dark Flame Brazier",
           "target_type": "character",
           "zone_name": "Vitheo's Rest",
+          "optional": false,
           "level_estimate": {
             "recommended": 23,
             "factors": [
@@ -74120,6 +74446,7 @@
           "description": "Obtain and read The Duskenlight Ritual.",
           "target_name": "The Duskenlight Ritual",
           "target_type": "item",
+          "optional": false,
           "level_estimate": {
             "recommended": 14,
             "factors": [
@@ -74138,6 +74465,7 @@
           "target_name": "Elderstone Shard",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -74191,6 +74519,7 @@
           "target_name": "Ancient Coal",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -74269,6 +74598,7 @@
           "target_name": "Wolf Meat",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -74337,6 +74667,7 @@
           "target_name": "Pristine Grass Spider Carapace",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 1,
             "factors": [
@@ -74360,6 +74691,7 @@
           "target_name": "The Duskenlight Ritual",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 14,
             "factors": [
@@ -74378,6 +74710,7 @@
           "target_name": "Ceremonial Brazier",
           "target_type": "character",
           "zone_name": "The Duskenlight Coast",
+          "optional": false,
           "level_estimate": {
             "recommended": 13,
             "factors": [
@@ -74831,6 +75164,7 @@
           "target_name": "Eldrich Crystal",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 41,
             "factors": [
@@ -74849,6 +75183,7 @@
           "target_name": "Braxon Elden",
           "target_type": "character",
           "zone_name": "Braxonian Desert",
+          "optional": false,
           "level_estimate": {
             "recommended": 17,
             "factors": [
@@ -74937,6 +75272,7 @@
           "description": "Speak to Gatekeeper.",
           "target_name": "Gatekeeper",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 21,
             "factors": [
@@ -74994,6 +75330,7 @@
           "description": "Speak to A Memory of Sivakaya.",
           "target_name": "A Memory of Sivakaya",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 34,
             "factors": [
@@ -75051,6 +75388,7 @@
           "description": "Speak to Harbinger.",
           "target_name": "Harbinger",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 21,
             "factors": [
@@ -75116,6 +75454,7 @@
           "description": "Speak to Timothy Allorn.",
           "target_name": "Timothy Allorn",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -75134,6 +75473,7 @@
           "target_name": "Island Tomb",
           "target_type": "zone",
           "zone_name": "Island Tomb",
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -75152,6 +75492,7 @@
           "target_name": "Shivering Tomb (2)",
           "target_type": "zone",
           "zone_name": "Shivering Tomb (2)",
+          "optional": false,
           "level_estimate": {
             "recommended": 24,
             "factors": [
@@ -75223,6 +75564,7 @@
           "description": "Obtain and read Life Flame Recipe.",
           "target_name": "Life Flame Recipe",
           "target_type": "item",
+          "optional": false,
           "level_estimate": {
             "recommended": 30,
             "factors": [
@@ -75251,6 +75593,7 @@
           "target_name": "Loomingwood Branch",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 22,
             "factors": [
@@ -75289,6 +75632,7 @@
           "target_name": "Essence of Nature",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 7,
             "factors": [
@@ -75331,7 +75675,8 @@
           "description": "Collect Gift of Fernalla.",
           "target_name": "Gift of Fernalla",
           "target_type": "item",
-          "quantity": 1
+          "quantity": 1,
+          "optional": false
         },
         {
           "order": 5,
@@ -75340,6 +75685,7 @@
           "target_name": "Droplet of the First Frost",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 33,
             "factors": [
@@ -75358,6 +75704,7 @@
           "target_name": "Life Flame Recipe",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 30,
             "factors": [
@@ -75386,6 +75733,7 @@
           "target_name": "Lifeflame Brazier",
           "target_type": "character",
           "zone_name": "Vitheo's Rest",
+          "optional": false,
           "level_estimate": {
             "recommended": 23,
             "factors": [
@@ -75610,6 +75958,7 @@
           "description": "Speak to Arcane Headmaster.",
           "target_name": "Arcane Headmaster",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 14,
             "factors": [
@@ -75627,7 +75976,8 @@
           "description": "Collect Loss Stone.",
           "target_name": "Loss Stone",
           "target_type": "item",
-          "quantity": 1
+          "quantity": 1,
+          "optional": false
         },
         {
           "order": 3,
@@ -75636,6 +75986,7 @@
           "target_name": "Larviso Poltir",
           "target_type": "character",
           "zone_name": "The Duskenlight Coast",
+          "optional": false,
           "level_estimate": {
             "recommended": 24,
             "factors": [
@@ -75799,6 +76150,7 @@
           "target_name": "Pg. 1: Faded Entry",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 8,
             "factors": [
@@ -75817,6 +76169,7 @@
           "target_name": "Pg. 2: Faded Entry",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -75835,6 +76188,7 @@
           "target_name": "Pg. 3: Faded Entry",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 15,
             "factors": [
@@ -75853,6 +76207,7 @@
           "target_name": "Pg. 4: Faded Entry",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 18,
             "factors": [
@@ -75871,6 +76226,7 @@
           "target_name": "Pg. 5: Faded Entry",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 21,
             "factors": [
@@ -75889,6 +76245,7 @@
           "target_name": "Pg. 6: Faded Entry",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 27,
             "factors": [
@@ -75907,6 +76264,7 @@
           "target_name": "Pg. 7: Faded Entry",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 32,
             "factors": [
@@ -75925,6 +76283,7 @@
           "target_name": "Lost Soul",
           "target_type": "character",
           "zone_name": "Malaroth's Nesting Grounds",
+          "optional": false,
           "level_estimate": {
             "recommended": 19,
             "factors": [
@@ -76125,6 +76484,7 @@
           "target_name": "Treasure Hunter's Pin",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 32,
             "factors": [
@@ -76143,6 +76503,7 @@
           "target_name": "Julie Xargate",
           "target_type": "character",
           "zone_name": "Port Azure",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -76293,6 +76654,7 @@
           "target_name": "Bread",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -76516,6 +76878,7 @@
           "target_name": "Shady Fisherman",
           "target_type": "character",
           "zone_name": "Port Azure",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -76971,6 +77334,7 @@
           "description": "Speak to Shady Fisherman.",
           "target_name": "Shady Fisherman",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -77044,6 +77408,7 @@
           "description": "Obtain and read The Mathers Note.",
           "target_name": "The Mathers Note",
           "target_type": "item",
+          "optional": false,
           "level_estimate": {
             "recommended": 18,
             "factors": [
@@ -77062,6 +77427,7 @@
           "target_name": "The Mathers Note",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 18,
             "factors": [
@@ -77080,6 +77446,7 @@
           "target_name": "Yarren Mathers",
           "target_type": "character",
           "zone_name": "Vitheo's Watch",
+          "optional": false,
           "level_estimate": {
             "recommended": 9,
             "factors": [
@@ -77182,6 +77549,7 @@
           "target_name": "Chapters of Descent, Passage 1",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 16,
             "factors": [
@@ -77205,6 +77573,7 @@
           "target_name": "Chapters of Descent, Passage 2",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 16,
             "factors": [
@@ -77228,6 +77597,7 @@
           "target_name": "Chapters of Descent, Passage 3",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 18,
             "factors": [
@@ -77246,6 +77616,7 @@
           "target_name": "Chapters of Descent, Passage 4",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 17,
             "factors": [
@@ -77269,6 +77640,7 @@
           "target_name": "Yarren Mathers",
           "target_type": "character",
           "zone_name": "Vitheo's Watch",
+          "optional": false,
           "level_estimate": {
             "recommended": 9,
             "factors": [
@@ -77440,6 +77812,7 @@
           "target_name": "Chapters of Descent, Passage 5",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 34,
             "factors": [
@@ -77483,6 +77856,7 @@
           "target_name": "Chapters of Descent, Passage 6",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 34,
             "factors": [
@@ -77526,6 +77900,7 @@
           "target_name": "Chapters of Descent, Passage 7",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 34,
             "factors": [
@@ -77569,6 +77944,7 @@
           "target_name": "Chapters of Descent, Passage 8",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 34,
             "factors": [
@@ -77612,6 +77988,7 @@
           "target_name": "Yarren Mathers",
           "target_type": "character",
           "zone_name": "Vitheo's Watch",
+          "optional": false,
           "level_estimate": {
             "recommended": 9,
             "factors": [
@@ -77881,7 +78258,8 @@
           "description": "Collect A Collection of Notes.",
           "target_name": "A Collection of Notes",
           "target_type": "item",
-          "quantity": 1
+          "quantity": 1,
+          "optional": false
         },
         {
           "order": 2,
@@ -77889,7 +78267,8 @@
           "description": "Turn in items to Bellsie Belwain.",
           "target_name": "Bellsie Belwain",
           "target_type": "character",
-          "zone_name": "Bellwain Island"
+          "zone_name": "Bellwain Island",
+          "optional": false
         }
       ],
       "required_items": [
@@ -77953,7 +78332,8 @@
           "description": "Collect Island Fin.",
           "target_name": "Island Fin",
           "target_type": "item",
-          "quantity": 1
+          "quantity": 1,
+          "optional": false
         },
         {
           "order": 2,
@@ -77962,6 +78342,7 @@
           "target_name": "Bread",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -78185,6 +78566,7 @@
           "target_name": "Brackfruit Juice",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 5,
             "factors": [
@@ -78258,6 +78640,7 @@
           "target_name": "Coal",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -78306,6 +78689,7 @@
           "target_name": "Baking Oven",
           "target_type": "character",
           "zone_name": "Port Azure",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -78925,6 +79309,7 @@
           "description": "Speak to Jazmyn Challa.",
           "target_name": "Jazmyn Challa",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -78943,6 +79328,7 @@
           "target_name": "Wardens of the North",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 26,
             "factors": [
@@ -78976,6 +79362,7 @@
           "target_name": "Jazmyn Challa",
           "target_type": "character",
           "zone_name": "Port Azure",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -79090,6 +79477,7 @@
           "description": "Obtain and read The Fernallan Ritual.",
           "target_name": "The Fernallan Ritual",
           "target_type": "item",
+          "optional": false,
           "level_estimate": {
             "recommended": 15,
             "factors": [
@@ -79108,6 +79496,7 @@
           "target_name": "Bag of Faerie Dust",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 8,
             "factors": [
@@ -79151,6 +79540,7 @@
           "target_name": "Ancient Coal",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -79229,6 +79619,7 @@
           "target_name": "Remnants of a Daydream",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 8,
             "factors": [
@@ -79287,6 +79678,7 @@
           "target_name": "Remnants of a Nightmare",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 8,
             "factors": [
@@ -79345,6 +79737,7 @@
           "target_name": "The Fernallan Ritual",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 15,
             "factors": [
@@ -79363,6 +79756,7 @@
           "target_name": "Ceremonial Brazier",
           "target_type": "character",
           "zone_name": "Fernalla's Revival Plains",
+          "optional": false,
           "level_estimate": {
             "recommended": 13,
             "factors": [
@@ -79793,6 +80187,7 @@
           "description": "Speak to A Strange Hermit.",
           "target_name": "A Strange Hermit",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 30,
             "factors": [
@@ -79811,6 +80206,7 @@
           "target_name": "Azynthi's Garden (Dimensional Rift)",
           "target_type": "zone",
           "zone_name": "Azynthi's Garden (Dimensional Rift)",
+          "optional": false,
           "level_estimate": {
             "recommended": 34,
             "factors": [
@@ -79877,6 +80273,7 @@
           "description": "Obtain and read Unborn Phobia.",
           "target_name": "Unborn Phobia",
           "target_type": "item",
+          "optional": false,
           "level_estimate": {
             "recommended": 8,
             "factors": [
@@ -79900,6 +80297,7 @@
           "target_name": "Planar Stone Shards",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 1,
             "factors": [
@@ -79938,6 +80336,7 @@
           "target_name": "Sivakrux",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 1,
             "factors": [
@@ -79981,6 +80380,7 @@
           "target_name": "Unborn Phobia",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 8,
             "factors": [
@@ -80004,6 +80404,7 @@
           "target_name": "Ghostly Giant's Blood",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 8,
             "factors": [
@@ -80032,6 +80433,7 @@
           "target_name": "Ceremonial Brazier",
           "target_type": "character",
           "zone_name": "Ripper's Keep",
+          "optional": false,
           "level_estimate": {
             "recommended": 13,
             "factors": [
@@ -80231,6 +80633,7 @@
           "description": "Speak to Braxon Elden.",
           "target_name": "Braxon Elden",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 17,
             "factors": [
@@ -80249,6 +80652,7 @@
           "target_name": "Brashell",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 25,
             "factors": [
@@ -80267,6 +80671,7 @@
           "target_name": "Braxon Elden",
           "target_type": "character",
           "zone_name": "Braxonian Desert",
+          "optional": false,
           "level_estimate": {
             "recommended": 17,
             "factors": [
@@ -80360,6 +80765,7 @@
           "target_name": "Secrets of Creation",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 41,
             "factors": [
@@ -80383,6 +80789,7 @@
           "target_name": "Larviso Poltir",
           "target_type": "character",
           "zone_name": "Loomingwood Forest",
+          "optional": false,
           "level_estimate": {
             "recommended": 24,
             "factors": [
@@ -80489,6 +80896,7 @@
           "target_name": "Secrets of Creation",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 41,
             "factors": [
@@ -80507,6 +80915,7 @@
           "target_name": "Lucian Revald",
           "target_type": "character",
           "zone_name": "Stowaway's Step",
+          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -80591,6 +81000,7 @@
           "description": "Speak to Shattered Sivakaya.",
           "target_name": "Shattered Sivakaya",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 40,
             "factors": [
@@ -80709,6 +81119,7 @@
           "target_name": "Small Engraved Compass",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 15,
             "factors": [
@@ -80727,6 +81138,7 @@
           "target_name": "Asaga Underloft",
           "target_type": "character",
           "zone_name": "Port Azure",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -80817,6 +81229,7 @@
           "description": "Speak to Wally Waldorf.",
           "target_name": "Wally Waldorf",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -80835,6 +81248,7 @@
           "target_name": "A Moongill",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -80928,6 +81342,7 @@
           "target_name": "Wally Waldorf",
           "target_type": "character",
           "zone_name": "Stowaway's Step",
+          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -81120,6 +81535,7 @@
           "description": "Speak to The Hider.",
           "target_name": "The Hider",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 21,
             "factors": [
@@ -81138,6 +81554,7 @@
           "target_name": "Ancient Fang",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 22,
             "factors": [
@@ -81156,6 +81573,7 @@
           "target_name": "Eternal Ice",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 19,
             "factors": [
@@ -81179,6 +81597,7 @@
           "target_name": "Thief of Breath",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 19,
             "factors": [
@@ -81212,6 +81631,7 @@
           "target_name": "Death's Decay",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 19,
             "factors": [
@@ -81245,6 +81665,7 @@
           "target_name": "Soul of a Ghostly Beast",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 22,
             "factors": [
@@ -81263,6 +81684,7 @@
           "target_name": "Warming Flame",
           "target_type": "character",
           "zone_name": "Shivering Step",
+          "optional": false,
           "level_estimate": {
             "recommended": 21,
             "factors": [
@@ -81455,14 +81877,16 @@
           "action": "read",
           "description": "Read Torn Note.",
           "target_name": "Torn Note",
-          "target_type": "item"
+          "target_type": "item",
+          "optional": true
         },
         {
           "order": 2,
           "action": "read",
           "description": "Read Marching Orders.",
           "target_name": "Marching Orders",
-          "target_type": "item"
+          "target_type": "item",
+          "optional": true
         }
       ],
       "completion": [
@@ -81527,6 +81951,7 @@
           "description": "Obtain and read Torn Note.",
           "target_name": "Torn Note",
           "target_type": "item",
+          "optional": true,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -81544,6 +81969,7 @@
           "description": "Obtain and read Marching Orders.",
           "target_name": "Marching Orders",
           "target_type": "item",
+          "optional": true,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -81562,6 +81988,7 @@
           "target_name": "Torn Note",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -81580,6 +82007,7 @@
           "target_name": "Lucian Revald",
           "target_type": "character",
           "zone_name": "Stowaway's Step",
+          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -81690,6 +82118,7 @@
           "target_name": "Azure Willow Seed",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -81708,6 +82137,7 @@
           "target_name": "Braxonian Willow Seed",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 17,
             "factors": [
@@ -81726,6 +82156,7 @@
           "target_name": "Duskenlight Willow Seed",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 14,
             "factors": [
@@ -81744,6 +82175,7 @@
           "target_name": "Fernallan Willow Seed",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 13,
             "factors": [
@@ -81762,6 +82194,7 @@
           "target_name": "Ripparian Willow Seed",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -81780,6 +82213,7 @@
           "target_name": "Watcher",
           "target_type": "character",
           "zone_name": "Willowwatch Ridge",
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -81927,6 +82361,7 @@
           "description": "Speak to Cagnus Marlsen.",
           "target_name": "Cagnus Marlsen",
           "target_type": "character",
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -81945,6 +82380,7 @@
           "target_name": "Willow Soil",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 7,
             "factors": [
@@ -81963,6 +82399,7 @@
           "target_name": "Cagnus Marlsen",
           "target_type": "character",
           "zone_name": "Willowwatch Ridge",
+          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -82053,6 +82490,7 @@
           "target_name": "Wishlan's Hope",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 24,
             "factors": [
@@ -82071,6 +82509,7 @@
           "target_name": "Wishlan the Savior",
           "target_type": "character",
           "zone_name": "The Blight",
+          "optional": false,
           "level_estimate": {
             "recommended": 25,
             "factors": [
@@ -82148,7 +82587,8 @@
           "description": "Collect Offering Stone.",
           "target_name": "Offering Stone",
           "target_type": "item",
-          "quantity": 1
+          "quantity": 1,
+          "optional": false
         },
         {
           "order": 2,
@@ -82157,6 +82597,7 @@
           "target_name": "Wishlan the Savior",
           "target_type": "character",
           "zone_name": "The Blight",
+          "optional": false,
           "level_estimate": {
             "recommended": 25,
             "factors": [
@@ -82226,6 +82667,7 @@
           "target_name": "Wolf Meat",
           "target_type": "item",
           "quantity": 1,
+          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -82294,6 +82736,7 @@
           "target_name": "Fredrick Templestone",
           "target_type": "character",
           "zone_name": "Port Azure",
+          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [

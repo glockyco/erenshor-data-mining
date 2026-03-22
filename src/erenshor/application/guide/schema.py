@@ -125,7 +125,11 @@ class RequiredItemInfo:
 
 @dataclass
 class QuestStep:
-    """A single step in the quest walkthrough."""
+    """A single step in the quest walkthrough.
+
+    When ``optional`` is True, this step is one of several alternatives.
+    The player only needs to complete one of the optional steps in a group.
+    """
 
     order: int
     action: str  # StepAction value
@@ -135,6 +139,7 @@ class QuestStep:
     quantity: int | None = None  # for collect/kill steps
     zone_name: str | None = None  # where this step happens
     keyword: str | None = None  # for shout steps
+    optional: bool = False
     tips: list[str] = field(default_factory=list)
     level_estimate: LevelEstimate | None = None
 

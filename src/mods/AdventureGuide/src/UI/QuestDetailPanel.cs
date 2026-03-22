@@ -176,7 +176,7 @@ public sealed class QuestDetailPanel
         for (int i = 0; i < quest.Steps.Count; i++)
         {
             var step = quest.Steps[i];
-            bool isOptional = IsStepOptional(quest, step);
+            bool isOptional = step.Optional;
 
             // Show "OR" separator between consecutive optional steps
             if (isOptional && prevWasOptional)
@@ -198,17 +198,6 @@ public sealed class QuestDetailPanel
         ImGui.Unindent(Theme.IndentWidth);
     }
 
-    /// <summary>
-    /// A step is optional when it targets an item marked optional in
-    /// required_items (alternative acquisition triggers).
-    /// </summary>
-    private static bool IsStepOptional(QuestEntry quest, QuestStep step)
-    {
-        if (step.TargetName == null || quest.RequiredItems == null)
-            return false;
-        return quest.RequiredItems.Exists(ri =>
-            ri.Optional && string.Equals(ri.ItemName, step.TargetName, StringComparison.OrdinalIgnoreCase));
-    }
 
     private enum StepState { Completed, Current, Future }
 

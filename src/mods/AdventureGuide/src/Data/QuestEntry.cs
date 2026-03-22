@@ -35,6 +35,7 @@ public sealed class QuestStep
     [JsonProperty("zone_name")] public string? ZoneName { get; set; }
     [JsonProperty("keyword")] public string? Keyword { get; set; }
     [JsonProperty("tips")] public List<string>? Tips { get; set; }
+    [JsonProperty("optional")] public bool Optional { get; set; }
     [JsonProperty("level_estimate")] public LevelEstimate? LevelEstimate { get; set; }
 }
 

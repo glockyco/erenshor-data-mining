@@ -431,6 +431,7 @@ def _steps_fetch(
     # For item_read quests, generate read steps for all triggers
     item_read_acqs = [a for a in acquisition if a.method == "item_read" and a.source_name]
     if item_read_acqs:
+        is_optional = len(item_read_acqs) > 1
         for acq in item_read_acqs:
             steps.append(
                 step(
@@ -438,6 +439,7 @@ def _steps_fetch(
                     f"Obtain and read {acq.source_name}.",
                     target_name=acq.source_name,
                     target_type="item",
+                    optional=is_optional,
                 )
             )
     elif giver and giver.source_name:
@@ -615,6 +617,7 @@ def _steps_item_read(
     steps: list[QuestStep] = []
     # Generate a read step for each item_read trigger
     triggers = [a for a in acquisition if a.method == "item_read" and a.source_name]
+    is_optional = len(triggers) > 1
     for acq in triggers:
         steps.append(
             step(
@@ -622,21 +625,23 @@ def _steps_item_read(
                 f"Obtain and read {acq.source_name}.",
                 target_name=acq.source_name,
                 target_type="item",
+                optional=is_optional,
             )
         )
 
     # Remaining steps from completion sources
-    for comp in completion:
-        if comp.method == "read" and comp.source_name:
-            # Don't duplicate the starting item read step
-            if any(s.target_name == comp.source_name for s in steps):
-                continue
-            steps.append(
-                step(
-                    "read",
-                    f"Read {comp.source_name}.",
-                    target_name=comp.source_name,
-                    target_type="item",
-                )
+    read_comps = [c for c in completion if c.method == "read" and c.source_name]
+    # Exclude items already covered by trigger steps
+    read_comps = [c for c in read_comps if not any(s.target_name == c.source_name for s in steps)]
+    comp_optional = len(read_comps) > 1
+    for comp in read_comps:
+        steps.append(
+            step(
+                "read",
+                f"Read {comp.source_name}.",
+                target_name=comp.source_name,
+                target_type="item",
+                optional=comp_optional,
             )
+        )
     return steps
