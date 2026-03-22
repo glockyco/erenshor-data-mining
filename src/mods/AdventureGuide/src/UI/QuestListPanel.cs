@@ -221,25 +221,17 @@ public sealed class QuestListPanel
         if (isSelected)
             ImGui.PushStyleColor(ImGuiCol.Button, Theme.Accent);
 
-        // Capture position before the Selectable for DrawList overlay
-        var pos = ImGui.GetCursorScreenPos();
+        // Level prefix in Selectable label. DrawList.AddText crashes after
+        // ILRepack merges System.Numerics.Vectors (same class of P/Invoke
+        // issue as Vector4 colors), so we use a single-color label instead.
+        string label = quest.LevelEstimate?.Recommended is int lvl
+            ? $"{lvl,2}  {quest.DisplayName}"
+            : $"    {quest.DisplayName}";
 
-        // Invisible Selectable — all visible text rendered via DrawList
-        if (ImGui.Selectable("##" + quest.DBName, isSelected))
+        ImGui.PushStyleColor(ImGuiCol.Text, statusColor);
+
+        if (ImGui.Selectable(label + "##" + quest.DBName, isSelected))
             _state.SelectedQuestDBName = quest.DBName;
-
-        // Overlay level badge + quest name via DrawList for two-color rendering
-        var dl = ImGui.GetWindowDrawList();
-        float levelColWidth = ImGui.CalcTextSize("00  ").X;
-
-        if (quest.LevelEstimate?.Recommended is int lvl)
-        {
-            string lvlStr = lvl.ToString().PadLeft(2);
-            dl.AddText(pos, Theme.TextSecondary, lvlStr);
-        }
-
-        var namePos = new System.Numerics.Vector2(pos.X + levelColWidth, pos.Y);
-        dl.AddText(namePos, statusColor, quest.DisplayName);
 
         // Tooltip on hover: zone + status + level
         if (ImGui.IsItemHovered())
@@ -256,8 +248,7 @@ public sealed class QuestListPanel
             ImGui.EndTooltip();
         }
 
-        if (isSelected)
-            ImGui.PopStyleColor();
+        ImGui.PopStyleColor(isSelected ? 2 : 1);
     }
 
     private uint GetQuestColor(QuestEntry quest)
