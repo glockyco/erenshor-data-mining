@@ -1,3 +1,5 @@
+using AdventureGuide.Config;
+
 namespace AdventureGuide.UI;
 
 public enum QuestFilterMode
@@ -19,9 +21,14 @@ public enum QuestSortMode
 /// Mutable state bag for the guide window's filter/search/tab controls.
 /// One instance lives for the lifetime of the window. Version increments
 /// on any change, enabling consumers to skip re-computation.
+///
+/// FilterMode, SortMode, and ZoneFilter are persisted to BepInEx config
+/// so they survive mod reloads and game restarts.
 /// </summary>
 public class FilterState
 {
+    private GuideConfig? _config;
+
     /// <summary>0 = Quests, 1 = Progress.</summary>
     public int SelectedTab;
 
@@ -39,7 +46,7 @@ public class FilterState
     public QuestFilterMode FilterMode
     {
         get => _filterMode;
-        set { if (_filterMode != value) { _filterMode = value; Version++; } }
+        set { if (_filterMode != value) { _filterMode = value; Version++; _config?.FilterMode.SetSerializedValue(value.ToString()); } }
     }
 
     public string SearchText
@@ -52,14 +59,28 @@ public class FilterState
     public string? ZoneFilter
     {
         get => _zoneFilter;
-        set { if (_zoneFilter != value) { _zoneFilter = value; Version++; } }
+        set { if (_zoneFilter != value) { _zoneFilter = value; Version++; _config?.ZoneFilter.SetSerializedValue(value ?? ""); } }
     }
 
     public QuestSortMode SortMode
     {
         get => _sortMode;
-        set { if (_sortMode != value) { _sortMode = value; Version++; } }
+        set { if (_sortMode != value) { _sortMode = value; Version++; _config?.SortMode.SetSerializedValue(value.ToString()); } }
     }
 
     public bool ShowSettings;
+
+    /// <summary>
+    /// Load persisted filter/sort settings from BepInEx config.
+    /// Call once after construction.
+    /// </summary>
+    public void LoadFrom(GuideConfig config)
+    {
+        _config = config;
+        _filterMode = config.FilterMode.Value;
+        _sortMode = config.SortMode.Value;
+        var zone = config.ZoneFilter.Value;
+        _zoneFilter = string.IsNullOrEmpty(zone) ? null : zone;
+        Version++;
+    }
 }

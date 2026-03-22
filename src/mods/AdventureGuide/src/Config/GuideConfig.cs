@@ -1,3 +1,4 @@
+using AdventureGuide.UI;
 using BepInEx.Configuration;
 using UnityEngine;
 
@@ -10,6 +11,11 @@ public sealed class GuideConfig
     public ConfigEntry<bool> ShowArrow { get; }
     public ConfigEntry<bool> ShowGroundPath { get; }
     public ConfigEntry<float> UiScale { get; }
+
+    // Persisted filter/sort state
+    public ConfigEntry<QuestFilterMode> FilterMode { get; }
+    public ConfigEntry<QuestSortMode> SortMode { get; }
+    public ConfigEntry<string> ZoneFilter { get; }
 
     public GuideConfig(ConfigFile config)
     {
@@ -25,5 +31,12 @@ public sealed class GuideConfig
             "Show directional arrow pointing toward navigation target");
         ShowGroundPath = config.Bind("Navigation", "ShowGroundPath", false,
             "Show ground path from player to navigation target (uses NavMesh pathfinding)");
+
+        FilterMode = config.Bind("QuestList", "FilterMode", QuestFilterMode.Active,
+            "Last selected quest filter (Active, Available, Completed, All)");
+        SortMode = config.Bind("QuestList", "SortMode", QuestSortMode.Alphabetical,
+            "Last selected sort mode (Alphabetical, ByZone, ByLevel)");
+        ZoneFilter = config.Bind("QuestList", "ZoneFilter", "",
+            "Last selected zone filter (empty = all zones)");
     }
 }

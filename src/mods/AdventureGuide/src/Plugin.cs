@@ -58,6 +58,7 @@ public sealed class Plugin : BaseUnityPlugin
         _config.ShowGroundPath.SettingChanged += OnShowGroundPathChanged;
 
         _window = new GuideWindow(_data, _state, _nav);
+        _window.Filter.LoadFrom(_config);
         _imgui.OnLayout = () => { _window.Draw(); _arrow!.Draw(); };
 
         // Wire DebugAPI for HotRepl inspection
