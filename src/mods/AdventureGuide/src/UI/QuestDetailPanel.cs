@@ -172,9 +172,19 @@ public sealed class QuestDetailPanel
         int currentStepIndex = DetermineCurrentStep(quest);
 
         ImGui.Indent(Theme.IndentWidth);
+        bool prevWasOptional = false;
         for (int i = 0; i < quest.Steps.Count; i++)
         {
             var step = quest.Steps[i];
+            bool isOptional = IsStepOptional(quest, step);
+
+            // Show "OR" separator between consecutive optional steps
+            if (isOptional && prevWasOptional)
+            {
+                ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
+                ImGui.Text("  -- OR --");
+                ImGui.PopStyleColor();
+            }
 
             if (i < currentStepIndex)
                 DrawStep(step, StepState.Completed);
@@ -182,8 +192,22 @@ public sealed class QuestDetailPanel
                 DrawStep(step, StepState.Current);
             else
                 DrawStep(step, StepState.Future);
+
+            prevWasOptional = isOptional;
         }
         ImGui.Unindent(Theme.IndentWidth);
+    }
+
+    /// <summary>
+    /// A step is optional when it targets an item marked optional in
+    /// required_items (alternative acquisition triggers).
+    /// </summary>
+    private static bool IsStepOptional(QuestEntry quest, QuestStep step)
+    {
+        if (step.TargetName == null || quest.RequiredItems == null)
+            return false;
+        return quest.RequiredItems.Exists(ri =>
+            ri.Optional && string.Equals(ri.ItemName, step.TargetName, StringComparison.OrdinalIgnoreCase));
     }
 
     private enum StepState { Completed, Current, Future }

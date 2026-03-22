@@ -104,11 +104,17 @@ class ItemSource:
 
 @dataclass
 class RequiredItemInfo:
-    """A required item with quantity and unified obtainability sources."""
+    """A required item with quantity and unified obtainability sources.
+
+    When ``optional`` is True, this item is one of several alternatives
+    (e.g. multiple item_read triggers for a quest). The player only needs
+    one of the optional items, not all of them.
+    """
 
     item_name: str
     item_stable_key: str
     quantity: int = 1
+    optional: bool = False
     sources: list[ItemSource] = field(default_factory=list)
 
 

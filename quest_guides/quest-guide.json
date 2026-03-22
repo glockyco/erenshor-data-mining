@@ -53602,6 +53602,7 @@
           "item_name": "Ear of Kilkay",
           "item_stable_key": "item:gen - ear of kilkay",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -53743,6 +53744,7 @@
           "item_name": "Ear of Ripper",
           "item_stable_key": "item:gen - ear of ripper",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -53859,6 +53861,7 @@
           "item_name": "Small Cat Statue",
           "item_stable_key": "item:gen - a small cat statue",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -53957,6 +53960,7 @@
           "item_name": "Memory of a Guardian",
           "item_stable_key": "item:gen - memory of the guardian",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -54052,6 +54056,7 @@
           "item_name": "Memory of Balaste",
           "item_stable_key": "item:gen - memory of balaste",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -54147,6 +54152,7 @@
           "item_name": "Memory of Elwio",
           "item_stable_key": "item:gen - memory of elwio",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -54270,6 +54276,7 @@
           "item_name": "Memory of Vitheo",
           "item_stable_key": "item:gen - memory of vitheo",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -54385,6 +54392,7 @@
           "item_name": "Inert Rune of Fernalla",
           "item_stable_key": "item:gen - inert rune of fernalla",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -54397,6 +54405,7 @@
           "item_name": "Eldrich Crystal",
           "item_stable_key": "item:gen - eldrich crystal",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -54557,6 +54566,7 @@
           "item_name": "Ornate Toolbox",
           "item_stable_key": "item:gen - an ornate toolbox",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -54775,6 +54785,7 @@
           "item_name": "Sivakrux",
           "item_stable_key": "item:gen - sivak",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -54924,6 +54935,7 @@
           "item_name": "Braxonian Portal Shard (Fire)",
           "item_stable_key": "item:gen - braxonian portal shard - fire",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -54938,6 +54950,7 @@
           "item_name": "Braxonian Portal Shard (Ice)",
           "item_stable_key": "item:gen - braxonian portal shard - ice",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -55087,6 +55100,7 @@
           "item_name": "Inert Rune of Brax",
           "item_stable_key": "item:gen - inert rune of brax",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -55100,6 +55114,7 @@
           "item_name": "Eldrich Crystal",
           "item_stable_key": "item:gen - eldrich crystal",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -55547,6 +55562,7 @@
           "item_name": "Ruby",
           "item_stable_key": "item:gen - ruby",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -55818,6 +55834,7 @@
           "item_name": "Seaspice",
           "item_stable_key": "item:cons - seaspice",
           "quantity": 2,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -56228,6 +56245,7 @@
           "item_name": "Necromancer's Ritual Book",
           "item_stable_key": "item:gen - ritual book",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -56378,6 +56396,7 @@
           "item_name": "Notes of a Hermit",
           "item_stable_key": "item:gen - notes of a hermit",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -56621,6 +56640,7 @@
           "item_name": "Vithean Brick",
           "item_stable_key": "item:quest - vithean stones",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -56737,6 +56757,7 @@
           "item_name": "Broken Key Blade",
           "item_stable_key": "item:gen - broken key",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -56751,6 +56772,7 @@
           "item_name": "Broken Key Bow",
           "item_stable_key": "item:gen - broken key bow",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -56852,6 +56874,7 @@
           "item_name": "Sivakayan Horn",
           "item_stable_key": "item:gen - sivakayan horn",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -56998,6 +57021,7 @@
           "item_name": "Skeleton Eye",
           "item_stable_key": "item:gen - skeleton eye",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -57177,6 +57201,7 @@
           "item_name": "Inert Rune of Soluna",
           "item_stable_key": "item:gen - inert rune of soluna",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -57190,6 +57215,7 @@
           "item_name": "Eldrich Crystal",
           "item_stable_key": "item:gen - eldrich crystal",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -57475,6 +57501,7 @@
           "item_name": "Azure Mead",
           "item_stable_key": "item:cons - azure mead",
           "quantity": 3,
+          "optional": false,
           "sources": [
             {
               "type": "vendor",
@@ -57518,6 +57545,7 @@
           "item_name": "Seaspice",
           "item_stable_key": "item:cons - seaspice",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -57835,6 +57863,7 @@
           "item_name": "Inert Rune of Vitheo",
           "item_stable_key": "item:gen - inert rune of vitheo",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -57849,6 +57878,7 @@
           "item_name": "Eldrich Crystal",
           "item_stable_key": "item:gen - eldrich crystal",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -58196,6 +58226,7 @@
           "item_name": "Aetheria",
           "item_stable_key": "item:gen - aetheria",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -58518,6 +58549,7 @@
           "item_name": "Simple Engagement Ring",
           "item_stable_key": "item:ring - 24 - simple engagement ring",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -58645,6 +58677,7 @@
           "item_name": "Plain Necklace",
           "item_stable_key": "item:neck - 1 - plain necklace",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -58787,6 +58820,7 @@
           "item_name": "Nagalok Claw",
           "item_stable_key": "item:gen - nagalok claw",
           "quantity": 5,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -59066,6 +59100,7 @@
           "item_name": "Charged Soul Gem (Posta)",
           "item_stable_key": "item:quest - charged soul gem posta",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -59079,6 +59114,7 @@
           "item_name": "Charged Soul Gem (Leah)",
           "item_stable_key": "item:quest - charged soul gem leah",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -59092,6 +59128,7 @@
           "item_name": "Charged Soul Gem (Revid)",
           "item_stable_key": "item:quest - charged soul gem revid",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -59105,6 +59142,7 @@
           "item_name": "Charged Soul Gem (Stalzo)",
           "item_stable_key": "item:quest - charged soul gem stalzo",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -59306,6 +59344,7 @@
           "item_name": "Bear Meat",
           "item_stable_key": "item:gen - bear meat",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -59498,6 +59537,7 @@
           "item_name": "A Collection of Notes",
           "item_stable_key": "item:quest - bellwain collection",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "pickup",
@@ -59626,6 +59666,7 @@
           "item_name": "Braxonian Scripture (2)",
           "item_stable_key": "item:gen - braxonian scripture",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -59654,6 +59695,7 @@
           "item_name": "Braxonian Scripture (1)",
           "item_stable_key": "item:gen - braxonian scripture 1",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -59770,6 +59812,7 @@
           "item_name": "Soul Gem (Leah)",
           "item_stable_key": "item:quest - soul gem leah",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -59864,6 +59907,7 @@
           "item_name": "Soul Gem (Posta)",
           "item_stable_key": "item:quest - soul gem posta",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -59958,6 +60002,7 @@
           "item_name": "Soul Gem (Revid)",
           "item_stable_key": "item:quest - soul gem revid",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -60052,6 +60097,7 @@
           "item_name": "Soul Gem (Stalzo)",
           "item_stable_key": "item:quest - soul gem stalzo",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -60146,6 +60192,7 @@
           "item_name": "Catnip",
           "item_stable_key": "item:gen - catnip",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -60260,6 +60307,7 @@
           "item_name": "Blue Burnstone",
           "item_stable_key": "item:gen - blue burnstone",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -60431,6 +60479,7 @@
           "item_name": "Ritual Stone",
           "item_stable_key": "item:gen - ritual stone",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -60494,6 +60543,7 @@
           "item_name": "Skeleton Eye",
           "item_stable_key": "item:gen - skeleton eye",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -60700,6 +60750,7 @@
           "item_name": "Loss Stone",
           "item_stable_key": "item:quest - loss stone",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -60713,6 +60764,7 @@
           "item_name": "A Remnant of Sivakaya",
           "item_stable_key": "item:gen - a remnant of sivakya",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -60727,6 +60779,7 @@
           "item_name": "Demented Brain",
           "item_stable_key": "item:gen - demented brain",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -60739,6 +60792,7 @@
           "item_name": "Nightmare Crystal",
           "item_stable_key": "item:gen - nightmare crystal",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -60891,6 +60945,7 @@
           "item_name": "Blueprint: Azynthian Dining",
           "item_stable_key": "item:furniture - azynthi dining blueprint",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -61114,6 +61169,7 @@
           "item_name": "Blueprint: Azynthian Livingroom",
           "item_stable_key": "item:furniture - azynthi living blueprint",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -61337,6 +61393,7 @@
           "item_name": "Blueprint: Azynthian Rest",
           "item_stable_key": "item:furniture - azynthi coffin blueprint",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -61520,6 +61577,7 @@
           "item_name": "Blueprint: Game Room",
           "item_stable_key": "item:furniture - molorai game room blueprint",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -61716,6 +61774,7 @@
           "item_name": "Blueprint: Loomingwood Market",
           "item_stable_key": "item:furniture - loomingwood marketplace blueprint",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -61975,6 +62034,7 @@
           "item_name": "Blueprint: Loomingwood Shrine",
           "item_stable_key": "item:furniture - loomingwood shrine blueprint",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -62204,6 +62264,7 @@
           "item_name": "Blueprint: Stone Auction",
           "item_stable_key": "item:furniture - stone auction blueprint",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -62391,6 +62452,7 @@
           "item_name": "Blueprint: Stone Bank",
           "item_stable_key": "item:furniture - stone bank blueprint",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -62578,6 +62640,7 @@
           "item_name": "Blueprint: Stone Dining",
           "item_stable_key": "item:furniture - stone dining blueprint",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -62765,6 +62828,7 @@
           "item_name": "Blueprint: Stone Fountain",
           "item_stable_key": "item:furniture - stone fountain blueprint",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -62947,6 +63011,7 @@
           "item_name": "Blueprint: Stone Training Room",
           "item_stable_key": "item:furniture - stone training blueprint",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -63122,6 +63187,7 @@
           "item_name": "Blueprint: Stone Vendor",
           "item_stable_key": "item:furniture - stone vendor blueprint",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -63302,6 +63368,7 @@
           "item_name": "Croc Tail",
           "item_stable_key": "item:gen - croc tail",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -63436,6 +63503,7 @@
           "item_name": "Daggerhart Ancestral Coin",
           "item_stable_key": "item:gen - ancestral coin",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -63560,6 +63628,7 @@
           "item_name": "Captured Light",
           "item_stable_key": "item:gen - shard of light",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -63676,7 +63745,8 @@
         {
           "item_name": "Empty Soul Gem",
           "item_stable_key": "item:quest - empty soul gem",
-          "quantity": 1
+          "quantity": 1,
+          "optional": false
         }
       ],
       "completion": [
@@ -63829,6 +63899,7 @@
           "item_name": "Sivakayan Axe",
           "item_stable_key": "item:weap - 24 - sivakayan axe",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -64082,6 +64153,7 @@
           "item_name": "Decayed Druid Beads",
           "item_stable_key": "item:gen - decayed druid beads",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -64328,6 +64400,7 @@
           "item_name": "Bag of Faerie Dust",
           "item_stable_key": "item:gen - faerie dust",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -64556,6 +64629,7 @@
           "item_name": "Riftsnare Gem",
           "item_stable_key": "item:gen -  riftsnare gem",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -64711,6 +64785,7 @@
           "item_name": "Graveweed Leaf",
           "item_stable_key": "item:gen - graveweed leaf",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -64863,6 +64938,7 @@
           "item_name": "Weathered Chain",
           "item_stable_key": "item:gen - weathered chain",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -64983,7 +65059,8 @@
         {
           "item_name": "Box of Supplies",
           "item_stable_key": "item:gen - box of supplies",
-          "quantity": 1
+          "quantity": 1,
+          "optional": false
         }
       ],
       "completion": [
@@ -65102,6 +65179,7 @@
           "item_name": "Leena's Receipt",
           "item_stable_key": "item:gen - leena's receipt",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -65310,6 +65388,7 @@
           "item_name": "Aged Interrogation Note",
           "item_stable_key": "item:gen - aged interrogation note",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -65455,6 +65534,7 @@
           "item_name": "Krakengard Bunk Key",
           "item_stable_key": "item:key - krarkengard bunk key",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -65469,6 +65549,7 @@
           "item_name": "Krakengard Tower Key",
           "item_stable_key": "item:key - krakengard tower key",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -65626,7 +65707,8 @@
         {
           "item_name": "Kio's Leave Order",
           "item_stable_key": "item:gen - deportation papers",
-          "quantity": 1
+          "quantity": 1,
+          "optional": false
         }
       ],
       "completion": [
@@ -65748,6 +65830,7 @@
           "item_name": "Note to Liam",
           "item_stable_key": "item:gen - note to liam",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -65865,6 +65948,7 @@
           "item_name": "Unlit Nighthollow Candle",
           "item_stable_key": "item:hand - 100 - the nighthollow candle 1",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -65996,6 +66080,7 @@
           "item_name": "Lost Faith",
           "item_stable_key": "item:gen - lost faith",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -66279,6 +66364,7 @@
           "item_name": "An Octorunner",
           "item_stable_key": "item:fish - octorunner",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "fishing",
@@ -66335,6 +66421,7 @@
           "item_name": "A Frowny Clowny",
           "item_stable_key": "item:fish - a frowny clowny",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "fishing",
@@ -66432,6 +66519,7 @@
           "item_name": "Azure Mead",
           "item_stable_key": "item:cons - azure mead",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "vendor",
@@ -66621,6 +66709,7 @@
           "item_name": "Treasure Map",
           "item_stable_key": "item:gen - treasure map",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -66634,6 +66723,7 @@
           "item_name": "Elixir of Enlightenment II",
           "item_stable_key": "item:cons - enlightening potion ii",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -66764,7 +66854,8 @@
         {
           "item_name": "Mavik Easton's Note",
           "item_stable_key": "item:gen - ripper's note to azure",
-          "quantity": 1
+          "quantity": 1,
+          "optional": false
         }
       ],
       "completion": [
@@ -66938,6 +67029,7 @@
           "item_name": "Faded Journal Entry",
           "item_stable_key": "item:gen - faded journal (soluna)",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -67099,6 +67191,7 @@
           "item_name": "An Octorunner",
           "item_stable_key": "item:fish - octorunner",
           "quantity": 4,
+          "optional": false,
           "sources": [
             {
               "type": "fishing",
@@ -67293,6 +67386,7 @@
           "item_name": "Ogrespice Leaf",
           "item_stable_key": "item:gen - ogrespice leaf",
           "quantity": 4,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -67487,6 +67581,7 @@
           "item_name": "Tempest Stone",
           "item_stable_key": "item:gen - tempest stone",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -67501,6 +67596,7 @@
           "item_name": "Scribbles of a Mad Priest",
           "item_stable_key": "item:gen - scribbles of a mad priest",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -67621,6 +67717,7 @@
           "item_name": "A Rolled Note",
           "item_stable_key": "item:gen - a rolled note",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -67724,6 +67821,7 @@
           "item_name": "Sivakayan Boat Pass",
           "item_stable_key": "item:gen - the boatman",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -67964,6 +68062,7 @@
           "item_name": "Seaspice",
           "item_stable_key": "item:cons - seaspice",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -68268,6 +68367,7 @@
           "item_name": "Rune of The Hills",
           "item_stable_key": "item:gen - rune of the hills",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -68370,6 +68470,7 @@
           "item_name": "Rune of Ripper's Keep",
           "item_stable_key": "item:gen - rune of ripper's keep",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -68469,6 +68570,7 @@
           "item_name": "Rune of Sands",
           "item_stable_key": "item:gen - rune of sands",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -68581,6 +68683,7 @@
           "item_name": "Rune of Silkengrass",
           "item_stable_key": "item:gen - rune of silkengrass",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -68691,6 +68794,7 @@
           "item_name": "Rune of Soluna's Landing",
           "item_stable_key": "item:gen - rune of soluna's landing",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -68793,6 +68897,7 @@
           "item_name": "Rune of Winds",
           "item_stable_key": "item:gen - rune of winds",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -68890,6 +68995,7 @@
           "item_name": "Heart of Astra",
           "item_stable_key": "item:gen - heart of astra",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -69041,6 +69147,7 @@
           "item_name": "Skull-Shaped Candleholder",
           "item_stable_key": "item:gen - nighthollow base",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -69055,6 +69162,7 @@
           "item_name": "Nighthollow Wax",
           "item_stable_key": "item:gen - nighthollow wax",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "crafting",
@@ -69066,6 +69174,7 @@
           "item_name": "Nighthollow Wick",
           "item_stable_key": "item:gen - nighthollow wick",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -69193,6 +69302,7 @@
           "item_name": "Unsocketed Ring",
           "item_stable_key": "item:ring - 0 - unsocketed ring",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -69415,6 +69525,7 @@
           "item_name": "Unsocketed Ring",
           "item_stable_key": "item:ring - 0 - unsocketed ring",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -69434,6 +69545,7 @@
           "item_name": "Elderstone Shard",
           "item_stable_key": "item:gen - elderstone shard",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "vendor",
@@ -69496,6 +69608,7 @@
           "item_name": "Chunk of Citrine Sandsilver",
           "item_stable_key": "item:ore - citrine sandsilver",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "mining",
@@ -69648,17 +69761,20 @@
         {
           "item_name": "Torn Treasure Map (Bottom Left)",
           "item_stable_key": "item:gen - torn map bottom left",
-          "quantity": 1
+          "quantity": 1,
+          "optional": false
         },
         {
           "item_name": "Torn Treasure Map (Bottom Right)",
           "item_stable_key": "item:gen - torn map bottom right",
-          "quantity": 1
+          "quantity": 1,
+          "optional": false
         },
         {
           "item_name": "Torn Treasure Map (Top Left)",
           "item_stable_key": "item:gen - torn map top left",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -69673,6 +69789,7 @@
           "item_name": "Torn Treasure Map (Top Right)",
           "item_stable_key": "item:gen - torn map top right",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "fishing",
@@ -69801,6 +69918,7 @@
           "item_name": "Ripper Insignia Badge",
           "item_stable_key": "item:gen  - ripper insignia ring",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -70041,6 +70159,7 @@
           "item_name": "Sivakayan Encrypted Plans",
           "item_stable_key": "item:gen - sivakayan codex encryption",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -70053,6 +70172,7 @@
           "item_name": "Sivakayan Codex 1 of 4",
           "item_stable_key": "item:gen - sivakayan codex shard 1",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -70065,6 +70185,7 @@
           "item_name": "Sivakayan Codex 2 of 4",
           "item_stable_key": "item:gen - sivakayan codex shard 2",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -70077,6 +70198,7 @@
           "item_name": "Sivakayan Codex 3 of 4",
           "item_stable_key": "item:gen - sivakayan codex shard 3",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -70089,6 +70211,7 @@
           "item_name": "Sivakayan Codex 4 of 4",
           "item_stable_key": "item:gen - sivakayan codex shard 4",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -70210,6 +70333,7 @@
           "item_name": "Note from Eldoth",
           "item_stable_key": "item:gen - ilyth's note",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -70404,6 +70528,7 @@
           "item_name": "Pink Pteriaped Feather",
           "item_stable_key": "item:gen - pink pteriaped feather",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -70432,6 +70557,7 @@
           "item_name": "Devoratrix Thorn",
           "item_stable_key": "item:gen - devoratrix thorn",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -70446,6 +70572,7 @@
           "item_name": "Intact Faerie Wing",
           "item_stable_key": "item:gen - faerie wing",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -70604,6 +70731,7 @@
           "item_name": "Rottenfoot Sash",
           "item_stable_key": "item:belt - 10 - rottenfoot sash",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -70731,7 +70859,8 @@
         {
           "item_name": "Samuel's Note",
           "item_stable_key": "item:gen - samuel's note",
-          "quantity": 1
+          "quantity": 1,
+          "optional": false
         }
       ],
       "completion": [
@@ -70828,6 +70957,7 @@
           "item_name": "Eye of Plaxitheris",
           "item_stable_key": "item:gen - plaxitheris eye",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -70939,6 +71069,7 @@
           "item_name": "Ealdred's Journal",
           "item_stable_key": "item:gen - ealdred's journal",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -71110,6 +71241,7 @@
           "item_name": "Worn Shovel",
           "item_stable_key": "item:gen - a worn shovel",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -71248,6 +71380,7 @@
           "item_name": "Captured Light",
           "item_stable_key": "item:gen - shard of light",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -71368,6 +71501,7 @@
           "item_name": "Sivakayan Intel",
           "item_stable_key": "item:gen - sivakayan intel",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -71476,6 +71610,7 @@
           "item_name": "Marching Orders",
           "item_stable_key": "item:gen - marching orders",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -71537,6 +71672,7 @@
           "item_name": "Ealdred's Journal",
           "item_stable_key": "item:gen - ealdred's journal",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -71649,6 +71785,7 @@
           "item_name": "Sivakayan Intel",
           "item_stable_key": "item:gen - sivakayan intel",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -71837,6 +71974,7 @@
           "item_name": "Sivakayan Ore",
           "item_stable_key": "item:ore - sivakayan ore",
           "quantity": 4,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -72198,6 +72336,7 @@
           "item_name": "Sivakayan Encrypted Plans",
           "item_stable_key": "item:gen - sivakayan codex encryption",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -72210,6 +72349,7 @@
           "item_name": "Sivakayan Codex 1 of 4",
           "item_stable_key": "item:gen - sivakayan codex shard 1",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -72222,6 +72362,7 @@
           "item_name": "Sivakayan Codex 2 of 4",
           "item_stable_key": "item:gen - sivakayan codex shard 2",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -72234,6 +72375,7 @@
           "item_name": "Sivakayan Codex 3 of 4",
           "item_stable_key": "item:gen - sivakayan codex shard 3",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -72246,6 +72388,7 @@
           "item_name": "Sivakayan Codex 4 of 4",
           "item_stable_key": "item:gen - sivakayan codex shard 4",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -72368,6 +72511,7 @@
           "item_name": "Note from Eldoth",
           "item_stable_key": "item:gen - ilyth's note",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -72531,6 +72675,7 @@
           "item_name": "Stolen Memories",
           "item_stable_key": "item:gen - stolen memories",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -72718,7 +72863,8 @@
         {
           "item_name": "Dock Pass",
           "item_stable_key": "item:gen  - stowaway dock pass",
-          "quantity": 1
+          "quantity": 1,
+          "optional": false
         }
       ],
       "completion": [
@@ -72918,6 +73064,7 @@
           "item_name": "Intact Fungal Cap",
           "item_stable_key": "item:gen - intact fungal cap",
           "quantity": 3,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -73090,6 +73237,7 @@
           "item_name": "Siva-Braxon Teachings (1)",
           "item_stable_key": "item:gen - siva-braxon teachings",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -73139,6 +73287,7 @@
           "item_name": "Siva-Braxon Teachings (2)",
           "item_stable_key": "item:gen - siva-braxon teachings 1",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -73188,6 +73337,7 @@
           "item_name": "Siva-Braxon Teachings (3)",
           "item_stable_key": "item:gen - siva-braxon teachings 2",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -73320,6 +73470,7 @@
           "item_name": "Angler's Ring",
           "item_stable_key": "item:ring - 6 - angler's ring",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "crafting",
@@ -73722,6 +73873,7 @@
           "item_name": "Blightwood Slab",
           "item_stable_key": "item:gen - blightwood",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -73750,6 +73902,7 @@
           "item_name": "Blight Crystals",
           "item_stable_key": "item:gen - blightsand",
           "quantity": 2,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -73844,6 +73997,7 @@
           "item_name": "Spark of the First Flame",
           "item_stable_key": "item:gen - spark of the first flame",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -73879,6 +74033,7 @@
           "item_name": "Dark Flame Recipe",
           "item_stable_key": "item:gen - rekindling the flame 2",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -74240,6 +74395,7 @@
           "item_name": "Elderstone Shard",
           "item_stable_key": "item:gen - elderstone shard",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "vendor",
@@ -74302,6 +74458,7 @@
           "item_name": "Ancient Coal",
           "item_stable_key": "item:ore - ancient coal",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "mining",
@@ -74389,6 +74546,7 @@
           "item_name": "Wolf Meat",
           "item_stable_key": "item:gen - wolf meat",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -74528,6 +74686,7 @@
           "item_name": "Pristine Grass Spider Carapace",
           "item_stable_key": "item:gen - pristine grass spider carapace",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -74612,6 +74771,7 @@
           "item_name": "The Duskenlight Ritual",
           "item_stable_key": "item:gen - the duskenlight ritual",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -74706,6 +74866,7 @@
           "item_name": "Eldrich Crystal",
           "item_stable_key": "item:gen - eldrich crystal",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -75242,6 +75403,7 @@
           "item_name": "Loomingwood Branch",
           "item_stable_key": "item:gen - loomingwood branch",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -75284,6 +75446,7 @@
           "item_name": "Essence of Nature",
           "item_stable_key": "item:gen - essence of nature",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -75346,12 +75509,14 @@
         {
           "item_name": "Gift of Fernalla",
           "item_stable_key": "item:gen - gift of fernalla",
-          "quantity": 1
+          "quantity": 1,
+          "optional": false
         },
         {
           "item_name": "Droplet of the First Frost",
           "item_stable_key": "item:gen - droplet of the first frost",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -75366,6 +75531,7 @@
           "item_name": "Life Flame Recipe",
           "item_stable_key": "item:gen - rekindling the flame 3",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -75486,7 +75652,8 @@
         {
           "item_name": "Loss Stone",
           "item_stable_key": "item:quest - loss stone",
-          "quantity": 1
+          "quantity": 1,
+          "optional": false
         }
       ],
       "completion": [
@@ -75566,6 +75733,7 @@
           "item_name": "Loss Stone",
           "item_stable_key": "item:quest - loss stone",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -75774,6 +75942,7 @@
           "item_name": "Pg. 1: Faded Entry",
           "item_stable_key": "item:gen - treasure hunter pg 1 (bonepits)",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -75795,6 +75964,7 @@
           "item_name": "Pg. 2: Faded Entry",
           "item_stable_key": "item:gen - treasure hunter pg 2 (krakengard)",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -75809,6 +75979,7 @@
           "item_name": "Pg. 3: Faded Entry",
           "item_stable_key": "item:gen - treasure hunter pg 3 (underspine)",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -75823,6 +75994,7 @@
           "item_name": "Pg. 4: Faded Entry",
           "item_stable_key": "item:gen - treasure hunter pg 4 (undercity)",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -75837,6 +76009,7 @@
           "item_name": "Pg. 5: Faded Entry",
           "item_stable_key": "item:gen - treasure hunter pg 5 (elderstone)",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -75851,6 +76024,7 @@
           "item_name": "Pg. 6: Faded Entry",
           "item_stable_key": "item:gen - treasure hunter pg 6 (rockshade)",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -75865,6 +76039,7 @@
           "item_name": "Pg. 7: Faded Entry",
           "item_stable_key": "item:gen - treasure hunter pg 7 (abyssal)",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -75985,6 +76160,7 @@
           "item_name": "Treasure Hunter's Pin",
           "item_stable_key": "item:gen - treasure hunter's pin",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -76070,6 +76246,7 @@
           "item_name": "Treasure Hunter's Pin",
           "item_stable_key": "item:gen - treasure hunter's pin",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -76356,6 +76533,7 @@
           "item_name": "Bread",
           "item_stable_key": "item:cons - bread",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "vendor",
@@ -76919,6 +77097,7 @@
           "item_name": "The Mathers Note",
           "item_stable_key": "item:gen - the mathers note",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -77107,6 +77286,7 @@
           "item_name": "Chapters of Descent, Passage 1",
           "item_stable_key": "item:gen - cod - pg 1",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -77128,6 +77308,7 @@
           "item_name": "Chapters of Descent, Passage 2",
           "item_stable_key": "item:gen - cod - pg 2",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -77149,6 +77330,7 @@
           "item_name": "Chapters of Descent, Passage 3",
           "item_stable_key": "item:gen - cod - pg 3",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -77163,6 +77345,7 @@
           "item_name": "Chapters of Descent, Passage 4",
           "item_stable_key": "item:gen - cod - pg 4",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -77446,6 +77629,7 @@
           "item_name": "Chapters of Descent, Passage 5",
           "item_stable_key": "item:gen - cod - pg 5",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -77495,6 +77679,7 @@
           "item_name": "Chapters of Descent, Passage 6",
           "item_stable_key": "item:gen - cod - pg 6",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -77544,6 +77729,7 @@
           "item_name": "Chapters of Descent, Passage 7",
           "item_stable_key": "item:gen - cod - pg 7",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -77593,6 +77779,7 @@
           "item_name": "Chapters of Descent, Passage 8",
           "item_stable_key": "item:gen - cod - pg 8",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -77710,6 +77897,7 @@
           "item_name": "A Collection of Notes",
           "item_stable_key": "item:quest - bellwain collection",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "pickup",
@@ -78135,6 +78323,7 @@
           "item_name": "Island Fin",
           "item_stable_key": "item:fish - island fin",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "fishing",
@@ -78147,6 +78336,7 @@
           "item_name": "Bread",
           "item_stable_key": "item:cons - bread",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "vendor",
@@ -78525,6 +78715,7 @@
           "item_name": "Brackfruit Juice",
           "item_stable_key": "item:cons - brackfruit juice",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "vendor",
@@ -78626,6 +78817,7 @@
           "item_name": "Coal",
           "item_stable_key": "item:ore - coal",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "mining",
@@ -78801,6 +78993,7 @@
           "item_name": "Wardens of the North",
           "item_stable_key": "item:book - wardens of the north",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -79187,6 +79380,7 @@
           "item_name": "Bag of Faerie Dust",
           "item_stable_key": "item:gen - faerie dust",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -79236,6 +79430,7 @@
           "item_name": "Ancient Coal",
           "item_stable_key": "item:ore - ancient coal",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "mining",
@@ -79323,6 +79518,7 @@
           "item_name": "Remnants of a Daydream",
           "item_stable_key": "item:gen - remnants of a daydream",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -79426,6 +79622,7 @@
           "item_name": "Remnants of a Nightmare",
           "item_stable_key": "item:gen - remnants of a nightmare",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -79529,6 +79726,7 @@
           "item_name": "The Fernallan Ritual",
           "item_stable_key": "item:gen - the fernallan ritual",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -79851,6 +80049,7 @@
           "item_name": "Planar Stone Shards",
           "item_stable_key": "item:ore - planar shard",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -79885,6 +80084,7 @@
           "item_name": "Sivakrux",
           "item_stable_key": "item:gen - sivak",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -79929,6 +80129,7 @@
           "item_name": "Unborn Phobia",
           "item_stable_key": "item:gen - unborn phobia",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -79948,6 +80149,7 @@
           "item_name": "Ghostly Giant's Blood",
           "item_stable_key": "item:gen - ghostly giant's blood",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -80082,6 +80284,7 @@
           "item_name": "Brashell",
           "item_stable_key": "item:gen - brashell",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -80197,6 +80400,7 @@
           "item_name": "Secrets of Creation",
           "item_stable_key": "item:gen - cube of creation",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -80320,6 +80524,7 @@
           "item_name": "Secrets of Creation",
           "item_stable_key": "item:gen - cube of creation",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -80539,6 +80744,7 @@
           "item_name": "Small Engraved Compass",
           "item_stable_key": "item:gen - small engraved compass",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -80739,6 +80945,7 @@
           "item_name": "A Moongill",
           "item_stable_key": "item:fish - moongill",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "fishing",
@@ -81073,6 +81280,7 @@
           "item_name": "Ancient Fang",
           "item_stable_key": "item:gen - ancient fang",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -81087,6 +81295,7 @@
           "item_name": "Eternal Ice",
           "item_stable_key": "item:gen - eternal ice",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -81105,6 +81314,7 @@
           "item_name": "Thief of Breath",
           "item_stable_key": "item:gen - thief of breath",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -81138,6 +81348,7 @@
           "item_name": "Death's Decay",
           "item_stable_key": "item:gen - death's decay",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -81171,6 +81382,7 @@
           "item_name": "Soul of a Ghostly Beast",
           "item_stable_key": "item:gen - soul of a ghostly beast",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -81328,6 +81540,23 @@
         },
         {
           "order": 2,
+          "action": "read",
+          "description": "Obtain and read Marching Orders.",
+          "target_name": "Marching Orders",
+          "target_type": "item",
+          "level_estimate": {
+            "recommended": 28,
+            "factors": [
+              {
+                "source": "drop",
+                "name": "Gherist Morthario",
+                "level": 28
+              }
+            ]
+          }
+        },
+        {
+          "order": 3,
           "action": "collect",
           "description": "Collect Torn Note.",
           "target_name": "Torn Note",
@@ -81340,24 +81569,6 @@
                 "source": "drop",
                 "name": "Ghost of Wyland Sercher",
                 "level": 4
-              }
-            ]
-          }
-        },
-        {
-          "order": 3,
-          "action": "collect",
-          "description": "Collect Marching Orders.",
-          "target_name": "Marching Orders",
-          "target_type": "item",
-          "quantity": 1,
-          "level_estimate": {
-            "recommended": 28,
-            "factors": [
-              {
-                "source": "drop",
-                "name": "Gherist Morthario",
-                "level": 28
               }
             ]
           }
@@ -81386,6 +81597,7 @@
           "item_name": "Torn Note",
           "item_stable_key": "item:gen - a torn note",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -81400,6 +81612,7 @@
           "item_name": "Marching Orders",
           "item_stable_key": "item:gen - marching orders",
           "quantity": 1,
+          "optional": true,
           "sources": [
             {
               "type": "drop",
@@ -81455,8 +81668,8 @@
         "recommended": 28,
         "factors": [
           {
-            "source": "step_3",
-            "name": "Collect Marching Orders.",
+            "source": "step_2",
+            "name": "Obtain and read Marching Orders.",
             "level": 28
           }
         ]
@@ -81584,6 +81797,7 @@
           "item_name": "Azure Willow Seed",
           "item_stable_key": "item:gen - willow seed azure",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "pickup",
@@ -81597,6 +81811,7 @@
           "item_name": "Braxonian Willow Seed",
           "item_stable_key": "item:gen - willow seed braxonia",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "pickup",
@@ -81610,6 +81825,7 @@
           "item_name": "Duskenlight Willow Seed",
           "item_stable_key": "item:gen - willow seed dusken",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "pickup",
@@ -81623,6 +81839,7 @@
           "item_name": "Fernallan Willow Seed",
           "item_stable_key": "item:gen - willow seed fernalla",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "pickup",
@@ -81636,6 +81853,7 @@
           "item_name": "Ripparian Willow Seed",
           "item_stable_key": "item:gen - willow seed ripper",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "pickup",
@@ -81762,6 +81980,7 @@
           "item_name": "Willow Soil",
           "item_stable_key": "item:gen - bag of willow soil",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -81869,6 +82088,7 @@
           "item_name": "Wishlan's Hope",
           "item_stable_key": "item:gen - wishlan's hope",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -81953,7 +82173,8 @@
         {
           "item_name": "Offering Stone",
           "item_stable_key": "item:gen - offering stone",
-          "quantity": 1
+          "quantity": 1,
+          "optional": false
         }
       ],
       "completion": [
@@ -82090,6 +82311,7 @@
           "item_name": "Wolf Meat",
           "item_stable_key": "item:gen - wolf meat",
           "quantity": 1,
+          "optional": false,
           "sources": [
             {
               "type": "drop",

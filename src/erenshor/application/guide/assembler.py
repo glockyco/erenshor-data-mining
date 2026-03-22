@@ -149,28 +149,34 @@ def _inject_trigger_items(
     required_items: list[RequiredItemInfo],
     ctx: QuestDataContext,
 ) -> None:
-    """For item_read quests, add the triggering item to *required_items*.
+    """For item_read quests, add triggering items to *required_items*.
 
-    The trigger item is not a completion objective but the player still needs
-    to obtain it.  Adding it here lets step generation and level estimation
-    account for its obtainability.  Mutates *required_items* in place.
+    When a quest has multiple item_read acquisition sources, they are
+    alternative triggers -- the player only needs one.  All are injected
+    with ``optional=True`` so the UI can show them as alternatives.
+    When there is exactly one trigger, it is not marked optional since
+    there is no alternative.
     """
-    for acq in acquisition:
-        if acq.method == "item_read" and acq.source_stable_key:
-            isk = acq.source_stable_key
-            if any(ri.item_stable_key == isk for ri in required_items):
-                continue
-            sources = [
-                s for s in ctx.item_sources.get(isk, []) if not (s.type == "quest_reward" and s.quest_key == quest_sk)
-            ]
-            required_items.append(
-                RequiredItemInfo(
-                    item_name=ctx.item_names.get(isk, acq.source_name or isk),
-                    item_stable_key=isk,
-                    quantity=1,
-                    sources=sources,
-                )
+    triggers = [a for a in acquisition if a.method == "item_read" and a.source_stable_key]
+    if not triggers:
+        return
+    is_optional = len(triggers) > 1
+    for acq in triggers:
+        isk = acq.source_stable_key
+        if any(ri.item_stable_key == isk for ri in required_items):
+            continue
+        sources = [
+            s for s in ctx.item_sources.get(isk, []) if not (s.type == "quest_reward" and s.quest_key == quest_sk)
+        ]
+        required_items.append(
+            RequiredItemInfo(
+                item_name=ctx.item_names.get(isk, acq.source_name or isk),
+                item_stable_key=isk,
+                quantity=1,
+                optional=is_optional,
+                sources=sources,
             )
+        )
 
 
 def _detect_implicit_prerequisites(
@@ -422,17 +428,18 @@ def _steps_fetch(
 ) -> list[QuestStep]:
     steps: list[QuestStep] = []
 
-    # For item_read quests, first step is obtaining and reading the item
-    item_read_acq = next((a for a in acquisition if a.method == "item_read"), None)
-    if item_read_acq and item_read_acq.source_name:
-        steps.append(
-            step(
-                "read",
-                f"Obtain and read {item_read_acq.source_name}.",
-                target_name=item_read_acq.source_name,
-                target_type="item",
+    # For item_read quests, generate read steps for all triggers
+    item_read_acqs = [a for a in acquisition if a.method == "item_read" and a.source_name]
+    if item_read_acqs:
+        for acq in item_read_acqs:
+            steps.append(
+                step(
+                    "read",
+                    f"Obtain and read {acq.source_name}.",
+                    target_name=acq.source_name,
+                    target_type="item",
+                )
             )
-        )
     elif giver and giver.source_name:
         steps.append(
             step(
@@ -444,6 +451,8 @@ def _steps_fetch(
         )
 
     for ri in required_items:
+        if ri.optional:
+            continue  # optional items are acquisition alternatives, not collect objectives
         desc = f"Collect {ri.item_name}"
         if ri.quantity > 1:
             desc = f"Collect {ri.quantity}x {ri.item_name}"
@@ -604,18 +613,17 @@ def _steps_item_read(
     completion: list[CompletionSource],
 ) -> list[QuestStep]:
     steps: list[QuestStep] = []
-    # First step: obtain and read the quest-starting item
-    for acq in acquisition:
-        if acq.method == "item_read" and acq.source_name:
-            steps.append(
-                step(
-                    "read",
-                    f"Obtain and read {acq.source_name}.",
-                    target_name=acq.source_name,
-                    target_type="item",
-                )
+    # Generate a read step for each item_read trigger
+    triggers = [a for a in acquisition if a.method == "item_read" and a.source_name]
+    for acq in triggers:
+        steps.append(
+            step(
+                "read",
+                f"Obtain and read {acq.source_name}.",
+                target_name=acq.source_name,
+                target_type="item",
             )
-            break  # only one starting item
+        )
 
     # Remaining steps from completion sources
     for comp in completion:

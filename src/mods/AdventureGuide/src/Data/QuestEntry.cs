@@ -78,6 +78,7 @@ public sealed class RequiredItemInfo
     [JsonProperty("item_name")] public string ItemName { get; set; } = "";
     [JsonProperty("item_stable_key")] public string ItemStableKey { get; set; } = "";
     [JsonProperty("quantity")] public int Quantity { get; set; } = 1;
+    [JsonProperty("optional")] public bool Optional { get; set; }
     [JsonProperty("sources")] public List<ItemSource>? Sources { get; set; }
 }
 
