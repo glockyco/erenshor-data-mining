@@ -737,9 +737,6 @@ def _steps_fetch(step, giver, required_items, completion, zone_context, acquisit
         desc = f"Collect {ri.item_name}"
         if ri.quantity > 1:
             desc = f"Collect {ri.quantity}x {ri.item_name}"
-        if ri.drop_sources:
-            names = ", ".join(sorted({ds.character_name for ds in ri.drop_sources[:3]}))
-            desc += f" (drops from {names})"
         steps.append(
             step(
                 "collect",

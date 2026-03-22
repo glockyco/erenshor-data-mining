@@ -53560,7 +53560,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Ear of Kilkay (drops from Captain Kilkay).",
+          "description": "Collect Ear of Kilkay.",
           "target_name": "Ear of Kilkay",
           "target_type": "item",
           "quantity": 1
@@ -53653,7 +53653,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Ear of Ripper (drops from Ripper DeMerth).",
+          "description": "Collect Ear of Ripper.",
           "target_name": "Ear of Ripper",
           "target_type": "item",
           "quantity": 1
@@ -53731,7 +53731,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Small Cat Statue (drops from Hypnic).",
+          "description": "Collect Small Cat Statue.",
           "target_name": "Small Cat Statue",
           "target_type": "item",
           "quantity": 1
@@ -53802,7 +53802,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Memory of a Guardian (drops from The Crypt Guardian).",
+          "description": "Collect Memory of a Guardian.",
           "target_name": "Memory of a Guardian",
           "target_type": "item",
           "quantity": 1
@@ -53866,7 +53866,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Memory of Balaste (drops from Balaste the Fallen).",
+          "description": "Collect Memory of Balaste.",
           "target_name": "Memory of Balaste",
           "target_type": "item",
           "quantity": 1
@@ -53930,7 +53930,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Memory of Elwio (drops from Elwio the Traitor).",
+          "description": "Collect Memory of Elwio.",
           "target_name": "Memory of Elwio",
           "target_type": "item",
           "quantity": 1
@@ -54001,7 +54001,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Memory of Vitheo (drops from Apparition of Vitheo).",
+          "description": "Collect Memory of Vitheo.",
           "target_name": "Memory of Vitheo",
           "target_type": "item",
           "quantity": 1
@@ -54055,7 +54055,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Inert Rune of Fernalla (drops from Fallen Fernalla).",
+          "description": "Collect Inert Rune of Fernalla.",
           "target_name": "Inert Rune of Fernalla",
           "target_type": "item",
           "quantity": 1
@@ -54063,7 +54063,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Eldrich Crystal (drops from Azynthian Keeper).",
+          "description": "Collect Eldrich Crystal.",
           "target_name": "Eldrich Crystal",
           "target_type": "item",
           "quantity": 1
@@ -54177,7 +54177,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Ornate Toolbox (drops from A Highwayman Raider).",
+          "description": "Collect Ornate Toolbox.",
           "target_name": "Ornate Toolbox",
           "target_type": "item",
           "quantity": 1
@@ -54302,7 +54302,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Sivakrux (drops from Lost Treasure (1-10), Lost Treasure (10-20), Lost Treasure (20-30)).",
+          "description": "Collect Sivakrux.",
           "target_name": "Sivakrux",
           "target_type": "item",
           "quantity": 1
@@ -54398,7 +54398,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Braxonian Portal Shard (Fire) (drops from Braxonian Planar Guard (Fire)).",
+          "description": "Collect Braxonian Portal Shard (Fire).",
           "target_name": "Braxonian Portal Shard (Fire)",
           "target_type": "item",
           "quantity": 1
@@ -54406,7 +54406,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Braxonian Portal Shard (Ice) (drops from Braxonian Planar Guard (Ice)).",
+          "description": "Collect Braxonian Portal Shard (Ice).",
           "target_name": "Braxonian Portal Shard (Ice)",
           "target_type": "item",
           "quantity": 1
@@ -54503,7 +54503,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Eldrich Crystal (drops from Azynthian Keeper).",
+          "description": "Collect Eldrich Crystal.",
           "target_name": "Eldrich Crystal",
           "target_type": "item",
           "quantity": 1
@@ -54605,7 +54605,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Ruby (drops from Shrouded Sivakayan, Sivakayan High Shadow, Sivakayan Shadow).",
+          "description": "Collect Ruby.",
           "target_name": "Ruby",
           "target_type": "item",
           "quantity": 1
@@ -54613,7 +54613,7 @@
         {
           "order": 3,
           "action": "collect",
-          "description": "Collect 2x Seaspice (drops from Cerynth Duskveil, Elizah Vernor, Ghost of Wyland Sercher).",
+          "description": "Collect 2x Seaspice.",
           "target_name": "Seaspice",
           "target_type": "item",
           "quantity": 2
@@ -55138,7 +55138,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Necromancer's Ritual Book (drops from Neophyte Necromancer).",
+          "description": "Collect Necromancer's Ritual Book.",
           "target_name": "Necromancer's Ritual Book",
           "target_type": "item",
           "quantity": 1
@@ -55209,7 +55209,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Notes of a Hermit (drops from A Hermit, Bommer Olvaro, Liam Olvaro).",
+          "description": "Collect Notes of a Hermit.",
           "target_name": "Notes of a Hermit",
           "target_type": "item",
           "quantity": 1
@@ -55327,7 +55327,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Vithean Brick (drops from Jack, Rumors, Sockets).",
+          "description": "Collect Vithean Brick.",
           "target_name": "Vithean Brick",
           "target_type": "item",
           "quantity": 1
@@ -55479,7 +55479,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Sivakayan Horn (drops from A Lesser Avatar of Sivakaya).",
+          "description": "Collect Sivakayan Horn.",
           "target_name": "Sivakayan Horn",
           "target_type": "item",
           "quantity": 1
@@ -55562,7 +55562,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Skeleton Eye (drops from A Skeleton Captain, Bassalt Vallano).",
+          "description": "Collect Skeleton Eye.",
           "target_name": "Skeleton Eye",
           "target_type": "item",
           "quantity": 1
@@ -55657,7 +55657,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Eldrich Crystal (drops from Azynthian Keeper).",
+          "description": "Collect Eldrich Crystal.",
           "target_name": "Eldrich Crystal",
           "target_type": "item",
           "quantity": 1
@@ -55752,7 +55752,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect 3x Azure Mead (drops from Priel Malarist).",
+          "description": "Collect 3x Azure Mead.",
           "target_name": "Azure Mead",
           "target_type": "item",
           "quantity": 3
@@ -55760,7 +55760,7 @@
         {
           "order": 3,
           "action": "collect",
-          "description": "Collect Seaspice (drops from Cerynth Duskveil, Elizah Vernor, Ghost of Wyland Sercher).",
+          "description": "Collect Seaspice.",
           "target_name": "Seaspice",
           "target_type": "item",
           "quantity": 1
@@ -56075,7 +56075,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Inert Rune of Vitheo (drops from Apparition of Vitheo).",
+          "description": "Collect Inert Rune of Vitheo.",
           "target_name": "Inert Rune of Vitheo",
           "target_type": "item",
           "quantity": 1
@@ -56083,7 +56083,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Eldrich Crystal (drops from Azynthian Keeper).",
+          "description": "Collect Eldrich Crystal.",
           "target_name": "Eldrich Crystal",
           "target_type": "item",
           "quantity": 1
@@ -56248,7 +56248,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Aetheria (drops from A Protected Memory).",
+          "description": "Collect Aetheria.",
           "target_name": "Aetheria",
           "target_type": "item",
           "quantity": 1
@@ -56503,7 +56503,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Simple Engagement Ring (drops from Risen Pilgrim).",
+          "description": "Collect Simple Engagement Ring.",
           "target_name": "Simple Engagement Ring",
           "target_type": "item",
           "quantity": 1
@@ -56581,7 +56581,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Plain Necklace (drops from A Brackish Croc Whelp).",
+          "description": "Collect Plain Necklace.",
           "target_name": "Plain Necklace",
           "target_type": "item",
           "quantity": 1
@@ -56659,7 +56659,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect 5x Nagalok Claw (drops from An Immature Nagalok).",
+          "description": "Collect 5x Nagalok Claw.",
           "target_name": "Nagalok Claw",
           "target_type": "item",
           "quantity": 5
@@ -56938,7 +56938,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Bear Meat (drops from A Brown Bear, A Grizzly Bear, Albino Kodiak).",
+          "description": "Collect Bear Meat.",
           "target_name": "Bear Meat",
           "target_type": "item",
           "quantity": 1
@@ -57118,7 +57118,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Braxonian Scripture (2) (drops from Historian of Braxonia, Prince Ardant).",
+          "description": "Collect Braxonian Scripture (2).",
           "target_name": "Braxonian Scripture (2)",
           "target_type": "item",
           "quantity": 1
@@ -57126,7 +57126,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Braxonian Scripture (1) (drops from Historian of Braxonia, Prince Ardant).",
+          "description": "Collect Braxonian Scripture (1).",
           "target_name": "Braxonian Scripture (1)",
           "target_type": "item",
           "quantity": 1
@@ -57229,7 +57229,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Soul Gem (Leah) (drops from Leah).",
+          "description": "Collect Soul Gem (Leah).",
           "target_name": "Soul Gem (Leah)",
           "target_type": "item",
           "quantity": 1
@@ -57285,7 +57285,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Soul Gem (Posta) (drops from Posta).",
+          "description": "Collect Soul Gem (Posta).",
           "target_name": "Soul Gem (Posta)",
           "target_type": "item",
           "quantity": 1
@@ -57341,7 +57341,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Soul Gem (Revid) (drops from Revid).",
+          "description": "Collect Soul Gem (Revid).",
           "target_name": "Soul Gem (Revid)",
           "target_type": "item",
           "quantity": 1
@@ -57397,7 +57397,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Soul Gem (Stalzo) (drops from Stalzo).",
+          "description": "Collect Soul Gem (Stalzo).",
           "target_name": "Soul Gem (Stalzo)",
           "target_type": "item",
           "quantity": 1
@@ -57453,7 +57453,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Catnip (drops from Catnip (Enemy)).",
+          "description": "Collect Catnip.",
           "target_name": "Catnip",
           "target_type": "item",
           "quantity": 1
@@ -57522,7 +57522,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Blue Burnstone (drops from Fearantula).",
+          "description": "Collect Blue Burnstone.",
           "target_name": "Blue Burnstone",
           "target_type": "item",
           "quantity": 1
@@ -57650,7 +57650,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Ritual Stone (drops from An Apparition of Sivakaya).",
+          "description": "Collect Ritual Stone.",
           "target_name": "Ritual Stone",
           "target_type": "item",
           "quantity": 1
@@ -57789,7 +57789,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect A Remnant of Sivakaya (drops from Vessel Siraethe).",
+          "description": "Collect A Remnant of Sivakaya.",
           "target_name": "A Remnant of Sivakaya",
           "target_type": "item",
           "quantity": 1
@@ -57797,7 +57797,7 @@
         {
           "order": 3,
           "action": "collect",
-          "description": "Collect Demented Brain (drops from Demented Malaroth).",
+          "description": "Collect Demented Brain.",
           "target_name": "Demented Brain",
           "target_type": "item",
           "quantity": 1
@@ -57907,7 +57907,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Blueprint: Azynthian Dining (drops from Molorai Acquirer, Molorai Ancille).",
+          "description": "Collect Blueprint: Azynthian Dining.",
           "target_name": "Blueprint: Azynthian Dining",
           "target_type": "item",
           "quantity": 1
@@ -58022,7 +58022,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Blueprint: Azynthian Livingroom (drops from Molorai Acquirer, Molorai Ancille).",
+          "description": "Collect Blueprint: Azynthian Livingroom.",
           "target_name": "Blueprint: Azynthian Livingroom",
           "target_type": "item",
           "quantity": 1
@@ -58137,7 +58137,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Blueprint: Azynthian Rest (drops from Molorai Acquirer, Molorai Ancille).",
+          "description": "Collect Blueprint: Azynthian Rest.",
           "target_name": "Blueprint: Azynthian Rest",
           "target_type": "item",
           "quantity": 1
@@ -58252,7 +58252,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Blueprint: Game Room (drops from Molorai Archaeologist).",
+          "description": "Collect Blueprint: Game Room.",
           "target_name": "Blueprint: Game Room",
           "target_type": "item",
           "quantity": 1
@@ -58337,7 +58337,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Blueprint: Loomingwood Market (drops from Aetherfiend, Aviak, Devoratrix).",
+          "description": "Collect Blueprint: Loomingwood Market.",
           "target_name": "Blueprint: Loomingwood Market",
           "target_type": "item",
           "quantity": 1
@@ -58452,7 +58452,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Blueprint: Loomingwood Shrine (drops from Aetherfiend, Aviak, Devoratrix).",
+          "description": "Collect Blueprint: Loomingwood Shrine.",
           "target_name": "Blueprint: Loomingwood Shrine",
           "target_type": "item",
           "quantity": 1
@@ -58567,7 +58567,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Blueprint: Stone Auction (drops from Cinder, Stoneman, Stoneman Colossus).",
+          "description": "Collect Blueprint: Stone Auction.",
           "target_name": "Blueprint: Stone Auction",
           "target_type": "item",
           "quantity": 1
@@ -58657,7 +58657,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Blueprint: Stone Bank (drops from Cinder, Stoneman, Stoneman Colossus).",
+          "description": "Collect Blueprint: Stone Bank.",
           "target_name": "Blueprint: Stone Bank",
           "target_type": "item",
           "quantity": 1
@@ -58747,7 +58747,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Blueprint: Stone Dining (drops from Cinder, Stoneman, Stoneman Colossus).",
+          "description": "Collect Blueprint: Stone Dining.",
           "target_name": "Blueprint: Stone Dining",
           "target_type": "item",
           "quantity": 1
@@ -58837,7 +58837,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Blueprint: Stone Fountain (drops from Cinder, Stoneman, Stoneman Colossus).",
+          "description": "Collect Blueprint: Stone Fountain.",
           "target_name": "Blueprint: Stone Fountain",
           "target_type": "item",
           "quantity": 1
@@ -58927,7 +58927,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Blueprint: Stone Training Room (drops from Diamond Colossus, Stoneman, Stoneman Colossus).",
+          "description": "Collect Blueprint: Stone Training Room.",
           "target_name": "Blueprint: Stone Training Room",
           "target_type": "item",
           "quantity": 1
@@ -59012,7 +59012,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Blueprint: Stone Vendor (drops from Diamond Colossus, Stoneman, Stoneman Colossus).",
+          "description": "Collect Blueprint: Stone Vendor.",
           "target_name": "Blueprint: Stone Vendor",
           "target_type": "item",
           "quantity": 1
@@ -59112,7 +59112,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Croc Tail (drops from Rotbelly Croc, Stonetooth Croc).",
+          "description": "Collect Croc Tail.",
           "target_name": "Croc Tail",
           "target_type": "item",
           "quantity": 1
@@ -59187,7 +59187,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Daggerhart Ancestral Coin (drops from Aranuil Olaseo, Odyss Repman).",
+          "description": "Collect Daggerhart Ancestral Coin.",
           "target_name": "Daggerhart Ancestral Coin",
           "target_type": "item",
           "quantity": 1
@@ -59268,7 +59268,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Captured Light (drops from Warded Shadow).",
+          "description": "Collect Captured Light.",
           "target_name": "Captured Light",
           "target_type": "item",
           "quantity": 1
@@ -59422,7 +59422,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Sivakayan Axe (drops from Darkwarden Awxa, Darkwarden Ealdred, Darkwarden Ilyth).",
+          "description": "Collect Sivakayan Axe.",
           "target_name": "Sivakayan Axe",
           "target_type": "item",
           "quantity": 1
@@ -59548,7 +59548,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Decayed Druid Beads (drops from Bloom Preserver, Elder Guardian, Fawn of Fernalla).",
+          "description": "Collect Decayed Druid Beads.",
           "target_name": "Decayed Druid Beads",
           "target_type": "item",
           "quantity": 1
@@ -59694,7 +59694,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Bag of Faerie Dust (drops from A Faerie Drone, A Faerie Enchantress, A Faerie Foliagian).",
+          "description": "Collect Bag of Faerie Dust.",
           "target_name": "Bag of Faerie Dust",
           "target_type": "item",
           "quantity": 1
@@ -59828,7 +59828,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Riftsnare Gem (drops from Exalted Firebone, Grounds Keeper, Oracle Miress).",
+          "description": "Collect Riftsnare Gem.",
           "target_name": "Riftsnare Gem",
           "target_type": "item",
           "quantity": 1
@@ -59918,7 +59918,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Graveweed Leaf (drops from Boatman, Botanist).",
+          "description": "Collect Graveweed Leaf.",
           "target_name": "Graveweed Leaf",
           "target_type": "item",
           "quantity": 1
@@ -60020,7 +60020,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Weathered Chain (drops from Grizzlepaw).",
+          "description": "Collect Weathered Chain.",
           "target_name": "Weathered Chain",
           "target_type": "item",
           "quantity": 1
@@ -60306,7 +60306,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Aged Interrogation Note (drops from Tortured Prisoner).",
+          "description": "Collect Aged Interrogation Note.",
           "target_name": "Aged Interrogation Note",
           "target_type": "item",
           "quantity": 1
@@ -60384,7 +60384,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Krakengard Bunk Key (drops from Molorai Brewmistress).",
+          "description": "Collect Krakengard Bunk Key.",
           "target_name": "Krakengard Bunk Key",
           "target_type": "item",
           "quantity": 1
@@ -60392,7 +60392,7 @@
         {
           "order": 3,
           "action": "collect",
-          "description": "Collect Krakengard Tower Key (drops from Molorai Captain Sigrid).",
+          "description": "Collect Krakengard Tower Key.",
           "target_name": "Krakengard Tower Key",
           "target_type": "item",
           "quantity": 1
@@ -60587,7 +60587,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Note to Liam (drops from Bassalt Vallano).",
+          "description": "Collect Note to Liam.",
           "target_name": "Note to Liam",
           "target_type": "item",
           "quantity": 1
@@ -60727,7 +60727,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Lost Faith (drops from Ancient Celestarian, Ancient Guard, Ancient Knight).",
+          "description": "Collect Lost Faith.",
           "target_name": "Lost Faith",
           "target_type": "item",
           "quantity": 1
@@ -60810,7 +60810,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect An Octorunner (drops from Priel Malarist).",
+          "description": "Collect An Octorunner.",
           "target_name": "An Octorunner",
           "target_type": "item",
           "quantity": 1
@@ -60818,7 +60818,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect A Frowny Clowny (drops from Priel Malarist).",
+          "description": "Collect A Frowny Clowny.",
           "target_name": "A Frowny Clowny",
           "target_type": "item",
           "quantity": 1
@@ -60826,7 +60826,7 @@
         {
           "order": 3,
           "action": "collect",
-          "description": "Collect Azure Mead (drops from Priel Malarist).",
+          "description": "Collect Azure Mead.",
           "target_name": "Azure Mead",
           "target_type": "item",
           "quantity": 1
@@ -61184,7 +61184,7 @@
         {
           "order": 3,
           "action": "collect",
-          "description": "Collect Elixir of Enlightenment II (drops from Lost Treasure (1-10), Lost Treasure (10-20)).",
+          "description": "Collect Elixir of Enlightenment II.",
           "target_name": "Elixir of Enlightenment II",
           "target_type": "item",
           "quantity": 1
@@ -61382,7 +61382,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Faded Journal Entry (drops from Raval, The First Paladin).",
+          "description": "Collect Faded Journal Entry.",
           "target_name": "Faded Journal Entry",
           "target_type": "item",
           "quantity": 1
@@ -61457,7 +61457,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect 4x An Octorunner (drops from Priel Malarist).",
+          "description": "Collect 4x An Octorunner.",
           "target_name": "An Octorunner",
           "target_type": "item",
           "quantity": 4
@@ -61619,7 +61619,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect 4x Ogrespice Leaf (drops from A Grassland Ogre Bruiser, A Grassland Ogre Mystic, A Grassland Ogre Sentinel).",
+          "description": "Collect 4x Ogrespice Leaf.",
           "target_name": "Ogrespice Leaf",
           "target_type": "item",
           "quantity": 4
@@ -61733,7 +61733,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Tempest Stone (drops from Upha, Priest of Brax).",
+          "description": "Collect Tempest Stone.",
           "target_name": "Tempest Stone",
           "target_type": "item",
           "quantity": 1
@@ -61866,7 +61866,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Sivakayan Boat Pass (drops from Sivakayan Devoted, Sivakayan Faithbound).",
+          "description": "Collect Sivakayan Boat Pass.",
           "target_name": "Sivakayan Boat Pass",
           "target_type": "item",
           "quantity": 1
@@ -61940,7 +61940,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Seaspice (drops from Cerynth Duskveil, Elizah Vernor, Ghost of Wyland Sercher).",
+          "description": "Collect Seaspice.",
           "target_name": "Seaspice",
           "target_type": "item",
           "quantity": 1
@@ -62323,7 +62323,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Rune of Sands (drops from Sand Mummy, Scorched Skeleton).",
+          "description": "Collect Rune of Sands.",
           "target_name": "Rune of Sands",
           "target_type": "item",
           "quantity": 1
@@ -62388,7 +62388,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Rune of Silkengrass (drops from Aetherfiend, Shadow Man).",
+          "description": "Collect Rune of Silkengrass.",
           "target_name": "Rune of Silkengrass",
           "target_type": "item",
           "quantity": 1
@@ -62573,7 +62573,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Heart of Astra (drops from Astra, Rogue of the Stars).",
+          "description": "Collect Heart of Astra.",
           "target_name": "Heart of Astra",
           "target_type": "item",
           "quantity": 1
@@ -62649,7 +62649,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Skull-Shaped Candleholder (drops from Eldoth Molorai).",
+          "description": "Collect Skull-Shaped Candleholder.",
           "target_name": "Skull-Shaped Candleholder",
           "target_type": "item",
           "quantity": 1
@@ -62665,7 +62665,7 @@
         {
           "order": 4,
           "action": "collect",
-          "description": "Collect Nighthollow Wick (drops from Darkwarden Awxa).",
+          "description": "Collect Nighthollow Wick.",
           "target_name": "Nighthollow Wick",
           "target_type": "item",
           "quantity": 1
@@ -62859,7 +62859,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Elderstone Shard (drops from A Deepling Brute, A Deepling Crimsonite, A Deepling Lunarite).",
+          "description": "Collect Elderstone Shard.",
           "target_name": "Elderstone Shard",
           "target_type": "item",
           "quantity": 1
@@ -62867,7 +62867,7 @@
         {
           "order": 3,
           "action": "collect",
-          "description": "Collect Chunk of Citrine Sandsilver (drops from Candlekeeper, Evadne the Corrupted).",
+          "description": "Collect Chunk of Citrine Sandsilver.",
           "target_name": "Chunk of Citrine Sandsilver",
           "target_type": "item",
           "quantity": 1
@@ -63171,7 +63171,7 @@
         {
           "order": 3,
           "action": "collect",
-          "description": "Collect Torn Treasure Map (Top Left) (drops from Molorai Archaeologist).",
+          "description": "Collect Torn Treasure Map (Top Left).",
           "target_name": "Torn Treasure Map (Top Left)",
           "target_type": "item",
           "quantity": 1
@@ -63262,7 +63262,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Ripper Insignia Badge (drops from Armorer Nell, Captain Ovid, Celeso the Historian).",
+          "description": "Collect Ripper Insignia Badge.",
           "target_name": "Ripper Insignia Badge",
           "target_type": "item",
           "quantity": 1
@@ -63372,7 +63372,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Sivakayan Encrypted Plans (drops from Sivakayan Voidmaster).",
+          "description": "Collect Sivakayan Encrypted Plans.",
           "target_name": "Sivakayan Encrypted Plans",
           "target_type": "item",
           "quantity": 1
@@ -63380,7 +63380,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Sivakayan Codex 1 of 4 (drops from Sivakayan Shadow).",
+          "description": "Collect Sivakayan Codex 1 of 4.",
           "target_name": "Sivakayan Codex 1 of 4",
           "target_type": "item",
           "quantity": 1
@@ -63388,7 +63388,7 @@
         {
           "order": 3,
           "action": "collect",
-          "description": "Collect Sivakayan Codex 2 of 4 (drops from Shrouded Sivakayan).",
+          "description": "Collect Sivakayan Codex 2 of 4.",
           "target_name": "Sivakayan Codex 2 of 4",
           "target_type": "item",
           "quantity": 1
@@ -63396,7 +63396,7 @@
         {
           "order": 4,
           "action": "collect",
-          "description": "Collect Sivakayan Codex 3 of 4 (drops from Sivakayan High Shadow).",
+          "description": "Collect Sivakayan Codex 3 of 4.",
           "target_name": "Sivakayan Codex 3 of 4",
           "target_type": "item",
           "quantity": 1
@@ -63404,7 +63404,7 @@
         {
           "order": 5,
           "action": "collect",
-          "description": "Collect Sivakayan Codex 4 of 4 (drops from Sivakayan Doomshade).",
+          "description": "Collect Sivakayan Codex 4 of 4.",
           "target_name": "Sivakayan Codex 4 of 4",
           "target_type": "item",
           "quantity": 1
@@ -63528,7 +63528,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Note from Eldoth (drops from Darkwarden Ilyth).",
+          "description": "Collect Note from Eldoth.",
           "target_name": "Note from Eldoth",
           "target_type": "item",
           "quantity": 1
@@ -63610,7 +63610,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Pink Pteriaped Feather (drops from Pteriaped Chick, Pteriaped Matron).",
+          "description": "Collect Pink Pteriaped Feather.",
           "target_name": "Pink Pteriaped Feather",
           "target_type": "item",
           "quantity": 1
@@ -63618,7 +63618,7 @@
         {
           "order": 3,
           "action": "collect",
-          "description": "Collect Devoratrix Thorn (drops from Devoratrix).",
+          "description": "Collect Devoratrix Thorn.",
           "target_name": "Devoratrix Thorn",
           "target_type": "item",
           "quantity": 1
@@ -63626,7 +63626,7 @@
         {
           "order": 4,
           "action": "collect",
-          "description": "Collect Intact Faerie Wing (drops from A Faerie Drone, A Faerie Enchantress, A Faerie Foliagian).",
+          "description": "Collect Intact Faerie Wing.",
           "target_name": "Intact Faerie Wing",
           "target_type": "item",
           "quantity": 1
@@ -63753,7 +63753,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Rottenfoot Sash (drops from A Rottenfoot Warrior, Rottenfoot Mauler, Rottenfoot Witchdoctor).",
+          "description": "Collect Rottenfoot Sash.",
           "target_name": "Rottenfoot Sash",
           "target_type": "item",
           "quantity": 1
@@ -63900,7 +63900,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Eye of Plaxitheris (drops from Plaxitheris).",
+          "description": "Collect Eye of Plaxitheris.",
           "target_name": "Eye of Plaxitheris",
           "target_type": "item",
           "quantity": 1
@@ -63973,7 +63973,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Ealdred's Journal (drops from Darkwarden Ealdred).",
+          "description": "Collect Ealdred's Journal.",
           "target_name": "Ealdred's Journal",
           "target_type": "item",
           "quantity": 1
@@ -64082,7 +64082,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Worn Shovel (drops from A Subterranean Goop, A Subterranean Magmite).",
+          "description": "Collect Worn Shovel.",
           "target_name": "Worn Shovel",
           "target_type": "item",
           "quantity": 1
@@ -64170,7 +64170,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Captured Light (drops from Warded Shadow).",
+          "description": "Collect Captured Light.",
           "target_name": "Captured Light",
           "target_type": "item",
           "quantity": 1
@@ -64241,7 +64241,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Sivakayan Intel (drops from Sivakayan Spymaster).",
+          "description": "Collect Sivakayan Intel.",
           "target_name": "Sivakayan Intel",
           "target_type": "item",
           "quantity": 1
@@ -64308,7 +64308,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Marching Orders (drops from Gherist Morthario).",
+          "description": "Collect Marching Orders.",
           "target_name": "Marching Orders",
           "target_type": "item",
           "quantity": 1
@@ -64423,7 +64423,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Sivakayan Intel (drops from Sivakayan Spymaster).",
+          "description": "Collect Sivakayan Intel.",
           "target_name": "Sivakayan Intel",
           "target_type": "item",
           "quantity": 1
@@ -64505,7 +64505,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect 4x Sivakayan Ore (drops from Candlekeeper, Darkwarden Awxa, Darkwarden Ealdred).",
+          "description": "Collect 4x Sivakayan Ore.",
           "target_name": "Sivakayan Ore",
           "target_type": "item",
           "quantity": 4
@@ -64660,7 +64660,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Sivakayan Encrypted Plans (drops from Sivakayan Voidmaster).",
+          "description": "Collect Sivakayan Encrypted Plans.",
           "target_name": "Sivakayan Encrypted Plans",
           "target_type": "item",
           "quantity": 1
@@ -64668,7 +64668,7 @@
         {
           "order": 3,
           "action": "collect",
-          "description": "Collect Sivakayan Codex 1 of 4 (drops from Sivakayan Shadow).",
+          "description": "Collect Sivakayan Codex 1 of 4.",
           "target_name": "Sivakayan Codex 1 of 4",
           "target_type": "item",
           "quantity": 1
@@ -64676,7 +64676,7 @@
         {
           "order": 4,
           "action": "collect",
-          "description": "Collect Sivakayan Codex 2 of 4 (drops from Shrouded Sivakayan).",
+          "description": "Collect Sivakayan Codex 2 of 4.",
           "target_name": "Sivakayan Codex 2 of 4",
           "target_type": "item",
           "quantity": 1
@@ -64684,7 +64684,7 @@
         {
           "order": 5,
           "action": "collect",
-          "description": "Collect Sivakayan Codex 3 of 4 (drops from Sivakayan High Shadow).",
+          "description": "Collect Sivakayan Codex 3 of 4.",
           "target_name": "Sivakayan Codex 3 of 4",
           "target_type": "item",
           "quantity": 1
@@ -64692,7 +64692,7 @@
         {
           "order": 6,
           "action": "collect",
-          "description": "Collect Sivakayan Codex 4 of 4 (drops from Sivakayan Doomshade).",
+          "description": "Collect Sivakayan Codex 4 of 4.",
           "target_name": "Sivakayan Codex 4 of 4",
           "target_type": "item",
           "quantity": 1
@@ -64820,7 +64820,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Note from Eldoth (drops from Darkwarden Ilyth).",
+          "description": "Collect Note from Eldoth.",
           "target_name": "Note from Eldoth",
           "target_type": "item",
           "quantity": 1
@@ -64935,7 +64935,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Stolen Memories (drops from Acolyte of Azynthi, Azynthi, Corruptor of Gods).",
+          "description": "Collect Stolen Memories.",
           "target_name": "Stolen Memories",
           "target_type": "item",
           "quantity": 1
@@ -65195,7 +65195,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect 3x Intact Fungal Cap (drops from Abyssal Fungus Protector, Abyssal Fungus Warrior).",
+          "description": "Collect 3x Intact Fungal Cap.",
           "target_name": "Intact Fungal Cap",
           "target_type": "item",
           "quantity": 3
@@ -65273,7 +65273,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Siva-Braxon Teachings (1) (drops from Arcane Pupil).",
+          "description": "Collect Siva-Braxon Teachings (1).",
           "target_name": "Siva-Braxon Teachings (1)",
           "target_type": "item",
           "quantity": 1
@@ -65281,7 +65281,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Siva-Braxon Teachings (2) (drops from Arcane Pupil).",
+          "description": "Collect Siva-Braxon Teachings (2).",
           "target_name": "Siva-Braxon Teachings (2)",
           "target_type": "item",
           "quantity": 1
@@ -65289,7 +65289,7 @@
         {
           "order": 3,
           "action": "collect",
-          "description": "Collect Siva-Braxon Teachings (3) (drops from Arcane Pupil).",
+          "description": "Collect Siva-Braxon Teachings (3).",
           "target_name": "Siva-Braxon Teachings (3)",
           "target_type": "item",
           "quantity": 1
@@ -65594,7 +65594,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Blightwood Slab (drops from Blighted Jackal, Lupine Horror, Parzgil).",
+          "description": "Collect Blightwood Slab.",
           "target_name": "Blightwood Slab",
           "target_type": "item",
           "quantity": 1
@@ -65602,7 +65602,7 @@
         {
           "order": 3,
           "action": "collect",
-          "description": "Collect 2x Blight Crystals (drops from Ancient Sentinel, Blight Demon, Blighted Priest).",
+          "description": "Collect 2x Blight Crystals.",
           "target_name": "Blight Crystals",
           "target_type": "item",
           "quantity": 2
@@ -65610,7 +65610,7 @@
         {
           "order": 4,
           "action": "collect",
-          "description": "Collect Spark of the First Flame (drops from Braxon Prospect, Braxonian Ascended, Braxonian High Guard).",
+          "description": "Collect Spark of the First Flame.",
           "target_name": "Spark of the First Flame",
           "target_type": "item",
           "quantity": 1
@@ -65783,7 +65783,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Elderstone Shard (drops from A Deepling Brute, A Deepling Crimsonite, A Deepling Lunarite).",
+          "description": "Collect Elderstone Shard.",
           "target_name": "Elderstone Shard",
           "target_type": "item",
           "quantity": 1
@@ -65791,7 +65791,7 @@
         {
           "order": 3,
           "action": "collect",
-          "description": "Collect Ancient Coal (drops from Astra, Rogue of the Stars, Braxon Prospect, Braxonian Ascended).",
+          "description": "Collect Ancient Coal.",
           "target_name": "Ancient Coal",
           "target_type": "item",
           "quantity": 1
@@ -65799,7 +65799,7 @@
         {
           "order": 4,
           "action": "collect",
-          "description": "Collect Wolf Meat (drops from Alpha Wolf, Ancient Canine).",
+          "description": "Collect Wolf Meat.",
           "target_name": "Wolf Meat",
           "target_type": "item",
           "quantity": 1
@@ -65807,7 +65807,7 @@
         {
           "order": 5,
           "action": "collect",
-          "description": "Collect Pristine Grass Spider Carapace (drops from A Grass Spider, A Mature Grass Spider).",
+          "description": "Collect Pristine Grass Spider Carapace.",
           "target_name": "Pristine Grass Spider Carapace",
           "target_type": "item",
           "quantity": 1
@@ -66548,7 +66548,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Eldrich Crystal (drops from Azynthian Keeper).",
+          "description": "Collect Eldrich Crystal.",
           "target_name": "Eldrich Crystal",
           "target_type": "item",
           "quantity": 1
@@ -66772,7 +66772,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Loomingwood Branch (drops from Aviak, Devoratrix, Diva).",
+          "description": "Collect Loomingwood Branch.",
           "target_name": "Loomingwood Branch",
           "target_type": "item",
           "quantity": 1
@@ -66780,7 +66780,7 @@
         {
           "order": 3,
           "action": "collect",
-          "description": "Collect Essence of Nature (drops from Corrupted Oread, Dryad Spirit, Fernallan Guardian).",
+          "description": "Collect Essence of Nature.",
           "target_name": "Essence of Nature",
           "target_type": "item",
           "quantity": 1
@@ -66796,7 +66796,7 @@
         {
           "order": 5,
           "action": "collect",
-          "description": "Collect Droplet of the First Frost (drops from Historian of Braxonia).",
+          "description": "Collect Droplet of the First Frost.",
           "target_name": "Droplet of the First Frost",
           "target_type": "item",
           "quantity": 1
@@ -67063,7 +67063,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Pg. 1: Faded Entry (drops from A Skeleton Captain).",
+          "description": "Collect Pg. 1: Faded Entry.",
           "target_name": "Pg. 1: Faded Entry",
           "target_type": "item",
           "quantity": 1
@@ -67071,7 +67071,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Pg. 2: Faded Entry (drops from Molorai Captain Sigrid).",
+          "description": "Collect Pg. 2: Faded Entry.",
           "target_name": "Pg. 2: Faded Entry",
           "target_type": "item",
           "quantity": 1
@@ -67079,7 +67079,7 @@
         {
           "order": 3,
           "action": "collect",
-          "description": "Collect Pg. 3: Faded Entry (drops from Druo the Reborn).",
+          "description": "Collect Pg. 3: Faded Entry.",
           "target_name": "Pg. 3: Faded Entry",
           "target_type": "item",
           "quantity": 1
@@ -67087,7 +67087,7 @@
         {
           "order": 4,
           "action": "collect",
-          "description": "Collect Pg. 4: Faded Entry (drops from Spectral Torturer).",
+          "description": "Collect Pg. 4: Faded Entry.",
           "target_name": "Pg. 4: Faded Entry",
           "target_type": "item",
           "quantity": 1
@@ -67095,7 +67095,7 @@
         {
           "order": 5,
           "action": "collect",
-          "description": "Collect Pg. 5: Faded Entry (drops from Ravager, The First Infected).",
+          "description": "Collect Pg. 5: Faded Entry.",
           "target_name": "Pg. 5: Faded Entry",
           "target_type": "item",
           "quantity": 1
@@ -67103,7 +67103,7 @@
         {
           "order": 6,
           "action": "collect",
-          "description": "Collect Pg. 6: Faded Entry (drops from Pyroclast).",
+          "description": "Collect Pg. 6: Faded Entry.",
           "target_name": "Pg. 6: Faded Entry",
           "target_type": "item",
           "quantity": 1
@@ -67111,7 +67111,7 @@
         {
           "order": 7,
           "action": "collect",
-          "description": "Collect Pg. 7: Faded Entry (drops from Darkwarden Ealdred).",
+          "description": "Collect Pg. 7: Faded Entry.",
           "target_name": "Pg. 7: Faded Entry",
           "target_type": "item",
           "quantity": 1
@@ -67366,7 +67366,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Bread (drops from A Highwayman Marauder, A Highwayman Raider).",
+          "description": "Collect Bread.",
           "target_name": "Bread",
           "target_type": "item",
           "quantity": 1
@@ -67845,7 +67845,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect The Mathers Note (drops from The Corpse of Brice Mathers).",
+          "description": "Collect The Mathers Note.",
           "target_name": "The Mathers Note",
           "target_type": "item",
           "quantity": 1
@@ -67925,7 +67925,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Chapters of Descent, Passage 1 (drops from Acolyte, Prioress).",
+          "description": "Collect Chapters of Descent, Passage 1.",
           "target_name": "Chapters of Descent, Passage 1",
           "target_type": "item",
           "quantity": 1
@@ -67933,7 +67933,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Chapters of Descent, Passage 2 (drops from Acolyte, Prioress).",
+          "description": "Collect Chapters of Descent, Passage 2.",
           "target_name": "Chapters of Descent, Passage 2",
           "target_type": "item",
           "quantity": 1
@@ -67941,7 +67941,7 @@
         {
           "order": 3,
           "action": "collect",
-          "description": "Collect Chapters of Descent, Passage 3 (drops from Acceptor).",
+          "description": "Collect Chapters of Descent, Passage 3.",
           "target_name": "Chapters of Descent, Passage 3",
           "target_type": "item",
           "quantity": 1
@@ -67949,7 +67949,7 @@
         {
           "order": 4,
           "action": "collect",
-          "description": "Collect Chapters of Descent, Passage 4 (drops from Ecclesiarch, Lazalith, Soldier of Sivakaya).",
+          "description": "Collect Chapters of Descent, Passage 4.",
           "target_name": "Chapters of Descent, Passage 4",
           "target_type": "item",
           "quantity": 1
@@ -68084,7 +68084,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Chapters of Descent, Passage 5 (drops from Aeiros, Soldier of Sivakaya, Astorim, Balthom, Soldier of Sivakaya).",
+          "description": "Collect Chapters of Descent, Passage 5.",
           "target_name": "Chapters of Descent, Passage 5",
           "target_type": "item",
           "quantity": 1
@@ -68092,7 +68092,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Chapters of Descent, Passage 6 (drops from Aeiros, Soldier of Sivakaya, Astorim, Balthom, Soldier of Sivakaya).",
+          "description": "Collect Chapters of Descent, Passage 6.",
           "target_name": "Chapters of Descent, Passage 6",
           "target_type": "item",
           "quantity": 1
@@ -68100,7 +68100,7 @@
         {
           "order": 3,
           "action": "collect",
-          "description": "Collect Chapters of Descent, Passage 7 (drops from Aeiros, Soldier of Sivakaya, Astorim, Balthom, Soldier of Sivakaya).",
+          "description": "Collect Chapters of Descent, Passage 7.",
           "target_name": "Chapters of Descent, Passage 7",
           "target_type": "item",
           "quantity": 1
@@ -68108,7 +68108,7 @@
         {
           "order": 4,
           "action": "collect",
-          "description": "Collect Chapters of Descent, Passage 8 (drops from Aeiros, Soldier of Sivakaya, Astorim, Balthom, Soldier of Sivakaya).",
+          "description": "Collect Chapters of Descent, Passage 8.",
           "target_name": "Chapters of Descent, Passage 8",
           "target_type": "item",
           "quantity": 1
@@ -68381,7 +68381,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Bread (drops from A Highwayman Marauder, A Highwayman Raider).",
+          "description": "Collect Bread.",
           "target_name": "Bread",
           "target_type": "item",
           "quantity": 1
@@ -68389,7 +68389,7 @@
         {
           "order": 3,
           "action": "collect",
-          "description": "Collect Brackfruit Juice (drops from A Fungal Sentinel, Aviak, Cloaked Shadow).",
+          "description": "Collect Brackfruit Juice.",
           "target_name": "Brackfruit Juice",
           "target_type": "item",
           "quantity": 1
@@ -68397,7 +68397,7 @@
         {
           "order": 4,
           "action": "collect",
-          "description": "Collect Coal (drops from Failed Cremation).",
+          "description": "Collect Coal.",
           "target_name": "Coal",
           "target_type": "item",
           "quantity": 1
@@ -69556,7 +69556,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Wardens of the North (drops from Ancient Celestarian, Ancient Guard, Ancient Knight).",
+          "description": "Collect Wardens of the North.",
           "target_name": "Wardens of the North",
           "target_type": "item",
           "quantity": 1
@@ -69642,7 +69642,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Bag of Faerie Dust (drops from A Faerie Drone, A Faerie Enchantress, A Faerie Foliagian).",
+          "description": "Collect Bag of Faerie Dust.",
           "target_name": "Bag of Faerie Dust",
           "target_type": "item",
           "quantity": 1
@@ -69650,7 +69650,7 @@
         {
           "order": 3,
           "action": "collect",
-          "description": "Collect Ancient Coal (drops from Astra, Rogue of the Stars, Braxon Prospect, Braxonian Ascended).",
+          "description": "Collect Ancient Coal.",
           "target_name": "Ancient Coal",
           "target_type": "item",
           "quantity": 1
@@ -69658,7 +69658,7 @@
         {
           "order": 4,
           "action": "collect",
-          "description": "Collect Remnants of a Daydream (drops from Dream Invader, Invader of Dreams, Nightmarian Arcanist).",
+          "description": "Collect Remnants of a Daydream.",
           "target_name": "Remnants of a Daydream",
           "target_type": "item",
           "quantity": 1
@@ -69666,7 +69666,7 @@
         {
           "order": 5,
           "action": "collect",
-          "description": "Collect Remnants of a Nightmare (drops from Dream Invader, Invader of Dreams, Nightmarian Arcanist).",
+          "description": "Collect Remnants of a Nightmare.",
           "target_name": "Remnants of a Nightmare",
           "target_type": "item",
           "quantity": 1
@@ -70520,7 +70520,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Planar Stone Shards (drops from Hypnic, Lost Treasure (1-10), Lost Treasure (10-20)).",
+          "description": "Collect Planar Stone Shards.",
           "target_name": "Planar Stone Shards",
           "target_type": "item",
           "quantity": 1
@@ -70528,7 +70528,7 @@
         {
           "order": 3,
           "action": "collect",
-          "description": "Collect Sivakrux (drops from Lost Treasure (1-10), Lost Treasure (10-20), Lost Treasure (20-30)).",
+          "description": "Collect Sivakrux.",
           "target_name": "Sivakrux",
           "target_type": "item",
           "quantity": 1
@@ -70536,7 +70536,7 @@
         {
           "order": 4,
           "action": "collect",
-          "description": "Collect Unborn Phobia (drops from Dream Invader, Invader of Dreams).",
+          "description": "Collect Unborn Phobia.",
           "target_name": "Unborn Phobia",
           "target_type": "item",
           "quantity": 1
@@ -70544,7 +70544,7 @@
         {
           "order": 5,
           "action": "collect",
-          "description": "Collect Ghostly Giant's Blood (drops from A Lost Sea Giant, The Lost Sea Giant King).",
+          "description": "Collect Ghostly Giant's Blood.",
           "target_name": "Ghostly Giant's Blood",
           "target_type": "item",
           "quantity": 1
@@ -70712,7 +70712,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Brashell (drops from Evadne the Corrupted).",
+          "description": "Collect Brashell.",
           "target_name": "Brashell",
           "target_type": "item",
           "quantity": 1
@@ -70783,7 +70783,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Secrets of Creation (drops from Azynthian Keeper).",
+          "description": "Collect Secrets of Creation.",
           "target_name": "Secrets of Creation",
           "target_type": "item",
           "quantity": 1
@@ -70867,7 +70867,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Secrets of Creation (drops from Azynthian Keeper).",
+          "description": "Collect Secrets of Creation.",
           "target_name": "Secrets of Creation",
           "target_type": "item",
           "quantity": 1
@@ -71000,7 +71000,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Small Engraved Compass (drops from Restless Thoughts).",
+          "description": "Collect Small Engraved Compass.",
           "target_name": "Small Engraved Compass",
           "target_type": "item",
           "quantity": 1
@@ -71077,7 +71077,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect A Moongill (drops from Frenzy, Grappler, Plaxitheris).",
+          "description": "Collect A Moongill.",
           "target_name": "A Moongill",
           "target_type": "item",
           "quantity": 1
@@ -71237,7 +71237,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Ancient Fang (drops from Dream).",
+          "description": "Collect Ancient Fang.",
           "target_name": "Ancient Fang",
           "target_type": "item",
           "quantity": 1
@@ -71245,7 +71245,7 @@
         {
           "order": 3,
           "action": "collect",
-          "description": "Collect Eternal Ice (drops from Shiverman).",
+          "description": "Collect Eternal Ice.",
           "target_name": "Eternal Ice",
           "target_type": "item",
           "quantity": 1
@@ -71253,7 +71253,7 @@
         {
           "order": 4,
           "action": "collect",
-          "description": "Collect Thief of Breath (drops from Ghost of Plaxitheris, Shadow of Sleep, Shiverman).",
+          "description": "Collect Thief of Breath.",
           "target_name": "Thief of Breath",
           "target_type": "item",
           "quantity": 1
@@ -71261,7 +71261,7 @@
         {
           "order": 5,
           "action": "collect",
-          "description": "Collect Death's Decay (drops from Ghost of Plaxitheris, Shadow of Sleep, Shiverman).",
+          "description": "Collect Death's Decay.",
           "target_name": "Death's Decay",
           "target_type": "item",
           "quantity": 1
@@ -71269,7 +71269,7 @@
         {
           "order": 6,
           "action": "collect",
-          "description": "Collect Soul of a Ghostly Beast (drops from Ghost of Plaxitheris).",
+          "description": "Collect Soul of a Ghostly Beast.",
           "target_name": "Soul of a Ghostly Beast",
           "target_type": "item",
           "quantity": 1
@@ -71488,7 +71488,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Torn Note (drops from Ghost of Wyland Sercher).",
+          "description": "Collect Torn Note.",
           "target_name": "Torn Note",
           "target_type": "item",
           "quantity": 1
@@ -71725,7 +71725,7 @@
         {
           "order": 2,
           "action": "collect",
-          "description": "Collect Willow Soil (drops from Sylvan Giant Runt).",
+          "description": "Collect Willow Soil.",
           "target_name": "Willow Soil",
           "target_type": "item",
           "quantity": 1
@@ -71794,7 +71794,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Wishlan's Hope (drops from Cinder).",
+          "description": "Collect Wishlan's Hope.",
           "target_name": "Wishlan's Hope",
           "target_type": "item",
           "quantity": 1
@@ -71899,7 +71899,7 @@
         {
           "order": 1,
           "action": "collect",
-          "description": "Collect Wolf Meat (drops from Alpha Wolf, Ancient Canine).",
+          "description": "Collect Wolf Meat.",
           "target_name": "Wolf Meat",
           "target_type": "item",
           "quantity": 1
