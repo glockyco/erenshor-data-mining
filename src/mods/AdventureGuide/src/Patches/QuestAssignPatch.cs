@@ -1,3 +1,4 @@
+using AdventureGuide.Navigation;
 using AdventureGuide.State;
 using HarmonyLib;
 
@@ -7,10 +8,12 @@ namespace AdventureGuide.Patches;
 internal static class QuestAssignPatch
 {
     internal static QuestStateTracker? Tracker;
+    internal static NavigationController? Nav;
 
     [HarmonyPostfix]
     private static void Postfix(string _questName)
     {
         Tracker?.OnQuestAssigned(_questName);
+        Nav?.OnQuestAssigned(_questName, Tracker?.CurrentZone ?? "");
     }
 }

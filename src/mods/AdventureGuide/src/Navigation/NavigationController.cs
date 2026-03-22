@@ -107,6 +107,44 @@ public sealed class NavigationController
     }
 
     /// <summary>
+    /// Called when a quest is assigned. If we're navigating step 1 (the
+    /// acquisition step) of that quest, advance to the next navigable step.
+    /// </summary>
+    public void OnQuestAssigned(string questDBName, string currentScene)
+    {
+        if (Target == null || Target.QuestDBName != questDBName)
+            return;
+
+        // Only auto-advance from the acquisition step (step 1)
+        if (Target.StepOrder != 1)
+            return;
+
+        AdvanceToNextStep(questDBName, 1, currentScene);
+    }
+
+    /// <summary>
+    /// Try to navigate to the next step after the given step order.
+    /// Scans forward through the quest's steps for the first one with a target_key.
+    /// </summary>
+    private void AdvanceToNextStep(string questDBName, int completedStepOrder, string currentScene)
+    {
+        var quest = _data.GetByDBName(questDBName);
+        if (quest?.Steps == null) return;
+
+        foreach (var step in quest.Steps)
+        {
+            if (step.Order <= completedStepOrder) continue;
+            if (step.TargetKey == null) continue;
+
+            NavigateTo(step, quest, currentScene);
+            return;
+        }
+
+        // No more navigable steps — clear
+        Clear();
+    }
+
+    /// <summary>
     /// Call each frame. Updates distance/direction to the active target.
     /// Upgrades to live NPC position when one becomes available.
     /// Routes through zone lines for cross-zone targets.
