@@ -29,6 +29,8 @@ public sealed class Plugin : BaseUnityPlugin
     private NavigationController? _nav;
     private ArrowRenderer? _arrow;
     private GroundPathRenderer? _groundPath;
+    private WorldMarkerSystem? _markers;
+    private SpawnTimerTracker? _timers;
     private ImGuiRenderer? _imgui;
     private GuideWindow? _window;
 
@@ -53,9 +55,14 @@ public sealed class Plugin : BaseUnityPlugin
         _arrow.Enabled = _config.ShowArrow.Value;
         _config.ShowArrow.SettingChanged += OnShowArrowChanged;
 
+        _timers = new SpawnTimerTracker();
         _groundPath = new GroundPathRenderer(_nav);
         _groundPath.Enabled = _config.ShowGroundPath.Value;
         _config.ShowGroundPath.SettingChanged += OnShowGroundPathChanged;
+
+        _markers = new WorldMarkerSystem(_data, _state, _entities, _timers);
+        _markers.Enabled = _config.ShowWorldMarkers.Value;
+        _config.ShowWorldMarkers.SettingChanged += OnShowWorldMarkersChanged;
 
         _window = new GuideWindow(_data, _state, _nav);
         _window.Filter.LoadFrom(_config);
@@ -77,7 +84,10 @@ public sealed class Plugin : BaseUnityPlugin
         InventoryPatch.Tracker = _state;
         InventoryPatch.Nav = _nav;
         SpawnPatch.Registry = _entities;
+        SpawnPatch.Timers = _timers;
         DeathPatch.Registry = _entities;
+        DeathPatch.Timers = _timers;
+        QuestMarkerPatch.SuppressGameMarkers = _config.ShowWorldMarkers.Value;
         PointerOverUIPatch.Renderer = _imgui;
         SceneManager.sceneLoaded += OnSceneLoaded;
 
@@ -111,6 +121,7 @@ public sealed class Plugin : BaseUnityPlugin
         var currentZone = _state?.CurrentZone ?? "";
         _nav?.Update(currentZone);
         _groundPath?.Update(currentZone);
+        _markers?.Update(currentZone);
 
         if (_config == null || _window == null) return;
         if (GameData.PlayerTyping) return;
@@ -131,6 +142,7 @@ public sealed class Plugin : BaseUnityPlugin
     {
         CameraCache.Invalidate();
         _entities?.Clear();
+        _timers?.Clear();
         _state?.OnSceneChanged(scene.name);
     }
 
@@ -140,6 +152,15 @@ public sealed class Plugin : BaseUnityPlugin
     private void OnShowGroundPathChanged(object sender, System.EventArgs e) =>
         _groundPath!.Enabled = _config!.ShowGroundPath.Value;
 
+    private void OnShowWorldMarkersChanged(object sender, System.EventArgs e)
+    {
+        bool enabled = _config!.ShowWorldMarkers.Value;
+        _markers!.Enabled = enabled;
+        QuestMarkerPatch.SuppressGameMarkers = enabled;
+        // When disabling, restore game markers on next NPC spawn
+        // When enabling, game markers are suppressed via the prefix patch
+    }
+
     private void OnDestroy()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
@@ -147,11 +168,15 @@ public sealed class Plugin : BaseUnityPlugin
         {
             _config.ShowArrow.SettingChanged -= OnShowArrowChanged;
             _config.ShowGroundPath.SettingChanged -= OnShowGroundPathChanged;
+            _config.ShowWorldMarkers.SettingChanged -= OnShowWorldMarkersChanged;
+            QuestMarkerPatch.SuppressGameMarkers = false;
         }
         _harmony?.UnpatchSelf();
         _imgui?.Dispose();
         _arrow?.Dispose();
         _groundPath?.Destroy();
+        _markers?.Destroy();
+        _timers?.Clear();
         _entities?.Clear();
 
         DebugAPI.Data = null;
