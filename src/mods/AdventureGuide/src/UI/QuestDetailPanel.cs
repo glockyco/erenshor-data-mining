@@ -210,40 +210,16 @@ public sealed class QuestDetailPanel
             text += $" ({have}/{step.Quantity})";
         }
 
-        // Step-level suffix
+        // Step-level suffix: for collect steps just the level (sources shown below),
+        // for non-collect steps include the zone name since there's no source list
         if (step.LevelEstimate?.Recommended is int stepLvl)
-            text += $"  \u00b7  Lv {stepLvl}";
-
-        ImGui.PushStyleColor(ImGuiCol.Text, color);
-        ImGui.Text(text);
-        ImGui.PopStyleColor();
-
-        // Step-level tooltip: factor breakdown on hover
-        if (ImGui.IsItemHovered() && step.LevelEstimate?.Factors is { Count: > 0 } factors)
         {
-            ImGui.BeginTooltip();
-            string header = step.Action is "collect" or "read"
-                ? "Sources by level"
-                : "Zone level";
-            ImGui.Text(header);
-            // Sort factors by level for the tooltip
-            var sorted = new List<LevelFactor>(factors);
-            sorted.Sort((a, b) => a.Level.CompareTo(b.Level));
-            ImGui.Separator();
-            int shown = 0;
-            foreach (var f in sorted)
-            {
-                if (shown >= 5) break;
-                string label = FactorSourceLabel(f.Source);
-                ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
-                ImGui.Text($"  {label}: {f.Name}  Lv {f.Level}");
-                ImGui.PopStyleColor();
-                shown++;
-            }
-            if (factors.Count > 5)
-            if (sorted.Count > 5)
-                ImGui.Text($"  ...and {sorted.Count - 5} more");
-            ImGui.EndTooltip();
+            if (step.Action is "collect" or "read")
+                text += $"  \u00b7  Lv {stepLvl}";
+            else if (step.LevelEstimate.Factors is { Count: > 0 })
+                text += $"  \u00b7  Lv {stepLvl} ({step.LevelEstimate.Factors[0].Name})";
+            else
+                text += $"  \u00b7  Lv {stepLvl}";
         }
 
         // Drop/vendor sources and tips for collect steps
@@ -390,17 +366,6 @@ public sealed class QuestDetailPanel
 
         DrawTips(step);
     }
-
-    private static string FactorSourceLabel(string source) => source switch
-    {
-        "enemy_level" => "Enemy",
-        "vendor_zone" => "Vendor",
-        "fishing_zone" => "Fishing",
-        "mining_zone" => "Mining",
-        "pickup_zone" => "Pickup",
-        "zone_median" => "Zone",
-        _ => source,
-    };
 
     private void DrawTips(QuestStep step)
     {
