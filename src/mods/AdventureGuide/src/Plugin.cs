@@ -3,6 +3,7 @@ using BepInEx.Logging;
 using HarmonyLib;
 using AdventureGuide.Config;
 using AdventureGuide.Data;
+using AdventureGuide.ImGui;
 using AdventureGuide.Patches;
 using AdventureGuide.State;
 using AdventureGuide.UI;
@@ -23,7 +24,8 @@ public sealed class Plugin : BaseUnityPlugin
     private GuideData? _data;
     private QuestStateTracker? _state;
     private GuideWindow? _window;
-
+    private ImGuiRenderer? _imgui;
+    private bool _imguiAvailable;
     private void Awake()
     {
         Log = Logger;
@@ -47,7 +49,28 @@ public sealed class Plugin : BaseUnityPlugin
         // load event fires, so without this the tracker starts empty)
         _state.OnSceneChanged(SceneManager.GetActiveScene().name);
 
+        // Initialize Dear ImGui rendering (optional — falls back to IMGUI if it fails)
+        _imgui = new ImGuiRenderer(Log);
+        _imguiAvailable = _imgui.Init();
+        if (_imguiAvailable)
+        {
+            _imgui.OnLayout = DrawImGui;
+            Log.LogInfo("Dear ImGui initialized — press F9 for demo window");
+        }
+        else
+        {
+            Log.LogWarning("Dear ImGui init failed — using Unity IMGUI fallback");
+        }
+
         Log.LogInfo($"{PluginInfo.Name} v{PluginInfo.Version} loaded ({_data.Count} quests)");
+    }
+
+    private bool _showDemoWindow;
+
+    private void DrawImGui()
+    {
+        if (_showDemoWindow)
+            ImGuiNET.ImGui.ShowDemoWindow(ref _showDemoWindow);
     }
 
     private void Update()
@@ -60,11 +83,16 @@ public sealed class Plugin : BaseUnityPlugin
 
         if (_config.ReplaceQuestLog.Value && Input.GetKeyDown(KeyCode.J))
             _window.Toggle();
+
+        // F9 toggles Dear ImGui demo window (spike test)
+        if (_imguiAvailable && Input.GetKeyDown(KeyCode.F9))
+            _showDemoWindow = !_showDemoWindow;
     }
 
     private void OnGUI()
     {
         _window?.Draw();
+        _imgui?.OnGUI();
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -76,5 +104,6 @@ public sealed class Plugin : BaseUnityPlugin
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
         _harmony?.UnpatchSelf();
+        _imgui?.Dispose();
     }
 }
