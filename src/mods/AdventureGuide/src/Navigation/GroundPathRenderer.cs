@@ -124,19 +124,29 @@ public sealed class GroundPathRenderer
         if (_pathValid && !targetMoved && !playerMoved)
             return false;
 
+        // Snap player position to the NavMesh surface. Without this, an
+        // airborne player (jumping, falling) produces an off-mesh source
+        // position that makes CalculatePath fail, hiding the path mid-jump.
+        if (!NavMesh.SamplePosition(playerPos, out var navHit, 5f, NavMesh.AllAreas))
+        {
+            // Player is too far from any NavMesh surface — keep showing the
+            // last valid path rather than hiding it.
+            return false;
+        }
+
         _lastCalcPlayerPos = playerPos;
         _lastCalcTargetPos = targetPos;
 
         _path.ClearCorners();
-        _pathValid = NavMesh.CalculatePath(playerPos, targetPos, NavMesh.AllAreas, _path);
+        bool pathFound = NavMesh.CalculatePath(navHit.position, targetPos, NavMesh.AllAreas, _path);
 
-        if (_path.status == NavMeshPathStatus.PathInvalid)
+        if (!pathFound || _path.status == NavMeshPathStatus.PathInvalid)
         {
-            _pathValid = false;
-            _cornerCount = 0;
-            return true;
+            // Keep the previous valid path visible rather than flickering
+            return false;
         }
 
+        _pathValid = true;
         _cornerCount = _path.GetCornersNonAlloc(_corners);
         if (_cornerCount >= _corners.Length)
         {
