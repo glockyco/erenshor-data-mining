@@ -2,12 +2,16 @@ namespace AdventureGuide.State;
 
 /// <summary>
 /// Tracks player quest state from Harmony patch callbacks.
-/// Provides dirty flag for lazy UI updates.
+/// Caches inventory counts and step progress to avoid per-frame scans.
 /// </summary>
 public sealed class QuestStateTracker
 {
     private readonly HashSet<string> _activeQuests = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> _completedQuests = new(StringComparer.OrdinalIgnoreCase);
+
+    // Cached inventory counts, invalidated on OnInventoryChanged
+    private readonly Dictionary<string, int> _inventoryCache = new(StringComparer.OrdinalIgnoreCase);
+    private bool _inventoryDirty = true;
 
     public bool IsDirty { get; set; }
     public string CurrentZone { get; set; } = "";
@@ -33,6 +37,7 @@ public sealed class QuestStateTracker
             foreach (var q in GameData.CompletedQuests)
                 _completedQuests.Add(q);
 
+        _inventoryDirty = true;
         IsDirty = true;
     }
 
@@ -49,7 +54,11 @@ public sealed class QuestStateTracker
         IsDirty = true;
     }
 
-    public void OnInventoryChanged() => IsDirty = true;
+    public void OnInventoryChanged()
+    {
+        _inventoryDirty = true;
+        IsDirty = true;
+    }
 
     public void OnSceneChanged(string sceneName)
     {
@@ -57,20 +66,29 @@ public sealed class QuestStateTracker
         SyncFromGameData();
     }
 
-    /// <summary>Count items matching a display name in player inventory.</summary>
+    /// <summary>Count items matching a display name in player inventory (cached).</summary>
     public int CountItemInInventory(string itemDisplayName)
     {
-        if (GameData.PlayerInv?.StoredSlots == null) return 0;
+        if (_inventoryDirty)
+            RebuildInventoryCache();
 
-        int count = 0;
+        return _inventoryCache.TryGetValue(itemDisplayName, out int count) ? count : 0;
+    }
+
+    private void RebuildInventoryCache()
+    {
+        _inventoryCache.Clear();
+        _inventoryDirty = false;
+
+        if (GameData.PlayerInv?.StoredSlots == null) return;
+
         foreach (var slot in GameData.PlayerInv.StoredSlots)
         {
-            if (slot?.MyItem != null &&
-                string.Equals(slot.MyItem.ItemName, itemDisplayName, StringComparison.OrdinalIgnoreCase))
+            if (slot?.MyItem != null)
             {
-                count++;
+                var name = slot.MyItem.ItemName;
+                _inventoryCache[name] = _inventoryCache.TryGetValue(name, out int c) ? c + 1 : 1;
             }
         }
-        return count;
     }
 }
