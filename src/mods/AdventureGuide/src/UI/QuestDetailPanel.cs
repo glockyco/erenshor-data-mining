@@ -222,6 +222,10 @@ public sealed class QuestDetailPanel
                 text += $"  \u00b7  Lv {stepLvl}";
         }
 
+        ImGui.PushStyleColor(ImGuiCol.Text, color);
+        ImGui.Text(text);
+        ImGui.PopStyleColor();
+
         // Drop/vendor sources and tips for collect steps
         DrawStepSources(step);
     }
