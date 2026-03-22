@@ -59,7 +59,12 @@ public sealed class Plugin : BaseUnityPlugin
             _groundPath.Enabled = _config.ShowGroundPath.Value;
 
         _window = new GuideWindow(_data, _state, _nav);
-        _imgui.OnLayout = () => { _window.Draw(); _arrow!.Draw(); _groundPath!.Draw(); };
+        _imgui.OnLayout = () =>
+        {
+            _window.Draw();
+            _arrow!.Draw();
+            _groundPath!.Draw(_state?.CurrentZone ?? "");
+        };
 
         // Wire DebugAPI for HotRepl inspection
         DebugAPI.Data = _data;
@@ -122,6 +127,7 @@ public sealed class Plugin : BaseUnityPlugin
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        CameraCache.Invalidate();
         _entities?.Clear();
         _state?.OnSceneChanged(scene.name);
     }

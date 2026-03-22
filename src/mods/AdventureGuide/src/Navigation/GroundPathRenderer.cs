@@ -29,6 +29,8 @@ public sealed class GroundPathRenderer
 
     private readonly NavigationController _nav;
     private readonly NavMeshPath _path = new();
+    private Vector3[] _corners = new Vector3[64];
+    private int _cornerCount;
     private bool _enabled;
 
     // Track when to recalculate
@@ -52,7 +54,7 @@ public sealed class GroundPathRenderer
     /// needed, then projects path corners to screen space and draws them
     /// on the background draw list.
     /// </summary>
-    public void Draw()
+    public void Draw(string currentScene)
     {
         if (!_enabled || _nav.Target == null)
         {
@@ -60,7 +62,7 @@ public sealed class GroundPathRenderer
             return;
         }
 
-        var cam = GameData.GameCamPos?.GetComponent<Camera>();
+        var cam = CameraCache.Get();
         if (cam == null) return;
 
         var playerPos = GameData.PlayerControl?.transform.position;
@@ -69,8 +71,7 @@ public sealed class GroundPathRenderer
         var effectiveTarget = _nav.ZoneLineWaypoint ?? _nav.Target;
 
         // Only calculate path for same-zone targets
-        if (effectiveTarget.IsCrossZone(
-            UnityEngine.SceneManagement.SceneManager.GetActiveScene().name))
+        if (effectiveTarget.IsCrossZone(currentScene))
         {
             _pathValid = false;
             return;
@@ -78,7 +79,7 @@ public sealed class GroundPathRenderer
 
         RecalculateIfNeeded(playerPos.Value, effectiveTarget.Position);
 
-        if (!_pathValid || _path.corners.Length < 2)
+        if (!_pathValid || _cornerCount < 2)
             return;
 
         var drawList = CimguiNative.igGetBackgroundDrawList_Nil();
@@ -103,18 +104,30 @@ public sealed class GroundPathRenderer
 
         // PathPartial is still useful — show what we have
         if (_path.status == NavMeshPathStatus.PathInvalid)
+        {
             _pathValid = false;
+            _cornerCount = 0;
+            return;
+        }
+
+        // GetCornersNonAlloc avoids the Vector3[] allocation from .corners
+        _cornerCount = _path.GetCornersNonAlloc(_corners);
+        if (_cornerCount >= _corners.Length)
+        {
+            // Rare: path has more corners than our buffer. Resize and retry.
+            _corners = new Vector3[_cornerCount * 2];
+            _cornerCount = _path.GetCornersNonAlloc(_corners);
+        }
     }
 
     private void DrawPath(System.IntPtr drawList, Camera cam)
     {
-        var corners = _path.corners;
         float sh = Screen.height;
 
-        for (int i = 0; i < corners.Length - 1; i++)
+        for (int i = 0; i < _cornerCount - 1; i++)
         {
-            var sp1 = cam.WorldToScreenPoint(corners[i]);
-            var sp2 = cam.WorldToScreenPoint(corners[i + 1]);
+            var sp1 = cam.WorldToScreenPoint(_corners[i]);
+            var sp2 = cam.WorldToScreenPoint(_corners[i + 1]);
 
             // Skip segments entirely behind camera
             if (sp1.z < 0 && sp2.z < 0) continue;

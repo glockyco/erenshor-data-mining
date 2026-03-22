@@ -14,6 +14,9 @@ public sealed class NavigationController
     private readonly GuideData _data;
     private readonly EntityRegistry _entities;
 
+    // Cache to avoid per-frame zone line waypoint allocation
+    private ZoneLineEntry? _cachedZoneLine;
+
     /// <summary>Currently active navigation target, or null if not navigating.</summary>
     public NavigationTarget? Target { get; private set; }
 
@@ -117,18 +120,12 @@ public sealed class NavigationController
 
         ZoneLineWaypoint = null;
 
-        // Same zone: upgrade to closest live NPC position
+        // Same zone: update position from closest live NPC (mutate in place)
         if (Target.TargetKind == NavigationTarget.Kind.Character)
         {
             var liveNpc = _entities.FindClosest(Target.DisplayName, playerPos.Value);
             if (liveNpc != null)
-            {
-                Target = MakeTarget(
-                    Target.TargetKind, liveNpc.transform.position,
-                    Target.DisplayName, Target.Scene,
-                    Target.QuestDBName, Target.StepOrder,
-                    Target.TargetKey);
-            }
+                Target.Position = liveNpc.transform.position;
         }
 
         UpdateDistanceAndDirection(Target.Position, playerPos.Value);
@@ -172,7 +169,8 @@ public sealed class NavigationController
         if (destZoneKey == null)
             return false;
 
-        var zoneLine = FindClosestZoneLine(destZoneKey, currentScene);
+        var playerPos = GetPlayerPosition() ?? Vector3.zero;
+        var zoneLine = FindClosestZoneLine(destZoneKey, currentScene, playerPos);
         if (zoneLine == null)
             return false;
 
@@ -221,7 +219,8 @@ public sealed class NavigationController
         string? zoneKey = FindZoneKeyByDisplayName(firstZone);
         if (zoneKey == null) return false;
 
-        var zl = FindClosestZoneLine(zoneKey, currentScene);
+        var zlPlayerPos = GetPlayerPosition() ?? Vector3.zero;
+        var zl = FindClosestZoneLine(zoneKey, currentScene, zlPlayerPos);
         if (zl == null) return false;
 
         Target = MakeTarget(
@@ -241,7 +240,7 @@ public sealed class NavigationController
 
         // Prefer a zone line leading directly to the target's zone
         var directLine = targetZoneKey != null
-            ? FindClosestZoneLine(targetZoneKey, currentScene)
+            ? FindClosestZoneLine(targetZoneKey, currentScene, playerPos)
             : null;
 
         // Fallback: closest zone line in the current scene (heuristic)
@@ -249,17 +248,24 @@ public sealed class NavigationController
 
         if (bestLine != null)
         {
-            ZoneLineWaypoint = MakeTarget(
-                NavigationTarget.Kind.ZoneLine,
-                new Vector3(bestLine.X, bestLine.Y, bestLine.Z),
-                $"To {bestLine.DestinationDisplay}",
-                currentScene,
-                Target.QuestDBName, Target.StepOrder);
+            // Only rebuild ZoneLineWaypoint when the chosen zone line changes
+            if (_cachedZoneLine != bestLine)
+            {
+                _cachedZoneLine = bestLine;
+                ZoneLineWaypoint = MakeTarget(
+                    NavigationTarget.Kind.ZoneLine,
+                    new Vector3(bestLine.X, bestLine.Y, bestLine.Z),
+                    $"To {bestLine.DestinationDisplay}",
+                    currentScene,
+                    Target.QuestDBName, Target.StepOrder);
+            }
 
-            UpdateDistanceAndDirection(ZoneLineWaypoint.Position, playerPos);
+            UpdateDistanceAndDirection(ZoneLineWaypoint!.Position, playerPos);
         }
         else
         {
+            _cachedZoneLine = null;
+            ZoneLineWaypoint = null;
             // No zone line found — point directly at the target
             UpdateDistanceAndDirection(Target.Position, playerPos);
         }
@@ -297,9 +303,9 @@ public sealed class NavigationController
 
     // ── Zone line helpers ──────────────────────────────────────────
 
-    private ZoneLineEntry? FindClosestZoneLine(string destinationZoneKey, string currentScene)
+    private ZoneLineEntry? FindClosestZoneLine(
+        string destinationZoneKey, string currentScene, Vector3 playerPos)
     {
-        var playerPos = GetPlayerPosition();
         ZoneLineEntry? best = null;
         float bestDist = float.MaxValue;
 
@@ -310,15 +316,8 @@ public sealed class NavigationController
             if (!string.Equals(zl.DestinationZoneKey, destinationZoneKey, System.StringComparison.OrdinalIgnoreCase))
                 continue;
 
-            if (playerPos.HasValue)
-            {
-                float dist = Vector3.Distance(playerPos.Value, new Vector3(zl.X, zl.Y, zl.Z));
-                if (dist < bestDist) { bestDist = dist; best = zl; }
-            }
-            else
-            {
-                best ??= zl;
-            }
+            float dist = Vector3.Distance(playerPos, new Vector3(zl.X, zl.Y, zl.Z));
+            if (dist < bestDist) { bestDist = dist; best = zl; }
         }
 
         return best;

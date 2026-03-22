@@ -55,9 +55,7 @@ public sealed class ArrowRenderer
         var drawList = CimguiNative.igGetBackgroundDrawList_Nil();
         if (drawList == System.IntPtr.Zero) return;
 
-        // Get game camera for world-to-screen projection.
-        // Camera.main is null (not tagged "MainCamera"), so use GameData.
-        var cam = GameData.GameCamPos?.GetComponent<Camera>();
+        var cam = CameraCache.Get();
         if (cam == null) return;
 
         var effectiveTarget = _nav.ZoneLineWaypoint ?? _nav.Target;

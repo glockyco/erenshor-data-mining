@@ -10,10 +10,21 @@ namespace AdventureGuide.Navigation;
 /// Lookups are O(1) by NPC display name. Stale entries (destroyed GameObjects,
 /// dead NPCs missed by the death patch — e.g. night despawn) are filtered out
 /// on access and pruned lazily.
+///
+/// Character components are cached at registration to avoid per-frame
+/// GetComponent calls in the IsAlive check.
 /// </summary>
 public sealed class EntityRegistry
 {
-    private readonly Dictionary<string, List<NPC>> _byName = new(System.StringComparer.OrdinalIgnoreCase);
+    /// <summary>NPC + cached Character component to avoid per-frame GetComponent.</summary>
+    private readonly struct Entry
+    {
+        public readonly NPC Npc;
+        public readonly Character Character;
+        public Entry(NPC npc, Character character) { Npc = npc; Character = character; }
+    }
+
+    private readonly Dictionary<string, List<Entry>> _byName = new(System.StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     /// Register a newly spawned NPC. Called from SpawnPatch postfix.
@@ -24,12 +35,15 @@ public sealed class EntityRegistry
         string name = npc.NPCName;
         if (string.IsNullOrEmpty(name)) return;
 
+        var character = npc.GetComponent<Character>();
+        if (character == null) return;
+
         if (!_byName.TryGetValue(name, out var list))
         {
-            list = new List<NPC>(2);
+            list = new List<Entry>(2);
             _byName[name] = list;
         }
-        list.Add(npc);
+        list.Add(new Entry(npc, character));
     }
 
     /// <summary>
@@ -43,7 +57,9 @@ public sealed class EntityRegistry
 
         if (_byName.TryGetValue(name, out var list))
         {
-            list.Remove(npc);
+            for (int i = list.Count - 1; i >= 0; i--)
+                if (list[i].Npc == npc)
+                    list.RemoveAt(i);
             if (list.Count == 0)
                 _byName.Remove(name);
         }
@@ -80,20 +96,20 @@ public sealed class EntityRegistry
 
         for (int i = list.Count - 1; i >= 0; i--)
         {
-            var npc = list[i];
+            var entry = list[i];
 
             // Prune stale: destroyed GameObject or dead NPC
-            if (!IsAlive(npc))
+            if (!IsAlive(entry))
             {
                 list.RemoveAt(i);
                 continue;
             }
 
-            float dist = Vector3.Distance(position, npc.transform.position);
+            float dist = Vector3.Distance(position, entry.Npc.transform.position);
             if (dist < bestDist)
             {
                 bestDist = dist;
-                best = npc;
+                best = entry.Npc;
             }
         }
 
@@ -127,10 +143,11 @@ public sealed class EntityRegistry
         return alive;
     }
 
-    private static bool IsAlive(NPC? npc)
+    private static bool IsAlive(in Entry entry)
     {
-        if (npc == null || npc.gameObject == null) return false;
-        var character = npc.GetComponent<Character>();
-        return character != null && character.Alive;
+        return entry.Npc != null
+            && entry.Npc.gameObject != null
+            && entry.Character != null
+            && entry.Character.Alive;
     }
 }

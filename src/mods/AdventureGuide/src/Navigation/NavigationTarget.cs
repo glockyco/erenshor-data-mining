@@ -3,7 +3,8 @@ using UnityEngine;
 namespace AdventureGuide.Navigation;
 
 /// <summary>
-/// What we're navigating to. Immutable value — a new target replaces the old one.
+/// What we're navigating to. Position is mutable to allow in-place updates
+/// when a live NPC moves, avoiding per-frame heap allocation.
 /// </summary>
 public sealed class NavigationTarget
 {
@@ -12,8 +13,8 @@ public sealed class NavigationTarget
     /// <summary>What kind of thing we're navigating to.</summary>
     public Kind TargetKind { get; }
 
-    /// <summary>World-space position of the target.</summary>
-    public Vector3 Position { get; }
+    /// <summary>World-space position of the target. Mutable for live tracking.</summary>
+    public Vector3 Position { get; set; }
 
     /// <summary>Display name shown to the player (NPC name, zone name, etc.).</summary>
     public string DisplayName { get; }
