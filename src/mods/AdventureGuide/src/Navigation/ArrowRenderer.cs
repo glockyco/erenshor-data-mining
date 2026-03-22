@@ -52,7 +52,7 @@ public sealed class ArrowRenderer
         if (!_enabled || _nav.Target == null || _nav.Distance < ArrivalDistance)
             return;
 
-        var drawList = CimguiNative.igGetForegroundDrawList_Nil();
+        var drawList = CimguiNative.igGetBackgroundDrawList_Nil();
         if (drawList == System.IntPtr.Zero) return;
 
         // Get game camera for world-to-screen projection.
