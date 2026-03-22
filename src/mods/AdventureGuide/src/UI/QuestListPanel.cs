@@ -19,17 +19,33 @@ public sealed class QuestListPanel
     private static readonly string[] FilterNames = { "Active", "Available", "Completed", "All" };
     private int _filterIndex;
 
+    // Zone filter: index 0 = "All Zones", 1+ = sorted zone names
+    private readonly string[] _zoneNames;
+    private int _zoneIndex;
+
     public QuestListPanel(GuideData data, QuestStateTracker state, FilterState filter)
     {
         _data = data;
         _state = state;
         _filter = filter;
+
+        // Build sorted zone list from quest data
+        var zones = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var quest in data.All)
+            if (quest.ZoneContext != null)
+                zones.Add(quest.ZoneContext);
+        _zoneNames = new string[zones.Count + 1];
+        _zoneNames[0] = "All Zones";
+        int idx = 1;
+        foreach (var z in zones)
+            _zoneNames[idx++] = z;
     }
 
     public void Draw(float width)
     {
-        // Fixed header: filter + sort + search (not scrollable)
+        // Fixed header: filter + sort + zone + search (not scrollable)
         DrawFilterRow(width);
+        DrawZoneFilter();
         DrawSearchBar();
 
         ImGui.Separator();
@@ -84,6 +100,25 @@ public sealed class QuestListPanel
 
         if (active)
             ImGui.PopStyleColor();
+    }
+
+    private void DrawZoneFilter()
+    {
+        // Sync index from filter state
+        _zoneIndex = 0;
+        if (_filter.ZoneFilter != null)
+            for (int i = 1; i < _zoneNames.Length; i++)
+                if (string.Equals(_zoneNames[i], _filter.ZoneFilter, StringComparison.OrdinalIgnoreCase))
+                {
+                    _zoneIndex = i;
+                    break;
+                }
+
+        ImGui.SetNextItemWidth(-1);
+        if (ImGui.Combo("##Zone", ref _zoneIndex, _zoneNames, _zoneNames.Length))
+            _filter.ZoneFilter = _zoneIndex == 0 ? null : _zoneNames[_zoneIndex];
+
+        ImGui.Spacing();
     }
 
     private void DrawSearchBar()
@@ -154,7 +189,7 @@ public sealed class QuestListPanel
 
     private bool PassesFilter(QuestEntry quest)
     {
-        return _filter.FilterMode switch
+        bool statusOk = _filter.FilterMode switch
         {
             QuestFilterMode.Active    => _state.IsActive(quest.DBName),
             QuestFilterMode.Available => !_state.IsActive(quest.DBName) && !_state.IsCompleted(quest.DBName),
@@ -162,6 +197,13 @@ public sealed class QuestListPanel
             QuestFilterMode.All       => true,
             _ => true,
         };
+        if (!statusOk) return false;
+
+        // Zone filter
+        if (_filter.ZoneFilter != null)
+            return string.Equals(quest.ZoneContext, _filter.ZoneFilter, StringComparison.OrdinalIgnoreCase);
+
+        return true;
     }
 
     /// <summary>
