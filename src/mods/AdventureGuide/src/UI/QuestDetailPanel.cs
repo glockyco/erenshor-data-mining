@@ -210,16 +210,20 @@ public sealed class QuestDetailPanel
             text += $" ({have}/{step.Quantity})";
         }
 
-        // Step-level suffix: for collect steps just the level (sources shown below),
-        // for non-collect steps include the zone name since there's no source list
+        // Step suffix: zone (for non-collect) and level, dot-separated
         if (step.LevelEstimate?.Recommended is int stepLvl)
         {
-            if (step.Action is "collect" or "read")
-                text += $"  \u00b7  Lv {stepLvl}";
-            else if (step.LevelEstimate.Factors is { Count: > 0 })
-                text += $"  \u00b7  Lv {stepLvl} ({step.LevelEstimate.Factors[0].Name})";
-            else
-                text += $"  \u00b7  Lv {stepLvl}";
+            // Non-collect steps show zone since there's no source list below
+            if (step.Action is not "collect" and not "read"
+                && step.LevelEstimate.Factors is { Count: > 0 })
+                text += $"  \u00b7  {step.LevelEstimate.Factors[0].Name}";
+            text += $"  \u00b7  Lv {stepLvl}";
+        }
+        else if (step.Action is not "collect" and not "read"
+                 && step.LevelEstimate?.Factors is { Count: > 0 })
+        {
+            // Zone without level
+            text += $"  \u00b7  {step.LevelEstimate.Factors[0].Name}";
         }
 
         ImGui.PushStyleColor(ImGuiCol.Text, color);
@@ -284,17 +288,21 @@ public sealed class QuestDetailPanel
 
     private static void DrawSource(ItemSource src)
     {
-        string label = src.Type switch
+        // Consistent format: {what}  \u00b7  {where}  \u00b7  Lv {N}
+        string what = src.Type switch
         {
-            "drop" => $"Drops from: {src.Name} ({src.Zone})",
-            "vendor" => $"Sold by: {src.Name} ({src.Zone})",
-            "fishing" => $"Fishing ({src.Zone})",
-            "mining" => $"Mining ({src.Zone})",
-            "pickup" => $"Found in world ({src.Zone})",
+            "drop" => $"Drops from: {src.Name}",
+            "vendor" => $"Sold by: {src.Name}",
+            "fishing" => "Fishing",
+            "mining" => "Mining",
+            "pickup" => "Found in world",
             "crafting" => $"Crafted from: {src.Name}",
             "quest_reward" => $"Quest reward: {src.Name}",
             _ => src.Name ?? src.Type,
         };
+        string label = what;
+        if (src.Zone != null)
+            label += $"  \u00b7  {src.Zone}";
         if (src.Level is int lv)
             label += $"  \u00b7  Lv {lv}";
         ImGui.Text(label);
