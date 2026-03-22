@@ -162,6 +162,7 @@ def _build_all_guides(conn: sqlite3.Connection, zone_lookup: dict[str, ZoneInfo]
             bag_map,
             crafting_map,
             quest_reward_map,
+            exclude_quest_sk=sk,
         )
         rewards = _build_rewards(
             quest, chain_next_map, also_completes_map, faction_effects_map, item_names, quest_names
@@ -210,8 +211,7 @@ def _fetch_acquisition_sources(conn: sqlite3.Connection) -> dict[str, list[Acqui
         """
         SELECT qas.quest_stable_key, qas.method, qas.source_type,
                qas.source_stable_key, qas.note,
-               COALESCE(c.display_name, i.display_name, z.display_name, qv.quest_name) AS source_name,
-               COALESCE(sz.display_name, '') AS zone_name
+               COALESCE(c.display_name, i.display_name, z.display_name, qv.quest_name) AS source_name
         FROM quest_acquisition_sources qas
         LEFT JOIN characters c
             ON c.stable_key = qas.source_stable_key AND qas.source_type = 'character'
@@ -221,10 +221,7 @@ def _fetch_acquisition_sources(conn: sqlite3.Connection) -> dict[str, list[Acqui
             ON z.stable_key = qas.source_stable_key AND qas.source_type = 'zone'
         LEFT JOIN quest_variants qv
             ON qv.quest_stable_key = qas.source_stable_key AND qas.source_type = 'quest'
-        LEFT JOIN character_spawns cs
-            ON cs.character_stable_key = qas.source_stable_key AND qas.source_type = 'character'
-        LEFT JOIN zones sz ON sz.stable_key = cs.zone_stable_key
-        GROUP BY qas.quest_stable_key, qas.method, qas.source_stable_key
+        WHERE c.stable_key IS NULL OR c.is_map_visible = 1
         """
     ).fetchall()
     result: dict[str, list[AcquisitionSource]] = {}
@@ -234,7 +231,6 @@ def _fetch_acquisition_sources(conn: sqlite3.Connection) -> dict[str, list[Acqui
             source_name=row["source_name"],
             source_type=row["source_type"],
             source_stable_key=row["source_stable_key"],
-            zone_name=row["zone_name"] or None,
             note=row["note"],
         )
         result.setdefault(row["quest_stable_key"], []).append(src)
@@ -246,8 +242,7 @@ def _fetch_completion_sources(conn: sqlite3.Connection) -> dict[str, list[Comple
         """
         SELECT qcs.quest_stable_key, qcs.method, qcs.source_type,
                qcs.source_stable_key, qcs.note,
-               COALESCE(c.display_name, i.display_name, z.display_name, qv.quest_name) AS source_name,
-               COALESCE(sz.display_name, '') AS zone_name
+               COALESCE(c.display_name, i.display_name, z.display_name, qv.quest_name) AS source_name
         FROM quest_completion_sources qcs
         LEFT JOIN characters c
             ON c.stable_key = qcs.source_stable_key AND qcs.source_type = 'character'
@@ -257,23 +252,24 @@ def _fetch_completion_sources(conn: sqlite3.Connection) -> dict[str, list[Comple
             ON z.stable_key = qcs.source_stable_key AND qcs.source_type = 'zone'
         LEFT JOIN quest_variants qv
             ON qv.quest_stable_key = qcs.source_stable_key AND qcs.source_type = 'quest'
-        LEFT JOIN character_spawns cs
-            ON cs.character_stable_key = qcs.source_stable_key AND qcs.source_type = 'character'
-        LEFT JOIN zones sz ON sz.stable_key = cs.zone_stable_key
-        GROUP BY qcs.quest_stable_key, qcs.method, qcs.source_stable_key
+        WHERE c.stable_key IS NULL OR c.is_map_visible = 1
         """
     ).fetchall()
     result: dict[str, list[CompletionSource]] = {}
     for row in rows:
+        quest_sk = row["quest_stable_key"]
         src = CompletionSource(
             method=row["method"],
             source_name=row["source_name"],
             source_type=row["source_type"],
             source_stable_key=row["source_stable_key"],
-            zone_name=row["zone_name"] or None,
             note=row["note"],
         )
-        result.setdefault(row["quest_stable_key"], []).append(src)
+        # Deduplicate by (method, source_name) — same NPC may have
+        # multiple stable keys for different placements
+        existing = result.setdefault(quest_sk, [])
+        if not any(e.method == src.method and e.source_name == src.source_name for e in existing):
+            existing.append(src)
     return result
 
 
@@ -494,6 +490,7 @@ def _build_required_items(
     bag_map: dict[str, list[BagSource]],
     crafting_map: dict[str, list[CraftingSource]],
     quest_reward_map: dict[str, list[QuestRewardSource]],
+    exclude_quest_sk: str = "",
 ) -> list[RequiredItemInfo]:
     items = required_items_map.get(variant_rn, [])
     result = []
@@ -510,7 +507,9 @@ def _build_required_items(
                 mining_sources=mining_map.get(isk, []),
                 bag_sources=bag_map.get(isk, []),
                 crafting_sources=crafting_map.get(isk, []),
-                quest_reward_sources=quest_reward_map.get(isk, []),
+                quest_reward_sources=[
+                    qr for qr in quest_reward_map.get(isk, []) if qr.quest_stable_key != exclude_quest_sk
+                ],
             )
         )
     return result
@@ -689,12 +688,12 @@ def _generate_steps(
     giver = _find_giver(acquisition)
 
     generators = {
-        QuestType.FETCH.value: lambda: _steps_fetch(step, giver, required_items, completion, zone_context),
+        QuestType.FETCH.value: lambda: _steps_fetch(step, giver, required_items, completion, zone_context, acquisition),
         QuestType.KILL.value: lambda: _steps_kill(step, giver, completion),
         QuestType.DIALOG.value: lambda: _steps_dialog(step, giver, completion),
         QuestType.ZONE_TRIGGER.value: lambda: _steps_zone_trigger(step, giver, completion),
         QuestType.SHOUT.value: lambda: _steps_shout(step, giver, completion, shout_keywords),
-        QuestType.ITEM_READ.value: lambda: _steps_item_read(step, completion),
+        QuestType.ITEM_READ.value: lambda: _steps_item_read(step, acquisition, completion),
     }
     gen = generators.get(quest_type)
     # Scripted, chain, hybrid -- can't auto-generate
@@ -702,27 +701,36 @@ def _generate_steps(
 
 
 def _find_giver(acquisition: list[AcquisitionSource]) -> AcquisitionSource | None:
-    """Find the primary quest giver from acquisition sources."""
+    """Find the primary quest giver (dialog NPC) from acquisition sources."""
     for acq in acquisition:
         if acq.method == "dialog":
             return acq
-    # Fall back to any acquisition source
-    return acquisition[0] if acquisition else None
+    return None
 
 
 StepFactory = type  # type alias for the closure
 
 
-def _steps_fetch(step, giver, required_items, completion, zone_context):
+def _steps_fetch(step, giver, required_items, completion, zone_context, acquisition):
     steps = []
-    if giver and giver.source_name:
+    # For item_read quests, first step is obtaining and reading the item
+    item_read_acq = next((a for a in acquisition if a.method == "item_read"), None)
+    if item_read_acq and item_read_acq.source_name:
+        steps.append(
+            step(
+                "read",
+                f"Obtain and read {item_read_acq.source_name}.",
+                target_name=item_read_acq.source_name,
+                target_type="item",
+            )
+        )
+    elif giver and giver.source_name:
         steps.append(
             step(
                 "talk",
                 f"Speak to {giver.source_name}.",
                 target_name=giver.source_name,
                 target_type="character",
-                zone_name=giver.zone_name or zone_context,
             )
         )
     for ri in required_items:
@@ -866,10 +874,26 @@ def _steps_shout(step, giver, completion, shout_keywords):
     return steps
 
 
-def _steps_item_read(step, completion):
+def _steps_item_read(step, acquisition, completion):
     steps = []
+    # First step: obtain and read the quest-starting item
+    for acq in acquisition:
+        if acq.method == "item_read" and acq.source_name:
+            steps.append(
+                step(
+                    "read",
+                    f"Obtain and read {acq.source_name}.",
+                    target_name=acq.source_name,
+                    target_type="item",
+                )
+            )
+            break  # only one starting item
+    # Remaining steps from completion sources (collect items, kill targets, etc.)
     for comp in completion:
         if comp.method == "read" and comp.source_name:
+            # Don't duplicate the starting item read step
+            if any(s.target_name == comp.source_name for s in steps):
+                continue
             steps.append(
                 step(
                     "read",

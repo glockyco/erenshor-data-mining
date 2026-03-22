@@ -53546,8 +53546,7 @@
           "method": "dialog",
           "source_name": "Ripper DeMerth",
           "source_type": "character",
-          "source_stable_key": "character:ripper demerth",
-          "zone_name": "Ripper's Keep"
+          "source_stable_key": "character:ripper demerth"
         }
       ],
       "steps": [
@@ -53556,8 +53555,7 @@
           "action": "talk",
           "description": "Speak to Ripper DeMerth.",
           "target_name": "Ripper DeMerth",
-          "target_type": "character",
-          "zone_name": "Ripper's Keep"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -53595,8 +53593,7 @@
           "method": "item_turnin",
           "source_name": "Ripper DeMerth",
           "source_type": "character",
-          "source_stable_key": "character:ripper demerth",
-          "zone_name": "Ripper's Keep"
+          "source_stable_key": "character:ripper demerth"
         }
       ],
       "rewards": {
@@ -53642,8 +53639,7 @@
           "method": "dialog",
           "source_name": "Captain Kilkay",
           "source_type": "character",
-          "source_stable_key": "character:guard captain azure",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:guard captain azure"
         }
       ],
       "steps": [
@@ -53652,8 +53648,7 @@
           "action": "talk",
           "description": "Speak to Captain Kilkay.",
           "target_name": "Captain Kilkay",
-          "target_type": "character",
-          "zone_name": "Port Azure"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -53691,8 +53686,7 @@
           "method": "item_turnin",
           "source_name": "Captain Kilkay",
           "source_type": "character",
-          "source_stable_key": "character:guard captain azure",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:guard captain azure"
         }
       ],
       "rewards": {
@@ -53770,8 +53764,7 @@
           "method": "item_turnin",
           "source_name": "The Conductor",
           "source_type": "character",
-          "source_stable_key": "character:deer:ripperportal:281.51:0.53:315.44",
-          "zone_name": "Mysterious Portal (3)"
+          "source_stable_key": "character:deer:ripperportal:281.51:0.53:315.44"
         }
       ],
       "rewards": {
@@ -53994,8 +53987,7 @@
           "method": "dialog",
           "source_name": "Fallen Fernalla",
           "source_type": "character",
-          "source_stable_key": "character:fallen fernalla:bloomingsepulcher:788.35:254.99:837.27",
-          "zone_name": "Blooming Sepulcher"
+          "source_stable_key": "character:fallen fernalla:bloomingsepulcher:788.35:254.99:837.27"
         }
       ],
       "steps": [
@@ -54004,8 +53996,7 @@
           "action": "talk",
           "description": "Speak to Fallen Fernalla.",
           "target_name": "Fallen Fernalla",
-          "target_type": "character",
-          "zone_name": "Blooming Sepulcher"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -54043,8 +54034,7 @@
           "method": "item_turnin",
           "source_name": "Fallen Fernalla",
           "source_type": "character",
-          "source_stable_key": "character:fallen fernalla:bloomingsepulcher:788.35:254.99:837.27",
-          "zone_name": "Blooming Sepulcher"
+          "source_stable_key": "character:fallen fernalla:bloomingsepulcher:788.35:254.99:837.27"
         }
       ],
       "rewards": {
@@ -54123,8 +54113,7 @@
           "method": "item_turnin",
           "source_name": "Verdant Energy",
           "source_type": "character",
-          "source_stable_key": "character:verdant energy",
-          "zone_name": "Fernalla's Revival Plains"
+          "source_stable_key": "character:verdant energy"
         }
       ],
       "rewards": {
@@ -54155,8 +54144,7 @@
           "method": "dialog",
           "source_name": "Malor Mara",
           "source_type": "character",
-          "source_stable_key": "character:malor maya:duskenlight:1503.96:64.02:656.88",
-          "zone_name": "The Duskenlight Coast"
+          "source_stable_key": "character:malor maya:duskenlight:1503.96:64.02:656.88"
         }
       ],
       "flags": {
@@ -54175,8 +54163,7 @@
           "method": "dialog",
           "source_name": "A Hermit",
           "source_type": "character",
-          "source_stable_key": "character:a hermit",
-          "zone_name": "Fernalla's Revival Plains"
+          "source_stable_key": "character:a hermit"
         }
       ],
       "steps": [
@@ -54185,8 +54172,7 @@
           "action": "talk",
           "description": "Speak to A Hermit.",
           "target_name": "A Hermit",
-          "target_type": "character",
-          "zone_name": "Fernalla's Revival Plains"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -54243,8 +54229,7 @@
           "method": "item_turnin",
           "source_name": "A Hermit",
           "source_type": "character",
-          "source_stable_key": "character:a hermit",
-          "zone_name": "Fernalla's Revival Plains"
+          "source_stable_key": "character:a hermit"
         }
       ],
       "rewards": {
@@ -54275,17 +54260,9 @@
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to A Missing Person.",
-          "target_name": "A Missing Person",
-          "target_type": "character"
-        },
-        {
-          "order": 2,
-          "action": "talk",
           "description": "Speak to Styria Olafur.",
           "target_name": "Styria Olafur",
-          "target_type": "character",
-          "zone_name": "Port Azure"
+          "target_type": "character"
         }
       ],
       "completion": [
@@ -54293,8 +54270,7 @@
           "method": "talk",
           "source_name": "Styria Olafur",
           "source_type": "character",
-          "source_stable_key": "character:styria olafur:azure:120.30:11.61:291.56",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:styria olafur:azure:120.30:11.61:291.56"
         }
       ],
       "rewards": {
@@ -54392,8 +54368,7 @@
           "method": "item_turnin",
           "source_name": "Vethalo Gala",
           "source_type": "character",
-          "source_stable_key": "character:vethalo gala",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:vethalo gala"
         }
       ],
       "rewards": {
@@ -54476,8 +54451,7 @@
           "method": "item_turnin",
           "source_name": "Braxon Elden",
           "source_type": "character",
-          "source_stable_key": "character:braxon elden:braxonian:99.99:33.79:993.06",
-          "zone_name": "Braxonian Desert"
+          "source_stable_key": "character:braxon elden:braxonian:99.99:33.79:993.06"
         }
       ],
       "rewards": {
@@ -54520,14 +54494,6 @@
       "steps": [
         {
           "order": 1,
-          "action": "talk",
-          "description": "Speak to A Lost Portal.",
-          "target_name": "A Lost Portal",
-          "target_type": "character",
-          "zone_name": "Fallen Braxonia"
-        },
-        {
-          "order": 2,
           "action": "collect",
           "description": "Collect Inert Rune of Brax.",
           "target_name": "Inert Rune of Brax",
@@ -54535,7 +54501,7 @@
           "quantity": 1
         },
         {
-          "order": 3,
+          "order": 2,
           "action": "collect",
           "description": "Collect Eldrich Crystal (drops from Azynthian Keeper).",
           "target_name": "Eldrich Crystal",
@@ -54543,7 +54509,7 @@
           "quantity": 1
         },
         {
-          "order": 4,
+          "order": 3,
           "action": "turn_in",
           "description": "Turn in items to Elemental Energy.",
           "target_name": "Elemental Energy",
@@ -54587,8 +54553,7 @@
           "method": "item_turnin",
           "source_name": "Elemental Energy",
           "source_type": "character",
-          "source_stable_key": "character:elemental energy:braxonia:325.47:27.02:264.04",
-          "zone_name": "Fallen Braxonia"
+          "source_stable_key": "character:elemental energy:braxonia:325.47:27.02:264.04"
         }
       ],
       "rewards": {
@@ -54626,8 +54591,7 @@
           "method": "dialog",
           "source_name": "Tristan Warton",
           "source_type": "character",
-          "source_stable_key": "character:tristan warton",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:tristan warton"
         }
       ],
       "steps": [
@@ -54636,8 +54600,7 @@
           "action": "talk",
           "description": "Speak to Tristan Warton.",
           "target_name": "Tristan Warton",
-          "target_type": "character",
-          "zone_name": "Port Azure"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -55075,8 +55038,7 @@
           "method": "item_turnin",
           "source_name": "Tristan Warton",
           "source_type": "character",
-          "source_stable_key": "character:tristan warton",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:tristan warton"
         }
       ],
       "rewards": {
@@ -55107,8 +55069,7 @@
           "method": "dialog",
           "source_name": "Xander Zaxtrough",
           "source_type": "character",
-          "source_stable_key": "character:xander zaxtrough",
-          "zone_name": "Hidden Hills"
+          "source_stable_key": "character:xander zaxtrough"
         }
       ],
       "steps": [
@@ -55117,8 +55078,7 @@
           "action": "talk",
           "description": "Speak to Xander Zaxtrough.",
           "target_name": "Xander Zaxtrough",
-          "target_type": "character",
-          "zone_name": "Hidden Hills"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -55126,14 +55086,6 @@
           "description": "Speak to Cirreus Alxanth.",
           "target_name": "Cirreus Alxanth",
           "target_type": "character"
-        },
-        {
-          "order": 3,
-          "action": "talk",
-          "description": "Speak to Cirreus Alxanth.",
-          "target_name": "Cirreus Alxanth",
-          "target_type": "character",
-          "zone_name": "Old Krakengard"
         }
       ],
       "completion": [
@@ -55142,13 +55094,6 @@
           "source_name": "Cirreus Alxanth",
           "source_type": "character",
           "source_stable_key": "character:cirreus alxanth:1"
-        },
-        {
-          "method": "talk",
-          "source_name": "Cirreus Alxanth",
-          "source_type": "character",
-          "source_stable_key": "character:cirreus alxanth:krakengard:280.64:-9.61:91.17",
-          "zone_name": "Old Krakengard"
         }
       ],
       "rewards": {
@@ -55179,8 +55124,7 @@
           "method": "dialog",
           "source_name": "Trevor Ulchand",
           "source_type": "character",
-          "source_stable_key": "character:trevor ulchand",
-          "zone_name": "Hidden Hills"
+          "source_stable_key": "character:trevor ulchand"
         }
       ],
       "steps": [
@@ -55189,8 +55133,7 @@
           "action": "talk",
           "description": "Speak to Trevor Ulchand.",
           "target_name": "Trevor Ulchand",
-          "target_type": "character",
-          "zone_name": "Hidden Hills"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -55228,8 +55171,7 @@
           "method": "item_turnin",
           "source_name": "Trevor Ulchand",
           "source_type": "character",
-          "source_stable_key": "character:trevor ulchand",
-          "zone_name": "Hidden Hills"
+          "source_stable_key": "character:trevor ulchand"
         }
       ],
       "rewards": {
@@ -55259,11 +55201,10 @@
       "steps": [
         {
           "order": 1,
-          "action": "talk",
-          "description": "Speak to Notes of a Hermit.",
+          "action": "read",
+          "description": "Obtain and read Notes of a Hermit.",
           "target_name": "Notes of a Hermit",
-          "target_type": "character",
-          "zone_name": "Port Azure"
+          "target_type": "item"
         },
         {
           "order": 2,
@@ -55317,8 +55258,7 @@
           "method": "item_turnin",
           "source_name": "Chazz Pillot",
           "source_type": "character",
-          "source_stable_key": "character:chazz pillot",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:chazz pillot"
         }
       ],
       "rewards": {
@@ -55343,56 +55283,7 @@
           "action": "talk",
           "description": "Speak to Ward of Piety.",
           "target_name": "Ward of Piety",
-          "target_type": "character",
-          "zone_name": "Jaws of Sivakaya"
-        },
-        {
-          "order": 2,
-          "action": "talk",
-          "description": "Speak to Ward of Piety.",
-          "target_name": "Ward of Piety",
-          "target_type": "character",
-          "zone_name": "Jaws of Sivakaya"
-        },
-        {
-          "order": 3,
-          "action": "talk",
-          "description": "Speak to Ward of Piety.",
-          "target_name": "Ward of Piety",
-          "target_type": "character",
-          "zone_name": "Jaws of Sivakaya"
-        },
-        {
-          "order": 4,
-          "action": "talk",
-          "description": "Speak to Ward of Piety.",
-          "target_name": "Ward of Piety",
-          "target_type": "character",
-          "zone_name": "Jaws of Sivakaya"
-        },
-        {
-          "order": 5,
-          "action": "talk",
-          "description": "Speak to Ward of Piety.",
-          "target_name": "Ward of Piety",
-          "target_type": "character",
-          "zone_name": "Jaws of Sivakaya"
-        },
-        {
-          "order": 6,
-          "action": "talk",
-          "description": "Speak to Ward of Piety.",
-          "target_name": "Ward of Piety",
-          "target_type": "character",
-          "zone_name": "Jaws of Sivakaya"
-        },
-        {
-          "order": 7,
-          "action": "talk",
-          "description": "Speak to Ward of Piety.",
-          "target_name": "Ward of Piety",
-          "target_type": "character",
-          "zone_name": "Jaws of Sivakaya"
+          "target_type": "character"
         }
       ],
       "completion": [
@@ -55400,50 +55291,7 @@
           "method": "talk",
           "source_name": "Ward of Piety",
           "source_type": "character",
-          "source_stable_key": "character:ward of sivakaya (1):jaws:1478.96:-18.28:109.78",
-          "zone_name": "Jaws of Sivakaya"
-        },
-        {
-          "method": "talk",
-          "source_name": "Ward of Piety",
-          "source_type": "character",
-          "source_stable_key": "character:ward of sivakaya (2):jaws:1478.96:-18.28:122.28",
-          "zone_name": "Jaws of Sivakaya"
-        },
-        {
-          "method": "talk",
-          "source_name": "Ward of Piety",
-          "source_type": "character",
-          "source_stable_key": "character:ward of sivakaya (3):jaws:1478.96:-18.28:97.03",
-          "zone_name": "Jaws of Sivakaya"
-        },
-        {
-          "method": "talk",
-          "source_name": "Ward of Piety",
-          "source_type": "character",
-          "source_stable_key": "character:ward of sivakaya (4):jaws:1450.96:-18.28:109.78",
-          "zone_name": "Jaws of Sivakaya"
-        },
-        {
-          "method": "talk",
-          "source_name": "Ward of Piety",
-          "source_type": "character",
-          "source_stable_key": "character:ward of sivakaya (5):jaws:1450.96:-18.28:97.03",
-          "zone_name": "Jaws of Sivakaya"
-        },
-        {
-          "method": "talk",
-          "source_name": "Ward of Piety",
-          "source_type": "character",
-          "source_stable_key": "character:ward of sivakaya (6):jaws:1450.96:-18.28:122.28",
-          "zone_name": "Jaws of Sivakaya"
-        },
-        {
-          "method": "talk",
-          "source_name": "Ward of Piety",
-          "source_type": "character",
-          "source_stable_key": "character:ward of sivakaya:jaws:1461.71:-18.28:109.78",
-          "zone_name": "Jaws of Sivakaya"
+          "source_stable_key": "character:ward of sivakaya (5):jaws:1450.96:-18.28:97.03"
         }
       ],
       "rewards": {
@@ -55465,8 +55313,7 @@
           "method": "dialog",
           "source_name": "Remnant",
           "source_type": "character",
-          "source_stable_key": "character:a watchlight stalzo:bloomingsepulcher:243.72:375.26:848.65",
-          "zone_name": "Blooming Sepulcher"
+          "source_stable_key": "character:a watchlight stalzo:bloomingsepulcher:243.72:375.26:848.65"
         }
       ],
       "steps": [
@@ -55475,8 +55322,7 @@
           "action": "talk",
           "description": "Speak to Remnant.",
           "target_name": "Remnant",
-          "target_type": "character",
-          "zone_name": "Blooming Sepulcher"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -55559,8 +55405,7 @@
           "method": "item_turnin",
           "source_name": "Remnant",
           "source_type": "character",
-          "source_stable_key": "character:a watchlight stalzo:bloomingsepulcher:243.72:375.26:848.65",
-          "zone_name": "Blooming Sepulcher"
+          "source_stable_key": "character:a watchlight stalzo:bloomingsepulcher:243.72:375.26:848.65"
         }
       ],
       "rewards": {
@@ -55620,8 +55465,7 @@
           "method": "dialog",
           "source_name": "Ludo Luxo",
           "source_type": "character",
-          "source_stable_key": "character:ludo luxo",
-          "zone_name": "Hidden Hills"
+          "source_stable_key": "character:ludo luxo"
         }
       ],
       "steps": [
@@ -55630,8 +55474,7 @@
           "action": "talk",
           "description": "Speak to Ludo Luxo.",
           "target_name": "Ludo Luxo",
-          "target_type": "character",
-          "zone_name": "Hidden Hills"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -55669,8 +55512,7 @@
           "method": "item_turnin",
           "source_name": "Ludo Luxo",
           "source_type": "character",
-          "source_stable_key": "character:ludo luxo",
-          "zone_name": "Hidden Hills"
+          "source_stable_key": "character:ludo luxo"
         }
       ],
       "rewards": {
@@ -55706,8 +55548,7 @@
           "method": "dialog",
           "source_name": "Alyssia Fearnon",
           "source_type": "character",
-          "source_stable_key": "character:alyssa fearnon",
-          "zone_name": "Hidden Hills"
+          "source_stable_key": "character:alyssa fearnon"
         }
       ],
       "steps": [
@@ -55716,8 +55557,7 @@
           "action": "talk",
           "description": "Speak to Alyssia Fearnon.",
           "target_name": "Alyssia Fearnon",
-          "target_type": "character",
-          "zone_name": "Hidden Hills"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -55774,8 +55614,7 @@
           "method": "item_turnin",
           "source_name": "Alyssia Fearnon",
           "source_type": "character",
-          "source_stable_key": "character:alyssa fearnon",
-          "zone_name": "Hidden Hills"
+          "source_stable_key": "character:alyssa fearnon"
         }
       ],
       "rewards": {
@@ -55868,8 +55707,7 @@
           "method": "item_turnin",
           "source_name": "Verdant Energy",
           "source_type": "character",
-          "source_stable_key": "character:celestial energy:soluna:124.17:103.55:655.93",
-          "zone_name": "Soluna's Landing"
+          "source_stable_key": "character:celestial energy:soluna:124.17:103.55:655.93"
         }
       ],
       "rewards": {
@@ -55900,8 +55738,7 @@
           "method": "dialog",
           "source_name": "Jeremie Galyard",
           "source_type": "character",
-          "source_stable_key": "character:jeremie galyard",
-          "zone_name": "Ripper's Keep"
+          "source_stable_key": "character:jeremie galyard"
         }
       ],
       "steps": [
@@ -55910,8 +55747,7 @@
           "action": "talk",
           "description": "Speak to Jeremie Galyard.",
           "target_name": "Jeremie Galyard",
-          "target_type": "character",
-          "zone_name": "Ripper's Keep"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -56209,8 +56045,7 @@
           "method": "item_turnin",
           "source_name": "Jeremie Galyard",
           "source_type": "character",
-          "source_stable_key": "character:jeremie galyard",
-          "zone_name": "Ripper's Keep"
+          "source_stable_key": "character:jeremie galyard"
         }
       ],
       "rewards": {
@@ -56299,8 +56134,7 @@
           "method": "item_turnin",
           "source_name": "Verdant Energy",
           "source_type": "character",
-          "source_stable_key": "character:vithean energy:vitheosend:458.45:14.75:323.47",
-          "zone_name": "Vitheo's Rest"
+          "source_stable_key": "character:vithean energy:vitheosend:458.45:14.75:323.47"
         }
       ],
       "rewards": {
@@ -56339,8 +56173,7 @@
           "method": "talk",
           "source_name": "Chance Barlow",
           "source_type": "character",
-          "source_stable_key": "character:chance barlow",
-          "zone_name": "Stowaway's Step"
+          "source_stable_key": "character:chance barlow"
         },
         {
           "method": "zone",
@@ -56379,14 +56212,13 @@
           "method": "dialog",
           "source_name": "Cerbantias Flameward",
           "source_type": "character",
-          "source_stable_key": "character:cerbantias flameward"
+          "source_stable_key": "character:cerbantias flameward combined"
         },
         {
           "method": "dialog",
           "source_name": "Cerbantias Flameward",
           "source_type": "character",
-          "source_stable_key": "character:cerbantias flameward combined",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:cerbantias flameward"
         }
       ]
     },
@@ -56402,8 +56234,7 @@
           "method": "dialog",
           "source_name": "Saya Seawatcher",
           "source_type": "character",
-          "source_stable_key": "character:saya seawatcher",
-          "zone_name": "Vitheo's Watch"
+          "source_stable_key": "character:saya seawatcher"
         }
       ],
       "steps": [
@@ -56412,8 +56243,7 @@
           "action": "talk",
           "description": "Speak to Saya Seawatcher.",
           "target_name": "Saya Seawatcher",
-          "target_type": "character",
-          "zone_name": "Vitheo's Watch"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -56628,8 +56458,7 @@
           "method": "item_turnin",
           "source_name": "Saya Seawatcher",
           "source_type": "character",
-          "source_stable_key": "character:saya seawatcher",
-          "zone_name": "Vitheo's Watch"
+          "source_stable_key": "character:saya seawatcher"
         }
       ],
       "rewards": {
@@ -56660,8 +56489,7 @@
           "method": "dialog",
           "source_name": "Albixt Munger",
           "source_type": "character",
-          "source_stable_key": "character:albixt munger:silkengrass:649.35:40.43:225.03",
-          "zone_name": "Silkengrass Meadowlands"
+          "source_stable_key": "character:albixt munger:silkengrass:649.35:40.43:225.03"
         }
       ],
       "steps": [
@@ -56670,8 +56498,7 @@
           "action": "talk",
           "description": "Speak to Albixt Munger.",
           "target_name": "Albixt Munger",
-          "target_type": "character",
-          "zone_name": "Silkengrass Meadowlands"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -56709,8 +56536,7 @@
           "method": "item_turnin",
           "source_name": "Albixt Munger",
           "source_type": "character",
-          "source_stable_key": "character:albixt munger:silkengrass:649.35:40.43:225.03",
-          "zone_name": "Silkengrass Meadowlands"
+          "source_stable_key": "character:albixt munger:silkengrass:649.35:40.43:225.03"
         }
       ],
       "rewards": {
@@ -56741,8 +56567,7 @@
           "method": "dialog",
           "source_name": "Alice Hewer",
           "source_type": "character",
-          "source_stable_key": "character:alice hewer:stowaway:747.15:18.45:440.38",
-          "zone_name": "Stowaway's Step"
+          "source_stable_key": "character:alice hewer:stowaway:747.15:18.45:440.38"
         }
       ],
       "steps": [
@@ -56751,8 +56576,7 @@
           "action": "talk",
           "description": "Speak to Alice Hewer.",
           "target_name": "Alice Hewer",
-          "target_type": "character",
-          "zone_name": "Stowaway's Step"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -56790,8 +56614,7 @@
           "method": "item_turnin",
           "source_name": "Alice Hewer",
           "source_type": "character",
-          "source_stable_key": "character:alice hewer:stowaway:747.15:18.45:440.38",
-          "zone_name": "Stowaway's Step"
+          "source_stable_key": "character:alice hewer:stowaway:747.15:18.45:440.38"
         }
       ],
       "rewards": {
@@ -56822,8 +56645,7 @@
           "method": "dialog",
           "source_name": "Annaleigh Hephan",
           "source_type": "character",
-          "source_stable_key": "character:annaleigh hephan",
-          "zone_name": "Blacksalt Strand"
+          "source_stable_key": "character:annaleigh hephan"
         }
       ],
       "steps": [
@@ -56832,8 +56654,7 @@
           "action": "talk",
           "description": "Speak to Annaleigh Hephan.",
           "target_name": "Annaleigh Hephan",
-          "target_type": "character",
-          "zone_name": "Blacksalt Strand"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -56910,8 +56731,7 @@
           "method": "item_turnin",
           "source_name": "Annaleigh Hephan",
           "source_type": "character",
-          "source_stable_key": "character:annaleigh hephan",
-          "zone_name": "Blacksalt Strand"
+          "source_stable_key": "character:annaleigh hephan"
         }
       ],
       "rewards": {
@@ -56947,8 +56767,7 @@
           "method": "dialog",
           "source_name": "Aragath Swellsteer",
           "source_type": "character",
-          "source_stable_key": "character:aragath swellsteer",
-          "zone_name": "Stowaway's Step"
+          "source_stable_key": "character:aragath swellsteer"
         }
       ],
       "steps": [
@@ -56957,8 +56776,7 @@
           "action": "talk",
           "description": "Speak to Aragath Swellsteer.",
           "target_name": "Aragath Swellsteer",
-          "target_type": "character",
-          "zone_name": "Stowaway's Step"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -57052,8 +56870,7 @@
           "method": "item_turnin",
           "source_name": "Aragath Swellsteer",
           "source_type": "character",
-          "source_stable_key": "character:aragath swellsteer",
-          "zone_name": "Stowaway's Step"
+          "source_stable_key": "character:aragath swellsteer"
         }
       ],
       "rewards": {
@@ -57092,7 +56909,6 @@
           "description": "Shout \"Azynthi\" near A Strange Hermit.",
           "target_name": "A Strange Hermit",
           "target_type": "character",
-          "zone_name": "Azynthi's Garden",
           "keyword": "Azynthi"
         }
       ],
@@ -57101,8 +56917,7 @@
           "method": "shout",
           "source_name": "A Strange Hermit",
           "source_type": "character",
-          "source_stable_key": "character:a strange hermit",
-          "zone_name": "Azynthi's Garden"
+          "source_stable_key": "character:a strange hermit"
         }
       ],
       "rewards": {
@@ -57191,8 +57006,7 @@
           "method": "item_turnin",
           "source_name": "Fredrick Templestone",
           "source_type": "character",
-          "source_stable_key": "character:fredrick templestone:azure:233.34:27.55:332.06",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:fredrick templestone:azure:233.34:27.55:332.06"
         }
       ],
       "rewards": {
@@ -57267,12 +57081,6 @@
               "y": -2.266000270843506,
               "z": 255.95603942871094
             }
-          ],
-          "quest_reward_sources": [
-            {
-              "quest_name": "Bellwain's Lost Letters",
-              "quest_stable_key": "quest:bellwainletters2"
-            }
           ]
         }
       ],
@@ -57281,8 +57089,7 @@
           "method": "item_turnin",
           "source_name": "Captain Bellwain",
           "source_type": "character",
-          "source_stable_key": "character:character_pirate_captain_01:summerevent:158.72:10.83:156.29",
-          "zone_name": "Bellwain Island"
+          "source_stable_key": "character:character_pirate_captain_01:summerevent:158.72:10.83:156.29"
         }
       ],
       "rewards": {
@@ -57392,8 +57199,7 @@
           "method": "item_turnin",
           "source_name": "Braxon Elden",
           "source_type": "character",
-          "source_stable_key": "character:braxon elden:braxonian:99.99:33.79:993.06",
-          "zone_name": "Braxonian Desert"
+          "source_stable_key": "character:braxon elden:braxonian:99.99:33.79:993.06"
         }
       ],
       "rewards": {
@@ -57456,8 +57262,7 @@
           "method": "item_turnin",
           "source_name": "Watchlight",
           "source_type": "character",
-          "source_stable_key": "character:a watchlight leah",
-          "zone_name": "Stowaway's Step"
+          "source_stable_key": "character:a watchlight leah"
         }
       ],
       "rewards": {
@@ -57513,8 +57318,7 @@
           "method": "item_turnin",
           "source_name": "Watchlight",
           "source_type": "character",
-          "source_stable_key": "character:a watchlight posta",
-          "zone_name": "Stowaway's Step"
+          "source_stable_key": "character:a watchlight posta"
         }
       ],
       "rewards": {
@@ -57570,8 +57374,7 @@
           "method": "item_turnin",
           "source_name": "Watchlight",
           "source_type": "character",
-          "source_stable_key": "character:a watchlight revid",
-          "zone_name": "Stowaway's Step"
+          "source_stable_key": "character:a watchlight revid"
         }
       ],
       "rewards": {
@@ -57627,8 +57430,7 @@
           "method": "item_turnin",
           "source_name": "Watchlight",
           "source_type": "character",
-          "source_stable_key": "character:a watchlight stalzo",
-          "zone_name": "Stowaway's Step"
+          "source_stable_key": "character:a watchlight stalzo"
         }
       ],
       "rewards": {
@@ -57694,8 +57496,7 @@
           "method": "item_turnin",
           "source_name": "Odd Statue",
           "source_type": "character",
-          "source_stable_key": "character:an odd statue:ripperportal:325.57:1.33:739.40",
-          "zone_name": "Mysterious Portal (3)"
+          "source_stable_key": "character:an odd statue:ripperportal:325.57:1.33:739.40"
         }
       ],
       "rewards": {
@@ -57720,14 +57521,6 @@
       "steps": [
         {
           "order": 1,
-          "action": "talk",
-          "description": "Speak to Warming the Isle.",
-          "target_name": "Warming the Isle",
-          "target_type": "character",
-          "zone_name": "Shivering Step"
-        },
-        {
-          "order": 2,
           "action": "collect",
           "description": "Collect Blue Burnstone (drops from Fearantula).",
           "target_name": "Blue Burnstone",
@@ -57735,7 +57528,7 @@
           "quantity": 1
         },
         {
-          "order": 3,
+          "order": 2,
           "action": "turn_in",
           "description": "Turn in items to Lighthouse Flame.",
           "target_name": "Lighthouse Flame",
@@ -57762,8 +57555,7 @@
           "method": "item_turnin",
           "source_name": "Lighthouse Flame",
           "source_type": "character",
-          "source_stable_key": "character:sm_prop_furnace_01:shiveringstep:804.54:20.19:592.50",
-          "zone_name": "Shivering Step"
+          "source_stable_key": "character:sm_prop_furnace_01:shiveringstep:804.54:20.19:592.50"
         }
       ],
       "rewards": {
@@ -57789,17 +57581,16 @@
       "zone_context": "Reliquary Hall",
       "completion": [
         {
-          "method": "death",
-          "source_name": "Reliquary Fiend",
-          "source_type": "character",
-          "source_stable_key": "character:reliquary fiend",
-          "zone_name": "Reliquary Hall"
-        },
-        {
           "method": "read",
           "source_name": "Box of Portals",
           "source_type": "item",
           "source_stable_key": "item:gen - box of portals"
+        },
+        {
+          "method": "death",
+          "source_name": "Reliquary Fiend",
+          "source_type": "character",
+          "source_stable_key": "character:reliquary fiend"
         }
       ],
       "rewards": {
@@ -57845,8 +57636,7 @@
           "method": "dialog",
           "source_name": "William Cardigo",
           "source_type": "character",
-          "source_stable_key": "character:william cardigo",
-          "zone_name": "Willowwatch Ridge"
+          "source_stable_key": "character:william cardigo"
         }
       ],
       "steps": [
@@ -57855,8 +57645,7 @@
           "action": "talk",
           "description": "Speak to William Cardigo.",
           "target_name": "William Cardigo",
-          "target_type": "character",
-          "zone_name": "Willowwatch Ridge"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -57894,8 +57683,7 @@
           "method": "item_turnin",
           "source_name": "William Cardigo",
           "source_type": "character",
-          "source_stable_key": "character:william cardigo",
-          "zone_name": "Willowwatch Ridge"
+          "source_stable_key": "character:william cardigo"
         }
       ],
       "rewards": {
@@ -57986,21 +57774,12 @@
           "method": "partial_turnin",
           "source_name": "Lucian Revald",
           "source_type": "character",
-          "source_stable_key": "character:lucian revald:stowaway:432.19:69.90:532.04",
-          "zone_name": "Stowaway's Step"
+          "source_stable_key": "character:lucian revald:stowaway:432.19:69.90:532.04"
         }
       ],
       "steps": [
         {
           "order": 1,
-          "action": "talk",
-          "description": "Speak to Lucian Revald.",
-          "target_name": "Lucian Revald",
-          "target_type": "character",
-          "zone_name": "Stowaway's Step"
-        },
-        {
-          "order": 2,
           "action": "collect",
           "description": "Collect Loss Stone.",
           "target_name": "Loss Stone",
@@ -58008,7 +57787,7 @@
           "quantity": 1
         },
         {
-          "order": 3,
+          "order": 2,
           "action": "collect",
           "description": "Collect A Remnant of Sivakaya (drops from Vessel Siraethe).",
           "target_name": "A Remnant of Sivakaya",
@@ -58016,7 +57795,7 @@
           "quantity": 1
         },
         {
-          "order": 4,
+          "order": 3,
           "action": "collect",
           "description": "Collect Demented Brain (drops from Demented Malaroth).",
           "target_name": "Demented Brain",
@@ -58024,7 +57803,7 @@
           "quantity": 1
         },
         {
-          "order": 5,
+          "order": 4,
           "action": "collect",
           "description": "Collect Nightmare Crystal.",
           "target_name": "Nightmare Crystal",
@@ -58032,7 +57811,7 @@
           "quantity": 1
         },
         {
-          "order": 6,
+          "order": 5,
           "action": "turn_in",
           "description": "Turn in items to Lucian Revald.",
           "target_name": "Lucian Revald",
@@ -58092,8 +57871,7 @@
           "method": "item_turnin",
           "source_name": "Lucian Revald",
           "source_type": "character",
-          "source_stable_key": "character:lucian revald:stowaway:432.19:69.90:532.04",
-          "zone_name": "Stowaway's Step"
+          "source_stable_key": "character:lucian revald:stowaway:432.19:69.90:532.04"
         }
       ],
       "rewards": {
@@ -58222,8 +58000,7 @@
           "method": "item_turnin",
           "source_name": "Breena Carpenter",
           "source_type": "character",
-          "source_stable_key": "character:breena carpenter",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:breena carpenter"
         }
       ],
       "rewards": {
@@ -58338,8 +58115,7 @@
           "method": "item_turnin",
           "source_name": "Breena Carpenter",
           "source_type": "character",
-          "source_stable_key": "character:breena carpenter",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:breena carpenter"
         }
       ],
       "rewards": {
@@ -58454,8 +58230,7 @@
           "method": "item_turnin",
           "source_name": "Breena Carpenter",
           "source_type": "character",
-          "source_stable_key": "character:breena carpenter",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:breena carpenter"
         }
       ],
       "rewards": {
@@ -58540,8 +58315,7 @@
           "method": "item_turnin",
           "source_name": "Breena Carpenter",
           "source_type": "character",
-          "source_stable_key": "character:breena carpenter",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:breena carpenter"
         }
       ],
       "rewards": {
@@ -58656,8 +58430,7 @@
           "method": "item_turnin",
           "source_name": "Breena Carpenter",
           "source_type": "character",
-          "source_stable_key": "character:breena carpenter",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:breena carpenter"
         }
       ],
       "rewards": {
@@ -58772,8 +58545,7 @@
           "method": "item_turnin",
           "source_name": "Breena Carpenter",
           "source_type": "character",
-          "source_stable_key": "character:breena carpenter",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:breena carpenter"
         }
       ],
       "rewards": {
@@ -58863,8 +58635,7 @@
           "method": "item_turnin",
           "source_name": "Breena Carpenter",
           "source_type": "character",
-          "source_stable_key": "character:breena carpenter",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:breena carpenter"
         }
       ],
       "rewards": {
@@ -58954,8 +58725,7 @@
           "method": "item_turnin",
           "source_name": "Breena Carpenter",
           "source_type": "character",
-          "source_stable_key": "character:breena carpenter",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:breena carpenter"
         }
       ],
       "rewards": {
@@ -59045,8 +58815,7 @@
           "method": "item_turnin",
           "source_name": "Breena Carpenter",
           "source_type": "character",
-          "source_stable_key": "character:breena carpenter",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:breena carpenter"
         }
       ],
       "rewards": {
@@ -59136,8 +58905,7 @@
           "method": "item_turnin",
           "source_name": "Breena Carpenter",
           "source_type": "character",
-          "source_stable_key": "character:breena carpenter",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:breena carpenter"
         }
       ],
       "rewards": {
@@ -59222,8 +58990,7 @@
           "method": "item_turnin",
           "source_name": "Breena Carpenter",
           "source_type": "character",
-          "source_stable_key": "character:breena carpenter",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:breena carpenter"
         }
       ],
       "rewards": {
@@ -59308,8 +59075,7 @@
           "method": "item_turnin",
           "source_name": "Breena Carpenter",
           "source_type": "character",
-          "source_stable_key": "character:breena carpenter",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:breena carpenter"
         }
       ],
       "rewards": {
@@ -59332,8 +59098,7 @@
           "method": "dialog",
           "source_name": "Poacher",
           "source_type": "character",
-          "source_stable_key": "character:poacher (1):rottenfoot:497.72:31.00:355.23",
-          "zone_name": "Rottenfoot"
+          "source_stable_key": "character:poacher (1):rottenfoot:497.72:31.00:355.23"
         }
       ],
       "steps": [
@@ -59342,8 +59107,7 @@
           "action": "talk",
           "description": "Speak to Poacher.",
           "target_name": "Poacher",
-          "target_type": "character",
-          "zone_name": "Rottenfoot"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -59386,8 +59150,7 @@
           "method": "item_turnin",
           "source_name": "Poacher",
           "source_type": "character",
-          "source_stable_key": "character:poacher (1):rottenfoot:497.72:31.00:355.23",
-          "zone_name": "Rottenfoot"
+          "source_stable_key": "character:poacher (1):rottenfoot:497.72:31.00:355.23"
         }
       ],
       "rewards": {
@@ -59408,26 +59171,18 @@
       "acquisition": [
         {
           "method": "dialog",
-          "source_name": "Trevor Ulchand",
-          "source_type": "character",
-          "source_stable_key": "character:neziroth daggerhart"
-        },
-        {
-          "method": "dialog",
           "source_name": "Neziroth Daggerhart",
           "source_type": "character",
-          "source_stable_key": "character:neziroth daggerhart:stowaway:497.09:68.71:677.59",
-          "zone_name": "Stowaway's Step"
+          "source_stable_key": "character:neziroth daggerhart:stowaway:497.09:68.71:677.59"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Trevor Ulchand.",
-          "target_name": "Trevor Ulchand",
-          "target_type": "character",
-          "zone_name": "Stowaway's Step"
+          "description": "Speak to Neziroth Daggerhart.",
+          "target_name": "Neziroth Daggerhart",
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -59479,8 +59234,7 @@
           "method": "item_turnin",
           "source_name": "Neziroth Daggerhart",
           "source_type": "character",
-          "source_stable_key": "character:neziroth daggerhart:stowaway:497.09:68.71:677.59",
-          "zone_name": "Stowaway's Step"
+          "source_stable_key": "character:neziroth daggerhart:stowaway:497.09:68.71:677.59"
         }
       ],
       "rewards": {
@@ -59510,7 +59264,6 @@
       "display_name": "Delivering the Light",
       "description": "You've achieved something impressive.",
       "quest_type": "fetch",
-      "zone_context": "Stowaway's Step",
       "steps": [
         {
           "order": 1,
@@ -59525,8 +59278,7 @@
           "action": "turn_in",
           "description": "Turn in items to Kio the Light Keeper.",
           "target_name": "Kio the Light Keeper",
-          "target_type": "character",
-          "zone_name": "Stowaway's Step"
+          "target_type": "character"
         }
       ],
       "required_items": [
@@ -59549,13 +59301,6 @@
           "source_name": "Kio the Light Keeper",
           "source_type": "character",
           "source_stable_key": "character:kio the lightkeeper"
-        },
-        {
-          "method": "item_turnin",
-          "source_name": "Kio the Light Keeper",
-          "source_type": "character",
-          "source_stable_key": "character:kio the lightkeeper:stowaway:799.34:20.07:585.85",
-          "zone_name": "Stowaway's Step"
         }
       ],
       "rewards": {
@@ -59587,8 +59332,7 @@
           "method": "dialog",
           "source_name": "Stalzo",
           "source_type": "character",
-          "source_stable_key": "character:stalzo",
-          "zone_name": "Island Tomb"
+          "source_stable_key": "character:stalzo"
         }
       ],
       "steps": [
@@ -59597,8 +59341,7 @@
           "action": "talk",
           "description": "Speak to Stalzo.",
           "target_name": "Stalzo",
-          "target_type": "character",
-          "zone_name": "Island Tomb"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -59614,7 +59357,7 @@
           "description": "Turn in items to Aragath Swellsteer.",
           "target_name": "Aragath Swellsteer",
           "target_type": "character",
-          "zone_name": "Stowaway's Step"
+          "zone_name": "Island Tomb"
         }
       ],
       "required_items": [
@@ -59629,8 +59372,7 @@
           "method": "item_turnin",
           "source_name": "Aragath Swellsteer",
           "source_type": "character",
-          "source_stable_key": "character:aragath swellsteer",
-          "zone_name": "Stowaway's Step"
+          "source_stable_key": "character:aragath swellsteer"
         }
       ],
       "rewards": {
@@ -59666,8 +59408,7 @@
           "method": "dialog",
           "source_name": "Edgar Taether",
           "source_type": "character",
-          "source_stable_key": "character:edgar taether:silkengrass:1050.92:97.34:1006.71",
-          "zone_name": "Silkengrass Meadowlands"
+          "source_stable_key": "character:edgar taether:silkengrass:1050.92:97.34:1006.71"
         }
       ],
       "steps": [
@@ -59676,8 +59417,7 @@
           "action": "talk",
           "description": "Speak to Edgar Taether.",
           "target_name": "Edgar Taether",
-          "target_type": "character",
-          "zone_name": "Silkengrass Meadowlands"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -59758,8 +59498,7 @@
           "method": "item_turnin",
           "source_name": "Edgar Taether",
           "source_type": "character",
-          "source_stable_key": "character:edgar taether:silkengrass:1050.92:97.34:1006.71",
-          "zone_name": "Silkengrass Meadowlands"
+          "source_stable_key": "character:edgar taether:silkengrass:1050.92:97.34:1006.71"
         }
       ],
       "rewards": {
@@ -59795,8 +59534,7 @@
           "method": "dialog",
           "source_name": "Varran Juctor",
           "source_type": "character",
-          "source_stable_key": "character:varran juctor",
-          "zone_name": "Fernalla's Revival Plains"
+          "source_stable_key": "character:varran juctor"
         }
       ],
       "steps": [
@@ -59805,8 +59543,7 @@
           "action": "talk",
           "description": "Speak to Varran Juctor.",
           "target_name": "Varran Juctor",
-          "target_type": "character",
-          "zone_name": "Fernalla's Revival Plains"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -59894,8 +59631,7 @@
           "method": "item_turnin",
           "source_name": "Varran Juctor",
           "source_type": "character",
-          "source_stable_key": "character:varran juctor",
-          "zone_name": "Fernalla's Revival Plains"
+          "source_stable_key": "character:varran juctor"
         }
       ],
       "rewards": {
@@ -59944,8 +59680,7 @@
           "method": "dialog",
           "source_name": "Nylith Valorro",
           "source_type": "character",
-          "source_stable_key": "character:nylith valorro",
-          "zone_name": "Hidden Hills"
+          "source_stable_key": "character:nylith valorro"
         }
       ],
       "steps": [
@@ -59954,8 +59689,7 @@
           "action": "talk",
           "description": "Speak to Nylith Valorro.",
           "target_name": "Nylith Valorro",
-          "target_type": "character",
-          "zone_name": "Hidden Hills"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -60018,8 +59752,7 @@
           "method": "item_turnin",
           "source_name": "Nylith Valorro",
           "source_type": "character",
-          "source_stable_key": "character:nylith valorro",
-          "zone_name": "Hidden Hills"
+          "source_stable_key": "character:nylith valorro"
         }
       ],
       "rewards": {
@@ -60064,8 +59797,7 @@
           "action": "talk",
           "description": "Speak to The Hider.",
           "target_name": "The Hider",
-          "target_type": "character",
-          "zone_name": "Shivering Step"
+          "target_type": "character"
         }
       ],
       "completion": [
@@ -60073,8 +59805,7 @@
           "method": "talk",
           "source_name": "The Hider",
           "source_type": "character",
-          "source_stable_key": "character:the hider:shiveringstep:668.70:45.25:549.83",
-          "zone_name": "Shivering Step"
+          "source_stable_key": "character:the hider:shiveringstep:668.70:45.25:549.83"
         }
       ],
       "rewards": {
@@ -60150,8 +59881,7 @@
           "method": "item_turnin",
           "source_name": "Flicker of Souls",
           "source_type": "character",
-          "source_stable_key": "character:flickering souls",
-          "zone_name": "Azynthi's Garden"
+          "source_stable_key": "character:flickering souls"
         }
       ],
       "rewards": {
@@ -60174,8 +59904,7 @@
           "method": "dialog",
           "source_name": "Benson Gamble",
           "source_type": "character",
-          "source_stable_key": "character:benson gamble",
-          "zone_name": "Hidden Hills"
+          "source_stable_key": "character:benson gamble"
         }
       ],
       "steps": [
@@ -60184,8 +59913,7 @@
           "action": "talk",
           "description": "Speak to Benson Gamble.",
           "target_name": "Benson Gamble",
-          "target_type": "character",
-          "zone_name": "Hidden Hills"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -60242,8 +59970,7 @@
           "method": "item_turnin",
           "source_name": "Benson Gamble",
           "source_type": "character",
-          "source_stable_key": "character:benson gamble",
-          "zone_name": "Hidden Hills"
+          "source_stable_key": "character:benson gamble"
         }
       ],
       "rewards": {
@@ -60279,8 +60006,7 @@
           "method": "dialog",
           "source_name": "Windlae Oldseer",
           "source_type": "character",
-          "source_stable_key": "character:windlae oldseer",
-          "zone_name": "Hidden Hills"
+          "source_stable_key": "character:windlae oldseer"
         }
       ],
       "steps": [
@@ -60289,8 +60015,7 @@
           "action": "talk",
           "description": "Speak to Windlae Oldseer.",
           "target_name": "Windlae Oldseer",
-          "target_type": "character",
-          "zone_name": "Hidden Hills"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -60328,8 +60053,7 @@
           "method": "item_turnin",
           "source_name": "Windlae Oldseer",
           "source_type": "character",
-          "source_stable_key": "character:windlae oldseer",
-          "zone_name": "Hidden Hills"
+          "source_stable_key": "character:windlae oldseer"
         }
       ],
       "rewards": {
@@ -60365,8 +60089,7 @@
           "method": "dialog",
           "source_name": "Hadden Passican",
           "source_type": "character",
-          "source_stable_key": "character:hadden passican",
-          "zone_name": "Fernalla's Revival Plains"
+          "source_stable_key": "character:hadden passican"
         }
       ],
       "steps": [
@@ -60375,8 +60098,7 @@
           "action": "talk",
           "description": "Speak to Hadden Passican.",
           "target_name": "Hadden Passican",
-          "target_type": "character",
-          "zone_name": "Fernalla's Revival Plains"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -60392,7 +60114,7 @@
           "description": "Turn in items to Leena Halsted.",
           "target_name": "Leena Halsted",
           "target_type": "character",
-          "zone_name": "Ripper's Keep"
+          "zone_name": "Fernalla's Revival Plains"
         }
       ],
       "required_items": [
@@ -60407,8 +60129,7 @@
           "method": "item_turnin",
           "source_name": "Leena Halsted",
           "source_type": "character",
-          "source_stable_key": "character:leena halsted",
-          "zone_name": "Ripper's Keep"
+          "source_stable_key": "character:leena halsted"
         }
       ],
       "rewards": {
@@ -60454,14 +60175,6 @@
       "steps": [
         {
           "order": 1,
-          "action": "talk",
-          "description": "Speak to Hadden's Supplies.",
-          "target_name": "Hadden's Supplies",
-          "target_type": "character",
-          "zone_name": "Fernalla's Revival Plains"
-        },
-        {
-          "order": 2,
           "action": "collect",
           "description": "Collect Leena's Receipt.",
           "target_name": "Leena's Receipt",
@@ -60469,7 +60182,7 @@
           "quantity": 1
         },
         {
-          "order": 3,
+          "order": 2,
           "action": "turn_in",
           "description": "Turn in items to Hadden Passican.",
           "target_name": "Hadden Passican",
@@ -60495,8 +60208,7 @@
           "method": "item_turnin",
           "source_name": "Hadden Passican",
           "source_type": "character",
-          "source_stable_key": "character:hadden passican",
-          "zone_name": "Fernalla's Revival Plains"
+          "source_stable_key": "character:hadden passican"
         }
       ],
       "rewards": {
@@ -60544,17 +60256,9 @@
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Stowaway Registration.",
-          "target_name": "Stowaway Registration",
-          "target_type": "character"
-        },
-        {
-          "order": 2,
-          "action": "talk",
           "description": "Speak to Corporal Slate.",
           "target_name": "Corporal Slate",
-          "target_type": "character",
-          "zone_name": "Stowaway's Step"
+          "target_type": "character"
         }
       ],
       "completion": [
@@ -60562,8 +60266,7 @@
           "method": "talk",
           "source_name": "Corporal Slate",
           "source_type": "character",
-          "source_stable_key": "character:corporal smith",
-          "zone_name": "Stowaway's Step"
+          "source_stable_key": "character:corporal smith"
         }
       ],
       "rewards": {
@@ -60589,8 +60292,7 @@
           "method": "dialog",
           "source_name": "Foreman Hauck",
           "source_type": "character",
-          "source_stable_key": "character:foreman hauck",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:foreman hauck"
         }
       ],
       "steps": [
@@ -60599,8 +60301,7 @@
           "action": "talk",
           "description": "Speak to Foreman Hauck.",
           "target_name": "Foreman Hauck",
-          "target_type": "character",
-          "zone_name": "Port Azure"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -60638,8 +60339,7 @@
           "method": "item_turnin",
           "source_name": "Foreman Hauck",
           "source_type": "character",
-          "source_stable_key": "character:foreman hauck",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:foreman hauck"
         }
       ],
       "rewards": {
@@ -60670,8 +60370,7 @@
           "method": "dialog",
           "source_name": "Valrae Cleary",
           "source_type": "character",
-          "source_stable_key": "character:valrae cleary",
-          "zone_name": "Faerie's Brake"
+          "source_stable_key": "character:valrae cleary"
         }
       ],
       "steps": [
@@ -60680,8 +60379,7 @@
           "action": "talk",
           "description": "Speak to Valrae Cleary.",
           "target_name": "Valrae Cleary",
-          "target_type": "character",
-          "zone_name": "Faerie's Brake"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -60739,8 +60437,7 @@
           "method": "item_turnin",
           "source_name": "Valrae Cleary",
           "source_type": "character",
-          "source_stable_key": "character:valrae cleary",
-          "zone_name": "Faerie's Brake"
+          "source_stable_key": "character:valrae cleary"
         }
       ],
       "rewards": {
@@ -60802,8 +60499,7 @@
           "method": "dialog",
           "source_name": "Corporal Slate",
           "source_type": "character",
-          "source_stable_key": "character:corporal smith",
-          "zone_name": "Stowaway's Step"
+          "source_stable_key": "character:corporal smith"
         }
       ],
       "steps": [
@@ -60812,8 +60508,7 @@
           "action": "talk",
           "description": "Speak to Corporal Slate.",
           "target_name": "Corporal Slate",
-          "target_type": "character",
-          "zone_name": "Stowaway's Step"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -60845,13 +60540,6 @@
           "source_name": "Kio the Light Keeper",
           "source_type": "character",
           "source_stable_key": "character:kio the lightkeeper"
-        },
-        {
-          "method": "item_turnin",
-          "source_name": "Kio the Light Keeper",
-          "source_type": "character",
-          "source_stable_key": "character:kio the lightkeeper:stowaway:799.34:20.07:585.85",
-          "zone_name": "Stowaway's Step"
         }
       ],
       "rewards": {
@@ -60891,11 +60579,10 @@
       "steps": [
         {
           "order": 1,
-          "action": "talk",
-          "description": "Speak to Note to Liam.",
+          "action": "read",
+          "description": "Obtain and read Note to Liam.",
           "target_name": "Note to Liam",
-          "target_type": "character",
-          "zone_name": "The Duskenlight Coast"
+          "target_type": "item"
         },
         {
           "order": 2,
@@ -60933,8 +60620,7 @@
           "method": "item_turnin",
           "source_name": "Liam Kilfa",
           "source_type": "character",
-          "source_stable_key": "character:liam kilfa:duskenlight:364.21:65.34:343.17",
-          "zone_name": "The Duskenlight Coast"
+          "source_stable_key": "character:liam kilfa:duskenlight:364.21:65.34:343.17"
         }
       ],
       "rewards": {
@@ -60968,14 +60654,6 @@
       "steps": [
         {
           "order": 1,
-          "action": "talk",
-          "description": "Speak to Recovering the Nighthollow Candle.",
-          "target_name": "Recovering the Nighthollow Candle",
-          "target_type": "character",
-          "zone_name": "Fallen Braxonia"
-        },
-        {
-          "order": 2,
           "action": "collect",
           "description": "Collect Unlit Nighthollow Candle.",
           "target_name": "Unlit Nighthollow Candle",
@@ -60983,7 +60661,7 @@
           "quantity": 1
         },
         {
-          "order": 3,
+          "order": 2,
           "action": "turn_in",
           "description": "Turn in items to Braxonian Flame Well.",
           "target_name": "Braxonian Flame Well",
@@ -61009,64 +60687,7 @@
           "method": "item_turnin",
           "source_name": "Braxonian Flame Well",
           "source_type": "character",
-          "source_stable_key": "character:flamewell:braxonia:86.83:59.42:593.95",
-          "zone_name": "Fallen Braxonia"
-        },
-        {
-          "method": "item_turnin",
-          "source_name": "Braxonian Flame Well",
-          "source_type": "character",
-          "source_stable_key": "character:flamewell:reliquary:268.49:-0.17:327.55",
-          "zone_name": "Reliquary Hall"
-        },
-        {
-          "method": "item_turnin",
-          "source_name": "Braxonian Flame Well",
-          "source_type": "character",
-          "source_stable_key": "character:flamewell:reliquary:268.49:-0.17:339.30",
-          "zone_name": "Reliquary Hall"
-        },
-        {
-          "method": "item_turnin",
-          "source_name": "Braxonian Flame Well",
-          "source_type": "character",
-          "source_stable_key": "character:flamewell:reliquary:268.49:-0.17:350.80",
-          "zone_name": "Reliquary Hall"
-        },
-        {
-          "method": "item_turnin",
-          "source_name": "Braxonian Flame Well",
-          "source_type": "character",
-          "source_stable_key": "character:flamewell:reliquary:268.49:-0.17:361.80",
-          "zone_name": "Reliquary Hall"
-        },
-        {
-          "method": "item_turnin",
-          "source_name": "Braxonian Flame Well",
-          "source_type": "character",
-          "source_stable_key": "character:flamewell:reliquary:281.45:-0.17:327.41",
-          "zone_name": "Reliquary Hall"
-        },
-        {
-          "method": "item_turnin",
-          "source_name": "Braxonian Flame Well",
-          "source_type": "character",
-          "source_stable_key": "character:flamewell:reliquary:281.45:-0.17:339.16",
-          "zone_name": "Reliquary Hall"
-        },
-        {
-          "method": "item_turnin",
-          "source_name": "Braxonian Flame Well",
-          "source_type": "character",
-          "source_stable_key": "character:flamewell:reliquary:281.45:-0.17:350.66",
-          "zone_name": "Reliquary Hall"
-        },
-        {
-          "method": "item_turnin",
-          "source_name": "Braxonian Flame Well",
-          "source_type": "character",
-          "source_stable_key": "character:flamewell:reliquary:281.45:-0.17:361.80",
-          "zone_name": "Reliquary Hall"
+          "source_stable_key": "character:flamewell:braxonia:86.83:59.42:593.95"
         }
       ],
       "rewards": {
@@ -61159,8 +60780,7 @@
           "method": "item_turnin",
           "source_name": "Stardust",
           "source_type": "character",
-          "source_stable_key": "character:stardust",
-          "zone_name": "Soluna's Landing"
+          "source_stable_key": "character:stardust"
         }
       ],
       "rewards": {
@@ -61518,22 +61138,7 @@
           "method": "item_turnin",
           "source_name": "Baking Oven",
           "source_type": "character",
-          "source_stable_key": "character:baking oven:azure:275.88:26.08:231.25",
-          "zone_name": "Port Azure"
-        },
-        {
-          "method": "item_turnin",
-          "source_name": "Baking Oven",
-          "source_type": "character",
-          "source_stable_key": "character:baking oven:summerevent:174.65:11.60:144.57",
-          "zone_name": "Bellwain Island"
-        },
-        {
-          "method": "item_turnin",
-          "source_name": "Baking Oven",
-          "source_type": "character",
-          "source_stable_key": "character:sm_prop_furnace_01:prielplateau:205.24:15.59:215.02",
-          "zone_name": "Prielian Cascade"
+          "source_stable_key": "character:baking oven:azure:275.88:26.08:231.25"
         }
       ],
       "rewards": {
@@ -61557,8 +61162,7 @@
           "method": "dialog",
           "source_name": "Prichard Zemoro",
           "source_type": "character",
-          "source_stable_key": "character:prichard zemora:azure:185.37:12.94:175.81",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:prichard zemora:azure:185.37:12.94:175.81"
         }
       ],
       "steps": [
@@ -61567,8 +61171,7 @@
           "action": "talk",
           "description": "Speak to Prichard Zemoro.",
           "target_name": "Prichard Zemoro",
-          "target_type": "character",
-          "zone_name": "Port Azure"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -61641,8 +61244,7 @@
           "method": "item_turnin",
           "source_name": "Prichard Zemoro",
           "source_type": "character",
-          "source_stable_key": "character:prichard zemora:azure:185.37:12.94:175.81",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:prichard zemora:azure:185.37:12.94:175.81"
         }
       ],
       "rewards": {
@@ -61673,8 +61275,7 @@
           "method": "dialog",
           "source_name": "Mavik Estonia",
           "source_type": "character",
-          "source_stable_key": "character:mavik eston",
-          "zone_name": "Silkengrass Meadowlands"
+          "source_stable_key": "character:mavik eston"
         }
       ],
       "steps": [
@@ -61683,8 +61284,7 @@
           "action": "talk",
           "description": "Speak to Mavik Estonia.",
           "target_name": "Mavik Estonia",
-          "target_type": "character",
-          "zone_name": "Silkengrass Meadowlands"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -61700,7 +61300,7 @@
           "description": "Turn in items to Captain Kilkay.",
           "target_name": "Captain Kilkay",
           "target_type": "character",
-          "zone_name": "Port Azure"
+          "zone_name": "Silkengrass Meadowlands"
         }
       ],
       "required_items": [
@@ -61715,8 +61315,7 @@
           "method": "item_turnin",
           "source_name": "Captain Kilkay",
           "source_type": "character",
-          "source_stable_key": "character:guard captain azure",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:guard captain azure"
         }
       ],
       "rewards": {
@@ -61757,8 +61356,7 @@
           "action": "talk",
           "description": "Speak to Bassle Wavebreaker.",
           "target_name": "Bassle Wavebreaker",
-          "target_type": "character",
-          "zone_name": "Blacksalt Strand"
+          "target_type": "character"
         }
       ],
       "completion": [
@@ -61766,8 +61364,7 @@
           "method": "talk",
           "source_name": "Bassle Wavebreaker",
           "source_type": "character",
-          "source_stable_key": "character:bassle wavebreak",
-          "zone_name": "Blacksalt Strand"
+          "source_stable_key": "character:bassle wavebreak"
         }
       ],
       "rewards": {
@@ -61818,8 +61415,7 @@
           "method": "item_turnin",
           "source_name": "Valao the Holy",
           "source_type": "character",
-          "source_stable_key": "character:solunarian holy guard",
-          "zone_name": "Soluna's Landing"
+          "source_stable_key": "character:solunarian holy guard"
         }
       ],
       "rewards": {
@@ -61847,8 +61443,7 @@
           "method": "dialog",
           "source_name": "Shady Fisherman",
           "source_type": "character",
-          "source_stable_key": "character:shady fisherman:azure:43.10:13.76:246.95",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:shady fisherman:azure:43.10:13.76:246.95"
         }
       ],
       "steps": [
@@ -61857,8 +61452,7 @@
           "action": "talk",
           "description": "Speak to Shady Fisherman.",
           "target_name": "Shady Fisherman",
-          "target_type": "character",
-          "zone_name": "Port Azure"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -61995,8 +61589,7 @@
           "method": "item_turnin",
           "source_name": "Shady Fisherman",
           "source_type": "character",
-          "source_stable_key": "character:shady fisherman:azure:43.10:13.76:246.95",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:shady fisherman:azure:43.10:13.76:246.95"
         }
       ]
     },
@@ -62012,8 +61605,7 @@
           "method": "dialog",
           "source_name": "Valrae Cleary",
           "source_type": "character",
-          "source_stable_key": "character:valrae cleary",
-          "zone_name": "Faerie's Brake"
+          "source_stable_key": "character:valrae cleary"
         }
       ],
       "steps": [
@@ -62022,8 +61614,7 @@
           "action": "talk",
           "description": "Speak to Valrae Cleary.",
           "target_name": "Valrae Cleary",
-          "target_type": "character",
-          "zone_name": "Faerie's Brake"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -62096,8 +61687,7 @@
           "method": "item_turnin",
           "source_name": "Valrae Cleary",
           "source_type": "character",
-          "source_stable_key": "character:valrae cleary",
-          "zone_name": "Faerie's Brake"
+          "source_stable_key": "character:valrae cleary"
         }
       ],
       "rewards": {
@@ -62135,11 +61725,10 @@
       "steps": [
         {
           "order": 1,
-          "action": "talk",
-          "description": "Speak to Scribbles of a Mad Priest.",
+          "action": "read",
+          "description": "Obtain and read Scribbles of a Mad Priest.",
           "target_name": "Scribbles of a Mad Priest",
-          "target_type": "character",
-          "zone_name": "Port Azure"
+          "target_type": "item"
         },
         {
           "order": 2,
@@ -62177,14 +61766,7 @@
           "method": "item_turnin",
           "source_name": "Orion Mycon",
           "source_type": "character",
-          "source_stable_key": "character:orion mycon",
-          "zone_name": "Port Azure"
-        },
-        {
-          "method": "item_turnin",
-          "source_name": "Orion Mycon",
-          "source_type": "character",
-          "source_stable_key": "character:orion mycon bkp"
+          "source_stable_key": "character:orion mycon"
         }
       ],
       "rewards": {
@@ -62223,14 +61805,6 @@
       "steps": [
         {
           "order": 1,
-          "action": "talk",
-          "description": "Speak to Percy's Seaspice.",
-          "target_name": "Percy's Seaspice",
-          "target_type": "character",
-          "zone_name": "Stowaway's Step"
-        },
-        {
-          "order": 2,
           "action": "collect",
           "description": "Collect A Rolled Note.",
           "target_name": "A Rolled Note",
@@ -62238,7 +61812,7 @@
           "quantity": 1
         },
         {
-          "order": 3,
+          "order": 2,
           "action": "turn_in",
           "description": "Turn in items to Captain Genevieve Voldance.",
           "target_name": "Captain Genevieve Voldance",
@@ -62264,8 +61838,7 @@
           "method": "item_turnin",
           "source_name": "Captain Genevieve Voldance",
           "source_type": "character",
-          "source_stable_key": "character:captain genevieve voldance:stowaway:838.98:9.98:444.23",
-          "zone_name": "Stowaway's Step"
+          "source_stable_key": "character:captain genevieve voldance:stowaway:838.98:9.98:444.23"
         }
       ],
       "rewards": {
@@ -62331,15 +61904,7 @@
           "method": "item_turnin",
           "source_name": "Boatman",
           "source_type": "character",
-          "source_stable_key": "character:boatman",
-          "zone_name": "The Blight"
-        },
-        {
-          "method": "item_turnin",
-          "source_name": "Boatman",
-          "source_type": "character",
-          "source_stable_key": "character:boatman:azynthiclear:323.94:14.92:749.13",
-          "zone_name": "Azynthi's Garden"
+          "source_stable_key": "character:boatman"
         }
       ],
       "rewards": {
@@ -62361,8 +61926,7 @@
           "method": "dialog",
           "source_name": "Percy Ildia",
           "source_type": "character",
-          "source_stable_key": "character:percy ildia:stowaway:693.19:20.67:504.85",
-          "zone_name": "Stowaway's Step"
+          "source_stable_key": "character:percy ildia:stowaway:693.19:20.67:504.85"
         }
       ],
       "steps": [
@@ -62371,8 +61935,7 @@
           "action": "talk",
           "description": "Speak to Percy Ildia.",
           "target_name": "Percy Ildia",
-          "target_type": "character",
-          "zone_name": "Stowaway's Step"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -62618,8 +62181,7 @@
           "method": "item_turnin",
           "source_name": "Percy Ildia",
           "source_type": "character",
-          "source_stable_key": "character:percy ildia:stowaway:693.19:20.67:504.85",
-          "zone_name": "Stowaway's Step"
+          "source_stable_key": "character:percy ildia:stowaway:693.19:20.67:504.85"
         }
       ],
       "rewards": {
@@ -62672,10 +62234,6 @@
           "quantity": 1,
           "quest_reward_sources": [
             {
-              "quest_name": "Portal of Hidden Hills",
-              "quest_stable_key": "quest:reliq-hidden"
-            },
-            {
               "quest_name": "Willow Soil",
               "quest_stable_key": "quest:willowsoil"
             }
@@ -62687,8 +62245,7 @@
           "method": "item_turnin",
           "source_name": "Hidden Hills Receptacle",
           "source_type": "character",
-          "source_stable_key": "character:receptacle-hidden:reliquary:291.14:1.06:328.61",
-          "zone_name": "Reliquary Hall"
+          "source_stable_key": "character:receptacle-hidden:reliquary:291.14:1.06:328.61"
         }
       ],
       "rewards": {
@@ -62732,10 +62289,6 @@
           "quantity": 1,
           "quest_reward_sources": [
             {
-              "quest_name": "Portal of Ripper's Keep",
-              "quest_stable_key": "quest:reliq-ripper"
-            },
-            {
               "quest_name": "A Trade in Ripper's Keep",
               "quest_stable_key": "quest:ripperrune"
             }
@@ -62747,8 +62300,7 @@
           "method": "item_turnin",
           "source_name": "Ripparian Receptacle",
           "source_type": "character",
-          "source_stable_key": "character:receptacle-ripper:reliquary:258.39:1.06:328.61",
-          "zone_name": "Reliquary Hall"
+          "source_stable_key": "character:receptacle-ripper:reliquary:258.39:1.06:328.61"
         }
       ],
       "rewards": {
@@ -62805,12 +62357,6 @@
               "character_name": "Scorched Skeleton",
               "character_stable_key": "character:scorched skeleton 1"
             }
-          ],
-          "quest_reward_sources": [
-            {
-              "quest_name": "Portal of Sands",
-              "quest_stable_key": "quest:reliq-sands"
-            }
           ]
         }
       ],
@@ -62819,8 +62365,7 @@
           "method": "item_turnin",
           "source_name": "Braxonian Receptacle",
           "source_type": "character",
-          "source_stable_key": "character:receptacle-sand:reliquary:291.14:1.06:367.86",
-          "zone_name": "Reliquary Hall"
+          "source_stable_key": "character:receptacle-sand:reliquary:291.14:1.06:367.86"
         }
       ],
       "rewards": {
@@ -62873,12 +62418,6 @@
               "character_stable_key": "character:shadow man",
               "zone_name": "Silkengrass Meadowlands"
             }
-          ],
-          "quest_reward_sources": [
-            {
-              "quest_name": "Portal of Silkengrass",
-              "quest_stable_key": "quest:reliq-silkengrass"
-            }
           ]
         }
       ],
@@ -62887,8 +62426,7 @@
           "method": "item_turnin",
           "source_name": "Silkengrass Receptacle",
           "source_type": "character",
-          "source_stable_key": "character:receptacle-silken:reliquary:291.14:1.06:348.36",
-          "zone_name": "Reliquary Hall"
+          "source_stable_key": "character:receptacle-silken:reliquary:291.14:1.06:348.36"
         }
       ],
       "rewards": {
@@ -62934,10 +62472,6 @@
             {
               "quest_name": "Note to Soluna",
               "quest_stable_key": "quest:solunalandingrune"
-            },
-            {
-              "quest_name": "Portal of Soluna",
-              "quest_stable_key": "quest:reliq-soluna"
             }
           ]
         }
@@ -62947,8 +62481,7 @@
           "method": "item_turnin",
           "source_name": "Solunarian Receptacle",
           "source_type": "character",
-          "source_stable_key": "character:receptacle-soluna:reliquary:258.39:1.06:367.86",
-          "zone_name": "Reliquary Hall"
+          "source_stable_key": "character:receptacle-soluna:reliquary:258.39:1.06:367.86"
         }
       ],
       "rewards": {
@@ -62994,10 +62527,6 @@
             {
               "quest_name": "The Scent of Brashell",
               "quest_stable_key": "quest:brashell"
-            },
-            {
-              "quest_name": "Portal of Windwashed",
-              "quest_stable_key": "quest:reliq-winds"
             }
           ]
         }
@@ -63007,8 +62536,7 @@
           "method": "item_turnin",
           "source_name": "Windwashed Receptacle",
           "source_type": "character",
-          "source_stable_key": "character:receptacle-wind:reliquary:258.39:1.06:348.36",
-          "zone_name": "Reliquary Hall"
+          "source_stable_key": "character:receptacle-wind:reliquary:258.39:1.06:348.36"
         }
       ],
       "rewards": {
@@ -63107,8 +62635,7 @@
           "method": "dialog",
           "source_name": "Larviso Poltir",
           "source_type": "character",
-          "source_stable_key": "character:larviso poltir:loomingwood:323.78:29.25:429.23",
-          "zone_name": "Loomingwood Forest"
+          "source_stable_key": "character:larviso poltir:loomingwood:323.78:29.25:429.23"
         }
       ],
       "steps": [
@@ -63117,8 +62644,7 @@
           "action": "talk",
           "description": "Speak to Larviso Poltir.",
           "target_name": "Larviso Poltir",
-          "target_type": "character",
-          "zone_name": "Loomingwood Forest"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -63195,8 +62721,7 @@
           "method": "item_turnin",
           "source_name": "Larviso Poltir",
           "source_type": "character",
-          "source_stable_key": "character:larviso poltir:loomingwood:323.78:29.25:429.23",
-          "zone_name": "Loomingwood Forest"
+          "source_stable_key": "character:larviso poltir:loomingwood:323.78:29.25:429.23"
         }
       ],
       "rewards": {
@@ -63242,14 +62767,6 @@
       "steps": [
         {
           "order": 1,
-          "action": "talk",
-          "description": "Speak to Orion Mycon's Lost Ring.",
-          "target_name": "Orion Mycon's Lost Ring",
-          "target_type": "character",
-          "zone_name": "Port Azure"
-        },
-        {
-          "order": 2,
           "action": "collect",
           "description": "Collect Unsocketed Ring.",
           "target_name": "Unsocketed Ring",
@@ -63257,7 +62774,7 @@
           "quantity": 1
         },
         {
-          "order": 3,
+          "order": 2,
           "action": "turn_in",
           "description": "Turn in items to Parmalee Gemlyn.",
           "target_name": "Parmalee Gemlyn",
@@ -63274,10 +62791,6 @@
             {
               "quest_name": "Orion Mycon's Lost Ring",
               "quest_stable_key": "quest:tempeststone"
-            },
-            {
-              "quest_name": "Repairing Orion's Ring",
-              "quest_stable_key": "quest:tempeststone2"
             }
           ]
         }
@@ -63287,21 +62800,13 @@
           "method": "item_turnin",
           "source_name": "Parmalee Gemlyn",
           "source_type": "character",
-          "source_stable_key": "character:parmalee gemlyn",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:parmalee gemlyn"
         },
         {
           "method": "item_turnin",
           "source_name": "Violet Smithfield",
           "source_type": "character",
           "source_stable_key": "character:violetta smithfield"
-        },
-        {
-          "method": "item_turnin",
-          "source_name": "Violet Smithfield",
-          "source_type": "character",
-          "source_stable_key": "character:violetta smithfield 1",
-          "zone_name": "Port Azure"
         }
       ],
       "rewards": {
@@ -63345,14 +62850,6 @@
       "steps": [
         {
           "order": 1,
-          "action": "talk",
-          "description": "Speak to Repairing Orion's Ring.",
-          "target_name": "Repairing Orion's Ring",
-          "target_type": "character",
-          "zone_name": "Port Azure"
-        },
-        {
-          "order": 2,
           "action": "collect",
           "description": "Collect Unsocketed Ring.",
           "target_name": "Unsocketed Ring",
@@ -63360,7 +62857,7 @@
           "quantity": 1
         },
         {
-          "order": 3,
+          "order": 2,
           "action": "collect",
           "description": "Collect Elderstone Shard (drops from A Deepling Brute, A Deepling Crimsonite, A Deepling Lunarite).",
           "target_name": "Elderstone Shard",
@@ -63368,7 +62865,7 @@
           "quantity": 1
         },
         {
-          "order": 4,
+          "order": 3,
           "action": "collect",
           "description": "Collect Chunk of Citrine Sandsilver (drops from Candlekeeper, Evadne the Corrupted).",
           "target_name": "Chunk of Citrine Sandsilver",
@@ -63376,7 +62873,7 @@
           "quantity": 1
         },
         {
-          "order": 5,
+          "order": 4,
           "action": "turn_in",
           "description": "Turn in items to Parmalee Gemlyn.",
           "target_name": "Parmalee Gemlyn",
@@ -63622,21 +63119,13 @@
           "method": "item_turnin",
           "source_name": "Parmalee Gemlyn",
           "source_type": "character",
-          "source_stable_key": "character:parmalee gemlyn",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:parmalee gemlyn"
         },
         {
           "method": "item_turnin",
           "source_name": "Violet Smithfield",
           "source_type": "character",
           "source_stable_key": "character:violetta smithfield"
-        },
-        {
-          "method": "item_turnin",
-          "source_name": "Violet Smithfield",
-          "source_type": "character",
-          "source_stable_key": "character:violetta smithfield 1",
-          "zone_name": "Port Azure"
         }
       ],
       "rewards": {
@@ -63750,8 +63239,7 @@
           "method": "item_turnin",
           "source_name": "Cecil Threbb",
           "source_type": "character",
-          "source_stable_key": "character:cecil threbb",
-          "zone_name": "Faerie's Brake"
+          "source_stable_key": "character:cecil threbb"
         }
       ],
       "rewards": {
@@ -63842,8 +63330,7 @@
           "method": "item_turnin",
           "source_name": "Captain Kilkay",
           "source_type": "character",
-          "source_stable_key": "character:guard captain azure",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:guard captain azure"
         }
       ],
       "rewards": {
@@ -63884,14 +63371,6 @@
       "steps": [
         {
           "order": 1,
-          "action": "talk",
-          "description": "Speak to A Bounty on Guard Captain Kilkay.",
-          "target_name": "A Bounty on Guard Captain Kilkay",
-          "target_type": "character",
-          "zone_name": "Ripper's Keep"
-        },
-        {
-          "order": 2,
           "action": "collect",
           "description": "Collect Sivakayan Encrypted Plans (drops from Sivakayan Voidmaster).",
           "target_name": "Sivakayan Encrypted Plans",
@@ -63899,7 +63378,7 @@
           "quantity": 1
         },
         {
-          "order": 3,
+          "order": 2,
           "action": "collect",
           "description": "Collect Sivakayan Codex 1 of 4 (drops from Sivakayan Shadow).",
           "target_name": "Sivakayan Codex 1 of 4",
@@ -63907,7 +63386,7 @@
           "quantity": 1
         },
         {
-          "order": 4,
+          "order": 3,
           "action": "collect",
           "description": "Collect Sivakayan Codex 2 of 4 (drops from Shrouded Sivakayan).",
           "target_name": "Sivakayan Codex 2 of 4",
@@ -63915,7 +63394,7 @@
           "quantity": 1
         },
         {
-          "order": 5,
+          "order": 4,
           "action": "collect",
           "description": "Collect Sivakayan Codex 3 of 4 (drops from Sivakayan High Shadow).",
           "target_name": "Sivakayan Codex 3 of 4",
@@ -63923,7 +63402,7 @@
           "quantity": 1
         },
         {
-          "order": 6,
+          "order": 5,
           "action": "collect",
           "description": "Collect Sivakayan Codex 4 of 4 (drops from Sivakayan Doomshade).",
           "target_name": "Sivakayan Codex 4 of 4",
@@ -63931,7 +63410,7 @@
           "quantity": 1
         },
         {
-          "order": 7,
+          "order": 6,
           "action": "turn_in",
           "description": "Turn in items to Ripper DeMerth.",
           "target_name": "Ripper DeMerth",
@@ -64001,8 +63480,7 @@
           "method": "item_turnin",
           "source_name": "Ripper DeMerth",
           "source_type": "character",
-          "source_stable_key": "character:ripper demerth",
-          "zone_name": "Ripper's Keep"
+          "source_stable_key": "character:ripper demerth"
         }
       ],
       "rewards": {
@@ -64049,14 +63527,6 @@
       "steps": [
         {
           "order": 1,
-          "action": "talk",
-          "description": "Speak to Ripper's Questline.",
-          "target_name": "Ripper's Questline",
-          "target_type": "character",
-          "zone_name": "Ripper's Keep"
-        },
-        {
-          "order": 2,
           "action": "collect",
           "description": "Collect Note from Eldoth (drops from Darkwarden Ilyth).",
           "target_name": "Note from Eldoth",
@@ -64064,7 +63534,7 @@
           "quantity": 1
         },
         {
-          "order": 3,
+          "order": 2,
           "action": "turn_in",
           "description": "Turn in items to Ripper DeMerth.",
           "target_name": "Ripper DeMerth",
@@ -64091,8 +63561,7 @@
           "method": "item_turnin",
           "source_name": "Ripper DeMerth",
           "source_type": "character",
-          "source_stable_key": "character:ripper demerth",
-          "zone_name": "Ripper's Keep"
+          "source_stable_key": "character:ripper demerth"
         }
       ],
       "rewards": {
@@ -64127,8 +63596,7 @@
           "method": "dialog",
           "source_name": "Torado Zortia",
           "source_type": "character",
-          "source_stable_key": "character:torado  zortia",
-          "zone_name": "Loomingwood Forest"
+          "source_stable_key": "character:torado  zortia"
         }
       ],
       "steps": [
@@ -64137,8 +63605,7 @@
           "action": "talk",
           "description": "Speak to Torado Zortia.",
           "target_name": "Torado Zortia",
-          "target_type": "character",
-          "zone_name": "Loomingwood Forest"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -64241,8 +63708,7 @@
           "method": "item_turnin",
           "source_name": "Torado Zortia",
           "source_type": "character",
-          "source_stable_key": "character:torado  zortia",
-          "zone_name": "Loomingwood Forest"
+          "source_stable_key": "character:torado  zortia"
         }
       ],
       "rewards": {
@@ -64273,8 +63739,7 @@
           "method": "dialog",
           "source_name": "Alitho Echeswer",
           "source_type": "character",
-          "source_stable_key": "character:alitho echeswer",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:alitho echeswer"
         }
       ],
       "steps": [
@@ -64283,8 +63748,7 @@
           "action": "talk",
           "description": "Speak to Alitho Echeswer.",
           "target_name": "Alitho Echeswer",
-          "target_type": "character",
-          "zone_name": "Port Azure"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -64332,8 +63796,7 @@
           "method": "item_turnin",
           "source_name": "Alitho Echeswer",
           "source_type": "character",
-          "source_stable_key": "character:alitho echeswer",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:alitho echeswer"
         }
       ],
       "rewards": {
@@ -64363,8 +63826,7 @@
           "method": "dialog",
           "source_name": "Samuel Thatcher",
           "source_type": "character",
-          "source_stable_key": "character:shopkeeper samuel",
-          "zone_name": "Hidden Hills"
+          "source_stable_key": "character:shopkeeper samuel"
         }
       ],
       "steps": [
@@ -64373,8 +63835,7 @@
           "action": "talk",
           "description": "Speak to Samuel Thatcher.",
           "target_name": "Samuel Thatcher",
-          "target_type": "character",
-          "zone_name": "Hidden Hills"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -64390,7 +63851,7 @@
           "description": "Turn in items to Harvey Alder.",
           "target_name": "Harvey Alder",
           "target_type": "character",
-          "zone_name": "Port Azure"
+          "zone_name": "Hidden Hills"
         }
       ],
       "required_items": [
@@ -64405,8 +63866,7 @@
           "method": "item_turnin",
           "source_name": "Harvey Alder",
           "source_type": "character",
-          "source_stable_key": "character:sm_chr_bartender_01:azure:154.85:34.07:255.20",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:sm_chr_bartender_01:azure:154.85:34.07:255.20"
         }
       ],
       "rewards": {
@@ -64473,22 +63933,7 @@
           "method": "item_turnin",
           "source_name": "Occuphage, Eater of Eyes",
           "source_type": "character",
-          "source_stable_key": "character:lighthouse demon:shiveringtomb2:-64.96:22.36:149.11",
-          "zone_name": "Shivering Tomb (2)"
-        },
-        {
-          "method": "item_turnin",
-          "source_name": "Occuphage, Eater of Eyes",
-          "source_type": "character",
-          "source_stable_key": "character:lighthouse demon:shiveringtomb:75.44:6.85:101.72",
-          "zone_name": "Shivering Tomb (1)"
-        },
-        {
-          "method": "item_turnin",
-          "source_name": "Occuphage, Eater of Eyes",
-          "source_type": "character",
-          "source_stable_key": "character:lighthouse demon:tutorial:-64.96:22.26:149.12",
-          "zone_name": "Island Tomb"
+          "source_stable_key": "character:lighthouse demon:shiveringtomb2:-64.96:22.36:149.11"
         }
       ],
       "rewards": {
@@ -64527,14 +63972,6 @@
       "steps": [
         {
           "order": 1,
-          "action": "talk",
-          "description": "Speak to Sivakayan Intel for Kilkay.",
-          "target_name": "Sivakayan Intel for Kilkay",
-          "target_type": "character",
-          "zone_name": "Port Azure"
-        },
-        {
-          "order": 2,
           "action": "collect",
           "description": "Collect Ealdred's Journal (drops from Darkwarden Ealdred).",
           "target_name": "Ealdred's Journal",
@@ -64542,7 +63979,7 @@
           "quantity": 1
         },
         {
-          "order": 3,
+          "order": 2,
           "action": "turn_in",
           "description": "Turn in items to Captain Kilkay.",
           "target_name": "Captain Kilkay",
@@ -64569,8 +64006,7 @@
           "method": "item_turnin",
           "source_name": "Captain Kilkay",
           "source_type": "character",
-          "source_stable_key": "character:guard captain azure",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:guard captain azure"
         }
       ],
       "rewards": {
@@ -64632,8 +64068,7 @@
           "method": "dialog",
           "source_name": "Serra Stiles",
           "source_type": "character",
-          "source_stable_key": "character:serra stiles:elderstone:121.10:0.79:636.06",
-          "zone_name": "The Elderstone Mines"
+          "source_stable_key": "character:serra stiles:elderstone:121.10:0.79:636.06"
         }
       ],
       "steps": [
@@ -64642,8 +64077,7 @@
           "action": "talk",
           "description": "Speak to Serra Stiles.",
           "target_name": "Serra Stiles",
-          "target_type": "character",
-          "zone_name": "The Elderstone Mines"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -64686,8 +64120,7 @@
           "method": "item_turnin",
           "source_name": "Serra Stiles",
           "source_type": "character",
-          "source_stable_key": "character:serra stiles:elderstone:121.10:0.79:636.06",
-          "zone_name": "The Elderstone Mines"
+          "source_stable_key": "character:serra stiles:elderstone:121.10:0.79:636.06"
         }
       ],
       "rewards": {
@@ -64770,8 +64203,7 @@
           "method": "item_turnin",
           "source_name": "Founder",
           "source_type": "character",
-          "source_stable_key": "character:founder:shiveringstep:705.22:21.11:506.71",
-          "zone_name": "Shivering Step"
+          "source_stable_key": "character:founder:shiveringstep:705.22:21.11:506.71"
         }
       ],
       "rewards": {
@@ -64801,11 +64233,10 @@
       "steps": [
         {
           "order": 1,
-          "action": "talk",
-          "description": "Speak to Sivakayan Intel.",
+          "action": "read",
+          "description": "Obtain and read Sivakayan Intel.",
           "target_name": "Sivakayan Intel",
-          "target_type": "character",
-          "zone_name": "Port Azure"
+          "target_type": "item"
         },
         {
           "order": 2,
@@ -64843,8 +64274,7 @@
           "method": "item_turnin",
           "source_name": "Captain Kilkay",
           "source_type": "character",
-          "source_stable_key": "character:guard captain azure",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:guard captain azure"
         }
       ],
       "rewards": {
@@ -64911,8 +64341,7 @@
           "method": "item_turnin",
           "source_name": "Captain Kilkay",
           "source_type": "character",
-          "source_stable_key": "character:guard captain azure",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:guard captain azure"
         }
       ],
       "rewards": {
@@ -64980,8 +64409,7 @@
           "method": "dialog",
           "source_name": "Ripper DeMerth",
           "source_type": "character",
-          "source_stable_key": "character:ripper demerth",
-          "zone_name": "Ripper's Keep"
+          "source_stable_key": "character:ripper demerth"
         }
       ],
       "steps": [
@@ -64990,8 +64418,7 @@
           "action": "talk",
           "description": "Speak to Ripper DeMerth.",
           "target_name": "Ripper DeMerth",
-          "target_type": "character",
-          "zone_name": "Ripper's Keep"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -65029,8 +64456,7 @@
           "method": "item_turnin",
           "source_name": "Ripper DeMerth",
           "source_type": "character",
-          "source_stable_key": "character:ripper demerth",
-          "zone_name": "Ripper's Keep"
+          "source_stable_key": "character:ripper demerth"
         }
       ],
       "rewards": {
@@ -65065,8 +64491,7 @@
           "method": "dialog",
           "source_name": "Supply Sergeant Tipp",
           "source_type": "character",
-          "source_stable_key": "character:supply sergeant tipp",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:supply sergeant tipp"
         }
       ],
       "steps": [
@@ -65075,8 +64500,7 @@
           "action": "talk",
           "description": "Speak to Supply Sergeant Tipp.",
           "target_name": "Supply Sergeant Tipp",
-          "target_type": "character",
-          "zone_name": "Port Azure"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -65191,8 +64615,7 @@
           "method": "item_turnin",
           "source_name": "Supply Sergeant Tipp",
           "source_type": "character",
-          "source_stable_key": "character:supply sergeant tipp",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:supply sergeant tipp"
         }
       ],
       "rewards": {
@@ -65223,8 +64646,7 @@
           "method": "dialog",
           "source_name": "Captain Kilkay",
           "source_type": "character",
-          "source_stable_key": "character:guard captain azure",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:guard captain azure"
         }
       ],
       "steps": [
@@ -65233,8 +64655,7 @@
           "action": "talk",
           "description": "Speak to Captain Kilkay.",
           "target_name": "Captain Kilkay",
-          "target_type": "character",
-          "zone_name": "Port Azure"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -65347,8 +64768,7 @@
           "method": "item_turnin",
           "source_name": "Captain Kilkay",
           "source_type": "character",
-          "source_stable_key": "character:guard captain azure",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:guard captain azure"
         }
       ],
       "rewards": {
@@ -65399,14 +64819,6 @@
       "steps": [
         {
           "order": 1,
-          "action": "talk",
-          "description": "Speak to Sivakayans in Port Azure.",
-          "target_name": "Sivakayans in Port Azure",
-          "target_type": "character",
-          "zone_name": "Port Azure"
-        },
-        {
-          "order": 2,
           "action": "collect",
           "description": "Collect Note from Eldoth (drops from Darkwarden Ilyth).",
           "target_name": "Note from Eldoth",
@@ -65414,7 +64826,7 @@
           "quantity": 1
         },
         {
-          "order": 3,
+          "order": 2,
           "action": "turn_in",
           "description": "Turn in items to Captain Kilkay.",
           "target_name": "Captain Kilkay",
@@ -65441,8 +64853,7 @@
           "method": "item_turnin",
           "source_name": "Captain Kilkay",
           "source_type": "character",
-          "source_stable_key": "character:guard captain azure",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:guard captain azure"
         }
       ],
       "rewards": {
@@ -65485,14 +64896,13 @@
           "method": "dialog",
           "source_name": "Leyor M'Chante",
           "source_type": "character",
-          "source_stable_key": "character:leyor m'chante",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:leyor m'chante bkp"
         },
         {
           "method": "dialog",
           "source_name": "Leyor M'Chante",
           "source_type": "character",
-          "source_stable_key": "character:leyor m'chante bkp"
+          "source_stable_key": "character:leyor m'chante"
         }
       ],
       "completion": [
@@ -65571,8 +64981,7 @@
           "method": "item_turnin",
           "source_name": "Apostalo Ostagla",
           "source_type": "character",
-          "source_stable_key": "character:apostalo ostagla:azynthi:733.75:94.12:494.53",
-          "zone_name": "Azynthi's Garden (Dimensional Rift)"
+          "source_stable_key": "character:apostalo ostagla:azynthi:733.75:94.12:494.53"
         }
       ],
       "rewards": {
@@ -65654,8 +65063,7 @@
           "method": "dialog",
           "source_name": "Customs Guard",
           "source_type": "character",
-          "source_stable_key": "character:island guard customs",
-          "zone_name": "Stowaway's Step"
+          "source_stable_key": "character:island guard customs"
         }
       ],
       "steps": [
@@ -65664,8 +65072,7 @@
           "action": "talk",
           "description": "Speak to Customs Guard.",
           "target_name": "Customs Guard",
-          "target_type": "character",
-          "zone_name": "Stowaway's Step"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -65696,8 +65103,7 @@
           "method": "item_turnin",
           "source_name": "Controller Wendyl",
           "source_type": "character",
-          "source_stable_key": "character:controller wendyl",
-          "zone_name": "Stowaway's Step"
+          "source_stable_key": "character:controller wendyl"
         }
       ],
       "rewards": {
@@ -65744,13 +65150,6 @@
       "steps": [
         {
           "order": 1,
-          "action": "talk",
-          "description": "Speak to Stowaway's Step.",
-          "target_name": "Stowaway's Step",
-          "target_type": "character"
-        },
-        {
-          "order": 2,
           "action": "travel",
           "description": "Travel to Hidden Hills.",
           "target_name": "Hidden Hills",
@@ -65782,8 +65181,7 @@
           "method": "dialog",
           "source_name": "Ta'Dah, Sorcerer of Ripper",
           "source_type": "character",
-          "source_stable_key": "character:ripparian high sorcerer",
-          "zone_name": "Ripper's Keep"
+          "source_stable_key": "character:ripparian high sorcerer"
         }
       ],
       "steps": [
@@ -65792,8 +65190,7 @@
           "action": "talk",
           "description": "Speak to Ta'Dah, Sorcerer of Ripper.",
           "target_name": "Ta'Dah, Sorcerer of Ripper",
-          "target_type": "character",
-          "zone_name": "Ripper's Keep"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -65841,8 +65238,7 @@
           "method": "item_turnin",
           "source_name": "Ta'Dah, Sorcerer of Ripper",
           "source_type": "character",
-          "source_stable_key": "character:ripparian high sorcerer",
-          "zone_name": "Ripper's Keep"
+          "source_stable_key": "character:ripparian high sorcerer"
         }
       ],
       "rewards": {
@@ -66025,8 +65421,7 @@
           "method": "item_turnin",
           "source_name": "Braxon Michaen",
           "source_type": "character",
-          "source_stable_key": "character:braxon michaen",
-          "zone_name": "The Duskenlight Coast"
+          "source_stable_key": "character:braxon michaen"
         }
       ],
       "rewards": {
@@ -66093,8 +65488,7 @@
           "method": "item_turnin",
           "source_name": "Liani Bosh",
           "source_type": "character",
-          "source_stable_key": "character:liani bosh:azure:135.62:31.82:303.95",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:liani bosh:azure:135.62:31.82:303.95"
         }
       ],
       "rewards": {
@@ -66131,8 +65525,7 @@
           "action": "talk",
           "description": "Speak to Bridgekeeper.",
           "target_name": "Bridgekeeper",
-          "target_type": "character",
-          "zone_name": "Shivering Step"
+          "target_type": "character"
         }
       ],
       "completion": [
@@ -66140,8 +65533,7 @@
           "method": "talk",
           "source_name": "Bridgekeeper",
           "source_type": "character",
-          "source_stable_key": "character:watchman:shiveringstep:508.96:68.49:659.72",
-          "zone_name": "Shivering Step"
+          "source_stable_key": "character:watchman:shiveringstep:508.96:68.49:659.72"
         }
       ],
       "rewards": {
@@ -66161,8 +65553,7 @@
           "action": "talk",
           "description": "Speak to Curator.",
           "target_name": "Curator",
-          "target_type": "character",
-          "zone_name": "Shivering Step"
+          "target_type": "character"
         }
       ],
       "completion": [
@@ -66170,8 +65561,7 @@
           "method": "talk",
           "source_name": "Curator",
           "source_type": "character",
-          "source_stable_key": "character:curator:shiveringstep:781.37:34.52:653.28",
-          "zone_name": "Shivering Step"
+          "source_stable_key": "character:curator:shiveringstep:781.37:34.52:653.28"
         }
       ],
       "rewards": {
@@ -66196,11 +65586,10 @@
       "steps": [
         {
           "order": 1,
-          "action": "talk",
-          "description": "Speak to Dark Flame Recipe.",
+          "action": "read",
+          "description": "Obtain and read Dark Flame Recipe.",
           "target_name": "Dark Flame Recipe",
-          "target_type": "character",
-          "zone_name": "Vitheo's Rest"
+          "target_type": "item"
         },
         {
           "order": 2,
@@ -66361,8 +65750,7 @@
           "method": "item_turnin",
           "source_name": "Dark Flame Brazier",
           "source_type": "character",
-          "source_stable_key": "character:sm_prop_brazier_01 (1):vitheosend:329.05:0.52:105.67",
-          "zone_name": "Vitheo's Rest"
+          "source_stable_key": "character:sm_prop_brazier_01 (1):vitheosend:329.05:0.52:105.67"
         }
       ],
       "rewards": {
@@ -66387,11 +65775,10 @@
       "steps": [
         {
           "order": 1,
-          "action": "talk",
-          "description": "Speak to The Duskenlight Ritual.",
+          "action": "read",
+          "description": "Obtain and read The Duskenlight Ritual.",
           "target_name": "The Duskenlight Ritual",
-          "target_type": "character",
-          "zone_name": "The Duskenlight Coast"
+          "target_type": "item"
         },
         {
           "order": 2,
@@ -67140,8 +66527,7 @@
           "method": "item_turnin",
           "source_name": "Ceremonial Brazier",
           "source_type": "character",
-          "source_stable_key": "character:sm_prop_brazier_01 (1):duskenlight:485.82:65.42:397.38",
-          "zone_name": "The Duskenlight Coast"
+          "source_stable_key": "character:sm_prop_brazier_01 (1):duskenlight:485.82:65.42:397.38"
         }
       ],
       "rewards": {
@@ -67187,12 +66573,6 @@
               "character_stable_key": "character:azynthian keeper",
               "zone_name": "Secluded Sanctuary"
             }
-          ],
-          "quest_reward_sources": [
-            {
-              "quest_name": "The Eldrich Crystal",
-              "quest_stable_key": "quest:eldrichcrystalinfo"
-            }
           ]
         }
       ],
@@ -67201,22 +66581,19 @@
           "method": "item_turnin",
           "source_name": "Braxon Elden",
           "source_type": "character",
-          "source_stable_key": "character:braxon elden:braxonian:99.99:33.79:993.06",
-          "zone_name": "Braxonian Desert"
+          "source_stable_key": "character:braxon elden:braxonian:99.99:33.79:993.06"
         },
         {
           "method": "item_turnin",
           "source_name": "Larviso Poltir",
           "source_type": "character",
-          "source_stable_key": "character:larviso poltir:loomingwood:323.78:29.25:429.23",
-          "zone_name": "Loomingwood Forest"
+          "source_stable_key": "character:larviso poltir:loomingwood:323.78:29.25:429.23"
         },
         {
           "method": "item_turnin",
           "source_name": "Lucian Revald",
           "source_type": "character",
-          "source_stable_key": "character:lucian revald:stowaway:432.19:69.90:532.04",
-          "zone_name": "Stowaway's Step"
+          "source_stable_key": "character:lucian revald:stowaway:432.19:69.90:532.04"
         }
       ],
       "rewards": {
@@ -67240,8 +66617,7 @@
           "action": "talk",
           "description": "Speak to Gatekeeper.",
           "target_name": "Gatekeeper",
-          "target_type": "character",
-          "zone_name": "Shivering Step"
+          "target_type": "character"
         }
       ],
       "completion": [
@@ -67249,8 +66625,7 @@
           "method": "talk",
           "source_name": "Gatekeeper",
           "source_type": "character",
-          "source_stable_key": "character:gatekeeper:shiveringstep:672.15:29.53:421.14",
-          "zone_name": "Shivering Step"
+          "source_stable_key": "character:gatekeeper:shiveringstep:672.15:29.53:421.14"
         }
       ],
       "rewards": {
@@ -67270,8 +66645,7 @@
           "action": "talk",
           "description": "Speak to A Memory of Sivakaya.",
           "target_name": "A Memory of Sivakaya",
-          "target_type": "character",
-          "zone_name": "Jaws of Sivakaya"
+          "target_type": "character"
         }
       ],
       "completion": [
@@ -67279,8 +66653,7 @@
           "method": "talk",
           "source_name": "A Memory of Sivakaya",
           "source_type": "character",
-          "source_stable_key": "character:memorystatue (1):jaws:1183.73:0.87:235.21",
-          "zone_name": "Jaws of Sivakaya"
+          "source_stable_key": "character:memorystatue (1):jaws:1183.73:0.87:235.21"
         }
       ],
       "rewards": {
@@ -67300,8 +66673,7 @@
           "action": "talk",
           "description": "Speak to Harbinger.",
           "target_name": "Harbinger",
-          "target_type": "character",
-          "zone_name": "Shivering Step"
+          "target_type": "character"
         }
       ],
       "completion": [
@@ -67309,8 +66681,7 @@
           "method": "talk",
           "source_name": "Harbinger",
           "source_type": "character",
-          "source_stable_key": "character:harbinger:shiveringstep:211.32:53.00:344.33",
-          "zone_name": "Shivering Step"
+          "source_stable_key": "character:harbinger:shiveringstep:211.32:53.00:344.33"
         }
       ],
       "rewards": {
@@ -67329,8 +66700,7 @@
           "method": "dialog",
           "source_name": "Timothy Allorn",
           "source_type": "character",
-          "source_stable_key": "character:timothy allorn:stowaway:545.20:72.09:442.80",
-          "zone_name": "Stowaway's Step"
+          "source_stable_key": "character:timothy allorn:stowaway:545.20:72.09:442.80"
         }
       ],
       "steps": [
@@ -67339,38 +66709,37 @@
           "action": "talk",
           "description": "Speak to Timothy Allorn.",
           "target_name": "Timothy Allorn",
-          "target_type": "character",
-          "zone_name": "Stowaway's Step"
+          "target_type": "character"
         },
         {
           "order": 2,
-          "action": "travel",
-          "description": "Travel to Shivering Tomb (2).",
-          "target_name": "Shivering Tomb (2)",
-          "target_type": "zone",
-          "zone_name": "Shivering Tomb (2)"
-        },
-        {
-          "order": 3,
           "action": "travel",
           "description": "Travel to Island Tomb.",
           "target_name": "Island Tomb",
           "target_type": "zone",
           "zone_name": "Island Tomb"
+        },
+        {
+          "order": 3,
+          "action": "travel",
+          "description": "Travel to Shivering Tomb (2).",
+          "target_name": "Shivering Tomb (2)",
+          "target_type": "zone",
+          "zone_name": "Shivering Tomb (2)"
         }
       ],
       "completion": [
         {
           "method": "zone",
-          "source_name": "Shivering Tomb (2)",
-          "source_type": "zone",
-          "source_stable_key": "zone:shiveringtomb2"
-        },
-        {
-          "method": "zone",
           "source_name": "Island Tomb",
           "source_type": "zone",
           "source_stable_key": "zone:tutorial"
+        },
+        {
+          "method": "zone",
+          "source_name": "Shivering Tomb (2)",
+          "source_type": "zone",
+          "source_stable_key": "zone:shiveringtomb2"
         }
       ],
       "rewards": {
@@ -67395,11 +66764,10 @@
       "steps": [
         {
           "order": 1,
-          "action": "talk",
-          "description": "Speak to Life Flame Recipe.",
+          "action": "read",
+          "description": "Obtain and read Life Flame Recipe.",
           "target_name": "Life Flame Recipe",
-          "target_type": "character",
-          "zone_name": "Vitheo's Rest"
+          "target_type": "item"
         },
         {
           "order": 2,
@@ -67539,8 +66907,7 @@
           "method": "item_turnin",
           "source_name": "Lifeflame Brazier",
           "source_type": "character",
-          "source_stable_key": "character:sm_prop_brazier_01:vitheosend:246.80:0.52:101.17",
-          "zone_name": "Vitheo's Rest"
+          "source_stable_key": "character:sm_prop_brazier_01:vitheosend:246.80:0.52:101.17"
         }
       ],
       "rewards": {
@@ -67559,8 +66926,7 @@
           "method": "dialog",
           "source_name": "Arcane Headmaster",
           "source_type": "character",
-          "source_stable_key": "character:arcane headmaster",
-          "zone_name": "The Duskenlight Coast"
+          "source_stable_key": "character:arcane headmaster"
         }
       ],
       "steps": [
@@ -67569,8 +66935,7 @@
           "action": "talk",
           "description": "Speak to Arcane Headmaster.",
           "target_name": "Arcane Headmaster",
-          "target_type": "character",
-          "zone_name": "The Duskenlight Coast"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -67586,20 +66951,14 @@
           "description": "Turn in items to Larviso Poltir.",
           "target_name": "Larviso Poltir",
           "target_type": "character",
-          "zone_name": "Loomingwood Forest"
+          "zone_name": "The Duskenlight Coast"
         }
       ],
       "required_items": [
         {
           "item_name": "Loss Stone",
           "item_stable_key": "item:quest - loss stone",
-          "quantity": 1,
-          "quest_reward_sources": [
-            {
-              "quest_name": "The Loss Stone",
-              "quest_stable_key": "quest:thelossstone"
-            }
-          ]
+          "quantity": 1
         }
       ],
       "completion": [
@@ -67607,8 +66966,7 @@
           "method": "item_turnin",
           "source_name": "Larviso Poltir",
           "source_type": "character",
-          "source_stable_key": "character:larviso poltir:loomingwood:323.78:29.25:429.23",
-          "zone_name": "Loomingwood Forest"
+          "source_stable_key": "character:larviso poltir:loomingwood:323.78:29.25:429.23"
         }
       ],
       "rewards": {
@@ -67858,8 +67216,7 @@
           "method": "item_turnin",
           "source_name": "Lost Soul",
           "source_type": "character",
-          "source_stable_key": "character:lost soul",
-          "zone_name": "Malaroth's Nesting Grounds"
+          "source_stable_key": "character:lost soul"
         }
       ],
       "rewards": {
@@ -67898,14 +67255,6 @@
       "steps": [
         {
           "order": 1,
-          "action": "talk",
-          "description": "Speak to The Lost Soul.",
-          "target_name": "The Lost Soul",
-          "target_type": "character",
-          "zone_name": "Port Azure"
-        },
-        {
-          "order": 2,
           "action": "collect",
           "description": "Collect Treasure Hunter's Pin.",
           "target_name": "Treasure Hunter's Pin",
@@ -67913,7 +67262,7 @@
           "quantity": 1
         },
         {
-          "order": 3,
+          "order": 2,
           "action": "turn_in",
           "description": "Turn in items to Julie Xargate.",
           "target_name": "Julie Xargate",
@@ -67939,8 +67288,7 @@
           "method": "item_turnin",
           "source_name": "Julie Xargate",
           "source_type": "character",
-          "source_stable_key": "character:julie xargate",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:julie xargate"
         }
       ],
       "rewards": {
@@ -68413,8 +67761,7 @@
           "method": "item_turnin",
           "source_name": "Shady Fisherman",
           "source_type": "character",
-          "source_stable_key": "character:shady fisherman:azure:43.10:13.76:246.95",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:shady fisherman:azure:43.10:13.76:246.95"
         }
       ],
       "rewards": {
@@ -68448,17 +67795,9 @@
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to The Lunchbag.",
-          "target_name": "The Lunchbag",
-          "target_type": "character"
-        },
-        {
-          "order": 2,
-          "action": "talk",
           "description": "Speak to Shady Fisherman.",
           "target_name": "Shady Fisherman",
-          "target_type": "character",
-          "zone_name": "Port Azure"
+          "target_type": "character"
         }
       ],
       "completion": [
@@ -68466,8 +67805,7 @@
           "method": "talk",
           "source_name": "Shady Fisherman",
           "source_type": "character",
-          "source_stable_key": "character:shady fisherman:azure:43.10:13.76:246.95",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:shady fisherman:azure:43.10:13.76:246.95"
         }
       ],
       "chain": [
@@ -68499,11 +67837,10 @@
       "steps": [
         {
           "order": 1,
-          "action": "talk",
-          "description": "Speak to The Mathers Note.",
+          "action": "read",
+          "description": "Obtain and read The Mathers Note.",
           "target_name": "The Mathers Note",
-          "target_type": "character",
-          "zone_name": "Vitheo's Watch"
+          "target_type": "item"
         },
         {
           "order": 2,
@@ -68541,8 +67878,7 @@
           "method": "item_turnin",
           "source_name": "Yarren Mathers",
           "source_type": "character",
-          "source_stable_key": "character:yarren mathers",
-          "zone_name": "Vitheo's Watch"
+          "source_stable_key": "character:yarren mathers"
         }
       ],
       "rewards": {
@@ -68588,14 +67924,6 @@
       "steps": [
         {
           "order": 1,
-          "action": "talk",
-          "description": "Speak to The Mathers' Demise.",
-          "target_name": "The Mathers' Demise",
-          "target_type": "character",
-          "zone_name": "Vitheo's Watch"
-        },
-        {
-          "order": 2,
           "action": "collect",
           "description": "Collect Chapters of Descent, Passage 1 (drops from Acolyte, Prioress).",
           "target_name": "Chapters of Descent, Passage 1",
@@ -68603,7 +67931,7 @@
           "quantity": 1
         },
         {
-          "order": 3,
+          "order": 2,
           "action": "collect",
           "description": "Collect Chapters of Descent, Passage 2 (drops from Acolyte, Prioress).",
           "target_name": "Chapters of Descent, Passage 2",
@@ -68611,7 +67939,7 @@
           "quantity": 1
         },
         {
-          "order": 4,
+          "order": 3,
           "action": "collect",
           "description": "Collect Chapters of Descent, Passage 3 (drops from Acceptor).",
           "target_name": "Chapters of Descent, Passage 3",
@@ -68619,7 +67947,7 @@
           "quantity": 1
         },
         {
-          "order": 5,
+          "order": 4,
           "action": "collect",
           "description": "Collect Chapters of Descent, Passage 4 (drops from Ecclesiarch, Lazalith, Soldier of Sivakaya).",
           "target_name": "Chapters of Descent, Passage 4",
@@ -68627,7 +67955,7 @@
           "quantity": 1
         },
         {
-          "order": 6,
+          "order": 5,
           "action": "turn_in",
           "description": "Turn in items to Yarren Mathers.",
           "target_name": "Yarren Mathers",
@@ -68705,8 +68033,7 @@
           "method": "item_turnin",
           "source_name": "Yarren Mathers",
           "source_type": "character",
-          "source_stable_key": "character:yarren mathers",
-          "zone_name": "Vitheo's Watch"
+          "source_stable_key": "character:yarren mathers"
         }
       ],
       "rewards": {
@@ -68756,14 +68083,6 @@
       "steps": [
         {
           "order": 1,
-          "action": "talk",
-          "description": "Speak to The Mather's Demise, Part 2.",
-          "target_name": "The Mather's Demise, Part 2",
-          "target_type": "character",
-          "zone_name": "Vitheo's Watch"
-        },
-        {
-          "order": 2,
           "action": "collect",
           "description": "Collect Chapters of Descent, Passage 5 (drops from Aeiros, Soldier of Sivakaya, Astorim, Balthom, Soldier of Sivakaya).",
           "target_name": "Chapters of Descent, Passage 5",
@@ -68771,7 +68090,7 @@
           "quantity": 1
         },
         {
-          "order": 3,
+          "order": 2,
           "action": "collect",
           "description": "Collect Chapters of Descent, Passage 6 (drops from Aeiros, Soldier of Sivakaya, Astorim, Balthom, Soldier of Sivakaya).",
           "target_name": "Chapters of Descent, Passage 6",
@@ -68779,7 +68098,7 @@
           "quantity": 1
         },
         {
-          "order": 4,
+          "order": 3,
           "action": "collect",
           "description": "Collect Chapters of Descent, Passage 7 (drops from Aeiros, Soldier of Sivakaya, Astorim, Balthom, Soldier of Sivakaya).",
           "target_name": "Chapters of Descent, Passage 7",
@@ -68787,7 +68106,7 @@
           "quantity": 1
         },
         {
-          "order": 5,
+          "order": 4,
           "action": "collect",
           "description": "Collect Chapters of Descent, Passage 8 (drops from Aeiros, Soldier of Sivakaya, Astorim, Balthom, Soldier of Sivakaya).",
           "target_name": "Chapters of Descent, Passage 8",
@@ -68795,7 +68114,7 @@
           "quantity": 1
         },
         {
-          "order": 6,
+          "order": 5,
           "action": "turn_in",
           "description": "Turn in items to Yarren Mathers.",
           "target_name": "Yarren Mathers",
@@ -68958,8 +68277,7 @@
           "method": "item_turnin",
           "source_name": "Yarren Mathers",
           "source_type": "character",
-          "source_stable_key": "character:yarren mathers",
-          "zone_name": "Vitheo's Watch"
+          "source_stable_key": "character:yarren mathers"
         }
       ],
       "rewards": {
@@ -69029,8 +68347,7 @@
           "method": "item_turnin",
           "source_name": "Bellsie Belwain",
           "source_type": "character",
-          "source_stable_key": "character:character_governors_daughter_01:summerevent:158.88:10.83:157.97",
-          "zone_name": "Bellwain Island"
+          "source_stable_key": "character:character_governors_daughter_01:summerevent:158.88:10.83:157.97"
         }
       ],
       "rewards": {
@@ -70201,15 +69518,7 @@
           "method": "item_turnin",
           "source_name": "Baking Oven",
           "source_type": "character",
-          "source_stable_key": "character:baking oven:azure:275.88:26.08:231.25",
-          "zone_name": "Port Azure"
-        },
-        {
-          "method": "item_turnin",
-          "source_name": "Baking Oven",
-          "source_type": "character",
-          "source_stable_key": "character:baking oven:summerevent:174.65:11.60:144.57",
-          "zone_name": "Bellwain Island"
+          "source_stable_key": "character:baking oven:azure:275.88:26.08:231.25"
         }
       ],
       "rewards": {
@@ -70233,8 +69542,7 @@
           "method": "dialog",
           "source_name": "Jazmyn Challa",
           "source_type": "character",
-          "source_stable_key": "character:jazmyn challa",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:jazmyn challa"
         }
       ],
       "steps": [
@@ -70243,8 +69551,7 @@
           "action": "talk",
           "description": "Speak to Jazmyn Challa.",
           "target_name": "Jazmyn Challa",
-          "target_type": "character",
-          "zone_name": "Port Azure"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -70297,8 +69604,7 @@
           "method": "item_turnin",
           "source_name": "Jazmyn Challa",
           "source_type": "character",
-          "source_stable_key": "character:jazmyn challa",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:jazmyn challa"
         }
       ],
       "rewards": {
@@ -70328,11 +69634,10 @@
       "steps": [
         {
           "order": 1,
-          "action": "talk",
-          "description": "Speak to The Fernallan Ritual.",
+          "action": "read",
+          "description": "Obtain and read The Fernallan Ritual.",
           "target_name": "The Fernallan Ritual",
-          "target_type": "character",
-          "zone_name": "Fernalla's Revival Plains"
+          "target_type": "item"
         },
         {
           "order": 2,
@@ -71133,8 +70438,7 @@
           "method": "item_turnin",
           "source_name": "Ceremonial Brazier",
           "source_type": "character",
-          "source_stable_key": "character:sm_prop_brazier_01 (1):fernallafield:119.30:31.99:422.96",
-          "zone_name": "Fernalla's Revival Plains"
+          "source_stable_key": "character:sm_prop_brazier_01 (1):fernallafield:119.30:31.99:422.96"
         }
       ],
       "rewards": {
@@ -71156,8 +70460,7 @@
           "method": "dialog",
           "source_name": "A Strange Hermit",
           "source_type": "character",
-          "source_stable_key": "character:a strange hermit",
-          "zone_name": "Azynthi's Garden"
+          "source_stable_key": "character:a strange hermit"
         }
       ],
       "steps": [
@@ -71166,8 +70469,7 @@
           "action": "talk",
           "description": "Speak to A Strange Hermit.",
           "target_name": "A Strange Hermit",
-          "target_type": "character",
-          "zone_name": "Azynthi's Garden"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -71210,11 +70512,10 @@
       "steps": [
         {
           "order": 1,
-          "action": "talk",
-          "description": "Speak to Unborn Phobia.",
+          "action": "read",
+          "description": "Obtain and read Unborn Phobia.",
           "target_name": "Unborn Phobia",
-          "target_type": "character",
-          "zone_name": "Ripper's Keep"
+          "target_type": "item"
         },
         {
           "order": 2,
@@ -71375,8 +70676,7 @@
           "method": "item_turnin",
           "source_name": "Ceremonial Brazier",
           "source_type": "character",
-          "source_stable_key": "character:sm_prop_brazier_01 (1):ripper:130.15:62.11:294.67",
-          "zone_name": "Ripper's Keep"
+          "source_stable_key": "character:sm_prop_brazier_01 (1):ripper:130.15:62.11:294.67"
         }
       ],
       "rewards": {
@@ -71398,8 +70698,7 @@
           "method": "dialog",
           "source_name": "Braxon Elden",
           "source_type": "character",
-          "source_stable_key": "character:braxon elden:braxonian:99.99:33.79:993.06",
-          "zone_name": "Braxonian Desert"
+          "source_stable_key": "character:braxon elden:braxonian:99.99:33.79:993.06"
         }
       ],
       "steps": [
@@ -71408,8 +70707,7 @@
           "action": "talk",
           "description": "Speak to Braxon Elden.",
           "target_name": "Braxon Elden",
-          "target_type": "character",
-          "zone_name": "Braxonian Desert"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -71447,8 +70745,7 @@
           "method": "item_turnin",
           "source_name": "Braxon Elden",
           "source_type": "character",
-          "source_stable_key": "character:braxon elden:braxonian:99.99:33.79:993.06",
-          "zone_name": "Braxonian Desert"
+          "source_stable_key": "character:braxon elden:braxonian:99.99:33.79:993.06"
         }
       ],
       "rewards": {
@@ -71479,21 +70776,12 @@
           "method": "partial_turnin",
           "source_name": "Larviso Poltir",
           "source_type": "character",
-          "source_stable_key": "character:larviso poltir:loomingwood:323.78:29.25:429.23",
-          "zone_name": "Loomingwood Forest"
+          "source_stable_key": "character:larviso poltir:loomingwood:323.78:29.25:429.23"
         }
       ],
       "steps": [
         {
           "order": 1,
-          "action": "talk",
-          "description": "Speak to Larviso Poltir.",
-          "target_name": "Larviso Poltir",
-          "target_type": "character",
-          "zone_name": "Loomingwood Forest"
-        },
-        {
-          "order": 2,
           "action": "collect",
           "description": "Collect Secrets of Creation (drops from Azynthian Keeper).",
           "target_name": "Secrets of Creation",
@@ -71501,7 +70789,7 @@
           "quantity": 1
         },
         {
-          "order": 3,
+          "order": 2,
           "action": "turn_in",
           "description": "Turn in items to Larviso Poltir.",
           "target_name": "Larviso Poltir",
@@ -71534,8 +70822,7 @@
           "method": "item_turnin",
           "source_name": "Larviso Poltir",
           "source_type": "character",
-          "source_stable_key": "character:larviso poltir:loomingwood:323.78:29.25:429.23",
-          "zone_name": "Loomingwood Forest"
+          "source_stable_key": "character:larviso poltir:loomingwood:323.78:29.25:429.23"
         }
       ],
       "rewards": {
@@ -71573,21 +70860,12 @@
           "method": "partial_turnin",
           "source_name": "Lucian Revald",
           "source_type": "character",
-          "source_stable_key": "character:lucian revald:stowaway:432.19:69.90:532.04",
-          "zone_name": "Stowaway's Step"
+          "source_stable_key": "character:lucian revald:stowaway:432.19:69.90:532.04"
         }
       ],
       "steps": [
         {
           "order": 1,
-          "action": "talk",
-          "description": "Speak to Lucian Revald.",
-          "target_name": "Lucian Revald",
-          "target_type": "character",
-          "zone_name": "Stowaway's Step"
-        },
-        {
-          "order": 2,
           "action": "collect",
           "description": "Collect Secrets of Creation (drops from Azynthian Keeper).",
           "target_name": "Secrets of Creation",
@@ -71595,7 +70873,7 @@
           "quantity": 1
         },
         {
-          "order": 3,
+          "order": 2,
           "action": "turn_in",
           "description": "Turn in items to Lucian Revald.",
           "target_name": "Lucian Revald",
@@ -71614,12 +70892,6 @@
               "character_stable_key": "character:azynthian keeper",
               "zone_name": "Secluded Sanctuary"
             }
-          ],
-          "quest_reward_sources": [
-            {
-              "quest_name": "The Secrets of Creation (To Lucian)",
-              "quest_stable_key": "quest:secretsofcreationtolucian"
-            }
           ]
         }
       ],
@@ -71628,8 +70900,7 @@
           "method": "item_turnin",
           "source_name": "Lucian Revald",
           "source_type": "character",
-          "source_stable_key": "character:lucian revald:stowaway:432.19:69.90:532.04",
-          "zone_name": "Stowaway's Step"
+          "source_stable_key": "character:lucian revald:stowaway:432.19:69.90:532.04"
         }
       ],
       "rewards": {
@@ -71661,8 +70932,7 @@
           "action": "talk",
           "description": "Speak to Shattered Sivakaya.",
           "target_name": "Shattered Sivakaya",
-          "target_type": "character",
-          "zone_name": "Secluded Sanctuary"
+          "target_type": "character"
         }
       ],
       "completion": [
@@ -71670,8 +70940,7 @@
           "method": "talk",
           "source_name": "Shattered Sivakaya",
           "source_type": "character",
-          "source_stable_key": "character:shard of sivakaya:stowawayportal:-85.91:0.88:-41.61",
-          "zone_name": "Secluded Sanctuary"
+          "source_stable_key": "character:shard of sivakaya:stowawayportal:-85.91:0.88:-41.61"
         }
       ],
       "rewards": {
@@ -71683,32 +70952,12 @@
       "stable_key": "quest:shiver-torch",
       "display_name": "The Shivering Torch",
       "description": "Kio has summoned you to the lighthouse to get your lamp for whatever he has in store next.",
-      "quest_type": "dialog",
-      "zone_context": "Shivering Step",
+      "quest_type": "scripted",
       "acquisition": [
         {
           "method": "scripted",
           "source_type": "scripted",
           "note": "ShiverEvent.cs - assigned after meeting keepers"
-        }
-      ],
-      "steps": [
-        {
-          "order": 1,
-          "action": "talk",
-          "description": "Speak to Kio the Light Keeper.",
-          "target_name": "Kio the Light Keeper",
-          "target_type": "character",
-          "zone_name": "Shivering Step"
-        }
-      ],
-      "completion": [
-        {
-          "method": "talk",
-          "source_name": "Kio the Light Keeper",
-          "source_type": "character",
-          "source_stable_key": "character:kio the lightkeeper:shiveringstep:799.34:20.07:585.85",
-          "zone_name": "Shivering Step"
         }
       ],
       "rewards": {
@@ -71727,15 +70976,13 @@
           "method": "dialog",
           "source_name": "Alexander Farland",
           "source_type": "character",
-          "source_stable_key": "character:alexander farland",
-          "zone_name": "Fernalla's Revival Plains"
+          "source_stable_key": "character:alexander farland"
         },
         {
           "method": "dialog",
           "source_name": "Lieutenant Ulrik",
           "source_type": "character",
-          "source_stable_key": "character:azure guard lieutenant",
-          "zone_name": "Fernalla's Revival Plains"
+          "source_stable_key": "character:azure guard lieutenant"
         }
       ],
       "flags": {
@@ -71785,8 +71032,7 @@
           "method": "item_turnin",
           "source_name": "Asaga Underloft",
           "source_type": "character",
-          "source_stable_key": "character:asaga underloft",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:asaga underloft"
         }
       ],
       "rewards": {
@@ -71815,26 +71061,18 @@
       "acquisition": [
         {
           "method": "dialog",
-          "source_name": "Cecil Threbb",
-          "source_type": "character",
-          "source_stable_key": "character:wally waldorf"
-        },
-        {
-          "method": "dialog",
           "source_name": "Wally Waldorf",
           "source_type": "character",
-          "source_stable_key": "character:wally waldorf:stowaway:573.45:70.50:545.10",
-          "zone_name": "Stowaway's Step"
+          "source_stable_key": "character:wally waldorf:stowaway:573.45:70.50:545.10"
         }
       ],
       "steps": [
         {
           "order": 1,
           "action": "talk",
-          "description": "Speak to Cecil Threbb.",
-          "target_name": "Cecil Threbb",
-          "target_type": "character",
-          "zone_name": "Stowaway's Step"
+          "description": "Speak to Wally Waldorf.",
+          "target_name": "Wally Waldorf",
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -71954,8 +71192,7 @@
           "method": "item_turnin",
           "source_name": "Wally Waldorf",
           "source_type": "character",
-          "source_stable_key": "character:wally waldorf:stowaway:573.45:70.50:545.10",
-          "zone_name": "Stowaway's Step"
+          "source_stable_key": "character:wally waldorf:stowaway:573.45:70.50:545.10"
         }
       ],
       "rewards": {
@@ -71986,8 +71223,7 @@
           "method": "dialog",
           "source_name": "The Hider",
           "source_type": "character",
-          "source_stable_key": "character:the hider:shiveringstep:668.70:45.25:549.83",
-          "zone_name": "Shivering Step"
+          "source_stable_key": "character:the hider:shiveringstep:668.70:45.25:549.83"
         }
       ],
       "steps": [
@@ -71996,8 +71232,7 @@
           "action": "talk",
           "description": "Speak to The Hider.",
           "target_name": "The Hider",
-          "target_type": "character",
-          "zone_name": "Shivering Step"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -72149,8 +71384,7 @@
           "method": "item_turnin",
           "source_name": "Warming Flame",
           "source_type": "character",
-          "source_stable_key": "character:sm_prop_brazier_01 (1):shiveringstep:304.61:17.81:327.34",
-          "zone_name": "Shivering Step"
+          "source_stable_key": "character:sm_prop_brazier_01 (1):shiveringstep:304.61:17.81:327.34"
         }
       ],
       "rewards": {
@@ -72178,8 +71412,7 @@
           "method": "dialog",
           "source_name": "Revan Gavault",
           "source_type": "character",
-          "source_stable_key": "character:revan gavault:stowaway:431.79:69.90:535.47:1",
-          "zone_name": "Stowaway's Step"
+          "source_stable_key": "character:revan gavault:stowaway:431.79:69.90:535.47:1"
         }
       ],
       "steps": [
@@ -72247,11 +71480,10 @@
       "steps": [
         {
           "order": 1,
-          "action": "talk",
-          "description": "Speak to Torn Note.",
+          "action": "read",
+          "description": "Obtain and read Torn Note.",
           "target_name": "Torn Note",
-          "target_type": "character",
-          "zone_name": "Stowaway's Step"
+          "target_type": "item"
         },
         {
           "order": 2,
@@ -72289,15 +71521,7 @@
           "method": "item_turnin",
           "source_name": "Lucian Revald",
           "source_type": "character",
-          "source_stable_key": "character:lucian revald:stowaway:432.19:69.90:532.04",
-          "zone_name": "Stowaway's Step"
-        },
-        {
-          "method": "item_turnin",
-          "source_name": "Lucian Revald",
-          "source_type": "character",
-          "source_stable_key": "character:lucian revald:stowaway:432.19:69.90:532.04:1",
-          "zone_name": "Stowaway's Step"
+          "source_stable_key": "character:lucian revald:stowaway:432.19:69.90:532.04"
         }
       ],
       "rewards": {
@@ -72455,8 +71679,7 @@
           "method": "item_turnin",
           "source_name": "Watcher",
           "source_type": "character",
-          "source_stable_key": "character:watcher",
-          "zone_name": "Willowwatch Ridge"
+          "source_stable_key": "character:watcher"
         }
       ],
       "rewards": {
@@ -72488,8 +71711,7 @@
           "method": "dialog",
           "source_name": "Cagnus Marlsen",
           "source_type": "character",
-          "source_stable_key": "character:cagnus marlsen",
-          "zone_name": "Willowwatch Ridge"
+          "source_stable_key": "character:cagnus marlsen"
         }
       ],
       "steps": [
@@ -72498,8 +71720,7 @@
           "action": "talk",
           "description": "Speak to Cagnus Marlsen.",
           "target_name": "Cagnus Marlsen",
-          "target_type": "character",
-          "zone_name": "Willowwatch Ridge"
+          "target_type": "character"
         },
         {
           "order": 2,
@@ -72537,8 +71758,7 @@
           "method": "item_turnin",
           "source_name": "Cagnus Marlsen",
           "source_type": "character",
-          "source_stable_key": "character:cagnus marlsen",
-          "zone_name": "Willowwatch Ridge"
+          "source_stable_key": "character:cagnus marlsen"
         }
       ],
       "rewards": {
@@ -72607,8 +71827,7 @@
           "method": "item_turnin",
           "source_name": "Wishlan the Savior",
           "source_type": "character",
-          "source_stable_key": "character:wishlan",
-          "zone_name": "The Blight"
+          "source_stable_key": "character:wishlan"
         }
       ],
       "rewards": {
@@ -72657,8 +71876,7 @@
           "method": "item_turnin",
           "source_name": "Wishlan the Savior",
           "source_type": "character",
-          "source_stable_key": "character:wishlan",
-          "zone_name": "The Blight"
+          "source_stable_key": "character:wishlan"
         }
       ],
       "rewards": {
@@ -72775,8 +71993,7 @@
           "method": "item_turnin",
           "source_name": "Fredrick Templestone",
           "source_type": "character",
-          "source_stable_key": "character:fredrick templestone:azure:233.34:27.55:332.06",
-          "zone_name": "Port Azure"
+          "source_stable_key": "character:fredrick templestone:azure:233.34:27.55:332.06"
         }
       ],
       "rewards": {
