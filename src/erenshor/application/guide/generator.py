@@ -177,7 +177,7 @@ def _build_all_guides(conn: sqlite3.Connection, zone_lookup: dict[str, ZoneInfo]
             quest_type, acquisition, completion, required_items, zone_context, quest_names, shout_keywords, sk
         )
 
-        level_estimate = _compute_level_estimate(sk, completion, zone_lookup, npc_zones, char_levels)
+        level_estimate = _compute_level_estimate(sk, completion, zone_lookup, npc_zones, char_levels, zone_context)
 
         guide = QuestGuide(
             db_name=quest["db_name"],
@@ -1166,10 +1166,12 @@ def _compute_level_estimate(
     zone_lookup: dict[str, ZoneInfo],
     npc_zones: dict[str, str],
     character_levels: dict[str, int],
+    zone_context: str | None,
 ) -> LevelEstimate | None:
-    """Estimate recommended level from kill targets and zone mob levels.
+    """Estimate recommended level from kill targets, zone mob levels, or zone context.
 
-    Returns None if no level data is available.
+    Priority: kill target levels > zone median from kill target location > zone
+    context median. Returns None if no level data is available.
     """
     factors: list[LevelFactor] = []
     for comp in completion_sources:
@@ -1188,6 +1190,15 @@ def _compute_level_estimate(
                     if zi.level_median is not None:
                         factors.append(LevelFactor(source="zone_median", name=zi.display_name, level=zi.level_median))
                     break
+
+    # Fallback: use zone context median when no kill-target-specific data exists
+    if not factors and zone_context:
+        for zi in zone_lookup.values():
+            if zi.display_name == zone_context:
+                if zi.level_median is not None:
+                    factors.append(LevelFactor(source="zone_context", name=zi.display_name, level=zi.level_median))
+                break
+
     if not factors:
         return None
     recommended = max(f.level for f in factors)

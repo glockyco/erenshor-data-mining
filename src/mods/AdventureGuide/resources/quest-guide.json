@@ -53625,6 +53625,16 @@
       ],
       "flags": {
         "disabled_text": "This is not anything I'm interested in taking from you."
+      },
+      "level_estimate": {
+        "recommended": 28,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Ripper's Keep",
+            "level": 28
+          }
+        ]
       }
     },
     {
@@ -53718,6 +53728,16 @@
       ],
       "flags": {
         "disabled_text": "This is absurd. You've given me Ripper's ear already. Did you go back and cut off the other one? "
+      },
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
       }
     },
     {
@@ -53775,6 +53795,16 @@
       "flags": {
         "repeatable": true,
         "disabled_text": "No thank you I have one already!"
+      },
+      "level_estimate": {
+        "recommended": 32,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Mysterious Portal (3)",
+            "level": 32
+          }
+        ]
       }
     },
     {
@@ -54042,6 +54072,16 @@
       },
       "flags": {
         "destroy_turn_in_holder": true
+      },
+      "level_estimate": {
+        "recommended": 27,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Blooming Sepulcher",
+            "level": 27
+          }
+        ]
       }
     },
     {
@@ -54130,6 +54170,16 @@
       },
       "flags": {
         "repeatable": true
+      },
+      "level_estimate": {
+        "recommended": 13,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Fernalla's Revival Plains",
+            "level": 13
+          }
+        ]
       }
     },
     {
@@ -54149,6 +54199,16 @@
       ],
       "flags": {
         "repeatable": true
+      },
+      "level_estimate": {
+        "recommended": 14,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "The Duskenlight Coast",
+            "level": 14
+          }
+        ]
       }
     },
     {
@@ -54239,6 +54299,16 @@
       },
       "flags": {
         "disabled_text": "What sorcery is this... that is not mine! I have mine here!"
+      },
+      "level_estimate": {
+        "recommended": 13,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Fernalla's Revival Plains",
+            "level": 13
+          }
+        ]
       }
     },
     {
@@ -54289,7 +54359,17 @@
           "quest_stable_key": "quest:missingpersonkrakengard",
           "relationship": "previous"
         }
-      ]
+      ],
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
+      }
     },
     {
       "db_name": "VitheosRestKey",
@@ -54385,6 +54465,16 @@
       },
       "flags": {
         "repeatable": true
+      },
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
       }
     },
     {
@@ -54474,7 +54564,17 @@
           "quest_stable_key": "quest:braxrune2",
           "relationship": "next"
         }
-      ]
+      ],
+      "level_estimate": {
+        "recommended": 17,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Braxonian Desert",
+            "level": 17
+          }
+        ]
+      }
     },
     {
       "db_name": "BraxRune2",
@@ -54577,6 +54677,16 @@
       ],
       "flags": {
         "repeatable": true
+      },
+      "level_estimate": {
+        "recommended": 29,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Fallen Braxonia",
+            "level": 29
+          }
+        ]
       }
     },
     {
@@ -55055,6 +55165,16 @@
       },
       "flags": {
         "repeatable": true
+      },
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
       }
     },
     {
@@ -55110,6 +55230,16 @@
       ],
       "flags": {
         "disabled_text": "It's \"Shadowtide\"."
+      },
+      "level_estimate": {
+        "recommended": 4,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Hidden Hills",
+            "level": 4
+          }
+        ]
       }
     },
     {
@@ -55181,6 +55311,16 @@
       },
       "flags": {
         "disabled_text": "Thanks again for your help."
+      },
+      "level_estimate": {
+        "recommended": 4,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Hidden Hills",
+            "level": 4
+          }
+        ]
       }
     },
     {
@@ -55268,6 +55408,16 @@
       },
       "flags": {
         "disabled_text": "We've already been though this."
+      },
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
       }
     },
     {
@@ -55299,6 +55449,16 @@
       },
       "flags": {
         "disabled_text": "Your faith is noted."
+      },
+      "level_estimate": {
+        "recommended": 34,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Jaws of Sivakaya",
+            "level": 34
+          }
+        ]
       }
     },
     {
@@ -55410,6 +55570,16 @@
       ],
       "rewards": {
         "xp": 5
+      },
+      "level_estimate": {
+        "recommended": 27,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Blooming Sepulcher",
+            "level": 27
+          }
+        ]
       }
     },
     {
@@ -55534,6 +55704,16 @@
       },
       "flags": {
         "repeatable": true
+      },
+      "level_estimate": {
+        "recommended": 4,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Hidden Hills",
+            "level": 4
+          }
+        ]
       }
     },
     {
@@ -55636,6 +55816,16 @@
       },
       "flags": {
         "repeatable": true
+      },
+      "level_estimate": {
+        "recommended": 4,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Hidden Hills",
+            "level": 4
+          }
+        ]
       }
     },
     {
@@ -55724,6 +55914,16 @@
       },
       "flags": {
         "repeatable": true
+      },
+      "level_estimate": {
+        "recommended": 26,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Soluna's Landing",
+            "level": 26
+          }
+        ]
       }
     },
     {
@@ -56062,6 +56262,16 @@
       },
       "flags": {
         "disabled_text": "I'm still good pal, thanks anyhow."
+      },
+      "level_estimate": {
+        "recommended": 28,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Ripper's Keep",
+            "level": 28
+          }
+        ]
       }
     },
     {
@@ -56151,6 +56361,16 @@
       },
       "flags": {
         "repeatable": true
+      },
+      "level_estimate": {
+        "recommended": 23,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Vitheo's Rest",
+            "level": 23
+          }
+        ]
       }
     },
     {
@@ -56198,7 +56418,17 @@
           "quest_stable_key": "quest:wyland's note",
           "relationship": "previous"
         }
-      ]
+      ],
+      "level_estimate": {
+        "recommended": 2,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Stowaway's Step",
+            "level": 2
+          }
+        ]
+      }
     },
     {
       "db_name": "AlterPlane",
@@ -56220,7 +56450,17 @@
           "source_type": "character",
           "source_stable_key": "character:cerbantias flameward"
         }
-      ]
+      ],
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
+      }
     },
     {
       "db_name": "Aetheria",
@@ -56475,6 +56715,16 @@
       },
       "flags": {
         "repeatable": true
+      },
+      "level_estimate": {
+        "recommended": 9,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Vitheo's Watch",
+            "level": 9
+          }
+        ]
       }
     },
     {
@@ -56553,6 +56803,16 @@
       },
       "flags": {
         "disabled_text": "This is not it, I already have it. "
+      },
+      "level_estimate": {
+        "recommended": 18,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Silkengrass Meadowlands",
+            "level": 18
+          }
+        ]
       }
     },
     {
@@ -56631,6 +56891,16 @@
       },
       "flags": {
         "disabled_text": "You've already given me my necklace back. This one's not mine... weird that you found two!"
+      },
+      "level_estimate": {
+        "recommended": 2,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Stowaway's Step",
+            "level": 2
+          }
+        ]
       }
     },
     {
@@ -56753,6 +57023,16 @@
       },
       "flags": {
         "repeatable": true
+      },
+      "level_estimate": {
+        "recommended": 14,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Blacksalt Strand",
+            "level": 14
+          }
+        ]
       }
     },
     {
@@ -56893,6 +57173,16 @@
       ],
       "flags": {
         "disabled_text": "I will leave shortly, thank you."
+      },
+      "level_estimate": {
+        "recommended": 2,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Stowaway's Step",
+            "level": 2
+          }
+        ]
       }
     },
     {
@@ -56925,6 +57215,16 @@
       },
       "flags": {
         "disabled_text": "I hear you!"
+      },
+      "level_estimate": {
+        "recommended": 30,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Azynthi's Garden",
+            "level": 30
+          }
+        ]
       }
     },
     {
@@ -57022,6 +57322,16 @@
       },
       "flags": {
         "repeatable": true
+      },
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
       }
     },
     {
@@ -57216,6 +57526,16 @@
       },
       "flags": {
         "disabled_text": "Ah, these are not new... just copies of what you've shown me."
+      },
+      "level_estimate": {
+        "recommended": 17,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Braxonian Desert",
+            "level": 17
+          }
+        ]
       }
     },
     {
@@ -57272,6 +57592,16 @@
       },
       "flags": {
         "kill_turn_in_holder": true
+      },
+      "level_estimate": {
+        "recommended": 2,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Stowaway's Step",
+            "level": 2
+          }
+        ]
       }
     },
     {
@@ -57328,6 +57658,16 @@
       },
       "flags": {
         "kill_turn_in_holder": true
+      },
+      "level_estimate": {
+        "recommended": 2,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Stowaway's Step",
+            "level": 2
+          }
+        ]
       }
     },
     {
@@ -57384,6 +57724,16 @@
       },
       "flags": {
         "kill_turn_in_holder": true
+      },
+      "level_estimate": {
+        "recommended": 2,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Stowaway's Step",
+            "level": 2
+          }
+        ]
       }
     },
     {
@@ -57440,6 +57790,16 @@
       },
       "flags": {
         "kill_turn_in_holder": true
+      },
+      "level_estimate": {
+        "recommended": 2,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Stowaway's Step",
+            "level": 2
+          }
+        ]
       }
     },
     {
@@ -57501,6 +57861,16 @@
       ],
       "rewards": {
         "xp": 5
+      },
+      "level_estimate": {
+        "recommended": 32,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Mysterious Portal (3)",
+            "level": 32
+          }
+        ]
       }
     },
     {
@@ -57570,6 +57940,16 @@
       ],
       "flags": {
         "disabled_text": "... *The flame flares, but does not change.*"
+      },
+      "level_estimate": {
+        "recommended": 21,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Shivering Step",
+            "level": 21
+          }
+        ]
       }
     },
     {
@@ -57700,6 +58080,16 @@
       },
       "flags": {
         "disabled_text": "Thanks, but you gave me one of these already. "
+      },
+      "level_estimate": {
+        "recommended": 4,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Willowwatch Ridge",
+            "level": 4
+          }
+        ]
       }
     },
     {
@@ -57894,6 +58284,16 @@
       },
       "flags": {
         "disabled_text": "We've already done this part!"
+      },
+      "level_estimate": {
+        "recommended": 2,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Stowaway's Step",
+            "level": 2
+          }
+        ]
       }
     },
     {
@@ -58009,6 +58409,16 @@
       },
       "flags": {
         "disabled_text": "I have this one already! "
+      },
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
       }
     },
     {
@@ -58124,6 +58534,16 @@
       },
       "flags": {
         "disabled_text": "I have this one already! "
+      },
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
       }
     },
     {
@@ -58239,6 +58659,16 @@
       },
       "flags": {
         "disabled_text": "I have this one already! "
+      },
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
       }
     },
     {
@@ -58324,6 +58754,16 @@
       },
       "flags": {
         "disabled_text": "I have this one already! "
+      },
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
       }
     },
     {
@@ -58439,6 +58879,16 @@
       },
       "flags": {
         "disabled_text": "I have this one already! "
+      },
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
       }
     },
     {
@@ -58554,6 +59004,16 @@
       },
       "flags": {
         "disabled_text": "I have this one already! "
+      },
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
       }
     },
     {
@@ -58644,6 +59104,16 @@
       },
       "flags": {
         "disabled_text": "I have this one already! "
+      },
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
       }
     },
     {
@@ -58734,6 +59204,16 @@
       },
       "flags": {
         "disabled_text": "I have this one already! "
+      },
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
       }
     },
     {
@@ -58824,6 +59304,16 @@
       },
       "flags": {
         "disabled_text": "I have this one already! "
+      },
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
       }
     },
     {
@@ -58914,6 +59404,16 @@
       },
       "flags": {
         "disabled_text": "I have this one already! "
+      },
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
       }
     },
     {
@@ -58999,6 +59499,16 @@
       },
       "flags": {
         "disabled_text": "I have this one already! "
+      },
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
       }
     },
     {
@@ -59084,6 +59594,16 @@
       },
       "flags": {
         "disabled_text": "I have this one already! "
+      },
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
       }
     },
     {
@@ -59159,6 +59679,16 @@
       },
       "flags": {
         "repeatable": true
+      },
+      "level_estimate": {
+        "recommended": 15,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Rottenfoot",
+            "level": 15
+          }
+        ]
       }
     },
     {
@@ -59256,6 +59786,16 @@
       },
       "flags": {
         "disabled_text": "What's this? A duplicate? This is definitely fake!"
+      },
+      "level_estimate": {
+        "recommended": 2,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Stowaway's Step",
+            "level": 2
+          }
+        ]
       }
     },
     {
@@ -59394,6 +59934,16 @@
       "flags": {
         "disabled_text": "I do not need anything else from you. Thank you for your help. ",
         "kill_turn_in_holder": true
+      },
+      "level_estimate": {
+        "recommended": 4,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Island Tomb",
+            "level": 4
+          }
+        ]
       }
     },
     {
@@ -59520,6 +60070,16 @@
       "flags": {
         "repeatable": true,
         "disabled_text": "I already have all I can eat!"
+      },
+      "level_estimate": {
+        "recommended": 18,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Silkengrass Meadowlands",
+            "level": 18
+          }
+        ]
       }
     },
     {
@@ -59640,6 +60200,16 @@
       },
       "flags": {
         "repeatable": true
+      },
+      "level_estimate": {
+        "recommended": 13,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Fernalla's Revival Plains",
+            "level": 13
+          }
+        ]
       }
     },
     {
@@ -59775,6 +60345,16 @@
       "flags": {
         "repeatable": true,
         "disabled_text": "Already got it from ya! Thanks anyhow."
+      },
+      "level_estimate": {
+        "recommended": 4,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Hidden Hills",
+            "level": 4
+          }
+        ]
       }
     },
     {
@@ -59815,6 +60395,16 @@
       },
       "flags": {
         "kill_turn_in_holder": true
+      },
+      "level_estimate": {
+        "recommended": 21,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Shivering Step",
+            "level": 21
+          }
+        ]
       }
     },
     {
@@ -59890,6 +60480,16 @@
       "flags": {
         "repeatable": true,
         "drop_invuln_on_holder": true
+      },
+      "level_estimate": {
+        "recommended": 30,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Azynthi's Garden",
+            "level": 30
+          }
+        ]
       }
     },
     {
@@ -59992,6 +60592,16 @@
       },
       "flags": {
         "repeatable": true
+      },
+      "level_estimate": {
+        "recommended": 4,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Hidden Hills",
+            "level": 4
+          }
+        ]
       }
     },
     {
@@ -60075,6 +60685,16 @@
       },
       "flags": {
         "repeatable": true
+      },
+      "level_estimate": {
+        "recommended": 4,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Hidden Hills",
+            "level": 4
+          }
+        ]
       }
     },
     {
@@ -60155,6 +60775,16 @@
       ],
       "flags": {
         "disabled_text": "We're all good, thanks."
+      },
+      "level_estimate": {
+        "recommended": 13,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Fernalla's Revival Plains",
+            "level": 13
+          }
+        ]
       }
     },
     {
@@ -60235,6 +60865,16 @@
       ],
       "flags": {
         "disabled_text": "We're all good, thanks."
+      },
+      "level_estimate": {
+        "recommended": 13,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Fernalla's Revival Plains",
+            "level": 13
+          }
+        ]
       }
     },
     {
@@ -60278,7 +60918,17 @@
           "quest_stable_key": "quest:stowaway registration",
           "relationship": "previous"
         }
-      ]
+      ],
+      "level_estimate": {
+        "recommended": 2,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Stowaway's Step",
+            "level": 2
+          }
+        ]
+      }
     },
     {
       "db_name": "LostCellarIntel",
@@ -60356,6 +61006,16 @@
       },
       "flags": {
         "disabled_text": "Oh... they made copies of it? Good for the collection, I suppose. "
+      },
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
       }
     },
     {
@@ -60454,6 +61114,16 @@
       },
       "flags": {
         "disabled_text": "I have these... didn't you give them to me?"
+      },
+      "level_estimate": {
+        "recommended": 4,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Faerie's Brake",
+            "level": 4
+          }
+        ]
       }
     },
     {
@@ -60559,6 +61229,16 @@
       },
       "flags": {
         "disabled_text": "You've done this to me already! Why rub it in?"
+      },
+      "level_estimate": {
+        "recommended": 2,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Stowaway's Step",
+            "level": 2
+          }
+        ]
       }
     },
     {
@@ -60632,6 +61312,16 @@
             "faction_name": "The Solunarian Brotherhood",
             "faction_stable_key": "faction:solunarians",
             "amount": 1
+          }
+        ]
+      },
+      "level_estimate": {
+        "recommended": 14,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "The Duskenlight Coast",
+            "level": 14
           }
         ]
       }
@@ -60714,6 +61404,16 @@
       ],
       "flags": {
         "disabled_text": "The flame does not respond"
+      },
+      "level_estimate": {
+        "recommended": 29,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Fallen Braxonia",
+            "level": 29
+          }
+        ]
       }
     },
     {
@@ -60797,6 +61497,16 @@
         "repeatable": true,
         "drop_invuln_on_holder": true,
         "once_per_spawn_instance": true
+      },
+      "level_estimate": {
+        "recommended": 26,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Soluna's Landing",
+            "level": 26
+          }
+        ]
       }
     },
     {
@@ -61148,6 +61858,16 @@
       },
       "flags": {
         "repeatable": true
+      },
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
       }
     },
     {
@@ -61261,6 +61981,16 @@
       },
       "flags": {
         "repeatable": true
+      },
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
       }
     },
     {
@@ -61327,6 +62057,16 @@
             "amount": 5
           }
         ]
+      },
+      "level_estimate": {
+        "recommended": 18,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Silkengrass Meadowlands",
+            "level": 18
+          }
+        ]
       }
     },
     {
@@ -61369,6 +62109,16 @@
       ],
       "rewards": {
         "xp": 5
+      },
+      "level_estimate": {
+        "recommended": 14,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Blacksalt Strand",
+            "level": 14
+          }
+        ]
       }
     },
     {
@@ -61427,6 +62177,16 @@
             "faction_name": "The Solunarian Brotherhood",
             "faction_stable_key": "faction:solunarians",
             "amount": 1
+          }
+        ]
+      },
+      "level_estimate": {
+        "recommended": 26,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Soluna's Landing",
+            "level": 26
           }
         ]
       }
@@ -61591,7 +62351,17 @@
           "source_type": "character",
           "source_stable_key": "character:shady fisherman:azure:43.10:13.76:246.95"
         }
-      ]
+      ],
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
+      }
     },
     {
       "db_name": "ValraesOgrespice",
@@ -61705,6 +62475,16 @@
       "flags": {
         "repeatable": true,
         "disabled_text": "I have these... didn't you give them to me?"
+      },
+      "level_estimate": {
+        "recommended": 4,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Faerie's Brake",
+            "level": 4
+          }
+        ]
       }
     },
     {
@@ -61785,6 +62565,16 @@
       ],
       "flags": {
         "disabled_text": "This one's not real."
+      },
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
       }
     },
     {
@@ -61853,6 +62643,16 @@
       ],
       "flags": {
         "repeatable": true
+      },
+      "level_estimate": {
+        "recommended": 2,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Stowaway's Step",
+            "level": 2
+          }
+        ]
       }
     },
     {
@@ -61912,6 +62712,16 @@
       },
       "flags": {
         "disabled_text": "Eldoth does not appreciate redundancy."
+      },
+      "level_estimate": {
+        "recommended": 25,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "The Blight",
+            "level": 25
+          }
+        ]
       }
     },
     {
@@ -62200,6 +63010,16 @@
       ],
       "flags": {
         "disabled_text": "Come on now... you're not that gullible!"
+      },
+      "level_estimate": {
+        "recommended": 2,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Stowaway's Step",
+            "level": 2
+          }
+        ]
       }
     },
     {
@@ -62255,6 +63075,16 @@
       },
       "flags": {
         "disabled_text": "We're square."
+      },
+      "level_estimate": {
+        "recommended": 5,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Reliquary Hall",
+            "level": 5
+          }
+        ]
       }
     },
     {
@@ -62310,6 +63140,16 @@
       },
       "flags": {
         "disabled_text": "We're square."
+      },
+      "level_estimate": {
+        "recommended": 5,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Reliquary Hall",
+            "level": 5
+          }
+        ]
       }
     },
     {
@@ -62375,6 +63215,16 @@
       },
       "flags": {
         "disabled_text": "We're square."
+      },
+      "level_estimate": {
+        "recommended": 5,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Reliquary Hall",
+            "level": 5
+          }
+        ]
       }
     },
     {
@@ -62436,6 +63286,16 @@
       },
       "flags": {
         "disabled_text": "We're square."
+      },
+      "level_estimate": {
+        "recommended": 5,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Reliquary Hall",
+            "level": 5
+          }
+        ]
       }
     },
     {
@@ -62491,6 +63351,16 @@
       },
       "flags": {
         "disabled_text": "We're square."
+      },
+      "level_estimate": {
+        "recommended": 5,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Reliquary Hall",
+            "level": 5
+          }
+        ]
       }
     },
     {
@@ -62546,6 +63416,16 @@
       },
       "flags": {
         "disabled_text": "We're square."
+      },
+      "level_estimate": {
+        "recommended": 5,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Reliquary Hall",
+            "level": 5
+          }
+        ]
       }
     },
     {
@@ -62747,6 +63627,16 @@
       ],
       "flags": {
         "disabled_text": "What is this, a replica? We have the real candle already."
+      },
+      "level_estimate": {
+        "recommended": 24,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Loomingwood Forest",
+            "level": 24
+          }
+        ]
       }
     },
     {
@@ -62830,6 +63720,16 @@
       ],
       "flags": {
         "disabled_text": "We're square."
+      },
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
       }
     },
     {
@@ -63142,6 +64042,16 @@
       ],
       "flags": {
         "disabled_text": "I can't do that again... it was too much for me."
+      },
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
       }
     },
     {
@@ -63249,6 +64159,16 @@
       },
       "flags": {
         "repeatable": true
+      },
+      "level_estimate": {
+        "recommended": 4,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Faerie's Brake",
+            "level": 4
+          }
+        ]
       }
     },
     {
@@ -63351,6 +64271,16 @@
       },
       "flags": {
         "repeatable": true
+      },
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
       }
     },
     {
@@ -63507,7 +64437,17 @@
           "quest_stable_key": "quest:ripperquestline2",
           "relationship": "next"
         }
-      ]
+      ],
+      "level_estimate": {
+        "recommended": 28,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Ripper's Keep",
+            "level": 28
+          }
+        ]
+      }
     },
     {
       "db_name": "RipperQuestline2",
@@ -63582,7 +64522,17 @@
           "quest_stable_key": "quest:ripperquestline1",
           "relationship": "previous"
         }
-      ]
+      ],
+      "level_estimate": {
+        "recommended": 28,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Ripper's Keep",
+            "level": 28
+          }
+        ]
+      }
     },
     {
       "db_name": "RitualComponents",
@@ -63725,6 +64675,16 @@
       },
       "flags": {
         "disabled_text": "I'm all set for now, but thanks"
+      },
+      "level_estimate": {
+        "recommended": 24,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Loomingwood Forest",
+            "level": 24
+          }
+        ]
       }
     },
     {
@@ -63812,6 +64772,16 @@
       },
       "flags": {
         "repeatable": true
+      },
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
       }
     },
     {
@@ -63887,6 +64857,16 @@
       },
       "flags": {
         "disabled_text": "Are you making forgeries now? Get a life. "
+      },
+      "level_estimate": {
+        "recommended": 4,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Hidden Hills",
+            "level": 4
+          }
+        ]
       }
     },
     {
@@ -63946,6 +64926,16 @@
       },
       "flags": {
         "repeatable": true
+      },
+      "level_estimate": {
+        "recommended": 24,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Shivering Tomb (2)",
+            "level": 24
+          }
+        ]
       }
     },
     {
@@ -64027,6 +65017,16 @@
       ],
       "flags": {
         "disabled_text": "You've shown me this."
+      },
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
       }
     },
     {
@@ -64137,6 +65137,16 @@
       },
       "flags": {
         "disabled_text": "This is someone else's I think. I have mine already."
+      },
+      "level_estimate": {
+        "recommended": 17,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "The Elderstone Mines",
+            "level": 17
+          }
+        ]
       }
     },
     {
@@ -64213,6 +65223,16 @@
       },
       "flags": {
         "disabled_text": "Ah, deja vu is a fancy thing."
+      },
+      "level_estimate": {
+        "recommended": 21,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Shivering Step",
+            "level": 21
+          }
+        ]
       }
     },
     {
@@ -64295,7 +65315,17 @@
           "quest_stable_key": "quest:findazynthi",
           "relationship": "next"
         }
-      ]
+      ],
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
+      }
     },
     {
       "db_name": "IntelToKilkay2",
@@ -64356,6 +65386,16 @@
       },
       "flags": {
         "disabled_text": "I've seen this already."
+      },
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
       }
     },
     {
@@ -64477,7 +65517,17 @@
           "quest_stable_key": "quest:findazynthi",
           "relationship": "next"
         }
-      ]
+      ],
+      "level_estimate": {
+        "recommended": 28,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Ripper's Keep",
+            "level": 28
+          }
+        ]
+      }
     },
     {
       "db_name": "SivakayanOre",
@@ -64632,6 +65682,16 @@
       },
       "flags": {
         "disabled_text": "I have all I need, thank you for your help."
+      },
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
       }
     },
     {
@@ -64799,6 +65859,16 @@
       ],
       "flags": {
         "disabled_text": "I've seen this already. If you find more, bring it to me."
+      },
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
       }
     },
     {
@@ -64882,6 +65952,16 @@
       ],
       "flags": {
         "disabled_text": "I've seen this already. If you find more, bring it to me."
+      },
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
       }
     },
     {
@@ -64922,7 +66002,17 @@
           "quest_stable_key": "quest:solunascelestialblade1",
           "relationship": "completed_by"
         }
-      ]
+      ],
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
+      }
     },
     {
       "db_name": "SolunasCelestialBlade1",
@@ -65000,6 +66090,16 @@
       ],
       "flags": {
         "disabled_text": "You've done it, thank you!"
+      },
+      "level_estimate": {
+        "recommended": 34,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Azynthi's Garden (Dimensional Rift)",
+            "level": 34
+          }
+        ]
       }
     },
     {
@@ -65131,6 +66231,16 @@
       ],
       "flags": {
         "disabled_text": "You're already registered..."
+      },
+      "level_estimate": {
+        "recommended": 2,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Stowaway's Step",
+            "level": 2
+          }
+        ]
       }
     },
     {
@@ -65260,6 +66370,16 @@
       },
       "flags": {
         "disabled_text": "I do not need more, but thank you."
+      },
+      "level_estimate": {
+        "recommended": 28,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Ripper's Keep",
+            "level": 28
+          }
+        ]
       }
     },
     {
@@ -65443,6 +66563,16 @@
       },
       "flags": {
         "disabled_text": "Yes, they're incredible!"
+      },
+      "level_estimate": {
+        "recommended": 14,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "The Duskenlight Coast",
+            "level": 14
+          }
+        ]
       }
     },
     {
@@ -65503,6 +66633,16 @@
       },
       "flags": {
         "disabled_text": "You have another? How?"
+      },
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
       }
     },
     {
@@ -65538,6 +66678,16 @@
       ],
       "rewards": {
         "xp": 5
+      },
+      "level_estimate": {
+        "recommended": 21,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Shivering Step",
+            "level": 21
+          }
+        ]
       }
     },
     {
@@ -65566,6 +66716,16 @@
       ],
       "rewards": {
         "xp": 5
+      },
+      "level_estimate": {
+        "recommended": 21,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Shivering Step",
+            "level": 21
+          }
+        ]
       }
     },
     {
@@ -65755,6 +66915,16 @@
       ],
       "rewards": {
         "xp": 15
+      },
+      "level_estimate": {
+        "recommended": 23,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Vitheo's Rest",
+            "level": 23
+          }
+        ]
       }
     },
     {
@@ -66535,6 +67705,16 @@
         "achievements": [
           "DUSKENPORTAL"
         ]
+      },
+      "level_estimate": {
+        "recommended": 14,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "The Duskenlight Coast",
+            "level": 14
+          }
+        ]
       }
     },
     {
@@ -66602,6 +67782,16 @@
       },
       "flags": {
         "repeatable": true
+      },
+      "level_estimate": {
+        "recommended": 17,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Braxonian Desert",
+            "level": 17
+          }
+        ]
       }
     },
     {
@@ -66630,6 +67820,16 @@
       ],
       "rewards": {
         "xp": 5
+      },
+      "level_estimate": {
+        "recommended": 21,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Shivering Step",
+            "level": 21
+          }
+        ]
       }
     },
     {
@@ -66658,6 +67858,16 @@
       ],
       "rewards": {
         "xp": 35
+      },
+      "level_estimate": {
+        "recommended": 34,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Jaws of Sivakaya",
+            "level": 34
+          }
+        ]
       }
     },
     {
@@ -66686,6 +67896,16 @@
       ],
       "rewards": {
         "xp": 5
+      },
+      "level_estimate": {
+        "recommended": 21,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Shivering Step",
+            "level": 21
+          }
+        ]
       }
     },
     {
@@ -66744,6 +67964,16 @@
       ],
       "rewards": {
         "xp": 10
+      },
+      "level_estimate": {
+        "recommended": 2,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Stowaway's Step",
+            "level": 2
+          }
+        ]
       }
     },
     {
@@ -66912,6 +68142,16 @@
       ],
       "rewards": {
         "xp": 15
+      },
+      "level_estimate": {
+        "recommended": 23,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Vitheo's Rest",
+            "level": 23
+          }
+        ]
       }
     },
     {
@@ -66992,6 +68232,16 @@
       ],
       "flags": {
         "disabled_text": "It's so incredible! Get it to Lucian."
+      },
+      "level_estimate": {
+        "recommended": 14,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "The Duskenlight Coast",
+            "level": 14
+          }
+        ]
       }
     },
     {
@@ -67235,6 +68485,16 @@
       ],
       "flags": {
         "disabled_text": "Oh my, someone made duplicates of these? "
+      },
+      "level_estimate": {
+        "recommended": 19,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Malaroth's Nesting Grounds",
+            "level": 19
+          }
+        ]
       }
     },
     {
@@ -67312,6 +68572,16 @@
       ],
       "flags": {
         "disabled_text": "Is this a trick? "
+      },
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
       }
     },
     {
@@ -67774,7 +69044,17 @@
           "quest_stable_key": "quest:lunchbag1",
           "relationship": "next"
         }
-      ]
+      ],
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
+      }
     },
     {
       "db_name": "LUNCHBAG1",
@@ -67817,6 +69097,16 @@
       ],
       "flags": {
         "disabled_text": "Hope you're listenin' this time!"
+      },
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
       }
     },
     {
@@ -67904,6 +69194,16 @@
       ],
       "flags": {
         "disabled_text": "You have the key... if you've lost it I don't know what to tell you. I do not have another. "
+      },
+      "level_estimate": {
+        "recommended": 9,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Vitheo's Watch",
+            "level": 9
+          }
+        ]
       }
     },
     {
@@ -68063,6 +69363,16 @@
       "flags": {
         "repeatable": true,
         "disabled_text": "We've covered this already... show me anything new you find!"
+      },
+      "level_estimate": {
+        "recommended": 9,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Vitheo's Watch",
+            "level": 9
+          }
+        ]
       }
     },
     {
@@ -68294,6 +69604,16 @@
       ],
       "flags": {
         "disabled_text": "We have seen these pages already, have you forgotten?"
+      },
+      "level_estimate": {
+        "recommended": 9,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Vitheo's Watch",
+            "level": 9
+          }
+        ]
       }
     },
     {
@@ -69528,6 +70848,16 @@
       },
       "flags": {
         "repeatable": true
+      },
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
       }
     },
     {
@@ -69614,6 +70944,16 @@
       },
       "flags": {
         "disabled_text": "Another copy... incredible. Keep that for yourself and enjoy the tale within."
+      },
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
       }
     },
     {
@@ -70446,6 +71786,16 @@
         "achievements": [
           "FERNALLAPORTAL"
         ]
+      },
+      "level_estimate": {
+        "recommended": 13,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Fernalla's Revival Plains",
+            "level": 13
+          }
+        ]
       }
     },
     {
@@ -70492,6 +71842,16 @@
         "repeatable": true,
         "disabled": true,
         "disabled_text": "The riftsnares..."
+      },
+      "level_estimate": {
+        "recommended": 30,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Azynthi's Garden",
+            "level": 30
+          }
+        ]
       }
     },
     {
@@ -70684,6 +72044,16 @@
         "achievements": [
           "RIPPERPORTAL"
         ]
+      },
+      "level_estimate": {
+        "recommended": 28,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Ripper's Keep",
+            "level": 28
+          }
+        ]
       }
     },
     {
@@ -70762,6 +72132,16 @@
       },
       "flags": {
         "disabled_text": "It's so interesting to see this!"
+      },
+      "level_estimate": {
+        "recommended": 17,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Braxonian Desert",
+            "level": 17
+          }
+        ]
       }
     },
     {
@@ -70846,6 +72226,16 @@
       ],
       "flags": {
         "disabled_text": "You must find a way to reach the Gods!"
+      },
+      "level_estimate": {
+        "recommended": 24,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Loomingwood Forest",
+            "level": 24
+          }
+        ]
       }
     },
     {
@@ -70917,6 +72307,16 @@
       },
       "flags": {
         "disabled_text": "Take this to Larviso!"
+      },
+      "level_estimate": {
+        "recommended": 2,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Stowaway's Step",
+            "level": 2
+          }
+        ]
       }
     },
     {
@@ -70945,6 +72345,16 @@
       ],
       "rewards": {
         "xp": 1000
+      },
+      "level_estimate": {
+        "recommended": 40,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Secluded Sanctuary",
+            "level": 40
+          }
+        ]
       }
     },
     {
@@ -70987,6 +72397,16 @@
       ],
       "flags": {
         "repeatable": true
+      },
+      "level_estimate": {
+        "recommended": 13,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Fernalla's Revival Plains",
+            "level": 13
+          }
+        ]
       }
     },
     {
@@ -71049,6 +72469,16 @@
       },
       "flags": {
         "disabled_text": "What is this? Are you making these yourself? Is this some sort of a trick?"
+      },
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
       }
     },
     {
@@ -71209,6 +72639,16 @@
       },
       "flags": {
         "disabled_text": "I already have all I can eat!"
+      },
+      "level_estimate": {
+        "recommended": 2,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Stowaway's Step",
+            "level": 2
+          }
+        ]
       }
     },
     {
@@ -71398,7 +72838,17 @@
           "quest_stable_key": "quest:shiver-lighthousechange",
           "relationship": "next"
         }
-      ]
+      ],
+      "level_estimate": {
+        "recommended": 21,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Shivering Step",
+            "level": 21
+          }
+        ]
+      }
     },
     {
       "db_name": "WheresWyland",
@@ -71454,7 +72904,17 @@
           "quest_stable_key": "quest:wyland's note",
           "relationship": "completed_by"
         }
-      ]
+      ],
+      "level_estimate": {
+        "recommended": 2,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Stowaway's Step",
+            "level": 2
+          }
+        ]
+      }
     },
     {
       "db_name": "Wyland's Note",
@@ -71548,6 +73008,16 @@
       ],
       "flags": {
         "disabled_text": "We're square."
+      },
+      "level_estimate": {
+        "recommended": 2,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Stowaway's Step",
+            "level": 2
+          }
+        ]
       }
     },
     {
@@ -71697,6 +73167,16 @@
       "flags": {
         "repeatable": true,
         "disabled_text": "I need but one seed from each tree, no more are necessary."
+      },
+      "level_estimate": {
+        "recommended": 4,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Willowwatch Ridge",
+            "level": 4
+          }
+        ]
       }
     },
     {
@@ -71781,6 +73261,16 @@
       },
       "flags": {
         "disabled_text": "Yeah ok I don't need all of it in bags, knock it off! "
+      },
+      "level_estimate": {
+        "recommended": 4,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Willowwatch Ridge",
+            "level": 4
+          }
+        ]
       }
     },
     {
@@ -71837,6 +73327,16 @@
       },
       "flags": {
         "disabled_text": "Thank you."
+      },
+      "level_estimate": {
+        "recommended": 25,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "The Blight",
+            "level": 25
+          }
+        ]
       }
     },
     {
@@ -71886,6 +73386,16 @@
       },
       "flags": {
         "disabled_text": "Thank you."
+      },
+      "level_estimate": {
+        "recommended": 25,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "The Blight",
+            "level": 25
+          }
+        ]
       }
     },
     {
@@ -72009,6 +73519,16 @@
       },
       "flags": {
         "repeatable": true
+      },
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "zone_context",
+            "name": "Port Azure",
+            "level": 11
+          }
+        ]
       }
     }
   ]
