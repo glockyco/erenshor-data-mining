@@ -11,18 +11,23 @@ namespace AdventureGuide.Navigation;
 /// The path is recalculated when the target changes or the player moves
 /// beyond a threshold from the last calculation point. Off by default.
 ///
-/// The LineRenderer is created on a hidden child GameObject and destroyed
-/// on cleanup. It uses the built-in Sprites/Default shader for a simple
-/// colored line that participates in the depth buffer — geometry properly
-/// occludes the path.
+/// Visual style: animated scrolling dashes with soft edges and a subtle
+/// glow halo, giving a "GPS navigation" appearance. Two layered
+/// LineRenderers — a wider dim halo underneath and a bright dashed core
+/// on top. A procedural dash texture scrolls toward the destination.
 /// </summary>
 public sealed class GroundPathRenderer
 {
     private const float RecalcDistance = 5f;
-    private const float LineWidth = 0.15f;
-    private const float PathYOffset = 0.15f; // lift slightly above ground to avoid z-fighting
+    private const float CoreWidth = 0.20f;
+    private const float GlowWidth = 0.50f;
+    private const float PathYOffset = 0.15f;
+    private const float ScrollSpeed = 1.5f;
+    private const float TileScale = 1.5f; // dashes per world unit
 
-    private static readonly Color PathColor = new(1.00f, 0.85f, 0.30f, 0.60f);
+    // Bright gold core, dimmer translucent glow
+    private static readonly Color CoreColor = new(1.00f, 0.85f, 0.30f, 0.80f);
+    private static readonly Color GlowColor = new(1.00f, 0.75f, 0.20f, 0.15f);
 
     private readonly NavigationController _nav;
     private readonly NavMeshPath _path = new();
@@ -35,9 +40,12 @@ public sealed class GroundPathRenderer
     private Vector3 _lastCalcTargetPos;
     private bool _pathValid;
 
-    // Unity LineRenderer on a hidden GameObject
+    // Two layered LineRenderers: glow halo + dashed core
     private GameObject? _lineObj;
-    private LineRenderer? _line;
+    private LineRenderer? _core;
+    private LineRenderer? _glow;
+    private Material? _coreMat;
+    private float _scrollOffset;
 
     public bool Enabled
     {
@@ -45,8 +53,7 @@ public sealed class GroundPathRenderer
         set
         {
             _enabled = value;
-            if (_line != null)
-                _line.enabled = value && _pathValid;
+            SetLineVisible(value && _pathValid);
         }
     }
 
@@ -56,8 +63,8 @@ public sealed class GroundPathRenderer
     }
 
     /// <summary>
-    /// Call each frame. Recalculates the NavMesh path if needed and
-    /// updates the LineRenderer positions.
+    /// Call each frame. Recalculates the NavMesh path if needed,
+    /// updates LineRenderer positions, and animates the dash scroll.
     /// </summary>
     public void Update(string currentScene)
     {
@@ -94,9 +101,10 @@ public sealed class GroundPathRenderer
         }
 
         if (recalculated)
-            ApplyToLineRenderer();
+            ApplyToLineRenderers();
 
         SetLineVisible(true);
+        AnimateScroll();
     }
 
     public void Destroy()
@@ -105,13 +113,12 @@ public sealed class GroundPathRenderer
         {
             UnityEngine.Object.Destroy(_lineObj);
             _lineObj = null;
-            _line = null;
+            _core = null;
+            _glow = null;
+            _coreMat = null;
         }
     }
 
-    /// <summary>
-    /// Returns true if the path was recalculated this frame.
-    /// </summary>
     private bool RecalculateIfNeeded(Vector3 playerPos, Vector3 targetPos)
     {
         bool targetMoved = Vector3.Distance(_lastCalcTargetPos, targetPos) > 0.5f;
@@ -126,7 +133,6 @@ public sealed class GroundPathRenderer
         _path.ClearCorners();
         _pathValid = NavMesh.CalculatePath(playerPos, targetPos, NavMesh.AllAreas, _path);
 
-        // PathPartial is still useful — show what we have
         if (_path.status == NavMeshPathStatus.PathInvalid)
         {
             _pathValid = false;
@@ -134,11 +140,9 @@ public sealed class GroundPathRenderer
             return true;
         }
 
-        // GetCornersNonAlloc avoids the Vector3[] allocation from .corners
         _cornerCount = _path.GetCornersNonAlloc(_corners);
         if (_cornerCount >= _corners.Length)
         {
-            // Rare: path has more corners than our buffer. Resize and retry.
             _corners = new Vector3[_cornerCount * 2];
             _cornerCount = _path.GetCornersNonAlloc(_corners);
         }
@@ -146,51 +150,147 @@ public sealed class GroundPathRenderer
         return true;
     }
 
-    private void ApplyToLineRenderer()
+    private void ApplyToLineRenderers()
     {
-        EnsureLineRenderer();
-        if (_line == null) return;
+        EnsureLineRenderers();
+        if (_core == null || _glow == null) return;
 
-        _line.positionCount = _cornerCount;
+        _core.positionCount = _cornerCount;
+        _glow.positionCount = _cornerCount;
         for (int i = 0; i < _cornerCount; i++)
         {
-            // Lift slightly above ground to prevent z-fighting with terrain
             var pos = _corners[i];
             pos.y += PathYOffset;
-            _line.SetPosition(i, pos);
+            _core.SetPosition(i, pos);
+
+            // Glow sits slightly below core to avoid z-fighting between layers
+            var glowPos = pos;
+            glowPos.y -= 0.01f;
+            _glow.SetPosition(i, glowPos);
         }
+
+        // Set texture tiling based on path length so dash density is consistent
+        float pathLen = 0f;
+        for (int i = 0; i < _cornerCount - 1; i++)
+            pathLen += Vector3.Distance(_corners[i], _corners[i + 1]);
+
+        if (_coreMat != null)
+            _coreMat.mainTextureScale = new Vector2(pathLen * TileScale, 1f);
     }
 
-    private void EnsureLineRenderer()
+    private void AnimateScroll()
     {
-        if (_line != null) return;
+        if (_coreMat == null) return;
+
+        // Scroll toward destination (negative direction along the path)
+        _scrollOffset -= Time.deltaTime * ScrollSpeed;
+        _coreMat.mainTextureOffset = new Vector2(_scrollOffset, 0f);
+    }
+
+    // ── LineRenderer setup ────────────────────────────────────────
+
+    private void EnsureLineRenderers()
+    {
+        if (_core != null) return;
 
         _lineObj = new GameObject("AdventureGuide_GroundPath");
         UnityEngine.Object.DontDestroyOnLoad(_lineObj);
         _lineObj.hideFlags = HideFlags.HideAndDontSave;
 
-        _line = _lineObj.AddComponent<LineRenderer>();
-        _line.useWorldSpace = true;
-        _line.startWidth = LineWidth;
-        _line.endWidth = LineWidth;
-        _line.numCornerVertices = 4;
-        _line.numCapVertices = 2;
-        _line.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-        _line.receiveShadows = false;
-        _line.allowOcclusionWhenDynamic = false;
+        // Bottom layer: soft glow halo
+        var glowObj = new GameObject("Glow");
+        glowObj.transform.SetParent(_lineObj.transform);
+        _glow = glowObj.AddComponent<LineRenderer>();
+        ConfigureLineRenderer(_glow, GlowWidth);
+        var glowMat = new Material(Shader.Find("Sprites/Default"));
+        glowMat.color = GlowColor;
+        _glow.material = glowMat;
+        _glow.startColor = GlowColor;
+        _glow.endColor = GlowColor;
 
-        // Sprites/Default is a built-in shader that supports vertex colors
-        // and renders with proper depth testing
-        var mat = new Material(Shader.Find("Sprites/Default"));
-        mat.color = PathColor;
-        _line.material = mat;
-        _line.startColor = PathColor;
-        _line.endColor = PathColor;
+        // Top layer: bright dashed core
+        var coreObj = new GameObject("Core");
+        coreObj.transform.SetParent(_lineObj.transform);
+        _core = coreObj.AddComponent<LineRenderer>();
+        ConfigureLineRenderer(_core, CoreWidth);
+
+        _coreMat = new Material(Shader.Find("Sprites/Default"));
+        _coreMat.mainTexture = CreateDashTexture();
+        _coreMat.color = Color.white; // tint via vertex colors instead
+        _core.material = _coreMat;
+        _core.textureMode = LineTextureMode.Tile;
+        _core.startColor = CoreColor;
+        _core.endColor = CoreColor;
+    }
+
+    private static void ConfigureLineRenderer(LineRenderer lr, float width)
+    {
+        lr.useWorldSpace = true;
+        lr.startWidth = width;
+        lr.endWidth = width;
+        lr.numCornerVertices = 4;
+        lr.numCapVertices = 2;
+        lr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        lr.receiveShadows = false;
+        lr.allowOcclusionWhenDynamic = false;
+    }
+
+    /// <summary>
+    /// Create a 128x4 procedural dash texture: a smooth-edged dash fading
+    /// to transparent, followed by a gap. Wrapped horizontally so it tiles
+    /// seamlessly along the LineRenderer.
+    /// </summary>
+    private static Texture2D CreateDashTexture()
+    {
+        const int width = 128;
+        const int height = 4;
+        const float dashFraction = 0.55f; // portion of tile that is the dash
+        const float fadeZone = 0.10f;     // smooth fade at dash edges
+
+        var tex = new Texture2D(width, height, TextureFormat.RGBA32, false);
+        tex.wrapMode = TextureWrapMode.Repeat;
+        tex.filterMode = FilterMode.Bilinear;
+
+        var pixels = new Color[width * height];
+        for (int x = 0; x < width; x++)
+        {
+            float t = (float)x / width;
+            float alpha;
+
+            if (t < fadeZone)
+            {
+                // Fade in at dash start
+                alpha = t / fadeZone;
+            }
+            else if (t < dashFraction - fadeZone)
+            {
+                // Full dash body
+                alpha = 1f;
+            }
+            else if (t < dashFraction)
+            {
+                // Fade out at dash end
+                alpha = (dashFraction - t) / fadeZone;
+            }
+            else
+            {
+                // Gap
+                alpha = 0f;
+            }
+
+            var c = new Color(1f, 1f, 1f, alpha);
+            for (int y = 0; y < height; y++)
+                pixels[y * width + x] = c;
+        }
+
+        tex.SetPixels(pixels);
+        tex.Apply(false, true); // makeNoLongerReadable for GPU memory
+        return tex;
     }
 
     private void SetLineVisible(bool visible)
     {
-        if (_line != null)
-            _line.enabled = visible;
+        if (_core != null) _core.enabled = visible;
+        if (_glow != null) _glow.enabled = visible;
     }
 }
