@@ -54,7 +54,7 @@ public sealed class Plugin : BaseUnityPlugin
         QuestAssignPatch.Tracker = _state;
         QuestFinishPatch.Tracker = _state;
         InventoryPatch.Tracker = _state;
-        PointerOverUIPatch.Window = _window;
+        PointerOverUIPatch.Renderer = _imgui;
         SceneManager.sceneLoaded += OnSceneLoaded;
 
         _harmony = new Harmony(PluginInfo.GUID);

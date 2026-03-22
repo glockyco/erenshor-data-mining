@@ -1,3 +1,4 @@
+using AdventureGuide.Rendering;
 using AdventureGuide.UI;
 using HarmonyLib;
 using UnityEngine.EventSystems;
@@ -5,19 +6,19 @@ using UnityEngine.EventSystems;
 namespace AdventureGuide.Patches;
 
 /// <summary>
-/// Makes EventSystem.IsPointerOverGameObject() return true when the
-/// mouse is over the Adventure Guide window. The game checks this
-/// method before processing mouse input for camera rotation,
-/// click-to-move, and target selection.
+/// Makes EventSystem.IsPointerOverGameObject() return true when ImGui
+/// is consuming mouse input. This covers hover, drag, resize grip,
+/// scrolling — any interaction where the game should not process
+/// camera rotation, click-to-move, or target selection.
 /// </summary>
 [HarmonyPatch(typeof(EventSystem), nameof(EventSystem.IsPointerOverGameObject), new System.Type[0])]
 internal static class PointerOverUIPatch
 {
-    internal static GuideWindow? Window;
+    internal static ImGuiRenderer? Renderer;
 
     private static void Postfix(ref bool __result)
     {
-        if (!__result && Window is { Visible: true, IsMouseOver: true })
+        if (!__result && Renderer is { WantCaptureMouse: true })
             __result = true;
     }
 }

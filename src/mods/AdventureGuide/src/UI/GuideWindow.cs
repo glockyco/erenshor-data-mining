@@ -20,8 +20,6 @@ public sealed class GuideWindow
 
     private bool _visible;
 
-    /// <summary>True when the ImGui window is hovered (for input blocking).</summary>
-    public bool IsMouseOver { get; private set; }
 
     public bool Visible => _visible;
 
@@ -47,25 +45,14 @@ public sealed class GuideWindow
     public void Draw()
     {
         if (!_visible)
-        {
-            IsMouseOver = false;
             return;
-        }
 
         ImGui.SetNextWindowSize(new Vector2(800, 550), ImGuiCond.FirstUseEver);
 
         Theme.PushWindowStyle();
 
         if (ImGui.Begin("Adventure Guide", ref _visible, ImGuiWindowFlags.NoCollapse))
-        {
-            IsMouseOver = ImGui.IsWindowHovered(ImGuiHoveredFlags.RootAndChildWindows);
-
             DrawTabBar();
-        }
-        else
-        {
-            IsMouseOver = false;
-        }
 
         ImGui.End();
         Theme.PopWindowStyle();
