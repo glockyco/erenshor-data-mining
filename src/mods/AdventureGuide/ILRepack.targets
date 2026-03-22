@@ -38,6 +38,7 @@
            assemblies (e.g. custom mod loaders). BepInEx-provided assemblies
            (BepInEx.dll, 0Harmony.dll) are excluded — they are reference-only. -->
       <MergeAssemblies Include="$(OutputPath)Newtonsoft.Json.dll" />
+      <MergeAssemblies Include="$(OutputPath)ImGui.NET.dll" />
     </ItemGroup>
 
     <!-- Debug output: Show what we're merging -->

@@ -13,17 +13,20 @@
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <DefaultItemExcludes>$(DefaultItemExcludes);tests/**</DefaultItemExcludes>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all" />
+    <PackageReference Include="ImGui.NET" Version="1.89.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.34.2" />
   </ItemGroup>
 
-  <!-- Embedded quest guide data -->
+  <!-- Embedded resources -->
   <ItemGroup>
     <EmbeddedResource Include="resources/quest-guide.json" LogicalName="AdventureGuide.quest-guide.json" />
+    <EmbeddedResource Include="resources/cimgui.dll" LogicalName="AdventureGuide.cimgui.dll" />
   </ItemGroup>
 
   <!-- Version generation targets -->

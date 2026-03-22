@@ -45,6 +45,9 @@ mods-metadata.json
 !src/
 !src/**
 !lib/README.md
+!resources/
+!resources/**
+!resources/**/*.dll
 !nuget.config
 !ILRepack.targets
 !packages.config
