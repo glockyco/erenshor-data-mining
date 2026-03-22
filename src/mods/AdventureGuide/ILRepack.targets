@@ -39,6 +39,8 @@
            (BepInEx.dll, 0Harmony.dll) are excluded — they are reference-only. -->
       <MergeAssemblies Include="$(OutputPath)Newtonsoft.Json.dll" />
       <MergeAssemblies Include="$(OutputPath)ImGui.NET.dll" />
+      <MergeAssemblies Include="$(OutputPath)System.Numerics.Vectors.dll" />
+      <MergeAssemblies Include="$(OutputPath)System.Runtime.CompilerServices.Unsafe.dll" />
     </ItemGroup>
 
     <!-- Debug output: Show what we're merging -->

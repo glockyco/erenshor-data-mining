@@ -72,13 +72,19 @@ public sealed class ImGuiRenderer : IDisposable
             var dllBytes = new byte[stream.Length];
             stream.Read(dllBytes, 0, dllBytes.Length);
 
-            // Write to BepInEx cache directory so LoadLibrary can find it
-            var cacheDir = Path.Combine(
-                Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!,
-                "imgui_cache");
+            // Write to BepInEx cache directory so LoadLibrary can find it.
+            // Use BepInEx.Paths.CachePath — Assembly.Location is empty under
+            // ScriptEngine hot reload.
+            var cacheDir = Path.Combine(BepInEx.Paths.CachePath, "imgui_native");
             Directory.CreateDirectory(cacheDir);
             var dllPath = Path.Combine(cacheDir, "cimgui.dll");
-            File.WriteAllBytes(dllPath, dllBytes);
+
+            // On hot reload, the DLL is still loaded from the previous
+            // instance (file locked). Skip writing if it already exists —
+            // LoadLibrary on an already-loaded DLL just increments the
+            // reference count and returns the existing handle.
+            if (!File.Exists(dllPath))
+                File.WriteAllBytes(dllPath, dllBytes);
 
             _nativeLib = LoadLibrary(dllPath);
             if (_nativeLib == IntPtr.Zero)
@@ -208,7 +214,9 @@ public sealed class ImGuiRenderer : IDisposable
         _fontTexture.Apply();
 
         io.Fonts.SetTexID(_fontTexture.GetNativeTexturePtr());
-        _textures[_fontTexture.GetNativeTexturePtr()] = _fontTexture;
+        // Do NOT add to _textures — the font texture uses different UV
+        // transform (_MainTex_ST 1,1,0,0) than user textures (1,-1,0,1).
+        // It falls through to the else branch in RenderDrawData.
     }
 
     private void CreateMaterial()

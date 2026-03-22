@@ -92,7 +92,7 @@ public sealed class Plugin : BaseUnityPlugin
     private void OnGUI()
     {
         _window?.Draw();
-        _imgui?.OnGUI();
+        if (_imguiAvailable) _imgui?.OnGUI();
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
