@@ -65362,12 +65362,6 @@
               "source_key": "character:treasurechest 30-35"
             },
             {
-              "type": "fishing",
-              "zone": "Bellwain Island",
-              "scene": "SummerEvent",
-              "node_count": 2
-            },
-            {
               "type": "quest_reward",
               "name": "Clearing the Bonepits",
               "scene": "Willowwatch",
@@ -65472,6 +65466,12 @@
                   "quest_key": "quest:albixtsring"
                 }
               ]
+            },
+            {
+              "type": "fishing",
+              "zone": "Bellwain Island",
+              "scene": "SummerEvent",
+              "node_count": 2
             }
           ]
         }
@@ -65904,13 +65904,118 @@
             "factors": [
               {
                 "source": "drop",
+                "name": "Sivakayan Shadow",
+                "level": 24
+              },
+              {
+                "source": "drop",
+                "name": "Shrouded Sivakayan",
+                "level": 28
+              },
+              {
+                "source": "drop",
+                "name": "Sivakayan High Shadow",
+                "level": 33
+              },
+              {
+                "source": "drop",
+                "name": "Sivakayan Doomshade",
+                "level": 36
+              },
+              {
+                "source": "drop",
+                "name": "Sivakayan Voidmaster",
+                "level": 39
+              },
+              {
+                "source": "drop",
+                "name": "A Deepling Brute",
+                "level": 19
+              },
+              {
+                "source": "drop",
+                "name": "Ancient Guard",
+                "level": 26
+              },
+              {
+                "source": "drop",
+                "name": "Astra, Rogue of the Stars",
+                "level": 40
+              },
+              {
+                "source": "drop",
                 "name": "Autmis the Lost",
                 "level": 7
               },
               {
                 "source": "drop",
+                "name": "Bloom Preserver",
+                "level": 27
+              },
+              {
+                "source": "drop",
+                "name": "Shadow of Sleep",
+                "level": 21
+              },
+              {
+                "source": "drop",
+                "name": "Braxonian High Guard",
+                "level": 31
+              },
+              {
+                "source": "drop",
+                "name": "Daggerlegs",
+                "level": 21
+              },
+              {
+                "source": "drop",
+                "name": "Daggerlegs",
+                "level": 24
+              },
+              {
+                "source": "drop",
+                "name": "Elder Guardian",
+                "level": 27
+              },
+              {
+                "source": "drop",
                 "name": "Elizah Vernor",
                 "level": 10
+              },
+              {
+                "source": "drop",
+                "name": "Fawn of Fernalla",
+                "level": 35
+              },
+              {
+                "source": "drop",
+                "name": "Fright",
+                "level": 22
+              },
+              {
+                "source": "drop",
+                "name": "Fright",
+                "level": 24
+              },
+              {
+                "source": "drop",
+                "name": "Gasper",
+                "level": 21
+              },
+              {
+                "source": "drop",
+                "name": "Greater Fawn",
+                "level": 27
+              },
+              {
+                "source": "drop",
+                "name": "Headless",
+                "level": 24
+              },
+              {
+                "source": "drop",
+                "name": "Maple",
+                "level": 27
               },
               {
                 "source": "drop",
@@ -65921,6 +66026,51 @@
                 "source": "drop",
                 "name": "Molorai Veteran",
                 "level": 10
+              },
+              {
+                "source": "drop",
+                "name": "Overseer Orlok",
+                "level": 15
+              },
+              {
+                "source": "drop",
+                "name": "Risen Druid",
+                "level": 14
+              },
+              {
+                "source": "drop",
+                "name": "Risen Hierophant",
+                "level": 34
+              },
+              {
+                "source": "drop",
+                "name": "Shiverman",
+                "level": 19
+              },
+              {
+                "source": "drop",
+                "name": "Sivakayan Devoted",
+                "level": 28
+              },
+              {
+                "source": "drop",
+                "name": "Sivakayan Faithbound",
+                "level": 28
+              },
+              {
+                "source": "drop",
+                "name": "Stoneman",
+                "level": 24
+              },
+              {
+                "source": "drop",
+                "name": "Stoneman",
+                "level": 19
+              },
+              {
+                "source": "drop",
+                "name": "Stoneman Magi",
+                "level": 24
               },
               {
                 "source": "drop",
@@ -65939,143 +66089,8 @@
               },
               {
                 "source": "drop",
-                "name": "Risen Druid",
-                "level": 14
-              },
-              {
-                "source": "drop",
-                "name": "Overseer Orlok",
-                "level": 15
-              },
-              {
-                "source": "drop",
-                "name": "A Deepling Brute",
-                "level": 19
-              },
-              {
-                "source": "drop",
-                "name": "Shiverman",
-                "level": 19
-              },
-              {
-                "source": "drop",
-                "name": "Stoneman",
-                "level": 19
-              },
-              {
-                "source": "drop",
-                "name": "Shadow of Sleep",
-                "level": 21
-              },
-              {
-                "source": "drop",
-                "name": "Daggerlegs",
-                "level": 21
-              },
-              {
-                "source": "drop",
-                "name": "Gasper",
-                "level": 21
-              },
-              {
-                "source": "drop",
-                "name": "Fright",
-                "level": 22
-              },
-              {
-                "source": "drop",
-                "name": "Sivakayan Shadow",
-                "level": 24
-              },
-              {
-                "source": "drop",
-                "name": "Daggerlegs",
-                "level": 24
-              },
-              {
-                "source": "drop",
-                "name": "Fright",
-                "level": 24
-              },
-              {
-                "source": "drop",
-                "name": "Headless",
-                "level": 24
-              },
-              {
-                "source": "drop",
-                "name": "Stoneman",
-                "level": 24
-              },
-              {
-                "source": "drop",
-                "name": "Stoneman Magi",
-                "level": 24
-              },
-              {
-                "source": "drop",
-                "name": "Ancient Guard",
-                "level": 26
-              },
-              {
-                "source": "drop",
-                "name": "Wild Ogre",
-                "level": 26
-              },
-              {
-                "source": "drop",
-                "name": "Bloom Preserver",
-                "level": 27
-              },
-              {
-                "source": "drop",
-                "name": "Elder Guardian",
-                "level": 27
-              },
-              {
-                "source": "drop",
-                "name": "Greater Fawn",
-                "level": 27
-              },
-              {
-                "source": "drop",
-                "name": "Maple",
-                "level": 27
-              },
-              {
-                "source": "drop",
-                "name": "Shrouded Sivakayan",
-                "level": 28
-              },
-              {
-                "source": "drop",
-                "name": "Sivakayan Devoted",
-                "level": 28
-              },
-              {
-                "source": "drop",
-                "name": "Sivakayan Faithbound",
-                "level": 28
-              },
-              {
-                "source": "drop",
                 "name": "Vinx",
                 "level": 29
-              },
-              {
-                "source": "drop",
-                "name": "Braxonian High Guard",
-                "level": 31
-              },
-              {
-                "source": "drop",
-                "name": "Sivakayan High Shadow",
-                "level": 33
-              },
-              {
-                "source": "drop",
-                "name": "Risen Hierophant",
-                "level": 34
               },
               {
                 "source": "drop",
@@ -66084,23 +66099,8 @@
               },
               {
                 "source": "drop",
-                "name": "Fawn of Fernalla",
-                "level": 35
-              },
-              {
-                "source": "drop",
-                "name": "Sivakayan Doomshade",
-                "level": 36
-              },
-              {
-                "source": "drop",
-                "name": "Sivakayan Voidmaster",
-                "level": 39
-              },
-              {
-                "source": "drop",
-                "name": "Astra, Rogue of the Stars",
-                "level": 40
+                "name": "Wild Ogre",
+                "level": 26
               }
             ]
           }
@@ -66118,28 +66118,8 @@
             "factors": [
               {
                 "source": "drop",
-                "name": "Ghost of Wyland Sercher",
-                "level": 4
-              },
-              {
-                "source": "vendor",
-                "name": "Summoned: Pocket Vendor",
-                "level": 5
-              },
-              {
-                "source": "drop",
-                "name": "Plaxitheris",
-                "level": 7
-              },
-              {
-                "source": "drop",
-                "name": "Sylvan Giant Runt",
-                "level": 7
-              },
-              {
-                "source": "vendor",
-                "name": "Saya Seawatcher",
-                "level": 9
+                "name": "Cerynth Duskveil",
+                "level": 31
               },
               {
                 "source": "drop",
@@ -66148,32 +66128,12 @@
               },
               {
                 "source": "drop",
-                "name": "Molorai Brewmistress",
-                "level": 10
-              },
-              {
-                "source": "drop",
-                "name": "Thella Steepleton",
-                "level": 10
+                "name": "Ghost of Wyland Sercher",
+                "level": 4
               },
               {
                 "source": "drop",
                 "name": "A Lost Sea Giant",
-                "level": 11
-              },
-              {
-                "source": "drop",
-                "name": "Thella Steepleton",
-                "level": 11
-              },
-              {
-                "source": "vendor",
-                "name": "Cully Edwarse",
-                "level": 11
-              },
-              {
-                "source": "vendor",
-                "name": "Shantee Swingblade",
                 "level": 11
               },
               {
@@ -66183,43 +66143,13 @@
               },
               {
                 "source": "drop",
-                "name": "Priel Deceiver",
-                "level": 18
-              },
-              {
-                "source": "drop",
-                "name": "Priel Enforcer",
-                "level": 18
-              },
-              {
-                "source": "drop",
                 "name": "Lost Soul",
                 "level": 19
               },
               {
                 "source": "drop",
-                "name": "Priel Deceiver",
-                "level": 19
-              },
-              {
-                "source": "drop",
-                "name": "Priel Enforcer",
-                "level": 19
-              },
-              {
-                "source": "drop",
-                "name": "Priel Purist",
-                "level": 30
-              },
-              {
-                "source": "drop",
-                "name": "Priel Swiftblade",
-                "level": 30
-              },
-              {
-                "source": "drop",
-                "name": "Cerynth Duskveil",
-                "level": 31
+                "name": "Molorai Brewmistress",
+                "level": 10
               },
               {
                 "source": "drop",
@@ -66228,18 +66158,33 @@
               },
               {
                 "source": "drop",
-                "name": "Rose Crystalshade",
-                "level": 31
+                "name": "Plaxitheris",
+                "level": 7
               },
               {
                 "source": "drop",
-                "name": "Priel Grimwatch",
-                "level": 32
+                "name": "Priel Consort",
+                "level": 35
               },
               {
                 "source": "drop",
-                "name": "Priel Soldier",
-                "level": 32
+                "name": "Priel Deceiver",
+                "level": 19
+              },
+              {
+                "source": "drop",
+                "name": "Priel Deceiver",
+                "level": 18
+              },
+              {
+                "source": "drop",
+                "name": "Priel Enforcer",
+                "level": 19
+              },
+              {
+                "source": "drop",
+                "name": "Priel Enforcer",
+                "level": 18
               },
               {
                 "source": "drop",
@@ -66248,8 +66193,63 @@
               },
               {
                 "source": "drop",
-                "name": "Priel Consort",
-                "level": 35
+                "name": "Priel Grimwatch",
+                "level": 32
+              },
+              {
+                "source": "drop",
+                "name": "Priel Purist",
+                "level": 30
+              },
+              {
+                "source": "drop",
+                "name": "Priel Soldier",
+                "level": 32
+              },
+              {
+                "source": "drop",
+                "name": "Priel Swiftblade",
+                "level": 30
+              },
+              {
+                "source": "drop",
+                "name": "Rose Crystalshade",
+                "level": 31
+              },
+              {
+                "source": "drop",
+                "name": "Sylvan Giant Runt",
+                "level": 7
+              },
+              {
+                "source": "drop",
+                "name": "Thella Steepleton",
+                "level": 10
+              },
+              {
+                "source": "drop",
+                "name": "Thella Steepleton",
+                "level": 11
+              },
+              {
+                "source": "vendor",
+                "name": "Summoned: Pocket Vendor",
+                "level": 5
+              },
+              {
+                "source": "vendor",
+                "name": "Cully Edwarse",
+                "level": 11
+              },
+              {
+                "source": "vendor",
+                "name": "Saya Seawatcher",
+                "level": 9
+              },
+              {
+                "source": "vendor",
+                "name": "Shantee Swingblade",
+                "level": 11
               }
             ]
           }
@@ -67263,24 +67263,6 @@
               "spawn_count": 1
             },
             {
-              "type": "drop",
-              "name": "Bommer Olvaro",
-              "zone": "Windwashed Pass",
-              "scene": "Windwashed",
-              "level": 18,
-              "source_key": "character:bommer olvaro:windwashed:349.66:32.38:255.53",
-              "spawn_count": 2
-            },
-            {
-              "type": "drop",
-              "name": "Liam Olvaro",
-              "zone": "Windwashed Pass",
-              "scene": "Windwashed",
-              "level": 18,
-              "source_key": "character:liam olvaro:windwashed:349.73:32.38:251.40",
-              "spawn_count": 2
-            },
-            {
               "type": "quest_reward",
               "name": "A Hermit's Request",
               "scene": "FernallaField",
@@ -67322,6 +67304,24 @@
                   "source_key": "character:a highwayman raider 1"
                 }
               ]
+            },
+            {
+              "type": "drop",
+              "name": "Bommer Olvaro",
+              "zone": "Windwashed Pass",
+              "scene": "Windwashed",
+              "level": 18,
+              "source_key": "character:bommer olvaro:windwashed:349.66:32.38:255.53",
+              "spawn_count": 2
+            },
+            {
+              "type": "drop",
+              "name": "Liam Olvaro",
+              "zone": "Windwashed Pass",
+              "scene": "Windwashed",
+              "level": 18,
+              "source_key": "character:liam olvaro:windwashed:349.73:32.38:251.40",
+              "spawn_count": 2
             }
           ]
         }
@@ -67467,26 +67467,6 @@
             "factors": [
               {
                 "source": "drop",
-                "name": "Founder",
-                "level": 21
-              },
-              {
-                "source": "drop",
-                "name": "Vithean Blademaster",
-                "level": 23
-              },
-              {
-                "source": "drop",
-                "name": "Vithean Elite",
-                "level": 23
-              },
-              {
-                "source": "drop",
-                "name": "Vithean Remains",
-                "level": 23
-              },
-              {
-                "source": "drop",
                 "name": "Jack",
                 "level": 31
               },
@@ -67512,8 +67492,28 @@
               },
               {
                 "source": "drop",
+                "name": "Founder",
+                "level": 21
+              },
+              {
+                "source": "drop",
                 "name": "Skelunker",
                 "level": 31
+              },
+              {
+                "source": "drop",
+                "name": "Vithean Blademaster",
+                "level": 23
+              },
+              {
+                "source": "drop",
+                "name": "Vithean Elite",
+                "level": 23
+              },
+              {
+                "source": "drop",
+                "name": "Vithean Remains",
+                "level": 23
               }
             ]
           }
@@ -67908,33 +67908,33 @@
             "factors": [
               {
                 "source": "drop",
+                "name": "Bassalt Vallano",
+                "level": 10
+              },
+              {
+                "source": "drop",
                 "name": "A Skeleton Captain",
                 "level": 8
               },
               {
                 "source": "drop",
+                "name": "A Skeleton Captain",
+                "level": 9
+              },
+              {
+                "source": "drop",
                 "name": "A Skeleton Soldier",
                 "level": 8
+              },
+              {
+                "source": "drop",
+                "name": "A Skeleton Soldier",
+                "level": 9
               },
               {
                 "source": "drop",
                 "name": "Wiggleribs",
                 "level": 8
-              },
-              {
-                "source": "drop",
-                "name": "A Skeleton Captain",
-                "level": 9
-              },
-              {
-                "source": "drop",
-                "name": "A Skeleton Soldier",
-                "level": 9
-              },
-              {
-                "source": "drop",
-                "name": "Bassalt Vallano",
-                "level": 10
               }
             ]
           }
@@ -68288,6 +68288,11 @@
             "recommended": 11,
             "factors": [
               {
+                "source": "drop",
+                "name": "Priel Malarist",
+                "level": 30
+              },
+              {
                 "source": "vendor",
                 "name": "Benny Bommby",
                 "level": 11
@@ -68306,11 +68311,6 @@
                 "source": "vendor",
                 "name": "Shady Fisherman",
                 "level": 11
-              },
-              {
-                "source": "drop",
-                "name": "Priel Malarist",
-                "level": 30
               }
             ]
           }
@@ -68328,28 +68328,8 @@
             "factors": [
               {
                 "source": "drop",
-                "name": "Ghost of Wyland Sercher",
-                "level": 4
-              },
-              {
-                "source": "vendor",
-                "name": "Summoned: Pocket Vendor",
-                "level": 5
-              },
-              {
-                "source": "drop",
-                "name": "Plaxitheris",
-                "level": 7
-              },
-              {
-                "source": "drop",
-                "name": "Sylvan Giant Runt",
-                "level": 7
-              },
-              {
-                "source": "vendor",
-                "name": "Saya Seawatcher",
-                "level": 9
+                "name": "Cerynth Duskveil",
+                "level": 31
               },
               {
                 "source": "drop",
@@ -68358,32 +68338,12 @@
               },
               {
                 "source": "drop",
-                "name": "Molorai Brewmistress",
-                "level": 10
-              },
-              {
-                "source": "drop",
-                "name": "Thella Steepleton",
-                "level": 10
+                "name": "Ghost of Wyland Sercher",
+                "level": 4
               },
               {
                 "source": "drop",
                 "name": "A Lost Sea Giant",
-                "level": 11
-              },
-              {
-                "source": "drop",
-                "name": "Thella Steepleton",
-                "level": 11
-              },
-              {
-                "source": "vendor",
-                "name": "Cully Edwarse",
-                "level": 11
-              },
-              {
-                "source": "vendor",
-                "name": "Shantee Swingblade",
                 "level": 11
               },
               {
@@ -68393,43 +68353,13 @@
               },
               {
                 "source": "drop",
-                "name": "Priel Deceiver",
-                "level": 18
-              },
-              {
-                "source": "drop",
-                "name": "Priel Enforcer",
-                "level": 18
-              },
-              {
-                "source": "drop",
                 "name": "Lost Soul",
                 "level": 19
               },
               {
                 "source": "drop",
-                "name": "Priel Deceiver",
-                "level": 19
-              },
-              {
-                "source": "drop",
-                "name": "Priel Enforcer",
-                "level": 19
-              },
-              {
-                "source": "drop",
-                "name": "Priel Purist",
-                "level": 30
-              },
-              {
-                "source": "drop",
-                "name": "Priel Swiftblade",
-                "level": 30
-              },
-              {
-                "source": "drop",
-                "name": "Cerynth Duskveil",
-                "level": 31
+                "name": "Molorai Brewmistress",
+                "level": 10
               },
               {
                 "source": "drop",
@@ -68438,18 +68368,33 @@
               },
               {
                 "source": "drop",
-                "name": "Rose Crystalshade",
-                "level": 31
+                "name": "Plaxitheris",
+                "level": 7
               },
               {
                 "source": "drop",
-                "name": "Priel Grimwatch",
-                "level": 32
+                "name": "Priel Consort",
+                "level": 35
               },
               {
                 "source": "drop",
-                "name": "Priel Soldier",
-                "level": 32
+                "name": "Priel Deceiver",
+                "level": 19
+              },
+              {
+                "source": "drop",
+                "name": "Priel Deceiver",
+                "level": 18
+              },
+              {
+                "source": "drop",
+                "name": "Priel Enforcer",
+                "level": 19
+              },
+              {
+                "source": "drop",
+                "name": "Priel Enforcer",
+                "level": 18
               },
               {
                 "source": "drop",
@@ -68458,8 +68403,63 @@
               },
               {
                 "source": "drop",
-                "name": "Priel Consort",
-                "level": 35
+                "name": "Priel Grimwatch",
+                "level": 32
+              },
+              {
+                "source": "drop",
+                "name": "Priel Purist",
+                "level": 30
+              },
+              {
+                "source": "drop",
+                "name": "Priel Soldier",
+                "level": 32
+              },
+              {
+                "source": "drop",
+                "name": "Priel Swiftblade",
+                "level": 30
+              },
+              {
+                "source": "drop",
+                "name": "Rose Crystalshade",
+                "level": 31
+              },
+              {
+                "source": "drop",
+                "name": "Sylvan Giant Runt",
+                "level": 7
+              },
+              {
+                "source": "drop",
+                "name": "Thella Steepleton",
+                "level": 10
+              },
+              {
+                "source": "drop",
+                "name": "Thella Steepleton",
+                "level": 11
+              },
+              {
+                "source": "vendor",
+                "name": "Summoned: Pocket Vendor",
+                "level": 5
+              },
+              {
+                "source": "vendor",
+                "name": "Cully Edwarse",
+                "level": 11
+              },
+              {
+                "source": "vendor",
+                "name": "Saya Seawatcher",
+                "level": 9
+              },
+              {
+                "source": "vendor",
+                "name": "Shantee Swingblade",
+                "level": 11
               }
             ]
           }
@@ -69144,8 +69144,53 @@
             "factors": [
               {
                 "source": "drop",
+                "name": "A Protected Memory",
+                "level": 27
+              },
+              {
+                "source": "drop",
+                "name": "A Protected Memory",
+                "level": 30
+              },
+              {
+                "source": "drop",
                 "name": "A Sorrowful Spirit",
                 "level": 4
+              },
+              {
+                "source": "drop",
+                "name": "Ancient Celestarian",
+                "level": 27
+              },
+              {
+                "source": "drop",
+                "name": "Ancient Guard",
+                "level": 26
+              },
+              {
+                "source": "drop",
+                "name": "Ancient Knight",
+                "level": 30
+              },
+              {
+                "source": "drop",
+                "name": "Azynthian Firebone",
+                "level": 34
+              },
+              {
+                "source": "drop",
+                "name": "Azynthian Icebone",
+                "level": 34
+              },
+              {
+                "source": "drop",
+                "name": "Blight Eater",
+                "level": 19
+              },
+              {
+                "source": "drop",
+                "name": "Ancient Educator",
+                "level": 33
               },
               {
                 "source": "drop",
@@ -69154,18 +69199,23 @@
               },
               {
                 "source": "drop",
-                "name": "Mourning",
-                "level": 4
+                "name": "Ancient Corpse",
+                "level": 26
               },
               {
                 "source": "drop",
-                "name": "A Restless Spirit",
-                "level": 4
+                "name": "Greater Azynthian Firebone",
+                "level": 34
               },
               {
                 "source": "drop",
-                "name": "Rotting Mummy",
-                "level": 5
+                "name": "Greater Azynthian Icebone",
+                "level": 34
+              },
+              {
+                "source": "drop",
+                "name": "Headless",
+                "level": 24
               },
               {
                 "source": "drop",
@@ -69184,38 +69234,23 @@
               },
               {
                 "source": "drop",
-                "name": "Blight Eater",
-                "level": 19
+                "name": "Mourning",
+                "level": 4
+              },
+              {
+                "source": "drop",
+                "name": "A Restless Spirit",
+                "level": 4
+              },
+              {
+                "source": "drop",
+                "name": "Rotting Mummy",
+                "level": 5
               },
               {
                 "source": "drop",
                 "name": "Seed of Blight",
                 "level": 21
-              },
-              {
-                "source": "drop",
-                "name": "Headless",
-                "level": 24
-              },
-              {
-                "source": "drop",
-                "name": "Ancient Guard",
-                "level": 26
-              },
-              {
-                "source": "drop",
-                "name": "Ancient Corpse",
-                "level": 26
-              },
-              {
-                "source": "drop",
-                "name": "A Protected Memory",
-                "level": 27
-              },
-              {
-                "source": "drop",
-                "name": "Ancient Celestarian",
-                "level": 27
               },
               {
                 "source": "drop",
@@ -69231,41 +69266,6 @@
                 "source": "drop",
                 "name": "Spectre",
                 "level": 29
-              },
-              {
-                "source": "drop",
-                "name": "A Protected Memory",
-                "level": 30
-              },
-              {
-                "source": "drop",
-                "name": "Ancient Knight",
-                "level": 30
-              },
-              {
-                "source": "drop",
-                "name": "Ancient Educator",
-                "level": 33
-              },
-              {
-                "source": "drop",
-                "name": "Azynthian Firebone",
-                "level": 34
-              },
-              {
-                "source": "drop",
-                "name": "Azynthian Icebone",
-                "level": 34
-              },
-              {
-                "source": "drop",
-                "name": "Greater Azynthian Firebone",
-                "level": 34
-              },
-              {
-                "source": "drop",
-                "name": "Greater Azynthian Icebone",
-                "level": 34
               }
             ]
           }
@@ -69918,6 +69918,11 @@
               },
               {
                 "source": "drop",
+                "name": "Occuphage, Eater of Eyes",
+                "level": 99
+              },
+              {
+                "source": "drop",
                 "name": "A Nagalok",
                 "level": 14
               },
@@ -69925,11 +69930,6 @@
                 "source": "drop",
                 "name": "Spike",
                 "level": 18
-              },
-              {
-                "source": "drop",
-                "name": "Occuphage, Eater of Eyes",
-                "level": 99
               }
             ]
           }
@@ -70487,33 +70487,28 @@
             "factors": [
               {
                 "source": "drop",
-                "name": "A Brown Bear Cub",
-                "level": 4
-              },
-              {
-                "source": "drop",
-                "name": "Grizzlepaw",
-                "level": 9
-              },
-              {
-                "source": "drop",
-                "name": "A Brown Bear",
-                "level": 13
-              },
-              {
-                "source": "drop",
-                "name": "A Brown Bear Cub",
-                "level": 13
-              },
-              {
-                "source": "drop",
                 "name": "A Grizzly Bear",
                 "level": 14
               },
               {
                 "source": "drop",
+                "name": "Albino Kodiak",
+                "level": 22
+              },
+              {
+                "source": "drop",
                 "name": "A Brown Bear",
                 "level": 14
+              },
+              {
+                "source": "drop",
+                "name": "A Brown Bear",
+                "level": 13
+              },
+              {
+                "source": "drop",
+                "name": "A Brown Bear Cub",
+                "level": 4
               },
               {
                 "source": "drop",
@@ -70522,13 +70517,8 @@
               },
               {
                 "source": "drop",
-                "name": "Kodiak",
-                "level": 18
-              },
-              {
-                "source": "drop",
-                "name": "Albino Kodiak",
-                "level": 22
+                "name": "A Brown Bear Cub",
+                "level": 13
               },
               {
                 "source": "drop",
@@ -70539,6 +70529,16 @@
                 "source": "drop",
                 "name": "Fungal Bear",
                 "level": 27
+              },
+              {
+                "source": "drop",
+                "name": "Grizzlepaw",
+                "level": 9
+              },
+              {
+                "source": "drop",
+                "name": "Kodiak",
+                "level": 18
               }
             ]
           }
@@ -70851,6 +70851,11 @@
             "factors": [
               {
                 "source": "drop",
+                "name": "Historian of Braxonia",
+                "level": 33
+              },
+              {
+                "source": "drop",
                 "name": "Prince Ardant",
                 "level": 32
               },
@@ -70858,11 +70863,6 @@
                 "source": "drop",
                 "name": "Prince Oslind",
                 "level": 32
-              },
-              {
-                "source": "drop",
-                "name": "Historian of Braxonia",
-                "level": 33
               }
             ]
           }
@@ -70880,6 +70880,11 @@
             "factors": [
               {
                 "source": "drop",
+                "name": "Historian of Braxonia",
+                "level": 33
+              },
+              {
+                "source": "drop",
                 "name": "Prince Ardant",
                 "level": 32
               },
@@ -70887,11 +70892,6 @@
                 "source": "drop",
                 "name": "Prince Oslind",
                 "level": 32
-              },
-              {
-                "source": "drop",
-                "name": "Historian of Braxonia",
-                "level": 33
               }
             ]
           }
@@ -71978,14 +71978,14 @@
             "recommended": 14,
             "factors": [
               {
-                "source": "dialog_give",
-                "name": "Arcane Headmaster",
-                "level": 14
-              },
-              {
                 "source": "quest_reward",
                 "name": "The Loss Stone",
                 "level": 24
+              },
+              {
+                "source": "dialog_give",
+                "name": "Arcane Headmaster",
+                "level": 14
               }
             ]
           }
@@ -72213,8 +72213,23 @@
             "factors": [
               {
                 "source": "drop",
+                "name": "Molorai Acquirer",
+                "level": 35
+              },
+              {
+                "source": "drop",
+                "name": "Molorai Ancille",
+                "level": 32
+              },
+              {
+                "source": "drop",
                 "name": "Molorai Anointed",
                 "level": 30
+              },
+              {
+                "source": "drop",
+                "name": "Molorai Bloodwarden",
+                "level": 33
               },
               {
                 "source": "drop",
@@ -72224,16 +72239,6 @@
               {
                 "source": "drop",
                 "name": "Molorai Eldermistress",
-                "level": 30
-              },
-              {
-                "source": "drop",
-                "name": "Molorai Nightmistress",
-                "level": 30
-              },
-              {
-                "source": "drop",
-                "name": "Molorai Truthseeker",
                 "level": 30
               },
               {
@@ -72248,18 +72253,13 @@
               },
               {
                 "source": "drop",
-                "name": "Molorai Ancille",
-                "level": 32
+                "name": "Molorai Nightmistress",
+                "level": 30
               },
               {
                 "source": "drop",
-                "name": "Molorai Bloodwarden",
-                "level": 33
-              },
-              {
-                "source": "drop",
-                "name": "Molorai Acquirer",
-                "level": 35
+                "name": "Molorai Truthseeker",
+                "level": 30
               }
             ]
           }
@@ -72464,8 +72464,23 @@
             "factors": [
               {
                 "source": "drop",
+                "name": "Molorai Acquirer",
+                "level": 35
+              },
+              {
+                "source": "drop",
+                "name": "Molorai Ancille",
+                "level": 32
+              },
+              {
+                "source": "drop",
                 "name": "Molorai Anointed",
                 "level": 30
+              },
+              {
+                "source": "drop",
+                "name": "Molorai Bloodwarden",
+                "level": 33
               },
               {
                 "source": "drop",
@@ -72475,16 +72490,6 @@
               {
                 "source": "drop",
                 "name": "Molorai Eldermistress",
-                "level": 30
-              },
-              {
-                "source": "drop",
-                "name": "Molorai Nightmistress",
-                "level": 30
-              },
-              {
-                "source": "drop",
-                "name": "Molorai Truthseeker",
                 "level": 30
               },
               {
@@ -72499,18 +72504,13 @@
               },
               {
                 "source": "drop",
-                "name": "Molorai Ancille",
-                "level": 32
+                "name": "Molorai Nightmistress",
+                "level": 30
               },
               {
                 "source": "drop",
-                "name": "Molorai Bloodwarden",
-                "level": 33
-              },
-              {
-                "source": "drop",
-                "name": "Molorai Acquirer",
-                "level": 35
+                "name": "Molorai Truthseeker",
+                "level": 30
               }
             ]
           }
@@ -72715,8 +72715,23 @@
             "factors": [
               {
                 "source": "drop",
+                "name": "Molorai Acquirer",
+                "level": 35
+              },
+              {
+                "source": "drop",
+                "name": "Molorai Ancille",
+                "level": 32
+              },
+              {
+                "source": "drop",
                 "name": "Molorai Anointed",
                 "level": 30
+              },
+              {
+                "source": "drop",
+                "name": "Molorai Bloodwarden",
+                "level": 33
               },
               {
                 "source": "drop",
@@ -72726,16 +72741,6 @@
               {
                 "source": "drop",
                 "name": "Molorai Eldermistress",
-                "level": 30
-              },
-              {
-                "source": "drop",
-                "name": "Molorai Nightmistress",
-                "level": 30
-              },
-              {
-                "source": "drop",
-                "name": "Molorai Truthseeker",
                 "level": 30
               },
               {
@@ -72750,18 +72755,13 @@
               },
               {
                 "source": "drop",
-                "name": "Molorai Ancille",
-                "level": 32
+                "name": "Molorai Nightmistress",
+                "level": 30
               },
               {
                 "source": "drop",
-                "name": "Molorai Bloodwarden",
-                "level": 33
-              },
-              {
-                "source": "drop",
-                "name": "Molorai Acquirer",
-                "level": 35
+                "name": "Molorai Truthseeker",
+                "level": 30
               }
             ]
           }
@@ -72967,12 +72967,12 @@
               {
                 "source": "drop",
                 "name": "Molorai Archaeologist",
-                "level": 16
+                "level": 17
               },
               {
                 "source": "drop",
                 "name": "Molorai Archaeologist",
-                "level": 17
+                "level": 16
               },
               {
                 "source": "drop",
@@ -73128,8 +73128,13 @@
             "factors": [
               {
                 "source": "drop",
-                "name": "Loomingwood Minotaur Soldier",
-                "level": 23
+                "name": "Aetherfiend",
+                "level": 27
+              },
+              {
+                "source": "drop",
+                "name": "Aviak",
+                "level": 28
               },
               {
                 "source": "drop",
@@ -73138,8 +73143,33 @@
               },
               {
                 "source": "drop",
+                "name": "Diva",
+                "level": 26
+              },
+              {
+                "source": "drop",
                 "name": "Loomingwood Minotaur Soldier",
                 "level": 24
+              },
+              {
+                "source": "drop",
+                "name": "Loomingwood Minotaur Soldier",
+                "level": 23
+              },
+              {
+                "source": "drop",
+                "name": "Loomingwood Minotaur Legionnaire",
+                "level": 26
+              },
+              {
+                "source": "drop",
+                "name": "Loomingwood Minotaur Hero",
+                "level": 26
+              },
+              {
+                "source": "drop",
+                "name": "Loomingwood Minotaur",
+                "level": 25
               },
               {
                 "source": "drop",
@@ -73154,47 +73184,17 @@
               {
                 "source": "drop",
                 "name": "Pteriaped Matron",
-                "level": 24
-              },
-              {
-                "source": "drop",
-                "name": "Loomingwood Minotaur",
                 "level": 25
               },
               {
                 "source": "drop",
                 "name": "Pteriaped Matron",
-                "level": 25
-              },
-              {
-                "source": "drop",
-                "name": "Diva",
-                "level": 26
-              },
-              {
-                "source": "drop",
-                "name": "Loomingwood Minotaur Legionnaire",
-                "level": 26
-              },
-              {
-                "source": "drop",
-                "name": "Loomingwood Minotaur Hero",
-                "level": 26
+                "level": 24
               },
               {
                 "source": "drop",
                 "name": "Thorn",
                 "level": 26
-              },
-              {
-                "source": "drop",
-                "name": "Aetherfiend",
-                "level": 27
-              },
-              {
-                "source": "drop",
-                "name": "Aviak",
-                "level": 28
               }
             ]
           }
@@ -73426,8 +73426,13 @@
             "factors": [
               {
                 "source": "drop",
-                "name": "Loomingwood Minotaur Soldier",
-                "level": 23
+                "name": "Aetherfiend",
+                "level": 27
+              },
+              {
+                "source": "drop",
+                "name": "Aviak",
+                "level": 28
               },
               {
                 "source": "drop",
@@ -73436,8 +73441,33 @@
               },
               {
                 "source": "drop",
+                "name": "Diva",
+                "level": 26
+              },
+              {
+                "source": "drop",
                 "name": "Loomingwood Minotaur Soldier",
                 "level": 24
+              },
+              {
+                "source": "drop",
+                "name": "Loomingwood Minotaur Soldier",
+                "level": 23
+              },
+              {
+                "source": "drop",
+                "name": "Loomingwood Minotaur Legionnaire",
+                "level": 26
+              },
+              {
+                "source": "drop",
+                "name": "Loomingwood Minotaur Hero",
+                "level": 26
+              },
+              {
+                "source": "drop",
+                "name": "Loomingwood Minotaur",
+                "level": 25
               },
               {
                 "source": "drop",
@@ -73452,47 +73482,17 @@
               {
                 "source": "drop",
                 "name": "Pteriaped Matron",
-                "level": 24
-              },
-              {
-                "source": "drop",
-                "name": "Loomingwood Minotaur",
                 "level": 25
               },
               {
                 "source": "drop",
                 "name": "Pteriaped Matron",
-                "level": 25
-              },
-              {
-                "source": "drop",
-                "name": "Diva",
-                "level": 26
-              },
-              {
-                "source": "drop",
-                "name": "Loomingwood Minotaur Legionnaire",
-                "level": 26
-              },
-              {
-                "source": "drop",
-                "name": "Loomingwood Minotaur Hero",
-                "level": 26
+                "level": 24
               },
               {
                 "source": "drop",
                 "name": "Thorn",
                 "level": 26
-              },
-              {
-                "source": "drop",
-                "name": "Aetherfiend",
-                "level": 27
-              },
-              {
-                "source": "drop",
-                "name": "Aviak",
-                "level": 28
               }
             ]
           }
@@ -73724,11 +73724,6 @@
             "factors": [
               {
                 "source": "drop",
-                "name": "Stoneman",
-                "level": 19
-              },
-              {
-                "source": "drop",
                 "name": "Cinder",
                 "level": 24
               },
@@ -73736,6 +73731,21 @@
                 "source": "drop",
                 "name": "Stoneman",
                 "level": 24
+              },
+              {
+                "source": "drop",
+                "name": "Stoneman",
+                "level": 19
+              },
+              {
+                "source": "drop",
+                "name": "Stoneman Colossus",
+                "level": 27
+              },
+              {
+                "source": "drop",
+                "name": "Diamond Colossus",
+                "level": 28
               },
               {
                 "source": "drop",
@@ -73751,16 +73761,6 @@
                 "source": "drop",
                 "name": "Stoneman Obsidian",
                 "level": 25
-              },
-              {
-                "source": "drop",
-                "name": "Stoneman Colossus",
-                "level": 27
-              },
-              {
-                "source": "drop",
-                "name": "Diamond Colossus",
-                "level": 28
               }
             ]
           }
@@ -73938,11 +73938,6 @@
             "factors": [
               {
                 "source": "drop",
-                "name": "Stoneman",
-                "level": 19
-              },
-              {
-                "source": "drop",
                 "name": "Cinder",
                 "level": 24
               },
@@ -73950,6 +73945,21 @@
                 "source": "drop",
                 "name": "Stoneman",
                 "level": 24
+              },
+              {
+                "source": "drop",
+                "name": "Stoneman",
+                "level": 19
+              },
+              {
+                "source": "drop",
+                "name": "Stoneman Colossus",
+                "level": 27
+              },
+              {
+                "source": "drop",
+                "name": "Diamond Colossus",
+                "level": 28
               },
               {
                 "source": "drop",
@@ -73965,16 +73975,6 @@
                 "source": "drop",
                 "name": "Stoneman Obsidian",
                 "level": 25
-              },
-              {
-                "source": "drop",
-                "name": "Stoneman Colossus",
-                "level": 27
-              },
-              {
-                "source": "drop",
-                "name": "Diamond Colossus",
-                "level": 28
               }
             ]
           }
@@ -74152,11 +74152,6 @@
             "factors": [
               {
                 "source": "drop",
-                "name": "Stoneman",
-                "level": 19
-              },
-              {
-                "source": "drop",
                 "name": "Cinder",
                 "level": 24
               },
@@ -74164,6 +74159,21 @@
                 "source": "drop",
                 "name": "Stoneman",
                 "level": 24
+              },
+              {
+                "source": "drop",
+                "name": "Stoneman",
+                "level": 19
+              },
+              {
+                "source": "drop",
+                "name": "Stoneman Colossus",
+                "level": 27
+              },
+              {
+                "source": "drop",
+                "name": "Diamond Colossus",
+                "level": 28
               },
               {
                 "source": "drop",
@@ -74179,16 +74189,6 @@
                 "source": "drop",
                 "name": "Stoneman Obsidian",
                 "level": 25
-              },
-              {
-                "source": "drop",
-                "name": "Stoneman Colossus",
-                "level": 27
-              },
-              {
-                "source": "drop",
-                "name": "Diamond Colossus",
-                "level": 28
               }
             ]
           }
@@ -74366,11 +74366,6 @@
             "factors": [
               {
                 "source": "drop",
-                "name": "Stoneman",
-                "level": 19
-              },
-              {
-                "source": "drop",
                 "name": "Cinder",
                 "level": 24
               },
@@ -74378,6 +74373,21 @@
                 "source": "drop",
                 "name": "Stoneman",
                 "level": 24
+              },
+              {
+                "source": "drop",
+                "name": "Stoneman",
+                "level": 19
+              },
+              {
+                "source": "drop",
+                "name": "Stoneman Colossus",
+                "level": 27
+              },
+              {
+                "source": "drop",
+                "name": "Diamond Colossus",
+                "level": 28
               },
               {
                 "source": "drop",
@@ -74393,16 +74403,6 @@
                 "source": "drop",
                 "name": "Stoneman Obsidian",
                 "level": 25
-              },
-              {
-                "source": "drop",
-                "name": "Stoneman Colossus",
-                "level": 27
-              },
-              {
-                "source": "drop",
-                "name": "Diamond Colossus",
-                "level": 28
               }
             ]
           }
@@ -74581,12 +74581,22 @@
               {
                 "source": "drop",
                 "name": "Stoneman",
-                "level": 19
+                "level": 24
               },
               {
                 "source": "drop",
                 "name": "Stoneman",
-                "level": 24
+                "level": 19
+              },
+              {
+                "source": "drop",
+                "name": "Stoneman Colossus",
+                "level": 27
+              },
+              {
+                "source": "drop",
+                "name": "Diamond Colossus",
+                "level": 28
               },
               {
                 "source": "drop",
@@ -74602,16 +74612,6 @@
                 "source": "drop",
                 "name": "Stoneman Obsidian",
                 "level": 25
-              },
-              {
-                "source": "drop",
-                "name": "Stoneman Colossus",
-                "level": 27
-              },
-              {
-                "source": "drop",
-                "name": "Diamond Colossus",
-                "level": 28
               }
             ]
           }
@@ -74781,12 +74781,22 @@
               {
                 "source": "drop",
                 "name": "Stoneman",
-                "level": 19
+                "level": 24
               },
               {
                 "source": "drop",
                 "name": "Stoneman",
-                "level": 24
+                "level": 19
+              },
+              {
+                "source": "drop",
+                "name": "Stoneman Colossus",
+                "level": 27
+              },
+              {
+                "source": "drop",
+                "name": "Diamond Colossus",
+                "level": 28
               },
               {
                 "source": "drop",
@@ -74802,16 +74812,6 @@
                 "source": "drop",
                 "name": "Stoneman Obsidian",
                 "level": 25
-              },
-              {
-                "source": "drop",
-                "name": "Stoneman Colossus",
-                "level": 27
-              },
-              {
-                "source": "drop",
-                "name": "Diamond Colossus",
-                "level": 28
               }
             ]
           }
@@ -75006,13 +75006,13 @@
             "factors": [
               {
                 "source": "drop",
-                "name": "Rotbelly Croc",
-                "level": 15
+                "name": "Stonetooth Croc",
+                "level": 33
               },
               {
                 "source": "drop",
-                "name": "Stonetooth Croc",
-                "level": 33
+                "name": "Rotbelly Croc",
+                "level": 15
               }
             ]
           }
@@ -75143,13 +75143,13 @@
             "factors": [
               {
                 "source": "drop",
-                "name": "Vevillo Polter",
-                "level": 4
+                "name": "Aranuil Olaseo",
+                "level": 14
               },
               {
                 "source": "drop",
                 "name": "Aranuil Olaseo",
-                "level": 14
+                "level": 15
               },
               {
                 "source": "drop",
@@ -75158,8 +75158,8 @@
               },
               {
                 "source": "drop",
-                "name": "Aranuil Olaseo",
-                "level": 15
+                "name": "Vevillo Polter",
+                "level": 4
               }
             ]
           }
@@ -75560,8 +75560,18 @@
             "factors": [
               {
                 "source": "drop",
-                "name": "Sivakayan Reaver",
-                "level": 26
+                "name": "Darkwarden Awxa",
+                "level": 32
+              },
+              {
+                "source": "drop",
+                "name": "Darkwarden Ealdred",
+                "level": 32
+              },
+              {
+                "source": "drop",
+                "name": "Darkwarden Ilyth",
+                "level": 39
               },
               {
                 "source": "drop",
@@ -75575,28 +75585,18 @@
               },
               {
                 "source": "drop",
+                "name": "Sivakayan Reaver",
+                "level": 26
+              },
+              {
+                "source": "drop",
                 "name": "Sivakayan Spymaster",
                 "level": 29
               },
               {
                 "source": "drop",
-                "name": "Darkwarden Awxa",
-                "level": 32
-              },
-              {
-                "source": "drop",
-                "name": "Darkwarden Ealdred",
-                "level": 32
-              },
-              {
-                "source": "drop",
                 "name": "Sivakayan Unhallowed",
                 "level": 37
-              },
-              {
-                "source": "drop",
-                "name": "Darkwarden Ilyth",
-                "level": 39
               }
             ]
           }
@@ -75824,11 +75824,6 @@
             "factors": [
               {
                 "source": "drop",
-                "name": "Risen Druid",
-                "level": 14
-              },
-              {
-                "source": "drop",
                 "name": "Bloom Preserver",
                 "level": 27
               },
@@ -75836,6 +75831,16 @@
                 "source": "drop",
                 "name": "Elder Guardian",
                 "level": 27
+              },
+              {
+                "source": "drop",
+                "name": "Fawn of Fernalla",
+                "level": 35
+              },
+              {
+                "source": "drop",
+                "name": "Fernallan Guardian",
+                "level": 29
               },
               {
                 "source": "drop",
@@ -75859,13 +75864,8 @@
               },
               {
                 "source": "drop",
-                "name": "Fernallan Guardian",
-                "level": 29
-              },
-              {
-                "source": "drop",
-                "name": "Vinx",
-                "level": 29
+                "name": "Risen Druid",
+                "level": 14
               },
               {
                 "source": "drop",
@@ -75874,8 +75874,8 @@
               },
               {
                 "source": "drop",
-                "name": "Fawn of Fernalla",
-                "level": 35
+                "name": "Vinx",
+                "level": 29
               }
             ]
           }
@@ -76125,11 +76125,6 @@
               },
               {
                 "source": "drop",
-                "name": "Tinkles",
-                "level": 11
-              },
-              {
-                "source": "drop",
                 "name": "A Faerie Enchantress",
                 "level": 28
               },
@@ -76142,6 +76137,11 @@
                 "source": "drop",
                 "name": "A Faerie Windchild",
                 "level": 28
+              },
+              {
+                "source": "drop",
+                "name": "Tinkles",
+                "level": 11
               },
               {
                 "source": "drop",
@@ -76547,16 +76547,6 @@
             "factors": [
               {
                 "source": "drop",
-                "name": "Neophyte Necromancer",
-                "level": 7
-              },
-              {
-                "source": "drop",
-                "name": "Zashlyn Bloodbane",
-                "level": 8
-              },
-              {
-                "source": "drop",
                 "name": "Boatman",
                 "level": 25
               },
@@ -76564,6 +76554,16 @@
                 "source": "drop",
                 "name": "Boatman",
                 "level": 30
+              },
+              {
+                "source": "drop",
+                "name": "Neophyte Necromancer",
+                "level": 7
+              },
+              {
+                "source": "drop",
+                "name": "Zashlyn Bloodbane",
+                "level": 8
               }
             ]
           }
@@ -77956,23 +77956,23 @@
             "factors": [
               {
                 "source": "drop",
-                "name": "Ancient Guard",
-                "level": 26
-              },
-              {
-                "source": "drop",
-                "name": "Ancient Corpse",
-                "level": 26
-              },
-              {
-                "source": "drop",
                 "name": "Ancient Celestarian",
                 "level": 27
               },
               {
                 "source": "drop",
+                "name": "Ancient Guard",
+                "level": 26
+              },
+              {
+                "source": "drop",
                 "name": "Ancient Knight",
                 "level": 30
+              },
+              {
+                "source": "drop",
+                "name": "Ancient Corpse",
+                "level": 26
               },
               {
                 "source": "drop",
@@ -78114,23 +78114,13 @@
             "recommended": 9,
             "factors": [
               {
-                "source": "fishing",
-                "name": "Vitheo's Watch",
-                "level": 9
-              },
-              {
-                "source": "fishing",
-                "name": "Port Azure",
-                "level": 11
+                "source": "drop",
+                "name": "Priel Malarist",
+                "level": 30
               },
               {
                 "source": "fishing",
                 "name": "Blacksalt Strand",
-                "level": 14
-              },
-              {
-                "source": "fishing",
-                "name": "The Duskenlight Coast",
                 "level": 14
               },
               {
@@ -78140,18 +78130,28 @@
               },
               {
                 "source": "fishing",
-                "name": "Windwashed Pass",
-                "level": 18
-              },
-              {
-                "source": "fishing",
                 "name": "Malaroth's Nesting Grounds",
                 "level": 19
               },
               {
-                "source": "drop",
-                "name": "Priel Malarist",
-                "level": 30
+                "source": "fishing",
+                "name": "Port Azure",
+                "level": 11
+              },
+              {
+                "source": "fishing",
+                "name": "The Duskenlight Coast",
+                "level": 14
+              },
+              {
+                "source": "fishing",
+                "name": "Vitheo's Watch",
+                "level": 9
+              },
+              {
+                "source": "fishing",
+                "name": "Windwashed Pass",
+                "level": 18
               }
             ]
           }
@@ -78168,24 +78168,9 @@
             "recommended": 2,
             "factors": [
               {
-                "source": "fishing",
-                "name": "Stowaway's Step",
-                "level": 2
-              },
-              {
-                "source": "fishing",
-                "name": "Faerie's Brake",
-                "level": 4
-              },
-              {
-                "source": "fishing",
-                "name": "Willowwatch Ridge",
-                "level": 4
-              },
-              {
-                "source": "fishing",
-                "name": "Vitheo's Watch",
-                "level": 9
+                "source": "drop",
+                "name": "Priel Malarist",
+                "level": 30
               },
               {
                 "source": "vendor",
@@ -78199,8 +78184,8 @@
               },
               {
                 "source": "fishing",
-                "name": "The Duskenlight Coast",
-                "level": 14
+                "name": "Blooming Sepulcher",
+                "level": 27
               },
               {
                 "source": "fishing",
@@ -78209,13 +78194,13 @@
               },
               {
                 "source": "fishing",
-                "name": "Silkengrass Meadowlands",
-                "level": 18
+                "name": "Faerie's Brake",
+                "level": 4
               },
               {
                 "source": "fishing",
-                "name": "Windwashed Pass",
-                "level": 18
+                "name": "Ripper's Keep",
+                "level": 28
               },
               {
                 "source": "fishing",
@@ -78224,18 +78209,33 @@
               },
               {
                 "source": "fishing",
-                "name": "Blooming Sepulcher",
-                "level": 27
+                "name": "Silkengrass Meadowlands",
+                "level": 18
               },
               {
                 "source": "fishing",
-                "name": "Ripper's Keep",
-                "level": 28
+                "name": "Stowaway's Step",
+                "level": 2
               },
               {
-                "source": "drop",
-                "name": "Priel Malarist",
-                "level": 30
+                "source": "fishing",
+                "name": "The Duskenlight Coast",
+                "level": 14
+              },
+              {
+                "source": "fishing",
+                "name": "Vitheo's Watch",
+                "level": 9
+              },
+              {
+                "source": "fishing",
+                "name": "Willowwatch Ridge",
+                "level": 4
+              },
+              {
+                "source": "fishing",
+                "name": "Windwashed Pass",
+                "level": 18
               }
             ]
           }
@@ -78251,6 +78251,11 @@
           "level_estimate": {
             "recommended": 11,
             "factors": [
+              {
+                "source": "drop",
+                "name": "Priel Malarist",
+                "level": 30
+              },
               {
                 "source": "vendor",
                 "name": "Benny Bommby",
@@ -78270,11 +78275,6 @@
                 "source": "vendor",
                 "name": "Shady Fisherman",
                 "level": 11
-              },
-              {
-                "source": "drop",
-                "name": "Priel Malarist",
-                "level": 30
               }
             ]
           }
@@ -79177,23 +79177,13 @@
             "recommended": 9,
             "factors": [
               {
-                "source": "fishing",
-                "name": "Vitheo's Watch",
-                "level": 9
-              },
-              {
-                "source": "fishing",
-                "name": "Port Azure",
-                "level": 11
+                "source": "drop",
+                "name": "Priel Malarist",
+                "level": 30
               },
               {
                 "source": "fishing",
                 "name": "Blacksalt Strand",
-                "level": 14
-              },
-              {
-                "source": "fishing",
-                "name": "The Duskenlight Coast",
                 "level": 14
               },
               {
@@ -79203,18 +79193,28 @@
               },
               {
                 "source": "fishing",
-                "name": "Windwashed Pass",
-                "level": 18
-              },
-              {
-                "source": "fishing",
                 "name": "Malaroth's Nesting Grounds",
                 "level": 19
               },
               {
-                "source": "drop",
-                "name": "Priel Malarist",
-                "level": 30
+                "source": "fishing",
+                "name": "Port Azure",
+                "level": 11
+              },
+              {
+                "source": "fishing",
+                "name": "The Duskenlight Coast",
+                "level": 14
+              },
+              {
+                "source": "fishing",
+                "name": "Vitheo's Watch",
+                "level": 9
+              },
+              {
+                "source": "fishing",
+                "name": "Windwashed Pass",
+                "level": 18
               }
             ]
           }
@@ -79385,16 +79385,6 @@
             "factors": [
               {
                 "source": "drop",
-                "name": "A Grassland Ogre Sentinel",
-                "level": 12
-              },
-              {
-                "source": "drop",
-                "name": "A Grassland Ogre Shaman",
-                "level": 12
-              },
-              {
-                "source": "drop",
                 "name": "A Grassland Ogre Bruiser",
                 "level": 13
               },
@@ -79405,13 +79395,18 @@
               },
               {
                 "source": "drop",
-                "name": "Obba of the Warkind",
-                "level": 15
+                "name": "A Grassland Ogre Sentinel",
+                "level": 12
               },
               {
                 "source": "drop",
-                "name": "Wild Ogre",
-                "level": 26
+                "name": "A Grassland Ogre Shaman",
+                "level": 12
+              },
+              {
+                "source": "drop",
+                "name": "Obba of the Warkind",
+                "level": 15
               },
               {
                 "source": "drop",
@@ -79422,6 +79417,11 @@
                 "source": "drop",
                 "name": "Sivakayan Faithbound",
                 "level": 28
+              },
+              {
+                "source": "drop",
+                "name": "Wild Ogre",
+                "level": 26
               }
             ]
           }
@@ -79816,46 +79816,12 @@
               "children": [
                 {
                   "type": "drop",
-                  "name": "Seaspice: Ghost of Wyland Sercher",
-                  "zone": "Island Tomb",
-                  "scene": "Tutorial",
-                  "level": 4,
-                  "source_key": "character:ghost of wylan sercher",
+                  "name": "Seaspice: Cerynth Duskveil",
+                  "zone": "Port Azure",
+                  "scene": "Azure",
+                  "level": 31,
+                  "source_key": "character:cerynth duskveil",
                   "spawn_count": 1
-                },
-                {
-                  "type": "vendor",
-                  "name": "Seaspice: Summoned: Pocket Vendor",
-                  "zone": "Reliquary Hall",
-                  "scene": "Reliquary",
-                  "level": 5,
-                  "source_key": "character:a rift vendor:reliquary:268.28:1.44:349.00"
-                },
-                {
-                  "type": "drop",
-                  "name": "Seaspice: Plaxitheris",
-                  "zone": "Stowaway's Step",
-                  "scene": "Stowaway",
-                  "level": 7,
-                  "source_key": "character:plaxitheris",
-                  "spawn_count": 1
-                },
-                {
-                  "type": "drop",
-                  "name": "Seaspice: Sylvan Giant Runt",
-                  "zone": "Willowwatch Ridge",
-                  "scene": "Willowwatch",
-                  "level": 7,
-                  "source_key": "character:sylvan giant runt",
-                  "spawn_count": 1
-                },
-                {
-                  "type": "vendor",
-                  "name": "Seaspice: Saya Seawatcher",
-                  "zone": "Vitheo's Watch",
-                  "scene": "Vitheo",
-                  "level": 9,
-                  "source_key": "character:saya seawatcher"
                 },
                 {
                   "type": "drop",
@@ -79864,6 +79830,42 @@
                   "scene": "Brake",
                   "level": 10,
                   "source_key": "character:elizah vernor",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Ghost of Wyland Sercher",
+                  "zone": "Island Tomb",
+                  "scene": "Tutorial",
+                  "level": 4,
+                  "source_key": "character:ghost of wylan sercher",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: A Lost Sea Giant",
+                  "zone": "Vitheo's Watch",
+                  "scene": "Vitheo",
+                  "level": 11,
+                  "source_key": "character:lost sea giant female",
+                  "spawn_count": 4
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: The Lost Sea Giant King",
+                  "zone": "Vitheo's Watch",
+                  "scene": "Vitheo",
+                  "level": 12,
+                  "source_key": "character:lost sea giant king",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Lost Soul",
+                  "zone": "Malaroth's Nesting Grounds",
+                  "scene": "Malaroth",
+                  "level": 19,
+                  "source_key": "character:lost soul",
                   "spawn_count": 1
                 },
                 {
@@ -79877,145 +79879,6 @@
                 },
                 {
                   "type": "drop",
-                  "name": "Seaspice: Thella Steepleton",
-                  "level": 10,
-                  "source_key": "character:thella steepleton"
-                },
-                {
-                  "type": "drop",
-                  "name": "Seaspice: A Lost Sea Giant",
-                  "zone": "Vitheo's Watch",
-                  "scene": "Vitheo",
-                  "level": 11,
-                  "source_key": "character:lost sea giant female",
-                  "spawn_count": 4
-                },
-                {
-                  "type": "drop",
-                  "name": "Seaspice: Thella Steepleton",
-                  "zone": "Port Azure",
-                  "scene": "Azure",
-                  "level": 11,
-                  "source_key": "character:thella steepleton:azure:242.54:27.97:315.61",
-                  "spawn_count": 2
-                },
-                {
-                  "type": "vendor",
-                  "name": "Seaspice: Cully Edwarse",
-                  "zone": "Port Azure",
-                  "scene": "Azure",
-                  "level": 11,
-                  "source_key": "character:cully edwarse combined"
-                },
-                {
-                  "type": "vendor",
-                  "name": "Seaspice: Shantee Swingblade",
-                  "zone": "Port Azure",
-                  "scene": "Azure",
-                  "level": 11,
-                  "source_key": "character:shanty swingblade"
-                },
-                {
-                  "type": "drop",
-                  "name": "Seaspice: The Lost Sea Giant King",
-                  "zone": "Vitheo's Watch",
-                  "scene": "Vitheo",
-                  "level": 12,
-                  "source_key": "character:lost sea giant king",
-                  "spawn_count": 1
-                },
-                {
-                  "type": "drop",
-                  "name": "Seaspice: Priel Deceiver",
-                  "zone": "Windwashed Pass",
-                  "scene": "Windwashed",
-                  "level": 18,
-                  "source_key": "character:priel deceiver",
-                  "spawn_count": 13
-                },
-                {
-                  "type": "drop",
-                  "name": "Seaspice: Priel Enforcer",
-                  "zone": "Windwashed Pass",
-                  "scene": "Windwashed",
-                  "level": 18,
-                  "source_key": "character:priel enforcer",
-                  "spawn_count": 13
-                },
-                {
-                  "type": "drop",
-                  "name": "Seaspice: Priel Enforcer",
-                  "zone": "Windwashed Pass",
-                  "scene": "Windwashed",
-                  "level": 18,
-                  "source_key": "character:priel naturalist",
-                  "spawn_count": 13
-                },
-                {
-                  "type": "drop",
-                  "name": "Seaspice: Lost Soul",
-                  "zone": "Malaroth's Nesting Grounds",
-                  "scene": "Malaroth",
-                  "level": 19,
-                  "source_key": "character:lost soul",
-                  "spawn_count": 1
-                },
-                {
-                  "type": "drop",
-                  "name": "Seaspice: Priel Deceiver",
-                  "zone": "Malaroth's Nesting Grounds",
-                  "scene": "Malaroth",
-                  "level": 19,
-                  "source_key": "character:priel deceiver",
-                  "spawn_count": 15
-                },
-                {
-                  "type": "drop",
-                  "name": "Seaspice: Priel Enforcer",
-                  "zone": "Malaroth's Nesting Grounds",
-                  "scene": "Malaroth",
-                  "level": 19,
-                  "source_key": "character:priel enforcer",
-                  "spawn_count": 15
-                },
-                {
-                  "type": "drop",
-                  "name": "Seaspice: Priel Enforcer",
-                  "zone": "Malaroth's Nesting Grounds",
-                  "scene": "Malaroth",
-                  "level": 19,
-                  "source_key": "character:priel naturalist",
-                  "spawn_count": 15
-                },
-                {
-                  "type": "drop",
-                  "name": "Seaspice: Priel Purist",
-                  "zone": "Prielian Cascade",
-                  "scene": "PrielPlateau",
-                  "level": 30,
-                  "source_key": "character:priel purist",
-                  "spawn_count": 46
-                },
-                {
-                  "type": "drop",
-                  "name": "Seaspice: Priel Swiftblade",
-                  "zone": "Prielian Cascade",
-                  "scene": "PrielPlateau",
-                  "level": 30,
-                  "source_key": "character:priel swiftblade",
-                  "spawn_count": 22
-                },
-                {
-                  "type": "drop",
-                  "name": "Seaspice: Cerynth Duskveil",
-                  "zone": "Port Azure",
-                  "scene": "Azure",
-                  "level": 31,
-                  "source_key": "character:cerynth duskveil",
-                  "spawn_count": 1
-                },
-                {
-                  "type": "drop",
                   "name": "Seaspice: Myrre Morrigane",
                   "zone": "Port Azure",
                   "scene": "Azure",
@@ -80025,27 +79888,57 @@
                 },
                 {
                   "type": "drop",
-                  "name": "Seaspice: Rose Crystalshade",
-                  "zone": "Braxonian Desert",
-                  "scene": "Braxonian",
-                  "level": 31,
-                  "source_key": "character:rose darkcrystal",
+                  "name": "Seaspice: Plaxitheris",
+                  "zone": "Stowaway's Step",
+                  "scene": "Stowaway",
+                  "level": 7,
+                  "source_key": "character:plaxitheris",
                   "spawn_count": 1
                 },
                 {
                   "type": "drop",
-                  "name": "Seaspice: Priel Grimwatch",
+                  "name": "Seaspice: Priel Consort",
                   "zone": "Prielian Cascade",
                   "scene": "PrielPlateau",
-                  "level": 32,
-                  "source_key": "character:priel grimwatch",
-                  "spawn_count": 11
+                  "level": 35,
+                  "source_key": "character:priel consort",
+                  "spawn_count": 3
                 },
                 {
                   "type": "drop",
-                  "name": "Seaspice: Priel Soldier",
-                  "level": 32,
-                  "source_key": "character:priel soldier"
+                  "name": "Seaspice: Priel Deceiver",
+                  "zone": "Malaroth's Nesting Grounds",
+                  "scene": "Malaroth",
+                  "level": 19,
+                  "source_key": "character:priel deceiver",
+                  "spawn_count": 15
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Deceiver",
+                  "zone": "Windwashed Pass",
+                  "scene": "Windwashed",
+                  "level": 18,
+                  "source_key": "character:priel deceiver",
+                  "spawn_count": 13
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Enforcer",
+                  "zone": "Malaroth's Nesting Grounds",
+                  "scene": "Malaroth",
+                  "level": 19,
+                  "source_key": "character:priel enforcer",
+                  "spawn_count": 15
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Enforcer",
+                  "zone": "Windwashed Pass",
+                  "scene": "Windwashed",
+                  "level": 18,
+                  "source_key": "character:priel enforcer",
+                  "spawn_count": 13
                 },
                 {
                   "type": "drop",
@@ -80058,17 +79951,124 @@
                 },
                 {
                   "type": "drop",
-                  "name": "Seaspice: Priel Consort",
+                  "name": "Seaspice: Priel Grimwatch",
                   "zone": "Prielian Cascade",
                   "scene": "PrielPlateau",
-                  "level": 35,
-                  "source_key": "character:priel consort",
-                  "spawn_count": 3
+                  "level": 32,
+                  "source_key": "character:priel grimwatch",
+                  "spawn_count": 11
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Enforcer",
+                  "zone": "Malaroth's Nesting Grounds",
+                  "scene": "Malaroth",
+                  "level": 19,
+                  "source_key": "character:priel naturalist",
+                  "spawn_count": 15
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Enforcer",
+                  "zone": "Windwashed Pass",
+                  "scene": "Windwashed",
+                  "level": 18,
+                  "source_key": "character:priel naturalist",
+                  "spawn_count": 13
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Purist",
+                  "zone": "Prielian Cascade",
+                  "scene": "PrielPlateau",
+                  "level": 30,
+                  "source_key": "character:priel purist",
+                  "spawn_count": 46
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Soldier",
+                  "level": 32,
+                  "source_key": "character:priel soldier"
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Swiftblade",
+                  "zone": "Prielian Cascade",
+                  "scene": "PrielPlateau",
+                  "level": 30,
+                  "source_key": "character:priel swiftblade",
+                  "spawn_count": 22
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Rose Crystalshade",
+                  "zone": "Braxonian Desert",
+                  "scene": "Braxonian",
+                  "level": 31,
+                  "source_key": "character:rose darkcrystal",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Sylvan Giant Runt",
+                  "zone": "Willowwatch Ridge",
+                  "scene": "Willowwatch",
+                  "level": 7,
+                  "source_key": "character:sylvan giant runt",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Thella Steepleton",
+                  "level": 10,
+                  "source_key": "character:thella steepleton"
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Thella Steepleton",
+                  "zone": "Port Azure",
+                  "scene": "Azure",
+                  "level": 11,
+                  "source_key": "character:thella steepleton:azure:242.54:27.97:315.61",
+                  "spawn_count": 2
+                },
+                {
+                  "type": "vendor",
+                  "name": "Seaspice: Summoned: Pocket Vendor",
+                  "zone": "Reliquary Hall",
+                  "scene": "Reliquary",
+                  "level": 5,
+                  "source_key": "character:a rift vendor:reliquary:268.28:1.44:349.00"
                 },
                 {
                   "type": "vendor",
                   "name": "Seaspice: Cully Edwarse",
                   "source_key": "character:cully edwarse"
+                },
+                {
+                  "type": "vendor",
+                  "name": "Seaspice: Cully Edwarse",
+                  "zone": "Port Azure",
+                  "scene": "Azure",
+                  "level": 11,
+                  "source_key": "character:cully edwarse combined"
+                },
+                {
+                  "type": "vendor",
+                  "name": "Seaspice: Saya Seawatcher",
+                  "zone": "Vitheo's Watch",
+                  "scene": "Vitheo",
+                  "level": 9,
+                  "source_key": "character:saya seawatcher"
+                },
+                {
+                  "type": "vendor",
+                  "name": "Seaspice: Shantee Swingblade",
+                  "zone": "Port Azure",
+                  "scene": "Azure",
+                  "level": 11,
+                  "source_key": "character:shanty swingblade"
                 }
               ]
             }
@@ -80272,28 +80272,8 @@
             "factors": [
               {
                 "source": "drop",
-                "name": "Ghost of Wyland Sercher",
-                "level": 4
-              },
-              {
-                "source": "vendor",
-                "name": "Summoned: Pocket Vendor",
-                "level": 5
-              },
-              {
-                "source": "drop",
-                "name": "Plaxitheris",
-                "level": 7
-              },
-              {
-                "source": "drop",
-                "name": "Sylvan Giant Runt",
-                "level": 7
-              },
-              {
-                "source": "vendor",
-                "name": "Saya Seawatcher",
-                "level": 9
+                "name": "Cerynth Duskveil",
+                "level": 31
               },
               {
                 "source": "drop",
@@ -80302,32 +80282,12 @@
               },
               {
                 "source": "drop",
-                "name": "Molorai Brewmistress",
-                "level": 10
-              },
-              {
-                "source": "drop",
-                "name": "Thella Steepleton",
-                "level": 10
+                "name": "Ghost of Wyland Sercher",
+                "level": 4
               },
               {
                 "source": "drop",
                 "name": "A Lost Sea Giant",
-                "level": 11
-              },
-              {
-                "source": "drop",
-                "name": "Thella Steepleton",
-                "level": 11
-              },
-              {
-                "source": "vendor",
-                "name": "Cully Edwarse",
-                "level": 11
-              },
-              {
-                "source": "vendor",
-                "name": "Shantee Swingblade",
                 "level": 11
               },
               {
@@ -80337,43 +80297,13 @@
               },
               {
                 "source": "drop",
-                "name": "Priel Deceiver",
-                "level": 18
-              },
-              {
-                "source": "drop",
-                "name": "Priel Enforcer",
-                "level": 18
-              },
-              {
-                "source": "drop",
                 "name": "Lost Soul",
                 "level": 19
               },
               {
                 "source": "drop",
-                "name": "Priel Deceiver",
-                "level": 19
-              },
-              {
-                "source": "drop",
-                "name": "Priel Enforcer",
-                "level": 19
-              },
-              {
-                "source": "drop",
-                "name": "Priel Purist",
-                "level": 30
-              },
-              {
-                "source": "drop",
-                "name": "Priel Swiftblade",
-                "level": 30
-              },
-              {
-                "source": "drop",
-                "name": "Cerynth Duskveil",
-                "level": 31
+                "name": "Molorai Brewmistress",
+                "level": 10
               },
               {
                 "source": "drop",
@@ -80382,18 +80312,33 @@
               },
               {
                 "source": "drop",
-                "name": "Rose Crystalshade",
-                "level": 31
+                "name": "Plaxitheris",
+                "level": 7
               },
               {
                 "source": "drop",
-                "name": "Priel Grimwatch",
-                "level": 32
+                "name": "Priel Consort",
+                "level": 35
               },
               {
                 "source": "drop",
-                "name": "Priel Soldier",
-                "level": 32
+                "name": "Priel Deceiver",
+                "level": 19
+              },
+              {
+                "source": "drop",
+                "name": "Priel Deceiver",
+                "level": 18
+              },
+              {
+                "source": "drop",
+                "name": "Priel Enforcer",
+                "level": 19
+              },
+              {
+                "source": "drop",
+                "name": "Priel Enforcer",
+                "level": 18
               },
               {
                 "source": "drop",
@@ -80402,8 +80347,63 @@
               },
               {
                 "source": "drop",
-                "name": "Priel Consort",
-                "level": 35
+                "name": "Priel Grimwatch",
+                "level": 32
+              },
+              {
+                "source": "drop",
+                "name": "Priel Purist",
+                "level": 30
+              },
+              {
+                "source": "drop",
+                "name": "Priel Soldier",
+                "level": 32
+              },
+              {
+                "source": "drop",
+                "name": "Priel Swiftblade",
+                "level": 30
+              },
+              {
+                "source": "drop",
+                "name": "Rose Crystalshade",
+                "level": 31
+              },
+              {
+                "source": "drop",
+                "name": "Sylvan Giant Runt",
+                "level": 7
+              },
+              {
+                "source": "drop",
+                "name": "Thella Steepleton",
+                "level": 10
+              },
+              {
+                "source": "drop",
+                "name": "Thella Steepleton",
+                "level": 11
+              },
+              {
+                "source": "vendor",
+                "name": "Summoned: Pocket Vendor",
+                "level": 5
+              },
+              {
+                "source": "vendor",
+                "name": "Cully Edwarse",
+                "level": 11
+              },
+              {
+                "source": "vendor",
+                "name": "Saya Seawatcher",
+                "level": 9
+              },
+              {
+                "source": "vendor",
+                "name": "Shantee Swingblade",
+                "level": 11
               }
             ]
           }
@@ -80756,14 +80756,14 @@
             "recommended": 7,
             "factors": [
               {
-                "source": "dialog_give",
-                "name": "Lucian Revald",
-                "level": 14
-              },
-              {
                 "source": "quest_reward",
                 "name": "Willow Soil",
                 "level": 7
+              },
+              {
+                "source": "dialog_give",
+                "name": "Lucian Revald",
+                "level": 14
               }
             ]
           }
@@ -80795,14 +80795,6 @@
           "quantity": 1,
           "sources": [
             {
-              "type": "dialog_give",
-              "name": "Lucian Revald",
-              "zone": "Stowaway's Step",
-              "scene": "Stowaway",
-              "level": 14,
-              "source_key": "character:lucian revald:stowaway:432.19:69.90:532.04"
-            },
-            {
               "type": "quest_reward",
               "name": "Willow Soil",
               "scene": "Willowwatch",
@@ -80820,6 +80812,14 @@
                   "spawn_count": 1
                 }
               ]
+            },
+            {
+              "type": "dialog_give",
+              "name": "Lucian Revald",
+              "zone": "Stowaway's Step",
+              "scene": "Stowaway",
+              "level": 14,
+              "source_key": "character:lucian revald:stowaway:432.19:69.90:532.04"
             }
           ]
         }
@@ -80928,6 +80928,15 @@
               "quest_key": "quest:ripperrune",
               "children": [
                 {
+                  "type": "drop",
+                  "name": "Azure Mead: Priel Malarist",
+                  "zone": "Prielian Cascade",
+                  "scene": "PrielPlateau",
+                  "level": 30,
+                  "source_key": "character:priel molarist",
+                  "spawn_count": 46
+                },
+                {
                   "type": "vendor",
                   "name": "Azure Mead: Benny Bommby",
                   "zone": "Port Azure",
@@ -80954,23 +80963,6 @@
                 {
                   "type": "vendor",
                   "name": "Azure Mead: Shady Fisherman",
-                  "zone": "Port Azure",
-                  "scene": "Azure",
-                  "level": 11,
-                  "source_key": "character:shady fisherman:azure:43.10:13.76:246.95"
-                },
-                {
-                  "type": "drop",
-                  "name": "Azure Mead: Priel Malarist",
-                  "zone": "Prielian Cascade",
-                  "scene": "PrielPlateau",
-                  "level": 30,
-                  "source_key": "character:priel molarist",
-                  "spawn_count": 46
-                },
-                {
-                  "type": "vendor",
-                  "name": "Azure Mead: Shady Fisherman",
                   "zone": "Bellwain Island",
                   "scene": "SummerEvent",
                   "source_key": "character:shady fisherman (1):summerevent:80.10:-5.17:6.41"
@@ -80978,9 +80970,35 @@
                 {
                   "type": "vendor",
                   "name": "Azure Mead: Shady Fisherman",
+                  "zone": "Port Azure",
+                  "scene": "Azure",
+                  "level": 11,
+                  "source_key": "character:shady fisherman:azure:43.10:13.76:246.95"
+                },
+                {
+                  "type": "vendor",
+                  "name": "Azure Mead: Shady Fisherman",
                   "zone": "Bellwain Island",
                   "scene": "SummerEvent",
                   "source_key": "character:shady fisherman:summerevent:78.85:-5.17:8.58"
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Cerynth Duskveil",
+                  "zone": "Port Azure",
+                  "scene": "Azure",
+                  "level": 31,
+                  "source_key": "character:cerynth duskveil",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Elizah Vernor",
+                  "zone": "Faerie's Brake",
+                  "scene": "Brake",
+                  "level": 10,
+                  "source_key": "character:elizah vernor",
+                  "spawn_count": 1
                 },
                 {
                   "type": "drop",
@@ -80992,46 +81010,30 @@
                   "spawn_count": 1
                 },
                 {
-                  "type": "vendor",
-                  "name": "Seaspice: Summoned: Pocket Vendor",
-                  "zone": "Reliquary Hall",
-                  "scene": "Reliquary",
-                  "level": 5,
-                  "source_key": "character:a rift vendor:reliquary:268.28:1.44:349.00"
-                },
-                {
                   "type": "drop",
-                  "name": "Seaspice: Plaxitheris",
-                  "zone": "Stowaway's Step",
-                  "scene": "Stowaway",
-                  "level": 7,
-                  "source_key": "character:plaxitheris",
-                  "spawn_count": 1
-                },
-                {
-                  "type": "drop",
-                  "name": "Seaspice: Sylvan Giant Runt",
-                  "zone": "Willowwatch Ridge",
-                  "scene": "Willowwatch",
-                  "level": 7,
-                  "source_key": "character:sylvan giant runt",
-                  "spawn_count": 1
-                },
-                {
-                  "type": "vendor",
-                  "name": "Seaspice: Saya Seawatcher",
+                  "name": "Seaspice: A Lost Sea Giant",
                   "zone": "Vitheo's Watch",
                   "scene": "Vitheo",
-                  "level": 9,
-                  "source_key": "character:saya seawatcher"
+                  "level": 11,
+                  "source_key": "character:lost sea giant female",
+                  "spawn_count": 4
                 },
                 {
                   "type": "drop",
-                  "name": "Seaspice: Elizah Vernor",
-                  "zone": "Faerie's Brake",
-                  "scene": "Brake",
-                  "level": 10,
-                  "source_key": "character:elizah vernor",
+                  "name": "Seaspice: The Lost Sea Giant King",
+                  "zone": "Vitheo's Watch",
+                  "scene": "Vitheo",
+                  "level": 12,
+                  "source_key": "character:lost sea giant king",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Lost Soul",
+                  "zone": "Malaroth's Nesting Grounds",
+                  "scene": "Malaroth",
+                  "level": 19,
+                  "source_key": "character:lost soul",
                   "spawn_count": 1
                 },
                 {
@@ -81045,145 +81047,6 @@
                 },
                 {
                   "type": "drop",
-                  "name": "Seaspice: Thella Steepleton",
-                  "level": 10,
-                  "source_key": "character:thella steepleton"
-                },
-                {
-                  "type": "drop",
-                  "name": "Seaspice: A Lost Sea Giant",
-                  "zone": "Vitheo's Watch",
-                  "scene": "Vitheo",
-                  "level": 11,
-                  "source_key": "character:lost sea giant female",
-                  "spawn_count": 4
-                },
-                {
-                  "type": "drop",
-                  "name": "Seaspice: Thella Steepleton",
-                  "zone": "Port Azure",
-                  "scene": "Azure",
-                  "level": 11,
-                  "source_key": "character:thella steepleton:azure:242.54:27.97:315.61",
-                  "spawn_count": 2
-                },
-                {
-                  "type": "vendor",
-                  "name": "Seaspice: Cully Edwarse",
-                  "zone": "Port Azure",
-                  "scene": "Azure",
-                  "level": 11,
-                  "source_key": "character:cully edwarse combined"
-                },
-                {
-                  "type": "vendor",
-                  "name": "Seaspice: Shantee Swingblade",
-                  "zone": "Port Azure",
-                  "scene": "Azure",
-                  "level": 11,
-                  "source_key": "character:shanty swingblade"
-                },
-                {
-                  "type": "drop",
-                  "name": "Seaspice: The Lost Sea Giant King",
-                  "zone": "Vitheo's Watch",
-                  "scene": "Vitheo",
-                  "level": 12,
-                  "source_key": "character:lost sea giant king",
-                  "spawn_count": 1
-                },
-                {
-                  "type": "drop",
-                  "name": "Seaspice: Priel Deceiver",
-                  "zone": "Windwashed Pass",
-                  "scene": "Windwashed",
-                  "level": 18,
-                  "source_key": "character:priel deceiver",
-                  "spawn_count": 13
-                },
-                {
-                  "type": "drop",
-                  "name": "Seaspice: Priel Enforcer",
-                  "zone": "Windwashed Pass",
-                  "scene": "Windwashed",
-                  "level": 18,
-                  "source_key": "character:priel enforcer",
-                  "spawn_count": 13
-                },
-                {
-                  "type": "drop",
-                  "name": "Seaspice: Priel Enforcer",
-                  "zone": "Windwashed Pass",
-                  "scene": "Windwashed",
-                  "level": 18,
-                  "source_key": "character:priel naturalist",
-                  "spawn_count": 13
-                },
-                {
-                  "type": "drop",
-                  "name": "Seaspice: Lost Soul",
-                  "zone": "Malaroth's Nesting Grounds",
-                  "scene": "Malaroth",
-                  "level": 19,
-                  "source_key": "character:lost soul",
-                  "spawn_count": 1
-                },
-                {
-                  "type": "drop",
-                  "name": "Seaspice: Priel Deceiver",
-                  "zone": "Malaroth's Nesting Grounds",
-                  "scene": "Malaroth",
-                  "level": 19,
-                  "source_key": "character:priel deceiver",
-                  "spawn_count": 15
-                },
-                {
-                  "type": "drop",
-                  "name": "Seaspice: Priel Enforcer",
-                  "zone": "Malaroth's Nesting Grounds",
-                  "scene": "Malaroth",
-                  "level": 19,
-                  "source_key": "character:priel enforcer",
-                  "spawn_count": 15
-                },
-                {
-                  "type": "drop",
-                  "name": "Seaspice: Priel Enforcer",
-                  "zone": "Malaroth's Nesting Grounds",
-                  "scene": "Malaroth",
-                  "level": 19,
-                  "source_key": "character:priel naturalist",
-                  "spawn_count": 15
-                },
-                {
-                  "type": "drop",
-                  "name": "Seaspice: Priel Purist",
-                  "zone": "Prielian Cascade",
-                  "scene": "PrielPlateau",
-                  "level": 30,
-                  "source_key": "character:priel purist",
-                  "spawn_count": 46
-                },
-                {
-                  "type": "drop",
-                  "name": "Seaspice: Priel Swiftblade",
-                  "zone": "Prielian Cascade",
-                  "scene": "PrielPlateau",
-                  "level": 30,
-                  "source_key": "character:priel swiftblade",
-                  "spawn_count": 22
-                },
-                {
-                  "type": "drop",
-                  "name": "Seaspice: Cerynth Duskveil",
-                  "zone": "Port Azure",
-                  "scene": "Azure",
-                  "level": 31,
-                  "source_key": "character:cerynth duskveil",
-                  "spawn_count": 1
-                },
-                {
-                  "type": "drop",
                   "name": "Seaspice: Myrre Morrigane",
                   "zone": "Port Azure",
                   "scene": "Azure",
@@ -81193,27 +81056,57 @@
                 },
                 {
                   "type": "drop",
-                  "name": "Seaspice: Rose Crystalshade",
-                  "zone": "Braxonian Desert",
-                  "scene": "Braxonian",
-                  "level": 31,
-                  "source_key": "character:rose darkcrystal",
+                  "name": "Seaspice: Plaxitheris",
+                  "zone": "Stowaway's Step",
+                  "scene": "Stowaway",
+                  "level": 7,
+                  "source_key": "character:plaxitheris",
                   "spawn_count": 1
                 },
                 {
                   "type": "drop",
-                  "name": "Seaspice: Priel Grimwatch",
+                  "name": "Seaspice: Priel Consort",
                   "zone": "Prielian Cascade",
                   "scene": "PrielPlateau",
-                  "level": 32,
-                  "source_key": "character:priel grimwatch",
-                  "spawn_count": 11
+                  "level": 35,
+                  "source_key": "character:priel consort",
+                  "spawn_count": 3
                 },
                 {
                   "type": "drop",
-                  "name": "Seaspice: Priel Soldier",
-                  "level": 32,
-                  "source_key": "character:priel soldier"
+                  "name": "Seaspice: Priel Deceiver",
+                  "zone": "Malaroth's Nesting Grounds",
+                  "scene": "Malaroth",
+                  "level": 19,
+                  "source_key": "character:priel deceiver",
+                  "spawn_count": 15
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Deceiver",
+                  "zone": "Windwashed Pass",
+                  "scene": "Windwashed",
+                  "level": 18,
+                  "source_key": "character:priel deceiver",
+                  "spawn_count": 13
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Enforcer",
+                  "zone": "Malaroth's Nesting Grounds",
+                  "scene": "Malaroth",
+                  "level": 19,
+                  "source_key": "character:priel enforcer",
+                  "spawn_count": 15
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Enforcer",
+                  "zone": "Windwashed Pass",
+                  "scene": "Windwashed",
+                  "level": 18,
+                  "source_key": "character:priel enforcer",
+                  "spawn_count": 13
                 },
                 {
                   "type": "drop",
@@ -81226,17 +81119,124 @@
                 },
                 {
                   "type": "drop",
-                  "name": "Seaspice: Priel Consort",
+                  "name": "Seaspice: Priel Grimwatch",
                   "zone": "Prielian Cascade",
                   "scene": "PrielPlateau",
-                  "level": 35,
-                  "source_key": "character:priel consort",
-                  "spawn_count": 3
+                  "level": 32,
+                  "source_key": "character:priel grimwatch",
+                  "spawn_count": 11
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Enforcer",
+                  "zone": "Malaroth's Nesting Grounds",
+                  "scene": "Malaroth",
+                  "level": 19,
+                  "source_key": "character:priel naturalist",
+                  "spawn_count": 15
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Enforcer",
+                  "zone": "Windwashed Pass",
+                  "scene": "Windwashed",
+                  "level": 18,
+                  "source_key": "character:priel naturalist",
+                  "spawn_count": 13
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Purist",
+                  "zone": "Prielian Cascade",
+                  "scene": "PrielPlateau",
+                  "level": 30,
+                  "source_key": "character:priel purist",
+                  "spawn_count": 46
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Soldier",
+                  "level": 32,
+                  "source_key": "character:priel soldier"
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Swiftblade",
+                  "zone": "Prielian Cascade",
+                  "scene": "PrielPlateau",
+                  "level": 30,
+                  "source_key": "character:priel swiftblade",
+                  "spawn_count": 22
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Rose Crystalshade",
+                  "zone": "Braxonian Desert",
+                  "scene": "Braxonian",
+                  "level": 31,
+                  "source_key": "character:rose darkcrystal",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Sylvan Giant Runt",
+                  "zone": "Willowwatch Ridge",
+                  "scene": "Willowwatch",
+                  "level": 7,
+                  "source_key": "character:sylvan giant runt",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Thella Steepleton",
+                  "level": 10,
+                  "source_key": "character:thella steepleton"
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Thella Steepleton",
+                  "zone": "Port Azure",
+                  "scene": "Azure",
+                  "level": 11,
+                  "source_key": "character:thella steepleton:azure:242.54:27.97:315.61",
+                  "spawn_count": 2
+                },
+                {
+                  "type": "vendor",
+                  "name": "Seaspice: Summoned: Pocket Vendor",
+                  "zone": "Reliquary Hall",
+                  "scene": "Reliquary",
+                  "level": 5,
+                  "source_key": "character:a rift vendor:reliquary:268.28:1.44:349.00"
                 },
                 {
                   "type": "vendor",
                   "name": "Seaspice: Cully Edwarse",
                   "source_key": "character:cully edwarse"
+                },
+                {
+                  "type": "vendor",
+                  "name": "Seaspice: Cully Edwarse",
+                  "zone": "Port Azure",
+                  "scene": "Azure",
+                  "level": 11,
+                  "source_key": "character:cully edwarse combined"
+                },
+                {
+                  "type": "vendor",
+                  "name": "Seaspice: Saya Seawatcher",
+                  "zone": "Vitheo's Watch",
+                  "scene": "Vitheo",
+                  "level": 9,
+                  "source_key": "character:saya seawatcher"
+                },
+                {
+                  "type": "vendor",
+                  "name": "Seaspice: Shantee Swingblade",
+                  "zone": "Port Azure",
+                  "scene": "Azure",
+                  "level": 11,
+                  "source_key": "character:shanty swingblade"
                 }
               ]
             }
@@ -81417,13 +81417,13 @@
             "factors": [
               {
                 "source": "drop",
-                "name": "Shadow Man",
-                "level": 19
+                "name": "Aetherfiend",
+                "level": 27
               },
               {
                 "source": "drop",
-                "name": "Aetherfiend",
-                "level": 27
+                "name": "Shadow Man",
+                "level": 19
               }
             ]
           }
@@ -82301,19 +82301,19 @@
             "recommended": 11,
             "factors": [
               {
-                "source": "vendor",
-                "name": "Parmalee Gemlyn",
-                "level": 11
-              },
-              {
                 "source": "drop",
-                "name": "A Deepling Lunarite",
-                "level": 17
+                "name": "A Deepling Brute",
+                "level": 19
               },
               {
                 "source": "drop",
                 "name": "A Deepling Crimsonite",
                 "level": 18
+              },
+              {
+                "source": "drop",
+                "name": "A Deepling Lunarite",
+                "level": 17
               },
               {
                 "source": "drop",
@@ -82327,11 +82327,6 @@
               },
               {
                 "source": "drop",
-                "name": "A Deepling Brute",
-                "level": 19
-              },
-              {
-                "source": "drop",
                 "name": "A Fungus Ravaged Brute",
                 "level": 19
               },
@@ -82339,6 +82334,11 @@
                 "source": "drop",
                 "name": "Ravager, The First Infected",
                 "level": 21
+              },
+              {
+                "source": "vendor",
+                "name": "Parmalee Gemlyn",
+                "level": 11
               }
             ]
           }
@@ -82355,9 +82355,9 @@
             "recommended": 17,
             "factors": [
               {
-                "source": "mining",
-                "name": "Mineral Deposit",
-                "level": 17
+                "source": "drop",
+                "name": "Candlekeeper",
+                "level": 35
               },
               {
                 "source": "drop",
@@ -82365,9 +82365,9 @@
                 "level": 25
               },
               {
-                "source": "drop",
-                "name": "Candlekeeper",
-                "level": 35
+                "source": "mining",
+                "name": "Mineral Deposit",
+                "level": 17
               }
             ]
           }
@@ -82400,6 +82400,15 @@
           "sources": [
             {
               "type": "quest_reward",
+              "name": "Repairing Orion's Ring",
+              "zone": "Braxonian Desert",
+              "scene": "Braxonian",
+              "level": 11,
+              "source_key": "character:priest of brax",
+              "quest_key": "quest:tempeststone2"
+            },
+            {
+              "type": "quest_reward",
               "name": "Orion Mycon's Lost Ring",
               "zone": "Braxonian Desert",
               "scene": "Braxonian",
@@ -82426,15 +82435,6 @@
                   "spawn_count": 1
                 }
               ]
-            },
-            {
-              "type": "quest_reward",
-              "name": "Repairing Orion's Ring",
-              "zone": "Braxonian Desert",
-              "scene": "Braxonian",
-              "level": 11,
-              "source_key": "character:priest of brax",
-              "quest_key": "quest:tempeststone2"
             }
           ]
         },
@@ -82775,31 +82775,6 @@
             "factors": [
               {
                 "source": "drop",
-                "name": "Ripper Soldier",
-                "level": 27
-              },
-              {
-                "source": "drop",
-                "name": "Ripper Soldier",
-                "level": 28
-              },
-              {
-                "source": "drop",
-                "name": "Hector Yvey",
-                "level": 30
-              },
-              {
-                "source": "drop",
-                "name": "Mavik Estonia",
-                "level": 30
-              },
-              {
-                "source": "drop",
-                "name": "Celeso the Historian",
-                "level": 33
-              },
-              {
-                "source": "drop",
                 "name": "Armorer Nell",
                 "level": 36
               },
@@ -82810,13 +82785,38 @@
               },
               {
                 "source": "drop",
+                "name": "Celeso the Historian",
+                "level": 33
+              },
+              {
+                "source": "drop",
+                "name": "Hector Yvey",
+                "level": 30
+              },
+              {
+                "source": "drop",
                 "name": "Jeremie Galyard",
                 "level": 36
               },
               {
                 "source": "drop",
+                "name": "Mavik Estonia",
+                "level": 30
+              },
+              {
+                "source": "drop",
                 "name": "Ripper DeMerth",
                 "level": 38
+              },
+              {
+                "source": "drop",
+                "name": "Ripper Soldier",
+                "level": 28
+              },
+              {
+                "source": "drop",
+                "name": "Ripper Soldier",
+                "level": 27
               }
             ]
           }
@@ -83400,12 +83400,12 @@
               {
                 "source": "drop",
                 "name": "Pteriaped Matron",
-                "level": 24
+                "level": 25
               },
               {
                 "source": "drop",
                 "name": "Pteriaped Matron",
-                "level": 25
+                "level": 24
               }
             ]
           }
@@ -83667,6 +83667,11 @@
             "factors": [
               {
                 "source": "drop",
+                "name": "Rottenfoot Witchdoctor",
+                "level": 16
+              },
+              {
+                "source": "drop",
                 "name": "A Rottenfoot Warrior",
                 "level": 13
               },
@@ -83674,11 +83679,6 @@
                 "source": "drop",
                 "name": "Rottenfoot Mauler",
                 "level": 15
-              },
-              {
-                "source": "drop",
-                "name": "Rottenfoot Witchdoctor",
-                "level": 16
               }
             ]
           }
@@ -84963,48 +84963,8 @@
             "factors": [
               {
                 "source": "drop",
-                "name": "Sivakayan Cleric",
-                "level": 26
-              },
-              {
-                "source": "drop",
-                "name": "Sivakayan Raider",
-                "level": 26
-              },
-              {
-                "source": "drop",
-                "name": "Sivakayan Reaver",
-                "level": 26
-              },
-              {
-                "source": "drop",
-                "name": "Sivakayan Cleric",
-                "level": 28
-              },
-              {
-                "source": "drop",
-                "name": "Sivakayan Legionnaire",
-                "level": 28
-              },
-              {
-                "source": "drop",
-                "name": "Sivakayan Raider",
-                "level": 28
-              },
-              {
-                "source": "drop",
-                "name": "Sivakayan Reaver",
-                "level": 28
-              },
-              {
-                "source": "drop",
-                "name": "Sivakayan Templar",
-                "level": 28
-              },
-              {
-                "source": "drop",
-                "name": "Sivakayan Spymaster",
-                "level": 29
+                "name": "Candlekeeper",
+                "level": 35
               },
               {
                 "source": "drop",
@@ -85018,23 +84978,63 @@
               },
               {
                 "source": "drop",
+                "name": "Darkwarden Ilyth",
+                "level": 39
+              },
+              {
+                "source": "drop",
                 "name": "Sivakayan Bodyguard",
                 "level": 32
               },
               {
                 "source": "drop",
-                "name": "Candlekeeper",
-                "level": 35
+                "name": "Sivakayan Cleric",
+                "level": 28
+              },
+              {
+                "source": "drop",
+                "name": "Sivakayan Cleric",
+                "level": 26
+              },
+              {
+                "source": "drop",
+                "name": "Sivakayan Legionnaire",
+                "level": 28
+              },
+              {
+                "source": "drop",
+                "name": "Sivakayan Raider",
+                "level": 28
+              },
+              {
+                "source": "drop",
+                "name": "Sivakayan Raider",
+                "level": 26
+              },
+              {
+                "source": "drop",
+                "name": "Sivakayan Reaver",
+                "level": 28
+              },
+              {
+                "source": "drop",
+                "name": "Sivakayan Reaver",
+                "level": 26
+              },
+              {
+                "source": "drop",
+                "name": "Sivakayan Spymaster",
+                "level": 29
+              },
+              {
+                "source": "drop",
+                "name": "Sivakayan Templar",
+                "level": 28
               },
               {
                 "source": "drop",
                 "name": "Sivakayan Unhallowed",
                 "level": 37
-              },
-              {
-                "source": "drop",
-                "name": "Darkwarden Ilyth",
-                "level": 39
               }
             ]
           }
@@ -87018,43 +87018,8 @@
             "factors": [
               {
                 "source": "drop",
-                "name": "Shiverman",
-                "level": 19
-              },
-              {
-                "source": "drop",
                 "name": "Ancient Sentinel",
                 "level": 25
-              },
-              {
-                "source": "drop",
-                "name": "Blighted Jackal",
-                "level": 25
-              },
-              {
-                "source": "drop",
-                "name": "Sentinel",
-                "level": 25
-              },
-              {
-                "source": "drop",
-                "name": "Blighted Priest",
-                "level": 27
-              },
-              {
-                "source": "drop",
-                "name": "Doomwalker",
-                "level": 27
-              },
-              {
-                "source": "drop",
-                "name": "Obsidian Horror",
-                "level": 27
-              },
-              {
-                "source": "drop",
-                "name": "Lurker",
-                "level": 29
               },
               {
                 "source": "drop",
@@ -87063,8 +87028,18 @@
               },
               {
                 "source": "drop",
-                "name": "Noctua",
-                "level": 30
+                "name": "Blighted Priest",
+                "level": 27
+              },
+              {
+                "source": "drop",
+                "name": "Blighted Jackal",
+                "level": 25
+              },
+              {
+                "source": "drop",
+                "name": "Doomwalker",
+                "level": 27
               },
               {
                 "source": "drop",
@@ -87078,8 +87053,33 @@
               },
               {
                 "source": "drop",
+                "name": "Lurker",
+                "level": 29
+              },
+              {
+                "source": "drop",
+                "name": "Noctua",
+                "level": 30
+              },
+              {
+                "source": "drop",
+                "name": "Obsidian Horror",
+                "level": 27
+              },
+              {
+                "source": "drop",
                 "name": "Parzgil",
                 "level": 33
+              },
+              {
+                "source": "drop",
+                "name": "Sentinel",
+                "level": 25
+              },
+              {
+                "source": "drop",
+                "name": "Shiverman",
+                "level": 19
               }
             ]
           }
@@ -87102,6 +87102,11 @@
               },
               {
                 "source": "drop",
+                "name": "Braxonian High Guard",
+                "level": 31
+              },
+              {
+                "source": "drop",
                 "name": "Braxon Prospect",
                 "level": 29
               },
@@ -87109,11 +87114,6 @@
                 "source": "drop",
                 "name": "Braxonian Tempest",
                 "level": 29
-              },
-              {
-                "source": "drop",
-                "name": "Braxonian High Guard",
-                "level": 31
               }
             ]
           }
@@ -87483,19 +87483,19 @@
             "recommended": 11,
             "factors": [
               {
-                "source": "vendor",
-                "name": "Parmalee Gemlyn",
-                "level": 11
-              },
-              {
                 "source": "drop",
-                "name": "A Deepling Lunarite",
-                "level": 17
+                "name": "A Deepling Brute",
+                "level": 19
               },
               {
                 "source": "drop",
                 "name": "A Deepling Crimsonite",
                 "level": 18
+              },
+              {
+                "source": "drop",
+                "name": "A Deepling Lunarite",
+                "level": 17
               },
               {
                 "source": "drop",
@@ -87509,11 +87509,6 @@
               },
               {
                 "source": "drop",
-                "name": "A Deepling Brute",
-                "level": 19
-              },
-              {
-                "source": "drop",
                 "name": "A Fungus Ravaged Brute",
                 "level": 19
               },
@@ -87521,6 +87516,11 @@
                 "source": "drop",
                 "name": "Ravager, The First Infected",
                 "level": 21
+              },
+              {
+                "source": "vendor",
+                "name": "Parmalee Gemlyn",
+                "level": 11
               }
             ]
           }
@@ -87537,39 +87537,9 @@
             "recommended": 2,
             "factors": [
               {
-                "source": "mining",
-                "name": "Mineral Deposit",
-                "level": 2
-              },
-              {
-                "source": "mining",
-                "name": "Mineral Deposit",
-                "level": 4
-              },
-              {
-                "source": "mining",
-                "name": "Mineral Deposit",
-                "level": 9
-              },
-              {
-                "source": "mining",
-                "name": "Mineral Deposit",
-                "level": 11
-              },
-              {
-                "source": "mining",
-                "name": "Mineral Deposit",
-                "level": 17
-              },
-              {
                 "source": "drop",
-                "name": "Slumbering Queen",
-                "level": 21
-              },
-              {
-                "source": "drop",
-                "name": "Gloopa (Quarter)",
-                "level": 21
+                "name": "Astra, Rogue of the Stars",
+                "level": 40
               },
               {
                 "source": "drop",
@@ -87593,13 +87563,43 @@
               },
               {
                 "source": "drop",
+                "name": "Slumbering Queen",
+                "level": 21
+              },
+              {
+                "source": "drop",
+                "name": "Gloopa (Quarter)",
+                "level": 21
+              },
+              {
+                "source": "drop",
                 "name": "Statue of Brax",
                 "level": 36
               },
               {
-                "source": "drop",
-                "name": "Astra, Rogue of the Stars",
-                "level": 40
+                "source": "mining",
+                "name": "Mineral Deposit",
+                "level": 17
+              },
+              {
+                "source": "mining",
+                "name": "Mineral Deposit",
+                "level": 4
+              },
+              {
+                "source": "mining",
+                "name": "Mineral Deposit",
+                "level": 11
+              },
+              {
+                "source": "mining",
+                "name": "Mineral Deposit",
+                "level": 2
+              },
+              {
+                "source": "mining",
+                "name": "Mineral Deposit",
+                "level": 9
               }
             ]
           }
@@ -87617,38 +87617,8 @@
             "factors": [
               {
                 "source": "drop",
-                "name": "A Young Wolf",
-                "level": 2
-              },
-              {
-                "source": "drop",
-                "name": "A Young Wolf",
-                "level": 4
-              },
-              {
-                "source": "drop",
                 "name": "Alpha Wolf",
                 "level": 6
-              },
-              {
-                "source": "drop",
-                "name": "A Young Wolf",
-                "level": 9
-              },
-              {
-                "source": "drop",
-                "name": "Molorai Attack Dog",
-                "level": 10
-              },
-              {
-                "source": "drop",
-                "name": "Dire Wolf",
-                "level": 22
-              },
-              {
-                "source": "drop",
-                "name": "Dire Wolf",
-                "level": 24
               },
               {
                 "source": "drop",
@@ -87657,8 +87627,18 @@
               },
               {
                 "source": "drop",
-                "name": "Summoned Dire Wolf",
-                "level": 25
+                "name": "Dire Wolf",
+                "level": 24
+              },
+              {
+                "source": "drop",
+                "name": "Dire Wolf",
+                "level": 22
+              },
+              {
+                "source": "drop",
+                "name": "Molorai Attack Dog",
+                "level": 10
               },
               {
                 "source": "drop",
@@ -87667,13 +87647,13 @@
               },
               {
                 "source": "drop",
-                "name": "Stalking Wolf",
-                "level": 27
+                "name": "A Young Wolf",
+                "level": 2
               },
               {
                 "source": "drop",
-                "name": "Wild Ancestral Dog",
-                "level": 32
+                "name": "Stalking Wolf",
+                "level": 27
               },
               {
                 "source": "drop",
@@ -87682,8 +87662,28 @@
               },
               {
                 "source": "drop",
+                "name": "Summoned Dire Wolf",
+                "level": 25
+              },
+              {
+                "source": "drop",
                 "name": "Giant Watchdog",
                 "level": 33
+              },
+              {
+                "source": "drop",
+                "name": "Wild Ancestral Dog",
+                "level": 32
+              },
+              {
+                "source": "drop",
+                "name": "A Young Wolf",
+                "level": 4
+              },
+              {
+                "source": "drop",
+                "name": "A Young Wolf",
+                "level": 9
               }
             ]
           }
@@ -87702,32 +87702,27 @@
               {
                 "source": "drop",
                 "name": "A Grass Spider",
-                "level": 2
-              },
-              {
-                "source": "drop",
-                "name": "A Grass Spider",
                 "level": 4
               },
               {
                 "source": "drop",
                 "name": "A Grass Spider",
+                "level": 2
+              },
+              {
+                "source": "drop",
+                "name": "A Grass Spider",
                 "level": 9
               },
               {
                 "source": "drop",
                 "name": "A Mature Grass Spider",
-                "level": 9
+                "level": 30
               },
               {
                 "source": "drop",
                 "name": "A Mature Grass Spider",
                 "level": 13
-              },
-              {
-                "source": "drop",
-                "name": "A Mature Grass Spider",
-                "level": 14
               },
               {
                 "source": "drop",
@@ -87742,7 +87737,12 @@
               {
                 "source": "drop",
                 "name": "A Mature Grass Spider",
-                "level": 30
+                "level": 14
+              },
+              {
+                "source": "drop",
+                "name": "A Mature Grass Spider",
+                "level": 9
               }
             ]
           }
@@ -88777,6 +88777,11 @@
             "factors": [
               {
                 "source": "drop",
+                "name": "Aviak",
+                "level": 28
+              },
+              {
+                "source": "drop",
                 "name": "Devoratrix",
                 "level": 24
               },
@@ -88787,18 +88792,13 @@
               },
               {
                 "source": "drop",
-                "name": "Thorn",
-                "level": 26
-              },
-              {
-                "source": "drop",
-                "name": "Aviak",
-                "level": 28
-              },
-              {
-                "source": "drop",
                 "name": "The Gardener of Loomingwood",
                 "level": 30
+              },
+              {
+                "source": "drop",
+                "name": "Thorn",
+                "level": 26
               }
             ]
           }
@@ -88822,27 +88822,12 @@
               {
                 "source": "drop",
                 "name": "Dryad Spirit",
-                "level": 13
-              },
-              {
-                "source": "drop",
-                "name": "Spectral Bear",
-                "level": 13
+                "level": 14
               },
               {
                 "source": "drop",
                 "name": "Dryad Spirit",
-                "level": 14
-              },
-              {
-                "source": "drop",
-                "name": "Massia the Fallen",
-                "level": 14
-              },
-              {
-                "source": "drop",
-                "name": "Spectral Bear",
-                "level": 14
+                "level": 13
               },
               {
                 "source": "drop",
@@ -88851,8 +88836,23 @@
               },
               {
                 "source": "drop",
+                "name": "Massia the Fallen",
+                "level": 14
+              },
+              {
+                "source": "drop",
                 "name": "Rotting Guardian",
                 "level": 33
+              },
+              {
+                "source": "drop",
+                "name": "Spectral Bear",
+                "level": 14
+              },
+              {
+                "source": "drop",
+                "name": "Spectral Bear",
+                "level": 13
               }
             ]
           }
@@ -90226,44 +90226,29 @@
             "recommended": 2,
             "factors": [
               {
-                "source": "vendor",
-                "name": "Treven Pines",
-                "level": 2
+                "source": "drop",
+                "name": "A Highwayman Marauder",
+                "level": 15
               },
               {
                 "source": "drop",
-                "name": "Ghost of Wyland Sercher",
-                "level": 4
+                "name": "A Highwayman Raider",
+                "level": 13
               },
               {
                 "source": "drop",
-                "name": "Leah",
-                "level": 4
+                "name": "Acceptor",
+                "level": 18
               },
               {
                 "source": "drop",
-                "name": "Posta",
-                "level": 4
+                "name": "Acolyte",
+                "level": 16
               },
               {
                 "source": "drop",
-                "name": "Revid",
-                "level": 4
-              },
-              {
-                "source": "drop",
-                "name": "Stalzo",
-                "level": 4
-              },
-              {
-                "source": "vendor",
-                "name": "Gus Highrest",
-                "level": 4
-              },
-              {
-                "source": "vendor",
-                "name": "Summoned: Pocket Vendor",
-                "level": 5
+                "name": "Astorim",
+                "level": 34
               },
               {
                 "source": "drop",
@@ -90272,8 +90257,108 @@
               },
               {
                 "source": "drop",
+                "name": "Ghoul",
+                "level": 35
+              },
+              {
+                "source": "drop",
+                "name": "Prince Ardant",
+                "level": 32
+              },
+              {
+                "source": "drop",
+                "name": "Captive Miner",
+                "level": 30
+              },
+              {
+                "source": "drop",
+                "name": "Ecclesiarch",
+                "level": 17
+              },
+              {
+                "source": "drop",
+                "name": "Gasper",
+                "level": 21
+              },
+              {
+                "source": "drop",
+                "name": "Ghost of Wyland Sercher",
+                "level": 4
+              },
+              {
+                "source": "drop",
+                "name": "A Grassland Ogre Chieftan",
+                "level": 13
+              },
+              {
+                "source": "drop",
+                "name": "Greater Fawn",
+                "level": 27
+              },
+              {
+                "source": "drop",
+                "name": "Headless",
+                "level": 24
+              },
+              {
+                "source": "drop",
+                "name": "Leah",
+                "level": 4
+              },
+              {
+                "source": "drop",
+                "name": "Lost Soul",
+                "level": 19
+              },
+              {
+                "source": "drop",
+                "name": "Oracle Miress",
+                "level": 38
+              },
+              {
+                "source": "drop",
+                "name": "Oracle Tretha",
+                "level": 38
+              },
+              {
+                "source": "drop",
                 "name": "Plaxitheris",
                 "level": 7
+              },
+              {
+                "source": "drop",
+                "name": "Posta",
+                "level": 4
+              },
+              {
+                "source": "drop",
+                "name": "Prioress",
+                "level": 16
+              },
+              {
+                "source": "drop",
+                "name": "Revid",
+                "level": 4
+              },
+              {
+                "source": "drop",
+                "name": "Risen Druid",
+                "level": 14
+              },
+              {
+                "source": "drop",
+                "name": "Shambler",
+                "level": 29
+              },
+              {
+                "source": "drop",
+                "name": "Shambler",
+                "level": 32
+              },
+              {
+                "source": "drop",
+                "name": "Stalzo",
+                "level": 4
               },
               {
                 "source": "drop",
@@ -90281,9 +90366,34 @@
                 "level": 7
               },
               {
+                "source": "drop",
+                "name": "Vinx",
+                "level": 29
+              },
+              {
+                "source": "drop",
+                "name": "Warded Shadow",
+                "level": 26
+              },
+              {
+                "source": "drop",
+                "name": "Wild Ogre",
+                "level": 26
+              },
+              {
                 "source": "vendor",
-                "name": "Saya Seawatcher",
-                "level": 9
+                "name": "Summoned: Pocket Vendor",
+                "level": 5
+              },
+              {
+                "source": "vendor",
+                "name": "Alexander Farland",
+                "level": 13
+              },
+              {
+                "source": "vendor",
+                "name": "Annaleigh Hephan",
+                "level": 14
               },
               {
                 "source": "vendor",
@@ -90297,38 +90407,13 @@
               },
               {
                 "source": "vendor",
+                "name": "Gus Highrest",
+                "level": 4
+              },
+              {
+                "source": "vendor",
                 "name": "Innkeeper Ryvan",
                 "level": 11
-              },
-              {
-                "source": "pickup",
-                "name": "Port Azure",
-                "level": 11
-              },
-              {
-                "source": "drop",
-                "name": "A Highwayman Raider",
-                "level": 13
-              },
-              {
-                "source": "drop",
-                "name": "A Grassland Ogre Chieftan",
-                "level": 13
-              },
-              {
-                "source": "vendor",
-                "name": "Alexander Farland",
-                "level": 13
-              },
-              {
-                "source": "drop",
-                "name": "Risen Druid",
-                "level": 14
-              },
-              {
-                "source": "vendor",
-                "name": "Annaleigh Hephan",
-                "level": 14
               },
               {
                 "source": "vendor",
@@ -90336,109 +90421,24 @@
                 "level": 14
               },
               {
-                "source": "drop",
-                "name": "A Highwayman Marauder",
-                "level": 15
-              },
-              {
-                "source": "drop",
-                "name": "Acolyte",
-                "level": 16
-              },
-              {
-                "source": "drop",
-                "name": "Prioress",
-                "level": 16
-              },
-              {
-                "source": "drop",
-                "name": "Ecclesiarch",
-                "level": 17
-              },
-              {
-                "source": "drop",
-                "name": "Acceptor",
-                "level": 18
-              },
-              {
-                "source": "drop",
-                "name": "Lost Soul",
-                "level": 19
-              },
-              {
-                "source": "drop",
-                "name": "Gasper",
-                "level": 21
-              },
-              {
-                "source": "drop",
-                "name": "Headless",
-                "level": 24
-              },
-              {
-                "source": "drop",
-                "name": "Warded Shadow",
-                "level": 26
-              },
-              {
-                "source": "drop",
-                "name": "Wild Ogre",
-                "level": 26
-              },
-              {
-                "source": "drop",
-                "name": "Greater Fawn",
-                "level": 27
-              },
-              {
                 "source": "vendor",
                 "name": "Oscar VanEllis",
                 "level": 28
               },
               {
-                "source": "drop",
-                "name": "Shambler",
-                "level": 29
+                "source": "vendor",
+                "name": "Saya Seawatcher",
+                "level": 9
               },
               {
-                "source": "drop",
-                "name": "Vinx",
-                "level": 29
+                "source": "vendor",
+                "name": "Treven Pines",
+                "level": 2
               },
               {
-                "source": "drop",
-                "name": "Captive Miner",
-                "level": 30
-              },
-              {
-                "source": "drop",
-                "name": "Prince Ardant",
-                "level": 32
-              },
-              {
-                "source": "drop",
-                "name": "Shambler",
-                "level": 32
-              },
-              {
-                "source": "drop",
-                "name": "Astorim",
-                "level": 34
-              },
-              {
-                "source": "drop",
-                "name": "Ghoul",
-                "level": 35
-              },
-              {
-                "source": "drop",
-                "name": "Oracle Miress",
-                "level": 38
-              },
-              {
-                "source": "drop",
-                "name": "Oracle Tretha",
-                "level": 38
+                "source": "pickup",
+                "name": "Port Azure",
+                "level": 11
               }
             ]
           }
@@ -91510,8 +91510,18 @@
             "factors": [
               {
                 "source": "drop",
+                "name": "Aeiros, Soldier of Sivakaya",
+                "level": 39
+              },
+              {
+                "source": "drop",
                 "name": "Astorim",
                 "level": 34
+              },
+              {
+                "source": "drop",
+                "name": "Balthom, Soldier of Sivakaya",
+                "level": 37
               },
               {
                 "source": "drop",
@@ -91527,16 +91537,6 @@
                 "source": "drop",
                 "name": "Vextral",
                 "level": 34
-              },
-              {
-                "source": "drop",
-                "name": "Balthom, Soldier of Sivakaya",
-                "level": 37
-              },
-              {
-                "source": "drop",
-                "name": "Aeiros, Soldier of Sivakaya",
-                "level": 39
               }
             ]
           }
@@ -91554,8 +91554,18 @@
             "factors": [
               {
                 "source": "drop",
+                "name": "Aeiros, Soldier of Sivakaya",
+                "level": 39
+              },
+              {
+                "source": "drop",
                 "name": "Astorim",
                 "level": 34
+              },
+              {
+                "source": "drop",
+                "name": "Balthom, Soldier of Sivakaya",
+                "level": 37
               },
               {
                 "source": "drop",
@@ -91571,16 +91581,6 @@
                 "source": "drop",
                 "name": "Vextral",
                 "level": 34
-              },
-              {
-                "source": "drop",
-                "name": "Balthom, Soldier of Sivakaya",
-                "level": 37
-              },
-              {
-                "source": "drop",
-                "name": "Aeiros, Soldier of Sivakaya",
-                "level": 39
               }
             ]
           }
@@ -91598,8 +91598,18 @@
             "factors": [
               {
                 "source": "drop",
+                "name": "Aeiros, Soldier of Sivakaya",
+                "level": 39
+              },
+              {
+                "source": "drop",
                 "name": "Astorim",
                 "level": 34
+              },
+              {
+                "source": "drop",
+                "name": "Balthom, Soldier of Sivakaya",
+                "level": 37
               },
               {
                 "source": "drop",
@@ -91615,16 +91625,6 @@
                 "source": "drop",
                 "name": "Vextral",
                 "level": 34
-              },
-              {
-                "source": "drop",
-                "name": "Balthom, Soldier of Sivakaya",
-                "level": 37
-              },
-              {
-                "source": "drop",
-                "name": "Aeiros, Soldier of Sivakaya",
-                "level": 39
               }
             ]
           }
@@ -91642,8 +91642,18 @@
             "factors": [
               {
                 "source": "drop",
+                "name": "Aeiros, Soldier of Sivakaya",
+                "level": 39
+              },
+              {
+                "source": "drop",
                 "name": "Astorim",
                 "level": 34
+              },
+              {
+                "source": "drop",
+                "name": "Balthom, Soldier of Sivakaya",
+                "level": 37
               },
               {
                 "source": "drop",
@@ -91659,16 +91669,6 @@
                 "source": "drop",
                 "name": "Vextral",
                 "level": 34
-              },
-              {
-                "source": "drop",
-                "name": "Balthom, Soldier of Sivakaya",
-                "level": 37
-              },
-              {
-                "source": "drop",
-                "name": "Aeiros, Soldier of Sivakaya",
-                "level": 39
               }
             ]
           }
@@ -92084,44 +92084,29 @@
             "recommended": 2,
             "factors": [
               {
-                "source": "vendor",
-                "name": "Treven Pines",
-                "level": 2
+                "source": "drop",
+                "name": "A Highwayman Marauder",
+                "level": 15
               },
               {
                 "source": "drop",
-                "name": "Ghost of Wyland Sercher",
-                "level": 4
+                "name": "A Highwayman Raider",
+                "level": 13
               },
               {
                 "source": "drop",
-                "name": "Leah",
-                "level": 4
+                "name": "Acceptor",
+                "level": 18
               },
               {
                 "source": "drop",
-                "name": "Posta",
-                "level": 4
+                "name": "Acolyte",
+                "level": 16
               },
               {
                 "source": "drop",
-                "name": "Revid",
-                "level": 4
-              },
-              {
-                "source": "drop",
-                "name": "Stalzo",
-                "level": 4
-              },
-              {
-                "source": "vendor",
-                "name": "Gus Highrest",
-                "level": 4
-              },
-              {
-                "source": "vendor",
-                "name": "Summoned: Pocket Vendor",
-                "level": 5
+                "name": "Astorim",
+                "level": 34
               },
               {
                 "source": "drop",
@@ -92130,8 +92115,108 @@
               },
               {
                 "source": "drop",
+                "name": "Ghoul",
+                "level": 35
+              },
+              {
+                "source": "drop",
+                "name": "Prince Ardant",
+                "level": 32
+              },
+              {
+                "source": "drop",
+                "name": "Captive Miner",
+                "level": 30
+              },
+              {
+                "source": "drop",
+                "name": "Ecclesiarch",
+                "level": 17
+              },
+              {
+                "source": "drop",
+                "name": "Gasper",
+                "level": 21
+              },
+              {
+                "source": "drop",
+                "name": "Ghost of Wyland Sercher",
+                "level": 4
+              },
+              {
+                "source": "drop",
+                "name": "A Grassland Ogre Chieftan",
+                "level": 13
+              },
+              {
+                "source": "drop",
+                "name": "Greater Fawn",
+                "level": 27
+              },
+              {
+                "source": "drop",
+                "name": "Headless",
+                "level": 24
+              },
+              {
+                "source": "drop",
+                "name": "Leah",
+                "level": 4
+              },
+              {
+                "source": "drop",
+                "name": "Lost Soul",
+                "level": 19
+              },
+              {
+                "source": "drop",
+                "name": "Oracle Miress",
+                "level": 38
+              },
+              {
+                "source": "drop",
+                "name": "Oracle Tretha",
+                "level": 38
+              },
+              {
+                "source": "drop",
                 "name": "Plaxitheris",
                 "level": 7
+              },
+              {
+                "source": "drop",
+                "name": "Posta",
+                "level": 4
+              },
+              {
+                "source": "drop",
+                "name": "Prioress",
+                "level": 16
+              },
+              {
+                "source": "drop",
+                "name": "Revid",
+                "level": 4
+              },
+              {
+                "source": "drop",
+                "name": "Risen Druid",
+                "level": 14
+              },
+              {
+                "source": "drop",
+                "name": "Shambler",
+                "level": 29
+              },
+              {
+                "source": "drop",
+                "name": "Shambler",
+                "level": 32
+              },
+              {
+                "source": "drop",
+                "name": "Stalzo",
+                "level": 4
               },
               {
                 "source": "drop",
@@ -92139,9 +92224,34 @@
                 "level": 7
               },
               {
+                "source": "drop",
+                "name": "Vinx",
+                "level": 29
+              },
+              {
+                "source": "drop",
+                "name": "Warded Shadow",
+                "level": 26
+              },
+              {
+                "source": "drop",
+                "name": "Wild Ogre",
+                "level": 26
+              },
+              {
                 "source": "vendor",
-                "name": "Saya Seawatcher",
-                "level": 9
+                "name": "Summoned: Pocket Vendor",
+                "level": 5
+              },
+              {
+                "source": "vendor",
+                "name": "Alexander Farland",
+                "level": 13
+              },
+              {
+                "source": "vendor",
+                "name": "Annaleigh Hephan",
+                "level": 14
               },
               {
                 "source": "vendor",
@@ -92155,38 +92265,13 @@
               },
               {
                 "source": "vendor",
+                "name": "Gus Highrest",
+                "level": 4
+              },
+              {
+                "source": "vendor",
                 "name": "Innkeeper Ryvan",
                 "level": 11
-              },
-              {
-                "source": "pickup",
-                "name": "Port Azure",
-                "level": 11
-              },
-              {
-                "source": "drop",
-                "name": "A Highwayman Raider",
-                "level": 13
-              },
-              {
-                "source": "drop",
-                "name": "A Grassland Ogre Chieftan",
-                "level": 13
-              },
-              {
-                "source": "vendor",
-                "name": "Alexander Farland",
-                "level": 13
-              },
-              {
-                "source": "drop",
-                "name": "Risen Druid",
-                "level": 14
-              },
-              {
-                "source": "vendor",
-                "name": "Annaleigh Hephan",
-                "level": 14
               },
               {
                 "source": "vendor",
@@ -92194,109 +92279,24 @@
                 "level": 14
               },
               {
-                "source": "drop",
-                "name": "A Highwayman Marauder",
-                "level": 15
-              },
-              {
-                "source": "drop",
-                "name": "Acolyte",
-                "level": 16
-              },
-              {
-                "source": "drop",
-                "name": "Prioress",
-                "level": 16
-              },
-              {
-                "source": "drop",
-                "name": "Ecclesiarch",
-                "level": 17
-              },
-              {
-                "source": "drop",
-                "name": "Acceptor",
-                "level": 18
-              },
-              {
-                "source": "drop",
-                "name": "Lost Soul",
-                "level": 19
-              },
-              {
-                "source": "drop",
-                "name": "Gasper",
-                "level": 21
-              },
-              {
-                "source": "drop",
-                "name": "Headless",
-                "level": 24
-              },
-              {
-                "source": "drop",
-                "name": "Warded Shadow",
-                "level": 26
-              },
-              {
-                "source": "drop",
-                "name": "Wild Ogre",
-                "level": 26
-              },
-              {
-                "source": "drop",
-                "name": "Greater Fawn",
-                "level": 27
-              },
-              {
                 "source": "vendor",
                 "name": "Oscar VanEllis",
                 "level": 28
               },
               {
-                "source": "drop",
-                "name": "Shambler",
-                "level": 29
+                "source": "vendor",
+                "name": "Saya Seawatcher",
+                "level": 9
               },
               {
-                "source": "drop",
-                "name": "Vinx",
-                "level": 29
+                "source": "vendor",
+                "name": "Treven Pines",
+                "level": 2
               },
               {
-                "source": "drop",
-                "name": "Captive Miner",
-                "level": 30
-              },
-              {
-                "source": "drop",
-                "name": "Prince Ardant",
-                "level": 32
-              },
-              {
-                "source": "drop",
-                "name": "Shambler",
-                "level": 32
-              },
-              {
-                "source": "drop",
-                "name": "Astorim",
-                "level": 34
-              },
-              {
-                "source": "drop",
-                "name": "Ghoul",
-                "level": 35
-              },
-              {
-                "source": "drop",
-                "name": "Oracle Miress",
-                "level": 38
-              },
-              {
-                "source": "drop",
-                "name": "Oracle Tretha",
-                "level": 38
+                "source": "pickup",
+                "name": "Port Azure",
+                "level": 11
               }
             ]
           }
@@ -92313,9 +92313,34 @@
             "recommended": 5,
             "factors": [
               {
-                "source": "vendor",
-                "name": "Summoned: Pocket Vendor",
-                "level": 5
+                "source": "drop",
+                "name": "Aviak",
+                "level": 28
+              },
+              {
+                "source": "drop",
+                "name": "Cloaked Shadow",
+                "level": 32
+              },
+              {
+                "source": "drop",
+                "name": "A Fungal Sentinel",
+                "level": 19
+              },
+              {
+                "source": "drop",
+                "name": "A Grassland Ogre Elder",
+                "level": 13
+              },
+              {
+                "source": "drop",
+                "name": "A Grassland Ogre Elder",
+                "level": 12
+              },
+              {
+                "source": "drop",
+                "name": "Morian the Ascended",
+                "level": 28
               },
               {
                 "source": "drop",
@@ -92324,8 +92349,8 @@
               },
               {
                 "source": "vendor",
-                "name": "Saya Seawatcher",
-                "level": 9
+                "name": "Summoned: Pocket Vendor",
+                "level": 5
               },
               {
                 "source": "vendor",
@@ -92348,34 +92373,9 @@
                 "level": 11
               },
               {
-                "source": "drop",
-                "name": "A Grassland Ogre Elder",
-                "level": 12
-              },
-              {
-                "source": "drop",
-                "name": "A Grassland Ogre Elder",
-                "level": 13
-              },
-              {
-                "source": "drop",
-                "name": "A Fungal Sentinel",
-                "level": 19
-              },
-              {
-                "source": "drop",
-                "name": "Aviak",
-                "level": 28
-              },
-              {
-                "source": "drop",
-                "name": "Morian the Ascended",
-                "level": 28
-              },
-              {
-                "source": "drop",
-                "name": "Cloaked Shadow",
-                "level": 32
+                "source": "vendor",
+                "name": "Saya Seawatcher",
+                "level": 9
               }
             ]
           }
@@ -92392,24 +92392,24 @@
             "recommended": 2,
             "factors": [
               {
-                "source": "mining",
-                "name": "Mineral Deposit",
-                "level": 2
-              },
-              {
-                "source": "mining",
-                "name": "Mineral Deposit",
-                "level": 4
-              },
-              {
                 "source": "drop",
                 "name": "Failed Cremation",
                 "level": 6
               },
               {
+                "source": "vendor",
+                "name": "Oscar VanEllis",
+                "level": 28
+              },
+              {
                 "source": "mining",
                 "name": "Mineral Deposit",
-                "level": 9
+                "level": 17
+              },
+              {
+                "source": "mining",
+                "name": "Mineral Deposit",
+                "level": 4
               },
               {
                 "source": "mining",
@@ -92419,12 +92419,12 @@
               {
                 "source": "mining",
                 "name": "Mineral Deposit",
-                "level": 17
+                "level": 2
               },
               {
-                "source": "vendor",
-                "name": "Oscar VanEllis",
-                "level": 28
+                "source": "mining",
+                "name": "Mineral Deposit",
+                "level": 9
               }
             ]
           }
@@ -93238,23 +93238,23 @@
             "factors": [
               {
                 "source": "drop",
-                "name": "Ancient Guard",
-                "level": 26
-              },
-              {
-                "source": "drop",
-                "name": "Ancient Corpse",
-                "level": 26
-              },
-              {
-                "source": "drop",
                 "name": "Ancient Celestarian",
                 "level": 27
               },
               {
                 "source": "drop",
+                "name": "Ancient Guard",
+                "level": 26
+              },
+              {
+                "source": "drop",
                 "name": "Ancient Knight",
                 "level": 30
+              },
+              {
+                "source": "drop",
+                "name": "Ancient Corpse",
+                "level": 26
               }
             ]
           }
@@ -93418,11 +93418,6 @@
               },
               {
                 "source": "drop",
-                "name": "Tinkles",
-                "level": 11
-              },
-              {
-                "source": "drop",
                 "name": "A Faerie Enchantress",
                 "level": 28
               },
@@ -93435,6 +93430,11 @@
                 "source": "drop",
                 "name": "A Faerie Windchild",
                 "level": 28
+              },
+              {
+                "source": "drop",
+                "name": "Tinkles",
+                "level": 11
               },
               {
                 "source": "drop",
@@ -93456,39 +93456,9 @@
             "recommended": 2,
             "factors": [
               {
-                "source": "mining",
-                "name": "Mineral Deposit",
-                "level": 2
-              },
-              {
-                "source": "mining",
-                "name": "Mineral Deposit",
-                "level": 4
-              },
-              {
-                "source": "mining",
-                "name": "Mineral Deposit",
-                "level": 9
-              },
-              {
-                "source": "mining",
-                "name": "Mineral Deposit",
-                "level": 11
-              },
-              {
-                "source": "mining",
-                "name": "Mineral Deposit",
-                "level": 17
-              },
-              {
                 "source": "drop",
-                "name": "Slumbering Queen",
-                "level": 21
-              },
-              {
-                "source": "drop",
-                "name": "Gloopa (Quarter)",
-                "level": 21
+                "name": "Astra, Rogue of the Stars",
+                "level": 40
               },
               {
                 "source": "drop",
@@ -93512,13 +93482,43 @@
               },
               {
                 "source": "drop",
+                "name": "Slumbering Queen",
+                "level": 21
+              },
+              {
+                "source": "drop",
+                "name": "Gloopa (Quarter)",
+                "level": 21
+              },
+              {
+                "source": "drop",
                 "name": "Statue of Brax",
                 "level": 36
               },
               {
-                "source": "drop",
-                "name": "Astra, Rogue of the Stars",
-                "level": 40
+                "source": "mining",
+                "name": "Mineral Deposit",
+                "level": 17
+              },
+              {
+                "source": "mining",
+                "name": "Mineral Deposit",
+                "level": 4
+              },
+              {
+                "source": "mining",
+                "name": "Mineral Deposit",
+                "level": 11
+              },
+              {
+                "source": "mining",
+                "name": "Mineral Deposit",
+                "level": 2
+              },
+              {
+                "source": "mining",
+                "name": "Mineral Deposit",
+                "level": 9
               }
             ]
           }
@@ -93541,6 +93541,26 @@
               },
               {
                 "source": "drop",
+                "name": "Invader of Dreams",
+                "level": 24
+              },
+              {
+                "source": "drop",
+                "name": "Nightmarian Arcanist",
+                "level": 20
+              },
+              {
+                "source": "drop",
+                "name": "Nightmarian Hound",
+                "level": 22
+              },
+              {
+                "source": "drop",
+                "name": "Nightmarian Knight",
+                "level": 21
+              },
+              {
+                "source": "drop",
                 "name": "Night Terror",
                 "level": 13
               },
@@ -93558,26 +93578,6 @@
                 "source": "drop",
                 "name": "Lullaby Fiend",
                 "level": 15
-              },
-              {
-                "source": "drop",
-                "name": "Nightmarian Arcanist",
-                "level": 20
-              },
-              {
-                "source": "drop",
-                "name": "Nightmarian Knight",
-                "level": 21
-              },
-              {
-                "source": "drop",
-                "name": "Nightmarian Hound",
-                "level": 22
-              },
-              {
-                "source": "drop",
-                "name": "Invader of Dreams",
-                "level": 24
               }
             ]
           }
@@ -93600,6 +93600,26 @@
               },
               {
                 "source": "drop",
+                "name": "Invader of Dreams",
+                "level": 24
+              },
+              {
+                "source": "drop",
+                "name": "Nightmarian Arcanist",
+                "level": 20
+              },
+              {
+                "source": "drop",
+                "name": "Nightmarian Hound",
+                "level": 22
+              },
+              {
+                "source": "drop",
+                "name": "Nightmarian Knight",
+                "level": 21
+              },
+              {
+                "source": "drop",
                 "name": "Night Terror",
                 "level": 13
               },
@@ -93617,26 +93637,6 @@
                 "source": "drop",
                 "name": "Lullaby Fiend",
                 "level": 15
-              },
-              {
-                "source": "drop",
-                "name": "Nightmarian Arcanist",
-                "level": 20
-              },
-              {
-                "source": "drop",
-                "name": "Nightmarian Knight",
-                "level": 21
-              },
-              {
-                "source": "drop",
-                "name": "Nightmarian Hound",
-                "level": 22
-              },
-              {
-                "source": "drop",
-                "name": "Invader of Dreams",
-                "level": 24
               }
             ]
           }
@@ -94306,6 +94306,11 @@
             "factors": [
               {
                 "source": "drop",
+                "name": "Hypnic",
+                "level": 38
+              },
+              {
+                "source": "drop",
                 "name": "Lost Treasure (1-10)",
                 "level": 1
               },
@@ -94323,11 +94328,6 @@
                 "source": "drop",
                 "name": "Lost Treasure (30+)",
                 "level": 1
-              },
-              {
-                "source": "drop",
-                "name": "Hypnic",
-                "level": 38
               }
             ]
           }
@@ -94520,12 +94520,6 @@
               "source_key": "character:treasurechest 30-35"
             },
             {
-              "type": "fishing",
-              "zone": "Bellwain Island",
-              "scene": "SummerEvent",
-              "node_count": 2
-            },
-            {
               "type": "quest_reward",
               "name": "Clearing the Bonepits",
               "scene": "Willowwatch",
@@ -94630,6 +94624,12 @@
                   "quest_key": "quest:albixtsring"
                 }
               ]
+            },
+            {
+              "type": "fishing",
+              "zone": "Bellwain Island",
+              "scene": "SummerEvent",
+              "node_count": 2
             }
           ]
         },
@@ -95384,56 +95384,6 @@
             "recommended": 2,
             "factors": [
               {
-                "source": "fishing",
-                "name": "Stowaway's Step",
-                "level": 2
-              },
-              {
-                "source": "drop",
-                "name": "Plaxitheris",
-                "level": 7
-              },
-              {
-                "source": "fishing",
-                "name": "Vitheo's Watch",
-                "level": 9
-              },
-              {
-                "source": "fishing",
-                "name": "Port Azure",
-                "level": 11
-              },
-              {
-                "source": "fishing",
-                "name": "Blacksalt Strand",
-                "level": 14
-              },
-              {
-                "source": "fishing",
-                "name": "The Duskenlight Coast",
-                "level": 14
-              },
-              {
-                "source": "fishing",
-                "name": "Braxonian Desert",
-                "level": 17
-              },
-              {
-                "source": "fishing",
-                "name": "Windwashed Pass",
-                "level": 18
-              },
-              {
-                "source": "fishing",
-                "name": "Malaroth's Nesting Grounds",
-                "level": 19
-              },
-              {
-                "source": "fishing",
-                "name": "Shivering Step",
-                "level": 21
-              },
-              {
                 "source": "drop",
                 "name": "Frenzy",
                 "level": 27
@@ -95444,9 +95394,9 @@
                 "level": 27
               },
               {
-                "source": "fishing",
-                "name": "Ripper's Keep",
-                "level": 28
+                "source": "drop",
+                "name": "Plaxitheris",
+                "level": 7
               },
               {
                 "source": "drop",
@@ -95455,13 +95405,63 @@
               },
               {
                 "source": "drop",
+                "name": "Wardwarped Alpha",
+                "level": 37
+              },
+              {
+                "source": "drop",
                 "name": "Wardwarped Gorilla",
                 "level": 34
               },
               {
-                "source": "drop",
-                "name": "Wardwarped Alpha",
-                "level": 37
+                "source": "fishing",
+                "name": "Blacksalt Strand",
+                "level": 14
+              },
+              {
+                "source": "fishing",
+                "name": "Braxonian Desert",
+                "level": 17
+              },
+              {
+                "source": "fishing",
+                "name": "Malaroth's Nesting Grounds",
+                "level": 19
+              },
+              {
+                "source": "fishing",
+                "name": "Port Azure",
+                "level": 11
+              },
+              {
+                "source": "fishing",
+                "name": "Ripper's Keep",
+                "level": 28
+              },
+              {
+                "source": "fishing",
+                "name": "Shivering Step",
+                "level": 21
+              },
+              {
+                "source": "fishing",
+                "name": "Stowaway's Step",
+                "level": 2
+              },
+              {
+                "source": "fishing",
+                "name": "The Duskenlight Coast",
+                "level": 14
+              },
+              {
+                "source": "fishing",
+                "name": "Vitheo's Watch",
+                "level": 9
+              },
+              {
+                "source": "fishing",
+                "name": "Windwashed Pass",
+                "level": 18
               }
             ]
           }
@@ -95756,11 +95756,6 @@
             "factors": [
               {
                 "source": "drop",
-                "name": "Shiverman",
-                "level": 19
-              },
-              {
-                "source": "drop",
                 "name": "Shadow of Sleep",
                 "level": 21
               },
@@ -95768,6 +95763,11 @@
                 "source": "drop",
                 "name": "Ghost of Plaxitheris",
                 "level": 22
+              },
+              {
+                "source": "drop",
+                "name": "Shiverman",
+                "level": 19
               },
               {
                 "source": "drop",
@@ -95790,11 +95790,6 @@
             "factors": [
               {
                 "source": "drop",
-                "name": "Shiverman",
-                "level": 19
-              },
-              {
-                "source": "drop",
                 "name": "Shadow of Sleep",
                 "level": 21
               },
@@ -95802,6 +95797,11 @@
                 "source": "drop",
                 "name": "Ghost of Plaxitheris",
                 "level": 22
+              },
+              {
+                "source": "drop",
+                "name": "Shiverman",
+                "level": 19
               },
               {
                 "source": "drop",
@@ -96922,38 +96922,8 @@
             "factors": [
               {
                 "source": "drop",
-                "name": "A Young Wolf",
-                "level": 2
-              },
-              {
-                "source": "drop",
-                "name": "A Young Wolf",
-                "level": 4
-              },
-              {
-                "source": "drop",
                 "name": "Alpha Wolf",
                 "level": 6
-              },
-              {
-                "source": "drop",
-                "name": "A Young Wolf",
-                "level": 9
-              },
-              {
-                "source": "drop",
-                "name": "Molorai Attack Dog",
-                "level": 10
-              },
-              {
-                "source": "drop",
-                "name": "Dire Wolf",
-                "level": 22
-              },
-              {
-                "source": "drop",
-                "name": "Dire Wolf",
-                "level": 24
               },
               {
                 "source": "drop",
@@ -96962,8 +96932,18 @@
               },
               {
                 "source": "drop",
-                "name": "Summoned Dire Wolf",
-                "level": 25
+                "name": "Dire Wolf",
+                "level": 24
+              },
+              {
+                "source": "drop",
+                "name": "Dire Wolf",
+                "level": 22
+              },
+              {
+                "source": "drop",
+                "name": "Molorai Attack Dog",
+                "level": 10
               },
               {
                 "source": "drop",
@@ -96972,13 +96952,13 @@
               },
               {
                 "source": "drop",
-                "name": "Stalking Wolf",
-                "level": 27
+                "name": "A Young Wolf",
+                "level": 2
               },
               {
                 "source": "drop",
-                "name": "Wild Ancestral Dog",
-                "level": 32
+                "name": "Stalking Wolf",
+                "level": 27
               },
               {
                 "source": "drop",
@@ -96987,8 +96967,28 @@
               },
               {
                 "source": "drop",
+                "name": "Summoned Dire Wolf",
+                "level": 25
+              },
+              {
+                "source": "drop",
                 "name": "Giant Watchdog",
                 "level": 33
+              },
+              {
+                "source": "drop",
+                "name": "Wild Ancestral Dog",
+                "level": 32
+              },
+              {
+                "source": "drop",
+                "name": "A Young Wolf",
+                "level": 4
+              },
+              {
+                "source": "drop",
+                "name": "A Young Wolf",
+                "level": 9
               }
             ]
           }

@@ -6,8 +6,8 @@ the BepInEx mod (at runtime) and the manual curation layer (at author time).
 Design principles:
 - All obtainability data lives in a single polymorphic ItemSource type.
   Each source carries its own level inline. No parallel factor lists.
-- Sources are pre-sorted by level ascending (easiest first) and
-  pre-aggregated to zone granularity (mining/fishing/pickup).
+- Sources are sorted by level ascending (easiest first) after level
+  estimation, and pre-aggregated to zone granularity (mining/fishing/pickup).
 - Prerequisites are structured data with stable keys, not opaque strings.
 - Optional fields are None when absent. Present fields are always
   serialized, including zero and false values.
@@ -89,8 +89,9 @@ class ItemSource:
     carries its own level so the UI doesn't need to join against a separate
     factor list.
 
-    Sources are pre-sorted by level ascending (easiest first) and zone-level
-    sources (mining, fishing, pickup) are pre-aggregated per zone.
+    Sources are sorted by level ascending (easiest first) after level
+    estimation. Zone-level sources (mining, fishing, pickup) are
+    pre-aggregated per zone.
 
     ``children`` is populated for quest_reward (rewarding quest's required-item
     sources) and crafting (mold sources + ingredient entries) to provide one

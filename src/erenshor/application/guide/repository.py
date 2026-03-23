@@ -732,18 +732,7 @@ def _build_item_sources(
     _add_quest_reward_sources(conn, sources)
     _add_dialog_give_sources(conn, sources, zone_by_display)
 
-    # Sort each item's sources: levelled ascending, then None-level at end
-    for _item_sk, item_list in sources.items():
-        item_list.sort(key=_source_sort_key)
-
     return dict(sources)
-
-
-def _source_sort_key(src: ItemSource) -> tuple[int, int]:
-    """Sort key: (0, level) for sources with a level, (1, 0) for None."""
-    if src.level is not None:
-        return (0, src.level)
-    return (1, 0)
 
 
 def _resolve_navigable_sources(ctx: QuestDataContext) -> None:

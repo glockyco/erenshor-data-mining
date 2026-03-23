@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from .schema import GuideOutput
+from .schema import GuideOutput, ItemSource
 from .serializer import guides_to_json
 
 __all__ = ["generate", "guides_to_json"]
@@ -23,6 +23,7 @@ def generate(db_path: Path) -> GuideOutput:
     ctx = load_quest_data(db_path)
     guides = assemble_guides(ctx)
     compute_levels(guides, ctx)
+    _sort_item_sources(guides)
     _sort_or_groups(guides)
     materialize_sub_trees(guides, ctx)
     return GuideOutput(
@@ -34,6 +35,22 @@ def generate(db_path: Path) -> GuideOutput:
         character_quest_unlocks=ctx.character_quest_unlocks,
         quests=guides,
     )
+
+
+def _sort_item_sources(guides: list) -> None:
+    """Sort each required item's sources by level ascending (None last).
+
+    Called after compute_levels so all source levels are final.
+    """
+
+    def _key(src: ItemSource) -> tuple[int, int]:
+        if src.level is not None:
+            return (0, src.level)
+        return (1, 0)
+
+    for guide in guides:
+        for item in guide.required_items:
+            item.sources.sort(key=_key)
 
 
 def _sort_or_groups(guides: list) -> None:
