@@ -452,8 +452,8 @@ public sealed class NavigationController
                 if (bestLine != null)
                 {
                     string displayText = routeIsLocked
-                        ? $"To {bestLine.DestinationDisplay}\nRequires: Complete \"{GetZoneLineLockReason(bestLine)}\""
-                        : $"To {bestLine.DestinationDisplay}";
+                        ? $"To: {bestLine.DestinationDisplay}\nRequires: Complete \"{GetZoneLineLockReason(bestLine)}\""
+                        : $"To: {bestLine.DestinationDisplay}";
                     ZoneLineWaypoint = MakeTarget(
                         NavigationTarget.Kind.ZoneLine,
                         new Vector3(bestLine.X, bestLine.Y, bestLine.Z),

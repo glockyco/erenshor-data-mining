@@ -32,9 +32,10 @@ public sealed class ArrowRenderer
     private readonly NavigationController _nav;
     private bool _enabled = true;
 
-    // Cached label to avoid per-frame string interpolation + boxing
-    private string _cachedLabel = "";
-    private CimguiNative.Vec2 _cachedLabelSize;
+    // Cached label lines — each line centered independently for multi-line text
+    private string[] _cachedLines = System.Array.Empty<string>();
+    private CimguiNative.Vec2[] _cachedLineSizes = System.Array.Empty<CimguiNative.Vec2>();
+    private float _cachedTotalHeight;
     private int _cachedDistInt = -1;
     private string? _cachedTargetName;
 
@@ -90,14 +91,24 @@ public sealed class ArrowRenderer
         {
             _cachedDistInt = distInt;
             _cachedTargetName = effectiveTarget.DisplayName;
-            _cachedLabel = $"{effectiveTarget.DisplayName}  {distInt}m";
-            _cachedLabelSize = CimguiNative.CalcTextSize(_cachedLabel);
+
+            // Split into lines; distance goes on the first line
+            var rawLines = effectiveTarget.DisplayName.Split('\n');
+            rawLines[0] = $"{rawLines[0]} ({distInt}m)";
+            _cachedLines = rawLines;
+            _cachedLineSizes = new CimguiNative.Vec2[rawLines.Length];
+            _cachedTotalHeight = 0;
+            for (int i = 0; i < rawLines.Length; i++)
+            {
+                _cachedLineSizes[i] = CimguiNative.CalcTextSize(rawLines[i]);
+                _cachedTotalHeight += _cachedLineSizes[i].Y;
+            }
         }
 
         if (onScreen)
         {
             DrawDiamond(drawList, screenPos.x, imguiY, MarkerSize);
-            DrawCenteredText(drawList, screenPos.x, imguiY + MarkerSize + 4f, _cachedLabel, _cachedLabelSize, sw);
+            DrawCenteredLines(drawList, screenPos.x, imguiY + MarkerSize + 4f, sw);
         }
         else
         {
@@ -124,23 +135,26 @@ public sealed class ArrowRenderer
             float ay = centerY + dirY * t;
 
             DrawArrow(drawList, ax, ay, dirX, dirY);
-            DrawCenteredText(drawList, ax, ay + ArrowSize + 4f, _cachedLabel, _cachedLabelSize, sw);
+            DrawCenteredLines(drawList, ax, ay + ArrowSize + 4f, sw);
         }
     }
 
     // No resources to dispose — DrawList is owned by ImGui
     public void Dispose() { }
 
-    /// <summary>Draw text centered horizontally on anchorX, clamped to screen width.</summary>
-    private static void DrawCenteredText(System.IntPtr dl, float anchorX, float y,
-        string text, CimguiNative.Vec2 textSize, float screenWidth)
+    /// <summary>Draw each cached line centered independently on anchorX.</summary>
+    private void DrawCenteredLines(System.IntPtr dl, float anchorX, float y, float screenWidth)
     {
-        float x = anchorX - textSize.X * 0.5f;
-        // Clamp to screen bounds with small padding
         const float pad = EdgeMargin;
-        if (x < pad) x = pad;
-        if (x + textSize.X > screenWidth - pad) x = screenWidth - pad - textSize.X;
-        CimguiNative.AddText(dl, x, y, ColorText, text);
+        for (int i = 0; i < _cachedLines.Length; i++)
+        {
+            float x = anchorX - _cachedLineSizes[i].X * 0.5f;
+            if (x < pad) x = pad;
+            if (x + _cachedLineSizes[i].X > screenWidth - pad)
+                x = screenWidth - pad - _cachedLineSizes[i].X;
+            CimguiNative.AddText(dl, x, y, ColorText, _cachedLines[i]);
+            y += _cachedLineSizes[i].Y;
+        }
     }
 
     // ── Drawing primitives ─────────────────────────────────────────
