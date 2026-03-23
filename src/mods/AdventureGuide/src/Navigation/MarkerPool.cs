@@ -28,7 +28,6 @@ public enum MarkerType
 /// </summary>
 public sealed class MarkerPool
 {
-    private const float MarkerScale = 0.5f;
     private const int InitialCapacity = 32;
 
     private readonly GameObject _root;
@@ -79,12 +78,6 @@ public sealed class MarkerPool
         _activeCount = 0;
     }
 
-    /// <summary>Update billboard rotation for all active markers.</summary>
-    public void UpdateBillboards(Quaternion cameraRotation)
-    {
-        for (int i = 0; i < _activeCount; i++)
-            _pool[i].Root.transform.rotation = cameraRotation;
-    }
 
     /// <summary>Destroy all pooled objects.</summary>
     public void Destroy()
@@ -104,8 +97,12 @@ public sealed class MarkerPool
 
         var obj = new GameObject($"Marker_{_count}");
         obj.transform.SetParent(_root.transform);
-        obj.transform.localScale = Vector3.one * MarkerScale;
-
+        // Billboard via game's NamePlate component on the root so both
+        // children rotate together. Root uses POSITIVE scale (LookAt breaks
+        // with negative scale). Each TMP child gets localScale (-1,1,1)
+        // to correct the text mirroring that LookAt introduces.
+        obj.transform.localScale = Vector3.one;
+        obj.AddComponent<NamePlate>();
         // Icon: Font Awesome glyph via TextMeshPro SDF
         var iconObj = new GameObject("Icon");
         iconObj.transform.SetParent(obj.transform);
@@ -117,21 +114,20 @@ public sealed class MarkerPool
         icon.richText = false;
         if (MarkerFonts.IconFont != null)
             icon.font = MarkerFonts.IconFont;
+        iconObj.transform.localScale = new Vector3(-1f, 1f, 1f);
 
         // Sub-text: Roboto label below icon
         var subObj = new GameObject("SubText");
         subObj.transform.SetParent(obj.transform);
-        // Y offset set per-configure based on icon size
-        subObj.transform.localPosition = new Vector3(0f, -1.2f, 0f);
         var sub = subObj.AddComponent<TextMeshPro>();
         sub.alignment = TextAlignmentOptions.Top;
         sub.enableWordWrapping = true;
         sub.overflowMode = TextOverflowModes.Truncate;
         sub.richText = false;
-        sub.fontSize = MarkerInstance.SubTextSize;
         sub.color = MarkerInstance.SubTextColor;
         if (MarkerFonts.SubTextFont != null)
             sub.font = MarkerFonts.SubTextFont;
+        subObj.transform.localScale = new Vector3(-1f, 1f, 1f);
 
         // Both TMP components use RectTransform — set reasonable size
         var iconRect = icon.rectTransform;
@@ -166,8 +162,7 @@ public sealed class MarkerInstance
     private static readonly Color MutedRed = new(0.65f, 0.35f, 0.35f, 1f);
     private static readonly Color PaleBlue = new(0.55f, 0.6f, 0.8f, 1f);
 
-    // ── Sub-text constants ──────────────────────────────────────
-    internal const float SubTextSize = 3.5f;
+    // ── Sub-text defaults ──────────────────────────────────────────────────
     internal static readonly Color SubTextColor = new(0.92f, 0.92f, 0.92f, 1f);
 
     // ── Distance fade ───────────────────────────────────────────
@@ -204,18 +199,23 @@ public sealed class MarkerInstance
     }
 
     /// <summary>Configure the marker's visual appearance for a given type.</summary>
-    public void Configure(MarkerType type, string? subText)
+    public void Configure(MarkerType type, string? subText,
+        float markerScale, float iconSize, float subTextSize,
+        float iconYOffset, float subTextYOffset)
     {
         int idx = (int)type;
-        var (glyph, color, size) = TypeVisuals[idx];
+        var (glyph, color, _) = TypeVisuals[idx];
+
+        Root.transform.localScale = Vector3.one * markerScale;
 
         _icon.text = glyph.ToString();
-        _icon.fontSize = size;
+        _icon.fontSize = iconSize;
         _icon.color = color;
         _baseIconColor = color;
+        _icon.transform.localPosition = new Vector3(0f, iconYOffset, 0f);
 
-        // Position sub-text below the icon, gap scales with icon size
-        _subText.transform.localPosition = new Vector3(0f, -(size * 0.12f + 0.15f), 0f);
+        _subText.fontSize = subTextSize;
+        _subText.transform.localPosition = new Vector3(0f, subTextYOffset, 0f);
 
         if (!string.IsNullOrEmpty(subText))
         {

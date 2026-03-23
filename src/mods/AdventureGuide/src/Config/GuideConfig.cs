@@ -18,6 +18,13 @@ public sealed class GuideConfig
     public ConfigEntry<QuestSortMode> SortMode { get; }
     public ConfigEntry<string> ZoneFilter { get; }
 
+    // Marker tuning — adjust via F1 config manager
+    public ConfigEntry<float> MarkerScale { get; }
+    public ConfigEntry<float> IconSize { get; }
+    public ConfigEntry<float> SubTextSize { get; }
+    public ConfigEntry<float> SubTextYOffset { get; }
+    public ConfigEntry<float> IconYOffset { get; }
+
     public GuideConfig(ConfigFile config)
     {
         ToggleKey = config.Bind("General", "ToggleKey", KeyCode.L,
@@ -34,6 +41,22 @@ public sealed class GuideConfig
             "Show ground path from player to navigation target (uses NavMesh pathfinding)");
         ShowWorldMarkers = config.Bind("WorldMarkers", "ShowWorldMarkers", false,
             "Show floating quest markers above NPCs (!, ?, objective icons). Replaces the game's built-in markers when enabled.");
+
+        MarkerScale = config.Bind("WorldMarkers", "MarkerScale", 1.0f,
+            new ConfigDescription("Overall scale of world markers",
+                new AcceptableValueRange<float>(0.05f, 2.0f)));
+        IconSize = config.Bind("WorldMarkers", "IconSize", 7f,
+            new ConfigDescription("Font size of the marker icon glyph",
+                new AcceptableValueRange<float>(1f, 20f)));
+        SubTextSize = config.Bind("WorldMarkers", "SubTextSize", 3.5f,
+            new ConfigDescription("Font size of the sub-text label",
+                new AcceptableValueRange<float>(1f, 10f)));
+        SubTextYOffset = config.Bind("WorldMarkers", "SubTextYOffset", -1f,
+            new ConfigDescription("Y offset of sub-text relative to icon (negative = below)",
+                new AcceptableValueRange<float>(-5f, 5f)));
+        IconYOffset = config.Bind("WorldMarkers", "IconYOffset", 1f,
+            new ConfigDescription("Y offset of icon relative to marker root",
+                new AcceptableValueRange<float>(-5f, 5f)));
 
         FilterMode = config.Bind("QuestList", "FilterMode", QuestFilterMode.Active,
             "Last selected quest filter (Active, Available, Completed, All)");

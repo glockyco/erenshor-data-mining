@@ -1,3 +1,4 @@
+using AdventureGuide.Config;
 using AdventureGuide.Data;
 using AdventureGuide.State;
 using UnityEngine;
@@ -26,12 +27,14 @@ public sealed class WorldMarkerSystem
     private readonly EntityRegistry _entities;
     private readonly SpawnTimerTracker _timers;
     private readonly MarkerPool _pool;
+    private readonly GuideConfig _config;
 
     // Cached marker state — rebuilt on dirty
     private readonly List<MarkerEntry> _markers = new();
     private readonly Dictionary<string, int> _intentIndex = new(System.StringComparer.OrdinalIgnoreCase);
     private string _lastScene = "";
     private bool _enabled;
+    private bool _configDirty;
 
     public bool Enabled
     {
@@ -46,13 +49,22 @@ public sealed class WorldMarkerSystem
 
     public WorldMarkerSystem(
         GuideData data, QuestStateTracker state,
-        EntityRegistry entities, SpawnTimerTracker timers)
+        EntityRegistry entities, SpawnTimerTracker timers,
+        GuideConfig config)
     {
         _data = data;
         _state = state;
         _entities = entities;
         _timers = timers;
+        _config = config;
         _pool = new MarkerPool();
+
+        // Rebuild markers when any visual config changes
+        config.MarkerScale.SettingChanged += OnConfigChanged;
+        config.IconSize.SettingChanged += OnConfigChanged;
+        config.SubTextSize.SettingChanged += OnConfigChanged;
+        config.IconYOffset.SettingChanged += OnConfigChanged;
+        config.SubTextYOffset.SettingChanged += OnConfigChanged;
     }
 
     /// <summary>
@@ -66,7 +78,8 @@ public sealed class WorldMarkerSystem
             return;
 
         bool sceneChanged = currentScene != _lastScene;
-        bool needsRebuild = sceneChanged || _state.IsDirty;
+        bool needsRebuild = sceneChanged || _state.IsDirty || _configDirty;
+        _configDirty = false;
 
         if (needsRebuild)
         {
@@ -77,7 +90,17 @@ public sealed class WorldMarkerSystem
         UpdateLiveState(currentScene);
     }
 
-    public void Destroy() => _pool.Destroy();
+    private void OnConfigChanged(object sender, System.EventArgs e) => _configDirty = true;
+
+    public void Destroy()
+    {
+        _config.MarkerScale.SettingChanged -= OnConfigChanged;
+        _config.IconSize.SettingChanged -= OnConfigChanged;
+        _config.SubTextSize.SettingChanged -= OnConfigChanged;
+        _config.IconYOffset.SettingChanged -= OnConfigChanged;
+        _config.SubTextYOffset.SettingChanged -= OnConfigChanged;
+        _pool.Destroy();
+    }
 
     // ── Marker computation ────────────────────────────────────────
 
@@ -113,7 +136,10 @@ public sealed class WorldMarkerSystem
         {
             var m = _markers[i];
             var instance = _pool.Get(i);
-            instance.Configure(m.Type, m.SubText);
+            instance.Configure(m.Type, m.SubText,
+                _config.MarkerScale.Value, _config.IconSize.Value,
+                _config.SubTextSize.Value, _config.IconYOffset.Value,
+                _config.SubTextYOffset.Value);
             instance.SetPosition(m.Position);
             instance.SetActive(true);
         }
@@ -289,9 +315,6 @@ public sealed class WorldMarkerSystem
         if (cam == null) return;
 
         var playerPos = GameData.PlayerControl?.transform.position;
-
-        // Billboard rotation
-        _pool.UpdateBillboards(cam.transform.rotation);
 
         // Update each active marker
         for (int i = 0; i < _markers.Count; i++)
