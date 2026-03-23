@@ -47,6 +47,7 @@ public class AssetScannerExporterWindow : EditorWindow
     private bool _exportZoneAnnounces = true;
     private bool _exportZoneAtlasEntries = true;
     private bool _exportZoneLines = true;
+    private bool _exportQuestActivations = true;
 
     [MenuItem("Tools/Export Game Data")]
     public static void ShowWindow()
@@ -170,6 +171,7 @@ public class AssetScannerExporterWindow : EditorWindow
         _exportZoneAnnounces = EditorGUILayout.ToggleLeft("Zones", _exportZoneAnnounces);
         _exportZoneAtlasEntries = EditorGUILayout.ToggleLeft("Zone Atlas Entries", _exportZoneAtlasEntries);
         _exportZoneLines = EditorGUILayout.ToggleLeft("Zone Lines", _exportZoneLines);
+        _exportQuestActivations = EditorGUILayout.ToggleLeft("Quest Activations", _exportQuestActivations);
         EditorGUI.EndDisabledGroup();
     }
 
@@ -202,6 +204,7 @@ public class AssetScannerExporterWindow : EditorWindow
         _exportZoneAnnounces = value;
         _exportZoneAtlasEntries = value;
         _exportZoneLines = value;
+        _exportQuestActivations = value;
     }
 
     private void StartScanAndExport()
@@ -216,9 +219,10 @@ public class AssetScannerExporterWindow : EditorWindow
 
         _db = new SQLiteConnection(_outputPath);
 
-        // Shared resolver ensures all listeners that reference characters by stable key
-        // agree on the same deduplicated key for each Character instance
+        // Shared resolvers ensure all listeners that reference the same entity
+        // agree on the same deduplicated stable key for each instance
         var characterKeyResolver = new CharacterStableKeyResolver();
+        var zoneLineKeyResolver = new ZoneLineStableKeyResolver();
 
         if (_exportTeleportLocs) _activeScanner.RegisterNullListener(new TeleportLocListener(_db));
 
@@ -251,7 +255,8 @@ public class AssetScannerExporterWindow : EditorWindow
         if (_exportTreasureLocs) _activeScanner.RegisterComponentListener(new TreasureLocListener(_db));
         if (_exportWaters) _activeScanner.RegisterComponentListener(new WaterListener(_db));
         if (_exportZoneAnnounces) _activeScanner.RegisterComponentListener(new ZoneAnnounceListener(_db));
-        if (_exportZoneLines) _activeScanner.RegisterComponentListener(new ZoneLineListener(_db));
+        if (_exportZoneLines) _activeScanner.RegisterComponentListener(new ZoneLineListener(_db, zoneLineKeyResolver));
+        if (_exportQuestActivations) _activeScanner.RegisterGameObjectListener(new QuestActivationListener(_db, zoneLineKeyResolver, characterKeyResolver));
 
         // Characters.IsUnique depends on spawn point data, so we need to register characters later.
         if (_exportCharacters) _activeScanner.RegisterComponentListener(new CharacterListener(_db, characterKeyResolver));
@@ -310,7 +315,8 @@ public class AssetScannerExporterWindow : EditorWindow
             _exportWishingWells ||
             _exportZoneAnnounces ||
             _exportZoneAtlasEntries ||
-            _exportZoneLines;
+            _exportZoneLines ||
+            _exportQuestActivations;
         EditorGUI.BeginDisabledGroup(_isScanning || !anyStepSelected || string.IsNullOrEmpty(_outputPath));
         if (GUILayout.Button("Export Selected Steps", GUILayout.Height(30)))
         {

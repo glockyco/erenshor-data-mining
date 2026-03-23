@@ -6,11 +6,12 @@ public class ZoneLineListener : IAssetScanListener<Zoneline>
 {
     private readonly SQLiteConnection _db;
     private readonly List<ZoneLineRecord> _records = new();
-    private readonly DuplicateKeyTracker _keyTracker = new("ZoneLineListener");
+    private readonly ZoneLineStableKeyResolver _keyResolver;
 
-    public ZoneLineListener(SQLiteConnection db)
+    public ZoneLineListener(SQLiteConnection db, ZoneLineStableKeyResolver keyResolver)
     {
         _db = db;
+        _keyResolver = keyResolver;
     }
 
     public void OnScanStarted()
@@ -37,22 +38,16 @@ public class ZoneLineListener : IAssetScanListener<Zoneline>
 
     private ZoneLineRecord CreateRecord(Zoneline zoneLine)
     {
+        var stableKey = _keyResolver.GetStableKey(zoneLine);
         var sourceScene = zoneLine.gameObject.scene.name;
-        var destScene = zoneLine.DestinationZone ?? string.Empty;
-        var x = zoneLine.transform.position.x;
-        var y = zoneLine.transform.position.y;
-        var z = zoneLine.transform.position.z;
-
-        var baseStableKey = StableKeyGenerator.ForZoneLine(sourceScene, destScene, x, y, z);
-        var stableKey = _keyTracker.GetUniqueKey(baseStableKey, zoneLine.gameObject.name);
 
         return new ZoneLineRecord
         {
             StableKey = stableKey,
             Scene = sourceScene,
-            X = x,
-            Y = y,
-            Z = z,
+            X = zoneLine.transform.position.x,
+            Y = zoneLine.transform.position.y,
+            Z = zoneLine.transform.position.z,
             IsEnabled = zoneLine.isActiveAndEnabled,
             DisplayText = zoneLine.DisplayText,
             DestinationZoneStableKey = !string.IsNullOrEmpty(zoneLine.DestinationZone)

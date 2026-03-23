@@ -33,9 +33,10 @@ using Debug = UnityEngine.Debug;
 ///
 /// Available entity types:
 /// achievementtriggers, ascensions, books, characters, classes, doors, forges,
-/// guildtopics, itembags, items, loottables, miningnodes, quests, secretpassages,
-/// skills, spells, spawnpoints, stances, teleportlocs, treasurehunting, treasurelocs,
-/// waters, wishingwells, worldfactions, zoneannounces, zoneatlasentries, zonelines
+/// guildtopics, itembags, items, loottables, miningnodes, questactivations, quests,
+/// secretpassages, skills, spells, spawnpoints, stances, teleportlocs,
+/// treasurehunting, treasurelocs, waters, wishingwells, worldfactions, zoneannounces,
+/// zoneatlasentries, zonelines
 ///
 /// Exit codes:
 /// - 0: Success
@@ -250,9 +251,10 @@ public static class ExportBatch
         bool exportAll = entityTypes.Count == 0;
         int registeredCount = 0;
 
-        // Shared resolver ensures all listeners that reference characters by stable key
-        // agree on the same deduplicated key for each Character instance
+        // Shared resolvers ensure all listeners that reference the same entity
+        // agree on the same deduplicated stable key for each instance
         var characterKeyResolver = new CharacterStableKeyResolver();
+        var zoneLineKeyResolver = new ZoneLineStableKeyResolver();
 
         // Define all available listeners with their type keys
         // Using a dictionary for O(1) lookup and cleaner registration logic
@@ -265,6 +267,7 @@ public static class ExportBatch
             // GameObject listeners
             ["secretpassages"] = () => scanner.RegisterGameObjectListener(new SecretPassageListener(db)),
             ["wishingwells"] = () => scanner.RegisterGameObjectListener(new WishingWellListener(db)),
+            ["questactivations"] = () => scanner.RegisterGameObjectListener(new QuestActivationListener(db, zoneLineKeyResolver, characterKeyResolver)),
 
             // ScriptableObject listeners (order matters for dependencies!)
             ["ascensions"] = () => scanner.RegisterScriptableObjectListener(new AscensionListener(db)),
@@ -294,7 +297,7 @@ public static class ExportBatch
             ["treasurelocs"] = () => scanner.RegisterComponentListener(new TreasureLocListener(db)),
             ["waters"] = () => scanner.RegisterComponentListener(new WaterListener(db)),
             ["zoneannounces"] = () => scanner.RegisterComponentListener(new ZoneAnnounceListener(db)),
-            ["zonelines"] = () => scanner.RegisterComponentListener(new ZoneLineListener(db)),
+            ["zonelines"] = () => scanner.RegisterComponentListener(new ZoneLineListener(db, zoneLineKeyResolver)),
 
             // Characters depend on spawn points (for IsUnique calculation), so register last
             // CharacterListener also populates QuestCompletionSources at the end of OnScanFinished
