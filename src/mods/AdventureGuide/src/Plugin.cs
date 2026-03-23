@@ -31,6 +31,7 @@ public sealed class Plugin : BaseUnityPlugin
     private GroundPathRenderer? _groundPath;
     private WorldMarkerSystem? _markers;
     private SpawnTimerTracker? _timers;
+    private MiningNodeTracker? _miningTracker;
     private ImGuiRenderer? _imgui;
     private GuideWindow? _window;
 
@@ -56,6 +57,7 @@ public sealed class Plugin : BaseUnityPlugin
         _config.ShowArrow.SettingChanged += OnShowArrowChanged;
 
         _timers = new SpawnTimerTracker();
+        _miningTracker = new MiningNodeTracker();
         _groundPath = new GroundPathRenderer(_nav);
         _groundPath.Enabled = _config.ShowGroundPath.Value;
         _config.ShowGroundPath.SettingChanged += OnShowGroundPathChanged;
@@ -98,6 +100,7 @@ public sealed class Plugin : BaseUnityPlugin
         // load event fires, so without this the tracker starts empty)
         _state.OnSceneChanged(SceneManager.GetActiveScene().name);
         _entities.SyncFromLiveNPCs();
+        _miningTracker.Rescan();
 
         Log.LogInfo($"{PluginInfo.Name} v{PluginInfo.Version} loaded ({_data.Count} quests)");
     }
@@ -143,6 +146,7 @@ public sealed class Plugin : BaseUnityPlugin
         CameraCache.Invalidate();
         _entities?.Clear();
         _timers?.Clear();
+        _miningTracker?.Rescan();
         _state?.OnSceneChanged(scene.name);
     }
 
@@ -178,6 +182,7 @@ public sealed class Plugin : BaseUnityPlugin
         _markers?.Destroy();
         _timers?.Clear();
         _entities?.Clear();
+        _miningTracker?.Clear();
         MarkerFonts.Destroy();
 
         DebugAPI.Data = null;
