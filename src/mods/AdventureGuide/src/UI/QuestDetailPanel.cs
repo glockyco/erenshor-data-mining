@@ -450,7 +450,7 @@ public sealed class QuestDetailPanel
             if (ImGui.Selectable($"{label}##src_{src.SourceKey}"))
             {
                 _nav.NavigateToSource(src.SourceKey, src.Name ?? src.SourceKey,
-                    quest.DBName, step.Order, _state.CurrentZone);
+                    src.Scene, quest.DBName, step.Order, _state.CurrentZone);
             }
             if (ImGui.IsItemHovered())
             {

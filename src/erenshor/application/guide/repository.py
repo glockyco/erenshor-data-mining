@@ -670,6 +670,11 @@ def _resolve_navigable_sources(ctx: QuestDataContext) -> None:
                 src.source_key = char_key
                 if src.zone is None:
                     src.zone = zone
+                # Set scene from the character's first spawn
+                if src.scene is None:
+                    char_spawns = ctx.character_spawns.get(char_key, [])
+                    if char_spawns:
+                        src.scene = char_spawns[0].scene
 
 
 def _resolve_quest_giver(
@@ -725,6 +730,7 @@ def _add_drop_sources(
                c.display_name AS character_name,
                c.level,
                z.display_name AS zone_name,
+               z.scene_name AS scene,
                COUNT(cs.rowid) AS spawn_count
         FROM loot_drops ld
         JOIN characters c ON c.stable_key = ld.character_stable_key
@@ -741,6 +747,7 @@ def _add_drop_sources(
                 type="drop",
                 name=row["character_name"],
                 zone=row["zone_name"],
+                scene=row["scene"],
                 level=level,
                 source_key=row["character_key"],
                 spawn_count=row["spawn_count"] if row["zone_name"] else None,
@@ -759,7 +766,8 @@ def _add_vendor_sources(
         SELECT DISTINCT cvi.item_stable_key,
                c.stable_key AS character_key,
                c.display_name AS character_name,
-               z.display_name AS zone_name
+               z.display_name AS zone_name,
+               z.scene_name AS scene
         FROM character_vendor_items cvi
         JOIN characters c ON c.stable_key = cvi.character_stable_key
         LEFT JOIN character_spawns cs ON cs.character_stable_key = c.stable_key
@@ -776,6 +784,7 @@ def _add_vendor_sources(
                 type="vendor",
                 name=row["character_name"],
                 zone=zone_name,
+                scene=row["scene"],
                 level=zi.level_median if zi else None,
                 source_key=row["character_key"],
             )
@@ -793,7 +802,8 @@ def _add_dialog_give_sources(
         SELECT cd.give_item_stable_key AS item_stable_key,
                c.stable_key AS character_key,
                c.display_name AS character_name,
-               z.display_name AS zone_name
+               z.display_name AS zone_name,
+               z.scene_name AS scene
         FROM character_dialogs cd
         JOIN characters c ON c.stable_key = cd.character_stable_key
         LEFT JOIN character_spawns cs ON cs.character_stable_key = c.stable_key
@@ -812,6 +822,7 @@ def _add_dialog_give_sources(
                 type="dialog_give",
                 name=row["character_name"],
                 zone=zone_name,
+                scene=row["scene"],
                 level=zi.level_median if zi else None,
                 source_key=row["character_key"],
             )
@@ -828,6 +839,7 @@ def _add_fishing_sources(
         """
         SELECT wf.item_stable_key,
                z.display_name AS zone_name,
+               z.scene_name AS scene,
                COUNT(*) AS node_count
         FROM water_fishables wf
         JOIN waters w ON wf.water_stable_key = w.stable_key
@@ -842,6 +854,7 @@ def _add_fishing_sources(
             ItemSource(
                 type="fishing",
                 zone=zone_name,
+                scene=row["scene"],
                 level=zi.level_median if zi else None,
                 node_count=row["node_count"],
             )
@@ -876,6 +889,7 @@ def _add_mining_sources(
                 type="mining",
                 name=row["node_name"],
                 zone=zone_name,
+                scene=row["scene_name"],
                 level=zi.level_median if zi else None,
                 source_key=f"mining-nodes:{row['scene_name']}" if row["scene_name"] else None,
                 node_count=row["node_count"],
@@ -909,6 +923,7 @@ def _add_bag_sources(
             ItemSource(
                 type="pickup",
                 zone=zone_name,
+                scene=row["scene_name"],
                 level=zi.level_median if zi else None,
                 source_key=f"pickup-nodes:{row['item_stable_key']}:{row['scene_name']}" if row["scene_name"] else None,
                 node_count=row["node_count"],
@@ -1044,6 +1059,7 @@ def _expand_quest_reward(
                     type=s.type,
                     name=ctx.item_names.get(isk, isk) + ": " + (s.name or s.type),
                     zone=s.zone,
+                    scene=s.scene,
                     level=s.level,
                     source_key=s.source_key,
                     quest_key=s.quest_key,
@@ -1067,6 +1083,7 @@ def _expand_crafting(src: ItemSource, ctx: QuestDataContext) -> None:
                 type=s.type,
                 name=s.name,
                 zone=s.zone,
+                scene=s.scene,
                 level=s.level,
                 source_key=s.source_key,
                 quest_key=s.quest_key,

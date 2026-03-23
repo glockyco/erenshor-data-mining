@@ -108,14 +108,26 @@ public sealed class NavigationController
     /// Used by click-to-navigate on individual source lines.
     /// </summary>
     public bool NavigateToSource(string sourceKey, string displayName,
-        string questDBName, int stepOrder, string currentScene)
+        string? sourceScene, string questDBName, int stepOrder, string currentScene)
     {
         Clear();
 
         if (!_data.CharacterSpawns.TryGetValue(sourceKey, out var spawns) || spawns.Count == 0)
             return false;
 
-        var spawn = PickBestSpawn(spawns, currentScene);
+        // Filter to the source's specific scene when available, so clicking
+        // "Drops from: Stoneman · Rockshade Hold" navigates to Rockshade Hold,
+        // not to an arbitrary zone where the same character type also spawns.
+        var candidates = spawns;
+        if (sourceScene != null)
+        {
+            var filtered = spawns.FindAll(s =>
+                string.Equals(s.Scene, sourceScene, System.StringComparison.OrdinalIgnoreCase));
+            if (filtered.Count > 0)
+                candidates = filtered;
+        }
+
+        var spawn = PickBestSpawn(candidates, currentScene);
         Target = MakeTarget(
             NavigationTarget.Kind.Character,
             new Vector3(spawn.X, spawn.Y, spawn.Z),
@@ -352,12 +364,11 @@ public sealed class NavigationController
             return true;
 
         // Fallback: navigate to the zone where the first source lives
-        var firstZone = item.Sources[0].Zone;
-        if (firstZone == null) return false;
-
-        string? zoneKey = FindZoneKeyByDisplayName(firstZone);
+        var firstScene = FindFirstScene(item.Sources);
+        string? zoneKey = firstScene != null
+            ? FindZoneKeyBySceneName(firstScene)
+            : FindZoneKeyByDisplayName(item.Sources[0].Zone);
         if (zoneKey == null) return false;
-
         var zlPlayerPos = GetPlayerPosition() ?? Vector3.zero;
         var zl = FindClosestZoneLine(zoneKey, currentScene, zlPlayerPos);
         if (zl == null) return false;
@@ -579,6 +590,20 @@ public sealed class NavigationController
         {
             if (string.Equals(kvp.Value.DisplayName, displayName, System.StringComparison.OrdinalIgnoreCase))
                 return kvp.Value.StableKey;
+        }
+        return null;
+    }
+
+    private static string? FindFirstScene(List<Data.ItemSource> sources)
+    {
+        foreach (var src in sources)
+        {
+            if (src.Scene != null) return src.Scene;
+            if (src.Children != null)
+            {
+                var childScene = FindFirstScene(src.Children);
+                if (childScene != null) return childScene;
+            }
         }
         return null;
     }

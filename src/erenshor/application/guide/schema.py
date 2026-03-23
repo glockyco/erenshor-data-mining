@@ -100,6 +100,7 @@ class ItemSource:
     type: str  # "drop", "vendor", "fishing", "mining", "pickup", "crafting", "quest_reward", "dialog_give"
     name: str | None = None  # entity name (enemy, vendor, recipe item, quest name)
     zone: str | None = None  # zone display name
+    scene: str | None = None  # scene name for spawn lookup (e.g., "Rockshade")
     level: int | None = None  # recommended level to use this source
     source_key: str | None = (
         None  # character stable_key, mining-nodes:{scene}, pickup-nodes:{item_key}:{scene}, or forge:{scene}
