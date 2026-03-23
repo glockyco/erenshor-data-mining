@@ -55507,7 +55507,6 @@
           "target_name": "Ripper DeMerth",
           "target_type": "character",
           "target_key": "character:ripper demerth",
-          "optional": false,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -55527,7 +55526,6 @@
           "target_type": "item",
           "target_key": "item:gen - ear of kilkay",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 38,
             "factors": [
@@ -55547,7 +55545,6 @@
           "target_type": "character",
           "target_key": "character:ripper demerth",
           "zone_name": "Ripper's Keep",
-          "optional": false,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -55565,7 +55562,6 @@
           "item_name": "Ear of Kilkay",
           "item_stable_key": "item:gen - ear of kilkay",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -55658,7 +55654,6 @@
           "target_name": "Captain Kilkay",
           "target_type": "character",
           "target_key": "character:guard captain azure",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -55678,7 +55673,6 @@
           "target_type": "item",
           "target_key": "item:gen - ear of ripper",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 38,
             "factors": [
@@ -55698,7 +55692,6 @@
           "target_type": "character",
           "target_key": "character:guard captain azure",
           "zone_name": "Port Azure",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -55716,7 +55709,6 @@
           "item_name": "Ear of Ripper",
           "item_stable_key": "item:gen - ear of ripper",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -55801,7 +55793,6 @@
           "target_type": "item",
           "target_key": "item:gen - a small cat statue",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 38,
             "factors": [
@@ -55821,7 +55812,6 @@
           "target_type": "character",
           "target_key": "character:deer:ripperportal:281.51:0.53:315.44",
           "zone_name": "Mysterious Portal (3)",
-          "optional": false,
           "level_estimate": {
             "recommended": 32,
             "factors": [
@@ -55839,7 +55829,6 @@
           "item_name": "Small Cat Statue",
           "item_stable_key": "item:gen - a small cat statue",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -55909,8 +55898,7 @@
           "description": "Say \"Vitheo\" to A Dying Wish.",
           "target_name": "A Dying Wish",
           "target_type": "character",
-          "target_key": "character:fernalla's wish - 1",
-          "optional": false
+          "target_key": "character:fernalla's wish - 1"
         },
         {
           "order": 2,
@@ -55920,7 +55908,6 @@
           "target_type": "item",
           "target_key": "item:gen - memory of the guardian",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 23,
             "factors": [
@@ -55938,8 +55925,7 @@
           "description": "Turn in items to A Dying Wish.",
           "target_name": "A Dying Wish",
           "target_type": "character",
-          "target_key": "character:fernalla's wish - 1",
-          "optional": false
+          "target_key": "character:fernalla's wish - 1"
         }
       ],
       "required_items": [
@@ -55947,7 +55933,6 @@
           "item_name": "Memory of a Guardian",
           "item_stable_key": "item:gen - memory of the guardian",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -56014,8 +55999,7 @@
           "description": "Say \"Balaste\" to A Dying Wish.",
           "target_name": "A Dying Wish",
           "target_type": "character",
-          "target_key": "character:fernalla's wish - 2",
-          "optional": false
+          "target_key": "character:fernalla's wish - 2"
         },
         {
           "order": 2,
@@ -56025,7 +56009,6 @@
           "target_type": "item",
           "target_key": "item:gen - memory of balaste",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 26,
             "factors": [
@@ -56043,8 +56026,7 @@
           "description": "Turn in items to A Dying Wish.",
           "target_name": "A Dying Wish",
           "target_type": "character",
-          "target_key": "character:fernalla's wish - 2",
-          "optional": false
+          "target_key": "character:fernalla's wish - 2"
         }
       ],
       "required_items": [
@@ -56052,7 +56034,6 @@
           "item_name": "Memory of Balaste",
           "item_stable_key": "item:gen - memory of balaste",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -56119,8 +56100,7 @@
           "description": "Say \"Elwio\" to A Dying Wish.",
           "target_name": "A Dying Wish",
           "target_type": "character",
-          "target_key": "character:fernalla's wish - 3",
-          "optional": false
+          "target_key": "character:fernalla's wish - 3"
         },
         {
           "order": 2,
@@ -56130,7 +56110,6 @@
           "target_type": "item",
           "target_key": "item:gen - memory of elwio",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 33,
             "factors": [
@@ -56148,8 +56127,7 @@
           "description": "Turn in items to A Dying Wish.",
           "target_name": "A Dying Wish",
           "target_type": "character",
-          "target_key": "character:fernalla's wish - 3",
-          "optional": false
+          "target_key": "character:fernalla's wish - 3"
         }
       ],
       "required_items": [
@@ -56157,7 +56135,6 @@
           "item_name": "Memory of Elwio",
           "item_stable_key": "item:gen - memory of elwio",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -56233,7 +56210,6 @@
           "target_name": "Fallen Fernalla",
           "target_type": "character",
           "target_key": "character:fallen fernalla 1",
-          "optional": false,
           "level_estimate": {
             "recommended": 27,
             "factors": [
@@ -56253,7 +56229,6 @@
           "target_type": "item",
           "target_key": "item:gen - memory of vitheo",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 39,
             "factors": [
@@ -56273,7 +56248,6 @@
           "target_type": "character",
           "target_key": "character:fallen fernalla:bloomingsepulcher:788.35:254.99:837.27",
           "zone_name": "Blooming Sepulcher",
-          "optional": false,
           "level_estimate": {
             "recommended": 27,
             "factors": [
@@ -56291,7 +56265,6 @@
           "item_name": "Memory of Vitheo",
           "item_stable_key": "item:gen - memory of vitheo",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -56352,7 +56325,6 @@
           "target_type": "item",
           "target_key": "item:gen - inert rune of fernalla",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 40,
             "factors": [
@@ -56372,7 +56344,6 @@
           "target_type": "item",
           "target_key": "item:gen - eldrich crystal",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 41,
             "factors": [
@@ -56397,7 +56368,6 @@
           "target_type": "character",
           "target_key": "character:verdant energy",
           "zone_name": "Fernalla's Revival Plains",
-          "optional": false,
           "level_estimate": {
             "recommended": 13,
             "factors": [
@@ -56415,7 +56385,6 @@
           "item_name": "Inert Rune of Fernalla",
           "item_stable_key": "item:gen - inert rune of fernalla",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -56429,7 +56398,6 @@
           "item_name": "Eldrich Crystal",
           "item_stable_key": "item:gen - eldrich crystal",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -56542,7 +56510,6 @@
           "target_name": "A Hermit",
           "target_type": "character",
           "target_key": "character:a hermit",
-          "optional": false,
           "level_estimate": {
             "recommended": 13,
             "factors": [
@@ -56562,7 +56529,6 @@
           "target_type": "item",
           "target_key": "item:gen - an ornate toolbox",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 13,
             "factors": [
@@ -56582,7 +56548,6 @@
           "target_type": "character",
           "target_key": "character:a hermit",
           "zone_name": "Fernalla's Revival Plains",
-          "optional": false,
           "level_estimate": {
             "recommended": 13,
             "factors": [
@@ -56600,7 +56565,6 @@
           "item_name": "Ornate Toolbox",
           "item_stable_key": "item:gen - an ornate toolbox",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -56695,7 +56659,6 @@
           "target_name": "Styria Olafur",
           "target_type": "character",
           "target_key": "character:styria olafur:azure:120.30:11.61:291.56",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -56770,7 +56733,6 @@
           "target_type": "item",
           "target_key": "item:gen - sivak",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 1,
             "factors": [
@@ -56815,7 +56777,6 @@
           "target_type": "character",
           "target_key": "character:vethalo gala",
           "zone_name": "Port Azure",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -56833,7 +56794,6 @@
           "item_name": "Sivakrux",
           "item_stable_key": "item:gen - sivak",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -57030,7 +56990,6 @@
           "target_type": "item",
           "target_key": "item:gen - braxonian portal shard - fire",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 36,
             "factors": [
@@ -57050,7 +57009,6 @@
           "target_type": "item",
           "target_key": "item:gen - braxonian portal shard - ice",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 37,
             "factors": [
@@ -57070,7 +57028,6 @@
           "target_type": "character",
           "target_key": "character:braxon elden:braxonian:99.99:33.79:993.06",
           "zone_name": "Braxonian Desert",
-          "optional": false,
           "level_estimate": {
             "recommended": 17,
             "factors": [
@@ -57088,7 +57045,6 @@
           "item_name": "Braxonian Portal Shard (Fire)",
           "item_stable_key": "item:gen - braxonian portal shard - fire",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -57105,7 +57061,6 @@
           "item_name": "Braxonian Portal Shard (Ice)",
           "item_stable_key": "item:gen - braxonian portal shard - ice",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -57200,7 +57155,6 @@
           "target_type": "item",
           "target_key": "item:gen - inert rune of brax",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 37,
             "factors": [
@@ -57220,7 +57174,6 @@
           "target_type": "item",
           "target_key": "item:gen - eldrich crystal",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 41,
             "factors": [
@@ -57245,7 +57198,6 @@
           "target_type": "character",
           "target_key": "character:elemental energy:braxonia:325.47:27.02:264.04",
           "zone_name": "Fallen Braxonia",
-          "optional": false,
           "level_estimate": {
             "recommended": 29,
             "factors": [
@@ -57263,7 +57215,6 @@
           "item_name": "Inert Rune of Brax",
           "item_stable_key": "item:gen - inert rune of brax",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -57297,7 +57248,6 @@
           "item_name": "Eldrich Crystal",
           "item_stable_key": "item:gen - eldrich crystal",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -57388,7 +57338,6 @@
           "target_name": "Tristan Warton",
           "target_type": "character",
           "target_key": "character:tristan warton",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -57408,7 +57357,6 @@
           "target_type": "item",
           "target_key": "item:gen - ruby",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 7,
             "factors": [
@@ -57603,7 +57551,6 @@
           "target_type": "item",
           "target_key": "item:cons - seaspice",
           "quantity": 2,
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -57738,7 +57685,6 @@
           "target_type": "character",
           "target_key": "character:tristan warton",
           "zone_name": "Port Azure",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -57756,7 +57702,6 @@
           "item_name": "Ruby",
           "item_stable_key": "item:gen - ruby",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -58100,7 +58045,6 @@
           "item_name": "Seaspice",
           "item_stable_key": "item:cons - seaspice",
           "quantity": 2,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -58425,7 +58369,6 @@
           "target_name": "Xander Zaxtrough",
           "target_type": "character",
           "target_key": "character:xander zaxtrough",
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -58444,7 +58387,6 @@
           "target_name": "Cirreus Alxanth",
           "target_type": "character",
           "target_key": "character:cirreus alxanth:1",
-          "optional": false,
           "level_estimate": {
             "recommended": 9,
             "factors": [
@@ -58523,7 +58465,6 @@
           "target_name": "Trevor Ulchand",
           "target_type": "character",
           "target_key": "character:trevor ulchand",
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -58543,7 +58484,6 @@
           "target_type": "item",
           "target_key": "item:gen - ritual book",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 7,
             "factors": [
@@ -58563,7 +58503,6 @@
           "target_type": "character",
           "target_key": "character:trevor ulchand",
           "zone_name": "Hidden Hills",
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -58581,7 +58520,6 @@
           "item_name": "Necromancer's Ritual Book",
           "item_stable_key": "item:gen - ritual book",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -58652,7 +58590,6 @@
           "target_name": "Notes of a Hermit",
           "target_type": "item",
           "target_key": "item:gen - notes of a hermit",
-          "optional": false,
           "level_estimate": {
             "recommended": 8,
             "factors": [
@@ -58687,7 +58624,6 @@
           "target_type": "item",
           "target_key": "item:gen - notes of a hermit",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 8,
             "factors": [
@@ -58722,7 +58658,6 @@
           "target_type": "character",
           "target_key": "character:chazz pillot",
           "zone_name": "Port Azure",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -58740,7 +58675,6 @@
           "item_name": "Notes of a Hermit",
           "item_stable_key": "item:gen - notes of a hermit",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -58864,7 +58798,6 @@
           "target_name": "Ward of Piety",
           "target_type": "character",
           "target_key": "character:ward of sivakaya (1):jaws:1478.96:-18.28:109.78",
-          "optional": false,
           "level_estimate": {
             "recommended": 34,
             "factors": [
@@ -58933,7 +58866,6 @@
           "target_name": "Remnant",
           "target_type": "character",
           "target_key": "character:a watchlight stalzo:bloomingsepulcher:243.72:375.26:848.65",
-          "optional": false,
           "level_estimate": {
             "recommended": 27,
             "factors": [
@@ -58953,7 +58885,6 @@
           "target_type": "item",
           "target_key": "item:quest - vithean stones",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 21,
             "factors": [
@@ -59018,7 +58949,6 @@
           "target_type": "character",
           "target_key": "character:a watchlight stalzo:bloomingsepulcher:243.72:375.26:848.65",
           "zone_name": "Blooming Sepulcher",
-          "optional": false,
           "level_estimate": {
             "recommended": 27,
             "factors": [
@@ -59036,7 +58966,6 @@
           "item_name": "Vithean Brick",
           "item_stable_key": "item:quest - vithean stones",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -59173,7 +59102,6 @@
           "item_name": "Broken Key Blade",
           "item_stable_key": "item:gen - broken key",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -59190,7 +59118,6 @@
           "item_name": "Broken Key Bow",
           "item_stable_key": "item:gen - broken key bow",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -59243,7 +59170,6 @@
           "target_name": "Ludo Luxo",
           "target_type": "character",
           "target_key": "character:ludo luxo",
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -59263,7 +59189,6 @@
           "target_type": "item",
           "target_key": "item:gen - sivakayan horn",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 8,
             "factors": [
@@ -59283,7 +59208,6 @@
           "target_type": "character",
           "target_key": "character:ludo luxo",
           "zone_name": "Hidden Hills",
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -59301,7 +59225,6 @@
           "item_name": "Sivakayan Horn",
           "item_stable_key": "item:gen - sivakayan horn",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -59384,7 +59307,6 @@
           "target_name": "Alyssia Fearnon",
           "target_type": "character",
           "target_key": "character:alyssa fearnon",
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -59404,7 +59326,6 @@
           "target_type": "item",
           "target_key": "item:gen - skeleton eye",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 8,
             "factors": [
@@ -59439,7 +59360,6 @@
           "target_type": "character",
           "target_key": "character:alyssa fearnon",
           "zone_name": "Hidden Hills",
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -59457,7 +59377,6 @@
           "item_name": "Skeleton Eye",
           "item_stable_key": "item:gen - skeleton eye",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -59594,7 +59513,6 @@
           "target_type": "item",
           "target_key": "item:gen - inert rune of soluna",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 40,
             "factors": [
@@ -59614,7 +59532,6 @@
           "target_type": "item",
           "target_key": "item:gen - eldrich crystal",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 41,
             "factors": [
@@ -59639,7 +59556,6 @@
           "target_type": "character",
           "target_key": "character:celestial energy:soluna:124.17:103.55:655.93",
           "zone_name": "Soluna's Landing",
-          "optional": false,
           "level_estimate": {
             "recommended": 13,
             "factors": [
@@ -59657,7 +59573,6 @@
           "item_name": "Inert Rune of Soluna",
           "item_stable_key": "item:gen - inert rune of soluna",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -59680,7 +59595,6 @@
           "item_name": "Eldrich Crystal",
           "item_stable_key": "item:gen - eldrich crystal",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -59764,7 +59678,6 @@
           "target_name": "Jeremie Galyard",
           "target_type": "character",
           "target_key": "character:jeremie galyard",
-          "optional": false,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -59784,7 +59697,6 @@
           "target_type": "item",
           "target_key": "item:cons - azure mead",
           "quantity": 3,
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -59824,7 +59736,6 @@
           "target_type": "item",
           "target_key": "item:cons - seaspice",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -59959,7 +59870,6 @@
           "target_type": "character",
           "target_key": "character:jeremie galyard",
           "zone_name": "Ripper's Keep",
-          "optional": false,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -59977,7 +59887,6 @@
           "item_name": "Azure Mead",
           "item_stable_key": "item:cons - azure mead",
           "quantity": 3,
-          "optional": false,
           "sources": [
             {
               "type": "vendor",
@@ -60040,7 +59949,6 @@
           "item_name": "Seaspice",
           "item_stable_key": "item:cons - seaspice",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -60358,7 +60266,6 @@
           "target_type": "item",
           "target_key": "item:gen - inert rune of vitheo",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 39,
             "factors": [
@@ -60378,7 +60285,6 @@
           "target_type": "item",
           "target_key": "item:gen - eldrich crystal",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 41,
             "factors": [
@@ -60403,7 +60309,6 @@
           "target_type": "character",
           "target_key": "character:vithean energy:vitheosend:458.45:14.75:323.47",
           "zone_name": "Vitheo's Rest",
-          "optional": false,
           "level_estimate": {
             "recommended": 13,
             "factors": [
@@ -60421,7 +60326,6 @@
           "item_name": "Inert Rune of Vitheo",
           "item_stable_key": "item:gen - inert rune of vitheo",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -60438,7 +60342,6 @@
           "item_name": "Eldrich Crystal",
           "item_stable_key": "item:gen - eldrich crystal",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -60615,7 +60518,6 @@
           "target_name": "Saya Seawatcher",
           "target_type": "character",
           "target_key": "character:saya seawatcher",
-          "optional": false,
           "level_estimate": {
             "recommended": 9,
             "factors": [
@@ -60635,7 +60537,6 @@
           "target_type": "item",
           "target_key": "item:gen - aetheria",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 3,
             "factors": [
@@ -60780,7 +60681,6 @@
           "target_type": "character",
           "target_key": "character:saya seawatcher",
           "zone_name": "Vitheo's Watch",
-          "optional": false,
           "level_estimate": {
             "recommended": 9,
             "factors": [
@@ -60798,7 +60698,6 @@
           "item_name": "Aetheria",
           "item_stable_key": "item:gen - aetheria",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -61128,7 +61027,6 @@
           "target_name": "Albixt Munger",
           "target_type": "character",
           "target_key": "character:albixt munger:silkengrass:649.35:40.43:225.03",
-          "optional": false,
           "level_estimate": {
             "recommended": 18,
             "factors": [
@@ -61148,7 +61046,6 @@
           "target_type": "item",
           "target_key": "item:ring - 24 - simple engagement ring",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -61168,7 +61065,6 @@
           "target_type": "character",
           "target_key": "character:albixt munger:silkengrass:649.35:40.43:225.03",
           "zone_name": "Silkengrass Meadowlands",
-          "optional": false,
           "level_estimate": {
             "recommended": 18,
             "factors": [
@@ -61186,7 +61082,6 @@
           "item_name": "Simple Engagement Ring",
           "item_stable_key": "item:ring - 24 - simple engagement ring",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -61264,7 +61159,6 @@
           "target_name": "Alice Hewer",
           "target_type": "character",
           "target_key": "character:alice hewer:stowaway:747.15:18.45:440.38",
-          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -61284,7 +61178,6 @@
           "target_type": "item",
           "target_key": "item:neck - 1 - plain necklace",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 1,
             "factors": [
@@ -61304,7 +61197,6 @@
           "target_type": "character",
           "target_key": "character:alice hewer:stowaway:747.15:18.45:440.38",
           "zone_name": "Stowaway's Step",
-          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -61322,7 +61214,6 @@
           "item_name": "Plain Necklace",
           "item_stable_key": "item:neck - 1 - plain necklace",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -61401,7 +61292,6 @@
           "target_name": "Annaleigh Hephan",
           "target_type": "character",
           "target_key": "character:annaleigh hephan",
-          "optional": false,
           "level_estimate": {
             "recommended": 14,
             "factors": [
@@ -61421,7 +61311,6 @@
           "target_type": "item",
           "target_key": "item:gen - nagalok claw",
           "quantity": 5,
-          "optional": false,
           "level_estimate": {
             "recommended": 14,
             "factors": [
@@ -61456,7 +61345,6 @@
           "target_type": "character",
           "target_key": "character:annaleigh hephan",
           "zone_name": "Blacksalt Strand",
-          "optional": false,
           "level_estimate": {
             "recommended": 14,
             "factors": [
@@ -61474,7 +61362,6 @@
           "item_name": "Nagalok Claw",
           "item_stable_key": "item:gen - nagalok claw",
           "quantity": 5,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -61670,7 +61557,6 @@
           "target_name": "Aragath Swellsteer",
           "target_type": "character",
           "target_key": "character:aragath swellsteer",
-          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -61690,7 +61576,6 @@
           "target_type": "item",
           "target_key": "item:quest - charged soul gem posta",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -61710,7 +61595,6 @@
           "target_type": "item",
           "target_key": "item:quest - charged soul gem leah",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -61730,7 +61614,6 @@
           "target_type": "item",
           "target_key": "item:quest - charged soul gem revid",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -61750,7 +61633,6 @@
           "target_type": "item",
           "target_key": "item:quest - charged soul gem stalzo",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -61770,7 +61652,6 @@
           "target_type": "character",
           "target_key": "character:aragath swellsteer",
           "zone_name": "Stowaway's Step",
-          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -61788,7 +61669,6 @@
           "item_name": "Charged Soul Gem (Posta)",
           "item_stable_key": "item:quest - charged soul gem posta",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -61813,7 +61693,6 @@
           "item_name": "Charged Soul Gem (Leah)",
           "item_stable_key": "item:quest - charged soul gem leah",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -61838,7 +61717,6 @@
           "item_name": "Charged Soul Gem (Revid)",
           "item_stable_key": "item:quest - charged soul gem revid",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -61863,7 +61741,6 @@
           "item_name": "Charged Soul Gem (Stalzo)",
           "item_stable_key": "item:quest - charged soul gem stalzo",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -61948,7 +61825,6 @@
           "target_type": "character",
           "target_key": "character:a strange hermit",
           "keyword": "Azynthi",
-          "optional": false,
           "level_estimate": {
             "recommended": 30,
             "factors": [
@@ -62009,7 +61885,6 @@
           "target_type": "item",
           "target_key": "item:gen - bear meat",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -62064,7 +61939,6 @@
           "target_type": "character",
           "target_key": "character:fredrick templestone:azure:233.34:27.55:332.06",
           "zone_name": "Port Azure",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -62082,7 +61956,6 @@
           "item_name": "Bear Meat",
           "item_stable_key": "item:gen - bear meat",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -62286,8 +62159,7 @@
           "target_name": "A Collection of Notes",
           "target_type": "item",
           "target_key": "item:quest - bellwain collection",
-          "quantity": 1,
-          "optional": false
+          "quantity": 1
         },
         {
           "order": 2,
@@ -62296,8 +62168,7 @@
           "target_name": "Captain Bellwain",
           "target_type": "character",
           "target_key": "character:character_pirate_captain_01:summerevent:158.72:10.83:156.29",
-          "zone_name": "Bellwain Island",
-          "optional": false
+          "zone_name": "Bellwain Island"
         }
       ],
       "required_items": [
@@ -62305,7 +62176,6 @@
           "item_name": "A Collection of Notes",
           "item_stable_key": "item:quest - bellwain collection",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "pickup",
@@ -62364,7 +62234,6 @@
           "target_type": "item",
           "target_key": "item:gen - braxonian scripture",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 32,
             "factors": [
@@ -62394,7 +62263,6 @@
           "target_type": "item",
           "target_key": "item:gen - braxonian scripture 1",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 32,
             "factors": [
@@ -62424,7 +62292,6 @@
           "target_type": "character",
           "target_key": "character:braxon elden:braxonian:99.99:33.79:993.06",
           "zone_name": "Braxonian Desert",
-          "optional": false,
           "level_estimate": {
             "recommended": 17,
             "factors": [
@@ -62442,7 +62309,6 @@
           "item_name": "Braxonian Scripture (2)",
           "item_stable_key": "item:gen - braxonian scripture",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -62477,7 +62343,6 @@
           "item_name": "Braxonian Scripture (1)",
           "item_stable_key": "item:gen - braxonian scripture 1",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -62566,7 +62431,6 @@
           "target_type": "item",
           "target_key": "item:quest - soul gem leah",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -62586,7 +62450,6 @@
           "target_type": "character",
           "target_key": "character:a watchlight leah",
           "zone_name": "Stowaway's Step",
-          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -62604,7 +62467,6 @@
           "item_name": "Soul Gem (Leah)",
           "item_stable_key": "item:quest - soul gem leah",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -62667,7 +62529,6 @@
           "target_type": "item",
           "target_key": "item:quest - soul gem posta",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -62687,7 +62548,6 @@
           "target_type": "character",
           "target_key": "character:a watchlight posta",
           "zone_name": "Stowaway's Step",
-          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -62705,7 +62565,6 @@
           "item_name": "Soul Gem (Posta)",
           "item_stable_key": "item:quest - soul gem posta",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -62768,7 +62627,6 @@
           "target_type": "item",
           "target_key": "item:quest - soul gem revid",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -62788,7 +62646,6 @@
           "target_type": "character",
           "target_key": "character:a watchlight revid",
           "zone_name": "Stowaway's Step",
-          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -62806,7 +62663,6 @@
           "item_name": "Soul Gem (Revid)",
           "item_stable_key": "item:quest - soul gem revid",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -62869,7 +62725,6 @@
           "target_type": "item",
           "target_key": "item:quest - soul gem stalzo",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -62889,7 +62744,6 @@
           "target_type": "character",
           "target_key": "character:a watchlight stalzo",
           "zone_name": "Stowaway's Step",
-          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -62907,7 +62761,6 @@
           "item_name": "Soul Gem (Stalzo)",
           "item_stable_key": "item:quest - soul gem stalzo",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -62970,7 +62823,6 @@
           "target_type": "item",
           "target_key": "item:gen - catnip",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 5,
             "factors": [
@@ -62990,7 +62842,6 @@
           "target_type": "character",
           "target_key": "character:an odd statue:ripperportal:325.57:1.33:739.40",
           "zone_name": "Mysterious Portal (3)",
-          "optional": false,
           "level_estimate": {
             "recommended": 32,
             "factors": [
@@ -63008,7 +62859,6 @@
           "item_name": "Catnip",
           "item_stable_key": "item:gen - catnip",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -63095,7 +62945,6 @@
           "target_type": "item",
           "target_key": "item:gen - blue burnstone",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 23,
             "factors": [
@@ -63115,7 +62964,6 @@
           "target_type": "character",
           "target_key": "character:sm_prop_furnace_01:shiveringstep:804.54:20.19:592.50",
           "zone_name": "Shivering Step",
-          "optional": false,
           "level_estimate": {
             "recommended": 21,
             "factors": [
@@ -63133,7 +62981,6 @@
           "item_name": "Blue Burnstone",
           "item_stable_key": "item:gen - blue burnstone",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -63197,8 +63044,7 @@
         {
           "item_name": "Box of Portals",
           "item_stable_key": "item:gen - box of portals",
-          "quantity": 1,
-          "optional": false
+          "quantity": 1
         }
       ],
       "completion": [
@@ -63264,7 +63110,6 @@
           "target_name": "William Cardigo",
           "target_type": "character",
           "target_key": "character:william cardigo",
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -63284,7 +63129,6 @@
           "target_type": "item",
           "target_key": "item:gen - ritual stone",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 9,
             "factors": [
@@ -63304,7 +63148,6 @@
           "target_type": "character",
           "target_key": "character:william cardigo",
           "zone_name": "Willowwatch Ridge",
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -63322,7 +63165,6 @@
           "item_name": "Ritual Stone",
           "item_stable_key": "item:gen - ritual stone",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -63388,7 +63230,6 @@
           "item_name": "Skeleton Eye",
           "item_stable_key": "item:gen - skeleton eye",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -63521,7 +63362,6 @@
           "target_type": "item",
           "target_key": "item:quest - loss stone",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 14,
             "factors": [
@@ -63546,7 +63386,6 @@
           "target_type": "item",
           "target_key": "item:gen - a remnant of sivakya",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 40,
             "factors": [
@@ -63566,7 +63405,6 @@
           "target_type": "item",
           "target_key": "item:gen - demented brain",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 40,
             "factors": [
@@ -63586,7 +63424,6 @@
           "target_type": "item",
           "target_key": "item:gen - nightmare crystal",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 38,
             "factors": [
@@ -63606,7 +63443,6 @@
           "target_type": "character",
           "target_key": "character:lucian revald:stowaway:432.19:69.90:532.04",
           "zone_name": "Stowaway's Step",
-          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -63624,7 +63460,6 @@
           "item_name": "Loss Stone",
           "item_stable_key": "item:quest - loss stone",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "dialog_give",
@@ -63648,7 +63483,6 @@
           "item_name": "A Remnant of Sivakaya",
           "item_stable_key": "item:gen - a remnant of sivakya",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -63665,7 +63499,6 @@
           "item_name": "Demented Brain",
           "item_stable_key": "item:gen - demented brain",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -63679,7 +63512,6 @@
           "item_name": "Nightmare Crystal",
           "item_stable_key": "item:gen - nightmare crystal",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -63764,7 +63596,6 @@
           "target_type": "item",
           "target_key": "item:furniture - azynthi dining blueprint",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 29,
             "factors": [
@@ -63829,7 +63660,6 @@
           "target_type": "character",
           "target_key": "character:breena carpenter",
           "zone_name": "Port Azure",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -63847,7 +63677,6 @@
           "item_name": "Blueprint: Azynthian Dining",
           "item_stable_key": "item:furniture - azynthi dining blueprint",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -64018,7 +63847,6 @@
           "target_type": "item",
           "target_key": "item:furniture - azynthi living blueprint",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 29,
             "factors": [
@@ -64083,7 +63911,6 @@
           "target_type": "character",
           "target_key": "character:breena carpenter",
           "zone_name": "Port Azure",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -64101,7 +63928,6 @@
           "item_name": "Blueprint: Azynthian Livingroom",
           "item_stable_key": "item:furniture - azynthi living blueprint",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -64272,7 +64098,6 @@
           "target_type": "item",
           "target_key": "item:furniture - azynthi coffin blueprint",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 29,
             "factors": [
@@ -64337,7 +64162,6 @@
           "target_type": "character",
           "target_key": "character:breena carpenter",
           "zone_name": "Port Azure",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -64355,7 +64179,6 @@
           "item_name": "Blueprint: Azynthian Rest",
           "item_stable_key": "item:furniture - azynthi coffin blueprint",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -64526,7 +64349,6 @@
           "target_type": "item",
           "target_key": "item:furniture - molorai game room blueprint",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 16,
             "factors": [
@@ -64551,7 +64373,6 @@
           "target_type": "character",
           "target_key": "character:breena carpenter",
           "zone_name": "Port Azure",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -64569,7 +64390,6 @@
           "item_name": "Blueprint: Game Room",
           "item_stable_key": "item:furniture - molorai game room blueprint",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -64686,7 +64506,6 @@
           "target_type": "item",
           "target_key": "item:furniture - loomingwood marketplace blueprint",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 19,
             "factors": [
@@ -64766,7 +64585,6 @@
           "target_type": "character",
           "target_key": "character:breena carpenter",
           "zone_name": "Port Azure",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -64784,7 +64602,6 @@
           "item_name": "Blueprint: Loomingwood Market",
           "item_stable_key": "item:furniture - loomingwood marketplace blueprint",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -64982,7 +64799,6 @@
           "target_type": "item",
           "target_key": "item:furniture - loomingwood shrine blueprint",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 19,
             "factors": [
@@ -65062,7 +64878,6 @@
           "target_type": "character",
           "target_key": "character:breena carpenter",
           "zone_name": "Port Azure",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -65080,7 +64895,6 @@
           "item_name": "Blueprint: Loomingwood Shrine",
           "item_stable_key": "item:furniture - loomingwood shrine blueprint",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -65278,7 +65092,6 @@
           "target_type": "item",
           "target_key": "item:furniture - stone auction blueprint",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 19,
             "factors": [
@@ -65328,7 +65141,6 @@
           "target_type": "character",
           "target_key": "character:breena carpenter",
           "zone_name": "Port Azure",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -65346,7 +65158,6 @@
           "item_name": "Blueprint: Stone Auction",
           "item_stable_key": "item:furniture - stone auction blueprint",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -65490,7 +65301,6 @@
           "target_type": "item",
           "target_key": "item:furniture - stone bank blueprint",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 19,
             "factors": [
@@ -65540,7 +65350,6 @@
           "target_type": "character",
           "target_key": "character:breena carpenter",
           "zone_name": "Port Azure",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -65558,7 +65367,6 @@
           "item_name": "Blueprint: Stone Bank",
           "item_stable_key": "item:furniture - stone bank blueprint",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -65702,7 +65510,6 @@
           "target_type": "item",
           "target_key": "item:furniture - stone dining blueprint",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 19,
             "factors": [
@@ -65752,7 +65559,6 @@
           "target_type": "character",
           "target_key": "character:breena carpenter",
           "zone_name": "Port Azure",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -65770,7 +65576,6 @@
           "item_name": "Blueprint: Stone Dining",
           "item_stable_key": "item:furniture - stone dining blueprint",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -65914,7 +65719,6 @@
           "target_type": "item",
           "target_key": "item:furniture - stone fountain blueprint",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 19,
             "factors": [
@@ -65964,7 +65768,6 @@
           "target_type": "character",
           "target_key": "character:breena carpenter",
           "zone_name": "Port Azure",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -65982,7 +65785,6 @@
           "item_name": "Blueprint: Stone Fountain",
           "item_stable_key": "item:furniture - stone fountain blueprint",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -66126,7 +65928,6 @@
           "target_type": "item",
           "target_key": "item:furniture - stone training blueprint",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 19,
             "factors": [
@@ -66171,7 +65972,6 @@
           "target_type": "character",
           "target_key": "character:breena carpenter",
           "zone_name": "Port Azure",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -66189,7 +65989,6 @@
           "item_name": "Blueprint: Stone Training Room",
           "item_stable_key": "item:furniture - stone training blueprint",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -66324,7 +66123,6 @@
           "target_type": "item",
           "target_key": "item:furniture - stone vendor blueprint",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 19,
             "factors": [
@@ -66369,7 +66167,6 @@
           "target_type": "character",
           "target_key": "character:breena carpenter",
           "zone_name": "Port Azure",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -66387,7 +66184,6 @@
           "item_name": "Blueprint: Stone Vendor",
           "item_stable_key": "item:furniture - stone vendor blueprint",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -66529,7 +66325,6 @@
           "target_name": "Poacher",
           "target_type": "character",
           "target_key": "character:poacher (1):rottenfoot:497.72:31.00:355.23",
-          "optional": false,
           "level_estimate": {
             "recommended": 15,
             "factors": [
@@ -66549,7 +66344,6 @@
           "target_type": "item",
           "target_key": "item:gen - croc tail",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 14,
             "factors": [
@@ -66574,7 +66368,6 @@
           "target_type": "character",
           "target_key": "character:poacher (1):rottenfoot:497.72:31.00:355.23",
           "zone_name": "Rottenfoot",
-          "optional": false,
           "level_estimate": {
             "recommended": 15,
             "factors": [
@@ -66592,7 +66385,6 @@
           "item_name": "Croc Tail",
           "item_stable_key": "item:gen - croc tail",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -66670,7 +66462,6 @@
           "target_name": "Neziroth Daggerhart",
           "target_type": "character",
           "target_key": "character:neziroth daggerhart:stowaway:497.09:68.71:677.59",
-          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -66690,7 +66481,6 @@
           "target_type": "item",
           "target_key": "item:gen - ancestral coin",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -66720,7 +66510,6 @@
           "target_type": "character",
           "target_key": "character:neziroth daggerhart:stowaway:497.09:68.71:677.59",
           "zone_name": "Stowaway's Step",
-          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -66738,7 +66527,6 @@
           "item_name": "Daggerhart Ancestral Coin",
           "item_stable_key": "item:gen - ancestral coin",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -66837,7 +66625,6 @@
           "target_type": "item",
           "target_key": "item:gen - shard of light",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 26,
             "factors": [
@@ -66856,7 +66643,6 @@
           "target_name": "Kio the Light Keeper",
           "target_type": "character",
           "target_key": "character:kio the lightkeeper",
-          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -66874,7 +66660,6 @@
           "item_name": "Captured Light",
           "item_stable_key": "item:gen - shard of light",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -66953,7 +66738,6 @@
           "target_name": "Stalzo",
           "target_type": "character",
           "target_key": "character:stalzo",
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -66973,7 +66757,6 @@
           "target_type": "item",
           "target_key": "item:quest - empty soul gem",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -66993,7 +66776,6 @@
           "target_type": "character",
           "target_key": "character:aragath swellsteer",
           "zone_name": "Island Tomb",
-          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -67011,7 +66793,6 @@
           "item_name": "Empty Soul Gem",
           "item_stable_key": "item:quest - empty soul gem",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "dialog_give",
@@ -67093,7 +66874,6 @@
           "target_name": "Edgar Taether",
           "target_type": "character",
           "target_key": "character:edgar taether:silkengrass:1050.92:97.34:1006.71",
-          "optional": false,
           "level_estimate": {
             "recommended": 18,
             "factors": [
@@ -67113,7 +66893,6 @@
           "target_type": "item",
           "target_key": "item:weap - 24 - sivakayan axe",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 26,
             "factors": [
@@ -67163,7 +66942,6 @@
           "target_type": "character",
           "target_key": "character:edgar taether:silkengrass:1050.92:97.34:1006.71",
           "zone_name": "Silkengrass Meadowlands",
-          "optional": false,
           "level_estimate": {
             "recommended": 18,
             "factors": [
@@ -67181,7 +66959,6 @@
           "item_name": "Sivakayan Axe",
           "item_stable_key": "item:weap - 24 - sivakayan axe",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -67356,7 +67133,6 @@
           "target_name": "Varran Juctor",
           "target_type": "character",
           "target_key": "character:varran juctor",
-          "optional": false,
           "level_estimate": {
             "recommended": 13,
             "factors": [
@@ -67376,7 +67152,6 @@
           "target_type": "item",
           "target_key": "item:gen - decayed druid beads",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 14,
             "factors": [
@@ -67446,7 +67221,6 @@
           "target_type": "character",
           "target_key": "character:varran juctor",
           "zone_name": "Fernalla's Revival Plains",
-          "optional": false,
           "level_estimate": {
             "recommended": 13,
             "factors": [
@@ -67464,7 +67238,6 @@
           "item_name": "Decayed Druid Beads",
           "item_stable_key": "item:gen - decayed druid beads",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -67656,7 +67429,6 @@
           "target_name": "Nylith Valorro",
           "target_type": "character",
           "target_key": "character:nylith valorro",
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -67676,7 +67448,6 @@
           "target_type": "item",
           "target_key": "item:gen - faerie dust",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 8,
             "factors": [
@@ -67721,7 +67492,6 @@
           "target_type": "character",
           "target_key": "character:nylith valorro",
           "zone_name": "Hidden Hills",
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -67739,7 +67509,6 @@
           "item_name": "Bag of Faerie Dust",
           "item_stable_key": "item:gen - faerie dust",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -67866,7 +67635,6 @@
           "target_name": "The Hider",
           "target_type": "character",
           "target_key": "character:the hider:shiveringstep:668.70:45.25:549.83",
-          "optional": false,
           "level_estimate": {
             "recommended": 21,
             "factors": [
@@ -67928,7 +67696,6 @@
           "target_type": "item",
           "target_key": "item:gen -  riftsnare gem",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 35,
             "factors": [
@@ -67968,7 +67735,6 @@
           "target_type": "character",
           "target_key": "character:flickering souls",
           "zone_name": "Azynthi's Garden",
-          "optional": false,
           "level_estimate": {
             "recommended": 30,
             "factors": [
@@ -67986,7 +67752,6 @@
           "item_name": "Riftsnare Gem",
           "item_stable_key": "item:gen -  riftsnare gem",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -68091,7 +67856,6 @@
           "target_name": "Benson Gamble",
           "target_type": "character",
           "target_key": "character:benson gamble",
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -68111,7 +67875,6 @@
           "target_type": "item",
           "target_key": "item:gen - graveweed leaf",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 7,
             "factors": [
@@ -68141,7 +67904,6 @@
           "target_type": "character",
           "target_key": "character:benson gamble",
           "zone_name": "Hidden Hills",
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -68159,7 +67921,6 @@
           "item_name": "Graveweed Leaf",
           "item_stable_key": "item:gen - graveweed leaf",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -68269,7 +68030,6 @@
           "target_name": "Windlae Oldseer",
           "target_type": "character",
           "target_key": "character:windlae oldseer",
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -68289,7 +68049,6 @@
           "target_type": "item",
           "target_key": "item:gen - weathered chain",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 9,
             "factors": [
@@ -68309,7 +68068,6 @@
           "target_type": "character",
           "target_key": "character:windlae oldseer",
           "zone_name": "Hidden Hills",
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -68327,7 +68085,6 @@
           "item_name": "Weathered Chain",
           "item_stable_key": "item:gen - weathered chain",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -68410,7 +68167,6 @@
           "target_name": "Hadden Passican",
           "target_type": "character",
           "target_key": "character:hadden passican",
-          "optional": false,
           "level_estimate": {
             "recommended": 13,
             "factors": [
@@ -68430,7 +68186,6 @@
           "target_type": "item",
           "target_key": "item:gen - box of supplies",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 13,
             "factors": [
@@ -68450,7 +68205,6 @@
           "target_type": "character",
           "target_key": "character:leena halsted",
           "zone_name": "Fernalla's Revival Plains",
-          "optional": false,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -68468,7 +68222,6 @@
           "item_name": "Box of Supplies",
           "item_stable_key": "item:gen - box of supplies",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "dialog_give",
@@ -68563,7 +68316,6 @@
           "target_type": "item",
           "target_key": "item:gen - leena's receipt",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -68583,7 +68335,6 @@
           "target_type": "character",
           "target_key": "character:hadden passican",
           "zone_name": "Fernalla's Revival Plains",
-          "optional": false,
           "level_estimate": {
             "recommended": 13,
             "factors": [
@@ -68601,7 +68352,6 @@
           "item_name": "Leena's Receipt",
           "item_stable_key": "item:gen - leena's receipt",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -68698,7 +68448,6 @@
           "target_name": "Corporal Slate",
           "target_type": "character",
           "target_key": "character:corporal smith",
-          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -68774,7 +68523,6 @@
           "target_name": "Foreman Hauck",
           "target_type": "character",
           "target_key": "character:foreman hauck",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -68794,7 +68542,6 @@
           "target_type": "item",
           "target_key": "item:gen - aged interrogation note",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 17,
             "factors": [
@@ -68814,7 +68561,6 @@
           "target_type": "character",
           "target_key": "character:foreman hauck",
           "zone_name": "Port Azure",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -68832,7 +68578,6 @@
           "item_name": "Aged Interrogation Note",
           "item_stable_key": "item:gen - aged interrogation note",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -68911,7 +68656,6 @@
           "target_name": "Valrae Cleary",
           "target_type": "character",
           "target_key": "character:valrae cleary",
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -68931,7 +68675,6 @@
           "target_type": "item",
           "target_key": "item:key - krarkengard bunk key",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 10,
             "factors": [
@@ -68951,7 +68694,6 @@
           "target_type": "item",
           "target_key": "item:key - krakengard tower key",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -68971,7 +68713,6 @@
           "target_type": "character",
           "target_key": "character:valrae cleary",
           "zone_name": "Faerie's Brake",
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -68989,7 +68730,6 @@
           "item_name": "Krakengard Bunk Key",
           "item_stable_key": "item:key - krarkengard bunk key",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -69006,7 +68746,6 @@
           "item_name": "Krakengard Tower Key",
           "item_stable_key": "item:key - krakengard tower key",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -69126,7 +68865,6 @@
           "target_name": "Corporal Slate",
           "target_type": "character",
           "target_key": "character:corporal smith",
-          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -69146,7 +68884,6 @@
           "target_type": "item",
           "target_key": "item:gen - deportation papers",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -69166,7 +68903,6 @@
           "target_type": "character",
           "target_key": "character:kio the lightkeeper",
           "zone_name": "Stowaway's Step",
-          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -69184,7 +68920,6 @@
           "item_name": "Kio's Leave Order",
           "item_stable_key": "item:gen - deportation papers",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "dialog_give",
@@ -69264,7 +68999,6 @@
           "target_name": "Note to Liam",
           "target_type": "item",
           "target_key": "item:gen - note to liam",
-          "optional": false,
           "level_estimate": {
             "recommended": 10,
             "factors": [
@@ -69284,7 +69018,6 @@
           "target_type": "item",
           "target_key": "item:gen - note to liam",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 10,
             "factors": [
@@ -69304,7 +69037,6 @@
           "target_type": "character",
           "target_key": "character:liam kilfa:duskenlight:364.21:65.34:343.17",
           "zone_name": "The Duskenlight Coast",
-          "optional": false,
           "level_estimate": {
             "recommended": 14,
             "factors": [
@@ -69322,7 +69054,6 @@
           "item_name": "Note to Liam",
           "item_stable_key": "item:gen - note to liam",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -69408,7 +69139,6 @@
           "target_type": "item",
           "target_key": "item:hand - 100 - the nighthollow candle 1",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 43,
             "factors": [
@@ -69428,7 +69158,6 @@
           "target_type": "character",
           "target_key": "character:flamewell:braxonia:86.83:59.42:593.95",
           "zone_name": "Fallen Braxonia",
-          "optional": false,
           "level_estimate": {
             "recommended": 29,
             "factors": [
@@ -69446,7 +69175,6 @@
           "item_name": "Unlit Nighthollow Candle",
           "item_stable_key": "item:hand - 100 - the nighthollow candle 1",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -69551,7 +69279,6 @@
           "target_type": "item",
           "target_key": "item:gen - lost faith",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 26,
             "factors": [
@@ -69591,7 +69318,6 @@
           "target_type": "character",
           "target_key": "character:stardust",
           "zone_name": "Soluna's Landing",
-          "optional": false,
           "level_estimate": {
             "recommended": 26,
             "factors": [
@@ -69609,7 +69335,6 @@
           "item_name": "Lost Faith",
           "item_stable_key": "item:gen - lost faith",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -69713,7 +69438,6 @@
           "target_type": "item",
           "target_key": "item:fish - octorunner",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 9,
             "factors": [
@@ -69768,7 +69492,6 @@
           "target_type": "item",
           "target_key": "item:fish - a frowny clowny",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -69853,7 +69576,6 @@
           "target_type": "item",
           "target_key": "item:cons - azure mead",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -69893,7 +69615,6 @@
           "target_type": "character",
           "target_key": "character:baking oven:azure:275.88:26.08:231.25",
           "zone_name": "Port Azure",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -69911,7 +69632,6 @@
           "item_name": "An Octorunner",
           "item_stable_key": "item:fish - octorunner",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "fishing",
@@ -69977,7 +69697,6 @@
           "item_name": "A Frowny Clowny",
           "item_stable_key": "item:fish - a frowny clowny",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "fishing",
@@ -70092,7 +69811,6 @@
           "item_name": "Azure Mead",
           "item_stable_key": "item:cons - azure mead",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "vendor",
@@ -70217,7 +69935,6 @@
           "target_name": "Prichard Zemoro",
           "target_type": "character",
           "target_key": "character:prichard zemora:azure:185.37:12.94:175.81",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -70237,7 +69954,6 @@
           "target_type": "item",
           "target_key": "item:gen - treasure map",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 16,
             "factors": [
@@ -70257,7 +69973,6 @@
           "target_type": "item",
           "target_key": "item:cons - enlightening potion ii",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 1,
             "factors": [
@@ -70292,7 +70007,6 @@
           "target_type": "character",
           "target_key": "character:prichard zemora:azure:185.37:12.94:175.81",
           "zone_name": "Port Azure",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -70310,7 +70024,6 @@
           "item_name": "Treasure Map",
           "item_stable_key": "item:gen - treasure map",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -70343,7 +70056,6 @@
           "item_name": "Elixir of Enlightenment II",
           "item_stable_key": "item:cons - enlightening potion ii",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -70451,7 +70163,6 @@
           "target_name": "Mavik Estonia",
           "target_type": "character",
           "target_key": "character:mavik eston",
-          "optional": false,
           "level_estimate": {
             "recommended": 18,
             "factors": [
@@ -70471,7 +70182,6 @@
           "target_type": "item",
           "target_key": "item:gen - ripper's note to azure",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 18,
             "factors": [
@@ -70491,7 +70201,6 @@
           "target_type": "character",
           "target_key": "character:guard captain azure",
           "zone_name": "Silkengrass Meadowlands",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -70509,7 +70218,6 @@
           "item_name": "Mavik Easton's Note",
           "item_stable_key": "item:gen - ripper's note to azure",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "dialog_give",
@@ -70601,7 +70309,6 @@
           "target_name": "Bassle Wavebreaker",
           "target_type": "character",
           "target_key": "character:bassle wavebreak",
-          "optional": false,
           "level_estimate": {
             "recommended": 14,
             "factors": [
@@ -70662,7 +70369,6 @@
           "target_type": "item",
           "target_key": "item:gen - faded journal (soluna)",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 32,
             "factors": [
@@ -70682,7 +70388,6 @@
           "target_type": "character",
           "target_key": "character:solunarian holy guard",
           "zone_name": "Soluna's Landing",
-          "optional": false,
           "level_estimate": {
             "recommended": 26,
             "factors": [
@@ -70700,7 +70405,6 @@
           "item_name": "Faded Journal Entry",
           "item_stable_key": "item:gen - faded journal (soluna)",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -70778,7 +70482,6 @@
           "target_name": "Shady Fisherman",
           "target_type": "character",
           "target_key": "character:shady fisherman:azure:43.10:13.76:246.95",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -70798,7 +70501,6 @@
           "target_type": "item",
           "target_key": "item:fish - octorunner",
           "quantity": 4,
-          "optional": false,
           "level_estimate": {
             "recommended": 9,
             "factors": [
@@ -70853,7 +70555,6 @@
           "target_type": "character",
           "target_key": "character:shady fisherman:azure:43.10:13.76:246.95",
           "zone_name": "Port Azure",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -70871,7 +70572,6 @@
           "item_name": "An Octorunner",
           "item_stable_key": "item:fish - octorunner",
           "quantity": 4,
-          "optional": false,
           "sources": [
             {
               "type": "fishing",
@@ -70989,7 +70689,6 @@
           "target_name": "Valrae Cleary",
           "target_type": "character",
           "target_key": "character:valrae cleary",
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -71009,7 +70708,6 @@
           "target_type": "item",
           "target_key": "item:gen - ogrespice leaf",
           "quantity": 4,
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -71064,7 +70762,6 @@
           "target_type": "character",
           "target_key": "character:valrae cleary",
           "zone_name": "Faerie's Brake",
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -71082,7 +70779,6 @@
           "item_name": "Ogrespice Leaf",
           "item_stable_key": "item:gen - ogrespice leaf",
           "quantity": 4,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -71223,7 +70919,6 @@
           "target_name": "Scribbles of a Mad Priest",
           "target_type": "item",
           "target_key": "item:gen - scribbles of a mad priest",
-          "optional": false,
           "level_estimate": {
             "recommended": 21,
             "factors": [
@@ -71243,7 +70938,6 @@
           "target_type": "item",
           "target_key": "item:gen - tempest stone",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 21,
             "factors": [
@@ -71263,7 +70957,6 @@
           "target_type": "item",
           "target_key": "item:gen - scribbles of a mad priest",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 21,
             "factors": [
@@ -71283,7 +70976,6 @@
           "target_type": "character",
           "target_key": "character:orion mycon",
           "zone_name": "Port Azure",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -71301,7 +70993,6 @@
           "item_name": "Tempest Stone",
           "item_stable_key": "item:gen - tempest stone",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -71318,7 +71009,6 @@
           "item_name": "Scribbles of a Mad Priest",
           "item_stable_key": "item:gen - scribbles of a mad priest",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -71407,7 +71097,6 @@
           "target_type": "item",
           "target_key": "item:gen - a rolled note",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -71427,7 +71116,6 @@
           "target_type": "character",
           "target_key": "character:captain genevieve voldance:stowaway:838.98:9.98:444.23",
           "zone_name": "Stowaway's Step",
-          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -71445,7 +71133,6 @@
           "item_name": "A Rolled Note",
           "item_stable_key": "item:gen - a rolled note",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -71770,7 +71457,6 @@
           "target_type": "item",
           "target_key": "item:gen - the boatman",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 27,
             "factors": [
@@ -71795,7 +71481,6 @@
           "target_type": "character",
           "target_key": "character:boatman",
           "zone_name": "The Blight",
-          "optional": false,
           "level_estimate": {
             "recommended": 25,
             "factors": [
@@ -71813,7 +71498,6 @@
           "item_name": "Sivakayan Boat Pass",
           "item_stable_key": "item:gen - the boatman",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -71892,7 +71576,6 @@
           "target_name": "Percy Ildia",
           "target_type": "character",
           "target_key": "character:percy ildia:stowaway:693.19:20.67:504.85",
-          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -71912,7 +71595,6 @@
           "target_type": "item",
           "target_key": "item:cons - seaspice",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -72047,7 +71729,6 @@
           "target_type": "character",
           "target_key": "character:percy ildia:stowaway:693.19:20.67:504.85",
           "zone_name": "Stowaway's Step",
-          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -72065,7 +71746,6 @@
           "item_name": "Seaspice",
           "item_stable_key": "item:cons - seaspice",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -72385,7 +72065,6 @@
           "target_type": "item",
           "target_key": "item:gen - rune of the hills",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -72410,7 +72089,6 @@
           "target_type": "character",
           "target_key": "character:receptacle-hidden:reliquary:291.14:1.06:328.61",
           "zone_name": "Reliquary Hall",
-          "optional": false,
           "level_estimate": {
             "recommended": 5,
             "factors": [
@@ -72428,7 +72106,6 @@
           "item_name": "Rune of The Hills",
           "item_stable_key": "item:gen - rune of the hills",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "dialog_give",
@@ -72518,7 +72195,6 @@
           "target_type": "item",
           "target_key": "item:gen - rune of ripper's keep",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -72538,7 +72214,6 @@
           "target_type": "character",
           "target_key": "character:receptacle-ripper:reliquary:258.39:1.06:328.61",
           "zone_name": "Reliquary Hall",
-          "optional": false,
           "level_estimate": {
             "recommended": 5,
             "factors": [
@@ -72556,7 +72231,6 @@
           "item_name": "Rune of Ripper's Keep",
           "item_stable_key": "item:gen - rune of ripper's keep",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -72932,7 +72606,6 @@
           "target_type": "item",
           "target_key": "item:gen - rune of sands",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 16,
             "factors": [
@@ -72957,7 +72630,6 @@
           "target_type": "character",
           "target_key": "character:receptacle-sand:reliquary:291.14:1.06:367.86",
           "zone_name": "Reliquary Hall",
-          "optional": false,
           "level_estimate": {
             "recommended": 5,
             "factors": [
@@ -72975,7 +72647,6 @@
           "item_name": "Rune of Sands",
           "item_stable_key": "item:gen - rune of sands",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -73054,7 +72725,6 @@
           "target_type": "item",
           "target_key": "item:gen - rune of silkengrass",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 19,
             "factors": [
@@ -73079,7 +72749,6 @@
           "target_type": "character",
           "target_key": "character:receptacle-silken:reliquary:291.14:1.06:348.36",
           "zone_name": "Reliquary Hall",
-          "optional": false,
           "level_estimate": {
             "recommended": 5,
             "factors": [
@@ -73097,7 +72766,6 @@
           "item_name": "Rune of Silkengrass",
           "item_stable_key": "item:gen - rune of silkengrass",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -73178,7 +72846,6 @@
           "target_type": "item",
           "target_key": "item:gen - rune of soluna's landing",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 32,
             "factors": [
@@ -73198,7 +72865,6 @@
           "target_type": "character",
           "target_key": "character:receptacle-soluna:reliquary:258.39:1.06:367.86",
           "zone_name": "Reliquary Hall",
-          "optional": false,
           "level_estimate": {
             "recommended": 5,
             "factors": [
@@ -73216,7 +72882,6 @@
           "item_name": "Rune of Soluna's Landing",
           "item_stable_key": "item:gen - rune of soluna's landing",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -73296,7 +72961,6 @@
           "target_type": "item",
           "target_key": "item:gen - rune of winds",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 25,
             "factors": [
@@ -73316,7 +72980,6 @@
           "target_type": "character",
           "target_key": "character:receptacle-wind:reliquary:258.39:1.06:348.36",
           "zone_name": "Reliquary Hall",
-          "optional": false,
           "level_estimate": {
             "recommended": 5,
             "factors": [
@@ -73334,7 +72997,6 @@
           "item_name": "Rune of Winds",
           "item_stable_key": "item:gen - rune of winds",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -73414,8 +73076,7 @@
           "description": "Say \"presence\" to Freed Spirit of Raval.",
           "target_name": "Freed Spirit of Raval",
           "target_type": "character",
-          "target_key": "character:freed spirit of raval",
-          "optional": false
+          "target_key": "character:freed spirit of raval"
         },
         {
           "order": 2,
@@ -73425,7 +73086,6 @@
           "target_type": "item",
           "target_key": "item:gen - heart of astra",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 40,
             "factors": [
@@ -73443,8 +73103,7 @@
           "description": "Turn in items to Freed Spirit of Raval.",
           "target_name": "Freed Spirit of Raval",
           "target_type": "character",
-          "target_key": "character:freed spirit of raval",
-          "optional": false
+          "target_key": "character:freed spirit of raval"
         }
       ],
       "required_items": [
@@ -73452,7 +73111,6 @@
           "item_name": "Heart of Astra",
           "item_stable_key": "item:gen - heart of astra",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -73528,7 +73186,6 @@
           "target_name": "Larviso Poltir",
           "target_type": "character",
           "target_key": "character:larviso poltir:loomingwood:323.78:29.25:429.23",
-          "optional": false,
           "level_estimate": {
             "recommended": 24,
             "factors": [
@@ -73548,7 +73205,6 @@
           "target_type": "item",
           "target_key": "item:gen - nighthollow base",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 43,
             "factors": [
@@ -73567,8 +73223,7 @@
           "target_name": "Nighthollow Wax",
           "target_type": "item",
           "target_key": "item:gen - nighthollow wax",
-          "quantity": 1,
-          "optional": false
+          "quantity": 1
         },
         {
           "order": 4,
@@ -73578,7 +73233,6 @@
           "target_type": "item",
           "target_key": "item:gen - nighthollow wick",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 32,
             "factors": [
@@ -73598,7 +73252,6 @@
           "target_type": "character",
           "target_key": "character:larviso poltir:loomingwood:323.78:29.25:429.23",
           "zone_name": "Loomingwood Forest",
-          "optional": false,
           "level_estimate": {
             "recommended": 24,
             "factors": [
@@ -73616,7 +73269,6 @@
           "item_name": "Skull-Shaped Candleholder",
           "item_stable_key": "item:gen - nighthollow base",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -73633,7 +73285,6 @@
           "item_name": "Nighthollow Wax",
           "item_stable_key": "item:gen - nighthollow wax",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "crafting",
@@ -73679,7 +73330,6 @@
           "item_name": "Nighthollow Wick",
           "item_stable_key": "item:gen - nighthollow wick",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -73775,7 +73425,6 @@
           "target_type": "item",
           "target_key": "item:ring - 0 - unsocketed ring",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 21,
             "factors": [
@@ -73795,7 +73444,6 @@
           "target_type": "character",
           "target_key": "character:parmalee gemlyn",
           "zone_name": "Port Azure",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -73813,7 +73461,6 @@
           "item_name": "Unsocketed Ring",
           "item_stable_key": "item:ring - 0 - unsocketed ring",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -73939,7 +73586,6 @@
           "target_type": "item",
           "target_key": "item:ring - 0 - unsocketed ring",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -73964,7 +73610,6 @@
           "target_type": "item",
           "target_key": "item:gen - elderstone shard",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -74019,7 +73664,6 @@
           "target_type": "item",
           "target_key": "item:ore - citrine sandsilver",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 17,
             "factors": [
@@ -74049,7 +73693,6 @@
           "target_type": "character",
           "target_key": "character:parmalee gemlyn",
           "zone_name": "Port Azure",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -74067,7 +73710,6 @@
           "item_name": "Unsocketed Ring",
           "item_stable_key": "item:ring - 0 - unsocketed ring",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -74113,7 +73755,6 @@
           "item_name": "Elderstone Shard",
           "item_stable_key": "item:gen - elderstone shard",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "vendor",
@@ -74192,7 +73833,6 @@
           "item_name": "Chunk of Citrine Sandsilver",
           "item_stable_key": "item:ore - citrine sandsilver",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "mining",
@@ -74283,8 +73923,7 @@
           "target_name": "Torn Treasure Map (Bottom Left)",
           "target_type": "item",
           "target_key": "item:gen - torn map bottom left",
-          "quantity": 1,
-          "optional": false
+          "quantity": 1
         },
         {
           "order": 2,
@@ -74293,8 +73932,7 @@
           "target_name": "Torn Treasure Map (Bottom Right)",
           "target_type": "item",
           "target_key": "item:gen - torn map bottom right",
-          "quantity": 1,
-          "optional": false
+          "quantity": 1
         },
         {
           "order": 3,
@@ -74304,7 +73942,6 @@
           "target_type": "item",
           "target_key": "item:gen - torn map top left",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 16,
             "factors": [
@@ -74324,7 +73961,6 @@
           "target_type": "item",
           "target_key": "item:gen - torn map top right",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -74344,7 +73980,6 @@
           "target_type": "character",
           "target_key": "character:cecil threbb",
           "zone_name": "Faerie's Brake",
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -74361,20 +73996,17 @@
         {
           "item_name": "Torn Treasure Map (Bottom Left)",
           "item_stable_key": "item:gen - torn map bottom left",
-          "quantity": 1,
-          "optional": false
+          "quantity": 1
         },
         {
           "item_name": "Torn Treasure Map (Bottom Right)",
           "item_stable_key": "item:gen - torn map bottom right",
-          "quantity": 1,
-          "optional": false
+          "quantity": 1
         },
         {
           "item_name": "Torn Treasure Map (Top Left)",
           "item_stable_key": "item:gen - torn map top left",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -74391,7 +74023,6 @@
           "item_name": "Torn Treasure Map (Top Right)",
           "item_stable_key": "item:gen - torn map top right",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "fishing",
@@ -74452,7 +74083,6 @@
           "target_type": "item",
           "target_key": "item:gen  - ripper insignia ring",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 27,
             "factors": [
@@ -74507,7 +74137,6 @@
           "target_type": "character",
           "target_key": "character:guard captain azure",
           "zone_name": "Port Azure",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -74525,7 +74154,6 @@
           "item_name": "Ripper Insignia Badge",
           "item_stable_key": "item:gen  - ripper insignia ring",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -74678,7 +74306,6 @@
           "target_type": "item",
           "target_key": "item:gen - sivakayan codex encryption",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 39,
             "factors": [
@@ -74698,7 +74325,6 @@
           "target_type": "item",
           "target_key": "item:gen - sivakayan codex shard 1",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 24,
             "factors": [
@@ -74718,7 +74344,6 @@
           "target_type": "item",
           "target_key": "item:gen - sivakayan codex shard 2",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -74738,7 +74363,6 @@
           "target_type": "item",
           "target_key": "item:gen - sivakayan codex shard 3",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 33,
             "factors": [
@@ -74758,7 +74382,6 @@
           "target_type": "item",
           "target_key": "item:gen - sivakayan codex shard 4",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 36,
             "factors": [
@@ -74778,7 +74401,6 @@
           "target_type": "character",
           "target_key": "character:ripper demerth",
           "zone_name": "Ripper's Keep",
-          "optional": false,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -74796,7 +74418,6 @@
           "item_name": "Sivakayan Encrypted Plans",
           "item_stable_key": "item:gen - sivakayan codex encryption",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -74810,7 +74431,6 @@
           "item_name": "Sivakayan Codex 1 of 4",
           "item_stable_key": "item:gen - sivakayan codex shard 1",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -74824,7 +74444,6 @@
           "item_name": "Sivakayan Codex 2 of 4",
           "item_stable_key": "item:gen - sivakayan codex shard 2",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -74838,7 +74457,6 @@
           "item_name": "Sivakayan Codex 3 of 4",
           "item_stable_key": "item:gen - sivakayan codex shard 3",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -74852,7 +74470,6 @@
           "item_name": "Sivakayan Codex 4 of 4",
           "item_stable_key": "item:gen - sivakayan codex shard 4",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -74941,7 +74558,6 @@
           "target_type": "item",
           "target_key": "item:gen - ilyth's note",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 39,
             "factors": [
@@ -74961,7 +74577,6 @@
           "target_type": "character",
           "target_key": "character:ripper demerth",
           "zone_name": "Ripper's Keep",
-          "optional": false,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -74979,7 +74594,6 @@
           "item_name": "Note from Eldoth",
           "item_stable_key": "item:gen - ilyth's note",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -75064,7 +74678,6 @@
           "target_name": "Torado Zortia",
           "target_type": "character",
           "target_key": "character:torado  zortia",
-          "optional": false,
           "level_estimate": {
             "recommended": 24,
             "factors": [
@@ -75084,7 +74697,6 @@
           "target_type": "item",
           "target_key": "item:gen - pink pteriaped feather",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 22,
             "factors": [
@@ -75114,7 +74726,6 @@
           "target_type": "item",
           "target_key": "item:gen - devoratrix thorn",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 22,
             "factors": [
@@ -75134,7 +74745,6 @@
           "target_type": "item",
           "target_key": "item:gen - faerie wing",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 8,
             "factors": [
@@ -75169,7 +74779,6 @@
           "target_type": "character",
           "target_key": "character:torado  zortia",
           "zone_name": "Loomingwood Forest",
-          "optional": false,
           "level_estimate": {
             "recommended": 24,
             "factors": [
@@ -75187,7 +74796,6 @@
           "item_name": "Pink Pteriaped Feather",
           "item_stable_key": "item:gen - pink pteriaped feather",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -75222,7 +74830,6 @@
           "item_name": "Devoratrix Thorn",
           "item_stable_key": "item:gen - devoratrix thorn",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -75239,7 +74846,6 @@
           "item_name": "Intact Faerie Wing",
           "item_stable_key": "item:gen - faerie wing",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -75345,7 +74951,6 @@
           "target_name": "Alitho Echeswer",
           "target_type": "character",
           "target_key": "character:alitho echeswer",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -75365,7 +74970,6 @@
           "target_type": "item",
           "target_key": "item:belt - 10 - rottenfoot sash",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 10,
             "factors": [
@@ -75395,7 +74999,6 @@
           "target_type": "character",
           "target_key": "character:alitho echeswer",
           "zone_name": "Port Azure",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -75413,7 +75016,6 @@
           "item_name": "Rottenfoot Sash",
           "item_stable_key": "item:belt - 10 - rottenfoot sash",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -75507,7 +75109,6 @@
           "target_name": "Samuel Thatcher",
           "target_type": "character",
           "target_key": "character:shopkeeper samuel",
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -75527,7 +75128,6 @@
           "target_type": "item",
           "target_key": "item:gen - samuel's note",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -75547,7 +75147,6 @@
           "target_type": "character",
           "target_key": "character:sm_chr_bartender_01:azure:154.85:34.07:255.20",
           "zone_name": "Hidden Hills",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -75565,7 +75164,6 @@
           "item_name": "Samuel's Note",
           "item_stable_key": "item:gen - samuel's note",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "dialog_give",
@@ -75638,7 +75236,6 @@
           "target_type": "item",
           "target_key": "item:gen - plaxitheris eye",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 7,
             "factors": [
@@ -75658,7 +75255,6 @@
           "target_type": "character",
           "target_key": "character:lighthouse demon:shiveringtomb2:-64.96:22.36:149.11",
           "zone_name": "Shivering Tomb (2)",
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -75676,7 +75272,6 @@
           "item_name": "Eye of Plaxitheris",
           "item_stable_key": "item:gen - plaxitheris eye",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -75756,7 +75351,6 @@
           "target_type": "item",
           "target_key": "item:gen - ealdred's journal",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 32,
             "factors": [
@@ -75776,7 +75370,6 @@
           "target_type": "character",
           "target_key": "character:guard captain azure",
           "zone_name": "Port Azure",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -75794,7 +75387,6 @@
           "item_name": "Ealdred's Journal",
           "item_stable_key": "item:gen - ealdred's journal",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -75866,7 +75458,6 @@
           "target_name": "Guide to Sight",
           "target_type": "item",
           "target_key": "item:gen - how to see",
-          "optional": false,
           "level_estimate": {
             "recommended": 21,
             "factors": [
@@ -75884,7 +75475,6 @@
           "item_name": "Guide to Sight",
           "item_stable_key": "item:gen - how to see",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "fishing",
@@ -75951,7 +75541,6 @@
           "target_name": "Serra Stiles",
           "target_type": "character",
           "target_key": "character:serra stiles:elderstone:121.10:0.79:636.06",
-          "optional": false,
           "level_estimate": {
             "recommended": 17,
             "factors": [
@@ -75971,7 +75560,6 @@
           "target_type": "item",
           "target_key": "item:gen - a worn shovel",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 17,
             "factors": [
@@ -75996,7 +75584,6 @@
           "target_type": "character",
           "target_key": "character:serra stiles:elderstone:121.10:0.79:636.06",
           "zone_name": "The Elderstone Mines",
-          "optional": false,
           "level_estimate": {
             "recommended": 17,
             "factors": [
@@ -76014,7 +75601,6 @@
           "item_name": "Worn Shovel",
           "item_stable_key": "item:gen - a worn shovel",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -76123,7 +75709,6 @@
           "target_type": "item",
           "target_key": "item:gen - shard of light",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 26,
             "factors": [
@@ -76143,7 +75728,6 @@
           "target_type": "character",
           "target_key": "character:founder:shiveringstep:705.22:21.11:506.71",
           "zone_name": "Shivering Step",
-          "optional": false,
           "level_estimate": {
             "recommended": 21,
             "factors": [
@@ -76161,7 +75745,6 @@
           "item_name": "Captured Light",
           "item_stable_key": "item:gen - shard of light",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -76232,7 +75815,6 @@
           "target_name": "Sivakayan Intel",
           "target_type": "item",
           "target_key": "item:gen - sivakayan intel",
-          "optional": false,
           "level_estimate": {
             "recommended": 29,
             "factors": [
@@ -76252,7 +75834,6 @@
           "target_type": "item",
           "target_key": "item:gen - sivakayan intel",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 29,
             "factors": [
@@ -76272,7 +75853,6 @@
           "target_type": "character",
           "target_key": "character:guard captain azure",
           "zone_name": "Port Azure",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -76290,7 +75870,6 @@
           "item_name": "Sivakayan Intel",
           "item_stable_key": "item:gen - sivakayan intel",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -76367,7 +75946,6 @@
           "target_type": "item",
           "target_key": "item:gen - marching orders",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -76387,7 +75965,6 @@
           "target_type": "character",
           "target_key": "character:guard captain azure",
           "zone_name": "Port Azure",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -76405,7 +75982,6 @@
           "item_name": "Marching Orders",
           "item_stable_key": "item:gen - marching orders",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -76469,7 +76045,6 @@
           "item_name": "Ealdred's Journal",
           "item_stable_key": "item:gen - ealdred's journal",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -76533,7 +76108,6 @@
           "target_name": "Ripper DeMerth",
           "target_type": "character",
           "target_key": "character:ripper demerth",
-          "optional": false,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -76553,7 +76127,6 @@
           "target_type": "item",
           "target_key": "item:gen - sivakayan intel",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 29,
             "factors": [
@@ -76573,7 +76146,6 @@
           "target_type": "character",
           "target_key": "character:ripper demerth",
           "zone_name": "Ripper's Keep",
-          "optional": false,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -76591,7 +76163,6 @@
           "item_name": "Sivakayan Intel",
           "item_stable_key": "item:gen - sivakayan intel",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -76676,7 +76247,6 @@
           "target_name": "Supply Sergeant Tipp",
           "target_type": "character",
           "target_key": "character:supply sergeant tipp",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -76696,7 +76266,6 @@
           "target_type": "item",
           "target_key": "item:ore - sivakayan ore",
           "quantity": 4,
-          "optional": false,
           "level_estimate": {
             "recommended": 26,
             "factors": [
@@ -76771,7 +76340,6 @@
           "target_type": "character",
           "target_key": "character:supply sergeant tipp",
           "zone_name": "Port Azure",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -76789,7 +76357,6 @@
           "item_name": "Sivakayan Ore",
           "item_stable_key": "item:ore - sivakayan ore",
           "quantity": 4,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -77075,7 +76642,6 @@
           "target_name": "Captain Kilkay",
           "target_type": "character",
           "target_key": "character:guard captain azure",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -77095,7 +76661,6 @@
           "target_type": "item",
           "target_key": "item:gen - sivakayan codex encryption",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 39,
             "factors": [
@@ -77115,7 +76680,6 @@
           "target_type": "item",
           "target_key": "item:gen - sivakayan codex shard 1",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 24,
             "factors": [
@@ -77135,7 +76699,6 @@
           "target_type": "item",
           "target_key": "item:gen - sivakayan codex shard 2",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -77155,7 +76718,6 @@
           "target_type": "item",
           "target_key": "item:gen - sivakayan codex shard 3",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 33,
             "factors": [
@@ -77175,7 +76737,6 @@
           "target_type": "item",
           "target_key": "item:gen - sivakayan codex shard 4",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 36,
             "factors": [
@@ -77195,7 +76756,6 @@
           "target_type": "character",
           "target_key": "character:guard captain azure",
           "zone_name": "Port Azure",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -77213,7 +76773,6 @@
           "item_name": "Sivakayan Encrypted Plans",
           "item_stable_key": "item:gen - sivakayan codex encryption",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -77227,7 +76786,6 @@
           "item_name": "Sivakayan Codex 1 of 4",
           "item_stable_key": "item:gen - sivakayan codex shard 1",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -77241,7 +76799,6 @@
           "item_name": "Sivakayan Codex 2 of 4",
           "item_stable_key": "item:gen - sivakayan codex shard 2",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -77255,7 +76812,6 @@
           "item_name": "Sivakayan Codex 3 of 4",
           "item_stable_key": "item:gen - sivakayan codex shard 3",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -77269,7 +76825,6 @@
           "item_name": "Sivakayan Codex 4 of 4",
           "item_stable_key": "item:gen - sivakayan codex shard 4",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -77359,7 +76914,6 @@
           "target_type": "item",
           "target_key": "item:gen - ilyth's note",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 39,
             "factors": [
@@ -77379,7 +76933,6 @@
           "target_type": "character",
           "target_key": "character:guard captain azure",
           "zone_name": "Port Azure",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -77397,7 +76950,6 @@
           "item_name": "Note from Eldoth",
           "item_stable_key": "item:gen - ilyth's note",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -77531,7 +77083,6 @@
           "target_type": "item",
           "target_key": "item:gen - stolen memories",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 45,
             "factors": [
@@ -77551,7 +77102,6 @@
           "target_type": "character",
           "target_key": "character:apostalo ostagla:azynthi:733.75:94.12:494.53",
           "zone_name": "Azynthi's Garden (Dimensional Rift)",
-          "optional": false,
           "level_estimate": {
             "recommended": 34,
             "factors": [
@@ -77569,7 +77119,6 @@
           "item_name": "Stolen Memories",
           "item_stable_key": "item:gen - stolen memories",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -77672,7 +77221,6 @@
           "target_name": "Awaken the Angel",
           "target_type": "item",
           "target_key": "item:gen - awaken the angel",
-          "optional": false,
           "level_estimate": {
             "recommended": 24,
             "factors": [
@@ -77690,7 +77238,6 @@
           "item_name": "Awaken the Angel",
           "item_stable_key": "item:gen - awaken the angel",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -77758,7 +77305,6 @@
           "target_name": "Customs Guard",
           "target_type": "character",
           "target_key": "character:island guard customs",
-          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -77778,7 +77324,6 @@
           "target_type": "item",
           "target_key": "item:gen  - stowaway dock pass",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -77798,7 +77343,6 @@
           "target_type": "character",
           "target_key": "character:controller wendyl",
           "zone_name": "Stowaway's Step",
-          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -77816,7 +77360,6 @@
           "item_name": "Dock Pass",
           "item_stable_key": "item:gen  - stowaway dock pass",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "dialog_give",
@@ -77904,7 +77447,6 @@
           "target_type": "zone",
           "target_key": "zone:hidden",
           "zone_name": "Hidden Hills",
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -77972,7 +77514,6 @@
           "target_name": "Ta'Dah, Sorcerer of Ripper",
           "target_type": "character",
           "target_key": "character:ripparian high sorcerer",
-          "optional": false,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -77992,7 +77533,6 @@
           "target_type": "item",
           "target_key": "item:gen - intact fungal cap",
           "quantity": 3,
-          "optional": false,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -78017,7 +77557,6 @@
           "target_type": "character",
           "target_key": "character:ripparian high sorcerer",
           "zone_name": "Ripper's Keep",
-          "optional": false,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -78035,7 +77574,6 @@
           "item_name": "Intact Fungal Cap",
           "item_stable_key": "item:gen - intact fungal cap",
           "quantity": 3,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -78129,7 +77667,6 @@
           "target_type": "item",
           "target_key": "item:gen - siva-braxon teachings",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -78154,7 +77691,6 @@
           "target_type": "item",
           "target_key": "item:gen - siva-braxon teachings 1",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -78179,7 +77715,6 @@
           "target_type": "item",
           "target_key": "item:gen - siva-braxon teachings 2",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -78204,7 +77739,6 @@
           "target_type": "character",
           "target_key": "character:braxon michaen",
           "zone_name": "The Duskenlight Coast",
-          "optional": false,
           "level_estimate": {
             "recommended": 14,
             "factors": [
@@ -78222,7 +77756,6 @@
           "item_name": "Siva-Braxon Teachings (1)",
           "item_stable_key": "item:gen - siva-braxon teachings",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -78284,7 +77817,6 @@
           "item_name": "Siva-Braxon Teachings (2)",
           "item_stable_key": "item:gen - siva-braxon teachings 1",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -78346,7 +77878,6 @@
           "item_name": "Siva-Braxon Teachings (3)",
           "item_stable_key": "item:gen - siva-braxon teachings 2",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -78466,8 +77997,7 @@
           "target_name": "Angler's Ring",
           "target_type": "item",
           "target_key": "item:ring - 6 - angler's ring",
-          "quantity": 1,
-          "optional": false
+          "quantity": 1
         },
         {
           "order": 2,
@@ -78477,7 +78007,6 @@
           "target_type": "character",
           "target_key": "character:liani bosh:azure:135.62:31.82:303.95",
           "zone_name": "Port Azure",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -78495,7 +78024,6 @@
           "item_name": "Angler's Ring",
           "item_stable_key": "item:ring - 6 - angler's ring",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "crafting",
@@ -78596,7 +78124,6 @@
           "target_name": "Bridgekeeper",
           "target_type": "character",
           "target_key": "character:watchman:shiveringstep:508.96:68.49:659.72",
-          "optional": false,
           "level_estimate": {
             "recommended": 21,
             "factors": [
@@ -78655,7 +78182,6 @@
           "target_name": "Curator",
           "target_type": "character",
           "target_key": "character:curator:shiveringstep:781.37:34.52:653.28",
-          "optional": false,
           "level_estimate": {
             "recommended": 21,
             "factors": [
@@ -78722,7 +78248,6 @@
           "target_name": "Dark Flame Recipe",
           "target_type": "item",
           "target_key": "item:gen - rekindling the flame 2",
-          "optional": false,
           "level_estimate": {
             "recommended": 30,
             "factors": [
@@ -78752,7 +78277,6 @@
           "target_type": "item",
           "target_key": "item:gen - blightwood",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 25,
             "factors": [
@@ -78782,7 +78306,6 @@
           "target_type": "item",
           "target_key": "item:gen - blightsand",
           "quantity": 2,
-          "optional": false,
           "level_estimate": {
             "recommended": 19,
             "factors": [
@@ -78862,7 +78385,6 @@
           "target_type": "item",
           "target_key": "item:gen - spark of the first flame",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 29,
             "factors": [
@@ -78897,7 +78419,6 @@
           "target_type": "item",
           "target_key": "item:gen - rekindling the flame 2",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 30,
             "factors": [
@@ -78927,7 +78448,6 @@
           "target_type": "character",
           "target_key": "character:sm_prop_brazier_01 (1):vitheosend:329.05:0.52:105.67",
           "zone_name": "Vitheo's Rest",
-          "optional": false,
           "level_estimate": {
             "recommended": 23,
             "factors": [
@@ -78945,7 +78465,6 @@
           "item_name": "Blightwood Slab",
           "item_stable_key": "item:gen - blightwood",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -78980,7 +78499,6 @@
           "item_name": "Blight Crystals",
           "item_stable_key": "item:gen - blightsand",
           "quantity": 2,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -79099,7 +78617,6 @@
           "item_name": "Spark of the First Flame",
           "item_stable_key": "item:gen - spark of the first flame",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -79143,7 +78660,6 @@
           "item_name": "Dark Flame Recipe",
           "item_stable_key": "item:gen - rekindling the flame 2",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -79237,7 +78753,6 @@
           "target_name": "The Duskenlight Ritual",
           "target_type": "item",
           "target_key": "item:gen - the duskenlight ritual",
-          "optional": false,
           "level_estimate": {
             "recommended": 14,
             "factors": [
@@ -79257,7 +78772,6 @@
           "target_type": "item",
           "target_key": "item:gen - elderstone shard",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -79312,7 +78826,6 @@
           "target_type": "item",
           "target_key": "item:ore - ancient coal",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -79392,7 +78905,6 @@
           "target_type": "item",
           "target_key": "item:gen - wolf meat",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -79462,7 +78974,6 @@
           "target_type": "item",
           "target_key": "item:gen - pristine grass spider carapace",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 1,
             "factors": [
@@ -79487,7 +78998,6 @@
           "target_type": "item",
           "target_key": "item:gen - the duskenlight ritual",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 14,
             "factors": [
@@ -79507,7 +79017,6 @@
           "target_type": "character",
           "target_key": "character:sm_prop_brazier_01 (1):duskenlight:485.82:65.42:397.38",
           "zone_name": "The Duskenlight Coast",
-          "optional": false,
           "level_estimate": {
             "recommended": 13,
             "factors": [
@@ -79525,7 +79034,6 @@
           "item_name": "Elderstone Shard",
           "item_stable_key": "item:gen - elderstone shard",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "vendor",
@@ -79604,7 +79112,6 @@
           "item_name": "Ancient Coal",
           "item_stable_key": "item:ore - ancient coal",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "mining",
@@ -79720,7 +79227,6 @@
           "item_name": "Wolf Meat",
           "item_stable_key": "item:gen - wolf meat",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -79896,7 +79402,6 @@
           "item_name": "Pristine Grass Spider Carapace",
           "item_stable_key": "item:gen - pristine grass spider carapace",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -80003,7 +79508,6 @@
           "item_name": "The Duskenlight Ritual",
           "item_stable_key": "item:gen - the duskenlight ritual",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -80078,7 +79582,6 @@
           "target_type": "item",
           "target_key": "item:gen - eldrich crystal",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 41,
             "factors": [
@@ -80098,7 +79601,6 @@
           "target_type": "character",
           "target_key": "character:braxon elden:braxonian:99.99:33.79:993.06",
           "zone_name": "Braxonian Desert",
-          "optional": false,
           "level_estimate": {
             "recommended": 17,
             "factors": [
@@ -80116,7 +79618,6 @@
           "item_name": "Eldrich Crystal",
           "item_stable_key": "item:gen - eldrich crystal",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -80190,7 +79691,6 @@
           "target_name": "Gatekeeper",
           "target_type": "character",
           "target_key": "character:gatekeeper:shiveringstep:672.15:29.53:421.14",
-          "optional": false,
           "level_estimate": {
             "recommended": 21,
             "factors": [
@@ -80249,7 +79749,6 @@
           "target_name": "A Memory of Sivakaya",
           "target_type": "character",
           "target_key": "character:memorystatue (1):jaws:1183.73:0.87:235.21",
-          "optional": false,
           "level_estimate": {
             "recommended": 34,
             "factors": [
@@ -80308,7 +79807,6 @@
           "target_name": "Harbinger",
           "target_type": "character",
           "target_key": "character:harbinger:shiveringstep:211.32:53.00:344.33",
-          "optional": false,
           "level_estimate": {
             "recommended": 21,
             "factors": [
@@ -80376,7 +79874,6 @@
           "target_name": "Timothy Allorn",
           "target_type": "character",
           "target_key": "character:timothy allorn:stowaway:545.20:72.09:442.80",
-          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -80391,32 +79888,12 @@
         {
           "order": 2,
           "action": "travel",
-          "description": "Travel to Shivering Tomb (2).",
-          "target_name": "Shivering Tomb (2)",
-          "target_type": "zone",
-          "target_key": "zone:shiveringtomb2",
-          "zone_name": "Shivering Tomb (2)",
-          "optional": false,
-          "level_estimate": {
-            "recommended": 24,
-            "factors": [
-              {
-                "source": "zone_median",
-                "name": "Shivering Tomb (2)",
-                "level": 24
-              }
-            ]
-          }
-        },
-        {
-          "order": 3,
-          "action": "travel",
           "description": "Travel to Island Tomb.",
           "target_name": "Island Tomb",
           "target_type": "zone",
           "target_key": "zone:tutorial",
           "zone_name": "Island Tomb",
-          "optional": false,
+          "or_group": "zone",
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -80424,6 +79901,26 @@
                 "source": "zone_median",
                 "name": "Island Tomb",
                 "level": 4
+              }
+            ]
+          }
+        },
+        {
+          "order": 3,
+          "action": "travel",
+          "description": "Travel to Shivering Tomb (2).",
+          "target_name": "Shivering Tomb (2)",
+          "target_type": "zone",
+          "target_key": "zone:shiveringtomb2",
+          "zone_name": "Shivering Tomb (2)",
+          "or_group": "zone",
+          "level_estimate": {
+            "recommended": 24,
+            "factors": [
+              {
+                "source": "zone_median",
+                "name": "Shivering Tomb (2)",
+                "level": 24
               }
             ]
           }
@@ -80456,12 +79953,12 @@
         "once_per_spawn_instance": false
       },
       "level_estimate": {
-        "recommended": 24,
+        "recommended": 4,
         "factors": [
           {
-            "source": "step_2",
-            "name": "Travel to Shivering Tomb (2).",
-            "level": 24
+            "source": "step_3",
+            "name": "Travel to Island Tomb.",
+            "level": 4
           }
         ]
       }
@@ -80489,7 +79986,6 @@
           "target_name": "Life Flame Recipe",
           "target_type": "item",
           "target_key": "item:gen - rekindling the flame 3",
-          "optional": false,
           "level_estimate": {
             "recommended": 30,
             "factors": [
@@ -80519,7 +80015,6 @@
           "target_type": "item",
           "target_key": "item:gen - loomingwood branch",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 22,
             "factors": [
@@ -80559,7 +80054,6 @@
           "target_type": "item",
           "target_key": "item:gen - essence of nature",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 7,
             "factors": [
@@ -80604,7 +80098,6 @@
           "target_type": "item",
           "target_key": "item:gen - gift of fernalla",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 27,
             "factors": [
@@ -80624,7 +80117,6 @@
           "target_type": "item",
           "target_key": "item:gen - droplet of the first frost",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 33,
             "factors": [
@@ -80644,7 +80136,6 @@
           "target_type": "item",
           "target_key": "item:gen - rekindling the flame 3",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 30,
             "factors": [
@@ -80674,7 +80165,6 @@
           "target_type": "character",
           "target_key": "character:sm_prop_brazier_01:vitheosend:246.80:0.52:101.17",
           "zone_name": "Vitheo's Rest",
-          "optional": false,
           "level_estimate": {
             "recommended": 23,
             "factors": [
@@ -80692,7 +80182,6 @@
           "item_name": "Loomingwood Branch",
           "item_stable_key": "item:gen - loomingwood branch",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -80745,7 +80234,6 @@
           "item_name": "Essence of Nature",
           "item_stable_key": "item:gen - essence of nature",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -80825,7 +80313,6 @@
           "item_name": "Gift of Fernalla",
           "item_stable_key": "item:gen - gift of fernalla",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "dialog_give",
@@ -80846,7 +80333,6 @@
           "item_name": "Droplet of the First Frost",
           "item_stable_key": "item:gen - droplet of the first frost",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -80863,7 +80349,6 @@
           "item_name": "Life Flame Recipe",
           "item_stable_key": "item:gen - rekindling the flame 3",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -80950,7 +80435,6 @@
           "target_name": "Arcane Headmaster",
           "target_type": "character",
           "target_key": "character:arcane headmaster",
-          "optional": false,
           "level_estimate": {
             "recommended": 14,
             "factors": [
@@ -80970,7 +80454,6 @@
           "target_type": "item",
           "target_key": "item:quest - loss stone",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 14,
             "factors": [
@@ -80990,7 +80473,6 @@
           "target_type": "character",
           "target_key": "character:larviso poltir:loomingwood:323.78:29.25:429.23",
           "zone_name": "The Duskenlight Coast",
-          "optional": false,
           "level_estimate": {
             "recommended": 24,
             "factors": [
@@ -81008,7 +80490,6 @@
           "item_name": "Loss Stone",
           "item_stable_key": "item:quest - loss stone",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "dialog_give",
@@ -81090,7 +80571,6 @@
           "item_name": "Loss Stone",
           "item_stable_key": "item:quest - loss stone",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "dialog_give",
@@ -81167,7 +80647,6 @@
           "target_type": "item",
           "target_key": "item:gen - treasure hunter pg 1 (bonepits)",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 8,
             "factors": [
@@ -81187,7 +80666,6 @@
           "target_type": "item",
           "target_key": "item:gen - treasure hunter pg 2 (krakengard)",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -81207,7 +80685,6 @@
           "target_type": "item",
           "target_key": "item:gen - treasure hunter pg 3 (underspine)",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 15,
             "factors": [
@@ -81227,7 +80704,6 @@
           "target_type": "item",
           "target_key": "item:gen - treasure hunter pg 4 (undercity)",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 18,
             "factors": [
@@ -81247,7 +80723,6 @@
           "target_type": "item",
           "target_key": "item:gen - treasure hunter pg 5 (elderstone)",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 21,
             "factors": [
@@ -81267,7 +80742,6 @@
           "target_type": "item",
           "target_key": "item:gen - treasure hunter pg 6 (rockshade)",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 27,
             "factors": [
@@ -81287,7 +80761,6 @@
           "target_type": "item",
           "target_key": "item:gen - treasure hunter pg 7 (abyssal)",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 32,
             "factors": [
@@ -81307,7 +80780,6 @@
           "target_type": "character",
           "target_key": "character:lost soul",
           "zone_name": "Malaroth's Nesting Grounds",
-          "optional": false,
           "level_estimate": {
             "recommended": 19,
             "factors": [
@@ -81325,7 +80797,6 @@
           "item_name": "Pg. 1: Faded Entry",
           "item_stable_key": "item:gen - treasure hunter pg 1 (bonepits)",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -81351,7 +80822,6 @@
           "item_name": "Pg. 2: Faded Entry",
           "item_stable_key": "item:gen - treasure hunter pg 2 (krakengard)",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -81368,7 +80838,6 @@
           "item_name": "Pg. 3: Faded Entry",
           "item_stable_key": "item:gen - treasure hunter pg 3 (underspine)",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -81385,7 +80854,6 @@
           "item_name": "Pg. 4: Faded Entry",
           "item_stable_key": "item:gen - treasure hunter pg 4 (undercity)",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -81402,7 +80870,6 @@
           "item_name": "Pg. 5: Faded Entry",
           "item_stable_key": "item:gen - treasure hunter pg 5 (elderstone)",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -81419,7 +80886,6 @@
           "item_name": "Pg. 6: Faded Entry",
           "item_stable_key": "item:gen - treasure hunter pg 6 (rockshade)",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -81436,7 +80902,6 @@
           "item_name": "Pg. 7: Faded Entry",
           "item_stable_key": "item:gen - treasure hunter pg 7 (abyssal)",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -81525,7 +80990,6 @@
           "target_type": "item",
           "target_key": "item:gen - treasure hunter's pin",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 32,
             "factors": [
@@ -81545,7 +81009,6 @@
           "target_type": "character",
           "target_key": "character:julie xargate",
           "zone_name": "Port Azure",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -81563,7 +81026,6 @@
           "item_name": "Treasure Hunter's Pin",
           "item_stable_key": "item:gen - treasure hunter's pin",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -81795,7 +81257,6 @@
           "item_name": "Treasure Hunter's Pin",
           "item_stable_key": "item:gen - treasure hunter's pin",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -81989,7 +81450,6 @@
           "target_type": "item",
           "target_key": "item:cons - bread",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -82214,7 +81674,6 @@
           "target_type": "character",
           "target_key": "character:shady fisherman:azure:43.10:13.76:246.95",
           "zone_name": "Port Azure",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -82232,7 +81691,6 @@
           "item_name": "Bread",
           "item_stable_key": "item:cons - bread",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "vendor",
@@ -82780,7 +82238,6 @@
           "target_name": "Shady Fisherman",
           "target_type": "character",
           "target_key": "character:shady fisherman:azure:43.10:13.76:246.95",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -82856,7 +82313,6 @@
           "target_name": "The Mathers Note",
           "target_type": "item",
           "target_key": "item:gen - the mathers note",
-          "optional": false,
           "level_estimate": {
             "recommended": 18,
             "factors": [
@@ -82876,7 +82332,6 @@
           "target_type": "item",
           "target_key": "item:gen - the mathers note",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 18,
             "factors": [
@@ -82896,7 +82351,6 @@
           "target_type": "character",
           "target_key": "character:yarren mathers",
           "zone_name": "Vitheo's Watch",
-          "optional": false,
           "level_estimate": {
             "recommended": 9,
             "factors": [
@@ -82914,7 +82368,6 @@
           "item_name": "The Mathers Note",
           "item_stable_key": "item:gen - the mathers note",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -83002,7 +82455,6 @@
           "target_type": "item",
           "target_key": "item:gen - cod - pg 1",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 16,
             "factors": [
@@ -83027,7 +82479,6 @@
           "target_type": "item",
           "target_key": "item:gen - cod - pg 2",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 16,
             "factors": [
@@ -83052,7 +82503,6 @@
           "target_type": "item",
           "target_key": "item:gen - cod - pg 3",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 18,
             "factors": [
@@ -83072,7 +82522,6 @@
           "target_type": "item",
           "target_key": "item:gen - cod - pg 4",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 17,
             "factors": [
@@ -83097,7 +82546,6 @@
           "target_type": "character",
           "target_key": "character:yarren mathers",
           "zone_name": "Vitheo's Watch",
-          "optional": false,
           "level_estimate": {
             "recommended": 9,
             "factors": [
@@ -83115,7 +82563,6 @@
           "item_name": "Chapters of Descent, Passage 1",
           "item_stable_key": "item:gen - cod - pg 1",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -83141,7 +82588,6 @@
           "item_name": "Chapters of Descent, Passage 2",
           "item_stable_key": "item:gen - cod - pg 2",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -83167,7 +82613,6 @@
           "item_name": "Chapters of Descent, Passage 3",
           "item_stable_key": "item:gen - cod - pg 3",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -83184,7 +82629,6 @@
           "item_name": "Chapters of Descent, Passage 4",
           "item_stable_key": "item:gen - cod - pg 4",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -83284,7 +82728,6 @@
           "target_type": "item",
           "target_key": "item:gen - cod - pg 5",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 34,
             "factors": [
@@ -83329,7 +82772,6 @@
           "target_type": "item",
           "target_key": "item:gen - cod - pg 6",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 34,
             "factors": [
@@ -83374,7 +82816,6 @@
           "target_type": "item",
           "target_key": "item:gen - cod - pg 7",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 34,
             "factors": [
@@ -83419,7 +82860,6 @@
           "target_type": "item",
           "target_key": "item:gen - cod - pg 8",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 34,
             "factors": [
@@ -83464,7 +82904,6 @@
           "target_type": "character",
           "target_key": "character:yarren mathers",
           "zone_name": "Vitheo's Watch",
-          "optional": false,
           "level_estimate": {
             "recommended": 9,
             "factors": [
@@ -83482,7 +82921,6 @@
           "item_name": "Chapters of Descent, Passage 5",
           "item_stable_key": "item:gen - cod - pg 5",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -83544,7 +82982,6 @@
           "item_name": "Chapters of Descent, Passage 6",
           "item_stable_key": "item:gen - cod - pg 6",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -83606,7 +83043,6 @@
           "item_name": "Chapters of Descent, Passage 7",
           "item_stable_key": "item:gen - cod - pg 7",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -83668,7 +83104,6 @@
           "item_name": "Chapters of Descent, Passage 8",
           "item_stable_key": "item:gen - cod - pg 8",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -83783,8 +83218,7 @@
           "target_name": "A Collection of Notes",
           "target_type": "item",
           "target_key": "item:quest - bellwain collection",
-          "quantity": 1,
-          "optional": false
+          "quantity": 1
         },
         {
           "order": 2,
@@ -83793,8 +83227,7 @@
           "target_name": "Bellsie Belwain",
           "target_type": "character",
           "target_key": "character:character_governors_daughter_01:summerevent:158.88:10.83:157.97",
-          "zone_name": "Bellwain Island",
-          "optional": false
+          "zone_name": "Bellwain Island"
         }
       ],
       "required_items": [
@@ -83802,7 +83235,6 @@
           "item_name": "A Collection of Notes",
           "item_stable_key": "item:quest - bellwain collection",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "pickup",
@@ -83861,8 +83293,7 @@
           "target_name": "Island Fin",
           "target_type": "item",
           "target_key": "item:fish - island fin",
-          "quantity": 1,
-          "optional": false
+          "quantity": 1
         },
         {
           "order": 2,
@@ -83872,7 +83303,6 @@
           "target_type": "item",
           "target_key": "item:cons - bread",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -84097,7 +83527,6 @@
           "target_type": "item",
           "target_key": "item:cons - brackfruit juice",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 5,
             "factors": [
@@ -84172,7 +83601,6 @@
           "target_type": "item",
           "target_key": "item:ore - coal",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -84222,7 +83650,6 @@
           "target_type": "character",
           "target_key": "character:baking oven:azure:275.88:26.08:231.25",
           "zone_name": "Port Azure",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -84240,7 +83667,6 @@
           "item_name": "Island Fin",
           "item_stable_key": "item:fish - island fin",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "fishing",
@@ -84254,7 +83680,6 @@
           "item_name": "Bread",
           "item_stable_key": "item:cons - bread",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "vendor",
@@ -84742,7 +84167,6 @@
           "item_name": "Brackfruit Juice",
           "item_stable_key": "item:cons - brackfruit juice",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "vendor",
@@ -84873,7 +84297,6 @@
           "item_name": "Coal",
           "item_stable_key": "item:ore - coal",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "mining",
@@ -85004,7 +84427,6 @@
           "target_name": "Jazmyn Challa",
           "target_type": "character",
           "target_key": "character:jazmyn challa",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -85024,7 +84446,6 @@
           "target_type": "item",
           "target_key": "item:book - wardens of the north",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 26,
             "factors": [
@@ -85059,7 +84480,6 @@
           "target_type": "character",
           "target_key": "character:jazmyn challa",
           "zone_name": "Port Azure",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -85077,7 +84497,6 @@
           "item_name": "Wardens of the North",
           "item_stable_key": "item:book - wardens of the north",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -85183,7 +84602,6 @@
           "target_name": "The Fernallan Ritual",
           "target_type": "item",
           "target_key": "item:gen - the fernallan ritual",
-          "optional": false,
           "level_estimate": {
             "recommended": 15,
             "factors": [
@@ -85203,7 +84621,6 @@
           "target_type": "item",
           "target_key": "item:gen - faerie dust",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 8,
             "factors": [
@@ -85248,7 +84665,6 @@
           "target_type": "item",
           "target_key": "item:ore - ancient coal",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -85328,7 +84744,6 @@
           "target_type": "item",
           "target_key": "item:gen - remnants of a daydream",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 8,
             "factors": [
@@ -85388,7 +84803,6 @@
           "target_type": "item",
           "target_key": "item:gen - remnants of a nightmare",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 8,
             "factors": [
@@ -85448,7 +84862,6 @@
           "target_type": "item",
           "target_key": "item:gen - the fernallan ritual",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 15,
             "factors": [
@@ -85468,7 +84881,6 @@
           "target_type": "character",
           "target_key": "character:sm_prop_brazier_01 (1):fernallafield:119.30:31.99:422.96",
           "zone_name": "Fernalla's Revival Plains",
-          "optional": false,
           "level_estimate": {
             "recommended": 13,
             "factors": [
@@ -85486,7 +84898,6 @@
           "item_name": "Bag of Faerie Dust",
           "item_stable_key": "item:gen - faerie dust",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -85548,7 +84959,6 @@
           "item_name": "Ancient Coal",
           "item_stable_key": "item:ore - ancient coal",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "mining",
@@ -85664,7 +85074,6 @@
           "item_name": "Remnants of a Daydream",
           "item_stable_key": "item:gen - remnants of a daydream",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -85792,7 +85201,6 @@
           "item_name": "Remnants of a Nightmare",
           "item_stable_key": "item:gen - remnants of a nightmare",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -85920,7 +85328,6 @@
           "item_name": "The Fernallan Ritual",
           "item_stable_key": "item:gen - the fernallan ritual",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "quest_reward",
@@ -85997,7 +85404,6 @@
           "target_name": "A Strange Hermit",
           "target_type": "character",
           "target_key": "character:a strange hermit",
-          "optional": false,
           "level_estimate": {
             "recommended": 30,
             "factors": [
@@ -86017,7 +85423,6 @@
           "target_type": "zone",
           "target_key": "zone:azynthi",
           "zone_name": "Azynthi's Garden (Dimensional Rift)",
-          "optional": false,
           "level_estimate": {
             "recommended": 34,
             "factors": [
@@ -86085,7 +85490,6 @@
           "target_name": "Unborn Phobia",
           "target_type": "item",
           "target_key": "item:gen - unborn phobia",
-          "optional": false,
           "level_estimate": {
             "recommended": 8,
             "factors": [
@@ -86110,7 +85514,6 @@
           "target_type": "item",
           "target_key": "item:ore - planar shard",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 1,
             "factors": [
@@ -86150,7 +85553,6 @@
           "target_type": "item",
           "target_key": "item:gen - sivak",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 1,
             "factors": [
@@ -86195,7 +85597,6 @@
           "target_type": "item",
           "target_key": "item:gen - unborn phobia",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 8,
             "factors": [
@@ -86220,7 +85621,6 @@
           "target_type": "item",
           "target_key": "item:gen - ghostly giant's blood",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 8,
             "factors": [
@@ -86250,7 +85650,6 @@
           "target_type": "character",
           "target_key": "character:sm_prop_brazier_01 (1):ripper:130.15:62.11:294.67",
           "zone_name": "Ripper's Keep",
-          "optional": false,
           "level_estimate": {
             "recommended": 13,
             "factors": [
@@ -86268,7 +85667,6 @@
           "item_name": "Planar Stone Shards",
           "item_stable_key": "item:ore - planar shard",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -86309,7 +85707,6 @@
           "item_name": "Sivakrux",
           "item_stable_key": "item:gen - sivak",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -86453,7 +85850,6 @@
           "item_name": "Unborn Phobia",
           "item_stable_key": "item:gen - unborn phobia",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -86476,7 +85872,6 @@
           "item_name": "Ghostly Giant's Blood",
           "item_stable_key": "item:gen - ghostly giant's blood",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -86566,7 +85961,6 @@
           "target_name": "Braxon Elden",
           "target_type": "character",
           "target_key": "character:braxon elden:braxonian:99.99:33.79:993.06",
-          "optional": false,
           "level_estimate": {
             "recommended": 17,
             "factors": [
@@ -86586,7 +85980,6 @@
           "target_type": "item",
           "target_key": "item:gen - brashell",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 25,
             "factors": [
@@ -86606,7 +85999,6 @@
           "target_type": "character",
           "target_key": "character:braxon elden:braxonian:99.99:33.79:993.06",
           "zone_name": "Braxonian Desert",
-          "optional": false,
           "level_estimate": {
             "recommended": 17,
             "factors": [
@@ -86624,7 +86016,6 @@
           "item_name": "Brashell",
           "item_stable_key": "item:gen - brashell",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -86703,7 +86094,6 @@
           "target_type": "item",
           "target_key": "item:gen - cube of creation",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 41,
             "factors": [
@@ -86728,7 +86118,6 @@
           "target_type": "character",
           "target_key": "character:larviso poltir:loomingwood:323.78:29.25:429.23",
           "zone_name": "Loomingwood Forest",
-          "optional": false,
           "level_estimate": {
             "recommended": 24,
             "factors": [
@@ -86746,7 +86135,6 @@
           "item_name": "Secrets of Creation",
           "item_stable_key": "item:gen - cube of creation",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -86848,7 +86236,6 @@
           "target_type": "item",
           "target_key": "item:gen - cube of creation",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 41,
             "factors": [
@@ -86868,7 +86255,6 @@
           "target_type": "character",
           "target_key": "character:lucian revald:stowaway:432.19:69.90:532.04",
           "zone_name": "Stowaway's Step",
-          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -86886,7 +86272,6 @@
           "item_name": "Secrets of Creation",
           "item_stable_key": "item:gen - cube of creation",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -86956,7 +86341,6 @@
           "target_name": "Shattered Sivakaya",
           "target_type": "character",
           "target_key": "character:shard of sivakaya:stowawayportal:-85.91:0.88:-41.61",
-          "optional": false,
           "level_estimate": {
             "recommended": 40,
             "factors": [
@@ -87079,7 +86463,6 @@
           "target_type": "item",
           "target_key": "item:gen - small engraved compass",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 15,
             "factors": [
@@ -87099,7 +86482,6 @@
           "target_type": "character",
           "target_key": "character:asaga underloft",
           "zone_name": "Port Azure",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -87117,7 +86499,6 @@
           "item_name": "Small Engraved Compass",
           "item_stable_key": "item:gen - small engraved compass",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -87193,7 +86574,6 @@
           "target_name": "Wally Waldorf",
           "target_type": "character",
           "target_key": "character:wally waldorf:stowaway:573.45:70.50:545.10",
-          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -87213,7 +86593,6 @@
           "target_type": "item",
           "target_key": "item:fish - moongill",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -87308,7 +86687,6 @@
           "target_type": "character",
           "target_key": "character:wally waldorf:stowaway:573.45:70.50:545.10",
           "zone_name": "Stowaway's Step",
-          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -87326,7 +86704,6 @@
           "item_name": "A Moongill",
           "item_stable_key": "item:fish - moongill",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "fishing",
@@ -87525,7 +86902,6 @@
           "target_name": "The Hider",
           "target_type": "character",
           "target_key": "character:the hider:shiveringstep:668.70:45.25:549.83",
-          "optional": false,
           "level_estimate": {
             "recommended": 21,
             "factors": [
@@ -87545,7 +86921,6 @@
           "target_type": "item",
           "target_key": "item:gen - ancient fang",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 22,
             "factors": [
@@ -87565,7 +86940,6 @@
           "target_type": "item",
           "target_key": "item:gen - eternal ice",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 19,
             "factors": [
@@ -87590,7 +86964,6 @@
           "target_type": "item",
           "target_key": "item:gen - thief of breath",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 19,
             "factors": [
@@ -87625,7 +86998,6 @@
           "target_type": "item",
           "target_key": "item:gen - death's decay",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 19,
             "factors": [
@@ -87660,7 +87032,6 @@
           "target_type": "item",
           "target_key": "item:gen - soul of a ghostly beast",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 22,
             "factors": [
@@ -87680,7 +87051,6 @@
           "target_type": "character",
           "target_key": "character:sm_prop_brazier_01 (1):shiveringstep:304.61:17.81:327.34",
           "zone_name": "Shivering Step",
-          "optional": false,
           "level_estimate": {
             "recommended": 21,
             "factors": [
@@ -87698,7 +87068,6 @@
           "item_name": "Ancient Fang",
           "item_stable_key": "item:gen - ancient fang",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -87715,7 +87084,6 @@
           "item_name": "Eternal Ice",
           "item_stable_key": "item:gen - eternal ice",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -87737,7 +87105,6 @@
           "item_name": "Thief of Breath",
           "item_stable_key": "item:gen - thief of breath",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -87778,7 +87145,6 @@
           "item_name": "Death's Decay",
           "item_stable_key": "item:gen - death's decay",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -87819,7 +87185,6 @@
           "item_name": "Soul of a Ghostly Beast",
           "item_stable_key": "item:gen - soul of a ghostly beast",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -87896,7 +87261,7 @@
           "target_name": "Torn Note",
           "target_type": "item",
           "target_key": "item:gen - a torn note",
-          "optional": true,
+          "or_group": "read_completion",
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -87915,7 +87280,7 @@
           "target_name": "Marching Orders",
           "target_type": "item",
           "target_key": "item:gen - marching orders",
-          "optional": true,
+          "or_group": "read_completion",
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -87933,7 +87298,7 @@
           "item_name": "Torn Note",
           "item_stable_key": "item:gen - a torn note",
           "quantity": 1,
-          "optional": true,
+          "or_group": "read",
           "sources": [
             {
               "type": "drop",
@@ -87950,7 +87315,7 @@
           "item_name": "Marching Orders",
           "item_stable_key": "item:gen - marching orders",
           "quantity": 1,
-          "optional": true,
+          "or_group": "read",
           "sources": [
             {
               "type": "drop",
@@ -88037,7 +87402,7 @@
           "target_name": "Torn Note",
           "target_type": "item",
           "target_key": "item:gen - a torn note",
-          "optional": true,
+          "or_group": "read",
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -88056,7 +87421,7 @@
           "target_name": "Marching Orders",
           "target_type": "item",
           "target_key": "item:gen - marching orders",
-          "optional": true,
+          "or_group": "read",
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -88076,7 +87441,6 @@
           "target_type": "item",
           "target_key": "item:gen - a torn note",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -88096,7 +87460,6 @@
           "target_type": "character",
           "target_key": "character:lucian revald:stowaway:432.19:69.90:532.04",
           "zone_name": "Stowaway's Step",
-          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -88114,7 +87477,6 @@
           "item_name": "Torn Note",
           "item_stable_key": "item:gen - a torn note",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -88131,7 +87493,7 @@
           "item_name": "Marching Orders",
           "item_stable_key": "item:gen - marching orders",
           "quantity": 1,
-          "optional": true,
+          "or_group": "read",
           "sources": [
             {
               "type": "drop",
@@ -88212,7 +87574,6 @@
           "target_type": "item",
           "target_key": "item:gen - willow seed azure",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -88232,7 +87593,6 @@
           "target_type": "item",
           "target_key": "item:gen - willow seed braxonia",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 17,
             "factors": [
@@ -88252,7 +87612,6 @@
           "target_type": "item",
           "target_key": "item:gen - willow seed dusken",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 14,
             "factors": [
@@ -88272,7 +87631,6 @@
           "target_type": "item",
           "target_key": "item:gen - willow seed fernalla",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 13,
             "factors": [
@@ -88292,7 +87650,6 @@
           "target_type": "item",
           "target_key": "item:gen - willow seed ripper",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -88312,7 +87669,6 @@
           "target_type": "character",
           "target_key": "character:watcher",
           "zone_name": "Willowwatch Ridge",
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -88330,7 +87686,6 @@
           "item_name": "Azure Willow Seed",
           "item_stable_key": "item:gen - willow seed azure",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "pickup",
@@ -88346,7 +87701,6 @@
           "item_name": "Braxonian Willow Seed",
           "item_stable_key": "item:gen - willow seed braxonia",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "pickup",
@@ -88362,7 +87716,6 @@
           "item_name": "Duskenlight Willow Seed",
           "item_stable_key": "item:gen - willow seed dusken",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "pickup",
@@ -88378,7 +87731,6 @@
           "item_name": "Fernallan Willow Seed",
           "item_stable_key": "item:gen - willow seed fernalla",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "pickup",
@@ -88394,7 +87746,6 @@
           "item_name": "Ripparian Willow Seed",
           "item_stable_key": "item:gen - willow seed ripper",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "pickup",
@@ -88472,7 +87823,6 @@
           "target_name": "Cagnus Marlsen",
           "target_type": "character",
           "target_key": "character:cagnus marlsen",
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -88492,7 +87842,6 @@
           "target_type": "item",
           "target_key": "item:gen - bag of willow soil",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 7,
             "factors": [
@@ -88512,7 +87861,6 @@
           "target_type": "character",
           "target_key": "character:cagnus marlsen",
           "zone_name": "Willowwatch Ridge",
-          "optional": false,
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -88530,7 +87878,6 @@
           "item_name": "Willow Soil",
           "item_stable_key": "item:gen - bag of willow soil",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -88606,7 +87953,6 @@
           "target_type": "item",
           "target_key": "item:gen - wishlan's hope",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 24,
             "factors": [
@@ -88626,7 +87972,6 @@
           "target_type": "character",
           "target_key": "character:wishlan",
           "zone_name": "The Blight",
-          "optional": false,
           "level_estimate": {
             "recommended": 25,
             "factors": [
@@ -88644,7 +87989,6 @@
           "item_name": "Wishlan's Hope",
           "item_stable_key": "item:gen - wishlan's hope",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",
@@ -88707,8 +88051,7 @@
           "target_name": "Offering Stone",
           "target_type": "item",
           "target_key": "item:gen - offering stone",
-          "quantity": 1,
-          "optional": false
+          "quantity": 1
         },
         {
           "order": 2,
@@ -88718,7 +88061,6 @@
           "target_type": "character",
           "target_key": "character:wishlan",
           "zone_name": "The Blight",
-          "optional": false,
           "level_estimate": {
             "recommended": 25,
             "factors": [
@@ -88735,8 +88077,7 @@
         {
           "item_name": "Offering Stone",
           "item_stable_key": "item:gen - offering stone",
-          "quantity": 1,
-          "optional": false
+          "quantity": 1
         }
       ],
       "completion": [
@@ -88789,7 +88130,6 @@
           "target_type": "item",
           "target_key": "item:gen - wolf meat",
           "quantity": 1,
-          "optional": false,
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -88859,7 +88199,6 @@
           "target_type": "character",
           "target_key": "character:fredrick templestone:azure:233.34:27.55:332.06",
           "zone_name": "Port Azure",
-          "optional": false,
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -88877,7 +88216,6 @@
           "item_name": "Wolf Meat",
           "item_stable_key": "item:gen - wolf meat",
           "quantity": 1,
-          "optional": false,
           "sources": [
             {
               "type": "drop",

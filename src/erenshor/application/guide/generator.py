@@ -23,6 +23,7 @@ def generate(db_path: Path) -> GuideOutput:
     ctx = load_quest_data(db_path)
     guides = assemble_guides(ctx)
     compute_levels(guides, ctx)
+    _sort_or_groups(guides)
     materialize_sub_trees(guides, ctx)
     return GuideOutput(
         version=3,
@@ -33,3 +34,50 @@ def generate(db_path: Path) -> GuideOutput:
         character_quest_unlocks=ctx.character_quest_unlocks,
         quests=guides,
     )
+
+
+def _sort_or_groups(guides: list) -> None:
+    """Sort steps within each or_group by level (lowest first).
+
+    Within a group of consecutive steps sharing the same or_group,
+    reorder so the lowest-level alternative appears first. This puts
+    the most accessible option at the top of the UI.
+    """
+    for guide in guides:
+        if not guide.steps:
+            continue
+        guide.steps = _sort_steps(guide.steps)
+
+
+def _sort_steps(steps: list) -> list:
+    """Collect consecutive or_group runs, sort each by level, reassign order."""
+    result: list = []
+    group: list = []
+    group_name: str | None = None
+
+    def _flush(grp: list, out: list) -> None:
+        if grp:
+            grp.sort(
+                key=lambda s: (
+                    s.level_estimate.recommended if s.level_estimate and s.level_estimate.recommended else 999
+                )
+            )
+            out.extend(grp)
+
+    for step in steps:
+        if step.or_group is not None and step.or_group == group_name:
+            group.append(step)
+        else:
+            _flush(group, result)
+            group = []
+            group_name = step.or_group
+            if step.or_group:
+                group.append(step)
+            else:
+                result.append(step)
+
+    _flush(group, result)
+
+    for i, step in enumerate(result):
+        step.order = i + 1
+    return result
