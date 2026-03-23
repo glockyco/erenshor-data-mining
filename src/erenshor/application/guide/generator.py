@@ -18,12 +18,12 @@ def generate(db_path: Path) -> GuideOutput:
     """Load quest data, assemble guides, compute levels, return v3 output."""
     from .assembler import assemble_guides
     from .levels import compute_levels
-    from .repository import load_quest_data
+    from .repository import load_quest_data, materialize_sub_trees
 
     ctx = load_quest_data(db_path)
     guides = assemble_guides(ctx)
     compute_levels(guides, ctx)
-
+    materialize_sub_trees(guides, ctx)
     return GuideOutput(
         version=3,
         zone_lookup=ctx.zone_lookup,

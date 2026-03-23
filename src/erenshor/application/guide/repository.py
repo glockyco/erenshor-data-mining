@@ -25,6 +25,7 @@ from .schema import (
     FactionEffect,
     ItemSource,
     Prerequisite,
+    QuestGuide,
     SpawnPoint,
     ZoneInfo,
     ZoneLine,
@@ -65,6 +66,8 @@ class QuestDataContext:
     zone_lines: list[ZoneLine] = field(default_factory=list)
     chain_groups: list[ChainGroup] = field(default_factory=list)
     reward_items: dict[str, str] = field(default_factory=dict)
+    crafting_ingredients: dict[str, list[tuple[str, int]]] = field(default_factory=dict)
+    quest_resource_names: dict[str, str] = field(default_factory=dict)  # quest_sk → variant_rn
 
 
 # ---------------------------------------------------------------------------
@@ -116,6 +119,8 @@ def _load(conn: sqlite3.Connection) -> QuestDataContext:
         chain_groups=_compute_chain_groups(conn),
         reward_items=_fetch_reward_items(conn),
         item_sources=_build_item_sources(conn, zone_by_display),
+        crafting_ingredients=_fetch_crafting_ingredients(conn),
+        quest_resource_names={row["stable_key"]: row["resource_name"] for row in quests},
     )
 
     _resolve_navigable_sources(ctx)
@@ -919,13 +924,20 @@ def _add_crafting_sources(
     rows = conn.execute(
         """
         SELECT cr.reward_item_stable_key,
+               cr.recipe_item_stable_key,
                i.display_name AS recipe_name
         FROM crafting_rewards cr
         JOIN items i ON cr.recipe_item_stable_key = i.stable_key
         """
     ).fetchall()
     for row in rows:
-        out[row["reward_item_stable_key"]].append(ItemSource(type="crafting", name=row["recipe_name"]))
+        out[row["reward_item_stable_key"]].append(
+            ItemSource(
+                type="crafting",
+                name=row["recipe_name"],
+                recipe_key=row["recipe_item_stable_key"],
+            )
+        )
 
 
 def _add_quest_reward_sources(
@@ -951,6 +963,122 @@ def _add_quest_reward_sources(
                 quest_key=row["quest_stable_key"],
             )
         )
+
+
+# ---------------------------------------------------------------------------
+# Crafting ingredient fetch
+# ---------------------------------------------------------------------------
+
+
+def _fetch_crafting_ingredients(
+    conn: sqlite3.Connection,
+) -> dict[str, list[tuple[str, int]]]:
+    """Return ``{recipe_item_sk: [(ingredient_name, quantity)]}``.
+
+    Ordered by material_slot so ingredients appear in recipe order.
+    """
+    rows = conn.execute(
+        """
+        SELECT cr.recipe_item_stable_key,
+               i.display_name AS ingredient_name,
+               cr.material_quantity
+        FROM crafting_recipes cr
+        JOIN items i ON i.stable_key = cr.material_item_stable_key
+        ORDER BY cr.recipe_item_stable_key, cr.material_slot
+        """
+    ).fetchall()
+    result: dict[str, list[tuple[str, int]]] = {}
+    for row in rows:
+        result.setdefault(row["recipe_item_stable_key"], []).append((row["ingredient_name"], row["material_quantity"]))
+    return result
+
+
+# ---------------------------------------------------------------------------
+# Sub-tree materializer
+# ---------------------------------------------------------------------------
+
+
+def materialize_sub_trees(
+    guides: list[QuestGuide],
+    ctx: QuestDataContext,
+) -> None:
+    """Populate ``children`` on quest_reward and crafting sources.
+
+    quest_reward: children are the rewarding quest's required items' sources
+    (one level of expansion, no recursion).
+
+    crafting: children are the mold's obtainability sources followed by
+    synthetic ingredient entries.
+    """
+    for guide in guides:
+        for ri in guide.required_items:
+            for src in ri.sources:
+                if src.type == "quest_reward" and src.quest_key:
+                    _expand_quest_reward(src, ri.item_stable_key, ctx)
+                elif src.type == "crafting" and src.recipe_key:
+                    _expand_crafting(src, ctx)
+
+
+def _expand_quest_reward(
+    src: ItemSource,
+    parent_item_sk: str,
+    ctx: QuestDataContext,
+) -> None:
+    """Attach the rewarding quest's required-item sources as children."""
+    variant_rn = ctx.quest_resource_names.get(src.quest_key or "")
+    if not variant_rn:
+        return
+    req_items = ctx.required_items_map.get(variant_rn, [])
+    for item in req_items:
+        isk = item["item_stable_key"]
+        # Skip self-referencing: the item this source already describes.
+        if isk == parent_item_sk:
+            continue
+        item_sources = ctx.item_sources.get(isk, [])
+        # Filter quest_reward sources that reference the same quest (cycle).
+        filtered = [s for s in item_sources if not (s.type == "quest_reward" and s.quest_key == src.quest_key)]
+        for s in filtered:
+            # Shallow copy — children get no further expansion.
+            src.children.append(
+                ItemSource(
+                    type=s.type,
+                    name=ctx.item_names.get(isk, isk) + ": " + (s.name or s.type),
+                    zone=s.zone,
+                    level=s.level,
+                    source_key=s.source_key,
+                    quest_key=s.quest_key,
+                    node_count=s.node_count,
+                    spawn_count=s.spawn_count,
+                    recipe_key=s.recipe_key,
+                )
+            )
+
+
+def _expand_crafting(src: ItemSource, ctx: QuestDataContext) -> None:
+    """Attach mold obtainability sources and ingredient entries as children."""
+    recipe_key = src.recipe_key
+    if not recipe_key:
+        return
+
+    # Mold obtainability — how the player gets the recipe/mold item.
+    for s in ctx.item_sources.get(recipe_key, []):
+        src.children.append(
+            ItemSource(
+                type=s.type,
+                name=s.name,
+                zone=s.zone,
+                level=s.level,
+                source_key=s.source_key,
+                quest_key=s.quest_key,
+                node_count=s.node_count,
+                spawn_count=s.spawn_count,
+                recipe_key=s.recipe_key,
+            )
+        )
+
+    # Ingredients — synthetic entries using node_count for quantity.
+    for ingredient_name, quantity in ctx.crafting_ingredients.get(recipe_key, []):
+        src.children.append(ItemSource(type="ingredient", name=ingredient_name, node_count=quantity))
 
 
 # ---------------------------------------------------------------------------

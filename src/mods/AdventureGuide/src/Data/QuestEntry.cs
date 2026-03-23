@@ -77,6 +77,8 @@ public sealed class ItemSource
     [JsonProperty("quest_key")] public string? QuestKey { get; set; }
     [JsonProperty("node_count")] public int? NodeCount { get; set; }
     [JsonProperty("spawn_count")] public int? SpawnCount { get; set; }
+    [JsonProperty("recipe_key")] public string? RecipeKey { get; set; }
+    [JsonProperty("children")] public List<ItemSource>? Children { get; set; }
 }
 
 public sealed class RequiredItemInfo

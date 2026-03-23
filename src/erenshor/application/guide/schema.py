@@ -91,6 +91,10 @@ class ItemSource:
 
     Sources are pre-sorted by level ascending (easiest first) and zone-level
     sources (mining, fishing, pickup) are pre-aggregated per zone.
+
+    ``children`` is populated for quest_reward (rewarding quest's required-item
+    sources) and crafting (mold sources + ingredient entries) to provide one
+    level of acquisition sub-tree expansion.
     """
 
     type: str  # "drop", "vendor", "fishing", "mining", "pickup", "crafting", "quest_reward", "dialog_give"
@@ -103,6 +107,8 @@ class ItemSource:
     quest_key: str | None = None  # for quest_reward: rewarding quest's stable_key
     node_count: int | None = None  # for mining/fishing/pickup: nodes per zone
     spawn_count: int | None = None  # for drop: enemy spawn points in this zone
+    recipe_key: str | None = None  # for crafting: recipe item stable_key
+    children: list[ItemSource] = field(default_factory=list)
 
 
 @dataclass

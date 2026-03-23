@@ -55824,14 +55824,98 @@
               "name": "Clearing the Bonepits",
               "level": 9,
               "source_key": "character:william cardigo",
-              "quest_key": "quest:clearbonepits"
+              "quest_key": "quest:clearbonepits",
+              "children": [
+                {
+                  "type": "drop",
+                  "name": "Ritual Stone: An Apparition of Sivakaya",
+                  "zone": "The Bonepits",
+                  "level": 9,
+                  "source_key": "character:an apparation of sivakaya",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Ritual Stone: An Apparition of Sivakaya",
+                  "zone": "The Bonepits",
+                  "level": 9,
+                  "source_key": "character:an apparation of sivakaya",
+                  "spawn_count": 1
+                }
+              ]
             },
             {
               "type": "quest_reward",
               "name": "Maps for Prichard",
               "level": 11,
               "source_key": "character:prichard zemora:azure:185.37:12.94:175.81",
-              "quest_key": "quest:mapforprichard"
+              "quest_key": "quest:mapforprichard",
+              "children": [
+                {
+                  "type": "quest_reward",
+                  "name": "Treasure Map: Repairing Treasure Maps",
+                  "level": 16,
+                  "quest_key": "quest:treasuremap"
+                },
+                {
+                  "type": "drop",
+                  "name": "Elixir of Enlightenment II: Lost Treasure (1-10)",
+                  "level": 1,
+                  "source_key": "character:treasurechest 0-10 1"
+                },
+                {
+                  "type": "drop",
+                  "name": "Elixir of Enlightenment II: Lost Treasure (10-20)",
+                  "level": 1,
+                  "source_key": "character:treasurechest 10-20 1"
+                },
+                {
+                  "type": "vendor",
+                  "name": "Elixir of Enlightenment II: Elysia Thistlewick",
+                  "zone": "Port Azure",
+                  "level": 11,
+                  "source_key": "character:shady merchant"
+                },
+                {
+                  "type": "quest_reward",
+                  "name": "Elixir of Enlightenment II: Albixt's Engagement Ring",
+                  "level": 18,
+                  "source_key": "character:albixt munger:silkengrass:649.35:40.43:225.03",
+                  "quest_key": "quest:albixtsring"
+                },
+                {
+                  "type": "quest_reward",
+                  "name": "Treasure Map: Repairing Treasure Maps",
+                  "level": 16,
+                  "quest_key": "quest:treasuremap"
+                },
+                {
+                  "type": "drop",
+                  "name": "Elixir of Enlightenment II: Lost Treasure (1-10)",
+                  "level": 1,
+                  "source_key": "character:treasurechest 0-10 1"
+                },
+                {
+                  "type": "drop",
+                  "name": "Elixir of Enlightenment II: Lost Treasure (10-20)",
+                  "level": 1,
+                  "source_key": "character:treasurechest 10-20 1"
+                },
+                {
+                  "type": "vendor",
+                  "name": "Elixir of Enlightenment II: Elysia Thistlewick",
+                  "zone": "Port Azure",
+                  "level": 11,
+                  "source_key": "character:shady merchant"
+                },
+                {
+                  "type": "quest_reward",
+                  "name": "Elixir of Enlightenment II: Albixt's Engagement Ring",
+                  "level": 18,
+                  "source_key": "character:albixt munger:silkengrass:649.35:40.43:225.03",
+                  "quest_key": "quest:albixtsring"
+                }
+              ]
             }
           ]
         }
@@ -56129,7 +56213,25 @@
               "type": "quest_reward",
               "name": "A Lost Portal",
               "level": 37,
-              "quest_key": "quest:braxrune"
+              "quest_key": "quest:braxrune",
+              "children": [
+                {
+                  "type": "drop",
+                  "name": "Braxonian Portal Shard (Fire): Braxonian Planar Guard (Fire)",
+                  "zone": "Fallen Braxonia",
+                  "level": 36,
+                  "source_key": "character:braxonian planar guardian fire",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Braxonian Portal Shard (Ice): Braxonian Planar Guard (Ice)",
+                  "zone": "Fallen Braxonia",
+                  "level": 37,
+                  "source_key": "character:braxonian planar guardian ice",
+                  "spawn_count": 1
+                }
+              ]
             }
           ]
         },
@@ -57550,7 +57652,39 @@
               "name": "A Hermit's Request",
               "level": 13,
               "source_key": "character:a hermit",
-              "quest_key": "quest:a hermit's request"
+              "quest_key": "quest:a hermit's request",
+              "children": [
+                {
+                  "type": "drop",
+                  "name": "Ornate Toolbox: A Highwayman Raider",
+                  "zone": "Fernalla's Revival Plains",
+                  "level": 13,
+                  "source_key": "character:a highwayman raider",
+                  "spawn_count": 18
+                },
+                {
+                  "type": "drop",
+                  "name": "Ornate Toolbox: A Highwayman Raider",
+                  "zone": "Fernalla's Revival Plains",
+                  "level": 13,
+                  "source_key": "character:a highwayman raider (1)",
+                  "spawn_count": 18
+                },
+                {
+                  "type": "drop",
+                  "name": "Ornate Toolbox: A Highwayman Raider",
+                  "zone": "Fernalla's Revival Plains",
+                  "level": 13,
+                  "source_key": "character:a highwayman raider (2)",
+                  "spawn_count": 18
+                },
+                {
+                  "type": "drop",
+                  "name": "Ornate Toolbox: A Highwayman Raider",
+                  "level": 13,
+                  "source_key": "character:a highwayman raider 1"
+                }
+              ]
             }
           ]
         }
@@ -58384,7 +58518,15 @@
               "name": "Raval's Last Wish",
               "level": 40,
               "source_key": "character:freed spirit of raval",
-              "quest_key": "quest:ravalwish"
+              "quest_key": "quest:ravalwish",
+              "children": [
+                {
+                  "type": "drop",
+                  "name": "Heart of Astra: Astra, Rogue of the Stars",
+                  "level": 40,
+                  "source_key": "character:astral_ guardian of stars"
+                }
+              ]
             }
           ]
         },
@@ -60428,7 +60570,17 @@
               "type": "quest_reward",
               "name": "Capture Posta's Soul",
               "level": 4,
-              "quest_key": "quest:soulgemposta"
+              "quest_key": "quest:soulgemposta",
+              "children": [
+                {
+                  "type": "drop",
+                  "name": "Soul Gem (Posta): Posta",
+                  "zone": "Island Tomb",
+                  "level": 4,
+                  "source_key": "character:posta",
+                  "spawn_count": 1
+                }
+              ]
             }
           ]
         },
@@ -60442,7 +60594,17 @@
               "type": "quest_reward",
               "name": "Capture Leah's Soul",
               "level": 4,
-              "quest_key": "quest:soulgemleah"
+              "quest_key": "quest:soulgemleah",
+              "children": [
+                {
+                  "type": "drop",
+                  "name": "Soul Gem (Leah): Leah",
+                  "zone": "Island Tomb",
+                  "level": 4,
+                  "source_key": "character:leah",
+                  "spawn_count": 1
+                }
+              ]
             }
           ]
         },
@@ -60456,7 +60618,17 @@
               "type": "quest_reward",
               "name": "Capture Revid's Soul",
               "level": 4,
-              "quest_key": "quest:soulgemrevid"
+              "quest_key": "quest:soulgemrevid",
+              "children": [
+                {
+                  "type": "drop",
+                  "name": "Soul Gem (Revid): Revid",
+                  "zone": "Island Tomb",
+                  "level": 4,
+                  "source_key": "character:revid",
+                  "spawn_count": 1
+                }
+              ]
             }
           ]
         },
@@ -60470,7 +60642,17 @@
               "type": "quest_reward",
               "name": "Capture Stalzo's Soul",
               "level": 4,
-              "quest_key": "quest:soulgemstalzo"
+              "quest_key": "quest:soulgemstalzo",
+              "children": [
+                {
+                  "type": "drop",
+                  "name": "Soul Gem (Stalzo): Stalzo",
+                  "zone": "Island Tomb",
+                  "level": 4,
+                  "source_key": "character:stalzo",
+                  "spawn_count": 1
+                }
+              ]
             }
           ]
         }
@@ -62230,7 +62412,17 @@
               "type": "quest_reward",
               "name": "A Cat for a Deer",
               "level": 38,
-              "quest_key": "quest:catfordeer"
+              "quest_key": "quest:catfordeer",
+              "children": [
+                {
+                  "type": "drop",
+                  "name": "Small Cat Statue: Hypnic",
+                  "zone": "Mysterious Portal (3)",
+                  "level": 38,
+                  "source_key": "character:nightmare:ripperportal:663.80:9.40:313.60",
+                  "spawn_count": 2
+                }
+              ]
             }
           ]
         }
@@ -66961,7 +67153,16 @@
               "name": "Hadden's Supplies",
               "level": 28,
               "source_key": "character:hadden passican",
-              "quest_key": "quest:hadden1"
+              "quest_key": "quest:hadden1",
+              "children": [
+                {
+                  "type": "dialog_give",
+                  "name": "Box of Supplies: Hadden Passican",
+                  "zone": "Fernalla's Revival Plains",
+                  "level": 13,
+                  "source_key": "character:hadden passican"
+                }
+              ]
             }
           ]
         }
@@ -67790,7 +67991,30 @@
               "name": "Recovering the Nighthollow Candle",
               "level": 43,
               "source_key": "character:larviso poltir:loomingwood:323.78:29.25:429.23",
-              "quest_key": "quest:recoveringnighthollow"
+              "quest_key": "quest:recoveringnighthollow",
+              "children": [
+                {
+                  "type": "drop",
+                  "name": "Skull-Shaped Candleholder: Eldoth Molorai",
+                  "zone": "Azynthi's Garden",
+                  "level": 43,
+                  "source_key": "character:eldoth molorai",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "crafting",
+                  "name": "Nighthollow Wax: Mold: Nighthollow Wax",
+                  "recipe_key": "item:template - nighthollow wax mold"
+                },
+                {
+                  "type": "drop",
+                  "name": "Nighthollow Wick: Darkwarden Awxa",
+                  "zone": "Abyssal Lake",
+                  "level": 32,
+                  "source_key": "character:darkwarden awxa",
+                  "spawn_count": 1
+                }
+              ]
             }
           ]
         }
@@ -68592,7 +68816,24 @@
               "type": "quest_reward",
               "name": "Repairing Treasure Maps",
               "level": 16,
-              "quest_key": "quest:treasuremap"
+              "quest_key": "quest:treasuremap",
+              "children": [
+                {
+                  "type": "drop",
+                  "name": "Torn Treasure Map (Top Left): Molorai Archaeologist",
+                  "zone": "Braxonian Desert",
+                  "level": 16,
+                  "source_key": "character:molorai archaelogist 1",
+                  "spawn_count": 6
+                },
+                {
+                  "type": "fishing",
+                  "name": "Torn Treasure Map (Top Right): fishing",
+                  "zone": "Faerie's Brake",
+                  "level": 4,
+                  "node_count": 2
+                }
+              ]
             }
           ]
         },
@@ -68626,7 +68867,17 @@
               "name": "Albixt's Engagement Ring",
               "level": 18,
               "source_key": "character:albixt munger:silkengrass:649.35:40.43:225.03",
-              "quest_key": "quest:albixtsring"
+              "quest_key": "quest:albixtsring",
+              "children": [
+                {
+                  "type": "drop",
+                  "name": "Simple Engagement Ring: Risen Pilgrim",
+                  "zone": "Silkengrass Meadowlands",
+                  "level": 4,
+                  "source_key": "character:risen pilgrim",
+                  "spawn_count": 19
+                }
+              ]
             }
           ]
         }
@@ -69676,7 +69927,238 @@
               "name": "Percy's Seaspice",
               "level": 4,
               "source_key": "character:percy ildia:stowaway:693.19:20.67:504.85",
-              "quest_key": "quest:percy's seaspice"
+              "quest_key": "quest:percy's seaspice",
+              "children": [
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Ghost of Wyland Sercher",
+                  "zone": "Island Tomb",
+                  "level": 4,
+                  "source_key": "character:ghost of wylan sercher",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Lost Soul",
+                  "zone": "Malaroth's Nesting Grounds",
+                  "level": 4,
+                  "source_key": "character:lost soul",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "vendor",
+                  "name": "Seaspice: Summoned: Pocket Vendor",
+                  "zone": "Reliquary Hall",
+                  "level": 5,
+                  "source_key": "character:a rift vendor:reliquary:268.28:1.44:349.00"
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Plaxitheris",
+                  "zone": "Stowaway's Step",
+                  "level": 7,
+                  "source_key": "character:plaxitheris",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Sylvan Giant Runt",
+                  "zone": "Willowwatch Ridge",
+                  "level": 7,
+                  "source_key": "character:sylvan giant runt",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "vendor",
+                  "name": "Seaspice: Saya Seawatcher",
+                  "zone": "Vitheo's Watch",
+                  "level": 9,
+                  "source_key": "character:saya seawatcher"
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Elizah Vernor",
+                  "zone": "Faerie's Brake",
+                  "level": 10,
+                  "source_key": "character:elizah vernor",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Molorai Brewmistress",
+                  "zone": "Old Krakengard",
+                  "level": 10,
+                  "source_key": "character:molorai brewmistress",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Thella Steepleton",
+                  "level": 10,
+                  "source_key": "character:thella steepleton"
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Thella Steepleton",
+                  "zone": "Port Azure",
+                  "level": 10,
+                  "source_key": "character:thella steepleton:azure:242.54:27.97:315.61",
+                  "spawn_count": 2
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: A Lost Sea Giant",
+                  "zone": "Vitheo's Watch",
+                  "level": 11,
+                  "source_key": "character:lost sea giant female",
+                  "spawn_count": 4
+                },
+                {
+                  "type": "vendor",
+                  "name": "Seaspice: Cully Edwarse",
+                  "zone": "Port Azure",
+                  "level": 11,
+                  "source_key": "character:cully edwarse combined"
+                },
+                {
+                  "type": "vendor",
+                  "name": "Seaspice: Shantee Swingblade",
+                  "zone": "Port Azure",
+                  "level": 11,
+                  "source_key": "character:shanty swingblade"
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: The Lost Sea Giant King",
+                  "zone": "Vitheo's Watch",
+                  "level": 12,
+                  "source_key": "character:lost sea giant king",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Deceiver",
+                  "zone": "Malaroth's Nesting Grounds",
+                  "level": 17,
+                  "source_key": "character:priel deceiver",
+                  "spawn_count": 15
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Deceiver",
+                  "zone": "Windwashed Pass",
+                  "level": 17,
+                  "source_key": "character:priel deceiver",
+                  "spawn_count": 13
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Enforcer",
+                  "zone": "Malaroth's Nesting Grounds",
+                  "level": 17,
+                  "source_key": "character:priel enforcer",
+                  "spawn_count": 15
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Enforcer",
+                  "zone": "Windwashed Pass",
+                  "level": 17,
+                  "source_key": "character:priel enforcer",
+                  "spawn_count": 13
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Enforcer",
+                  "zone": "Malaroth's Nesting Grounds",
+                  "level": 17,
+                  "source_key": "character:priel naturalist",
+                  "spawn_count": 15
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Enforcer",
+                  "zone": "Windwashed Pass",
+                  "level": 17,
+                  "source_key": "character:priel naturalist",
+                  "spawn_count": 13
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Swiftblade",
+                  "zone": "Prielian Cascade",
+                  "level": 28,
+                  "source_key": "character:priel swiftblade",
+                  "spawn_count": 22
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Purist",
+                  "zone": "Prielian Cascade",
+                  "level": 30,
+                  "source_key": "character:priel purist",
+                  "spawn_count": 46
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Cerynth Duskveil",
+                  "zone": "Port Azure",
+                  "level": 31,
+                  "source_key": "character:cerynth duskveil",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Myrre Morrigane",
+                  "zone": "Port Azure",
+                  "level": 31,
+                  "source_key": "character:myrre morrigane",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Rose Crystalshade",
+                  "zone": "Braxonian Desert",
+                  "level": 31,
+                  "source_key": "character:rose darkcrystal",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Grimwatch",
+                  "zone": "Prielian Cascade",
+                  "level": 32,
+                  "source_key": "character:priel grimwatch",
+                  "spawn_count": 11
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Soldier",
+                  "level": 32,
+                  "source_key": "character:priel soldier"
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Gifted",
+                  "zone": "Prielian Cascade",
+                  "level": 33,
+                  "source_key": "character:priel gifted",
+                  "spawn_count": 37
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Consort",
+                  "zone": "Prielian Cascade",
+                  "level": 35,
+                  "source_key": "character:priel consort",
+                  "spawn_count": 3
+                },
+                {
+                  "type": "vendor",
+                  "name": "Seaspice: Cully Edwarse",
+                  "source_key": "character:cully edwarse"
+                }
+              ]
             }
           ]
         }
@@ -70378,7 +70860,17 @@
               "name": "Willow Soil",
               "level": 7,
               "source_key": "character:cagnus marlsen",
-              "quest_key": "quest:willowsoil"
+              "quest_key": "quest:willowsoil",
+              "children": [
+                {
+                  "type": "drop",
+                  "name": "Willow Soil: Sylvan Giant Runt",
+                  "zone": "Willowwatch Ridge",
+                  "level": 7,
+                  "source_key": "character:sylvan giant runt",
+                  "spawn_count": 1
+                }
+              ]
             }
           ]
         }
@@ -70486,7 +70978,286 @@
               "name": "A Trade in Ripper's Keep",
               "level": 28,
               "source_key": "character:jeremie galyard",
-              "quest_key": "quest:ripperrune"
+              "quest_key": "quest:ripperrune",
+              "children": [
+                {
+                  "type": "vendor",
+                  "name": "Azure Mead: Benny Bommby",
+                  "zone": "Port Azure",
+                  "level": 11,
+                  "source_key": "character:benny bommby"
+                },
+                {
+                  "type": "vendor",
+                  "name": "Azure Mead: Innkeeper Ryvan",
+                  "zone": "Port Azure",
+                  "level": 11,
+                  "source_key": "character:innkeeper ryvan:azure:167.71:26.82:247.81"
+                },
+                {
+                  "type": "vendor",
+                  "name": "Azure Mead: Isaac Salaman",
+                  "zone": "Port Azure",
+                  "level": 11,
+                  "source_key": "character:isaac salaman:azure:124.92:26.25:350.89"
+                },
+                {
+                  "type": "vendor",
+                  "name": "Azure Mead: Shady Fisherman",
+                  "zone": "Port Azure",
+                  "level": 11,
+                  "source_key": "character:shady fisherman:azure:43.10:13.76:246.95"
+                },
+                {
+                  "type": "drop",
+                  "name": "Azure Mead: Priel Malarist",
+                  "zone": "Prielian Cascade",
+                  "level": 30,
+                  "source_key": "character:priel molarist",
+                  "spawn_count": 46
+                },
+                {
+                  "type": "vendor",
+                  "name": "Azure Mead: Shady Fisherman",
+                  "zone": "Bellwain Island",
+                  "source_key": "character:shady fisherman (1):summerevent:80.10:-5.17:6.41"
+                },
+                {
+                  "type": "vendor",
+                  "name": "Azure Mead: Shady Fisherman",
+                  "zone": "Bellwain Island",
+                  "source_key": "character:shady fisherman:summerevent:78.85:-5.17:8.58"
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Ghost of Wyland Sercher",
+                  "zone": "Island Tomb",
+                  "level": 4,
+                  "source_key": "character:ghost of wylan sercher",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Lost Soul",
+                  "zone": "Malaroth's Nesting Grounds",
+                  "level": 4,
+                  "source_key": "character:lost soul",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "vendor",
+                  "name": "Seaspice: Summoned: Pocket Vendor",
+                  "zone": "Reliquary Hall",
+                  "level": 5,
+                  "source_key": "character:a rift vendor:reliquary:268.28:1.44:349.00"
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Plaxitheris",
+                  "zone": "Stowaway's Step",
+                  "level": 7,
+                  "source_key": "character:plaxitheris",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Sylvan Giant Runt",
+                  "zone": "Willowwatch Ridge",
+                  "level": 7,
+                  "source_key": "character:sylvan giant runt",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "vendor",
+                  "name": "Seaspice: Saya Seawatcher",
+                  "zone": "Vitheo's Watch",
+                  "level": 9,
+                  "source_key": "character:saya seawatcher"
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Elizah Vernor",
+                  "zone": "Faerie's Brake",
+                  "level": 10,
+                  "source_key": "character:elizah vernor",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Molorai Brewmistress",
+                  "zone": "Old Krakengard",
+                  "level": 10,
+                  "source_key": "character:molorai brewmistress",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Thella Steepleton",
+                  "level": 10,
+                  "source_key": "character:thella steepleton"
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Thella Steepleton",
+                  "zone": "Port Azure",
+                  "level": 10,
+                  "source_key": "character:thella steepleton:azure:242.54:27.97:315.61",
+                  "spawn_count": 2
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: A Lost Sea Giant",
+                  "zone": "Vitheo's Watch",
+                  "level": 11,
+                  "source_key": "character:lost sea giant female",
+                  "spawn_count": 4
+                },
+                {
+                  "type": "vendor",
+                  "name": "Seaspice: Cully Edwarse",
+                  "zone": "Port Azure",
+                  "level": 11,
+                  "source_key": "character:cully edwarse combined"
+                },
+                {
+                  "type": "vendor",
+                  "name": "Seaspice: Shantee Swingblade",
+                  "zone": "Port Azure",
+                  "level": 11,
+                  "source_key": "character:shanty swingblade"
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: The Lost Sea Giant King",
+                  "zone": "Vitheo's Watch",
+                  "level": 12,
+                  "source_key": "character:lost sea giant king",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Deceiver",
+                  "zone": "Malaroth's Nesting Grounds",
+                  "level": 17,
+                  "source_key": "character:priel deceiver",
+                  "spawn_count": 15
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Deceiver",
+                  "zone": "Windwashed Pass",
+                  "level": 17,
+                  "source_key": "character:priel deceiver",
+                  "spawn_count": 13
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Enforcer",
+                  "zone": "Malaroth's Nesting Grounds",
+                  "level": 17,
+                  "source_key": "character:priel enforcer",
+                  "spawn_count": 15
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Enforcer",
+                  "zone": "Windwashed Pass",
+                  "level": 17,
+                  "source_key": "character:priel enforcer",
+                  "spawn_count": 13
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Enforcer",
+                  "zone": "Malaroth's Nesting Grounds",
+                  "level": 17,
+                  "source_key": "character:priel naturalist",
+                  "spawn_count": 15
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Enforcer",
+                  "zone": "Windwashed Pass",
+                  "level": 17,
+                  "source_key": "character:priel naturalist",
+                  "spawn_count": 13
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Swiftblade",
+                  "zone": "Prielian Cascade",
+                  "level": 28,
+                  "source_key": "character:priel swiftblade",
+                  "spawn_count": 22
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Purist",
+                  "zone": "Prielian Cascade",
+                  "level": 30,
+                  "source_key": "character:priel purist",
+                  "spawn_count": 46
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Cerynth Duskveil",
+                  "zone": "Port Azure",
+                  "level": 31,
+                  "source_key": "character:cerynth duskveil",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Myrre Morrigane",
+                  "zone": "Port Azure",
+                  "level": 31,
+                  "source_key": "character:myrre morrigane",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Rose Crystalshade",
+                  "zone": "Braxonian Desert",
+                  "level": 31,
+                  "source_key": "character:rose darkcrystal",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Grimwatch",
+                  "zone": "Prielian Cascade",
+                  "level": 32,
+                  "source_key": "character:priel grimwatch",
+                  "spawn_count": 11
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Soldier",
+                  "level": 32,
+                  "source_key": "character:priel soldier"
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Gifted",
+                  "zone": "Prielian Cascade",
+                  "level": 33,
+                  "source_key": "character:priel gifted",
+                  "spawn_count": 37
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Consort",
+                  "zone": "Prielian Cascade",
+                  "level": 35,
+                  "source_key": "character:priel consort",
+                  "spawn_count": 3
+                },
+                {
+                  "type": "vendor",
+                  "name": "Seaspice: Cully Edwarse",
+                  "source_key": "character:cully edwarse"
+                }
+              ]
             }
           ]
         }
@@ -70827,7 +71598,17 @@
               "type": "quest_reward",
               "name": "Note to Soluna",
               "level": 32,
-              "quest_key": "quest:solunalandingrune"
+              "quest_key": "quest:solunalandingrune",
+              "children": [
+                {
+                  "type": "drop",
+                  "name": "Faded Journal Entry: Raval, The First Paladin",
+                  "zone": "Soluna's Landing",
+                  "level": 32,
+                  "source_key": "character:raval",
+                  "spawn_count": 1
+                }
+              ]
             }
           ]
         }
@@ -70935,7 +71716,17 @@
               "name": "The Scent of Brashell",
               "level": 25,
               "source_key": "character:braxon elden:braxonian:99.99:33.79:993.06",
-              "quest_key": "quest:brashell"
+              "quest_key": "quest:brashell",
+              "children": [
+                {
+                  "type": "drop",
+                  "name": "Brashell: Evadne the Corrupted",
+                  "zone": "Braxonian Desert",
+                  "level": 25,
+                  "source_key": "character:evadne",
+                  "spawn_count": 1
+                }
+              ]
             }
           ]
         }
@@ -71218,7 +72009,41 @@
           "sources": [
             {
               "type": "crafting",
-              "name": "Mold: Nighthollow Wax"
+              "name": "Mold: Nighthollow Wax",
+              "recipe_key": "item:template - nighthollow wax mold",
+              "children": [
+                {
+                  "type": "drop",
+                  "name": "Candlekeeper",
+                  "level": 35,
+                  "source_key": "character:candlekeeper"
+                },
+                {
+                  "type": "ingredient",
+                  "name": "Dusken Giant's Blood",
+                  "node_count": 1
+                },
+                {
+                  "type": "ingredient",
+                  "name": "Ghostly Giant's Blood",
+                  "node_count": 1
+                },
+                {
+                  "type": "ingredient",
+                  "name": "Sylvan Giant's Blood",
+                  "node_count": 1
+                },
+                {
+                  "type": "ingredient",
+                  "name": "Stone Giant's Blood",
+                  "node_count": 1
+                },
+                {
+                  "type": "ingredient",
+                  "name": "Vampire Fang",
+                  "node_count": 1
+                }
+              ]
             }
           ]
         },
@@ -71367,7 +72192,25 @@
               "zone": "Braxonian Desert",
               "level": 21,
               "source_key": "character:priest of brax",
-              "quest_key": "quest:tempeststone"
+              "quest_key": "quest:tempeststone",
+              "children": [
+                {
+                  "type": "drop",
+                  "name": "Tempest Stone: Upha, Priest of Brax",
+                  "zone": "Braxonian Desert",
+                  "level": 21,
+                  "source_key": "character:priest of brax",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Tempest Stone: Upha, Priest of Brax",
+                  "zone": "Braxonian Desert",
+                  "level": 21,
+                  "source_key": "character:priest of brax",
+                  "spawn_count": 1
+                }
+              ]
             }
           ]
         }
@@ -71600,7 +72443,25 @@
               "zone": "Braxonian Desert",
               "level": 21,
               "source_key": "character:priest of brax",
-              "quest_key": "quest:tempeststone"
+              "quest_key": "quest:tempeststone",
+              "children": [
+                {
+                  "type": "drop",
+                  "name": "Tempest Stone: Upha, Priest of Brax",
+                  "zone": "Braxonian Desert",
+                  "level": 21,
+                  "source_key": "character:priest of brax",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Tempest Stone: Upha, Priest of Brax",
+                  "zone": "Braxonian Desert",
+                  "level": 21,
+                  "source_key": "character:priest of brax",
+                  "spawn_count": 1
+                }
+              ]
             },
             {
               "type": "quest_reward",
@@ -75912,7 +76773,37 @@
           "sources": [
             {
               "type": "crafting",
-              "name": "Mold: Angler's Ring"
+              "name": "Mold: Angler's Ring",
+              "recipe_key": "item:template - anglers ring",
+              "children": [
+                {
+                  "type": "dialog_give",
+                  "name": "Liani Bosh",
+                  "zone": "Port Azure",
+                  "level": 11,
+                  "source_key": "character:liani bosh:azure:135.62:31.82:303.95"
+                },
+                {
+                  "type": "ingredient",
+                  "name": "Luminstone",
+                  "node_count": 1
+                },
+                {
+                  "type": "ingredient",
+                  "name": "Vithean Ore",
+                  "node_count": 1
+                },
+                {
+                  "type": "ingredient",
+                  "name": "Sea Glass",
+                  "node_count": 1
+                },
+                {
+                  "type": "ingredient",
+                  "name": "Whispers of the Sea",
+                  "node_count": 1
+                }
+              ]
             }
           ]
         }
@@ -77327,7 +78218,17 @@
               "zone": "Faerie's Brake",
               "level": 14,
               "source_key": "character:bassalt valanno",
-              "quest_key": "quest:liamsnote"
+              "quest_key": "quest:liamsnote",
+              "children": [
+                {
+                  "type": "drop",
+                  "name": "Note to Liam: Bassalt Vallano",
+                  "zone": "Faerie's Brake",
+                  "level": 10,
+                  "source_key": "character:bassalt valanno",
+                  "spawn_count": 1
+                }
+              ]
             }
           ]
         }
@@ -78843,7 +79744,137 @@
               "type": "quest_reward",
               "name": "The Lost Soul Pt. 1",
               "level": 32,
-              "quest_key": "quest:thelostsoul"
+              "quest_key": "quest:thelostsoul",
+              "children": [
+                {
+                  "type": "drop",
+                  "name": "Pg. 1: Faded Entry: A Skeleton Captain",
+                  "zone": "The Bonepits",
+                  "level": 8,
+                  "source_key": "character:skeleton captain",
+                  "spawn_count": 4
+                },
+                {
+                  "type": "drop",
+                  "name": "Pg. 1: Faded Entry: A Skeleton Captain",
+                  "zone": "Vitheo's Watch",
+                  "level": 8,
+                  "source_key": "character:skeleton captain",
+                  "spawn_count": 4
+                },
+                {
+                  "type": "drop",
+                  "name": "Pg. 2: Faded Entry: Molorai Captain Sigrid",
+                  "zone": "Old Krakengard",
+                  "level": 11,
+                  "source_key": "character:molorai captain sigrid",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Pg. 3: Faded Entry: Druo the Reborn",
+                  "zone": "Underspine Hollow",
+                  "level": 15,
+                  "source_key": "character:druo the reborn",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Pg. 4: Faded Entry: Spectral Torturer",
+                  "zone": "Lost Cellar",
+                  "level": 18,
+                  "source_key": "character:torturer",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Pg. 5: Faded Entry: Ravager, The First Infected",
+                  "zone": "The Elderstone Mines",
+                  "level": 21,
+                  "source_key": "character:ravager",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Pg. 6: Faded Entry: Pyroclast",
+                  "zone": "Rockshade Hold",
+                  "level": 27,
+                  "source_key": "character:pyroclast",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Pg. 7: Faded Entry: Darkwarden Ealdred",
+                  "zone": "Abyssal Lake",
+                  "level": 32,
+                  "source_key": "character:darkwarden ealdred",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Pg. 1: Faded Entry: A Skeleton Captain",
+                  "zone": "The Bonepits",
+                  "level": 8,
+                  "source_key": "character:skeleton captain",
+                  "spawn_count": 4
+                },
+                {
+                  "type": "drop",
+                  "name": "Pg. 1: Faded Entry: A Skeleton Captain",
+                  "zone": "Vitheo's Watch",
+                  "level": 8,
+                  "source_key": "character:skeleton captain",
+                  "spawn_count": 4
+                },
+                {
+                  "type": "drop",
+                  "name": "Pg. 2: Faded Entry: Molorai Captain Sigrid",
+                  "zone": "Old Krakengard",
+                  "level": 11,
+                  "source_key": "character:molorai captain sigrid",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Pg. 3: Faded Entry: Druo the Reborn",
+                  "zone": "Underspine Hollow",
+                  "level": 15,
+                  "source_key": "character:druo the reborn",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Pg. 4: Faded Entry: Spectral Torturer",
+                  "zone": "Lost Cellar",
+                  "level": 18,
+                  "source_key": "character:torturer",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Pg. 5: Faded Entry: Ravager, The First Infected",
+                  "zone": "The Elderstone Mines",
+                  "level": 21,
+                  "source_key": "character:ravager",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Pg. 6: Faded Entry: Pyroclast",
+                  "zone": "Rockshade Hold",
+                  "level": 27,
+                  "source_key": "character:pyroclast",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Pg. 7: Faded Entry: Darkwarden Ealdred",
+                  "zone": "Abyssal Lake",
+                  "level": 32,
+                  "source_key": "character:darkwarden ealdred",
+                  "spawn_count": 1
+                }
+              ]
             }
           ]
         }
@@ -78929,7 +79960,137 @@
               "type": "quest_reward",
               "name": "The Lost Soul Pt. 1",
               "level": 32,
-              "quest_key": "quest:thelostsoul"
+              "quest_key": "quest:thelostsoul",
+              "children": [
+                {
+                  "type": "drop",
+                  "name": "Pg. 1: Faded Entry: A Skeleton Captain",
+                  "zone": "The Bonepits",
+                  "level": 8,
+                  "source_key": "character:skeleton captain",
+                  "spawn_count": 4
+                },
+                {
+                  "type": "drop",
+                  "name": "Pg. 1: Faded Entry: A Skeleton Captain",
+                  "zone": "Vitheo's Watch",
+                  "level": 8,
+                  "source_key": "character:skeleton captain",
+                  "spawn_count": 4
+                },
+                {
+                  "type": "drop",
+                  "name": "Pg. 2: Faded Entry: Molorai Captain Sigrid",
+                  "zone": "Old Krakengard",
+                  "level": 11,
+                  "source_key": "character:molorai captain sigrid",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Pg. 3: Faded Entry: Druo the Reborn",
+                  "zone": "Underspine Hollow",
+                  "level": 15,
+                  "source_key": "character:druo the reborn",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Pg. 4: Faded Entry: Spectral Torturer",
+                  "zone": "Lost Cellar",
+                  "level": 18,
+                  "source_key": "character:torturer",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Pg. 5: Faded Entry: Ravager, The First Infected",
+                  "zone": "The Elderstone Mines",
+                  "level": 21,
+                  "source_key": "character:ravager",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Pg. 6: Faded Entry: Pyroclast",
+                  "zone": "Rockshade Hold",
+                  "level": 27,
+                  "source_key": "character:pyroclast",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Pg. 7: Faded Entry: Darkwarden Ealdred",
+                  "zone": "Abyssal Lake",
+                  "level": 32,
+                  "source_key": "character:darkwarden ealdred",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Pg. 1: Faded Entry: A Skeleton Captain",
+                  "zone": "The Bonepits",
+                  "level": 8,
+                  "source_key": "character:skeleton captain",
+                  "spawn_count": 4
+                },
+                {
+                  "type": "drop",
+                  "name": "Pg. 1: Faded Entry: A Skeleton Captain",
+                  "zone": "Vitheo's Watch",
+                  "level": 8,
+                  "source_key": "character:skeleton captain",
+                  "spawn_count": 4
+                },
+                {
+                  "type": "drop",
+                  "name": "Pg. 2: Faded Entry: Molorai Captain Sigrid",
+                  "zone": "Old Krakengard",
+                  "level": 11,
+                  "source_key": "character:molorai captain sigrid",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Pg. 3: Faded Entry: Druo the Reborn",
+                  "zone": "Underspine Hollow",
+                  "level": 15,
+                  "source_key": "character:druo the reborn",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Pg. 4: Faded Entry: Spectral Torturer",
+                  "zone": "Lost Cellar",
+                  "level": 18,
+                  "source_key": "character:torturer",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Pg. 5: Faded Entry: Ravager, The First Infected",
+                  "zone": "The Elderstone Mines",
+                  "level": 21,
+                  "source_key": "character:ravager",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Pg. 6: Faded Entry: Pyroclast",
+                  "zone": "Rockshade Hold",
+                  "level": 27,
+                  "source_key": "character:pyroclast",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Pg. 7: Faded Entry: Darkwarden Ealdred",
+                  "zone": "Abyssal Lake",
+                  "level": 32,
+                  "source_key": "character:darkwarden ealdred",
+                  "spawn_count": 1
+                }
+              ]
             }
           ]
         }
@@ -82710,7 +83871,15 @@
               "type": "quest_reward",
               "name": "Underloft's Compass",
               "level": 15,
-              "quest_key": "quest:underloftcompass"
+              "quest_key": "quest:underloftcompass",
+              "children": [
+                {
+                  "type": "drop",
+                  "name": "Small Engraved Compass: Restless Thoughts",
+                  "level": 15,
+                  "source_key": "character:portal lord"
+                }
+              ]
             }
           ]
         }
@@ -83120,14 +84289,98 @@
               "name": "Clearing the Bonepits",
               "level": 9,
               "source_key": "character:william cardigo",
-              "quest_key": "quest:clearbonepits"
+              "quest_key": "quest:clearbonepits",
+              "children": [
+                {
+                  "type": "drop",
+                  "name": "Ritual Stone: An Apparition of Sivakaya",
+                  "zone": "The Bonepits",
+                  "level": 9,
+                  "source_key": "character:an apparation of sivakaya",
+                  "spawn_count": 1
+                },
+                {
+                  "type": "drop",
+                  "name": "Ritual Stone: An Apparition of Sivakaya",
+                  "zone": "The Bonepits",
+                  "level": 9,
+                  "source_key": "character:an apparation of sivakaya",
+                  "spawn_count": 1
+                }
+              ]
             },
             {
               "type": "quest_reward",
               "name": "Maps for Prichard",
               "level": 11,
               "source_key": "character:prichard zemora:azure:185.37:12.94:175.81",
-              "quest_key": "quest:mapforprichard"
+              "quest_key": "quest:mapforprichard",
+              "children": [
+                {
+                  "type": "quest_reward",
+                  "name": "Treasure Map: Repairing Treasure Maps",
+                  "level": 16,
+                  "quest_key": "quest:treasuremap"
+                },
+                {
+                  "type": "drop",
+                  "name": "Elixir of Enlightenment II: Lost Treasure (1-10)",
+                  "level": 1,
+                  "source_key": "character:treasurechest 0-10 1"
+                },
+                {
+                  "type": "drop",
+                  "name": "Elixir of Enlightenment II: Lost Treasure (10-20)",
+                  "level": 1,
+                  "source_key": "character:treasurechest 10-20 1"
+                },
+                {
+                  "type": "vendor",
+                  "name": "Elixir of Enlightenment II: Elysia Thistlewick",
+                  "zone": "Port Azure",
+                  "level": 11,
+                  "source_key": "character:shady merchant"
+                },
+                {
+                  "type": "quest_reward",
+                  "name": "Elixir of Enlightenment II: Albixt's Engagement Ring",
+                  "level": 18,
+                  "source_key": "character:albixt munger:silkengrass:649.35:40.43:225.03",
+                  "quest_key": "quest:albixtsring"
+                },
+                {
+                  "type": "quest_reward",
+                  "name": "Treasure Map: Repairing Treasure Maps",
+                  "level": 16,
+                  "quest_key": "quest:treasuremap"
+                },
+                {
+                  "type": "drop",
+                  "name": "Elixir of Enlightenment II: Lost Treasure (1-10)",
+                  "level": 1,
+                  "source_key": "character:treasurechest 0-10 1"
+                },
+                {
+                  "type": "drop",
+                  "name": "Elixir of Enlightenment II: Lost Treasure (10-20)",
+                  "level": 1,
+                  "source_key": "character:treasurechest 10-20 1"
+                },
+                {
+                  "type": "vendor",
+                  "name": "Elixir of Enlightenment II: Elysia Thistlewick",
+                  "zone": "Port Azure",
+                  "level": 11,
+                  "source_key": "character:shady merchant"
+                },
+                {
+                  "type": "quest_reward",
+                  "name": "Elixir of Enlightenment II: Albixt's Engagement Ring",
+                  "level": 18,
+                  "source_key": "character:albixt munger:silkengrass:649.35:40.43:225.03",
+                  "quest_key": "quest:albixtsring"
+                }
+              ]
             }
           ]
         },
