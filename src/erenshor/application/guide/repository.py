@@ -493,27 +493,35 @@ def _fetch_character_spawns(
     """
     rows = conn.execute(
         """
-        SELECT character_stable_key, scene, x, y, z
+        SELECT character_stable_key, scene, x, y, z, night_spawn
         FROM character_spawns
         WHERE x IS NOT NULL
         UNION ALL
-        SELECT 'mining-nodes:' || scene AS character_stable_key, scene, x, y, z
+        SELECT 'mining-nodes:' || scene AS character_stable_key, scene, x, y, z,
+               0 AS night_spawn
         FROM mining_nodes
         WHERE x IS NOT NULL
         UNION ALL
         SELECT 'pickup-nodes:' || item_stable_key || ':' || scene AS character_stable_key,
-               scene, x, y, z
+               scene, x, y, z, 0 AS night_spawn
         FROM item_bags
         WHERE x IS NOT NULL AND item_stable_key IS NOT NULL
         UNION ALL
-        SELECT 'forge:' || scene AS character_stable_key, scene, x, y, z
+        SELECT 'forge:' || scene AS character_stable_key, scene, x, y, z,
+               0 AS night_spawn
         FROM forges
         WHERE x IS NOT NULL
         """
     ).fetchall()
     result: dict[str, list[SpawnPoint]] = {}
     for row in rows:
-        sp = SpawnPoint(scene=row["scene"], x=row["x"], y=row["y"], z=row["z"])
+        sp = SpawnPoint(
+            scene=row["scene"],
+            x=row["x"],
+            y=row["y"],
+            z=row["z"],
+            night_spawn=bool(row["night_spawn"]),
+        )
         result.setdefault(row["character_stable_key"], []).append(sp)
 
     # Bridge prefab keys to their placed instances' spawns.

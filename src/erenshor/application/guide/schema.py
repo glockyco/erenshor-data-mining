@@ -290,6 +290,7 @@ class SpawnPoint:
     x: float = 0.0
     y: float = 0.0
     z: float = 0.0
+    night_spawn: bool = False
 
 
 @dataclass
