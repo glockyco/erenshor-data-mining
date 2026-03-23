@@ -176,7 +176,7 @@ public sealed class WorldMarkerSystem
                 continue;
 
             var type = repeatable ? MarkerType.QuestGiverRepeat : MarkerType.QuestGiver;
-            string? subText = acq.Keyword != null ? $"Say '{acq.Keyword}'" : null;
+            string? subText = acq.Keyword != null ? $"Say '{acq.Keyword}'" : "Talk to";
 
             TryAddMarker(acq.SourceStableKey, type, acq.SourceName ?? quest.DisplayName, subText);
         }
@@ -206,12 +206,9 @@ public sealed class WorldMarkerSystem
             else
                 type = MarkerType.TurnInPending;
 
-            // Show required item name for turn-in markers
-            string? itemName = quest.RequiredItems?.Count > 0
-                ? $"Needs: {quest.RequiredItems[0].ItemName}"
-                : null;
+            string subText = FormatTurnInText(quest);
 
-            TryAddMarker(comp.SourceStableKey, type, comp.SourceName ?? quest.DisplayName, itemName);
+            TryAddMarker(comp.SourceStableKey, type, comp.SourceName ?? quest.DisplayName, subText);
         }
     }
 
@@ -233,7 +230,7 @@ public sealed class WorldMarkerSystem
             && HasSpawnInScene(step.TargetKey, scene))
         {
             TryAddMarker(step.TargetKey, MarkerType.Objective,
-                step.TargetName ?? step.Description, null);
+                step.TargetName ?? step.Description, FormatStepActionText(step));
         }
 
         // NPC sources for ALL uncollected required items (not just current step)
@@ -383,6 +380,40 @@ public sealed class WorldMarkerSystem
 
             _markers[i] = m; // write back mutated position
         }
+    }
+
+    /// <summary>Format sub-text for turn-in markers: "Give {name}" or "Give {n} items".</summary>
+    private static string FormatTurnInText(QuestEntry quest)
+    {
+        if (quest.RequiredItems == null || quest.RequiredItems.Count == 0)
+            return "Talk to";
+
+        // Filter out or_group alternatives — only count truly required items
+        int count = 0;
+        string? firstName = null;
+        foreach (var ri in quest.RequiredItems)
+        {
+            if (ri.OrGroup != null) continue;
+            count++;
+            firstName ??= ri.ItemName;
+        }
+
+        if (count == 0)
+            return "Talk to";
+        if (count == 1)
+            return $"Give {firstName}";
+        return $"Give {count} items";
+    }
+
+    /// <summary>Format sub-text for objective step markers based on step action.</summary>
+    private static string FormatStepActionText(QuestStep step)
+    {
+        return step.Action switch
+        {
+            "shout" when step.Keyword != null => $"Shout '{step.Keyword}'",
+            "shout" => "Shout near",
+            _ => "Talk to",
+        };
     }
 
     // ── Helpers ───────────────────────────────────────────────────
