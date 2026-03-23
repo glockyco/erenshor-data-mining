@@ -21,6 +21,7 @@ public sealed class NavigationController
     private readonly ZoneGraph _zoneGraph;
     // Cache to avoid per-frame zone line waypoint allocation and reachability checks
     private ZoneLineEntry? _cachedZoneLine;
+    private ZoneLineEntry? _pinnedZoneLine; // manual override from UI, cleared on nav change
     private Vector3 _lastCrossZoneCalcPos;
     private const float CrossZoneRecalcDistance = 10f;
 
@@ -95,11 +96,21 @@ public sealed class NavigationController
     }
 
     /// <summary>Clear active navigation.</summary>
+    /// <summary>Pin a specific zone line for cross-zone routing, overriding auto-selection.</summary>
+    public void PinZoneLine(ZoneLineEntry zoneLine)
+    {
+        _pinnedZoneLine = zoneLine;
+        // Force recalculation on next update
+        _cachedZoneLine = null;
+        _lastCrossZoneCalcPos = Vector3.zero;
+    }
+
     public void Clear()
     {
         Target = null;
         ZoneLineWaypoint = null;
         _cachedZoneLine = null;
+        _pinnedZoneLine = null;
         _lastCrossZoneCalcPos = Vector3.zero;
         Distance = 0f;
         Direction = Vector3.zero;
@@ -249,9 +260,9 @@ public sealed class NavigationController
     /// Get all zone lines from the current scene to the navigation target's zone.
     /// Returns empty if not cross-zone navigating or no zone lines found.
     /// </summary>
-    public List<(ZoneLineEntry line, float distance, bool isSelected, bool isAccessible)> GetAlternativeZoneLines(string currentScene)
+    public List<(ZoneLineEntry line, float distance, bool isActive, bool isAccessible)> GetAlternativeZoneLines(string currentScene)
     {
-        var result = new List<(ZoneLineEntry line, float distance, bool isSelected, bool isAccessible)>();
+        var result = new List<(ZoneLineEntry line, float distance, bool isActive, bool isAccessible)>();
         if (Target == null || !Target.IsCrossZone(currentScene))
             return result;
 
@@ -268,8 +279,9 @@ public sealed class NavigationController
 
             var zlPos = new Vector3(zl.X, zl.Y, zl.Z);
             float dist = Vector3.Distance(playerPos, zlPos);
-            bool selected = _cachedZoneLine != null
-                && zl.X == _cachedZoneLine.X && zl.Y == _cachedZoneLine.Y && zl.Z == _cachedZoneLine.Z;
+            var activeZl = _pinnedZoneLine ?? _cachedZoneLine;
+            bool selected = activeZl != null
+                && zl.X == activeZl.X && zl.Y == activeZl.Y && zl.Z == activeZl.Z;
             bool accessible = IsZoneLineAccessible(zl);
             result.Add((zl, dist, selected, accessible));
         }
@@ -430,20 +442,31 @@ public sealed class NavigationController
         {
             _lastCrossZoneCalcPos = playerPos;
 
-            // Use zone graph to find the correct next hop toward the target
-            var route = _zoneGraph.FindRoute(currentScene, Target!.Scene);
-            var nextHopZoneKey = route?.NextHopZoneKey;
-
-            // Find the best zone line for the next hop
             ZoneLineEntry? bestLine = null;
             bool routeIsLocked = false;
 
-            if (nextHopZoneKey != null)
+            // Manual pin takes priority over auto-selection
+            if (_pinnedZoneLine != null
+                && string.Equals(_pinnedZoneLine.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase))
             {
-                bestLine = route!.IsLocked
-                    ? FindClosestZoneLineAny(nextHopZoneKey, currentScene, playerPos)
-                    : FindClosestZoneLine(nextHopZoneKey, currentScene, playerPos);
-                routeIsLocked = route.IsLocked;
+                bestLine = _pinnedZoneLine;
+            }
+            else
+            {
+                // Clear stale pin (wrong scene or explicitly cleared)
+                _pinnedZoneLine = null;
+
+                // Use zone graph to find the correct next hop toward the target
+                var route = _zoneGraph.FindRoute(currentScene, Target!.Scene);
+                var nextHopZoneKey = route?.NextHopZoneKey;
+
+                if (nextHopZoneKey != null)
+                {
+                    bestLine = route!.IsLocked
+                        ? FindClosestZoneLineAny(nextHopZoneKey, currentScene, playerPos)
+                        : FindClosestZoneLine(nextHopZoneKey, currentScene, playerPos);
+                    routeIsLocked = route.IsLocked;
+                }
             }
 
             if (bestLine != _cachedZoneLine)
@@ -459,7 +482,7 @@ public sealed class NavigationController
                         new Vector3(bestLine.X, bestLine.Y, bestLine.Z),
                         displayText,
                         currentScene,
-                        Target.QuestDBName, Target.StepOrder);
+                        Target!.QuestDBName, Target.StepOrder);
                 }
                 else
                 {

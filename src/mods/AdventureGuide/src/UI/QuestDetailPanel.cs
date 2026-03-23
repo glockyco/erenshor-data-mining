@@ -381,7 +381,7 @@ public sealed class QuestDetailPanel
         {
             for (int i = 0; i < alternatives.Count; i++)
             {
-                var (line, distance, isSelected, isAccessible) = alternatives[i];
+                var (line, distance, isActive, isAccessible) = alternatives[i];
                 if (!isAccessible)
                 {
                     // Locked zone line: dimmed text
@@ -411,13 +411,23 @@ public sealed class QuestDetailPanel
                 }
                 else
                 {
-                    string suffix = isSelected ? " (auto)" : "";
-                    string label = $"To {line.DestinationDisplay} ({distance:F0}m){suffix}";
+                    string label = $"To {line.DestinationDisplay} ({distance:F0}m)";
 
-                    if (isSelected)
-                        ImGui.Text(label);
-                    else
-                        ImGui.Selectable($"{label}##zl_{step.Order}_{i}");
+                    if (isActive)
+                        ImGui.PushStyleColor(ImGuiCol.Text, Theme.QuestActive);
+
+                    if (ImGui.Selectable($"{label}##zl_{step.Order}_{i}"))
+                        _nav.PinZoneLine(line);
+
+                    if (isActive)
+                        ImGui.PopStyleColor();
+
+                    if (ImGui.IsItemHovered())
+                    {
+                        ImGui.BeginTooltip();
+                        ImGui.Text($"Route via {line.DestinationDisplay}");
+                        ImGui.EndTooltip();
+                    }
                 }
             }
             ImGui.TreePop();
@@ -477,12 +487,20 @@ public sealed class QuestDetailPanel
         }
         else if (src.SourceKey != null)
         {
-            // Navigable source: Selectable with hover tooltip
+            // Navigable source: Selectable with highlight when actively navigating to it
+            bool isNavTarget = _nav.Target?.TargetKey == src.SourceKey;
+            if (isNavTarget)
+                ImGui.PushStyleColor(ImGuiCol.Text, Theme.QuestActive);
+
             if (ImGui.Selectable($"{label}##src_{step.Order}_{src.SourceKey}"))
             {
                 _nav.NavigateToSource(src.SourceKey, src.Name ?? src.SourceKey,
                     src.Scene, quest.DBName, step.Order, _state.CurrentZone);
             }
+
+            if (isNavTarget)
+                ImGui.PopStyleColor();
+
             if (ImGui.IsItemHovered())
             {
                 ImGui.BeginTooltip();
