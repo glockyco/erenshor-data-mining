@@ -16,6 +16,8 @@ public sealed class NavigationController
     private readonly GuideData _data;
     private readonly EntityRegistry _entities;
     private readonly QuestStateTracker _state;
+    private readonly SpawnTimerTracker _timers;
+    private readonly MiningNodeTracker _miningTracker;
     // Cache to avoid per-frame zone line waypoint allocation and reachability checks
     private ZoneLineEntry? _cachedZoneLine;
     private Vector3 _lastCrossZoneCalcPos;
@@ -39,11 +41,13 @@ public sealed class NavigationController
     /// </summary>
     public NavigationTarget? ZoneLineWaypoint { get; private set; }
 
-    public NavigationController(GuideData data, EntityRegistry entities, QuestStateTracker state)
+    public NavigationController(GuideData data, EntityRegistry entities, QuestStateTracker state, SpawnTimerTracker timers, MiningNodeTracker miningTracker)
     {
         _data = data;
         _entities = entities;
         _state = state;
+        _timers = timers;
+        _miningTracker = miningTracker;
     }
 
     /// <summary>
@@ -182,7 +186,16 @@ public sealed class NavigationController
         {
             var liveNpc = _entities.FindClosest(Target.DisplayName, playerPos.Value);
             if (liveNpc != null)
+            {
                 Target.Position = liveNpc.transform.position;
+            }
+            else
+            {
+                // All instances dead/mined — navigate to shortest respawn
+                var bestRespawn = FindShortestRespawnPosition(Target.DisplayName);
+                if (bestRespawn.HasValue)
+                    Target.Position = bestRespawn.Value;
+            }
         }
 
         UpdateDistanceAndDirection(Target.Position, playerPos.Value);
@@ -193,6 +206,36 @@ public sealed class NavigationController
         Target != null
         && Target.QuestDBName == questDBName
         && Target.StepOrder == stepOrder;
+
+    private Vector3? FindShortestRespawnPosition(string displayName)
+    {
+        // Check mining nodes first (all named "Mineral Deposit")
+        if (string.Equals(displayName, "Mineral Deposit", System.StringComparison.OrdinalIgnoreCase))
+        {
+            var best = _miningTracker.FindShortestRespawn();
+            if (best.HasValue)
+                return best.Value.node.transform.position;
+        }
+
+        // Check dead enemy spawns
+        SpawnPoint? bestPoint = null;
+        float bestTime = float.MaxValue;
+        foreach (var kvp in _timers.Tracked)
+        {
+            var tracked = kvp.Value;
+            if (tracked.Point == null) continue;
+            if (!string.Equals(tracked.NPCName, displayName, System.StringComparison.OrdinalIgnoreCase))
+                continue;
+            float? remaining = _timers.GetRemainingSeconds(tracked.Point);
+            if (remaining.HasValue && remaining.Value < bestTime)
+            {
+                bestPoint = tracked.Point;
+                bestTime = remaining.Value;
+            }
+        }
+
+        return bestPoint?.transform.position;
+    }
 
     // ── Target resolution ──────────────────────────────────────────
 

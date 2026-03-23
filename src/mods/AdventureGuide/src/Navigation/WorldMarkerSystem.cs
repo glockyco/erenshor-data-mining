@@ -26,6 +26,7 @@ public sealed class WorldMarkerSystem
     private readonly QuestStateTracker _state;
     private readonly EntityRegistry _entities;
     private readonly SpawnTimerTracker _timers;
+    private readonly MiningNodeTracker _miningTracker;
     private readonly MarkerPool _pool;
     private readonly GuideConfig _config;
 
@@ -50,12 +51,13 @@ public sealed class WorldMarkerSystem
     public WorldMarkerSystem(
         GuideData data, QuestStateTracker state,
         EntityRegistry entities, SpawnTimerTracker timers,
-        GuideConfig config)
+        MiningNodeTracker miningTracker, GuideConfig config)
     {
         _data = data;
         _state = state;
         _entities = entities;
         _timers = timers;
+        _miningTracker = miningTracker;
         _config = config;
         _pool = new MarkerPool();
 
@@ -129,6 +131,7 @@ public sealed class WorldMarkerSystem
 
         // Dead spawn markers from timer tracker
         CollectDeadSpawnMarkers(currentScene);
+        CollectMinedNodeMarkers(currentScene);
 
         // Apply to pool
         _pool.SetActiveCount(_markers.Count);
@@ -302,6 +305,35 @@ public sealed class WorldMarkerSystem
                 DisplayName = tracked.NPCName,
                 TargetKey = null, // no live tracking for dead spawns
                 SubText = $"{tracked.NPCName}\n{subText}",
+            });
+        }
+    }
+
+    private void CollectMinedNodeMarkers(string scene)
+    {
+        foreach (var node in _miningTracker.Nodes)
+        {
+            if (node == null || !node.gameObject.activeInHierarchy) continue;
+            if (!MiningNodeTracker.IsMined(node)) continue;
+
+            // Only show in current scene
+            string nodeScene = node.gameObject.scene.name;
+            if (!string.Equals(nodeScene, scene, System.StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            var pos = node.transform.position + Vector3.up * StaticHeightOffset;
+            float? remaining = MiningNodeTracker.GetRemainingSeconds(node);
+            string timer = remaining.HasValue
+                ? SpawnTimerTracker.FormatTimer(remaining.Value)
+                : "Regenerating...";
+
+            _markers.Add(new MarkerEntry
+            {
+                Position = pos,
+                Type = MarkerType.DeadSpawn, // reuse skull marker for mined nodes
+                DisplayName = "Mineral Deposit",
+                TargetKey = null,
+                SubText = $"Mineral Deposit\n{timer}",
             });
         }
     }
