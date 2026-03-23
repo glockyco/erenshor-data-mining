@@ -124,6 +124,7 @@ public sealed class SpawnPoint
     [JsonProperty("x")] public float X { get; set; }
     [JsonProperty("y")] public float Y { get; set; }
     [JsonProperty("z")] public float Z { get; set; }
+    [JsonProperty("night_spawn")] public bool NightSpawn { get; set; }
 }
 
 /// <summary>A zone transition point.</summary>

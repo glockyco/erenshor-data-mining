@@ -53,6 +53,7 @@ public sealed class Plugin : BaseUnityPlugin
         _entities = new EntityRegistry();
         _timers = new SpawnTimerTracker();
         _miningTracker = new MiningNodeTracker();
+        var bridge = new SpawnPointBridge();
 
         _nav = new NavigationController(_data, _entities, _state, _timers, _miningTracker);
         _arrow = new ArrowRenderer(_nav);
@@ -63,7 +64,7 @@ public sealed class Plugin : BaseUnityPlugin
         _groundPath.Enabled = _config.ShowGroundPath.Value;
         _config.ShowGroundPath.SettingChanged += OnShowGroundPathChanged;
 
-        _markers = new WorldMarkerSystem(_data, _state, _entities, _timers, _miningTracker, _config);
+        _markers = new WorldMarkerSystem(_data, _state, _entities, bridge, _miningTracker, _config);
         _markers.Enabled = _config.ShowWorldMarkers.Value;
         _config.ShowWorldMarkers.SettingChanged += OnShowWorldMarkersChanged;
 

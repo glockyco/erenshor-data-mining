@@ -17,6 +17,7 @@ public enum MarkerType
     TurnInPending,       // ? grey — quest active, missing items
     DeadSpawn,           // skull — respawn timer
     NightSpawn,          // moon — night-only, currently daytime
+    ZoneReentry,         // clock — directly placed, re-enter zone to respawn
 }
 
 /// <summary>
@@ -183,6 +184,7 @@ public sealed class MarkerInstance
         (MarkerFonts.CircleQuestion,  Grey,     SizeTier3),      // TurnInPending
         (MarkerFonts.Clock,           MutedRed, SizeInfo),       // DeadSpawn
         (MarkerFonts.Moon,            PaleBlue, SizeInfo),       // NightSpawn
+        (MarkerFonts.Clock,           Grey,     SizeInfo),       // ZoneReentry
     };
 
     public readonly GameObject Root;

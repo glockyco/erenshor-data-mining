@@ -9,13 +9,15 @@ namespace AdventureGuide.Navigation;
 /// Computes and renders world markers for quest-relevant NPCs and objectives.
 /// Markers are billboard quads in 3D space with depth occlusion.
 ///
-/// Three marker sources, all merged into a single prioritized list:
-/// 1. Quest state (!, ?, target) — rebuilt when QuestStateTracker.IsDirty
-/// 2. Dead spawn timers (skull) — from SpawnTimerTracker
-/// 3. Night spawn warnings (moon) — checked via game clock
+/// Each spawn point gets its own marker based on live game state:
+/// - Alive + expected NPC → quest marker (!, ?, crosshairs)
+/// - Dead / respawning → skull + timer
+/// - Night-locked → moon + time info
+/// - Directly-placed dead → clock + "re-enter zone"
+/// - Quest-gated or wrong NPC → no marker
 ///
-/// When multiple quests reference the same NPC, the highest-priority
-/// marker type wins. Priority order is defined by MarkerType enum ordinal.
+/// When multiple quests reference the same spawn point, the highest-priority
+/// quest marker wins. Absence markers always supersede quest markers.
 /// </summary>
 public sealed class WorldMarkerSystem
 {
@@ -25,8 +27,8 @@ public sealed class WorldMarkerSystem
     private readonly GuideData _data;
     private readonly QuestStateTracker _state;
     private readonly EntityRegistry _entities;
-    private readonly SpawnTimerTracker _timers;
     private readonly MiningNodeTracker _miningTracker;
+    private readonly SpawnPointBridge _bridge;
     private readonly MarkerPool _pool;
     private readonly GuideConfig _config;
 
@@ -36,6 +38,7 @@ public sealed class WorldMarkerSystem
     private string _lastScene = "";
     private bool _enabled;
     private bool _configDirty;
+    private int _lastHour = -1;
 
     public bool Enabled
     {
@@ -50,13 +53,13 @@ public sealed class WorldMarkerSystem
 
     public WorldMarkerSystem(
         GuideData data, QuestStateTracker state,
-        EntityRegistry entities, SpawnTimerTracker timers,
+        EntityRegistry entities, SpawnPointBridge bridge,
         MiningNodeTracker miningTracker, GuideConfig config)
     {
         _data = data;
         _state = state;
         _entities = entities;
-        _timers = timers;
+        _bridge = bridge;
         _miningTracker = miningTracker;
         _config = config;
         _pool = new MarkerPool();
@@ -71,21 +74,26 @@ public sealed class WorldMarkerSystem
 
     /// <summary>
     /// Call each frame from Plugin.Update. Rebuilds markers when quest
-    /// state or scene changes. Updates live NPC positions, respawn timers,
-    /// billboard rotation, and distance fade every frame.
+    /// state or scene changes. Updates live NPC positions and distance
+    /// fade every frame.
     /// </summary>
     public void Update(string currentScene)
     {
         if (!_enabled)
             return;
 
+        int hour = GameData.Time.hour;
         bool sceneChanged = currentScene != _lastScene;
-        bool needsRebuild = sceneChanged || _state.IsDirty || _configDirty;
+        bool hourChanged = hour != _lastHour;
+        bool needsRebuild = sceneChanged || hourChanged || _state.IsDirty || _configDirty;
         _configDirty = false;
+        _lastHour = hour;
 
         if (needsRebuild)
         {
             _lastScene = currentScene;
+            if (sceneChanged)
+                _bridge.Rebuild();
             RebuildMarkers(currentScene);
         }
 
@@ -129,8 +137,6 @@ public sealed class WorldMarkerSystem
             CollectObjectiveMarkers(quest, currentScene);
         }
 
-        // Dead spawn markers from timer tracker
-        CollectDeadSpawnMarkers(currentScene);
         CollectMinedNodeMarkers(currentScene);
 
         // Apply to pool
@@ -156,11 +162,14 @@ public sealed class WorldMarkerSystem
     {
         if (quest.Acquisition == null) return;
 
-        // Check prerequisites — skip if any prerequisite quest isn't completed
+        // Check chain prerequisites — skip if any isn't completed.
+        // Prerequisites with an Item field are item-acquisition chains (needed
+        // to complete the quest, not to start it) and don't gate availability.
         if (quest.Prerequisites != null)
         {
             foreach (var prereq in quest.Prerequisites)
             {
+                if (prereq.Item != null) continue;
                 var prereqQuest = _data.GetByStableKey(prereq.QuestKey);
                 if (prereqQuest == null || !_state.IsCompleted(prereqQuest.DBName))
                     return;
@@ -172,13 +181,11 @@ public sealed class WorldMarkerSystem
             if (acq.SourceType != "character" || acq.SourceStableKey == null)
                 continue;
 
-            if (!HasSpawnInScene(acq.SourceStableKey, scene))
-                continue;
-
-            var type = repeatable ? MarkerType.QuestGiverRepeat : MarkerType.QuestGiver;
+            var questType = repeatable ? MarkerType.QuestGiverRepeat : MarkerType.QuestGiver;
             string? subText = acq.Keyword != null ? $"Say '{acq.Keyword}'" : "Talk to";
+            string displayName = acq.SourceName ?? quest.DisplayName;
 
-            TryAddMarker(acq.SourceStableKey, type, acq.SourceName ?? quest.DisplayName, subText);
+            EmitPerSpawnMarkers(acq.SourceStableKey, scene, displayName, questType, subText);
         }
     }
 
@@ -197,18 +204,16 @@ public sealed class WorldMarkerSystem
             if (comp.SourceType != "character" || comp.SourceStableKey == null)
                 continue;
 
-            if (!HasSpawnInScene(comp.SourceStableKey, scene))
-                continue;
-
-            MarkerType type;
+            MarkerType questType;
             if (hasAllItems)
-                type = repeatable ? MarkerType.TurnInRepeatReady : MarkerType.TurnInReady;
+                questType = repeatable ? MarkerType.TurnInRepeatReady : MarkerType.TurnInReady;
             else
-                type = MarkerType.TurnInPending;
+                questType = MarkerType.TurnInPending;
 
             string subText = FormatTurnInText(quest);
+            string displayName = comp.SourceName ?? quest.DisplayName;
 
-            TryAddMarker(comp.SourceStableKey, type, comp.SourceName ?? quest.DisplayName, subText);
+            EmitPerSpawnMarkers(comp.SourceStableKey, scene, displayName, questType, subText);
         }
     }
 
@@ -226,11 +231,11 @@ public sealed class WorldMarkerSystem
         var step = quest.Steps[currentIdx];
 
         // Current step target
-        if (step.TargetKey != null && step.TargetType == "character"
-            && HasSpawnInScene(step.TargetKey, scene))
+        if (step.TargetKey != null && step.TargetType == "character")
         {
-            TryAddMarker(step.TargetKey, MarkerType.Objective,
-                step.TargetName ?? step.Description, FormatStepActionText(step));
+            EmitPerSpawnMarkers(step.TargetKey, scene,
+                step.TargetName ?? step.Description,
+                MarkerType.Objective, FormatStepActionText(step));
         }
 
         // NPC sources for ALL uncollected required items (not just current step)
@@ -247,64 +252,76 @@ public sealed class WorldMarkerSystem
             foreach (var src in ri.Sources)
             {
                 if (src.SourceKey == null) continue;
-                if (!HasSpawnInScene(src.SourceKey, scene)) continue;
 
-                TryAddMarker(src.SourceKey, MarkerType.Objective,
-                    src.Name ?? ri.ItemName, progress);
+                EmitPerSpawnMarkers(src.SourceKey, scene,
+                    src.Name ?? ri.ItemName,
+                    MarkerType.Objective, progress);
             }
         }
     }
+
+    // ── Per-spawn-point marker emission ──────────────────────────
 
     /// <summary>
-    /// Dead spawn markers: skull icon with timer at spawn points where
-    /// quest-relevant NPCs have died and are awaiting respawn.
+    /// Iterate all static spawns for a character in the given scene. For each
+    /// spawn, check live state via SpawnPointBridge and emit the appropriate
+    /// marker: quest marker when alive, absence marker when not.
     /// </summary>
-    private void CollectDeadSpawnMarkers(string scene)
+    private void EmitPerSpawnMarkers(
+        string stableKey, string scene, string displayName,
+        MarkerType questType, string? questSubText)
     {
-        foreach (var kvp in _timers.Tracked)
+        if (!_data.CharacterSpawns.TryGetValue(stableKey, out var spawns))
+            return;
+
+        foreach (var sp in spawns)
         {
-            var tracked = kvp.Value;
-            if (tracked.Point == null || tracked.Point.gameObject == null)
+            if (!string.Equals(sp.Scene, scene, System.StringComparison.OrdinalIgnoreCase))
                 continue;
 
-            // Only show in current scene
-            if (!string.Equals(
-                UnityEngine.SceneManagement.SceneManager.GetActiveScene().name,
-                scene, System.StringComparison.OrdinalIgnoreCase))
-                continue;
+            var pos = new Vector3(sp.X, sp.Y, sp.Z) + Vector3.up * StaticHeightOffset;
+            string spawnKey = $"{stableKey}@{sp.X:F2},{sp.Y:F2},{sp.Z:F2}";
 
-            // Check if this is quest-relevant (has a marker intent for its NPC name)
-            // Dead spawn markers don't compete with live markers (different key space)
-            var pos = tracked.Point.transform.position + Vector3.up * StaticHeightOffset;
-            float? remaining = _timers.GetRemainingSeconds(tracked.Point);
+            var info = _bridge.GetState(sp.X, sp.Y, sp.Z, displayName);
 
-            MarkerType type;
-            string subText;
-
-            if (SpawnTimerTracker.IsNightLocked(tracked.Point))
+            switch (info.State)
             {
-                type = MarkerType.NightSpawn;
-                int hour = GameData.Time.GetHour();
-                subText = $"Night only (22:00-04:00)\nNow: {hour}:00";
+                case SpawnPointBridge.SpawnState.Alive:
+                    TryAddMarker(spawnKey, questType, displayName, questSubText, pos, stableKey);
+                    break;
+
+                case SpawnPointBridge.SpawnState.Dead:
+                {
+                    string timer = info.RespawnSeconds > 0f
+                        ? SpawnTimerTracker.FormatTimer(info.RespawnSeconds)
+                        : "Respawning...";
+                    TryAddMarker(spawnKey, MarkerType.DeadSpawn, displayName,
+                        $"{displayName}\n{timer}", pos, targetKey: null);
+                    break;
+                }
+
+                case SpawnPointBridge.SpawnState.NightLocked:
+                {
+                    int hour = GameData.Time.hour;
+                    int min = GameData.Time.min;
+                    TryAddMarker(spawnKey, MarkerType.NightSpawn, displayName,
+                        $"{displayName}\nNight only (23:00-04:00)\nNow: {hour}:{min:D2}",
+                        pos, targetKey: null);
+                    break;
+                }
+
+                case SpawnPointBridge.SpawnState.DirectlyPlacedDead:
+                    TryAddMarker(spawnKey, MarkerType.ZoneReentry, displayName,
+                        $"{displayName}\nRe-enter zone to respawn",
+                        pos, targetKey: null);
+                    break;
+
+                // QuestGated, NotFound: no marker
             }
-            else
-            {
-                type = MarkerType.DeadSpawn;
-                subText = remaining.HasValue
-                    ? SpawnTimerTracker.FormatTimer(remaining.Value)
-                    : "Respawning...";
-            }
-
-            _markers.Add(new MarkerEntry
-            {
-                Position = pos,
-                Type = type,
-                DisplayName = tracked.NPCName,
-                TargetKey = null, // no live tracking for dead spawns
-                SubText = $"{tracked.NPCName}\n{subText}",
-            });
         }
     }
+
+    // ── Mined node markers (separate system) ─────────────────────
 
     private void CollectMinedNodeMarkers(string scene)
     {
@@ -350,7 +367,7 @@ public sealed class WorldMarkerSystem
             var m = _markers[i];
             var instance = _pool.Get(i);
 
-            // Live NPC position tracking
+            // Live NPC position tracking (alive markers only)
             if (m.TargetKey != null)
             {
                 var liveNpc = _entities.FindClosest(m.DisplayName, playerPos ?? Vector3.zero);
@@ -368,19 +385,11 @@ public sealed class WorldMarkerSystem
                 instance.SetAlpha(dist);
             }
 
-            // Update dead spawn timer text
-            if (m.Type == MarkerType.DeadSpawn && i < _markers.Count)
-            {
-                // Timer ticks down in game engine — re-read each frame
-                // The sub-text was set during rebuild; for live timer updates
-                // we'd need to call Configure again. Only worth it for visible markers.
-                // For now, timers update on next rebuild (when IsDirty fires from
-                // inventory/quest state changes, or we could add a periodic timer).
-            }
-
             _markers[i] = m; // write back mutated position
         }
     }
+
+    // ── Text formatting ──────────────────────────────────────────
 
     /// <summary>Format sub-text for turn-in markers: "Give {name}" or "Give {n} items".</summary>
     private static string FormatTurnInText(QuestEntry quest)
@@ -419,71 +428,40 @@ public sealed class WorldMarkerSystem
     // ── Helpers ───────────────────────────────────────────────────
 
     /// <summary>
-    /// Try to add a marker for the given stable key. If a marker already
+    /// Try to add a marker for the given spawn-point key. If a marker already
     /// exists for this key, only replace it if the new type has higher
     /// priority (lower enum ordinal).
     /// </summary>
-    private void TryAddMarker(string stableKey, MarkerType type, string displayName, string? subText)
+    private void TryAddMarker(
+        string spawnKey, MarkerType type, string displayName,
+        string? subText, Vector3 position, string? targetKey)
     {
-        if (_intentIndex.TryGetValue(stableKey, out int existingIdx))
+        if (_intentIndex.TryGetValue(spawnKey, out int existingIdx))
         {
             var existing = _markers[existingIdx];
             if (type < existing.Type) // lower ordinal = higher priority
             {
                 _markers[existingIdx] = new MarkerEntry
                 {
-                    Position = existing.Position, // keep resolved position
+                    Position = existing.Position,
                     Type = type,
                     DisplayName = displayName,
-                    TargetKey = stableKey,
+                    TargetKey = targetKey,
                     SubText = subText,
                 };
             }
             return;
         }
 
-        // New marker — resolve position
-        var position = ResolveStaticPosition(stableKey, _lastScene);
-        if (position == null) return;
-
-        _intentIndex[stableKey] = _markers.Count;
+        _intentIndex[spawnKey] = _markers.Count;
         _markers.Add(new MarkerEntry
         {
-            Position = position.Value,
+            Position = position,
             Type = type,
             DisplayName = displayName,
-            TargetKey = stableKey,
+            TargetKey = targetKey,
             SubText = subText,
         });
-    }
-
-    /// <summary>Check if any spawn for this stable key is in the given scene.</summary>
-    private bool HasSpawnInScene(string stableKey, string scene)
-    {
-        if (!_data.CharacterSpawns.TryGetValue(stableKey, out var spawns))
-            return false;
-
-        foreach (var sp in spawns)
-        {
-            if (string.Equals(sp.Scene, scene, System.StringComparison.OrdinalIgnoreCase))
-                return true;
-        }
-        return false;
-    }
-
-    /// <summary>Resolve the best static spawn position in the current scene.</summary>
-    private Vector3? ResolveStaticPosition(string stableKey, string scene)
-    {
-        if (!_data.CharacterSpawns.TryGetValue(stableKey, out var spawns))
-            return null;
-
-        foreach (var sp in spawns)
-        {
-            if (string.Equals(sp.Scene, scene, System.StringComparison.OrdinalIgnoreCase))
-                return new Vector3(sp.X, sp.Y, sp.Z) + Vector3.up * StaticHeightOffset;
-        }
-
-        return null;
     }
 
     /// <summary>Get marker position above a live NPC using its CapsuleCollider height.</summary>
