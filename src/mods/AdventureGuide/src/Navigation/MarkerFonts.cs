@@ -11,16 +11,18 @@ namespace AdventureGuide.Navigation;
 /// </summary>
 internal static class MarkerFonts
 {
-    // Font Awesome codepoints used by markers. Validated at init time.
-    internal const char CircleQuestion = '\uf059';
-    internal const char CircleExclamation = '\uf06a';
-    internal const char Crosshairs = '\uf05b';
-    internal const char Skull = '\uf54c';
-    internal const char Moon = '\uf186';
+    // Font Awesome 7 Free-Regular glyph codepoints. The Free-Regular
+    // weight only has outlined icons — solid-weight glyphs (circle-exclamation,
+    // crosshairs, skull) are not available. Validated at init time.
+    internal const char CircleQuestion = '\uf059';  // turn-in markers
+    internal const char Star = '\uf005';             // quest giver markers
+    internal const char CircleDot = '\uf192';        // objective markers
+    internal const char Clock = '\uf017';             // dead spawn timer
+    internal const char Moon = '\uf186';              // night spawn
 
     private static readonly char[] RequiredGlyphs =
     {
-        CircleQuestion, CircleExclamation, Crosshairs, Skull, Moon,
+        CircleQuestion, Star, CircleDot, Clock, Moon,
     };
 
     // Outline settings — dark border for contrast on any background
@@ -107,16 +109,15 @@ internal static class MarkerFonts
         asset.name = "MarkerIcons-FA";
         ConfigureMaterial(asset.material, sdfShader);
 
-        // Validate all required glyphs
-        foreach (char glyph in RequiredGlyphs)
+        // Pre-populate the dynamic atlas with required glyphs. Without
+        // this, HasCharacter returns false for un-rendered characters.
+        var glyphString = new string(RequiredGlyphs);
+        if (!asset.TryAddCharacters(glyphString, out string missing, true))
         {
-            if (!asset.HasCharacter(glyph))
-            {
-                Plugin.Log.LogError(
-                    $"MarkerFonts: Font Awesome missing glyph U+{(int)glyph:X4}");
-                UnityEngine.Object.Destroy(asset);
-                return null;
-            }
+            Plugin.Log.LogError(
+                $"MarkerFonts: Font Awesome failed to rasterize glyphs: {missing}");
+            UnityEngine.Object.Destroy(asset);
+            return null;
         }
 
         Plugin.Log.LogInfo("MarkerFonts: Icon font created (Font Awesome SDF)");

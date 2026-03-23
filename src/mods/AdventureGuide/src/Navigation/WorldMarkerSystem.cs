@@ -18,8 +18,6 @@ namespace AdventureGuide.Navigation;
 /// </summary>
 public sealed class WorldMarkerSystem
 {
-    private const float FadeStartDistance = 80f;
-    private const float FadeEndDistance = 100f;
     private const float StaticHeightOffset = 2.5f;
     private const float LiveHeightAboveCollider = 0.8f;
 
@@ -312,15 +310,11 @@ public sealed class WorldMarkerSystem
 
             instance.SetPosition(m.Position);
 
-            // Distance fade
+            // Distance fade — MarkerInstance handles separate icon/sub-text ramps
             if (playerPos.HasValue)
             {
                 float dist = Vector3.Distance(playerPos.Value, m.Position);
-                float alpha = dist > FadeEndDistance ? 0f
-                    : dist > FadeStartDistance
-                        ? 1f - (dist - FadeStartDistance) / (FadeEndDistance - FadeStartDistance)
-                        : 1f;
-                instance.SetAlpha(alpha);
+                instance.SetAlpha(dist);
             }
 
             // Update dead spawn timer text

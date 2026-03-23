@@ -178,6 +178,7 @@ public sealed class Plugin : BaseUnityPlugin
         _markers?.Destroy();
         _timers?.Clear();
         _entities?.Clear();
+        MarkerFonts.Destroy();
 
         DebugAPI.Data = null;
         DebugAPI.State = null;

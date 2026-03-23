@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 
 namespace AdventureGuide.Navigation;
@@ -10,7 +11,7 @@ public enum MarkerType
 {
     TurnInReady,         // ? gold — can turn in now
     TurnInRepeatReady,   // ? blue — repeatable, can turn in
-    Objective,           // target — step objective or drop source
+    Objective,           // crosshairs — step objective or drop source
     QuestGiver,          // ! gold — new quest available
     QuestGiverRepeat,    // ! blue — repeatable quest available
     TurnInPending,       // ? grey — quest active, missing items
@@ -20,11 +21,10 @@ public enum MarkerType
 
 /// <summary>
 /// Manages a pool of reusable billboard marker GameObjects. Each marker
-/// has a background circle sprite and a foreground text glyph (TextMesh).
-/// Markers are activated/deactivated, never destroyed mid-session.
-///
-/// The pool lives under a hidden DontDestroyOnLoad parent and is
-/// destroyed on plugin cleanup.
+/// uses two TextMeshPro (world-space 3D) components: a Font Awesome icon
+/// glyph and a Roboto sub-text label. SDF rendering provides anti-aliased
+/// edges with a dark outline for contrast, and depth occlusion via the
+/// standard Distance Field shader.
 /// </summary>
 public sealed class MarkerPool
 {
@@ -32,7 +32,6 @@ public sealed class MarkerPool
     private const int InitialCapacity = 32;
 
     private readonly GameObject _root;
-    private readonly Sprite _circleSprite;
     private readonly MarkerInstance[] _pool;
     private int _count;
     private int _activeCount;
@@ -46,19 +45,16 @@ public sealed class MarkerPool
         UnityEngine.Object.DontDestroyOnLoad(_root);
         _root.hideFlags = HideFlags.HideAndDontSave;
 
-        _circleSprite = CreateCircleSprite();
-        _pool = new MarkerInstance[InitialCapacity * 2]; // room to grow
+        _pool = new MarkerInstance[InitialCapacity * 2];
         _count = 0;
         _activeCount = 0;
 
-        // Pre-allocate initial pool
         for (int i = 0; i < InitialCapacity; i++)
             CreateInstance();
     }
 
     /// <summary>
     /// Get or create a marker instance at the given index.
-    /// Call SetMarker to configure it, then Activate.
     /// </summary>
     public MarkerInstance Get(int index)
     {
@@ -70,10 +66,8 @@ public sealed class MarkerPool
     /// <summary>Set the number of active markers. Deactivates extras.</summary>
     public void SetActiveCount(int count)
     {
-        // Deactivate markers beyond the new count
         for (int i = count; i < _activeCount; i++)
             _pool[i].SetActive(false);
-
         _activeCount = count;
     }
 
@@ -104,7 +98,6 @@ public sealed class MarkerPool
     {
         if (_count >= _pool.Length)
         {
-            // Pool exhausted — this shouldn't happen with reasonable marker counts
             Plugin.Log.LogWarning($"MarkerPool capacity {_pool.Length} exhausted");
             return;
         }
@@ -113,155 +106,116 @@ public sealed class MarkerPool
         obj.transform.SetParent(_root.transform);
         obj.transform.localScale = Vector3.one * MarkerScale;
 
-        // Background circle
-        var bgObj = new GameObject("BG");
-        bgObj.transform.SetParent(obj.transform);
-        bgObj.transform.localPosition = Vector3.zero;
-        bgObj.transform.localScale = Vector3.one;
-        var bg = bgObj.AddComponent<SpriteRenderer>();
-        bg.sprite = _circleSprite;
-        bg.sortingOrder = 100;
+        // Icon: Font Awesome glyph via TextMeshPro SDF
+        var iconObj = new GameObject("Icon");
+        iconObj.transform.SetParent(obj.transform);
+        iconObj.transform.localPosition = Vector3.zero;
+        var icon = iconObj.AddComponent<TextMeshPro>();
+        icon.alignment = TextAlignmentOptions.Center;
+        icon.enableWordWrapping = false;
+        icon.overflowMode = TextOverflowModes.Overflow;
+        icon.richText = false;
+        if (MarkerFonts.IconFont != null)
+            icon.font = MarkerFonts.IconFont;
 
-        // Foreground glyph text
-        var textObj = new GameObject("Text");
-        textObj.transform.SetParent(obj.transform);
-        textObj.transform.localPosition = new Vector3(0f, 0.05f, -0.01f);
-        var text = textObj.AddComponent<TextMesh>();
-        text.alignment = TextAlignment.Center;
-        text.anchor = TextAnchor.MiddleCenter;
-        text.characterSize = 0.5f;
-        text.fontSize = 48;
-        text.fontStyle = FontStyle.Bold;
-        text.richText = false;
-
-        // Sub-text for keywords, item names, progress
+        // Sub-text: Roboto label below icon
         var subObj = new GameObject("SubText");
         subObj.transform.SetParent(obj.transform);
-        subObj.transform.localPosition = new Vector3(0f, -0.7f, -0.01f);
-        var sub = subObj.AddComponent<TextMesh>();
-        sub.alignment = TextAlignment.Center;
-        sub.anchor = TextAnchor.UpperCenter;
-        sub.characterSize = 0.2f;
-        sub.fontSize = 36;
-        sub.fontStyle = FontStyle.Normal;
+        // Y offset set per-configure based on icon size
+        subObj.transform.localPosition = new Vector3(0f, -1.2f, 0f);
+        var sub = subObj.AddComponent<TextMeshPro>();
+        sub.alignment = TextAlignmentOptions.Top;
+        sub.enableWordWrapping = true;
+        sub.overflowMode = TextOverflowModes.Truncate;
         sub.richText = false;
-        sub.color = Color.white;
+        sub.fontSize = MarkerInstance.SubTextSize;
+        sub.color = MarkerInstance.SubTextColor;
+        if (MarkerFonts.SubTextFont != null)
+            sub.font = MarkerFonts.SubTextFont;
+
+        // Both TMP components use RectTransform — set reasonable size
+        var iconRect = icon.rectTransform;
+        iconRect.sizeDelta = new Vector2(4f, 4f);
+        var subRect = sub.rectTransform;
+        subRect.sizeDelta = new Vector2(8f, 3f);
 
         obj.SetActive(false);
 
-        _pool[_count] = new MarkerInstance(obj, bg, text, sub);
+        _pool[_count] = new MarkerInstance(obj, icon, sub);
         _count++;
-    }
-
-    /// <summary>
-    /// Create a 64x64 filled circle texture with soft anti-aliased edges.
-    /// Used as the background behind glyph text.
-    /// </summary>
-    private static Sprite CreateCircleSprite()
-    {
-        const int size = 64;
-        const float radius = size / 2f;
-        const float edgeSoftness = 2f;
-
-        var tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
-        tex.filterMode = FilterMode.Bilinear;
-        tex.wrapMode = TextureWrapMode.Clamp;
-
-        var pixels = new Color[size * size];
-        for (int y = 0; y < size; y++)
-        {
-            for (int x = 0; x < size; x++)
-            {
-                float dx = x - radius + 0.5f;
-                float dy = y - radius + 0.5f;
-                float dist = Mathf.Sqrt(dx * dx + dy * dy);
-
-                // Smooth edge: full inside, fade at border, transparent outside
-                float alpha = Mathf.Clamp01((radius - dist) / edgeSoftness);
-                pixels[y * size + x] = new Color(1f, 1f, 1f, alpha);
-            }
-        }
-
-        tex.SetPixels(pixels);
-        tex.Apply(false, true);
-
-        return Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 64f);
     }
 }
 
 /// <summary>
-/// A single marker instance in the pool. Holds references to the
-/// root GameObject, background sprite, glyph text, and sub-text.
+/// A single marker instance with TextMeshPro icon and sub-text.
 /// </summary>
 public sealed class MarkerInstance
 {
-    // Colors for marker types
-    private static readonly Color GoldBg = new(0.85f, 0.65f, 0.10f, 0.90f);
-    private static readonly Color BlueBg = new(0.20f, 0.50f, 0.85f, 0.90f);
-    private static readonly Color GreyBg = new(0.45f, 0.45f, 0.45f, 0.80f);
-    private static readonly Color DimBg = new(0.30f, 0.30f, 0.30f, 0.70f);
-    private static readonly Color DarkText = new(0.10f, 0.08f, 0.05f, 1.0f);
-    private static readonly Color LightText = new(1.0f, 0.95f, 0.85f, 1.0f);
+    // ── Icon sizes per marker type ──────────────────────────────
+    private const float SizeTier1 = 8f;    // TurnInReady, TurnInRepeatReady
+    private const float SizeTier2 = 7f;    // QuestGiver, QuestGiverRepeat, Objective
+    private const float SizeObjective = 6.5f;
+    private const float SizeTier3 = 6f;    // TurnInPending
+    private const float SizeInfo = 5.5f;   // DeadSpawn, NightSpawn
+
+    // ── Face colors ─────────────────────────────────────────────
+    private static readonly Color Gold = new(1.0f, 0.85f, 0.3f, 1f);
+    private static readonly Color Blue = new(0.4f, 0.65f, 1.0f, 1f);
+    private static readonly Color Orange = new(1.0f, 0.6f, 0.25f, 1f);
+    private static readonly Color Grey = new(0.5f, 0.5f, 0.5f, 1f);
+    private static readonly Color MutedRed = new(0.65f, 0.35f, 0.35f, 1f);
+    private static readonly Color PaleBlue = new(0.55f, 0.6f, 0.8f, 1f);
+
+    // ── Sub-text constants ──────────────────────────────────────
+    internal const float SubTextSize = 3.5f;
+    internal static readonly Color SubTextColor = new(0.92f, 0.92f, 0.92f, 1f);
+
+    // ── Distance fade ───────────────────────────────────────────
+    // Icon fades 80-100m. Sub-text fades earlier: 40-60m.
+    private const float IconFadeStart = 80f;
+    private const float IconFadeEnd = 100f;
+    private const float SubFadeStart = 40f;
+    private const float SubFadeEnd = 60f;
+
+    // ── Glyph + color lookup ────────────────────────────────────
+    private static readonly (char glyph, Color color, float size)[] TypeVisuals =
+    {
+        (MarkerFonts.CircleQuestion,  Gold,     SizeTier1),      // TurnInReady
+        (MarkerFonts.CircleQuestion,  Blue,     SizeTier1),      // TurnInRepeatReady
+        (MarkerFonts.CircleDot,       Orange,   SizeObjective),  // Objective
+        (MarkerFonts.Star,            Gold,     SizeTier2),      // QuestGiver
+        (MarkerFonts.Star,            Blue,     SizeTier2),      // QuestGiverRepeat
+        (MarkerFonts.CircleQuestion,  Grey,     SizeTier3),      // TurnInPending
+        (MarkerFonts.Clock,           MutedRed, SizeInfo),       // DeadSpawn
+        (MarkerFonts.Moon,            PaleBlue, SizeInfo),       // NightSpawn
+    };
 
     public readonly GameObject Root;
-    private readonly SpriteRenderer _bg;
-    private readonly TextMesh _glyph;
-    private readonly TextMesh _subText;
+    private readonly TextMeshPro _icon;
+    private readonly TextMeshPro _subText;
 
-    public MarkerInstance(GameObject root, SpriteRenderer bg, TextMesh glyph, TextMesh subText)
+    private Color _baseIconColor;
+
+    public MarkerInstance(GameObject root, TextMeshPro icon, TextMeshPro subText)
     {
         Root = root;
-        _bg = bg;
-        _glyph = glyph;
+        _icon = icon;
         _subText = subText;
     }
 
-    /// <summary>Configure the marker's visual appearance.</summary>
+    /// <summary>Configure the marker's visual appearance for a given type.</summary>
     public void Configure(MarkerType type, string? subText)
     {
-        switch (type)
-        {
-            case MarkerType.QuestGiver:
-                _bg.color = GoldBg;
-                _glyph.text = "!";
-                _glyph.color = DarkText;
-                break;
-            case MarkerType.QuestGiverRepeat:
-                _bg.color = BlueBg;
-                _glyph.text = "!";
-                _glyph.color = LightText;
-                break;
-            case MarkerType.TurnInReady:
-                _bg.color = GoldBg;
-                _glyph.text = "?";
-                _glyph.color = DarkText;
-                break;
-            case MarkerType.TurnInRepeatReady:
-                _bg.color = BlueBg;
-                _glyph.text = "?";
-                _glyph.color = LightText;
-                break;
-            case MarkerType.TurnInPending:
-                _bg.color = GreyBg;
-                _glyph.text = "?";
-                _glyph.color = LightText;
-                break;
-            case MarkerType.Objective:
-                _bg.color = GoldBg;
-                _glyph.text = "\u25C6"; // filled diamond ◆
-                _glyph.color = DarkText;
-                break;
-            case MarkerType.DeadSpawn:
-                _bg.color = DimBg;
-                _glyph.text = "\u2620"; // skull ☠ — may not render, fallback to X
-                _glyph.color = LightText;
-                break;
-            case MarkerType.NightSpawn:
-                _bg.color = DimBg;
-                _glyph.text = "\u263D"; // crescent moon ☽ — may not render, fallback to *
-                _glyph.color = LightText;
-                break;
-        }
+        int idx = (int)type;
+        var (glyph, color, size) = TypeVisuals[idx];
+
+        _icon.text = glyph.ToString();
+        _icon.fontSize = size;
+        _icon.color = color;
+        _baseIconColor = color;
+
+        // Position sub-text below the icon, gap scales with icon size
+        _subText.transform.localPosition = new Vector3(0f, -(size * 0.12f + 0.15f), 0f);
 
         if (!string.IsNullOrEmpty(subText))
         {
@@ -281,21 +235,34 @@ public sealed class MarkerInstance
         Root.transform.position = position;
     }
 
-    /// <summary>Set the alpha for distance fade.</summary>
-    public void SetAlpha(float alpha)
+    /// <summary>
+    /// Apply distance-based fade. Icon fades 80-100m, sub-text fades
+    /// 40-60m. Beyond fade end, both are invisible.
+    /// </summary>
+    public void SetAlpha(float distance)
     {
-        var bgColor = _bg.color;
-        bgColor.a = Mathf.Min(bgColor.a, alpha);
-        _bg.color = bgColor;
+        float iconAlpha = ComputeFade(distance, IconFadeStart, IconFadeEnd);
+        float subAlpha = ComputeFade(distance, SubFadeStart, SubFadeEnd);
 
-        var glyphColor = _glyph.color;
-        glyphColor.a = alpha;
-        _glyph.color = glyphColor;
+        var c = _baseIconColor;
+        c.a = iconAlpha;
+        _icon.color = c;
 
-        var subColor = _subText.color;
-        subColor.a = alpha;
-        _subText.color = subColor;
+        if (_subText.gameObject.activeSelf)
+        {
+            var sc = SubTextColor;
+            sc.a = subAlpha;
+            _subText.color = sc;
+        }
     }
 
     public void SetActive(bool active) => Root.SetActive(active);
+
+    private static float ComputeFade(float distance, float fadeStart, float fadeEnd)
+    {
+        if (distance > fadeEnd) return 0f;
+        if (distance > fadeStart)
+            return 1f - (distance - fadeStart) / (fadeEnd - fadeStart);
+        return 1f;
+    }
 }
