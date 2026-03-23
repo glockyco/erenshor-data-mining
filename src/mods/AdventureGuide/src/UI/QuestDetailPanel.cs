@@ -14,12 +14,14 @@ public sealed class QuestDetailPanel
     private readonly GuideData _data;
     private readonly QuestStateTracker _state;
     private readonly NavigationController _nav;
+    private readonly NavigationHistory _history;
 
-    public QuestDetailPanel(GuideData data, QuestStateTracker state, NavigationController nav)
+    public QuestDetailPanel(GuideData data, QuestStateTracker state, NavigationController nav, NavigationHistory history)
     {
         _data = data;
         _state = state;
         _nav = nav;
+        _history = history;
     }
 
     public void Draw()
@@ -477,7 +479,10 @@ public sealed class QuestDetailPanel
                 // Navigate to prerequisite quest via stable key (O(1) lookup)
                 var target = _data.GetByStableKey(prereq.QuestKey);
                 if (target != null)
+                {
+                    _history.Navigate(new NavigationHistory.PageRef(NavigationHistory.PageType.Quest, target.DBName));
                     _state.SelectedQuestDBName = target.DBName;
+                }
             }
             ImGui.PopStyleColor();
         }
@@ -522,7 +527,10 @@ public sealed class QuestDetailPanel
             if (ImGui.Selectable($"{arrow}{link.QuestName}##{link.QuestStableKey}"))
             {
                 if (linkedQuest != null)
+                {
+                    _history.Navigate(new NavigationHistory.PageRef(NavigationHistory.PageType.Quest, linkedQuest.DBName));
                     _state.SelectedQuestDBName = linkedQuest.DBName;
+                }
             }
             ImGui.PopStyleColor();
         }

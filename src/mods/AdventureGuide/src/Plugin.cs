@@ -51,22 +51,25 @@ public sealed class Plugin : BaseUnityPlugin
         }
 
         _entities = new EntityRegistry();
-        _nav = new NavigationController(_data, _entities, _state);
+        _timers = new SpawnTimerTracker();
+        _miningTracker = new MiningNodeTracker();
+
+        _nav = new NavigationController(_data, _entities, _state, _timers, _miningTracker);
         _arrow = new ArrowRenderer(_nav);
         _arrow.Enabled = _config.ShowArrow.Value;
         _config.ShowArrow.SettingChanged += OnShowArrowChanged;
 
-        _timers = new SpawnTimerTracker();
-        _miningTracker = new MiningNodeTracker();
         _groundPath = new GroundPathRenderer(_nav);
         _groundPath.Enabled = _config.ShowGroundPath.Value;
         _config.ShowGroundPath.SettingChanged += OnShowGroundPathChanged;
 
-        _markers = new WorldMarkerSystem(_data, _state, _entities, _timers, _config);
+        _markers = new WorldMarkerSystem(_data, _state, _entities, _timers, _miningTracker, _config);
         _markers.Enabled = _config.ShowWorldMarkers.Value;
         _config.ShowWorldMarkers.SettingChanged += OnShowWorldMarkersChanged;
 
-        _window = new GuideWindow(_data, _state, _nav);
+        var history = new NavigationHistory(_config.HistoryMaxSize.Value);
+        _config.HistoryMaxSize.SettingChanged += (_, _) => history.MaxSize = _config.HistoryMaxSize.Value;
+        _window = new GuideWindow(_data, _state, _nav, history);
         _window.Filter.LoadFrom(_config);
         _imgui.OnLayout = () => { _window.Draw(); _arrow!.Draw(); };
 

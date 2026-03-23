@@ -12,6 +12,7 @@ public sealed class GuideConfig
     public ConfigEntry<bool> ShowGroundPath { get; }
     public ConfigEntry<bool> ShowWorldMarkers { get; }
     public ConfigEntry<float> UiScale { get; }
+    public ConfigEntry<int> HistoryMaxSize { get; }
 
     // Persisted filter/sort state
     public ConfigEntry<QuestFilterMode> FilterMode { get; }
@@ -64,5 +65,8 @@ public sealed class GuideConfig
             "Last selected sort mode (Alphabetical, ByZone, ByLevel)");
         ZoneFilter = config.Bind("QuestList", "ZoneFilter", "",
             "Last selected zone filter (empty = all zones)");
+        HistoryMaxSize = config.Bind("General", "HistoryMaxSize", 100,
+            new ConfigDescription("Maximum number of pages in navigation history",
+                new AcceptableValueRange<int>(10, 500)));
     }
 }
