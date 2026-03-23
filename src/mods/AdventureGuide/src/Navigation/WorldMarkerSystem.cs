@@ -233,7 +233,7 @@ public sealed class WorldMarkerSystem
                 step.TargetName ?? step.Description, null);
         }
 
-        // Drop sources for ALL uncollected required items (not just current step)
+        // NPC sources for ALL uncollected required items (not just current step)
         if (quest.RequiredItems == null) return;
 
         foreach (var ri in quest.RequiredItems)
@@ -246,7 +246,6 @@ public sealed class WorldMarkerSystem
             if (ri.Sources == null) continue;
             foreach (var src in ri.Sources)
             {
-                if (src.Type is not "drop" and not "vendor") continue;
                 if (src.SourceKey == null) continue;
                 if (!HasSpawnInScene(src.SourceKey, scene)) continue;
 

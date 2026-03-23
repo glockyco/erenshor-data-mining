@@ -620,6 +620,7 @@ def _build_item_sources(
     _add_bag_sources(conn, sources, zone_by_display)
     _add_crafting_sources(conn, sources)
     _add_quest_reward_sources(conn, sources)
+    _add_dialog_give_sources(conn, sources, zone_by_display)
 
     # Sort each item's sources: levelled ascending, then None-level at end
     for _item_sk, item_list in sources.items():
@@ -696,6 +697,42 @@ def _add_vendor_sources(
         out[row["item_stable_key"]].append(
             ItemSource(
                 type="vendor",
+                name=row["character_name"],
+                zone=zone_name,
+                level=zi.level_median if zi else None,
+                source_key=row["character_key"],
+            )
+        )
+
+
+def _add_dialog_give_sources(
+    conn: sqlite3.Connection,
+    out: dict[str, list[ItemSource]],
+    zone_by_display: dict[str, ZoneInfo],
+) -> None:
+    """Dialog give sources deduplicated by (character, zone), level = zone median."""
+    rows = conn.execute(
+        """
+        SELECT cd.give_item_stable_key AS item_stable_key,
+               c.stable_key AS character_key,
+               c.display_name AS character_name,
+               z.display_name AS zone_name
+        FROM character_dialogs cd
+        JOIN characters c ON c.stable_key = cd.character_stable_key
+        LEFT JOIN character_spawns cs ON cs.character_stable_key = c.stable_key
+        LEFT JOIN zones z ON z.stable_key = cs.zone_stable_key
+        WHERE cd.give_item_stable_key IS NOT NULL
+          AND cd.give_item_stable_key != ''
+          AND c.is_map_visible = 1
+        GROUP BY cd.give_item_stable_key, c.stable_key, z.display_name
+        """
+    ).fetchall()
+    for row in rows:
+        zone_name = row["zone_name"]
+        zi = zone_by_display.get(zone_name) if zone_name else None
+        out[row["item_stable_key"]].append(
+            ItemSource(
+                type="dialog_give",
                 name=row["character_name"],
                 zone=zone_name,
                 level=zi.level_median if zi else None,

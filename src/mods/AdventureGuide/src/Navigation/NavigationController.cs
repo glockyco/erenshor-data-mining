@@ -249,10 +249,9 @@ public sealed class NavigationController
         if (item?.Sources == null || item.Sources.Count == 0)
             return false;
 
-        // Try drop/vendor sources — these carry source_key for direct spawn lookup
+        // Try sources with character spawn data
         foreach (var src in item.Sources)
         {
-            if (src.Type is not "drop" and not "vendor") continue;
             if (src.SourceKey == null) continue;
 
             if (!_data.CharacterSpawns.TryGetValue(src.SourceKey, out var spawns) || spawns.Count == 0)

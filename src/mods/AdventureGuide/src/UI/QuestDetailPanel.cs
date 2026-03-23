@@ -252,7 +252,35 @@ public sealed class QuestDetailPanel
     {
         if (step.TargetKey == null) return;
 
+        // Item steps are only navigable if at least one source has spawn data
+        bool navigable = true;
+        if (step.TargetType == "item")
+        {
+            var item = quest.RequiredItems?.Find(ri =>
+                string.Equals(ri.ItemName, step.TargetName, StringComparison.OrdinalIgnoreCase));
+            navigable = item?.Sources?.Exists(s => s.SourceKey != null) == true;
+        }
+
         bool isActive = _nav.IsNavigating(quest.DBName, step.Order);
+
+        if (!navigable)
+        {
+            ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
+            ImGui.PushStyleVar(ImGuiStyleVar.Alpha, 0.4f);
+            ImGui.SmallButton($"[NAV]##{step.Order}");
+            ImGui.PopStyleVar();
+            ImGui.PopStyleColor();
+
+            if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+            {
+                ImGui.BeginTooltip();
+                ImGui.Text("No known source");
+                ImGui.EndTooltip();
+            }
+
+            ImGui.SameLine();
+            return;
+        }
 
         if (isActive)
             ImGui.PushStyleColor(ImGuiCol.Button, Theme.QuestActive);
@@ -341,6 +369,7 @@ public sealed class QuestDetailPanel
         {
             "drop" => $"Drops from: {src.Name}",
             "vendor" => $"Sold by: {src.Name}",
+            "dialog_give" => $"Given by: {src.Name}",
             "fishing" => "Fishing",
             "mining" => "Mining",
             "pickup" => "Found in world",

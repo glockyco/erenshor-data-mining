@@ -61128,12 +61128,6 @@
       "prerequisites": [
         {
           "type": "quest",
-          "quest_key": "quest:thelossstone",
-          "quest_name": "The Loss Stone",
-          "item": "Loss Stone"
-        },
-        {
-          "type": "quest",
           "quest_key": "quest:catfordeer",
           "quest_name": "A Cat for a Deer",
           "item": "Nightmare Crystal"
@@ -61150,8 +61144,13 @@
           "quantity": 1,
           "optional": false,
           "level_estimate": {
-            "recommended": 24,
+            "recommended": 14,
             "factors": [
+              {
+                "source": "dialog_give",
+                "name": "Arcane Headmaster",
+                "level": 14
+              },
               {
                 "source": "quest_reward",
                 "name": "The Loss Stone",
@@ -61248,6 +61247,13 @@
           "quantity": 1,
           "optional": false,
           "sources": [
+            {
+              "type": "dialog_give",
+              "name": "Arcane Headmaster",
+              "zone": "The Duskenlight Coast",
+              "level": 14,
+              "source_key": "character:arcane headmaster"
+            },
             {
               "type": "quest_reward",
               "name": "The Loss Stone",
@@ -64431,7 +64437,17 @@
           "target_type": "item",
           "target_key": "item:quest - empty soul gem",
           "quantity": 1,
-          "optional": false
+          "optional": false,
+          "level_estimate": {
+            "recommended": 4,
+            "factors": [
+              {
+                "source": "dialog_give",
+                "name": "Stalzo",
+                "level": 4
+              }
+            ]
+          }
         },
         {
           "order": 3,
@@ -64459,7 +64475,16 @@
           "item_name": "Empty Soul Gem",
           "item_stable_key": "item:quest - empty soul gem",
           "quantity": 1,
-          "optional": false
+          "optional": false,
+          "sources": [
+            {
+              "type": "dialog_give",
+              "name": "Stalzo",
+              "zone": "Island Tomb",
+              "level": 4,
+              "source_key": "character:stalzo"
+            }
+          ]
         }
       ],
       "completion": [
@@ -65831,7 +65856,17 @@
           "target_type": "item",
           "target_key": "item:gen - box of supplies",
           "quantity": 1,
-          "optional": false
+          "optional": false,
+          "level_estimate": {
+            "recommended": 13,
+            "factors": [
+              {
+                "source": "dialog_give",
+                "name": "Hadden Passican",
+                "level": 13
+              }
+            ]
+          }
         },
         {
           "order": 3,
@@ -65859,7 +65894,16 @@
           "item_name": "Box of Supplies",
           "item_stable_key": "item:gen - box of supplies",
           "quantity": 1,
-          "optional": false
+          "optional": false,
+          "sources": [
+            {
+              "type": "dialog_give",
+              "name": "Hadden Passican",
+              "zone": "Fernalla's Revival Plains",
+              "level": 13,
+              "source_key": "character:hadden passican"
+            }
+          ]
         }
       ],
       "completion": [
@@ -66512,7 +66556,17 @@
           "target_type": "item",
           "target_key": "item:gen - deportation papers",
           "quantity": 1,
-          "optional": false
+          "optional": false,
+          "level_estimate": {
+            "recommended": 2,
+            "factors": [
+              {
+                "source": "dialog_give",
+                "name": "Corporal Slate",
+                "level": 2
+              }
+            ]
+          }
         },
         {
           "order": 3,
@@ -66540,7 +66594,16 @@
           "item_name": "Kio's Leave Order",
           "item_stable_key": "item:gen - deportation papers",
           "quantity": 1,
-          "optional": false
+          "optional": false,
+          "sources": [
+            {
+              "type": "dialog_give",
+              "name": "Corporal Slate",
+              "zone": "Stowaway's Step",
+              "level": 2,
+              "source_key": "character:corporal smith"
+            }
+          ]
         }
       ],
       "completion": [
@@ -67721,7 +67784,17 @@
           "target_type": "item",
           "target_key": "item:gen - ripper's note to azure",
           "quantity": 1,
-          "optional": false
+          "optional": false,
+          "level_estimate": {
+            "recommended": 18,
+            "factors": [
+              {
+                "source": "dialog_give",
+                "name": "Mavik Estonia",
+                "level": 18
+              }
+            ]
+          }
         },
         {
           "order": 3,
@@ -67749,7 +67822,16 @@
           "item_name": "Mavik Easton's Note",
           "item_stable_key": "item:gen - ripper's note to azure",
           "quantity": 1,
-          "optional": false
+          "optional": false,
+          "sources": [
+            {
+              "type": "dialog_give",
+              "name": "Mavik Estonia",
+              "zone": "Silkengrass Meadowlands",
+              "level": 18,
+              "source_key": "character:mavik eston"
+            }
+          ]
         }
       ],
       "completion": [
@@ -69298,14 +69380,6 @@
       "description": "You've placed the Rune of the Hills in its receptacle in the Reliquary",
       "quest_type": "fetch",
       "zone_context": "Reliquary Hall",
-      "prerequisites": [
-        {
-          "type": "quest",
-          "quest_key": "quest:willowsoil",
-          "quest_name": "Willow Soil",
-          "item": "Rune of The Hills"
-        }
-      ],
       "steps": [
         {
           "order": 1,
@@ -69317,8 +69391,13 @@
           "quantity": 1,
           "optional": false,
           "level_estimate": {
-            "recommended": 7,
+            "recommended": 2,
             "factors": [
+              {
+                "source": "dialog_give",
+                "name": "Lucian Revald",
+                "level": 2
+              },
               {
                 "source": "quest_reward",
                 "name": "Willow Soil",
@@ -69356,6 +69435,13 @@
           "optional": false,
           "sources": [
             {
+              "type": "dialog_give",
+              "name": "Lucian Revald",
+              "zone": "Stowaway's Step",
+              "level": 2,
+              "source_key": "character:lucian revald:stowaway:432.19:69.90:532.04"
+            },
+            {
               "type": "quest_reward",
               "name": "Willow Soil",
               "level": 7,
@@ -69388,12 +69474,12 @@
         "once_per_spawn_instance": false
       },
       "level_estimate": {
-        "recommended": 7,
+        "recommended": 5,
         "factors": [
           {
-            "source": "step_1",
-            "name": "Collect Rune of The Hills.",
-            "level": 7
+            "source": "step_2",
+            "name": "Turn in items to Hidden Hills Receptacle.",
+            "level": 5
           }
         ]
       }
@@ -71968,7 +72054,17 @@
           "target_type": "item",
           "target_key": "item:gen - samuel's note",
           "quantity": 1,
-          "optional": false
+          "optional": false,
+          "level_estimate": {
+            "recommended": 4,
+            "factors": [
+              {
+                "source": "dialog_give",
+                "name": "Samuel Thatcher",
+                "level": 4
+              }
+            ]
+          }
         },
         {
           "order": 3,
@@ -71996,7 +72092,16 @@
           "item_name": "Samuel's Note",
           "item_stable_key": "item:gen - samuel's note",
           "quantity": 1,
-          "optional": false
+          "optional": false,
+          "sources": [
+            {
+              "type": "dialog_give",
+              "name": "Samuel Thatcher",
+              "zone": "Hidden Hills",
+              "level": 4,
+              "source_key": "character:shopkeeper samuel"
+            }
+          ]
         }
       ],
       "completion": [
@@ -74165,7 +74270,17 @@
           "target_type": "item",
           "target_key": "item:gen  - stowaway dock pass",
           "quantity": 1,
-          "optional": false
+          "optional": false,
+          "level_estimate": {
+            "recommended": 2,
+            "factors": [
+              {
+                "source": "dialog_give",
+                "name": "Customs Guard",
+                "level": 2
+              }
+            ]
+          }
         },
         {
           "order": 3,
@@ -74193,7 +74308,16 @@
           "item_name": "Dock Pass",
           "item_stable_key": "item:gen  - stowaway dock pass",
           "quantity": 1,
-          "optional": false
+          "optional": false,
+          "sources": [
+            {
+              "type": "dialog_give",
+              "name": "Customs Guard",
+              "zone": "Stowaway's Step",
+              "level": 2,
+              "source_key": "character:island guard customs"
+            }
+          ]
         }
       ],
       "completion": [
@@ -76828,7 +76952,17 @@
           "target_type": "item",
           "target_key": "item:gen - gift of fernalla",
           "quantity": 1,
-          "optional": false
+          "optional": false,
+          "level_estimate": {
+            "recommended": 27,
+            "factors": [
+              {
+                "source": "dialog_give",
+                "name": "Fallen Fernalla",
+                "level": 27
+              }
+            ]
+          }
         },
         {
           "order": 5,
@@ -77026,7 +77160,21 @@
           "item_name": "Gift of Fernalla",
           "item_stable_key": "item:gen - gift of fernalla",
           "quantity": 1,
-          "optional": false
+          "optional": false,
+          "sources": [
+            {
+              "type": "dialog_give",
+              "name": "Fallen Fernalla",
+              "zone": "Blooming Sepulcher",
+              "level": 27,
+              "source_key": "character:fallen fernalla:bloomingsepulcher:788.35:254.99:837.27"
+            },
+            {
+              "type": "dialog_give",
+              "name": "Fallen Fernalla",
+              "source_key": "character:fallen fernalla 1"
+            }
+          ]
         },
         {
           "item_name": "Droplet of the First Frost",
@@ -77152,7 +77300,17 @@
           "target_type": "item",
           "target_key": "item:quest - loss stone",
           "quantity": 1,
-          "optional": false
+          "optional": false,
+          "level_estimate": {
+            "recommended": 14,
+            "factors": [
+              {
+                "source": "dialog_give",
+                "name": "Arcane Headmaster",
+                "level": 14
+              }
+            ]
+          }
         },
         {
           "order": 3,
@@ -77180,7 +77338,16 @@
           "item_name": "Loss Stone",
           "item_stable_key": "item:quest - loss stone",
           "quantity": 1,
-          "optional": false
+          "optional": false,
+          "sources": [
+            {
+              "type": "dialog_give",
+              "name": "Arcane Headmaster",
+              "zone": "The Duskenlight Coast",
+              "level": 14,
+              "source_key": "character:arcane headmaster"
+            }
+          ]
         }
       ],
       "completion": [
@@ -77247,14 +77414,6 @@
           "source_stable_key": "quest:thelossstone"
         }
       ],
-      "prerequisites": [
-        {
-          "type": "quest",
-          "quest_key": "quest:thelossstone",
-          "quest_name": "The Loss Stone",
-          "item": "Loss Stone"
-        }
-      ],
       "required_items": [
         {
           "item_name": "Loss Stone",
@@ -77262,6 +77421,13 @@
           "quantity": 1,
           "optional": false,
           "sources": [
+            {
+              "type": "dialog_give",
+              "name": "Arcane Headmaster",
+              "zone": "The Duskenlight Coast",
+              "level": 14,
+              "source_key": "character:arcane headmaster"
+            },
             {
               "type": "quest_reward",
               "name": "The Loss Stone",

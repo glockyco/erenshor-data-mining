@@ -93,7 +93,7 @@ class ItemSource:
     sources (mining, fishing, pickup) are pre-aggregated per zone.
     """
 
-    type: str  # "drop", "vendor", "fishing", "mining", "pickup", "crafting", "quest_reward"
+    type: str  # "drop", "vendor", "fishing", "mining", "pickup", "crafting", "quest_reward", "dialog_give"
     name: str | None = None  # entity name (enemy, vendor, recipe item, quest name)
     zone: str | None = None  # zone display name
     level: int | None = None  # recommended level to use this source
