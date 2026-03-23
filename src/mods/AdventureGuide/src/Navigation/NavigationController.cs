@@ -74,7 +74,7 @@ public sealed class NavigationController
                     Target = MakeTarget(
                         NavigationTarget.Kind.Character,
                         liveNpc.transform.position,
-                        step.TargetName ?? step.Description,
+                        WithCharacterUnlockText(step.TargetName ?? step.Description, step.TargetKey),
                         currentScene,
                         quest.DBName, step.Order,
                         step.TargetKey);
@@ -131,7 +131,7 @@ public sealed class NavigationController
         Target = MakeTarget(
             NavigationTarget.Kind.Character,
             new Vector3(spawn.X, spawn.Y, spawn.Z),
-            displayName,
+            WithCharacterUnlockText(displayName, sourceKey),
             spawn.Scene,
             questDBName, stepOrder,
             sourceKey);
@@ -321,7 +321,7 @@ public sealed class NavigationController
         Target = MakeTarget(
             NavigationTarget.Kind.Character,
             new Vector3(spawn.X, spawn.Y, spawn.Z),
-            step.TargetName ?? step.Description,
+            WithCharacterUnlockText(step.TargetName ?? step.Description, step.TargetKey),
             spawn.Scene,
             quest.DBName, step.Order,
             step.TargetKey);
@@ -400,7 +400,7 @@ public sealed class NavigationController
                 Target = MakeTarget(
                     NavigationTarget.Kind.Character,
                     new Vector3(spawn.X, spawn.Y, spawn.Z),
-                    src.Name ?? src.SourceKey,
+                    WithCharacterUnlockText(src.Name ?? src.SourceKey, src.SourceKey),
                     spawn.Scene,
                     quest.DBName, step.Order,
                     src.SourceKey);
@@ -741,6 +741,37 @@ public sealed class NavigationController
     {
         var pc = GameData.PlayerControl;
         return pc != null ? pc.transform.position : null;
+    }
+
+    /// <summary>
+    /// If a character has unmet quest unlock requirements, append a
+    /// "Requires: Complete ..." line to the display name for the arrow.
+    /// </summary>
+    private string WithCharacterUnlockText(string displayName, string? targetKey)
+    {
+        if (targetKey == null) return displayName;
+        if (!_data.CharacterQuestUnlocks.TryGetValue(targetKey, out var groups))
+            return displayName;
+
+        // Find smallest incomplete group
+        List<string>? best = null;
+        foreach (var group in groups)
+        {
+            var incomplete = group.FindAll(q => !_state.IsCompleted(q));
+            if (incomplete.Count == 0) return displayName; // group satisfied, NPC available
+            if (best == null || incomplete.Count < best.Count)
+                best = incomplete;
+        }
+
+        if (best == null) return displayName;
+
+        var names = new System.Collections.Generic.List<string>();
+        foreach (var dbName in best)
+        {
+            var entry = _data.GetByDBName(dbName);
+            names.Add(entry?.DisplayName ?? dbName);
+        }
+        return $"{displayName}\nRequires: Complete \"{string.Join("\" and \"", names)}\"";
     }
 
     private static NavigationTarget MakeTarget(
