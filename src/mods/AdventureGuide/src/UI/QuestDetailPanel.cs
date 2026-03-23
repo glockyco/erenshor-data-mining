@@ -370,7 +370,7 @@ public sealed class QuestDetailPanel
     }
 
     private void DrawZoneLineAlternatives(
-        List<(ZoneLineEntry line, float distance, bool isSelected)> alternatives,
+        List<(ZoneLineEntry line, float distance, bool isSelected, bool isAccessible)> alternatives,
         QuestStep step)
     {
         ImGui.Indent(Theme.IndentWidth);
@@ -379,15 +379,46 @@ public sealed class QuestDetailPanel
         string header = $"{alternatives.Count} zone connections";
         if (ImGui.TreeNode($"{header}##zl_{step.Order}"))
         {
-            foreach (var (line, distance, isSelected) in alternatives)
+            foreach (var (line, distance, isSelected, isAccessible) in alternatives)
             {
-                string suffix = isSelected ? " (auto)" : "";
-                string label = $"To {line.DestinationDisplay} ({distance:F0}m){suffix}";
+                if (!isAccessible)
+                {
+                    // Locked zone line: dimmed text
+                    ImGui.PushStyleVar(ImGuiStyleVar.Alpha, 0.3f);
+                    ImGui.Text($"To {line.DestinationDisplay} ({distance:F0}m)");
+                    ImGui.PopStyleVar();
 
-                if (isSelected)
-                    ImGui.Text(label);
+                    // Required quests as clickable links on the next line
+                    if (line.RequiredQuestGroups != null)
+                    {
+                        // Pick smallest incomplete group
+                        foreach (var group in line.RequiredQuestGroups)
+                        {
+                            foreach (var questDBName in group)
+                            {
+                                if (_state.IsCompleted(questDBName))
+                                    continue;
+                                var entry = _data.GetByDBName(questDBName);
+                                if (entry == null) continue;
+                                ImGui.Indent(Theme.IndentWidth);
+                                if (ImGui.Selectable($"Requires: \"{entry.DisplayName}\"##rq_{questDBName}"))
+                                    _state.SelectQuest(entry.DBName);
+                                ImGui.Unindent(Theme.IndentWidth);
+                            }
+                            break; // show only the first group
+                        }
+                    }
+                }
                 else
-                    ImGui.Selectable($"{label}##zl_{line.X}_{line.Z}");
+                {
+                    string suffix = isSelected ? " (auto)" : "";
+                    string label = $"To {line.DestinationDisplay} ({distance:F0}m){suffix}";
+
+                    if (isSelected)
+                        ImGui.Text(label);
+                    else
+                        ImGui.Selectable($"{label}##zl_{line.X}_{line.Z}");
+                }
             }
             ImGui.TreePop();
         }

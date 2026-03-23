@@ -33,6 +33,10 @@ public sealed class GuideData
     public IReadOnlyList<ChainGroupEntry> ChainGroups { get; private set; }
         = Array.Empty<ChainGroupEntry>();
 
+    /// <summary>Character quest unlock requirements: stable_key → OR-of-ANDs quest groups.</summary>
+    public IReadOnlyDictionary<string, List<List<string>>> CharacterQuestUnlocks { get; private set; }
+        = new Dictionary<string, List<List<string>>>();
+
     public QuestEntry? GetByDBName(string dbName) =>
         _byDBName.TryGetValue(dbName, out var entry) ? entry : null;
 
@@ -80,6 +84,7 @@ public sealed class GuideData
         data.CharacterSpawns = wrapper.CharacterSpawns ?? new Dictionary<string, List<SpawnPoint>>();
         data.ZoneLines = wrapper.ZoneLines ?? new List<ZoneLineEntry>();
         data.ChainGroups = wrapper.ChainGroups ?? new List<ChainGroupEntry>();
+        data.CharacterQuestUnlocks = wrapper.CharacterQuestUnlocks ?? new Dictionary<string, List<List<string>>>();
 
         log.LogInfo($"Loaded {data.Count} quest guide entries "
             + $"({data.ZoneLookup.Count} zones, "
@@ -98,6 +103,7 @@ internal sealed class GuideWrapper
     [JsonProperty("_character_spawns")] public Dictionary<string, List<SpawnPoint>>? CharacterSpawns { get; set; }
     [JsonProperty("_zone_lines")] public List<ZoneLineEntry>? ZoneLines { get; set; }
     [JsonProperty("_chain_groups")] public List<ChainGroupEntry>? ChainGroups { get; set; }
+    [JsonProperty("_character_quest_unlocks")] public Dictionary<string, List<List<string>>>? CharacterQuestUnlocks { get; set; }
     [JsonProperty("quests")] public List<QuestEntry>? Quests { get; set; }
 }
 
@@ -127,11 +133,13 @@ public sealed class ZoneLineEntry
     [JsonProperty("x")] public float X { get; set; }
     [JsonProperty("y")] public float Y { get; set; }
     [JsonProperty("z")] public float Z { get; set; }
+    [JsonProperty("is_enabled")] public bool IsEnabled { get; set; } = true;
     [JsonProperty("destination_zone_key")] public string DestinationZoneKey { get; set; } = "";
     [JsonProperty("destination_display")] public string DestinationDisplay { get; set; } = "";
     [JsonProperty("landing_x")] public float? LandingX { get; set; }
     [JsonProperty("landing_y")] public float? LandingY { get; set; }
     [JsonProperty("landing_z")] public float? LandingZ { get; set; }
+    [JsonProperty("required_quest_groups")] public List<List<string>>? RequiredQuestGroups { get; set; }
 }
 
 /// <summary>A pre-computed quest chain group.</summary>

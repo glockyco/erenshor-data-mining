@@ -246,9 +246,9 @@ public sealed class NavigationController
     /// Get all zone lines from the current scene to the navigation target's zone.
     /// Returns empty if not cross-zone navigating or no zone lines found.
     /// </summary>
-    public List<(ZoneLineEntry line, float distance, bool isSelected)> GetAlternativeZoneLines(string currentScene)
+    public List<(ZoneLineEntry line, float distance, bool isSelected, bool isAccessible)> GetAlternativeZoneLines(string currentScene)
     {
-        var result = new List<(ZoneLineEntry line, float distance, bool isSelected)>();
+        var result = new List<(ZoneLineEntry line, float distance, bool isSelected, bool isAccessible)>();
         if (Target == null || !Target.IsCrossZone(currentScene))
             return result;
 
@@ -267,10 +267,16 @@ public sealed class NavigationController
             float dist = Vector3.Distance(playerPos, zlPos);
             bool selected = _cachedZoneLine != null
                 && zl.X == _cachedZoneLine.X && zl.Y == _cachedZoneLine.Y && zl.Z == _cachedZoneLine.Z;
-            result.Add((zl, dist, selected));
+            bool accessible = IsZoneLineAccessible(zl);
+            result.Add((zl, dist, selected, accessible));
         }
 
-        result.Sort((a, b) => a.distance.CompareTo(b.distance));
+        // Accessible first, then by distance within each group
+        result.Sort((a, b) =>
+        {
+            int cmp = b.isAccessible.CompareTo(a.isAccessible);
+            return cmp != 0 ? cmp : a.distance.CompareTo(b.distance);
+        });
         return result;
     }
 
@@ -422,21 +428,34 @@ public sealed class NavigationController
             _lastCrossZoneCalcPos = playerPos;
             var targetZoneKey = FindZoneKeyBySceneName(Target!.Scene);
 
+            // Try accessible zone lines first
             var directLine = targetZoneKey != null
                 ? FindClosestZoneLine(targetZoneKey, currentScene, playerPos)
                 : null;
 
             var bestLine = directLine ?? FindClosestZoneLineInScene(currentScene, playerPos);
 
+            // If no accessible route found, fall back to closest locked zone line
+            // so the player still gets directional guidance + lock reason
+            bool routeIsLocked = false;
+            if (bestLine == null && targetZoneKey != null)
+            {
+                bestLine = FindClosestZoneLineAny(targetZoneKey, currentScene, playerPos);
+                routeIsLocked = bestLine != null;
+            }
+
             if (bestLine != _cachedZoneLine)
             {
                 _cachedZoneLine = bestLine;
                 if (bestLine != null)
                 {
+                    string displayText = routeIsLocked
+                        ? $"To {bestLine.DestinationDisplay}\nRequires: Complete \"{GetZoneLineLockReason(bestLine)}\""
+                        : $"To {bestLine.DestinationDisplay}";
                     ZoneLineWaypoint = MakeTarget(
                         NavigationTarget.Kind.ZoneLine,
                         new Vector3(bestLine.X, bestLine.Y, bestLine.Z),
-                        $"To {bestLine.DestinationDisplay}",
+                        displayText,
                         currentScene,
                         Target.QuestDBName, Target.StepOrder);
                 }
@@ -497,6 +516,58 @@ public sealed class NavigationController
 
     // ── Zone line helpers ──────────────────────────────────────────
 
+    /// <summary>
+    /// Check if a zone line is accessible to the player based on quest completion.
+    /// Enabled by default with no requirements = accessible. Otherwise, any unlock
+    /// group being fully completed = accessible.
+    /// </summary>
+    private bool IsZoneLineAccessible(ZoneLineEntry zl)
+    {
+        if (zl.IsEnabled && (zl.RequiredQuestGroups == null || zl.RequiredQuestGroups.Count == 0))
+            return true;
+
+        if (zl.RequiredQuestGroups == null || zl.RequiredQuestGroups.Count == 0)
+            return zl.IsEnabled;
+
+        foreach (var group in zl.RequiredQuestGroups)
+        {
+            if (group.TrueForAll(q => _state.IsCompleted(q)))
+                return true;
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Get the display text describing why a zone line is locked.
+    /// Returns the quest name(s) from the smallest incomplete unlock group.
+    /// </summary>
+    private string? GetZoneLineLockReason(ZoneLineEntry zl)
+    {
+        if (zl.RequiredQuestGroups == null || zl.RequiredQuestGroups.Count == 0)
+            return null;
+
+        // Find the smallest incomplete group (fewest quests to complete)
+        List<string>? best = null;
+        foreach (var group in zl.RequiredQuestGroups)
+        {
+            var incomplete = group.FindAll(q => !_state.IsCompleted(q));
+            if (incomplete.Count == 0) return null; // group satisfied
+            if (best == null || incomplete.Count < best.Count)
+                best = incomplete;
+        }
+
+        if (best == null) return null;
+
+        // Look up display names for the required quests
+        var names = new System.Collections.Generic.List<string>();
+        foreach (var dbName in best)
+        {
+            var entry = _data.GetByDBName(dbName);
+            names.Add(entry?.DisplayName ?? dbName);
+        }
+        return string.Join(" and ", names);
+    }
+
     private ZoneLineEntry? FindClosestZoneLine(
         string destinationZoneKey, string currentScene, Vector3 playerPos)
     {
@@ -509,6 +580,8 @@ public sealed class NavigationController
             if (!string.Equals(zl.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase))
                 continue;
             if (!string.Equals(zl.DestinationZoneKey, destinationZoneKey, System.StringComparison.OrdinalIgnoreCase))
+                continue;
+            if (!IsZoneLineAccessible(zl))
                 continue;
 
             var zlPos = new Vector3(zl.X, zl.Y, zl.Z);
@@ -532,6 +605,29 @@ public sealed class NavigationController
         return bestComplete ?? bestPartial ?? bestFallback;
     }
 
+    /// <summary>
+    /// Like FindClosestZoneLine but ignores accessibility — used to find locked
+    /// zone lines when no accessible route exists, for directional guidance.
+    /// </summary>
+    private ZoneLineEntry? FindClosestZoneLineAny(
+        string destinationZoneKey, string currentScene, Vector3 playerPos)
+    {
+        ZoneLineEntry? best = null;
+        float bestDist = float.MaxValue;
+
+        foreach (var zl in _data.ZoneLines)
+        {
+            if (!string.Equals(zl.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase))
+                continue;
+            if (!string.Equals(zl.DestinationZoneKey, destinationZoneKey, System.StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            float dist = Vector3.Distance(playerPos, new Vector3(zl.X, zl.Y, zl.Z));
+            if (dist < bestDist) { bestDist = dist; best = zl; }
+        }
+        return best;
+    }
+
     private ZoneLineEntry? FindClosestZoneLineInScene(string currentScene, Vector3 playerPos)
     {
         ZoneLineEntry? bestComplete = null;  float bestCompDist = float.MaxValue;
@@ -541,6 +637,8 @@ public sealed class NavigationController
         foreach (var zl in _data.ZoneLines)
         {
             if (!string.Equals(zl.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase))
+                continue;
+            if (!IsZoneLineAccessible(zl))
                 continue;
 
             var zlPos = new Vector3(zl.X, zl.Y, zl.Z);
@@ -570,7 +668,8 @@ public sealed class NavigationController
         foreach (var zl in _data.ZoneLines)
         {
             if (string.Equals(zl.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase)
-                && string.Equals(zl.DestinationZoneKey, zoneKey, System.StringComparison.OrdinalIgnoreCase))
+                && string.Equals(zl.DestinationZoneKey, zoneKey, System.StringComparison.OrdinalIgnoreCase)
+                && IsZoneLineAccessible(zl))
                 return true;
         }
         return false;
