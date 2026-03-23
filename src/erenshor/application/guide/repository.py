@@ -715,7 +715,7 @@ def _build_item_sources(
     """
     sources: dict[str, list[ItemSource]] = defaultdict(list)
 
-    _add_drop_sources(conn, sources)
+    _add_drop_sources(conn, sources, zone_by_display)
     _add_vendor_sources(conn, sources, zone_by_display)
     _add_fishing_sources(conn, sources, zone_by_display)
     _add_mining_sources(conn, sources, zone_by_display)
@@ -803,8 +803,13 @@ def _resolve_quest_giver(
 def _add_drop_sources(
     conn: sqlite3.Connection,
     out: dict[str, list[ItemSource]],
+    zone_by_display: dict[str, ZoneInfo],
 ) -> None:
-    """Drop sources with per-(character, zone) spawn counts and character level."""
+    """Drop sources with per-(character, zone) spawn counts.
+
+    Level is max(enemy_level, zone_median) because the player must both
+    navigate through the zone and kill the enemy.
+    """
     rows = conn.execute(
         """
         SELECT ld.item_stable_key,
@@ -823,16 +828,25 @@ def _add_drop_sources(
         """
     ).fetchall()
     for row in rows:
-        level = row["level"] if row["level"] and row["level"] > 0 else None
+        enemy_level = row["level"] if row["level"] and row["level"] > 0 else None
+        zone_name = row["zone_name"]
+        zi = zone_by_display.get(zone_name) if zone_name else None
+        zone_median = zi.level_median if zi else None
+
+        if enemy_level is not None and zone_median is not None:
+            level = max(enemy_level, zone_median)
+        else:
+            level = enemy_level or zone_median
+
         out[row["item_stable_key"]].append(
             ItemSource(
                 type="drop",
                 name=row["character_name"],
-                zone=row["zone_name"],
+                zone=zone_name,
                 scene=row["scene"],
                 level=level,
                 source_key=row["character_key"],
-                spawn_count=row["spawn_count"] if row["zone_name"] else None,
+                spawn_count=row["spawn_count"] if zone_name else None,
             )
         )
 

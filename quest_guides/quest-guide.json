@@ -56864,7 +56864,7 @@
                 {
                   "type": "quest_reward",
                   "name": "Treasure Map: Repairing Treasure Maps",
-                  "level": 16,
+                  "level": 17,
                   "quest_key": "quest:treasuremap"
                 },
                 {
@@ -56898,7 +56898,7 @@
                 {
                   "type": "quest_reward",
                   "name": "Treasure Map: Repairing Treasure Maps",
-                  "level": 16,
+                  "level": 17,
                   "quest_key": "quest:treasuremap"
                 },
                 {
@@ -57387,6 +57387,11 @@
               },
               {
                 "source": "drop",
+                "name": "Thella Steepleton",
+                "level": 11
+              },
+              {
+                "source": "drop",
                 "name": "Tinkles",
                 "level": 11
               },
@@ -57407,11 +57412,6 @@
               },
               {
                 "source": "drop",
-                "name": "Shadow of Sleep",
-                "level": 19
-              },
-              {
-                "source": "drop",
                 "name": "Shiverman",
                 "level": 19
               },
@@ -57419,6 +57419,11 @@
                 "source": "drop",
                 "name": "Stoneman",
                 "level": 19
+              },
+              {
+                "source": "drop",
+                "name": "Shadow of Sleep",
+                "level": 21
               },
               {
                 "source": "drop",
@@ -57432,27 +57437,22 @@
               },
               {
                 "source": "drop",
-                "name": "Elder Guardian",
-                "level": 22
-              },
-              {
-                "source": "drop",
                 "name": "Fright",
                 "level": 22
               },
               {
                 "source": "drop",
-                "name": "Greater Fawn",
-                "level": 22
-              },
-              {
-                "source": "drop",
-                "name": "Stoneman Magi",
-                "level": 23
-              },
-              {
-                "source": "drop",
                 "name": "Sivakayan Shadow",
+                "level": 24
+              },
+              {
+                "source": "drop",
+                "name": "Daggerlegs",
+                "level": 24
+              },
+              {
+                "source": "drop",
+                "name": "Fright",
                 "level": 24
               },
               {
@@ -57462,17 +57462,22 @@
               },
               {
                 "source": "drop",
-                "name": "Wild Ogre",
+                "name": "Stoneman",
                 "level": 24
               },
               {
                 "source": "drop",
-                "name": "Maple",
-                "level": 25
+                "name": "Stoneman Magi",
+                "level": 24
               },
               {
                 "source": "drop",
                 "name": "Ancient Guard",
+                "level": 26
+              },
+              {
+                "source": "drop",
+                "name": "Wild Ogre",
                 "level": 26
               },
               {
@@ -57482,12 +57487,27 @@
               },
               {
                 "source": "drop",
-                "name": "Sivakayan Devoted",
+                "name": "Elder Guardian",
+                "level": 27
+              },
+              {
+                "source": "drop",
+                "name": "Greater Fawn",
+                "level": 27
+              },
+              {
+                "source": "drop",
+                "name": "Maple",
                 "level": 27
               },
               {
                 "source": "drop",
                 "name": "Shrouded Sivakayan",
+                "level": 28
+              },
+              {
+                "source": "drop",
+                "name": "Sivakayan Devoted",
                 "level": 28
               },
               {
@@ -57560,11 +57580,6 @@
                 "level": 4
               },
               {
-                "source": "drop",
-                "name": "Lost Soul",
-                "level": 4
-              },
-              {
                 "source": "vendor",
                 "name": "Summoned: Pocket Vendor",
                 "level": 5
@@ -57605,6 +57620,11 @@
                 "level": 11
               },
               {
+                "source": "drop",
+                "name": "Thella Steepleton",
+                "level": 11
+              },
+              {
                 "source": "vendor",
                 "name": "Cully Edwarse",
                 "level": 11
@@ -57622,21 +57642,36 @@
               {
                 "source": "drop",
                 "name": "Priel Deceiver",
-                "level": 17
+                "level": 18
               },
               {
                 "source": "drop",
                 "name": "Priel Enforcer",
-                "level": 17
+                "level": 18
               },
               {
                 "source": "drop",
-                "name": "Priel Swiftblade",
-                "level": 28
+                "name": "Lost Soul",
+                "level": 19
+              },
+              {
+                "source": "drop",
+                "name": "Priel Deceiver",
+                "level": 19
+              },
+              {
+                "source": "drop",
+                "name": "Priel Enforcer",
+                "level": 19
               },
               {
                 "source": "drop",
                 "name": "Priel Purist",
+                "level": 30
+              },
+              {
+                "source": "drop",
+                "name": "Priel Swiftblade",
                 "level": 30
               },
               {
@@ -57750,7 +57785,7 @@
               "name": "Thella Steepleton",
               "zone": "Port Azure",
               "scene": "Azure",
-              "level": 10,
+              "level": 11,
               "source_key": "character:thella steepleton:azure:242.54:27.97:315.61",
               "spawn_count": 2
             },
@@ -57792,27 +57827,9 @@
             },
             {
               "type": "drop",
-              "name": "Shadow of Sleep",
-              "zone": "Shivering Step",
-              "scene": "ShiveringStep",
-              "level": 19,
-              "source_key": "character:boogeyman",
-              "spawn_count": 16
-            },
-            {
-              "type": "drop",
               "name": "Shiverman",
               "level": 19,
               "source_key": "character:shiverman"
-            },
-            {
-              "type": "drop",
-              "name": "Stoneman",
-              "zone": "Rockshade Hold",
-              "scene": "Rockshade",
-              "level": 19,
-              "source_key": "character:stoneman arcanist",
-              "spawn_count": 7
             },
             {
               "type": "drop",
@@ -57821,6 +57838,15 @@
               "scene": "Windwashed",
               "level": 19,
               "source_key": "character:stoneman arcanist",
+              "spawn_count": 16
+            },
+            {
+              "type": "drop",
+              "name": "Shadow of Sleep",
+              "zone": "Shivering Step",
+              "scene": "ShiveringStep",
+              "level": 21,
+              "source_key": "character:boogeyman",
               "spawn_count": 16
             },
             {
@@ -57834,30 +57860,12 @@
             },
             {
               "type": "drop",
-              "name": "Daggerlegs",
-              "zone": "Shivering Tomb (2)",
-              "scene": "ShiveringTomb2",
-              "level": 21,
-              "source_key": "character:daggerlegs",
-              "spawn_count": 1
-            },
-            {
-              "type": "drop",
               "name": "Gasper",
               "zone": "Shivering Step",
               "scene": "ShiveringStep",
               "level": 21,
               "source_key": "character:gasper",
               "spawn_count": 9
-            },
-            {
-              "type": "drop",
-              "name": "Elder Guardian",
-              "zone": "Blooming Sepulcher",
-              "scene": "BloomingSepulcher",
-              "level": 22,
-              "source_key": "character:elder guardian",
-              "spawn_count": 34
             },
             {
               "type": "drop",
@@ -57870,36 +57878,27 @@
             },
             {
               "type": "drop",
-              "name": "Fright",
-              "zone": "Shivering Tomb (2)",
-              "scene": "ShiveringTomb2",
-              "level": 22,
-              "source_key": "character:fright",
-              "spawn_count": 4
-            },
-            {
-              "type": "drop",
-              "name": "Greater Fawn",
-              "zone": "Blooming Sepulcher",
-              "scene": "BloomingSepulcher",
-              "level": 22,
-              "source_key": "character:greater fawn",
-              "spawn_count": 34
-            },
-            {
-              "type": "drop",
-              "name": "Stoneman Magi",
-              "zone": "Rockshade Hold",
-              "scene": "Rockshade",
-              "level": 23,
-              "source_key": "character:stoneman magi",
-              "spawn_count": 52
-            },
-            {
-              "type": "drop",
               "name": "Sivakayan Shadow",
               "level": 24,
               "source_key": "character:24 - sivakayan spectre"
+            },
+            {
+              "type": "drop",
+              "name": "Daggerlegs",
+              "zone": "Shivering Tomb (2)",
+              "scene": "ShiveringTomb2",
+              "level": 24,
+              "source_key": "character:daggerlegs",
+              "spawn_count": 1
+            },
+            {
+              "type": "drop",
+              "name": "Fright",
+              "zone": "Shivering Tomb (2)",
+              "scene": "ShiveringTomb2",
+              "level": 24,
+              "source_key": "character:fright",
+              "spawn_count": 4
             },
             {
               "type": "drop",
@@ -57912,21 +57911,21 @@
             },
             {
               "type": "drop",
-              "name": "Wild Ogre",
-              "zone": "Soluna's Landing",
-              "scene": "Soluna",
+              "name": "Stoneman",
+              "zone": "Rockshade Hold",
+              "scene": "Rockshade",
               "level": 24,
-              "source_key": "character:wild ogre",
-              "spawn_count": 25
+              "source_key": "character:stoneman arcanist",
+              "spawn_count": 7
             },
             {
               "type": "drop",
-              "name": "Maple",
-              "zone": "Blooming Sepulcher",
-              "scene": "BloomingSepulcher",
-              "level": 25,
-              "source_key": "character:maple",
-              "spawn_count": 1
+              "name": "Stoneman Magi",
+              "zone": "Rockshade Hold",
+              "scene": "Rockshade",
+              "level": 24,
+              "source_key": "character:stoneman magi",
+              "spawn_count": 52
             },
             {
               "type": "drop",
@@ -57939,6 +57938,15 @@
             },
             {
               "type": "drop",
+              "name": "Wild Ogre",
+              "zone": "Soluna's Landing",
+              "scene": "Soluna",
+              "level": 26,
+              "source_key": "character:wild ogre",
+              "spawn_count": 25
+            },
+            {
+              "type": "drop",
               "name": "Bloom Preserver",
               "zone": "Blooming Sepulcher",
               "scene": "BloomingSepulcher",
@@ -57948,18 +57956,45 @@
             },
             {
               "type": "drop",
-              "name": "Sivakayan Devoted",
-              "zone": "Abyssal Lake",
-              "scene": "Abyssal",
+              "name": "Elder Guardian",
+              "zone": "Blooming Sepulcher",
+              "scene": "BloomingSepulcher",
               "level": 27,
-              "source_key": "character:sivakayan devoted",
-              "spawn_count": 45
+              "source_key": "character:elder guardian",
+              "spawn_count": 34
+            },
+            {
+              "type": "drop",
+              "name": "Greater Fawn",
+              "zone": "Blooming Sepulcher",
+              "scene": "BloomingSepulcher",
+              "level": 27,
+              "source_key": "character:greater fawn",
+              "spawn_count": 34
+            },
+            {
+              "type": "drop",
+              "name": "Maple",
+              "zone": "Blooming Sepulcher",
+              "scene": "BloomingSepulcher",
+              "level": 27,
+              "source_key": "character:maple",
+              "spawn_count": 1
             },
             {
               "type": "drop",
               "name": "Shrouded Sivakayan",
               "level": 28,
               "source_key": "character:28 - sivakayan spectre"
+            },
+            {
+              "type": "drop",
+              "name": "Sivakayan Devoted",
+              "zone": "Abyssal Lake",
+              "scene": "Abyssal",
+              "level": 28,
+              "source_key": "character:sivakayan devoted",
+              "spawn_count": 45
             },
             {
               "type": "drop",
@@ -58056,15 +58091,6 @@
               "spawn_count": 1
             },
             {
-              "type": "drop",
-              "name": "Lost Soul",
-              "zone": "Malaroth's Nesting Grounds",
-              "scene": "Malaroth",
-              "level": 4,
-              "source_key": "character:lost soul",
-              "spawn_count": 1
-            },
-            {
               "type": "vendor",
               "name": "Summoned: Pocket Vendor",
               "zone": "Reliquary Hall",
@@ -58124,21 +58150,21 @@
             },
             {
               "type": "drop",
-              "name": "Thella Steepleton",
-              "zone": "Port Azure",
-              "scene": "Azure",
-              "level": 10,
-              "source_key": "character:thella steepleton:azure:242.54:27.97:315.61",
-              "spawn_count": 2
-            },
-            {
-              "type": "drop",
               "name": "A Lost Sea Giant",
               "zone": "Vitheo's Watch",
               "scene": "Vitheo",
               "level": 11,
               "source_key": "character:lost sea giant female",
               "spawn_count": 4
+            },
+            {
+              "type": "drop",
+              "name": "Thella Steepleton",
+              "zone": "Port Azure",
+              "scene": "Azure",
+              "level": 11,
+              "source_key": "character:thella steepleton:azure:242.54:27.97:315.61",
+              "spawn_count": 2
             },
             {
               "type": "vendor",
@@ -58168,65 +58194,65 @@
             {
               "type": "drop",
               "name": "Priel Deceiver",
+              "zone": "Windwashed Pass",
+              "scene": "Windwashed",
+              "level": 18,
+              "source_key": "character:priel deceiver",
+              "spawn_count": 13
+            },
+            {
+              "type": "drop",
+              "name": "Priel Enforcer",
+              "zone": "Windwashed Pass",
+              "scene": "Windwashed",
+              "level": 18,
+              "source_key": "character:priel enforcer",
+              "spawn_count": 13
+            },
+            {
+              "type": "drop",
+              "name": "Priel Enforcer",
+              "zone": "Windwashed Pass",
+              "scene": "Windwashed",
+              "level": 18,
+              "source_key": "character:priel naturalist",
+              "spawn_count": 13
+            },
+            {
+              "type": "drop",
+              "name": "Lost Soul",
               "zone": "Malaroth's Nesting Grounds",
               "scene": "Malaroth",
-              "level": 17,
-              "source_key": "character:priel deceiver",
-              "spawn_count": 15
+              "level": 19,
+              "source_key": "character:lost soul",
+              "spawn_count": 1
             },
             {
               "type": "drop",
               "name": "Priel Deceiver",
-              "zone": "Windwashed Pass",
-              "scene": "Windwashed",
-              "level": 17,
+              "zone": "Malaroth's Nesting Grounds",
+              "scene": "Malaroth",
+              "level": 19,
               "source_key": "character:priel deceiver",
-              "spawn_count": 13
+              "spawn_count": 15
             },
             {
               "type": "drop",
               "name": "Priel Enforcer",
               "zone": "Malaroth's Nesting Grounds",
               "scene": "Malaroth",
-              "level": 17,
+              "level": 19,
               "source_key": "character:priel enforcer",
               "spawn_count": 15
-            },
-            {
-              "type": "drop",
-              "name": "Priel Enforcer",
-              "zone": "Windwashed Pass",
-              "scene": "Windwashed",
-              "level": 17,
-              "source_key": "character:priel enforcer",
-              "spawn_count": 13
             },
             {
               "type": "drop",
               "name": "Priel Enforcer",
               "zone": "Malaroth's Nesting Grounds",
               "scene": "Malaroth",
-              "level": 17,
+              "level": 19,
               "source_key": "character:priel naturalist",
               "spawn_count": 15
-            },
-            {
-              "type": "drop",
-              "name": "Priel Enforcer",
-              "zone": "Windwashed Pass",
-              "scene": "Windwashed",
-              "level": 17,
-              "source_key": "character:priel naturalist",
-              "spawn_count": 13
-            },
-            {
-              "type": "drop",
-              "name": "Priel Swiftblade",
-              "zone": "Prielian Cascade",
-              "scene": "PrielPlateau",
-              "level": 28,
-              "source_key": "character:priel swiftblade",
-              "spawn_count": 22
             },
             {
               "type": "drop",
@@ -58236,6 +58262,15 @@
               "level": 30,
               "source_key": "character:priel purist",
               "spawn_count": 46
+            },
+            {
+              "type": "drop",
+              "name": "Priel Swiftblade",
+              "zone": "Prielian Cascade",
+              "scene": "PrielPlateau",
+              "level": 30,
+              "source_key": "character:priel swiftblade",
+              "spawn_count": 22
             },
             {
               "type": "drop",
@@ -58591,22 +58626,22 @@
           "target_type": "item",
           "target_key": "item:gen - notes of a hermit",
           "level_estimate": {
-            "recommended": 8,
+            "recommended": 13,
             "factors": [
               {
                 "source": "drop",
                 "name": "A Hermit",
-                "level": 8
+                "level": 13
               },
               {
                 "source": "drop",
                 "name": "Bommer Olvaro",
-                "level": 8
+                "level": 18
               },
               {
                 "source": "drop",
                 "name": "Liam Olvaro",
-                "level": 8
+                "level": 18
               },
               {
                 "source": "quest_reward",
@@ -58625,22 +58660,22 @@
           "target_key": "item:gen - notes of a hermit",
           "quantity": 1,
           "level_estimate": {
-            "recommended": 8,
+            "recommended": 13,
             "factors": [
               {
                 "source": "drop",
                 "name": "A Hermit",
-                "level": 8
+                "level": 13
               },
               {
                 "source": "drop",
                 "name": "Bommer Olvaro",
-                "level": 8
+                "level": 18
               },
               {
                 "source": "drop",
                 "name": "Liam Olvaro",
-                "level": 8
+                "level": 18
               },
               {
                 "source": "quest_reward",
@@ -58681,7 +58716,7 @@
               "name": "A Hermit",
               "zone": "Fernalla's Revival Plains",
               "scene": "FernallaField",
-              "level": 8,
+              "level": 13,
               "source_key": "character:a hermit",
               "spawn_count": 1
             },
@@ -58690,7 +58725,7 @@
               "name": "Bommer Olvaro",
               "zone": "Windwashed Pass",
               "scene": "Windwashed",
-              "level": 8,
+              "level": 18,
               "source_key": "character:bommer olvaro:windwashed:349.66:32.38:255.53",
               "spawn_count": 2
             },
@@ -58699,7 +58734,7 @@
               "name": "Liam Olvaro",
               "zone": "Windwashed Pass",
               "scene": "Windwashed",
-              "level": 8,
+              "level": 18,
               "source_key": "character:liam olvaro:windwashed:349.73:32.38:251.40",
               "spawn_count": 2
             },
@@ -58773,12 +58808,12 @@
         "once_per_spawn_instance": false
       },
       "level_estimate": {
-        "recommended": 11,
+        "recommended": 13,
         "factors": [
           {
-            "source": "step_3",
-            "name": "Turn in items to Chazz Pillot.",
-            "level": 11
+            "source": "step_1",
+            "name": "Obtain and read Notes of a Hermit.",
+            "level": 13
           }
         ]
       }
@@ -58895,17 +58930,17 @@
               },
               {
                 "source": "drop",
-                "name": "Vithean Remains",
-                "level": 21
-              },
-              {
-                "source": "drop",
                 "name": "Vithean Blademaster",
-                "level": 22
+                "level": 23
               },
               {
                 "source": "drop",
                 "name": "Vithean Elite",
+                "level": 23
+              },
+              {
+                "source": "drop",
+                "name": "Vithean Remains",
                 "level": 23
               },
               {
@@ -58978,19 +59013,10 @@
             },
             {
               "type": "drop",
-              "name": "Vithean Remains",
-              "zone": "Vitheo's Rest",
-              "scene": "VitheosEnd",
-              "level": 21,
-              "source_key": "character:vithean remains",
-              "spawn_count": 45
-            },
-            {
-              "type": "drop",
               "name": "Vithean Blademaster",
               "zone": "Vitheo's Rest",
               "scene": "VitheosEnd",
-              "level": 22,
+              "level": 23,
               "source_key": "character:vithean blademaster",
               "spawn_count": 37
             },
@@ -59002,6 +59028,15 @@
               "level": 23,
               "source_key": "character:vithean elite",
               "spawn_count": 37
+            },
+            {
+              "type": "drop",
+              "name": "Vithean Remains",
+              "zone": "Vitheo's Rest",
+              "scene": "VitheosEnd",
+              "level": 23,
+              "source_key": "character:vithean remains",
+              "spawn_count": 45
             },
             {
               "type": "drop",
@@ -59346,6 +59381,16 @@
               },
               {
                 "source": "drop",
+                "name": "A Skeleton Captain",
+                "level": 9
+              },
+              {
+                "source": "drop",
+                "name": "A Skeleton Soldier",
+                "level": 9
+              },
+              {
+                "source": "drop",
                 "name": "Bassalt Vallano",
                 "level": 10
               }
@@ -59389,15 +59434,6 @@
             },
             {
               "type": "drop",
-              "name": "A Skeleton Captain",
-              "zone": "Vitheo's Watch",
-              "scene": "Vitheo",
-              "level": 8,
-              "source_key": "character:skeleton captain",
-              "spawn_count": 4
-            },
-            {
-              "type": "drop",
               "name": "A Skeleton Soldier",
               "zone": "The Bonepits",
               "scene": "Bonepits",
@@ -59416,21 +59452,30 @@
             },
             {
               "type": "drop",
-              "name": "A Skeleton Soldier",
-              "zone": "Vitheo's Watch",
-              "scene": "Vitheo",
-              "level": 8,
-              "source_key": "character:skeleton soldier",
-              "spawn_count": 9
-            },
-            {
-              "type": "drop",
               "name": "Wiggleribs",
               "zone": "Willowwatch Ridge",
               "scene": "Willowwatch",
               "level": 8,
               "source_key": "character:wiggleribs",
               "spawn_count": 1
+            },
+            {
+              "type": "drop",
+              "name": "A Skeleton Captain",
+              "zone": "Vitheo's Watch",
+              "scene": "Vitheo",
+              "level": 9,
+              "source_key": "character:skeleton captain",
+              "spawn_count": 4
+            },
+            {
+              "type": "drop",
+              "name": "A Skeleton Soldier",
+              "zone": "Vitheo's Watch",
+              "scene": "Vitheo",
+              "level": 9,
+              "source_key": "character:skeleton soldier",
+              "spawn_count": 9
             },
             {
               "type": "drop",
@@ -59745,11 +59790,6 @@
                 "level": 4
               },
               {
-                "source": "drop",
-                "name": "Lost Soul",
-                "level": 4
-              },
-              {
                 "source": "vendor",
                 "name": "Summoned: Pocket Vendor",
                 "level": 5
@@ -59790,6 +59830,11 @@
                 "level": 11
               },
               {
+                "source": "drop",
+                "name": "Thella Steepleton",
+                "level": 11
+              },
+              {
                 "source": "vendor",
                 "name": "Cully Edwarse",
                 "level": 11
@@ -59807,21 +59852,36 @@
               {
                 "source": "drop",
                 "name": "Priel Deceiver",
-                "level": 17
+                "level": 18
               },
               {
                 "source": "drop",
                 "name": "Priel Enforcer",
-                "level": 17
+                "level": 18
               },
               {
                 "source": "drop",
-                "name": "Priel Swiftblade",
-                "level": 28
+                "name": "Lost Soul",
+                "level": 19
+              },
+              {
+                "source": "drop",
+                "name": "Priel Deceiver",
+                "level": 19
+              },
+              {
+                "source": "drop",
+                "name": "Priel Enforcer",
+                "level": 19
               },
               {
                 "source": "drop",
                 "name": "Priel Purist",
+                "level": 30
+              },
+              {
+                "source": "drop",
+                "name": "Priel Swiftblade",
                 "level": 30
               },
               {
@@ -59960,15 +60020,6 @@
               "spawn_count": 1
             },
             {
-              "type": "drop",
-              "name": "Lost Soul",
-              "zone": "Malaroth's Nesting Grounds",
-              "scene": "Malaroth",
-              "level": 4,
-              "source_key": "character:lost soul",
-              "spawn_count": 1
-            },
-            {
               "type": "vendor",
               "name": "Summoned: Pocket Vendor",
               "zone": "Reliquary Hall",
@@ -60028,21 +60079,21 @@
             },
             {
               "type": "drop",
-              "name": "Thella Steepleton",
-              "zone": "Port Azure",
-              "scene": "Azure",
-              "level": 10,
-              "source_key": "character:thella steepleton:azure:242.54:27.97:315.61",
-              "spawn_count": 2
-            },
-            {
-              "type": "drop",
               "name": "A Lost Sea Giant",
               "zone": "Vitheo's Watch",
               "scene": "Vitheo",
               "level": 11,
               "source_key": "character:lost sea giant female",
               "spawn_count": 4
+            },
+            {
+              "type": "drop",
+              "name": "Thella Steepleton",
+              "zone": "Port Azure",
+              "scene": "Azure",
+              "level": 11,
+              "source_key": "character:thella steepleton:azure:242.54:27.97:315.61",
+              "spawn_count": 2
             },
             {
               "type": "vendor",
@@ -60072,65 +60123,65 @@
             {
               "type": "drop",
               "name": "Priel Deceiver",
+              "zone": "Windwashed Pass",
+              "scene": "Windwashed",
+              "level": 18,
+              "source_key": "character:priel deceiver",
+              "spawn_count": 13
+            },
+            {
+              "type": "drop",
+              "name": "Priel Enforcer",
+              "zone": "Windwashed Pass",
+              "scene": "Windwashed",
+              "level": 18,
+              "source_key": "character:priel enforcer",
+              "spawn_count": 13
+            },
+            {
+              "type": "drop",
+              "name": "Priel Enforcer",
+              "zone": "Windwashed Pass",
+              "scene": "Windwashed",
+              "level": 18,
+              "source_key": "character:priel naturalist",
+              "spawn_count": 13
+            },
+            {
+              "type": "drop",
+              "name": "Lost Soul",
               "zone": "Malaroth's Nesting Grounds",
               "scene": "Malaroth",
-              "level": 17,
-              "source_key": "character:priel deceiver",
-              "spawn_count": 15
+              "level": 19,
+              "source_key": "character:lost soul",
+              "spawn_count": 1
             },
             {
               "type": "drop",
               "name": "Priel Deceiver",
-              "zone": "Windwashed Pass",
-              "scene": "Windwashed",
-              "level": 17,
+              "zone": "Malaroth's Nesting Grounds",
+              "scene": "Malaroth",
+              "level": 19,
               "source_key": "character:priel deceiver",
-              "spawn_count": 13
+              "spawn_count": 15
             },
             {
               "type": "drop",
               "name": "Priel Enforcer",
               "zone": "Malaroth's Nesting Grounds",
               "scene": "Malaroth",
-              "level": 17,
+              "level": 19,
               "source_key": "character:priel enforcer",
               "spawn_count": 15
-            },
-            {
-              "type": "drop",
-              "name": "Priel Enforcer",
-              "zone": "Windwashed Pass",
-              "scene": "Windwashed",
-              "level": 17,
-              "source_key": "character:priel enforcer",
-              "spawn_count": 13
             },
             {
               "type": "drop",
               "name": "Priel Enforcer",
               "zone": "Malaroth's Nesting Grounds",
               "scene": "Malaroth",
-              "level": 17,
+              "level": 19,
               "source_key": "character:priel naturalist",
               "spawn_count": 15
-            },
-            {
-              "type": "drop",
-              "name": "Priel Enforcer",
-              "zone": "Windwashed Pass",
-              "scene": "Windwashed",
-              "level": 17,
-              "source_key": "character:priel naturalist",
-              "spawn_count": 13
-            },
-            {
-              "type": "drop",
-              "name": "Priel Swiftblade",
-              "zone": "Prielian Cascade",
-              "scene": "PrielPlateau",
-              "level": 28,
-              "source_key": "character:priel swiftblade",
-              "spawn_count": 22
             },
             {
               "type": "drop",
@@ -60140,6 +60191,15 @@
               "level": 30,
               "source_key": "character:priel purist",
               "spawn_count": 46
+            },
+            {
+              "type": "drop",
+              "name": "Priel Swiftblade",
+              "zone": "Prielian Cascade",
+              "scene": "PrielPlateau",
+              "level": 30,
+              "source_key": "character:priel swiftblade",
+              "spawn_count": 22
             },
             {
               "type": "drop",
@@ -60538,18 +60598,8 @@
           "target_key": "item:gen - aetheria",
           "quantity": 1,
           "level_estimate": {
-            "recommended": 3,
+            "recommended": 4,
             "factors": [
-              {
-                "source": "drop",
-                "name": "An Enraged Spirit",
-                "level": 3
-              },
-              {
-                "source": "drop",
-                "name": "A Restless Spirit",
-                "level": 3
-              },
               {
                 "source": "drop",
                 "name": "A Sorrowful Spirit",
@@ -60557,7 +60607,17 @@
               },
               {
                 "source": "drop",
+                "name": "An Enraged Spirit",
+                "level": 4
+              },
+              {
+                "source": "drop",
                 "name": "Mourning",
+                "level": 4
+              },
+              {
+                "source": "drop",
+                "name": "A Restless Spirit",
                 "level": 4
               },
               {
@@ -60568,7 +60628,7 @@
               {
                 "source": "drop",
                 "name": "A Lost Sea Giant",
-                "level": 8
+                "level": 9
               },
               {
                 "source": "drop",
@@ -60587,18 +60647,8 @@
               },
               {
                 "source": "drop",
-                "name": "A Protected Memory",
-                "level": 21
-              },
-              {
-                "source": "drop",
                 "name": "Seed of Blight",
                 "level": 21
-              },
-              {
-                "source": "drop",
-                "name": "A Protected Memory",
-                "level": 24
               },
               {
                 "source": "drop",
@@ -60617,13 +60667,18 @@
               },
               {
                 "source": "drop",
+                "name": "A Protected Memory",
+                "level": 27
+              },
+              {
+                "source": "drop",
                 "name": "Ancient Celestarian",
                 "level": 27
               },
               {
                 "source": "drop",
                 "name": "Sivakayan Devoted",
-                "level": 27
+                "level": 28
               },
               {
                 "source": "drop",
@@ -60701,33 +60756,6 @@
           "sources": [
             {
               "type": "drop",
-              "name": "An Enraged Spirit",
-              "zone": "Island Tomb",
-              "scene": "Tutorial",
-              "level": 3,
-              "source_key": "character:enraged spirit",
-              "spawn_count": 17
-            },
-            {
-              "type": "drop",
-              "name": "A Restless Spirit",
-              "zone": "Island Tomb",
-              "scene": "Tutorial",
-              "level": 3,
-              "source_key": "character:restless spirit",
-              "spawn_count": 14
-            },
-            {
-              "type": "drop",
-              "name": "A Restless Spirit",
-              "zone": "Willowwatch Ridge",
-              "scene": "Willowwatch",
-              "level": 3,
-              "source_key": "character:restless spirit",
-              "spawn_count": 5
-            },
-            {
-              "type": "drop",
               "name": "A Sorrowful Spirit",
               "zone": "Island Tomb",
               "scene": "Tutorial",
@@ -60737,12 +60765,39 @@
             },
             {
               "type": "drop",
+              "name": "An Enraged Spirit",
+              "zone": "Island Tomb",
+              "scene": "Tutorial",
+              "level": 4,
+              "source_key": "character:enraged spirit",
+              "spawn_count": 17
+            },
+            {
+              "type": "drop",
               "name": "Mourning",
               "zone": "Island Tomb",
               "scene": "Tutorial",
               "level": 4,
               "source_key": "character:mourning",
               "spawn_count": 1
+            },
+            {
+              "type": "drop",
+              "name": "A Restless Spirit",
+              "zone": "Island Tomb",
+              "scene": "Tutorial",
+              "level": 4,
+              "source_key": "character:restless spirit",
+              "spawn_count": 14
+            },
+            {
+              "type": "drop",
+              "name": "A Restless Spirit",
+              "zone": "Willowwatch Ridge",
+              "scene": "Willowwatch",
+              "level": 4,
+              "source_key": "character:restless spirit",
+              "spawn_count": 5
             },
             {
               "type": "drop",
@@ -60758,7 +60813,7 @@
               "name": "A Lost Sea Giant",
               "zone": "Vitheo's Watch",
               "scene": "Vitheo",
-              "level": 8,
+              "level": 9,
               "source_key": "character:lost sea giant",
               "spawn_count": 4
             },
@@ -60791,30 +60846,12 @@
             },
             {
               "type": "drop",
-              "name": "A Protected Memory",
-              "zone": "Blooming Sepulcher",
-              "scene": "BloomingSepulcher",
-              "level": 21,
-              "source_key": "character:1 - memory of defeat",
-              "spawn_count": 1
-            },
-            {
-              "type": "drop",
               "name": "Seed of Blight",
               "zone": "Braxonian Desert",
               "scene": "Braxonian",
               "level": 21,
               "source_key": "character:seed of blight",
               "spawn_count": 7
-            },
-            {
-              "type": "drop",
-              "name": "A Protected Memory",
-              "zone": "Blooming Sepulcher",
-              "scene": "BloomingSepulcher",
-              "level": 24,
-              "source_key": "character:2 - memory of the order",
-              "spawn_count": 1
             },
             {
               "type": "drop",
@@ -60845,6 +60882,24 @@
             },
             {
               "type": "drop",
+              "name": "A Protected Memory",
+              "zone": "Blooming Sepulcher",
+              "scene": "BloomingSepulcher",
+              "level": 27,
+              "source_key": "character:1 - memory of defeat",
+              "spawn_count": 1
+            },
+            {
+              "type": "drop",
+              "name": "A Protected Memory",
+              "zone": "Blooming Sepulcher",
+              "scene": "BloomingSepulcher",
+              "level": 27,
+              "source_key": "character:2 - memory of the order",
+              "spawn_count": 1
+            },
+            {
+              "type": "drop",
               "name": "Ancient Celestarian",
               "zone": "Soluna's Landing",
               "scene": "Soluna",
@@ -60857,7 +60912,7 @@
               "name": "Sivakayan Devoted",
               "zone": "Abyssal Lake",
               "scene": "Abyssal",
-              "level": 27,
+              "level": 28,
               "source_key": "character:sivakayan devoted",
               "spawn_count": 45
             },
@@ -61047,12 +61102,12 @@
           "target_key": "item:ring - 24 - simple engagement ring",
           "quantity": 1,
           "level_estimate": {
-            "recommended": 4,
+            "recommended": 18,
             "factors": [
               {
                 "source": "drop",
                 "name": "Risen Pilgrim",
-                "level": 4
+                "level": 18
               }
             ]
           }
@@ -61088,7 +61143,7 @@
               "name": "Risen Pilgrim",
               "zone": "Silkengrass Meadowlands",
               "scene": "Silkengrass",
-              "level": 4,
+              "level": 18,
               "source_key": "character:risen pilgrim",
               "spawn_count": 19
             }
@@ -61179,12 +61234,12 @@
           "target_key": "item:neck - 1 - plain necklace",
           "quantity": 1,
           "level_estimate": {
-            "recommended": 1,
+            "recommended": 2,
             "factors": [
               {
                 "source": "drop",
                 "name": "A Brackish Croc Whelp",
-                "level": 1
+                "level": 2
               }
             ]
           }
@@ -61220,7 +61275,7 @@
               "name": "A Brackish Croc Whelp",
               "zone": "Stowaway's Step",
               "scene": "Stowaway",
-              "level": 1,
+              "level": 2,
               "source_key": "character:brackish crocodile whelp:1",
               "spawn_count": 1
             }
@@ -61895,23 +61950,38 @@
               },
               {
                 "source": "drop",
-                "name": "A Brown Bear",
-                "level": 7
-              },
-              {
-                "source": "drop",
                 "name": "Grizzlepaw",
                 "level": 9
               },
               {
                 "source": "drop",
+                "name": "A Brown Bear",
+                "level": 13
+              },
+              {
+                "source": "drop",
+                "name": "A Brown Bear Cub",
+                "level": 13
+              },
+              {
+                "source": "drop",
                 "name": "A Grizzly Bear",
-                "level": 12
+                "level": 14
+              },
+              {
+                "source": "drop",
+                "name": "A Brown Bear",
+                "level": 14
+              },
+              {
+                "source": "drop",
+                "name": "A Brown Bear Cub",
+                "level": 14
               },
               {
                 "source": "drop",
                 "name": "Kodiak",
-                "level": 17
+                "level": 18
               },
               {
                 "source": "drop",
@@ -61926,7 +61996,7 @@
               {
                 "source": "drop",
                 "name": "Fungal Bear",
-                "level": 22
+                "level": 27
               }
             ]
           }
@@ -61969,24 +62039,6 @@
             {
               "type": "drop",
               "name": "A Brown Bear Cub",
-              "zone": "The Duskenlight Coast",
-              "scene": "Duskenlight",
-              "level": 4,
-              "source_key": "character:brown bear cub",
-              "spawn_count": 20
-            },
-            {
-              "type": "drop",
-              "name": "A Brown Bear Cub",
-              "zone": "Fernalla's Revival Plains",
-              "scene": "FernallaField",
-              "level": 4,
-              "source_key": "character:brown bear cub",
-              "spawn_count": 13
-            },
-            {
-              "type": "drop",
-              "name": "A Brown Bear Cub",
               "zone": "Stowaway's Step",
               "scene": "Stowaway",
               "level": 4,
@@ -62004,24 +62056,6 @@
             },
             {
               "type": "drop",
-              "name": "A Brown Bear",
-              "zone": "The Duskenlight Coast",
-              "scene": "Duskenlight",
-              "level": 7,
-              "source_key": "character:brown bear",
-              "spawn_count": 20
-            },
-            {
-              "type": "drop",
-              "name": "A Brown Bear",
-              "zone": "Fernalla's Revival Plains",
-              "scene": "FernallaField",
-              "level": 7,
-              "source_key": "character:brown bear",
-              "spawn_count": 13
-            },
-            {
-              "type": "drop",
               "name": "Grizzlepaw",
               "zone": "Faerie's Brake",
               "scene": "Brake",
@@ -62031,19 +62065,55 @@
             },
             {
               "type": "drop",
+              "name": "A Brown Bear",
+              "zone": "Fernalla's Revival Plains",
+              "scene": "FernallaField",
+              "level": 13,
+              "source_key": "character:brown bear",
+              "spawn_count": 13
+            },
+            {
+              "type": "drop",
+              "name": "A Brown Bear Cub",
+              "zone": "Fernalla's Revival Plains",
+              "scene": "FernallaField",
+              "level": 13,
+              "source_key": "character:brown bear cub",
+              "spawn_count": 13
+            },
+            {
+              "type": "drop",
               "name": "A Grizzly Bear",
               "zone": "Blacksalt Strand",
               "scene": "SaltedStrand",
-              "level": 12,
+              "level": 14,
               "source_key": "character:a grizzly bear",
               "spawn_count": 14
+            },
+            {
+              "type": "drop",
+              "name": "A Brown Bear",
+              "zone": "The Duskenlight Coast",
+              "scene": "Duskenlight",
+              "level": 14,
+              "source_key": "character:brown bear",
+              "spawn_count": 20
+            },
+            {
+              "type": "drop",
+              "name": "A Brown Bear Cub",
+              "zone": "The Duskenlight Coast",
+              "scene": "Duskenlight",
+              "level": 14,
+              "source_key": "character:brown bear cub",
+              "spawn_count": 20
             },
             {
               "type": "drop",
               "name": "Kodiak",
               "zone": "Silkengrass Meadowlands",
               "scene": "Silkengrass",
-              "level": 17,
+              "level": 18,
               "source_key": "character:kodiak",
               "spawn_count": 30
             },
@@ -62070,7 +62140,7 @@
               "name": "Fungal Bear",
               "zone": "Blooming Sepulcher",
               "scene": "BloomingSepulcher",
-              "level": 22,
+              "level": 27,
               "source_key": "character:fungal bear",
               "spawn_count": 33
             }
@@ -62824,12 +62894,12 @@
           "target_key": "item:gen - catnip",
           "quantity": 1,
           "level_estimate": {
-            "recommended": 5,
+            "recommended": 32,
             "factors": [
               {
                 "source": "drop",
                 "name": "Catnip (Enemy)",
-                "level": 5
+                "level": 32
               }
             ]
           }
@@ -62865,7 +62935,7 @@
               "name": "Catnip (Enemy)",
               "zone": "Mysterious Portal (3)",
               "scene": "RipperPortal",
-              "level": 5,
+              "level": 32,
               "source_key": "character:catnip (1):ripperportal:339.55:0.17:757.54",
               "spawn_count": 2
             },
@@ -62874,7 +62944,7 @@
               "name": "Catnip (Enemy)",
               "zone": "Mysterious Portal (3)",
               "scene": "RipperPortal",
-              "level": 5,
+              "level": 32,
               "source_key": "character:catnip (2):ripperportal:339.55:-0.02:748.79",
               "spawn_count": 2
             },
@@ -62883,7 +62953,7 @@
               "name": "Catnip (Enemy)",
               "zone": "Mysterious Portal (3)",
               "scene": "RipperPortal",
-              "level": 5,
+              "level": 32,
               "source_key": "character:catnip:ripperportal:332.30:0.28:757.54",
               "spawn_count": 2
             }
@@ -62914,8 +62984,8 @@
         "recommended": 32,
         "factors": [
           {
-            "source": "step_2",
-            "name": "Turn in items to Odd Statue.",
+            "source": "step_1",
+            "name": "Collect Catnip.",
             "level": 32
           }
         ]
@@ -63242,15 +63312,6 @@
             },
             {
               "type": "drop",
-              "name": "A Skeleton Captain",
-              "zone": "Vitheo's Watch",
-              "scene": "Vitheo",
-              "level": 8,
-              "source_key": "character:skeleton captain",
-              "spawn_count": 4
-            },
-            {
-              "type": "drop",
               "name": "A Skeleton Soldier",
               "zone": "The Bonepits",
               "scene": "Bonepits",
@@ -63269,21 +63330,30 @@
             },
             {
               "type": "drop",
-              "name": "A Skeleton Soldier",
-              "zone": "Vitheo's Watch",
-              "scene": "Vitheo",
-              "level": 8,
-              "source_key": "character:skeleton soldier",
-              "spawn_count": 9
-            },
-            {
-              "type": "drop",
               "name": "Wiggleribs",
               "zone": "Willowwatch Ridge",
               "scene": "Willowwatch",
               "level": 8,
               "source_key": "character:wiggleribs",
               "spawn_count": 1
+            },
+            {
+              "type": "drop",
+              "name": "A Skeleton Captain",
+              "zone": "Vitheo's Watch",
+              "scene": "Vitheo",
+              "level": 9,
+              "source_key": "character:skeleton captain",
+              "spawn_count": 4
+            },
+            {
+              "type": "drop",
+              "name": "A Skeleton Soldier",
+              "zone": "Vitheo's Watch",
+              "scene": "Vitheo",
+              "level": 9,
+              "source_key": "character:skeleton soldier",
+              "spawn_count": 9
             },
             {
               "type": "drop",
@@ -63597,16 +63667,16 @@
           "target_key": "item:furniture - azynthi dining blueprint",
           "quantity": 1,
           "level_estimate": {
-            "recommended": 29,
+            "recommended": 30,
             "factors": [
               {
                 "source": "drop",
-                "name": "Molorai Dockmaster",
-                "level": 29
+                "name": "Molorai Anointed",
+                "level": 30
               },
               {
                 "source": "drop",
-                "name": "Molorai Anointed",
+                "name": "Molorai Dockmaster",
                 "level": 30
               },
               {
@@ -63680,15 +63750,6 @@
           "sources": [
             {
               "type": "drop",
-              "name": "Molorai Dockmaster",
-              "zone": "Azynthi's Garden",
-              "scene": "AzynthiClear",
-              "level": 29,
-              "source_key": "character:molorai dockmaster",
-              "spawn_count": 1
-            },
-            {
-              "type": "drop",
               "name": "Molorai Anointed",
               "zone": "Azynthi's Garden",
               "scene": "AzynthiClear",
@@ -63704,6 +63765,15 @@
               "level": 30,
               "source_key": "character:molorai anointed (1)",
               "spawn_count": 61
+            },
+            {
+              "type": "drop",
+              "name": "Molorai Dockmaster",
+              "zone": "Azynthi's Garden",
+              "scene": "AzynthiClear",
+              "level": 30,
+              "source_key": "character:molorai dockmaster",
+              "spawn_count": 1
             },
             {
               "type": "drop",
@@ -63821,12 +63891,12 @@
         "once_per_spawn_instance": false
       },
       "level_estimate": {
-        "recommended": 29,
+        "recommended": 30,
         "factors": [
           {
             "source": "step_1",
             "name": "Collect Blueprint: Azynthian Dining.",
-            "level": 29
+            "level": 30
           }
         ]
       }
@@ -63848,16 +63918,16 @@
           "target_key": "item:furniture - azynthi living blueprint",
           "quantity": 1,
           "level_estimate": {
-            "recommended": 29,
+            "recommended": 30,
             "factors": [
               {
                 "source": "drop",
-                "name": "Molorai Dockmaster",
-                "level": 29
+                "name": "Molorai Anointed",
+                "level": 30
               },
               {
                 "source": "drop",
-                "name": "Molorai Anointed",
+                "name": "Molorai Dockmaster",
                 "level": 30
               },
               {
@@ -63931,15 +64001,6 @@
           "sources": [
             {
               "type": "drop",
-              "name": "Molorai Dockmaster",
-              "zone": "Azynthi's Garden",
-              "scene": "AzynthiClear",
-              "level": 29,
-              "source_key": "character:molorai dockmaster",
-              "spawn_count": 1
-            },
-            {
-              "type": "drop",
               "name": "Molorai Anointed",
               "zone": "Azynthi's Garden",
               "scene": "AzynthiClear",
@@ -63955,6 +64016,15 @@
               "level": 30,
               "source_key": "character:molorai anointed (1)",
               "spawn_count": 61
+            },
+            {
+              "type": "drop",
+              "name": "Molorai Dockmaster",
+              "zone": "Azynthi's Garden",
+              "scene": "AzynthiClear",
+              "level": 30,
+              "source_key": "character:molorai dockmaster",
+              "spawn_count": 1
             },
             {
               "type": "drop",
@@ -64072,12 +64142,12 @@
         "once_per_spawn_instance": false
       },
       "level_estimate": {
-        "recommended": 29,
+        "recommended": 30,
         "factors": [
           {
             "source": "step_1",
             "name": "Collect Blueprint: Azynthian Livingroom.",
-            "level": 29
+            "level": 30
           }
         ]
       }
@@ -64099,16 +64169,16 @@
           "target_key": "item:furniture - azynthi coffin blueprint",
           "quantity": 1,
           "level_estimate": {
-            "recommended": 29,
+            "recommended": 30,
             "factors": [
               {
                 "source": "drop",
-                "name": "Molorai Dockmaster",
-                "level": 29
+                "name": "Molorai Anointed",
+                "level": 30
               },
               {
                 "source": "drop",
-                "name": "Molorai Anointed",
+                "name": "Molorai Dockmaster",
                 "level": 30
               },
               {
@@ -64182,15 +64252,6 @@
           "sources": [
             {
               "type": "drop",
-              "name": "Molorai Dockmaster",
-              "zone": "Azynthi's Garden",
-              "scene": "AzynthiClear",
-              "level": 29,
-              "source_key": "character:molorai dockmaster",
-              "spawn_count": 1
-            },
-            {
-              "type": "drop",
               "name": "Molorai Anointed",
               "zone": "Azynthi's Garden",
               "scene": "AzynthiClear",
@@ -64206,6 +64267,15 @@
               "level": 30,
               "source_key": "character:molorai anointed (1)",
               "spawn_count": 61
+            },
+            {
+              "type": "drop",
+              "name": "Molorai Dockmaster",
+              "zone": "Azynthi's Garden",
+              "scene": "AzynthiClear",
+              "level": 30,
+              "source_key": "character:molorai dockmaster",
+              "spawn_count": 1
             },
             {
               "type": "drop",
@@ -64323,12 +64393,12 @@
         "once_per_spawn_instance": false
       },
       "level_estimate": {
-        "recommended": 29,
+        "recommended": 30,
         "factors": [
           {
             "source": "step_1",
             "name": "Collect Blueprint: Azynthian Rest.",
-            "level": 29
+            "level": 30
           }
         ]
       }
@@ -64356,6 +64426,11 @@
                 "source": "drop",
                 "name": "Molorai Archaeologist",
                 "level": 16
+              },
+              {
+                "source": "drop",
+                "name": "Molorai Archaeologist",
+                "level": 17
               },
               {
                 "source": "drop",
@@ -64394,9 +64469,18 @@
             {
               "type": "drop",
               "name": "Molorai Archaeologist",
+              "zone": "The Duskenlight Coast",
+              "scene": "Duskenlight",
+              "level": 16,
+              "source_key": "character:molorai archaelogist 2",
+              "spawn_count": 20
+            },
+            {
+              "type": "drop",
+              "name": "Molorai Archaeologist",
               "zone": "Braxonian Desert",
               "scene": "Braxonian",
-              "level": 16,
+              "level": 17,
               "source_key": "character:molorai archaelogist",
               "spawn_count": 6
             },
@@ -64405,18 +64489,9 @@
               "name": "Molorai Archaeologist",
               "zone": "Braxonian Desert",
               "scene": "Braxonian",
-              "level": 16,
+              "level": 17,
               "source_key": "character:molorai archaelogist 1",
               "spawn_count": 6
-            },
-            {
-              "type": "drop",
-              "name": "Molorai Archaeologist",
-              "zone": "The Duskenlight Coast",
-              "scene": "Duskenlight",
-              "level": 16,
-              "source_key": "character:molorai archaelogist 2",
-              "spawn_count": 20
             },
             {
               "type": "drop",
@@ -64507,27 +64582,32 @@
           "target_key": "item:furniture - loomingwood marketplace blueprint",
           "quantity": 1,
           "level_estimate": {
-            "recommended": 19,
+            "recommended": 23,
             "factors": [
-              {
-                "source": "drop",
-                "name": "Loomingwidow",
-                "level": 19
-              },
-              {
-                "source": "drop",
-                "name": "Devoratrix",
-                "level": 22
-              },
-              {
-                "source": "drop",
-                "name": "Pteriaped Chick",
-                "level": 22
-              },
               {
                 "source": "drop",
                 "name": "Loomingwood Minotaur Soldier",
                 "level": 23
+              },
+              {
+                "source": "drop",
+                "name": "Devoratrix",
+                "level": 24
+              },
+              {
+                "source": "drop",
+                "name": "Loomingwood Minotaur Soldier",
+                "level": 24
+              },
+              {
+                "source": "drop",
+                "name": "Loomingwidow",
+                "level": 24
+              },
+              {
+                "source": "drop",
+                "name": "Pteriaped Chick",
+                "level": 24
               },
               {
                 "source": "drop",
@@ -64605,48 +64685,48 @@
           "sources": [
             {
               "type": "drop",
-              "name": "Loomingwidow",
-              "zone": "Loomingwood Forest",
-              "scene": "Loomingwood",
-              "level": 19,
-              "source_key": "character:loomingwidow",
-              "spawn_count": 17
-            },
-            {
-              "type": "drop",
-              "name": "Devoratrix",
-              "zone": "Loomingwood Forest",
-              "scene": "Loomingwood",
-              "level": 22,
-              "source_key": "character:devoratrix",
-              "spawn_count": 19
-            },
-            {
-              "type": "drop",
-              "name": "Pteriaped Chick",
-              "zone": "Loomingwood Forest",
-              "scene": "Loomingwood",
-              "level": 22,
-              "source_key": "character:pteriaped chick",
-              "spawn_count": 18
-            },
-            {
-              "type": "drop",
-              "name": "Loomingwood Minotaur Soldier",
-              "zone": "Loomingwood Forest",
-              "scene": "Loomingwood",
-              "level": 23,
-              "source_key": "character:forest minotaur",
-              "spawn_count": 27
-            },
-            {
-              "type": "drop",
               "name": "Loomingwood Minotaur Soldier",
               "zone": "Malaroth's Nesting Grounds",
               "scene": "Malaroth",
               "level": 23,
               "source_key": "character:forest minotaur",
               "spawn_count": 5
+            },
+            {
+              "type": "drop",
+              "name": "Devoratrix",
+              "zone": "Loomingwood Forest",
+              "scene": "Loomingwood",
+              "level": 24,
+              "source_key": "character:devoratrix",
+              "spawn_count": 19
+            },
+            {
+              "type": "drop",
+              "name": "Loomingwood Minotaur Soldier",
+              "zone": "Loomingwood Forest",
+              "scene": "Loomingwood",
+              "level": 24,
+              "source_key": "character:forest minotaur",
+              "spawn_count": 27
+            },
+            {
+              "type": "drop",
+              "name": "Loomingwidow",
+              "zone": "Loomingwood Forest",
+              "scene": "Loomingwood",
+              "level": 24,
+              "source_key": "character:loomingwidow",
+              "spawn_count": 17
+            },
+            {
+              "type": "drop",
+              "name": "Pteriaped Chick",
+              "zone": "Loomingwood Forest",
+              "scene": "Loomingwood",
+              "level": 24,
+              "source_key": "character:pteriaped chick",
+              "spawn_count": 18
             },
             {
               "type": "drop",
@@ -64773,12 +64853,12 @@
         "once_per_spawn_instance": false
       },
       "level_estimate": {
-        "recommended": 19,
+        "recommended": 23,
         "factors": [
           {
             "source": "step_1",
             "name": "Collect Blueprint: Loomingwood Market.",
-            "level": 19
+            "level": 23
           }
         ]
       }
@@ -64800,27 +64880,32 @@
           "target_key": "item:furniture - loomingwood shrine blueprint",
           "quantity": 1,
           "level_estimate": {
-            "recommended": 19,
+            "recommended": 23,
             "factors": [
-              {
-                "source": "drop",
-                "name": "Loomingwidow",
-                "level": 19
-              },
-              {
-                "source": "drop",
-                "name": "Devoratrix",
-                "level": 22
-              },
-              {
-                "source": "drop",
-                "name": "Pteriaped Chick",
-                "level": 22
-              },
               {
                 "source": "drop",
                 "name": "Loomingwood Minotaur Soldier",
                 "level": 23
+              },
+              {
+                "source": "drop",
+                "name": "Devoratrix",
+                "level": 24
+              },
+              {
+                "source": "drop",
+                "name": "Loomingwood Minotaur Soldier",
+                "level": 24
+              },
+              {
+                "source": "drop",
+                "name": "Loomingwidow",
+                "level": 24
+              },
+              {
+                "source": "drop",
+                "name": "Pteriaped Chick",
+                "level": 24
               },
               {
                 "source": "drop",
@@ -64898,48 +64983,48 @@
           "sources": [
             {
               "type": "drop",
-              "name": "Loomingwidow",
-              "zone": "Loomingwood Forest",
-              "scene": "Loomingwood",
-              "level": 19,
-              "source_key": "character:loomingwidow",
-              "spawn_count": 17
-            },
-            {
-              "type": "drop",
-              "name": "Devoratrix",
-              "zone": "Loomingwood Forest",
-              "scene": "Loomingwood",
-              "level": 22,
-              "source_key": "character:devoratrix",
-              "spawn_count": 19
-            },
-            {
-              "type": "drop",
-              "name": "Pteriaped Chick",
-              "zone": "Loomingwood Forest",
-              "scene": "Loomingwood",
-              "level": 22,
-              "source_key": "character:pteriaped chick",
-              "spawn_count": 18
-            },
-            {
-              "type": "drop",
-              "name": "Loomingwood Minotaur Soldier",
-              "zone": "Loomingwood Forest",
-              "scene": "Loomingwood",
-              "level": 23,
-              "source_key": "character:forest minotaur",
-              "spawn_count": 27
-            },
-            {
-              "type": "drop",
               "name": "Loomingwood Minotaur Soldier",
               "zone": "Malaroth's Nesting Grounds",
               "scene": "Malaroth",
               "level": 23,
               "source_key": "character:forest minotaur",
               "spawn_count": 5
+            },
+            {
+              "type": "drop",
+              "name": "Devoratrix",
+              "zone": "Loomingwood Forest",
+              "scene": "Loomingwood",
+              "level": 24,
+              "source_key": "character:devoratrix",
+              "spawn_count": 19
+            },
+            {
+              "type": "drop",
+              "name": "Loomingwood Minotaur Soldier",
+              "zone": "Loomingwood Forest",
+              "scene": "Loomingwood",
+              "level": 24,
+              "source_key": "character:forest minotaur",
+              "spawn_count": 27
+            },
+            {
+              "type": "drop",
+              "name": "Loomingwidow",
+              "zone": "Loomingwood Forest",
+              "scene": "Loomingwood",
+              "level": 24,
+              "source_key": "character:loomingwidow",
+              "spawn_count": 17
+            },
+            {
+              "type": "drop",
+              "name": "Pteriaped Chick",
+              "zone": "Loomingwood Forest",
+              "scene": "Loomingwood",
+              "level": 24,
+              "source_key": "character:pteriaped chick",
+              "spawn_count": 18
             },
             {
               "type": "drop",
@@ -65066,12 +65151,12 @@
         "once_per_spawn_instance": false
       },
       "level_estimate": {
-        "recommended": 19,
+        "recommended": 23,
         "factors": [
           {
             "source": "step_1",
             "name": "Collect Blueprint: Loomingwood Shrine.",
-            "level": 19
+            "level": 23
           }
         ]
       }
@@ -65102,17 +65187,22 @@
               },
               {
                 "source": "drop",
-                "name": "Stoneman Magi",
-                "level": 23
-              },
-              {
-                "source": "drop",
                 "name": "Cinder",
                 "level": 24
               },
               {
                 "source": "drop",
+                "name": "Stoneman",
+                "level": 24
+              },
+              {
+                "source": "drop",
                 "name": "Stoneman Knight",
+                "level": 24
+              },
+              {
+                "source": "drop",
+                "name": "Stoneman Magi",
                 "level": 24
               },
               {
@@ -65162,15 +65252,6 @@
             {
               "type": "drop",
               "name": "Stoneman",
-              "zone": "Rockshade Hold",
-              "scene": "Rockshade",
-              "level": 19,
-              "source_key": "character:stoneman arcanist",
-              "spawn_count": 7
-            },
-            {
-              "type": "drop",
-              "name": "Stoneman",
               "zone": "Windwashed Pass",
               "scene": "Windwashed",
               "level": 19,
@@ -65180,29 +65261,11 @@
             {
               "type": "drop",
               "name": "Stoneman",
-              "zone": "Rockshade Hold",
-              "scene": "Rockshade",
-              "level": 19,
-              "source_key": "character:stoneman warrior",
-              "spawn_count": 7
-            },
-            {
-              "type": "drop",
-              "name": "Stoneman",
               "zone": "Windwashed Pass",
               "scene": "Windwashed",
               "level": 19,
               "source_key": "character:stoneman warrior",
               "spawn_count": 16
-            },
-            {
-              "type": "drop",
-              "name": "Stoneman Magi",
-              "zone": "Rockshade Hold",
-              "scene": "Rockshade",
-              "level": 23,
-              "source_key": "character:stoneman magi",
-              "spawn_count": 52
             },
             {
               "type": "drop",
@@ -65215,12 +65278,39 @@
             },
             {
               "type": "drop",
+              "name": "Stoneman",
+              "zone": "Rockshade Hold",
+              "scene": "Rockshade",
+              "level": 24,
+              "source_key": "character:stoneman arcanist",
+              "spawn_count": 7
+            },
+            {
+              "type": "drop",
               "name": "Stoneman Knight",
               "zone": "Rockshade Hold",
               "scene": "Rockshade",
               "level": 24,
               "source_key": "character:stoneman knight",
               "spawn_count": 52
+            },
+            {
+              "type": "drop",
+              "name": "Stoneman Magi",
+              "zone": "Rockshade Hold",
+              "scene": "Rockshade",
+              "level": 24,
+              "source_key": "character:stoneman magi",
+              "spawn_count": 52
+            },
+            {
+              "type": "drop",
+              "name": "Stoneman",
+              "zone": "Rockshade Hold",
+              "scene": "Rockshade",
+              "level": 24,
+              "source_key": "character:stoneman warrior",
+              "spawn_count": 7
             },
             {
               "type": "drop",
@@ -65311,17 +65401,22 @@
               },
               {
                 "source": "drop",
-                "name": "Stoneman Magi",
-                "level": 23
-              },
-              {
-                "source": "drop",
                 "name": "Cinder",
                 "level": 24
               },
               {
                 "source": "drop",
+                "name": "Stoneman",
+                "level": 24
+              },
+              {
+                "source": "drop",
                 "name": "Stoneman Knight",
+                "level": 24
+              },
+              {
+                "source": "drop",
+                "name": "Stoneman Magi",
                 "level": 24
               },
               {
@@ -65371,15 +65466,6 @@
             {
               "type": "drop",
               "name": "Stoneman",
-              "zone": "Rockshade Hold",
-              "scene": "Rockshade",
-              "level": 19,
-              "source_key": "character:stoneman arcanist",
-              "spawn_count": 7
-            },
-            {
-              "type": "drop",
-              "name": "Stoneman",
               "zone": "Windwashed Pass",
               "scene": "Windwashed",
               "level": 19,
@@ -65389,29 +65475,11 @@
             {
               "type": "drop",
               "name": "Stoneman",
-              "zone": "Rockshade Hold",
-              "scene": "Rockshade",
-              "level": 19,
-              "source_key": "character:stoneman warrior",
-              "spawn_count": 7
-            },
-            {
-              "type": "drop",
-              "name": "Stoneman",
               "zone": "Windwashed Pass",
               "scene": "Windwashed",
               "level": 19,
               "source_key": "character:stoneman warrior",
               "spawn_count": 16
-            },
-            {
-              "type": "drop",
-              "name": "Stoneman Magi",
-              "zone": "Rockshade Hold",
-              "scene": "Rockshade",
-              "level": 23,
-              "source_key": "character:stoneman magi",
-              "spawn_count": 52
             },
             {
               "type": "drop",
@@ -65424,12 +65492,39 @@
             },
             {
               "type": "drop",
+              "name": "Stoneman",
+              "zone": "Rockshade Hold",
+              "scene": "Rockshade",
+              "level": 24,
+              "source_key": "character:stoneman arcanist",
+              "spawn_count": 7
+            },
+            {
+              "type": "drop",
               "name": "Stoneman Knight",
               "zone": "Rockshade Hold",
               "scene": "Rockshade",
               "level": 24,
               "source_key": "character:stoneman knight",
               "spawn_count": 52
+            },
+            {
+              "type": "drop",
+              "name": "Stoneman Magi",
+              "zone": "Rockshade Hold",
+              "scene": "Rockshade",
+              "level": 24,
+              "source_key": "character:stoneman magi",
+              "spawn_count": 52
+            },
+            {
+              "type": "drop",
+              "name": "Stoneman",
+              "zone": "Rockshade Hold",
+              "scene": "Rockshade",
+              "level": 24,
+              "source_key": "character:stoneman warrior",
+              "spawn_count": 7
             },
             {
               "type": "drop",
@@ -65520,17 +65615,22 @@
               },
               {
                 "source": "drop",
-                "name": "Stoneman Magi",
-                "level": 23
-              },
-              {
-                "source": "drop",
                 "name": "Cinder",
                 "level": 24
               },
               {
                 "source": "drop",
+                "name": "Stoneman",
+                "level": 24
+              },
+              {
+                "source": "drop",
                 "name": "Stoneman Knight",
+                "level": 24
+              },
+              {
+                "source": "drop",
+                "name": "Stoneman Magi",
                 "level": 24
               },
               {
@@ -65580,15 +65680,6 @@
             {
               "type": "drop",
               "name": "Stoneman",
-              "zone": "Rockshade Hold",
-              "scene": "Rockshade",
-              "level": 19,
-              "source_key": "character:stoneman arcanist",
-              "spawn_count": 7
-            },
-            {
-              "type": "drop",
-              "name": "Stoneman",
               "zone": "Windwashed Pass",
               "scene": "Windwashed",
               "level": 19,
@@ -65598,29 +65689,11 @@
             {
               "type": "drop",
               "name": "Stoneman",
-              "zone": "Rockshade Hold",
-              "scene": "Rockshade",
-              "level": 19,
-              "source_key": "character:stoneman warrior",
-              "spawn_count": 7
-            },
-            {
-              "type": "drop",
-              "name": "Stoneman",
               "zone": "Windwashed Pass",
               "scene": "Windwashed",
               "level": 19,
               "source_key": "character:stoneman warrior",
               "spawn_count": 16
-            },
-            {
-              "type": "drop",
-              "name": "Stoneman Magi",
-              "zone": "Rockshade Hold",
-              "scene": "Rockshade",
-              "level": 23,
-              "source_key": "character:stoneman magi",
-              "spawn_count": 52
             },
             {
               "type": "drop",
@@ -65633,12 +65706,39 @@
             },
             {
               "type": "drop",
+              "name": "Stoneman",
+              "zone": "Rockshade Hold",
+              "scene": "Rockshade",
+              "level": 24,
+              "source_key": "character:stoneman arcanist",
+              "spawn_count": 7
+            },
+            {
+              "type": "drop",
               "name": "Stoneman Knight",
               "zone": "Rockshade Hold",
               "scene": "Rockshade",
               "level": 24,
               "source_key": "character:stoneman knight",
               "spawn_count": 52
+            },
+            {
+              "type": "drop",
+              "name": "Stoneman Magi",
+              "zone": "Rockshade Hold",
+              "scene": "Rockshade",
+              "level": 24,
+              "source_key": "character:stoneman magi",
+              "spawn_count": 52
+            },
+            {
+              "type": "drop",
+              "name": "Stoneman",
+              "zone": "Rockshade Hold",
+              "scene": "Rockshade",
+              "level": 24,
+              "source_key": "character:stoneman warrior",
+              "spawn_count": 7
             },
             {
               "type": "drop",
@@ -65729,17 +65829,22 @@
               },
               {
                 "source": "drop",
-                "name": "Stoneman Magi",
-                "level": 23
-              },
-              {
-                "source": "drop",
                 "name": "Cinder",
                 "level": 24
               },
               {
                 "source": "drop",
+                "name": "Stoneman",
+                "level": 24
+              },
+              {
+                "source": "drop",
                 "name": "Stoneman Knight",
+                "level": 24
+              },
+              {
+                "source": "drop",
+                "name": "Stoneman Magi",
                 "level": 24
               },
               {
@@ -65789,15 +65894,6 @@
             {
               "type": "drop",
               "name": "Stoneman",
-              "zone": "Rockshade Hold",
-              "scene": "Rockshade",
-              "level": 19,
-              "source_key": "character:stoneman arcanist",
-              "spawn_count": 7
-            },
-            {
-              "type": "drop",
-              "name": "Stoneman",
               "zone": "Windwashed Pass",
               "scene": "Windwashed",
               "level": 19,
@@ -65807,29 +65903,11 @@
             {
               "type": "drop",
               "name": "Stoneman",
-              "zone": "Rockshade Hold",
-              "scene": "Rockshade",
-              "level": 19,
-              "source_key": "character:stoneman warrior",
-              "spawn_count": 7
-            },
-            {
-              "type": "drop",
-              "name": "Stoneman",
               "zone": "Windwashed Pass",
               "scene": "Windwashed",
               "level": 19,
               "source_key": "character:stoneman warrior",
               "spawn_count": 16
-            },
-            {
-              "type": "drop",
-              "name": "Stoneman Magi",
-              "zone": "Rockshade Hold",
-              "scene": "Rockshade",
-              "level": 23,
-              "source_key": "character:stoneman magi",
-              "spawn_count": 52
             },
             {
               "type": "drop",
@@ -65842,12 +65920,39 @@
             },
             {
               "type": "drop",
+              "name": "Stoneman",
+              "zone": "Rockshade Hold",
+              "scene": "Rockshade",
+              "level": 24,
+              "source_key": "character:stoneman arcanist",
+              "spawn_count": 7
+            },
+            {
+              "type": "drop",
               "name": "Stoneman Knight",
               "zone": "Rockshade Hold",
               "scene": "Rockshade",
               "level": 24,
               "source_key": "character:stoneman knight",
               "spawn_count": 52
+            },
+            {
+              "type": "drop",
+              "name": "Stoneman Magi",
+              "zone": "Rockshade Hold",
+              "scene": "Rockshade",
+              "level": 24,
+              "source_key": "character:stoneman magi",
+              "spawn_count": 52
+            },
+            {
+              "type": "drop",
+              "name": "Stoneman",
+              "zone": "Rockshade Hold",
+              "scene": "Rockshade",
+              "level": 24,
+              "source_key": "character:stoneman warrior",
+              "spawn_count": 7
             },
             {
               "type": "drop",
@@ -65938,12 +66043,17 @@
               },
               {
                 "source": "drop",
-                "name": "Stoneman Magi",
-                "level": 23
+                "name": "Stoneman",
+                "level": 24
               },
               {
                 "source": "drop",
                 "name": "Stoneman Knight",
+                "level": 24
+              },
+              {
+                "source": "drop",
+                "name": "Stoneman Magi",
                 "level": 24
               },
               {
@@ -65993,29 +66103,11 @@
             {
               "type": "drop",
               "name": "Stoneman",
-              "zone": "Rockshade Hold",
-              "scene": "Rockshade",
-              "level": 19,
-              "source_key": "character:stoneman arcanist",
-              "spawn_count": 7
-            },
-            {
-              "type": "drop",
-              "name": "Stoneman",
               "zone": "Windwashed Pass",
               "scene": "Windwashed",
               "level": 19,
               "source_key": "character:stoneman arcanist",
               "spawn_count": 16
-            },
-            {
-              "type": "drop",
-              "name": "Stoneman",
-              "zone": "Rockshade Hold",
-              "scene": "Rockshade",
-              "level": 19,
-              "source_key": "character:stoneman warrior",
-              "spawn_count": 7
             },
             {
               "type": "drop",
@@ -66028,12 +66120,12 @@
             },
             {
               "type": "drop",
-              "name": "Stoneman Magi",
+              "name": "Stoneman",
               "zone": "Rockshade Hold",
               "scene": "Rockshade",
-              "level": 23,
-              "source_key": "character:stoneman magi",
-              "spawn_count": 52
+              "level": 24,
+              "source_key": "character:stoneman arcanist",
+              "spawn_count": 7
             },
             {
               "type": "drop",
@@ -66043,6 +66135,24 @@
               "level": 24,
               "source_key": "character:stoneman knight",
               "spawn_count": 52
+            },
+            {
+              "type": "drop",
+              "name": "Stoneman Magi",
+              "zone": "Rockshade Hold",
+              "scene": "Rockshade",
+              "level": 24,
+              "source_key": "character:stoneman magi",
+              "spawn_count": 52
+            },
+            {
+              "type": "drop",
+              "name": "Stoneman",
+              "zone": "Rockshade Hold",
+              "scene": "Rockshade",
+              "level": 24,
+              "source_key": "character:stoneman warrior",
+              "spawn_count": 7
             },
             {
               "type": "drop",
@@ -66133,12 +66243,17 @@
               },
               {
                 "source": "drop",
-                "name": "Stoneman Magi",
-                "level": 23
+                "name": "Stoneman",
+                "level": 24
               },
               {
                 "source": "drop",
                 "name": "Stoneman Knight",
+                "level": 24
+              },
+              {
+                "source": "drop",
+                "name": "Stoneman Magi",
                 "level": 24
               },
               {
@@ -66188,29 +66303,11 @@
             {
               "type": "drop",
               "name": "Stoneman",
-              "zone": "Rockshade Hold",
-              "scene": "Rockshade",
-              "level": 19,
-              "source_key": "character:stoneman arcanist",
-              "spawn_count": 7
-            },
-            {
-              "type": "drop",
-              "name": "Stoneman",
               "zone": "Windwashed Pass",
               "scene": "Windwashed",
               "level": 19,
               "source_key": "character:stoneman arcanist",
               "spawn_count": 16
-            },
-            {
-              "type": "drop",
-              "name": "Stoneman",
-              "zone": "Rockshade Hold",
-              "scene": "Rockshade",
-              "level": 19,
-              "source_key": "character:stoneman warrior",
-              "spawn_count": 7
             },
             {
               "type": "drop",
@@ -66223,12 +66320,12 @@
             },
             {
               "type": "drop",
-              "name": "Stoneman Magi",
+              "name": "Stoneman",
               "zone": "Rockshade Hold",
               "scene": "Rockshade",
-              "level": 23,
-              "source_key": "character:stoneman magi",
-              "spawn_count": 52
+              "level": 24,
+              "source_key": "character:stoneman arcanist",
+              "spawn_count": 7
             },
             {
               "type": "drop",
@@ -66238,6 +66335,24 @@
               "level": 24,
               "source_key": "character:stoneman knight",
               "spawn_count": 52
+            },
+            {
+              "type": "drop",
+              "name": "Stoneman Magi",
+              "zone": "Rockshade Hold",
+              "scene": "Rockshade",
+              "level": 24,
+              "source_key": "character:stoneman magi",
+              "spawn_count": 52
+            },
+            {
+              "type": "drop",
+              "name": "Stoneman",
+              "zone": "Rockshade Hold",
+              "scene": "Rockshade",
+              "level": 24,
+              "source_key": "character:stoneman warrior",
+              "spawn_count": 7
             },
             {
               "type": "drop",
@@ -66345,12 +66460,12 @@
           "target_key": "item:gen - croc tail",
           "quantity": 1,
           "level_estimate": {
-            "recommended": 14,
+            "recommended": 15,
             "factors": [
               {
                 "source": "drop",
                 "name": "Rotbelly Croc",
-                "level": 14
+                "level": 15
               },
               {
                 "source": "drop",
@@ -66391,7 +66506,7 @@
               "name": "Rotbelly Croc",
               "zone": "Rottenfoot",
               "scene": "Rottenfoot",
-              "level": 14,
+              "level": 15,
               "source_key": "character:redbelly croc",
               "spawn_count": 28
             },
@@ -66498,6 +66613,11 @@
                 "source": "drop",
                 "name": "Odyss Repman",
                 "level": 14
+              },
+              {
+                "source": "drop",
+                "name": "Aranuil Olaseo",
+                "level": 15
               }
             ]
           }
@@ -66545,20 +66665,20 @@
             },
             {
               "type": "drop",
-              "name": "Aranuil Olaseo",
-              "zone": "Rottenfoot",
-              "scene": "Rottenfoot",
-              "level": 14,
-              "source_key": "character:aranuil olaseo:rottenfoot:234.09:23.93:439.89",
-              "spawn_count": 2
-            },
-            {
-              "type": "drop",
               "name": "Odyss Repman",
               "zone": "The Duskenlight Coast",
               "scene": "Duskenlight",
               "level": 14,
               "source_key": "character:odyss repman:duskenlight:1312.16:70.01:695.11",
+              "spawn_count": 2
+            },
+            {
+              "type": "drop",
+              "name": "Aranuil Olaseo",
+              "zone": "Rottenfoot",
+              "scene": "Rottenfoot",
+              "level": 15,
+              "source_key": "character:aranuil olaseo:rottenfoot:234.09:23.93:439.89",
               "spawn_count": 2
             }
           ]
@@ -66904,7 +67024,12 @@
               {
                 "source": "drop",
                 "name": "Sivakayan Legionnaire",
-                "level": 27
+                "level": 28
+              },
+              {
+                "source": "drop",
+                "name": "Sivakayan Reaver",
+                "level": 28
               },
               {
                 "source": "drop",
@@ -66963,15 +67088,6 @@
             {
               "type": "drop",
               "name": "Sivakayan Reaver",
-              "zone": "Ripper's Keep",
-              "scene": "Ripper",
-              "level": 26,
-              "source_key": "character:sivakayan reaver",
-              "spawn_count": 17
-            },
-            {
-              "type": "drop",
-              "name": "Sivakayan Reaver",
               "zone": "Silkengrass Meadowlands",
               "scene": "Silkengrass",
               "level": 26,
@@ -67013,9 +67129,18 @@
               "name": "Sivakayan Legionnaire",
               "zone": "Abyssal Lake",
               "scene": "Abyssal",
-              "level": 27,
+              "level": 28,
               "source_key": "character:sivakayan legionairre",
               "spawn_count": 46
+            },
+            {
+              "type": "drop",
+              "name": "Sivakayan Reaver",
+              "zone": "Ripper's Keep",
+              "scene": "Ripper",
+              "level": 28,
+              "source_key": "character:sivakayan reaver",
+              "spawn_count": 17
             },
             {
               "type": "drop",
@@ -67162,32 +67287,32 @@
               },
               {
                 "source": "drop",
-                "name": "Grappler",
-                "level": 19
+                "name": "Bloom Preserver",
+                "level": 27
               },
               {
                 "source": "drop",
                 "name": "Elder Guardian",
-                "level": 22
-              },
-              {
-                "source": "drop",
-                "name": "Greater Fawn",
-                "level": 22
+                "level": 27
               },
               {
                 "source": "drop",
                 "name": "Frenzy",
-                "level": 24
+                "level": 27
+              },
+              {
+                "source": "drop",
+                "name": "Grappler",
+                "level": 27
+              },
+              {
+                "source": "drop",
+                "name": "Greater Fawn",
+                "level": 27
               },
               {
                 "source": "drop",
                 "name": "Maple",
-                "level": 25
-              },
-              {
-                "source": "drop",
-                "name": "Bloom Preserver",
                 "level": 27
               },
               {
@@ -67250,29 +67375,20 @@
             },
             {
               "type": "drop",
-              "name": "Grappler",
+              "name": "Bloom Preserver",
               "zone": "Blooming Sepulcher",
               "scene": "BloomingSepulcher",
-              "level": 19,
-              "source_key": "character:grappler",
-              "spawn_count": 11
+              "level": 27,
+              "source_key": "character:bloom preserver",
+              "spawn_count": 32
             },
             {
               "type": "drop",
               "name": "Elder Guardian",
               "zone": "Blooming Sepulcher",
               "scene": "BloomingSepulcher",
-              "level": 22,
+              "level": 27,
               "source_key": "character:elder guardian",
-              "spawn_count": 34
-            },
-            {
-              "type": "drop",
-              "name": "Greater Fawn",
-              "zone": "Blooming Sepulcher",
-              "scene": "BloomingSepulcher",
-              "level": 22,
-              "source_key": "character:greater fawn",
               "spawn_count": 34
             },
             {
@@ -67280,27 +67396,36 @@
               "name": "Frenzy",
               "zone": "Blooming Sepulcher",
               "scene": "BloomingSepulcher",
-              "level": 24,
+              "level": 27,
               "source_key": "character:frenzy",
               "spawn_count": 1
+            },
+            {
+              "type": "drop",
+              "name": "Grappler",
+              "zone": "Blooming Sepulcher",
+              "scene": "BloomingSepulcher",
+              "level": 27,
+              "source_key": "character:grappler",
+              "spawn_count": 11
+            },
+            {
+              "type": "drop",
+              "name": "Greater Fawn",
+              "zone": "Blooming Sepulcher",
+              "scene": "BloomingSepulcher",
+              "level": 27,
+              "source_key": "character:greater fawn",
+              "spawn_count": 34
             },
             {
               "type": "drop",
               "name": "Maple",
               "zone": "Blooming Sepulcher",
               "scene": "BloomingSepulcher",
-              "level": 25,
+              "level": 27,
               "source_key": "character:maple",
               "spawn_count": 1
-            },
-            {
-              "type": "drop",
-              "name": "Bloom Preserver",
-              "zone": "Blooming Sepulcher",
-              "scene": "BloomingSepulcher",
-              "level": 27,
-              "source_key": "character:bloom preserver",
-              "spawn_count": 32
             },
             {
               "type": "drop",
@@ -67891,7 +68016,12 @@
               {
                 "source": "drop",
                 "name": "Boatman",
-                "level": 22
+                "level": 25
+              },
+              {
+                "source": "drop",
+                "name": "Boatman",
+                "level": 30
               }
             ]
           }
@@ -67945,7 +68075,7 @@
               "name": "Boatman",
               "zone": "The Blight",
               "scene": "Blight",
-              "level": 22,
+              "level": 25,
               "source_key": "character:boatman",
               "spawn_count": 1
             },
@@ -67954,7 +68084,7 @@
               "name": "Boatman",
               "zone": "Azynthi's Garden",
               "scene": "AzynthiClear",
-              "level": 22,
+              "level": 30,
               "source_key": "character:boatman:azynthiclear:323.94:14.92:749.13",
               "spawn_count": 2
             }
@@ -69955,12 +70085,12 @@
           "target_key": "item:gen - treasure map",
           "quantity": 1,
           "level_estimate": {
-            "recommended": 16,
+            "recommended": 17,
             "factors": [
               {
                 "source": "quest_reward",
                 "name": "Repairing Treasure Maps",
-                "level": 16
+                "level": 17
               }
             ]
           }
@@ -70028,7 +70158,7 @@
             {
               "type": "quest_reward",
               "name": "Repairing Treasure Maps",
-              "level": 16,
+              "level": 17,
               "quest_key": "quest:treasuremap",
               "children": [
                 {
@@ -70036,7 +70166,7 @@
                   "name": "Torn Treasure Map (Top Left): Molorai Archaeologist",
                   "zone": "Braxonian Desert",
                   "scene": "Braxonian",
-                  "level": 16,
+                  "level": 17,
                   "source_key": "character:molorai archaelogist 1",
                   "spawn_count": 6
                 },
@@ -70090,7 +70220,7 @@
                   "name": "Simple Engagement Ring: Risen Pilgrim",
                   "zone": "Silkengrass Meadowlands",
                   "scene": "Silkengrass",
-                  "level": 4,
+                  "level": 18,
                   "source_key": "character:risen pilgrim",
                   "spawn_count": 19
                 }
@@ -70129,12 +70259,12 @@
         "once_per_spawn_instance": false
       },
       "level_estimate": {
-        "recommended": 16,
+        "recommended": 17,
         "factors": [
           {
             "source": "step_2",
             "name": "Collect Treasure Map.",
-            "level": 16
+            "level": 17
           }
         ]
       }
@@ -70709,12 +70839,12 @@
           "target_key": "item:gen - ogrespice leaf",
           "quantity": 4,
           "level_estimate": {
-            "recommended": 11,
+            "recommended": 12,
             "factors": [
               {
                 "source": "drop",
                 "name": "A Grassland Ogre Sentinel",
-                "level": 11
+                "level": 12
               },
               {
                 "source": "drop",
@@ -70739,12 +70869,12 @@
               {
                 "source": "drop",
                 "name": "Wild Ogre",
-                "level": 24
+                "level": 26
               },
               {
                 "source": "drop",
                 "name": "Sivakayan Devoted",
-                "level": 27
+                "level": 28
               },
               {
                 "source": "drop",
@@ -70785,7 +70915,7 @@
               "name": "A Grassland Ogre Sentinel",
               "zone": "Underspine Hollow",
               "scene": "Underspine",
-              "level": 11,
+              "level": 12,
               "source_key": "character:grassland ogre sentinel",
               "spawn_count": 46
             },
@@ -70830,7 +70960,7 @@
               "name": "Wild Ogre",
               "zone": "Soluna's Landing",
               "scene": "Soluna",
-              "level": 24,
+              "level": 26,
               "source_key": "character:wild ogre",
               "spawn_count": 25
             },
@@ -70839,7 +70969,7 @@
               "name": "Sivakayan Devoted",
               "zone": "Abyssal Lake",
               "scene": "Abyssal",
-              "level": 27,
+              "level": 28,
               "source_key": "character:sivakayan devoted",
               "spawn_count": 45
             },
@@ -70886,12 +71016,12 @@
         "once_per_spawn_instance": false
       },
       "level_estimate": {
-        "recommended": 11,
+        "recommended": 12,
         "factors": [
           {
             "source": "step_2",
             "name": "Collect 4x Ogrespice Leaf.",
-            "level": 11
+            "level": 12
           }
         ]
       }
@@ -71152,15 +71282,6 @@
                   "spawn_count": 1
                 },
                 {
-                  "type": "drop",
-                  "name": "Seaspice: Lost Soul",
-                  "zone": "Malaroth's Nesting Grounds",
-                  "scene": "Malaroth",
-                  "level": 4,
-                  "source_key": "character:lost soul",
-                  "spawn_count": 1
-                },
-                {
                   "type": "vendor",
                   "name": "Seaspice: Summoned: Pocket Vendor",
                   "zone": "Reliquary Hall",
@@ -71220,21 +71341,21 @@
                 },
                 {
                   "type": "drop",
-                  "name": "Seaspice: Thella Steepleton",
-                  "zone": "Port Azure",
-                  "scene": "Azure",
-                  "level": 10,
-                  "source_key": "character:thella steepleton:azure:242.54:27.97:315.61",
-                  "spawn_count": 2
-                },
-                {
-                  "type": "drop",
                   "name": "Seaspice: A Lost Sea Giant",
                   "zone": "Vitheo's Watch",
                   "scene": "Vitheo",
                   "level": 11,
                   "source_key": "character:lost sea giant female",
                   "spawn_count": 4
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Thella Steepleton",
+                  "zone": "Port Azure",
+                  "scene": "Azure",
+                  "level": 11,
+                  "source_key": "character:thella steepleton:azure:242.54:27.97:315.61",
+                  "spawn_count": 2
                 },
                 {
                   "type": "vendor",
@@ -71264,65 +71385,65 @@
                 {
                   "type": "drop",
                   "name": "Seaspice: Priel Deceiver",
+                  "zone": "Windwashed Pass",
+                  "scene": "Windwashed",
+                  "level": 18,
+                  "source_key": "character:priel deceiver",
+                  "spawn_count": 13
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Enforcer",
+                  "zone": "Windwashed Pass",
+                  "scene": "Windwashed",
+                  "level": 18,
+                  "source_key": "character:priel enforcer",
+                  "spawn_count": 13
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Enforcer",
+                  "zone": "Windwashed Pass",
+                  "scene": "Windwashed",
+                  "level": 18,
+                  "source_key": "character:priel naturalist",
+                  "spawn_count": 13
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Lost Soul",
                   "zone": "Malaroth's Nesting Grounds",
                   "scene": "Malaroth",
-                  "level": 17,
-                  "source_key": "character:priel deceiver",
-                  "spawn_count": 15
+                  "level": 19,
+                  "source_key": "character:lost soul",
+                  "spawn_count": 1
                 },
                 {
                   "type": "drop",
                   "name": "Seaspice: Priel Deceiver",
-                  "zone": "Windwashed Pass",
-                  "scene": "Windwashed",
-                  "level": 17,
+                  "zone": "Malaroth's Nesting Grounds",
+                  "scene": "Malaroth",
+                  "level": 19,
                   "source_key": "character:priel deceiver",
-                  "spawn_count": 13
+                  "spawn_count": 15
                 },
                 {
                   "type": "drop",
                   "name": "Seaspice: Priel Enforcer",
                   "zone": "Malaroth's Nesting Grounds",
                   "scene": "Malaroth",
-                  "level": 17,
+                  "level": 19,
                   "source_key": "character:priel enforcer",
                   "spawn_count": 15
-                },
-                {
-                  "type": "drop",
-                  "name": "Seaspice: Priel Enforcer",
-                  "zone": "Windwashed Pass",
-                  "scene": "Windwashed",
-                  "level": 17,
-                  "source_key": "character:priel enforcer",
-                  "spawn_count": 13
                 },
                 {
                   "type": "drop",
                   "name": "Seaspice: Priel Enforcer",
                   "zone": "Malaroth's Nesting Grounds",
                   "scene": "Malaroth",
-                  "level": 17,
+                  "level": 19,
                   "source_key": "character:priel naturalist",
                   "spawn_count": 15
-                },
-                {
-                  "type": "drop",
-                  "name": "Seaspice: Priel Enforcer",
-                  "zone": "Windwashed Pass",
-                  "scene": "Windwashed",
-                  "level": 17,
-                  "source_key": "character:priel naturalist",
-                  "spawn_count": 13
-                },
-                {
-                  "type": "drop",
-                  "name": "Seaspice: Priel Swiftblade",
-                  "zone": "Prielian Cascade",
-                  "scene": "PrielPlateau",
-                  "level": 28,
-                  "source_key": "character:priel swiftblade",
-                  "spawn_count": 22
                 },
                 {
                   "type": "drop",
@@ -71332,6 +71453,15 @@
                   "level": 30,
                   "source_key": "character:priel purist",
                   "spawn_count": 46
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Swiftblade",
+                  "zone": "Prielian Cascade",
+                  "scene": "PrielPlateau",
+                  "level": 30,
+                  "source_key": "character:priel swiftblade",
+                  "spawn_count": 22
                 },
                 {
                   "type": "drop",
@@ -71458,12 +71588,12 @@
           "target_key": "item:gen - the boatman",
           "quantity": 1,
           "level_estimate": {
-            "recommended": 27,
+            "recommended": 28,
             "factors": [
               {
                 "source": "drop",
                 "name": "Sivakayan Devoted",
-                "level": 27
+                "level": 28
               },
               {
                 "source": "drop",
@@ -71504,7 +71634,7 @@
               "name": "Sivakayan Devoted",
               "zone": "Abyssal Lake",
               "scene": "Abyssal",
-              "level": 27,
+              "level": 28,
               "source_key": "character:sivakayan devoted",
               "spawn_count": 45
             },
@@ -71542,12 +71672,12 @@
         "once_per_spawn_instance": false
       },
       "level_estimate": {
-        "recommended": 27,
+        "recommended": 28,
         "factors": [
           {
             "source": "step_1",
             "name": "Collect Sivakayan Boat Pass.",
-            "level": 27
+            "level": 28
           }
         ]
       }
@@ -71604,11 +71734,6 @@
                 "level": 4
               },
               {
-                "source": "drop",
-                "name": "Lost Soul",
-                "level": 4
-              },
-              {
                 "source": "vendor",
                 "name": "Summoned: Pocket Vendor",
                 "level": 5
@@ -71649,6 +71774,11 @@
                 "level": 11
               },
               {
+                "source": "drop",
+                "name": "Thella Steepleton",
+                "level": 11
+              },
+              {
                 "source": "vendor",
                 "name": "Cully Edwarse",
                 "level": 11
@@ -71666,21 +71796,36 @@
               {
                 "source": "drop",
                 "name": "Priel Deceiver",
-                "level": 17
+                "level": 18
               },
               {
                 "source": "drop",
                 "name": "Priel Enforcer",
-                "level": 17
+                "level": 18
               },
               {
                 "source": "drop",
-                "name": "Priel Swiftblade",
-                "level": 28
+                "name": "Lost Soul",
+                "level": 19
+              },
+              {
+                "source": "drop",
+                "name": "Priel Deceiver",
+                "level": 19
+              },
+              {
+                "source": "drop",
+                "name": "Priel Enforcer",
+                "level": 19
               },
               {
                 "source": "drop",
                 "name": "Priel Purist",
+                "level": 30
+              },
+              {
+                "source": "drop",
+                "name": "Priel Swiftblade",
                 "level": 30
               },
               {
@@ -71757,15 +71902,6 @@
               "spawn_count": 1
             },
             {
-              "type": "drop",
-              "name": "Lost Soul",
-              "zone": "Malaroth's Nesting Grounds",
-              "scene": "Malaroth",
-              "level": 4,
-              "source_key": "character:lost soul",
-              "spawn_count": 1
-            },
-            {
               "type": "vendor",
               "name": "Summoned: Pocket Vendor",
               "zone": "Reliquary Hall",
@@ -71825,21 +71961,21 @@
             },
             {
               "type": "drop",
-              "name": "Thella Steepleton",
-              "zone": "Port Azure",
-              "scene": "Azure",
-              "level": 10,
-              "source_key": "character:thella steepleton:azure:242.54:27.97:315.61",
-              "spawn_count": 2
-            },
-            {
-              "type": "drop",
               "name": "A Lost Sea Giant",
               "zone": "Vitheo's Watch",
               "scene": "Vitheo",
               "level": 11,
               "source_key": "character:lost sea giant female",
               "spawn_count": 4
+            },
+            {
+              "type": "drop",
+              "name": "Thella Steepleton",
+              "zone": "Port Azure",
+              "scene": "Azure",
+              "level": 11,
+              "source_key": "character:thella steepleton:azure:242.54:27.97:315.61",
+              "spawn_count": 2
             },
             {
               "type": "vendor",
@@ -71869,65 +72005,65 @@
             {
               "type": "drop",
               "name": "Priel Deceiver",
+              "zone": "Windwashed Pass",
+              "scene": "Windwashed",
+              "level": 18,
+              "source_key": "character:priel deceiver",
+              "spawn_count": 13
+            },
+            {
+              "type": "drop",
+              "name": "Priel Enforcer",
+              "zone": "Windwashed Pass",
+              "scene": "Windwashed",
+              "level": 18,
+              "source_key": "character:priel enforcer",
+              "spawn_count": 13
+            },
+            {
+              "type": "drop",
+              "name": "Priel Enforcer",
+              "zone": "Windwashed Pass",
+              "scene": "Windwashed",
+              "level": 18,
+              "source_key": "character:priel naturalist",
+              "spawn_count": 13
+            },
+            {
+              "type": "drop",
+              "name": "Lost Soul",
               "zone": "Malaroth's Nesting Grounds",
               "scene": "Malaroth",
-              "level": 17,
-              "source_key": "character:priel deceiver",
-              "spawn_count": 15
+              "level": 19,
+              "source_key": "character:lost soul",
+              "spawn_count": 1
             },
             {
               "type": "drop",
               "name": "Priel Deceiver",
-              "zone": "Windwashed Pass",
-              "scene": "Windwashed",
-              "level": 17,
+              "zone": "Malaroth's Nesting Grounds",
+              "scene": "Malaroth",
+              "level": 19,
               "source_key": "character:priel deceiver",
-              "spawn_count": 13
+              "spawn_count": 15
             },
             {
               "type": "drop",
               "name": "Priel Enforcer",
               "zone": "Malaroth's Nesting Grounds",
               "scene": "Malaroth",
-              "level": 17,
+              "level": 19,
               "source_key": "character:priel enforcer",
               "spawn_count": 15
-            },
-            {
-              "type": "drop",
-              "name": "Priel Enforcer",
-              "zone": "Windwashed Pass",
-              "scene": "Windwashed",
-              "level": 17,
-              "source_key": "character:priel enforcer",
-              "spawn_count": 13
             },
             {
               "type": "drop",
               "name": "Priel Enforcer",
               "zone": "Malaroth's Nesting Grounds",
               "scene": "Malaroth",
-              "level": 17,
+              "level": 19,
               "source_key": "character:priel naturalist",
               "spawn_count": 15
-            },
-            {
-              "type": "drop",
-              "name": "Priel Enforcer",
-              "zone": "Windwashed Pass",
-              "scene": "Windwashed",
-              "level": 17,
-              "source_key": "character:priel naturalist",
-              "spawn_count": 13
-            },
-            {
-              "type": "drop",
-              "name": "Priel Swiftblade",
-              "zone": "Prielian Cascade",
-              "scene": "PrielPlateau",
-              "level": 28,
-              "source_key": "character:priel swiftblade",
-              "spawn_count": 22
             },
             {
               "type": "drop",
@@ -71937,6 +72073,15 @@
               "level": 30,
               "source_key": "character:priel purist",
               "spawn_count": 46
+            },
+            {
+              "type": "drop",
+              "name": "Priel Swiftblade",
+              "zone": "Prielian Cascade",
+              "scene": "PrielPlateau",
+              "level": 30,
+              "source_key": "character:priel swiftblade",
+              "spawn_count": 22
             },
             {
               "type": "drop",
@@ -72305,15 +72450,6 @@
                   "spawn_count": 1
                 },
                 {
-                  "type": "drop",
-                  "name": "Seaspice: Lost Soul",
-                  "zone": "Malaroth's Nesting Grounds",
-                  "scene": "Malaroth",
-                  "level": 4,
-                  "source_key": "character:lost soul",
-                  "spawn_count": 1
-                },
-                {
                   "type": "vendor",
                   "name": "Seaspice: Summoned: Pocket Vendor",
                   "zone": "Reliquary Hall",
@@ -72373,21 +72509,21 @@
                 },
                 {
                   "type": "drop",
-                  "name": "Seaspice: Thella Steepleton",
-                  "zone": "Port Azure",
-                  "scene": "Azure",
-                  "level": 10,
-                  "source_key": "character:thella steepleton:azure:242.54:27.97:315.61",
-                  "spawn_count": 2
-                },
-                {
-                  "type": "drop",
                   "name": "Seaspice: A Lost Sea Giant",
                   "zone": "Vitheo's Watch",
                   "scene": "Vitheo",
                   "level": 11,
                   "source_key": "character:lost sea giant female",
                   "spawn_count": 4
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Thella Steepleton",
+                  "zone": "Port Azure",
+                  "scene": "Azure",
+                  "level": 11,
+                  "source_key": "character:thella steepleton:azure:242.54:27.97:315.61",
+                  "spawn_count": 2
                 },
                 {
                   "type": "vendor",
@@ -72417,65 +72553,65 @@
                 {
                   "type": "drop",
                   "name": "Seaspice: Priel Deceiver",
+                  "zone": "Windwashed Pass",
+                  "scene": "Windwashed",
+                  "level": 18,
+                  "source_key": "character:priel deceiver",
+                  "spawn_count": 13
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Enforcer",
+                  "zone": "Windwashed Pass",
+                  "scene": "Windwashed",
+                  "level": 18,
+                  "source_key": "character:priel enforcer",
+                  "spawn_count": 13
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Enforcer",
+                  "zone": "Windwashed Pass",
+                  "scene": "Windwashed",
+                  "level": 18,
+                  "source_key": "character:priel naturalist",
+                  "spawn_count": 13
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Lost Soul",
                   "zone": "Malaroth's Nesting Grounds",
                   "scene": "Malaroth",
-                  "level": 17,
-                  "source_key": "character:priel deceiver",
-                  "spawn_count": 15
+                  "level": 19,
+                  "source_key": "character:lost soul",
+                  "spawn_count": 1
                 },
                 {
                   "type": "drop",
                   "name": "Seaspice: Priel Deceiver",
-                  "zone": "Windwashed Pass",
-                  "scene": "Windwashed",
-                  "level": 17,
+                  "zone": "Malaroth's Nesting Grounds",
+                  "scene": "Malaroth",
+                  "level": 19,
                   "source_key": "character:priel deceiver",
-                  "spawn_count": 13
+                  "spawn_count": 15
                 },
                 {
                   "type": "drop",
                   "name": "Seaspice: Priel Enforcer",
                   "zone": "Malaroth's Nesting Grounds",
                   "scene": "Malaroth",
-                  "level": 17,
+                  "level": 19,
                   "source_key": "character:priel enforcer",
                   "spawn_count": 15
-                },
-                {
-                  "type": "drop",
-                  "name": "Seaspice: Priel Enforcer",
-                  "zone": "Windwashed Pass",
-                  "scene": "Windwashed",
-                  "level": 17,
-                  "source_key": "character:priel enforcer",
-                  "spawn_count": 13
                 },
                 {
                   "type": "drop",
                   "name": "Seaspice: Priel Enforcer",
                   "zone": "Malaroth's Nesting Grounds",
                   "scene": "Malaroth",
-                  "level": 17,
+                  "level": 19,
                   "source_key": "character:priel naturalist",
                   "spawn_count": 15
-                },
-                {
-                  "type": "drop",
-                  "name": "Seaspice: Priel Enforcer",
-                  "zone": "Windwashed Pass",
-                  "scene": "Windwashed",
-                  "level": 17,
-                  "source_key": "character:priel naturalist",
-                  "spawn_count": 13
-                },
-                {
-                  "type": "drop",
-                  "name": "Seaspice: Priel Swiftblade",
-                  "zone": "Prielian Cascade",
-                  "scene": "PrielPlateau",
-                  "level": 28,
-                  "source_key": "character:priel swiftblade",
-                  "spawn_count": 22
                 },
                 {
                   "type": "drop",
@@ -72485,6 +72621,15 @@
                   "level": 30,
                   "source_key": "character:priel purist",
                   "spawn_count": 46
+                },
+                {
+                  "type": "drop",
+                  "name": "Seaspice: Priel Swiftblade",
+                  "zone": "Prielian Cascade",
+                  "scene": "PrielPlateau",
+                  "level": 30,
+                  "source_key": "character:priel swiftblade",
+                  "spawn_count": 22
                 },
                 {
                   "type": "drop",
@@ -72607,12 +72752,12 @@
           "target_key": "item:gen - rune of sands",
           "quantity": 1,
           "level_estimate": {
-            "recommended": 16,
+            "recommended": 17,
             "factors": [
               {
                 "source": "drop",
                 "name": "Sand Mummy",
-                "level": 16
+                "level": 17
               },
               {
                 "source": "drop",
@@ -72653,7 +72798,7 @@
               "name": "Sand Mummy",
               "zone": "Braxonian Desert",
               "scene": "Braxonian",
-              "level": 16,
+              "level": 17,
               "source_key": "character:desert mummy",
               "spawn_count": 32
             },
@@ -72699,12 +72844,12 @@
         "once_per_spawn_instance": false
       },
       "level_estimate": {
-        "recommended": 16,
+        "recommended": 17,
         "factors": [
           {
             "source": "step_1",
             "name": "Collect Rune of Sands.",
-            "level": 16
+            "level": 17
           }
         ]
       }
@@ -73943,12 +74088,12 @@
           "target_key": "item:gen - torn map top left",
           "quantity": 1,
           "level_estimate": {
-            "recommended": 16,
+            "recommended": 17,
             "factors": [
               {
                 "source": "drop",
                 "name": "Molorai Archaeologist",
-                "level": 16
+                "level": 17
               }
             ]
           }
@@ -74013,7 +74158,7 @@
               "name": "Molorai Archaeologist",
               "zone": "Braxonian Desert",
               "scene": "Braxonian",
-              "level": 16,
+              "level": 17,
               "source_key": "character:molorai archaelogist 1",
               "spawn_count": 6
             }
@@ -74057,12 +74202,12 @@
         "once_per_spawn_instance": false
       },
       "level_estimate": {
-        "recommended": 16,
+        "recommended": 17,
         "factors": [
           {
             "source": "step_3",
             "name": "Collect Torn Treasure Map (Top Left).",
-            "level": 16
+            "level": 17
           }
         ]
       }
@@ -74090,6 +74235,11 @@
                 "source": "drop",
                 "name": "Ripper Soldier",
                 "level": 27
+              },
+              {
+                "source": "drop",
+                "name": "Ripper Soldier",
+                "level": 28
               },
               {
                 "source": "drop",
@@ -74158,20 +74308,20 @@
             {
               "type": "drop",
               "name": "Ripper Soldier",
-              "zone": "Ripper's Keep",
-              "scene": "Ripper",
-              "level": 27,
-              "source_key": "character:ripper soldier",
-              "spawn_count": 20
-            },
-            {
-              "type": "drop",
-              "name": "Ripper Soldier",
               "zone": "Silkengrass Meadowlands",
               "scene": "Silkengrass",
               "level": 27,
               "source_key": "character:ripper soldier",
               "spawn_count": 10
+            },
+            {
+              "type": "drop",
+              "name": "Ripper Soldier",
+              "zone": "Ripper's Keep",
+              "scene": "Ripper",
+              "level": 28,
+              "source_key": "character:ripper soldier",
+              "spawn_count": 20
             },
             {
               "type": "drop",
@@ -74698,12 +74848,12 @@
           "target_key": "item:gen - pink pteriaped feather",
           "quantity": 1,
           "level_estimate": {
-            "recommended": 22,
+            "recommended": 24,
             "factors": [
               {
                 "source": "drop",
                 "name": "Pteriaped Chick",
-                "level": 22
+                "level": 24
               },
               {
                 "source": "drop",
@@ -74727,12 +74877,12 @@
           "target_key": "item:gen - devoratrix thorn",
           "quantity": 1,
           "level_estimate": {
-            "recommended": 22,
+            "recommended": 24,
             "factors": [
               {
                 "source": "drop",
                 "name": "Devoratrix",
-                "level": 22
+                "level": 24
               }
             ]
           }
@@ -74802,7 +74952,7 @@
               "name": "Pteriaped Chick",
               "zone": "Loomingwood Forest",
               "scene": "Loomingwood",
-              "level": 22,
+              "level": 24,
               "source_key": "character:pteriaped chick",
               "spawn_count": 18
             },
@@ -74836,7 +74986,7 @@
               "name": "Devoratrix",
               "zone": "Loomingwood Forest",
               "scene": "Loomingwood",
-              "level": 22,
+              "level": 24,
               "source_key": "character:devoratrix",
               "spawn_count": 19
             }
@@ -74971,12 +75121,12 @@
           "target_key": "item:belt - 10 - rottenfoot sash",
           "quantity": 1,
           "level_estimate": {
-            "recommended": 10,
+            "recommended": 13,
             "factors": [
               {
                 "source": "drop",
                 "name": "A Rottenfoot Warrior",
-                "level": 10
+                "level": 13
               },
               {
                 "source": "drop",
@@ -75022,7 +75172,7 @@
               "name": "A Rottenfoot Warrior",
               "zone": "Fernalla's Revival Plains",
               "scene": "FernallaField",
-              "level": 10,
+              "level": 13,
               "source_key": "character:a rottenfoot goblin warrior",
               "spawn_count": 33
             },
@@ -75075,12 +75225,12 @@
         "once_per_spawn_instance": false
       },
       "level_estimate": {
-        "recommended": 11,
+        "recommended": 13,
         "factors": [
           {
-            "source": "step_1",
-            "name": "Say \"collector\" to Alitho Echeswer.",
-            "level": 11
+            "source": "step_2",
+            "name": "Collect Rottenfoot Sash.",
+            "level": 13
           }
         ]
       }
@@ -76286,8 +76436,23 @@
               },
               {
                 "source": "drop",
+                "name": "Sivakayan Cleric",
+                "level": 28
+              },
+              {
+                "source": "drop",
                 "name": "Sivakayan Legionnaire",
-                "level": 27
+                "level": 28
+              },
+              {
+                "source": "drop",
+                "name": "Sivakayan Raider",
+                "level": 28
+              },
+              {
+                "source": "drop",
+                "name": "Sivakayan Reaver",
+                "level": 28
               },
               {
                 "source": "drop",
@@ -76361,15 +76526,6 @@
             {
               "type": "drop",
               "name": "Sivakayan Cleric",
-              "zone": "Ripper's Keep",
-              "scene": "Ripper",
-              "level": 26,
-              "source_key": "character:sivakayan cleric",
-              "spawn_count": 17
-            },
-            {
-              "type": "drop",
-              "name": "Sivakayan Cleric",
               "zone": "Silkengrass Meadowlands",
               "scene": "Silkengrass",
               "level": 26,
@@ -76402,15 +76558,6 @@
               "level": 26,
               "source_key": "character:sivakayan cleric:1",
               "spawn_count": 4
-            },
-            {
-              "type": "drop",
-              "name": "Sivakayan Raider",
-              "zone": "Ripper's Keep",
-              "scene": "Ripper",
-              "level": 26,
-              "source_key": "character:sivakayan raider",
-              "spawn_count": 17
             },
             {
               "type": "drop",
@@ -76447,15 +76594,6 @@
               "level": 26,
               "source_key": "character:sivakayan raider:1",
               "spawn_count": 13
-            },
-            {
-              "type": "drop",
-              "name": "Sivakayan Reaver",
-              "zone": "Ripper's Keep",
-              "scene": "Ripper",
-              "level": 26,
-              "source_key": "character:sivakayan reaver",
-              "spawn_count": 17
             },
             {
               "type": "drop",
@@ -76498,12 +76636,39 @@
             },
             {
               "type": "drop",
+              "name": "Sivakayan Cleric",
+              "zone": "Ripper's Keep",
+              "scene": "Ripper",
+              "level": 28,
+              "source_key": "character:sivakayan cleric",
+              "spawn_count": 17
+            },
+            {
+              "type": "drop",
               "name": "Sivakayan Legionnaire",
               "zone": "Abyssal Lake",
               "scene": "Abyssal",
-              "level": 27,
+              "level": 28,
               "source_key": "character:sivakayan legionairre",
               "spawn_count": 46
+            },
+            {
+              "type": "drop",
+              "name": "Sivakayan Raider",
+              "zone": "Ripper's Keep",
+              "scene": "Ripper",
+              "level": 28,
+              "source_key": "character:sivakayan raider",
+              "spawn_count": 17
+            },
+            {
+              "type": "drop",
+              "name": "Sivakayan Reaver",
+              "zone": "Ripper's Keep",
+              "scene": "Ripper",
+              "level": 28,
+              "source_key": "character:sivakayan reaver",
+              "spawn_count": 17
             },
             {
               "type": "drop",
@@ -78915,8 +79080,18 @@
               },
               {
                 "source": "drop",
+                "name": "A Young Wolf",
+                "level": 4
+              },
+              {
+                "source": "drop",
                 "name": "Alpha Wolf",
                 "level": 6
+              },
+              {
+                "source": "drop",
+                "name": "A Young Wolf",
+                "level": 9
               },
               {
                 "source": "drop",
@@ -78925,13 +79100,13 @@
               },
               {
                 "source": "drop",
-                "name": "Stalking Wolf",
-                "level": 19
+                "name": "Dire Wolf",
+                "level": 22
               },
               {
                 "source": "drop",
                 "name": "Dire Wolf",
-                "level": 22
+                "level": 24
               },
               {
                 "source": "drop",
@@ -78946,6 +79121,11 @@
               {
                 "source": "drop",
                 "name": "Fungal Wolf",
+                "level": 27
+              },
+              {
+                "source": "drop",
+                "name": "Stalking Wolf",
                 "level": 27
               },
               {
@@ -78975,17 +79155,52 @@
           "target_key": "item:gen - pristine grass spider carapace",
           "quantity": 1,
           "level_estimate": {
-            "recommended": 1,
+            "recommended": 2,
             "factors": [
               {
                 "source": "drop",
                 "name": "A Grass Spider",
-                "level": 1
+                "level": 2
+              },
+              {
+                "source": "drop",
+                "name": "A Grass Spider",
+                "level": 4
+              },
+              {
+                "source": "drop",
+                "name": "A Grass Spider",
+                "level": 9
               },
               {
                 "source": "drop",
                 "name": "A Mature Grass Spider",
-                "level": 4
+                "level": 9
+              },
+              {
+                "source": "drop",
+                "name": "A Mature Grass Spider",
+                "level": 13
+              },
+              {
+                "source": "drop",
+                "name": "A Mature Grass Spider",
+                "level": 14
+              },
+              {
+                "source": "drop",
+                "name": "A Mature Grass Spider",
+                "level": 19
+              },
+              {
+                "source": "drop",
+                "name": "A Mature Grass Spider",
+                "level": 28
+              },
+              {
+                "source": "drop",
+                "name": "A Mature Grass Spider",
+                "level": 30
               }
             ]
           }
@@ -79237,24 +79452,6 @@
             {
               "type": "drop",
               "name": "A Young Wolf",
-              "zone": "Faerie's Brake",
-              "scene": "Brake",
-              "level": 2,
-              "source_key": "character:wolf grey",
-              "spawn_count": 22
-            },
-            {
-              "type": "drop",
-              "name": "A Young Wolf",
-              "zone": "Hidden Hills",
-              "scene": "Hidden",
-              "level": 2,
-              "source_key": "character:wolf grey",
-              "spawn_count": 15
-            },
-            {
-              "type": "drop",
-              "name": "A Young Wolf",
               "zone": "Stowaway's Step",
               "scene": "Stowaway",
               "level": 2,
@@ -79264,18 +79461,27 @@
             {
               "type": "drop",
               "name": "A Young Wolf",
-              "zone": "Vitheo's Watch",
-              "scene": "Vitheo",
-              "level": 2,
+              "zone": "Faerie's Brake",
+              "scene": "Brake",
+              "level": 4,
               "source_key": "character:wolf grey",
-              "spawn_count": 5
+              "spawn_count": 22
+            },
+            {
+              "type": "drop",
+              "name": "A Young Wolf",
+              "zone": "Hidden Hills",
+              "scene": "Hidden",
+              "level": 4,
+              "source_key": "character:wolf grey",
+              "spawn_count": 15
             },
             {
               "type": "drop",
               "name": "A Young Wolf",
               "zone": "Willowwatch Ridge",
               "scene": "Willowwatch",
-              "level": 2,
+              "level": 4,
               "source_key": "character:wolf grey",
               "spawn_count": 28
             },
@@ -79305,6 +79511,15 @@
             },
             {
               "type": "drop",
+              "name": "A Young Wolf",
+              "zone": "Vitheo's Watch",
+              "scene": "Vitheo",
+              "level": 9,
+              "source_key": "character:wolf grey",
+              "spawn_count": 5
+            },
+            {
+              "type": "drop",
               "name": "Molorai Attack Dog",
               "zone": "Old Krakengard",
               "scene": "Krakengard",
@@ -79314,11 +79529,11 @@
             },
             {
               "type": "drop",
-              "name": "Stalking Wolf",
-              "zone": "Blooming Sepulcher",
-              "scene": "BloomingSepulcher",
-              "level": 19,
-              "source_key": "character:stalking wolf",
+              "name": "Dire Wolf",
+              "zone": "Silkengrass Meadowlands",
+              "scene": "Silkengrass",
+              "level": 22,
+              "source_key": "character:dire wolf",
               "spawn_count": 12
             },
             {
@@ -79326,18 +79541,9 @@
               "name": "Dire Wolf",
               "zone": "Shivering Tomb (2)",
               "scene": "ShiveringTomb2",
-              "level": 22,
+              "level": 24,
               "source_key": "character:dire wolf",
               "spawn_count": 8
-            },
-            {
-              "type": "drop",
-              "name": "Dire Wolf",
-              "zone": "Silkengrass Meadowlands",
-              "scene": "Silkengrass",
-              "level": 22,
-              "source_key": "character:dire wolf",
-              "spawn_count": 12
             },
             {
               "type": "drop",
@@ -79374,6 +79580,15 @@
             },
             {
               "type": "drop",
+              "name": "Stalking Wolf",
+              "zone": "Blooming Sepulcher",
+              "scene": "BloomingSepulcher",
+              "level": 27,
+              "source_key": "character:stalking wolf",
+              "spawn_count": 12
+            },
+            {
+              "type": "drop",
               "name": "Wild Ancestral Dog",
               "zone": "Azynthi's Garden",
               "scene": "AzynthiClear",
@@ -79406,9 +79621,18 @@
             {
               "type": "drop",
               "name": "A Grass Spider",
+              "zone": "Stowaway's Step",
+              "scene": "Stowaway",
+              "level": 2,
+              "source_key": "character:grass spider",
+              "spawn_count": 28
+            },
+            {
+              "type": "drop",
+              "name": "A Grass Spider",
               "zone": "Faerie's Brake",
               "scene": "Brake",
-              "level": 1,
+              "level": 4,
               "source_key": "character:grass spider",
               "spawn_count": 23
             },
@@ -79417,16 +79641,16 @@
               "name": "A Grass Spider",
               "zone": "Hidden Hills",
               "scene": "Hidden",
-              "level": 1,
+              "level": 4,
               "source_key": "character:grass spider",
               "spawn_count": 15
             },
             {
               "type": "drop",
               "name": "A Grass Spider",
-              "zone": "Stowaway's Step",
-              "scene": "Stowaway",
-              "level": 1,
+              "zone": "Willowwatch Ridge",
+              "scene": "Willowwatch",
+              "level": 4,
               "source_key": "character:grass spider",
               "spawn_count": 28
             },
@@ -79435,43 +79659,43 @@
               "name": "A Grass Spider",
               "zone": "Vitheo's Watch",
               "scene": "Vitheo",
-              "level": 1,
+              "level": 9,
               "source_key": "character:grass spider",
               "spawn_count": 11
             },
             {
               "type": "drop",
-              "name": "A Grass Spider",
-              "zone": "Willowwatch Ridge",
-              "scene": "Willowwatch",
-              "level": 1,
-              "source_key": "character:grass spider",
-              "spawn_count": 28
-            },
-            {
-              "type": "drop",
               "name": "A Mature Grass Spider",
-              "zone": "Azynthi's Garden",
-              "scene": "AzynthiClear",
-              "level": 4,
+              "zone": "Vitheo's Watch",
+              "scene": "Vitheo",
+              "level": 9,
               "source_key": "character:mature grass spider",
-              "spawn_count": 16
+              "spawn_count": 8
             },
             {
               "type": "drop",
               "name": "A Mature Grass Spider",
               "zone": "Fernalla's Revival Plains",
               "scene": "FernallaField",
-              "level": 4,
+              "level": 13,
               "source_key": "character:mature grass spider",
               "spawn_count": 10
             },
             {
               "type": "drop",
               "name": "A Mature Grass Spider",
+              "zone": "Blacksalt Strand",
+              "scene": "SaltedStrand",
+              "level": 14,
+              "source_key": "character:mature grass spider",
+              "spawn_count": 14
+            },
+            {
+              "type": "drop",
+              "name": "A Mature Grass Spider",
               "zone": "Malaroth's Nesting Grounds",
               "scene": "Malaroth",
-              "level": 4,
+              "level": 19,
               "source_key": "character:mature grass spider",
               "spawn_count": 10
             },
@@ -79480,27 +79704,18 @@
               "name": "A Mature Grass Spider",
               "zone": "Ripper's Keep",
               "scene": "Ripper",
-              "level": 4,
+              "level": 28,
               "source_key": "character:mature grass spider",
               "spawn_count": 12
             },
             {
               "type": "drop",
               "name": "A Mature Grass Spider",
-              "zone": "Blacksalt Strand",
-              "scene": "SaltedStrand",
-              "level": 4,
+              "zone": "Azynthi's Garden",
+              "scene": "AzynthiClear",
+              "level": 30,
               "source_key": "character:mature grass spider",
-              "spawn_count": 14
-            },
-            {
-              "type": "drop",
-              "name": "A Mature Grass Spider",
-              "zone": "Vitheo's Watch",
-              "scene": "Vitheo",
-              "level": 4,
-              "source_key": "character:mature grass spider",
-              "spawn_count": 8
+              "spawn_count": 16
             }
           ]
         },
@@ -80016,12 +80231,12 @@
           "target_key": "item:gen - loomingwood branch",
           "quantity": 1,
           "level_estimate": {
-            "recommended": 22,
+            "recommended": 24,
             "factors": [
               {
                 "source": "drop",
                 "name": "Devoratrix",
-                "level": 22
+                "level": 24
               },
               {
                 "source": "drop",
@@ -80065,17 +80280,27 @@
               {
                 "source": "drop",
                 "name": "Dryad Spirit",
-                "level": 8
+                "level": 13
               },
               {
                 "source": "drop",
                 "name": "Spectral Bear",
-                "level": 9
+                "level": 13
+              },
+              {
+                "source": "drop",
+                "name": "Dryad Spirit",
+                "level": 14
               },
               {
                 "source": "drop",
                 "name": "Massia the Fallen",
-                "level": 10
+                "level": 14
+              },
+              {
+                "source": "drop",
+                "name": "Spectral Bear",
+                "level": 14
               },
               {
                 "source": "drop",
@@ -80188,7 +80413,7 @@
               "name": "Devoratrix",
               "zone": "Loomingwood Forest",
               "scene": "Loomingwood",
-              "level": 22,
+              "level": 24,
               "source_key": "character:devoratrix",
               "spawn_count": 19
             },
@@ -80247,47 +80472,47 @@
             {
               "type": "drop",
               "name": "Dryad Spirit",
-              "zone": "The Duskenlight Coast",
-              "scene": "Duskenlight",
-              "level": 8,
+              "zone": "Fernalla's Revival Plains",
+              "scene": "FernallaField",
+              "level": 13,
               "source_key": "character:dryad spirit",
-              "spawn_count": 23
+              "spawn_count": 13
+            },
+            {
+              "type": "drop",
+              "name": "Spectral Bear",
+              "zone": "Fernalla's Revival Plains",
+              "scene": "FernallaField",
+              "level": 13,
+              "source_key": "character:spirit of nature",
+              "spawn_count": 13
             },
             {
               "type": "drop",
               "name": "Dryad Spirit",
-              "zone": "Fernalla's Revival Plains",
-              "scene": "FernallaField",
-              "level": 8,
-              "source_key": "character:dryad spirit",
-              "spawn_count": 13
-            },
-            {
-              "type": "drop",
-              "name": "Spectral Bear",
               "zone": "The Duskenlight Coast",
               "scene": "Duskenlight",
-              "level": 9,
-              "source_key": "character:spirit of nature",
-              "spawn_count": 20
-            },
-            {
-              "type": "drop",
-              "name": "Spectral Bear",
-              "zone": "Fernalla's Revival Plains",
-              "scene": "FernallaField",
-              "level": 9,
-              "source_key": "character:spirit of nature",
-              "spawn_count": 13
+              "level": 14,
+              "source_key": "character:dryad spirit",
+              "spawn_count": 23
             },
             {
               "type": "drop",
               "name": "Massia the Fallen",
               "zone": "The Duskenlight Coast",
               "scene": "Duskenlight",
-              "level": 10,
+              "level": 14,
               "source_key": "character:massia the felled",
               "spawn_count": 1
+            },
+            {
+              "type": "drop",
+              "name": "Spectral Bear",
+              "zone": "The Duskenlight Coast",
+              "scene": "Duskenlight",
+              "level": 14,
+              "source_key": "character:spirit of nature",
+              "spawn_count": 20
             },
             {
               "type": "drop",
@@ -80654,6 +80879,11 @@
                 "source": "drop",
                 "name": "A Skeleton Captain",
                 "level": 8
+              },
+              {
+                "source": "drop",
+                "name": "A Skeleton Captain",
+                "level": 9
               }
             ]
           }
@@ -80812,7 +81042,7 @@
               "name": "A Skeleton Captain",
               "zone": "Vitheo's Watch",
               "scene": "Vitheo",
-              "level": 8,
+              "level": 9,
               "source_key": "character:skeleton captain",
               "spawn_count": 4
             }
@@ -81047,7 +81277,7 @@
                   "name": "Pg. 1: Faded Entry: A Skeleton Captain",
                   "zone": "Vitheo's Watch",
                   "scene": "Vitheo",
-                  "level": 8,
+                  "level": 9,
                   "source_key": "character:skeleton captain",
                   "spawn_count": 4
                 },
@@ -81119,7 +81349,7 @@
                   "name": "Pg. 1: Faded Entry: A Skeleton Captain",
                   "zone": "Vitheo's Watch",
                   "scene": "Vitheo",
-                  "level": 8,
+                  "level": 9,
                   "source_key": "character:skeleton captain",
                   "spawn_count": 4
                 },
@@ -81278,7 +81508,7 @@
                   "name": "Pg. 1: Faded Entry: A Skeleton Captain",
                   "zone": "Vitheo's Watch",
                   "scene": "Vitheo",
-                  "level": 8,
+                  "level": 9,
                   "source_key": "character:skeleton captain",
                   "spawn_count": 4
                 },
@@ -81350,7 +81580,7 @@
                   "name": "Pg. 1: Faded Entry: A Skeleton Captain",
                   "zone": "Vitheo's Watch",
                   "scene": "Vitheo",
-                  "level": 8,
+                  "level": 9,
                   "source_key": "character:skeleton captain",
                   "spawn_count": 4
                 },
@@ -81470,11 +81700,6 @@
               },
               {
                 "source": "drop",
-                "name": "Lost Soul",
-                "level": 4
-              },
-              {
-                "source": "drop",
                 "name": "Posta",
                 "level": 4
               },
@@ -81514,19 +81739,9 @@
                 "level": 7
               },
               {
-                "source": "drop",
-                "name": "Captive Miner",
-                "level": 8
-              },
-              {
                 "source": "vendor",
                 "name": "Saya Seawatcher",
                 "level": 9
-              },
-              {
-                "source": "drop",
-                "name": "A Grassland Ogre Chieftan",
-                "level": 10
               },
               {
                 "source": "vendor",
@@ -81551,6 +81766,11 @@
               {
                 "source": "drop",
                 "name": "A Highwayman Raider",
+                "level": 13
+              },
+              {
+                "source": "drop",
+                "name": "A Grassland Ogre Chieftan",
                 "level": 13
               },
               {
@@ -81600,13 +81820,13 @@
               },
               {
                 "source": "drop",
-                "name": "Gasper",
-                "level": 21
+                "name": "Lost Soul",
+                "level": 19
               },
               {
                 "source": "drop",
-                "name": "Greater Fawn",
-                "level": 22
+                "name": "Gasper",
+                "level": 21
               },
               {
                 "source": "drop",
@@ -81615,13 +81835,18 @@
               },
               {
                 "source": "drop",
-                "name": "Wild Ogre",
-                "level": 24
+                "name": "Warded Shadow",
+                "level": 26
               },
               {
                 "source": "drop",
-                "name": "Warded Shadow",
+                "name": "Wild Ogre",
                 "level": 26
+              },
+              {
+                "source": "drop",
+                "name": "Greater Fawn",
+                "level": 27
               },
               {
                 "source": "vendor",
@@ -81640,7 +81865,17 @@
               },
               {
                 "source": "drop",
+                "name": "Captive Miner",
+                "level": 30
+              },
+              {
+                "source": "drop",
                 "name": "Prince Ardant",
+                "level": 32
+              },
+              {
+                "source": "drop",
+                "name": "Shambler",
                 "level": 32
               },
               {
@@ -81720,15 +81955,6 @@
             },
             {
               "type": "drop",
-              "name": "Lost Soul",
-              "zone": "Malaroth's Nesting Grounds",
-              "scene": "Malaroth",
-              "level": 4,
-              "source_key": "character:lost soul",
-              "spawn_count": 1
-            },
-            {
-              "type": "drop",
               "name": "Posta",
               "zone": "Island Tomb",
               "scene": "Tutorial",
@@ -81798,30 +82024,12 @@
               "spawn_count": 1
             },
             {
-              "type": "drop",
-              "name": "Captive Miner",
-              "zone": "Prielian Cascade",
-              "scene": "PrielPlateau",
-              "level": 8,
-              "source_key": "character:character_peasant_white:prielplateau:73.57:0.05:343.45",
-              "spawn_count": 2
-            },
-            {
               "type": "vendor",
               "name": "Saya Seawatcher",
               "zone": "Vitheo's Watch",
               "scene": "Vitheo",
               "level": 9,
               "source_key": "character:saya seawatcher"
-            },
-            {
-              "type": "drop",
-              "name": "A Grassland Ogre Chieftan",
-              "zone": "Fernalla's Revival Plains",
-              "scene": "FernallaField",
-              "level": 10,
-              "source_key": "character:grassland ogre chieftan",
-              "spawn_count": 14
             },
             {
               "type": "vendor",
@@ -81887,6 +82095,15 @@
               "name": "A Highwayman Raider",
               "level": 13,
               "source_key": "character:a highwayman raider 1"
+            },
+            {
+              "type": "drop",
+              "name": "A Grassland Ogre Chieftan",
+              "zone": "Fernalla's Revival Plains",
+              "scene": "FernallaField",
+              "level": 13,
+              "source_key": "character:grassland ogre chieftan",
+              "spawn_count": 14
             },
             {
               "type": "vendor",
@@ -81968,21 +82185,21 @@
             },
             {
               "type": "drop",
+              "name": "Lost Soul",
+              "zone": "Malaroth's Nesting Grounds",
+              "scene": "Malaroth",
+              "level": 19,
+              "source_key": "character:lost soul",
+              "spawn_count": 1
+            },
+            {
+              "type": "drop",
               "name": "Gasper",
               "zone": "Shivering Step",
               "scene": "ShiveringStep",
               "level": 21,
               "source_key": "character:gasper",
               "spawn_count": 9
-            },
-            {
-              "type": "drop",
-              "name": "Greater Fawn",
-              "zone": "Blooming Sepulcher",
-              "scene": "BloomingSepulcher",
-              "level": 22,
-              "source_key": "character:greater fawn",
-              "spawn_count": 34
             },
             {
               "type": "drop",
@@ -81995,21 +82212,30 @@
             },
             {
               "type": "drop",
-              "name": "Wild Ogre",
-              "zone": "Soluna's Landing",
-              "scene": "Soluna",
-              "level": 24,
-              "source_key": "character:wild ogre",
-              "spawn_count": 25
-            },
-            {
-              "type": "drop",
               "name": "Warded Shadow",
               "zone": "Shivering Tomb (2)",
               "scene": "ShiveringTomb2",
               "level": 26,
               "source_key": "character:warded phantom:shiveringtomb2:-76.96:-68.40:284.89",
               "spawn_count": 2
+            },
+            {
+              "type": "drop",
+              "name": "Wild Ogre",
+              "zone": "Soluna's Landing",
+              "scene": "Soluna",
+              "level": 26,
+              "source_key": "character:wild ogre",
+              "spawn_count": 25
+            },
+            {
+              "type": "drop",
+              "name": "Greater Fawn",
+              "zone": "Blooming Sepulcher",
+              "scene": "BloomingSepulcher",
+              "level": 27,
+              "source_key": "character:greater fawn",
+              "spawn_count": 34
             },
             {
               "type": "vendor",
@@ -82027,87 +82253,6 @@
             },
             {
               "type": "drop",
-              "name": "Shambler",
-              "zone": "Mysterious Portal (3)",
-              "scene": "RipperPortal",
-              "level": 29,
-              "source_key": "character:shambler (1):ripperportal:271.18:0.00:430.42",
-              "spawn_count": 2
-            },
-            {
-              "type": "drop",
-              "name": "Shambler",
-              "zone": "Mysterious Portal (3)",
-              "scene": "RipperPortal",
-              "level": 29,
-              "source_key": "character:shambler (2):ripperportal:330.21:0.00:436.74",
-              "spawn_count": 2
-            },
-            {
-              "type": "drop",
-              "name": "Shambler",
-              "zone": "Mysterious Portal (3)",
-              "scene": "RipperPortal",
-              "level": 29,
-              "source_key": "character:shambler (3):ripperportal:331.21:0.00:430.46",
-              "spawn_count": 2
-            },
-            {
-              "type": "drop",
-              "name": "Shambler",
-              "zone": "Mysterious Portal (3)",
-              "scene": "RipperPortal",
-              "level": 29,
-              "source_key": "character:shambler (4):ripperportal:368.18:0.00:433.52",
-              "spawn_count": 2
-            },
-            {
-              "type": "drop",
-              "name": "Shambler",
-              "zone": "Mysterious Portal (3)",
-              "scene": "RipperPortal",
-              "level": 29,
-              "source_key": "character:shambler (5):ripperportal:409.08:0.00:433.71",
-              "spawn_count": 2
-            },
-            {
-              "type": "drop",
-              "name": "Shambler",
-              "zone": "Mysterious Portal (3)",
-              "scene": "RipperPortal",
-              "level": 29,
-              "source_key": "character:shambler (6):ripperportal:218.64:0.00:430.43",
-              "spawn_count": 2
-            },
-            {
-              "type": "drop",
-              "name": "Shambler",
-              "zone": "Mysterious Portal (3)",
-              "scene": "RipperPortal",
-              "level": 29,
-              "source_key": "character:shambler (7):ripperportal:219.72:0.00:436.41",
-              "spawn_count": 2
-            },
-            {
-              "type": "drop",
-              "name": "Shambler",
-              "zone": "Mysterious Portal (3)",
-              "scene": "RipperPortal",
-              "level": 29,
-              "source_key": "character:shambler (8):ripperportal:215.32:0.00:433.54",
-              "spawn_count": 2
-            },
-            {
-              "type": "drop",
-              "name": "Shambler",
-              "zone": "Mysterious Portal (3)",
-              "scene": "RipperPortal",
-              "level": 29,
-              "source_key": "character:shambler:ripperportal:271.59:0.00:436.70",
-              "spawn_count": 2
-            },
-            {
-              "type": "drop",
               "name": "Vinx",
               "zone": "Blooming Sepulcher",
               "scene": "BloomingSepulcher",
@@ -82117,12 +82262,102 @@
             },
             {
               "type": "drop",
+              "name": "Captive Miner",
+              "zone": "Prielian Cascade",
+              "scene": "PrielPlateau",
+              "level": 30,
+              "source_key": "character:character_peasant_white:prielplateau:73.57:0.05:343.45",
+              "spawn_count": 2
+            },
+            {
+              "type": "drop",
               "name": "Prince Ardant",
               "zone": "Fallen Braxonia",
               "scene": "Braxonia",
               "level": 32,
               "source_key": "character:braxonian prince ardant",
               "spawn_count": 1
+            },
+            {
+              "type": "drop",
+              "name": "Shambler",
+              "zone": "Mysterious Portal (3)",
+              "scene": "RipperPortal",
+              "level": 32,
+              "source_key": "character:shambler (1):ripperportal:271.18:0.00:430.42",
+              "spawn_count": 2
+            },
+            {
+              "type": "drop",
+              "name": "Shambler",
+              "zone": "Mysterious Portal (3)",
+              "scene": "RipperPortal",
+              "level": 32,
+              "source_key": "character:shambler (2):ripperportal:330.21:0.00:436.74",
+              "spawn_count": 2
+            },
+            {
+              "type": "drop",
+              "name": "Shambler",
+              "zone": "Mysterious Portal (3)",
+              "scene": "RipperPortal",
+              "level": 32,
+              "source_key": "character:shambler (3):ripperportal:331.21:0.00:430.46",
+              "spawn_count": 2
+            },
+            {
+              "type": "drop",
+              "name": "Shambler",
+              "zone": "Mysterious Portal (3)",
+              "scene": "RipperPortal",
+              "level": 32,
+              "source_key": "character:shambler (4):ripperportal:368.18:0.00:433.52",
+              "spawn_count": 2
+            },
+            {
+              "type": "drop",
+              "name": "Shambler",
+              "zone": "Mysterious Portal (3)",
+              "scene": "RipperPortal",
+              "level": 32,
+              "source_key": "character:shambler (5):ripperportal:409.08:0.00:433.71",
+              "spawn_count": 2
+            },
+            {
+              "type": "drop",
+              "name": "Shambler",
+              "zone": "Mysterious Portal (3)",
+              "scene": "RipperPortal",
+              "level": 32,
+              "source_key": "character:shambler (6):ripperportal:218.64:0.00:430.43",
+              "spawn_count": 2
+            },
+            {
+              "type": "drop",
+              "name": "Shambler",
+              "zone": "Mysterious Portal (3)",
+              "scene": "RipperPortal",
+              "level": 32,
+              "source_key": "character:shambler (7):ripperportal:219.72:0.00:436.41",
+              "spawn_count": 2
+            },
+            {
+              "type": "drop",
+              "name": "Shambler",
+              "zone": "Mysterious Portal (3)",
+              "scene": "RipperPortal",
+              "level": 32,
+              "source_key": "character:shambler (8):ripperportal:215.32:0.00:433.54",
+              "spawn_count": 2
+            },
+            {
+              "type": "drop",
+              "name": "Shambler",
+              "zone": "Mysterious Portal (3)",
+              "scene": "RipperPortal",
+              "level": 32,
+              "source_key": "character:shambler:ripperportal:271.59:0.00:436.70",
+              "spawn_count": 2
             },
             {
               "type": "drop",
@@ -83323,11 +83558,6 @@
               },
               {
                 "source": "drop",
-                "name": "Lost Soul",
-                "level": 4
-              },
-              {
-                "source": "drop",
                 "name": "Posta",
                 "level": 4
               },
@@ -83367,19 +83597,9 @@
                 "level": 7
               },
               {
-                "source": "drop",
-                "name": "Captive Miner",
-                "level": 8
-              },
-              {
                 "source": "vendor",
                 "name": "Saya Seawatcher",
                 "level": 9
-              },
-              {
-                "source": "drop",
-                "name": "A Grassland Ogre Chieftan",
-                "level": 10
               },
               {
                 "source": "vendor",
@@ -83404,6 +83624,11 @@
               {
                 "source": "drop",
                 "name": "A Highwayman Raider",
+                "level": 13
+              },
+              {
+                "source": "drop",
+                "name": "A Grassland Ogre Chieftan",
                 "level": 13
               },
               {
@@ -83453,13 +83678,13 @@
               },
               {
                 "source": "drop",
-                "name": "Gasper",
-                "level": 21
+                "name": "Lost Soul",
+                "level": 19
               },
               {
                 "source": "drop",
-                "name": "Greater Fawn",
-                "level": 22
+                "name": "Gasper",
+                "level": 21
               },
               {
                 "source": "drop",
@@ -83468,13 +83693,18 @@
               },
               {
                 "source": "drop",
-                "name": "Wild Ogre",
-                "level": 24
+                "name": "Warded Shadow",
+                "level": 26
               },
               {
                 "source": "drop",
-                "name": "Warded Shadow",
+                "name": "Wild Ogre",
                 "level": 26
+              },
+              {
+                "source": "drop",
+                "name": "Greater Fawn",
+                "level": 27
               },
               {
                 "source": "vendor",
@@ -83493,7 +83723,17 @@
               },
               {
                 "source": "drop",
+                "name": "Captive Miner",
+                "level": 30
+              },
+              {
+                "source": "drop",
                 "name": "Prince Ardant",
+                "level": 32
+              },
+              {
+                "source": "drop",
+                "name": "Shambler",
                 "level": 32
               },
               {
@@ -83541,11 +83781,6 @@
                 "level": 7
               },
               {
-                "source": "drop",
-                "name": "A Grassland Ogre Elder",
-                "level": 8
-              },
-              {
                 "source": "vendor",
                 "name": "Saya Seawatcher",
                 "level": 9
@@ -83569,6 +83804,16 @@
                 "source": "vendor",
                 "name": "Isaac Salaman",
                 "level": 11
+              },
+              {
+                "source": "drop",
+                "name": "A Grassland Ogre Elder",
+                "level": 12
+              },
+              {
+                "source": "drop",
+                "name": "A Grassland Ogre Elder",
+                "level": 13
               },
               {
                 "source": "drop",
@@ -83709,15 +83954,6 @@
             },
             {
               "type": "drop",
-              "name": "Lost Soul",
-              "zone": "Malaroth's Nesting Grounds",
-              "scene": "Malaroth",
-              "level": 4,
-              "source_key": "character:lost soul",
-              "spawn_count": 1
-            },
-            {
-              "type": "drop",
               "name": "Posta",
               "zone": "Island Tomb",
               "scene": "Tutorial",
@@ -83787,30 +84023,12 @@
               "spawn_count": 1
             },
             {
-              "type": "drop",
-              "name": "Captive Miner",
-              "zone": "Prielian Cascade",
-              "scene": "PrielPlateau",
-              "level": 8,
-              "source_key": "character:character_peasant_white:prielplateau:73.57:0.05:343.45",
-              "spawn_count": 2
-            },
-            {
               "type": "vendor",
               "name": "Saya Seawatcher",
               "zone": "Vitheo's Watch",
               "scene": "Vitheo",
               "level": 9,
               "source_key": "character:saya seawatcher"
-            },
-            {
-              "type": "drop",
-              "name": "A Grassland Ogre Chieftan",
-              "zone": "Fernalla's Revival Plains",
-              "scene": "FernallaField",
-              "level": 10,
-              "source_key": "character:grassland ogre chieftan",
-              "spawn_count": 14
             },
             {
               "type": "vendor",
@@ -83876,6 +84094,15 @@
               "name": "A Highwayman Raider",
               "level": 13,
               "source_key": "character:a highwayman raider 1"
+            },
+            {
+              "type": "drop",
+              "name": "A Grassland Ogre Chieftan",
+              "zone": "Fernalla's Revival Plains",
+              "scene": "FernallaField",
+              "level": 13,
+              "source_key": "character:grassland ogre chieftan",
+              "spawn_count": 14
             },
             {
               "type": "vendor",
@@ -83957,21 +84184,21 @@
             },
             {
               "type": "drop",
+              "name": "Lost Soul",
+              "zone": "Malaroth's Nesting Grounds",
+              "scene": "Malaroth",
+              "level": 19,
+              "source_key": "character:lost soul",
+              "spawn_count": 1
+            },
+            {
+              "type": "drop",
               "name": "Gasper",
               "zone": "Shivering Step",
               "scene": "ShiveringStep",
               "level": 21,
               "source_key": "character:gasper",
               "spawn_count": 9
-            },
-            {
-              "type": "drop",
-              "name": "Greater Fawn",
-              "zone": "Blooming Sepulcher",
-              "scene": "BloomingSepulcher",
-              "level": 22,
-              "source_key": "character:greater fawn",
-              "spawn_count": 34
             },
             {
               "type": "drop",
@@ -83984,21 +84211,30 @@
             },
             {
               "type": "drop",
-              "name": "Wild Ogre",
-              "zone": "Soluna's Landing",
-              "scene": "Soluna",
-              "level": 24,
-              "source_key": "character:wild ogre",
-              "spawn_count": 25
-            },
-            {
-              "type": "drop",
               "name": "Warded Shadow",
               "zone": "Shivering Tomb (2)",
               "scene": "ShiveringTomb2",
               "level": 26,
               "source_key": "character:warded phantom:shiveringtomb2:-76.96:-68.40:284.89",
               "spawn_count": 2
+            },
+            {
+              "type": "drop",
+              "name": "Wild Ogre",
+              "zone": "Soluna's Landing",
+              "scene": "Soluna",
+              "level": 26,
+              "source_key": "character:wild ogre",
+              "spawn_count": 25
+            },
+            {
+              "type": "drop",
+              "name": "Greater Fawn",
+              "zone": "Blooming Sepulcher",
+              "scene": "BloomingSepulcher",
+              "level": 27,
+              "source_key": "character:greater fawn",
+              "spawn_count": 34
             },
             {
               "type": "vendor",
@@ -84016,87 +84252,6 @@
             },
             {
               "type": "drop",
-              "name": "Shambler",
-              "zone": "Mysterious Portal (3)",
-              "scene": "RipperPortal",
-              "level": 29,
-              "source_key": "character:shambler (1):ripperportal:271.18:0.00:430.42",
-              "spawn_count": 2
-            },
-            {
-              "type": "drop",
-              "name": "Shambler",
-              "zone": "Mysterious Portal (3)",
-              "scene": "RipperPortal",
-              "level": 29,
-              "source_key": "character:shambler (2):ripperportal:330.21:0.00:436.74",
-              "spawn_count": 2
-            },
-            {
-              "type": "drop",
-              "name": "Shambler",
-              "zone": "Mysterious Portal (3)",
-              "scene": "RipperPortal",
-              "level": 29,
-              "source_key": "character:shambler (3):ripperportal:331.21:0.00:430.46",
-              "spawn_count": 2
-            },
-            {
-              "type": "drop",
-              "name": "Shambler",
-              "zone": "Mysterious Portal (3)",
-              "scene": "RipperPortal",
-              "level": 29,
-              "source_key": "character:shambler (4):ripperportal:368.18:0.00:433.52",
-              "spawn_count": 2
-            },
-            {
-              "type": "drop",
-              "name": "Shambler",
-              "zone": "Mysterious Portal (3)",
-              "scene": "RipperPortal",
-              "level": 29,
-              "source_key": "character:shambler (5):ripperportal:409.08:0.00:433.71",
-              "spawn_count": 2
-            },
-            {
-              "type": "drop",
-              "name": "Shambler",
-              "zone": "Mysterious Portal (3)",
-              "scene": "RipperPortal",
-              "level": 29,
-              "source_key": "character:shambler (6):ripperportal:218.64:0.00:430.43",
-              "spawn_count": 2
-            },
-            {
-              "type": "drop",
-              "name": "Shambler",
-              "zone": "Mysterious Portal (3)",
-              "scene": "RipperPortal",
-              "level": 29,
-              "source_key": "character:shambler (7):ripperportal:219.72:0.00:436.41",
-              "spawn_count": 2
-            },
-            {
-              "type": "drop",
-              "name": "Shambler",
-              "zone": "Mysterious Portal (3)",
-              "scene": "RipperPortal",
-              "level": 29,
-              "source_key": "character:shambler (8):ripperportal:215.32:0.00:433.54",
-              "spawn_count": 2
-            },
-            {
-              "type": "drop",
-              "name": "Shambler",
-              "zone": "Mysterious Portal (3)",
-              "scene": "RipperPortal",
-              "level": 29,
-              "source_key": "character:shambler:ripperportal:271.59:0.00:436.70",
-              "spawn_count": 2
-            },
-            {
-              "type": "drop",
               "name": "Vinx",
               "zone": "Blooming Sepulcher",
               "scene": "BloomingSepulcher",
@@ -84106,12 +84261,102 @@
             },
             {
               "type": "drop",
+              "name": "Captive Miner",
+              "zone": "Prielian Cascade",
+              "scene": "PrielPlateau",
+              "level": 30,
+              "source_key": "character:character_peasant_white:prielplateau:73.57:0.05:343.45",
+              "spawn_count": 2
+            },
+            {
+              "type": "drop",
               "name": "Prince Ardant",
               "zone": "Fallen Braxonia",
               "scene": "Braxonia",
               "level": 32,
               "source_key": "character:braxonian prince ardant",
               "spawn_count": 1
+            },
+            {
+              "type": "drop",
+              "name": "Shambler",
+              "zone": "Mysterious Portal (3)",
+              "scene": "RipperPortal",
+              "level": 32,
+              "source_key": "character:shambler (1):ripperportal:271.18:0.00:430.42",
+              "spawn_count": 2
+            },
+            {
+              "type": "drop",
+              "name": "Shambler",
+              "zone": "Mysterious Portal (3)",
+              "scene": "RipperPortal",
+              "level": 32,
+              "source_key": "character:shambler (2):ripperportal:330.21:0.00:436.74",
+              "spawn_count": 2
+            },
+            {
+              "type": "drop",
+              "name": "Shambler",
+              "zone": "Mysterious Portal (3)",
+              "scene": "RipperPortal",
+              "level": 32,
+              "source_key": "character:shambler (3):ripperportal:331.21:0.00:430.46",
+              "spawn_count": 2
+            },
+            {
+              "type": "drop",
+              "name": "Shambler",
+              "zone": "Mysterious Portal (3)",
+              "scene": "RipperPortal",
+              "level": 32,
+              "source_key": "character:shambler (4):ripperportal:368.18:0.00:433.52",
+              "spawn_count": 2
+            },
+            {
+              "type": "drop",
+              "name": "Shambler",
+              "zone": "Mysterious Portal (3)",
+              "scene": "RipperPortal",
+              "level": 32,
+              "source_key": "character:shambler (5):ripperportal:409.08:0.00:433.71",
+              "spawn_count": 2
+            },
+            {
+              "type": "drop",
+              "name": "Shambler",
+              "zone": "Mysterious Portal (3)",
+              "scene": "RipperPortal",
+              "level": 32,
+              "source_key": "character:shambler (6):ripperportal:218.64:0.00:430.43",
+              "spawn_count": 2
+            },
+            {
+              "type": "drop",
+              "name": "Shambler",
+              "zone": "Mysterious Portal (3)",
+              "scene": "RipperPortal",
+              "level": 32,
+              "source_key": "character:shambler (7):ripperportal:219.72:0.00:436.41",
+              "spawn_count": 2
+            },
+            {
+              "type": "drop",
+              "name": "Shambler",
+              "zone": "Mysterious Portal (3)",
+              "scene": "RipperPortal",
+              "level": 32,
+              "source_key": "character:shambler (8):ripperportal:215.32:0.00:433.54",
+              "spawn_count": 2
+            },
+            {
+              "type": "drop",
+              "name": "Shambler",
+              "zone": "Mysterious Portal (3)",
+              "scene": "RipperPortal",
+              "level": 32,
+              "source_key": "character:shambler:ripperportal:271.59:0.00:436.70",
+              "spawn_count": 2
             },
             {
               "type": "drop",
@@ -84186,24 +84431,6 @@
               "spawn_count": 1
             },
             {
-              "type": "drop",
-              "name": "A Grassland Ogre Elder",
-              "zone": "Fernalla's Revival Plains",
-              "scene": "FernallaField",
-              "level": 8,
-              "source_key": "character:grassland ogre elder",
-              "spawn_count": 21
-            },
-            {
-              "type": "drop",
-              "name": "A Grassland Ogre Elder",
-              "zone": "Underspine Hollow",
-              "scene": "Underspine",
-              "level": 8,
-              "source_key": "character:grassland ogre elder",
-              "spawn_count": 23
-            },
-            {
               "type": "vendor",
               "name": "Saya Seawatcher",
               "zone": "Vitheo's Watch",
@@ -84242,6 +84469,24 @@
               "scene": "Azure",
               "level": 11,
               "source_key": "character:isaac salaman:azure:124.92:26.25:350.89"
+            },
+            {
+              "type": "drop",
+              "name": "A Grassland Ogre Elder",
+              "zone": "Underspine Hollow",
+              "scene": "Underspine",
+              "level": 12,
+              "source_key": "character:grassland ogre elder",
+              "spawn_count": 23
+            },
+            {
+              "type": "drop",
+              "name": "A Grassland Ogre Elder",
+              "zone": "Fernalla's Revival Plains",
+              "scene": "FernallaField",
+              "level": 13,
+              "source_key": "character:grassland ogre elder",
+              "spawn_count": 21
             },
             {
               "type": "drop",
@@ -85622,12 +85867,12 @@
           "target_key": "item:gen - ghostly giant's blood",
           "quantity": 1,
           "level_estimate": {
-            "recommended": 8,
+            "recommended": 9,
             "factors": [
               {
                 "source": "drop",
                 "name": "A Lost Sea Giant",
-                "level": 8
+                "level": 9
               },
               {
                 "source": "drop",
@@ -85777,7 +86022,7 @@
                 {
                   "type": "quest_reward",
                   "name": "Treasure Map: Repairing Treasure Maps",
-                  "level": 16,
+                  "level": 17,
                   "quest_key": "quest:treasuremap"
                 },
                 {
@@ -85811,7 +86056,7 @@
                 {
                   "type": "quest_reward",
                   "name": "Treasure Map: Repairing Treasure Maps",
-                  "level": 16,
+                  "level": 17,
                   "quest_key": "quest:treasuremap"
                 },
                 {
@@ -85878,7 +86123,7 @@
               "name": "A Lost Sea Giant",
               "zone": "Vitheo's Watch",
               "scene": "Vitheo",
-              "level": 8,
+              "level": 9,
               "source_key": "character:lost sea giant",
               "spawn_count": 4
             },
@@ -86637,11 +86882,6 @@
                 "level": 18
               },
               {
-                "source": "drop",
-                "name": "Grappler",
-                "level": 19
-              },
-              {
                 "source": "fishing",
                 "name": "Malaroth's Nesting Grounds",
                 "level": 19
@@ -86654,7 +86894,12 @@
               {
                 "source": "drop",
                 "name": "Frenzy",
-                "level": 24
+                "level": 27
+              },
+              {
+                "source": "drop",
+                "name": "Grappler",
+                "level": 27
               },
               {
                 "source": "fishing",
@@ -86664,7 +86909,7 @@
               {
                 "source": "drop",
                 "name": "Spinesnap Gorilla",
-                "level": 30
+                "level": 32
               },
               {
                 "source": "drop",
@@ -86764,15 +87009,6 @@
               "node_count": 1
             },
             {
-              "type": "drop",
-              "name": "Grappler",
-              "zone": "Blooming Sepulcher",
-              "scene": "BloomingSepulcher",
-              "level": 19,
-              "source_key": "character:grappler",
-              "spawn_count": 11
-            },
-            {
               "type": "fishing",
               "zone": "Malaroth's Nesting Grounds",
               "scene": "Malaroth",
@@ -86791,9 +87027,18 @@
               "name": "Frenzy",
               "zone": "Blooming Sepulcher",
               "scene": "BloomingSepulcher",
-              "level": 24,
+              "level": 27,
               "source_key": "character:frenzy",
               "spawn_count": 1
+            },
+            {
+              "type": "drop",
+              "name": "Grappler",
+              "zone": "Blooming Sepulcher",
+              "scene": "BloomingSepulcher",
+              "level": 27,
+              "source_key": "character:grappler",
+              "spawn_count": 11
             },
             {
               "type": "fishing",
@@ -86807,7 +87052,7 @@
               "name": "Spinesnap Gorilla",
               "zone": "Mysterious Portal (3)",
               "scene": "RipperPortal",
-              "level": 30,
+              "level": 32,
               "source_key": "character:spinesnap gorilla",
               "spawn_count": 26
             },
@@ -86969,13 +87214,13 @@
             "factors": [
               {
                 "source": "drop",
-                "name": "Shadow of Sleep",
+                "name": "Shiverman",
                 "level": 19
               },
               {
                 "source": "drop",
-                "name": "Shiverman",
-                "level": 19
+                "name": "Shadow of Sleep",
+                "level": 21
               },
               {
                 "source": "drop",
@@ -87003,13 +87248,13 @@
             "factors": [
               {
                 "source": "drop",
-                "name": "Shadow of Sleep",
+                "name": "Shiverman",
                 "level": 19
               },
               {
                 "source": "drop",
-                "name": "Shiverman",
-                "level": 19
+                "name": "Shadow of Sleep",
+                "level": 21
               },
               {
                 "source": "drop",
@@ -87108,18 +87353,18 @@
           "sources": [
             {
               "type": "drop",
-              "name": "Shadow of Sleep",
-              "zone": "Shivering Step",
-              "scene": "ShiveringStep",
-              "level": 19,
-              "source_key": "character:boogeyman",
-              "spawn_count": 16
-            },
-            {
-              "type": "drop",
               "name": "Shiverman",
               "level": 19,
               "source_key": "character:shiverman"
+            },
+            {
+              "type": "drop",
+              "name": "Shadow of Sleep",
+              "zone": "Shivering Step",
+              "scene": "ShiveringStep",
+              "level": 21,
+              "source_key": "character:boogeyman",
+              "spawn_count": 16
             },
             {
               "type": "drop",
@@ -87148,18 +87393,18 @@
           "sources": [
             {
               "type": "drop",
-              "name": "Shadow of Sleep",
-              "zone": "Shivering Step",
-              "scene": "ShiveringStep",
-              "level": 19,
-              "source_key": "character:boogeyman",
-              "spawn_count": 16
-            },
-            {
-              "type": "drop",
               "name": "Shiverman",
               "level": 19,
               "source_key": "character:shiverman"
+            },
+            {
+              "type": "drop",
+              "name": "Shadow of Sleep",
+              "zone": "Shivering Step",
+              "scene": "ShiveringStep",
+              "level": 21,
+              "source_key": "character:boogeyman",
+              "spawn_count": 16
             },
             {
               "type": "drop",
@@ -88140,8 +88385,18 @@
               },
               {
                 "source": "drop",
+                "name": "A Young Wolf",
+                "level": 4
+              },
+              {
+                "source": "drop",
                 "name": "Alpha Wolf",
                 "level": 6
+              },
+              {
+                "source": "drop",
+                "name": "A Young Wolf",
+                "level": 9
               },
               {
                 "source": "drop",
@@ -88150,13 +88405,13 @@
               },
               {
                 "source": "drop",
-                "name": "Stalking Wolf",
-                "level": 19
+                "name": "Dire Wolf",
+                "level": 22
               },
               {
                 "source": "drop",
                 "name": "Dire Wolf",
-                "level": 22
+                "level": 24
               },
               {
                 "source": "drop",
@@ -88171,6 +88426,11 @@
               {
                 "source": "drop",
                 "name": "Fungal Wolf",
+                "level": 27
+              },
+              {
+                "source": "drop",
+                "name": "Stalking Wolf",
                 "level": 27
               },
               {
@@ -88226,24 +88486,6 @@
             {
               "type": "drop",
               "name": "A Young Wolf",
-              "zone": "Faerie's Brake",
-              "scene": "Brake",
-              "level": 2,
-              "source_key": "character:wolf grey",
-              "spawn_count": 22
-            },
-            {
-              "type": "drop",
-              "name": "A Young Wolf",
-              "zone": "Hidden Hills",
-              "scene": "Hidden",
-              "level": 2,
-              "source_key": "character:wolf grey",
-              "spawn_count": 15
-            },
-            {
-              "type": "drop",
-              "name": "A Young Wolf",
               "zone": "Stowaway's Step",
               "scene": "Stowaway",
               "level": 2,
@@ -88253,18 +88495,27 @@
             {
               "type": "drop",
               "name": "A Young Wolf",
-              "zone": "Vitheo's Watch",
-              "scene": "Vitheo",
-              "level": 2,
+              "zone": "Faerie's Brake",
+              "scene": "Brake",
+              "level": 4,
               "source_key": "character:wolf grey",
-              "spawn_count": 5
+              "spawn_count": 22
+            },
+            {
+              "type": "drop",
+              "name": "A Young Wolf",
+              "zone": "Hidden Hills",
+              "scene": "Hidden",
+              "level": 4,
+              "source_key": "character:wolf grey",
+              "spawn_count": 15
             },
             {
               "type": "drop",
               "name": "A Young Wolf",
               "zone": "Willowwatch Ridge",
               "scene": "Willowwatch",
-              "level": 2,
+              "level": 4,
               "source_key": "character:wolf grey",
               "spawn_count": 28
             },
@@ -88294,6 +88545,15 @@
             },
             {
               "type": "drop",
+              "name": "A Young Wolf",
+              "zone": "Vitheo's Watch",
+              "scene": "Vitheo",
+              "level": 9,
+              "source_key": "character:wolf grey",
+              "spawn_count": 5
+            },
+            {
+              "type": "drop",
               "name": "Molorai Attack Dog",
               "zone": "Old Krakengard",
               "scene": "Krakengard",
@@ -88303,11 +88563,11 @@
             },
             {
               "type": "drop",
-              "name": "Stalking Wolf",
-              "zone": "Blooming Sepulcher",
-              "scene": "BloomingSepulcher",
-              "level": 19,
-              "source_key": "character:stalking wolf",
+              "name": "Dire Wolf",
+              "zone": "Silkengrass Meadowlands",
+              "scene": "Silkengrass",
+              "level": 22,
+              "source_key": "character:dire wolf",
               "spawn_count": 12
             },
             {
@@ -88315,18 +88575,9 @@
               "name": "Dire Wolf",
               "zone": "Shivering Tomb (2)",
               "scene": "ShiveringTomb2",
-              "level": 22,
+              "level": 24,
               "source_key": "character:dire wolf",
               "spawn_count": 8
-            },
-            {
-              "type": "drop",
-              "name": "Dire Wolf",
-              "zone": "Silkengrass Meadowlands",
-              "scene": "Silkengrass",
-              "level": 22,
-              "source_key": "character:dire wolf",
-              "spawn_count": 12
             },
             {
               "type": "drop",
@@ -88360,6 +88611,15 @@
               "level": 27,
               "source_key": "character:moss covered wolf",
               "spawn_count": 31
+            },
+            {
+              "type": "drop",
+              "name": "Stalking Wolf",
+              "zone": "Blooming Sepulcher",
+              "scene": "BloomingSepulcher",
+              "level": 27,
+              "source_key": "character:stalking wolf",
+              "spawn_count": 12
             },
             {
               "type": "drop",
