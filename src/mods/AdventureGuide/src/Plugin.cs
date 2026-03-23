@@ -109,20 +109,20 @@ public sealed class Plugin : BaseUnityPlugin
         Log.LogInfo($"{PluginInfo.Name} v{PluginInfo.Version} loaded ({_data.Count} quests)");
     }
 
-    private bool _wasCapturingKeyboard;
+    private bool _wasTextInputActive;
 
     private void Update()
     {
-        // Set game's typing flag when ImGui has keyboard focus (e.g., search
-        // field). This prevents game keybinds from firing while typing. We
-        // only set it to true, never force it false — other game UI (chat,
-        // etc.) may also set it.
-        bool imguiWantsKb = _imgui?.WantCaptureKeyboard ?? false;
-        if (imguiWantsKb && !_wasCapturingKeyboard)
+        // Set game's typing flag only when an ImGui text widget is actively
+        // being edited (e.g., search field). WantTextInput is narrower than
+        // WantCaptureKeyboard — the latter fires when any window has focus,
+        // which would block movement (CanMove) on every window click.
+        bool textActive = _imgui?.WantTextInput ?? false;
+        if (textActive && !_wasTextInputActive)
             GameData.PlayerTyping = true;
-        else if (!imguiWantsKb && _wasCapturingKeyboard)
+        else if (!textActive && _wasTextInputActive)
             GameData.PlayerTyping = false;
-        _wasCapturingKeyboard = imguiWantsKb;
+        _wasTextInputActive = textActive;
 
         // Update navigation state each frame
         var currentZone = _state?.CurrentZone ?? "";

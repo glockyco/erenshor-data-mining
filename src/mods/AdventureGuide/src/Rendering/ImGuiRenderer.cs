@@ -44,8 +44,8 @@ public sealed class ImGuiRenderer : IDisposable
     /// <summary>True when ImGui wants to capture mouse input.</summary>
     public bool WantCaptureMouse { get; private set; }
 
-    /// <summary>True when ImGui wants to capture keyboard input.</summary>
-    public bool WantCaptureKeyboard { get; private set; }
+    /// <summary>True when an ImGui text input widget is actively being edited.</summary>
+    public bool WantTextInput { get; private set; }
 
     public ImGuiRenderer(ManualLogSource log)
     {
@@ -157,7 +157,7 @@ public sealed class ImGuiRenderer : IDisposable
 
             // Check capture state
             WantCaptureMouse = io.WantCaptureMouse;
-            WantCaptureKeyboard = io.WantCaptureKeyboard;
+            WantTextInput = io.WantTextInput;
 
             // Render
             ImGuiNET.ImGui.Render();
