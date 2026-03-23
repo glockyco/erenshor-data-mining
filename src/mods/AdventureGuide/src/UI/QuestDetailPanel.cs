@@ -212,14 +212,7 @@ public sealed class QuestDetailPanel
             StepState.Current => Theme.QuestActive,
             _ => Theme.TextPrimary,
         };
-        string prefix = state switch
-        {
-            StepState.Completed => "\u2713",
-            StepState.Current => ">>",
-            _ => "\u25cb",
-        };
-
-        string text = $"{prefix} {step.Order}. {step.Description}";
+        string text = $"{step.Order}. {step.Description}";
 
         // Collect steps: show have/need count
         if (step.Action == "collect" && step.TargetName != null && step.Quantity.HasValue)
@@ -445,13 +438,12 @@ public sealed class QuestDetailPanel
         {
             bool completed = IsPrerequisiteCompleted(prereq);
             var color = completed ? Theme.QuestCompleted : Theme.TextPrimary;
-            var prefix = completed ? "\u2713 " : "\u25cb ";
             string label = prereq.Item != null
                 ? $"{prereq.QuestName} ({prereq.Item})"
                 : prereq.QuestName;
 
             ImGui.PushStyleColor(ImGuiCol.Text, color);
-            if (ImGui.Selectable($"{prefix}{label}##prereq_{prereq.QuestKey}"))
+            if (ImGui.Selectable($"{label}##prereq_{prereq.QuestKey}"))
             {
                 // Navigate to prerequisite quest via stable key (O(1) lookup)
                 var target = _data.GetByStableKey(prereq.QuestKey);
