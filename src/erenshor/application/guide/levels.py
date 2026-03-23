@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .repository import QuestDataContext
 from .schema import (
+    ItemSource,
     LevelEstimate,
     LevelFactor,
     QuestGuide,
@@ -36,7 +37,8 @@ def compute_levels(guides: list[QuestGuide], ctx: QuestDataContext) -> None:
     1. Topologically sort quests so quest-reward levels flow forward.
     2. Compute step levels → quest level in dependency order.
     3. Backfill quest-reward ``ItemSource.level`` from rewarding quests.
-    4. Recompute steps that consumed quest-reward sources (levels now populated).
+    4. Propagate character unlock quest levels into source levels.
+    5. Recompute steps that consumed quest-reward or unlock-gated sources.
     """
     guide_by_key = {g.stable_key: g for g in guides}
     topo_order = _topological_order(guides)
@@ -51,10 +53,12 @@ def compute_levels(guides: list[QuestGuide], ctx: QuestDataContext) -> None:
     # Phase 2: propagate quest levels into quest_reward ItemSource.level
     _propagate_quest_reward_levels(guides, guide_by_key)
 
-    # Phase 3: recompute steps that have quest_reward sources whose levels
-    # may have changed after propagation
+    # Phase 3: propagate character unlock quest levels into source levels
+    _propagate_character_unlock_levels(guides, guide_by_key, ctx)
+
+    # Phase 4: recompute guides whose source levels may have changed
     for guide in guides:
-        if _has_quest_reward_sources(guide):
+        if _has_quest_reward_sources(guide) or _has_unlock_gated_sources(guide, ctx):
             _compute_guide_levels(guide, ctx)
 
 
@@ -249,6 +253,68 @@ def _propagate_quest_reward_levels(
 def _has_quest_reward_sources(guide: QuestGuide) -> bool:
     """Check if any required item has a quest_reward source."""
     return any(src.type == "quest_reward" for item in guide.required_items for src in item.sources)
+
+
+def _propagate_character_unlock_levels(
+    guides: list[QuestGuide],
+    guide_by_key: dict[str, QuestGuide],
+    ctx: QuestDataContext,
+) -> None:
+    """Raise source levels to account for character quest unlock requirements.
+
+    If a source's character only spawns after a quest is completed, the
+    effective level to access that source is at least the unlock quest's level.
+    """
+    for guide in guides:
+        for item in guide.required_items:
+            for src in item.sources:
+                _apply_unlock_level(src, guide_by_key, ctx)
+                if src.children:
+                    for child in src.children:
+                        _apply_unlock_level(child, guide_by_key, ctx)
+
+
+def _apply_unlock_level(
+    src: ItemSource,
+    guide_by_key: dict[str, QuestGuide],
+    ctx: QuestDataContext,
+) -> None:
+    """Raise a single source's level based on its character's unlock requirements."""
+    if src.source_key is None:
+        return
+    groups = ctx.character_quest_unlocks.get(src.source_key)
+    if not groups:
+        return
+
+    # Find the minimum unlock level across groups (OR logic: any group suffices)
+    min_unlock_level: int | None = None
+    for group in groups:
+        # All quests in a group must be completed (AND); take the max level
+        group_level: int | None = None
+        for quest_db_name in group:
+            quest_sk = f"quest:{quest_db_name.lower()}"
+            rewarding = guide_by_key.get(quest_sk)
+            if rewarding and rewarding.level_estimate and rewarding.level_estimate.recommended is not None:
+                level = rewarding.level_estimate.recommended
+                group_level = max(group_level or 0, level)
+        if group_level is not None and (min_unlock_level is None or group_level < min_unlock_level):
+            min_unlock_level = group_level
+
+    if min_unlock_level is not None and (src.level is None or src.level < min_unlock_level):
+        src.level = min_unlock_level
+
+
+def _has_unlock_gated_sources(guide: QuestGuide, ctx: QuestDataContext) -> bool:
+    """Check if any source references a character with quest unlock requirements."""
+    for item in guide.required_items:
+        for src in item.sources:
+            if src.source_key and src.source_key in ctx.character_quest_unlocks:
+                return True
+            if src.children:
+                for child in src.children:
+                    if child.source_key and child.source_key in ctx.character_quest_unlocks:
+                        return True
+    return False
 
 
 # ---------------------------------------------------------------------------

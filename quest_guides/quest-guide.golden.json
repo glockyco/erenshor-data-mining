@@ -72066,12 +72066,12 @@
           "target_key": "item:gen - rune of the hills",
           "quantity": 1,
           "level_estimate": {
-            "recommended": 2,
+            "recommended": 7,
             "factors": [
               {
                 "source": "dialog_give",
                 "name": "Lucian Revald",
-                "level": 2
+                "level": 14
               },
               {
                 "source": "quest_reward",
@@ -72112,7 +72112,7 @@
               "name": "Lucian Revald",
               "zone": "Stowaway's Step",
               "scene": "Stowaway",
-              "level": 2,
+              "level": 14,
               "source_key": "character:lucian revald:stowaway:432.19:69.90:532.04"
             },
             {
@@ -72161,12 +72161,12 @@
         "once_per_spawn_instance": false
       },
       "level_estimate": {
-        "recommended": 5,
+        "recommended": 7,
         "factors": [
           {
-            "source": "step_2",
-            "name": "Turn in items to Hidden Hills Receptacle.",
-            "level": 5
+            "source": "step_1",
+            "name": "Collect Rune of The Hills.",
+            "level": 7
           }
         ]
       }
