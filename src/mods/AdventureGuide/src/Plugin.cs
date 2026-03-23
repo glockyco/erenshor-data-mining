@@ -70,6 +70,7 @@ public sealed class Plugin : BaseUnityPlugin
         var history = new NavigationHistory(_config.HistoryMaxSize.Value);
         _config.HistoryMaxSize.SettingChanged += (_, _) => history.MaxSize = _config.HistoryMaxSize.Value;
         _window = new GuideWindow(_data, _state, _nav, history);
+        _state.SetHistory(history);
         _window.Filter.LoadFrom(_config);
         _imgui.OnLayout = () => { _window.Draw(); _arrow!.Draw(); };
 

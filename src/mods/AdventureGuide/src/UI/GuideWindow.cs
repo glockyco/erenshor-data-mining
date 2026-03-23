@@ -33,7 +33,7 @@ public sealed class GuideWindow
         _state = state;
         _history = history;
         _listPanel = new QuestListPanel(data, state, _filter);
-        _detailPanel = new QuestDetailPanel(data, state, nav, history);
+        _detailPanel = new QuestDetailPanel(data, state, nav);
         _progressPanel = new ProgressPanel(data, state);
     }
 
@@ -55,31 +55,7 @@ public sealed class GuideWindow
         Theme.PushWindowStyle();
 
         if (ImGui.Begin("Adventure Guide", ref _visible, ImGuiWindowFlags.NoCollapse))
-        {
-            // Navigation history buttons in window header
-            ImGui.SameLine(ImGui.GetWindowWidth() - 90); // right-align
-            bool canBack = _history.CanGoBack;
-            bool canFwd = _history.CanGoForward;
-            if (!canBack) ImGui.BeginDisabled();
-            if (ImGui.SmallButton("<"))
-            {
-                var page = _history.Back();
-                if (page.HasValue && page.Value.Type == NavigationHistory.PageType.Quest)
-                    _state.SelectedQuestDBName = page.Value.Key;
-            }
-            if (!canBack) ImGui.EndDisabled();
-            ImGui.SameLine();
-            if (!canFwd) ImGui.BeginDisabled();
-            if (ImGui.SmallButton(">"))
-            {
-                var page = _history.Forward();
-                if (page.HasValue && page.Value.Type == NavigationHistory.PageType.Quest)
-                    _state.SelectedQuestDBName = page.Value.Key;
-            }
-            if (!canFwd) ImGui.EndDisabled();
-
             DrawTabBar();
-        }
 
         ImGui.End();
         Theme.PopWindowStyle();
@@ -102,6 +78,21 @@ public sealed class GuideWindow
                 _progressPanel.Draw();
                 ImGui.EndTabItem();
             }
+
+            if (ImGui.TabItemButton("<"))
+            {
+                var page = _history.Back();
+                if (page.HasValue && page.Value.Type == NavigationHistory.PageType.Quest)
+                    _state.SelectedQuestDBName = page.Value.Key;
+            }
+            if (ImGui.TabItemButton(">"))
+            {
+                var page = _history.Forward();
+                if (page.HasValue && page.Value.Type == NavigationHistory.PageType.Quest)
+                    _state.SelectedQuestDBName = page.Value.Key;
+            }
+            if (ImGui.TabItemButton("Settings"))
+                _filter.ShowSettings = !_filter.ShowSettings;
 
             ImGui.EndTabBar();
         }

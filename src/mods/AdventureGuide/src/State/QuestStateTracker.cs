@@ -17,6 +17,23 @@ public sealed class QuestStateTracker
     public string CurrentZone { get; set; } = "";
     public string? SelectedQuestDBName { get; set; }
 
+    private NavigationHistory? _history;
+
+    /// <summary>Wire navigation history. Call from Plugin.Awake after construction.</summary>
+    public void SetHistory(NavigationHistory history) => _history = history;
+
+    /// <summary>
+    /// Select a quest via user action. Pushes onto navigation history.
+    /// Use for list clicks, prerequisite links, sub-tree quest links.
+    /// </summary>
+    public void SelectQuest(string dbName)
+    {
+        if (dbName == SelectedQuestDBName) return;
+        _history?.Navigate(new NavigationHistory.PageRef(
+            NavigationHistory.PageType.Quest, dbName));
+        SelectedQuestDBName = dbName;
+    }
+
     public IReadOnlyCollection<string> ActiveQuests => _activeQuests;
     public IReadOnlyCollection<string> CompletedQuests => _completedQuests;
 

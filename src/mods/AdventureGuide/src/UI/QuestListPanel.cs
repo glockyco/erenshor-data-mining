@@ -283,7 +283,7 @@ public sealed class QuestListPanel
         ImGui.PushStyleColor(ImGuiCol.Text, statusColor);
 
         if (ImGui.Selectable(label + "##" + quest.DBName, isSelected))
-            _state.SelectedQuestDBName = quest.DBName;
+            _state.SelectQuest(quest.DBName);
 
         // Tooltip on hover: zone + status + level
         if (ImGui.IsItemHovered())

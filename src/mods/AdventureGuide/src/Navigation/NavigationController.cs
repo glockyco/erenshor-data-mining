@@ -104,6 +104,29 @@ public sealed class NavigationController
     }
 
     /// <summary>
+    /// Navigate directly to a specific item source by its source_key.
+    /// Used by click-to-navigate on individual source lines.
+    /// </summary>
+    public bool NavigateToSource(string sourceKey, string displayName,
+        string questDBName, int stepOrder, string currentScene)
+    {
+        Clear();
+
+        if (!_data.CharacterSpawns.TryGetValue(sourceKey, out var spawns) || spawns.Count == 0)
+            return false;
+
+        var spawn = PickBestSpawn(spawns, currentScene);
+        Target = MakeTarget(
+            NavigationTarget.Kind.Character,
+            new Vector3(spawn.X, spawn.Y, spawn.Z),
+            displayName,
+            spawn.Scene,
+            questDBName, stepOrder,
+            sourceKey);
+        return true;
+    }
+
+    /// <summary>
     /// Called when game state changes (quest assigned, quest completed,
     /// inventory changed, NPC killed). Re-evaluates whether the current
     /// nav step is still the active step and auto-advances if not.
@@ -324,24 +347,9 @@ public sealed class NavigationController
         if (item?.Sources == null || item.Sources.Count == 0)
             return false;
 
-        // Try sources with character spawn data
-        foreach (var src in item.Sources)
-        {
-            if (src.SourceKey == null) continue;
-
-            if (!_data.CharacterSpawns.TryGetValue(src.SourceKey, out var spawns) || spawns.Count == 0)
-                continue;
-
-            var spawn = PickBestSpawn(spawns, currentScene);
-            Target = MakeTarget(
-                NavigationTarget.Kind.Character,
-                new Vector3(spawn.X, spawn.Y, spawn.Z),
-                src.Name ?? src.SourceKey,
-                spawn.Scene,
-                quest.DBName, step.Order,
-                src.SourceKey);
+        // Try sources with character spawn data (recursing into children)
+        if (TryNavigateToAnySource(item.Sources, quest, step, currentScene))
             return true;
-        }
 
         // Fallback: navigate to the zone where the first source lives
         var firstZone = item.Sources[0].Zone;
@@ -361,6 +369,32 @@ public sealed class NavigationController
             currentScene,
             quest.DBName, step.Order);
         return true;
+    }
+
+    private bool TryNavigateToAnySource(List<Data.ItemSource> sources, QuestEntry quest, QuestStep step, string currentScene)
+    {
+        foreach (var src in sources)
+        {
+            if (src.SourceKey != null
+                && _data.CharacterSpawns.TryGetValue(src.SourceKey, out var spawns)
+                && spawns.Count > 0)
+            {
+                var spawn = PickBestSpawn(spawns, currentScene);
+                Target = MakeTarget(
+                    NavigationTarget.Kind.Character,
+                    new Vector3(spawn.X, spawn.Y, spawn.Z),
+                    src.Name ?? src.SourceKey,
+                    spawn.Scene,
+                    quest.DBName, step.Order,
+                    src.SourceKey);
+                return true;
+            }
+
+            // Recurse into children
+            if (src.Children != null && TryNavigateToAnySource(src.Children, quest, step, currentScene))
+                return true;
+        }
+        return false;
     }
 
     // ── Cross-zone routing ─────────────────────────────────────────

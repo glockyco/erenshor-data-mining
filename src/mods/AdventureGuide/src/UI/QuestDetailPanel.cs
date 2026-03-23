@@ -14,14 +14,12 @@ public sealed class QuestDetailPanel
     private readonly GuideData _data;
     private readonly QuestStateTracker _state;
     private readonly NavigationController _nav;
-    private readonly NavigationHistory _history;
 
-    public QuestDetailPanel(GuideData data, QuestStateTracker state, NavigationController nav, NavigationHistory history)
+    public QuestDetailPanel(GuideData data, QuestStateTracker state, NavigationController nav)
     {
         _data = data;
         _state = state;
         _nav = nav;
-        _history = history;
     }
 
     public void Draw()
@@ -247,7 +245,7 @@ public sealed class QuestDetailPanel
         ImGui.PopStyleColor();
 
         // Drop/vendor sources and tips for collect steps
-        DrawStepSources(step);
+        DrawStepSources(step, quest);
 
         // Show alternative zone lines when cross-zone navigating this step
         if (_nav.IsNavigating(quest.DBName, step.Order))
@@ -268,7 +266,7 @@ public sealed class QuestDetailPanel
         {
             var item = quest.RequiredItems?.Find(ri =>
                 string.Equals(ri.ItemName, step.TargetName, StringComparison.OrdinalIgnoreCase));
-            navigable = item?.Sources?.Exists(s => s.SourceKey != null) == true;
+            navigable = item?.Sources?.Exists(HasNavigableSource) == true;
         }
 
         bool isActive = _nav.IsNavigating(quest.DBName, step.Order);
@@ -325,7 +323,7 @@ public sealed class QuestDetailPanel
     /// and counts inline. Sources arrive pre-sorted and pre-aggregated from
     /// the pipeline. Collapses beyond 4 sources behind a TreeNode.
     /// </summary>
-    private void DrawStepSources(QuestStep step)
+    private void DrawStepSources(QuestStep step, QuestEntry quest)
     {
         if (step.Action is not "collect" and not "read" || step.TargetName == null)
         {
@@ -333,8 +331,7 @@ public sealed class QuestDetailPanel
             return;
         }
 
-        var quest = _data.GetByDBName(_state.SelectedQuestDBName!);
-        var item = quest?.RequiredItems?.Find(ri =>
+        var item = quest.RequiredItems?.Find(ri =>
             string.Equals(ri.ItemName, step.TargetName, StringComparison.OrdinalIgnoreCase));
 
         if (item?.Sources == null || item.Sources.Count == 0)
@@ -350,7 +347,7 @@ public sealed class QuestDetailPanel
         int visible = Math.Min(item.Sources.Count, maxVisible);
 
         for (int i = 0; i < visible; i++)
-            DrawSource(item.Sources[i]);
+            DrawSource(item.Sources[i], quest, step);
 
         if (item.Sources.Count > maxVisible)
         {
@@ -361,7 +358,7 @@ public sealed class QuestDetailPanel
             if (ImGui.TreeNode($"{remaining} more sources ({range})##{step.Order}"))
             {
                 for (int i = maxVisible; i < item.Sources.Count; i++)
-                    DrawSource(item.Sources[i]);
+                    DrawSource(item.Sources[i], quest, step);
                 ImGui.TreePop();
             }
         }
@@ -399,7 +396,7 @@ public sealed class QuestDetailPanel
         ImGui.Unindent(Theme.IndentWidth);
     }
 
-    private void DrawSource(ItemSource src, int depth = 0)
+    private void DrawSource(ItemSource src, QuestEntry quest, QuestStep step, int depth = 0)
     {
         // Consistent format: {what}  \u00b7  {where}  \u00b7  Lv {N}
         string what = src.Type switch
@@ -436,16 +433,14 @@ public sealed class QuestDetailPanel
                         ImGui.PushStyleColor(ImGuiCol.Text, Theme.QuestActive);
                         if (ImGui.Selectable($"Open quest: {target.DisplayName}##goto_{src.QuestKey}"))
                         {
-                            _history.Navigate(new NavigationHistory.PageRef(
-                                NavigationHistory.PageType.Quest, target.DBName));
-                            _state.SelectedQuestDBName = target.DBName;
+                        _state.SelectQuest(target.DBName);
                         }
                         ImGui.PopStyleColor();
                     }
                 }
 
                 foreach (var child in src.Children!)
-                    DrawSource(child, depth + 1);
+                    DrawSource(child, quest, step, depth + 1);
                 ImGui.TreePop();
             }
         }
@@ -454,7 +449,8 @@ public sealed class QuestDetailPanel
             // Navigable source: Selectable with hover tooltip
             if (ImGui.Selectable($"{label}##src_{src.SourceKey}"))
             {
-                // Per-source navigation to be wired in follow-up
+                _nav.NavigateToSource(src.SourceKey, src.Name ?? src.SourceKey,
+                    quest.DBName, step.Order, _state.CurrentZone);
             }
             if (ImGui.IsItemHovered())
             {
@@ -562,8 +558,7 @@ public sealed class QuestDetailPanel
                 var target = _data.GetByStableKey(prereq.QuestKey);
                 if (target != null)
                 {
-                    _history.Navigate(new NavigationHistory.PageRef(NavigationHistory.PageType.Quest, target.DBName));
-                    _state.SelectedQuestDBName = target.DBName;
+                    _state.SelectQuest(target.DBName);
                 }
             }
             ImGui.PopStyleColor();
@@ -610,12 +605,14 @@ public sealed class QuestDetailPanel
             {
                 if (linkedQuest != null)
                 {
-                    _history.Navigate(new NavigationHistory.PageRef(NavigationHistory.PageType.Quest, linkedQuest.DBName));
-                    _state.SelectedQuestDBName = linkedQuest.DBName;
+                    _state.SelectQuest(linkedQuest.DBName);
                 }
             }
             ImGui.PopStyleColor();
         }
         ImGui.Unindent(Theme.IndentWidth);
     }
+
+    private static bool HasNavigableSource(ItemSource s) =>
+        s.SourceKey != null || (s.Children?.Exists(HasNavigableSource) == true);
 }
