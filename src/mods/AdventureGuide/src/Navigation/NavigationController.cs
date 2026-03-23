@@ -18,6 +18,7 @@ public sealed class NavigationController
     private readonly QuestStateTracker _state;
     private readonly SpawnTimerTracker _timers;
     private readonly MiningNodeTracker _miningTracker;
+    private readonly ZoneGraph _zoneGraph;
     // Cache to avoid per-frame zone line waypoint allocation and reachability checks
     private ZoneLineEntry? _cachedZoneLine;
     private Vector3 _lastCrossZoneCalcPos;
@@ -48,6 +49,7 @@ public sealed class NavigationController
         _state = state;
         _timers = timers;
         _miningTracker = miningTracker;
+        _zoneGraph = new ZoneGraph(data, state);
     }
 
     /// <summary>
@@ -145,6 +147,7 @@ public sealed class NavigationController
     /// </summary>
     public void OnGameStateChanged(string currentScene)
     {
+        _zoneGraph.Rebuild();
         if (Target == null) return;
 
         var quest = _data.GetByDBName(Target.QuestDBName);
@@ -426,22 +429,21 @@ public sealed class NavigationController
         if (needsRecalc)
         {
             _lastCrossZoneCalcPos = playerPos;
-            var targetZoneKey = FindZoneKeyBySceneName(Target!.Scene);
 
-            // Try accessible zone lines first
-            var directLine = targetZoneKey != null
-                ? FindClosestZoneLine(targetZoneKey, currentScene, playerPos)
-                : null;
+            // Use zone graph to find the correct next hop toward the target
+            var route = _zoneGraph.FindRoute(currentScene, Target!.Scene);
+            var nextHopZoneKey = route?.NextHopZoneKey;
 
-            var bestLine = directLine ?? FindClosestZoneLineInScene(currentScene, playerPos);
-
-            // If no accessible route found, fall back to closest locked zone line
-            // so the player still gets directional guidance + lock reason
+            // Find the best zone line for the next hop
+            ZoneLineEntry? bestLine = null;
             bool routeIsLocked = false;
-            if (bestLine == null && targetZoneKey != null)
+
+            if (nextHopZoneKey != null)
             {
-                bestLine = FindClosestZoneLineAny(targetZoneKey, currentScene, playerPos);
-                routeIsLocked = bestLine != null;
+                bestLine = route!.IsLocked
+                    ? FindClosestZoneLineAny(nextHopZoneKey, currentScene, playerPos)
+                    : FindClosestZoneLine(nextHopZoneKey, currentScene, playerPos);
+                routeIsLocked = route.IsLocked;
             }
 
             if (bestLine != _cachedZoneLine)
@@ -628,39 +630,6 @@ public sealed class NavigationController
         return best;
     }
 
-    private ZoneLineEntry? FindClosestZoneLineInScene(string currentScene, Vector3 playerPos)
-    {
-        ZoneLineEntry? bestComplete = null;  float bestCompDist = float.MaxValue;
-        ZoneLineEntry? bestPartial = null;   float bestPartDist = float.MaxValue;
-        ZoneLineEntry? bestFallback = null;   float bestFallDist = float.MaxValue;
-
-        foreach (var zl in _data.ZoneLines)
-        {
-            if (!string.Equals(zl.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase))
-                continue;
-            if (!IsZoneLineAccessible(zl))
-                continue;
-
-            var zlPos = new Vector3(zl.X, zl.Y, zl.Z);
-            float dist = Vector3.Distance(playerPos, zlPos);
-            var reach = GetReachability(playerPos, zlPos);
-
-            if (reach == NavMeshPathStatus.PathComplete)
-            {
-                if (dist < bestCompDist) { bestCompDist = dist; bestComplete = zl; }
-            }
-            else if (reach == NavMeshPathStatus.PathPartial)
-            {
-                if (dist < bestPartDist) { bestPartDist = dist; bestPartial = zl; }
-            }
-            else
-            {
-                if (dist < bestFallDist) { bestFallDist = dist; bestFallback = zl; }
-            }
-        }
-
-        return bestComplete ?? bestPartial ?? bestFallback;
-    }
 
     private bool HasZoneLineForDestination(string? zoneKey, string currentScene)
     {
