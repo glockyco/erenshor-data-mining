@@ -15,6 +15,9 @@ public sealed class QuestDetailPanel
     private readonly QuestStateTracker _state;
     private readonly NavigationController _nav;
 
+    /// <summary>Max sub-quest nesting depth to prevent runaway recursion.</summary>
+    private const int MaxSubQuestDepth = 5;
+
     public QuestDetailPanel(GuideData data, QuestStateTracker state, NavigationController nav)
     {
         _data = data;
@@ -172,10 +175,27 @@ public sealed class QuestDetailPanel
         if (!ImGui.CollapsingHeader("Objectives", ImGuiTreeNodeFlags.DefaultOpen))
             return;
 
-        int currentStepIndex = StepProgress.GetCurrentStepIndex(quest, _state);
-
+        var visited = new HashSet<string> { quest.StableKey };
         ImGui.Indent(Theme.IndentWidth);
+        DrawSteps(quest, visited);
+        ImGui.Unindent(Theme.IndentWidth);
+    }
+
+    /// <summary>
+    /// Render a quest's step list with or-group separators and step state coloring.
+    /// Reused for both top-level objectives and inline sub-quest rendering.
+    /// Caller handles indentation; this method handles PushID scoping.
+    /// </summary>
+    private void DrawSteps(QuestEntry quest, HashSet<string> visited)
+    {
+        if (quest.Steps == null || quest.Steps.Count == 0)
+            return;
+
+        ImGui.PushID(quest.DBName);
+
+        int currentStepIndex = StepProgress.GetCurrentStepIndex(quest, _state);
         string? prevOrGroup = null;
+
         for (int i = 0; i < quest.Steps.Count; i++)
         {
             var step = quest.Steps[i];
@@ -188,22 +208,25 @@ public sealed class QuestDetailPanel
                 ImGui.PopStyleColor();
             }
 
+            StepState state;
             if (i < currentStepIndex)
-                DrawStep(step, StepState.Completed, quest);
+                state = StepState.Completed;
             else if (i == currentStepIndex)
-                DrawStep(step, StepState.Current, quest);
+                state = StepState.Current;
             else
-                DrawStep(step, StepState.Future, quest);
+                state = StepState.Future;
+
+            DrawStep(step, state, quest, visited);
 
             prevOrGroup = step.OrGroup;
         }
-        ImGui.Unindent(Theme.IndentWidth);
-    }
 
+        ImGui.PopID();
+    }
 
     private enum StepState { Completed, Current, Future }
 
-    private void DrawStep(QuestStep step, StepState state, QuestEntry quest)
+    private void DrawStep(QuestStep step, StepState state, QuestEntry quest, HashSet<string> visited)
     {
         uint color = state switch
         {
@@ -244,7 +267,7 @@ public sealed class QuestDetailPanel
         ImGui.PopStyleColor();
 
         // Drop/vendor sources and tips for collect steps
-        DrawStepSources(step, quest);
+        DrawStepSources(step, quest, visited);
 
         // Show alternative zone lines when cross-zone navigating this step
         if (_nav.IsNavigating(quest.DBName, step.Order))
@@ -263,8 +286,7 @@ public sealed class QuestDetailPanel
         bool navigable = true;
         if (step.TargetType == "item")
         {
-            var item = quest.RequiredItems?.Find(ri =>
-                string.Equals(ri.ItemName, step.TargetName, StringComparison.OrdinalIgnoreCase));
+            var item = FindRequiredItem(quest, step);
             navigable = item?.Sources?.Exists(HasNavigableSource) == true;
         }
 
@@ -322,7 +344,7 @@ public sealed class QuestDetailPanel
     /// and counts inline. Sources arrive pre-sorted and pre-aggregated from
     /// the pipeline. Collapses beyond 4 sources behind a TreeNode.
     /// </summary>
-    private void DrawStepSources(QuestStep step, QuestEntry quest)
+    private void DrawStepSources(QuestStep step, QuestEntry quest, HashSet<string> visited)
     {
         if (step.Action is not "collect" and not "read" || step.TargetName == null)
         {
@@ -330,8 +352,7 @@ public sealed class QuestDetailPanel
             return;
         }
 
-        var item = quest.RequiredItems?.Find(ri =>
-            string.Equals(ri.ItemName, step.TargetName, StringComparison.OrdinalIgnoreCase));
+        var item = FindRequiredItem(quest, step);
 
         if (item?.Sources == null || item.Sources.Count == 0)
         {
@@ -346,7 +367,7 @@ public sealed class QuestDetailPanel
         int visible = Math.Min(item.Sources.Count, maxVisible);
 
         for (int i = 0; i < visible; i++)
-            DrawSource(item.Sources[i], quest, step);
+            DrawSource(item.Sources[i], quest, step, visited);
 
         if (item.Sources.Count > maxVisible)
         {
@@ -357,7 +378,7 @@ public sealed class QuestDetailPanel
             if (ImGui.TreeNode($"{remaining} more sources ({range})##{step.Order}"))
             {
                 for (int i = maxVisible; i < item.Sources.Count; i++)
-                    DrawSource(item.Sources[i], quest, step);
+                    DrawSource(item.Sources[i], quest, step, visited);
                 ImGui.TreePop();
             }
         }
@@ -436,9 +457,9 @@ public sealed class QuestDetailPanel
         ImGui.Unindent(Theme.IndentWidth);
     }
 
-    private void DrawSource(ItemSource src, QuestEntry quest, QuestStep step, int depth = 0)
+    private void DrawSource(ItemSource src, QuestEntry quest, QuestStep step, HashSet<string> visited, int depth = 0)
     {
-        // Consistent format: {what}  \u00b7  {where}  \u00b7  Lv {N}
+        // Consistent format: {what}  ·  {where}  ·  Lv {N}
         string what = src.Type switch
         {
             "drop" => $"Drops from: {src.Name}",
@@ -458,13 +479,28 @@ public sealed class QuestDetailPanel
         if (src.Level is int lv)
             label += $"  \u00b7  Lv {lv}";
 
+        // Quest reward with a resolvable sub-quest: render its steps inline
+        if (src.Type == "quest_reward" && src.QuestKey != null)
+        {
+            var subQuest = _data.GetByStableKey(src.QuestKey);
+            if (subQuest?.Steps is { Count: > 0 }
+                && visited.Count <= MaxSubQuestDepth
+                && !visited.Contains(subQuest.StableKey))
+            {
+                DrawQuestRewardTree(src, subQuest, label, step, visited);
+                return;
+            }
+        }
+
+        // Non-quest-reward children (crafting ingredients, or quest_reward
+        // fallback when sub-quest not found / cycle / depth exceeded)
         bool hasChildren = src.Children is { Count: > 0 } && depth < 3;
 
         if (hasChildren)
         {
             if (ImGui.TreeNode($"{label}##src_{step.Order}_{depth}_{src.Type}_{src.Name}"))
             {
-                // Quest reward with a linked quest: show navigable link inside tree
+                // Quest reward fallback: still show "Open quest" link
                 if (src.Type == "quest_reward" && src.QuestKey != null)
                 {
                     var target = _data.GetByStableKey(src.QuestKey);
@@ -473,14 +509,14 @@ public sealed class QuestDetailPanel
                         ImGui.PushStyleColor(ImGuiCol.Text, Theme.QuestActive);
                         if (ImGui.Selectable($"Open quest: {target.DisplayName}##goto_{step.Order}_{src.QuestKey}"))
                         {
-                        _state.SelectQuest(target.DBName);
+                            _state.SelectQuest(target.DBName);
                         }
                         ImGui.PopStyleColor();
                     }
                 }
 
                 foreach (var child in src.Children!)
-                    DrawSource(child, quest, step, depth + 1);
+                    DrawSource(child, quest, step, visited, depth + 1);
                 ImGui.TreePop();
             }
         }
@@ -511,6 +547,47 @@ public sealed class QuestDetailPanel
         {
             ImGui.Text(label);
         }
+    }
+
+    /// <summary>
+    /// Render a quest_reward source as an inline sub-quest tree: the TreeNode
+    /// header shows the source label, and the body contains the sub-quest's
+    /// steps with full treatment (NAV buttons, sources, tips).
+    /// </summary>
+    private void DrawQuestRewardTree(
+        ItemSource src, QuestEntry subQuest, string label, QuestStep parentStep,
+        HashSet<string> visited)
+    {
+        bool isCompleted = _state.IsCompleted(subQuest.DBName);
+        var flags = isCompleted ? ImGuiTreeNodeFlags.None : ImGuiTreeNodeFlags.DefaultOpen;
+
+        if (isCompleted)
+            ImGui.PushStyleColor(ImGuiCol.Text, Theme.QuestCompleted);
+
+        bool open = ImGui.TreeNodeEx(
+            $"{label}##sqt_{parentStep.Order}_{src.QuestKey}",
+            flags);
+
+        if (isCompleted)
+            ImGui.PopStyleColor();
+
+        if (!open)
+            return;
+
+        // "Open quest" link — jump to the full quest detail page
+        ImGui.PushStyleColor(ImGuiCol.Text, Theme.QuestActive);
+        if (ImGui.Selectable($"Open quest: {subQuest.DisplayName}##goto_{parentStep.Order}_{src.QuestKey}"))
+        {
+            _state.SelectQuest(subQuest.DBName);
+        }
+        ImGui.PopStyleColor();
+
+        // Render the sub-quest's steps inline
+        visited.Add(subQuest.StableKey);
+        DrawSteps(subQuest, visited);
+        visited.Remove(subQuest.StableKey);
+
+        ImGui.TreePop();
     }
 
     private void DrawTips(QuestStep step)
@@ -660,6 +737,15 @@ public sealed class QuestDetailPanel
         }
         ImGui.Unindent(Theme.IndentWidth);
     }
+
+    // ── Helpers ──────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Find the RequiredItemInfo matching a collect/read step's target name.
+    /// </summary>
+    private static RequiredItemInfo? FindRequiredItem(QuestEntry quest, QuestStep step) =>
+        quest.RequiredItems?.Find(ri =>
+            string.Equals(ri.ItemName, step.TargetName, StringComparison.OrdinalIgnoreCase));
 
     private static bool HasNavigableSource(ItemSource s) =>
         s.SourceKey != null || (s.Children?.Exists(HasNavigableSource) == true);
