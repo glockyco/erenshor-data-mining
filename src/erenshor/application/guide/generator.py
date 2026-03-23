@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from .schema import GuideOutput, ItemSource
+from .schema import GuideOutput, ItemSource, QuestGuide, QuestStep
 from .serializer import guides_to_json
 
 __all__ = ["generate", "guides_to_json"]
@@ -37,7 +37,7 @@ def generate(db_path: Path) -> GuideOutput:
     )
 
 
-def _sort_item_sources(guides: list) -> None:
+def _sort_item_sources(guides: list[QuestGuide]) -> None:
     """Sort each required item's sources by level ascending (None last).
 
     Called after compute_levels so all source levels are final.
@@ -53,7 +53,7 @@ def _sort_item_sources(guides: list) -> None:
             item.sources.sort(key=_key)
 
 
-def _sort_or_groups(guides: list) -> None:
+def _sort_or_groups(guides: list[QuestGuide]) -> None:
     """Sort steps within each or_group by level (lowest first).
 
     Within a group of consecutive steps sharing the same or_group,
@@ -66,13 +66,13 @@ def _sort_or_groups(guides: list) -> None:
         guide.steps = _sort_steps(guide.steps)
 
 
-def _sort_steps(steps: list) -> list:
+def _sort_steps(steps: list[QuestStep]) -> list[QuestStep]:
     """Collect consecutive or_group runs, sort each by level, reassign order."""
-    result: list = []
-    group: list = []
+    result: list[QuestStep] = []
+    group: list[QuestStep] = []
     group_name: str | None = None
 
-    def _flush(grp: list, out: list) -> None:
+    def _flush(grp: list[QuestStep], out: list[QuestStep]) -> None:
         if grp:
             grp.sort(
                 key=lambda s: (
