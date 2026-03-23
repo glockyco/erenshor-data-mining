@@ -197,6 +197,16 @@ def process_world_tables(raw: sqlite3.Connection, writer: Writer) -> None:
     )
     writer.insert_zone_lines(rows)
 
+    # ZoneLineQuestUnlocks
+    rows = _rows(raw, "SELECT * FROM ZoneLineQuestUnlocks")
+    rows = _rename_cols(rows)
+    writer.insert_zone_line_quest_unlocks(rows)
+
+    # CharacterQuestUnlocks
+    rows = _rows(raw, "SELECT * FROM CharacterQuestUnlocks")
+    rows = _rename_cols(rows)
+    writer.insert_character_quest_unlocks(rows)
+
     # ZoneAtlasEntries + ZoneAtlasNeighbors
     rows = _rows(raw, "SELECT * FROM ZoneAtlasEntries")
     rows = _rename_cols(rows)

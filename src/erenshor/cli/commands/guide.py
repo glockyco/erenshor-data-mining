@@ -75,6 +75,7 @@ def generate(
         "_character_spawns": {k: [asdict(s) for s in v] for k, v in guide_output.character_spawns.items()},
         "_zone_lines": [asdict(zl) for zl in guide_output.zone_lines],
         "_chain_groups": [asdict(cg) for cg in guide_output.chain_groups],
+        "_character_quest_unlocks": guide_output.character_quest_unlocks,
         "quests": merged_quests,
     }
 

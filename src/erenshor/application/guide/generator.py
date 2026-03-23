@@ -30,5 +30,6 @@ def generate(db_path: Path) -> GuideOutput:
         character_spawns=ctx.character_spawns,
         zone_lines=ctx.zone_lines,
         chain_groups=ctx.chain_groups,
+        character_quest_unlocks=ctx.character_quest_unlocks,
         quests=guides,
     )

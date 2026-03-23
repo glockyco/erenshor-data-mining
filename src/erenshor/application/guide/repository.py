@@ -68,6 +68,7 @@ class QuestDataContext:
     reward_items: dict[str, str] = field(default_factory=dict)
     crafting_ingredients: dict[str, list[tuple[str, int]]] = field(default_factory=dict)
     quest_resource_names: dict[str, str] = field(default_factory=dict)  # quest_sk → variant_rn
+    character_quest_unlocks: dict[str, list[list[str]]] = field(default_factory=dict)
 
 
 # ---------------------------------------------------------------------------
@@ -121,6 +122,7 @@ def _load(conn: sqlite3.Connection) -> QuestDataContext:
         item_sources=_build_item_sources(conn, zone_by_display),
         crafting_ingredients=_fetch_crafting_ingredients(conn),
         quest_resource_names={row["stable_key"]: row["resource_name"] for row in quests},
+        character_quest_unlocks=_fetch_character_quest_unlocks(conn),
     )
 
     _resolve_navigable_sources(ctx)
@@ -511,10 +513,11 @@ def _fetch_character_spawns(
 
 
 def _fetch_zone_lines(conn: sqlite3.Connection) -> list[ZoneLine]:
-    """Return all zone transition points with destination display names."""
+    """Return all zone transition points with unlock requirements."""
     rows = conn.execute(
         """
-        SELECT zl.scene, zl.x, zl.y, zl.z,
+        SELECT zl.stable_key, zl.scene, zl.x, zl.y, zl.z,
+               zl.is_enabled,
                zl.destination_zone_stable_key,
                z.display_name AS dest_display,
                zl.landing_position_x, zl.landing_position_y,
@@ -523,20 +526,67 @@ def _fetch_zone_lines(conn: sqlite3.Connection) -> list[ZoneLine]:
         LEFT JOIN zones z ON zl.destination_zone_stable_key = z.stable_key
         """
     ).fetchall()
-    return [
-        ZoneLine(
-            scene=row["scene"],
-            x=row["x"],
-            y=row["y"],
-            z=row["z"],
-            destination_zone_key=row["destination_zone_stable_key"] or "",
-            destination_display=row["dest_display"] or "",
-            landing_x=row["landing_position_x"],
-            landing_y=row["landing_position_y"],
-            landing_z=row["landing_position_z"],
+
+    # Build unlock groups per zone line: {stable_key: [[quest1, quest2], [quest3]]}
+    unlock_rows = conn.execute(
+        """
+        SELECT zone_line_stable_key, unlock_group, quest_db_name
+        FROM zone_line_quest_unlocks
+        ORDER BY zone_line_stable_key, unlock_group
+        """
+    ).fetchall()
+
+    unlock_groups: dict[str, dict[int, list[str]]] = defaultdict(dict)
+    for row in unlock_rows:
+        key = row["zone_line_stable_key"]
+        group = row["unlock_group"]
+        unlock_groups[key].setdefault(group, []).append(row["quest_db_name"])
+
+    result: list[ZoneLine] = []
+    for row in rows:
+        sk = row["stable_key"]
+        groups = unlock_groups.get(sk, {})
+        required = list(groups.values()) if groups else []
+        result.append(
+            ZoneLine(
+                scene=row["scene"],
+                x=row["x"],
+                y=row["y"],
+                z=row["z"],
+                is_enabled=bool(row["is_enabled"]),
+                destination_zone_key=row["destination_zone_stable_key"] or "",
+                destination_display=row["dest_display"] or "",
+                landing_x=row["landing_position_x"],
+                landing_y=row["landing_position_y"],
+                landing_z=row["landing_position_z"],
+                required_quest_groups=required,
+            )
         )
-        for row in rows
-    ]
+    return result
+
+
+def _fetch_character_quest_unlocks(
+    conn: sqlite3.Connection,
+) -> dict[str, list[list[str]]]:
+    """Return character unlock requirements: {char_stable_key: [[quest1], [q2, q3]]}.
+
+    Outer list is OR groups, inner list is AND quests within a group.
+    """
+    rows = conn.execute(
+        """
+        SELECT character_stable_key, unlock_group, quest_db_name
+        FROM character_quest_unlocks
+        ORDER BY character_stable_key, unlock_group
+        """
+    ).fetchall()
+
+    groups_by_char: dict[str, dict[int, list[str]]] = defaultdict(dict)
+    for row in rows:
+        key = row["character_stable_key"]
+        group = row["unlock_group"]
+        groups_by_char[key].setdefault(group, []).append(row["quest_db_name"])
+
+    return {char_key: list(groups.values()) for char_key, groups in groups_by_char.items()}
 
 
 def _fetch_reward_items(conn: sqlite3.Connection) -> dict[str, str]:

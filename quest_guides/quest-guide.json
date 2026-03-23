@@ -52942,1364 +52942,1701 @@
       "x": -92.5,
       "y": 1.7200000286102295,
       "z": -140.1999969482422,
+      "is_enabled": true,
       "destination_zone_key": "zone:bonepits",
       "destination_display": "The Bonepits",
       "landing_x": 69.0,
       "landing_y": 88.0,
-      "landing_z": 175.0
+      "landing_z": 175.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Hidden",
       "x": 282.92999267578125,
       "y": 18.265533447265625,
       "z": -158.8800048828125,
+      "is_enabled": true,
       "destination_zone_key": "zone:duskenlight",
       "destination_display": "The Duskenlight Coast",
       "landing_x": 244.0,
       "landing_y": 50.0,
-      "landing_z": 133.5
+      "landing_z": 133.5,
+      "required_quest_groups": []
     },
     {
       "scene": "Hidden",
       "x": -110.37999725341797,
       "y": 1.7599999904632568,
       "z": 69.28351593017578,
+      "is_enabled": true,
       "destination_zone_key": "zone:brake",
       "destination_display": "Faerie's Brake",
       "landing_x": 76.0,
       "landing_y": 15.0,
-      "landing_z": 180.0
+      "landing_z": 180.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Tutorial",
       "x": 198.30999755859375,
       "y": -10.960000038146973,
       "z": 46.08000183105469,
+      "is_enabled": true,
       "destination_zone_key": "zone:stowaway",
       "destination_display": "Stowaway's Step",
       "landing_x": 418.0,
       "landing_y": 11.5,
-      "landing_z": 308.0
+      "landing_z": 308.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Tutorial",
       "x": -216.3300018310547,
       "y": 14.670000076293945,
       "z": 120.05999755859375,
+      "is_enabled": true,
       "destination_zone_key": "zone:stowaway",
       "destination_display": "Stowaway's Step",
       "landing_x": 784.0,
       "landing_y": 35.0,
-      "landing_z": 650.0
+      "landing_z": 650.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Brake",
       "x": 48.43449401855469,
       "y": 22.010000228881836,
       "z": 184.11447143554688,
+      "is_enabled": true,
       "destination_zone_key": "zone:hidden",
       "destination_display": "Hidden Hills",
       "landing_x": -103.0,
       "landing_y": -1.5,
-      "landing_z": 56.0
+      "landing_z": 56.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Brake",
       "x": 137.50999450683594,
       "y": 25.600000381469727,
       "z": 481.0,
+      "is_enabled": true,
       "destination_zone_key": "zone:fernallafield",
       "destination_display": "Fernalla's Revival Plains",
       "landing_x": 338.0,
       "landing_y": 27.200000762939453,
-      "landing_z": 102.0
+      "landing_z": 102.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Brake",
       "x": 269.94598388671875,
       "y": 28.200000762939453,
       "z": 54.790000915527344,
+      "is_enabled": true,
       "destination_zone_key": "zone:vitheo",
       "destination_display": "Vitheo's Watch",
       "landing_x": 71.0,
       "landing_y": 40.0,
-      "landing_z": 84.0
+      "landing_z": 84.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Brake",
       "x": 451.6622314453125,
       "y": 33.619998931884766,
       "z": 202.56655883789062,
+      "is_enabled": true,
       "destination_zone_key": "zone:azure",
       "destination_display": "Port Azure",
       "landing_x": 82.80000305175781,
       "landing_y": 12.640000343322754,
-      "landing_z": 625.8599853515625
+      "landing_z": 625.8599853515625,
+      "required_quest_groups": []
     },
     {
       "scene": "Bonepits",
       "x": 214.92999267578125,
       "y": 84.75,
       "z": 193.5500030517578,
+      "is_enabled": true,
       "destination_zone_key": "zone:willowwatch",
       "destination_display": "Willowwatch Ridge",
       "landing_x": 179.0,
       "landing_y": 51.099998474121094,
-      "landing_z": 770.0
+      "landing_z": 770.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Bonepits",
       "x": 71.13182830810547,
       "y": 94.74354553222656,
       "z": 163.5,
+      "is_enabled": true,
       "destination_zone_key": "zone:hidden",
       "destination_display": "Hidden Hills",
       "landing_x": -86.0,
       "landing_y": 0.0,
-      "landing_z": -130.0
+      "landing_z": -130.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Vitheo",
       "x": 51.1884880065918,
       "y": 44.15999984741211,
       "z": 73.3200454711914,
+      "is_enabled": true,
       "destination_zone_key": "zone:brake",
       "destination_display": "Faerie's Brake",
       "landing_x": 268.0,
       "landing_y": 21.0,
-      "landing_z": 87.0
+      "landing_z": 87.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Vitheo",
       "x": 247.4499969482422,
       "y": 38.29999923706055,
       "z": 49.849998474121094,
+      "is_enabled": true,
       "destination_zone_key": "zone:krakengard",
       "destination_display": "Old Krakengard",
       "landing_x": 387.0,
       "landing_y": 0.20000000298023224,
-      "landing_z": 122.80000305175781
+      "landing_z": 122.80000305175781,
+      "required_quest_groups": []
     },
     {
       "scene": "Krakengard",
       "x": 373.239990234375,
       "y": 5.320000171661377,
       "z": 111.049072265625,
+      "is_enabled": true,
       "destination_zone_key": "zone:vitheo",
       "destination_display": "Vitheo's Watch",
       "landing_x": 263.0,
       "landing_y": 30.5,
-      "landing_z": 53.0
+      "landing_z": 53.0,
+      "required_quest_groups": []
     },
     {
       "scene": "FernallaField",
       "x": 50.650001525878906,
       "y": 10.260000228881836,
       "z": 261.69000244140625,
+      "is_enabled": true,
       "destination_zone_key": "zone:underspine",
       "destination_display": "Underspine Hollow",
       "landing_x": 464.0,
       "landing_y": 86.19999694824219,
-      "landing_z": 36.0
+      "landing_z": 36.0,
+      "required_quest_groups": []
     },
     {
       "scene": "FernallaField",
       "x": 444.9599304199219,
       "y": 35.24995803833008,
       "z": 420.1820068359375,
+      "is_enabled": true,
       "destination_zone_key": "zone:bloomingsepulcher",
       "destination_display": "Blooming Sepulcher",
       "landing_x": 123.0,
       "landing_y": 375.5,
-      "landing_z": 856.0
+      "landing_z": 856.0,
+      "required_quest_groups": []
     },
     {
       "scene": "FernallaField",
       "x": 413.29998779296875,
       "y": 33.29999923706055,
       "z": 66.30000305175781,
+      "is_enabled": true,
       "destination_zone_key": "zone:brake",
       "destination_display": "Faerie's Brake",
       "landing_x": 161.0,
       "landing_y": 16.0,
-      "landing_z": 470.0
+      "landing_z": 470.0,
+      "required_quest_groups": []
     },
     {
       "scene": "FernallaField",
       "x": 1300.9000244140625,
       "y": 9.619999885559082,
       "z": 1442.9300537109375,
+      "is_enabled": true,
       "destination_zone_key": "zone:rottenfoot",
       "destination_display": "Rottenfoot",
       "landing_x": 38.45000076293945,
       "landing_y": 25.0,
-      "landing_z": 421.0
+      "landing_z": 421.0,
+      "required_quest_groups": []
     },
     {
       "scene": "FernallaField",
       "x": 129.18890380859375,
       "y": 36.60000228881836,
       "z": 425.7099914550781,
+      "is_enabled": false,
       "destination_zone_key": "zone:fernallaportal",
       "destination_display": "Mysterious Portal (2)",
       "landing_x": 35.0,
       "landing_y": 4.599999904632568,
-      "landing_z": 503.0
+      "landing_z": 503.0,
+      "required_quest_groups": [
+        [
+          "TheRevivalRitual"
+        ]
+      ]
     },
     {
       "scene": "FernallaField",
       "x": 252.70303344726562,
       "y": 47.130001068115234,
       "z": 72.57929992675781,
+      "is_enabled": true,
       "destination_zone_key": "zone:willowwatch",
       "destination_display": "Willowwatch Ridge",
       "landing_x": 746.5,
       "landing_y": 50.0,
-      "landing_z": 297.0
+      "landing_z": 297.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Stowaway",
       "x": 424.0400085449219,
       "y": 10.789999961853027,
       "z": 820.4199829101562,
+      "is_enabled": false,
       "destination_zone_key": "zone:hidden",
       "destination_display": "Hidden Hills",
       "landing_x": 86.0,
       "landing_y": 3.0,
-      "landing_z": 66.0
+      "landing_z": 66.0,
+      "required_quest_groups": [
+        [
+          "Wyland's Note"
+        ],
+        [
+          "A Way To Erenshor"
+        ]
+      ]
     },
     {
       "scene": "Stowaway",
       "x": 808.0800170898438,
       "y": 14.07699966430664,
       "z": 592.6439819335938,
+      "is_enabled": true,
       "destination_zone_key": "zone:tutorial",
       "destination_display": "Island Tomb",
       "landing_x": -75.4000015258789,
       "landing_y": 36.5,
-      "landing_z": 151.0
+      "landing_z": 151.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Stowaway",
       "x": 592.393798828125,
       "y": 41.07400131225586,
       "z": 672.77490234375,
+      "is_enabled": true,
       "destination_zone_key": "zone:shiveringstep",
       "destination_display": "Shivering Step",
       "landing_x": 591.0,
       "landing_y": 39.79999923706055,
-      "landing_z": 662.0
+      "landing_z": 662.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Stowaway",
       "x": 425.154296875,
       "y": 71.7300033569336,
       "z": 532.22998046875,
+      "is_enabled": false,
       "destination_zone_key": "zone:stowawayportal",
       "destination_display": "Secluded Sanctuary",
       "landing_x": -77.0,
       "landing_y": 0.6000000238418579,
-      "landing_z": 27.0
+      "landing_z": 27.0,
+      "required_quest_groups": [
+        [
+          "StowawayRitualComplete"
+        ]
+      ]
     },
     {
       "scene": "Stowaway",
       "x": 809.719970703125,
       "y": 19.360000610351562,
       "z": 645.260009765625,
+      "is_enabled": true,
       "destination_zone_key": "zone:tutorial",
       "destination_display": "Island Tomb",
       "landing_x": -217.0,
       "landing_y": 7.5,
-      "landing_z": 98.0
+      "landing_z": 98.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Stowaway",
       "x": 407.54998779296875,
       "y": 10.199999809265137,
       "z": 312.4700012207031,
+      "is_enabled": true,
       "destination_zone_key": "zone:tutorial",
       "destination_display": "Island Tomb",
       "landing_x": 189.0,
       "landing_y": -13.0,
-      "landing_z": 44.0
+      "landing_z": 44.0,
+      "required_quest_groups": []
     },
     {
       "scene": "SaltedStrand",
       "x": 61.56494140625,
       "y": 12.865043640136719,
       "z": 192.0662078857422,
+      "is_enabled": false,
       "destination_zone_key": "zone:stowaway",
       "destination_display": "Stowaway's Step",
       "landing_x": 433.6000061035156,
       "landing_y": 14.5,
-      "landing_z": 291.0
+      "landing_z": 291.0,
+      "required_quest_groups": [
+        [
+          "MEETBASSLE"
+        ],
+        [
+          "ANGLERRING"
+        ]
+      ]
     },
     {
       "scene": "SaltedStrand",
       "x": 45.91999816894531,
       "y": 25.149999618530273,
       "z": 586.0999755859375,
+      "is_enabled": true,
       "destination_zone_key": "zone:azure",
       "destination_display": "Port Azure",
       "landing_x": 417.0,
       "landing_y": 20.0,
-      "landing_z": 40.0
+      "landing_z": 40.0,
+      "required_quest_groups": []
     },
     {
       "scene": "SaltedStrand",
       "x": 264.6328430175781,
       "y": 64.30999755859375,
       "z": 772.4541625976562,
+      "is_enabled": true,
       "destination_zone_key": "zone:elderstone",
       "destination_display": "The Elderstone Mines",
       "landing_x": 171.0,
       "landing_y": 3.5,
-      "landing_z": 512.0
+      "landing_z": 512.0,
+      "required_quest_groups": []
     },
     {
       "scene": "SaltedStrand",
       "x": 706.015625,
       "y": 38.99028015136719,
       "z": 621.1144409179688,
+      "is_enabled": true,
       "destination_zone_key": "zone:braxonian",
       "destination_display": "Braxonian Desert",
       "landing_x": 34.0,
       "landing_y": 16.600000381469727,
-      "landing_z": 523.0
+      "landing_z": 523.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Elderstone",
       "x": 235.19000244140625,
       "y": 3.769318103790283,
       "z": 486.32000732421875,
+      "is_enabled": true,
       "destination_zone_key": "zone:saltedstrand",
       "destination_display": "Blacksalt Strand",
       "landing_x": 295.0,
       "landing_y": 51.0,
-      "landing_z": 736.0
+      "landing_z": 736.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Elderstone",
       "x": -593.77001953125,
       "y": -114.06999969482422,
       "z": 1204.1400146484375,
+      "is_enabled": true,
       "destination_zone_key": "zone:rottenfoot",
       "destination_display": "Rottenfoot",
       "landing_x": 821.0,
       "landing_y": 30.399999618530273,
-      "landing_z": 75.69999694824219
+      "landing_z": 75.69999694824219,
+      "required_quest_groups": []
     },
     {
       "scene": "Azure",
       "x": 28.88966941833496,
       "y": 18.3700008392334,
       "z": 250.47085571289062,
+      "is_enabled": false,
       "destination_zone_key": "zone:summerevent",
       "destination_display": "Bellwain Island",
       "landing_x": 80.0,
       "landing_y": -3.799999952316284,
-      "landing_z": 9.579999923706055
+      "landing_z": 9.579999923706055,
+      "required_quest_groups": [
+        [
+          "LUNCHBAG2"
+        ]
+      ]
     },
     {
       "scene": "Azure",
       "x": 34.86000061035156,
       "y": 13.710000038146973,
       "z": 315.2699890136719,
+      "is_enabled": true,
       "destination_zone_key": "zone:vitheosend",
       "destination_display": "Vitheo's Rest",
       "landing_x": 168.0,
       "landing_y": 25.5,
-      "landing_z": 526.0
+      "landing_z": 526.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Azure",
       "x": 207.38999938964844,
       "y": 14.949999809265137,
       "z": 333.5199890136719,
+      "is_enabled": true,
       "destination_zone_key": "zone:vitheosend",
       "destination_display": "Vitheo's Rest",
       "landing_x": 168.0,
       "landing_y": 11.0,
-      "landing_z": 322.0
+      "landing_z": 322.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Azure",
       "x": 439.71026611328125,
       "y": 24.989999771118164,
       "z": 11.099491119384766,
+      "is_enabled": true,
       "destination_zone_key": "zone:saltedstrand",
       "destination_display": "Blacksalt Strand",
       "landing_x": 47.0,
       "landing_y": 15.0,
-      "landing_z": 555.0
+      "landing_z": 555.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Azure",
       "x": 330.8999938964844,
       "y": 14.899999618530273,
       "z": 377.3800048828125,
+      "is_enabled": true,
       "destination_zone_key": "zone:undercity",
       "destination_display": "Lost Cellar",
       "landing_x": 59.0,
       "landing_y": 150.0,
-      "landing_z": 59.0
+      "landing_z": 59.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Azure",
       "x": 343.2300109863281,
       "y": 19.469999313354492,
       "z": 151.0,
+      "is_enabled": true,
       "destination_zone_key": "zone:reliquary",
       "destination_display": "Reliquary Hall",
       "landing_x": 275.0,
       "landing_y": 0.30000001192092896,
-      "landing_z": 368.0
+      "landing_z": 368.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Azure",
       "x": 70.33000183105469,
       "y": 18.799999237060547,
       "z": 642.4500122070312,
+      "is_enabled": true,
       "destination_zone_key": "zone:brake",
       "destination_display": "Faerie's Brake",
       "landing_x": 439.1000061035156,
       "landing_y": 24.469900131225586,
-      "landing_z": 199.1699981689453
+      "landing_z": 199.1699981689453,
+      "required_quest_groups": []
     },
     {
       "scene": "Rottenfoot",
       "x": 781.2186279296875,
       "y": 39.9900016784668,
       "z": 902.8587646484375,
+      "is_enabled": true,
       "destination_zone_key": "zone:silkengrass",
       "destination_display": "Silkengrass Meadowlands",
       "landing_x": 208.0,
       "landing_y": 5.0,
-      "landing_z": 109.0
+      "landing_z": 109.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Rottenfoot",
       "x": 850.1099853515625,
       "y": 38.36000061035156,
       "z": 80.29000091552734,
+      "is_enabled": true,
       "destination_zone_key": "zone:elderstone",
       "destination_display": "The Elderstone Mines",
       "landing_x": -572.0,
       "landing_y": -134.0,
-      "landing_z": 1211.0
+      "landing_z": 1211.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Rottenfoot",
       "x": 34.869998931884766,
       "y": 34.459999084472656,
       "z": 410.4110107421875,
+      "is_enabled": true,
       "destination_zone_key": "zone:fernallafield",
       "destination_display": "Fernalla's Revival Plains",
       "landing_x": 1289.0,
       "landing_y": 2.799999952316284,
-      "landing_z": 1436.0
+      "landing_z": 1436.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Braxonian",
       "x": 537.239990234375,
       "y": 18.899999618530273,
       "z": 1451.3548583984375,
+      "is_enabled": true,
       "destination_zone_key": "zone:silkengrass",
       "destination_display": "Silkengrass Meadowlands",
       "landing_x": 938.0,
       "landing_y": 29.0,
-      "landing_z": 67.0
+      "landing_z": 67.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Braxonian",
       "x": 1120.22998046875,
       "y": 92.98973083496094,
       "z": 568.02001953125,
+      "is_enabled": true,
       "destination_zone_key": "zone:braxonia",
       "destination_display": "Fallen Braxonia",
       "landing_x": 560.0,
       "landing_y": 73.4000015258789,
-      "landing_z": 567.0
+      "landing_z": 567.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Braxonian",
       "x": 680.5131225585938,
       "y": 45.099998474121094,
       "z": 76.59588623046875,
+      "is_enabled": true,
       "destination_zone_key": "zone:blight",
       "destination_display": "The Blight",
       "landing_x": 774.0,
       "landing_y": 31.0,
-      "landing_z": 656.0
+      "landing_z": 656.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Braxonian",
       "x": 21.459999084472656,
       "y": 26.3799991607666,
       "z": 536.219970703125,
+      "is_enabled": true,
       "destination_zone_key": "zone:saltedstrand",
       "destination_display": "Blacksalt Strand",
       "landing_x": 678.0,
       "landing_y": 29.700000762939453,
-      "landing_z": 628.0
+      "landing_z": 628.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Silkengrass",
       "x": 162.96243286132812,
       "y": 17.499080657958984,
       "z": 99.19397735595703,
+      "is_enabled": true,
       "destination_zone_key": "zone:rottenfoot",
       "destination_display": "Rottenfoot",
       "landing_x": 759.0,
       "landing_y": 25.0,
-      "landing_z": 902.0
+      "landing_z": 902.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Silkengrass",
       "x": 925.0296630859375,
       "y": 43.90999984741211,
       "z": 31.142898559570312,
+      "is_enabled": true,
       "destination_zone_key": "zone:braxonian",
       "destination_display": "Braxonian Desert",
       "landing_x": 510.0,
       "landing_y": 10.5,
-      "landing_z": 1405.0
+      "landing_z": 1405.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Silkengrass",
       "x": 616.7251586914062,
       "y": 97.50274658203125,
       "z": 1396.280517578125,
+      "is_enabled": true,
       "destination_zone_key": "zone:loomingwood",
       "destination_display": "Loomingwood Forest",
       "landing_x": 482.0,
       "landing_y": 27.0,
-      "landing_z": 900.7999877929688
+      "landing_z": 900.7999877929688,
+      "required_quest_groups": []
     },
     {
       "scene": "Silkengrass",
       "x": 1240.57861328125,
       "y": 39.465919494628906,
       "z": 388.58160400390625,
+      "is_enabled": true,
       "destination_zone_key": "zone:abyssal",
       "destination_display": "Abyssal Lake",
       "landing_x": 564.0,
       "landing_y": 56.0,
-      "landing_z": 131.5
+      "landing_z": 131.5,
+      "required_quest_groups": []
     },
     {
       "scene": "Silkengrass",
       "x": 299.29998779296875,
       "y": 85.17174530029297,
       "z": 1220.199951171875,
+      "is_enabled": true,
       "destination_zone_key": "zone:windwashed",
       "destination_display": "Windwashed Pass",
       "landing_x": 1143.0,
       "landing_y": 91.0,
-      "landing_z": 253.0
+      "landing_z": 253.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Underspine",
       "x": 220.52000427246094,
       "y": 94.3499984741211,
       "z": 12.470000267028809,
+      "is_enabled": true,
       "destination_zone_key": "zone:willowwatch",
       "destination_display": "Willowwatch Ridge",
       "landing_x": 896.4000244140625,
       "landing_y": 22.600000381469727,
-      "landing_z": 597.5
+      "landing_z": 597.5,
+      "required_quest_groups": []
     },
     {
       "scene": "Underspine",
       "x": 448.5,
       "y": 85.00275421142578,
       "z": 15.229999542236328,
+      "is_enabled": true,
       "destination_zone_key": "zone:fernallafield",
       "destination_display": "Fernalla's Revival Plains",
       "landing_x": 71.4000015258789,
       "landing_y": 10.100000381469727,
-      "landing_z": 256.5
+      "landing_z": 256.5,
+      "required_quest_groups": []
     },
     {
       "scene": "Loomingwood",
       "x": 932.97998046875,
       "y": 36.25,
       "z": 838.1348876953125,
+      "is_enabled": true,
       "destination_zone_key": "zone:malaroth",
       "destination_display": "Malaroth's Nesting Grounds",
       "landing_x": 155.0,
       "landing_y": 30.0,
-      "landing_z": 493.0
+      "landing_z": 493.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Loomingwood",
       "x": 590.1564331054688,
       "y": 38.4900016784668,
       "z": 141.10452270507812,
+      "is_enabled": true,
       "destination_zone_key": "zone:soluna",
       "destination_display": "Soluna's Landing",
       "landing_x": 933.0,
       "landing_y": 100.0,
-      "landing_z": 304.0
+      "landing_z": 304.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Loomingwood",
       "x": 477.3800048828125,
       "y": 31.600000381469727,
       "z": 929.5,
+      "is_enabled": true,
       "destination_zone_key": "zone:silkengrass",
       "destination_display": "Silkengrass Meadowlands",
       "landing_x": 623.0,
       "landing_y": 86.80000305175781,
-      "landing_z": 1373.0
+      "landing_z": 1373.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Loomingwood",
       "x": 141.43702697753906,
       "y": 38.50257110595703,
       "z": 315.6478271484375,
+      "is_enabled": true,
       "destination_zone_key": "zone:ripper",
       "destination_display": "Ripper's Keep",
       "landing_x": 526.0,
       "landing_y": 35.5,
-      "landing_z": 64.5
+      "landing_z": 64.5,
+      "required_quest_groups": []
     },
     {
       "scene": "Duskenlight",
       "x": 1640.199951171875,
       "y": 67.16632843017578,
       "z": 775.2000122070312,
+      "is_enabled": true,
       "destination_zone_key": "zone:windwashed",
       "destination_display": "Windwashed Pass",
       "landing_x": 362.6000061035156,
       "landing_y": 50.0,
-      "landing_z": 77.0
+      "landing_z": 77.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Duskenlight",
       "x": 223.3740234375,
       "y": 61.400001525878906,
       "z": 117.58148956298828,
+      "is_enabled": true,
       "destination_zone_key": "zone:hidden",
       "destination_display": "Hidden Hills",
       "landing_x": 260.0,
       "landing_y": 9.800000190734863,
-      "landing_z": -147.0
+      "landing_z": -147.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Duskenlight",
       "x": 478.8500061035156,
       "y": 70.05000305175781,
       "z": 404.29998779296875,
+      "is_enabled": false,
       "destination_zone_key": "zone:duskenportal",
       "destination_display": "Mysterious Portal (1)",
       "landing_x": 73.0,
       "landing_y": 6.699999809265137,
-      "landing_z": 200.0
+      "landing_z": 200.0,
+      "required_quest_groups": [
+        [
+          "TheDuskenlightRitual"
+        ]
+      ]
     },
     {
       "scene": "Duskenlight",
       "x": 989.4000244140625,
       "y": 148.66893005371094,
       "z": 53.900001525878906,
+      "is_enabled": true,
       "destination_zone_key": "zone:jaws",
       "destination_display": "Jaws of Sivakaya",
       "landing_x": 1150.0,
       "landing_y": 0.8799999952316284,
-      "landing_z": 250.0
+      "landing_z": 250.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Windwashed",
       "x": 950.894775390625,
       "y": 72.92306518554688,
       "z": 649.093017578125,
+      "is_enabled": true,
       "destination_zone_key": "zone:rockshade",
       "destination_display": "Rockshade Hold",
       "landing_x": 980.0,
       "landing_y": 100.0,
-      "landing_z": 668.0
+      "landing_z": 668.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Windwashed",
       "x": 515.4259643554688,
       "y": 37.29999923706055,
       "z": 784.279296875,
+      "is_enabled": true,
       "destination_zone_key": "zone:malaroth",
       "destination_display": "Malaroth's Nesting Grounds",
       "landing_x": 961.0,
       "landing_y": 25.5,
-      "landing_z": 817.0
+      "landing_z": 817.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Windwashed",
       "x": 399.37078857421875,
       "y": 72.72000122070312,
       "z": 43.25169372558594,
+      "is_enabled": true,
       "destination_zone_key": "zone:duskenlight",
       "destination_display": "The Duskenlight Coast",
       "landing_x": 1595.0,
       "landing_y": 66.0,
-      "landing_z": 821.0
+      "landing_z": 821.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Windwashed",
       "x": 1169.28515625,
       "y": 100.1500015258789,
       "z": 236.21958923339844,
+      "is_enabled": true,
       "destination_zone_key": "zone:silkengrass",
       "destination_display": "Silkengrass Meadowlands",
       "landing_x": 325.0,
       "landing_y": 72.0,
-      "landing_z": 1229.0
+      "landing_z": 1229.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Windwashed",
       "x": 885.3599853515625,
       "y": 101.55999755859375,
       "z": 193.60000610351562,
+      "is_enabled": true,
       "destination_zone_key": "zone:prielplateau",
       "destination_display": "Prielian Cascade",
       "landing_x": 109.0,
       "landing_y": 1.899999976158142,
-      "landing_z": 227.0
+      "landing_z": 227.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Blight",
       "x": 120.6500015258789,
       "y": 31.861427307128906,
       "z": 455.92999267578125,
+      "is_enabled": false,
       "destination_zone_key": "zone:azynthiclear",
       "destination_display": "Azynthi's Garden",
       "landing_x": 320.0,
       "landing_y": 15.0,
-      "landing_z": 746.0
+      "landing_z": 746.0,
+      "required_quest_groups": [
+        [
+          "Boatman"
+        ]
+      ]
     },
     {
       "scene": "Blight",
       "x": 783.52001953125,
       "y": 41.84000015258789,
       "z": 690.4600219726562,
+      "is_enabled": true,
       "destination_zone_key": "zone:braxonian",
       "destination_display": "Braxonian Desert",
       "landing_x": 703.0,
       "landing_y": 34.0,
-      "landing_z": 94.69999694824219
+      "landing_z": 94.69999694824219,
+      "required_quest_groups": []
     },
     {
       "scene": "Malaroth",
       "x": 127.83999633789062,
       "y": 34.400001525878906,
       "z": 474.5299987792969,
+      "is_enabled": true,
       "destination_zone_key": "zone:loomingwood",
       "destination_display": "Loomingwood Forest",
       "landing_x": 921.0,
       "landing_y": 26.0,
-      "landing_z": 816.0
+      "landing_z": 816.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Malaroth",
       "x": 749.2047119140625,
       "y": 106.9800033569336,
       "z": 67.99555969238281,
+      "is_enabled": true,
       "destination_zone_key": "zone:soluna",
       "destination_display": "Soluna's Landing",
       "landing_x": 800.0,
       "landing_y": 100.5,
-      "landing_z": 49.70000076293945
+      "landing_z": 49.70000076293945,
+      "required_quest_groups": []
     },
     {
       "scene": "Malaroth",
       "x": 963.7353515625,
       "y": 43.0,
       "z": 853.5870971679688,
+      "is_enabled": true,
       "destination_zone_key": "zone:windwashed",
       "destination_display": "Windwashed Pass",
       "landing_x": 488.0,
       "landing_y": 30.0,
-      "landing_z": 770.0
+      "landing_z": 770.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Braxonia",
       "x": 563.1610107421875,
       "y": 83.08999633789062,
       "z": 550.8699951171875,
+      "is_enabled": true,
       "destination_zone_key": "zone:braxonian",
       "destination_display": "Braxonian Desert",
       "landing_x": 1081.0,
       "landing_y": 80.5999984741211,
-      "landing_z": 574.0
+      "landing_z": 574.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Soluna",
       "x": 976.6500244140625,
       "y": 111.9000015258789,
       "z": 326.79486083984375,
+      "is_enabled": true,
       "destination_zone_key": "zone:loomingwood",
       "destination_display": "Loomingwood Forest",
       "landing_x": 574.0,
       "landing_y": 27.0,
-      "landing_z": 172.0
+      "landing_z": 172.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Soluna",
       "x": 148.6999969482422,
       "y": 112.49998474121094,
       "z": 842.2999877929688,
+      "is_enabled": false,
       "destination_zone_key": "zone:testscene",
       "destination_display": "",
       "landing_x": 0.0,
       "landing_y": 0.0,
-      "landing_z": 0.0
+      "landing_z": 0.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Soluna",
       "x": 832.3900146484375,
       "y": 112.49998474121094,
       "z": 30.639999389648438,
+      "is_enabled": true,
       "destination_zone_key": "zone:malaroth",
       "destination_display": "Malaroth's Nesting Grounds",
       "landing_x": 687.0,
       "landing_y": 92.0,
-      "landing_z": 85.0
+      "landing_z": 85.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Ripper",
       "x": 122.95480346679688,
       "y": 66.71900177001953,
       "z": 287.3379211425781,
+      "is_enabled": false,
       "destination_zone_key": "zone:ripperportal",
       "destination_display": "Mysterious Portal (3)",
       "landing_x": 102.0,
       "landing_y": 0.0,
-      "landing_z": 432.0
+      "landing_z": 432.0,
+      "required_quest_groups": [
+        [
+          "TheRipperRitual"
+        ]
+      ]
     },
     {
       "scene": "Ripper",
       "x": 960.25,
       "y": 47.493568420410156,
       "z": 684.77001953125,
+      "is_enabled": true,
       "destination_zone_key": "zone:abyssal",
       "destination_display": "Abyssal Lake",
       "landing_x": 51.0,
       "landing_y": 90.0,
-      "landing_z": 21.0
+      "landing_z": 21.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Ripper",
       "x": 487.89556884765625,
       "y": 47.91595458984375,
       "z": 46.53670883178711,
+      "is_enabled": true,
       "destination_zone_key": "zone:loomingwood",
       "destination_display": "Loomingwood Forest",
       "landing_x": 162.0,
       "landing_y": 26.5,
-      "landing_z": 344.0
+      "landing_z": 344.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Abyssal",
       "x": 70.19999694824219,
       "y": 90.0018310546875,
       "z": 23.549999237060547,
+      "is_enabled": true,
       "destination_zone_key": "zone:ripper",
       "destination_display": "Ripper's Keep",
       "landing_x": 962.0,
       "landing_y": 36.5,
-      "landing_z": 653.0
+      "landing_z": 653.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Abyssal",
       "x": 585.8721923828125,
       "y": 58.04999923706055,
       "z": 151.87930297851562,
+      "is_enabled": true,
       "destination_zone_key": "zone:silkengrass",
       "destination_display": "Silkengrass Meadowlands",
       "landing_x": 1231.0,
       "landing_y": 40.5,
-      "landing_z": 379.0
+      "landing_z": 379.0,
+      "required_quest_groups": []
     },
     {
       "scene": "VitheosEnd",
       "x": 273.92999267578125,
       "y": 13.520000457763672,
       "z": 322.7300109863281,
+      "is_enabled": false,
       "destination_zone_key": "zone:bloomingsepulcher",
       "destination_display": "Blooming Sepulcher",
       "landing_x": 239.8000030517578,
       "landing_y": 371.75,
-      "landing_z": 827.0
+      "landing_z": 827.0,
+      "required_quest_groups": [
+        [
+          "PORTALTOVITHEOSREST"
+        ]
+      ]
     },
     {
       "scene": "VitheosEnd",
       "x": 174.44000244140625,
       "y": 37.420005798339844,
       "z": 543.5599975585938,
+      "is_enabled": true,
       "destination_zone_key": "zone:azure",
       "destination_display": "Port Azure",
       "landing_x": 40.0,
       "landing_y": 27.5,
-      "landing_z": 331.0
+      "landing_z": 331.0,
+      "required_quest_groups": []
     },
     {
       "scene": "VitheosEnd",
       "x": 152.22999572753906,
       "y": 22.51618194580078,
       "z": 322.8500061035156,
+      "is_enabled": true,
       "destination_zone_key": "zone:azure",
       "destination_display": "Port Azure",
       "landing_x": 188.0,
       "landing_y": 12.0,
-      "landing_z": 336.0
+      "landing_z": 336.0,
+      "required_quest_groups": []
     },
     {
       "scene": "VitheosEnd",
       "x": 272.8399963378906,
       "y": 13.520000457763672,
       "z": 322.7300109863281,
+      "is_enabled": false,
       "destination_zone_key": "zone:bloomingsepulcher",
       "destination_display": "Blooming Sepulcher",
       "landing_x": 239.8000030517578,
       "landing_y": 371.75,
-      "landing_z": 827.0
+      "landing_z": 827.0,
+      "required_quest_groups": [
+        [
+          "PORTALTOVITHEOSREST"
+        ]
+      ]
     },
     {
       "scene": "AzynthiClear",
       "x": 310.70001220703125,
       "y": 14.603649139404297,
       "z": 754.010009765625,
+      "is_enabled": true,
       "destination_zone_key": "zone:blight",
       "destination_display": "The Blight",
       "landing_x": 128.0,
       "landing_y": 31.5,
-      "landing_z": 457.0
+      "landing_z": 457.0,
+      "required_quest_groups": []
     },
     {
       "scene": "DuskenPortal",
       "x": 63.56999969482422,
       "y": 10.3100004196167,
       "z": 200.22000122070312,
+      "is_enabled": true,
       "destination_zone_key": "zone:duskenlight",
       "destination_display": "The Duskenlight Coast",
       "landing_x": 490.0,
       "landing_y": 65.5999984741211,
-      "landing_z": 392.0
+      "landing_z": 392.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Rockshade",
       "x": 989.489990234375,
       "y": 104.1500015258789,
       "z": 689.7366333007812,
+      "is_enabled": true,
       "destination_zone_key": "zone:windwashed",
       "destination_display": "Windwashed Pass",
       "landing_x": 950.0,
       "landing_y": 73.0,
-      "landing_z": 628.0
+      "landing_z": 628.0,
+      "required_quest_groups": []
     },
     {
       "scene": "ShiveringStep",
       "x": 424.0400085449219,
       "y": 10.789999961853027,
       "z": 820.4199829101562,
+      "is_enabled": false,
       "destination_zone_key": "zone:hidden",
       "destination_display": "Hidden Hills",
       "landing_x": 86.0,
       "landing_y": 3.0,
-      "landing_z": 66.0
+      "landing_z": 66.0,
+      "required_quest_groups": [
+        [
+          "A Way To Erenshor"
+        ]
+      ]
     },
     {
       "scene": "ShiveringStep",
       "x": 808.0800170898438,
       "y": 14.07699966430664,
       "z": 592.6439819335938,
+      "is_enabled": true,
       "destination_zone_key": "zone:tutorial",
       "destination_display": "Island Tomb",
       "landing_x": 80.0,
       "landing_y": 25.0,
-      "landing_z": 104.0
+      "landing_z": 104.0,
+      "required_quest_groups": []
     },
     {
       "scene": "ShiveringStep",
       "x": 809.719970703125,
       "y": 19.360000610351562,
       "z": 645.260009765625,
+      "is_enabled": false,
       "destination_zone_key": "zone:tutorial",
       "destination_display": "Island Tomb",
       "landing_x": 49.0,
       "landing_y": 9.199999809265137,
-      "landing_z": 177.0
+      "landing_z": 177.0,
+      "required_quest_groups": []
     },
     {
       "scene": "ShiveringStep",
       "x": 809.719970703125,
       "y": 19.360000610351562,
       "z": 645.260009765625,
+      "is_enabled": true,
       "destination_zone_key": "zone:shiveringtomb2",
       "destination_display": "Shivering Tomb (2)",
       "landing_x": -217.0,
       "landing_y": 7.5,
-      "landing_z": 98.0
+      "landing_z": 98.0,
+      "required_quest_groups": []
     },
     {
       "scene": "ShiveringStep",
       "x": 592.4500122070312,
       "y": 37.220001220703125,
       "z": 671.8900146484375,
+      "is_enabled": true,
       "destination_zone_key": "zone:stowaway",
       "destination_display": "Stowaway's Step",
       "landing_x": 591.0,
       "landing_y": 39.70000076293945,
-      "landing_z": 662.0
+      "landing_z": 662.0,
+      "required_quest_groups": []
     },
     {
       "scene": "ShiveringStep",
       "x": 431.94000244140625,
       "y": -5.019999980926514,
       "z": 286.8699951171875,
+      "is_enabled": true,
       "destination_zone_key": "zone:shiveringtomb",
       "destination_display": "Shivering Tomb (1)",
       "landing_x": 190.0,
       "landing_y": -13.0,
-      "landing_z": 44.400001525878906
+      "landing_z": 44.400001525878906,
+      "required_quest_groups": []
     },
     {
       "scene": "ShiveringTomb",
       "x": 199.42404174804688,
       "y": -10.960000038146973,
       "z": 48.81476974487305,
+      "is_enabled": true,
       "destination_zone_key": "zone:shiveringstep",
       "destination_display": "Shivering Step",
       "landing_x": 435.0,
       "landing_y": 14.199999809265137,
-      "landing_z": 303.0
+      "landing_z": 303.0,
+      "required_quest_groups": []
     },
     {
       "scene": "ShiveringTomb",
       "x": 48.900001525878906,
       "y": 8.260000228881836,
       "z": 188.47000122070312,
+      "is_enabled": true,
       "destination_zone_key": "zone:stowaway",
       "destination_display": "Stowaway's Step",
       "landing_x": 788.0,
       "landing_y": 35.0,
-      "landing_z": 650.0
+      "landing_z": 650.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Undercity",
       "x": 55.20305633544922,
       "y": 160.6699981689453,
       "z": 42.32990646362305,
+      "is_enabled": true,
       "destination_zone_key": "zone:azure",
       "destination_display": "Port Azure",
       "landing_x": 318.0,
       "landing_y": 21.0,
-      "landing_z": 387.0
+      "landing_z": 387.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Jaws",
       "x": 1132.9200439453125,
       "y": 3.740000009536743,
       "z": 250.2785186767578,
+      "is_enabled": true,
       "destination_zone_key": "zone:duskenlight",
       "destination_display": "The Duskenlight Coast",
       "landing_x": 1001.7000122070312,
       "landing_y": 149.0,
-      "landing_z": 78.0
+      "landing_z": 78.0,
+      "required_quest_groups": []
     },
     {
       "scene": "FernallaPortal",
       "x": 14.430000305175781,
       "y": 10.3100004196167,
       "z": 500.69000244140625,
+      "is_enabled": true,
       "destination_zone_key": "zone:fernallafield",
       "destination_display": "Fernalla's Revival Plains",
       "landing_x": 112.0,
       "landing_y": 32.29999923706055,
-      "landing_z": 421.79998779296875
+      "landing_z": 421.79998779296875,
+      "required_quest_groups": []
     },
     {
       "scene": "PrielPlateau",
       "x": 84.68000030517578,
       "y": 12.25,
       "z": 229.0,
+      "is_enabled": true,
       "destination_zone_key": "zone:windwashed",
       "destination_display": "Windwashed Pass",
       "landing_x": 882.0,
       "landing_y": 91.30000305175781,
-      "landing_z": 212.0
+      "landing_z": 212.0,
+      "required_quest_groups": []
     },
     {
       "scene": "RipperPortal",
       "x": 671.8543090820312,
       "y": 11.190210342407227,
       "z": 402.3601379394531,
+      "is_enabled": false,
       "destination_zone_key": "zone:ripper",
       "destination_display": "Ripper's Keep",
       "landing_x": 112.0,
       "landing_y": 32.29999923706055,
-      "landing_z": 421.79998779296875
+      "landing_z": 421.79998779296875,
+      "required_quest_groups": []
     },
     {
       "scene": "RipperPortal",
       "x": 671.8543090820312,
       "y": 11.190210342407227,
       "z": 402.3601379394531,
+      "is_enabled": true,
       "destination_zone_key": "zone:ripper",
       "destination_display": "Ripper's Keep",
       "landing_x": 134.0,
       "landing_y": 62.0,
-      "landing_z": 299.0
+      "landing_z": 299.0,
+      "required_quest_groups": []
     },
     {
       "scene": "RipperPortal",
       "x": 96.01932525634766,
       "y": 4.550000190734863,
       "z": 433.33551025390625,
+      "is_enabled": false,
       "destination_zone_key": "zone:fernallafield",
       "destination_display": "Fernalla's Revival Plains",
       "landing_x": 112.0,
       "landing_y": 32.29999923706055,
-      "landing_z": 421.79998779296875
+      "landing_z": 421.79998779296875,
+      "required_quest_groups": []
     },
     {
       "scene": "RipperPortal",
       "x": 96.01932525634766,
       "y": 4.550000190734863,
       "z": 433.33551025390625,
+      "is_enabled": true,
       "destination_zone_key": "zone:ripper",
       "destination_display": "Ripper's Keep",
       "landing_x": 134.0,
       "landing_y": 62.5,
-      "landing_z": 299.0
+      "landing_z": 299.0,
+      "required_quest_groups": []
     },
     {
       "scene": "SummerEvent",
       "x": 91.29000091552734,
       "y": -6.179999828338623,
       "z": -25.479999542236328,
+      "is_enabled": true,
       "destination_zone_key": "zone:azure",
       "destination_display": "Port Azure",
       "landing_x": 38.25,
       "landing_y": 13.369999885559082,
-      "landing_z": 250.3000030517578
+      "landing_z": 250.3000030517578,
+      "required_quest_groups": []
     },
     {
       "scene": "Willowwatch",
       "x": 164.25343322753906,
       "y": 63.98533630371094,
       "z": 788.5222778320312,
+      "is_enabled": true,
       "destination_zone_key": "zone:bonepits",
       "destination_display": "The Bonepits",
       "landing_x": 211.0,
       "landing_y": 75.0,
-      "landing_z": 207.0
+      "landing_z": 207.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Willowwatch",
       "x": 893.0123291015625,
       "y": 32.4900016784668,
       "z": 569.81787109375,
+      "is_enabled": true,
       "destination_zone_key": "zone:underspine",
       "destination_display": "Underspine Hollow",
       "landing_x": 189.10000610351562,
       "landing_y": 85.30000305175781,
-      "landing_z": 15.0
+      "landing_z": 15.0,
+      "required_quest_groups": []
     },
     {
       "scene": "Willowwatch",
       "x": 753.2000122070312,
       "y": 60.959999084472656,
       "z": 262.70001220703125,
+      "is_enabled": true,
       "destination_zone_key": "zone:fernallafield",
       "destination_display": "Fernalla's Revival Plains",
       "landing_x": 319.54998779296875,
       "landing_y": 25.5,
-      "landing_z": 83.0
+      "landing_z": 83.0,
+      "required_quest_groups": []
     },
     {
       "scene": "ShiveringTomb2",
       "x": 198.30999755859375,
       "y": -10.960000038146973,
       "z": 46.08000183105469,
+      "is_enabled": true,
       "destination_zone_key": "zone:stowaway",
       "destination_display": "Stowaway's Step",
       "landing_x": 418.0,
       "landing_y": 11.5,
-      "landing_z": 308.0
+      "landing_z": 308.0,
+      "required_quest_groups": []
     },
     {
       "scene": "ShiveringTomb2",
       "x": -216.3300018310547,
       "y": 15.359999656677246,
       "z": 126.25,
+      "is_enabled": true,
       "destination_zone_key": "zone:shiveringstep",
       "destination_display": "Shivering Step",
       "landing_x": 784.0,
       "landing_y": 35.0,
-      "landing_z": 650.0
+      "landing_z": 650.0,
+      "required_quest_groups": []
     },
     {
       "scene": "ShiveringTomb2",
       "x": -139.5800018310547,
       "y": -63.869998931884766,
       "z": 108.97000122070312,
+      "is_enabled": true,
       "destination_zone_key": "zone:shiveringstep",
       "destination_display": "Shivering Step",
       "landing_x": 784.0,
       "landing_y": 35.0,
-      "landing_z": 650.0
+      "landing_z": 650.0,
+      "required_quest_groups": []
     },
     {
       "scene": "BloomingSepulcher",
       "x": 651.4768676757812,
       "y": 262.3199768066406,
       "z": 317.8719177246094,
+      "is_enabled": false,
       "destination_zone_key": "zone:vitheosend",
       "destination_display": "Vitheo's Rest",
       "landing_x": 261.0,
       "landing_y": 10.600000381469727,
-      "landing_z": 322.0
+      "landing_z": 322.0,
+      "required_quest_groups": [
+        [
+          "PORTALTOVITHEOSREST"
+        ]
+      ]
     },
     {
       "scene": "BloomingSepulcher",
       "x": 240.74000549316406,
       "y": 377.7900085449219,
       "z": 857.6699829101562,
+      "is_enabled": false,
       "destination_zone_key": "zone:vitheosend",
       "destination_display": "Vitheo's Rest",
       "landing_x": 261.0,
       "landing_y": 10.600000381469727,
-      "landing_z": 322.0
+      "landing_z": 322.0,
+      "required_quest_groups": [
+        [
+          "PORTALTOVITHEOSREST"
+        ]
+      ]
     },
     {
       "scene": "BloomingSepulcher",
       "x": 118.63999938964844,
       "y": 376.0442810058594,
       "z": 896.0700073242188,
+      "is_enabled": true,
       "destination_zone_key": "zone:fernallafield",
       "destination_display": "Fernalla's Revival Plains",
       "landing_x": 452.0,
       "landing_y": 38.0,
-      "landing_z": 391.0
+      "landing_z": 391.0,
+      "required_quest_groups": []
     },
     {
       "scene": "BloomingSepulcher",
       "x": 240.74000549316406,
       "y": 377.7900085449219,
       "z": 856.0399780273438,
+      "is_enabled": false,
       "destination_zone_key": "zone:vitheosend",
       "destination_display": "Vitheo's Rest",
       "landing_x": 261.0,
       "landing_y": 10.600000381469727,
-      "landing_z": 322.0
+      "landing_z": 322.0,
+      "required_quest_groups": [
+        [
+          "PORTALTOVITHEOSREST"
+        ]
+      ]
     },
     {
       "scene": "Reliquary",
       "x": 293.76568603515625,
       "y": 3.115000009536743,
       "z": 362.42816162109375,
+      "is_enabled": false,
       "destination_zone_key": "zone:braxonian",
       "destination_display": "Braxonian Desert",
       "landing_x": 382.6000061035156,
       "landing_y": 49.29999923706055,
-      "landing_z": 878.0
+      "landing_z": 878.0,
+      "required_quest_groups": [
+        [
+          "RELIQ-SANDS"
+        ]
+      ]
     },
     {
       "scene": "Reliquary",
       "x": 293.76568603515625,
       "y": 3.115000009536743,
       "z": 342.42816162109375,
+      "is_enabled": false,
       "destination_zone_key": "zone:silkengrass",
       "destination_display": "Silkengrass Meadowlands",
       "landing_x": 188.5,
       "landing_y": 63.52000045776367,
-      "landing_z": 712.9000244140625
+      "landing_z": 712.9000244140625,
+      "required_quest_groups": [
+        [
+          "RELIQ-SILKENGRASS"
+        ],
+        [
+          "RELIQ-SILKENGRASS"
+        ]
+      ]
     },
     {
       "scene": "Reliquary",
       "x": 274.96600341796875,
       "y": 5.865000247955322,
       "z": 295.5024719238281,
+      "is_enabled": false,
       "destination_zone_key": "zone:hidden",
       "destination_display": "Hidden Hills",
       "landing_x": 9.300000190734863,
       "landing_y": 1.0,
-      "landing_z": -114.33000183105469
+      "landing_z": -114.33000183105469,
+      "required_quest_groups": []
     },
     {
       "scene": "Reliquary",
       "x": 255.780517578125,
       "y": 3.115000009536743,
       "z": 322.5118713378906,
+      "is_enabled": false,
       "destination_zone_key": "zone:ripper",
       "destination_display": "Ripper's Keep",
       "landing_x": 572.0,
       "landing_y": 54.400001525878906,
-      "landing_z": 293.0
+      "landing_z": 293.0,
+      "required_quest_groups": [
+        [
+          "RELIQ-RIPPER"
+        ]
+      ]
     },
     {
       "scene": "Reliquary",
       "x": 293.76568603515625,
       "y": 3.115000009536743,
       "z": 322.42816162109375,
+      "is_enabled": false,
       "destination_zone_key": "zone:hidden",
       "destination_display": "Hidden Hills",
       "landing_x": 9.300000190734863,
       "landing_y": 1.0,
-      "landing_z": -114.33000183105469
+      "landing_z": -114.33000183105469,
+      "required_quest_groups": [
+        [
+          "RELIQ-HIDDEN"
+        ]
+      ]
     },
     {
       "scene": "Reliquary",
       "x": 255.8275146484375,
       "y": 3.115000009536743,
       "z": 342.1718444824219,
+      "is_enabled": false,
       "destination_zone_key": "zone:windwashed",
       "destination_display": "Windwashed Pass",
       "landing_x": 755.2000122070312,
       "landing_y": 66.0,
-      "landing_z": 474.3999938964844
+      "landing_z": 474.3999938964844,
+      "required_quest_groups": [
+        [
+          "RELIQ-WINDS"
+        ]
+      ]
     },
     {
       "scene": "Reliquary",
       "x": 255.76568603515625,
       "y": 3.115000009536743,
       "z": 362.1618347167969,
+      "is_enabled": false,
       "destination_zone_key": "zone:soluna",
       "destination_display": "Soluna's Landing",
       "landing_x": 225.0,
       "landing_y": 77.0,
-      "landing_z": 249.0
+      "landing_z": 249.0,
+      "required_quest_groups": [
+        [
+          "RELIQ-SOLUNA"
+        ]
+      ]
     },
     {
       "scene": "Reliquary",
       "x": 275.04998779296875,
       "y": 0.12201213836669922,
       "z": 385.92999267578125,
+      "is_enabled": true,
       "destination_zone_key": "zone:azure",
       "destination_display": "Port Azure",
       "landing_x": 327.0,
       "landing_y": 26.700000762939453,
-      "landing_z": 152.0
+      "landing_z": 152.0,
+      "required_quest_groups": []
     },
     {
       "scene": "StowawayPortal",
       "x": -76.19000244140625,
       "y": -53.79999923706055,
       "z": -48.599998474121094,
+      "is_enabled": true,
       "destination_zone_key": "zone:stowaway",
       "destination_display": "Stowaway's Step",
       "landing_x": 434.0,
       "landing_y": 70.0,
-      "landing_z": 534.0
+      "landing_z": 534.0,
+      "required_quest_groups": []
     },
     {
       "scene": "StowawayPortal",
       "x": -76.19000244140625,
       "y": 4.559999942779541,
       "z": 38.91999816894531,
+      "is_enabled": true,
       "destination_zone_key": "zone:stowaway",
       "destination_display": "Stowaway's Step",
       "landing_x": 434.0,
       "landing_y": 70.0,
-      "landing_z": 534.0
+      "landing_z": 534.0,
+      "required_quest_groups": []
     }
   ],
   "_chain_groups": [
@@ -54448,6 +54785,37 @@
       ]
     }
   ],
+  "_character_quest_unlocks": {
+    "character:lucian revald:stowaway:432.19:69.90:532.04": [
+      [
+        "MEETBASSLE"
+      ]
+    ],
+    "character:revan gavault:stowaway:431.79:69.90:535.47": [
+      [
+        "MEETBASSLE"
+      ]
+    ],
+    "character:riftstone:azynthiclear:797.65:46.43:562.68": [
+      [
+        "Riftstone"
+      ],
+      [
+        "Riftstone"
+      ]
+    ],
+    "character:shady fisherman (1):summerevent:80.10:-5.17:6.41": [
+      [
+        "BELLWAIN"
+      ]
+    ],
+    "character:the abomination:vitheosend:286.50:0.57:175.67": [
+      [
+        "TheDarkFlame",
+        "TheLifeFlame"
+      ]
+    ]
+  },
   "quests": [
     {
       "db_name": "KilkayBounty",

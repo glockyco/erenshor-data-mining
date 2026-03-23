@@ -308,11 +308,13 @@ class ZoneLine:
     x: float = 0.0
     y: float = 0.0
     z: float = 0.0
+    is_enabled: bool = True
     destination_zone_key: str = ""
     destination_display: str = ""
     landing_x: float | None = None
     landing_y: float | None = None
     landing_z: float | None = None
+    required_quest_groups: list[list[str]] = field(default_factory=list)
 
 
 @dataclass
@@ -368,4 +370,5 @@ class GuideOutput:
     character_spawns: dict[str, list[SpawnPoint]] = field(default_factory=dict)
     zone_lines: list[ZoneLine] = field(default_factory=list)
     chain_groups: list[ChainGroup] = field(default_factory=list)
+    character_quest_unlocks: dict[str, list[list[str]]] = field(default_factory=dict)
     quests: list[QuestGuide] = field(default_factory=list)

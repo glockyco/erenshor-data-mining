@@ -153,6 +153,20 @@ CREATE TABLE zone_lines (
     remove_party                INTEGER
 );
 
+CREATE TABLE zone_line_quest_unlocks (
+    zone_line_stable_key    TEXT NOT NULL,
+    unlock_group            INTEGER NOT NULL,
+    quest_db_name           TEXT NOT NULL,
+    PRIMARY KEY (zone_line_stable_key, unlock_group, quest_db_name)
+);
+
+CREATE TABLE character_quest_unlocks (
+    character_stable_key    TEXT NOT NULL,
+    unlock_group            INTEGER NOT NULL,
+    quest_db_name           TEXT NOT NULL,
+    PRIMARY KEY (character_stable_key, unlock_group, quest_db_name)
+);
+
 CREATE TABLE game_constants (
     key         TEXT PRIMARY KEY NOT NULL,
     value       TEXT,
@@ -1133,6 +1147,12 @@ class Writer:
 
     def insert_zone_lines(self, rows: list[dict[str, object]]) -> int:
         return self._insert("zone_lines", rows)
+
+    def insert_zone_line_quest_unlocks(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("zone_line_quest_unlocks", rows)
+
+    def insert_character_quest_unlocks(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("character_quest_unlocks", rows)
 
     def insert_game_constants(self, rows: list[dict[str, object]]) -> int:
         return self._insert("game_constants", rows)
