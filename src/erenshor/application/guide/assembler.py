@@ -158,7 +158,7 @@ def _inject_readable_items(
     - item_read acquisition triggers (reading an item starts the quest)
     - read completion sources (reading an item completes the quest)
 
-    When multiple readable items exist, they are alternatives (optional).
+    When multiple readable items exist, they are alternatives (or_group="read").
     Mutates *required_items* in place.
     """
     # Collect all readable item stable keys from both acquisition and completion
@@ -189,7 +189,7 @@ def _inject_readable_items(
                 item_name=ctx.item_names.get(isk, name),
                 item_stable_key=isk,
                 quantity=1,
-                optional=is_optional,
+                or_group="read" if is_optional else None,
                 sources=sources,
             )
         )
@@ -504,7 +504,7 @@ def _steps_fetch(
                     target_name=acq.source_name,
                     target_type="item",
                     target_key=acq.source_stable_key,
-                    optional=is_optional,
+                    or_group="read" if is_optional else None,
                 )
             )
     elif giver and giver.source_name:
@@ -519,8 +519,8 @@ def _steps_fetch(
         )
 
     for ri in required_items:
-        if ri.optional:
-            continue  # optional items are acquisition alternatives, not collect objectives
+        if ri.or_group is not None:
+            continue  # or_group items are acquisition alternatives, not collect objectives
         desc = f"Collect {ri.item_name}"
         if ri.quantity > 1:
             desc = f"Collect {ri.quantity}x {ri.item_name}"
@@ -634,18 +634,20 @@ def _steps_zone_trigger(
                 zone_name=giver.zone_name,
             )
         )
-    for comp in completion:
-        if comp.method == "zone" and comp.source_name:
-            steps.append(
-                step(
-                    "travel",
-                    f"Travel to {comp.source_name}.",
-                    target_name=comp.source_name,
-                    target_type="zone",
-                    target_key=comp.source_stable_key,
-                    zone_name=comp.source_name,
-                )
+    zone_comps = [c for c in completion if c.method == "zone" and c.source_name]
+    is_zone_optional = len(zone_comps) > 1
+    for comp in zone_comps:
+        steps.append(
+            step(
+                "travel",
+                f"Travel to {comp.source_name}.",
+                target_name=comp.source_name,
+                target_type="zone",
+                target_key=comp.source_stable_key,
+                zone_name=comp.source_name,
+                or_group="zone" if is_zone_optional else None,
             )
+        )
     return steps
 
 
@@ -702,7 +704,7 @@ def _steps_item_read(
                 target_name=acq.source_name,
                 target_type="item",
                 target_key=acq.source_stable_key,
-                optional=is_optional,
+                or_group="read" if is_optional else None,
             )
         )
 
@@ -719,7 +721,7 @@ def _steps_item_read(
                 target_name=comp.source_name,
                 target_type="item",
                 target_key=comp.source_stable_key,
-                optional=comp_optional,
+                or_group="read_completion" if comp_optional else None,
             )
         )
     return steps

@@ -175,14 +175,13 @@ public sealed class QuestDetailPanel
         int currentStepIndex = StepProgress.GetCurrentStepIndex(quest, _state);
 
         ImGui.Indent(Theme.IndentWidth);
-        bool prevWasOptional = false;
+        string? prevOrGroup = null;
         for (int i = 0; i < quest.Steps.Count; i++)
         {
             var step = quest.Steps[i];
-            bool isOptional = step.Optional;
 
-            // Show "OR" separator between consecutive optional steps
-            if (isOptional && prevWasOptional)
+            // Show "OR" separator between consecutive steps in the same or_group
+            if (step.OrGroup != null && step.OrGroup == prevOrGroup)
             {
                 ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
                 ImGui.Text("  -- OR --");
@@ -196,7 +195,7 @@ public sealed class QuestDetailPanel
             else
                 DrawStep(step, StepState.Future, quest);
 
-            prevWasOptional = isOptional;
+            prevOrGroup = step.OrGroup;
         }
         ImGui.Unindent(Theme.IndentWidth);
     }

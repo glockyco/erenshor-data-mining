@@ -130,29 +130,35 @@ def _compute_step_level(
 def _compute_quest_level(steps: list[QuestStep]) -> LevelEstimate | None:
     """Quest level = max of effective per-step levels.
 
-    Required steps contribute their level directly. Consecutive optional
-    steps (alternatives) contribute the minimum of their group since the
-    player only needs to complete one.
+    Required steps (``or_group is None``) contribute their level directly.
+    Consecutive steps sharing the same ``or_group`` are alternatives —
+    only the minimum level in each group counts, since the player only
+    needs to complete one.
     """
     effective: list[tuple[QuestStep, int]] = []
-    optional_group: list[tuple[QuestStep, int]] = []
+    or_group_buf: list[tuple[QuestStep, int]] = []
+    current_group: str | None = None
 
-    def flush_optional() -> None:
-        if optional_group:
-            best = min(optional_group, key=lambda t: t[1])
+    def flush_group() -> None:
+        if or_group_buf:
+            best = min(or_group_buf, key=lambda t: t[1])
             effective.append(best)
-            optional_group.clear()
+            or_group_buf.clear()
 
     for step in steps:
         if step.level_estimate is None or step.level_estimate.recommended is None:
             continue
-        if step.optional:
-            optional_group.append((step, step.level_estimate.recommended))
+        if step.or_group is not None:
+            if step.or_group != current_group:
+                flush_group()
+                current_group = step.or_group
+            or_group_buf.append((step, step.level_estimate.recommended))
         else:
-            flush_optional()
+            flush_group()
+            current_group = None
             effective.append((step, step.level_estimate.recommended))
 
-    flush_optional()
+    flush_group()
 
     if not effective:
         return None

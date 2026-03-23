@@ -116,15 +116,16 @@ class ItemSource:
 class RequiredItemInfo:
     """A required item with quantity and unified obtainability sources.
 
-    When ``optional`` is True, this item is one of several alternatives
-    (e.g. multiple item_read triggers for a quest). The player only needs
-    one of the optional items, not all of them.
+    When ``or_group`` is set, this item is one of several alternatives
+    sharing the same group name (e.g. multiple item_read triggers).
+    The player only needs one item from the group, not all of them.
+    ``or_group = None`` means the item is mandatory.
     """
 
     item_name: str
     item_stable_key: str
     quantity: int = 1
-    optional: bool = False
+    or_group: str | None = None
     sources: list[ItemSource] = field(default_factory=list)
 
 
@@ -137,8 +138,9 @@ class RequiredItemInfo:
 class QuestStep:
     """A single step in the quest walkthrough.
 
-    When ``optional`` is True, this step is one of several alternatives.
-    The player only needs to complete one of the optional steps in a group.
+    When ``or_group`` is set, this step is one of several alternatives
+    sharing the same group name. The player only needs to complete one
+    step from each group. ``or_group = None`` means the step is mandatory.
     """
 
     order: int
@@ -150,7 +152,7 @@ class QuestStep:
     quantity: int | None = None  # for collect/kill steps
     zone_name: str | None = None  # where this step happens
     keyword: str | None = None  # for shout steps
-    optional: bool = False
+    or_group: str | None = None
     tips: list[str] = field(default_factory=list)
     level_estimate: LevelEstimate | None = None
 

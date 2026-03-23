@@ -36,7 +36,7 @@ public sealed class QuestStep
     [JsonProperty("zone_name")] public string? ZoneName { get; set; }
     [JsonProperty("keyword")] public string? Keyword { get; set; }
     [JsonProperty("tips")] public List<string>? Tips { get; set; }
-    [JsonProperty("optional")] public bool Optional { get; set; }
+    [JsonProperty("or_group")] public string? OrGroup { get; set; }
     [JsonProperty("level_estimate")] public LevelEstimate? LevelEstimate { get; set; }
 }
 
@@ -87,7 +87,7 @@ public sealed class RequiredItemInfo
     [JsonProperty("item_name")] public string ItemName { get; set; } = "";
     [JsonProperty("item_stable_key")] public string ItemStableKey { get; set; } = "";
     [JsonProperty("quantity")] public int Quantity { get; set; } = 1;
-    [JsonProperty("optional")] public bool Optional { get; set; }
+    [JsonProperty("or_group")] public string? OrGroup { get; set; }
     [JsonProperty("sources")] public List<ItemSource>? Sources { get; set; }
 }
 
