@@ -188,4 +188,17 @@ public static class DebugAPI
         return $"Reset '{q.DisplayName}' (was {prev})";
     }
 
+
+    /// <summary>Test zone graph routing between two scenes.</summary>
+    public static string TestRoute(string fromScene, string toScene)
+    {
+        if (Nav == null) return "Nav not initialized";
+        var graphField = typeof(NavigationController).GetField("_zoneGraph",
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        var graph = graphField?.GetValue(Nav) as ZoneGraph;
+        if (graph == null) return "ZoneGraph not found";
+        var route = graph.FindRoute(fromScene, toScene);
+        if (route == null) return $"No route from {fromScene} to {toScene}";
+        return $"NextHop={route.NextHopZoneKey} IsLocked={route.IsLocked} Path={string.Join(" -> ", route.Path)}";
+    }
 }

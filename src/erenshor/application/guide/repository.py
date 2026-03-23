@@ -484,7 +484,13 @@ def _fetch_zone_lookup(conn: sqlite3.Connection) -> dict[str, ZoneInfo]:
 def _fetch_character_spawns(
     conn: sqlite3.Connection,
 ) -> dict[str, list[SpawnPoint]]:
-    """Return all character spawn points keyed by character_stable_key."""
+    """Return all character spawn points keyed by character_stable_key.
+
+    Prefab characters (is_prefab=1) don't have their own spawn data — their
+    placed instances do. We index spawns under both the placed key AND any
+    prefab keys that share the same object_name, so quest steps referencing
+    a prefab can find spawns from its placed instances.
+    """
     rows = conn.execute(
         """
         SELECT character_stable_key, scene, x, y, z
@@ -509,6 +515,32 @@ def _fetch_character_spawns(
     for row in rows:
         sp = SpawnPoint(scene=row["scene"], x=row["x"], y=row["y"], z=row["z"])
         result.setdefault(row["character_stable_key"], []).append(sp)
+
+    # Bridge prefab keys to their placed instances' spawns.
+    # A prefab (is_prefab=1, no scene) and a placed instance (is_prefab=0, has
+    # scene) share object_name. Quest steps reference prefab keys, spawn data
+    # lives under placed keys.
+    prefab_to_placed = conn.execute(
+        """
+        SELECT p.stable_key AS prefab_key,
+               GROUP_CONCAT(i.stable_key) AS placed_keys
+        FROM characters p
+        JOIN characters i ON i.object_name = p.object_name
+                          AND i.is_prefab = 0
+                          AND i.scene IS NOT NULL
+        WHERE p.is_prefab = 1
+          AND p.stable_key NOT IN (
+              SELECT character_stable_key FROM character_spawns
+          )
+        GROUP BY p.stable_key
+        """
+    ).fetchall()
+    for row in prefab_to_placed:
+        prefab_key = row["prefab_key"]
+        for placed_key in row["placed_keys"].split(","):
+            if placed_key in result:
+                result.setdefault(prefab_key, []).extend(result[placed_key])
+
     return result
 
 
