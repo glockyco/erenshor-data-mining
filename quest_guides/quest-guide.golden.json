@@ -62838,6 +62838,12 @@
           "quest_key": "quest:catfordeer",
           "quest_name": "A Cat for a Deer",
           "item": "Nightmare Crystal"
+        },
+        {
+          "type": "quest",
+          "quest_key": "quest:meetbassle",
+          "quest_name": "Meet the Fisherman",
+          "note": "Lucian Revald spawns after quest completion"
         }
       ],
       "steps": [
@@ -86157,6 +86163,14 @@
           "source_name": "Lucian Revald",
           "source_type": "character",
           "source_stable_key": "character:lucian revald:stowaway:432.19:69.90:532.04"
+        }
+      ],
+      "prerequisites": [
+        {
+          "type": "quest",
+          "quest_key": "quest:meetbassle",
+          "quest_name": "Meet the Fisherman",
+          "note": "Lucian Revald spawns after quest completion"
         }
       ],
       "steps": [

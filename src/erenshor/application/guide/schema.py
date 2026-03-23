@@ -194,6 +194,7 @@ class Prerequisite:
     quest_key: str = ""  # stable_key of the prerequisite quest
     quest_name: str = ""  # display name for rendering
     item: str | None = None  # connecting item name (for implicit prerequisites)
+    note: str | None = None  # explanation (for character unlock prerequisites)
 
 
 @dataclass

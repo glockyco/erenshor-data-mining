@@ -62,6 +62,7 @@ def assemble_guides(ctx: QuestDataContext) -> list[QuestGuide]:
         required_items = _build_required_items(variant_rn, sk, ctx)
         _inject_readable_items(sk, acquisition, completion, required_items, ctx)
         implicit_prereqs = _detect_implicit_prerequisites(sk, required_items, ctx)
+        implicit_prereqs += _detect_character_unlock_prerequisites(sk, acquisition, ctx)
 
         # Merge explicit + implicit prerequisites, dedup by quest_key
         explicit_prereqs = ctx.prerequisites.get(sk, [])
@@ -222,6 +223,44 @@ def _detect_implicit_prerequisites(
                             item=ri.item_name,
                         )
                     )
+    return result
+
+
+def _detect_character_unlock_prerequisites(
+    quest_sk: str,
+    acquisition: list[AcquisitionSource],
+    ctx: QuestDataContext,
+) -> list[Prerequisite]:
+    """Detect prerequisites from quest-gated character spawning.
+
+    If a quest's acquisition source character only spawns after another
+    quest is completed, that quest is an implicit prerequisite.
+    """
+    result: list[Prerequisite] = []
+    seen: set[str] = set()
+    for acq in acquisition:
+        char_key = acq.source_stable_key
+        if not char_key:
+            continue
+        groups = ctx.character_quest_unlocks.get(char_key)
+        if not groups:
+            continue
+        # Each group is an AND list; any group sufficing means OR.
+        # For prerequisites, take the smallest group (fewest quests needed).
+        smallest = min(groups, key=len)
+        for quest_db_name in smallest:
+            prereq_sk = f"quest:{quest_db_name.lower()}"
+            if prereq_sk == quest_sk or prereq_sk in seen:
+                continue
+            seen.add(prereq_sk)
+            result.append(
+                Prerequisite(
+                    type="quest",
+                    quest_key=prereq_sk,
+                    quest_name=ctx.quest_names.get(prereq_sk, quest_db_name),
+                    note=f"{acq.source_name} spawns after quest completion",
+                )
+            )
     return result
 
 
