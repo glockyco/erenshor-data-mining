@@ -248,6 +248,14 @@ public sealed class QuestDetailPanel
 
         // Drop/vendor sources and tips for collect steps
         DrawStepSources(step);
+
+        // Show alternative zone lines when cross-zone navigating this step
+        if (_nav.IsNavigating(quest.DBName, step.Order))
+        {
+            var alternatives = _nav.GetAlternativeZoneLines(_state.CurrentZone);
+            if (alternatives.Count > 1)
+                DrawZoneLineAlternatives(alternatives, step);
+        }
     }
 
     private void DrawNavButton(QuestStep step, QuestEntry quest)
@@ -362,6 +370,33 @@ public sealed class QuestDetailPanel
         ImGui.Unindent(Theme.IndentWidth);
 
         DrawTips(step);
+    }
+
+    private void DrawZoneLineAlternatives(
+        List<(ZoneLineEntry line, float distance, bool isSelected)> alternatives,
+        QuestStep step)
+    {
+        ImGui.Indent(Theme.IndentWidth);
+        ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
+
+        string header = $"{alternatives.Count} zone connections";
+        if (ImGui.TreeNode($"{header}##zl_{step.Order}"))
+        {
+            foreach (var (line, distance, isSelected) in alternatives)
+            {
+                string suffix = isSelected ? " (auto)" : "";
+                string label = $"To {line.DestinationDisplay} ({distance:F0}m){suffix}";
+
+                if (isSelected)
+                    ImGui.Text(label);
+                else
+                    ImGui.Selectable($"{label}##zl_{line.X}_{line.Z}");
+            }
+            ImGui.TreePop();
+        }
+
+        ImGui.PopStyleColor();
+        ImGui.Unindent(Theme.IndentWidth);
     }
 
     private void DrawSource(ItemSource src, int depth = 0)

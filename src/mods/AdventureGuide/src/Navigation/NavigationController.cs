@@ -207,6 +207,38 @@ public sealed class NavigationController
         && Target.QuestDBName == questDBName
         && Target.StepOrder == stepOrder;
 
+    /// <summary>
+    /// Get all zone lines from the current scene to the navigation target's zone.
+    /// Returns empty if not cross-zone navigating or no zone lines found.
+    /// </summary>
+    public List<(ZoneLineEntry line, float distance, bool isSelected)> GetAlternativeZoneLines(string currentScene)
+    {
+        var result = new List<(ZoneLineEntry line, float distance, bool isSelected)>();
+        if (Target == null || !Target.IsCrossZone(currentScene))
+            return result;
+
+        var playerPos = GetPlayerPosition() ?? Vector3.zero;
+        var targetZoneKey = FindZoneKeyBySceneName(Target.Scene);
+        if (targetZoneKey == null) return result;
+
+        foreach (var zl in _data.ZoneLines)
+        {
+            if (!string.Equals(zl.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase))
+                continue;
+            if (!string.Equals(zl.DestinationZoneKey, targetZoneKey, System.StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            var zlPos = new Vector3(zl.X, zl.Y, zl.Z);
+            float dist = Vector3.Distance(playerPos, zlPos);
+            bool selected = _cachedZoneLine != null
+                && zl.X == _cachedZoneLine.X && zl.Y == _cachedZoneLine.Y && zl.Z == _cachedZoneLine.Z;
+            result.Add((zl, dist, selected));
+        }
+
+        result.Sort((a, b) => a.distance.CompareTo(b.distance));
+        return result;
+    }
+
     private Vector3? FindShortestRespawnPosition(string displayName)
     {
         // Check mining nodes first (all named "Mineral Deposit")
