@@ -364,7 +364,7 @@ public sealed class QuestDetailPanel
         DrawTips(step);
     }
 
-    private static void DrawSource(ItemSource src)
+    private void DrawSource(ItemSource src, int depth = 0)
     {
         // Consistent format: {what}  \u00b7  {where}  \u00b7  Lv {N}
         string what = src.Type switch
@@ -377,6 +377,7 @@ public sealed class QuestDetailPanel
             "pickup" => "Found in world",
             "crafting" => $"Crafted from: {src.Name}",
             "quest_reward" => $"Quest reward: {src.Name}",
+            "ingredient" => $"Ingredient: {src.Name}" + (src.NodeCount is int qty ? $" x{qty}" : ""),
             _ => src.Name ?? src.Type,
         };
         string label = what;
@@ -384,7 +385,53 @@ public sealed class QuestDetailPanel
             label += $"  \u00b7  {src.Zone}";
         if (src.Level is int lv)
             label += $"  \u00b7  Lv {lv}";
-        ImGui.Text(label);
+
+        bool hasChildren = src.Children is { Count: > 0 } && depth < 3;
+
+        if (hasChildren)
+        {
+            if (ImGui.TreeNode($"{label}##src_{depth}_{src.Type}_{src.Name}"))
+            {
+                // Quest reward with a linked quest: show navigable link inside tree
+                if (src.Type == "quest_reward" && src.QuestKey != null)
+                {
+                    var target = _data.GetByStableKey(src.QuestKey);
+                    if (target != null)
+                    {
+                        ImGui.PushStyleColor(ImGuiCol.Text, Theme.QuestActive);
+                        if (ImGui.Selectable($"Open quest: {target.DisplayName}##goto_{src.QuestKey}"))
+                        {
+                            _history.Navigate(new NavigationHistory.PageRef(
+                                NavigationHistory.PageType.Quest, target.DBName));
+                            _state.SelectedQuestDBName = target.DBName;
+                        }
+                        ImGui.PopStyleColor();
+                    }
+                }
+
+                foreach (var child in src.Children!)
+                    DrawSource(child, depth + 1);
+                ImGui.TreePop();
+            }
+        }
+        else if (src.SourceKey != null)
+        {
+            // Navigable source: Selectable with hover tooltip
+            if (ImGui.Selectable($"{label}##src_{src.SourceKey}"))
+            {
+                // Per-source navigation to be wired in follow-up
+            }
+            if (ImGui.IsItemHovered())
+            {
+                ImGui.BeginTooltip();
+                ImGui.Text($"Navigate to {src.Name}");
+                ImGui.EndTooltip();
+            }
+        }
+        else
+        {
+            ImGui.Text(label);
+        }
     }
 
     private void DrawTips(QuestStep step)
