@@ -345,11 +345,10 @@ public sealed class NavigationController
 
     private bool ResolveZoneTarget(QuestStep step, QuestEntry quest, string currentScene)
     {
-        // Find zone stable key: try target_key directly, then search zone lookup
+        // Resolve zone key from target_key or display name
         string? destZoneKey = step.TargetKey;
-
-        // If target_key doesn't match a zone line destination, search by display name
-        if (!HasZoneLineForDestination(destZoneKey, currentScene))
+        if (destZoneKey != null && !_data.ZoneLookup.Values.Any(z =>
+            string.Equals(z.StableKey, destZoneKey, System.StringComparison.OrdinalIgnoreCase)))
         {
             destZoneKey = FindZoneKeyByDisplayName(step.TargetName);
         }
@@ -357,17 +356,45 @@ public sealed class NavigationController
         if (destZoneKey == null)
             return false;
 
-        var playerPos = GetPlayerPosition() ?? Vector3.zero;
-        var zoneLine = FindClosestZoneLine(destZoneKey, currentScene, playerPos);
-        if (zoneLine == null)
+        // Find the scene name for this zone
+        string? destScene = null;
+        foreach (var kvp in _data.ZoneLookup)
+        {
+            if (string.Equals(kvp.Value.StableKey, destZoneKey, System.StringComparison.OrdinalIgnoreCase))
+            {
+                destScene = kvp.Key;
+                break;
+            }
+        }
+
+        if (destScene == null)
             return false;
 
-        Target = MakeTarget(
-            NavigationTarget.Kind.ZoneLine,
-            new Vector3(zoneLine.X, zoneLine.Y, zoneLine.Z),
-            zoneLine.DestinationDisplay,
-            currentScene,
-            quest.DBName, step.Order);
+        // Try direct zone line first (same-scene or adjacent zone)
+        var playerPos = GetPlayerPosition() ?? Vector3.zero;
+        var zoneLine = FindClosestZoneLine(destZoneKey, currentScene, playerPos);
+
+        if (zoneLine != null)
+        {
+            // Direct accessible route exists
+            Target = MakeTarget(
+                NavigationTarget.Kind.ZoneLine,
+                new Vector3(zoneLine.X, zoneLine.Y, zoneLine.Z),
+                $"To: {zoneLine.DestinationDisplay}",
+                currentScene,
+                quest.DBName, step.Order);
+        }
+        else
+        {
+            // No direct zone line — set target in the destination zone and let
+            // UpdateCrossZoneRouting handle multi-hop pathfinding via ZoneGraph.
+            Target = MakeTarget(
+                NavigationTarget.Kind.Zone,
+                Vector3.zero,
+                step.TargetName ?? destScene,
+                destScene,
+                quest.DBName, step.Order);
+        }
         return true;
     }
 

@@ -8,7 +8,7 @@ namespace AdventureGuide.Navigation;
 /// </summary>
 public sealed class NavigationTarget
 {
-    public enum Kind { Character, ZoneLine, Position }
+    public enum Kind { Character, ZoneLine, Zone, Position }
 
     /// <summary>What kind of thing we're navigating to.</summary>
     public Kind TargetKind { get; }
