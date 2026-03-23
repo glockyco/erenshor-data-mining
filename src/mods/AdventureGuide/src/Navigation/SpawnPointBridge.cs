@@ -5,12 +5,10 @@ namespace AdventureGuide.Navigation;
 /// <summary>
 /// Bridges static spawn data (from quest-guide.json) to live game SpawnPoint
 /// objects. On each scene rebuild, indexes all SpawnPoints by their rounded
-/// position for O(1) lookup. Also provides fallback for directly-placed NPCs
-/// (no SpawnPoint) via NPCTable.LiveNPCs.
-///
-/// The static spawn positions match SpawnPoint.transform.position exactly at
-/// 2-decimal precision (Vector3.ToString format). Zero position collisions
-/// at 0.5m across all tested scenes.
+/// position for O(1) lookup. For directly-placed NPCs (no SpawnPoint),
+/// a name-indexed NPC cache built during Rebuild detects liveness via
+/// proximity matching. Destroyed NPCs are filtered out at lookup time
+/// through Unity's fake-null on destroyed GameObjects.
 /// </summary>
 public sealed class SpawnPointBridge
 {
@@ -36,12 +34,14 @@ public sealed class SpawnPointBridge
     {
         public readonly SpawnState State;
         public readonly SpawnPoint? LiveSpawnPoint;
+        public readonly NPC? LiveNPC;
         public readonly float RespawnSeconds;
 
-        public SpawnInfo(SpawnState state, SpawnPoint? liveSP = null, float respawnSeconds = 0f)
+        public SpawnInfo(SpawnState state, SpawnPoint? liveSP = null, NPC? liveNPC = null, float respawnSeconds = 0f)
         {
             State = state;
             LiveSpawnPoint = liveSP;
+            LiveNPC = liveNPC;
             RespawnSeconds = respawnSeconds;
         }
     }
@@ -66,6 +66,11 @@ public sealed class SpawnPointBridge
 
     private readonly Dictionary<PosKey, SpawnPoint> _index = new();
 
+    // Directly-placed NPC cache: name (lowercase) → list of NPC references.
+    // Built once per Rebuild from FindObjectsOfType. Destroyed NPCs become
+    // Unity-null between rebuilds, filtered at lookup time.
+    private readonly Dictionary<string, List<NPC>> _npcByName = new();
+
     /// <summary>
     /// Rebuild the index from the current scene's SpawnPoints.
     /// Call on scene change, before marker rebuild.
@@ -73,17 +78,32 @@ public sealed class SpawnPointBridge
     public void Rebuild()
     {
         _index.Clear();
+        _npcByName.Clear();
 
-        if (SpawnPointManager.SpawnPointsInScene == null)
-            return;
-
-        foreach (var sp in SpawnPointManager.SpawnPointsInScene)
+        if (SpawnPointManager.SpawnPointsInScene != null)
         {
-            if (sp == null) continue;
-            var pos = sp.transform.position;
-            var key = new PosKey(pos.x, pos.y, pos.z);
-            // First SpawnPoint at a position wins (collisions not expected)
-            _index.TryAdd(key, sp);
+            foreach (var sp in SpawnPointManager.SpawnPointsInScene)
+            {
+                if (sp == null) continue;
+                var pos = sp.transform.position;
+                var key = new PosKey(pos.x, pos.y, pos.z);
+                // First SpawnPoint at a position wins (collisions not expected)
+                _index.TryAdd(key, sp);
+            }
+        }
+
+        // Cache all active NPCs by lowercase name for directly-placed lookup.
+        // One FindObjectsOfType call per scene load, reused for all GetState calls.
+        foreach (var npc in UnityEngine.Object.FindObjectsOfType<NPC>())
+        {
+            if (npc == null || string.IsNullOrEmpty(npc.NPCName)) continue;
+            var nameKey = npc.NPCName.ToLowerInvariant();
+            if (!_npcByName.TryGetValue(nameKey, out var list))
+            {
+                list = new List<NPC>();
+                _npcByName[nameKey] = list;
+            }
+            list.Add(npc);
         }
     }
 
@@ -99,9 +119,11 @@ public sealed class SpawnPointBridge
             return ClassifySpawnPoint(sp, expectedNPCName);
 
         // No SpawnPoint at this position — directly-placed NPC.
-        // Check if the NPC is alive in NPCTable.LiveNPCs at this exact position.
-        if (FindDirectlyPlacedNPC(x, y, z) != null)
-            return new SpawnInfo(SpawnState.Alive);
+        // Search active NPCs by name + proximity since directly-placed NPCs
+        // often aren't in NPCTable.LiveNPCs and can drift from placed position.
+        var npc = FindDirectlyPlacedNPC(x, y, z, expectedNPCName);
+        if (npc != null)
+            return new SpawnInfo(SpawnState.Alive, liveNPC: npc);
 
         return new SpawnInfo(SpawnState.DirectlyPlacedDead);
     }
@@ -130,14 +152,14 @@ public sealed class SpawnPointBridge
         {
             // NPC might still be alive in the 04:00-06:59 transition window
             if (IsExpectedNPCAlive(sp, expectedNPCName))
-                return new SpawnInfo(SpawnState.Alive, sp);
+                return new SpawnInfo(SpawnState.Alive, sp, sp.SpawnedNPC);
 
             return new SpawnInfo(SpawnState.NightLocked, sp);
         }
 
         // Alive with expected NPC
         if (IsExpectedNPCAlive(sp, expectedNPCName))
-            return new SpawnInfo(SpawnState.Alive, sp);
+            return new SpawnInfo(SpawnState.Alive, sp, sp.SpawnedNPC);
 
         // Alive but wrong NPC (rare/common mismatch) — treat as not found
         // for this particular quest target. Also handles stale MyNPCAlive
@@ -148,7 +170,7 @@ public sealed class SpawnPointBridge
         // Dead, respawning
         float tickRate = 60f * GetSpawnTimeMod();
         float seconds = tickRate > 0f ? sp.actualSpawnDelay / tickRate : 0f;
-        return new SpawnInfo(SpawnState.Dead, sp, seconds);
+        return new SpawnInfo(SpawnState.Dead, sp, respawnSeconds: seconds);
     }
 
     /// <summary>Night spawn window: hour > 22 OR hour &lt; 4.</summary>
@@ -158,20 +180,26 @@ public sealed class SpawnPointBridge
         return hour > 22 || hour < 4;
     }
 
-    /// <summary>
-    /// Scan NPCTable.LiveNPCs for a living NPC at the exact static position.
-    /// Directly-placed NPCs don't wander, so their transform.position matches.
-    /// </summary>
-    private static NPC? FindDirectlyPlacedNPC(float x, float y, float z)
-    {
-        if (NPCTable.LiveNPCs == null) return null;
+    /// <summary>Maximum squared distance for matching directly-placed NPCs.</summary>
+    /// <remarks>Observed drift is under 0.25m; 2m threshold is generous.</remarks>
+    private const float MaxDriftSqr = 4f;
 
-        var target = new PosKey(x, y, z);
-        foreach (var npc in NPCTable.LiveNPCs)
+    /// <summary>
+    /// Find a live NPC matching the expected name within proximity of the
+    /// static spawn position. Uses the name cache built during Rebuild.
+    /// Destroyed NPCs (Unity-null) are skipped.
+    /// </summary>
+    private NPC? FindDirectlyPlacedNPC(float x, float y, float z, string expectedName)
+    {
+        if (!_npcByName.TryGetValue(expectedName.ToLowerInvariant(), out var candidates))
+            return null;
+
+        var target = new Vector3(x, y, z);
+        foreach (var npc in candidates)
         {
+            // Unity fake-null: destroyed since Rebuild
             if (npc == null) continue;
-            var pos = npc.transform.position;
-            if (target.Equals(new PosKey(pos.x, pos.y, pos.z)))
+            if ((npc.transform.position - target).sqrMagnitude <= MaxDriftSqr)
                 return npc;
         }
         return null;

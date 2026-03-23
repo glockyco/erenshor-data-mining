@@ -279,10 +279,13 @@ public sealed class WorldMarkerSystem
             if (!string.Equals(sp.Scene, scene, System.StringComparison.OrdinalIgnoreCase))
                 continue;
 
-            var pos = new Vector3(sp.X, sp.Y, sp.Z) + Vector3.up * StaticHeightOffset;
+            var staticPos = new Vector3(sp.X, sp.Y, sp.Z) + Vector3.up * StaticHeightOffset;
             string spawnKey = $"{stableKey}@{sp.X:F2},{sp.Y:F2},{sp.Z:F2}";
 
             var info = _bridge.GetState(sp.X, sp.Y, sp.Z, displayName);
+
+            // Use live NPC position when available (NPCs drift from placed position)
+            var pos = info.LiveNPC != null ? GetMarkerPosition(info.LiveNPC) : staticPos;
 
             switch (info.State)
             {
