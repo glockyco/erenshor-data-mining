@@ -379,8 +379,9 @@ public sealed class QuestDetailPanel
         string header = $"{alternatives.Count} zone connections";
         if (ImGui.TreeNode($"{header}##zl_{step.Order}"))
         {
-            foreach (var (line, distance, isSelected, isAccessible) in alternatives)
+            for (int i = 0; i < alternatives.Count; i++)
             {
+                var (line, distance, isSelected, isAccessible) = alternatives[i];
                 if (!isAccessible)
                 {
                     // Locked zone line: dimmed text
@@ -391,7 +392,6 @@ public sealed class QuestDetailPanel
                     // Required quests as clickable links on the next line
                     if (line.RequiredQuestGroups != null)
                     {
-                        // Pick smallest incomplete group
                         foreach (var group in line.RequiredQuestGroups)
                         {
                             foreach (var questDBName in group)
@@ -401,7 +401,7 @@ public sealed class QuestDetailPanel
                                 var entry = _data.GetByDBName(questDBName);
                                 if (entry == null) continue;
                                 ImGui.Indent(Theme.IndentWidth);
-                                if (ImGui.Selectable($"Requires: \"{entry.DisplayName}\"##rq_{questDBName}"))
+                                if (ImGui.Selectable($"Requires: \"{entry.DisplayName}\"##rq_{step.Order}_{i}_{questDBName}"))
                                     _state.SelectQuest(entry.DBName);
                                 ImGui.Unindent(Theme.IndentWidth);
                             }
@@ -417,7 +417,7 @@ public sealed class QuestDetailPanel
                     if (isSelected)
                         ImGui.Text(label);
                     else
-                        ImGui.Selectable($"{label}##zl_{line.X}_{line.Z}");
+                        ImGui.Selectable($"{label}##zl_{step.Order}_{i}");
                 }
             }
             ImGui.TreePop();
@@ -453,7 +453,7 @@ public sealed class QuestDetailPanel
 
         if (hasChildren)
         {
-            if (ImGui.TreeNode($"{label}##src_{depth}_{src.Type}_{src.Name}"))
+            if (ImGui.TreeNode($"{label}##src_{step.Order}_{depth}_{src.Type}_{src.Name}"))
             {
                 // Quest reward with a linked quest: show navigable link inside tree
                 if (src.Type == "quest_reward" && src.QuestKey != null)
@@ -462,7 +462,7 @@ public sealed class QuestDetailPanel
                     if (target != null)
                     {
                         ImGui.PushStyleColor(ImGuiCol.Text, Theme.QuestActive);
-                        if (ImGui.Selectable($"Open quest: {target.DisplayName}##goto_{src.QuestKey}"))
+                        if (ImGui.Selectable($"Open quest: {target.DisplayName}##goto_{step.Order}_{src.QuestKey}"))
                         {
                         _state.SelectQuest(target.DBName);
                         }
@@ -478,7 +478,7 @@ public sealed class QuestDetailPanel
         else if (src.SourceKey != null)
         {
             // Navigable source: Selectable with hover tooltip
-            if (ImGui.Selectable($"{label}##src_{src.SourceKey}"))
+            if (ImGui.Selectable($"{label}##src_{step.Order}_{src.SourceKey}"))
             {
                 _nav.NavigateToSource(src.SourceKey, src.Name ?? src.SourceKey,
                     src.Scene, quest.DBName, step.Order, _state.CurrentZone);
