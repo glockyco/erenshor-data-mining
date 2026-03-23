@@ -118,6 +118,8 @@ def _load(conn: sqlite3.Connection) -> QuestDataContext:
         item_sources=_build_item_sources(conn, zone_by_display),
     )
 
+    _resolve_navigable_sources(ctx)
+
     log.info(
         "Loaded quest data: %d quests, %d items with sources, %d zones, %d chain groups",
         len(ctx.quests),
@@ -481,6 +483,19 @@ def _fetch_character_spawns(
         SELECT character_stable_key, scene, x, y, z
         FROM character_spawns
         WHERE x IS NOT NULL
+        UNION ALL
+        SELECT 'mining-nodes:' || scene AS character_stable_key, scene, x, y, z
+        FROM mining_nodes
+        WHERE x IS NOT NULL
+        UNION ALL
+        SELECT 'pickup-nodes:' || item_stable_key || ':' || scene AS character_stable_key,
+               scene, x, y, z
+        FROM item_bags
+        WHERE x IS NOT NULL AND item_stable_key IS NOT NULL
+        UNION ALL
+        SELECT 'forge:' || scene AS character_stable_key, scene, x, y, z
+        FROM forges
+        WHERE x IS NOT NULL
         """
     ).fetchall()
     result: dict[str, list[SpawnPoint]] = {}
@@ -636,6 +651,63 @@ def _source_sort_key(src: ItemSource) -> tuple[int, int]:
     return (1, 0)
 
 
+def _resolve_navigable_sources(ctx: QuestDataContext) -> None:
+    """Resolve source_key for quest_reward sources by following acquisition chains."""
+    for item_sources in ctx.item_sources.values():
+        for src in item_sources:
+            if src.source_key is not None or src.type != "quest_reward":
+                continue
+            if src.quest_key is None:
+                continue
+            resolved = _resolve_quest_giver(src.quest_key, ctx.acquisition, ctx.item_sources, set())
+            if resolved is not None:
+                char_key, zone = resolved
+                src.source_key = char_key
+                if src.zone is None:
+                    src.zone = zone
+
+
+def _resolve_quest_giver(
+    quest_key: str,
+    acquisition: dict[str, list[AcquisitionSource]],
+    item_sources: dict[str, list[ItemSource]],
+    visited: set[str],
+) -> tuple[str, str | None] | None:
+    """Recursively resolve a quest's giver to a navigable character.
+
+    Returns (character_stable_key, zone_display_name) or None.
+    """
+    if quest_key in visited:
+        return None
+    visited.add(quest_key)
+
+    for acq in acquisition.get(quest_key, []):
+        # Direct character giver (dialog, partial_turnin)
+        if acq.source_type == "character" and acq.source_stable_key:
+            return (acq.source_stable_key, acq.zone_name)
+
+        # Item-read trigger: find where the trigger item comes from
+        if acq.source_type == "item" and acq.source_stable_key:
+            # Check direct sources (drop, vendor, dialog_give, etc.)
+            for item_src in item_sources.get(acq.source_stable_key, []):
+                if item_src.source_key is not None:
+                    return (item_src.source_key, item_src.zone)
+            # Check quest_reward sources on the trigger item (recurse)
+            for item_src in item_sources.get(acq.source_stable_key, []):
+                if item_src.type == "quest_reward" and item_src.quest_key:
+                    result = _resolve_quest_giver(item_src.quest_key, acquisition, item_sources, visited)
+                    if result is not None:
+                        return result
+
+        # Quest chain: resolve previous quest's giver
+        if acq.source_type == "quest" and acq.source_stable_key:
+            result = _resolve_quest_giver(acq.source_stable_key, acquisition, item_sources, visited)
+            if result is not None:
+                return result
+
+    return None
+
+
 def _add_drop_sources(
     conn: sqlite3.Connection,
     out: dict[str, list[ItemSource]],
@@ -781,6 +853,9 @@ def _add_mining_sources(
         """
         SELECT mni.item_stable_key,
                z.display_name AS zone_name,
+               mn.scene AS scene_name,
+               mn.npc_name AS node_name,
+               MIN(mn.stable_key) AS representative_key,
                COUNT(*) AS node_count
         FROM mining_node_items mni
         JOIN mining_nodes mn ON mni.mining_node_stable_key = mn.stable_key
@@ -794,8 +869,10 @@ def _add_mining_sources(
         out[row["item_stable_key"]].append(
             ItemSource(
                 type="mining",
+                name=row["node_name"],
                 zone=zone_name,
                 level=zi.level_median if zi else None,
+                source_key=f"mining-nodes:{row['scene_name']}" if row["scene_name"] else None,
                 node_count=row["node_count"],
             )
         )
@@ -811,6 +888,8 @@ def _add_bag_sources(
         """
         SELECT ib.item_stable_key,
                z.display_name AS zone_name,
+               ib.scene AS scene_name,
+               MIN(ib.stable_key) AS representative_key,
                COUNT(*) AS node_count
         FROM item_bags ib
         LEFT JOIN zones z ON z.scene_name = ib.scene
@@ -826,6 +905,7 @@ def _add_bag_sources(
                 type="pickup",
                 zone=zone_name,
                 level=zi.level_median if zi else None,
+                source_key=f"pickup-nodes:{row['item_stable_key']}:{row['scene_name']}" if row["scene_name"] else None,
                 node_count=row["node_count"],
             )
         )
