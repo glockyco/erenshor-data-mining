@@ -296,22 +296,6 @@ public sealed class QuestListPanel
         if (ImGui.Selectable(label + "##" + quest.DBName, isSelected))
             _state.SelectQuest(quest.DBName);
 
-        // Right-click context menu: Track/Untrack
-        if (ImGui.BeginPopupContextItem($"##qctx{quest.DBName}"))
-        {
-            if (isTracked)
-            {
-                if (ImGui.Selectable("Untrack"))
-                    _tracker.Untrack(quest.DBName);
-            }
-            else if (_state.IsActive(quest.DBName))
-            {
-                if (ImGui.Selectable("Track"))
-                    _tracker.Track(quest.DBName);
-            }
-            ImGui.EndPopup();
-        }
-
         // Tooltip on hover: zone + status + level
         if (ImGui.IsItemHovered())
         {

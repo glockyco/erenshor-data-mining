@@ -62,13 +62,16 @@ public sealed class QuestDetailPanel
         ImGui.TextWrapped(quest.DisplayName);
         ImGui.PopStyleColor();
 
-        // Track/Untrack button below quest name
+        // Track/Untrack button right-aligned on its own line
         if (_state.IsActive(quest.DBName))
         {
             bool tracked = _tracker.IsTracked(quest.DBName);
+            string btnLabel = tracked ? "[Untrack]" : "[Track]";
+            float btnWidth = ImGui.CalcTextSize(btnLabel).X + ImGui.GetStyle().FramePadding.X * 2;
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + ImGui.GetContentRegionAvail().X - btnWidth);
             if (tracked)
                 ImGui.PushStyleColor(ImGuiCol.Button, Theme.Accent);
-            if (ImGui.SmallButton(tracked ? "[Untrack]" : "[Track]"))
+            if (ImGui.SmallButton(btnLabel))
             {
                 if (tracked)
                     _tracker.Untrack(quest.DBName);
