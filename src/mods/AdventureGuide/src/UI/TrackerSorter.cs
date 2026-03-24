@@ -89,28 +89,44 @@ internal static class TrackerSorter
                 return string.Equals(scene, currentScene, System.StringComparison.OrdinalIgnoreCase);
         }
 
-        // Fall back to checking if step target has spawns in current scene
+        // Check character target spawns
         if (step.TargetKey != null && data.CharacterSpawns.TryGetValue(step.TargetKey, out var spawns))
             return spawns.Exists(s => string.Equals(s.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase));
+
+        // For item steps, check source NPC spawns
+        var sourceKey = FindFirstSourceKey(quest, step);
+        if (sourceKey != null && data.CharacterSpawns.TryGetValue(sourceKey, out var srcSpawns))
+            return srcSpawns.Exists(s => string.Equals(s.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase));
 
         return false;
     }
 
-    /// <summary>
-    /// Estimate the distance from the player to the quest's current step
-    /// target. Returns float.MaxValue if no position can be determined.
-    /// </summary>
     private static float StepDistance(
         QuestEntry quest, QuestStateTracker state, GuideData data,
         string currentScene, Vector3 playerPos)
     {
         var step = GetCurrentStep(quest, state);
-        if (step?.TargetKey == null) return float.MaxValue;
+        if (step == null) return float.MaxValue;
 
-        if (!data.CharacterSpawns.TryGetValue(step.TargetKey, out var spawns) || spawns.Count == 0)
+        // Try character target directly
+        string? key = step.TargetKey;
+        if (key != null && data.CharacterSpawns.ContainsKey(key))
+            return NearestSpawnDistance(data, key, currentScene, playerPos);
+
+        // For item steps, use the first source NPC
+        var sourceKey = FindFirstSourceKey(quest, step);
+        if (sourceKey != null)
+            return NearestSpawnDistance(data, sourceKey, currentScene, playerPos);
+
+        return float.MaxValue;
+    }
+
+    private static float NearestSpawnDistance(
+        GuideData data, string key, string currentScene, Vector3 playerPos)
+    {
+        if (!data.CharacterSpawns.TryGetValue(key, out var spawns) || spawns.Count == 0)
             return float.MaxValue;
 
-        // Find nearest spawn in the current scene
         float best = float.MaxValue;
         foreach (var sp in spawns)
         {
@@ -119,8 +135,37 @@ internal static class TrackerSorter
             float d = Vector3.Distance(playerPos, new Vector3(sp.X, sp.Y, sp.Z));
             if (d < best) best = d;
         }
-
         return best;
+    }
+
+    /// <summary>
+    /// Find the first navigable source key for an item step by looking
+    /// through the quest's RequiredItems sources.
+    /// </summary>
+    private static string? FindFirstSourceKey(QuestEntry quest, QuestStep step)
+    {
+        if (step.TargetType != "item" || quest.RequiredItems == null)
+            return null;
+
+        var item = quest.RequiredItems.Find(ri =>
+            string.Equals(ri.ItemName, step.TargetName, System.StringComparison.OrdinalIgnoreCase));
+        if (item?.Sources == null) return null;
+
+        foreach (var src in item.Sources)
+        {
+            if (src.SourceKey != null)
+                return src.SourceKey;
+            // Recurse into children (e.g., crafted items with sub-sources)
+            if (src.Children != null)
+            {
+                foreach (var child in src.Children)
+                {
+                    if (child.SourceKey != null)
+                        return child.SourceKey;
+                }
+            }
+        }
+        return null;
     }
 
     // ── Level ────────────────────────────────────────────────────────
