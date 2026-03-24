@@ -61,6 +61,10 @@ public sealed class QuestStateTracker
     public void OnQuestAssigned(string dbName)
     {
         _activeQuests.Add(dbName);
+        // Quest acceptance can give items (e.g., Kio's Papers gives a
+        // leave order). Mark inventory dirty so collect-step progress
+        // reflects the new item on the next check.
+        _inventoryDirty = true;
         IsDirty = true;
     }
 
@@ -68,6 +72,8 @@ public sealed class QuestStateTracker
     {
         _activeQuests.Remove(dbName);
         _completedQuests.Add(dbName);
+        // Completion may consume items; refresh cache.
+        _inventoryDirty = true;
         IsDirty = true;
     }
 
