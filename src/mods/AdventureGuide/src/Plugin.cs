@@ -121,23 +121,49 @@ public sealed class Plugin : BaseUnityPlugin
     }
 
     private bool _wasTextInputActive;
+    private bool _gameUIVisible = true;
 
     private void Update()
     {
+        // Respect the game's F7 UI hide toggle. When the game HUD Canvas
+        // is disabled, suppress all mod visuals. Navigation state still
+        // updates so the UI is current when restored.
+        bool gameUIVisible = GameUIVisibility.IsVisible;
+        if (gameUIVisible != _gameUIVisible)
+        {
+            _gameUIVisible = gameUIVisible;
+            SyncVisibility();
+
+            // Clear text input flag so PlayerTyping doesn't stick when
+            // the user hides UI while the search field is focused.
+            if (!gameUIVisible && _wasTextInputActive)
+            {
+                GameData.PlayerTyping = false;
+                _wasTextInputActive = false;
+            }
+        }
+
         // Set game's typing flag only when an ImGui text widget is actively
         // being edited (e.g., search field). WantTextInput is narrower than
         // WantCaptureKeyboard — the latter fires when any window has focus,
         // which would block movement (CanMove) on every window click.
-        bool textActive = _imgui?.WantTextInput ?? false;
-        if (textActive && !_wasTextInputActive)
-            GameData.PlayerTyping = true;
-        else if (!textActive && _wasTextInputActive)
-            GameData.PlayerTyping = false;
-        _wasTextInputActive = textActive;
+        if (_gameUIVisible)
+        {
+            bool textActive = _imgui?.WantTextInput ?? false;
+            if (textActive && !_wasTextInputActive)
+                GameData.PlayerTyping = true;
+            else if (!textActive && _wasTextInputActive)
+                GameData.PlayerTyping = false;
+            _wasTextInputActive = textActive;
+        }
 
-        // Update navigation state each frame
+        // Update navigation state each frame (even when UI is hidden, so
+        // distance and position are current when UI is restored)
         var currentZone = _state?.CurrentZone ?? "";
         _nav?.Update(currentZone);
+
+        // Ground path and markers respect Enabled — when SyncVisibility
+        // sets them to false, their Update methods early-return.
         _groundPath?.Update(currentZone);
         _markers?.Update(currentZone);
 
@@ -153,6 +179,7 @@ public sealed class Plugin : BaseUnityPlugin
 
     private void OnGUI()
     {
+        if (!_gameUIVisible) return;
         _imgui?.OnGUI();
     }
 
@@ -166,19 +193,26 @@ public sealed class Plugin : BaseUnityPlugin
         _state?.OnSceneChanged(scene.name);
     }
 
-    private void OnShowArrowChanged(object sender, System.EventArgs e) =>
-        _arrow!.Enabled = _config!.ShowArrow.Value;
+    private void OnShowArrowChanged(object sender, System.EventArgs e) => SyncVisibility();
 
-    private void OnShowGroundPathChanged(object sender, System.EventArgs e) =>
-        _groundPath!.Enabled = _config!.ShowGroundPath.Value;
+    private void OnShowGroundPathChanged(object sender, System.EventArgs e) => SyncVisibility();
 
     private void OnShowWorldMarkersChanged(object sender, System.EventArgs e)
     {
-        bool enabled = _config!.ShowWorldMarkers.Value;
-        _markers!.Enabled = enabled;
-        QuestMarkerPatch.SuppressGameMarkers = enabled;
-        // When disabling, restore game markers on next NPC spawn
-        // When enabling, game markers are suppressed via the prefix patch
+        SyncVisibility();
+        QuestMarkerPatch.SuppressGameMarkers = _config!.ShowWorldMarkers.Value;
+    }
+
+    /// <summary>
+    /// Applies effective visibility = config setting AND game UI visible.
+    /// Called on config changes and on game UI visibility transitions.
+    /// </summary>
+    private void SyncVisibility()
+    {
+        bool ui = _gameUIVisible;
+        _arrow!.Enabled = ui && _config!.ShowArrow.Value;
+        _groundPath!.Enabled = ui && _config!.ShowGroundPath.Value;
+        _markers!.Enabled = ui && _config!.ShowWorldMarkers.Value;
     }
 
     private void OnDestroy()
