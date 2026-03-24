@@ -166,11 +166,11 @@ public sealed class MarkerInstance
     internal static readonly Color SubTextColor = new(0.92f, 0.92f, 0.92f, 1f);
 
     // ── Distance fade ───────────────────────────────────────────
-    // Icon fades 80-100m. Sub-text fades earlier: 40-60m.
-    private const float IconFadeStart = 80f;
-    private const float IconFadeEnd = 100f;
-    private const float SubFadeStart = 40f;
-    private const float SubFadeEnd = 60f;
+    // Icon fades 100-150m. Sub-text fades earlier: 60-80m.
+    private const float IconFadeStart = 100f;
+    private const float IconFadeEnd = 150f;
+    private const float SubFadeStart = 60f;
+    private const float SubFadeEnd = 80f;
 
     // ── Glyph + color lookup ────────────────────────────────────
     private static readonly (char glyph, Color color, float size)[] TypeVisuals =
