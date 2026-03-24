@@ -69,4 +69,41 @@ public static class Theme
         byte ba = (byte)(a * 255f + 0.5f);
         return (uint)(br | (bg << 8) | (bb << 16) | (ba << 24));
     }
+
+    /// <summary>
+    /// Apply saved window geometry from config. Call before ImGui.Begin.
+    /// Values of -1 mean "use ImGui default" (FirstUseEver).
+    /// </summary>
+    public static void ApplyWindowGeometry(
+        BepInEx.Configuration.ConfigEntry<float> x,
+        BepInEx.Configuration.ConfigEntry<float> y,
+        BepInEx.Configuration.ConfigEntry<float> w,
+        BepInEx.Configuration.ConfigEntry<float> h,
+        float defaultW, float defaultH)
+    {
+        float sw = w.Value > 0 ? w.Value : defaultW;
+        float sh = h.Value > 0 ? h.Value : defaultH;
+        ImGui.SetNextWindowSize(new System.Numerics.Vector2(sw, sh), ImGuiCond.FirstUseEver);
+        if (x.Value >= 0 && y.Value >= 0)
+            ImGui.SetNextWindowPos(new System.Numerics.Vector2(x.Value, y.Value), ImGuiCond.FirstUseEver);
+    }
+
+    /// <summary>
+    /// Read current window geometry into config entries. Must be called
+    /// between Begin and End while the window is current.
+    /// </summary>
+    public static void UpdateWindowGeometry(
+        BepInEx.Configuration.ConfigEntry<float> x,
+        BepInEx.Configuration.ConfigEntry<float> y,
+        BepInEx.Configuration.ConfigEntry<float> w,
+        BepInEx.Configuration.ConfigEntry<float> h)
+    {
+        var pos = ImGui.GetWindowPos();
+        var size = ImGui.GetWindowSize();
+        x.Value = pos.X;
+        y.Value = pos.Y;
+        w.Value = size.X;
+        h.Value = size.Y;
+    }
+
 }

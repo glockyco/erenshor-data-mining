@@ -83,11 +83,10 @@ public sealed class TrackerWindow
 
         if (_firstDraw)
         {
-            ImGui.SetNextWindowSize(new Vector2(DefaultWidth, DefaultHeight), ImGuiCond.FirstUseEver);
-            float savedX = _config.TrackerWindowX.Value;
-            float savedY = _config.TrackerWindowY.Value;
-            if (savedX >= 0 && savedY >= 0)
-                ImGui.SetNextWindowPos(new Vector2(savedX, savedY), ImGuiCond.FirstUseEver);
+            Theme.ApplyWindowGeometry(
+                _config.TrackerWindowX, _config.TrackerWindowY,
+                _config.TrackerWindowW, _config.TrackerWindowH,
+                DefaultWidth, DefaultHeight);
             _firstDraw = false;
         }
 
@@ -104,19 +103,13 @@ public sealed class TrackerWindow
             DrawQuestList();
         }
 
+        Theme.UpdateWindowGeometry(
+            _config.TrackerWindowX, _config.TrackerWindowY,
+            _config.TrackerWindowW, _config.TrackerWindowH);
         ClampWindowPosition();
+
         ImGui.End();
         Theme.PopWindowStyle();
-    }
-
-    /// <summary>Save window position to config for cross-session persistence.</summary>
-    public void SavePosition()
-    {
-        if (_config == null) return;
-        var pos = ImGui.GetWindowPos();
-        var size = ImGui.GetWindowSize();
-        _config.TrackerWindowX.Value = pos.X;
-        _config.TrackerWindowY.Value = pos.Y;
     }
 
     // ── Header bar ───────────────────────────────────────────────────

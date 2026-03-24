@@ -77,7 +77,7 @@ public sealed class Plugin : BaseUnityPlugin
 
         var history = new NavigationHistory(_config.HistoryMaxSize.Value);
         _config.HistoryMaxSize.SettingChanged += (_, _) => history.MaxSize = _config.HistoryMaxSize.Value;
-        _window = new GuideWindow(_data, _state, _nav, history, _trackerState);
+        _window = new GuideWindow(_data, _state, _nav, history, _trackerState, _config);
         _state.SetHistory(history);
         _window.Filter.LoadFrom(_config);
         _tracker = new TrackerWindow(_data, _state, _nav, _trackerState, _window, _config);
@@ -251,10 +251,9 @@ public sealed class Plugin : BaseUnityPlugin
         }
         _harmony?.UnpatchSelf();
 
-        // Save tracker state before disposing ImGui (SavePosition reads
-        // window position from ImGui context)
+        // Window geometry is saved each frame inside Draw (requires active
+        // ImGui window context). Only TrackerState needs explicit save here.
         _trackerState?.SaveToConfig();
-
         _imgui?.Dispose();
         _arrow?.Dispose();
         _groundPath?.Destroy();

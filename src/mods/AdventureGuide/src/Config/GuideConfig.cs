@@ -26,15 +26,21 @@ public sealed class GuideConfig
     public ConfigEntry<float> SubTextYOffset { get; }
     public ConfigEntry<float> IconYOffset { get; }
 
+    // Window geometry (auto-managed, -1 = use ImGui default)
+    public ConfigEntry<float> GuideWindowX { get; }
+    public ConfigEntry<float> GuideWindowY { get; }
+    public ConfigEntry<float> GuideWindowW { get; }
+    public ConfigEntry<float> GuideWindowH { get; }
+
     // Tracker overlay
     public ConfigEntry<KeyCode> TrackerToggleKey { get; }
     public ConfigEntry<bool> TrackerAutoTrack { get; }
     public ConfigEntry<string> TrackerSortMode { get; }
     public ConfigEntry<string> TrackedQuests { get; }
-    public ConfigEntry<float> TrackerIdleOpacity { get; }
-    public ConfigEntry<float> TrackerHoverOpacity { get; }
     public ConfigEntry<float> TrackerWindowX { get; }
     public ConfigEntry<float> TrackerWindowY { get; }
+    public ConfigEntry<float> TrackerWindowW { get; }
+    public ConfigEntry<float> TrackerWindowH { get; }
     public GuideConfig(ConfigFile config)
     {
         ToggleKey = config.Bind("General", "ToggleKey", KeyCode.L,
@@ -78,6 +84,11 @@ public sealed class GuideConfig
             new ConfigDescription("Maximum number of pages in navigation history",
                 new AcceptableValueRange<int>(10, 500)));
 
+        GuideWindowX = config.Bind("Window", "GuideX", -1f, "Guide window X (auto-managed)");
+        GuideWindowY = config.Bind("Window", "GuideY", -1f, "Guide window Y (auto-managed)");
+        GuideWindowW = config.Bind("Window", "GuideW", -1f, "Guide window width (auto-managed)");
+        GuideWindowH = config.Bind("Window", "GuideH", -1f, "Guide window height (auto-managed)");
+
         TrackerToggleKey = config.Bind("Tracker", "ToggleKey", KeyCode.K,
             "Key to toggle the quest tracker overlay");
         TrackerAutoTrack = config.Bind("Tracker", "AutoTrack", true,
@@ -86,15 +97,9 @@ public sealed class GuideConfig
             "Sort order: Proximity, Level, or Alphabetical");
         TrackedQuests = config.Bind("Tracker", "TrackedQuests", "",
             "Semicolon-delimited list of tracked quest DB names (auto-managed)");
-        TrackerIdleOpacity = config.Bind("Tracker", "IdleOpacity", 0.6f,
-            new ConfigDescription("Background opacity when not hovering",
-                new AcceptableValueRange<float>(0.1f, 1.0f)));
-        TrackerHoverOpacity = config.Bind("Tracker", "HoverOpacity", 0.9f,
-            new ConfigDescription("Background opacity when hovering",
-                new AcceptableValueRange<float>(0.1f, 1.0f)));
-        TrackerWindowX = config.Bind("Tracker", "WindowX", -1f,
-            "Saved tracker window X position (auto-managed)");
-        TrackerWindowY = config.Bind("Tracker", "WindowY", -1f,
-            "Saved tracker window Y position (auto-managed)");
+        TrackerWindowX = config.Bind("Tracker", "WindowX", -1f, "Tracker window X (auto-managed)");
+        TrackerWindowY = config.Bind("Tracker", "WindowY", -1f, "Tracker window Y (auto-managed)");
+        TrackerWindowW = config.Bind("Tracker", "WindowW", -1f, "Tracker window width (auto-managed)");
+        TrackerWindowH = config.Bind("Tracker", "WindowH", -1f, "Tracker window height (auto-managed)");
     }
 }

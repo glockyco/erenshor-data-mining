@@ -1,4 +1,5 @@
 using System.Numerics;
+using AdventureGuide.Config;
 using AdventureGuide.Data;
 using AdventureGuide.Navigation;
 using AdventureGuide.State;
@@ -18,6 +19,9 @@ public sealed class GuideWindow
     private readonly QuestListPanel _listPanel;
     private readonly QuestDetailPanel _detailPanel;
     private readonly NavigationHistory _history;
+    private readonly GuideConfig _config;
+
+    private bool _firstDraw = true;
 
     private bool _visible;
 
@@ -27,11 +31,12 @@ public sealed class GuideWindow
     public FilterState Filter => _filter;
 
     public GuideWindow(GuideData data, QuestStateTracker state, NavigationController nav,
-        NavigationHistory history, TrackerState tracker)
+        NavigationHistory history, TrackerState tracker, GuideConfig config)
     {
         _data = data;
         _state = state;
         _history = history;
+        _config = config;
         _listPanel = new QuestListPanel(data, state, _filter, tracker);
         _detailPanel = new QuestDetailPanel(data, state, nav, tracker);
     }
@@ -49,22 +54,30 @@ public sealed class GuideWindow
         if (!_visible)
             return;
 
-        ImGui.SetNextWindowSize(new Vector2(800, 550), ImGuiCond.FirstUseEver);
+        if (_firstDraw)
+        {
+            Theme.ApplyWindowGeometry(
+                _config.GuideWindowX, _config.GuideWindowY,
+                _config.GuideWindowW, _config.GuideWindowH,
+                800f, 550f);
+            _firstDraw = false;
+        }
 
         Theme.PushWindowStyle();
 
         if (ImGui.Begin("Adventure Guide", ref _visible, ImGuiWindowFlags.NoCollapse))
             DrawTabBar();
 
-        // Clamp window position so the title bar stays reachable. Dear ImGui
-        // has no built-in clamping — without this the user can drag the window
-        // entirely off screen with no way to recover.
+        // Save geometry each frame while window is current (between Begin/End).
+        // ImGui.GetWindowPos/Size require an active window context.
+        Theme.UpdateWindowGeometry(
+            _config.GuideWindowX, _config.GuideWindowY,
+            _config.GuideWindowW, _config.GuideWindowH);
         ClampWindowPosition();
 
         ImGui.End();
         Theme.PopWindowStyle();
     }
-
     private void DrawTabBar()
     {
         if (ImGui.BeginTabBar("##GuideTabs"))
