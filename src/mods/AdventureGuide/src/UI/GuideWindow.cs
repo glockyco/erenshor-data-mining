@@ -8,7 +8,7 @@ namespace AdventureGuide.UI;
 
 /// <summary>
 /// Main AdventureGuide window rendered via Dear ImGui.
-/// Orchestrates QuestListPanel, QuestDetailPanel, and ProgressPanel.
+/// Orchestrates QuestListPanel and QuestDetailPanel.
 /// </summary>
 public sealed class GuideWindow
 {
@@ -17,7 +17,6 @@ public sealed class GuideWindow
     private readonly FilterState _filter = new();
     private readonly QuestListPanel _listPanel;
     private readonly QuestDetailPanel _detailPanel;
-    private readonly ProgressPanel _progressPanel;
     private readonly NavigationHistory _history;
 
     private bool _visible;
@@ -34,7 +33,6 @@ public sealed class GuideWindow
         _history = history;
         _listPanel = new QuestListPanel(data, state, _filter);
         _detailPanel = new QuestDetailPanel(data, state, nav);
-        _progressPanel = new ProgressPanel(data, state);
     }
 
     public void Toggle() => _visible = !_visible;
@@ -72,15 +70,7 @@ public sealed class GuideWindow
         {
             if (ImGui.BeginTabItem("Quests"))
             {
-                _filter.SelectedTab = 0;
                 DrawQuestsTab();
-                ImGui.EndTabItem();
-            }
-
-            if (ImGui.BeginTabItem("Progress"))
-            {
-                _filter.SelectedTab = 1;
-                _progressPanel.Draw();
                 ImGui.EndTabItem();
             }
 

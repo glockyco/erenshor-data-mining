@@ -29,9 +29,6 @@ public class FilterState
 {
     private GuideConfig? _config;
 
-    /// <summary>0 = Quests, 1 = Progress.</summary>
-    public int SelectedTab;
-
     /// <summary>
     /// Monotonically increasing version. Consumers compare against a snapshot
     /// to detect whether filter state has changed since their last computation.
