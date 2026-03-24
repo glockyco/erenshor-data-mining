@@ -83,16 +83,16 @@ public sealed class QuestListPanel
             _filter.FilterMode = (QuestFilterMode)_filterIndex;
 
         ImGui.SameLine();
-        DrawSortButton("Az", QuestSortMode.Alphabetical);
+        DrawSortButton("Az", QuestSortMode.Alphabetical, "Sort alphabetically");
         ImGui.SameLine(0, 2);
-        DrawSortButton("Lv", QuestSortMode.ByLevel);
+        DrawSortButton("Lv", QuestSortMode.ByLevel, "Sort by level");
         ImGui.SameLine(0, 2);
-        DrawSortButton("Zn", QuestSortMode.ByZone);
+        DrawSortButton("Zn", QuestSortMode.ByZone, "Sort by zone");
 
         ImGui.Spacing();
     }
 
-    private void DrawSortButton(string label, QuestSortMode mode)
+    private void DrawSortButton(string label, QuestSortMode mode, string tooltip)
     {
         bool active = _filter.SortMode == mode;
         if (active)
@@ -103,6 +103,13 @@ public sealed class QuestListPanel
 
         if (active)
             ImGui.PopStyleColor();
+
+        if (ImGui.IsItemHovered())
+        {
+            ImGui.BeginTooltip();
+            ImGui.TextUnformatted(tooltip);
+            ImGui.EndTooltip();
+        }
     }
 
     private void DrawZoneFilter()
