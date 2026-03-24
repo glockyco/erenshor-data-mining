@@ -237,6 +237,21 @@ public sealed class MarkerInstance
         }
     }
 
+    /// <summary>Update only the sub-text without re-configuring the full marker.</summary>
+    public void UpdateSubText(string? subText)
+    {
+        if (!string.IsNullOrEmpty(subText))
+        {
+            _subText.text = subText;
+            _subText.gameObject.SetActive(true);
+        }
+        else
+        {
+            _subText.text = "";
+            _subText.gameObject.SetActive(false);
+        }
+    }
+
     /// <summary>Set the world position of the marker.</summary>
     public void SetPosition(Vector3 position)
     {

@@ -14,6 +14,7 @@ internal static class SpawnPatch
 {
     internal static EntityRegistry? Registry;
     internal static SpawnTimerTracker? Timers;
+    internal static WorldMarkerSystem? Markers;
 
     [HarmonyPostfix]
     private static void Postfix(SpawnPoint __instance)
@@ -22,5 +23,6 @@ internal static class SpawnPatch
             Registry?.Register(__instance.SpawnedNPC);
 
         Timers?.OnNPCSpawn(__instance);
+        Markers?.MarkSpawnDirty();
     }
 }

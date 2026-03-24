@@ -38,6 +38,7 @@ public sealed class WorldMarkerSystem
     private string _lastScene = "";
     private bool _enabled;
     private bool _configDirty;
+    private bool _spawnDirty;
     private int _lastHour = -1;
 
     public bool Enabled
@@ -85,8 +86,9 @@ public sealed class WorldMarkerSystem
         int hour = GameData.Time.hour;
         bool sceneChanged = currentScene != _lastScene;
         bool hourChanged = hour != _lastHour;
-        bool needsRebuild = sceneChanged || hourChanged || _state.IsDirty || _configDirty;
+        bool needsRebuild = sceneChanged || hourChanged || _state.IsDirty || _configDirty || _spawnDirty;
         _configDirty = false;
+        _spawnDirty = false;
         _lastHour = hour;
 
         if (needsRebuild)
@@ -101,6 +103,9 @@ public sealed class WorldMarkerSystem
     }
 
     private void OnConfigChanged(object sender, System.EventArgs e) => _configDirty = true;
+
+    /// <summary>Signal that an NPC spawned or died. Triggers marker rebuild next frame.</summary>
+    public void MarkSpawnDirty() => _spawnDirty = true;
 
     public void Destroy()
     {
@@ -290,7 +295,8 @@ public sealed class WorldMarkerSystem
             switch (info.State)
             {
                 case SpawnPointBridge.SpawnState.Alive:
-                    TryAddMarker(spawnKey, questType, displayName, questSubText, pos, stableKey);
+                    TryAddMarker(spawnKey, questType, displayName, questSubText, pos, stableKey,
+                        info.LiveSpawnPoint, questType, questSubText);
                     break;
 
                 case SpawnPointBridge.SpawnState.Dead:
@@ -299,7 +305,8 @@ public sealed class WorldMarkerSystem
                         ? SpawnTimerTracker.FormatTimer(info.RespawnSeconds)
                         : "Respawning...";
                     TryAddMarker(spawnKey, MarkerType.DeadSpawn, displayName,
-                        $"{displayName}\n{timer}", pos, targetKey: null);
+                        $"{displayName}\n{timer}", pos, targetKey: null,
+                        info.LiveSpawnPoint, questType, questSubText);
                     break;
                 }
 
@@ -309,7 +316,8 @@ public sealed class WorldMarkerSystem
                     int min = GameData.Time.min;
                     TryAddMarker(spawnKey, MarkerType.NightSpawn, displayName,
                         $"{displayName}\nNight only (23:00-04:00)\nNow: {hour}:{min:D2}",
-                        pos, targetKey: null);
+                        pos, targetKey: null,
+                        info.LiveSpawnPoint, questType, questSubText);
                     break;
                 }
 
@@ -379,6 +387,10 @@ public sealed class WorldMarkerSystem
                 // else: keep static position from last rebuild
             }
 
+            // Per-frame spawn state: update timers and detect alive/dead transitions
+            if (m.LiveSpawnPoint != null)
+                UpdateSpawnMarkerState(ref m, instance);
+
             instance.SetPosition(m.Position);
 
             // Distance fade — MarkerInstance handles separate icon/sub-text ramps
@@ -388,8 +400,60 @@ public sealed class WorldMarkerSystem
                 instance.SetAlpha(dist);
             }
 
-            _markers[i] = m; // write back mutated position
+            _markers[i] = m; // write back mutated state
         }
+    }
+
+    /// <summary>
+    /// Re-classify a spawn marker per-frame based on live SpawnPoint state.
+    /// Handles alive↔dead transitions immediately and keeps respawn timer
+    /// text fresh every frame.
+    /// </summary>
+    private void UpdateSpawnMarkerState(ref MarkerEntry m, MarkerInstance instance)
+    {
+        var sp = m.LiveSpawnPoint!;
+        bool isAlive = SpawnPointBridge.IsExpectedNPCAlive(sp, m.DisplayName);
+
+        if (isAlive && m.Type != m.QuestType)
+        {
+            // Dead → Alive: restore quest marker
+            m.Type = m.QuestType;
+            m.SubText = m.QuestSubText;
+            m.TargetKey = "live"; // non-null activates position tracking
+            instance.Configure(m.Type, m.SubText,
+                _config.MarkerScale.Value, _config.IconSize.Value,
+                _config.SubTextSize.Value, _config.IconYOffset.Value,
+                _config.SubTextYOffset.Value);
+            if (sp.SpawnedNPC != null)
+                m.Position = GetMarkerPosition(sp.SpawnedNPC);
+        }
+        else if (!isAlive && m.Type == m.QuestType)
+        {
+            // Alive → Dead: switch to skull
+            m.Type = MarkerType.DeadSpawn;
+            m.TargetKey = null;
+            string timer = FormatRespawnTimer(sp);
+            m.SubText = $"{m.DisplayName}\n{timer}";
+            instance.Configure(m.Type, m.SubText,
+                _config.MarkerScale.Value, _config.IconSize.Value,
+                _config.SubTextSize.Value, _config.IconYOffset.Value,
+                _config.SubTextYOffset.Value);
+        }
+        else if (m.Type == MarkerType.DeadSpawn)
+        {
+            // Still dead: update timer text every frame
+            string timer = FormatRespawnTimer(sp);
+            m.SubText = $"{m.DisplayName}\n{timer}";
+            instance.UpdateSubText(m.SubText);
+        }
+    }
+
+    private static string FormatRespawnTimer(SpawnPoint sp)
+    {
+        float spawnTimeMod = GameData.GM != null ? GameData.GM.SpawnTimeMod : 1f;
+        float tickRate = 60f * spawnTimeMod;
+        float seconds = tickRate > 0f ? sp.actualSpawnDelay / tickRate : 0f;
+        return seconds > 0f ? SpawnTimerTracker.FormatTimer(seconds) : "Respawning...";
     }
 
     // ── Text formatting ──────────────────────────────────────────
@@ -437,7 +501,10 @@ public sealed class WorldMarkerSystem
     /// </summary>
     private void TryAddMarker(
         string spawnKey, MarkerType type, string displayName,
-        string? subText, Vector3 position, string? targetKey)
+        string? subText, Vector3 position, string? targetKey,
+        SpawnPoint? liveSpawnPoint = null,
+        MarkerType questType = default,
+        string? questSubText = null)
     {
         if (_intentIndex.TryGetValue(spawnKey, out int existingIdx))
         {
@@ -451,6 +518,9 @@ public sealed class WorldMarkerSystem
                     DisplayName = displayName,
                     TargetKey = targetKey,
                     SubText = subText,
+                    LiveSpawnPoint = liveSpawnPoint,
+                    QuestType = questType,
+                    QuestSubText = questSubText,
                 };
             }
             return;
@@ -464,6 +534,9 @@ public sealed class WorldMarkerSystem
             DisplayName = displayName,
             TargetKey = targetKey,
             SubText = subText,
+            LiveSpawnPoint = liveSpawnPoint,
+            QuestType = questType,
+            QuestSubText = questSubText,
         });
     }
 
@@ -493,7 +566,9 @@ public sealed class WorldMarkerSystem
 }
 
 /// <summary>
-/// A computed marker to display. Position is mutable for live NPC tracking.
+/// A computed marker. Stores current visual state (Type, SubText) and
+/// quest intent (QuestType, QuestSubText) so per-frame updates can switch
+/// between alive and absence states without a full rebuild.
 /// </summary>
 public struct MarkerEntry
 {
@@ -502,4 +577,10 @@ public struct MarkerEntry
     public string DisplayName;
     public string? TargetKey;
     public string? SubText;
+    /// <summary>Live SpawnPoint for per-frame timer/state updates. Null for non-spawn markers.</summary>
+    public SpawnPoint? LiveSpawnPoint;
+    /// <summary>Quest marker type to restore when NPC respawns.</summary>
+    public MarkerType QuestType;
+    /// <summary>Quest sub-text to restore when NPC respawns.</summary>
+    public string? QuestSubText;
 }

@@ -92,8 +92,10 @@ public sealed class Plugin : BaseUnityPlugin
         InventoryPatch.Nav = _nav;
         SpawnPatch.Registry = _entities;
         SpawnPatch.Timers = _timers;
+        SpawnPatch.Markers = _markers;
         DeathPatch.Registry = _entities;
         DeathPatch.Timers = _timers;
+        DeathPatch.Markers = _markers;
         QuestMarkerPatch.SuppressGameMarkers = _config.ShowWorldMarkers.Value;
         PointerOverUIPatch.Renderer = _imgui;
         SceneManager.sceneLoaded += OnSceneLoaded;

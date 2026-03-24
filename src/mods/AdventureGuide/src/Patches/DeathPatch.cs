@@ -14,6 +14,7 @@ internal static class DeathPatch
 {
     internal static EntityRegistry? Registry;
     internal static SpawnTimerTracker? Timers;
+    internal static WorldMarkerSystem? Markers;
 
     [HarmonyPostfix]
     private static void Postfix(Character __instance)
@@ -23,5 +24,6 @@ internal static class DeathPatch
 
         Registry?.Unregister(npc);
         Timers?.OnNPCDeath(npc);
+        Markers?.MarkSpawnDirty();
     }
 }
