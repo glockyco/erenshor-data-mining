@@ -94,7 +94,7 @@ public sealed class GuideConfig
             "Show ground path from player to navigation target (uses NavMesh pathfinding)");
 
         // World Markers
-        ShowWorldMarkers = config.Bind("World Markers", "Enabled", false,
+        ShowWorldMarkers = config.Bind("World Markers", "Enabled", true,
             "Show floating quest markers above NPCs (!, ?, objective icons). Replaces the game's built-in markers when enabled.");
         MarkerScale = config.Bind("World Markers", "Scale", 1.0f,
             new ConfigDescription("Overall scale of world markers",
