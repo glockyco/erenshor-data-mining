@@ -1,5 +1,6 @@
 using AdventureGuide.Config;
 using AdventureGuide.UI;
+using BepInEx.Configuration;
 using UnityEngine;
 
 namespace AdventureGuide.State;
@@ -8,7 +9,10 @@ namespace AdventureGuide.State;
 /// Manages which quests the player has pinned to the tracker overlay.
 /// Separate from QuestStateTracker which tracks game truth — this tracks
 /// the player's UI preference (which quests to show in the overlay).
-/// Persists tracked quest list and preferences to BepInEx config.
+///
+/// Tracked quests are stored per character (keyed by save slot index)
+/// so each character has their own tracker state. Global preferences
+/// (auto-track, sort mode) are shared across characters.
 /// </summary>
 public sealed class TrackerState
 {
@@ -16,6 +20,7 @@ public sealed class TrackerState
     private readonly List<string> _orderedList = new();
     private readonly Dictionary<string, EntryAnimation> _animations = new(System.StringComparer.OrdinalIgnoreCase);
     private GuideConfig? _config;
+    private ConfigEntry<string>? _trackedEntry;  // per-character
     private bool _dirty;
 
     public bool AutoTrackEnabled { get; set; } = true;
@@ -123,11 +128,30 @@ public sealed class TrackerState
         AutoTrackEnabled = config.TrackerAutoTrack.Value;
         if (System.Enum.TryParse<TrackerSortMode>(config.TrackerSortMode.Value, out var mode))
             SortMode = mode;
+        // Tracked quests loaded later via OnCharacterLoaded once the slot is known
+    }
+
+    /// <summary>
+    /// Load tracked quests for the current character's save slot.
+    /// Call after character login when GameData.CurrentCharacterSlot is available.
+    /// </summary>
+    public void OnCharacterLoaded()
+    {
+        if (_config == null) return;
+        var slot = GameData.CurrentCharacterSlot;
+        if (slot == null) return;
+
+        // Bind a per-character config entry keyed by slot index
+        _trackedEntry = _config.File.Bind(
+            "_Character", $"TrackedQuests_Slot{slot.index}", "",
+            new BepInEx.Configuration.ConfigDescription(
+                $"Tracked quests for slot {slot.index} (auto-managed)", null,
+                new { Browsable = false }));
 
         _tracked.Clear();
         _orderedList.Clear();
         _animations.Clear();
-        var raw = config.TrackedQuests.Value;
+        var raw = _trackedEntry.Value;
         if (!string.IsNullOrEmpty(raw))
         {
             foreach (var db in raw.Split(';'))
@@ -137,6 +161,7 @@ public sealed class TrackerState
                     _orderedList.Add(trimmed);
             }
         }
+        _dirty = true;
     }
 
     public void SaveToConfig()
@@ -144,7 +169,8 @@ public sealed class TrackerState
         if (_config == null) return;
         _config.TrackerAutoTrack.Value = AutoTrackEnabled;
         _config.TrackerSortMode.Value = SortMode.ToString();
-        _config.TrackedQuests.Value = string.Join(";", _orderedList);
+        if (_trackedEntry != null)
+            _trackedEntry.Value = string.Join(";", _orderedList);
     }
 
     private EntryAnimation GetOrDefaultAnim(string dbName) =>

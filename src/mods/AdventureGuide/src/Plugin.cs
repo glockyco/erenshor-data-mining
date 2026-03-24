@@ -124,6 +124,7 @@ public sealed class Plugin : BaseUnityPlugin
         _entities.SyncFromLiveNPCs();
         _miningTracker.Rescan();
         _lootScanner.OnSceneLoaded();
+        _trackerState.OnCharacterLoaded();
 
         Log.LogInfo($"{PluginInfo.Name} v{PluginInfo.Version} loaded ({_data.Count} quests)");
     }
@@ -214,6 +215,9 @@ public sealed class Plugin : BaseUnityPlugin
         // Rebuild ZoneGraph with fresh quest state so cross-zone
         // navigation routing reflects any quest completions.
         _nav?.OnGameStateChanged(scene.name);
+        // Load per-character tracked quests when entering a gameplay scene
+        // (CurrentCharacterSlot becomes available after character login)
+        _trackerState?.OnCharacterLoaded();
         _trackerState?.PruneInactive(_state!);
     }
 
