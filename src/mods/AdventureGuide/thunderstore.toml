@@ -1,0 +1,50 @@
+[config]
+schemaVersion = "0.0.1"
+
+[package]
+namespace = "WoW_Much"
+name = "AdventureGuide"
+# Version is set dynamically at publish time via --package-version
+versionNumber = "0.0.0"
+description = "In-game quest companion with GPS navigation. 170+ quests with walkthroughs, item sources, and world markers. Click any step, follow the arrow."
+websiteUrl = ""
+containsNsfwContent = false
+
+[package.dependencies]
+BepInEx-BepInExPack = "5.4.2304"
+
+[build]
+icon = "./thunderstore/icon.png"
+readme = "./thunderstore/README.md"
+changelog = "./thunderstore/CHANGELOG.md"
+outdir = "./thunderstore/build"
+
+# Thunderstore requires separate DLLs (no ILRepack merge).
+# Build with: dotnet build -p:SkipILRepack=true
+
+[[build.copy]]
+source = "./bin/Debug/netstandard2.1/AdventureGuide.dll"
+target = "plugins/AdventureGuide/"
+
+[[build.copy]]
+source = "./bin/Debug/netstandard2.1/Newtonsoft.Json.dll"
+target = "plugins/AdventureGuide/"
+
+[[build.copy]]
+source = "./bin/Debug/netstandard2.1/ImGui.NET.dll"
+target = "plugins/AdventureGuide/"
+
+[[build.copy]]
+source = "./bin/Debug/netstandard2.1/System.Numerics.Vectors.dll"
+target = "plugins/AdventureGuide/"
+
+[[build.copy]]
+source = "./bin/Debug/netstandard2.1/System.Runtime.CompilerServices.Unsafe.dll"
+target = "plugins/AdventureGuide/"
+
+[publish]
+repository = "https://thunderstore.io"
+communities = ["erenshor"]
+
+[publish.categories]
+erenshor = ["mods"]
