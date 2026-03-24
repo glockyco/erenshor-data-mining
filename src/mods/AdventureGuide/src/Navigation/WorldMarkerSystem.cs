@@ -42,6 +42,7 @@ public sealed class WorldMarkerSystem
     private bool _configDirty;
     private bool _spawnDirty;
     private int _lastHour = -1;
+    private int _lastStateVersion = -1;
 
     public bool Enabled
     {
@@ -88,15 +89,16 @@ public sealed class WorldMarkerSystem
     {
         if (!_enabled || GameData.PlayerControl == null || !MarkerFonts.IsReady)
             return;
-
-        // Update loot scanner before rebuild decision — it may set itself dirty
-        _lootScanner.Update(_data, _state);
+        // LootScanner is updated by Plugin.Update before this method,
+        // ensuring fresh corpse/chest data regardless of marker visibility.
 
         int hour = GameData.Time.hour;
         bool sceneChanged = currentScene != _lastScene;
         bool hourChanged = hour != _lastHour;
-        bool needsRebuild = sceneChanged || hourChanged || _state.IsDirty
+        bool stateChanged = _state.Version != _lastStateVersion;
+        bool needsRebuild = sceneChanged || hourChanged || stateChanged
             || _configDirty || _spawnDirty;
+        if (stateChanged) _lastStateVersion = _state.Version;
         _configDirty = false;
         _spawnDirty = false;
         _lastHour = hour;

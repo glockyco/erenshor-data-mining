@@ -19,6 +19,7 @@ public sealed class QuestListPanel
 
     // Dirty-checking: skip re-filter/sort when nothing changed
     private int _lastFilterVersion = -1;
+    private int _lastStateVersion = -1;
 
     private static readonly string[] FilterNames = { "Active", "Available", "Completed", "All" };
     private int _filterIndex;
@@ -151,11 +152,11 @@ public sealed class QuestListPanel
     {
         // Rebuild only when filter state or quest state changed
         bool filterChanged = _filter.Version != _lastFilterVersion;
-        bool stateChanged = _state.IsDirty;
+        bool stateChanged = _state.Version != _lastStateVersion;
         if (filterChanged || stateChanged)
         {
             _lastFilterVersion = _filter.Version;
-            _state.IsDirty = false;
+            _lastStateVersion = _state.Version;
 
             _sorted.Clear();
             var all = _data.All;

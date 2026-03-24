@@ -13,7 +13,12 @@ public sealed class QuestStateTracker
     private readonly Dictionary<string, int> _inventoryCache = new(StringComparer.OrdinalIgnoreCase);
     private bool _inventoryDirty = true;
 
-    public bool IsDirty { get; set; }
+    /// <summary>
+    /// Monotonically increasing version. Consumers compare against their
+    /// own snapshot to detect whether quest state changed since their last
+    /// check. Avoids the multi-consumer race of a bool that one reader clears.
+    /// </summary>
+    public int Version { get; private set; }
     public string CurrentZone { get; set; } = "";
     public string? SelectedQuestDBName { get; set; }
 
@@ -55,7 +60,7 @@ public sealed class QuestStateTracker
                 _completedQuests.Add(q);
 
         _inventoryDirty = true;
-        IsDirty = true;
+        Version++;
     }
 
     public void OnQuestAssigned(string dbName)
@@ -65,7 +70,7 @@ public sealed class QuestStateTracker
         // leave order). Mark inventory dirty so collect-step progress
         // reflects the new item on the next check.
         _inventoryDirty = true;
-        IsDirty = true;
+        Version++;
     }
 
     public void OnQuestCompleted(string dbName)
@@ -74,13 +79,13 @@ public sealed class QuestStateTracker
         _completedQuests.Add(dbName);
         // Completion may consume items; refresh cache.
         _inventoryDirty = true;
-        IsDirty = true;
+        Version++;
     }
 
     public void OnInventoryChanged()
     {
         _inventoryDirty = true;
-        IsDirty = true;
+        Version++;
     }
 
     public void OnSceneChanged(string sceneName)

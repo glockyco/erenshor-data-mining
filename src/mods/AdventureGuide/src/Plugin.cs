@@ -172,9 +172,11 @@ public sealed class Plugin : BaseUnityPlugin
             _wasTextInputActive = textActive;
         }
 
-        // Update navigation state each frame (even when UI is hidden, so
-        // distance and position are current when UI is restored)
+        // Update shared systems before renderers. LootScanner runs here
+        // (not inside WorldMarkerSystem) so nav gets fresh corpse/chest
+        // data even when markers are disabled.
         var currentZone = _state?.CurrentZone ?? "";
+        _lootScanner?.Update(_data!, _state!);
         _nav?.Update(currentZone);
 
         // Ground path and markers respect Enabled — when SyncVisibility
@@ -209,6 +211,9 @@ public sealed class Plugin : BaseUnityPlugin
         _miningTracker?.Rescan();
         _lootScanner?.OnSceneLoaded();
         _state?.OnSceneChanged(scene.name);
+        // Rebuild ZoneGraph with fresh quest state so cross-zone
+        // navigation routing reflects any quest completions.
+        _nav?.OnGameStateChanged(scene.name);
         _trackerState?.PruneInactive(_state!);
     }
 

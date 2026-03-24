@@ -42,7 +42,7 @@ public sealed class TrackerWindow
     // Sorted working copy of tracked quest DB names — rebuilt on dirty
     private readonly List<string> _sorted = new();
     private int _lastTrackerVersion;
-    private int _lastStateVersion;
+    private int _lastStateVersion = -1;
     private float _lastProximitySort;
     private TrackerSortMode _lastSortMode;
 
@@ -385,13 +385,16 @@ public sealed class TrackerWindow
     private void RebuildSortedListIfNeeded()
     {
         bool trackerDirty = _tracker.IsDirty;
-        bool stateDirty = _state.IsDirty;
+        bool stateDirty = _state.Version != _lastStateVersion;
         bool sortModeChanged = _tracker.SortMode != _lastSortMode;
         bool proximityStale = _tracker.SortMode == TrackerSortMode.Proximity
             && UnityEngine.Time.realtimeSinceStartup - _lastProximitySort > 2f;
 
         if (trackerDirty || stateDirty || sortModeChanged || proximityStale)
+        {
+            if (stateDirty) _lastStateVersion = _state.Version;
             RebuildSortedList();
+        }
     }
 
     private void RebuildSortedList()
