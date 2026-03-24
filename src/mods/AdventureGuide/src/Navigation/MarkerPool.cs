@@ -113,8 +113,8 @@ public sealed class MarkerPool
         icon.enableWordWrapping = false;
         icon.overflowMode = TextOverflowModes.Overflow;
         icon.richText = false;
-        if (MarkerFonts.IconFont != null)
-            icon.font = MarkerFonts.IconFont;
+        // Font assigned during Configure, not here — fonts may not be
+        // ready yet when the pool pre-creates markers.
         iconObj.transform.localScale = new Vector3(-1f, 1f, 1f);
 
         // Sub-text: Roboto label below icon
@@ -126,8 +126,7 @@ public sealed class MarkerPool
         sub.overflowMode = TextOverflowModes.Truncate;
         sub.richText = false;
         sub.color = MarkerInstance.SubTextColor;
-        if (MarkerFonts.SubTextFont != null)
-            sub.font = MarkerFonts.SubTextFont;
+        // Font assigned during Configure.
         subObj.transform.localScale = new Vector3(-1f, 1f, 1f);
 
         // Both TMP components use RectTransform — set reasonable size
@@ -209,6 +208,13 @@ public sealed class MarkerInstance
         var (glyph, color, _) = TypeVisuals[idx];
 
         Root.transform.localScale = Vector3.one * markerScale;
+
+        // Assign fonts every Configure — fonts load lazily and may not
+        // have been ready when the marker was first created.
+        if (MarkerFonts.IconFont != null)
+            _icon.font = MarkerFonts.IconFont;
+        if (MarkerFonts.SubTextFont != null)
+            _subText.font = MarkerFonts.SubTextFont;
 
         _icon.text = glyph.ToString();
         _icon.fontSize = iconSize;

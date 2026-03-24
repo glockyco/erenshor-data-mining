@@ -79,7 +79,7 @@ public sealed class WorldMarkerSystem
     /// </summary>
     public void Update(string currentScene)
     {
-        if (!_enabled)
+        if (!_enabled || GameData.PlayerControl == null || !MarkerFonts.IsReady)
             return;
 
         int hour = GameData.Time.hour;

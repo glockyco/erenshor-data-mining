@@ -32,9 +32,8 @@ internal static class MarkerFonts
     private static TMP_FontAsset? _iconFont;
     private static TMP_FontAsset? _subTextFont;
     private static bool _initialized;
-    private static bool _initFailed;
 
-    /// <summary>Font asset for Font Awesome icon glyphs. Null if init failed.</summary>
+    /// <summary>Font asset for Font Awesome icon glyphs. Null until ready.</summary>
     public static TMP_FontAsset? IconFont
     {
         get
@@ -44,7 +43,7 @@ internal static class MarkerFonts
         }
     }
 
-    /// <summary>Font asset for Roboto sub-text labels. Null if init failed.</summary>
+    /// <summary>Font asset for Roboto sub-text labels. Null until ready.</summary>
     public static TMP_FontAsset? SubTextFont
     {
         get
@@ -54,8 +53,15 @@ internal static class MarkerFonts
         }
     }
 
-    /// <summary>True if initialization was attempted and failed.</summary>
-    public static bool Failed => _initFailed;
+    /// <summary>True when both fonts are loaded and ready to use.</summary>
+    public static bool IsReady
+    {
+        get
+        {
+            EnsureInitialized();
+            return _initialized;
+        }
+    }
 
     /// <summary>
     /// Release cached font assets. Call from Plugin.OnDestroy.
@@ -67,19 +73,16 @@ internal static class MarkerFonts
         _iconFont = null;
         _subTextFont = null;
         _initialized = false;
-        _initFailed = false;
     }
 
     private static void EnsureInitialized()
     {
         if (_initialized) return;
-        _initialized = true;
 
         var sdfShader = Shader.Find("TextMeshPro/Distance Field");
         if (sdfShader == null)
         {
-            Plugin.Log.LogError("MarkerFonts: TextMeshPro/Distance Field shader not found");
-            _initFailed = true;
+            // Shader not loaded yet — retry next access
             return;
         }
 
@@ -87,17 +90,24 @@ internal static class MarkerFonts
         _subTextFont = CreateSubTextFont(sdfShader);
 
         if (_iconFont == null || _subTextFont == null)
-            _initFailed = true;
+        {
+            // Font sources not available yet (GameData not ready) —
+            // clean up any partial result and retry next access.
+            if (_iconFont != null) UnityEngine.Object.Destroy(_iconFont);
+            if (_subTextFont != null) UnityEngine.Object.Destroy(_subTextFont);
+            _iconFont = null;
+            _subTextFont = null;
+            return;
+        }
+
+        _initialized = true;
     }
 
     private static TMP_FontAsset? CreateIconFont(Shader sdfShader)
     {
         var faFont = GameData.Misc?.FontAwesome;
         if (faFont == null)
-        {
-            Plugin.Log.LogError("MarkerFonts: GameData.Misc.FontAwesome is null");
             return null;
-        }
 
         var asset = TMP_FontAsset.CreateFontAsset(faFont);
         if (asset == null)
@@ -114,10 +124,20 @@ internal static class MarkerFonts
         var glyphString = new string(RequiredGlyphs);
         if (!asset.TryAddCharacters(glyphString, out string missing, true))
         {
-            Plugin.Log.LogError(
-                $"MarkerFonts: Font Awesome failed to rasterize glyphs: {missing}");
             UnityEngine.Object.Destroy(asset);
             return null;
+        }
+
+        // Verify glyphs are actually present in the atlas. TryAddCharacters
+        // can return true before the font data is fully loaded during early
+        // scene initialization. If any glyph is missing, retry next frame.
+        foreach (var ch in RequiredGlyphs)
+        {
+            if (!asset.HasCharacter(ch, searchFallbacks: false))
+            {
+                UnityEngine.Object.Destroy(asset);
+                return null;
+            }
         }
 
         Plugin.Log.LogInfo("MarkerFonts: Icon font created (Font Awesome SDF)");
@@ -128,10 +148,7 @@ internal static class MarkerFonts
     {
         Font? roboto = FindFont("Roboto-Regular");
         if (roboto == null)
-        {
-            Plugin.Log.LogError("MarkerFonts: Roboto-Regular font not found in game");
             return null;
-        }
 
         var asset = TMP_FontAsset.CreateFontAsset(roboto);
         if (asset == null)
