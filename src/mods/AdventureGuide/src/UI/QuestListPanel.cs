@@ -12,6 +12,7 @@ public sealed class QuestListPanel
     private readonly GuideData _data;
     private readonly QuestStateTracker _state;
     private readonly FilterState _filter;
+    private readonly TrackerState _tracker;
 
     private string _searchBuf = string.Empty;
     private readonly List<QuestEntry> _sorted = new();
@@ -26,11 +27,12 @@ public sealed class QuestListPanel
     private readonly string[] _zoneNames;
     private int _zoneIndex;
 
-    public QuestListPanel(GuideData data, QuestStateTracker state, FilterState filter)
+    public QuestListPanel(GuideData data, QuestStateTracker state, FilterState filter, TrackerState tracker)
     {
         _data = data;
         _state = state;
         _filter = filter;
+        _tracker = tracker;
 
         // Build sorted zone list from quest data
         var zones = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -283,14 +285,32 @@ public sealed class QuestListPanel
         // Level prefix in Selectable label. DrawList.AddText crashes after
         // ILRepack merges System.Numerics.Vectors (same class of P/Invoke
         // issue as Vector4 colors), so we use a single-color label instead.
+        bool isTracked = _tracker.IsTracked(quest.DBName);
+        string prefix = isTracked ? "\u00b7" : " ";
         string label = quest.LevelEstimate?.Recommended is int lvl
-            ? $"{lvl,2}  {quest.DisplayName}"
-            : $"    {quest.DisplayName}";
+            ? $"{prefix}{lvl,2}  {quest.DisplayName}"
+            : $"{prefix}    {quest.DisplayName}";
 
         ImGui.PushStyleColor(ImGuiCol.Text, statusColor);
 
         if (ImGui.Selectable(label + "##" + quest.DBName, isSelected))
             _state.SelectQuest(quest.DBName);
+
+        // Right-click context menu: Track/Untrack
+        if (ImGui.BeginPopupContextItem($"##qctx{quest.DBName}"))
+        {
+            if (isTracked)
+            {
+                if (ImGui.Selectable("Untrack"))
+                    _tracker.Untrack(quest.DBName);
+            }
+            else if (_state.IsActive(quest.DBName))
+            {
+                if (ImGui.Selectable("Track"))
+                    _tracker.Track(quest.DBName);
+            }
+            ImGui.EndPopup();
+        }
 
         // Tooltip on hover: zone + status + level
         if (ImGui.IsItemHovered())

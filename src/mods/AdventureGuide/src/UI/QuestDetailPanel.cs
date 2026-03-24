@@ -14,15 +14,17 @@ public sealed class QuestDetailPanel
     private readonly GuideData _data;
     private readonly QuestStateTracker _state;
     private readonly NavigationController _nav;
+    private readonly TrackerState _tracker;
 
     /// <summary>Max sub-quest nesting depth to prevent runaway recursion.</summary>
     private const int MaxSubQuestDepth = 5;
 
-    public QuestDetailPanel(GuideData data, QuestStateTracker state, NavigationController nav)
+    public QuestDetailPanel(GuideData data, QuestStateTracker state, NavigationController nav, TrackerState tracker)
     {
         _data = data;
         _state = state;
         _nav = nav;
+        _tracker = tracker;
     }
 
     public void Draw()
@@ -59,6 +61,24 @@ public sealed class QuestDetailPanel
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.Header);
         ImGui.TextWrapped(quest.DisplayName);
         ImGui.PopStyleColor();
+
+        // Track/Untrack button on same line after quest name
+        if (_state.IsActive(quest.DBName))
+        {
+            ImGui.SameLine();
+            bool tracked = _tracker.IsTracked(quest.DBName);
+            if (tracked)
+                ImGui.PushStyleColor(ImGuiCol.Button, Theme.Accent);
+            if (ImGui.SmallButton(tracked ? "[Untrack]" : "[Track]"))
+            {
+                if (tracked)
+                    _tracker.Untrack(quest.DBName);
+                else
+                    _tracker.Track(quest.DBName);
+            }
+            if (tracked)
+                ImGui.PopStyleColor();
+        }
 
         // Level + zone on one line (replaces separate "Zone:" line)
         DrawLevelZoneLine(quest);

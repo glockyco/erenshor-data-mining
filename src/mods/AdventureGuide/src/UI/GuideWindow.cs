@@ -26,13 +26,14 @@ public sealed class GuideWindow
 
     public FilterState Filter => _filter;
 
-    public GuideWindow(GuideData data, QuestStateTracker state, NavigationController nav, NavigationHistory history)
+    public GuideWindow(GuideData data, QuestStateTracker state, NavigationController nav,
+        NavigationHistory history, TrackerState tracker)
     {
         _data = data;
         _state = state;
         _history = history;
-        _listPanel = new QuestListPanel(data, state, _filter);
-        _detailPanel = new QuestDetailPanel(data, state, nav);
+        _listPanel = new QuestListPanel(data, state, _filter, tracker);
+        _detailPanel = new QuestDetailPanel(data, state, nav, tracker);
     }
 
     public void Toggle() => _visible = !_visible;
