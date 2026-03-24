@@ -36,6 +36,7 @@ public sealed class Plugin : BaseUnityPlugin
     private ImGuiRenderer? _imgui;
     private GuideWindow? _window;
     private TrackerState? _trackerState;
+    private TrackerWindow? _tracker;
 
     private void Awake()
     {
@@ -79,7 +80,8 @@ public sealed class Plugin : BaseUnityPlugin
         _window = new GuideWindow(_data, _state, _nav, history);
         _state.SetHistory(history);
         _window.Filter.LoadFrom(_config);
-        _imgui.OnLayout = () => { _window.Draw(); _arrow!.Draw(); };
+        _tracker = new TrackerWindow(_data, _state, _nav, _trackerState, _window, _config);
+        _imgui.OnLayout = () => { _window.Draw(); _tracker!.Draw(); _arrow!.Draw(); };
 
         // Wire DebugAPI for HotRepl inspection
         DebugAPI.Data = _data;
@@ -188,6 +190,9 @@ public sealed class Plugin : BaseUnityPlugin
 
         if (_config.ReplaceQuestLog.Value && Input.GetKeyDown(KeyCode.J))
             _window.Toggle();
+
+        if (Input.GetKeyDown(_config.TrackerToggleKey.Value))
+            _tracker?.Toggle();
     }
 
     private void OnGUI()
@@ -240,6 +245,11 @@ public sealed class Plugin : BaseUnityPlugin
             QuestMarkerPatch.SuppressGameMarkers = false;
         }
         _harmony?.UnpatchSelf();
+
+        // Save tracker state before disposing ImGui (SavePosition reads
+        // window position from ImGui context)
+        _trackerState?.SaveToConfig();
+
         _imgui?.Dispose();
         _arrow?.Dispose();
         _groundPath?.Destroy();
@@ -248,8 +258,6 @@ public sealed class Plugin : BaseUnityPlugin
         _entities?.Clear();
         _miningTracker?.Clear();
         MarkerFonts.Destroy();
-
-        _trackerState?.SaveToConfig();
 
         DebugAPI.Data = null;
         DebugAPI.State = null;

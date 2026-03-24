@@ -33,7 +33,8 @@ public sealed class GuideConfig
     public ConfigEntry<string> TrackedQuests { get; }
     public ConfigEntry<float> TrackerIdleOpacity { get; }
     public ConfigEntry<float> TrackerHoverOpacity { get; }
-
+    public ConfigEntry<float> TrackerWindowX { get; }
+    public ConfigEntry<float> TrackerWindowY { get; }
     public GuideConfig(ConfigFile config)
     {
         ToggleKey = config.Bind("General", "ToggleKey", KeyCode.L,
@@ -91,5 +92,9 @@ public sealed class GuideConfig
         TrackerHoverOpacity = config.Bind("Tracker", "HoverOpacity", 0.9f,
             new ConfigDescription("Background opacity when hovering",
                 new AcceptableValueRange<float>(0.1f, 1.0f)));
+        TrackerWindowX = config.Bind("Tracker", "WindowX", -1f,
+            "Saved tracker window X position (auto-managed)");
+        TrackerWindowY = config.Bind("Tracker", "WindowY", -1f,
+            "Saved tracker window Y position (auto-managed)");
     }
 }
