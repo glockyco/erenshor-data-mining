@@ -19,6 +19,7 @@ namespace AdventureGuide.Navigation;
 public sealed class GroundPathRenderer
 {
     private const float RecalcDistance = 5f;
+    private const float ArrivalDistance = 15f;
     private const float CoreWidth = 0.20f;
     private const float GlowWidth = 0.50f;
     private const float PathYOffset = 0.40f;
@@ -84,6 +85,14 @@ public sealed class GroundPathRenderer
 
         // Only calculate path for same-zone targets
         if (effectiveTarget.IsCrossZone(currentScene))
+        {
+            _pathValid = false;
+            SetLineVisible(false);
+            return;
+        }
+
+        // Hide path when close to target
+        if (_nav.Distance < ArrivalDistance)
         {
             _pathValid = false;
             SetLineVisible(false);

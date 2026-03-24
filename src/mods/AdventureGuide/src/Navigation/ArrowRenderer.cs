@@ -22,7 +22,7 @@ public sealed class ArrowRenderer
     private const float ArrowSize = 20f;
     private const float EdgeMargin = 40f;
     private const float MarkerSize = 8f;
-    private const float ArrivalDistance = 3f;
+    private const float ArrivalDistance = 15f;
     private const float OutlineThickness = 1.5f;
 
     private static readonly uint ColorArrow = Theme.Rgba(1.00f, 0.85f, 0.30f, 0.90f);
