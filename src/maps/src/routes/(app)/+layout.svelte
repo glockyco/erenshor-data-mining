@@ -41,6 +41,15 @@
                     Companion Mods
                 </a>
                 <a
+                    href="/adventure-guide"
+                    class="flex-1 basis-auto min-w-fit px-4 py-2 rounded-lg font-semibold transition-all duration-300 text-center whitespace-nowrap {page
+                        .url.pathname === '/adventure-guide'
+                        ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+                        : 'text-slate-300 hover:text-white hover:bg-slate-700'}"
+                >
+                    Adventure Guide
+                </a>
+                <a
                     href="/spreadsheet"
                     class="flex-1 basis-auto min-w-fit px-4 py-2 rounded-lg font-semibold transition-all duration-300 text-center whitespace-nowrap {page
                         .url.pathname === '/spreadsheet'
