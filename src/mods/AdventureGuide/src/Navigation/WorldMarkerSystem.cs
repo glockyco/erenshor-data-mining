@@ -23,6 +23,7 @@ public sealed class WorldMarkerSystem
 {
     private const float StaticHeightOffset = 2.5f;
     private const float LiveHeightAboveCollider = 0.8f;
+    private const float CorpseHeightOffset = 1.5f;
 
     private readonly GuideData _data;
     private readonly QuestStateTracker _state;
@@ -31,6 +32,7 @@ public sealed class WorldMarkerSystem
     private readonly SpawnPointBridge _bridge;
     private readonly MarkerPool _pool;
     private readonly GuideConfig _config;
+    private readonly LootScanner _lootScanner;
 
     // Cached marker state — rebuilt on dirty
     private readonly List<MarkerEntry> _markers = new();
@@ -55,13 +57,14 @@ public sealed class WorldMarkerSystem
     public WorldMarkerSystem(
         GuideData data, QuestStateTracker state,
         EntityRegistry entities, SpawnPointBridge bridge,
-        MiningNodeTracker miningTracker, GuideConfig config)
+        MiningNodeTracker miningTracker, LootScanner lootScanner, GuideConfig config)
     {
         _data = data;
         _state = state;
         _entities = entities;
         _bridge = bridge;
         _miningTracker = miningTracker;
+        _lootScanner = lootScanner;
         _config = config;
         _pool = new MarkerPool();
 
@@ -83,10 +86,14 @@ public sealed class WorldMarkerSystem
         if (!_enabled || GameData.PlayerControl == null || !MarkerFonts.IsReady)
             return;
 
+        // Update loot scanner before rebuild decision — it may set itself dirty
+        _lootScanner.Update(_data, _state);
+
         int hour = GameData.Time.hour;
         bool sceneChanged = currentScene != _lastScene;
         bool hourChanged = hour != _lastHour;
-        bool needsRebuild = sceneChanged || hourChanged || _state.IsDirty || _configDirty || _spawnDirty;
+        bool needsRebuild = sceneChanged || hourChanged || _state.IsDirty
+            || _configDirty || _spawnDirty;
         _configDirty = false;
         _spawnDirty = false;
         _lastHour = hour;
@@ -141,6 +148,8 @@ public sealed class WorldMarkerSystem
             CollectTurnInMarkers(quest, currentScene, isRepeatable);
             CollectObjectiveMarkers(quest, currentScene);
         }
+
+        CollectLootContainerMarkers();
 
         CollectMinedNodeMarkers(currentScene);
 
@@ -361,6 +370,69 @@ public sealed class WorldMarkerSystem
                 SubText = $"Mineral Deposit\n{timer}",
             });
         }
+    }
+
+    // ── Loot container markers (corpses and RotChests) ────────────
+
+    /// <summary>
+    /// Emit Objective markers on corpses and RotChests that contain items
+    /// needed by any active quest. These coexist with skull/timer markers
+    /// at the spawn point — different keys prevent dedup collisions.
+    /// </summary>
+    private void CollectLootContainerMarkers()
+    {
+        foreach (var container in _lootScanner.Containers)
+        {
+            var pos = container.Position + Vector3.up * CorpseHeightOffset;
+            string key = $"loot@{container.InstanceId}";
+            string subText = FormatLootContainerText(container);
+
+            _intentIndex[key] = _markers.Count;
+            _markers.Add(new MarkerEntry
+            {
+                Position = pos,
+                Type = MarkerType.Objective,
+                DisplayName = container.DisplayName,
+                TargetKey = null,
+                SubText = subText,
+            });
+        }
+    }
+
+    private string FormatLootContainerText(LootScanner.LootContainer container)
+    {
+        // Show progress for each matching item: "Loot: 0/1 Dragon Scale"
+        // If multiple items match, show first with count hint.
+        string? firstLine = null;
+        int count = 0;
+        foreach (var itemName in container.MatchingItems)
+        {
+            count++;
+            if (firstLine == null)
+            {
+                int have = _state.CountItemInInventory(itemName);
+                // Find the required quantity from active quests
+                int need = 1;
+                foreach (var quest in _data.All)
+                {
+                    if (!_state.IsActive(quest.DBName) || quest.RequiredItems == null)
+                        continue;
+                    foreach (var ri in quest.RequiredItems)
+                    {
+                        if (string.Equals(ri.ItemName, itemName,
+                            System.StringComparison.OrdinalIgnoreCase))
+                        {
+                            need = ri.Quantity;
+                            break;
+                        }
+                    }
+                }
+                firstLine = $"Loot: {have}/{need} {itemName}";
+            }
+        }
+        if (count > 1)
+            firstLine += $" (+{count - 1} more)";
+        return firstLine ?? container.DisplayName;
     }
 
     // ── Per-frame updates ─────────────────────────────────────────

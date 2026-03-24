@@ -18,6 +18,7 @@ public sealed class NavigationController
     private readonly QuestStateTracker _state;
     private readonly SpawnTimerTracker _timers;
     private readonly MiningNodeTracker _miningTracker;
+    private readonly LootScanner _lootScanner;
     private readonly ZoneGraph _zoneGraph;
     // Cache to avoid per-frame zone line waypoint allocation and reachability checks
     private ZoneLineEntry? _cachedZoneLine;
@@ -43,13 +44,15 @@ public sealed class NavigationController
     /// </summary>
     public NavigationTarget? ZoneLineWaypoint { get; private set; }
 
-    public NavigationController(GuideData data, EntityRegistry entities, QuestStateTracker state, SpawnTimerTracker timers, MiningNodeTracker miningTracker)
+    public NavigationController(GuideData data, EntityRegistry entities, QuestStateTracker state,
+        SpawnTimerTracker timers, MiningNodeTracker miningTracker, LootScanner lootScanner)
     {
         _data = data;
         _entities = entities;
         _state = state;
         _timers = timers;
         _miningTracker = miningTracker;
+        _lootScanner = lootScanner;
         _zoneGraph = new ZoneGraph(data, state);
     }
 
@@ -230,20 +233,32 @@ public sealed class NavigationController
 
         ZoneLineWaypoint = null;
 
-        // Same zone: update position from closest live NPC (mutate in place)
+        // Same zone: update position from closest match
+        // Priority: corpse/chest with quest loot > alive NPC > shortest respawn
         if (Target.TargetKind == NavigationTarget.Kind.Character)
         {
-            var liveNpc = _entities.FindClosest(Target.DisplayName, playerPos.Value);
-            if (liveNpc != null)
+            var neededItems = BuildNeededItems(Target.QuestDBName);
+            var corpse = neededItems.Count > 0
+                ? _lootScanner.FindClosestWithAnyItem(neededItems, playerPos.Value)
+                : null;
+
+            if (corpse.HasValue)
             {
-                Target.Position = liveNpc.transform.position;
+                Target.Position = corpse.Value.Position;
             }
             else
             {
-                // All instances dead/mined — navigate to shortest respawn
-                var bestRespawn = FindShortestRespawnPosition(Target.DisplayName);
-                if (bestRespawn.HasValue)
-                    Target.Position = bestRespawn.Value;
+                var liveNpc = _entities.FindClosest(Target.DisplayName, playerPos.Value);
+                if (liveNpc != null)
+                {
+                    Target.Position = liveNpc.transform.position;
+                }
+                else
+                {
+                    var bestRespawn = FindShortestRespawnPosition(Target.DisplayName);
+                    if (bestRespawn.HasValue)
+                        Target.Position = bestRespawn.Value;
+                }
             }
         }
 
@@ -791,6 +806,24 @@ public sealed class NavigationController
             names.Add(entry?.DisplayName ?? dbName);
         }
         return $"{displayName}\nRequires: Complete \"{string.Join("\" and \"", names)}\"";
+    }
+
+    /// <summary>
+    /// Build the set of item names the player still needs for a specific quest.
+    /// Returns empty set if the quest has no required items or all are collected.
+    /// </summary>
+    private HashSet<string> BuildNeededItems(string questDBName)
+    {
+        var result = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
+        var quest = _data.GetByDBName(questDBName);
+        if (quest?.RequiredItems == null) return result;
+
+        foreach (var ri in quest.RequiredItems)
+        {
+            if (_state.CountItemInInventory(ri.ItemName) < ri.Quantity)
+                result.Add(ri.ItemName);
+        }
+        return result;
     }
 
     private static NavigationTarget MakeTarget(

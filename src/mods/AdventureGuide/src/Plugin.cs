@@ -32,6 +32,7 @@ public sealed class Plugin : BaseUnityPlugin
     private WorldMarkerSystem? _markers;
     private SpawnTimerTracker? _timers;
     private MiningNodeTracker? _miningTracker;
+    private LootScanner? _lootScanner;
     private ImGuiRenderer? _imgui;
     private GuideWindow? _window;
 
@@ -54,8 +55,9 @@ public sealed class Plugin : BaseUnityPlugin
         _timers = new SpawnTimerTracker();
         _miningTracker = new MiningNodeTracker();
         var bridge = new SpawnPointBridge();
+        _lootScanner = new LootScanner();
 
-        _nav = new NavigationController(_data, _entities, _state, _timers, _miningTracker);
+        _nav = new NavigationController(_data, _entities, _state, _timers, _miningTracker, _lootScanner);
         _arrow = new ArrowRenderer(_nav);
         _arrow.Enabled = _config.ShowArrow.Value;
         _config.ShowArrow.SettingChanged += OnShowArrowChanged;
@@ -64,7 +66,7 @@ public sealed class Plugin : BaseUnityPlugin
         _groundPath.Enabled = _config.ShowGroundPath.Value;
         _config.ShowGroundPath.SettingChanged += OnShowGroundPathChanged;
 
-        _markers = new WorldMarkerSystem(_data, _state, _entities, bridge, _miningTracker, _config);
+        _markers = new WorldMarkerSystem(_data, _state, _entities, bridge, _miningTracker, _lootScanner, _config);
         _markers.Enabled = _config.ShowWorldMarkers.Value;
         _config.ShowWorldMarkers.SettingChanged += OnShowWorldMarkersChanged;
 
@@ -86,16 +88,21 @@ public sealed class Plugin : BaseUnityPlugin
         // Inject dependencies into Harmony patches
         QuestAssignPatch.Tracker = _state;
         QuestAssignPatch.Nav = _nav;
+        QuestAssignPatch.Loot = _lootScanner;
         QuestFinishPatch.Tracker = _state;
         QuestFinishPatch.Nav = _nav;
+        QuestFinishPatch.Loot = _lootScanner;
         InventoryPatch.Tracker = _state;
         InventoryPatch.Nav = _nav;
+        InventoryPatch.Loot = _lootScanner;
         SpawnPatch.Registry = _entities;
         SpawnPatch.Timers = _timers;
         SpawnPatch.Markers = _markers;
+        SpawnPatch.Loot = _lootScanner;
         DeathPatch.Registry = _entities;
         DeathPatch.Timers = _timers;
         DeathPatch.Markers = _markers;
+        DeathPatch.Loot = _lootScanner;
         QuestMarkerPatch.SuppressGameMarkers = _config.ShowWorldMarkers.Value;
         PointerOverUIPatch.Renderer = _imgui;
         SceneManager.sceneLoaded += OnSceneLoaded;
@@ -108,6 +115,7 @@ public sealed class Plugin : BaseUnityPlugin
         _state.OnSceneChanged(SceneManager.GetActiveScene().name);
         _entities.SyncFromLiveNPCs();
         _miningTracker.Rescan();
+        _lootScanner.OnSceneLoaded();
 
         Log.LogInfo($"{PluginInfo.Name} v{PluginInfo.Version} loaded ({_data.Count} quests)");
     }
@@ -154,6 +162,7 @@ public sealed class Plugin : BaseUnityPlugin
         _entities?.Clear();
         _timers?.Clear();
         _miningTracker?.Rescan();
+        _lootScanner?.OnSceneLoaded();
         _state?.OnSceneChanged(scene.name);
     }
 

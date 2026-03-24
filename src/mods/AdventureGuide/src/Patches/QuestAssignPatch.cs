@@ -9,11 +9,13 @@ internal static class QuestAssignPatch
 {
     internal static QuestStateTracker? Tracker;
     internal static NavigationController? Nav;
+    internal static LootScanner? Loot;
 
     [HarmonyPostfix]
     private static void Postfix(string _questName)
     {
         Tracker?.OnQuestAssigned(_questName);
         Nav?.OnGameStateChanged(Tracker?.CurrentZone ?? "");
+        Loot?.MarkDirty();
     }
 }

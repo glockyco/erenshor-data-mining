@@ -16,11 +16,13 @@ internal static class InventoryPatch
 {
     internal static QuestStateTracker? Tracker;
     internal static NavigationController? Nav;
+    internal static LootScanner? Loot;
 
     [HarmonyPostfix]
     private static void Postfix()
     {
         Tracker?.OnInventoryChanged();
         Nav?.OnGameStateChanged(Tracker?.CurrentZone ?? "");
+        Loot?.MarkDirty();
     }
 }

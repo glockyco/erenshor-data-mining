@@ -15,6 +15,7 @@ internal static class SpawnPatch
     internal static EntityRegistry? Registry;
     internal static SpawnTimerTracker? Timers;
     internal static WorldMarkerSystem? Markers;
+    internal static LootScanner? Loot;
 
     [HarmonyPostfix]
     private static void Postfix(SpawnPoint __instance)
@@ -24,5 +25,6 @@ internal static class SpawnPatch
 
         Timers?.OnNPCSpawn(__instance);
         Markers?.MarkSpawnDirty();
+        Loot?.MarkDirty();
     }
 }
