@@ -68,8 +68,6 @@ public class FilterState
         set { if (_sortMode != value) { _sortMode = value; Version++; _config?.SortMode.SetSerializedValue(value.ToString()); } }
     }
 
-    public bool ShowSettings;
-
     /// <summary>
     /// Load persisted filter/sort settings from BepInEx config.
     /// Call once after construction.

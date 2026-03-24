@@ -91,8 +91,6 @@ public sealed class GuideWindow
                 if (page.HasValue && page.Value.Type == NavigationHistory.PageType.Quest)
                     _state.SelectedQuestDBName = page.Value.Key;
             }
-            if (ImGui.TabItemButton("Settings"))
-                _filter.ShowSettings = !_filter.ShowSettings;
 
             ImGui.EndTabBar();
         }
