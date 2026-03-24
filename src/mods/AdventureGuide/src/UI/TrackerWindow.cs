@@ -209,9 +209,18 @@ public sealed class TrackerWindow
         if (entryAlpha < 1f)
             ImGui.PushStyleVar(ImGuiStyleVar.Alpha, entryAlpha);
 
-        // Draw flash overlay for completion or step advance
-        DrawFlashOverlay(anim, now);
-
+        // Tint text color for completion flash (green) or step advance (yellow)
+        bool tinted = false;
+        if (anim.CompletedAt > 0 && now - anim.CompletedAt < 1.5f)
+        {
+            ImGui.PushStyleColor(ImGuiCol.Text, Theme.Success);
+            tinted = true;
+        }
+        else if (anim.StepAdvancedAt > 0 && now - anim.StepAdvancedAt < 0.8f)
+        {
+            ImGui.PushStyleColor(ImGuiCol.Text, Theme.QuestActive);
+            tinted = true;
+        }
         // Line 1: [NAV] Quest Name  Lv##
         DrawNavButton(quest);
         ImGui.SameLine();
@@ -238,6 +247,8 @@ public sealed class TrackerWindow
 
         ImGui.Spacing();
 
+        if (tinted)
+            ImGui.PopStyleColor();
         if (entryAlpha < 1f)
             ImGui.PopStyleVar();
 
@@ -384,33 +395,11 @@ public sealed class TrackerWindow
 
     private static void DrawFlashOverlay(TrackerState.EntryAnimation anim, float now)
     {
-        // Completion flash: green overlay fading over 1.5s
-        if (anim.CompletedAt > 0)
-        {
-            float elapsed = now - anim.CompletedAt;
-            if (elapsed < 1.5f)
-            {
-                float alpha = 0.3f * (1f - elapsed / 1.5f);
-                uint color = Theme.Rgba(0.2f, 0.8f, 0.2f, alpha);
-                var min = ImGui.GetCursorScreenPos();
-                var max = new Vector2(min.X + ImGui.GetContentRegionAvail().X, min.Y + ImGui.GetTextLineHeightWithSpacing() * 2);
-                ImGui.GetWindowDrawList().AddRectFilled(min, max, color);
-            }
-        }
-
-        // Step advance flash: yellow overlay fading over 0.8s
-        if (anim.StepAdvancedAt > 0)
-        {
-            float elapsed = now - anim.StepAdvancedAt;
-            if (elapsed < 0.8f)
-            {
-                float alpha = 0.2f * (1f - elapsed / 0.8f);
-                uint color = Theme.Rgba(0.8f, 0.7f, 0.1f, alpha);
-                var min = ImGui.GetCursorScreenPos();
-                var max = new Vector2(min.X + ImGui.GetContentRegionAvail().X, min.Y + ImGui.GetTextLineHeightWithSpacing() * 2);
-                ImGui.GetWindowDrawList().AddRectFilled(min, max, color);
-            }
-        }
+        // Flash animations use text color tinting applied by the caller
+        // via PushStyleColor rather than DrawList overlays. DrawList
+        // AddRectFilled with System.Numerics.Vector2 crashes after
+        // ILRepack merges the assembly (same P/Invoke marshalling issue
+        // that affects all DrawList Vector2 parameters).
     }
 
     // ── Sort management ──────────────────────────────────────────────
