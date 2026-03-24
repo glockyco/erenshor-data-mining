@@ -47,6 +47,17 @@ public sealed class ImGuiRenderer : IDisposable
     /// <summary>True when an ImGui text input widget is actively being edited.</summary>
     public bool WantTextInput { get; private set; }
 
+    /// <summary>
+    /// Reset capture flags when ImGui rendering is suppressed (e.g., game UI
+    /// hidden via F7). Without this, WantCaptureMouse retains its last value
+    /// from when OnGUI was still being called, blocking game mouse input.
+    /// </summary>
+    internal void ClearCaptureState()
+    {
+        WantCaptureMouse = false;
+        WantTextInput = false;
+    }
+
     public ImGuiRenderer(ManualLogSource log)
     {
         _log = log;

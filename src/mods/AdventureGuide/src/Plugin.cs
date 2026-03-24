@@ -134,12 +134,19 @@ public sealed class Plugin : BaseUnityPlugin
             _gameUIVisible = gameUIVisible;
             SyncVisibility();
 
-            // Clear text input flag so PlayerTyping doesn't stick when
-            // the user hides UI while the search field is focused.
-            if (!gameUIVisible && _wasTextInputActive)
+            // Clear ImGui capture state and game typing flag so mouse
+            // input and movement aren't blocked while the UI is hidden.
+            // Without this, WantCaptureMouse retains its last value from
+            // when OnGUI was called, and PointerOverUIPatch keeps forcing
+            // IsPointerOverGameObject to true.
+            if (!gameUIVisible)
             {
-                GameData.PlayerTyping = false;
-                _wasTextInputActive = false;
+                _imgui?.ClearCaptureState();
+                if (_wasTextInputActive)
+                {
+                    GameData.PlayerTyping = false;
+                    _wasTextInputActive = false;
+                }
             }
         }
 

@@ -48,8 +48,11 @@ public sealed class WorldMarkerSystem
         get => _enabled;
         set
         {
+            if (_enabled == value) return;
             _enabled = value;
-            if (!value)
+            if (value)
+                _configDirty = true;  // force RebuildMarkers on next Update
+            else
                 _pool.DeactivateAll();
         }
     }
