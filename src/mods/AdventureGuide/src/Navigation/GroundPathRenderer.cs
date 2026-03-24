@@ -74,12 +74,12 @@ public sealed class GroundPathRenderer
             return;
         }
 
-        var playerPos = GameData.PlayerControl?.transform.position;
-        if (!playerPos.HasValue)
+        if (GameData.PlayerControl == null)
         {
             SetLineVisible(false);
             return;
         }
+        var playerPos = GameData.PlayerControl.transform.position;
 
         var effectiveTarget = _nav.ZoneLineWaypoint ?? _nav.Target;
 
@@ -99,7 +99,7 @@ public sealed class GroundPathRenderer
             return;
         }
 
-        bool recalculated = RecalculateIfNeeded(playerPos.Value, effectiveTarget.Position);
+        bool recalculated = RecalculateIfNeeded(playerPos, effectiveTarget.Position);
 
         if (!_pathValid || _cornerCount < 2)
         {

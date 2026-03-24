@@ -119,6 +119,13 @@ public sealed class WorldMarkerSystem
     /// <summary>Signal that an NPC spawned or died. Triggers marker rebuild next frame.</summary>
     public void MarkSpawnDirty() => _spawnDirty = true;
 
+    /// <summary>
+    /// Deactivate all markers on scene load. Prevents NamePlate components
+    /// from referencing destroyed cameras on menu scenes. Markers are
+    /// rebuilt on the next Update in gameplay scenes.
+    /// </summary>
+    public void OnSceneLoaded() => _pool.DeactivateAll();
+
     public void Destroy()
     {
         _config.MarkerScale.SettingChanged -= OnConfigChanged;

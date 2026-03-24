@@ -207,6 +207,7 @@ public sealed class Plugin : BaseUnityPlugin
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         CameraCache.Invalidate();
+        _markers?.OnSceneLoaded();
         _entities?.Clear();
         _timers?.Clear();
         _miningTracker?.Rescan();
