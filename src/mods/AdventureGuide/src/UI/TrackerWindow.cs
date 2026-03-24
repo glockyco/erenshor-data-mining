@@ -81,9 +81,6 @@ public sealed class TrackerWindow
         if (_sorted.Count == 0 && _tracker.TrackedQuests.Count == 0)
             return;
 
-        // Two-state opacity: subtle when idle, opaque on hover
-        float bgAlpha = _config.TrackerIdleOpacity.Value;
-
         if (_firstDraw)
         {
             ImGui.SetNextWindowSize(new Vector2(DefaultWidth, DefaultHeight), ImGuiCond.FirstUseEver);
@@ -94,9 +91,7 @@ public sealed class TrackerWindow
             _firstDraw = false;
         }
 
-        ImGui.SetNextWindowBgAlpha(bgAlpha);
-        ImGui.PushStyleColor(ImGuiCol.WindowBg, Theme.Background);
-        ImGui.PushStyleColor(ImGuiCol.ChildBg, Theme.Surface);
+        Theme.PushWindowStyle();
 
         var flags = ImGuiWindowFlags.NoCollapse
             | ImGuiWindowFlags.NoFocusOnAppearing
@@ -105,17 +100,13 @@ public sealed class TrackerWindow
 
         if (ImGui.Begin("Quest Tracker", ref _visible, flags))
         {
-            // Switch to hover opacity if mouse is over the window
-            if (ImGui.IsWindowHovered(ImGuiHoveredFlags.RootAndChildWindows))
-                ImGui.SetNextWindowBgAlpha(_config.TrackerHoverOpacity.Value);
-
             DrawHeaderBar();
             DrawQuestList();
         }
 
         ClampWindowPosition();
         ImGui.End();
-        ImGui.PopStyleColor(2);
+        Theme.PopWindowStyle();
     }
 
     /// <summary>Save window position to config for cross-session persistence.</summary>
@@ -304,17 +295,18 @@ public sealed class TrackerWindow
 
     private void DrawQuestNameAndLevel(QuestEntry quest)
     {
-        // Quest name — clickable text to open in guide
-        int? level = quest.LevelEstimate?.Recommended;
-        string label = level.HasValue
-            ? $"{quest.DisplayName}  Lv{level.Value}"
-            : quest.DisplayName;
+        // Match guide list format: level prefix + quest name in status color
+        string label = quest.LevelEstimate?.Recommended is int lvl
+            ? $"{lvl,2}  {quest.DisplayName}"
+            : $"    {quest.DisplayName}";
 
+        ImGui.PushStyleColor(ImGuiCol.Text, Theme.QuestActive);
         if (ImGui.Selectable(label + "##name" + quest.DBName))
         {
             _state.SelectQuest(quest.DBName);
             _guide.Show();
         }
+        ImGui.PopStyleColor();
     }
 
     // ── Current step ─────────────────────────────────────────────────
