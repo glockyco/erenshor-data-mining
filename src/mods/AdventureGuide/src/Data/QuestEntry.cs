@@ -80,6 +80,14 @@ public sealed class ItemSource
     [JsonProperty("spawn_count")] public int? SpawnCount { get; set; }
     [JsonProperty("recipe_key")] public string? RecipeKey { get; set; }
     [JsonProperty("children")] public List<ItemSource>? Children { get; set; }
+
+    /// <summary>
+    /// Stable identity for navigation UI highlight. Returns SourceKey for
+    /// entity sources (drop, vendor, etc.) or a synthetic key for zone-only
+    /// sources (fishing). Returns null for unnavigable sources (crafting).
+    /// </summary>
+    public string? MakeSourceId() =>
+        SourceKey ?? (Scene != null ? $"{Type}:{Scene}" : null);
 }
 
 public sealed class RequiredItemInfo

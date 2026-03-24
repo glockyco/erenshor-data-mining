@@ -520,17 +520,26 @@ public sealed class QuestDetailPanel
                 ImGui.TreePop();
             }
         }
-        else if (src.SourceKey != null)
+        else if (src.MakeSourceId() is string sourceId)
         {
-            // Navigable source: Selectable with highlight when actively navigating to it
-            bool isNavTarget = _nav.Target?.TargetKey == src.SourceKey;
+            // Navigable source: Selectable with highlight when actively
+            // navigating to this specific source (not just the same step).
+            bool isNavTarget = _nav.Target?.SourceId == sourceId;
             if (isNavTarget)
                 ImGui.PushStyleColor(ImGuiCol.Text, Theme.QuestActive);
 
-            if (ImGui.Selectable($"{label}##src_{step.Order}_{src.SourceKey}"))
+            if (ImGui.Selectable($"{label}##src_{step.Order}_{sourceId}"))
             {
-                _nav.NavigateToSource(src.SourceKey, src.Name ?? src.SourceKey,
-                    src.Scene, quest.DBName, step.Order, _state.CurrentZone);
+                if (src.SourceKey != null)
+                {
+                    _nav.NavigateToSource(src.SourceKey, src.Name ?? src.SourceKey,
+                        src.Scene, quest.DBName, step.Order, _state.CurrentZone);
+                }
+                else if (src.Scene != null)
+                {
+                    _nav.NavigateToZone(src.Scene, src.Zone ?? src.Scene, sourceId,
+                        quest.DBName, step.Order, _state.CurrentZone);
+                }
             }
 
             if (isNavTarget)
@@ -539,7 +548,13 @@ public sealed class QuestDetailPanel
             if (ImGui.IsItemHovered())
             {
                 ImGui.BeginTooltip();
-                ImGui.Text($"Navigate to {src.Name}");
+                if (src.SourceKey != null)
+                    ImGui.Text($"Navigate to {src.Name}");
+                else if (string.Equals(src.Scene, _state.CurrentZone,
+                    System.StringComparison.OrdinalIgnoreCase))
+                    ImGui.Text($"You are in {src.Zone ?? src.Scene}");
+                else
+                    ImGui.Text($"Navigate to {src.Zone ?? src.Scene}");
                 ImGui.EndTooltip();
             }
         }
@@ -748,5 +763,5 @@ public sealed class QuestDetailPanel
             string.Equals(ri.ItemName, step.TargetName, StringComparison.OrdinalIgnoreCase));
 
     private static bool HasNavigableSource(ItemSource s) =>
-        s.SourceKey != null || (s.Children?.Exists(HasNavigableSource) == true);
+        s.SourceKey != null || s.Scene != null || (s.Children?.Exists(HasNavigableSource) == true);
 }

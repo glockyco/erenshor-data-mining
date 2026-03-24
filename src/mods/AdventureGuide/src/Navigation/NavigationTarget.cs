@@ -22,8 +22,13 @@ public sealed class NavigationTarget
     /// <summary>Scene this target is in.</summary>
     public string Scene { get; }
 
-    /// <summary>Stable key for entity lookup (character:name format).</summary>
-    public string? TargetKey { get; }
+    /// <summary>
+    /// Identifies which source line initiated this navigation. Matches
+    /// ItemSource.SourceKey for entity sources (e.g. "character:stoneman"),
+    /// or a synthetic key for zone-only sources (e.g. "fishing:Stowaway").
+    /// Used by the UI to highlight the specific source being navigated to.
+    /// </summary>
+    public string? SourceId { get; }
 
     /// <summary>Quest DB name this navigation originated from.</summary>
     public string QuestDBName { get; }
@@ -38,7 +43,7 @@ public sealed class NavigationTarget
         string scene,
         string questDBName,
         int stepOrder,
-        string? targetKey = null)
+        string? sourceId = null)
     {
         TargetKind = targetKind;
         Position = position;
@@ -46,7 +51,7 @@ public sealed class NavigationTarget
         Scene = scene;
         QuestDBName = questDBName;
         StepOrder = stepOrder;
-        TargetKey = targetKey;
+        SourceId = sourceId;
     }
 
     /// <summary>True when the target is in a different scene than the player.</summary>

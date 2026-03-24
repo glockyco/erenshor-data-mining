@@ -49,7 +49,7 @@ public static class DebugAPI
         sb.AppendLine($"  Kind: {t.TargetKind}");
         sb.AppendLine($"  Scene: {t.Scene}");
         sb.AppendLine($"  Position: {t.Position}");
-        sb.AppendLine($"  TargetKey: {t.TargetKey ?? "(none)"}");
+        sb.AppendLine($"  SourceId: {t.SourceId ?? "(none)"}");
         sb.AppendLine($"  Quest: {t.QuestDBName} step {t.StepOrder}");
 
         var currentZone = State?.CurrentZone ?? "";

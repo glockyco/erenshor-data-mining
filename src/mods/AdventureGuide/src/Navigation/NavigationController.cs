@@ -155,6 +155,57 @@ public sealed class NavigationController
     }
 
     /// <summary>
+    /// Navigate to a zone by scene name. Used for sources that have a zone
+    /// but no specific coordinates (e.g. fishing). When the player is already
+    /// in the target zone, sets a same-zone Zone target so IsNavigating returns
+    /// true (UI highlights the step) but arrow/path stay hidden.
+    /// </summary>
+    public bool NavigateToZone(string scene, string displayName, string sourceId,
+        string questDBName, int stepOrder, string currentScene)
+    {
+        Clear();
+
+        // Same zone: set a Zone target so UI shows this step as active.
+        // Update() handles this by setting distance=0, direction=zero.
+        if (string.Equals(scene, currentScene, System.StringComparison.OrdinalIgnoreCase))
+        {
+            Target = MakeTarget(
+                NavigationTarget.Kind.Zone,
+                Vector3.zero,
+                displayName,
+                scene,
+                questDBName, stepOrder, sourceId);
+            return true;
+        }
+
+        var zoneKey = FindZoneKeyBySceneName(scene);
+        if (zoneKey == null) return false;
+
+        var playerPos = GetPlayerPosition() ?? Vector3.zero;
+        var zoneLine = FindClosestZoneLine(zoneKey, currentScene, playerPos);
+
+        if (zoneLine != null)
+        {
+            Target = MakeTarget(
+                NavigationTarget.Kind.ZoneLine,
+                new Vector3(zoneLine.X, zoneLine.Y, zoneLine.Z),
+                $"To: {zoneLine.DestinationDisplay}",
+                currentScene,
+                questDBName, stepOrder, sourceId);
+        }
+        else
+        {
+            Target = MakeTarget(
+                NavigationTarget.Kind.Zone,
+                Vector3.zero,
+                displayName,
+                scene,
+                questDBName, stepOrder, sourceId);
+        }
+        return true;
+    }
+
+    /// <summary>
     /// Called when game state changes (quest assigned, quest completed,
     /// inventory changed, NPC killed). Re-evaluates whether the current
     /// nav step is still the active step and auto-advances if not.
@@ -232,6 +283,16 @@ public sealed class NavigationController
         }
 
         ZoneLineWaypoint = null;
+
+        // Same-zone Zone target (e.g. fishing): player is already in the
+        // right zone. Keep Target alive so IsNavigating returns true (UI
+        // highlights), but set distance/direction to zero so arrow hides.
+        if (Target.TargetKind == NavigationTarget.Kind.Zone)
+        {
+            Distance = 0f;
+            Direction = Vector3.zero;
+            return;
+        }
 
         // Same zone: update position from closest match
         // Priority: corpse/chest with quest loot > alive NPC > shortest respawn
@@ -426,23 +487,31 @@ public sealed class NavigationController
         if (TryNavigateToAnySource(item.Sources, quest, step, currentScene))
             return true;
 
-        // Fallback: navigate to the zone where the first source lives
-        var firstScene = FindFirstScene(item.Sources);
+        // Fallback: navigate to the zone where the first source lives.
+        // Sources like fishing have a scene but no source_key or coordinates.
+        var firstSource = FindFirstSourceWithScene(item.Sources);
+        var firstScene = firstSource?.Scene;
         string? zoneKey = firstScene != null
             ? FindZoneKeyBySceneName(firstScene)
             : FindZoneKeyByDisplayName(item.Sources[0].Zone);
         if (zoneKey == null) return false;
-        var zlPlayerPos = GetPlayerPosition() ?? Vector3.zero;
-        var zl = FindClosestZoneLine(zoneKey, currentScene, zlPlayerPos);
-        if (zl == null) return false;
 
-        Target = MakeTarget(
-            NavigationTarget.Kind.ZoneLine,
-            new Vector3(zl.X, zl.Y, zl.Z),
-            zl.DestinationDisplay,
-            currentScene,
-            quest.DBName, step.Order);
-        return true;
+        // Find the scene name for this zone
+        string? destScene = null;
+        foreach (var kvp in _data.ZoneLookup)
+        {
+            if (string.Equals(kvp.Value.StableKey, zoneKey, System.StringComparison.OrdinalIgnoreCase))
+            {
+                destScene = kvp.Key;
+                break;
+            }
+        }
+        if (destScene == null) return false;
+
+        string displayName = firstSource?.Zone ?? destScene;
+        string? sourceId = firstSource?.MakeSourceId();
+        return NavigateToZone(destScene, displayName, sourceId!,
+            quest.DBName, step.Order, currentScene);
     }
 
     private bool TryNavigateToAnySource(List<Data.ItemSource> sources, QuestEntry quest, QuestStep step, string currentScene)
@@ -727,15 +796,15 @@ public sealed class NavigationController
         return null;
     }
 
-    private static string? FindFirstScene(List<Data.ItemSource> sources)
+    private static Data.ItemSource? FindFirstSourceWithScene(List<Data.ItemSource> sources)
     {
         foreach (var src in sources)
         {
-            if (src.Scene != null) return src.Scene;
+            if (src.Scene != null) return src;
             if (src.Children != null)
             {
-                var childScene = FindFirstScene(src.Children);
-                if (childScene != null) return childScene;
+                var child = FindFirstSourceWithScene(src.Children);
+                if (child != null) return child;
             }
         }
         return null;
@@ -828,8 +897,8 @@ public sealed class NavigationController
 
     private static NavigationTarget MakeTarget(
         NavigationTarget.Kind kind, Vector3 position, string displayName,
-        string scene, string questDBName, int stepOrder, string? targetKey = null)
+        string scene, string questDBName, int stepOrder, string? sourceId = null)
     {
-        return new NavigationTarget(kind, position, displayName, scene, questDBName, stepOrder, targetKey);
+        return new NavigationTarget(kind, position, displayName, scene, questDBName, stepOrder, sourceId);
     }
 }
