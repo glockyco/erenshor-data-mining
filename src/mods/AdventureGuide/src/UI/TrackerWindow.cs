@@ -305,26 +305,17 @@ public sealed class TrackerWindow
     private void DrawQuestNameAndLevel(QuestEntry quest)
     {
         // Quest name — clickable to open in guide
-        ImGui.PushStyleColor(ImGuiCol.Header, 0);
-        ImGui.PushStyleColor(ImGuiCol.HeaderHovered, Theme.Surface);
-        ImGui.PushStyleColor(ImGuiCol.HeaderActive, Theme.Surface);
-
-        if (ImGui.Selectable(quest.DisplayName, false, ImGuiSelectableFlags.None))
+        if (ImGui.Selectable(quest.DisplayName + "##name" + quest.DBName))
         {
             _state.SelectQuest(quest.DBName);
             _guide.Show();
         }
 
-        ImGui.PopStyleColor(3);
-
-        // Level right-aligned on same line
+        // Level on the next line, right-aligned
         int? level = quest.LevelEstimate?.Recommended;
         if (level.HasValue)
         {
             var levelText = $"Lv{level.Value}";
-            float availWidth = ImGui.GetContentRegionAvail().X;
-            float textWidth = ImGui.CalcTextSize(levelText).X;
-            ImGui.SameLine(ImGui.GetCursorPosX() + availWidth - textWidth);
             ImGui.PushStyleColor(ImGuiCol.Text, GetLevelColor(level.Value));
             ImGui.TextUnformatted(levelText);
             ImGui.PopStyleColor();
