@@ -10,6 +10,7 @@ internal static class QuestFinishPatch
     internal static QuestStateTracker? Tracker;
     internal static NavigationController? Nav;
     internal static LootScanner? Loot;
+    internal static TrackerState? TrackerPins;
 
     [HarmonyPostfix]
     private static void Postfix(string _questName)
@@ -17,5 +18,6 @@ internal static class QuestFinishPatch
         Tracker?.OnQuestCompleted(_questName);
         Nav?.OnGameStateChanged(Tracker?.CurrentZone ?? "");
         Loot?.MarkDirty();
+        TrackerPins?.OnQuestCompleted(_questName);
     }
 }

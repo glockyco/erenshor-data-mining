@@ -10,6 +10,7 @@ internal static class QuestAssignPatch
     internal static QuestStateTracker? Tracker;
     internal static NavigationController? Nav;
     internal static LootScanner? Loot;
+    internal static TrackerState? TrackerPins;
 
     [HarmonyPostfix]
     private static void Postfix(string _questName)
@@ -17,5 +18,8 @@ internal static class QuestAssignPatch
         Tracker?.OnQuestAssigned(_questName);
         Nav?.OnGameStateChanged(Tracker?.CurrentZone ?? "");
         Loot?.MarkDirty();
+
+        if (TrackerPins is { AutoTrackEnabled: true })
+            TrackerPins.Track(_questName);
     }
 }

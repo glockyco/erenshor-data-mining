@@ -13,6 +13,7 @@ public sealed class GuideData
     private readonly Dictionary<string, QuestEntry> _byDBName = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, QuestEntry> _byStableKey = new(StringComparer.OrdinalIgnoreCase);
     private readonly List<QuestEntry> _all = new();
+    private readonly Dictionary<string, string> _displayToScene = new(StringComparer.OrdinalIgnoreCase);
 
     public IReadOnlyList<QuestEntry> All => _all;
     public int Count => _all.Count;
@@ -46,6 +47,10 @@ public sealed class GuideData
     /// <summary>Resolve a scene name to a display name via the zone lookup.</summary>
     public string? GetZoneDisplayName(string sceneName) =>
         ZoneLookup.TryGetValue(sceneName, out var info) ? info.DisplayName : null;
+
+    /// <summary>Resolve a display zone name to a scene name. Inverse of GetZoneDisplayName.</summary>
+    public string? GetSceneName(string displayName) =>
+        _displayToScene.TryGetValue(displayName, out var scene) ? scene : null;
 
     public static GuideData Load(ManualLogSource log)
     {
@@ -81,6 +86,8 @@ public sealed class GuideData
 
         // Populate lookup tables
         data.ZoneLookup = wrapper.ZoneLookup ?? new Dictionary<string, ZoneInfo>();
+        foreach (var (scene, info) in data.ZoneLookup)
+            data._displayToScene[info.DisplayName] = scene;
         data.CharacterSpawns = wrapper.CharacterSpawns ?? new Dictionary<string, List<SpawnPoint>>();
         data.ZoneLines = wrapper.ZoneLines ?? new List<ZoneLineEntry>();
         data.ChainGroups = wrapper.ChainGroups ?? new List<ChainGroupEntry>();

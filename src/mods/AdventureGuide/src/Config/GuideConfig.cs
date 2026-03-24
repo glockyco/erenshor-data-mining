@@ -26,6 +26,14 @@ public sealed class GuideConfig
     public ConfigEntry<float> SubTextYOffset { get; }
     public ConfigEntry<float> IconYOffset { get; }
 
+    // Tracker overlay
+    public ConfigEntry<KeyCode> TrackerToggleKey { get; }
+    public ConfigEntry<bool> TrackerAutoTrack { get; }
+    public ConfigEntry<string> TrackerSortMode { get; }
+    public ConfigEntry<string> TrackedQuests { get; }
+    public ConfigEntry<float> TrackerIdleOpacity { get; }
+    public ConfigEntry<float> TrackerHoverOpacity { get; }
+
     public GuideConfig(ConfigFile config)
     {
         ToggleKey = config.Bind("General", "ToggleKey", KeyCode.L,
@@ -68,5 +76,20 @@ public sealed class GuideConfig
         HistoryMaxSize = config.Bind("General", "HistoryMaxSize", 100,
             new ConfigDescription("Maximum number of pages in navigation history",
                 new AcceptableValueRange<int>(10, 500)));
+
+        TrackerToggleKey = config.Bind("Tracker", "ToggleKey", KeyCode.K,
+            "Key to toggle the quest tracker overlay");
+        TrackerAutoTrack = config.Bind("Tracker", "AutoTrack", true,
+            "Automatically track newly accepted quests");
+        TrackerSortMode = config.Bind("Tracker", "SortMode", "Proximity",
+            "Sort order: Proximity, Level, or Alphabetical");
+        TrackedQuests = config.Bind("Tracker", "TrackedQuests", "",
+            "Semicolon-delimited list of tracked quest DB names (auto-managed)");
+        TrackerIdleOpacity = config.Bind("Tracker", "IdleOpacity", 0.6f,
+            new ConfigDescription("Background opacity when not hovering",
+                new AcceptableValueRange<float>(0.1f, 1.0f)));
+        TrackerHoverOpacity = config.Bind("Tracker", "HoverOpacity", 0.9f,
+            new ConfigDescription("Background opacity when hovering",
+                new AcceptableValueRange<float>(0.1f, 1.0f)));
     }
 }

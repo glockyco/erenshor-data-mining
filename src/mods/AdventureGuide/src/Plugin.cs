@@ -35,6 +35,7 @@ public sealed class Plugin : BaseUnityPlugin
     private LootScanner? _lootScanner;
     private ImGuiRenderer? _imgui;
     private GuideWindow? _window;
+    private TrackerState? _trackerState;
 
     private void Awake()
     {
@@ -43,6 +44,9 @@ public sealed class Plugin : BaseUnityPlugin
         _config = new GuideConfig(Config);
         _data = GuideData.Load(Log);
         _state = new QuestStateTracker();
+
+        _trackerState = new TrackerState();
+        _trackerState.LoadFromConfig(_config);
 
         _imgui = new ImGuiRenderer(Log) { UiScale = _config.UiScale.Value };
         if (!_imgui.Init())
@@ -89,9 +93,11 @@ public sealed class Plugin : BaseUnityPlugin
         QuestAssignPatch.Tracker = _state;
         QuestAssignPatch.Nav = _nav;
         QuestAssignPatch.Loot = _lootScanner;
+        QuestAssignPatch.TrackerPins = _trackerState;
         QuestFinishPatch.Tracker = _state;
         QuestFinishPatch.Nav = _nav;
         QuestFinishPatch.Loot = _lootScanner;
+        QuestFinishPatch.TrackerPins = _trackerState;
         InventoryPatch.Tracker = _state;
         InventoryPatch.Nav = _nav;
         InventoryPatch.Loot = _lootScanner;
@@ -198,6 +204,7 @@ public sealed class Plugin : BaseUnityPlugin
         _miningTracker?.Rescan();
         _lootScanner?.OnSceneLoaded();
         _state?.OnSceneChanged(scene.name);
+        _trackerState?.PruneInactive(_state!);
     }
 
     private void OnShowArrowChanged(object sender, System.EventArgs e) => SyncVisibility();
@@ -241,6 +248,8 @@ public sealed class Plugin : BaseUnityPlugin
         _entities?.Clear();
         _miningTracker?.Clear();
         MarkerFonts.Destroy();
+
+        _trackerState?.SaveToConfig();
 
         DebugAPI.Data = null;
         DebugAPI.State = null;

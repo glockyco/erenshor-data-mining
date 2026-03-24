@@ -36,6 +36,10 @@ public static class Theme
     public static readonly uint LevelCaution = Rgba(1.00f, 0.90f, 0.30f, 1.00f);
     public static readonly uint LevelDanger  = Rgba(1.00f, 0.30f, 0.30f, 1.00f);
 
+    // -- Tracker flash --
+    public static readonly uint TrackerFlashGreen  = Rgba(0.20f, 0.80f, 0.20f, 0.30f);
+    public static readonly uint TrackerFlashYellow = Rgba(0.80f, 0.70f, 0.10f, 0.20f);
+
     // -- Spacing --
     public const float WindowPadding  = 8f;
     public const float ItemSpacing    = 4f;
