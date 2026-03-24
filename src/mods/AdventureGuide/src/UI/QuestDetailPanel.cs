@@ -62,10 +62,9 @@ public sealed class QuestDetailPanel
         ImGui.TextWrapped(quest.DisplayName);
         ImGui.PopStyleColor();
 
-        // Track/Untrack button on same line after quest name
+        // Track/Untrack button below quest name
         if (_state.IsActive(quest.DBName))
         {
-            ImGui.SameLine();
             bool tracked = _tracker.IsTracked(quest.DBName);
             if (tracked)
                 ImGui.PushStyleColor(ImGuiCol.Button, Theme.Accent);
