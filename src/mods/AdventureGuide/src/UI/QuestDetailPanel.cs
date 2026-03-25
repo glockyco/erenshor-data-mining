@@ -324,12 +324,27 @@ public sealed class QuestDetailPanel
         if (!IsNavigationEnabled) return;
         if (step.TargetKey == null) return;
 
-        // Item steps are only navigable if at least one source has spawn data
-        bool navigable = true;
+        // Check if this step has a navigable target with known position.
+        // Character targets need spawn data; item targets need at least one
+        // source with spawn data or a scene.
+        bool navigable;
         if (step.TargetType == "item")
         {
             var item = FindRequiredItem(quest, step);
-            navigable = item?.Sources?.Exists(HasNavigableSource) == true;
+            navigable = item?.Sources?.Exists(s => HasNavigableSource(s)) == true;
+        }
+        else if (step.TargetType == "character")
+        {
+            navigable = step.TargetKey != null
+                && _data.CharacterSpawns.ContainsKey(step.TargetKey);
+        }
+        else if (step.TargetType == "zone")
+        {
+            navigable = step.ZoneName != null || step.TargetKey != null;
+        }
+        else
+        {
+            navigable = false;
         }
 
         bool isActive = _nav.IsNavigating(quest.DBName, step.Order);
@@ -797,6 +812,10 @@ public sealed class QuestDetailPanel
         quest.RequiredItems?.Find(ri =>
             string.Equals(ri.ItemName, step.TargetName, StringComparison.OrdinalIgnoreCase));
 
-    private static bool HasNavigableSource(ItemSource s) =>
-        s.SourceKey != null || s.Scene != null || (s.Children?.Exists(HasNavigableSource) == true);
+    private bool HasNavigableSource(ItemSource s)
+    {
+        if (s.Scene != null) return true;
+        if (s.SourceKey != null && _data.CharacterSpawns.ContainsKey(s.SourceKey)) return true;
+        return s.Children?.Exists(c => HasNavigableSource(c)) == true;
+    }
 }
