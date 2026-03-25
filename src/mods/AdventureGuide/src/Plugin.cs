@@ -76,6 +76,7 @@ public sealed class Plugin : BaseUnityPlugin
         _config.ShowWorldMarkers.SettingChanged += OnShowWorldMarkersChanged;
 
         _config.TrackerEnabled.SettingChanged += OnTrackerEnabledChanged;
+        _config.ReplaceQuestLog.SettingChanged += OnReplaceQuestLogChanged;
 
         var history = new NavigationHistory(_config.HistoryMaxSize.Value);
         _config.HistoryMaxSize.SettingChanged += (_, _) => history.MaxSize = _config.HistoryMaxSize.Value;
@@ -115,6 +116,7 @@ public sealed class Plugin : BaseUnityPlugin
         DeathPatch.Loot = _lootScanner;
         QuestMarkerPatch.SuppressGameMarkers = _config.ShowWorldMarkers.Value;
         PointerOverUIPatch.Renderer = _imgui;
+        QuestLogPatch.ReplaceQuestLog = _config.ReplaceQuestLog;
         SceneManager.sceneLoaded += OnSceneLoaded;
 
         _harmony = new Harmony(PluginInfo.GUID);
@@ -198,7 +200,7 @@ public sealed class Plugin : BaseUnityPlugin
         if (Input.GetKeyDown(_config.ToggleKey.Value))
             _window.Toggle();
 
-        if (_config.ReplaceQuestLog.Value && Input.GetKeyDown(KeyCode.J))
+        if (_config.ReplaceQuestLog.Value && Input.GetKeyDown(InputManager.Journal))
             _window.Toggle();
 
         if (_config.TrackerEnabled.Value && Input.GetKeyDown(_config.TrackerToggleKey.Value))
@@ -252,6 +254,19 @@ public sealed class Plugin : BaseUnityPlugin
         _trackerState!.Enabled = _config!.TrackerEnabled.Value;
     }
 
+    private void OnReplaceQuestLogChanged(object sender, System.EventArgs e)
+    {
+        if (!_config!.ReplaceQuestLog.Value) return;
+
+        // Close the native journal if it's open and show the guide instead
+        var ql = GameData.QuestLog;
+        if (ql != null && ql.QuestWindow != null && ql.QuestWindow.activeSelf)
+        {
+            ql.QuestWindow.SetActive(false);
+            _window?.Show();
+        }
+    }
+
     /// <summary>
     /// Applies effective visibility = config setting AND game UI visible.
     /// Called on config changes and on game UI visibility transitions.
@@ -273,6 +288,7 @@ public sealed class Plugin : BaseUnityPlugin
             _config.ShowGroundPath.SettingChanged -= OnShowGroundPathChanged;
             _config.ShowWorldMarkers.SettingChanged -= OnShowWorldMarkersChanged;
             _config.TrackerEnabled.SettingChanged -= OnTrackerEnabledChanged;
+            _config.ReplaceQuestLog.SettingChanged -= OnReplaceQuestLogChanged;
             QuestMarkerPatch.SuppressGameMarkers = false;
         }
         _harmony?.UnpatchSelf();
