@@ -758,9 +758,21 @@ public sealed class QuestDetailPanel
         if (quest.Prerequisites == null || quest.Prerequisites.Count == 0)
             return;
 
+        // Filter out prerequisites already visible in the step tree
+        // (quest_reward sources and complete_quest targets).
+        var treeKeys = CollectStepTreeQuestKeys(quest);
+        var filtered = new List<Prerequisite>();
+        foreach (var p in quest.Prerequisites)
+        {
+            if (!treeKeys.Contains(p.QuestKey))
+                filtered.Add(p);
+        }
+        if (filtered.Count == 0)
+            return;
+
         // Auto-expand when any prerequisite is incomplete
         bool anyIncomplete = false;
-        foreach (var p in quest.Prerequisites)
+        foreach (var p in filtered)
         {
             if (!IsPrerequisiteCompleted(p))
             {
@@ -774,7 +786,7 @@ public sealed class QuestDetailPanel
             return;
 
         ImGui.Indent(Theme.IndentWidth);
-        foreach (var prereq in quest.Prerequisites)
+        foreach (var prereq in filtered)
         {
             bool completed = IsPrerequisiteCompleted(prereq);
             var color = completed ? Theme.QuestCompleted : Theme.TextPrimary;
@@ -785,16 +797,50 @@ public sealed class QuestDetailPanel
             ImGui.PushStyleColor(ImGuiCol.Text, color);
             if (ImGui.Selectable($"{label}##prereq_{prereq.QuestKey}"))
             {
-                // Navigate to prerequisite quest via stable key (O(1) lookup)
                 var target = _data.GetByStableKey(prereq.QuestKey);
                 if (target != null)
-                {
                     _state.SelectQuest(target.DBName);
-                }
             }
             ImGui.PopStyleColor();
         }
         ImGui.Unindent(Theme.IndentWidth);
+    }
+
+    /// <summary>
+    /// Collect quest stable keys that are already visible in the step tree:
+    /// complete_quest step targets and quest_reward item sources.
+    /// </summary>
+    private static HashSet<string> CollectStepTreeQuestKeys(QuestEntry quest)
+    {
+        var keys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        if (quest.Steps != null)
+        {
+            foreach (var step in quest.Steps)
+            {
+                if (step.Action == "complete_quest" && step.TargetKey != null)
+                    keys.Add(step.TargetKey);
+            }
+        }
+        if (quest.RequiredItems != null)
+        {
+            foreach (var ri in quest.RequiredItems)
+            {
+                if (ri.Sources != null)
+                    CollectQuestRewardKeys(ri.Sources, keys);
+            }
+        }
+        return keys;
+    }
+
+    private static void CollectQuestRewardKeys(List<ItemSource> sources, HashSet<string> keys)
+    {
+        foreach (var src in sources)
+        {
+            if (src.Type == "quest_reward" && src.QuestKey != null)
+                keys.Add(src.QuestKey);
+            if (src.Children != null)
+                CollectQuestRewardKeys(src.Children, keys);
+        }
     }
 
     private bool IsPrerequisiteCompleted(Prerequisite prereq)
