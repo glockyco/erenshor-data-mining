@@ -27,7 +27,6 @@ public sealed class WorldMarkerSystem
 
     private readonly GuideData _data;
     private readonly QuestStateTracker _state;
-    private readonly EntityRegistry _entities;
     private readonly SpawnPointBridge _bridge;
     private readonly MarkerPool _pool;
     private readonly GuideConfig _config;
@@ -59,12 +58,11 @@ public sealed class WorldMarkerSystem
 
     public WorldMarkerSystem(
         GuideData data, QuestStateTracker state,
-        EntityRegistry entities, SpawnPointBridge bridge,
+        SpawnPointBridge bridge,
         LootScanner lootScanner, GuideConfig config)
     {
         _data = data;
         _state = state;
-        _entities = entities;
         _bridge = bridge;
         _lootScanner = lootScanner;
         _config = config;
@@ -314,7 +312,7 @@ public sealed class WorldMarkerSystem
             {
                 case SpawnPointBridge.SpawnState.Alive:
                     TryAddMarker(spawnKey, questType, displayName, questSubText, pos, stableKey,
-                        info.LiveSpawnPoint, info.LiveMiningNode, questType, questSubText);
+                        info.LiveSpawnPoint, info.LiveNPC, info.LiveMiningNode, questType, questSubText);
                     break;
 
                 case SpawnPointBridge.SpawnState.Dead:
@@ -325,7 +323,7 @@ public sealed class WorldMarkerSystem
                         : "Respawning...";
                     TryAddMarker(spawnKey, MarkerType.DeadSpawn, displayName,
                         $"{displayName}\n{timer}", pos, targetKey: null,
-                        info.LiveSpawnPoint, info.LiveMiningNode, questType, questSubText);
+                        info.LiveSpawnPoint, info.LiveNPC, info.LiveMiningNode, questType, questSubText);
                     break;
                 }
 
@@ -336,7 +334,7 @@ public sealed class WorldMarkerSystem
                     TryAddMarker(spawnKey, MarkerType.NightSpawn, displayName,
                         $"{displayName}\nNight only (23:00-04:00)\nNow: {hour}:{min:D2}",
                         pos, targetKey: null,
-                        info.LiveSpawnPoint, info.LiveMiningNode, questType, questSubText);
+                        info.LiveSpawnPoint, info.LiveNPC, info.LiveMiningNode, questType, questSubText);
                     break;
                 }
 
@@ -429,13 +427,15 @@ public sealed class WorldMarkerSystem
             var m = _markers[i];
             var instance = _pool.Get(i);
 
-            // Live NPC position tracking (alive markers only)
+            // Live NPC position tracking (alive markers only).
+            // Each marker tracks its own NPC instance — SpawnPoint-based
+            // markers read from sp.SpawnedNPC (updates on respawn),
+            // directly-placed markers use the stored TrackedNPC ref.
             if (m.TargetKey != null)
             {
-                var liveNpc = _entities.FindClosest(m.TargetKey, playerPos ?? Vector3.zero);
-                if (liveNpc != null)
-                    m.Position = GetMarkerPosition(liveNpc);
-                // else: keep static position from last rebuild
+                NPC? tracked = m.LiveSpawnPoint?.SpawnedNPC ?? m.TrackedNPC;
+                if (tracked != null)
+                    m.Position = GetMarkerPosition(tracked);
             }
 
             // Per-frame spawn state: update timers and detect alive/dead transitions
@@ -595,6 +595,7 @@ public sealed class WorldMarkerSystem
         string spawnKey, MarkerType type, string displayName,
         string? subText, Vector3 position, string? targetKey,
         SpawnPoint? liveSpawnPoint = null,
+        NPC? trackedNPC = null,
         MiningNode? liveMiningNode = null,
         MarkerType questType = default,
         string? questSubText = null)
@@ -612,6 +613,7 @@ public sealed class WorldMarkerSystem
                     TargetKey = targetKey,
                     SubText = subText,
                     LiveSpawnPoint = liveSpawnPoint,
+                    TrackedNPC = trackedNPC,
                     LiveMiningNode = liveMiningNode,
                     QuestType = questType,
                     QuestSubText = questSubText,
@@ -629,6 +631,7 @@ public sealed class WorldMarkerSystem
             TargetKey = targetKey,
             SubText = subText,
             LiveSpawnPoint = liveSpawnPoint,
+            TrackedNPC = trackedNPC,
             LiveMiningNode = liveMiningNode,
             QuestType = questType,
             QuestSubText = questSubText,
@@ -674,6 +677,8 @@ public struct MarkerEntry
     public string? SubText;
     /// <summary>Live SpawnPoint for per-frame timer/state updates. Null for non-spawn markers.</summary>
     public SpawnPoint? LiveSpawnPoint;
+    /// <summary>Live NPC for position tracking on directly-placed NPCs (no SpawnPoint).</summary>
+    public NPC? TrackedNPC;
     /// <summary>Live MiningNode for per-frame mined state and timer updates.</summary>
     public MiningNode? LiveMiningNode;
     /// <summary>Quest marker type to restore when NPC respawns.</summary>

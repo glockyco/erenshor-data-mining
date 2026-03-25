@@ -71,7 +71,7 @@ public sealed class Plugin : BaseUnityPlugin
         _groundPath.Enabled = _config.ShowGroundPath.Value;
         _config.ShowGroundPath.SettingChanged += OnShowGroundPathChanged;
 
-        _markers = new WorldMarkerSystem(_data, _state, _entities, bridge, _lootScanner, _config);
+        _markers = new WorldMarkerSystem(_data, _state, bridge, _lootScanner, _config);
         _markers.Enabled = _config.ShowWorldMarkers.Value;
         _config.ShowWorldMarkers.SettingChanged += OnShowWorldMarkersChanged;
 
