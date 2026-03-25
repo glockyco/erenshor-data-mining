@@ -223,6 +223,7 @@ public sealed class Plugin : BaseUnityPlugin
         {
             _window?.Hide();
             _tracker?.Hide();
+            _nav?.Clear();
         }
         _markers?.OnSceneLoaded();  // deactivate markers before camera goes stale
         _entities?.Clear();
