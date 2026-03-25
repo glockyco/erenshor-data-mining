@@ -126,6 +126,9 @@ public sealed class Plugin : BaseUnityPlugin
         _lootScanner.OnSceneLoaded();
         _trackerState.OnCharacterLoaded();
 
+        var currentScene = SceneManager.GetActiveScene().name;
+        _inGameplay = currentScene != "Menu" && currentScene != "LoadScene";
+
         Log.LogInfo($"{PluginInfo.Name} v{PluginInfo.Version} loaded ({_data.Count} quests)");
     }
 
