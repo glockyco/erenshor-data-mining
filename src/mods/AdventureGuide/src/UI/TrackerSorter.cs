@@ -14,8 +14,6 @@ internal static class TrackerSorter
 {
     /// <summary>
     /// Compute distance from the player to each quest's current step target.
-    /// Quests whose step is not in the current zone (or has no resolvable
-    /// position) get <see cref="float.MaxValue"/>.
     /// </summary>
     public static void ComputeDistances(
         IReadOnlyList<string> quests,
@@ -23,7 +21,7 @@ internal static class TrackerSorter
         QuestStateTracker state,
         NavigationController nav,
         Vector3 playerPos,
-        Dictionary<string, float> output)
+        Dictionary<string, StepDistance> output)
     {
         output.Clear();
         string currentScene = state.CurrentZone;
@@ -34,27 +32,33 @@ internal static class TrackerSorter
             var quest = data.GetByDBName(dbName);
             if (quest == null)
             {
-                output[dbName] = float.MaxValue;
+                output[dbName] = new StepDistance(false, float.MaxValue);
                 continue;
             }
 
-            // When the player is actively navigating to a specific source
-            // for this quest, use the live nav distance (accounts for zone
-            // line routing) instead of the default spawn-based estimate.
+            // When actively navigating this quest, use live nav distance.
             if (nav.Target != null
                 && string.Equals(nav.Target.QuestDBName, dbName, System.StringComparison.OrdinalIgnoreCase))
             {
-                output[dbName] = nav.Distance;
+                bool inZone = !nav.Target.IsCrossZone(currentScene);
+                // Zone targets (fishing) are in the current zone but have
+                // no specific position — distance is not meaningful.
+                float meters = nav.Target.TargetKind == NavigationTarget.Kind.Zone
+                    ? float.MaxValue
+                    : nav.Distance;
+                output[dbName] = new StepDistance(inZone, meters);
                 continue;
             }
 
-            if (!IsCurrentStepInZone(quest, state, data, currentScene))
+            bool stepInZone = IsCurrentStepInZone(quest, state, data, currentScene);
+            if (!stepInZone)
             {
-                output[dbName] = float.MaxValue;
+                output[dbName] = new StepDistance(false, float.MaxValue);
                 continue;
             }
 
-            output[dbName] = StepDistance(quest, state, data, currentScene, playerPos);
+            output[dbName] = new StepDistance(true,
+                ComputeStepMeters(quest, state, data, currentScene, playerPos));
         }
     }
 
@@ -66,7 +70,7 @@ internal static class TrackerSorter
         List<string> quests,
         TrackerSortMode mode,
         GuideData data,
-        IReadOnlyDictionary<string, float>? distances)
+        IReadOnlyDictionary<string, StepDistance>? distances)
     {
         switch (mode)
         {
@@ -85,24 +89,24 @@ internal static class TrackerSorter
     // ── Proximity ────────────────────────────────────────────────────
 
     private static void SortByProximity(
-        List<string> quests, GuideData data, IReadOnlyDictionary<string, float> distances)
+        List<string> quests, GuideData data, IReadOnlyDictionary<string, StepDistance> distances)
     {
         quests.Sort((a, b) =>
         {
-            float da = distances.TryGetValue(a, out float va) ? va : float.MaxValue;
-            float db = distances.TryGetValue(b, out float vb) ? vb : float.MaxValue;
-
-            bool aInZone = da < float.MaxValue;
-            bool bInZone = db < float.MaxValue;
+            var da = distances.TryGetValue(a, out var va) ? va : new StepDistance(false, float.MaxValue);
+            var db = distances.TryGetValue(b, out var vb) ? vb : new StepDistance(false, float.MaxValue);
 
             // Current-zone quests come first
-            if (aInZone != bInZone)
-                return aInZone ? -1 : 1;
+            if (da.InCurrentZone != db.InCurrentZone)
+                return da.InCurrentZone ? -1 : 1;
 
-            // Within same zone group, sort by distance
-            if (aInZone)
+            // Within same zone group, sort by distance.
+            // No-position entries (e.g. fishing) sort as closest (0m).
+            if (da.InCurrentZone)
             {
-                int cmp = da.CompareTo(db);
+                float ma = da.HasDistance ? da.Meters : 0f;
+                float mb = db.HasDistance ? db.Meters : 0f;
+                int cmp = ma.CompareTo(mb);
                 if (cmp != 0) return cmp;
             }
 
@@ -203,7 +207,7 @@ internal static class TrackerSorter
         return null;
     }
 
-    private static float StepDistance(
+    private static float ComputeStepMeters(
         QuestEntry quest, QuestStateTracker state, GuideData data,
         string currentScene, Vector3 playerPos)
     {

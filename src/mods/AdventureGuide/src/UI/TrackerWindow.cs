@@ -55,7 +55,7 @@ public sealed class TrackerWindow
 
     // Sorted working copy — includes both tracked and fading-out entries
     private readonly List<string> _sorted = new();
-    private readonly Dictionary<string, float> _distances = new(System.StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, StepDistance> _distances = new(System.StringComparer.OrdinalIgnoreCase);
     private int _lastStateVersion = -1;
     private float _lastProximitySort;
     private TrackerSortMode _lastSortMode;
@@ -468,9 +468,9 @@ public sealed class TrackerWindow
             ? $"{lvl,2}  {quest.DisplayName}"
             : $"    {quest.DisplayName}";
 
-        // Append distance for quests whose current step is in this zone
-        if (_distances.TryGetValue(quest.DBName, out float dist) && dist < float.MaxValue)
-            label += $" ({dist:0}m)";
+        // Append distance when a meaningful position is available
+        if (_distances.TryGetValue(quest.DBName, out var dist) && dist.HasDistance)
+            label += $" ({dist.Meters:0}m)";
 
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.QuestActive);
         if (ImGui.Selectable(label + "##name" + quest.DBName))
@@ -492,7 +492,7 @@ public sealed class TrackerWindow
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
 
         string text = FormatStepText(quest, step);
-        bool isCrossZone = _distances.TryGetValue(quest.DBName, out float d) && d >= float.MaxValue;
+        bool isCrossZone = _distances.TryGetValue(quest.DBName, out var stepDist) && !stepDist.InCurrentZone;
 
         // For cross-zone non-travel steps, show "Travel to {zone}" instead
         // of the step description. Travel steps already say where to go.
