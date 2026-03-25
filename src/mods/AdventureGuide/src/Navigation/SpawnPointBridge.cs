@@ -1,6 +1,5 @@
+using System.Reflection;
 using UnityEngine;
-
-namespace AdventureGuide.Navigation;
 
 /// <summary>
 /// Bridges static spawn data (from quest-guide.json) to live game SpawnPoint
@@ -19,6 +18,8 @@ public sealed class SpawnPointBridge
         Alive,
         /// <summary>NPC died and is respawning (timer running).</summary>
         Dead,
+        /// <summary>Mining node has been mined and is regenerating.</summary>
+        Mined,
         /// <summary>Night-only spawn during daytime hours.</summary>
         NightLocked,
         /// <summary>Spawn blocked by incomplete quest requirement.</summary>
@@ -147,6 +148,20 @@ public sealed class SpawnPointBridge
         if (!sp.canSpawn)
             return new SpawnInfo(SpawnState.QuestGated, sp);
 
+        // Mining node: check MiningNode component on the spawned NPC.
+        // Mining nodes stay "alive" when mined (NPC persists, only
+        // MeshRenderer + Character are disabled), so this check must
+        // come before the normal alive/dead classification.
+        if (sp.SpawnedNPC != null)
+        {
+            var miningNode = sp.SpawnedNPC.GetComponent<MiningNode>();
+            if (miningNode != null && IsMiningNodeMined(miningNode))
+            {
+                float seconds = GetMiningNodeRespawnSeconds(miningNode);
+                return new SpawnInfo(SpawnState.Mined, sp, sp.SpawnedNPC, seconds);
+            }
+        }
+
         // Night-locked: night-only spawn during daytime
         if (sp.NightSpawn && !IsNightHours())
         {
@@ -169,8 +184,8 @@ public sealed class SpawnPointBridge
 
         // Dead, respawning
         float tickRate = 60f * GetSpawnTimeMod();
-        float seconds = tickRate > 0f ? sp.actualSpawnDelay / tickRate : 0f;
-        return new SpawnInfo(SpawnState.Dead, sp, respawnSeconds: seconds);
+        float seconds2 = tickRate > 0f ? sp.actualSpawnDelay / tickRate : 0f;
+        return new SpawnInfo(SpawnState.Dead, sp, respawnSeconds: seconds2);
     }
 
     /// <summary>Night spawn window: hour > 22 OR hour &lt; 4.</summary>
@@ -209,5 +224,33 @@ public sealed class SpawnPointBridge
     {
         var gm = GameData.GM;
         return gm != null ? gm.SpawnTimeMod : 1f;
+    }
+
+    // ── Mining node helpers ─────────────────────────────────────────
+
+    // MiningNode.Respawn is private — cache the FieldInfo
+    private static readonly FieldInfo? MiningRespawnField =
+        typeof(MiningNode).GetField("Respawn", BindingFlags.NonPublic | BindingFlags.Instance);
+
+    private const float MiningTickRate = 60f;
+
+    /// <summary>
+    /// Check if a mining node is currently mined (regenerating).
+    /// Detected by MeshRenderer being disabled.
+    /// </summary>
+    public static bool IsMiningNodeMined(MiningNode node)
+    {
+        return node.MyRender != null && !node.MyRender.enabled;
+    }
+
+    /// <summary>
+    /// Get remaining real seconds until a mined node respawns.
+    /// Returns 0 if field is inaccessible.
+    /// </summary>
+    public static float GetMiningNodeRespawnSeconds(MiningNode node)
+    {
+        if (MiningRespawnField == null) return 0f;
+        float ticks = (float)MiningRespawnField.GetValue(node);
+        return ticks > 0f ? ticks / MiningTickRate : 0f;
     }
 }

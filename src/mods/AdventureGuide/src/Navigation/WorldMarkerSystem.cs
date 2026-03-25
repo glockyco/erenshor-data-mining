@@ -28,7 +28,6 @@ public sealed class WorldMarkerSystem
     private readonly GuideData _data;
     private readonly QuestStateTracker _state;
     private readonly EntityRegistry _entities;
-    private readonly MiningNodeTracker _miningTracker;
     private readonly SpawnPointBridge _bridge;
     private readonly MarkerPool _pool;
     private readonly GuideConfig _config;
@@ -61,13 +60,12 @@ public sealed class WorldMarkerSystem
     public WorldMarkerSystem(
         GuideData data, QuestStateTracker state,
         EntityRegistry entities, SpawnPointBridge bridge,
-        MiningNodeTracker miningTracker, LootScanner lootScanner, GuideConfig config)
+        LootScanner lootScanner, GuideConfig config)
     {
         _data = data;
         _state = state;
         _entities = entities;
         _bridge = bridge;
-        _miningTracker = miningTracker;
         _lootScanner = lootScanner;
         _config = config;
         _pool = new MarkerPool();
@@ -163,7 +161,6 @@ public sealed class WorldMarkerSystem
 
         CollectLootContainerMarkers();
 
-        CollectMinedNodeMarkers(currentScene);
 
         // Apply to pool
         _pool.SetActiveCount(_markers.Count);
@@ -321,6 +318,7 @@ public sealed class WorldMarkerSystem
                     break;
 
                 case SpawnPointBridge.SpawnState.Dead:
+                case SpawnPointBridge.SpawnState.Mined:
                 {
                     string timer = info.RespawnSeconds > 0f
                         ? SpawnTimerTracker.FormatTimer(info.RespawnSeconds)
@@ -347,40 +345,8 @@ public sealed class WorldMarkerSystem
                         $"{displayName}\nRe-enter zone to respawn",
                         pos, targetKey: null);
                     break;
-
                 // QuestGated, NotFound: no marker
             }
-        }
-    }
-
-    // ── Mined node markers (separate system) ─────────────────────
-
-    private void CollectMinedNodeMarkers(string scene)
-    {
-        foreach (var node in _miningTracker.Nodes)
-        {
-            if (node == null || !node.gameObject.activeInHierarchy) continue;
-            if (!MiningNodeTracker.IsMined(node)) continue;
-
-            // Only show in current scene
-            string nodeScene = node.gameObject.scene.name;
-            if (!string.Equals(nodeScene, scene, System.StringComparison.OrdinalIgnoreCase))
-                continue;
-
-            var pos = node.transform.position + Vector3.up * StaticHeightOffset;
-            float? remaining = MiningNodeTracker.GetRemainingSeconds(node);
-            string timer = remaining.HasValue
-                ? SpawnTimerTracker.FormatTimer(remaining.Value)
-                : "Regenerating...";
-
-            _markers.Add(new MarkerEntry
-            {
-                Position = pos,
-                Type = MarkerType.DeadSpawn, // reuse skull marker for mined nodes
-                DisplayName = "Mineral Deposit",
-                TargetKey = null,
-                SubText = $"Mineral Deposit\n{timer}",
-            });
         }
     }
 
@@ -497,6 +463,19 @@ public sealed class WorldMarkerSystem
     private void UpdateSpawnMarkerState(ref MarkerEntry m, MarkerInstance instance)
     {
         var sp = m.LiveSpawnPoint!;
+
+        // Mining nodes: check MiningNode component state instead of
+        // SpawnedNPC alive check (mined nodes stay "alive" but disabled).
+        if (sp.SpawnedNPC != null)
+        {
+            var miningNode = sp.SpawnedNPC.GetComponent<MiningNode>();
+            if (miningNode != null)
+            {
+                UpdateMiningMarkerState(ref m, instance, miningNode);
+                return;
+            }
+        }
+
         bool isAlive = SpawnPointBridge.IsExpectedNPCAlive(sp, m.DisplayName);
 
         if (isAlive && m.Type != m.QuestType)
@@ -528,6 +507,44 @@ public sealed class WorldMarkerSystem
         {
             // Still dead: update timer text every frame
             string timer = FormatRespawnTimer(sp);
+            m.SubText = $"{m.DisplayName}\n{timer}";
+            instance.UpdateSubText(m.SubText);
+        }
+    }
+
+    private void UpdateMiningMarkerState(ref MarkerEntry m, MarkerInstance instance, MiningNode node)
+    {
+        bool isMined = SpawnPointBridge.IsMiningNodeMined(node);
+
+        if (!isMined && m.Type != m.QuestType)
+        {
+            // Regenerated: restore quest marker
+            m.Type = m.QuestType;
+            m.SubText = m.QuestSubText;
+            m.TargetKey = "live";
+            instance.Configure(m.Type, m.SubText,
+                _config.MarkerScale.Value, _config.IconSize.Value,
+                _config.SubTextSize.Value, _config.IconYOffset.Value,
+                _config.SubTextYOffset.Value);
+        }
+        else if (isMined && m.Type == m.QuestType)
+        {
+            // Just mined: switch to skull with timer
+            m.Type = MarkerType.DeadSpawn;
+            m.TargetKey = null;
+            float seconds = SpawnPointBridge.GetMiningNodeRespawnSeconds(node);
+            string timer = seconds > 0f ? SpawnTimerTracker.FormatTimer(seconds) : "Regenerating...";
+            m.SubText = $"{m.DisplayName}\n{timer}";
+            instance.Configure(m.Type, m.SubText,
+                _config.MarkerScale.Value, _config.IconSize.Value,
+                _config.SubTextSize.Value, _config.IconYOffset.Value,
+                _config.SubTextYOffset.Value);
+        }
+        else if (isMined && m.Type == MarkerType.DeadSpawn)
+        {
+            // Still mined: update timer every frame
+            float seconds = SpawnPointBridge.GetMiningNodeRespawnSeconds(node);
+            string timer = seconds > 0f ? SpawnTimerTracker.FormatTimer(seconds) : "Regenerating...";
             m.SubText = $"{m.DisplayName}\n{timer}";
             instance.UpdateSubText(m.SubText);
         }
