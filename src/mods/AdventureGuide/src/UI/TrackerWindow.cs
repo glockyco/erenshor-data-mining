@@ -219,25 +219,6 @@ public sealed class TrackerWindow
             DrawQuestEntry(quest, dbName, i);
         }
 
-        // Draw fading-out entries (already removed from tracked set)
-        foreach (var (dbName, startTime) in _fadingOut)
-        {
-            var quest = _data.GetByDBName(dbName);
-            if (quest == null) continue;
-
-            float elapsed = UnityEngine.Time.realtimeSinceStartup - startTime;
-            float alpha = UnityEngine.Mathf.Clamp01(1f - elapsed / FadeOutDuration);
-            if (alpha <= 0f) continue;
-
-            ImGui.PushStyleVar(ImGuiStyleVar.Alpha, alpha);
-            ImGui.PushID(dbName.GetHashCode());
-            DrawQuestNameAndLevel(quest);
-            DrawCurrentStep(quest);
-            ImGui.Spacing();
-            ImGui.PopID();
-            ImGui.PopStyleVar();
-        }
-
         ImGui.EndChild();
     }
 
@@ -245,10 +226,19 @@ public sealed class TrackerWindow
     {
         var anim = GetOrDefaultAnim(dbName);
         float now = UnityEngine.Time.realtimeSinceStartup;
+        bool isFadingOut = _fadingOut.TryGetValue(dbName, out float fadeStart);
 
-        // Compute entry alpha for fade-in animation
+        // Entry is neither tracked nor fading out — stale sorted list entry
+        if (!isFadingOut && !_tracker.IsTracked(dbName)) return;
+        // Compute entry alpha for fade-in or fade-out
         float entryAlpha = 1f;
-        if (anim.AddedAt > 0)
+        if (isFadingOut)
+        {
+            float elapsed = now - fadeStart;
+            entryAlpha = UnityEngine.Mathf.Clamp01(1f - elapsed / FadeOutDuration);
+            if (entryAlpha <= 0f) return;
+        }
+        else if (anim.AddedAt > 0)
         {
             float elapsed = now - anim.AddedAt;
             if (elapsed < FadeInDuration)
@@ -485,6 +475,14 @@ public sealed class TrackerWindow
     {
         _sorted.Clear();
         _sorted.AddRange(_tracker.TrackedQuests);
+
+        // Append fading-out entries at their last position so they
+        // fade in place rather than jumping to the bottom
+        foreach (var dbName in _fadingOut.Keys)
+        {
+            if (!_sorted.Contains(dbName))
+                _sorted.Add(dbName);
+        }
         _lastSortMode = _tracker.SortMode;
         _lastProximitySort = UnityEngine.Time.realtimeSinceStartup;
 
