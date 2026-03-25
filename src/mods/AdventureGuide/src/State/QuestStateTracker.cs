@@ -1,15 +1,25 @@
+using AdventureGuide.Data;
+
 namespace AdventureGuide.State;
 
 /// <summary>
 /// Tracks player quest state from Harmony patch callbacks.
-/// Caches inventory counts and step progress to avoid per-frame scans.
+/// Caches inventory counts and detects implicitly active quests
+/// (those without acquisition sources that become active when the
+/// player has at least one required item).
 /// </summary>
 public sealed class QuestStateTracker
 {
     private readonly HashSet<string> _activeQuests = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> _completedQuests = new(StringComparer.OrdinalIgnoreCase);
 
-    // Cached inventory counts, invalidated on OnInventoryChanged
+    // Quests without acquisition — pre-computed once from guide data.
+    // Stored as (dbName, itemStableKeys[]) for fast inventory checks.
+    private readonly List<(string DBName, string[] ItemKeys)> _implicitQuests;
+    private readonly HashSet<string> _implicitlyActiveQuests = new(StringComparer.OrdinalIgnoreCase);
+
+    // Cached inventory counts, invalidated on inventory changes.
+    // The implicit quest set is rebuilt from the same trigger.
     private readonly Dictionary<string, int> _inventoryCache = new(StringComparer.OrdinalIgnoreCase);
     private bool _inventoryDirty = true;
 
@@ -23,6 +33,23 @@ public sealed class QuestStateTracker
     public string? SelectedQuestDBName { get; set; }
 
     private NavigationHistory? _history;
+
+    public QuestStateTracker(GuideData data)
+    {
+        // Pre-compute the list of quests without acquisition sources
+        // and their required item stable keys. This never changes.
+        _implicitQuests = new List<(string, string[])>();
+        foreach (var quest in data.All)
+        {
+            if (!quest.HasNoAcquisition) continue;
+            if (quest.RequiredItems == null || quest.RequiredItems.Count == 0) continue;
+
+            var keys = new string[quest.RequiredItems.Count];
+            for (int i = 0; i < quest.RequiredItems.Count; i++)
+                keys[i] = quest.RequiredItems[i].ItemStableKey;
+            _implicitQuests.Add((quest.DBName, keys));
+        }
+    }
 
     /// <summary>Wire navigation history. Call from Plugin.Awake after construction.</summary>
     public void SetHistory(NavigationHistory history) => _history = history;
@@ -42,7 +69,17 @@ public sealed class QuestStateTracker
     public IReadOnlyCollection<string> ActiveQuests => _activeQuests;
     public IReadOnlyCollection<string> CompletedQuests => _completedQuests;
 
-    public bool IsActive(string dbName) => _activeQuests.Contains(dbName);
+    /// <summary>
+    /// A quest is active if the game has assigned it, or if it has no
+    /// acquisition source and the player has at least one required item.
+    /// </summary>
+    public bool IsActive(string dbName)
+    {
+        if (_activeQuests.Contains(dbName)) return true;
+        EnsureInventoryCurrent();
+        return _implicitlyActiveQuests.Contains(dbName);
+    }
+
     public bool IsCompleted(string dbName) => _completedQuests.Contains(dbName);
 
     /// <summary>Sync from live GameData state. Called on scene load and periodically.</summary>
@@ -101,10 +138,17 @@ public sealed class QuestStateTracker
     /// </summary>
     public int CountItem(string itemStableKey)
     {
-        if (_inventoryDirty)
-            RebuildInventoryCache();
-
+        EnsureInventoryCurrent();
         return _inventoryCache.TryGetValue(itemStableKey, out int count) ? count : 0;
+    }
+
+    // ── Inventory + implicit quest cache ────────────────────────────
+
+    private void EnsureInventoryCurrent()
+    {
+        if (!_inventoryDirty) return;
+        RebuildInventoryCache();
+        RebuildImplicitQuests();
     }
 
     private void RebuildInventoryCache()
@@ -125,6 +169,34 @@ public sealed class QuestStateTracker
                 var key = "item:" + slot.MyItem.name.Trim().ToLowerInvariant();
                 _inventoryCache[key] = _inventoryCache.TryGetValue(key, out int c) ? c + 1 : 1;
             }
+        }
+    }
+
+    /// <summary>
+    /// Rebuild the set of implicitly active quests — quests without an
+    /// acquisition source where the player has all required items.
+    /// Called after the inventory cache is rebuilt.
+    /// </summary>
+    private void RebuildImplicitQuests()
+    {
+        _implicitlyActiveQuests.Clear();
+
+        foreach (var (dbName, itemKeys) in _implicitQuests)
+        {
+            if (_activeQuests.Contains(dbName) || _completedQuests.Contains(dbName))
+                continue;
+
+            bool hasAll = true;
+            foreach (var key in itemKeys)
+            {
+                if (!_inventoryCache.ContainsKey(key))
+                {
+                    hasAll = false;
+                    break;
+                }
+            }
+            if (hasAll)
+                _implicitlyActiveQuests.Add(dbName);
         }
     }
 }

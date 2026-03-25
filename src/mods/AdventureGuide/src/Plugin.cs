@@ -44,7 +44,7 @@ public sealed class Plugin : BaseUnityPlugin
 
         _config = new GuideConfig(Config);
         _data = GuideData.Load(Log);
-        _state = new QuestStateTracker();
+        _state = new QuestStateTracker(_data);
 
         _trackerState = new TrackerState();
         _trackerState.LoadFromConfig(_config);

@@ -260,11 +260,14 @@ public sealed class QuestDetailPanel
         };
         string text = $"{step.Order}. {step.Description}";
 
-        // Collect steps: show have/need count
+        // Collect steps: show have/need count and override color
+        // when items are in hand, regardless of step pointer position.
         if (step.Action == "collect" && step.TargetKey != null && step.Quantity.HasValue)
         {
             int have = _state.CountItem(step.TargetKey);
             text += $" ({have}/{step.Quantity})";
+            if (have >= step.Quantity.Value)
+                color = Theme.QuestCompleted;
         }
 
         // Step suffix: zone (for non-collect) and level, dot-separated
