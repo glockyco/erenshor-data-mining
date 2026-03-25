@@ -80,13 +80,13 @@ public sealed class TrackerState
         StepAdvanced?.Invoke(dbName);
     }
 
-    /// <summary>Remove tracked quests that are no longer active or completed.</summary>
-    public void PruneInactive(QuestStateTracker state)
+    /// <summary>Remove tracked quests that are completed.</summary>
+    public void PruneCompleted(QuestStateTracker state)
     {
         for (int i = _orderedList.Count - 1; i >= 0; i--)
         {
             var db = _orderedList[i];
-            if (!state.IsActive(db) && !state.IsCompleted(db))
+            if (state.IsCompleted(db))
             {
                 _tracked.Remove(db);
                 _orderedList.RemoveAt(i);

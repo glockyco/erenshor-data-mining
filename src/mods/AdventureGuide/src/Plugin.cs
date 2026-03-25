@@ -236,7 +236,7 @@ public sealed class Plugin : BaseUnityPlugin
         // Load per-character tracked quests when entering a gameplay scene
         // (CurrentCharacterSlot becomes available after character login)
         _trackerState?.OnCharacterLoaded();
-        _trackerState?.PruneInactive(_state!);
+        _trackerState?.PruneCompleted(_state!);
     }
 
     private void OnShowArrowChanged(object sender, System.EventArgs e) => SyncVisibility();

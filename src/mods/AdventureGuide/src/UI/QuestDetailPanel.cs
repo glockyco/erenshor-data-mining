@@ -66,8 +66,8 @@ public sealed class QuestDetailPanel
         ImGui.TextWrapped(quest.DisplayName);
         ImGui.PopStyleColor();
 
-        // Track/Untrack button (only when tracker feature is enabled)
-        if (_tracker.Enabled && _state.IsActive(quest.DBName))
+        // Track/Untrack button (only when tracker is enabled; not for completed quests)
+        if (_tracker.Enabled && !_state.IsCompleted(quest.DBName))
         {
             bool tracked = _tracker.IsTracked(quest.DBName);
             if (tracked)
