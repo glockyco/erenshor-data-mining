@@ -127,7 +127,7 @@ public sealed class TrackerWindow
     /// </summary>
     public void Draw()
     {
-        if (!_visible) return;
+        if (!_visible || !_tracker.Enabled) return;
 
         PruneAnimations();
         DetectStepAdvances();
@@ -264,8 +264,12 @@ public sealed class TrackerWindow
         }
 
         // Line 1: [NAV] Quest Name  Lv##
-        DrawNavButton(quest);
-        ImGui.SameLine();
+        bool navEnabled = _config.ShowArrow.Value || _config.ShowGroundPath.Value;
+        if (navEnabled)
+        {
+            DrawNavButton(quest);
+            ImGui.SameLine();
+        }
         DrawQuestNameAndLevel(quest);
 
         // Line 2: indented step description

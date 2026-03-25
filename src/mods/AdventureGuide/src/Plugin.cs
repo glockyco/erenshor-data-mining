@@ -75,6 +75,8 @@ public sealed class Plugin : BaseUnityPlugin
         _markers.Enabled = _config.ShowWorldMarkers.Value;
         _config.ShowWorldMarkers.SettingChanged += OnShowWorldMarkersChanged;
 
+        _config.TrackerEnabled.SettingChanged += OnTrackerEnabledChanged;
+
         var history = new NavigationHistory(_config.HistoryMaxSize.Value);
         _config.HistoryMaxSize.SettingChanged += (_, _) => history.MaxSize = _config.HistoryMaxSize.Value;
         _window = new GuideWindow(_data, _state, _nav, history, _trackerState, _config);
@@ -199,7 +201,7 @@ public sealed class Plugin : BaseUnityPlugin
         if (_config.ReplaceQuestLog.Value && Input.GetKeyDown(KeyCode.J))
             _window.Toggle();
 
-        if (Input.GetKeyDown(_config.TrackerToggleKey.Value))
+        if (_config.TrackerEnabled.Value && Input.GetKeyDown(_config.TrackerToggleKey.Value))
             _tracker?.Toggle();
     }
 
@@ -245,6 +247,11 @@ public sealed class Plugin : BaseUnityPlugin
         QuestMarkerPatch.SuppressGameMarkers = _config!.ShowWorldMarkers.Value;
     }
 
+    private void OnTrackerEnabledChanged(object sender, System.EventArgs e)
+    {
+        _trackerState!.Enabled = _config!.TrackerEnabled.Value;
+    }
+
     /// <summary>
     /// Applies effective visibility = config setting AND game UI visible.
     /// Called on config changes and on game UI visibility transitions.
@@ -265,6 +272,7 @@ public sealed class Plugin : BaseUnityPlugin
             _config.ShowArrow.SettingChanged -= OnShowArrowChanged;
             _config.ShowGroundPath.SettingChanged -= OnShowGroundPathChanged;
             _config.ShowWorldMarkers.SettingChanged -= OnShowWorldMarkersChanged;
+            _config.TrackerEnabled.SettingChanged -= OnTrackerEnabledChanged;
             QuestMarkerPatch.SuppressGameMarkers = false;
         }
         _harmony?.UnpatchSelf();

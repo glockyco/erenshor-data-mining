@@ -38,7 +38,7 @@ public sealed class GuideWindow
         _history = history;
         _config = config;
         _listPanel = new QuestListPanel(data, state, _filter, tracker);
-        _detailPanel = new QuestDetailPanel(data, state, nav, tracker);
+        _detailPanel = new QuestDetailPanel(data, state, nav, tracker, config);
     }
 
     public void Toggle() => _visible = !_visible;

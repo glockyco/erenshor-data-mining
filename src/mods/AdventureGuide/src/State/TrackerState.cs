@@ -1,4 +1,3 @@
-using System;
 using AdventureGuide.Config;
 using AdventureGuide.UI;
 using BepInEx.Configuration;
@@ -22,6 +21,7 @@ public sealed class TrackerState
     private ConfigEntry<string>? _trackedEntry;  // per-character
     private bool _dirty;
 
+    public bool Enabled { get; set; } = true;
     public bool AutoTrackEnabled { get; set; } = true;
     public TrackerSortMode SortMode { get; set; } = TrackerSortMode.Proximity;
 
@@ -100,6 +100,7 @@ public sealed class TrackerState
     public void LoadFromConfig(GuideConfig config)
     {
         _config = config;
+        Enabled = config.TrackerEnabled.Value;
         AutoTrackEnabled = config.TrackerAutoTrack.Value;
         if (Enum.TryParse<TrackerSortMode>(config.TrackerSortMode.Value, out var mode))
             SortMode = mode;
@@ -139,6 +140,7 @@ public sealed class TrackerState
     public void SaveToConfig()
     {
         if (_config == null) return;
+        _config.TrackerEnabled.Value = Enabled;
         _config.TrackerAutoTrack.Value = AutoTrackEnabled;
         _config.TrackerSortMode.Value = SortMode.ToString();
         if (_trackedEntry != null)

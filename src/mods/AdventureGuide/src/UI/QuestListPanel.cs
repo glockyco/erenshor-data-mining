@@ -286,7 +286,7 @@ public sealed class QuestListPanel
         // Level prefix in Selectable label. DrawList.AddText crashes after
         // ILRepack merges System.Numerics.Vectors (same class of P/Invoke
         // issue as Vector4 colors), so we use a single-color label instead.
-        bool isTracked = _tracker.IsTracked(quest.DBName);
+        bool isTracked = _tracker.Enabled && _tracker.IsTracked(quest.DBName);
         string prefix = isTracked ? "\u00b7" : " ";
         string label = quest.LevelEstimate?.Recommended is int lvl
             ? $"{prefix}{lvl,2}  {quest.DisplayName}"

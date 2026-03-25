@@ -19,7 +19,7 @@ internal static class QuestAssignPatch
         Nav?.OnGameStateChanged(Tracker?.CurrentZone ?? "");
         Loot?.MarkDirty();
 
-        if (TrackerPins is { AutoTrackEnabled: true })
+        if (TrackerPins is { Enabled: true, AutoTrackEnabled: true })
             TrackerPins.Track(_questName);
     }
 }

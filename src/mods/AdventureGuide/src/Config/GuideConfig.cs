@@ -39,6 +39,7 @@ public sealed class GuideConfig
 
     // ── User-facing: Tracker ─────────────────────────────────────────
 
+    public ConfigEntry<bool> TrackerEnabled { get; }
     public ConfigEntry<KeyCode> TrackerToggleKey { get; }
     public ConfigEntry<bool> TrackerAutoTrack { get; }
     public ConfigEntry<string> TrackerSortMode { get; }
@@ -113,6 +114,8 @@ public sealed class GuideConfig
                 new AcceptableValueRange<float>(-5f, 5f)));
 
         // Tracker
+        TrackerEnabled = config.Bind("Tracker", "Enabled", true,
+            "Enable the quest tracker overlay. When disabled, auto-tracking and the tracker window are inactive.");
         TrackerToggleKey = config.Bind("Tracker", "ToggleKey", KeyCode.K,
             "Key to toggle the quest tracker overlay");
         TrackerAutoTrack = config.Bind("Tracker", "AutoTrack", true,

@@ -1,3 +1,4 @@
+using AdventureGuide.Config;
 using AdventureGuide.Data;
 using AdventureGuide.Navigation;
 using AdventureGuide.State;
@@ -15,16 +16,19 @@ public sealed class QuestDetailPanel
     private readonly QuestStateTracker _state;
     private readonly NavigationController _nav;
     private readonly TrackerState _tracker;
+    private readonly GuideConfig _config;
 
     /// <summary>Max sub-quest nesting depth to prevent runaway recursion.</summary>
     private const int MaxSubQuestDepth = 5;
 
-    public QuestDetailPanel(GuideData data, QuestStateTracker state, NavigationController nav, TrackerState tracker)
+    public QuestDetailPanel(GuideData data, QuestStateTracker state, NavigationController nav,
+        TrackerState tracker, GuideConfig config)
     {
         _data = data;
         _state = state;
         _nav = nav;
         _tracker = tracker;
+        _config = config;
     }
 
     public void Draw()
@@ -62,8 +66,8 @@ public sealed class QuestDetailPanel
         ImGui.TextWrapped(quest.DisplayName);
         ImGui.PopStyleColor();
 
-        // Track/Untrack button
-        if (_state.IsActive(quest.DBName))
+        // Track/Untrack button (only when tracker feature is enabled)
+        if (_tracker.Enabled && _state.IsActive(quest.DBName))
         {
             bool tracked = _tracker.IsTracked(quest.DBName);
             if (tracked)
@@ -297,8 +301,12 @@ public sealed class QuestDetailPanel
         }
     }
 
+    private bool IsNavigationEnabled =>
+        _config.ShowArrow.Value || _config.ShowGroundPath.Value;
+
     private void DrawNavButton(QuestStep step, QuestEntry quest)
     {
+        if (!IsNavigationEnabled) return;
         if (step.TargetKey == null) return;
 
         // Item steps are only navigable if at least one source has spawn data
