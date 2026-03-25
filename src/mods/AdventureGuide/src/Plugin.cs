@@ -131,6 +131,7 @@ public sealed class Plugin : BaseUnityPlugin
 
     private bool _wasTextInputActive;
     private bool _gameUIVisible = true;
+    private bool _inGameplay;
 
     private void Update()
     {
@@ -186,6 +187,7 @@ public sealed class Plugin : BaseUnityPlugin
         _markers?.Update(currentZone);
 
         if (_config == null || _window == null) return;
+        if (!_inGameplay) return;
         if (GameData.PlayerTyping) return;
 
         if (Input.GetKeyDown(_config.ToggleKey.Value))
@@ -207,7 +209,15 @@ public sealed class Plugin : BaseUnityPlugin
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         CameraCache.Invalidate();
-        _markers?.OnSceneLoaded();
+
+        // Track whether we're in a gameplay scene
+        _inGameplay = scene.name != "Menu" && scene.name != "LoadScene";
+        if (!_inGameplay)
+        {
+            _window?.Hide();
+            _tracker?.Hide();
+        }
+        _markers?.OnSceneLoaded();  // deactivate markers before camera goes stale
         _entities?.Clear();
         _timers?.Clear();
         _miningTracker?.Rescan();
