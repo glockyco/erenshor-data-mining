@@ -24,7 +24,8 @@ public sealed class QuestListPanel
     private static readonly string[] FilterNames = { "Active", "Available", "Completed", "All" };
     private int _filterIndex;
 
-    // Zone filter: index 0 = "All Zones", 1+ = sorted zone names
+    // Zone filter: index 0 = "All Zones", 1 = "Current Zone", 2+ = sorted zone names
+    private const string CurrentZoneSentinel = "\x01current";
     private readonly string[] _zoneNames;
     private int _zoneIndex;
 
@@ -40,9 +41,10 @@ public sealed class QuestListPanel
         foreach (var quest in data.All)
             if (quest.ZoneContext != null)
                 zones.Add(quest.ZoneContext);
-        _zoneNames = new string[zones.Count + 1];
+        _zoneNames = new string[zones.Count + 2];
         _zoneNames[0] = "All Zones";
-        int idx = 1;
+        _zoneNames[1] = "Current Zone";
+        int idx = 2;
         foreach (var z in zones)
             _zoneNames[idx++] = z;
     }
@@ -120,16 +122,32 @@ public sealed class QuestListPanel
         // Sync index from filter state
         _zoneIndex = 0;
         if (_filter.ZoneFilter != null)
-            for (int i = 1; i < _zoneNames.Length; i++)
-                if (string.Equals(_zoneNames[i], _filter.ZoneFilter, StringComparison.OrdinalIgnoreCase))
-                {
-                    _zoneIndex = i;
-                    break;
-                }
+        {
+            if (_filter.ZoneFilter == CurrentZoneSentinel)
+            {
+                _zoneIndex = 1;
+            }
+            else
+            {
+                for (int i = 2; i < _zoneNames.Length; i++)
+                    if (string.Equals(_zoneNames[i], _filter.ZoneFilter, StringComparison.OrdinalIgnoreCase))
+                    {
+                        _zoneIndex = i;
+                        break;
+                    }
+            }
+        }
 
         ImGui.SetNextItemWidth(-1);
         if (ImGui.Combo("##Zone", ref _zoneIndex, _zoneNames, _zoneNames.Length))
-            _filter.ZoneFilter = _zoneIndex == 0 ? null : _zoneNames[_zoneIndex];
+        {
+            _filter.ZoneFilter = _zoneIndex switch
+            {
+                0 => null,
+                1 => CurrentZoneSentinel,
+                _ => _zoneNames[_zoneIndex],
+            };
+        }
 
         ImGui.Spacing();
     }
@@ -221,7 +239,13 @@ public sealed class QuestListPanel
 
         // Zone filter
         if (_filter.ZoneFilter != null)
-            return string.Equals(quest.ZoneContext, _filter.ZoneFilter, StringComparison.OrdinalIgnoreCase);
+        {
+            string? targetZone = _filter.ZoneFilter == CurrentZoneSentinel
+                ? _data.GetZoneDisplayName(_state.CurrentZone)
+                : _filter.ZoneFilter;
+            if (targetZone == null) return true; // current zone not resolvable
+            return string.Equals(quest.ZoneContext, targetZone, StringComparison.OrdinalIgnoreCase);
+        }
 
         return true;
     }
