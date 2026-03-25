@@ -25,6 +25,7 @@ public static class Theme
 
     // -- Quest status --
     public static readonly uint QuestActive    = Rgba(1.00f, 0.90f, 0.30f, 1.00f);
+    public static readonly uint QuestImplicit   = Rgba(0.55f, 0.80f, 0.75f, 1.00f);
     public static readonly uint QuestCompleted = Rgba(0.40f, 0.70f, 0.40f, 1.00f);
     public static readonly uint QuestAvailable = Rgba(0.50f, 0.70f, 0.90f, 1.00f);
 

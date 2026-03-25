@@ -304,6 +304,7 @@ public sealed class QuestListPanel
             if (quest.ZoneContext != null)
                 ImGui.Text(quest.ZoneContext);
             string status = _state.IsCompleted(quest.DBName) ? "Completed"
+                          : _state.IsImplicitlyActive(quest.DBName) ? "Available here"
                           : _state.IsActive(quest.DBName) ? "Active"
                           : "Available";
             ImGui.Text(status);
@@ -317,6 +318,9 @@ public sealed class QuestListPanel
 
     private uint GetQuestColor(QuestEntry quest)
     {
+        if (_state.IsImplicitlyActive(quest.DBName))
+            return Theme.QuestImplicit;
+
         if (_state.IsActive(quest.DBName))
             return Theme.QuestActive;
 

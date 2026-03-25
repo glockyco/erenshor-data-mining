@@ -83,6 +83,17 @@ public sealed class QuestStateTracker
         return _implicitlyActiveQuests.Contains(dbName);
     }
 
+    /// <summary>
+    /// True when the quest is implicitly active (no acquisition source,
+    /// player is in the completion zone) but not game-assigned.
+    /// </summary>
+    public bool IsImplicitlyActive(string dbName)
+    {
+        if (_activeQuests.Contains(dbName)) return false;
+        EnsureCacheCurrent();
+        return _implicitlyActiveQuests.Contains(dbName);
+    }
+
     public bool IsCompleted(string dbName) => _completedQuests.Contains(dbName);
 
     /// <summary>Sync from live GameData state. Called on scene load and periodically.</summary>
