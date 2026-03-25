@@ -48,6 +48,7 @@ public sealed class TrackerWindow
 
     // Sorted working copy — includes both tracked and fading-out entries
     private readonly List<string> _sorted = new();
+    private readonly Dictionary<string, float> _distances = new(System.StringComparer.OrdinalIgnoreCase);
     private int _lastStateVersion = -1;
     private float _lastProximitySort;
     private TrackerSortMode _lastSortMode;
@@ -355,6 +356,10 @@ public sealed class TrackerWindow
             ? $"{lvl,2}  {quest.DisplayName}"
             : $"    {quest.DisplayName}";
 
+        // Append distance for quests whose current step is in this zone
+        if (_distances.TryGetValue(quest.DBName, out float dist) && dist < float.MaxValue)
+            label += $" ({dist:0}m)";
+
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.QuestActive);
         if (ImGui.Selectable(label + "##name" + quest.DBName))
         {
@@ -465,10 +470,12 @@ public sealed class TrackerWindow
         bool trackerDirty = _tracker.IsDirty;
         bool stateDirty = _state.Version != _lastStateVersion;
         bool sortModeChanged = _tracker.SortMode != _lastSortMode;
-        bool proximityStale = _tracker.SortMode == TrackerSortMode.Proximity
-            && UnityEngine.Time.realtimeSinceStartup - _lastProximitySort > 2f;
 
-        if (trackerDirty || stateDirty || sortModeChanged || proximityStale)
+        // Distances are displayed in all sort modes, so refresh
+        // periodically to keep them current as the player moves.
+        bool distancesStale = UnityEngine.Time.realtimeSinceStartup - _lastProximitySort > 2f;
+
+        if (trackerDirty || stateDirty || sortModeChanged || distancesStale)
         {
             if (stateDirty) _lastStateVersion = _state.Version;
             RebuildSortedList();
@@ -490,10 +497,20 @@ public sealed class TrackerWindow
         _lastSortMode = _tracker.SortMode;
         _lastProximitySort = UnityEngine.Time.realtimeSinceStartup;
 
-        UnityEngine.Vector3? playerPos = GameData.PlayerControl == null
-            ? null
-            : (UnityEngine.Vector3?)GameData.PlayerControl.transform.position;
-        TrackerSorter.Sort(_sorted, _tracker.SortMode, _data, _state, playerPos);
+        // Compute distances once — used by proximity sort and by
+        // DrawQuestNameAndLevel to display distance for same-zone quests.
+        if (GameData.PlayerControl != null)
+        {
+            var playerPos = GameData.PlayerControl.transform.position;
+            TrackerSorter.ComputeDistances(_sorted, _data, _state, playerPos, _distances);
+        }
+        else
+        {
+            _distances.Clear();
+        }
+
+        TrackerSorter.Sort(_sorted, _tracker.SortMode, _data,
+            _distances.Count > 0 ? _distances : null);
     }
 
     // ── Step advance detection ───────────────────────────────────────

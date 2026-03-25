@@ -5,31 +5,66 @@ using UnityEngine;
 namespace AdventureGuide.UI;
 
 /// <summary>
-/// Sorts tracked quest DB names according to the selected TrackerSortMode.
-/// Stateless helper — all context passed as parameters.
+/// Computes per-quest distances and sorts tracked quest DB names.
+/// Distances are computed once per cycle and reused for both sorting
+/// and display — avoiding redundant spawn lookups in sort comparators.
 /// </summary>
 internal static class TrackerSorter
 {
     /// <summary>
-    /// Sort <paramref name="quests"/> in place. The list contains DB names
-    /// of tracked quests; GuideData provides quest metadata for comparisons.
+    /// Compute distance from the player to each quest's current step target.
+    /// Quests whose step is not in the current zone (or has no resolvable
+    /// position) get <see cref="float.MaxValue"/>.
+    /// </summary>
+    public static void ComputeDistances(
+        IReadOnlyList<string> quests,
+        GuideData data,
+        QuestStateTracker state,
+        Vector3 playerPos,
+        Dictionary<string, float> output)
+    {
+        output.Clear();
+        string currentScene = state.CurrentZone;
+
+        for (int i = 0; i < quests.Count; i++)
+        {
+            var dbName = quests[i];
+            var quest = data.GetByDBName(dbName);
+            if (quest == null)
+            {
+                output[dbName] = float.MaxValue;
+                continue;
+            }
+
+            if (!IsCurrentStepInZone(quest, state, data, currentScene))
+            {
+                output[dbName] = float.MaxValue;
+                continue;
+            }
+
+            output[dbName] = StepDistance(quest, state, data, currentScene, playerPos);
+        }
+    }
+
+    /// <summary>
+    /// Sort <paramref name="quests"/> in place. Proximity mode uses
+    /// precomputed <paramref name="distances"/>; other modes ignore it.
     /// </summary>
     public static void Sort(
         List<string> quests,
         TrackerSortMode mode,
         GuideData data,
-        QuestStateTracker state,
-        Vector3? playerPos)
+        IReadOnlyDictionary<string, float>? distances)
     {
         switch (mode)
         {
-            case TrackerSortMode.Proximity:
-                SortByProximity(quests, data, state, playerPos);
+            case TrackerSortMode.Proximity when distances != null:
+                SortByProximity(quests, data, distances);
                 break;
             case TrackerSortMode.Level:
                 SortByLevel(quests, data);
                 break;
-            case TrackerSortMode.Alphabetical:
+            default: // Alphabetical, or Proximity without position data
                 SortAlphabetical(quests, data);
                 break;
         }
@@ -38,37 +73,67 @@ internal static class TrackerSorter
     // ── Proximity ────────────────────────────────────────────────────
 
     private static void SortByProximity(
-        List<string> quests, GuideData data, QuestStateTracker state, Vector3? playerPos)
+        List<string> quests, GuideData data, IReadOnlyDictionary<string, float> distances)
     {
-        string currentScene = state.CurrentZone;
-
         quests.Sort((a, b) =>
         {
-            var qa = data.GetByDBName(a);
-            var qb = data.GetByDBName(b);
-            if (qa == null || qb == null) return string.Compare(a, b, System.StringComparison.OrdinalIgnoreCase);
+            float da = distances.TryGetValue(a, out float va) ? va : float.MaxValue;
+            float db = distances.TryGetValue(b, out float vb) ? vb : float.MaxValue;
 
-            bool aInZone = IsCurrentStepInZone(qa, state, data, currentScene);
-            bool bInZone = IsCurrentStepInZone(qb, state, data, currentScene);
+            bool aInZone = da < float.MaxValue;
+            bool bInZone = db < float.MaxValue;
 
             // Current-zone quests come first
             if (aInZone != bInZone)
                 return aInZone ? -1 : 1;
 
-            // Within same zone group, sort by distance if we have player position
-            if (aInZone && playerPos.HasValue)
+            // Within same zone group, sort by distance
+            if (aInZone)
             {
-                float da = StepDistance(qa, state, data, currentScene, playerPos.Value);
-                float db = StepDistance(qb, state, data, currentScene, playerPos.Value);
                 int cmp = da.CompareTo(db);
                 if (cmp != 0) return cmp;
             }
 
             // Fallback: alphabetical
+            var qa = data.GetByDBName(a);
+            var qb = data.GetByDBName(b);
             return string.Compare(
-                qa.DisplayName, qb.DisplayName, System.StringComparison.OrdinalIgnoreCase);
+                qa?.DisplayName, qb?.DisplayName, System.StringComparison.OrdinalIgnoreCase);
         });
     }
+
+    // ── Level ────────────────────────────────────────────────────────
+
+    private static void SortByLevel(List<string> quests, GuideData data)
+    {
+        quests.Sort((a, b) =>
+        {
+            var qa = data.GetByDBName(a);
+            var qb = data.GetByDBName(b);
+            int la = qa?.LevelEstimate?.Recommended ?? int.MaxValue;
+            int lb = qb?.LevelEstimate?.Recommended ?? int.MaxValue;
+            int cmp = la.CompareTo(lb);
+            if (cmp != 0) return cmp;
+            return string.Compare(
+                qa?.DisplayName, qb?.DisplayName, System.StringComparison.OrdinalIgnoreCase);
+        });
+    }
+
+    // ── Alphabetical ─────────────────────────────────────────────────
+
+    private static void SortAlphabetical(List<string> quests, GuideData data)
+    {
+        quests.Sort((a, b) =>
+        {
+            var qa = data.GetByDBName(a);
+            var qb = data.GetByDBName(b);
+            return string.Compare(
+                qa?.DisplayName ?? a, qb?.DisplayName ?? b,
+                System.StringComparison.OrdinalIgnoreCase);
+        });
+    }
+
+    // ── Distance helpers ─────────────────────────────────────────────
 
     /// <summary>
     /// Check if the quest's current step takes place in the current scene.
@@ -166,37 +231,6 @@ internal static class TrackerSorter
             }
         }
         return null;
-    }
-
-    // ── Level ────────────────────────────────────────────────────────
-
-    private static void SortByLevel(List<string> quests, GuideData data)
-    {
-        quests.Sort((a, b) =>
-        {
-            var qa = data.GetByDBName(a);
-            var qb = data.GetByDBName(b);
-            int la = qa?.LevelEstimate?.Recommended ?? int.MaxValue;
-            int lb = qb?.LevelEstimate?.Recommended ?? int.MaxValue;
-            int cmp = la.CompareTo(lb);
-            if (cmp != 0) return cmp;
-            return string.Compare(
-                qa?.DisplayName, qb?.DisplayName, System.StringComparison.OrdinalIgnoreCase);
-        });
-    }
-
-    // ── Alphabetical ─────────────────────────────────────────────────
-
-    private static void SortAlphabetical(List<string> quests, GuideData data)
-    {
-        quests.Sort((a, b) =>
-        {
-            var qa = data.GetByDBName(a);
-            var qb = data.GetByDBName(b);
-            return string.Compare(
-                qa?.DisplayName ?? a, qb?.DisplayName ?? b,
-                System.StringComparison.OrdinalIgnoreCase);
-        });
     }
 
     // ── Helpers ──────────────────────────────────────────────────────
