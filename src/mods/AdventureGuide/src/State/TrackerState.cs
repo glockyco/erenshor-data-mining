@@ -1,24 +1,23 @@
+using System;
 using AdventureGuide.Config;
 using AdventureGuide.UI;
 using BepInEx.Configuration;
-using UnityEngine;
 
 namespace AdventureGuide.State;
 
 /// <summary>
 /// Manages which quests the player has pinned to the tracker overlay.
-/// Separate from QuestStateTracker which tracks game truth — this tracks
-/// the player's UI preference (which quests to show in the overlay).
+/// Pure logical state — no animation concerns. Visual effects (fade-in,
+/// fade-out, completion flash) are owned by TrackerWindow which subscribes
+/// to events.
 ///
-/// Tracked quests are stored per character (keyed by save slot index)
-/// so each character has their own tracker state. Global preferences
-/// (auto-track, sort mode) are shared across characters.
+/// Tracked quests are stored per character (keyed by save slot index).
+/// Global preferences (auto-track, sort mode) are shared.
 /// </summary>
 public sealed class TrackerState
 {
-    private readonly HashSet<string> _tracked = new(System.StringComparer.OrdinalIgnoreCase);
+    private readonly HashSet<string> _tracked = new(StringComparer.OrdinalIgnoreCase);
     private readonly List<string> _orderedList = new();
-    private readonly Dictionary<string, EntryAnimation> _animations = new(System.StringComparer.OrdinalIgnoreCase);
     private GuideConfig? _config;
     private ConfigEntry<string>? _trackedEntry;  // per-character
     private bool _dirty;
@@ -37,75 +36,49 @@ public sealed class TrackerState
 
     public bool IsTracked(string dbName) => _tracked.Contains(dbName);
 
+    // ── Events ───────────────────────────────────────────────────────
+
+    /// <summary>Fired after a quest is added to the tracked set.</summary>
+    public event Action<string>? Tracked;
+
+    /// <summary>Fired after a quest is removed from the tracked set.</summary>
+    public event Action<string>? Untracked;
+
+    /// <summary>Fired when a tracked quest is completed by the game.</summary>
+    public event Action<string>? QuestCompleted;
+
+    /// <summary>Fired when a tracked quest advances to the next step.</summary>
+    public event Action<string>? StepAdvanced;
+
+    // ── Mutations ────────────────────────────────────────────────────
+
     public void Track(string dbName)
     {
         if (!_tracked.Add(dbName)) return;
         _orderedList.Add(dbName);
-        _animations[dbName] = new EntryAnimation { AddedAt = Time.realtimeSinceStartup };
         _dirty = true;
+        Tracked?.Invoke(dbName);
     }
 
     public void Untrack(string dbName)
     {
-        if (!_tracked.Contains(dbName)) return;
-        var anim = GetOrDefaultAnim(dbName);
-        anim.RemoveAt = Time.realtimeSinceStartup;
-        anim.PendingRemoval = true;
-        _animations[dbName] = anim;
+        if (!_tracked.Remove(dbName)) return;
+        _orderedList.Remove(dbName);
         _dirty = true;
+        Untracked?.Invoke(dbName);
     }
 
     public void OnQuestCompleted(string dbName)
     {
         if (!_tracked.Contains(dbName)) return;
-        var anim = GetOrDefaultAnim(dbName);
-        anim.CompletedAt = Time.realtimeSinceStartup;
-        _animations[dbName] = anim;
-        _dirty = true;
+        QuestCompleted?.Invoke(dbName);
     }
 
     public void OnStepAdvanced(string dbName)
     {
         if (!_tracked.Contains(dbName)) return;
-        var anim = GetOrDefaultAnim(dbName);
-        anim.StepAdvancedAt = Time.realtimeSinceStartup;
-        _animations[dbName] = anim;
+        StepAdvanced?.Invoke(dbName);
     }
-
-    /// <summary>
-    /// Remove entries whose fade-out animation has completed, and
-    /// schedule removal for completed quests after the flash duration.
-    /// Call once per frame from the tracker window.
-    /// </summary>
-    public void PruneCompleted()
-    {
-        float now = Time.realtimeSinceStartup;
-        for (int i = _orderedList.Count - 1; i >= 0; i--)
-        {
-            var db = _orderedList[i];
-            if (!_animations.TryGetValue(db, out var anim)) continue;
-
-            // Schedule removal after 2s completion flash
-            if (anim.CompletedAt > 0 && !anim.PendingRemoval && now - anim.CompletedAt > 2f)
-            {
-                anim.RemoveAt = now;
-                anim.PendingRemoval = true;
-                _animations[db] = anim;
-            }
-
-            // Actually remove after 0.3s fade-out
-            if (anim.PendingRemoval && anim.RemoveAt > 0 && now - anim.RemoveAt > 0.3f)
-            {
-                _tracked.Remove(db);
-                _orderedList.RemoveAt(i);
-                _animations.Remove(db);
-                _dirty = true;
-            }
-        }
-    }
-
-    public EntryAnimation GetAnimation(string dbName) =>
-        _animations.TryGetValue(dbName, out var anim) ? anim : default;
 
     /// <summary>Remove tracked quests that are no longer active or completed.</summary>
     public void PruneInactive(QuestStateTracker state)
@@ -117,18 +90,19 @@ public sealed class TrackerState
             {
                 _tracked.Remove(db);
                 _orderedList.RemoveAt(i);
-                _animations.Remove(db);
+                _dirty = true;
             }
         }
     }
+
+    // ── Config persistence ───────────────────────────────────────────
 
     public void LoadFromConfig(GuideConfig config)
     {
         _config = config;
         AutoTrackEnabled = config.TrackerAutoTrack.Value;
-        if (System.Enum.TryParse<TrackerSortMode>(config.TrackerSortMode.Value, out var mode))
+        if (Enum.TryParse<TrackerSortMode>(config.TrackerSortMode.Value, out var mode))
             SortMode = mode;
-        // Tracked quests loaded later via OnCharacterLoaded once the slot is known
     }
 
     /// <summary>
@@ -141,16 +115,14 @@ public sealed class TrackerState
         var slot = GameData.CurrentCharacterSlot;
         if (slot == null) return;
 
-        // Bind a per-character config entry keyed by slot index
         _trackedEntry = _config.File.Bind(
             "_Character", $"TrackedQuests_Slot{slot.index}", "",
-            new BepInEx.Configuration.ConfigDescription(
+            new ConfigDescription(
                 $"Tracked quests for slot {slot.index} (auto-managed)", null,
                 new { Browsable = false }));
 
         _tracked.Clear();
         _orderedList.Clear();
-        _animations.Clear();
         var raw = _trackedEntry.Value;
         if (!string.IsNullOrEmpty(raw))
         {
@@ -171,17 +143,5 @@ public sealed class TrackerState
         _config.TrackerSortMode.Value = SortMode.ToString();
         if (_trackedEntry != null)
             _trackedEntry.Value = string.Join(";", _orderedList);
-    }
-
-    private EntryAnimation GetOrDefaultAnim(string dbName) =>
-        _animations.TryGetValue(dbName, out var anim) ? anim : default;
-
-    public struct EntryAnimation
-    {
-        public float AddedAt;
-        public float CompletedAt;
-        public float StepAdvancedAt;
-        public float RemoveAt;
-        public bool PendingRemoval;
     }
 }

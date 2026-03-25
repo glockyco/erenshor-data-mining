@@ -10,24 +10,22 @@ namespace AdventureGuide.UI;
 /// <summary>
 /// Compact always-visible quest tracker overlay rendered via Dear ImGui.
 /// Shows tracked quest objectives with navigation integration, sorting,
-/// and state change animations. Peer to GuideWindow — wired into the
-/// same OnLayout callback.
+/// and state change animations.
 ///
-/// Per entry (two lines):
-///   [NAV] Quest Name                  Lv##
-///     Step description (3/5)
-///
-/// Interactions:
-///   - Left-click quest name → open full guide to that quest
-///   - [NAV] button → toggle GPS navigation for current step
-///   - Right-click → context menu with Untrack
-///   - Sort buttons in header bar
+/// Owns all animation state. TrackerState is pure logical state — this
+/// class subscribes to its events and manages visual effects (fade-in,
+/// fade-out, completion flash, step advance highlight).
 /// </summary>
 public sealed class TrackerWindow
 {
     private const float DefaultWidth = 280f;
     private const float DefaultHeight = 200f;
     private const float MinVisible = 40f;
+    private const float FadeInDuration = 0.3f;
+    private const float FadeOutDuration = 0.3f;
+    private const float CompletionFlashDuration = 1.5f;
+    private const float CompletionLingerDuration = 2.0f;
+    private const float StepAdvanceDuration = 0.8f;
 
     private readonly GuideData _data;
     private readonly QuestStateTracker _state;
@@ -39,9 +37,17 @@ public sealed class TrackerWindow
     private bool _visible = true;
     private bool _firstDraw = true;
 
-    // Sorted working copy of tracked quest DB names — rebuilt on dirty
+    // Animation state — owned by this window, not TrackerState
+    private readonly Dictionary<string, EntryAnimation> _animations = new(System.StringComparer.OrdinalIgnoreCase);
+
+    // Entries being faded out (already removed from TrackerState)
+    private readonly Dictionary<string, float> _fadingOut = new(System.StringComparer.OrdinalIgnoreCase);
+
+    // Completed quests pending auto-untrack after flash duration
+    private readonly Dictionary<string, float> _completionTimers = new(System.StringComparer.OrdinalIgnoreCase);
+
+    // Sorted working copy — includes both tracked and fading-out entries
     private readonly List<string> _sorted = new();
-    private int _lastTrackerVersion;
     private int _lastStateVersion = -1;
     private float _lastProximitySort;
     private TrackerSortMode _lastSortMode;
@@ -64,7 +70,56 @@ public sealed class TrackerWindow
         _tracker = tracker;
         _guide = guide;
         _config = config;
+
+        // Subscribe to TrackerState events for animation triggers
+        _tracker.Tracked += OnQuestTracked;
+        _tracker.Untracked += OnQuestUntracked;
+        _tracker.QuestCompleted += OnQuestCompleted;
+        _tracker.StepAdvanced += OnQuestStepAdvanced;
     }
+
+    public void Dispose()
+    {
+        _tracker.Tracked -= OnQuestTracked;
+        _tracker.Untracked -= OnQuestUntracked;
+        _tracker.QuestCompleted -= OnQuestCompleted;
+        _tracker.StepAdvanced -= OnQuestStepAdvanced;
+    }
+
+    // ── Event handlers ───────────────────────────────────────────────
+
+    private void OnQuestTracked(string dbName)
+    {
+        _animations[dbName] = new EntryAnimation { AddedAt = UnityEngine.Time.realtimeSinceStartup };
+        _fadingOut.Remove(dbName); // cancel fade-out if re-tracked
+        _visible = true; // show tracker when a quest is tracked
+    }
+
+    private void OnQuestUntracked(string dbName)
+    {
+        // Entry is already removed from TrackerState. Start fade-out
+        // animation so it disappears gracefully when the window is visible.
+        _fadingOut[dbName] = UnityEngine.Time.realtimeSinceStartup;
+        _completionTimers.Remove(dbName);
+    }
+
+    private void OnQuestCompleted(string dbName)
+    {
+        var anim = GetOrDefaultAnim(dbName);
+        anim.CompletedAt = UnityEngine.Time.realtimeSinceStartup;
+        _animations[dbName] = anim;
+        // Schedule auto-untrack after the flash duration
+        _completionTimers[dbName] = UnityEngine.Time.realtimeSinceStartup;
+    }
+
+    private void OnQuestStepAdvanced(string dbName)
+    {
+        var anim = GetOrDefaultAnim(dbName);
+        anim.StepAdvancedAt = UnityEngine.Time.realtimeSinceStartup;
+        _animations[dbName] = anim;
+    }
+
+    // ── Draw ─────────────────────────────────────────────────────────
 
     /// <summary>
     /// Call from the ImGuiRenderer.OnLayout callback.
@@ -74,11 +129,11 @@ public sealed class TrackerWindow
     {
         if (!_visible) return;
 
-        _tracker.PruneCompleted();
+        PruneAnimations();
         DetectStepAdvances();
         RebuildSortedListIfNeeded();
 
-        if (_sorted.Count == 0 && _tracker.TrackedQuests.Count == 0)
+        if (_sorted.Count == 0 && _fadingOut.Count == 0)
             return;
 
         if (_firstDraw)
@@ -161,32 +216,44 @@ public sealed class TrackerWindow
             var quest = _data.GetByDBName(dbName);
             if (quest == null) continue;
 
-            DrawQuestEntry(quest, i);
+            DrawQuestEntry(quest, dbName, i);
+        }
+
+        // Draw fading-out entries (already removed from tracked set)
+        foreach (var (dbName, startTime) in _fadingOut)
+        {
+            var quest = _data.GetByDBName(dbName);
+            if (quest == null) continue;
+
+            float elapsed = UnityEngine.Time.realtimeSinceStartup - startTime;
+            float alpha = UnityEngine.Mathf.Clamp01(1f - elapsed / FadeOutDuration);
+            if (alpha <= 0f) continue;
+
+            ImGui.PushStyleVar(ImGuiStyleVar.Alpha, alpha);
+            ImGui.PushID(dbName.GetHashCode());
+            DrawQuestNameAndLevel(quest);
+            DrawCurrentStep(quest);
+            ImGui.Spacing();
+            ImGui.PopID();
+            ImGui.PopStyleVar();
         }
 
         ImGui.EndChild();
     }
 
-    private void DrawQuestEntry(QuestEntry quest, int index)
+    private void DrawQuestEntry(QuestEntry quest, string dbName, int index)
     {
-        var anim = _tracker.GetAnimation(quest.DBName);
+        var anim = GetOrDefaultAnim(dbName);
         float now = UnityEngine.Time.realtimeSinceStartup;
 
-        // Compute entry alpha for fade-in/fade-out animations
+        // Compute entry alpha for fade-in animation
         float entryAlpha = 1f;
-        if (anim.PendingRemoval && anim.RemoveAt > 0)
-        {
-            float elapsed = now - anim.RemoveAt;
-            entryAlpha = UnityEngine.Mathf.Clamp01(1f - elapsed / 0.3f);
-        }
-        else if (anim.AddedAt > 0)
+        if (anim.AddedAt > 0)
         {
             float elapsed = now - anim.AddedAt;
-            if (elapsed < 0.3f)
-                entryAlpha = elapsed / 0.3f;
+            if (elapsed < FadeInDuration)
+                entryAlpha = elapsed / FadeInDuration;
         }
-
-        if (entryAlpha <= 0f) return;
 
         ImGui.PushID(index);
 
@@ -195,16 +262,17 @@ public sealed class TrackerWindow
 
         // Tint text color for completion flash (green) or step advance (yellow)
         bool tinted = false;
-        if (anim.CompletedAt > 0 && now - anim.CompletedAt < 1.5f)
+        if (anim.CompletedAt > 0 && now - anim.CompletedAt < CompletionFlashDuration)
         {
             ImGui.PushStyleColor(ImGuiCol.Text, Theme.Success);
             tinted = true;
         }
-        else if (anim.StepAdvancedAt > 0 && now - anim.StepAdvancedAt < 0.8f)
+        else if (anim.StepAdvancedAt > 0 && now - anim.StepAdvancedAt < StepAdvanceDuration)
         {
             ImGui.PushStyleColor(ImGuiCol.Text, Theme.QuestActive);
             tinted = true;
         }
+
         // Line 1: [NAV] Quest Name  Lv##
         DrawNavButton(quest);
         ImGui.SameLine();
@@ -321,7 +389,6 @@ public sealed class TrackerWindow
 
     private string FormatStepText(QuestEntry quest, QuestStep step)
     {
-        // For collect steps, append progress
         if (step.Quantity.HasValue && step.TargetName != null)
         {
             int have = _state.CountItemInInventory(step.TargetName);
@@ -338,10 +405,8 @@ public sealed class TrackerWindow
     {
         if (quest.Prerequisites == null || quest.Prerequisites.Count == 0) return;
 
-        // Show only incomplete prerequisites
         foreach (var pre in quest.Prerequisites)
         {
-            // Skip item prerequisites (those are acquisition chains, not blocking)
             if (pre.Item != null) continue;
             if (_state.IsCompleted(pre.QuestKey)) continue;
 
@@ -349,7 +414,7 @@ public sealed class TrackerWindow
             ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
             ImGui.PushStyleVar(ImGuiStyleVar.Alpha, 0.6f);
 
-            if (ImGui.Selectable($"Requires: {pre.QuestName}##prereq{pre.QuestKey}", false, ImGuiSelectableFlags.None))
+            if (ImGui.Selectable($"Requires: {pre.QuestName}##prereq{pre.QuestKey}"))
             {
                 _state.SelectQuest(pre.QuestKey);
                 _guide.Show();
@@ -362,15 +427,41 @@ public sealed class TrackerWindow
         }
     }
 
-    // ── Flash overlays ───────────────────────────────────────────────
+    // ── Animation management ─────────────────────────────────────────
 
-    private static void DrawFlashOverlay(TrackerState.EntryAnimation anim, float now)
+    /// <summary>
+    /// Clean up expired animations and handle completion→untrack lifecycle.
+    /// </summary>
+    private void PruneAnimations()
     {
-        // Flash animations use text color tinting applied by the caller
-        // via PushStyleColor rather than DrawList overlays. DrawList
-        // AddRectFilled with System.Numerics.Vector2 crashes after
-        // ILRepack merges the assembly (same P/Invoke marshalling issue
-        // that affects all DrawList Vector2 parameters).
+        float now = UnityEngine.Time.realtimeSinceStartup;
+
+        // Auto-untrack completed quests after the flash duration
+        var toUntrack = new List<string>();
+        foreach (var (dbName, startTime) in _completionTimers)
+        {
+            if (now - startTime > CompletionLingerDuration)
+                toUntrack.Add(dbName);
+        }
+        foreach (var dbName in toUntrack)
+        {
+            _completionTimers.Remove(dbName);
+            _tracker.Untrack(dbName); // fires OnQuestUntracked → starts fade-out
+        }
+
+        // Remove expired fade-out entries
+        var expiredFades = new List<string>();
+        foreach (var (dbName, startTime) in _fadingOut)
+        {
+            if (now - startTime > FadeOutDuration)
+                expiredFades.Add(dbName);
+        }
+        foreach (var dbName in expiredFades)
+        {
+            _fadingOut.Remove(dbName);
+            _animations.Remove(dbName);
+            _cachedStepIndex.Remove(dbName);
+        }
     }
 
     // ── Sort management ──────────────────────────────────────────────
@@ -397,7 +488,9 @@ public sealed class TrackerWindow
         _lastSortMode = _tracker.SortMode;
         _lastProximitySort = UnityEngine.Time.realtimeSinceStartup;
 
-        UnityEngine.Vector3? playerPos = GameData.PlayerControl?.transform.position;
+        UnityEngine.Vector3? playerPos = GameData.PlayerControl == null
+            ? null
+            : (UnityEngine.Vector3?)GameData.PlayerControl.transform.position;
         TrackerSorter.Sort(_sorted, _tracker.SortMode, _data, _state, playerPos);
     }
 
@@ -430,12 +523,8 @@ public sealed class TrackerWindow
         return idx < quest.Steps.Count ? quest.Steps[idx] : null;
     }
 
-    private static uint GetLevelColor(int level)
-    {
-        // TODO: compare against player level when available
-        // For now, use the warning color for visibility
-        return Theme.TextSecondary;
-    }
+    private EntryAnimation GetOrDefaultAnim(string dbName) =>
+        _animations.TryGetValue(dbName, out var anim) ? anim : default;
 
     private static void ClampWindowPosition()
     {
@@ -453,5 +542,14 @@ public sealed class TrackerWindow
 
         if (x != pos.X || y != pos.Y)
             ImGui.SetWindowPos(new Vector2(x, y));
+    }
+
+    // ── Animation data ───────────────────────────────────────────────
+
+    private struct EntryAnimation
+    {
+        public float AddedAt;
+        public float CompletedAt;
+        public float StepAdvancedAt;
     }
 }

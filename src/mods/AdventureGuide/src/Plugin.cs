@@ -265,6 +265,7 @@ public sealed class Plugin : BaseUnityPlugin
             QuestMarkerPatch.SuppressGameMarkers = false;
         }
         _harmony?.UnpatchSelf();
+        _tracker?.Dispose();
 
         // Window geometry is saved each frame inside Draw (requires active
         // ImGui window context). Only TrackerState needs explicit save here.
