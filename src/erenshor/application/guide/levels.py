@@ -91,13 +91,19 @@ def _compute_step_level(
 ) -> LevelEstimate | None:
     """Estimate the recommended level for a single quest step.
 
-    - collect/read: min level across all item sources with a known level.
+    - kill: max(enemy_level, zone_median) — player must reach the zone AND
+      defeat the enemy (same logic as drop source levels in the repository).
     - talk/turn_in/shout: zone median of the lowest-level zone the NPC spawns in.
     - travel: zone median of the destination zone.
+    - collect/read: min level across all item sources with a known level.
+    - complete_quest: the target quest's recommended level.
     """
     factors: list[LevelFactor] = []
 
-    if step.action in ("talk", "turn_in", "shout"):
+    if step.action == "kill":
+        _add_kill_target_factor(step, ctx, factors)
+
+    elif step.action in ("talk", "turn_in", "shout"):
         _add_npc_zone_factor(step.target_name, ctx, factors)
 
     elif step.action == "travel":
@@ -125,7 +131,6 @@ def _compute_step_level(
                     level=target.level_estimate.recommended,
                 )
             )
-
     if not factors:
         return None
 
@@ -201,17 +206,16 @@ def _compute_quest_level(steps: list[QuestStep]) -> LevelEstimate | None:
 # ---------------------------------------------------------------------------
 
 
-def _add_npc_zone_factor(
-    npc_name: str | None,
-    ctx: QuestDataContext,
-    factors: list[LevelFactor],
-) -> None:
-    """Add a zone-median factor for the lowest-level zone an NPC spawns in."""
+def _npc_best_zone(npc_name: str | None, ctx: QuestDataContext) -> tuple[str, int] | None:
+    """Find the lowest-level zone where an NPC spawns.
+
+    Returns (zone_display_name, zone_median) or None.
+    """
     if not npc_name:
-        return
+        return None
     zones = ctx.char_name_zones.get(npc_name)
     if not zones:
-        return
+        return None
 
     best_zi = None
     for zone_display in zones:
@@ -224,7 +228,52 @@ def _add_npc_zone_factor(
             best_zi = zi
 
     if best_zi and best_zi.level_median is not None:
-        factors.append(LevelFactor(source="zone_median", name=best_zi.display_name, level=best_zi.level_median))
+        return (best_zi.display_name, best_zi.level_median)
+    return None
+
+
+def _add_npc_zone_factor(
+    npc_name: str | None,
+    ctx: QuestDataContext,
+    factors: list[LevelFactor],
+) -> None:
+    """Add a zone-median factor for the lowest-level zone an NPC spawns in."""
+    result = _npc_best_zone(npc_name, ctx)
+    if result:
+        factors.append(LevelFactor(source="zone_median", name=result[0], level=result[1]))
+
+
+def _add_kill_target_factor(
+    step: QuestStep,
+    ctx: QuestDataContext,
+    factors: list[LevelFactor],
+) -> None:
+    """Add a level factor for killing an enemy: max(enemy_level, zone_median).
+
+    Same logic as drop source levels in the repository — the player must both
+    navigate through the zone and defeat the enemy.
+    """
+    char_level = ctx.char_levels.get(step.target_key) if step.target_key else None
+    zone_result = _npc_best_zone(step.target_name, ctx)
+    zone_name = zone_result[0] if zone_result else None
+    zone_median = zone_result[1] if zone_result else None
+
+    level: int | None
+    if char_level is not None and zone_median is not None:
+        level = max(char_level, zone_median)
+    elif char_level is not None:
+        level = char_level
+    else:
+        level = zone_median
+
+    if level is not None:
+        factors.append(
+            LevelFactor(
+                source="zone_median",
+                name=zone_name or step.target_name or "Unknown",
+                level=level,
+            )
+        )
 
 
 def _add_item_source_factors(

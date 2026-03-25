@@ -71720,7 +71720,17 @@
           "target_name": "Reliquary Fiend",
           "target_type": "character",
           "target_key": "character:reliquary fiend",
-          "or_group": "complete"
+          "or_group": "complete",
+          "level_estimate": {
+            "recommended": 16,
+            "factors": [
+              {
+                "source": "zone_median",
+                "name": "Reliquary Hall",
+                "level": 16
+              }
+            ]
+          }
         },
         {
           "order": 3,
@@ -71776,6 +71786,16 @@
         "destroy_turn_in_holder": false,
         "drop_invuln_on_holder": false,
         "once_per_spawn_instance": false
+      },
+      "level_estimate": {
+        "recommended": 16,
+        "factors": [
+          {
+            "source": "step_2",
+            "name": "Defeat Reliquary Fiend.",
+            "level": 16
+          }
+        ]
       }
     },
     {
