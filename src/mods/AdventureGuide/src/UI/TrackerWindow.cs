@@ -492,6 +492,17 @@ public sealed class TrackerWindow
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
 
         string text = FormatStepText(quest, step);
+        bool isCrossZone = _distances.TryGetValue(quest.DBName, out float d) && d >= float.MaxValue;
+
+        // For cross-zone non-travel steps, show "Travel to {zone}" instead
+        // of the step description. Travel steps already say where to go.
+        if (isCrossZone && step.Action != "travel")
+        {
+            var zone = TrackerSorter.GetStepZoneName(quest, _state, _data);
+            if (zone != null)
+                text = $"Travel to {zone}.";
+        }
+
         ImGui.TextWrapped(text);
 
         ImGui.PopStyleColor();

@@ -148,34 +148,59 @@ internal static class TrackerSorter
     // ── Distance helpers ─────────────────────────────────────────────
 
     /// <summary>
+    /// Return the display zone name for a quest's current step, or null
+    /// if the zone cannot be determined. Used by the tracker to show
+    /// "Travel to {zone}" for cross-zone entries.
+    /// </summary>
+    public static string? GetStepZoneName(
+        QuestEntry quest, QuestStateTracker state, GuideData data)
+    {
+        var scene = ResolveStepScene(quest, state, data);
+        return scene != null ? data.GetZoneDisplayName(scene) : null;
+    }
+
+    /// <summary>
     /// Check if the quest's current step takes place in the current scene.
-    /// Uses the step's ZoneName (display) resolved to scene via GuideData,
-    /// or falls back to checking spawn positions of the step's target.
     /// </summary>
     private static bool IsCurrentStepInZone(
         QuestEntry quest, QuestStateTracker state, GuideData data, string currentScene)
     {
+        var scene = ResolveStepScene(quest, state, data);
+        return scene != null && string.Equals(scene, currentScene, System.StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// Resolve the scene name where a quest's current step takes place.
+    /// Uses the step's ZoneName resolved to a scene, or falls back to
+    /// spawn positions of the step's target or item sources.
+    /// </summary>
+    private static string? ResolveStepScene(
+        QuestEntry quest, QuestStateTracker state, GuideData data)
+    {
         var step = GetCurrentStep(quest, state);
-        if (step == null) return false;
+        if (step == null) return null;
 
         // Try resolving zone_name to scene
         if (step.ZoneName != null)
         {
             var scene = data.GetSceneName(step.ZoneName);
-            if (scene != null)
-                return string.Equals(scene, currentScene, System.StringComparison.OrdinalIgnoreCase);
+            if (scene != null) return scene;
         }
 
-        // Check character target spawns
+        // Check character target spawns — use the first matching scene
         if (step.TargetKey != null && data.CharacterSpawns.TryGetValue(step.TargetKey, out var spawns))
-            return spawns.Exists(s => string.Equals(s.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase));
+        {
+            if (spawns.Count > 0) return spawns[0].Scene;
+        }
 
         // For item steps, check source NPC spawns
         var sourceKey = FindFirstSourceKey(quest, step);
         if (sourceKey != null && data.CharacterSpawns.TryGetValue(sourceKey, out var srcSpawns))
-            return srcSpawns.Exists(s => string.Equals(s.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase));
+        {
+            if (srcSpawns.Count > 0) return srcSpawns[0].Scene;
+        }
 
-        return false;
+        return null;
     }
 
     private static float StepDistance(
