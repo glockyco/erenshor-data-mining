@@ -261,9 +261,9 @@ public sealed class QuestDetailPanel
         string text = $"{step.Order}. {step.Description}";
 
         // Collect steps: show have/need count
-        if (step.Action == "collect" && step.TargetName != null && step.Quantity.HasValue)
+        if (step.Action == "collect" && step.TargetKey != null && step.Quantity.HasValue)
         {
-            int have = _state.CountItemInInventory(step.TargetName);
+            int have = _state.CountItem(step.TargetKey);
             text += $" ({have}/{step.Quantity})";
         }
 

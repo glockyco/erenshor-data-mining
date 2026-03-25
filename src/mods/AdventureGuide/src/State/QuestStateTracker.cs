@@ -94,13 +94,17 @@ public sealed class QuestStateTracker
         SyncFromGameData();
     }
 
-    /// <summary>Count items matching a display name in player inventory (cached).</summary>
-    public int CountItemInInventory(string itemDisplayName)
+    /// <summary>
+    /// Count items matching a stable key in the player inventory.
+    /// Stable keys are derived from the Unity object name:
+    /// "item:" + objectName.Trim().ToLowerInvariant().
+    /// </summary>
+    public int CountItem(string itemStableKey)
     {
         if (_inventoryDirty)
             RebuildInventoryCache();
 
-        return _inventoryCache.TryGetValue(itemDisplayName, out int count) ? count : 0;
+        return _inventoryCache.TryGetValue(itemStableKey, out int count) ? count : 0;
     }
 
     private void RebuildInventoryCache()
@@ -114,8 +118,12 @@ public sealed class QuestStateTracker
         {
             if (slot?.MyItem != null)
             {
-                var name = slot.MyItem.ItemName;
-                _inventoryCache[name] = _inventoryCache.TryGetValue(name, out int c) ? c + 1 : 1;
+                // Key by stable key format matching the export pipeline.
+                // Uses Unity object name (MyItem.name), not display name
+                // (MyItem.ItemName), because display names are ambiguous
+                // (e.g. multiple "Soul Gem" items for different quests).
+                var key = "item:" + slot.MyItem.name.Trim().ToLowerInvariant();
+                _inventoryCache[key] = _inventoryCache.TryGetValue(key, out int c) ? c + 1 : 1;
             }
         }
     }

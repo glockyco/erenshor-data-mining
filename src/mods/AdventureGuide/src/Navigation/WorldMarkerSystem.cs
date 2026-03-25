@@ -269,7 +269,7 @@ public sealed class WorldMarkerSystem
 
         foreach (var ri in quest.RequiredItems)
         {
-            int have = _state.CountItemInInventory(ri.ItemName);
+            int have = _state.CountItem(ri.ItemStableKey);
             if (have >= ri.Quantity) continue; // already have enough
 
             string progress = $"{have}/{ri.Quantity} {ri.ItemName}";
@@ -422,7 +422,7 @@ public sealed class WorldMarkerSystem
             count++;
             if (firstLine == null)
             {
-                int have = _state.CountItemInInventory(itemName);
+                int have = 0;
                 // Find the required quantity from active quests
                 int need = 1;
                 foreach (var quest in _data.All)
@@ -434,6 +434,7 @@ public sealed class WorldMarkerSystem
                         if (string.Equals(ri.ItemName, itemName,
                             System.StringComparison.OrdinalIgnoreCase))
                         {
+                            have = _state.CountItem(ri.ItemStableKey);
                             need = ri.Quantity;
                             break;
                         }
@@ -642,7 +643,7 @@ public sealed class WorldMarkerSystem
 
         foreach (var ri in quest.RequiredItems)
         {
-            if (_state.CountItemInInventory(ri.ItemName) < ri.Quantity)
+            if (_state.CountItem(ri.ItemStableKey) < ri.Quantity)
                 return false;
         }
         return true;

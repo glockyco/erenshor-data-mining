@@ -132,7 +132,7 @@ public sealed class LootScanner
             if (quest.RequiredItems == null) continue;
             foreach (var ri in quest.RequiredItems)
             {
-                if (state.CountItemInInventory(ri.ItemName) < ri.Quantity)
+                if (state.CountItem(ri.ItemStableKey) < ri.Quantity)
                     _neededItems.Add(ri.ItemName);
             }
         }

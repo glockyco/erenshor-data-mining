@@ -511,9 +511,9 @@ public sealed class TrackerWindow
 
     private string FormatStepText(QuestEntry quest, QuestStep step)
     {
-        if (step.Quantity.HasValue && step.TargetName != null)
+        if (step.Quantity.HasValue && step.TargetKey != null)
         {
-            int have = _state.CountItemInInventory(step.TargetName);
+            int have = _state.CountItem(step.TargetKey);
             int need = step.Quantity.Value;
             return $"{step.Description} ({have}/{need})";
         }

@@ -36,9 +36,9 @@ public static class StepProgress
         for (int i = start; i < quest.Steps.Count; i++)
         {
             var step = quest.Steps[i];
-            if (step.Action == "collect" && step.TargetName != null && step.Quantity.HasValue)
+            if (step.Action == "collect" && step.TargetKey != null && step.Quantity.HasValue)
             {
-                int have = state.CountItemInInventory(step.TargetName);
+                int have = state.CountItem(step.TargetKey);
                 if (have < step.Quantity.Value)
                     return i;
                 // have >= need: this collect step is done, continue

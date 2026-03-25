@@ -889,7 +889,7 @@ public sealed class NavigationController
 
         foreach (var ri in quest.RequiredItems)
         {
-            if (_state.CountItemInInventory(ri.ItemName) < ri.Quantity)
+            if (_state.CountItem(ri.ItemStableKey) < ri.Quantity)
                 result.Add(ri.ItemName);
         }
         return result;
