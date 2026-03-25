@@ -319,10 +319,18 @@ public sealed class TrackerWindow
         var contentBottom = ImGui.GetCursorScreenPos();
         var childPos = ImGui.GetWindowPos();
         float childWidth = ImGui.GetWindowWidth();
+        float childHeight = ImGui.GetWindowHeight();
         float itemSpacing = ImGui.GetStyle().ItemSpacing.Y;
+        // Clamp bottom to visible child bounds so off-screen scrolled
+        // entries don't extend the backdrop past the window edge.
+        // When content fits, subtract trailing item spacing; when
+        // scrolling, use the child's visible bottom edge directly.
+        float visibleBottom = childPos.Y + childHeight;
+        float bottomY = contentBottom.Y <= visibleBottom
+            ? contentBottom.Y - itemSpacing + CompactPadBottom
+            : visibleBottom + CompactPadBottom;
         _contentMin = new Vector2(childPos.X - CompactPadLeft, childPos.Y - CompactPadTop);
-        _contentMax = new Vector2(childPos.X + childWidth + CompactPadRight,
-            contentBottom.Y - itemSpacing + CompactPadBottom);
+        _contentMax = new Vector2(childPos.X + childWidth + CompactPadRight, bottomY);
 
         ImGui.EndChild();
     }
