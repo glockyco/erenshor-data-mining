@@ -24,6 +24,22 @@ Solo developer. Hobby project.
 | `.agent/skills/` | Agent skill files (domain-specific knowledge) |
 | `docs/` | Design documents, PRDs, architecture analysis |
 
+## Databases
+
+Two SQLite databases per variant, both gitignored:
+
+| File | Produced by | Contents |
+|------|-------------|----------|
+| `variants/{variant}/erenshor-{variant}-raw.sqlite` | `extract export` (Unity batch mode) | Raw tables mirroring Unity assets |
+| `variants/{variant}/erenshor-{variant}.sqlite` | `extract build` (Python processor) | Clean tables consumed by wiki, maps, sheets, quest guides |
+
+The map website symlinks the clean DB: `src/maps/static/db/erenshor.sqlite` → `variants/main/erenshor-main.sqlite`.
+
+```bash
+# List tables in the clean DB (main variant)
+sqlite3 variants/main/erenshor-main.sqlite ".tables"
+```
+
 ## Essential Commands
 
 ```bash
