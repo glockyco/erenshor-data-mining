@@ -61,12 +61,7 @@ public sealed class QuestDetailPanel
 
     private void DrawHeader(QuestEntry quest)
     {
-        // Quest name in header color
-        ImGui.PushStyleColor(ImGuiCol.Text, Theme.Header);
-        ImGui.TextWrapped(quest.DisplayName);
-        ImGui.PopStyleColor();
-
-        // Track/Untrack button (only when tracker is enabled; not for completed quests)
+        // Track/Untrack button inline before quest name
         if (_tracker.Enabled && !_state.IsCompleted(quest.DBName))
         {
             bool tracked = _tracker.IsTracked(quest.DBName);
@@ -81,7 +76,13 @@ public sealed class QuestDetailPanel
             }
             if (tracked)
                 ImGui.PopStyleColor();
+            ImGui.SameLine();
         }
+
+        // Quest name in header color
+        ImGui.PushStyleColor(ImGuiCol.Text, Theme.Header);
+        ImGui.TextWrapped(quest.DisplayName);
+        ImGui.PopStyleColor();
 
         // Level + zone on one line (replaces separate "Zone:" line)
         DrawLevelZoneLine(quest);
