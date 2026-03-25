@@ -9,15 +9,15 @@ namespace AdventureGuide.Navigation;
 /// </summary>
 public enum MarkerType
 {
-    TurnInReady,         // ? gold — can turn in now
-    TurnInRepeatReady,   // ? blue — repeatable, can turn in
-    Objective,           // crosshairs — step objective or drop source
-    QuestGiver,          // ! gold — new quest available
-    QuestGiverRepeat,    // ! blue — repeatable quest available
-    TurnInPending,       // ? grey — quest active, missing items
-    DeadSpawn,           // skull — respawn timer
-    NightSpawn,          // moon — night-only, currently daytime
-    ZoneReentry,         // clock — directly placed, re-enter zone to respawn
+    TurnInReady,         // circle-question gold — can turn in now
+    TurnInRepeatReady,   // circle-question blue — repeatable, can turn in
+    Objective,           // circle-dot orange — step objective or drop source
+    QuestGiver,          // star gold — new quest available
+    QuestGiverRepeat,    // star blue — repeatable quest available
+    TurnInPending,       // circle-question grey — quest active, missing items
+    DeadSpawn,           // clock red — respawn timer
+    NightSpawn,          // moon pale-blue — night-only, currently daytime
+    ZoneReentry,         // clock grey — directly placed, re-enter zone to respawn
 }
 
 /// <summary>
