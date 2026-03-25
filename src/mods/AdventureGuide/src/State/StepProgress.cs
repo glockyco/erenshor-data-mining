@@ -19,6 +19,8 @@ public static class StepProgress
     ///
     /// Step 0 is auto-completed for active quests when it matches the
     /// acquisition action (talk to quest giver, read trigger item, enter zone).
+    /// For non-active quests, collect steps are still verified so the UI
+    /// reflects actual inventory state.
     /// </summary>
     public static int GetCurrentStepIndex(QuestEntry quest, QuestStateTracker state)
     {
@@ -28,10 +30,11 @@ public static class StepProgress
         if (state.IsCompleted(quest.DBName))
             return quest.Steps.Count;
 
-        if (!state.IsActive(quest.DBName))
-            return 0;
-
-        int start = IsAcquisitionStep(quest, quest.Steps[0]) ? 1 : 0;
+        // Acquisition step is only auto-completed for active quests —
+        // the player has already done it. For available quests, verify
+        // all steps from the beginning.
+        int start = state.IsActive(quest.DBName)
+            && IsAcquisitionStep(quest, quest.Steps[0]) ? 1 : 0;
 
         for (int i = start; i < quest.Steps.Count; i++)
         {
