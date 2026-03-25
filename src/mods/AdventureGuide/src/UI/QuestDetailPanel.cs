@@ -513,6 +513,7 @@ public sealed class QuestDetailPanel
             "crafting" => $"Crafted from: {src.Name}",
             "quest_reward" => $"Quest reward: {src.Name}",
             "ingredient" => $"Ingredient: {src.Name}" + (src.NodeCount is int qty ? $" x{qty}" : ""),
+            "item_use" => $"Use: {src.Name}",
             _ => src.Name ?? src.Type,
         };
         string label = what;

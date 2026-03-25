@@ -453,6 +453,14 @@ CREATE TABLE item_drops (
     PRIMARY KEY (source_item_stable_key, dropped_item_stable_key)
 );
 
+
+CREATE TABLE spell_created_items (
+    source_item_stable_key   TEXT NOT NULL,
+    spell_stable_key         TEXT NOT NULL,
+    created_item_stable_key  TEXT NOT NULL,
+    PRIMARY KEY (source_item_stable_key, created_item_stable_key)
+);
+
 -- -------------------------------------------------------------------------
 -- Spells
 -- -------------------------------------------------------------------------
@@ -1204,6 +1212,9 @@ class Writer:
 
     def insert_item_drops(self, rows: list[dict[str, object]]) -> int:
         return self._insert("item_drops", rows)
+
+    def insert_spell_created_items(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("spell_created_items", rows)
 
     def insert_spells(self, rows: list[dict[str, object]]) -> int:
         return self._insert("spells", rows)

@@ -731,6 +731,7 @@ def _build_item_sources(
     _add_crafting_sources(conn, sources)
     _add_quest_reward_sources(conn, sources)
     _add_dialog_give_sources(conn, sources, zone_by_display)
+    _add_spell_created_sources(conn, sources)
 
     return dict(sources)
 
@@ -918,6 +919,39 @@ def _add_dialog_give_sources(
                 scene=row["scene"],
                 level=zi.level_median if zi else None,
                 source_key=row["character_key"],
+            )
+        )
+
+
+def _add_spell_created_sources(
+    conn: sqlite3.Connection,
+    out: dict[str, list[ItemSource]],
+) -> None:
+    """Items created by using another item via a spell (SpellVessel).
+
+    The source item's own obtainability is attached as a child so the
+    player can trace the full acquisition chain (e.g. Bag of Offering
+    Stones is a quest reward → use bag → creates Offering Stone).
+    """
+    rows = conn.execute(
+        """
+        SELECT sci.created_item_stable_key,
+               sci.source_item_stable_key,
+               i.display_name AS source_item_name
+        FROM spell_created_items sci
+        JOIN items i ON i.stable_key = sci.source_item_stable_key
+        """
+    ).fetchall()
+    # Collect source item obtainability to attach as children.
+    # This must run after all other _add_*_sources have populated `out`.
+    for row in rows:
+        source_sk = row["source_item_stable_key"]
+        children = list(out.get(source_sk, []))
+        out[row["created_item_stable_key"]].append(
+            ItemSource(
+                type="item_use",
+                name=row["source_item_name"],
+                children=children,
             )
         )
 

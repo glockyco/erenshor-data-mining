@@ -97046,7 +97046,20 @@
         {
           "item_name": "Offering Stone",
           "item_stable_key": "item:gen - offering stone",
-          "quantity": 1
+          "quantity": 1,
+          "sources": [
+            {
+              "type": "item_use",
+              "name": "Bag of Offering Stones",
+              "children": [
+                {
+                  "type": "quest_reward",
+                  "name": "Wishlan's Hope",
+                  "quest_key": "quest:wishlanshope"
+                }
+              ]
+            }
+          ]
         }
       ],
       "completion": [

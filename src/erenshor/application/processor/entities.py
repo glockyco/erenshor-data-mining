@@ -187,6 +187,11 @@ def process_world_tables(raw: sqlite3.Connection, writer: Writer) -> None:
     )
     writer.insert_water_fishables(rows)
 
+    # SpellCreatedItems: items created by using another item (spell trigger).
+    # The spell-to-item mapping is hardcoded in SpellVessel.cs and cannot be
+    # discovered from asset data. We encode the known cases here.
+    _process_spell_created_items(raw, writer)
+
     # ZoneLines
     rows = _rows(raw, "SELECT * FROM ZoneLines")
     rows = _rename_cols(
@@ -606,3 +611,68 @@ def process_quests(
 
     logger.info(f"Quests: wrote {len(valid)} quests + variant/junction tables")
     return valid
+
+
+# ---------------------------------------------------------------------------
+# Spell-created items
+# ---------------------------------------------------------------------------
+
+
+# Known SpellVessel cases where using an item (via ItemEffectOnClick spell)
+# creates another item. Keyed by spell name because SpellVessel.cs dispatches
+# on spell name. Values are item IDs passed to GameData.ItemDB.GetItemByID.
+#
+# Source: SpellVessel.cs switch statement
+_SPELL_CREATED_ITEM_IDS: dict[str, str] = {
+    "Offering Stone": "340104",
+}
+
+
+def _process_spell_created_items(raw: sqlite3.Connection, writer: Writer) -> None:
+    """Build spell_created_items from ItemEffectOnClick + known spell mappings.
+
+    Joins Items.ItemEffectOnClickStableKey with the Spells table to find
+    which item triggers which spell, then uses the hardcoded spell-to-item
+    mapping from SpellVessel.cs to determine what item is created.
+    """
+    # Build spell name → created item stable key from known ID mappings
+    item_id_to_sk: dict[str, str] = {}
+    for row in raw.execute("SELECT Id, StableKey FROM Items WHERE Id IS NOT NULL"):
+        item_id_to_sk[str(row["Id"])] = row["StableKey"]
+
+    spell_name_to_created_sk: dict[str, str] = {}
+    for spell_name, item_id in _SPELL_CREATED_ITEM_IDS.items():
+        sk = item_id_to_sk.get(item_id)
+        if sk:
+            spell_name_to_created_sk[spell_name] = sk
+        else:
+            logger.warning(
+                "Spell-created item ID %s (spell %s) not found in Items",
+                item_id,
+                spell_name,
+            )
+
+    # Build spell stable key → (spell name, created item stable key)
+    spell_sk_to_created: dict[str, str] = {}
+    for row in raw.execute("SELECT StableKey, SpellName FROM Spells"):
+        if row["SpellName"] in spell_name_to_created_sk:
+            spell_sk_to_created[row["StableKey"]] = spell_name_to_created_sk[row["SpellName"]]
+
+    # Find items whose ItemEffectOnClick spell creates another item
+    rows: list[dict[str, object]] = []
+    for row in raw.execute(
+        "SELECT StableKey, ItemEffectOnClickStableKey FROM Items "
+        "WHERE ItemEffectOnClickStableKey IS NOT NULL AND ItemEffectOnClickStableKey != ''"
+    ):
+        created_sk = spell_sk_to_created.get(str(row["ItemEffectOnClickStableKey"]))
+        if created_sk:
+            rows.append(
+                {
+                    "source_item_stable_key": row["StableKey"],
+                    "spell_stable_key": row["ItemEffectOnClickStableKey"],
+                    "created_item_stable_key": created_sk,
+                }
+            )
+
+    n = writer.insert_spell_created_items(rows)
+    logger.debug(f"  spell_created_items: {n} rows")
