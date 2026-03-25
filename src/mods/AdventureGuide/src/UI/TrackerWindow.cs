@@ -2,6 +2,7 @@ using System.Numerics;
 using AdventureGuide.Config;
 using AdventureGuide.Data;
 using AdventureGuide.Navigation;
+using AdventureGuide.Rendering;
 using AdventureGuide.State;
 using ImGuiNET;
 
@@ -26,6 +27,12 @@ public sealed class TrackerWindow
     private const float CompletionFlashDuration = 1.5f;
     private const float CompletionLingerDuration = 2.0f;
     private const float StepAdvanceDuration = 0.8f;
+    private const float CompactTintRounding = 8f;
+    private const float CompactPadTop = 10f;
+    private const float CompactPadBottom = 6f;
+    private const float CompactPadLeft = 8f;
+    private const float CompactPadRight = 6f;
+    private const int DrawFlagsRoundCornersAll = 240;
 
     private readonly GuideData _data;
     private readonly QuestStateTracker _state;
@@ -55,6 +62,15 @@ public sealed class TrackerWindow
 
     // Per-quest cached step index for detecting step advances
     private readonly Dictionary<string, int> _cachedStepIndex = new(System.StringComparer.OrdinalIgnoreCase);
+
+    // When true, the tracker renders as minimal floating text (no background,
+    // no title bar, no header). Driven by previous frame's hover state.
+    private bool _compact = true;
+
+    // Content bounds from last frame, used to draw fitted tint backdrop
+    // before the current frame's widgets (so the rect is behind the text).
+    private Vector2 _contentMin;
+    private Vector2 _contentMax;
 
     public bool Visible => _visible;
     public void Toggle() => _visible = !_visible;
@@ -146,25 +162,90 @@ public sealed class TrackerWindow
             _firstDraw = false;
         }
 
+        // Compact mode: transparent background and chrome, same layout.
+        // Expanded mode: full window with visible title bar and header.
+        // _compact is set from the previous frame's hover state.
+        // All elements occupy space in both modes to prevent layout jumps.
+        int extraColors = 0;
+        int extraVars = 0;
         Theme.PushWindowStyle();
+        if (_compact)
+        {
+            // Fully transparent window — the tint backdrop is drawn
+            // manually in DrawQuestList to cover only actual content.
+            ImGui.PushStyleColor(ImGuiCol.WindowBg, 0u);
+            ImGui.PushStyleColor(ImGuiCol.ChildBg, 0u);
+            ImGui.PushStyleColor(ImGuiCol.Border, 0u);
+            ImGui.PushStyleColor(ImGuiCol.TitleBg, 0u);
+            ImGui.PushStyleColor(ImGuiCol.TitleBgActive, 0u);
+            ImGui.PushStyleColor(ImGuiCol.TitleBgCollapsed, 0u);
+            ImGui.PushStyleColor(ImGuiCol.Button, 0u);
+            ImGui.PushStyleColor(ImGuiCol.FrameBg, 0u);
+            extraColors = 8;
+        }
+
+        // Draw fitted tint backdrop using last frame's content bounds.
+        // Uses the background draw list so the rect appears behind all
+        // ImGui content, and is not clipped by the child scroll region.
+        if (_compact && _contentMax.Y > _contentMin.Y)
+        {
+            uint tint = Theme.Rgba(0f, 0f, 0f, _config.TrackerBackgroundOpacity.Value);
+            var bgDl = CimguiNative.igGetBackgroundDrawList_Nil();
+            CimguiNative.ImDrawList_AddRectFilled(
+                bgDl,
+                new CimguiNative.Vec2(_contentMin.X, _contentMin.Y),
+                new CimguiNative.Vec2(_contentMax.X, _contentMax.Y),
+                tint, CompactTintRounding, DrawFlagsRoundCornersAll);
+        }
 
         var flags = ImGuiWindowFlags.NoCollapse
             | ImGuiWindowFlags.NoFocusOnAppearing
             | ImGuiWindowFlags.NoNav
             | ImGuiWindowFlags.NoBringToFrontOnFocus;
+        if (_compact)
+            flags |= ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoScrollbar;
 
-        if (ImGui.Begin("Quest Tracker", ref _visible, flags))
+        // ###Tracker keeps a stable window ID across modes.
+        // Compact: empty display title + no ref bool = no text, no X button.
+        // Expanded: "Quest Tracker" display title + ref bool = title + close.
+        bool beginOpen;
+        if (_compact)
+            beginOpen = ImGui.Begin("###Tracker", flags);
+        else
+            beginOpen = ImGui.Begin("Quest Tracker###Tracker", ref _visible, flags);
+        if (beginOpen)
         {
+            // Header bar always occupies space; invisible in compact mode.
+            if (_compact)
+                ImGui.PushStyleVar(ImGuiStyleVar.Alpha, 0f);
             DrawHeaderBar();
+            if (_compact)
+                ImGui.PopStyleVar();
+
             DrawQuestList();
+
+            // Update compact state from this frame's hover for next
+            // frame. Include focused state so resize/drag interactions
+            // don't snap back to compact mid-operation.
+            _compact = !ImGui.IsWindowHovered(ImGuiHoveredFlags.RootAndChildWindows)
+                && !ImGui.IsWindowFocused(ImGuiFocusedFlags.RootAndChildWindows);
         }
 
-        Theme.UpdateWindowGeometry(
-            _config.TrackerWindowX, _config.TrackerWindowY,
-            _config.TrackerWindowW, _config.TrackerWindowH);
+        // Only persist geometry in expanded mode — compact mode disables
+        // resize, so geometry only changes while expanded.
+        if (!_compact)
+        {
+            Theme.UpdateWindowGeometry(
+                _config.TrackerWindowX, _config.TrackerWindowY,
+                _config.TrackerWindowW, _config.TrackerWindowH);
+        }
         ClampWindowPosition();
 
         ImGui.End();
+        if (extraColors > 0)
+            ImGui.PopStyleColor(extraColors);
+        if (extraVars > 0)
+            ImGui.PopStyleVar(extraVars);
         Theme.PopWindowStyle();
     }
 
@@ -211,6 +292,9 @@ public sealed class TrackerWindow
     {
         ImGui.BeginChild("##TrackerScroll", Vector2.Zero, false);
 
+        // Record content top for next frame's backdrop.
+        var contentTop = ImGui.GetCursorScreenPos();
+
         for (int i = 0; i < _sorted.Count; i++)
         {
             var dbName = _sorted[i];
@@ -219,6 +303,17 @@ public sealed class TrackerWindow
 
             DrawQuestEntry(quest, dbName, i);
         }
+
+        // Record bounds for next frame's backdrop with per-side padding
+        // tuned so the visual gap looks even despite ImGui's internal
+        // window padding and trailing item spacing.
+        var contentBottom = ImGui.GetCursorScreenPos();
+        var childPos = ImGui.GetWindowPos();
+        float childWidth = ImGui.GetWindowWidth();
+        float itemSpacing = ImGui.GetStyle().ItemSpacing.Y;
+        _contentMin = new Vector2(childPos.X - CompactPadLeft, childPos.Y - CompactPadTop);
+        _contentMax = new Vector2(childPos.X + childWidth + CompactPadRight,
+            contentBottom.Y - itemSpacing + CompactPadBottom);
 
         ImGui.EndChild();
     }

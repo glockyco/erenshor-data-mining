@@ -43,6 +43,7 @@ public sealed class GuideConfig
     public ConfigEntry<KeyCode> TrackerToggleKey { get; }
     public ConfigEntry<bool> TrackerAutoTrack { get; }
     public ConfigEntry<string> TrackerSortMode { get; }
+    public ConfigEntry<float> TrackerBackgroundOpacity { get; }
 
     // ── Internal: window geometry (auto-managed) ─────────────────────
 
@@ -122,6 +123,10 @@ public sealed class GuideConfig
             "Automatically track newly accepted quests");
         TrackerSortMode = config.Bind("Tracker", "SortMode", "Proximity",
             "Sort order: Proximity, Level, or Alphabetical");
+        TrackerBackgroundOpacity = config.Bind("Tracker", "BackgroundOpacity", 0.40f,
+            new ConfigDescription(
+                "Opacity of the tracker background when not hovered (0 = fully transparent, 1 = opaque)",
+                new AcceptableValueRange<float>(0f, 1f)));
 
         // Internal: window geometry (hidden from F1)
         GuideWindowX = Bind(config, "_State", "GuideWindowX", -1f);

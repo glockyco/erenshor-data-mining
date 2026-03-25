@@ -52,6 +52,9 @@ public static unsafe class CimguiNative
     [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr igGetBackgroundDrawList_Nil();
 
+    [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
+    public static extern IntPtr igGetWindowDrawList();
+
     // ── Primitives ─────────────────────────────────────────────────
 
     [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
