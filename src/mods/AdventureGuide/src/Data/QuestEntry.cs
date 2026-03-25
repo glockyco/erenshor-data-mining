@@ -25,7 +25,7 @@ public sealed class QuestEntry
     /// <summary>
     /// True when the quest has no explicit acquisition source. The game
     /// never formally assigns these quests — they become active implicitly
-    /// when the player has at least one required item in inventory.
+    /// when the player enters the quest's completion zone.
     /// </summary>
     [JsonIgnore]
     public bool HasNoAcquisition => Acquisition == null || Acquisition.Count == 0;

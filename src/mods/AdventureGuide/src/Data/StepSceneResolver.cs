@@ -3,7 +3,7 @@ namespace AdventureGuide.Data;
 /// <summary>
 /// Resolves the scene where a quest step takes place.
 /// Shared by TrackerSorter (dynamic current step) and QuestStateTracker
-/// (static activation step for implicit quest zone-gating).
+/// (completion zone for implicit quest activation).
 /// </summary>
 public static class StepSceneResolver
 {
@@ -65,26 +65,5 @@ public static class StepSceneResolver
             }
         }
         return null;
-    }
-
-    /// <summary>
-    /// Find the step index where a quest becomes actionable once all
-    /// collect steps are satisfied. For quests with no items this is
-    /// step 0. For item quests it's the first non-collect step.
-    /// Returns 0 when the quest has no steps.
-    /// </summary>
-    public static int FindActivationStepIndex(QuestEntry quest)
-    {
-        if (quest.Steps == null || quest.Steps.Count == 0)
-            return 0;
-
-        for (int i = 0; i < quest.Steps.Count; i++)
-        {
-            if (quest.Steps[i].Action != "collect")
-                return i;
-        }
-
-        // All steps are collect — point to last step
-        return quest.Steps.Count - 1;
     }
 }

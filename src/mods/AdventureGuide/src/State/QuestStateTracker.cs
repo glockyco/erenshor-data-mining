@@ -6,22 +6,23 @@ namespace AdventureGuide.State;
 /// Tracks player quest state from Harmony patch callbacks.
 /// Caches inventory counts and detects implicitly active quests
 /// (those without acquisition sources that become active when the
-/// player has at least one required item).
+/// player enters the quest's completion zone).
 /// </summary>
 public sealed class QuestStateTracker
 {
     private readonly HashSet<string> _activeQuests = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> _completedQuests = new(StringComparer.OrdinalIgnoreCase);
 
-    // Quests without acquisition — pre-computed once from guide data.
-    // Stored as (dbName, itemStableKeys[]) for fast inventory checks.
-    private readonly List<(string DBName, string[] ItemKeys)> _implicitQuests;
+    // Quests without acquisition sources — pre-computed once from guide data.
+    // Each entry stores the completion scene (last step's zone). The quest
+    // activates implicitly when the player enters that scene.
+    private readonly List<ImplicitQuest> _implicitQuests;
     private readonly HashSet<string> _implicitlyActiveQuests = new(StringComparer.OrdinalIgnoreCase);
 
-    // Cached inventory counts, invalidated on inventory changes.
+    // Cached inventory counts, invalidated on inventory/zone/quest changes.
     // The implicit quest set is rebuilt from the same trigger.
     private readonly Dictionary<string, int> _inventoryCache = new(StringComparer.OrdinalIgnoreCase);
-    private bool _inventoryDirty = true;
+    private bool _dirty = true;
 
     /// <summary>
     /// Monotonically increasing version. Consumers compare against their
@@ -36,18 +37,20 @@ public sealed class QuestStateTracker
 
     public QuestStateTracker(GuideData data)
     {
-        // Pre-compute the list of quests without acquisition sources
-        // and their required item stable keys. This never changes.
-        _implicitQuests = new List<(string, string[])>();
+        // Pre-compute the list of quests without acquisition sources and
+        // the scene where they can be completed. Quests without steps are
+        // excluded — there's nothing to show markers for.
+        _implicitQuests = new List<ImplicitQuest>();
         foreach (var quest in data.All)
         {
             if (!quest.HasNoAcquisition) continue;
-            if (quest.RequiredItems == null || quest.RequiredItems.Count == 0) continue;
+            if (quest.Steps == null || quest.Steps.Count == 0) continue;
 
-            var keys = new string[quest.RequiredItems.Count];
-            for (int i = 0; i < quest.RequiredItems.Count; i++)
-                keys[i] = quest.RequiredItems[i].ItemStableKey;
-            _implicitQuests.Add((quest.DBName, keys));
+            // Activation scene: the zone of the last step (turn-in/completion).
+            var lastStep = quest.Steps[quest.Steps.Count - 1];
+            string? scene = StepSceneResolver.ResolveScene(quest, lastStep, data);
+
+            _implicitQuests.Add(new ImplicitQuest(quest.DBName, scene));
         }
     }
 
@@ -71,12 +74,12 @@ public sealed class QuestStateTracker
 
     /// <summary>
     /// A quest is active if the game has assigned it, or if it has no
-    /// acquisition source and the player has at least one required item.
+    /// acquisition source and the player is in the completion zone.
     /// </summary>
     public bool IsActive(string dbName)
     {
         if (_activeQuests.Contains(dbName)) return true;
-        EnsureInventoryCurrent();
+        EnsureCacheCurrent();
         return _implicitlyActiveQuests.Contains(dbName);
     }
 
@@ -96,7 +99,7 @@ public sealed class QuestStateTracker
             foreach (var q in GameData.CompletedQuests)
                 _completedQuests.Add(q);
 
-        _inventoryDirty = true;
+        _dirty = true;
         Version++;
     }
 
@@ -104,9 +107,9 @@ public sealed class QuestStateTracker
     {
         _activeQuests.Add(dbName);
         // Quest acceptance can give items (e.g., Kio's Papers gives a
-        // leave order). Mark inventory dirty so collect-step progress
-        // reflects the new item on the next check.
-        _inventoryDirty = true;
+        // leave order). Mark dirty so collect-step progress reflects
+        // the new item on the next check.
+        _dirty = true;
         Version++;
     }
 
@@ -115,13 +118,13 @@ public sealed class QuestStateTracker
         _activeQuests.Remove(dbName);
         _completedQuests.Add(dbName);
         // Completion may consume items; refresh cache.
-        _inventoryDirty = true;
+        _dirty = true;
         Version++;
     }
 
     public void OnInventoryChanged()
     {
-        _inventoryDirty = true;
+        _dirty = true;
         Version++;
     }
 
@@ -138,15 +141,15 @@ public sealed class QuestStateTracker
     /// </summary>
     public int CountItem(string itemStableKey)
     {
-        EnsureInventoryCurrent();
+        EnsureCacheCurrent();
         return _inventoryCache.TryGetValue(itemStableKey, out int count) ? count : 0;
     }
 
-    // ── Inventory + implicit quest cache ────────────────────────────
+    // ── Cache rebuild ───────────────────────────────────────────────────
 
-    private void EnsureInventoryCurrent()
+    private void EnsureCacheCurrent()
     {
-        if (!_inventoryDirty) return;
+        if (!_dirty) return;
         RebuildInventoryCache();
         RebuildImplicitQuests();
     }
@@ -154,7 +157,7 @@ public sealed class QuestStateTracker
     private void RebuildInventoryCache()
     {
         _inventoryCache.Clear();
-        _inventoryDirty = false;
+        _dirty = false;
 
         if (GameData.PlayerInv?.StoredSlots == null) return;
 
@@ -173,30 +176,43 @@ public sealed class QuestStateTracker
     }
 
     /// <summary>
-    /// Rebuild the set of implicitly active quests — quests without an
-    /// acquisition source where the player has all required items.
-    /// Called after the inventory cache is rebuilt.
+    /// Rebuild the set of implicitly active quests. A quest activates
+    /// implicitly when it has no acquisition source and the player is
+    /// in the quest's completion zone. Items are not checked — the quest
+    /// activates to show markers for all relevant NPCs and objectives.
     /// </summary>
     private void RebuildImplicitQuests()
     {
         _implicitlyActiveQuests.Clear();
 
-        foreach (var (dbName, itemKeys) in _implicitQuests)
+        foreach (var iq in _implicitQuests)
         {
-            if (_activeQuests.Contains(dbName) || _completedQuests.Contains(dbName))
+            if (_activeQuests.Contains(iq.DBName) || _completedQuests.Contains(iq.DBName))
                 continue;
 
-            bool hasAll = true;
-            foreach (var key in itemKeys)
-            {
-                if (!_inventoryCache.ContainsKey(key))
-                {
-                    hasAll = false;
-                    break;
-                }
-            }
-            if (hasAll)
-                _implicitlyActiveQuests.Add(dbName);
+            // Zone gate: must be in the completion scene.
+            // Quests with unresolvable scenes never activate implicitly.
+            if (iq.ActivationScene == null) continue;
+            if (!string.Equals(iq.ActivationScene, CurrentZone, System.StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            _implicitlyActiveQuests.Add(iq.DBName);
+        }
+    }
+
+    /// <summary>
+    /// Pre-computed data for an implicit quest: no acquisition source,
+    /// activates when the player enters the completion zone.
+    /// </summary>
+    private readonly struct ImplicitQuest
+    {
+        public readonly string DBName;
+        public readonly string? ActivationScene;
+
+        public ImplicitQuest(string dbName, string? activationScene)
+        {
+            DBName = dbName;
+            ActivationScene = activationScene;
         }
     }
 }
