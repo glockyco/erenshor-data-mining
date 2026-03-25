@@ -224,11 +224,20 @@ public sealed class TrackerWindow
 
             DrawQuestList();
 
-            // Update compact state from this frame's hover for next
-            // frame. Include focused state so resize/drag interactions
-            // don't snap back to compact mid-operation.
-            _compact = !ImGui.IsWindowHovered(ImGuiHoveredFlags.RootAndChildWindows)
-                && !ImGui.IsWindowFocused(ImGuiFocusedFlags.RootAndChildWindows);
+            // Update compact state from this frame for next frame.
+            // Hover alone drives expanded mode. For resize/drag stability,
+            // also stay expanded while the mouse button is held on a focused
+            // window — but not on passive focus (e.g. another window closing
+            // or F6 reload transferring focus here).
+            bool hovered = ImGui.IsWindowHovered(ImGuiHoveredFlags.RootAndChildWindows);
+            bool activeInteraction = ImGui.IsWindowFocused(ImGuiFocusedFlags.RootAndChildWindows)
+                && ImGui.IsMouseDown(ImGuiMouseButton.Left);
+            _compact = !hovered && !activeInteraction;
+
+            // Release passive focus so the next click doesn't briefly
+            // flash chrome before focus moves elsewhere.
+            if (_compact && ImGui.IsWindowFocused(ImGuiFocusedFlags.RootAndChildWindows))
+                ImGui.SetWindowFocus(null);
         }
 
         // Only persist geometry in expanded mode — compact mode disables
