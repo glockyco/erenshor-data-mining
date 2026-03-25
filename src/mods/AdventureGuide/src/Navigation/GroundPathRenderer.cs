@@ -19,6 +19,8 @@ namespace AdventureGuide.Navigation;
 public sealed class GroundPathRenderer
 {
     private const float RecalcDistance = 5f;
+    private const float PlayerNavSampleRadius = 5f;
+    private const float TargetNavSampleRadius = 15f;
     private const float ArrivalDistance = 15f;
     private const float CoreWidth = 0.20f;
     private const float GlowWidth = 0.50f;
@@ -136,7 +138,7 @@ public sealed class GroundPathRenderer
         // Snap player position to the NavMesh surface. Without this, an
         // airborne player (jumping, falling) produces an off-mesh source
         // position that makes CalculatePath fail, hiding the path mid-jump.
-        if (!NavMesh.SamplePosition(playerPos, out var navHit, 5f, NavMesh.AllAreas))
+        if (!NavMesh.SamplePosition(playerPos, out var navHit, PlayerNavSampleRadius, NavMesh.AllAreas))
         {
             // Player is too far from any NavMesh surface — keep showing the
             // last valid path rather than hiding it.
@@ -146,11 +148,13 @@ public sealed class GroundPathRenderer
         _lastCalcPlayerPos = playerPos;
         _lastCalcTargetPos = targetPos;
 
-        // Snap target position to NavMesh surface too. Directly-placed
-        // objects like mining nodes often sit on terrain geometry outside
-        // the NavMesh, causing CalculatePath to fail.
+        // Snap target position to NavMesh surface too. Zone lines and
+        // directly-placed objects (mining nodes) often sit on terrain
+        // geometry outside the NavMesh, causing CalculatePath to fail.
+        // Larger radius than player snap since targets can be further
+        // from walkable surfaces.
         var pathTarget = targetPos;
-        if (NavMesh.SamplePosition(targetPos, out var targetNavHit, 5f, NavMesh.AllAreas))
+        if (NavMesh.SamplePosition(targetPos, out var targetNavHit, TargetNavSampleRadius, NavMesh.AllAreas))
             pathTarget = targetNavHit.position;
 
         _path.ClearCorners();
