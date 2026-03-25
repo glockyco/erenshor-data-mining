@@ -614,7 +614,7 @@ public sealed class TrackerWindow
         if (GameData.PlayerControl != null)
         {
             var playerPos = GameData.PlayerControl.transform.position;
-            TrackerSorter.ComputeDistances(_sorted, _data, _state, playerPos, _distances);
+            TrackerSorter.ComputeDistances(_sorted, _data, _state, _nav, playerPos, _distances);
         }
         else
         {

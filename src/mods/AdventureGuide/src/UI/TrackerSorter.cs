@@ -1,4 +1,5 @@
 using AdventureGuide.Data;
+using AdventureGuide.Navigation;
 using AdventureGuide.State;
 using UnityEngine;
 
@@ -20,6 +21,7 @@ internal static class TrackerSorter
         IReadOnlyList<string> quests,
         GuideData data,
         QuestStateTracker state,
+        NavigationController nav,
         Vector3 playerPos,
         Dictionary<string, float> output)
     {
@@ -33,6 +35,16 @@ internal static class TrackerSorter
             if (quest == null)
             {
                 output[dbName] = float.MaxValue;
+                continue;
+            }
+
+            // When the player is actively navigating to a specific source
+            // for this quest, use the live nav distance (accounts for zone
+            // line routing) instead of the default spawn-based estimate.
+            if (nav.Target != null
+                && string.Equals(nav.Target.QuestDBName, dbName, System.StringComparison.OrdinalIgnoreCase))
+            {
+                output[dbName] = nav.Distance;
                 continue;
             }
 
