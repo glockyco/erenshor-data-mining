@@ -48,6 +48,7 @@ class StepAction(str, Enum):
     SHOUT = "shout"
     TURN_IN = "turn_in"
     READ = "read"
+    COMPLETE_QUEST = "complete_quest"
     CUSTOM = "custom"
 
 

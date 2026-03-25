@@ -14,15 +14,19 @@ public static class StepProgress
     /// <summary>
     /// Returns the index of the first incomplete step, or Steps.Count if all
     /// verifiable steps are done. Conservative: only advances past steps we
-    /// can verify (collect with inventory count). Non-verifiable steps (talk,
-    /// kill, shout, turn_in) stop the pointer.
+    /// can verify. Non-verifiable steps (talk, kill, shout, turn_in) stop
+    /// the pointer.
+    ///
+    /// Verifiable step types:
+    ///   - collect: checks inventory count against required quantity
+    ///   - complete_quest: checks whether the target quest is completed
     ///
     /// Step 0 is auto-completed for active quests when it matches the
     /// acquisition action (talk to quest giver, read trigger item, enter zone).
     /// For non-active quests, collect steps are still verified so the UI
     /// reflects actual inventory state.
     /// </summary>
-    public static int GetCurrentStepIndex(QuestEntry quest, QuestStateTracker state)
+    public static int GetCurrentStepIndex(QuestEntry quest, QuestStateTracker state, GuideData data)
     {
         if (quest.Steps == null || quest.Steps.Count == 0)
             return 0;
@@ -45,6 +49,15 @@ public static class StepProgress
                 if (have < step.Quantity.Value)
                     return i;
                 // have >= need: this collect step is done, continue
+            }
+            else if (step.Action == "complete_quest" && step.TargetKey != null)
+            {
+                // Resolve the target quest's DB name from its stable key
+                // and check completion state.
+                var target = data.GetByStableKey(step.TargetKey);
+                if (target == null || !state.IsCompleted(target.DBName))
+                    return i;
+                // Target quest completed: this step is done, continue
             }
             else
             {

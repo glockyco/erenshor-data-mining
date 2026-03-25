@@ -453,9 +453,17 @@ def _generate_steps(
             zone_context,
             shout_keywords,
         ),
+        QuestType.CHAIN.value: lambda: _steps_hybrid(
+            step,
+            giver,
+            completion,
+            required_items,
+            zone_context,
+            shout_keywords,
+        ),
     }
     gen = generators.get(quest_type)
-    # Scripted, chain — can't auto-generate (no discernible completion method)
+    # Scripted — can't auto-generate (hardcoded in C# event scripts)
     return gen() if gen else []
 
 
@@ -554,8 +562,16 @@ def _emit_completion_step(
         "death": lambda: _comp_character(step, comp, "kill", "Defeat", or_group),
         "zone": lambda: _comp_zone(step, comp, or_group),
         "shout": lambda: _comp_shout(step, comp, shout_keywords, or_group),
-        "item_turnin": lambda: _comp_character(step, comp, "turn_in", "Turn in items to", or_group, zone_context),
+        "item_turnin": lambda: _comp_character(
+            step,
+            comp,
+            "turn_in",
+            "Turn in items to",
+            or_group,
+            zone_context,
+        ),
         "read": lambda: _comp_read(step, comp, or_group),
+        "chain": lambda: _comp_chain(step, comp, or_group),
     }
     handler = handlers.get(comp.method)
     return handler() if handler else None
@@ -655,6 +671,23 @@ def _comp_read(
         f"Read {comp.source_name}.",
         target_name=comp.source_name,
         target_type="item",
+        target_key=comp.source_stable_key,
+        or_group=or_group,
+    )
+
+
+def _comp_chain(
+    step: Callable[..., QuestStep],
+    comp: CompletionSource,
+    or_group: str | None,
+) -> QuestStep | None:
+    if not comp.source_name:
+        return None
+    return step(
+        "complete_quest",
+        f"Complete {comp.source_name}.",
+        target_name=comp.source_name,
+        target_type="quest",
         target_key=comp.source_stable_key,
         or_group=or_group,
     )

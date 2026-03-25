@@ -85826,6 +85826,34 @@
           "keyword": "Celestial, Blade"
         }
       ],
+      "steps": [
+        {
+          "order": 1,
+          "action": "talk",
+          "description": "Say \"Celestial, Blade\" to Leyor M'Chante.",
+          "target_name": "Leyor M'Chante",
+          "target_type": "character",
+          "target_key": "character:leyor m'chante",
+          "level_estimate": {
+            "recommended": 11,
+            "factors": [
+              {
+                "source": "zone_median",
+                "name": "Port Azure",
+                "level": 11
+              }
+            ]
+          }
+        },
+        {
+          "order": 2,
+          "action": "complete_quest",
+          "description": "Complete Soluna's Celestial Blade - Part 2.",
+          "target_name": "Soluna's Celestial Blade - Part 2",
+          "target_type": "quest",
+          "target_key": "quest:solunascelestialblade1"
+        }
+      ],
       "completion": [
         {
           "method": "chain",
@@ -85852,6 +85880,16 @@
         "destroy_turn_in_holder": false,
         "drop_invuln_on_holder": false,
         "once_per_spawn_instance": false
+      },
+      "level_estimate": {
+        "recommended": 11,
+        "factors": [
+          {
+            "source": "step_1",
+            "name": "Say \"Celestial, Blade\" to Leyor M'Chante.",
+            "level": 11
+          }
+        ]
       }
     },
     {
@@ -89413,6 +89451,40 @@
           "source_stable_key": "quest:thelossstone"
         }
       ],
+      "steps": [
+        {
+          "order": 1,
+          "action": "collect",
+          "description": "Collect Loss Stone.",
+          "target_name": "Loss Stone",
+          "target_type": "item",
+          "target_key": "item:quest - loss stone",
+          "quantity": 1,
+          "level_estimate": {
+            "recommended": 14,
+            "factors": [
+              {
+                "source": "quest_reward",
+                "name": "The Loss Stone",
+                "level": 24
+              },
+              {
+                "source": "dialog_give",
+                "name": "Arcane Headmaster",
+                "level": 14
+              }
+            ]
+          }
+        },
+        {
+          "order": 2,
+          "action": "complete_quest",
+          "description": "Complete Completing the Ritual.",
+          "target_name": "Completing the Ritual",
+          "target_type": "quest",
+          "target_key": "quest:stowawayritualcomplete"
+        }
+      ],
       "required_items": [
         {
           "item_name": "Loss Stone",
@@ -89476,6 +89548,16 @@
         "destroy_turn_in_holder": false,
         "drop_invuln_on_holder": false,
         "once_per_spawn_instance": false
+      },
+      "level_estimate": {
+        "recommended": 14,
+        "factors": [
+          {
+            "source": "step_1",
+            "name": "Collect Loss Stone.",
+            "level": 14
+          }
+        ]
       }
     },
     {

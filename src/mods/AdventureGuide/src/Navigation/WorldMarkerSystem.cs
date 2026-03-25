@@ -251,7 +251,7 @@ public sealed class WorldMarkerSystem
     {
         if (quest.Steps == null) return;
 
-        int currentIdx = StepProgress.GetCurrentStepIndex(quest, _state);
+        int currentIdx = StepProgress.GetCurrentStepIndex(quest, _state, _data);
         if (currentIdx >= quest.Steps.Count) return;
 
         var step = quest.Steps[currentIdx];

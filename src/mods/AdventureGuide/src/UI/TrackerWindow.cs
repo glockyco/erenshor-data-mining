@@ -645,7 +645,7 @@ public sealed class TrackerWindow
             var quest = _data.GetByDBName(dbName);
             if (quest?.Steps == null) continue;
 
-            int idx = StepProgress.GetCurrentStepIndex(quest, _state);
+            int idx = StepProgress.GetCurrentStepIndex(quest, _state, _data);
 
             if (_cachedStepIndex.TryGetValue(dbName, out int prev))
             {
@@ -661,7 +661,7 @@ public sealed class TrackerWindow
     private QuestStep? GetCurrentStep(QuestEntry quest)
     {
         if (quest.Steps == null || quest.Steps.Count == 0) return null;
-        int idx = StepProgress.GetCurrentStepIndex(quest, _state);
+        int idx = StepProgress.GetCurrentStepIndex(quest, _state, _data);
         return idx < quest.Steps.Count ? quest.Steps[idx] : null;
     }
 

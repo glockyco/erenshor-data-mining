@@ -160,7 +160,7 @@ internal static class TrackerSorter
     public static string? GetStepZoneName(
         QuestEntry quest, QuestStateTracker state, GuideData data)
     {
-        var step = GetCurrentStep(quest, state);
+        var step = GetCurrentStep(quest, state, data);
         if (step == null) return null;
         var scene = StepSceneResolver.ResolveScene(quest, step, data);
         return scene != null ? data.GetZoneDisplayName(scene) : null;
@@ -172,7 +172,7 @@ internal static class TrackerSorter
     private static bool IsCurrentStepInZone(
         QuestEntry quest, QuestStateTracker state, GuideData data, string currentScene)
     {
-        var step = GetCurrentStep(quest, state);
+        var step = GetCurrentStep(quest, state, data);
         if (step == null) return false;
         var scene = StepSceneResolver.ResolveScene(quest, step, data);
         return scene != null && string.Equals(scene, currentScene, System.StringComparison.OrdinalIgnoreCase);
@@ -182,7 +182,7 @@ internal static class TrackerSorter
         QuestEntry quest, QuestStateTracker state, GuideData data,
         string currentScene, Vector3 playerPos)
     {
-        var step = GetCurrentStep(quest, state);
+        var step = GetCurrentStep(quest, state, data);
         if (step == null) return float.MaxValue;
 
         // Try character target directly
@@ -217,10 +217,10 @@ internal static class TrackerSorter
 
     // ── Helpers ──────────────────────────────────────────────────────
 
-    private static QuestStep? GetCurrentStep(QuestEntry quest, QuestStateTracker state)
+    private static QuestStep? GetCurrentStep(QuestEntry quest, QuestStateTracker state, GuideData data)
     {
         if (quest.Steps == null || quest.Steps.Count == 0) return null;
-        int idx = StepProgress.GetCurrentStepIndex(quest, state);
+        int idx = StepProgress.GetCurrentStepIndex(quest, state, data);
         return idx < quest.Steps.Count ? quest.Steps[idx] : null;
     }
 }

@@ -230,7 +230,7 @@ public sealed class NavigationController
         }
 
         // Determine which step the player is currently on
-        int currentStepIdx = StepProgress.GetCurrentStepIndex(quest, _state);
+        int currentStepIdx = StepProgress.GetCurrentStepIndex(quest, _state, _data);
 
         // Find the index of the step we're navigating
         int navStepIdx = -1;

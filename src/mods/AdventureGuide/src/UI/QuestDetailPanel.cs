@@ -216,7 +216,7 @@ public sealed class QuestDetailPanel
 
         ImGui.PushID(quest.DBName);
 
-        int currentStepIndex = StepProgress.GetCurrentStepIndex(quest, _state);
+        int currentStepIndex = StepProgress.GetCurrentStepIndex(quest, _state, _data);
         string? prevOrGroup = null;
 
         for (int i = 0; i < quest.Steps.Count; i++)
@@ -269,6 +269,14 @@ public sealed class QuestDetailPanel
                 color = Theme.QuestCompleted;
         }
 
+        // Complete-quest steps: override color when target quest is done.
+        if (step.Action == "complete_quest" && step.TargetKey != null)
+        {
+            var target = _data.GetByStableKey(step.TargetKey);
+            if (target != null && _state.IsCompleted(target.DBName))
+                color = Theme.QuestCompleted;
+        }
+
         // Step suffix: zone (for non-collect) and level, dot-separated
         if (step.LevelEstimate?.Recommended is int stepLvl)
         {
@@ -294,6 +302,10 @@ public sealed class QuestDetailPanel
 
         // Drop/vendor sources and tips for collect steps
         DrawStepSources(step, quest, visited);
+
+        // Sub-quest tree for complete_quest steps: show the target
+        // quest's steps inline so the player sees what they need to do.
+        DrawSubQuestSteps(step, visited);
 
         // Show alternative zone lines when cross-zone navigating this step
         if (_nav.IsNavigating(quest.DBName, step.Order))
@@ -593,6 +605,39 @@ public sealed class QuestDetailPanel
             ImGui.Text(label);
         }
     }
+
+    /// <summary>
+    /// For complete_quest steps, render the target quest's steps inline
+    /// as an indented sub-tree. Shows an "Open quest" link and the full
+    /// step list with NAV buttons, sources, and tips.
+    /// </summary>
+    private void DrawSubQuestSteps(QuestStep step, HashSet<string> visited)
+    {
+        if (step.Action != "complete_quest" || step.TargetKey == null)
+            return;
+
+        var subQuest = _data.GetByStableKey(step.TargetKey);
+        if (subQuest?.Steps == null || subQuest.Steps.Count == 0)
+            return;
+        if (visited.Count > MaxSubQuestDepth || visited.Contains(subQuest.StableKey))
+            return;
+
+        ImGui.Indent(Theme.IndentWidth);
+
+        // "Open quest" link
+        ImGui.PushStyleColor(ImGuiCol.Text, Theme.QuestActive);
+        if (ImGui.Selectable($"Open quest: {subQuest.DisplayName}##cq_{step.Order}_{step.TargetKey}"))
+            _state.SelectQuest(subQuest.DBName);
+        ImGui.PopStyleColor();
+
+        // Render the sub-quest's steps inline
+        visited.Add(subQuest.StableKey);
+        DrawSteps(subQuest, visited);
+        visited.Remove(subQuest.StableKey);
+
+        ImGui.Unindent(Theme.IndentWidth);
+    }
+
 
     /// <summary>
     /// Render a quest_reward source as an inline sub-quest tree: the TreeNode
