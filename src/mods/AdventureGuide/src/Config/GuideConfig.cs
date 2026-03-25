@@ -140,7 +140,7 @@ public sealed class GuideConfig
 
         // Internal: quest list state (hidden from F1)
         FilterMode = Bind(config, "_State", "FilterMode", QuestFilterMode.Active);
-        SortMode = Bind(config, "_State", "SortMode", QuestSortMode.Alphabetical);
+        SortMode = Bind(config, "_State", "SortMode", QuestSortMode.ByLevel);
         ZoneFilter = Bind(config, "_State", "ZoneFilter", "");
     }
 
