@@ -85851,7 +85851,17 @@
           "description": "Complete Soluna's Celestial Blade - Part 2.",
           "target_name": "Soluna's Celestial Blade - Part 2",
           "target_type": "quest",
-          "target_key": "quest:solunascelestialblade1"
+          "target_key": "quest:solunascelestialblade1",
+          "level_estimate": {
+            "recommended": 45,
+            "factors": [
+              {
+                "source": "quest_level",
+                "name": "Soluna's Celestial Blade - Part 2",
+                "level": 45
+              }
+            ]
+          }
         }
       ],
       "completion": [
@@ -85882,12 +85892,12 @@
         "once_per_spawn_instance": false
       },
       "level_estimate": {
-        "recommended": 11,
+        "recommended": 45,
         "factors": [
           {
-            "source": "step_1",
-            "name": "Say \"Celestial, Blade\" to Leyor M'Chante.",
-            "level": 11
+            "source": "step_2",
+            "name": "Complete Soluna's Celestial Blade - Part 2.",
+            "level": 45
           }
         ]
       }
@@ -89482,7 +89492,17 @@
           "description": "Complete Completing the Ritual.",
           "target_name": "Completing the Ritual",
           "target_type": "quest",
-          "target_key": "quest:stowawayritualcomplete"
+          "target_key": "quest:stowawayritualcomplete",
+          "level_estimate": {
+            "recommended": 40,
+            "factors": [
+              {
+                "source": "quest_level",
+                "name": "Completing the Ritual",
+                "level": 40
+              }
+            ]
+          }
         }
       ],
       "required_items": [
@@ -89550,12 +89570,12 @@
         "once_per_spawn_instance": false
       },
       "level_estimate": {
-        "recommended": 14,
+        "recommended": 40,
         "factors": [
           {
-            "source": "step_1",
-            "name": "Collect Loss Stone.",
-            "level": 14
+            "source": "step_2",
+            "name": "Complete Completing the Ritual.",
+            "level": 40
           }
         ]
       }

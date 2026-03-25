@@ -48,7 +48,7 @@ def compute_levels(guides: list[QuestGuide], ctx: QuestDataContext) -> None:
         guide = guide_by_key.get(sk)
         if guide is None:
             continue
-        _compute_guide_levels(guide, ctx)
+        _compute_guide_levels(guide, ctx, guide_by_key)
 
     # Phase 2: propagate quest levels into quest_reward ItemSource.level
     _propagate_quest_reward_levels(guides, guide_by_key)
@@ -59,7 +59,7 @@ def compute_levels(guides: list[QuestGuide], ctx: QuestDataContext) -> None:
     # Phase 4: recompute guides whose source levels may have changed
     for guide in guides:
         if _has_quest_reward_sources(guide) or _has_unlock_gated_sources(guide, ctx):
-            _compute_guide_levels(guide, ctx)
+            _compute_guide_levels(guide, ctx, guide_by_key)
 
 
 # ---------------------------------------------------------------------------
@@ -67,10 +67,14 @@ def compute_levels(guides: list[QuestGuide], ctx: QuestDataContext) -> None:
 # ---------------------------------------------------------------------------
 
 
-def _compute_guide_levels(guide: QuestGuide, ctx: QuestDataContext) -> None:
+def _compute_guide_levels(
+    guide: QuestGuide,
+    ctx: QuestDataContext,
+    guide_by_key: dict[str, QuestGuide],
+) -> None:
     """Compute step-level and quest-level estimates for a single guide."""
     for step in guide.steps:
-        step.level_estimate = _compute_step_level(step, guide.required_items, ctx)
+        step.level_estimate = _compute_step_level(step, guide.required_items, ctx, guide_by_key)
     guide.level_estimate = _compute_quest_level(guide.steps)
 
 
@@ -83,6 +87,7 @@ def _compute_step_level(
     step: QuestStep,
     required_items: list[RequiredItemInfo],
     ctx: QuestDataContext,
+    guide_by_key: dict[str, QuestGuide],
 ) -> LevelEstimate | None:
     """Estimate the recommended level for a single quest step.
 
@@ -109,6 +114,17 @@ def _compute_step_level(
         )
         if item:
             _add_item_source_factors(item, factors)
+
+    elif step.action == "complete_quest" and step.target_key:
+        target = guide_by_key.get(step.target_key)
+        if target and target.level_estimate and target.level_estimate.recommended is not None:
+            factors.append(
+                LevelFactor(
+                    source="quest_level",
+                    name=target.display_name,
+                    level=target.level_estimate.recommended,
+                )
+            )
 
     if not factors:
         return None
@@ -322,11 +338,26 @@ def _has_unlock_gated_sources(guide: QuestGuide, ctx: QuestDataContext) -> bool:
 # ---------------------------------------------------------------------------
 
 
-def _topological_order(guides: list[QuestGuide]) -> list[str]:
-    """Topologically sort quests by quest-reward dependencies (Kahn's algorithm).
+def _add_topo_edge(
+    quest_sk: str,
+    dep_sk: str,
+    seen: set[str],
+    in_degree: dict[str, int],
+    dependents: dict[str, list[str]],
+) -> None:
+    """Register a dependency edge: quest_sk depends on dep_sk."""
+    if dep_sk != quest_sk and dep_sk not in seen:
+        seen.add(dep_sk)
+        in_degree[quest_sk] += 1
+        dependents[dep_sk].append(quest_sk)
 
-    Edge: guide.stable_key depends on src.quest_key when a required item
-    has a quest_reward source. The rewarding quest must be processed first.
+
+def _topological_order(guides: list[QuestGuide]) -> list[str]:
+    """Topologically sort quests by level dependencies (Kahn's algorithm).
+
+    Edges: a quest depends on another when:
+    - A required item has a quest_reward source (rewarding quest first)
+    - A complete_quest step targets another quest (target quest first)
 
     Returns stable_keys in processing order. Cyclic quests are appended
     last with a warning.
@@ -340,14 +371,17 @@ def _topological_order(guides: list[QuestGuide]) -> list[str]:
 
     for guide in guides:
         seen_deps: set[str] = set()
+
+        # Quest-reward item source dependencies
         for item in guide.required_items:
             for src in item.sources:
                 if src.type == "quest_reward" and src.quest_key and src.quest_key in all_keys:
-                    dep_key = src.quest_key
-                    if dep_key != guide.stable_key and dep_key not in seen_deps:
-                        seen_deps.add(dep_key)
-                        in_degree[guide.stable_key] += 1
-                        dependents[dep_key].append(guide.stable_key)
+                    _add_topo_edge(guide.stable_key, src.quest_key, seen_deps, in_degree, dependents)
+
+        # complete_quest step dependencies
+        for step in guide.steps:
+            if step.action == "complete_quest" and step.target_key and step.target_key in all_keys:
+                _add_topo_edge(guide.stable_key, step.target_key, seen_deps, in_degree, dependents)
 
     # Kahn's algorithm
     queue: deque[str] = deque(sk for sk, deg in in_degree.items() if deg == 0)
