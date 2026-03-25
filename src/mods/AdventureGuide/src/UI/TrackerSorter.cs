@@ -42,10 +42,11 @@ internal static class TrackerSorter
             {
                 bool inZone = !nav.Target.IsCrossZone(currentScene);
                 // Zone targets (fishing) are in the current zone but have
-                // no specific position — distance is not meaningful.
-                float meters = nav.Target.TargetKind == NavigationTarget.Kind.Zone
-                    ? float.MaxValue
-                    : nav.Distance;
+                // no specific position. Cross-zone targets show "Travel to"
+                // without a distance — the zone line distance would confuse.
+                float meters = inZone && nav.Target.TargetKind != NavigationTarget.Kind.Zone
+                    ? nav.Distance
+                    : float.MaxValue;
                 output[dbName] = new StepDistance(inZone, meters);
                 continue;
             }
