@@ -69018,6 +69018,47 @@
           "source_stable_key": "quest:wyland's note"
         }
       ],
+      "steps": [
+        {
+          "order": 1,
+          "action": "talk",
+          "description": "Say \"ready, yes, go\" to Chance Barlow.",
+          "target_name": "Chance Barlow",
+          "target_type": "character",
+          "target_key": "character:chance barlow",
+          "or_group": "complete",
+          "level_estimate": {
+            "recommended": 2,
+            "factors": [
+              {
+                "source": "zone_median",
+                "name": "Stowaway's Step",
+                "level": 2
+              }
+            ]
+          }
+        },
+        {
+          "order": 2,
+          "action": "travel",
+          "description": "Travel to Hidden Hills.",
+          "target_name": "Hidden Hills",
+          "target_type": "zone",
+          "target_key": "zone:hidden",
+          "zone_name": "Hidden Hills",
+          "or_group": "complete",
+          "level_estimate": {
+            "recommended": 4,
+            "factors": [
+              {
+                "source": "zone_median",
+                "name": "Hidden Hills",
+                "level": 4
+              }
+            ]
+          }
+        }
+      ],
       "completion": [
         {
           "method": "talk",
@@ -69058,6 +69099,16 @@
         "destroy_turn_in_holder": false,
         "drop_invuln_on_holder": false,
         "once_per_spawn_instance": false
+      },
+      "level_estimate": {
+        "recommended": 2,
+        "factors": [
+          {
+            "source": "step_1",
+            "name": "Say \"ready, yes, go\" to Chance Barlow.",
+            "level": 2
+          }
+        ]
       }
     },
     {
@@ -71652,6 +71703,35 @@
       "description": "A Guard in Port Azure has offered you the job of Reliquary Caretaker. All you have to do is go inside and make sure everything is in order. After that, you can do whatever you'd like with it. ",
       "quest_type": "hybrid",
       "zone_context": "Reliquary Hall",
+      "steps": [
+        {
+          "order": 1,
+          "action": "collect",
+          "description": "Collect Box of Portals.",
+          "target_name": "Box of Portals",
+          "target_type": "item",
+          "target_key": "item:gen - box of portals",
+          "quantity": 1
+        },
+        {
+          "order": 2,
+          "action": "kill",
+          "description": "Defeat Reliquary Fiend.",
+          "target_name": "Reliquary Fiend",
+          "target_type": "character",
+          "target_key": "character:reliquary fiend",
+          "or_group": "complete"
+        },
+        {
+          "order": 3,
+          "action": "read",
+          "description": "Read Box of Portals.",
+          "target_name": "Box of Portals",
+          "target_type": "item",
+          "target_key": "item:gen - box of portals",
+          "or_group": "complete"
+        }
+      ],
       "required_items": [
         {
           "item_name": "Box of Portals",

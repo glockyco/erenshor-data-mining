@@ -445,9 +445,17 @@ def _generate_steps(
         QuestType.ZONE_TRIGGER.value: lambda: _steps_zone_trigger(step, giver, completion),
         QuestType.SHOUT.value: lambda: _steps_shout(step, giver, completion, shout_keywords),
         QuestType.ITEM_READ.value: lambda: _steps_item_read(step, acquisition, completion),
+        QuestType.HYBRID.value: lambda: _steps_hybrid(
+            step,
+            giver,
+            completion,
+            required_items,
+            zone_context,
+            shout_keywords,
+        ),
     }
     gen = generators.get(quest_type)
-    # Scripted, chain, hybrid — can't auto-generate
+    # Scripted, chain — can't auto-generate (no discernible completion method)
     return gen() if gen else []
 
 
@@ -475,6 +483,181 @@ def _find_turnin_npc(completion: list[CompletionSource]) -> CompletionSource | N
         if comp.method == "item_turnin":
             return comp
     return None
+
+
+# ---------------------------------------------------------------------------
+# Shared step emitters
+# ---------------------------------------------------------------------------
+
+
+def _emit_giver_step(
+    step: Callable[..., QuestStep],
+    giver: AcquisitionSource | None,
+) -> list[QuestStep]:
+    """Emit the acquisition step (talk to quest giver) if applicable."""
+    if giver and giver.source_name:
+        return [
+            step(
+                "talk",
+                _talk_description(giver.source_name, giver.keyword),
+                target_name=giver.source_name,
+                target_type="character",
+                target_key=giver.source_stable_key,
+                zone_name=giver.zone_name,
+            )
+        ]
+    return []
+
+
+def _emit_collect_steps(
+    step: Callable[..., QuestStep],
+    required_items: list[RequiredItemInfo],
+) -> list[QuestStep]:
+    """Emit collect steps for required items.
+
+    Items with ``or_group`` set are acquisition alternatives (e.g. multiple
+    sources for the same quest item), not separate collect objectives.
+    """
+    steps: list[QuestStep] = []
+    for ri in required_items:
+        if ri.or_group is not None:
+            continue
+        desc = f"Collect {ri.quantity}x {ri.item_name}" if ri.quantity > 1 else f"Collect {ri.item_name}"
+        steps.append(
+            step(
+                "collect",
+                desc + ".",
+                target_name=ri.item_name,
+                target_type="item",
+                target_key=ri.item_stable_key,
+                quantity=ri.quantity,
+            )
+        )
+    return steps
+
+
+def _emit_completion_step(
+    step: Callable[..., QuestStep],
+    comp: CompletionSource,
+    shout_keywords: dict[str, str],
+    giver: AcquisitionSource | None = None,
+    zone_context: str | None = None,
+    or_group: str | None = None,
+) -> QuestStep | None:
+    """Emit a single completion step, dispatching by method.
+
+    Returns None when the source can't produce a step (missing data, or
+    the completer is the same NPC as the giver).
+    """
+    handlers: dict[str, Callable[..., QuestStep | None]] = {
+        "talk": lambda: _comp_talk(step, comp, giver, or_group),
+        "death": lambda: _comp_character(step, comp, "kill", "Defeat", or_group),
+        "zone": lambda: _comp_zone(step, comp, or_group),
+        "shout": lambda: _comp_shout(step, comp, shout_keywords, or_group),
+        "item_turnin": lambda: _comp_character(step, comp, "turn_in", "Turn in items to", or_group, zone_context),
+        "read": lambda: _comp_read(step, comp, or_group),
+    }
+    handler = handlers.get(comp.method)
+    return handler() if handler else None
+
+
+def _comp_talk(
+    step: Callable[..., QuestStep],
+    comp: CompletionSource,
+    giver: AcquisitionSource | None,
+    or_group: str | None,
+) -> QuestStep | None:
+    if not comp.source_name:
+        return None
+    if giver and comp.source_stable_key == giver.source_stable_key:
+        return None
+    return step(
+        "talk",
+        _talk_description(comp.source_name, comp.keyword),
+        target_name=comp.source_name,
+        target_type="character",
+        target_key=comp.source_stable_key,
+        zone_name=comp.zone_name,
+        or_group=or_group,
+    )
+
+
+def _comp_character(
+    step: Callable[..., QuestStep],
+    comp: CompletionSource,
+    action: str,
+    verb: str,
+    or_group: str | None,
+    zone_context: str | None = None,
+) -> QuestStep | None:
+    if not comp.source_name:
+        return None
+    return step(
+        action,
+        f"{verb} {comp.source_name}.",
+        target_name=comp.source_name,
+        target_type="character",
+        target_key=comp.source_stable_key,
+        zone_name=comp.zone_name or zone_context,
+        or_group=or_group,
+    )
+
+
+def _comp_zone(
+    step: Callable[..., QuestStep],
+    comp: CompletionSource,
+    or_group: str | None,
+) -> QuestStep | None:
+    if not comp.source_name:
+        return None
+    return step(
+        "travel",
+        f"Travel to {comp.source_name}.",
+        target_name=comp.source_name,
+        target_type="zone",
+        target_key=comp.source_stable_key,
+        zone_name=comp.source_name,
+        or_group=or_group,
+    )
+
+
+def _comp_shout(
+    step: Callable[..., QuestStep],
+    comp: CompletionSource,
+    shout_keywords: dict[str, str],
+    or_group: str | None,
+) -> QuestStep | None:
+    if not comp.source_stable_key:
+        return None
+    keyword = shout_keywords.get(comp.source_stable_key, "")
+    desc = f'Shout "{keyword}" near {comp.source_name}.' if keyword else f"Shout near {comp.source_name}."
+    return step(
+        "shout",
+        desc,
+        target_name=comp.source_name,
+        target_type="character",
+        target_key=comp.source_stable_key,
+        zone_name=comp.zone_name,
+        keyword=keyword or None,
+        or_group=or_group,
+    )
+
+
+def _comp_read(
+    step: Callable[..., QuestStep],
+    comp: CompletionSource,
+    or_group: str | None,
+) -> QuestStep | None:
+    if not comp.source_name:
+        return None
+    return step(
+        "read",
+        f"Read {comp.source_name}.",
+        target_name=comp.source_name,
+        target_type="item",
+        target_key=comp.source_stable_key,
+        or_group=or_group,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -507,33 +690,10 @@ def _steps_fetch(
                     or_group="read" if is_optional else None,
                 )
             )
-    elif giver and giver.source_name:
-        steps.append(
-            step(
-                "talk",
-                _talk_description(giver.source_name, giver.keyword),
-                target_name=giver.source_name,
-                target_type="character",
-                target_key=giver.source_stable_key,
-            )
-        )
+    else:
+        steps.extend(_emit_giver_step(step, giver))
 
-    for ri in required_items:
-        if ri.or_group is not None:
-            continue  # or_group items are acquisition alternatives, not collect objectives
-        desc = f"Collect {ri.item_name}"
-        if ri.quantity > 1:
-            desc = f"Collect {ri.quantity}x {ri.item_name}"
-        steps.append(
-            step(
-                "collect",
-                desc + ".",
-                target_name=ri.item_name,
-                target_type="item",
-                target_key=ri.item_stable_key,
-                quantity=ri.quantity,
-            )
-        )
+    steps.extend(_emit_collect_steps(step, required_items))
 
     turnin_npc = _find_turnin_npc(completion)
     if turnin_npc:
@@ -555,18 +715,7 @@ def _steps_kill(
     giver: AcquisitionSource | None,
     completion: list[CompletionSource],
 ) -> list[QuestStep]:
-    steps: list[QuestStep] = []
-    if giver and giver.source_name:
-        steps.append(
-            step(
-                "talk",
-                _talk_description(giver.source_name, giver.keyword),
-                target_name=giver.source_name,
-                target_type="character",
-                target_key=giver.source_stable_key,
-                zone_name=giver.zone_name,
-            )
-        )
+    steps = _emit_giver_step(step, giver)
     for comp in completion:
         if comp.method == "death" and comp.source_name:
             steps.append(
@@ -587,18 +736,7 @@ def _steps_dialog(
     giver: AcquisitionSource | None,
     completion: list[CompletionSource],
 ) -> list[QuestStep]:
-    steps: list[QuestStep] = []
-    if giver and giver.source_name:
-        steps.append(
-            step(
-                "talk",
-                _talk_description(giver.source_name, giver.keyword),
-                target_name=giver.source_name,
-                target_type="character",
-                target_key=giver.source_stable_key,
-                zone_name=giver.zone_name,
-            )
-        )
+    steps = _emit_giver_step(step, giver)
     for comp in completion:
         if comp.method == "talk" and comp.source_name:
             # Don't duplicate if completer is the same as giver
@@ -622,18 +760,7 @@ def _steps_zone_trigger(
     giver: AcquisitionSource | None,
     completion: list[CompletionSource],
 ) -> list[QuestStep]:
-    steps: list[QuestStep] = []
-    if giver and giver.source_name:
-        steps.append(
-            step(
-                "talk",
-                _talk_description(giver.source_name, giver.keyword),
-                target_name=giver.source_name,
-                target_type="character",
-                target_key=giver.source_stable_key,
-                zone_name=giver.zone_name,
-            )
-        )
+    steps = _emit_giver_step(step, giver)
     zone_comps = [c for c in completion if c.method == "zone" and c.source_name]
     is_zone_optional = len(zone_comps) > 1
     for comp in zone_comps:
@@ -657,18 +784,7 @@ def _steps_shout(
     completion: list[CompletionSource],
     shout_keywords: dict[str, str],
 ) -> list[QuestStep]:
-    steps: list[QuestStep] = []
-    if giver and giver.source_name:
-        steps.append(
-            step(
-                "talk",
-                _talk_description(giver.source_name, giver.keyword),
-                target_name=giver.source_name,
-                target_type="character",
-                target_key=giver.source_stable_key,
-                zone_name=giver.zone_name,
-            )
-        )
+    steps = _emit_giver_step(step, giver)
     for comp in completion:
         if comp.method == "shout" and comp.source_stable_key:
             keyword = shout_keywords.get(comp.source_stable_key, "")
@@ -724,4 +840,36 @@ def _steps_item_read(
                 or_group="read_completion" if comp_optional else None,
             )
         )
+    return steps
+
+
+def _steps_hybrid(
+    step: Callable[..., QuestStep],
+    giver: AcquisitionSource | None,
+    completion: list[CompletionSource],
+    required_items: list[RequiredItemInfo],
+    zone_context: str | None,
+    shout_keywords: dict[str, str],
+) -> list[QuestStep]:
+    """Generate steps for quests with multiple completion methods.
+
+    Each completion source is an independent game trigger — any one of
+    them completes the quest. Steps are marked as alternatives via
+    ``or_group="complete"`` so the UI shows "-- OR --" separators.
+    """
+    steps = _emit_giver_step(step, giver)
+    steps.extend(_emit_collect_steps(step, required_items))
+
+    or_group = "complete" if len(completion) > 1 else None
+    for comp in completion:
+        s = _emit_completion_step(
+            step,
+            comp,
+            shout_keywords,
+            giver=giver,
+            zone_context=zone_context,
+            or_group=or_group,
+        )
+        if s:
+            steps.append(s)
     return steps
