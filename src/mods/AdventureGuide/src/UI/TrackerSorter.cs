@@ -160,7 +160,9 @@ internal static class TrackerSorter
     public static string? GetStepZoneName(
         QuestEntry quest, QuestStateTracker state, GuideData data)
     {
-        var scene = ResolveStepScene(quest, state, data);
+        var step = GetCurrentStep(quest, state);
+        if (step == null) return null;
+        var scene = StepSceneResolver.ResolveScene(quest, step, data);
         return scene != null ? data.GetZoneDisplayName(scene) : null;
     }
 
@@ -170,42 +172,10 @@ internal static class TrackerSorter
     private static bool IsCurrentStepInZone(
         QuestEntry quest, QuestStateTracker state, GuideData data, string currentScene)
     {
-        var scene = ResolveStepScene(quest, state, data);
-        return scene != null && string.Equals(scene, currentScene, System.StringComparison.OrdinalIgnoreCase);
-    }
-
-    /// <summary>
-    /// Resolve the scene name where a quest's current step takes place.
-    /// Uses the step's ZoneName resolved to a scene, or falls back to
-    /// spawn positions of the step's target or item sources.
-    /// </summary>
-    private static string? ResolveStepScene(
-        QuestEntry quest, QuestStateTracker state, GuideData data)
-    {
         var step = GetCurrentStep(quest, state);
-        if (step == null) return null;
-
-        // Try resolving zone_name to scene
-        if (step.ZoneName != null)
-        {
-            var scene = data.GetSceneName(step.ZoneName);
-            if (scene != null) return scene;
-        }
-
-        // Check character target spawns — use the first matching scene
-        if (step.TargetKey != null && data.CharacterSpawns.TryGetValue(step.TargetKey, out var spawns))
-        {
-            if (spawns.Count > 0) return spawns[0].Scene;
-        }
-
-        // For item steps, check source NPC spawns
-        var sourceKey = FindFirstSourceKey(quest, step);
-        if (sourceKey != null && data.CharacterSpawns.TryGetValue(sourceKey, out var srcSpawns))
-        {
-            if (srcSpawns.Count > 0) return srcSpawns[0].Scene;
-        }
-
-        return null;
+        if (step == null) return false;
+        var scene = StepSceneResolver.ResolveScene(quest, step, data);
+        return scene != null && string.Equals(scene, currentScene, System.StringComparison.OrdinalIgnoreCase);
     }
 
     private static float ComputeStepMeters(
@@ -221,7 +191,7 @@ internal static class TrackerSorter
             return NearestSpawnDistance(data, key, currentScene, playerPos);
 
         // For item steps, use the first source NPC
-        var sourceKey = FindFirstSourceKey(quest, step);
+        var sourceKey = StepSceneResolver.FindFirstSourceKey(quest, step);
         if (sourceKey != null)
             return NearestSpawnDistance(data, sourceKey, currentScene, playerPos);
 
@@ -243,36 +213,6 @@ internal static class TrackerSorter
             if (d < best) best = d;
         }
         return best;
-    }
-
-    /// <summary>
-    /// Find the first navigable source key for an item step by looking
-    /// through the quest's RequiredItems sources.
-    /// </summary>
-    private static string? FindFirstSourceKey(QuestEntry quest, QuestStep step)
-    {
-        if (step.TargetType != "item" || quest.RequiredItems == null)
-            return null;
-
-        var item = quest.RequiredItems.Find(ri =>
-            string.Equals(ri.ItemName, step.TargetName, System.StringComparison.OrdinalIgnoreCase));
-        if (item?.Sources == null) return null;
-
-        foreach (var src in item.Sources)
-        {
-            if (src.SourceKey != null)
-                return src.SourceKey;
-            // Recurse into children (e.g., crafted items with sub-sources)
-            if (src.Children != null)
-            {
-                foreach (var child in src.Children)
-                {
-                    if (child.SourceKey != null)
-                        return child.SourceKey;
-                }
-            }
-        }
-        return null;
     }
 
     // ── Helpers ──────────────────────────────────────────────────────
