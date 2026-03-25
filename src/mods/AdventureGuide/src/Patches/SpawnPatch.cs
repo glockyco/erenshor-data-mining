@@ -21,7 +21,7 @@ internal static class SpawnPatch
     private static void Postfix(SpawnPoint __instance)
     {
         if (__instance.SpawnedNPC != null)
-            Registry?.Register(__instance.SpawnedNPC);
+            Registry?.Register(__instance.SpawnedNPC, __instance);
 
         Timers?.OnNPCSpawn(__instance);
         Markers?.MarkSpawnDirty();

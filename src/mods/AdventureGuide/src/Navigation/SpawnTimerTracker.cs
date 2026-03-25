@@ -32,7 +32,8 @@ public sealed class SpawnTimerTracker
         var sp = GetSpawnPoint(npc);
         if (sp == null || string.IsNullOrEmpty(sp.ID)) return;
 
-        _tracked[sp.ID] = new TrackedSpawn(sp, npc.NPCName);
+        var key = EntityRegistry.DeriveStableKey(npc, sp);
+        _tracked[sp.ID] = new TrackedSpawn(sp, npc.NPCName, key);
     }
 
     /// <summary>
@@ -107,16 +108,19 @@ public sealed class SpawnTimerTracker
 }
 
 /// <summary>
-/// A tracked spawn point with its NPC display name for marker labeling.
+/// A tracked spawn point with its NPC identity for marker labeling
+/// and stable key for precise matching.
 /// </summary>
 public readonly struct TrackedSpawn
 {
     public readonly SpawnPoint Point;
     public readonly string NPCName;
+    public readonly string? StableKey;
 
-    public TrackedSpawn(SpawnPoint point, string npcName)
+    public TrackedSpawn(SpawnPoint point, string npcName, string? stableKey)
     {
         Point = point;
         NPCName = npcName;
+        StableKey = stableKey;
     }
 }

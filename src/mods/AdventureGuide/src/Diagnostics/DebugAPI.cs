@@ -81,11 +81,15 @@ public static class DebugAPI
 
         if (displayName != null)
         {
-            int count = Entities.CountAlive(displayName);
-            return $"{displayName}: {count} alive";
+            // Accept either a stable key or a raw name (auto-prefix)
+            string key = displayName.StartsWith("character:", System.StringComparison.OrdinalIgnoreCase)
+                ? displayName
+                : "character:" + displayName.Trim().ToLowerInvariant();
+            int count = Entities.CountAlive(key);
+            return $"{key}: {count} alive";
         }
 
-        return "Pass a display name to check: DumpEntities(\"NPC Name\")";
+        return "Pass a character name or stable key: DumpEntities(\"NPC Name\")";
     }
 
     /// <summary>Dump full details for a specific quest by DB name or display name.</summary>

@@ -74,7 +74,7 @@ public sealed class NavigationController
             var playerPos = GetPlayerPosition();
             if (playerPos.HasValue)
             {
-                var liveNpc = _entities.FindClosest(step.TargetName, playerPos.Value);
+                var liveNpc = _entities.FindClosest(step.TargetKey, playerPos.Value);
                 if (liveNpc != null)
                 {
                     Target = MakeTarget(
@@ -309,14 +309,14 @@ public sealed class NavigationController
             }
             else
             {
-                var liveNpc = _entities.FindClosest(Target.DisplayName, playerPos.Value);
+                var liveNpc = _entities.FindClosest(Target.SourceId, playerPos.Value);
                 if (liveNpc != null)
                 {
                     Target.Position = liveNpc.transform.position;
                 }
                 else
                 {
-                    var bestRespawn = FindShortestRespawnPosition(Target.DisplayName);
+                    var bestRespawn = FindShortestRespawnPosition(Target.SourceId);
                     if (bestRespawn.HasValue)
                         Target.Position = bestRespawn.Value;
                 }
@@ -371,10 +371,12 @@ public sealed class NavigationController
         return result;
     }
 
-    private Vector3? FindShortestRespawnPosition(string displayName)
+    private Vector3? FindShortestRespawnPosition(string? stableKey)
     {
+        if (stableKey == null) return null;
+
         // Check mining nodes first (all named "Mineral Deposit")
-        if (string.Equals(displayName, "Mineral Deposit", System.StringComparison.OrdinalIgnoreCase))
+        if (stableKey.StartsWith("character:mineral deposit", System.StringComparison.OrdinalIgnoreCase))
         {
             var best = _miningTracker.FindShortestRespawn();
             if (best.HasValue)
@@ -388,7 +390,7 @@ public sealed class NavigationController
         {
             var tracked = kvp.Value;
             if (tracked.Point == null) continue;
-            if (!string.Equals(tracked.NPCName, displayName, System.StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(tracked.StableKey, stableKey, System.StringComparison.OrdinalIgnoreCase))
                 continue;
             float? remaining = _timers.GetRemainingSeconds(tracked.Point);
             if (remaining.HasValue && remaining.Value < bestTime)

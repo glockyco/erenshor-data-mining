@@ -3,47 +3,57 @@ using UnityEngine;
 namespace AdventureGuide.Navigation;
 
 /// <summary>
-/// Maintains a name-indexed registry of living NPCs, kept in sync by Harmony
-/// patches on SpawnPoint.SpawnNPC (add) and Character.DoDeath (remove).
+/// Maintains a stable-key-indexed registry of living NPCs, kept in sync by
+/// Harmony patches on SpawnPoint.SpawnNPC (add) and Character.DoDeath (remove).
 /// Cleared on scene transitions.
 ///
-/// Lookups are O(1) by NPC display name. Stale entries (destroyed GameObjects,
-/// dead NPCs missed by the death patch — e.g. night despawn) are filtered out
-/// on access and pruned lazily.
+/// Stable keys are derived from the character prefab name (for spawned NPCs)
+/// or the GameObject name (for directly placed NPCs), matching the format used
+/// by the export pipeline: "character:{name_lowered}".
 ///
-/// Character components are cached at registration to avoid per-frame
-/// GetComponent calls in the IsAlive check.
+/// Lookups are O(1) by stable key. Stale entries (destroyed GameObjects,
+/// dead NPCs missed by the death patch) are filtered out on access.
 /// </summary>
 public sealed class EntityRegistry
 {
-    /// <summary>NPC + cached Character component to avoid per-frame GetComponent.</summary>
     private readonly struct Entry
     {
         public readonly NPC Npc;
         public readonly Character Character;
-        public Entry(NPC npc, Character character) { Npc = npc; Character = character; }
+        /// <summary>Stable key for this NPC, computed at registration.</summary>
+        public readonly string StableKey;
+        public Entry(NPC npc, Character character, string stableKey)
+        {
+            Npc = npc;
+            Character = character;
+            StableKey = stableKey;
+        }
     }
 
-    private readonly Dictionary<string, List<Entry>> _byName = new(System.StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, List<Entry>> _byKey = new(System.StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     /// Register a newly spawned NPC. Called from SpawnPatch postfix.
+    /// The spawn point is used to derive the stable key from the prefab name.
+    /// For SyncFromLiveNPCs (no patch context), pass null and fall back to
+    /// the NPC's GameObject name.
     /// </summary>
-    public void Register(NPC npc)
+    public void Register(NPC npc, SpawnPoint? spawnPoint = null)
     {
         if (npc == null) return;
-        string name = npc.NPCName;
-        if (string.IsNullOrEmpty(name)) return;
 
         var character = npc.GetComponent<Character>();
         if (character == null) return;
 
-        if (!_byName.TryGetValue(name, out var list))
+        string? key = DeriveStableKey(npc, spawnPoint);
+        if (key == null) return;
+
+        if (!_byKey.TryGetValue(key, out var list))
         {
             list = new List<Entry>(2);
-            _byName[name] = list;
+            _byKey[key] = list;
         }
-        list.Add(new Entry(npc, character));
+        list.Add(new Entry(npc, character, key));
     }
 
     /// <summary>
@@ -52,43 +62,60 @@ public sealed class EntityRegistry
     public void Unregister(NPC npc)
     {
         if (npc == null) return;
-        string name = npc.NPCName;
-        if (string.IsNullOrEmpty(name)) return;
 
-        if (_byName.TryGetValue(name, out var list))
+        // We don't know the key, so scan all lists for this instance.
+        // Death is infrequent so this is fine.
+        foreach (var kvp in _byKey)
         {
+            var list = kvp.Value;
             for (int i = list.Count - 1; i >= 0; i--)
+            {
                 if (list[i].Npc == npc)
+                {
                     list.RemoveAt(i);
-            if (list.Count == 0)
-                _byName.Remove(name);
+                    break;
+                }
+            }
         }
     }
 
-    /// <summary>
-    /// Remove all entries. Called on scene transition.
-    /// </summary>
-    public void Clear() => _byName.Clear();
+    /// <summary>Remove all entries. Called on scene transition.</summary>
+    public void Clear() => _byKey.Clear();
 
     /// <summary>
     /// Populate from the current NPCTable.LiveNPCs snapshot.
     /// Used on mod init (especially hot-reload) when NPCs already exist.
+    /// Recovers spawn point references by scanning all SpawnPoints in the
+    /// scene for matching SpawnedNPC references.
     /// </summary>
     public void SyncFromLiveNPCs()
     {
         Clear();
         if (NPCTable.LiveNPCs == null) return;
+
+        // Build NPC→SpawnPoint lookup for stable key derivation
+        var spawnPoints = UnityEngine.Object.FindObjectsOfType<SpawnPoint>();
+        var npcToSp = new Dictionary<NPC, SpawnPoint>();
+        foreach (var sp in spawnPoints)
+        {
+            if (sp.SpawnedNPC != null)
+                npcToSp[sp.SpawnedNPC] = sp;
+        }
+
         foreach (var npc in NPCTable.LiveNPCs)
-            Register(npc);
+        {
+            npcToSp.TryGetValue(npc, out var sp);
+            Register(npc, sp);
+        }
     }
 
     /// <summary>
-    /// Find the closest alive NPC with the given display name to a world position.
+    /// Find the closest alive NPC matching the given stable key.
     /// Returns null if none alive. Prunes stale entries during iteration.
     /// </summary>
-    public NPC? FindClosest(string? displayName, Vector3 position)
+    public NPC? FindClosest(string? stableKey, Vector3 position)
     {
-        if (displayName == null || !_byName.TryGetValue(displayName, out var list))
+        if (stableKey == null || !_byKey.TryGetValue(stableKey, out var list))
             return null;
 
         NPC? best = null;
@@ -97,8 +124,6 @@ public sealed class EntityRegistry
         for (int i = list.Count - 1; i >= 0; i--)
         {
             var entry = list[i];
-
-            // Prune stale: destroyed GameObject or dead NPC
             if (!IsAlive(entry))
             {
                 list.RemoveAt(i);
@@ -114,18 +139,18 @@ public sealed class EntityRegistry
         }
 
         if (list.Count == 0)
-            _byName.Remove(displayName);
+            _byKey.Remove(stableKey);
 
         return best;
     }
 
     /// <summary>
-    /// Count alive NPCs with the given display name.
+    /// Count alive NPCs matching the given stable key.
     /// Prunes stale entries during iteration.
     /// </summary>
-    public int CountAlive(string? displayName)
+    public int CountAlive(string? stableKey)
     {
-        if (displayName == null || !_byName.TryGetValue(displayName, out var list))
+        if (stableKey == null || !_byKey.TryGetValue(stableKey, out var list))
             return 0;
 
         int alive = 0;
@@ -138,9 +163,57 @@ public sealed class EntityRegistry
         }
 
         if (list.Count == 0)
-            _byName.Remove(displayName);
+            _byKey.Remove(stableKey);
 
         return alive;
+    }
+
+    // ── Stable key derivation ───────────────────────────────────────
+
+    /// <summary>
+    /// Derive the stable key for a live NPC. Matches the format produced
+    /// by StableKeyGenerator.ForCharacter in the export pipeline.
+    ///
+    /// Spawned NPCs: use the prefab name from the spawn point. For
+    /// multi-CommonSpawn points, match the NPC's display name against
+    /// prefab NPC components to find the correct prefab.
+    ///
+    /// Directly placed NPCs: use the GameObject name.
+    /// </summary>
+    internal static string? DeriveStableKey(NPC npc, SpawnPoint? spawnPoint = null)
+    {
+        if (spawnPoint != null)
+        {
+            // Try CommonSpawns first, then RareSpawns
+            var prefabName = FindPrefabName(spawnPoint.CommonSpawns, npc.NPCName)
+                          ?? FindPrefabName(spawnPoint.RareSpawns, npc.NPCName);
+            if (prefabName != null)
+                return "character:" + prefabName.Trim().ToLowerInvariant();
+        }
+
+        // Directly placed NPC — use GameObject name
+        var objName = npc.gameObject.name;
+        if (string.IsNullOrEmpty(objName)) return null;
+        return "character:" + objName.Trim().ToLowerInvariant();
+    }
+
+    /// <summary>
+    /// Find the prefab name in a spawn list whose NPC component matches
+    /// the given display name. Returns null if no match found.
+    /// </summary>
+    private static string? FindPrefabName(System.Collections.Generic.List<GameObject>? spawns, string npcName)
+    {
+        if (spawns == null) return null;
+
+        foreach (var prefab in spawns)
+        {
+            if (prefab == null) continue;
+            var prefabNpc = prefab.GetComponent<NPC>();
+            if (prefabNpc != null && string.Equals(prefabNpc.NPCName, npcName,
+                    System.StringComparison.OrdinalIgnoreCase))
+                return prefab.name;
+        }
+        return null;
     }
 
     private static bool IsAlive(in Entry entry)

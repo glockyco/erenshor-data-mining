@@ -466,7 +466,7 @@ public sealed class WorldMarkerSystem
             // Live NPC position tracking (alive markers only)
             if (m.TargetKey != null)
             {
-                var liveNpc = _entities.FindClosest(m.DisplayName, playerPos ?? Vector3.zero);
+                var liveNpc = _entities.FindClosest(m.TargetKey, playerPos ?? Vector3.zero);
                 if (liveNpc != null)
                     m.Position = GetMarkerPosition(liveNpc);
                 // else: keep static position from last rebuild
