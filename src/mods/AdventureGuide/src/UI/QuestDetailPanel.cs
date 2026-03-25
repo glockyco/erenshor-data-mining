@@ -54,7 +54,6 @@ public sealed class QuestDetailPanel
         DrawObjectives(quest);
         DrawRewards(quest);
         DrawPrerequisites(quest);
-        DrawChain(quest);
     }
 
     // ── Header ──────────────────────────────────────────────────────
@@ -741,47 +740,6 @@ public sealed class QuestDetailPanel
     {
         var quest = _data.GetByStableKey(prereq.QuestKey);
         return quest != null && _state.IsCompleted(quest.DBName);
-    }
-
-    // ── Chain ────────────────────────────────────────────────────────
-
-    private void DrawChain(QuestEntry quest)
-    {
-        if (quest.Chain == null || quest.Chain.Count == 0)
-            return;
-
-        if (!ImGui.CollapsingHeader("Quest Chain", ImGuiTreeNodeFlags.None))
-            return;
-
-        ImGui.Indent(Theme.IndentWidth);
-        foreach (var link in quest.Chain)
-        {
-            string arrow = link.Relationship switch
-            {
-                "previous" => "<< ",
-                "next" => ">> ",
-                "completed_by" => "<= ",
-                _ => "   "
-            };
-
-            bool isCompleted = false;
-            var linkedQuest = _data.GetByStableKey(link.QuestStableKey);
-            if (linkedQuest != null)
-                isCompleted = _state.IsCompleted(linkedQuest.DBName);
-
-            var color = isCompleted ? Theme.QuestCompleted : Theme.TextPrimary;
-
-            ImGui.PushStyleColor(ImGuiCol.Text, color);
-            if (ImGui.Selectable($"{arrow}{link.QuestName}##{link.QuestStableKey}"))
-            {
-                if (linkedQuest != null)
-                {
-                    _state.SelectQuest(linkedQuest.DBName);
-                }
-            }
-            ImGui.PopStyleColor();
-        }
-        ImGui.Unindent(Theme.IndentWidth);
     }
 
     // ── Helpers ──────────────────────────────────────────────────────
