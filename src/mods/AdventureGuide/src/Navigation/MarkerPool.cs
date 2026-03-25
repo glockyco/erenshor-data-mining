@@ -32,8 +32,7 @@ public sealed class MarkerPool
     private const int InitialCapacity = 32;
 
     private readonly GameObject _root;
-    private readonly MarkerInstance[] _pool;
-    private int _count;
+    private readonly List<MarkerInstance> _pool;
     private int _activeCount;
 
     /// <summary>Number of currently active markers.</summary>
@@ -45,8 +44,7 @@ public sealed class MarkerPool
         UnityEngine.Object.DontDestroyOnLoad(_root);
         _root.hideFlags = HideFlags.HideAndDontSave;
 
-        _pool = new MarkerInstance[InitialCapacity * 2];
-        _count = 0;
+        _pool = new List<MarkerInstance>(InitialCapacity);
         _activeCount = 0;
 
         for (int i = 0; i < InitialCapacity; i++)
@@ -58,7 +56,7 @@ public sealed class MarkerPool
     /// </summary>
     public MarkerInstance Get(int index)
     {
-        while (index >= _count)
+        while (index >= _pool.Count)
             CreateInstance();
         return _pool[index];
     }
@@ -84,19 +82,14 @@ public sealed class MarkerPool
     public void Destroy()
     {
         UnityEngine.Object.Destroy(_root);
-        _count = 0;
+        _pool.Clear();
         _activeCount = 0;
     }
 
     private void CreateInstance()
     {
-        if (_count >= _pool.Length)
-        {
-            Plugin.Log.LogWarning($"MarkerPool capacity {_pool.Length} exhausted");
-            return;
-        }
 
-        var obj = new GameObject($"Marker_{_count}");
+        var obj = new GameObject($"Marker_{_pool.Count}");
         obj.transform.SetParent(_root.transform);
         // Billboard via game's NamePlate component on the root so both
         // children rotate together. Root uses POSITIVE scale (LookAt breaks
@@ -137,8 +130,7 @@ public sealed class MarkerPool
 
         obj.SetActive(false);
 
-        _pool[_count] = new MarkerInstance(obj, icon, sub);
-        _count++;
+        _pool.Add(new MarkerInstance(obj, icon, sub));
     }
 }
 
