@@ -146,13 +146,22 @@ public sealed class GroundPathRenderer
         _lastCalcPlayerPos = playerPos;
         _lastCalcTargetPos = targetPos;
 
+        // Snap target position to NavMesh surface too. Directly-placed
+        // objects like mining nodes often sit on terrain geometry outside
+        // the NavMesh, causing CalculatePath to fail.
+        var pathTarget = targetPos;
+        if (NavMesh.SamplePosition(targetPos, out var targetNavHit, 5f, NavMesh.AllAreas))
+            pathTarget = targetNavHit.position;
+
         _path.ClearCorners();
-        bool pathFound = NavMesh.CalculatePath(navHit.position, targetPos, NavMesh.AllAreas, _path);
+        bool pathFound = NavMesh.CalculatePath(navHit.position, pathTarget, NavMesh.AllAreas, _path);
 
         if (!pathFound || _path.status == NavMeshPathStatus.PathInvalid)
         {
-            // Keep the previous valid path visible rather than flickering
-            return false;
+            // Target unreachable — hide the stale path so it doesn't
+            // mislead the player by pointing at a previous target.
+            _pathValid = false;
+            return true; // signal recalculation happened (path cleared)
         }
 
         _pathValid = true;

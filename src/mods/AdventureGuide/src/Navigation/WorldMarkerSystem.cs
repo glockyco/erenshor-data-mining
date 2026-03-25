@@ -314,7 +314,7 @@ public sealed class WorldMarkerSystem
             {
                 case SpawnPointBridge.SpawnState.Alive:
                     TryAddMarker(spawnKey, questType, displayName, questSubText, pos, stableKey,
-                        info.LiveSpawnPoint, questType, questSubText);
+                        info.LiveSpawnPoint, info.LiveMiningNode, questType, questSubText);
                     break;
 
                 case SpawnPointBridge.SpawnState.Dead:
@@ -325,7 +325,7 @@ public sealed class WorldMarkerSystem
                         : "Respawning...";
                     TryAddMarker(spawnKey, MarkerType.DeadSpawn, displayName,
                         $"{displayName}\n{timer}", pos, targetKey: null,
-                        info.LiveSpawnPoint, questType, questSubText);
+                        info.LiveSpawnPoint, info.LiveMiningNode, questType, questSubText);
                     break;
                 }
 
@@ -336,7 +336,7 @@ public sealed class WorldMarkerSystem
                     TryAddMarker(spawnKey, MarkerType.NightSpawn, displayName,
                         $"{displayName}\nNight only (23:00-04:00)\nNow: {hour}:{min:D2}",
                         pos, targetKey: null,
-                        info.LiveSpawnPoint, questType, questSubText);
+                        info.LiveSpawnPoint, info.LiveMiningNode, questType, questSubText);
                     break;
                 }
 
@@ -439,7 +439,9 @@ public sealed class WorldMarkerSystem
             }
 
             // Per-frame spawn state: update timers and detect alive/dead transitions
-            if (m.LiveSpawnPoint != null)
+            if (m.LiveMiningNode != null)
+                UpdateMiningMarkerState(ref m, instance, m.LiveMiningNode);
+            else if (m.LiveSpawnPoint != null)
                 UpdateSpawnMarkerState(ref m, instance);
 
             instance.SetPosition(m.Position);
@@ -463,18 +465,6 @@ public sealed class WorldMarkerSystem
     private void UpdateSpawnMarkerState(ref MarkerEntry m, MarkerInstance instance)
     {
         var sp = m.LiveSpawnPoint!;
-
-        // Mining nodes: check MiningNode component state instead of
-        // SpawnedNPC alive check (mined nodes stay "alive" but disabled).
-        if (sp.SpawnedNPC != null)
-        {
-            var miningNode = sp.SpawnedNPC.GetComponent<MiningNode>();
-            if (miningNode != null)
-            {
-                UpdateMiningMarkerState(ref m, instance, miningNode);
-                return;
-            }
-        }
 
         bool isAlive = SpawnPointBridge.IsExpectedNPCAlive(sp, m.DisplayName);
 
@@ -605,6 +595,7 @@ public sealed class WorldMarkerSystem
         string spawnKey, MarkerType type, string displayName,
         string? subText, Vector3 position, string? targetKey,
         SpawnPoint? liveSpawnPoint = null,
+        MiningNode? liveMiningNode = null,
         MarkerType questType = default,
         string? questSubText = null)
     {
@@ -621,6 +612,7 @@ public sealed class WorldMarkerSystem
                     TargetKey = targetKey,
                     SubText = subText,
                     LiveSpawnPoint = liveSpawnPoint,
+                    LiveMiningNode = liveMiningNode,
                     QuestType = questType,
                     QuestSubText = questSubText,
                 };
@@ -637,6 +629,7 @@ public sealed class WorldMarkerSystem
             TargetKey = targetKey,
             SubText = subText,
             LiveSpawnPoint = liveSpawnPoint,
+            LiveMiningNode = liveMiningNode,
             QuestType = questType,
             QuestSubText = questSubText,
         });
@@ -681,6 +674,8 @@ public struct MarkerEntry
     public string? SubText;
     /// <summary>Live SpawnPoint for per-frame timer/state updates. Null for non-spawn markers.</summary>
     public SpawnPoint? LiveSpawnPoint;
+    /// <summary>Live MiningNode for per-frame mined state and timer updates.</summary>
+    public MiningNode? LiveMiningNode;
     /// <summary>Quest marker type to restore when NPC respawns.</summary>
     public MarkerType QuestType;
     /// <summary>Quest sub-text to restore when NPC respawns.</summary>

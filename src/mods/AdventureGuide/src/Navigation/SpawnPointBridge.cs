@@ -1,4 +1,4 @@
-using System.Reflection;
+using AdventureGuide.Navigation;
 using UnityEngine;
 
 /// <summary>
@@ -36,13 +36,16 @@ public sealed class SpawnPointBridge
         public readonly SpawnState State;
         public readonly SpawnPoint? LiveSpawnPoint;
         public readonly NPC? LiveNPC;
+        public readonly MiningNode? LiveMiningNode;
         public readonly float RespawnSeconds;
 
-        public SpawnInfo(SpawnState state, SpawnPoint? liveSP = null, NPC? liveNPC = null, float respawnSeconds = 0f)
+        public SpawnInfo(SpawnState state, SpawnPoint? liveSP = null, NPC? liveNPC = null,
+            MiningNode? miningNode = null, float respawnSeconds = 0f)
         {
             State = state;
             LiveSpawnPoint = liveSP;
             LiveNPC = liveNPC;
+            LiveMiningNode = miningNode;
             RespawnSeconds = respawnSeconds;
         }
     }
@@ -124,7 +127,24 @@ public sealed class SpawnPointBridge
         // often aren't in NPCTable.LiveNPCs and can drift from placed position.
         var npc = FindDirectlyPlacedNPC(x, y, z, expectedNPCName);
         if (npc != null)
+        {
+            // Mining nodes stay "alive" when mined — the NPC persists with
+            // renderer and Character component disabled. Check MiningNode
+            // component for the real state.
+            var miningNode = npc.GetComponent<MiningNode>();
+            if (miningNode != null)
+            {
+                if (IsMiningNodeMined(miningNode))
+                {
+                    float seconds = GetMiningNodeRespawnSeconds(miningNode);
+                    return new SpawnInfo(SpawnState.Mined, liveNPC: npc,
+                        miningNode: miningNode, respawnSeconds: seconds);
+                }
+                return new SpawnInfo(SpawnState.Alive, liveNPC: npc, miningNode: miningNode);
+            }
+
             return new SpawnInfo(SpawnState.Alive, liveNPC: npc);
+        }
 
         return new SpawnInfo(SpawnState.DirectlyPlacedDead);
     }
@@ -147,20 +167,6 @@ public sealed class SpawnPointBridge
         // Quest-gated: can't spawn yet
         if (!sp.canSpawn)
             return new SpawnInfo(SpawnState.QuestGated, sp);
-
-        // Mining node: check MiningNode component on the spawned NPC.
-        // Mining nodes stay "alive" when mined (NPC persists, only
-        // MeshRenderer + Character are disabled), so this check must
-        // come before the normal alive/dead classification.
-        if (sp.SpawnedNPC != null)
-        {
-            var miningNode = sp.SpawnedNPC.GetComponent<MiningNode>();
-            if (miningNode != null && IsMiningNodeMined(miningNode))
-            {
-                float seconds = GetMiningNodeRespawnSeconds(miningNode);
-                return new SpawnInfo(SpawnState.Mined, sp, sp.SpawnedNPC, seconds);
-            }
-        }
 
         // Night-locked: night-only spawn during daytime
         if (sp.NightSpawn && !IsNightHours())
@@ -227,30 +233,11 @@ public sealed class SpawnPointBridge
     }
 
     // ── Mining node helpers ─────────────────────────────────────────
+    // Canonical mining state logic lives in MiningNodeTracker.
 
-    // MiningNode.Respawn is private — cache the FieldInfo
-    private static readonly FieldInfo? MiningRespawnField =
-        typeof(MiningNode).GetField("Respawn", BindingFlags.NonPublic | BindingFlags.Instance);
+    public static bool IsMiningNodeMined(MiningNode node) =>
+        MiningNodeTracker.IsMined(node);
 
-    private const float MiningTickRate = 60f;
-
-    /// <summary>
-    /// Check if a mining node is currently mined (regenerating).
-    /// Detected by MeshRenderer being disabled.
-    /// </summary>
-    public static bool IsMiningNodeMined(MiningNode node)
-    {
-        return node.MyRender != null && !node.MyRender.enabled;
-    }
-
-    /// <summary>
-    /// Get remaining real seconds until a mined node respawns.
-    /// Returns 0 if field is inaccessible.
-    /// </summary>
-    public static float GetMiningNodeRespawnSeconds(MiningNode node)
-    {
-        if (MiningRespawnField == null) return 0f;
-        float ticks = (float)MiningRespawnField.GetValue(node);
-        return ticks > 0f ? ticks / MiningTickRate : 0f;
-    }
+    public static float GetMiningNodeRespawnSeconds(MiningNode node) =>
+        MiningNodeTracker.GetRemainingSeconds(node) ?? 0f;
 }

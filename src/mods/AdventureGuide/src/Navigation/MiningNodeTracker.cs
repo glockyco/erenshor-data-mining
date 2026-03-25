@@ -84,6 +84,30 @@ public sealed class MiningNodeTracker
         return best != null ? (best, bestSeconds) : null;
     }
 
+    /// <summary>
+    /// Find the closest alive (not mined) mining node to the given position.
+    /// Returns null if all nodes are currently mined or none exist.
+    /// </summary>
+    public MiningNode? FindClosestAlive(UnityEngine.Vector3 playerPos)
+    {
+        MiningNode? best = null;
+        float bestDist = float.MaxValue;
+
+        foreach (var node in _nodes)
+        {
+            if (node == null) continue;
+            if (IsMined(node)) continue;
+            float dist = (node.transform.position - playerPos).sqrMagnitude;
+            if (dist < bestDist)
+            {
+                best = node;
+                bestDist = dist;
+            }
+        }
+
+        return best;
+    }
+
     /// <summary>All cached MiningNode references in the current scene.</summary>
     public MiningNode[] Nodes => _nodes;
 }

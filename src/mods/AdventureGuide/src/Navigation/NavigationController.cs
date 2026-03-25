@@ -26,6 +26,8 @@ public sealed class NavigationController
     private Vector3 _lastCrossZoneCalcPos;
     private const float CrossZoneRecalcDistance = 10f;
 
+    private const string MiningNodesKeyPrefix = "mining-nodes:";
+
     // Scratch path for reachability checks — avoids allocation per candidate
     private readonly NavMeshPath _scratchPath = new();
 
@@ -307,6 +309,13 @@ public sealed class NavigationController
             {
                 Target.Position = corpse.Value.Position;
             }
+            else if (IsMiningNodesKey(Target.SourceId))
+            {
+                // Mining nodes use zone-level keys (mining-nodes:{scene}) that
+                // don't match EntityRegistry keys (character:mineral deposit).
+                // Route through MiningNodeTracker for live position tracking.
+                UpdateMiningTarget(playerPos.Value);
+            }
             else
             {
                 var liveNpc = _entities.FindClosest(Target.SourceId, playerPos.Value);
@@ -371,17 +380,30 @@ public sealed class NavigationController
         return result;
     }
 
+    private static bool IsMiningNodesKey(string? key) =>
+        key != null && key.StartsWith(MiningNodesKeyPrefix, System.StringComparison.Ordinal);
+
+    /// <summary>
+    /// Update navigation target for mining nodes. Prefers closest alive node;
+    /// falls back to shortest respawn timer if all are mined.
+    /// </summary>
+    private void UpdateMiningTarget(Vector3 playerPos)
+    {
+        var alive = _miningTracker.FindClosestAlive(playerPos);
+        if (alive != null)
+        {
+            Target!.Position = alive.transform.position;
+            return;
+        }
+
+        var best = _miningTracker.FindShortestRespawn();
+        if (best.HasValue)
+            Target!.Position = best.Value.node.transform.position;
+    }
+
     private Vector3? FindShortestRespawnPosition(string? stableKey)
     {
         if (stableKey == null) return null;
-
-        // Check mining nodes first (all named "Mineral Deposit")
-        if (stableKey.StartsWith("character:mineral deposit", System.StringComparison.OrdinalIgnoreCase))
-        {
-            var best = _miningTracker.FindShortestRespawn();
-            if (best.HasValue)
-                return best.Value.node.transform.position;
-        }
 
         // Check dead enemy spawns
         SpawnPoint? bestPoint = null;
