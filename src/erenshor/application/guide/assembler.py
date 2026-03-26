@@ -19,6 +19,7 @@ from collections.abc import Callable
 from typing import TYPE_CHECKING, Any
 
 from .schema import (
+    AcceptanceMode,
     AcquisitionSource,
     ChainLink,
     CompletionSource,
@@ -97,6 +98,7 @@ def assemble_guides(ctx: QuestDataContext) -> list[QuestGuide]:
             display_name=quest["display_name"],
             description=quest["quest_desc"] or None,
             quest_type=quest_type,
+            acceptance=AcceptanceMode.IMPLICIT if not acquisition else AcceptanceMode.EXPLICIT,
             zone_context=zone_context,
             acquisition=acquisition,
             prerequisites=prerequisites,

@@ -73,9 +73,9 @@ def current():
 
 
 @pytest.fixture(scope="module")
-def require_v3(current):
-    if current.get("_version", 2) < 3:
-        pytest.skip("Current output is still v2; v3 tests will pass after pipeline rewrite")
+def require_v4(current):
+    if current.get("_version", 2) < 4:
+        pytest.skip("Current output is pre-v4; v4 tests will pass after pipeline rewrite")
 
 
 class TestStructuralParity:
@@ -103,8 +103,8 @@ class TestStructuralParity:
     def test_same_chain_group_count(self, golden, current):
         assert len(current["_chain_groups"]) == len(golden["_chain_groups"])
 
-    def test_version_bumped(self, current, require_v3):
-        assert current["_version"] == 3
+    def test_version_bumped(self, current, require_v4):
+        assert current["_version"] == 4
 
 
 class TestPerQuestParity:
@@ -135,7 +135,7 @@ class TestPerQuestParity:
                     f"{db_name}: quantity mismatch for {item_name}"
                 )
 
-    def test_obtainability_sources_preserved(self, golden, current, require_v3):
+    def test_obtainability_sources_preserved(self, golden, current, require_v4):
         """v3 sources cover v2 sources minus map-hidden characters."""
         g_idx = _index_quests(golden)
         c_idx = _index_quests(current)
@@ -199,7 +199,7 @@ class TestLevelEstimates:
 class TestPrerequisites:
     """Verify structured prerequisites replace opaque strings."""
 
-    def test_prerequisites_are_structured(self, current, require_v3):
+    def test_prerequisites_are_structured(self, current, require_v4):
         """All prerequisites in v3 should be dicts with quest_key, not strings."""
         for q in current["quests"]:
             for prereq in q.get("prerequisites", []):
@@ -211,7 +211,7 @@ class TestPrerequisites:
 class TestSourceLevels:
     """Verify sources carry inline levels."""
 
-    def test_drop_sources_have_levels(self, current, require_v3):
+    def test_drop_sources_have_levels(self, current, require_v4):
         """Drop sources should carry enemy level inline."""
         drops_with_level = 0
         drops_total = 0
@@ -227,7 +227,7 @@ class TestSourceLevels:
             ratio = drops_with_level / drops_total
             assert ratio > 0.8, f"Only {drops_with_level}/{drops_total} drop sources have levels"
 
-    def test_zone_sources_have_levels(self, current, require_v3):
+    def test_zone_sources_have_levels(self, current, require_v4):
         """Mining/fishing/pickup sources should carry zone median level."""
         zone_types = {"mining", "fishing", "pickup"}
         with_level = 0

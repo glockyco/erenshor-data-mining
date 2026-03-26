@@ -52,6 +52,13 @@ class StepAction(str, Enum):
     CUSTOM = "custom"
 
 
+class AcceptanceMode(str, Enum):
+    """How a quest enters the player's quest log."""
+
+    EXPLICIT = "explicit"  # Requires dialog, item read, zone entry, etc.
+    IMPLICIT = "implicit"  # Always completable, no formal acceptance
+
+
 class AcquisitionMethod(str, Enum):
     """How a player obtains a quest."""
 
@@ -348,6 +355,7 @@ class QuestGuide:
 
     # Classification — inferred
     quest_type: str | None = None  # QuestType value
+    acceptance: str | None = None  # AcceptanceMode value
     zone_context: str | None = None  # primary zone, inferred from NPC locations
 
     # Structured data
@@ -371,7 +379,7 @@ class QuestGuide:
 class GuideOutput:
     """Complete guide output with lookup tables and quest entries."""
 
-    version: int = 3
+    version: int = 4
     zone_lookup: dict[str, ZoneInfo] = field(default_factory=dict)
     character_spawns: dict[str, list[SpawnPoint]] = field(default_factory=dict)
     zone_lines: list[ZoneLine] = field(default_factory=list)

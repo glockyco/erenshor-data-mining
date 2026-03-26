@@ -27,7 +27,7 @@ def generate(db_path: Path) -> GuideOutput:
     _sort_or_groups(guides)
     materialize_sub_trees(guides, ctx)
     return GuideOutput(
-        version=3,
+        version=4,
         zone_lookup=ctx.zone_lookup,
         character_spawns=ctx.character_spawns,
         zone_lines=ctx.zone_lines,
