@@ -7,7 +7,7 @@ name = "AdventureGuide"
 # Version is set dynamically at publish time via --package-version
 versionNumber = "0.0.0"
 description = "In-game quest companion with GPS navigation. 170+ quests with walkthroughs, item sources, and world markers. Click any step, follow the arrow."
-websiteUrl = ""
+websiteUrl = "https://erenshor-maps.wowmuch1.workers.dev/adventure-guide"
 containsNsfwContent = false
 
 [package.dependencies]

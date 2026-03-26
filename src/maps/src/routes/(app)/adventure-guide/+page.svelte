@@ -11,6 +11,21 @@
         In-game quest companion for Erenshor. 170+ quests with step-by-step walkthroughs, GPS
         navigation, and floating world markers above every quest-relevant NPC.
     </p>
+    <a
+        href="/mods/AdventureGuide.dll"
+        class="inline-block mt-6 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
+        download
+    >
+        <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+            ></path>
+        </svg>
+        Download
+    </a>
 </div>
 
 <div class="max-w-4xl mx-auto space-y-16">
@@ -18,9 +33,11 @@
     <section>
         <h3 class="text-2xl font-bold text-white mb-4">Navigate to anything</h3>
         <img
-            src="/adventure-guide-window.png"
+            src="/adventure-guide-window.webp"
             alt="Quest window with walkthroughs and navigation buttons"
             class="rounded-xl border border-slate-700 mb-6 w-full"
+            width="1868"
+            height="1404"
             loading="lazy"
         />
         <div class="text-slate-300 space-y-3">
@@ -42,18 +59,19 @@
     <section>
         <h3 class="text-2xl font-bold text-white mb-4">See what you've been missing</h3>
         <img
-            src="/adventure-guide-markers.png"
+            src="/adventure-guide-markers.webp"
             alt="World markers above NPCs showing quest state and respawn timers"
             class="rounded-xl border border-slate-700 mb-6 w-full"
+            width="2058"
+            height="600"
             loading="lazy"
         />
         <div class="text-slate-300 space-y-3">
             <p>
                 Floating icons appear above NPCs in the game world — quest givers you've walked
                 past, turn-in targets waiting for your items, enemies you need to hunt down. Kill a
-                quest mob and its marker switches to a skull with a live respawn countdown.
-                Night-only spawns show the spawn window and current game time so you know when to
-                come back.
+                quest mob and its marker switches to a live respawn countdown. Night-only spawns
+                show the spawn window and current game time so you know when to come back.
             </p>
         </div>
     </section>
@@ -62,9 +80,11 @@
     <section>
         <h3 class="text-2xl font-bold text-white mb-4">Know the whole path</h3>
         <img
-            src="/adventure-guide-nav.png"
+            src="/adventure-guide-nav.webp"
             alt="Navigation arrow and ground path guiding to target"
             class="rounded-xl border border-slate-700 mb-6 w-full"
+            width="1552"
+            height="1086"
             loading="lazy"
         />
         <div class="text-slate-300 space-y-3">
@@ -105,11 +125,15 @@
                 <h4 class="text-lg font-semibold text-white mb-2">Manual install</h4>
                 <div class="text-slate-300 text-sm space-y-2">
                     <p>
-                        Download the mod and copy the
-                        <code class="bg-slate-900 px-1.5 py-0.5 rounded text-xs text-slate-200"
-                            >AdventureGuide/</code
+                        <a
+                            href="/mods/AdventureGuide.dll"
+                            class="text-purple-400 hover:text-purple-300 underline"
+                            download>Download</a
                         >
-                        folder into
+                        <code class="bg-slate-900 px-1.5 py-0.5 rounded text-xs text-slate-200"
+                            >AdventureGuide.dll</code
+                        >
+                        and place it in
                         <code class="bg-slate-900 px-1.5 py-0.5 rounded text-xs text-slate-200"
                             >BepInEx/plugins/</code
                         >.
@@ -119,12 +143,7 @@
                             >Erenshor/
 └── BepInEx/
     └── plugins/
-        └── AdventureGuide/
-            ├── AdventureGuide.dll
-            ├── Newtonsoft.Json.dll
-            ├── ImGui.NET.dll
-            ├── System.Numerics.Vectors.dll
-            └── System.Runtime.CompilerServices.Unsafe.dll</code
+        └── AdventureGuide.dll</code
                         ></pre>
                 </div>
             </div>
@@ -138,6 +157,13 @@
                     >L</kbd
                 >
                 to open the Adventure Guide in-game.
+            </p>
+            <p class="text-slate-300 text-sm">
+                Press <kbd
+                    class="bg-slate-900 px-1.5 py-0.5 rounded text-xs text-slate-200 font-mono"
+                    >K</kbd
+                >
+                to open the quest tracker window.
             </p>
         </div>
 
