@@ -57,6 +57,8 @@ public sealed class Plugin : BaseUnityPlugin
             return;
         }
 
+        _config.UiScale.SettingChanged += OnUiScaleChanged;
+
         _entities = new EntityRegistry();
         _timers = new SpawnTimerTracker();
         _miningTracker = new MiningNodeTracker();
@@ -270,6 +272,14 @@ public sealed class Plugin : BaseUnityPlugin
 
     private void OnShowGroundPathChanged(object sender, System.EventArgs e) => SyncVisibility();
 
+    private void OnUiScaleChanged(object sender, System.EventArgs e)
+    {
+        var scale = _config!.UiScale.Value;
+        if (scale < 0f)
+            scale = ResolveUiScale(_config);
+        _imgui?.SetScale(scale);
+    }
+
     private void OnShowWorldMarkersChanged(object sender, System.EventArgs e)
     {
         SyncVisibility();
@@ -316,6 +326,7 @@ public sealed class Plugin : BaseUnityPlugin
             _config.ShowWorldMarkers.SettingChanged -= OnShowWorldMarkersChanged;
             _config.TrackerEnabled.SettingChanged -= OnTrackerEnabledChanged;
             _config.ReplaceQuestLog.SettingChanged -= OnReplaceQuestLogChanged;
+            _config.UiScale.SettingChanged -= OnUiScaleChanged;
             QuestMarkerPatch.SuppressGameMarkers = false;
         }
         _harmony?.UnpatchSelf();

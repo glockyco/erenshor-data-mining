@@ -120,7 +120,9 @@ public sealed class ImGuiRenderer : IDisposable
             // Build font atlas
             BuildFontAtlas();
 
-            // Scale UI elements and font together
+            // Save unscaled style, then scale. ApplyScale restores this
+            // backup before re-scaling so ScaleAllSizes never compounds.
+            SaveStyleBackup();
             var style = ImGuiNET.ImGui.GetStyle();
             style.ScaleAllSizes(_uiScale);
 
@@ -153,6 +155,13 @@ public sealed class ImGuiRenderer : IDisposable
 
         try
         {
+            // Apply deferred scale change (must run on render thread)
+            if (_pendingScale >= 0f)
+            {
+                ApplyScale(_pendingScale);
+                _pendingScale = -1f;
+            }
+
             // Update display size and delta time
             var io = ImGuiNET.ImGui.GetIO();
             io.DisplaySize = new System.Numerics.Vector2(Screen.width, Screen.height);
@@ -219,9 +228,17 @@ public sealed class ImGuiRenderer : IDisposable
 
     private const float BaseFontSize = 16f;
     private float _uiScale = 1.0f;
+    private float _pendingScale = -1f;
+    private byte[]? _unscaledStyleBackup;
 
     /// <summary>Set before calling Init(). Scales font and UI element sizes.</summary>
     public float UiScale { set => _uiScale = value; }
+
+    /// <summary>
+    /// Request a scale change at runtime. The rebuild is deferred to the next
+    /// OnGUI frame so it runs on the render thread.
+    /// </summary>
+    public void SetScale(float scale) => _pendingScale = scale;
 
     private unsafe void BuildFontAtlas()
     {
@@ -282,6 +299,62 @@ public sealed class ImGuiRenderer : IDisposable
         // Do NOT add to _textures — the font texture uses different UV
         // transform (_MainTex_ST 1,1,0,0) than user textures (1,-1,0,1).
         // It falls through to the else branch in RenderDrawData.
+    }
+
+    /// <summary>
+    /// Rebuild font atlas and restyle for a new scale factor. Must be called
+    /// on the render thread (inside OnGUI) since it touches ImGui context,
+    /// Unity textures, and the rendering material.
+    /// </summary>
+    private unsafe void ApplyScale(float newScale)
+    {
+        _uiScale = newScale;
+
+        // Destroy the old font texture before rebuilding the atlas
+        if (_fontTexture != null)
+        {
+            UnityEngine.Object.Destroy(_fontTexture);
+            _fontTexture = null;
+        }
+
+        // Clear and rebuild the font atlas at the new size
+        var io = ImGuiNET.ImGui.GetIO();
+        io.Fonts.Clear();
+        BuildFontAtlas();
+
+        // Restore the unscaled style baseline, then apply the new scale.
+        // ScaleAllSizes is cumulative (multiplies current values), so we
+        // must always start from the unscaled baseline to avoid drift.
+        RestoreStyleBackup();
+        var style = ImGuiNET.ImGui.GetStyle();
+        style.ScaleAllSizes(_uiScale);
+
+        // Update the material's default texture to the new font atlas
+        if (_material != null)
+            _material.mainTexture = _fontTexture;
+
+        _log.LogInfo($"UI scale changed to {_uiScale:F2}");
+    }
+
+    /// <summary>
+    /// Save a byte-level copy of the current ImGuiStyle so we can restore it
+    /// before each ScaleAllSizes call. ScaleAllSizes is cumulative — without
+    /// restoring the unscaled baseline first, sizes compound on every change.
+    /// </summary>
+    private unsafe void SaveStyleBackup()
+    {
+        int size = sizeof(ImGuiNET.ImGuiStyle);
+        _unscaledStyleBackup = new byte[size];
+        fixed (byte* dst = _unscaledStyleBackup)
+            Buffer.MemoryCopy(ImGuiNET.ImGui.GetStyle().NativePtr, dst, size, size);
+    }
+
+    private unsafe void RestoreStyleBackup()
+    {
+        if (_unscaledStyleBackup == null) return;
+        fixed (byte* src = _unscaledStyleBackup)
+            Buffer.MemoryCopy(src, ImGuiNET.ImGui.GetStyle().NativePtr,
+                _unscaledStyleBackup.Length, _unscaledStyleBackup.Length);
     }
 
     private void CreateMaterial()

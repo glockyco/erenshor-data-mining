@@ -83,7 +83,7 @@ public sealed class GuideConfig
             "If true, pressing J opens Adventure Guide instead of the game's Quest Log");
         UiScale = config.Bind("General", "UiScale", -1f,
             new ConfigDescription(
-                "UI scale factor. Affects font size and element spacing. Requires game restart. " +
+                "UI scale factor. Affects font size and element spacing. " +
                 "Set to -1 to auto-detect from screen resolution.",
                 new AcceptableValueRange<float>(-1f, 4f)));
         HistoryMaxSize = config.Bind("General", "HistoryMaxSize", 100,
