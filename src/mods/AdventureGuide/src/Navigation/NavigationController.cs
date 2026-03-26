@@ -178,8 +178,24 @@ public sealed class NavigationController
             ComputeAutoSourceSet(currentScene);
         }
 
-        // Force immediate rescan
-        _sourceRescanTimer = SourceRescanInterval;
+        // Re-resolve target from the new active set. This handles both
+        // same-zone (closest spawn) and cross-zone (zone line routing)
+        // transitions when the user toggles between zones.
+        var quest = _data.GetByDBName(Target.QuestDBName);
+        if (quest?.Steps != null)
+        {
+            var step = quest.Steps.Find(s => s.Order == Target.StepOrder);
+            if (step != null)
+            {
+                // Clear stale target and cross-zone state before re-resolving.
+                // The new target may be in a different zone.
+                Target = null;
+                ZoneLineWaypoint = null;
+                _cachedZoneLine = null;
+                _currentSourceKey = null;
+                ResolveClosestActiveSource(quest, step, currentScene);
+            }
+        }
     }
 
     /// <summary>Whether a source key is in the active navigation set.</summary>
