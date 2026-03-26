@@ -39,14 +39,29 @@ ready for and help you tackle things in the right order. Come back after
 a week and your progress, item counts, and active step are right where
 you left them.
 
-## Keyboard shortcuts and configuration
+## Keyboard shortcuts
 
-Press **L** to open the Adventure Guide in-game.
-Press **K** to open the quest tracker window.
+| Key | Action |
+|-----|--------|
+| **L** | Open the Adventure Guide |
+| **K** | Open the quest tracker |
 
-Config file: `BepInEx/config/wow-much.adventure-guide.cfg`
-(generated on first launch).
+## Configuration
 
-Or edit in-game with
+All settings are in `BepInEx/config/wow-much.adventure-guide.cfg`
+(generated on first launch), or edit in-game with
 [Configuration Manager](https://github.com/BepInEx/BepInEx.ConfigurationManager)
 (F1).
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| ShowArrow | on | GPS arrow pointing to navigation target |
+| ShowGroundPath | off | Ground path line using NavMesh pathfinding |
+| ShowWorldMarkers | on | Floating quest icons above NPCs |
+| TrackerEnabled | on | Quest tracker overlay |
+| TrackerAutoTrack | on | Auto-track newly accepted quests |
+| ReplaceQuestLog | off | J opens Adventure Guide instead of the game's quest log |
+| UiScale | auto | UI size factor (-1 = auto-detect from resolution) |
+| TrackerBackgroundOpacity | 0.40 | Tracker overlay transparency |
+| TrackerSortMode | Proximity | Sort tracked quests: Proximity, Level, or Alphabetical |
+| MarkerScale | 1.0 | World marker size multiplier |

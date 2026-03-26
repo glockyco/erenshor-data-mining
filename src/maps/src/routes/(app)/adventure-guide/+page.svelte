@@ -150,39 +150,117 @@
         </div>
 
         <div class="mt-8 pt-6 border-t border-slate-700">
-            <h4 class="text-lg font-semibold text-white mb-2">Usage</h4>
-            <p class="text-slate-300 text-sm">
-                Press <kbd
-                    class="bg-slate-900 px-1.5 py-0.5 rounded text-xs text-slate-200 font-mono"
-                    >L</kbd
-                >
-                to open the Adventure Guide in-game.
-            </p>
-            <p class="text-slate-300 text-sm">
-                Press <kbd
-                    class="bg-slate-900 px-1.5 py-0.5 rounded text-xs text-slate-200 font-mono"
-                    >K</kbd
-                >
-                to open the quest tracker window.
-            </p>
+            <h4 class="text-lg font-semibold text-white mb-2">Keyboard shortcuts</h4>
+            <div class="text-slate-300 text-sm space-y-1">
+                <p>
+                    <kbd class="bg-slate-900 px-1.5 py-0.5 rounded text-xs text-slate-200 font-mono"
+                        >L</kbd
+                    >
+                    Open the Adventure Guide
+                </p>
+                <p>
+                    <kbd class="bg-slate-900 px-1.5 py-0.5 rounded text-xs text-slate-200 font-mono"
+                        >K</kbd
+                    >
+                    Open the quest tracker
+                </p>
+            </div>
         </div>
 
         <div class="mt-6 pt-6 border-t border-slate-700">
-            <h4 class="text-lg font-semibold text-white mb-2">Configuration</h4>
-            <p class="text-slate-300 text-sm">
+            <h4 class="text-lg font-semibold text-white mb-3">Configuration</h4>
+            <p class="text-slate-300 text-sm mb-4">
                 Config file:
                 <code class="bg-slate-900 px-1.5 py-0.5 rounded text-xs text-slate-200"
                     >BepInEx/config/wow-much.adventure-guide.cfg</code
                 >
-                (generated on first launch).
-            </p>
-            <p class="text-slate-400 text-sm mt-1">
-                Or edit in-game with
+                (generated on first launch).<br />Or edit in-game with
                 <a
                     href="https://github.com/BepInEx/BepInEx.ConfigurationManager"
                     class="text-purple-400 hover:text-purple-300 underline">Configuration Manager</a
                 > (F1).
             </p>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left">
+                    <thead>
+                        <tr class="text-slate-400 border-b border-slate-700">
+                            <th class="py-2 pr-4">Setting</th>
+                            <th class="py-2 pr-4">Default</th>
+                            <th class="py-2">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-slate-300">
+                        <tr class="border-b border-slate-700/50">
+                            <td class="py-2 pr-4 font-mono text-xs text-slate-200">ShowArrow</td>
+                            <td class="py-2 pr-4">on</td>
+                            <td class="py-2">GPS arrow pointing to navigation target</td>
+                        </tr>
+                        <tr class="border-b border-slate-700/50">
+                            <td class="py-2 pr-4 font-mono text-xs text-slate-200"
+                                >ShowGroundPath</td
+                            >
+                            <td class="py-2 pr-4">off</td>
+                            <td class="py-2">Ground path line using NavMesh pathfinding</td>
+                        </tr>
+                        <tr class="border-b border-slate-700/50">
+                            <td class="py-2 pr-4 font-mono text-xs text-slate-200"
+                                >ShowWorldMarkers</td
+                            >
+                            <td class="py-2 pr-4">on</td>
+                            <td class="py-2">Floating quest icons above NPCs</td>
+                        </tr>
+                        <tr class="border-b border-slate-700/50">
+                            <td class="py-2 pr-4 font-mono text-xs text-slate-200"
+                                >TrackerEnabled</td
+                            >
+                            <td class="py-2 pr-4">on</td>
+                            <td class="py-2">Quest tracker overlay</td>
+                        </tr>
+                        <tr class="border-b border-slate-700/50">
+                            <td class="py-2 pr-4 font-mono text-xs text-slate-200"
+                                >TrackerAutoTrack</td
+                            >
+                            <td class="py-2 pr-4">on</td>
+                            <td class="py-2">Auto-track newly accepted quests</td>
+                        </tr>
+                        <tr class="border-b border-slate-700/50">
+                            <td class="py-2 pr-4 font-mono text-xs text-slate-200"
+                                >ReplaceQuestLog</td
+                            >
+                            <td class="py-2 pr-4">off</td>
+                            <td class="py-2"
+                                >J opens Adventure Guide instead of the game's quest log</td
+                            >
+                        </tr>
+                        <tr class="border-b border-slate-700/50">
+                            <td class="py-2 pr-4 font-mono text-xs text-slate-200">UiScale</td>
+                            <td class="py-2 pr-4">auto</td>
+                            <td class="py-2">UI size factor (-1 = auto-detect from resolution)</td>
+                        </tr>
+                        <tr class="border-b border-slate-700/50">
+                            <td class="py-2 pr-4 font-mono text-xs text-slate-200"
+                                >TrackerBackgroundOpacity</td
+                            >
+                            <td class="py-2 pr-4">0.40</td>
+                            <td class="py-2">Tracker overlay transparency</td>
+                        </tr>
+                        <tr class="border-b border-slate-700/50">
+                            <td class="py-2 pr-4 font-mono text-xs text-slate-200"
+                                >TrackerSortMode</td
+                            >
+                            <td class="py-2 pr-4">Proximity</td>
+                            <td class="py-2"
+                                >Sort tracked quests: Proximity, Level, or Alphabetical</td
+                            >
+                        </tr>
+                        <tr>
+                            <td class="py-2 pr-4 font-mono text-xs text-slate-200">MarkerScale</td>
+                            <td class="py-2 pr-4">1.0</td>
+                            <td class="py-2">World marker size multiplier</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </section>
 </div>
