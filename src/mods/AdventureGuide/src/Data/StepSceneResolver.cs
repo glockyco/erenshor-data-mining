@@ -27,11 +27,16 @@ public static class StepSceneResolver
             if (spawns.Count > 0) return spawns[0].Scene;
         }
 
-        // For item steps, check source NPC spawns
+        // For item steps, check source NPC spawns or zone-level sources
         var sourceKey = FindFirstSourceKey(quest, step);
-        if (sourceKey != null && data.CharacterSpawns.TryGetValue(sourceKey, out var srcSpawns))
+        if (sourceKey != null)
         {
-            if (srcSpawns.Count > 0) return srcSpawns[0].Scene;
+            // Fishing sources encode the scene in the key (fishing:{scene})
+            if (sourceKey.StartsWith("fishing:", System.StringComparison.Ordinal))
+                return sourceKey.Substring("fishing:".Length);
+
+            if (data.CharacterSpawns.TryGetValue(sourceKey, out var srcSpawns) && srcSpawns.Count > 0)
+                return srcSpawns[0].Scene;
         }
 
         return null;
@@ -107,13 +112,22 @@ public static class StepSceneResolver
                 continue;
             }
 
-            if (src.SourceKey != null
-                && data.CharacterSpawns.TryGetValue(src.SourceKey, out var spawns))
+            if (src.SourceKey != null)
             {
-                foreach (var sp in spawns)
+                // Fishing sources: scene is encoded in the key
+                if (src.SourceKey.StartsWith("fishing:", System.StringComparison.Ordinal))
                 {
-                    if (string.Equals(sp.Scene, scene, System.StringComparison.OrdinalIgnoreCase))
+                    var fishScene = src.SourceKey.Substring("fishing:".Length);
+                    if (string.Equals(fishScene, scene, System.StringComparison.OrdinalIgnoreCase))
                         return true;
+                }
+                else if (data.CharacterSpawns.TryGetValue(src.SourceKey, out var spawns))
+                {
+                    foreach (var sp in spawns)
+                    {
+                        if (string.Equals(sp.Scene, scene, System.StringComparison.OrdinalIgnoreCase))
+                            return true;
+                    }
                 }
             }
             if (src.Children != null && AnySourceInScene(src.Children, data, scene))

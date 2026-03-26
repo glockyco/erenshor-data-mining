@@ -13,6 +13,38 @@ namespace AdventureGuide.UI;
 internal static class TrackerSorter
 {
     /// <summary>
+    /// Result from source distance computation. Carries both the distance
+    /// and an optional display label for zone-level sources (e.g. "Fishing").
+    /// </summary>
+    private readonly struct SourceDistance
+    {
+        public readonly float Meters;
+        public readonly string? Label;
+
+        public SourceDistance(float meters, string? label = null)
+        {
+            Meters = meters;
+            Label = label;
+        }
+
+        public static SourceDistance None => new(float.MaxValue);
+
+        /// <summary>
+        /// Pick the better of two results. Labeled sources (zone-level,
+        /// already available) always beat unlabeled positional sources —
+        /// "available right here" is better than "N meters away".
+        /// Among two positional sources, pick the closer one.
+        /// </summary>
+        public static SourceDistance Best(SourceDistance a, SourceDistance b)
+        {
+            // Labeled (zone-level) beats unlabeled (positional)
+            if (a.Label != null && b.Label == null) return a;
+            if (b.Label != null && a.Label == null) return b;
+            return a.Meters <= b.Meters ? a : b;
+        }
+    }
+
+    /// <summary>
     /// Compute distance from the player to each quest's current step target.
     /// </summary>
     public static void ComputeDistances(
@@ -42,12 +74,19 @@ internal static class TrackerSorter
             {
                 bool inZone = !nav.Target.IsCrossZone(currentScene);
                 // Zone targets (fishing) are in the current zone but have
-                // no specific position. Cross-zone targets show "Travel to"
-                // without a distance — the zone line distance would confuse.
-                float meters = inZone && nav.Target.TargetKind != NavigationTarget.Kind.Zone
-                    ? nav.Distance
-                    : float.MaxValue;
-                output[dbName] = new StepDistance(inZone, meters);
+                // no specific position — show a label instead of meters.
+                if (inZone && nav.Target.TargetKind == NavigationTarget.Kind.Zone)
+                {
+                    string? label = nav.Target.SourceId != null
+                        && nav.Target.SourceId.StartsWith("fishing:", System.StringComparison.Ordinal)
+                        ? "Fishing" : null;
+                    output[dbName] = new StepDistance(true, float.MaxValue, label);
+                }
+                else
+                {
+                    float meters = inZone ? nav.Distance : float.MaxValue;
+                    output[dbName] = new StepDistance(inZone, meters);
+                }
                 continue;
             }
 
@@ -58,8 +97,8 @@ internal static class TrackerSorter
                 continue;
             }
 
-            output[dbName] = new StepDistance(true,
-                ComputeStepMeters(quest, state, data, currentScene, playerPos));
+            var sd = ComputeStepDistance(quest, state, data, currentScene, playerPos);
+            output[dbName] = new StepDistance(true, sd.Meters, sd.Label);
         }
     }
 
@@ -181,15 +220,15 @@ internal static class TrackerSorter
         return StepSceneResolver.HasSourceInScene(resolvedQuest ?? quest, step, data, currentScene);
     }
 
-    private static float ComputeStepMeters(
+    private static SourceDistance ComputeStepDistance(
         QuestEntry quest, QuestStateTracker state, GuideData data,
         string currentScene, Vector3 playerPos)
     {
         var raw = GetCurrentStep(quest, state, data);
-        if (raw == null) return float.MaxValue;
+        if (raw == null) return SourceDistance.None;
 
         var (step, resolvedQuest) = StepProgress.ResolveActiveStep(raw, quest, state, data);
-        if (step == null) return float.MaxValue;
+        if (step == null) return SourceDistance.None;
         var effectiveQuest = resolvedQuest ?? quest;
 
         // Try character target directly (talk, kill, turn_in steps)
@@ -206,45 +245,48 @@ internal static class TrackerSorter
                 return NearestSourceDistance(item.Sources, data, currentScene, playerPos);
         }
 
-        return float.MaxValue;
+        return SourceDistance.None;
     }
 
     /// <summary>
     /// Find the nearest spawn among ALL sources (recursing into children) in the current scene.
     /// </summary>
-    private static float NearestSourceDistance(
+    private static SourceDistance NearestSourceDistance(
         List<ItemSource> sources, GuideData data, string currentScene, Vector3 playerPos)
     {
-        float best = float.MaxValue;
+        var best = SourceDistance.None;
         foreach (var src in sources)
         {
             // quest_reward: SourceKey is the quest giver, not an obtainable source.
             if (src.Type == "quest_reward" && src.Children is { Count: > 0 })
             {
-                float d = NearestSourceDistance(src.Children, data, currentScene, playerPos);
-                if (d < best) best = d;
+                best = SourceDistance.Best(best, NearestSourceDistance(src.Children, data, currentScene, playerPos));
                 continue;
             }
 
             if (src.SourceKey != null)
-            {
-                float d = NearestSpawnDistance(data, src.SourceKey, currentScene, playerPos);
-                if (d < best) best = d;
-            }
+                best = SourceDistance.Best(best, NearestSpawnDistance(data, src.SourceKey, currentScene, playerPos));
             if (src.Children != null)
-            {
-                float d = NearestSourceDistance(src.Children, data, currentScene, playerPos);
-                if (d < best) best = d;
-            }
+                best = SourceDistance.Best(best, NearestSourceDistance(src.Children, data, currentScene, playerPos));
         }
         return best;
     }
 
-    private static float NearestSpawnDistance(
+    private static SourceDistance NearestSpawnDistance(
         GuideData data, string key, string currentScene, Vector3 playerPos)
     {
+        // Fishing sources are zone-level — no specific position.
+        // In the fishing zone: report as available with label. Otherwise: unreachable.
+        if (key.StartsWith("fishing:", System.StringComparison.Ordinal))
+        {
+            var fishScene = key.Substring("fishing:".Length);
+            return string.Equals(fishScene, currentScene, System.StringComparison.OrdinalIgnoreCase)
+                ? new SourceDistance(float.MaxValue, "Fishing")
+                : SourceDistance.None;
+        }
+
         if (!data.CharacterSpawns.TryGetValue(key, out var spawns) || spawns.Count == 0)
-            return float.MaxValue;
+            return SourceDistance.None;
 
         float best = float.MaxValue;
         foreach (var sp in spawns)
@@ -254,7 +296,7 @@ internal static class TrackerSorter
             float d = Vector3.Distance(playerPos, new Vector3(sp.X, sp.Y, sp.Z));
             if (d < best) best = d;
         }
-        return best;
+        return new SourceDistance(best);
     }
 
     // ── Helpers ──────────────────────────────────────────────────────

@@ -470,9 +470,14 @@ public sealed class TrackerWindow
             ? $"{lvl,2}  {quest.DisplayName}"
             : $"    {quest.DisplayName}";
 
-        // Append distance when a meaningful position is available
-        if (_distances.TryGetValue(quest.DBName, out var dist) && dist.HasDistance)
-            label += $" ({dist.Meters:0}m)";
+        // Append distance or source label (e.g. "Fishing")
+        if (_distances.TryGetValue(quest.DBName, out var dist))
+        {
+            if (dist.HasDistance)
+                label += $" ({dist.Meters:0}m)";
+            else if (dist.HasLabel)
+                label += $" ({dist.Label})";
+        }
 
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.GetQuestColor(_state, quest.DBName));
         if (ImGui.Selectable(label + "##name" + quest.DBName))

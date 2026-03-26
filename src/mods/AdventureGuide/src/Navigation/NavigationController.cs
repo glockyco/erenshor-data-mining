@@ -30,6 +30,7 @@ public sealed class NavigationController
     private const float CrossZoneRecalcDistance = 10f;
 
     private const string MiningNodesKeyPrefix = "mining-nodes:";
+    private const string FishingKeyPrefix = "fishing:";
 
     // ── Multi-source navigation state ─────────────────────────────
     // When navigating an item step, multiple sources may be active.
@@ -540,6 +541,13 @@ public sealed class NavigationController
     private static bool IsMiningNodesKey(string? key) =>
         key != null && key.StartsWith(MiningNodesKeyPrefix, System.StringComparison.Ordinal);
 
+    private static bool IsFishingKey(string? key) =>
+        key != null && key.StartsWith(FishingKeyPrefix, System.StringComparison.Ordinal);
+
+    /// <summary>Extract scene name from a fishing source key ("fishing:Azure" → "Azure").</summary>
+    private static string FishingKeyScene(string key) =>
+        key.Substring(FishingKeyPrefix.Length);
+
     /// <summary>
     /// Update navigation target for mining nodes. Prefers closest alive node;
     /// falls back to shortest respawn timer if all are mined.
@@ -557,6 +565,10 @@ public sealed class NavigationController
 
         foreach (var sourceKey in _activeSourceKeys)
         {
+            // Fishing is zone-level — no per-frame position tracking needed.
+            // Keep the current fishing key if set; don't compete with NPC sources.
+            if (IsFishingKey(sourceKey)) continue;
+
             if (IsMiningNodesKey(sourceKey))
             {
                 var alive = _miningTracker.FindClosestAlive(playerPos);
@@ -597,6 +609,9 @@ public sealed class NavigationController
     private void TrackCurrentSourcePosition(Vector3 playerPos)
     {
         if (_currentSourceKey == null) return;
+
+        // Fishing is zone-level — no specific position to track.
+        if (IsFishingKey(_currentSourceKey)) return;
 
         if (IsMiningNodesKey(_currentSourceKey))
         {
@@ -772,9 +787,21 @@ public sealed class NavigationController
                 continue;
             }
 
-            if (src.SourceKey != null
-                && _data.CharacterSpawns.TryGetValue(src.SourceKey, out var spawns)
-                && spawns.Count > 0)
+            if (src.SourceKey == null)
+            {
+                if (src.Children != null)
+                    CollectLeafSources(src.Children, result);
+                continue;
+            }
+
+            // Fishing sources are zone-level — no CharacterSpawns entry needed.
+            // Accept them based on SourceKey + Scene alone.
+            if (IsFishingKey(src.SourceKey))
+            {
+                result.Add(src);
+            }
+            else if (_data.CharacterSpawns.TryGetValue(src.SourceKey, out var spawns)
+                     && spawns.Count > 0)
             {
                 result.Add(src);
             }
@@ -793,10 +820,19 @@ public sealed class NavigationController
     {
         _activeSourceKeys.Clear();
 
-        // Find all sources with spawns in the current zone
+        // Find all sources with spawns/presence in the current zone
         foreach (var src in _allItemSources)
         {
             if (src.SourceKey == null) continue;
+
+            // Fishing sources match by scene directly (no CharacterSpawns)
+            if (IsFishingKey(src.SourceKey))
+            {
+                if (string.Equals(FishingKeyScene(src.SourceKey), currentScene, System.StringComparison.OrdinalIgnoreCase))
+                    _activeSourceKeys.Add(src.SourceKey);
+                continue;
+            }
+
             if (!_data.CharacterSpawns.TryGetValue(src.SourceKey, out var spawns)) continue;
             if (spawns.Exists(s => string.Equals(s.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase)))
                 _activeSourceKeys.Add(src.SourceKey);
@@ -826,6 +862,29 @@ public sealed class NavigationController
 
         foreach (var sourceKey in _activeSourceKeys)
         {
+            // Fishing sources are zone-level — no position within the zone.
+            // If in the fishing zone, treat as same-zone with zero distance.
+            // If cross-zone, handle below with the cross-zone fallback.
+            if (IsFishingKey(sourceKey))
+            {
+                string fishScene = FishingKeyScene(sourceKey);
+                if (string.Equals(fishScene, currentScene, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    // Already in the fishing zone — navigate as a zone target
+                    // (shows step as active, no arrow/path to a specific point).
+                    _currentSourceKey = sourceKey;
+                    Target = MakeTarget(
+                        NavigationTarget.Kind.Zone,
+                        Vector3.zero,
+                        "Fishing",
+                        currentScene,
+                        quest.DBName, step.Order,
+                        sourceKey);
+                    return true;
+                }
+                continue;
+            }
+
             if (!_data.CharacterSpawns.TryGetValue(sourceKey, out var spawns))
                 continue;
 
@@ -857,6 +916,16 @@ public sealed class NavigationController
         {
             foreach (var sourceKey in _activeSourceKeys)
             {
+                // Cross-zone fishing: route to the zone via zone lines
+                if (IsFishingKey(sourceKey))
+                {
+                    string fishScene = FishingKeyScene(sourceKey);
+                    string? zoneKey = FindZoneKeyBySceneName(fishScene);
+                    if (zoneKey == null) continue;
+                    return NavigateToZone(fishScene, "Fishing", sourceKey,
+                        quest.DBName, step.Order, currentScene);
+                }
+
                 if (!_data.CharacterSpawns.TryGetValue(sourceKey, out var spawns) || spawns.Count == 0)
                     continue;
                 bestSpawn = spawns[0];

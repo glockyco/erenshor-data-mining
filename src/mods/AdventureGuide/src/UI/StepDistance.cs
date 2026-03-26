@@ -14,17 +14,27 @@ public readonly struct StepDistance
 
     /// <summary>
     /// Distance in meters to the target. Only meaningful when
-    /// <see cref="HasDistance"/> is true. For cross-zone quests with active
-    /// navigation, this is the distance to the zone line waypoint.
+    /// <see cref="HasDistance"/> is true.
     /// </summary>
     public readonly float Meters;
+
+    /// <summary>
+    /// Optional label shown instead of distance (e.g. "Fishing").
+    /// When set, the tracker displays this label in parentheses
+    /// instead of a meter value.
+    /// </summary>
+    public readonly string? Label;
 
     /// <summary>Whether a displayable distance is available.</summary>
     public bool HasDistance => Meters < float.MaxValue;
 
-    public StepDistance(bool inCurrentZone, float meters)
+    /// <summary>Whether to show a label instead of distance.</summary>
+    public bool HasLabel => Label != null;
+
+    public StepDistance(bool inCurrentZone, float meters, string? label = null)
     {
         InCurrentZone = inCurrentZone;
         Meters = meters;
+        Label = label;
     }
 }
