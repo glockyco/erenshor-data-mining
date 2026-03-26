@@ -64049,6 +64049,7 @@
           "target_name": "Ripper DeMerth",
           "target_type": "character",
           "target_key": "character:ripper demerth",
+          "keyword": "Kilkay",
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -64196,6 +64197,7 @@
           "target_name": "Captain Kilkay",
           "target_type": "character",
           "target_key": "character:guard captain azure",
+          "keyword": "Ripper's",
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -64440,7 +64442,8 @@
           "description": "Say \"Vitheo\" to A Dying Wish.",
           "target_name": "A Dying Wish",
           "target_type": "character",
-          "target_key": "character:fernalla's wish - 1"
+          "target_key": "character:fernalla's wish - 1",
+          "keyword": "Vitheo"
         },
         {
           "order": 2,
@@ -64541,7 +64544,8 @@
           "description": "Say \"Balaste\" to A Dying Wish.",
           "target_name": "A Dying Wish",
           "target_type": "character",
-          "target_key": "character:fernalla's wish - 2"
+          "target_key": "character:fernalla's wish - 2",
+          "keyword": "Balaste"
         },
         {
           "order": 2,
@@ -64642,7 +64646,8 @@
           "description": "Say \"Elwio\" to A Dying Wish.",
           "target_name": "A Dying Wish",
           "target_type": "character",
-          "target_key": "character:fernalla's wish - 3"
+          "target_key": "character:fernalla's wish - 3",
+          "keyword": "Elwio"
         },
         {
           "order": 2,
@@ -64752,6 +64757,7 @@
           "target_name": "Fallen Fernalla",
           "target_type": "character",
           "target_key": "character:fallen fernalla 1",
+          "keyword": "abomination",
           "level_estimate": {
             "recommended": 27,
             "factors": [
@@ -65052,6 +65058,7 @@
           "target_name": "A Hermit",
           "target_type": "character",
           "target_key": "character:a hermit",
+          "keyword": "they",
           "level_estimate": {
             "recommended": 13,
             "factors": [
@@ -65201,6 +65208,7 @@
           "target_name": "Styria Olafur",
           "target_type": "character",
           "target_key": "character:styria olafur:azure:120.30:11.61:291.56",
+          "keyword": "shadowtide, Shadowtide",
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -65880,6 +65888,7 @@
           "target_name": "Tristan Warton",
           "target_type": "character",
           "target_key": "character:tristan warton",
+          "keyword": "swords",
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -66946,6 +66955,7 @@
           "target_name": "Xander Zaxtrough",
           "target_type": "character",
           "target_key": "character:xander zaxtrough",
+          "keyword": "work",
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -66964,6 +66974,7 @@
           "target_name": "Cirreus Alxanth",
           "target_type": "character",
           "target_key": "character:cirreus alxanth:1",
+          "keyword": "Open, open",
           "level_estimate": {
             "recommended": 9,
             "factors": [
@@ -67042,6 +67053,7 @@
           "target_name": "Trevor Ulchand",
           "target_type": "character",
           "target_key": "character:trevor ulchand",
+          "keyword": "jobs",
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -67375,6 +67387,7 @@
           "target_name": "Ward of Piety",
           "target_type": "character",
           "target_key": "character:ward of sivakaya (1):jaws:1478.96:-18.28:109.78",
+          "keyword": "azynthi, Azynthi",
           "level_estimate": {
             "recommended": 34,
             "factors": [
@@ -67747,6 +67760,7 @@
           "target_name": "Ludo Luxo",
           "target_type": "character",
           "target_key": "character:ludo luxo",
+          "keyword": "task, quest, help",
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -67884,6 +67898,7 @@
           "target_name": "Alyssia Fearnon",
           "target_type": "character",
           "target_key": "character:alyssa fearnon",
+          "keyword": "favor",
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -68265,6 +68280,7 @@
           "target_name": "Jeremie Galyard",
           "target_type": "character",
           "target_key": "character:jeremie galyard",
+          "keyword": "Azynthi",
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -69026,6 +69042,7 @@
           "target_name": "Chance Barlow",
           "target_type": "character",
           "target_key": "character:chance barlow",
+          "keyword": "ready, yes, go",
           "or_group": "complete",
           "level_estimate": {
             "recommended": 2,
@@ -69171,6 +69188,7 @@
           "target_name": "Saya Seawatcher",
           "target_type": "character",
           "target_key": "character:saya seawatcher",
+          "keyword": "aetheria",
           "level_estimate": {
             "recommended": 9,
             "factors": [
@@ -69675,6 +69693,7 @@
           "target_name": "Albixt Munger",
           "target_type": "character",
           "target_key": "character:albixt munger:silkengrass:649.35:40.43:225.03",
+          "keyword": "Lost",
           "level_estimate": {
             "recommended": 18,
             "factors": [
@@ -69940,6 +69959,7 @@
           "target_name": "Annaleigh Hephan",
           "target_type": "character",
           "target_key": "character:annaleigh hephan",
+          "keyword": "inventor",
           "level_estimate": {
             "recommended": 14,
             "factors": [
@@ -70205,6 +70225,7 @@
           "target_name": "Aragath Swellsteer",
           "target_type": "character",
           "target_key": "character:aragath swellsteer",
+          "keyword": "four",
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -71822,6 +71843,7 @@
           "target_name": "William Cardigo",
           "target_type": "character",
           "target_key": "character:william cardigo",
+          "keyword": "demon",
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -75219,6 +75241,7 @@
           "target_name": "Neziroth Daggerhart",
           "target_type": "character",
           "target_key": "character:neziroth daggerhart:stowaway:497.09:68.71:677.59",
+          "keyword": "coin, Protect",
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -75500,6 +75523,7 @@
           "target_name": "Stalzo",
           "target_type": "character",
           "target_key": "character:stalzo",
+          "keyword": "soul, gem",
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -75636,6 +75660,7 @@
           "target_name": "Edgar Taether",
           "target_type": "character",
           "target_key": "character:edgar taether:silkengrass:1050.92:97.34:1006.71",
+          "keyword": "protected",
           "level_estimate": {
             "recommended": 18,
             "factors": [
@@ -75900,6 +75925,7 @@
           "target_name": "Varran Juctor",
           "target_type": "character",
           "target_key": "character:varran juctor",
+          "keyword": "dispose",
           "level_estimate": {
             "recommended": 13,
             "factors": [
@@ -76623,6 +76649,7 @@
           "target_name": "Benson Gamble",
           "target_type": "character",
           "target_key": "character:benson gamble",
+          "keyword": "prove",
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -76802,6 +76829,7 @@
           "target_name": "Windlae Oldseer",
           "target_type": "character",
           "target_key": "character:windlae oldseer",
+          "keyword": "test",
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -76939,6 +76967,7 @@
           "target_name": "Hadden Passican",
           "target_type": "character",
           "target_key": "character:hadden passican",
+          "keyword": "Ripper's, ripper's",
           "level_estimate": {
             "recommended": 13,
             "factors": [
@@ -77220,6 +77249,7 @@
           "target_name": "Corporal Slate",
           "target_type": "character",
           "target_key": "character:corporal smith",
+          "keyword": "registered",
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -77295,6 +77325,7 @@
           "target_name": "Foreman Hauck",
           "target_type": "character",
           "target_key": "character:foreman hauck",
+          "keyword": "prisoners",
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -77428,6 +77459,7 @@
           "target_name": "Valrae Cleary",
           "target_type": "character",
           "target_key": "character:valrae cleary",
+          "keyword": "Krakengard",
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -77637,6 +77669,7 @@
           "target_name": "Corporal Slate",
           "target_type": "character",
           "target_key": "character:corporal smith",
+          "keyword": "problem",
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -78707,6 +78740,7 @@
           "target_name": "Prichard Zemoro",
           "target_type": "character",
           "target_key": "character:prichard zemora:azure:185.37:12.94:175.81",
+          "keyword": "map",
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -78935,6 +78969,7 @@
           "target_name": "Mavik Estonia",
           "target_type": "character",
           "target_key": "character:mavik eston",
+          "keyword": "Kilkay",
           "level_estimate": {
             "recommended": 18,
             "factors": [
@@ -79081,6 +79116,7 @@
           "target_name": "Bassle Wavebreaker",
           "target_type": "character",
           "target_key": "character:bassle wavebreak",
+          "keyword": "taking",
           "level_estimate": {
             "recommended": 14,
             "factors": [
@@ -79254,6 +79290,7 @@
           "target_name": "Shady Fisherman",
           "target_type": "character",
           "target_key": "character:shady fisherman:azure:43.10:13.76:246.95",
+          "keyword": "catch",
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -79461,6 +79498,7 @@
           "target_name": "Valrae Cleary",
           "target_type": "character",
           "target_key": "character:valrae cleary",
+          "keyword": "Underspine",
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -80348,6 +80386,7 @@
           "target_name": "Percy Ildia",
           "target_type": "character",
           "target_key": "character:percy ildia:stowaway:693.19:20.67:504.85",
+          "keyword": "Do, Favor, What, Need",
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -81863,7 +81902,8 @@
           "description": "Say \"presence\" to Freed Spirit of Raval.",
           "target_name": "Freed Spirit of Raval",
           "target_type": "character",
-          "target_key": "character:freed spirit of raval"
+          "target_key": "character:freed spirit of raval",
+          "keyword": "presence"
         },
         {
           "order": 2,
@@ -81973,6 +82013,7 @@
           "target_name": "Larviso Poltir",
           "target_type": "character",
           "target_key": "character:larviso poltir:loomingwood:323.78:29.25:429.23",
+          "keyword": "Nighthollow",
           "level_estimate": {
             "recommended": 24,
             "factors": [
@@ -83470,6 +83511,7 @@
           "target_name": "Torado Zortia",
           "target_type": "character",
           "target_key": "character:torado  zortia",
+          "keyword": "work",
           "level_estimate": {
             "recommended": 24,
             "factors": [
@@ -83743,6 +83785,7 @@
           "target_name": "Alitho Echeswer",
           "target_type": "character",
           "target_key": "character:alitho echeswer",
+          "keyword": "collector",
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -83901,6 +83944,7 @@
           "target_name": "Samuel Thatcher",
           "target_type": "character",
           "target_key": "character:shopkeeper samuel",
+          "keyword": "note",
           "level_estimate": {
             "recommended": 4,
             "factors": [
@@ -84333,6 +84377,7 @@
           "target_name": "Serra Stiles",
           "target_type": "character",
           "target_key": "character:serra stiles:elderstone:121.10:0.79:636.06",
+          "keyword": "shovel",
           "level_estimate": {
             "recommended": 17,
             "factors": [
@@ -84900,6 +84945,7 @@
           "target_name": "Ripper DeMerth",
           "target_type": "character",
           "target_key": "character:ripper demerth",
+          "keyword": "Sivakayans",
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -85039,6 +85085,7 @@
           "target_name": "Supply Sergeant Tipp",
           "target_type": "character",
           "target_key": "character:supply sergeant tipp",
+          "keyword": "favor",
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -85449,6 +85496,7 @@
           "target_name": "Captain Kilkay",
           "target_type": "character",
           "target_key": "character:guard captain azure",
+          "keyword": "Sivakayans",
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -85854,6 +85902,7 @@
           "target_name": "Leyor M'Chante",
           "target_type": "character",
           "target_key": "character:leyor m'chante",
+          "keyword": "Celestial, Blade",
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -86369,6 +86418,7 @@
           "target_name": "Ta'Dah, Sorcerer of Ripper",
           "target_type": "character",
           "target_key": "character:ripparian high sorcerer",
+          "keyword": "convenient",
           "level_estimate": {
             "recommended": 28,
             "factors": [
@@ -88779,6 +88829,7 @@
           "target_name": "Timothy Allorn",
           "target_type": "character",
           "target_key": "character:timothy allorn:stowaway:545.20:72.09:442.80",
+          "keyword": "tomb",
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -89350,6 +89401,7 @@
           "target_name": "Arcane Headmaster",
           "target_type": "character",
           "target_key": "character:arcane headmaster",
+          "keyword": "sivakaya, Sivakaya",
           "level_estimate": {
             "recommended": 14,
             "factors": [
@@ -91217,6 +91269,7 @@
           "target_name": "Shady Fisherman",
           "target_type": "character",
           "target_key": "character:shady fisherman:azure:43.10:13.76:246.95",
+          "keyword": "Bellwain, tale, tell",
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -93416,6 +93469,7 @@
           "target_name": "Jazmyn Challa",
           "target_type": "character",
           "target_key": "character:jazmyn challa",
+          "keyword": "north",
           "level_estimate": {
             "recommended": 11,
             "factors": [
@@ -94393,6 +94447,7 @@
           "target_name": "A Strange Hermit",
           "target_type": "character",
           "target_key": "character:a strange hermit",
+          "keyword": "Umbran, umbran",
           "level_estimate": {
             "recommended": 30,
             "factors": [
@@ -94950,6 +95005,7 @@
           "target_name": "Braxon Elden",
           "target_type": "character",
           "target_key": "character:braxon elden:braxonian:99.99:33.79:993.06",
+          "keyword": "tunnels",
           "level_estimate": {
             "recommended": 17,
             "factors": [
@@ -95330,6 +95386,7 @@
           "target_name": "Shattered Sivakaya",
           "target_type": "character",
           "target_key": "character:shard of sivakaya:stowawayportal:-85.91:0.88:-41.61",
+          "keyword": "again",
           "level_estimate": {
             "recommended": 40,
             "factors": [
@@ -95563,6 +95620,7 @@
           "target_name": "Wally Waldorf",
           "target_type": "character",
           "target_key": "character:wally waldorf:stowaway:573.45:70.50:545.10",
+          "keyword": "Moongill",
           "level_estimate": {
             "recommended": 2,
             "factors": [
@@ -96812,6 +96870,7 @@
           "target_name": "Cagnus Marlsen",
           "target_type": "character",
           "target_key": "character:cagnus marlsen",
+          "keyword": "giant",
           "level_estimate": {
             "recommended": 4,
             "factors": [

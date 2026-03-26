@@ -512,6 +512,7 @@ def _emit_giver_step(
                 target_type="character",
                 target_key=giver.source_stable_key,
                 zone_name=giver.zone_name,
+                keyword=giver.keyword or None,
             )
         ]
     return []
@@ -594,6 +595,7 @@ def _comp_talk(
         target_type="character",
         target_key=comp.source_stable_key,
         zone_name=comp.zone_name,
+        keyword=comp.keyword or None,
         or_group=or_group,
     )
 
@@ -783,6 +785,7 @@ def _steps_dialog(
                     target_type="character",
                     target_key=comp.source_stable_key,
                     zone_name=comp.zone_name,
+                    keyword=comp.keyword or None,
                 )
             )
     return steps

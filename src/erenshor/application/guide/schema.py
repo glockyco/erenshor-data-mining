@@ -153,7 +153,7 @@ class QuestStep:
     target_key: str | None = None  # stable key for spawn/entity lookup
     quantity: int | None = None  # for collect/kill steps
     zone_name: str | None = None  # where this step happens
-    keyword: str | None = None  # for shout steps
+    keyword: str | None = None  # for talk/shout steps requiring a specific phrase
     or_group: str | None = None
     tips: list[str] = field(default_factory=list)
     level_estimate: LevelEstimate | None = None
