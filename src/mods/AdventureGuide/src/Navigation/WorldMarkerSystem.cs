@@ -231,7 +231,7 @@ public sealed class WorldMarkerSystem
             else
                 questType = MarkerType.TurnInPending;
 
-            string subText = FormatTurnInText(quest);
+            string subText = FormatTurnInText(quest, comp);
             string displayName = comp.SourceName ?? quest.DisplayName;
 
             EmitPerSpawnMarkers(comp.SourceStableKey, scene, displayName, questType, subText);
@@ -551,10 +551,14 @@ public sealed class WorldMarkerSystem
     // ── Text formatting ──────────────────────────────────────────
 
     /// <summary>Format sub-text for turn-in markers: "Give {name}" or "Give {n} items".</summary>
-    private static string FormatTurnInText(QuestEntry quest)
+    private static string FormatTurnInText(QuestEntry quest, CompletionSource comp)
     {
         if (quest.RequiredItems == null || quest.RequiredItems.Count == 0)
+        {
+            if (comp.Keyword != null)
+                return $"Say '{comp.Keyword}'";
             return "Talk to";
+        }
 
         // Filter out or_group alternatives — only count truly required items
         int count = 0;
@@ -567,7 +571,11 @@ public sealed class WorldMarkerSystem
         }
 
         if (count == 0)
+        {
+            if (comp.Keyword != null)
+                return $"Say '{comp.Keyword}'";
             return "Talk to";
+        }
         if (count == 1)
             return $"Give {firstName}";
         return $"Give {count} items";
@@ -578,8 +586,12 @@ public sealed class WorldMarkerSystem
     {
         return step.Action switch
         {
+            "talk" when step.Keyword != null => $"Say '{step.Keyword}'",
+            "talk" => "Talk to",
             "shout" when step.Keyword != null => $"Shout '{step.Keyword}'",
             "shout" => "Shout near",
+            "kill" when step.Quantity > 1 => $"Kill ({step.Quantity})",
+            "kill" => "Kill",
             _ => "Talk to",
         };
     }
