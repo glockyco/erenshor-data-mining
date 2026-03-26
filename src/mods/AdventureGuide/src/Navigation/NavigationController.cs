@@ -46,6 +46,10 @@ public sealed class NavigationController
     /// <summary>Which specific source key is currently closest (drives display name and live tracking).</summary>
     private string? _currentSourceKey;
 
+    /// <summary>Origin identity for the current NavigateTo call chain.</summary>
+    private string? _originQuestDBName;
+    private int _originStepOrder;
+
     /// <summary>Throttle for multi-source closest-spawn resolution.</summary>
     private float _sourceRescanTimer;
     private const float SourceRescanInterval = 0.25f;
@@ -81,28 +85,39 @@ public sealed class NavigationController
     }
 
     /// <summary>
-    /// Set navigation target from a quest step. Resolves the step's target_key
-    /// to a world position using character spawns and zone line data.
-    /// Returns true if a valid target was found.
+    /// Start a new navigation session from a quest step. Records the
+    /// quest+step as origin identity (for IsNavigating), then resolves
+    /// through sub-quests and sets the navigation target.
     /// </summary>
     public bool NavigateTo(QuestStep step, QuestEntry quest, string currentScene)
     {
-        // Resolve complete_quest steps to the sub-quest's current actionable step
-        // before Clear() so existing navigation survives if resolution fails.
-        if (step.Action == "complete_quest")
+        _originQuestDBName = quest.DBName;
+        _originStepOrder = step.Order;
+        return ResolveAndNavigate(step, quest, currentScene);
+    }
+
+    /// <summary>
+    /// Resolve a step through sub-quests and set the navigation target.
+    /// Does not change origin identity — used by both NavigateTo (after setting
+    /// origin) and auto-advance (which preserves the existing origin).
+    /// </summary>
+    private bool ResolveAndNavigate(QuestStep step, QuestEntry quest, string currentScene)
+    {
+        var (resolved, resolvedQuest) = StepProgress.ResolveActiveStep(step, quest, _state, _data);
+        if (resolved != null && resolvedQuest != null && resolved != step)
         {
-            var (resolved, resolvedQuest) = StepProgress.ResolveActiveStep(step, quest, _state, _data);
-            if (resolved != null && resolvedQuest != null && resolved != step)
-                return NavigateTo(resolved, resolvedQuest, currentScene);
-            return false;
+            step = resolved;
+            quest = resolvedQuest;
         }
 
-        Clear();
+        if (step.Action == "complete_quest")
+            return false;
+
+        ResetTargetState();
 
         if (step.TargetKey == null)
             return false;
 
-        // Try to find a live NPC first (most accurate position)
         if (step.TargetType == "character")
         {
             var playerPos = GetPlayerPosition();
@@ -142,7 +157,20 @@ public sealed class NavigationController
         _lastCrossZoneCalcPos = Vector3.zero;
     }
 
+    /// <summary>End the navigation session entirely.</summary>
     public void Clear()
+    {
+        ResetTargetState();
+        _originQuestDBName = null;
+        _originStepOrder = 0;
+    }
+
+    /// <summary>
+    /// Clear target and rendering state without ending the session.
+    /// Preserves origin identity so auto-advance and source toggles
+    /// keep the parent quest's NAV button highlighted.
+    /// </summary>
+    private void ResetTargetState()
     {
         Target = null;
         ZoneLineWaypoint = null;
@@ -310,7 +338,7 @@ public sealed class NavigationController
             var step = quest.Steps[i];
             if (step.TargetKey != null)
             {
-                NavigateTo(step, quest, currentScene);
+                ResolveAndNavigate(step, quest, currentScene);
                 return;
             }
         }
@@ -397,11 +425,18 @@ public sealed class NavigationController
         UpdateDistanceAndDirection(Target.Position, playerPos.Value);
     }
 
-    /// <summary>Check if the given quest+step is the current navigation target.</summary>
+    /// <summary>
+    /// Check if the given quest+step is the current navigation target.
+    /// Matches against both the resolved target AND the originating quest
+    /// so that parent quests and sub-quests both show as active.
+    /// </summary>
     public bool IsNavigating(string questDBName, int stepOrder) =>
         Target != null
-        && Target.QuestDBName == questDBName
-        && Target.StepOrder == stepOrder;
+        && (IsMatch(Target.QuestDBName, Target.StepOrder, questDBName, stepOrder)
+            || IsMatch(Target.OriginQuestDBName, Target.OriginStepOrder, questDBName, stepOrder));
+
+    private static bool IsMatch(string aQuest, int aStep, string bQuest, int bStep) =>
+        string.Equals(aQuest, bQuest, System.StringComparison.OrdinalIgnoreCase) && aStep == bStep;
 
     /// <summary>
     /// Get all zone lines from the current scene to the navigation target's zone.
@@ -1168,10 +1203,11 @@ public sealed class NavigationController
         return result;
     }
 
-    private static NavigationTarget MakeTarget(
+    private NavigationTarget MakeTarget(
         NavigationTarget.Kind kind, Vector3 position, string displayName,
         string scene, string questDBName, int stepOrder, string? sourceId = null)
     {
-        return new NavigationTarget(kind, position, displayName, scene, questDBName, stepOrder, sourceId);
+        return new NavigationTarget(kind, position, displayName, scene,
+            questDBName, stepOrder, sourceId, _originQuestDBName, _originStepOrder);
     }
 }

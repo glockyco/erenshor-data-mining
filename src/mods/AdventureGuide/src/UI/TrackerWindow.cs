@@ -418,9 +418,9 @@ public sealed class TrackerWindow
 
     private void DrawNavButton(QuestEntry quest)
     {
-        var (step, resolvedQuest) = GetCurrentStep(quest);
-        bool navigable = step?.TargetKey != null;
-        bool isActive = step != null && _nav.IsNavigating(resolvedQuest.DBName, step.Order);
+        var (rawStep, displayStep, displayQuest) = GetCurrentStep(quest);
+        bool navigable = displayStep?.TargetKey != null;
+        bool isActive = rawStep != null && _nav.IsNavigating(quest.DBName, rawStep.Order);
 
         if (!navigable)
         {
@@ -445,7 +445,9 @@ public sealed class TrackerWindow
             if (isActive)
                 _nav.Clear();
             else
-                _nav.NavigateTo(step!, resolvedQuest, _state.CurrentZone);
+                // Pass raw step + original quest. NavigateTo captures the
+                // origin identity and resolves sub-quests internally.
+                _nav.NavigateTo(rawStep!, quest, _state.CurrentZone);
         }
 
         if (isActive)
@@ -485,7 +487,7 @@ public sealed class TrackerWindow
 
     private void DrawCurrentStep(QuestEntry quest)
     {
-        var (step, resolvedQuest) = GetCurrentStep(quest);
+        var (_, step, resolvedQuest) = GetCurrentStep(quest);
         if (step == null) return;
 
         ImGui.Indent(Theme.IndentWidth);
@@ -658,14 +660,20 @@ public sealed class TrackerWindow
 
     // ── Helpers ──────────────────────────────────────────────────────
 
-    private (QuestStep? step, QuestEntry quest) GetCurrentStep(QuestEntry quest)
+    /// <summary>
+    /// Get the current step for display and navigation.
+    /// Returns the raw step (from the parent quest, for navigation identity),
+    /// the resolved display step (from sub-quest, for text/icon rendering),
+    /// and the resolved quest (for inventory count formatting).
+    /// </summary>
+    private (QuestStep? rawStep, QuestStep? displayStep, QuestEntry displayQuest) GetCurrentStep(QuestEntry quest)
     {
-        if (quest.Steps == null || quest.Steps.Count == 0) return (null, quest);
+        if (quest.Steps == null || quest.Steps.Count == 0) return (null, null, quest);
         int idx = StepProgress.GetCurrentStepIndex(quest, _state, _data);
-        var step = idx < quest.Steps.Count ? quest.Steps[idx] : null;
-        if (step == null) return (null, quest);
-        var (resolved, resolvedQuest) = StepProgress.ResolveActiveStep(step, quest, _state, _data);
-        return (resolved, resolvedQuest ?? quest);
+        var raw = idx < quest.Steps.Count ? quest.Steps[idx] : null;
+        if (raw == null) return (null, null, quest);
+        var (resolved, resolvedQuest) = StepProgress.ResolveActiveStep(raw, quest, _state, _data);
+        return (raw, resolved, resolvedQuest ?? quest);
     }
 
     private EntryAnimation GetOrDefaultAnim(string dbName) =>

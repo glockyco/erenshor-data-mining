@@ -31,11 +31,21 @@ public sealed class NavigationTarget
     /// </summary>
     public string? SourceId { get; set; }
 
-    /// <summary>Quest DB name this navigation originated from.</summary>
+    /// <summary>Quest DB name of the resolved navigation target (may be a sub-quest).</summary>
     public string QuestDBName { get; }
 
-    /// <summary>Step order this navigation originated from.</summary>
+    /// <summary>Step order of the resolved navigation target (may be a sub-quest step).</summary>
     public int StepOrder { get; }
+
+    /// <summary>
+    /// Quest DB name the user originally initiated navigation from.
+    /// When navigation resolves through sub-quests, this stays as the
+    /// parent quest so IsNavigating checks match the tracker/detail panel.
+    /// </summary>
+    public string OriginQuestDBName { get; }
+
+    /// <summary>Original step order the user initiated navigation from.</summary>
+    public int OriginStepOrder { get; }
 
     public NavigationTarget(
         Kind targetKind,
@@ -44,7 +54,9 @@ public sealed class NavigationTarget
         string scene,
         string questDBName,
         int stepOrder,
-        string? sourceId = null)
+        string? sourceId = null,
+        string? originQuestDBName = null,
+        int? originStepOrder = null)
     {
         TargetKind = targetKind;
         Position = position;
@@ -53,6 +65,8 @@ public sealed class NavigationTarget
         QuestDBName = questDBName;
         StepOrder = stepOrder;
         SourceId = sourceId;
+        OriginQuestDBName = originQuestDBName ?? questDBName;
+        OriginStepOrder = originStepOrder ?? stepOrder;
     }
 
     /// <summary>True when the target is in a different scene than the player.</summary>
