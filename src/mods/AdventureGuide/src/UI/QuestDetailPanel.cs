@@ -580,45 +580,38 @@ public sealed class QuestDetailPanel
         }
         else if (src.MakeSourceId() is string sourceId)
         {
-            // Navigable source: Selectable with highlight when actively
-            // navigating to this specific source (not just the same step).
-            bool isNavTarget = _nav.Target?.SourceId == sourceId;
-            if (isNavTarget)
-                ImGui.PushStyleColor(ImGuiCol.Text, Theme.QuestActive);
-
-            if (ImGui.Selectable($"{label}##src_{step.Order}_{sourceId}"))
+            // Navigable source: highlight when in the active source set.
+            // Gold = auto-selected, cyan = manually toggled.
+            bool isActive = _nav.IsSourceActive(sourceId);
+            if (isActive)
             {
-                if (src.SourceKey != null)
-                {
-                    _nav.NavigateToSource(src.SourceKey, src.Name ?? src.SourceKey,
-                        src.Scene, quest.DBName, step.Order, _state.CurrentZone);
-                }
-                else if (src.Scene != null)
-                {
-                    _nav.NavigateToZone(src.Scene, src.Zone ?? src.Scene, sourceId,
-                        quest.DBName, step.Order, _state.CurrentZone);
-                }
+                uint color = _nav.IsManualSourceOverride ? Theme.NavManualOverride : Theme.QuestActive;
+                ImGui.PushStyleColor(ImGuiCol.Text, color);
             }
 
-            if (isNavTarget)
+            if (ImGui.Selectable($"{label}##src_{step.Order}_{sourceId}"))
+                _nav.ToggleSource(sourceId, _state.CurrentZone);
+
+            if (isActive)
                 ImGui.PopStyleColor();
 
             if (ImGui.IsItemHovered())
             {
                 ImGui.BeginTooltip();
+                string action = isActive ? "Remove from" : "Add to";
                 if (src.SourceKey != null)
-                    ImGui.Text($"Navigate to {src.Name}");
-                else if (string.Equals(src.Scene, _state.CurrentZone,
-                    System.StringComparison.OrdinalIgnoreCase))
-                    ImGui.Text($"You are in {src.Zone ?? src.Scene}");
+                    ImGui.Text($"{action} navigation: {src.Name}");
                 else
-                    ImGui.Text($"Navigate to {src.Zone ?? src.Scene}");
+                    ImGui.Text($"{action} navigation: {src.Zone ?? src.Scene}");
                 ImGui.EndTooltip();
             }
         }
         else
         {
+            // Non-navigable source: dimmed text
+            ImGui.PushStyleColor(ImGuiCol.Text, Theme.SourceDimmed);
             ImGui.Text(label);
+            ImGui.PopStyleColor();
         }
     }
 

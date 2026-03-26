@@ -16,19 +16,20 @@ public sealed class NavigationTarget
     /// <summary>World-space position of the target. Mutable for live tracking.</summary>
     public Vector3 Position { get; set; }
 
-    /// <summary>Display name shown to the player (NPC name, zone name, etc.).</summary>
-    public string DisplayName { get; }
+    /// <summary>Display name shown to the player (NPC name, zone name, etc.). Mutable for multi-source switching.</summary>
+    public string DisplayName { get; set; }
 
     /// <summary>Scene this target is in.</summary>
-    public string Scene { get; }
+    public string Scene { get; set; }
 
     /// <summary>
-    /// Identifies which source line initiated this navigation. Matches
-    /// ItemSource.SourceKey for entity sources (e.g. "character:stoneman"),
+    /// Identifies which source is currently being navigated to. Mutable
+    /// so multi-source resolution can update it when the closest source changes.
+    /// Matches ItemSource.SourceKey for entity sources (e.g. "character:stoneman"),
     /// or a synthetic key for zone-only sources (e.g. "fishing:Stowaway").
     /// Used by the UI to highlight the specific source being navigated to.
     /// </summary>
-    public string? SourceId { get; }
+    public string? SourceId { get; set; }
 
     /// <summary>Quest DB name this navigation originated from.</summary>
     public string QuestDBName { get; }

@@ -20,13 +20,35 @@ public sealed class NavigationController
     private readonly MiningNodeTracker _miningTracker;
     private readonly LootScanner _lootScanner;
     private readonly ZoneGraph _zoneGraph;
-    // Cache to avoid per-frame zone line waypoint allocation and reachability checks
+
+    // ── Cross-zone routing cache ──────────────────────────────────
     private ZoneLineEntry? _cachedZoneLine;
-    private ZoneLineEntry? _pinnedZoneLine; // manual override from UI, cleared on nav change
+    private ZoneLineEntry? _pinnedZoneLine;
     private Vector3 _lastCrossZoneCalcPos;
     private const float CrossZoneRecalcDistance = 10f;
 
     private const string MiningNodesKeyPrefix = "mining-nodes:";
+
+    // ── Multi-source navigation state ─────────────────────────────
+    // When navigating an item step, multiple sources may be active.
+    // The controller picks the closest spawn among all active source
+    // keys and points the arrow/path at it.
+
+    /// <summary>All leaf sources for the current item step (for auto-mode recomputation).</summary>
+    private List<Data.ItemSource> _allItemSources = new();
+
+    /// <summary>Source keys in the active navigation set.</summary>
+    private readonly HashSet<string> _activeSourceKeys = new(System.StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>True when the user has manually toggled sources.</summary>
+    private bool _manualOverride;
+
+    /// <summary>Which specific source key is currently closest (drives display name and live tracking).</summary>
+    private string? _currentSourceKey;
+
+    /// <summary>Throttle for multi-source closest-spawn resolution.</summary>
+    private float _sourceRescanTimer;
+    private const float SourceRescanInterval = 0.25f;
 
     // Scratch path for reachability checks — avoids allocation per candidate
     private readonly NavMeshPath _scratchPath = new();
@@ -127,44 +149,45 @@ public sealed class NavigationController
         _cachedZoneLine = null;
         _pinnedZoneLine = null;
         _lastCrossZoneCalcPos = Vector3.zero;
+        _activeSourceKeys.Clear();
+        _allItemSources.Clear();
+        _manualOverride = false;
+        _currentSourceKey = null;
+        _sourceRescanTimer = 0f;
         Distance = 0f;
         Direction = Vector3.zero;
     }
 
     /// <summary>
-    /// Navigate directly to a specific item source by its source_key.
-    /// Used by click-to-navigate on individual source lines.
+    /// Toggle a source key in/out of the active navigation set.
+    /// Enters manual override mode. If the active set becomes empty,
+    /// reverts to auto mode.
     /// </summary>
-    public bool NavigateToSource(string sourceKey, string displayName,
-        string? sourceScene, string questDBName, int stepOrder, string currentScene)
+    public void ToggleSource(string sourceKey, string currentScene)
     {
-        Clear();
+        if (Target == null) return;
 
-        if (!_data.CharacterSpawns.TryGetValue(sourceKey, out var spawns) || spawns.Count == 0)
-            return false;
+        _manualOverride = true;
+        if (!_activeSourceKeys.Remove(sourceKey))
+            _activeSourceKeys.Add(sourceKey);
 
-        // Filter to the source's specific scene when available, so clicking
-        // "Drops from: Stoneman · Rockshade Hold" navigates to Rockshade Hold,
-        // not to an arbitrary zone where the same character type also spawns.
-        var candidates = spawns;
-        if (sourceScene != null)
+        // Empty set → revert to auto
+        if (_activeSourceKeys.Count == 0)
         {
-            var filtered = spawns.FindAll(s =>
-                string.Equals(s.Scene, sourceScene, System.StringComparison.OrdinalIgnoreCase));
-            if (filtered.Count > 0)
-                candidates = filtered;
+            _manualOverride = false;
+            ComputeAutoSourceSet(currentScene);
         }
 
-        var spawn = PickBestSpawn(candidates, currentScene);
-        Target = MakeTarget(
-            NavigationTarget.Kind.Character,
-            new Vector3(spawn.X, spawn.Y, spawn.Z),
-            WithCharacterUnlockText(displayName, sourceKey),
-            spawn.Scene,
-            questDBName, stepOrder,
-            sourceKey);
-        return true;
+        // Force immediate rescan
+        _sourceRescanTimer = SourceRescanInterval;
     }
+
+    /// <summary>Whether a source key is in the active navigation set.</summary>
+    public bool IsSourceActive(string sourceKey) =>
+        _activeSourceKeys.Contains(sourceKey);
+
+    /// <summary>Whether the user has manually toggled sources.</summary>
+    public bool IsManualSourceOverride => _manualOverride;
 
     /// <summary>
     /// Navigate to a zone by scene name. Used for sources that have a zone
@@ -255,9 +278,14 @@ public sealed class NavigationController
             }
         }
 
-        // Nav step is still the current step or ahead of it — nothing to do
+        // Nav step is still the current step or ahead of it
         if (navStepIdx < 0 || navStepIdx >= currentStepIdx)
+        {
+            // Recompute auto source set for the new zone (unless manually overridden)
+            if (!_manualOverride && _allItemSources.Count > 0)
+                ComputeAutoSourceSet(currentScene);
             return;
+        }
 
         // Nav step is behind current step — advance to the first navigable
         // step at or after the current step index
@@ -319,20 +347,28 @@ public sealed class NavigationController
             {
                 Target.Position = corpse.Value.Position;
             }
+            else if (_activeSourceKeys.Count > 0)
+            {
+                // Multi-source: periodically re-resolve closest among all
+                // active sources, then track the winner's NPC each frame.
+                _sourceRescanTimer += UnityEngine.Time.deltaTime;
+                if (_sourceRescanTimer >= SourceRescanInterval)
+                {
+                    _sourceRescanTimer = 0f;
+                    UpdateClosestActiveSource(currentScene, playerPos.Value);
+                }
+                // Per-frame: track the current winner's live position
+                TrackCurrentSourcePosition(playerPos.Value);
+            }
             else if (IsMiningNodesKey(Target.SourceId))
             {
-                // Mining nodes use zone-level keys (mining-nodes:{scene}) that
-                // don't match EntityRegistry keys (character:mineral deposit).
-                // Route through MiningNodeTracker for live position tracking.
                 UpdateMiningTarget(playerPos.Value);
             }
             else
             {
                 var liveNpc = _entities.FindClosest(Target.SourceId, playerPos.Value);
                 if (liveNpc != null)
-                {
                     Target.Position = liveNpc.transform.position;
-                }
                 else
                 {
                     var bestRespawn = FindShortestRespawnPosition(Target.SourceId);
@@ -397,6 +433,77 @@ public sealed class NavigationController
     /// Update navigation target for mining nodes. Prefers closest alive node;
     /// falls back to shortest respawn timer if all are mined.
     /// </summary>
+    /// <summary>
+    /// Throttled re-evaluation: find the closest alive NPC among all active
+    /// source keys in the current scene. Updates _currentSourceKey and
+    /// Target.SourceId when the winner changes.
+    /// </summary>
+    private void UpdateClosestActiveSource(string currentScene, Vector3 playerPos)
+    {
+        NPC? bestNpc = null;
+        string? bestKey = null;
+        float bestDist = float.MaxValue;
+
+        foreach (var sourceKey in _activeSourceKeys)
+        {
+            if (IsMiningNodesKey(sourceKey))
+            {
+                var alive = _miningTracker.FindClosestAlive(playerPos);
+                if (alive != null)
+                {
+                    float d = (alive.transform.position - playerPos).sqrMagnitude;
+                    if (d < bestDist) { bestDist = d; bestKey = sourceKey; bestNpc = null; }
+                }
+                continue;
+            }
+
+            var npc = _entities.FindClosest(sourceKey, playerPos);
+            if (npc != null)
+            {
+                float d = (npc.transform.position - playerPos).sqrMagnitude;
+                if (d < bestDist) { bestDist = d; bestKey = sourceKey; bestNpc = npc; }
+            }
+        }
+
+        if (bestKey != null && bestKey != _currentSourceKey)
+        {
+            _currentSourceKey = bestKey;
+            // Update display name from source metadata
+            string? name = null;
+            foreach (var src in _allItemSources)
+            {
+                if (string.Equals(src.SourceKey, bestKey, System.StringComparison.OrdinalIgnoreCase))
+                { name = src.Name; break; }
+            }
+            Target!.SourceId = bestKey;
+            Target.DisplayName = WithCharacterUnlockText(name ?? bestKey, bestKey);
+        }
+    }
+
+    /// <summary>
+    /// Per-frame: track the current winner's live NPC position for smooth arrow movement.
+    /// </summary>
+    private void TrackCurrentSourcePosition(Vector3 playerPos)
+    {
+        if (_currentSourceKey == null) return;
+
+        if (IsMiningNodesKey(_currentSourceKey))
+        {
+            UpdateMiningTarget(playerPos);
+            return;
+        }
+
+        var liveNpc = _entities.FindClosest(_currentSourceKey, playerPos);
+        if (liveNpc != null)
+            Target!.Position = liveNpc.transform.position;
+        else
+        {
+            var bestRespawn = FindShortestRespawnPosition(_currentSourceKey);
+            if (bestRespawn.HasValue)
+                Target!.Position = bestRespawn.Value;
+        }
+    }
+
     private void UpdateMiningTarget(Vector3 playerPos)
     {
         var alive = _miningTracker.FindClosestAlive(playerPos);
@@ -510,45 +617,37 @@ public sealed class NavigationController
 
     private bool ResolveItemTarget(QuestStep step, QuestEntry quest, string currentScene)
     {
-        // For collect/read steps: navigate to the best obtainability source
+        // For collect/read steps: build the active source set and navigate
+        // to the closest spawn among all active sources.
         var item = quest.RequiredItems?.Find(ri =>
             string.Equals(ri.ItemName, step.TargetName, System.StringComparison.OrdinalIgnoreCase));
 
         if (item?.Sources == null || item.Sources.Count == 0)
             return false;
 
-        // Try sources with character spawn data (recursing into children)
-        if (TryNavigateToAnySource(item.Sources, quest, step, currentScene))
-            return true;
+        // Collect all leaf sources with spawn data
+        _allItemSources.Clear();
+        CollectLeafSources(item.Sources, _allItemSources);
 
-        // Fallback: navigate to the zone where the first source lives.
-        // Sources like fishing have a scene but no source_key or coordinates.
-        var firstSource = FindFirstSourceWithScene(item.Sources);
-        var firstScene = firstSource?.Scene;
-        string? zoneKey = firstScene != null
-            ? FindZoneKeyBySceneName(firstScene)
-            : FindZoneKeyByDisplayName(item.Sources[0].Zone);
-        if (zoneKey == null) return false;
-
-        // Find the scene name for this zone
-        string? destScene = null;
-        foreach (var kvp in _data.ZoneLookup)
+        if (_allItemSources.Count == 0)
         {
-            if (string.Equals(kvp.Value.StableKey, zoneKey, System.StringComparison.OrdinalIgnoreCase))
-            {
-                destScene = kvp.Key;
-                break;
-            }
+            // No sources with spawn data — fallback to zone navigation
+            return ResolveItemZoneFallback(item.Sources, quest, step, currentScene);
         }
-        if (destScene == null) return false;
 
-        string displayName = firstSource?.Zone ?? destScene;
-        string? sourceId = firstSource?.MakeSourceId();
-        return NavigateToZone(destScene, displayName, sourceId!,
-            quest.DBName, step.Order, currentScene);
+        // Build the active set with zone preference
+        _manualOverride = false;
+        ComputeAutoSourceSet(currentScene);
+
+        // Resolve initial target from the active set
+        return ResolveClosestActiveSource(quest, step, currentScene);
     }
 
-    private bool TryNavigateToAnySource(List<Data.ItemSource> sources, QuestEntry quest, QuestStep step, string currentScene)
+    /// <summary>
+    /// Recursively collect all leaf sources that have spawn data.
+    /// Leaf = source with a SourceKey in CharacterSpawns, or its children if not.
+    /// </summary>
+    private void CollectLeafSources(List<Data.ItemSource> sources, List<Data.ItemSource> result)
     {
         foreach (var src in sources)
         {
@@ -556,22 +655,136 @@ public sealed class NavigationController
                 && _data.CharacterSpawns.TryGetValue(src.SourceKey, out var spawns)
                 && spawns.Count > 0)
             {
-                var spawn = PickBestSpawn(spawns, currentScene);
-                Target = MakeTarget(
-                    NavigationTarget.Kind.Character,
-                    new Vector3(spawn.X, spawn.Y, spawn.Z),
-                    WithCharacterUnlockText(src.Name ?? src.SourceKey, src.SourceKey),
-                    spawn.Scene,
-                    quest.DBName, step.Order,
-                    src.SourceKey);
-                return true;
+                result.Add(src);
+            }
+            else if (src.Children != null)
+            {
+                CollectLeafSources(src.Children, result);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Compute the auto source set based on zone preference.
+    /// In-zone sources take priority; falls back to lowest-level cross-zone source.
+    /// </summary>
+    private void ComputeAutoSourceSet(string currentScene)
+    {
+        _activeSourceKeys.Clear();
+
+        // Find all sources with spawns in the current zone
+        foreach (var src in _allItemSources)
+        {
+            if (src.SourceKey == null) continue;
+            if (!_data.CharacterSpawns.TryGetValue(src.SourceKey, out var spawns)) continue;
+            if (spawns.Exists(s => string.Equals(s.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase)))
+                _activeSourceKeys.Add(src.SourceKey);
+        }
+
+        // If no in-zone sources, pick the lowest-level source (first in list —
+        // pipeline sorts by level ascending)
+        if (_activeSourceKeys.Count == 0 && _allItemSources.Count > 0)
+        {
+            var fallback = _allItemSources[0];
+            if (fallback.SourceKey != null)
+                _activeSourceKeys.Add(fallback.SourceKey);
+        }
+    }
+
+    /// <summary>
+    /// Resolve the closest spawn among all active source keys and set as Target.
+    /// Used both for initial target creation and periodic re-evaluation.
+    /// </summary>
+    private bool ResolveClosestActiveSource(QuestEntry quest, QuestStep step, string currentScene)
+    {
+        var playerPos = GetPlayerPosition() ?? Vector3.zero;
+        Data.SpawnPoint? bestSpawn = null;
+        string? bestSourceKey = null;
+        string? bestSourceName = null;
+        float bestDist = float.MaxValue;
+
+        foreach (var sourceKey in _activeSourceKeys)
+        {
+            if (!_data.CharacterSpawns.TryGetValue(sourceKey, out var spawns))
+                continue;
+
+            // Find the source metadata for display name
+            string? srcName = null;
+            foreach (var src in _allItemSources)
+            {
+                if (string.Equals(src.SourceKey, sourceKey, System.StringComparison.OrdinalIgnoreCase))
+                { srcName = src.Name; break; }
             }
 
-            // Recurse into children
-            if (src.Children != null && TryNavigateToAnySource(src.Children, quest, step, currentScene))
-                return true;
+            foreach (var sp in spawns)
+            {
+                if (!string.Equals(sp.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase))
+                    continue;
+                float dist = Vector3.Distance(playerPos, new Vector3(sp.X, sp.Y, sp.Z));
+                if (dist < bestDist)
+                {
+                    bestDist = dist;
+                    bestSpawn = sp;
+                    bestSourceKey = sourceKey;
+                    bestSourceName = srcName;
+                }
+            }
         }
-        return false;
+
+        // No same-zone spawn — pick first active source's best spawn (cross-zone)
+        if (bestSpawn == null)
+        {
+            foreach (var sourceKey in _activeSourceKeys)
+            {
+                if (!_data.CharacterSpawns.TryGetValue(sourceKey, out var spawns) || spawns.Count == 0)
+                    continue;
+                bestSpawn = spawns[0];
+                bestSourceKey = sourceKey;
+                foreach (var src in _allItemSources)
+                {
+                    if (string.Equals(src.SourceKey, sourceKey, System.StringComparison.OrdinalIgnoreCase))
+                    { bestSourceName = src.Name; break; }
+                }
+                break;
+            }
+        }
+
+        if (bestSpawn == null) return false;
+
+        _currentSourceKey = bestSourceKey;
+        string displayName = bestSourceName ?? bestSourceKey ?? step.TargetName ?? step.Description;
+        Target = MakeTarget(
+            NavigationTarget.Kind.Character,
+            new Vector3(bestSpawn.X, bestSpawn.Y, bestSpawn.Z),
+            WithCharacterUnlockText(displayName, bestSourceKey),
+            bestSpawn.Scene,
+            quest.DBName, step.Order,
+            bestSourceKey);
+        return true;
+    }
+
+    /// <summary>Zone-only fallback for items without spawn data (fishing, etc.).</summary>
+    private bool ResolveItemZoneFallback(List<Data.ItemSource> sources, QuestEntry quest, QuestStep step, string currentScene)
+    {
+        var firstSource = FindFirstSourceWithScene(sources);
+        var firstScene = firstSource?.Scene;
+        string? zoneKey = firstScene != null
+            ? FindZoneKeyBySceneName(firstScene)
+            : FindZoneKeyByDisplayName(sources[0].Zone);
+        if (zoneKey == null) return false;
+
+        string? destScene = null;
+        foreach (var kvp in _data.ZoneLookup)
+        {
+            if (string.Equals(kvp.Value.StableKey, zoneKey, System.StringComparison.OrdinalIgnoreCase))
+            { destScene = kvp.Key; break; }
+        }
+        if (destScene == null) return false;
+
+        string displayName = firstSource?.Zone ?? destScene;
+        string? sourceId = firstSource?.MakeSourceId();
+        return NavigateToZone(destScene, displayName, sourceId!,
+            quest.DBName, step.Order, currentScene);
     }
 
     // ── Cross-zone routing ─────────────────────────────────────────

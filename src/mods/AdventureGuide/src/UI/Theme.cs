@@ -28,6 +28,8 @@ public static class Theme
     public static readonly uint QuestImplicit   = Rgba(0.55f, 0.80f, 0.75f, 1.00f);
     public static readonly uint QuestCompleted = Rgba(0.40f, 0.70f, 0.40f, 1.00f);
     public static readonly uint QuestAvailable = Rgba(0.50f, 0.70f, 0.90f, 1.00f);
+    public static readonly uint NavManualOverride = Rgba(0.45f, 0.85f, 0.90f, 1.00f);
+    public static readonly uint SourceDimmed = Rgba(0.50f, 0.50f, 0.50f, 1.00f);
 
     // -- Decorative --
     public static readonly uint Header = Rgba(0.90f, 0.85f, 0.60f, 1.00f);
