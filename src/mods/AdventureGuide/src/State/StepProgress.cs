@@ -37,7 +37,7 @@ public static class StepProgress
         // Acquisition step is only auto-completed for active quests —
         // the player has already done it. For available quests, verify
         // all steps from the beginning.
-        int start = state.IsActive(quest.DBName)
+        int start = state.IsActionable(quest.DBName)
             && IsAcquisitionStep(quest, quest.Steps[0]) ? 1 : 0;
 
         for (int i = start; i < quest.Steps.Count; i++)

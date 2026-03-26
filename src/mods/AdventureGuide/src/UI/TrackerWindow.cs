@@ -474,7 +474,7 @@ public sealed class TrackerWindow
         if (_distances.TryGetValue(quest.DBName, out var dist) && dist.HasDistance)
             label += $" ({dist.Meters:0}m)";
 
-        ImGui.PushStyleColor(ImGuiCol.Text, Theme.QuestActive);
+        ImGui.PushStyleColor(ImGuiCol.Text, Theme.GetQuestColor(_state, quest.DBName));
         if (ImGui.Selectable(label + "##name" + quest.DBName))
         {
             _state.SelectQuest(quest.DBName);

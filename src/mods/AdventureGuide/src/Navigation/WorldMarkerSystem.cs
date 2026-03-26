@@ -141,7 +141,7 @@ public sealed class WorldMarkerSystem
 
         foreach (var quest in _data.All)
         {
-            bool isActive = _state.IsActive(quest.DBName);
+            bool isActive = _state.IsActionable(quest.DBName);
             bool isCompleted = _state.IsCompleted(quest.DBName);
             bool isRepeatable = quest.Flags is { Repeatable: true };
 
@@ -410,7 +410,7 @@ public sealed class WorldMarkerSystem
                 int need = 1;
                 foreach (var quest in _data.All)
                 {
-                    if (!_state.IsActive(quest.DBName) || quest.RequiredItems == null)
+                    if (!_state.IsActionable(quest.DBName) || quest.RequiredItems == null)
                         continue;
                     foreach (var ri in quest.RequiredItems)
                     {

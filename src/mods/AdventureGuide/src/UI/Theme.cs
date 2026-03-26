@@ -1,3 +1,4 @@
+using AdventureGuide.State;
 using ImGuiNET;
 
 namespace AdventureGuide.UI;
@@ -107,6 +108,19 @@ public static class Theme
         y.Value = pos.Y;
         w.Value = size.X;
         h.Value = size.Y;
+    }
+
+
+    /// <summary>
+    /// Resolve quest status color from tracker state. Shared by QuestListPanel
+    /// and TrackerWindow to keep color semantics consistent.
+    /// </summary>
+    public static uint GetQuestColor(QuestStateTracker state, string dbName)
+    {
+        if (state.IsImplicitlyActive(dbName)) return QuestImplicit;
+        if (state.IsActive(dbName))           return QuestActive;
+        if (state.IsCompleted(dbName))        return QuestCompleted;
+        return QuestAvailable;
     }
 
 }

@@ -128,7 +128,7 @@ public sealed class LootScanner
         // 1. Build needed items from all active quests
         foreach (var quest in data.All)
         {
-            if (!state.IsActive(quest.DBName)) continue;
+            if (!state.IsActionable(quest.DBName)) continue;
             if (quest.RequiredItems == null) continue;
             foreach (var ri in quest.RequiredItems)
             {
