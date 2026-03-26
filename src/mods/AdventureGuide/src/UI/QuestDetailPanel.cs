@@ -718,8 +718,7 @@ public sealed class QuestDetailPanel
     {
         var r = quest.Rewards;
         if (r == null) return;
-        if (r.XP == 0 && r.Gold == 0 && r.ItemName == null && r.FactionEffects == null)
-            return;
+        if (!HasAnyRewards(r)) return;
 
         // Expanded by default — rewards are primary motivation
         if (!ImGui.CollapsingHeader("Rewards", ImGuiTreeNodeFlags.DefaultOpen))
@@ -733,6 +732,43 @@ public sealed class QuestDetailPanel
             ImGui.Text($"{r.Gold} Gold");
         if (r.ItemName != null)
             ImGui.Text(r.ItemName);
+
+        // Vendor item unlock
+        if (r.VendorUnlock != null)
+            ImGui.Text($"Unlocks {r.VendorUnlock.ItemName} at {r.VendorUnlock.VendorName}");
+
+        // Zone line unlocks
+        if (r.UnlockedZoneLines != null)
+        {
+            foreach (var zl in r.UnlockedZoneLines)
+            {
+                string text = $"Opens path from {zl.FromZone} to {zl.ToZone}";
+                if (zl.CoRequirements is { Count: > 0 })
+                    text += $" (also requires {string.Join(", ", zl.CoRequirements)})";
+                ImGui.Text(text);
+            }
+        }
+
+        // Character spawn unlocks
+        if (r.UnlockedCharacters != null)
+        {
+            foreach (var ch in r.UnlockedCharacters)
+            {
+                string text = ch.Zone != null
+                    ? $"Enables {ch.Name} in {ch.Zone}"
+                    : $"Enables {ch.Name}";
+                ImGui.Text(text);
+            }
+        }
+
+        // Next quest in chain
+        if (r.NextQuestName != null)
+        {
+            ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
+            ImGui.Text($"Next: {r.NextQuestName}");
+            ImGui.PopStyleColor();
+        }
+
         if (r.FactionEffects != null)
         {
             foreach (var fe in r.FactionEffects)
@@ -750,6 +786,15 @@ public sealed class QuestDetailPanel
 
         ImGui.Unindent(Theme.IndentWidth);
     }
+
+    private static bool HasAnyRewards(RewardInfo r) =>
+        r.XP > 0 || r.Gold > 0 || r.ItemName != null
+        || r.VendorUnlock != null
+        || r.UnlockedZoneLines is { Count: > 0 }
+        || r.UnlockedCharacters is { Count: > 0 }
+        || r.NextQuestName != null
+        || r.FactionEffects is { Count: > 0 }
+        || r.AlsoCompletes is { Count: > 0 };
 
     // ── Prerequisites ───────────────────────────────────────────────
 

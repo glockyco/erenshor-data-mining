@@ -139,8 +139,30 @@ public sealed class RewardInfo
     [JsonProperty("next_quest_name")] public string? NextQuestName { get; set; }
     [JsonProperty("next_quest_stable_key")] public string? NextQuestStableKey { get; set; }
     [JsonProperty("also_completes")] public List<string>? AlsoCompletes { get; set; }
+    [JsonProperty("vendor_unlock")] public VendorUnlockInfo? VendorUnlock { get; set; }
+    [JsonProperty("unlocked_zone_lines")] public List<UnlockedZoneLine>? UnlockedZoneLines { get; set; }
+    [JsonProperty("unlocked_characters")] public List<UnlockedCharacter>? UnlockedCharacters { get; set; }
     [JsonProperty("achievements")] public List<string>? Achievements { get; set; }
     [JsonProperty("faction_effects")] public List<FactionEffect>? FactionEffects { get; set; }
+}
+
+public sealed class VendorUnlockInfo
+{
+    [JsonProperty("item_name")] public string ItemName { get; set; } = "";
+    [JsonProperty("vendor_name")] public string VendorName { get; set; } = "";
+}
+
+public sealed class UnlockedZoneLine
+{
+    [JsonProperty("from_zone")] public string FromZone { get; set; } = "";
+    [JsonProperty("to_zone")] public string ToZone { get; set; } = "";
+    [JsonProperty("co_requirements")] public List<string>? CoRequirements { get; set; }
+}
+
+public sealed class UnlockedCharacter
+{
+    [JsonProperty("name")] public string Name { get; set; } = "";
+    [JsonProperty("zone")] public string? Zone { get; set; }
 }
 
 public sealed class FactionEffect
