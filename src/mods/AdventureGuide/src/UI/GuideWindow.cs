@@ -54,7 +54,11 @@ public sealed class GuideWindow
 
         var cond = _config.LayoutResetRequested ? ImGuiCond.Always : ImGuiCond.FirstUseEver;
         var scale = _config.ResolvedUiScale;
+        var display = ImGui.GetIO().DisplaySize;
         ImGui.SetNextWindowSize(new Vector2(780f * scale, 530f * scale), cond);
+        ImGui.SetNextWindowPos(
+            new Vector2(display.X * 0.5f, display.Y * 0.5f), cond,
+            new Vector2(0.5f, 0.5f));
 
         Theme.PushWindowStyle();
 

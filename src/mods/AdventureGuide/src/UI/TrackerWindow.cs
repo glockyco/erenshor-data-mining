@@ -152,7 +152,11 @@ public sealed class TrackerWindow
 
         var cond = _config.LayoutResetRequested ? ImGuiCond.Always : ImGuiCond.FirstUseEver;
         var scale = _config.ResolvedUiScale;
+        var display = ImGui.GetIO().DisplaySize;
         ImGui.SetNextWindowSize(new Vector2(DefaultWidth * scale, DefaultHeight * scale), cond);
+        ImGui.SetNextWindowPos(
+            new Vector2(40f, display.Y * 0.5f), cond,
+            new Vector2(0f, 0.5f));
 
         // Compact mode: transparent background and chrome, same layout.
         // Expanded mode: full window with visible title bar and header.
