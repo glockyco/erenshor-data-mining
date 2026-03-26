@@ -65489,8 +65489,10 @@
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Bellwain Island",
               "scene": "SummerEvent",
+              "source_key": "fishing:SummerEvent",
               "node_count": 2
             }
           ]
@@ -78400,37 +78402,32 @@
               },
               {
                 "source": "fishing",
-                "name": "Blacksalt Strand",
+                "name": "Fishing",
                 "level": 14
               },
               {
                 "source": "fishing",
-                "name": "Braxonian Desert",
+                "name": "Fishing",
                 "level": 17
               },
               {
                 "source": "fishing",
-                "name": "Malaroth's Nesting Grounds",
+                "name": "Fishing",
                 "level": 19
               },
               {
                 "source": "fishing",
-                "name": "Port Azure",
+                "name": "Fishing",
                 "level": 11
               },
               {
                 "source": "fishing",
-                "name": "The Duskenlight Coast",
-                "level": 14
-              },
-              {
-                "source": "fishing",
-                "name": "Vitheo's Watch",
+                "name": "Fishing",
                 "level": 9
               },
               {
                 "source": "fishing",
-                "name": "Windwashed Pass",
+                "name": "Fishing",
                 "level": 18
               }
             ]
@@ -78459,63 +78456,48 @@
               },
               {
                 "source": "fishing",
-                "name": "Blacksalt Strand",
+                "name": "Fishing",
                 "level": 14
               },
               {
                 "source": "fishing",
-                "name": "Blooming Sepulcher",
+                "name": "Fishing",
                 "level": 27
               },
               {
                 "source": "fishing",
-                "name": "Braxonian Desert",
+                "name": "Fishing",
                 "level": 17
               },
               {
                 "source": "fishing",
-                "name": "Faerie's Brake",
+                "name": "Fishing",
                 "level": 4
               },
               {
                 "source": "fishing",
-                "name": "Ripper's Keep",
+                "name": "Fishing",
                 "level": 28
               },
               {
                 "source": "fishing",
-                "name": "Shivering Step",
+                "name": "Fishing",
                 "level": 21
               },
               {
                 "source": "fishing",
-                "name": "Silkengrass Meadowlands",
+                "name": "Fishing",
                 "level": 18
               },
               {
                 "source": "fishing",
-                "name": "Stowaway's Step",
+                "name": "Fishing",
                 "level": 2
               },
               {
                 "source": "fishing",
-                "name": "The Duskenlight Coast",
-                "level": 14
-              },
-              {
-                "source": "fishing",
-                "name": "Vitheo's Watch",
+                "name": "Fishing",
                 "level": 9
-              },
-              {
-                "source": "fishing",
-                "name": "Willowwatch Ridge",
-                "level": 4
-              },
-              {
-                "source": "fishing",
-                "name": "Windwashed Pass",
-                "level": 18
               }
             ]
           }
@@ -78587,51 +78569,65 @@
           "sources": [
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Vitheo's Watch",
               "scene": "Vitheo",
               "level": 9,
+              "source_key": "fishing:Vitheo",
               "node_count": 1
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Port Azure",
               "scene": "Azure",
               "level": 11,
+              "source_key": "fishing:Azure",
               "node_count": 2
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Blacksalt Strand",
               "scene": "SaltedStrand",
               "level": 14,
+              "source_key": "fishing:SaltedStrand",
               "node_count": 1
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "The Duskenlight Coast",
               "scene": "Duskenlight",
               "level": 14,
+              "source_key": "fishing:Duskenlight",
               "node_count": 2
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Braxonian Desert",
               "scene": "Braxonian",
               "level": 17,
+              "source_key": "fishing:Braxonian",
               "node_count": 2
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Windwashed Pass",
               "scene": "Windwashed",
               "level": 18,
+              "source_key": "fishing:Windwashed",
               "node_count": 2
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Malaroth's Nesting Grounds",
               "scene": "Malaroth",
               "level": 19,
+              "source_key": "fishing:Malaroth",
               "node_count": 1
             },
             {
@@ -78652,30 +78648,38 @@
           "sources": [
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Stowaway's Step",
               "scene": "Stowaway",
               "level": 2,
+              "source_key": "fishing:Stowaway",
               "node_count": 2
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Faerie's Brake",
               "scene": "Brake",
               "level": 4,
+              "source_key": "fishing:Brake",
               "node_count": 2
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Willowwatch Ridge",
               "scene": "Willowwatch",
               "level": 4,
+              "source_key": "fishing:Willowwatch",
               "node_count": 2
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Vitheo's Watch",
               "scene": "Vitheo",
               "level": 9,
+              "source_key": "fishing:Vitheo",
               "node_count": 1
             },
             {
@@ -78688,58 +78692,74 @@
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Blacksalt Strand",
               "scene": "SaltedStrand",
               "level": 14,
+              "source_key": "fishing:SaltedStrand",
               "node_count": 1
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "The Duskenlight Coast",
               "scene": "Duskenlight",
               "level": 14,
+              "source_key": "fishing:Duskenlight",
               "node_count": 2
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Braxonian Desert",
               "scene": "Braxonian",
               "level": 17,
+              "source_key": "fishing:Braxonian",
               "node_count": 3
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Silkengrass Meadowlands",
               "scene": "Silkengrass",
               "level": 18,
+              "source_key": "fishing:Silkengrass",
               "node_count": 1
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Windwashed Pass",
               "scene": "Windwashed",
               "level": 18,
+              "source_key": "fishing:Windwashed",
               "node_count": 2
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Shivering Step",
               "scene": "ShiveringStep",
               "level": 21,
+              "source_key": "fishing:ShiveringStep",
               "node_count": 2
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Blooming Sepulcher",
               "scene": "BloomingSepulcher",
               "level": 27,
+              "source_key": "fishing:BloomingSepulcher",
               "node_count": 2
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Ripper's Keep",
               "scene": "Ripper",
               "level": 28,
+              "source_key": "fishing:Ripper",
               "node_count": 1
             },
             {
@@ -78753,8 +78773,10 @@
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Bellwain Island",
               "scene": "SummerEvent",
+              "source_key": "fishing:SummerEvent",
               "node_count": 2
             }
           ]
@@ -78996,10 +79018,11 @@
                 },
                 {
                   "type": "fishing",
-                  "name": "Torn Treasure Map (Top Right): fishing",
+                  "name": "Torn Treasure Map (Top Right): Fishing",
                   "zone": "Faerie's Brake",
                   "scene": "Brake",
                   "level": 4,
+                  "source_key": "fishing:Brake",
                   "node_count": 2
                 }
               ]
@@ -79489,37 +79512,32 @@
               },
               {
                 "source": "fishing",
-                "name": "Blacksalt Strand",
+                "name": "Fishing",
                 "level": 14
               },
               {
                 "source": "fishing",
-                "name": "Braxonian Desert",
+                "name": "Fishing",
                 "level": 17
               },
               {
                 "source": "fishing",
-                "name": "Malaroth's Nesting Grounds",
+                "name": "Fishing",
                 "level": 19
               },
               {
                 "source": "fishing",
-                "name": "Port Azure",
+                "name": "Fishing",
                 "level": 11
               },
               {
                 "source": "fishing",
-                "name": "The Duskenlight Coast",
-                "level": 14
-              },
-              {
-                "source": "fishing",
-                "name": "Vitheo's Watch",
+                "name": "Fishing",
                 "level": 9
               },
               {
                 "source": "fishing",
-                "name": "Windwashed Pass",
+                "name": "Fishing",
                 "level": 18
               }
             ]
@@ -79553,51 +79571,65 @@
           "sources": [
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Vitheo's Watch",
               "scene": "Vitheo",
               "level": 9,
+              "source_key": "fishing:Vitheo",
               "node_count": 1
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Port Azure",
               "scene": "Azure",
               "level": 11,
+              "source_key": "fishing:Azure",
               "node_count": 2
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Blacksalt Strand",
               "scene": "SaltedStrand",
               "level": 14,
+              "source_key": "fishing:SaltedStrand",
               "node_count": 1
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "The Duskenlight Coast",
               "scene": "Duskenlight",
               "level": 14,
+              "source_key": "fishing:Duskenlight",
               "node_count": 2
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Braxonian Desert",
               "scene": "Braxonian",
               "level": 17,
+              "source_key": "fishing:Braxonian",
               "node_count": 2
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Windwashed Pass",
               "scene": "Windwashed",
               "level": 18,
+              "source_key": "fishing:Windwashed",
               "node_count": 2
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Malaroth's Nesting Grounds",
               "scene": "Malaroth",
               "level": 19,
+              "source_key": "fishing:Malaroth",
               "node_count": 1
             },
             {
@@ -83027,7 +83059,7 @@
             "factors": [
               {
                 "source": "fishing",
-                "name": "Faerie's Brake",
+                "name": "Fishing",
                 "level": 4
               }
             ]
@@ -83087,9 +83119,11 @@
           "sources": [
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Faerie's Brake",
               "scene": "Brake",
               "level": 4,
+              "source_key": "fishing:Brake",
               "node_count": 2
             }
           ]
@@ -84541,7 +84575,7 @@
             "factors": [
               {
                 "source": "fishing",
-                "name": "Shivering Step",
+                "name": "Fishing",
                 "level": 21
               }
             ]
@@ -84556,9 +84590,11 @@
           "sources": [
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Shivering Step",
               "scene": "ShiveringStep",
               "level": 21,
+              "source_key": "fishing:ShiveringStep",
               "node_count": 2
             }
           ]
@@ -93019,8 +93055,10 @@
           "sources": [
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Bellwain Island",
               "scene": "SummerEvent",
+              "source_key": "fishing:SummerEvent",
               "node_count": 4
             }
           ]
@@ -95207,8 +95245,10 @@
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Bellwain Island",
               "scene": "SummerEvent",
+              "source_key": "fishing:SummerEvent",
               "node_count": 2
             }
           ]
@@ -96012,52 +96052,47 @@
               },
               {
                 "source": "fishing",
-                "name": "Blacksalt Strand",
+                "name": "Fishing",
                 "level": 14
               },
               {
                 "source": "fishing",
-                "name": "Braxonian Desert",
+                "name": "Fishing",
                 "level": 17
               },
               {
                 "source": "fishing",
-                "name": "Malaroth's Nesting Grounds",
+                "name": "Fishing",
                 "level": 19
               },
               {
                 "source": "fishing",
-                "name": "Port Azure",
+                "name": "Fishing",
                 "level": 11
               },
               {
                 "source": "fishing",
-                "name": "Ripper's Keep",
+                "name": "Fishing",
                 "level": 28
               },
               {
                 "source": "fishing",
-                "name": "Shivering Step",
+                "name": "Fishing",
                 "level": 21
               },
               {
                 "source": "fishing",
-                "name": "Stowaway's Step",
+                "name": "Fishing",
                 "level": 2
               },
               {
                 "source": "fishing",
-                "name": "The Duskenlight Coast",
-                "level": 14
-              },
-              {
-                "source": "fishing",
-                "name": "Vitheo's Watch",
+                "name": "Fishing",
                 "level": 9
               },
               {
                 "source": "fishing",
-                "name": "Windwashed Pass",
+                "name": "Fishing",
                 "level": 18
               }
             ]
@@ -96091,9 +96126,11 @@
           "sources": [
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Stowaway's Step",
               "scene": "Stowaway",
               "level": 2,
+              "source_key": "fishing:Stowaway",
               "node_count": 1
             },
             {
@@ -96107,58 +96144,74 @@
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Vitheo's Watch",
               "scene": "Vitheo",
               "level": 9,
+              "source_key": "fishing:Vitheo",
               "node_count": 1
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Port Azure",
               "scene": "Azure",
               "level": 11,
+              "source_key": "fishing:Azure",
               "node_count": 1
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Blacksalt Strand",
               "scene": "SaltedStrand",
               "level": 14,
+              "source_key": "fishing:SaltedStrand",
               "node_count": 1
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "The Duskenlight Coast",
               "scene": "Duskenlight",
               "level": 14,
+              "source_key": "fishing:Duskenlight",
               "node_count": 1
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Braxonian Desert",
               "scene": "Braxonian",
               "level": 17,
+              "source_key": "fishing:Braxonian",
               "node_count": 1
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Windwashed Pass",
               "scene": "Windwashed",
               "level": 18,
+              "source_key": "fishing:Windwashed",
               "node_count": 1
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Malaroth's Nesting Grounds",
               "scene": "Malaroth",
               "level": 19,
+              "source_key": "fishing:Malaroth",
               "node_count": 1
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Shivering Step",
               "scene": "ShiveringStep",
               "level": 21,
+              "source_key": "fishing:ShiveringStep",
               "node_count": 1
             },
             {
@@ -96181,9 +96234,11 @@
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Ripper's Keep",
               "scene": "Ripper",
               "level": 28,
+              "source_key": "fishing:Ripper",
               "node_count": 1
             },
             {
@@ -96215,8 +96270,10 @@
             },
             {
               "type": "fishing",
+              "name": "Fishing",
               "zone": "Bellwain Island",
               "scene": "SummerEvent",
+              "source_key": "fishing:SummerEvent",
               "node_count": 1
             }
           ]

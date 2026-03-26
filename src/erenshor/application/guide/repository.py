@@ -1031,11 +1031,14 @@ def _add_fishing_sources(
     for row in rows:
         zone_name = row["zone_name"]
         zi = zone_by_display.get(zone_name) if zone_name else None
+        scene = row["scene"]
         out[row["item_stable_key"]].append(
             ItemSource(
                 type="fishing",
+                name="Fishing",
                 zone=zone_name,
-                scene=row["scene"],
+                scene=scene,
+                source_key=f"fishing:{scene}" if scene else None,
                 level=zi.level_median if zi else None,
                 node_count=row["node_count"],
             )
