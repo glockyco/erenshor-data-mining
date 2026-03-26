@@ -122,6 +122,7 @@ public sealed class Plugin : BaseUnityPlugin
         _harmony = new Harmony(PluginInfo.GUID);
         _harmony.PatchAll();
 
+
         // Sync from current game state (essential for hot reload — no scene
         // load event fires, so without this the tracker starts empty)
         _state.OnSceneChanged(SceneManager.GetActiveScene().name);
@@ -133,12 +134,28 @@ public sealed class Plugin : BaseUnityPlugin
         var currentScene = SceneManager.GetActiveScene().name;
         _inGameplay = currentScene != "Menu" && currentScene != "LoadScene";
 
-        Log.LogInfo($"{PluginInfo.Name} v{PluginInfo.Version} loaded ({_data.Count} quests)");
+        int withSteps = 0;
+        foreach (var q in _data.All) { if (q.HasSteps) withSteps++; }
+
+        Log.LogInfo($"{PluginInfo.Name} v{PluginInfo.Version}\n"
+            + $"  Quests: {_data.Count} in guide, {withSteps} with step data\n"
+            + $"  Controls: {_config.ToggleKey.Value} = guide, {_config.TrackerToggleKey.Value} = tracker\n"
+            + $"  Config: BepInEx/config/{PluginInfo.GUID}.cfg\n"
+            + $"  Tip: Install BepInEx ConfigurationManager for in-game settings (F1)");
+    }
+
+    private void TryMergeUnknownQuests()
+    {
+        if (_discoveryDone || _data == null) return;
+        int result = _data.MergeUnknownQuests();
+        if (result < 0) return;  // QuestDB not ready yet
+        _discoveryDone = true;
     }
 
     private bool _wasTextInputActive;
     private bool _gameUIVisible = true;
     private bool _inGameplay;
+    private bool _discoveryDone;
 
     private void Update()
     {
@@ -181,6 +198,11 @@ public sealed class Plugin : BaseUnityPlugin
             _wasTextInputActive = textActive;
         }
 
+        // Retry quest discovery until QuestDB becomes available.
+        // QuestDB.Start() runs after OnSceneLoaded, so the first
+        // successful attempt is typically the frame after scene load.
+        if (!_discoveryDone) TryMergeUnknownQuests();
+
         // Update shared systems before renderers. LootScanner runs here
         // (not inside WorldMarkerSystem) so nav gets fresh corpse/chest
         // data even when markers are disabled.
@@ -216,6 +238,7 @@ public sealed class Plugin : BaseUnityPlugin
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         CameraCache.Invalidate();
+
 
         // Track whether we're in a gameplay scene
         _inGameplay = scene.name != "Menu" && scene.name != "LoadScene";

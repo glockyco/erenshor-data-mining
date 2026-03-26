@@ -199,8 +199,13 @@ public sealed class QuestDetailPanel
 
     private void DrawObjectives(QuestEntry quest)
     {
-        if (quest.Steps == null || quest.Steps.Count == 0)
+        if (!quest.HasSteps)
+        {
+            ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
+            ImGui.TextWrapped("No guide data available for this quest.");
+            ImGui.PopStyleColor();
             return;
+        }
 
         if (!ImGui.CollapsingHeader("Objectives", ImGuiTreeNodeFlags.DefaultOpen))
             return;

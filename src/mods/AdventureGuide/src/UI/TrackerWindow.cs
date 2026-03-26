@@ -493,10 +493,17 @@ public sealed class TrackerWindow
     private void DrawCurrentStep(QuestEntry quest)
     {
         var (_, step, resolvedQuest) = GetCurrentStep(quest);
-        if (step == null) return;
 
         ImGui.Indent(Theme.IndentWidth);
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
+
+        if (step == null)
+        {
+            ImGui.TextWrapped(quest.HasSteps ? "Completed" : "No guide data available.");
+            ImGui.PopStyleColor();
+            ImGui.Unindent(Theme.IndentWidth);
+            return;
+        }
 
         string text = FormatStepText(resolvedQuest, step);
         bool isCrossZone = _distances.TryGetValue(quest.DBName, out var stepDist) && !stepDist.InCurrentZone;

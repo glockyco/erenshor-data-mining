@@ -30,6 +30,10 @@ public sealed class QuestEntry
     /// </summary>
     [JsonIgnore]
     public bool IsImplicit => string.Equals(Acceptance, "implicit", System.StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>Whether this quest has step-by-step guide data.</summary>
+    [JsonIgnore]
+    public bool HasSteps => Steps is { Count: > 0 };
 }
 
 public sealed class QuestStep
