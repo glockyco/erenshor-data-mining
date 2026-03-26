@@ -148,8 +148,9 @@ public sealed class QuestDetailPanel
     {
         int? level = quest.LevelEstimate?.Recommended;
         string? zone = quest.ZoneContext;
+        bool repeatable = quest.Flags is { Repeatable: true };
 
-        if (level == null && zone == null)
+        if (level == null && zone == null && !repeatable)
             return;
 
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
@@ -157,10 +158,16 @@ public sealed class QuestDetailPanel
         string meta = "";
         if (level != null)
             meta = $"Lv {level}";
-        if (level != null && zone != null)
-            meta += "  \u00b7  ";
         if (zone != null)
+        {
+            if (meta.Length > 0) meta += "  \u00b7  ";
             meta += zone;
+        }
+        if (repeatable)
+        {
+            if (meta.Length > 0) meta += "  \u00b7  ";
+            meta += "Repeatable";
+        }
 
         ImGui.Text(meta);
 

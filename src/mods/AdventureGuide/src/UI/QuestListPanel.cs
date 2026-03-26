@@ -312,9 +312,11 @@ public sealed class QuestListPanel
         // issue as Vector4 colors), so we use a single-color label instead.
         bool isTracked = _tracker.Enabled && _tracker.IsTracked(quest.DBName);
         string prefix = isTracked ? "\u00b7" : " ";
+        bool isRepeatable = quest.Flags is { Repeatable: true };
+        string suffix = isRepeatable ? " [R]" : "";
         string label = quest.LevelEstimate?.Recommended is int lvl
-            ? $"{prefix}{lvl,2}  {quest.DisplayName}"
-            : $"{prefix}    {quest.DisplayName}";
+            ? $"{prefix}{lvl,2}  {quest.DisplayName}{suffix}"
+            : $"{prefix}    {quest.DisplayName}{suffix}";
 
         ImGui.PushStyleColor(ImGuiCol.Text, statusColor);
 
