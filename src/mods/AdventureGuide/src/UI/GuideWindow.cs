@@ -21,8 +21,6 @@ public sealed class GuideWindow
     private readonly NavigationHistory _history;
     private readonly GuideConfig _config;
 
-    private readonly float _uiScale;
-
     private bool _visible;
 
 
@@ -31,13 +29,12 @@ public sealed class GuideWindow
     public FilterState Filter => _filter;
 
     public GuideWindow(GuideData data, QuestStateTracker state, NavigationController nav,
-        NavigationHistory history, TrackerState tracker, GuideConfig config, float uiScale)
+        NavigationHistory history, TrackerState tracker, GuideConfig config)
     {
         _data = data;
         _state = state;
         _history = history;
         _config = config;
-        _uiScale = uiScale;
         _listPanel = new QuestListPanel(data, state, _filter, tracker);
         _detailPanel = new QuestDetailPanel(data, state, nav, tracker, config);
     }
@@ -55,7 +52,9 @@ public sealed class GuideWindow
         if (!_visible)
             return;
 
-        ImGui.SetNextWindowSize(new Vector2(800f * _uiScale, 550f * _uiScale), ImGuiCond.FirstUseEver);
+        var cond = _config.LayoutResetRequested ? ImGuiCond.Always : ImGuiCond.FirstUseEver;
+        var scale = _config.ResolvedUiScale;
+        ImGui.SetNextWindowSize(new Vector2(780f * scale, 530f * scale), cond);
 
         Theme.PushWindowStyle();
 

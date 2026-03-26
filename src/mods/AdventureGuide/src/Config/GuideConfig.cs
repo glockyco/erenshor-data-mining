@@ -16,6 +16,17 @@ public sealed class GuideConfig
 {
     private static readonly object Hidden = new { Browsable = false };
 
+    // ── Runtime state (not persisted) ─────────────────────────────────
+
+    /// <summary>Current resolved UI scale factor. Set by Plugin.</summary>
+    internal float ResolvedUiScale { get; set; } = 1f;
+
+    /// <summary>
+    /// When true, windows re-apply their default size on the next frame.
+    /// Set by Plugin on layout reset or scale change; cleared after draw.
+    /// </summary>
+    internal bool LayoutResetRequested { get; set; }
+
     // ── User-facing: General ─────────────────────────────────────────
 
     public ConfigEntry<KeyCode> ToggleKey { get; }

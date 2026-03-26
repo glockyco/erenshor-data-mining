@@ -50,6 +50,7 @@ public sealed class Plugin : BaseUnityPlugin
         _trackerState.LoadFromConfig(_config);
 
         var uiScale = ResolveUiScale(_config);
+        _config.ResolvedUiScale = uiScale;
         var iniPath = System.IO.Path.Combine(BepInEx.Paths.ConfigPath, "wow-much.adventure-guide.imgui.ini");
         _imgui = new ImGuiRenderer(Log) { UiScale = uiScale, IniPath = iniPath };
         if (!_imgui.Init())
@@ -85,11 +86,17 @@ public sealed class Plugin : BaseUnityPlugin
 
         var history = new NavigationHistory(_config.HistoryMaxSize.Value);
         _config.HistoryMaxSize.SettingChanged += (_, _) => history.MaxSize = _config.HistoryMaxSize.Value;
-        _window = new GuideWindow(_data, _state, _nav, history, _trackerState, _config, uiScale);
+        _window = new GuideWindow(_data, _state, _nav, history, _trackerState, _config);
         _state.SetHistory(history);
         _window.Filter.LoadFrom(_config);
-        _tracker = new TrackerWindow(_data, _state, _nav, _trackerState, _window, _config, uiScale);
-        _imgui.OnLayout = () => { _window.Draw(); _tracker!.Draw(); _arrow!.Draw(); };
+        _tracker = new TrackerWindow(_data, _state, _nav, _trackerState, _window, _config);
+        _imgui.OnLayout = () =>
+        {
+            _window.Draw();
+            _tracker!.Draw();
+            _arrow!.Draw();
+            _config.LayoutResetRequested = false;
+        };
 
         // Wire DebugAPI for HotRepl inspection
         DebugAPI.Data = _data;
@@ -279,6 +286,8 @@ public sealed class Plugin : BaseUnityPlugin
         var scale = _config!.UiScale.Value;
         if (scale < 0f)
             scale = ResolveUiScale(_config);
+        _config.ResolvedUiScale = scale;
+        _config.LayoutResetRequested = true;
         _imgui?.SetScale(scale);
     }
 
@@ -286,6 +295,7 @@ public sealed class Plugin : BaseUnityPlugin
     {
         if (!_config!.ResetWindowLayout.Value) return;
         _imgui?.ClearWindowState();
+        _config.LayoutResetRequested = true;
         _config.ResetWindowLayout.Value = false;
     }
 

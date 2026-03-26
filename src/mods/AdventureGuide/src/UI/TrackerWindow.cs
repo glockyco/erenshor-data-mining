@@ -19,8 +19,8 @@ namespace AdventureGuide.UI;
 /// </summary>
 public sealed class TrackerWindow
 {
-    private const float DefaultWidth = 280f;
-    private const float DefaultHeight = 200f;
+    private const float DefaultWidth = 340f;
+    private const float DefaultHeight = 260f;
     private const float FadeInDuration = 0.3f;
     private const float FadeOutDuration = 0.3f;
     private const float CompletionFlashDuration = 1.5f;
@@ -39,7 +39,6 @@ public sealed class TrackerWindow
     private readonly TrackerState _tracker;
     private readonly GuideWindow _guide;
     private readonly GuideConfig _config;
-    private readonly float _uiScale;
     private bool _visible = true;
 
     // Animation state — owned by this window, not TrackerState
@@ -77,7 +76,7 @@ public sealed class TrackerWindow
 
     public TrackerWindow(
         GuideData data, QuestStateTracker state, NavigationController nav,
-        TrackerState tracker, GuideWindow guide, GuideConfig config, float uiScale)
+        TrackerState tracker, GuideWindow guide, GuideConfig config)
     {
         _data = data;
         _state = state;
@@ -85,7 +84,6 @@ public sealed class TrackerWindow
         _tracker = tracker;
         _guide = guide;
         _config = config;
-        _uiScale = uiScale;
 
         // Subscribe to TrackerState events for animation triggers
         _tracker.Tracked += OnQuestTracked;
@@ -152,7 +150,9 @@ public sealed class TrackerWindow
         if (_sorted.Count == 0 && _fadingOut.Count == 0)
             return;
 
-        ImGui.SetNextWindowSize(new Vector2(DefaultWidth * _uiScale, DefaultHeight * _uiScale), ImGuiCond.FirstUseEver);
+        var cond = _config.LayoutResetRequested ? ImGuiCond.Always : ImGuiCond.FirstUseEver;
+        var scale = _config.ResolvedUiScale;
+        ImGui.SetNextWindowSize(new Vector2(DefaultWidth * scale, DefaultHeight * scale), cond);
 
         // Compact mode: transparent background and chrome, same layout.
         // Expanded mode: full window with visible title bar and header.
