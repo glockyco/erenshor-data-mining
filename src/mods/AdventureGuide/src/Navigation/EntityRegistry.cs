@@ -115,8 +115,18 @@ public sealed class EntityRegistry
     /// </summary>
     public NPC? FindClosest(string? stableKey, Vector3 position)
     {
-        if (stableKey == null || !_byKey.TryGetValue(stableKey, out var list))
-            return null;
+        if (stableKey == null) return null;
+
+        // Try exact key first, then base key without variant suffix.
+        // The export pipeline deduplicates identical prefab names by
+        // appending :N (e.g. "character:foo:1"), but runtime entities
+        // register under the base key ("character:foo").
+        if (!_byKey.TryGetValue(stableKey, out var list))
+        {
+            var baseKey = StripVariantSuffix(stableKey);
+            if (baseKey == null || !_byKey.TryGetValue(baseKey, out list))
+                return null;
+        }
 
         NPC? best = null;
         float bestDist = float.MaxValue;
@@ -150,8 +160,13 @@ public sealed class EntityRegistry
     /// </summary>
     public int CountAlive(string? stableKey)
     {
-        if (stableKey == null || !_byKey.TryGetValue(stableKey, out var list))
-            return 0;
+        if (stableKey == null) return 0;
+        if (!_byKey.TryGetValue(stableKey, out var list))
+        {
+            var baseKey = StripVariantSuffix(stableKey);
+            if (baseKey == null || !_byKey.TryGetValue(baseKey, out list))
+                return 0;
+        }
 
         int alive = 0;
         for (int i = list.Count - 1; i >= 0; i--)
@@ -214,6 +229,29 @@ public sealed class EntityRegistry
                 return prefab.name;
         }
         return null;
+    }
+
+    /// <summary>
+    /// Strip the export pipeline's variant suffix from a stable key.
+    /// "character:foo:1" → "character:foo". Returns null if the key
+    /// has no variant suffix (i.e., only one colon for the character: prefix).
+    /// </summary>
+    private static string? StripVariantSuffix(string key)
+    {
+        // character:name → 1 colon (prefix), no variant
+        // character:name:1 → 2 colons, strip last segment
+        int lastColon = key.LastIndexOf(':');
+        if (lastColon <= 0) return null;
+        // Check that the segment after the last colon is numeric
+        var suffix = key.AsSpan(lastColon + 1);
+        if (suffix.Length == 0) return null;
+        foreach (char c in suffix)
+        {
+            if (c < '0' || c > '9') return null;
+        }
+        // Ensure there's still a colon before this one (the character: prefix)
+        var baseKey = key.Substring(0, lastColon);
+        return baseKey.IndexOf(':') >= 0 ? baseKey : null;
     }
 
     private static bool IsAlive(in Entry entry)
