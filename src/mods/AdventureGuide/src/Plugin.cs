@@ -86,14 +86,6 @@ public sealed class Plugin : BaseUnityPlugin
         _tracker = new TrackerWindow(_data, _state, _nav, _trackerState, _window, _config);
         _imgui.OnLayout = () => { _window.Draw(); _tracker!.Draw(); _arrow!.Draw(); };
 
-        // Wire DebugAPI for HotRepl inspection
-        DebugAPI.Data = _data;
-        DebugAPI.State = _state;
-        DebugAPI.Filter = _window.Filter;
-        DebugAPI.Nav = _nav;
-        DebugAPI.Entities = _entities;
-        DebugAPI.GroundPath = _groundPath;
-
         // Inject dependencies into Harmony patches
         QuestAssignPatch.Tracker = _state;
         QuestAssignPatch.Nav = _nav;
@@ -306,12 +298,5 @@ public sealed class Plugin : BaseUnityPlugin
         _entities?.Clear();
         _miningTracker?.Clear();
         MarkerFonts.Destroy();
-
-        DebugAPI.Data = null;
-        DebugAPI.State = null;
-        DebugAPI.Filter = null;
-        DebugAPI.Nav = null;
-        DebugAPI.Entities = null;
-        DebugAPI.GroundPath = null;
     }
 }

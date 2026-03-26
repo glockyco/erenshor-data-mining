@@ -1,7 +1,9 @@
+using System.Reflection;
 using AdventureGuide.Data;
 using AdventureGuide.Navigation;
 using AdventureGuide.State;
 using AdventureGuide.UI;
+using UnityEngine;
 
 namespace AdventureGuide.Diagnostics;
 
@@ -9,30 +11,95 @@ namespace AdventureGuide.Diagnostics;
 /// Static API for runtime inspection via HotRepl.
 /// All methods return human-readable strings for eval output.
 ///
-/// Prefer these methods over raw reflection when inspecting AdventureGuide
-/// from HotRepl. They avoid the cross-assembly type identity problems that
-/// ScriptEngine's timestamp-suffixed assemblies create.
+/// Resolves the live Plugin instance via type-name matching on each call,
+/// so it works correctly after F6 hot reload (which creates a new assembly
+/// with a timestamp suffix). No static field wiring from Plugin needed.
 /// </summary>
 public static class DebugAPI
 {
-    internal static GuideData? Data { get; set; }
-    internal static QuestStateTracker? State { get; set; }
-    internal static FilterState? Filter { get; set; }
-    internal static NavigationController? Nav { get; set; }
-    internal static EntityRegistry? Entities { get; set; }
-    internal static GroundPathRenderer? GroundPath { get; set; }
+    private const string PluginTypeName = "AdventureGuide.Plugin";
+    private const BindingFlags BF = BindingFlags.NonPublic | BindingFlags.Instance;
+
+    // Cached reflection state — invalidated when the plugin instance changes
+    // (hot reload creates a new instance with a different Type).
+    private static MonoBehaviour? _cachedPlugin;
+    private static System.Type? _cachedType;
+    private static FieldInfo? _fData, _fState, _fNav, _fEntities, _fGroundPath, _fWindow;
+
+    private static MonoBehaviour? FindPlugin()
+    {
+        // Check if cached instance is still alive (Unity fake-null safe)
+        if (_cachedPlugin != null && !ReferenceEquals(_cachedPlugin, null))
+            return _cachedPlugin;
+
+        // Scan all MonoBehaviours for the live Plugin by type name.
+        // Uses non-generic FindObjectsOfTypeAll to avoid type resolution
+        // issues with ILRepack-merged assemblies.
+        foreach (var obj in Resources.FindObjectsOfTypeAll(typeof(MonoBehaviour)))
+        {
+            if (obj != null && obj.GetType().FullName == PluginTypeName)
+            {
+                var mb = (MonoBehaviour)obj;
+                CacheReflection(mb);
+                return _cachedPlugin = mb;
+            }
+        }
+
+        _cachedPlugin = null;
+        _cachedType = null;
+        return null;
+    }
+
+    private static void CacheReflection(MonoBehaviour plugin)
+    {
+        var t = plugin.GetType();
+        if (t == _cachedType) return;
+        _cachedType = t;
+        _fData = t.GetField("_data", BF);
+        _fState = t.GetField("_state", BF);
+        _fNav = t.GetField("_nav", BF);
+        _fEntities = t.GetField("_entities", BF);
+        _fGroundPath = t.GetField("_groundPath", BF);
+        _fWindow = t.GetField("_window", BF);
+    }
+
+    private static T? Get<T>(FieldInfo? field) where T : class
+    {
+        var plugin = FindPlugin();
+        if (plugin == null || field == null) return null;
+        return field.GetValue(plugin) as T;
+    }
+
+    // Convenience accessors — each call resolves through the live plugin
+    private static GuideData? Data => Get<GuideData>(_fData);
+    private static QuestStateTracker? State => Get<QuestStateTracker>(_fState);
+    private static NavigationController? Nav => Get<NavigationController>(_fNav);
+    private static EntityRegistry? Entities => Get<EntityRegistry>(_fEntities);
+    private static GroundPathRenderer? GroundPath => Get<GroundPathRenderer>(_fGroundPath);
+    private static FilterState? Filter
+    {
+        get
+        {
+            var plugin = FindPlugin();
+            if (plugin == null || _fWindow == null) return null;
+            var window = _fWindow.GetValue(plugin);
+            if (window == null) return null;
+            var filterProp = window.GetType().GetProperty("Filter");
+            return filterProp?.GetValue(window) as FilterState;
+        }
+    }
 
     /// <summary>Dump current mod state: zone, active/completed counts, filter state.</summary>
     public static string DumpState()
     {
-        if (State == null) return "State not initialized";
+        if (State == null) return "Plugin not found";
 
         return $"Zone: {State.CurrentZone}\n"
              + $"Active quests: {State.ActiveQuests.Count}\n"
              + $"Completed quests: {State.CompletedQuests.Count}\n"
              + $"Selected: {State.SelectedQuestDBName ?? "(none)"}\n"
-             + $"Filter: {Filter?.FilterMode ?? QuestFilterMode.Active}\n"
-             + $"Sort: {Filter?.SortMode ?? QuestSortMode.Alphabetical}\n"
+             + $"Filter: {Filter?.FilterMode}\n"
+             + $"Sort: {Filter?.SortMode}\n"
              + $"Search: '{Filter?.SearchText ?? ""}'\n"
              + $"Zone filter: {Filter?.ZoneFilter ?? "(all)"}";
     }
@@ -40,7 +107,7 @@ public static class DebugAPI
     /// <summary>Dump navigation state: target, waypoint, distance, ground path.</summary>
     public static string DumpNav()
     {
-        if (Nav == null) return "NavigationController not initialized";
+        if (Nav == null) return "Plugin not found";
         if (Nav.Target == null) return "No active navigation target";
 
         var t = Nav.Target;
@@ -51,6 +118,7 @@ public static class DebugAPI
         sb.AppendLine($"  Position: {t.Position}");
         sb.AppendLine($"  SourceId: {t.SourceId ?? "(none)"}");
         sb.AppendLine($"  Quest: {t.QuestDBName} step {t.StepOrder}");
+        sb.AppendLine($"  Origin: {t.OriginQuestDBName} step {t.OriginStepOrder}");
 
         var currentZone = State?.CurrentZone ?? "";
         sb.AppendLine($"  CrossZone: {t.IsCrossZone(currentZone)}");
@@ -71,17 +139,19 @@ public static class DebugAPI
         if (GroundPath != null)
             sb.AppendLine($"GroundPath: enabled={GroundPath.Enabled}");
 
+        // Multi-source state
+        sb.AppendLine($"ManualOverride: {Nav.IsManualSourceOverride}");
+
         return sb.ToString();
     }
 
     /// <summary>Dump entity registry state for a display name, or summary if null.</summary>
     public static string DumpEntities(string? displayName = null)
     {
-        if (Entities == null) return "EntityRegistry not initialized";
+        if (Entities == null) return "Plugin not found";
 
         if (displayName != null)
         {
-            // Accept either a stable key or a raw name (auto-prefix)
             string key = displayName.StartsWith("character:", System.StringComparison.OrdinalIgnoreCase)
                 ? displayName
                 : "character:" + displayName.Trim().ToLowerInvariant();
@@ -95,9 +165,8 @@ public static class DebugAPI
     /// <summary>Dump full details for a specific quest by DB name or display name.</summary>
     public static string DumpQuest(string name)
     {
-        if (Data == null) return "Data not initialized";
+        if (Data == null) return "Plugin not found";
 
-        // Try DB name first, then search by display name
         var q = Data.GetByDBName(name);
         if (q == null)
         {
@@ -137,7 +206,7 @@ public static class DebugAPI
     /// <summary>Dump all quests for the current zone.</summary>
     public static string DumpZoneQuests()
     {
-        if (Data == null || State == null) return "Not initialized";
+        if (Data == null || State == null) return "Plugin not found";
 
         var zone = State.CurrentZone;
         var lines = new System.Text.StringBuilder();
@@ -164,9 +233,8 @@ public static class DebugAPI
     /// </summary>
     public static string ResetQuest(string name)
     {
-        if (Data == null || State == null) return "Not initialized";
+        if (Data == null || State == null) return "Plugin not found";
 
-        // Resolve to DB name
         var q = Data.GetByDBName(name);
         if (q == null)
         {
@@ -184,7 +252,6 @@ public static class DebugAPI
         bool wasActive = GameData.HasQuest.Remove(q.DBName);
         bool wasCompleted = GameData.CompletedQuests.Remove(q.DBName);
 
-        // Sync tracker cache, then let nav re-evaluate
         State.SyncFromGameData();
         Nav?.OnGameStateChanged(State.CurrentZone);
 
@@ -192,13 +259,11 @@ public static class DebugAPI
         return $"Reset '{q.DisplayName}' (was {prev})";
     }
 
-
     /// <summary>Test zone graph routing between two scenes.</summary>
     public static string TestRoute(string fromScene, string toScene)
     {
-        if (Nav == null) return "Nav not initialized";
-        var graphField = typeof(NavigationController).GetField("_zoneGraph",
-            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        if (Nav == null) return "Plugin not found";
+        var graphField = typeof(NavigationController).GetField("_zoneGraph", BF);
         var graph = graphField?.GetValue(Nav) as ZoneGraph;
         if (graph == null) return "ZoneGraph not found";
         var route = graph.FindRoute(fromScene, toScene);
