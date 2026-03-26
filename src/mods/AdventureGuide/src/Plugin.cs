@@ -49,7 +49,10 @@ public sealed class Plugin : BaseUnityPlugin
         _trackerState = new TrackerState();
         _trackerState.LoadFromConfig(_config);
 
-        var uiScale = ResolveUiScale(_config);
+        // If UiScale is uninitialized (-1), start with 1.0 for Init.
+        // Auto-detection from Screen.height happens on first gameplay
+        // scene load, when the display is fully initialized.
+        var uiScale = _config.UiScale.Value >= 0f ? _config.UiScale.Value : 1f;
         _config.ResolvedUiScale = uiScale;
         var iniPath = System.IO.Path.Combine(BepInEx.Paths.ConfigPath, "wow-much.adventure-guide.imgui.ini");
         _imgui = new ImGuiRenderer(Log) { UiScale = uiScale, IniPath = iniPath };
@@ -249,6 +252,13 @@ public sealed class Plugin : BaseUnityPlugin
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        // Auto-detect UI scale on first gameplay scene load when uninitialized.
+        // Screen.height is reliable by now; the game has fully initialized.
+        if (_config!.UiScale.Value < 0f && scene.name != "Menu" && scene.name != "LoadScene")
+        {
+            var scale = DetectUiScale();
+            _config.UiScale.Value = scale;
+        }
         CameraCache.Invalidate();
 
 
@@ -285,7 +295,7 @@ public sealed class Plugin : BaseUnityPlugin
     {
         var scale = _config!.UiScale.Value;
         if (scale < 0f)
-            scale = ResolveUiScale(_config);
+            scale = DetectUiScale();
         _config.ResolvedUiScale = scale;
         _config.LayoutResetRequested = true;
         _imgui?.SetScale(scale);
@@ -374,22 +384,11 @@ public sealed class Plugin : BaseUnityPlugin
     }
 
     /// <summary>
-    /// Resolve UI scale from config, auto-detecting from screen resolution on
-    /// first launch. A value of -1 means uninitialized — compute from vertical
-    /// resolution (1080p = 1.0, 4K = 2.0) and persist the result.
+    /// Compute UI scale from screen resolution. 1080p = 1.0, 4K = 2.0.
     /// </summary>
-    private static float ResolveUiScale(GuideConfig config)
+    private static float DetectUiScale()
     {
         const float referenceHeight = 1080f;
-        const float minScale = 0.5f;
-        const float maxScale = 4f;
-
-        var scale = config.UiScale.Value;
-        if (scale >= 0f)
-            return scale;
-
-        scale = Mathf.Clamp(Screen.height / referenceHeight, minScale, maxScale);
-        config.UiScale.Value = scale;
-        return scale;
+        return Mathf.Clamp(Screen.height / referenceHeight, 0.5f, 4f);
     }
 }
