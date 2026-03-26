@@ -1,5 +1,7 @@
+using AdventureGuide.Config;
 using AdventureGuide.Data;
 using AdventureGuide.State;
+using BepInEx.Configuration;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -50,6 +52,11 @@ public sealed class NavigationController
     private string? _originQuestDBName;
     private int _originStepOrder;
 
+    // ── Per-character config persistence ──────────────────────────
+    private ConfigEntry<string>? _navQuestEntry;
+    private ConfigEntry<int>? _navStepEntry;
+    private int _boundSlotIndex = -1;
+
     /// <summary>Throttle for multi-source closest-spawn resolution.</summary>
     private float _sourceRescanTimer;
     private const float SourceRescanInterval = 0.25f;
@@ -93,6 +100,7 @@ public sealed class NavigationController
     {
         _originQuestDBName = quest.DBName;
         _originStepOrder = step.Order;
+        SavePerCharacter();
         return ResolveAndNavigate(step, quest, currentScene);
     }
 
@@ -163,6 +171,58 @@ public sealed class NavigationController
         ResetTargetState();
         _originQuestDBName = null;
         _originStepOrder = 0;
+        SavePerCharacter();
+    }
+
+    // ── Per-character persistence ─────────────────────────────────
+
+    /// <summary>
+    /// Bind per-character config entries and restore the saved navigation
+    /// target (if any). Call after character login. On zone transitions for
+    /// the same character, the in-memory state is authoritative.
+    /// </summary>
+    public void LoadPerCharacter(GuideConfig config, string currentScene)
+    {
+        var slot = GameData.CurrentCharacterSlot;
+        if (slot == null) return;
+
+        // Same character — in-memory state is authoritative
+        if (slot.index == _boundSlotIndex) return;
+
+        // Switching characters: save outgoing state before rebinding
+        SavePerCharacter();
+
+        _boundSlotIndex = slot.index;
+        _navQuestEntry = config.BindPerCharacter(slot.index, "NavQuest", "");
+        _navStepEntry = config.BindPerCharacter(slot.index, "NavStep", 0);
+
+        var savedQuest = _navQuestEntry.Value;
+        var savedStep = _navStepEntry.Value;
+        if (string.IsNullOrEmpty(savedQuest) || savedStep <= 0) return;
+
+        var quest = _data.GetByDBName(savedQuest);
+        if (quest?.Steps == null) return;
+        if (_state.IsCompleted(quest.DBName)) return;
+
+        QuestStep? step = null;
+        foreach (var s in quest.Steps)
+        {
+            if (s.Order == savedStep) { step = s; break; }
+        }
+        if (step == null) return;
+
+        NavigateTo(step, quest, currentScene);
+    }
+
+    /// <summary>
+    /// Write the current navigation origin to the per-character config.
+    /// Called on mod destroy and before character switch.
+    /// </summary>
+    public void SavePerCharacter()
+    {
+        if (_navQuestEntry == null) return;
+        _navQuestEntry.Value = _originQuestDBName ?? "";
+        _navStepEntry!.Value = _originStepOrder;
     }
 
     /// <summary>

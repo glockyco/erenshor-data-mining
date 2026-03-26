@@ -127,11 +127,7 @@ public sealed class TrackerState
             _trackedEntry.Value = string.Join(";", _orderedList);
 
         _boundSlotIndex = slot.index;
-        _trackedEntry = _config.File.Bind(
-            "_Character", $"TrackedQuests_Slot{slot.index}", "",
-            new ConfigDescription(
-                $"Tracked quests for slot {slot.index} (auto-managed)", null,
-                new { Browsable = false }));
+        _trackedEntry = _config.BindPerCharacter(slot.index, "TrackedQuests", "");
 
         _tracked.Clear();
         _orderedList.Clear();

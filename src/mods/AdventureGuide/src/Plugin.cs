@@ -129,7 +129,7 @@ public sealed class Plugin : BaseUnityPlugin
         _miningTracker.Rescan();
         _lootScanner.OnSceneLoaded();
         _trackerState.OnCharacterLoaded();
-
+        _nav.LoadPerCharacter(_config, SceneManager.GetActiveScene().name);
         var currentScene = SceneManager.GetActiveScene().name;
         _inGameplay = currentScene != "Menu" && currentScene != "LoadScene";
 
@@ -231,13 +231,15 @@ public sealed class Plugin : BaseUnityPlugin
         _miningTracker?.Rescan();
         _lootScanner?.OnSceneLoaded();
         _state?.OnSceneChanged(scene.name);
-        // Rebuild ZoneGraph with fresh quest state so cross-zone
-        // navigation routing reflects any quest completions.
-        _nav?.OnGameStateChanged(scene.name);
-        // Load per-character tracked quests when entering a gameplay scene
-        // (CurrentCharacterSlot becomes available after character login)
+        // Load per-character state (tracked quests, navigation target).
+        // These use slot-guarded binding: first call reads from config,
+        // subsequent calls for the same character are no-ops.
         _trackerState?.OnCharacterLoaded();
         _trackerState?.PruneCompleted(_state!);
+        _nav?.LoadPerCharacter(_config!, scene.name);
+        // Rebuild ZoneGraph and auto-advance navigation if the restored
+        // target's step is behind the player's current progress.
+        _nav?.OnGameStateChanged(scene.name);
     }
 
     private void OnShowArrowChanged(object sender, System.EventArgs e) => SyncVisibility();
@@ -296,8 +298,10 @@ public sealed class Plugin : BaseUnityPlugin
         _tracker?.Dispose();
 
         // Window geometry is saved each frame inside Draw (requires active
-        // ImGui window context). Only TrackerState needs explicit save here.
+        // ImGui window context). TrackerState and NavigationController
+        // persist per-character state to config.
         _trackerState?.SaveToConfig();
+        _nav?.SavePerCharacter();
         _imgui?.Dispose();
         _arrow?.Dispose();
         _groundPath?.Destroy();

@@ -148,4 +148,14 @@ public sealed class GuideConfig
     private static ConfigEntry<T> Bind<T>(ConfigFile config, string section, string key, T defaultValue) =>
         config.Bind(section, key, defaultValue,
             new ConfigDescription("Auto-managed by Adventure Guide", null, Hidden));
+
+    /// <summary>
+    /// Bind a hidden config entry scoped to a character save slot.
+    /// Used by subsystems that persist per-character state (tracked quests,
+    /// navigation target, etc.).
+    /// </summary>
+    public ConfigEntry<T> BindPerCharacter<T>(int slotIndex, string key, T defaultValue) =>
+        File.Bind("_Character", $"{key}_Slot{slotIndex}", defaultValue,
+            new ConfigDescription(
+                $"Per-character state for slot {slotIndex} (auto-managed)", null, Hidden));
 }
