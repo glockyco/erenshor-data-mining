@@ -86,6 +86,7 @@ MODS: dict[str, ModInfo] = {
         "name": "Adventure Guide",
         "dll_name": "AdventureGuide.dll",
         "bepinex_dlls": ["0Harmony.dll"],
+        "thunderstore": "WoW_Much/AdventureGuide",
     },
 }
 
