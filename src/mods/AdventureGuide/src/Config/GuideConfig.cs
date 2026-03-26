@@ -22,6 +22,7 @@ public sealed class GuideConfig
     public ConfigEntry<bool> ReplaceQuestLog { get; }
     public ConfigEntry<float> UiScale { get; }
     public ConfigEntry<int> HistoryMaxSize { get; }
+    public ConfigEntry<bool> ResetWindowLayout { get; }
 
     // ── User-facing: Navigation ──────────────────────────────────────
 
@@ -45,16 +46,6 @@ public sealed class GuideConfig
     public ConfigEntry<string> TrackerSortMode { get; }
     public ConfigEntry<float> TrackerBackgroundOpacity { get; }
 
-    // ── Internal: window geometry (auto-managed) ─────────────────────
-
-    public ConfigEntry<float> GuideWindowX { get; }
-    public ConfigEntry<float> GuideWindowY { get; }
-    public ConfigEntry<float> GuideWindowW { get; }
-    public ConfigEntry<float> GuideWindowH { get; }
-    public ConfigEntry<float> TrackerWindowX { get; }
-    public ConfigEntry<float> TrackerWindowY { get; }
-    public ConfigEntry<float> TrackerWindowW { get; }
-    public ConfigEntry<float> TrackerWindowH { get; }
 
     // ── Internal: quest list state (auto-managed) ────────────────────
 
@@ -90,6 +81,8 @@ public sealed class GuideConfig
             new ConfigDescription("Maximum number of pages in navigation history",
                 new AcceptableValueRange<int>(10, 500)));
 
+        ResetWindowLayout = config.Bind("General", "ResetWindowLayout", false,
+            "Toggle to reset all window positions and sizes to defaults.");
         // Navigation
         ShowArrow = config.Bind("Navigation", "ShowArrow", true,
             "Show directional arrow pointing toward navigation target");
@@ -129,15 +122,6 @@ public sealed class GuideConfig
                 "Opacity of the tracker background when not hovered (0 = fully transparent, 1 = opaque)",
                 new AcceptableValueRange<float>(0f, 1f)));
 
-        // Internal: window geometry (hidden from F1)
-        GuideWindowX = Bind(config, "_State", "GuideWindowX", -1f);
-        GuideWindowY = Bind(config, "_State", "GuideWindowY", -1f);
-        GuideWindowW = Bind(config, "_State", "GuideWindowW", -1f);
-        GuideWindowH = Bind(config, "_State", "GuideWindowH", -1f);
-        TrackerWindowX = Bind(config, "_State", "TrackerWindowX", -1f);
-        TrackerWindowY = Bind(config, "_State", "TrackerWindowY", -1f);
-        TrackerWindowW = Bind(config, "_State", "TrackerWindowW", -1f);
-        TrackerWindowH = Bind(config, "_State", "TrackerWindowH", -1f);
 
         // Internal: quest list state (hidden from F1)
         FilterMode = Bind(config, "_State", "FilterMode", QuestFilterMode.Active);

@@ -21,7 +21,6 @@ public sealed class TrackerWindow
 {
     private const float DefaultWidth = 280f;
     private const float DefaultHeight = 200f;
-    private const float MinVisible = 40f;
     private const float FadeInDuration = 0.3f;
     private const float FadeOutDuration = 0.3f;
     private const float CompletionFlashDuration = 1.5f;
@@ -40,9 +39,8 @@ public sealed class TrackerWindow
     private readonly TrackerState _tracker;
     private readonly GuideWindow _guide;
     private readonly GuideConfig _config;
-
+    private readonly float _uiScale;
     private bool _visible = true;
-    private bool _firstDraw = true;
 
     // Animation state — owned by this window, not TrackerState
     private readonly Dictionary<string, EntryAnimation> _animations = new(System.StringComparer.OrdinalIgnoreCase);
@@ -79,7 +77,7 @@ public sealed class TrackerWindow
 
     public TrackerWindow(
         GuideData data, QuestStateTracker state, NavigationController nav,
-        TrackerState tracker, GuideWindow guide, GuideConfig config)
+        TrackerState tracker, GuideWindow guide, GuideConfig config, float uiScale)
     {
         _data = data;
         _state = state;
@@ -87,6 +85,7 @@ public sealed class TrackerWindow
         _tracker = tracker;
         _guide = guide;
         _config = config;
+        _uiScale = uiScale;
 
         // Subscribe to TrackerState events for animation triggers
         _tracker.Tracked += OnQuestTracked;
@@ -153,14 +152,7 @@ public sealed class TrackerWindow
         if (_sorted.Count == 0 && _fadingOut.Count == 0)
             return;
 
-        if (_firstDraw)
-        {
-            Theme.ApplyWindowGeometry(
-                _config.TrackerWindowX, _config.TrackerWindowY,
-                _config.TrackerWindowW, _config.TrackerWindowH,
-                DefaultWidth, DefaultHeight);
-            _firstDraw = false;
-        }
+        ImGui.SetNextWindowSize(new Vector2(DefaultWidth * _uiScale, DefaultHeight * _uiScale), ImGuiCond.FirstUseEver);
 
         // Compact mode: transparent background and chrome, same layout.
         // Expanded mode: full window with visible title bar and header.
@@ -240,15 +232,7 @@ public sealed class TrackerWindow
                 ImGui.SetWindowFocus(null);
         }
 
-        // Only persist geometry in expanded mode — compact mode disables
-        // resize, so geometry only changes while expanded.
-        if (!_compact)
-        {
-            Theme.UpdateWindowGeometry(
-                _config.TrackerWindowX, _config.TrackerWindowY,
-                _config.TrackerWindowW, _config.TrackerWindowH);
-        }
-        ClampWindowPosition();
+        Theme.ClampWindowPosition();
 
         ImGui.End();
         if (extraColors > 0)
@@ -691,23 +675,6 @@ public sealed class TrackerWindow
     private EntryAnimation GetOrDefaultAnim(string dbName) =>
         _animations.TryGetValue(dbName, out var anim) ? anim : default;
 
-    private static void ClampWindowPosition()
-    {
-        var pos = ImGui.GetWindowPos();
-        var size = ImGui.GetWindowSize();
-        var display = ImGui.GetIO().DisplaySize;
-
-        float x = pos.X;
-        float y = pos.Y;
-
-        if (x + size.X < MinVisible) x = MinVisible - size.X;
-        if (x > display.X - MinVisible) x = display.X - MinVisible;
-        if (y > display.Y - MinVisible) y = display.Y - MinVisible;
-        if (y < 0) y = 0;
-
-        if (x != pos.X || y != pos.Y)
-            ImGui.SetWindowPos(new Vector2(x, y));
-    }
 
     // ── Animation data ───────────────────────────────────────────────
 

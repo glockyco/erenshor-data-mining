@@ -29,6 +29,7 @@ public sealed class ImGuiRenderer : IDisposable
     private Texture2D? _fontTexture;
     private Material? _material;
     private CommandBuffer? _commandBuffer;
+    private GCHandle _iniPathHandle;
 
     private readonly Dictionary<IntPtr, Texture> _textures = new();
     private readonly List<Mesh> _meshPool = new();
@@ -46,6 +47,12 @@ public sealed class ImGuiRenderer : IDisposable
 
     /// <summary>True when an ImGui text input widget is actively being edited.</summary>
     public bool WantTextInput { get; private set; }
+
+    /// <summary>
+    /// Absolute path for ImGui's ini persistence file. Set before calling Init().
+    /// If null, ImGui's default behavior is used (no custom ini path).
+    /// </summary>
+    public string? IniPath { get; set; }
 
     /// <summary>
     /// Reset capture flags when ImGui rendering is suppressed (e.g., game UI
@@ -109,10 +116,16 @@ public sealed class ImGuiRenderer : IDisposable
             var io = ImGuiNET.ImGui.GetIO();
             io.BackendFlags |= ImGuiBackendFlags.RendererHasVtxOffset;
 
-            // Disable imgui.ini persistence (we use BepInEx config)
-            unsafe
+            // Enable ImGui's built-in ini persistence for window geometry.
+            // The path must stay pinned because ImGui reads the pointer each frame.
+            if (IniPath != null)
             {
-                io.NativePtr->IniFilename = null;
+                var pathBytes = System.Text.Encoding.UTF8.GetBytes(IniPath + "\0");
+                _iniPathHandle = GCHandle.Alloc(pathBytes, GCHandleType.Pinned);
+                unsafe
+                {
+                    io.NativePtr->IniFilename = (byte*)_iniPathHandle.AddrOfPinnedObject();
+                }
             }
 
             ImGuiNET.ImGui.StyleColorsDark();
@@ -202,6 +215,9 @@ public sealed class ImGuiRenderer : IDisposable
 
     public void Dispose()
     {
+        if (_iniPathHandle.IsAllocated)
+            _iniPathHandle.Free();
+
         if (_context != IntPtr.Zero)
         {
             ImGuiNET.ImGui.DestroyContext(_context);
@@ -234,11 +250,23 @@ public sealed class ImGuiRenderer : IDisposable
     /// <summary>Set before calling Init(). Scales font and UI element sizes.</summary>
     public float UiScale { set => _uiScale = value; }
 
+    /// <summary>Current effective UI scale factor.</summary>
+    public float CurrentScale => _uiScale;
+
     /// <summary>
     /// Request a scale change at runtime. The rebuild is deferred to the next
     /// OnGUI frame so it runs on the render thread.
     /// </summary>
     public void SetScale(float scale) => _pendingScale = scale;
+
+    /// <summary>
+    /// Clear all saved window positions and sizes. On the next frame,
+    /// SetNextWindowSize with FirstUseEver will re-apply defaults.
+    /// </summary>
+    public void ClearWindowState()
+    {
+        ImGuiNET.ImGui.LoadIniSettingsFromMemory("");
+    }
 
     private unsafe void BuildFontAtlas()
     {

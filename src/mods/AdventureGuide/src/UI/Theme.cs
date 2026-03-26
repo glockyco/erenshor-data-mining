@@ -75,41 +75,27 @@ public static class Theme
     }
 
     /// <summary>
-    /// Apply saved window geometry from config. Call before ImGui.Begin.
-    /// Values of -1 mean "use ImGui default" (FirstUseEver).
+    /// Clamp the current ImGui window so it stays partially on screen.
+    /// Call between Begin and End.
     /// </summary>
-    public static void ApplyWindowGeometry(
-        BepInEx.Configuration.ConfigEntry<float> x,
-        BepInEx.Configuration.ConfigEntry<float> y,
-        BepInEx.Configuration.ConfigEntry<float> w,
-        BepInEx.Configuration.ConfigEntry<float> h,
-        float defaultW, float defaultH)
+    public static void ClampWindowPosition()
     {
-        float sw = w.Value > 0 ? w.Value : defaultW;
-        float sh = h.Value > 0 ? h.Value : defaultH;
-        ImGui.SetNextWindowSize(new System.Numerics.Vector2(sw, sh), ImGuiCond.FirstUseEver);
-        if (x.Value >= 0 && y.Value >= 0)
-            ImGui.SetNextWindowPos(new System.Numerics.Vector2(x.Value, y.Value), ImGuiCond.FirstUseEver);
-    }
-
-    /// <summary>
-    /// Read current window geometry into config entries. Must be called
-    /// between Begin and End while the window is current.
-    /// </summary>
-    public static void UpdateWindowGeometry(
-        BepInEx.Configuration.ConfigEntry<float> x,
-        BepInEx.Configuration.ConfigEntry<float> y,
-        BepInEx.Configuration.ConfigEntry<float> w,
-        BepInEx.Configuration.ConfigEntry<float> h)
-    {
+        const float minVisible = 40f;
         var pos = ImGui.GetWindowPos();
         var size = ImGui.GetWindowSize();
-        x.Value = pos.X;
-        y.Value = pos.Y;
-        w.Value = size.X;
-        h.Value = size.Y;
-    }
+        var display = ImGui.GetIO().DisplaySize;
 
+        float x = pos.X;
+        float y = pos.Y;
+
+        if (x + size.X < minVisible) x = minVisible - size.X;
+        if (x > display.X - minVisible) x = display.X - minVisible;
+        if (y > display.Y - minVisible) y = display.Y - minVisible;
+        if (y < 0) y = 0;
+
+        if (x != pos.X || y != pos.Y)
+            ImGui.SetWindowPos(new System.Numerics.Vector2(x, y));
+    }
 
     /// <summary>
     /// Resolve quest status color from tracker state. Shared by QuestListPanel

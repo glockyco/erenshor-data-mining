@@ -21,7 +21,7 @@ public sealed class GuideWindow
     private readonly NavigationHistory _history;
     private readonly GuideConfig _config;
 
-    private bool _firstDraw = true;
+    private readonly float _uiScale;
 
     private bool _visible;
 
@@ -31,12 +31,13 @@ public sealed class GuideWindow
     public FilterState Filter => _filter;
 
     public GuideWindow(GuideData data, QuestStateTracker state, NavigationController nav,
-        NavigationHistory history, TrackerState tracker, GuideConfig config)
+        NavigationHistory history, TrackerState tracker, GuideConfig config, float uiScale)
     {
         _data = data;
         _state = state;
         _history = history;
         _config = config;
+        _uiScale = uiScale;
         _listPanel = new QuestListPanel(data, state, _filter, tracker);
         _detailPanel = new QuestDetailPanel(data, state, nav, tracker, config);
     }
@@ -54,26 +55,14 @@ public sealed class GuideWindow
         if (!_visible)
             return;
 
-        if (_firstDraw)
-        {
-            Theme.ApplyWindowGeometry(
-                _config.GuideWindowX, _config.GuideWindowY,
-                _config.GuideWindowW, _config.GuideWindowH,
-                800f, 550f);
-            _firstDraw = false;
-        }
+        ImGui.SetNextWindowSize(new Vector2(800f * _uiScale, 550f * _uiScale), ImGuiCond.FirstUseEver);
 
         Theme.PushWindowStyle();
 
         if (ImGui.Begin("Adventure Guide", ref _visible, ImGuiWindowFlags.NoCollapse))
             DrawTabBar();
 
-        // Save geometry each frame while window is current (between Begin/End).
-        // ImGui.GetWindowPos/Size require an active window context.
-        Theme.UpdateWindowGeometry(
-            _config.GuideWindowX, _config.GuideWindowY,
-            _config.GuideWindowW, _config.GuideWindowH);
-        ClampWindowPosition();
+        Theme.ClampWindowPosition();
 
         ImGui.End();
         Theme.PopWindowStyle();
@@ -123,32 +112,5 @@ public sealed class GuideWindow
         ImGui.EndChild();
     }
 
-    /// <summary>
-    /// Ensure the window stays reachable by clamping its position so
-    /// at least a grab-sized strip of the title bar is on screen.
-    /// Must be called between Begin and End while the window is current.
-    /// </summary>
-    private static void ClampWindowPosition()
-    {
-        const float minVisible = 40f;
-        var pos = ImGui.GetWindowPos();
-        var size = ImGui.GetWindowSize();
-        var display = ImGui.GetIO().DisplaySize;
-
-        float x = pos.X;
-        float y = pos.Y;
-
-        // Horizontal: keep at least minVisible pixels of title bar on screen
-        if (x + size.X < minVisible) x = minVisible - size.X;
-        if (x > display.X - minVisible) x = display.X - minVisible;
-
-        // Vertical: top edge can't go below screen bottom minus minVisible,
-        // bottom of title bar (~20px) must stay above screen top
-        if (y > display.Y - minVisible) y = display.Y - minVisible;
-        if (y < 0) y = 0;
-
-        if (x != pos.X || y != pos.Y)
-            ImGui.SetWindowPos(new Vector2(x, y));
-    }
 
 }
