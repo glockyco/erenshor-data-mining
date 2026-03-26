@@ -30,6 +30,9 @@ from .schema import (
     QuestType,
     RequiredItemInfo,
     Rewards,
+    UnlockedCharacter,
+    UnlockedZoneLine,
+    VendorUnlockInfo,
 )
 
 if TYPE_CHECKING:
@@ -52,6 +55,10 @@ def assemble_guides(ctx: QuestDataContext) -> list[QuestGuide]:
     levels module separately to fill in ``level_estimate`` on steps and
     guides.
     """
+    # Build reverse indexes: quest_db_name → what completing it unlocks
+    zone_line_unlocks = _build_zone_line_unlock_index(ctx)
+    character_unlocks = _build_character_unlock_index(ctx)
+
     guides: list[QuestGuide] = []
     for quest in ctx.quests:
         sk = quest["stable_key"]
@@ -88,7 +95,7 @@ def assemble_guides(ctx: QuestDataContext) -> list[QuestGuide]:
             sk,
         )
 
-        rewards = _build_rewards(quest, ctx)
+        rewards = _build_rewards(quest, ctx, zone_line_unlocks, character_unlocks)
         chain = _build_chain(sk, ctx)
         flags = _build_flags(quest)
 
@@ -339,9 +346,74 @@ def _infer_zone_context(
 # ---------------------------------------------------------------------------
 
 
-def _build_rewards(quest: sqlite3.Row, ctx: QuestDataContext) -> Rewards:
+def _build_zone_line_unlock_index(
+    ctx: QuestDataContext,
+) -> dict[str, list[UnlockedZoneLine]]:
+    """Invert zone line unlock groups into quest_db_name → unlocked zone lines.
+
+    For AND groups (multiple quests needed), each quest gets the zone line
+    with co_requirements listing the other quests in the group. When the
+    same destination appears via multiple OR groups, keep the entry with
+    the fewest co-requirements (the easiest path).
+    """
+    # Collect all (quest_db, to_zone) → best entry (fewest co-reqs)
+    best: dict[tuple[str, str], UnlockedZoneLine] = {}
+    for zl in ctx.zone_lines:
+        if not zl.required_quest_groups:
+            continue
+        from_zone = ctx.zone_lookup.get(zl.scene, None)
+        from_display = from_zone.display_name if from_zone else zl.scene
+        to_display = zl.destination_display or zl.destination_zone_key
+        for group in zl.required_quest_groups:
+            for quest_db in group:
+                co_reqs = [q for q in group if q != quest_db]
+                key = (quest_db, to_display)
+                if key not in best or len(co_reqs) < len(best[key].co_requirements):
+                    best[key] = UnlockedZoneLine(
+                        from_zone=from_display,
+                        to_zone=to_display,
+                        co_requirements=co_reqs,
+                    )
+
+    result: dict[str, list[UnlockedZoneLine]] = {}
+    for (quest_db, _), entry in best.items():
+        result.setdefault(quest_db, []).append(entry)
+    return result
+
+
+def _build_character_unlock_index(
+    ctx: QuestDataContext,
+) -> dict[str, list[UnlockedCharacter]]:
+    """Invert character quest unlocks into quest_db_name → unlocked characters.
+
+    Deduplicates by (quest_db_name, character_name) across OR groups.
+    """
+    seen: set[tuple[str, str]] = set()
+    result: dict[str, list[UnlockedCharacter]] = {}
+    for char_sk, groups in ctx.character_quest_unlocks.items():
+        info = ctx.char_display_info.get(char_sk)
+        if not info:
+            continue
+        name, zone = info
+        for group in groups:
+            for quest_db in group:
+                key = (quest_db, name)
+                if key in seen:
+                    continue
+                seen.add(key)
+                result.setdefault(quest_db, []).append(UnlockedCharacter(name=name, zone=zone))
+    return result
+
+
+def _build_rewards(
+    quest: sqlite3.Row,
+    ctx: QuestDataContext,
+    zone_line_unlocks: dict[str, list[UnlockedZoneLine]],
+    character_unlocks: dict[str, list[UnlockedCharacter]],
+) -> Rewards:
     """Build rewards from quest row and context lookups."""
     sk = quest["stable_key"]
+    db_name = quest["db_name"]
     variant_rn = quest["resource_name"]
     item_sk = quest["item_on_complete_stable_key"]
     next_sk = ctx.chain_next.get(sk)
@@ -355,7 +427,10 @@ def _build_rewards(quest: sqlite3.Row, ctx: QuestDataContext) -> Rewards:
     also_complete_sks = ctx.also_completes.get(variant_rn, [])
     also_complete_names = [ctx.quest_names.get(csk, csk) for csk in also_complete_sks]
 
-    unlock_sk = quest["unlock_item_for_vendor_stable_key"]
+    vendor_unlock: VendorUnlockInfo | None = None
+    vqu = ctx.vendor_quest_unlocks.get(sk)
+    if vqu:
+        vendor_unlock = VendorUnlockInfo(item_name=vqu.item_name, vendor_name=vqu.vendor_name)
 
     return Rewards(
         xp=quest["xp_on_complete"] or 0,
@@ -365,7 +440,9 @@ def _build_rewards(quest: sqlite3.Row, ctx: QuestDataContext) -> Rewards:
         next_quest_name=ctx.quest_names.get(next_sk) if next_sk else None,
         next_quest_stable_key=next_sk,
         also_completes=also_complete_names,
-        vendor_unlock_item=ctx.item_names.get(unlock_sk) if unlock_sk else None,
+        vendor_unlock=vendor_unlock,
+        unlocked_zone_lines=zone_line_unlocks.get(db_name, []),
+        unlocked_characters=character_unlocks.get(db_name, []),
         achievements=achievements,
         faction_effects=ctx.faction_effects.get(variant_rn, []),
     )

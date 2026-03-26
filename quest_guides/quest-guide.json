@@ -1,5 +1,5 @@
 {
-  "_version": 4,
+  "_version": 5,
   "_zone_lookup": {
     "SaltedStrand": {
       "display_name": "Blacksalt Strand",
@@ -67680,7 +67680,17 @@
       ],
       "rewards": {
         "xp": 5,
-        "gold": 0
+        "gold": 0,
+        "unlocked_zone_lines": [
+          {
+            "from_zone": "Vitheo's Rest",
+            "to_zone": "Blooming Sepulcher"
+          },
+          {
+            "from_zone": "Blooming Sepulcher",
+            "to_zone": "Vitheo's Rest"
+          }
+        ]
       },
       "flags": {
         "repeatable": false,
@@ -69121,6 +69131,12 @@
       "rewards": {
         "xp": 25,
         "gold": 0,
+        "unlocked_zone_lines": [
+          {
+            "from_zone": "Stowaway's Step",
+            "to_zone": "Hidden Hills"
+          }
+        ],
         "faction_effects": [
           {
             "faction_name": "The Agents of The Wisp",
@@ -70851,6 +70867,12 @@
       "rewards": {
         "xp": 1000,
         "gold": 0,
+        "unlocked_characters": [
+          {
+            "name": "Shady Fisherman",
+            "zone": "Bellwain Island"
+          }
+        ],
         "achievements": [
           "BELLWAIN"
         ]
@@ -72329,6 +72351,12 @@
         "also_completes": [
           "The Loss Stone Pt. 2"
         ],
+        "unlocked_zone_lines": [
+          {
+            "from_zone": "Stowaway's Step",
+            "to_zone": "Secluded Sanctuary"
+          }
+        ],
         "faction_effects": [
           {
             "faction_name": "The Agents of The Wisp",
@@ -72592,7 +72620,10 @@
       "rewards": {
         "xp": 1000,
         "gold": 0,
-        "vendor_unlock_item": "Azynthian Dining Set"
+        "vendor_unlock": {
+          "item_name": "Azynthian Dining Set",
+          "vendor_name": "Breena Carpenter"
+        }
       },
       "flags": {
         "repeatable": false,
@@ -72844,7 +72875,10 @@
       "rewards": {
         "xp": 1000,
         "gold": 0,
-        "vendor_unlock_item": "Azynthian Livingroom Set"
+        "vendor_unlock": {
+          "item_name": "Azynthian Livingroom Set",
+          "vendor_name": "Breena Carpenter"
+        }
       },
       "flags": {
         "repeatable": false,
@@ -73096,7 +73130,10 @@
       "rewards": {
         "xp": 1000,
         "gold": 0,
-        "vendor_unlock_item": "Azynthian Resting place"
+        "vendor_unlock": {
+          "item_name": "Azynthian Resting place",
+          "vendor_name": "Breena Carpenter"
+        }
       },
       "flags": {
         "repeatable": false,
@@ -73259,7 +73296,10 @@
       "rewards": {
         "xp": 1000,
         "gold": 0,
-        "vendor_unlock_item": "Game Room"
+        "vendor_unlock": {
+          "item_name": "Game Room",
+          "vendor_name": "Breena Carpenter"
+        }
       },
       "flags": {
         "repeatable": false,
@@ -73558,7 +73598,10 @@
       "rewards": {
         "xp": 1000,
         "gold": 0,
-        "vendor_unlock_item": "Loomingwood Market Set"
+        "vendor_unlock": {
+          "item_name": "Loomingwood Market Set",
+          "vendor_name": "Breena Carpenter"
+        }
       },
       "flags": {
         "repeatable": false,
@@ -73857,7 +73900,10 @@
       "rewards": {
         "xp": 1000,
         "gold": 0,
-        "vendor_unlock_item": "Loomingwood Shrine Set"
+        "vendor_unlock": {
+          "item_name": "Loomingwood Shrine Set",
+          "vendor_name": "Breena Carpenter"
+        }
       },
       "flags": {
         "repeatable": false,
@@ -74072,7 +74118,10 @@
       "rewards": {
         "xp": 1000,
         "gold": 0,
-        "vendor_unlock_item": "Stone Auction Set"
+        "vendor_unlock": {
+          "item_name": "Stone Auction Set",
+          "vendor_name": "Breena Carpenter"
+        }
       },
       "flags": {
         "repeatable": false,
@@ -74287,7 +74336,10 @@
       "rewards": {
         "xp": 1000,
         "gold": 0,
-        "vendor_unlock_item": "Stone Bank Set"
+        "vendor_unlock": {
+          "item_name": "Stone Bank Set",
+          "vendor_name": "Breena Carpenter"
+        }
       },
       "flags": {
         "repeatable": false,
@@ -74502,7 +74554,10 @@
       "rewards": {
         "xp": 1000,
         "gold": 0,
-        "vendor_unlock_item": "Stone Dining Set"
+        "vendor_unlock": {
+          "item_name": "Stone Dining Set",
+          "vendor_name": "Breena Carpenter"
+        }
       },
       "flags": {
         "repeatable": false,
@@ -74717,7 +74772,10 @@
       "rewards": {
         "xp": 1000,
         "gold": 0,
-        "vendor_unlock_item": "Stone Fountain Set"
+        "vendor_unlock": {
+          "item_name": "Stone Fountain Set",
+          "vendor_name": "Breena Carpenter"
+        }
       },
       "flags": {
         "repeatable": false,
@@ -74918,7 +74976,10 @@
       "rewards": {
         "xp": 1000,
         "gold": 0,
-        "vendor_unlock_item": "Stone Training Set"
+        "vendor_unlock": {
+          "item_name": "Stone Training Set",
+          "vendor_name": "Breena Carpenter"
+        }
       },
       "flags": {
         "repeatable": false,
@@ -75119,7 +75180,10 @@
       "rewards": {
         "xp": 1000,
         "gold": 0,
-        "vendor_unlock_item": "Stone Vendor Set"
+        "vendor_unlock": {
+          "item_name": "Stone Vendor Set",
+          "vendor_name": "Breena Carpenter"
+        }
       },
       "flags": {
         "repeatable": false,
@@ -79227,7 +79291,23 @@
       ],
       "rewards": {
         "xp": 5,
-        "gold": 0
+        "gold": 0,
+        "unlocked_zone_lines": [
+          {
+            "from_zone": "Blacksalt Strand",
+            "to_zone": "Stowaway's Step"
+          }
+        ],
+        "unlocked_characters": [
+          {
+            "name": "Lucian Revald",
+            "zone": "Stowaway's Step"
+          },
+          {
+            "name": "Revan Gavault",
+            "zone": "Stowaway's Step"
+          }
+        ]
       },
       "flags": {
         "repeatable": false,
@@ -79542,7 +79622,13 @@
       ],
       "rewards": {
         "xp": 0,
-        "gold": 0
+        "gold": 0,
+        "unlocked_zone_lines": [
+          {
+            "from_zone": "Port Azure",
+            "to_zone": "Bellwain Island"
+          }
+        ]
       },
       "flags": {
         "repeatable": false,
@@ -80433,7 +80519,13 @@
       ],
       "rewards": {
         "xp": 155,
-        "gold": 0
+        "gold": 0,
+        "unlocked_zone_lines": [
+          {
+            "from_zone": "The Blight",
+            "to_zone": "Azynthi's Garden"
+          }
+        ]
       },
       "flags": {
         "repeatable": false,
@@ -81070,7 +81162,13 @@
         "xp": 55,
         "gold": 0,
         "item_name": "Rune of The Hills",
-        "item_stable_key": "item:gen - rune of the hills"
+        "item_stable_key": "item:gen - rune of the hills",
+        "unlocked_zone_lines": [
+          {
+            "from_zone": "Reliquary Hall",
+            "to_zone": "Hidden Hills"
+          }
+        ]
       },
       "flags": {
         "repeatable": false,
@@ -81490,7 +81588,13 @@
         "xp": 55,
         "gold": 0,
         "item_name": "Rune of Ripper's Keep",
-        "item_stable_key": "item:gen - rune of ripper's keep"
+        "item_stable_key": "item:gen - rune of ripper's keep",
+        "unlocked_zone_lines": [
+          {
+            "from_zone": "Reliquary Hall",
+            "to_zone": "Ripper's Keep"
+          }
+        ]
       },
       "flags": {
         "repeatable": false,
@@ -81610,7 +81714,13 @@
         "xp": 55,
         "gold": 0,
         "item_name": "Rune of Sands",
-        "item_stable_key": "item:gen - rune of sands"
+        "item_stable_key": "item:gen - rune of sands",
+        "unlocked_zone_lines": [
+          {
+            "from_zone": "Reliquary Hall",
+            "to_zone": "Braxonian Desert"
+          }
+        ]
       },
       "flags": {
         "repeatable": false,
@@ -81724,7 +81834,13 @@
         "xp": 55,
         "gold": 0,
         "item_name": "Rune of Silkengrass",
-        "item_stable_key": "item:gen - rune of silkengrass"
+        "item_stable_key": "item:gen - rune of silkengrass",
+        "unlocked_zone_lines": [
+          {
+            "from_zone": "Reliquary Hall",
+            "to_zone": "Silkengrass Meadowlands"
+          }
+        ]
       },
       "flags": {
         "repeatable": false,
@@ -81840,7 +81956,13 @@
         "xp": 55,
         "gold": 0,
         "item_name": "Rune of Soluna's Landing",
-        "item_stable_key": "item:gen - rune of soluna's landing"
+        "item_stable_key": "item:gen - rune of soluna's landing",
+        "unlocked_zone_lines": [
+          {
+            "from_zone": "Reliquary Hall",
+            "to_zone": "Soluna's Landing"
+          }
+        ]
       },
       "flags": {
         "repeatable": false,
@@ -81958,7 +82080,13 @@
         "xp": 55,
         "gold": 0,
         "item_name": "Rune of Winds",
-        "item_stable_key": "item:gen - rune of winds"
+        "item_stable_key": "item:gen - rune of winds",
+        "unlocked_zone_lines": [
+          {
+            "from_zone": "Reliquary Hall",
+            "to_zone": "Windwashed Pass"
+          }
+        ]
       },
       "flags": {
         "repeatable": false,
@@ -87112,6 +87240,12 @@
       "rewards": {
         "xp": 225,
         "gold": 0,
+        "unlocked_zone_lines": [
+          {
+            "from_zone": "Blacksalt Strand",
+            "to_zone": "Stowaway's Step"
+          }
+        ],
         "faction_effects": [
           {
             "faction_name": "The Citizens of Erenshor",
@@ -87742,7 +87876,13 @@
       ],
       "rewards": {
         "xp": 15,
-        "gold": 0
+        "gold": 0,
+        "unlocked_characters": [
+          {
+            "name": "The Abomination",
+            "zone": "Vitheo's Rest"
+          }
+        ]
       },
       "flags": {
         "repeatable": false,
@@ -88635,6 +88775,12 @@
       "rewards": {
         "xp": 15,
         "gold": 0,
+        "unlocked_zone_lines": [
+          {
+            "from_zone": "The Duskenlight Coast",
+            "to_zone": "Mysterious Portal (1)"
+          }
+        ],
         "achievements": [
           "DUSKENPORTAL"
         ]
@@ -89499,7 +89645,13 @@
       ],
       "rewards": {
         "xp": 15,
-        "gold": 0
+        "gold": 0,
+        "unlocked_characters": [
+          {
+            "name": "The Abomination",
+            "zone": "Vitheo's Rest"
+          }
+        ]
       },
       "flags": {
         "repeatable": false,
@@ -94557,6 +94709,12 @@
       "rewards": {
         "xp": 25,
         "gold": 0,
+        "unlocked_zone_lines": [
+          {
+            "from_zone": "Fernalla's Revival Plains",
+            "to_zone": "Mysterious Portal (2)"
+          }
+        ],
         "achievements": [
           "FERNALLAPORTAL"
         ]
@@ -94647,7 +94805,13 @@
       ],
       "rewards": {
         "xp": 0,
-        "gold": 0
+        "gold": 0,
+        "unlocked_characters": [
+          {
+            "name": "Watchlight",
+            "zone": "Azynthi's Garden"
+          }
+        ]
       },
       "flags": {
         "repeatable": true,
@@ -95117,6 +95281,12 @@
       "rewards": {
         "xp": 25,
         "gold": 0,
+        "unlocked_zone_lines": [
+          {
+            "from_zone": "Ripper's Keep",
+            "to_zone": "Mysterious Portal (3)"
+          }
+        ],
         "achievements": [
           "RIPPERPORTAL"
         ]
@@ -96739,6 +96909,12 @@
         "next_quest_stable_key": "quest:a way to erenshor",
         "also_completes": [
           "Whispers of Wyland"
+        ],
+        "unlocked_zone_lines": [
+          {
+            "from_zone": "Stowaway's Step",
+            "to_zone": "Hidden Hills"
+          }
         ],
         "faction_effects": [
           {

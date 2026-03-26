@@ -69,6 +69,8 @@ class QuestDataContext:
     crafting_ingredients: dict[str, list[tuple[str, int]]] = field(default_factory=dict)
     quest_resource_names: dict[str, str] = field(default_factory=dict)  # quest_sk → variant_rn
     character_quest_unlocks: dict[str, list[list[str]]] = field(default_factory=dict)
+    vendor_quest_unlocks: dict[str, VendorQuestUnlock] = field(default_factory=dict)
+    char_display_info: dict[str, tuple[str, str | None]] = field(default_factory=dict)
 
 
 # ---------------------------------------------------------------------------
@@ -123,6 +125,8 @@ def _load(conn: sqlite3.Connection) -> QuestDataContext:
         crafting_ingredients=_fetch_crafting_ingredients(conn),
         quest_resource_names={row["stable_key"]: row["resource_name"] for row in quests},
         character_quest_unlocks=_fetch_character_quest_unlocks(conn),
+        vendor_quest_unlocks=_fetch_vendor_quest_unlocks(conn),
+        char_display_info=_fetch_char_display_info(conn),
     )
 
     _resolve_navigable_sources(ctx)
@@ -627,6 +631,56 @@ def _fetch_character_quest_unlocks(
         groups_by_char[key].setdefault(group, []).append(row["quest_db_name"])
 
     return {char_key: list(groups.values()) for char_key, groups in groups_by_char.items()}
+
+
+@dataclass
+class VendorQuestUnlock:
+    """A vendor item unlocked by completing a quest."""
+
+    quest_stable_key: str
+    item_name: str
+    vendor_name: str
+
+
+def _fetch_vendor_quest_unlocks(conn: sqlite3.Connection) -> dict[str, VendorQuestUnlock]:
+    """Return ``{quest_sk: VendorQuestUnlock}`` for quests that unlock vendor items."""
+    rows = conn.execute(
+        """
+        SELECT cvqu.quest_stable_key,
+               i.display_name AS item_name,
+               c.display_name AS vendor_name
+        FROM character_vendor_quest_unlocks cvqu
+        JOIN quest_variants qv ON qv.quest_stable_key = cvqu.quest_stable_key
+        JOIN items i ON i.stable_key = qv.unlock_item_for_vendor_stable_key
+        JOIN characters c ON c.stable_key = cvqu.character_stable_key
+        GROUP BY cvqu.quest_stable_key
+        """
+    ).fetchall()
+    return {
+        row["quest_stable_key"]: VendorQuestUnlock(
+            quest_stable_key=row["quest_stable_key"],
+            item_name=row["item_name"],
+            vendor_name=row["vendor_name"],
+        )
+        for row in rows
+    }
+
+
+def _fetch_char_display_info(
+    conn: sqlite3.Connection,
+) -> dict[str, tuple[str, str | None]]:
+    """Return ``{char_sk: (display_name, zone_display_name)}`` for all characters."""
+    rows = conn.execute(
+        """
+        SELECT c.stable_key, c.display_name,
+               z.display_name AS zone_name
+        FROM characters c
+        LEFT JOIN character_spawns cs ON cs.character_stable_key = c.stable_key
+        LEFT JOIN zones z ON z.stable_key = cs.zone_stable_key
+        GROUP BY c.stable_key
+        """
+    ).fetchall()
+    return {row["stable_key"]: (row["display_name"], row["zone_name"]) for row in rows}
 
 
 def _fetch_reward_items(conn: sqlite3.Connection) -> dict[str, str]:

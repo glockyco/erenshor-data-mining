@@ -209,6 +209,31 @@ class Prerequisite:
 
 
 @dataclass
+class UnlockedZoneLine:
+    """A zone transition unlocked by completing this quest."""
+
+    from_zone: str = ""
+    to_zone: str = ""
+    co_requirements: list[str] = field(default_factory=list)  # other quest names needed
+
+
+@dataclass
+class UnlockedCharacter:
+    """An NPC that spawns when this quest is completed."""
+
+    name: str = ""
+    zone: str | None = None
+
+
+@dataclass
+class VendorUnlockInfo:
+    """An item unlocked for vendor purchase on quest completion."""
+
+    item_name: str = ""
+    vendor_name: str = ""
+
+
+@dataclass
 class Rewards:
     """Quest completion rewards."""
 
@@ -218,8 +243,10 @@ class Rewards:
     item_stable_key: str | None = None
     next_quest_name: str | None = None
     next_quest_stable_key: str | None = None
-    also_completes: list[str] = field(default_factory=list)  # quest display names
-    vendor_unlock_item: str | None = None
+    also_completes: list[str] = field(default_factory=list)
+    vendor_unlock: VendorUnlockInfo | None = None
+    unlocked_zone_lines: list[UnlockedZoneLine] = field(default_factory=list)
+    unlocked_characters: list[UnlockedCharacter] = field(default_factory=list)
     achievements: list[str] = field(default_factory=list)
     faction_effects: list[FactionEffect] = field(default_factory=list)
 
@@ -379,7 +406,7 @@ class QuestGuide:
 class GuideOutput:
     """Complete guide output with lookup tables and quest entries."""
 
-    version: int = 4
+    version: int = 5
     zone_lookup: dict[str, ZoneInfo] = field(default_factory=dict)
     character_spawns: dict[str, list[SpawnPoint]] = field(default_factory=dict)
     zone_lines: list[ZoneLine] = field(default_factory=list)
