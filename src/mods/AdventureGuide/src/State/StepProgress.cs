@@ -97,12 +97,15 @@ public static class StepProgress
     }
 
     /// <summary>
-    /// Unwrap a complete_quest step into the sub-quest's current step.
-    /// If the step is not complete_quest, returns the step and quest unchanged.
-    /// Recurses through chains of complete_quest steps (depth-limited).
+    /// Unwrap a step into the actual step the player should work on.
+    /// Handles two patterns:
+    ///   1. complete_quest steps → resolve into the sub-quest's current step
+    ///   2. collect steps where the item comes from a quest_reward →
+    ///      resolve into the prerequisite quest's current step
+    /// Recurses through chains (depth-limited).
     ///
-    /// Returns the resolved (step, quest) pair, or (null, null) if the
-    /// sub-quest cannot be found.
+    /// Returns the resolved (step, quest) pair unchanged if no
+    /// sub-quest resolution applies.
     /// </summary>
     public static (QuestStep? Step, QuestEntry? Quest) ResolveActiveStep(
         QuestStep step, QuestEntry quest, QuestStateTracker state, GuideData data,
@@ -113,24 +116,70 @@ public static class StepProgress
 
         for (int depth = 0; depth < maxDepth; depth++)
         {
-            if (currentStep.Action != "complete_quest" || currentStep.TargetKey == null)
-                return (currentStep, currentQuest);
+            // Pattern 1: complete_quest → resolve sub-quest
+            if (currentStep.Action == "complete_quest" && currentStep.TargetKey != null)
+            {
+                var subQuest = data.GetByStableKey(currentStep.TargetKey);
+                if (subQuest?.Steps == null || subQuest.Steps.Count == 0)
+                    return (currentStep, currentQuest);
+                if (state.IsCompleted(subQuest.DBName))
+                    return (currentStep, currentQuest);
 
-            var subQuest = data.GetByStableKey(currentStep.TargetKey);
-            if (subQuest?.Steps == null || subQuest.Steps.Count == 0)
-                return (currentStep, currentQuest);
+                int idx = GetCurrentStepIndex(subQuest, state, data);
+                if (idx >= subQuest.Steps.Count)
+                    return (currentStep, currentQuest);
 
-            if (state.IsCompleted(subQuest.DBName))
-                return (currentStep, currentQuest);
+                currentStep = subQuest.Steps[idx];
+                currentQuest = subQuest;
+                continue;
+            }
 
-            int idx = GetCurrentStepIndex(subQuest, state, data);
-            if (idx >= subQuest.Steps.Count)
-                return (currentStep, currentQuest);
+            // Pattern 2: collect step with quest_reward source → resolve
+            // into the prerequisite quest if it's incomplete.
+            if (currentStep.Action == "collect" && currentStep.TargetName != null)
+            {
+                var subQuest = FindQuestRewardPrereq(currentQuest, currentStep, state, data);
+                if (subQuest != null)
+                {
+                    int idx = GetCurrentStepIndex(subQuest, state, data);
+                    if (idx < subQuest.Steps!.Count)
+                    {
+                        currentStep = subQuest.Steps[idx];
+                        currentQuest = subQuest;
+                        continue;
+                    }
+                }
+            }
 
-            currentStep = subQuest.Steps[idx];
-            currentQuest = subQuest;
+            return (currentStep, currentQuest);
         }
 
         return (currentStep, currentQuest);
+    }
+
+    /// <summary>
+    /// For a collect step, find an incomplete prerequisite quest if the
+    /// item's source is a quest_reward. Returns null if no such prereq exists
+    /// or the prereq is already completed.
+    /// </summary>
+    private static QuestEntry? FindQuestRewardPrereq(
+        QuestEntry quest, QuestStep step, QuestStateTracker state, GuideData data)
+    {
+        if (quest.RequiredItems == null) return null;
+
+        var item = quest.RequiredItems.Find(ri =>
+            string.Equals(ri.ItemName, step.TargetName, System.StringComparison.OrdinalIgnoreCase));
+        if (item?.Sources == null) return null;
+
+        foreach (var src in item.Sources)
+        {
+            if (src.Type != "quest_reward" || src.QuestKey == null) continue;
+            var subQuest = data.GetByStableKey(src.QuestKey);
+            if (subQuest?.Steps == null || subQuest.Steps.Count == 0) continue;
+            if (state.IsCompleted(subQuest.DBName)) continue;
+            return subQuest;
+        }
+
+        return null;
     }
 }
