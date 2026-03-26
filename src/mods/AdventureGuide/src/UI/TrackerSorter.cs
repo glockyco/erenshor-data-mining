@@ -218,6 +218,14 @@ internal static class TrackerSorter
         float best = float.MaxValue;
         foreach (var src in sources)
         {
+            // quest_reward: SourceKey is the quest giver, not an obtainable source.
+            if (src.Type == "quest_reward" && src.Children is { Count: > 0 })
+            {
+                float d = NearestSourceDistance(src.Children, data, currentScene, playerPos);
+                if (d < best) best = d;
+                continue;
+            }
+
             if (src.SourceKey != null)
             {
                 float d = NearestSpawnDistance(data, src.SourceKey, currentScene, playerPos);

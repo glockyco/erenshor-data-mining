@@ -38,8 +38,9 @@ public static class StepSceneResolver
     }
 
     /// <summary>
-    /// Find the first navigable source key for an item step by looking
-    /// through the quest's RequiredItems sources.
+    /// Find the first obtainable source key for an item step.
+    /// Skips quest_reward source keys (those point to the quest giver NPC,
+    /// not the actual drop source) and recurses into children.
     /// </summary>
     public static string? FindFirstSourceKey(QuestEntry quest, QuestStep step)
     {
@@ -50,18 +51,25 @@ public static class StepSceneResolver
             string.Equals(ri.ItemName, step.TargetName, System.StringComparison.OrdinalIgnoreCase));
         if (item?.Sources == null) return null;
 
-        foreach (var src in item.Sources)
+        return FindFirstLeafSourceKey(item.Sources);
+    }
+
+    private static string? FindFirstLeafSourceKey(List<ItemSource> sources)
+    {
+        foreach (var src in sources)
         {
+            // quest_reward: SourceKey is the quest giver, not an obtainable source.
+            // Always recurse into children for actual drop/vendor sources.
+            if (src.Type == "quest_reward" && src.Children is { Count: > 0 })
+                return FindFirstLeafSourceKey(src.Children);
+
             if (src.SourceKey != null)
                 return src.SourceKey;
-            // Recurse into children (e.g., crafted items with sub-sources)
+
             if (src.Children != null)
             {
-                foreach (var child in src.Children)
-                {
-                    if (child.SourceKey != null)
-                        return child.SourceKey;
-                }
+                var childKey = FindFirstLeafSourceKey(src.Children);
+                if (childKey != null) return childKey;
             }
         }
         return null;
@@ -89,6 +97,16 @@ public static class StepSceneResolver
     {
         foreach (var src in sources)
         {
+            // quest_reward: SourceKey is the quest giver NPC. The quest giver
+            // being in-zone doesn't mean the item is obtainable here.
+            // Skip to children which hold the actual obtainable sources.
+            if (src.Type == "quest_reward" && src.Children is { Count: > 0 })
+            {
+                if (AnySourceInScene(src.Children, data, scene))
+                    return true;
+                continue;
+            }
+
             if (src.SourceKey != null
                 && data.CharacterSpawns.TryGetValue(src.SourceKey, out var spawns))
             {

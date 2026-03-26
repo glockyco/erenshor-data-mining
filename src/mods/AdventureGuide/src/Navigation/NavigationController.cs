@@ -661,12 +661,22 @@ public sealed class NavigationController
 
     /// <summary>
     /// Recursively collect all leaf sources that have spawn data.
-    /// Leaf = source with a SourceKey in CharacterSpawns, or its children if not.
+    /// quest_reward sources always recurse into children (the source key
+    /// points to the quest giver NPC, not the actual drop sources).
     /// </summary>
     private void CollectLeafSources(List<Data.ItemSource> sources, List<Data.ItemSource> result)
     {
         foreach (var src in sources)
         {
+            // quest_reward: the SourceKey is the quest giver NPC, not a
+            // drop source. Always recurse into children for the actual
+            // obtainable sources (e.g., Seaspice drops under Percy's Seaspice).
+            if (src.Type == "quest_reward" && src.Children is { Count: > 0 })
+            {
+                CollectLeafSources(src.Children, result);
+                continue;
+            }
+
             if (src.SourceKey != null
                 && _data.CharacterSpawns.TryGetValue(src.SourceKey, out var spawns)
                 && spawns.Count > 0)
