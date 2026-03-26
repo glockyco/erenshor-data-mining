@@ -49,7 +49,8 @@ public sealed class Plugin : BaseUnityPlugin
         _trackerState = new TrackerState();
         _trackerState.LoadFromConfig(_config);
 
-        _imgui = new ImGuiRenderer(Log) { UiScale = _config.UiScale.Value };
+        var uiScale = ResolveUiScale(_config);
+        _imgui = new ImGuiRenderer(Log) { UiScale = uiScale };
         if (!_imgui.Init())
         {
             Log.LogError("ImGui.NET init failed — mod cannot render UI");
@@ -339,5 +340,25 @@ public sealed class Plugin : BaseUnityPlugin
         DebugAPI.Nav = null;
         DebugAPI.Entities = null;
         DebugAPI.GroundPath = null;
+    }
+
+    /// <summary>
+    /// Resolve UI scale from config, auto-detecting from screen resolution on
+    /// first launch. A value of -1 means uninitialized — compute from vertical
+    /// resolution (1080p = 1.0, 4K = 2.0) and persist the result.
+    /// </summary>
+    private static float ResolveUiScale(GuideConfig config)
+    {
+        const float referenceHeight = 1080f;
+        const float minScale = 0.5f;
+        const float maxScale = 4f;
+
+        var scale = config.UiScale.Value;
+        if (scale >= 0f)
+            return scale;
+
+        scale = Mathf.Clamp(Screen.height / referenceHeight, minScale, maxScale);
+        config.UiScale.Value = scale;
+        return scale;
     }
 }

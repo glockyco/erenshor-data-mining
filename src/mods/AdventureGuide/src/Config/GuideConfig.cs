@@ -81,10 +81,11 @@ public sealed class GuideConfig
             "Key to toggle the Adventure Guide window");
         ReplaceQuestLog = config.Bind("General", "ReplaceQuestLog", false,
             "If true, pressing J opens Adventure Guide instead of the game's Quest Log");
-        UiScale = config.Bind("General", "UiScale", 1.0f,
+        UiScale = config.Bind("General", "UiScale", -1f,
             new ConfigDescription(
-                "UI scale factor. Affects font size and element spacing. Requires game restart.",
-                new AcceptableValueRange<float>(0.75f, 2.0f)));
+                "UI scale factor. Affects font size and element spacing. Requires game restart. " +
+                "Set to -1 to auto-detect from screen resolution.",
+                new AcceptableValueRange<float>(-1f, 4f)));
         HistoryMaxSize = config.Bind("General", "HistoryMaxSize", 100,
             new ConfigDescription("Maximum number of pages in navigation history",
                 new AcceptableValueRange<int>(10, 500)));
