@@ -43,7 +43,7 @@ public sealed class QuestStateTracker
         _implicitQuests = new List<ImplicitQuest>();
         foreach (var quest in data.All)
         {
-            if (!quest.HasNoAcquisition) continue;
+            if (!quest.IsImplicit) continue;
             if (quest.Steps == null || quest.Steps.Count == 0) continue;
 
             // Activation scene: the zone of the last step (turn-in/completion).
@@ -73,10 +73,17 @@ public sealed class QuestStateTracker
     public IReadOnlyCollection<string> CompletedQuests => _completedQuests;
 
     /// <summary>
-    /// A quest is active if the game has assigned it, or if it has no
-    /// acquisition source and the player is in the completion zone.
+    /// True when the quest is game-assigned (in the player's quest journal).
+    /// Does NOT include implicitly active quests.
     /// </summary>
-    public bool IsActive(string dbName)
+    public bool IsActive(string dbName) => _activeQuests.Contains(dbName);
+
+    /// <summary>
+    /// True when the quest is actionable — either game-assigned or implicitly
+    /// active (no acquisition source, player is in the completion zone).
+    /// Use for marker eligibility, step progress, and navigation.
+    /// </summary>
+    public bool IsActionable(string dbName)
     {
         if (_activeQuests.Contains(dbName)) return true;
         EnsureCacheCurrent();

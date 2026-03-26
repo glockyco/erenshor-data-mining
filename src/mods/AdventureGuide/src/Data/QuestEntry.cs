@@ -22,13 +22,14 @@ public sealed class QuestEntry
     [JsonProperty("chain")] public List<ChainLink>? Chain { get; set; }
     [JsonProperty("flags")] public QuestFlags? Flags { get; set; }
     [JsonProperty("level_estimate")] public LevelEstimate? LevelEstimate { get; set; }
+    [JsonProperty("acceptance")] public string? Acceptance { get; set; }
+
     /// <summary>
-    /// True when the quest has no explicit acquisition source. The game
-    /// never formally assigns these quests — they become active implicitly
-    /// when the player enters the quest's completion zone.
+    /// True when the quest is classified as implicit — no acquisition NPC,
+    /// becomes active when the player enters the completion zone.
     /// </summary>
     [JsonIgnore]
-    public bool HasNoAcquisition => Acquisition == null || Acquisition.Count == 0;
+    public bool IsImplicit => string.Equals(Acceptance, "implicit", System.StringComparison.OrdinalIgnoreCase);
 }
 
 public sealed class QuestStep
