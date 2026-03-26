@@ -66,4 +66,41 @@ public static class StepSceneResolver
         }
         return null;
     }
+
+    /// <summary>
+    /// Check whether any source for an item step has spawns in the given scene.
+    /// Recurses into children (quest_reward → transitive drop sources).
+    /// For non-item steps, falls back to ResolveScene comparison.
+    /// </summary>
+    public static bool HasSourceInScene(QuestEntry quest, QuestStep step, GuideData data, string scene)
+    {
+        if (step.TargetType != "item" || quest.RequiredItems == null)
+            return ResolveScene(quest, step, data) is string s
+                && string.Equals(s, scene, System.StringComparison.OrdinalIgnoreCase);
+
+        var item = quest.RequiredItems.Find(ri =>
+            string.Equals(ri.ItemName, step.TargetName, System.StringComparison.OrdinalIgnoreCase));
+        if (item?.Sources == null) return false;
+
+        return AnySourceInScene(item.Sources, data, scene);
+    }
+
+    private static bool AnySourceInScene(List<ItemSource> sources, GuideData data, string scene)
+    {
+        foreach (var src in sources)
+        {
+            if (src.SourceKey != null
+                && data.CharacterSpawns.TryGetValue(src.SourceKey, out var spawns))
+            {
+                foreach (var sp in spawns)
+                {
+                    if (string.Equals(sp.Scene, scene, System.StringComparison.OrdinalIgnoreCase))
+                        return true;
+                }
+            }
+            if (src.Children != null && AnySourceInScene(src.Children, data, scene))
+                return true;
+        }
+        return false;
+    }
 }

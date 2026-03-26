@@ -178,8 +178,7 @@ internal static class TrackerSorter
         if (raw == null) return false;
         var (step, resolvedQuest) = StepProgress.ResolveActiveStep(raw, quest, state, data);
         if (step == null) return false;
-        var scene = StepSceneResolver.ResolveScene(resolvedQuest ?? quest, step, data);
-        return scene != null && string.Equals(scene, currentScene, System.StringComparison.OrdinalIgnoreCase);
+        return StepSceneResolver.HasSourceInScene(resolvedQuest ?? quest, step, data, currentScene);
     }
 
     private static float ComputeStepMeters(
@@ -193,17 +192,44 @@ internal static class TrackerSorter
         if (step == null) return float.MaxValue;
         var effectiveQuest = resolvedQuest ?? quest;
 
-        // Try character target directly
+        // Try character target directly (talk, kill, turn_in steps)
         string? key = step.TargetKey;
-        if (key != null && data.CharacterSpawns.ContainsKey(key))
+        if (key != null && step.TargetType == "character" && data.CharacterSpawns.ContainsKey(key))
             return NearestSpawnDistance(data, key, currentScene, playerPos);
 
-        // For item steps, use the first source NPC
-        var sourceKey = StepSceneResolver.FindFirstSourceKey(effectiveQuest, step);
-        if (sourceKey != null)
-            return NearestSpawnDistance(data, sourceKey, currentScene, playerPos);
+        // For item steps, check ALL sources for the closest in-zone spawn
+        if (step.TargetType == "item" && effectiveQuest.RequiredItems != null)
+        {
+            var item = effectiveQuest.RequiredItems.Find(ri =>
+                string.Equals(ri.ItemName, step.TargetName, System.StringComparison.OrdinalIgnoreCase));
+            if (item?.Sources != null)
+                return NearestSourceDistance(item.Sources, data, currentScene, playerPos);
+        }
 
         return float.MaxValue;
+    }
+
+    /// <summary>
+    /// Find the nearest spawn among ALL sources (recursing into children) in the current scene.
+    /// </summary>
+    private static float NearestSourceDistance(
+        List<ItemSource> sources, GuideData data, string currentScene, Vector3 playerPos)
+    {
+        float best = float.MaxValue;
+        foreach (var src in sources)
+        {
+            if (src.SourceKey != null)
+            {
+                float d = NearestSpawnDistance(data, src.SourceKey, currentScene, playerPos);
+                if (d < best) best = d;
+            }
+            if (src.Children != null)
+            {
+                float d = NearestSourceDistance(src.Children, data, currentScene, playerPos);
+                if (d < best) best = d;
+            }
+        }
+        return best;
     }
 
     private static float NearestSpawnDistance(
