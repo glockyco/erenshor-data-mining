@@ -18,7 +18,8 @@ public sealed class TrackerState
     private readonly HashSet<string> _tracked = new(StringComparer.OrdinalIgnoreCase);
     private readonly List<string> _orderedList = new();
     private GuideConfig? _config;
-    private ConfigEntry<string>? _trackedEntry;  // per-character
+    private ConfigEntry<string>? _trackedEntry;
+    private int _boundSlotIndex = -1;
     private bool _dirty;
 
     public bool Enabled { get; set; } = true;
@@ -107,8 +108,10 @@ public sealed class TrackerState
     }
 
     /// <summary>
-    /// Load tracked quests for the current character's save slot.
-    /// Call after character login when GameData.CurrentCharacterSlot is available.
+    /// Bind and load tracked quests for the current character's save slot.
+    /// On the first call (or after a character switch), reads from config.
+    /// On subsequent calls for the same character (zone transitions),
+    /// the in-memory state is authoritative and no reload occurs.
     /// </summary>
     public void OnCharacterLoaded()
     {
@@ -116,6 +119,14 @@ public sealed class TrackerState
         var slot = GameData.CurrentCharacterSlot;
         if (slot == null) return;
 
+        // Same character — in-memory state is authoritative
+        if (slot.index == _boundSlotIndex) return;
+
+        // Switching characters: save outgoing state before rebinding
+        if (_trackedEntry != null)
+            _trackedEntry.Value = string.Join(";", _orderedList);
+
+        _boundSlotIndex = slot.index;
         _trackedEntry = _config.File.Bind(
             "_Character", $"TrackedQuests_Slot{slot.index}", "",
             new ConfigDescription(
