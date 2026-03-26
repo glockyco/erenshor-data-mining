@@ -65,6 +65,16 @@ public sealed class NavigationController
     /// </summary>
     public bool NavigateTo(QuestStep step, QuestEntry quest, string currentScene)
     {
+        // Resolve complete_quest steps to the sub-quest's current actionable step
+        // before Clear() so existing navigation survives if resolution fails.
+        if (step.Action == "complete_quest")
+        {
+            var (resolved, resolvedQuest) = StepProgress.ResolveActiveStep(step, quest, _state, _data);
+            if (resolved != null && resolvedQuest != null && resolved != step)
+                return NavigateTo(resolved, resolvedQuest, currentScene);
+            return false;
+        }
+
         Clear();
 
         if (step.TargetKey == null)

@@ -418,9 +418,9 @@ public sealed class TrackerWindow
 
     private void DrawNavButton(QuestEntry quest)
     {
-        var step = GetCurrentStep(quest);
+        var (step, resolvedQuest) = GetCurrentStep(quest);
         bool navigable = step?.TargetKey != null;
-        bool isActive = step != null && _nav.IsNavigating(quest.DBName, step.Order);
+        bool isActive = step != null && _nav.IsNavigating(resolvedQuest.DBName, step.Order);
 
         if (!navigable)
         {
@@ -445,7 +445,7 @@ public sealed class TrackerWindow
             if (isActive)
                 _nav.Clear();
             else
-                _nav.NavigateTo(step!, quest, _state.CurrentZone);
+                _nav.NavigateTo(step!, resolvedQuest, _state.CurrentZone);
         }
 
         if (isActive)
@@ -485,13 +485,13 @@ public sealed class TrackerWindow
 
     private void DrawCurrentStep(QuestEntry quest)
     {
-        var step = GetCurrentStep(quest);
+        var (step, resolvedQuest) = GetCurrentStep(quest);
         if (step == null) return;
 
         ImGui.Indent(Theme.IndentWidth);
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
 
-        string text = FormatStepText(quest, step);
+        string text = FormatStepText(resolvedQuest, step);
         bool isCrossZone = _distances.TryGetValue(quest.DBName, out var stepDist) && !stepDist.InCurrentZone;
 
         // For cross-zone non-travel steps, show "Travel to {zone}" instead
@@ -658,11 +658,14 @@ public sealed class TrackerWindow
 
     // ── Helpers ──────────────────────────────────────────────────────
 
-    private QuestStep? GetCurrentStep(QuestEntry quest)
+    private (QuestStep? step, QuestEntry quest) GetCurrentStep(QuestEntry quest)
     {
-        if (quest.Steps == null || quest.Steps.Count == 0) return null;
+        if (quest.Steps == null || quest.Steps.Count == 0) return (null, quest);
         int idx = StepProgress.GetCurrentStepIndex(quest, _state, _data);
-        return idx < quest.Steps.Count ? quest.Steps[idx] : null;
+        var step = idx < quest.Steps.Count ? quest.Steps[idx] : null;
+        if (step == null) return (null, quest);
+        var (resolved, resolvedQuest) = StepProgress.ResolveActiveStep(step, quest, _state, _data);
+        return (resolved, resolvedQuest ?? quest);
     }
 
     private EntryAnimation GetOrDefaultAnim(string dbName) =>

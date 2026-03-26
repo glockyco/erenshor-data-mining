@@ -251,21 +251,40 @@ public sealed class WorldMarkerSystem
 
         var step = quest.Steps[currentIdx];
 
-        // Current step target
+        // When the current step is complete_quest, resolve to the sub-quest's
+        // actionable step so we emit markers for its target and item sources.
+        var (resolved, resolvedQuest) = StepProgress.ResolveActiveStep(step, quest, _state, _data);
+        bool hasSubQuest = resolved != step && resolvedQuest != null;
+
+        // Current step target (or resolved sub-quest step target)
+        EmitStepTargetMarker(step, scene);
+        if (hasSubQuest)
+            EmitStepTargetMarker(resolved!, scene);
+
+        // NPC sources for ALL uncollected required items (not just current step)
+        EmitItemSourceMarkers(quest, scene);
+        if (hasSubQuest)
+            EmitItemSourceMarkers(resolvedQuest!, scene);
+    }
+
+    private void EmitStepTargetMarker(QuestStep step, string scene)
+    {
         if (step.TargetKey != null && step.TargetType == "character")
         {
             EmitPerSpawnMarkers(step.TargetKey, scene,
                 step.TargetName ?? step.Description,
                 MarkerType.Objective, FormatStepActionText(step));
         }
+    }
 
-        // NPC sources for ALL uncollected required items (not just current step)
+    private void EmitItemSourceMarkers(QuestEntry quest, string scene)
+    {
         if (quest.RequiredItems == null) return;
 
         foreach (var ri in quest.RequiredItems)
         {
             int have = _state.CountItem(ri.ItemStableKey);
-            if (have >= ri.Quantity) continue; // already have enough
+            if (have >= ri.Quantity) continue;
 
             string progress = $"{have}/{ri.Quantity} {ri.ItemName}";
 

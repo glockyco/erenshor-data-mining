@@ -95,4 +95,42 @@ public static class StepProgress
 
         return false;
     }
+
+    /// <summary>
+    /// Unwrap a complete_quest step into the sub-quest's current step.
+    /// If the step is not complete_quest, returns the step and quest unchanged.
+    /// Recurses through chains of complete_quest steps (depth-limited).
+    ///
+    /// Returns the resolved (step, quest) pair, or (null, null) if the
+    /// sub-quest cannot be found.
+    /// </summary>
+    public static (QuestStep? Step, QuestEntry? Quest) ResolveActiveStep(
+        QuestStep step, QuestEntry quest, QuestStateTracker state, GuideData data,
+        int maxDepth = 8)
+    {
+        var currentStep = step;
+        var currentQuest = quest;
+
+        for (int depth = 0; depth < maxDepth; depth++)
+        {
+            if (currentStep.Action != "complete_quest" || currentStep.TargetKey == null)
+                return (currentStep, currentQuest);
+
+            var subQuest = data.GetByStableKey(currentStep.TargetKey);
+            if (subQuest?.Steps == null || subQuest.Steps.Count == 0)
+                return (currentStep, currentQuest);
+
+            if (state.IsCompleted(subQuest.DBName))
+                return (currentStep, currentQuest);
+
+            int idx = GetCurrentStepIndex(subQuest, state, data);
+            if (idx >= subQuest.Steps.Count)
+                return (currentStep, currentQuest);
+
+            currentStep = subQuest.Steps[idx];
+            currentQuest = subQuest;
+        }
+
+        return (currentStep, currentQuest);
+    }
 }

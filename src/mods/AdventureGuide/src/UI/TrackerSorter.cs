@@ -160,9 +160,11 @@ internal static class TrackerSorter
     public static string? GetStepZoneName(
         QuestEntry quest, QuestStateTracker state, GuideData data)
     {
-        var step = GetCurrentStep(quest, state, data);
+        var raw = GetCurrentStep(quest, state, data);
+        if (raw == null) return null;
+        var (step, resolvedQuest) = StepProgress.ResolveActiveStep(raw, quest, state, data);
         if (step == null) return null;
-        var scene = StepSceneResolver.ResolveScene(quest, step, data);
+        var scene = StepSceneResolver.ResolveScene(resolvedQuest ?? quest, step, data);
         return scene != null ? data.GetZoneDisplayName(scene) : null;
     }
 
@@ -172,9 +174,11 @@ internal static class TrackerSorter
     private static bool IsCurrentStepInZone(
         QuestEntry quest, QuestStateTracker state, GuideData data, string currentScene)
     {
-        var step = GetCurrentStep(quest, state, data);
+        var raw = GetCurrentStep(quest, state, data);
+        if (raw == null) return false;
+        var (step, resolvedQuest) = StepProgress.ResolveActiveStep(raw, quest, state, data);
         if (step == null) return false;
-        var scene = StepSceneResolver.ResolveScene(quest, step, data);
+        var scene = StepSceneResolver.ResolveScene(resolvedQuest ?? quest, step, data);
         return scene != null && string.Equals(scene, currentScene, System.StringComparison.OrdinalIgnoreCase);
     }
 
@@ -182,8 +186,12 @@ internal static class TrackerSorter
         QuestEntry quest, QuestStateTracker state, GuideData data,
         string currentScene, Vector3 playerPos)
     {
-        var step = GetCurrentStep(quest, state, data);
+        var raw = GetCurrentStep(quest, state, data);
+        if (raw == null) return float.MaxValue;
+
+        var (step, resolvedQuest) = StepProgress.ResolveActiveStep(raw, quest, state, data);
         if (step == null) return float.MaxValue;
+        var effectiveQuest = resolvedQuest ?? quest;
 
         // Try character target directly
         string? key = step.TargetKey;
@@ -191,7 +199,7 @@ internal static class TrackerSorter
             return NearestSpawnDistance(data, key, currentScene, playerPos);
 
         // For item steps, use the first source NPC
-        var sourceKey = StepSceneResolver.FindFirstSourceKey(quest, step);
+        var sourceKey = StepSceneResolver.FindFirstSourceKey(effectiveQuest, step);
         if (sourceKey != null)
             return NearestSpawnDistance(data, sourceKey, currentScene, playerPos);
 
