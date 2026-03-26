@@ -38,27 +38,17 @@ uv run erenshor eval run 'objects.Select(o => o.name + " tag=" + o.tag).ToArray(
 ## ScriptEngine Cross-Assembly Gotchas
 
 Hot-reloaded mods (deployed via `--scripts`, reloaded with F6) get timestamp-
-suffixed assembly names like `AdventureGuide-639098010137845420`. This creates
-**type identity mismatches** that break common reflection patterns:
+suffixed assembly names like `AdventureGuide-639098010137845420`.
 
-**`FindObjectsOfType<T>()` returns empty**: The generic type parameter `T` resolves
-from the REPL's assembly context, which differs from the ScriptEngine-loaded assembly.
-The runtime sees them as different types.
+**HotRepl auto-resets on hot reload**: When a ScriptEngine-style assembly loads,
+HotRepl detects it and rebuilds the evaluator session, filtering out superseded
+assemblies. Types resolve to the newest version automatically. REPL variable
+state is lost on reset (expected — F6 is a code change, not a data continuation).
 
-```bash
-# WRONG — T resolves to wrong assembly, returns empty
-uv run erenshor eval run 'UnityEngine.Object.FindObjectsOfType<BepInEx.BaseUnityPlugin>().Length'
-# => 0
-
-# RIGHT — use typeof() string matching via Resources
-uv run erenshor eval run 'Resources.FindObjectsOfTypeAll(typeof(MonoBehaviour)).Where(o => o.GetType().FullName == "AdventureGuide.Plugin").Count()'
-# => 1
-```
-
-**Reflection with private fields**: After finding an object via string-based type
-matching, use the object's own `.GetType()` for reflection — never a separately
-loaded `Type`. The field/property metadata must come from the same assembly as the
-instance.
+**When auto-reset doesn't help**: If you encounter cross-assembly errors
+despite auto-reset (e.g., after multiple rapid F6 reloads), use `eval reset`
+manually. The reflection pattern below also works as a fallback for any
+cross-assembly access:
 
 ```bash
 # Pattern: find object by string name, reflect through its own type
@@ -74,8 +64,8 @@ state.GetType().GetProperty("CurrentZone").GetValue(state)
 ## AdventureGuide DebugAPI
 
 For AdventureGuide inspection, **prefer DebugAPI over raw reflection**. DebugAPI
-methods are static, merged into the plugin assembly, and callable without cross-
-assembly gymnastics.
+methods are static and resolve correctly after F6 hot reload thanks to HotRepl's
+auto-reset.
 
 ```bash
 # Mod state overview
