@@ -61,9 +61,10 @@ uv run erenshor golden capture                  # Regenerate golden baselines af
 - Take a holistic view. Every change considers the overall project architecture.
 - Be proactive. If you notice something that can be improved, bring it up and fix it.
 - Plan before implementing. List planned commits before writing code.
+- Suggest larger architectural changes if they make for a cleaner solution.
 - Read the relevant skill before touching a subsystem (see Skill Directory below).
 - If you change a workflow documented in a skill, update the skill in the same commit.
-- Verify with tests, not assumptions.
+- No shortcuts. No hacks. Always strive to leave the project in a better state than you found it.
 
 ## Work Decomposition
 
