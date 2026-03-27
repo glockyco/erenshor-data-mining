@@ -365,7 +365,7 @@ public sealed class WorldMarkerSystem
 
                 case SpawnPointBridge.SpawnState.Disabled:
                     {
-                        string unlockText = BuildQuestLockText(sp.SpawnUponQuestComplete);
+                        string unlockText = BuildQuestLockText(sp.SpawnUponQuestComplete, stableKey);
                         TryAddMarker(spawnKey, MarkerType.QuestLocked, displayName,
                             $"{displayName}\n{unlockText}",
                             pos, targetKey: null);
@@ -403,14 +403,40 @@ public sealed class WorldMarkerSystem
         }
     }
 
-    private string BuildQuestLockText(string? questStableKey)
+    /// <summary>
+    /// Resolve the 'Requires: …' text for a disabled spawn marker.
+    /// Checks the spawn point's own quest gate first (spawn_upon_quest_complete),
+    /// then falls back to character_quest_unlocks for spawns that are enabled by
+    /// an external QuestSpawnListener rather than the SpawnPoint's own field.
+    /// </summary>
+    private string BuildQuestLockText(string? questStableKey, string? characterStableKey = null)
     {
+        // Direct spawn-point gate (SpawnPoint.SpawnUponQuestComplete)
         if (questStableKey != null)
         {
             var quest = _data.GetByStableKey(questStableKey);
             if (quest != null)
                 return $"Requires: {quest.DisplayName}";
         }
+
+        // External gate: character_quest_unlocks (QuestSpawnListener enabling a SpawnPoint GO).
+        // Use the smallest unlock group (fewest AND requirements) to pick the most
+        // direct prerequisite. Within that group, show the first quest.
+        if (characterStableKey != null
+            && _data.CharacterQuestUnlocks.TryGetValue(characterStableKey, out var groups)
+            && groups.Count > 0)
+        {
+            var smallest = groups[0];
+            foreach (var g in groups)
+                if (g.Count < smallest.Count) smallest = g;
+            if (smallest.Count > 0)
+            {
+                var quest = _data.GetByDBName(smallest[0]);
+                if (quest != null)
+                    return $"Requires: {quest.DisplayName}";
+            }
+        }
+
         return "Requires quest unlock";
     }
 
