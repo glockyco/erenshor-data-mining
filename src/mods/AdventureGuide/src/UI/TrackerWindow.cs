@@ -542,7 +542,9 @@ public sealed class TrackerWindow
         foreach (var pre in quest.Prerequisites)
         {
             if (pre.Item != null) continue;
-            if (_state.IsCompleted(pre.QuestKey)) continue;
+            var prereqEntry = _data.GetByStableKey(pre.QuestKey);
+            if (prereqEntry == null) continue;
+            if (_state.IsCompleted(prereqEntry.DBName)) continue;
 
             ImGui.Indent(Theme.IndentWidth);
             ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
@@ -550,7 +552,7 @@ public sealed class TrackerWindow
 
             if (ImGui.Selectable($"Requires: {pre.QuestName}##prereq{pre.QuestKey}"))
             {
-                _state.SelectQuest(pre.QuestKey);
+                _state.SelectQuest(prereqEntry.DBName);
                 _guide.Show();
             }
 
