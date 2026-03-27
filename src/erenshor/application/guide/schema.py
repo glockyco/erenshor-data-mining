@@ -327,6 +327,8 @@ class SpawnPoint:
     y: float = 0.0
     z: float = 0.0
     night_spawn: bool = False
+    is_enabled: bool = True
+    spawn_upon_quest_complete: str | None = None  # quest stable key that enables this spawn
 
 
 @dataclass

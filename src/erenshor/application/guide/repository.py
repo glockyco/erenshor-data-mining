@@ -502,22 +502,25 @@ def _fetch_character_spawns(
     """
     rows = conn.execute(
         """
-        SELECT character_stable_key, scene, x, y, z, night_spawn
-        FROM character_spawns
-        WHERE x IS NOT NULL
+        SELECT cs.character_stable_key, cs.scene, cs.x, cs.y, cs.z,
+               cs.night_spawn,
+               cs.is_enabled,
+               cs.spawn_upon_quest_complete_stable_key
+        FROM character_spawns cs
+        WHERE cs.x IS NOT NULL
         UNION ALL
-        SELECT 'mining-nodes:' || scene AS character_stable_key, scene, x, y, z,
-               0 AS night_spawn
+        SELECT 'mining-nodes:' || scene, scene, x, y, z,
+               0, 1, NULL
         FROM mining_nodes
         WHERE x IS NOT NULL
         UNION ALL
-        SELECT 'pickup-nodes:' || item_stable_key || ':' || scene AS character_stable_key,
-               scene, x, y, z, 0 AS night_spawn
+        SELECT 'pickup-nodes:' || item_stable_key || ':' || scene, scene, x, y, z,
+               0, 1, NULL
         FROM item_bags
         WHERE x IS NOT NULL AND item_stable_key IS NOT NULL
         UNION ALL
-        SELECT 'forge:' || scene AS character_stable_key, scene, x, y, z,
-               0 AS night_spawn
+        SELECT 'forge:' || scene, scene, x, y, z,
+               0, 1, NULL
         FROM forges
         WHERE x IS NOT NULL
         """
@@ -530,6 +533,8 @@ def _fetch_character_spawns(
             y=row["y"],
             z=row["z"],
             night_spawn=bool(row["night_spawn"]),
+            is_enabled=bool(row["is_enabled"]),
+            spawn_upon_quest_complete=row["spawn_upon_quest_complete_stable_key"] or None,
         )
         result.setdefault(row["character_stable_key"], []).append(sp)
 
