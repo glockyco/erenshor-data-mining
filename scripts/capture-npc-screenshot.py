@@ -27,6 +27,12 @@ CAPTURE_FILENAME = "npc_capture.png"
 WINE_CAPTURE_PATH = "C:/users/crossover/AppData/Local/Temp/Burgee Media/Erenshor/" + CAPTURE_FILENAME
 MARKER_HEIGHT_OFFSET = 2.5
 
+# C# snippets to hide/show SimPlayers during capture.
+HIDE_SIMPLAYERS = (
+    " foreach (var _sp in UnityEngine.Object.FindObjectsOfType<SimPlayer>()) _sp.gameObject.SetActive(false);"
+)
+SHOW_SIMPLAYERS = " foreach (var _sp in Resources.FindObjectsOfTypeAll<SimPlayer>()) _sp.gameObject.SetActive(true);"
+
 
 async def eval_cs(code: str, *, timeout_ms: int = 10000) -> str:
     from erenshor.application.eval.client import EvalClient, EvalError
@@ -66,7 +72,8 @@ def build_npc_capture_code(npc_name: str, distance: float) -> str:
         f"   _cam.GetComponent<FPVCam>().enabled = false;"
         f"   _cam.transform.position = _camPos;"
         f"   _cam.transform.LookAt(new UnityEngine.Vector3(_p.x, _my, _p.z));"
-        f'   UnityHelpers.Screenshot("{WINE_CAPTURE_PATH}");'
+        + HIDE_SIMPLAYERS
+        + f' UnityHelpers.Screenshot("{WINE_CAPTURE_PATH}");'
         f'   _result = "OK";'
         " }"
         " _result"
@@ -85,12 +92,27 @@ def build_pos_capture_code(x: float, y: float, z: float, distance: float) -> str
         f" _cam.GetComponent<FPVCam>().enabled = false;"
         f" _cam.transform.position = new UnityEngine.Vector3({x + distance}f, {my}f, {z}f);"
         f" _cam.transform.LookAt(new UnityEngine.Vector3({x}f, {my}f, {z}f));"
-        f' UnityHelpers.Screenshot("{WINE_CAPTURE_PATH}");'
+        + HIDE_SIMPLAYERS
+        + f' UnityHelpers.Screenshot("{WINE_CAPTURE_PATH}");'
         ' "OK"'
     )
 
 
+async def reset_repl() -> None:
+    """Reset REPL state to avoid stale variable conflicts between captures."""
+    from erenshor.application.eval.client import EvalClient
+
+    client = EvalClient()
+    try:
+        await client.connect()
+        await client.reset()
+    finally:
+        await client.close()
+
+
 async def capture(code: str, label: str, output: Path) -> None:
+    await reset_repl()
+
     src = WINE_TEMP / CAPTURE_FILENAME
     if src.exists():
         src.unlink()
@@ -133,7 +155,8 @@ async def capture(code: str, label: str, output: Path) -> None:
         'var _cam = UnityEngine.GameObject.Find("FPVCam");'
         " _cam.GetComponent<FPVCam>().enabled = true;"
         " GameData.PlayerControl.GetComponent<UnityEngine.CharacterController>().enabled = true;"
-        ' "OK"'
+        + SHOW_SIMPLAYERS
+        + ' "OK"'
     )
 
 
