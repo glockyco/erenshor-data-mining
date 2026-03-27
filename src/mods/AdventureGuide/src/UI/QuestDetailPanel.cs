@@ -309,7 +309,9 @@ public sealed class QuestDetailPanel
         DrawNavButton(step, quest);
 
         ImGui.PushStyleColor(ImGuiCol.Text, color);
-        ImGui.Text(text);
+        ImGui.PushTextWrapPos(0.0f);
+        ImGui.TextWrapped(text);
+        ImGui.PopTextWrapPos();
         ImGui.PopStyleColor();
 
         // Drop/vendor sources and tips for collect steps
