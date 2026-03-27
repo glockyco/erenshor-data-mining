@@ -160,9 +160,13 @@ def _fetch_quests(conn: sqlite3.Connection) -> list[sqlite3.Row]:
                qv.kill_turn_in_holder, qv.destroy_turn_in_holder,
                qv.drop_invuln_on_holder, qv.once_per_spawn_instance
         FROM quests q
-        JOIN quest_variants qv ON q.stable_key = qv.quest_stable_key
-        GROUP BY q.stable_key
-        HAVING MIN(qv.quest_db_index)
+        JOIN quest_variants qv
+          ON q.stable_key = qv.quest_stable_key
+         AND qv.quest_db_index = (
+             SELECT MIN(qv2.quest_db_index)
+             FROM quest_variants qv2
+             WHERE qv2.quest_stable_key = q.stable_key
+         )
         ORDER BY q.display_name COLLATE NOCASE
         """
     ).fetchall()

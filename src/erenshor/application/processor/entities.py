@@ -463,10 +463,9 @@ def process_quests(
     The display name for a quest is taken from its first QuestVariant's
     QuestName (matching registry/operations.py behaviour).
     """
-    # Get quests with their first variant's name.
-    # Use a correlated subquery to select the minimum-index variant reliably.
-    # The old GROUP BY / HAVING MIN(...) approach treated QuestDBIndex=0 as
-    # falsy, silently dropping any quest whose first variant is at index 0.
+    # Get quests with their first variant's name. Correlated subquery on
+    # MIN(QuestDBIndex) ensures every quest is included regardless of what
+    # index its first variant starts at.
     quest_rows = _rows(
         raw,
         """
