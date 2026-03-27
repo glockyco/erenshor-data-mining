@@ -71889,6 +71889,112 @@
       }
     },
     {
+      "db_name": "ClearingTheBonePits",
+      "stable_key": "quest:clearingthebonepits",
+      "display_name": "Clearing the Bonepits",
+      "description": "William Cardigo at Willowwatch has hinted that if you clear out the bonepits, and bring him proof of slaying the \"glowing red demon\" deep within, he'd make it worth your while. ",
+      "quest_type": "scripted",
+      "acceptance": "implicit",
+      "required_items": [
+        {
+          "item_name": "Skeleton Eye",
+          "item_stable_key": "item:gen - skeleton eye",
+          "quantity": 1,
+          "sources": [
+            {
+              "type": "drop",
+              "name": "A Skeleton Captain",
+              "zone": "The Bonepits",
+              "scene": "Bonepits",
+              "level": 8,
+              "source_key": "character:skeleton captain",
+              "spawn_count": 4
+            },
+            {
+              "type": "drop",
+              "name": "A Skeleton Soldier",
+              "zone": "The Bonepits",
+              "scene": "Bonepits",
+              "level": 8,
+              "source_key": "character:skeleton soldier",
+              "spawn_count": 26
+            },
+            {
+              "type": "drop",
+              "name": "A Skeleton Soldier",
+              "zone": "Faerie's Brake",
+              "scene": "Brake",
+              "level": 8,
+              "source_key": "character:skeleton soldier",
+              "spawn_count": 1
+            },
+            {
+              "type": "drop",
+              "name": "Wiggleribs",
+              "zone": "Willowwatch Ridge",
+              "scene": "Willowwatch",
+              "level": 8,
+              "source_key": "character:wiggleribs",
+              "spawn_count": 1
+            },
+            {
+              "type": "drop",
+              "name": "A Skeleton Captain",
+              "zone": "Vitheo's Watch",
+              "scene": "Vitheo",
+              "level": 9,
+              "source_key": "character:skeleton captain",
+              "spawn_count": 4
+            },
+            {
+              "type": "drop",
+              "name": "A Skeleton Soldier",
+              "zone": "Vitheo's Watch",
+              "scene": "Vitheo",
+              "level": 9,
+              "source_key": "character:skeleton soldier",
+              "spawn_count": 9
+            },
+            {
+              "type": "drop",
+              "name": "Bassalt Vallano",
+              "zone": "Faerie's Brake",
+              "scene": "Brake",
+              "level": 10,
+              "source_key": "character:bassalt valanno",
+              "spawn_count": 1
+            }
+          ]
+        }
+      ],
+      "rewards": {
+        "xp": 155,
+        "gold": 0,
+        "item_name": "Adventure Charm",
+        "item_stable_key": "item:charm - 8 - adventure charm",
+        "faction_effects": [
+          {
+            "faction_name": "Fernalla's Children",
+            "faction_stable_key": "faction:fernalla",
+            "amount": 1
+          },
+          {
+            "faction_name": "The Children of Sivakaya",
+            "faction_stable_key": "faction:sivakayans",
+            "amount": -1
+          }
+        ]
+      },
+      "flags": {
+        "repeatable": true,
+        "disabled": false,
+        "kill_turn_in_holder": false,
+        "destroy_turn_in_holder": false,
+        "drop_invuln_on_holder": false,
+        "once_per_spawn_instance": false
+      }
+    },
+    {
       "db_name": "CLEARBONEPITS",
       "stable_key": "quest:clearbonepits",
       "display_name": "Clearing the Bonepits",
@@ -72021,112 +72127,6 @@
             "level": 9
           }
         ]
-      }
-    },
-    {
-      "db_name": "ClearingTheBonePits",
-      "stable_key": "quest:clearingthebonepits",
-      "display_name": "Clearing the Bonepits",
-      "description": "William Cardigo at Willowwatch has hinted that if you clear out the bonepits, and bring him proof of slaying the \"glowing red demon\" deep within, he'd make it worth your while. ",
-      "quest_type": "scripted",
-      "acceptance": "implicit",
-      "required_items": [
-        {
-          "item_name": "Skeleton Eye",
-          "item_stable_key": "item:gen - skeleton eye",
-          "quantity": 1,
-          "sources": [
-            {
-              "type": "drop",
-              "name": "A Skeleton Captain",
-              "zone": "The Bonepits",
-              "scene": "Bonepits",
-              "level": 8,
-              "source_key": "character:skeleton captain",
-              "spawn_count": 4
-            },
-            {
-              "type": "drop",
-              "name": "A Skeleton Soldier",
-              "zone": "The Bonepits",
-              "scene": "Bonepits",
-              "level": 8,
-              "source_key": "character:skeleton soldier",
-              "spawn_count": 26
-            },
-            {
-              "type": "drop",
-              "name": "A Skeleton Soldier",
-              "zone": "Faerie's Brake",
-              "scene": "Brake",
-              "level": 8,
-              "source_key": "character:skeleton soldier",
-              "spawn_count": 1
-            },
-            {
-              "type": "drop",
-              "name": "Wiggleribs",
-              "zone": "Willowwatch Ridge",
-              "scene": "Willowwatch",
-              "level": 8,
-              "source_key": "character:wiggleribs",
-              "spawn_count": 1
-            },
-            {
-              "type": "drop",
-              "name": "A Skeleton Captain",
-              "zone": "Vitheo's Watch",
-              "scene": "Vitheo",
-              "level": 9,
-              "source_key": "character:skeleton captain",
-              "spawn_count": 4
-            },
-            {
-              "type": "drop",
-              "name": "A Skeleton Soldier",
-              "zone": "Vitheo's Watch",
-              "scene": "Vitheo",
-              "level": 9,
-              "source_key": "character:skeleton soldier",
-              "spawn_count": 9
-            },
-            {
-              "type": "drop",
-              "name": "Bassalt Vallano",
-              "zone": "Faerie's Brake",
-              "scene": "Brake",
-              "level": 10,
-              "source_key": "character:bassalt valanno",
-              "spawn_count": 1
-            }
-          ]
-        }
-      ],
-      "rewards": {
-        "xp": 155,
-        "gold": 0,
-        "item_name": "Adventure Charm",
-        "item_stable_key": "item:charm - 8 - adventure charm",
-        "faction_effects": [
-          {
-            "faction_name": "Fernalla's Children",
-            "faction_stable_key": "faction:fernalla",
-            "amount": 1
-          },
-          {
-            "faction_name": "The Children of Sivakaya",
-            "faction_stable_key": "faction:sivakayans",
-            "amount": -1
-          }
-        ]
-      },
-      "flags": {
-        "repeatable": true,
-        "disabled": false,
-        "kill_turn_in_holder": false,
-        "destroy_turn_in_holder": false,
-        "drop_invuln_on_holder": false,
-        "once_per_spawn_instance": false
       }
     },
     {
@@ -89008,6 +89008,50 @@
             "level": 21
           }
         ]
+      }
+    },
+    {
+      "db_name": "WillowBranch",
+      "stable_key": "quest:willowbranch",
+      "display_name": "The Great Willow's Branch",
+      "description": "The Druids of Fernalla believe that a powerful artifact exists known as 'A Branch of the Great Willow' - the tree from which Fernalla observes the land. \n\nYou should note of any clues you stumble upon, and follow their trails.",
+      "quest_type": "scripted",
+      "acceptance": "explicit",
+      "zone_context": "Port Azure",
+      "acquisition": [
+        {
+          "method": "dialog",
+          "source_name": "Orion Mycon",
+          "source_type": "character",
+          "source_stable_key": "character:aspen dechaffe:1",
+          "keyword": "cause, crusade"
+        },
+        {
+          "method": "dialog",
+          "source_name": "Orion Mycon",
+          "source_type": "character",
+          "source_stable_key": "character:orion mycon",
+          "keyword": "cause, crusade"
+        },
+        {
+          "method": "dialog",
+          "source_name": "Orion Mycon",
+          "source_type": "character",
+          "source_stable_key": "character:orion mycon bkp",
+          "keyword": "cause, crusade"
+        }
+      ],
+      "rewards": {
+        "xp": 0,
+        "gold": 0
+      },
+      "flags": {
+        "repeatable": false,
+        "disabled": false,
+        "kill_turn_in_holder": false,
+        "destroy_turn_in_holder": false,
+        "drop_invuln_on_holder": false,
+        "once_per_spawn_instance": false
       }
     },
     {
