@@ -1,22 +1,17 @@
 # Changelog
 
-## Initial Release
+## v2026.327.1
 
-170+ quests with step-by-step walkthroughs, GPS navigation, and floating
-world markers — all auto-extracted from game assets.
+- Ground path now connects directly from your position to the target without floating gaps
+- Ground path dashes remain stable as you walk — only the short endpoint segments adjust, reducing visual noise
+- Navigation path and arrow diamond now render at a consistent height above terrain
+- Tracker window hides automatically when covered by native game UI panels
+- Added keyboard shortcut to toggle the ground path on/off (configurable in settings)
 
-**Navigate to anything.** Every quest step and item source has a NAV
-button. Click it and a directional arrow guides you to your target,
-routing across zone boundaries automatically.
+## v2026.326.1
 
-**See what you've been missing.** Floating markers appear above NPCs in
-the world — quest givers, turn-in targets, enemies to hunt. Kill a quest
-mob and the marker switches to a live respawn countdown.
+- Updated mod icon
 
-**Know the whole path.** Each step tells you who to talk to, what to
-say, where to go, and what to collect. Level estimates help you tackle
-things in the right order. Come back after a week and your progress is
-right where you left it.
+## v2026.326.0
 
-**Quest tracker.** Pin active quests to a persistent window (K) with
-live step and inventory tracking.
+- Initial release: 170+ quests with step-by-step walkthroughs, GPS navigation arrow, ground path, floating world markers, and quest tracker
