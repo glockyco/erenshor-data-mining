@@ -1,5 +1,9 @@
 # Changelog
 
+## v2026.327.1
+
+- Fixed compatibility issue when installed via Thunderstore (assembly conflict with Unity's built-in types)
+
 ## v2026.327.0
 
 - Added keyboard shortcut to toggle the ground path on/off (default: P, configurable in settings)

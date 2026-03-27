@@ -38,6 +38,24 @@ public sealed class Plugin : BaseUnityPlugin
     private TrackerState? _trackerState;
     private TrackerWindow? _tracker;
 
+    static Plugin()
+    {
+        // When installed via Thunderstore (separate DLLs, no ILRepack),
+        // ImGui.NET.dll references System.Numerics.Vectors which Unity's
+        // Mono doesn't ship. Shipping the NuGet DLL conflicts with Unity's
+        // own System.Numerics.dll (same Vector2 type, different identities).
+        // Intercept the load request and redirect to System.Numerics.dll,
+        // which Unity already provides with all the same types.
+        AppDomain.CurrentDomain.AssemblyResolve += (_, args) =>
+        {
+            if (new System.Reflection.AssemblyName(args.Name).Name == "System.Numerics.Vectors")
+                foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+                    if (asm.GetName().Name == "System.Numerics")
+                        return asm;
+            return null;
+        };
+    }
+
     private void Awake()
     {
         Log = Logger;
