@@ -79078,9 +79078,6 @@
       "required_quest_groups": [
         [
           "MEETBASSLE"
-        ],
-        [
-          "ANGLERRING"
         ]
       ]
     },
@@ -80560,6 +80557,11 @@
     }
   ],
   "_character_quest_unlocks": {
+    "character:bassle wavebreak": [
+      [
+        "ANGLERRING"
+      ]
+    ],
     "character:lucian revald:stowaway:432.19:69.90:532.04": [
       [
         "MEETBASSLE"
@@ -80576,6 +80578,26 @@
       ],
       [
         "Riftstone"
+      ]
+    ],
+    "character:shadow of brax": [
+      [
+        "METSHARDOFSIVAKAYA"
+      ]
+    ],
+    "character:shadow of fernalla": [
+      [
+        "METSHARDOFSIVAKAYA"
+      ]
+    ],
+    "character:shadow of soluna": [
+      [
+        "METSHARDOFSIVAKAYA"
+      ]
+    ],
+    "character:shadow of vitheo": [
+      [
+        "METSHARDOFSIVAKAYA"
       ]
     ],
     "character:shady fisherman (1):summerevent:80.10:-5.17:6.41": [
@@ -96064,6 +96086,14 @@
       "quest_type": "dialog",
       "acceptance": "implicit",
       "zone_context": "Blacksalt Strand",
+      "prerequisites": [
+        {
+          "type": "quest",
+          "quest_key": "quest:anglerring",
+          "quest_name": "The Angler's Ring",
+          "note": "Bassle Wavebreaker spawns after quest completion"
+        }
+      ],
       "steps": [
         {
           "order": 1,
@@ -104108,10 +104138,10 @@
       "rewards": {
         "xp": 225,
         "gold": 0,
-        "unlocked_zone_lines": [
+        "unlocked_characters": [
           {
-            "from_zone": "Blacksalt Strand",
-            "to_zone": "Stowaway's Step"
+            "name": "Bassle Wavebreaker",
+            "zone": "Blacksalt Strand"
           }
         ],
         "faction_effects": [
@@ -105680,6 +105710,14 @@
       "quest_type": "fetch",
       "acceptance": "implicit",
       "zone_context": "Braxonian Desert",
+      "prerequisites": [
+        {
+          "type": "quest",
+          "quest_key": "quest:meetbassle",
+          "quest_name": "Meet the Fisherman",
+          "note": "Lucian Revald spawns after quest completion"
+        }
+      ],
       "steps": [
         {
           "order": 1,
@@ -112717,7 +112755,25 @@
       ],
       "rewards": {
         "xp": 1000,
-        "gold": 0
+        "gold": 0,
+        "unlocked_characters": [
+          {
+            "name": "Shadow of Brax",
+            "zone": "Secluded Sanctuary"
+          },
+          {
+            "name": "Shadow of Fernalla",
+            "zone": "Secluded Sanctuary"
+          },
+          {
+            "name": "Shadow of Soluna",
+            "zone": "Secluded Sanctuary"
+          },
+          {
+            "name": "Shadow of Vitheo",
+            "zone": "Secluded Sanctuary"
+          }
+        ]
       },
       "flags": {
         "repeatable": false,
@@ -113813,6 +113869,14 @@
           "source_name": "Marching Orders",
           "source_type": "item",
           "source_stable_key": "item:gen - marching orders"
+        }
+      ],
+      "prerequisites": [
+        {
+          "type": "quest",
+          "quest_key": "quest:meetbassle",
+          "quest_name": "Meet the Fisherman",
+          "note": "Lucian Revald spawns after quest completion"
         }
       ],
       "steps": [
