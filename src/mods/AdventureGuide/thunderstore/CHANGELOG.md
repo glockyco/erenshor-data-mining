@@ -2,7 +2,7 @@
 
 ## v2026.327.0
 
-- Added keyboard shortcut to toggle the ground path on/off (configurable in settings)
+- Added keyboard shortcut to toggle the ground path on/off (default: P, configurable in settings)
 - Tracker window hides automatically when covered by native game UI panels
 - Ground path now connects directly from your position to the target without floating gaps
 - Ground path dashes remain stable as you walk — only the short endpoint segments adjust, reducing visual noise
