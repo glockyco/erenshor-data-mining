@@ -60,6 +60,12 @@ public sealed class Plugin : BaseUnityPlugin
     {
         Log = Logger;
 
+        // Hide the shared BepInEx manager GameObject so the game cannot
+        // find and destroy it during scene cleanup. Without this, Erenshor's
+        // cleanup routines kill all plugins. BepInEx v6 does this unconditionally;
+        // v5 requires the HideManagerGameObject config flag, which defaults to false.
+        gameObject.hideFlags = HideFlags.HideAndDontSave;
+
         _config = new GuideConfig(Config);
         _data = GuideData.Load(Log);
         _state = new QuestStateTracker(_data);

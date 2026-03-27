@@ -1,5 +1,9 @@
 # Changelog
 
+## v2026.327.2
+
+- Fixed mod not working if HideManagerGameObject is not set in BepInEx config
+
 ## v2026.327.1
 
 - Fixed compatibility issue when installed via Thunderstore (assembly conflict with Unity's built-in types)
