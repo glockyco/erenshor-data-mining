@@ -69,7 +69,7 @@ uv run erenshor golden capture                  # Regenerate golden baselines af
 
 Before starting multi-file work, list planned commits. Each commit is one
 logical change. Implement and commit sequentially. A commit that requires
-"and" to describe is two commits.
+"and" to describe is two commits. Write plans to `docs/plans/{YYYY-MM-DD}-{plan-name}.md`.
 
 ## Commit Standards
 
