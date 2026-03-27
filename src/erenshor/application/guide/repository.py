@@ -439,6 +439,7 @@ def _fetch_shout_keywords(conn: sqlite3.Connection) -> dict[str, str]:
         FROM characters
         WHERE shout_trigger_keyword IS NOT NULL
           AND shout_trigger_keyword != ''
+          AND is_map_visible = 1
         """
     ).fetchall()
     return {row["stable_key"]: row["shout_trigger_keyword"] for row in rows}
@@ -544,7 +545,9 @@ def _fetch_character_spawns(
         JOIN characters i ON i.object_name = p.object_name
                           AND i.is_prefab = 0
                           AND i.scene IS NOT NULL
+                          AND i.is_map_visible = 1
         WHERE p.is_prefab = 1
+          AND p.is_map_visible = 1
           AND p.stable_key NOT IN (
               SELECT character_stable_key FROM character_spawns
           )
@@ -656,7 +659,7 @@ def _fetch_vendor_quest_unlocks(conn: sqlite3.Connection) -> dict[str, VendorQue
         FROM character_vendor_quest_unlocks cvqu
         JOIN quest_variants qv ON qv.quest_stable_key = cvqu.quest_stable_key
         JOIN items i ON i.stable_key = qv.unlock_item_for_vendor_stable_key
-        JOIN characters c ON c.stable_key = cvqu.character_stable_key
+        JOIN characters c ON c.stable_key = cvqu.character_stable_key AND c.is_map_visible = 1
         GROUP BY cvqu.quest_stable_key
         """
     ).fetchall()
@@ -681,6 +684,7 @@ def _fetch_char_display_info(
         FROM characters c
         LEFT JOIN character_spawns cs ON cs.character_stable_key = c.stable_key
         LEFT JOIN zones z ON z.stable_key = cs.zone_stable_key
+        WHERE c.is_map_visible = 1
         GROUP BY c.stable_key
         """
     ).fetchall()
