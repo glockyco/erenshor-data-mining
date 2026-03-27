@@ -112,6 +112,12 @@ public sealed class GroundPathRenderer
         if (recalculated)
             ApplyToLineRenderers();
 
+        // Anchor endpoints to the actual player/target positions every
+        // frame so the path visually connects to both without gaps.
+        // NavMesh snapping can place the first/last corner meters away
+        // from the real positions — this keeps the line attached.
+        UpdateEndpoints(playerPos, effectiveTarget.Position);
+
         SetLineVisible(true);
     }
 
@@ -206,6 +212,30 @@ public sealed class GroundPathRenderer
         if (_coreMat != null)
             _coreMat.mainTextureScale = new Vector2(pathLen * TileScale, 1f);
     }
+
+    /// <summary>
+    /// Override the first and last LineRenderer positions with the actual
+    /// player and target world positions. NavMesh snapping offsets these
+    /// from the real locations; this keeps the visible line attached to
+    /// both endpoints every frame.
+    /// </summary>
+    private void UpdateEndpoints(Vector3 playerPos, Vector3 targetPos)
+    {
+        if (_core == null || _glow == null || _cornerCount < 2) return;
+
+        int last = _cornerCount - 1;
+
+        var start = playerPos;
+        start.y += PathYOffset;
+        _core.SetPosition(0, start);
+        _glow.SetPosition(0, new Vector3(start.x, start.y - 0.01f, start.z));
+
+        var end = targetPos;
+        end.y += PathYOffset;
+        _core.SetPosition(last, end);
+        _glow.SetPosition(last, new Vector3(end.x, end.y - 0.01f, end.z));
+    }
+
     // ── LineRenderer setup ────────────────────────────────────────
 
     private void EnsureLineRenderers()
