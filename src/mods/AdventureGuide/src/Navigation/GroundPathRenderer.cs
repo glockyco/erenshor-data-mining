@@ -33,7 +33,6 @@ public sealed class GroundPathRenderer
     private const float ArrivalDistance = 15f;
     private const float CoreWidth = 0.20f;
     private const float GlowWidth = 0.50f;
-    private const float PathYOffset = 0.40f;
     private const float TileScale = 1.5f; // dashes per world unit
 
     // Bright gold core, dimmer translucent glow
@@ -216,18 +215,18 @@ public sealed class GroundPathRenderer
 
         // Stub: anchor at firstNode (stable), player end filled by UpdateEndpoints.
         var firstAnchor = _corners[firstNode];
-        firstAnchor.y += PathYOffset;
+        firstAnchor.y += NavigationDisplay.GroundOffset;
         _stub!.SetEndpoints(firstAnchor, firstAnchor); // player placeholder
 
         // Tail: anchor at lastNode (stable), target end filled by UpdateEndpoints.
         var lastAnchor = _corners[lastNode];
-        lastAnchor.y += PathYOffset;
+        lastAnchor.y += NavigationDisplay.GroundOffset;
         _tail!.SetEndpoints(lastAnchor, lastAnchor); // target placeholder
 
         // Mid: all interior nodes. Completely stable between recalculations.
         // Suppressed when firstNode == lastNode (N=3, single shared anchor).
         if (firstNode < lastNode)
-            _mid!.SetFromCorners(_corners, firstNode, lastNode - firstNode + 1, PathYOffset);
+            _mid!.SetFromCorners(_corners, firstNode, lastNode - firstNode + 1, NavigationDisplay.GroundOffset);
         else
             _mid!.Clear();
     }
@@ -241,15 +240,18 @@ public sealed class GroundPathRenderer
     {
         if (_stub == null || _cornerCount < 2) return;
 
+        var elevatedPlayer = playerPos + Vector3.up * NavigationDisplay.GroundOffset;
+        var elevatedTarget = targetPos + Vector3.up * NavigationDisplay.GroundOffset;
+
         if (_cornerCount == 2)
         {
-            // No interior nodes: both ends of the single stub are dynamic.
-            _stub.SetEndpoints(playerPos, targetPos);
+            // No interior nodes: anchor at target (moves less), player end is dynamic.
+            _stub.SetEndpoints(elevatedTarget, elevatedPlayer);
             return;
         }
 
-        _stub.UpdateLastPosition(playerPos);
-        _tail!.UpdateLastPosition(targetPos);
+        _stub.UpdateLastPosition(elevatedPlayer);
+        _tail!.UpdateLastPosition(elevatedTarget);
     }
 
     // ── Segment management ────────────────────────────────────────

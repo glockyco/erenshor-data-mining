@@ -66,7 +66,7 @@ public sealed class ArrowRenderer
         if (cam == null) return;
 
         var effectiveTarget = _nav.ZoneLineWaypoint ?? _nav.Target;
-        var screenPos = cam.WorldToScreenPoint(effectiveTarget.Position);
+        var screenPos = cam.WorldToScreenPoint(effectiveTarget.Position + Vector3.up * NavigationDisplay.GroundOffset);
         bool isBehind = screenPos.z < 0;
         float sw = Screen.width;
         float sh = Screen.height;
